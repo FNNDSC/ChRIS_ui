@@ -22,7 +22,7 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 1. Add .env.local, .env.local, .env.development.local, .env.test.local, .env.production.local file at root to change any local settings 
 
 
-## Additional Notes: 
+## Additional Notes from Create React App: 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
