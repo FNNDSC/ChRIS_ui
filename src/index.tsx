@@ -8,14 +8,13 @@ import Main from './views/main';
 import * as serviceWorker from './serviceWorker';
 
 
-// Set up store configurations
+// Description: Set up store configurations
 const store = configureStore();
 
 ReactDOM.render(
   <Provider store={store} >
     <Main />
-  </Provider>
-  ,
+  </Provider>,
   document.getElementById('root'));
 
 
