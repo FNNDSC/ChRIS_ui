@@ -1,6 +1,23 @@
 /*
 *  File:            _variables.scss
-*  Description:     This files holds variables used by site
+*  Description:     This files holds variables used by site specific scss and third party libraries
 *  Author:          ChRIS ui Demo
 */
+
+
+// Patternfly variables
+// --------------------------------------------------------------------
+$pf-root-directory:                 '~@patternfly/patternfly/';
+// Fontpath
+$pf-global--font-path:              '~@patternfly/patternfly/assets/fonts';
+// Iconpath
+$fa-font-path:                      '~@patternfly/patternfly/assets/fonts/webfonts';
+// FontIcon Path
+$pf-global--fonticon-path:          '~@patternfly/patternfly/assets/pficon';
+// Imagepath
+$pf-global--image-path:             '~@patternfly/patternfly/assets/images';
+
+// Do you need to run PatternFly 3 and PatternFly 4 together
+// use the following steps to update your configuration in the src/patternfly/utilities/variables.scss file to state false
+// $pf-global--enable-reset:           false; // NOTE: removes resets in _base.scss!!!!!
 

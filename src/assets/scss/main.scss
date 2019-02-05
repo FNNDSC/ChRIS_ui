@@ -5,18 +5,8 @@
  */
 
 
-$pf-root-directory: '~@patternfly/patternfly/';
-// Fontpath
-$pf-global--font-path: "~@patternfly/patternfly/assets/fonts" !default;
-// Iconpath
-$fa-font-path: "~@patternfly/patternfly/assets/fonts/webfonts" !default;
-// FontIcon Path
-$pf-global--fonticon-path: "~@patternfly/patternfly/assets/pficon" !default;
-// Imagepath
-$pf-global--image-path: "~@patternfly/patternfly/assets/images" !default;
-
 
 // Base
-
+@import './helpers/variables';
 //Vendors
 @import "vendors/patternfly/patternfly";
