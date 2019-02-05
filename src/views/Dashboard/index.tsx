@@ -1,9 +1,6 @@
 import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
-import {
-  Alert,
-  AlertActionCloseButton
-} from "@patternfly/react-core";
+import {  Alert, AlertActionCloseButton } from "@patternfly/react-core";
 type AllProps = RouteComponentProps;
 
 class DashboardPage extends React.Component<AllProps> {
@@ -18,16 +15,8 @@ class DashboardPage extends React.Component<AllProps> {
          <Alert
           aria-label="welcome wagon"
           variant="info"
-          title="Welcome!"
-          action={
-            <AlertActionCloseButton
-              onClose={() => {
-                return true;
-              }}
-            />
-          }
-        >
-         Welcome to ChRIS UI Demo site's Dashboard. <a href="#">This is a link.</a>
+          title="Welcome!"  >
+        Welcome to ChRIS UI Demo site's Dashboard
         </Alert> 
       </div>
     );

@@ -15,7 +15,6 @@ const Routes: React.FunctionComponent = () => (
     <React.Fragment>
       <Switch>
         <Route exact path="/" component={Dashboard} />
-        
         {/* ADD MORE ROUTES HERE: <Route  path="/route" component={RouteComponent} /> */}
         <Route render={() => (<div> Sorry, this page does not exist. <a href="/">Go Home</a> </div>)} />
       </Switch>
