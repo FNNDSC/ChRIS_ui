@@ -1,7 +1,10 @@
 import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
-
-type AllProps =  RouteComponentProps;
+import {
+  Alert,
+  AlertActionCloseButton
+} from "@patternfly/react-core";
+type AllProps = RouteComponentProps;
 
 class DashboardPage extends React.Component<AllProps> {
   componentDidMount() {
@@ -10,7 +13,23 @@ class DashboardPage extends React.Component<AllProps> {
 
   render() {
     return (
-      <h1>Welcome to ChRIS UI Demo site's Dashboard</h1>
+      <div>
+        <h1>Welcome to ChRIS UI Demo site's Dashboard</h1>
+         <Alert
+          aria-label="welcome wagon"
+          variant="info"
+          title="Welcome!"
+          action={
+            <AlertActionCloseButton
+              onClose={() => {
+                return true;
+              }}
+            />
+          }
+        >
+         Welcome to ChRIS UI Demo site's Dashboard. <a href="#">This is a link.</a>
+        </Alert> 
+      </div>
     );
   }
 }

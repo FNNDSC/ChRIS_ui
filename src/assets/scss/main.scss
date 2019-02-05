@@ -3,3 +3,20 @@
  *   Description:    This files holds main default styles
  *   Author:         RBK - ChRIS ui Demo
  */
+
+
+$pf-root-directory: '~@patternfly/patternfly/';
+// Fontpath
+$pf-global--font-path: "~@patternfly/patternfly/assets/fonts" !default;
+// Iconpath
+$fa-font-path: "~@patternfly/patternfly/assets/fonts/webfonts" !default;
+// FontIcon Path
+$pf-global--fonticon-path: "~@patternfly/patternfly/assets/pficon" !default;
+// Imagepath
+$pf-global--image-path: "~@patternfly/patternfly/assets/images" !default;
+
+
+// Base
+
+//Vendors
+@import "vendors/patternfly/patternfly";
