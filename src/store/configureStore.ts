@@ -2,7 +2,7 @@
 *   File:           rootSaga.ts
 *   Description:    this is where the store comes together:
 *                   It contains the createStore() => store, rootReducers, rootSagas, logger and other middleware
-*   Author:         RBK - ChRIS ui Demo
+*   Author:         ChRIS ui Demo
 */
 import {  Store, createStore, applyMiddleware } from 'redux';
 import { createLogger } from 'redux-logger';

@@ -1,7 +1,7 @@
 /*
 *   File:           applicationState.ts
 *   Description:    this is where the ApplicationState and supporting interfaces comes together:
-*   Author:         RBK - ChRIS ui Demo
+*   Author:         ChRIS ui Demo
 */
 
 import { DeepPartial, Dispatch, Action, AnyAction } from "redux";

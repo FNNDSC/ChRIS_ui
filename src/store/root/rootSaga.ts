@@ -1,7 +1,7 @@
 /*
  *   File:           rootSaga.ts
  *   Description:    this is where the Sagas comes together
- *   Author:         RBK - ChRIS ui Demo
+ *   Author:         ChRIS ui Demo
  */
 
 import { all, fork } from "redux-saga/effects";
