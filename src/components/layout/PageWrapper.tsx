@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Page,  PageSection, PageSectionVariants, BackgroundImage, BackgroundImageSrc } from '@patternfly/react-core';
+import { Page,  PageSection, PageSectionVariants } from '@patternfly/react-core';
 import Header from './Header';
 import Sidebar from './Sidebar';
 interface AllProps {
@@ -16,8 +16,8 @@ class Wrapper extends React.Component {
       
         return (
             <React.Fragment>
-                <BackgroundImage src={'/images/header-background.png'} />
                 <Page 
+                    className="pf-background"
                     header={<Header/>} 
                     sidebar={<Sidebar />} >
                     <PageSection variant={PageSectionVariants.light}>
