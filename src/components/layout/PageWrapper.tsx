@@ -20,9 +20,7 @@ class Wrapper extends React.Component {
                     className="pf-background"
                     header={<Header/>} 
                     sidebar={<Sidebar />} >
-                    <PageSection variant={PageSectionVariants.light}>
-                        {children}
-                    </PageSection>
+                      {children}
                 </Page>
             </React.Fragment>
         );
