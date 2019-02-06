@@ -5,19 +5,20 @@ import {
     Avatar
     
 } from '@patternfly/react-core';
+import ToolbarComponent  from './Toolbar';
 import brandImg from '../../assets/images/logo_chris_dashboard.png';
 import avatarImg from '../../assets/images/avatar_250x250.png';
 
 class Header extends React.Component {
     render() {
         const pageToolbar = (
-            <div>toolbar</div>
+            <ToolbarComponent />
         )
         const avatar = (
             <Avatar src={avatarImg} alt="Avatar image" />
         )
         const brand = (
-            < Brand src={brandImg} alt="ChRIS Logo" />
+            <Brand src={brandImg} alt="ChRIS Logo" />
         )
         
         // NOTE: this is a way to get around a "Warning: Invalid attribute name: ``" bug in PageHeader ***** Working: will be revised ***** 
@@ -26,7 +27,7 @@ class Header extends React.Component {
             'aria-label': "Page Header",
             'avatar': avatar,
             'logo': brand,
-            'toolbar': pageToolbar,
+            'toolbar': pageToolbar
         }
         return (
             <PageHeader />

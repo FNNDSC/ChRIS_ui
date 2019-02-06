@@ -8,12 +8,6 @@ import {
     NavVariants,
 } from '@patternfly/react-core';
 
-// interface AllProps {
-//     isDropdownOpen: boolean;
-//     isKebabDropdownOpen: boolean;
-//     activeItem: string;
-// }
-
 class Sidebar extends React.Component {
     onNavSelect = () => {
         // Change active state ***** working
