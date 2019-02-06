@@ -14,7 +14,8 @@ class Sidebar extends React.Component {
     };
 
     render() {
-        let activeItem = 'dashboard', activeGroup = 'feeds_grp'; // Will be transferred to state
+        let activeItem = 'dashboard', 
+            activeGroup = 'feeds_grp'; // Will be transferred to state
 
         const PageNav = (
             <Nav onSelect={this.onNavSelect} aria-label="ChRIS Demo site navigation">

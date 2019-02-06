@@ -1,6 +1,7 @@
 import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
-import {  Alert, AlertActionCloseButton } from "@patternfly/react-core";
+import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
+
 type AllProps = RouteComponentProps;
 
 class DashboardPage extends React.Component<AllProps> {
@@ -9,16 +10,26 @@ class DashboardPage extends React.Component<AllProps> {
   }
 
   render() {
+    const { children } = this.props;
     return (
-      <div>
-        <h1>Welcome to ChRIS UI Demo site's Dashboard</h1>
-         <Alert
-          aria-label="welcome wagon"
-          variant="info"
-          title="Welcome!"  >
-        Welcome to ChRIS UI Demo site's Dashboard
-        </Alert> 
-      </div>
+      <React.Fragment>
+        <PageSection variant={PageSectionVariants.darker}>
+          <h1>Hippocampal Volume</h1>
+        </PageSection>
+        <PageSection>
+          <div>
+            <h1 className="pf-u-mb-md">Welcome to ChRIS UI Demo site's Dashboard</h1>
+            <Alert
+              aria-label="welcome wagon"
+              variant="info"
+              title="Welcome!"  >
+              Welcome to ChRIS UI Demo site's Dashboard
+        </Alert>
+          </div>
+          {children}
+        </PageSection>
+      </React.Fragment>
+
     );
   }
 }
