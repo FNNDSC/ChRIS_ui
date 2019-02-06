@@ -5,24 +5,9 @@ import {
     Avatar
     
 } from '@patternfly/react-core';
-import brandImg from '../../assets/images/logo_chris-dashboard.png';
-import avatarImg from '../../assets/images/avatar-250x250.png';
+import brandImg from '../../assets/images/logo_chris_dashboard.png';
+import avatarImg from '../../assets/images/avatar_250x250.png';
 
-
-// const PageToolbar = (
-//     <div>toolbar</div>
-// )
-// const avatar = (
-//     <Avatar src={avatarImg} alt="Avatar image" />
-// )
-// const Header = ({ ...props }) => (
-//     <PageHeader 
-//         logo={<Brand src={brandImg} alt="ChRIS Logo" />}
-//         toolbar={PageToolbar}
-//         avatar={avatar}
-//         aria-label="Page Header"
-//     />
-// )
 class Header extends React.Component {
     render() {
         const pageToolbar = (

@@ -5,12 +5,14 @@
  */
 
 
-
+ 
 // Base
-@import './base/layout';
+
+// Helpers
 @import './helpers/variables';
 
-
-@import './helpers/variables';
 //Vendors
 @import "vendors/patternfly/patternfly";
+
+// Custom Layout styles
+@import './layout/layout';
