@@ -20,7 +20,6 @@ class DashboardPage extends React.Component<AllProps> {
         </PageSection>
         <PageSection>
           <div>
-            <LoadingComponent />
             <h1 className="pf-u-mb-md">Welcome to ChRIS UI Demo site's Dashboard</h1>
             <Alert
               aria-label="welcome wagon"

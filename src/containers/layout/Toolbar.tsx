@@ -1,4 +1,9 @@
 import * as React from 'react';
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
+import { ApplicationState } from "../../store/root/applicationState";
+import { IUiState } from "../../store/ui/types";
+import { onDropdownSelect, onKebabDropdownSelect } from "../../store/ui/actions";
 import {
     Button,
     ButtonVariant,
@@ -11,50 +16,54 @@ import {
     ToolbarGroup,
     ToolbarItem,
 } from '@patternfly/react-core';
-import {pf4UtilityStyles} from '../../lib/pf4-styleguides';
+import { pf4UtilityStyles } from '../../lib/pf4-styleguides';
 import { BellIcon, CogIcon } from '@patternfly/react-icons';
 
-class ToolbarComponent extends React.Component {
+interface PropsFromDispatch {
+    onDropdownSelect: typeof onDropdownSelect;
+    onKebabDropdownSelect: typeof onKebabDropdownSelect;
+}
+type AllProps = IUiState & PropsFromDispatch;
+
+class ToolbarComponent extends React.Component<AllProps> {
 
     onDropdownToggle = (isOpened: boolean) => {
-        //  Change active state ***** working
+        const { onDropdownSelect } = this.props;
+        onDropdownSelect(isOpened);
     };
 
     onDropdownSelect = (event: React.SyntheticEvent<HTMLDivElement>) => {
-        //  Change active state ***** working
+        const { onDropdownSelect, isDropdownOpen } = this.props;
+       !!isDropdownOpen && onDropdownSelect(isDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
     };
 
     onKebabDropdownToggle = (isOpened: boolean) => {
-        //  Change active state ***** working
+        const { onKebabDropdownSelect } = this.props;
+        onKebabDropdownSelect(isOpened);
     };
 
     onKebabDropdownSelect = (event: React.SyntheticEvent<HTMLDivElement>) => {
-        //  Change active state ***** working
+        const { onKebabDropdownSelect, isKebabDropdownOpen } = this.props;
+        !!isKebabDropdownOpen && onKebabDropdownSelect(isKebabDropdownOpen);// NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
     };
 
     render() {
-        let isKebabDropdownOpen = false,
-            isDropdownOpen = false;   // Will be transferred to state ***** working
-        
-            const kebabDropdownItems = [
-            <DropdownItem>
+        const { isDropdownOpen, isKebabDropdownOpen } = this.props;
+        const kebabDropdownItems = [
+            <DropdownItem key="kebab1">
                 <BellIcon /> Notifications
-                </DropdownItem>,
-            <DropdownItem>
+            </DropdownItem>,
+            <DropdownItem key="kebab2">
                 <CogIcon /> Settings
-                </DropdownItem>
+            </DropdownItem>
         ];
 
         const userDropdownItems = [
-            <DropdownItem>Link</DropdownItem>,
-            <DropdownItem component="a">Action</DropdownItem>,
-            <DropdownItem isDisabled>Disabled Link</DropdownItem>,
-            <DropdownItem isDisabled component="a">
-                Disabled Action
-                </DropdownItem>,
-            <DropdownSeparator />,
-            <DropdownItem>Separated Link</DropdownItem>,
-            <DropdownItem component="a">Separated Action</DropdownItem>
+            <DropdownItem key="dd1">Link 1</DropdownItem>,
+            <DropdownItem key="dd2" component="a">Link 2</DropdownItem>,
+            <DropdownItem key="dd3">Link 3</DropdownItem>,
+            <DropdownItem key="dd4">Link 4</DropdownItem>,
+            <DropdownItem key="dd5" component="a">Link 5</DropdownItem>
         ];
         return (
             <Toolbar>
@@ -72,7 +81,6 @@ class ToolbarComponent extends React.Component {
                 </ToolbarGroup>
                 <ToolbarGroup>
                     <ToolbarItem className={`${pf4UtilityStyles.accessibleStyles.hiddenOnLg} ${pf4UtilityStyles.spacingStyles.mr_0}`}>
-                    
                         <Dropdown
                             isPlain
                             position="right"
@@ -80,7 +88,7 @@ class ToolbarComponent extends React.Component {
                             toggle={<KebabToggle onToggle={this.onKebabDropdownToggle} />}
                             isOpen={isKebabDropdownOpen}
                             dropdownItems={kebabDropdownItems}
-                        />
+                        /> 
                     </ToolbarItem>
                     <ToolbarItem className={`${pf4UtilityStyles.accessibleStyles.screenReader} ${pf4UtilityStyles.accessibleStyles.visibleOnMd}`}>
                         <Dropdown
@@ -97,4 +105,20 @@ class ToolbarComponent extends React.Component {
         )
     }
 }
-export default ToolbarComponent;
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+    onDropdownSelect: (isOpened: boolean) => dispatch(onDropdownSelect(isOpened)),
+    onKebabDropdownSelect: (isOpened: boolean) => dispatch(onKebabDropdownSelect(isOpened)),
+});
+
+const mapStateToProps = ({ ui }: ApplicationState) => ({
+    isDropdownOpen: ui.isDropdownOpen,
+    isKebabDropdownOpen: ui.isKebabDropdownOpen
+});
+
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(ToolbarComponent)
+
