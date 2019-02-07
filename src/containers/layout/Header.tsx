@@ -1,16 +1,21 @@
 import * as React from 'react';
+import { IUiState } from "../../store/ui/types";
 import {
     PageHeader,
     Brand,
     Avatar
-    
 } from '@patternfly/react-core';
 import ToolbarComponent  from './Toolbar';
 import brandImg from '../../assets/images/logo_chris_dashboard.png';
 import avatarImg from '../../assets/images/avatar_250x250.png';
 
-class Header extends React.Component {
+interface IHeaderProps {
+    onSidebarToggle: ()=>void;
+};
+
+class Header extends React.Component<IHeaderProps> {
     render() {
+        const {onSidebarToggle } = this.props;
         const pageToolbar = (
             <ToolbarComponent />
         )
@@ -25,15 +30,18 @@ class Header extends React.Component {
         // Issue #1336 - https://github.com/patternfly/patternfly-react/issues/1336
         // The PageHeaderProps defaultProps comes in with and extra empty attribute. See line: 75 PageHeader.js in @patternfly/react-core
         PageHeader.defaultProps = {
+            'className': 'header',
             'aria-label': "Page Header",
             'avatar': avatar,
             'logo': brand,
-            'toolbar': pageToolbar
+            'toolbar': pageToolbar,
+            'showNavToggle': true,
+            'onNavToggle': onSidebarToggle
         }
         return (
-            <PageHeader />
+            <PageHeader  />
         )
     }
 }
 
-export default Header;
+export default Header

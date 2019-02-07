@@ -5,11 +5,13 @@
 */
 
 // Root container
+// ---------------------------------------------------------
 #root{
     height: 100%;
 }
 
 // Page wrapper
+// ---------------------------------------------------------
 .pf-background:after{
     content: '';
     height: 100%;
@@ -41,3 +43,16 @@
         background-image: url('../images/header_background_1200.jpg'); //-BackgroundImage--lg
     }
 }
+
+// Page Header:
+// ---------------------------------------------------------
+.header{
+    .pf-c-page__header-brand-toggle .pf-c-button{
+        margin-right: 0;
+        @media screen and (min-width: 992px) {
+            display: none !important;
+        }
+    }
+}
+
+

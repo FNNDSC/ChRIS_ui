@@ -8,8 +8,9 @@ const initialState: IUiState = {
     progress: 0,
     isDropdownOpen: false,
     isKebabDropdownOpen: false,
-    leftNavActiveItem: '',
-    leftNavActiveGroup: ''
+    isSidebarOpen: true,
+    sidebarActiveItem: '',
+    sidebarActiveGroup: ''
 };
 
 const reducer: Reducer<IUiState> = (state = initialState, action) => { //  ***** Working ***** //
@@ -26,7 +27,10 @@ const reducer: Reducer<IUiState> = (state = initialState, action) => { //  *****
         case UiActionTypes.TOGGLE_TOOLBAR_KEBAB: {
             return { ...state,  isKebabDropdownOpen: action.payload };
         }
-       
+        case UiActionTypes.TOGGLE_SIDEBAR: {
+            return { ...state,  isSidebarOpen: action.payload };
+        }
+       //TOGGLE_SIDEBAR
         default: {
             return state;
         }

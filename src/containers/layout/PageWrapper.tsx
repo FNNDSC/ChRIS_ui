@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { Page } from '@patternfly/react-core';
 import { ApplicationState } from "../../store/root/applicationState";
-// import { IUiState } from "../../store/ui/types";
-// import { uiOnBeforeRequest } from "../../store/ui/actions";
+import { IUiState } from "../../store/ui/types";
+import { onSidebarToggle } from "../../store/ui/actions";
+import { Page } from '@patternfly/react-core';
 import Header from './Header';
 import Sidebar from './Sidebar';
 
@@ -12,12 +12,21 @@ interface OtherProps {
     children: any;
 }
 interface PropsFromDispatch {
-    
+    onSidebarToggle: typeof onSidebarToggle;
 }
-type WrapperContainerProps = OtherProps & PropsFromDispatch;
+type AllProps = IUiState & OtherProps & PropsFromDispatch;
 
-class Wrapper extends React.Component<WrapperContainerProps> {
+class Wrapper extends React.Component<AllProps> {
 
+    // Description: toggles sidebar on pageresize 
+    onPageResize = (data: { mobileView: boolean, windowSize: number }) => {
+        const {isSidebarOpen, onSidebarToggle } = this.props;
+        (!data.mobileView && !isSidebarOpen)  && onSidebarToggle(!isSidebarOpen);
+    };
+    onSidebarToggle = () => {
+       const {isSidebarOpen, onSidebarToggle } = this.props;
+       onSidebarToggle(!isSidebarOpen);
+    };
     render() {
         const { children } = this.props;
 
@@ -25,8 +34,9 @@ class Wrapper extends React.Component<WrapperContainerProps> {
             <React.Fragment>
                 <Page
                     className="pf-background"
-                    header={<Header />}
-                    sidebar={<Sidebar />} >
+                    header={<Header onSidebarToggle={this.onSidebarToggle} />}
+                    sidebar={<Sidebar />}
+                    onPageResize={this.onPageResize} >
                     {children}
                 </Page>
             </React.Fragment>
@@ -35,11 +45,12 @@ class Wrapper extends React.Component<WrapperContainerProps> {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-    
+    onSidebarToggle: (isOpened: boolean) => dispatch(onSidebarToggle(isOpened))
 });
 
 const mapStateToProps = ({ ui }: ApplicationState) => ({
-    loading: ui.loading
+    loading: ui.loading, 
+    isSidebarOpen: ui.isSidebarOpen
 });
 
 
@@ -47,3 +58,5 @@ export default connect(
     mapStateToProps,
     mapDispatchToProps
 )(Wrapper)
+
+
