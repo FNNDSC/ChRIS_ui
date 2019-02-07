@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { IUiState } from "../../store/ui/types";
 import {
     PageHeader,
     Brand,
