@@ -2,8 +2,8 @@ import * as React from 'react';
 import Routes from './routes';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
-import Wrapper from '../components/layout/PageWrapper';
-import { ApplicationState } from '../store/root/applicationState';
+import Wrapper from './containers/layout/PageWrapper';
+import { ApplicationState } from './store/root/applicationState';
 
 
 interface AllProps {

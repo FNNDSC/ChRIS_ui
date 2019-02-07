@@ -7,13 +7,15 @@ import { combineReducers } from 'redux';
 import { ApplicationState } from './applicationState';
 
 /// ADD ALL Local Reducers:
-
 // import { ComponentReducer } from '../file-source';
+import { uiReducer } from '../ui/reducer';
+import { messageReducer } from '../message/reducer';
 
 
 const reducers = {
-  // ... Register ALL reducers ...
-  component: (state:any) => { return {};} // TEMP Placeholder for local reducers ***** to be done
+  // ... Register ALL reducers ... //
+  ui: uiReducer,
+  message: messageReducer
   
 }
 const rootReducer = combineReducers<ApplicationState>(reducers);
