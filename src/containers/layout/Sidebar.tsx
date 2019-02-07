@@ -1,25 +1,30 @@
 import * as React from 'react';
+import { connect } from "react-redux";
+import { ApplicationState } from "../../store/root/applicationState";
+import { IUiState } from "../../store/ui/types";
 import {
     PageSidebar,
     Nav,
     NavExpandable,
     NavItem,
     NavList,
-    NavVariants,
 } from '@patternfly/react-core';
 
-class Sidebar extends React.Component {
+// type AllProps = IUiState;
+
+class Sidebar extends React.Component<IUiState> {
+    // Description: called when item is clicked on the sidebar  ***** working
     onNavSelect = () => {
-        // Change active state ***** working
     };
 
     render() {
+        const { isSidebarOpen } = this.props;
         let activeItem = 'dashboard', 
             activeGroup = 'feeds_grp'; // Will be transferred to state
 
         const PageNav = (
             <Nav onSelect={this.onNavSelect} aria-label="ChRIS Demo site navigation">
-                <NavList >
+                <NavList>
                     <NavExpandable title="Library" groupId="library_grp" isActive={activeGroup === 'library_grp'}>
                         <NavItem to="libraryitem" groupId="library_grp"  itemId="library_item" isActive={activeItem === 'library_item'}>
                                 Library Item
@@ -51,9 +56,15 @@ class Sidebar extends React.Component {
             </Nav>
         );
         return (
-            <PageSidebar nav={PageNav} />
+            <PageSidebar nav={PageNav} isNavOpen={isSidebarOpen} />
         )
     }
 }
 
-export default Sidebar;
+const mapStateToProps = ({ ui }: ApplicationState) => ({
+    isSidebarOpen: ui.isSidebarOpen
+});
+
+export default connect(
+    mapStateToProps
+)(Sidebar)

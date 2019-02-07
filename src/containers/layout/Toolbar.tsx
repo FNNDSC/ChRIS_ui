@@ -9,7 +9,6 @@ import {
     ButtonVariant,
     Dropdown,
     DropdownItem,
-    DropdownSeparator,
     DropdownToggle,
     KebabToggle,
     Toolbar,

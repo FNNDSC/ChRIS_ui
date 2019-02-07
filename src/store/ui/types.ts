@@ -13,8 +13,9 @@ export interface IUiState {
   progress?: number; 
   isDropdownOpen?: boolean;
   isKebabDropdownOpen?:boolean;
-  leftNavActiveItem?: string;
-  leftNavActiveGroup?: string;
+  isSidebarOpen?: boolean;
+  sidebarActiveItem?: string;
+  sidebarActiveGroup?: string;
 }
 
 
@@ -27,4 +28,5 @@ export const UiActionTypes = keyMirror({
     PROGRESS_COMPLETE: null, // not in user yet - TBD
     TOGGLE_TOOLBAR_KEBAB: null,
     TOGGLE_TOOLBAR_DROPDOWN: null,
+    TOGGLE_SIDEBAR: null
   });
