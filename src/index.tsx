@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import configureStore from './store/configureStore';
+import './lib/fontawesome-config';
 import Main from './main';
 import * as serviceWorker from './serviceWorker';
 import './assets/scss/main.scss';

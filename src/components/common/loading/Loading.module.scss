@@ -1,0 +1,13 @@
+/*
+ *   File:           loading.module.scss
+ *   Description:    This files holds style overrides for loading indicator component
+ *   Author:         Chris 
+ */
+
+// Temps styles 
+ .loading{
+    left:50%;
+    margin: -50px - 50px 0 0;
+    position: fixed;
+    top: 50%;
+ }
