@@ -22,6 +22,7 @@ class Header extends React.Component {
         )
         
         // NOTE: this is a way to get around a "Warning: Invalid attribute name: ``" bug in PageHeader ***** Working: will be revised ***** 
+        // Issue #1336 - https://github.com/patternfly/patternfly-react/issues/1336
         // The PageHeaderProps defaultProps comes in with and extra empty attribute. See line: 75 PageHeader.js in @patternfly/react-core
         PageHeader.defaultProps = {
             'aria-label': "Page Header",

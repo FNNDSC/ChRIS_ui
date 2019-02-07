@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom'
 
 // Add view routes here
-import { Dashboard } from './Dashboard';
+import { Dashboard } from './pages/Dashboard';
 
 
 const Routes: React.FunctionComponent = () => (

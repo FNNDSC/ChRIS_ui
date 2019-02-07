@@ -8,10 +8,13 @@ import { DeepPartial, Dispatch, Action, AnyAction } from "redux";
 
 /// ADD ALL Local States:
 // import { ComponentState } from '../Component/types';
+import { IUiState } from '../ui/types';
+import { IMessageState } from '../message/types';
 
 // The top-level state object
 export interface ApplicationState {
-   // componentName: ComponentState
+   ui: IUiState,
+   message: IMessageState
 }
 
 
