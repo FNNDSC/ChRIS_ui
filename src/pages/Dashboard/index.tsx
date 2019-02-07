@@ -1,9 +1,7 @@
 import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
+import Wrapper from '../../containers/layout/PageWrapper';
 import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
-import {
-  LoadingComponent
-} from "../../components/index";
 type AllProps = RouteComponentProps;
 
 class DashboardPage extends React.Component<AllProps> {
@@ -14,7 +12,7 @@ class DashboardPage extends React.Component<AllProps> {
   render() {
     const { children } = this.props;
     return (
-      <React.Fragment>
+      <Wrapper>
         <PageSection variant={PageSectionVariants.darker}>
           <h1>Hippocampal Volume</h1>
         </PageSection>
@@ -30,7 +28,7 @@ class DashboardPage extends React.Component<AllProps> {
           </div>
           {children}
         </PageSection>
-      </React.Fragment>
+      </Wrapper>
 
     );
   }

@@ -20,26 +20,25 @@ class Wrapper extends React.Component<AllProps> {
 
     // Description: toggles sidebar on pageresize 
     onPageResize = (data: { mobileView: boolean, windowSize: number }) => {
-        const {isSidebarOpen, onSidebarToggle } = this.props;
-        (!data.mobileView && !isSidebarOpen)  && onSidebarToggle(!isSidebarOpen);
+        const { isSidebarOpen, onSidebarToggle } = this.props;
+        (!data.mobileView && !isSidebarOpen) && onSidebarToggle(!isSidebarOpen);
     };
     onSidebarToggle = () => {
-       const {isSidebarOpen, onSidebarToggle } = this.props;
-       onSidebarToggle(!isSidebarOpen);
+        const { isSidebarOpen, onSidebarToggle } = this.props;
+        onSidebarToggle(!isSidebarOpen);
     };
     render() {
         const { children } = this.props;
 
         return (
-            <React.Fragment>
-                <Page
-                    className="pf-background"
-                    header={<Header onSidebarToggle={this.onSidebarToggle} />}
-                    sidebar={<Sidebar />}
-                    onPageResize={this.onPageResize} >
-                    {children}
-                </Page>
-            </React.Fragment>
+            <Page
+                className="pf-background"
+                header={<Header onSidebarToggle={this.onSidebarToggle} />}
+                sidebar={<Sidebar />}
+                onPageResize={this.onPageResize} >
+                {children}
+            </Page>
+
         );
     }
 }
@@ -49,7 +48,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 });
 
 const mapStateToProps = ({ ui }: ApplicationState) => ({
-    loading: ui.loading, 
+    loading: ui.loading,
     isSidebarOpen: ui.isSidebarOpen
 });
 

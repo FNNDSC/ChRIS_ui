@@ -16,9 +16,7 @@ class Main extends React.Component<AllProps> {
 
     return (
       <Provider store={store}>
-        <Wrapper>
           <Routes />
-        </Wrapper>
       </Provider>
     );
   }
