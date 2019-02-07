@@ -9,12 +9,12 @@ import keyMirror from "keymirror";
 
 // Description: state for UI Manager
 export interface IUiState {
-  loading: boolean;
-  progress: number; 
-  isDropdownOpen: boolean;
-  isKebabDropdownOpen:boolean;
-  leftNavActiveItem: string;
-  leftNavActiveGroup: string;
+  loading?: boolean;
+  progress?: number; 
+  isDropdownOpen?: boolean;
+  isKebabDropdownOpen?:boolean;
+  leftNavActiveItem?: string;
+  leftNavActiveGroup?: string;
 }
 
 
@@ -25,4 +25,6 @@ export const UiActionTypes = keyMirror({
     FETCH_COMPLETE: null, //after request completes 
     PROGRESS_REQUEST: null, // not in user yet - TBD
     PROGRESS_COMPLETE: null, // not in user yet - TBD
+    TOGGLE_TOOLBAR_KEBAB: null,
+    TOGGLE_TOOLBAR_DROPDOWN: null,
   });

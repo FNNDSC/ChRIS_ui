@@ -12,7 +12,7 @@ const initialState: IUiState = {
     leftNavActiveGroup: ''
 };
 
-const reducer: Reducer<IUiState> = (state = initialState, action) => {
+const reducer: Reducer<IUiState> = (state = initialState, action) => { //  ***** Working ***** //
     switch (action.type) {
         case UiActionTypes.FETCH_REQUEST: {
             return { ...state, loading: true };
@@ -20,9 +20,13 @@ const reducer: Reducer<IUiState> = (state = initialState, action) => {
         case UiActionTypes.FETCH_COMPLETE: {
             return { ...state, loading: false };
         }
-        //  ***** Working *****
-
-
+        case UiActionTypes.TOGGLE_TOOLBAR_DROPDOWN: {
+            return { ...state, isDropdownOpen: action.payload };
+        }
+        case UiActionTypes.TOGGLE_TOOLBAR_KEBAB: {
+            return { ...state,  isKebabDropdownOpen: action.payload };
+        }
+       
         default: {
             return state;
         }
