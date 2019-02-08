@@ -1,2 +1,2 @@
 // Common Components:
-export  { default as LoadingComponent} from './common/loading/Loading.component';
+export  { default as LoadingComponent} from './common/loading/Loading';

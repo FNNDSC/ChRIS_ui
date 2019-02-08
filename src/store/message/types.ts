@@ -1,7 +1,8 @@
 /*
 *  File:            message/types.ts
 *  Description:     Holds types and constants for managing global messaging and confirmation dialogs
-*  Author:          ChRIS ui Demo                 
+*  Author:          ChRIS ui Demo 
+*  Notes:           Work in progres ...                
 */
 
 import keyMirror from "keymirror";
@@ -63,5 +64,4 @@ export const messageActionTypes = keyMirror({
   DISMISS_MESSAGE: null,
   DISPLAY_CONFIRMATION: null,
   DISMISS_CONFIRMATION: null,
-  RESET_MANAGER: null,
 });

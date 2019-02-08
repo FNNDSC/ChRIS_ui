@@ -7,9 +7,9 @@ import {
 } from 'react-router-dom'
 
 // Add view routes here
-import { Dashboard } from './pages/Dashboard';
-import  {LogIn}  from './pages/LogIn';
-import  {NotFound}  from './pages/NotFound';
+import { Dashboard } from './pages/Dashboard/Dashboard';
+import  {LogIn}  from './pages/LogIn/Login';
+import  {NotFound}  from './pages/NotFound/NotFound';
 
 
 const Routes: React.FunctionComponent = () => (
