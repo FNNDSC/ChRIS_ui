@@ -3,46 +3,52 @@ import {
     LoginForm
 } from '@patternfly/react-core';
 
-interface IFormProps {
-    // onSidebarToggle: ()=>void;
-};
 
-class LoginFormComponent extends React.Component<IFormProps> {
+interface State{
+    usernameValue: string;
+    passwordValue: string;
+    isRememberMeChecked: boolean;
+}
+
+class LoginFormComponent extends React.Component<{}, State> {
+    constructor(props:{}) {
+        super(props);
+        this.state = {
+            usernameValue: 'jonhsmith',
+            passwordValue: 'password',
+            isRememberMeChecked: true
+        }
+      }
     handleUsernameChange = (value: string) => {
         console.log(value);
-        // this.setState({ usernameValue: value });
+        this.setState({ usernameValue: value });
     };
     handlePasswordChange = (passwordValue: string) => {
         console.log(passwordValue);
+        this.setState({ passwordValue });
     };
 
     onRememberMeClick = () => {
         console.log('onRememberMeClick');
-        //  this.setState({ isRememberMeChecked: !this.state.isRememberMeChecked });
+        this.setState({ isRememberMeChecked: !this.state.isRememberMeChecked });
     };
 
     render() {
-        const mockData = {
-            usernameValue: 'mock username',
-            passwordValue: 'some password',
-            isRememberMeChecked: false
-
-        }
         return (
             <LoginForm
                 className="login-form"
                 usernameLabel="Username"
-                usernameValue={mockData.usernameValue}
+                usernameValue={this.state.usernameValue}
                 onChangeUsername={this.handleUsernameChange}
                 usernameHelperTextInvalid="Unknown Username"
                 isValidUsername
                 passwordLabel="Password"
-                passwordValue={mockData.passwordValue}
+                passwordValue={this.state.passwordValue}
                 onChangePassword={this.handlePasswordChange}
                 passwordHelperTextInvalid="Password Invalid"
                 isValidPassword
                 rememberMeLabel="Keep me logged in for 30 days."
-                isRememberMeChecked={mockData.isRememberMeChecked}
+                isRememberMeChecked={this.state.isRememberMeChecked}
                 onChangeRememberMe={this.onRememberMeClick}
                 rememberMeAriaLabel="Remember me Checkbox"
             />

@@ -3,10 +3,10 @@
 *  Description:     This files holds styles specific for login page
 *  Author:          ChRIS ui Demo
 */
+
 @import '../../assets/scss/helpers/pf4-variables'; 
 @import '../../assets/scss/helpers/variables'; 
 $image-url:     '../../assets/images/';
-// $login-background-image: 'pfbg_1200.jpg';
 .login{
     // Replace background image here
     &.pf-background::after{
@@ -32,9 +32,17 @@ $image-url:     '../../assets/images/';
 }
 
 // Form styles
+// ----------------------------------------------
 .login-form{
-    margin-top:0;
+    .pf-c-form__group.pf-m-action{
+        margin-top:0;
+    }
     .pf-c-button{
-        float: right;
+        margin-bottom: var(--pf-global--spacer--lg);
+    }
+    @media (min-width: $pf-global--breakpoint--xl) {
+        .pf-c-button{
+            float: right;
+        }
     }
 }
