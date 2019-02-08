@@ -9,6 +9,7 @@ import {
 // Add view routes here
 import { Dashboard } from './pages/Dashboard';
 import  {LogIn}  from './pages/LogIn';
+import  {NotFound}  from './pages/NotFound';
 
 
 const Routes: React.FunctionComponent = () => (
@@ -18,7 +19,9 @@ const Routes: React.FunctionComponent = () => (
         <Route exact path="/" component={Dashboard} />
         <Route exact path="/login" component={LogIn} />
         {/* ADD MORE ROUTES HERE: <Route  path="/route" component={RouteComponent} /> */}
-        <Route render={() => (<div> Sorry, this page does not exist. <a href="/">Go Home</a> </div>)} />
+        
+        {/* 404 Page Not found  */}
+        <Route component={NotFound} />
       </Switch>
     </React.Fragment>
   </BrowserRouter>
