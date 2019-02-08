@@ -1,0 +1,48 @@
+/*
+*  File:            login.scss
+*  Description:     This files holds styles specific for login page
+*  Author:          ChRIS ui Demo
+*/
+
+@import '../../assets/scss/helpers/pf4-variables'; 
+@import '../../assets/scss/helpers/variables'; 
+$image-url:     '../../assets/images/';
+.login{
+    // Replace background image here
+    &.pf-background::after{
+        background-image: url("#{$image-url}#{$login-background-image}");
+        @media (max-width: $pf-global--breakpoint--sm) and (-webkit-min-device-pixel-ratio: 2),
+        (max-width: $pf-global--breakpoint--sm) and (min-resolution: 192dpi) {
+            background-image: url("#{$image-url}#{$login-background-image-2x}"); //xs2x
+        }
+        // small screens: 576px - 992px
+        @media (min-width: $pf-global--breakpoint--sm) {
+            background-image: url("#{$image-url}#{$login-background-image-sm}");//BackgroundImage--sm
+        }
+        
+        @media (min-width: $pf-global--breakpoint--sm) and (-webkit-min-device-pixel-ratio: 2),
+            (min-width: $pf-global--breakpoint--sm) and (min-resolution: 192dpi) {
+            background-image: url("#{$image-url}#{$login-background-image-sm-2x}"); //sm2x
+        }
+        // large screens: 992px and up 
+        @media (min-width: $pf-global--breakpoint--lg) {
+            background-image: url("#{$image-url}#{$login-background-image-lg}");//-BackgroundImage--lg
+        }
+    }
+}
+
+// Form styles
+// ----------------------------------------------
+.login-form{
+    .pf-c-form__group.pf-m-action{
+        margin-top:0;
+    }
+    .pf-c-button{
+        margin-bottom: var(--pf-global--spacer--lg);
+    }
+    @media (min-width: $pf-global--breakpoint--xl) {
+        .pf-c-button{
+            float: right;
+        }
+    }
+}
