@@ -30,3 +30,11 @@ $image-url:     '../../assets/images/';
         }
     }
 }
+
+// Form styles
+.login-form{
+    margin-top:0;
+    .pf-c-button{
+        float: right;
+    }
+}
