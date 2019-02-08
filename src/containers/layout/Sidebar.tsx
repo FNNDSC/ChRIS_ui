@@ -8,6 +8,7 @@ import {
     NavExpandable,
     NavItem,
     NavList,
+    NavGroup
 } from '@patternfly/react-core';
 
 // type AllProps = IUiState;
@@ -25,6 +26,7 @@ class Sidebar extends React.Component<IUiState> {
         const PageNav = (
             <Nav onSelect={this.onNavSelect} aria-label="ChRIS Demo site navigation">
                 <NavList>
+                <NavGroup title='Main Navigation'>
                     <NavExpandable title="Library" groupId="library_grp" isActive={activeGroup === 'library_grp'}>
                         <NavItem to="libraryitem" groupId="library_grp"  itemId="library_item" isActive={activeItem === 'library_item'}>
                                 Library Item
@@ -52,9 +54,16 @@ class Sidebar extends React.Component<IUiState> {
                     <NavItem to="plugins" itemId="plugins" isActive={activeItem === 'plugins'}>
                         Plugins
                     </NavItem>
-                    <NavItem to="/login" itemId="logIn" isActive={activeItem === 'logIn'}>
-                        Log in
-                    </NavItem>
+                    </NavGroup>
+                    <NavGroup title='Working Pages'>
+                        <NavItem to="/login" itemId="logIn">
+                            Log in
+                        </NavItem>
+                        <NavItem to="/not-found" itemId="notfound">
+                           Not Found
+                        </NavItem>
+                    </NavGroup>
+                 
                 </NavList>
             </Nav>
         );
