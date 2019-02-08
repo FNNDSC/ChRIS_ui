@@ -10,39 +10,6 @@
     height: 100%;
 }
 
-// Page wrapper
-// ---------------------------------------------------------
-.pf-background:after{
-    content: '';
-    height: 100%;
-    left: 0;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 0;
-    background: transparent url('../images/header_background_1200.jpg') no-repeat top center;
-    background-size: cover;
-    filter: url("../images/header_background_filter.svg#image_overlay"); 
-    @media (max-width: $pf-global--breakpoint--sm) and (-webkit-min-device-pixel-ratio: 2),
-    (max-width: $pf-global--breakpoint--sm) and (min-resolution: 192dpi) {
-        background-image: url('../images/header_background_576@2x.jpg'); //xs2x
-    }
-
-    // small screens: 576px - 992px
-    @media (min-width: $pf-global--breakpoint--sm) {
-        background-image: url('../images/header_background_768.jpg'); //BackgroundImage--sm
-    }
-    
-    @media (min-width: $pf-global--breakpoint--sm) and (-webkit-min-device-pixel-ratio: 2),
-        (min-width: $pf-global--breakpoint--sm) and (min-resolution: 192dpi) {
-        background-image: url('../images/header_background_768@2x.jpg'); //sm2x
-    }
-    
-    // large screens: 992px and up 
-    @media (min-width: $pf-global--breakpoint--lg) {
-        background-image: url('../images/header_background_1200.jpg'); //-BackgroundImage--lg
-    }
-}
 
 // Page Header:
 // ---------------------------------------------------------

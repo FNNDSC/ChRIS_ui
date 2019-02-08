@@ -7,6 +7,7 @@ import {
     BackgroundImageSrc,
     ListItem 
 } from '@patternfly/react-core';
+import './login.scss';
 import brandImg from '../../assets/images/logo_chris_dashboard.png';
 type AllProps = RouteComponentProps;
 
@@ -18,11 +19,11 @@ class LogInPage extends React.Component<AllProps> {
     render() {
         return (
             <LoginPage
+            className="login pf-background"
             footerListVariants="inline"
             brandImgSrc={brandImg}
             brandImgAlt="PatternFly logo"
-            backgroundImgSrc="/images/pfbg_1200.jpg"
-            backgroundImgAlt="Images"
+            
             textContent="This is placeholder text only. Use this area to place any information or introductory message about your
             application that may be relevant to users."
             loginTitle="Log in to your account - WORKING!"
