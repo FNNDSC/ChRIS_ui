@@ -52,6 +52,9 @@ class Sidebar extends React.Component<IUiState> {
                     <NavItem to="plugins" itemId="plugins" isActive={activeItem === 'plugins'}>
                         Plugins
                     </NavItem>
+                    <NavItem to="/login" itemId="logIn" isActive={activeItem === 'logIn'}>
+                        Log in
+                    </NavItem>
                 </NavList>
             </Nav>
         );
