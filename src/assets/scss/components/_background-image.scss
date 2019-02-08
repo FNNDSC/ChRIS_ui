@@ -17,7 +17,8 @@
         top: 0;
         width: 100%;
         z-index: -1;
-        filter: url("../images/chris_ui_background_filter.svg#image_overlay"); 
+       // filter: url("../images/chris_ui_background_filter.svg#image_overlay"); 
+       filter: url("#{$image-url}#{$chris-background-filter}"); //$chris-background-filter
         @media (max-width: $pf-global--breakpoint--sm) and (-webkit-min-device-pixel-ratio: 2),
         (max-width: $pf-global--breakpoint--sm) and (min-resolution: 192dpi) {
             background-image: url("#{$image-url}#{$chris-background-image-2x}"); //xs2x
