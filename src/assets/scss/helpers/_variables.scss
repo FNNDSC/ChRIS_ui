@@ -31,6 +31,7 @@ $pf-global--image-path:             '~@patternfly/patternfly/assets/images';
 // Site specific Variables:
 // --------------------------------------------------------------------
 $image-url:                         '../../assets/images/';
+$chris-background-filter:           'chris_ui_background_filter.svg#image_overlay';
 $chris-background-image:            'chris_ui_background_576.jpg';
 $chris-background-image-2x:         'chris_ui_background_576@2x.jpg';  //var(--pf-c-background-image--BackgroundImage-2x);
 $chris-background-image-sm:         'chris_ui_background_768.jpg'; //var(--pf-c-background-image--BackgroundImage--sm);
