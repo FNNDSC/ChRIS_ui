@@ -36,10 +36,10 @@ class Sidebar extends React.Component<IUiState> {
                          <NavItem to="/" groupId="feeds_grp" itemId="dashboard" isActive={sidebarActiveItem === 'dashboard'}>
                             My Dashboard
                         </NavItem>
-                        <NavItem to="/my-feeds" groupId="feeds_grp" itemId="my_feeds" isActive={sidebarActiveItem === 'my_feeds'}>
+                        <NavItem to="/feeds/myfeedID" groupId="feeds_grp" itemId="my_feeds" isActive={sidebarActiveItem === 'my_feeds'}>
                             My Feeds
                         </NavItem>
-                        <NavItem to="/" groupId="feeds_grp" itemId="all_feeds" isActive={sidebarActiveItem === 'all_feeds'}>
+                        <NavItem to="/feeds" groupId="feeds_grp" itemId="all_feeds" isActive={sidebarActiveItem === 'all_feeds'}>
                             All Feeds
                         </NavItem> 
                     </NavExpandable>
