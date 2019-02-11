@@ -28,5 +28,6 @@ export const UiActionTypes = keyMirror({
     PROGRESS_COMPLETE: null, // not in user yet - TBD
     TOGGLE_TOOLBAR_KEBAB: null,
     TOGGLE_TOOLBAR_DROPDOWN: null,
-    TOGGLE_SIDEBAR: null
+    TOGGLE_SIDEBAR: null,
+    SET_SIDEBAR_ACTIVE_ITEM: null
   });

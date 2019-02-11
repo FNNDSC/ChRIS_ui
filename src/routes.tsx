@@ -8,6 +8,7 @@ import {
 
 // Add view routes here
 import { Dashboard } from './pages/Dashboard/Dashboard';
+import  MyFeedsPage  from './pages/Feeds/MyFeeds';
 import  {LogIn}  from './pages/LogIn/Login';
 import  {NotFound}  from './pages/NotFound/NotFound';
 
@@ -17,9 +18,10 @@ const Routes: React.FunctionComponent = () => (
     <React.Fragment>
       <Switch>
         <Route exact path="/" component={Dashboard} />
+        <Route exact path="/my-feeds" component={MyFeedsPage} />
         <Route exact path="/login" component={LogIn} />
-        {/* ADD MORE ROUTES HERE: <Route  path="/route" component={RouteComponent} /> */}
         
+        {/* ADD MORE ROUTES HERE: <Route  path="/route" component={RouteComponent} /> */}
         {/* 404 Page Not found  */}
         <Route component={NotFound} />
       </Switch>
