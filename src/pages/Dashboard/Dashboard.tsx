@@ -28,9 +28,6 @@ class DashboardPage extends React.Component<AllProps> {
           </div>
           {children}
         </PageSection>
-        <PageSection variant={PageSectionVariants.light}>
-              <h1>Tree chart will go here</h1>  
-        </PageSection>
       </Wrapper>
     );
   }
