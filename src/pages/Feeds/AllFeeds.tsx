@@ -13,27 +13,21 @@ interface PropsFromDispatch {
 }
 type AllProps = PropsFromDispatch & RouteComponentProps;
 
-class MyFeedsPage extends React.Component<AllProps> {
+class AllFeedsPage extends React.Component<AllProps> {
   componentDidMount() {
     const { setSidebarActive } = this.props;
-    document.title = "My Feeds - ChRIS UI Demo site";
+    document.title = "All Feeds - ChRIS UI Demo site";
     setSidebarActive({
-      activeItem: 'my_feeds',
+      activeItem: 'all_feeds',
       activeGroup: 'feeds_grp'
     })
   }
 
   render() {
-    const { children } = this.props;
     return (
-      <React.Fragment>
-        <PageSection variant={PageSectionVariants.darker}>
-          <h1>Hippocampal Volume</h1>
-        </PageSection>
-        <PageSection>
-          <h1>My feed - Tree chart will go here</h1>
-        </PageSection>
-      </React.Fragment>
+      <PageSection>
+        <h1>All feeds list will go here</h1>
+      </PageSection>
     );
   }
 }
@@ -52,4 +46,4 @@ const mapStateToProps = ({ ui }: ApplicationState) => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(MyFeedsPage)
+)(AllFeedsPage)
