@@ -39,7 +39,7 @@ class Sidebar extends React.Component<IUiState> {
                                 <Link to={`/`}>Dashboard</Link>
                             </NavItem>
                             <NavItem groupId="feeds_grp" itemId="my_feeds" isActive={sidebarActiveItem === 'my_feeds'}>
-                                <Link to="/feeds/myfeedID"> My Feeds</Link>
+                                <Link to="/feeds">My Feeds</Link>
                             </NavItem>
                             <NavItem groupId="feeds_grp" itemId="all_feeds" isActive={sidebarActiveItem === 'all_feeds'}>
                                 <Link to="/feeds">All Feeds</Link>

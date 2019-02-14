@@ -4,6 +4,9 @@
 *  Author:          ChRIS ui Demo
 */
 
+// Colors:
+
+$chris-blue:                         #002030;
 
 // Site specific Variables:
 // --------------------------------------------------------------------
@@ -20,3 +23,8 @@ $login-background-image-2x:         'pfbg_576@2x.jpg';  //var(--pf-c-background-
 $login-background-image-sm:         'pfbg_768.jpg'; //var(--pf-c-background-image--BackgroundImage--sm);
 $login-background-image-sm-2x:      'pfbg_768@2x.jpg'; //var(--pf-c-background-image--BackgroundImage--sm-2x);
 $login-background-image-lg:         'pfbg_2000.jpg'; //var(--pf-c-background-image--BackgroundImage--lg);
+
+
+// Feed pages
+$feed-block-background:             #000;
+$node-block-background:             $chris-blue;

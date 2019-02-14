@@ -1,0 +1,702 @@
+{
+    "collection": {
+        "version": "1.0",
+        "href": "http://192.168.0.105:8000/api/v1/2/plugininstances/",
+        "items": [
+            {
+                "data": [
+                    {
+                        "name": "id",
+                        "value": 14
+                    },
+                    {
+                        "name": "previous_id",
+                        "value": 12
+                    },
+                    {
+                        "name": "plugin_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "plugin_name",
+                        "value": "simpledsapp"
+                    },
+                    {
+                        "name": "feed_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "start_date",
+                        "value": "2019-02-14T10:16:40.593008-05:00"
+                    },
+                    {
+                        "name": "end_date",
+                        "value": "2019-02-14T10:16:56.690198-05:00"
+                    },
+                    {
+                        "name": "status",
+                        "value": "finishedSuccessfully"
+                    },
+                    {
+                        "name": "owner_username",
+                        "value": "chris"
+                    },
+                    {
+                        "name": "compute_resource_identifier",
+                        "value": "host"
+                    },
+                    {
+                        "name": "cpu_limit",
+                        "value": 1000
+                    },
+                    {
+                        "name": "memory_limit",
+                        "value": 200
+                    },
+                    {
+                        "name": "number_of_workers",
+                        "value": 1
+                    },
+                    {
+                        "name": "gpu_limit",
+                        "value": 0
+                    }
+                ],
+                "href": "http://192.168.0.105:8000/api/v1/plugins/instances/14/",
+                "links": [
+                    {
+                        "rel": "previous",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/12/"
+                    },
+                    {
+                        "rel": "feed",
+                        "href": "http://192.168.0.105:8000/api/v1/2/"
+                    },
+                    {
+                        "rel": "plugin",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/2/"
+                    },
+                    {
+                        "rel": "descendants",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/14/descendants/"
+                    },
+                    {
+                        "rel": "files",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/14/files/"
+                    },
+                    {
+                        "rel": "parameters",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/14/parameters/"
+                    }
+                ]
+            },
+            {
+                "data": [
+                    {
+                        "name": "id",
+                        "value": 13
+                    },
+                    {
+                        "name": "previous_id",
+                        "value": 11
+                    },
+                    {
+                        "name": "plugin_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "plugin_name",
+                        "value": "simpledsapp"
+                    },
+                    {
+                        "name": "feed_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "start_date",
+                        "value": "2019-02-14T10:16:11.341162-05:00"
+                    },
+                    {
+                        "name": "end_date",
+                        "value": "2019-02-14T10:16:29.117643-05:00"
+                    },
+                    {
+                        "name": "status",
+                        "value": "finishedSuccessfully"
+                    },
+                    {
+                        "name": "owner_username",
+                        "value": "chris"
+                    },
+                    {
+                        "name": "compute_resource_identifier",
+                        "value": "host"
+                    },
+                    {
+                        "name": "cpu_limit",
+                        "value": 1000
+                    },
+                    {
+                        "name": "memory_limit",
+                        "value": 200
+                    },
+                    {
+                        "name": "number_of_workers",
+                        "value": 1
+                    },
+                    {
+                        "name": "gpu_limit",
+                        "value": 0
+                    }
+                ],
+                "href": "http://192.168.0.105:8000/api/v1/plugins/instances/13/",
+                "links": [
+                    {
+                        "rel": "previous",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/11/"
+                    },
+                    {
+                        "rel": "feed",
+                        "href": "http://192.168.0.105:8000/api/v1/2/"
+                    },
+                    {
+                        "rel": "plugin",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/2/"
+                    },
+                    {
+                        "rel": "descendants",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/13/descendants/"
+                    },
+                    {
+                        "rel": "files",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/13/files/"
+                    },
+                    {
+                        "rel": "parameters",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/13/parameters/"
+                    }
+                ]
+            },
+            {
+                "data": [
+                    {
+                        "name": "id",
+                        "value": 12
+                    },
+                    {
+                        "name": "previous_id",
+                        "value": 11
+                    },
+                    {
+                        "name": "plugin_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "plugin_name",
+                        "value": "simpledsapp"
+                    },
+                    {
+                        "name": "feed_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "start_date",
+                        "value": "2019-02-14T10:15:16.642335-05:00"
+                    },
+                    {
+                        "name": "end_date",
+                        "value": "2019-02-14T10:15:37.951500-05:00"
+                    },
+                    {
+                        "name": "status",
+                        "value": "finishedSuccessfully"
+                    },
+                    {
+                        "name": "owner_username",
+                        "value": "chris"
+                    },
+                    {
+                        "name": "compute_resource_identifier",
+                        "value": "host"
+                    },
+                    {
+                        "name": "cpu_limit",
+                        "value": 1000
+                    },
+                    {
+                        "name": "memory_limit",
+                        "value": 200
+                    },
+                    {
+                        "name": "number_of_workers",
+                        "value": 1
+                    },
+                    {
+                        "name": "gpu_limit",
+                        "value": 0
+                    }
+                ],
+                "href": "http://192.168.0.105:8000/api/v1/plugins/instances/12/",
+                "links": [
+                    {
+                        "rel": "previous",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/11/"
+                    },
+                    {
+                        "rel": "feed",
+                        "href": "http://192.168.0.105:8000/api/v1/2/"
+                    },
+                    {
+                        "rel": "plugin",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/2/"
+                    },
+                    {
+                        "rel": "descendants",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/12/descendants/"
+                    },
+                    {
+                        "rel": "files",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/12/files/"
+                    },
+                    {
+                        "rel": "parameters",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/12/parameters/"
+                    }
+                ]
+            },
+            {
+                "data": [
+                    {
+                        "name": "id",
+                        "value": 11
+                    },
+                    {
+                        "name": "previous_id",
+                        "value": 7
+                    },
+                    {
+                        "name": "plugin_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "plugin_name",
+                        "value": "simpledsapp"
+                    },
+                    {
+                        "name": "feed_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "start_date",
+                        "value": "2019-02-14T10:14:34.111187-05:00"
+                    },
+                    {
+                        "name": "end_date",
+                        "value": "2019-02-14T10:14:58.723346-05:00"
+                    },
+                    {
+                        "name": "status",
+                        "value": "finishedSuccessfully"
+                    },
+                    {
+                        "name": "owner_username",
+                        "value": "chris"
+                    },
+                    {
+                        "name": "compute_resource_identifier",
+                        "value": "host"
+                    },
+                    {
+                        "name": "cpu_limit",
+                        "value": 1000
+                    },
+                    {
+                        "name": "memory_limit",
+                        "value": 200
+                    },
+                    {
+                        "name": "number_of_workers",
+                        "value": 1
+                    },
+                    {
+                        "name": "gpu_limit",
+                        "value": 0
+                    }
+                ],
+                "href": "http://192.168.0.105:8000/api/v1/plugins/instances/11/",
+                "links": [
+                    {
+                        "rel": "previous",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/7/"
+                    },
+                    {
+                        "rel": "feed",
+                        "href": "http://192.168.0.105:8000/api/v1/2/"
+                    },
+                    {
+                        "rel": "plugin",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/2/"
+                    },
+                    {
+                        "rel": "descendants",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/11/descendants/"
+                    },
+                    {
+                        "rel": "files",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/11/files/"
+                    },
+                    {
+                        "rel": "parameters",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/11/parameters/"
+                    }
+                ]
+            },
+            {
+                "data": [
+                    {
+                        "name": "id",
+                        "value": 10
+                    },
+                    {
+                        "name": "previous_id",
+                        "value": 8
+                    },
+                    {
+                        "name": "plugin_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "plugin_name",
+                        "value": "simpledsapp"
+                    },
+                    {
+                        "name": "feed_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "start_date",
+                        "value": "2019-02-14T10:13:42.333172-05:00"
+                    },
+                    {
+                        "name": "end_date",
+                        "value": "2019-02-14T10:14:02.251386-05:00"
+                    },
+                    {
+                        "name": "status",
+                        "value": "finishedSuccessfully"
+                    },
+                    {
+                        "name": "owner_username",
+                        "value": "chris"
+                    },
+                    {
+                        "name": "compute_resource_identifier",
+                        "value": "host"
+                    },
+                    {
+                        "name": "cpu_limit",
+                        "value": 1000
+                    },
+                    {
+                        "name": "memory_limit",
+                        "value": 200
+                    },
+                    {
+                        "name": "number_of_workers",
+                        "value": 1
+                    },
+                    {
+                        "name": "gpu_limit",
+                        "value": 0
+                    }
+                ],
+                "href": "http://192.168.0.105:8000/api/v1/plugins/instances/10/",
+                "links": [
+                    {
+                        "rel": "previous",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/8/"
+                    },
+                    {
+                        "rel": "feed",
+                        "href": "http://192.168.0.105:8000/api/v1/2/"
+                    },
+                    {
+                        "rel": "plugin",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/2/"
+                    },
+                    {
+                        "rel": "descendants",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/10/descendants/"
+                    },
+                    {
+                        "rel": "files",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/10/files/"
+                    },
+                    {
+                        "rel": "parameters",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/10/parameters/"
+                    }
+                ]
+            },
+            {
+                "data": [
+                    {
+                        "name": "id",
+                        "value": 9
+                    },
+                    {
+                        "name": "previous_id",
+                        "value": 8
+                    },
+                    {
+                        "name": "plugin_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "plugin_name",
+                        "value": "simpledsapp"
+                    },
+                    {
+                        "name": "feed_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "start_date",
+                        "value": "2019-02-14T10:12:32.702076-05:00"
+                    },
+                    {
+                        "name": "end_date",
+                        "value": "2019-02-14T10:13:19.870190-05:00"
+                    },
+                    {
+                        "name": "status",
+                        "value": "finishedSuccessfully"
+                    },
+                    {
+                        "name": "owner_username",
+                        "value": "chris"
+                    },
+                    {
+                        "name": "compute_resource_identifier",
+                        "value": "host"
+                    },
+                    {
+                        "name": "cpu_limit",
+                        "value": 1000
+                    },
+                    {
+                        "name": "memory_limit",
+                        "value": 200
+                    },
+                    {
+                        "name": "number_of_workers",
+                        "value": 1
+                    },
+                    {
+                        "name": "gpu_limit",
+                        "value": 0
+                    }
+                ],
+                "href": "http://192.168.0.105:8000/api/v1/plugins/instances/9/",
+                "links": [
+                    {
+                        "rel": "previous",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/8/"
+                    },
+                    {
+                        "rel": "feed",
+                        "href": "http://192.168.0.105:8000/api/v1/2/"
+                    },
+                    {
+                        "rel": "plugin",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/2/"
+                    },
+                    {
+                        "rel": "descendants",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/9/descendants/"
+                    },
+                    {
+                        "rel": "files",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/9/files/"
+                    },
+                    {
+                        "rel": "parameters",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/9/parameters/"
+                    }
+                ]
+            },
+            {
+                "data": [
+                    {
+                        "name": "id",
+                        "value": 8
+                    },
+                    {
+                        "name": "previous_id",
+                        "value": 7
+                    },
+                    {
+                        "name": "plugin_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "plugin_name",
+                        "value": "simpledsapp"
+                    },
+                    {
+                        "name": "feed_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "start_date",
+                        "value": "2019-02-14T10:11:24.152637-05:00"
+                    },
+                    {
+                        "name": "end_date",
+                        "value": "2019-02-14T10:11:49.452059-05:00"
+                    },
+                    {
+                        "name": "status",
+                        "value": "finishedSuccessfully"
+                    },
+                    {
+                        "name": "owner_username",
+                        "value": "chris"
+                    },
+                    {
+                        "name": "compute_resource_identifier",
+                        "value": "host"
+                    },
+                    {
+                        "name": "cpu_limit",
+                        "value": 1000
+                    },
+                    {
+                        "name": "memory_limit",
+                        "value": 200
+                    },
+                    {
+                        "name": "number_of_workers",
+                        "value": 1
+                    },
+                    {
+                        "name": "gpu_limit",
+                        "value": 0
+                    }
+                ],
+                "href": "http://192.168.0.105:8000/api/v1/plugins/instances/8/",
+                "links": [
+                    {
+                        "rel": "previous",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/7/"
+                    },
+                    {
+                        "rel": "feed",
+                        "href": "http://192.168.0.105:8000/api/v1/2/"
+                    },
+                    {
+                        "rel": "plugin",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/2/"
+                    },
+                    {
+                        "rel": "descendants",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/8/descendants/"
+                    },
+                    {
+                        "rel": "files",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/8/files/"
+                    },
+                    {
+                        "rel": "parameters",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/8/parameters/"
+                    }
+                ]
+            },
+            {
+                "data": [
+                    {
+                        "name": "id",
+                        "value": 7
+                    },
+                    {
+                        "name": "plugin_id",
+                        "value": 7
+                    },
+                    {
+                        "name": "plugin_name",
+                        "value": "dircopy"
+                    },
+                    {
+                        "name": "feed_id",
+                        "value": 2
+                    },
+                    {
+                        "name": "start_date",
+                        "value": "2019-02-14T10:02:31.064279-05:00"
+                    },
+                    {
+                        "name": "end_date",
+                        "value": "2019-02-14T10:04:39.285136-05:00"
+                    },
+                    {
+                        "name": "status",
+                        "value": "finishedSuccessfully"
+                    },
+                    {
+                        "name": "owner_username",
+                        "value": "chris"
+                    },
+                    {
+                        "name": "compute_resource_identifier",
+                        "value": "host"
+                    },
+                    {
+                        "name": "cpu_limit",
+                        "value": 1000
+                    },
+                    {
+                        "name": "memory_limit",
+                        "value": 200
+                    },
+                    {
+                        "name": "number_of_workers",
+                        "value": 1
+                    },
+                    {
+                        "name": "gpu_limit",
+                        "value": 0
+                    }
+                ],
+                "href": "http://192.168.0.105:8000/api/v1/plugins/instances/7/",
+                "links": [
+                    {
+                        "rel": "feed",
+                        "href": "http://192.168.0.105:8000/api/v1/2/"
+                    },
+                    {
+                        "rel": "plugin",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/7/"
+                    },
+                    {
+                        "rel": "descendants",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/7/descendants/"
+                    },
+                    {
+                        "rel": "files",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/7/files/"
+                    },
+                    {
+                        "rel": "parameters",
+                        "href": "http://192.168.0.105:8000/api/v1/plugins/instances/7/parameters/"
+                    }
+                ]
+            }
+        ],
+        "links": [
+            {
+                "rel": "feed",
+                "href": "http://192.168.0.105:8000/api/v1/2/"
+            }
+        ]
+    }
+}
