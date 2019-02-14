@@ -1,10 +1,10 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { ApplicationState } from "../../store/root/applicationState";
-import { setSidebarActive } from "../../store/ui/actions";
+import { Link } from "react-router-dom";
+import { ApplicationState } from "../../../store/root/applicationState";
+import { setSidebarActive } from "../../../store/ui/actions";
 import { RouteComponentProps } from "react-router-dom";
-import Wrapper from '../../containers/layout/PageWrapper';
 import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
 
 
@@ -26,7 +26,13 @@ class AllFeedsPage extends React.Component<AllProps> {
   render() {
     return (
       <PageSection>
-        <h1>All feeds list will go here</h1>
+        <Alert
+          aria-label="Feeds warning"
+          variant="warning"
+          title="Working feed component"  >
+          All feeds or My feeds list will be displayed here <br />
+          Pass a filter param for my feeds vs all feed - working !  <Link to="/feeds/2">Go to Feed view</Link>
+        </Alert>
       </PageSection>
     );
   }

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { LoginPage } from '@patternfly/react-core';
-import LoginFormComponent from './LoginForm';
+import LoginFormComponent from './components/LoginForm';
 import './login.scss';
 import brandImg from '../../assets/images/logo_chris_dashboard.png';
 type AllProps = RouteComponentProps;
