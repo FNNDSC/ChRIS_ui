@@ -3,7 +3,10 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
+import { getPluginInstanceListRequest } from "../../../store/feed/actions";
+import { IFeedState } from "../../../store/feed/types";
 import { RouteComponentProps } from "react-router-dom";
+import FeedTree from "./FeedTree";
 import {
   PageSection,
   PageSectionVariants,
@@ -12,35 +15,44 @@ import {
   DataList,
   DataListItem,
   DataListToggle,
-  DataListContent,
+  DataListContent
 } from "@patternfly/react-core";
 import { pf4UtilityStyles } from '../../../lib/pf4-styleguides';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import imgPlaceholder from '../../../assets/images/feed_ph_70x70.png';
 import './feed.scss';
+
 interface PropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
+  getPluginInstanceListRequest: typeof getPluginInstanceListRequest;
+
 }
-type AllProps = PropsFromDispatch & RouteComponentProps;
+type AllProps = IFeedState & PropsFromDispatch & RouteComponentProps<{ id: string }>; 
 
 class FeedView extends React.Component<AllProps> {
+  constructor(props: AllProps) {
+    super(props);
+  }
   componentDidMount() {
-    const { setSidebarActive } = this.props;
+    const { setSidebarActive, getPluginInstanceListRequest, match } = this.props;
     document.title = "My Feeds - ChRIS UI Demo site";
     setSidebarActive({
       activeItem: 'my_feeds',
       activeGroup: 'feeds_grp'
-    })
+    });
+    const feedId = match.params.id;
+    !!feedId && getPluginInstanceListRequest('2');
   }
 
   render() {
-    const { children } = this.props;
+    const { items } = this.props;
     let isExpanded = true;
     const toggle = (id: string) => {
       isExpanded = !isExpanded;
       console.log(isExpanded, id);
     };
 
+    // NOTE: working - will separate into components ***** working
     return (
       <React.Fragment>
         {/* Top section with Feed information */}
@@ -73,7 +85,7 @@ class FeedView extends React.Component<AllProps> {
         <PageSection className={pf4UtilityStyles.spacingStyles.p_0} variant={PageSectionVariants.light}>
           <Grid className="feed-view">
             <GridItem className="feed-block pf-u-p-md" sm={12} md={6}  >
-              Feed tree chart
+                <FeedTree items={items} />
             </GridItem>
             <GridItem className="node-block pf-u-p-md" sm={12} md={6} >
               Selected node information block
@@ -149,12 +161,14 @@ class FeedView extends React.Component<AllProps> {
 
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setSidebarActive: (active: { activeItem: string, activeGroup: string }) => dispatch(setSidebarActive(active))
+  setSidebarActive: (active: { activeItem: string, activeGroup: string }) => dispatch(setSidebarActive(active)),
+  getPluginInstanceListRequest: (id: string) => dispatch(getPluginInstanceListRequest(id))
 });
 
-const mapStateToProps = ({ ui }: ApplicationState) => ({
+const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
   sidebarActiveItem: ui.sidebarActiveItem,
-  sidebarActiveGroup: ui.sidebarActiveGroup
+  sidebarActiveGroup: ui.sidebarActiveGroup,
+  items: feed.items
 });
 
 export default connect(

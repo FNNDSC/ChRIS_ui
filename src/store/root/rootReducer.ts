@@ -10,13 +10,14 @@ import { ApplicationState } from './applicationState';
 // import { ComponentReducer } from '../file-source';
 import { uiReducer } from '../ui/reducer';
 import { messageReducer } from '../message/reducer';
-
+import { feedReducer } from '../feed/reducer';
 
 const reducers = {
   // ... Register ALL reducers ... //
   ui: uiReducer,
-  message: messageReducer
-  
+  message: messageReducer,
+  feed: feedReducer
+
 }
 const rootReducer = combineReducers<ApplicationState>(reducers);
 

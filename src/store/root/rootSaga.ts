@@ -7,9 +7,9 @@
 import { all, fork } from "redux-saga/effects";
 
 /// ADD ALL Local Sagas:
-// import { ComponentSaga } from "../Component/saga";
+import { feedSaga } from "../feed/saga";
+
 
 export function* rootSaga() {
-  // yield all([fork(ComponentSaga)]);
-  yield true; // Placeholder until sagas are dev'd
+  yield all([fork(feedSaga)]);
 }

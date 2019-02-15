@@ -48,7 +48,6 @@ const mapStateToProps = ({ ui }: ApplicationState) => ({
   sidebarActiveGroup: ui.sidebarActiveGroup
 });
 
-
 export default connect(
   mapStateToProps,
   mapDispatchToProps
