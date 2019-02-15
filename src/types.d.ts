@@ -5,4 +5,4 @@ declare module '*.css'
 declare module '*.scss';
 
 declare module '@patternfly/react-styles';
-  
+declare module '@fnndsc/chrisapi';

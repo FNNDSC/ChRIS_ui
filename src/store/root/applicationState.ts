@@ -10,11 +10,13 @@ import { DeepPartial, Dispatch, Action, AnyAction } from "redux";
 // import { ComponentState } from '../Component/types';
 import { IUiState } from '../ui/types';
 import { IMessageState } from '../message/types';
+import { IFeedState } from "../feed/types";
 
 // The top-level state object
 export interface ApplicationState {
    ui: IUiState,
-   message: IMessageState
+   message: IMessageState,
+   feed: IFeedState
 }
 
 
