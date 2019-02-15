@@ -15,10 +15,19 @@ import {
     faCheckCircle,
     faUserPlus,
     faUserTimes,
-    faUserMinus
+    faUserMinus,
+    faCalendarDay,
+    
 } from '@fortawesome/free-solid-svg-icons';
+import { 
+    faClock,
+    faCalendarAlt,
+    faUser as farUser
+} from '@fortawesome/free-regular-svg-icons';
 
-// Description: add icons to be used in the app
+
+// Description: add icons to be used in the app as needed
+// Some are solid and some are from regular svg (hollow icons) 
 library.add(
     faSearch,
     faSearchPlus,
@@ -34,6 +43,10 @@ library.add(
     faUserTimes,
     faUserMinus,
     faKey,
-    faCheckCircle
+    faCheckCircle,
+    faCalendarDay,
+    faClock,
+    faCalendarAlt,
+    farUser
 );
 

@@ -4,8 +4,19 @@
 *  Author:          ChRIS ui Demo
 */
 
-@import '../../../assets/scss/helpers/pf4-variables'; 
 @import '../../../assets/scss/helpers/variables'; 
+.feed-info-block{
+    h1{
+        font-size: 	1.2rem;
+        margin: 0.65rem 0;
+    }
+    p{
+        margin-top: 0.3rem;
+    }
+    .pf-c-list.pf-m-inline li:not(:last-child){
+        margin-right: 2rem;
+    }
+}
 .feed-view{
     min-height: 40vh; // Temp for dev
     >div{
@@ -37,4 +48,9 @@
     li{
         padding:0 1rem 1rem;
     }
+}
+
+// Misc
+.svg-inline--fa{
+    margin-right: 5px;
 }
