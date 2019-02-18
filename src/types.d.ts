@@ -6,3 +6,5 @@ declare module '*.scss';
 
 declare module '@patternfly/react-styles';
 declare module '@fnndsc/chrisapi';
+
+declare module 'd3v4';
