@@ -16,6 +16,11 @@
     .pf-c-list.pf-m-inline li:not(:last-child){
         margin-right: 2rem;
     }
+    img{
+        margin-right:0.5rem;
+        max-width: 70px;
+        width: 90%;
+    }
 }
 .feed-view{
     min-height: 25vh; // Temp for dev
@@ -23,7 +28,8 @@
         color: #fff;
     }
     .feed-block{
-        background: $feed-block-background;
+      background: $feed-block-background;
+    
     }
     
     .node-block{
@@ -53,4 +59,20 @@
 // Misc
 .svg-inline--fa{
     margin-right: 5px;
+}
+
+// Tree - temp
+.node {
+    fill: $tree-node-backgound;
+    &.active{
+        fill: $tree-node-active-backgound
+    }
+}
+  
+.link {
+    fill:none;
+    marker-end: url(#end-arrow);
+    opacity: 0.8;
+    stroke: $tree-links-color; //007bba - active
+    stroke-width: 1.5px;
 }

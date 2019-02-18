@@ -24,4 +24,5 @@ yarn-error.log*
 
 /.vscode
 
-/src/api/mockData
+# add local files for temp dev but ignore on commit
+/**/*/local
