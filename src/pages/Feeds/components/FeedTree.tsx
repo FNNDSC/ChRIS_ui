@@ -2,15 +2,16 @@ import React, { createRef, Component } from "react";
 import * as d3 from "d3"; // import * as d3v4 from "d3v4";
 import * as cola from 'webcola';
 
-interface PropsFromDispatch {
-}
-
 interface ITreeProps {
     items: Array<any>;
     // Add more props as needed
 };
 
-type AllProps = ITreeProps & PropsFromDispatch;
+interface ITreeActions {
+    onNodeClick:(node:any)=> void;
+};
+
+type AllProps = ITreeProps & ITreeActions;
 
 class FeedTree extends React.Component<AllProps> {
     private treeRef = createRef<HTMLDivElement>();
@@ -32,19 +33,13 @@ class FeedTree extends React.Component<AllProps> {
 
     // Charting:
     // ---------------------------------------------------------------------
-    // Description: handle node clicks to load next node information
-    onNodeClick = (node: any) => {
-        // work on click of the node
-        console.log(node);
-    }
-
     // Description: Builds Webcola/D3 tree  ***** Working ***** //
     buildWebcolaTree = (items: any[], treeDiv: any) => {
+        const { onNodeClick } = this.props;
         const _self =this;
         const width = treeDiv.current.clientWidth > 0 ? treeDiv.current.clientWidth : (window.innerWidth / 2 - 290),
-            height = 300;
-        // const color = d3.scaleOrdinal(d3v4.schemeCategory20);
-
+            height = 300; // Need to calculate SVG height ***** working
+        
         const d3cola = cola.d3adaptor(d3)
             .avoidOverlaps(true)
             .size([width, height]);
@@ -54,7 +49,6 @@ class FeedTree extends React.Component<AllProps> {
             .attr("height", height);
 
         d3.json("/mockData/sampleWebcola.json").then(function (graph: any) {
-            // Code from your callback goes here...
             const nodeRadius = 8;
             graph.nodes.forEach(function (v: any) {
                 v.height = v.width = 2 * nodeRadius;
@@ -67,7 +61,7 @@ class FeedTree extends React.Component<AllProps> {
                 .symmetricDiffLinkLengths(15) //compute an ideal length for each link based on the graph structure around that link.
                 .start(10, 15, 20);
 
-            // define arrow markers for graph links
+            // Define arrow markers for graph links
             svg
                 .append('svg:defs')
                 .append('svg:marker')
@@ -80,17 +74,19 @@ class FeedTree extends React.Component<AllProps> {
                 .append('svg:path')
                 .attr('d', 'M0,-5L10,0L0,5')
                 .attr('fill', '#fff');
-
+        
+            // Define graph links
             const path = svg.selectAll(".link")
                 .data(graph.links)
                 .enter()
                 .append('svg:path')
                 .attr('class', 'link');
 
+            // Define graph nodes
             const node = svg.selectAll(".node")
                 .data(graph.nodes)
                 .enter().append("circle")
-                .on("click", _self.onNodeClick) // Trigger to load node information on the right panel
+                .on("click", onNodeClick) // Trigger to load node information on the right panel
                 .attr("class", "node")
                 .attr("r", nodeRadius)
                 .call(d3cola.drag);
@@ -118,6 +114,7 @@ class FeedTree extends React.Component<AllProps> {
                         targetY = d.target.y - (targetPadding * normY);
                     return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
                 });
+                
                 // path.attr("stroke-dasharray", "5, 5") // For dashed lines
                 node.attr("cx", function (d: any) { return d.x; }).attr("cy", function (d: any) { return d.y; });
             });
@@ -125,23 +122,5 @@ class FeedTree extends React.Component<AllProps> {
     }
 
 }
-// class Tree extends React.Component<ITreeProps> {
-//     public render() {
-//         const { items } = this.props;
-//         // (items.length && !!d3.select("#tree")) && buildWebcolaTree(items);
-//         return (
-//             items.length && <React.Fragment>
-//                 <div>
-//                     {/* {
-//                         items.map((item, i) => (
-//                             <div key={i}>
-//                                 id: {item.id}, feed_id: {item.feed_id}, plugin_id: {item.plugin_id}, previous_id: {item.previous_id}</div>
-//                         ))
-//                     } */}
-//                 </div>
-//             </React.Fragment>
-//         )
-//     }
-// }
 
 export default FeedTree;
