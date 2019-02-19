@@ -8,7 +8,7 @@ interface ITreeProps {
 };
 
 interface ITreeActions {
-    onNodeClick:(node:any)=> void;
+    onNodeClick: (node: any) => void;
 };
 
 type AllProps = ITreeProps & ITreeActions;
@@ -36,10 +36,10 @@ class FeedTree extends React.Component<AllProps> {
     // Description: Builds Webcola/D3 tree  ***** Working ***** //
     buildWebcolaTree = (items: any[], treeDiv: any) => {
         const { onNodeClick } = this.props;
-        const _self =this;
+        const _self = this;
         const width = treeDiv.current.clientWidth > 0 ? treeDiv.current.clientWidth : (window.innerWidth / 2 - 290),
             height = 300; // Need to calculate SVG height ***** working
-        
+
         const d3cola = cola.d3adaptor(d3)
             .avoidOverlaps(true)
             .size([width, height]);
@@ -62,8 +62,7 @@ class FeedTree extends React.Component<AllProps> {
                 .start(10, 15, 20);
 
             // Define arrow markers for graph links
-            svg
-                .append('svg:defs')
+            svg.append('svg:defs')
                 .append('svg:marker')
                 .attr('id', 'end-arrow')
                 .attr('viewBox', '0 -5 10 10')
@@ -74,7 +73,7 @@ class FeedTree extends React.Component<AllProps> {
                 .append('svg:path')
                 .attr('d', 'M0,-5L10,0L0,5')
                 .attr('fill', '#fff');
-        
+
             // Define graph links
             const path = svg.selectAll(".link")
                 .data(graph.links)
@@ -111,10 +110,17 @@ class FeedTree extends React.Component<AllProps> {
                         sourceX = d.source.x + (sourcePadding * normX),
                         sourceY = d.source.y + (sourcePadding * normY),
                         targetX = d.target.x - (targetPadding * normX),
-                        targetY = d.target.y - (targetPadding * normY);
-                    return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+                        targetY = d.target.y - (targetPadding * normY),
+                        control1X = sourceX + 20,
+                        control1Y = sourceY + 20,
+                        control2X = targetX + 0,
+                        control2Y = targetY + 0;
+
+                    return `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
+                    // return `M ${sourceX} ${sourceY} C ${control1X} ${control1Y}, ${control2X} ${control2Y}, ${targetX} ${targetY}`;
+
                 });
-                
+
                 // path.attr("stroke-dasharray", "5, 5") // For dashed lines
                 node.attr("cx", function (d: any) { return d.x; }).attr("cy", function (d: any) { return d.y; });
             });
