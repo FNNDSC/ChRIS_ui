@@ -8,7 +8,7 @@ import keyMirror from 'keymirror';
 
 // Description state for main user items[] and item
 export interface IFeedState {
-    items: Item[];
+    items?: Item[];
 }
 
 export const FeedActionTypes = keyMirror({

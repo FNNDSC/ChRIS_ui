@@ -4,7 +4,7 @@ import { IFeedState, FeedActionTypes } from "./types";
 
 // Type-safe initialState 
 const initialState: IFeedState= {
-   items: []
+   items: undefined
 };
 
  // ***** NOTE: Working *****

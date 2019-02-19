@@ -27,26 +27,24 @@ interface PropsFromDispatch {
   getPluginInstanceListRequest: typeof getPluginInstanceListRequest;
 
 }
-type AllProps = IFeedState & PropsFromDispatch & RouteComponentProps<{ id: string }>; 
+type AllProps = IFeedState & PropsFromDispatch & RouteComponentProps<{ id: string }>;
 
 class FeedView extends React.Component<AllProps> {
   constructor(props: AllProps) {
     super(props);
-  }
-  componentDidMount() {
     const { setSidebarActive, getPluginInstanceListRequest, match } = this.props;
+    const feedId = match.params.id;
+    !!feedId && getPluginInstanceListRequest('2');
     document.title = "My Feeds - ChRIS UI Demo site";
     setSidebarActive({
       activeItem: 'my_feeds',
       activeGroup: 'feeds_grp'
     });
-    const feedId = match.params.id;
-    !!feedId && getPluginInstanceListRequest('2');
   }
 
   render() {
     const { items } = this.props;
-    let isExpanded = true;
+    let isExpanded = true; // ***** working *****
     const toggle = (id: string) => {
       isExpanded = !isExpanded;
     };
@@ -84,7 +82,11 @@ class FeedView extends React.Component<AllProps> {
         <PageSection className={pf4UtilityStyles.spacingStyles.p_0} variant={PageSectionVariants.light}>
           <Grid className="feed-view">
             <GridItem className="feed-block pf-u-p-md" sm={12} md={6}  >
-                <FeedTree items={items} />
+              {
+                (!!items) ?
+                  <FeedTree items={items} /> :
+                  <div>Empty tree</div>
+              }
             </GridItem>
             <GridItem className="node-block pf-u-p-md" sm={12} md={6} >
               Selected node information block
