@@ -40,6 +40,8 @@ class FeedView extends React.Component<AllProps> {
       activeItem: 'my_feeds',
       activeGroup: 'feeds_grp'
     });
+
+    this.onNodeClick = this.onNodeClick.bind(this);
   }
 
   render() {
@@ -78,14 +80,15 @@ class FeedView extends React.Component<AllProps> {
           </div>
         </PageSection>
         {/* END Top section with Feed information */}
+
         {/* Mid section with Feed and node actions */}
         <PageSection className={pf4UtilityStyles.spacingStyles.p_0} variant={PageSectionVariants.light}>
           <Grid className="feed-view">
             <GridItem className="feed-block pf-u-p-md" sm={12} md={6}  >
               {
                 (!!items) ?
-                  <FeedTree items={items} /> :
-                  <div>Empty tree</div>
+                  <FeedTree items={items} onNodeClick={this.onNodeClick} /> :
+                   <div>Empty tree message</div>
               }
             </GridItem>
             <GridItem className="node-block pf-u-p-md" sm={12} md={6} >
@@ -94,6 +97,7 @@ class FeedView extends React.Component<AllProps> {
           </Grid>
         </PageSection>
         {/* END Mid section with Feed and node actions */}
+
         {/* Bottom section with information */}
         <PageSection>
           <div className="plugin-info pf-u-py-md" >
@@ -158,8 +162,14 @@ class FeedView extends React.Component<AllProps> {
       </React.Fragment>
     );
   }
-}
 
+
+  // Description: handle node clicks to load next node information
+  onNodeClick(node: any) {
+    // Node was clicked
+    console.log("Trigger the load of information on the panels", node);
+  }
+}
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSidebarActive: (active: { activeItem: string, activeGroup: string }) => dispatch(setSidebarActive(active)),
