@@ -20,16 +20,13 @@ class LoginFormComponent extends React.Component<{}, State> {
         }
       }
     handleUsernameChange = (value: string) => {
-        console.log(value);
         this.setState({ usernameValue: value });
     };
     handlePasswordChange = (passwordValue: string) => {
-        console.log(passwordValue);
         this.setState({ passwordValue });
     };
 
     onRememberMeClick = () => {
-        console.log('onRememberMeClick');
         this.setState({ isRememberMeChecked: !this.state.isRememberMeChecked });
     };
 
