@@ -8,15 +8,24 @@ export default class FeedModel {
 
     // Description: get list of plugin instances ***** working call ***** will be converted to @fnndsc/chrisapi need login and token first
     static getPluginInstance(id: string) {
+        // BE call
+        // const config: AxiosRequestConfig = {
+        //     method: 'get',
+        //     url: url+id+"/plugininstances/", //TEMP  ***** working *****
+        //     headers: header,
+        //     auth: { // NOTES: need authorization and authentication steps   ***** working *****
+        //         username: 'chris',
+        //         password: 'chris1234'
+        //     }
+        // }
+
+        // Local result set call
         const config: AxiosRequestConfig = {
             method: 'get',
-            url: url+id+"/plugininstances/", //TEMP  ***** working *****
-            headers: header,
-            auth: { // NOTES: need authorization and authentication steps   ***** working *****
-                username: 'chris',
-                password: 'chris1234'
-            }
+            url: "/mockData/plugininstances2.json", //TEMP  ***** working *****
+            // headers: header,
         }
+
         return axios(config); //config: AxiosRequestConfig
     }
 }
