@@ -34,12 +34,11 @@ class FeedTree extends React.Component<AllProps> {
 
 
 const onNodeClick = (node: any) => {
-    // console.log("click! node: ", node);
+  // work on click of the node
 }
 
 // Description: Builds Webcola/D3 tree  ***** Working ***** //
 const buildWebcolaTree = (items: any[], treeDiv:any) => {
-    console.log("buildWebcolaTree: ", items, treeDiv.current.clientWidth);
     const width = treeDiv.current.clientWidth >0 ? treeDiv.current.clientWidth: (window.innerWidth/2 - 290), 
         height = 300;
     // const color = d3.scaleOrdinal(d3v4.schemeCategory20);
@@ -115,7 +114,6 @@ const buildWebcolaTree = (items: any[], treeDiv:any) => {
                     sourceY = d.source.y + (sourcePadding * normY),
                     targetX = d.target.x - (targetPadding * normX),
                     targetY = d.target.y - (targetPadding * normY);
-                // console.log('M: ' + sourceX + ',' + sourceY + '- L: ' + targetX + ',' + targetY);
                 return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
             });
             // path.attr("stroke-dasharray", "5, 5") // For dashed lines

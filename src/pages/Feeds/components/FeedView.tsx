@@ -49,7 +49,6 @@ class FeedView extends React.Component<AllProps> {
     let isExpanded = true;
     const toggle = (id: string) => {
       isExpanded = !isExpanded;
-      console.log(isExpanded, id);
     };
 
     // NOTE: working - will separate into components ***** working
