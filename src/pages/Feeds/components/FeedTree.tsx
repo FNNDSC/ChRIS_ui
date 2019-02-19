@@ -1,9 +1,6 @@
 import React, {createRef, Component} from "react";
-
-import * as d3 from "d3";
-import * as d3v4 from "d3v4";
+import * as d3 from "d3"; // import * as d3v4 from "d3v4";
 import * as cola from 'webcola';
-
 
 interface PropsFromDispatch {
 }
@@ -23,7 +20,7 @@ class FeedTree extends React.Component<AllProps> {
             <React.Fragment>
                 <div ref={this.treeRef} id="tree" ></div>
                 {
-                    (items.length > 0 &&  !!d3.select("#tree")) ?
+                    (!!items && items.length > 0 &&  !!this.treeRef) ?
                         buildWebcolaTree(items, this.treeRef) :
                             <div>Empty tree</div>
                 }
@@ -51,7 +48,7 @@ const buildWebcolaTree = (items: any[], treeDiv:any) => {
         .attr("width", width)
         .attr("height", height);
 
-    d3.json("/local/sampleWebcola.json").then(function (graph: any) {
+    d3.json("/mockData/sampleWebcola.json").then(function (graph: any) {
         // Code from your callback goes here...
         const nodeRadius = 8;
         graph.nodes.forEach(function (v: any) {
