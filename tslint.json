@@ -17,7 +17,7 @@
         "no-consecutive-blank-lines": false,
         "no-console": {
             "severity": "warning",
-            "options": ["debug", "info", "log", "time", "timeEnd", "trace"]
+            "options": ["debug", "info", "time", "timeEnd", "trace"]
         },
         "ordered-imports": false,
         "no-unused-expression": [true, "allow-fast-null-checks"],
@@ -27,6 +27,7 @@
         "arrow-return-shorthand": false,
         "trailing-comma": false,
         "no-shadowed-variable": false
+        
     },
     "jsRules": {
         "max-line-length": {
