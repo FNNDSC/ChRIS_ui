@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
-import { ApplicationState } from "../../store/root/applicationState";
-import { IUiState } from "../../store/ui/types";
-import { onDropdownSelect, onKebabDropdownSelect } from "../../store/ui/actions";
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
+import { ApplicationState } from '../../store/root/applicationState';
+import { IUiState } from '../../store/ui/types';
+import { onDropdownSelect, onKebabDropdownSelect } from '../../store/ui/actions';
 import {
     Button,
     ButtonVariant,
@@ -18,33 +18,33 @@ import {
 import { pf4UtilityStyles } from '../../lib/pf4-styleguides';
 import { BellIcon, CogIcon } from '@patternfly/react-icons';
 
-interface PropsFromDispatch {
+interface IPropsFromDispatch {
     onDropdownSelect: typeof onDropdownSelect;
     onKebabDropdownSelect: typeof onKebabDropdownSelect;
 }
-type AllProps = IUiState & PropsFromDispatch;
+type AllProps = IUiState & IPropsFromDispatch;
 
 class ToolbarComponent extends React.Component<AllProps> {
 
     onDropdownToggle = (isOpened: boolean) => {
         const { onDropdownSelect } = this.props;
         onDropdownSelect(isOpened);
-    };
+    }
 
     onDropdownSelect = (event: React.SyntheticEvent<HTMLDivElement>) => {
         const { onDropdownSelect, isDropdownOpen } = this.props;
-       !!isDropdownOpen && onDropdownSelect(isDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
-    };
+        !!isDropdownOpen && onDropdownSelect(isDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
+    }
 
     onKebabDropdownToggle = (isOpened: boolean) => {
         const { onKebabDropdownSelect } = this.props;
         onKebabDropdownSelect(isOpened);
-    };
+    }
 
     onKebabDropdownSelect = (event: React.SyntheticEvent<HTMLDivElement>) => {
         const { onKebabDropdownSelect, isKebabDropdownOpen } = this.props;
-        !!isKebabDropdownOpen && onKebabDropdownSelect(isKebabDropdownOpen);// NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
-    };
+        !!isKebabDropdownOpen && onKebabDropdownSelect(isKebabDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
+    }
 
     render() {
         const { isDropdownOpen, isKebabDropdownOpen } = this.props;
@@ -87,7 +87,7 @@ class ToolbarComponent extends React.Component<AllProps> {
                             toggle={<KebabToggle onToggle={this.onKebabDropdownToggle} />}
                             isOpen={isKebabDropdownOpen}
                             dropdownItems={kebabDropdownItems}
-                        /> 
+                        />
                     </ToolbarItem>
                     <ToolbarItem className={`${pf4UtilityStyles.accessibleStyles.screenReader} ${pf4UtilityStyles.accessibleStyles.visibleOnMd}`}>
                         <Dropdown
@@ -101,7 +101,7 @@ class ToolbarComponent extends React.Component<AllProps> {
                     </ToolbarItem>
                 </ToolbarGroup>
             </Toolbar>
-        )
+        );
     }
 }
 
@@ -119,5 +119,5 @@ const mapStateToProps = ({ ui }: ApplicationState) => ({
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(ToolbarComponent)
+)(ToolbarComponent);
 

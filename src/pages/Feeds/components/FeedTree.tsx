@@ -1,15 +1,15 @@
-import React, { createRef, Component } from "react";
-import * as d3 from "d3"; // import * as d3v4 from "d3v4";
+import React, { Component, createRef } from 'react';
+import * as d3 from 'd3'; // import * as d3v4 from "d3v4";
 import * as cola from 'webcola';
 
 interface ITreeProps {
-    items: Array<any>;
+    items: any[];
     // Add more props as needed
-};
+}
 
 interface ITreeActions {
     onNodeClick: (node: any) => void;
-};
+}
 
 type AllProps = ITreeProps & ITreeActions;
 
@@ -17,18 +17,18 @@ class FeedTree extends React.Component<AllProps> {
     private treeRef = createRef<HTMLDivElement>();
     componentDidMount() {
         const { items } = this.props;
-        (!!this.treeRef.current && !!items && items.length > 0) && this.buildWebcolaTree(items, this.treeRef)
+        (!!this.treeRef.current && !!items && items.length > 0) && this.buildWebcolaTree(items, this.treeRef);
     }
 
-    public render() {
+    render() {
         const { items } = this.props;
         return (
             <div ref={this.treeRef} id="tree" ></div>
-        )
+        );
     }
 
     componentWillUnmount() {
-        d3.select("#tree").remove(); // Destroy d3 content
+        d3.select('#tree').remove(); // Destroy d3 content
     }
 
     // Charting:
@@ -36,7 +36,6 @@ class FeedTree extends React.Component<AllProps> {
     // Description: Builds Webcola/D3 tree  ***** Working ***** //
     buildWebcolaTree = (items: any[], treeDiv: any) => {
         const { onNodeClick } = this.props;
-        const _self = this;
         const width = treeDiv.current.clientWidth > 0 ? treeDiv.current.clientWidth : (window.innerWidth / 2 - 290),
             height = 300; // Need to calculate SVG height ***** working
 
@@ -44,24 +43,26 @@ class FeedTree extends React.Component<AllProps> {
             .avoidOverlaps(true)
             .size([width, height]);
 
-        const svg = d3.select("#tree").append("svg")
-            .attr("width", width)
-            .attr("height", height);
+        const svg = d3.select('#tree').append('svg')
+            .attr('width', width)
+            .attr('height', height);
 
-        d3.json("/mockData/sampleWebcola.json").then(function (graph: any) {
+        d3.json('/mockData/sampleWebcola.json').then((graph: any) => {
             const nodeRadius = 8;
-            graph.nodes.forEach(function (v: any) {
+            graph.nodes.forEach( (v: any) => {
                 v.height = v.width = 2 * nodeRadius;
             });
 
             d3cola
                 .nodes(graph.nodes)
                 .links(graph.links)
-                .flowLayout("y", 70) // https://ialab.it.monash.edu/webcola/doc/classes/cola.layout.html#flowlayout
-                .symmetricDiffLinkLengths(15) //compute an ideal length for each link based on the graph structure around that link.
+                .flowLayout('y', 70) // https://ialab.it.monash.edu/webcola/doc/classes/cola.layout.html#flowlayout
+                // tslint:disable-next-line:max-line-length
+                .symmetricDiffLinkLengths(15) // compute an ideal length for each link based on the graph structure around that link.
                 .start(10, 15, 20);
 
             // Define arrow markers for graph links
+            // tslint:disable-next-line:quotemark
             svg.append('svg:defs')
                 .append('svg:marker')
                 .attr('id', 'end-arrow')
@@ -75,31 +76,31 @@ class FeedTree extends React.Component<AllProps> {
                 .attr('fill', '#fff');
 
             // Define graph links
-            const path = svg.selectAll(".link")
+            const path = svg.selectAll('.link')
                 .data(graph.links)
                 .enter()
                 .append('svg:path')
                 .attr('class', 'link');
 
             // Define graph nodes
-            const node = svg.selectAll(".node")
+            const node = svg.selectAll('.node')
                 .data(graph.nodes)
-                .enter().append("circle")
-                .on("click", onNodeClick) // Trigger to load node information on the right panel
-                .attr("class", "node")
-                .attr("r", nodeRadius)
+                .enter().append('circle')
+                .on('click', onNodeClick) // Trigger to load node information on the right panel
+                .attr('class', 'node')
+                .attr('r', nodeRadius)
                 .call(d3cola.drag);
 
             // Build the node title and tooltip
-            node.append("title")
-                .text(function (d: any) {
+            node.append('title')
+                .text( (d: any) => {
                     const title = `plugin_name: ${d.plugin_name} / id: ${d.id} / previous_id: ${d.previous_id || 'None - this is the root node'}`;
                     return title;
                 });
 
-            d3cola.on("tick", function () {
+            d3cola.on('tick', () => {
                 // draw directed edges with proper padding from node centers
-                path.attr('d', function (d: any) {
+                path.attr('d', (d: any) => {
                     const deltaX = d.target.x - d.source.x,
                         deltaY = d.target.y - d.source.y,
                         dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
@@ -110,19 +111,15 @@ class FeedTree extends React.Component<AllProps> {
                         sourceX = d.source.x + (sourcePadding * normX),
                         sourceY = d.source.y + (sourcePadding * normY),
                         targetX = d.target.x - (targetPadding * normX),
-                        targetY = d.target.y - (targetPadding * normY),
-                        control1X = sourceX + 20,
-                        control1Y = sourceY + 20,
-                        control2X = targetX + 0,
-                        control2Y = targetY + 0;
+                        targetY = d.target.y - (targetPadding * normY);
 
                     return `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
-                    // return `M ${sourceX} ${sourceY} C ${control1X} ${control1Y}, ${control2X} ${control2Y}, ${targetX} ${targetY}`;
-
                 });
 
                 // path.attr("stroke-dasharray", "5, 5") // For dashed lines
-                node.attr("cx", function (d: any) { return d.x; }).attr("cy", function (d: any) { return d.y; });
+                node
+                    .attr('cx',  (d: any) => { return d.x; })
+                    .attr('cy',  (d: any) => { return d.y; });
             });
         });
     }

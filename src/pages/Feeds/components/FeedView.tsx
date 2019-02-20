@@ -1,12 +1,12 @@
-import * as React from "react";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
-import { ApplicationState } from "../../../store/root/applicationState";
-import { setSidebarActive } from "../../../store/ui/actions";
-import { getPluginInstanceListRequest } from "../../../store/feed/actions";
-import { IFeedState } from "../../../store/feed/types";
-import { RouteComponentProps } from "react-router-dom";
-import FeedTree from "./FeedTree";
+import * as React from 'react';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
+import { ApplicationState } from '../../../store/root/applicationState';
+import { setSidebarActive } from '../../../store/ui/actions';
+import { getPluginInstanceListRequest } from '../../../store/feed/actions';
+import { IFeedState } from '../../../store/feed/types';
+import { RouteComponentProps } from 'react-router-dom';
+import FeedTree from './FeedTree';
 import {
   PageSection,
   PageSectionVariants,
@@ -16,18 +16,18 @@ import {
   DataListItem,
   DataListToggle,
   DataListContent
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 import { pf4UtilityStyles } from '../../../lib/pf4-styleguides';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import imgPlaceholder from '../../../assets/images/feed_ph_70x70.png';
 import './feed.scss';
 
-interface PropsFromDispatch {
+interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getPluginInstanceListRequest: typeof getPluginInstanceListRequest;
 
 }
-type AllProps = IFeedState & PropsFromDispatch & RouteComponentProps<{ id: string }>;
+type AllProps = IFeedState & IPropsFromDispatch & RouteComponentProps<{ id: string }>;
 
 class FeedView extends React.Component<AllProps> {
   constructor(props: AllProps) {
@@ -35,10 +35,10 @@ class FeedView extends React.Component<AllProps> {
     const { setSidebarActive, getPluginInstanceListRequest, match } = this.props;
     const feedId = match.params.id;
     !!feedId && getPluginInstanceListRequest('2');
-    document.title = "My Feeds - ChRIS UI Demo site";
+    document.title = 'My Feeds - ChRIS UI Demo site';
     setSidebarActive({
-      activeItem: 'my_feeds',
-      activeGroup: 'feeds_grp'
+      activeGroup: 'feeds_grp',
+      activeItem: 'my_feeds'
     });
 
     this.onNodeClick = this.onNodeClick.bind(this);
@@ -167,22 +167,22 @@ class FeedView extends React.Component<AllProps> {
   // Description: handle node clicks to load next node information
   onNodeClick(node: any) {
     // Node was clicked
-    console.log("Trigger the load of information on the panels", node);
+    // console.log('Trigger the load of information on the panels', node);
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
+  getPluginInstanceListRequest: (id: string) => dispatch(getPluginInstanceListRequest(id)),
   setSidebarActive: (active: { activeItem: string, activeGroup: string }) => dispatch(setSidebarActive(active)),
-  getPluginInstanceListRequest: (id: string) => dispatch(getPluginInstanceListRequest(id))
 });
 
 const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
-  sidebarActiveItem: ui.sidebarActiveItem,
+  items: feed.items,
   sidebarActiveGroup: ui.sidebarActiveGroup,
-  items: feed.items
+  sidebarActiveItem: ui.sidebarActiveItem
 });
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
-)(FeedView)
+  mapDispatchToProps,
+)(FeedView);
