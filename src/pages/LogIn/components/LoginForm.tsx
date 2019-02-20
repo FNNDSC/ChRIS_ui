@@ -1,10 +1,19 @@
 import * as React from 'react';
-import { withRouter, Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
+import { ApplicationState } from '../../../store/root/applicationState';
+import { getAuthToken } from '../../../store/user/actions';
+import { IUserState } from '../../../store/user/types';
+import { withRouter } from 'react-router-dom';
 import { RouteComponentProps } from 'react-router';
 import {
     LoginForm
 } from '@patternfly/react-core';
 import Client from '@fnndsc/chrisapi';
+
+interface IPropsFromDispatch {
+    getAuthToken: typeof getAuthToken;
+}
 
 interface IState {
     usernameValue: string;
@@ -12,7 +21,7 @@ interface IState {
     isRememberMeChecked: boolean;
 }
 
-type AllProps = RouteComponentProps<any>;
+type AllProps = IPropsFromDispatch & RouteComponentProps;
 
 class LoginFormComponent extends React.Component<AllProps, IState> {
     constructor(props: AllProps) {
@@ -27,20 +36,24 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
 
     // Description: Create a fake user to work with API
     handleSubmit(event: Event) {
-        event.preventDefault();
+        const { getAuthToken } = this.props;
         const authURL = process.env.REACT_APP_CHRIS_UI_AUTH_URL;
         const authObj = {
             password: 'chris1234',
-            username: 'chris'
+            username: 'chris',
+            isRememberMe: true
         };
-        const promise = Client.getAuthToken(authURL, authObj.username, authObj.password)
-            .then((token: string) => {
-                // Set token in store
-                this.props.history.push('/feeds');
-            })
-            .catch((error: any) => {
-                console.log('Error!!!: ', error);
-            });
+
+        getAuthToken(authObj);
+        // Client.getAuthToken(authURL, authObj.username, authObj.password)
+        //     .then((token: string) => {
+        //         // Set token in store
+        //         console.log(token);
+        //         this.props.history.push('/feeds');
+        //     }).catch((error: any) => {
+        //         console.log('Error!!!: ', error);
+        //     });
+        event.preventDefault();
     }
 
     handleUsernameChange = (value: string) => {
@@ -55,8 +68,6 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
     }
 
     render() {
-        const { history } = this.props;
-        console.log('render');
         return (
             <LoginForm
                 className="login-form"
@@ -80,4 +91,16 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
     }
 }
 
-export default withRouter(LoginFormComponent);
+// export default withRouter(LoginFormComponent);
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+    getAuthToken: (user: IUserState) => dispatch(getAuthToken(user)),
+});
+
+const mapStateToProps = ({ ui }: ApplicationState) => ({
+});
+
+
+export default withRouter(connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(LoginFormComponent));

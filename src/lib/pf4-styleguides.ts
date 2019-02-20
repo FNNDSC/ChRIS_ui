@@ -134,4 +134,4 @@ export const pf4UtilityStyles = {
         py_2xl: 'pf-u-py-2xl',
         py_3xl: 'pf-u-py-3xl'
     }
-}
+};

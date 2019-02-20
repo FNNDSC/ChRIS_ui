@@ -25,8 +25,8 @@ import './feed.scss';
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getPluginInstanceListRequest: typeof getPluginInstanceListRequest;
-
 }
+
 type AllProps = IFeedState & IPropsFromDispatch & RouteComponentProps<{ id: string }>;
 
 class FeedView extends React.Component<AllProps> {

@@ -1,5 +1,5 @@
-import * as React from "react";
-import { RouteComponentProps } from "react-router-dom";
+import * as React from 'react';
+import { RouteComponentProps } from 'react-router-dom';
 import { LoginPage } from '@patternfly/react-core';
 import LoginFormComponent from './components/LoginForm';
 import './login.scss';
@@ -8,9 +8,9 @@ type AllProps = RouteComponentProps;
 
 class LogInPage extends React.Component<AllProps> {
     componentDidMount() {
-        document.title = "Log in into your ChRIS Account";
+        document.title = 'Log in into your ChRIS Account';
     }
-  
+
     render() {
         return (
             <LoginPage
