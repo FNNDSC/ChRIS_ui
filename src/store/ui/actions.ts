@@ -3,7 +3,7 @@ import {
     UiActionTypes
 } from './types';
 
-//  Description: Actions for UI Manager: example: 
+//  Description: Actions for UI Manager: example:
 export const uiOnBeforeRequest = () => action(UiActionTypes.FETCH_REQUEST);
 export const uiOnCompleteRequest = () => action(UiActionTypes.FETCH_COMPLETE);
 
@@ -13,4 +13,4 @@ export const onKebabDropdownSelect = (isOpened: boolean) => action(UiActionTypes
 export const onSidebarToggle = (isOpened: boolean) => action(UiActionTypes.TOGGLE_SIDEBAR, isOpened);
 
 // Set active sidebar item and group
-export const setSidebarActive = (active:{activeItem: string, activeGroup: string}) => action(UiActionTypes.SET_SIDEBAR_ACTIVE_ITEM, active);
+export const setSidebarActive = (active: {activeItem: string, activeGroup: string}) => action(UiActionTypes.SET_SIDEBAR_ACTIVE_ITEM, active);

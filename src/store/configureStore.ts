@@ -17,7 +17,7 @@ export default function configureStore(): Store<ApplicationState> {
     // Custom redux logger
     const logger = createLogger({
         collapsed: true
-    })
+    });
 
     // Build Saga middleware
     const sagaMiddleware = createSagaMiddleware();
@@ -27,11 +27,11 @@ export default function configureStore(): Store<ApplicationState> {
         rootReducer,
         initialGlobalState,
         applyMiddleware(sagaMiddleware, logger)
-    )
+    );
 
     // Run the root saga
-    sagaMiddleware.run(rootSaga)
-    
+    sagaMiddleware.run(rootSaga);
+
     // Return the store object.
     return store;
 }
