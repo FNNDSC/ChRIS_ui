@@ -19,6 +19,9 @@ export const FeedActionTypes = keyMirror({
 });
 
 
+
+
+
 // These will come from ClienAPI ts definition when completed ***** working typings *****
 export interface IPluginInstance {
     collection: ICollection;

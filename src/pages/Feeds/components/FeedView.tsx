@@ -167,7 +167,7 @@ class FeedView extends React.Component<AllProps> {
   // Description: handle node clicks to load next node information
   onNodeClick(node: any) {
     // Node was clicked
-    // console.log('Trigger the load of information on the panels', node);
+    console.log('Trigger the load of information on the panels', node);
   }
 }
 
