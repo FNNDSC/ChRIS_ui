@@ -1,8 +1,8 @@
-import { Reducer } from "redux";
-import { UiActionTypes, IUiState } from "./types";
+import { Reducer } from 'redux';
+import { UiActionTypes, IUiState } from './types';
 
 
-// Type-safe initialState 
+// Type-safe initialState
 const initialState: IUiState = {
     loading: false,
     progress: 0,
@@ -34,7 +34,7 @@ const reducer: Reducer<IUiState> = (state = initialState, action) => { //  *****
             return {...state, sidebarActiveItem: action.payload.activeItem, sidebarActiveGroup: action.payload.activeGroup };
         }
 
-       //TOGGLE_SIDEBAR
+       // TOGGLE_SIDEBAR
         default: {
             return state;
         }
