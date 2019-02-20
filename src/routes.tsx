@@ -8,9 +8,9 @@ import {
 
 // Add view routes here
 import { Dashboard } from './pages/Dashboard/Dashboard';
-import  FeedsPage  from './pages/Feeds/Feeds';
-import  {LogIn}  from './pages/LogIn/Login';
-import  {NotFound}  from './pages/NotFound/NotFound';
+import FeedsPage from './pages/Feeds/Feeds';
+import {LogIn} from './pages/LogIn/Login';
+import {NotFound} from './pages/NotFound/NotFound';
 
 
 const Routes: React.FunctionComponent = () => (

@@ -11,12 +11,12 @@ interface AllProps {
 }
 
 class Main extends React.Component<AllProps> {
-  public render() {
+  render() {
     const { store } = this.props;
 
     return (
       <Provider store={store}>
-          <Routes />
+        <Routes />
       </Provider>
     );
   }
