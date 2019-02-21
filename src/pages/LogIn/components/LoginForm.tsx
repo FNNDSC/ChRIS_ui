@@ -34,25 +34,16 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    // Description: Create a fake user to work with API
+    // Description: Create a fake user to work with API, redux store
     handleSubmit(event: Event) {
         const { getAuthToken } = this.props;
-        const authURL = process.env.REACT_APP_CHRIS_UI_AUTH_URL;
         const authObj = {
-            password: 'chris1234',
-            username: 'chris',
-            isRememberMe: true
+            password: this.state.passwordValue,
+            username: this.state.usernameValue,
+            isRememberMe: this.state.isRememberMeChecked
         };
-
+        console.log(authObj);
         getAuthToken(authObj);
-        // Client.getAuthToken(authURL, authObj.username, authObj.password)
-        //     .then((token: string) => {
-        //         // Set token in store
-        //         console.log(token);
-        //         this.props.history.push('/feeds');
-        //     }).catch((error: any) => {
-        //         console.log('Error!!!: ', error);
-        //     });
         event.preventDefault();
     }
 

@@ -2,21 +2,25 @@ import * as React from 'react';
 import Routes from './routes';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
-import Wrapper from './containers/layout/PageWrapper';
+import { History } from 'history';
+import { ConnectedRouter } from 'connected-react-router';
 import { ApplicationState } from './store/root/applicationState';
 
 
 interface AllProps {
-  store: Store<ApplicationState>
+  store: Store<ApplicationState>;
+  history: History;
 }
 
 class Main extends React.Component<AllProps> {
   render() {
-    const { store } = this.props;
+    const { store, history } = this.props;
 
     return (
       <Provider store={store}>
-        <Routes />
+       <ConnectedRouter history={history}>
+         <Routes />
+       </ConnectedRouter>
       </Provider>
     );
   }

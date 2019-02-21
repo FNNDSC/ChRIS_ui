@@ -14,7 +14,6 @@ import {NotFound} from './pages/NotFound/NotFound';
 
 
 const Routes: React.FunctionComponent = () => (
-  <BrowserRouter>
     <React.Fragment>
       <Switch>
         <Route exact path="/" component={Dashboard} />
@@ -25,7 +24,6 @@ const Routes: React.FunctionComponent = () => (
         <Route component={NotFound} />
       </Switch>
     </React.Fragment>
-  </BrowserRouter>
 )
 
 

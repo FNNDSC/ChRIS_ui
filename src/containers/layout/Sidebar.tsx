@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Link } from "react-router-dom";
-import { connect } from "react-redux";
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 
-import { ApplicationState } from "../../store/root/applicationState";
-import { IUiState } from "../../store/ui/types";
+import { ApplicationState } from '../../store/root/applicationState';
+import { IUiState } from '../../store/ui/types';
 import {
     PageSidebar,
     Nav,
@@ -23,7 +23,7 @@ class Sidebar extends React.Component<IUiState> {
         const PageNav = (
             <Nav aria-label="ChRIS Demo site navigation">
                 <NavList>
-                    <NavGroup title='Main Navigation'>
+                    <NavGroup title="Main Navigation">
                         <NavExpandable title="Library" groupId="library_grp" isActive={sidebarActiveGroup === 'library_grp'}>
                             <NavItem groupId="library_grp" itemId="library_item" isActive={sidebarActiveItem === 'library_item'}>
                                 <Link to={`/libraryitem`}>Library Item</Link>
@@ -52,7 +52,7 @@ class Sidebar extends React.Component<IUiState> {
                             <Link to="/plugins">Plugins</Link>
                         </NavItem>
                     </NavGroup>
-                    <NavGroup title='Working Pages'>
+                    <NavGroup title="Working Pages">
                         <NavItem itemId="logIn">
                             <Link to="/login">Log in</Link>
                         </NavItem>
@@ -66,7 +66,7 @@ class Sidebar extends React.Component<IUiState> {
         );
         return (
             <PageSidebar nav={PageNav} isNavOpen={isSidebarOpen} />
-        )
+        );
     }
 }
 
@@ -78,4 +78,4 @@ const mapStateToProps = ({ ui }: ApplicationState) => ({
 
 export default connect(
     mapStateToProps
-)(Sidebar)
+)(Sidebar);

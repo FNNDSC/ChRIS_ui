@@ -1,5 +1,5 @@
 import { all, call, fork, put, takeEvery } from 'redux-saga/effects';
-
+import { push } from 'connected-react-router';
 import Client from '@fnndsc/chrisapi';
 import { UserActionTypes } from './types';
 import {
@@ -12,21 +12,21 @@ import {
 const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
 function* handleGetAuthToken(action: any) {
     try {
-        console.log(action);
         const authURL = process.env.REACT_APP_CHRIS_UI_AUTH_URL;
         const authObj = {
-            password: 'chris1234',
-            username: 'chris'
+            password: action.payload.password,
+            username: action.payload.username
         };
         const res = yield call(Client.getAuthToken, authURL, authObj.username, authObj.password);
         if (res.error) {
-            console.log(res.error); // working user messaging
+            console.log(res.error); // working ***** user messaging
         } else {
             yield put(getAuthTokenSuccess(res));
-            // redirectToDashboard();
+            yield put(push('/'));
         }
     } catch (error) {
         console.log(error); // working user messaging
+        yield put(push('/not-found'));
         // yield put(handleUIMessage({ message: (err instanceof Error ? (err.stack!) :
         //   managerDefaults.defaultMessage.Error), type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
     }
