@@ -1,8 +1,8 @@
-import { Reducer } from "redux";
-import { messageActionTypes, IMessageState } from "./types";
+import { Reducer } from 'redux';
+import { messageActionTypes, IMessageState } from './types';
 
 
-// Type-safe initialState 
+// Type-safe initialState
 const initialState: IMessageState = {
     message: undefined,
   confirmation: undefined

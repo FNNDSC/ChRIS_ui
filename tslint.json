@@ -28,7 +28,8 @@
         "trailing-comma": false,
         "no-shadowed-variable": false,
         "object-literal-sort-keys": false,
-        "interface-name":false
+        "interface-name":false,
+        "interface-over-type-literal": false
     },
     "jsRules": {
         "max-line-length": {
