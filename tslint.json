@@ -27,7 +27,8 @@
         "arrow-return-shorthand": false,
         "trailing-comma": false,
         "no-shadowed-variable": false,
-        "object-literal-sort-keys": false
+        "object-literal-sort-keys": false,
+        "interface-name":false
     },
     "jsRules": {
         "max-line-length": {
