@@ -8,10 +8,10 @@ import keyMirror from 'keymirror';
 
 // Description state for main user items[] and item
 export interface IUserState {
-    username: string;
-    email?: string;
+    username?: string | null;
     password?: string;
-    token?: string;
+    email?: string;
+    token?: string | null;
     isRememberMe: boolean;
 }
 
@@ -19,6 +19,7 @@ export const UserActionTypes = keyMirror({
     FETCH_TOKEN: null, // before request
     FETCH_TOKEN_ERROR: null, // request failed
     FETCH_TOKEN_SUCCESS: null, // request is successful
+    LOGOUT_USER: null
 });
 
 

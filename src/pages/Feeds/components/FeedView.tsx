@@ -176,10 +176,11 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSidebarActive: (active: { activeItem: string, activeGroup: string }) => dispatch(setSidebarActive(active)),
 });
 
-const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
+const mapStateToProps = ({ ui, feed, user }: ApplicationState) => ({
   items: feed.items,
   sidebarActiveGroup: ui.sidebarActiveGroup,
-  sidebarActiveItem: ui.sidebarActiveItem
+  sidebarActiveItem: ui.sidebarActiveItem,
+  token: user.token
 });
 
 export default connect(

@@ -9,24 +9,12 @@ import { ApplicationState } from './applicationState';
 /// ADD ALL Local Reducers:
 // import { ComponentReducer } from '../file-source';
 import { uiReducer } from '../ui/reducer';
+import { connectRouter } from 'connected-react-router';
+import { History } from 'history';
 import { messageReducer } from '../message/reducer';
 import { feedReducer } from '../feed/reducer';
 import { userReducer } from '../user/reducer';
 
-// const reducers = {
-//   // ... Register ALL reducers ... //
-//   ui: uiReducer,
-//   message: messageReducer,
-//   feed: feedReducer,
-//   user: userReducer
-
-// }
-// const rootReducer = combineReducers<ApplicationState>(reducers);
-
-// export default rootReducer;
-
-import { connectRouter } from 'connected-react-router';
-import { History } from 'history';
 export default (history: History) =>
   combineReducers({
     router: connectRouter(history),
@@ -34,5 +22,5 @@ export default (history: History) =>
     message: messageReducer,
     feed: feedReducer,
     user: userReducer
-    // rest of your reducers
+    // rest of your reducers ...
   });
