@@ -6,10 +6,8 @@ import { getAuthToken } from '../../../store/user/actions';
 import { IUserState } from '../../../store/user/types';
 import { withRouter } from 'react-router-dom';
 import { RouteComponentProps } from 'react-router';
-import {
-    LoginForm
-} from '@patternfly/react-core';
-import Client from '@fnndsc/chrisapi';
+import { LoginForm } from '@patternfly/react-core';
+
 
 interface IPropsFromDispatch {
     getAuthToken: typeof getAuthToken;
@@ -27,9 +25,9 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
     constructor(props: AllProps) {
         super(props);
         this.state = {
-            isRememberMeChecked: true,
+            usernameValue: 'chris',
             passwordValue: 'chris1234',
-            usernameValue: 'chris'
+            isRememberMeChecked: true,
         };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -42,7 +40,6 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
             username: this.state.usernameValue,
             isRememberMe: this.state.isRememberMeChecked
         };
-        console.log(authObj);
         getAuthToken(authObj);
         event.preventDefault();
     }
@@ -87,11 +84,11 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     getAuthToken: (user: IUserState) => dispatch(getAuthToken(user)),
 });
 
-const mapStateToProps = ({ ui }: ApplicationState) => ({
-});
+// const mapStateToProps = ({ ui }: ApplicationState) => ({
+// });
 
 
 export default withRouter(connect(
-    mapStateToProps,
+    null,
     mapDispatchToProps,
 )(LoginFormComponent));

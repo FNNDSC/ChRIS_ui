@@ -21,13 +21,14 @@ import { pf4UtilityStyles } from '../../../lib/pf4-styleguides';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import imgPlaceholder from '../../../assets/images/feed_ph_70x70.png';
 import './feed.scss';
+import { IUserState } from '../../../store/user/types';
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getPluginInstanceListRequest: typeof getPluginInstanceListRequest;
 }
 
-type AllProps = IFeedState & IPropsFromDispatch & RouteComponentProps<{ id: string }>;
+type AllProps = IUserState & IFeedState & IPropsFromDispatch & RouteComponentProps<{ id: string }>;
 
 class FeedView extends React.Component<AllProps> {
   constructor(props: AllProps) {
@@ -42,6 +43,7 @@ class FeedView extends React.Component<AllProps> {
     });
 
     this.onNodeClick = this.onNodeClick.bind(this);
+    console.log(this.props.token);
   }
 
   render() {
