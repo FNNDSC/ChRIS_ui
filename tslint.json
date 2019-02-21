@@ -29,7 +29,8 @@
         "no-shadowed-variable": false,
         "object-literal-sort-keys": false,
         "interface-name":false,
-        "interface-over-type-literal": false
+        "interface-over-type-literal": false,
+        "member-ordering": false
     },
     "jsRules": {
         "max-line-length": {
