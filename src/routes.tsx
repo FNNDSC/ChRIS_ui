@@ -1,10 +1,9 @@
 
-import React from 'react'
+import React from 'react';
 import {
-  BrowserRouter,
   Route,
   Switch
-} from 'react-router-dom'
+} from 'react-router-dom';
 
 // Add view routes here
 import { Dashboard } from './pages/Dashboard/Dashboard';
@@ -24,7 +23,7 @@ const Routes: React.FunctionComponent = () => (
         <Route component={NotFound} />
       </Switch>
     </React.Fragment>
-)
+);
 
 
 export default Routes;

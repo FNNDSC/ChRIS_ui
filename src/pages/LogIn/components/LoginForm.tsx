@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
-import { ApplicationState } from '../../../store/root/applicationState';
 import { getAuthToken } from '../../../store/user/actions';
 import { IUserState } from '../../../store/user/types';
 import { withRouter } from 'react-router-dom';
