@@ -1,28 +1,28 @@
-import { all, call, fork, put, takeEvery } from "redux-saga/effects";
-import { IFeedState, FeedActionTypes } from "./types";
-import FeedModel from "../../api/models/feed.model";
+import { all, call, fork, put, takeEvery } from 'redux-saga/effects';
+import { IFeedState, FeedActionTypes } from './types';
+import FeedModel from '../../api/models/feed.model';
 import {
     getPluginInstanceListSuccess
-} from "./actions";
+} from './actions';
 
 
-//----------------------------------------------------------------
+// ----------------------------------------------------------------
 // Description: List - Get all Users
-//----------------------------------------------------------------
-const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;//process.env.REACT_APP_CHRIS_UI_URL || ''; //"https://localhost:8000/api/v1/" 
-function* handleGetPluginInstances(action:any) {
+// ----------------------------------------------------------------
+const url = `${process.env.REACT_APP_CHRIS_UI_URL}`; // process.env.REACT_APP_CHRIS_UI_URL || ''; //"https://localhost:8000/api/v1/"
+function* handleGetPluginInstances(action: any) {
     try {
         const res = yield call(FeedModel.getPluginInstance, action.payload);
         if (res.error) {
             // yield put(handleUIMessage({ message: res.error, type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
-            console.log(res.error); // working user messaging
+            console.error(res.error); // working user messaging
         } else {
             yield put(getPluginInstanceListSuccess(res));
             // yield put(managerOnCompleteRequest()); // nO need for messaging just loading false
         }
     } catch (error) {
-        console.log(error); // working user messaging
-        // yield put(handleUIMessage({ message: (err instanceof Error ? (err.stack!) : 
+        console.error(error); // working user messaging
+        // yield put(handleUIMessage({ message: (err instanceof Error ? (err.stack!) :
         //   managerDefaults.defaultMessage.Error), type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
     }
 }

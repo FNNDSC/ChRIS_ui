@@ -43,7 +43,7 @@ class FeedView extends React.Component<AllProps> {
     });
 
     this.onNodeClick = this.onNodeClick.bind(this);
-    console.log(this.props.token);
+    // console.log(this.props.token);
   }
 
   render() {

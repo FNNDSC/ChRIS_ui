@@ -14,7 +14,8 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
             return { ...state  };
         }
         case FeedActionTypes.FETCH_SUCCESS: {
-            return { ...state, items: action.payload.data.results };
+            console.log(action.payload);
+            return { ...state, items: action.payload.collection.items  };
         }
         case FeedActionTypes.FETCH_ERROR: {
             return { ...state  };
