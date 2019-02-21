@@ -4,6 +4,7 @@ import { Dispatch } from 'redux';
 import { ApplicationState } from '../../store/root/applicationState';
 import { IUiState } from '../../store/ui/types';
 import { onDropdownSelect, onKebabDropdownSelect } from '../../store/ui/actions';
+import { setUserLogout } from '../../store/user/actions';
 import {
     Button,
     ButtonVariant,
@@ -21,11 +22,15 @@ import { BellIcon, CogIcon } from '@patternfly/react-icons';
 interface IPropsFromDispatch {
     onDropdownSelect: typeof onDropdownSelect;
     onKebabDropdownSelect: typeof onKebabDropdownSelect;
+    setUserLogout: typeof setUserLogout;
 }
 type AllProps = IUiState & IPropsFromDispatch;
 
 class ToolbarComponent extends React.Component<AllProps> {
-
+    constructor(props: AllProps) {
+        super(props);
+        this.onLogout = this.onLogout.bind(this);
+    }
     onDropdownToggle = (isOpened: boolean) => {
         const { onDropdownSelect } = this.props;
         onDropdownSelect(isOpened);
@@ -33,7 +38,7 @@ class ToolbarComponent extends React.Component<AllProps> {
 
     onDropdownSelect = (event: React.SyntheticEvent<HTMLDivElement>) => {
         const { onDropdownSelect, isDropdownOpen } = this.props;
-        !!isDropdownOpen && onDropdownSelect(isDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
+        !!isDropdownOpen && onDropdownSelect(!isDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
     }
 
     onKebabDropdownToggle = (isOpened: boolean) => {
@@ -46,6 +51,10 @@ class ToolbarComponent extends React.Component<AllProps> {
         !!isKebabDropdownOpen && onKebabDropdownSelect(isKebabDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
     }
 
+    // Description: Logout user
+    onLogout() {
+        this.props.setUserLogout();
+    }
     render() {
         const { isDropdownOpen, isKebabDropdownOpen } = this.props;
         const kebabDropdownItems = [
@@ -62,7 +71,7 @@ class ToolbarComponent extends React.Component<AllProps> {
             <DropdownItem key="dd2" component="a">Link 2</DropdownItem>,
             <DropdownItem key="dd3">Link 3</DropdownItem>,
             <DropdownItem key="dd4">Link 4</DropdownItem>,
-            <DropdownItem key="dd5" component="a">Link 5</DropdownItem>
+            <DropdownItem key="dd5" component="a" onClick={this.onLogout}>Sign out</DropdownItem>
         ];
         return (
             <Toolbar>
@@ -108,6 +117,8 @@ class ToolbarComponent extends React.Component<AllProps> {
 const mapDispatchToProps = (dispatch: Dispatch) => ({
     onDropdownSelect: (isOpened: boolean) => dispatch(onDropdownSelect(isOpened)),
     onKebabDropdownSelect: (isOpened: boolean) => dispatch(onKebabDropdownSelect(isOpened)),
+    setUserLogout: () => dispatch(setUserLogout())
+
 });
 
 const mapStateToProps = ({ ui }: ApplicationState) => ({

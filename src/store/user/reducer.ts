@@ -4,24 +4,25 @@ import { IUserState, UserActionTypes } from './types';
 
 // Type-safe initialState
 const initialState: IUserState = {
-    username: '',
+    username: window.sessionStorage.getItem('USERNAME'),
+    token:  window.sessionStorage.getItem('AUTH_TOKEN'),
     isRememberMe: false,
-    token: undefined
 };
 
 // ***** NOTE: Working *****
 const reducer: Reducer<IUserState> = (state = initialState, action) => {
     switch (action.type) {
         case UserActionTypes.FETCH_TOKEN: {
-            console.log('FETCH_TOKEN', action.payload);
             return { ...state, username: action.payload.username };
         }
         case UserActionTypes.FETCH_TOKEN_SUCCESS: {
-            console.log('FETCH_TOKEN_SUCCESS', action.payload);
             return { ...state, token: action.payload };
         }
         case UserActionTypes.FETCH_TOKEN_ERROR: {
             return { ...state, items: action.payload.data };
+        }
+        case UserActionTypes.LOGOUT_USER: {
+            return { ...state, username: null, token: null };
         }
 
         default: {
