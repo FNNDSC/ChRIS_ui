@@ -5,21 +5,20 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import {
   getFeedDetailsRequest,
-  getPluginInstanceListRequest
+  getPluginInstanceListRequest,
+  setSelectedPluginNode
 } from "../../../store/feed/actions";
-import { IFeedState } from "../../../store/feed/types";
+import { IFeedState, IItem } from "../../../store/feed/types";
 import { RouteComponentProps } from "react-router-dom";
 import FeedDetails from "./FeedDetails";
 import FeedTree from "./FeedTree";
+import NodeDetails from "./NodeDetails";
+import PluginDetailPanel from "./PluginDetailPanel";
 import {
   PageSection,
   PageSectionVariants,
   Grid,
-  GridItem,
-  DataList,
-  DataListItem,
-  DataListToggle,
-  DataListContent
+  GridItem
 } from "@patternfly/react-core";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 
@@ -30,6 +29,7 @@ interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getFeedDetailsRequest: typeof getFeedDetailsRequest;
   getPluginInstanceListRequest: typeof getPluginInstanceListRequest;
+  setSelectedPluginNode: typeof setSelectedPluginNode;
 }
 
 type AllProps = IUserState &
@@ -51,18 +51,14 @@ class FeedView extends React.Component<AllProps> {
     this.onNodeClick = this.onNodeClick.bind(this);
   }
 
+  // Description: this will get the feed details then retrieve the plugin_instances object
   fetchFeedData(feedId: string) {
-    const { getPluginInstanceListRequest, getFeedDetailsRequest } = this.props;
+    const { getFeedDetailsRequest } = this.props;
     getFeedDetailsRequest(feedId);
-    getPluginInstanceListRequest(feedId);
   }
 
   render() {
-    const { items, details } = this.props;
-    let isExpanded = true; // ***** working - to be done *****
-    const toggle = (id: string) => {
-      isExpanded = !isExpanded;
-    };
+    const { items, details, selected } = this.props;
 
     // NOTE: working - will separate into components ***** working
     return (
@@ -89,7 +85,11 @@ class FeedView extends React.Component<AllProps> {
               )}
             </GridItem>
             <GridItem className="node-block pf-u-p-md" sm={12} md={6}>
-              Selected node information block
+              {!!selected ? (
+                <NodeDetails selected={selected} />
+              ) : (
+                <div>Please click on a node to work on a plugin</div>
+              )}
             </GridItem>
           </Grid>
         </PageSection>
@@ -98,96 +98,24 @@ class FeedView extends React.Component<AllProps> {
         {/* Bottom section with information */}
         <PageSection>
           <div className="plugin-info pf-u-py-md">
-            <h1>Plugin Title</h1>
-            <Grid>
-              <GridItem sm={12} md={4}>
-                <DataList aria-label="Expandable data list example">
-                  <DataListItem
-                    aria-labelledby="ex-item1"
-                    isExpanded={isExpanded}
-                  >
-                    [Plugin Name]
-                    <DataListToggle
-                      onClick={() => toggle("ex-toggle1")}
-                      isExpanded={isExpanded}
-                      id="ex-toggle1"
-                      aria-labelledby="ex-toggle1 ex-item1"
-                      aria-label="Toggle details for"
-                    />
-                    <DataListContent
-                      aria-label="Primary Content Details"
-                      isHidden={!isExpanded}
-                    >
-                      test
-                    </DataListContent>
-                  </DataListItem>
-                </DataList>
-              </GridItem>
-              <GridItem sm={12} md={4}>
-                <DataList aria-label="Expandable data list example">
-                  <DataListItem
-                    aria-labelledby="ex-item1"
-                    isExpanded={isExpanded}
-                  >
-                    [Plugin Name]
-                    <DataListToggle
-                      onClick={() => toggle("ex-toggle1")}
-                      isExpanded={isExpanded}
-                      id="ex-toggle1"
-                      aria-labelledby="ex-toggle1 ex-item1"
-                      aria-label="Toggle details for"
-                    />
-                    <DataListContent
-                      aria-label="Primary Content Details"
-                      isHidden={!isExpanded}
-                    >
-                      <p>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit.
-                      </p>
-                    </DataListContent>
-                  </DataListItem>
-                </DataList>
-              </GridItem>
-              <GridItem sm={12} md={4}>
-                <DataList aria-label="Expandable data list example">
-                  <DataListItem
-                    aria-labelledby="ex-item1"
-                    isExpanded={isExpanded}
-                  >
-                    [Plugin Name]
-                    <DataListToggle
-                      onClick={() => toggle("ex-toggle1")}
-                      isExpanded={isExpanded}
-                      id="ex-toggle1"
-                      aria-labelledby="ex-toggle1 ex-item1"
-                      aria-label="Toggle details for"
-                    />
-                    <DataListContent
-                      aria-label="Primary Content Details"
-                      isHidden={!isExpanded}
-                    >
-                      <p>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit, sed do eiusmod tempor incididunt ut labore et
-                        dolore magna aliqua.
-                      </p>
-                    </DataListContent>
-                  </DataListItem>
-                </DataList>
-              </GridItem>
-            </Grid>
+            {!!selected ? (
+              <PluginDetailPanel selected={selected} />
+            ) : (
+              <h1>Select plugin</h1>
+            )}
           </div>
-          {/* END OF Bottom section with information */}
         </PageSection>
+        {/* END OF Bottom section with information */}
       </React.Fragment>
     );
   }
 
   // Description: handle node clicks to load next node information
   onNodeClick(node: any) {
+    const { setSelectedPluginNode } = this.props;
     // Node was clicked
     console.log("Trigger the load of information on the panels", node);
+    setSelectedPluginNode(node);
   }
 }
 
@@ -195,16 +123,18 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedDetailsRequest: (id: string) => dispatch(getFeedDetailsRequest(id)),
   getPluginInstanceListRequest: (id: string) =>
     dispatch(getPluginInstanceListRequest(id)),
+  setSelectedPluginNode: (node: IItem) => dispatch(setSelectedPluginNode(node)),
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active))
 });
 
 const mapStateToProps = ({ ui, feed, user }: ApplicationState) => ({
-  items: feed.items,
-  details: feed.details,
   sidebarActiveGroup: ui.sidebarActiveGroup,
   sidebarActiveItem: ui.sidebarActiveItem,
-  token: user.token
+  token: user.token,
+  items: feed.items,
+  details: feed.details,
+  selected: feed.selected
 });
 
 export default connect(

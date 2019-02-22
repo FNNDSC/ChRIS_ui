@@ -3,6 +3,7 @@ import { IFeedState, FeedActionTypes } from "./types";
 import FeedModel from "../../api/models/feed.model";
 import {
     getFeedDetailsSuccess,
+    getPluginInstanceListRequest,
     getPluginInstanceListSuccess
 } from "./actions";
 
@@ -19,6 +20,8 @@ function* handleGetFeedDetails(action: any) {
             console.error(res.error); // working user messaging
         } else {
             yield put(getFeedDetailsSuccess(res));
+            const url = res.data.plugin_instances;
+            yield put(getPluginInstanceListRequest(url));
             // yield put(managerOnCompleteRequest()); // nO need for messaging just loading false
         }
     } catch (error) {

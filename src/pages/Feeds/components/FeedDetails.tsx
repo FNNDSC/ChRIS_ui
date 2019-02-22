@@ -7,9 +7,6 @@ import { IFeedState } from "../../../store/feed/types";
 type AllProps = IFeedState;
 
 class FeedDetails extends React.Component<AllProps> {
-  getUserNameFromPlugin() {
-    console.log("getUserNameFromPlugin");
-  }
   render() {
     const { details } = this.props;
     return (
