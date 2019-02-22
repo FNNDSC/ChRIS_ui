@@ -12,9 +12,7 @@
 @import "~@patternfly/patternfly/components/AppLauncher/app-launcher.scss";
 @import "~@patternfly/patternfly/components/Avatar/avatar.scss";
 @import "~@patternfly/patternfly/components/Backdrop/backdrop.scss";
-// @import "~@patternfly/patternfly/components/BackgroundImage/background-image.scss";
 @import "~@patternfly/patternfly/components/Badge/badge.scss";
-// @import "~@patternfly/patternfly/components/Brand/brand.scss";
 @import "~@patternfly/patternfly/components/Breadcrumb/breadcrumb.scss";
 @import "~@patternfly/patternfly/components/Button/button.scss";
 @import "~@patternfly/patternfly/components/Card/card.scss";
@@ -57,3 +55,6 @@
 @import "~@patternfly/patternfly/layouts/Split/split.scss";
 @import "~@patternfly/patternfly/layouts/Stack/stack.scss";
 
+// Unused scss assets
+// @import "~@patternfly/patternfly/components/Brand/brand.scss"; //deprecated
+// @import "~@patternfly/patternfly/components/BackgroundImage/background-image.scss";

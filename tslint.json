@@ -23,7 +23,7 @@
         "no-unused-expression": [true, "allow-fast-null-checks"],
         "member-access": [true, "no-public"],
         "one-variable-per-declaration": false,
-        "quotemark": [true, "single", "jsx-double"],
+        
         "arrow-return-shorthand": false,
         "trailing-comma": false,
         "no-shadowed-variable": false,
