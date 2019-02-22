@@ -4,14 +4,20 @@
 *  Author:          ChRIS ui Demo
 *  Notes:           Work in progres ...
 */
-import keyMirror from 'keymirror';
+import keyMirror from "keymirror";
 
 // Description state for main user items[] and item
 export interface IFeedState {
+    details?: IFeedDetails;
     items?: IItem[];
 }
 
 export const FeedActionTypes = keyMirror({
+    GET_FEED_LIST: null,
+    GET_FEED_DETAILS: null,
+    GET_FEED_DETAILS_SUCCESS: null,
+    GET_PLUGIN_INSTANCES: null,
+    GET_PLUGIN_INSTANCES_SUCCESS: null,
     FETCH_COMPLETE: null, // after request completes
     FETCH_ERROR: null, // request failed
     FETCH_REQUEST: null, // before request
@@ -19,10 +25,22 @@ export const FeedActionTypes = keyMirror({
 });
 
 
-
-
-
 // These will come from ClienAPI ts definition when completed ***** working typings *****
+export interface IFeedLinks {
+    files: string;
+    comments: string;
+    owner: string;
+    note: string;
+    taggings: string;
+    plugin_instances: string;
+}
+export interface IFeedDetails extends IFeedLinks{
+    id: number;
+    creation_date: string;
+    modification_date: string;
+    name: string;
+}
+/// ----------- Basic interface
 export interface IPluginInstance {
     collection: ICollection;
 }
@@ -51,10 +69,10 @@ export interface ILink {
 }
 
 export enum IRel {
-    Descendants = 'descendants',
-    Feed = 'feed',
-    Files = 'files',
-    Parameters = 'parameters',
-    Plugin = 'plugin',
-    Previous = 'previous',
+    Descendants = "descendants",
+    Feed = "feed",
+    Files = "files",
+    Parameters = "parameters",
+    Plugin = "plugin",
+    Previous = "previous",
 }
