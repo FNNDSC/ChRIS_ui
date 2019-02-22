@@ -68,9 +68,11 @@ class FeedView extends React.Component<AllProps> {
     return (
       <React.Fragment>
         {/* Top section with Feed information */}
-        <PageSection variant={PageSectionVariants.darker}>
-          {(!!details && !!items) && <FeedDetails details={details} items={items} />}
-        </PageSection>
+        {!!details && !!items && (
+          <PageSection variant={PageSectionVariants.darker}>
+            <FeedDetails details={details} items={items} />
+          </PageSection>
+        )}
         {/* END Top section with Feed information */}
 
         {/* Mid section with Feed and node actions */}
