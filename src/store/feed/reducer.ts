@@ -11,7 +11,6 @@ const initialState: IFeedState = {
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
   switch (action.type) {
     case FeedActionTypes.GET_FEED_DETAILS_SUCCESS: {
-      console.log("GET_FEED_DETAILS_SUCCESS", action);
       // return { ...state, details: action.payload.collection.items }; // Using the api
       return { ...state, details: action.payload.data };
     }
