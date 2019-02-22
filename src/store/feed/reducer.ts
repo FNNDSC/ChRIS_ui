@@ -14,8 +14,9 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
             return { ...state  };
         }
         case FeedActionTypes.FETCH_SUCCESS: {
-            console.log(action.payload);
-            return { ...state, items: action.payload.collection.items  };
+            // Note: when using the ChrisAPI the items will be action.payload.collection.items
+            // return { ...state, items: action.payload.collection.items }; //Note: For API call... stub
+            return { ...state, items: action.payload.data.results };
         }
         case FeedActionTypes.FETCH_ERROR: {
             return { ...state  };
