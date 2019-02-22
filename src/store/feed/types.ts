@@ -8,8 +8,9 @@ import keyMirror from "keymirror";
 
 // Description state for main user items[] and item
 export interface IFeedState {
-    details?: IFeedDetails;
+    details?: IFeedItem;
     items?: IItem[];
+    selected?: IItem;
 }
 
 export const FeedActionTypes = keyMirror({
@@ -18,6 +19,7 @@ export const FeedActionTypes = keyMirror({
     GET_FEED_DETAILS_SUCCESS: null,
     GET_PLUGIN_INSTANCES: null,
     GET_PLUGIN_INSTANCES_SUCCESS: null,
+    SET_SELECTED_PLUGIN: null,
     FETCH_COMPLETE: null, // after request completes
     FETCH_ERROR: null, // request failed
     FETCH_REQUEST: null, // before request
@@ -34,12 +36,14 @@ export interface IFeedLinks {
     taggings: string;
     plugin_instances: string;
 }
-export interface IFeedDetails extends IFeedLinks{
+export interface IFeedItem extends IFeedLinks {
     id: number;
     creation_date: string;
     modification_date: string;
     name: string;
 }
+
+
 /// ----------- Basic interface
 export interface IPluginInstance {
     collection: ICollection;

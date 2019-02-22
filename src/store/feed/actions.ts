@@ -7,6 +7,7 @@ export const getFeedDetailsRequest = (id: string) => action(FeedActionTypes.GET_
 export const getFeedDetailsSuccess = (items: IItem[]) => action(FeedActionTypes.GET_FEED_DETAILS_SUCCESS, items);
 
 
-export const getPluginInstanceListRequest = (id: string) => action(FeedActionTypes.GET_PLUGIN_INSTANCES, id);
+export const getPluginInstanceListRequest = (url: string) => action(FeedActionTypes.GET_PLUGIN_INSTANCES, url);
 export const getPluginInstanceListSuccess = (items: IItem[]) => action(FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS, items);
 
+export const setSelectedPluginNode = (items: IItem) => action(FeedActionTypes.SET_SELECTED_PLUGIN, items);

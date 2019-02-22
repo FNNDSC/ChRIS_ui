@@ -42,9 +42,10 @@ export default class FeedModel {
     const feedlist = new FeedList(url, auth);
     return feedlist.get();
   }
-  // Description: get list of plugin instances ***** working call ***** will be converted to @fnndsc/chrisapi need login and token first
-  static getPluginInstance(id: string) {
-    const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
+  // Description: get list of plugin instances after getting feed information 
+  // ***** working call ***** will be converted to @fnndsc/chrisapi need login and token first
+  static getPluginInstance(url: string) {
+   // const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
     const auth = { token: window.sessionStorage.getItem("AUTH_TOKEN") };
     const header = {
       "Content-Type": "application/vnd.collection+json",
@@ -54,7 +55,7 @@ export default class FeedModel {
     const config: AxiosRequestConfig = {
       headers: header,
       method: "get",
-      url: url + id + "/plugininstances/" // TEMP  ***** working *****
+      url  // url: url+id+'/plugininstances'
     };
 
     // Local result set call from a local json file

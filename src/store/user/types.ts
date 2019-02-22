@@ -4,7 +4,7 @@
 *  Author:          ChRIS ui Demo
 *  Notes:           Work in progres ...
 */
-import keyMirror from 'keymirror';
+import keyMirror from "keymirror";
 
 // Description state for main user items[] and item
 export interface IUserState {
