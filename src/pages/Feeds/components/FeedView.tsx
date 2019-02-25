@@ -114,7 +114,7 @@ class FeedView extends React.Component<AllProps> {
   onNodeClick(node: any) {
     const { setSelectedPluginNode } = this.props;
     // Node was clicked
-    console.log("Trigger the load of information on the panels", node);
+    // console.log("Trigger the load of information on the panels", node);
     setSelectedPluginNode(node);
   }
 }

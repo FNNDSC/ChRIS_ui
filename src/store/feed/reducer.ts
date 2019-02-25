@@ -22,7 +22,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
     // setSelectedPluginNode
     case FeedActionTypes.SET_SELECTED_PLUGIN: {
-      console.log("SET_SELECTED_PLUGIN: ", action.payload );
       return { ...state, selected: action.payload };
     }
     case FeedActionTypes.FETCH_REQUEST: {
