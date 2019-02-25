@@ -4,7 +4,10 @@
 *  Author:          ChRIS ui Demo
 */
 
+
 @import '../../../assets/scss/helpers/variables'; 
+$label-font-size: 0.8125rem;
+$data-font-size: 0.875rem;
 .feed-info-block{
     h1{
         font-size: 	1.2rem;
@@ -27,13 +30,40 @@
     >div{
         color: #fff;
     }
+    // Left side panel displaying feed tree
     .feed-block{
       background: $feed-block-background;
-    
     }
     
+    // Right side panel to display node information
     .node-block{
         background: $node-block-background;
+        border-left: 3px solid $node-block-border;
+        font-size: $data-font-size;
+        div{
+            color: #fff;
+            label{
+                display:block;
+                font-size: $label-font-size;
+                
+            } 
+        }
+        .pf-l-grid{
+            margin-top: 1rem;
+        }
+        .btn-div{
+            margin-top: 0.5rem;
+            max-width: 200px;
+            button{
+                color: #fff;
+                font-size: $data-font-size;
+                margin-bottom: 0.5rem;
+                text-align: left;
+                svg{
+                    margin-right: 5px;
+                }
+            }
+        }
     }
 }
 //  Plugin Detail panel
@@ -61,9 +91,9 @@
         font-weight: 600;
     }
     section{
-        font-size: 0.875rem;
+        font-size: $data-font-size;
         div{
-            font-size: 0.8125rem;
+            font-size: $label-font-size;
             &:not(:last-child){
                 padding-bottom: 0.5rem;
             }
@@ -77,7 +107,7 @@
     .btn-div{
         max-width: 200px;
         button{
-            font-size: 0.875rem;
+            font-size: $data-font-size;
             margin-bottom: 0.5rem;
             text-align: left;
             svg{
