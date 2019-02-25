@@ -237,7 +237,7 @@
             "value": 1
         }
     ],
-    "constrains": [
+    "constraints": [
         {
             "axis": "y",
             "left": 0,
