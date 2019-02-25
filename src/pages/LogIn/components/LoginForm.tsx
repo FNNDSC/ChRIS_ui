@@ -1,11 +1,11 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
-import { getAuthToken } from '../../../store/user/actions';
-import { IUserState } from '../../../store/user/types';
-import { withRouter } from 'react-router-dom';
-import { RouteComponentProps } from 'react-router';
-import { LoginForm } from '@patternfly/react-core';
+import * as React from "react";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
+import { getAuthToken } from "../../../store/user/actions";
+import { IUserState } from "../../../store/user/types";
+import { withRouter } from "react-router-dom";
+import { RouteComponentProps } from "react-router";
+import { LoginForm } from "@patternfly/react-core";
 interface IPropsFromDispatch {
   getAuthToken: typeof getAuthToken;
 }
@@ -25,8 +25,8 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
   constructor(props: AllProps) {
     super(props);
     this.state = {
-      usernameValue: 'chris',
-      passwordValue: 'chris1234',
+      usernameValue: "chris",
+      passwordValue: "chris1234",
       isRememberMeChecked: true,
       showHelperText: false,
       isValidUsername: true,
@@ -85,10 +85,6 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getAuthToken: (user: IUserState) => dispatch(getAuthToken(user))
 });
-
-// const mapStateToProps = ({ ui }: ApplicationState) => ({
-// });
-
 export default withRouter(
   connect(
     null,

@@ -4,14 +4,14 @@
 *   Author:         ChRIS ui Demo
 */
 
-import { DeepPartial, Dispatch, Action, AnyAction } from 'redux';
+import { DeepPartial, Dispatch, Action, AnyAction } from "redux";
 
 /// ADD ALL Local States:
 // import { ComponentState } from '../Component/types';
-import { IUiState } from '../ui/types';
-import { IMessageState } from '../message/types';
-import { IFeedState } from '../feed/types';
-import { IUserState } from '../user/types';
+import { IUiState } from "../ui/types";
+import { IMessageState } from "../message/types";
+import { IFeedState } from "../feed/types";
+import { IUserState } from "../user/types";
 
 // The top-level state object
 // tslint:disable-next-line:interface-name

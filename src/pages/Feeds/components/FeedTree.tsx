@@ -4,7 +4,6 @@ import * as cola from "webcola";
 
 interface ITreeProps {
   items: any[];
-  // Add more props as needed
 }
 
 interface ITreeActions {
@@ -15,16 +14,12 @@ type AllProps = ITreeProps & ITreeActions;
 
 class FeedTree extends React.Component<AllProps> {
   private treeRef = createRef<HTMLDivElement>();
-  constructor(props: AllProps) {
-    super(props);
-    // this.nodeClick = this.nodeClick.bind(this);
-  }
   componentDidMount() {
     const { items } = this.props;
     !!this.treeRef.current &&
       !!items &&
       items.length > 0 &&
-      this.buildWebcolaTree(items, this.treeRef);
+      this.buildFeedTree(items, this.treeRef);
   }
 
   render() {
@@ -36,10 +31,9 @@ class FeedTree extends React.Component<AllProps> {
     d3.select("#tree").remove(); // Destroy d3 content
   }
 
-  // Charting:
   // ---------------------------------------------------------------------
-  // Description: Builds Webcola/D3 tree 
-  buildWebcolaTree = (items: any[], treeDiv: any) => {
+  // Description: Builds Webcola/D3 Feed Tree
+  buildFeedTree = (items: any[], treeDiv: any) => {
     const width =
         treeDiv.current.clientWidth > 0
           ? treeDiv.current.clientWidth
@@ -66,18 +60,16 @@ class FeedTree extends React.Component<AllProps> {
       if (!!activeNode && !activeNode.empty()) {
         activeNode.attr("class", "nodegroup active");
         onNodeClick(node);
-      } else {
-          console.error("Can't find node");
       }
     };
+
 
     // Description: Build tree
     d3.json("/mockData/sampleWebcola.json").then((graph: any) => {
       const nodeRadius = 8;
       graph.nodes.forEach((v: any) => {
         v.height = v.width = 2 * nodeRadius;
-        v.label = v.plugin_name;
-        v.color = "white";
+        v.label = v.plugin_name.length > 7 ? `${v.plugin_name.substring(0, 7)}...` : v.plugin_name;
       });
 
       d3cola
@@ -115,7 +107,7 @@ class FeedTree extends React.Component<AllProps> {
         .data(graph.nodes)
         .enter()
         .append("g")
-        .attr("id", (d: any) => {return `node_${d.id}`;})
+        .attr("id", (d: any) => {return `node_${d.id}`; })
         .attr("class", "nodegroup")
         .on("click", nodeClick)
         .call(d3cola.drag);
@@ -150,7 +142,7 @@ class FeedTree extends React.Component<AllProps> {
             dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
             normX = deltaX / dist,
             normY = deltaY / dist,
-            sourcePadding = nodeRadius + 22,
+            sourcePadding = nodeRadius + 25,
             targetPadding = nodeRadius + 10,
             sourceX = d.source.x + sourcePadding * normX,
             sourceY = d.source.y + sourcePadding * normY,

@@ -12,7 +12,7 @@ export interface IUserState {
     password?: string;
     email?: string;
     token?: string | null;
-    isRememberMe: boolean;
+    isRememberMe?: boolean;
 }
 
 export const UserActionTypes = keyMirror({

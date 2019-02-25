@@ -5,7 +5,7 @@
 */
 
 
-import keyMirror from 'keymirror';
+import keyMirror from "keymirror";
 
 // Description: state for UI Manager
 export interface IUiState {

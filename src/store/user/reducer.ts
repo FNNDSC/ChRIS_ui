@@ -1,11 +1,11 @@
-import { Reducer } from 'redux';
-import { IUserState, UserActionTypes } from './types';
+import { Reducer } from "redux";
+import { IUserState, UserActionTypes } from "./types";
 
 
 // Type-safe initialState
 const initialState: IUserState = {
-    username: window.sessionStorage.getItem('USERNAME'),
-    token:  window.sessionStorage.getItem('AUTH_TOKEN'),
+    username: window.sessionStorage.getItem("USERNAME"),
+    token:  window.sessionStorage.getItem("AUTH_TOKEN"),
     isRememberMe: false,
 };
 

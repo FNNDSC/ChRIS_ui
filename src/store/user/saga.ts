@@ -1,8 +1,8 @@
-import { all, call, fork, put, takeEvery } from 'redux-saga/effects';
-import { push } from 'connected-react-router';
-import Client from '@fnndsc/chrisapi';
-import { UserActionTypes } from './types';
-import { getAuthTokenSuccess, setUserLogout } from './actions';
+import { all, call, fork, put, takeEvery } from "redux-saga/effects";
+import { push } from "connected-react-router";
+import Client from "@fnndsc/chrisapi";
+import { UserActionTypes } from "./types";
+import { getAuthTokenSuccess, setUserLogout } from "./actions";
 
 // ----------------------------------------------------------------
 // Description: List - Get all Users
@@ -11,9 +11,10 @@ const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
 function* handleLogin(action: any) {
   try {
     const authURL = process.env.REACT_APP_CHRIS_UI_AUTH_URL;
+    const username = action.payload.username;
     const authObj = {
-      username: action.payload.username,
-      password: action.payload.password
+      password: action.payload.password,
+      username
     };
     const res = yield call(
       Client.getAuthToken,
@@ -24,14 +25,14 @@ function* handleLogin(action: any) {
     if (res.error) {
       console.log(res.error); // working ***** user messaging
     } else {
-      console.log(res);
       yield put(getAuthTokenSuccess(res));
-      window.sessionStorage.setItem('AUTH_TOKEN', res);
-      yield put(push('/'));
+      window.sessionStorage.setItem("AUTH_TOKEN", res);
+      window.sessionStorage.setItem("USERNAME", username);
+      yield put(push("/"));
     }
   } catch (error) {
     console.log(error); // working user messaging
-    yield put(push('/not-found'));
+    yield put(push("/not-found"));
     // yield put(handleUIMessage({ message: (err instanceof Error ? (err.stack!) :
     //   managerDefaults.defaultMessage.Error), type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
   }
@@ -44,9 +45,11 @@ function* watchLoginRequest() {
 }
 
 // ----------------------------------------------------------------
+// Log user out
 function* handleLogout(action: any) {
-  window.sessionStorage.removeItem('AUTH_TOKEN');
-  yield put(push('/login'));
+  window.sessionStorage.removeItem("AUTH_TOKEN");
+  window.sessionStorage.removeItem("USERNAME");
+  yield put(push("/login"));
 }
 function* watchLogoutRequest() {
   yield takeEvery(UserActionTypes.LOGOUT_USER, handleLogout);
