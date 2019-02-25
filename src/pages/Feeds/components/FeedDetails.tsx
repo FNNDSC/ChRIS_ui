@@ -22,7 +22,7 @@ class FeedDetails extends React.Component<AllProps> {
                 <small>Creator</small>
                 <p>
                   {/* NOTE: stub owner name to be added to the details object (BE) */}
-                  <FontAwesomeIcon icon={["far", "user"]} /> [user name]
+                  <FontAwesomeIcon icon={["far", "user"]} /> {details.creator_username}
                 </p>
               </li>
               <li>

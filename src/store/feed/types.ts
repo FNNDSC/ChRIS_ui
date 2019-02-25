@@ -27,8 +27,18 @@ export const FeedActionTypes = keyMirror({
 });
 
 
-// These will come from ClienAPI ts definition when completed ***** working typings *****
+// These will come from ClienAPI ts definition when completed 
+// NOTE: ***** working typings *****
 // ------------------------------------------
+export interface IFeedItem extends IFeedLinks {
+    id: number;
+    creation_date: string;
+    modification_date: string;
+    name: string;
+    template: ITemplate;
+    creator_username: string;
+}
+
 export interface IFeedLinks {
     url: string;
     files: string;
@@ -38,13 +48,6 @@ export interface IFeedLinks {
     tags: string;
     taggings: string;
     plugin_instances: string;
-}
-export interface IFeedItem extends IFeedLinks {
-    id: number;
-    creation_date: string;
-    modification_date: string;
-    name: string;
-    template: ITemplate;
 }
 
 // Plugin Instances

@@ -1,9 +1,9 @@
 import React, { createRef } from "react";
 import * as d3 from "d3";
 import * as cola from "webcola";
-
+import { IPluginItem } from "../../../store/feed/types";
 interface ITreeProps {
-  items: any[];
+  items: IPluginItem[];
 }
 
 interface ITreeActions {
