@@ -1,5 +1,5 @@
 import React, { createRef } from "react";
-import * as d3 from "d3"; // import * as d3v4 from "d3v4";
+import * as d3 from "d3";
 import * as cola from "webcola";
 
 interface ITreeProps {
@@ -38,7 +38,7 @@ class FeedTree extends React.Component<AllProps> {
 
   // Charting:
   // ---------------------------------------------------------------------
-  // Description: Builds Webcola/D3 tree  ***** Working ***** //
+  // Description: Builds Webcola/D3 tree 
   buildWebcolaTree = (items: any[], treeDiv: any) => {
     const width =
         treeDiv.current.clientWidth > 0
@@ -57,11 +57,18 @@ class FeedTree extends React.Component<AllProps> {
       .attr("width", width)
       .attr("height", height);
 
-    // Description: trigger the color change
+    // Description: trigger the color change and then Load node information
+     // Need to add "active class to node" - find the right node first:
     const nodeClick = (node: any) => {
       const { onNodeClick } = this.props;
-      // Need to add "active class to node"
-      onNodeClick(node);
+      d3.selectAll(".nodegroup.active").attr("class", "nodegroup");
+      const activeNode = d3.select(`#node_${node.id}`);
+      if (!!activeNode && !activeNode.empty()) {
+        activeNode.attr("class", "nodegroup active");
+        onNodeClick(node);
+      } else {
+          console.error("Can't find node");
+      }
     };
 
     // Description: Build tree
@@ -77,11 +84,10 @@ class FeedTree extends React.Component<AllProps> {
         .nodes(graph.nodes)
         .links(graph.links)
         .flowLayout("y", 70) // https://ialab.it.monash.edu/webcola/doc/classes/cola.layout.html#flowlayout
-        .symmetricDiffLinkLengths(20) // compute an ideal length for each link based on the graph structure around that link.
+        .symmetricDiffLinkLengths(20)
         .start(10, 15, 20);
 
       // Define arrow markers for graph links
-      // tslint:disable-next-line:quotemark
       svg
         .append("svg:defs")
         .append("svg:marker")
@@ -103,14 +109,15 @@ class FeedTree extends React.Component<AllProps> {
         .append("svg:path")
         .attr("class", "link");
 
-      /*Create and place the "blocks" containing the circle and the text */
+      // Create and place the "blocks" containing the circle and the text
       const elemEnter = svg
         .selectAll("g")
         .data(graph.nodes)
         .enter()
         .append("g")
+        .attr("id", (d: any) => {return `node_${d.id}`;})
         .attr("class", "nodegroup")
-        .on("click", nodeClick) // Trigger to load node information on the right panel
+        .on("click", nodeClick)
         .call(d3cola.drag);
 
       // Define graph nodes
@@ -169,7 +176,7 @@ class FeedTree extends React.Component<AllProps> {
         });
       }); // end of on tick
     });
-  };
+  }
 }
 
 export default FeedTree;
