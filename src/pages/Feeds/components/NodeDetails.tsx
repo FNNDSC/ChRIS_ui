@@ -1,17 +1,15 @@
 import React from "react";
 
-import {  IItem } from "../../../store/feed/types";
-
 interface INodeProps {
     selected: any;
-};
+}
 
 class NodeDetails extends React.Component<INodeProps> {
   render() {
     const { selected } = this.props;
     return (
         <div>Node Details:  {selected.id}</div>
-    )
+    );
   }
 }
 

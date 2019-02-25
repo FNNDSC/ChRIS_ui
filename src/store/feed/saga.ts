@@ -19,7 +19,7 @@ function* handleGetFeedDetails(action: any) {
             // yield put(handleUIMessage({ message: res.error, type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
             console.error(res.error); // working user messaging
         } else {
-            yield put(getFeedDetailsSuccess(res));
+            yield put(getFeedDetailsSuccess(res.data));
             const url = res.data.plugin_instances;
             yield put(getPluginInstanceListRequest(url));
             // yield put(managerOnCompleteRequest()); // nO need for messaging just loading false
