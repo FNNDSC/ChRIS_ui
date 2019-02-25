@@ -3,11 +3,7 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import {
-  getFeedDetailsRequest,
-  getPluginInstanceListRequest,
-  setSelectedPluginNode
-} from "../../../store/feed/actions";
+import { getFeedDetailsRequest, getPluginInstanceListRequest, setSelectedPluginNode } from "../../../store/feed/actions";
 import { IFeedState, IPluginItem } from "../../../store/feed/types";
 import { RouteComponentProps } from "react-router-dom";
 import FeedDetails from "./FeedDetails";
@@ -21,7 +17,6 @@ import {
   GridItem
 } from "@patternfly/react-core";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
-
 import "./feed.scss";
 import { IUserState } from "../../../store/user/types";
 
@@ -74,8 +69,7 @@ class FeedView extends React.Component<AllProps> {
         {/* Mid section with Feed and node actions */}
         <PageSection
           className={pf4UtilityStyles.spacingStyles.p_0}
-          variant={PageSectionVariants.light}
-        >
+          variant={PageSectionVariants.light} >
           <Grid className="feed-view">
             <GridItem className="feed-block pf-u-p-md" sm={12} md={6}>
               {!!items ? (

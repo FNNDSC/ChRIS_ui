@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  PageSection,
+  Button,
   Grid,
   GridItem,
   DataList,
@@ -8,92 +8,131 @@ import {
   DataListToggle,
   DataListContent
 } from "@patternfly/react-core";
-
+import { EyeIcon, DownloadIcon } from "@patternfly/react-icons";
+import Moment from "react-moment";
+import { IPluginItem } from "../../../store/feed/types";
 
 interface INodeProps {
-  selected: any;
+  selected: IPluginItem;
 }
 
-class PluginDetailPanel extends React.Component<INodeProps> {
+interface IState {
+  expanded: string[];
+}
+
+class PluginDetailPanel extends React.Component<INodeProps, IState> {
+  constructor(props: INodeProps) {
+    super(props);
+    this.state = {
+      expanded: ["plugin-detail", "plugin-config", "plugin-data" ]
+    };
+  }
+
   render() {
     const { selected } = this.props;
-    let isExpanded = true; // ***** working - to be done *****
+
     const toggle = (id: string) => {
-      isExpanded = !isExpanded;
+      const expanded = this.state.expanded;
+      const index = expanded.indexOf(id);
+      const newExpanded =
+        index >= 0 ? [...expanded.slice(0, index), ...expanded.slice(index + 1, expanded.length)] : [...expanded, id];
+      this.setState(() => ({ expanded: newExpanded }));
     };
 
     return (
       <React.Fragment>
-        <h1>[Plugin Name]</h1>
+        <h1>{selected.plugin_name}</h1>
         <Grid>
-          <GridItem sm={12} md={4}>
+          <GridItem className="plugin-details" sm={12} md={4}>
             <DataList aria-label="Plugin Description">
               <DataListItem
                 aria-labelledby="Plugin Description"
-                isExpanded={isExpanded}
-              >
-                [Plugin Name]
+                isExpanded={this.state.expanded.includes("plugin-detail")} >
+                {selected.plugin_name}
                 <DataListToggle
-                  onClick={() => toggle("ex-toggle1")}
-                  isExpanded={isExpanded}
-                  id="ex-toggle1"
+                  onClick={() => toggle("plugin-detail")}
+                  isExpanded={this.state.expanded.includes("plugin-detail")}
+                  id="plugin-detail"
                   aria-labelledby="Plugin Description"
-                  aria-label="Toggle details for"
+                  aria-label="Toggle details for Plugin Description"
                 />
                 <DataListContent
                   aria-label="Primary Content Details for plugin"
-                  isHidden={!isExpanded}
-                >
-                  test
+                  isHidden={!this.state.expanded.includes("plugin-detail")} >
+                  <div>
+                    <label>Status:</label> {selected.status}
+                  </div>
+                  <div>
+                    <label>Start Date:</label>{" "}
+                    <Moment format="DD MMM YYYY @ HH:MM A">
+                      {selected.start_date}
+                    </Moment>
+                  </div>
+                  <div>
+                    <label>End Date:</label>{" "}
+                    <Moment format="DD MMM YYYY @ HH:MM A">
+                      {selected.end_date}
+                    </Moment>
+                  </div>
                 </DataListContent>
               </DataListItem>
             </DataList>
           </GridItem>
-          <GridItem sm={12} md={4}>
+          <GridItem className="plugin-config" sm={12} md={4}>
             <DataList aria-label="Plugin Configuration">
               <DataListItem
                 aria-labelledby="Plugin Configuration"
-                isExpanded={isExpanded}
+                isExpanded={this.state.expanded.includes("plugin-config")}
               >
-                [Plugin Name]
+                Configuration
                 <DataListToggle
-                  onClick={() => toggle("ex-toggle1")}
-                  isExpanded={isExpanded}
-                  id="ex-toggle1"
+                  onClick={() => toggle("plugin-config")}
+                  isExpanded={this.state.expanded.includes("plugin-config")}
+                  id="plugin-config"
                   aria-labelledby="Plugin Configuration"
                   aria-label="Toggle details for Plugin Configuration"
                 />
                 <DataListContent
                   aria-label="Plugin Configuration"
-                  isHidden={!isExpanded}
-                >
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                  </p>
+                  isHidden={!this.state.expanded.includes("plugin-config")} >
+                  <div>
+                    <label>config Parameter 1:</label> $VALUE_1
+                  </div>
+                  <div>
+                    <label>config Parameter 2:</label> $VALUE_2
+                  </div>
+                  <div>
+                    <label>config Parameter 3:</label> $VALUE_3
+                  </div>
                 </DataListContent>
               </DataListItem>
             </DataList>
           </GridItem>
-          <GridItem sm={12} md={4}>
+          <GridItem className="plugin-output" sm={12} md={4}>
             <DataList aria-label="Plugin Output">
-              <DataListItem aria-labelledby="ex-item1" isExpanded={isExpanded}>
-                [Plugin Name]
+              <DataListItem aria-labelledby="ex-item1" isExpanded={this.state.expanded.includes("plugin-data")}>
+                Output
                 <DataListToggle
-                  onClick={() => toggle("ex-toggle1")}
-                  isExpanded={isExpanded}
-                  id="ex-toggle1"
+                  onClick={() => toggle("plugin-data")}
+                  isExpanded={this.state.expanded.includes("plugin-data")}
+                  id="plugin-data"
                   aria-labelledby="Plugin Output"
                   aria-label="Toggle details for Plugin Output"
                 />
                 <DataListContent
                   aria-label="Plugin Output"
-                  isHidden={!isExpanded}
-                >
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                    sed do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua.
-                  </p>
+                  isHidden={!this.state.expanded.includes("plugin-data")}>
+                  <div>
+                    <label>Data:</label> 18 files (156.1MB)
+                  </div>
+                  <div className="btn-div">
+                    <Button variant="secondary" isBlock>
+                    <DownloadIcon /> Download Data
+                    </Button>
+                    <Button variant="secondary" isBlock>
+                      <EyeIcon /> View Data
+                    </Button>
+                  </div>
                 </DataListContent>
               </DataListItem>
             </DataList>

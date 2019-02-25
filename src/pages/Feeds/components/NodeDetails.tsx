@@ -1,14 +1,15 @@
 import React from "react";
+import { IPluginItem } from "../../../store/feed/types";
 
 interface INodeProps {
-    selected: any;
+    selected: IPluginItem;
 }
 
 class NodeDetails extends React.Component<INodeProps> {
   render() {
     const { selected } = this.props;
     return (
-        <div>Node Details:  {selected.id}</div>
+        <div>Selected Node:  {selected.plugin_name}</div>
     );
   }
 }
