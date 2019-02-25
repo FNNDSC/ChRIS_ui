@@ -9,8 +9,8 @@ import keyMirror from "keymirror";
 // Description state for main user items[] and item
 export interface IFeedState {
     details?: IFeedItem;
-    items?: IItem[];
-    selected?: IItem;
+    items?: IPluginItem[];
+    selected?: IPluginItem;
 }
 
 export const FeedActionTypes = keyMirror({
@@ -28,11 +28,14 @@ export const FeedActionTypes = keyMirror({
 
 
 // These will come from ClienAPI ts definition when completed ***** working typings *****
+// ------------------------------------------
 export interface IFeedLinks {
+    url: string;
     files: string;
     comments: string;
-    owner: string;
+    owner: string[];
     note: string;
+    tags: string;
     taggings: string;
     plugin_instances: string;
 }
@@ -41,11 +44,59 @@ export interface IFeedItem extends IFeedLinks {
     creation_date: string;
     modification_date: string;
     name: string;
+    template: ITemplate;
+}
+
+// Plugin Instances
+// ------------------------------------------
+export interface IPluginItemInstanceResponse {
+    count: number;
+    results: IPluginItem[];
+    collection_links: CollectionLinks;
+    next?: string; // Link to next set
+    previous?: string; // Link to previous set
+}
+
+export interface CollectionLinks {
+    feed: string;
+}
+export interface IPluginItemLinks  {
+    url: string;
+    feed: string;
+    descendants: string;
+    files: string;
+    parameters: string;
+    plugin: string;
+    next?: string;
+    previous?: string;
+}
+export interface IPluginItem extends IPluginItemLinks  {
+    id: number;
+    title: string;
+    previous_id?: number;
+    plugin_id: number;
+    plugin_name: string;
+    pipeline_inst: null;
+    feed_id: number;
+    start_date: string;
+    end_date: string;
+    status: string;
+    owner_username: string;
+    compute_resource_identifier: string;
+    cpu_limit: number;
+    memory_limit: number;
+    number_of_workers: number;
+    gpu_limit: number;
+}
+
+export interface ITemplate {
+    data: IDatum[];
 }
 
 
+
 /// ----------- Basic interface
-export interface IPluginInstance {
+export interface IPluginItemInstance {
     collection: ICollection;
 }
 

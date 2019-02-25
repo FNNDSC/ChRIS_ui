@@ -8,7 +8,7 @@ import {
   DataListToggle,
   DataListContent
 } from "@patternfly/react-core";
-import { IItem } from "../../../store/feed/types";
+
 
 interface INodeProps {
   selected: any;

@@ -8,7 +8,7 @@ import {
   getPluginInstanceListRequest,
   setSelectedPluginNode
 } from "../../../store/feed/actions";
-import { IFeedState, IItem } from "../../../store/feed/types";
+import { IFeedState, IPluginItem } from "../../../store/feed/types";
 import { RouteComponentProps } from "react-router-dom";
 import FeedDetails from "./FeedDetails";
 import FeedTree from "./FeedTree";
@@ -123,7 +123,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedDetailsRequest: (id: string) => dispatch(getFeedDetailsRequest(id)),
   getPluginInstanceListRequest: (id: string) =>
     dispatch(getPluginInstanceListRequest(id)),
-  setSelectedPluginNode: (node: IItem) => dispatch(setSelectedPluginNode(node)),
+  setSelectedPluginNode: (node: IPluginItem) => dispatch(setSelectedPluginNode(node)),
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active))
 });
