@@ -1,5 +1,30 @@
 import axios, { AxiosRequestConfig } from "axios";
-import Client, { Feed, FeedList, PluginInstance } from "@fnndsc/chrisapi";
+import Client, { FeedList } from "@fnndsc/chrisapi";
+import { ITemplate } from "./base.model";
+// These will come from ClienAPI ts definition when completed
+// NOTE: ***** working typings *****
+// ------------------------------------------
+export interface IFeedItem extends IFeedLinks {
+  id: number;
+  creation_date: string;
+  modification_date: string;
+  name: string;
+  template: ITemplate;
+  creator_username: string;
+}
+
+export interface IFeedLinks {
+  url: string;
+  files: string;
+  comments: string;
+  owner: string[];
+  note: string;
+  tags: string;
+  taggings: string;
+  plugin_instances: string;
+}
+
+
 
 export default class FeedModel {
 
