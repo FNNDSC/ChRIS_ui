@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { RouteComponentProps } from 'react-router-dom';
-import Wrapper from '../../containers/layout/PageWrapper';
-import { Alert, PageSection, PageSectionVariants } from '@patternfly/react-core';
+import * as React from "react";
+import { RouteComponentProps } from "react-router-dom";
+import Wrapper from "../../containers/layout/PageWrapper";
+import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
 type AllProps = RouteComponentProps;
 
 class DashboardPage extends React.Component<AllProps> {
   componentDidMount() {
-    document.title = 'Dashboard - ChRIS UI Demo site';
+    document.title = "Dashboard - ChRIS UI Demo site";
   }
 
   render() {

@@ -1,11 +1,11 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
-import { Link } from 'react-router-dom';
-import { ApplicationState } from '../../../store/root/applicationState';
-import { setSidebarActive } from '../../../store/ui/actions';
-import { RouteComponentProps } from 'react-router-dom';
-import { Alert, PageSection, PageSectionVariants } from '@patternfly/react-core';
+import * as React from "react";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
+import { Link } from "react-router-dom";
+import { ApplicationState } from "../../../store/root/applicationState";
+import { setSidebarActive } from "../../../store/ui/actions";
+import { RouteComponentProps } from "react-router-dom";
+import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
 
 
 interface IPropsFromDispatch {
@@ -16,10 +16,10 @@ type AllProps = IPropsFromDispatch & RouteComponentProps;
 class AllFeedsPage extends React.Component<AllProps> {
   componentDidMount() {
     const { setSidebarActive } = this.props;
-    document.title = 'All Feeds - ChRIS UI Demo site';
+    document.title = "All Feeds - ChRIS UI Demo site";
     setSidebarActive({
-      activeGroup: 'feeds_grp',
-      activeItem: 'all_feeds'
+      activeGroup: "feeds_grp",
+      activeItem: "all_feeds"
     });
   }
 

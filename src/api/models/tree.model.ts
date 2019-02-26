@@ -43,7 +43,7 @@ export default class TreeModel {
       nodes: [],
       links: []
     };
-    this.parseFeedTreeData(items)
+    this.parseFeedTreeData(items);
   }
 
   parseFeedTreeData(items: IPluginItem[]): ITreeChart {
