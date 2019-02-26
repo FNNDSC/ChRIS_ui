@@ -23,10 +23,12 @@ class FeedTree extends React.Component<AllProps> {
   componentDidMount() {
     const { items } = this.props;
     if (!!this.treeRef.current && !!items && items.length > 0) {
-      // Parse the data into an ITreeChart model
-      const tree = new TreeModel().parseFeedTreeData(items);
-    //   console.log(JSON.stringify(tree));
-      !!tree && this.buildFeedTree(tree, this.treeRef);
+      const tree = new TreeModel(items);
+      if( !!tree.treeChart) {
+        this.buildFeedTree(tree.treeChart, this.treeRef);
+        // Set root node active on load:
+        tree.treeChart.nodes.length > 0 && this.setActiveNode(tree.treeChart.nodes[0]);
+      }
     }
   }
 
@@ -34,6 +36,16 @@ class FeedTree extends React.Component<AllProps> {
     return <div ref={this.treeRef} id="tree" />;
   }
 
+  // Description: set active node
+  setActiveNode = (node: INode) => {
+    const { onNodeClick } = this.props;
+    d3.selectAll(".nodegroup.active").attr("class", "nodegroup");
+    const activeNode = d3.select(`#node_${node.item.id}`);
+    if (!!activeNode && !activeNode.empty()) {
+      activeNode.attr("class", "nodegroup active");
+      onNodeClick(node.item);
+    }
+  }
   // ---------------------------------------------------------------------
   // Description: Builds Webcola/D3 Feed Tree
   buildFeedTree = (tree: ITreeChart, treeDiv: React.RefObject<HTMLDivElement>) => {
@@ -54,21 +66,6 @@ class FeedTree extends React.Component<AllProps> {
       .attr("width", width)
       .attr("height", height);
 
-    // Description: trigger the color change and then Load node information
-    // Need to add "active class to node" - find the right node first:
-    const nodeClick = (node: any) => {
-      const { onNodeClick } = this.props;
-      d3.selectAll(".nodegroup.active").attr("class", "nodegroup");
-      const activeNode = d3.select(`#node_${node.item.id}`);
-      if (!!activeNode && !activeNode.empty()) {
-        activeNode.attr("class", "nodegroup active");
-        onNodeClick(node.item);
-      }
-    };
-
-    // Description: Build tree
-    // d3.json("/mockData/sampleWebcola3.json").then((tree: any) => { });
-   // let tree = tree;
     const nodeRadius = 8;
     tree.nodes.forEach((v: any) => {
         v.height = v.width = 2 * nodeRadius;
@@ -119,7 +116,7 @@ class FeedTree extends React.Component<AllProps> {
           return `node_${d.item.id}`;
         })
         .attr("class", "nodegroup")
-        .on("click", nodeClick)
+        .on("click", this.setActiveNode)
         .call(d3cola.drag);
 
       // Define tree nodes

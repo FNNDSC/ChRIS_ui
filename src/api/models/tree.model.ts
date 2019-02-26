@@ -1,7 +1,7 @@
 import * as cola from "webcola";
 import { IPluginItem } from "./pluginInstance.model";
 import * as _ from "lodash";
-const { isEqual, find, filter, pull } = _;
+
 // Builds the webcola tree chart
 export interface ITreeChart {
   nodes: INode[];
@@ -37,12 +37,25 @@ export interface INode {
 // Description: Parse Data from IPluginItem and convert to a ITreeChart
 
 export default class TreeModel {
-  private _treeChart: ITreeChart;
-  constructor() {
-    this._treeChart = {
+  treeChart: ITreeChart;
+  constructor(items: IPluginItem[]) {
+    this.treeChart = {
       nodes: [],
       links: []
     };
+    this.parseFeedTreeData(items)
+  }
+
+  parseFeedTreeData(items: IPluginItem[]): ITreeChart {
+    // Note: Reverse the array to expedite parsing also for demo purposes
+    this._workingItems = items.reverse().slice();
+    this._parseRootNode(items);
+    this._parseTreeChildren(this._workingItems, this._workingId);
+
+    // Set the treeChart objects:
+    this._setNodes(this._nodes);
+    this._setLinks(this._links);
+    return this.treeChart;
   }
 
   // Working props for parsing
@@ -51,20 +64,12 @@ export default class TreeModel {
   private _workingItems: IPluginItem[] = [];
   private _nodes: INode[] = [];
   private _links: ILink[] = [];
-  parseFeedTreeData(items: IPluginItem[]): ITreeChart {
-    // Note: Reverse the array to expedite parsing also for demo purposes
-    this._workingItems = items.reverse().slice(); 
-    this._parseRootNode(items);
-    this._parseTreeChildren(this._workingItems, this._workingId);
-
-    // Set the treeChart objects:
-    this._setNodes(this._nodes);
-    this._setLinks(this._links);
-    return this._treeChart;
-  }
-
   // Description: Recursive method to build tree
-  _parseTreeChildren(workingItems: IPluginItem[], _workingId: number | string, _parentIndex: number = 0 ) {
+  private _parseTreeChildren(
+    workingItems: IPluginItem[],
+    _workingId: number | string,
+    _parentIndex: number = 0
+  ) {
     const cloneArr: IPluginItem[] = workingItems.slice();
     cloneArr.forEach((item: IPluginItem) => {
       if (item.previous_id === _workingId) {
@@ -75,9 +80,9 @@ export default class TreeModel {
           index
         });
         this._links.push({
-            target: this._workingIndex,
-            source: _parentIndex,
-            value: 1
+          target: this._workingIndex,
+          source: _parentIndex,
+          value: 1
         });
         this._workingItems = this._removeWorkingItem(item);
         this._workingIndex++;
@@ -87,7 +92,7 @@ export default class TreeModel {
   }
 
   // Description: Find children to this node
-  _findChildrenNodes(id: number | string, _parentIndex: number) {
+  private _findChildrenNodes(id: number | string, _parentIndex: number) {
     const workingChildrenArr = _.filter(
       this._workingItems,
       (subitem: IPluginItem) => {
@@ -95,11 +100,13 @@ export default class TreeModel {
       }
     );
     // Does this node have children - recur
-    (!!workingChildrenArr && workingChildrenArr.length > 0) &&   this._parseTreeChildren(workingChildrenArr, id, _parentIndex);
+    !!workingChildrenArr &&
+      workingChildrenArr.length > 0 &&
+      this._parseTreeChildren(workingChildrenArr, id, _parentIndex);
   }
 
   // Find the root of this tree:
-  _parseRootNode(items: IPluginItem[]) {
+  private _parseRootNode(items: IPluginItem[]) {
     const parentItem = _.find(items, (item: IPluginItem) => {
       return item.previous === null && item.previous_id === undefined;
     });
@@ -115,7 +122,7 @@ export default class TreeModel {
   }
 
   // Description: Remove item from working array
-  _removeWorkingItem(item: IPluginItem): IPluginItem[] {
+  private _removeWorkingItem(item: IPluginItem): IPluginItem[] {
     const arr = _.filter(this._workingItems, (subitem: IPluginItem) => {
       return item.id !== subitem.id;
     });
@@ -124,11 +131,11 @@ export default class TreeModel {
 
   // Set the treeChart nodes array
   private _setNodes(nodes: INode[]) {
-    this._treeChart.nodes = nodes;
+    this.treeChart.nodes = nodes;
   }
 
   // Set the treeChart links array
   private _setLinks(links: ILink[]) {
-    this._treeChart.links = links;
+    this.treeChart.links = links;
   }
 }
