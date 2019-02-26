@@ -24,8 +24,18 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
   constructor(props: INodeProps) {
     super(props);
     this.state = {
-      expanded: ["plugin-detail", "plugin-config", "plugin-data" ]
+      expanded: ["plugin-detail", "plugin-config", "plugin-data"]
     };
+  }
+
+  // Description: Download Plugin output data ***** Working
+  handleDownloadData() {
+     // Stub - To be done
+  }
+
+  // Description: View Plugin output data ***** Working
+  handleViewData() {
+    // Stub - To be done
   }
 
   render() {
@@ -35,7 +45,12 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
       const expanded = this.state.expanded;
       const index = expanded.indexOf(id);
       const newExpanded =
-        index >= 0 ? [...expanded.slice(0, index), ...expanded.slice(index + 1, expanded.length)] : [...expanded, id];
+        index >= 0
+          ? [
+              ...expanded.slice(0, index),
+              ...expanded.slice(index + 1, expanded.length)
+            ]
+          : [...expanded, id];
       this.setState(() => ({ expanded: newExpanded }));
     };
 
@@ -47,7 +62,8 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
             <DataList aria-label="Plugin Description">
               <DataListItem
                 aria-labelledby="Plugin Description"
-                isExpanded={this.state.expanded.includes("plugin-detail")} >
+                isExpanded={this.state.expanded.includes("plugin-detail")}
+              >
                 {selected.plugin_name}
                 <DataListToggle
                   onClick={() => toggle("plugin-detail")}
@@ -58,7 +74,8 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
                 />
                 <DataListContent
                   aria-label="Primary Content Details for plugin"
-                  isHidden={!this.state.expanded.includes("plugin-detail")} >
+                  isHidden={!this.state.expanded.includes("plugin-detail")}
+                >
                   <div>
                     <label>Status:</label> {selected.status}
                   </div>
@@ -94,7 +111,8 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
                 />
                 <DataListContent
                   aria-label="Plugin Configuration"
-                  isHidden={!this.state.expanded.includes("plugin-config")} >
+                  isHidden={!this.state.expanded.includes("plugin-config")}
+                >
                   <div>
                     <label>config Parameter 1:</label> $VALUE_1
                   </div>
@@ -110,7 +128,10 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
           </GridItem>
           <GridItem className="plugin-output" sm={12} md={4}>
             <DataList aria-label="Plugin Output">
-              <DataListItem aria-labelledby="ex-item1" isExpanded={this.state.expanded.includes("plugin-data")}>
+              <DataListItem
+                aria-labelledby="ex-item1"
+                isExpanded={this.state.expanded.includes("plugin-data")}
+              >
                 Output
                 <DataListToggle
                   onClick={() => toggle("plugin-data")}
@@ -121,15 +142,24 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
                 />
                 <DataListContent
                   aria-label="Plugin Output"
-                  isHidden={!this.state.expanded.includes("plugin-data")}>
+                  isHidden={!this.state.expanded.includes("plugin-data")}
+                >
                   <div>
                     <label>Data:</label> 18 files (156.1MB)
                   </div>
                   <div className="btn-div">
-                    <Button variant="secondary" isBlock>
-                    <DownloadIcon /> Download Data
+                    <Button
+                      variant="secondary"
+                      isBlock
+                      onClick={this.handleDownloadData}
+                    >
+                      <DownloadIcon /> Download Data
                     </Button>
-                    <Button variant="secondary" isBlock>
+                    <Button
+                      variant="secondary"
+                      isBlock
+                      onClick={this.handleViewData}
+                    >
                       <EyeIcon /> View Data
                     </Button>
                   </div>
