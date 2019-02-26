@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { RouteComponentProps, Route, Switch, Redirect } from 'react-router-dom';
-import { setSidebarActive } from '../../store/ui/actions';
-import Wrapper from '../../containers/layout/PageWrapper';
-import AllFeedsPage from './components/FeedListView';
-import FeedView from './components/FeedView';
+import * as React from "react";
+import { RouteComponentProps, Route, Switch, Redirect } from "react-router-dom";
+import { setSidebarActive } from "../../store/ui/actions";
+import Wrapper from "../../containers/layout/PageWrapper";
+import AllFeedsPage from "./components/FeedListView";
+import FeedView from "./components/FeedView";
 
 interface IPropsFromDispatch {
     setSidebarActive: typeof setSidebarActive;

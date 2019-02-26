@@ -1,5 +1,5 @@
-import { Reducer } from 'redux';
-import { messageActionTypes, IMessageState } from './types';
+import { Reducer } from "redux";
+import { messageActionTypes, IMessageState } from "./types";
 
 
 // Type-safe initialState

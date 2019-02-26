@@ -1,13 +1,13 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
-import { ApplicationState } from '../../store/root/applicationState';
-import { IUiState } from '../../store/ui/types';
-import { IUserState } from '../../store/user/types';
-import { onSidebarToggle } from '../../store/ui/actions';
-import { Page } from '@patternfly/react-core';
-import Header from './Header';
-import Sidebar from './Sidebar';
+import * as React from "react";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
+import { ApplicationState } from "../../store/root/applicationState";
+import { IUiState } from "../../store/ui/types";
+import { IUserState } from "../../store/user/types";
+import { onSidebarToggle } from "../../store/ui/actions";
+import { Page } from "@patternfly/react-core";
+import Header from "./Header";
+import Sidebar from "./Sidebar";
 
 interface IOtherProps {
     children: any;

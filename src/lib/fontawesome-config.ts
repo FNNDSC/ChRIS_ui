@@ -1,5 +1,5 @@
 // Build a library of fontawesome icons used in the app:
-import { library } from '@fortawesome/fontawesome-svg-core';
+import { library } from "@fortawesome/fontawesome-svg-core";
 import {
     faSearchPlus,
     faSearch,
@@ -17,17 +17,17 @@ import {
     faUserTimes,
     faUserMinus,
     faCalendarDay,
-    
-} from '@fortawesome/free-solid-svg-icons';
-import { 
+
+} from "@fortawesome/free-solid-svg-icons";
+import {
     faClock,
     faCalendarAlt,
     faUser as farUser
-} from '@fortawesome/free-regular-svg-icons';
+} from "@fortawesome/free-regular-svg-icons";
 
 
 // Description: add icons to be used in the app as needed
-// Some are solid and some are from regular svg (hollow icons) 
+// Some are solid and some are from regular svg (hollow icons)
 library.add(
     faSearch,
     faSearchPlus,
