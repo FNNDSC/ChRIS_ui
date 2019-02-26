@@ -7,6 +7,16 @@ interface INodeProps {
 }
 
 class NodeDetails extends React.Component<INodeProps> {
+  // Description: Share pipeline with others ***** Working
+  handleSharePipeline() {
+    // Stub - To be done
+  }
+
+  // Description: Add new node to the feed ***** Working
+  handleAddNewNode() {
+    // Stub - To be done
+  }
+
   render() {
     const { selected } = this.props;
     return (
@@ -19,13 +29,12 @@ class NodeDetails extends React.Component<INodeProps> {
             Pipeline chart
           </GridItem>
           <GridItem className="pf-u-p-sm" sm={12} md={6}>
-
               <label>From this node:</label>
               <div className="btn-div">
-                <Button variant="tertiary" isBlock>
+                <Button variant="tertiary" isBlock  onClick={this.handleAddNewNode}>
                   <InfrastructureIcon /> Add new node(s)...
                 </Button>
-                <Button variant="tertiary" isBlock>
+                <Button variant="tertiary" isBlock onClick={this.handleSharePipeline}>
                   <ShareAltIcon /> Share this pipeline...
                 </Button>
               </div>
