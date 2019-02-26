@@ -23,14 +23,14 @@
         "no-unused-expression": [true, "allow-fast-null-checks"],
         "member-access": [true, "no-public"],
         "one-variable-per-declaration": false,
-        
         "arrow-return-shorthand": false,
         "trailing-comma": false,
         "no-shadowed-variable": false,
         "object-literal-sort-keys": false,
         "interface-name":false,
         "interface-over-type-literal": false,
-        "member-ordering": false
+        "member-ordering": false,
+        "variable-name": false
     },
     "jsRules": {
         "max-line-length": {

@@ -5,6 +5,9 @@
 *  Notes:           Work in progres ...
 */
 import keyMirror from "keymirror";
+import { IFeedItem } from "../../api/models/feed.model";
+import { IPluginItem } from "../../api/models/pluginInstance.model";
+
 
 // Description state for main user items[] and item
 export interface IFeedState {
@@ -25,112 +28,3 @@ export const FeedActionTypes = keyMirror({
     FETCH_REQUEST: null, // before request
     FETCH_SUCCESS: null, // request is successful
 });
-
-
-// These will come from ClienAPI ts definition when completed 
-// NOTE: ***** working typings *****
-// ------------------------------------------
-export interface IFeedItem extends IFeedLinks {
-    id: number;
-    creation_date: string;
-    modification_date: string;
-    name: string;
-    template: ITemplate;
-    creator_username: string;
-}
-
-export interface IFeedLinks {
-    url: string;
-    files: string;
-    comments: string;
-    owner: string[];
-    note: string;
-    tags: string;
-    taggings: string;
-    plugin_instances: string;
-}
-
-// Plugin Instances
-// ------------------------------------------
-export interface IPluginItemInstanceResponse {
-    count: number;
-    results: IPluginItem[];
-    collection_links: CollectionLinks;
-    next?: string; // Link to next set
-    previous?: string; // Link to previous set
-}
-
-export interface CollectionLinks {
-    feed: string;
-}
-export interface IPluginItemLinks  {
-    url: string;
-    feed: string;
-    descendants: string;
-    files: string;
-    parameters: string;
-    plugin: string;
-    next?: string;
-    previous?: string;
-}
-export interface IPluginItem extends IPluginItemLinks  {
-    id: number;
-    title: string;
-    previous_id?: number;
-    plugin_id: number;
-    plugin_name: string;
-    pipeline_inst: null;
-    feed_id: number;
-    start_date: string;
-    end_date: string;
-    status: string;
-    owner_username: string;
-    compute_resource_identifier: string;
-    cpu_limit: number;
-    memory_limit: number;
-    number_of_workers: number;
-    gpu_limit: number;
-}
-
-export interface ITemplate {
-    data: IDatum[];
-}
-
-
-
-/// ----------- Basic interface
-export interface IPluginItemInstance {
-    collection: ICollection;
-}
-
-export interface ICollection {
-    version: string;
-    href: string;
-    items: IItem[];
-    links: ILink[];
-}
-
-export interface IItem {
-    data: IDatum[];
-    href: string;
-    links: ILink[];
-}
-
-export interface IDatum {
-    name: string;
-    value: number | string;
-}
-
-export interface ILink {
-    rel: IRel;
-    href: string;
-}
-
-export enum IRel {
-    Descendants = "descendants",
-    Feed = "feed",
-    Files = "files",
-    Parameters = "parameters",
-    Plugin = "plugin",
-    Previous = "previous",
-}

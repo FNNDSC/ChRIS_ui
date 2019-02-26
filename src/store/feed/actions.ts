@@ -1,5 +1,7 @@
 import { action } from "typesafe-actions";
-import { FeedActionTypes, IFeedItem, IPluginItem } from "./types";
+import { FeedActionTypes,  } from "./types";
+import { IFeedItem } from "../../api/models/feed.model";
+import { IPluginItem } from "../../api/models/pluginInstance.model";
 
 
 // type them properly as well -> For more info: https://github.com/piotrwitek/typesafe-actions

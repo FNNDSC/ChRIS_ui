@@ -10,7 +10,7 @@ import {
 } from "@patternfly/react-core";
 import { EyeIcon, DownloadIcon } from "@patternfly/react-icons";
 import Moment from "react-moment";
-import { IPluginItem } from "../../../store/feed/types";
+import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
 interface INodeProps {
   selected: IPluginItem;

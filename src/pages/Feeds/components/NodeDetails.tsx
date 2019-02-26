@@ -1,5 +1,5 @@
 import React from "react";
-import { IPluginItem } from "../../../store/feed/types";
+import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { Button, Grid, GridItem } from "@patternfly/react-core";
 import { ShareAltIcon, InfrastructureIcon } from "@patternfly/react-icons";
 interface INodeProps {
