@@ -13,6 +13,7 @@ export interface IUserState {
     email?: string;
     token?: string | null;
     isRememberMe?: boolean;
+    isLoggedIn?: boolean;
 }
 
 export const UserActionTypes = keyMirror({

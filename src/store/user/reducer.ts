@@ -7,6 +7,7 @@ const initialState: IUserState = {
     username: window.sessionStorage.getItem("USERNAME"),
     token:  window.sessionStorage.getItem("AUTH_TOKEN"),
     isRememberMe: false,
+    isLoggedIn: !!window.sessionStorage.getItem("AUTH_TOKEN")
 };
 
 // ***** NOTE: Working *****
@@ -16,13 +17,13 @@ const reducer: Reducer<IUserState> = (state = initialState, action) => {
             return { ...state, username: action.payload.username };
         }
         case UserActionTypes.FETCH_TOKEN_SUCCESS: {
-            return { ...state, token: action.payload };
+            return { ...state, token: action.payload, isLoggedIn: true };
         }
         case UserActionTypes.FETCH_TOKEN_ERROR: {
-            return { ...state, items: action.payload.data };
+            return { ...state, username: null, token: null, isLoggedIn: false  };
         }
         case UserActionTypes.LOGOUT_USER: {
-            return { ...state, username: null, token: null };
+            return { ...state, username: null, token: null, isLoggedIn: false };
         }
 
         default: {
