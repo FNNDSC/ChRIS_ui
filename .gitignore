@@ -23,3 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 
 /.vscode
+
+# add local files for temp dev but ignore on commit
+/**/*/local
