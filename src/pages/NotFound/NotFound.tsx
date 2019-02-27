@@ -1,7 +1,7 @@
 import * as React from "react";
-import Wrapper from '../../containers/layout/PageWrapper';
+import Wrapper from "../../containers/layout/PageWrapper";
 import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
-import './not-found.scss';
+import "./not-found.scss";
 
 
 class NotFoundPage extends React.Component {

@@ -1,8 +1,8 @@
 /*
 *  File:            message/types.ts
 *  Description:     Holds types and constants for managing global messaging and confirmation dialogs
-*  Author:          ChRIS ui Demo 
-*  Notes:           Work in progres ...                
+*  Author:          ChRIS ui Demo
+*  Notes:           Work in progres ...
 */
 
 import keyMirror from "keymirror";
@@ -21,10 +21,10 @@ export interface IMessage {
 
 export const IMessageType = keyMirror({
   success: null,
-  error: null, 
-  info: null, 
+  error: null,
+  info: null,
   warning: null
-})
+});
 
 export type MessageType = "success" | "error" | "info" | "warning";
 
@@ -34,27 +34,27 @@ export const MessageHandlerType = keyMirror({
   modal: null,
   toastr: null, // User toatr to show error
   inline: null, // write error inline
-  logger:null, // write error in console.log
+  logger: null, // write error in console.log
   muted: null, // pass message but not to user - stub for logging later
-})
+});
 export type MessageDisplayType = "modal" | "toastr" | "inline" | "muted" | "logger";
 
 export const messageDefaults = {
   defaultMessage: {
-      Error: 'An unknown error occured.',
-      success: 'Your request was processed successfully',
+      Error: "An unknown error occured.",
+      success: "Your request was processed successfully",
   }
-}
+};
 
 // Confirmation / Modal handling
 export interface IConfirmation {
   title?: string;
   text: string;
-  confirm?:IModalActions,
-  dismiss?:IModalActions
+  confirm?: IModalActions;
+  dismiss?: IModalActions;
 }
 export interface IModalActions {
-  label:string;
+  label: string;
   action?: string; // Pass the name of the action
   data?: any; // Pass the data for the respective action
 }

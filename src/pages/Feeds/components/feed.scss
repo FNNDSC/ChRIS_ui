@@ -1,0 +1,145 @@
+/*
+*  File:            feed.scss
+*  Description:     This files holds styles specific for the Feed view page
+*  Author:          ChRIS ui Demo
+*/
+
+
+@import '../../../assets/scss/helpers/variables'; 
+$label-font-size: 0.8125rem;
+$data-font-size: 0.875rem;
+.feed-info-block{
+    h1{
+        font-size: 	1.2rem;
+        margin: 0.65rem 0;
+    }
+    p{
+        margin-top: 0.3rem;
+    }
+    .pf-c-list.pf-m-inline li:not(:last-child){
+        margin-right: 2rem;
+    }
+    img{
+        margin-right:0.5rem;
+        max-width: 70px;
+        width: 90%;
+    }
+}
+.feed-view{
+    min-height: 25vh; // Temp for dev
+    >div{
+        color: #fff;
+    }
+    // Left side panel displaying feed tree
+    .feed-block{
+      background: $feed-block-background;
+    }
+    
+    // Right side panel to display node information
+    .node-block{
+        background: $node-block-background;
+        border-left: 3px solid $node-block-border;
+        font-size: $data-font-size;
+        div{
+            color: #fff;
+            label{
+                display:block;
+                font-size: $label-font-size;
+                
+            } 
+        }
+        .pf-l-grid{
+            margin-top: 1rem;
+        }
+        .btn-div{
+            margin-top: 0.5rem;
+            max-width: 200px;
+            button{
+                color: #fff;
+                font-size: $data-font-size;
+                margin-bottom: 0.5rem;
+                text-align: left;
+                svg{
+                    margin-right: 5px;
+                }
+            }
+        }
+    }
+}
+//  Plugin Detail panel
+.plugin-info{
+    background: #fff !important;
+    h1{
+        padding: 0 1rem;
+        margin-bottom:1rem;
+    }
+    section, ul{
+        box-shadow: none !important;
+        border-top: none 0;
+    }
+    .pf-c-data-list__item.pf-m-expanded{
+        padding-bottom: 0.5rem;
+        .pf-c-data-list__expandable-content{
+            padding-top:0.2rem;
+            padding-bottom: 0;
+        }
+    }
+    li{
+        padding:0 1rem 1rem 1.5rem;
+    }
+    h1, ul{
+        font-weight: 600;
+    }
+    section{
+        font-size: $data-font-size;
+        div{
+            font-size: $label-font-size;
+            &:not(:last-child){
+                padding-bottom: 0.5rem;
+            }
+        }
+    }
+    .plugin-config, .plugin-output{
+        label{
+            display: block;
+        }
+    }
+    .btn-div{
+        max-width: 200px;
+        button{
+            font-size: $data-font-size;
+            margin-bottom: 0.5rem;
+            text-align: left;
+            svg{
+                margin-right: 5px;
+            }
+        }
+    }
+}
+
+// Misc
+.svg-inline--fa{
+    margin-right: 5px;
+}
+
+.link {
+    fill:none;
+    marker-end: url(#end-arrow);
+    opacity: 0.8;
+    stroke: $tree-links-color; //007bba - active
+    stroke-width: 1px;
+}
+.nodelabel{
+    fill: $tree-node-backgound;
+    font-size: 0.75rem;
+}
+.nodegroup{
+    cursor: pointer;
+    fill: $tree-node-backgound;
+    &.active{
+        fill: $tree-node-active-backgound;
+        .nodelabel{
+            fill: $tree-node-active-backgound;
+        }
+    }
+}

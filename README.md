@@ -5,7 +5,7 @@ UI for ChRIS.
 ## Installation
 
 ```
-$ git clone https://github.com/jcaianirh/ChRIS_ui.git
+$ git clone https://github.com/FNNDSC/ChRIS_ui.git
 $ cd ChRIS_ui
 $ npm install
 ```
