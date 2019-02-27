@@ -24,8 +24,6 @@ export interface IFeedLinks {
   plugin_instances: string;
 }
 
-
-
 export default class FeedModel {
 
   // Description: gets Feed information
