@@ -1,39 +1,41 @@
-import * as React from 'react';
+import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IUiState } from "../../store/ui/types";
+import { IUserState } from "../../store/user/types";
 import { onSidebarToggle } from "../../store/ui/actions";
-import { Page } from '@patternfly/react-core';
-import Header from './Header';
-import Sidebar from './Sidebar';
+import { Page } from "@patternfly/react-core";
+import Header from "./Header";
+import Sidebar from "./Sidebar";
 
-interface OtherProps {
+interface IOtherProps {
     children: any;
+    user: IUserState;
 }
-interface PropsFromDispatch {
+interface IPropsFromDispatch {
     onSidebarToggle: typeof onSidebarToggle;
 }
-type AllProps = IUiState & OtherProps & PropsFromDispatch;
+type AllProps = IUiState & IOtherProps & IPropsFromDispatch;
 
 class Wrapper extends React.Component<AllProps> {
 
-    // Description: toggles sidebar on pageresize 
+    // Description: toggles sidebar on pageresize
     onPageResize = (data: { mobileView: boolean, windowSize: number }) => {
         const { isSidebarOpen, onSidebarToggle } = this.props;
         (!data.mobileView && !isSidebarOpen) && onSidebarToggle(!isSidebarOpen);
-    };
-    onSidebarToggle = () => {
+    }
+    onToggle = () => {
         const { isSidebarOpen, onSidebarToggle } = this.props;
         onSidebarToggle(!isSidebarOpen);
-    };
+    }
     render() {
-        const { children } = this.props;
+        const { children, user } = this.props;
 
         return (
             <Page
                 className="pf-background"
-                header={<Header onSidebarToggle={this.onSidebarToggle} />}
+                header={<Header onSidebarToggle={this.onToggle} user={user} />}
                 sidebar={<Sidebar />}
                 onPageResize={this.onPageResize} >
                 {children}
@@ -47,15 +49,15 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     onSidebarToggle: (isOpened: boolean) => dispatch(onSidebarToggle(isOpened))
 });
 
-const mapStateToProps = ({ ui }: ApplicationState) => ({
+const mapStateToProps = ({ ui, user }: ApplicationState) => ({
+    isSidebarOpen: ui.isSidebarOpen,
     loading: ui.loading,
-    isSidebarOpen: ui.isSidebarOpen
+    user
 });
 
 
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(Wrapper)
-
+)(Wrapper);
 
