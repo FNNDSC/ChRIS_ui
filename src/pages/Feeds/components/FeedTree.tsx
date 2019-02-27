@@ -187,16 +187,13 @@ class FeedTree extends React.Component<AllProps> {
     const tooltip = document.getElementById("tooltip");
     const tooltipWidth = 200;
     if (!!tooltip) {
-      const title = `plugin_name: ${d.item.plugin_name} / id: ${
-        d.item.id
-      } / previous_id: ${d.item.previous_id ||
-        "None - this is the root node"}`;
+      const title = `Plugin Name: ${d.item.plugin_name}`;
       tooltip.innerHTML = title;
       const height = tooltip.offsetHeight;
       tooltip.style.width = tooltipWidth + "px";
       tooltip.style.opacity = "1";
       tooltip.style.left = (d.x - tooltipWidth * 0.5) + "px";
-      tooltip.style.top = (d.y - (height + 28)) + "px";
+      tooltip.style.top = (d.y - (height + 25)) + "px";
     }
   }
 
