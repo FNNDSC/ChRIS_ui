@@ -1,11 +1,8 @@
 import React, { createRef, RefObject } from "react";
 import * as d3 from "d3";
 import * as cola from "webcola";
-import TreeModel, {
-  ITreeChart,
-  INode,
-  ILink
-} from "../../../api/models/tree.model";
+import TreeModel, { ITreeChart } from "../../../api/models/tree.model";
+import { INode } from "../../../api/models/tree-node.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
 interface ITreeProps {

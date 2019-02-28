@@ -80,8 +80,8 @@ class FeedView extends React.Component<AllProps> {
               )}
             </GridItem>
             <GridItem className="node-block pf-u-p-md" sm={12} md={6}>
-              {!!selected ? (
-                <NodeDetails selected={selected} />
+              {!!items && !!selected ? (
+                <NodeDetails items={items} selected={selected}  />
               ) : (
                 <div>Please click on a node to work on a plugin</div>
               )}
