@@ -1,5 +1,6 @@
 import * as cola from "webcola";
 import { IPluginItem } from "./pluginInstance.model";
+import { INode } from "./tree-node.model";
 import * as _ from "lodash";
 
 // Builds the webcola tree chart
@@ -22,17 +23,7 @@ export interface ILink {
   value: number;
 }
 
-export interface INode {
-  // extends cola.Node extends SVGSVGElement
-  item: IPluginItem;
-  index: number;
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
-  bounds?: any;
-  label?: string;
-}
+
 
 // Description: Parse Data from IPluginItem and convert to a ITreeChart
 
@@ -138,4 +129,6 @@ export default class TreeModel {
   private _setLinks(links: ILink[]) {
     this.treeChart.links = links;
   }
+
+ 
 }
