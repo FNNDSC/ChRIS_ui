@@ -1,6 +1,8 @@
 import { IPluginItem } from "./pluginInstance.model";
 import * as _ from "lodash";
 
+
+export type NodeId = number | string | undefined;
 export interface INode {
   // extends cola.Node extends SVGSVGElement
   item: IPluginItem;

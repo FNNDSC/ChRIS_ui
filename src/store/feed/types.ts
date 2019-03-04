@@ -14,6 +14,7 @@ export interface IFeedState {
     details?: IFeedItem;
     items?: IPluginItem[];
     selected?: IPluginItem;
+    descendants?: IPluginItem[];
 }
 
 export const FeedActionTypes = keyMirror({
@@ -23,6 +24,8 @@ export const FeedActionTypes = keyMirror({
     GET_PLUGIN_INSTANCES: null,
     GET_PLUGIN_INSTANCES_SUCCESS: null,
     SET_SELECTED_PLUGIN: null,
+    GET_PLUGIN_DESCENDANTS: null,
+    GET_PLUGIN_DESCENDANTS_SUCCESS: null,
     FETCH_COMPLETE: null, // after request completes
     FETCH_ERROR: null, // request failed
     FETCH_REQUEST: null, // before request

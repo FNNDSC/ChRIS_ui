@@ -3,12 +3,20 @@ import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { Button, Grid, GridItem } from "@patternfly/react-core";
 import { ShareAltIcon, InfrastructureIcon } from "@patternfly/react-icons";
 import TreeNodeModel, { INode } from "../../../api/models/tree-node.model";
+import PipelineTree from "./PipelineTree";
 interface INodeProps {
   selected: IPluginItem;
   items: IPluginItem[];
 }
 
 class NodeDetails extends React.Component<INodeProps> {
+  // selected: IPluginItem;
+  constructor(props: INodeProps){
+    super(props);
+    const { items } = this.props;
+    this.onNodeClick = this.onNodeClick.bind(this);
+  }
+
   // Description: Share pipeline with others ***** Working
   handleSharePipeline() {
     // Stub - To be done
@@ -26,6 +34,12 @@ class NodeDetails extends React.Component<INodeProps> {
     return (!TreeNodeModel.isRootNode(item) && !TreeNodeModel.isLeafNode(item, items));
   }
 
+  // Description: handle node clicks to load next node information
+  onNodeClick(node: INode) {
+    // Node was clicked
+     console.log("PipelineTree onNodeClick: ", node);
+  }
+
   render() {
     const { selected, items } = this.props;
     return (
@@ -35,7 +49,7 @@ class NodeDetails extends React.Component<INodeProps> {
         </div>
         <Grid>
           <GridItem className="pf-u-p-sm" sm={12} md={6}>
-            Pipeline chart
+            <PipelineTree items={items} />
           </GridItem>
           <GridItem className="pf-u-p-sm" sm={12} md={6}>
             <label>From this node:</label>
