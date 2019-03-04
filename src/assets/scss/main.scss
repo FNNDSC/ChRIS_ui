@@ -6,7 +6,7 @@
 
 
  
-// Base
+
 
 // Helpers
 @import './helpers/pf4-variables';
@@ -15,7 +15,13 @@
 //Vendors
 @import "vendors/patternfly/patternfly";
 
+// Base
+// @import "./base/overrides";
+
+// Components
 @import './components/background-image';
+
+
 
 // Custom Layout styles
 @import './layout/layout';
