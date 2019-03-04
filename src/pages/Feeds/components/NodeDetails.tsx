@@ -10,13 +10,6 @@ interface INodeProps {
 }
 
 class NodeDetails extends React.Component<INodeProps> {
-  // selected: IPluginItem;
-  constructor(props: INodeProps) {
-    super(props);
-    const { descendants } = this.props;
-    this.onNodeClick = this.onNodeClick.bind(this);
-  }
-
   // Description: Share pipeline with others ***** Working
   handleSharePipeline() {
     // Stub - To be done
@@ -32,12 +25,6 @@ class NodeDetails extends React.Component<INodeProps> {
   isNodePipelineRoot(item: IPluginItem ) {
     const { descendants } = this.props;
     return (!TreeNodeModel.isRootNode(item) && !TreeNodeModel.isLeafNode(item, descendants));
-  }
-
-  // Description: handle node clicks to load next node information
-  onNodeClick(node: INode) {
-    // Node was clicked
-    // console.log("PipelineTree onNodeClick: ", node);
   }
 
   render() {

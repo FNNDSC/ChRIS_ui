@@ -48,6 +48,7 @@ class FeedTree extends React.Component<AllProps> {
       onNodeClick(node.item);
     }
   }
+  
   // ---------------------------------------------------------------------
   // Description: Builds Webcola/D3 Feed Tree
   buildFeedTree = (

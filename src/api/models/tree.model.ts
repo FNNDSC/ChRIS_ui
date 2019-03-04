@@ -85,7 +85,6 @@ export default class TreeModel {
 
 
   // Description: Recursive method to build tree
-
   private _parseTreeChildren(
     workingItems: IPluginItem[],
     _workingId: NodeId,

@@ -61,7 +61,6 @@ class FeedView extends React.Component<AllProps> {
   render() {
     const { items, details, selected, descendants } = this.props;
 
-    // NOTE: working - will separate into components ***** working
     return (
       <React.Fragment>
         {/* Top section with Feed information */}
@@ -75,8 +74,7 @@ class FeedView extends React.Component<AllProps> {
         {/* Mid section with Feed and node actions */}
         <PageSection
           className={pf4UtilityStyles.spacingStyles.p_0}
-          variant={PageSectionVariants.light}
-        >
+          variant={PageSectionVariants.light} >
           <Grid className="feed-view">
             <GridItem className="feed-block pf-u-p-md" sm={12} md={6}>
               {!!items ? (
@@ -120,12 +118,9 @@ class FeedView extends React.Component<AllProps> {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedDetailsRequest: (id: string) => dispatch(getFeedDetailsRequest(id)),
-  getPluginInstanceListRequest: (id: string) =>
-    dispatch(getPluginInstanceListRequest(id)),
-  setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
-    dispatch(setSidebarActive(active)),
-  getPluginDescendantsRequest: (id: string) =>
-    dispatch(getPluginDescendantsRequest(id))
+  getPluginInstanceListRequest: (id: string) => dispatch(getPluginInstanceListRequest(id)),
+  setSidebarActive: (active: { activeItem: string; activeGroup: string }) => dispatch(setSidebarActive(active)),
+  getPluginDescendantsRequest: (id: string) => dispatch(getPluginDescendantsRequest(id))
 });
 
 const mapStateToProps = ({ ui, feed, user }: ApplicationState) => ({
