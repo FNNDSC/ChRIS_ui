@@ -2,7 +2,7 @@ import React, { createRef, RefObject } from "react";
 import * as d3 from "d3";
 import * as cola from "webcola";
 import TreeModel, { ITreeChart } from "../../../api/models/tree.model";
-import { INode } from "../../../api/models/tree-node.model";
+import TreeNodeModel, { INode } from "../../../api/models/tree-node.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
 interface ITreeProps {
@@ -58,7 +58,7 @@ class FeedTree extends React.Component<AllProps> {
         !!treeDiv.current && treeDiv.current.clientWidth > 0
           ? treeDiv.current.clientWidth
           : window.innerWidth / 2 - 290,
-      height = 300; // Need to calculate SVG height ***** working
+      height = TreeNodeModel.calculateTotalTreeHeight(tree.totalRows);
 
     const d3cola = cola
       .d3adaptor(d3)

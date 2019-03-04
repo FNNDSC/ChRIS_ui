@@ -58,7 +58,7 @@ class PipelineTree extends React.Component<AllProps> {
         !!treeDiv.current && treeDiv.current.clientWidth > 0
           ? treeDiv.current.clientWidth
           : window.innerWidth / 2 - 290,
-      height = 300; // Need to calculate SVG height ***** working
+      height = TreeNodeModel.calculateTotalTreeHeight(tree.totalRows); // Need to calculate SVG height ***** working
 
     const d3cola = cola
       .d3adaptor(d3)
@@ -171,7 +171,7 @@ class PipelineTree extends React.Component<AllProps> {
         return `translate(${d.x - nodeRadius * 2}, ${d.y + nodeRadius * 2.5} )`;
       });
     }); // end of on tick
-  };
+  }
 
   handleMouseOver = (d: any, i: number) => {
     const tooltip = document.getElementById("pTooltip");
@@ -185,7 +185,7 @@ class PipelineTree extends React.Component<AllProps> {
       tooltip.style.left = d.x - tooltipWidth * 0.5 + "px";
       tooltip.style.top = d.y - (height + 25) + "px";
     }
-  };
+  }
 
   handleMouseOut = (d: any, i: number) => {
     const tooltip = document.getElementById("pTooltip");
@@ -194,7 +194,7 @@ class PipelineTree extends React.Component<AllProps> {
       tooltip.style.opacity = "0";
       tooltip.style.left = "-9999px";
     }
-  };
+  }
 
   // Description: Destroy d3 content
   componentWillUnmount() {

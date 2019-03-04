@@ -31,4 +31,10 @@ export default class TreeNodeModel {
   static isRootNode(item: IPluginItem) {
     return !(!!item.previous_id && !!item.previous);
   }
+
+    // Description: determines the total height depending on the number of rows / levels in the tree
+  static calculateTotalTreeHeight(totalRows: number): number {
+    const height = (totalRows <= 1) ? 80 : Number(50 + ((totalRows - 1) * 80));
+    return height;
+  }
 }
