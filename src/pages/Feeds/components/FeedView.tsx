@@ -1,12 +1,13 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
+import { RouteComponentProps } from "react-router-dom";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import { getFeedDetailsRequest, getPluginInstanceListRequest, setSelectedPluginNode } from "../../../store/feed/actions";
+import { getFeedDetailsRequest, getPluginInstanceListRequest, setSelectedPluginNode, getPluginDescendantsRequest } from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
-import { RouteComponentProps } from "react-router-dom";
+import TreeNodeModel from "../../../api/models/tree-node.model";
 import FeedDetails from "./FeedDetails";
 import FeedTree from "./FeedTree";
 import NodeDetails from "./NodeDetails";
@@ -26,6 +27,7 @@ interface IPropsFromDispatch {
   getFeedDetailsRequest: typeof getFeedDetailsRequest;
   getPluginInstanceListRequest: typeof getPluginInstanceListRequest;
   setSelectedPluginNode: typeof setSelectedPluginNode;
+  getPluginDescendantsRequest: typeof getPluginDescendantsRequest;
 }
 
 type AllProps = IUserState &
@@ -54,7 +56,7 @@ class FeedView extends React.Component<AllProps> {
   }
 
   render() {
-    const { items, details, selected } = this.props;
+    const { items, details, selected, descendants } = this.props;
 
     // NOTE: working - will separate into components ***** working
     return (
@@ -80,8 +82,8 @@ class FeedView extends React.Component<AllProps> {
               )}
             </GridItem>
             <GridItem className="node-block pf-u-p-md" sm={12} md={6}>
-              {!!items && !!selected ? (
-                <NodeDetails items={items} selected={selected}  />
+              {!!descendants && !!selected ? (
+                <NodeDetails items={descendants} selected={(selected)}  />
               ) : (
                 <div>Please click on a node to work on a plugin</div>
               )}
@@ -106,13 +108,19 @@ class FeedView extends React.Component<AllProps> {
   }
 
   // Description: handle node clicks to load next node information
-  onNodeClick(node: any) {
-    const { setSelectedPluginNode } = this.props;
+  onNodeClick(node: IPluginItem) {
+    const {  getPluginDescendantsRequest } = this.props;
     // Node was clicked
-    // console.log("Trigger the load of information on the panels", node);
-    setSelectedPluginNode(node);
+     console.log("Trigger the load of information on the panels", node);
+    // get descendants to pass to NodeDetails and pipline tree
+    // if it is a leaf or root node pass only the selected item
+    // (!!items) &&
+    //   (!TreeNodeModel.isRootNode(node) && !TreeNodeModel.isLeafNode(node, items)) && console.log("get descendant tree");
+    getPluginDescendantsRequest(node.descendants);
+   // setSelectedPluginNode(node);
   }
 }
+
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedDetailsRequest: (id: string) => dispatch(getFeedDetailsRequest(id)),
@@ -120,7 +128,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(getPluginInstanceListRequest(id)),
   setSelectedPluginNode: (node: IPluginItem) => dispatch(setSelectedPluginNode(node)),
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
-    dispatch(setSidebarActive(active))
+    dispatch(setSidebarActive(active)),
+  getPluginDescendantsRequest: (id: string) => dispatch(getPluginDescendantsRequest(id))
 });
 
 const mapStateToProps = ({ ui, feed, user }: ApplicationState) => ({
@@ -129,7 +138,8 @@ const mapStateToProps = ({ ui, feed, user }: ApplicationState) => ({
   token: user.token,
   items: feed.items,
   details: feed.details,
-  selected: feed.selected
+  selected: feed.selected,
+  descendants: feed.descendants
 });
 
 export default connect(

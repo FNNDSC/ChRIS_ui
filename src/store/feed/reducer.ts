@@ -5,7 +5,8 @@ import { IFeedState, FeedActionTypes } from "./types";
 const initialState: IFeedState = {
   details: undefined,
   items: undefined,
-  selected: undefined
+  selected: undefined,
+  descendants: undefined
 };
 
 // ***** NOTE: Working *****
@@ -20,10 +21,16 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       // return { ...state, items: action.payload.collection.items }; //Note: For API call... stub
       return { ...state, items: action.payload.data.results };
     }
-    // setSelectedPluginNode
-    case FeedActionTypes.SET_SELECTED_PLUGIN: {
-      return { ...state, selected: action.payload };
+    case FeedActionTypes.GET_PLUGIN_DESCENDANTS_SUCCESS: {
+      const descendants = action.payload.data.results;
+      const selected = (!!action.payload.data.results &&  action.payload.data.results.length) && action.payload.data.results[0];
+      console.log("GET_PLUGIN_DESCENDANTS_SUCCESS", selected);
+      return { ...state, descendants, selected  };
     }
+    // setSelectedPluginNode ***** not needed
+    // case FeedActionTypes.SET_SELECTED_PLUGIN: {
+    //   return { ...state, selected: action.payload };
+    // }
     case FeedActionTypes.FETCH_REQUEST: {
       return { ...state };
     }

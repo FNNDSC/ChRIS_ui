@@ -2,58 +2,50 @@ import React, { createRef, RefObject } from "react";
 import * as d3 from "d3";
 import * as cola from "webcola";
 import TreeModel, { ITreeChart } from "../../../api/models/tree.model";
-import { INode } from "../../../api/models/tree-node.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
-
+import * as _ from "lodash";
 interface ITreeProps {
+  // selected: IPluginItem;
   items: IPluginItem[];
 }
 
-interface ITreeActions {
-  onNodeClick: (node: any) => void;
-}
+// interface ITreeActions {
+//   // onNodeClick: (node: any) => void;
+// }
 
-type AllProps = ITreeProps & ITreeActions;
+type AllProps = ITreeProps; // & ITreeActions
 
-class FeedTree extends React.Component<AllProps> {
+class PipelineTree extends React.Component<AllProps> {
   private treeRef = createRef<HTMLDivElement>();
   componentDidMount() {
     const { items } = this.props;
-    if (!!this.treeRef.current && !!items && items.length > 0) {
-      const tree = new TreeModel(items);
-      if (!!tree.treeChart) {
-        this.buildFeedTree(tree.treeChart, this.treeRef);
-        // Set root node active on load:
-        tree.treeChart.nodes.length > 0 &&
-          this.setActiveNode(tree.treeChart.nodes[0]);
-      }
-    }
+    this.updateTree(items); // Needed for the onload
   }
 
   render() {
-    return (
-      <div ref={this.treeRef} id="tree">
-        <div id="tooltip" className="tooltip" />
-      </div>
-    );
+    const { items } = this.props;
+    !!this.treeRef.current &&
+      !!items && items.length > 0 && this.updateTree(items);
+    return <div ref={this.treeRef} id="pipelineTree" />;
+  }
+  // Description: Build the tree from items passed to the component
+  updateTree(items: IPluginItem[]) {
+    !!d3 &&
+      d3
+        .select("#pipelineTree")
+        .selectAll("svg")
+        .remove();
+    const tree = new TreeModel(items, items[0].previous_id);
+    !!tree.treeChart && this.buildPipelineTree(tree.treeChart, this.treeRef);
   }
 
-  // Description: set active node
-  setActiveNode = (node: INode) => {
-    const { onNodeClick } = this.props;
-    d3.selectAll(".nodegroup.active").attr("class", "nodegroup");
-    const activeNode = d3.select(`#node_${node.item.id}`);
-    if (!!activeNode && !activeNode.empty()) {
-      activeNode.attr("class", "nodegroup active");
-      onNodeClick(node.item);
-    }
-  }
   // ---------------------------------------------------------------------
   // Description: Builds Webcola/D3 Feed Tree
-  buildFeedTree = (
+  buildPipelineTree = (
     tree: ITreeChart,
     treeDiv: React.RefObject<HTMLDivElement>
   ) => {
+    console.log("***** BUILD TREE: ", tree);
     const width =
         !!treeDiv.current && treeDiv.current.clientWidth > 0
           ? treeDiv.current.clientWidth
@@ -66,7 +58,7 @@ class FeedTree extends React.Component<AllProps> {
       .size([width, height]);
 
     const svg = d3
-      .select("#tree")
+      .select("#pipelineTree")
       .append("svg")
       .attr("width", width)
       .attr("height", height);
@@ -79,8 +71,6 @@ class FeedTree extends React.Component<AllProps> {
           ? `${v.item.plugin_name.substring(0, 7)}...`
           : v.item.plugin_name;
     });
-
-
 
     // Set up Webcola
     d3cola
@@ -122,8 +112,7 @@ class FeedTree extends React.Component<AllProps> {
         // set the node id using the plugin id
         return `node_${d.item.id}`;
       })
-      .attr("class", "nodegroup")
-      .on("click", this.setActiveNode)
+      .attr("class", "nodegroup") //   .on("click", this.setActiveNode)
       .call(d3cola.drag);
 
     const label = elemEnter
@@ -137,9 +126,9 @@ class FeedTree extends React.Component<AllProps> {
     const node = elemEnter
       .append("circle")
       .attr("class", "node")
-      .attr("r", nodeRadius)
-      .on("mouseover", this.handleMouseOver)
-      .on("mouseout", this.handleMouseOut);
+      .attr("r", nodeRadius);
+    //   .on("mouseover", this.handleMouseOver)
+    //   .on("mouseout", this.handleMouseOut);
 
     // Move links and nodes together
     d3cola.on("tick", () => {
@@ -173,36 +162,40 @@ class FeedTree extends React.Component<AllProps> {
       label.attr("transform", (d: any) => {
         return `translate(${d.x - nodeRadius * 2}, ${d.y + nodeRadius * 2.5} )`;
       });
+      // Position labels and tooltip:
+      // tooltip.attr("transform", (d: any) => {
+      //   return `translate(${d.x - nodeRadius * 2}, ${d.y + nodeRadius * 2.5} )`;
+      // });
     }); // end of on tick
-  }
+  };
 
-  handleMouseOver = (d: any, i: number) => {
-    const tooltip = document.getElementById("tooltip");
-    const tooltipWidth = 200;
-    if (!!tooltip) {
-      const title = `Name: ${d.item.plugin_name} - id: ${d.item.id}`;
-      tooltip.innerHTML = title;
-      const height = tooltip.offsetHeight;
-      tooltip.style.width = tooltipWidth + "px";
-      tooltip.style.opacity = "1";
-      tooltip.style.left = (d.x - tooltipWidth * 0.5) + "px";
-      tooltip.style.top = (d.y - (height + 25)) + "px";
-    }
-  }
+  //   handleMouseOver = (d: any, i: number) => {
+  //     const tooltip = document.getElementById("tooltip");
+  //     const tooltipWidth = 200;
+  //     if (!!tooltip) {
+  //       const title = `Plugin Name: ${d.item.plugin_name}`;
+  //       tooltip.innerHTML = title;
+  //       const height = tooltip.offsetHeight;
+  //       tooltip.style.width = tooltipWidth + "px";
+  //       tooltip.style.opacity = "1";
+  //       tooltip.style.left = (d.x - tooltipWidth * 0.5) + "px";
+  //       tooltip.style.top = (d.y - (height + 25)) + "px";
+  //     }
+  //   }
 
-  handleMouseOut = (d: any, i: number) => {
-    const tooltip = document.getElementById("tooltip");
-    if (!!tooltip) {
-      tooltip.innerHTML = "";
-      tooltip.style.opacity = "0";
-      tooltip.style.left = "-9999px";
-    }
-  }
+  //   handleMouseOut = (d: any, i: number) => {
+  //     const tooltip = document.getElementById("tooltip");
+  //     if (!!tooltip) {
+  //       tooltip.innerHTML = "";
+  //       tooltip.style.opacity = "0";
+  //       tooltip.style.left = "-9999px";
+  //     }
+  //   }
 
   // Description: Destroy d3 content
   componentWillUnmount() {
-    !!d3 && d3.select("#tree").remove();
+    !!d3 && d3.select("#pipelineTree").remove();
   }
 }
 
-export default FeedTree;
+export default PipelineTree;

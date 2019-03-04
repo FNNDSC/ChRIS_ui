@@ -1,6 +1,6 @@
 import * as cola from "webcola";
 import { IPluginItem } from "./pluginInstance.model";
-import { INode } from "./tree-node.model";
+import { NodeId, INode } from "./tree-node.model";
 import * as _ from "lodash";
 
 // Builds the webcola tree chart
@@ -26,21 +26,25 @@ export interface ILink {
 
 
 // Description: Parse Data from IPluginItem and convert to a ITreeChart
+/*
+* Params: items = Pass the items array of nodes
+* rootNodeId = Root node id which indicates the root id
+*/
 
 export default class TreeModel {
   treeChart: ITreeChart;
-  constructor(items: IPluginItem[]) {
+  constructor(items: IPluginItem[], rootNodeId?: NodeId) {
     this.treeChart = {
       nodes: [],
       links: []
     };
-    this.parseFeedTreeData(items);
+    this.parseFeedTreeData(items, rootNodeId);
   }
 
-  parseFeedTreeData(items: IPluginItem[]): ITreeChart {
+  parseFeedTreeData(items: IPluginItem[], rootNodeId?: NodeId): ITreeChart {
     // Note: Reverse the array to expedite parsing also for demo purposes
     this._workingItems = items.reverse().slice();
-    this._parseRootNode(items);
+    this._parseRootNode(items, rootNodeId);
     this._parseTreeChildren(this._workingItems, this._workingId);
 
     // Set the treeChart objects:
@@ -55,6 +59,25 @@ export default class TreeModel {
   private _workingItems: IPluginItem[] = [];
   private _nodes: INode[] = [];
   private _links: ILink[] = [];
+
+  // Description: Find the root of this tree:
+  private _parseRootNode(items: IPluginItem[], rootNodeId: NodeId) {
+    const parentItem = _.find(items, (item: IPluginItem) => {
+      return item.previous_id === rootNodeId;
+    });
+
+    if (!!parentItem) {
+      this._nodes.push({
+        item: parentItem,
+        index: this._workingIndex
+      });
+      this._workingItems = this._removeWorkingItem(parentItem);
+      this._workingId = parentItem.id;
+      this._workingIndex++;
+    }
+  }
+
+
   // Description: Recursive method to build tree
   private _parseTreeChildren(
     workingItems: IPluginItem[],
@@ -82,6 +105,7 @@ export default class TreeModel {
     });
   }
 
+
   // Description: Find children to this node
   private _findChildrenNodes(id: number | string, _parentIndex: number) {
     const workingChildrenArr = _.filter(
@@ -91,26 +115,10 @@ export default class TreeModel {
       }
     );
     // Does this node have children - recur
-    !!workingChildrenArr &&
-      workingChildrenArr.length > 0 &&
+    !!workingChildrenArr &&  workingChildrenArr.length > 0 &&
       this._parseTreeChildren(workingChildrenArr, id, _parentIndex);
   }
 
-  // Find the root of this tree:
-  private _parseRootNode(items: IPluginItem[]) {
-    const parentItem = _.find(items, (item: IPluginItem) => {
-      return item.previous === null && item.previous_id === undefined;
-    });
-    if (!!parentItem) {
-      this._nodes.push({
-        item: parentItem,
-        index: this._workingIndex
-      });
-      this._workingItems = this._removeWorkingItem(parentItem);
-      this._workingId = parentItem.id;
-      this._workingIndex++;
-    }
-  }
 
   // Description: Remove item from working array
   private _removeWorkingItem(item: IPluginItem): IPluginItem[] {
@@ -129,6 +137,4 @@ export default class TreeModel {
   private _setLinks(links: ILink[]) {
     this.treeChart.links = links;
   }
-
- 
 }
