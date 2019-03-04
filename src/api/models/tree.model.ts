@@ -8,6 +8,7 @@ export interface ITreeChart {
   nodes: INode[];
   links: ILink[];
   constraints?: IConstraint[];
+  totalRows: number;
 }
 
 export interface IConstraint {
@@ -36,7 +37,8 @@ export default class TreeModel {
   constructor(items: IPluginItem[], rootNodeId?: NodeId) {
     this.treeChart = {
       nodes: [],
-      links: []
+      links: [],
+      totalRows: 0
     };
     this.parseFeedTreeData(items, rootNodeId);
   }
@@ -50,16 +52,17 @@ export default class TreeModel {
     // Set the treeChart objects:
     this._setNodes(this._nodes);
     this._setLinks(this._links);
+    this.treeChart.totalRows = this._totalRows;
     return this.treeChart;
   }
 
   // Working props for parsing
   private _workingIndex: number = 0;
-  private _workingId = 0;
+  private _workingId: NodeId = 0;
   private _workingItems: IPluginItem[] = [];
   private _nodes: INode[] = [];
   private _links: ILink[] = [];
-
+  private  _totalRows = 0; // Counts the Max number of vertical nodes (for calculating height dynamically)
   // Description: Find the root of this tree:
   private _parseRootNode(items: IPluginItem[], rootNodeId: NodeId) {
     const parentItem = _.find(items, (item: IPluginItem) => {
@@ -76,13 +79,16 @@ export default class TreeModel {
       this._workingId = parentItem.id;
       this._workingIndex++;
     }
+    // Note: this is not the root or leaf plugin so increment the total rows
+    (!!rootNodeId && items.length > 1) && this._totalRows++;
   }
 
 
   // Description: Recursive method to build tree
+
   private _parseTreeChildren(
     workingItems: IPluginItem[],
-    _workingId: number | string,
+    _workingId: NodeId,
     _parentIndex: number = 0
   ) {
     const cloneArr: IPluginItem[] = workingItems.slice();
@@ -104,11 +110,12 @@ export default class TreeModel {
         this._findChildrenNodes(item.id, index);
       }
     });
+    this._totalRows++; // Increment total rows for counting vertical levels
   }
 
 
   // Description: Find children to this node
-  private _findChildrenNodes(id: number | string, _parentIndex: number) {
+  private _findChildrenNodes(id: NodeId, _parentIndex: number) {
     const workingChildrenArr = _.filter(
       this._workingItems,
       (subitem: IPluginItem) => {

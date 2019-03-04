@@ -11,7 +11,7 @@ interface INodeProps {
 
 class NodeDetails extends React.Component<INodeProps> {
   // selected: IPluginItem;
-  constructor(props: INodeProps){
+  constructor(props: INodeProps) {
     super(props);
     const { descendants } = this.props;
     this.onNodeClick = this.onNodeClick.bind(this);
