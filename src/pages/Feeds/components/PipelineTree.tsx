@@ -10,13 +10,7 @@ interface ITreeProps {
   items: IPluginItem[];
 }
 
-// interface ITreeActions {
-//   // onNodeClick: (node: any) => void;
-// }
-
-type AllProps = ITreeProps; // & ITreeActions
-
-class PipelineTree extends React.Component<AllProps> {
+class PipelineTree extends React.Component<ITreeProps> {
   private treeRef = createRef<HTMLDivElement>();
   componentDidMount() {
     const { items } = this.props;
