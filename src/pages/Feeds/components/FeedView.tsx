@@ -7,8 +7,8 @@ import { setSidebarActive } from "../../../store/ui/actions";
 import {
   getFeedDetailsRequest,
   getPluginInstanceListRequest,
-  getPluginDescendantsRequest
 } from "../../../store/feed/actions";
+import {getPluginDescendantsRequest} from "../../../store/plugin/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import TreeNodeModel from "../../../api/models/tree-node.model";
@@ -25,6 +25,7 @@ import {
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 import "./feed.scss";
 import { IUserState } from "../../../store/user/types";
+import { IPluginState } from "../../../store/plugin/types";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -35,6 +36,7 @@ interface IPropsFromDispatch {
 
 type AllProps = IUserState &
   IFeedState &
+  IPluginState &
   IPropsFromDispatch &
   RouteComponentProps<{ id: string }>;
 
@@ -123,14 +125,14 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   getPluginDescendantsRequest: (id: string) => dispatch(getPluginDescendantsRequest(id))
 });
 
-const mapStateToProps = ({ ui, feed, user }: ApplicationState) => ({
+const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({
   sidebarActiveGroup: ui.sidebarActiveGroup,
   sidebarActiveItem: ui.sidebarActiveItem,
   token: user.token,
   items: feed.items,
   details: feed.details,
-  selected: feed.selected,
-  descendants: feed.descendants
+  selected: plugin.selected,
+  descendants: plugin.descendants
 });
 
 export default connect(
