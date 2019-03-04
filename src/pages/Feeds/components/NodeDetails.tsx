@@ -6,14 +6,14 @@ import TreeNodeModel, { INode } from "../../../api/models/tree-node.model";
 import PipelineTree from "./PipelineTree";
 interface INodeProps {
   selected: IPluginItem;
-  items: IPluginItem[];
+  descendants: IPluginItem[];
 }
 
 class NodeDetails extends React.Component<INodeProps> {
   // selected: IPluginItem;
   constructor(props: INodeProps){
     super(props);
-    const { items } = this.props;
+    const { descendants } = this.props;
     this.onNodeClick = this.onNodeClick.bind(this);
   }
 
@@ -28,10 +28,10 @@ class NodeDetails extends React.Component<INodeProps> {
   }
 
   // Description: root node or leaf nodes in the graph will not have the 'share this pipeline' button
+  // Find out from descendants if this node is a leaf or root node
   isNodePipelineRoot(item: IPluginItem ) {
-    const { items } = this.props;
-    // Find out from items if this node is a leaf or root node
-    return (!TreeNodeModel.isRootNode(item) && !TreeNodeModel.isLeafNode(item, items));
+    const { descendants } = this.props;
+    return (!TreeNodeModel.isRootNode(item) && !TreeNodeModel.isLeafNode(item, descendants));
   }
 
   // Description: handle node clicks to load next node information
@@ -41,7 +41,7 @@ class NodeDetails extends React.Component<INodeProps> {
   }
 
   render() {
-    const { selected, items } = this.props;
+    const { selected, descendants } = this.props;
     return (
       <React.Fragment>
         <div>
@@ -49,7 +49,7 @@ class NodeDetails extends React.Component<INodeProps> {
         </div>
         <Grid>
           <GridItem className="pf-u-p-sm" sm={12} md={6}>
-            <PipelineTree items={items} />
+            <PipelineTree items={descendants} selected={selected} />
           </GridItem>
           <GridItem className="pf-u-p-sm" sm={12} md={6}>
             <label>From this node:</label>

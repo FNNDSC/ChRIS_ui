@@ -69,7 +69,8 @@ export default class TreeModel {
     if (!!parentItem) {
       this._nodes.push({
         item: parentItem,
-        index: this._workingIndex
+        index: this._workingIndex,
+        isRoot: true
       });
       this._workingItems = this._removeWorkingItem(parentItem);
       this._workingId = parentItem.id;

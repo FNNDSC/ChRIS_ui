@@ -180,7 +180,7 @@ class FeedTree extends React.Component<AllProps> {
     const tooltip = document.getElementById("tooltip");
     const tooltipWidth = 200;
     if (!!tooltip) {
-      const title = `Name: ${d.item.plugin_name} - id: ${d.item.id}`;
+      const title = `Plugin Name: ${d.item.plugin_name}`;
       tooltip.innerHTML = title;
       const height = tooltip.offsetHeight;
       tooltip.style.width = tooltipWidth + "px";
