@@ -45,7 +45,6 @@ class PipelineTree extends React.Component<AllProps> {
     tree: ITreeChart,
     treeDiv: React.RefObject<HTMLDivElement>
   ) => {
-    console.log("***** BUILD TREE: ", tree);
     const width =
         !!treeDiv.current && treeDiv.current.clientWidth > 0
           ? treeDiv.current.clientWidth

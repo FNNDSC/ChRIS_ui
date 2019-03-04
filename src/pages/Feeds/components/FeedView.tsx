@@ -4,7 +4,7 @@ import { Dispatch } from "redux";
 import { RouteComponentProps } from "react-router-dom";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import { getFeedDetailsRequest, getPluginInstanceListRequest, setSelectedPluginNode, getPluginDescendantsRequest } from "../../../store/feed/actions";
+import { getFeedDetailsRequest, getPluginInstanceListRequest, getPluginDescendantsRequest } from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import TreeNodeModel from "../../../api/models/tree-node.model";
@@ -26,7 +26,6 @@ interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getFeedDetailsRequest: typeof getFeedDetailsRequest;
   getPluginInstanceListRequest: typeof getPluginInstanceListRequest;
-  setSelectedPluginNode: typeof setSelectedPluginNode;
   getPluginDescendantsRequest: typeof getPluginDescendantsRequest;
 }
 
@@ -110,14 +109,7 @@ class FeedView extends React.Component<AllProps> {
   // Description: handle node clicks to load next node information
   onNodeClick(node: IPluginItem) {
     const {  getPluginDescendantsRequest } = this.props;
-    // Node was clicked
-     console.log("Trigger the load of information on the panels", node);
-    // get descendants to pass to NodeDetails and pipline tree
-    // if it is a leaf or root node pass only the selected item
-    // (!!items) &&
-    //   (!TreeNodeModel.isRootNode(node) && !TreeNodeModel.isLeafNode(node, items)) && console.log("get descendant tree");
     getPluginDescendantsRequest(node.descendants);
-   // setSelectedPluginNode(node);
   }
 }
 
@@ -126,7 +118,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedDetailsRequest: (id: string) => dispatch(getFeedDetailsRequest(id)),
   getPluginInstanceListRequest: (id: string) =>
     dispatch(getPluginInstanceListRequest(id)),
-  setSelectedPluginNode: (node: IPluginItem) => dispatch(setSelectedPluginNode(node)),
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
   getPluginDescendantsRequest: (id: string) => dispatch(getPluginDescendantsRequest(id))
