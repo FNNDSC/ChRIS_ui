@@ -37,7 +37,7 @@ class NodeDetails extends React.Component<INodeProps> {
   // Description: handle node clicks to load next node information
   onNodeClick(node: INode) {
     // Node was clicked
-     console.log("PipelineTree onNodeClick: ", node);
+    // console.log("PipelineTree onNodeClick: ", node);
   }
 
   render() {

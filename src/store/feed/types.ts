@@ -23,7 +23,6 @@ export const FeedActionTypes = keyMirror({
     GET_FEED_DETAILS_SUCCESS: null,
     GET_PLUGIN_INSTANCES: null,
     GET_PLUGIN_INSTANCES_SUCCESS: null,
-    SET_SELECTED_PLUGIN: null,
     GET_PLUGIN_DESCENDANTS: null,
     GET_PLUGIN_DESCENDANTS_SUCCESS: null,
     FETCH_COMPLETE: null, // after request completes

@@ -24,13 +24,8 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     case FeedActionTypes.GET_PLUGIN_DESCENDANTS_SUCCESS: {
       const descendants = action.payload.data.results;
       const selected = (!!action.payload.data.results &&  action.payload.data.results.length) && action.payload.data.results[0];
-      console.log("GET_PLUGIN_DESCENDANTS_SUCCESS", selected);
       return { ...state, descendants, selected  };
     }
-    // setSelectedPluginNode ***** not needed
-    // case FeedActionTypes.SET_SELECTED_PLUGIN: {
-    //   return { ...state, selected: action.payload };
-    // }
     case FeedActionTypes.FETCH_REQUEST: {
       return { ...state };
     }

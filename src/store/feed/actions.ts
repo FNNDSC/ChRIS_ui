@@ -14,5 +14,3 @@ export const getPluginInstanceListSuccess = (items: IPluginItem[]) => action(Fee
 
 export const getPluginDescendantsRequest = (url: string) => action(FeedActionTypes.GET_PLUGIN_DESCENDANTS, url);
 export const getPluginDescendantsSuccess = (items: IPluginItem[]) => action(FeedActionTypes.GET_PLUGIN_DESCENDANTS_SUCCESS, items);
-
-export const setSelectedPluginNode = (items: IPluginItem) => action(FeedActionTypes.SET_SELECTED_PLUGIN, items);
