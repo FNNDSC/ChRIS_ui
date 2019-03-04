@@ -2,10 +2,11 @@ import React, { createRef, RefObject } from "react";
 import * as d3 from "d3";
 import * as cola from "webcola";
 import TreeModel, { ITreeChart } from "../../../api/models/tree.model";
+import TreeNodeModel, { INode } from "../../../api/models/tree-node.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import * as _ from "lodash";
 interface ITreeProps {
-  // selected: IPluginItem;
+  selected: IPluginItem;
   items: IPluginItem[];
 }
 
@@ -25,17 +26,25 @@ class PipelineTree extends React.Component<AllProps> {
   render() {
     const { items } = this.props;
     !!this.treeRef.current &&
-      !!items && items.length > 0 && this.updateTree(items);
-    return <div ref={this.treeRef} id="pipelineTree" />;
+      !!items &&
+      items.length > 0 &&
+      this.updateTree(items);
+    return (
+      <div ref={this.treeRef} id="pipelineTree">
+        <div id="pTooltip" className="tooltip" />
+      </div>
+    );
   }
   // Description: Build the tree from items passed to the component
   updateTree(items: IPluginItem[]) {
+    const { selected } = this.props;
     !!d3 &&
       d3
         .select("#pipelineTree")
         .selectAll("svg")
         .remove();
-    const tree = new TreeModel(items, items[0].previous_id);
+    const _items = TreeNodeModel.isRootNode(selected) ? [selected] : items;
+    const tree = new TreeModel(_items, selected.previous_id);
     !!tree.treeChart && this.buildPipelineTree(tree.treeChart, this.treeRef);
   }
 
@@ -108,10 +117,11 @@ class PipelineTree extends React.Component<AllProps> {
       .enter()
       .append("g")
       .attr("id", (d: any) => {
-        // set the node id using the plugin id
-        return `node_${d.item.id}`;
+        return `node_${d.item.id}`; // set the node id using the plugin id
       })
-      .attr("class", "nodegroup") //   .on("click", this.setActiveNode)
+      .attr("class", (d: INode) => {
+        return `nodegroup ${d.isRoot && "active"}`; // set the node id using the plugin id
+      })
       .call(d3cola.drag);
 
     const label = elemEnter
@@ -125,9 +135,9 @@ class PipelineTree extends React.Component<AllProps> {
     const node = elemEnter
       .append("circle")
       .attr("class", "node")
-      .attr("r", nodeRadius);
-    //   .on("mouseover", this.handleMouseOver)
-    //   .on("mouseout", this.handleMouseOut);
+      .attr("r", nodeRadius)
+      .on("mouseover", this.handleMouseOver)
+      .on("mouseout", this.handleMouseOut);
 
     // Move links and nodes together
     d3cola.on("tick", () => {
@@ -147,7 +157,6 @@ class PipelineTree extends React.Component<AllProps> {
         return `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
       });
 
-      // path.attr("stroke-dasharray", "5, 5") // For dashed lines
       // Position the nodes:
       node
         .attr("cx", (d: any) => {
@@ -161,35 +170,31 @@ class PipelineTree extends React.Component<AllProps> {
       label.attr("transform", (d: any) => {
         return `translate(${d.x - nodeRadius * 2}, ${d.y + nodeRadius * 2.5} )`;
       });
-      // Position labels and tooltip:
-      // tooltip.attr("transform", (d: any) => {
-      //   return `translate(${d.x - nodeRadius * 2}, ${d.y + nodeRadius * 2.5} )`;
-      // });
     }); // end of on tick
   };
 
-  //   handleMouseOver = (d: any, i: number) => {
-  //     const tooltip = document.getElementById("tooltip");
-  //     const tooltipWidth = 200;
-  //     if (!!tooltip) {
-  //       const title = `Plugin Name: ${d.item.plugin_name}`;
-  //       tooltip.innerHTML = title;
-  //       const height = tooltip.offsetHeight;
-  //       tooltip.style.width = tooltipWidth + "px";
-  //       tooltip.style.opacity = "1";
-  //       tooltip.style.left = (d.x - tooltipWidth * 0.5) + "px";
-  //       tooltip.style.top = (d.y - (height + 25)) + "px";
-  //     }
-  //   }
+  handleMouseOver = (d: any, i: number) => {
+    const tooltip = document.getElementById("pTooltip");
+    const tooltipWidth = 200;
+    if (!!tooltip) {
+      const title = `Plugin Name: ${d.item.plugin_name}`;
+      tooltip.innerHTML = title;
+      const height = tooltip.offsetHeight;
+      tooltip.style.width = tooltipWidth + "px";
+      tooltip.style.opacity = "1";
+      tooltip.style.left = d.x - tooltipWidth * 0.5 + "px";
+      tooltip.style.top = d.y - (height + 25) + "px";
+    }
+  };
 
-  //   handleMouseOut = (d: any, i: number) => {
-  //     const tooltip = document.getElementById("tooltip");
-  //     if (!!tooltip) {
-  //       tooltip.innerHTML = "";
-  //       tooltip.style.opacity = "0";
-  //       tooltip.style.left = "-9999px";
-  //     }
-  //   }
+  handleMouseOut = (d: any, i: number) => {
+    const tooltip = document.getElementById("pTooltip");
+    if (!!tooltip) {
+      tooltip.innerHTML = "";
+      tooltip.style.opacity = "0";
+      tooltip.style.left = "-9999px";
+    }
+  };
 
   // Description: Destroy d3 content
   componentWillUnmount() {

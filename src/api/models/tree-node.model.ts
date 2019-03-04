@@ -13,6 +13,7 @@ export interface INode {
   width?: number;
   bounds?: any;
   label?: string;
+  isRoot?: boolean;
 }
 
 

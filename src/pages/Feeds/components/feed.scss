@@ -144,10 +144,10 @@ $data-font-size: 0.875rem;
     }
 }
 // For tree tooltip
-#tree{
+#tree, #pipelineTree{
     position: relative;
 }
-#tooltip{
+.tooltip{
     background: $tree-tooltip-background; // rgb(57, 63, 68); // 393f44
     color: #fff;
     font-size: 0.875rem;

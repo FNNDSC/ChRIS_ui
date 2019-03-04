@@ -4,7 +4,11 @@ import { Dispatch } from "redux";
 import { RouteComponentProps } from "react-router-dom";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import { getFeedDetailsRequest, getPluginInstanceListRequest, getPluginDescendantsRequest } from "../../../store/feed/actions";
+import {
+  getFeedDetailsRequest,
+  getPluginInstanceListRequest,
+  getPluginDescendantsRequest
+} from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import TreeNodeModel from "../../../api/models/tree-node.model";
@@ -71,7 +75,8 @@ class FeedView extends React.Component<AllProps> {
         {/* Mid section with Feed and node actions */}
         <PageSection
           className={pf4UtilityStyles.spacingStyles.p_0}
-          variant={PageSectionVariants.light} >
+          variant={PageSectionVariants.light}
+        >
           <Grid className="feed-view">
             <GridItem className="feed-block pf-u-p-md" sm={12} md={6}>
               {!!items ? (
@@ -82,7 +87,7 @@ class FeedView extends React.Component<AllProps> {
             </GridItem>
             <GridItem className="node-block pf-u-p-md" sm={12} md={6}>
               {!!descendants && !!selected ? (
-                <NodeDetails items={descendants} selected={(selected)}  />
+                <NodeDetails descendants={descendants} selected={selected} />
               ) : (
                 <div>Please click on a node to work on a plugin</div>
               )}
@@ -108,11 +113,10 @@ class FeedView extends React.Component<AllProps> {
 
   // Description: handle node clicks to load next node information
   onNodeClick(node: IPluginItem) {
-    const {  getPluginDescendantsRequest } = this.props;
+    const { getPluginDescendantsRequest } = this.props;
     getPluginDescendantsRequest(node.descendants);
   }
 }
-
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedDetailsRequest: (id: string) => dispatch(getFeedDetailsRequest(id)),
@@ -120,7 +124,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(getPluginInstanceListRequest(id)),
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
-  getPluginDescendantsRequest: (id: string) => dispatch(getPluginDescendantsRequest(id))
+  getPluginDescendantsRequest: (id: string) =>
+    dispatch(getPluginDescendantsRequest(id))
 });
 
 const mapStateToProps = ({ ui, feed, user }: ApplicationState) => ({
