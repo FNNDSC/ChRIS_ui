@@ -24,6 +24,8 @@ export const PluginActionTypes = keyMirror({
     GET_PLUGIN_FILES_SUCCESS: null,
     GET_PLUGIN_PARAMETERS: null,
     GET_PLUGIN_PARAMETERS_SUCCESS: null,
+    GET_PLUGIN_DETAILS: null,
+    GET_PLUGIN_DETAILS_SUCCESS: null,
     FETCH_COMPLETE: null, // after request completes
     FETCH_ERROR: null, // request failed
 });

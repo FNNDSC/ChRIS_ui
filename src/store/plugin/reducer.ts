@@ -4,24 +4,34 @@ import { PluginActionTypes, IPluginState } from "./types";
 // Type-safe initialState
 const initialState: IPluginState = {
   selected: undefined,
-  descendants: undefined
+  descendants: undefined,
+  files: undefined,
+  parameters: undefined
 };
 
 // ***** NOTE: Working *****
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {
   switch (action.type) {
-    // case PluginActionTypes.GET_PLUGIN_INSTANCES_SUCCESS: {
-    //   // Note: when using the ChrisAPI the items will be action.payload.collection.items
-    //   // return { ...state, items: action.payload.collection.items }; //Note: For API call... stub
-    //   return { ...state, items: action.payload.data.results };
+    // case PluginActionTypes.GET_PLUGIN_DESCENDANTS_SUCCESS: {
+    //   const descendants = action.payload.data.results;
+    //   // const selected = !!action.payload.data.results &&
+    //   //   action.payload.data.results.length &&
+    //   //   action.payload.data.results[0];
+    //   return { ...state, descendants };
     // }
-    case PluginActionTypes.GET_PLUGIN_DESCENDANTS_SUCCESS: {
+    case PluginActionTypes.GET_PLUGIN_FILES_SUCCESS: {
+      return { ...state, files: action.payload.data.results };
+    }
+    case PluginActionTypes.GET_PLUGIN_PARAMETERS_SUCCESS: {
+      return { ...state, parameters: action.payload.data.results };
+    }
+
+    case PluginActionTypes.GET_PLUGIN_DETAILS_SUCCESS: {
       const descendants = action.payload.data.results;
-      const selected =
-        !!action.payload.data.results &&
+      const selected = !!action.payload.data.results &&
         action.payload.data.results.length &&
         action.payload.data.results[0];
-      return { ...state, descendants, selected };
+      return { ...state,descendants, selected };
     }
     case PluginActionTypes.FETCH_ERROR: {
       return { ...state };

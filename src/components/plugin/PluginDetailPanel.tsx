@@ -1,4 +1,6 @@
 import React from "react";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
 import {
   Button,
   Grid,
@@ -9,20 +11,20 @@ import {
   DataListContent
 } from "@patternfly/react-core";
 import { EyeIcon, DownloadIcon } from "@patternfly/react-icons";
+import { ApplicationState } from "../../store/root/applicationState";
+import { IPluginState } from "../../store/plugin/types";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import PluginInformation from "./pluginInformation";
 import PluginConfiguration from "./pluginConfiguration";
 import "./plugin.scss";
-interface INodeProps {
-  selected: IPluginItem;
-}
 
 interface IState {
   expanded: string[];
 }
 
-class PluginDetailPanel extends React.Component<INodeProps, IState> {
-  constructor(props: INodeProps) {
+type AllProps = IPluginState;
+class PluginDetailPanel extends React.Component<AllProps, IState> {
+  constructor(props: AllProps) {
     super(props);
     this.state = {
       expanded: ["plugin-detail", "plugin-config", "plugin-data"]
@@ -32,16 +34,18 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
   // Description: Download Plugin output data ***** Working
   handleDownloadData() {
     // Stub - To be done
+    console.log("handleDownloadData");
   }
 
   // Description: View Plugin output data ***** Working
   handleViewData() {
     // Stub - To be done
+    console.log("handleViewData");
   }
 
   render() {
     const { selected } = this.props;
-
+    // Note: Keep toggle of sub panels in local state
     const toggle = (id: string) => {
       const expanded = this.state.expanded;
       const index = expanded.indexOf(id);
@@ -54,7 +58,14 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
           : [...expanded, id];
       this.setState(() => ({ expanded: newExpanded }));
     };
+    return !!selected && this.buildContent(selected, toggle);
+  }
 
+  private buildContent(selected: IPluginItem, toggle: (id: string) => void) {
+    const {
+      files,
+      parameters,
+    } = this.props;
     return (
       <React.Fragment>
         <h1>{selected.plugin_name}</h1>
@@ -66,6 +77,7 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
                 isExpanded={this.state.expanded.includes("plugin-detail")}
               >
                 {selected.plugin_name}
+
                 <DataListToggle
                   onClick={() => toggle("plugin-detail")}
                   isExpanded={this.state.expanded.includes("plugin-detail")}
@@ -75,8 +87,9 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
                 />
                 <DataListContent
                   aria-label="Primary Content Details for plugin"
-                  isHidden={!this.state.expanded.includes("plugin-detail")} >
-                  <PluginInformation selected={selected}/>
+                  isHidden={!this.state.expanded.includes("plugin-detail")}
+                >
+                  <PluginInformation selected={selected} />
                 </DataListContent>
               </DataListItem>
             </DataList>
@@ -85,18 +98,21 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
             <DataList aria-label="Plugin Configuration">
               <DataListItem
                 aria-labelledby="Plugin Configuration"
-                isExpanded={this.state.expanded.includes("plugin-config")} >
+                isExpanded={this.state.expanded.includes("plugin-config")}
+              >
                 Configuration
                 <DataListToggle
                   onClick={() => toggle("plugin-config")}
                   isExpanded={this.state.expanded.includes("plugin-config")}
                   id="plugin-config"
                   aria-labelledby="Plugin Configuration"
-                  aria-label="Toggle details for Plugin Configuration" />
+                  aria-label="Toggle details for Plugin Configuration"
+                />
                 <DataListContent
                   aria-label="Plugin Configuration"
-                  isHidden={!this.state.expanded.includes("plugin-config")} >
-                  <PluginConfiguration selected={selected}/>
+                  isHidden={!this.state.expanded.includes("plugin-config")}
+                >
+                  <PluginConfiguration selected={selected} />
                 </DataListContent>
               </DataListItem>
             </DataList>
@@ -117,9 +133,10 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
                 />
                 <DataListContent
                   aria-label="Plugin Output"
-                  isHidden={!this.state.expanded.includes("plugin-data")} >
+                  isHidden={!this.state.expanded.includes("plugin-data")}
+                >
                   <div>
-                    <label>Data:</label> 18 files (156.1MB)
+                    <label>Data:</label> 18 files (156.1MB) {!!files && files.length}
                   </div>
                   <div className="btn-div">
                     <Button
@@ -132,7 +149,8 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
                     <Button
                       variant="secondary"
                       isBlock
-                      onClick={this.handleViewData} >
+                      onClick={this.handleViewData}
+                    >
                       <EyeIcon /> View Data
                     </Button>
                   </div>
@@ -146,4 +164,17 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
   }
 }
 
-export default PluginDetailPanel;
+// const mapDispatchToProps = (dispatch: Dispatch) => ({
+//   getPluginFilesRequest: (url: string) => dispatch(getPluginFilesRequest(url)),
+//   getPluginParametersRequest: (url: string) => dispatch(getPluginParametersRequest(url))
+// });
+
+const mapStateToProps = ({ plugin }: ApplicationState) => ({
+  selected: plugin.selected,
+  files: plugin.files,
+  parameters: plugin.parameters
+});
+export default connect(
+  mapStateToProps,
+  null
+)(PluginDetailPanel);
