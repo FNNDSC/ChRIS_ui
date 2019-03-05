@@ -1,6 +1,5 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Dispatch } from "redux";
 import {
   Button,
   Grid,
@@ -44,7 +43,6 @@ class PluginDetailPanel extends React.Component<AllProps, IState> {
   }
 
   render() {
-    const { selected } = this.props;
     // Note: Keep toggle of sub panels in local state
     const toggle = (id: string) => {
       const expanded = this.state.expanded;
@@ -58,14 +56,11 @@ class PluginDetailPanel extends React.Component<AllProps, IState> {
           : [...expanded, id];
       this.setState(() => ({ expanded: newExpanded }));
     };
+    const { selected } = this.props;
     return !!selected && this.buildContent(selected, toggle);
   }
 
   private buildContent(selected: IPluginItem, toggle: (id: string) => void) {
-    const {
-      files,
-      parameters,
-    } = this.props;
     return (
       <React.Fragment>
         <h1>{selected.plugin_name}</h1>
@@ -112,7 +107,7 @@ class PluginDetailPanel extends React.Component<AllProps, IState> {
                   aria-label="Plugin Configuration"
                   isHidden={!this.state.expanded.includes("plugin-config")}
                 >
-                  <PluginConfiguration selected={selected} />
+                  <PluginConfiguration  />
                 </DataListContent>
               </DataListItem>
             </DataList>
@@ -136,7 +131,7 @@ class PluginDetailPanel extends React.Component<AllProps, IState> {
                   isHidden={!this.state.expanded.includes("plugin-data")}
                 >
                   <div>
-                    <label>Data:</label> 18 files (156.1MB) {!!files && files.length}
+                    <label>Data:</label> 18 files (156.1MB)
                   </div>
                   <div className="btn-div">
                     <Button
@@ -171,8 +166,8 @@ class PluginDetailPanel extends React.Component<AllProps, IState> {
 
 const mapStateToProps = ({ plugin }: ApplicationState) => ({
   selected: plugin.selected,
-  files: plugin.files,
-  parameters: plugin.parameters
+  // files: plugin.files,
+  // parameters: plugin.parameters
 });
 export default connect(
   mapStateToProps,

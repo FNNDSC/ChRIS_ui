@@ -12,26 +12,18 @@ const initialState: IPluginState = {
 // ***** NOTE: Working *****
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {
   switch (action.type) {
-    // case PluginActionTypes.GET_PLUGIN_DESCENDANTS_SUCCESS: {
-    //   const descendants = action.payload.data.results;
-    //   // const selected = !!action.payload.data.results &&
-    //   //   action.payload.data.results.length &&
-    //   //   action.payload.data.results[0];
-    //   return { ...state, descendants };
-    // }
     case PluginActionTypes.GET_PLUGIN_FILES_SUCCESS: {
       return { ...state, files: action.payload.data.results };
     }
     case PluginActionTypes.GET_PLUGIN_PARAMETERS_SUCCESS: {
       return { ...state, parameters: action.payload.data.results };
     }
-
     case PluginActionTypes.GET_PLUGIN_DETAILS_SUCCESS: {
       const descendants = action.payload.data.results;
       const selected = !!action.payload.data.results &&
         action.payload.data.results.length &&
         action.payload.data.results[0];
-      return { ...state,descendants, selected };
+      return { ...state, descendants, selected };
     }
     case PluginActionTypes.FETCH_ERROR: {
       return { ...state };

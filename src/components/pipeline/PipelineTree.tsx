@@ -48,7 +48,6 @@ class PipelineTree extends React.Component<ITreeProps> {
     tree: ITreeChart,
     treeDiv: React.RefObject<HTMLDivElement>
   ) => {
-    
     const width =
         !!treeDiv.current && treeDiv.current.clientWidth > 0
           ? treeDiv.current.clientWidth
