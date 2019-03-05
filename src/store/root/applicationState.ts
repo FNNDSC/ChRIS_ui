@@ -10,8 +10,10 @@ import { DeepPartial, Dispatch, Action, AnyAction } from "redux";
 // import { ComponentState } from '../Component/types';
 import { IUiState } from "../ui/types";
 import { IMessageState } from "../message/types";
-import { IFeedState } from "../feed/types";
 import { IUserState } from "../user/types";
+import { IFeedState } from "../feed/types";
+import { IPluginState } from "../plugin/types";
+
 
 // The top-level state object
 // tslint:disable-next-line:interface-name
@@ -20,6 +22,7 @@ export interface ApplicationState {
    message: IMessageState;
    feed: IFeedState;
    user: IUserState;
+   plugin: IPluginState;
 }
 
 

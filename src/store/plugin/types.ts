@@ -1,5 +1,5 @@
 /*
-*  File:            feed/types.ts
+*  File:            plugin/types.ts
 *  Description:     Holds types and constants for managing Chris API feed calls
 *  Author:          ChRIS ui Demo
 *  Notes:           Work in progres ...
@@ -10,23 +10,20 @@ import { IPluginItem } from "../../api/models/pluginInstance.model";
 
 
 // Description state for main user items[] and item
-export interface IFeedState {
-    details?: IFeedItem;
-    items?: IPluginItem[];
+export interface IPluginState {
     selected?: IPluginItem;
     descendants?: IPluginItem[];
+    files?: any;
+    parameters?: any;
 }
 
-export const FeedActionTypes = keyMirror({
-    GET_FEED_LIST: null,
-    GET_FEED_DETAILS: null,
-    GET_FEED_DETAILS_SUCCESS: null,
-    GET_PLUGIN_INSTANCES: null,
-    GET_PLUGIN_INSTANCES_SUCCESS: null,
+export const PluginActionTypes = keyMirror({
     GET_PLUGIN_DESCENDANTS: null,
     GET_PLUGIN_DESCENDANTS_SUCCESS: null,
+    GET_PLUGIN_FILES: null,
+    GET_PLUGIN_FILES_SUCCESS: null,
+    GET_PLUGIN_PARAMETERS: null,
+    GET_PLUGIN_PARAMETERS_SUCCESS: null,
     FETCH_COMPLETE: null, // after request completes
     FETCH_ERROR: null, // request failed
-    FETCH_REQUEST: null, // before request
-    FETCH_SUCCESS: null, // request is successful
 });

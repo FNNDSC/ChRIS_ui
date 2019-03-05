@@ -4,16 +4,18 @@
  *   Author:         ChRIS ui Demo
  */
 
-import { all, fork } from 'redux-saga/effects';
+import { all, fork } from "redux-saga/effects";
 
 /// ADD ALL Local Sagas:
-import { feedSaga } from '../feed/saga';
-import { userSaga } from '../user/saga';
+import { userSaga } from "../user/saga";
+import { feedSaga } from "../feed/saga";
+import { pluginSaga } from "../plugin/saga";
 
 
 export function* rootSaga() {
   yield all([
+    fork(userSaga),
     fork(feedSaga),
-    fork(userSaga)
+    fork(pluginSaga)
   ]);
 }

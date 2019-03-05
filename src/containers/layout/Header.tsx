@@ -7,8 +7,7 @@ import { IUserState } from "../../store/user/types";
 import {
     PageHeader,
     Brand,
-    Avatar,
-    Button } from "@patternfly/react-core";
+    Avatar } from "@patternfly/react-core";
 
 interface IHeaderProps {
   user: IUserState;
