@@ -11,6 +11,7 @@ import {
 import { EyeIcon, DownloadIcon } from "@patternfly/react-icons";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import PluginInformation from "./pluginInformation";
+import PluginConfiguration from "./pluginConfiguration";
 import "./plugin.scss";
 interface INodeProps {
   selected: IPluginItem;
@@ -74,24 +75,8 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
                 />
                 <DataListContent
                   aria-label="Primary Content Details for plugin"
-                  isHidden={!this.state.expanded.includes("plugin-detail")}
-                >
-                <PluginInformation selected={selected}/>
-                  {/* <div>
-                    <label>Status:</label> {selected.status}
-                  </div>
-                  <div>
-                    <label>Start Date:</label>{" "}
-                    <Moment format="DD MMM YYYY @ HH:MM A">
-                      {selected.start_date}
-                    </Moment>
-                  </div>
-                  <div>
-                    <label>End Date:</label>{" "}
-                    <Moment format="DD MMM YYYY @ HH:MM A">
-                      {selected.end_date}
-                    </Moment>
-                  </div> */}
+                  isHidden={!this.state.expanded.includes("plugin-detail")} >
+                  <PluginInformation selected={selected}/>
                 </DataListContent>
               </DataListItem>
             </DataList>
@@ -100,29 +85,18 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
             <DataList aria-label="Plugin Configuration">
               <DataListItem
                 aria-labelledby="Plugin Configuration"
-                isExpanded={this.state.expanded.includes("plugin-config")}
-              >
+                isExpanded={this.state.expanded.includes("plugin-config")} >
                 Configuration
                 <DataListToggle
                   onClick={() => toggle("plugin-config")}
                   isExpanded={this.state.expanded.includes("plugin-config")}
                   id="plugin-config"
                   aria-labelledby="Plugin Configuration"
-                  aria-label="Toggle details for Plugin Configuration"
-                />
+                  aria-label="Toggle details for Plugin Configuration" />
                 <DataListContent
                   aria-label="Plugin Configuration"
-                  isHidden={!this.state.expanded.includes("plugin-config")}
-                >
-                  <div>
-                    <label>config Parameter 1:</label> $VALUE_1
-                  </div>
-                  <div>
-                    <label>config Parameter 2:</label> $VALUE_2
-                  </div>
-                  <div>
-                    <label>config Parameter 3:</label> $VALUE_3
-                  </div>
+                  isHidden={!this.state.expanded.includes("plugin-config")} >
+                  <PluginConfiguration selected={selected}/>
                 </DataListContent>
               </DataListItem>
             </DataList>
@@ -143,8 +117,7 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
                 />
                 <DataListContent
                   aria-label="Plugin Output"
-                  isHidden={!this.state.expanded.includes("plugin-data")}
-                >
+                  isHidden={!this.state.expanded.includes("plugin-data")} >
                   <div>
                     <label>Data:</label> 18 files (156.1MB)
                   </div>
@@ -159,8 +132,7 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
                     <Button
                       variant="secondary"
                       isBlock
-                      onClick={this.handleViewData}
-                    >
+                      onClick={this.handleViewData} >
                       <EyeIcon /> View Data
                     </Button>
                   </div>
