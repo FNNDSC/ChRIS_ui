@@ -1,11 +1,10 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { Link } from "react-router-dom";
+import {RouteComponentProps, Link } from "react-router-dom";
+import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import { RouteComponentProps } from "react-router-dom";
-import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
 
 
 interface IPropsFromDispatch {
