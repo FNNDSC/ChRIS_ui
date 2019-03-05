@@ -4,33 +4,23 @@ import { Dispatch } from "redux";
 import { RouteComponentProps } from "react-router-dom";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import {
-  getFeedDetailsRequest,
-  getPluginInstanceListRequest,
-} from "../../../store/feed/actions";
+import { getFeedDetailsRequest } from "../../../store/feed/actions";
 import {getPluginDescendantsRequest} from "../../../store/plugin/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
-import TreeNodeModel from "../../../api/models/tree-node.model";
-import FeedDetails from "./FeedDetails";
-import FeedTree from "./FeedTree";
-import NodeDetails from "./NodeDetails";
-import PluginDetailPanel from "./PluginDetailPanel";
-import {
-  PageSection,
-  PageSectionVariants,
-  Grid,
-  GridItem
-} from "@patternfly/react-core";
+import FeedDetails from "../../../components/feed/FeedDetails";
+import FeedTree from "../../../components/feed/FeedTree";
+import NodeDetails from "../../../components/pipeline/NodeDetails";
+import PluginDetailPanel from "../../../components/plugin/PluginDetailPanel";
+import { PageSection, PageSectionVariants, Grid, GridItem } from "@patternfly/react-core";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
-import "./feed.scss";
+import "../feed.scss";
 import { IUserState } from "../../../store/user/types";
 import { IPluginState } from "../../../store/plugin/types";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getFeedDetailsRequest: typeof getFeedDetailsRequest;
-  getPluginInstanceListRequest: typeof getPluginInstanceListRequest;
   getPluginDescendantsRequest: typeof getPluginDescendantsRequest;
 }
 
@@ -120,7 +110,6 @@ class FeedView extends React.Component<AllProps> {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedDetailsRequest: (id: string) => dispatch(getFeedDetailsRequest(id)),
-  getPluginInstanceListRequest: (id: string) => dispatch(getPluginInstanceListRequest(id)),
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) => dispatch(setSidebarActive(active)),
   getPluginDescendantsRequest: (id: string) => dispatch(getPluginDescendantsRequest(id))
 });

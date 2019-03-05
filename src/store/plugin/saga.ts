@@ -10,7 +10,7 @@ import {
 // ------------------------------------------------------------------------
 function* handleGetPluginDescendants(action: any) {
     try {
-        const res = yield call(FeedModel.getPluginRequest, action.payload);
+        const res = yield call(FeedModel.fetchRequest, action.payload);
         if (res.error) {
             // yield put(handleUIMessage({ message: res.error, type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
             console.error(res.error); // working user messaging
