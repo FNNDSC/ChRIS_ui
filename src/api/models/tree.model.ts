@@ -1,5 +1,6 @@
 import * as cola from "webcola";
 import { IPluginItem } from "./pluginInstance.model";
+import { NodeId, INode } from "./tree-node.model";
 import * as _ from "lodash";
 
 // Builds the webcola tree chart
@@ -7,6 +8,7 @@ export interface ITreeChart {
   nodes: INode[];
   links: ILink[];
   constraints?: IConstraint[];
+  totalRows: number;
 }
 
 export interface IConstraint {
@@ -22,52 +24,70 @@ export interface ILink {
   value: number;
 }
 
-export interface INode {
-  // extends cola.Node extends SVGSVGElement
-  item: IPluginItem;
-  index: number;
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
-  bounds?: any;
-  label?: string;
-}
+
 
 // Description: Parse Data from IPluginItem and convert to a ITreeChart
+/*
+* Params: items = Pass the items array of nodes
+* rootNodeId = Root node id which indicates the root id
+*/
 
 export default class TreeModel {
   treeChart: ITreeChart;
-  constructor(items: IPluginItem[]) {
+  constructor(items: IPluginItem[], rootNodeId?: NodeId) {
     this.treeChart = {
       nodes: [],
-      links: []
+      links: [],
+      totalRows: 0
     };
-    this.parseFeedTreeData(items);
+    this.parseFeedTreeData(items, rootNodeId);
   }
 
-  parseFeedTreeData(items: IPluginItem[]): ITreeChart {
+  parseFeedTreeData(items: IPluginItem[], rootNodeId?: NodeId): ITreeChart {
     // Note: Reverse the array to expedite parsing also for demo purposes
     this._workingItems = items.reverse().slice();
-    this._parseRootNode(items);
+    this._parseRootNode(items, rootNodeId);
     this._parseTreeChildren(this._workingItems, this._workingId);
 
     // Set the treeChart objects:
     this._setNodes(this._nodes);
     this._setLinks(this._links);
+    this.treeChart.totalRows = this._totalRows;
     return this.treeChart;
   }
 
   // Working props for parsing
   private _workingIndex: number = 0;
-  private _workingId = 0;
+  private _workingId: NodeId = 0;
   private _workingItems: IPluginItem[] = [];
   private _nodes: INode[] = [];
   private _links: ILink[] = [];
+  private  _totalRows = 0; // Counts the Max number of vertical nodes (for calculating height dynamically)
+  // Description: Find the root of this tree:
+  private _parseRootNode(items: IPluginItem[], rootNodeId: NodeId) {
+    const parentItem = _.find(items, (item: IPluginItem) => {
+      return item.previous_id === rootNodeId;
+    });
+
+    if (!!parentItem) {
+      this._nodes.push({
+        item: parentItem,
+        index: this._workingIndex,
+        isRoot: true
+      });
+      this._workingItems = this._removeWorkingItem(parentItem);
+      this._workingId = parentItem.id;
+      this._workingIndex++;
+    }
+    // Note: this is not the root or leaf plugin so increment the total rows
+    (!!rootNodeId && items.length > 1) && this._totalRows++;
+  }
+
+
   // Description: Recursive method to build tree
   private _parseTreeChildren(
     workingItems: IPluginItem[],
-    _workingId: number | string,
+    _workingId: NodeId,
     _parentIndex: number = 0
   ) {
     const cloneArr: IPluginItem[] = workingItems.slice();
@@ -89,10 +109,12 @@ export default class TreeModel {
         this._findChildrenNodes(item.id, index);
       }
     });
+    this._totalRows++; // Increment total rows for counting vertical levels
   }
 
+
   // Description: Find children to this node
-  private _findChildrenNodes(id: number | string, _parentIndex: number) {
+  private _findChildrenNodes(id: NodeId, _parentIndex: number) {
     const workingChildrenArr = _.filter(
       this._workingItems,
       (subitem: IPluginItem) => {
@@ -100,26 +122,10 @@ export default class TreeModel {
       }
     );
     // Does this node have children - recur
-    !!workingChildrenArr &&
-      workingChildrenArr.length > 0 &&
+    !!workingChildrenArr &&  workingChildrenArr.length > 0 &&
       this._parseTreeChildren(workingChildrenArr, id, _parentIndex);
   }
 
-  // Find the root of this tree:
-  private _parseRootNode(items: IPluginItem[]) {
-    const parentItem = _.find(items, (item: IPluginItem) => {
-      return item.previous === null && item.previous_id === undefined;
-    });
-    if (!!parentItem) {
-      this._nodes.push({
-        item: parentItem,
-        index: this._workingIndex
-      });
-      this._workingItems = this._removeWorkingItem(parentItem);
-      this._workingId = parentItem.id;
-      this._workingIndex++;
-    }
-  }
 
   // Description: Remove item from working array
   private _removeWorkingItem(item: IPluginItem): IPluginItem[] {

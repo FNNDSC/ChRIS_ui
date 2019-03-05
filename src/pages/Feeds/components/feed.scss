@@ -59,8 +59,16 @@ $data-font-size: 0.875rem;
                 font-size: $data-font-size;
                 margin-bottom: 0.5rem;
                 text-align: left;
+                outline-color: #fff;
                 svg{
                     margin-right: 5px;
+                }
+                &:hover, &:focus{
+                    background: #fff;
+                    color: $node-block-background;
+                    &::after {
+                        border-color: #fff;
+                    }
                 }
             }
         }
@@ -141,5 +149,33 @@ $data-font-size: 0.875rem;
         .nodelabel{
             fill: $tree-node-active-backgound;
         }
+    }
+}
+// For tree tooltip
+#tree, #pipelineTree{
+    position: relative;
+}
+.tooltip{
+    background: $tree-tooltip-background; // rgb(57, 63, 68); // 393f44
+    color: #fff;
+    font-size: 0.875rem;
+    min-height: 50px;
+    opacity: 0;
+    padding: 1rem;
+    position: absolute; 
+    transition: opacity 1s; 
+    transition-delay: 0.5s;
+    &::before{
+        background: $tree-tooltip-background;
+        content: "";
+        display: block;
+        height: $tree-tooltip-arrow-width;
+        left: 100px; 
+        position: absolute;
+        pointer-events: none;
+        top: 100%; //0
+        transform:translate(-50%, -50%) rotate(45deg);
+        width: $tree-tooltip-arrow-width;
+        
     }
 }

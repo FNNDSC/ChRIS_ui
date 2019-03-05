@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 
 import { ApplicationState } from "../../store/root/applicationState";
 import { IUiState } from "../../store/ui/types";
+import { IUserState } from "../../store/user/types";
 import {
     PageSidebar,
     Nav,
@@ -13,12 +14,24 @@ import {
     NavGroup
 } from "@patternfly/react-core";
 
-// type AllProps = IUiState;
 
-class Sidebar extends React.Component<IUiState> {
+type AllProps = IUiState & IUserState;
+
+class Sidebar extends React.Component<AllProps> {
 
     render() {
-        const { isSidebarOpen, sidebarActiveItem, sidebarActiveGroup } = this.props;
+        const { isSidebarOpen, sidebarActiveItem, sidebarActiveGroup, isLoggedIn } = this.props;
+        const loggedInFeedNav =  (
+            (isLoggedIn) &&
+                (<React.Fragment>
+                    <NavItem groupId="feeds_grp" itemId="my_feeds" isActive={sidebarActiveItem === "my_feeds"}>
+                        <Link to="/feeds">My Feeds</Link>
+                    </NavItem>
+                    <NavItem groupId="feeds_grp" itemId="all_feeds" isActive={sidebarActiveItem === "all_feeds"}>
+                        <Link to="/feeds">All Feeds</Link>
+                    </NavItem>
+                </React.Fragment>)
+        );
 
         const PageNav = (
             <Nav aria-label="ChRIS Demo site navigation">
@@ -38,12 +51,7 @@ class Sidebar extends React.Component<IUiState> {
                             <NavItem groupId="feeds_grp" itemId="dashboard" isActive={sidebarActiveItem === "dashboard"}>
                                 <Link to={`/`}>Dashboard</Link>
                             </NavItem>
-                            <NavItem groupId="feeds_grp" itemId="my_feeds" isActive={sidebarActiveItem === "my_feeds"}>
-                                <Link to="/feeds">My Feeds</Link>
-                            </NavItem>
-                            <NavItem groupId="feeds_grp" itemId="all_feeds" isActive={sidebarActiveItem === "all_feeds"}>
-                                <Link to="/feeds">All Feeds</Link>
-                            </NavItem>
+                            {loggedInFeedNav}
                         </NavExpandable>
                         <NavItem to="pipelines" itemId="pipelines" isActive={sidebarActiveItem === "pipelines"}>
                             <Link to="/pipelines">Pipelines</Link>
@@ -70,10 +78,11 @@ class Sidebar extends React.Component<IUiState> {
     }
 }
 
-const mapStateToProps = ({ ui }: ApplicationState) => ({
+const mapStateToProps = ({ ui, user }: ApplicationState) => ({
     isSidebarOpen: ui.isSidebarOpen,
     sidebarActiveItem: ui.sidebarActiveItem,
-    sidebarActiveGroup: ui.sidebarActiveGroup
+    sidebarActiveGroup: ui.sidebarActiveGroup,
+    isLoggedIn: user.isLoggedIn
 });
 
 export default connect(
