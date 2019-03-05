@@ -17,7 +17,7 @@ import {
     faUserTimes,
     faUserMinus,
     faCalendarDay,
-
+    faCheck
 } from "@fortawesome/free-solid-svg-icons";
 import {
     faClock,
@@ -43,6 +43,7 @@ library.add(
     faUserTimes,
     faUserMinus,
     faKey,
+    faCheck,
     faCheckCircle,
     faCalendarDay,
     faClock,
