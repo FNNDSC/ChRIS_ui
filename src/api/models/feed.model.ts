@@ -24,8 +24,6 @@ export interface IFeedLinks {
   plugin_instances: string;
 }
 
-
-
 export default class FeedModel {
 
   // Description: gets Feed information
@@ -52,6 +50,8 @@ export default class FeedModel {
     const feedlist = new FeedList(url, auth);
     return feedlist.get();
   }
+
+  // These should merge into 1
   // Description: get list of plugin instances after getting feed information
   // ***** working call ***** will be converted to @fnndsc/chrisapi need login and token first
   static getPluginInstance(url: string) {
@@ -69,6 +69,24 @@ export default class FeedModel {
     };
     return axios(config); // config: AxiosRequestConfig
   }
+
+  // Use this one when using url in the data object
+  // Description: get list of plugin descendants or plugin instances after getting feed information
+  static getPluginRequest(url: string) {
+    // const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
+     const auth = { token: window.sessionStorage.getItem("AUTH_TOKEN") };
+     const header = {
+       "Content-Type": "application/vnd.collection+json",
+       "Authorization": "Token " + auth.token
+     };
+
+     const config: AxiosRequestConfig = {
+       headers: header,
+       method: "get",
+       url
+     };
+     return axios(config); // config: AxiosRequestConfig
+   }
 
   // ------------------------------------------------------------------------
   // Using ChrisAPI - NOTE: Pending API adjustments and TS definition
