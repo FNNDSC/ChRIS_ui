@@ -80,7 +80,7 @@ export default class TreeModel {
       this._workingIndex++;
     }
     // Note: this is not the root or leaf plugin so increment the total rows
-    (!!rootNodeId && items.length > 1) && this._totalRows++;
+    this._totalRows++;
   }
 
 
@@ -109,7 +109,7 @@ export default class TreeModel {
         this._findChildrenNodes(item.id, index);
       }
     });
-    this._totalRows++; // Increment total rows for counting vertical levels
+    (workingItems.length > 0) && this._totalRows++; // Increment total rows for counting vertical levels
   }
 
 
