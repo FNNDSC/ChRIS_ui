@@ -10,7 +10,7 @@ import {
 } from "@patternfly/react-core";
 import { EyeIcon, DownloadIcon } from "@patternfly/react-icons";
 import Moment from "react-moment";
-import { IPluginItem } from "../../../api/models/pluginInstance.model";
+import { IPluginItem } from "../../api/models/pluginInstance.model";
 
 interface INodeProps {
   selected: IPluginItem;
@@ -30,7 +30,7 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
 
   // Description: Download Plugin output data ***** Working
   handleDownloadData() {
-     // Stub - To be done
+    // Stub - To be done
   }
 
   // Description: View Plugin output data ***** Working
@@ -99,14 +99,16 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
             <DataList aria-label="Plugin Configuration">
               <DataListItem
                 aria-labelledby="Plugin Configuration"
-                isExpanded={this.state.expanded.includes("plugin-config")} >
+                isExpanded={this.state.expanded.includes("plugin-config")}
+              >
                 Configuration
                 <DataListToggle
                   onClick={() => toggle("plugin-config")}
                   isExpanded={this.state.expanded.includes("plugin-config")}
                   id="plugin-config"
                   aria-labelledby="Plugin Configuration"
-                  aria-label="Toggle details for Plugin Configuration" />
+                  aria-label="Toggle details for Plugin Configuration"
+                />
                 <DataListContent
                   aria-label="Plugin Configuration"
                   isHidden={!this.state.expanded.includes("plugin-config")}

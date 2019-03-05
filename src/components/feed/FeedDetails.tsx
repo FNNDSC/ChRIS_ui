@@ -1,8 +1,8 @@
 import React from "react";
 import Moment from "react-moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import imgPlaceholder from "../../../assets/images/feed_ph_70x70.png";
-import { IFeedState } from "../../../store/feed/types";
+import imgPlaceholder from "../../assets/images/feed_ph_70x70.png";
+import { IFeedState } from "../../store/feed/types";
 
 type AllProps = IFeedState;
 

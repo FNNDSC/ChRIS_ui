@@ -43,37 +43,11 @@ export default class FeedModel {
     return axios(config);
   }
 
-  // Description: Get Plugin instance using API - will be moved to a different class
-  static getPluginInstanceAPI(id: string) {
-    const url = `${process.env.REACT_APP_CHRIS_UI_URL}${id}/plugininstances/`;
-    const auth = { token: window.sessionStorage.getItem("AUTH_TOKEN") };
-    const feedlist = new FeedList(url, auth);
-    return feedlist.get();
-  }
-
-  // These should merge into 1
-  // Description: get list of plugin instances after getting feed information
-  // ***** working call ***** will be converted to @fnndsc/chrisapi need login and token first
-  static getPluginInstance(url: string) {
-   // const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
-    const auth = { token: window.sessionStorage.getItem("AUTH_TOKEN") };
-    const header = {
-      "Content-Type": "application/vnd.collection+json",
-      "Authorization": "Token " + auth.token
-    };
-
-    const config: AxiosRequestConfig = {
-      headers: header,
-      method: "get",
-      url
-    };
-    return axios(config); // config: AxiosRequestConfig
-  }
-
   // Use this one when using url in the data object
-  // Description: get list of plugin descendants or plugin instances after getting feed information
-  static getPluginRequest(url: string) {
-    // const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
+  // Description: Fetch request - pass the url and gets the data from BE
+  // ***** used in plugin instances list, Plugin descendants, more...
+  // Param: url passed in with the response
+  static fetchRequest(url: string) {
      const auth = { token: window.sessionStorage.getItem("AUTH_TOKEN") };
      const header = {
        "Content-Type": "application/vnd.collection+json",
@@ -92,12 +66,20 @@ export default class FeedModel {
   // Using ChrisAPI - NOTE: Pending API adjustments and TS definition
   // ------------------------------------------------------------------------
   // Description: gets all feeds - using API
-  static getFeeds() {
-    const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
-    const auth = { token: window.sessionStorage.getItem("AUTH_TOKEN") };
-    const client = new Client(url, auth);
-    const params = { limit: 10, offset: 0 };
-    return client.getFeeds(params);
-  }
+  // static getFeeds() {
+  //   const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
+  //   const auth = { token: window.sessionStorage.getItem("AUTH_TOKEN") };
+  //   const client = new Client(url, auth);
+  //   const params = { limit: 10, offset: 0 };
+  //   return client.getFeeds(params);
+  // }
+
+  // Description: Get Plugin instance using API - will be moved to a different class
+  // static getPluginInstanceAPI(id: string) {
+  //   const url = `${process.env.REACT_APP_CHRIS_UI_URL}${id}/plugininstances/`;
+  //   const auth = { token: window.sessionStorage.getItem("AUTH_TOKEN") };
+  //   const feedlist = new FeedList(url, auth);
+  //   return feedlist.get();
+  // }
 
 }
