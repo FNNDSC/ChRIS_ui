@@ -5,7 +5,6 @@
 *  Notes:           Work in progres ...
 */
 import keyMirror from "keymirror";
-import { IFeedItem } from "../../api/models/feed.model";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 
 
@@ -14,7 +13,7 @@ export interface IPluginState {
     selected?: IPluginItem;
     descendants?: IPluginItem[];
     files?: any;
-    parameters?: any;
+    parameters?: any[];
 }
 
 export const PluginActionTypes = keyMirror({
