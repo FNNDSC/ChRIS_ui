@@ -16,8 +16,6 @@ export interface INode {
   isRoot?: boolean;
 }
 
-
-
 export default class TreeNodeModel {
   // Description: determines if node is leaf node
   static isLeafNode(item: IPluginItem, items: IPluginItem[]) {

@@ -9,9 +9,9 @@ import {
   DataListContent
 } from "@patternfly/react-core";
 import { EyeIcon, DownloadIcon } from "@patternfly/react-icons";
-import Moment from "react-moment";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
-
+import PluginInformation from "./pluginInformation";
+import "./plugin.scss";
 interface INodeProps {
   selected: IPluginItem;
 }
@@ -76,7 +76,8 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
                   aria-label="Primary Content Details for plugin"
                   isHidden={!this.state.expanded.includes("plugin-detail")}
                 >
-                  <div>
+                <PluginInformation selected={selected}/>
+                  {/* <div>
                     <label>Status:</label> {selected.status}
                   </div>
                   <div>
@@ -90,7 +91,7 @@ class PluginDetailPanel extends React.Component<INodeProps, IState> {
                     <Moment format="DD MMM YYYY @ HH:MM A">
                       {selected.end_date}
                     </Moment>
-                  </div>
+                  </div> */}
                 </DataListContent>
               </DataListItem>
             </DataList>
