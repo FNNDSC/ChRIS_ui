@@ -1,15 +1,16 @@
 
-import React from 'react';
+import React from "react";
 import {
   Route,
-  Switch
-} from 'react-router-dom';
+  Switch,
+} from "react-router-dom";
+import PrivateRoute from "./components/common/PrivateRoute";
 
 // Add view routes here
-import { Dashboard } from './pages/Dashboard/Dashboard';
-import FeedsPage from './pages/Feeds/Feeds';
-import {LogIn} from './pages/LogIn/Login';
-import {NotFound} from './pages/NotFound/NotFound';
+import { Dashboard } from "./pages/Dashboard/Dashboard";
+import FeedsPage from "./pages/Feeds/Feeds";
+import {LogIn} from "./pages/LogIn/Login";
+import {NotFound} from "./pages/NotFound/NotFound";
 
 
 const Routes: React.FunctionComponent = () => (
@@ -17,13 +18,15 @@ const Routes: React.FunctionComponent = () => (
       <Switch>
         <Route exact path="/" component={Dashboard} />
         <Route exact path="/login" component={LogIn} />
-        <Route path="/feeds" component={FeedsPage} />
+        <PrivateRoute  path="/feeds" component={FeedsPage} />  {/* Optional: redirectPath="/" */}
         {/* ADD MORE ROUTES HERE: <Route  path="/route" component={RouteComponent} /> */}
         {/* 404 Page Not found  */}
         <Route component={NotFound} />
       </Switch>
     </React.Fragment>
 );
+
+
 
 
 export default Routes;

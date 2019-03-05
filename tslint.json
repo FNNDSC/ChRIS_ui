@@ -30,7 +30,9 @@
         "interface-name":false,
         "interface-over-type-literal": false,
         "member-ordering": false,
-        "variable-name": false
+        "variable-name": false,
+        "jsdoc-format": false,
+        "max-classes-per-file": false
     },
     "jsRules": {
         "max-line-length": {

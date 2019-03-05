@@ -1,12 +1,17 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
+import { RouteComponentProps } from "react-router-dom";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import { getFeedDetailsRequest, getPluginInstanceListRequest, setSelectedPluginNode } from "../../../store/feed/actions";
+import {
+  getFeedDetailsRequest,
+  getPluginInstanceListRequest,
+} from "../../../store/feed/actions";
+import {getPluginDescendantsRequest} from "../../../store/plugin/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
-import { RouteComponentProps } from "react-router-dom";
+import TreeNodeModel from "../../../api/models/tree-node.model";
 import FeedDetails from "./FeedDetails";
 import FeedTree from "./FeedTree";
 import NodeDetails from "./NodeDetails";
@@ -20,16 +25,18 @@ import {
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 import "./feed.scss";
 import { IUserState } from "../../../store/user/types";
+import { IPluginState } from "../../../store/plugin/types";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getFeedDetailsRequest: typeof getFeedDetailsRequest;
   getPluginInstanceListRequest: typeof getPluginInstanceListRequest;
-  setSelectedPluginNode: typeof setSelectedPluginNode;
+  getPluginDescendantsRequest: typeof getPluginDescendantsRequest;
 }
 
 type AllProps = IUserState &
   IFeedState &
+  IPluginState &
   IPropsFromDispatch &
   RouteComponentProps<{ id: string }>;
 
@@ -54,9 +61,8 @@ class FeedView extends React.Component<AllProps> {
   }
 
   render() {
-    const { items, details, selected } = this.props;
+    const { items, details, selected, descendants } = this.props;
 
-    // NOTE: working - will separate into components ***** working
     return (
       <React.Fragment>
         {/* Top section with Feed information */}
@@ -80,8 +86,8 @@ class FeedView extends React.Component<AllProps> {
               )}
             </GridItem>
             <GridItem className="node-block pf-u-p-md" sm={12} md={6}>
-              {!!selected ? (
-                <NodeDetails selected={selected} />
+              {!!descendants && !!selected ? (
+                <NodeDetails descendants={descendants} selected={selected} />
               ) : (
                 <div>Please click on a node to work on a plugin</div>
               )}
@@ -106,30 +112,27 @@ class FeedView extends React.Component<AllProps> {
   }
 
   // Description: handle node clicks to load next node information
-  onNodeClick(node: any) {
-    const { setSelectedPluginNode } = this.props;
-    // Node was clicked
-    // console.log("Trigger the load of information on the panels", node);
-    setSelectedPluginNode(node);
+  onNodeClick(node: IPluginItem) {
+    const { getPluginDescendantsRequest } = this.props;
+    getPluginDescendantsRequest(node.descendants);
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedDetailsRequest: (id: string) => dispatch(getFeedDetailsRequest(id)),
-  getPluginInstanceListRequest: (id: string) =>
-    dispatch(getPluginInstanceListRequest(id)),
-  setSelectedPluginNode: (node: IPluginItem) => dispatch(setSelectedPluginNode(node)),
-  setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
-    dispatch(setSidebarActive(active))
+  getPluginInstanceListRequest: (id: string) => dispatch(getPluginInstanceListRequest(id)),
+  setSidebarActive: (active: { activeItem: string; activeGroup: string }) => dispatch(setSidebarActive(active)),
+  getPluginDescendantsRequest: (id: string) => dispatch(getPluginDescendantsRequest(id))
 });
 
-const mapStateToProps = ({ ui, feed, user }: ApplicationState) => ({
+const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({
   sidebarActiveGroup: ui.sidebarActiveGroup,
   sidebarActiveItem: ui.sidebarActiveItem,
   token: user.token,
   items: feed.items,
   details: feed.details,
-  selected: feed.selected
+  selected: plugin.selected,
+  descendants: plugin.descendants
 });
 
 export default connect(
