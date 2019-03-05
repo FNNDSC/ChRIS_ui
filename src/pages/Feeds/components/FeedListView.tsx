@@ -30,7 +30,9 @@ class AllFeedsPage extends React.Component<AllProps> {
           variant="warning"
           title="Working feed component"  >
           All feeds or My feeds list will be displayed here <br />
-          Pass a filter param for my feeds vs all feed - working !  <Link to="/feeds/2">Go to Feed view</Link>
+          Pass a filter param for my feeds vs all feed - working !  <br/>
+          <Link to="/feeds/1">Go to Feed view 1</Link><br/>
+          <Link to="/feeds/2">Go to Feed view 2</Link>
         </Alert>
       </PageSection>
     );
