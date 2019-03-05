@@ -6,7 +6,7 @@ import { PageSection, PageSectionVariants, Grid, GridItem } from "@patternfly/re
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getFeedDetailsRequest } from "../../../store/feed/actions";
-import {getPluginDescendantsRequest} from "../../../store/plugin/actions";
+import { getPluginDetailsRequest } from "../../../store/plugin/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { IUserState } from "../../../store/user/types";
 import { IPluginState } from "../../../store/plugin/types";
@@ -18,7 +18,7 @@ import "../feed.scss";
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getFeedDetailsRequest: typeof getFeedDetailsRequest;
-  getPluginDescendantsRequest: typeof getPluginDescendantsRequest;
+  getPluginDetailsRequest: typeof getPluginDetailsRequest;
 }
 
 type AllProps = IUserState &
@@ -88,7 +88,7 @@ class FeedView extends React.Component<AllProps> {
         <PageSection>
           <div className="plugin-info pf-u-py-md">
             {!!selected ? (
-              <PluginDetailPanel selected={selected} />
+              <PluginDetailPanel />
             ) : (
               <h1>Select plugin</h1>
             )}
@@ -101,15 +101,16 @@ class FeedView extends React.Component<AllProps> {
 
   // Description: handle node clicks to load next node information
   onNodeClick(node: IPluginItem) {
-    const { getPluginDescendantsRequest } = this.props;
-    getPluginDescendantsRequest(node.descendants);
+    const { getPluginDetailsRequest } = this.props;
+    getPluginDetailsRequest(node);
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedDetailsRequest: (id: string) => dispatch(getFeedDetailsRequest(id)),
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) => dispatch(setSidebarActive(active)),
-  getPluginDescendantsRequest: (id: string) => dispatch(getPluginDescendantsRequest(id))
+  // getPluginDescendantsRequest: (url: string) => dispatch(getPluginDescendantsRequest(url)),
+  getPluginDetailsRequest: (item: IPluginItem) => dispatch(getPluginDetailsRequest(item))
 });
 
 const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({
@@ -119,7 +120,7 @@ const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({
   items: feed.items,
   details: feed.details,
   selected: plugin.selected,
-  descendants: plugin.descendants
+  descendants: plugin.descendants,
 });
 
 export default connect(
