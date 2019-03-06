@@ -16,7 +16,7 @@
 @import "vendors/patternfly/patternfly";
 
 // Base
-// @import "./base/overrides";
+@import "./base/overrides";
 
 // Components
 @import './components/background-image';

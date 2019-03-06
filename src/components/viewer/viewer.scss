@@ -1,0 +1,13 @@
+/*
+*  File:            viewer.scss
+*  Description:     This files holds styles specific for the output viewer components
+*  Author:          ChRIS ui Demo
+*/
+
+
+@import '../../assets/scss/helpers/variables'; 
+
+.output-viewer{
+    min-height: 50vh;
+    min-width: 80vw;
+}

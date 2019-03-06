@@ -9,10 +9,8 @@ import {
   DataListToggle,
   DataListContent
 } from "@patternfly/react-core";
-import { EyeIcon, DownloadIcon } from "@patternfly/react-icons";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IPluginState } from "../../store/plugin/types";
-
 import PluginInformation from "./pluginInformation";
 import PluginConfiguration from "./pluginConfiguration";
 import PluginOutput from "./pluginOutput";
@@ -28,18 +26,22 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
     this.state = {
       expanded: ["plugin-detail", "plugin-config", "plugin-data"]
     };
+    this.handleDownloadData = this.handleDownloadData.bind(this);
+    this.handleViewData = this.handleViewData.bind(this);
   }
 
   // Description: Download Plugin output data ***** Working
   handleDownloadData() {
+    const {files} = this.props;
     // Stub - To be done
-    console.log("handleDownloadData");
+    console.log("handleDownloadData", files);
   }
 
   // Description: View Plugin output data ***** Working
   handleViewData() {
+    const {files} = this.props;
     // Stub - To be done
-    console.log("handleViewData");
+    console.log("handleViewData", files);
   }
 
   render() {
@@ -87,8 +89,7 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                   />
                   <DataListContent
                     aria-label="Primary Content Details for plugin"
-                    isHidden={!this.state.expanded.includes("plugin-detail")}
-                  >
+                    isHidden={!this.state.expanded.includes("plugin-detail")} >
                     <PluginInformation selected={selected} />
                   </DataListContent>
                 </DataListItem>

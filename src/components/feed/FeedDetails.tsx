@@ -21,7 +21,6 @@ class FeedDetails extends React.Component<AllProps> {
               <li>
                 <small>Creator</small>
                 <p>
-                  {/* NOTE: stub owner name to be added to the details object (BE) */}
                   <FontAwesomeIcon icon={["far", "user"]} /> {details.creator_username}
                 </p>
               </li>
@@ -29,13 +28,18 @@ class FeedDetails extends React.Component<AllProps> {
                 <small>Created</small>
                 <p>
                   <FontAwesomeIcon icon={["far", "calendar-alt"]} />
-                  <Moment  format="DD MMM YYYY @ HH:MM A">{details.creation_date}</Moment>
+                  <Moment format="DD MMM YYYY @ HH:mm A">
+                    {details.creation_date}
+                  </Moment>
                 </p>
               </li>
               <li>
                 <small>End Date</small>
                 <p>
-                  <FontAwesomeIcon icon={["far", "calendar-alt"]} /> <Moment  format="DD MMM YYYY @ HH:MM A">{details.modification_date}</Moment>
+                  <FontAwesomeIcon icon={["far", "calendar-alt"]} />
+                  <Moment format="DD MMM YYYY @ HH:mm A">
+                    {details.modification_date}
+                  </Moment>
                 </p>
               </li>
             </ul>

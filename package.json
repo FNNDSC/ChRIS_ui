@@ -10,6 +10,7 @@
     "@fortawesome/react-fontawesome": "^0.1.4",
     "@patternfly/patternfly": "^1.0.206",
     "@patternfly/react-core": "^2.1.4",
+    "@patternfly/react-table": "^1.0.7",
     "@types/d3": "^5.7.1",
     "@types/jest": "23.3.13",
     "@types/node": "10.12.21",
