@@ -5,8 +5,8 @@ import { PluginActionTypes, IPluginState } from "./types";
 const initialState: IPluginState = {
   selected: undefined,
   descendants: undefined,
-  files: undefined,
-  parameters: undefined
+  files: [],
+  parameters: []
 };
 
 // ***** NOTE: Working *****

@@ -12,7 +12,7 @@ import { IPluginItem } from "../../api/models/pluginInstance.model";
 export interface IPluginState {
     selected?: IPluginItem;
     descendants?: IPluginItem[];
-    files?: any;
+    files?: any[];
     parameters?: any[];
 }
 
