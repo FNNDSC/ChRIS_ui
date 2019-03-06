@@ -12,9 +12,10 @@ import {
 import { EyeIcon, DownloadIcon } from "@patternfly/react-icons";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IPluginState } from "../../store/plugin/types";
-import { IPluginItem } from "../../api/models/pluginInstance.model";
+
 import PluginInformation from "./pluginInformation";
 import PluginConfiguration from "./pluginConfiguration";
+import PluginOutput from "./pluginOutput";
 import "./plugin.scss";
 
 interface IState {
@@ -58,14 +59,13 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
 
     const { selected, parameters, files } = this.props;
 
-    return this.buildContent(selected, toggle, parameters);
+    return this.buildContent(toggle);
   }
   // Description: Build content for plugin
   private buildContent(
-    selected: IPluginItem | undefined,
-    toggle: (id: string) => void,
-    parameters: any[] | undefined
+    toggle: (id: string) => void
   ) {
+    const { selected, parameters, files } = this.props;
     return (
       !!selected && (
         <React.Fragment>
@@ -135,27 +135,12 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                   />
                   <DataListContent
                     aria-label="Plugin Output"
-                    isHidden={!this.state.expanded.includes("plugin-data")}
-                  >
-                    <div>
-                      <label>Data:</label> 18 files (156.1MB)
-                    </div>
-                    <div className="btn-div">
-                      <Button
-                        variant="secondary"
-                        isBlock
-                        onClick={this.handleDownloadData}
-                      >
-                        <DownloadIcon /> Download Data
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        isBlock
-                        onClick={this.handleViewData}
-                      >
-                        <EyeIcon /> View Data
-                      </Button>
-                    </div>
+                    isHidden={!this.state.expanded.includes("plugin-data")} >
+                    {!!files &&
+                      <PluginOutput
+                        files={files}
+                        handleDownloadData={this.handleDownloadData}
+                        handleViewData={this.handleViewData} />}
                   </DataListContent>
                 </DataListItem>
               </DataList>
