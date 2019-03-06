@@ -13,7 +13,6 @@ import { IPluginItem } from "../../api/models/pluginInstance.model";
 export interface IFeedState {
     details?: IFeedItem;
     items?: IPluginItem[];
-    
 }
 
 export const FeedActionTypes = keyMirror({
