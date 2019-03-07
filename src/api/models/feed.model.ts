@@ -77,9 +77,9 @@ export default class FeedModel {
   // Description: Get Plugin instance using API - will be moved to a different class
   // static getPluginInstanceAPI(id: string) {
   //   const url = `${process.env.REACT_APP_CHRIS_UI_URL}${id}/plugininstances/`;
-  //   const auth = { token: window.sessionStorage.getItem("AUTH_TOKEN") };
+  //   const auth = { token: window.sessionStorage.getItem("AUTH_TOKEN") || ""};
   //   const feedlist = new FeedList(url, auth);
-  //   return feedlist.get();
+  //   return feedlist.getItems();
   // }
 
 }
