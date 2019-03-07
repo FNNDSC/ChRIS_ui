@@ -1,8 +1,8 @@
 import React from "react";
-import { IPluginItem } from "../../../api/models/pluginInstance.model";
+import { IPluginItem } from "../../api/models/pluginInstance.model";
 import { Button, Grid, GridItem } from "@patternfly/react-core";
 import { ShareAltIcon, InfrastructureIcon } from "@patternfly/react-icons";
-import TreeNodeModel, { INode } from "../../../api/models/tree-node.model";
+import TreeNodeModel, { INode } from "../../api/models/tree-node.model";
 import PipelineTree from "./PipelineTree";
 interface INodeProps {
   selected: IPluginItem;

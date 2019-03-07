@@ -5,7 +5,6 @@
 *  Notes:           Work in progres ...
 */
 import keyMirror from "keymirror";
-import { IFeedItem } from "../../api/models/feed.model";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 
 
@@ -13,8 +12,8 @@ import { IPluginItem } from "../../api/models/pluginInstance.model";
 export interface IPluginState {
     selected?: IPluginItem;
     descendants?: IPluginItem[];
-    files?: any;
-    parameters?: any;
+    files?: any[];
+    parameters?: any[];
 }
 
 export const PluginActionTypes = keyMirror({
@@ -24,6 +23,8 @@ export const PluginActionTypes = keyMirror({
     GET_PLUGIN_FILES_SUCCESS: null,
     GET_PLUGIN_PARAMETERS: null,
     GET_PLUGIN_PARAMETERS_SUCCESS: null,
+    GET_PLUGIN_DETAILS: null,
+    GET_PLUGIN_DETAILS_SUCCESS: null,
     FETCH_COMPLETE: null, // after request completes
     FETCH_ERROR: null, // request failed
 });

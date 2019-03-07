@@ -5,9 +5,7 @@
 */
 
 
-@import '../../../assets/scss/helpers/variables'; 
-$label-font-size: 0.8125rem;
-$data-font-size: 0.875rem;
+@import '../../assets/scss/helpers/variables'; 
 .feed-info-block{
     h1{
         font-size: 	1.2rem;
@@ -74,62 +72,13 @@ $data-font-size: 0.875rem;
         }
     }
 }
-//  Plugin Detail panel
-.plugin-info{
-    background: #fff !important;
-    h1{
-        padding: 0 1rem;
-        margin-bottom:1rem;
-    }
-    section, ul{
-        box-shadow: none !important;
-        border-top: none 0;
-    }
-    .pf-c-data-list__item.pf-m-expanded{
-        padding-bottom: 0.5rem;
-        .pf-c-data-list__expandable-content{
-            padding-top:0.2rem;
-            padding-bottom: 0;
-        }
-    }
-    li{
-        padding:0 1rem 1rem 1.5rem;
-    }
-    h1, ul{
-        font-weight: 600;
-    }
-    section{
-        font-size: $data-font-size;
-        div{
-            font-size: $label-font-size;
-            &:not(:last-child){
-                padding-bottom: 0.5rem;
-            }
-        }
-    }
-    .plugin-config, .plugin-output{
-        label{
-            display: block;
-        }
-    }
-    .btn-div{
-        max-width: 200px;
-        button{
-            font-size: $data-font-size;
-            margin-bottom: 0.5rem;
-            text-align: left;
-            svg{
-                margin-right: 5px;
-            }
-        }
-    }
-}
-
 // Misc
 .svg-inline--fa{
     margin-right: 5px;
 }
 
+// Tree Chart Section
+// ------------------------------
 .link {
     fill:none;
     marker-end: url(#end-arrow);
