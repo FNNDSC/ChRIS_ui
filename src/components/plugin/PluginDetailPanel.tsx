@@ -32,14 +32,14 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
 
   // Description: Download Plugin output data ***** Working
   handleDownloadData() {
-    const {files} = this.props;
+    const { files } = this.props;
     // Stub - To be done
     console.log("handleDownloadData", files);
   }
 
   // Description: View Plugin output data ***** Working
   handleViewData() {
-    const {files} = this.props;
+    const { files } = this.props;
     // Stub - To be done
     console.log("handleViewData", files);
   }
@@ -64,9 +64,7 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
     return this.buildContent(toggle);
   }
   // Description: Build content for plugin
-  private buildContent(
-    toggle: (id: string) => void
-  ) {
+  private buildContent(toggle: (id: string) => void) {
     const { selected, parameters, files } = this.props;
     return (
       !!selected && (
@@ -79,17 +77,20 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                   aria-labelledby="Plugin Description"
                   isExpanded={this.state.expanded.includes("plugin-detail")}
                 >
-                  {selected.plugin_name}
-                  <DataListToggle
-                    onClick={() => toggle("plugin-detail")}
-                    isExpanded={this.state.expanded.includes("plugin-detail")}
-                    id="plugin-detail"
-                    aria-labelledby="Plugin Description"
-                    aria-label="Toggle details for Plugin Description"
-                  />
+                  <div className="datalist-header">
+                    {selected.plugin_name}
+                    <DataListToggle
+                      onClick={() => toggle("plugin-detail")}
+                      isExpanded={this.state.expanded.includes("plugin-detail")}
+                      id="plugin-detail"
+                      aria-labelledby="Plugin Description"
+                      aria-label="Toggle details for Plugin Description"
+                    />
+                  </div>
                   <DataListContent
                     aria-label="Primary Content Details for plugin"
-                    isHidden={!this.state.expanded.includes("plugin-detail")} >
+                    isHidden={!this.state.expanded.includes("plugin-detail")}
+                  >
                     <PluginInformation selected={selected} />
                   </DataListContent>
                 </DataListItem>
@@ -101,14 +102,16 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                   aria-labelledby="Plugin Configuration"
                   isExpanded={this.state.expanded.includes("plugin-config")}
                 >
-                  Configuration
-                  <DataListToggle
-                    onClick={() => toggle("plugin-config")}
-                    isExpanded={this.state.expanded.includes("plugin-config")}
-                    id="plugin-config"
-                    aria-labelledby="Plugin Configuration"
-                    aria-label="Toggle details for Plugin Configuration"
-                  />
+                  <div className="datalist-header">
+                    Configuration
+                    <DataListToggle
+                      onClick={() => toggle("plugin-config")}
+                      isExpanded={this.state.expanded.includes("plugin-config")}
+                      id="plugin-config"
+                      aria-labelledby="Plugin Configuration"
+                      aria-label="Toggle details for Plugin Configuration"
+                    />
+                  </div>
                   <DataListContent
                     aria-label="Plugin Configuration"
                     isHidden={!this.state.expanded.includes("plugin-config")}
@@ -126,22 +129,27 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                   aria-labelledby="ex-item1"
                   isExpanded={this.state.expanded.includes("plugin-data")}
                 >
-                  Output
-                  <DataListToggle
-                    onClick={() => toggle("plugin-data")}
-                    isExpanded={this.state.expanded.includes("plugin-data")}
-                    id="plugin-data"
-                    aria-labelledby="Plugin Output"
-                    aria-label="Toggle details for Plugin Output"
-                  />
+                  <div className="datalist-header">
+                    Output
+                    <DataListToggle
+                      onClick={() => toggle("plugin-data")}
+                      isExpanded={this.state.expanded.includes("plugin-data")}
+                      id="plugin-data"
+                      aria-labelledby="Plugin Output"
+                      aria-label="Toggle details for Plugin Output"
+                    />
+                  </div>
                   <DataListContent
                     aria-label="Plugin Output"
-                    isHidden={!this.state.expanded.includes("plugin-data")} >
-                    {!!files &&
+                    isHidden={!this.state.expanded.includes("plugin-data")}
+                  >
+                    {!!files && (
                       <PluginOutput
                         files={files}
                         handleDownloadData={this.handleDownloadData}
-                        handleViewData={this.handleViewData} />}
+                        handleViewData={this.handleViewData}
+                      />
+                    )}
                   </DataListContent>
                 </DataListItem>
               </DataList>

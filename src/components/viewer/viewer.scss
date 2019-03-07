@@ -7,7 +7,40 @@
 
 @import '../../assets/scss/helpers/variables'; 
 
-.output-viewer{
-    min-height: 50vh;
-    min-width: 80vw;
+
+
+.dicom-modal{
+    padding: 1.5rem 0  1rem !important;
+    .pf-c-title{
+        margin-left: 2rem;
+    }
+    .output-viewer{
+        min-height: 50vh;
+        min-width: 80vw;
+      
+        .pf-c-tabs{
+            border-bottom: solid 1px #ededed;
+            margin-bottom: 20px;
+            .pf-c-tabs__list{
+                margin: 0 0 -1px 30px;
+            }
+        }
+    }
+}
+.dicom-viewer{ 
+    display: block;
+    height: 50%;
+    max-height: 100%;
+    position: relative;
+    
+    img{
+        display: block;
+        max-height: calc(100vh - 250px);
+        margin: 0 auto;
+        width: auto;  
+    }
+    small{
+        display: block;
+        margin: 10px 20px 0;
+    }
 }

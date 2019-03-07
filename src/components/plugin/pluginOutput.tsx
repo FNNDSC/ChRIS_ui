@@ -1,10 +1,12 @@
-import * as React from "react";
+// import * as React from "react";
+import React, {useState} from "react";
 import { Button } from "@patternfly/react-core";
 import {
   ExclamationCircleIcon,
   EyeIcon,
   DownloadIcon
 } from "@patternfly/react-icons";
+import PluginViewerModal from "./PluginViewerModal";
 
 type AllProps = {
   files: any[];
@@ -15,6 +17,10 @@ type AllProps = {
 const PluginOutput: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const parseFilesLabel = (filesArr: any[]): string => {
     return `${filesArr.length} ${filesArr.length === 1 ? "file" : "files"}`;
+  };
+  const [isModalOpen, setValue] = useState(false);
+  const handleAddValue = () => {
+    setValue(!isModalOpen);
   };
 
   return (
@@ -35,15 +41,15 @@ const PluginOutput: React.FunctionComponent<AllProps> = (props: AllProps) => {
             <Button
               variant="secondary"
               isBlock
-              onClick={props.handleDownloadData}
-            >
+              onClick={props.handleDownloadData} >
               <DownloadIcon /> Download Data
             </Button>
-            <Button variant="secondary" isBlock onClick={props.handleViewData}>
+            <Button variant="secondary" isBlock onClick={handleAddValue}>
               <EyeIcon /> View Data
             </Button>
           </div>
         )}
+        <PluginViewerModal isModalOpen={isModalOpen} handleModalToggle={handleAddValue}  />
       </React.Fragment>
     )
   );

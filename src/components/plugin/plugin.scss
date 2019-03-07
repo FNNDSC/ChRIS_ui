@@ -68,3 +68,12 @@
 }
 
 
+.datalist-header{
+    display: block;
+    margin-bottom: 0.35rem;
+    width: 100%;
+    .pf-c-data-list__toggle{
+        display: inline-block;
+        margin:0 0 0 5px;
+    }
+}
