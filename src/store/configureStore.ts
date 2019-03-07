@@ -4,15 +4,15 @@
  *                   It contains the createStore() => store, rootReducers, rootSagas, logger and other middleware
  *   Author:         ChRIS ui Demo
  */
-import { Store, createStore, applyMiddleware } from 'redux';
-import { createLogger } from 'redux-logger';
-import createSagaMiddleware from 'redux-saga';
-import { routerMiddleware  } from 'connected-react-router'; // `react-router-redux` is deprecated use `connected-react-router`
-import { initialGlobalState, ApplicationState } from './root/applicationState';
+import { Store, createStore, applyMiddleware } from "redux";
+import { createLogger } from "redux-logger";
+import createSagaMiddleware from "redux-saga";
+import { routerMiddleware  } from "connected-react-router"; // `react-router-redux` is deprecated use `connected-react-router`
+import { initialGlobalState, ApplicationState } from "./root/applicationState";
 // import rootReducer from './root/rootReducer';
-import createRootReducer from './root/rootReducer';
-import { rootSaga } from './root/rootSaga';
-import { History } from 'history';
+import createRootReducer from "./root/rootReducer";
+import { rootSaga } from "./root/rootSaga";
+import { History } from "history";
 
 export default function configureStore(history: History): Store<ApplicationState> {
   // Custom redux logger
