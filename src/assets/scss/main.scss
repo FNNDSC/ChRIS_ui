@@ -16,6 +16,7 @@
 @import "vendors/patternfly/patternfly";
 
 // Base
+@import "./base/utilities";
 @import "./base/overrides";
 
 // Components

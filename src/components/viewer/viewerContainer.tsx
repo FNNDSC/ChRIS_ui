@@ -23,7 +23,7 @@ class OutputViewerContainer extends React.Component<
     this.setState({
       activeTabKey: tabIndex
     });
-  };
+  }
   render() {
     return (
       <div className="output-viewer">
