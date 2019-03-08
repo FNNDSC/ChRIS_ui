@@ -1,4 +1,6 @@
 import {ICollectionLinks} from "./base.model";
+import * as _ from "lodash";
+
 // Plugin Instances
 // ------------------------------------------
 export interface IPluginItemInstanceResponse {
@@ -19,6 +21,7 @@ export interface IPluginItemLinks  {
     next?: string;
     previous?: string;
 }
+
 export interface IPluginItem extends IPluginItemLinks  {
     id: number;
     title: string;
@@ -37,3 +40,9 @@ export interface IPluginItem extends IPluginItemLinks  {
     number_of_workers: number;
     gpu_limit: number;
 }
+export const statusLabels: any = {
+    finishedSuccessfully: "Finished Successfully",
+    started : "Started"
+     // Add more status strings as BE devs...
+};
+

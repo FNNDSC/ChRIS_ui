@@ -1,11 +1,10 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { Link } from "react-router-dom";
+import {RouteComponentProps, Link } from "react-router-dom";
+import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import { RouteComponentProps } from "react-router-dom";
-import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
 
 
 interface IPropsFromDispatch {
@@ -31,7 +30,9 @@ class AllFeedsPage extends React.Component<AllProps> {
           variant="warning"
           title="Working feed component"  >
           All feeds or My feeds list will be displayed here <br />
-          Pass a filter param for my feeds vs all feed - working !  <Link to="/feeds/2">Go to Feed view</Link>
+          Pass a filter param for my feeds vs all feed - working !  <br/>
+          <Link to="/feeds/1">Go to Feed view 1</Link><br/>
+          <Link to="/feeds/2">Go to Feed view 2</Link>
         </Alert>
       </PageSection>
     );

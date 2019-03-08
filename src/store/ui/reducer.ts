@@ -1,5 +1,5 @@
-import { Reducer } from 'redux';
-import { UiActionTypes, IUiState } from './types';
+import { Reducer } from "redux";
+import { UiActionTypes, IUiState } from "./types";
 
 
 // Type-safe initialState
@@ -9,8 +9,8 @@ const initialState: IUiState = {
     isDropdownOpen: false,
     isKebabDropdownOpen: false,
     isSidebarOpen: true,
-    sidebarActiveItem: 'dashboard',
-    sidebarActiveGroup: 'feeds_grp'
+    sidebarActiveItem: "dashboard",
+    sidebarActiveGroup: "feeds_grp"
 };
 
 const reducer: Reducer<IUiState> = (state = initialState, action) => { //  ***** Working ***** //
