@@ -5,4 +5,5 @@ declare module "*.css";
 declare module "*.scss";
 
 declare module "@patternfly/react-styles";
+declare module "@patternfly/react-table";
 declare module "d3v4";

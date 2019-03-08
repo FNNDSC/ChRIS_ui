@@ -4,7 +4,6 @@ import { setSidebarActive } from "../../store/ui/actions";
 import Wrapper from "../../containers/layout/PageWrapper";
 import AllFeedsPage from "./components/FeedListView";
 import FeedView from "./components/FeedView";
-import OutputViewer from "./components/OutputViewer";
 
 interface IPropsFromDispatch {
     setSidebarActive: typeof setSidebarActive;
@@ -26,8 +25,6 @@ class FeedsPage extends React.Component<AllProps> {
 const FeedsRoutes: React.FunctionComponent<any> = (props) => (
     <Switch>
         <Route exact path={`${props.match.path}`} component={AllFeedsPage} />
-        {/*  TEMP BUILD THE VIEWER */}
-        <Route path={`${props.match.path}/viewer/:id`} component={OutputViewer} />
         <Route path={`${props.match.path}/:id`} component={FeedView} />
     </Switch>
 );
