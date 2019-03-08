@@ -16,8 +16,6 @@ export interface INode {
   isRoot?: boolean;
 }
 
-
-
 export default class TreeNodeModel {
   // Description: determines if node is leaf node
   static isLeafNode(item: IPluginItem, items: IPluginItem[]) {
@@ -34,7 +32,7 @@ export default class TreeNodeModel {
 
     // Description: determines the total height depending on the number of rows / levels in the tree
   static calculateTotalTreeHeight(totalRows: number): number {
-    const height = (totalRows <= 1) ? 80 : Number(50 + ((totalRows - 1) * 80));
+    const height = (totalRows <= 1) ? 80 : Number(60 + ((totalRows - 1) * 70));
     return height;
   }
 }

@@ -4,9 +4,9 @@ import { IFeedState, FeedActionTypes } from "./types";
 // Type-safe initialState
 const initialState: IFeedState = {
   details: undefined,
-  items: undefined,
-  selected: undefined,
-  descendants: undefined
+  items: undefined
+  // selected: undefined,
+  // descendants: undefined
 };
 
 // ***** NOTE: Working *****

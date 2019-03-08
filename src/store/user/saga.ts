@@ -10,7 +10,7 @@ import { getAuthTokenSuccess, setUserLogout } from "./actions";
 const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
 function* handleLogin(action: any) {
   try {
-    const authURL = process.env.REACT_APP_CHRIS_UI_AUTH_URL;
+    const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
     const username = action.payload.username;
     const authObj = {
       password: action.payload.password,

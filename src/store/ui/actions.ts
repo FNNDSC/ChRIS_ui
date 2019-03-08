@@ -1,7 +1,7 @@
-import { action } from 'typesafe-actions';
+import { action } from "typesafe-actions";
 import {
     UiActionTypes
-} from './types';
+} from "./types";
 
 //  Description: Actions for UI Manager: example:
 export const uiOnBeforeRequest = () => action(UiActionTypes.FETCH_REQUEST);

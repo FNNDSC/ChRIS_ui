@@ -4,8 +4,7 @@ import FeedModel from "../../api/models/feed.model";
 import {
     getFeedDetailsSuccess,
     getPluginInstanceListRequest,
-    getPluginInstanceListSuccess,
-    getPluginDescendantsSuccess
+    getPluginInstanceListSuccess
 } from "./actions";
 
 
@@ -22,8 +21,8 @@ function* handleGetFeedDetails(action: any) {
         } else {
             yield put(getFeedDetailsSuccess(res.data));
             const url = res.data.plugin_instances;
-            yield put(getPluginInstanceListRequest(url));
-            // yield put(managerOnCompleteRequest()); // nO need for messaging just loading false
+            yield put(getPluginInstanceListRequest(url)); // Note: Call the plugin instance pass it all in one state call
+            // yield put(managerOnCompleteRequest()); // no need for messaging just loading false
         }
     } catch (error) {
         console.error(error); // working user messaging
@@ -43,7 +42,7 @@ function* watchGetFeedRequest() {
 // ------------------------------------------------------------------------
 function* handleGetPluginInstances(action: any) {
     try {
-        const res = yield call(FeedModel.getPluginRequest, action.payload);
+        const res = yield call(FeedModel.fetchRequest, action.payload);
         if (res.error) {
             // yield put(handleUIMessage({ message: res.error, type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
             console.error(res.error); // working user messaging
