@@ -21,11 +21,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       // return { ...state, items: action.payload.collection.items }; //Note: For API call... stub
       return { ...state, items: action.payload.data.results };
     }
-    case FeedActionTypes.GET_PLUGIN_DESCENDANTS_SUCCESS: {
-      const descendants = action.payload.data.results;
-      const selected = (!!action.payload.data.results &&  action.payload.data.results.length) && action.payload.data.results[0];
-      return { ...state, descendants, selected  };
-    }
     case FeedActionTypes.FETCH_REQUEST: {
       return { ...state };
     }

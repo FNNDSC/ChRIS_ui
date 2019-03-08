@@ -16,13 +16,10 @@ export interface IFeedState {
 }
 
 export const FeedActionTypes = keyMirror({
-    GET_FEED_LIST: null,
     GET_FEED_DETAILS: null,
     GET_FEED_DETAILS_SUCCESS: null,
     GET_PLUGIN_INSTANCES: null,
     GET_PLUGIN_INSTANCES_SUCCESS: null,
-    GET_PLUGIN_DESCENDANTS: null,
-    GET_PLUGIN_DESCENDANTS_SUCCESS: null,
     FETCH_COMPLETE: null, // after request completes
     FETCH_ERROR: null, // request failed
     FETCH_REQUEST: null, // before request
