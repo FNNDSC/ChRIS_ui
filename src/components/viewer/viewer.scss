@@ -7,10 +7,10 @@
 
 @import '../../assets/scss/helpers/variables'; 
 
-
-
 .dicom-modal{
     padding: 1.5rem 0  1rem !important;
+    height: 100vh;
+    min-width: 98vw;
     .pf-c-title{
         margin-left: 2rem;
     }

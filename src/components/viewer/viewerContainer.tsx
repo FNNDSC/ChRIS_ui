@@ -16,7 +16,7 @@ class OutputViewerContainer extends React.Component<
     this.handleTabClick = this.handleTabClick.bind(this);
   }
   state = {
-    activeTabKey: 0
+    activeTabKey: 0  // TEMP ***** set to 2
   };
   // Toggle currently active tab
   handleTabClick = (event: FormEvent<HTMLInputElement>, tabIndex: number) => {

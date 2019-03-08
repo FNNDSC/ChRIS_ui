@@ -26,7 +26,7 @@ const DataTableViewer: React.FunctionComponent<AllProps> = (
     <div className="pf-u-p-lg">
       <h1>Data Table section</h1>
       <DataTableToolbar onSearch={onSearch} />
-      <Table caption="Compact Table" variant={TableVariant.compact} cells={data.columns} rows={data.rows}>
+      <Table aria-label="Data table" variant={TableVariant.compact} cells={data.columns} rows={data.rows}>
         <TableHeader />
         <TableBody />
       </Table>
