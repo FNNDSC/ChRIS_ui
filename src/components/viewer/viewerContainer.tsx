@@ -15,7 +15,7 @@ class OutputViewerContainer extends React.Component<{},{ activeTabKey: number }>
     this.handleTabClick = this.handleTabClick.bind(this);
   }
   state = {
-    activeTabKey: 2 // TEMP ***** set to 0
+    activeTabKey: 0 // TEMP ***** set to 0
   };
 
   // Toggle currently active tab
