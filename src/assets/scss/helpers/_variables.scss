@@ -8,6 +8,7 @@
 
 $chris-blue:                         #002030;
 $chris-light-blue:                   #007bba;
+$global-icon-margin-right:           5px;
 // Site specific Variables:
 // --------------------------------------------------------------------
 $image-url:                         '../../assets/images/';
@@ -36,7 +37,10 @@ $tree-links-color:                  #fff;
 $tree-node-active-backgound:        $chris-light-blue;
 $tree-tooltip-background:          #282d33; //#393f44;
 $tree-tooltip-arrow-width:         0.9375rem;
+// Label and data sizes for plugin panel
+$plugin-label-font-size:           0.8125rem;
+$plugin-data-font-size:            0.875rem;
 
-
-$label-font-size:                  0.8125rem;
-$data-font-size:                   0.875rem;
+// Data Output and Viewer - File Browser 
+$file-explorer-yellow:           #ffee99;
+$file-explorer-blue:             #def7f7;
