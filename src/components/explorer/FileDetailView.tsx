@@ -5,7 +5,14 @@ import {
   TableBody,
   TableVariant
 } from "@patternfly/react-table";
-import { Button } from "@patternfly/react-core";
+import {
+  DownloadIcon,
+  FolderIcon,
+  OutlinedFileImageIcon,
+  OutlinedFileCodeIcon,
+  OutlinedFileAltIcon
+} from "@patternfly/react-icons";
+
 type AllProps = {
   data: any[];
 };
@@ -16,52 +23,42 @@ const FileDetailView: React.FunctionComponent<AllProps> = (props: AllProps) => {
     rows: [
         [
             {
-                title: <a>File Name</a>
-            }, "Date", "Type", "Size",
+                title: <React.Fragment><FolderIcon color="#ffee99" /> Folder X</React.Fragment>
+            }, "2 Jan 2019 @10:12", "File folder", "7.5 MB",
             {
-                title:  <Button
-                variant="secondary"
-                >Download</Button>
+                title:  <a onClick={() => {console.log("Download"); }}><DownloadIcon /> Download</a>
             }
         ],
         [
             {
-                title: <a>File Name</a>
-            }, "Date", "Type", "Size",
+                title: <React.Fragment><OutlinedFileImageIcon /> jobStatusSummary</React.Fragment>
+            }, "2 Jan 2019 @10:12", ".json", "36.2 MB",
             {
-                title:  <Button
-                variant="secondary"
-                >Download</Button>
+              title:  <a onClick={() => {console.log("Download"); }}><DownloadIcon /> Download</a>
             }
         ],
         [
             {
-                title: <a>File Name</a>
-            }, "Date", "Type", "Size",
+              title: <React.Fragment><OutlinedFileCodeIcon /> jobStatus</React.Fragment>
+            }, "2 Jan 2019 @10:12", ".dcm", "36 MB",
             {
-                title:  <Button
-                variant="secondary"
-                >Download</Button>
+              title:  <a onClick={() => {console.log("Download"); }}><DownloadIcon /> Download</a>
             }
         ],
         [
             {
-                title: <a>File Name</a>
-            }, "Date", "Type", "Size",
+              title: <React.Fragment><OutlinedFileCodeIcon /> output.meta</React.Fragment>
+            }, "2 Jan 2019 @10:12", ".json", "35 MB",
             {
-                title:  <Button
-                variant="secondary"
-                >Download</Button>
+              title:  <a onClick={() => {console.log("Download"); }}><DownloadIcon /> Download</a>
             }
         ],
         [
             {
-                title: <a>File Name</a>
-            }, "Date", "Type", "Size",
+              title: <React.Fragment><OutlinedFileAltIcon /> squashHereDir</React.Fragment>
+            }, "2 Jan 2019 @10:12", ".txt", "35.8 KB",
             {
-                title:  <Button
-                variant="secondary"
-                >Download</Button>
+              title:  <a onClick={() => {console.log("Download"); }}><DownloadIcon /> Download</a>
             }
         ]
     ],

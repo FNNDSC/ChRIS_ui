@@ -14,11 +14,11 @@ const FileBrowserViewer: React.FunctionComponent<AllProps> = (
       <Grid>
         <GridItem className="pf-u-p-sm" sm={12} md={3}>
           {/* Left nav - file explorer tree: */}
-          <FileExplorer data={[]}  />
+          <FileExplorer data={props.data}  />
         </GridItem>
         <GridItem className="pf-u-p-sm" sm={12} md={9}>
           {/* Right container - display file table: */}
-          <FileDetailView data={[]}  />
+          <FileDetailView data={props.data}  />
         </GridItem>
       </Grid>
     </div>
