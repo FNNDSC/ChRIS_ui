@@ -9,16 +9,13 @@ import "./viewer.scss";
 
 type AllProps = RouteComponentProps;
 
-class OutputViewerContainer extends React.Component<
-  {},
-  { activeTabKey: number }
-> {
+class OutputViewerContainer extends React.Component<{},{ activeTabKey: number }> {
   constructor(props: {}) {
     super(props);
     this.handleTabClick = this.handleTabClick.bind(this);
   }
   state = {
-    activeTabKey: 0  // TEMP ***** set to 2
+    activeTabKey: 2 // TEMP ***** set to 0
   };
 
   // Toggle currently active tab

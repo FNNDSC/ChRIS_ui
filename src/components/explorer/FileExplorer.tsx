@@ -6,47 +6,55 @@ import "./file-explorer.scss";
 import * as _ from "lodash";
 type AllProps = {
   data: any[];
+  onClickNode: (node: IUITreeNode) => void;
 };
 
-const FileExplorer: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  const handleChange = () => {
-    return true;
+class FileExplorer extends React.Component< AllProps, { isActive: IUITreeNode } > {
+  state = {
+    isActive: tree // Description: Set up root node as default activ state
   };
-  // Set local state hook ***** working
-  const [isActive, setActiveState] = useState({ module: "" }); // TEMP ***** set to false
-  const renderNode = (node: IUITreeNode) => {
-    const activeClass = !!node.children && !node.collapsed && "active"; // TEMP ***** need to set active class dynamically
-    const nodeClass = !!!node.leaf ? "folderNode" : "fileNode";
+
+  // Description: Render node and determine active node
+  renderNode = (node: IUITreeNode) => {
+    const isActive = _.isEqual(this.state.isActive, node);
     return (
       <span
-        className={`${activeClass} ${nodeClass}`}
-        onClick={onClickNode.bind(null, node)}
-      >
+        className={`${isActive && "active"} ${!!!node.leaf ? "folderNode" : "fileNode"}`}
+        onClick={this.onClickHandler.bind(null, node)}  >
         <FolderOpenIcon color="#ffee99" />
         {node.module}
       </span>
     );
-  };
+  }
 
-  const onClickNode = (node: IUITreeNode) => {
-    setActiveState(node);
-  };
+  // Description: Set local state and pass new data up to parent
+  onClickHandler = (node: IUITreeNode) => {
+    this.setState({
+      isActive: node
+    });
+    this.props.onClickNode(node);
+  }
+  handleChange = () => {
+    return false;
+  }
+  render() {
+    return (
+      <div className="explorer-tree">
+        <Tree
+          paddingLeft={20} // left padding for children nodes in pixels
+          tree={tree} // tree object
+          onChange={this.handleChange} // onChange(tree) tree object changed
+          renderNode={this.renderNode} // renderNode(node) return react element
+          draggable={false} // not implemented in latest version
+        />
+      </div>
+    );
+  }
+}
 
-  return (
-    <div className="explorer-tree">
-      <p>You clicked {isActive.module} times</p>
-      <Tree
-        paddingLeft={20} // left padding for children nodes in pixels
-        tree={tree} // tree object
-        onChange={handleChange} // onChange(tree) tree object changed
-        renderNode={renderNode} // renderNode(node) return react element
-      />
-    </div>
-  );
-};
 
 // Mock data ***** to be removed and replaced with real data
-const tree = {
+const tree: IUITreeNode = {
   module: "Output Dir",
   children: [
     {
