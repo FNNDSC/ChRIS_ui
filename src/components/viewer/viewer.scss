@@ -32,7 +32,6 @@
     height: 50%;
     max-height: 100%;
     position: relative;
-    
     img{
         display: block;
         max-height: calc(100vh - 250px);
@@ -42,5 +41,33 @@
     small{
         display: block;
         margin: 10px 20px 0;
+    }
+}
+
+.dataTable-viewer{
+    table{
+        min-width: 50vw;
+        width: auto;
+        th{
+            font-weight: 700;
+            padding-bottom: 8px;
+        }
+    }
+}
+.dot{
+    background: $dot-background-gray;
+    border-radius: 50%;
+    display: inline-block;
+    height: 15px;
+    margin-right: 5px;
+    width: 15px;
+    &.red{
+      background: $dot-background-red;
+    }
+    &.orange{
+        background: $dot-background-orange;
+    }
+    &.yellow{
+        background: $dot-background-yellow;
     }
 }
