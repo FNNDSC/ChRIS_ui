@@ -35,6 +35,10 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     case FeedActionTypes.FETCH_COMPLETE: {
       return { ...state };
     }
+    case FeedActionTypes.RESET_STATE: {
+      console.log(state);
+      return { ...state, items: undefined, details: undefined };
+    }
     //  ***** Working *****
     default: {
       return state;

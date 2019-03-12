@@ -24,4 +24,5 @@ export const FeedActionTypes = keyMirror({
     FETCH_ERROR: null, // request failed
     FETCH_REQUEST: null, // before request
     FETCH_SUCCESS: null, // request is successful
+    RESET_STATE: null
 });

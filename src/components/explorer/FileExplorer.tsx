@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Tree from "react-ui-tree";
-import { FolderIcon, FolderOpenIcon } from "@patternfly/react-icons";
+import { OutlinedFileAltIcon, FolderIcon, FolderOpenIcon } from "@patternfly/react-icons";
 import { IUITreeNode } from "../../api/models/file-explorer";
 import "./file-explorer.scss";
 import * as _ from "lodash";
@@ -9,7 +9,10 @@ type AllProps = {
   onClickNode: (node: IUITreeNode) => void;
 };
 
-class FileExplorer extends React.Component< AllProps, { isActive: IUITreeNode } > {
+class FileExplorer extends React.Component<
+  AllProps,
+  { isActive: IUITreeNode }
+> {
   state = {
     isActive: tree // Description: Set up root node as default activ state
   };
@@ -17,11 +20,13 @@ class FileExplorer extends React.Component< AllProps, { isActive: IUITreeNode } 
   // Description: Render node and determine active node
   renderNode = (node: IUITreeNode) => {
     const isActive = _.isEqual(this.state.isActive, node);
+    const isFolder = !!!node.leaf;
+    const isCollapsed = !!!node.collapsed;
     return (
       <span
-        className={`${isActive && "active"} ${!!!node.leaf ? "folderNode" : "fileNode"}`}
+        className={`${isActive && "active"} ${isFolder ? "folderNode" : "fileNode"}`}
         onClick={this.onClickHandler.bind(null, node)}  >
-        <FolderOpenIcon color="#ffee99" />
+        {isFolder ? (!!!isCollapsed ? <FolderIcon color="#ffee99" /> : <FolderOpenIcon color="#ffee99" /> ) : (<OutlinedFileAltIcon />)}
         {node.module}
       </span>
     );
@@ -33,17 +38,16 @@ class FileExplorer extends React.Component< AllProps, { isActive: IUITreeNode } 
       isActive: node
     });
     this.props.onClickNode(node);
-  }
-  handleChange = () => {
     return false;
   }
+
   render() {
     return (
       <div className="explorer-tree">
         <Tree
-          paddingLeft={20} // left padding for children nodes in pixels
-          tree={tree} // tree object
-          onChange={this.handleChange} // onChange(tree) tree object changed
+          paddingLeft={20}
+          tree={tree}
+          // onChange={this.handleChange} // onChange(tree) tree object changed
           renderNode={this.renderNode} // renderNode(node) return react element
           draggable={false} // not implemented in latest version
         />
@@ -51,7 +55,6 @@ class FileExplorer extends React.Component< AllProps, { isActive: IUITreeNode } 
     );
   }
 }
-
 
 // Mock data ***** to be removed and replaced with real data
 const tree: IUITreeNode = {
@@ -93,6 +96,58 @@ const tree: IUITreeNode = {
         {
           module: "index.html",
           leaf: true
+        },
+        {
+          module: "inner folder",
+          collapsed: true,
+          children: [
+            {
+              module: "child1.txt",
+              leaf: true
+            },
+            {
+              module: "child2.txt",
+              leaf: true
+            },
+            {
+              module: "child3.txt",
+              leaf: true
+            },
+            {
+              module: "child4.txt",
+              leaf: true
+            },
+            {
+              module: "child5.txt",
+              leaf: true
+            },
+            {
+              module: "inner folder 2",
+              collapsed: true,
+              children: [
+                {
+                  module: "child1.txt",
+                  leaf: true
+                },
+                {
+                  module: "child2.txt",
+                  leaf: true
+                },
+                {
+                  module: "child3.txt",
+                  leaf: true
+                },
+                {
+                  module: "child4.txt",
+                  leaf: true
+                },
+                {
+                  module: "child5.txt",
+                  leaf: true
+                }
+              ]
+            }
+          ]
         }
       ]
     },
