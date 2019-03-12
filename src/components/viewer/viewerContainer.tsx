@@ -7,7 +7,7 @@ import DataTableViewer from "./dataTableViewer";
 import FileBrowserViewer from "./fileBrowserViewer";
 import "./viewer.scss";
 
-type AllProps = RouteComponentProps;
+// type AllProps = RouteComponentProps;
 
 class OutputViewerContainer extends React.Component<{}, { activeTabKey: number }> {
   constructor(props: {}) {

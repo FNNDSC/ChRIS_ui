@@ -113,6 +113,7 @@ class FeedView extends React.Component<AllProps> {
     getPluginDetailsRequest(node);
   }
 
+  // Reset feed state so
   componentWillUnmount() {
     this.props.destroyFeed();
   }

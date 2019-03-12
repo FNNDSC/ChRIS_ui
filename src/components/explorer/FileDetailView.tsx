@@ -15,7 +15,7 @@ import {
 
 type AllProps = {
   data: any[];
-  
+
 };
 
 const FileDetailView: React.FunctionComponent<AllProps> = (props: AllProps) => {
