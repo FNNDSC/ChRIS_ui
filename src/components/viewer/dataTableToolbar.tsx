@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import { InputGroup,InputGroupText, TextInput } from "@patternfly/react-core";
+import { InputGroup, InputGroupText, TextInput } from "@patternfly/react-core";
 type AllProps = {
   //   data: any[];
   onSearch: (term: string) => void;

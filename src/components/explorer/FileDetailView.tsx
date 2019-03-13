@@ -1,5 +1,4 @@
 import * as React from "react";
-// import { Pagination } from "@patternfly/react-core";
 import {
   Table,
   TableHeader,
@@ -19,19 +18,8 @@ type AllProps = {
 };
 
 const FileDetailView: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  const onSearch = (term: string) => {
-    // Working on search handler
-  };
   return (
     <div className="pf-u-p-sm">
-      {/* <Pagination
-        itemCount={523}
-        perPage={this.state.perPage}
-        page={this.state.page}
-        onSetPage={this.onSetPage}
-        widgetId="pagination-options-menu-top"
-        onPerPageSelect={this.onPerPageSelect}
-      /> */}
       <Table
         aria-label="Data table"
         variant={TableVariant.compact}
