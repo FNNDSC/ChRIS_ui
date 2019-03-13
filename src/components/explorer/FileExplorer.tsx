@@ -47,7 +47,6 @@ class FileExplorer extends React.Component<
         <Tree
           paddingLeft={20}
           tree={tree}
-          // onChange={this.handleChange} // onChange(tree) tree object changed
           renderNode={this.renderNode} // renderNode(node) return react element
           draggable={false} // not implemented in latest version
         />

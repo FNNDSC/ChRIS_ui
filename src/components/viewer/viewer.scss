@@ -47,7 +47,16 @@
         margin: 10px 20px 0;
     }
 }
-
+// Data table search bar
+.datatable-toolbar{
+    margin: 1rem;
+    max-width: 500px;
+   .pf-c-input-group .toolbar-label, input{
+        color: #000;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+}
 .dataTable-viewer{
     table{
         min-width: 50vw;
