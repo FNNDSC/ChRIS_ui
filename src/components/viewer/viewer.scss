@@ -29,7 +29,6 @@
 }
 .dicom-viewer{ 
     display: block;
-    height: 50%;
     max-height: 100%;
     position: relative;
     img{
@@ -37,6 +36,11 @@
         max-height: calc(100vh - 250px);
         margin: 0 auto;
         width: auto;  
+    }
+    iframe{
+        height: calc(100vh - 250px);
+        margin: 0 auto;
+        width: 100%;
     }
     small{
         display: block;
