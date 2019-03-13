@@ -1,4 +1,3 @@
-// import * as React from "react";
 import React, {useState} from "react";
 import { Button } from "@patternfly/react-core";
 import {
@@ -18,11 +17,12 @@ const PluginOutput: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const parseFilesLabel = (filesArr: any[]): string => {
     return `${filesArr.length} ${filesArr.length === 1 ? "file" : "files"}`;
   };
+
+  // Set local state hook
   const [isModalOpen, setValue] = useState(false);
-  const handleAddValue = () => {
+  const handleModalToggle = () => {
     setValue(!isModalOpen);
   };
-
   return (
     !!props.files && (
       <React.Fragment>
@@ -44,12 +44,12 @@ const PluginOutput: React.FunctionComponent<AllProps> = (props: AllProps) => {
               onClick={props.handleDownloadData} >
               <DownloadIcon /> Download Data
             </Button>
-            <Button variant="secondary" isBlock onClick={handleAddValue}>
+            <Button variant="secondary" isBlock onClick={handleModalToggle}>
               <EyeIcon /> View Data
             </Button>
           </div>
         )}
-        <PluginViewerModal isModalOpen={isModalOpen} handleModalToggle={handleAddValue}  />
+        <PluginViewerModal isModalOpen={isModalOpen} handleModalToggle={handleModalToggle}  />
       </React.Fragment>
     )
   );

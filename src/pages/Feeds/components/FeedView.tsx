@@ -2,16 +2,26 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { RouteComponentProps } from "react-router-dom";
-import { PageSection, PageSectionVariants, Grid, GridItem } from "@patternfly/react-core";
+import {
+  PageSection,
+  PageSectionVariants,
+  Grid,
+  GridItem
+} from "@patternfly/react-core";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import { getFeedDetailsRequest } from "../../../store/feed/actions";
+import { getFeedDetailsRequest, destroyFeed } from "../../../store/feed/actions";
 import { getPluginDetailsRequest } from "../../../store/plugin/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { IUserState } from "../../../store/user/types";
 import { IPluginState } from "../../../store/plugin/types";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
-import { FeedTree, FeedDetails, NodeDetails, PluginDetailPanel } from "../../../components/index";
+import {
+  FeedTree,
+  FeedDetails,
+  NodeDetails,
+  PluginDetailPanel
+} from "../../../components/index";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 import "../feed.scss";
 
@@ -19,6 +29,7 @@ interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getFeedDetailsRequest: typeof getFeedDetailsRequest;
   getPluginDetailsRequest: typeof getPluginDetailsRequest;
+  destroyFeed: typeof destroyFeed;
 }
 
 type AllProps = IUserState &
@@ -33,7 +44,7 @@ class FeedView extends React.Component<AllProps> {
     const { setSidebarActive, match } = this.props;
     const feedId = match.params.id;
     !!feedId && this.fetchFeedData(feedId);
-    document.title = "My Feeds - ChRIS UI Demo site";
+    document.title = "My Feeds - ChRIS UI site";
     setSidebarActive({
       activeGroup: "feeds_grp",
       activeItem: "my_feeds"
@@ -63,7 +74,8 @@ class FeedView extends React.Component<AllProps> {
         {/* Mid section with Feed and node actions */}
         <PageSection
           className={pf4UtilityStyles.spacingStyles.p_0}
-          variant={PageSectionVariants.light} >
+          variant={PageSectionVariants.light}
+        >
           <Grid className="feed-view">
             <GridItem className="feed-block pf-u-p-md" sm={12} md={6}>
               <h1>Feed Graph</h1>
@@ -87,11 +99,7 @@ class FeedView extends React.Component<AllProps> {
         {/* Bottom section with information */}
         <PageSection>
           <div className="plugin-info pf-u-py-md">
-            {!!selected ? (
-              <PluginDetailPanel />
-            ) : (
-              <h1>Select plugin</h1>
-            )}
+            {!!selected ? <PluginDetailPanel /> : <h1>Select plugin</h1>}
           </div>
         </PageSection>
         {/* END OF Bottom section with information */}
@@ -104,13 +112,20 @@ class FeedView extends React.Component<AllProps> {
     const { getPluginDetailsRequest } = this.props;
     getPluginDetailsRequest(node);
   }
+
+  // Reset feed state so
+  componentWillUnmount() {
+    this.props.destroyFeed();
+  }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedDetailsRequest: (id: string) => dispatch(getFeedDetailsRequest(id)),
-  setSidebarActive: (active: { activeItem: string; activeGroup: string }) => dispatch(setSidebarActive(active)),
-  // getPluginDescendantsRequest: (url: string) => dispatch(getPluginDescendantsRequest(url)),
-  getPluginDetailsRequest: (item: IPluginItem) => dispatch(getPluginDetailsRequest(item))
+  setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
+    dispatch(setSidebarActive(active)),
+  getPluginDetailsRequest: (item: IPluginItem) =>
+    dispatch(getPluginDetailsRequest(item)),
+    destroyFeed: () => dispatch(destroyFeed())
 });
 
 const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({
@@ -120,7 +135,7 @@ const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({
   items: feed.items,
   details: feed.details,
   selected: plugin.selected,
-  descendants: plugin.descendants,
+  descendants: plugin.descendants
 });
 
 export default connect(

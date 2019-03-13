@@ -1,7 +1,7 @@
 /*
 *  File:            feed/types.ts
 *  Description:     Holds types and constants for managing Chris API feed calls
-*  Author:          ChRIS ui Demo
+*  Author:          ChRIS UI
 *  Notes:           Work in progres ...
 */
 import keyMirror from "keymirror";
@@ -16,15 +16,13 @@ export interface IFeedState {
 }
 
 export const FeedActionTypes = keyMirror({
-    GET_FEED_LIST: null,
     GET_FEED_DETAILS: null,
     GET_FEED_DETAILS_SUCCESS: null,
     GET_PLUGIN_INSTANCES: null,
     GET_PLUGIN_INSTANCES_SUCCESS: null,
-    GET_PLUGIN_DESCENDANTS: null,
-    GET_PLUGIN_DESCENDANTS_SUCCESS: null,
     FETCH_COMPLETE: null, // after request completes
     FETCH_ERROR: null, // request failed
     FETCH_REQUEST: null, // before request
     FETCH_SUCCESS: null, // request is successful
+    RESET_STATE: null
 });

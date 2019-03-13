@@ -58,9 +58,6 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
           : [...expanded, id];
       this.setState(() => ({ expanded: newExpanded }));
     };
-
-    const { selected, parameters, files } = this.props;
-
     return this.buildContent(toggle);
   }
   // Description: Build content for plugin

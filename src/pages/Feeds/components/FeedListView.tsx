@@ -15,7 +15,7 @@ type AllProps = IPropsFromDispatch & RouteComponentProps;
 class AllFeedsPage extends React.Component<AllProps> {
   componentDidMount() {
     const { setSidebarActive } = this.props;
-    document.title = "All Feeds - ChRIS UI Demo site";
+    document.title = "All Feeds - ChRIS UI site";
     setSidebarActive({
       activeGroup: "feeds_grp",
       activeItem: "all_feeds"
@@ -32,7 +32,12 @@ class AllFeedsPage extends React.Component<AllProps> {
           All feeds or My feeds list will be displayed here <br />
           Pass a filter param for my feeds vs all feed - working !  <br/>
           <Link to="/feeds/1">Go to Feed view 1</Link><br/>
-          <Link to="/feeds/2">Go to Feed view 2</Link>
+          <Link to="/feeds/2">Go to Feed view 2</Link><br/>
+          <Link to="/feeds/3">Go to Feed view 3</Link><br/>
+          <Link to="/feeds/4">Go to Feed view 4</Link><br/>
+          <Link to="/feeds/5">Go to Feed view 5</Link><br/>
+          <Link to="/feeds/6">Go to Feed view 6</Link><br/>
+          <Link to="/feeds/7">Go to Feed view 7</Link>
         </Alert>
       </PageSection>
     );

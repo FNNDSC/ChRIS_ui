@@ -1,0 +1,45 @@
+/*
+*  File:            file-explorer.scss
+*  Description:     This files holds styles specific for the file explorer tab
+*  Author:          ChRIS UI
+*/
+
+@import "../../assets/scss/helpers/variables";
+@import "../../assets/scss/helpers/mixins";
+@import "../../assets/scss/vendors/react-ui-tree";
+table {
+  td {
+    svg {
+      @include iconMarginRight;
+    }
+  }
+}
+
+// File tree custom styles
+// -----------------------------------------------
+.explorer-tree {
+  .m-node {
+    color: #555;
+    svg {
+      @include iconMarginRight;
+    }
+
+    .inner {
+      padding: 5px 0 5px 15px;
+      span {
+        display: inline-block;
+        line-height: 20px;
+        vertical-align: middle;
+        &.active {
+          color: #111;
+          font-weight: 500;
+        }
+      }
+      .collapse {
+        font-size: 20px;
+        left: -5px;
+        top: 7px;
+      }
+    }
+  }
+}
