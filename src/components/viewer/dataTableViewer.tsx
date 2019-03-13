@@ -43,28 +43,68 @@ const data = {
       title:  <span><i className="dot"></i> 0.321</span>
     }],
     ["Middle Frontal Gyrus ", "Left", "123.345", "123.345", {
-      title:  <span><i className="dot orange"></i> 0.45</span>
+      title:  <span><i className="dot"></i> 0.45</span>
     }],
-    ["Middle Frontal Gyrus ", "Right", "123.345", "123.345", "0.115"  ],
-    ["Inferior Frontal Gyrus ", "Left", "123.345", "123.345", "0.167"  ],
-    ["Inferior Frontal Gyrus ", "Right", "123.345", "123.345", "0.329"  ],
-    ["Precentral Gyrus ", "Left", "123.345", "123.345", "0.228"  ],
-    ["Precentral Gyrus ", "Right", "123.345", "123.345", "0.187"  ],
-    ["Middle Orbitofrontal Gyrus ", "Left", "123.345", "123.345", "0.136"  ],
-    ["Middle Orbitofrontal Gyrus ", "Right", "123.345", "123.345", "0.481"  ],
-    ["Lateral Orbitofrontal Gyrus ", "Left", "123.345", "123.345", "0.124"  ],
-    ["Lateral Orbitofrontal Gyrus ", "Right", "123.345", "123.345", "0.763"  ],
-    ["Gyrus Rectus ", "Left", "123.345", "123.345", "4.32"  ],
-    ["Gyrus Rectus ", "Right", "123.345", "123.345", "4.21"  ],
-    ["Postcentral Gyrus ", "Left", "123.345", "123.345", "0.328"  ],
-    ["Postcentral Gyrus ", "Right", "123.345", "123.345", "0.211"  ],
-    ["Superior Parietal Gyrus ", "Left", "123.345", "123.345", "0.365"  ],
-    ["Superior Parietal Gyrus ", "Right", "123.345", "123.345", "0.014"  ],
-    ["Supramarginal Gyrus ", "Left", "123.345", "123.345", "0.118"  ],
-    ["Supramarginal Gyrus ", "Right", "123.345", "123.345", "0.241"  ],
-    ["Angular Gyrus ", "Left", "123.345", "123.345", "2.56"  ],
-    ["Angular Gyrus ", "Right", "123.345", "123.345", "2.73"  ],
-    ["Precuneus ", "Left", "123.345", "123.345", "0.123"  ]
+    ["Middle Frontal Gyrus ", "Right", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.115</span>
+    }],
+    ["Inferior Frontal Gyrus ", "Left", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.167</span>
+    }],
+    ["Inferior Frontal Gyrus ", "Right", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.329</span>
+    }],
+    ["Precentral Gyrus ", "Left", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.228</span>
+    }],
+    ["Precentral Gyrus ", "Right", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.187</span>
+    }],
+    ["Middle Orbitofrontal Gyrus ", "Left", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.136</span>
+    }],
+    ["Middle Orbitofrontal Gyrus ", "Right", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.481</span>
+    }],
+    ["Lateral Orbitofrontal Gyrus ", "Left", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.124</span>
+    }],
+    ["Lateral Orbitofrontal Gyrus ", "Right", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.763</span>
+    } ],
+    ["Gyrus Rectus ", "Left", "123.345", "123.345", {
+      title:  <span><i className="dot orange"></i> 4.32</span>
+    }],
+    ["Gyrus Rectus ", "Right", "123.345", "123.345", {
+      title:  <span><i className="dot orange"></i> 4.21</span>
+    }],
+    ["Postcentral Gyrus ", "Left", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.328</span>
+    }],
+    ["Postcentral Gyrus ", "Right", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.211</span>
+    }],
+    ["Superior Parietal Gyrus ", "Left", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.365</span>
+    }],
+    ["Superior Parietal Gyrus ", "Right", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.014</span>
+    }],
+    ["Supramarginal Gyrus ", "Left", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.118</span>
+    }],
+    ["Supramarginal Gyrus ", "Right", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.241</span>
+    }],
+    ["Angular Gyrus ", "Left", "123.345", "123.345", {
+      title:  <span><i className="dot yellow"></i> 2.56</span>
+    }  ],
+    ["Angular Gyrus ", "Right", "123.345", "123.345", {
+      title:  <span><i className="dot yellow"></i> 2.73</span>
+    }],
+    ["Precuneus ", "Left", "123.345", "123.345", {
+      title:  <span><i className="dot"></i> 0.123</span>
+    }]
   ]
 };
 
