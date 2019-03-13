@@ -19,7 +19,7 @@ const PluginOutput: React.FunctionComponent<AllProps> = (props: AllProps) => {
   };
 
   // Set local state hook
-  const [isModalOpen, setValue] = useState(true); // TEMP ***** set to false
+  const [isModalOpen, setValue] = useState(false); 
   const handleModalToggle = () => {
     setValue(!isModalOpen);
   };

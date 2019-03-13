@@ -2,7 +2,7 @@
  *   File:           configureStore.ts
  *   Description:    this is where the store comes together:
  *                   It contains the createStore() => store, rootReducers, rootSagas, logger and other middleware
- *   Author:         ChRIS ui Demo
+ *   Author:         ChRIS UI
  */
 import { Store, createStore, applyMiddleware } from "redux";
 import { createLogger } from "redux-logger";

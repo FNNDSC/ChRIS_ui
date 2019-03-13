@@ -6,7 +6,7 @@ type AllProps = RouteComponentProps;
 
 class DashboardPage extends React.Component<AllProps> {
   componentDidMount() {
-    document.title = "Dashboard - ChRIS UI Demo site";
+    document.title = "Dashboard - ChRIS UI site";
   }
 
   render() {
@@ -18,12 +18,12 @@ class DashboardPage extends React.Component<AllProps> {
         </PageSection>
         <PageSection>
           <div>
-            <h1 className="pf-u-mb-md">Welcome to ChRIS UI Demo site's Dashboard</h1>
+            <h1 className="pf-u-mb-md">Welcome to ChRIS UI site's Dashboard</h1>
               <Alert
                 aria-label="welcome wagon"
                 variant="info"
                 title="Welcome!"  >
-                Welcome to ChRIS UI Demo site's Dashboard
+                Welcome to ChRIS UI site's Dashboard
               </Alert>
           </div>
           {children}

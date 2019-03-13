@@ -15,7 +15,7 @@ type AllProps = IPropsFromDispatch & RouteComponentProps;
 class AllFeedsPage extends React.Component<AllProps> {
   componentDidMount() {
     const { setSidebarActive } = this.props;
-    document.title = "All Feeds - ChRIS UI Demo site";
+    document.title = "All Feeds - ChRIS UI site";
     setSidebarActive({
       activeGroup: "feeds_grp",
       activeItem: "all_feeds"

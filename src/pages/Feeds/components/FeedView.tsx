@@ -44,7 +44,7 @@ class FeedView extends React.Component<AllProps> {
     const { setSidebarActive, match } = this.props;
     const feedId = match.params.id;
     !!feedId && this.fetchFeedData(feedId);
-    document.title = "My Feeds - ChRIS UI Demo site";
+    document.title = "My Feeds - ChRIS UI site";
     setSidebarActive({
       activeGroup: "feeds_grp",
       activeItem: "my_feeds"
