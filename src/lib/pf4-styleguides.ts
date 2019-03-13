@@ -1,7 +1,7 @@
 /*
 *  File:            pf4-styleguides.scss
 *  Description:     This files holds variables used '@patternfly/patternfly/utilities
-*  Author:          ChRIS ui Demo
+*  Author:          ChRIS UI
 */
 
 export const pf4UtilityStyles = {

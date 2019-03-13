@@ -1,0 +1,10 @@
+/*
+*  File:            _mixins.scss
+*  Description:     This files holds utility mixins for use across site
+*  Author:          ChRIS UI
+*/
+
+
+@mixin iconMarginRight(){
+    margin-right: $global-icon-margin-right;
+}

@@ -1,7 +1,7 @@
 /*
 *  File:            feed.scss
 *  Description:     This files holds styles specific for the Feed view page
-*  Author:          ChRIS ui Demo
+*  Author:          ChRIS UI
 */
 
 
@@ -37,12 +37,12 @@
     .node-block{
         background: $node-block-background;
         border-left: 3px solid $node-block-border;
-        font-size: $data-font-size;
+        font-size: $plugin-data-font-size;
         div{
             color: #fff;
             label{
                 display:block;
-                font-size: $label-font-size;
+                font-size: $plugin-label-font-size;
                 
             } 
         }
@@ -54,7 +54,7 @@
             max-width: 200px;
             button{
                 color: #fff;
-                font-size: $data-font-size;
+                font-size: $plugin-data-font-size;
                 margin-bottom: 0.5rem;
                 text-align: left;
                 outline-color: #fff;
@@ -126,5 +126,11 @@
         transform:translate(-50%, -50%) rotate(45deg);
         width: $tree-tooltip-arrow-width;
         
+    }
+}
+
+#pipelineTree{
+    .nodegroup{
+        cursor: default;
     }
 }

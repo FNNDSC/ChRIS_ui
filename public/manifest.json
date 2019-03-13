@@ -1,6 +1,6 @@
 {
-  "short_name": "ChRIS UI Demo",
-  "name": "ChRIS UI Demo application",
+  "short_name": "ChRIS UI",
+  "name": "ChRIS UI application",
   "icons": [
     {
       "src": "favicon.ico",

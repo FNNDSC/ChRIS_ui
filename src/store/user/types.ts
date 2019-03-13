@@ -1,7 +1,7 @@
 /*
 *  File:            message/types.ts
 *  Description:     Holds types and constants for managing Chris API feed calls
-*  Author:          ChRIS ui Demo
+*  Author:          ChRIS UI
 *  Notes:           Work in progres ...
 */
 import keyMirror from "keymirror";
