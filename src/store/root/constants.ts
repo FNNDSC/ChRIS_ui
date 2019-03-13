@@ -4,7 +4,7 @@
 *   Author:         ChRIS UI
 */
 
-import keyMirror from 'keymirror';
+import keyMirror from "keymirror";
 
 export const ActionTypes = keyMirror({
     INIT_STORE: null
