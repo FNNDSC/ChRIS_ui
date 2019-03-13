@@ -26,8 +26,10 @@ function* handleLogin(action: any) {
       console.log(res.error); // working ***** user messaging
     } else {
       yield put(getAuthTokenSuccess(res));
-      window.sessionStorage.setItem("AUTH_TOKEN", res);
-      window.sessionStorage.setItem("USERNAME", username);
+      yield call(() => {
+        window.sessionStorage.setItem("AUTH_TOKEN", res);
+        window.sessionStorage.setItem("USERNAME", username);
+      });
       yield put(push("/"));
     }
   } catch (error) {

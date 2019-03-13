@@ -1,8 +1,5 @@
 import * as React from "react";
-import {
-  Modal,
-  Button
-} from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core";
 import OutputViewerContainer from "../viewer/viewerContainer";
 
 type AllProps = {

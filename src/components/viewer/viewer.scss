@@ -1,16 +1,16 @@
 /*
 *  File:            viewer.scss
 *  Description:     This files holds styles specific for the output viewer components
-*  Author:          ChRIS ui Demo
+*  Author:          ChRIS UI
 */
 
 
 @import '../../assets/scss/helpers/variables'; 
 
-
-
 .dicom-modal{
     padding: 1.5rem 0  1rem !important;
+    height: 100vh;
+    min-width: 98vw;
     .pf-c-title{
         margin-left: 2rem;
     }
@@ -29,18 +29,58 @@
 }
 .dicom-viewer{ 
     display: block;
-    height: 50%;
     max-height: 100%;
     position: relative;
-    
     img{
         display: block;
         max-height: calc(100vh - 250px);
         margin: 0 auto;
         width: auto;  
     }
+    iframe{
+        height: calc(100vh - 220px);
+        margin: 0 auto;
+        width: 100%;
+    }
     small{
         display: block;
         margin: 10px 20px 0;
+    }
+}
+// Data table search bar
+.datatable-toolbar{
+    margin: 1rem;
+    max-width: 500px;
+   .pf-c-input-group .toolbar-label, input{
+        color: #000;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+}
+.dataTable-viewer{
+    table{
+        min-width: 50vw;
+        width: auto;
+        th{
+            font-weight: 700;
+            padding-bottom: 8px;
+        }
+    }
+}
+.dot{
+    background: $dot-background-gray;
+    border-radius: 50%;
+    display: inline-block;
+    height: 15px;
+    margin-right: 5px;
+    width: 15px;
+    &.red{
+      background: $dot-background-red;
+    }
+    &.orange{
+        background: $dot-background-orange;
+    }
+    &.yellow{
+        background: $dot-background-yellow;
     }
 }

@@ -2,7 +2,7 @@
 *  File:            _utilities.scss
 *  Description:     This files holds styles for utility classes
 *                   
-*  Author:          ChRIS ui Demo
+*  Author:          ChRIS UI
 */
 
 
@@ -11,4 +11,8 @@
     margin: 0 auto;
     min-height: 50vh;
     min-width: 98vw;
+}
+
+.icon-mr{
+    margin-right: 5px;
 }

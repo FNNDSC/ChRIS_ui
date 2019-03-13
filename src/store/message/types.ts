@@ -1,7 +1,7 @@
 /*
 *  File:            message/types.ts
 *  Description:     Holds types and constants for managing global messaging and confirmation dialogs
-*  Author:          ChRIS ui Demo
+*  Author:          ChRIS UI
 *  Notes:           Work in progres ...
 */
 
