@@ -11,7 +11,7 @@ const DicomViewer: React.FunctionComponent<AllProps> = (props: AllProps) => {
       {/* Note: this iframe will be removed once the ami viewer is implemented */}
       <iframe
         src="http://fnndsc.childrens.harvard.edu/rev/viewer/?year=00&month=00&example=01"
-        height="720"
+        height={window.innerHeight}
         width="100%"
       />
       {/* <img src={imgPlaceholder} alt="placeholder for DICOM Images" />*/}
