@@ -1,7 +1,7 @@
 /*
 *  File:            plugin.scss
 *  Description:     This files holds styles specific for the plugin components
-*  Author:          ChRIS ui Demo
+*  Author:          ChRIS UI
 */
 
 
@@ -41,9 +41,9 @@
         font-weight: 600;
     }
     section{
-        font-size: $data-font-size;
+        font-size: $plugin-data-font-size;
         div{
-            font-size: $label-font-size;
+            font-size: $plugin-label-font-size;
             &:not(:last-child){
                 padding-bottom: 0.75rem;
             }
@@ -57,7 +57,7 @@
     .btn-div{
         max-width: 200px;
         button{
-            font-size: $data-font-size;
+            font-size: $plugin-data-font-size;
             margin-bottom: 0.5rem;
             text-align: left;
             svg{

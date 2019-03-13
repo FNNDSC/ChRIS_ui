@@ -12,5 +12,5 @@ export const getFeedDetailsSuccess = (items: IFeedItem) => action(FeedActionType
 export const getPluginInstanceListRequest = (url: string) => action(FeedActionTypes.GET_PLUGIN_INSTANCES, url);
 export const getPluginInstanceListSuccess = (items: IPluginItem[]) => action(FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS, items);
 
-export const getPluginDescendantsRequest = (url: string) => action(FeedActionTypes.GET_PLUGIN_DESCENDANTS, url);
-export const getPluginDescendantsSuccess = (items: IPluginItem[]) => action(FeedActionTypes.GET_PLUGIN_DESCENDANTS_SUCCESS, items);
+
+export const destroyFeed = () => action(FeedActionTypes.RESET_STATE);

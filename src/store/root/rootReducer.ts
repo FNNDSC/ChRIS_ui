@@ -1,7 +1,7 @@
 /*
  *   File:           rootReducer.ts
  *   Description:    this is where the Reducers comes together
- *   Author:         ChRIS ui Demo
+ *   Author:         ChRIS UI
  */
 import { combineReducers } from "redux";
 

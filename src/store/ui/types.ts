@@ -1,7 +1,7 @@
 /*
 *  File:            ui/types.ts
 *  Description:     Holds types and constants for managing global UI states
-*  Author:          ChRIS ui Demo
+*  Author:          ChRIS UI
 */
 
 

@@ -6,11 +6,10 @@ import DicomViewer from "./dicomViewer";
 import DataTableViewer from "./dataTableViewer";
 import FileBrowserViewer from "./fileBrowserViewer";
 import "./viewer.scss";
-type AllProps = RouteComponentProps;
-class OutputViewerContainer extends React.Component<
-  {},
-  { activeTabKey: number }
-> {
+
+// type AllProps = RouteComponentProps;
+
+class OutputViewerContainer extends React.Component<{}, { activeTabKey: number }> {
   constructor(props: {}) {
     super(props);
     this.handleTabClick = this.handleTabClick.bind(this);
@@ -18,6 +17,7 @@ class OutputViewerContainer extends React.Component<
   state = {
     activeTabKey: 0
   };
+
   // Toggle currently active tab
   handleTabClick = (event: FormEvent<HTMLInputElement>, tabIndex: number) => {
     this.setState({
