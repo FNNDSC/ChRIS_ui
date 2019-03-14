@@ -4,7 +4,8 @@ import { IFeedState, FeedActionTypes } from "./types";
 // Type-safe initialState
 const initialState: IFeedState = {
   details: undefined,
-  items: undefined
+  items: undefined,
+  feeds: undefined
   // selected: undefined,
   // descendants: undefined
 };
@@ -12,6 +13,10 @@ const initialState: IFeedState = {
 // ***** NOTE: Working *****
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
   switch (action.type) {
+
+    case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
+      return { ...state, feeds: action.payload.collection.items }; // Using the chrisApi
+    }
     case FeedActionTypes.GET_FEED_DETAILS_SUCCESS: {
       // return { ...state, details: action.payload.collection.items }; // Using the api
       return { ...state, details: action.payload };

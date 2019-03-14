@@ -66,7 +66,7 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
     return (
       !!selected && (
         <React.Fragment>
-          <h1>{selected.plugin_name}</h1>
+          <h1 className="capitalize">{selected.plugin_name}</h1>
           <Grid>
             <GridItem className="plugin-details" sm={12} md={4}>
               <DataList aria-label="Plugin Description">
@@ -75,7 +75,7 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                   isExpanded={this.state.expanded.includes("plugin-detail")}
                 >
                   <div className="datalist-header">
-                    {selected.plugin_name}
+                    <span className="capitalize">{selected.plugin_name}</span>
                     <DataListToggle
                       onClick={() => toggle("plugin-detail")}
                       isExpanded={this.state.expanded.includes("plugin-detail")}

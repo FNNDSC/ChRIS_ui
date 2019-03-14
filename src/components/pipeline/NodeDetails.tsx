@@ -31,7 +31,7 @@ class NodeDetails extends React.Component<INodeProps> {
     const { selected, descendants } = this.props;
     return (
       <React.Fragment>
-        <div>
+        <div className="capitalize">
           <label>Selected Node:</label> {selected.plugin_name}
         </div>
         <Grid>

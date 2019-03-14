@@ -7,7 +7,7 @@ export interface ICollection {
 }
 
 export interface IItem {
-    data: IDatum[];
+    data: IDatum[]; //
     href: string;
     links: ILink[];
 }
