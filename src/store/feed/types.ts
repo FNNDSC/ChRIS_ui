@@ -7,15 +7,18 @@
 import keyMirror from "keymirror";
 import { IFeedItem } from "../../api/models/feed.model";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
-
+import {IItem} from "../../api/models/base.model";
 
 // Description state for main user items[] and item
 export interface IFeedState {
     details?: IFeedItem;
+    feeds?: IItem[];
     items?: IPluginItem[];
 }
 
 export const FeedActionTypes = keyMirror({
+    GET_ALL_FEEDS: null,
+    GET_ALL_FEEDS_SUCCESS: null,
     GET_FEED_DETAILS: null,
     GET_FEED_DETAILS_SUCCESS: null,
     GET_PLUGIN_INSTANCES: null,
