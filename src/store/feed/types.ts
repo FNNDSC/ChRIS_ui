@@ -7,12 +7,11 @@
 import keyMirror from "keymirror";
 import { IFeedItem } from "../../api/models/feed.model";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
-import {IItem} from "../../api/models/base.model";
 
 // Description state for main user items[] and item
 export interface IFeedState {
     details?: IFeedItem;
-    feeds?: IItem[];
+    feeds?: IFeedItem[];
     items?: IPluginItem[];
 }
 

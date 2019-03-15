@@ -49,7 +49,7 @@ export default class FeedModel {
   // ***** used in plugin instances list, Plugin descendants, more...
   // Param: url passed in with the response
   static fetchRequest(url: string) {
-     const auth = { token: window.sessionStorage.getItem("AUTH_TOKEN") };
+     const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
      const header = {
        "Content-Type": "application/vnd.collection+json",
        "Authorization": "Token " + auth.token

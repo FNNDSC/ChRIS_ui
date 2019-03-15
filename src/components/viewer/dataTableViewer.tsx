@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Table, TableHeader, TableBody, TableVariant } from "@patternfly/react-table";
-import DataTableToolbar from "./dataTableToolbar";
+import { DataTableToolbar } from "../index";
 
 type AllProps = {
   data: any[];
@@ -15,7 +15,7 @@ const DataTableViewer: React.FunctionComponent<AllProps> = (
   };
   return (
     <div className="dataTable-viewer pf-u-px-lg">
-      <DataTableToolbar onSearch={onSearch} />
+      <DataTableToolbar onSearch={onSearch} label="brain structure" />
       <Table aria-label="Data table" variant={TableVariant.compact} cells={data.columns} rows={data.rows}>
         <TableHeader />
         <TableBody />
