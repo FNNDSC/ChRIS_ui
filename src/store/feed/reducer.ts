@@ -13,9 +13,9 @@ const initialState: IFeedState = {
 // ***** NOTE: Working *****
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
   switch (action.type) {
-
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
-      return { ...state, feeds: action.payload.collection.items }; // Using the chrisApi
+     // return { ...state, feeds: action.payload.collection.items }; // Using the chrisApi
+      return { ...state, feeds: action.payload.data.results }; // Using the chrisApi
     }
     case FeedActionTypes.GET_FEED_DETAILS_SUCCESS: {
       // return { ...state, details: action.payload.collection.items }; // Using the api

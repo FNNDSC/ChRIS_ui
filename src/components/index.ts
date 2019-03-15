@@ -1,5 +1,6 @@
 // Common Components:
 export  { default as LoadingComponent} from "./common/loading/Loading";
+export  { default as DataTableToolbar} from "./common/dataTableToolbar/dataTableToolbar";
 
 // Feed
 export  { default as FeedTree} from "./feed/FeedTree";

@@ -1,7 +1,9 @@
 import React, {useState} from "react";
 import { InputGroup, InputGroupText, TextInput } from "@patternfly/react-core";
+import "./dataTableToolbar.scss";
+
 type AllProps = {
-  //   data: any[];
+  label: string;
   onSearch: (term: string) => void;
 };
 
@@ -13,18 +15,18 @@ const DataTableToolbar: React.FunctionComponent<AllProps> = (
   const handleTextInputChange = (value: string) => {
     // Note: Use this block to filter data in table ***** working
     setValue( value );
+    props.onSearch(value);
   };
-
+  const { label } = props;
   return (
-    // const { value } = this.state;
-    <div className="datatable-toolbar">
+  <div className="datatable-toolbar">
       <InputGroup>
         <InputGroupText id="brainStructureLabel" className="toolbar-label">
-          Brain Structure
+          { label }
         </InputGroupText>
         <TextInput
           id="brainStructureTb"
-          placeholder="Filter by brain structure..."
+          placeholder={`Filter by ${label}...`}
           type="text"
           aria-label="text input field"
           value={value}

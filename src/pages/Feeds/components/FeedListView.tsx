@@ -9,9 +9,11 @@ import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest } from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { IFeedItem } from "../../../api/models/feed.model";
-import { IItem, IDatum } from "../../../api/models/base.model";
 import { Table, TableVariant } from "@patternfly/react-table";
-import * as _ from "lodash";
+import { LinkIcon } from "@patternfly/react-icons";
+import { DataTableToolbar } from "../../../components/index";
+import _ from "lodash";
+import debounce from "lodash/debounce";
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getAllFeedsRequest: typeof getAllFeedsRequest;
@@ -30,71 +32,75 @@ class AllFeedsPage extends React.Component<AllProps> {
     getAllFeedsRequest();
   }
 
+  // Description: Debounce the search call
+  // recall with search param by name
+  onSearch = debounce((term: string) => {
+    this.props.getAllFeedsRequest(term);
+  }, 500);
+
   render() {
     const { feeds } = this.props;
     return (
       <PageSection>
         {!!feeds && (
-          <Table
-            aria-label="Data table"
-            variant={TableVariant.compact}
-            cells={[]}
-            rows={[]}
-          >
-            <thead>
-              <tr>
-                <th>Feed</th>
-                <th>Pipelines</th>
-                <th>Created</th>
-                <th>Owner</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {feeds.length > 0 &&
-                feeds.map((item: IItem, i) => {
-                  return <TableRow key={`items_${i}`} feed={item} />;
-                })}
-            </tbody>
-          </Table>
+          <div className="white-bg pf-u-p-lg">
+            <DataTableToolbar onSearch={this.onSearch} label="name" />
+            <Table
+              aria-label="Data table"
+              variant={TableVariant.compact}
+              cells={[]}
+              rows={[]}
+            >
+              <thead>
+                <tr>
+                  <th>Feed</th>
+                  <th>Pipelines</th>
+                  <th>Created</th>
+                  <th>Owner</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {feeds.length > 0 &&
+                  feeds.map((item: IFeedItem, i) => {
+                    return <TableRow key={`items_${i}`} feed={item} />;
+                  })}
+              </tbody>
+            </Table>
+          </div>
         )}
       </PageSection>
     );
   }
 }
 
-const TableRow = (props: { feed: IItem; key: string }) => {
-  const data = props.feed.data;
-  const id = getValue(data, "id");
+const TableRow = (props: { feed: IFeedItem; key: string }) => {
+  const feed = props.feed;
   return (
     <tr>
       <td>
-        <Link className="capitalize" to={`/feeds/${id}`}> {getValue(data, "name") }</Link>
+        <Link className="capitalize" to={`/feeds/${feed.id}`}>
+          <LinkIcon /> {feed.name}
+        </Link>
       </td>
-      <td><em>not available</em></td>
       <td>
-        <Moment format="DD MMM YYYY @ HH:mm A">
-          {getValue(data, "creation_date")}
-        </Moment>
+        <em>N/A</em>
       </td>
-      <td>{getValue(data, "creator_username")}</td>
-      <td><em>not available</em></td>
+      <td>
+        <Moment format="DD MMM YYYY @ HH:mm A">{feed.creation_date}</Moment>
+      </td>
+      <td> {feed.creator_username}</td>
+      <td>
+        <em>N/A</em>
+      </td>
     </tr>
   );
-};
-
-const getValue = (data: IDatum[], key: string): string => {
-  const obj: any = _.find(data, (obj: IDatum) => {
-    return obj.name === key && obj.value;
-  });
-  console.log();
-  return !!obj && obj.value;
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
-  getAllFeedsRequest: () => dispatch(getAllFeedsRequest())
+  getAllFeedsRequest: (name?: string) => dispatch(getAllFeedsRequest(name))
 });
 
 const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
