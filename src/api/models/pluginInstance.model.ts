@@ -1,5 +1,5 @@
-import {ICollectionLinks} from "./base.model";
-import * as _ from "lodash";
+import {ICollectionLinks, chrisId} from "./base.model";
+import _ from "lodash";
 
 // Plugin Instances
 // ------------------------------------------
@@ -23,7 +23,7 @@ export interface IPluginItemLinks  {
 }
 
 export interface IPluginItem extends IPluginItemLinks  {
-    id: number;
+    id: chrisId;
     title: string;
     previous_id?: number;
     plugin_id: number;

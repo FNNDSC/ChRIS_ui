@@ -9,6 +9,11 @@ export const getPluginDescendantsSuccess = (items: IPluginItem[]) => action(Plug
 
 export const getPluginFilesRequest = (url: string) => action(PluginActionTypes.GET_PLUGIN_FILES, url);
 export const getPluginFilesSuccess = (items: IPluginItem[]) => action(PluginActionTypes.GET_PLUGIN_FILES_SUCCESS, items);
+export const setExplorerSuccess = (items: IPluginItem[]) => {
+    console.log("setExplorerSuccess", items);
+    return  action(PluginActionTypes.SET_EXPLORER_SUCCESS, items);
+};
+
 
 export const getPluginParametersRequest = (url: string) => action(PluginActionTypes.GET_PLUGIN_PARAMETERS, url);
 export const getPluginParametersSuccess = (items: IPluginItem[]) => action(PluginActionTypes.GET_PLUGIN_PARAMETERS_SUCCESS, items);

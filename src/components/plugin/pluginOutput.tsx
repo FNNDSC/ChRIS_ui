@@ -5,10 +5,11 @@ import {
   EyeIcon,
   DownloadIcon
 } from "@patternfly/react-icons";
+import { IFeedFile } from "../../api/models/feed-file.model";
 import PluginViewerModal from "./PluginViewerModal";
 
 type AllProps = {
-  files: any[];
+  files: IFeedFile[];
   handleDownloadData: () => void;
   handleViewData: () => void;
 };

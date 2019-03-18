@@ -1,7 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
 import {
-  Button,
   Grid,
   GridItem,
   DataList,
@@ -163,6 +162,7 @@ const mapStateToProps = ({ plugin }: ApplicationState) => ({
   files: plugin.files,
   parameters: plugin.parameters
 });
+
 export default connect(
   mapStateToProps,
   null
