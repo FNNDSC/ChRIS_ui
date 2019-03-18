@@ -14,12 +14,11 @@ const initialState: IPluginState = {
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {
   switch (action.type) {
     case PluginActionTypes.GET_PLUGIN_FILES_SUCCESS: {
-      console.log("GET_PLUGIN_FILES_SUCCESS");
       return { ...state, files: action.payload.data.results };
     }
+    // Description: Set the explorer object:
     case PluginActionTypes.SET_EXPLORER_SUCCESS: {
-      console.log("SET_EXPLORER_SUCCESS");
-      return { ...state, explorer: action.payload.data.results };
+      return { ...state, explorer: action.payload };
     }
     case PluginActionTypes.GET_PLUGIN_PARAMETERS_SUCCESS: {
       return { ...state, parameters: action.payload.data.results };

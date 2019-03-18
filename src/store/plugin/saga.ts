@@ -79,7 +79,7 @@ function* handleGetPluginFiles(action: any) {
       console.error(res.error); // working user messaging
     } else {
       yield put(getPluginFilesSuccess(res));
-      yield put(setExplorerSuccess(res)); // Structure the files for explorer
+      yield put(setExplorerSuccess(res.data.results)); // Structure the files for explorer
       // yield put(managerOnCompleteRequest()); // nO need for messaging just loading false
     }
   } catch (error) {
