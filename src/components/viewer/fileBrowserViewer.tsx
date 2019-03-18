@@ -24,7 +24,7 @@ const FileBrowserViewer: React.FunctionComponent<AllProps> = (
       <Grid>
         <GridItem className="pf-u-p-sm" sm={12} md={3}>
           {/* Left nav - file explorer tree: */}
-          <FileExplorer data={props.files} onClickNode={setActiveNode} />
+          <FileExplorer explorer={props.explorer} onClickNode={setActiveNode} />
         </GridItem>
         <GridItem className="pf-u-p-sm" sm={12} md={9}>
           {/* Right container - display file table: */}
