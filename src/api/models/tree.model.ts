@@ -1,7 +1,7 @@
 import * as cola from "webcola";
 import { IPluginItem } from "./pluginInstance.model";
 import { NodeId, INode } from "./tree-node.model";
-import * as _ from "lodash";
+import _ from "lodash";
 
 // Builds the webcola tree chart
 export interface ITreeChart {
