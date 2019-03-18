@@ -1,15 +1,17 @@
 import { action } from "typesafe-actions";
 import { PluginActionTypes } from "./types";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
-import UITreeNodeModel, { IUITreeNode } from "../../api/models/file-explorer";
+import {IFeedFile} from "../../api/models/feed-file.model";
+import UITreeNodeModel from "../../api/models/file-explorer";
+
 
 export const getPluginDescendantsRequest = (url: string) => action(PluginActionTypes.GET_PLUGIN_DESCENDANTS, url);
 export const getPluginDescendantsSuccess = (items: IPluginItem[]) => action(PluginActionTypes.GET_PLUGIN_DESCENDANTS_SUCCESS, items);
 
-export const getPluginFilesRequest = (url: string) =>  action(PluginActionTypes.GET_PLUGIN_FILES, url);
+export const getPluginFilesRequest = (selected: IPluginItem) =>  action(PluginActionTypes.GET_PLUGIN_FILES, selected);
 export const getPluginFilesSuccess = (items: IPluginItem[]) => action(PluginActionTypes.GET_PLUGIN_FILES_SUCCESS, items);
 // Description: Parse the files array into a File tree obj
-export const setExplorerSuccess = (items: IPluginItem[]) => action(PluginActionTypes.SET_EXPLORER_SUCCESS, UITreeNodeModel.parseUiTree(items));
+export const setExplorerSuccess = (items: IFeedFile[], selected: IPluginItem) => action(PluginActionTypes.SET_EXPLORER_SUCCESS, UITreeNodeModel.parseUiTree(items, selected));
 
 
 export const getPluginParametersRequest = (url: string) => action(PluginActionTypes.GET_PLUGIN_PARAMETERS, url);
