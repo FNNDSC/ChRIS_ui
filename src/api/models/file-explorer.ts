@@ -1,5 +1,4 @@
-// Builds the file explorer tree
-
+// Description: Builds the file explorer tree
 export interface IUITreeNode {
     module: string;
     children?: IUITreeNode[];

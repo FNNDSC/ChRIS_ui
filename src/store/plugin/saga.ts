@@ -7,6 +7,7 @@ import {
   getPluginFilesSuccess,
   getPluginParametersSuccess,
   getPluginFilesRequest,
+  setExplorerSuccess,
   getPluginParametersRequest
 } from "./actions";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
@@ -23,8 +24,7 @@ function* handleGetPluginDetails(action: any) {
     } else {
       yield put(getPluginDetailsSuccess(res));
       !!item.files && (yield put(getPluginFilesRequest(item.files)));
-      !!item.parameters &&
-        (yield put(getPluginParametersRequest(item.parameters)));
+      !!item.parameters && (yield put(getPluginParametersRequest(item.parameters)));
     }
   } catch (error) {
     console.error(error); // working user messaging
@@ -79,6 +79,7 @@ function* handleGetPluginFiles(action: any) {
       console.error(res.error); // working user messaging
     } else {
       yield put(getPluginFilesSuccess(res));
+      yield put(setExplorerSuccess(res)); // Structure the files for explorer
       // yield put(managerOnCompleteRequest()); // nO need for messaging just loading false
     }
   } catch (error) {

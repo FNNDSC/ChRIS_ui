@@ -1,11 +1,11 @@
 import axios, { AxiosRequestConfig } from "axios";
 import Client, { FeedList, IParams, IAuth } from "@fnndsc/chrisapi";
-import { ITemplate } from "./base.model";
+import { ITemplate, chrisId } from "./base.model";
 // These will come from ClienAPI ts definition when completed
 // NOTE: ***** working typings *****
 // ------------------------------------------
 export interface IFeedItem extends IFeedLinks {
-  id: number;
+  id: chrisId;
   creation_date: string;
   modification_date: string;
   name: string;
@@ -13,6 +13,7 @@ export interface IFeedItem extends IFeedLinks {
   template?: ITemplate;
 }
 
+// Description: urls for IFeed
 export interface IFeedLinks {
   url: string;
   files: string;
@@ -23,6 +24,7 @@ export interface IFeedLinks {
   taggings: string;
   plugin_instances: string;
 }
+
 // Set up defaults
 const defaultParams: IParams = { limit: 10, offset: 0 };
 const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
