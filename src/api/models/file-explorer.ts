@@ -105,7 +105,7 @@ const _resetWorkingObjects = () => {
   };
   _folderTemplate = {
     module: "",
-    collapsed: true,
+    collapsed: false,
     children: []
   };
   _fileTemplate = {
@@ -118,7 +118,7 @@ const _resetWorkingObjects = () => {
 
 let _folderTemplate: IUITreeNode = {
   module: "",
-  collapsed: true,
+  collapsed: false,
   children: []
 };
 let _fileTemplate: IUITreeNode = {
