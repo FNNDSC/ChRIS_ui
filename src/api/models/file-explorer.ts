@@ -13,90 +13,117 @@ export interface IUITreeNode {
 export default class UITreeNodeModel {
   // Description: Parse Plugin file array into IUITreeNode object
   static parseUiTree(items: IFeedFile[], selected: IPluginItem) {
-    // const feedName = `feed_${selected.feed_id}`;
+    _resetWorkingObjects();
     const pluginName = `${selected.plugin_name}_${selected.id}`;
     const root = `chris/feed_${selected.feed_id}/...`; // modules Name
-    // tslint:disable-next-line:prefer-const
-    let worker = {
-      module: root,
-      children: []
-    };
+    _worker.module = _previousItem = root;
 
-    ///// ***************************************************************** Working
     if (!!items && items.length) {
-      // let currentModule = worker.module;
-      //   console.log("parseUiTree  *****", items, selected, root);
       items.forEach((item: IFeedFile) => {
-        const fileName = item.fname;
-        // find the pluginName within the filename string then decompose the substring
-        const subFileName = fileName.substring(
-          fileName.indexOf(pluginName),
-          fileName.length
-        );
-        const fileArray = subFileName.split("/");
-        fileArray.forEach((item: string, i: number) => {
-          const isLeaf = i === fileArray.length - 1;
-          if (isLeaf) {
-            const leaf = { module: item, isLeaf };
-            (worker.children as any).push(leaf);
-          } else {
-            // this is a folder
-            const folder = {
-              module: item,
-              collapsed: true,
-              children: []
-            };
-            (worker.children as any).push(folder);
-          }
-        });
-        // worker = _.mergeWith(worker, newFileObj, customizer);
+        const fileArray = _convertFiletoArray(item, pluginName);
+        _parseFileArray(fileArray);
+        _previousItem = "root";
+        _previousObj = _worker;
       });
-
-     // console.log(" ***** worker ***** : ", worker);
-      // Description: add file to worker
     }
-    return tree;
+    return _worker;
   }
 }
 
-
-// function customizer(objValue: any, srcValue: any) {
-//   if (_.isArray(objValue)) {
-//     return  _.merge(objValue, srcValue);
-//   }
-// }
-
-// Add a file to object
-const _addFile = (fileArray: string[]) => {
-  let obj = {
-    module: undefined,
-    children: []
-  };
-  let currentChildren = obj.children;
+// Description: Go through array and add to _worker object
+const _parseFileArray = (fileArray: string[]) => {
   fileArray.forEach((item: string, i: number) => {
     const isLeaf = i === fileArray.length - 1;
-    if (isLeaf) {
-      const leaf = { module: item, isLeaf };
-      (currentChildren as any).push(leaf);
-    } else {
-      // this is a folder
-      const folder = {
-        module: item,
-        collapsed: true,
-        children: []
-      };
-      if (obj.module !== undefined) {
-        // console.log("obj.module is not undefined");
-        (currentChildren as any).push(folder);
-      } else {
-        obj = Object.assign(obj, folder);
-        // console.log("obj.module is Undefined", obj);
-      }
-      currentChildren = folder.children;
-    }
+    !isLeaf ? _AddFolder(item) : _addFile(item);
   });
+};
 
-  return obj;
+/// BUILDING THE TREE
+let _worker: IUITreeNode = {
+  module: "root",
+  children: []
+};
+let _previousItem = "root";
+let _previousObj = _worker;
+
+// Add or find a folder in the tree
+const _AddFolder = (item: string) => {
+  const newFolder = Object.assign({}, _folderTemplate, { module: item }); // This is what we will add
+  if (!!_previousObj && !!_previousObj.children) {
+    const newArr = _previousObj.children.slice();
+    const existinModule = _.find(newArr, { module: item });
+    if (!!!existinModule) {
+      newArr.push(newFolder);
+      _previousObj.children = newArr;
+    }
+  }
+  _findChildrenArr(item, _worker);
+  _previousItem = item;
+};
+const _addFile = (item: string) => {
+  const newFile = Object.assign({}, _fileTemplate, { module: item });
+  _findChildrenArr(_previousItem, _worker);
+  if (!!_previousObj && !!_previousObj.children) {
+    const newArr = _previousObj.children.slice();
+    newArr.push(newFile);
+    _previousObj.children = newArr;
+  }
+};
+
+// Description: Finds and returns an object with the module: "[item as name]"
+const _findChildrenArr = (item: string, node: IUITreeNode) => {
+  if (!!node.children) {
+    const resultArr = _.find(node.children, (o: IUITreeNode) => {
+      return o.module === item;
+    });
+    
+    if (!!resultArr) {
+      _previousObj = resultArr;
+      return resultArr;
+    } else if (!!node.children && node.children.length) {
+      node.children.forEach((subobj: IUITreeNode) => {
+        return _findChildrenArr(item, subobj);
+      });
+    }
+  }
+};
+// Description: convert file name into an array showing the folder structure by index and filename as last string in array
+const _convertFiletoArray = (item: IFeedFile, pluginName: string) => {
+  const fileName = item.fname;
+  // find the pluginName within the filename string then decompose the substring
+  return fileName
+    .substring(fileName.indexOf(pluginName), fileName.length)
+    .split("/");
+};
+
+// Description: reset objects to build tree
+const _resetWorkingObjects = () => {
+  _worker = {
+    module: "",
+    children: [
+    ]
+  };
+  _folderTemplate = {
+    module: "",
+    collapsed: true,
+    children: []
+  };
+  _fileTemplate = {
+    module: "",
+    leaf: true
+  };
+  _previousItem = "root";
+  _previousObj = _worker;
+};
+
+let _folderTemplate: IUITreeNode = {
+  module: "",
+  collapsed: true,
+  children: []
+};
+let _fileTemplate: IUITreeNode = {
+  module: "",
+  leaf: true
 };
 
 // TEMP WILL REMOVE AFTER PARSING FILES ARRAY for setExplorerSuccess ***** working
@@ -231,124 +258,3 @@ const tree: IUITreeNode = {
     }
   ]
 };
-
-// {
-//   module: "Output Dir",
-//   children: [
-//     {
-//       module: "Documents",
-//       collapsed: true,
-//       children: [
-//         {
-//           module: "node.js",
-//           leaf: true
-//         },
-//         {
-//           module: "react-ui-tree.css",
-//           leaf: true
-//         },
-//         {
-//           module: "react-ui-tree.js",
-//           leaf: true
-//         },
-//         {
-//           module: "tree.js",
-//           leaf: true
-//         }
-//       ]
-//     },
-//     {
-//       module: "Images",
-//       children: [
-//         {
-//           module: "app.js",
-//           leaf: true
-//         },
-//         {
-//           module: "app.less",
-//           leaf: true
-//         },
-//         {
-//           module: "index.html",
-//           leaf: true
-//         },
-//         {
-//           module: "inner folder",
-//           collapsed: true,
-//           children: [
-//             {
-//               module: "child1.txt",
-//               leaf: true
-//             },
-//             {
-//               module: "child2.txt",
-//               leaf: true
-//             },
-//             {
-//               module: "child3.txt",
-//               leaf: true
-//             },
-//             {
-//               module: "child4.txt",
-//               leaf: true
-//             },
-//             {
-//               module: "child5.txt",
-//               leaf: true
-//             },
-//             {
-//               module: "inner folder 2",
-//               collapsed: true,
-//               children: [
-//                 {
-//                   module: "child1.txt",
-//                   leaf: true
-//                 },
-//                 {
-//                   module: "child2.txt",
-//                   leaf: true
-//                 },
-//                 {
-//                   module: "child3.txt",
-//                   leaf: true
-//                 },
-//                 {
-//                   module: "child4.txt",
-//                   leaf: true
-//                 },
-//                 {
-//                   module: "child5.txt",
-//                   leaf: true
-//                 }
-//               ]
-//             }
-//           ]
-//         }
-//       ]
-//     },
-//     {
-//       module: "Videos",
-//       children: [
-//         {
-//           module: "node.js",
-//           leaf: true
-//         },
-//         {
-//           module: "react-ui-tree.js",
-//           leaf: true
-//         },
-//         {
-//           module: "react-ui-tree.less",
-//           leaf: true
-//         },
-//         {
-//           module: "tree.js",
-//           leaf: true
-//         }
-//       ]
-//     },
-//     {
-//       module: "Others"
-//     }
-//   ]
-// };

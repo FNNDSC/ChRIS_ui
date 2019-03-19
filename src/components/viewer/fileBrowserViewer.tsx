@@ -13,7 +13,6 @@ type AllProps = {
 const FileBrowserViewer: React.FunctionComponent<AllProps> = (
   props: AllProps
 ) => {
-  console.log("FileBrowserViewer", props.files);
   // Description: handle active node and render FileDetailView ***** working
   const setActiveNode = (node: any) => {
     /// TO BE DONE
