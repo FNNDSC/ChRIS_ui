@@ -9,7 +9,7 @@ type AllProps = {
   onClickNode: (node: IUITreeNode) => void;
 };
 
-class FileExplorer extends React.Component< AllProps,{ isActive: IUITreeNode } > {
+class FileExplorer extends React.Component< AllProps, { isActive: IUITreeNode } > {
   state = {
     isActive: this.props.explorer // Description: Set up root node as default activ state
   };
