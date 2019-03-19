@@ -6,17 +6,15 @@ import "./file-explorer.scss";
 import _ from "lodash";
 type AllProps = {
   explorer: IUITreeNode;
+  active: IUITreeNode;
   onClickNode: (node: IUITreeNode) => void;
 };
 
-class FileExplorer extends React.Component< AllProps, { isActive: IUITreeNode } > {
-  state = {
-    isActive: this.props.explorer // Description: Set up root node as default activ state
-  };
-
+class FileExplorer extends React.Component<AllProps> {
   // Description: Render node and determine active node
   renderNode = (node: IUITreeNode) => {
-    const isActive = _.isEqual(this.state.isActive, node);
+    const { active } = this.props;
+    const isActive = _.isEqual(active, node);
     const isFolder = !!!node.leaf;
     const isCollapsed = !!!node.collapsed;
     return (
@@ -31,11 +29,7 @@ class FileExplorer extends React.Component< AllProps, { isActive: IUITreeNode } 
 
   // Description: Set local state and pass new data up to parent
   onClickHandler = (node: IUITreeNode) => {
-    this.setState({
-      isActive: node
-    });
     this.props.onClickNode(node);
-    return false;
   }
 
   render() {
