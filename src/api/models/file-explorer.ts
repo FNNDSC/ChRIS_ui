@@ -8,9 +8,12 @@ export interface IUITreeNode {
   children?: IUITreeNode[];
   collapsed?: boolean;
   leaf?: boolean;
+  file?: any;
 }
 
+// Description: takes an array of files and build the file explorer tree
 export default class UITreeNodeModel {
+  private _items: IFeedFile[];
   private _worker: IUITreeNode = {
     module: "root",
     children: []
@@ -24,11 +27,13 @@ export default class UITreeNodeModel {
   };
   private _fileTemplate: IUITreeNode = {
     module: "",
-    leaf: true
+    leaf: true,
+    file: {}
   };
   tree: IUITreeNode = this._worker;
 
   constructor(items: IFeedFile[], selected: IPluginItem) {
+    this._items = items;
     this.parseUiTree(items, selected);
   }
   getTree = () => {
@@ -57,7 +62,7 @@ export default class UITreeNodeModel {
       const isLeaf = i === fileArray.length - 1;
       !isLeaf ? this._AddFolder(item) : this._addFile(item);
     });
-  };
+  }
 
   // Description: Add or find a folder in the tree
   private _AddFolder = (item: string) => {
@@ -76,7 +81,7 @@ export default class UITreeNodeModel {
 
   // Description: Add a File
   private _addFile = (item: string) => {
-    const newFile = Object.assign({}, this._fileTemplate, { module: item });
+    const newFile = Object.assign({}, this._fileTemplate, { module: item, file: this._fetchItem(item) });
     this._findChildrenArr(this._previousItem, this._worker);
     if (!!this._previousObj && !!this._previousObj.children) {
       const newArr = this._previousObj.children.slice();
@@ -85,6 +90,12 @@ export default class UITreeNodeModel {
     }
   }
 
+  // Description: Fetch the item from array
+  private _fetchItem = (item: string) => {
+    return _.find(this._items, (o: IFeedFile) => {
+      return (o.fname.indexOf(`/${item}`) > 0);
+    });
+  }
   // Description: Finds and returns an object with the module: "[item as name]"
   private _findChildrenArr = (item: string, node: IUITreeNode) => {
     if (!!node.children) {
