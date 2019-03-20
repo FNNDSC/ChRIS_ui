@@ -9,8 +9,6 @@ import {
   DownloadIcon,
   FolderIcon,
   OutlinedFileImageIcon,
-  OutlinedFileCodeIcon,
-  OutlinedFileAltIcon
 } from "@patternfly/react-icons";
 import { IUITreeNode } from "../../api/models/file-explorer";
 
@@ -50,7 +48,7 @@ const parseTableData = (node: IUITreeNode) => {
     ]
   };
 };
-
+// Description: Build each table data row
 const buildRow = (node: IUITreeNode) => {
   const arr = new Array();
   if (!!node.children && node.children.length) {
@@ -60,12 +58,19 @@ const buildRow = (node: IUITreeNode) => {
         {
           title: (
             <React.Fragment>
-              {isfile ? (
-                <OutlinedFileImageIcon />
-              ) : (
-                <FolderIcon color="#ffee99" />
-              )}{" "}
-              {child.module}
+              <a
+                className="black-900"
+                onClick={() => {
+                  console.log("Click");
+                }}
+              >
+                {isfile ? (
+                  <OutlinedFileImageIcon />
+                ) : (
+                  <FolderIcon color="#ffee99" />
+                )}
+                {child.module}
+              </a>
             </React.Fragment>
           )
         },
@@ -104,131 +109,4 @@ const getItemType = (item: IUITreeNode) => {
   return isfile ? `${ext} File` : "File folder";
 };
 
-// const data = {
-//   columns: ["Name", "Date", "Type", "Size", ""],
-//   rows: [
-//     [
-//       {
-//         title: (
-//           <React.Fragment>
-//             <FolderIcon color="#ffee99" /> Folder X
-//           </React.Fragment>
-//         )
-//       },
-//       "2 Jan 2019 @10:12",
-//       "File folder",
-//       "7.5 MB",
-//       {
-//         title: (
-// <a
-//   onClick={() => {
-//     console.log("Download");
-//   }}
-// >
-//   <DownloadIcon /> Download
-// </a>
-//         )
-//       }
-//     ],
-//     [
-//       {
-//         title: (
-//           <React.Fragment>
-//             <OutlinedFileImageIcon /> jobStatusSummary
-//           </React.Fragment>
-//         )
-//       },
-//       "2 Jan 2019 @10:12",
-//       ".json",
-//       "36.2 MB",
-//       {
-//         title: (
-//           <a
-//             onClick={() => {
-//               console.log("Download");
-//             }}
-//           >
-//             <DownloadIcon /> Download
-//           </a>
-//         )
-//       }
-//     ],
-//     [
-//       {
-//         title: (
-//           <React.Fragment>
-//             <OutlinedFileCodeIcon /> jobStatus
-//           </React.Fragment>
-//         )
-//       },
-//       "2 Jan 2019 @10:12",
-//       ".dcm",
-//       "36 MB",
-//       {
-//         title: (
-//           <a
-//             onClick={() => {
-//               console.log("Download");
-//             }}
-//           >
-//             <DownloadIcon /> Download
-//           </a>
-//         )
-//       }
-//     ],
-//     [
-//       {
-//         title: (
-//           <React.Fragment>
-//             <OutlinedFileCodeIcon /> output.meta
-//           </React.Fragment>
-//         )
-//       },
-//       "2 Jan 2019 @10:12",
-//       ".json",
-//       "35 MB",
-//       {
-//         title: (
-//           <a
-//             onClick={() => {
-//               console.log("Download");
-//             }}
-//           >
-//             <DownloadIcon /> Download
-//           </a>
-//         )
-//       }
-//     ],
-//     [
-//       {
-//         title: (
-//           <React.Fragment>
-//             <OutlinedFileAltIcon /> squashHereDir
-//           </React.Fragment>
-//         )
-//       },
-//       "2 Jan 2019 @10:12",
-//       ".txt",
-//       "35.8 KB",
-//       {
-//         title: (
-//           <a
-//             onClick={() => {
-//               console.log("Download");
-//             }}
-//           >
-//             <DownloadIcon /> Download
-//           </a>
-//         )
-//       }
-//     ]
-//   ],
-//   actions: [
-//     {
-//       title: "Download",
-//       onClick: (event: any, rowId: any) =>
-//         console.log("clicked on Some action, on row: ", rowId)
-//     }
-//   ]
-// };
 export default React.memo(FileDetailView);
