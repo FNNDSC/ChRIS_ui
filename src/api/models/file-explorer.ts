@@ -11,6 +11,13 @@ export interface IUITreeNode {
   file?: any;
 }
 
+// Description: get file type by file extention
+export function getFileExtension(item: IUITreeNode) {
+  const isfile = !!item.leaf && item.leaf;
+  return item.module.substring(item.module.lastIndexOf(".") + 1);
+}
+
+
 // Description: takes an array of files and build the file explorer tree
 export default class UITreeNodeModel {
   private _items: IFeedFile[];
@@ -23,6 +30,7 @@ export default class UITreeNodeModel {
   private _folderTemplate: IUITreeNode = {
     module: "",
     collapsed: false,
+    leaf: false,
     children: []
   };
   private _fileTemplate: IUITreeNode = {

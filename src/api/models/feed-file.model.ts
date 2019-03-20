@@ -11,7 +11,8 @@ export interface IFeedFile extends IFeedFileLinks {
 
 // Description: urls for IFeedFile
 export interface IFeedFileLinks {
-    url: string;
-    file_resource: string;
-    plugin_instances: string;
+  url: string;
+  file_resource: string;
+  plugin_instances: string;
 }
+
