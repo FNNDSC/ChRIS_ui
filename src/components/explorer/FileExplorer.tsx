@@ -32,6 +32,10 @@ class FileExplorer extends React.Component<AllProps> {
     this.props.onClickNode(node);
   }
 
+  componentDidMount() {
+    this._cancelNodeDraggables();
+  }
+
   render() {
     const {explorer} = this.props;
     return (
@@ -40,10 +44,21 @@ class FileExplorer extends React.Component<AllProps> {
           paddingLeft={20}
           tree={explorer}
           renderNode={this.renderNode} // renderNode(node) return react element
-          draggable={false} // not implemented in latest version
         />
       </div>
     );
+  }
+
+  // Desciption and Notes: function finds all nodes and disables the draggable function that comes with the react-ui-tree
+  // ***** To be develop: A full tree component that doesn't include draggable as default or make it optional
+  _cancelNodeDraggables(){
+    const arr = document.getElementsByClassName("m-node");
+    !!arr && Array.prototype.forEach.call(arr, (el: Element) => {
+      el.addEventListener("mousedown", (e: any) => { _inactivateMousedown(e); }, { passive: false });
+    });
+    const _inactivateMousedown = (e: MouseEvent) => {
+      e.stopPropagation();
+    };
   }
 }
 
