@@ -32,7 +32,6 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
   }
   render() {
     const { files, explorer } = this.props;
-
     return (
       (!!files && files.length && !!explorer ) && <div className="output-viewer">
         <Tabs
