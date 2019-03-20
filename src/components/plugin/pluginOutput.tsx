@@ -28,7 +28,7 @@ const PluginOutput: React.FunctionComponent<AllProps> = (props: AllProps) => {
     !!props.files && (
       <React.Fragment>
         <div>
-          <label>Data:</label>{" "}
+          <label>Data:</label>
           {!props.files.length ? (
             <span>
               <ExclamationCircleIcon color="#007bba" /> No files found

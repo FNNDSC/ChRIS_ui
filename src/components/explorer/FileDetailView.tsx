@@ -57,21 +57,7 @@ const buildRow = (node: IUITreeNode) => {
       const newRow = [
         {
           title: (
-            <React.Fragment>
-              <a
-                className="black-900"
-                onClick={() => {
-                  console.log("Click");
-                }}
-              >
-                {isfile ? (
-                  <OutlinedFileImageIcon />
-                ) : (
-                  <FolderIcon color="#ffee99" />
-                )}
-                {child.module}
-              </a>
-            </React.Fragment>
+            buildNameCellLink(child, isfile)
           )
         },
         "TBD",
@@ -79,19 +65,7 @@ const buildRow = (node: IUITreeNode) => {
         "7.5 MB - TBD",
         {
           title: (
-            <React.Fragment>
-              {isfile ? (
-                <a
-                  onClick={() => {
-                    console.log("Download");
-                  }}
-                >
-                  <DownloadIcon /> Download
-                </a>
-              ) : (
-                ""
-              )}
-            </React.Fragment>
+            buildActionCell(child, isfile)
           )
         }
       ];
@@ -100,6 +74,43 @@ const buildRow = (node: IUITreeNode) => {
   }
 
   return arr;
+};
+
+// Description: Build the file or folder name link
+const buildNameCellLink = (child: IUITreeNode, isfile: boolean) => {
+  return <React.Fragment>
+  <a
+    className="black-900"
+    onClick={() => {
+      console.log("Click");
+    }}
+  >
+    {isfile ? (
+      <OutlinedFileImageIcon />
+    ) : (
+      <FolderIcon color="#ffee99" />
+    )}
+    {child.module}
+  </a>
+</React.Fragment>;
+};
+
+
+// Description: Build the Download and other actions cell
+const buildActionCell = (child: IUITreeNode, isfile: boolean) => {
+  return <React.Fragment>
+  {isfile ? (
+    <a
+      onClick={() => {
+        console.log("Download");
+      }}
+    >
+      <DownloadIcon /> Download
+    </a>
+  ) : (
+    ""
+  )}
+</React.Fragment>;
 };
 
 // Description: get file type by file extention
