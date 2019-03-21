@@ -29,7 +29,6 @@ class FileExplorer extends React.Component<AllProps> {
 
   // Description: Set local state and pass new data up to parent
   onClickHandler = (node: IUITreeNode) => {
-    console.log(node, this.props.explorer);
     this.props.onClickNode(node);
   }
 
