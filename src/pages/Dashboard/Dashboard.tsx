@@ -20,9 +20,9 @@ class DashboardPage extends React.Component<AllProps> {
         </PageSection>
         <PageSection>
           {/* UnComment to render
-            <VolumeGrowth />
+            <SegmentAnalysis />
             */}
-          <SegmentAnalysis />
+          <VolumeGrowth />
           {children}
         </PageSection>
       </Wrapper>
