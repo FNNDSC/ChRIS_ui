@@ -10,25 +10,37 @@ import {
   FolderIcon,
   OutlinedFileImageIcon
 } from "@patternfly/react-icons";
+import FeedFileModel from "../../api/models/feed-file.model";
 import { IUITreeNode } from "../../api/models/file-explorer";
 import FileDetailView from "../explorer/FileDetailView";
-
+import { IAuth, FeedFile } from "@fnndsc/chrisapi";
 type AllProps = {
   active: IUITreeNode;
   onClickNode: (node: IUITreeNode) => void;
 };
 
 class FileTableView extends React.Component<AllProps> {
-
   // Description: handle file download ***** working - to be done
-  handleFileDownload(node: IUITreeNode){
-    // console.log("handleFileDownload:", node);
+
+  handleFileDownload(node: IUITreeNode) {
+    const auth: IAuth = {
+      token: `${window.sessionStorage.getItem("AUTH_TOKEN")}`
+    };
+    const downloadUrl = node.file.file_resource;
+    if (!!node.file) {
+      const test = FeedFileModel.getFileBlob(downloadUrl)
+        .then((result: any) => {
+          downloadFile(result.data, node.module);
+        })
+        .catch((error: any) => console.error("(1) Inside error:", error));
+    } else {
+      console.error("ERROR DOWNLOADING: download url is not defined");
+    }
   }
 
   render() {
     const { active } = this.props;
     const data = this.parseTableData(active);
-    console.log(active);
     const tableView = (
       <div className="pf-u-p-sm">
         <Table
@@ -42,7 +54,14 @@ class FileTableView extends React.Component<AllProps> {
         </Table>
       </div>
     );
-    return !!active.leaf && active.leaf ? <FileDetailView active={active} downloadFileNode={this.handleFileDownload} /> : tableView;
+    return !!active.leaf && active.leaf ? (
+      <FileDetailView
+        active={active}
+        downloadFileNode={this.handleFileDownload}
+      />
+    ) : (
+      tableView
+    );
   }
 
   // Build data table for
@@ -51,7 +70,7 @@ class FileTableView extends React.Component<AllProps> {
       columns: ["Name", "Date", "Type", "Size", ""],
       rows: this.buildRow(node)
     };
-  }
+  };
   // Description: Build each table data row
   buildRow = (node: IUITreeNode) => {
     const arr = new Array();
@@ -74,7 +93,7 @@ class FileTableView extends React.Component<AllProps> {
     }
 
     return arr;
-  }
+  };
 
   // Description: Build the file or folder name link
   buildNameCellLink = (child: IUITreeNode, isfile: boolean) => {
@@ -92,7 +111,7 @@ class FileTableView extends React.Component<AllProps> {
         </a>
       </React.Fragment>
     );
-  }
+  };
 
   // Description: Build the Download and other actions cell
   buildActionCell = (child: IUITreeNode, isfile: boolean) => {
@@ -111,7 +130,7 @@ class FileTableView extends React.Component<AllProps> {
         )}
       </React.Fragment>
     );
-  }
+  };
 
   // Description: get file type by file extention
   getItemType = (item: IUITreeNode) => {
@@ -119,6 +138,18 @@ class FileTableView extends React.Component<AllProps> {
     const ext = item.module.substring(item.module.lastIndexOf(".") + 1);
     return isfile ? `${ext} File` : "File folder";
   }
+}
+
+
+// Description: Download file
+function downloadFile(Fileblob: any, fileName: string) {
+  const url = window.URL.createObjectURL(new Blob([Fileblob]));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 export default React.memo(FileTableView);
