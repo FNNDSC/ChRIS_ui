@@ -23,10 +23,18 @@ const chartData = [
     null, null, null, null, null, null, null, null]
 ];
 
+const defaultChartData = [
+  ['age', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+  ['GOrbitalAverage', 100, 105, 110, 113, 117, 122, 127, 129, 130, 133, 140, 145, 145,
+    145, 146, 146, 144, 142],
+  ['GOrbitalPatient', null, null, 120, null, null, null, null, null, null, null,
+    null, null, null, null, null, null, null, null]
+];
+
 const xAxis = ['age', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
 
 
-class LineChart extends React.Component<ComponentProps, ComponentState> {
+class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   constructor(props : ComponentProps) {
     super(props);
 
@@ -38,7 +46,7 @@ class LineChart extends React.Component<ComponentProps, ComponentState> {
   }
 
   componentDidMount() {
-    this.renderChart(chartData);
+    this.renderChart(defaultChartData);
   }
 
   renderChart(inputChart: any) {
@@ -120,6 +128,8 @@ class LineChart extends React.Component<ComponentProps, ComponentState> {
       <div>
         <React.Fragment>
           <Typeahead
+            clearButton
+            defaultSelected={['GOrbital']}
             id="selector"
             multiple
             options={['GOrbital', 'SCentral']}
@@ -133,4 +143,4 @@ class LineChart extends React.Component<ComponentProps, ComponentState> {
   }
 }
 
-export default LineChart;
+export default VolumeGrowth;
