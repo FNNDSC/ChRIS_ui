@@ -2,6 +2,8 @@ import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import Wrapper from "../../containers/layout/PageWrapper";
 import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
+import LineChart from "./LineChart";
+import BarChart from "./BarChart";
 type AllProps = RouteComponentProps;
 
 class DashboardPage extends React.Component<AllProps> {
@@ -17,15 +19,7 @@ class DashboardPage extends React.Component<AllProps> {
           <h1>Hippocampal Volume</h1>
         </PageSection>
         <PageSection>
-          <div>
-            <h1 className="pf-u-mb-md">Welcome to ChRIS UI site's Dashboard</h1>
-              <Alert
-                aria-label="welcome wagon"
-                variant="info"
-                title="Welcome!"  >
-                Welcome to ChRIS UI site's Dashboard
-              </Alert>
-          </div>
+          <LineChart />
           {children}
         </PageSection>
       </Wrapper>
