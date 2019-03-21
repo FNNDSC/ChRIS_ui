@@ -10,7 +10,7 @@ const graphData = [
 const regions = ['G_and_S_frontomargin', 'G_orbital', 'G_temporal_middle',
                     'S_central', 'S_front_sup', 'S_temporal_inf'];
 
-class BarChart extends React.Component {
+class SegmentAnalysis extends React.Component {
   componentDidMount() {
     var chart = c3.generate({
       data: {
@@ -65,4 +65,4 @@ class BarChart extends React.Component {
   }
 }
 
-export default BarChart;
+export default SegmentAnalysis;
