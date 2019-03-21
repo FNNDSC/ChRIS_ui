@@ -40,10 +40,10 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
   }
 
   componentDidMount() {
-    this.renderChart(defaultChartData, defaultSegments);
+    this.callChart(defaultChartData, defaultSegments);
   }
 
-  renderChart(inputChart: any, segments: any) {
+  callChart(inputChart: any, segments: any) {
     var chart = c3.generate({
       data: {
         columns: inputChart,
@@ -118,7 +118,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
     }, () => {
       //Input processing
       processedData = this.setFilter();
-      this.renderChart(processedData, this.state.pushedSegments);
+      this.callChart(processedData, this.state.pushedSegments);
     });
   }
 
