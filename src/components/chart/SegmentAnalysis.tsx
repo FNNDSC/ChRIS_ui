@@ -20,11 +20,12 @@ const csvData = [
   ['STemporalInf', 25, 20]
 ];
 
-const defaultLeftHemisphere = ['leftHemisphere', 30, -20, 10, 40, -15, 25];
-const defaultRightHemisphere = ['rightHemisphere', 34, -16, 14, 44, -11, 20];
+const defaultLeftHemisphere = ['leftHemisphere', 30, -20, 25];
+const defaultRightHemisphere = ['rightHemisphere', 34, -16, 20];
 const defaultChartData = [ defaultLeftHemisphere, defaultRightHemisphere ];
+const defaultSegments = ['GSFrontToMargin', 'GOrbital', 'STemporalInf']
 
-const regions = ['GSFrontToMargin', 'GOrbital', 'GTemporalMiddle',
+const segments = ['GSFrontToMargin', 'GOrbital', 'GTemporalMiddle',
                     'SCentral', 'SFrontSup', 'STemporalInf'];
 
 class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
@@ -39,10 +40,10 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
   }
 
   componentDidMount() {
-    this.renderChart(defaultChartData);
+    this.renderChart(defaultChartData, defaultSegments);
   }
 
-  renderChart(inputChart: any) {
+  renderChart(inputChart: any, segments: any) {
     var chart = c3.generate({
       data: {
         columns: inputChart,
@@ -55,7 +56,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
       axis: {
         x: {
             type: 'category',
-            categories: this.state.pushedSegments,
+            categories: segments,
         },
         y: {
             label: {
@@ -117,7 +118,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
     }, () => {
       //Input processing
       processedData = this.setFilter();
-      this.renderChart(processedData);
+      this.renderChart(processedData, this.state.pushedSegments);
     });
   }
 
@@ -127,10 +128,10 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
         <React.Fragment>
           <Typeahead
             clearButton
-            defaultSelected={['GOrbital']}
+            defaultSelected={defaultSegments}
             id="selector"
             multiple
-            options={regions}
+            options={segments}
             placeholder="Choose a brain segment..."
             onChange={(selectedSegments) => this.changeData(selectedSegments)}
           />
