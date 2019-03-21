@@ -19,6 +19,9 @@ class DashboardPage extends React.Component<AllProps> {
           <h1>Hippocampal Volume</h1>
         </PageSection>
         <PageSection>
+          {/* UnComment to render
+            <VolumeGrowth />
+            */}
           <SegmentAnalysis />
           {children}
         </PageSection>
