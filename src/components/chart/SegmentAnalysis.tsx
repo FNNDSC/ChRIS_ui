@@ -2,19 +2,50 @@ import * as React from 'react';
 import * as c3 from 'c3';
 import { Typeahead } from "react-bootstrap-typeahead";
 
-const graphData = [
-  ['leftHemisphere', 30, -20, 10, 40, -15, 25],
-  ['rightHemisphere', 34, -16, 14, 44, -11, 20]
+interface ComponentProps {
+
+}
+
+interface ComponentState {
+    pushedSegments: [];
+}
+
+// csvData format [[segmentName1, LH1, RH1],[segmentName2, LH2, RH2]]
+const csvData = [
+  ['GSFrontToMargin', 30, 34],
+  ['GOrbital', -20, -16],
+  ['GTemporalMiddle', 10, 14],
+  ['SCentral', 40, 44],
+  ['SFrontSup', -15, -11],
+  ['STemporalInf', 25, 20]
 ];
 
-const regions = ['G_and_S_frontomargin', 'G_orbital', 'G_temporal_middle',
-                    'S_central', 'S_front_sup', 'S_temporal_inf'];
+const defaultLeftHemisphere = ['leftHemisphere', 30, -20, 10, 40, -15, 25];
+const defaultRightHemisphere = ['rightHemisphere', 34, -16, 14, 44, -11, 20];
+const defaultChartData = [ defaultLeftHemisphere, defaultRightHemisphere ];
 
-class SegmentAnalysis extends React.Component {
+const regions = ['GSFrontToMargin', 'GOrbital', 'GTemporalMiddle',
+                    'SCentral', 'SFrontSup', 'STemporalInf'];
+
+class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
+  constructor(props : ComponentProps) {
+    super(props);
+
+    this.state = {
+      pushedSegments: []
+    };
+
+    this.changeData = this.changeData.bind(this);
+  }
+
   componentDidMount() {
+    this.renderChart(defaultChartData);
+  }
+
+  renderChart(inputChart: any) {
     var chart = c3.generate({
       data: {
-        columns: graphData,
+        columns: inputChart,
         type: 'bar',
         colors: {
             leftHemisphere: '#FFA500',
@@ -24,7 +55,7 @@ class SegmentAnalysis extends React.Component {
       axis: {
         x: {
             type: 'category',
-            categories: regions,
+            categories: this.state.pushedSegments,
         },
         y: {
             label: {
@@ -47,16 +78,61 @@ class SegmentAnalysis extends React.Component {
     });
   }
 
+  parseData(filteredData: any) {
+    var leftHemisphereData = ['leftHemisphere'];
+    var rightHemisphereData = ['rightHemisphere'];
+    // Parse for the leftHemisphereData and rightHemisphereData
+    for(var i = 0; i < filteredData.length; i++){
+      leftHemisphereData.push(filteredData[i][1]);
+      rightHemisphereData.push(filteredData[i][2]);
+    }
+    return [leftHemisphereData, rightHemisphereData];
+  }
+
+  getSegmentData(segment: any){
+    var segmentData;
+    segmentData = csvData.find(function(segmentData) {
+      return (segmentData[0] === segment);
+    });
+    return segmentData;
+  }
+
+  setFilter(){
+    var filteredData : any[] = [];
+    var parsedData : any[] = [];
+    if(this.state.pushedSegments.length > 0) {
+        filteredData = this.state.pushedSegments.map(segment =>
+          this.getSegmentData(segment));
+    }
+    parsedData = this.parseData(filteredData);
+    // return parseData
+    return parsedData;
+  }
+
+  changeData(selectedSegments: any) {
+    // Call back function to avoid asynchronous setState
+    var processedData;
+    this.setState({
+      pushedSegments : selectedSegments
+    }, () => {
+      //Input processing
+      processedData = this.setFilter();
+      this.renderChart(processedData);
+    });
+  }
+
   render() {
     return (
       <div>
         <React.Fragment>
           <Typeahead
+            clearButton
+            defaultSelected={['GOrbital']}
             id="selector"
             multiple
-            options={['Segment1', 'Segment2', 'Segment3']}
+            options={regions}
             placeholder="Choose a brain segment..."
-            onChange={(e) => console.log(e)}
+            onChange={(selectedSegments) => this.changeData(selectedSegments)}
           />
         </React.Fragment>
         <div id="chart"></div>
