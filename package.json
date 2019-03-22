@@ -27,6 +27,7 @@
     "node-sass": "^4.11.0",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
+    "react-json-pretty": "^2.1.0",
     "react-moment": "^0.8.4",
     "react-redux": "^6.0.1",
     "react-router-dom": "^4.3.1",
