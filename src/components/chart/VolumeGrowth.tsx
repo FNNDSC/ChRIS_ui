@@ -58,6 +58,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
 
   callChart(inputChart: any) {
     var chart = c3.generate({
+      bindto: '#VolumeGrowth',
       data: {
         x: 'age',
         columns: inputChart,
@@ -146,7 +147,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
             onChange={(selectedSegments) => this.changeData(selectedSegments)}
           />
         </React.Fragment>
-        <div id="chart"></div>
+        <div id="VolumeGrowth"></div>
       </div>
     );
   }

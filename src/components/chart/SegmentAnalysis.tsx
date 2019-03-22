@@ -45,6 +45,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
 
   callChart(inputChart: any, segments: any) {
     var chart = c3.generate({
+      bindto: '#SegmentAnalysis',
       data: {
         columns: inputChart,
         type: 'bar',
@@ -106,7 +107,6 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
           this.getSegmentData(segment));
     }
     parsedData = this.parseData(filteredData);
-    // return parseData
     return parsedData;
   }
 
@@ -136,7 +136,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
             onChange={(selectedSegments) => this.changeData(selectedSegments)}
           />
         </React.Fragment>
-        <div id="chart"></div>
+        <div id="SegmentAnalysis"></div>
       </div>
     );
   }
