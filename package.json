@@ -67,13 +67,14 @@
       "js",
       "jsx",
       "json",
-      "ts"
+      "ts",
+      "tsx"
     ],
-  "testMatch": [
+    "testMatch": [
       "**/__tests__/**/*.(js|ts)?(x)",
       "**/?(*.)(spec|test).(js|ts)?(x)"
     ],
-  "transform": {
+    "transform": {
       "^.+\\.tsx?$": "babel-jest"
     }
   }
