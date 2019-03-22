@@ -26,3 +26,5 @@ yarn-error.log*
 
 # add local files for temp dev but ignore on commit
 /**/*/local
+
+/.idea
