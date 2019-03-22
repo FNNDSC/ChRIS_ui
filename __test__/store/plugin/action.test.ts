@@ -228,4 +228,3 @@ describe('actions of plugin', () => {
 		expect(getPluginDetailsSuccess(TestItem)).toEqual(expectedResult)
 		})
 });
-
