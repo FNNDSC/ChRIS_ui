@@ -2,8 +2,7 @@ import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import Wrapper from "../../containers/layout/PageWrapper";
 import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
-import VolumeGrowth from "../../components/chart/VolumeGrowth";
-import SegmentAnalysis from "../../components/chart/SegmentAnalysis";
+
 type AllProps = RouteComponentProps;
 
 class DashboardPage extends React.Component<AllProps> {
@@ -19,7 +18,12 @@ class DashboardPage extends React.Component<AllProps> {
           <h1>Hippocampal Volume</h1>
         </PageSection>
         <PageSection>
-        <VolumeGrowth /> 
+          <Alert
+                aria-label="welcome wagon"
+                variant="info"
+                title="Welcome!"  >
+                Welcome to ChRIS UI site's Dashboard
+              </Alert>
           {children}
         </PageSection>
       </Wrapper>
