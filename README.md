@@ -64,7 +64,7 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 
 ## Unit Test
 
-The unit test scripts are under ./__test__ folder and tested functions are under./src/store.
+The unit test scripts are under `./__test__` folder and tested functions are under `./src/store`.
 
 The tested functions are:
 * feed actions:
