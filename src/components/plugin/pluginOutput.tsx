@@ -24,6 +24,7 @@ const PluginOutput: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const handleModalToggle = () => {
     setValue(!isModalOpen);
   };
+
   return (
     !!props.files && (
       <React.Fragment>
