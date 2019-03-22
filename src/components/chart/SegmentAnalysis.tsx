@@ -2,6 +2,7 @@ import * as React from "react";
 import * as c3 from "c3";
 import { Typeahead } from "react-bootstrap-typeahead";
 import "./chart.scss";
+
 interface ComponentProps {
 
 }

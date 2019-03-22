@@ -49,8 +49,8 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
             <FileBrowserViewer files={files} explorer={explorer} />
           </Tab>
           <Tab eventKey={3} title="Charts">
-            {/* <VolumeGrowth /> */}
-            <SegmentAnalysis />
+            <VolumeGrowth />
+            {/* <SegmentAnalysis /> */}
           </Tab>
         </Tabs>
       </div>
