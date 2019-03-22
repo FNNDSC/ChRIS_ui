@@ -66,7 +66,7 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 
 The unit test scripts are under `./tests` folder and tested functions are under `./src/store`.
 
-The tested functions are all the actions of feed, message, plugin, ui, and user:
+The tested functions are all the actions of feed, message, plugin, ui, and user.
 
 ## Learn More
 
