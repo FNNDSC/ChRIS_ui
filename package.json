@@ -40,7 +40,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "jest",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -61,5 +61,20 @@
     "keymirror": "^0.1.1",
     "redux-logger": "^3.0.6",
     "tslint": "^5.13.1"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "json",
+      "ts"
+    ],
+  "testMatch": [
+      "**/__tests__/**/*.(js|ts)?(x)",
+      "**/?(*.)(spec|test).(js|ts)?(x)"
+    ],
+  "transform": {
+      "^.+\\.tsx?$": "babel-jest"
+    }
   }
 }
