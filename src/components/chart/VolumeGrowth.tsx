@@ -57,7 +57,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   }
 
   callChart(inputChart: any) {
-    var chart = c3.generate({
+    c3.generate({
       bindto: '#VolumeGrowth',
       data: {
         x: 'age',
@@ -99,14 +99,14 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   }
 
   getSegmentData(segment: string){
-    var segmentData = chartData.find(function(segmentData) {
+    const segmentData = chartData.find(function(segmentData) {
       return (segmentData[0] === segment);
     });
     return segmentData;
   }
 
   setFilter() {
-    var filteredData : any[] = [];
+    let filteredData : any[] = [];
     // Get the Patient data for the segment
     if(this.state.pushedSegments.length > 0) {
         filteredData = this.state.pushedSegments.map(segment =>
@@ -123,7 +123,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
 
   changeData(selectedSegments: any) {
     // Call back function to avoid asynchronous setState
-    var processedData;
+    let processedData;
     this.setState({
       pushedSegments : selectedSegments
     }, () => {

@@ -44,7 +44,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
   }
 
   callChart(inputChart: any, segments: any) {
-    var chart = c3.generate({
+    c3.generate({
       bindto: '#SegmentAnalysis',
       data: {
         columns: inputChart,
@@ -81,10 +81,10 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
   }
 
   parseData(filteredData: any) {
-    var leftHemisphereData = ['leftHemisphere'];
-    var rightHemisphereData = ['rightHemisphere'];
+    let leftHemisphereData = ['leftHemisphere'];
+    let rightHemisphereData = ['rightHemisphere'];
     // Parse for the leftHemisphereData and rightHemisphereData
-    for(var i = 0; i < filteredData.length; i++){
+    for(let i = 0; i < filteredData.length; i++){
       leftHemisphereData.push(filteredData[i][1]);
       rightHemisphereData.push(filteredData[i][2]);
     }
@@ -92,16 +92,15 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
   }
 
   getSegmentData(segment: any){
-    var segmentData;
-    segmentData = csvData.find(function(segmentData) {
+    const segmentData = csvData.find(function(segmentData) {
       return (segmentData[0] === segment);
     });
     return segmentData;
   }
 
   setFilter(){
-    var filteredData : any[] = [];
-    var parsedData : any[] = [];
+    let filteredData : any[] = [];
+    let parsedData : any[] = [];
     if(this.state.pushedSegments.length > 0) {
         filteredData = this.state.pushedSegments.map(segment =>
           this.getSegmentData(segment));
@@ -112,7 +111,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
 
   changeData(selectedSegments: any) {
     // Call back function to avoid asynchronous setState
-    var processedData;
+    let processedData;
     this.setState({
       pushedSegments : selectedSegments
     }, () => {
