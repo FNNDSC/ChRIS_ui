@@ -6,6 +6,7 @@ const initialState: IPluginState = {
   selected: undefined,
   descendants: undefined,
   files: [],
+  explorer: undefined,
   parameters: []
 };
 
@@ -14,6 +15,10 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
   switch (action.type) {
     case PluginActionTypes.GET_PLUGIN_FILES_SUCCESS: {
       return { ...state, files: action.payload.data.results };
+    }
+    // Description: Set the explorer object:
+    case PluginActionTypes.SET_EXPLORER_SUCCESS: {
+      return { ...state, explorer: action.payload };
     }
     case PluginActionTypes.GET_PLUGIN_PARAMETERS_SUCCESS: {
       return { ...state, parameters: action.payload.data.results };

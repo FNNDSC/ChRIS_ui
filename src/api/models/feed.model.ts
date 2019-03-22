@@ -1,18 +1,19 @@
 import axios, { AxiosRequestConfig } from "axios";
-import Client, { FeedList } from "@fnndsc/chrisapi";
-import { ITemplate } from "./base.model";
+import Client, { FeedList, IParams, IAuth } from "@fnndsc/chrisapi";
+import { ITemplate, chrisId } from "./base.model";
 // These will come from ClienAPI ts definition when completed
 // NOTE: ***** working typings *****
 // ------------------------------------------
 export interface IFeedItem extends IFeedLinks {
-  id: number;
+  id: chrisId;
   creation_date: string;
   modification_date: string;
   name: string;
-  template: ITemplate;
   creator_username: string;
+  template?: ITemplate;
 }
 
+// Description: urls for IFeed
 export interface IFeedLinks {
   url: string;
   files: string;
@@ -24,8 +25,10 @@ export interface IFeedLinks {
   plugin_instances: string;
 }
 
+// Set up defaults
+const defaultParams: IParams = { limit: 10, offset: 0 };
+const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
 export default class FeedModel {
-
   // Description: gets Feed information
   static getFeed(id: string) {
     const url = `${process.env.REACT_APP_CHRIS_UI_URL}${id}`;
@@ -48,7 +51,7 @@ export default class FeedModel {
   // ***** used in plugin instances list, Plugin descendants, more...
   // Param: url passed in with the response
   static fetchRequest(url: string) {
-     const auth = { token: window.sessionStorage.getItem("AUTH_TOKEN") };
+     const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
      const header = {
        "Content-Type": "application/vnd.collection+json",
        "Authorization": "Token " + auth.token
@@ -66,13 +69,11 @@ export default class FeedModel {
   // Using ChrisAPI - NOTE: Pending API adjustments and TS definition
   // ------------------------------------------------------------------------
   // Description: gets all feeds - using API
-  // static getFeeds() {
-  //   const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
-  //   const auth = { token: window.sessionStorage.getItem("AUTH_TOKEN") };
-  //   const client = new Client(url, auth);
-  //   const params = { limit: 10, offset: 0 };
-  //   return client.getFeeds(params);
-  // }
+  static getFeeds() {
+    const auth: IAuth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
+    const client = new Client(url, auth);
+    return client.getFeeds(defaultParams);
+  }
 
   // Description: Get Plugin instance using API - will be moved to a different class
   // static getPluginInstanceAPI(id: string) {

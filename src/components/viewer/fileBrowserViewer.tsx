@@ -1,18 +1,23 @@
-import * as React from "react";
+import React, {useState} from "react";
 import { Grid, GridItem } from "@patternfly/react-core";
+import { IFeedFile } from "../../api/models/feed-file.model";
+import { IUITreeNode } from "../../api/models/file-explorer";
 import FileExplorer from "../explorer/FileExplorer";
-import FileDetailView from "../explorer/FileDetailView";
+import FileTableView from "../explorer/FileTableView";
+
 type AllProps = {
-  data: any[];
+  files: IFeedFile[];
+  explorer: IUITreeNode;
 };
 
 const FileBrowserViewer: React.FunctionComponent<AllProps> = (
   props: AllProps
 ) => {
+  const [activeNode, setActiveNodeState] = useState(props.explorer); // Temp - set to false
 
   // Description: handle active node and render FileDetailView ***** working
-  const setActiveNode = (node: any) => {
-    /// TO BE DONE
+  const setActiveNode = (node: IUITreeNode) => {
+    setActiveNodeState(node);
   };
 
   return (
@@ -20,11 +25,14 @@ const FileBrowserViewer: React.FunctionComponent<AllProps> = (
       <Grid>
         <GridItem className="pf-u-p-sm" sm={12} md={3}>
           {/* Left nav - file explorer tree: */}
-          <FileExplorer data={props.data} onClickNode={setActiveNode} />
+          <FileExplorer
+            explorer={props.explorer}
+            active={activeNode}
+            onClickNode={setActiveNode}  />
         </GridItem>
         <GridItem className="pf-u-p-sm" sm={12} md={9}>
           {/* Right container - display file table: */}
-          <FileDetailView data={props.data} />
+          <FileTableView active={activeNode} onClickNode={setActiveNode}  />
         </GridItem>
       </Grid>
     </div>
