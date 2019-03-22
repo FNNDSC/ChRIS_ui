@@ -1,5 +1,6 @@
 import * as React from "react";
 import imgPlaceholder from "../../assets/images/view-dicom-image-ph.png";
+import brainImgPlaceholder from "../../assets/images/heatmap-example-135.png";
 import { IFeedFile } from "../../api/models/feed-file.model";
 type AllProps = {
   files: IFeedFile[];
@@ -17,7 +18,7 @@ const DicomViewer: React.FunctionComponent<AllProps> = (props: AllProps) => {
         />
       ) : (
         <React.Fragment>
-          <img src={imgPlaceholder} alt="placeholder for DICOM Images" />
+          <img src={brainImgPlaceholder} alt="placeholder for DICOM Images" />
           <small>
             <b>Note:</b> Underlying images are normative and do <b>not</b>{" "}
             represent the original scans the falues being compared came from.
