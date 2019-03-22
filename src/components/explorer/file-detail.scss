@@ -22,13 +22,26 @@
 }
 // Iframe to display the file contents
 .file-iframe{
-  border: solid 1px #ddd;
-  border-radius: 4px;
-  height: calc(100vh - 250px);
-  margin: 0 auto;
-  max-width: 100%;
-  padding: 1rem;
-  width: 100%;
+  height: 100%;
+  .default-display{
+    border: solid 1px #eee;
+    border-radius: 4px;
+    max-width: 700px;
+    iframe{
+      height: calc(100vh - 280px);
+      margin: 0 auto;
+      padding: 5px;
+      width: 100%;
+    }
+  }
+ 
+  .json-display{
+    background: #f8f9fa;
+    border: solid 1px #eee;
+    border-radius: 4px;
+    padding: 1rem;
+    overflow: auto;
+  }
 }
 .header-panel{
   h1{
