@@ -1,13 +1,12 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { createBrowserHistory } from 'history';
-import configureStore from './store/configureStore';
-import './lib/fontawesome-config';
-import Main from './main';
-import * as serviceWorker from './serviceWorker';
-import './assets/scss/main.scss';
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
-import 'react-bootstrap-typeahead/css/Typeahead.css';
+import React from "react";
+import ReactDOM from "react-dom";
+import { createBrowserHistory } from "history";
+import configureStore from "./store/configureStore";
+import "./lib/fontawesome-config";
+import Main from "./main";
+import * as serviceWorker from "./serviceWorker";
+import "./assets/scss/main.scss";
+
 
 // Description: Set up store configurations
 const history = createBrowserHistory();
