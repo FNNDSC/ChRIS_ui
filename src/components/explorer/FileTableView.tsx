@@ -11,33 +11,15 @@ import {
   OutlinedFileImageIcon
 } from "@patternfly/react-icons";
 import FeedFileModel from "../../api/models/feed-file.model";
-import { IUITreeNode } from "../../api/models/file-explorer";
+import { IUITreeNode, getFileExtension } from "../../api/models/file-explorer";
 import FileDetailView from "../explorer/FileDetailView";
-import { IAuth, FeedFile } from "@fnndsc/chrisapi";
+
 type AllProps = {
   active: IUITreeNode;
   onClickNode: (node: IUITreeNode) => void;
 };
 
 class FileTableView extends React.Component<AllProps> {
-  // Description: handle file download ***** working - to be done
-
-  handleFileDownload(node: IUITreeNode) {
-    const auth: IAuth = {
-      token: `${window.sessionStorage.getItem("AUTH_TOKEN")}`
-    };
-    const downloadUrl = node.file.file_resource;
-    if (!!node.file) {
-      const test = FeedFileModel.getFileBlob(downloadUrl)
-        .then((result: any) => {
-          downloadFile(result.data, node.module);
-        })
-        .catch((error: any) => console.error("(1) Inside error:", error));
-    } else {
-      console.error("ERROR DOWNLOADING: download url is not defined");
-    }
-  }
-
   render() {
     const { active } = this.props;
     const data = this.parseTableData(active);
@@ -64,13 +46,28 @@ class FileTableView extends React.Component<AllProps> {
     );
   }
 
+  // Description: handle file download
+  handleFileDownload(node: IUITreeNode) {
+    const downloadUrl = node.file.file_resource;
+    if (!!node.file) {
+      FeedFileModel.getFileBlob(downloadUrl)
+        .then((result: any) => {
+          downloadFile(result.data, node.module);
+        })
+        .catch((error: any) => console.error("(1) Inside error:", error));
+    } else {
+      console.error("ERROR DOWNLOADING: download url is not defined");
+    }
+  }
+
   // Build data table for
   parseTableData = (node: IUITreeNode) => {
     return {
       columns: ["Name", "Date", "Type", "Size", ""],
       rows: this.buildRow(node)
     };
-  };
+  }
+
   // Description: Build each table data row
   buildRow = (node: IUITreeNode) => {
     const arr = new Array();
@@ -82,7 +79,7 @@ class FileTableView extends React.Component<AllProps> {
             title: this.buildNameCellLink(child, isfile)
           },
           "TBD",
-          this.getItemType(child),
+          <span className="capitalize">{this.getItemType(child)}</span>,
           "7.5 MB - TBD",
           {
             title: this.buildActionCell(child, isfile)
@@ -91,9 +88,8 @@ class FileTableView extends React.Component<AllProps> {
         arr.push(newRow);
       });
     }
-
     return arr;
-  };
+  }
 
   // Description: Build the file or folder name link
   buildNameCellLink = (child: IUITreeNode, isfile: boolean) => {
@@ -111,7 +107,7 @@ class FileTableView extends React.Component<AllProps> {
         </a>
       </React.Fragment>
     );
-  };
+  }
 
   // Description: Build the Download and other actions cell
   buildActionCell = (child: IUITreeNode, isfile: boolean) => {
@@ -130,16 +126,14 @@ class FileTableView extends React.Component<AllProps> {
         )}
       </React.Fragment>
     );
-  };
+  }
 
   // Description: get file type by file extention
   getItemType = (item: IUITreeNode) => {
     const isfile = !!item.leaf && item.leaf;
-    const ext = item.module.substring(item.module.lastIndexOf(".") + 1);
-    return isfile ? `${ext} File` : "File folder";
+    return isfile ? `${getFileExtension(item)} File` : "File folder";
   }
 }
-
 
 // Description: Download file
 function downloadFile(Fileblob: any, fileName: string) {

@@ -20,3 +20,19 @@
     }
   }
 }
+// Iframe to display the file contents
+.file-iframe{
+  border: solid 1px #ddd;
+  border-radius: 4px;
+  height: calc(100vh - 250px);
+  margin: 0 auto;
+  max-width: 100%;
+  padding: 1rem;
+  width: 100%;
+}
+.header-panel{
+  h1{
+    padding-top:15px;
+    margin-bottom: 5px;
+  }
+}
