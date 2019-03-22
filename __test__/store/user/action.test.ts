@@ -47,5 +47,4 @@ describe('actions of user', () => {
 		}
 		expect(setUserLogout()).toEqual(expectedResult)
 	})
-
 })

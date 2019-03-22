@@ -2,16 +2,21 @@ import React from 'react';
 import { FeedActionTypes,  } from "../../../src/store/feed/types";
 import { IFeedItem } from "../../../src/api/models/feed.model";
 import { IPluginItem } from "../../../src/api/models/pluginInstance.model";
-import * as actions from "../../../src/store/feed/actions"; 
+import {
+  getFeedDetailsRequest,
+  getFeedDetailsSuccess,
+  getPluginInstanceListRequest,
+  getPluginInstanceListSuccess,
+  destroyFeed } from "../../../src/store/feed/actions";
 
-describe('actions', () => {
+describe('feed actions', () => {
   it('getFeedDetailsRequest should return correct types', () => {
     const id: string = 'testID'
     const expectedAction = {
       type: FeedActionTypes.GET_FEED_DETAILS,
       payload: id
     }
-    expect(actions.getFeedDetailsRequest(id)).toEqual(expectedAction)
+    expect(getFeedDetailsRequest(id)).toEqual(expectedAction)
   })
 
   it('getFeedDetailsSuccess should return correct types', () => {
@@ -42,7 +47,7 @@ describe('actions', () => {
       payload:TestIFeedItem
     }
     
-    expect(actions.getFeedDetailsSuccess(TestIFeedItem)).toEqual(expectedAction)
+    expect(getFeedDetailsSuccess(TestIFeedItem)).toEqual(expectedAction)
   })
 
   it('getPluginInstanceListRequest should return correct types', () => {
@@ -51,7 +56,7 @@ describe('actions', () => {
       type: FeedActionTypes.GET_PLUGIN_INSTANCES,
       payload: url
     }
-    expect(actions.getPluginInstanceListRequest(url)).toEqual(expectedAction)
+    expect(getPluginInstanceListRequest(url)).toEqual(expectedAction)
   })
 
   it('getPluginInstanceListSuccess should return correct types', () => {
@@ -85,13 +90,13 @@ describe('actions', () => {
       type: FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS,
       payload: items
     }
-    expect(actions.getPluginInstanceListSuccess(items)).toEqual(expectedAction)
+    expect(getPluginInstanceListSuccess(items)).toEqual(expectedAction)
   })
 
   it('destroyFeed should return correct types', () => {
     const expectedAction = {
       type: FeedActionTypes.RESET_STATE,
     }
-    expect(actions.destroyFeed()).toEqual(expectedAction)
+    expect(destroyFeed()).toEqual(expectedAction)
   })
 })
