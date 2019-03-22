@@ -5,10 +5,11 @@ import {
   EyeIcon,
   DownloadIcon
 } from "@patternfly/react-icons";
+import { IFeedFile } from "../../api/models/feed-file.model";
 import PluginViewerModal from "./PluginViewerModal";
 
 type AllProps = {
-  files: any[];
+  files: IFeedFile[];
   handleDownloadData: () => void;
   handleViewData: () => void;
 };
@@ -19,15 +20,16 @@ const PluginOutput: React.FunctionComponent<AllProps> = (props: AllProps) => {
   };
 
   // Set local state hook
-  const [isModalOpen, setValue] = useState(false);
+  const [isModalOpen, setValue] = useState(false); // Temp - set to false
   const handleModalToggle = () => {
     setValue(!isModalOpen);
   };
+
   return (
     !!props.files && (
       <React.Fragment>
         <div>
-          <label>Data:</label>{" "}
+          <label>Data:</label>
           {!props.files.length ? (
             <span>
               <ExclamationCircleIcon color="#007bba" /> No files found

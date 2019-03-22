@@ -1,8 +1,9 @@
+import { chrisId } from "./base.model";
 import { IPluginItem } from "./pluginInstance.model";
-import * as _ from "lodash";
+import _ from "lodash";
 
 
-export type NodeId = number | string | undefined;
+export type NodeId = chrisId | undefined;
 export interface INode {
   // extends cola.Node extends SVGSVGElement
   item: IPluginItem;

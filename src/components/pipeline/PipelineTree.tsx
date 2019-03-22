@@ -1,4 +1,4 @@
-import React, { createRef, RefObject } from "react";
+import React, { createRef } from "react";
 import * as d3 from "d3";
 import * as cola from "webcola";
 import TreeModel, { ITreeChart } from "../../api/models/tree.model";

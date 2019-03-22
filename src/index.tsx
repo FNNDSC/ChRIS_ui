@@ -14,6 +14,6 @@ const history = createBrowserHistory();
 const store = configureStore(history);
 ReactDOM.render(
   <Main store={store} history={history} />,
-  document.getElementById('root'));
+  document.getElementById("root"));
 
 serviceWorker.unregister();

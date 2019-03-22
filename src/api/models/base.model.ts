@@ -1,3 +1,7 @@
+// Chris API base id type
+export type chrisId =  number | string;
+
+
 // Base Chris API objects
 export interface ICollection {
     version: string;
@@ -7,14 +11,14 @@ export interface ICollection {
 }
 
 export interface IItem {
-    data: IDatum[];
+    data: IDatum[]; //
     href: string;
     links: ILink[];
 }
 
 export interface IDatum {
     name: string;
-    value: number | string;
+    value: chrisId;
 }
 
 export interface ILink {
