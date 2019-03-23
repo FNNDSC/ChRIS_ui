@@ -9,3 +9,4 @@ declare module "@patternfly/react-table";
 declare module "d3v4";
 
 declare module "react-ui-tree";
+declare module "react-json-pretty";

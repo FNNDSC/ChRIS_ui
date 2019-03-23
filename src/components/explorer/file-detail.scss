@@ -1,0 +1,52 @@
+/*
+*  File:            file-detail.scss
+*  Description:     This files holds styles specific for the file explorer tab
+*  Author:          ChRIS UI
+*/
+
+@import "../../assets/scss/helpers/variables";
+@import "../../assets/scss/helpers/mixins";
+@import "../../assets/scss/vendors/react-ui-tree";
+
+// File detail view
+// -----------------------------------------------
+.file-detail{
+  .pf-c-alert{
+    max-width: 700px;
+    margin: 1rem 3rem;
+    label{
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+// Iframe to display the file contents
+.file-iframe{
+  min-height: calc(100vh - 280px);
+  .default-display{
+    border: solid 1px #eee;
+    border-radius: 4px;
+    max-width: 700px;
+    iframe{
+      height: calc(100vh - 280px);
+      margin: 0 auto;
+      padding: 5px;
+      width: 100%;
+    }
+  }
+ 
+  .json-display{
+    background: #f8f9fa;
+    border: solid 1px #eee;
+    border-radius: 4px;
+    padding: 1rem;
+    min-height: calc(100vh - 280px);
+    overflow: auto;
+  }
+}
+.header-panel{
+  h1{
+    padding-top:15px;
+    margin-bottom: 5px;
+  }
+}
