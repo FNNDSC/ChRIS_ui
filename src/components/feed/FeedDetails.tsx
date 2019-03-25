@@ -28,7 +28,7 @@ class FeedDetails extends React.Component<AllProps> {
                 <small>Created</small>
                 <p>
                   <FontAwesomeIcon icon={["far", "calendar-alt"]} />
-                  <Moment format="DD MMM YYYY @ HH:mm A">
+                  <Moment format="DD MMM YYYY @ HH:mm">
                     {details.creation_date}
                   </Moment>
                 </p>
@@ -37,7 +37,7 @@ class FeedDetails extends React.Component<AllProps> {
                 <small>End Date</small>
                 <p>
                   <FontAwesomeIcon icon={["far", "calendar-alt"]} />
-                  <Moment format="DD MMM YYYY @ HH:mm A">
+                  <Moment format="DD MMM YYYY @ HH:mm">
                     {details.modification_date}
                   </Moment>
                 </p>
