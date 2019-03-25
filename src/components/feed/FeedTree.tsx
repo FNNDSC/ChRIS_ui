@@ -55,6 +55,7 @@ class FeedTree extends React.Component<AllProps> {
     tree: ITreeChart,
     treeDiv: React.RefObject<HTMLDivElement>
   ) => {
+    const labelMaxChar = 12;
     const width =
         !!treeDiv.current && treeDiv.current.clientWidth > 0
           ? treeDiv.current.clientWidth
@@ -75,10 +76,11 @@ class FeedTree extends React.Component<AllProps> {
     const nodeRadius = 8;
     tree.nodes.forEach((v: any) => {
       v.height = v.width = 2 * nodeRadius;
+      const label = (!!v.item.title && v.item.title.length) ? v.item.title: v.item.plugin_name;
       v.label =
-        v.item.plugin_name.length > 7
-          ? `${v.item.plugin_name.substring(0, 7)}...`
-          : v.item.plugin_name;
+        label.length > labelMaxChar
+          ? `${label.substring(0, labelMaxChar)}...`
+          : label;
     });
 
 

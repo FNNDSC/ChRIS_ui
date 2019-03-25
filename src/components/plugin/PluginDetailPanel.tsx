@@ -14,6 +14,7 @@ import PluginInformation from "./pluginInformation";
 import PluginConfiguration from "./pluginConfiguration";
 import PluginOutput from "./pluginOutput";
 import "./plugin.scss";
+import { getPluginInstanceTitle } from "../../api/models/pluginInstance.model";
 
 interface IState {
   expanded: string[];
@@ -65,7 +66,7 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
     return (
       !!selected && (
         <React.Fragment>
-          <h1 className="capitalize">{selected.plugin_name}</h1>
+          <h1 className="capitalize">{getPluginInstanceTitle(selected)}</h1>
           <Grid>
             <GridItem className="plugin-details" sm={12} md={4}>
               <DataList aria-label="Plugin Description">
@@ -74,7 +75,7 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                   isExpanded={this.state.expanded.includes("plugin-detail")}
                 >
                   <div className="datalist-header">
-                    <span className="capitalize">{selected.plugin_name}</span>
+                    <span className="capitalize">{getPluginInstanceTitle(selected)}</span>
                     <DataListToggle
                       onClick={() => toggle("plugin-detail")}
                       isExpanded={this.state.expanded.includes("plugin-detail")}
@@ -155,6 +156,10 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
       )
     );
   }
+
+  // getTitle(selected: IPluginItem){
+  //   return (!!selected.title &&  selected.title.length) ? selected.title : selected.plugin_name;
+  // }
 }
 
 const mapStateToProps = ({ plugin }: ApplicationState) => ({
