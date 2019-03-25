@@ -1,0 +1,12 @@
+/*
+*  File:            charts.scss
+*  Description:     This files holds styles specific for charting
+*  Author:          ChRIS UI
+*/
+
+@import '~bootstrap/dist/css/bootstrap.min.css';
+@import '~react-bootstrap-typeahead/css/Typeahead.css';
+
+.chart-viewer{
+    margin: 2rem;
+}
