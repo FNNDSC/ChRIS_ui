@@ -8,6 +8,8 @@ import { IUITreeNode } from "../../api/models/file-explorer";
 import DicomViewer from "./dicomViewer";
 import DataTableViewer from "./dataTableViewer";
 import FileBrowserViewer from "./fileBrowserViewer";
+import VolumeGrowth from "../../components/chart/VolumeGrowth";
+import SegmentAnalysis from "../../components/chart/SegmentAnalysis";
 import "./viewer.scss";
 
 type AllProps = {
@@ -37,7 +39,7 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
         <Tabs
           activeKey={this.state.activeTabKey}
           onSelect={this.handleTabClick} >
-          <Tab eventKey={0} title="DICOM Viewer">
+          <Tab eventKey={0} title="Viewer">
             <DicomViewer files={files} />
           </Tab>
           <Tab eventKey={1} title="Data Table">
@@ -45,6 +47,10 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
           </Tab>
           <Tab eventKey={2} title="File Browser">
             <FileBrowserViewer files={files} explorer={explorer} />
+          </Tab>
+          <Tab eventKey={3} title="Charts">
+            <VolumeGrowth />
+            {/* <SegmentAnalysis /> */}
           </Tab>
         </Tabs>
       </div>
