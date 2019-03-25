@@ -17,13 +17,7 @@ const DicomViewer: React.FunctionComponent<AllProps> = (props: AllProps) => {
           width="100%"
         />
       ) : (
-        <React.Fragment>
-          <img src={brainImgPlaceholder} alt="placeholder for DICOM Images" />
-          <small>
-            <b>Note:</b> Underlying images are normative and do <b>not</b>{" "}
-            represent the original scans the falues being compared came from.
-          </small>
-        </React.Fragment>
+        <img src={brainImgPlaceholder} alt="placeholder for DICOM Images" />
       )}
     </div>
   );

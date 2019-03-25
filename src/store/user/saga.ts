@@ -2,7 +2,7 @@ import { all, call, fork, put, takeEvery } from "redux-saga/effects";
 import { push } from "connected-react-router";
 import Client from "@fnndsc/chrisapi";
 import { UserActionTypes } from "./types";
-import { getAuthTokenSuccess, setUserLogout } from "./actions";
+import { getAuthTokenSuccess } from "./actions";
 
 // ----------------------------------------------------------------
 // Description: List - Get all Users
