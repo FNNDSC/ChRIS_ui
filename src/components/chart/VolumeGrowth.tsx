@@ -75,8 +75,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
       padding: {
         top: 30,
         bottom: 20,
-        left: 20,
-        right: 40
+        right: 30
       },
       axis: {
         x: {
@@ -94,8 +93,11 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
       },
       tooltip: {
         format: {
-            title (d) { return d + " Months old"; },
+            title(d) { return d + " Months old"; },
         }
+      },
+      size: {
+        height: 500 // **** Working find the element and resize to modal
       }
     });
   }

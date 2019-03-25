@@ -37,3 +37,28 @@
         }
     }
 }
+
+.c3{
+    max-width: 100%;
+    .c3-legend-item text{
+        font-size: 14px;
+    }
+    .c3-axis-y{
+        .tick
+        {
+            font-size: 12px; 
+        }
+        .c3-axis-y-label{
+            font-size: 14px; 
+        }
+    } 
+    .c3-axis-x{
+        .tick
+        {
+            font-size: 12px; 
+        }
+        .c3-axis-x-label{
+            font-size: 14px; 
+        }
+    } 
+} 

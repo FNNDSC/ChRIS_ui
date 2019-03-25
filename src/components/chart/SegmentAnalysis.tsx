@@ -77,8 +77,10 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
       padding: {
         top: 30,
         bottom: 20,
-        left: 20,
-        right: 40
+        right: 20
+      },
+      size: {
+        height: 500 // **** Working find the element and resize to modal
       }
     });
   }
