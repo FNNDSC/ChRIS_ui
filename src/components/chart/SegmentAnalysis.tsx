@@ -76,7 +76,9 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
       },
       padding: {
         top: 30,
-        bottom: 20
+        bottom: 20,
+        left: 20,
+        right: 40
       }
     });
   }

@@ -6,7 +6,34 @@
 
 @import '~bootstrap/dist/css/bootstrap.min.css';
 @import '~react-bootstrap-typeahead/css/Typeahead.css';
+@import '../../assets/scss/helpers/pf4-variables'; 
+@import '../../assets/scss/helpers/variables'; 
 
 .chart-viewer{
     margin: 2rem;
+    .rbt-input-multi{
+        padding: 5px 34px 5px 12px;
+       
+    }
+    .rbt-close{
+        margin-top:3px;
+    }
+    .dropdown-menu{
+        margin-top:0;
+    }
+    .rbt-token{
+        background: var(--pf-global--Color--light-100);
+        border:solid 1px  var(--pf-global--Color--dark-200);
+        border-radius: 3px;
+        color: $pf-color-black-900;
+        font-size: 14px;
+        line-height: 1em;
+        margin: 0 5px 4px 0;
+        padding: 8px 30px 4px 10px;
+        button{
+            font-size: 18px;
+            padding-top:8px;
+            margin-top:0;
+        }
+    }
 }
