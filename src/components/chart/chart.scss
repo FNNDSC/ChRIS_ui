@@ -9,6 +9,7 @@
 @import '../../assets/scss/helpers/pf4-variables'; 
 @import '../../assets/scss/helpers/variables'; 
 
+
 .chart-viewer{
     margin: 2rem;
     .rbt-input-multi{
@@ -39,7 +40,7 @@
 }
 
 .c3{
-    max-width: 100%;
+    max-width:calc(100%-128px);
     .c3-legend-item text{
         font-size: 14px;
     }
