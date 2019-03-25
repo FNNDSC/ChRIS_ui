@@ -72,7 +72,7 @@ class FileDetailView extends React.Component<AllProps, IState> {
       const url = window.URL.createObjectURL(new Blob([blob]));
       return (
         <div>
-          <div className="header-panel">
+          <div className={`header-panel ${this.state.fileType !== "json" && "sm"}`}>
             {this.renderDownloadButton()}
             <h1>
               File Preview: <b>{active.module}</b>

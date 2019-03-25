@@ -75,7 +75,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
         }
       },
       padding: {
-        top: 30,
+        top: 40,
         bottom: 20,
         right: 20
       },
@@ -89,6 +89,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
     const leftHemisphereData = ["leftHemisphere"];
     const rightHemisphereData = ["rightHemisphere"];
     // Parse for the leftHemisphereData and rightHemisphereData
+    // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < filteredData.length; i++) {
       leftHemisphereData.push(filteredData[i][1]);
       rightHemisphereData.push(filteredData[i][2]);
@@ -97,7 +98,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
   }
 
   getSegmentData(segment: any) {
-    const segmentData = csvData.find(function(segmentData) {
+    const segmentData = csvData.find((segmentData) => {
       return (segmentData[0] === segment);
     });
     return segmentData;
