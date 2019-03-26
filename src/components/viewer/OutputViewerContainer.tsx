@@ -7,7 +7,9 @@ import { IFeedFile } from "../../api/models/feed-file.model";
 import { IUITreeNode } from "../../api/models/file-explorer";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import DicomViewer from "./dicomViewer";
+import RevViewer from "./revViewer";
 import DataTableViewer from "./dataTableViewer";
+import FreesurferDataTable from "./freesurferDataTable";
 import FileBrowserViewer from "./fileBrowserViewer";
 import VolumeGrowth from "../../components/chart/VolumeGrowth";
 import SegmentAnalysis from "../../components/chart/SegmentAnalysis";
@@ -44,7 +46,7 @@ class OutputViewerContainer extends React.Component<
             children={tabs}
           />
         ) : (
-          <Alert variant="info" title="Empty Result Set" />
+          <Alert variant="info" title="Empty Result Set" className="empty" />
         )}
       </div>
     );
@@ -63,13 +65,16 @@ class OutputViewerContainer extends React.Component<
     if (!!selected) {
       const tabArr = tempMapping[selected.plugin_name] || tempMapping.default;
       tabArr.forEach((key: string, i: number) => {
-        console.log("key", key, i);
         let tabContent;
         let label = "tab";
         switch (key) {
           case "DicomViewer":
             label = "Viewer";
             tabContent = !!files && <DicomViewer files={files} />;
+            break;
+          case "RevViewer":
+            label = "Viewer";
+            tabContent = !!files && <RevViewer files={files} />;
             break;
           case "FileBrowserViewer":
             label = "File Browser";
@@ -78,6 +83,10 @@ class OutputViewerContainer extends React.Component<
           case "DataTableViewer":
             label = "Data Table";
             tabContent = !!files && <DataTableViewer files={files} />;
+            break;
+          case "FreesurferDataTable":
+            label = "FreeSurfer Data";
+            tabContent = !!files && <FreesurferDataTable files={files} />;
             break;
           case "VolumeGrowth":
             label = "Volume";
@@ -99,9 +108,9 @@ class OutputViewerContainer extends React.Component<
 // Description: Temporary mapping for plugin tabs
 const tempMapping: any = {
   default: ["FileBrowserViewer"],
-  dircopy: ["DicomViewer", "FileBrowserViewer"],
-  freesurfer_pp: ["DataTableViewer", "FileBrowserViewer"], // Nice to have viewer 3D Map image
-  simpledsapp: ["DataTableViewer", "VolumeGrowth", "SegmentAnalysis"],
+  dircopy: ["RevViewer", "FileBrowserViewer"],
+  freesurfer_pp: ["FreesurferDataTable", "FileBrowserViewer"], // Nice to have viewer 3D Map image
+  simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "DataTableViewer"],
   z2labelmap: ["DicomViewer", "FileBrowserViewer"]
 };
 
