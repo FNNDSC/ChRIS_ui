@@ -138,8 +138,7 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                   </div>
                   <DataListContent
                     aria-label="Plugin Output"
-                    isHidden={!this.state.expanded.includes("plugin-data")}
-                  >
+                    isHidden={!this.state.expanded.includes("plugin-data")} >
                     {!!files && (
                       <PluginOutput
                         files={files}
