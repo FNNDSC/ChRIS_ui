@@ -25,6 +25,10 @@
                 margin: 0 0 -1px 30px;
             }
         }
+        .pf-c-alert{
+            margin: 2rem;
+            max-width: 500px;
+        }
     }
 }
 .dicom-viewer{ 
@@ -41,6 +45,7 @@
         margin: 0 auto;
         width: 100%;
     }
+   
 }
 
 .dataTable-viewer{
