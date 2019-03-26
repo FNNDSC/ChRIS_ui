@@ -17,12 +17,7 @@ const DicomViewer: React.FunctionComponent<AllProps> = (props: AllProps) => {
           width="100%"
         />
       ) : (
-      //   <iframe
-      //   src="http://fnndsc.childrens.harvard.edu/rev/viewer/?year=00&month=00&example=01"
-      //   height={window.innerHeight}
-      //   width="100%"
-      // />
-        <img src={brainImgPlaceholder} alt="placeholder for DICOM Images" />
+        <img src={brainImgPlaceholder} alt="placeholder for Viewer Images" />
       )}
     </div>
   );
