@@ -60,7 +60,7 @@ class Sidebar extends React.Component<AllProps> {
                             <Link to="/plugins">Plugins</Link>
                         </NavItem>
                     </NavGroup>
-                    <NavGroup title="Working Pages">
+                    {/* <NavGroup title="Working Pages">
                      <NavItem to="/charts" itemId="notfound">
                             <Link to="/charts">Charts</Link>
                         </NavItem>
@@ -70,7 +70,7 @@ class Sidebar extends React.Component<AllProps> {
                         <NavItem to="/not-found" itemId="notfound">
                             <Link to="/not-found">Not Found</Link>
                         </NavItem>
-                    </NavGroup>
+                    </NavGroup> */}
                 </NavList>
             </Nav>
         );
