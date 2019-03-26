@@ -11,7 +11,11 @@
 
 
 .chart-viewer{
-    margin: 2rem;
+    margin: 2rem 0;
+    .rbt{
+        margin: 0 2rem;
+    }
+  
     .rbt-input-multi{
         padding: 5px 34px 5px 12px;
        
@@ -40,7 +44,8 @@
 }
 
 .c3{
-    max-width:calc(100%-128px);
+    max-width:95vw;
+    margin: auto;
     .c3-legend-item text{
         font-size: 14px;
     }
