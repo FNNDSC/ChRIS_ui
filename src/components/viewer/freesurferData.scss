@@ -13,7 +13,7 @@
         margin-bottom: 0.5rem;
     }
     .pf-l-grid {
-        border-bottom: solid 1px var(--pf-global--BackgroundColor--200);//lighten(#000000, 80);
+        border-bottom: solid 1px var(--pf-global--BackgroundColor--200);
         div{
             font-size: 0.875rem;
             font-weight: var(--pf-c-table--FontWeight);
@@ -22,6 +22,10 @@
             &.highlight{
                 background: var(--pf-global--BackgroundColor--300); //$table-stripe-background;
             }
+            &.name{
+                text-align: left;
+            }
+          
         }
     }
  
@@ -40,9 +44,25 @@
     }
 
     .fs-row{
+        // 798px up
         @media screen and (min-width: $pf-global--breakpoint--md) {
             div{
                 text-align: center;
+               
+                b{
+                    display: none;
+                }
+            }
+
+        }
+        // 798px down
+        @media screen and (max-width: $pf-global--breakpoint--md) {
+            .name{
+                font-weight: 700;
+                margin-top:5px;
+            }
+            div:last-child{
+                border-bottom:solid 1px var(--pf-global--BorderColor--light);
             }
         }
         

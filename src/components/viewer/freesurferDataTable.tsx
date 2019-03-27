@@ -70,32 +70,32 @@ const GridRow = (props: { row: IfsRow[]; key: string }) => {
          rh = props.row[1];
     return (
       <Grid className="fs-row">
-        <GridItem className="pf-u-text-align-left" sm={12} md={4}>
+        <GridItem className="name" sm={12} md={4}>
           {lh.StructName}
         </GridItem>
         <GridItem sm={12} md={1}>
-          {lh.SurfArea}
+          <b>left:</b> {lh.SurfArea}
         </GridItem>
         <GridItem className="highlight" sm={12} md={1}>
-          {rh.SurfArea}
+        <b>right:</b> {rh.SurfArea}
         </GridItem>
         <GridItem sm={12} md={1}>
-          {lh.GrayVol}
+        <b>left:</b> {lh.GrayVol}
         </GridItem>
         <GridItem className="highlight" sm={12} md={1}>
-          {rh.GrayVol}
+        <b>right:</b> {rh.GrayVol}
         </GridItem>
         <GridItem sm={12} md={1}>
-          {lh.ThickAvg}
+        <b>left:</b> {lh.ThickAvg}
         </GridItem>
         <GridItem className="highlight" sm={12} md={1}>
-          {rh.ThickAvg}
+        <b>right:</b> {rh.ThickAvg}
         </GridItem>
         <GridItem sm={12} md={1}>
-          {lh.ThickStd}
+        <b>left:</b> {lh.ThickStd}
         </GridItem>
         <GridItem className="highlight" sm={12} md={1}>
-          {rh.ThickStd}
+         <b>right:</b> {rh.ThickStd}
         </GridItem>
       </Grid>
     );
