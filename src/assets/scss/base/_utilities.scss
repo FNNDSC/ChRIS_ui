@@ -29,3 +29,18 @@
 .float-right{
     float:right;
 }
+
+.center{
+    @extend .pf-u-text-align-center;
+}
+
+.left{
+    @extend .pf-u-text-align-left;
+}
+// Accessibility additions
+// Hidden on md and below (768px;)
+.hidden-md{
+    @media screen and (max-width: $pf-global--breakpoint--md) {
+        display: none !important;
+   }
+}

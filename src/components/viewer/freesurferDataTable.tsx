@@ -3,13 +3,16 @@ import {
   Table,
   TableHeader,
   TableBody,
-  TableVariant
+  TableVariant,
+  cellWidth
 } from "@patternfly/react-table";
+import { Button, Grid, GridItem } from "@patternfly/react-core";
 import { DataTableToolbar } from "../index";
 import { IFeedFile } from "../../api/models/feed-file.model";
 import { lhData } from "../../assets/temp/lh.aparc.a2009s";
 import { rhData } from "../../assets/temp/rh.aparc.a2009s";
-
+import "./freesurferData.scss";
+import _ from "lodash";
 type AllProps = {
   files: IFeedFile[];
 };
@@ -28,54 +31,131 @@ interface IfsRow {
 }
 
 class FreesurferDataTable extends React.Component<AllProps> {
-  rows: any[];
+  rows: IfsRow[];
   constructor(props: AllProps) {
     super(props);
-    this.rows = this.buildTableData(lhData);
+    this.rows = this.mergeData();
   }
+  // Description: build table rows from json/ts file
+  // We need somev validation for this merge ***** working
+  mergeData = () => {
+    const customizer = (objValue: any, srcValue: any) => {
+      return [objValue, srcValue];
+    };
+    return _.mergeWith(lhData.slice(), rhData.slice(), customizer);
+  };
 
   onSearch = (term: string) => {
     // console.log("search", term);
   };
-  headers = [
-    "Basic Structure",
-    "Surf Area (mm^2)",
-    "Volume (mm^3)",
-    "Thick Avg(mm)",
-    "Thick Std(mm)"
-  ];
 
-  // Description: build table rows from json/ts file
-  buildTableData = (outdata: IfsRow[]) => {
-    const rowArr = new Array();
-    outdata.forEach((obj: IfsRow) => {
-      rowArr.push([
-        obj.StructName,
-        obj.SurfArea,
-        obj.GrayVol,
-        obj.ThickAvg,
-        obj.ThickStd
-      ]);
-    });
-
-    return rowArr;
-  };
   render() {
     return (
-      !!this.rows && <div className="dataTable-viewer pf-u-px-lg">
-        <DataTableToolbar onSearch={this.onSearch} label="brain structure" />
-        <Table
-          aria-label="Data table"
-          variant={TableVariant.compact}
-          cells={this.headers}
-          rows={this.rows}
-        >
-          <TableHeader />
-          <TableBody />
-        </Table>
-      </div>
+      !!this.rows && (
+        <div className="freesurfer-data">
+          <h1 className="pf-c-title pf-m-xl">FreeSurfer Parcellation Data</h1>
+          <GridviewHeader />
+          {this.rows.map((row: any, i) => {
+            return <GridRow key={`row_${i}`} row={row} />;
+          })}
+        </div>
+      )
     );
   }
 }
+
+const GridRow = (props: { row: IfsRow[]; key: string }) => {
+  if (props.row.length > 0) {
+    const lh = props.row[0],
+         rh = props.row[1];
+    return (
+      <Grid className="fs-row">
+        <GridItem className="pf-u-text-align-left" sm={12} md={4}>
+          {lh.StructName}
+        </GridItem>
+        <GridItem sm={12} md={1}>
+          {lh.SurfArea}
+        </GridItem>
+        <GridItem className="highlight" sm={12} md={1}>
+          {rh.SurfArea}
+        </GridItem>
+        <GridItem sm={12} md={1}>
+          {lh.GrayVol}
+        </GridItem>
+        <GridItem className="highlight" sm={12} md={1}>
+          {rh.GrayVol}
+        </GridItem>
+        <GridItem sm={12} md={1}>
+          {lh.ThickAvg}
+        </GridItem>
+        <GridItem className="highlight" sm={12} md={1}>
+          {rh.ThickAvg}
+        </GridItem>
+        <GridItem sm={12} md={1}>
+          {lh.ThickStd}
+        </GridItem>
+        <GridItem className="highlight" sm={12} md={1}>
+          {rh.ThickStd}
+        </GridItem>
+      </Grid>
+    );
+  } else {
+    return (
+      <Grid>
+        <GridItem sm={12} md={4}>
+          incomplete data for this row
+        </GridItem>
+      </Grid>
+    );
+  }
+};
+
+// Description: Build the Grid headers
+const GridviewHeader = () => {
+  return (
+    <Grid className="fs-header hidden-md">
+      <GridItem sm={12} md={4} rowSpan={2} className="spanRow">
+        <b>Basic Structure</b>
+      </GridItem>
+      <GridItem sm={12} md={2}>
+        <b>Surf Area (mm<sup>2</sup>)</b>
+      </GridItem>
+      <GridItem sm={12} md={2}>
+        <b>Volume (mm<sup>3</sup>)</b>
+      </GridItem>
+      <GridItem sm={12} md={2}>
+        <b>Thick Avg (mm)</b>
+      </GridItem>
+      <GridItem sm={12} md={2}>
+        <b>Thick Std (mm)</b>
+      </GridItem>
+      {/* subheader */}
+      <GridItem sm={12} md={1} offset={4}>
+        Left
+      </GridItem>
+      <GridItem className="highlight" sm={12} md={1}>
+        Right
+      </GridItem>
+      <GridItem sm={12} md={1}>
+        Left
+      </GridItem>
+      <GridItem className="highlight" sm={12} md={1}>
+        Right
+      </GridItem>
+      <GridItem sm={12} md={1}>
+        Left
+      </GridItem>
+      <GridItem className="highlight" sm={12} md={1}>
+        Right
+      </GridItem>
+      <GridItem sm={12} md={1}>
+        Left
+      </GridItem>
+      <GridItem className="highlight" sm={12} md={1}>
+        Right
+      </GridItem>
+    </Grid>
+  );
+};
 
 export default React.memo(FreesurferDataTable);
