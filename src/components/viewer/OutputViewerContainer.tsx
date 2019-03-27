@@ -21,10 +21,7 @@ type AllProps = {
   selected?: IPluginItem;
 };
 
-class OutputViewerContainer extends React.Component<
-  AllProps,
-  { activeTabKey: number }
-> {
+class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: number }> {
   constructor(props: AllProps) {
     super(props);
     this.handleTabClick = this.handleTabClick.bind(this);
@@ -108,7 +105,8 @@ class OutputViewerContainer extends React.Component<
 // Description: Temporary mapping for plugin tabs
 const tempMapping: any = {
   default: ["FileBrowserViewer"],
-  dircopy: ["RevViewer", "FileBrowserViewer"],
+  dircopy: ["RevViewer", "FileBrowserViewer"], 
+  // dircopy: ["FreesurferDataTable", "FileBrowserViewer"], // TEMP for dev
   freesurfer_pp: ["FreesurferDataTable", "FileBrowserViewer"], // Nice to have viewer 3D Map image
   simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "DataTableViewer"],
   z2labelmap: ["DicomViewer", "FileBrowserViewer"]
