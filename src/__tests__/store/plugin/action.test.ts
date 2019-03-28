@@ -8,9 +8,9 @@ import {
 		getPluginParametersSuccess,
 		getPluginFilesRequest,
 		getPluginFilesSuccess
-		} from "../../../src/store/plugin/actions";
-import { PluginActionTypes } from "../../../src/store/plugin/types";
-import { IPluginItem } from "../../../src/api/models/pluginInstance.model";
+		} from "../../../store/plugin/actions";
+import { PluginActionTypes } from "../../../store/plugin/types";
+import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
 describe('actions of plugin', () => {
 
