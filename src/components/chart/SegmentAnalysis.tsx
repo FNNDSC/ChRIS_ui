@@ -23,6 +23,8 @@ const csvData = [
 ];
 
 const defaultSegments: any[] = [];
+const defaultLeft : any[] = [];
+const defaultRight : any[] = [];
 
 const segments = ["GSFrontToMargin", "GOrbital", "GTemporalMiddle",
                     "SCentral", "SFrontSup", "STemporalInf"];
@@ -34,7 +36,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
     super(props);
 
     this.state = {
-      pushedSegments: ["SCentral", "GSFrontToMargin", "STemporalInf", "GOrbital"],
+      pushedSegments: [],
       render: false
     };
 
@@ -42,8 +44,6 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
   }
 
   pickDefaultSegments(segmentOffSet: any) {
-    const defaultLeft : any[] = [];
-    const defaultRight : any[] = [];
     let segmentData;
     defaultLeft.push("leftHemisphere");
     defaultRight.push("rightHemisphere");
@@ -66,9 +66,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
       this.callChart([defaultLeft, defaultRight], this.state.pushedSegments);
     });*/
     this.setState({ render : true});
-    this.setState({ pushedSegments: ["SCentral", "GSFrontToMargin", "STemporalInf", "GOrbital"]})
-    console.log('State has been set to true');
-    this.callChart([defaultLeft, defaultRight], defaultSegments);
+    this.setState({ pushedSegments: defaultSegments})
   }
 
   sortFunction(a: any, b: any) {
@@ -90,9 +88,14 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
     this.pickDefaultSegments(result);
   }
 
-  componentDidMount() {
+  componentWillMount() {
     //Calculate Offset
     this.calculateOffset();
+  }
+
+  componentDidMount() {
+    console.log('componentDidMount');
+    this.callChart([defaultLeft, defaultRight], defaultSegments);
   }
 
   callChart(inputChart: any, segments: any) {
