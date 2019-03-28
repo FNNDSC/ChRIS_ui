@@ -1,13 +1,13 @@
 import React from 'react';
-import { FeedActionTypes,  } from "../../../src/store/feed/types";
-import { IFeedItem } from "../../../src/api/models/feed.model";
-import { IPluginItem } from "../../../src/api/models/pluginInstance.model";
+import { FeedActionTypes,  } from "../../../store/feed/types";
+import { IFeedItem } from "../../../api/models/feed.model";
+import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import {
   getFeedDetailsRequest,
   getFeedDetailsSuccess,
   getPluginInstanceListRequest,
   getPluginInstanceListSuccess,
-  destroyFeed } from "../../../src/store/feed/actions";
+  destroyFeed } from "../../../store/feed/actions";
 
 describe('feed actions', () => {
   it('getFeedDetailsRequest should return correct types', () => {
@@ -41,12 +41,12 @@ describe('feed actions', () => {
       },
       creator_username: 'Chris_user'
     }
-    
+
     const expectedAction = {
       type: FeedActionTypes.GET_FEED_DETAILS_SUCCESS,
       payload:TestIFeedItem
     }
-    
+
     expect(getFeedDetailsSuccess(TestIFeedItem)).toEqual(expectedAction)
   })
 
