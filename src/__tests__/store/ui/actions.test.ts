@@ -1,4 +1,4 @@
-import { UiActionTypes, } from "../../../src/store/ui/types";
+import { UiActionTypes, } from "../../../store/ui/types";
 import {
   uiOnBeforeRequest,
   uiOnCompleteRequest,
@@ -6,7 +6,7 @@ import {
   onKebabDropdownSelect,
   onSidebarToggle,
   setSidebarActive,
-} from "../../../src/store/ui/actions";
+} from "../../../store/ui/actions";
 
 describe("ui On Before Request", () => {
   it("return action of type ui On Before Request", () => {
