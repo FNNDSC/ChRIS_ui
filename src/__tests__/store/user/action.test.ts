@@ -3,8 +3,8 @@ import {
 		getAuthToken,
 		getAuthTokenSuccess,
 		setUserLogout
-		} from "../../../src/store/user/actions";
-import {IUserState,UserActionTypes} from "../../../src/store/user/types";
+		} from "../../../store/user/actions";
+import {IUserState,UserActionTypes} from "../../../store/user/types";
 
 
 describe('actions of user', () => {

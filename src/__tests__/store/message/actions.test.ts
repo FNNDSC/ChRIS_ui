@@ -1,10 +1,10 @@
-import { IConfirmation, IMessage, messageActionTypes } from "../../../src/store/message/types";
+import { IConfirmation, IMessage, messageActionTypes } from "../../../store/message/types";
 import {
   handleMessage,
   dismissMessage,
   handleConfirmation,
   dismissConfirmation,
-} from "../../../src/store/message/actions";
+} from "../../../store/message/actions";
 
 describe("display message", () => {
   it("return action of type display message", () => {
