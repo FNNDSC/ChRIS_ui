@@ -33,8 +33,6 @@ function* handleLogin(action: any) {
   } catch (error) {
     console.log(error); // working user messaging
     yield put(push("/not-found"));
-    // yield put(handleUIMessage({ message: (err instanceof Error ? (err.stack!) :
-    //   managerDefaults.defaultMessage.Error), type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
   }
 }
 
