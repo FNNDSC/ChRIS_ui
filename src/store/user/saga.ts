@@ -23,7 +23,7 @@ function* handleLogin(action: any) {
       authObj.password
     );
     if (res.error) {
-      console.log(res.error); // working ***** user messaging
+      console.error(res.error); // working ***** user messaging
     } else {
       yield put(getAuthTokenSuccess(res));
       window.sessionStorage.setItem("AUTH_TOKEN", res);
@@ -31,7 +31,7 @@ function* handleLogin(action: any) {
       yield put(push("/"));
     }
   } catch (error) {
-    console.log(error); // working user messaging
+    console.error(error); // working user messaging
     yield put(push("/not-found"));
   }
 }

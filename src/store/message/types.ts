@@ -33,8 +33,8 @@ export type MessageType = "success" | "error" | "info" | "warning";
 export const MessageHandlerType = keyMirror({
   modal: null,
   toastr: null, // User toatr to show error
-  inline: null, // write error inline
-  logger: null, // write error in console.log
+  inline: null, // write message inline
+  logger: null, // write message in console.log
   muted: null, // pass message but not to user - stub for logging later
 });
 export type MessageDisplayType = "modal" | "toastr" | "inline" | "muted" | "logger";

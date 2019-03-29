@@ -46,7 +46,7 @@ class FreesurferDataTable extends React.Component<AllProps> {
   };
 
   onSearch = (term: string) => {
-    // console.log("search", term);
+    // Note: Stub search table data to be done
   };
 
   render() {
