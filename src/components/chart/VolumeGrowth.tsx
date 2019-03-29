@@ -9,207 +9,27 @@ interface ComponentState {
   pushedSegments: [];
 }
 
+const age = ["age", 7, 8, 9, 10, 11, 12, 13];
+
 /* Age Vs Volume data for the graph*/
 const chartData = [
-  ["age", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
-  [
-    "GOrbitalAverage",
-    90,
-    103,
-    110,
-    113,
-    117,
-    122,
-    127,
-    129,
-    130,
-    133,
-    140,
-    145,
-    145,
-    145,
-    146,
-    146,
-    144,
-    142
-  ],
-  [
-    "GOrbitalPatient",
-    null,
-    null,
-    120,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null
-  ],
-  [
-    "SCentralAverage",
-    190,
-    196,
-    208,
-    213,
-    217,
-    222,
-    225,
-    227,
-    230,
-    231,
-    237,
-    237,
-    237,
-    237,
-    237,
-    234,
-    234,
-    232
-  ],
-  [
-    "SCentralPatient",
-    null,
-    null,
-    190,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null
-  ],
-  [
-    "STemporalInfAverage",
-    280,
-    294,
-    318,
-    320,
-    320,
-    321,
-    323,
-    325,
-    326,
-    329,
-    333,
-    334,
-    334,
-    337,
-    337,
-    337,
-    337,
-    337
-  ],
-  [
-    "STemporalInfPatient",
-    null,
-    null,
-    329,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null
-  ]
+  age,
+  ["GOrbitalAverage", 90, 103, 110, 113, 117, 122, 127],
+  ["GOrbitalPatient", null, null, null, 109, null, null, null],
+  ["SCentralAverage",  190, 196, 208, 213, 217, 222, 225],
+  ["SCentralPatient", null, null, null, 190, null, null, null],
+  ["STemporalInfAverage", 280, 294, 318, 320, 320, 321, 323],
+  ["STemporalInfPatient", null, null, null, 329, null, null, null]
 ];
 
 const defaultChartData = [
-  ["age", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
-  [
-    "GOrbitalAverage",
-    100,
-    105,
-    110,
-    113,
-    117,
-    122,
-    127,
-    129,
-    130,
-    133,
-    140,
-    145,
-    145,
-    145,
-    146,
-    146,
-    144,
-    142
-  ],
-  [
-    "GOrbitalPatient",
-    null,
-    null,
-    120,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null
-  ]
+  age,
+  ["SCentralAverage",  190, 196, 208, 213, 217, 222, 225],
+  ["SCentralPatient", null, null, null, 203, null, null, null]
 ];
 
-const defaultSegments = ["GOrbital"];
+const defaultSegments = ["SCentral"];
 const allSegments = ["GOrbital", "SCentral", "STemporalInf"];
-
-const xAxis = [
-  "age",
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  10,
-  11,
-  12,
-  13,
-  14,
-  15,
-  16,
-  17,
-  18
-];
 
 class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   constructor(props: ComponentProps) {
@@ -249,7 +69,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
       axis: {
         x: {
           label: {
-            text: "Age in Months",
+            text: "Age in Years",
             position: "outer-center"
           }
         },
@@ -263,7 +83,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
       tooltip: {
         format: {
           title(d) {
-            return d + " Months old";
+            return d + " Years old";
           }
         }
       },
@@ -296,7 +116,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
         )
       );
     }
-    filteredData.push(xAxis);
+    filteredData.push(age);
     return filteredData;
   }
 

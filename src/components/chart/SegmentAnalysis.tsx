@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as c3 from "c3";
 import { Typeahead } from "react-bootstrap-typeahead";
+import {csvData} from "../../assets/temp/segmentData";
 import "./chart.scss";
 
 interface ComponentProps {
@@ -8,43 +9,82 @@ interface ComponentProps {
 }
 
 interface ComponentState {
-    pushedSegments: [];
+    pushedSegments: string[];
 }
 
-// csvData format [[segmentName1, LH1, RH1],[segmentName2, LH2, RH2]]
-const csvData = [
-  ["GSFrontToMargin", 30, 34],
-  ["GOrbital", -20, -16],
-  ["GTemporalMiddle", 10, 14],
-  ["SCentral", 40, 44],
-  ["SFrontSup", -15, -11],
-  ["STemporalInf", 25, 20]
-];
+const defaultSegments: any[] = [];
+const defaultLeft : any[] = [];
+const defaultRight : any[] = [];
 
-const defaultLeftHemisphere = ["leftHemisphere", 30, -20, 25];
-const defaultRightHemisphere = ["rightHemisphere", 34, -16, 20];
-const defaultChartData = [ defaultLeftHemisphere, defaultRightHemisphere ];
-const defaultSegments = ["GSFrontToMargin", "GOrbital", "STemporalInf"];
-
-const segments = ["GSFrontToMargin", "GOrbital", "GTemporalMiddle",
-                    "SCentral", "SFrontSup", "STemporalInf"];
+const segments: any[] = [];
+const segmentValues: any[] = [];
 
 class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
   constructor(props: ComponentProps) {
     super(props);
 
     this.state = {
-      pushedSegments: []
+      pushedSegments: [],
     };
 
     this.changeData = this.changeData.bind(this);
   }
 
-  componentDidMount() {
-    this.callChart(defaultChartData, defaultSegments);
+  readData() {
+    for(let i = 0; i < csvData.length; i++){
+      segments.push(csvData[i][0]);
+      segmentValues.push([csvData[i][1], csvData[i][2]]);
+    }
   }
 
-  callChart(inputChart: any, segments: any) {
+  pickDefaultSegments(segmentOffSet: any) {
+    let segmentData;
+    defaultLeft.push("leftHemisphere");
+    defaultRight.push("rightHemisphere");
+    // Top-4 Offset segments displayed by default
+    for ( let i = 0; i < 4; i++ ) {
+      segmentData = this.getSegmentData(segmentOffSet[i][0]);
+      if (segmentData) {
+        defaultSegments.push(segmentData[0]);
+        defaultLeft.push(segmentData[1]);
+        defaultRight.push(segmentData[2]);
+      }
+    }
+
+    this.setState({ pushedSegments: defaultSegments})
+  }
+
+  sortFunction(a: any, b: any) {
+    if (a[1] === b[1]) {
+      return 0;
+    } else {
+      return (a[1] < b[1]) ? 1 : -1;
+    }
+  }
+
+  calculateOffset() {
+    let segmentOffSet: any[] = [];
+    let result: any[] = [];
+    for ( let i = 0; i < segments.length; i++ ) {
+      segmentOffSet.push([segments[i], Math.abs(segmentValues[i][0]) +
+                                        Math.abs(segmentValues[i][1])]);
+    }
+    result = segmentOffSet.sort(this.sortFunction);
+    this.pickDefaultSegments(result);
+  }
+
+  componentWillMount() {
+    //Calculate Offset
+    this.readData();
+    this.calculateOffset();
+  }
+
+  componentDidMount() {
+    //console.log('componentDidMount');
+    this.callChart([defaultLeft, defaultRight]);
+  }
+
+  callChart(inputChart: any) {
     c3.generate({
       bindto: "#SegmentAnalysis",
       data: {
@@ -58,7 +98,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
       axis: {
         x: {
             type: "category",
-            categories: segments,
+            categories: this.state.pushedSegments,
         },
         y: {
             label: {
@@ -123,7 +163,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
     }, () => {
       // Input processing
       processedData = this.setFilter();
-      this.callChart(processedData, this.state.pushedSegments);
+      this.callChart(processedData);
     });
   }
 
@@ -133,7 +173,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
         <React.Fragment>
           <Typeahead
             clearButton
-            defaultSelected={defaultSegments}
+            defaultSelected={this.state.pushedSegments}
             id="selector"
             multiple
             options={segments}
