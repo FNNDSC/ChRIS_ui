@@ -106,8 +106,7 @@ const tempMapping: any = {
   default: ["FileBrowserViewer"],
   dircopy: ["RevViewer", "FileBrowserViewer"],
   pacscopy: ["RevViewer", "FileBrowserViewer"],
-  // pacscopy: ["FreesurferDataTable", "DataTableViewer", "FileBrowserViewer"], // TEMP for dev
-  freesurfer_pp: ["FreesurferDataTable", "FileBrowserViewer"], // Nice to have viewer 3D Map image
+  freesurfer_pp: ["DicomViewer", "FreesurferDataTable", "FileBrowserViewer"], // Notes: Nice to have viewer 3D Map image "DicomViewer",
   simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "DataTableViewer"],
   z2labelmap: ["DicomViewer", "FileBrowserViewer"]
 };

@@ -34,14 +34,12 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
   handleDownloadData() {
     const { files } = this.props;
     // Stub - To be done
-    console.log("handleDownloadData", files);
   }
 
   // Description: View Plugin output data ***** Working
   handleViewData() {
     const { files } = this.props;
     // Stub - To be done
-    console.log("handleViewData", files);
   }
 
   render() {
