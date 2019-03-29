@@ -10,6 +10,7 @@ import DicomViewer from "./dicomViewer";
 import RevViewer from "./revViewer";
 import DataTableViewer from "./dataTableViewer";
 import FreesurferDataTable from "./freesurferDataTable";
+import ZScoreDataTable from "./zScoreDataTable";
 import FileBrowserViewer from "./fileBrowserViewer";
 import VolumeGrowth from "../../components/chart/VolumeGrowth";
 import SegmentAnalysis from "../../components/chart/SegmentAnalysis";
@@ -66,7 +67,7 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
         switch (key) {
           case "DicomViewer":
             label = "Viewer";
-            tabContent = !!files && <DicomViewer files={files} />;
+            tabContent = !!files && <DicomViewer files={files} pluginType={selected.plugin_name} />;
             break;
           case "RevViewer":
             label = "Viewer";
@@ -79,6 +80,10 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
           case "DataTableViewer":
             label = "Data Table";
             tabContent = !!files && <DataTableViewer files={files} />;
+            break;
+          case "ZScoreDataTable":
+            label = "Data Table";
+            tabContent = !!files && <ZScoreDataTable files={files} />;
             break;
           case "FreesurferDataTable":
             label = "FreeSurfer Data";
@@ -104,7 +109,8 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
 // Description: Temporary mapping for plugin tabs
 const tempMapping: any = {
   default: ["FileBrowserViewer"],
-  dircopy: ["RevViewer", "FileBrowserViewer"],
+  // dircopy: ["RevViewer", "FileBrowserViewer"],
+  dircopy: ["ZScoreDataTable", "FileBrowserViewer"], // TEMP for dev
   pacscopy: ["RevViewer", "FileBrowserViewer"],
   freesurfer_pp: ["DicomViewer", "FreesurferDataTable", "FileBrowserViewer"], // Notes: Nice to have viewer 3D Map image "DicomViewer",
   simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "DataTableViewer"],

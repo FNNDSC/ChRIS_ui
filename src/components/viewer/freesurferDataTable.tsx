@@ -1,13 +1,5 @@
 import * as React from "react";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableVariant,
-  cellWidth
-} from "@patternfly/react-table";
-import { Button, Grid, GridItem } from "@patternfly/react-core";
-import { DataTableToolbar } from "../index";
+import { Grid, GridItem } from "@patternfly/react-core";
 import { IFeedFile } from "../../api/models/feed-file.model";
 import { lhData } from "../../assets/temp/lh.aparc.a2009s";
 import { rhData } from "../../assets/temp/rh.aparc.a2009s";
