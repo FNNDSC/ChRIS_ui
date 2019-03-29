@@ -28,8 +28,6 @@ function* handleGetPluginDetails(action: any) {
     }
   } catch (error) {
     console.error(error); // working user messaging
-    // yield put(handleUIMessage({ message: (err instanceof Error ? (err.stack!) :
-    //   managerDefaults.defaultMessage.Error), type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
   }
 }
 
@@ -46,16 +44,12 @@ function* handleGetPluginDescendants(action: any) {
   try {
     const res = yield call(FeedModel.fetchRequest, action.payload);
     if (res.error) {
-      // yield put(handleUIMessage({ message: res.error, type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
       console.error(res.error); // working user messaging
     } else {
       yield put(getPluginDescendantsSuccess(res));
-      // yield put(managerOnCompleteRequest()); // nO need for messaging just loading false
     }
   } catch (error) {
     console.error(error); // working user messaging
-    // yield put(handleUIMessage({ message: (err instanceof Error ? (err.stack!) :
-    //   managerDefaults.defaultMessage.Error), type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
   }
 }
 
@@ -75,19 +69,16 @@ function* watchGetPluginDescendants() {
 function* handleGetPluginFiles(action: any) {
   try {
     const selected = action.payload;
-    const res = yield call(FeedModel.fetchRequest, selected.files);
+    const res = yield call(FeedModel.fetchRequest, `${selected.files}?limit=1000`); // NOTE: TEMP Modification until pagination is developed
     if (res.error) {
-      // yield put(handleUIMessage({ message: res.error, type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
       console.error(res.error); // working user messaging
     } else {
       yield put(getPluginFilesSuccess(res));
       yield put(setExplorerSuccess(res.data.results, selected)); // Structure the files for explorer
-      // yield put(managerOnCompleteRequest()); // nO need for messaging just loading false
+
     }
   } catch (error) {
     console.error(error); // working user messaging
-    // yield put(handleUIMessage({ message: (err instanceof Error ? (err.stack!) :
-    //   managerDefaults.defaultMessage.Error), type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
   }
 }
 
@@ -103,16 +94,12 @@ function* handleGetPluginParameters(action: any) {
   try {
     const res = yield call(FeedModel.fetchRequest, action.payload);
     if (res.error) {
-      // yield put(handleUIMessage({ message: res.error, type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
       console.error(res.error); // working user messaging
     } else {
       yield put(getPluginParametersSuccess(res));
-      // yield put(managerOnCompleteRequest()); // nO need for messaging just loading false
     }
   } catch (error) {
     console.error(error); // working user messaging
-    // yield put(handleUIMessage({ message: (err instanceof Error ? (err.stack!) :
-    //   managerDefaults.defaultMessage.Error), type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
   }
 }
 

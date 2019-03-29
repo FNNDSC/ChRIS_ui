@@ -19,8 +19,8 @@ const PluginOutput: React.FunctionComponent<AllProps> = (props: AllProps) => {
     return `${filesArr.length} ${filesArr.length === 1 ? "file" : "files"}`;
   };
 
-  // Set local state hook
-  const [isModalOpen, setValue] = useState(false); // Temp - set to false
+  // Set local state
+  const [isModalOpen, setValue] = useState(false); // Temp for dev - set to false on commit
   const handleModalToggle = () => {
     setValue(!isModalOpen);
   };

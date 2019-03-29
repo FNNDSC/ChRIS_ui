@@ -45,8 +45,11 @@
   }
 }
 .header-panel{
+  &.sm{
+    max-width: 700px;
+  }
   h1{
     padding-top:15px;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
   }
 }
