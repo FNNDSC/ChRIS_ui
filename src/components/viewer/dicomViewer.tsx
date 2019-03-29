@@ -1,5 +1,5 @@
 import * as React from "react";
-import brainImgPlaceholder from "../../assets/images/heatmap-example-135.png";
+import brainImgPlaceholder from "../../assets/images/image-ph-frame118.png";
 import brainImg3dPlaceholder from "../../assets/images/fs3Dsample.png";
 import { IFeedFile } from "../../api/models/feed-file.model";
 type AllProps = {

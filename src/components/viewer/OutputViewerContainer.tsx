@@ -91,11 +91,19 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
             break;
           case "VolumeGrowth":
             label = "Volume";
-            tabContent = <VolumeGrowth />;
+            tabContent = 
+            (<React.Fragment>
+              <h1 className="pf-c-title pf-u-m-xl">Volume Segments</h1>
+              <VolumeGrowth />
+          </React.Fragment>)
             break;
           case "SegmentAnalysis":
             label = "Segment";
-            tabContent = <SegmentAnalysis />;
+            tabContent =
+            (<React.Fragment>
+                <h1 className="pf-c-title pf-u-m-xl">Z-Score</h1>
+                <SegmentAnalysis />;
+            </React.Fragment>)
             break;
         }
         tabs.push(<Tab eventKey={i} title={label}>
@@ -110,10 +118,9 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
 const tempMapping: any = {
   default: ["FileBrowserViewer"],
   dircopy: ["RevViewer", "FileBrowserViewer"],
-  // dircopy: ["ZScoreDataTable", "FileBrowserViewer"], // TEMP for dev
   pacscopy: ["RevViewer", "FileBrowserViewer"],
   freesurfer_pp: ["DicomViewer", "FreesurferDataTable", "FileBrowserViewer"], // Notes: Nice to have viewer 3D Map image "DicomViewer",
-  simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "DataTableViewer"],
+  simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable"],
   z2labelmap: ["DicomViewer", "FileBrowserViewer"]
 };
 
