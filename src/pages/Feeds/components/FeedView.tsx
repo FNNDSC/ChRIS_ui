@@ -107,7 +107,7 @@ class FeedView extends React.Component<AllProps> {
     );
   }
 
-  // Description: handle node clicks to load next node information
+  // Description: handle node clicks to load next node information - descendants, params, and files
   onNodeClick(node: IPluginItem) {
     const { getPluginDetailsRequest } = this.props;
     getPluginDetailsRequest(node);

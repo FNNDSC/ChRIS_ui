@@ -32,7 +32,8 @@
         "member-ordering": false,
         "variable-name": false,
         "jsdoc-format": false,
-        "max-classes-per-file": false
+        "max-classes-per-file": false,
+        "semicolon": false
     },
     "jsRules": {
         "max-line-length": {

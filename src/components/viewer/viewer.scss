@@ -11,8 +11,8 @@
     padding: 1.5rem 0  1rem !important;
     height: 100vh;
     min-width: 98vw;
-    .pf-c-title{
-        margin-left: 2rem;
+    h3.pf-c-title{
+       margin-left: 2rem;
     }
     .output-viewer{
         min-height: 50vh;
@@ -25,16 +25,19 @@
                 margin: 0 0 -1px 30px;
             }
         }
+        .empty{
+            margin: 2rem;
+            max-width: 500px;
+        }
     }
 }
-.dicom-viewer{ 
+.plugin-viewer{ 
     display: block;
     max-height: 100%;
     position: relative;
     img{
         display: block;
-        max-height: calc(100vh - 250px);
-        // margin: 0 auto;
+        max-height: calc(100vh - 220px);
         width: auto;  
     }
     iframe{
@@ -42,10 +45,7 @@
         margin: 0 auto;
         width: 100%;
     }
-    small{
-        display: block;
-        margin: 10px 20px 0;
-    }
+   
 }
 
 .dataTable-viewer{

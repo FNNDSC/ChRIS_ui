@@ -8,7 +8,9 @@
 
 $chris-blue:                         #002030;
 $chris-light-blue:                   #007bba;
+$chris-highlight-background-blue:    #def7f7;
 $global-icon-margin-right:           5px;
+
 
 // Site specific Variables:
 // --------------------------------------------------------------------
@@ -44,10 +46,12 @@ $plugin-data-font-size:            0.875rem;
 
 // Data Output and Viewer - File Browser 
 $file-explorer-yellow:           #ffee99;
-$file-explorer-blue:             #def7f7;
+$file-explorer-blue:             $chris-highlight-background-blue;
 
 
 $dot-background-gray:           #ddd;
 $dot-background-red:            #c83737;
 $dot-background-orange:         #ff7f2a;
 $dot-background-yellow:         #ffdd55;
+
+$table-stripe-background:       $chris-highlight-background-blue;//rgba(0, 0, 0, 0.05);

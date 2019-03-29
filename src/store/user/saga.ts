@@ -2,7 +2,7 @@ import { all, call, fork, put, takeEvery } from "redux-saga/effects";
 import { push } from "connected-react-router";
 import Client from "@fnndsc/chrisapi";
 import { UserActionTypes } from "./types";
-import { getAuthTokenSuccess, setUserLogout } from "./actions";
+import { getAuthTokenSuccess } from "./actions";
 
 // ----------------------------------------------------------------
 // Description: List - Get all Users
@@ -23,7 +23,7 @@ function* handleLogin(action: any) {
       authObj.password
     );
     if (res.error) {
-      console.log(res.error); // working ***** user messaging
+      console.error(res.error); // working ***** user messaging
     } else {
       yield put(getAuthTokenSuccess(res));
       window.sessionStorage.setItem("AUTH_TOKEN", res);
@@ -31,10 +31,8 @@ function* handleLogin(action: any) {
       yield put(push("/"));
     }
   } catch (error) {
-    console.log(error); // working user messaging
+    console.error(error); // working user messaging
     yield put(push("/not-found"));
-    // yield put(handleUIMessage({ message: (err instanceof Error ? (err.stack!) :
-    //   managerDefaults.defaultMessage.Error), type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
   }
 }
 

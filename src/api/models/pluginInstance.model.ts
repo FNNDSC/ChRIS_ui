@@ -46,3 +46,6 @@ export const statusLabels: any = {
      // Add more status strings as BE devs...
 };
 
+export function getPluginInstanceTitle(plugin: IPluginItem) {
+    return (!!plugin.title &&  plugin.title.length) ? plugin.title : plugin.plugin_name;
+}
