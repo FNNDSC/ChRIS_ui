@@ -91,7 +91,7 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
             break;
           case "VolumeGrowth":
             label = "Volume";
-            tabContent = 
+            tabContent =
             (<React.Fragment>
               <h1 className="pf-c-title pf-u-m-xl">Volume Segments</h1>
               <VolumeGrowth />
@@ -117,7 +117,8 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
 // Description: Temporary mapping for plugin tabs
 const tempMapping: any = {
   default: ["FileBrowserViewer"],
-  dircopy: ["RevViewer", "FileBrowserViewer"],
+ // dircopy: ["RevViewer", "FileBrowserViewer"],
+  dircopy: ["FileBrowserViewer"], // Temp for dev
   pacscopy: ["RevViewer", "FileBrowserViewer"],
   freesurfer_pp: ["DicomViewer", "FreesurferDataTable", "FileBrowserViewer"], // Notes: Nice to have viewer 3D Map image "DicomViewer",
   simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable"],

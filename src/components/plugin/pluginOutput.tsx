@@ -20,7 +20,7 @@ const PluginOutput: React.FunctionComponent<AllProps> = (props: AllProps) => {
   };
 
   // Set local state
-  const [isModalOpen, setValue] = useState(false); // Temp for dev - set to false on commit
+  const [isModalOpen, setValue] = useState(true); // Temp for dev - set to false on commit
   const handleModalToggle = () => {
     setValue(!isModalOpen);
   };

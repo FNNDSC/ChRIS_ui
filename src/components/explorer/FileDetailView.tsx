@@ -4,6 +4,7 @@ import { IUITreeNode, getFileExtension } from "../../api/models/file-explorer";
 import FeedFileModel from "../../api/models/feed-file.model";
 import { DownloadIcon } from "@patternfly/react-icons";
 import { LoadingComponent } from "..";
+import AmiViewer from "../viewer/AmiViewer";
 import JSONPretty from "react-json-pretty";
 import AMI from "ami.js";
 import THREE from "three";
@@ -40,7 +41,8 @@ class FileDetailView extends React.Component<AllProps, IState> {
           case "stats":
           case "json":
             return this.displayTextInIframe(this.state.blob);
-          // dcm viewer to be done ***** working
+          case "dcm": // dcm viewer to be done ***** working
+            return <AmiViewer {...this.state} />;
           default:
             return this.noPreviewMessage();
         }
