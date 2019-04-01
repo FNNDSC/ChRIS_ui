@@ -67,7 +67,15 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
         switch (key) {
           case "DicomViewer":
             label = "Viewer";
-            tabContent = !!files && <DicomViewer files={files} pluginType={selected.plugin_name} />;
+            tabContent = !!files && <DicomViewer pluginType="DicomViewer" />;
+            break;
+          case "DicomViewer_3D":
+            label = "3D Viewer";
+            tabContent = !!files && <DicomViewer pluginType="DicomViewer_3D" />;
+            break;
+          case "DicomViewer_2D":
+            label = "Viewer";
+            tabContent = !!files && <DicomViewer pluginType="DicomViewer_2D" />;
             break;
           case "RevViewer":
             label = "Viewer";
@@ -91,7 +99,7 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
             break;
           case "VolumeGrowth":
             label = "Volume";
-            tabContent = 
+            tabContent =
             (<React.Fragment>
               <h1 className="pf-c-title pf-u-m-xl">Volume Segments</h1>
               <VolumeGrowth />
@@ -119,7 +127,7 @@ const tempMapping: any = {
   default: ["FileBrowserViewer"],
   dircopy: ["RevViewer", "FileBrowserViewer"],
   pacscopy: ["RevViewer", "FileBrowserViewer"],
-  freesurfer_pp: ["DicomViewer", "FreesurferDataTable", "FileBrowserViewer"], // Notes: Nice to have viewer 3D Map image "DicomViewer",
+  freesurfer_pp: ["DicomViewer_2D", "DicomViewer_3D", "FreesurferDataTable", "FileBrowserViewer"], // Notes: Nice to have viewer 3D Map image "DicomViewer",
   simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable"],
   z2labelmap: ["DicomViewer", "FileBrowserViewer"]
 };
