@@ -71,9 +71,9 @@ const dotColor = (value: number) => {
   let color = "";
   if (!isNaN(value)) {
     const absVal = Math.abs(value);
-    color = (absVal >= 5) ? colorCode.red :
-      (absVal >= 3 && absVal < 5) ? colorCode.orange :
-        (absVal >= 2 && absVal < 3) ? colorCode.yellow : "";
+    color = (absVal >= 3.5) ? colorCode.red :
+      (absVal >= 2.5 && absVal < 3.5) ? colorCode.orange :
+        (absVal >= 1.5 && absVal < 2.5) ? colorCode.yellow : "";
   }
   return color; // orange, yellow
 }
