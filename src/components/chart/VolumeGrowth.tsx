@@ -56,13 +56,17 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
         type: "spline",
         colors: {
           G_and_S_frontomargin_LHPatient: "#FFA500",
-          G_and_S_frontomargin_RHPatient: "#FFA500",
+          G_and_S_frontomargin_RHPatient: "#00BFFF",
           G_and_S_frontomargin_LHAverage: "#FFA500",
-          G_and_S_frontomargin_RHAverage: "#FFA500",
-          G_and_S_occipital_inf_LHPatient: "#00BFFF",
+          G_and_S_frontomargin_RHAverage: "#00BFFF",
+          G_and_S_occipital_inf_LHPatient: "#FFA500",
           G_and_S_occipital_inf_RHPatient: "#00BFFF",
-          G_and_S_occipital_inf_LHAverage: "#00BFFF",
-          G_and_S_occipital_inf_RHAverage: "#00BFFF"
+          G_and_S_occipital_inf_LHAverage: "#FFA500",
+          G_and_S_occipital_inf_RHAverage: "#00BFFF",
+          G_and_S_paracentral_LHPatient: "#FFA500",
+          G_and_S_paracentral_RHPatient: "#00BFFF",
+          G_and_S_paracentral_LHAverage: "#FFA500",
+          G_and_S_paracentral_RHAverage: "#00BFFF"
         }
       },
       padding: {
