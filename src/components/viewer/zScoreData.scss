@@ -12,5 +12,20 @@
     h1{
         margin-bottom: 0.5rem;
     }
+    table{
+        th{
+            font-weight: 700;
+            padding-bottom: 0.5rem; 
+        }
+        th,td{
+            padding-left: 0; 
+        }
+        td{
+            border-bottom: solid 1px var(--pf-global--BackgroundColor--200);
+        }
+        // th:not(:first-child),td:not(:first-child){
+        //     text-align: center;
+        // }
+    }
 
 }
