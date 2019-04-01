@@ -5,6 +5,8 @@ import FeedFileModel from "../../api/models/feed-file.model";
 import { DownloadIcon } from "@patternfly/react-icons";
 import { LoadingComponent } from "..";
 import JSONPretty from "react-json-pretty";
+import AMI from "ami.js";
+import THREE from "three";
 import "./file-detail.scss";
 type AllProps = {
   active: IUITreeNode;
