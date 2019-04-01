@@ -1,7 +1,9 @@
 import * as React from "react";
 import * as c3 from "c3";
 import { Typeahead } from "react-bootstrap-typeahead";
+import {segments, volumeData, age} from "../../assets/temp/volumeData";
 import "./chart.scss";
+
 interface ComponentProps {
 }
 
@@ -9,27 +11,17 @@ interface ComponentState {
   pushedSegments: [];
 }
 
-const age = ["age", 7, 8, 9, 10, 11, 12, 13];
-
-/* Age Vs Volume data for the graph*/
-const chartData = [
-  age,
-  ["GOrbitalAverage", 90, 103, 110, 113, 117, 122, 127],
-  ["GOrbitalPatient", null, null, null, 109, null, null, null],
-  ["SCentralAverage",  190, 196, 208, 213, 217, 222, 225],
-  ["SCentralPatient", null, null, null, 190, null, null, null],
-  ["STemporalInfAverage", 280, 294, 318, 320, 320, 321, 323],
-  ["STemporalInfPatient", null, null, null, 329, null, null, null]
-];
+const data : any[] = [];
 
 const defaultChartData = [
   age,
-  ["SCentralAverage",  190, 196, 208, 213, 217, 222, 225],
-  ["SCentralPatient", null, null, null, 203, null, null, null]
+  ["G_and_S_frontomargin_RHPatient", null, null, null, 2050, null, null, null],
+  ["G_and_S_frontomargin_RHAverage", 1517.2, 1679.0, 1923.3333333333333, 2298.0, 2373.0, 2450.6, 2499.25],
+  ["G_and_S_frontomargin_LHPatient", null, null, null, 1950, null, null, null],
+  ["G_and_S_frontomargin_LHAverage", 1617.2, 1650.0, 1890.3333333333333, 2198.0, 2273.0, 2350.6, 2349.25]
 ];
 
-const defaultSegments = ["SCentral"];
-const allSegments = ["GOrbital", "SCentral", "STemporalInf"];
+const defaultSegments = ["G_and_S_frontomargin"];
 
 class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   constructor(props: ComponentProps) {
@@ -39,6 +31,16 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
     };
 
     this.changeData = this.changeData.bind(this);
+  }
+
+  fetchData() {
+    for(let i = 0; i < 74; i++){
+      let segment: any[] = [];
+    }
+  }
+
+  componentWillMount() {
+    this.fetchData();
   }
 
   componentDidMount() {
@@ -53,12 +55,14 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
         columns: inputChart,
         type: "spline",
         colors: {
-          GOrbitalAverage: "#FFA500",
-          GOrbitalPatient: "#FFA500",
-          SCentralAverage: "#00BFFF",
-          SCentralPatient: "#00BFFF",
-          STemporalInfAverage: "#12E73B",
-          STemporalInfPatient: "#12E73B"
+          G_and_S_frontomargin_LHPatient: "#FFA500",
+          G_and_S_frontomargin_RHPatient: "#FFA500",
+          G_and_S_frontomargin_LHAverage: "#FFA500",
+          G_and_S_frontomargin_RHAverage: "#FFA500",
+          G_and_S_occipital_inf_LHPatient: "#00BFFF",
+          G_and_S_occipital_inf_RHPatient: "#00BFFF",
+          G_and_S_occipital_inf_LHAverage: "#00BFFF",
+          G_and_S_occipital_inf_RHAverage: "#00BFFF"
         }
       },
       padding: {
@@ -94,7 +98,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   }
 
   getSegmentData(segment: string) {
-    const segmentData = chartData.find(segmentData => {
+    const segmentData = volumeData.find(segmentData => {
       return segmentData[0] === segment;
     });
     return segmentData;
@@ -105,17 +109,34 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
     // Get the Patient data for the segment
     if (this.state.pushedSegments.length > 0) {
       filteredData = this.state.pushedSegments.map(segment =>
-        this.getSegmentData(segment + "Patient")
+        this.getSegmentData(segment + "_LHAverage")
       );
     }
     // Get the Average data for the segment
     if (this.state.pushedSegments.length > 0) {
       filteredData = filteredData.concat(
         this.state.pushedSegments.map(segment =>
-          this.getSegmentData(segment + "Average")
+          this.getSegmentData(segment + "_LHPatient")
         )
       );
     }
+    // Get the Average data for the segment
+    if (this.state.pushedSegments.length > 0) {
+      filteredData = filteredData.concat(
+        this.state.pushedSegments.map(segment =>
+          this.getSegmentData(segment + "_RHAverage")
+        )
+      );
+    }
+    // Get the Average data for the segment
+    if (this.state.pushedSegments.length > 0) {
+      filteredData = filteredData.concat(
+        this.state.pushedSegments.map(segment =>
+          this.getSegmentData(segment + "_RHPatient")
+        )
+      );
+    }
+
     filteredData.push(age);
     return filteredData;
   }
@@ -144,7 +165,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
             defaultSelected={defaultSegments}
             id="selector"
             multiple
-            options={allSegments}
+            options={segments}
             placeholder="Choose a brain segment..."
             onChange={selectedSegments => this.changeData(selectedSegments)}
           />
