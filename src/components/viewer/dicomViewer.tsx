@@ -1,7 +1,7 @@
 import * as React from "react";
 import brainImg2DPlaceholder from "../../assets/images/image-ph-frame118.png";
 import brainImg3dPlaceholder from "../../assets/images/fs3Dsample.png";
-import brainImgZScorePlaceholder from "../../assets/images/view-dicom-image-ph.png";
+import brainImgZScorePlaceholder from "../../assets/images/z-score-frame121.png";
 
 type AllProps = {
   pluginType?: string;
