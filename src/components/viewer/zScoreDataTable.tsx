@@ -52,7 +52,7 @@ const ZScoreDataTable: React.FunctionComponent<AllProps> = (
   const rows = formatData(csvData);
   return (
     <div className="zscore-table pf-u-px-lg">
-      <h1 className="pf-c-title pf-m-xl">Z-scores</h1>
+      <h1 className="pf-c-title pf-m-xl">Deviation from Standard</h1>
       <Table
         aria-label="Data table"
         variant={TableVariant.compact}
