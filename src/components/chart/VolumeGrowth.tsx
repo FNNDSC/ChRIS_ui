@@ -83,7 +83,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
         },
         y: {
           label: {
-            text: "Size in cm3",
+            text: "Size in mm3",
             position: "outer-middle"
           }
         }
@@ -97,6 +97,14 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
       },
       size: {
         height: 500 // **** Working find the element and resize to modal
+      },
+      grid: {
+        x: {
+            show: true
+        },
+        y: {
+            show: true
+        }
       }
     });
   }
