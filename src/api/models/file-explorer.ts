@@ -11,6 +11,13 @@ export interface IUITreeNode {
   file?: any;
 }
 
+export interface IFileState {
+  blob?: Blob;
+  blobName: string;
+  blobText: any;
+  fileType: string;
+}
+
 // Description: get file type by file extention
 export function getFileExtension(item: IUITreeNode) {
   const isfile = !!item.leaf && item.leaf;
