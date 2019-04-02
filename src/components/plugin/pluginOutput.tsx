@@ -25,9 +25,9 @@ class PluginOutput extends React.Component<AllProps, { isModalOpen: boolean }> {
     return `${filesArr.length} ${filesArr.length === 1 ? "file" : "files"}`;
   };
 
-  // Description: Handle key down to open modal ***** working
-  handleKeyDown = (event: any) => {
-   // console.log("handleKeyDown", e); //keyCode: keyCode: 17 for ctrl + 32 for spaces
+  // Description: Handle key down to open modal ctrl+zZ
+  handleKeyDown = (event: KeyboardEvent) => {
+    (event.keyCode === 90 && event.ctrlKey) && this.handleModalToggle();
   }
 
   // Set local state
