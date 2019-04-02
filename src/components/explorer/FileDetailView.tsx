@@ -1,22 +1,18 @@
 import * as React from "react";
 import { Alert, Button } from "@patternfly/react-core";
-import { IUITreeNode, getFileExtension } from "../../api/models/file-explorer";
+import { IUITreeNode, IFileState, getFileExtension } from "../../api/models/file-explorer";
 import FeedFileModel from "../../api/models/feed-file.model";
 import { DownloadIcon } from "@patternfly/react-icons";
 import { LoadingComponent } from "..";
 import JSONPretty from "react-json-pretty";
+import CatchallDisplay from "./displays/catchall-display";
 import "./file-detail.scss";
 type AllProps = {
   active: IUITreeNode;
   downloadFileNode: (node: IUITreeNode) => void;
 };
-interface IState {
-  blob?: Blob;
-  blobName: string;
-  blobText: any;
-  fileType: string;
-}
-class FileDetailView extends React.Component<AllProps, IState> {
+
+class FileDetailView extends React.Component<AllProps, IFileState> {
   constructor(props: AllProps) {
     super(props);
     this.fetchData();
@@ -29,7 +25,7 @@ class FileDetailView extends React.Component<AllProps, IState> {
   };
 
   render() {
-    const { active } = this.props;
+    const { active, downloadFileNode } = this.props;
     const fileTypeViewer = () => {
       if (active.module !== this.state.blobName) {
         this.fetchData();
@@ -48,9 +44,9 @@ class FileDetailView extends React.Component<AllProps, IState> {
           case "gif":
             return this.displayImage(this.state.blob);
           // case "dcm":
-          //   return this.noPreviewMessage(); // TEMP: will build the 
+          //   return this.noPreviewMessage(); // TEMP: will build the dcm viewer
           default:
-            return this.noPreviewMessage();
+            return <CatchallDisplay file={this.state} downloadFile={() => { downloadFileNode(active)}}  />; // this.noPreviewMessage(); //
         }
       }
     };
@@ -150,6 +146,7 @@ class FileDetailView extends React.Component<AllProps, IState> {
 
   // Description: Display Image Preview
   displayImage = (blob?: Blob) => {
+    const { active, downloadFileNode } = this.props;
     if (!!blob) {
       const url = window.URL.createObjectURL(new Blob([blob]));
       return (
@@ -158,34 +155,8 @@ class FileDetailView extends React.Component<AllProps, IState> {
         </div>
       );
     } else {
-      return this.noPreviewMessage();
+      return <CatchallDisplay file={this.state} downloadFile={() => { downloadFileNode(active)}}  /> ;
     }
-  };
-
-  // Description: No preview message available for this file type
-  noPreviewMessage = () => {
-    const { active } = this.props;
-    const ext = getFileExtension(active);
-    const alertText = (
-      <React.Fragment>
-        <label>
-          <b>File Name:</b> {active.module}
-        </label>
-        <label>
-          <b>File Type:</b> {ext}
-        </label>
-        {this.renderDownloadButton()}
-      </React.Fragment>
-    );
-    return (
-      <div className="file-detail">
-        <Alert
-          variant="info"
-          title="No preview available for file:"
-          children={alertText}
-        />
-      </div>
-    );
   };
 
   renderDownloadButton = () => {
