@@ -37,8 +37,17 @@ class FileDetailView extends React.Component<AllProps, IState> {
         switch (this.state.fileType) {
           case "stats":
           case "json":
+          case "txt":
+          case "html":
+          case "csv":
             return this.displayTextInIframe(this.state.blob);
-          // dcm viewer to be done ***** working
+          case "png":
+          case "jpg":
+          case "jpeg":
+          case "gif":
+            return this.displayImage(this.state.blob);
+          // case "dcm":
+          //   return this.noPreviewMessage(); // TEMP: will build the 
           default:
             return this.noPreviewMessage();
         }
@@ -46,6 +55,7 @@ class FileDetailView extends React.Component<AllProps, IState> {
     };
     return <div>{!!this.state.blob && fileTypeViewer()}</div>;
   }
+
 
   // Description: Fetch blob and read it into state to display preview
   fetchData() {
@@ -72,7 +82,8 @@ class FileDetailView extends React.Component<AllProps, IState> {
       const url = window.URL.createObjectURL(new Blob([blob]));
       return (
         <div>
-          <div className={`header-panel ${this.state.fileType !== "json" && "sm"}`}>
+          <div
+            className={`header-panel ${this.state.fileType !== "json" && "sm"}`}  >
             {this.renderDownloadButton()}
             <h1>
               File Preview: <b>{active.module}</b>
@@ -81,7 +92,7 @@ class FileDetailView extends React.Component<AllProps, IState> {
           <div className="file-iframe">
             {this.state.fileType === "json" ? (
               <div className="json-display">
-              <JSONPretty data={this.state.blobText} />
+                <JSONPretty data={this.state.blobText} />
               </div>
             ) : (
               <div className="default-display">
@@ -133,6 +144,20 @@ class FileDetailView extends React.Component<AllProps, IState> {
         jsonLine,
         replacer
       );
+    }
+  };
+
+  // Description: Display Image Preview
+  displayImage = (blob?: Blob) => {
+    if (!!blob) {
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      return (
+        <div className="image">
+          <img src={url} height={window.innerHeight} width="100%" />
+        </div>
+      );
+    } else {
+      return this.noPreviewMessage();
     }
   };
 
