@@ -40,6 +40,7 @@ class FileDetailView extends React.Component<AllProps, IState> {
           case "txt":
           case "html":
           case "csv":
+          case "ctab":
             return this.displayTextInIframe(this.state.blob);
           case "png":
           case "jpg":
