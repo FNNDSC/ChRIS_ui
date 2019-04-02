@@ -77,18 +77,18 @@ describe('feed reducer', () => {
       })
   })
 
-  // it('should handle GET_PLUGIN_INSTANCES_SUCCESS', () => {
-  //   expect(
-  //     feedReducer(initialState, {
-  //       type: FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS,
-  //       payload: TestIFeedItem
-  //     })
-  //   ).toEqual(
-  //     {
-  //       details: undefined,
-  //       items: Testitems
-  //     })
-  // })
+  it('should handle GET_PLUGIN_INSTANCES_SUCCESS', () => {
+    expect(
+      feedReducer(initialState, {
+        type: FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS,
+        payload: TestIFeedItem
+      })
+    ).toEqual(
+      {
+        details: undefined,
+        items: Testitems
+      })
+  })
 
   it('should handle FETCH_REQUEST', () => {
     expect(
@@ -103,18 +103,18 @@ describe('feed reducer', () => {
       })
   })
 
-  // it('should handle FETCH_SUCCESS', () => {
-  //   expect(
-  //     feedReducer(initialState, {
-  //       type: FeedActionTypes.FETCH_SUCCESS,
-  //       payload: TestIFeedItem
-  //     })
-  //   ).toEqual(
-  //     {
-  //       details: undefined,
-  //       items: undefined
-  //     })
-  // })
+  it('should handle FETCH_SUCCESS', () => {
+    expect(
+      feedReducer(initialState, {
+        type: FeedActionTypes.FETCH_SUCCESS,
+        payload: TestIFeedItem
+      })
+    ).toEqual(
+      {
+        details: undefined,
+        items: undefined
+      })
+  })
 
   it('should handle FETCH_ERROR', () => {
     expect(
