@@ -1,8 +1,8 @@
 import * as React from "react";
-import brainImg2DPlaceholder from "../../assets/images/image-ph-frame118.png";
-import brainImg3dPlaceholder from "../../assets/images/fs3Dsample.png";
-import brainImgZScorePlaceholder from "../../assets/images/z-score-frame121.png";
-import zscoreLegend from "../../assets/images/z2-labelmap-legend_bg-trans.png";
+import brainImg2DPlaceholder from "../../../assets/images/image-ph-frame118.png";
+import brainImg3dPlaceholder from "../../../assets/images/fs3Dsample.png";
+import brainImgZScorePlaceholder from "../../../assets/images/z-score-frame121.png";
+import zscoreLegend from "../../../assets/images/z2-labelmap-legend_bg-trans.png";
 
 type AllProps = {
   pluginType?: string;

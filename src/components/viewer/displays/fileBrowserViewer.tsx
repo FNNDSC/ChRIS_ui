@@ -1,18 +1,16 @@
 import React, {useState} from "react";
 import { Grid, GridItem } from "@patternfly/react-core";
-import { IFeedFile } from "../../api/models/feed-file.model";
-import { IUITreeNode } from "../../api/models/file-explorer";
-import FileExplorer from "../explorer/FileExplorer";
-import FileTableView from "../explorer/FileTableView";
+import { IFeedFile } from "../../../api/models/feed-file.model";
+import { IUITreeNode } from "../../../api/models/file-explorer";
+import FileExplorer from "../../explorer/FileExplorer";
+import FileTableView from "../../explorer/FileTableView";
 
 type AllProps = {
   files: IFeedFile[];
   explorer: IUITreeNode;
 };
 
-const FileBrowserViewer: React.FunctionComponent<AllProps> = (
-  props: AllProps
-) => {
+const FileBrowserViewer: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const [activeNode, setActiveNodeState] = useState(props.explorer); // Temp - set to false
 
   // Description: handle active node and render FileDetailView ***** working
