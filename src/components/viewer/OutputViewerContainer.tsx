@@ -65,9 +65,9 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
         let tabContent;
         let label = "tab";
         switch (key) {
-          case "DicomViewer":
+          case "ZScoreViewer":
             label = "Viewer";
-            tabContent = !!files && <DicomViewer pluginType="DicomViewer" />;
+            tabContent = !!files && <DicomViewer pluginType="ZScoreViewer" />;
             break;
           case "DicomViewer_3D":
             label = "3D Viewer";
@@ -127,9 +127,11 @@ const tempMapping: any = {
   default: ["FileBrowserViewer"],
   dircopy: ["RevViewer", "FileBrowserViewer"],
   pacscopy: ["RevViewer", "FileBrowserViewer"],
+  mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
   freesurfer_pp: ["DicomViewer_2D", "DicomViewer_3D", "FreesurferDataTable", "FileBrowserViewer"],
   simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable"],
-  z2labelmap: ["DicomViewer", "FileBrowserViewer"]
+  mpcs: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable"],
+  z2labelmap: ["ZScoreViewer", "FileBrowserViewer"]
 };
 
 const mapStateToProps = ({ plugin }: ApplicationState) => ({
