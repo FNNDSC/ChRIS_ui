@@ -11,7 +11,7 @@ type AllProps = {
 const CatchallDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     const noPreviewMessage = () => {
         const { file, downloadFile } = props;
-        const ext = file.blobName.substring(file.blobName.lastIndexOf(".") + 1);
+        const ext = getFileExtension(file.blobName);
         const alertText = (
         <React.Fragment>
             <label>
