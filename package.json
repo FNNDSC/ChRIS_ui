@@ -8,9 +8,9 @@
     "@fortawesome/free-regular-svg-icons": "^5.7.2",
     "@fortawesome/free-solid-svg-icons": "^5.7.2",
     "@fortawesome/react-fontawesome": "^0.1.4",
-    "@patternfly/patternfly": "^1.0.221",
-    "@patternfly/react-core": "^2.3.6",
-    "@patternfly/react-table": "^1.0.33",
+    "@patternfly/patternfly": "^1.0.248",
+    "@patternfly/react-core": "^2.10.0",
+    "@patternfly/react-table": "^1.4.0",
     "@types/c3": "^0.6.3",
     "@types/d3": "^5.7.1",
     "@types/jest": "23.3.13",
@@ -46,7 +46,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "jest",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

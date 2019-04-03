@@ -11,8 +11,8 @@
     padding: 1.5rem 0  1rem !important;
     height: 100vh;
     min-width: 98vw;
-    .pf-c-title{
-        margin-left: 2rem;
+    h3.pf-c-title{
+       margin-left: 2rem;
     }
     .output-viewer{
         min-height: 50vh;
@@ -25,27 +25,42 @@
                 margin: 0 0 -1px 30px;
             }
         }
+        .pf-c-tab-content{
+            outline: none;
+        }
+        .empty{
+            margin: 2rem;
+            max-width: 500px;
+        }
     }
 }
-.dicom-viewer{ 
+
+.plugin-viewer{ 
     display: block;
     max-height: 100%;
     position: relative;
     img{
         display: block;
-        max-height: calc(100vh - 250px);
-        // margin: 0 auto;
+        max-height: calc(100vh - 220px);
         width: auto;  
     }
+    .image-frame{
+        display: inline-block;
+        position: relative;
+        width: auto;
+        .legend{
+            position: absolute;
+            right: 15px;
+            top:15px;
+        }
+    }
+    
     iframe{
         height: calc(100vh - 220px);
         margin: 0 auto;
         width: 100%;
     }
-    small{
-        display: block;
-        margin: 10px 20px 0;
-    }
+   
 }
 
 .dataTable-viewer{
@@ -58,6 +73,7 @@
         }
     }
 }
+
 .dot{
     background: $dot-background-gray;
     border-radius: 50%;

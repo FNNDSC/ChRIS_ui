@@ -16,7 +16,9 @@ class FeedDetails extends React.Component<AllProps> {
             <img src={imgPlaceholder} alt="placeholder for feed" />
           </div>
           <div className="pf-l-grid__item pf-m-11-col">
-            <h1 className="capitalize">{details.name}</h1>
+            {/* <h1 className="capitalize">{details.name}</h1> */}
+            {/* Hard coded for summit screen shots */}
+            <h1 className="capitalize">MPC Brain Analysis</h1>
             <ul className="pf-c-list pf-m-inline">
               <li>
                 <small>Creator</small>
@@ -28,7 +30,7 @@ class FeedDetails extends React.Component<AllProps> {
                 <small>Created</small>
                 <p>
                   <FontAwesomeIcon icon={["far", "calendar-alt"]} />
-                  <Moment format="DD MMM YYYY @ HH:mm A">
+                  <Moment format="DD MMM YYYY @ HH:mm">
                     {details.creation_date}
                   </Moment>
                 </p>
@@ -37,7 +39,7 @@ class FeedDetails extends React.Component<AllProps> {
                 <small>End Date</small>
                 <p>
                   <FontAwesomeIcon icon={["far", "calendar-alt"]} />
-                  <Moment format="DD MMM YYYY @ HH:mm A">
+                  <Moment format="DD MMM YYYY @ HH:mm">
                     {details.modification_date}
                   </Moment>
                 </p>
