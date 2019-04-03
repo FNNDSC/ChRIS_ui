@@ -1,5 +1,5 @@
-import { UiActionTypes, IUiState } from "../../../src/store/ui/types";
-import { uiReducer } from "../../../src/store/ui/reducer";
+import { UiActionTypes, IUiState } from "../../../store/ui/types";
+import { uiReducer } from "../../../store/ui/reducer";
 
 const initialState: IUiState = {
     loading: false,
@@ -23,12 +23,6 @@ describe('ui reducer', () => {
     it('should fetch request', () => {
         const testState: IUiState = {
             loading: true,
-            progress: 0,
-            isDropdownOpen: false,
-            isKebabDropdownOpen: false,
-            isSidebarOpen: true,
-            sidebarActiveItem: "dashboard",
-            sidebarActiveGroup: "feeds_grp"
         };
         expect(uiReducer(initialState, {
             type: UiActionTypes.FETCH_REQUEST,
@@ -48,13 +42,7 @@ describe('ui reducer', () => {
 
     it('should fetch complete', () => {
         const testState: IUiState = {
-            loading: false,
-            progress: 0,
-            isDropdownOpen: false,
-            isKebabDropdownOpen: false,
-            isSidebarOpen: true,
-            sidebarActiveItem: "dashboard",
-            sidebarActiveGroup: "feeds_grp"
+            loading: false
         };
 
         expect(uiReducer(initialState, {
@@ -74,18 +62,9 @@ describe('ui reducer', () => {
     })
 
     it('should toggle toolbar dropdown', () => {
-        const testState: IUiState = {
-            loading: false,
-            progress: 0,
-            isDropdownOpen: true,
-            isKebabDropdownOpen: false,
-            isSidebarOpen: true,
-            sidebarActiveItem: "dashboard",
-            sidebarActiveGroup: "feeds_grp"
-        };
         expect(uiReducer(initialState, {
             type: UiActionTypes.TOGGLE_TOOLBAR_DROPDOWN,
-            payload: testState.isDropdownOpen
+            payload: true
         })).toEqual(
             {
                 loading: false,
@@ -100,18 +79,9 @@ describe('ui reducer', () => {
     })
 
     it('should toggle toolbar kebab', () => {
-        const testState: IUiState = {
-            loading: false,
-            progress: 0,
-            isDropdownOpen: false,
-            isKebabDropdownOpen: true,
-            isSidebarOpen: true,
-            sidebarActiveItem: "dashboard",
-            sidebarActiveGroup: "feeds_grp"
-        };
         expect(uiReducer(initialState, {
             type: UiActionTypes.TOGGLE_TOOLBAR_KEBAB,
-            payload: testState.isKebabDropdownOpen
+            payload: true
         })).toEqual(
             {
                 loading: false,
@@ -126,18 +96,9 @@ describe('ui reducer', () => {
     })
 
     it('should toggle sidebar', () => {
-        const testState: IUiState = {
-            loading: false,
-            progress: 0,
-            isDropdownOpen: false,
-            isKebabDropdownOpen: false,
-            isSidebarOpen: false,
-            sidebarActiveItem: "dashboard",
-            sidebarActiveGroup: "feeds_grp"
-        };
         expect(uiReducer(initialState, {
             type: UiActionTypes.TOGGLE_SIDEBAR,
-            payload: testState.isSidebarOpen
+            payload: false
         })).toEqual(
             {
                 loading: false,
