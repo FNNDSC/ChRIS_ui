@@ -1,23 +1,57 @@
-import { messageActionTypes, IMessageState } from "../../../src/store/message/types";
-import { messageReducer } from "../../../src/store/message/reducer";
+import { messageActionTypes, IMessageState } from "../../../store/message/types";
+import { messageReducer } from "../../../store/message/reducer";
 
 const initialState: IMessageState = {
-    message: undefined,
-    confirmation: undefined
+    message: {
+        message: "hello",
+        type: "success",
+        displayType: "modal"
+    },
+    confirmation: {
+        title: "world",
+        text: "hi",
+        confirm: {
+            label: "cat",
+            action: "do",
+            data: "anytype"
+        },
+        dismiss: {
+            label: "dog",
+            action: "doit",
+            data: "anytype"
+        },
+    }
 };
 const testState : IMessageState = {
-    message: undefined,
-    confirmation: undefined
+    message: {
+        message: "hello1",
+        type: "error",
+        displayType: "toastr"
+    },
+    confirmation: {
+        title: "world1",
+        text: "hi1",
+        confirm: {
+            label: "tiger",
+            action: "doitagain",
+            data: 1
+        },
+        dismiss: {
+            label: "lion",
+            action: "do",
+            data: 2
+        },
+    }
 }
 
 
 describe('message reducer', () => {
     it('should return the initial state', () => {
-        expect(messageReducer(undefined,  {
+        expect(messageReducer(initialState,  {
             type: null,
         })).toEqual(
 
-                initialState
+            initialState
 
         )
     })
@@ -28,8 +62,25 @@ describe('message reducer', () => {
             payload: testState
         })).toEqual(
             {
-                message: undefined,
-                confirmation: undefined
+                message: {
+                    message: "hello",
+                    type: "success",
+                    displayType: "modal"
+                },
+                confirmation: {
+                    title: "world",
+                    text: "hi",
+                    confirm: {
+                        label: "cat",
+                        action: "do",
+                        data: "anytype"
+                    },
+                    dismiss: {
+                        label: "dog",
+                        action: "doit",
+                        data: "anytype"
+                    },
+                }
             }
         )
     })
@@ -40,8 +91,25 @@ describe('message reducer', () => {
             payload: testState
         })).toEqual(
             {
-                message: undefined,
-                confirmation: undefined
+                message: {
+                    message: "hello",
+                    type: "success",
+                    displayType: "modal"
+                },
+                confirmation: {
+                    title: "world",
+                    text: "hi",
+                    confirm: {
+                        label: "cat",
+                        action: "do",
+                        data: "anytype"
+                    },
+                    dismiss: {
+                        label: "dog",
+                        action: "doit",
+                        data: "anytype"
+                    },
+                }
             }
         )
     })
@@ -52,8 +120,25 @@ describe('message reducer', () => {
             payload: testState
         })).toEqual(
             {
-                message: undefined,
-                confirmation: undefined
+                message: {
+                    message: "hello",
+                    type: "success",
+                    displayType: "modal"
+                },
+                confirmation: {
+                    title: "world",
+                    text: "hi",
+                    confirm: {
+                        label: "cat",
+                        action: "do",
+                        data: "anytype"
+                    },
+                    dismiss: {
+                        label: "dog",
+                        action: "doit",
+                        data: "anytype"
+                    },
+                }
             }
         )
     })
@@ -64,8 +149,25 @@ describe('message reducer', () => {
             payload: testState
         })).toEqual(
             {
-                message: undefined,
-                confirmation: undefined
+                message: {
+                    message: "hello",
+                    type: "success",
+                    displayType: "modal"
+                },
+                confirmation: {
+                    title: "world",
+                    text: "hi",
+                    confirm: {
+                        label: "cat",
+                        action: "do",
+                        data: "anytype"
+                    },
+                    dismiss: {
+                        label: "dog",
+                        action: "doit",
+                        data: "anytype"
+                    },
+                }
             }
         )
     })
