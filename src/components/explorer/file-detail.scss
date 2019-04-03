@@ -7,12 +7,12 @@
 @import "../../assets/scss/helpers/variables";
 @import "../../assets/scss/helpers/mixins";
 @import "../../assets/scss/vendors/react-ui-tree";
-
+$max-width-sm:  700px;
 // File detail view
 // -----------------------------------------------
 .file-detail{
   .pf-c-alert{
-    max-width: 700px;
+    max-width: $max-width-sm;
     margin: 1rem 3rem;
     label{
       display: block;
@@ -21,32 +21,31 @@
   }
 }
 // Iframe to display the file contents
-.file-iframe{
+.default-display, .json-display{
   min-height: calc(100vh - 280px);
-  .default-display{
-    border: solid 1px #eee;
-    border-radius: 4px;
-    max-width: 700px;
-    iframe{
-      height: calc(100vh - 280px);
-      margin: 0 auto;
-      padding: 5px;
-      width: 100%;
-    }
-  }
- 
-  .json-display{
-    background: #f8f9fa;
-    border: solid 1px #eee;
-    border-radius: 4px;
-    padding: 1rem;
-    min-height: calc(100vh - 280px);
-    overflow: auto;
+}
+.default-display{
+  border: solid 1px #eee;
+  border-radius: 4px;
+  max-width: $max-width-sm;
+  iframe{
+    height: calc(100vh - 280px);
+    margin: 0 auto;
+    padding: 5px;
+    width: 100%;
   }
 }
+.json-display{
+  background: #f8f9fa;
+  border: solid 1px #eee;
+  border-radius: 4px;
+  padding: 1rem;
+  overflow: auto;
+}
+
 .header-panel{
   &.sm{
-    max-width: 700px;
+    max-width: $max-width-sm;
   }
   h1{
     padding-top:15px;

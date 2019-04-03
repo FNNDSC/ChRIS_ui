@@ -11,12 +11,17 @@ export interface IUITreeNode {
   file?: any;
 }
 
-// Description: get file type by file extention
-export function getFileExtension(item: IUITreeNode) {
-  const isfile = !!item.leaf && item.leaf;
-  return item.module.substring(item.module.lastIndexOf(".") + 1);
+export interface IFileState {
+  blob?: Blob;
+  blobName: string;
+  blobText: any;
+  fileType: string;
 }
 
+// Description: get file type by file extention
+export function getFileExtension(filename: string) {
+  return filename.substring(filename.lastIndexOf(".") + 1);
+}
 
 // Description: takes an array of files and build the file explorer tree
 export default class UITreeNodeModel {
