@@ -81,7 +81,11 @@ describe('feed reducer', () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS,
-        payload: TestIFeedItem
+        payload:{
+            data: {
+              results: Testitems
+            }
+        }
       })
     ).toEqual(
       {
@@ -107,12 +111,16 @@ describe('feed reducer', () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.FETCH_SUCCESS,
-        payload: TestIFeedItem
+        payload: {
+          data: {
+          results: Testitems
+         }
+        }
       })
     ).toEqual(
       {
         details: undefined,
-        items: undefined
+        items: Testitems
       })
   })
 
