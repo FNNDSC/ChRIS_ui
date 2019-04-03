@@ -10,7 +10,6 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const { file } = props;
   const url = (!!file.blob) ? window.URL.createObjectURL(new Blob([file.blob])) : "";
   return (
-    
     <div className="default-display">
       <iframe
         key={file.blobName}
