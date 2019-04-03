@@ -5,18 +5,12 @@ import {
   TableBody,
   TableVariant
 } from "@patternfly/react-table";
-import { IFeedFile } from "../../api/models/feed-file.model";
-import { csvData } from "../../assets/temp/segmentData";
+import { IFeedFile } from "../../../api/models/feed-file.model";
+import { csvData } from "../../../assets/temp/segmentData";
 import "./zScoreData.scss";
 type AllProps = {
   files: IFeedFile[];
 };
-
-// interface IzScoreRow {
-//   StructName: string;
-//   zScoreLeft: number;
-//   zScoreRight: number;
-// }
 
 const ZScoreDataTable: React.FunctionComponent<AllProps> = (
   props: AllProps
