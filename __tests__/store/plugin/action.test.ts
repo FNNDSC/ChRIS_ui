@@ -61,13 +61,38 @@ describe('actions of plugin', () => {
 		})
 
 	it("getPluginFilesRequest should return",() => {
-		const TestString = "string";
+		const TestItem = {
+		    id: 1,
+		    title: "string",
+		    previous_id:2,
+		    plugin_id: 3,
+		    plugin_name: 'string',
+		    pipeline_inst: null,
+		    feed_id: 4,
+		    start_date: 'string',
+		    end_date: "string",
+		    status: "string",
+		    owner_username: "string",
+		    compute_resource_identifier: "string",
+		    cpu_limit: 5,
+		    memory_limit: 6,
+		    number_of_workers:7,
+		    gpu_limit: 8,
+		    url: 'string',
+   			feed: 'string',
+    		descendants: 'string',
+	    	files: 'string',
+		    parameters: 'string',
+		    plugin: 'string',
+		    next: 'string',
+		    previous: 'string'
+		}
 		const expectedResult = 
 		{
 			type:PluginActionTypes.GET_PLUGIN_FILES,
-			payload: TestString
+			payload: TestItem
 		}
-		expect(getPluginFilesRequest(TestString)).toEqual(expectedResult)
+		expect(getPluginFilesRequest(TestItem)).toEqual(expectedResult)
 		})
 
 	it("getPluginFilesSuccess should return",() => {
