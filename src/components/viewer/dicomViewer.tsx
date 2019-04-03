@@ -1,30 +1,26 @@
 import * as React from "react";
-import imgPlaceholder from "../../assets/images/view-dicom-image-ph.png";
-import brainImgPlaceholder from "../../assets/images/heatmap-example-135.png";
-import { IFeedFile } from "../../api/models/feed-file.model";
+import brainImg2DPlaceholder from "../../assets/images/image-ph-frame118.png";
+import brainImg3dPlaceholder from "../../assets/images/fs3Dsample.png";
+import brainImgZScorePlaceholder from "../../assets/images/z-score-frame121.png";
+import zscoreLegend from "../../assets/images/z2-labelmap-legend_bg-trans.png";
+
 type AllProps = {
-  files: IFeedFile[];
+  pluginType?: string;
 };
 
+// Description: Will be replaced with a DCM Fyle viewer
 const DicomViewer: React.FunctionComponent<AllProps> = (props: AllProps) => {
+  const imageSrc = (props.pluginType === "DicomViewer_3D") ? brainImg3dPlaceholder :
+  (props.pluginType === "DicomViewer_2D") ? brainImg2DPlaceholder : brainImgZScorePlaceholder;
   return (
-    <div className="dicom-viewer  pf-u-px-lg">
-      {/* Note: this iframe will be removed once the ami viewer is implemented - remove in .env.local by adding a REACT_APP_LOCAL_ENV = true  */}
-      {!!!process.env.REACT_APP_LOCAL_ENV ? (
-        <iframe
-          src="http://fnndsc.childrens.harvard.edu/rev/viewer/?year=00&month=00&example=01"
-          height={window.innerHeight}
-          width="100%"
-        />
-      ) : (
-        <React.Fragment>
-          <img src={brainImgPlaceholder} alt="placeholder for DICOM Images" />
-          <small>
-            <b>Note:</b> Underlying images are normative and do <b>not</b>{" "}
-            represent the original scans the falues being compared came from.
-          </small>
-        </React.Fragment>
-      )}
+    <div className="plugin-viewer  pf-u-px-lg">
+    <div className="image-frame">
+      <img src={imageSrc} alt="placeholder for Viewer Images" />
+      {
+        (props.pluginType === "ZScoreViewer") &&
+         <img  className="legend" src={zscoreLegend} alt="legend for z-score labels on Images" />
+      }
+      </div>
     </div>
   );
 };

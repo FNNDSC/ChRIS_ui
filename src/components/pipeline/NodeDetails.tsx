@@ -3,6 +3,7 @@ import { IPluginItem } from "../../api/models/pluginInstance.model";
 import { Button, Grid, GridItem } from "@patternfly/react-core";
 import { ShareAltIcon, InfrastructureIcon } from "@patternfly/react-icons";
 import TreeNodeModel, { INode } from "../../api/models/tree-node.model";
+import { getPluginInstanceTitle } from "../../api/models/pluginInstance.model";
 import PipelineTree from "./PipelineTree";
 interface INodeProps {
   selected: IPluginItem;
@@ -32,7 +33,7 @@ class NodeDetails extends React.Component<INodeProps> {
     return (
       <React.Fragment>
         <div className="capitalize">
-          <label>Selected Node:</label> {selected.plugin_name}
+          <label>Selected Node:</label> {getPluginInstanceTitle(selected)}
         </div>
         <Grid>
           <GridItem className="pf-u-p-sm" sm={12} md={6}>

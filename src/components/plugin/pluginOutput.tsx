@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { Button } from "@patternfly/react-core";
 import {
   ExclamationCircleIcon,
@@ -13,48 +13,70 @@ type AllProps = {
   handleDownloadData: () => void;
   handleViewData: () => void;
 };
+class PluginOutput extends React.Component<AllProps, { isModalOpen: boolean }> {
+  state = {
+    isModalOpen: false
+  };
+  componentDidMount() {
+    document.addEventListener("keydown", this.handleKeyDown);
+  }
 
-const PluginOutput: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  const parseFilesLabel = (filesArr: any[]): string => {
+  parseFilesLabel = (filesArr: any[]): string => {
     return `${filesArr.length} ${filesArr.length === 1 ? "file" : "files"}`;
   };
 
-  // Set local state hook
-  const [isModalOpen, setValue] = useState(false); // Temp - set to false
-  const handleModalToggle = () => {
-    setValue(!isModalOpen);
-  };
+  // Description: Handle key down to open modal ctrl+zZ
+  handleKeyDown = (event: KeyboardEvent) => {
+    (event.keyCode === 90 && event.ctrlKey) && this.handleModalToggle();
+  }
 
-  return (
-    !!props.files && (
-      <React.Fragment>
-        <div>
-          <label>Data:</label>
-          {!props.files.length ? (
-            <span>
-              <ExclamationCircleIcon color="#007bba" /> No files found
-            </span>
-          ) : (
-            parseFilesLabel(props.files)
-          )}
-        </div>
-        {props.files.length > 0 && (
-          <div className="btn-div">
-            <Button
-              variant="secondary"
-              isBlock
-              onClick={props.handleDownloadData} >
-              <DownloadIcon /> Download Data
-            </Button>
-            <Button variant="secondary" isBlock onClick={handleModalToggle}>
-              <EyeIcon /> View Data
-            </Button>
+  // Set local state
+  handleModalToggle = () => {
+    this.setState({
+      isModalOpen: !this.state.isModalOpen
+    });
+  };
+  render() {
+    const { files, handleDownloadData } = this.props;
+    return (
+      !!files && (
+        <React.Fragment>
+          <div>
+            <label>Data:</label>
+            {!files.length ? (
+              <span>
+                <ExclamationCircleIcon color="#007bba" /> No files found
+              </span>
+            ) : (
+              this.parseFilesLabel(files)
+            )}
           </div>
-        )}
-        <PluginViewerModal isModalOpen={isModalOpen} handleModalToggle={handleModalToggle}  />
-      </React.Fragment>
-    )
-  );
-};
+          {files.length > 0 && (
+            <div className="btn-div">
+              <Button variant="secondary" isBlock onClick={handleDownloadData}>
+                <DownloadIcon /> Download Data
+              </Button>
+              <Button
+                variant="secondary"
+                isBlock
+                onClick={this.handleModalToggle}
+              >
+                <EyeIcon /> View Data
+              </Button>
+            </div>
+          )}
+          <PluginViewerModal
+            isModalOpen={this.state.isModalOpen}
+            handleModalToggle={this.handleModalToggle}
+          />
+        </React.Fragment>
+      )
+    );
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleKeyDown);
+  }
+}
 
 export default React.memo(PluginOutput);

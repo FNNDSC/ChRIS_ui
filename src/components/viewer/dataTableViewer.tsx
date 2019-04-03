@@ -15,7 +15,7 @@ const DataTableViewer: React.FunctionComponent<AllProps> = (
   props: AllProps
 ) => {
   const onSearch = (term: string) => {
-    console.log("search", term);
+    // Note: Stub search table data to be done
   };
 
   return (
