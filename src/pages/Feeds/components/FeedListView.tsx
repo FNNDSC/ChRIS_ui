@@ -80,7 +80,7 @@ const TableRow = (props: { feed: IFeedItem; key: string }) => {
     <tr>
       <td>
         <Link className="capitalize" to={`/feeds/${feed.id}`}>
-          <LinkIcon /> {feed.name}
+          <LinkIcon /> {feed.name}: {feed.id}
         </Link>
       </td>
       <td>

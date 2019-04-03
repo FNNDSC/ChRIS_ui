@@ -17,16 +17,12 @@ function* handleGetAllFeeds(action: any) {
     const url =  !!action.payload ? `${process.env.REACT_APP_CHRIS_UI_URL}search/?name=${action.payload}` : `${process.env.REACT_APP_CHRIS_UI_URL}`;
     const res = yield call(FeedModel.fetchRequest, url);
     if (res.error) {
-      // yield put(handleUIMessage({ message: res.error, type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
       console.error(res.error); // working user messaging
     } else {
       yield put(getAllFeedsSuccess(res));
-      // yield put(managerOnCompleteRequest()); // no need for messaging just loading false
     }
   } catch (error) {
     console.error(error); // working user messaging
-    // yield put(handleUIMessage({ message: (err instanceof Error ? (err.stack!) :
-    //   managerDefaults.defaultMessage.Error), type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
   }
 }
 
@@ -44,18 +40,14 @@ function* handleGetFeedDetails(action: any) {
   try {
     const res = yield call(FeedModel.getFeed, action.payload);
     if (res.error) {
-      // yield put(handleUIMessage({ message: res.error, type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
       console.error(res.error); // working user messaging
     } else {
       yield put(getFeedDetailsSuccess(res.data));
       const url = res.data.plugin_instances;
       yield put(getPluginInstanceListRequest(url)); // Note: Call the plugin instance pass it all in one state call
-      // yield put(managerOnCompleteRequest()); // no need for messaging just loading false
     }
   } catch (error) {
     console.error(error); // working user messaging
-    // yield put(handleUIMessage({ message: (err instanceof Error ? (err.stack!) :
-    //   managerDefaults.defaultMessage.Error), type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
   }
 }
 
@@ -72,16 +64,12 @@ function* handleGetPluginInstances(action: any) {
   try {
     const res = yield call(FeedModel.fetchRequest, action.payload);
     if (res.error) {
-      // yield put(handleUIMessage({ message: res.error, type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
       console.error(res.error); // working user messaging
     } else {
       yield put(getPluginInstanceListSuccess(res));
-      // yield put(managerOnCompleteRequest()); // nO need for messaging just loading false
     }
   } catch (error) {
     console.error(error); // working user messaging
-    // yield put(handleUIMessage({ message: (err instanceof Error ? (err.stack!) :
-    //   managerDefaults.defaultMessage.Error), type: UIMessageType.error, displayType: MessageHandlerType.toastr }));
   }
 }
 
