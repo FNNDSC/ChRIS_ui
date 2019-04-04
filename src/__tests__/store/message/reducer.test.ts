@@ -36,9 +36,7 @@ describe("message reducer", () => {
         expect(messageReducer(initialState, {
             type: messageActionTypes.DISPLAY_MESSAGE
         })).toEqual(
-            {
-                initialState
-            }
+            initialState
         )
     })
 
@@ -46,9 +44,7 @@ describe("message reducer", () => {
         expect(messageReducer(initialState, {
             type: messageActionTypes.DISMISS_MESSAGE
         })).toEqual(
-            {
-                initialState
-            }
+            initialState
         )
     })
 
@@ -56,9 +52,7 @@ describe("message reducer", () => {
         expect(messageReducer(initialState, {
             type: messageActionTypes.DISPLAY_CONFIRMATION
         })).toEqual(
-            {
-                initialState
-            }
+            initialState
         )
     })
 
@@ -66,9 +60,7 @@ describe("message reducer", () => {
         expect(messageReducer(initialState, {
             type: messageActionTypes.DISMISS_CONFIRMATION
         })).toEqual(
-            {
-                initialState
-            }
+            initialState
         )
     })
 
