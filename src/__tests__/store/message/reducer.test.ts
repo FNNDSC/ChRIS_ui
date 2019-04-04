@@ -22,44 +22,19 @@ const initialState: IMessageState = {
         },
     }
 };
-const testState : IMessageState = {
-    message: {
-        message: "hello1",
-        type: "error",
-        displayType: "toastr"
-    },
-    confirmation: {
-        title: "world1",
-        text: "hi1",
-        confirm: {
-            label: "tiger",
-            action: "doitagain",
-            data: 1
-        },
-        dismiss: {
-            label: "lion",
-            action: "do",
-            data: 2
-        },
-    }
-}
 
-
-describe('message reducer', () => {
-    it('should return the initial state', () => {
+describe("message reducer", () => {
+    it("should return the initial state", () => {
         expect(messageReducer(initialState,  {
-            type: null,
+            type: null
         })).toEqual(
-
             initialState
-
         )
     })
 
-    it('should display message', () => {
+    it("should display message", () => {
         expect(messageReducer(initialState, {
-            type: messageActionTypes.DISPLAY_MESSAGE,
-            payload: testState
+            type: messageActionTypes.DISPLAY_MESSAGE
         })).toEqual(
             {
                 message: {
@@ -85,10 +60,9 @@ describe('message reducer', () => {
         )
     })
 
-    it('should dismiss message', () => {
+    it("should dismiss message", () => {
         expect(messageReducer(initialState, {
-            type: messageActionTypes.DISMISS_MESSAGE,
-            payload: testState
+            type: messageActionTypes.DISMISS_MESSAGE
         })).toEqual(
             {
                 message: {
@@ -114,10 +88,9 @@ describe('message reducer', () => {
         )
     })
 
-    it('should display confirmation', () => {
+    it("should display confirmation", () => {
         expect(messageReducer(initialState, {
-            type: messageActionTypes.DISPLAY_CONFIRMATION,
-            payload: testState
+            type: messageActionTypes.DISPLAY_CONFIRMATION
         })).toEqual(
             {
                 message: {
@@ -143,10 +116,9 @@ describe('message reducer', () => {
         )
     })
 
-    it('should dismiss confirmation', () => {
+    it("should dismiss confirmation", () => {
         expect(messageReducer(initialState, {
-            type: messageActionTypes.DISMISS_CONFIRMATION,
-            payload: testState
+            type: messageActionTypes.DISMISS_CONFIRMATION
         })).toEqual(
             {
                 message: {
