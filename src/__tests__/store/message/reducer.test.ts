@@ -37,25 +37,7 @@ describe("message reducer", () => {
             type: messageActionTypes.DISPLAY_MESSAGE
         })).toEqual(
             {
-                message: {
-                    message: "hello",
-                    type: "success",
-                    displayType: "modal"
-                },
-                confirmation: {
-                    title: "world",
-                    text: "hi",
-                    confirm: {
-                        label: "cat",
-                        action: "do",
-                        data: "anytype"
-                    },
-                    dismiss: {
-                        label: "dog",
-                        action: "doit",
-                        data: "anytype"
-                    },
-                }
+                initialState
             }
         )
     })
@@ -65,25 +47,7 @@ describe("message reducer", () => {
             type: messageActionTypes.DISMISS_MESSAGE
         })).toEqual(
             {
-                message: {
-                    message: "hello",
-                    type: "success",
-                    displayType: "modal"
-                },
-                confirmation: {
-                    title: "world",
-                    text: "hi",
-                    confirm: {
-                        label: "cat",
-                        action: "do",
-                        data: "anytype"
-                    },
-                    dismiss: {
-                        label: "dog",
-                        action: "doit",
-                        data: "anytype"
-                    },
-                }
+                initialState
             }
         )
     })
@@ -93,25 +57,7 @@ describe("message reducer", () => {
             type: messageActionTypes.DISPLAY_CONFIRMATION
         })).toEqual(
             {
-                message: {
-                    message: "hello",
-                    type: "success",
-                    displayType: "modal"
-                },
-                confirmation: {
-                    title: "world",
-                    text: "hi",
-                    confirm: {
-                        label: "cat",
-                        action: "do",
-                        data: "anytype"
-                    },
-                    dismiss: {
-                        label: "dog",
-                        action: "doit",
-                        data: "anytype"
-                    },
-                }
+                initialState
             }
         )
     })
@@ -121,25 +67,7 @@ describe("message reducer", () => {
             type: messageActionTypes.DISMISS_CONFIRMATION
         })).toEqual(
             {
-                message: {
-                    message: "hello",
-                    type: "success",
-                    displayType: "modal"
-                },
-                confirmation: {
-                    title: "world",
-                    text: "hi",
-                    confirm: {
-                        label: "cat",
-                        action: "do",
-                        data: "anytype"
-                    },
-                    dismiss: {
-                        label: "dog",
-                        action: "doit",
-                        data: "anytype"
-                    },
-                }
+                initialState
             }
         )
     })
