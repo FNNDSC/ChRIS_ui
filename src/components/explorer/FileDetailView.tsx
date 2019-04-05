@@ -13,6 +13,8 @@ import {
   IframeDisplay,
   ImageDisplay
 } from "./displays/index";
+import AMI from "ami.js";
+import THREE from "three";
 
 import "./file-detail.scss";
 type AllProps = {
@@ -32,7 +34,7 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
     fileType: ""
   };
 
-  render() {
+    render() {
     const { active } = this.props;
     const fileTypeViewer = () => {
       if (active.module !== this.state.blobName) {
