@@ -23,15 +23,26 @@ export default function configureStore(history: History): Store<ApplicationState
   // Build Saga middleware
   const sagaMiddleware = createSagaMiddleware();
 
+  // Build ALL Middleware
+  let middleware;
+  if (process.env.NODE_ENV !== "production") {
+    middleware = applyMiddleware(
+      sagaMiddleware,
+      routerMiddleware(history),
+      logger
+    )
+  } else {
+    middleware = applyMiddleware(
+      sagaMiddleware,
+      routerMiddleware(history),
+    )
+  }
+
   // Create store
   const store = createStore(
-    // rootReducer,
     createRootReducer(history),
     initialGlobalState,
-    applyMiddleware(
-        sagaMiddleware,
-        routerMiddleware(history),
-        logger)
+    middleware
   );
 
   // Run the root saga

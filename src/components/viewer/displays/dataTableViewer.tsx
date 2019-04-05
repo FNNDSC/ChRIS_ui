@@ -5,8 +5,8 @@ import {
   TableBody,
   TableVariant
 } from "@patternfly/react-table";
-import { DataTableToolbar } from "../index";
-import { IFeedFile } from "../../api/models/feed-file.model";
+import { DataTableToolbar } from "../../index";
+import { IFeedFile } from "../../../api/models/feed-file.model";
 type AllProps = {
   files: IFeedFile[];
 };

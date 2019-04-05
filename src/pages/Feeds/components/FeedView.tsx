@@ -74,8 +74,7 @@ class FeedView extends React.Component<AllProps> {
         {/* Mid section with Feed and node actions */}
         <PageSection
           className={pf4UtilityStyles.spacingStyles.p_0}
-          variant={PageSectionVariants.light}
-        >
+          variant={PageSectionVariants.light} >
           <Grid className="feed-view">
             <GridItem className="feed-block pf-u-p-md" sm={12} md={6}>
               <h1>Feed Graph</h1>
