@@ -6,12 +6,15 @@ import { ApplicationState } from "../../store/root/applicationState";
 import { IFeedFile } from "../../api/models/feed-file.model";
 import { IUITreeNode } from "../../api/models/file-explorer";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
-import DicomViewer from "./dicomViewer";
-import RevViewer from "./revViewer";
-import DataTableViewer from "./dataTableViewer";
-import FreesurferDataTable from "./freesurferDataTable";
-import ZScoreDataTable from "./zScoreDataTable";
-import FileBrowserViewer from "./fileBrowserViewer";
+import {
+  DicomViewer,
+  RevViewer,
+  DataTableViewer,
+  FreesurferDataTable,
+  ZScoreDataTable,
+  FileBrowserViewer,
+  ImageGallery
+} from "./displays/index";
 import VolumeGrowth from "../../components/chart/VolumeGrowth";
 import SegmentAnalysis from "../../components/chart/SegmentAnalysis";
 import "./viewer.scss";
@@ -100,18 +103,22 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
           case "VolumeGrowth":
             label = "Volume";
             tabContent =
-            (<React.Fragment>
-              <h1 className="pf-c-title pf-u-m-xl">Volume Segments</h1>
-              <VolumeGrowth />
-          </React.Fragment>)
-            break;
+              (<React.Fragment>
+                <h1 className="pf-c-title pf-u-m-xl">Volume Segments</h1>
+                <VolumeGrowth />
+              </React.Fragment>)
+           break;
           case "SegmentAnalysis":
             label = "Segment";
             tabContent =
-            (<React.Fragment>
+              (<React.Fragment>
                 <h1 className="pf-c-title pf-u-m-xl">Z-Score</h1>
                 <SegmentAnalysis />;
             </React.Fragment>)
+            break;
+          case "GalleryViewer":
+            label = "ImageGallery";
+            tabContent = !!files && <ImageGallery files={files} />;
             break;
         }
         tabs.push(<Tab eventKey={i} title={label}>
@@ -124,8 +131,10 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
 }
 // Description: Temporary mapping for plugin tabs
 const tempMapping: any = {
+  // mri10yr06mo01da_normal: ["GalleryViewer", "FileBrowserViewer"], // Temp for dev
   default: ["FileBrowserViewer"],
-  dircopy: ["RevViewer", "FileBrowserViewer"],
+ // dircopy: ["RevViewer", "FileBrowserViewer"],
+  dircopy: ["FileBrowserViewer"], // Temp for dev
   pacscopy: ["RevViewer", "FileBrowserViewer"],
   mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
   freesurfer_pp: ["DicomViewer_2D", "DicomViewer_3D", "FreesurferDataTable", "FileBrowserViewer"],

@@ -7,14 +7,14 @@ import {
 } from "../../api/models/file-explorer";
 import FeedFileModel from "../../api/models/feed-file.model";
 import { DownloadIcon, ResourcesAlmostFullIcon } from "@patternfly/react-icons";
-import { LoadingComponent } from "..";
-// import JSONPretty from "react-json-pretty";
 import {
   CatchallDisplay,
   JsonDisplay,
   IframeDisplay,
   ImageDisplay
 } from "./displays/index";
+import AMI from "ami.js";
+import THREE from "three";
 
 import "./file-detail.scss";
 type AllProps = {
@@ -34,7 +34,7 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
     fileType: ""
   };
 
-  render() {
+    render() {
     const { active } = this.props;
     const fileTypeViewer = () => {
       if (active.module !== this.state.blobName) {

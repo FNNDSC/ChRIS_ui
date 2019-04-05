@@ -19,6 +19,8 @@
     "@types/react-bootstrap-typeahead": "^3.4.3",
     "@types/react-dom": "16.0.11",
     "@types/react-redux": "^7.0.2",
+    "@types/three": "^0.93.30",
+    "ami.js": "github:FNNDSC/ami",
     "axios": "^0.18.0",
     "bootstrap": "^4.3.1",
     "c3": "^0.6.13",
@@ -39,6 +41,7 @@
     "react-scripts": "2.1.8",
     "react-ui-tree": "^4.0.0",
     "redux-saga": "^1.0.2",
+    "three": "^0.103.0",
     "typesafe-actions": "^3.2.1",
     "typescript": "3.3.1",
     "webcola": "^3.3.8"
