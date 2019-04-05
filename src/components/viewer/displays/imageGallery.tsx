@@ -1,8 +1,6 @@
 import * as React from "react";
 import FeedFileModel, { IFeedFile } from "../../../api/models/feed-file.model";
-import { Button } from "@patternfly/react-core";
-import { EyeIcon } from "@patternfly/react-icons";
-import ReactBnbGallery from "react-bnb-gallery";
+
 
 type AllProps = {
   files: IFeedFile[];
