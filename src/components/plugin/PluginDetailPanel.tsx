@@ -13,9 +13,8 @@ import { IPluginState } from "../../store/plugin/types";
 import PluginInformation from "./pluginInformation";
 import PluginConfiguration from "./pluginConfiguration";
 import PluginOutput from "./pluginOutput";
-import "./plugin.scss";
 import { getPluginInstanceTitle } from "../../api/models/pluginInstance.model";
-
+import "./plugin.scss";
 interface IState {
   expanded: string[];
 }
