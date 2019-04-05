@@ -5,18 +5,12 @@ import {
   TableBody,
   TableVariant
 } from "@patternfly/react-table";
-import { IFeedFile } from "../../api/models/feed-file.model";
-import { csvData } from "../../assets/temp/segmentData";
+import { IFeedFile } from "../../../api/models/feed-file.model";
+import { csvData } from "../../../assets/temp/segmentData";
 import "./zScoreData.scss";
 type AllProps = {
   files: IFeedFile[];
 };
-
-// interface IzScoreRow {
-//   StructName: string;
-//   zScoreLeft: number;
-//   zScoreRight: number;
-// }
 
 const ZScoreDataTable: React.FunctionComponent<AllProps> = (
   props: AllProps
@@ -71,9 +65,9 @@ const dotColor = (value: number) => {
   let color = "";
   if (!isNaN(value)) {
     const absVal = Math.abs(value);
-    color = (absVal >= 5) ? colorCode.red :
-      (absVal >= 3 && absVal < 5) ? colorCode.orange :
-        (absVal >= 2 && absVal < 3) ? colorCode.yellow : "";
+    color = (absVal >= 3.5) ? colorCode.red :
+      (absVal >= 2.5 && absVal < 3.5) ? colorCode.orange :
+        (absVal >= 1.5 && absVal < 2.5) ? colorCode.yellow : "";
   }
   return color; // orange, yellow
 }

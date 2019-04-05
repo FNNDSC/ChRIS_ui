@@ -52,3 +52,15 @@ table {
     margin: 1rem 3rem;
   }
 }
+
+.image-block{
+  position: relative;
+  button{
+   position: absolute;
+   right: 0;
+   top: 5px;
+   svg{
+    color:#fff;
+   }
+  }
+}

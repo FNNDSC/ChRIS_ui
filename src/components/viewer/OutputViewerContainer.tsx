@@ -6,12 +6,15 @@ import { ApplicationState } from "../../store/root/applicationState";
 import { IFeedFile } from "../../api/models/feed-file.model";
 import { IUITreeNode } from "../../api/models/file-explorer";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
-import DicomViewer from "./dicomViewer";
-import RevViewer from "./revViewer";
-import DataTableViewer from "./dataTableViewer";
-import FreesurferDataTable from "./freesurferDataTable";
-import ZScoreDataTable from "./zScoreDataTable";
-import FileBrowserViewer from "./fileBrowserViewer";
+import {
+  DicomViewer,
+  RevViewer,
+  DataTableViewer,
+  FreesurferDataTable,
+  ZScoreDataTable,
+  FileBrowserViewer,
+  ImageGallery
+} from "./displays/index";
 import VolumeGrowth from "../../components/chart/VolumeGrowth";
 import SegmentAnalysis from "../../components/chart/SegmentAnalysis";
 import "./viewer.scss";
@@ -65,9 +68,17 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
         let tabContent;
         let label = "tab";
         switch (key) {
-          case "DicomViewer":
+          case "ZScoreViewer":
             label = "Viewer";
-            tabContent = !!files && <DicomViewer files={files} pluginType={selected.plugin_name} />;
+            tabContent = !!files && <DicomViewer pluginType="ZScoreViewer" />;
+            break;
+          case "DicomViewer_3D":
+            label = "3D Viewer";
+            tabContent = !!files && <DicomViewer pluginType="DicomViewer_3D" />;
+            break;
+          case "DicomViewer_2D":
+            label = "Viewer";
+            tabContent = !!files && <DicomViewer pluginType="DicomViewer_2D" />;
             break;
           case "RevViewer":
             label = "Viewer";
@@ -92,18 +103,22 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
           case "VolumeGrowth":
             label = "Volume";
             tabContent =
-            (<React.Fragment>
-              <h1 className="pf-c-title pf-u-m-xl">Volume Segments</h1>
-              <VolumeGrowth />
-          </React.Fragment>)
-            break;
+              (<React.Fragment>
+                <h1 className="pf-c-title pf-u-m-xl">Volume Segments</h1>
+                <VolumeGrowth />
+              </React.Fragment>)
+           break;
           case "SegmentAnalysis":
             label = "Segment";
             tabContent =
-            (<React.Fragment>
+              (<React.Fragment>
                 <h1 className="pf-c-title pf-u-m-xl">Z-Score</h1>
                 <SegmentAnalysis />;
             </React.Fragment>)
+            break;
+          case "GalleryViewer":
+            label = "ImageGallery";
+            tabContent = !!files && <ImageGallery files={files} />;
             break;
         }
         tabs.push(<Tab eventKey={i} title={label}>
@@ -116,13 +131,16 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
 }
 // Description: Temporary mapping for plugin tabs
 const tempMapping: any = {
+  // mri10yr06mo01da_normal: ["GalleryViewer", "FileBrowserViewer"], // Temp for dev
   default: ["FileBrowserViewer"],
  // dircopy: ["RevViewer", "FileBrowserViewer"],
   dircopy: ["FileBrowserViewer"], // Temp for dev
   pacscopy: ["RevViewer", "FileBrowserViewer"],
-  freesurfer_pp: ["DicomViewer", "FreesurferDataTable", "FileBrowserViewer"], // Notes: Nice to have viewer 3D Map image "DicomViewer",
+  mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
+  freesurfer_pp: ["DicomViewer_2D", "DicomViewer_3D", "FreesurferDataTable", "FileBrowserViewer"],
   simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable"],
-  z2labelmap: ["DicomViewer", "FileBrowserViewer"]
+  mpcs: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable"],
+  z2labelmap: ["ZScoreViewer", "FileBrowserViewer"]
 };
 
 const mapStateToProps = ({ plugin }: ApplicationState) => ({
