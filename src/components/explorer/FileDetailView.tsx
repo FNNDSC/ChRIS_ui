@@ -7,8 +7,6 @@ import {
 } from "../../api/models/file-explorer";
 import FeedFileModel from "../../api/models/feed-file.model";
 import { DownloadIcon, ResourcesAlmostFullIcon } from "@patternfly/react-icons";
-import { LoadingComponent } from "..";
-// import JSONPretty from "react-json-pretty";
 import {
   CatchallDisplay,
   JsonDisplay,
