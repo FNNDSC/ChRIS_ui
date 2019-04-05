@@ -5,42 +5,72 @@
 *  Author:          ChRIS UI
 */
 
-.capitalize{
-    text-transform: capitalize;
+.capitalize {
+  text-transform: capitalize;
 }
 // Add a full width modal
-.fullwidth-modal{
-    margin: 0 auto;
-    min-height: 50vh;
-    min-width: 98vw;
+.fullwidth-modal {
+  margin: 0 auto;
+  min-height: 50vh;
+  min-width: 98vw;
 }
 
-.icon-mr{
-    margin-right: 5px;
+.icon-mr {
+  margin-right: 5px;
 }
 
-.white-bg{
-    background: white;
+.white-bg {
+  background: white;
 }
-.black-900{
-    color: $pf-color-black-900;
-}
-
-.float-right{
-    float:right;
+.black-900 {
+  color: $pf-color-black-900;
 }
 
-.center{
-    @extend .pf-u-text-align-center;
+.float-right {
+  float: right;
 }
 
-.left{
-    @extend .pf-u-text-align-left;
+.center {
+  @extend .pf-u-text-align-center;
+}
+
+.left {
+  @extend .pf-u-text-align-left;
 }
 // Accessibility additions
 // Hidden on md and below (768px;)
-.hidden-md{
-    @media screen and (max-width: $pf-global--breakpoint--md) {
-        display: none !important;
-   }
+.hidden-md {
+  @media screen and (max-width: $pf-global--breakpoint--md) {
+    display: none !important;
+  }
 }
+
+// Full screen view
+/* While in fullscreen, hide any children with class 'tohide' */
+div:-webkit-full-screen {
+  width: 100% !important;
+  
+  .tohide {
+    display: none;
+  }
+}
+div:-moz-full-screen {
+  width: 100% !important;
+  .tohide {
+    display: none;
+  }
+}
+div:-ms-fullscreen {
+  width: 100% !important;
+  .tohide {
+    display: none;
+  }
+}
+div:fullscreen {
+  width: 100% !important;
+ 
+  .tohide {
+    display: none;
+  }
+}
+
