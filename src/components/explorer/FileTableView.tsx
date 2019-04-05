@@ -131,7 +131,7 @@ class FileTableView extends React.Component<AllProps> {
   // Description: get file type by file extention
   getItemType = (item: IUITreeNode) => {
     const isfile = !!item.leaf && item.leaf;
-    return isfile ? `${getFileExtension(item)} File` : "File folder";
+    return isfile ? `${getFileExtension(item.module)} File` : "File folder";
   }
 }
 

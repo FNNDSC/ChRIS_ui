@@ -25,6 +25,9 @@
                 margin: 0 0 -1px 30px;
             }
         }
+        .pf-c-tab-content{
+            outline: none;
+        }
         .empty{
             margin: 2rem;
             max-width: 500px;
@@ -41,6 +44,17 @@
         max-height: calc(100vh - 220px);
         width: auto;  
     }
+    .image-frame{
+        display: inline-block;
+        position: relative;
+        width: auto;
+        .legend{
+            position: absolute;
+            right: 15px;
+            top:15px;
+        }
+    }
+    
     iframe{
         height: calc(100vh - 220px);
         margin: 0 auto;

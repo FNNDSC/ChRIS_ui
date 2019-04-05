@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Grid, GridItem } from "@patternfly/react-core";
-import { IFeedFile } from "../../api/models/feed-file.model";
-import { lhData } from "../../assets/temp/lh.aparc.a2009s";
-import { rhData } from "../../assets/temp/rh.aparc.a2009s";
+import { IFeedFile } from "../../../api/models/feed-file.model";
+import { lhData } from "../../../assets/temp/lh.aparc.a2009s";
+import { rhData } from "../../../assets/temp/rh.aparc.a2009s";
 import "./freesurferData.scss";
 import _ from "lodash";
 type AllProps = {

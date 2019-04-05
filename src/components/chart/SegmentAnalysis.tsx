@@ -102,7 +102,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
         },
         y: {
             label: {
-                text: "Deviation from Standard in %",
+                text: "Standard Deviation",
                 position: "outer-middle"
             }
         }
@@ -110,8 +110,9 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
       grid: {
         y: {
             lines: [
-                {value: 0, text: "Average", position: "start"},
-            ]
+                {value: 0, text: "", position: "start"},
+            ],
+            show: true
         }
       },
       padding: {
