@@ -6,17 +6,15 @@ import {
   getFileExtension
 } from "../../api/models/file-explorer";
 import FeedFileModel from "../../api/models/feed-file.model";
-import { DownloadIcon, ResourcesAlmostFullIcon } from "@patternfly/react-icons";
+import { DownloadIcon } from "@patternfly/react-icons";
 import {
   CatchallDisplay,
   JsonDisplay,
   IframeDisplay,
   ImageDisplay
 } from "./displays/index";
-import AMI from "ami.js";
-import THREE from "three";
-
 import "./file-detail.scss";
+
 type AllProps = {
   active: IUITreeNode;
   downloadFileNode: (node: IUITreeNode) => void;
