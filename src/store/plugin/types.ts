@@ -30,4 +30,8 @@ export const PluginActionTypes = keyMirror({
     GET_PLUGIN_DETAILS_SUCCESS: null,
     FETCH_COMPLETE: null, // after request completes
     FETCH_ERROR: null, // request failed
+
+    // Crhis API
+    CHRIS_API_GET_PLUGIN_FILES: null,
+    CHRIS_API_GET_PLUGIN_FILES_SUCCESS: null,
 });

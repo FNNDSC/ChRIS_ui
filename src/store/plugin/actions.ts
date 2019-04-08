@@ -19,3 +19,8 @@ export const getPluginParametersSuccess = (items: IPluginItem[]) => action(Plugi
 
 export const getPluginDetailsRequest = (item: IPluginItem) => action(PluginActionTypes.GET_PLUGIN_DETAILS, item);
 export const getPluginDetailsSuccess = (items: IPluginItem[]) => action(PluginActionTypes.GET_PLUGIN_DETAILS_SUCCESS, items);
+
+
+// Actions using the ChrisAPI
+export const getPluginFilesChrisRequest = (id: string) =>  action(PluginActionTypes.CHRIS_API_GET_PLUGIN_FILES, id);
+export const getPluginFilesChrisSuccess = (items: any[]) => action(PluginActionTypes.CHRIS_API_GET_PLUGIN_FILES_SUCCESS, items);
