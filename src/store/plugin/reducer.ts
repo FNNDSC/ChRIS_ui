@@ -36,6 +36,12 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
     case PluginActionTypes.FETCH_COMPLETE: {
       return { ...state };
     }
+
+    //  ***** Working *****
+    case PluginActionTypes.CHRIS_API_GET_PLUGIN_FILES_SUCCESS: {
+      
+      return { ...state, files: action.payload.data.collection.items };
+    }
     //  ***** Working *****
     default: {
       return state;

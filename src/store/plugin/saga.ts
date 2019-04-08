@@ -1,6 +1,7 @@
 import { all, call, fork, put, takeEvery } from "redux-saga/effects";
 import { PluginActionTypes } from "./types";
 import FeedModel from "../../api/models/feed.model";
+import ChrisModel from "../../api/models/base.model";
 import {
   getPluginDetailsSuccess,
   getPluginDescendantsSuccess,
@@ -8,7 +9,8 @@ import {
   getPluginParametersSuccess,
   getPluginFilesRequest,
   setExplorerSuccess,
-  getPluginParametersRequest
+  getPluginParametersRequest,
+  getPluginFilesChrisSuccess
 } from "./actions";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 
@@ -112,6 +114,37 @@ function* watchGetPluginParameters() {
   );
 }
 
+
+///// USING CHRIS API
+// **************************************************************************
+// ------------------------------------------------------------------------
+// Description: Get Plugin Details: Parameters, files and others ***** working
+// ------------------------------------------------------------------------
+const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
+function* handleChrisAPIGetPluginFiles(action: any) {
+  try {
+   const tempURL = `${url}plugins/instances/${action.payload}/files/?limit=1000`; // Will need to work out later
+   const res = yield call(ChrisModel.fetchRequest, tempURL); // action.payload
+   console.log(res);
+   if (res.error) {
+      console.error(res.error); // working user messaging
+    } else {
+      yield put(getPluginFilesChrisSuccess(res));
+    }
+  } catch (error) {
+    console.error(error); // working user messaging
+  }
+}
+
+// This is our watcher function. We use `take*()` functions to watch Redux for a specific action
+// type, and run our saga, for example the `handleFetch()` saga above.
+function* watchChrisAPIGetPluginFiles() {
+  yield takeEvery(
+    PluginActionTypes.CHRIS_API_GET_PLUGIN_FILES,
+    handleChrisAPIGetPluginFiles
+  );
+}
+
 // ------------------------------------------------------------------------
 // We can also use `fork()` here to split our saga into multiple watchers.
 export function* pluginSaga() {
@@ -119,6 +152,7 @@ export function* pluginSaga() {
     fork(watchGetPluginDetails),
     fork(watchGetPluginDescendants),
     fork(watchGetPluginFiles),
-    fork(watchGetPluginParameters)
+    fork(watchGetPluginParameters),
+    fork(watchChrisAPIGetPluginFiles)
   ]);
 }
