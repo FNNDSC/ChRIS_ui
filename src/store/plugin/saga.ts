@@ -125,7 +125,6 @@ function* handleChrisAPIGetPluginFiles(action: any) {
   try {
    const tempURL = `${url}plugins/instances/${action.payload}/files/?limit=1000`; // Will need to work out later
    const res = yield call(ChrisModel.fetchRequest, tempURL); // action.payload
-   console.log(res);
    if (res.error) {
       console.error(res.error); // working user messaging
     } else {
