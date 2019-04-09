@@ -25,6 +25,7 @@
     "bootstrap": "^4.3.1",
     "c3": "^0.6.13",
     "connected-react-router": "^6.3.1",
+    "cornerstone-core": "^2.2.8",
     "d3": "^5.9.1",
     "d3v4": "^4.2.2",
     "history": "^4.7.2",
