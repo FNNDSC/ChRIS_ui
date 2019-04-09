@@ -5,7 +5,7 @@ import * as cornerstone from "cornerstone-core";
 import FeedFileModel, { IFeedFile } from "../../api/models/feed-file.model";
 import { IFileState, getFileExtension } from "../../api/models/file-explorer";
 import "./amiViewer.scss";
-import { image108Base64, image109Base64 } from "./sampleImage";
+import { image108Base64, image109Base64, test } from "./sampleImage";
 
 type AllProps = {
   files: IFeedFile[];
@@ -13,53 +13,66 @@ type AllProps = {
 
 // Description: Will be replaced with a DCM Fyle viewer
 class AmiViewer extends React.Component<AllProps, IFileState> {
-  // constructor(props: AllProps) {
-  //   super(props);
-    // const { files } = this.props;
-    // const tempUrl =
-    //   "http://fnndsc.childrens.harvard.edu:8001/api/v1/plugins/instances/files/1/0001-1.3.12.2.1107.5.2.32.35201.2013101416335447259100817.dcm";
-    // this.fetchData(tempUrl);
-  // }
-  // state = {
-  //   blob: undefined,
-  //   blobName: "",
-  //   blobText: null,
-  //   fileType: ""
-  // };
-  // // Description: Fetch blob and read it into state to display preview
-  // fetchData(file_resource: string) {
-  //   FeedFileModel.getFileBlob(file_resource).then((result: any) => {
-  //     const _self = this;
-  //     const fileType = getFileExtension(
-  //       "0001-1.3.12.2.1107.5.2.32.35201.2013101416335447259100817.dcm"
-  //     );
-  //     this.setState({ blob: result.data, blobName: "temp", fileType });
-  //     if (!!result.data) {
-  //       const reader = new FileReader();
-  //       reader.addEventListener("loadend", (e: any) => {
-  //          const blobText = e.target.result;
-  //          _self.setState({ blobText });
-  //       });
-  //       reader.readAsText(result.data);
-  //     }
-  //   });
-  // }
-  componentDidMount() {
-    const imageId = "dcmImageLoader://1";
-    const element = document.getElementById("dicomImage");
-    console.log(element);
-    if (!!element) {
-      cornerstone.enable(element);
-      // Images loaded as follows will be passed to our loadImage function:
-      cornerstone.loadImage(imageId).then((image: any) => {
-        cornerstone.displayImage(element, image);
-      });
-    }
+  dynamicImagePixelData: string | ArrayBuffer | null = null;
+  constructor(props: AllProps) {
+    super(props);
+    const { files } = this.props;
+    console.log(files);
+    const tempUrl =
+    "http://fnndsc.childrens.harvard.edu:8001/api/v1/plugins/instances/files/101/0101-1.3.12.2.1107.5.2.32.35201.2013101416341221810103029.dcm";
+     // "http://fnndsc.childrens.harvard.edu:8001/api/v1/plugins/instances/files/1/0001-1.3.12.2.1107.5.2.32.35201.2013101416335447259100817.dcm";
+    this.fetchData(tempUrl);
   }
+  state = {
+    blob: undefined,
+    blobName: "",
+    blobText: null,
+    fileType: ""
+  };
+  // Description: Fetch blob and read it into state to display preview
+  fetchData(file_resource: string) {
+    FeedFileModel.getFileBlob(file_resource).then((result: any) => {
+      const _self = this;
+      const fileType = getFileExtension(
+        "0001-1.3.12.2.1107.5.2.32.35201.2013101416335447259100817.dcm"
+      );
+      this.setState({ blob: result.data, blobName: "temp", fileType });
+      if (!!result.data) {
+        const reader = new FileReader();
+        reader.addEventListener(
+          "load",
+          () => {
+            _self.setState({ blobText: reader.result });
+          },
+          false
+        );
+        reader.readAsDataURL(result.data); //  reader.readAsDataURL(file);
+      }
+    });
+  }
+
   render() {
     // Register the url scheme 'dcmImageLoader' to correspond to our loadImage function
     cornerstone.registerImageLoader("dcmImageLoader", this.getExampleImage);
-    console.log(this.state);
+    if (!!this.state.blobText) {
+      console.log(this.state.blobText);
+      const dynamicImage = (this.state.blobText as any).replace(
+        "data:*/*;base64,",
+        ""
+      );
+      this.dynamicImagePixelData = this.getPixelData(dynamicImage);
+      const imageId = "dcmImageLoader://1";
+      const element = document.getElementById("dicomImage");
+      if (!!element) {
+        cornerstone.enable(element);
+        // Images loaded as follows will be passed to our loadImage function:
+        cornerstone.loadImage(imageId).then((image: any) => {
+          console.log(image);
+          cornerstone.displayImage(element, image);
+        });
+      }
+    }
+
     return (
       <div className="ami-viewer">
         <h1 className="pf-u-mb-lg">
@@ -94,7 +107,8 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
     return pixelData;
   };
 
-  image1PixelData = this.getPixelData(image108Base64);
+  // image1PixelData = this.getPixelData(image108Base64);
+  image1PixelData = this.getPixelData(test);
   image2PixelData = this.getPixelData(image109Base64);
 
   getExampleImage = (imageId: string) => {
@@ -103,10 +117,11 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
     const _self = this;
     function getPixelData() {
       if (imageId === "dcmImageLoader://1") {
-        return _self.image1PixelData;
-      } else if (imageId === "dcmImageLoader://2") {
-        return _self.image2PixelData;
+        return _self.dynamicImagePixelData;
       }
+      // else if (imageId === "dcmImageLoader://2") {
+      //   return _self.image2PixelData;
+      // }
 
       throw new Error("unknown imageId");
     }
