@@ -39,7 +39,8 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-    <!-- This script is here to allow Ami.js to work - it requires three.js to work -->
-    <script type="text/javascript" src="//unpkg.com/three@latest/build/three.min.js" async defer></script>
+    <!-- This script is here to allow Ami.js to work - it requires three.js to be loaded above the ami.js
+    Will be removed when node_module gets updated to provide dependencies -->
+    <script type="text/javascript" src="%PUBLIC_URL%/js/three.min.js" async defer></script>
   </body>
 </html>
