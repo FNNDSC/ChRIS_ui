@@ -5,7 +5,7 @@ import { any } from 'prop-types';
 import { IFeedItem } from "../../../api/models/feed.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
-const TestIFeedItem: IFeedItem = {
+const TestFeedItem: IFeedItem = {
   url: 'string',
   files: 'string',
   comments: 'string',
@@ -68,11 +68,11 @@ describe('feed reducer', () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.GET_FEED_DETAILS_SUCCESS,
-        payload: TestIFeedItem
+        payload: TestFeedItem
       })
     ).toEqual(
-      {
-        details: TestIFeedItem,
+      { ...initialState,
+        details: TestFeedItem,
         items: undefined
       })
   })
@@ -98,7 +98,7 @@ describe('feed reducer', () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.FETCH_REQUEST,
-        payload: TestIFeedItem
+        payload: TestFeedItem
       })
     ).toEqual(
       {
@@ -128,7 +128,7 @@ describe('feed reducer', () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.FETCH_ERROR,
-        payload: TestIFeedItem
+        payload: TestFeedItem
       })
     ).toEqual(
       {
@@ -141,7 +141,7 @@ describe('feed reducer', () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.FETCH_COMPLETE,
-        payload: TestIFeedItem
+        payload: TestFeedItem
       })
     ).toEqual(
       {
@@ -154,7 +154,7 @@ describe('feed reducer', () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.RESET_STATE,
-        payload: TestIFeedItem
+        payload: TestFeedItem
       })
     ).toEqual(
       {
