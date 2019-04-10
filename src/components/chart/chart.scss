@@ -6,8 +6,8 @@
 
 @import '~bootstrap/dist/css/bootstrap.min.css';
 @import '~react-bootstrap-typeahead/css/Typeahead.css';
-@import '../../assets/scss/helpers/pf4-variables'; 
-@import '../../assets/scss/helpers/variables'; 
+@import '../../assets/scss/helpers/pf4-variables';
+@import '../../assets/scss/helpers/variables';
 
 
 .chart-viewer{
@@ -15,10 +15,10 @@
     .rbt{
         margin: 0 2rem;
     }
-  
+
     .rbt-input-multi{
         padding: 5px 34px 5px 12px;
-       
+
     }
     .rbt-close{
         margin-top:3px;
@@ -49,22 +49,29 @@
     .c3-legend-item text{
         font-size: 14px;
     }
+    .c3-legend-item-tile {
+     shape-rendering: auto;
+     stroke-linecap: round;
+     stroke-dasharray: 0.1 10;
+     stroke-width: 8;
+     transform: translate(6px, 1px);
+   }
     .c3-axis-y{
         .tick
         {
-            font-size: 12px; 
+            font-size: 12px;
         }
         .c3-axis-y-label{
-            font-size: 14px; 
+            font-size: 14px;
         }
-    } 
+    }
     .c3-axis-x{
         .tick
         {
-            font-size: 12px; 
+            font-size: 12px;
         }
         .c3-axis-x-label{
-            font-size: 14px; 
+            font-size: 14px;
         }
-    } 
-} 
+    }
+}
