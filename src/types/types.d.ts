@@ -10,5 +10,6 @@ declare module "d3v4";
 
 declare module "react-ui-tree";
 declare module "react-json-pretty";
-declare module "ami.js"
-declare module "cornerstone-core"
+declare module "ami.js";
+declare module "cornerstone-core";
+

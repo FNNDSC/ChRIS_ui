@@ -28,9 +28,11 @@ class ViewerPage extends React.Component<AllProps> {
     const { files } = this.props;
     return (
       (!!files && files.length) && (
+        <React.Fragment>
         <div className="ami-viewer black-bg pf-u-p-lg">
           <AmiViewer files={files} />
         </div>
+        </React.Fragment>
       )
     );
   }

@@ -1,11 +1,13 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { HomeIcon } from "@patternfly/react-icons";
-import * as cornerstone from "cornerstone-core";
 import FeedFileModel, { IFeedFile } from "../../api/models/feed-file.model";
 import { IFileState, getFileExtension } from "../../api/models/file-explorer";
+import * as dat from "dat.gui";
+import * as THREE from "three";
+import * as AMI from "ami.js";
+
 import "./amiViewer.scss";
-import { image108Base64, image109Base64, test } from "./sampleImage";
 
 type AllProps = {
   files: IFeedFile[];
@@ -17,10 +19,9 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
   constructor(props: AllProps) {
     super(props);
     const { files } = this.props;
-    console.log(files);
+
     const tempUrl =
-    "http://fnndsc.childrens.harvard.edu:8001/api/v1/plugins/instances/files/101/0101-1.3.12.2.1107.5.2.32.35201.2013101416341221810103029.dcm";
-     // "http://fnndsc.childrens.harvard.edu:8001/api/v1/plugins/instances/files/1/0001-1.3.12.2.1107.5.2.32.35201.2013101416335447259100817.dcm";
+      "http://fnndsc.childrens.harvard.edu:8001/api/v1/plugins/instances/files/101/0101-1.3.12.2.1107.5.2.32.35201.2013101416341221810103029.dcm";
     this.fetchData(tempUrl);
   }
   state = {
@@ -29,8 +30,12 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
     blobText: null,
     fileType: ""
   };
+
   // Description: Fetch blob and read it into state to display preview
   fetchData(file_resource: string) {
+    const file = "https://cdn.rawgit.com/FNNDSC/data/master/nifti/adi_brain/adi_brain.nii.gz";
+    const tempUrl =
+      "http://fnndsc.childrens.harvard.edu:8001/api/v1/plugins/instances/files/101/0101-1.3.12.2.1107.5.2.32.35201.2013101416341221810103029.dcm";
     FeedFileModel.getFileBlob(file_resource).then((result: any) => {
       const _self = this;
       const fileType = getFileExtension(
@@ -43,116 +48,200 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
           "load",
           () => {
             _self.setState({ blobText: reader.result });
+            const url = window.URL.createObjectURL(new Blob([result.data]));
+            (!!this.state.blob) && this.runAMICode(url);
           },
           false
         );
-        reader.readAsDataURL(result.data); //  reader.readAsDataURL(file);
+        reader.readAsDataURL(result.data); // reader.readAsDataURL(file);
       }
     });
   }
 
   render() {
-    // Register the url scheme 'dcmImageLoader' to correspond to our loadImage function
-    cornerstone.registerImageLoader("dcmImageLoader", this.getExampleImage);
-    if (!!this.state.blobText) {
-      console.log(this.state.blobText);
-      const dynamicImage = (this.state.blobText as any).replace(
-        "data:*/*;base64,",
-        ""
-      );
-      this.dynamicImagePixelData = this.getPixelData(dynamicImage);
-      const imageId = "dcmImageLoader://1";
-      const element = document.getElementById("dicomImage");
-      if (!!element) {
-        cornerstone.enable(element);
-        // Images loaded as follows will be passed to our loadImage function:
-        cornerstone.loadImage(imageId).then((image: any) => {
-          console.log(image);
-          cornerstone.displayImage(element, image);
-        });
-      }
-    }
-
     return (
       <div className="ami-viewer">
         <h1 className="pf-u-mb-lg">
           <Link to={`/`} className="pf-u-mr-lg">
             <HomeIcon />
-          </Link>{" "}
+          </Link>
           Ami Viewer: {this.props.files.length} files
         </h1>
-        <div id="dicomImage" />
+        <div id="my-gui-container"></div>
+        <div id="container" />
       </div>
     );
   }
 
-  str2ab = (str: string) => {
-    const buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
-    const bufView = new Uint16Array(buf);
-    let index: number = 0;
-    for (let i = 0, strLen = str.length; i < strLen; i += 2) {
-      const lower = str.charCodeAt(i);
-      const upper = str.charCodeAt(i + 1);
-      // tslint:disable-next-line:no-bitwise
-      bufView[index] = lower + (upper << 8);
-      index++;
+  // Description: Run AMI CODE ***** working to be abstracted out
+  runAMICode = (file: string) => {
+    const container = document.getElementById("container"); // console.log("initialize AMI", this.state, container);
+    if (!!container) {
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+      });
+      // console.log("renderer: ", renderer);
+      renderer.setSize(container.offsetWidth, container.offsetHeight);
+      renderer.setClearColor(colors.black, 1);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      console.log("renderer: ", AMI);
+      const camera = new AMI.OrthographicCamera(
+        container.clientWidth / -2,
+        container.clientWidth / 2,
+        container.clientHeight / 2,
+        container.clientHeight / -2,
+        0.1,
+        10000
+      );
+      console.log("camera: ", camera);
+
+      // Setup controls
+      const controls = new AMI.TrackballOrthoControl(camera, container);
+      controls.staticMoving = true;
+      controls.noRotate = true;
+      camera.controls = controls;
+
+      // const onWindowResize = () => {
+      //   camera.canvas = {
+      //     width: container.offsetWidth,
+      //     height: container.offsetHeight,
+      //   };
+      //   camera.fitBox(2);
+
+      //   renderer.setSize(container.offsetWidth, container.offsetHeight);
+      // };
+      // window.addEventListener("resize", onWindowResize, false);
+      const loader = new AMI.VolumeLoader(container);
+      loader
+        .load(file)
+        .then(() => {
+          const series = loader.data[0].mergeSeries(loader.data);
+          const stack = series[0].stack[0];
+          loader.free();
+
+          const stackHelper = new AMI.StackHelper(stack);
+          stackHelper.bbox.visible = false;
+          stackHelper.border.color = colors.white;
+          scene.add(stackHelper);
+          const worldbb = stack.worldBoundingBox();
+          const lpsDims = new THREE.Vector3(
+            worldbb[1] - worldbb[0],
+            worldbb[3] - worldbb[2],
+            worldbb[5] - worldbb[4]
+          );
+          const box = {
+            center: stack.worldCenter().clone(),
+            halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+          };
+
+          // init and zoom
+          const canvas = {
+            width: container.clientWidth,
+            height: container.clientHeight,
+          };
+          camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
+          camera.box = box;
+          camera.canvas = canvas;
+          camera.update();
+          camera.fitBox(2);
+        }).catch((error: any) => {
+          window.console.log("oops... something went wrong...");
+          window.console.log(error);
+        });
+      const animate = () => {
+        controls.update();
+        renderer.render(scene, camera);
+
+        requestAnimationFrame(() => {
+          animate();
+        });
+      };
+
+      animate();
+      const gui = (stackHelper: any) => {
+        const gui = new dat.GUI({
+          autoPlace: false,
+        });
+
+        const customContainer = document.getElementById("my-gui-container");
+        !!customContainer && customContainer.appendChild(gui.domElement);
+        const camUtils = {
+          invertRows: false,
+          invertColumns: false,
+          rotate45: false,
+          rotate: 0,
+          orientation: "default",
+          convention: "radio",
+        };
+
+        // camera
+        const cameraFolder = gui.addFolder("Camera");
+        const invertRows = cameraFolder.add(camUtils, "invertRows");
+        invertRows.onChange(() => {
+          camera.invertRows();
+        });
+
+        const invertColumns = cameraFolder.add(camUtils, "invertColumns");
+        invertColumns.onChange(() => {
+          camera.invertColumns();
+        });
+
+        const rotate45 = cameraFolder.add(camUtils, "rotate45");
+        rotate45.onChange(() => {
+          camera.rotate();
+        });
+
+        cameraFolder
+          .add(camera, "angle", 0, 360)
+          .step(1)
+          .listen();
+
+        const orientationUpdate = cameraFolder.add(camUtils, "orientation", [
+          "default",
+          "axial",
+          "coronal",
+          "sagittal",
+        ]);
+        orientationUpdate.onChange((value: any) => {
+          camera.orientation = value;
+          camera.update();
+          camera.fitBox(2);
+          stackHelper.orientation = camera.stackOrientation;
+        });
+
+        const conventionUpdate = cameraFolder.add(camUtils, "convention", ["radio", "neuro"]);
+        conventionUpdate.onChange((value: any) => {
+          camera.convention = value;
+          camera.update();
+          camera.fitBox(2);
+        });
+
+        cameraFolder.open();
+
+        const stackFolder = gui.addFolder("Stack");
+        stackFolder
+          .add(stackHelper, "index", 0, stackHelper.stack.dimensionsIJK.z - 1)
+          .step(1)
+          .listen();
+        stackFolder
+          .add(stackHelper.slice, "interpolation", 0, 1)
+          .step(1)
+          .listen();
+        stackFolder.open();
+      };
     }
-    return bufView;
-  };
-
-  /// This will be moved out to a class ***** Working
-  getPixelData = (base64PixelData: any) => {
-    const pixelDataAsString = window.atob(base64PixelData);
-    const pixelData = this.str2ab(pixelDataAsString);
-    return pixelData;
-  };
-
-  // image1PixelData = this.getPixelData(image108Base64);
-  image1PixelData = this.getPixelData(test);
-  image2PixelData = this.getPixelData(image109Base64);
-
-  getExampleImage = (imageId: string) => {
-    const width = 256;
-    const height = 256;
-    const _self = this;
-    function getPixelData() {
-      if (imageId === "dcmImageLoader://1") {
-        return _self.dynamicImagePixelData;
-      }
-      // else if (imageId === "dcmImageLoader://2") {
-      //   return _self.image2PixelData;
-      // }
-
-      throw new Error("unknown imageId");
-    }
-
-    const image = {
-      imageId,
-      minPixelValue: 0,
-      maxPixelValue: 257,
-      slope: 1.0,
-      intercept: 0,
-      windowCenter: 127,
-      windowWidth: 256,
-      getPixelData,
-      rows: height,
-      columns: width,
-      height,
-      width,
-      color: false,
-      columnPixelSpacing: 0.8984375,
-      rowPixelSpacing: 0.8984375,
-      sizeInBytes: width * height * 2
-    };
-
-    return {
-      promise: new Promise((resolve: any) => {
-        resolve(image);
-      }),
-      cancelFn: undefined
-    };
-  };
+  }
 }
+// Will move out!
+const colors = {
+  darkGrey: 0x353535,
+  white: 0xffffff,
+  black: 0x000000,
+  red: 0xff0000
+};
 
 
 export default AmiViewer;
