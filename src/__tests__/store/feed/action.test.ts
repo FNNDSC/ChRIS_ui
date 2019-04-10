@@ -1,4 +1,3 @@
-import React from 'react';
 import { FeedActionTypes,  } from "../../../store/feed/types";
 import { IFeedItem } from "../../../api/models/feed.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";

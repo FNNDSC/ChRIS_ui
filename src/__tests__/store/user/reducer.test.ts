@@ -1,9 +1,3 @@
-import React from "react";
-import {
-		getAuthToken,
-		getAuthTokenSuccess,
-		setUserLogout
-		} from "../../../store/user/actions";
 import {IUserState,UserActionTypes} from "../../../store/user/types";
 import {userReducer} from "../../../store/user/reducer";
 import { any } from "prop-types";
@@ -59,22 +53,6 @@ describe('Reducer of user', () => {
             }
         )
     });
-    //action not implemented
-    /** 
-    it("FetchTokenError should return ",()=>{
-        expect(userReducer(initialState,{
-            type:UserActionTypes.FETCH_TOKEN_ERROR,
-            payload:UserState
-        })).toEqual(
-            {
-                username: "string",
-                token:  "token",
-                isRememberMe: false,
-                isLoggedIn: false
-            }
-        )
-    });
-    **/
 
    it("Logout should return ",()=>{
     expect(userReducer(initialState,{
@@ -88,8 +66,5 @@ describe('Reducer of user', () => {
         }
     )
 });
-
-
-
 
 });

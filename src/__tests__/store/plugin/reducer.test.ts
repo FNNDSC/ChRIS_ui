@@ -1,25 +1,10 @@
-import React from "react";
-import {
-		getPluginDescendantsRequest,
-		getPluginDescendantsSuccess,
-		getPluginDetailsRequest,
-		getPluginDetailsSuccess,
-		getPluginParametersRequest,
-		getPluginParametersSuccess,
-		getPluginFilesRequest,
-        getPluginFilesSuccess,
-        setExplorerSuccess
-		} from "../../../store/plugin/actions";
 import { PluginActionTypes ,IPluginState} from "../../../store/plugin/types";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import {pluginReducer} from "../../../store/plugin/reducer";
 import { any, object } from "prop-types";
-import UITreeNodeModel,{IUITreeNode} from "../../../api/models/file-explorer";
+import {IUITreeNode} from "../../../api/models/file-explorer";
 import { IFeedFile } from "../../../api/models/feed-file.model";
 import { chrisId } from "../../../api/models/base.model";
-import { type } from "os";
-import { action } from "typesafe-actions";
-import { select } from "d3";
 
 const InitialState:IPluginState = {
     selected: undefined,

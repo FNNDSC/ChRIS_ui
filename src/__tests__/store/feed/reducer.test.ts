@@ -1,7 +1,5 @@
-import React from 'react';
 import { feedReducer } from '../../../store/feed/reducer'
 import { IFeedState, FeedActionTypes } from "../../../store/feed/types";
-import { any } from 'prop-types';
 import { IFeedItem } from "../../../api/models/feed.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
