@@ -73,7 +73,6 @@ describe('feed reducer', () => {
     ).toEqual(
       { ...initialState,
         details: TestFeedItem,
-        items: undefined
       })
   })
 
@@ -89,7 +88,7 @@ describe('feed reducer', () => {
       })
     ).toEqual(
       {
-        details: undefined,
+        ...initialState,
         items: Testitems
       })
   })
@@ -102,8 +101,7 @@ describe('feed reducer', () => {
       })
     ).toEqual(
       {
-        details: undefined,
-        items: undefined
+        ...initialState,
       })
   })
 
@@ -119,7 +117,7 @@ describe('feed reducer', () => {
       })
     ).toEqual(
       {
-        details: undefined,
+        ...initialState,
         items: Testitems
       })
   })
@@ -132,8 +130,7 @@ describe('feed reducer', () => {
       })
     ).toEqual(
       {
-        details: undefined,
-        items: undefined
+        ...initialState,
       })
   })
 
@@ -145,8 +142,7 @@ describe('feed reducer', () => {
       })
     ).toEqual(
       {
-        details: undefined,
-        items: undefined
+        ...initialState,
       })
   })
 
@@ -158,8 +154,7 @@ describe('feed reducer', () => {
       })
     ).toEqual(
       {
-        details: undefined,
-        items: undefined
+        ...initialState,
       })
   })
 })
