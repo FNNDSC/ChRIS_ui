@@ -61,7 +61,7 @@ const initialState: IFeedState = {
 
 describe('feed reducer', () => {
   it('should return the initial state', () => {
-    expect(feedReducer(initialState, {type:any})).toEqual(initialState)
+    expect(feedReducer(initialState, {type: null})).toEqual(initialState)
   })
   
   it('should handle GET_FEED_DETAILS_SUCCESS', () => {
