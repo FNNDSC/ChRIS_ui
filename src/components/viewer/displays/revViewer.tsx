@@ -1,7 +1,7 @@
 import * as React from "react";
 import imgPlaceholder from "../../assets/images/view-dicom-image-ph.png";
 import brainImgPlaceholder from "../../assets/images/heatmap-example-135.png";
-import { IFeedFile } from "../../api/models/feed-file.model";
+import { IFeedFile } from "../../../api/models/feed-file.model";
 type AllProps = {
   files: IFeedFile[];
 };
