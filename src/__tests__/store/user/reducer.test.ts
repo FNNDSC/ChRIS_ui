@@ -10,18 +10,17 @@ const initialState: IUserState = {
     isLoggedIn: false
 };
 
-const UserState:IUserState = {
-    username: "string",
-    password: "string",
-    email: "string",
-    token: "string",	
+const UserState: IUserState = {
+    username: "Chris",
+    password: "thisisapassword",
+    email: "chris@gmail.com",
+    token: "dsfj23lj234njk43nrk34j",	
     isRememberMe: true,
-    isLoggedIn: true,
+    isLoggedIn: true, 
 }
-
 describe("Reducer of user", () => {
     it("the initial state should be ",() => {
-        expect(userReducer(undefined,{type:any})).toEqual(
+        expect(userReducer(undefined,{type: null})).toEqual(
                 initialState
         )
     });
@@ -32,7 +31,7 @@ describe("Reducer of user", () => {
             payload:UserState
         })).toEqual(
             {
-                username: "string",
+                username: "Chris",
                 token:  null,
                 isRememberMe: false,
                 isLoggedIn: false
