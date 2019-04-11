@@ -12,7 +12,7 @@ import {
 import { PluginActionTypes } from "../../../store/plugin/types";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
-describe('actions of plugin', () => {
+describe("actions of plugin", () => {
 
 	it("getPluginDescendantsRequest should return",() => {
 		const TestString = "string";
@@ -30,10 +30,10 @@ describe('actions of plugin', () => {
 		    title: "string",
 		    previous_id:2,
 		    plugin_id: 3,
-		    plugin_name: 'string',
+		    plugin_name: "string",
 		    pipeline_inst: null,
 		    feed_id: 4,
-		    start_date: 'string',
+		    start_date: "string",
 		    end_date: "string",
 		    status: "string",
 		    owner_username: "string",
@@ -42,14 +42,14 @@ describe('actions of plugin', () => {
 		    memory_limit: 6,
 		    number_of_workers:7,
 		    gpu_limit: 8,
-		    url: 'string',
-   			feed: 'string',
-    		descendants: 'string',
-	    	files: 'string',
-		    parameters: 'string',
-		    plugin: 'string',
-		    next: 'string',
-		    previous: 'string'
+		    url: "string",
+   			feed: "string",
+    		descendants: "string",
+	    	files: "string",
+		    parameters: "string",
+		    plugin: "string",
+		    next: "string",
+		    previous: "string"
 		}]
 
 		const expectedResult = 
@@ -66,10 +66,10 @@ describe('actions of plugin', () => {
 			title: "string",
 			previous_id:2,
 			plugin_id: 3,
-			plugin_name: 'string',
+			plugin_name: "string",
 			pipeline_inst: null,
 			feed_id: 4,
-			start_date: 'string',
+			start_date: "string",
 			end_date: "string",
 			status: "string",
 			owner_username: "string",
@@ -78,14 +78,14 @@ describe('actions of plugin', () => {
 			memory_limit: 6,
 			number_of_workers:7,
 			gpu_limit: 8,
-			url: 'string',
-			 feed: 'string',
-			descendants: 'string',
-			files: 'string',
-			parameters: 'string',
-			plugin: 'string',
-			next: 'string',
-			previous: 'string'
+			url: "string",
+			 feed: "string",
+			descendants: "string",
+			files: "string",
+			parameters: "string",
+			plugin: "string",
+			next: "string",
+			previous: "string"
 	}
 		const expectedResult = 
 		{
@@ -101,10 +101,10 @@ describe('actions of plugin', () => {
 		    title: "string",
 		    previous_id:2,
 		    plugin_id: 3,
-		    plugin_name: 'string',
+		    plugin_name: "string",
 		    pipeline_inst: null,
 		    feed_id: 4,
-		    start_date: 'string',
+		    start_date: "string",
 		    end_date: "string",
 		    status: "string",
 		    owner_username: "string",
@@ -113,14 +113,14 @@ describe('actions of plugin', () => {
 		    memory_limit: 6,
 		    number_of_workers:7,
 		    gpu_limit: 8,
-		    url: 'string',
-   			feed: 'string',
-    		descendants: 'string',
-	    	files: 'string',
-		    parameters: 'string',
-		    plugin: 'string',
-		    next: 'string',
-		    previous: 'string'
+		    url: "string",
+   			feed: "string",
+    		descendants: "string",
+	    	files: "string",
+		    parameters: "string",
+		    plugin: "string",
+		    next: "string",
+		    previous: "string"
 		}]
 
 		const expectedResult = 
@@ -148,10 +148,10 @@ describe('actions of plugin', () => {
 		    title: "string",
 		    previous_id:2,
 		    plugin_id: 3,
-		    plugin_name: 'string',
+		    plugin_name: "string",
 		    pipeline_inst: null,
 		    feed_id: 4,
-		    start_date: 'string',
+		    start_date: "string",
 		    end_date: "string",
 		    status: "string",
 		    owner_username: "string",
@@ -160,14 +160,14 @@ describe('actions of plugin', () => {
 		    memory_limit: 6,
 		    number_of_workers:7,
 		    gpu_limit: 8,
-		    url: 'string',
-   			feed: 'string',
-    		descendants: 'string',
-	    	files: 'string',
-		    parameters: 'string',
-		    plugin: 'string',
-		    next: 'string',
-		    previous: 'string'
+		    url: "string",
+   			feed: "string",
+    		descendants: "string",
+	    	files: "string",
+		    parameters: "string",
+		    plugin: "string",
+		    next: "string",
+		    previous: "string"
 		}]
 
 		const expectedResult = 
@@ -187,10 +187,10 @@ describe('actions of plugin', () => {
 		    title: "string",
 		    previous_id:2,
 		    plugin_id: 3,
-		    plugin_name: 'string',
+		    plugin_name: "string",
 		    pipeline_inst: null,
 		    feed_id: 4,
-		    start_date: 'string',
+		    start_date: "string",
 		    end_date: "string",
 		    status: "string",
 		    owner_username: "string",
@@ -199,14 +199,14 @@ describe('actions of plugin', () => {
 		    memory_limit: 6,
 		    number_of_workers:7,
 		    gpu_limit: 8,
-		    url: 'string',
-   			feed: 'string',
-    		descendants: 'string',
-	    	files: 'string',
-		    parameters: 'string',
-		    plugin: 'string',
-		    next: 'string',
-		    previous: 'string'
+		    url: "string",
+   			feed: "string",
+    		descendants: "string",
+	    	files: "string",
+		    parameters: "string",
+		    plugin: "string",
+		    next: "string",
+		    previous: "string"
 		}
 
 		const expectedResult = 
@@ -223,10 +223,10 @@ describe('actions of plugin', () => {
 		    title: "string",
 		    previous_id:2,
 		    plugin_id: 3,
-		    plugin_name: 'string',
+		    plugin_name: "string",
 		    pipeline_inst: null,
 		    feed_id: 4,
-		    start_date: 'string',
+		    start_date: "string",
 		    end_date: "string",
 		    status: "string",
 		    owner_username: "string",
@@ -235,14 +235,14 @@ describe('actions of plugin', () => {
 		    memory_limit: 6,
 		    number_of_workers:7,
 		    gpu_limit: 8,
-		    url: 'string',
-   			feed: 'string',
-    		descendants: 'string',
-	    	files: 'string',
-		    parameters: 'string',
-		    plugin: 'string',
-		    next: 'string',
-		    previous: 'string'
+		    url: "string",
+   			feed: "string",
+    		descendants: "string",
+	    	files: "string",
+		    parameters: "string",
+		    plugin: "string",
+		    next: "string",
+		    previous: "string"
 		}]
 
 		const expectedResult = 

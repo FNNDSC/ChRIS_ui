@@ -8,9 +8,9 @@ import {
   getPluginInstanceListSuccess,
   destroyFeed } from "../../../store/feed/actions";
 
-describe('feed actions', () => {
-  it('getFeedDetailsRequest should return correct types', () => {
-    const id: string = 'testID'
+describe("feed actions", () => {
+  it("getFeedDetailsRequest should return correct types", () => {
+    const id: string = "testID"
     const expectedAction = {
       type: FeedActionTypes.GET_FEED_DETAILS,
       payload: id
@@ -18,27 +18,27 @@ describe('feed actions', () => {
     expect(getFeedDetailsRequest(id)).toEqual(expectedAction)
   })
 
-  it('getFeedDetailsSuccess should return correct types', () => {
+  it("getFeedDetailsSuccess should return correct types", () => {
     const TestIFeedItem: IFeedItem = {
-      url: 'string',
-      files: 'string',
-      comments: 'string',
-      owner: ['string'],
-      note: 'string',
-      tags: 'string',
-      taggings: 'string',
-      plugin_instances: 'string',
+      url: "string",
+      files: "string",
+      comments: "string",
+      owner: ["string"],
+      note: "string",
+      tags: "string",
+      taggings: "string",
+      plugin_instances: "string",
       id: 123,
-      creation_date: '3/19/2019',
-      modification_date: '3/20/2019',
-      name: 'Chris',
+      creation_date: "3/19/2019",
+      modification_date: "3/20/2019",
+      name: "Chris",
       template: {
         data: [{
-          name: 'string',
+          name: "string",
           value: 123
         }]
       },
-      creator_username: 'Chris_user'
+      creator_username: "Chris_user"
     }
 
     const expectedAction = {
@@ -49,8 +49,8 @@ describe('feed actions', () => {
     expect(getFeedDetailsSuccess(TestIFeedItem)).toEqual(expectedAction)
   })
 
-  it('getPluginInstanceListRequest should return correct types', () => {
-    const url: string = 'https://www.google.com'
+  it("getPluginInstanceListRequest should return correct types", () => {
+    const url: string = "https://www.google.com"
     const expectedAction = {
       type: FeedActionTypes.GET_PLUGIN_INSTANCES,
       payload: url
@@ -58,28 +58,28 @@ describe('feed actions', () => {
     expect(getPluginInstanceListRequest(url)).toEqual(expectedAction)
   })
 
-  it('getPluginInstanceListSuccess should return correct types', () => {
+  it("getPluginInstanceListSuccess should return correct types", () => {
     const items: IPluginItem[] = [{
-      url: 'string',
-      feed: 'string',
-      descendants: 'string',
-      files: 'string',
-      parameters: 'string',
-      plugin: 'string',
-      next: 'string',
-      previous: 'string',
+      url: "string",
+      feed: "string",
+      descendants: "string",
+      files: "string",
+      parameters: "string",
+      plugin: "string",
+      next: "string",
+      previous: "string",
       id: 123,
-      title: 'string',
+      title: "string",
       previous_id: 123,
       plugin_id: 123,
-      plugin_name: 'string',
+      plugin_name: "string",
       pipeline_inst: null,
       feed_id: 123,
-      start_date: 'string',
-      end_date: 'string',
-      status: 'string',
-      owner_username: 'string',
-      compute_resource_identifier: 'string',
+      start_date: "string",
+      end_date: "string",
+      status: "string",
+      owner_username: "string",
+      compute_resource_identifier: "string",
       cpu_limit: 123,
       memory_limit: 123,
       number_of_workers: 123,
@@ -92,7 +92,7 @@ describe('feed actions', () => {
     expect(getPluginInstanceListSuccess(items)).toEqual(expectedAction)
   })
 
-  it('destroyFeed should return correct types', () => {
+  it("destroyFeed should return correct types", () => {
     const expectedAction = {
       type: FeedActionTypes.RESET_STATE,
     }

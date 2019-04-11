@@ -12,14 +12,14 @@ const initialState: IUserState = {
 
 const UserState:IUserState = {
     username: "string",
-    password: 'string',
-    email: 'string',
-    token: 'string',	
+    password: "string",
+    email: "string",
+    token: "string",	
     isRememberMe: true,
     isLoggedIn: true,
 }
 
-describe('Reducer of user', () => {
+describe("Reducer of user", () => {
     it("the initial state should be ",() => {
         expect(userReducer(undefined,{type:any})).toEqual(
                 initialState

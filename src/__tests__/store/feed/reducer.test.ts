@@ -1,51 +1,51 @@
-import { feedReducer } from '../../../store/feed/reducer'
+import { feedReducer } from "../../../store/feed/reducer"
 import { IFeedState, FeedActionTypes } from "../../../store/feed/types";
 import { IFeedItem } from "../../../api/models/feed.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
 const TestFeedItem: IFeedItem = {
-  url: 'string',
-  files: 'string',
-  comments: 'string',
-  owner: ['string'],
-  note: 'string',
-  tags: 'string',
-  taggings: 'string',
-  plugin_instances: 'string',
+  url: "string",
+  files: "string",
+  comments: "string",
+  owner: ["string"],
+  note: "string",
+  tags: "string",
+  taggings: "string",
+  plugin_instances: "string",
   id: 123,
-  creation_date: '3/19/2019',
-  modification_date: '3/20/2019',
-  name: 'Chris',
+  creation_date: "3/19/2019",
+  modification_date: "3/20/2019",
+  name: "Chris",
   template: {
     data: [{
-      name: 'string',
+      name: "string",
       value: 123
     }]
   },
-  creator_username: 'Chris_user'
+  creator_username: "Chris_user"
 }
 
 const Testitems: IPluginItem[] = [{
-  url: 'string',
-  feed: 'string',
-  descendants: 'string',
-  files: 'string',
-  parameters: 'string',
-  plugin: 'string',
-  next: 'string',
-  previous: 'string',
+  url: "string",
+  feed: "string",
+  descendants: "string",
+  files: "string",
+  parameters: "string",
+  plugin: "string",
+  next: "string",
+  previous: "string",
   id: 123,
-  title: 'string',
+  title: "string",
   previous_id: 123,
   plugin_id: 123,
-  plugin_name: 'string',
+  plugin_name: "string",
   pipeline_inst: null,
   feed_id: 123,
-  start_date: 'string',
-  end_date: 'string',
-  status: 'string',
-  owner_username: 'string',
-  compute_resource_identifier: 'string',
+  start_date: "string",
+  end_date: "string",
+  status: "string",
+  owner_username: "string",
+  compute_resource_identifier: "string",
   cpu_limit: 123,
   memory_limit: 123,
   number_of_workers: 123,
@@ -57,12 +57,12 @@ const initialState: IFeedState = {
   items: undefined
 };
 
-describe('feed reducer', () => {
-  it('should return the initial state', () => {
+describe("feed reducer", () => {
+  it("should return the initial state", () => {
     expect(feedReducer(initialState, {type: null})).toEqual(initialState)
   })
   
-  it('should handle GET_FEED_DETAILS_SUCCESS', () => {
+  it("should handle GET_FEED_DETAILS_SUCCESS", () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.GET_FEED_DETAILS_SUCCESS,
@@ -74,7 +74,7 @@ describe('feed reducer', () => {
       })
   })
 
-  it('should handle GET_PLUGIN_INSTANCES_SUCCESS', () => {
+  it("should handle GET_PLUGIN_INSTANCES_SUCCESS", () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS,
@@ -91,7 +91,7 @@ describe('feed reducer', () => {
       })
   })
 
-  it('should handle FETCH_REQUEST', () => {
+  it("should handle FETCH_REQUEST", () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.FETCH_REQUEST,
@@ -103,7 +103,7 @@ describe('feed reducer', () => {
       })
   })
 
-  it('should handle FETCH_SUCCESS', () => {
+  it("should handle FETCH_SUCCESS", () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.FETCH_SUCCESS,
@@ -120,7 +120,7 @@ describe('feed reducer', () => {
       })
   })
 
-  it('should handle FETCH_ERROR', () => {
+  it("should handle FETCH_ERROR", () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.FETCH_ERROR,
@@ -132,7 +132,7 @@ describe('feed reducer', () => {
       })
   })
 
-  it('should handle FETCH_COMPLETE', () => {
+  it("should handle FETCH_COMPLETE", () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.FETCH_COMPLETE,
@@ -144,7 +144,7 @@ describe('feed reducer', () => {
       })
   })
 
-  it('should handle RESET_STATE', () => {
+  it("should handle RESET_STATE", () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.RESET_STATE,

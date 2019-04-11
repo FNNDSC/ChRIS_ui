@@ -6,14 +6,14 @@ import {
 import {IUserState,UserActionTypes} from "../../../store/user/types";
 
 
-describe('actions of user', () => {
+describe("actions of user", () => {
 
 	it("getAuthToken should return",() => {
 		const UserState:IUserState = {
 		    username: "string",
-		    password: 'string',
-		    email: 'string',
-		    token: 'string',	
+		    password: "string",
+		    email: "string",
+		    token: "string",	
 		    isRememberMe: true,
 		    isLoggedIn: false,
 		   

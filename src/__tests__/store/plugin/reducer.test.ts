@@ -20,10 +20,10 @@ const TestItem : IPluginItem[] =
         title: "string",
         previous_id:2,
         plugin_id: 3,
-        plugin_name: 'string',
+        plugin_name: "string",
         pipeline_inst: null,
         feed_id: 4,
-        start_date: 'string',
+        start_date: "string",
         end_date: "string",
         status: "string",
         owner_username: "string",
@@ -32,14 +32,14 @@ const TestItem : IPluginItem[] =
         memory_limit: 6,
         number_of_workers:7,
         gpu_limit: 8,
-        url: 'string',
-        feed: 'string',
-        descendants: 'string',
-        files: 'string',
-        parameters: 'string',
-        plugin: 'string',
-        next: 'string',
-        previous: 'string'
+        url: "string",
+        feed: "string",
+        descendants: "string",
+        files: "string",
+        parameters: "string",
+        plugin: "string",
+        next: "string",
+        previous: "string"
     }]
 
     const TestChrisId1 :chrisId = 1;
@@ -55,7 +55,7 @@ const TestItem : IPluginItem[] =
         plugin_instances: "string",
     }]
 
-describe('Reducer of plugin', () => {
+describe("Reducer of plugin", () => {
     it("the initial state should be ",() => {
         expect(pluginReducer(undefined,{type:any})).toEqual(
             InitialState
