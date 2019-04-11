@@ -1,6 +1,5 @@
 import {IUserState,UserActionTypes} from "../../../store/user/types";
 import {userReducer} from "../../../store/user/reducer";
-import { any } from "prop-types";
 
 
 const initialState: IUserState = {
