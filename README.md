@@ -43,7 +43,7 @@ Launches the test runner in the interactive watch mode.<br>
 
 The unit test scripts are under `./__tests__` folder and tested functions are under `./src/store`.
 
-The tested functions are all the actions of feed, message, plugin, ui, and user.
+The tested functions are all the actions and reducers of feed, message, plugin, ui, and user.
 
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
