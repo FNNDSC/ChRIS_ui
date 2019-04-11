@@ -6,7 +6,11 @@ import { IFileState, getFileExtension } from "../../api/models/file-explorer";
 import * as dat from "dat.gui";
 import * as THREE from "three";
 import * as AMI from "ami.js";
-
+import {
+  orthographicCameraFactory,
+  stackHelperFactory,
+  trackballOrthoControlFactory
+} from "ami.js";
 import "./amiViewer.scss";
 
 type AllProps = {
@@ -87,7 +91,8 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
       container.appendChild(renderer.domElement);
 
       const scene = new THREE.Scene();
-      const camera = new AMI.OrthographicCamera(
+      const OrthograhicCamera = orthographicCameraFactory(THREE);
+      const camera = new OrthograhicCamera(
         container.clientWidth / -2,
         container.clientWidth / 2,
         container.clientHeight / 2,
@@ -97,7 +102,9 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
       );
 
       // Setup controls
-      const controls = new AMI.TrackballOrthoControl(camera, container);
+      const TrackballOrthoControl = trackballOrthoControlFactory(THREE);
+      const controls = new TrackballOrthoControl(camera, container);
+      // const controls = new AMI.TrackballOrthoControl(camera, container);
       controls.staticMoving = true;
       controls.noRotate = true;
       camera.controls = controls;
@@ -120,7 +127,9 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
           const stack = series[0].stack[0];
           loader.free();
 
-          const stackHelper = new AMI.StackHelper(stack);
+          // const stackHelper = new AMI.StackHelper(stack);
+          const StackHelper = stackHelperFactory(THREE);
+          const stackHelper = new StackHelper(stack);
           stackHelper.bbox.visible = false;
           stackHelper.border.color = colors.white;
           scene.add(stackHelper);
