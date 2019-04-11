@@ -6,9 +6,8 @@
 
 
 .ami-viewer{
-    height: 100%;
-    position: relative;
-
+    min-height: calc(100vh - 100px);
+    position:relative;
     #container {
         background-color: #000;
         bottom: 0;
@@ -17,7 +16,7 @@
         overflow: hidden;
         position: absolute;
         right: 0;
-        top: 20px;
+        top: 0;
         width: 100%;
     }
     

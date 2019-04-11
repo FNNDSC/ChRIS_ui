@@ -27,7 +27,6 @@ class ViewerPage extends React.Component<AllProps> {
 
   render() {
     const { files } = this.props;
-    console.log(files);
     return (
       <div className="ami-wrapper black-bg pf-u-p-lg">
         <h1 className="pf-u-mb-lg">
