@@ -138,8 +138,6 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
           gui(stackHelper);
 
           // center camera and interactor to center of bouding box
-          // for nicer experience
-          // set camera
           const worldbb = stack.worldBoundingBox();
           const lpsDims = new THREE.Vector3(
             worldbb[1] - worldbb[0],
