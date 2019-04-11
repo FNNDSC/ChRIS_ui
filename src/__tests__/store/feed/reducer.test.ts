@@ -95,7 +95,6 @@ describe("feed reducer", () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.FETCH_REQUEST,
-        payload: TestFeedItem
       })
     ).toEqual(
       {
@@ -124,7 +123,6 @@ describe("feed reducer", () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.FETCH_ERROR,
-        payload: TestFeedItem
       })
     ).toEqual(
       {
@@ -136,7 +134,6 @@ describe("feed reducer", () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.FETCH_COMPLETE,
-        payload: TestFeedItem
       })
     ).toEqual(
       {
@@ -148,7 +145,6 @@ describe("feed reducer", () => {
     expect(
       feedReducer(initialState, {
         type: FeedActionTypes.RESET_STATE,
-        payload: TestFeedItem
       })
     ).toEqual(
       {
