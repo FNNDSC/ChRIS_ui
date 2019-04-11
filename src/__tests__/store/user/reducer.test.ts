@@ -42,11 +42,11 @@ describe("Reducer of user", () => {
     it("FetchTokenSuccess should return ",()=>{
         expect(userReducer(initialState,{
             type:UserActionTypes.FETCH_TOKEN_SUCCESS,
-            payload:"string"
+            payload:"dsfj23lj234njk43nrk34j"
         })).toEqual(
             {
                 username: null,
-                token: "string",
+                token: "dsfj23lj234njk43nrk34j",
                 isRememberMe: false,
                 isLoggedIn: true
             }
