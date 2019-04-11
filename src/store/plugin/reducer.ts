@@ -25,7 +25,8 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
     }
     case PluginActionTypes.GET_PLUGIN_DETAILS_SUCCESS: {
       const descendants = action.payload.data.results;
-      const selected = !!action.payload.data.results &&
+      const selected =
+        !!action.payload.data.results &&
         action.payload.data.results.length &&
         action.payload.data.results[0];
       return { ...state, descendants, selected };
@@ -36,13 +37,15 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
     case PluginActionTypes.FETCH_COMPLETE: {
       return { ...state };
     }
-
-    //  ***** Working *****
-    case PluginActionTypes.CHRIS_API_GET_PLUGIN_FILES_SUCCESS: {
-      
-      return { ...state, files: action.payload.data.collection.items };
+    case PluginActionTypes.RESET_PLUGIN_STATE: {
+      return { ...state,
+        selected: undefined,
+        descendants: undefined,
+        files: [],
+        explorer: undefined,
+        parameters: []
+      };
     }
-    //  ***** Working *****
     default: {
       return state;
     }

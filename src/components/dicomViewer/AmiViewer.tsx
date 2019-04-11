@@ -1,6 +1,4 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
-import { HomeIcon } from "@patternfly/react-icons";
 import FeedFileModel, { IFeedFile } from "../../api/models/feed-file.model";
 import { IFileState, getFileExtension } from "../../api/models/file-explorer";
 import * as dat from "dat.gui";
@@ -23,7 +21,7 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
   constructor(props: AllProps) {
     super(props);
     const { files } = this.props;
-
+    console.log(files);
     const tempUrl =
       "http://fnndsc.childrens.harvard.edu:8001/api/v1/plugins/instances/files/101/0101-1.3.12.2.1107.5.2.32.35201.2013101416341221810103029.dcm";
     this.fetchData(tempUrl);
@@ -53,7 +51,7 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
           () => {
             _self.setState({ blobText: reader.result });
             const url = window.URL.createObjectURL(new Blob([result.data]));
-            (!!this.state.blob) && this.runAMICode(url);
+            (!!this.state.blob) && this.initAmi(url);
           },
           false
         );
@@ -65,26 +63,19 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
   render() {
     return (
       <div className="ami-viewer">
-        <h1 className="pf-u-mb-lg">
-          <Link to={`/`} className="pf-u-mr-lg">
-            <HomeIcon />
-          </Link>
-          Ami Viewer: {this.props.files.length} files
-        </h1>
-        <div id="my-gui-container"></div>
+        <div id="my-gui-container" />
         <div id="container" />
       </div>
     );
   }
 
   // Description: Run AMI CODE ***** working to be abstracted out
-  runAMICode = (file: string) => {
+  initAmi = (file: string) => {
     const container = document.getElementById("container"); // console.log("initialize AMI", this.state, container);
     if (!!container) {
       const renderer = new THREE.WebGLRenderer({
         antialias: true,
       });
-      // console.log("renderer: ", renderer);
       renderer.setSize(container.offsetWidth, container.offsetHeight);
       renderer.setClearColor(colors.black, 1);
       renderer.setPixelRatio(window.devicePixelRatio);
@@ -104,7 +95,6 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
       // Setup controls
       const TrackballOrthoControl = trackballOrthoControlFactory(THREE);
       const controls = new TrackballOrthoControl(camera, container);
-      // const controls = new AMI.TrackballOrthoControl(camera, container);
       controls.staticMoving = true;
       controls.noRotate = true;
       camera.controls = controls;
@@ -119,6 +109,7 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
         renderer.setSize(container.offsetWidth, container.offsetHeight);
       };
       window.addEventListener("resize", onWindowResize, false);
+
       const loader = new AMI.VolumeLoader(container);
       loader
         .load(file)
@@ -135,7 +126,7 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
           scene.add(stackHelper);
 
           // Add the control box
-          gui(stackHelper);
+          // gui(stackHelper);
 
           // center camera and interactor to center of bouding box
           const worldbb = stack.worldBoundingBox();
@@ -252,6 +243,7 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
     }
   }
 }
+
 // Will move out!
 const colors = {
   darkGrey: 0x353535,
