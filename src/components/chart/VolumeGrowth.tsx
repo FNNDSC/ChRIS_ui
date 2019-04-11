@@ -15,13 +15,13 @@ const data : any[] = [];
 
 const defaultChartData = [
   age,
-  ["G_and_S_frontomargin_RHPatient", null, null, null, 2050, null, null, null],
-  ["G_and_S_frontomargin_RHAverage", 1517.2, 1679.0, 1923.3333333333333, 2298.0, 2373.0, 2450.6, 2499.25],
-  ["G_and_S_frontomargin_LHPatient", null, null, null, 1950, null, null, null],
-  ["G_and_S_frontomargin_LHAverage", 1617.2, 1650.0, 1890.3333333333333, 2198.0, 2273.0, 2350.6, 2349.25]
+  ["G_and_S_frontomargin_RHPatient", null, null, null, 2030, null, null, null],
+  ["G_and_S_frontomargin_RHAverage", 1517.2, 1679.0, 1923.3333333333333, 2060.0, 2373.0, 2450.6, 2499.25],
+  ["G_and_S_frontomargin_RHFirstDevPos", 1567.2, 1729.0, 1970.3333333333333, 2110.0, 2423.0, 2500.6, 2549.25],
+  ["G_and_S_frontomargin_RHFirstDevNeg", 1467.2, 1629.0, 1876.3333333333333, 2010.0, 2323.0, 2400.6, 2449.25]
 ];
 
-const defaultSegments = ["G_and_S_frontomargin"];
+const defaultSegments = ["G_and_S_frontomargin-RH"];
 
 class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   constructor(props: ComponentProps) {
@@ -55,10 +55,12 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
         columns: inputChart,
         type: "spline",
         colors: {
-          G_and_S_frontomargin_LHPatient: "#CC6600",
+          G_and_S_frontomargin_LHPatient: "#006600",
           G_and_S_frontomargin_RHPatient: "#0000CC",
-          G_and_S_frontomargin_LHAverage: "#FFA500",
-          G_and_S_frontomargin_RHAverage: "#00BFFF",
+          G_and_S_frontomargin_RHFirstDevPos: "#F08080",
+          G_and_S_frontomargin_RHFirstDevNeg: "#F08080",
+          G_and_S_frontomargin_LHAverage: "#009900",
+          G_and_S_frontomargin_RHAverage: "#FF0000",
           G_and_S_occipital_inf_LHPatient: "#CC6600",
           G_and_S_occipital_inf_RHPatient: "#0000CC",
           G_and_S_occipital_inf_LHAverage: "#FFA500",
@@ -67,6 +69,10 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
           G_and_S_paracentral_RHPatient: "#0000CC",
           G_and_S_paracentral_LHAverage: "#FFA500",
           G_and_S_paracentral_RHAverage: "#00BFFF"
+        },
+        regions: {
+          "G_and_S_frontomargin_RHFirstDevPos": [{'end':13}],
+          "G_and_S_frontomargin_RHFirstDevNeg": [{'end':13}]
         }
       },
       padding: {
