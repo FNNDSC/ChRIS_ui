@@ -1,4 +1,3 @@
-import React from "react";
 import {
 		getPluginDescendantsRequest,
 		getPluginDescendantsSuccess,
@@ -12,7 +11,34 @@ import {
 import { PluginActionTypes } from "../../../store/plugin/types";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
-describe('actions of plugin', () => {
+describe("actions of plugin", () => {
+
+	const TestItem:IPluginItem = {
+		id: 1,
+		title: "testPlugin",
+		previous_id:2,
+		plugin_id: 3,
+		plugin_name: "MRI",
+		pipeline_inst: null,
+		feed_id: 4,
+		start_date: "2019-02-28",
+		end_date: "2019-03-18",
+		status: "good",
+		owner_username: "Joe",
+		compute_resource_identifier: "Chandler",
+		cpu_limit: 5,
+		memory_limit: 6,
+		number_of_workers:7,
+		gpu_limit: 8,
+		url: "www.chrisplugintest.com",
+		   feed: "christestfeed",
+		descendants: "testdescendants",
+		files: "plugin",
+		parameters: "plugin_para",
+		plugin: "test",
+		next: "test2",
+		previous: "test0"
+	}
 
 	it("getPluginDescendantsRequest should return",() => {
 		const TestString = "string";
@@ -25,90 +51,39 @@ describe('actions of plugin', () => {
 		})
 
 	it("getPluginDescendantsSuccess should return",() => {
-		const TestItem:IPluginItem[] = [{
-		    id: 1,
-		    title: "string",
-		    previous_id:2,
-		    plugin_id: 3,
-		    plugin_name: 'string',
-		    pipeline_inst: null,
-		    feed_id: 4,
-		    start_date: 'string',
-		    end_date: "string",
-		    status: "string",
-		    owner_username: "string",
-		    compute_resource_identifier: "string",
-		    cpu_limit: 5,
-		    memory_limit: 6,
-		    number_of_workers:7,
-		    gpu_limit: 8,
-		    url: 'string',
-   			feed: 'string',
-    		descendants: 'string',
-	    	files: 'string',
-		    parameters: 'string',
-		    plugin: 'string',
-		    next: 'string',
-		    previous: 'string'
-		}]
+		
 
 		const expectedResult = 
 		{
 			type:PluginActionTypes.GET_PLUGIN_DESCENDANTS_SUCCESS,
-			payload: TestItem
+			payload: [TestItem]
 		}
-		expect(getPluginDescendantsSuccess(TestItem)).toEqual(expectedResult)
+		expect(getPluginDescendantsSuccess([TestItem])).toEqual(expectedResult)
 		})
 
 	it("getPluginFilesRequest should return",() => {
-		const TestString = "string";
+
 		const expectedResult = 
 		{
 			type:PluginActionTypes.GET_PLUGIN_FILES,
-			payload: TestString
+			payload: TestItem
 		}
-		expect(getPluginFilesRequest(TestString)).toEqual(expectedResult)
+		expect(getPluginFilesRequest(TestItem)).toEqual(expectedResult)
 		})
 
 	it("getPluginFilesSuccess should return",() => {
-		const TestItem = [{
-		    id: 1,
-		    title: "string",
-		    previous_id:2,
-		    plugin_id: 3,
-		    plugin_name: 'string',
-		    pipeline_inst: null,
-		    feed_id: 4,
-		    start_date: 'string',
-		    end_date: "string",
-		    status: "string",
-		    owner_username: "string",
-		    compute_resource_identifier: "string",
-		    cpu_limit: 5,
-		    memory_limit: 6,
-		    number_of_workers:7,
-		    gpu_limit: 8,
-		    url: 'string',
-   			feed: 'string',
-    		descendants: 'string',
-	    	files: 'string',
-		    parameters: 'string',
-		    plugin: 'string',
-		    next: 'string',
-		    previous: 'string'
-		}]
 
 		const expectedResult = 
 		{
 			type:PluginActionTypes.GET_PLUGIN_FILES_SUCCESS,
-			payload: TestItem
+			payload: [TestItem]
 		}
-		expect(getPluginFilesSuccess(TestItem)).toEqual(expectedResult)
+		expect(getPluginFilesSuccess([TestItem])).toEqual(expectedResult)
 		})
 
 
 	it("getPluginParametersRequest should return",() => {
-		const TestString = "string";
+		const TestString = "plugintestpara";
 		const expectedResult = 
 		{
 			type:PluginActionTypes.GET_PLUGIN_PARAMETERS,
@@ -118,71 +93,18 @@ describe('actions of plugin', () => {
 		})
 
 	it("getPluginParametersSuccess should return",() => {
-		const TestItem = [{
-		    id: 1,
-		    title: "string",
-		    previous_id:2,
-		    plugin_id: 3,
-		    plugin_name: 'string',
-		    pipeline_inst: null,
-		    feed_id: 4,
-		    start_date: 'string',
-		    end_date: "string",
-		    status: "string",
-		    owner_username: "string",
-		    compute_resource_identifier: "string",
-		    cpu_limit: 5,
-		    memory_limit: 6,
-		    number_of_workers:7,
-		    gpu_limit: 8,
-		    url: 'string',
-   			feed: 'string',
-    		descendants: 'string',
-	    	files: 'string',
-		    parameters: 'string',
-		    plugin: 'string',
-		    next: 'string',
-		    previous: 'string'
-		}]
 
 		const expectedResult = 
 		{
 			type:PluginActionTypes.GET_PLUGIN_PARAMETERS_SUCCESS,
-			payload: TestItem
+			payload: [TestItem]
 		}
-		expect(getPluginParametersSuccess(TestItem)).toEqual(expectedResult)
+		expect(getPluginParametersSuccess([TestItem])).toEqual(expectedResult)
 		})
 
 	it("getPluginDetailsRequest should return",() => {
 		// fetchMock
 		// .getOnce("")
-
-		const TestItem = {
-		    id: 1,
-		    title: "string",
-		    previous_id:2,
-		    plugin_id: 3,
-		    plugin_name: 'string',
-		    pipeline_inst: null,
-		    feed_id: 4,
-		    start_date: 'string',
-		    end_date: "string",
-		    status: "string",
-		    owner_username: "string",
-		    compute_resource_identifier: "string",
-		    cpu_limit: 5,
-		    memory_limit: 6,
-		    number_of_workers:7,
-		    gpu_limit: 8,
-		    url: 'string',
-   			feed: 'string',
-    		descendants: 'string',
-	    	files: 'string',
-		    parameters: 'string',
-		    plugin: 'string',
-		    next: 'string',
-		    previous: 'string'
-		}
 
 		const expectedResult = 
 		{
@@ -193,38 +115,12 @@ describe('actions of plugin', () => {
 		})
 
 	it("getPluginDetailsSuccess should return",() => {
-		const TestItem = [{
-		    id: 1,
-		    title: "string",
-		    previous_id:2,
-		    plugin_id: 3,
-		    plugin_name: 'string',
-		    pipeline_inst: null,
-		    feed_id: 4,
-		    start_date: 'string',
-		    end_date: "string",
-		    status: "string",
-		    owner_username: "string",
-		    compute_resource_identifier: "string",
-		    cpu_limit: 5,
-		    memory_limit: 6,
-		    number_of_workers:7,
-		    gpu_limit: 8,
-		    url: 'string',
-   			feed: 'string',
-    		descendants: 'string',
-	    	files: 'string',
-		    parameters: 'string',
-		    plugin: 'string',
-		    next: 'string',
-		    previous: 'string'
-		}]
 
 		const expectedResult = 
 		{
 			type:PluginActionTypes.GET_PLUGIN_DETAILS_SUCCESS,
-			payload: TestItem
+			payload: [TestItem]
 		}
-		expect(getPluginDetailsSuccess(TestItem)).toEqual(expectedResult)
+		expect(getPluginDetailsSuccess([TestItem])).toEqual(expectedResult)
 		})
 });
