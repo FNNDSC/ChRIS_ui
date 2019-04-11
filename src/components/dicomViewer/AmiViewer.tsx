@@ -21,29 +21,22 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
   constructor(props: AllProps) {
     super(props);
     const { files } = this.props;
-    console.log(files);
-    const tempUrl =
-      "http://fnndsc.childrens.harvard.edu:8001/api/v1/plugins/instances/files/101/0101-1.3.12.2.1107.5.2.32.35201.2013101416341221810103029.dcm";
-    this.fetchData(tempUrl);
+//    const tempUrl = "http://fnndsc.childrens.harvard.edu:8001/api/v1/plugins/instances/files/101/0101-1.3.12.2.1107.5.2.32.35201.2013101416341221810103029.dcm";
+    const url = files[100].file_resource; // Pass the right file
+    this.fetchData(url);
   }
   state = {
     blob: undefined,
-    blobName: "",
+    blobName:  "filename will go here",
     blobText: null,
-    fileType: ""
+    fileType: "dcm"
   };
 
   // Description: Fetch blob and read it into state to display preview
   fetchData(file_resource: string) {
-    const file = "https://cdn.rawgit.com/FNNDSC/data/master/nifti/adi_brain/adi_brain.nii.gz";
-    const tempUrl =
-      "http://fnndsc.childrens.harvard.edu:8001/api/v1/plugins/instances/files/101/0101-1.3.12.2.1107.5.2.32.35201.2013101416341221810103029.dcm";
     FeedFileModel.getFileBlob(file_resource).then((result: any) => {
       const _self = this;
-      const fileType = getFileExtension(
-        "0001-1.3.12.2.1107.5.2.32.35201.2013101416335447259100817.dcm"
-      );
-      this.setState({ blob: result.data, blobName: "temp", fileType });
+      this.setState({ blob: result.data });
       if (!!result.data) {
         const reader = new FileReader();
         reader.addEventListener(
