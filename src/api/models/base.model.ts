@@ -44,9 +44,8 @@ export interface ITemplate {
   data: IDatum[];
 }
 
-// import {Request, Collection}  from "@fnndsc/chrisapi";
-// req = new Request(auth, contentType);
-// const result = req.get(url);
+
+// CHRIS API REQUEST
 export default class ChrisModel {
   static fetchRequest(url: string) {
     const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };

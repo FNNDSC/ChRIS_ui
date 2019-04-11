@@ -13,14 +13,10 @@ export const getPluginFilesSuccess = (items: IPluginItem[]) => action(PluginActi
 // Description: Parse the files array into a File tree obj
 export const setExplorerSuccess = (items: IFeedFile[], selected: IPluginItem) => action(PluginActionTypes.SET_EXPLORER_SUCCESS, new UITreeNodeModel(items, selected).getTree());
 
-
 export const getPluginParametersRequest = (url: string) => action(PluginActionTypes.GET_PLUGIN_PARAMETERS, url);
 export const getPluginParametersSuccess = (items: IPluginItem[]) => action(PluginActionTypes.GET_PLUGIN_PARAMETERS_SUCCESS, items);
 
 export const getPluginDetailsRequest = (item: IPluginItem) => action(PluginActionTypes.GET_PLUGIN_DETAILS, item);
 export const getPluginDetailsSuccess = (items: IPluginItem[]) => action(PluginActionTypes.GET_PLUGIN_DETAILS_SUCCESS, items);
 
-
-// Actions using the ChrisAPI
-export const getPluginFilesChrisRequest = (id: string) =>  action(PluginActionTypes.CHRIS_API_GET_PLUGIN_FILES, id);
-export const getPluginFilesChrisSuccess = (items: any[]) => action(PluginActionTypes.CHRIS_API_GET_PLUGIN_FILES_SUCCESS, items);
+export const destroyPlugin = () => action(PluginActionTypes.RESET_PLUGIN_STATE);
