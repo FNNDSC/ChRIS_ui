@@ -87,7 +87,6 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
       container.appendChild(renderer.domElement);
 
       const scene = new THREE.Scene();
-      console.log("renderer: ", AMI);
       const camera = new AMI.OrthographicCamera(
         container.clientWidth / -2,
         container.clientWidth / 2,
@@ -96,7 +95,6 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
         0.1,
         10000
       );
-      console.log("camera: ", camera);
 
       // Setup controls
       const controls = new AMI.TrackballOrthoControl(camera, container);
@@ -104,16 +102,16 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
       controls.noRotate = true;
       camera.controls = controls;
 
-      // const onWindowResize = () => {
-      //   camera.canvas = {
-      //     width: container.offsetWidth,
-      //     height: container.offsetHeight,
-      //   };
-      //   camera.fitBox(2);
+      const onWindowResize = () => {
+        camera.canvas = {
+          width: container.offsetWidth,
+          height: container.offsetHeight,
+        };
+        camera.fitBox(2);
 
-      //   renderer.setSize(container.offsetWidth, container.offsetHeight);
-      // };
-      // window.addEventListener("resize", onWindowResize, false);
+        renderer.setSize(container.offsetWidth, container.offsetHeight);
+      };
+      window.addEventListener("resize", onWindowResize, false);
       const loader = new AMI.VolumeLoader(container);
       loader
         .load(file)
@@ -126,12 +124,20 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
           stackHelper.bbox.visible = false;
           stackHelper.border.color = colors.white;
           scene.add(stackHelper);
+
+          // Add the control box
+          gui(stackHelper);
+
+          // center camera and interactor to center of bouding box
+          // for nicer experience
+          // set camera
           const worldbb = stack.worldBoundingBox();
           const lpsDims = new THREE.Vector3(
             worldbb[1] - worldbb[0],
             worldbb[3] - worldbb[2],
             worldbb[5] - worldbb[4]
           );
+
           const box = {
             center: stack.worldCenter().clone(),
             halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
@@ -151,6 +157,8 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
           window.console.log("oops... something went wrong...");
           window.console.log(error);
         });
+
+      // Render gui controls and scene
       const animate = () => {
         controls.update();
         renderer.render(scene, camera);
@@ -161,6 +169,8 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
       };
 
       animate();
+
+      // Description: Builds the control box on the top right:
       const gui = (stackHelper: any) => {
         const gui = new dat.GUI({
           autoPlace: false,
