@@ -25,7 +25,6 @@ class DcmImage extends React.Component<AllProps> {
       const url = window.URL.createObjectURL(new Blob([file.blob]));
       this.initAmi(url);
     }
-
   }
 
   render() {
@@ -60,7 +59,6 @@ class DcmImage extends React.Component<AllProps> {
         height / 2,
         height / -2,
          0.1, 2000);
-     
 
       // Setup controls
       const TrackballOrthoControl = trackballOrthoControlFactory(THREE);

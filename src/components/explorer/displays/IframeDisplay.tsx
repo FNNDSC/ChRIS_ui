@@ -1,6 +1,6 @@
 import * as React from "react";
 import { IFileState } from "../../../api/models/file-explorer";
-import catchallDisplay from "./catchall-display";
+import catchallDisplay from "./CatchallDisplay";
 
 type AllProps = {
   file: IFileState;

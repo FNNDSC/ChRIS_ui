@@ -1,7 +1,7 @@
 // Common Components:
 export  { default as Gotop} from "./common/gotop/Gotop";
 export  { default as LoadingComponent} from "./common/loading/Loading";
-export  { default as DataTableToolbar} from "./common/dataTableToolbar/dataTableToolbar";
+export  { default as DataTableToolbar} from "./common/dataTableToolbar/DataTableToolbar";
 
 // Feed
 export  { default as FeedTree} from "./feed/FeedTree";

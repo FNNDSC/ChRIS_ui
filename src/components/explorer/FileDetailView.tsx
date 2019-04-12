@@ -7,12 +7,13 @@ import {
 } from "../../api/models/file-explorer";
 import FeedFileModel from "../../api/models/feed-file.model";
 import { DownloadIcon } from "@patternfly/react-icons";
-import DcmImage from "../dicomViewer/dcmImage";
+
 import {
   CatchallDisplay,
   JsonDisplay,
   IframeDisplay,
-  ImageDisplay
+  ImageDisplay,
+  DcmDisplay
 } from "./displays/index";
 import "./file-detail.scss";
 
@@ -91,9 +92,9 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
         return (
           <React.Fragment>
             {this.renderHeader("md")}
-            <DcmImage file={this.state} />
+            <DcmDisplay file={this.state} />
           </React.Fragment>
-        ); // TEMP: will build the dcm viewer
+        ); 
       default:
         return (
           <CatchallDisplay

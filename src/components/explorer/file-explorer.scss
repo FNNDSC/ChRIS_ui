@@ -43,24 +43,3 @@ table {
     }
   }
 }
-
-
-// File detail view
-.file-detail{
-  .pf-c-alert{
-    max-width: 700px;
-    margin: 1rem 3rem;
-  }
-}
-
-.image-block{
-  position: relative;
-  button{
-   position: absolute;
-   right: 0;
-   top: 5px;
-   svg{
-    color:#fff;
-   }
-  }
-}

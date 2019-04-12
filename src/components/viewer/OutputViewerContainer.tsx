@@ -102,16 +102,14 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
             break;
           case "VolumeGrowth":
             label = "Volume";
-            tabContent =
-              (<React.Fragment>
+            tabContent =(<React.Fragment>
                 <h1 className="pf-c-title pf-u-m-xl">Volume Segments</h1>
                 <VolumeGrowth />
               </React.Fragment>)
             break;
           case "SegmentAnalysis":
             label = "Segment";
-            tabContent =
-              (<React.Fragment>
+            tabContent = (<React.Fragment>
                 <h1 className="pf-c-title pf-u-m-xl">Z-Score</h1>
                 <SegmentAnalysis />;
             </React.Fragment>)

@@ -30,7 +30,7 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => 
         </React.Fragment>
       );
         return (
-        <div className="file-detail">
+        <div className="catchall">
           <Alert
             variant="info"
             title="No preview available for file:"

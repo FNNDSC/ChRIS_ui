@@ -1,8 +1,8 @@
 // Place all the displays here for easy export
-export  { default as DataTableViewer} from "./dataTableViewer";
-export  { default as DicomViewer} from "./dicomViewer";
-export  { default as FileBrowserViewer} from "./fileBrowserViewer";
-export  { default as FreesurferDataTable} from "./freesurferDataTable";
-export  { default as RevViewer} from "./revViewer";
-export  { default as ZScoreDataTable} from "./zScoreDataTable";
-export  { default as ImageGallery} from "./imageGallery";
+export  { default as DataTableViewer} from "./DataTableViewer";
+export  { default as DicomViewer} from "./DicomViewer";
+export  { default as FileBrowserViewer} from "./FileBrowserViewer";
+export  { default as FreesurferDataTable} from "./FreesurferDataTable";
+export  { default as RevViewer} from "./RevViewer";
+export  { default as ZScoreDataTable} from "./ZScoreDataTable";
+export  { default as ImageGallery} from "./ImageGallery";
