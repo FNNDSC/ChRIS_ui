@@ -29,8 +29,7 @@ class FileTableView extends React.Component<AllProps> {
           aria-label="Data table"
           variant={TableVariant.compact}
           cells={data.columns}
-          rows={data.rows}
-        >
+          rows={data.rows}>
           <TableHeader />
           <TableBody />
         </Table>

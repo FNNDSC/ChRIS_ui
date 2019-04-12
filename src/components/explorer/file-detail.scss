@@ -74,10 +74,24 @@
     background: black;
     border: solid 1px $fe-viewer-border;
     position: relative;
-    .arrows, .toolbar{
+    .arrows> a, .toolbar{
       color: #fff;
       position: absolute;
       z-index: 9999;
+    }
+    // Naviation Arrows
+    .arrows{
+      a{
+        font-size: $fe-arrows-height;
+        margin-top: -($fe-arrows-height*0.55);
+        top: 50%;
+        &.prev{
+          left: 5px;
+        }
+        &.next{
+          right: 5px;
+        }
+      }
     }
   }
   .ami-viewer{
