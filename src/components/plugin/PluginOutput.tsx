@@ -15,7 +15,7 @@ type AllProps = {
 };
 class PluginOutput extends React.Component<AllProps, { isModalOpen: boolean }> {
   state = {
-    isModalOpen: false // TEMP for dev - set to false
+    isModalOpen: true // TEMP for dev - set to false
   };
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeyDown);
@@ -59,8 +59,7 @@ class PluginOutput extends React.Component<AllProps, { isModalOpen: boolean }> {
               <Button
                 variant="secondary"
                 isBlock
-                onClick={this.handleModalToggle}
-              >
+                onClick={this.handleModalToggle} >
                 <EyeIcon /> View Data
               </Button>
             </div>
