@@ -28,26 +28,35 @@ $login-background-image-sm:         'pfbg_768.jpg'; //var(--pf-c-background-imag
 $login-background-image-sm-2x:      'pfbg_768@2x.jpg'; //var(--pf-c-background-image--BackgroundImage--sm-2x);
 $login-background-image-lg:         'pfbg_2000.jpg'; //var(--pf-c-background-image--BackgroundImage--lg);
 
+//Gotop component
+$gotop-bg:                        $chris-highlight-background-blue;
+$gotop-bg:                        $chris-light-blue;
+$gotop-bg-active:                 $chris-light-blue;
+$gotop-dimension:                 50px;
 
 // Feed pages
-$feed-block-background:             #000;
-$node-block-background:             $chris-blue;
-$node-block-border:                 $chris-light-blue;
+$feed-block-background:          #000;
+$node-block-background:          $chris-blue;
+$node-block-border:              $chris-light-blue;
 
 // Tree colors
-$tree-node-backgound:               #fff;
-$tree-links-color:                  #fff;
-$tree-node-active-backgound:        $chris-light-blue;
-$tree-tooltip-background:          #282d33; //#393f44;
-$tree-tooltip-arrow-width:         0.9375rem;
+$tree-node-backgound:            #fff;
+$tree-links-color:               #fff;
+$tree-node-active-backgound:     $chris-light-blue;
+$tree-tooltip-background:        #282d33; //#393f44;
+$tree-tooltip-arrow-width:       0.9375rem;
+
 // Label and data sizes for plugin panel
-$plugin-label-font-size:           0.8125rem;
-$plugin-data-font-size:            0.875rem;
+$plugin-label-font-size:         0.8125rem;
+$plugin-data-font-size:          0.875rem;
 
 // Data Output and Viewer - File Browser 
-$file-explorer-yellow:           #ffee99;
-$file-explorer-blue:             $chris-highlight-background-blue;
-
+$file-explorer-yellow:          #ffee99;
+$file-explorer-blue:            $chris-highlight-background-blue;
+$fe-viewer-border:              #eee;
+$fe-viewer-background:          #f8f9fa;
+$fe-viewer-max-width-sm:        768px;
+$fe-viewer-max-width-md:        992px;
 
 $dot-background-gray:           #ddd;
 $dot-background-red:            #c83737;
