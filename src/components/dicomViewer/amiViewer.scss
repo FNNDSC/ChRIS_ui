@@ -6,10 +6,9 @@
 
 
 .ami-viewer{
-    min-height: calc(100vh - 100px);
     position:relative;
+    min-height: calc(100vh - 100px);
     #container {
-        background-color: #000;
         bottom: 0;
         height: 100%;
         left: 0;

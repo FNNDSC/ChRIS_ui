@@ -12,49 +12,29 @@ import {
 import "./amiViewer.scss";
 
 type AllProps = {
-  files: IFeedFile[];
-  file?: string;
+  file: IFileState;
 };
 
 // Description: Will be replaced with a DCM Fyle viewer
-class AmiViewer extends React.Component<AllProps, IFileState> {
+class DcmImage extends React.Component<AllProps, IFileState> {
   dynamicImagePixelData: string | ArrayBuffer | null = null;
-  constructor(props: AllProps) {
-    super(props);
-    const { files } = this.props;
-    const url = files[100].file_resource; // Pass the right file
-    this.fetchData(url);
-  }
   state = {
     blob: undefined,
     blobName:  "[filename will go here]",
     blobText: null,
     fileType: "dcm"
   };
+  componentDidMount() {
+    const { file } = this.props;
+    if (!!file.blob) {
+      console.log(file);
+      const url = window.URL.createObjectURL(new Blob([file.blob]));
+      this.initAmi(url);
+    }
 
-  // Description: Fetch blob and read it into state to display preview
-  fetchData(file_resource: string) {
-    FeedFileModel.getFileBlob(file_resource).then((result: any) => {
-      const _self = this;
-      this.setState({ blob: result.data });
-      if (!!result.data) {
-        const reader = new FileReader();
-        reader.addEventListener(
-          "load",
-          () => {
-            _self.setState({ blobText: reader.result });
-            const url = window.URL.createObjectURL(new Blob([result.data]));
-            (!!this.state.blob) && this.initAmi(url);
-          },
-          false
-        );
-        reader.readAsDataURL(result.data); // reader.readAsDataURL(file);
-      }
-    });
   }
 
   render() {
-    console.log("AmiViewer");
     return (
       <div className="ami-viewer">
         <div id="my-gui-container" />
@@ -77,14 +57,16 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
 
       const scene = new THREE.Scene();
       const OrthograhicCamera = orthographicCameraFactory(THREE);
+      const width = container.clientWidth,
+      height = container.clientHeight;
+      // type => ( left : number, right : number, top : number, bottom : number, near : number =  0.1, far : number = 2000 ) => void
       const camera = new OrthograhicCamera(
-        container.clientWidth / -2,
-        container.clientWidth / 2,
-        container.clientHeight / 2,
-        container.clientHeight / -2,
-        0.1,
-        10000
-      );
+        width / -2,
+        width / 2,
+        height / 2,
+        height / -2,
+         0.1, 2000);
+      console.log(camera);
 
       // Setup controls
       const TrackballOrthoControl = trackballOrthoControlFactory(THREE);
@@ -116,7 +98,7 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
           const StackHelper = stackHelperFactory(THREE);
           const stackHelper = new StackHelper(stack);
           stackHelper.bbox.visible = false;
-          stackHelper.border.color = colors.white;
+          stackHelper.border.color = colors.black;
           scene.add(stackHelper);
 
           // Add the control box
@@ -247,4 +229,4 @@ const colors = {
 };
 
 
-export default AmiViewer;
+export default React.memo(DcmImage);
