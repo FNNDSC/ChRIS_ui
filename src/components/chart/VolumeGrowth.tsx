@@ -21,7 +21,7 @@ const defaultChartData = [
   ["G_and_S_frontomargin_RHFirstDevNeg", 1467.2, 1629.0, 1876.3333333333333, 2010.0, 2323.0, 2400.6, 2449.25]
 ];
 
-const defaultSegments = ["G_and_S_frontomargin-RH"];
+const defaultSegments = ["G_and_S_frontomargin_RH"];
 
 class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   constructor(props: ComponentProps) {
@@ -53,7 +53,6 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
       data: {
         x: "age",
         columns: inputChart,
-        type: "spline",
         colors: {
           G_and_S_frontomargin_LHPatient: "#006600",
           G_and_S_frontomargin_RHPatient: "#0000CC",
@@ -89,7 +88,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
         },
         y: {
           label: {
-            text: "Size in mm3",
+            text: 'Volume in mm\u00B3',
             position: "outer-middle"
           }
         }
@@ -116,9 +115,14 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   }
 
   getSegmentData(segment: string) {
-    const segmentData = volumeData.find(segmentData => {
-      return segmentData[0] === segment;
-    });
+    let segmentData;
+    if(segment.includes("Average") || segment.includes("Patient")) {
+      segmentData = volumeData.find(segmentData => {
+        return segmentData[0] === segment;
+      })
+    } else {
+
+    }
     return segmentData;
   }
 
@@ -127,30 +131,14 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
     // Get the Patient data for the segment
     if (this.state.pushedSegments.length > 0) {
       filteredData = this.state.pushedSegments.map(segment =>
-        this.getSegmentData(segment + "_LHAverage")
+        this.getSegmentData(segment + "Average")
       );
     }
     // Get the Average data for the segment
     if (this.state.pushedSegments.length > 0) {
       filteredData = filteredData.concat(
         this.state.pushedSegments.map(segment =>
-          this.getSegmentData(segment + "_LHPatient")
-        )
-      );
-    }
-    // Get the Average data for the segment
-    if (this.state.pushedSegments.length > 0) {
-      filteredData = filteredData.concat(
-        this.state.pushedSegments.map(segment =>
-          this.getSegmentData(segment + "_RHAverage")
-        )
-      );
-    }
-    // Get the Average data for the segment
-    if (this.state.pushedSegments.length > 0) {
-      filteredData = filteredData.concat(
-        this.state.pushedSegments.map(segment =>
-          this.getSegmentData(segment + "_RHPatient")
+          this.getSegmentData(segment + "Patient")
         )
       );
     }
