@@ -10,9 +10,9 @@ import {
 } from "@patternfly/react-core";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IPluginState } from "../../store/plugin/types";
-import PluginInformation from "./pluginInformation";
-import PluginConfiguration from "./pluginConfiguration";
-import PluginOutput from "./pluginOutput";
+import PluginInformation from "./PluginInformation";
+import PluginConfiguration from "./PluginConfiguration";
+import PluginOutput from "./PluginOutput";
 import { getPluginInstanceTitle } from "../../api/models/pluginInstance.model";
 import "./plugin.scss";
 interface IState {

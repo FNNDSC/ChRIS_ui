@@ -10,18 +10,17 @@
 
 // File detail view
 // -----------------------------------------------
-.file-detail{
-  .pf-c-alert{
-    max-width: $fe-viewer-max-width-sm;
-    margin: 1rem 3rem;
-    label{
-      display: block;
-      margin-bottom: 0.5rem;
+.output-viewer{
+  .catchall{ // catchall
+    .pf-c-alert{
+      max-width: $fe-viewer-max-width-sm;
+      margin: 1rem 3rem;
+      label{
+        display: block;
+        margin-bottom: 0.5rem;
+      }
     }
   }
-}
-
-.output-viewer{
   // Iframe to display the file contents
   .default-display, .json-display{
     min-height: calc(100vh - 280px);
@@ -44,12 +43,7 @@
     padding: 1rem;
     overflow: auto;
   }
-  .ami-viewer{
-    border: solid 1px $fe-viewer-border;
-    max-width: $fe-viewer-max-width-sm;
-    min-height: calc(100vh - 280px);
-  }
-
+  
   .header-panel{
     &.sm{
       max-width: $fe-viewer-max-width-sm;
@@ -62,4 +56,35 @@
       margin-bottom: 10px;
     }
   }
+
+  .image-block{
+    position: relative;
+    button{
+     position: absolute;
+     right: 0;
+     top: 5px;
+     svg{
+      color:#fff;
+     }
+    }
+  }
+
+  // AMI / DCMDisplay
+  .dcm-display{
+    background: black;
+    border: solid 1px $fe-viewer-border;
+    position: relative;
+    .arrows, .toolbar{
+      color: #fff;
+      position: absolute;
+      z-index: 9999;
+    }
+  }
+  .ami-viewer{
+    
+    // max-width: $fe-viewer-max-width-sm;
+    min-height: calc(100vh - 280px);
+  }
+
+
 }
