@@ -62,20 +62,40 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
           G_and_S_frontomargin_LHAverage: "#006600",
           G_and_S_frontomargin_LHFirstDevPos: "#009900",
           G_and_S_frontomargin_LHFirstDevNeg: "#009900",
-          G_and_S_occipital_inf_LHPatient: "#CC6600",
-          G_and_S_occipital_inf_RHPatient: "#0000CC",
-          G_and_S_occipital_inf_LHAverage: "#FFA500",
-          G_and_S_occipital_inf_RHAverage: "#00BFFF",
-          G_and_S_paracentral_LHPatient: "#CC6600",
-          G_and_S_paracentral_RHPatient: "#0000CC",
-          G_and_S_paracentral_LHAverage: "#FFA500",
-          G_and_S_paracentral_RHAverage: "#00BFFF"
+
+          G_and_S_occipital_inf_RHPatient: "#00BFFF",
+          G_and_S_occipital_inf_RHAverage: "#FF0000",
+          G_and_S_occipital_inf_RHFirstDevPos: "#F08080",
+          G_and_S_occipital_inf_RHFirstDevNeg: "#F08080",
+          G_and_S_occipital_inf_LHPatient: "#FFA500",
+          G_and_S_occipital_inf_LHAverage: "#006600",
+          G_and_S_occipital_inf_LHFirstDevPos: "#009900",
+          G_and_S_occipital_inf_LHFirstDevNeg: "#009900",
+
+          G_and_S_paracentral_RHPatient: "#00BFFF",
+          G_and_S_paracentral_RHAverage: "#FF0000",
+          G_and_S_paracentral_RHFirstDevPos: "#F08080",
+          G_and_S_paracentral_RHFirstDevNeg: "#F08080",
+          G_and_S_paracentral_LHPatient: "#FFA500",
+          G_and_S_paracentral_LHAverage: "#006600",
+          G_and_S_paracentral_LHFirstDevPos: "#009900",
+          G_and_S_paracentral_LHFirstDevNeg: "#009900"
         },
         regions: {
           "G_and_S_frontomargin_RHFirstDevPos": [{'end':13}],
           "G_and_S_frontomargin_RHFirstDevNeg": [{'end':13}],
           "G_and_S_frontomargin_LHFirstDevPos": [{'end':13}],
-          "G_and_S_frontomargin_LHFirstDevNeg": [{'end':13}]
+          "G_and_S_frontomargin_LHFirstDevNeg": [{'end':13}],
+
+          "G_and_S_occipital_inf_RHFirstDevPos": [{'end':13}],
+          "G_and_S_occipital_inf_RHFirstDevNeg": [{'end':13}],
+          "G_and_S_occipital_inf_LHFirstDevPos": [{'end':13}],
+          "G_and_S_occipital_inf_LHFirstDevNeg": [{'end':13}],
+
+          "G_and_S_paracentral_RHFirstDevPos": [{'end':13}],
+          "G_and_S_paracentral_RHFirstDevNeg": [{'end':13}],
+          "G_and_S_paracentral_LHFirstDevPos": [{'end':13}],
+          "G_and_S_paracentral_LHFirstDevNeg": [{'end':13}]
         }
       },
       padding: {
