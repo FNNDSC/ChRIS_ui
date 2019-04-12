@@ -114,14 +114,36 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
     });
   }
 
+  getDeviation(segmentData: any, segment: string){
+    console.log(segmentData);
+    console.log(segment);
+    if(segment.includes("RHFirstDevPos")) {
+      for(let i = 0; i < segmentData.length; i++){
+        if(i > 0) {
+          segmentData[i] = segmentData[i] + 50;
+        } else {
+          segmentData[i] = segment;
+        }
+      }
+    }
+    console.log(segmentData);
+    console.log(segment);
+    return segmentData;
+  }
+
   getSegmentData(segment: string) {
     let segmentData;
     if(segment.includes("Average") || segment.includes("Patient")) {
       segmentData = volumeData.find(segmentData => {
         return segmentData[0] === segment;
       })
-    } else {
-
+    } else if(segment.includes("FirstDevPos")){
+      let devSegment = segment.replace("FirstDevPos", "");
+      //console.log("Here");
+      segmentData = volumeData.find(segmentData => {
+        return segmentData[0] === devSegment + "Average";
+      });
+      segmentData = this.getDeviation(segmentData, segment);
     }
     return segmentData;
   }
@@ -131,14 +153,14 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
     // Get the Patient data for the segment
     if (this.state.pushedSegments.length > 0) {
       filteredData = this.state.pushedSegments.map(segment =>
-        this.getSegmentData(segment + "Average")
+        this.getSegmentData(segment + "Patient")
       );
     }
     // Get the Average data for the segment
     if (this.state.pushedSegments.length > 0) {
       filteredData = filteredData.concat(
         this.state.pushedSegments.map(segment =>
-          this.getSegmentData(segment + "Patient")
+          this.getSegmentData(segment + "FirstDevPos")
         )
       );
     }
