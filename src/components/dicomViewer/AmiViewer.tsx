@@ -21,13 +21,12 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
   constructor(props: AllProps) {
     super(props);
     const { files } = this.props;
-//    const tempUrl = "http://fnndsc.childrens.harvard.edu:8001/api/v1/plugins/instances/files/101/0101-1.3.12.2.1107.5.2.32.35201.2013101416341221810103029.dcm";
     const url = files[100].file_resource; // Pass the right file
     this.fetchData(url);
   }
   state = {
     blob: undefined,
-    blobName:  "filename will go here",
+    blobName:  "[filename will go here]",
     blobText: null,
     fileType: "dcm"
   };
