@@ -28,7 +28,7 @@ const FileBrowserViewer: React.FunctionComponent<AllProps> = (props: AllProps) =
             active={activeNode}
             onClickNode={setActiveNode}  />
         </GridItem>
-        <GridItem className="pf-u-p-sm" sm={12} md={9}>
+        <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
           {/* Right container - display file table: */}
           <FileTableView active={activeNode} onClickNode={setActiveNode}  />
         </GridItem>

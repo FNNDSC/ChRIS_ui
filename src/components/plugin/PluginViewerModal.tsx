@@ -24,7 +24,6 @@ class PluginViewerModal extends React.Component<AllProps, ModalState> {
       scrollDivId: e.target.id
     });
   }
- 
   render() {
     const { isModalOpen, handleModalToggle } = this.props;
     return (

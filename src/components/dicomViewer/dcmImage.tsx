@@ -16,18 +16,12 @@ type AllProps = {
 };
 
 // Description: Will be replaced with a DCM Fyle viewer
-class DcmImage extends React.Component<AllProps, IFileState> {
+class DcmImage extends React.Component<AllProps> {
   dynamicImagePixelData: string | ArrayBuffer | null = null;
-  state = {
-    blob: undefined,
-    blobName:  "[filename will go here]",
-    blobText: null,
-    fileType: "dcm"
-  };
+
   componentDidMount() {
     const { file } = this.props;
     if (!!file.blob) {
-      console.log(file);
       const url = window.URL.createObjectURL(new Blob([file.blob]));
       this.initAmi(url);
     }
@@ -66,7 +60,7 @@ class DcmImage extends React.Component<AllProps, IFileState> {
         height / 2,
         height / -2,
          0.1, 2000);
-      console.log(camera);
+     
 
       // Setup controls
       const TrackballOrthoControl = trackballOrthoControlFactory(THREE);
@@ -128,8 +122,7 @@ class DcmImage extends React.Component<AllProps, IFileState> {
           camera.update();
           camera.fitBox(2);
         }).catch((error: any) => {
-          window.console.log("oops... something went wrong...");
-          window.console.log(error);
+          console.error(error);
         });
 
       // Render gui controls and scene
