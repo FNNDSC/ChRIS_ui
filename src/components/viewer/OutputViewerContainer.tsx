@@ -131,12 +131,11 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
 }
 // Description: Temporary mapping for plugin tabs
 const tempMapping: any = {
-  mri10yr06mo01da_normal: ["FileBrowserViewer"], // Temp for dev
+  // mri10yr06mo01da_normal: ["FileBrowserViewer"], // Temp for dev
   default: ["FileBrowserViewer"],
- // dircopy: ["RevViewer", "FileBrowserViewer"],
-  dircopy: ["FileBrowserViewer"], // Temp for dev
+  dircopy: ["RevViewer", "FileBrowserViewer"],
   pacscopy: ["RevViewer", "FileBrowserViewer"],
-  // mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
+  mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
   freesurfer_pp: ["DicomViewer_2D", "DicomViewer_3D", "FreesurferDataTable", "FileBrowserViewer"],
   simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable"],
   mpcs: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable"],
