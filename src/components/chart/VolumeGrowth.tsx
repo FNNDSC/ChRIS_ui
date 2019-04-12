@@ -54,12 +54,14 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
         x: "age",
         columns: inputChart,
         colors: {
-          G_and_S_frontomargin_LHPatient: "#006600",
-          G_and_S_frontomargin_RHPatient: "#0000CC",
+          G_and_S_frontomargin_RHPatient: "#00BFFF",
+          G_and_S_frontomargin_RHAverage: "#FF0000",
           G_and_S_frontomargin_RHFirstDevPos: "#F08080",
           G_and_S_frontomargin_RHFirstDevNeg: "#F08080",
-          G_and_S_frontomargin_LHAverage: "#009900",
-          G_and_S_frontomargin_RHAverage: "#FF0000",
+          G_and_S_frontomargin_LHPatient: "#FFA500",
+          G_and_S_frontomargin_LHAverage: "#006600",
+          G_and_S_frontomargin_LHFirstDevPos: "#009900",
+          G_and_S_frontomargin_LHFirstDevNeg: "#009900",
           G_and_S_occipital_inf_LHPatient: "#CC6600",
           G_and_S_occipital_inf_RHPatient: "#0000CC",
           G_and_S_occipital_inf_LHAverage: "#FFA500",
@@ -71,7 +73,9 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
         },
         regions: {
           "G_and_S_frontomargin_RHFirstDevPos": [{'end':13}],
-          "G_and_S_frontomargin_RHFirstDevNeg": [{'end':13}]
+          "G_and_S_frontomargin_RHFirstDevNeg": [{'end':13}],
+          "G_and_S_frontomargin_LHFirstDevPos": [{'end':13}],
+          "G_and_S_frontomargin_LHFirstDevNeg": [{'end':13}]
         }
       },
       padding: {
@@ -88,7 +92,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
         },
         y: {
           label: {
-            text: 'Volume in mm\u00B3',
+            text: "Volume in mm\u00B3",
             position: "outer-middle"
           }
         }
@@ -114,55 +118,49 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
     });
   }
 
-  getDeviation(segmentData: any, segment: string){
-    console.log(segmentData);
-    console.log(segment);
-    if(segment.includes("RHFirstDevPos")) {
-      for(let i = 0; i < segmentData.length; i++){
-        if(i > 0) {
-          segmentData[i] = segmentData[i] + 50;
-        } else {
-          segmentData[i] = segment;
-        }
+  // Use this function once data of devation is available
+  getDeviation(segment: string, deviation: number) {
+    let devSegment: any;
+
+    if(deviation > 0) {
+      devSegment = segment.replace("FirstDevPos", "");
+    } else {
+      devSegment = segment.replace("FirstDevNeg", "");
+    }
+
+    let segmentData: any;
+    segmentData = volumeData.find(segmentData => {
+        return segmentData[0] === devSegment + "Average";
+    });
+
+    for(let i = 0; i < segmentData.length; i++){
+      if(i > 0) {
+        segmentData[i] = segmentData[i] + deviation;
+      } else {
+        segmentData[i] = segment;
       }
     }
-    console.log(segmentData);
-    console.log(segment);
+
     return segmentData;
   }
 
   getSegmentData(segment: string) {
-    let segmentData;
-    if(segment.includes("Average") || segment.includes("Patient")) {
-      segmentData = volumeData.find(segmentData => {
-        return segmentData[0] === segment;
-      })
-    } else if(segment.includes("FirstDevPos")){
-      let devSegment = segment.replace("FirstDevPos", "");
-      //console.log("Here");
-      segmentData = volumeData.find(segmentData => {
-        return segmentData[0] === devSegment + "Average";
-      });
-      segmentData = this.getDeviation(segmentData, segment);
-    }
+    const segmentData = volumeData.find(segmentData => {
+      return segmentData[0] === segment;
+    });
     return segmentData;
   }
 
   setFilter() {
     let filteredData: any[] = [];
-    // Get the Patient data for the segment
+    const volumeParameters = ["Average", "Patient", "FirstDevPos", "FirstDevNeg"];
+
     if (this.state.pushedSegments.length > 0) {
-      filteredData = this.state.pushedSegments.map(segment =>
-        this.getSegmentData(segment + "Patient")
-      );
-    }
-    // Get the Average data for the segment
-    if (this.state.pushedSegments.length > 0) {
-      filteredData = filteredData.concat(
-        this.state.pushedSegments.map(segment =>
-          this.getSegmentData(segment + "FirstDevPos")
-        )
-      );
+      for(let i = 0; i < volumeParameters.length; i++) {
+        filteredData = filteredData.concat(this.state.pushedSegments.map(segment =>
+          this.getSegmentData(segment + volumeParameters[i])
+        ));
+      }
     }
 
     filteredData.push(age);

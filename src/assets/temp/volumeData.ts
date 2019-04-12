@@ -76,6 +76,8 @@ export const volumeData = [
   ["S_temporal_sup_LHPatient", null, null, null, 11619, null, null, null],
   ["S_temporal_transverse_LHPatient", null, null, null, 630, null, null, null],
   ["G_and_S_frontomargin_LHAverage", 2587.4, 1846.0, 2559.5, 2539.285714285714, 2485.0, 2867.2, 2663.125],
+  ["G_and_S_frontomargin_LHFirstDevPos", 2587.4+50, 1846.0+50, 2559.5+50, 2539.285714285714+50, 2485.0+50, 2867.2+50, 2663.125+50],
+  ["G_and_S_frontomargin_LHFirstDevNeg", 2587.4-50, 1846.0-50, 2559.5-50, 2539.285714285714-50, 2485.0-50, 2867.2-50, 2663.125-50],
   ["G_and_S_occipital_inf_LHAverage", 4097.2, 2888.0, 3034.8333333333335, 3878.4285714285716, 2469.0, 3228.0, 2965.875],
   ["G_and_S_paracentral_LHAverage", 3352.2, 4301.0, 3034.8333333333335, 3294.0, 3061.5, 3094.4, 3059.875],
   ["G_and_S_subcentral_LHAverage", 4045.4, 3270.0, 3746.0,3697.5714285714284, 3630.5, 3368.0, 3301.375],
@@ -224,6 +226,8 @@ export const volumeData = [
   ["S_temporal_sup_RHPatient", null, null, null, 12962, null, null, null],
   ["S_temporal_transverse_RHPatient", null, null, null, 449, null, null, null],
   ["G_and_S_frontomargin_RHAverage", 2217.2, 1679.0, 1923.3333333333333, 2298.0, 1873.0, 2275.6, 2149.25],
+  ["G_and_S_frontomargin_RHFirstDevPos", 2217.2+50, 1679.0+50, 1923.3333333333333+50, 2298.0+50, 1873.0+50, 2275.6+50, 2149.25+50],
+  ["G_and_S_frontomargin_RHFirstDevNeg", 2217.2-50, 1679.0-50, 1923.3333333333333-50, 2298.0-50, 1873.0-50, 2275.6-50, 2149.25-50],
   ["G_and_S_occipital_inf_RHAverage", 3277.4, 1990.0, 2617.8333333333335, 2960.8571428571427, 2378.5, 3020.6, 2805.875],
   ["G_and_S_paracentral_RHAverage", 3300.0, 2769.0, 2319.6666666666665, 3180.1428571428573, 3096.5, 2440.6, 2625.5],
   ["G_and_S_subcentral_RHAverage", 3999.2, 3029.0, 3020.0, 3684.8571428571427, 3570.5, 3320.8, 2918.25],
@@ -298,14 +302,6 @@ export const volumeData = [
   ["S_temporal_sup_RHAverage", 11524.8, 9850.0, 9753.833333333334, 11834.0, 5271.5, 10594.2, 10409.625],
   ["S_temporal_transverse_RHAverage", 535.4, 509.0, 419.8333333333333, 511.42857142857144, 419.8333333333333, 533.6, 463.5]
 ];
-
-
-
-
-
-
-
-
 
 export const segments = [
   "G_and_S_frontomargin_RH",
