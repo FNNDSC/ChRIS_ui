@@ -15,14 +15,14 @@ import { IUITreeNode, getFileExtension } from "../../api/models/file-explorer";
 import FileDetailView from "../explorer/FileDetailView";
 
 type AllProps = {
-  active: IUITreeNode;
+  selectedNode: IUITreeNode;
   onClickNode: (node: IUITreeNode) => void;
 };
 
 class FileTableView extends React.Component<AllProps> {
   render() {
-    const { active } = this.props;
-    const data = this.parseTableData(active);
+    const { selectedNode } = this.props;
+    const data = this.parseTableData(selectedNode);
     const tableView = (
       <div className="pf-u-p-sm">
         <Table
@@ -35,9 +35,9 @@ class FileTableView extends React.Component<AllProps> {
         </Table>
       </div>
     );
-    return !!active.leaf && active.leaf ? (
+    return !!selectedNode.leaf && selectedNode.leaf ? (
       <FileDetailView
-        active={active}
+        active={selectedNode}
         downloadFileNode={this.handleFileDownload}
       />
     ) : (

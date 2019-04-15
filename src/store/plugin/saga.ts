@@ -8,7 +8,6 @@ import {
   getPluginFilesSuccess,
   getPluginParametersSuccess,
   getPluginFilesRequest,
-  setExplorerSuccess,
   getPluginParametersRequest
 } from "./actions";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
@@ -75,8 +74,7 @@ function* handleGetPluginFiles(action: any) {
       console.error(res.error); // working user messaging
     } else {
       yield put(getPluginFilesSuccess(res));
-      yield put(setExplorerSuccess(res.data.results, selected)); // Structure the files for explorer
-
+    //   yield put(setExplorerSuccess(res.data.results, selected)); // Structure the files for explorer
     }
   } catch (error) {
     console.error(error); // working user messaging

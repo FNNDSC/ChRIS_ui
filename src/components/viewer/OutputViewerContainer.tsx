@@ -1,10 +1,8 @@
-import * as React from "react";
-import { FormEvent } from "react";
+import React, { FormEvent } from "react";
 import { connect } from "react-redux";
 import { Tabs, Tab, Alert } from "@patternfly/react-core";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IFeedFile } from "../../api/models/feed-file.model";
-import { IUITreeNode } from "../../api/models/file-explorer";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import {
   DicomViewer,
@@ -21,7 +19,6 @@ import "./viewer.scss";
 
 type AllProps = {
   files?: IFeedFile[];
-  explorer?: IUITreeNode;
   selected?: IPluginItem;
 };
 
@@ -60,7 +57,7 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
   }
   // Description: Build Tabs from data
   buildTabArray = () => {
-    const { files, explorer, selected } = this.props;
+    const { files, selected } = this.props;
     const tabs: any[] = [];
     if (!!selected) {
       const tabArr = tempMapping[selected.plugin_name] || tempMapping.default;
@@ -86,7 +83,7 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
             break;
           case "FileBrowserViewer":
             label = "File Browser";
-            tabContent = !!files && !!explorer && <FileBrowserViewer files={files} explorer={explorer} />;
+            tabContent = (!!files && !!selected) && <FileBrowserViewer files={files} selected={selected} />;
             break;
           case "DataTableViewer":
             label = "Data Table";
@@ -102,7 +99,7 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
             break;
           case "VolumeGrowth":
             label = "Volume";
-            tabContent =(<React.Fragment>
+            tabContent = (<React.Fragment>
                 <h1 className="pf-c-title pf-u-m-xl">Volume Segments</h1>
                 <VolumeGrowth />
               </React.Fragment>)
@@ -129,11 +126,11 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
 }
 // Description: Temporary mapping for plugin tabs
 const tempMapping: any = {
-   mri10yr06mo01da_normal: ["FileBrowserViewer"], // Temp for dev
+  // mri10yr06mo01da_normal: ["FileBrowserViewer"], // Temp for dev
   default: ["FileBrowserViewer"],
   dircopy: ["RevViewer", "FileBrowserViewer"],
   pacscopy: ["RevViewer", "FileBrowserViewer"],
-  // mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
+  mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
   freesurfer_pp: ["DicomViewer_2D", "DicomViewer_3D", "FreesurferDataTable", "FileBrowserViewer"],
   simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable"],
   mpcs: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable"],
@@ -142,8 +139,7 @@ const tempMapping: any = {
 
 const mapStateToProps = ({ plugin }: ApplicationState) => ({
   files: plugin.files,
-  explorer: plugin.explorer,
-  selected: plugin.selected
+  selected: plugin.selected,
 });
 
 export default connect(

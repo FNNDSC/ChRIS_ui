@@ -72,8 +72,7 @@ const selected = {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getPluginFilesRequest: (item: IPluginItem) =>
-    dispatch(getPluginFilesRequest(item))
+  getPluginFilesRequest: (item: IPluginItem) => dispatch(getPluginFilesRequest(item))
 });
 
 const mapStateToProps = ({ plugin }: ApplicationState) => ({
