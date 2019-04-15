@@ -36,6 +36,7 @@ class PluginOutput extends React.Component<AllProps, { isModalOpen: boolean }> {
       isModalOpen: !this.state.isModalOpen
     });
   };
+
   render() {
     const { files, handleDownloadData } = this.props;
     return (

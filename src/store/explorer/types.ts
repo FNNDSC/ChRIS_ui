@@ -12,10 +12,13 @@ export interface IExplorerState {
     explorer?: IUITreeNode;
     selectedFile?: IUITreeNode;
     selectedFolder?: IUITreeNode;
+    galleryItems?: IUITreeNode[];
 }
 
 export const ExplorerActionTypes = keyMirror({
     SET_EXPLORER_REQUEST: null,
     SET_SELECTED_FILE: null,
     SET_SELECTED_FOLDER: null,
+    SET_GALLERY_ITEMS: null,
+    RESET_GALLERY_ITEMS: null
 });
