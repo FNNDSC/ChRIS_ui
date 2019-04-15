@@ -1,5 +1,6 @@
 import * as React from "react";
-import { IFileState, getFileExtension } from "../../../api/models/file-explorer";
+import { getFileExtension } from "../../../api/models/file-explorer";
+import { IFileState } from "../../../api/models/file-viewer";
 import { DownloadIcon } from "@patternfly/react-icons";
 import { Alert, Button } from "@patternfly/react-core";
 

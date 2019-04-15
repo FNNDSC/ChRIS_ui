@@ -1,6 +1,7 @@
 import * as React from "react";
 import FeedFileModel, { IFeedFile } from "../../api/models/feed-file.model";
-import { IFileState, getFileExtension } from "../../api/models/file-explorer";
+// import { getFileExtension } from "../../api/models/file-explorer";
+import { IFileState } from "../../api/models/file-viewer";
 import * as dat from "dat.gui";
 import * as THREE from "three";
 import * as AMI from "ami.js";

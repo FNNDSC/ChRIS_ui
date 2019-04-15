@@ -1,6 +1,6 @@
 import * as React from "react";
 import {ChevronLeftIcon, ChevronRightIcon } from "@patternfly/react-icons"
-import { IFileState } from "../../../api/models/file-explorer";
+import { IFileState } from "../../../api/models/file-viewer";
 import DcmImage from "../../dicomViewer/DcmImage";
 
 type AllProps = {

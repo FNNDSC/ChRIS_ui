@@ -4,7 +4,8 @@ import { ExplorerActionTypes, IExplorerState } from "./types";
 // Type-safe initialState
 const initialState: IExplorerState = {
   explorer: undefined,
-  selectedNode: undefined
+  selectedNode: undefined,
+  selectedFolder: undefined
 };
 
 // Description: Handle File explorer state
@@ -16,6 +17,9 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
     }
     case ExplorerActionTypes.SET_SELECTED_NODE: {
       return { ...state, selectedNode: action.payload };
+    }
+    case ExplorerActionTypes.SET_SELECTED_FOLDER: {
+      return { ...state, selectedFolder: action.payload };
     }
     default: {
       return state;
