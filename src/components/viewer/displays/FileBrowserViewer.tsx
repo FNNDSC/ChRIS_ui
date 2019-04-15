@@ -55,7 +55,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
             {
               !!selectedFolder ? <FileTableView selectedFolder={selectedFolder} onClickNode={this.setActiveNode} downloadFileNode={this.handleFileDownload} /> :
                 !!selectedFile ? <FileDetailView active={selectedFile} downloadFileNode={this.handleFileDownload} /> :
-                <Alert variant="info" title="Please select a file or folder from the file explorer" className="empty" />
+                    <Alert variant="info" title="Please select a file or folder from the file explorer" className="empty" />
             }
           </GridItem>
         </Grid>

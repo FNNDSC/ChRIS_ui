@@ -94,7 +94,7 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
             {this.renderHeader("md")}
             <DcmDisplay file={this.state} />
           </React.Fragment>
-        ); 
+        );
       default:
         return (
           <CatchallDisplay

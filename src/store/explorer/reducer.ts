@@ -5,7 +5,8 @@ import { ExplorerActionTypes, IExplorerState } from "./types";
 const initialState: IExplorerState = {
   explorer: undefined,
   selectedFile: undefined,
-  selectedFolder: undefined
+  selectedFolder: undefined,
+  galleryItems: undefined
 };
 
 // Description: Handle File explorer state
@@ -20,6 +21,12 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
     }
     case ExplorerActionTypes.SET_SELECTED_FOLDER: {
       return { ...state, selectedFolder: action.payload, selectedFile: undefined };
+    }
+    case ExplorerActionTypes.SET_GALLERY_ITEMS: {
+      return { ...state, galleryItems: action.payload};
+    }
+    case ExplorerActionTypes.RESET_GALLERY_ITEMS: {
+      return { ...state, galleryItems: undefined};
     }
     default: {
       return state;

@@ -28,8 +28,8 @@ const DcmDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   return (
     <div className="dcm-display">
       <DcmImage file={file} />
-      <Arrows />
-      <Toolbar />
+      {/* <Arrows />
+      <Toolbar /> */}
     </div>
   );
 };

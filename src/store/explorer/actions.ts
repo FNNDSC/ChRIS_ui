@@ -13,3 +13,7 @@ export const setSelectedFile = (node: IUITreeNode) => action(ExplorerActionTypes
 
 // Description: Stores the current selected folder or parent folder of the selected file
 export const setSelectedFolder = (node: IUITreeNode) => action(ExplorerActionTypes.SET_SELECTED_FOLDER, node);
+
+// Description: Stores the current parent folder of the selected file when displaying gallery style displays for next, prev, play, others functionalities
+export const setGalleryItems = (items: IUITreeNode[]) => action(ExplorerActionTypes.SET_GALLERY_ITEMS, items);
+export const resetGalleryItems = () => action(ExplorerActionTypes.RESET_GALLERY_ITEMS);
