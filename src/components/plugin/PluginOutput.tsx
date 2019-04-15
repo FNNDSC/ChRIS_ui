@@ -15,7 +15,7 @@ type AllProps = {
 };
 class PluginOutput extends React.Component<AllProps, { isModalOpen: boolean }> {
   state = {
-    isModalOpen: true // TEMP for dev - set to false
+    isModalOpen: false // TEMP for dev - set to false
   };
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeyDown);

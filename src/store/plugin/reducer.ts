@@ -5,20 +5,14 @@ import { PluginActionTypes, IPluginState } from "./types";
 const initialState: IPluginState = {
   selected: undefined,
   descendants: undefined,
-  files: [],
-  explorer: undefined,
-  parameters: []
+  files: undefined,
+  parameters: undefined
 };
 
-// ***** NOTE: Working *****
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {
   switch (action.type) {
     case PluginActionTypes.GET_PLUGIN_FILES_SUCCESS: {
       return { ...state, files: action.payload.data.results };
-    }
-    // Description: Set the explorer object:
-    case PluginActionTypes.SET_EXPLORER_SUCCESS: {
-      return { ...state, explorer: action.payload };
     }
     case PluginActionTypes.GET_PLUGIN_PARAMETERS_SUCCESS: {
       return { ...state, parameters: action.payload.data.results };
@@ -28,7 +22,7 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
       const selected =
         !!action.payload.data.results &&
         action.payload.data.results.length &&
-        action.payload.data.results[0];
+        action.payload.data.results[0]; // set first node as selected
       return { ...state, descendants, selected };
     }
     case PluginActionTypes.FETCH_ERROR: {

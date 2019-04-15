@@ -13,6 +13,7 @@ import { IMessageState } from "../message/types";
 import { IUserState } from "../user/types";
 import { IFeedState } from "../feed/types";
 import { IPluginState } from "../plugin/types";
+import { IExplorerState } from "../explorer/types";
 
 
 // The top-level state object
@@ -23,6 +24,7 @@ export interface ApplicationState {
    feed: IFeedState;
    user: IUserState;
    plugin: IPluginState;
+   explorer: IExplorerState;
 }
 
 

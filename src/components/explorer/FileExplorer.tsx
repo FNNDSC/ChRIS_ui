@@ -6,15 +6,15 @@ import "./file-explorer.scss";
 import _ from "lodash";
 type AllProps = {
   explorer: IUITreeNode;
-  active: IUITreeNode;
+  selectedNode?: IUITreeNode;
   onClickNode: (node: IUITreeNode) => void;
 };
 
 class FileExplorer extends React.Component<AllProps> {
   // Description: Render node and determine active node
   renderNode = (node: IUITreeNode) => {
-    const { active } = this.props;
-    const isActive = _.isEqual(active, node);
+    const { selectedNode } = this.props;
+    const isActive = _.isEqual(selectedNode, node);
     const isFolder = !!!node.leaf;
     const isCollapsed = !!!node.collapsed;
     return (
