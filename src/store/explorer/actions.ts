@@ -9,7 +9,7 @@ import UITreeNodeModel, { IUITreeNode } from "../../api/models/file-explorer";
 export const setExplorerRequest = (files: IFeedFile[], selected: IPluginItem) => action(ExplorerActionTypes.SET_EXPLORER_REQUEST, new UITreeNodeModel(files, selected).getTree() );
 
 // Description: Stores the current selected file
-export const setSelectedNode = (node: IUITreeNode) => action(ExplorerActionTypes.SET_SELECTED_NODE, node);
+export const setSelectedFile = (node: IUITreeNode) => action(ExplorerActionTypes.SET_SELECTED_FILE, node);
 
 // Description: Stores the current selected folder or parent folder of the selected file
 export const setSelectedFolder = (node: IUITreeNode) => action(ExplorerActionTypes.SET_SELECTED_FOLDER, node);

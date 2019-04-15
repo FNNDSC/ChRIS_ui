@@ -8,8 +8,11 @@ export interface IUITreeNode {
   children?: IUITreeNode[];
   collapsed?: boolean;
   leaf?: boolean;
-  file?: any;
+  file?: any; // Note: leave as type: any for parsing reasons in children components
 }
+
+
+
 
 // Description: get file type by file extention
 export function getFileExtension(filename: string) {

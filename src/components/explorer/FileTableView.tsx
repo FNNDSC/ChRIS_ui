@@ -10,19 +10,19 @@ import {
   FolderIcon,
   OutlinedFileImageIcon
 } from "@patternfly/react-icons";
-import FeedFileModel from "../../api/models/feed-file.model";
 import { IUITreeNode, getFileExtension } from "../../api/models/file-explorer";
-import FileDetailView from "../explorer/FileDetailView";
+
 
 type AllProps = {
-  selectedNode: IUITreeNode;
+  selectedFolder: IUITreeNode;
+  downloadFileNode: (node: IUITreeNode) => void;
   onClickNode: (node: IUITreeNode) => void;
 };
 
 class FileTableView extends React.Component<AllProps> {
   render() {
-    const { selectedNode } = this.props;
-    const data = this.parseTableData(selectedNode);
+    const { selectedFolder } = this.props;
+    const data = this.parseTableData(selectedFolder);
     const tableView = (
       <div className="pf-u-p-sm">
         <Table
@@ -35,28 +35,7 @@ class FileTableView extends React.Component<AllProps> {
         </Table>
       </div>
     );
-    return !!selectedNode.leaf && selectedNode.leaf ? (
-      <FileDetailView
-        active={selectedNode}
-        downloadFileNode={this.handleFileDownload}
-      />
-    ) : (
-      tableView
-    );
-  }
-
-  // Description: handle file download
-  handleFileDownload(node: IUITreeNode) {
-    const downloadUrl = node.file.file_resource;
-    if (!!node.file) {
-      FeedFileModel.getFileBlob(downloadUrl)
-        .then((result: any) => {
-          downloadFile(result.data, node.module);
-        })
-        .catch((error: any) => console.error("(1) Inside error:", error));
-    } else {
-      console.error("ERROR DOWNLOADING: download url is not defined");
-    }
+    return tableView;
   }
 
   // Build data table for
@@ -110,12 +89,13 @@ class FileTableView extends React.Component<AllProps> {
 
   // Description: Build the Download and other actions cell
   buildActionCell = (child: IUITreeNode, isfile: boolean) => {
+    const { downloadFileNode } = this.props
     return (
       <React.Fragment>
         {isfile ? (
           <a
             onClick={() => {
-              this.handleFileDownload(child);
+              downloadFileNode(child);
             }}
           >
             <DownloadIcon /> Download
@@ -134,15 +114,6 @@ class FileTableView extends React.Component<AllProps> {
   }
 }
 
-// Description: Download file
-function downloadFile(Fileblob: any, fileName: string) {
-  const url = window.URL.createObjectURL(new Blob([Fileblob]));
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
+
 
 export default React.memo(FileTableView);
