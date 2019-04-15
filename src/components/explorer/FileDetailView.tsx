@@ -2,9 +2,9 @@ import * as React from "react";
 import { Alert, Button } from "@patternfly/react-core";
 import {
   IUITreeNode,
-  IFileState,
   getFileExtension
 } from "../../api/models/file-explorer";
+import { IFileState } from "../../api/models/file-viewer";
 import FeedFileModel from "../../api/models/feed-file.model";
 import { DownloadIcon } from "@patternfly/react-icons";
 

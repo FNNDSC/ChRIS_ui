@@ -1,6 +1,6 @@
 import React, { createRef } from "react";
 import { Button } from "@patternfly/react-core";
-import { IFileState } from "../../../api/models/file-explorer";
+import { IFileState } from "../../../api/models/file-viewer";
 import { ArrowsAltIcon } from "@patternfly/react-icons";
 type AllProps = {
   file: IFileState;

@@ -11,9 +11,11 @@ import { IUITreeNode } from "../../api/models/file-explorer";
 export interface IExplorerState {
     explorer?: IUITreeNode;
     selectedNode?: IUITreeNode;
+    selectedFolder?: IUITreeNode;
 }
 
 export const ExplorerActionTypes = keyMirror({
     SET_EXPLORER_REQUEST: null,
     SET_SELECTED_NODE: null,
+    SET_SELECTED_FOLDER: null,
 });

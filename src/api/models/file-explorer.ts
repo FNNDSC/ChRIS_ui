@@ -11,13 +11,6 @@ export interface IUITreeNode {
   file?: any;
 }
 
-export interface IFileState {
-  blob?: Blob;
-  blobName: string;
-  blobText: any;
-  fileType: string;
-}
-
 // Description: get file type by file extention
 export function getFileExtension(filename: string) {
   return filename.substring(filename.lastIndexOf(".") + 1);
