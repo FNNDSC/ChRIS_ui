@@ -8,8 +8,8 @@ import {
 import { IFileState } from "../../api/models/file-viewer";
 import FeedFileModel from "../../api/models/feed-file.model";
 
-import GalleryArrows from "./components/GalleryArrows";
-import GalleryToolbar from "./components/GalleryToolbar";
+import GalleryArrows from "./components/GalleryArrows/GalleryArrows";
+import GalleryToolbar from "./components/GalleryToolbar/GalleryToolbar";
 import {
   CatchallDisplay,
   JsonDisplay,

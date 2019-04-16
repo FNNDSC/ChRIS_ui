@@ -1,7 +1,7 @@
 import React, { createRef } from "react";
 import { Button } from "@patternfly/react-core";
 import { IFileState } from "../../../api/models/file-viewer";
-import { ArrowsAltIcon } from "@patternfly/react-icons";
+import { ExpandIcon } from "@patternfly/react-icons"; 
 type AllProps = {
   file: IFileState;
 };
@@ -26,7 +26,7 @@ const ImageDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   return (
     <div className="image-block">
       <Button variant="link"
-        onClick={() => {fullscreenImage(imageRef.current); }} ><ArrowsAltIcon size="md" /></Button>
+        onClick={() => {fullscreenImage(imageRef.current); }} ><ExpandIcon size="md" /></Button>
       <div ref={imageRef} className="tofullscreen" >
         <img id="test" src={url} />
       </div>
