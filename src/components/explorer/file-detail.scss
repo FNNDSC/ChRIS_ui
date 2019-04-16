@@ -70,7 +70,7 @@
   }
 
   // AMI / DCMDisplay
-  .dcm-display{
+  .dcm-display, .gallery-wrapper{
     background: black;
     border: solid 1px $fe-viewer-border;
     position: relative;
@@ -95,10 +95,6 @@
     }
   }
   .ami-viewer{
-    
-    // max-width: $fe-viewer-max-width-sm;
     min-height: calc(100vh - 280px);
   }
-
-
 }
