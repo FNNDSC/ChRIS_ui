@@ -11,8 +11,8 @@ const initialState: IPluginState = {
 
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {
   switch (action.type) {
+    // Reset the dependencies on selected change
     case PluginActionTypes.GET_PLUGIN_DETAILS: {
-      console.log("GET_PLUGIN_DETAILS: ", action);
       return { ...state, files: undefined, parameters: undefined};
     }
     case PluginActionTypes.GET_PLUGIN_FILES_SUCCESS: {
