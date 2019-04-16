@@ -1,0 +1,18 @@
+/*
+*  File:            GalleryFullScreen.scss
+*  Description:     This files holds styles specific for the file explorer Gallery Full Screen feature
+*  Author:          ChRIS UI
+*/
+
+// For full screen feature
+.fullscreen{
+    position: relative;
+    button{
+        position: absolute;
+        right: 0;
+        top: 5px;
+        svg{
+            color:#fff;
+        }
+    }
+}

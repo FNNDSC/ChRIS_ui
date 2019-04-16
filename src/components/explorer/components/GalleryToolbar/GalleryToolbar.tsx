@@ -1,6 +1,6 @@
 import * as React from "react";
 // import { ChevronLeftIcon, ChevronRightIcon } from "@patternfly/react-icons";
-
+import "./GalleryToolbar.scss";
 type AllProps = {
     param: any;
 }
@@ -12,7 +12,7 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
     }
 
     return (
-      <div className="toolbar"> HI, I am Toolbar</div>
+        <div className="toolbar"> HI, I am Toolbar</div>
     )
 }
 export default React.memo(GalleryToolbar);
