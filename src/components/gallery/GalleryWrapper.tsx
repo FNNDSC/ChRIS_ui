@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IExplorerState } from "../../store/explorer/types";
-
+import { GalleryArrows, GalleryToolbar, GalleryFullScreen} from "../gallery";
 interface IOtherProps {
     children: any;
 }
@@ -19,6 +19,9 @@ class GalleryWrapper extends React.Component<AllProps> {
         return (
             <div className="gallery-wrapper" >
                 {children}
+                <GalleryArrows param={"tbd"} />
+                <GalleryToolbar param={"tbd"} />
+                <GalleryFullScreen elementRef={"tbd"} />
             </div>
         );
     }

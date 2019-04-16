@@ -3,7 +3,7 @@ import { Button } from "@patternfly/react-core";
 import { ExpandIcon } from "@patternfly/react-icons";
 import "./GalleryFullScreen.scss";
 type AllProps = {
-    imageRef: any;
+    elementRef: any;
 }
 
 const GalleryFullScreen: React.FunctionComponent<AllProps> = (props: AllProps) => {
@@ -23,7 +23,7 @@ const GalleryFullScreen: React.FunctionComponent<AllProps> = (props: AllProps) =
     return (
         <div className="fullscreen">
          <Button variant="link"
-                onClick={() => { fullscreenImage(props.imageRef); }} ><ExpandIcon size="md" /></Button>
+                onClick={() => { fullscreenImage(props.elementRef); }} ><ExpandIcon size="md" /></Button>
         </div>
     )
 }

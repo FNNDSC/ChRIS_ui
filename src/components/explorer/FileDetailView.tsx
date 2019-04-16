@@ -7,9 +7,7 @@ import {
 } from "../../api/models/file-explorer";
 import { IFileState } from "../../api/models/file-viewer";
 import FeedFileModel from "../../api/models/feed-file.model";
-import GalleryWrapper from "../../containers/Gallery/GalleryWrapper";
-import GalleryArrows from "./components/GalleryArrows/GalleryArrows";
-import GalleryToolbar from "./components/GalleryToolbar/GalleryToolbar";
+import { GalleryWrapper } from "../gallery";
 import {
   CatchallDisplay,
   JsonDisplay,
@@ -52,8 +50,6 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
           {this.renderHeader()}
           <GalleryWrapper>
             {this.renderContent()}
-            <GalleryArrows param={"tbd"} />
-            <GalleryToolbar param={"tbd"} />
           </GalleryWrapper>
         </React.Fragment>)
       }
