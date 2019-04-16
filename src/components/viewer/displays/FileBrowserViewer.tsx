@@ -30,9 +30,16 @@ class FileBrowserViewer extends React.Component<AllProps> {
   constructor(props: AllProps) {
     super(props);
     const { files, selected, setExplorerRequest } = this.props;
+    // setExplorerRequest(files, selected);
+  }
+  componentDidMount(){
+     // console.log("componentDidMount");
+    const { files, selected, setExplorerRequest } = this.props;
     setExplorerRequest(files, selected);
   }
-
+  // componentWillUnmount(){
+  //   console.log("componentDidMount");
+  // }
   // Description: handle active node and render FileDetailView
   setActiveNode = (node: IUITreeNode) => {
     const { setSelectedFile, setSelectedFolder } = this.props;
