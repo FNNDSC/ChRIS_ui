@@ -8,13 +8,13 @@ import "./GalleryWrapper.scss";
 interface IOtherProps {
     children: any;
 }
-interface IPropsFromDispatch {
-    // onSidebarToggle: typeof onSidebarToggle;
-}
+// interface IPropsFromDispatch {
+//     // onSidebarToggle: typeof onSidebarToggle;
+// }
 interface IState {
     isFullscreen: boolean;
 }
-type AllProps = IExplorerState & IOtherProps & IPropsFromDispatch;
+type AllProps = IExplorerState & IOtherProps; // & IPropsFromDispatch
 
 class GalleryWrapper extends React.Component<AllProps, IState> {
 
