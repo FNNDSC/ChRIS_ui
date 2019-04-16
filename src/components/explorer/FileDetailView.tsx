@@ -1,5 +1,5 @@
 import * as React from "react";
-import {  Button } from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core";
 import { DownloadIcon } from "@patternfly/react-icons";
 import {
   IUITreeNode,
@@ -39,29 +39,30 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
     fileType: ""
   };
 
-    render() {
+  render() {
     const { selectedFile } = this.props;
     const fileTypeViewer = () => {
       if (selectedFile.module !== this.state.blobName) {
         this.fetchData();
-        return <LoadingComponent/>;
+        return <LoadingComponent color="#ddd" />;
       } else {
-        return (<React.Fragment>
-          {this.renderHeader()}
-          <GalleryWrapper>
-            {this.renderContent()}
-          </GalleryWrapper>
-        </React.Fragment>)
+        return this.renderContent();
       }
     };
-    return <div>{!!this.state.blob && fileTypeViewer()}</div>;
+    return (
+      <React.Fragment>
+        {this.renderHeader()}
+        <GalleryWrapper>
+          {!!this.state.blob && fileTypeViewer()}
+        </GalleryWrapper>
+      </React.Fragment>);
   }
 
   // Decription: Render file header with download button
   renderHeader(classname?: string) {
     const { selectedFile } = this.props;
     return (
-      <div className={`header-panel ${classname}`}>
+      <div className={`header-panel ${!!classname ? classname : ""}`}>
         {this.renderDownloadButton()}
         <h1>
           File Preview: <b>{selectedFile.module}</b>
@@ -119,8 +120,7 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
         className="float-right"
         onClick={() => {
           downloadFileNode(selectedFile);
-        }}
-      >
+        }}  >
         <DownloadIcon /> Download
       </Button>
     );

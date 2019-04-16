@@ -23,14 +23,15 @@
   }
   // Iframe to display the file contents
   .default-display, .json-display{
-    min-height: calc(100vh - 280px);
+    min-height: $fe-viewer-min-heigth;
   }
   .default-display{
+    background: white;
     border: solid 1px $fe-viewer-border;
     border-radius: 4px;
     max-width: $fe-viewer-max-width-sm;
     iframe{
-      height: calc(100vh - 280px);
+      height: $fe-viewer-min-heigth;
       margin: 0 auto;
       padding: 5px;
       width: 100%;
@@ -56,46 +57,16 @@
       margin-bottom: 10px;
     }
   }
-
-  // For full screen feature - To be removed
-  .image-block{
-    position: relative;
-    button{
-     position: absolute;
-     right: 0;
-     top: 5px;
-     svg{
-      color:#fff;
-     }
-    }
-  }
-
   // AMI / DCMDisplay
-  .dcm-display, .gallery-wrapper{
-    background: black;
-    border: solid 1px $fe-viewer-border;
-    position: relative;
-    .arrows> a, .toolbar{
-      color: #fff;
-      position: absolute;
-      z-index: 9999;
-    }
-    // Naviation Arrows
-    .arrows{
-      a{
-        font-size: $fe-arrows-height;
-        margin-top: -($fe-arrows-height*0.55);
-        top: 50%;
-        &.prev{
-          left: 5px;
-        }
-        &.next{
-          right: 5px;
-        }
-      }
-    }
+  .ami-viewer {
+    min-height: $fe-viewer-min-heigth;
   }
-  .ami-viewer{
-    min-height: calc(100vh - 280px);
+
+  // Image display
+  .image-block{
+    text-align: center;
+    img{
+      max-height: $fe-viewer-min-heigth;
+    }
   }
 }

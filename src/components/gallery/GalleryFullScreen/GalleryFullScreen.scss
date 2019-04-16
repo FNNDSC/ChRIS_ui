@@ -4,15 +4,14 @@
 *  Author:          ChRIS UI
 */
 
-// For full screen feature
-.fullscreen{
-    position: relative;
-    button{
-        position: absolute;
-        right: 0;
-        top: 5px;
-        svg{
-            color:#fff;
-        }
+@import "../../../assets/scss/helpers/variables";
+.fullscreen {
+  position: absolute;
+  right: 0;
+  bottom: $gallery-toolbar-bottom;
+  button {
+    svg {
+      color: #fff;
     }
+  }
 }
