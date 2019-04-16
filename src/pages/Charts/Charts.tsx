@@ -1,6 +1,6 @@
 import React, { FormEvent } from "react";
 import { RouteComponentProps } from "react-router-dom";
-import Wrapper from "../../containers/Layouts/PageWrapper";
+import Wrapper from "../../containers/Layout/PageWrapper";
 import { Tabs, Tab, PageSection } from "@patternfly/react-core";
 import SegmentAnalysis from "../../components/chart/SegmentAnalysis";
 import VolumeGrowth from "../../components/chart/VolumeGrowth";
