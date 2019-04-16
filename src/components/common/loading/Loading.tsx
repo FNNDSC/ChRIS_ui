@@ -11,7 +11,7 @@ interface ILoadingProps {
 
 const LoadingComponent: React.FunctionComponent<any> = (props: ILoadingProps) => {
   const size = !!props.size ? props.size : "5x";
-  const color = !!props.size ? props.color : "black";
+  const color = !!props.color ? props.color : "black";
   return (
     <div className={`${!!props.isLocal ? styles.local : styles.loading }` }>
       <FontAwesomeIcon icon="spinner" size={size} color={color} pulse />
