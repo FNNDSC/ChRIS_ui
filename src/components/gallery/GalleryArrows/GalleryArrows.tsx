@@ -3,6 +3,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@patternfly/react-icons"
 import "./GalleryArrows.scss";
 type AllProps = {
     param: any;
+    onSlideChange: () => void;
 }
 
 const GalleryArrows: React.FunctionComponent<AllProps> = (props: AllProps) => {

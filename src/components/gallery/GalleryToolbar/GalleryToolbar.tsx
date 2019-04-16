@@ -4,6 +4,7 @@ import { PlayIcon, PauseIcon, StepForwardIcon, StepBackwardIcon } from "@pattern
 import "./GalleryToolbar.scss";
 type AllProps = {
     isPlaying: boolean;
+    onSlideChange: () => void;
 }
 
 const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {

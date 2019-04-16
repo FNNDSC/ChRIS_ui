@@ -19,7 +19,8 @@ type AllProps = IExplorerState & IOtherProps; // & IPropsFromDispatch
 class GalleryWrapper extends React.Component<AllProps, IState> {
 
     state = {
-        isFullscreen: false
+        isFullscreen: false,
+        isPlaying: false
     }
 
     render() {
@@ -28,16 +29,23 @@ class GalleryWrapper extends React.Component<AllProps, IState> {
         return (
             <div id="gallery" className="gallery-wrapper" >
                 {children}
-                <GalleryArrows param={"tbd"} />
-                <GalleryToolbar isPlaying={false} />
+                <GalleryArrows param={"tbd"} onSlideChange={this.handleSlideChange} />
+                <GalleryToolbar isPlaying={this.state.isPlaying} onSlideChange={this.handleSlideChange} />
                 <GalleryFullScreen onFullScreenGallery={this.handlefullscreen} isFullscreen={this.state.isFullscreen} />
             </div>
         );
     }
-    // Description: will make the view full screen ***** WORKING *****
+
+     // Description: will make the view full screen ***** WORKING *****
+     handleSlideChange() {
+        console.log("handleSlideChange");
+    }
+
+
+    // Description: will make the view full screen 
     handlefullscreen = () => {
         const elem = document.getElementById("gallery");
-        const isOpened = this.state.isFullscreen; // Get from state ***** TBD
+        const isOpened = this.state.isFullscreen; 
         (!!elem) && (isOpened ? closeFullScreen() : openFullScreen(elem));
         this.setState({
             isFullscreen: !isOpened
