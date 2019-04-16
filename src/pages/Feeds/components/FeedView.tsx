@@ -1,7 +1,7 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, Link } from "react-router-dom";
 import { PageSection, PageSectionVariants, Grid, GridItem } from "@patternfly/react-core";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
@@ -71,7 +71,7 @@ class FeedView extends React.Component<AllProps> {
               {!!items ? (
                 <FeedTree items={items} onNodeClick={this.onNodeClick} />
               ) : (
-                <div>Empty tree message</div>
+                <div>This Feed does not exist: <Link to="/feeds">Go to All Feeds</Link></div>
               )}
             </GridItem>
             <GridItem className="node-block pf-u-p-md" sm={12} md={6}>
