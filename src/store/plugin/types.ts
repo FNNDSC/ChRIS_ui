@@ -22,7 +22,6 @@ export const PluginActionTypes = keyMirror({
     GET_PLUGIN_DESCENDANTS_SUCCESS: null,
     GET_PLUGIN_FILES: null,
     GET_PLUGIN_FILES_SUCCESS: null,
-    // SET_EXPLORER_SUCCESS: null,
     GET_PLUGIN_PARAMETERS: null,
     GET_PLUGIN_PARAMETERS_SUCCESS: null,
     GET_PLUGIN_DETAILS: null,
