@@ -111,7 +111,7 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                     isHidden={!this.state.expanded.includes("plugin-config")}  >
                     {!!parameters ?
                       <PluginConfiguration parameters={parameters} /> :
-                       <LoadingComponent size="3x" isLocal color="#007bba" />
+                       <LoadingComponent size="3x" isLocal color="#777" />
                     }
                   </DataListContent>
                 </DataListItem>
@@ -141,7 +141,7 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                         files={files}
                         handleDownloadData={this.handleDownloadData}
                         handleViewData={this.handleViewData}
-                      /> : <LoadingComponent size="3x" isLocal color="#007bba" />
+                      /> : <LoadingComponent size="3x" isLocal color="#777" />
                     } 
                   </DataListContent>
                 </DataListItem>
