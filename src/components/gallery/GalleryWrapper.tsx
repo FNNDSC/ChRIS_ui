@@ -41,11 +41,10 @@ class GalleryWrapper extends React.Component<AllProps, IState> {
         console.log("handleSlideChange");
     }
 
-
-    // Description: will make the view full screen 
+    // Description: will make the view full screen
     handlefullscreen = () => {
         const elem = document.getElementById("gallery");
-        const isOpened = this.state.isFullscreen; 
+        const isOpened = this.state.isFullscreen;
         (!!elem) && (isOpened ? closeFullScreen() : openFullScreen(elem));
         this.setState({
             isFullscreen: !isOpened
