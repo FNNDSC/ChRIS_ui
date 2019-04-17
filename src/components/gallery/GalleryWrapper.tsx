@@ -3,54 +3,72 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IExplorerState } from "../../store/explorer/types";
+import { IUITreeNode } from "../../api/models/file-explorer";
 import { GalleryArrows, GalleryToolbar, GalleryFullScreen } from "../gallery";
 import "./GalleryWrapper.scss";
 interface IOtherProps {
     children: any;
 }
-// interface IPropsFromDispatch {
-//     // onSidebarToggle: typeof onSidebarToggle;
-// }
+
 interface IState {
     isFullscreen: boolean;
+    isPlaying: boolean;
 }
-type AllProps = IExplorerState & IOtherProps; // & IPropsFromDispatch
+type AllProps = IExplorerState & IOtherProps;
 
 class GalleryWrapper extends React.Component<AllProps, IState> {
+  state = {
+    isFullscreen: false,
+    isPlaying: false
+  };
 
-    state = {
-        isFullscreen: false,
-        isPlaying: false
-    }
+  render() {
+    const { children, galleryItems } = this.props;
+    return (
+      <div id="gallery" className="gallery-wrapper">
+        {children}
+        {(!!galleryItems && galleryItems.length > 1) && (
+          <React.Fragment>
+            <GalleryArrows
+              param={"tbd"}
+              onSlideChange={this.handleSlideChange}
+            />
+            <GalleryToolbar
+              isPlaying={this.state.isPlaying}
+              onToolbarClick={this.handlePlayPause}
+            />
+          </React.Fragment>
+        )}
+        <GalleryFullScreen
+          onFullScreenGallery={this.handlefullscreen}
+          isFullscreen={this.state.isFullscreen}
+        />
+      </div>
+    );
+  }
 
-    render() {
-        const { children } = this.props;
+  // Description: triggers play or pause functionality
+  handlePlayPause = (isPlay: boolean) => {
+    // console.log("handlePlayPause: ", isPlay);
+    this.setState({
+        isPlaying: !isPlay
+    });
+  }
 
-        return (
-            <div id="gallery" className="gallery-wrapper" >
-                {children}
-                <GalleryArrows param={"tbd"} onSlideChange={this.handleSlideChange} />
-                <GalleryToolbar isPlaying={this.state.isPlaying} onSlideChange={this.handleSlideChange} />
-                <GalleryFullScreen onFullScreenGallery={this.handlefullscreen} isFullscreen={this.state.isFullscreen} />
-            </div>
-        );
-    }
+  // Description: will make the view full screen ***** WORKING *****
+  handleSlideChange(offset: number) {
+    // console.log("handleSlideChange", offset);
+  }
 
-     // Description: will make the view full screen ***** WORKING *****
-     handleSlideChange() {
-        console.log("handleSlideChange");
-    }
-
-    // Description: will make the view full screen
-    handlefullscreen = () => {
-        const elem = document.getElementById("gallery");
-        const isOpened = this.state.isFullscreen;
-        (!!elem) && (isOpened ? closeFullScreen() : openFullScreen(elem));
-        this.setState({
-            isFullscreen: !isOpened
-        });
-    };
-
+  // Description: will make the view full screen
+  handlefullscreen = () => {
+    const elem = document.getElementById("gallery");
+    const isOpened = this.state.isFullscreen;
+    !!elem && (isOpened ? closeFullScreen() : openFullScreen(elem));
+    this.setState({
+      isFullscreen: !isOpened
+    });
+  };
 }
 
 // --------------------------------------------------------
@@ -86,7 +104,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 });
 
 const mapStateToProps = ({ explorer }: ApplicationState) => ({
-    // galleryItems: explorer.galleryItems
+    explorer: explorer.explorer,
+    galleryItems: explorer.galleryItems
 });
 
 

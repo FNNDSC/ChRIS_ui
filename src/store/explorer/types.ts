@@ -9,7 +9,7 @@ import { IUITreeNode } from "../../api/models/file-explorer";
 
 // Description state for main user items[] and item
 export interface IExplorerState {
-    explorer?: IUITreeNode;
+    explorer: IUITreeNode;
     selectedFile?: IUITreeNode;
     selectedFolder?: IUITreeNode;
     galleryItems?: IUITreeNode[];
