@@ -5,4 +5,3 @@ export  { default as FileBrowserViewer} from "./FileBrowserViewer";
 export  { default as FreesurferDataTable} from "./FreesurferDataTable";
 export  { default as RevViewer} from "./RevViewer";
 export  { default as ZScoreDataTable} from "./ZScoreDataTable";
-export  { default as ImageGallery} from "./ImageGallery";

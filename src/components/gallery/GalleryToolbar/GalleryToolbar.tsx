@@ -4,34 +4,23 @@ import { PlayIcon, PauseIcon, StepForwardIcon, StepBackwardIcon } from "@pattern
 import "./GalleryToolbar.scss";
 type AllProps = {
     isPlaying: boolean;
-    onSlideChange: () => void;
+    onToolbarClick: (isPlay: boolean) => void; // Description: switch play/pause functionality
 }
 
 const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
-    // Description: will move items to previous or next in the gallery object
-    const handleClick = () => { // Working
-       // console.log("handleClick", handleClick);
-    }
+
     return (
         <div className="gallery-toolbar">
-            <Button variant="link"
-                onClick={handleClick} >
-                <StepBackwardIcon />
-            </Button>
             {props.isPlaying ?
                 <Button variant="link"
-                    onClick={handleClick} >
+                    onClick={() => props.onToolbarClick(true)} >
                     <PauseIcon size="md" />
                 </Button> :
                 <Button variant="link"
-                    onClick={handleClick} >
+                    onClick={() => props.onToolbarClick(false)} >
                     <PlayIcon size="md" />
                 </Button>
             }
-            <Button variant="link"
-                onClick={handleClick} >
-                <StepForwardIcon  />
-            </Button>
         </div>
     )
 }

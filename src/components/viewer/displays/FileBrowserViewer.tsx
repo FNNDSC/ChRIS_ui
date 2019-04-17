@@ -3,12 +3,17 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { Grid, GridItem, Alert } from "@patternfly/react-core";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { setExplorerRequest, setSelectedFile, setSelectedFolder } from "../../../store/explorer/actions";
+import {
+  setExplorerRequest,
+  setSelectedFile,
+  setSelectedFolder,
+} from "../../../store/explorer/actions";
 import { IExplorerState } from "../../../store/explorer/types";
 import { IFeedFile } from "../../../api/models/feed-file.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { IUITreeNode } from "../../../api/models/file-explorer";
 import { downloadFile } from "../../../api/models/file-viewer";
+import GalleryModel from "../../../api/models/gallery.model";
 import FileExplorer from "../../explorer/FileExplorer";
 import FileTableView from "../../explorer/FileTableView";
 import FileDetailView from "../../explorer/FileDetailView";
@@ -23,13 +28,14 @@ interface IPropsFromDispatch {
 type AllProps = {
   files: IFeedFile[];
   selected: IPluginItem;
-} & IExplorerState & IPropsFromDispatch;
-
+} & IExplorerState &
+  IPropsFromDispatch;
 
 class FileBrowserViewer extends React.Component<AllProps> {
   constructor(props: AllProps) {
     super(props);
   }
+
   componentDidMount() {
     const { files, selected, setExplorerRequest } = this.props;
     setExplorerRequest(files, selected);
@@ -37,31 +43,57 @@ class FileBrowserViewer extends React.Component<AllProps> {
 
   // Description: handle active node and render FileDetailView
   setActiveNode = (node: IUITreeNode) => {
-    const { setSelectedFile, setSelectedFolder } = this.props;
-    (!!node.leaf && node.leaf) ? setSelectedFile(node) : setSelectedFolder(node);
+    const { explorer, setSelectedFile, setSelectedFolder } = this.props;
+    if (!!node.leaf && node.leaf) {
+      const galleryItems: IUITreeNode[] = GalleryModel.buildGalleryArray(
+        node,
+        explorer
+      ); // Need to work on method to parse files ***** working
+      setSelectedFile(node, galleryItems);
+      // setGalleryItems(gallery);
+    } else {
+      setSelectedFolder(node);
+    }
   };
 
   render() {
     const { explorer, selectedFile, selectedFolder } = this.props;
     return (
-      (!!explorer) &&
-      <div className="pf-u-px-lg">
-        <Grid>
-          <GridItem className="pf-u-p-sm" sm={12} md={3}>
-            {<FileExplorer
-              explorer={explorer}
-              selectedNode={selectedFile || selectedFolder}
-              onClickNode={this.setActiveNode} />}
-          </GridItem>
-          <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
-            {
-              !!selectedFolder ? <FileTableView selectedFolder={selectedFolder} onClickNode={this.setActiveNode} downloadFileNode={this.handleFileDownload} /> :
-                !!selectedFile ? <FileDetailView selectedFile={selectedFile} downloadFileNode={this.handleFileDownload} /> :
-                    <Alert variant="info" title="Please select a file or folder from the file explorer" className="empty" />
-            }
-          </GridItem>
-        </Grid>
-      </div>
+      !!explorer && (
+        <div className="pf-u-px-lg">
+          <Grid>
+            <GridItem className="pf-u-p-sm" sm={12} md={3}>
+              {
+                <FileExplorer
+                  explorer={explorer}
+                  selectedNode={selectedFile || selectedFolder}
+                  onClickNode={this.setActiveNode}
+                />
+              }
+            </GridItem>
+            <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
+              {!!selectedFolder ? (
+                <FileTableView
+                  selectedFolder={selectedFolder}
+                  onClickNode={this.setActiveNode}
+                  downloadFileNode={this.handleFileDownload}
+                />
+              ) : !!selectedFile ? (
+                <FileDetailView
+                  selectedFile={selectedFile}
+                  downloadFileNode={this.handleFileDownload}
+                />
+              ) : (
+                <Alert
+                  variant="info"
+                  title="Please select a file or folder from the file explorer"
+                  className="empty"
+                />
+              )}
+            </GridItem>
+          </Grid>
+        </div>
+      )
     );
   }
 
@@ -79,13 +111,11 @@ class FileBrowserViewer extends React.Component<AllProps> {
       console.error("ERROR DOWNLOADING: download url is not defined");
     }
   }
-};
-
-
+}
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setExplorerRequest: (files: IFeedFile[], selected: IPluginItem) => dispatch(setExplorerRequest(files, selected)),
-  setSelectedFile: (node: IUITreeNode) => dispatch(setSelectedFile(node)),
+  setSelectedFile: (node: IUITreeNode, galleryItems: IUITreeNode[]) => dispatch(setSelectedFile(node, galleryItems)),
   setSelectedFolder: (node: IUITreeNode) => dispatch(setSelectedFolder(node))
 });
 

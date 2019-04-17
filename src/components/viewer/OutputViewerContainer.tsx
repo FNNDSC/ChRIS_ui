@@ -10,8 +10,7 @@ import {
   DataTableViewer,
   FreesurferDataTable,
   ZScoreDataTable,
-  FileBrowserViewer,
-  ImageGallery
+  FileBrowserViewer
 } from "./displays/index";
 import VolumeGrowth from "../../components/chart/VolumeGrowth";
 import SegmentAnalysis from "../../components/chart/SegmentAnalysis";
@@ -40,8 +39,7 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
           <Tabs
             activeKey={this.state.activeTabKey}
             onSelect={this.handleTabClick}
-            children={tabs}
-          />
+            children={tabs} />
         ) : (
           <Alert variant="info" title="Empty Result Set" className="empty" />
         )}
@@ -111,10 +109,6 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
                 <SegmentAnalysis />;
             </React.Fragment>)
             break;
-          case "GalleryViewer":
-            label = "ImageGallery";
-            tabContent = !!files && <ImageGallery files={files} />;
-            break;
         }
         tabs.push(<Tab eventKey={i} title={label}>
           {tabContent}
@@ -129,7 +123,7 @@ const tempMapping: any = {
   default: ["FileBrowserViewer"],
   dircopy: ["RevViewer", "FileBrowserViewer"],
   pacscopy: ["RevViewer", "FileBrowserViewer"],
-  // mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
+  mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
   freesurfer_pp: ["DicomViewer_2D", "DicomViewer_3D", "FreesurferDataTable", "FileBrowserViewer"],
   simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable", "FileBrowserViewer"],
   mpcs: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable", "FileBrowserViewer"],
