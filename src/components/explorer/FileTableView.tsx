@@ -10,7 +10,7 @@ import {
   FolderIcon,
   OutlinedFileImageIcon
 } from "@patternfly/react-icons";
-import { IUITreeNode, getFileExtension } from "../../api/models/file-explorer";
+import { IUITreeNode, getFileExtension } from "../../api/models/file-explorer.model";
 
 
 type AllProps = {

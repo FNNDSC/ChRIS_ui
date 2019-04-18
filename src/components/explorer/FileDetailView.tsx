@@ -1,13 +1,13 @@
 import * as React from "react";
 import { Button } from "@patternfly/react-core";
 import { DownloadIcon } from "@patternfly/react-icons";
-import {
-  IUITreeNode,
-  getFileExtension
-} from "../../api/models/file-explorer";
-import { IFileState } from "../../api/models/file-viewer";
+import { getFileExtension } from "../../api/models/file-explorer.model";
+import { IFileState } from "../../api/models/file-viewer.model";
 import FeedFileModel from "../../api/models/feed-file.model";
+import { downloadFile } from "../../api/models/file-viewer.model";
+import { IGalleryItem } from "../../api/models/gallery.model";
 import { GalleryWrapper } from "../gallery";
+import { LoadingComponent } from "..";
 import {
   CatchallDisplay,
   JsonDisplay,
@@ -15,12 +15,12 @@ import {
   ImageDisplay,
   DcmDisplay
 } from "./displays/index";
-import { LoadingComponent } from "..";
+
 import "./file-detail.scss";
 
+
 type AllProps = {
-  selectedFile: IUITreeNode;
-  downloadFileNode: (node: IUITreeNode) => void;
+  galleryItem: IGalleryItem;
 };
 
 class FileDetailView extends React.Component<AllProps, IFileState> {
@@ -40,42 +40,26 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
   };
 
   render() {
-    const { selectedFile } = this.props;
+    const { galleryItem } = this.props;
     const fileTypeViewer = () => {
-      if (selectedFile.module !== this.state.blobName) {
+      if (galleryItem.file_name !== this.state.blobName) {
         this.fetchData();
         return <LoadingComponent color="#ddd" />;
       } else {
-        return  (
-          <GalleryWrapper>
-            { this.renderContent() }
-          </GalleryWrapper>
+        return (
+          this.renderContent()
         );
       }
     };
     return (
-      !!this.state.blob && <React.Fragment>
-        {this.renderHeader()}
+      <GalleryWrapper downloadFile={() => this.downloadFileNode()}>
         {fileTypeViewer()}
-      </React.Fragment>);
-  }
-
-  // Decription: Render file header with download button
-  renderHeader(classname?: string) {
-    const { selectedFile } = this.props;
-    return (
-      <div className={`header-panel ${!!classname ? classname : ""}`}>
-        {this.renderDownloadButton()}
-        <h1>
-          File Preview: <b>{selectedFile.module}</b>
-        </h1>
-      </div>
-    );
+      </GalleryWrapper>
+    )
   }
 
   // Decription: Render the individual viewers by filetypd
   renderContent() {
-    const { selectedFile, downloadFileNode } = this.props;
     switch (this.state.fileType) {
       case "stats":
       case "txt":
@@ -93,21 +77,21 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
       case "dcm":
         return <DcmDisplay file={this.state} />
       default:
-        return <CatchallDisplay file={this.state} downloadFile={() => { downloadFileNode(selectedFile); }} />
+        return <CatchallDisplay file={this.state} downloadFile={() => { this.downloadFileNode(); }} />
     }
   }
 
   // Description: Fetch blob and read it into state to display preview
   fetchData() {
-    const { selectedFile } = this.props;
-    FeedFileModel.getFileBlob(selectedFile.file.file_resource).then((result: any) => {
+    const { galleryItem } = this.props;
+    FeedFileModel.getFileBlob(galleryItem.file_resource).then((result: any) => {
       const _self = this;
-      const fileType = getFileExtension(selectedFile.module);
+      const fileType = getFileExtension(galleryItem.file_name);
       if (!!result.data) {
         const reader = new FileReader();
         reader.addEventListener("loadend", (e: any) => {
           const blobText = e.target.result;
-          _self._isMounted && _self.setState({ blob: result.data, blobName: selectedFile.module, fileType, blobText });
+          _self._isMounted && _self.setState({ blob: result.data, blobName: galleryItem.file_name, fileType, blobText });
         });
         reader.readAsText(result.data);
       }
@@ -115,18 +99,22 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
   }
 
   renderDownloadButton = () => {
-    const { selectedFile, downloadFileNode } = this.props;
     return (
       <Button
         variant="primary"
         className="float-right"
         onClick={() => {
-          downloadFileNode(selectedFile);
+          this.downloadFileNode();
         }}  >
         <DownloadIcon /> Download
       </Button>
     );
   };
+
+  // Download Curren File blob
+  downloadFileNode = () => {
+    return downloadFile(this.state.blob, this.state.blobName);
+  }
 
   componentWillUnmount() {
     this._isMounted = false;

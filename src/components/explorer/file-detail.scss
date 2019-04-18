@@ -43,19 +43,7 @@
     border-radius: 4px;
     padding: 1rem;
     overflow: auto;
-  }
-  
-  .header-panel{
-    &.sm{
-      max-width: $fe-viewer-max-width-sm;
-    }
-    &.md{
-      max-width: $fe-viewer-max-width-md;
-    }
-    h1{
-      padding-top:15px;
-      margin-bottom: 10px;
-    }
+    max-height: $fe-viewer-min-heigth;
   }
   // AMI / DCMDisplay
   .ami-viewer {

@@ -5,7 +5,7 @@
 *  Notes:           Work in progres ...
 */
 import keyMirror from "keymirror";
-import { IUITreeNode } from "../../api/models/file-explorer";
+import { IUITreeNode } from "../../api/models/file-explorer.model";
 import { IGalleryItem } from "../../api/models/gallery.model";
 
 // Description state for main user items[] and item
@@ -14,6 +14,7 @@ export interface IExplorerState {
     selectedFile?: IUITreeNode;
     selectedFolder?: IUITreeNode;
     galleryItems?: IGalleryItem[];
+    galleryItem?: IGalleryItem;
 }
 
 export const ExplorerActionTypes = keyMirror({

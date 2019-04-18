@@ -3,17 +3,13 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { Grid, GridItem, Alert } from "@patternfly/react-core";
 import { ApplicationState } from "../../../store/root/applicationState";
-import {
-  setExplorerRequest,
-  setSelectedFile,
-  setSelectedFolder,
-} from "../../../store/explorer/actions";
+import {setExplorerRequest,setSelectedFile, setSelectedFolder} from "../../../store/explorer/actions";
 import { IExplorerState } from "../../../store/explorer/types";
 import { IFeedFile } from "../../../api/models/feed-file.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
-import { IUITreeNode } from "../../../api/models/file-explorer";
-import { downloadFile } from "../../../api/models/file-viewer";
-import GalleryModel, { IGalleryItem } from "../../../api/models/gallery.model";
+import { IUITreeNode } from "../../../api/models/file-explorer.model";
+import { downloadFile } from "../../../api/models/file-viewer.model";
+import GalleryModel from "../../../api/models/gallery.model";
 import FileExplorer from "../../explorer/FileExplorer";
 import FileTableView from "../../explorer/FileTableView";
 import FileDetailView from "../../explorer/FileDetailView";
@@ -41,15 +37,15 @@ class FileBrowserViewer extends React.Component<AllProps> {
   setActiveNode = (node: IUITreeNode) => {
     const { explorer, setSelectedFile, setSelectedFolder } = this.props;
     if (!!node.leaf && node.leaf) {
-      const galleryItems: IGalleryItem[] = new GalleryModel(node, explorer).galleryItems;
-      setSelectedFile(node, galleryItems);
+      const gallery = new GalleryModel(node, explorer);
+      setSelectedFile(node, gallery);
     } else {
       setSelectedFolder(node);
     }
   };
 
   render() {
-    const { explorer, selectedFile, selectedFolder } = this.props;
+    const { explorer, galleryItem, selectedFile, selectedFolder } = this.props;
     return (
       // Note: check to see if explorer children have been init.
       (!!explorer && !!explorer.children) && (
@@ -70,19 +66,16 @@ class FileBrowserViewer extends React.Component<AllProps> {
                   selectedFolder={selectedFolder}
                   onClickNode={this.setActiveNode}
                   downloadFileNode={this.handleFileDownload}
-                />
-              ) : !!selectedFile ? (
-                <FileDetailView
-                  selectedFile={selectedFile}
-                  downloadFileNode={this.handleFileDownload}
-                />
-              ) : (
-                <Alert
-                  variant="info"
-                  title="Please select a file or folder from the file explorer"
-                  className="empty"
-                />
-              )}
+                />) :
+                !!galleryItem ? (
+                  <FileDetailView galleryItem={galleryItem} />) :
+                  (
+                    <Alert
+                      variant="info"
+                      title="Please select a file or folder from the file explorer"
+                      className="empty"
+                    />
+                  )}
             </GridItem>
           </Grid>
         </div>
@@ -108,14 +101,15 @@ class FileBrowserViewer extends React.Component<AllProps> {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setExplorerRequest: (files: IFeedFile[], selected: IPluginItem) => dispatch(setExplorerRequest(files, selected)),
-  setSelectedFile: (node: IUITreeNode, galleryItems: IGalleryItem[]) => dispatch(setSelectedFile(node, galleryItems)),
+  setSelectedFile: (node: IUITreeNode, galleryModel: GalleryModel) => dispatch(setSelectedFile(node, galleryModel)),
   setSelectedFolder: (node: IUITreeNode) => dispatch(setSelectedFolder(node))
 });
 
 const mapStateToProps = ({ explorer }: ApplicationState) => ({
   selectedFile: explorer.selectedFile,
   selectedFolder: explorer.selectedFolder,
-  explorer: explorer.explorer
+  explorer: explorer.explorer,
+  galleryItem: explorer.galleryItem
 });
 
 export default connect(

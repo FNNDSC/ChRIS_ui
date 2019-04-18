@@ -7,7 +7,7 @@
 import keyMirror from "keymirror";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import { IFeedFile } from "../../api/models/feed-file.model";
-import { IUITreeNode } from "../../api/models/file-explorer";
+import { IUITreeNode } from "../../api/models/file-explorer.model";
 
 // Description state for main user items[] and item
 export interface IPluginState {

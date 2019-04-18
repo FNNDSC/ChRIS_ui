@@ -1,11 +1,12 @@
 import { IFeedFile } from "./feed-file.model";
-import { IUITreeNode } from "./file-explorer";
+import { IUITreeNode } from "./file-explorer.model";
 import keyMirror from "keymirror";
 import _ from "lodash";
 
 export interface IGalleryItem extends IFeedFile {
   file_name: string;
   isActive: boolean;
+  index: number;
 }
 
 // Description: Add all gallery related actions in this object
@@ -27,9 +28,11 @@ export interface IGalleryState {
 // Description: handles gallery items
 export default class GalleryModel {
   galleryItems: IGalleryItem[] = new Array();
+  galleryItem?: IGalleryItem;
   private _node: IUITreeNode;
   private _explorer: IUITreeNode;
   private _parentFolderNode?: IUITreeNode;
+
   constructor(node: IUITreeNode, explorer: IUITreeNode) {
     this._node = node;
     this._explorer = explorer;
@@ -40,8 +43,8 @@ export default class GalleryModel {
   _buildGalleryArray(): IGalleryItem[] {
     this._findParentNode(this._node, this._explorer);
     if (!!this._parentFolderNode && !!this._parentFolderNode.children) {
-      this._parentFolderNode.children.map(subnode => {
-        this.galleryItems.push(this._buildGalleryItem(subnode, this._node));
+      this._parentFolderNode.children.map((subnode: IUITreeNode, index: number) => {
+        this.galleryItems.push(this._buildGalleryItem(subnode, this._node, index));
       });
     }
     return this.galleryItems;
@@ -64,11 +67,15 @@ export default class GalleryModel {
   }
 
   // Description: takes an explorer tree node and returns a gallery Item
-  _buildGalleryItem(node: IUITreeNode, active: IUITreeNode): IGalleryItem {
-    return {
+  _buildGalleryItem(node: IUITreeNode, active: IUITreeNode, index: number): IGalleryItem {
+    const isActive = _.isEqual(node.file, active.file);
+    const galleryItem = {
       ...node.file,
       file_name: node.module,
-      isActive: _.isEqual(node.file, active.file)
+      isActive,
+      index
     };
+    isActive && (this.galleryItem = galleryItem);
+    return galleryItem;
   }
 }
