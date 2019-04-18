@@ -52,7 +52,7 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
       }
     };
     return (
-      <GalleryWrapper downloadFile={() => this.downloadFileNode()}>
+      <GalleryWrapper downloadFile={() => this.downloadFileNode()} >
         {fileTypeViewer()}
       </GalleryWrapper>
     )

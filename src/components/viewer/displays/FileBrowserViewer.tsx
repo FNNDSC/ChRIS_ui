@@ -60,7 +60,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
                 />
               }
             </GridItem>
-            <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
+            <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9} >
               {!!selectedFolder ? (
                 <FileTableView
                   selectedFolder={selectedFolder}
