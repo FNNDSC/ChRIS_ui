@@ -23,7 +23,7 @@ class GalleryWrapper extends React.Component<AllProps, IState> {
 
   render() {
     const { children, galleryItems } = this.props;
-    console.log("GalleryWrapper", galleryItems);
+    // console.log("GalleryWrapper", galleryItems);
     return (
       <div id="gallery" className="gallery-wrapper">
         {children}
