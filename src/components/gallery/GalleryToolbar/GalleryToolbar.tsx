@@ -1,27 +1,53 @@
 import * as React from "react";
-import { Button } from "@patternfly/react-core";
-import { PlayIcon, PauseIcon, StepForwardIcon, StepBackwardIcon } from "@patternfly/react-icons";
+import { PlayIcon, PauseIcon, StepForwardIcon, StepBackwardIcon, ExpandIcon, CompressIcon, InfoCircleIcon, DownloadIcon } from "@patternfly/react-icons";
+import { Grid, GridItem, Button } from "@patternfly/react-core";
+import { IGalleryItem, galleryActions, IGalleryState } from "../../../api/models/gallery.model";
 import "./GalleryToolbar.scss";
 type AllProps = {
-    isPlaying: boolean;
-    onToolbarClick: (isPlay: boolean) => void; // Description: switch play/pause functionality
-}
+    galleryItems: IGalleryItem[];
+    onToolbarClick: (action: string) => void;  // Description: switch play/pause functionality
+} & IGalleryState;
 
 const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
 
     return (
-        <div className="gallery-toolbar">
-            {props.isPlaying ?
+        <Grid className="gallery-toolbar">
+            <GridItem sm={12} md={7}>
+                {
+                    (!!props.galleryItems && props.galleryItems.length > 1) &&
+                    <div>
+                        <Button variant="link"
+                            onClick={() => props.onToolbarClick(galleryActions.previous)} >
+                            <StepBackwardIcon />
+                        </Button>
+                        <Button variant="link"
+                            onClick={() => props.onToolbarClick(props.isPlaying ? galleryActions.pause : galleryActions.play)} >
+                            {
+                                props.isPlaying ? <PauseIcon size="md" /> : <PlayIcon size="md" />
+                            }
+                        </Button>
+                        <Button variant="link"
+                            onClick={() => props.onToolbarClick(galleryActions.next)} >
+                            <StepForwardIcon />
+                        </Button>
+                    </div>
+                }
+            </GridItem>
+            <GridItem sm={12} md={5}>
                 <Button variant="link"
-                    onClick={() => props.onToolbarClick(true)} >
-                    <PauseIcon size="md" />
-                </Button> :
-                <Button variant="link"
-                    onClick={() => props.onToolbarClick(false)} >
-                    <PlayIcon size="md" />
+                    onClick={() => props.onToolbarClick(galleryActions.fullscreen)}  >
+                    {props.isFullscreen ? <CompressIcon size="md" /> : <ExpandIcon />}
                 </Button>
-            }
-        </div>
+                <Button variant="link"
+                    onClick={() => props.onToolbarClick(galleryActions.information)}  >
+                    <DownloadIcon />
+                </Button>
+                <Button variant="link"
+                    onClick={() => props.onToolbarClick(galleryActions.information)}  >
+                    <InfoCircleIcon />
+                </Button>
+            </GridItem>
+        </Grid>
     )
 }
 export default React.memo(GalleryToolbar);

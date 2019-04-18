@@ -2,7 +2,6 @@ import * as React from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@patternfly/react-icons"
 import "./GalleryArrows.scss";
 type AllProps = {
-    param: any;
     onSlideChange: (offset: number) => void;
 }
 
