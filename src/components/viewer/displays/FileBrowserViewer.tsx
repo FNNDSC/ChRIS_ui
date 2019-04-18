@@ -13,7 +13,7 @@ import { IFeedFile } from "../../../api/models/feed-file.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { IUITreeNode } from "../../../api/models/file-explorer";
 import { downloadFile } from "../../../api/models/file-viewer";
-import GalleryModel from "../../../api/models/gallery.model";
+import GalleryModel, { IGalleryItem } from "../../../api/models/gallery.model";
 import FileExplorer from "../../explorer/FileExplorer";
 import FileTableView from "../../explorer/FileTableView";
 import FileDetailView from "../../explorer/FileDetailView";
@@ -32,10 +32,6 @@ type AllProps = {
   IPropsFromDispatch;
 
 class FileBrowserViewer extends React.Component<AllProps> {
-  constructor(props: AllProps) {
-    super(props);
-  }
-
   componentDidMount() {
     const { files, selected, setExplorerRequest } = this.props;
     setExplorerRequest(files, selected);
@@ -45,12 +41,8 @@ class FileBrowserViewer extends React.Component<AllProps> {
   setActiveNode = (node: IUITreeNode) => {
     const { explorer, setSelectedFile, setSelectedFolder } = this.props;
     if (!!node.leaf && node.leaf) {
-      const galleryItems: IUITreeNode[] = GalleryModel.buildGalleryArray(
-        node,
-        explorer
-      ); // Need to work on method to parse files ***** working
+      const galleryItems: IGalleryItem[] = new GalleryModel(node, explorer).galleryItems;
       setSelectedFile(node, galleryItems);
-      // setGalleryItems(gallery);
     } else {
       setSelectedFolder(node);
     }
@@ -116,7 +108,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setExplorerRequest: (files: IFeedFile[], selected: IPluginItem) => dispatch(setExplorerRequest(files, selected)),
-  setSelectedFile: (node: IUITreeNode, galleryItems: IUITreeNode[]) => dispatch(setSelectedFile(node, galleryItems)),
+  setSelectedFile: (node: IUITreeNode, galleryItems: IGalleryItem[]) => dispatch(setSelectedFile(node, galleryItems)),
   setSelectedFolder: (node: IUITreeNode) => dispatch(setSelectedFolder(node))
 });
 

@@ -46,15 +46,17 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
         this.fetchData();
         return <LoadingComponent color="#ddd" />;
       } else {
-        return this.renderContent();
+        return  (
+          <GalleryWrapper>
+            { this.renderContent() }
+          </GalleryWrapper>
+        );
       }
     };
     return (
-      <React.Fragment>
+      !!this.state.blob && <React.Fragment>
         {this.renderHeader()}
-        <GalleryWrapper>
-          {!!this.state.blob && fileTypeViewer()}
-        </GalleryWrapper>
+        {fileTypeViewer()}
       </React.Fragment>);
   }
 

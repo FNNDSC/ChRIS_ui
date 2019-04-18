@@ -1,10 +1,10 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../store/root/applicationState";
-import { IExplorerState } from "../../store/explorer/types";
 import { GalleryArrows, GalleryToolbar, GalleryFullScreen } from "../gallery";
 import "./GalleryWrapper.scss";
-import { IUITreeNode } from "../../api/models/file-explorer";
+import { IGalleryItem } from "../../api/models/gallery.model";
+
 interface IOtherProps {
     children: any;
 }
@@ -13,7 +13,7 @@ interface IState {
     isFullscreen: boolean;
     isPlaying: boolean;
 }
-type AllProps = { galleryItems: IUITreeNode[] } & IOtherProps;
+type AllProps = { galleryItems: IGalleryItem[] } & IOtherProps;
 
 class GalleryWrapper extends React.Component<AllProps, IState> {
   state = {
@@ -23,6 +23,7 @@ class GalleryWrapper extends React.Component<AllProps, IState> {
 
   render() {
     const { children, galleryItems } = this.props;
+    console.log("GalleryWrapper", galleryItems);
     return (
       <div id="gallery" className="gallery-wrapper">
         {children}
@@ -107,3 +108,5 @@ export default connect(
     mapStateToProps,
     null
 )(GalleryWrapper);
+
+
