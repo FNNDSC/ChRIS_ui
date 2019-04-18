@@ -59,7 +59,8 @@ class FileBrowserViewer extends React.Component<AllProps> {
   render() {
     const { explorer, selectedFile, selectedFolder } = this.props;
     return (
-      !!explorer && (
+      // Note: check to see if explorer children have been init.
+      (!!explorer && !!explorer.children) && (
         <div className="pf-u-px-lg">
           <Grid>
             <GridItem className="pf-u-p-sm" sm={12} md={3}>

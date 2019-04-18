@@ -1,11 +1,10 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import { Dispatch } from "redux";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IExplorerState } from "../../store/explorer/types";
-import { IUITreeNode } from "../../api/models/file-explorer";
 import { GalleryArrows, GalleryToolbar, GalleryFullScreen } from "../gallery";
 import "./GalleryWrapper.scss";
+import { IUITreeNode } from "../../api/models/file-explorer";
 interface IOtherProps {
     children: any;
 }
@@ -14,7 +13,7 @@ interface IState {
     isFullscreen: boolean;
     isPlaying: boolean;
 }
-type AllProps = IExplorerState & IOtherProps;
+type AllProps = { galleryItems: IUITreeNode[] } & IOtherProps;
 
 class GalleryWrapper extends React.Component<AllProps, IState> {
   state = {
@@ -99,18 +98,12 @@ const closeFullScreen = () => {
     }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-    // onSidebarToggle: (isOpened: boolean) => dispatch(onSidebarToggle(isOpened))
-});
-
 const mapStateToProps = ({ explorer }: ApplicationState) => ({
-    explorer: explorer.explorer,
-    galleryItems: explorer.galleryItems
+    galleryItems: explorer.galleryItems || []
 });
 
 
 export default connect(
     mapStateToProps,
     null
-    // mapDispatchToProps
 )(GalleryWrapper);
