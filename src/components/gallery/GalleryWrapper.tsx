@@ -2,7 +2,7 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../store/root/applicationState";
 import { GalleryToolbar } from "../gallery";
-import { IGalleryItem, IGalleryState } from "../../api/models/gallery.model";
+import GalleryModel, { IGalleryItem, IGalleryState } from "../../api/models/gallery.model";
 import "./GalleryWrapper.scss";
 
 interface IOtherProps {
@@ -15,19 +15,20 @@ interface IOtherProps {
 type AllProps = IOtherProps;
 
 class GalleryWrapper extends React.Component<AllProps, IGalleryState> {
-    constructor(props: AllProps) {
-        super(props);
+    componentDidMount() {
         document.addEventListener("fullscreenchange", this.handleFullScreenChange, false);
     }
+
     state = {
         isFullscreen: false,
         isPlaying: false,
     };
-
     render() {
         const { children, galleryItem, galleryItems } = this.props;
         return (
-            !!galleryItem && <div id="gallery" className="gallery-wrapper">
+            !!galleryItem &&
+            <div id="gallery"
+                className="gallery-wrapper" >
                 {children}
                 <GalleryToolbar
                     galleryItem={galleryItem}
@@ -66,6 +67,7 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryState> {
         },
         next: () => { // TO be done
             console.log("next");
+
         },
         previous: () => { // TO be done
             console.log("previous");
@@ -84,6 +86,10 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryState> {
         this.setState({
             isFullscreen: isFullScreen()
         });
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener("fullscreenchange", this.handleFullScreenChange);
     }
 }
 
