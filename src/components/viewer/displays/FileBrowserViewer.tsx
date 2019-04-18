@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { Grid, GridItem, Alert } from "@patternfly/react-core";
 import { ApplicationState } from "../../../store/root/applicationState";
-import {setExplorerRequest,setSelectedFile, setSelectedFolder} from "../../../store/explorer/actions";
+import {setExplorerRequest, setSelectedFile, setSelectedFolder} from "../../../store/explorer/actions";
 import { IExplorerState } from "../../../store/explorer/types";
 import { IFeedFile } from "../../../api/models/feed-file.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
