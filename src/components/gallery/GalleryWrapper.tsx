@@ -1,80 +1,95 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../store/root/applicationState";
-import { GalleryArrows, GalleryToolbar, GalleryFullScreen } from "../gallery";
+import { GalleryToolbar, GalleryFullScreen } from "../gallery";
 import "./GalleryWrapper.scss";
-import { IGalleryItem } from "../../api/models/gallery.model";
+import { IGalleryItem, galleryActions, IGalleryState } from "../../api/models/gallery.model";
 
 interface IOtherProps {
     children: any;
 }
 
-interface IState {
-    isFullscreen: boolean;
-    isPlaying: boolean;
-}
 type AllProps = { galleryItems: IGalleryItem[] } & IOtherProps;
 
-class GalleryWrapper extends React.Component<AllProps, IState> {
-  state = {
-    isFullscreen: false,
-    isPlaying: false
-  };
+class GalleryWrapper extends React.Component<AllProps, IGalleryState> {
+    constructor(props: AllProps) {
+        super(props);
+        document.addEventListener("fullscreenchange", this.handleFullScreenChange, false);
+    }
+    state = {
+        isFullscreen: false,
+        isPlaying: false
+    };
 
-  render() {
-    const { children, galleryItems } = this.props;
-    // console.log("GalleryWrapper", galleryItems);
-    return (
-      <div id="gallery" className="gallery-wrapper">
-        {children}
-        {(!!galleryItems && galleryItems.length > 1) && (
-          <React.Fragment>
-            <GalleryArrows
-              param={"tbd"}
-              onSlideChange={this.handleSlideChange}
-            />
-            <GalleryToolbar
-              isPlaying={this.state.isPlaying}
-              onToolbarClick={this.handlePlayPause}
-            />
-          </React.Fragment>
-        )}
-        <GalleryFullScreen
-          onFullScreenGallery={this.handlefullscreen}
-          isFullscreen={this.state.isFullscreen}
-        />
-      </div>
-    );
-  }
+    render() {
+        const { children, galleryItems } = this.props;
+        // console.log("GalleryWrapper", galleryItems);
+        return (
+            <div id="gallery" className="gallery-wrapper">
+                {children}
+                <GalleryToolbar
+                    galleryItems={galleryItems}
+                    onToolbarClick={this.handleToolbarAction}
+                    {...this.state}
+                />
+            </div>
+        );
+    }
 
-  // Description: triggers play or pause functionality
-  handlePlayPause = (isPlay: boolean) => {
-    // console.log("handlePlayPause: ", isPlay);
-    this.setState({
-        isPlaying: !isPlay
-    });
-  }
+    // Description: triggers toolbar functionality
+    handleToolbarAction = (action: string) => {
+        // console.log("handlePlayPause: trigger action = ", action);
+        (this.handleGalleryActions as any)[action].call();
+    }
 
-  // Description: will make the view full screen ***** WORKING *****
-  handleSlideChange(offset: number) {
-    // console.log("handleSlideChange", offset);
-  }
+    // Description: Group gallery actions
+    handleGalleryActions = {
+        play: () => {
+            console.log("PLAY Viewer");
+            this.setState({
+                isPlaying: true
+            });
+        },
+        pause: () => {
+            console.log("PAUSE Viewer");
+            this.setState({
+                isPlaying: false
+            });
+        },
+        // Description: will make the view full screen
+        fullscreen: () => {
+            const elem = document.getElementById("gallery");
+            !!elem && (isFullScreen() ? closeFullScreen() : openFullScreen(elem));
+        },
+        next: () => { // TO be done
+            console.log("next");
+        },
+        previous: () => { // TO be done
+            console.log("previous");
+        },
+        download: () => { // TO be done
+            console.log("download");
+        },
+        information: () => { // TO be done
+            console.log("information");
+        }
+    }
 
-  // Description: will make the view full screen
-  handlefullscreen = () => {
-    const elem = document.getElementById("gallery");
-    const isOpened = this.state.isFullscreen;
-    !!elem && (isOpened ? closeFullScreen() : openFullScreen(elem));
-    this.setState({
-      isFullscreen: !isOpened
-    });
-  };
+    // Set flag for full screen changes
+    handleFullScreenChange = () => {
+        this.setState({
+            isFullscreen: isFullScreen()
+        });
+    }
 }
 
 // --------------------------------------------------------
 // Description: handle full screen open and close
+const isFullScreen = () => {
+    const elem = document as any;
+    return !(!elem.webkitIsFullScreen && !elem.mozFullScreen && !elem.msFullscreenElement);
+}
 const openFullScreen = (elem: any) => {
-    console.log("openFullScreen", elem);
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
     } else if (elem.mozRequestFullScreen) { /* Firefox */
