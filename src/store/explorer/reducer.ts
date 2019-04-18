@@ -21,7 +21,6 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
       };
     }
     case ExplorerActionTypes.SET_SELECTED_FILE: {
-      console.log("SET_SELECTED_FILE", action.payload);
       return {
         ...state,
         selectedFile: action.payload.node,

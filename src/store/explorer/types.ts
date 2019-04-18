@@ -6,13 +6,14 @@
 */
 import keyMirror from "keymirror";
 import { IUITreeNode } from "../../api/models/file-explorer";
+import { IGalleryItem } from "../../api/models/gallery.model";
 
 // Description state for main user items[] and item
 export interface IExplorerState {
     explorer: IUITreeNode;
     selectedFile?: IUITreeNode;
     selectedFolder?: IUITreeNode;
-    galleryItems?: IUITreeNode[];
+    galleryItems?: IGalleryItem[];
 }
 
 export const ExplorerActionTypes = keyMirror({
