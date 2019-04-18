@@ -58,7 +58,7 @@ export default class UITreeNodeModel {
     if (!!items && items.length) {
       items.forEach((item: IFeedFile) => {
         const fileArray = this._convertFiletoArray(item, pluginName);
-        this._parseFileArray(fileArray);
+        this._parseFileArray(fileArray, item);
         this._resetholders();
       });
     }
@@ -66,10 +66,10 @@ export default class UITreeNodeModel {
   }
 
   // Description: Go through array and add to _worker object
-  private _parseFileArray = (fileArray: string[]) => {
+  private _parseFileArray = (fileArray: string[], file: IFeedFile) => {
     fileArray.forEach((item: string, i: number) => {
       const isLeaf = i === fileArray.length - 1;
-      !isLeaf ? this._AddFolder(item) : this._addFile(item);
+      !isLeaf ? this._AddFolder(item) : this._addFile(item, file);
     });
   }
 
@@ -89,8 +89,8 @@ export default class UITreeNodeModel {
   }
 
   // Description: Add a File
-  private _addFile = (item: string) => {
-    const newFile = Object.assign({}, this._fileTemplate, { module: item, file: this._fetchItem(item) });
+  private _addFile = (item: string, file: IFeedFile) => {
+    const newFile = Object.assign({}, this._fileTemplate, { module: item, file });
     this._findChildrenArr(this._previousItem, this._worker);
     if (!!this._previousObj && !!this._previousObj.children) {
       const newArr = this._previousObj.children.slice();
@@ -99,12 +99,6 @@ export default class UITreeNodeModel {
     }
   }
 
-  // Description: Fetch the item from array
-  private _fetchItem = (item: string) => {
-    return _.find(this._items, (o: IFeedFile) => {
-      return (o.fname.indexOf(`/${item}`) > 0);
-    });
-  }
   // Description: Finds and returns an object with the module: "[item as name]"
   private _findChildrenArr = (item: string, node: IUITreeNode) => {
     if (!!node.children) {
