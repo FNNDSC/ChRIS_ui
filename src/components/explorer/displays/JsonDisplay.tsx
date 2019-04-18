@@ -1,6 +1,6 @@
 import * as React from "react";
 import JSONPretty from "react-json-pretty";
-import { IFileState } from "../../../api/models/file-viewer";
+import { IFileState } from "../../../api/models/file-viewer.model";
 
 type AllProps = {
   file: IFileState;

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IFileState } from "../../../api/models/file-viewer";
+import { IFileState } from "../../../api/models/file-viewer.model";
 import catchallDisplay from "./CatchallDisplay";
 
 type AllProps = {

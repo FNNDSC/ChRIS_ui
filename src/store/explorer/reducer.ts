@@ -24,7 +24,8 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
       return {
         ...state,
         selectedFile: action.payload.node,
-        galleryItems: action.payload.galleryItems,
+        galleryItems: action.payload.galleryModel.galleryItems,
+        galleryItem: action.payload.galleryModel.galleryItem,
         selectedFolder: undefined
       };
     }

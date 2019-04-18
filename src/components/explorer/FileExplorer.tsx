@@ -1,7 +1,7 @@
 import React from "react";
 import Tree from "react-ui-tree";
 import { OutlinedFileAltIcon, FolderIcon, FolderOpenIcon } from "@patternfly/react-icons";
-import { IUITreeNode } from "../../api/models/file-explorer";
+import { IUITreeNode } from "../../api/models/file-explorer.model";
 import "./file-explorer.scss";
 import _ from "lodash";
 type AllProps = {

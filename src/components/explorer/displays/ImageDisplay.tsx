@@ -1,5 +1,5 @@
 import React, { createRef } from "react";
-import { IFileState } from "../../../api/models/file-viewer";
+import { IFileState } from "../../../api/models/file-viewer.model";
 
 type AllProps = {
   file: IFileState;

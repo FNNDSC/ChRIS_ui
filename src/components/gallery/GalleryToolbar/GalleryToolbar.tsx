@@ -1,9 +1,10 @@
 import * as React from "react";
 import { PlayIcon, PauseIcon, StepForwardIcon, StepBackwardIcon, ExpandIcon, CompressIcon, InfoCircleIcon, DownloadIcon } from "@patternfly/react-icons";
-import { Grid, GridItem, Button } from "@patternfly/react-core";
+import { Grid, GridItem, Button, GalleryItem } from "@patternfly/react-core";
 import { IGalleryItem, galleryActions, IGalleryState } from "../../../api/models/gallery.model";
 import "./GalleryToolbar.scss";
 type AllProps = {
+    galleryItem: IGalleryItem;
     galleryItems: IGalleryItem[];
     onToolbarClick: (action: string) => void;  // Description: switch play/pause functionality
 } & IGalleryState;
@@ -30,6 +31,7 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
                             onClick={() => props.onToolbarClick(galleryActions.next)} >
                             <StepForwardIcon />
                         </Button>
+                        <span>{ props.galleryItem.index + 1} / { props.galleryItems.length} </span>
                     </div>
                 }
             </GridItem>
@@ -39,7 +41,7 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
                     {props.isFullscreen ? <CompressIcon size="md" /> : <ExpandIcon />}
                 </Button>
                 <Button variant="link"
-                    onClick={() => props.onToolbarClick(galleryActions.information)}  >
+                    onClick={() => props.onToolbarClick(galleryActions.download)}  >
                     <DownloadIcon />
                 </Button>
                 <Button variant="link"

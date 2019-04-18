@@ -1,15 +1,18 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../store/root/applicationState";
-import { GalleryToolbar, GalleryFullScreen } from "../gallery";
+import { GalleryToolbar } from "../gallery";
+import { IGalleryItem, IGalleryState } from "../../api/models/gallery.model";
 import "./GalleryWrapper.scss";
-import { IGalleryItem, galleryActions, IGalleryState } from "../../api/models/gallery.model";
 
 interface IOtherProps {
     children: any;
+    galleryItems: IGalleryItem[];
+    galleryItem?: IGalleryItem;
+    downloadFile: () => void;
 }
 
-type AllProps = { galleryItems: IGalleryItem[] } & IOtherProps;
+type AllProps = IOtherProps;
 
 class GalleryWrapper extends React.Component<AllProps, IGalleryState> {
     constructor(props: AllProps) {
@@ -18,16 +21,16 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryState> {
     }
     state = {
         isFullscreen: false,
-        isPlaying: false
+        isPlaying: false,
     };
 
     render() {
-        const { children, galleryItems } = this.props;
-        // console.log("GalleryWrapper", galleryItems);
+        const { children, galleryItem, galleryItems } = this.props;
         return (
-            <div id="gallery" className="gallery-wrapper">
+            !!galleryItem && <div id="gallery" className="gallery-wrapper">
                 {children}
                 <GalleryToolbar
+                    galleryItem={galleryItem}
                     galleryItems={galleryItems}
                     onToolbarClick={this.handleToolbarAction}
                     {...this.state}
@@ -69,6 +72,7 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryState> {
         },
         download: () => { // TO be done
             console.log("download");
+            this.props.downloadFile();
         },
         information: () => { // TO be done
             console.log("information");
@@ -115,7 +119,8 @@ const closeFullScreen = () => {
 }
 
 const mapStateToProps = ({ explorer }: ApplicationState) => ({
-    galleryItems: explorer.galleryItems || []
+    galleryItems: explorer.galleryItems || [],
+    galleryItem: explorer.galleryItem
 });
 
 
