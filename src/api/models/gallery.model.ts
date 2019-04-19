@@ -4,7 +4,7 @@ import keyMirror from "keymirror";
 import _ from "lodash";
 
 export interface IGalleryItem extends IFeedFile {
-  file_name: string;
+  fileName: string;
   isActive: boolean;
   index: number;
 }
@@ -71,7 +71,7 @@ export default class GalleryModel {
     const isActive = _.isEqual(node.file, active.file);
     const galleryItem = {
       ...node.file,
-      file_name: node.module,
+      fileName: node.module,
       isActive,
       index
     };

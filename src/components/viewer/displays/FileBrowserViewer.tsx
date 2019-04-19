@@ -9,7 +9,6 @@ import { IFeedFile } from "../../../api/models/feed-file.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import { downloadFile } from "../../../api/models/file-viewer.model";
-import GalleryModel from "../../../api/models/gallery.model";
 import FileExplorer from "../../explorer/FileExplorer";
 import FileTableView from "../../explorer/FileTableView";
 import FileDetailView from "../../explorer/FileDetailView";
@@ -35,17 +34,12 @@ class FileBrowserViewer extends React.Component<AllProps> {
 
   // Description: handle active node and render FileDetailView
   setActiveNode = (node: IUITreeNode) => {
-    const { explorer, setSelectedFile, setSelectedFolder } = this.props;
-    if (!!node.leaf && node.leaf) {
-      const gallery = new GalleryModel(node, explorer);
-      setSelectedFile(node, gallery);
-    } else {
-      setSelectedFolder(node);
-    }
+    const { setSelectedFile, setSelectedFolder } = this.props;
+    (!!node.leaf && node.leaf) ? setSelectedFile(node) : setSelectedFolder(node);
   };
 
   render() {
-    const { explorer, galleryItem, selectedFile, selectedFolder } = this.props;
+    const { explorer, selectedFile, selectedFolder } = this.props;
     return (
       // Note: check to see if explorer children have been init.
       (!!explorer && !!explorer.children) && (
@@ -67,8 +61,8 @@ class FileBrowserViewer extends React.Component<AllProps> {
                   onClickNode={this.setActiveNode}
                   downloadFileNode={this.handleFileDownload}
                 />) :
-                !!galleryItem ? (
-                  <FileDetailView galleryItem={galleryItem} />) :
+                !!selectedFile ? (
+                  <FileDetailView selectedFile={selectedFile} />) :
                   (
                     <Alert
                       variant="info"
@@ -86,7 +80,6 @@ class FileBrowserViewer extends React.Component<AllProps> {
   // Description: handle file download first get file blob
   handleFileDownload(node: IUITreeNode) {
     const downloadUrl = node.file.file_resource;
-    const _self = this;
     if (!!node.file) {
       FeedFileModel.getFileBlob(downloadUrl)
         .then((result: any) => {
@@ -101,7 +94,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setExplorerRequest: (files: IFeedFile[], selected: IPluginItem) => dispatch(setExplorerRequest(files, selected)),
-  setSelectedFile: (node: IUITreeNode, galleryModel: GalleryModel) => dispatch(setSelectedFile(node, galleryModel)),
+  setSelectedFile: (node: IUITreeNode ) => dispatch(setSelectedFile(node)),
   setSelectedFolder: (node: IUITreeNode) => dispatch(setSelectedFolder(node))
 });
 
@@ -109,7 +102,6 @@ const mapStateToProps = ({ explorer }: ApplicationState) => ({
   selectedFile: explorer.selectedFile,
   selectedFolder: explorer.selectedFolder,
   explorer: explorer.explorer,
-  galleryItem: explorer.galleryItem
 });
 
 export default connect(

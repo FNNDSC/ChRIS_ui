@@ -124,9 +124,9 @@ const closeFullScreen = () => {
     }
 }
 
-const mapStateToProps = ({ explorer }: ApplicationState) => ({
-    galleryItems: explorer.galleryItems || [],
-    galleryItem: explorer.galleryItem
+const mapStateToProps = ({ gallery }: ApplicationState) => ({
+    galleryItems: gallery.galleryItems,
+    galleryItem: gallery.galleryItem
 });
 
 

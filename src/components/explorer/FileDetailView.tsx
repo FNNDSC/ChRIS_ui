@@ -1,26 +1,16 @@
 import * as React from "react";
 import { Button } from "@patternfly/react-core";
 import { DownloadIcon } from "@patternfly/react-icons";
-import { getFileExtension } from "../../api/models/file-explorer.model";
+import { getFileExtension, IUITreeNode } from "../../api/models/file-explorer.model";
 import { IFileState } from "../../api/models/file-viewer.model";
 import FeedFileModel from "../../api/models/feed-file.model";
-import { downloadFile } from "../../api/models/file-viewer.model";
-import { IGalleryItem } from "../../api/models/gallery.model";
-import { GalleryWrapper } from "../gallery";
+import { downloadFile, fileViewerMap } from "../../api/models/file-viewer.model";
 import { LoadingComponent } from "..";
-import {
-  CatchallDisplay,
-  JsonDisplay,
-  IframeDisplay,
-  ImageDisplay,
-  DcmDisplay
-} from "./displays/index";
-
+import ViewerDisplay from "./displays/ViewerDisplay";
 import "./file-detail.scss";
 
-
 type AllProps = {
-  galleryItem: IGalleryItem;
+  selectedFile: IUITreeNode;
 };
 
 class FileDetailView extends React.Component<AllProps, IFileState> {
@@ -40,9 +30,9 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
   };
 
   render() {
-    const { galleryItem } = this.props;
+    const { selectedFile } = this.props;
     const fileTypeViewer = () => {
-      if (galleryItem.file_name !== this.state.blobName) {
+      if (selectedFile.module !== this.state.blobName) {
         this.fetchData();
         return <LoadingComponent color="#ddd" />;
       } else {
@@ -52,46 +42,32 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
       }
     };
     return (
-      <GalleryWrapper downloadFile={() => this.downloadFileNode()} >
-        {fileTypeViewer()}
-      </GalleryWrapper>
+      fileTypeViewer()
+      // <GalleryWrapper downloadFile={() => this.downloadFileNode()} >
+      //    {fileTypeViewer()}
+      // </GalleryWrapper>
     )
   }
 
-  // Decription: Render the individual viewers by filetypd
+  // Decription: Render the individual viewers by filetype ***** working
   renderContent() {
-    switch (this.state.fileType) {
-      case "stats":
-      case "txt":
-      case "html":
-      case "csv":
-      case "ctab":
-        return <IframeDisplay file={this.state} />
-      case "json":
-        return <JsonDisplay file={this.state} />
-      case "png":
-      case "jpg":
-      case "jpeg":
-      case "gif":
-        return <ImageDisplay file={this.state} />
-      case "dcm":
-        return <DcmDisplay file={this.state} />
-      default:
-        return <CatchallDisplay file={this.state} downloadFile={() => { this.downloadFileNode(); }} />
-    }
+    const viewerName = fileViewerMap[this.state.fileType];
+    return <ViewerDisplay tag={viewerName} file={this.state} />
   }
 
   // Description: Fetch blob and read it into state to display preview
   fetchData() {
-    const { galleryItem } = this.props;
-    FeedFileModel.getFileBlob(galleryItem.file_resource).then((result: any) => {
+    const { selectedFile } = this.props;
+    const fileUrl = selectedFile.file.file_resource,
+      fileName = selectedFile.module,
+      fileType = getFileExtension(fileName);
+    FeedFileModel.getFileBlob(fileUrl).then((result: any) => {
       const _self = this;
-      const fileType = getFileExtension(galleryItem.file_name);
       if (!!result.data) {
         const reader = new FileReader();
         reader.addEventListener("loadend", (e: any) => {
           const blobText = e.target.result;
-          _self._isMounted && _self.setState({ blob: result.data, blobName: galleryItem.file_name, fileType, blobText });
+          _self._isMounted && _self.setState({ blob: result.data, blobName: fileName, fileType, blobText });
         });
         reader.readAsText(result.data);
       }
