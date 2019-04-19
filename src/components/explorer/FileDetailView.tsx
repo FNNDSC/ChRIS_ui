@@ -6,7 +6,6 @@ import { IFileState } from "../../api/models/file-viewer.model";
 import FeedFileModel from "../../api/models/feed-file.model";
 import { downloadFile, fileViewerMap } from "../../api/models/file-viewer.model";
 import { LoadingComponent } from "..";
-import GalleryWrapper from "../gallery/GalleryWrapper";
 import ViewerDisplay from "./displays/ViewerDisplay";
 import "./file-detail.scss";
 
@@ -38,19 +37,32 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
         return <LoadingComponent color="#ddd" />;
       } else {
         return (
-          this.renderContent()
+          <React.Fragment>
+          {this.renderHeader()}
+          {this.renderContent()}
+          </React.Fragment>
         );
       }
     };
     return (
        fileTypeViewer()
-      // <GalleryWrapper downloadFile={() => this.downloadFileNode()} >
-      //    {fileTypeViewer()}
-      // </GalleryWrapper>
     )
   }
 
-  // Decription: Render the individual viewers by filetype ***** working
+  // Decription: Render the Header
+  renderHeader(classname?: string) {
+    const { selectedFile } = this.props;
+    return (
+      <div className={`header-panel ${classname}`}>
+        {this.renderDownloadButton()}
+        <h1>
+          File Preview: <b>{selectedFile.module}</b>
+        </h1>
+      </div>
+    );
+  }
+ 
+  // Decription: Render the individual viewers by filetype
   renderContent() {
     const viewerName = fileViewerMap[this.state.fileType];
     return <ViewerDisplay tag={viewerName} file={this.state} />

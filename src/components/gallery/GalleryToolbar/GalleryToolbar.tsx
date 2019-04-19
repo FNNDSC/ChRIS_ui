@@ -1,11 +1,11 @@
 import * as React from "react";
 import { PlayIcon, PauseIcon, StepForwardIcon, StepBackwardIcon, ExpandIcon, CompressIcon, InfoCircleIcon, DownloadIcon } from "@patternfly/react-icons";
 import { Grid, GridItem, Button, GalleryItem } from "@patternfly/react-core";
-import { IGalleryItem, galleryActions, IGalleryState } from "../../../api/models/gallery.model";
+import { galleryActions, IGalleryState } from "../../../api/models/gallery.model";
 import "./GalleryToolbar.scss";
 type AllProps = {
-    galleryItem: IGalleryItem;
-    galleryItems: IGalleryItem[];
+    index: number;
+    total: number;
     onToolbarClick: (action: string) => void;  // Description: switch play/pause functionality
 } & IGalleryState;
 
@@ -15,7 +15,7 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
         <Grid className="gallery-toolbar">
             <GridItem sm={12} md={7}>
                 {
-                    (!!props.galleryItems && props.galleryItems.length > 1) &&
+                    (props.total > 1) &&
                     <div>
                         <Button variant="link"
                             onClick={() => props.onToolbarClick(galleryActions.previous)} >
@@ -31,7 +31,7 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
                             onClick={() => props.onToolbarClick(galleryActions.next)} >
                             <StepForwardIcon />
                         </Button>
-                        <span>{ props.galleryItem.index + 1} / { props.galleryItems.length} </span>
+                        <span>{ props.index + 1} / { props.total} </span>
                     </div>
                 }
             </GridItem>
