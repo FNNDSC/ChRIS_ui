@@ -9,7 +9,6 @@ interface IOtherProps {
     children: any;
     galleryItems: IGalleryItem[];
     galleryItem?: IGalleryItem;
-    downloadFile: () => void;
 }
 
 type AllProps = IOtherProps;
@@ -25,17 +24,19 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryState> {
     };
     render() {
         const { children, galleryItem, galleryItems } = this.props;
+        console.log("GalleryWrapper render");
         return (
-            !!galleryItem &&
+            !!children &&
             <div id="gallery"
                 className="gallery-wrapper" >
                 {children}
-                <GalleryToolbar
-                    galleryItem={galleryItem}
-                    galleryItems={galleryItems}
-                    onToolbarClick={this.handleToolbarAction}
-                    {...this.state}
-                />
+                { !!galleryItem &&
+                    <GalleryToolbar
+                        index={galleryItem.index}
+                        total={galleryItems.length}
+                        onToolbarClick={this.handleToolbarAction}
+                        {...this.state} />
+                    }
             </div>
         );
     }
@@ -74,7 +75,7 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryState> {
         },
         download: () => { // TO be done
             console.log("download");
-            this.props.downloadFile();
+            // this.props.downloadFile();
         },
         information: () => { // TO be done
             console.log("information");
