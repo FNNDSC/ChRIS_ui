@@ -6,6 +6,7 @@ import { IFileState } from "../../api/models/file-viewer.model";
 import FeedFileModel from "../../api/models/feed-file.model";
 import { downloadFile, fileViewerMap } from "../../api/models/file-viewer.model";
 import { LoadingComponent } from "..";
+import GalleryWrapper from "../gallery/GalleryWrapper";
 import ViewerDisplay from "./displays/ViewerDisplay";
 import "./file-detail.scss";
 
@@ -42,7 +43,7 @@ class FileDetailView extends React.Component<AllProps, IFileState> {
       }
     };
     return (
-      fileTypeViewer()
+       fileTypeViewer()
       // <GalleryWrapper downloadFile={() => this.downloadFileNode()} >
       //    {fileTypeViewer()}
       // </GalleryWrapper>
