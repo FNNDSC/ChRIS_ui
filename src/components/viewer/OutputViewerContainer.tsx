@@ -4,6 +4,7 @@ import { Tabs, Tab, Alert } from "@patternfly/react-core";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IFeedFile } from "../../api/models/feed-file.model";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
+import {pluginViewerMap} from "../../api/models/file-viewer.model";
 import {
   DicomViewer,
   RevViewer,
@@ -58,7 +59,7 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
     const { files, selected } = this.props;
     const tabs: any[] = [];
     if (!!selected) {
-      const tabArr = tempMapping[selected.plugin_name] || tempMapping.default;
+      const tabArr = pluginViewerMap[selected.plugin_name] || pluginViewerMap.default;
       tabArr.forEach((key: string, i: number) => {
         let tabContent;
         let label = "tab";
@@ -118,17 +119,6 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
     return tabs;
   }
 }
-// Description: Temporary mapping for plugin tabs
-const tempMapping: any = {
-  default: ["FileBrowserViewer"],
-  dircopy: ["RevViewer", "FileBrowserViewer"],
-  pacscopy: ["RevViewer", "FileBrowserViewer"],
-  mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
-  freesurfer_pp: ["DicomViewer_2D", "DicomViewer_3D", "FreesurferDataTable", "FileBrowserViewer"],
-  simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable", "FileBrowserViewer"],
-  mpcs: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable", "FileBrowserViewer"],
-  z2labelmap: ["ZScoreViewer", "FileBrowserViewer"]
-};
 
 const mapStateToProps = ({ plugin }: ApplicationState) => ({
   files: plugin.files,
