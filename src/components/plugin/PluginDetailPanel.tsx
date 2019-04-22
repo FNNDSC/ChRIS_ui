@@ -10,11 +10,12 @@ import {
 } from "@patternfly/react-core";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IPluginState } from "../../store/plugin/types";
-import PluginInformation from "./pluginInformation";
-import PluginConfiguration from "./pluginConfiguration";
-import PluginOutput from "./pluginOutput";
+import PluginInformation from "./PluginInformation";
+import PluginConfiguration from "./PluginConfiguration";
+import PluginOutput from "./PluginOutput";
 import { getPluginInstanceTitle } from "../../api/models/pluginInstance.model";
 import "./plugin.scss";
+import { LoadingComponent } from "..";
 interface IState {
   expanded: string[];
 }
@@ -83,8 +84,7 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                   </div>
                   <DataListContent
                     aria-label="Primary Content Details for plugin"
-                    isHidden={!this.state.expanded.includes("plugin-detail")}
-                  >
+                    isHidden={!this.state.expanded.includes("plugin-detail")}  >
                     <PluginInformation selected={selected} />
                   </DataListContent>
                 </DataListItem>
@@ -94,8 +94,7 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
               <DataList aria-label="Plugin Configuration">
                 <DataListItem
                   aria-labelledby="Plugin Configuration"
-                  isExpanded={this.state.expanded.includes("plugin-config")}
-                >
+                  isExpanded={this.state.expanded.includes("plugin-config")}  >
                   <div className="datalist-header">
                     Configuration
                     <DataListToggle
@@ -107,12 +106,13 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                     />
                   </div>
                   <DataListContent
+                    className={!!!parameters ? "empty" : ""}
                     aria-label="Plugin Configuration"
-                    isHidden={!this.state.expanded.includes("plugin-config")}
-                  >
-                    {!!parameters && (
-                      <PluginConfiguration parameters={parameters} />
-                    )}
+                    isHidden={!this.state.expanded.includes("plugin-config")}  >
+                    {!!parameters ?
+                      <PluginConfiguration parameters={parameters} /> :
+                       <LoadingComponent size="3x" isLocal color="#777" />
+                    }
                   </DataListContent>
                 </DataListItem>
               </DataList>
@@ -121,8 +121,7 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
               <DataList aria-label="Plugin Output">
                 <DataListItem
                   aria-labelledby="ex-item1"
-                  isExpanded={this.state.expanded.includes("plugin-data")}
-                >
+                  isExpanded={this.state.expanded.includes("plugin-data")}  >
                   <div className="datalist-header">
                     Output
                     <DataListToggle
@@ -134,15 +133,16 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                     />
                   </div>
                   <DataListContent
+                    className={!!!files ? "empty" : ""}
                     aria-label="Plugin Output"
                     isHidden={!this.state.expanded.includes("plugin-data")} >
-                    {!!files && (
+                    {!!files ?
                       <PluginOutput
                         files={files}
                         handleDownloadData={this.handleDownloadData}
                         handleViewData={this.handleViewData}
-                      />
-                    )}
+                      /> : <LoadingComponent size="3x" isLocal color="#777" />
+                    } 
                   </DataListContent>
                 </DataListItem>
               </DataList>
@@ -152,10 +152,6 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
       )
     );
   }
-
-  // getTitle(selected: IPluginItem){
-  //   return (!!selected.title &&  selected.title.length) ? selected.title : selected.plugin_name;
-  // }
 }
 
 const mapStateToProps = ({ plugin }: ApplicationState) => ({

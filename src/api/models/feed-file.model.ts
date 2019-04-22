@@ -17,9 +17,6 @@ export interface IFeedFileLinks {
   plugin_instances: string;
 }
 
-// Set up defaults
-// const defaultParams: IParams = { limit: 10, offset: 0 };
-
 // Fetch file blob from server
 export default class FeedFileModel {
   static getFileBlob(url: string) {

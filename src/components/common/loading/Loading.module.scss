@@ -10,4 +10,8 @@
     margin: -50px - 50px 0 0;
     position: fixed;
     top: 50%;
+    z-index: 9999;
+ }
+ .loadinglocal{
+    position: relative;
  }

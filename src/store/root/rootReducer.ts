@@ -14,6 +14,8 @@ import { messageReducer } from "../message/reducer";
 import { feedReducer } from "../feed/reducer";
 import { userReducer } from "../user/reducer";
 import { pluginReducer } from "../plugin/reducer";
+import { explorerReducer } from "../explorer/reducer";
+import { galleryReducer } from "../gallery/reducer";
 
 export default (history: History) =>
   combineReducers({
@@ -22,7 +24,8 @@ export default (history: History) =>
     message: messageReducer,
     feed: feedReducer,
     user: userReducer,
-    plugin: pluginReducer
-
+    plugin: pluginReducer,
+    explorer: explorerReducer,
+    gallery: galleryReducer
     // rest of your reducers ...
   });
