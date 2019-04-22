@@ -9,6 +9,10 @@ export interface IGalleryItem extends IFeedFile {
   fileName: string;
   isActive: boolean;
   index: number;
+  blob?: Blob;
+  blobText?: any;
+  fileType?: string;
+  isLoaded: boolean;
 }
 
 // Description: Add all gallery related actions in this object
@@ -24,27 +28,43 @@ export const galleryActions = keyMirror({
 
 // Description: handles gallery items
 export default class GalleryModel {
+  galleryItem: IGalleryItem;
   galleryItems: IGalleryItem[] = new Array();
-  galleryItem?: IGalleryItem;
-  private _node: IUITreeNode;
-  private _explorer: IUITreeNode;
   private _parentFolderNode?: IUITreeNode;
 
   constructor(node: IUITreeNode, explorer: IUITreeNode) {
-    this._node = node;
-    this._explorer = explorer;
-    this._buildGalleryArray();
+    this.galleryItem = this._buildGalleryItem(node, node, 0);
+    this._initActiveItem(node);
+    this._buildGalleryArray(node, explorer);
+  }
+  _initActiveItem(node: IUITreeNode) {
+    const fileUrl = node.file.file_resource;
+    return FeedFileModel.getFileBlob(fileUrl).then((response: any) => {
+      this.galleryItem.blob = response.data;
+      this.galleryItem.isLoaded = true;
+    });
   }
 
   // Description: build the galleryItems here
-  _buildGalleryArray(): IGalleryItem[] {
-    this._findParentNode(this._node, this._explorer);
+  _buildGalleryArray(node: IUITreeNode, explorer: IUITreeNode): IGalleryItem[] {
+    this._findParentNode(node, explorer);
     if (!!this._parentFolderNode && !!this._parentFolderNode.children) {
+      const _self = this;
       this._parentFolderNode.children.map(
         (subnode: IUITreeNode, index: number) => {
-          this.galleryItems.push(
-            this._buildGalleryItem(subnode, this._node, index)
-          );
+          const isActive = _.isEqual(subnode.file, node.file);
+          const newItem = this._buildGalleryItem(subnode, node, index);
+          if (!isActive) {
+            const fileUrl = newItem.file_resource;
+            FeedFileModel.getFileBlob(fileUrl).then((response: any) => {
+              newItem.blob = response.data;
+              newItem.isLoaded = true;
+              _self.galleryItems.push(newItem);
+            });
+          } else {
+            this.galleryItem.index = index;
+            this.galleryItems.push(this.galleryItem);
+          }
         }
       );
     }
@@ -73,13 +93,17 @@ export default class GalleryModel {
     active: IUITreeNode,
     index: number
   ): IGalleryItem {
-    const isActive = _.isEqual(node.file, active.file);
+    const isActive = _.isEqual(node.file, active.file),
+      fileType = getFileExtension(node.module);
     const galleryItem = {
       ...node.file,
       fileName: node.module,
       isActive,
-      index
+      index,
+      fileType,
+      isLoaded: false
     };
+
     isActive && (this.galleryItem = galleryItem);
     return galleryItem;
   }

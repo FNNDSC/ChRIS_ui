@@ -1,5 +1,6 @@
 import * as React from "react";
-import { IFileBlob } from "../../../api/models/file-viewer.model";
+// import { IFileBlob } from "../../../api/models/file-viewer.model";
+import { IGalleryItem } from "../../../api/models/gallery.model";
 import {
     CatchallDisplay,
     JsonDisplay,
@@ -9,9 +10,10 @@ import {
 } from "./index";
 
 
+
 type AllProps = {
     tag: string;
-    file: IFileBlob;
+    file: IGalleryItem;
 }
 
 class ViewerDisplay extends React.Component<AllProps> {
@@ -25,6 +27,7 @@ class ViewerDisplay extends React.Component<AllProps> {
     render() {
         const TagName = (this.components as any)[this.props.tag || "CatchallDisplay"];
         const { file } = this.props;
+        // console.log(file.blob);
         return <TagName file={file} />
     }
 }
