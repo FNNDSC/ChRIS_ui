@@ -7,12 +7,12 @@ import _ from "lodash";
 
 export interface IGalleryItem extends IFeedFile {
   fileName: string;
-  isActive: boolean;
-  index: number;
   blob?: Blob;
   blobText?: any;
   fileType?: string;
   isLoaded: boolean;
+  isActive: boolean;
+  index: number;
 }
 
 // Description: Add all gallery related actions in this object
@@ -26,65 +26,43 @@ export const galleryActions = keyMirror({
   information: null
 });
 
-// Description: handles gallery items
+
 export default class GalleryModel {
+  _parentFolderNode?: IUITreeNode;
   galleryItem: IGalleryItem;
   galleryItems: IGalleryItem[] = new Array();
-  private _parentFolderNode?: IUITreeNode;
-
   constructor(node: IUITreeNode, explorer: IUITreeNode) {
-    this.galleryItem = this._buildGalleryItem(node, node, 0);
-    this._initActiveItem(node);
-    this._buildGalleryArray(node, explorer);
-  }
-  _initActiveItem(node: IUITreeNode) {
-    const fileUrl = node.file.file_resource;
-    return FeedFileModel.getFileBlob(fileUrl).then((response: any) => {
-      this.galleryItem.blob = response.data;
-      this.galleryItem.isLoaded = true;
-    });
+    this.galleryItem = this._buildGalleryItem(node, node, 0)
+    this.galleryItems = this.buildGalleryArray(node, explorer);
   }
 
-  // Description: build the galleryItems here
-  _buildGalleryArray(node: IUITreeNode, explorer: IUITreeNode): IGalleryItem[] {
+  buildGalleryArray(node: IUITreeNode, explorer: IUITreeNode): IGalleryItem[] {
     this._findParentNode(node, explorer);
     if (!!this._parentFolderNode && !!this._parentFolderNode.children) {
-      const _self = this;
       this._parentFolderNode.children.map(
         (subnode: IUITreeNode, index: number) => {
-          const isActive = _.isEqual(subnode.file, node.file);
           const newItem = this._buildGalleryItem(subnode, node, index);
-          if (!isActive) {
-            const fileUrl = newItem.file_resource;
-            FeedFileModel.getFileBlob(fileUrl).then((response: any) => {
-              newItem.blob = response.data;
-              newItem.isLoaded = true;
-              _self.galleryItems.push(newItem);
-            });
-          } else {
-            this.galleryItem.index = index;
-            this.galleryItems.push(this.galleryItem);
-          }
+          this.galleryItems.push(newItem);
         }
       );
     }
     return this.galleryItems;
   }
 
-  // Description: Find the parent folder to the selected item
-  _findParentNode(node: IUITreeNode, folderNode: IUITreeNode) {
-    const fileMatch = _.find(folderNode.children, (obj: IUITreeNode) => {
-      return _.isEqual(obj.file, node.file);
-    });
+  setActiveGalleryItem(galleryItem: IGalleryItem){
+    return FeedFileModel.getFileBlob(galleryItem.file_resource);
+  }
 
-    // Iterate through Explorer children
-    if (!!fileMatch) {
-      this._parentFolderNode = folderNode;
-    } else if (!!folderNode.children) {
-      folderNode.children.forEach((child: IUITreeNode) => {
-        this._findParentNode(node, child);
-      });
-    }
+  /// 
+  // setActiveGalleryItems(data: any){
+  //   console.log("setActiveGalleryItems", data, this._parentFolderNode);
+  //   return this._parentFolderNode;
+  // }
+
+  // Sets the blob and returns active item
+  setGalleryItemBlob(blob: Blob) {
+    this.galleryItem.blob = blob;
+    return this.galleryItem;
   }
 
   // Description: takes an explorer tree node and returns a gallery Item
@@ -103,8 +81,51 @@ export default class GalleryModel {
       fileType,
       isLoaded: false
     };
-
+  
     isActive && (this.galleryItem = galleryItem);
     return galleryItem;
+  }
+  // Description: Find the parent folder to the selected item
+  _findParentNode(node: IUITreeNode, folderNode: IUITreeNode) {
+    const fileMatch = _.find(folderNode.children, (obj: IUITreeNode) => {
+      return _.isEqual(obj.file, node.file);
+    });
+
+    // Iterate through Explorer children
+    if (!!fileMatch) {
+      this._parentFolderNode = folderNode;
+    } else if (!!folderNode.children) {
+      folderNode.children.forEach((child: IUITreeNode) => {
+        this._findParentNode(node, child);
+      });
+    }
+  }
+
+  // Load URLS *****
+  _imagesTotal = 100;
+  _imagesLoaded = 0;
+  _imagesParsed = 0;
+  _loadUrls(urls: string[]) {
+    this._imagesTotal = urls.length;
+    this._imagesLoaded = 0;
+    this._imagesParsed = 0;
+
+    const loadSequences = new Array();
+    urls.forEach((url: string) => {
+      loadSequences.push(
+        this._loadUrl(url)
+      );
+    });
+    return Promise.all(loadSequences);
+  }
+
+  _loadUrl(url: string) {
+    return FeedFileModel.getFileBlob(url)
+      .then((response: any) => {
+        this._imagesLoaded += 1;
+        return response.data;
+      }).catch((error) => {
+        console.error(error);
+      });
   }
 }

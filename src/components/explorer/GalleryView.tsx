@@ -1,4 +1,8 @@
 import * as React from "react";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
+import { ApplicationState } from "../../store/root/applicationState";
+import { initializeGallery, destroyGallery, resetGalleryItems, setGalleryItemsBlobs, setGalleryActiveItem } from "../../store/gallery/actions";
 import { getFileExtension, IUITreeNode } from "../../api/models/file-explorer.model";
 import { IFileBlob } from "../../api/models/file-viewer.model";
 import FeedFileModel from "../../api/models/feed-file.model";
@@ -9,62 +13,70 @@ import { LoadingComponent } from "..";
 import GalleryModel, { IGalleryItem } from "../../api/models/gallery.model";
 import _ from "lodash";
 import "./file-detail.scss";
+import { IGalleryState } from "../../store/gallery/types";
 
+interface IPropsFromDispatch {
+  initializeGallery: typeof initializeGallery;
+  setGalleryItemsBlobs: typeof setGalleryItemsBlobs;
+  setGalleryActiveItem: typeof setGalleryActiveItem;
+  destroyGallery: typeof destroyGallery;
+}
 type AllProps = {
   selectedFile: IUITreeNode;
   explorer: IUITreeNode;
-};
-interface IState {
-  galleryItem: IGalleryItem;
-  galleryItems: IGalleryItem[];
-  
-}
-class GalleryView extends React.Component<AllProps, IState> {
+} & IGalleryState & IPropsFromDispatch;
+
+class GalleryView extends React.Component<AllProps> {
   _isMounted = false;
   constructor(props: AllProps) {
     super(props);
-    const { selectedFile, explorer } = this.props;
-    const gallery = new GalleryModel(selectedFile, explorer);
-    console.log(gallery);
-    this.state = {
-      galleryItem: gallery.galleryItem,
-      galleryItems: gallery.galleryItems
-    }
-    console.log("constructor", this.state);
-    // 1. Onload => build gallery item and galleryItems[]
-    //      - What should it have
-    // 2. begin loop at gallery Item
-    // 3. Render GalleryItem
+    const { selectedFile, explorer, initializeGallery } = this.props;
+    initializeGallery({ selectedFile, explorer }); // SETS THE INITIAL GALLERY ITEMS AND ACTIVE ITEM
+    // setGalleryItemsBlobs(); //TBD
   }
-  // shouldComponentUpdate(nextProps: any, nextState: any) {
-  //   console.log("shouldComponentUpdate", this.state.galleryItem, nextState);
-  //   return true;
-  // }
-    componentDidMount() {
+
+  componentDidMount() {
     this._isMounted = true;
   }
 
   render() {
-    console.log("RENDER", this.state.galleryItem.isLoaded,  this.state.galleryItems.length);
+    const { galleryItem, galleryItems } = this.props;
+    // IF DIFFERENT FILE UPDATE GALLERY ITEM
     return (
-      (!!this.state.galleryItem && this.state.galleryItem.isLoaded) ? this.renderContent(this.state.galleryItem) : <LoadingComponent />
+      (!!galleryItem && !!galleryItem.blob) ? this.renderContent(galleryItem, galleryItems) : <LoadingComponent />
     )
   }
 
   // Decription: Render the individual viewers by filetype
-  renderContent(galleryItem: IGalleryItem) {
+  renderContent(galleryItem: IGalleryItem, galleryItems: IGalleryItem[]) {
     const viewerName = !!galleryItem.fileType ? fileViewerMap[galleryItem.fileType] : "";
     return (
-      <GalleryWrapper index={0} total={100}>
+      <GalleryWrapper index={galleryItem.index} total={galleryItems.length}>
         <ViewerDisplay tag={viewerName} file={galleryItem} />
       </GalleryWrapper>)
   }
 
-
-
   componentWillUnmount() {
     this._isMounted = false;
+    this.props.destroyGallery();
   }
 }
 
-export default GalleryView;
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  initializeGallery: (data: { selectedFile: IUITreeNode; explorer: IUITreeNode; }) => dispatch(initializeGallery(data)),
+  setGalleryActiveItem: (galleryItem: IGalleryItem) => dispatch(setGalleryActiveItem(galleryItem)),
+  setGalleryItemsBlobs: (galleryItems: IGalleryItem[]) => dispatch(setGalleryItemsBlobs(galleryItems)),
+  destroyGallery: () => dispatch(destroyGallery()),
+});
+
+const mapStateToProps = ({ gallery }: ApplicationState) => ({
+  galleryItem: gallery.galleryItem,
+  galleryItems: gallery.galleryItems
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(GalleryView);
+// export default GalleryView;

@@ -23,7 +23,7 @@ class DcmImage extends React.Component<AllProps> {
     const { file } = this.props;
     // console.log(file);
     if (!!file.blob) {
-      console.log("MOUNT");
+      // console.log("MOUNT");
       const url = window.URL.createObjectURL(new Blob([file.blob]));
       this.initAmi(url);
     }
