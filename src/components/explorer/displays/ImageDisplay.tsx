@@ -6,8 +6,8 @@ type AllProps = {
 };
 
 const ImageDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
- //  const imageRef = createRef<HTMLDivElement>();
   const { file } = props;
+  console.log(file);
   const url = !!file.blob
     ? window.URL.createObjectURL(new Blob([file.blob]))
     : "";

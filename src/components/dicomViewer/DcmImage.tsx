@@ -19,10 +19,11 @@ type AllProps = {
 // Description: Will be replaced with a DCM Fyle viewer
 class DcmImage extends React.Component<AllProps> {
   dynamicImagePixelData: string | ArrayBuffer | null = null;
-
   componentDidMount() {
     const { file } = this.props;
+    // console.log(file);
     if (!!file.blob) {
+      console.log("MOUNT");
       const url = window.URL.createObjectURL(new Blob([file.blob]));
       this.initAmi(url);
     }
@@ -221,4 +222,4 @@ const colors = {
 };
 
 
-export default React.memo(DcmImage);
+export default DcmImage;

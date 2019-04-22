@@ -12,7 +12,6 @@ import { IFileBlob } from "../../api/models/file-viewer.model";
 export interface IGalleryState {
     galleryItems: IGalleryItem[];
     galleryItem?: IGalleryItem;
-    fileBlob?: Blob;
 }
 
 export interface IGalleryToolbarState {

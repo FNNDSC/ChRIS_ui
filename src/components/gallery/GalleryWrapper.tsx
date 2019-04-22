@@ -21,7 +21,6 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
 
     render() {
         const { children,  index, total } = this.props;
-      
         return (
             !!children &&
             <div id="gallery"

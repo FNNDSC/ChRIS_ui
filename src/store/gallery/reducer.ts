@@ -10,6 +10,10 @@ const initialState: IGalleryState = {
 // Description: Handle File explorer state
 const reducer: Reducer<IGalleryState> = (state = initialState, action) => {
   switch (action.type) {
+    case GalleryActionTypes.INITIALIZE_GALLERY: {
+      console.log("INITIALIZE_GALLERY", action.payload)
+      return { ...state, galleryItem: action.payload.galleryItem, galleryItems: action.payload.galleryItems };
+    }
     case GalleryActionTypes.SET_GALLERY_ACTIVE_ITEM: {
       return { ...state, galleryItem: action.payload };
     }

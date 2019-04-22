@@ -64,8 +64,8 @@ class FileBrowserViewer extends React.Component<AllProps> {
                   downloadFileNode={this.handleFileDownload}
                 />) :
                 !!selectedFile ? (
-                   <FileDetailView selectedFile={selectedFile} />) :
-                  // <GalleryView selectedFile={selectedFile} explorer={explorer} />) :
+                  // <FileDetailView selectedFile={selectedFile} />) :
+                    <GalleryView selectedFile={selectedFile}  explorer={explorer}/>) :
                   (
                     <Alert
                       variant="info"

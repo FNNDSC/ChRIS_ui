@@ -41,7 +41,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         return (
           <React.Fragment>
             {this.renderHeader()}
-            {this.renderContent()}
+            {/* {this.renderContent()} */}
           </React.Fragment>
         );
       }
@@ -65,10 +65,10 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   }
 
   // Decription: Render the individual viewers by filetype
-  renderContent() {
-    const viewerName = fileViewerMap[this.state.fileType];
-    return <ViewerDisplay tag={viewerName} file={this.state} />
-  }
+  // renderContent() {
+  //   const viewerName = fileViewerMap[this.state.fileType];
+  //   return <ViewerDisplay tag={viewerName} file={this.state} />
+  // }
 
   // Description: Fetch blob and read it into state to display preview
   fetchData() {
