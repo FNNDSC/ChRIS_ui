@@ -26,13 +26,12 @@ export const galleryActions = keyMirror({
   information: null
 });
 
-
 export default class GalleryModel {
   _parentFolderNode?: IUITreeNode;
   galleryItem: IGalleryItem;
   galleryItems: IGalleryItem[] = new Array();
   constructor(node: IUITreeNode, explorer: IUITreeNode) {
-    this.galleryItem = this._buildGalleryItem(node, node, 0)
+    this.galleryItem = this._buildGalleryItem(node, node, 0);
     this.galleryItems = this.buildGalleryArray(node, explorer);
   }
 
@@ -49,15 +48,9 @@ export default class GalleryModel {
     return this.galleryItems;
   }
 
-  setActiveGalleryItem(galleryItem: IGalleryItem){
+  setActiveGalleryItem(galleryItem: IGalleryItem) {
     return FeedFileModel.getFileBlob(galleryItem.file_resource);
   }
-
-  /// 
-  // setActiveGalleryItems(data: any){
-  //   console.log("setActiveGalleryItems", data, this._parentFolderNode);
-  //   return this._parentFolderNode;
-  // }
 
   // Sets the blob and returns active item
   setGalleryItemBlob(blob: Blob) {
@@ -81,7 +74,7 @@ export default class GalleryModel {
       fileType,
       isLoaded: false
     };
-  
+
     isActive && (this.galleryItem = galleryItem);
     return galleryItem;
   }
@@ -99,33 +92,5 @@ export default class GalleryModel {
         this._findParentNode(node, child);
       });
     }
-  }
-
-  // Load URLS *****
-  _imagesTotal = 100;
-  _imagesLoaded = 0;
-  _imagesParsed = 0;
-  _loadUrls(urls: string[]) {
-    this._imagesTotal = urls.length;
-    this._imagesLoaded = 0;
-    this._imagesParsed = 0;
-
-    const loadSequences = new Array();
-    urls.forEach((url: string) => {
-      loadSequences.push(
-        this._loadUrl(url)
-      );
-    });
-    return Promise.all(loadSequences);
-  }
-
-  _loadUrl(url: string) {
-    return FeedFileModel.getFileBlob(url)
-      .then((response: any) => {
-        this._imagesLoaded += 1;
-        return response.data;
-      }).catch((error) => {
-        console.error(error);
-      });
   }
 }

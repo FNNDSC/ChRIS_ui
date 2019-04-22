@@ -32,7 +32,8 @@ class GalleryView extends React.Component<AllProps> {
     super(props);
     const { selectedFile, explorer, initializeGallery } = this.props;
     initializeGallery({ selectedFile, explorer }); // SETS THE INITIAL GALLERY ITEMS AND ACTIVE ITEM
-    // setGalleryItemsBlobs(); //TBD
+    // setGalleryItemsBlobs(); //TBD ***** NEEDS TO BE COMPLETED
+    this.handleOnchange = this.handleOnchange.bind(this);
   }
 
   componentDidMount() {
@@ -51,9 +52,19 @@ class GalleryView extends React.Component<AllProps> {
   renderContent(galleryItem: IGalleryItem, galleryItems: IGalleryItem[]) {
     const viewerName = !!galleryItem.fileType ? fileViewerMap[galleryItem.fileType] : "";
     return (
-      <GalleryWrapper index={galleryItem.index} total={galleryItems.length}>
+      <GalleryWrapper
+        index={galleryItem.index}
+        total={galleryItems.length}
+        onChange={this.handleOnchange}>
         <ViewerDisplay tag={viewerName} file={galleryItem} />
       </GalleryWrapper>)
+  }
+
+  // Description: change the gallery item state
+  handleOnchange(action: string) {
+    const { galleryItem, galleryItems, setGalleryActiveItem } = this.props;
+    console.log(action);
+    setGalleryActiveItem(galleryItems[0]); // TBD ***** NEEDS TO BE COMPLETED *****
   }
 
   componentWillUnmount() {
