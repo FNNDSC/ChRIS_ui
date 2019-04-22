@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IFileState } from "../../../api/models/file-viewer.model";
+import { IFileBlob } from "../../../api/models/file-viewer.model";
 import {
     CatchallDisplay,
     JsonDisplay,
@@ -11,7 +11,7 @@ import {
 
 type AllProps = {
     tag: string;
-    file: IFileState;
+    file: IFileBlob;
 }
 
 class ViewerDisplay extends React.Component<AllProps> {

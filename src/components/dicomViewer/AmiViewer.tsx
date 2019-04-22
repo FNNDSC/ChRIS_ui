@@ -1,6 +1,6 @@
 import * as React from "react";
 import FeedFileModel, { IFeedFile } from "../../api/models/feed-file.model";
-import { IFileState } from "../../api/models/file-viewer.model";
+import { IFileBlob } from "../../api/models/file-viewer.model";
 import * as dat from "dat.gui";
 import * as THREE from "three";
 import * as AMI from "ami.js";
@@ -17,7 +17,7 @@ type AllProps = {
 };
 
 // Description: Will be replaced with a DCM Fyle viewer
-class AmiViewer extends React.Component<AllProps, IFileState> {
+class AmiViewer extends React.Component<AllProps, IFileBlob> {
   dynamicImagePixelData: string | ArrayBuffer | null = null;
   constructor(props: AllProps) {
     super(props);
@@ -29,7 +29,8 @@ class AmiViewer extends React.Component<AllProps, IFileState> {
     blob: undefined,
     blobName:  "[filename will go here]",
     blobText: null,
-    fileType: "dcm"
+    fileType: "dcm",
+    file: undefined
   };
 
   // Description: Fetch blob and read it into state to display preview

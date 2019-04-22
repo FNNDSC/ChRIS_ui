@@ -1,8 +1,8 @@
 import * as React from "react";
-import { IFileState } from "../../../api/models/file-viewer.model";
+import { IFileBlob } from "../../../api/models/file-viewer.model";
 import DcmImage from "../../dicomViewer/DcmImage";
 
-type AllProps = { file: IFileState };
+type AllProps = { file: IFileBlob };
 
 const DcmDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const { file } = props;

@@ -7,14 +7,13 @@ import FeedFileModel from "../../api/models/feed-file.model";
 import { downloadFile, fileViewerMap } from "../../api/models/file-viewer.model";
 import { LoadingComponent } from "..";
 import ViewerDisplay from "./displays/ViewerDisplay";
-import _ from "lodash";
 import "./file-detail.scss";
 
 type AllProps = {
   selectedFile: IUITreeNode;
 };
 
-class FileDetailView extends React.Component<AllProps, IFileBlob> {
+class GalleryView extends React.Component<AllProps, IFileBlob> {
   _isMounted = false;
   constructor(props: AllProps) {
     super(props);
@@ -34,14 +33,14 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   render() {
     const { selectedFile } = this.props;
     const fileTypeViewer = () => {
-      if (!_.isEqual(selectedFile.file, this.state.file)) {
+      if (selectedFile.module !== this.state.blobName) {
         this.fetchData();
         return <LoadingComponent color="#ddd" />;
       } else {
         return (
           <React.Fragment>
-            {this.renderHeader()}
-            {this.renderContent()}
+          {this.renderHeader()}
+          {this.renderContent()}
           </React.Fragment>
         );
       }
@@ -82,13 +81,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         const reader = new FileReader();
         reader.addEventListener("loadend", (e: any) => {
           const blobText = e.target.result;
-          _self._isMounted && _self.setState({
-            blob: result.data,
-            blobName: fileName,
-            fileType,
-            blobText,
-            file: Object.assign({}, selectedFile.file)
-          });
+          _self._isMounted && _self.setState({ blob: result.data, blobName: fileName, fileType, blobText });
         });
         reader.readAsText(result.data);
       }
@@ -118,4 +111,4 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   }
 }
 
-export default FileDetailView;
+export default GalleryView;

@@ -1,11 +1,11 @@
 import * as React from "react";
 import { getFileExtension } from "../../../api/models/file-explorer.model";
-import { IFileState } from "../../../api/models/file-viewer.model";
+import { IFileBlob } from "../../../api/models/file-viewer.model";
 import { DownloadIcon } from "@patternfly/react-icons";
 import { Alert, Button } from "@patternfly/react-core";
 import { downloadFile } from "../../../api/models/file-viewer.model";
 type AllProps = {
- file: IFileState;
+ file: IFileBlob;
 };
 // Description: No preview message available for this file type
 const CatchallDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {

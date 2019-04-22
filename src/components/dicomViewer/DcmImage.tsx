@@ -1,7 +1,7 @@
 import * as React from "react";
 // import FeedFileModel, { IFeedFile } from "../../api/models/feed-file.model";
 // import { getFileExtension } from "../../api/models/file-explorer";
-import { IFileState } from "../../api/models/file-viewer.model";
+import { IFileBlob } from "../../api/models/file-viewer.model";
 import * as dat from "dat.gui";
 import * as THREE from "three";
 import * as AMI from "ami.js";
@@ -13,7 +13,7 @@ import {
 import "./amiViewer.scss";
 
 type AllProps = {
-  file: IFileState;
+  file: IFileBlob;
 };
 
 // Description: Will be replaced with a DCM Fyle viewer

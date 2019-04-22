@@ -1,5 +1,7 @@
 import { IFeedFile } from "./feed-file.model";
 import { IUITreeNode } from "./file-explorer.model";
+import { getFileExtension } from "./file-explorer.model";
+import FeedFileModel from "./feed-file.model";
 import keyMirror from "keymirror";
 import _ from "lodash";
 
@@ -20,11 +22,6 @@ export const galleryActions = keyMirror({
   information: null
 });
 
-export interface IGalleryState {
-  isFullscreen: boolean;
-  isPlaying: boolean;
-}
-
 // Description: handles gallery items
 export default class GalleryModel {
   galleryItems: IGalleryItem[] = new Array();
@@ -43,9 +40,13 @@ export default class GalleryModel {
   _buildGalleryArray(): IGalleryItem[] {
     this._findParentNode(this._node, this._explorer);
     if (!!this._parentFolderNode && !!this._parentFolderNode.children) {
-      this._parentFolderNode.children.map((subnode: IUITreeNode, index: number) => {
-        this.galleryItems.push(this._buildGalleryItem(subnode, this._node, index));
-      });
+      this._parentFolderNode.children.map(
+        (subnode: IUITreeNode, index: number) => {
+          this.galleryItems.push(
+            this._buildGalleryItem(subnode, this._node, index)
+          );
+        }
+      );
     }
     return this.galleryItems;
   }
@@ -67,7 +68,11 @@ export default class GalleryModel {
   }
 
   // Description: takes an explorer tree node and returns a gallery Item
-  _buildGalleryItem(node: IUITreeNode, active: IUITreeNode, index: number): IGalleryItem {
+  _buildGalleryItem(
+    node: IUITreeNode,
+    active: IUITreeNode,
+    index: number
+  ): IGalleryItem {
     const isActive = _.isEqual(node.file, active.file);
     const galleryItem = {
       ...node.file,
