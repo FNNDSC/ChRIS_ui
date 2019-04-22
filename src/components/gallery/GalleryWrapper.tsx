@@ -1,5 +1,6 @@
 import * as React from "react";
 import { IGalleryState, IGalleryToolbarState } from "../../store/gallery/types";
+import { galleryActions} from "../../api/models/gallery.model";
 import { GalleryToolbar } from "../gallery";
 import "./GalleryWrapper.scss";
 
@@ -8,6 +9,7 @@ type AllProps = {
     children: any;
     index: number;
     total: number;
+    onChange: (action: string) => void;
 }
 
 class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
@@ -47,6 +49,7 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
     handleGalleryActions = {
         play: () => {
             console.log("PLAY Viewer");
+            this.props.onChange(galleryActions.play);
             this.setState({
                 isPlaying: true
             });
