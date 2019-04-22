@@ -25,7 +25,7 @@ export const pluginViewerMap: any = {
   default: ["FileBrowserViewer"],
   dircopy: ["RevViewer", "FileBrowserViewer"],
   pacscopy: ["RevViewer", "FileBrowserViewer"],
-  // mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
+  mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
   freesurfer_pp: ["DicomViewer_2D", "DicomViewer_3D", "FreesurferDataTable", "FileBrowserViewer"],
   simpledsapp: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable", "FileBrowserViewer"],
   mpcs: ["VolumeGrowth", "SegmentAnalysis", "ZScoreDataTable", "FileBrowserViewer"],

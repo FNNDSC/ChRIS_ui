@@ -63,7 +63,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
       </div>
     );
   }
- 
+
   // Decription: Render the individual viewers by filetype
   renderContent() {
     const viewerName = fileViewerMap[this.state.fileType];
