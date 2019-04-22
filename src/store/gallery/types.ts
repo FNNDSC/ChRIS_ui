@@ -26,5 +26,9 @@ export const GalleryActionTypes = keyMirror({
     SET_GALLERY_ACTIVE_ITEM: null,
     RESET_GALLERY_ACTIVE_ITEM: null,
     SET_GALLERY_ITEMS: null,
-    RESET_GALLERY_ITEMS: null
+    SET_GALLERY_ITEMS_SUCCESS: null,
+    SET_GALLERY_ITEMS_BLOBS: null,
+    SET_GALLERY_ITEMS_BLOBS_SUCCESS: null,
+    RESET_GALLERY_ITEMS: null,
+    DESTROY_GALLERY: null
 });
