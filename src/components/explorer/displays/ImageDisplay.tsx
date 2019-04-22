@@ -1,8 +1,8 @@
 import React, { createRef } from "react";
-import { IFileState } from "../../../api/models/file-viewer.model";
+import { IFileBlob } from "../../../api/models/file-viewer.model";
 
 type AllProps = {
-  file: IFileState;
+  file: IFileBlob;
 };
 
 const ImageDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {

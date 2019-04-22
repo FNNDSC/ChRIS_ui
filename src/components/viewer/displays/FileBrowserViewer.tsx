@@ -1,7 +1,7 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { Grid, GridItem, Alert } from "@patternfly/react-core";
+import { Grid, GridItem, Alert, Gallery } from "@patternfly/react-core";
 import { ApplicationState } from "../../../store/root/applicationState";
 import {setExplorerRequest, setSelectedFile, setSelectedFolder} from "../../../store/explorer/actions";
 import { IExplorerState } from "../../../store/explorer/types";
@@ -9,10 +9,12 @@ import { IFeedFile } from "../../../api/models/feed-file.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import { downloadFile } from "../../../api/models/file-viewer.model";
+import FeedFileModel from "../../../api/models/feed-file.model";
 import FileExplorer from "../../explorer/FileExplorer";
 import FileTableView from "../../explorer/FileTableView";
 import FileDetailView from "../../explorer/FileDetailView";
-import FeedFileModel from "../../../api/models/feed-file.model";
+import GalleryView from "../../explorer/GalleryView";
+
 
 interface IPropsFromDispatch {
   setExplorerRequest: typeof setExplorerRequest;
@@ -62,7 +64,8 @@ class FileBrowserViewer extends React.Component<AllProps> {
                   downloadFileNode={this.handleFileDownload}
                 />) :
                 !!selectedFile ? (
-                  <FileDetailView selectedFile={selectedFile} />) :
+                   <FileDetailView selectedFile={selectedFile} />) :
+                  // <GalleryView selectedFile={selectedFile} explorer={explorer} />) :
                   (
                     <Alert
                       variant="info"

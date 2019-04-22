@@ -1,9 +1,9 @@
 import * as React from "react";
 import JSONPretty from "react-json-pretty";
-import { IFileState } from "../../../api/models/file-viewer.model";
+import { IFileBlob } from "../../../api/models/file-viewer.model";
 
 type AllProps = {
-  file: IFileState;
+  file: IFileBlob;
 };
 
 const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {

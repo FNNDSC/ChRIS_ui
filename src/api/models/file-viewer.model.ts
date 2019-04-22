@@ -1,8 +1,11 @@
-export interface IFileState {
+import { IFeedFile } from "./feed-file.model";
+
+export interface IFileBlob {
     blob?: Blob;
     blobName: string;
     blobText: any;
     fileType: string;
+    file?: IFeedFile;
   }
 
 

@@ -1,41 +1,38 @@
 import * as React from "react";
-import { connect } from "react-redux";
-import { ApplicationState } from "../../store/root/applicationState";
+import { IGalleryState, IGalleryToolbarState } from "../../store/gallery/types";
 import { GalleryToolbar } from "../gallery";
-import GalleryModel, { IGalleryItem, IGalleryState } from "../../api/models/gallery.model";
 import "./GalleryWrapper.scss";
 
-interface IOtherProps {
+
+type AllProps = {
     children: any;
-    galleryItems: IGalleryItem[];
-    galleryItem?: IGalleryItem;
+    index: number;
+    total: number;
 }
 
-type AllProps = IOtherProps;
-
-class GalleryWrapper extends React.Component<AllProps, IGalleryState> {
+class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
     componentDidMount() {
         document.addEventListener("fullscreenchange", this.handleFullScreenChange, false);
     }
-
     state = {
         isFullscreen: false,
-        isPlaying: false,
-    };
+        isPlaying: false
+    }
+
     render() {
-        const { children, galleryItem, galleryItems } = this.props;
-        console.log("GalleryWrapper render");
+        const { children,  index, total } = this.props;
+      
         return (
             !!children &&
             <div id="gallery"
                 className="gallery-wrapper" >
                 {children}
-                { !!galleryItem &&
+                { total > 1 &&
                     <GalleryToolbar
-                        index={galleryItem.index}
-                        total={galleryItems.length}
+                        index={index}
+                        total={total}
                         onToolbarClick={this.handleToolbarAction}
-                        {...this.state} />
+                        {...this.state}  />
                     }
             </div>
         );
@@ -125,15 +122,4 @@ const closeFullScreen = () => {
     }
 }
 
-const mapStateToProps = ({ gallery }: ApplicationState) => ({
-    galleryItems: gallery.galleryItems,
-    galleryItem: gallery.galleryItem
-});
-
-
-export default connect(
-    mapStateToProps,
-    null
-)(GalleryWrapper);
-
-
+export default React.memo(GalleryWrapper);
