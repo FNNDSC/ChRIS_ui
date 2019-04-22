@@ -1,16 +1,16 @@
 import * as React from "react";
-import { IFileState, getFileExtension } from "../../../api/models/file-explorer";
+import { getFileExtension } from "../../../api/models/file-explorer.model";
+import { IFileBlob } from "../../../api/models/file-viewer.model";
 import { DownloadIcon } from "@patternfly/react-icons";
 import { Alert, Button } from "@patternfly/react-core";
-
+import { downloadFile } from "../../../api/models/file-viewer.model";
 type AllProps = {
- file: IFileState;
- downloadFile: () => void;
+ file: IFileBlob;
 };
 // Description: No preview message available for this file type
 const CatchallDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     const noPreviewMessage = () => {
-        const { file, downloadFile } = props;
+        const { file } = props;
         const ext = getFileExtension(file.blobName);
         const alertText = (
         <React.Fragment>
@@ -20,17 +20,15 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => 
             <label>
               <b>File Type:</b> {ext}
             </label>
-            <Button
+           <Button
               variant="primary"
               className="float-right"
-              onClick={() => {
-                downloadFile();
-              }}
+              onClick={ ()=>downloadFile(file.blob, file.blobName) }
             ><DownloadIcon /> Download</Button>
         </React.Fragment>
       );
         return (
-        <div className="file-detail">
+        <div className="catchall">
           <Alert
             variant="info"
             title="No preview available for file:"

@@ -1,13 +1,8 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { RouteComponentProps } from "react-router-dom";
-import {
-  PageSection,
-  PageSectionVariants,
-  Grid,
-  GridItem
-} from "@patternfly/react-core";
+import { RouteComponentProps, Link } from "react-router-dom";
+import { PageSection, PageSectionVariants, Grid, GridItem } from "@patternfly/react-core";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getFeedDetailsRequest, destroyFeed } from "../../../store/feed/actions";
@@ -16,12 +11,7 @@ import { IFeedState } from "../../../store/feed/types";
 import { IUserState } from "../../../store/user/types";
 import { IPluginState } from "../../../store/plugin/types";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
-import {
-  FeedTree,
-  FeedDetails,
-  NodeDetails,
-  PluginDetailPanel
-} from "../../../components/index";
+import { FeedTree, FeedDetails, NodeDetails, PluginDetailPanel } from "../../../components/index";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 import "../feed.scss";
 
@@ -81,7 +71,7 @@ class FeedView extends React.Component<AllProps> {
               {!!items ? (
                 <FeedTree items={items} onNodeClick={this.onNodeClick} />
               ) : (
-                <div>Empty tree message</div>
+                <div>This Feed does not exist: <Link to="/feeds">Go to All Feeds</Link></div>
               )}
             </GridItem>
             <GridItem className="node-block pf-u-p-md" sm={12} md={6}>
@@ -120,11 +110,9 @@ class FeedView extends React.Component<AllProps> {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedDetailsRequest: (id: string) => dispatch(getFeedDetailsRequest(id)),
-  setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
-    dispatch(setSidebarActive(active)),
-  getPluginDetailsRequest: (item: IPluginItem) =>
-    dispatch(getPluginDetailsRequest(item)),
-    destroyFeed: () => dispatch(destroyFeed())
+  setSidebarActive: (active: { activeItem: string; activeGroup: string }) => dispatch(setSidebarActive(active)),
+  getPluginDetailsRequest: (item: IPluginItem) => dispatch(getPluginDetailsRequest(item)),
+  destroyFeed: () => dispatch(destroyFeed())
 });
 
 const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({

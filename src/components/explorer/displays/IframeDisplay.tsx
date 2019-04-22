@@ -1,9 +1,9 @@
 import * as React from "react";
-import { IFileState } from "../../../api/models/file-explorer";
-import catchallDisplay from "./catchall-display";
+import { IFileBlob } from "../../../api/models/file-viewer.model";
+import catchallDisplay from "./CatchallDisplay";
 
 type AllProps = {
-  file: IFileState;
+  file: IFileBlob;
 };
 
 const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {

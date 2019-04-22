@@ -1,0 +1,28 @@
+/*
+*  File:            GalleryToolbar.scss
+*  Description:     This files holds styles specific for the file explorer Gallery Toolbar
+*  Author:          ChRIS UI
+*/
+@import "../../../assets/scss/helpers/variables";
+.gallery-toolbar{
+    bottom: $gallery-toolbar-bottom;
+    color: #fff;
+    left: 0;
+    padding: 0 1rem;
+    position: absolute;
+    width: 100%;
+    z-index: 9999;
+    .pf-l-grid__item{
+      text-align: right;
+    }
+    button {
+      vertical-align: middle;
+      svg {
+        color: #fff;
+      }
+    }
+    span{
+      color: #fff;
+      font-size: 0.875rem;
+    }
+}

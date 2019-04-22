@@ -1,0 +1,17 @@
+/*
+*  File:            GalleryWrapper.scss
+*  Description:     This files holds styles specific for the file explorer Gallery 
+*  Author:          ChRIS UI
+*/
+
+@import "../../assets/scss/helpers/variables";
+
+.gallery-wrapper{
+    background: black;
+    border: solid 1px $fe-viewer-border;
+    min-height:  calc(100vh - 250px);
+    overflowY: 'auto';
+    padding: 1rem 3rem 3rem;
+    position: relative;
+    
+}

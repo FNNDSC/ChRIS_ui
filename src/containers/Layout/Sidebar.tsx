@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-
 import { ApplicationState } from "../../store/root/applicationState";
 import { IUiState } from "../../store/ui/types";
 import { IUserState } from "../../store/user/types";
@@ -49,7 +48,7 @@ class Sidebar extends React.Component<AllProps> {
                         </NavExpandable>
                         <NavExpandable title="My Feeds" groupId="feeds_grp" isActive={sidebarActiveGroup === "feeds_grp"} isExpanded >
                             <NavItem groupId="feeds_grp" itemId="dashboard" isActive={sidebarActiveItem === "dashboard"}>
-                                <Link to={`/`}>Dashboard</Link>
+                                <Link to={`/ami`}>Dashboard</Link>
                             </NavItem>
                             {loggedInFeedNav}
                         </NavExpandable>

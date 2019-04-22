@@ -1,0 +1,34 @@
+/*
+ *   File:           gotop.module.scss
+ *   Description:    This files holds style overrides for gotop link
+ *   Author:         Chris 
+ */
+
+ @import "../../../assets/scss/helpers/variables";
+ @import "../../../assets/scss/helpers/mixins";
+
+
+ #gotop{
+   @include opacity(0.2);
+   bottom: $gotop-dimension*0.75;
+   cursor: default;
+   font-size: $gotop-dimension;
+   height: $gotop-dimension;
+   line-height: $gotop-dimension;
+   padding:0;
+   position: fixed;
+   right: $gotop-dimension;
+   width: $gotop-dimension;
+   z-index: 5000;
+
+   &.active {
+       cursor: pointer;
+       @include opacity(1);
+       &:hover {
+          @include opacity(0.9);
+       }
+   }
+   &:hover, &:focus{
+       text-decoration:none;
+   }
+ }
