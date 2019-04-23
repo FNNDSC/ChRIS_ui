@@ -11,7 +11,6 @@ const initialState: IGalleryState = {
 const reducer: Reducer<IGalleryState> = (state = initialState, action) => {
   switch (action.type) {
     case GalleryActionTypes.SET_GALLERY_ACTIVE_ITEM_SUCCESS: {
-      console.log("SET_GALLERY_ACTIVE_ITEM_SUCCESS", action.payload );
       return { ...state, galleryItem: action.payload };
     }
     case GalleryActionTypes.SET_GALLERY_ITEMS_SUCCESS: {

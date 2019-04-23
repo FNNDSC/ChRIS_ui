@@ -21,8 +21,13 @@
         color: #fff;
       }
     }
-    span{
+    span, em{
       color: #fff;
       font-size: 0.875rem;
+    }
+    .indicator{
+      display: inline-block;
+      min-width:70px;
+      
     }
 }
