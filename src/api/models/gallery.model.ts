@@ -27,18 +27,18 @@ export const galleryActions = keyMirror({
 });
 
 export default class GalleryModel {
-  _parentFolderNode?: IUITreeNode;
+  private _selectedFolder?: IUITreeNode;
   galleryItem: IGalleryItem;
   galleryItems: IGalleryItem[] = new Array();
-  constructor(node: IUITreeNode, explorer: IUITreeNode) {
+  constructor(node: IUITreeNode, selectedFolder: IUITreeNode) {
+    this._selectedFolder = selectedFolder;
     this.galleryItem = this._buildGalleryItem(node, node, 0);
-    this.galleryItems = this.buildGalleryArray(node, explorer);
+    this.galleryItems = this.buildGalleryArray(node,  selectedFolder);
   }
 
   buildGalleryArray(node: IUITreeNode, explorer: IUITreeNode): IGalleryItem[] {
-    this._findParentNode(node, explorer);
-    if (!!this._parentFolderNode && !!this._parentFolderNode.children) {
-      this._parentFolderNode.children.map(
+    if (!!this. _selectedFolder && !!this. _selectedFolder.children) {
+      this. _selectedFolder.children.map(
         (subnode: IUITreeNode, index: number) => {
           const newItem = this._buildGalleryItem(subnode, node, index);
           this.galleryItems.push(newItem);
@@ -77,20 +77,5 @@ export default class GalleryModel {
 
     isActive && (this.galleryItem = galleryItem);
     return galleryItem;
-  }
-  // Description: Find the parent folder to the selected item
-  _findParentNode(node: IUITreeNode, folderNode: IUITreeNode) {
-    const fileMatch = _.find(folderNode.children, (obj: IUITreeNode) => {
-      return _.isEqual(obj.file, node.file);
-    });
-
-    // Iterate through Explorer children
-    if (!!fileMatch) {
-      this._parentFolderNode = folderNode;
-    } else if (!!folderNode.children) {
-      folderNode.children.forEach((child: IUITreeNode) => {
-        this._findParentNode(node, child);
-      });
-    }
   }
 }

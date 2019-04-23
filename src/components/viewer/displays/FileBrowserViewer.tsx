@@ -3,18 +3,21 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { Grid, GridItem, Alert, Gallery } from "@patternfly/react-core";
 import { ApplicationState } from "../../../store/root/applicationState";
-import {setExplorerRequest, setSelectedFile, setSelectedFolder} from "../../../store/explorer/actions";
+import {
+  setExplorerRequest,
+  setSelectedFile,
+  setSelectedFolder
+} from "../../../store/explorer/actions";
 import { IExplorerState } from "../../../store/explorer/types";
 import { IFeedFile } from "../../../api/models/feed-file.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
-import { downloadFile } from "../../../api/models/file-viewer.model";
+import FileViewerModel from "../../../api/models/file-viewer.model";
 import FeedFileModel from "../../../api/models/feed-file.model";
 import FileExplorer from "../../explorer/FileExplorer";
 import FileTableView from "../../explorer/FileTableView";
 import FileDetailView from "../../explorer/FileDetailView";
 import GalleryView from "../../explorer/GalleryView";
-
 
 interface IPropsFromDispatch {
   setExplorerRequest: typeof setExplorerRequest;
@@ -36,15 +39,18 @@ class FileBrowserViewer extends React.Component<AllProps> {
 
   // Description: handle active node and render FileDetailView
   setActiveNode = (node: IUITreeNode) => {
-    const { setSelectedFile, setSelectedFolder } = this.props;
-    (!!node.leaf && node.leaf) ? setSelectedFile(node) : setSelectedFolder(node);
+    const { explorer, setSelectedFile, setSelectedFolder } = this.props;
+    !!node.leaf && node.leaf
+      ? setSelectedFile(node, FileViewerModel.findParentFolder(node, explorer))
+      : setSelectedFolder(node);
   };
 
   render() {
     const { explorer, selectedFile, selectedFolder } = this.props;
     return (
       // Note: check to see if explorer children have been init.
-      (!!explorer && !!explorer.children) && (
+      !!explorer &&
+      !!explorer.children && (
         <div className="pf-u-px-lg">
           <Grid>
             <GridItem className="pf-u-p-sm" sm={12} md={3}>
@@ -56,23 +62,26 @@ class FileBrowserViewer extends React.Component<AllProps> {
                 />
               }
             </GridItem>
-            <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9} >
-              {!!selectedFolder ? (
+            <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
+              {!!selectedFile && !!selectedFolder ? (
+                // <FileDetailView selectedFile={selectedFile} />) :
+                <GalleryView
+                  selectedFile={selectedFile}
+                  selectedFolder={selectedFolder}
+                />
+              ) : !!selectedFolder ? (
                 <FileTableView
                   selectedFolder={selectedFolder}
                   onClickNode={this.setActiveNode}
                   downloadFileNode={this.handleFileDownload}
-                />) :
-                !!selectedFile ? (
-                  // <FileDetailView selectedFile={selectedFile} />) :
-                    <GalleryView selectedFile={selectedFile}  explorer={explorer}/>) :
-                  (
-                    <Alert
-                      variant="info"
-                      title="Please select a file or folder from the file explorer"
-                      className="empty"
-                    />
-                  )}
+                />
+              ) : (
+                <Alert
+                  variant="info"
+                  title="Please select a file or folder from the file explorer"
+                  className="empty"
+                />
+              )}
             </GridItem>
           </Grid>
         </div>
@@ -86,7 +95,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
     if (!!node.file) {
       FeedFileModel.getFileBlob(downloadUrl)
         .then((result: any) => {
-          downloadFile(result.data, node.module);
+          FileViewerModel.downloadFile(result.data, node.module);
         })
         .catch((error: any) => console.error("(1) Inside error:", error));
     } else {
@@ -96,15 +105,16 @@ class FileBrowserViewer extends React.Component<AllProps> {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setExplorerRequest: (files: IFeedFile[], selected: IPluginItem) => dispatch(setExplorerRequest(files, selected)),
-  setSelectedFile: (node: IUITreeNode ) => dispatch(setSelectedFile(node)),
-  setSelectedFolder: (node: IUITreeNode) => dispatch(setSelectedFolder(node))
+  setExplorerRequest: (files: IFeedFile[], selected: IPluginItem) =>
+    dispatch(setExplorerRequest(files, selected)),
+  setSelectedFile: (selectedFile: IUITreeNode, selectedFolder?: IUITreeNode) => dispatch(setSelectedFile(selectedFile, selectedFolder)),
+  setSelectedFolder: (selectedFolder: IUITreeNode) => dispatch(setSelectedFolder(selectedFolder))
 });
 
 const mapStateToProps = ({ explorer }: ApplicationState) => ({
   selectedFile: explorer.selectedFile,
   selectedFolder: explorer.selectedFolder,
-  explorer: explorer.explorer,
+  explorer: explorer.explorer
 });
 
 export default connect(

@@ -4,7 +4,7 @@ import { DownloadIcon } from "@patternfly/react-icons";
 import { getFileExtension, IUITreeNode } from "../../api/models/file-explorer.model";
 import { IFileBlob } from "../../api/models/file-viewer.model";
 import FeedFileModel from "../../api/models/feed-file.model";
-import { downloadFile, fileViewerMap } from "../../api/models/file-viewer.model";
+import FileViewerModel, { fileViewerMap } from "../../api/models/file-viewer.model";
 import { LoadingComponent } from "..";
 import ViewerDisplay from "./displays/ViewerDisplay";
 import _ from "lodash";
@@ -110,7 +110,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
 
   // Download Curren File blob
   downloadFileNode = () => {
-    return downloadFile(this.state.blob, this.state.blobName);
+    return FileViewerModel.downloadFile(this.state.blob, this.state.blobName);
   }
 
   componentWillUnmount() {
