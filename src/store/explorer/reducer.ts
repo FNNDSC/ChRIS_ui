@@ -25,6 +25,10 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
     case ExplorerActionTypes.SET_SELECTED_FOLDER: {
       return {...state, selectedFolder: action.payload, selectedFile: undefined };
     }
+    case ExplorerActionTypes.DESTROY_EXPLORER: {
+      return { ...state, selectedFile: undefined, selectedFolder: undefined };
+    }
+
     default: {
       return state;
     }

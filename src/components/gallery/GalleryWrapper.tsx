@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IGalleryState, IGalleryToolbarState } from "../../store/gallery/types";
+import { IGalleryToolbarState } from "../../store/gallery/types";
 import { galleryActions} from "../../api/models/gallery.model";
 import { GalleryToolbar } from "../gallery";
 import "./GalleryWrapper.scss";
@@ -48,14 +48,13 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
     // Description: Group gallery actions
     handleGalleryActions = {
         play: () => {
-            console.log("PLAY Viewer");
             this.props.onChange(galleryActions.play);
             this.setState({
                 isPlaying: true
             });
         },
         pause: () => {
-            console.log("PAUSE Viewer");
+            this.props.onChange(galleryActions.pause);
             this.setState({
                 isPlaying: false
             });
@@ -66,11 +65,11 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
             !!elem && (isFullScreen() ? closeFullScreen() : openFullScreen(elem));
         },
         next: () => { // TO be done
-            console.log("next");
+            this.props.onChange(galleryActions.next);
 
         },
         previous: () => { // TO be done
-            console.log("previous");
+            this.props.onChange(galleryActions.previous);
         },
         download: () => { // TO be done
             console.log("download");

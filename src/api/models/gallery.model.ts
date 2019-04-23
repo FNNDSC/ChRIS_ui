@@ -25,6 +25,11 @@ export const galleryActions = keyMirror({
   information: null
 });
 
+export default class GalleryModel {
+  static getGalleryItemBlob(galleryItem: IGalleryItem) {
+    return FeedFileModel.getFileBlob(galleryItem.file_resource);
+  }
+}
 
 export class GalleryListModel {
   galleryItems: IGalleryItem[] = new Array();
@@ -32,24 +37,36 @@ export class GalleryListModel {
     this.galleryItems = this._buildGalleryArray(selectedFile, selectedFolder);
   }
 
-  _buildGalleryArray(selectedFile: IUITreeNode, selectedFolder: IUITreeNode): IGalleryItem[] {
-     (!!selectedFolder.children) &&
-      selectedFolder.children.map(
-        (node: IUITreeNode, index: number) => {
-           const galleryItem = new GalleryItemModel(node).galleryItem;
-           this.galleryItems.push(galleryItem);
-        }
-      );
-
-     return this.galleryItems;
+  _buildGalleryArray(selectedFile: IUITreeNode, selectedFolder: IUITreeNode): IGalleryItem[]{
+    !!selectedFolder.children &&
+      selectedFolder.children.map((node: IUITreeNode, index: number) => {
+        const galleryItem = new GalleryItemModel(node, index).galleryItem;
+        this.galleryItems.push(galleryItem);
+      });
+    return this.galleryItems;
   }
+
+  setGalleryItem(responses: any) {
+    this.galleryItems = _.zipWith(this.galleryItems, responses, (galleryItem: IGalleryItem, response: any) => {
+      return Object.assign({}, galleryItem, {blob: response.data});
+    });
+  }
+ 
 }
 
 export class GalleryItemModel {
   galleryItem: IGalleryItem;
-  constructor(node: IUITreeNode) {
+  index: number;
+  constructor(node: IUITreeNode, index: number=0) {
+    this.index = index;
     this.galleryItem = this._buildGalleryItem(node);
   }
+
+  // Sets the blob and returns active item
+  setGalleryItemBlob(data: Blob) {
+    return {...this.galleryItem, blob: data  };
+  }
+
   // Description: takes an explorer tree node and returns a gallery Item
   _buildGalleryItem(node: IUITreeNode): IGalleryItem {
     const fileType = getFileExtension(node.module);
@@ -58,69 +75,9 @@ export class GalleryItemModel {
       fileName: node.module,
       fileType,
       isActive: false,
-      index: null
-    };
-    return galleryItem;
-  }
-
-  // Sets the blob and returns active item
-  setGalleryItemBlob(blob: Blob) {
-    this.galleryItem.blob = blob;
-    return this.galleryItem;
-  }
-}
-
-
-export default class GalleryModel {
-  private _selectedFolder?: IUITreeNode;
-  galleryItem: IGalleryItem;
-  galleryItems: IGalleryItem[] = new Array();
-  constructor(node: IUITreeNode, selectedFolder: IUITreeNode) {
-    this._selectedFolder = selectedFolder;
-    this.galleryItem = this._buildGalleryItem(node, node, 0);
-    this.galleryItems = this.buildGalleryArray(node);
-  }
-
-  buildGalleryArray(node: IUITreeNode): IGalleryItem[] {
-    if (!!this._selectedFolder && !!this._selectedFolder.children) {
-      this._selectedFolder.children.map(
-        (subnode: IUITreeNode, index: number) => {
-          const newItem = this._buildGalleryItem(subnode, node, index);
-          this.galleryItems.push(newItem);
-        }
-      );
-    }
-    return this.galleryItems;
-  }
-
-  setActiveGalleryItem(galleryItem: IGalleryItem) {
-    return FeedFileModel.getFileBlob(galleryItem.file_resource);
-  }
-
-  // Sets the blob and returns active item
-  setGalleryItemBlob(blob: Blob) {
-    this.galleryItem.blob = blob;
-    return this.galleryItem;
-  }
-
-  // Description: takes an explorer tree node and returns a gallery Item
-  _buildGalleryItem(
-    node: IUITreeNode,
-    active: IUITreeNode,
-    index: number
-  ): IGalleryItem {
-    const isActive = _.isEqual(node.file, active.file),
-      fileType = getFileExtension(node.module);
-    const galleryItem = {
-      ...node.file,
-      fileName: node.module,
-      isActive,
-      index,
-      fileType,
-      isLoaded: false
+      index: this.index
     };
 
-    isActive && (this.galleryItem = galleryItem);
     return galleryItem;
   }
 }

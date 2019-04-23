@@ -12,3 +12,5 @@ export const setSelectedFile = (selectedFile: IUITreeNode, selectedFolder?: IUIT
 
 // Description: Stores the current selected folder or parent folder of the selected file
 export const setSelectedFolder = (selectedFolder: IUITreeNode) => action(ExplorerActionTypes.SET_SELECTED_FOLDER, selectedFolder);
+
+export const destroyExplorer = () => action(ExplorerActionTypes.DESTROY_EXPLORER);

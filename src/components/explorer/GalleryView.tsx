@@ -2,7 +2,7 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { ApplicationState } from "../../store/root/applicationState";
-import { initializeGallery, destroyGallery, resetGalleryItems, setGalleryItemsBlobs, setGalleryActiveItem } from "../../store/gallery/actions";
+import { initializeGallery, destroyGallery, setGalleryActiveItemSuccess } from "../../store/gallery/actions";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
 import { IFileBlob } from "../../api/models/file-viewer.model";
 import FeedFileModel from "../../api/models/feed-file.model";
@@ -10,32 +10,27 @@ import FileViewerModel, { fileViewerMap } from "../../api/models/file-viewer.mod
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import ViewerDisplay from "./displays/ViewerDisplay";
 import { LoadingComponent } from "..";
-import GalleryModel, { IGalleryItem } from "../../api/models/gallery.model";
+import GalleryModel, { IGalleryItem, galleryActions } from "../../api/models/gallery.model";
 import _ from "lodash";
 import "./file-detail.scss";
 import { IGalleryState } from "../../store/gallery/types";
 
 interface IPropsFromDispatch {
   initializeGallery: typeof initializeGallery;
-  setGalleryItemsBlobs: typeof setGalleryItemsBlobs;
-  setGalleryActiveItem: typeof setGalleryActiveItem;
+  setGalleryActiveItemSuccess: typeof setGalleryActiveItemSuccess;
   destroyGallery: typeof destroyGallery;
 }
 type AllProps = {
   selectedFile: IUITreeNode;
   selectedFolder: IUITreeNode;
-  // explorer: IUITreeNode;
-  // selectedIndex: number;
 } & IGalleryState & IPropsFromDispatch;
 
 class GalleryView extends React.Component<AllProps> {
   _isMounted = false;
   constructor(props: AllProps) {
     super(props);
-    console.log(props);
     const { selectedFile, selectedFolder, initializeGallery } = this.props;
     initializeGallery({ selectedFile, selectedFolder }); // SETS THE INITIAL GALLERY ITEMS AND ACTIVE ITEM
-    // setGalleryItemsBlobs(); //TBD ***** NEEDS TO BE COMPLETED
     this.handleOnchange = this.handleOnchange.bind(this);
   }
 
@@ -55,7 +50,7 @@ class GalleryView extends React.Component<AllProps> {
   renderContent(galleryItem: IGalleryItem, galleryItems: IGalleryItem[]) {
     const viewerName = !!galleryItem.fileType ? fileViewerMap[galleryItem.fileType] : "";
     return (
-      <GalleryWrapper
+     <GalleryWrapper
         index={galleryItem.index}
         total={galleryItems.length}
         onChange={this.handleOnchange}>
@@ -64,13 +59,20 @@ class GalleryView extends React.Component<AllProps> {
   }
 
   // Description: change the gallery item state
+  // WORKING NEED TO HANDLE LIMITS ***** tbd
   handleOnchange(action: string) {
-    const { galleryItem, galleryItems, setGalleryActiveItem } = this.props;
-    console.log(action);
-    setGalleryActiveItem(galleryItems[0]); // TBD ***** NEEDS TO BE COMPLETED *****
+    const {galleryItem, galleryItems, setGalleryActiveItemSuccess } = this.props;
+    if (!!galleryItem) {
+      const i = galleryItem.index;
+      console.log(galleryItems.length);
+      const newIndex = (action === galleryActions.next && i < galleryItems.length) ? (i + 1) :
+      (action === galleryActions.previous && i > 0) ? (i - 1) : 0;
+      setGalleryActiveItemSuccess(galleryItems[newIndex]); // TBD ***** NEEDS TO BE COMPLETED *****
+    }
   }
 
   componentWillUnmount() {
+    console.log("componentWillUnmount");
     this._isMounted = false;
     this.props.destroyGallery();
   }
@@ -79,9 +81,8 @@ class GalleryView extends React.Component<AllProps> {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   initializeGallery: (data: { selectedFile: IUITreeNode; selectedFolder: IUITreeNode; }) => dispatch(initializeGallery(data)),
-  setGalleryActiveItem: (galleryItem: IGalleryItem) => dispatch(setGalleryActiveItem(galleryItem)),
-  setGalleryItemsBlobs: (galleryItems: IGalleryItem[]) => dispatch(setGalleryItemsBlobs(galleryItems)),
-  destroyGallery: () => dispatch(destroyGallery()),
+  setGalleryActiveItemSuccess: (galleryItem: IGalleryItem) => dispatch(setGalleryActiveItemSuccess(galleryItem)),
+  destroyGallery: () => dispatch(destroyGallery())
 });
 
 const mapStateToProps = ({ gallery }: ApplicationState) => ({

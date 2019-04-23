@@ -53,10 +53,10 @@ export const pluginViewerMap: any = {
   pacscopy: ["RevViewer", "FileBrowserViewer"],
   // mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
   freesurfer_pp: [
+    "FileBrowserViewer",
     "DicomViewer_2D",
     "DicomViewer_3D",
-    "FreesurferDataTable",
-    "FileBrowserViewer"
+    "FreesurferDataTable"
   ],
   simpledsapp: [
     "VolumeGrowth",

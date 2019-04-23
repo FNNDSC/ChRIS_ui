@@ -7,7 +7,6 @@ type AllProps = { file: IGalleryItem };
 
 const DcmDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const { file } = props;
-  // console.log(file);
   const fileBlob: IFileBlob = {
     blob: file.blob,
     blobName: file.fileName,
