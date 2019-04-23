@@ -1,8 +1,7 @@
 import React, { createRef } from "react";
-import { IFileBlob } from "../../../api/models/file-viewer.model";
-
+import { IGalleryItem } from "../../../api/models/gallery.model";
 type AllProps = {
-  file: IFileBlob;
+  file: IGalleryItem;
 };
 
 const ImageDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
@@ -12,7 +11,7 @@ const ImageDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     : "";
   return (
     <div className="image-block">
-        <img id="test" src={url} />
+        <img id={props.file.fileName} src={url} />
     </div>
   );
 };
