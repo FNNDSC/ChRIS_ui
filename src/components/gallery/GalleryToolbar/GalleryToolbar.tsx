@@ -11,7 +11,6 @@ type AllProps = {
 } & IGalleryToolbarState;
 
 const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
-
     return (
         <Grid className="gallery-toolbar">
             <GridItem sm={12} md={7}>
