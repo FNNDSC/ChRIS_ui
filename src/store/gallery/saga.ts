@@ -9,8 +9,8 @@ import GalleryModel from "../../api/models/gallery.model";
 function* handleInitGalleryRequest(action: any) {
   try {
     const selectedFile = action.payload.selectedFile;
-    const explorer = action.payload.explorer;
-    const gallery = new GalleryModel(selectedFile, explorer);
+    const selectedFolder = action.payload.selectedFolder;
+    const gallery = new GalleryModel(selectedFile, selectedFolder);
     const response = yield call( gallery.setActiveGalleryItem,  gallery.galleryItem );
     if (response.error) {
       console.error(response.error);
@@ -36,9 +36,9 @@ function* watchInitGalleryRequest() {
 function* handleSetGalleryItemsBlobs(action: any) {
   try {
     const node = action.payload.selectedFile;
-    const explorer = action.payload.explorer;
-    const data = {node, explorer};
-    const gallery = new GalleryModel(node, explorer);
+    const selectedFolder = action.payload.selectedFolder;
+    const data = {node, selectedFolder};
+    const gallery = new GalleryModel(node, selectedFolder);
     // gallery.buildGalleryArray(data);
     console.log(gallery);
     const response = yield call( gallery.setActiveGalleryItem,  action );
@@ -62,7 +62,7 @@ function* watchGetGalleryItemsArrayRequest() {
 //     console.log(action);
 //     const gallery = new GalleryModel(
 //       action.payload.node,
-//       action.payload.explorer
+//       action.payload.selectedFolder
 //     );
 //     const response = yield call(gallery.setActiveGalleryItem,  gallery.galleryItem);
 //     if (response.error) {

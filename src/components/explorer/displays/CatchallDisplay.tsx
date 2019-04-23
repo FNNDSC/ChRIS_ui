@@ -3,7 +3,7 @@ import { getFileExtension } from "../../../api/models/file-explorer.model";
 import { IFileBlob } from "../../../api/models/file-viewer.model";
 import { DownloadIcon } from "@patternfly/react-icons";
 import { Alert, Button } from "@patternfly/react-core";
-import { downloadFile } from "../../../api/models/file-viewer.model";
+import FileViewerModel from "../../../api/models/file-viewer.model";
 type AllProps = {
  file: IFileBlob;
 };
@@ -23,7 +23,7 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => 
            <Button
               variant="primary"
               className="float-right"
-              onClick={ ()=>downloadFile(file.blob, file.blobName) }
+              onClick={ () => FileViewerModel.downloadFile(file.blob, file.blobName) }
             ><DownloadIcon /> Download</Button>
         </React.Fragment>
       );

@@ -6,7 +6,7 @@ import { initializeGallery, destroyGallery, resetGalleryItems, setGalleryItemsBl
 import { getFileExtension, IUITreeNode } from "../../api/models/file-explorer.model";
 import { IFileBlob } from "../../api/models/file-viewer.model";
 import FeedFileModel from "../../api/models/feed-file.model";
-import { downloadFile, fileViewerMap } from "../../api/models/file-viewer.model";
+import FileViewerModel, { fileViewerMap } from "../../api/models/file-viewer.model";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import ViewerDisplay from "./displays/ViewerDisplay";
 import { LoadingComponent } from "..";
@@ -23,15 +23,18 @@ interface IPropsFromDispatch {
 }
 type AllProps = {
   selectedFile: IUITreeNode;
-  explorer: IUITreeNode;
+  selectedFolder: IUITreeNode;
+  // explorer: IUITreeNode;
+  // selectedIndex: number;
 } & IGalleryState & IPropsFromDispatch;
 
 class GalleryView extends React.Component<AllProps> {
   _isMounted = false;
   constructor(props: AllProps) {
     super(props);
-    const { selectedFile, explorer, initializeGallery } = this.props;
-    initializeGallery({ selectedFile, explorer }); // SETS THE INITIAL GALLERY ITEMS AND ACTIVE ITEM
+    console.log(props);
+    const { selectedFile, selectedFolder, initializeGallery } = this.props;
+    initializeGallery({ selectedFile, selectedFolder }); // SETS THE INITIAL GALLERY ITEMS AND ACTIVE ITEM
     // setGalleryItemsBlobs(); //TBD ***** NEEDS TO BE COMPLETED
     this.handleOnchange = this.handleOnchange.bind(this);
   }
@@ -75,7 +78,7 @@ class GalleryView extends React.Component<AllProps> {
 
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  initializeGallery: (data: { selectedFile: IUITreeNode; explorer: IUITreeNode; }) => dispatch(initializeGallery(data)),
+  initializeGallery: (data: { selectedFile: IUITreeNode; selectedFolder: IUITreeNode; }) => dispatch(initializeGallery(data)),
   setGalleryActiveItem: (galleryItem: IGalleryItem) => dispatch(setGalleryActiveItem(galleryItem)),
   setGalleryItemsBlobs: (galleryItems: IGalleryItem[]) => dispatch(setGalleryItemsBlobs(galleryItems)),
   destroyGallery: () => dispatch(destroyGallery()),
