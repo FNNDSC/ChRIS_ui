@@ -28,7 +28,7 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
             <div id="gallery"
                 className="gallery-wrapper" >
                 {children}
-                { total > 1 &&
+                { 
                     <GalleryToolbar
                         index={index}
                         total={total}

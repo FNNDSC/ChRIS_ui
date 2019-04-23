@@ -29,6 +29,12 @@ export default class GalleryModel {
   static getGalleryItemBlob(galleryItem: IGalleryItem) {
     return FeedFileModel.getFileBlob(galleryItem.file_resource);
   }
+
+  static getGalleryItemIndex(selectedFile: IUITreeNode, folderArray: IUITreeNode[]) {
+    return _.findIndex(folderArray, (node: IUITreeNode) => {
+         return _.isEqual(selectedFile, node)
+    });
+  }
 }
 
 export class GalleryListModel {
@@ -37,7 +43,7 @@ export class GalleryListModel {
     this.galleryItems = this._buildGalleryArray(selectedFile, selectedFolder);
   }
 
-  _buildGalleryArray(selectedFile: IUITreeNode, selectedFolder: IUITreeNode): IGalleryItem[]{
+  _buildGalleryArray(selectedFile: IUITreeNode, selectedFolder: IUITreeNode): IGalleryItem[] {
     !!selectedFolder.children &&
       selectedFolder.children.map((node: IUITreeNode, index: number) => {
         const galleryItem = new GalleryItemModel(node, index).galleryItem;
@@ -51,13 +57,13 @@ export class GalleryListModel {
       return Object.assign({}, galleryItem, {blob: response.data});
     });
   }
- 
+
 }
 
 export class GalleryItemModel {
   galleryItem: IGalleryItem;
   index: number;
-  constructor(node: IUITreeNode, index: number=0) {
+  constructor(node: IUITreeNode, index: number= 0) {
     this.index = index;
     this.galleryItem = this._buildGalleryItem(node);
   }

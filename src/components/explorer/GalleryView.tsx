@@ -30,7 +30,7 @@ class GalleryView extends React.Component<AllProps> {
   constructor(props: AllProps) {
     super(props);
     const { selectedFile, selectedFolder, initializeGallery } = this.props;
-    initializeGallery({ selectedFile, selectedFolder }); // SETS THE INITIAL GALLERY ITEMS AND ACTIVE ITEM
+    initializeGallery({ selectedFile, selectedFolder });
     this.handleOnchange = this.handleOnchange.bind(this);
   }
 
@@ -64,8 +64,7 @@ class GalleryView extends React.Component<AllProps> {
     const {galleryItem, galleryItems, setGalleryActiveItemSuccess } = this.props;
     if (!!galleryItem) {
       const i = galleryItem.index;
-      console.log(galleryItems.length);
-      const newIndex = (action === galleryActions.next && i < galleryItems.length) ? (i + 1) :
+      const newIndex = (action === galleryActions.next && (i + 1 < galleryItems.length)) ? (i + 1) :
       (action === galleryActions.previous && i > 0) ? (i - 1) : 0;
       setGalleryActiveItemSuccess(galleryItems[newIndex]); // TBD ***** NEEDS TO BE COMPLETED *****
     }
