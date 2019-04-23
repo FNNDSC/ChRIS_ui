@@ -19,4 +19,5 @@ export const ExplorerActionTypes = keyMirror({
     SET_EXPLORER_REQUEST: null,
     SET_SELECTED_FILE: null,
     SET_SELECTED_FOLDER: null,
+    DESTROY_EXPLORER: null
 });

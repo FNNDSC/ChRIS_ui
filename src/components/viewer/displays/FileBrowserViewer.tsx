@@ -1,12 +1,13 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { Grid, GridItem, Alert, Gallery } from "@patternfly/react-core";
+import { Grid, GridItem, Alert } from "@patternfly/react-core";
 import { ApplicationState } from "../../../store/root/applicationState";
 import {
   setExplorerRequest,
   setSelectedFile,
-  setSelectedFolder
+  setSelectedFolder,
+  destroyExplorer
 } from "../../../store/explorer/actions";
 import { IExplorerState } from "../../../store/explorer/types";
 import { IFeedFile } from "../../../api/models/feed-file.model";
@@ -16,13 +17,13 @@ import FileViewerModel from "../../../api/models/file-viewer.model";
 import FeedFileModel from "../../../api/models/feed-file.model";
 import FileExplorer from "../../explorer/FileExplorer";
 import FileTableView from "../../explorer/FileTableView";
-import FileDetailView from "../../explorer/FileDetailView";
 import GalleryView from "../../explorer/GalleryView";
 
 interface IPropsFromDispatch {
   setExplorerRequest: typeof setExplorerRequest;
   setSelectedFile: typeof setSelectedFile;
   setSelectedFolder: typeof setSelectedFolder;
+  destroyExplorer: typeof destroyExplorer;
 }
 
 type AllProps = {
@@ -102,13 +103,17 @@ class FileBrowserViewer extends React.Component<AllProps> {
       console.error("ERROR DOWNLOADING: download url is not defined");
     }
   }
+  componentWillUnmount() {
+    this.props.destroyExplorer();
+  }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setExplorerRequest: (files: IFeedFile[], selected: IPluginItem) =>
     dispatch(setExplorerRequest(files, selected)),
   setSelectedFile: (selectedFile: IUITreeNode, selectedFolder?: IUITreeNode) => dispatch(setSelectedFile(selectedFile, selectedFolder)),
-  setSelectedFolder: (selectedFolder: IUITreeNode) => dispatch(setSelectedFolder(selectedFolder))
+  setSelectedFolder: (selectedFolder: IUITreeNode) => dispatch(setSelectedFolder(selectedFolder)),
+  destroyExplorer: () => dispatch(destroyExplorer())
 });
 
 const mapStateToProps = ({ explorer }: ApplicationState) => ({
