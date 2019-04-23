@@ -4,8 +4,6 @@ import { Dispatch } from "redux";
 import { ApplicationState } from "../../store/root/applicationState";
 import { initializeGallery, destroyGallery, setGalleryActiveItemSuccess } from "../../store/gallery/actions";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
-import { IFileBlob } from "../../api/models/file-viewer.model";
-import FeedFileModel from "../../api/models/feed-file.model";
 import FileViewerModel, { fileViewerMap } from "../../api/models/file-viewer.model";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import ViewerDisplay from "./displays/ViewerDisplay";
@@ -31,7 +29,6 @@ class GalleryView extends React.Component<AllProps> {
     super(props);
     const { selectedFile, selectedFolder, initializeGallery } = this.props;
     initializeGallery({ selectedFile, selectedFolder });
-    this.handleOnchange = this.handleOnchange.bind(this);
   }
 
   componentDidMount() {
@@ -50,28 +47,49 @@ class GalleryView extends React.Component<AllProps> {
   renderContent(galleryItem: IGalleryItem, galleryItems: IGalleryItem[]) {
     const viewerName = !!galleryItem.fileType ? fileViewerMap[galleryItem.fileType] : "";
     return (
-     <GalleryWrapper
+      <GalleryWrapper
         index={galleryItem.index}
         total={galleryItems.length}
-        onChange={this.handleOnchange}>
+        handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
         <ViewerDisplay tag={viewerName} file={galleryItem} />
       </GalleryWrapper>)
   }
 
   // Description: change the gallery item state
   // WORKING NEED TO HANDLE LIMITS ***** tbd
-  handleOnchange(action: string) {
-    const {galleryItem, galleryItems, setGalleryActiveItemSuccess } = this.props;
-    if (!!galleryItem) {
-      const i = galleryItem.index;
-      const newIndex = (action === galleryActions.next && (i + 1 < galleryItems.length)) ? (i + 1) :
-      (action === galleryActions.previous && i > 0) ? (i - 1) : 0;
-      setGalleryActiveItemSuccess(galleryItems[newIndex]); // TBD ***** NEEDS TO BE COMPLETED *****
+  _playInterval: any = undefined;
+  handleGalleryActions = {
+    next: () => {
+      const { galleryItem, galleryItems, setGalleryActiveItemSuccess } = this.props;
+      if (!!galleryItem) {
+        const i = galleryItem.index,
+              newIndex = (i + 1 < galleryItems.length) ? (i + 1) : 0;
+        !_.isEqual(galleryItem, galleryItems[newIndex]) && setGalleryActiveItemSuccess(galleryItems[newIndex]);
+      }
+    },
+    previous: () => {
+      const { galleryItem, galleryItems, setGalleryActiveItemSuccess } = this.props;
+      if (!!galleryItem) {
+        const i = galleryItem.index,
+              newIndex = ( i > 0) ? (i - 1) : 0;
+        !_.isEqual(galleryItem, galleryItems[newIndex]) && setGalleryActiveItemSuccess(galleryItems[newIndex]);
+      }
+    },
+    play: () => {
+      this._playInterval = setInterval(() => {
+        (this.handleGalleryActions as any)[galleryActions.next].call();
+      }, 200);
+    },
+    pause: () => {
+      clearInterval(this._playInterval);
+    },
+    download: () => { // TO be done
+      const { galleryItem } = this.props;
+      !!galleryItem && FileViewerModel.downloadFile(galleryItem.blob, galleryItem.fileName);
     }
   }
 
   componentWillUnmount() {
-    console.log("componentWillUnmount");
     this._isMounted = false;
     this.props.destroyGallery();
   }

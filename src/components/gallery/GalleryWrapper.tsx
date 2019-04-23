@@ -9,7 +9,7 @@ type AllProps = {
     children: any;
     index: number;
     total: number;
-    onChange: (action: string) => void;
+    handleOnToolbarAction: (action: string) => void;
 }
 
 class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
@@ -28,33 +28,27 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
             <div id="gallery"
                 className="gallery-wrapper" >
                 {children}
-                { 
+                {
                     <GalleryToolbar
                         index={index}
                         total={total}
-                        onToolbarClick={this.handleToolbarAction}
+                        onToolbarClick={(action: string) => {(this.handleGalleryActions as any)[action].call()}}
                         {...this.state}  />
                     }
             </div>
         );
     }
 
-    // Description: triggers toolbar functionality
-    handleToolbarAction = (action: string) => {
-        // console.log("handlePlayPause: trigger action = ", action);
-        (this.handleGalleryActions as any)[action].call();
-    }
-
-    // Description: Group gallery actions
+    // Description: triggers toolbar functionality - Group gallery actions
     handleGalleryActions = {
         play: () => {
-            this.props.onChange(galleryActions.play);
+            this.props.handleOnToolbarAction(galleryActions.play);
             this.setState({
                 isPlaying: true
             });
         },
         pause: () => {
-            this.props.onChange(galleryActions.pause);
+            this.props.handleOnToolbarAction(galleryActions.pause);
             this.setState({
                 isPlaying: false
             });
@@ -65,18 +59,18 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
             !!elem && (isFullScreen() ? closeFullScreen() : openFullScreen(elem));
         },
         next: () => { // TO be done
-            this.props.onChange(galleryActions.next);
-
+            (this.state.isPlaying) && (this.handleGalleryActions as any)[galleryActions.pause].call();
+            this.props.handleOnToolbarAction(galleryActions.next);
         },
         previous: () => { // TO be done
-            this.props.onChange(galleryActions.previous);
+            (this.state.isPlaying) && (this.handleGalleryActions as any)[galleryActions.pause].call();
+            this.props.handleOnToolbarAction(galleryActions.previous);
         },
         download: () => { // TO be done
-            console.log("download");
-            // this.props.downloadFile();
+            this.props.handleOnToolbarAction(galleryActions.download);
         },
         information: () => { // TO be done
-            console.log("information");
+            console.log("information to be done");
         }
     }
 
