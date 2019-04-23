@@ -10,7 +10,6 @@ export interface IGalleryItem extends IFeedFile {
   blob?: Blob;
   blobText?: any;
   fileType?: string;
-  isLoaded: boolean;
   isActive: boolean;
   index: number;
 }
@@ -26,6 +25,52 @@ export const galleryActions = keyMirror({
   information: null
 });
 
+
+export class GalleryListModel {
+  galleryItems: IGalleryItem[] = new Array();
+  constructor(selectedFile: IUITreeNode, selectedFolder: IUITreeNode) {
+    this.galleryItems = this._buildGalleryArray(selectedFile, selectedFolder);
+  }
+
+  _buildGalleryArray(selectedFile: IUITreeNode, selectedFolder: IUITreeNode): IGalleryItem[] {
+     (!!selectedFolder.children) &&
+      selectedFolder.children.map(
+        (node: IUITreeNode, index: number) => {
+           const galleryItem = new GalleryItemModel(node).galleryItem;
+           this.galleryItems.push(galleryItem);
+        }
+      );
+
+     return this.galleryItems;
+  }
+}
+
+export class GalleryItemModel {
+  galleryItem: IGalleryItem;
+  constructor(node: IUITreeNode) {
+    this.galleryItem = this._buildGalleryItem(node);
+  }
+  // Description: takes an explorer tree node and returns a gallery Item
+  _buildGalleryItem(node: IUITreeNode): IGalleryItem {
+    const fileType = getFileExtension(node.module);
+    const galleryItem = {
+      ...node.file,
+      fileName: node.module,
+      fileType,
+      isActive: false,
+      index: null
+    };
+    return galleryItem;
+  }
+
+  // Sets the blob and returns active item
+  setGalleryItemBlob(blob: Blob) {
+    this.galleryItem.blob = blob;
+    return this.galleryItem;
+  }
+}
+
+
 export default class GalleryModel {
   private _selectedFolder?: IUITreeNode;
   galleryItem: IGalleryItem;
@@ -33,12 +78,12 @@ export default class GalleryModel {
   constructor(node: IUITreeNode, selectedFolder: IUITreeNode) {
     this._selectedFolder = selectedFolder;
     this.galleryItem = this._buildGalleryItem(node, node, 0);
-    this.galleryItems = this.buildGalleryArray(node,  selectedFolder);
+    this.galleryItems = this.buildGalleryArray(node);
   }
 
-  buildGalleryArray(node: IUITreeNode, explorer: IUITreeNode): IGalleryItem[] {
-    if (!!this. _selectedFolder && !!this. _selectedFolder.children) {
-      this. _selectedFolder.children.map(
+  buildGalleryArray(node: IUITreeNode): IGalleryItem[] {
+    if (!!this._selectedFolder && !!this._selectedFolder.children) {
+      this._selectedFolder.children.map(
         (subnode: IUITreeNode, index: number) => {
           const newItem = this._buildGalleryItem(subnode, node, index);
           this.galleryItems.push(newItem);

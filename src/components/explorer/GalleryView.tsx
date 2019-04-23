@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { ApplicationState } from "../../store/root/applicationState";
 import { initializeGallery, destroyGallery, resetGalleryItems, setGalleryItemsBlobs, setGalleryActiveItem } from "../../store/gallery/actions";
-import { getFileExtension, IUITreeNode } from "../../api/models/file-explorer.model";
+import { IUITreeNode } from "../../api/models/file-explorer.model";
 import { IFileBlob } from "../../api/models/file-viewer.model";
 import FeedFileModel from "../../api/models/feed-file.model";
 import FileViewerModel, { fileViewerMap } from "../../api/models/file-viewer.model";

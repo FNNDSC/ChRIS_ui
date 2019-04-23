@@ -1,12 +1,25 @@
 import { all, call, fork, put, takeEvery } from "redux-saga/effects";
 import { GalleryActionTypes } from "./types";
 import { initializeGallerySuccess,setGalleryActiveItem, setGalleryItems, setGalleryItemsSuccess } from "./actions";
-import GalleryModel from "../../api/models/gallery.model";
+import GalleryModel, {GalleryListModel} from "../../api/models/gallery.model";
 
 // ------------------------------------------------------------------------
 // Description: Get ALL Gallery Items set the active gallery item and items array
 // ------------------------------------------------------------------------
 function* handleInitGalleryRequest(action: any) {
+  // try{
+  //     const selectedFile = action.payload.selectedFile;
+  //     const selectedFolder = action.payload.selectedFolder;
+  //     const galleryList = new GalleryListModel(selectedFile, selectedFolder)
+  //     console.log(galleryList.galleryItems);
+
+  // //  const response = yield all([
+  // //   call(fetch, '/users'),
+  // //   call(fetch, '/repos')
+  // // ])
+  // } catch (error) {
+  //   console.error(error);
+  // }
   try {
     const selectedFile = action.payload.selectedFile;
     const selectedFolder = action.payload.selectedFolder;
