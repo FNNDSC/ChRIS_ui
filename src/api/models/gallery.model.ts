@@ -26,17 +26,18 @@ export const galleryActions = keyMirror({
   information: null
 });
 
+type galleryModelItemType = IUITreeNode | IGalleryItem;
 export default class GalleryModel {
   static getGalleryItemBlob(galleryItem: IGalleryItem) {
     return FeedFileModel.getFileBlob(galleryItem.file_resource);
   }
 
-  static getGalleryItemIndex(selectedFile: IUITreeNode, folderArray: IUITreeNode[]) {
-    return _.findIndex(folderArray, (node: IUITreeNode) => {
-         return _.isEqual(selectedFile, node)
+  // Find a gallery item by uiId
+  static getGalleryItemIndex(uiId: string, galleryItems: galleryModelItemType[]) {
+    return _.findIndex(galleryItems, (item: galleryModelItemType) => {
+        return _.isEqual(uiId, item.uiId);
     });
   }
- 
 }
 
 export class GalleryListModel {
