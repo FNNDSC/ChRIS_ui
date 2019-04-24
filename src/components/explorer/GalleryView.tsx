@@ -40,18 +40,14 @@ class GalleryView extends React.Component<AllProps> {
     if (selectedFolder.uiId !== prevProps.selectedFolder.uiId) {  // Load new folder items and reset
       destroyGallery(); // NOTES: Needs to destroy loading processes ***** WORKING
       initializeGallery({ selectedFile, selectedFolder });
-    } else if (selectedFile.uiId !== prevProps.selectedFile.uiId) {
+    } else if ( !!galleryItems && selectedFile.uiId !== prevProps.selectedFile.uiId) {
       // NOTES: If folder is the same Find Gallery item and load that
       // FIND FILE IN GALLERY ITEMS AND SET
-      if(!!galleryItem) {
-        const newIndex =   GalleryModel.getGalleryItemIndex(selectedFile.uiId, galleryItems);
-        setGalleryActiveItemSuccess(galleryItems[newIndex]); // NEEDS TO COMPLETE FOLDER LOADING ***** WORKING
-      }
+      const newIndex = GalleryModel.getGalleryItemIndex(selectedFile.uiId, galleryItems);
+      setGalleryActiveItemSuccess(galleryItems[newIndex]); // NEEDS TO COMPLETE FOLDER LOADING ***** WORKING
     }
   }
   render() {
-    const { galleryItem, galleryItems } = this.props;
-    // IF DIFFERENT FILE UPDATE GALLERY ITEM
     return (
      this.renderContent()
     )
@@ -67,11 +63,12 @@ class GalleryView extends React.Component<AllProps> {
         total={galleryItems.length || 0}
         handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
         {
-         (!!galleryItem && !!galleryItem.blob) ? 
+         (!!galleryItem && !!galleryItem.blob) ?
           <ViewerDisplay tag={viewerName} file={galleryItem} /> :
           <LoadingComponent color="#fff" />
           }
-      </GalleryWrapper>)
+      </GalleryWrapper>
+      )
   }
 
   // Description: change the gallery item state
