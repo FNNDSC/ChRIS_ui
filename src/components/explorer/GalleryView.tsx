@@ -38,6 +38,7 @@ class GalleryView extends React.Component<AllProps> {
   render() {
     const { galleryItem, galleryItems } = this.props;
     // IF DIFFERENT FILE UPDATE GALLERY ITEM
+    console.log("RENDER", galleryItem);
     return (
       (!!galleryItem && !!galleryItem.blob) ? this.renderContent(galleryItem, galleryItems) : <LoadingComponent />
     )

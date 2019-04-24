@@ -3,7 +3,7 @@ import { ExplorerActionTypes, IExplorerState } from "./types";
 
 // Type-safe initialState
 const initialState: IExplorerState = {
-  explorer: {module: ""},
+  explorer: {module: "", uiId: ""},
   selectedFile: undefined,
   selectedFolder: undefined
 };

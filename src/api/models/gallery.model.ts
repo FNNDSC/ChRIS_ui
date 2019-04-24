@@ -6,6 +6,7 @@ import keyMirror from "keymirror";
 import _ from "lodash";
 
 export interface IGalleryItem extends IFeedFile {
+  uiId: string;
   fileName: string;
   blob?: Blob;
   blobText?: any;
@@ -35,6 +36,7 @@ export default class GalleryModel {
          return _.isEqual(selectedFile, node)
     });
   }
+ 
 }
 
 export class GalleryListModel {
@@ -78,6 +80,7 @@ export class GalleryItemModel {
     const fileType = getFileExtension(node.module);
     const galleryItem = {
       ...node.file,
+      uiId: node.uiId,
       fileName: node.module,
       fileType,
       isActive: false,
