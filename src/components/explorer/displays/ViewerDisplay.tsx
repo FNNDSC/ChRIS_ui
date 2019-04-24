@@ -27,7 +27,6 @@ class ViewerDisplay extends React.Component<AllProps> {
     render() {
         const TagName = (this.components as any)[this.props.tag || "CatchallDisplay"];
         const { file } = this.props;
-        // console.log(file.blob);
         return <TagName file={file} />
     }
 }
