@@ -35,24 +35,42 @@ class GalleryView extends React.Component<AllProps> {
     this._isMounted = true;
   }
 
+  componentDidUpdate(prevProps: AllProps) {
+    const { selectedFile, selectedFolder, initializeGallery, setGalleryActiveItemSuccess, destroyGallery,galleryItem, galleryItems } = this.props;
+    if (selectedFolder.uiId !== prevProps.selectedFolder.uiId) {  // Load new folder items and reset
+      destroyGallery(); // NOTES: Needs to destroy loading processes ***** WORKING
+      initializeGallery({ selectedFile, selectedFolder });
+    } else if (selectedFile.uiId !== prevProps.selectedFile.uiId) {
+      // NOTES: If folder is the same Find Gallery item and load that
+      // FIND FILE IN GALLERY ITEMS AND SET
+      if(!!galleryItem) {
+        const newIndex =   GalleryModel.getGalleryItemIndex(selectedFile.uiId, galleryItems);
+        setGalleryActiveItemSuccess(galleryItems[newIndex]); // NEEDS TO COMPLETE FOLDER LOADING ***** WORKING
+      }
+    }
+  }
   render() {
     const { galleryItem, galleryItems } = this.props;
     // IF DIFFERENT FILE UPDATE GALLERY ITEM
-    console.log("RENDER", galleryItem);
     return (
-      (!!galleryItem && !!galleryItem.blob) ? this.renderContent(galleryItem, galleryItems) : <LoadingComponent />
+     this.renderContent()
     )
   }
 
   // Decription: Render the individual viewers by filetype
-  renderContent(galleryItem: IGalleryItem, galleryItems: IGalleryItem[]) {
-    const viewerName = !!galleryItem.fileType ? fileViewerMap[galleryItem.fileType] : "";
+  renderContent() {
+    const { galleryItem, galleryItems } = this.props;
+    const viewerName = (!!galleryItem && !!galleryItem.fileType) ? fileViewerMap[galleryItem.fileType] : "";
     return (
       <GalleryWrapper
-        index={galleryItem.index}
-        total={galleryItems.length}
+        index={!!galleryItem ? galleryItem.index : 0}
+        total={galleryItems.length || 0}
         handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
-        <ViewerDisplay tag={viewerName} file={galleryItem} />
+        {
+         (!!galleryItem && !!galleryItem.blob) ? 
+          <ViewerDisplay tag={viewerName} file={galleryItem} /> :
+          <LoadingComponent color="#fff" />
+          }
       </GalleryWrapper>)
   }
 
@@ -64,7 +82,7 @@ class GalleryView extends React.Component<AllProps> {
       const { galleryItem, galleryItems, setGalleryActiveItemSuccess } = this.props;
       if (!!galleryItem) {
         const i = galleryItem.index,
-              newIndex = (i + 1 < galleryItems.length) ? (i + 1) : 0;
+          newIndex = (i + 1 < galleryItems.length) ? (i + 1) : 0;
         !_.isEqual(galleryItem, galleryItems[newIndex]) && setGalleryActiveItemSuccess(galleryItems[newIndex]);
       }
     },
@@ -72,7 +90,7 @@ class GalleryView extends React.Component<AllProps> {
       const { galleryItem, galleryItems, setGalleryActiveItemSuccess } = this.props;
       if (!!galleryItem) {
         const i = galleryItem.index,
-              newIndex = ( i > 0) ? (i - 1) : 0;
+          newIndex = (i > 0) ? (i - 1) : 0;
         !_.isEqual(galleryItem, galleryItems[newIndex]) && setGalleryActiveItemSuccess(galleryItems[newIndex]);
       }
     },

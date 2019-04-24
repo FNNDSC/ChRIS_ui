@@ -18,9 +18,9 @@ import { IUITreeNode } from "../../api/models/file-explorer.model";
 // ------------------------------------------------------------------------
 function* handleInitGalleryRequest(action: any) {
   try {
-    const selectedFile = action.payload.selectedFile;
+    const selectedFile: IUITreeNode = action.payload.selectedFile;
     const selectedFolder: IUITreeNode = action.payload.selectedFolder;
-    const index = !!selectedFolder.children ? GalleryModel.getGalleryItemIndex(selectedFile, selectedFolder.children): 0;
+    const index = !!selectedFolder.children ? GalleryModel.getGalleryItemIndex(selectedFile.uiId, selectedFolder.children) : 0;
     const galleryItemModel = new GalleryItemModel(selectedFile, index);
     const res = yield call(
       GalleryModel.getGalleryItemBlob,
