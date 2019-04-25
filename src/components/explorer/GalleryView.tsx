@@ -1,114 +1,144 @@
 import * as React from "react";
-import { Button } from "@patternfly/react-core";
-import { DownloadIcon } from "@patternfly/react-icons";
-import { getFileExtension, IUITreeNode } from "../../api/models/file-explorer.model";
-import { IFileBlob } from "../../api/models/file-viewer.model";
-import FeedFileModel from "../../api/models/feed-file.model";
-import { downloadFile, fileViewerMap } from "../../api/models/file-viewer.model";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
+import { ApplicationState } from "../../store/root/applicationState";
+import { Alert, Button } from "@patternfly/react-core";
+import { CloseIcon } from "@patternfly/react-icons";
+import { initializeGallery, destroyGallery, setGalleryActiveItemSuccess } from "../../store/gallery/actions";
+import { IGalleryState } from "../../store/gallery/types";
+import { IUITreeNode } from "../../api/models/file-explorer.model";
+import FileViewerModel, { fileViewerMap } from "../../api/models/file-viewer.model";
+import GalleryModel, { IGalleryItem, galleryActions } from "../../api/models/gallery.model";
 import { LoadingComponent } from "..";
+import GalleryWrapper from "../gallery/GalleryWrapper";
 import ViewerDisplay from "./displays/ViewerDisplay";
+import GalleryInfoPanel from "../gallery/GalleryInfoPanel/GalleryInfoPanel";
+import _ from "lodash";
 import "./file-detail.scss";
 
+
+interface IPropsFromDispatch {
+  initializeGallery: typeof initializeGallery;
+  setGalleryActiveItemSuccess: typeof setGalleryActiveItemSuccess;
+  destroyGallery: typeof destroyGallery;
+  toggleViewerMode: (isViewerMode: boolean) => void;
+}
 type AllProps = {
   selectedFile: IUITreeNode;
-};
+  selectedFolder: IUITreeNode;
+} & IGalleryState & IPropsFromDispatch;
 
-class GalleryView extends React.Component<AllProps, IFileBlob> {
-  _isMounted = false;
+class GalleryView extends React.Component<AllProps, {viewInfoPanel: boolean}> {
   constructor(props: AllProps) {
     super(props);
-    this.fetchData();
-  }
-  componentDidMount() {
-    this._isMounted = true;
+    this._initGallery();
   }
   state = {
-    blob: undefined,
-    blobName: "",
-    blobText: null,
-    fileType: "",
-    file: undefined
-  };
+    viewInfoPanel: true
+  }
+  // Description: Initialize galleryitems call only if folder is different and gallery was not init before; else use preloaded data
+  _initGallery() {
+    const { selectedFile, selectedFolder, initializeGallery, galleryItem, galleryItems, destroyGallery, setGalleryActiveItemSuccess } = this.props;
+    const index = GalleryModel.getGalleryItemIndex(selectedFile.uiId, galleryItems);
+    if (index < 0 || !!!galleryItem) {
+      (galleryItems.length > 0) && destroyGallery();
+      initializeGallery({ selectedFile, selectedFolder });
+    } else if (selectedFile.uiId !== galleryItem.uiId) {
+      setGalleryActiveItemSuccess(galleryItems[index]);
+    }
+  }
 
   render() {
-    const { selectedFile } = this.props;
-    const fileTypeViewer = () => {
-      if (selectedFile.module !== this.state.blobName) {
-        this.fetchData();
-        return <LoadingComponent color="#ddd" />;
-      } else {
-        return (
-          <React.Fragment>
-          {this.renderHeader()}
-          {this.renderContent()}
-          </React.Fragment>
-        );
-      }
-    };
     return (
-       fileTypeViewer()
+      this.renderContent()
     )
   }
 
-  // Decription: Render the Header
-  renderHeader(classname?: string) {
-    const { selectedFile } = this.props;
-    return (
-      <div className={`header-panel ${classname}`}>
-        {this.renderDownloadButton()}
-        <h1>
-          File Preview: <b>{selectedFile.module}</b>
-        </h1>
-      </div>
-    );
-  }
- 
   // Decription: Render the individual viewers by filetype
   renderContent() {
-    const viewerName = fileViewerMap[this.state.fileType];
-    return <ViewerDisplay tag={viewerName} file={this.state} />
-  }
-
-  // Description: Fetch blob and read it into state to display preview
-  fetchData() {
-    const { selectedFile } = this.props;
-    const fileUrl = selectedFile.file.file_resource,
-      fileName = selectedFile.module,
-      fileType = getFileExtension(fileName);
-    FeedFileModel.getFileBlob(fileUrl).then((result: any) => {
-      const _self = this;
-      if (!!result.data) {
-        const reader = new FileReader();
-        reader.addEventListener("loadend", (e: any) => {
-          const blobText = e.target.result;
-          _self._isMounted && _self.setState({ blob: result.data, blobName: fileName, fileType, blobText });
-        });
-        reader.readAsText(result.data);
-      }
-    });
-  }
-
-  renderDownloadButton = () => {
+    const { galleryItem, galleryItems } = this.props;
+    const viewerName = (!!galleryItem && !!galleryItem.fileType) ? fileViewerMap[galleryItem.fileType] : "";
     return (
-      <Button
-        variant="primary"
-        className="float-right"
-        onClick={() => {
-          this.downloadFileNode();
-        }}  >
-        <DownloadIcon /> Download
-      </Button>
-    );
-  };
+      <GalleryWrapper
+        index={!!galleryItem ? galleryItem.index : 0}
+        total={galleryItems.length || 0}
+        handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
+        <Button className="close-btn"
+                variant="link"
+                onClick={() => this.props.toggleViewerMode(true)} ><CloseIcon size="md" />
+            </Button>
+        {this.state.viewInfoPanel && <GalleryInfoPanel galleryItem={galleryItem} /> }
+        {
+          (!!galleryItem && !!galleryItem.blob) ? <ViewerDisplay tag={viewerName} file={galleryItem} /> :
+            (!!galleryItem && !!galleryItem.error) ? <Alert
+              variant="danger"
+              title="There was an error loading this file"
+              className="empty" /> :
+              <LoadingComponent color="#fff" />
+        }
+      </GalleryWrapper>
+    )
+  }
 
-  // Download Curren File blob
-  downloadFileNode = () => {
-    return downloadFile(this.state.blob, this.state.blobName);
+  // Description: change the gallery item state
+  // WORKING NEED TO HANDLE LIMITS ***** tbd
+  _playInterval: any = undefined;
+  handleGalleryActions = {
+    next: () => {
+      const { galleryItem, galleryItems, setGalleryActiveItemSuccess } = this.props;
+      if (!!galleryItem) {
+        const i = galleryItem.index,
+          newIndex = (i + 1 < galleryItems.length) ? (i + 1) : 0;
+        !_.isEqual(galleryItem, galleryItems[newIndex]) && setGalleryActiveItemSuccess(galleryItems[newIndex]);
+      }
+    },
+    previous: () => {
+      const { galleryItem, galleryItems, setGalleryActiveItemSuccess } = this.props;
+      if (!!galleryItem) {
+        const i = galleryItem.index,
+          newIndex = (i > 0) ? (i - 1) : 0;
+        !_.isEqual(galleryItem, galleryItems[newIndex]) && setGalleryActiveItemSuccess(galleryItems[newIndex]);
+      }
+    },
+    play: () => {
+      this._playInterval = setInterval(() => {
+        (this.handleGalleryActions as any)[galleryActions.next].call();
+      }, 200);
+    },
+    pause: () => {
+      clearInterval(this._playInterval);
+    },
+    download: () => {
+      const { galleryItem } = this.props;
+      !!galleryItem && FileViewerModel.downloadFile(galleryItem.blob, galleryItem.fileName);
+    },
+    information: () => {
+      const visible = this.state.viewInfoPanel;
+      this.setState({
+        viewInfoPanel: !this.state.viewInfoPanel
+     });
+    }
   }
 
   componentWillUnmount() {
-    this._isMounted = false;
+    clearInterval(this._playInterval);
   }
 }
 
-export default GalleryView;
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  initializeGallery: (data: { selectedFile: IUITreeNode; selectedFolder: IUITreeNode; }) => dispatch(initializeGallery(data)),
+  setGalleryActiveItemSuccess: (galleryItem: IGalleryItem) => dispatch(setGalleryActiveItemSuccess(galleryItem)),
+  destroyGallery: () => dispatch(destroyGallery())
+});
+
+const mapStateToProps = ({ gallery }: ApplicationState) => ({
+  galleryItem: gallery.galleryItem,
+  galleryItems: gallery.galleryItems
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(GalleryView);
+

@@ -1,10 +1,10 @@
 import * as React from "react";
 import { Button } from "@patternfly/react-core";
-import { DownloadIcon } from "@patternfly/react-icons";
+import { DownloadIcon, ExpandIcon } from "@patternfly/react-icons";
 import { getFileExtension, IUITreeNode } from "../../api/models/file-explorer.model";
 import { IFileBlob } from "../../api/models/file-viewer.model";
 import FeedFileModel from "../../api/models/feed-file.model";
-import { downloadFile, fileViewerMap } from "../../api/models/file-viewer.model";
+import FileViewerModel, { fileViewerMap } from "../../api/models/file-viewer.model";
 import { LoadingComponent } from "..";
 import ViewerDisplay from "./displays/ViewerDisplay";
 import _ from "lodash";
@@ -12,6 +12,7 @@ import "./file-detail.scss";
 
 type AllProps = {
   selectedFile: IUITreeNode;
+  toggleViewerMode: (isViewerMode: boolean) => void;
 };
 
 class FileDetailView extends React.Component<AllProps, IFileBlob> {
@@ -38,11 +39,12 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         this.fetchData();
         return <LoadingComponent color="#ddd" />;
       } else {
+        const viewerName = fileViewerMap[this.state.fileType];
         return (
-          <React.Fragment>
+          <div className={viewerName.toLowerCase()}>
             {this.renderHeader()}
-            {this.renderContent()}
-          </React.Fragment>
+            <ViewerDisplay tag={viewerName} file={this.state}/>
+          </div>
         );
       }
     };
@@ -52,22 +54,16 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   }
 
   // Decription: Render the Header
-  renderHeader(classname?: string) {
+  renderHeader() {
     const { selectedFile } = this.props;
     return (
-      <div className={`header-panel ${classname}`}>
+      <div className="header-panel">
         {this.renderDownloadButton()}
         <h1>
           File Preview: <b>{selectedFile.module}</b>
         </h1>
       </div>
     );
-  }
-
-  // Decription: Render the individual viewers by filetype
-  renderContent() {
-    const viewerName = fileViewerMap[this.state.fileType];
-    return <ViewerDisplay tag={viewerName} file={this.state} />
   }
 
   // Description: Fetch blob and read it into state to display preview
@@ -97,20 +93,26 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
 
   renderDownloadButton = () => {
     return (
-      <Button
-        variant="primary"
-        className="float-right"
-        onClick={() => {
-          this.downloadFileNode();
-        }}  >
-        <DownloadIcon /> Download
-      </Button>
+      <div className="float-right">
+        <Button
+          variant="link"
+          onClick={() => {
+            this.props.toggleViewerMode(false);
+          }} ><ExpandIcon /> open in viewer</Button>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            this.downloadFileNode();
+          }}  >
+          <DownloadIcon />
+        </Button>
+      </div>
     );
   };
 
   // Download Curren File blob
   downloadFileNode = () => {
-    return downloadFile(this.state.blob, this.state.blobName);
+    return FileViewerModel.downloadFile(this.state.blob, this.state.blobName);
   }
 
   componentWillUnmount() {
