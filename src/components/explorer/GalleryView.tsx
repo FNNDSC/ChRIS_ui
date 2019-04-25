@@ -2,6 +2,7 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { ApplicationState } from "../../store/root/applicationState";
+import { Alert } from "@patternfly/react-core";
 import { initializeGallery, destroyGallery, setGalleryActiveItemSuccess } from "../../store/gallery/actions";
 import { IGalleryState } from "../../store/gallery/types";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
@@ -62,9 +63,12 @@ class GalleryView extends React.Component<AllProps> {
         handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
         <GalleryInfoPanel toggleViewerMode={() => this.props.toggleViewerMode(true)} />
         {
-          (!!galleryItem && !!galleryItem.blob) ?
-            <ViewerDisplay tag={viewerName} file={galleryItem} /> :
-            <LoadingComponent color="#fff" />
+          (!!galleryItem && !!galleryItem.blob) ? <ViewerDisplay tag={viewerName} file={galleryItem} /> :
+            (!!galleryItem && !!galleryItem.error) ? <Alert
+              variant="danger"
+              title="There was an error loading this file"
+              className="empty" /> :
+              <LoadingComponent color="#fff" />
         }
       </GalleryWrapper>
     )
