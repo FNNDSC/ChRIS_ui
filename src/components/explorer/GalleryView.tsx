@@ -2,7 +2,8 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { ApplicationState } from "../../store/root/applicationState";
-import { Alert } from "@patternfly/react-core";
+import { Alert, Button } from "@patternfly/react-core";
+import { CloseIcon } from "@patternfly/react-icons";
 import { initializeGallery, destroyGallery, setGalleryActiveItemSuccess } from "../../store/gallery/actions";
 import { IGalleryState } from "../../store/gallery/types";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
@@ -27,13 +28,14 @@ type AllProps = {
   selectedFolder: IUITreeNode;
 } & IGalleryState & IPropsFromDispatch;
 
-class GalleryView extends React.Component<AllProps> {
-  _isMounted = false;
+class GalleryView extends React.Component<AllProps, {viewInfoPanel: boolean}> {
   constructor(props: AllProps) {
     super(props);
     this._initGallery();
   }
-
+  state = {
+    viewInfoPanel: true
+  }
   // Description: Initialize galleryitems call only if folder is different and gallery was not init before; else use preloaded data
   _initGallery() {
     const { selectedFile, selectedFolder, initializeGallery, galleryItem, galleryItems, destroyGallery, setGalleryActiveItemSuccess } = this.props;
@@ -61,7 +63,11 @@ class GalleryView extends React.Component<AllProps> {
         index={!!galleryItem ? galleryItem.index : 0}
         total={galleryItems.length || 0}
         handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
-        <GalleryInfoPanel galleryItem={galleryItem} toggleViewerMode={() => this.props.toggleViewerMode(true)} />
+        <Button className="close-btn"
+                variant="link"
+                onClick={() => this.props.toggleViewerMode(true)} ><CloseIcon size="md" />
+            </Button>
+        {this.state.viewInfoPanel && <GalleryInfoPanel galleryItem={galleryItem} /> }
         {
           (!!galleryItem && !!galleryItem.blob) ? <ViewerDisplay tag={viewerName} file={galleryItem} /> :
             (!!galleryItem && !!galleryItem.error) ? <Alert
@@ -102,16 +108,20 @@ class GalleryView extends React.Component<AllProps> {
     pause: () => {
       clearInterval(this._playInterval);
     },
-    download: () => { // TO be done
+    download: () => {
       const { galleryItem } = this.props;
       !!galleryItem && FileViewerModel.downloadFile(galleryItem.blob, galleryItem.fileName);
+    },
+    information: () => {
+      const visible = this.state.viewInfoPanel;
+      this.setState({
+        viewInfoPanel: !this.state.viewInfoPanel
+     });
     }
   }
 
   componentWillUnmount() {
-    this._isMounted = false;
     clearInterval(this._playInterval);
-    // this.props.destroyGallery();
   }
 }
 

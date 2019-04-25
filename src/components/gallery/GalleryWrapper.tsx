@@ -58,19 +58,20 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
             const elem = document.getElementById("gallery");
             !!elem && (isFullScreen() ? closeFullScreen() : openFullScreen(elem));
         },
-        next: () => { // TO be done
+        next: () => {
             (this.state.isPlaying) && (this.handleGalleryActions as any)[galleryActions.pause].call();
             this.props.handleOnToolbarAction(galleryActions.next);
         },
-        previous: () => { // TO be done
+        previous: () => {
             (this.state.isPlaying) && (this.handleGalleryActions as any)[galleryActions.pause].call();
             this.props.handleOnToolbarAction(galleryActions.previous);
         },
-        download: () => { // TO be done
+        download: () => {
             this.props.handleOnToolbarAction(galleryActions.download);
         },
-        information: () => { // TO be done
-            console.log("information to be done");
+        information: () => {
+            // Note: for toggling gallery to information panel (show/hide)
+            this.props.handleOnToolbarAction(galleryActions.information);
         }
     }
 

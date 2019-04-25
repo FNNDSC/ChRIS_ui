@@ -5,22 +5,12 @@
 */
 @import "../../../assets/scss/helpers/variables";
 .gallery-info{
-  color: #fff;
+  color: #999;
+  font-size: 0.875rem;
   left: 0;
+  padding: 1rem;
   position: absolute;
   top: 0;
   width: 100%;
-  z-index: 99999;
-  div{
-    color: #999;
-    padding: 1rem;
-    font-size: 0.875rem;
-  }
-  button.close-btn {
-    margin-top: 10px;
-    float: right;
-    svg {
-      color: #fff;
-    }
-  }
+  z-index: 9999;
 }
