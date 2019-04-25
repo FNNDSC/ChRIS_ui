@@ -17,6 +17,7 @@ import FileViewerModel from "../../../api/models/file-viewer.model";
 import FeedFileModel from "../../../api/models/feed-file.model";
 import FileExplorer from "../../explorer/FileExplorer";
 import FileTableView from "../../explorer/FileTableView";
+import FileDetailView from "../../explorer/FileDetailView";
 import GalleryView from "../../explorer/GalleryView";
 
 interface IPropsFromDispatch {
@@ -65,11 +66,11 @@ class FileBrowserViewer extends React.Component<AllProps> {
             </GridItem>
             <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
               {!!selectedFile && !!selectedFolder ? (
-                // <FileDetailView selectedFile={selectedFile} />) :
-                <GalleryView
-                  selectedFile={selectedFile}
-                  selectedFolder={selectedFolder}
-                />
+               <FileDetailView selectedFile={selectedFile} />
+                // <GalleryView
+                //   selectedFile={selectedFile}
+                //   selectedFolder={selectedFolder}
+                // />
               ) : !!selectedFolder ? (
                 <FileTableView
                   selectedFolder={selectedFolder}

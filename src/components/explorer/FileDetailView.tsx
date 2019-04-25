@@ -38,11 +38,12 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         this.fetchData();
         return <LoadingComponent color="#ddd" />;
       } else {
+        const viewerName = fileViewerMap[this.state.fileType];
         return (
-          <React.Fragment>
+          <div className={viewerName.toLowerCase()}>
             {this.renderHeader()}
-            {/* {this.renderContent()} */}
-          </React.Fragment>
+            <ViewerDisplay tag={viewerName} file={this.state}/>
+          </div>
         );
       }
     };
@@ -52,10 +53,10 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   }
 
   // Decription: Render the Header
-  renderHeader(classname?: string) {
+  renderHeader() {
     const { selectedFile } = this.props;
     return (
-      <div className={`header-panel ${classname}`}>
+      <div className="header-panel">
         {this.renderDownloadButton()}
         <h1>
           File Preview: <b>{selectedFile.module}</b>

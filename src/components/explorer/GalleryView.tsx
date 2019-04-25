@@ -47,6 +47,7 @@ class GalleryView extends React.Component<AllProps> {
       setGalleryActiveItemSuccess(galleryItems[newIndex]); // NEEDS TO COMPLETE FOLDER LOADING ***** WORKING
     }
   }
+
   render() {
     return (
      this.renderContent()
@@ -63,12 +64,12 @@ class GalleryView extends React.Component<AllProps> {
         total={galleryItems.length || 0}
         handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
         {
-         (!!galleryItem && !!galleryItem.blob) ?
-          <ViewerDisplay tag={viewerName} file={galleryItem} /> :
-          <LoadingComponent color="#fff" />
-          }
+          (!!galleryItem && !!galleryItem.blob) ?
+            <ViewerDisplay tag={viewerName} file={galleryItem} /> :
+            <LoadingComponent color="#fff" />
+        }
       </GalleryWrapper>
-      )
+    )
   }
 
   // Description: change the gallery item state

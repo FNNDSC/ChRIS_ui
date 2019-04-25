@@ -1,5 +1,5 @@
 import * as React from "react";
-// import { IFileBlob } from "../../../api/models/file-viewer.model";
+import { IFileBlob } from "../../../api/models/file-viewer.model";
 import { IGalleryItem } from "../../../api/models/gallery.model";
 import {
     CatchallDisplay,
@@ -13,7 +13,7 @@ import {
 
 type AllProps = {
     tag: string;
-    file: IGalleryItem;
+    file: IGalleryItem | IFileBlob;
 }
 
 class ViewerDisplay extends React.Component<AllProps> {
@@ -30,4 +30,4 @@ class ViewerDisplay extends React.Component<AllProps> {
         return <TagName file={file} />
     }
 }
-export default ViewerDisplay;
+export default React.memo(ViewerDisplay);
