@@ -3,20 +3,23 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { ApplicationState } from "../../store/root/applicationState";
 import { initializeGallery, destroyGallery, setGalleryActiveItemSuccess } from "../../store/gallery/actions";
+import { IGalleryState } from "../../store/gallery/types";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
 import FileViewerModel, { fileViewerMap } from "../../api/models/file-viewer.model";
+import GalleryModel, { IGalleryItem, galleryActions } from "../../api/models/gallery.model";
+import { LoadingComponent } from "..";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import ViewerDisplay from "./displays/ViewerDisplay";
-import { LoadingComponent } from "..";
-import GalleryModel, { IGalleryItem, galleryActions } from "../../api/models/gallery.model";
+import GalleryInfoPanel from "../gallery/GalleryInfoPanel/GalleryInfoPanel";
 import _ from "lodash";
 import "./file-detail.scss";
-import { IGalleryState } from "../../store/gallery/types";
+
 
 interface IPropsFromDispatch {
   initializeGallery: typeof initializeGallery;
   setGalleryActiveItemSuccess: typeof setGalleryActiveItemSuccess;
   destroyGallery: typeof destroyGallery;
+  toggleViewerMode: (isViewerMode: boolean) => void;
 }
 type AllProps = {
   selectedFile: IUITreeNode;
@@ -27,30 +30,24 @@ class GalleryView extends React.Component<AllProps> {
   _isMounted = false;
   constructor(props: AllProps) {
     super(props);
-    const { selectedFile, selectedFolder, initializeGallery } = this.props;
-    initializeGallery({ selectedFile, selectedFolder });
+    this._initGallery();
   }
 
-  componentDidMount() {
-    this._isMounted = true;
-  }
-
-  componentDidUpdate(prevProps: AllProps) {
-    const { selectedFile, selectedFolder, initializeGallery, setGalleryActiveItemSuccess, destroyGallery,galleryItem, galleryItems } = this.props;
-    if (selectedFolder.uiId !== prevProps.selectedFolder.uiId) {  // Load new folder items and reset
-      destroyGallery(); // NOTES: Needs to destroy loading processes ***** WORKING
+  // Description: Initialize galleryitems call only if folder is different and gallery was not init before; else use preloaded data
+  _initGallery() {
+    const { selectedFile, selectedFolder, initializeGallery, galleryItem, galleryItems, destroyGallery, setGalleryActiveItemSuccess } = this.props;
+    const index = GalleryModel.getGalleryItemIndex(selectedFile.uiId, galleryItems);
+    if (index < 0 || !!!galleryItem) {
+      (galleryItems.length > 0) && destroyGallery();
       initializeGallery({ selectedFile, selectedFolder });
-    } else if ( !!galleryItems && selectedFile.uiId !== prevProps.selectedFile.uiId) {
-      // NOTES: If folder is the same Find Gallery item and load that
-      // FIND FILE IN GALLERY ITEMS AND SET
-      const newIndex = GalleryModel.getGalleryItemIndex(selectedFile.uiId, galleryItems);
-      setGalleryActiveItemSuccess(galleryItems[newIndex]); // NEEDS TO COMPLETE FOLDER LOADING ***** WORKING
+    } else if (selectedFile.uiId !== galleryItem.uiId) {
+      setGalleryActiveItemSuccess(galleryItems[index]);
     }
   }
 
   render() {
     return (
-     this.renderContent()
+      this.renderContent()
     )
   }
 
@@ -63,6 +60,7 @@ class GalleryView extends React.Component<AllProps> {
         index={!!galleryItem ? galleryItem.index : 0}
         total={galleryItems.length || 0}
         handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
+        <GalleryInfoPanel toggleViewerMode={() => this.props.toggleViewerMode(true)} />
         {
           (!!galleryItem && !!galleryItem.blob) ?
             <ViewerDisplay tag={viewerName} file={galleryItem} /> :
@@ -108,7 +106,8 @@ class GalleryView extends React.Component<AllProps> {
 
   componentWillUnmount() {
     this._isMounted = false;
-    this.props.destroyGallery();
+    clearInterval(this._playInterval);
+    // this.props.destroyGallery();
   }
 }
 
@@ -128,4 +127,4 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(GalleryView);
-// export default GalleryView;
+
