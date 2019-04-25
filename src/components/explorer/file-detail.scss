@@ -57,6 +57,14 @@
       max-height: $fe-viewer-min-heigth;
     }
   }
+  // File Detail view div  
+  .iframedisplay .header-panel{
+    max-width: $fe-viewer-max-width-sm;
+  }
+  .imagedisplay .image-block{
+      text-align: left;
+  }
+  
 }
 
 .header-panel{
