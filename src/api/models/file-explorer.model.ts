@@ -5,6 +5,7 @@ import _ from "lodash";
 // Description: Builds the file explorer tree
 export interface IUITreeNode {
   module: string;
+  uiId: string;
   children?: IUITreeNode[];
   collapsed?: boolean;
   leaf?: boolean;
@@ -21,18 +22,21 @@ export default class UITreeNodeModel {
   private _items: IFeedFile[];
   private _worker: IUITreeNode = {
     module: "root",
+    uiId: "root",
     children: []
   };
   private _previousItem = "root";
   private _previousObj = this._worker;
   private _folderTemplate: IUITreeNode = {
     module: "",
+    uiId: "",
     collapsed: false,
     leaf: false,
     children: []
   };
   private _fileTemplate: IUITreeNode = {
     module: "",
+    uiId: "",
     leaf: true,
     file: {}
   };
@@ -53,9 +57,9 @@ export default class UITreeNodeModel {
     this._worker.module = this._previousItem = root;
 
     if (!!items && items.length) {
-      items.forEach((item: IFeedFile) => {
+      items.forEach((item: IFeedFile, index: number) => {
         const fileArray = this._convertFiletoArray(item, pluginName);
-        this._parseFileArray(fileArray, item);
+        this._parseFileArray(fileArray, item, index);
         this._resetholders();
       });
     }
@@ -63,16 +67,17 @@ export default class UITreeNodeModel {
   }
 
   // Description: Go through array and add to _worker object
-  private _parseFileArray = (fileArray: string[], file: IFeedFile) => {
+  private _parseFileArray = (fileArray: string[], file: IFeedFile, index: number) => {
     fileArray.forEach((item: string, i: number) => {
       const isLeaf = i === fileArray.length - 1;
-      !isLeaf ? this._AddFolder(item) : this._addFile(item, file);
+      const uiId = `uiId_${i}_${index}_${!isLeaf ? item : file.id}`;
+      !isLeaf ? this._AddFolder(item, uiId) : this._addFile(item, uiId, file);
     });
   }
-
+ 
   // Description: Add or find a folder in the tree
-  private _AddFolder = (item: string) => {
-    const newFolder = Object.assign({}, this._folderTemplate, { module: item }); // This is what we will add
+  private _AddFolder = (item: string, uiId: string) => {
+    const newFolder = Object.assign({}, this._folderTemplate, { module: item, uiId }); // This is what we will add
     if (!!this._previousObj && !!this._previousObj.children) {
       const newArr = this._previousObj.children.slice();
       const existinModule = _.find(newArr, { module: item });
@@ -86,8 +91,8 @@ export default class UITreeNodeModel {
   }
 
   // Description: Add a File
-  private _addFile = (item: string, file: IFeedFile) => {
-    const newFile = Object.assign({}, this._fileTemplate, { module: item, file });
+  private _addFile = (item: string, uiId: string, file: IFeedFile) => {
+    const newFile = Object.assign({}, this._fileTemplate, { module: item, uiId, file });
     this._findChildrenArr(this._previousItem, this._worker);
     if (!!this._previousObj && !!this._previousObj.children) {
       const newArr = this._previousObj.children.slice();

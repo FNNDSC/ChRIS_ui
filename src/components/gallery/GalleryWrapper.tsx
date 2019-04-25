@@ -1,5 +1,6 @@
 import * as React from "react";
-import { IGalleryState, IGalleryToolbarState } from "../../store/gallery/types";
+import { IGalleryToolbarState } from "../../store/gallery/types";
+import { galleryActions} from "../../api/models/gallery.model";
 import { GalleryToolbar } from "../gallery";
 import "./GalleryWrapper.scss";
 
@@ -8,6 +9,7 @@ type AllProps = {
     children: any;
     index: number;
     total: number;
+    handleOnToolbarAction: (action: string) => void;
 }
 
 class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
@@ -21,39 +23,32 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
 
     render() {
         const { children,  index, total } = this.props;
-      
         return (
             !!children &&
             <div id="gallery"
                 className="gallery-wrapper" >
                 {children}
-                { total > 1 &&
+                {
                     <GalleryToolbar
                         index={index}
                         total={total}
-                        onToolbarClick={this.handleToolbarAction}
+                        onToolbarClick={(action: string) => {(this.handleGalleryActions as any)[action].call()}}
                         {...this.state}  />
                     }
             </div>
         );
     }
 
-    // Description: triggers toolbar functionality
-    handleToolbarAction = (action: string) => {
-        // console.log("handlePlayPause: trigger action = ", action);
-        (this.handleGalleryActions as any)[action].call();
-    }
-
-    // Description: Group gallery actions
+    // Description: triggers toolbar functionality - Group gallery actions
     handleGalleryActions = {
         play: () => {
-            console.log("PLAY Viewer");
+            this.props.handleOnToolbarAction(galleryActions.play);
             this.setState({
                 isPlaying: true
             });
         },
         pause: () => {
-            console.log("PAUSE Viewer");
+            this.props.handleOnToolbarAction(galleryActions.pause);
             this.setState({
                 isPlaying: false
             });
@@ -63,19 +58,20 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
             const elem = document.getElementById("gallery");
             !!elem && (isFullScreen() ? closeFullScreen() : openFullScreen(elem));
         },
-        next: () => { // TO be done
-            console.log("next");
-
+        next: () => {
+            (this.state.isPlaying) && (this.handleGalleryActions as any)[galleryActions.pause].call();
+            this.props.handleOnToolbarAction(galleryActions.next);
         },
-        previous: () => { // TO be done
-            console.log("previous");
+        previous: () => {
+            (this.state.isPlaying) && (this.handleGalleryActions as any)[galleryActions.pause].call();
+            this.props.handleOnToolbarAction(galleryActions.previous);
         },
-        download: () => { // TO be done
-            console.log("download");
-            // this.props.downloadFile();
+        download: () => {
+            this.props.handleOnToolbarAction(galleryActions.download);
         },
-        information: () => { // TO be done
-            console.log("information");
+        information: () => {
+            // Note: for toggling gallery to information panel (show/hide)
+            this.props.handleOnToolbarAction(galleryActions.information);
         }
     }
 
