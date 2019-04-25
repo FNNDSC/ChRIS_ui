@@ -11,12 +11,11 @@ type AllProps = {
 } & IGalleryToolbarState;
 
 const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
-
     return (
         <Grid className="gallery-toolbar">
             <GridItem sm={12} md={7}>
                 {
-                    (props.total > 1) &&
+                    (props.total > 1) ?
                     <div>
                         <Button variant="link"
                             onClick={() => props.onToolbarClick(galleryActions.previous)} >
@@ -32,8 +31,8 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
                             onClick={() => props.onToolbarClick(galleryActions.next)} >
                             <StepForwardIcon />
                         </Button>
-                        <span>{ props.index + 1} / { props.total} </span>
-                    </div>
+                        <span className="indicator">{ props.index + 1} / { props.total} </span>
+                    </div> : <em>Loading files...</em>
                 }
             </GridItem>
             <GridItem sm={12} md={5}>

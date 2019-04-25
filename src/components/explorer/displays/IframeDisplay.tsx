@@ -1,9 +1,7 @@
 import * as React from "react";
-import { IFileBlob } from "../../../api/models/file-viewer.model";
-import catchallDisplay from "./CatchallDisplay";
-
+import { IGalleryItem } from "../../../api/models/gallery.model";
 type AllProps = {
-  file: IFileBlob;
+  file: IGalleryItem;
 };
 
 const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
@@ -12,7 +10,7 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   return (
     <div className="default-display">
       <iframe
-        key={file.blobName}
+        key={file.fileName}
         src={url}
         height={window.innerHeight}
         width="100%"

@@ -10,8 +10,16 @@
     background: black;
     border: solid 1px $fe-viewer-border;
     min-height:  calc(100vh - 250px);
-    overflowY: 'auto';
+    overflow-y: 'auto';
     padding: 1rem 3rem 3rem;
     position: relative;
-    
+    button.close-btn {
+        position: absolute;
+        right:0;
+        top: 10px;
+        z-index: 99999;
+        svg {
+          color: #fff;
+        }
+      }
 }
