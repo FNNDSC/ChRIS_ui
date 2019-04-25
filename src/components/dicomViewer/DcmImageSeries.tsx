@@ -1,4 +1,6 @@
 import * as React from "react";
+import { connect } from "react-redux";
+import { ApplicationState } from "../../store/root/applicationState";
 import { IFileBlob } from "../../api/models/file-viewer.model";
 import * as dat from "dat.gui";
 import * as THREE from "three";
@@ -9,16 +11,18 @@ import {
   trackballOrthoControlFactory
 } from "ami.js";
 import "./amiViewer.scss";
+import { IGalleryState } from "../../store/gallery/types";
 
 type AllProps = {
   file: IFileBlob;
-};
+} & IGalleryState;
 
 // Description: Will be replaced with a DCM Fyle viewer
-class DcmImage extends React.Component<AllProps> {
+class DcmImageSeries extends React.Component<AllProps> {
   dynamicImagePixelData: string | ArrayBuffer | null = null;
   componentDidMount() {
-    const { file } = this.props;
+    const { file, galleryItem, galleryItems } = this.props;
+    // console.log(galleryItem);
     if (!!file.blob) {
       const url = window.URL.createObjectURL(new Blob([file.blob]));
       this.initAmi(url);
@@ -26,6 +30,7 @@ class DcmImage extends React.Component<AllProps> {
   }
 
   render() {
+    // console.log(this.props.galleryItems);
     return (
       <div className="ami-viewer">
         <div id="my-gui-container" />
@@ -218,4 +223,13 @@ const colors = {
 };
 
 
-export default DcmImage;
+const mapStateToProps = ({ gallery }: ApplicationState) => ({
+  galleryItem: gallery.galleryItem,
+  galleryItems: gallery.galleryItems
+});
+
+export default connect(
+  mapStateToProps,
+  null
+)(DcmImageSeries);
+// export default DcmImageSeries;
