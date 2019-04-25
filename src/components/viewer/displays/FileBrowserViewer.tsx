@@ -7,6 +7,7 @@ import {
   setExplorerRequest,
   setSelectedFile,
   setSelectedFolder,
+  toggleViewerMode,
   destroyExplorer
 } from "../../../store/explorer/actions";
 import { IExplorerState } from "../../../store/explorer/types";
@@ -24,6 +25,7 @@ interface IPropsFromDispatch {
   setExplorerRequest: typeof setExplorerRequest;
   setSelectedFile: typeof setSelectedFile;
   setSelectedFolder: typeof setSelectedFolder;
+  toggleViewerMode: typeof toggleViewerMode;
   destroyExplorer: typeof destroyExplorer;
 }
 
@@ -47,45 +49,54 @@ class FileBrowserViewer extends React.Component<AllProps> {
       : setSelectedFolder(node);
   };
 
+  toggleViewerMode = (isViewerMode: boolean) => {
+    this.props.toggleViewerMode(!isViewerMode);
+  }
+
   render() {
-    const { explorer, selectedFile, selectedFolder } = this.props;
+    const { explorer, selectedFile, selectedFolder, viewerMode } = this.props;
     return (
       // Note: check to see if explorer children have been init.
       !!explorer &&
       !!explorer.children && (
         <div className="pf-u-px-lg">
-          <Grid>
-            <GridItem className="pf-u-p-sm" sm={12} md={3}>
-              {
-                <FileExplorer
-                  explorer={explorer}
-                  selectedNode={selectedFile || selectedFolder}
-                  onClickNode={this.setActiveNode}
-                />
-              }
-            </GridItem>
-            <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
-              {!!selectedFile && !!selectedFolder ? (
-               <FileDetailView selectedFile={selectedFile} />
-                // <GalleryView
-                //   selectedFile={selectedFile}
-                //   selectedFolder={selectedFolder}
-                // />
-              ) : !!selectedFolder ? (
-                <FileTableView
-                  selectedFolder={selectedFolder}
-                  onClickNode={this.setActiveNode}
-                  downloadFileNode={this.handleFileDownload}
-                />
-              ) : (
-                <Alert
-                  variant="info"
-                  title="Please select a file or folder from the file explorer"
-                  className="empty"
-                />
-              )}
-            </GridItem>
-          </Grid>
+          {!viewerMode ?
+            <Grid>
+              <GridItem className="pf-u-p-sm" sm={12} md={3}>
+                {
+                  <FileExplorer
+                    explorer={explorer}
+                    selectedNode={selectedFile || selectedFolder}
+                    onClickNode={this.setActiveNode}
+                  />
+                }
+              </GridItem>
+              <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
+                {!!selectedFile && !!selectedFolder ? (
+                  <FileDetailView selectedFile={selectedFile} toggleViewerMode={this.toggleViewerMode} />
+                ) : !!selectedFolder ? (
+                  <FileTableView
+                    selectedFolder={selectedFolder}
+                    onClickNode={this.setActiveNode}
+                    downloadFileNode={this.handleFileDownload}
+                  />
+                ) : (
+                      <Alert
+                        variant="info"
+                        title="Please select a file or folder from the file explorer"
+                        className="empty"
+                      />
+                    )}
+              </GridItem>
+            </Grid> :
+            <div className="viewer-data">
+             {(!!selectedFile && !!selectedFolder) && <GalleryView
+                selectedFile={selectedFile}
+                selectedFolder={selectedFolder}
+                toggleViewerMode={this.toggleViewerMode}
+                />}
+            </div>
+          }
         </div>
       )
     );
@@ -114,13 +125,15 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(setExplorerRequest(files, selected)),
   setSelectedFile: (selectedFile: IUITreeNode, selectedFolder?: IUITreeNode) => dispatch(setSelectedFile(selectedFile, selectedFolder)),
   setSelectedFolder: (selectedFolder: IUITreeNode) => dispatch(setSelectedFolder(selectedFolder)),
+  toggleViewerMode: (isViewerOpened: boolean) => dispatch(toggleViewerMode(isViewerOpened)),
   destroyExplorer: () => dispatch(destroyExplorer())
 });
 
 const mapStateToProps = ({ explorer }: ApplicationState) => ({
   selectedFile: explorer.selectedFile,
   selectedFolder: explorer.selectedFolder,
-  explorer: explorer.explorer
+  explorer: explorer.explorer,
+  viewerMode: explorer.viewerMode
 });
 
 export default connect(

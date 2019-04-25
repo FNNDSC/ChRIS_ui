@@ -13,11 +13,13 @@ export interface IExplorerState {
     explorer: IUITreeNode;
     selectedFile?: IUITreeNode;
     selectedFolder?: IUITreeNode;
+    viewerMode: boolean;
 }
 
 export const ExplorerActionTypes = keyMirror({
     SET_EXPLORER_REQUEST: null,
     SET_SELECTED_FILE: null,
     SET_SELECTED_FOLDER: null,
+    TOGGLE_VIEWER_MODE: null,
     DESTROY_EXPLORER: null
 });

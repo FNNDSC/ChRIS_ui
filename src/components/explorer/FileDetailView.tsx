@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button } from "@patternfly/react-core";
-import { DownloadIcon } from "@patternfly/react-icons";
+import { DownloadIcon, ExpandIcon } from "@patternfly/react-icons";
 import { getFileExtension, IUITreeNode } from "../../api/models/file-explorer.model";
 import { IFileBlob } from "../../api/models/file-viewer.model";
 import FeedFileModel from "../../api/models/feed-file.model";
@@ -12,6 +12,7 @@ import "./file-detail.scss";
 
 type AllProps = {
   selectedFile: IUITreeNode;
+  toggleViewerMode: (isViewerMode: boolean) => void;
 };
 
 class FileDetailView extends React.Component<AllProps, IFileBlob> {
@@ -92,14 +93,20 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
 
   renderDownloadButton = () => {
     return (
-      <Button
-        variant="primary"
-        className="float-right"
-        onClick={() => {
-          this.downloadFileNode();
-        }}  >
-        <DownloadIcon /> Download
-      </Button>
+      <div className="float-right">
+        <Button
+          variant="link"
+          onClick={() => {
+            this.props.toggleViewerMode(false);
+          }} ><ExpandIcon /> open in viewer</Button>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            this.downloadFileNode();
+          }}  >
+          <DownloadIcon />
+        </Button>
+      </div>
     );
   };
 

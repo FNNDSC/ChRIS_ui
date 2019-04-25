@@ -22,7 +22,7 @@ class DcmImageSeries extends React.Component<AllProps> {
   dynamicImagePixelData: string | ArrayBuffer | null = null;
   componentDidMount() {
     const { file, galleryItem, galleryItems } = this.props;
-    console.log(galleryItem);
+    // console.log(galleryItem);
     if (!!file.blob) {
       const url = window.URL.createObjectURL(new Blob([file.blob]));
       this.initAmi(url);
@@ -30,7 +30,7 @@ class DcmImageSeries extends React.Component<AllProps> {
   }
 
   render() {
-    console.log(this.props.galleryItems);
+    // console.log(this.props.galleryItems);
     return (
       <div className="ami-viewer">
         <div id="my-gui-container" />

@@ -1,0 +1,20 @@
+/*
+*  File:            GalleryInfoPanel.scss
+*  Description:     This files holds styles specific for the file explorer Gallery Toolbar
+*  Author:          ChRIS UI
+*/
+@import "../../../assets/scss/helpers/variables";
+.gallery-info{
+  color: #fff;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  button {
+    margin-top: 10px;
+    vertical-align: middle;
+    svg {
+      color: #fff;
+    }
+  }
+}
