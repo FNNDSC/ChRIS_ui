@@ -7,46 +7,59 @@
 @import "../../assets/scss/helpers/variables";
 @import "../../assets/scss/helpers/mixins";
 @import "../../assets/scss/vendors/react-ui-tree";
-$max-width-sm:  700px;
+
 // File detail view
 // -----------------------------------------------
-.file-detail{
-  .pf-c-alert{
-    max-width: $max-width-sm;
-    margin: 1rem 3rem;
-    label{
-      display: block;
-      margin-bottom: 0.5rem;
+.output-viewer{
+  .catchall{ // catchall
+    .pf-c-alert{
+      max-width: $fe-viewer-max-width-sm;
+      margin: 1rem 3rem;
+      label{
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+  // Iframe to display the file contents
+  .default-display, .json-display{
+    min-height: $fe-viewer-min-heigth;
+  }
+  .default-display{
+    background: white;
+    border: solid 1px $fe-viewer-border;
+    border-radius: 4px;
+    max-width: $fe-viewer-max-width-sm;
+    iframe{
+      height: $fe-viewer-min-heigth;
+      margin: 0 auto;
+      padding: 5px;
+      width: 100%;
+    }
+  }
+  .json-display{
+    background: $fe-viewer-background;
+    border: solid 1px $fe-viewer-border;
+    border-radius: 4px;
+    padding: 1rem;
+    overflow: auto;
+    max-height: $fe-viewer-min-heigth;
+  }
+  // AMI / DCMDisplay
+  .ami-viewer {
+    min-height: $fe-viewer-min-heigth;
+  }
+
+  // Image display
+  .image-block{
+    text-align: center;
+    img{
+      max-height: $fe-viewer-min-heigth;
     }
   }
 }
-// Iframe to display the file contents
-.default-display, .json-display{
-  min-height: calc(100vh - 280px);
-}
-.default-display{
-  border: solid 1px #eee;
-  border-radius: 4px;
-  max-width: $max-width-sm;
-  iframe{
-    height: calc(100vh - 280px);
-    margin: 0 auto;
-    padding: 5px;
-    width: 100%;
-  }
-}
-.json-display{
-  background: #f8f9fa;
-  border: solid 1px #eee;
-  border-radius: 4px;
-  padding: 1rem;
-  overflow: auto;
-}
 
 .header-panel{
-  &.sm{
-    max-width: $max-width-sm;
-  }
   h1{
     padding-top:15px;
     margin-bottom: 10px;

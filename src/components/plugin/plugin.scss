@@ -25,6 +25,7 @@
         border: none 0;
     }
     .pf-c-data-list__item.pf-m-expanded{
+       
         padding-bottom: 0.5rem;
         .pf-c-data-list__expandable-content{
             padding-top:0.2rem;
@@ -35,6 +36,9 @@
         padding:0 1rem 1rem 1.5rem;
         svg{
             margin-right: 5px;
+        }
+        .empty{
+            min-height: 100px;
         }
     }
     h1, ul{
@@ -65,6 +69,7 @@
             }
         }
     }
+   
 }
 
 

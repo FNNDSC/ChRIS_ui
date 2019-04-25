@@ -1,5 +1,5 @@
 import * as React from "react";
-import Wrapper from "../../containers/layout/PageWrapper";
+import Wrapper from "../../containers/Layout/PageWrapper";
 import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
 import "./not-found.scss";
 

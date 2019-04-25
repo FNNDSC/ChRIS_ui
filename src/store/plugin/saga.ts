@@ -1,13 +1,13 @@
 import { all, call, fork, put, takeEvery } from "redux-saga/effects";
 import { PluginActionTypes } from "./types";
 import FeedModel from "../../api/models/feed.model";
+import ChrisModel from "../../api/models/base.model";
 import {
   getPluginDetailsSuccess,
   getPluginDescendantsSuccess,
   getPluginFilesSuccess,
   getPluginParametersSuccess,
   getPluginFilesRequest,
-  setExplorerSuccess,
   getPluginParametersRequest
 } from "./actions";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
@@ -74,8 +74,6 @@ function* handleGetPluginFiles(action: any) {
       console.error(res.error); // working user messaging
     } else {
       yield put(getPluginFilesSuccess(res));
-      yield put(setExplorerSuccess(res.data.results, selected)); // Structure the files for explorer
-
     }
   } catch (error) {
     console.error(error); // working user messaging
@@ -111,6 +109,7 @@ function* watchGetPluginParameters() {
     handleGetPluginParameters
   );
 }
+
 
 // ------------------------------------------------------------------------
 // We can also use `fork()` here to split our saga into multiple watchers.
