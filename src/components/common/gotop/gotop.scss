@@ -9,7 +9,7 @@
 
 
  #gotop{
-   @include opacity(0.2);
+   @include opacity(0);
    bottom: $gotop-dimension*0.75;
    cursor: default;
    font-size: $gotop-dimension;
