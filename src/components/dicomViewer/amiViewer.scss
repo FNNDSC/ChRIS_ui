@@ -1,0 +1,29 @@
+/*
+*  File:            amiViewer.scss
+*  Description:     This files holds styles specific for the dcm viewer
+*  Author:          ChRIS UI
+*/
+
+
+.ami-viewer{
+    position:relative;
+    min-height: calc(100vh - 100px);
+    #container {
+        bottom: 0;
+        height: 100%;
+        left: 0;
+        overflow: hidden;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 100%;
+    }
+    
+    #my-gui-container {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 1;
+    }
+      
+}

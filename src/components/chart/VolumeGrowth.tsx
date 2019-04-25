@@ -15,13 +15,13 @@ const data : any[] = [];
 
 const defaultChartData = [
   age,
-  ["G_and_S_frontomargin_RHPatient", null, null, null, 2050, null, null, null],
-  ["G_and_S_frontomargin_RHAverage", 1517.2, 1679.0, 1923.3333333333333, 2298.0, 2373.0, 2450.6, 2499.25],
-  ["G_and_S_frontomargin_LHPatient", null, null, null, 1950, null, null, null],
-  ["G_and_S_frontomargin_LHAverage", 1617.2, 1650.0, 1890.3333333333333, 2198.0, 2273.0, 2350.6, 2349.25]
+  ["G_and_S_frontomargin_RHPatient", null, null, null, 2030, null, null, null],
+  ["G_and_S_frontomargin_RHAverage", 1517.2, 1679.0, 1923.3333333333333, 2060.0, 2373.0, 2450.6, 2499.25],
+  ["G_and_S_frontomargin_RHFirstDevPos", 1567.2, 1729.0, 1970.3333333333333, 2110.0, 2423.0, 2500.6, 2549.25],
+  ["G_and_S_frontomargin_RHFirstDevNeg", 1467.2, 1629.0, 1876.3333333333333, 2010.0, 2323.0, 2400.6, 2449.25]
 ];
 
-const defaultSegments = ["G_and_S_frontomargin"];
+const defaultSegments = ["G_and_S_frontomargin_RH"];
 
 class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   constructor(props: ComponentProps) {
@@ -53,20 +53,49 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
       data: {
         x: "age",
         columns: inputChart,
-        type: "spline",
         colors: {
-          G_and_S_frontomargin_LHPatient: "#FFA500",
           G_and_S_frontomargin_RHPatient: "#00BFFF",
-          G_and_S_frontomargin_LHAverage: "#FFA500",
-          G_and_S_frontomargin_RHAverage: "#00BFFF",
-          G_and_S_occipital_inf_LHPatient: "#FFA500",
+          G_and_S_frontomargin_RHAverage: "#FF0000",
+          G_and_S_frontomargin_RHFirstDevPos: "#F08080",
+          G_and_S_frontomargin_RHFirstDevNeg: "#F08080",
+          G_and_S_frontomargin_LHPatient: "#FFA500",
+          G_and_S_frontomargin_LHAverage: "#006600",
+          G_and_S_frontomargin_LHFirstDevPos: "#009900",
+          G_and_S_frontomargin_LHFirstDevNeg: "#009900",
+
           G_and_S_occipital_inf_RHPatient: "#00BFFF",
-          G_and_S_occipital_inf_LHAverage: "#FFA500",
-          G_and_S_occipital_inf_RHAverage: "#00BFFF",
-          G_and_S_paracentral_LHPatient: "#FFA500",
+          G_and_S_occipital_inf_RHAverage: "#FF0000",
+          G_and_S_occipital_inf_RHFirstDevPos: "#F08080",
+          G_and_S_occipital_inf_RHFirstDevNeg: "#F08080",
+          G_and_S_occipital_inf_LHPatient: "#FFA500",
+          G_and_S_occipital_inf_LHAverage: "#006600",
+          G_and_S_occipital_inf_LHFirstDevPos: "#009900",
+          G_and_S_occipital_inf_LHFirstDevNeg: "#009900",
+
           G_and_S_paracentral_RHPatient: "#00BFFF",
-          G_and_S_paracentral_LHAverage: "#FFA500",
-          G_and_S_paracentral_RHAverage: "#00BFFF"
+          G_and_S_paracentral_RHAverage: "#FF0000",
+          G_and_S_paracentral_RHFirstDevPos: "#F08080",
+          G_and_S_paracentral_RHFirstDevNeg: "#F08080",
+          G_and_S_paracentral_LHPatient: "#FFA500",
+          G_and_S_paracentral_LHAverage: "#006600",
+          G_and_S_paracentral_LHFirstDevPos: "#009900",
+          G_and_S_paracentral_LHFirstDevNeg: "#009900"
+        },
+        regions: {
+          "G_and_S_frontomargin_RHFirstDevPos": [{'end':13}],
+          "G_and_S_frontomargin_RHFirstDevNeg": [{'end':13}],
+          "G_and_S_frontomargin_LHFirstDevPos": [{'end':13}],
+          "G_and_S_frontomargin_LHFirstDevNeg": [{'end':13}],
+
+          "G_and_S_occipital_inf_RHFirstDevPos": [{'end':13}],
+          "G_and_S_occipital_inf_RHFirstDevNeg": [{'end':13}],
+          "G_and_S_occipital_inf_LHFirstDevPos": [{'end':13}],
+          "G_and_S_occipital_inf_LHFirstDevNeg": [{'end':13}],
+
+          "G_and_S_paracentral_RHFirstDevPos": [{'end':13}],
+          "G_and_S_paracentral_RHFirstDevNeg": [{'end':13}],
+          "G_and_S_paracentral_LHFirstDevPos": [{'end':13}],
+          "G_and_S_paracentral_LHFirstDevNeg": [{'end':13}]
         }
       },
       padding: {
@@ -83,7 +112,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
         },
         y: {
           label: {
-            text: "Size in mm3",
+            text: "Volume in mm\u00B3",
             position: "outer-middle"
           }
         }
@@ -109,6 +138,32 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
     });
   }
 
+  // Use this function once data of devation is available
+  getDeviation(segment: string, deviation: number) {
+    let devSegment: any;
+
+    if(deviation > 0) {
+      devSegment = segment.replace("FirstDevPos", "");
+    } else {
+      devSegment = segment.replace("FirstDevNeg", "");
+    }
+
+    let segmentData: any;
+    segmentData = volumeData.find(segmentData => {
+        return segmentData[0] === devSegment + "Average";
+    });
+
+    for(let i = 0; i < segmentData.length; i++){
+      if(i > 0) {
+        segmentData[i] = segmentData[i] + deviation;
+      } else {
+        segmentData[i] = segment;
+      }
+    }
+
+    return segmentData;
+  }
+
   getSegmentData(segment: string) {
     const segmentData = volumeData.find(segmentData => {
       return segmentData[0] === segment;
@@ -118,35 +173,14 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
 
   setFilter() {
     let filteredData: any[] = [];
-    // Get the Patient data for the segment
+    const volumeParameters = ["Average", "Patient", "FirstDevPos", "FirstDevNeg"];
+
     if (this.state.pushedSegments.length > 0) {
-      filteredData = this.state.pushedSegments.map(segment =>
-        this.getSegmentData(segment + "_LHAverage")
-      );
-    }
-    // Get the Average data for the segment
-    if (this.state.pushedSegments.length > 0) {
-      filteredData = filteredData.concat(
-        this.state.pushedSegments.map(segment =>
-          this.getSegmentData(segment + "_LHPatient")
-        )
-      );
-    }
-    // Get the Average data for the segment
-    if (this.state.pushedSegments.length > 0) {
-      filteredData = filteredData.concat(
-        this.state.pushedSegments.map(segment =>
-          this.getSegmentData(segment + "_RHAverage")
-        )
-      );
-    }
-    // Get the Average data for the segment
-    if (this.state.pushedSegments.length > 0) {
-      filteredData = filteredData.concat(
-        this.state.pushedSegments.map(segment =>
-          this.getSegmentData(segment + "_RHPatient")
-        )
-      );
+      for(let i = 0; i < volumeParameters.length; i++) {
+        filteredData = filteredData.concat(this.state.pushedSegments.map(segment =>
+          this.getSegmentData(segment + volumeParameters[i])
+        ));
+      }
     }
 
     filteredData.push(age);

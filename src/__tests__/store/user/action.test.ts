@@ -1,4 +1,3 @@
-import React from "react";
 import {
 		getAuthToken,
 		getAuthTokenSuccess,
@@ -7,17 +6,16 @@ import {
 import {IUserState,UserActionTypes} from "../../../store/user/types";
 
 
-describe('actions of user', () => {
+describe("actions of user", () => {
 
 	it("getAuthToken should return",() => {
 		const UserState:IUserState = {
-		    username: "string",
-		    password: 'string',
-		    email: 'string',
-		    token: 'string',	
+		    username: "Chris",
+		    password: "thisisapassword",
+		    email: "chris@gmail.com",
+		    token: "dsfj23lj234njk43nrk34j",	
 		    isRememberMe: true,
-		    isLoggedIn: false,
-		   
+		    isLoggedIn: false, 
 		}
 
 		const expectedResult = 

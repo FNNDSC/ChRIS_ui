@@ -1,0 +1,31 @@
+/*
+*  File:            zScoreData.scss
+*  Description:     This files holds styles specific for the z-score tables
+*  Author:          ChRIS UI
+*/
+
+@import '../../../assets/scss/helpers/pf4-variables'; 
+@import '../../../assets/scss/helpers/variables'; 
+.zscore-table{
+    max-width: $pf-global--breakpoint--lg;
+    padding: 0 2rem 1rem;
+    h1{
+        margin-bottom: 0.5rem;
+    }
+    table{
+        th{
+            font-weight: 700;
+            padding-bottom: 0.5rem; 
+        }
+        th,td{
+            padding-left: 0; 
+        }
+        td{
+            border-bottom: solid 1px var(--pf-global--BackgroundColor--200);
+        }
+        // th:not(:first-child),td:not(:first-child){
+        //     text-align: center;
+        // }
+    }
+
+}
