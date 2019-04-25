@@ -20,17 +20,21 @@ function* handleInitGalleryRequest(action: any) {
   try {
     const selectedFile: IUITreeNode = action.payload.selectedFile;
     const selectedFolder: IUITreeNode = action.payload.selectedFolder;
-    const index = !!selectedFolder.children ? GalleryModel.getGalleryItemIndex(selectedFile.uiId, selectedFolder.children) : 0;
+    const index = !!selectedFolder.children
+      ? GalleryModel.getGalleryItemIndex(
+          selectedFile.uiId,
+          selectedFolder.children
+        )
+      : 0;
     const galleryItemModel = new GalleryItemModel(selectedFile, index);
     const res = yield call(
       GalleryModel.getGalleryItemBlob,
       galleryItemModel.galleryItem
     );
-    if (res.error) {
-      console.error(res.error);
-    } else {
-      yield put(setGalleryActiveItemSuccess(galleryItemModel.setGalleryItemBlob(res.data)));
-    }
+    // Handles errors in files
+    const data  = (!!res.error) ? {error: res.error} : {blob: res.data};
+    yield put( setGalleryActiveItemSuccess( galleryItemModel.setGalleryItemBlob(data)));
+
     // Initiate gallery Items call
     yield put(setGalleryItems({ selectedFile, selectedFolder }));
   } catch (error) {
@@ -46,6 +50,7 @@ function* watchInitGalleryRequest() {
     handleInitGalleryRequest
   );
 }
+
 // ------------------------------------------------------------------------
 // Description: Get ALL Gallery Items set the active gallery item and items array
 function* handleGetGalleryItemsRequest(action: any) {
@@ -56,7 +61,11 @@ function* handleGetGalleryItemsRequest(action: any) {
     const responses = yield all(
       galleryList.galleryItems.map((item: IGalleryItem) =>
         call(function*() {
-          return yield call(GalleryModel.getGalleryItemBlob, item);
+          try {
+            return yield call(GalleryModel.getGalleryItemBlob, item);
+          } catch (error) {
+            return { error };
+          }
         })
       )
     );
@@ -77,8 +86,5 @@ function* watchGetGalleryItemsRequest() {
 // ------------------------------------------------------------------------
 // We can also use `fork()` here to split our saga into multiple watchers.
 export function* gallerySaga() {
-  yield all([
-    fork(watchInitGalleryRequest),
-    fork(watchGetGalleryItemsRequest)
-  ]);
+  yield all([fork(watchInitGalleryRequest), fork(watchGetGalleryItemsRequest)]);
 }

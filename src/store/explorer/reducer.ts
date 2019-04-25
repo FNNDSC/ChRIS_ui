@@ -30,7 +30,7 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
       return { ...state, viewerMode: action.payload };
     }
     case ExplorerActionTypes.DESTROY_EXPLORER: {
-      return { ...state, selectedFile: undefined, selectedFolder: undefined, viewerMode: false };
+      return { ...state, ...initialState};
     }
 
     default: {

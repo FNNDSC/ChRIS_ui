@@ -13,6 +13,7 @@ export interface IGalleryItem extends IFeedFile {
   fileType?: string;
   isActive: boolean;
   index: number;
+  error?: any
 }
 
 // Description: Add all gallery related actions in this object
@@ -29,13 +30,18 @@ export const galleryActions = keyMirror({
 type galleryModelItemType = IUITreeNode | IGalleryItem;
 export default class GalleryModel {
   static getGalleryItemBlob(galleryItem: IGalleryItem) {
-    return FeedFileModel.getFileBlob(galleryItem.file_resource);
+    return FeedFileModel.getFileBlob(galleryItem.file_resource).catch((error) => {  // HANDLE ERROR FILES
+      return {error};
+    });
   }
 
   // Find a gallery item by uiId
-  static getGalleryItemIndex(uiId: string, galleryItems: galleryModelItemType[]) {
+  static getGalleryItemIndex(
+    uiId: string,
+    galleryItems: galleryModelItemType[]
+  ) {
     return _.findIndex(galleryItems, (item: galleryModelItemType) => {
-        return _.isEqual(uiId, item.uiId);
+      return _.isEqual(uiId, item.uiId);
     });
   }
 }
@@ -46,7 +52,10 @@ export class GalleryListModel {
     this.galleryItems = this._buildGalleryArray(selectedFile, selectedFolder);
   }
 
-  _buildGalleryArray(selectedFile: IUITreeNode, selectedFolder: IUITreeNode): IGalleryItem[] {
+  _buildGalleryArray(
+    selectedFile: IUITreeNode,
+    selectedFolder: IUITreeNode
+  ): IGalleryItem[] {
     !!selectedFolder.children &&
       selectedFolder.children.map((node: IUITreeNode, index: number) => {
         const galleryItem = new GalleryItemModel(node, index).galleryItem;
@@ -56,24 +65,29 @@ export class GalleryListModel {
   }
 
   setGalleryItem(responses: any) {
-    this.galleryItems = _.zipWith(this.galleryItems, responses, (galleryItem: IGalleryItem, response: any) => {
-      return Object.assign({}, galleryItem, {blob: response.data});
-    });
+    this.galleryItems = _.zipWith(
+      this.galleryItems,
+      responses,
+      (galleryItem: IGalleryItem, response: any) => {
+        const responseObj = !!response.data ? { blob: response.data } : { error: response, blob: null };
+        return Object.assign({}, galleryItem, responseObj);
+      }
+    );
   }
-
 }
 
 export class GalleryItemModel {
   galleryItem: IGalleryItem;
   index: number;
-  constructor(node: IUITreeNode, index: number= 0) {
+  constructor(node: IUITreeNode, index: number = 0) {
     this.index = index;
     this.galleryItem = this._buildGalleryItem(node);
   }
 
   // Sets the blob and returns active item
-  setGalleryItemBlob(data: Blob) {
-    return {...this.galleryItem, blob: data  };
+  setGalleryItemBlob(response: any ) {
+    const responseObj = !!response.blob ? response : { error: response.error, blob: null };
+    return Object.assign({}, this.galleryItem, responseObj); /// { ...this.galleryItem, responseObj };
   }
 
   // Description: takes an explorer tree node and returns a gallery Item
