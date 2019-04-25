@@ -61,7 +61,7 @@ class GalleryView extends React.Component<AllProps> {
         index={!!galleryItem ? galleryItem.index : 0}
         total={galleryItems.length || 0}
         handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
-        <GalleryInfoPanel toggleViewerMode={() => this.props.toggleViewerMode(true)} />
+        <GalleryInfoPanel galleryItem={galleryItem} toggleViewerMode={() => this.props.toggleViewerMode(true)} />
         {
           (!!galleryItem && !!galleryItem.blob) ? <ViewerDisplay tag={viewerName} file={galleryItem} /> :
             (!!galleryItem && !!galleryItem.error) ? <Alert

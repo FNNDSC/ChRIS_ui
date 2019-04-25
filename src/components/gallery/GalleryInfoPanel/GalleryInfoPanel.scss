@@ -10,9 +10,15 @@
   position: absolute;
   top: 0;
   width: 100%;
-  button {
+  z-index: 99999;
+  div{
+    color: #999;
+    padding: 1rem;
+    font-size: 0.875rem;
+  }
+  button.close-btn {
     margin-top: 10px;
-    vertical-align: middle;
+    float: right;
     svg {
       color: #fff;
     }
