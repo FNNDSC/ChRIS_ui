@@ -69,7 +69,7 @@ class GalleryView extends React.Component<AllProps, {viewInfoPanel: boolean}> {
             </Button>
         {this.state.viewInfoPanel && <GalleryInfoPanel galleryItem={galleryItem} /> }
         {
-          (!!galleryItem && !!galleryItem.blob) ? <ViewerDisplay tag={viewerName} file={galleryItem} /> :
+          (!!galleryItem && !!galleryItem.blob) ? <ViewerDisplay tag={viewerName} file={galleryItem} galleryItems={galleryItems} /> :
             (!!galleryItem && !!galleryItem.error) ? <Alert
               variant="danger"
               title="There was an error loading this file"

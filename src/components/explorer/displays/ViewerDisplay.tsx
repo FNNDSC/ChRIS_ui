@@ -14,6 +14,7 @@ import {
 type AllProps = {
     tag: string;
     file: IGalleryItem | IFileBlob;
+    galleryItems?: IGalleryItem[];
 }
 
 class ViewerDisplay extends React.Component<AllProps> {
@@ -26,8 +27,8 @@ class ViewerDisplay extends React.Component<AllProps> {
     };
     render() {
         const TagName = (this.components as any)[this.props.tag || "CatchallDisplay"];
-        const { file } = this.props;
-        return <TagName file={file} />
+        const { file, galleryItems } = this.props;
+        return <TagName  {...this.props}  />
     }
 }
 export default React.memo(ViewerDisplay);
