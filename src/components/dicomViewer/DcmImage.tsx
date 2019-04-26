@@ -83,7 +83,7 @@ class DcmImage extends React.Component<AllProps> {
           const series = loader.data[0].mergeSeries(loader.data);
           const stack = series[0].stack[0];
           loader.free();
-
+        
           // const stackHelper = new AMI.StackHelper(stack);
           const StackHelper = stackHelperFactory(THREE);
           const stackHelper = new StackHelper(stack);

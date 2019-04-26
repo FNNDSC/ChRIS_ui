@@ -19,7 +19,6 @@ type AllProps = {
 
 // Description: Will be replaced with a DCM Fyle viewer
 class DcmImageSeries extends React.Component<AllProps> {
-  dynamicImagePixelData: string | ArrayBuffer | null = null;
   componentDidMount() {
     const { file, galleryItem, galleryItems } = this.props;
     // console.log(galleryItem);
@@ -88,7 +87,7 @@ class DcmImageSeries extends React.Component<AllProps> {
           const series = loader.data[0].mergeSeries(loader.data);
           const stack = series[0].stack[0];
           loader.free();
-
+          console.log(stack);
           // const stackHelper = new AMI.StackHelper(stack);
           const StackHelper = stackHelperFactory(THREE);
           const stackHelper = new StackHelper(stack);
