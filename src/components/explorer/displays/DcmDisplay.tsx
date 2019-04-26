@@ -1,6 +1,7 @@
 import * as React from "react";
 import { IFileBlob } from "../../../api/models/file-viewer.model";
 import DcmImageSeries from "../../dicomViewer/DcmImageSeries";
+import DcmImage from "../../dicomViewer/DcmImageSeries";
 import { IGalleryItem } from "../../../api/models/gallery.model";
 
 type AllProps = { file: IGalleryItem };
@@ -15,7 +16,7 @@ const DcmDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   }
   return (
     <div className="dcm-display">
-      <DcmImageSeries file={fileBlob} />
+      <DcmImage file={fileBlob} />
     </div>
   );
 };
