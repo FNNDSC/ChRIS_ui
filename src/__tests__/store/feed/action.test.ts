@@ -1,4 +1,3 @@
-import React from 'react';
 import { FeedActionTypes,  } from "../../../store/feed/types";
 import { IFeedItem } from "../../../api/models/feed.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
@@ -9,9 +8,9 @@ import {
   getPluginInstanceListSuccess,
   destroyFeed } from "../../../store/feed/actions";
 
-describe('feed actions', () => {
-  it('getFeedDetailsRequest should return correct types', () => {
-    const id: string = 'testID'
+describe("feed actions", () => {
+  it("getFeedDetailsRequest should return correct types", () => {
+    const id: string = "testID"
     const expectedAction = {
       type: FeedActionTypes.GET_FEED_DETAILS,
       payload: id
@@ -19,39 +18,39 @@ describe('feed actions', () => {
     expect(getFeedDetailsRequest(id)).toEqual(expectedAction)
   })
 
-  it('getFeedDetailsSuccess should return correct types', () => {
-    const TestIFeedItem: IFeedItem = {
-      url: 'string',
-      files: 'string',
-      comments: 'string',
-      owner: ['string'],
-      note: 'string',
-      tags: 'string',
-      taggings: 'string',
-      plugin_instances: 'string',
-      id: 123,
-      creation_date: '3/19/2019',
-      modification_date: '3/20/2019',
-      name: 'Chris',
+  it("getFeedDetailsSuccess should return correct types", () => {
+    const TestFeedItem: IFeedItem = {
+      url: "https://www.redhat.com/en/creating-chris",
+      files: "vedio.mp4",
+      comments: "initial comments",
+      owner: ["Ethan", "Kevin"],
+      note: "This is a note",
+      tags: "testing",
+      taggings: "what is the difference between tag and tagging?",
+      plugin_instances: "simpledsapp",
+      id: 123456,
+      creation_date: "3/19/2019",
+      modification_date: "3/20/2019",
+      name: "Chris",
       template: {
         data: [{
-          name: 'string',
+          name: "patientA",
           value: 123
         }]
       },
-      creator_username: 'Chris_user'
+      creator_username: "Chris_user"
     }
 
     const expectedAction = {
       type: FeedActionTypes.GET_FEED_DETAILS_SUCCESS,
-      payload:TestIFeedItem
+      payload:TestFeedItem
     }
 
-    expect(getFeedDetailsSuccess(TestIFeedItem)).toEqual(expectedAction)
+    expect(getFeedDetailsSuccess(TestFeedItem)).toEqual(expectedAction)
   })
 
-  it('getPluginInstanceListRequest should return correct types', () => {
-    const url: string = 'https://www.google.com'
+  it("getPluginInstanceListRequest should return correct types", () => {
+    const url: string = "https://www.google.com"
     const expectedAction = {
       type: FeedActionTypes.GET_PLUGIN_INSTANCES,
       payload: url
@@ -59,32 +58,32 @@ describe('feed actions', () => {
     expect(getPluginInstanceListRequest(url)).toEqual(expectedAction)
   })
 
-  it('getPluginInstanceListSuccess should return correct types', () => {
+  it("getPluginInstanceListSuccess should return correct types", () => {
     const items: IPluginItem[] = [{
-      url: 'string',
-      feed: 'string',
-      descendants: 'string',
-      files: 'string',
-      parameters: 'string',
-      plugin: 'string',
-      next: 'string',
-      previous: 'string',
+      url: "https://www.redhat.com/en/creating-chris",
+      feed: "This is a feed",
+      descendants: "descendants",
+      files: "whatever.txt",
+      parameters: "e=mc2",
+      plugin: "simpledsapp",
+      next: "pacsretrieve",
+      previous: "s3retrieve",
       id: 123,
-      title: 'string',
-      previous_id: 123,
-      plugin_id: 123,
-      plugin_name: 'string',
+      title: "title",
+      previous_id: 325342,
+      plugin_id: 53425,
+      plugin_name: "simpledsapp",
       pipeline_inst: null,
-      feed_id: 123,
-      start_date: 'string',
-      end_date: 'string',
-      status: 'string',
-      owner_username: 'string',
-      compute_resource_identifier: 'string',
-      cpu_limit: 123,
-      memory_limit: 123,
-      number_of_workers: 123,
-      gpu_limit: 123,
+      feed_id: 435634,
+      start_date: "02/01/2019",
+      end_date: "02/01/2100",
+      status: "working",
+      owner_username: "ethanhou",
+      compute_resource_identifier: "wow",
+      cpu_limit: 8,
+      memory_limit: 1024,
+      number_of_workers: 10,
+      gpu_limit: 8,
     }]
     const expectedAction = {
       type: FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS,
@@ -93,7 +92,7 @@ describe('feed actions', () => {
     expect(getPluginInstanceListSuccess(items)).toEqual(expectedAction)
   })
 
-  it('destroyFeed should return correct types', () => {
+  it("destroyFeed should return correct types", () => {
     const expectedAction = {
       type: FeedActionTypes.RESET_STATE,
     }
