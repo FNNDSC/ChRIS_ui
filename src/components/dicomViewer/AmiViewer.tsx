@@ -12,7 +12,6 @@ import {
 } from "ami.js";
 import "./amiViewer.scss";
 import { getFileExtension } from "../../api/models/file-explorer.model";
-import { contours } from "d3";
 
 type AllProps = {
   galleryItems: IGalleryItem[];
