@@ -4,14 +4,22 @@
 *  Author:          ChRIS UI
 */
 @import "../../../assets/scss/helpers/variables";
-.gallery-info{
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  font-size: 0.875rem;
+.dcm-info{
   left: 0;
   padding: 1rem;
   position: absolute;
   top: 0;
   width: 100%;
   z-index: 9999;
+  *{
+    color: #999;
+    font-size: 0.875rem;
+  }
+  label{
+    color: #777;
+    margin: 0 5px 0 0;
+  }
+  .right{
+    text-align: right;
+  }
 }

@@ -74,7 +74,7 @@ export default class UITreeNodeModel {
       !isLeaf ? this._AddFolder(item, uiId) : this._addFile(item, uiId, file);
     });
   }
- 
+
   // Description: Add or find a folder in the tree
   private _AddFolder = (item: string, uiId: string) => {
     const newFolder = Object.assign({}, this._folderTemplate, { module: item, uiId }); // This is what we will add

@@ -16,7 +16,8 @@ type AllProps = {
 
 // Description: Will be replaced with a DCM Fyle viewer
 class DcmImage extends React.Component<AllProps> {
-  dynamicImagePixelData: string | ArrayBuffer | null = null;
+  private _removeResizeEventListener?: () => void = undefined;
+  // dynamicImagePixelData: string | ArrayBuffer | null = null;
   componentDidMount() {
     const { file } = this.props;
     if (!!file.blob) {
@@ -36,7 +37,7 @@ class DcmImage extends React.Component<AllProps> {
 
   // Description: Run AMI CODE ***** working to be abstracted out
   initAmi = (file: string) => {
-    const container = document.getElementById("container"); // console.log("initialize AMI", this.state, container);
+    const container = document.getElementById("container"); 
     if (!!container) {
       const renderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -71,10 +72,9 @@ class DcmImage extends React.Component<AllProps> {
           height: container.offsetHeight,
         };
         camera.fitBox(2);
-
         renderer.setSize(container.offsetWidth, container.offsetHeight);
       };
-      window.addEventListener("resize", onWindowResize, false);
+      // window.addEventListener("resize", onWindowResize, false);
 
       const loader = new AMI.VolumeLoader(container);
       loader
@@ -117,6 +117,10 @@ class DcmImage extends React.Component<AllProps> {
           camera.canvas = canvas;
           camera.update();
           camera.fitBox(2);
+
+          // Bind event handler at the end
+          window.addEventListener("resize", onWindowResize, false);
+          this._removeResizeEventListener = () => window.removeEventListener("resize", onWindowResize, false);
         }).catch((error: any) => {
           console.error(error);
         });
@@ -206,6 +210,9 @@ class DcmImage extends React.Component<AllProps> {
         stackFolder.open();
       };
     }
+  }
+  componentWillUnmount() {
+    !!this._removeResizeEventListener && this._removeResizeEventListener();
   }
 }
 

@@ -5,17 +5,17 @@ import { DownloadIcon } from "@patternfly/react-icons";
 import { Alert, Button } from "@patternfly/react-core";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 type AllProps = {
- file: IGalleryItem;
+  galleryItem: IGalleryItem;
 };
 // Description: No preview message available for this file type
 const CatchallDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     const noPreviewMessage = () => {
-        const { file } = props;
-        const ext = getFileExtension(file.fileName);
+        const { galleryItem } = props;
+        const ext = getFileExtension(galleryItem.fileName);
         const alertText = (
         <React.Fragment>
             <label>
-              <b>File Name:</b> {file.fileName}
+              <b>File Name:</b> {galleryItem.fileName}
             </label>
             <label>
               <b>File Type:</b> {ext}
@@ -23,7 +23,7 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => 
            <Button
               variant="primary"
               className="float-right"
-              onClick={ () => FileViewerModel.downloadFile(file.blob, file.fileName) }
+              onClick={ () => FileViewerModel.downloadFile(galleryItem.blob, galleryItem.fileName) }
             ><DownloadIcon /> Download</Button>
         </React.Fragment>
       );

@@ -13,6 +13,7 @@ import { LoadingComponent } from "..";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import ViewerDisplay from "./displays/ViewerDisplay";
 import GalleryInfoPanel from "../gallery/GalleryInfoPanel/GalleryInfoPanel";
+import GalleryDicomView from "../explorer/GalleryDicomView";
 import _ from "lodash";
 import "./file-detail.scss";
 
@@ -59,9 +60,15 @@ class GalleryView extends React.Component<AllProps, {viewInfoPanel: boolean}> {
     const { galleryItem, galleryItems } = this.props;
     const viewerName = (!!galleryItem && !!galleryItem.fileType) ? fileViewerMap[galleryItem.fileType] : "";
     return (
+      (viewerName.length && viewerName === "DcmDisplay") ?
+      <GalleryDicomView
+      selectedFile={this.props.selectedFile}
+      selectedFolder={this.props.selectedFolder}
+      toggleViewerMode={this.props.toggleViewerMode}
+      /> :
       <GalleryWrapper
         index={!!galleryItem ? galleryItem.index : 0}
-        total={galleryItems.length || 0}
+        total={galleryItems.length || 0} 
         handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
         <Button className="close-btn"
                 variant="link"
@@ -69,7 +76,8 @@ class GalleryView extends React.Component<AllProps, {viewInfoPanel: boolean}> {
             </Button>
         {this.state.viewInfoPanel && <GalleryInfoPanel galleryItem={galleryItem} /> }
         {
-          (!!galleryItem && !!galleryItem.blob) ? <ViewerDisplay tag={viewerName} file={galleryItem} /> :
+          (!!galleryItem && !!galleryItem.blob) ?
+            <ViewerDisplay tag={viewerName} galleryItem={galleryItem} galleryItems={galleryItems} /> :
             (!!galleryItem && !!galleryItem.error) ? <Alert
               variant="danger"
               title="There was an error loading this file"

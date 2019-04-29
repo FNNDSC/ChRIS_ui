@@ -1,7 +1,8 @@
 import * as React from "react";
-import { connect } from "react-redux";
-import { ApplicationState } from "../../store/root/applicationState";
-import { IFileBlob } from "../../api/models/file-viewer.model";
+import FeedFileModel from "../../api/models/feed-file.model";
+import IDcmSeriesItem from "../../api/models/dcm.model";
+import DcmLoader from "./DcmLoader";
+import DcmInfoPanel from "./DcmInfoPanel/DcmInfoPanel";
 import * as dat from "dat.gui";
 import * as THREE from "three";
 import * as AMI from "ami.js";
@@ -11,40 +12,65 @@ import {
   trackballOrthoControlFactory
 } from "ami.js";
 import "./amiViewer.scss";
-import { IGalleryState } from "../../store/gallery/types";
+
 
 type AllProps = {
-  file: IFileBlob;
-} & IGalleryState;
-
+  imageArray: string[];
+  currentIndex: number;
+  viewInfoPanel: boolean;
+  // setGalleryState: (state: string) => void
+};
+interface IState {
+  totalFiles: number;
+  totalLoaded: number;
+  totalParsed: number;
+  workingSeriesItem?: IDcmSeriesItem;
+}
 // Description: Will be replaced with a DCM Fyle viewer
-class DcmImageSeries extends React.Component<AllProps> {
-  dynamicImagePixelData: string | ArrayBuffer | null = null;
+class DcmImageSeries extends React.Component<AllProps, IState> {
+  _isMounted = false;
+  private _removeResizeEventListener?: () => void = undefined;
+  private _stackHelper: any;
+  constructor(props: AllProps) {
+    super(props);
+    this.state = {
+      totalFiles: props.imageArray.length,
+      totalLoaded: 0,
+      totalParsed: 0,
+      workingSeriesItem: undefined
+    };
+  }
   componentDidMount() {
-    const { file, galleryItem, galleryItems } = this.props;
-    // console.log(galleryItem);
-    if (!!file.blob) {
-      const url = window.URL.createObjectURL(new Blob([file.blob]));
-      this.initAmi(url);
-    }
+    this._isMounted = true;
+    this.initAmi();
+  }
+
+  componentDidUpdate(prevProps: AllProps, prevState: any) {
+    const { currentIndex } = this.props;
+    (prevProps.currentIndex !== currentIndex) &&
+      (this._stackHelper.index = currentIndex);
   }
 
   render() {
-    // console.log(this.props.galleryItems);
+    const { viewInfoPanel } = this.props;
     return (
-      <div className="ami-viewer">
-        <div id="my-gui-container" />
-        <div id="container" />
-      </div>
+      <React.Fragment>
+        {(this.state.totalParsed < this.state.totalFiles) && <DcmLoader totalFiles={this.state.totalFiles} totalParsed={this.state.totalParsed}  />}
+        <div className="ami-viewer">
+          {(!!this.state.workingSeriesItem  && viewInfoPanel ) && <DcmInfoPanel seriesItem={this.state.workingSeriesItem} />}
+          {/* <div id="my-gui-container" /> */}
+          <div id="container" />
+        </div>
+      </React.Fragment>
     );
   }
-
   // Description: Run AMI CODE ***** working to be abstracted out
-  initAmi = (file: string) => {
+  initAmi = () => {
+    const { imageArray } = this.props;
     const container = document.getElementById("container"); // console.log("initialize AMI", this.state, container);
     if (!!container) {
       const renderer = new THREE.WebGLRenderer({
-        antialias: true,
+        antialias: true
       });
       renderer.setSize(container.offsetWidth, container.offsetHeight);
       renderer.setClearColor(colors.black, 1);
@@ -54,14 +80,15 @@ class DcmImageSeries extends React.Component<AllProps> {
       const scene = new THREE.Scene();
       const OrthograhicCamera = orthographicCameraFactory(THREE);
       const width = container.clientWidth,
-      height = container.clientHeight;
-      // type => ( left : number, right : number, top : number, bottom : number, near : number =  0.1, far : number = 2000 ) => void
+        height = container.clientHeight;
       const camera = new OrthograhicCamera(
         width / -2,
         width / 2,
         height / 2,
         height / -2,
-         0.1, 2000);
+        0.1,
+        2000
+      );
 
       // Setup controls
       const TrackballOrthoControl = trackballOrthoControlFactory(THREE);
@@ -73,31 +100,41 @@ class DcmImageSeries extends React.Component<AllProps> {
       const onWindowResize = () => {
         camera.canvas = {
           width: container.offsetWidth,
-          height: container.offsetHeight,
+          height: container.offsetHeight
         };
         camera.fitBox(2);
-
         renderer.setSize(container.offsetWidth, container.offsetHeight);
       };
-      window.addEventListener("resize", onWindowResize, false);
 
-      const loader = new AMI.VolumeLoader(container);
-      loader
-        .load(file)
-        .then(() => {
-          const series = loader.data[0].mergeSeries(loader.data);
-          const stack = series[0].stack[0];
-          loader.free();
+      // Deal with the loader
+      this._loadUrls(imageArray)
+        .then((series: any) => {
+          // merge series
+          const mergedSeries = series[0].mergeSeries(series);
+          const firstSeries = mergedSeries[0];
+          return firstSeries;
+        })
+        .then((series: any) => {
+          const stack = series.stack[0];
 
-          // const stackHelper = new AMI.StackHelper(stack);
+          // Init and configure the stackHelper:
           const StackHelper = stackHelperFactory(THREE);
           const stackHelper = new StackHelper(stack);
           stackHelper.bbox.visible = false;
           stackHelper.border.color = colors.black;
+          stackHelper.index = this.props.currentIndex; // begin at index selected = ASSIGN HERE
+
+
+          // Init the Scene:
           scene.add(stackHelper);
 
           // Add the control box
-          // gui(stackHelper);
+          // gui(stackHelper); // NOTE: use control for dev
+         // Set compoent helpers:
+          this._stackHelper = stackHelper;
+          this._isMounted && this.setState({
+            workingSeriesItem: series
+          })
 
           // center camera and interactor to center of bouding box
           const worldbb = stack.worldBoundingBox();
@@ -109,24 +146,32 @@ class DcmImageSeries extends React.Component<AllProps> {
 
           const box = {
             center: stack.worldCenter().clone(),
-            halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+            halfDimensions: new THREE.Vector3(
+              lpsDims.x + 10,
+              lpsDims.y + 10,
+              lpsDims.z + 10
+            )
           };
 
           // init and zoom
           const canvas = {
             width: container.clientWidth,
-            height: container.clientHeight,
+            height: container.clientHeight
           };
           camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
           camera.box = box;
           camera.canvas = canvas;
           camera.update();
           camera.fitBox(2);
-        }).catch((error: any) => {
+
+          // Bind event handler at the end
+          window.addEventListener("resize", onWindowResize, false);
+          this._removeResizeEventListener = () => window.removeEventListener("resize", onWindowResize, false);
+        })
+        .catch((error: any) => {
           console.error(error);
         });
 
-      // Render gui controls and scene
       const animate = () => {
         controls.update();
         renderer.render(scene, camera);
@@ -137,81 +182,73 @@ class DcmImageSeries extends React.Component<AllProps> {
       };
 
       animate();
-
       // Description: Builds the control box on the top right:
       const gui = (stackHelper: any) => {
         const gui = new dat.GUI({
           autoPlace: false,
         });
-
         const customContainer = document.getElementById("my-gui-container");
         !!customContainer && customContainer.appendChild(gui.domElement);
-        const camUtils = {
-          invertRows: false,
-          invertColumns: false,
-          rotate45: false,
-          rotate: 0,
-          orientation: "default",
-          convention: "radio",
-        };
-
-        // camera
-        const cameraFolder = gui.addFolder("Camera");
-        const invertRows = cameraFolder.add(camUtils, "invertRows");
-        invertRows.onChange(() => {
-          camera.invertRows();
-        });
-
-        const invertColumns = cameraFolder.add(camUtils, "invertColumns");
-        invertColumns.onChange(() => {
-          camera.invertColumns();
-        });
-
-        const rotate45 = cameraFolder.add(camUtils, "rotate45");
-        rotate45.onChange(() => {
-          camera.rotate();
-        });
-
-        cameraFolder
-          .add(camera, "angle", 0, 360)
-          .step(1)
-          .listen();
-
-        const orientationUpdate = cameraFolder.add(camUtils, "orientation", [
-          "default",
-          "axial",
-          "coronal",
-          "sagittal",
-        ]);
-        orientationUpdate.onChange((value: any) => {
-          camera.orientation = value;
-          camera.update();
-          camera.fitBox(2);
-          stackHelper.orientation = camera.stackOrientation;
-        });
-
-        const conventionUpdate = cameraFolder.add(camUtils, "convention", ["radio", "neuro"]);
-        conventionUpdate.onChange((value: any) => {
-          camera.convention = value;
-          camera.update();
-          camera.fitBox(2);
-        });
-
-        cameraFolder.open();
-
         const stackFolder = gui.addFolder("Stack");
         stackFolder
           .add(stackHelper, "index", 0, stackHelper.stack.dimensionsIJK.z - 1)
           .step(1)
           .listen();
-        stackFolder
-          .add(stackHelper.slice, "interpolation", 0, 1)
-          .step(1)
-          .listen();
         stackFolder.open();
       };
     }
+  };
+
+  // Getting Images
+  _loadUrls(galleryItems: string[]) {
+    const loadSequences = new Array();
+    galleryItems.forEach((url: string) => {
+      loadSequences.push(this._loadUrl(url));
+    });
+    return Promise.all(loadSequences);
   }
+
+  _loadUrl(url: string) {
+    const _self = this;
+    const loader = new AMI.VolumeLoader();
+    const fetcher = this._fetchUrl(url);
+    return fetcher
+      .then((arrayBuffer: any) => {
+        const totalLoaded = this.state.totalLoaded + 1;
+        _self._isMounted && this.setState({
+          totalLoaded
+        });
+        return loader
+          .parse({
+            url,
+            buffer: arrayBuffer
+          })
+          .then((response: any) => {
+            const totalParsed = this.state.totalParsed + 1;
+            _self._isMounted && this.setState({
+              totalParsed
+            });
+            return response;
+          });
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
+  }
+
+  _fetchUrl(url: string) {
+    return FeedFileModel.getFileArrayArray(url).then((response: any) => {
+      return response.data;
+    });
+  }
+
+  // Destroy Methods
+  componentWillUnmount() {
+    this._isMounted = false;
+    this._stackHelper = undefined;
+    !!this._removeResizeEventListener && this._removeResizeEventListener();
+  }
+
 }
 
 // Will move out!
@@ -222,14 +259,4 @@ const colors = {
   red: 0xff0000
 };
 
-
-const mapStateToProps = ({ gallery }: ApplicationState) => ({
-  galleryItem: gallery.galleryItem,
-  galleryItems: gallery.galleryItems
-});
-
-export default connect(
-  mapStateToProps,
-  null
-)(DcmImageSeries);
-// export default DcmImageSeries;
+export default DcmImageSeries;
