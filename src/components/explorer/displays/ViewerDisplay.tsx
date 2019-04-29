@@ -13,7 +13,7 @@ import {
 
 type AllProps = {
     tag: string;
-    file: IGalleryItem | IFileBlob;
+    galleryItem: IGalleryItem | IFileBlob;
     galleryItems?: IGalleryItem[];
 }
 
@@ -27,7 +27,7 @@ class ViewerDisplay extends React.Component<AllProps> {
     };
     render() {
         const TagName = (this.components as any)[this.props.tag || "CatchallDisplay"];
-        const { file, galleryItems } = this.props;
+        const { galleryItem, galleryItems } = this.props;
         return <TagName  {...this.props}  />
     }
 }
