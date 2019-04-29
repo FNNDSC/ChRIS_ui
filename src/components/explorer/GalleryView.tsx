@@ -68,7 +68,7 @@ class GalleryView extends React.Component<AllProps, {viewInfoPanel: boolean}> {
       /> :
       <GalleryWrapper
         index={!!galleryItem ? galleryItem.index : 0}
-        total={galleryItems.length || 0}
+        total={galleryItems.length || 0} 
         handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
         <Button className="close-btn"
                 variant="link"

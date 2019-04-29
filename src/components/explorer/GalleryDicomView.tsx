@@ -61,6 +61,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
       <GalleryWrapper
         index={this.state.currentIndex}
         total={this.state.totalFiles}
+        hideDownload
         handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
         <Button className="close-btn"
           variant="link" onClick={() => this.props.toggleViewerMode(true)} ><CloseIcon size="md" /> </Button>

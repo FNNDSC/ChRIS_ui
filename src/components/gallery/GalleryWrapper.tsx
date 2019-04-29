@@ -9,6 +9,7 @@ type AllProps = {
     children: any;
     index: number;
     total: number;
+    hideDownload?: boolean;
     handleOnToolbarAction: (action: string) => void;
 }
 
@@ -32,6 +33,7 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
                     <GalleryToolbar
                         index={index}
                         total={total}
+                        hideDownload={!!this.props.hideDownload}
                         onToolbarClick={(action: string) => {(this.handleGalleryActions as any)[action].call()}}
                         {...this.state}  />
                     }
