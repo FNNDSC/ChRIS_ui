@@ -17,7 +17,8 @@ import "./amiViewer.scss";
 type AllProps = {
   imageArray: string[];
   currentIndex: number;
-  setGalleryState: (state: string) => void
+  viewInfoPanel: boolean;
+  // setGalleryState: (state: string) => void
 };
 interface IState {
   totalFiles: number;
@@ -51,11 +52,12 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
   }
 
   render() {
+    const { viewInfoPanel } = this.props;
     return (
       <React.Fragment>
-        {this.state.totalParsed < this.state.totalFiles && <DcmLoader totalFiles={this.state.totalFiles} totalParsed={this.state.totalParsed}  />}
+        {(this.state.totalParsed < this.state.totalFiles) && <DcmLoader totalFiles={this.state.totalFiles} totalParsed={this.state.totalParsed}  />}
         <div className="ami-viewer">
-          {!!this.state.workingSeriesItem && <DcmInfoPanel seriesItem={this.state.workingSeriesItem} />}
+          {(!!this.state.workingSeriesItem  && viewInfoPanel ) && <DcmInfoPanel seriesItem={this.state.workingSeriesItem} />}
           {/* <div id="my-gui-container" /> */}
           <div id="container" />
         </div>

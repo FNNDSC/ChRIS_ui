@@ -66,7 +66,10 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
         <Button className="close-btn"
           variant="link" onClick={() => this.props.toggleViewerMode(true)} ><CloseIcon size="md" /> </Button>
         {/* {this.state.viewInfoPanel && <GalleryInfoPanel galleryItem={this.state.galleryItem} />} */}
-        <DcmImageSeries imageArray={this.state.urlArray} currentIndex={this.state.currentIndex} setGalleryState={() => console.log("setGalleryState here")} />
+        <DcmImageSeries
+          imageArray={this.state.urlArray}
+          currentIndex={this.state.currentIndex} 
+          viewInfoPanel={this.state.viewInfoPanel} />
       </GalleryWrapper>
     )
   }
@@ -87,13 +90,13 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   handleGalleryActions = {
     next: () => {
       const i = this.state.currentIndex;
-      this.setState({
+      this._isMounted && this.setState({
         currentIndex: ((i + 1 < this.state.urlArray.length) ? (i + 1) : 0)
       });
     },
     previous: () => {
       const i = this.state.currentIndex;
-      this.setState({
+      this._isMounted && this.setState({
         currentIndex: ((i > 0) ? (i - 1) : 0)
       });
     },
@@ -105,12 +108,8 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
     pause: () => {
       clearInterval(this._playInterval);
     },
-    download: () => {
-      // const { galleryItem } = this.props;
-      // !!galleryItem && FileViewerModel.downloadFile(galleryItem.blob, galleryItem.fileName);
-    },
     information: () => {
-      this.setState({
+      this._isMounted && this.setState({
         viewInfoPanel: !this.state.viewInfoPanel
       });
     }
