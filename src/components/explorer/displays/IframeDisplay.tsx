@@ -1,16 +1,16 @@
 import * as React from "react";
 import { IGalleryItem } from "../../../api/models/gallery.model";
 type AllProps = {
-  file: IGalleryItem;
+  galleryItem: IGalleryItem;
 };
 
 const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  const { file } = props;
-  const url = (!!file.blob) ? window.URL.createObjectURL(new Blob([file.blob])) : "";
+  const { galleryItem } = props;
+  const url = (!!galleryItem.blob) ? window.URL.createObjectURL(new Blob([galleryItem.blob])) : "";
   return (
     <div className="default-display">
       <iframe
-        key={file.fileName}
+        key={galleryItem.fileName}
         src={url}
         height={window.innerHeight}
         width="100%"

@@ -1,24 +1,29 @@
 import * as React from "react";
 import { IFileBlob } from "../../../api/models/file-viewer.model";
 import DcmImageSeries from "../../dicomViewer/DcmImageSeries";
+import DcmImage from "../../dicomViewer/DcmImage";
 import { IGalleryItem } from "../../../api/models/gallery.model";
+import { LoadingComponent } from "../..";
 
-type AllProps = { file: IGalleryItem };
+type AllProps = {
+  galleryItem: IGalleryItem;
+  galleryItems: IGalleryItem[];
+};
 
 const DcmDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  const { file } = props;
+  const { galleryItem } = props;
   const fileBlob: IFileBlob = {
-    blob: file.blob,
-    blobName: file.fileName,
+    blob: galleryItem.blob,
+    blobName: galleryItem.fileName,
     blobText: "",
-    fileType: file.fileType || "dcm"
-  }
+    fileType: galleryItem.fileType || "dcm"
+  };
+
   return (
     <div className="dcm-display">
-      <DcmImageSeries file={fileBlob} />
+      <DcmImage file={fileBlob} />
     </div>
   );
 };
-
 
 export default DcmDisplay;

@@ -19,10 +19,11 @@ class PluginViewerModal extends React.Component<AllProps, ModalState> {
     scrollDivId: ""
   };
   handleScroll = (e: any) => {
-    this.setState({
-      gotopActive: (!!e.target.scrollTop &&  e.target.scrollTop > 0),
-      scrollDivId: e.target.id
-    });
+    (e.target.id.indexOf("pf-modal") >= 0) &&
+      this.setState({
+        gotopActive: (!!e.target.scrollTop &&  e.target.scrollTop > 0),
+        scrollDivId: e.target.id
+      });
   }
   render() {
     const { isModalOpen, handleModalToggle } = this.props;
