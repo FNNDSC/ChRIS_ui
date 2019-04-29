@@ -22,13 +22,6 @@ const DcmDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   return (
     <div className="dcm-display">
       <DcmImage file={fileBlob} />
-      {/* {!!props.galleryItems ? (
-        props.galleryItems.length ?
-          <DcmImageSeries {...props} /> :
-          <LoadingComponent />
-      ) : (
-        <DcmImage file={fileBlob} />
-      )} */}
     </div>
   );
 };
