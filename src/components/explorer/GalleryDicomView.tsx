@@ -106,7 +106,6 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
       clearInterval(this._playInterval);
     },
     download: () => {
-      // console.log("download", this.state.currentIndex);
       // const { galleryItem } = this.props;
       // !!galleryItem && FileViewerModel.downloadFile(galleryItem.blob, galleryItem.fileName);
     },

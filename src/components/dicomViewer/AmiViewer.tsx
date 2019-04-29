@@ -1,6 +1,7 @@
 import * as React from "react";
 import FeedFileModel from "../../api/models/feed-file.model";
 import { IGalleryItem } from "../../api/models/gallery.model";
+import IDcmSeriesItem from "../../api/models/dcm.model";
 import DcmLoader from "./DcmLoader";
 import * as dat from "dat.gui";
 import * as THREE from "three";
@@ -23,6 +24,7 @@ interface IState {
   totalFiles: number;
   totalLoaded: number;
   totalParsed: number;
+  workingSeriesItem?: IDcmSeriesItem;
 }
 // Description: Will be replaced with a DCM Fyle viewer
 class AmiViewer extends React.Component<AllProps, IState> {
@@ -35,7 +37,8 @@ class AmiViewer extends React.Component<AllProps, IState> {
       imageArray,
       totalFiles: imageArray.length,
       totalLoaded: 0,
-      totalParsed: 0
+      totalParsed: 0,
+      workingSeriesItem: undefined
     };
   }
 
@@ -57,7 +60,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
         {/* {(this.state.totalParsed < this.state.totalFiles) && <div>Loading: {this.state.totalParsed} of {this.state.totalFiles} loaded </div>} */}
         {this.state.totalParsed < this.state.totalFiles && <DcmLoader totalFiles={this.state.totalFiles} totalParsed={this.state.totalParsed} />}
         <div className="ami-viewer">
-        <DcmInfoPanel />
+          {!!this.state.workingSeriesItem && <DcmInfoPanel seriesItem={this.state.workingSeriesItem} />}
           <div id="my-gui-container" >
             <a onClick={() => this.handleClick(-1)}> Prev</a> |
           <a onClick={() => this.handleClick(1)}> Next</a> |
@@ -136,7 +139,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
         })
         .then((series: any) => {
           const stack = series.stack[0];
-          console.log(series);
+
           // Init and configure the stackHelper:
           const StackHelper = stackHelperFactory(THREE);
           const stackHelper = new StackHelper(stack);
@@ -149,7 +152,11 @@ class AmiViewer extends React.Component<AllProps, IState> {
 
           // Add the control box
           // gui(stackHelper);
+          // Set compoent helpers:
           this._stackHelper = stackHelper;
+          this._isMounted && this.setState({
+            workingSeriesItem: series
+          })
 
           // center camera and interactor to center of bouding box
           const worldbb = stack.worldBoundingBox();
@@ -241,7 +248,6 @@ class AmiViewer extends React.Component<AllProps, IState> {
             _self._isMounted && this.setState({
               totalParsed
             })
-           // console.log(url, response);
             return response;
           });
       })

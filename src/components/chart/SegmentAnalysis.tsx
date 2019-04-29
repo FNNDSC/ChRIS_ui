@@ -80,7 +80,6 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
   }
 
   componentDidMount() {
-    //console.log('componentDidMount');
     this.callChart([defaultLeft, defaultRight]);
   }
 
