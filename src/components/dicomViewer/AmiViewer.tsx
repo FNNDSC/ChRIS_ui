@@ -1,7 +1,7 @@
 import * as React from "react";
-import FeedFileModel, { IFeedFile } from "../../api/models/feed-file.model";
-import { IFileBlob } from "../../api/models/file-viewer.model";
-import GalleryModel, { IGalleryItem, galleryActions } from "../../api/models/gallery.model";
+import FeedFileModel from "../../api/models/feed-file.model";
+import { IGalleryItem } from "../../api/models/gallery.model";
+import DcmLoader from "./DcmLoader";
 import * as dat from "dat.gui";
 import * as THREE from "three";
 import * as AMI from "ami.js";
@@ -25,6 +25,8 @@ interface IState {
 }
 // Description: Will be replaced with a DCM Fyle viewer
 class AmiViewer extends React.Component<AllProps, IState> {
+  _isMounted = false;
+  private _removeResizeEventListener?: () => void = undefined;
   constructor(props: AllProps) {
     super(props);
     const imageArray = this._getUrlArray();
@@ -37,29 +39,31 @@ class AmiViewer extends React.Component<AllProps, IState> {
   }
 
   componentDidMount() {
-     this.initAmi();
+    this._isMounted = true;
+    this.initAmi();
   }
 
   // Only user dcm file - can add on to this
   _getUrlArray(): string[] {
     return this.props.galleryItems
-      .filter((item: IGalleryItem) => {return getFileExtension(item.fileName).toLowerCase() === "dcm"})
-        .map((item: IGalleryItem) => { return item.file_resource; });
+      .filter((item: IGalleryItem) => { return getFileExtension(item.fileName).toLowerCase() === "dcm" })
+      .map((item: IGalleryItem) => { return item.file_resource; });
   }
 
   render() {
     return (
       <React.Fragment>
-      {(this.state.totalParsed < this.state.totalFiles) && <div>Loading: {this.state.totalParsed} of {this.state.totalFiles} loaded </div>}
-      <div className="ami-viewer">
-        <div id="my-gui-container" >
-          <a onClick={() => this.handleClick(-1)}> Prev</a> |
+        {/* {(this.state.totalParsed < this.state.totalFiles) && <div>Loading: {this.state.totalParsed} of {this.state.totalFiles} loaded </div>} */}
+        {this.state.totalParsed < this.state.totalFiles && <DcmLoader totalFiles={this.state.totalFiles} totalParsed={this.state.totalParsed} />}
+        <div className="ami-viewer">
+          <div id="my-gui-container" >
+            <a onClick={() => this.handleClick(-1)}> Prev</a> |
           <a onClick={() => this.handleClick(1)}> Next</a> |
           <a onClick={() => this.handlePlay()}> Play</a> |
           <a onClick={() => this.handlePause()}> Pause</a>
+          </div>
+          <div id="container" />
         </div>
-        <div id="container" />
-      </div>
       </React.Fragment>
     );
   }
@@ -69,7 +73,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
   private _currentIndex: number = 0;
   private _playInterval: any = undefined;
   handleClick(index: number) {
-    this._stackHelper.index =  this._currentIndex = this._currentIndex + index; // working ***** Needs to stop on end or loop
+    this._stackHelper.index = this._currentIndex = this._currentIndex + index; // working ***** Needs to stop on end or loop
   }
   handlePlay() {
     const _self = this;
@@ -119,7 +123,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
         camera.fitBox(2);
         renderer.setSize(container.offsetWidth, container.offsetHeight);
       };
-      window.addEventListener("resize", onWindowResize, false);
+      //  window.addEventListener("resize", onWindowResize, false);
 
       // Deal with the loader
       this._loadUrls(galleryItems)
@@ -168,6 +172,9 @@ class AmiViewer extends React.Component<AllProps, IState> {
           camera.canvas = canvas;
           camera.update();
           camera.fitBox(2);
+          // Bind event handler at the end
+          window.addEventListener("resize", onWindowResize, false);
+          this._removeResizeEventListener = () => window.removeEventListener("resize", onWindowResize, false);
         }).catch((error: any) => {
           console.error(error);
         });
@@ -213,12 +220,13 @@ class AmiViewer extends React.Component<AllProps, IState> {
   }
 
   _loadUrl(url: string) {
+    const _self = this;
     const loader = new AMI.VolumeLoader();
     const fetcher = this._fetchUrl(url);
     return fetcher
       .then((arrayBuffer: any) => {
         const totalLoaded = this.state.totalLoaded + 1;
-        this.setState({
+        _self._isMounted && this.setState({
           totalLoaded
         })
         return loader.parse({
@@ -227,7 +235,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
         })
           .then((response: any) => {
             const totalParsed = this.state.totalParsed + 1;
-            this.setState({
+            _self._isMounted && this.setState({
               totalParsed
             })
             return response;
@@ -247,8 +255,12 @@ class AmiViewer extends React.Component<AllProps, IState> {
 
   // Destroy Methods
   componentWillUnmount() {
+    this._isMounted = false;
+    this._stackHelper = undefined;
+    !!this._removeResizeEventListener && this._removeResizeEventListener();
     clearInterval(this._playInterval);
   }
+
 }
 
 // Will move out!
