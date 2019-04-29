@@ -34,7 +34,7 @@ class DcmImage extends React.Component<AllProps> {
       </div>
     );
   }
-  
+
   // Description: Run AMI CODE ***** working to be abstracted out
   initAmi = (file: string) => {
     const container = document.getElementById("container"); // console.log("initialize AMI", this.state, container);
@@ -75,7 +75,6 @@ class DcmImage extends React.Component<AllProps> {
         renderer.setSize(container.offsetWidth, container.offsetHeight);
       };
       // window.addEventListener("resize", onWindowResize, false);
-      
 
       const loader = new AMI.VolumeLoader(container);
       loader

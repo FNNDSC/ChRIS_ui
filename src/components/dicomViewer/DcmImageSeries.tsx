@@ -3,7 +3,7 @@ import FeedFileModel, { IFeedFile } from "../../api/models/feed-file.model";
 import { getFileExtension } from "../../api/models/file-explorer.model";
 import GalleryModel, { IGalleryItem } from "../../api/models/gallery.model";
 import { IGalleryState } from "../../store/gallery/types";
-import { LoadingComponent } from "..";
+import DcmLoader from "./DcmLoader";
 import * as dat from "dat.gui";
 import * as THREE from "three";
 import * as AMI from "ami.js";
@@ -50,15 +50,9 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
   }
 
   render() {
-    const Loader = () => {
-      return <div className="loader">
-        <LoadingComponent color="#fff" isLocal />
-        {`${this.state.totalParsed} of ${this.state.totalFiles} loaded`}
-      </div>
-    }
     return (
       <React.Fragment>
-        {this.state.totalParsed < this.state.totalFiles && <Loader />}
+        {this.state.totalParsed < this.state.totalFiles && <DcmLoader totalFiles={this.state.totalFiles} totalParsed={this.state.totalParsed}  />}
         <div className="ami-viewer">
           <div id="my-gui-container" />
           <div id="container" />
@@ -125,6 +119,7 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
           stackHelper.bbox.visible = false;
           stackHelper.border.color = colors.black;
           stackHelper.index = this.props.currentIndex; // begin at index selected = ASSIGN HERE
+         
 
           // Init the Scene:
           scene.add(stackHelper);
