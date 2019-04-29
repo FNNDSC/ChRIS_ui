@@ -18,16 +18,17 @@ const DcmDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     blobText: "",
     fileType: galleryItem.fileType || "dcm"
   };
- 
+
   return (
     <div className="dcm-display">
-      {!!props.galleryItems ? (
+      <DcmImage file={fileBlob} />
+      {/* {!!props.galleryItems ? (
         props.galleryItems.length ?
           <DcmImageSeries {...props} /> :
           <LoadingComponent />
       ) : (
         <DcmImage file={fileBlob} />
-      )}
+      )} */}
     </div>
   );
 };

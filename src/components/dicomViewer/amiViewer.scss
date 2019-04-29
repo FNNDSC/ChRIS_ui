@@ -4,7 +4,6 @@
 *  Author:          ChRIS UI
 */
 
-
 .ami-viewer{
     position:relative;
     min-height: calc(100vh - 100px);
@@ -29,9 +28,13 @@
 }
 .loader{
     color: #fff;
+    left:45%;
     position: fixed;
-    left:48%;
-    top: 50%;
+    text-align: center;
+    top: 40%;
     z-index: 10;
+    >div{
+        margin-bottom: 20px;
+    }
 }
   

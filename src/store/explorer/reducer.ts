@@ -1,12 +1,14 @@
 import { Reducer } from "redux";
 import { ExplorerActionTypes, IExplorerState } from "./types";
+import GalleryModel from "../../api/models/gallery.model";
 
 // Type-safe initialState
 const initialState: IExplorerState = {
   explorer: {module: "", uiId: ""},
   selectedFile: undefined,
   selectedFolder: undefined,
-  viewerMode: false
+  viewerMode: false,
+  isViewerModeDicom: true
 };
 
 // Description: Handle File explorer state
@@ -21,7 +23,9 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
       };
     }
     case ExplorerActionTypes.SET_SELECTED_FILE: {
-      return {...state, selectedFile: action.payload.selectedFile, selectedFolder: action.payload.selectedFolder };
+      const selectedFile = action.payload.selectedFile,
+      isViewerModeDicom = GalleryModel.isDicomFile(selectedFile.module);
+      return {...state, selectedFile, isViewerModeDicom, selectedFolder: action.payload.selectedFolder };
     }
     case ExplorerActionTypes.SET_SELECTED_FOLDER: {
       return {...state, selectedFolder: action.payload, selectedFile: undefined };
