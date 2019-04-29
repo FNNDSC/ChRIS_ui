@@ -1,8 +1,5 @@
 import * as React from "react";
-import FeedFileModel, { IFeedFile } from "../../api/models/feed-file.model";
-import { getFileExtension } from "../../api/models/file-explorer.model";
-import GalleryModel, { IGalleryItem } from "../../api/models/gallery.model";
-import { IGalleryState } from "../../store/gallery/types";
+import FeedFileModel from "../../api/models/feed-file.model";
 import DcmLoader from "./DcmLoader";
 import * as dat from "dat.gui";
 import * as THREE from "three";
