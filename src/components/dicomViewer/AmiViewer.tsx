@@ -216,6 +216,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
       const isDicomFile = getFileExtension(_galleryItem.fileName).toLowerCase() === "dcm";
       isDicomFile && loadSequences.push(this._loadUrl(url));
     });
+
     return Promise.all(loadSequences);
   }
 
@@ -238,6 +239,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
             _self._isMounted && this.setState({
               totalParsed
             })
+           // console.log(url, response);
             return response;
           });
       })
