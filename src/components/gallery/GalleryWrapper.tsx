@@ -1,6 +1,6 @@
 import * as React from "react";
 import { IGalleryToolbarState } from "../../store/gallery/types";
-import { galleryActions} from "../../api/models/gallery.model";
+import { galleryActions } from "../../api/models/gallery.model";
 import { GalleryToolbar } from "../gallery";
 import "./GalleryWrapper.scss";
 
@@ -14,7 +14,9 @@ type AllProps = {
 }
 
 class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
+    _isMounted = false;
     componentDidMount() {
+        this._isMounted = true;
         document.addEventListener("fullscreenchange", this.handleFullScreenChange, false);
     }
     state = {
@@ -23,7 +25,7 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
     }
 
     render() {
-        const { children,  index, total } = this.props;
+        const { children, index, total } = this.props;
         return (
             !!children &&
             <div id="gallery"
@@ -34,9 +36,9 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
                         index={index}
                         total={total}
                         hideDownload={!!this.props.hideDownload}
-                        onToolbarClick={(action: string) => {(this.handleGalleryActions as any)[action].call()}}
-                        {...this.state}  />
-                    }
+                        onToolbarClick={(action: string) => { (this.handleGalleryActions as any)[action].call() }}
+                        {...this.state} />
+                }
             </div>
         );
     }
@@ -45,13 +47,13 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
     handleGalleryActions = {
         play: () => {
             this.props.handleOnToolbarAction(galleryActions.play);
-            this.setState({
+            this._isMounted && this.setState({
                 isPlaying: true
             });
         },
         pause: () => {
             this.props.handleOnToolbarAction(galleryActions.pause);
-            this.setState({
+            this._isMounted && this.setState({
                 isPlaying: false
             });
         },
@@ -79,13 +81,14 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
 
     // Set flag for full screen changes
     handleFullScreenChange = () => {
-        this.setState({
+        this._isMounted && this.setState({
             isFullscreen: isFullScreen()
         });
     }
 
     componentWillUnmount() {
         document.removeEventListener("fullscreenchange", this.handleFullScreenChange);
+        this._isMounted = false;
     }
 }
 

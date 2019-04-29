@@ -116,7 +116,7 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
           stackHelper.bbox.visible = false;
           stackHelper.border.color = colors.black;
           stackHelper.index = this.props.currentIndex; // begin at index selected = ASSIGN HERE
-         
+
 
           // Init the Scene:
           scene.add(stackHelper);

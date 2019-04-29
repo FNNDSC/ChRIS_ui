@@ -38,7 +38,7 @@ export default class GalleryModel {
   // Description: Find a gallery item by uiId
   static getGalleryItemIndex(
     uiId: string,
-    galleryItems: galleryModelItemType[] 
+    galleryItems: galleryModelItemType[]
   ) {
     return _.findIndex(galleryItems, (item: galleryModelItemType) => {
       return _.isEqual(uiId, item.uiId);

@@ -12,6 +12,7 @@ import {
 } from "ami.js";
 import "./amiViewer.scss";
 import { getFileExtension } from "../../api/models/file-explorer.model";
+import DcmInfoPanel from "./DcmInfoPanel/DcmInfoPanel";
 
 type AllProps = {
   galleryItems: IGalleryItem[];
@@ -56,6 +57,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
         {/* {(this.state.totalParsed < this.state.totalFiles) && <div>Loading: {this.state.totalParsed} of {this.state.totalFiles} loaded </div>} */}
         {this.state.totalParsed < this.state.totalFiles && <DcmLoader totalFiles={this.state.totalFiles} totalParsed={this.state.totalParsed} />}
         <div className="ami-viewer">
+        <DcmInfoPanel />
           <div id="my-gui-container" >
             <a onClick={() => this.handleClick(-1)}> Prev</a> |
           <a onClick={() => this.handleClick(1)}> Next</a> |
