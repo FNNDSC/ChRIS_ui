@@ -1,7 +1,9 @@
 import * as React from "react";
 import FeedFileModel, { IFeedFile } from "../../api/models/feed-file.model";
 import { getFileExtension } from "../../api/models/file-explorer.model";
-import { IGalleryItem } from "../../api/models/gallery.model";
+import GalleryModel, { IGalleryItem } from "../../api/models/gallery.model";
+import { IGalleryState } from "../../store/gallery/types";
+import { LoadingComponent } from "..";
 import * as dat from "dat.gui";
 import * as THREE from "three";
 import * as AMI from "ami.js";
@@ -11,14 +13,14 @@ import {
   trackballOrthoControlFactory
 } from "ami.js";
 import "./amiViewer.scss";
-import { IGalleryState } from "../../store/gallery/types";
+
 
 type AllProps = {
-  galleryItem: IGalleryItem;
-  galleryItems: IGalleryItem[];
-} & IGalleryState;
-interface IState {
   imageArray: string[];
+  currentIndex: number;
+  setGalleryState: (state: string) => void
+};
+interface IState {
   totalFiles: number;
   totalLoaded: number;
   totalParsed: number;
@@ -26,12 +28,12 @@ interface IState {
 // Description: Will be replaced with a DCM Fyle viewer
 class DcmImageSeries extends React.Component<AllProps, IState> {
   _isMounted = false;
+  private _removeResizeEventListener?: () => void = undefined;
+  private _stackHelper: any;
   constructor(props: AllProps) {
     super(props);
-    const imageArray = this._getUrlArray();
     this.state = {
-      imageArray,
-      totalFiles: imageArray.length,
+      totalFiles: props.imageArray.length,
       totalLoaded: 0,
       totalParsed: 0
     };
@@ -41,52 +43,32 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
     this.initAmi();
   }
 
-  // Only user dcm file - can add on to this
-  _getUrlArray(): string[] {
-    return this.props.galleryItems
-      .filter((item: IGalleryItem) => {
-        return getFileExtension(item.fileName).toLowerCase() === "dcm";
-      })
-      .map((item: IGalleryItem) => {
-        return item.file_resource;
-      });
+  componentDidUpdate(prevProps: AllProps, prevState: any) {
+    const { currentIndex } = this.props;
+    (prevProps.currentIndex !== currentIndex) &&
+      (this._stackHelper.index = currentIndex);
   }
 
   render() {
+    const Loader = () => {
+      return <div className="loader">
+        <LoadingComponent color="#fff" isLocal />
+        {`${this.state.totalParsed} of ${this.state.totalFiles} loaded`}
+      </div>
+    }
     return (
       <React.Fragment>
-        {this.state.totalParsed < this.state.totalFiles && (
-          <div className="loader">
-            {`${this.state.totalParsed} of ${this.state.totalFiles}  loaded`}
-          </div>
-        )}
+        {this.state.totalParsed < this.state.totalFiles && <Loader />}
         <div className="ami-viewer">
+          <div id="my-gui-container" />
           <div id="container" />
         </div>
       </React.Fragment>
     );
   }
-
-  // Description: Run AMI CODE ***** working to be abstracted out
-  // Ami methods and props - working *****
-  private _stackHelper: any;
-  private _currentIndex: number = 0;
-  private _playInterval: any = undefined;
-  handleClick(index: number) {
-    this._stackHelper.index = this._currentIndex = this._currentIndex + index; // working ***** Needs to stop on end or loop
-  }
-  handlePlay() {
-    const _self = this;
-    this._playInterval = setInterval(() => {
-      _self._stackHelper.index = this._currentIndex++; // Needs to stop on end or loop
-    }, 200);
-  }
-  handlePause() {
-    clearInterval(this._playInterval);
-  }
   // Description: Run AMI CODE ***** working to be abstracted out
   initAmi = () => {
-    const { galleryItems } = this.props;
+    const { imageArray } = this.props;
     const container = document.getElementById("container"); // console.log("initialize AMI", this.state, container);
     if (!!container) {
       const renderer = new THREE.WebGLRenderer({
@@ -125,10 +107,9 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
         camera.fitBox(2);
         renderer.setSize(container.offsetWidth, container.offsetHeight);
       };
-      window.addEventListener("resize", onWindowResize, false);
 
       // Deal with the loader
-      this._loadUrls(galleryItems)
+      this._loadUrls(imageArray)
         .then((series: any) => {
           // merge series
           const mergedSeries = series[0].mergeSeries(series);
@@ -143,13 +124,13 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
           const stackHelper = new StackHelper(stack);
           stackHelper.bbox.visible = false;
           stackHelper.border.color = colors.black;
-          stackHelper.index = this._currentIndex; // begin at index selected = ASSIGN HERE
-          console.log(this._currentIndex);
+          stackHelper.index = this.props.currentIndex; // begin at index selected = ASSIGN HERE
+
           // Init the Scene:
           scene.add(stackHelper);
 
           // Add the control box
-          // gui(stackHelper);
+          // gui(stackHelper); // NOTE: use control for dev
           this._stackHelper = stackHelper;
 
           // center camera and interactor to center of bouding box
@@ -179,6 +160,10 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
           camera.canvas = canvas;
           camera.update();
           camera.fitBox(2);
+
+          // Bind event handler at the end
+          window.addEventListener("resize", onWindowResize, false);
+          this._removeResizeEventListener = () => window.removeEventListener("resize", onWindowResize, false);
         })
         .catch((error: any) => {
           console.error(error);
@@ -194,11 +179,10 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
       };
 
       animate();
-
       // Description: Builds the control box on the top right:
       const gui = (stackHelper: any) => {
         const gui = new dat.GUI({
-          autoPlace: false
+          autoPlace: false,
         });
         const customContainer = document.getElementById("my-gui-container");
         !!customContainer && customContainer.appendChild(gui.domElement);
@@ -213,14 +197,10 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
   };
 
   // Getting Images
-  _loadUrls(galleryItems: IGalleryItem[]) {
+  _loadUrls(galleryItems: string[]) {
     const loadSequences = new Array();
-    galleryItems.forEach((_galleryItem: IGalleryItem) => {
-      const url = _galleryItem.file_resource;
-      // ONLY PUSH FILES THAT ARE READABLE - to be completed ***** working
-      const isDicomFile =
-        getFileExtension(_galleryItem.fileName).toLowerCase() === "dcm";
-      isDicomFile && loadSequences.push(this._loadUrl(url));
+    galleryItems.forEach((url: string) => {
+      loadSequences.push(this._loadUrl(url));
     });
     return Promise.all(loadSequences);
   }
@@ -261,9 +241,11 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
 
   // Destroy Methods
   componentWillUnmount() {
-    clearInterval(this._playInterval);
     this._isMounted = false;
+    this._stackHelper = undefined;
+    !!this._removeResizeEventListener && this._removeResizeEventListener();
   }
+
 }
 
 // Will move out!
@@ -274,13 +256,4 @@ const colors = {
   red: 0xff0000
 };
 
-// const mapStateToProps = ({ gallery }: ApplicationState) => ({
-//   galleryItem: gallery.galleryItem,
-//   galleryItems: gallery.galleryItems
-// });
-
-// export default connect(
-//   mapStateToProps,
-//   null
-// )(DcmImageSeries);
 export default DcmImageSeries;

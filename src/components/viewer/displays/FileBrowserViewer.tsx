@@ -20,6 +20,7 @@ import FileExplorer from "../../explorer/FileExplorer";
 import FileTableView from "../../explorer/FileTableView";
 import FileDetailView from "../../explorer/FileDetailView";
 import GalleryView from "../../explorer/GalleryView";
+import GalleryDicomView from "../../explorer/GalleryDicomView";
 
 interface IPropsFromDispatch {
   setExplorerRequest: typeof setExplorerRequest;
@@ -54,7 +55,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
   }
 
   render() {
-    const { explorer, selectedFile, selectedFolder, viewerMode } = this.props;
+    const { explorer, selectedFile, selectedFolder, viewerMode, isViewerModeDicom } = this.props;
     return (
       // Note: check to see if explorer children have been init.
       !!explorer &&
@@ -90,11 +91,18 @@ class FileBrowserViewer extends React.Component<AllProps> {
               </GridItem>
             </Grid> :
             <div className="viewer-data">
-             {(!!selectedFile && !!selectedFolder) && <GalleryView
+             {(!!selectedFile && !!selectedFolder) &&
+              (isViewerModeDicom ? <GalleryDicomView
                 selectedFile={selectedFile}
                 selectedFolder={selectedFolder}
                 toggleViewerMode={this.toggleViewerMode}
-                />}
+                /> :
+                <GalleryView
+                selectedFile={selectedFile}
+                selectedFolder={selectedFolder}
+                toggleViewerMode={this.toggleViewerMode}
+                />)
+              }
             </div>
           }
         </div>
@@ -133,7 +141,8 @@ const mapStateToProps = ({ explorer }: ApplicationState) => ({
   selectedFile: explorer.selectedFile,
   selectedFolder: explorer.selectedFolder,
   explorer: explorer.explorer,
-  viewerMode: explorer.viewerMode
+  viewerMode: explorer.viewerMode,
+  isViewerModeDicom: explorer.isViewerModeDicom
 });
 
 export default connect(
