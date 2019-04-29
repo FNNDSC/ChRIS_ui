@@ -32,7 +32,7 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
                             <StepForwardIcon />
                         </Button>
                         <span className="indicator">{ props.index + 1} / { props.total} </span>
-                    </div> : <em>Loading files...</em>
+                    </div> : <em>Please wait, loading all files...</em>
                 }
             </GridItem>
             <GridItem sm={12} md={5}>

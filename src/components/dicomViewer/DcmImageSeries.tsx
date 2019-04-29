@@ -14,7 +14,7 @@ import "./amiViewer.scss";
 import { IGalleryState } from "../../store/gallery/types";
 
 type AllProps = {
-  file: IGalleryItem;
+  galleryItem: IGalleryItem;
   galleryItems: IGalleryItem[];
 } & IGalleryState;
 interface IState {
