@@ -130,14 +130,14 @@ class AmiViewer extends React.Component<AllProps, IState> {
         })
         .then((series: any) => {
           const stack = series.stack[0];
-
+          console.log(series);
           // Init and configure the stackHelper:
           const StackHelper = stackHelperFactory(THREE);
           const stackHelper = new StackHelper(stack);
           stackHelper.bbox.visible = false;
           stackHelper.border.color = colors.black;
           stackHelper.index = this._currentIndex; // begin at index selected = ASSIGN HERE
-          console.log(this._currentIndex);
+
           // Init the Scene:
           scene.add(stackHelper);
 
