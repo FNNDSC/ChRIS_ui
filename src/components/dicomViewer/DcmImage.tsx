@@ -37,7 +37,7 @@ class DcmImage extends React.Component<AllProps> {
 
   // Description: Run AMI CODE ***** working to be abstracted out
   initAmi = (file: string) => {
-    const container = document.getElementById("container"); // console.log("initialize AMI", this.state, container);
+    const container = document.getElementById("container"); 
     if (!!container) {
       const renderer = new THREE.WebGLRenderer({
         antialias: true,

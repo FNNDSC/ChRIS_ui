@@ -29,9 +29,10 @@
     background: white;
     border: solid 1px $fe-viewer-border;
     border-radius: 4px;
+
     max-width: $fe-viewer-max-width-sm;
     iframe{
-      height: $fe-viewer-min-heigth;
+      height:  calc(100vh - 350px);
       margin: 0 auto;
       padding: 5px;
       width: 100%;

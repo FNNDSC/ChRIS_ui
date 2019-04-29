@@ -1,6 +1,8 @@
 import * as React from "react";
 import FeedFileModel from "../../api/models/feed-file.model";
+import IDcmSeriesItem from "../../api/models/dcm.model";
 import DcmLoader from "./DcmLoader";
+import DcmInfoPanel from "./DcmInfoPanel/DcmInfoPanel";
 import * as dat from "dat.gui";
 import * as THREE from "three";
 import * as AMI from "ami.js";
@@ -21,6 +23,7 @@ interface IState {
   totalFiles: number;
   totalLoaded: number;
   totalParsed: number;
+  workingSeriesItem?: IDcmSeriesItem;
 }
 // Description: Will be replaced with a DCM Fyle viewer
 class DcmImageSeries extends React.Component<AllProps, IState> {
@@ -32,7 +35,8 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
     this.state = {
       totalFiles: props.imageArray.length,
       totalLoaded: 0,
-      totalParsed: 0
+      totalParsed: 0,
+      workingSeriesItem: undefined
     };
   }
   componentDidMount() {
@@ -51,7 +55,8 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
       <React.Fragment>
         {this.state.totalParsed < this.state.totalFiles && <DcmLoader totalFiles={this.state.totalFiles} totalParsed={this.state.totalParsed}  />}
         <div className="ami-viewer">
-          <div id="my-gui-container" />
+          {!!this.state.workingSeriesItem && <DcmInfoPanel seriesItem={this.state.workingSeriesItem} />}
+          {/* <div id="my-gui-container" /> */}
           <div id="container" />
         </div>
       </React.Fragment>
@@ -123,7 +128,11 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
 
           // Add the control box
           // gui(stackHelper); // NOTE: use control for dev
+         // Set compoent helpers:
           this._stackHelper = stackHelper;
+          this._isMounted && this.setState({
+            workingSeriesItem: series
+          })
 
           // center camera and interactor to center of bouding box
           const worldbb = stack.worldBoundingBox();
