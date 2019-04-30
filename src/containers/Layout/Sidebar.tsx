@@ -20,16 +20,16 @@ class Sidebar extends React.Component<AllProps> {
 
     render() {
         const { isSidebarOpen, sidebarActiveItem, sidebarActiveGroup, isLoggedIn } = this.props;
-        const loggedInFeedNav =  (
+        const loggedInFeedNav = (
             (isLoggedIn) &&
-                (<React.Fragment>
-                    <NavItem groupId="feeds_grp" itemId="my_feeds" isActive={sidebarActiveItem === "my_feeds"}>
-                        <Link to="/feeds">My Feeds</Link>
-                    </NavItem>
-                    <NavItem groupId="feeds_grp" itemId="all_feeds" isActive={sidebarActiveItem === "all_feeds"}>
-                        <Link to="/feeds">All Feeds</Link>
-                    </NavItem>
-                </React.Fragment>)
+            (<React.Fragment>
+                <NavItem groupId="feeds_grp" itemId="my_feeds" isActive={sidebarActiveItem === "my_feeds"}>
+                    <Link to="/feeds">My Feeds</Link>
+                </NavItem>
+                <NavItem groupId="feeds_grp" itemId="all_feeds" isActive={sidebarActiveItem === "all_feeds"}>
+                    <Link to="/feeds">All Feeds</Link>
+                </NavItem>
+            </React.Fragment>)
         );
 
         const PageNav = (
@@ -48,7 +48,7 @@ class Sidebar extends React.Component<AllProps> {
                         </NavExpandable>
                         <NavExpandable title="My Feeds" groupId="feeds_grp" isActive={sidebarActiveGroup === "feeds_grp"} isExpanded >
                             <NavItem groupId="feeds_grp" itemId="dashboard" isActive={sidebarActiveItem === "dashboard"}>
-                                <Link to={`/ami`}>Dashboard</Link>
+                                <Link to={`/`}>Dashboard</Link>
                             </NavItem>
                             {loggedInFeedNav}
                         </NavExpandable>
@@ -59,17 +59,25 @@ class Sidebar extends React.Component<AllProps> {
                             <Link to="/plugins">Plugins</Link>
                         </NavItem>
                     </NavGroup>
-                    {/* <NavGroup title="Working Pages">
-                     <NavItem to="/charts" itemId="notfound">
-                            <Link to="/charts">Charts</Link>
-                        </NavItem>
-                        <NavItem itemId="logIn">
-                            <Link to="/login">Log in</Link>
-                        </NavItem>
-                        <NavItem to="/not-found" itemId="notfound">
-                            <Link to="/not-found">Not Found</Link>
-                        </NavItem>
-                    </NavGroup> */}
+                    {/* This Group will only show in dev environment */}
+                    {
+                        (process.env.NODE_ENV !== "production") && <NavGroup title="Working Components">
+                            <NavExpandable title="Development" groupId="dev_grp" isActive={sidebarActiveGroup === "dev_grp"}>
+                                <NavItem to="/charts" itemId="notfound">
+                                    <Link to="/ami">Ami Sandbox</Link>
+                                </NavItem>
+                                <NavItem to="/charts" itemId="notfound">
+                                    <Link to="/charts">Charts Sandbox</Link>
+                                </NavItem>
+                                <NavItem itemId="logIn">
+                                    <Link to="/login">Log in</Link>
+                                </NavItem>
+                                <NavItem to="/not-found" itemId="notfound">
+                                    <Link to="/not-found">Not Found</Link>
+                                </NavItem>
+                            </NavExpandable>
+                        </NavGroup>
+                }
                 </NavList>
             </Nav>
         );
