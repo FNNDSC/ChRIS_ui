@@ -1,11 +1,9 @@
 import * as React from "react";
 import { Button } from "@patternfly/react-core";
 import { CloseIcon } from "@patternfly/react-icons";
-import FeedFileModel from "../../api/models/feed-file.model";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
-import GalleryModel, { IGalleryItem, galleryActions, GalleryItemModel } from "../../api/models/gallery.model";
+import GalleryModel, { galleryActions } from "../../api/models/gallery.model";
 import GalleryWrapper from "../gallery/GalleryWrapper";
-import GalleryInfoPanel from "../gallery/GalleryInfoPanel/GalleryInfoPanel";
 import DcmImageSeries from "../dicomViewer/DcmImageSeries";
 import _ from "lodash";
 import "./file-detail.scss";
@@ -55,7 +53,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
 
   // Decription: Render the individual viewers by filetype
   renderContent() {
-    const { selectedFile, selectedFolder } = this.props;
+    const { selectedFolder } = this.props;
     return (
       !!selectedFolder.children &&
       <GalleryWrapper
@@ -65,10 +63,9 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
         handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
         <Button className="close-btn"
           variant="link" onClick={() => this.props.toggleViewerMode(true)} ><CloseIcon size="md" /> </Button>
-        {/* {this.state.viewInfoPanel && <GalleryInfoPanel galleryItem={this.state.galleryItem} />} */}
         <DcmImageSeries
           imageArray={this.state.urlArray}
-          currentIndex={this.state.currentIndex} 
+          currentIndex={this.state.currentIndex}
           viewInfoPanel={this.state.viewInfoPanel} />
       </GalleryWrapper>
     )
