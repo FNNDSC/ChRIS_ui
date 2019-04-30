@@ -1,5 +1,5 @@
-// import { Request, Collection } from "@fnndsc/chrisapi";
 import axios, { AxiosRequestConfig } from "axios";
+// import { Request, Collection } from "@fnndsc/chrisapi";
 // Chris API base id type
 export type chrisId = number | string;
 
@@ -108,17 +108,9 @@ export default class ChrisModel {
   //   const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
   //   const req = new Request(auth, "application/vnd.collection+json");
   //   return req.get(url).then((res) => {
-  //     return parseCollectiontoModel(res.data);
+  //     return parseCollectiontoModel(res.data); // Need a parser form ICollection to IFeed and others
   //   }) .catch((error) => {
   //     return error;
   //   })
   // }
 }
-
-// export function parseCollectiontoModel(collection: ICollection){
-//   const obj = {
-//     results: collection
-//   }
-//   console.log(obj);
-//   return obj;
-// }
