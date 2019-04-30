@@ -14,6 +14,7 @@ export interface IExplorerState {
     selectedFile?: IUITreeNode;
     selectedFolder?: IUITreeNode;
     viewerMode: boolean;
+    isViewerModeDicom: boolean;
 }
 
 export const ExplorerActionTypes = keyMirror({

@@ -33,4 +33,19 @@ export default class FeedFileModel {
     };
     return axios(config);
   }
+
+  static getFileArrayArray(url: string) {
+    const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
+    const header = {
+      "Content-Type": "application/vnd.collection+json",
+      "Authorization": "Token " + auth.token
+    };
+    const config: AxiosRequestConfig = {
+      headers: header,
+      method: "get",
+      responseType: "arraybuffer",
+      url
+    };
+    return axios(config);
+  }
 }
