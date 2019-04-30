@@ -7,6 +7,7 @@ import "./GalleryToolbar.scss";
 type AllProps = {
     index: number;
     total: number;
+    hideDownload?: boolean;
     onToolbarClick: (action: string) => void;  // Description: switch play/pause functionality
 } & IGalleryToolbarState;
 
@@ -32,7 +33,7 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
                             <StepForwardIcon />
                         </Button>
                         <span className="indicator">{ props.index + 1} / { props.total} </span>
-                    </div> : <em>Loading files...</em>
+                    </div> : <em>Please wait, loading all files...</em>
                 }
             </GridItem>
             <GridItem sm={12} md={5}>
@@ -40,10 +41,10 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
                     onClick={() => props.onToolbarClick(galleryActions.fullscreen)}  >
                     {props.isFullscreen ? <CompressIcon size="md" /> : <ExpandIcon />}
                 </Button>
-                <Button variant="link"
+                {!props.hideDownload && <Button variant="link"
                     onClick={() => props.onToolbarClick(galleryActions.download)}  >
                     <DownloadIcon />
-                </Button>
+                </Button>}
                 <Button variant="link"
                     onClick={() => props.onToolbarClick(galleryActions.information)}  >
                     <InfoCircleIcon />

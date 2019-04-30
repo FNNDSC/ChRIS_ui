@@ -1,6 +1,8 @@
 import * as React from "react";
-import FeedFileModel, { IFeedFile } from "../../api/models/feed-file.model";
-import { IFileBlob } from "../../api/models/file-viewer.model";
+import FeedFileModel from "../../api/models/feed-file.model";
+import { IGalleryItem } from "../../api/models/gallery.model";
+import IDcmSeriesItem from "../../api/models/dcm.model";
+import DcmLoader from "./DcmLoader";
 import * as dat from "dat.gui";
 import * as THREE from "three";
 import * as AMI from "ami.js";
@@ -10,62 +12,86 @@ import {
   trackballOrthoControlFactory
 } from "ami.js";
 import "./amiViewer.scss";
+import { getFileExtension } from "../../api/models/file-explorer.model";
+import DcmInfoPanel from "./DcmInfoPanel/DcmInfoPanel";
 
 type AllProps = {
-  files: IFeedFile[];
-  file?: string;
+  galleryItems: IGalleryItem[];
+  galleryItem?: IGalleryItem
 };
-
+interface IState {
+  imageArray: string[];
+  totalFiles: number;
+  totalLoaded: number;
+  totalParsed: number;
+  workingSeriesItem?: IDcmSeriesItem;
+}
 // Description: Will be replaced with a DCM Fyle viewer
-class AmiViewer extends React.Component<AllProps, IFileBlob> {
-  dynamicImagePixelData: string | ArrayBuffer | null = null;
+class AmiViewer extends React.Component<AllProps, IState> {
+  _isMounted = false;
+  private _removeResizeEventListener?: () => void = undefined;
   constructor(props: AllProps) {
     super(props);
-    const { files } = this.props;
-    const url = files[100].file_resource; // Pass the right file
-    this.fetchData(url);
+    const imageArray = this._getUrlArray();
+    this.state = {
+      imageArray,
+      totalFiles: imageArray.length,
+      totalLoaded: 0,
+      totalParsed: 0,
+      workingSeriesItem: undefined
+    };
   }
-  state = {
-    blob: undefined,
-    blobName:  "[filename will go here]",
-    blobText: null,
-    fileType: "dcm",
-    file: undefined
-  };
 
-  // Description: Fetch blob and read it into state to display preview
-  fetchData(file_resource: string) {
-    FeedFileModel.getFileBlob(file_resource).then((result: any) => {
-      const _self = this;
-      this.setState({ blob: result.data });
-      if (!!result.data) {
-        const reader = new FileReader();
-        reader.addEventListener(
-          "load",
-          () => {
-            _self.setState({ blobText: reader.result });
-            const url = window.URL.createObjectURL(new Blob([result.data]));
-            (!!this.state.blob) && this.initAmi(url);
-          },
-          false
-        );
-        reader.readAsDataURL(result.data); // reader.readAsDataURL(file);
-      }
-    });
+  componentDidMount() {
+    this._isMounted = true;
+    this.initAmi();
+  }
+
+  // Only user dcm file - can add on to this
+  _getUrlArray(): string[] {
+    return this.props.galleryItems
+      .filter((item: IGalleryItem) => { return getFileExtension(item.fileName).toLowerCase() === "dcm" })
+      .map((item: IGalleryItem) => { return item.file_resource; });
   }
 
   render() {
-    console.log("AmiViewer");
     return (
-      <div className="ami-viewer">
-        <div id="my-gui-container" />
-        <div id="container" />
-      </div>
+      <React.Fragment>
+        {/* {(this.state.totalParsed < this.state.totalFiles) && <div>Loading: {this.state.totalParsed} of {this.state.totalFiles} loaded </div>} */}
+        {this.state.totalParsed < this.state.totalFiles && <DcmLoader totalFiles={this.state.totalFiles} totalParsed={this.state.totalParsed} />}
+        <div className="ami-viewer">
+          {!!this.state.workingSeriesItem && <DcmInfoPanel seriesItem={this.state.workingSeriesItem} />}
+          <div id="my-gui-container" >
+            <a onClick={() => this.handleClick(-1)}> Prev</a> |
+          <a onClick={() => this.handleClick(1)}> Next</a> |
+          <a onClick={() => this.handlePlay()}> Play</a> |
+          <a onClick={() => this.handlePause()}> Pause</a>
+          </div>
+          <div id="container" />
+        </div>
+      </React.Fragment>
     );
   }
 
+  // Ami methods and props - working *****
+  private _stackHelper: any;
+  private _currentIndex: number = 0;
+  private _playInterval: any = undefined;
+  handleClick(index: number) {
+    this._stackHelper.index = this._currentIndex = this._currentIndex + index; // working ***** Needs to stop on end or loop
+  }
+  handlePlay() {
+    const _self = this;
+    this._playInterval = setInterval(() => {
+      _self._stackHelper.index = this._currentIndex++; // Needs to stop on end or loop
+    }, 200);
+  }
+  handlePause() {
+    clearInterval(this._playInterval);
+  }
   // Description: Run AMI CODE ***** working to be abstracted out
-  initAmi = (file: string) => {
+  initAmi = () => {
+    const { galleryItems } = this.props;
     const container = document.getElementById("container"); // console.log("initialize AMI", this.state, container);
     if (!!container) {
       const renderer = new THREE.WebGLRenderer({
@@ -78,14 +104,14 @@ class AmiViewer extends React.Component<AllProps, IFileBlob> {
 
       const scene = new THREE.Scene();
       const OrthograhicCamera = orthographicCameraFactory(THREE);
+      const width = container.clientWidth,
+        height = container.clientHeight;
       const camera = new OrthograhicCamera(
-        container.clientWidth / -2,
-        container.clientWidth / 2,
-        container.clientHeight / 2,
-        container.clientHeight / -2,
-        0.1,
-        10000
-      );
+        width / -2,
+        width / 2,
+        height / 2,
+        height / -2,
+        0.1, 2000);
 
       // Setup controls
       const TrackballOrthoControl = trackballOrthoControlFactory(THREE);
@@ -100,28 +126,37 @@ class AmiViewer extends React.Component<AllProps, IFileBlob> {
           height: container.offsetHeight,
         };
         camera.fitBox(2);
-
         renderer.setSize(container.offsetWidth, container.offsetHeight);
       };
-      window.addEventListener("resize", onWindowResize, false);
+      //  window.addEventListener("resize", onWindowResize, false);
 
-      const loader = new AMI.VolumeLoader(container);
-      loader
-        .load(file)
-        .then(() => {
-          const series = loader.data[0].mergeSeries(loader.data);
-          const stack = series[0].stack[0];
-          loader.free();
+      // Deal with the loader
+      this._loadUrls(galleryItems)
+        .then((series: any) => {   // merge series
+          const mergedSeries = series[0].mergeSeries(series);
+          const firstSeries = mergedSeries[0];
+          return firstSeries;
+        })
+        .then((series: any) => {
+          const stack = series.stack[0];
 
-          // const stackHelper = new AMI.StackHelper(stack);
+          // Init and configure the stackHelper:
           const StackHelper = stackHelperFactory(THREE);
           const stackHelper = new StackHelper(stack);
           stackHelper.bbox.visible = false;
-          stackHelper.border.color = colors.white;
+          stackHelper.border.color = colors.black;
+          stackHelper.index = this._currentIndex; // begin at index selected = ASSIGN HERE
+
+          // Init the Scene:
           scene.add(stackHelper);
 
           // Add the control box
           // gui(stackHelper);
+          // Set compoent helpers:
+          this._stackHelper = stackHelper;
+          this._isMounted && this.setState({
+            workingSeriesItem: series
+          })
 
           // center camera and interactor to center of bouding box
           const worldbb = stack.worldBoundingBox();
@@ -146,12 +181,13 @@ class AmiViewer extends React.Component<AllProps, IFileBlob> {
           camera.canvas = canvas;
           camera.update();
           camera.fitBox(2);
+          // Bind event handler at the end
+          window.addEventListener("resize", onWindowResize, false);
+          this._removeResizeEventListener = () => window.removeEventListener("resize", onWindowResize, false);
         }).catch((error: any) => {
-          window.console.log("oops... something went wrong...");
-          window.console.log(error);
+          console.error(error);
         });
 
-      // Render gui controls and scene
       const animate = () => {
         controls.update();
         renderer.render(scene, camera);
@@ -168,75 +204,73 @@ class AmiViewer extends React.Component<AllProps, IFileBlob> {
         const gui = new dat.GUI({
           autoPlace: false,
         });
-
         const customContainer = document.getElementById("my-gui-container");
         !!customContainer && customContainer.appendChild(gui.domElement);
-        const camUtils = {
-          invertRows: false,
-          invertColumns: false,
-          rotate45: false,
-          rotate: 0,
-          orientation: "default",
-          convention: "radio",
-        };
-
-        // camera
-        const cameraFolder = gui.addFolder("Camera");
-        const invertRows = cameraFolder.add(camUtils, "invertRows");
-        invertRows.onChange(() => {
-          camera.invertRows();
-        });
-
-        const invertColumns = cameraFolder.add(camUtils, "invertColumns");
-        invertColumns.onChange(() => {
-          camera.invertColumns();
-        });
-
-        const rotate45 = cameraFolder.add(camUtils, "rotate45");
-        rotate45.onChange(() => {
-          camera.rotate();
-        });
-
-        cameraFolder
-          .add(camera, "angle", 0, 360)
-          .step(1)
-          .listen();
-
-        const orientationUpdate = cameraFolder.add(camUtils, "orientation", [
-          "default",
-          "axial",
-          "coronal",
-          "sagittal",
-        ]);
-        orientationUpdate.onChange((value: any) => {
-          camera.orientation = value;
-          camera.update();
-          camera.fitBox(2);
-          stackHelper.orientation = camera.stackOrientation;
-        });
-
-        const conventionUpdate = cameraFolder.add(camUtils, "convention", ["radio", "neuro"]);
-        conventionUpdate.onChange((value: any) => {
-          camera.convention = value;
-          camera.update();
-          camera.fitBox(2);
-        });
-
-        cameraFolder.open();
-
         const stackFolder = gui.addFolder("Stack");
         stackFolder
           .add(stackHelper, "index", 0, stackHelper.stack.dimensionsIJK.z - 1)
-          .step(1)
-          .listen();
-        stackFolder
-          .add(stackHelper.slice, "interpolation", 0, 1)
           .step(1)
           .listen();
         stackFolder.open();
       };
     }
   }
+
+  // Getting Images
+  _loadUrls(galleryItems: IGalleryItem[]) {
+    const loadSequences = new Array();
+    galleryItems.forEach((_galleryItem: IGalleryItem) => {
+      const url = _galleryItem.file_resource;
+      // ONLY PUSH FILES THAT ARE READABLE - to be completed ***** working
+      const isDicomFile = getFileExtension(_galleryItem.fileName).toLowerCase() === "dcm";
+      isDicomFile && loadSequences.push(this._loadUrl(url));
+    });
+
+    return Promise.all(loadSequences);
+  }
+
+  _loadUrl(url: string) {
+    const _self = this;
+    const loader = new AMI.VolumeLoader();
+    const fetcher = this._fetchUrl(url);
+    return fetcher
+      .then((arrayBuffer: any) => {
+        const totalLoaded = this.state.totalLoaded + 1;
+        _self._isMounted && this.setState({
+          totalLoaded
+        })
+        return loader.parse({
+          url,
+          buffer: arrayBuffer,
+        })
+          .then((response: any) => {
+            const totalParsed = this.state.totalParsed + 1;
+            _self._isMounted && this.setState({
+              totalParsed
+            })
+            return response;
+          });
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
+  }
+
+  _fetchUrl(url: string) {
+    return FeedFileModel.getFileArrayArray(url)
+      .then((response: any) => {
+        return response.data;
+      });
+  }
+
+  // Destroy Methods
+  componentWillUnmount() {
+    this._isMounted = false;
+    this._stackHelper = undefined;
+    !!this._removeResizeEventListener && this._removeResizeEventListener();
+    clearInterval(this._playInterval);
+  }
+
 }
 
 // Will move out!

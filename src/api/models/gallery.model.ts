@@ -13,7 +13,7 @@ export interface IGalleryItem extends IFeedFile {
   fileType?: string;
   isActive: boolean;
   index: number;
-  error?: any
+  error?: any;
 }
 
 // Description: Add all gallery related actions in this object
@@ -27,15 +27,15 @@ export const galleryActions = keyMirror({
   information: null
 });
 
-type galleryModelItemType = IUITreeNode | IGalleryItem;
+export type galleryModelItemType = IUITreeNode | IGalleryItem;
 export default class GalleryModel {
   static getGalleryItemBlob(galleryItem: IGalleryItem) {
-    return FeedFileModel.getFileBlob(galleryItem.file_resource).catch((error) => {  // HANDLE ERROR FILES
-      return {error};
+    return FeedFileModel.getFileBlob(galleryItem.file_resource).catch((error) => {
+      return { error }; // HANDLE ERROR FILES
     });
   }
 
-  // Find a gallery item by uiId
+  // Description: Find a gallery item by uiId
   static getGalleryItemIndex(
     uiId: string,
     galleryItems: galleryModelItemType[]
@@ -43,6 +43,28 @@ export default class GalleryModel {
     return _.findIndex(galleryItems, (item: galleryModelItemType) => {
       return _.isEqual(uiId, item.uiId);
     });
+  }
+
+  static getArrayItemIndex(
+    url: string,
+    urlArray: string[]
+  ) {
+    const index = _.findIndex(urlArray, (itemUrl: string) => {
+      return _.isEqual(url, itemUrl);
+    });
+    return (index < 0 ? 0 : index);
+  }
+
+  // Description: is this a dcm file
+  static isDicomFile(filename: string): boolean {
+    switch (getFileExtension(filename).toLowerCase()) {
+      case "dcm":
+      case "dic":
+      case "dicom":
+        return true;
+      default:
+        return false;
+    }
   }
 }
 
@@ -69,7 +91,9 @@ export class GalleryListModel {
       this.galleryItems,
       responses,
       (galleryItem: IGalleryItem, response: any) => {
-        const responseObj = !!response.data ? { blob: response.data } : { error: response, blob: null };
+        const responseObj = !!response.data
+          ? { blob: response.data }
+          : { error: response, blob: null };
         return Object.assign({}, galleryItem, responseObj);
       }
     );
@@ -85,8 +109,10 @@ export class GalleryItemModel {
   }
 
   // Sets the blob and returns active item
-  setGalleryItemBlob(response: any ) {
-    const responseObj = !!response.blob ? response : { error: response.error, blob: null };
+  setGalleryItemBlob(response: any) {
+    const responseObj = !!response.blob
+      ? response
+      : { error: response.error, blob: null };
     return Object.assign({}, this.galleryItem, responseObj); /// { ...this.galleryItem, responseObj };
   }
 

@@ -10,9 +10,10 @@
     background: black;
     border: solid 1px $fe-viewer-border;
     min-height:  calc(100vh - 250px);
-    overflow-y: 'auto';
+    overflowY: 'auto';
     padding: 1rem 3rem 3rem;
     position: relative;
+    max-width: 95vw;
     button.close-btn {
         position: absolute;
         right:0;

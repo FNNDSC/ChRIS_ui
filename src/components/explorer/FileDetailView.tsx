@@ -43,7 +43,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         return (
           <div className={viewerName.toLowerCase()}>
             {this.renderHeader()}
-            <ViewerDisplay tag={viewerName} file={this.state}/>
+            <ViewerDisplay tag={viewerName} galleryItem={this.state}/>
           </div>
         );
       }
