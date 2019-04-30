@@ -1,5 +1,5 @@
 import * as React from "react";
-import FeedFileModel from "../../api/models/feed-file.model";
+import ChrisModel from "../../api/models/base.model";
 import IDcmSeriesItem from "../../api/models/dcm.model";
 import DcmLoader from "./DcmLoader";
 import DcmInfoPanel from "./DcmInfoPanel/DcmInfoPanel";
@@ -237,7 +237,7 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
   }
 
   _fetchUrl(url: string) {
-    return FeedFileModel.getFileArrayArray(url).then((response: any) => {
+    return ChrisModel.getFileBufferArrayArray(url).then((response: any) => {
       return response.data;
     });
   }

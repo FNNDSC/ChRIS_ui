@@ -1,6 +1,5 @@
-import { Request, Collection } from "@fnndsc/chrisapi";
+// import { Request, Collection } from "@fnndsc/chrisapi";
 import axios, { AxiosRequestConfig } from "axios";
-import { any } from "prop-types";
 // Chris API base id type
 export type chrisId = number | string;
 
@@ -10,6 +9,7 @@ export interface ICollection {
   href: string;
   items: IItem[];
   links: ILink[];
+  queries?: IItem[];
 }
 
 export interface IItem {
@@ -52,13 +52,8 @@ export interface IActionTypeParam {
   error?: any;
 }
 
-// CHRIS API REQUEST
+// CHRIS API REQUEST (working)
 export default class ChrisModel {
-  // static fetchRequest(url: string) {
-  //   const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
-  //   const req = new Request(auth, "application/vnd.collection+json");
-  //   return req.get(url);
-  // }
   static fetchRequest(url: string) {
     const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
     const header = {
@@ -71,6 +66,59 @@ export default class ChrisModel {
       method: "get",
       url
     };
-    return axios(config); // config: AxiosRequestConfig
+    return axios(config);
   }
+
+  // Fetch file blob from server
+  static getFileBlob(url: string) {
+    const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
+    const header = {
+      "Content-Type": "application/vnd.collection+json",
+      "Authorization": "Token " + auth.token
+    };
+
+    const config: AxiosRequestConfig = {
+      headers: header,
+      method: "get",
+      responseType: "blob",
+      url
+    };
+    return axios(config);
+  }
+
+  // Fetch file Arraybuffer from server
+  static getFileBufferArrayArray(url: string) {
+    const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
+    const header = {
+      "Content-Type": "application/vnd.collection+json",
+      "Authorization": "Token " + auth.token
+    };
+    const config: AxiosRequestConfig = {
+      headers: header,
+      method: "get",
+      responseType: "arraybuffer",
+      url
+    };
+    return axios(config);
+  }
+
+  // NOTE: This returns an IItem object needs to be parsed into client models ***** TBD
+  // Will be integrated for v2
+  // static fetchChrisRequest(url: string) {
+  //   const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
+  //   const req = new Request(auth, "application/vnd.collection+json");
+  //   return req.get(url).then((res) => {
+  //     return parseCollectiontoModel(res.data);
+  //   }) .catch((error) => {
+  //     return error;
+  //   })
+  // }
 }
+
+// export function parseCollectiontoModel(collection: ICollection){
+//   const obj = {
+//     results: collection
+//   }
+//   console.log(obj);
+//   return obj;
+// }
