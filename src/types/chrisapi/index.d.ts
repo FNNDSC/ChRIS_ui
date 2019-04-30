@@ -712,7 +712,7 @@ declare module "@fnndsc/chrisapi" {
      * @param {?Object} params - search parameters
      * @return {Object} - JS Promise, resolves to an ``axios reponse`` object
      */
-    get: (url: string, params?: object) => void; // Promise<IAxiosReponse>
+    get: (url: string, params?: object) => Promise<any>; // Promise<IAxiosReponse>
 
     /**
      * Perform a POST request.

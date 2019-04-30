@@ -1,5 +1,5 @@
 import * as React from "react";
-import FeedFileModel from "../../api/models/feed-file.model";
+import ChrisModel from "../../api/models/base.model";
 import { IGalleryItem } from "../../api/models/gallery.model";
 import IDcmSeriesItem from "../../api/models/dcm.model";
 import DcmLoader from "./DcmLoader";
@@ -257,7 +257,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
   }
 
   _fetchUrl(url: string) {
-    return FeedFileModel.getFileArrayArray(url)
+    return ChrisModel.getFileBufferArrayArray(url)
       .then((response: any) => {
         return response.data;
       });

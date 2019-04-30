@@ -3,7 +3,7 @@ import { Button } from "@patternfly/react-core";
 import { DownloadIcon, ExpandIcon } from "@patternfly/react-icons";
 import { getFileExtension, IUITreeNode } from "../../api/models/file-explorer.model";
 import { IFileBlob } from "../../api/models/file-viewer.model";
-import FeedFileModel from "../../api/models/feed-file.model";
+import ChrisModel from "../../api/models/base.model";
 import FileViewerModel, { fileViewerMap } from "../../api/models/file-viewer.model";
 import { LoadingComponent } from "..";
 import ViewerDisplay from "./displays/ViewerDisplay";
@@ -72,7 +72,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const fileUrl = selectedFile.file.file_resource,
       fileName = selectedFile.module,
       fileType = getFileExtension(fileName);
-    FeedFileModel.getFileBlob(fileUrl).then((result: any) => {
+    ChrisModel.getFileBlob(fileUrl).then((result: any) => {
       const _self = this;
       if (!!result.data) {
         const reader = new FileReader();

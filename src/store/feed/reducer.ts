@@ -11,12 +11,12 @@ const initialState: IFeedState = {
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
   switch (action.type) {
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
-      return { ...state, feeds: action.payload.data.results }; // Using the ChrisModel
+      return { ...state, feeds: action.payload.data.results };
     }
-    case FeedActionTypes.GET_FEED_DETAILS_SUCCESS: {  // Using the ChrisModel
+    case FeedActionTypes.GET_FEED_DETAILS_SUCCESS: {
       return { ...state, details: action.payload };
     }
-    case FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS: { // Using the ChrisModel
+    case FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS: {
       return { ...state, items: action.payload.data.results };
     }
     case FeedActionTypes.RESET_STATE: {
