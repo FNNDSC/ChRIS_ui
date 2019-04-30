@@ -11,7 +11,6 @@ const initialState: IPluginState = {
 
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {
   switch (action.type) {
-    // Reset the dependencies on selected change
     case PluginActionTypes.GET_PLUGIN_DETAILS: {
       return { ...state, files: undefined, parameters: undefined};
     }
@@ -28,12 +27,6 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
         action.payload.data.results.length &&
         action.payload.data.results[0]; // set first node as selected
       return { ...state, descendants, selected };
-    }
-    case PluginActionTypes.FETCH_ERROR: {
-      return { ...state };
-    }
-    case PluginActionTypes.FETCH_COMPLETE: {
-      return { ...state };
     }
     case PluginActionTypes.RESET_PLUGIN_STATE: {
       return { ...state,
