@@ -16,36 +16,3 @@ export interface IFeedFileLinks {
   file_resource: string;
   plugin_instances: string;
 }
-
-// Fetch file blob from server
-export default class FeedFileModel {
-  static getFileBlob(url: string) {
-    const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
-    const header = {
-      "Content-Type": "application/vnd.collection+json",
-      "Authorization": "Token " + auth.token
-    };
-    const config: AxiosRequestConfig = {
-      headers: header,
-      method: "get",
-      responseType: "blob",
-      url
-    };
-    return axios(config);
-  }
-
-  static getFileArrayArray(url: string) {
-    const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
-    const header = {
-      "Content-Type": "application/vnd.collection+json",
-      "Authorization": "Token " + auth.token
-    };
-    const config: AxiosRequestConfig = {
-      headers: header,
-      method: "get",
-      responseType: "arraybuffer",
-      url
-    };
-    return axios(config);
-  }
-}

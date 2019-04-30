@@ -1,6 +1,6 @@
 import { all, call, fork, put, takeEvery } from "redux-saga/effects";
 import { FeedActionTypes } from "./types";
-import FeedModel from "../../api/models/feed.model";
+import ChrisModel,  { IActionTypeParam } from "../../api/models/base.model";
 import {
   getAllFeedsSuccess,
   getFeedDetailsSuccess,
@@ -9,25 +9,23 @@ import {
 } from "./actions";
 
 // ------------------------------------------------------------------------
-// Description: Get Feeds list and search list
+// Description: Get Feeds list and search list by feed name (form input driven)
 // pass it a param and do a search querie
 // ------------------------------------------------------------------------
-function* handleGetAllFeeds(action: any) {
+function* handleGetAllFeeds(action: IActionTypeParam) {
   try {
     const url =  !!action.payload ? `${process.env.REACT_APP_CHRIS_UI_URL}search/?name=${action.payload}` : `${process.env.REACT_APP_CHRIS_UI_URL}`;
-    const res = yield call(FeedModel.fetchRequest, url);
+    const res = yield call(ChrisModel.fetchRequest, url);
     if (res.error) {
-      console.error(res.error); // working user messaging
+      console.error(res.error);
     } else {
       yield put(getAllFeedsSuccess(res));
     }
   } catch (error) {
-    console.error(error); // working user messaging
+    console.error(error);
   }
 }
 
-// This is our watcher function. We use `take*()` functions to watch Redux for a specific action
-// type, and run our saga, for example the `handleFetch()` saga above.
 function* watchGetAllFeedsRequest() {
   yield takeEvery(FeedActionTypes.GET_ALL_FEEDS, handleGetAllFeeds);
 }
@@ -35,24 +33,23 @@ function* watchGetAllFeedsRequest() {
 // ------------------------------------------------------------------------
 // Description: Get Feed's details
 // ------------------------------------------------------------------------
-// const url = `${process.env.REACT_APP_CHRIS_UI_URL}`; // process.env.REACT_APP_CHRIS_UI_URL || ''; //"https://localhost:8000/api/v1/"
-function* handleGetFeedDetails(action: any) {
+function* handleGetFeedDetails(action: IActionTypeParam) {
   try {
-    const res = yield call(FeedModel.getFeed, action.payload);
+    const url = `${process.env.REACT_APP_CHRIS_UI_URL}${action.payload}`;
+    const res = yield call(ChrisModel.fetchRequest, url);
     if (res.error) {
-      console.error(res.error); // working user messaging
+      console.error(res.error);
     } else {
       yield put(getFeedDetailsSuccess(res.data));
+      // Note: Call the plugin instance pass it all in one state call
       const url = res.data.plugin_instances;
-      yield put(getPluginInstanceListRequest(url)); // Note: Call the plugin instance pass it all in one state call
+      yield put(getPluginInstanceListRequest(url));
     }
   } catch (error) {
-    console.error(error); // working user messaging
+    console.error(error);
   }
 }
 
-// This is our watcher function. We use `take*()` functions to watch Redux for a specific action
-// type, and run our saga, for example the `handleFetch()` saga above.
 function* watchGetFeedRequest() {
   yield takeEvery(FeedActionTypes.GET_FEED_DETAILS, handleGetFeedDetails);
 }
@@ -60,21 +57,19 @@ function* watchGetFeedRequest() {
 // ------------------------------------------------------------------------
 // Description: Get Plugin instances
 // ------------------------------------------------------------------------
-function* handleGetPluginInstances(action: any) {
+function* handleGetPluginInstances(action: IActionTypeParam) {
   try {
-    const res = yield call(FeedModel.fetchRequest, action.payload);
+    const res = yield call(ChrisModel.fetchRequest, action.payload); // const res = yield call(FeedModel.fetchRequest, action.payload);
     if (res.error) {
-      console.error(res.error); // working user messaging
+      console.error(res.error);
     } else {
       yield put(getPluginInstanceListSuccess(res));
     }
   } catch (error) {
-    console.error(error); // working user messaging
+    console.error(error);
   }
 }
 
-// This is our watcher function. We use `take*()` functions to watch Redux for a specific action
-// type, and run our saga, for example the `handleFetch()` saga above.
 function* watchGetPluginInstances() {
   yield takeEvery(
     FeedActionTypes.GET_PLUGIN_INSTANCES,
@@ -84,6 +79,7 @@ function* watchGetPluginInstances() {
 
 // ------------------------------------------------------------------------
 // We can also use `fork()` here to split our saga into multiple watchers.
+// ------------------------------------------------------------------------
 export function* feedSaga() {
   yield all([
     fork(watchGetAllFeedsRequest),

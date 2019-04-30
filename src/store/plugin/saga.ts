@@ -1,7 +1,6 @@
 import { all, call, fork, put, takeEvery } from "redux-saga/effects";
 import { PluginActionTypes } from "./types";
-import FeedModel from "../../api/models/feed.model";
-import ChrisModel from "../../api/models/base.model";
+import ChrisModel,  { IActionTypeParam } from "../../api/models/base.model";
 import {
   getPluginDetailsSuccess,
   getPluginDescendantsSuccess,
@@ -15,24 +14,22 @@ import { IPluginItem } from "../../api/models/pluginInstance.model";
 // ------------------------------------------------------------------------
 // Description: Get Plugin Descendants, files and parameters on change
 // ------------------------------------------------------------------------
-function* handleGetPluginDetails(action: any) {
+function* handleGetPluginDetails(action: IActionTypeParam) {
   try {
     const item: IPluginItem = action.payload;
-    const res = yield call(FeedModel.fetchRequest, item.descendants); // Get descendants first:
+    const res = yield call(ChrisModel.fetchRequest, item.descendants); // Get descendants first:
     if (res.error) {
-      console.error(res.error); // working user messaging
+      console.error(res.error);
     } else {
       yield put(getPluginDetailsSuccess(res));
       !!item.files && (yield put(getPluginFilesRequest(item)));
       !!item.parameters && (yield put(getPluginParametersRequest(item.parameters)));
     }
   } catch (error) {
-    console.error(error); // working user messaging
+    console.error(error);
   }
 }
 
-// This is our watcher function. We use `take*()` functions to watch Redux for a specific action
-// type, and run our saga, for example the `handleFetch()` saga above.
 function* watchGetPluginDetails() {
   yield takeEvery(PluginActionTypes.GET_PLUGIN_DETAILS, handleGetPluginDetails);
 }
@@ -40,21 +37,19 @@ function* watchGetPluginDetails() {
 // ------------------------------------------------------------------------
 // Description: Get Plugin Descendants
 // ------------------------------------------------------------------------
-function* handleGetPluginDescendants(action: any) {
+function* handleGetPluginDescendants(action: IActionTypeParam) {
   try {
-    const res = yield call(FeedModel.fetchRequest, action.payload);
+    const res = yield call(ChrisModel.fetchRequest, action.payload);
     if (res.error) {
-      console.error(res.error); // working user messaging
+      console.error(res.error);
     } else {
       yield put(getPluginDescendantsSuccess(res));
     }
   } catch (error) {
-    console.error(error); // working user messaging
+    console.error(error);
   }
 }
 
-// This is our watcher function. We use `take*()` functions to watch Redux for a specific action
-// type, and run our saga, for example the `handleFetch()` saga above.
 function* watchGetPluginDescendants() {
   yield takeEvery(
     PluginActionTypes.GET_PLUGIN_DESCENDANTS,
@@ -66,43 +61,40 @@ function* watchGetPluginDescendants() {
 // Description: Get Plugin Details: Parameters, files and others
 // @Param: action.payload === selected plugin
 // ------------------------------------------------------------------------
-function* handleGetPluginFiles(action: any) {
+function* handleGetPluginFiles(action: IActionTypeParam) {
   try {
     const selected = action.payload;
-    const res = yield call(FeedModel.fetchRequest, `${selected.files}?limit=1000`); // NOTE: TEMP Modification until pagination is developed
+    const url = `${selected.files}?limit=1000`;
+    const res = yield call(ChrisModel.fetchRequest, url); // NOTE: TEMP Modification until pagination is developed
     if (res.error) {
-      console.error(res.error); // working user messaging
+      console.error(res.error);
     } else {
       yield put(getPluginFilesSuccess(res));
     }
   } catch (error) {
-    console.error(error); // working user messaging
+    console.error(error);
   }
 }
 
-// This is our watcher function. We use `take*()` functions to watch Redux for a specific action
-// type, and run our saga, for example the `handleFetch()` saga above.
 function* watchGetPluginFiles() {
   yield takeEvery(PluginActionTypes.GET_PLUGIN_FILES, handleGetPluginFiles);
 }
 // ------------------------------------------------------------------------
 // Description: Get Plugin Details: Parameters, files and others
 // ------------------------------------------------------------------------
-function* handleGetPluginParameters(action: any) {
+function* handleGetPluginParameters(action: IActionTypeParam) {
   try {
-    const res = yield call(FeedModel.fetchRequest, action.payload);
+    const res = yield call(ChrisModel.fetchRequest, action.payload);
     if (res.error) {
-      console.error(res.error); // working user messaging
+      console.error(res.error);
     } else {
       yield put(getPluginParametersSuccess(res));
     }
   } catch (error) {
-    console.error(error); // working user messaging
+    console.error(error);
   }
 }
 
-// This is our watcher function. We use `take*()` functions to watch Redux for a specific action
-// type, and run our saga, for example the `handleFetch()` saga above.
 function* watchGetPluginParameters() {
   yield takeEvery(
     PluginActionTypes.GET_PLUGIN_PARAMETERS,
@@ -113,6 +105,7 @@ function* watchGetPluginParameters() {
 
 // ------------------------------------------------------------------------
 // We can also use `fork()` here to split our saga into multiple watchers.
+// ------------------------------------------------------------------------
 export function* pluginSaga() {
   yield all([
     fork(watchGetPluginDetails),

@@ -1,7 +1,7 @@
 import { IFeedFile } from "./feed-file.model";
 import { IUITreeNode } from "./file-explorer.model";
 import { getFileExtension } from "./file-explorer.model";
-import FeedFileModel from "./feed-file.model";
+import ChrisModel from "./base.model";
 import keyMirror from "keymirror";
 import _ from "lodash";
 
@@ -30,7 +30,7 @@ export const galleryActions = keyMirror({
 export type galleryModelItemType = IUITreeNode | IGalleryItem;
 export default class GalleryModel {
   static getGalleryItemBlob(galleryItem: IGalleryItem) {
-    return FeedFileModel.getFileBlob(galleryItem.file_resource).catch((error) => {
+    return ChrisModel.getFileBlob(galleryItem.file_resource).catch((error) => {
       return { error }; // HANDLE ERROR FILES
     });
   }

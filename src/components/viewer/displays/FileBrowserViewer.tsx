@@ -15,7 +15,7 @@ import { IFeedFile } from "../../../api/models/feed-file.model";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import FileViewerModel from "../../../api/models/file-viewer.model";
-import FeedFileModel from "../../../api/models/feed-file.model";
+import ChrisModel from "../../../api/models/base.model";
 import FileExplorer from "../../explorer/FileExplorer";
 import FileTableView from "../../explorer/FileTableView";
 import FileDetailView from "../../explorer/FileDetailView";
@@ -114,7 +114,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
   handleFileDownload(node: IUITreeNode) {
     const downloadUrl = node.file.file_resource;
     if (!!node.file) {
-      FeedFileModel.getFileBlob(downloadUrl)
+      ChrisModel.getFileBlob(downloadUrl)
         .then((result: any) => {
           FileViewerModel.downloadFile(result.data, node.module);
         })
