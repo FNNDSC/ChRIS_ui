@@ -42,8 +42,6 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   }
 
   render() {
-
-
     return (
       <React.Fragment>
         {this.renderContent()}
