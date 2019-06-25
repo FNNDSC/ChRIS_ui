@@ -14,6 +14,8 @@ import { LinkIcon } from "@patternfly/react-icons";
 import { DataTableToolbar } from "../../../components/index";
 import _ from "lodash";
 import debounce from "lodash/debounce";
+import './feedlistview.scss';
+import CreateFeed from "./CreateFeed";
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getAllFeedsRequest: typeof getAllFeedsRequest;
@@ -45,6 +47,7 @@ class AllFeedsPage extends React.Component<AllProps> {
         {!!feeds && (
           <div className="white-bg pf-u-p-lg">
             <DataTableToolbar onSearch={this.onSearch} label="name" />
+            <CreateFeed />
             <Table
               aria-label="Data table"
               variant={TableVariant.compact}
