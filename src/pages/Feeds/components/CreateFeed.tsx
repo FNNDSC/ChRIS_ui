@@ -1,6 +1,8 @@
 import * as React from "react";
+
+import { Typeahead } from "react-bootstrap-typeahead";
 import { 
-  Button, Wizard, Form, FormGroup, 
+  Button, Wizard, Form, FormGroup,
   TextInput, TextArea, Badge, Chip, 
   Dropdown, DropdownToggle, DropdownItem, DropdownDirection,
   Split, SplitItem
@@ -32,31 +34,12 @@ interface BasicInformationProps {
   availableTags: Array<string>,
   handleFeedNameChange: (val: string, ev: React.ChangeEvent<HTMLInputElement>) => void,
   handleFeedDescriptionChange: (val: string, ev: React.ChangeEvent<HTMLInputElement>) => void,
-  handleTagAdd: (newTag: string) => void,
-  handleTagDelete: Function,
+  handleTagsChange: (tags: Array<string>) => void,
 }
 
 const BasicInformation:React.FunctionComponent<BasicInformationProps> = (
   props: BasicInformationProps
 ) => {
-  
-  const [isTagDropdownOpen, setTagDropdownOpen] = React.useState(false);
-
-  const tagDropdownToggle = (
-    <DropdownToggle 
-      onToggle={ () => setTagDropdownOpen(!isTagDropdownOpen )}
-    >
-      Add tags...
-    </DropdownToggle>
-  );
-  const tagDropdownItems = props.availableTags.sort().map(tag => (
-    <DropdownItem 
-      key={tag}
-      onClick={ () => props.handleTagAdd(tag) }
-    >
-      { tag }
-    </DropdownItem>
-  ));
     
   return (
     <Form className="pf-u-w-75">
@@ -93,27 +76,15 @@ const BasicInformation:React.FunctionComponent<BasicInformationProps> = (
         label="Tags"
         fieldId="tags"
       >
-        <div className="feed-create-wizard--tags-wrap">
-          {
-            props.tags.map(tag => (
-              <Chip 
-                key={tag} 
-                isBadge 
-                onClick={ () => props.handleTagDelete(tag) }
-                className="tag"
-              >
-                { tag }
-              </Chip>
-            ))
-          }
-          <Dropdown
-            onSelect={ () => setTagDropdownOpen(false) }
-            toggle={ tagDropdownToggle }
-            isOpen={ isTagDropdownOpen }
-            dropdownItems={ tagDropdownItems }
-            direction={ DropdownDirection.up }
-          />
-        </div>
+        
+        <Typeahead
+          id="tags"
+          multiple
+          options={ props.availableTags }
+          placeholder="Choose a tag..."
+          onChange={ props.handleTagsChange }
+        />
+      
       </FormGroup>
     </Form>
   )
@@ -208,8 +179,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     this.toggleCreateWizard = this.toggleCreateWizard.bind(this);
     this.handleFeedNameChange = this.handleFeedNameChange.bind(this);
     this.handleFeedDescriptionChange = this.handleFeedDescriptionChange.bind(this);
-    this.handleTagAdd = this.handleTagAdd.bind(this);
-    this.handleTagDelete = this.handleTagDelete.bind(this);
+    this.handleTagsChange = this.handleTagsChange.bind(this);
   }
 
   toggleCreateWizard() {
@@ -227,17 +197,8 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   handleFeedDescriptionChange(val: string, e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ data: { ...this.state.data, feedDescription: val }});
   }
-  handleTagAdd(newTag: string) {
-    this.setState({ 
-      availableTags: this.state.availableTags.filter(tag => tag !== newTag),
-      data: { ...this.state.data, tags: [ ...this.state.data.tags, newTag ] }
-    });
-  }
-  handleTagDelete(deletedTag: string) {
-    this.setState({
-      availableTags: [...this.state.availableTags, deletedTag],
-      data: { ...this.state.data, tags: this.state.data.tags.filter(tag => tag !== deletedTag)},
-    })
+  handleTagsChange(tags: Array<string>) {
+    this.setState({ data: { ...this.state.data, tags }});
   }
 
   render() {
@@ -249,8 +210,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       availableTags={ this.state.availableTags }
       handleFeedNameChange={ this.handleFeedNameChange }
       handleFeedDescriptionChange={ this.handleFeedDescriptionChange }
-      handleTagAdd={ this.handleTagAdd }
-      handleTagDelete={ this.handleTagDelete }
+      handleTagsChange={ this.handleTagsChange }
     />
 
     const steps = [
