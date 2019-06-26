@@ -10,13 +10,18 @@ import {
 
 /**
  * Wizard too large
- * Reset after close
  */
+
+interface LocalFile {
+  name: string,
+  data: string,
+}
 
 interface CreateFeedData {
   feedName: string,
   feedDescription: string,
   tags: Array<string>,
+  localFiles: Array<LocalFile>
 }
 
 function getDefaultCreateFeedData(): CreateFeedData {
@@ -24,6 +29,7 @@ function getDefaultCreateFeedData(): CreateFeedData {
     feedName: '',
     feedDescription: '',
     tags: [],
+    localFiles: [],
   }
 }
 
@@ -96,26 +102,82 @@ class ChrisFileSelect extends React.Component {
   }
 }
 
-interface LocalFileUploadProps {}
-interface LocalFileUploadState {
-  fileNames: Array<string>,
+function readFileFromInput(file: File): Promise<string> {
+  return new Promise(res => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        const data = reader.result || '';
+        res(data);
+      }
+    }
+    reader.readAsText(file);
+  })
+}  
+
+function openLocalFilePicker(): Promise<Array<LocalFile>> {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.multiple = true;
+  input.click();
+  return new Promise((res) => {
+    input.onchange = async () => {
+      if (input.files) {
+        const files = await Promise.all(Array.from(input.files).map(async file => {
+          return {
+            name: file.name,
+            data: await readFileFromInput(file),
+          }
+        }))
+        res(files);
+      }
+    }
+  })
 }
 
-class LocalFileUpload extends React.Component<LocalFileUploadProps, LocalFileUploadState> {
-  constructor(props: LocalFileUploadProps) {
-    super(props);
-    this.state = {
-      fileNames: []
-    }
-  }
-  choseFiles() {
+interface LocalFileUploadProps {
+  files: CreateFeedData['localFiles'],
+  handleFilesAdd: (files: Array<LocalFile>) => void,
+  handleFileRemove: (name: string) => void,
+}
 
-  }
-  render() {
-    return (
-      <Button>Chose Files...</Button>
-    )
-  }
+const LocalFileUpload:React.FunctionComponent<LocalFileUploadProps> = ({
+  files,
+  handleFilesAdd,
+  handleFileRemove,
+}) => {
+
+  const fileList = files.map(file => (
+    <div className="file-preview" key={ file.name }>
+      <FileIcon />
+      <span className="file-name">{ file.name }</span>
+      <CloseIcon className="file-remove" onClick={ () => handleFileRemove(file.name) }/>
+    </div>
+  ))
+
+  const chooseFilesButton = <Button 
+    onClick={ () => openLocalFilePicker().then(handleFilesAdd)}
+  >
+    Choose Files...
+  </Button>
+
+  return (
+    <div className="local-file-upload">
+      <h1 className="pf-c-title pf-m-2xl">Data Configuration: Local File Upload</h1>
+      <p>Please choose the data files you'd like to add to your feed.</p>
+      <br />
+      <Split gutter="lg">
+        <SplitItem isMain>
+          <p className="section-header">File Upload</p>
+          { chooseFilesButton }
+        </SplitItem>
+        <SplitItem isMain>
+          <p className="section-header">Local files to add to new feed:</p>
+          { fileList }
+        </SplitItem>
+      </Split>
+    </div>
+  )
 }
 
 interface ReviewProps {
@@ -191,7 +253,9 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     })
   }
 
-  handleFeedNameChange(val: string, e: React.ChangeEvent<HTMLInputElement>) {
+  // BASIC INFORMATION HANDLERS
+
+  handleFeedNameChange = (val: string, e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ data: { ...this.state.data, feedName: val }});3
   }
   handleFeedDescriptionChange(val: string, e: React.ChangeEvent<HTMLInputElement>) {
@@ -199,6 +263,20 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   }
   handleTagsChange(tags: Array<string>) {
     this.setState({ data: { ...this.state.data, tags }});
+  }
+
+  // LOCAL FILE UPLOAD HANDLERS
+  
+  handleLocalFilesAdd = (files: Array<LocalFile>) => {
+    this.setState({ data: { ...this.state.data, localFiles: [ ...this.state.data.localFiles, ...files ] } })
+  }
+  handleLocalFileRemove = (fileName: string) => {
+    this.setState({ 
+      data: {
+        ...this.state.data,
+        localFiles: this.state.data.localFiles.filter(file => file.name !== fileName)
+      }
+    })
   }
 
   render() {
@@ -212,6 +290,12 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       handleFeedDescriptionChange={ this.handleFeedDescriptionChange }
       handleTagsChange={ this.handleTagsChange }
     />
+    
+    const localFileUpload = <LocalFileUpload
+      files={ this.state.data.localFiles }
+      handleFilesAdd={ this.handleLocalFilesAdd }
+      handleFileRemove={ this.handleLocalFileRemove }
+    />
 
     const steps = [
       { 
@@ -223,7 +307,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
         name: 'Data Configuration',
         steps: [
           { name: 'ChRIS File Select', component: <ChrisFileSelect /> },
-          { name: 'Local File Upload', component: <LocalFileUpload /> },
+          { name: 'Local File Upload', component: localFileUpload },
         ] 
       },
       { name: 'Review', component: <Review data={ this.state.data} /> },
