@@ -7,8 +7,37 @@
   float: right;
 }
 
-.feed-create-wizard--tags-wrap .tag {
-  margin-right: 10px;
+.feed-create-wizard {
+  .pf-c-wizard__main {
+    height: 100%;
+  }
+  .local-file-upload {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .pf-l-split  {
+    flex-grow: 1
+  }
+}
+
+.feed-create-wizard .local-file-upload {
+  .pf-l-split__item:first-child { // "file upload" section
+    border-right: 1px solid #a4a4a4;
+  }
+  .section-header {
+    margin-bottom: 10px;
+  }
+  .file-preview svg {
+    font-size: 17px; 
+  }
+  .file-remove {
+    cursor: pointer;
+  }
+  .file-name {
+    margin: 0 10px;
+    vertical-align: top;
+  }
 }
 
 .review-tag {
