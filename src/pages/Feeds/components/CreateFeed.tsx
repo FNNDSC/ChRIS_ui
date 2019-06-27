@@ -96,9 +96,99 @@ const BasicInformation:React.FunctionComponent<BasicInformationProps> = (
   )
 }
 
-class ChrisFileSelect extends React.Component {
+interface ChrisFileSelectState {
+  files: Array<string>,
+}
+
+class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
+
+  constructor(props: {}) {
+    super(props);
+    this.state = {
+      files: [],
+    }
+  }
+
+  removeFile = (file: string) => {
+    this.setState({ files: this.state.files.filter(f => f !== file) });
+  }
+
+  handleCheckboxChange = (isChecked: boolean, file: string) => {
+    if (isChecked) {
+      this.setState({ files: [...this.state.files, file ]});
+    } else {
+      this.removeFile(file);
+    }
+  }
+
+  renderTreeNode = (node: IUITreeNode) => {
+    const isSelected = this.state.files.includes(node.module);
+    return (
+      <span className="name">
+        <Checkbox 
+          isChecked={isSelected}
+          id={`check-${node.module}`} aria-label="" 
+          onChange={ isChecked => this.handleCheckboxChange(isChecked, node.module) }
+        />
+        { node.module }
+      </span>
+    )
+  }
+
   render() {
-    return <div>Hi</div>;
+    const explorer = {
+      module: 'ChRIS Files',
+      children: [
+        {
+          module: 'Project 1',
+          children: [
+            { module: 'examplesample.json' },
+            { module: 'qwertyui321.nifty' }
+          ]
+        },
+        {
+          module: 'Project 2',
+          children: [{ module: 'abcdefghijk123.dicom' }]
+        },
+        { module: 'ghijkl876.nifty' },
+        { module: 'mnopqrs456.png' },
+        { module: 'qrstuv935.csv '},
+        { module: 'loremipsum.dicom'},
+        { module: 'loremipsum.dicom'},
+        { module: 'loremipsum.dicom'},
+        { module: 'loremipsum.dicom'},
+        { module: 'loremipsum.dicom'},
+        { module: 'loremipsum.dicom'},
+      ]
+    }
+
+    const fileList = this.state.files.map(file => (
+      <div className="file-preview" key={ file }>
+        <FileIcon />
+        <span className="file-name">{ file }</span>
+        <CloseIcon className="file-remove" onClick={ () => this.removeFile(file) }/>
+      </div>
+    ))
+
+    return (
+      <div>
+        <h1 className="pf-c-title pf-m-2xl">Data Configuration: Local File Upload</h1>
+        <p>Please choose the data files you'd like to add to your feed.</p>
+        <Split>
+          <SplitItem isMain>
+            <Tree
+              tree={ explorer }
+              renderNode={ this.renderTreeNode }
+              paddingLeft={ 20 }
+            />
+          </SplitItem>
+          <SplitItem isMain>
+            <p className="section-header">Files to add to new feed:</p>
+            { fileList }
+          </SplitItem>
+        </Split>
+      </div>
+    );
   }
 }
 

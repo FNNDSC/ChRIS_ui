@@ -3,6 +3,7 @@
 @import '../../../assets/scss/helpers/pf4-variables';
 @import '../../../assets/scss/helpers/variables';
 
+
 .create-feed-button {
   float: right;
 }
@@ -28,11 +29,14 @@
   .section-header {
     margin-bottom: 10px;
   }
-  .file-preview svg {
-    font-size: 17px; 
-  }
   .file-remove {
     cursor: pointer;
+  }
+}
+
+.feed-create-wizard .local-file-upload, .feed-create-wizard .review {
+  .file-preview svg {
+    font-size: 17px; 
   }
   .file-name {
     margin: 0 10px;
@@ -72,6 +76,59 @@
 
 }
 
-input[type="file"] {
-  display: none;
+.m-node .caret-right:before {
+  content: '\25B8';
+}
+.m-node .caret-down:before {
+  content: '\25BE';
+}
+
+.m-node .inner span {
+  display: inline-block;
+}
+
+// hidden root level
+.m-tree > .m-node > {
+  .inner {
+    display: none;
+  }
+  .children {
+    padding-left: 0 !important;
+  }
+}
+
+.m-node {
+  padding: 10px 0;
+  .name {
+    margin-left: 10px;
+  }
+}
+
+// top-level nodes
+.m-tree > .m-node > .children > .m-node {
+  border-top: 1px solid gray;
+}
+
+.pf-c-check {
+  display: inline-block !important;
+  margin-right: 3px;
+}
+
+.pf-c-wizard__outer-wrap {
+  max-height: 564px;
+}
+
+.pf-c-wizard__main, .pf-c-wizard__main > div {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+}
+
+.pf-l-split {
+  display: flex;
+  overflow: hidden !important;
+}
+
+.pf-l-split__item {
+  overflow: auto !important;
 }
