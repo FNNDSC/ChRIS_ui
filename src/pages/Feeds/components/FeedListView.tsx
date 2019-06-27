@@ -46,8 +46,8 @@ class AllFeedsPage extends React.Component<AllProps> {
       <PageSection>
         {!!feeds && (
           <div className="white-bg pf-u-p-lg">
-            <DataTableToolbar onSearch={this.onSearch} label="name" />
             <CreateFeed />
+            <DataTableToolbar onSearch={this.onSearch} label="name" />
             <Table
               aria-label="Data table"
               variant={TableVariant.compact}

@@ -2,15 +2,14 @@ import * as React from "react";
 
 import { Typeahead } from "react-bootstrap-typeahead";
 import { 
-  Button, Wizard, Form, FormGroup,
-  TextInput, TextArea, Badge, Chip, 
-  Dropdown, DropdownToggle, DropdownItem, DropdownDirection,
-  Split, SplitItem
+  Button, Wizard, Form, FormGroup, Checkbox,
+  TextInput, TextArea, Split, SplitItem
 } from "@patternfly/react-core";
+import { FileIcon, CloseIcon } from "@patternfly/react-icons";
+import Tree from "react-ui-tree";
 
-/**
- * Wizard too large
- */
+import FileExplorer from "../../../components/explorer/FileExplorer";
+import { IUITreeNode } from "../../../api/models/file-explorer.model";
 
 interface LocalFile {
   name: string,
@@ -274,67 +273,77 @@ interface ReviewProps {
   data: CreateFeedData,
 }
 
-const Review:React.FunctionComponent<ReviewProps> = (
-  props: ReviewProps
-) => {
+const Review:React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
   const { data } = props;
+  
+  // the installed version of @patternfly/react-core doesn't support read-only chips
+  const tags = data.tags.map(tag => (
+    <div className="pf-c-chip pf-m-read-only review-tag">
+      <span className="pf-c-chip__text">
+          { tag }
+      </span>
+    </div> 
+  ))
+
+  const files = data.localFiles.map(file => (
+    <div className="file-preview" key={ file.name }>
+      <FileIcon />
+      <span className="file-name">{ file.name }</span>
+    </div>
+  ))
+
   return (
-    <div>
+    <div className="review">
       <h1 className="pf-c-title pf-m-2xl">Review</h1>
       <p>Review the information below and click 'Finish' to create your new feed.</p>
       <p>Use the 'Back' button to make changes.</p>
       <br /><br />
+
       <Split gutter="lg">
         <SplitItem isMain={ false }>
-          <p>Feed Name</p>
-          <p>Feed Description</p>
-          <p>Tags</p>
+          <div>Feed Name</div>
+          <div>Feed Description</div>
+          <div>Tags</div>
         </SplitItem>
         <SplitItem isMain>
-          <p>{ data.feedName }</p>
-          <p>{ data.feedDescription }</p>
-          <p>
-            { 
-              // the installed version of patternfly doesn't support read-only chips
-              data.tags.map(tag => (
-                <div className="pf-c-chip pf-m-read-only review-tag">
-                  <span className="pf-c-chip__text">
-                      { tag }
-                  </span>
-                </div> 
-              ))
-            }
-          </p>
+          <div>{ data.feedName }</div>
+          <div>{ data.feedDescription || '&nbsp;' }</div>
+          <div>{ tags}</div>
+        </SplitItem>
+      </Split>
+
+      <br />
+      <Split>
+        <SplitItem isMain>
+          <p>ChRIS files to add to new feed:</p>
+        </SplitItem>
+        <SplitItem isMain>
+          <p>Local files to add to new feed:</p>
+          { files }
         </SplitItem>
       </Split>
     </div>
   )
 }
 
-interface CreateFeedProps {
-}
 interface CreateFeedState {
   wizardOpen: boolean,
   availableTags: Array<string>,
   data: CreateFeedData
 }
 
-class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
+class CreateFeed extends React.Component<{}, CreateFeedState> {
   
-  constructor(props: CreateFeedProps) {
+  constructor(props: {}) {
     super(props);
     this.state = {
       wizardOpen: false,
       availableTags: ['tractography', 'brain', 'example', 'lorem', 'ipsum'],
       data: getDefaultCreateFeedData()
     }
-    this.toggleCreateWizard = this.toggleCreateWizard.bind(this);
-    this.handleFeedNameChange = this.handleFeedNameChange.bind(this);
-    this.handleFeedDescriptionChange = this.handleFeedDescriptionChange.bind(this);
-    this.handleTagsChange = this.handleTagsChange.bind(this);
   }
 
-  toggleCreateWizard() {
+  toggleCreateWizard = () => {
     if (this.state.wizardOpen) {
       this.setState({ data: getDefaultCreateFeedData() })
     }
@@ -348,10 +357,10 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   handleFeedNameChange = (val: string, e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ data: { ...this.state.data, feedName: val }});3
   }
-  handleFeedDescriptionChange(val: string, e: React.ChangeEvent<HTMLInputElement>) {
+  handleFeedDescriptionChange = (val: string, e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ data: { ...this.state.data, feedDescription: val }});
   }
-  handleTagsChange(tags: Array<string>) {
+  handleTagsChange = (tags: Array<string>) => {
     this.setState({ data: { ...this.state.data, tags }});
   }
 
@@ -408,17 +417,14 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
         <Button className="create-feed-button" variant="primary" onClick={this.toggleCreateWizard}>
           Create Feed
         </Button>
-        {
-          this.state.wizardOpen && (
-            <Wizard
-              isOpen={this.state.wizardOpen}
-              onClose={this.toggleCreateWizard}
-              title="Create a New Feed"
-              description="This wizard allows you to create a new feed and add an initial dataset to it."
-              steps={steps}
-            />
-          )
-        }
+        <Wizard
+          isOpen={this.state.wizardOpen}
+          onClose={this.toggleCreateWizard}
+          title="Create a New Feed"
+          description="This wizard allows you to create a new feed and add an initial dataset to it."
+          steps={steps}
+          className="feed-create-wizard"
+        />
       </React.Fragment>
     )
   }
