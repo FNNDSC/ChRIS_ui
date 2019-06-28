@@ -432,6 +432,7 @@ class Review extends React.Component<ReviewProps> {
 
 interface CreateFeedState {
   wizardOpen: boolean,
+  step: number,
   availableTags: Array<string>,
   data: CreateFeedData
 }
@@ -442,26 +443,38 @@ class CreateFeed extends React.Component<{}, CreateFeedState> {
     super(props);
     this.state = {
       wizardOpen: false,
+      step: 1,
       availableTags: ['tractography', 'brain', 'example', 'lorem', 'ipsum'],
       data: getDefaultCreateFeedData()
     }
   }
 
+  // WIZARD HANDLERS
+
   toggleCreateWizard = () => {
     if (this.state.wizardOpen) {
-      this.setState({ data: getDefaultCreateFeedData() })
+      this.setState({ data: getDefaultCreateFeedData(), step: 1 })
     }
     this.setState({
       wizardOpen: !this.state.wizardOpen
     })
   }
 
+  handleStepChange= (step: any) => {
+    this.setState({ step: step.id });
+  }
+
+  getStepName = (): string => {
+    const stepNames = ['basic-information', 'chris-file-select', 'local-file-upload', 'review'];
+    return stepNames[this.state.step - 1]; // this.state.step starts at 1
+  }
+
   // BASIC INFORMATION HANDLERS
 
-  handleFeedNameChange = (val: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  handleFeedNameChange = (val: string) => {
     this.setState({ data: { ...this.state.data, feedName: val }});3
   }
-  handleFeedDescriptionChange = (val: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  handleFeedDescriptionChange = (val: string) => {
     this.setState({ data: { ...this.state.data, feedDescription: val }});
   }
   handleTagsChange = (tags: Array<string>) => {
@@ -502,6 +515,7 @@ class CreateFeed extends React.Component<{}, CreateFeedState> {
 
     const steps = [
       { 
+        id: 1, // id corresponds to step number
         name: 'Basic Information', 
         component: basicInformation,
         enableNext: !!this.state.data.feedName
@@ -509,11 +523,11 @@ class CreateFeed extends React.Component<{}, CreateFeedState> {
       { 
         name: 'Data Configuration',
         steps: [
-          { name: 'ChRIS File Select', component: <ChrisFileSelect /> },
-          { name: 'Local File Upload', component: localFileUpload },
+          { id: 2, name: 'ChRIS File Select', component: <ChrisFileSelect /> },
+          { id: 3, name: 'Local File Upload', component: localFileUpload },
         ] 
       },
-      { name: 'Review', component: <Review data={ this.state.data} /> },
+      { id: 4, name: 'Review', component: <Review data={ this.state.data} /> },
     ];
 
     return (
@@ -521,14 +535,22 @@ class CreateFeed extends React.Component<{}, CreateFeedState> {
         <Button className="create-feed-button" variant="primary" onClick={this.toggleCreateWizard}>
           Create Feed
         </Button>
-        <Wizard
-          isOpen={this.state.wizardOpen}
-          onClose={this.toggleCreateWizard}
-          title="Create a New Feed"
-          description="This wizard allows you to create a new feed and add an initial dataset to it."
-          steps={steps}
-          className="feed-create-wizard"
-        />
+        {
+          this.state.wizardOpen && (
+            <Wizard
+              isOpen={this.state.wizardOpen}
+              onClose={this.toggleCreateWizard}
+              title="Create a New Feed"
+              description="This wizard allows you to create a new feed and add an initial dataset to it."
+              className={`feed-create-wizard ${this.getStepName()}-wrap`}
+              steps={steps}
+              startAtStep={this.state.step}
+              onNext={this.handleStepChange}
+              onBack={this.handleStepChange}
+              onGoToStep={this.handleStepChange}
+            />
+          )
+      }
       </React.Fragment>
     )
   }
