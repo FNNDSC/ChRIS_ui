@@ -95,8 +95,35 @@ const BasicInformation:React.FunctionComponent<BasicInformationProps> = (
   )
 }
 
+// VERY TEMPORARY!
+const explorer = {
+  module: 'ChRIS Files',
+  children: [
+    {
+      module: 'Project 1',
+      children: [
+        { module: 'examplesample.json' },
+        { module: 'qwertyui321.nifty' }
+      ]
+    },
+    {
+      module: 'Project 2',
+      children: [
+        { module: 'abcdefghijk123.dicom' },
+        { module: 'Part 1', collapsed: true, children: [{ module: 'testing.one' }, { module: 'testing.two' }]}
+      ]
+    },
+    { module: 'ghijkl876.nifty' },
+    { module: 'mnopqrs456.png' },
+    { module: 'qrstuv935.csv '},
+    { module: 'loremipsum.dicom'},
+  ]
+};
+
 interface ChrisFileSelectState {
   files: Array<string>,
+  filter: string,
+  visibleTree: any,
 }
 
 class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
@@ -105,6 +132,17 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
     super(props);
     this.state = {
       files: [],
+      filter: '',
+      visibleTree: explorer,
+    }
+  }
+
+  componentDidMount() {
+    // finds all nodes and disables the draggable function that comes with the react-ui-tree
+    // from FileExplorer.tsx
+    const arr = Array.from(document.getElementsByClassName('m-node'));
+    for (const el of arr) {
+      el.addEventListener('mousedown', (e: any) => { e.stopPropagation() }, { passive: false });
     }
   }
 
@@ -119,9 +157,81 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
       this.removeFile(file);
     }
   }
+  
+  handleFilterChange = (value: string) => {
+    this.setState({ filter: value }, () => {
+      if (value) {
+        this.recomputeVisibleTree();
+      } else {
+        this.resetVisibleTree();
+      }
+    });
+  }
+
+  recomputeVisibleTree() {
+    const visibleTopLevelChildren = this.computeVisibleChildren(explorer.children);
+    this.setState({ visibleTree: {
+      module: 'ChRIS Files',
+      children: visibleTopLevelChildren,
+    } })
+  }
+
+  computeVisibleChildren(children: Array<any>): Array<any> {
+    const shownChildren = [];
+    for (const child of children) {
+      if (!child.children && this.matchesFilter(child.module)) { // is file and matches
+        shownChildren.push(child);
+      } else if (child.children) { // if it's a folder
+        const folderShownChildren = this.computeVisibleChildren(child.children); // get its shown children
+        if (folderShownChildren.length) {
+          const folder = {
+            module: child.module,
+            children: folderShownChildren,
+          }
+          shownChildren.push(folder);
+        }
+      }
+    }
+    return shownChildren;
+  }
+
+  resetVisibleTree() {
+    this.setState({ visibleTree: explorer })
+  }
+
+  normalizeString(str: string) {
+    return str.toLowerCase().trim();
+  }
+
+  matchesFilter(name: string) {
+    return this.normalizeString(name).includes(this.normalizeString(this.state.filter));
+  }
+
+  // generates file name, with match highlighted, for file explorer
+  generateFileName(node: IUITreeNode) {
+    const name = node.module;
+    if (!this.state.filter || !this.matchesFilter(name) || node.children) { // REMOVE THE LAST CLAUSE IF FOLDERS ARE SEARCHABLE
+      return name;
+    }
+    const matchIndex = this.normalizeString(name).indexOf(this.normalizeString(this.state.filter));
+    const before = name.substring(0, matchIndex);
+    const match = name.substring(matchIndex, matchIndex + this.state.filter.length);
+    const after = name.substring(matchIndex + this.state.filter.length);
+    return (
+      <React.Fragment>
+        { before }
+        <span className="match-highlight">{ match }</span>
+        { after }
+      </React.Fragment>
+    );
+  }
 
   renderTreeNode = (node: IUITreeNode) => {
     const isSelected = this.state.files.includes(node.module);
+    const isFolder = node.children; 
+    const icon = isFolder 
+      ? (node.collapsed ? <FolderCloseIcon /> : <FolderOpenIcon></FolderOpenIcon>)
+      : <FileIcon />
     return (
       <span className="name">
         <Checkbox 
@@ -129,38 +239,14 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
           id={`check-${node.module}`} aria-label="" 
           onChange={ isChecked => this.handleCheckboxChange(isChecked, node.module) }
         />
-        { node.module }
+        { icon }
+        { this.generateFileName(node) }
       </span>
     )
   }
 
   render() {
-    const explorer = {
-      module: 'ChRIS Files',
-      children: [
-        {
-          module: 'Project 1',
-          children: [
-            { module: 'examplesample.json' },
-            { module: 'qwertyui321.nifty' }
-          ]
-        },
-        {
-          module: 'Project 2',
-          children: [{ module: 'abcdefghijk123.dicom' }]
-        },
-        { module: 'ghijkl876.nifty' },
-        { module: 'mnopqrs456.png' },
-        { module: 'qrstuv935.csv '},
-        { module: 'loremipsum.dicom'},
-        { module: 'loremipsum.dicom'},
-        { module: 'loremipsum.dicom'},
-        { module: 'loremipsum.dicom'},
-        { module: 'loremipsum.dicom'},
-        { module: 'loremipsum.dicom'},
-      ]
-    }
-
+    
     const fileList = this.state.files.map(file => (
       <div className="file-preview" key={ file }>
         <FileIcon />
@@ -170,11 +256,19 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
     ))
 
     return (
-      <div>
-        <h1 className="pf-c-title pf-m-2xl">Data Configuration: Local File Upload</h1>
+      <div className="chris-file-select">
+        <h1 className="pf-c-title pf-m-2xl">Data Configuration: ChRIS File Select</h1>
         <p>Please choose the data files you'd like to add to your feed.</p>
-        <Split>
+        <br />
+        <Split gutter="lg">
           <SplitItem isMain>
+            <TextInput
+              type="text"
+              id="file-filter"
+              value={ this.state.filter }
+              placeholder="Filter by filename..."
+              onChange={this.handleFilterChange}
+            />
             <Tree
               tree={ explorer }
               renderNode={ this.renderTreeNode }
