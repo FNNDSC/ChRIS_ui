@@ -494,13 +494,18 @@ interface ReviewProps {
 
 class Review extends React.Component<ReviewProps> {
 
-  generateFileList(files: Array<LocalFile>) {
-    return files.map(file => (
-      <div className="file-preview" key={ file.name }>
-        <FileIcon />
-        <span className="file-name">{ file.name }</span>
-      </div>
-    ))
+  generateFileList(files: Array<ChrisFile | LocalFile>) {
+    return files.map(file => {
+      let icon = (file as ChrisFile).children ? // file is a ChrisFile folder
+        <FolderCloseIcon /> :
+        <FileIcon />;
+      return (
+        <div className="file-preview" key={ file.name }>
+          { icon }
+          <span className="file-name">{ file.name }</span>
+        </div>
+      )
+    })
   }
   
   render() {
@@ -539,6 +544,7 @@ class Review extends React.Component<ReviewProps> {
         <Split>
           <SplitItem isMain className="file-list">
             <p>ChRIS files to add to new feed:</p>
+            { this.generateFileList(data.chrisFiles )}
           </SplitItem>
           <SplitItem isMain className="file-list">
             <p>Local files to add to new feed:</p>
