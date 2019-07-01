@@ -6,7 +6,7 @@ import Tree from "react-ui-tree";
 import Client, { UploadedFile } from '@fnndsc/chrisapi';
 import { 
   Button, Wizard, Form, FormGroup, Checkbox,
-  TextInput, TextArea, Split, SplitItem, WizardStepFunctionType
+  TextInput, TextArea, Split, SplitItem
 } from "@patternfly/react-core";
 import { FileIcon, CloseIcon, FolderOpenIcon, FolderCloseIcon } from "@patternfly/react-icons";
 
@@ -24,7 +24,8 @@ function getDataValue(data: Array<{ name: string, value: string }>, name: string
 
 interface ChrisFile {
   name: string,
-  children?: Array<ChrisFile>,
+  path: string, // full path, including file name
+  children?: ChrisFile[],
   collapsed?: boolean,
 }
 
@@ -36,8 +37,9 @@ interface LocalFile {
 interface CreateFeedData {
   feedName: string,
   feedDescription: string,
-  tags: Array<string>,
-  localFiles: Array<LocalFile>
+  tags: string[],
+  chrisFiles: ChrisFile[],
+  localFiles: LocalFile[],
 }
 
 function getDefaultCreateFeedData(): CreateFeedData {
@@ -45,6 +47,7 @@ function getDefaultCreateFeedData(): CreateFeedData {
     feedName: '',
     feedDescription: '',
     tags: [],
+    chrisFiles: [],
     localFiles: [],
   }
 }
@@ -115,24 +118,29 @@ const BasicInformation:React.FunctionComponent<BasicInformationProps> = (
 function getEmptyTree() {
   return {
     name: 'ChRIS Files',
+    path: '/',
     children: [],
   }
 }
 
+interface ChrisFileSelectProps {
+  files: ChrisFile[],
+  handleFileAdd: (file: ChrisFile) => void,
+  handleFileRemove: (file: ChrisFile) => void,
+}
+
 interface ChrisFileSelectState {
-  files: Array<string>,
   filter: string,
   initialTreeLoaded: boolean,
   initialTree: ChrisFile,
   visibleTree: ChrisFile,
 }
 
-class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
+class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSelectState> {
 
-  constructor(props: {}) {
+  constructor(props: ChrisFileSelectProps) {
     super(props);
     this.state = {
-      files: [],
       filter: '',
       initialTreeLoaded: false,
       initialTree: getEmptyTree(),
@@ -144,7 +152,6 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
     this.disableTreeDraggables();
     this.fetchChrisFiles().then((files: string[]) => {
       const tree = this.buildInitialFileTree(files);
-      console.log(tree);
       this.setState({
         initialTreeLoaded: true,
         initialTree: tree,
@@ -172,31 +179,35 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
   /**
    * 
    * @param fileNames list of files, e.g. ['/data1.txt', 'data2.txt', /project/data2.txt']
-   * @returns IUITreeNodeLike
-   * TODO: better documentation
+   * @returns ChrisFile tree
    */
   buildInitialFileTree(fileNames: Array<string>) {
     const root = getEmptyTree();
-    for (const file of fileNames) {
-        const parts = file.split('/').slice(1); // remove initial '/'
+    for (const path of fileNames) {
+
+        const parts = path.split('/').slice(1); // remove initial '/'
         const name = parts[parts.length - 1];
-        const paths = parts.slice(0, parts.length - 1);
-        let currentPath: ChrisFile[] = root.children;
-        for (const path of paths) {
-            const existingPath = currentPath.find((pathObj: ChrisFile) => pathObj.name === path);
-            if (existingPath && existingPath.children) {
-                currentPath = existingPath.children;
+        const dirs = parts.slice(0, parts.length - 1);
+
+        let currentDir: ChrisFile[] = root.children;
+        for (const dirName of dirs) {
+            const existingDir = currentDir.find((pathObj: ChrisFile) => pathObj.name === dirName);
+
+            if (existingDir && existingDir.children) {
+                currentDir = existingDir.children;
                 continue;
             }
-            const newPath = {
-              name: path,
+
+            const newDir = {
+              name: dirName,
               children: [],
+              path: `${dirName.split(dirName)[0]}${dirName}`,
               collapsed: true,
             }
-            currentPath.push(newPath);
-            currentPath = newPath.children;
+            currentDir.push(newDir);
+            currentDir = newDir.children;
         }
-        currentPath.push({ name: name });
+        currentDir.push({ name: name, path: path });
     }
     return this.sortTree(root);
   }
@@ -204,6 +215,7 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
   sortTree(root: ChrisFile) {
     let children: ChrisFile[] = [];
     if (root.children) {
+
       children = root.children.sort((a: ChrisFile, b: ChrisFile) => {
         if (a.children && !b.children) {
           return -1;
@@ -213,11 +225,13 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
           return a.name.localeCompare(b.name);
         }
       });
+
       for (const child of root.children) {
         if (child.children) {
           child.children = this.sortTree(child).children;
         }
       }
+
     }
     return { ...root, children };
   }
@@ -234,31 +248,23 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
     }
 
     const fileNames = files.map(file => {
-      if (file instanceof UploadedFile) {
-        return getDataValue(file.item.data, 'upload_path');
-      }
-      return '';
+      const fileData = (file as UploadedFile).item.data;
+      return getDataValue(fileData, 'upload_path');
     })
     return fileNames;
   }
 
   /* EVENT HANDLERS */
 
-  // File Select
-
-  removeFile = (file: string) => {
-    this.setState({ files: this.state.files.filter(f => f !== file) });
-  }
-
-  handleCheckboxChange = (isChecked: boolean, file: string) => {
+  handleCheckboxChange = (isChecked: boolean, file: ChrisFile) => {
     if (isChecked) {
-      this.setState({ files: [...this.state.files, file ]});
+      this.props.handleFileAdd(file);
     } else {
-      this.removeFile(file);
+      this.props.handleFileRemove(file);
     }
   }
   
-  // Search
+  /* SEARCH */
 
   handleFilterChange = (value: string) => {
     this.setState({ filter: value }, () => {
@@ -276,6 +282,7 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
       this.setState({
         visibleTree: {
           name: 'ChRIS Files',
+          path: '/',
           children: visibleTopLevelChildren,
         }
       })
@@ -292,6 +299,7 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
         if (folderShownChildren.length) {
           const folder = {
             name: child.name,
+            path: child.path,
             children: folderShownChildren,
           }
           shownChildren.push(folder);
@@ -333,17 +341,18 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
   }
 
   renderTreeNode = (node: ChrisFile) => {
-    const isSelected = this.state.files.includes(node.name);
+    const isSelected = !!this.props.files.find(f => f.path === node.path);
     const isFolder = node.children; 
     const icon = isFolder 
       ? (node.collapsed ? <FolderCloseIcon /> : <FolderOpenIcon></FolderOpenIcon>)
       : <FileIcon />
     return (
       <span className="name">
-        <Checkbox 
-          isChecked={isSelected}
-          id={`check-${node.name}`} aria-label="" 
-          onChange={ isChecked => this.handleCheckboxChange(isChecked, node.name) }
+        <Checkbox
+          checked={isSelected}
+          id={`check-${node.path}`}
+          aria-label="" 
+          onChange={ isChecked => this.handleCheckboxChange(isChecked, node) }
         />
         { icon }
         { this.generateFileName(node) }
@@ -353,11 +362,13 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
 
   render() {
     
-    const fileList = this.state.files.map(file => (
-      <div className="file-preview" key={ file }>
-        <FileIcon />
-        <span className="file-name">{ file }</span>
-        <CloseIcon className="file-remove" onClick={ () => this.removeFile(file) }/>
+    const fileList = this.props.files.map(file => (
+      <div className="file-preview" key={ file.path }>
+        {
+          file.children ? <FolderCloseIcon /> : <FileIcon />
+        }
+        <span className="file-name">{ file.name }</span>
+        <CloseIcon className="file-remove" onClick={ () => this.props.handleFileRemove(file) }/>
       </div>
     ))
 
@@ -591,6 +602,22 @@ class CreateFeed extends React.Component<{}, CreateFeedState> {
     this.setState({ data: { ...this.state.data, tags }});
   }
 
+  // CHRIS FILE SELECT HANDLERS
+
+  handleChrisFileAdd = (file: ChrisFile) => {
+    this.setState({ data: { 
+      ...this.state.data, 
+      chrisFiles: [...this.state.data.chrisFiles, file ]
+    }});
+  }
+  
+  handleChrisFileRemove = (file: ChrisFile) => {
+    this.setState({ data: {
+      ...this.state.data,
+      chrisFiles: this.state.data.chrisFiles.filter(f => f.path !== file.path)
+    }});
+  }
+
   // LOCAL FILE UPLOAD HANDLERS
   
   handleLocalFilesAdd = (files: Array<LocalFile>) => {
@@ -615,13 +642,19 @@ class CreateFeed extends React.Component<{}, CreateFeedState> {
       handleFeedNameChange={ this.handleFeedNameChange }
       handleFeedDescriptionChange={ this.handleFeedDescriptionChange }
       handleTagsChange={ this.handleTagsChange }
-    />
+    />;
+
+    const chrisFileSelect = <ChrisFileSelect
+      files={ this.state.data.chrisFiles }
+      handleFileAdd={ this.handleChrisFileAdd }
+      handleFileRemove={ this.handleChrisFileRemove }
+    />;
     
     const localFileUpload = <LocalFileUpload
       files={ this.state.data.localFiles }
       handleFilesAdd={ this.handleLocalFilesAdd }
       handleFileRemove={ this.handleLocalFileRemove }
-    />
+    />;
 
     const steps = [
       { 
@@ -633,7 +666,7 @@ class CreateFeed extends React.Component<{}, CreateFeedState> {
       { 
         name: 'Data Configuration',
         steps: [
-          { id: 2, name: 'ChRIS File Select', component: <ChrisFileSelect /> },
+          { id: 2, name: 'ChRIS File Select', component: chrisFileSelect },
           { id: 3, name: 'Local File Upload', component: localFileUpload },
         ] 
       },
