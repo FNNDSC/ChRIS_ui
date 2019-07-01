@@ -1,15 +1,32 @@
 import * as React from "react";
 
+import { Typeahead } from "react-bootstrap-typeahead";
+import Tree from "react-ui-tree";
+
+import Client, { UploadedFile } from '@fnndsc/chrisapi';
 import { 
   Button, Wizard, Form, FormGroup, Checkbox,
   TextInput, TextArea, Split, SplitItem, WizardStepFunctionType
 } from "@patternfly/react-core";
 import { FileIcon, CloseIcon, FolderOpenIcon, FolderCloseIcon } from "@patternfly/react-icons";
 
-import { Typeahead } from "react-bootstrap-typeahead";
-import Tree from "react-ui-tree";
+import { LoadingComponent } from "../../../components";
 
-import { IUITreeNode } from "../../../api/models/file-explorer.model";
+const CHRIS_API_URL = 'http://localhost:8000/api/v1';
+
+function getDataValue(data: Array<{ name: string, value: string }>, name: string) {
+  const dataItem =  data.find((dataItem: { name: string, value: string }) => dataItem.name === name);
+  if (dataItem) {
+    return dataItem.value;
+  }
+  return '';
+}
+
+interface ChrisFile {
+  name: string,
+  children?: Array<ChrisFile>,
+  collapsed?: boolean,
+}
 
 interface LocalFile {
   name: string,
@@ -95,35 +112,19 @@ const BasicInformation:React.FunctionComponent<BasicInformationProps> = (
   )
 }
 
-// VERY TEMPORARY!
-const explorer = {
-  module: 'ChRIS Files',
-  children: [
-    {
-      module: 'Project 1',
-      children: [
-        { module: 'examplesample.json' },
-        { module: 'qwertyui321.nifty' }
-      ]
-    },
-    {
-      module: 'Project 2',
-      children: [
-        { module: 'abcdefghijk123.dicom' },
-        { module: 'Part 1', collapsed: true, children: [{ module: 'testing.one' }, { module: 'testing.two' }]}
-      ]
-    },
-    { module: 'ghijkl876.nifty' },
-    { module: 'mnopqrs456.png' },
-    { module: 'qrstuv935.csv '},
-    { module: 'loremipsum.dicom'},
-  ]
-};
+function getEmptyTree() {
+  return {
+    name: 'ChRIS Files',
+    children: [],
+  }
+}
 
 interface ChrisFileSelectState {
   files: Array<string>,
   filter: string,
-  visibleTree: any,
+  initialTreeLoaded: boolean,
+  initialTree: ChrisFile,
+  visibleTree: ChrisFile,
 }
 
 class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
@@ -133,18 +134,117 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
     this.state = {
       files: [],
       filter: '',
-      visibleTree: explorer,
+      initialTreeLoaded: false,
+      initialTree: getEmptyTree(),
+      visibleTree: getEmptyTree(),
     }
   }
 
   componentDidMount() {
-    // finds all nodes and disables the draggable function that comes with the react-ui-tree
-    // from FileExplorer.tsx
+    this.disableTreeDraggables();
+    this.fetchChrisFiles().then((files: string[]) => {
+      const tree = this.buildInitialFileTree(files);
+      console.log(tree);
+      this.setState({
+        initialTreeLoaded: true,
+        initialTree: tree,
+        visibleTree: tree,
+      });
+    })
+
+  }
+
+  componentDidUpdate() {
+    this.disableTreeDraggables();
+  }
+
+  // finds all nodes and disables the draggable function that comes with the react-ui-tree
+  // from FileExplorer.tsx
+  disableTreeDraggables() {
     const arr = Array.from(document.getElementsByClassName('m-node'));
     for (const el of arr) {
-      el.addEventListener('mousedown', (e: any) => { e.stopPropagation() }, { passive: false });
+      el.addEventListener('mousedown', (e: Event) => { e.stopPropagation() }, { passive: false });
     }
   }
+
+  /* DATA FETCHING */
+
+  /**
+   * 
+   * @param fileNames list of files, e.g. ['/data1.txt', 'data2.txt', /project/data2.txt']
+   * @returns IUITreeNodeLike
+   * TODO: better documentation
+   */
+  buildInitialFileTree(fileNames: Array<string>) {
+    const root = getEmptyTree();
+    for (const file of fileNames) {
+        const parts = file.split('/').slice(1); // remove initial '/'
+        const name = parts[parts.length - 1];
+        const paths = parts.slice(0, parts.length - 1);
+        let currentPath: ChrisFile[] = root.children;
+        for (const path of paths) {
+            const existingPath = currentPath.find((pathObj: ChrisFile) => pathObj.name === path);
+            if (existingPath && existingPath.children) {
+                currentPath = existingPath.children;
+                continue;
+            }
+            const newPath = {
+              name: path,
+              children: [],
+              collapsed: true,
+            }
+            currentPath.push(newPath);
+            currentPath = newPath.children;
+        }
+        currentPath.push({ name: name });
+    }
+    return this.sortTree(root);
+  }
+
+  sortTree(root: ChrisFile) {
+    let children: ChrisFile[] = [];
+    if (root.children) {
+      children = root.children.sort((a: ChrisFile, b: ChrisFile) => {
+        if (a.children && !b.children) {
+          return -1;
+        } else if (!a.children && b.children) {
+          return 1;
+        } else { // both folders or both files
+          return a.name.localeCompare(b.name);
+        }
+      });
+      for (const child of root.children) {
+        if (child.children) {
+          child.children = this.sortTree(child).children;
+        }
+      }
+    }
+    return { ...root, children };
+  }
+
+  async fetchChrisFiles(): Promise<string[]> {
+    const authUrl = `${CHRIS_API_URL}/auth-token/`;
+    const authToken = await Client.getAuthToken(authUrl, 'chris', 'chris1234');
+    const client = new Client(CHRIS_API_URL, { token: authToken });
+    const feeds = await client.getFeeds({ limit:0, offset: 0 });
+    const uploadedFileList = await feeds.getUploadedFiles({limit: 10, offset: 0});
+    const files = uploadedFileList.getItems();
+    if (!files) {
+      return [];
+    }
+
+    const fileNames = files.map(file => {
+      if (file instanceof UploadedFile) {
+        return getDataValue(file.item.data, 'upload_path');
+      }
+      return '';
+    })
+    return fileNames;
+  }
+
+  /* EVENT HANDLERS */
+
+  // File Select
 
   removeFile = (file: string) => {
     this.setState({ files: this.state.files.filter(f => f !== file) });
@@ -158,6 +258,8 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
     }
   }
   
+  // Search
+
   handleFilterChange = (value: string) => {
     this.setState({ filter: value }, () => {
       if (value) {
@@ -169,23 +271,27 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
   }
 
   recomputeVisibleTree() {
-    const visibleTopLevelChildren = this.computeVisibleChildren(explorer.children);
-    this.setState({ visibleTree: {
-      module: 'ChRIS Files',
-      children: visibleTopLevelChildren,
-    } })
+    if (this.state.initialTree.children) {
+      const visibleTopLevelChildren = this.computeVisibleChildren(this.state.initialTree.children);
+      this.setState({
+        visibleTree: {
+          name: 'ChRIS Files',
+          children: visibleTopLevelChildren,
+        }
+      })
+    }
   }
 
-  computeVisibleChildren(children: Array<any>): Array<any> {
+  computeVisibleChildren(children: Array<ChrisFile>): Array<ChrisFile> {
     const shownChildren = [];
     for (const child of children) {
-      if (!child.children && this.matchesFilter(child.module)) { // is file and matches
+      if (!child.children && this.matchesFilter(child.name)) { // is file and matches
         shownChildren.push(child);
       } else if (child.children) { // if it's a folder
         const folderShownChildren = this.computeVisibleChildren(child.children); // get its shown children
         if (folderShownChildren.length) {
           const folder = {
-            module: child.module,
+            name: child.name,
             children: folderShownChildren,
           }
           shownChildren.push(folder);
@@ -196,7 +302,7 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
   }
 
   resetVisibleTree() {
-    this.setState({ visibleTree: explorer })
+    this.setState({ visibleTree: this.state.initialTree })
   }
 
   normalizeString(str: string) {
@@ -208,8 +314,8 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
   }
 
   // generates file name, with match highlighted, for file explorer
-  generateFileName(node: IUITreeNode) {
-    const name = node.module;
+  generateFileName(node: ChrisFile) {
+    const name = node.name;
     if (!this.state.filter || !this.matchesFilter(name) || node.children) { // REMOVE THE LAST CLAUSE IF FOLDERS ARE SEARCHABLE
       return name;
     }
@@ -226,8 +332,8 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
     );
   }
 
-  renderTreeNode = (node: IUITreeNode) => {
-    const isSelected = this.state.files.includes(node.module);
+  renderTreeNode = (node: ChrisFile) => {
+    const isSelected = this.state.files.includes(node.name);
     const isFolder = node.children; 
     const icon = isFolder 
       ? (node.collapsed ? <FolderCloseIcon /> : <FolderOpenIcon></FolderOpenIcon>)
@@ -236,8 +342,8 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
       <span className="name">
         <Checkbox 
           isChecked={isSelected}
-          id={`check-${node.module}`} aria-label="" 
-          onChange={ isChecked => this.handleCheckboxChange(isChecked, node.module) }
+          id={`check-${node.name}`} aria-label="" 
+          onChange={ isChecked => this.handleCheckboxChange(isChecked, node.name) }
         />
         { icon }
         { this.generateFileName(node) }
@@ -269,11 +375,15 @@ class ChrisFileSelect extends React.Component<{}, ChrisFileSelectState> {
               placeholder="Filter by filename..."
               onChange={this.handleFilterChange}
             />
-            <Tree
-              tree={this.state.visibleTree}
-              renderNode={ this.renderTreeNode }
-              paddingLeft={ 20 }
-            />
+            {
+              this.state.initialTreeLoaded ?
+              <Tree
+                tree={this.state.visibleTree}
+                renderNode={ this.renderTreeNode }
+                paddingLeft={ 20 }
+              /> :
+              <LoadingComponent />
+            }
           </SplitItem>
           <SplitItem isMain className="file-list">
             <p className="section-header">Files to add to new feed:</p>
@@ -460,7 +570,7 @@ class CreateFeed extends React.Component<{}, CreateFeedState> {
     })
   }
 
-  handleStepChange= (step: any) => {
+  handleStepChange = (step: any) => {
     this.setState({ step: step.id });
   }
 
