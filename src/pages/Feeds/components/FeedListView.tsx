@@ -14,8 +14,7 @@ import { LinkIcon } from "@patternfly/react-icons";
 import { DataTableToolbar } from "../../../components/index";
 import _ from "lodash";
 import debounce from "lodash/debounce";
-import './feedlistview.scss';
-import CreateFeed from "./CreateFeed";
+import CreateFeed from "../../../components/feed/CreateFeed/CreateFeed";
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getAllFeedsRequest: typeof getAllFeedsRequest;
@@ -42,6 +41,8 @@ class AllFeedsPage extends React.Component<AllProps> {
 
   render() {
     const { feeds } = this.props;
+    console.log('rendering', feeds);
+    
     return (
       <PageSection>
         {!!feeds && (
