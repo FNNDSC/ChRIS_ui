@@ -37,7 +37,7 @@ class LocalFileUpload extends React.Component<LocalFileUploadProps> {
           const files = await Promise.all(Array.from(input.files).map(async file => {
             return {
               name: file.name,
-              data: await this.readFileFromInput(file),
+              contents: await this.readFileFromInput(file),
             }
           }))
           res(files);

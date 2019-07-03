@@ -84,7 +84,7 @@ declare module "@fnndsc/chrisapi" {
      * @param {number} [timeout=30000] - request timeout
      * @return {Object} - JS Promise, resolves to a ``FeedList`` object
      */
-    getFeeds: (params: IParams, timeout?: number) => void;
+    getFeeds: (params: IParams, timeout?: number) => Promise<FeedList>;
 
     /**
      * Create a new user account.
@@ -101,13 +101,13 @@ declare module "@fnndsc/chrisapi" {
     /**
      * Fetch a user's login authorization token from the REST API.
      * @param {string} authUrl - url of the authorization service
-     * @param {string} username - username
+     * @param {string} username - username 
      * @param {string} password - password
      * @param {number} [timeout=30000] - request timeout
      *
      * @return {Object} - JS Promise, resolves to a ``string`` value
      */
-    static getAuthToken: (usersUrl: string, username: string, password: string, timeout?: number) => void;
+    static getAuthToken: (usersUrl: string, username: string, password: string, timeout?: number) => Promise<string>;
 
     /**
      * Helper method to run an asynchronous task defined by a task generator function.
@@ -276,7 +276,7 @@ declare module "@fnndsc/chrisapi" {
      * @param {number} [timeout=30000] - request timeout
      * @return {Object} - JS Promise, resolves to ``this`` object
      */
-    put: (data: IData, timeout?: number) => void;
+    put: (data: IFeedData, timeout?: number) => Promise<Feed>;
 
     /**
      * Make a DELETE request to delete this feed item resource through the REST API.
@@ -317,7 +317,7 @@ declare module "@fnndsc/chrisapi" {
      * @param {number} [timeout=30000] - request timeout
      * @return {Object} - JS Promise, resolves to a ``PluginList`` object
      */
-    getPlugins: (params: IParams, timeout?: number) => void;
+    getPlugins: (params: IParams, timeout?: number) => Promise<PluginList>;
 
     /**
      * Fetch a list of tags from the REST API.
@@ -339,7 +339,7 @@ declare module "@fnndsc/chrisapi" {
      * @param {number} [timeout=30000] - request timeout
      * @return {Object} - JS Promise, resolves to a ``UploadedFileList`` object
      */
-    getUploadedFiles: (params: IParams, timeout?: number) => void;
+    getUploadedFiles: (params: IParams, timeout?: number) => Promise<UploadedFileList>;
   }
 
   /**
@@ -723,7 +723,7 @@ declare module "@fnndsc/chrisapi" {
      * @param {Object} uploadFileObj.fname - file blob
      * @return {Object} - JS Promise, resolves to an ``axios reponse`` object
      */
-    post: (url: string, data: object, uploadFileObj?: object) => void; // Promise<IAxiosReponse>
+    post: (url: string, data: object, uploadFileObj?: object) => Promise<IAxiosResponse>; // Promise<IAxiosReponse>
 
     /**
      * Perform a PUT request.
@@ -946,7 +946,7 @@ declare module "@fnndsc/chrisapi" {
      *
      * @return {?Object[]}
      */
-    getItems(): ?string[];
+    getItems(): ?any[];
 
     /**
      * Get an array of parameter names that can be used as properties of the data
@@ -1281,6 +1281,7 @@ declare module "@fnndsc/chrisapi" {
    * Uploaded file item resource object representing a user's uploaded file.
    */
   export class UploadedFile extends ItemResource {
+    item: { data: Array<{ name: string, value: string }> };
     /**
      * Constructor
      *
@@ -1295,7 +1296,7 @@ declare module "@fnndsc/chrisapi" {
      * @param {number} [timeout=30000] - request timeout
      * @return {Object} - JS Promise, resolves to a ``Blob`` object
      */
-    getFileBlob: (timeout?: number) => void;
+    getFileBlob: (timeout?: number) => Blob;
 
     /**
      * Make a PUT request to modify this uploaded file item resource through the REST API.
@@ -1373,6 +1374,7 @@ declare module "@fnndsc/chrisapi" {
   export interface IParams { limit: number; offset: number; }
   export interface IUserParams {password: string; email: string; }
   export interface IData { title: string; content: string; }
+  export interface IFeedData { name?: string, owner?: string }
   export interface IUploadFileObj { fname: object; }
   export interface TagTaggingListPostData { feed_id: string; }
   export interface FeedTaggingListPostData { tag_id: string; }

@@ -1,8 +1,12 @@
 import * as React from "react";
+import { connect, MapDispatchToPropsFunction } from 'react-redux';
+import { Dispatch } from "redux";
 
+import Client, { Plugin, Request, Feed } from "@fnndsc/chrisapi";
 import { Button, Wizard } from "@patternfly/react-core";
 
 import { IFeedItem } from "../../../api/models/feed.model";
+import { addFeed } from "../../../store/feed/actions";
 
 import BasicInformation from "./BasicInformation";
 import ChrisFileSelect from "./ChrisFileSelect";
@@ -11,16 +15,63 @@ import Review from "./Review";
 
 import './createfeed.scss'; 
 
+/* 
+  ===========
+  === API ===
+  ===========
+*/
+
+let client: Client;
+
+async function getAuthedClient(): Promise<Client> {
+  if (!process.env.REACT_APP_CHRIS_UI_AUTH_URL || !process.env.REACT_APP_CHRIS_UI_URL) {
+    return new Promise(res => res(new Client('', { token: '' }))); // this should never be reached
+  }; // TEMPORARY!
+  if (client) {
+    return client;
+  }
+  const token = await Client.getAuthToken(process.env.REACT_APP_CHRIS_UI_AUTH_URL, 'chris', 'chris1234');
+  client = new Client(process.env.REACT_APP_CHRIS_UI_URL, { token });
+  return client;
+}
+
+function getDataValue(data: Array<{ name: string, value: string }>, name: string) {
+  const dataItem =  data.find((dataItem: { name: string, value: string }) => dataItem.name === name);
+  if (dataItem) {
+    return dataItem.value;
+  }
+  return '';
+}
+
+// async function api() {
+
+//     const token = await Client.getAuthToken(process.env.REACT_APP_CHRIS_UI_AUTH_URL, 'chris', 'chris1234');
+//     const client = new Client(process.env.REACT_APP_CHRIS_UI_URL, { token });
+//     const feeds = (await client.getFeeds({ limit: 0, offset: 0})).getItems();
+//     if (!feeds) {
+//       return;
+//     }
+//     // const newFeeds: Feed[] = (await client.getFeeds({limit:100,offset:0})).getItems() || [];
+//     // const newFeed = newFeeds[0];
+//     // newFeed.put({ name: 'test' }).then(console.log)
+//     for (const feed of feeds) {
+//       (feed as Feed).delete();
+//     }
+// }
+
+// api();
+
 export interface ChrisFile {
   name: string,
   path: string, // full path, including file name
+  contents?: string, // only defined for files
   children?: ChrisFile[],
   collapsed?: boolean,
 }
 
 export interface LocalFile {
   name: string,
-  data: string,
+  contents: string,
 }
 
 export interface CreateFeedData {
@@ -41,6 +92,12 @@ function getDefaultCreateFeedData(): CreateFeedData {
   }
 }
 
+interface CreateFeedPropsFromDispatch {
+  addFeed: (feed: IFeedItem) => void
+}
+
+type CreateFeedProps = CreateFeedPropsFromDispatch;
+
 interface CreateFeedState {
   wizardOpen: boolean,
   step: number,
@@ -48,9 +105,9 @@ interface CreateFeedState {
   data: CreateFeedData,
 }
 
-class CreateFeed extends React.Component<{}, CreateFeedState> {
-  
-  constructor(props: {}) {
+class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
+
+  constructor(props: CreateFeedProps) {
     super(props);
     this.state = {
       wizardOpen: false,
@@ -73,6 +130,10 @@ class CreateFeed extends React.Component<{}, CreateFeedState> {
 
   handleStepChange = (step: any) => {
     this.setState({ step: step.id });
+  }
+
+  handleSave = () => {
+    this.createFeed();
   }
 
   getStepName = (): string => {
@@ -120,6 +181,102 @@ class CreateFeed extends React.Component<{}, CreateFeedState> {
         localFiles: this.state.data.localFiles.filter(file => file.name !== fileName)
       }
     })
+  }
+
+  // CREATION
+
+  // dircopy is run on a single directory, so all selected/uploaded files need to be moved into
+  // a temporary directory. This fn generates its name, based on the feed name.
+  // TODO: something better, esp. if the folder already exists.
+  // TODO: replace special chars - esp. slashes - etc.
+  // TODO: error handling
+  getTempDirName() {
+    return '/' + this.state.data.feedName.toLowerCase().replace(/ /g, '-').replace(/\//g, '') + '-temp';
+  }
+
+  async getUploadedFiles() {
+    const client = await getAuthedClient();
+    const feeds = await client.getFeeds({ limit: 0, offset: 0});
+    return await feeds.getUploadedFiles({ limit: 0, offset: 0 });
+  }
+
+  // Local files are uploaded into the temp directory
+  async uploadLocalFiles() {
+    const files = this.state.data.localFiles;
+    const uploadedFiles = await this.getUploadedFiles();
+    const dirname = this.getTempDirName();
+    for (const file of files) {
+      uploadedFiles.post({
+        upload_path: `${dirname}/${file.name}`,
+      }, {
+        fname: new Blob([file.contents])
+      });
+    }
+  }
+  
+  // Selected ChRIS files are copied into the temp directory
+  async copyChrisFiles() {
+    const files = this.state.data.chrisFiles;
+    const uploadedFiles = await this.getUploadedFiles();
+  }
+
+  createFeed = async () => {
+    // this.uploadLocalFiles();
+    // const client = getAuthedClient();
+    // const feeds = await client.getFeeds({ limit: 0, offset: 0});
+    // const plugins = (await feeds.getPlugins({ limit: 100, offset: 0 })).getItems() || [];
+    // const dircopy: Plugin = plugins.find(plugin => {
+    //   const { data } = plugin;
+    //   return data.name === 'dircopy';
+    // })
+    // if (!dircopy) {
+    //   alert('dircopy not found...')
+    //   return;
+    // }
+    // const id = dircopy.data.id;
+    // const req = new Request({ token }, 'application/vnd.collection+json');
+    // req.get(`${process.env.REACT_APP_CHRIS_UI_URL}plugins/instances/37/`);
+    // req.post(`${process.env.REACT_APP_CHRIS_UI_URL}plugins/${id}/instances/`, {
+    //   headers: {
+    //     'Content-Type': 'application/json'
+    //   },
+    //   template: {
+    //     "data": [
+    //       { name:"dir", value: this.state.data.chrisFiles[0].path },
+    //     ]
+    //   }
+    // }).then(async res => {
+    //   // console.log(res.data.collection.items[0].data);
+    //   const instanceId = getDataValue(res.data.collection.items[0].data, 'id');
+    //   console.log(instanceId);
+      
+    //   req.get(`${process.env.REACT_APP_CHRIS_UI_URL}plugins/instances/${instanceId}/`).then(res => {
+    //     console.log(res.data);
+    //     this.toggleCreateWizard();
+    //   })
+      // const newFeeds: Feed[] = (await client.getFeeds({limit:100,offset:0})).getItems() || [];
+      // const newFeed = newFeeds[0];
+      // newFeed.put({ name: this.state.data.feedName }).then(feed => {
+      //   const date = new Date().toISOString();
+      //   const f: IFeedItem = {
+      //     id: 200,
+      //     creation_date: date,
+      //     modification_date: date,
+      //     name: this.state.data.feedName,
+      //     creator_username: 'cube',
+      //     url: 'https://www.google.com',
+      //     files: '/hi/there/',
+      //     comments: 'nope',
+      //     owner: ['cube_owner1', 'cube_owner2'],
+      //     note: 'imanote',
+      //     tags: 'tag1 tag2',
+      //     taggings: 'taggins??',
+      //     plugin_instances: 'instanceyay',
+      //   }
+      //   this.props.addFeed(f);
+      // })
+    // })
+    // req.get(`${process.env.REACT_APP_CHRIS_UI_URL}plugins/instances/4/`).then(res => console.log(res));
   }
 
   render() {
@@ -183,6 +340,7 @@ class CreateFeed extends React.Component<{}, CreateFeedState> {
               onNext={this.handleStepChange}
               onBack={this.handleStepChange}
               onGoToStep={this.handleStepChange}
+              onSave={this.handleSave}
             />
           )
       }
@@ -191,4 +349,11 @@ class CreateFeed extends React.Component<{}, CreateFeedState> {
   }
 }
 
-export default CreateFeed;
+const mapDispatchToProps: MapDispatchToPropsFunction<CreateFeedPropsFromDispatch, {}> = (dispatch: Dispatch) => ({
+  addFeed: (feed: IFeedItem) => dispatch(addFeed(feed))
+});
+
+export default connect<{}, CreateFeedPropsFromDispatch, {}, CreateFeedState>(
+  () => ({}),
+  mapDispatchToProps,
+)(CreateFeed);
