@@ -7,7 +7,7 @@ import { Checkbox, Split, SplitItem, TextInput } from '@patternfly/react-core';
 import Tree from 'react-ui-tree';
 
 import LoadingComponent from '../../common/loading/Loading';
-import { ChrisFile } from './CreateFeed';
+import { ChrisFile, createAuthedClient } from './CreateFeed';
 
 function getDataValue(data: Array<{ name: string, value: string }>, name: string) {
   const dataItem =  data.find((dataItem: { name: string, value: string }) => dataItem.name === name);
@@ -25,11 +25,18 @@ function getEmptyTree() {
   }
 }
 
+// used between fetching the files and building the tree
+interface ChrisFilePath {
+  path: string,
+  id: number,
+  blob: Blob,
+}
 
 interface ChrisFileSelectProps {
+  authToken: string,
   files: ChrisFile[],
   handleFileAdd: (file: ChrisFile) => void,
-  handleFileRemove: (file: ChrisFile) => void,
+  handleFileRemove: (file: ChrisFile) => void
 }
 
 interface ChrisFileSelectState {
@@ -53,7 +60,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
 
   componentDidMount() {
     this.disableTreeDraggables();
-    this.fetchChrisFiles().then((files: string[]) => {
+    this.fetchChrisFiles().then((files: ChrisFilePath[]) => {
       const tree = this.buildInitialFileTree(files);
       this.setState({
         initialTreeLoaded: true,
@@ -84,10 +91,11 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
    * @param fileNames list of files, e.g. ['/data1.txt', 'data2.txt', /project/data2.txt']
    * @returns ChrisFile tree
    */
-  buildInitialFileTree(fileNames: string[]) {
+  buildInitialFileTree(filePaths: ChrisFilePath[]) {
     const root = getEmptyTree();
-    for (const path of fileNames) {
+    for (const pathObj of filePaths) {
 
+      const { path, id, blob } = pathObj;
       const parts = path.split('/').slice(1); // remove initial '/'
       const name = parts[parts.length - 1];
       const dirs = parts.slice(0, parts.length - 1);
@@ -110,7 +118,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
         currentDir.push(newDir);
         currentDir = newDir.children;
       }
-      currentDir.push({ name: name, path: path });
+      currentDir.push({ name, path, id, blob });
     }
     return this.sortTree(root);
   }
@@ -139,22 +147,24 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
     return { ...root, children };
   }
 
-  async fetchChrisFiles(): Promise<string[]> {
-    if (!process.env.REACT_APP_CHRIS_UI_AUTH_URL || !process.env.REACT_APP_CHRIS_UI_URL) return new Promise(res => res([])); // TEMPORARY!
-    const authToken = await Client.getAuthToken(process.env.REACT_APP_CHRIS_UI_AUTH_URL, 'chris', 'chris1234');
-    const client = new Client(process.env.REACT_APP_CHRIS_UI_URL, { token: authToken });
+  async fetchChrisFiles(): Promise<ChrisFilePath[]> {
+    const client = await createAuthedClient(this.props.authToken);
     const feeds = await client.getFeeds({ limit: 0, offset: 0 });
-    const uploadedFileList = await feeds.getUploadedFiles({ limit: 10, offset: 0 });
+    const uploadedFileList = await feeds.getUploadedFiles({ limit: 100, offset: 0 });
     const files = uploadedFileList.getItems();
     if (!files) {
       return [];
     }
 
-    const fileNames = files.map(file => {
+    return Promise.all(files.map(async file => {
       const fileData = (file as UploadedFile).item.data;
-      return getDataValue(fileData, 'upload_path');
-    })
-    return fileNames;
+      const blob = await (file as UploadedFile).getFileBlob();
+      return {
+        path: getDataValue(fileData, 'upload_path'),
+        blob,
+        id: Number(getDataValue(fileData, 'id')),
+      }
+    }));
   }
 
   /* EVENT HANDLERS */
@@ -264,14 +274,14 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
   }
 
   render() {
-
+    
     const fileList = this.props.files.map(file => (
       <div className="file-preview" key={file.path}>
         {
           file.children ? <FolderCloseIcon /> : <FileIcon />
         }
         <span className="file-name">{file.name}</span>
-        <CloseIcon className="file-remove" onClick={() => this.props.handleFileRemove(file)} />
+        <CloseIcon className="file-remove" onClick={() => this.props.handleFileRemove(file) } />
       </div>
     ))
 

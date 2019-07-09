@@ -41,7 +41,6 @@ class AllFeedsPage extends React.Component<AllProps> {
 
   render() {
     const { feeds } = this.props;
-    console.log('rendering', feeds);
     
     return (
       <PageSection>
