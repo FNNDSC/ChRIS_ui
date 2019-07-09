@@ -13,19 +13,6 @@ interface LocalFileUploadProps {
 
 class LocalFileUpload extends React.Component<LocalFileUploadProps> {
 
-  readFileFromInput = (file: File): Promise<string> => {
-    return new Promise(res => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          const data = reader.result || '';
-          res(data);
-        }
-      }
-      reader.readAsText(file);
-    })
-  }
-
   openLocalFilePicker(): Promise<LocalFile[]> {
     const input = document.createElement('input');
     input.type = 'file';
@@ -34,16 +21,16 @@ class LocalFileUpload extends React.Component<LocalFileUploadProps> {
     return new Promise((res) => {
       input.onchange = async () => {
         if (input.files) {
-          const files = await Promise.all(Array.from(input.files).map(async file => {
+          const files = Array.from(input.files).map(file => {
             return {
               name: file.name,
-              contents: await this.readFileFromInput(file),
+              blob: file
             }
-          }))
+          })
           res(files);
         }
       }
-    })
+    });
   }
 
   handleChoseFilesClick = () => {
