@@ -1,21 +1,19 @@
 import React from 'react';
 
 import Client, { UploadedFile } from '@fnndsc/chrisapi';
-import { FolderCloseIcon, FolderOpenIcon, FileIcon, CloseIcon } from '@patternfly/react-icons';
+import { FolderCloseIcon, FolderOpenIcon, FileIcon, CloseIcon, IoxhostIcon } from '@patternfly/react-icons';
 import { Checkbox, Split, SplitItem, TextInput } from '@patternfly/react-core';
 
 import Tree from 'react-ui-tree';
 
 import LoadingComponent from '../../common/loading/Loading';
-import { ChrisFile, createAuthedClient } from './CreateFeed';
+import { ChrisFile } from './CreateFeed';
 
-function getDataValue(data: Array<{ name: string, value: string }>, name: string) {
-  const dataItem =  data.find((dataItem: { name: string, value: string }) => dataItem.name === name);
-  if (dataItem) {
-    return dataItem.value;
+declare var process: { 
+  env: {
+    REACT_APP_CHRIS_UI_URL: string
   }
-  return '';
-}
+};
 
 function getEmptyTree() {
   return {
@@ -157,12 +155,12 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
     }
 
     return Promise.all(files.map(async file => {
-      const fileData = (file as UploadedFile).item.data;
+      const fileData = (file as UploadedFile).data;
       const blob = await (file as UploadedFile).getFileBlob();
       return {
-        path: getDataValue(fileData, 'upload_path'),
+        path: fileData.upload_path,
         blob,
-        id: Number(getDataValue(fileData, 'id')),
+        id: Number(fileData.id),
       }
     }));
   }
@@ -205,18 +203,21 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
   computeVisibleChildren(children: ChrisFile[]): ChrisFile[] {
     const shownChildren = [];
     for (const child of children) {
-      if (!child.children && this.matchesFilter(child.name)) { // is file and matches
-        shownChildren.push(child);
-      } else if (child.children) { // if it's a folder
+      // if it's a folder with matching children, show the folder
+      if (child.children) {
         const folderShownChildren = this.computeVisibleChildren(child.children); // get its shown children
-        if (folderShownChildren.length) {
+        if (folderShownChildren.length) { // if it  has shown children
           const folder = {
             name: child.name,
             path: child.path,
             children: folderShownChildren,
           }
           shownChildren.push(folder);
+          continue; // do not re-evaluate folder once it's shown
         }
+      }
+      if (this.matchesFilter(child.name)) { // is file or folder and matches
+        shownChildren.push(child);
       }
     }
     return shownChildren;
@@ -237,7 +238,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
   // generates file name, with match highlighted, for file explorer
   generateFileName(node: ChrisFile) {
     const name = node.name;
-    if (!this.state.filter || !this.matchesFilter(name) || node.children) { // REMOVE THE LAST CLAUSE IF FOLDERS ARE SEARCHABLE
+    if (!this.state.filter || !this.matchesFilter(name)) {
       return name;
     }
     const matchIndex = this.normalizeString(name).indexOf(this.normalizeString(this.state.filter));
@@ -254,8 +255,15 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
   }
 
   renderTreeNode = (node: ChrisFile) => {
-    const isSelected = !!this.props.files.find(f => f.path === node.path);
-    const isFolder = node.children;
+    let isSelected;
+    const isFolder = !!node.children;
+    if (isFolder) {
+      // there can never be multiple folders with the same path, and folders don't have ids
+      isSelected = !!this.props.files.find(f => f.path === node.path);
+    } else {
+      // but there can be multiple files with the same path
+      isSelected = !!this.props.files.find(f => f.id === node.id);
+    }
     const icon = isFolder
       ? (node.collapsed ? <FolderCloseIcon /> : <FolderOpenIcon></FolderOpenIcon>)
       : <FileIcon />
