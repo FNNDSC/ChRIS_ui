@@ -54,7 +54,8 @@ const Testitems:IPluginItem[] = [{
 
 const initialState: IFeedState = {
   details: undefined,
-  items: undefined
+  items: undefined,
+  feeds: undefined,
 };
 
 describe("feed reducer", () => {
@@ -150,5 +151,17 @@ describe("feed reducer", () => {
       {
         ...initialState,
       })
+  })
+
+  it("should handle ADD_FEED", () => {
+    expect(
+      feedReducer(initialState, {
+        type: FeedActionTypes.ADD_FEED,
+        payload: TestFeedItem
+      })
+    ).toEqual({
+      ...initialState,
+      feeds: [TestFeedItem]
+    })
   })
 })

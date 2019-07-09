@@ -6,9 +6,34 @@ import {
   getFeedDetailsSuccess,
   getPluginInstanceListRequest,
   getPluginInstanceListSuccess,
-  destroyFeed } from "../../../store/feed/actions";
+  destroyFeed, 
+  addFeed 
+} from "../../../store/feed/actions";
 
 describe("feed actions", () => {
+
+  const TestFeedItem: IFeedItem = {
+    url: "https://www.redhat.com/en/creating-chris",
+    files: "vedio.mp4",
+    comments: "initial comments",
+    owner: ["Ethan", "Kevin"],
+    note: "This is a note",
+    tags: "testing",
+    taggings: "what is the difference between tag and tagging?",
+    plugin_instances: "simpledsapp",
+    id: 123456,
+    creation_date: "3/19/2019",
+    modification_date: "3/20/2019",
+    name: "Chris",
+    template: {
+      data: [{
+        name: "patientA",
+        value: 123
+      }]
+    },
+    creator_username: "Chris_user"
+  }
+
   it("getFeedDetailsRequest should return correct types", () => {
     const id: string = "testID"
     const expectedAction = {
@@ -19,28 +44,6 @@ describe("feed actions", () => {
   })
 
   it("getFeedDetailsSuccess should return correct types", () => {
-    const TestFeedItem: IFeedItem = {
-      url: "https://www.redhat.com/en/creating-chris",
-      files: "vedio.mp4",
-      comments: "initial comments",
-      owner: ["Ethan", "Kevin"],
-      note: "This is a note",
-      tags: "testing",
-      taggings: "what is the difference between tag and tagging?",
-      plugin_instances: "simpledsapp",
-      id: 123456,
-      creation_date: "3/19/2019",
-      modification_date: "3/20/2019",
-      name: "Chris",
-      template: {
-        data: [{
-          name: "patientA",
-          value: 123
-        }]
-      },
-      creator_username: "Chris_user"
-    }
-
     const expectedAction = {
       type: FeedActionTypes.GET_FEED_DETAILS_SUCCESS,
       payload:TestFeedItem
@@ -97,5 +100,13 @@ describe("feed actions", () => {
       type: FeedActionTypes.RESET_STATE,
     }
     expect(destroyFeed()).toEqual(expectedAction)
+  })
+  
+  it("addFeed should return correct types", () => {
+    const expectedAction = {
+      type: FeedActionTypes.ADD_FEED,
+      payload: TestFeedItem
+    }
+    expect(addFeed(TestFeedItem)).toEqual(expectedAction);
   })
 })
