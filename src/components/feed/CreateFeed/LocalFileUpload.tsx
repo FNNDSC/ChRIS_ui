@@ -33,7 +33,7 @@ class LocalFileUpload extends React.Component<LocalFileUploadProps> {
     });
   }
 
-  handleChoseFilesClick = () => {
+  handleChoseFilesClick() {
     this.openLocalFilePicker().then(this.props.handleFilesAdd);
   }
 
@@ -59,7 +59,7 @@ class LocalFileUpload extends React.Component<LocalFileUploadProps> {
         <Split gutter="lg">
           <SplitItem isMain>
             <p className="section-header">File Upload</p>
-            <Button onClick={this.handleChoseFilesClick}>
+            <Button onClick={this.handleChoseFilesClick.bind(this)}>
               Choose Files...
               </Button>
           </SplitItem>

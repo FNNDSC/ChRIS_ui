@@ -118,6 +118,17 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       availableTags: [],
       data: getDefaultCreateFeedData(),
     }
+    this.toggleCreateWizard = this.toggleCreateWizard.bind(this);
+    this.handleStepChange = this.handleStepChange.bind(this);
+    this.handleSave = this.handleSave.bind(this);
+    this.getStepName = this.getStepName.bind(this);
+    this.handleFeedNameChange = this.handleFeedNameChange.bind(this);
+    this.handleFeedDescriptionChange = this.handleFeedDescriptionChange.bind(this);
+    this.handleTagsChange = this.handleTagsChange.bind(this);
+    this.handleChrisFileAdd = this.handleChrisFileAdd.bind(this);
+    this.handleChrisFileRemove = this.handleChrisFileRemove.bind(this);
+    this.handleLocalFilesAdd = this.handleLocalFilesAdd.bind(this);
+    this.handleLocalFileRemove = this.handleLocalFileRemove.bind(this);
   }
 
   componentWillMount() {
@@ -147,7 +158,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   */
   // WIZARD HANDLERS
 
-  toggleCreateWizard = () => {
+  toggleCreateWizard() {
     if (this.state.wizardOpen) {
       this.setState({ data: getDefaultCreateFeedData(), step: 1 })
     }
@@ -156,41 +167,41 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     })
   }
 
-  handleStepChange = (step: any) => {
+  handleStepChange(step: any) {
     this.setState({ step: step.id });
   }
 
-  handleSave = () => {
+  handleSave() {
     this.createFeed();
   }
 
-  getStepName = (): string => {
+  getStepName(): string {
     const stepNames = ['basic-information', 'chris-file-select', 'local-file-upload', 'review'];
     return stepNames[this.state.step - 1]; // this.state.step starts at 1
   }
 
   // BASIC INFORMATION HANDLERS
 
-  handleFeedNameChange = (val: string) => {
+  handleFeedNameChange(val: string) {
     this.setState({ data: { ...this.state.data, feedName: val }});3
   }
-  handleFeedDescriptionChange = (val: string) => {
+  handleFeedDescriptionChange(val: string) {
     this.setState({ data: { ...this.state.data, feedDescription: val }});
   }
-  handleTagsChange = (tags: string[]) => {
+  handleTagsChange(tags: Tag[]) {
     this.setState({ data: { ...this.state.data, tags }});
   }
 
   // CHRIS FILE SELECT HANDLERS
 
-  handleChrisFileAdd = (file: ChrisFile) => {
+  handleChrisFileAdd(file: ChrisFile) {
     this.setState({ data: { 
       ...this.state.data, 
       chrisFiles: [...this.state.data.chrisFiles, file ]
     }});
   }
   
-  handleChrisFileRemove = (file: ChrisFile) => {
+  handleChrisFileRemove(file: ChrisFile) {
     this.setState({ data: {
       ...this.state.data,
       chrisFiles: this.state.data.chrisFiles.filter(f => f.path !== file.path)
@@ -199,10 +210,10 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
 
   // LOCAL FILE UPLOAD HANDLERS
   
-  handleLocalFilesAdd = (files: LocalFile[]) => {
+  handleLocalFilesAdd(files: LocalFile[]) {
     this.setState({ data: { ...this.state.data, localFiles: [ ...this.state.data.localFiles, ...files ] } })
   }
-  handleLocalFileRemove = (fileName: string) => {
+  handleLocalFileRemove(fileName: string) {
     this.setState({ 
       data: {
         ...this.state.data,
