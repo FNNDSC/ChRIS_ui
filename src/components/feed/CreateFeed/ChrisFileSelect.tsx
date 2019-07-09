@@ -67,6 +67,8 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
       });
     })
 
+    this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+    this.handleFilterChange = this.handleFilterChange.bind(this);
   }
 
   componentDidUpdate() {
@@ -167,7 +169,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
 
   /* EVENT HANDLERS */
 
-  handleCheckboxChange = (isChecked: boolean, file: ChrisFile) => {
+  handleCheckboxChange(isChecked: boolean, file: ChrisFile) {
     if (isChecked) {
       this.props.handleFileAdd(file);
     } else {
@@ -177,7 +179,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
 
   /* SEARCH */
 
-  handleFilterChange = (value: string) => {
+  handleFilterChange(value: string) {
     this.setState({ filter: value }, () => {
       if (value) {
         this.recomputeVisibleTree();
