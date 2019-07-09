@@ -3,7 +3,7 @@ import React from 'react';
 import { FolderCloseIcon, FileIcon } from "@patternfly/react-icons";
 import { Split, SplitItem } from '@patternfly/react-core';
 
-import { ChrisFile, LocalFile, CreateFeedData } from "./CreateFeed";
+import { ChrisFile, CreateFeedData, File } from "./CreateFeed";
 
 interface ReviewProps {
   data: CreateFeedData,
@@ -11,7 +11,7 @@ interface ReviewProps {
 
 class Review extends React.Component<ReviewProps> {
 
-  generateFileList(files: Array<ChrisFile | LocalFile>) {
+  generateFileList(files: File[]) {
     return files.map(file => {
       let icon = (file as ChrisFile).children ? // file is a ChrisFile folder
         <FolderCloseIcon /> :
@@ -30,9 +30,9 @@ class Review extends React.Component<ReviewProps> {
 
     // the installed version of @patternfly/react-core doesn't support read-only chips
     const tags = data.tags.map(tag => (
-      <div className="pf-c-chip pf-m-read-only tag">
+      <div className="pf-c-chip pf-m-read-only tag" key={ tag.data.id }>
         <span className="pf-c-chip__text">
-          {tag}
+          { tag.data.name }
         </span>
       </div>
     ))

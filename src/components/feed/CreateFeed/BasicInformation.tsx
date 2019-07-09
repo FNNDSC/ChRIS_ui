@@ -1,22 +1,23 @@
 import React from 'react';
 
 import { Form, FormGroup, TextInput, TextArea } from '@patternfly/react-core';
+import { Tag } from '@fnndsc/chrisapi';
 import { Typeahead } from 'react-bootstrap-typeahead';
 
 interface BasicInformationProps {
   feedName: string,
   feedDescription: string,
-  tags: string[],
-  availableTags: string[],
+  tags: Tag[],
+  availableTags: Tag[],
   handleFeedNameChange: (val: string, ev: React.ChangeEvent<HTMLInputElement>) => void,
   handleFeedDescriptionChange: (val: string, ev: React.ChangeEvent<HTMLInputElement>) => void,
-  handleTagsChange: (tags: string[]) => void,
+  handleTagsChange: (tags: Tag[]) => void,
 }
 
 const BasicInformation: React.FunctionComponent<BasicInformationProps> = (
   props: BasicInformationProps
 ) => {
-
+  
   return (
     <Form className="pf-u-w-75 basic-information">
       <h1 className="pf-c-title pf-m-2xl">Basic Information</h1>
@@ -58,6 +59,7 @@ const BasicInformation: React.FunctionComponent<BasicInformationProps> = (
           id="tags"
           multiple
           options={props.availableTags}
+          labelKey={ (tag: Tag) => tag.data.name }
           placeholder="Choose a tag..."
           onChange={props.handleTagsChange}
         />

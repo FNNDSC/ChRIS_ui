@@ -2,7 +2,7 @@ import * as React from "react";
 import { connect, MapDispatchToPropsFunction } from 'react-redux';
 import { Dispatch } from "redux";
 
-import Client, { Plugin, Request, Feed } from "@fnndsc/chrisapi";
+import Client, { Plugin, Request, Feed, UploadedFile, Tag } from "@fnndsc/chrisapi";
 import { Button, Wizard } from "@patternfly/react-core";
 
 import { IFeedItem } from "../../../api/models/feed.model";
@@ -64,20 +64,23 @@ function getDataValue(data: Array<{ name: string, value: string }>, name: string
 export interface ChrisFile {
   name: string,
   path: string, // full path, including file name
-  contents?: string, // only defined for files
+  id?: number, // only defined for files
+  blob?: Blob, // only defined for files
   children?: ChrisFile[],
   collapsed?: boolean,
 }
 
 export interface LocalFile {
   name: string,
-  contents: string,
+  blob: Blob,
 }
+
+export type File = ChrisFile | LocalFile;
 
 export interface CreateFeedData {
   feedName: string,
   feedDescription: string,
-  tags: string[],
+  tags: Tag[],
   chrisFiles: ChrisFile[],
   localFiles: LocalFile[],
 }
@@ -101,7 +104,7 @@ type CreateFeedProps = CreateFeedPropsFromDispatch;
 interface CreateFeedState {
   wizardOpen: boolean,
   step: number,
-  availableTags: string[],
+  availableTags: Tag[],
   data: CreateFeedData,
 }
 
@@ -112,11 +115,36 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     this.state = {
       wizardOpen: false,
       step: 1,
-      availableTags: ['tractography', 'brain', 'example', 'lorem', 'ipsum'],
-      data: getDefaultCreateFeedData()
+      availableTags: [],
+      data: getDefaultCreateFeedData(),
     }
   }
 
+  componentWillMount() {
+    this.fetchTagList().then((tags: Tag[]) => {
+      this.setState({
+        availableTags: tags,
+      })
+    })
+  }
+
+  /*
+    -------------
+    DATA FETCHING
+    -------------
+  */
+
+  async fetchTagList() {
+    const client = await createAuthedClient(this.props.authToken);
+    const tagList = (await (await client.getFeeds({ limit: 0, offset: 0 })).getTags({ limit: 100, offset: 0 }));
+    return tagList.getItems() || [];
+  }
+
+  /*
+    -------------- 
+    EVENT HANDLERS 
+    --------------
+  */
   // WIZARD HANDLERS
 
   toggleCreateWizard = () => {
