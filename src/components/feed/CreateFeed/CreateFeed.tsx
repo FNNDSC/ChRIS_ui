@@ -1,5 +1,5 @@
 import * as React from "react";
-import { connect, MapDispatchToPropsFunction } from 'react-redux';
+import { connect } from 'react-redux';
 import { Dispatch } from "redux";
 
 import Client, { Plugin, Request, Feed, UploadedFile, Tag } from "@fnndsc/chrisapi";
@@ -7,59 +7,20 @@ import { Button, Wizard } from "@patternfly/react-core";
 
 import { IFeedItem } from "../../../api/models/feed.model";
 import { addFeed } from "../../../store/feed/actions";
+import { ApplicationState } from "../../../store/root/applicationState";
 
 import BasicInformation from "./BasicInformation";
 import ChrisFileSelect from "./ChrisFileSelect";
 import LocalFileUpload from "./LocalFileUpload";
 import Review from "./Review";
 
-import './createfeed.scss'; 
+import './createfeed.scss';
 
-/* 
-  ===========
-  === API ===
-  ===========
-*/
-
-let client: Client;
-
-async function getAuthedClient(): Promise<Client> {
-  if (!process.env.REACT_APP_CHRIS_UI_AUTH_URL || !process.env.REACT_APP_CHRIS_UI_URL) {
-    return new Promise(res => res(new Client('', { token: '' }))); // this should never be reached
-  }; // TEMPORARY!
-  if (client) {
-    return client;
+export declare var process: { 
+  env: {
+    REACT_APP_CHRIS_UI_URL: string
   }
-  const token = await Client.getAuthToken(process.env.REACT_APP_CHRIS_UI_AUTH_URL, 'chris', 'chris1234');
-  client = new Client(process.env.REACT_APP_CHRIS_UI_URL, { token });
-  return client;
-}
-
-function getDataValue(data: Array<{ name: string, value: string }>, name: string) {
-  const dataItem =  data.find((dataItem: { name: string, value: string }) => dataItem.name === name);
-  if (dataItem) {
-    return dataItem.value;
-  }
-  return '';
-}
-
-// async function api() {
-
-//     const token = await Client.getAuthToken(process.env.REACT_APP_CHRIS_UI_AUTH_URL, 'chris', 'chris1234');
-//     const client = new Client(process.env.REACT_APP_CHRIS_UI_URL, { token });
-//     const feeds = (await client.getFeeds({ limit: 0, offset: 0})).getItems();
-//     if (!feeds) {
-//       return;
-//     }
-//     // const newFeeds: Feed[] = (await client.getFeeds({limit:100,offset:0})).getItems() || [];
-//     // const newFeed = newFeeds[0];
-//     // newFeed.put({ name: 'test' }).then(console.log)
-//     for (const feed of feeds) {
-//       (feed as Feed).delete();
-//     }
-// }
-
-// api();
+};
 
 export interface ChrisFile {
   name: string,
@@ -95,16 +56,15 @@ function getDefaultCreateFeedData(): CreateFeedData {
   }
 }
 
-interface CreateFeedPropsFromDispatch {
-  addFeed: (feed: IFeedItem) => void
+interface CreateFeedProps {
+  authToken: string,
+  addFeed: (feed: IFeedItem) => void,
 }
 
-type CreateFeedProps = CreateFeedPropsFromDispatch;
 
 interface CreateFeedState {
   wizardOpen: boolean,
   step: number,
-  availableTags: Tag[],
   data: CreateFeedData,
 }
 
@@ -314,6 +274,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       files={ this.state.data.chrisFiles }
       handleFileAdd={ this.handleChrisFileAdd }
       handleFileRemove={ this.handleChrisFileRemove }
+      authToken={ this.props.authToken }
     />;
     
     const localFileUpload = <LocalFileUpload
@@ -368,11 +329,15 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   }
 }
 
-const mapDispatchToProps: MapDispatchToPropsFunction<CreateFeedPropsFromDispatch, {}> = (dispatch: Dispatch) => ({
+const mapStateToProps = (state: ApplicationState) => ({
+  authToken: state.user.token || '',
+})
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   addFeed: (feed: IFeedItem) => dispatch(addFeed(feed))
 });
 
-export default connect<{}, CreateFeedPropsFromDispatch, {}, CreateFeedState>(
-  () => ({}),
+export default connect(
+  mapStateToProps,
   mapDispatchToProps,
 )(CreateFeed);
