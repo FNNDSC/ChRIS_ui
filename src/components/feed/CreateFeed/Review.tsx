@@ -6,7 +6,7 @@ import { Split, SplitItem, Grid, GridItem } from '@patternfly/react-core';
 import { ChrisFile, CreateFeedData, DataFile } from "./CreateFeed";
 
 interface ReviewProps {
-  data: CreateFeedData,
+  data: CreateFeedData
 }
 
 function generateFileList(files: DataFile[]) {
@@ -25,8 +25,7 @@ function generateFileList(files: DataFile[]) {
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {  
 
-  render() {
-    const { data } = this.props;
+    const { data } = props;
 
     // the installed version of @patternfly/react-core doesn't support read-only chips
     const tags = data.tags.map(tag => (
@@ -36,6 +35,8 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
         </span>
       </div>
     ))
+
+    const showFileWarning = !(data.chrisFiles.length > 0 || data.localFiles.length > 0);
 
     return (
       <div className="review">
@@ -64,10 +65,12 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
             { generateFileList(data.localFiles) }
           </SplitItem>
         </Split>
+
+        <br />
+        { showFileWarning && <b>Please select at least one file</b> }
+
       </div>
     )
-
-  }
 }
 
 export default Review;

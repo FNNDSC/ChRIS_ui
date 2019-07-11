@@ -63,9 +63,11 @@ class LocalFileUpload extends React.Component<LocalFileUploadProps> {
               Choose Files...
               </Button>
           </SplitItem>
-          <SplitItem isMain className="file-list">
+          <SplitItem isMain className="file-list-wrap">
             <p className="section-header">Local files to add to new feed:</p>
-            {fileList}
+            <div className="file-list">
+              {fileList}
+            </div>
           </SplitItem>
         </Split>
       </div>
