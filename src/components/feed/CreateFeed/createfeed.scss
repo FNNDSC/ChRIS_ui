@@ -8,6 +8,11 @@
 }
 
 .feed-create-wizard {
+
+  .pf-c-wizard__outer-wrap {
+    max-height: 646px;
+  }
+
   .pf-c-wizard__nav .pf-m-current {
     color: var(--pf-c-wizard__nav-link--m-current--before--BackgroundColor);
   }
@@ -34,6 +39,12 @@
   }
 }
 
+@media (max-width: $pf-global--breakpoint--lg) {
+  .feed-create-wizard .pf-c-wizard__outer-wrap {
+    max-height: 100%;
+  }
+}
+
 /* Basic Information */
 
 .basic-information {
@@ -42,13 +53,13 @@
     padding: 5px 34px 5px 12px;
 
   }
-  .rbt-close{
+  .rbt-close {
     margin-top:3px;
   }
-  .dropdown-menu{
+  .dropdown-menu {
     margin-top:0;
   }
-  .rbt-token{
+  .rbt-token {
     background: var(--pf-global--Color--light-100);
     border:solid 1px  var(--pf-global--Color--dark-200);
     border-radius: 3px;
@@ -58,7 +69,7 @@
     margin: 0 5px 4px 0;
     padding: 8px 30px 4px 10px;
 
-    button{
+    button {
         font-size: 18px !important;
         padding-top: 8px !important;
         margin-top: 0;
@@ -82,13 +93,9 @@
   }
 }
 
-/* ChRIS File Select */
+/* ChRIS File Select and Local File Upload */
 
-.chris-file-select-wrap {
-
-  .pf-c-wizard__outer-wrap {
-    max-height: 646px;
-  }
+.chris-file-select-wrap, .local-file-upload-wrap {
 
   .pf-c-wizard__main, .pf-c-wizard__main > div {
     display: flex;
@@ -107,9 +114,12 @@
     flex-direction: column;
   }
 
-  .m-tree {
+  // allow file select and file lists to scroll automatically
+  .m-tree, .file-list {
     overflow: auto;
   }
+
+  
 
 }
 
@@ -187,5 +197,11 @@
 .review {
   .tag {
     margin-right: 10px !important;
+  }
+}
+
+.local-file-upload-wrap {
+  .file-list-wrap {
+    max-width: 60%;
   }
 }
