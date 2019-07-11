@@ -194,14 +194,23 @@
 
 }
 
+.local-file-upload-wrap {
+  .file-list-wrap {
+    max-width: 60%;
+  }
+}
+
 .review {
   .tag {
     margin-right: 10px !important;
   }
-}
-
-.local-file-upload-wrap {
-  .file-list-wrap {
-    max-width: 60%;
+  .file-warning {
+    font-weight: bold;
+    svg {
+      font-size: 1.5em;
+      color: var(--pf-global--warning-color--100);
+      margin-right: 10px;
+      vertical-align: -0.225em;
+    }
   }
 }
