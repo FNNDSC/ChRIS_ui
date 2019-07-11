@@ -1,13 +1,14 @@
 import React from 'react';
 
 import Client, { UploadedFile } from '@fnndsc/chrisapi';
-import { FolderCloseIcon, FolderOpenIcon, FileIcon, CloseIcon, IoxhostIcon } from '@patternfly/react-icons';
-import { Checkbox, Split, SplitItem, TextInput } from '@patternfly/react-core';
+import { FolderCloseIcon, FolderOpenIcon, FileIcon, CloseIcon } from '@patternfly/react-icons';
+import { Checkbox, Split, SplitItem } from '@patternfly/react-core';
 
 import Tree from 'react-ui-tree';
 
 import LoadingComponent from '../../common/loading/Loading';
 import { ChrisFile } from './CreateFeed';
+import { DataTableToolbar } from '../..';
 
 declare var process: { 
   env: {
@@ -65,7 +66,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
         initialTree: tree,
         visibleTree: tree,
       });
-    })
+    });
 
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
     this.handleFilterChange = this.handleFilterChange.bind(this);
@@ -86,11 +87,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
 
   /* DATA FETCHING */
 
-  /**
-   * 
-   * @param fileNames list of files, e.g. ['/data1.txt', 'data2.txt', /project/data2.txt']
-   * @returns ChrisFile tree
-   */
+  // Transforms list of ChrisFilePaths into a ChrisFile tree
   buildInitialFileTree(filePaths: ChrisFilePath[]) {
     const root = getEmptyTree();
     for (const pathObj of filePaths) {
@@ -120,9 +117,11 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
       }
       currentDir.push({ name, path, id, blob });
     }
+
     return this.sortTree(root);
   }
 
+  // Moves folders to top and orders alphabetically
   sortTree(root: ChrisFile) {
     let children: ChrisFile[] = [];
     if (root.children) {
@@ -147,13 +146,30 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
     return { ...root, children };
   }
 
+  // fetch one "page" of chris files, with pageLength files per page
+  async fetchChrisFilePage(client: Client, page: number, pageLength: number) {
+    const uploadedFileList = await client.getUploadedFiles({ 
+      limit: pageLength,
+      offset: page * pageLength
+    });
+    return uploadedFileList.getItems() || [];
+  }
+
   async fetchChrisFiles(): Promise<ChrisFilePath[]> {
-    const client = await createAuthedClient(this.props.authToken);
-    const feeds = await client.getFeeds({ limit: 0, offset: 0 });
-    const uploadedFileList = await feeds.getUploadedFiles({ limit: 100, offset: 0 });
-    const files = uploadedFileList.getItems();
-    if (!files) {
-      return [];
+    const PAGE_LENGTH = 50; // fetch 100 files each iteration
+
+    const client = new Client(process.env.REACT_APP_CHRIS_UI_URL, { token: this.props.authToken });
+    await client.getFeeds();
+    
+    const files = [];
+    let page = 0;
+    while (true) {
+      const filePage = await this.fetchChrisFilePage(client, page, PAGE_LENGTH);
+      files.push(...filePage);
+      if (!filePage.length || filePage.length < PAGE_LENGTH) {
+        break;
+      }
+      page++;
     }
 
     return Promise.all(files.map(async file => {
@@ -165,6 +181,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
         id: Number(fileData.id),
       }
     }));
+
   }
 
   /* EVENT HANDLERS */
@@ -202,6 +219,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
     }
   }
 
+  // Computes which files/folders are visible, based on the filter
   computeVisibleChildren(children: ChrisFile[]): ChrisFile[] {
     const shownChildren = [];
     for (const child of children) {
@@ -302,12 +320,9 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
         <br />
         <Split gutter="lg">
           <SplitItem isMain>
-            <TextInput
-              type="text"
-              id="file-filter"
-              value={this.state.filter}
-              placeholder="Filter by filename..."
-              onChange={this.handleFilterChange}
+            <DataTableToolbar
+              label="filename"
+              onSearch={this.handleFilterChange}
             />
             {
               this.state.initialTreeLoaded ?
@@ -319,9 +334,11 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
                 <LoadingComponent />
             }
           </SplitItem>
-          <SplitItem isMain className="file-list">
+          <SplitItem isMain className="file-list-wrap">
             <p className="section-header">Files to add to new feed:</p>
-            {fileList}
+            <div className="file-list">
+              {fileList}
+            </div>
           </SplitItem>
         </Split>
       </div>
