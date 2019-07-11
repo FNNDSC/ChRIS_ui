@@ -55,7 +55,7 @@ const Testitems:IPluginItem[] = [{
 const initialState: IFeedState = {
   details: undefined,
   items: undefined,
-  feeds: undefined,
+  feeds: undefined
 };
 
 describe("feed reducer", () => {
