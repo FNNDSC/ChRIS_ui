@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { FolderCloseIcon, FileIcon } from "@patternfly/react-icons";
+import { FolderCloseIcon, FileIcon, WarningTriangleIcon } from "@patternfly/react-icons";
 import { Split, SplitItem, Grid, GridItem } from '@patternfly/react-core';
 
 import { ChrisFile, CreateFeedData, DataFile } from "./CreateFeed";
@@ -67,7 +67,14 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
         </Split>
 
         <br />
-        { showFileWarning && <b>Please select at least one file</b> }
+        { showFileWarning && 
+          (
+            <div className="file-warning">
+              <WarningTriangleIcon />
+              Please select at least one file.
+            </div>
+          )
+        }
 
       </div>
     )
