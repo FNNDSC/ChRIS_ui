@@ -115,7 +115,6 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     this.state = {
       wizardOpen: false,
       step: 1,
-      availableTags: [],
       data: getDefaultCreateFeedData(),
     }
     this.toggleCreateWizard = this.toggleCreateWizard.bind(this);
@@ -131,25 +130,6 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     this.handleLocalFileRemove = this.handleLocalFileRemove.bind(this);
   }
 
-  componentWillMount() {
-    this.fetchTagList().then((tags: Tag[]) => {
-      this.setState({
-        availableTags: tags,
-      })
-    })
-  }
-
-  /*
-    -------------
-    DATA FETCHING
-    -------------
-  */
-
-  async fetchTagList() {
-    const client = await createAuthedClient(this.props.authToken);
-    const tagList = (await (await client.getFeeds({ limit: 0, offset: 0 })).getTags({ limit: 100, offset: 0 }));
-    return tagList.getItems() || [];
-  }
 
   /*
     -------------- 
@@ -321,10 +301,10 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   render() {
 
     const basicInformation = <BasicInformation
+      authToken={ this.props.authToken }
       feedName={ this.state.data.feedName }
       feedDescription={ this.state.data.feedDescription }
       tags={ this.state.data.tags }
-      availableTags={ this.state.availableTags }
       handleFeedNameChange={ this.handleFeedNameChange }
       handleFeedDescriptionChange={ this.handleFeedDescriptionChange }
       handleTagsChange={ this.handleTagsChange }
