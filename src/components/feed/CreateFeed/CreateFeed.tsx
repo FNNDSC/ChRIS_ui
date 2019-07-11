@@ -231,13 +231,13 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     return `/${normalizedFeedName}-temp-${randomCode}`;
   }
 
-  async uploadFilesToTempDir(files: DataFile[], tempDirName: string): Promise<UploadedFile[]> {
+  async uploadFilesToTempDir(files: DataFile[], getFilePath: Function): Promise<UploadedFile[]> {
     const uploadedFiles = await this.client.getUploadedFiles();
 
     const pendingUploads = files.map(file => {
-      const blob = file.blob || new Blob([]);
+      const blob = file.blob || new Blob([]); 
       return uploadedFiles.post({
-        upload_path: `/${tempDirName}/${file.name}`
+        upload_path: getFilePath(file)
       }, {
         fname: blob
       })
@@ -248,13 +248,15 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   // Local files are uploaded into the temp directory
   async uploadLocalFiles(tempDirName: string) {
     const files = this.state.data.localFiles;
-    return this.uploadFilesToTempDir(files, tempDirName);
+    const getFilePath = (file: LocalFile) => `/${tempDirName}/${file.name}`;
+    return this.uploadFilesToTempDir(files, getFilePath);
   }
   
   // Selected ChRIS files are copied into the temp directory
   async copyChrisFiles(tempDirName: string) {
     const files = this.getAllSelectedChrisFiles();
-    return this.uploadFilesToTempDir(files, tempDirName);
+    const getFilePath = (file: ChrisFile) => `/${tempDirName}/${file.path}`;
+    return this.uploadFilesToTempDir(files, getFilePath);
   }
 
   // TODO: what if the file already existed and this overwrote it?? aaah
