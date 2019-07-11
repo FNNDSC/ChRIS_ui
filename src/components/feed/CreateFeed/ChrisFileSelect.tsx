@@ -7,7 +7,7 @@ import { Checkbox, Split, SplitItem } from '@patternfly/react-core';
 import Tree from 'react-ui-tree';
 
 import LoadingComponent from '../../common/loading/Loading';
-import { ChrisFile } from './CreateFeed';
+import { ChrisFile, fetchAllChrisFiles } from './CreateFeed';
 import { DataTableToolbar } from '../..';
 
 declare var process: { 
@@ -27,8 +27,7 @@ function getEmptyTree() {
 // used between fetching the files and building the tree
 interface ChrisFilePath {
   path: string,
-  id: number,
-  blob: Blob,
+  id: number
 }
 
 interface ChrisFileSelectProps {
@@ -92,7 +91,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
     const root = getEmptyTree();
     for (const pathObj of filePaths) {
 
-      const { path, id, blob } = pathObj;
+      const { path, id } = pathObj;
       const parts = path.split('/').slice(1); // remove initial '/'
       const name = parts[parts.length - 1];
       const dirs = parts.slice(0, parts.length - 1);
@@ -115,7 +114,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
         currentDir.push(newDir);
         currentDir = newDir.children;
       }
-      currentDir.push({ name, path, id, blob });
+      currentDir.push({ name, path, id });
     }
 
     return this.sortTree(root);
@@ -156,28 +155,14 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
   }
 
   async fetchChrisFiles(): Promise<ChrisFilePath[]> {
-    const PAGE_LENGTH = 50; // fetch 100 files each iteration
-
     const client = new Client(process.env.REACT_APP_CHRIS_UI_URL, { token: this.props.authToken });
     await client.getFeeds();
-    
-    const files = [];
-    let page = 0;
-    while (true) {
-      const filePage = await this.fetchChrisFilePage(client, page, PAGE_LENGTH);
-      files.push(...filePage);
-      if (!filePage.length || filePage.length < PAGE_LENGTH) {
-        break;
-      }
-      page++;
-    }
+    const files = await fetchAllChrisFiles(client);
 
     return Promise.all(files.map(async file => {
       const fileData = (file as UploadedFile).data;
-      const blob = await (file as UploadedFile).getFileBlob();
       return {
         path: fileData.upload_path,
-        blob,
         id: Number(fileData.id),
       }
     }));

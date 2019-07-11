@@ -19,22 +19,42 @@ import './createfeed.scss';
 
 export declare var process: { 
   env: {
-    REACT_APP_CHRIS_UI_URL: string
+    REACT_APP_CHRIS_UI_URL: string,
   }
 };
+
+// UTILS
+
+export async function fetchAllChrisFiles(client: Client) {
+  const params = { limit: 100, offset: 0 };
+  let fileList = await client.getUploadedFiles(params);
+  const files = fileList.getItems() || [];
+
+  while (fileList.hasNextPage) {
+    try {
+      params.offset += params.limit;
+      fileList = await client.getUploadedFiles(params);
+      files.push(fileList.getItems());
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  return files;
+}
+
+// INTERFACES
 
 export interface ChrisFile {
   name: string,
   path: string, // full path, including file name
   id?: number, // only defined for files
-  blob?: Blob, // only defined for files
   children?: ChrisFile[],
   collapsed?: boolean,
 }
 
 export interface LocalFile {
   name: string,
-  blob: Blob,
+  blob: Blob
 }
 
 export type DataFile = ChrisFile | LocalFile;
@@ -231,13 +251,32 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     return `/${normalizedFeedName}-temp-${randomCode}`;
   }
 
-  async uploadFilesToTempDir(files: DataFile[], getFilePath: Function): Promise<UploadedFile[]> {
+  // get the path in the temp dir of a datafile
+  getDataFileTempPath(file: DataFile, tempDirName: string) {
+    let path;
+    if ('path' in file) { // ChrisFile
+      path = (file as ChrisFile).path;
+    } else {
+      path = file.name;
+    }
+    return `${tempDirName}/${path}`;
+  }
+
+  async getDataFileBlob(file: DataFile) {
+    if ('blob' in file) {
+      return (file as LocalFile).blob;
+    }
+    const uploadedFile = await this.client.getUploadedFile((file as ChrisFile).id || 0);
+    return uploadedFile.getFileBlob();
+  }
+
+  async uploadFilesToTempDir(files: DataFile[], tempDirName: string): Promise<UploadedFile[]> {
     const uploadedFiles = await this.client.getUploadedFiles();
 
-    const pendingUploads = files.map(file => {
-      const blob = file.blob || new Blob([]); 
+    const pendingUploads = files.map(async file => {
+      const blob = await this.getDataFileBlob(file);
       return uploadedFiles.post({
-        upload_path: getFilePath(file)
+        upload_path: this.getDataFileTempPath(file, tempDirName),
       }, {
         fname: blob
       })
@@ -248,25 +287,22 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   // Local files are uploaded into the temp directory
   async uploadLocalFiles(tempDirName: string) {
     const files = this.state.data.localFiles;
-    const getFilePath = (file: LocalFile) => `/${tempDirName}/${file.name}`;
-    return this.uploadFilesToTempDir(files, getFilePath);
+    return this.uploadFilesToTempDir(files, tempDirName);
   }
   
   // Selected ChRIS files are copied into the temp directory
   async copyChrisFiles(tempDirName: string) {
     const files = this.getAllSelectedChrisFiles();
-    const getFilePath = (file: ChrisFile) => `/${tempDirName}/${file.path}`;
-    return this.uploadFilesToTempDir(files, getFilePath);
+    return this.uploadFilesToTempDir(files, tempDirName);
   }
 
-  // TODO: what if the file already existed and this overwrote it?? aaah
   async removeTempFiles(tempDirName: string) {
     const files = [...this.getAllSelectedChrisFiles(), ...this.state.data.localFiles];
-    const uploadedFiles = (await this.client.getUploadedFiles()).getItems() || [];
+    const uploadedFiles = await fetchAllChrisFiles(this.client);
     
     for (const uploadedFile of uploadedFiles) {
       const path = uploadedFile.data.upload_path;
-      const matchesFile = files.find(f => `${tempDirName}/${f.name}` === path);
+      const matchesFile = files.find(f => this.getDataFileTempPath(f, tempDirName) === path);
       if (matchesFile) {
         uploadedFile.delete();
       }
@@ -306,8 +342,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       // Find dircopy plugin
       const dircopy = await this.getDircopyPlugin();
       if (!dircopy) {
-        console.log('Dircopy not found. Giving up.');
-        return;
+        throw 'Dircopy not found. Giving up.';
       }
 
       // Create new instance of dircopy plugin
@@ -319,15 +354,13 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       // when the `post` finishes, the dircopyInstances's internal collection is updated
       const createdInstance: PluginInstance = (dircopyInstances.getItems() || [])[0];
       if (!createdInstance) {
-        alert('Everything has broken. Run for the hills');
-        return;
+        throw 'Created instance is undefined. Giving up.';
       }
       
       // Retrieve created feed
       const feed = await createdInstance.getFeed();
       if (!feed) {
-        alert('Everything has broken. Ahhhhh.');
-        return;
+        throw 'New feed is undefined. Giving up.'
       }
       
       // Remove temporary files

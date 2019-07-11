@@ -150,6 +150,16 @@ declare module "@fnndsc/chrisapi" {
     getUploadedFiles: (searchParams?: IUploadedFilesSearchParams, timeout?: number) => Promise<UploadedFileList>;
 
     /**
+     * Get an uploaded file resource object given its id.
+     *
+     * @param {number} id - uploaded file id
+     * @param {number} [timeout=30000] - request timeout
+     *
+     * @return {Object} - JS Promise, resolves to an ``UploadedFile`` object
+     */
+    getUploadedFile: (id: number, timeout?: number) => Promise<UploadedFile>;
+
+    /**
      * Get a paginated list of plugins from the REST API given query search
      * parameters. If no search parameters then get the default first page.
      *
