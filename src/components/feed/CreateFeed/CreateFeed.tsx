@@ -1,8 +1,9 @@
 import * as React from "react";
 import { connect } from 'react-redux';
 import { Dispatch } from "redux";
+import _ from 'lodash';
 
-import Client, { Plugin, Request, Feed, UploadedFile, Tag } from "@fnndsc/chrisapi";
+import Client, { Plugin, UploadedFile, Tag, PluginInstance, Collection } from "@fnndsc/chrisapi";
 import { Button, Wizard } from "@patternfly/react-core";
 
 import { IFeedItem } from "../../../api/models/feed.model";
@@ -36,7 +37,7 @@ export interface LocalFile {
   blob: Blob,
 }
 
-export type File = ChrisFile | LocalFile;
+export type DataFile = ChrisFile | LocalFile;
 
 export interface CreateFeedData {
   feedName: string,
@@ -61,22 +62,26 @@ interface CreateFeedProps {
   addFeed: (feed: IFeedItem) => void,
 }
 
-
 interface CreateFeedState {
   wizardOpen: boolean,
+  saving: boolean,
   step: number,
-  data: CreateFeedData,
+  data: CreateFeedData
 }
 
 class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
+
+  client: Client = new Client(process.env.REACT_APP_CHRIS_UI_URL, { token: this.props.authToken });
 
   constructor(props: CreateFeedProps) {
     super(props);
     this.state = {
       wizardOpen: false,
+      saving: false,
       step: 1,
-      data: getDefaultCreateFeedData(),
+      data: getDefaultCreateFeedData()
     }
+
     this.toggleCreateWizard = this.toggleCreateWizard.bind(this);
     this.handleStepChange = this.handleStepChange.bind(this);
     this.handleSave = this.handleSave.bind(this);
@@ -88,19 +93,31 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     this.handleChrisFileRemove = this.handleChrisFileRemove.bind(this);
     this.handleLocalFilesAdd = this.handleLocalFilesAdd.bind(this);
     this.handleLocalFileRemove = this.handleLocalFileRemove.bind(this);
+    this.createFeed = this.createFeed.bind(this);
   }
-
-
   /*
     -------------- 
     EVENT HANDLERS 
     --------------
   */
+
   // WIZARD HANDLERS
+
+  resetState() {
+    this.setState({ 
+      data: getDefaultCreateFeedData(),
+      step: 1,
+      saving: false,
+    });
+  }
+
+  closeCreateWizard() {
+    this.setState({ wizardOpen: false });
+  }
 
   toggleCreateWizard() {
     if (this.state.wizardOpen) {
-      this.setState({ data: getDefaultCreateFeedData(), step: 1 })
+      this.resetState();
     }
     this.setState({
       wizardOpen: !this.state.wizardOpen
@@ -162,135 +179,247 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     })
   }
 
-  // CREATION
+  /*
+    -------------
+    FEED CREATION
+    -------------
+  */
 
-  // dircopy is run on a single directory, so all selected/uploaded files need to be moved into
-  // a temporary directory. This fn generates its name, based on the feed name.
-  // TODO: something better, esp. if the folder already exists.
-  // TODO: replace special chars - esp. slashes - etc.
-  // TODO: error handling
-  getTempDirName() {
-    return '/' + this.state.data.feedName.toLowerCase().replace(/ /g, '-').replace(/\//g, '') + '-temp';
+  // CHRIS FILES
+
+  // recursively get all files and sub-files in a root ChRIS folder
+  getChrisFolderChildren(folder: ChrisFile) {
+    if (!folder.children) {
+      return [];
+    }
+    const children: ChrisFile[] = [];
+    for (const child of folder.children) {
+      if (child.children) {
+        children.push(...this.getChrisFolderChildren(child));
+      } else {
+        children.push(child);
+      }
+    }
+    return children;
   }
 
-  async getUploadedFiles() {
-    const client = await getAuthedClient();
-    const feeds = await client.getFeeds({ limit: 0, offset: 0});
-    return await feeds.getUploadedFiles({ limit: 0, offset: 0 });
+  // gets all selected files, including files whose parent folder has been selected. excludes folders.
+  getAllSelectedChrisFiles(): ChrisFile[] {
+    const { chrisFiles } = this.state.data;
+    const files = chrisFiles.filter(file => !file.children); // directly selected files
+    const folders = chrisFiles.filter(file => file.children); // directly selected folders
+    const folderChildren = _.flatten( // children of selected folders
+      folders.map(f => this.getChrisFolderChildren(f))
+    );
+    const allSelectedFiles = [ ...folderChildren, ...files ];
+    return _.uniqBy(allSelectedFiles, f => f.id); // deduplicate based on id
+  }
+
+  // TEMPORARY DIRECTORY
+
+  /* dircopy is run on a single directory, so all selected/uploaded files need to be moved into
+     a temporary directory. This fn generates its name, based on the feed name.
+     the files are removed afterwards. however, in case the script fails or the page is closed, 
+     having it be in a (probably) seperate directory will minimize the risk of it getting mixed up
+  */
+  generateTempDirName() {
+    const randomCode = Math.floor(Math.random() * 10000); // random 4-digit code, to minimize risk of folder already existing
+    const normalizedFeedName = this.state.data.feedName
+      .toLowerCase()
+      .replace(/ /g, '-')
+      .replace(/\//g, '');
+    return `/${normalizedFeedName}-temp-${randomCode}`;
+  }
+
+  async uploadFilesToTempDir(files: DataFile[], tempDirName: string): Promise<UploadedFile[]> {
+    const uploadedFiles = await this.client.getUploadedFiles();
+
+    const pendingUploads = files.map(file => {
+      const blob = file.blob || new Blob([]);
+      return uploadedFiles.post({
+        upload_path: `/${tempDirName}/${file.name}`
+      }, {
+        fname: blob
+      })
+    });
+    return Promise.all(pendingUploads);
   }
 
   // Local files are uploaded into the temp directory
-  async uploadLocalFiles() {
+  async uploadLocalFiles(tempDirName: string) {
     const files = this.state.data.localFiles;
-    const uploadedFiles = await this.getUploadedFiles();
-    const dirname = this.getTempDirName();
-    for (const file of files) {
-      uploadedFiles.post({
-        upload_path: `${dirname}/${file.name}`,
-      }, {
-        fname: new Blob([file.contents])
-      });
-    }
+    return this.uploadFilesToTempDir(files, tempDirName);
   }
   
   // Selected ChRIS files are copied into the temp directory
-  async copyChrisFiles() {
-    const files = this.state.data.chrisFiles;
-    const uploadedFiles = await this.getUploadedFiles();
+  async copyChrisFiles(tempDirName: string) {
+    const files = this.getAllSelectedChrisFiles();
+    return this.uploadFilesToTempDir(files, tempDirName);
   }
 
-  createFeed = async () => {
-    // this.uploadLocalFiles();
-    // const client = getAuthedClient();
-    // const feeds = await client.getFeeds({ limit: 0, offset: 0});
-    // const plugins = (await feeds.getPlugins({ limit: 100, offset: 0 })).getItems() || [];
-    // const dircopy: Plugin = plugins.find(plugin => {
-    //   const { data } = plugin;
-    //   return data.name === 'dircopy';
-    // })
-    // if (!dircopy) {
-    //   alert('dircopy not found...')
-    //   return;
-    // }
-    // const id = dircopy.data.id;
-    // const req = new Request({ token }, 'application/vnd.collection+json');
-    // req.get(`${process.env.REACT_APP_CHRIS_UI_URL}plugins/instances/37/`);
-    // req.post(`${process.env.REACT_APP_CHRIS_UI_URL}plugins/${id}/instances/`, {
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   template: {
-    //     "data": [
-    //       { name:"dir", value: this.state.data.chrisFiles[0].path },
-    //     ]
-    //   }
-    // }).then(async res => {
-    //   // console.log(res.data.collection.items[0].data);
-    //   const instanceId = getDataValue(res.data.collection.items[0].data, 'id');
-    //   console.log(instanceId);
+  // TODO: what if the file already existed and this overwrote it?? aaah
+  async removeTempFiles(tempDirName: string) {
+    const files = [...this.getAllSelectedChrisFiles(), ...this.state.data.localFiles];
+    const uploadedFiles = (await this.client.getUploadedFiles()).getItems() || [];
+    
+    for (const uploadedFile of uploadedFiles) {
+      const path = uploadedFile.data.upload_path;
+      const matchesFile = files.find(f => `${tempDirName}/${f.name}` === path);
+      if (matchesFile) {
+        uploadedFile.delete();
+      }
+    }
+  }
+
+  // DIRCOPY PLUGIN
+
+  async getDircopyPlugin(): Promise<Plugin | null> {
+    let dircopyPlugin;
+    let page = 0;
+    do {
+      const pluginsPage = (await this.client.getPlugins({ limit: 25, offset: page * 25 }));
+      const plugins = pluginsPage.getItems() || [];
+      if (!plugins) {
+        return null;
+      }
+      dircopyPlugin = plugins.find((plugin: Plugin) => plugin.data.name === 'dircopy');
+      page++;
+    } while (!dircopyPlugin);
+    return dircopyPlugin;
+  }
+
+  async createFeed() {
+    
+    this.setState({ saving: true });
+    const tempDirName = this.generateTempDirName();
+
+    try {
+
+      await this.client.getFeeds(); // getFeeds must be called on new Client objects
       
-    //   req.get(`${process.env.REACT_APP_CHRIS_UI_URL}plugins/instances/${instanceId}/`).then(res => {
-    //     console.log(res.data);
-    //     this.toggleCreateWizard();
-    //   })
-      // const newFeeds: Feed[] = (await client.getFeeds({limit:100,offset:0})).getItems() || [];
-      // const newFeed = newFeeds[0];
-      // newFeed.put({ name: this.state.data.feedName }).then(feed => {
-      //   const date = new Date().toISOString();
-      //   const f: IFeedItem = {
-      //     id: 200,
-      //     creation_date: date,
-      //     modification_date: date,
-      //     name: this.state.data.feedName,
-      //     creator_username: 'cube',
-      //     url: 'https://www.google.com',
-      //     files: '/hi/there/',
-      //     comments: 'nope',
-      //     owner: ['cube_owner1', 'cube_owner2'],
-      //     note: 'imanote',
-      //     tags: 'tag1 tag2',
-      //     taggings: 'taggins??',
-      //     plugin_instances: 'instanceyay',
-      //   }
-      //   this.props.addFeed(f);
-      // })
-    // })
-    // req.get(`${process.env.REACT_APP_CHRIS_UI_URL}plugins/instances/4/`).then(res => console.log(res));
+      // Upload/copy files
+      await this.uploadLocalFiles(tempDirName);
+      await this.copyChrisFiles(tempDirName);
+
+      // Find dircopy plugin
+      const dircopy = await this.getDircopyPlugin();
+      if (!dircopy) {
+        console.log('Dircopy not found. Giving up.');
+        return;
+      }
+
+      // Create new instance of dircopy plugin
+      const dircopyInstances = await dircopy.getPluginInstances();
+      await dircopyInstances.post({
+        dir: tempDirName
+      });
+
+      // when the `post` finishes, the dircopyInstances's internal collection is updated
+      const createdInstance: PluginInstance = (dircopyInstances.getItems() || [])[0];
+      if (!createdInstance) {
+        alert('Everything has broken. Run for the hills');
+        return;
+      }
+      
+      // Retrieve created feed
+      const feed = await createdInstance.getFeed();
+      if (!feed) {
+        alert('Everything has broken. Ahhhhh.');
+        return;
+      }
+      
+      // Remove temporary files
+      this.removeTempFiles(tempDirName);
+
+      // Set feed name
+      await feed.put({ 
+        name: this.state.data.feedName 
+      });
+
+      // Set feed tags
+      for (const tag of this.state.data.tags) {
+        feed.tagFeed(tag.data.id);
+      }
+
+      // Set feed description
+      const note = await feed.getNote();
+      await note.put({
+        title: 'Description',
+        content: this.state.data.feedDescription
+      }, 1000);
+
+      // Add data to redux
+      const { data, collection } = feed;
+      const createdFeedLinks = collection.items[0];
+
+      const getLinkUrl = (resource: string) => {
+        return Collection.getLinkRelationUrls(createdFeedLinks, resource)[0];
+      }
+
+      const feedObj = {
+        name: this.state.data.feedName,
+        note: this.state.data.feedDescription,
+        id: feed.data.id,
+        creation_date: data.creation_date,
+        modification_date: data.modification_date,
+        creator_username: data.creator_username,
+        owner: [data.owner_username],
+        url: feed.url,
+        files: getLinkUrl('files'),
+        comments: getLinkUrl('comments'),
+        tags: getLinkUrl('tags'),
+        taggings: getLinkUrl('taggings'),
+        plugin_instances: getLinkUrl('plugininstances')
+      }
+
+      this.props.addFeed(feedObj);
+
+    } catch (e) {
+      this.removeTempFiles(tempDirName); // clean up temp files if anything failed
+      console.error(e);
+    } finally {
+      this.resetState();
+      this.closeCreateWizard();
+    }
   }
 
   render() {
 
+    const { data } = this.state;
+
+    const enableSave = (data.chrisFiles.length > 0 || data.localFiles.length > 0) && !this.state.saving;
+
     const basicInformation = <BasicInformation
       authToken={ this.props.authToken }
-      feedName={ this.state.data.feedName }
-      feedDescription={ this.state.data.feedDescription }
-      tags={ this.state.data.tags }
+      feedName={ data.feedName }
+      feedDescription={ data.feedDescription }
+      tags={ data.tags }
       handleFeedNameChange={ this.handleFeedNameChange }
       handleFeedDescriptionChange={ this.handleFeedDescriptionChange }
       handleTagsChange={ this.handleTagsChange }
     />;
 
     const chrisFileSelect = <ChrisFileSelect
-      files={ this.state.data.chrisFiles }
+      files={ data.chrisFiles }
       handleFileAdd={ this.handleChrisFileAdd }
       handleFileRemove={ this.handleChrisFileRemove }
       authToken={ this.props.authToken }
     />;
     
     const localFileUpload = <LocalFileUpload
-      files={ this.state.data.localFiles }
+      files={ data.localFiles }
       handleFilesAdd={ this.handleLocalFilesAdd }
       handleFileRemove={ this.handleLocalFileRemove }
     />;
 
-    const review = <Review data={ this.state.data } />
+    const review = <Review data={ data } />
 
     const steps = [
       { 
         id: 1, // id corresponds to step number
         name: 'Basic Information', 
         component: basicInformation,
-        enableNext: !!this.state.data.feedName
+        enableNext: !!data.feedName
       },
       { 
         name: 'Data Configuration',
@@ -299,7 +428,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
           { id: 3, name: 'Local File Upload', component: localFileUpload },
         ] 
       },
-      { id: 4, name: 'Review', component: review },
+      { id: 4, name: 'Review', component: review, enableNext: enableSave},
     ];
 
     return (
