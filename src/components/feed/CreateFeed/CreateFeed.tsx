@@ -140,9 +140,9 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     if (this.state.wizardOpen) {
       this.resetState();
     }
-    this.setState({
-      wizardOpen: !this.state.wizardOpen
-    })
+    this.setState(state => ({
+      wizardOpen: !state.wizardOpen
+    }));
   }
 
   handleStepChange(step: any) {
