@@ -4,14 +4,8 @@ import { Form, FormGroup, TextInput, TextArea } from '@patternfly/react-core';
 import Client, { Tag } from '@fnndsc/chrisapi';
 import { Typeahead } from 'react-bootstrap-typeahead';
 
-export declare var process: { 
-  env: {
-    REACT_APP_CHRIS_UI_URL: string
-  }
-}
-
 interface BasicInformationProps {
-  authToken: string,
+  client: Client,
   feedName: string,
   feedDescription: string,
   tags: Tag[],
@@ -45,9 +39,7 @@ class BasicInformation extends React.Component<BasicInformationProps, BasicInfor
   }
 
   async fetchTagList() {
-    const client = new Client(process.env.REACT_APP_CHRIS_UI_URL, { token: this.props.authToken} );
-    await client.getFeeds(); // getFeeds must be called on new Client objects
-    const tagList = await client.getTags();
+    const tagList = await this.props.client.getTags();
     const tags: Tag[] = await tagList.getItems() || [];
     return tags;
   }
