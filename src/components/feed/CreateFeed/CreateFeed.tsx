@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Dispatch } from "redux";
 import _ from 'lodash';
 
-import Client, { Plugin, UploadedFile, Tag, PluginInstance, Collection } from "@fnndsc/chrisapi";
+import Client, { Plugin, UploadedFile, Tag, PluginInstance, Collection, UploadedFileList } from "@fnndsc/chrisapi";
 import { Button, Wizard } from "@patternfly/react-core";
 
 import { IFeedItem } from "../../../api/models/feed.model";
@@ -115,6 +115,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     this.handleLocalFileRemove = this.handleLocalFileRemove.bind(this);
     this.createFeed = this.createFeed.bind(this);
   }
+  
   /*
     -------------- 
     EVENT HANDLERS 
@@ -420,12 +421,13 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
 
   render() {
 
-    const { data } = this.state;
+    const { data, saving, wizardOpen, step } = this.state;
+    const { authToken } = this.props;
 
-    const enableSave = (data.chrisFiles.length > 0 || data.localFiles.length > 0) && !this.state.saving;
+    const enableSave = (data.chrisFiles.length > 0 || data.localFiles.length > 0) && !saving;
 
     const basicInformation = <BasicInformation
-      authToken={ this.props.authToken }
+      authToken={ authToken }
       feedName={ data.feedName }
       feedDescription={ data.feedDescription }
       tags={ data.tags }
@@ -438,7 +440,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       files={ data.chrisFiles }
       handleFileAdd={ this.handleChrisFileAdd }
       handleFileRemove={ this.handleChrisFileRemove }
-      authToken={ this.props.authToken }
+      authToken={ authToken }
     />;
     
     const localFileUpload = <LocalFileUpload
@@ -472,15 +474,15 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
           Create Feed
         </Button>
         {
-          this.state.wizardOpen && (
+          wizardOpen && (
             <Wizard
-              isOpen={this.state.wizardOpen}
+              isOpen={wizardOpen}
               onClose={this.toggleCreateWizard}
               title="Create a New Feed"
               description="This wizard allows you to create a new feed and add an initial dataset to it."
               className={`feed-create-wizard ${this.getStepName()}-wrap`}
               steps={steps}
-              startAtStep={this.state.step}
+              startAtStep={step}
               onNext={this.handleStepChange}
               onBack={this.handleStepChange}
               onGoToStep={this.handleStepChange}

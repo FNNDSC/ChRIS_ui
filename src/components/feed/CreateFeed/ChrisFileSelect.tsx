@@ -192,8 +192,9 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
   }
 
   recomputeVisibleTree() {
-    if (this.state.initialTree.children) {
-      const visibleTopLevelChildren = this.computeVisibleChildren(this.state.initialTree.children);
+    const { initialTree } = this.state;
+    if (initialTree.children) {
+      const visibleTopLevelChildren = this.computeVisibleChildren(initialTree.children);
       this.setState({
         visibleTree: {
           name: 'ChRIS Files',
@@ -229,7 +230,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
   }
 
   resetVisibleTree() {
-    this.setState({ visibleTree: this.state.initialTree })
+    this.setState({ visibleTree: this.state.initialTree });
   }
 
   normalizeString(str: string) {
@@ -242,14 +243,15 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
 
   // generates file name, with match highlighted, for file explorer
   generateFileName(node: ChrisFile) {
-    const name = node.name;
-    if (!this.state.filter || !this.matchesFilter(name)) {
+    const { name } = node;
+    const { filter } = this.state;
+    if (!filter || !this.matchesFilter(name)) {
       return name;
     }
-    const matchIndex = this.normalizeString(name).indexOf(this.normalizeString(this.state.filter));
+    const matchIndex = this.normalizeString(name).indexOf(this.normalizeString(filter));
     const before = name.substring(0, matchIndex);
-    const match = name.substring(matchIndex, matchIndex + this.state.filter.length);
-    const after = name.substring(matchIndex + this.state.filter.length);
+    const match = name.substring(matchIndex, matchIndex + filter.length);
+    const after = name.substring(matchIndex + filter.length);
     return (
       <React.Fragment>
         {before}
@@ -260,14 +262,15 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
   }
 
   renderTreeNode = (node: ChrisFile) => {
-    let isSelected;
+    const { files } = this.props;
     const isFolder = !!node.children;
+    let isSelected;
     if (isFolder) {
       // there can never be multiple folders with the same path, and folders don't have ids
-      isSelected = !!this.props.files.find(f => f.path === node.path);
+      isSelected = !!files.find(f => f.path === node.path);
     } else {
       // but there can be multiple files with the same path
-      isSelected = !!this.props.files.find(f => f.id === node.id);
+      isSelected = !!files.find(f => f.id === node.id);
     }
     const icon = isFolder
       ? (node.collapsed ? <FolderCloseIcon /> : <FolderOpenIcon></FolderOpenIcon>)
@@ -288,13 +291,16 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
 
   render() {
     
-    const fileList = this.props.files.map(file => (
+    const { files, handleFileRemove } = this.props;
+    const { initialTreeLoaded, visibleTree } = this.state;
+
+    const fileList = files.map(file => (
       <div className="file-preview" key={file.path}>
         {
           file.children ? <FolderCloseIcon /> : <FileIcon />
         }
         <span className="file-name">{file.name}</span>
-        <CloseIcon className="file-remove" onClick={() => this.props.handleFileRemove(file) } />
+        <CloseIcon className="file-remove" onClick={() => handleFileRemove(file) } />
       </div>
     ))
 
@@ -310,9 +316,9 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
               onSearch={this.handleFilterChange}
             />
             {
-              this.state.initialTreeLoaded ?
+              initialTreeLoaded ?
                 <Tree
-                  tree={this.state.visibleTree}
+                  tree={visibleTree}
                   renderNode={this.renderTreeNode}
                   paddingLeft={20}
                 /> :
