@@ -52,7 +52,14 @@ class BasicInformation extends React.Component<BasicInformationProps, BasicInfor
     return tags;
   }
 
-  render() {  
+  render() { 
+
+    const { 
+      feedName, feedDescription, tags,
+      handleFeedNameChange, handleFeedDescriptionChange, handleTagsChange 
+    } = this.props;
+    const { availableTagsLoaded, availableTags } = this.state;
+
     return (
       <Form className="pf-u-w-75 basic-information">
         <h1 className="pf-c-title pf-m-2xl">Basic Information</h1>
@@ -67,8 +74,8 @@ class BasicInformation extends React.Component<BasicInformationProps, BasicInfor
             id="feed-name"
             name="feed-name"
             placeholder="e.g. Tractography Study"
-            value={this.props.feedName}
-            onChange={this.props.handleFeedNameChange}
+            value={feedName}
+            onChange={handleFeedNameChange}
             maxLength={100}
           />
         </FormGroup>
@@ -82,8 +89,8 @@ class BasicInformation extends React.Component<BasicInformationProps, BasicInfor
             name="feed-description"
             placeholder="Use this field to describe the purpose of your feed, the type of data you're processing, or any other details or notes that might be handy to store in the feed."
             rows={5}
-            value={this.props.feedDescription}
-            onChange={this.props.handleFeedDescriptionChange}
+            value={feedDescription}
+            onChange={handleFeedDescriptionChange}
           />
         </FormGroup>
 
@@ -93,13 +100,13 @@ class BasicInformation extends React.Component<BasicInformationProps, BasicInfor
         >
           <Typeahead
             id="tags"
-            placeholder={ this.state.availableTagsLoaded ? 'Chose a tag...' : 'Loading tags...' }
+            placeholder={ availableTagsLoaded ? 'Chose a tag...' : 'Loading tags...' }
             multiple
-            options={this.state.availableTags}
-            onChange={this.props.handleTagsChange}
-            selected={this.props.tags}
+            options={availableTags}
+            onChange={handleTagsChange}
+            selected={tags}
             labelKey={ (tag: Tag) => tag.data.name }
-            emptyLabel={ this.state.availableTagsLoaded ? 'No tags found' : 'Loading tags...' }
+            emptyLabel={ availableTagsLoaded ? 'No tags found' : 'Loading tags...' }
           />
         </FormGroup>
       </Form>

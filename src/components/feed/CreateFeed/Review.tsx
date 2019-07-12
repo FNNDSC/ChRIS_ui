@@ -25,10 +25,10 @@ function generateFileList(files: DataFile[]) {
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {  
 
-    const { data } = props;
+    const {  feedName, feedDescription, tags, chrisFiles, localFiles } = props.data;
 
     // the installed version of @patternfly/react-core doesn't support read-only chips
-    const tags = data.tags.map(tag => (
+    const tagList = tags.map(tag => (
       <div className="pf-c-chip pf-m-read-only tag" key={ tag.data.id }>
         <span className="pf-c-chip__text">
           { tag.data.name }
@@ -36,7 +36,7 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
       </div>
     ))
 
-    const showFileWarning = !(data.chrisFiles.length > 0 || data.localFiles.length > 0);
+    const showFileWarning = !(chrisFiles.length > 0 || localFiles.length > 0);
 
     return (
       <div className="review">
@@ -47,9 +47,9 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
         
         <Grid gutter="sm">
           <GridItem span={2}>Feed Name</GridItem>
-          <GridItem span={10}>{ data.feedName }</GridItem>
+          <GridItem span={10}>{ feedName }</GridItem>
           <GridItem span={2}>Feed Description</GridItem>
-          <GridItem span={10}>{ data.feedDescription }</GridItem>
+          <GridItem span={10}>{ feedDescription }</GridItem>
           <GridItem span={2}>Tags</GridItem>
           <GridItem span={10}>{ tags }</GridItem>
         </Grid>
@@ -58,11 +58,11 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
         <Split>
           <SplitItem isMain className="file-list">
             <p>ChRIS files to add to new feed:</p>
-            { generateFileList(data.chrisFiles) }
+            { generateFileList(chrisFiles) }
           </SplitItem>
           <SplitItem isMain className="file-list">
             <p>Local files to add to new feed:</p>
-            { generateFileList(data.localFiles) }
+            { generateFileList(localFiles) }
           </SplitItem>
         </Split>
 
