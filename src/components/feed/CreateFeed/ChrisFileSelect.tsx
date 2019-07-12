@@ -10,12 +10,6 @@ import LoadingComponent from '../../common/loading/Loading';
 import { ChrisFile, fetchAllChrisFiles } from './CreateFeed';
 import { DataTableToolbar } from '../..';
 
-declare var process: { 
-  env: {
-    REACT_APP_CHRIS_UI_URL: string
-  }
-};
-
 function getEmptyTree() {
   return {
     name: 'ChRIS Files',
@@ -31,7 +25,7 @@ interface ChrisFilePath {
 }
 
 interface ChrisFileSelectProps {
-  authToken: string,
+  client: Client,
   files: ChrisFile[],
   handleFileAdd: (file: ChrisFile) => void,
   handleFileRemove: (file: ChrisFile) => void
@@ -155,9 +149,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
   }
 
   async fetchChrisFiles(): Promise<ChrisFilePath[]> {
-    const client = new Client(process.env.REACT_APP_CHRIS_UI_URL, { token: this.props.authToken });
-    await client.getFeeds();
-    const files = await fetchAllChrisFiles(client);
+    const files = await fetchAllChrisFiles(this.props.client);
 
     return Promise.all(files.map(async file => {
       const fileData = (file as UploadedFile).data;

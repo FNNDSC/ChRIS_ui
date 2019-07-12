@@ -334,7 +334,6 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
 
     try {
 
-      await this.client.getFeeds(); // getFeeds must be called on new Client objects
       
       // Upload/copy files
       await this.uploadLocalFiles(tempDirName);
@@ -422,12 +421,11 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   render() {
 
     const { data, saving, wizardOpen, step } = this.state;
-    const { authToken } = this.props;
 
     const enableSave = (data.chrisFiles.length > 0 || data.localFiles.length > 0) && !saving;
 
     const basicInformation = <BasicInformation
-      authToken={ authToken }
+      client={ this.client }
       feedName={ data.feedName }
       feedDescription={ data.feedDescription }
       tags={ data.tags }
@@ -437,10 +435,10 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     />;
 
     const chrisFileSelect = <ChrisFileSelect
+      client={ this.client }
       files={ data.chrisFiles }
       handleFileAdd={ this.handleChrisFileAdd }
       handleFileRemove={ this.handleChrisFileRemove }
-      authToken={ authToken }
     />;
     
     const localFileUpload = <LocalFileUpload
