@@ -39,8 +39,21 @@ class BasicInformation extends React.Component<BasicInformationProps, BasicInfor
   }
 
   async fetchTagList() {
-    const tagList = await this.props.client.getTags();
-    const tags: Tag[] = await tagList.getItems() || [];
+    const { client } = this.props;
+
+    const params = { limit: 30, offset: 0 };
+    let tagList = await client.getTags(params);
+    const tags = tagList.getItems();
+  
+    while (tagList.hasNextPage) {
+      try {
+        params.offset += params.limit;
+        tagList = await client.getTags(params);
+        tags.push(...tagList.getItems());
+      } catch (e) {
+        console.error(e);
+      }
+    }
     return tags;
   }
 

@@ -1025,7 +1025,7 @@ declare module "@fnndsc/chrisapi" {
      *
      * @return {?Object[]}
      */
-    getItems(): ?any[];
+    getItems(): any[];
 
     /**
      * Get an array of parameter names that can be used as properties of the data
