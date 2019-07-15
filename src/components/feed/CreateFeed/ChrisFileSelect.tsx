@@ -139,15 +139,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
     return { ...root, children };
   }
 
-  // fetch one "page" of chris files, with pageLength files per page
-  async fetchChrisFilePage(client: Client, page: number, pageLength: number) {
-    const uploadedFileList = await client.getUploadedFiles({ 
-      limit: pageLength,
-      offset: page * pageLength
-    });
-    return uploadedFileList.getItems() || [];
-  }
-
+  
   async fetchChrisFiles(): Promise<ChrisFilePath[]> {
     const files = await fetchAllChrisFiles(this.props.client);
 

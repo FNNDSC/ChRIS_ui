@@ -51,7 +51,7 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
           <GridItem span={2}>Feed Description</GridItem>
           <GridItem span={10}>{ feedDescription }</GridItem>
           <GridItem span={2}>Tags</GridItem>
-          <GridItem span={10}>{ tags }</GridItem>
+          <GridItem span={10}>{ tagList }</GridItem>
         </Grid>
 
         <br />

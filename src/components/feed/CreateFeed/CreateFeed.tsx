@@ -28,13 +28,13 @@ export declare var process: {
 export async function fetchAllChrisFiles(client: Client) {
   const params = { limit: 100, offset: 0 };
   let fileList = await client.getUploadedFiles(params);
-  const files = fileList.getItems() || [];
+  const files = fileList.getItems();
 
   while (fileList.hasNextPage) {
     try {
       params.offset += params.limit;
       fileList = await client.getUploadedFiles(params);
-      files.push(fileList.getItems());
+      files.push(...fileList.getItems());
     } catch (e) {
       console.error(e);
     }
@@ -317,7 +317,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     let page = 0;
     do {
       const pluginsPage = (await this.client.getPlugins({ limit: 25, offset: page * 25 }));
-      const plugins = pluginsPage.getItems() || [];
+      const plugins = pluginsPage.getItems();
       if (!plugins) {
         return null;
       }
@@ -352,7 +352,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       });
 
       // when the `post` finishes, the dircopyInstances's internal collection is updated
-      const createdInstance: PluginInstance = (dircopyInstances.getItems() || [])[0];
+      const createdInstance: PluginInstance = dircopyInstances.getItems()[0];
       if (!createdInstance) {
         throw 'Created instance is undefined. Giving up.';
       }
