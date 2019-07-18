@@ -12,6 +12,10 @@
   .pf-c-wizard__outer-wrap {
     max-height: 646px;
   }
+  
+  .pf-c-wizard__footer {
+    flex-direction: row-reverse;
+  }
 
   .pf-c-wizard__nav .pf-m-current {
     color: var(--pf-c-wizard__nav-link--m-current--before--BackgroundColor);
