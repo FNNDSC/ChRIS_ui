@@ -1,0 +1,220 @@
+@import '../../../assets/scss/helpers/pf4-variables';
+@import '../../../assets/scss/helpers/variables';
+
+/* General */
+
+.create-feed-button {
+  float: right;
+}
+
+.feed-create-wizard {
+
+  .pf-c-wizard__outer-wrap {
+    max-height: 646px;
+  }
+  
+  .pf-c-wizard__footer {
+    flex-direction: row-reverse;
+  }
+
+  .pf-c-wizard__nav .pf-m-current {
+    color: var(--pf-c-wizard__nav-link--m-current--before--BackgroundColor);
+  }
+  
+  .pf-c-wizard__main {
+    height: 100%;
+  }
+  .local-file-upload {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .pf-l-split  {
+    height: 100%;
+  }
+  .file-list {
+    .file-preview svg {
+      font-size: 17px;
+    }
+    .file-name {
+      margin: 0 10px;
+      vertical-align: top;
+    }
+  }
+}
+
+@media (max-width: $pf-global--breakpoint--lg) {
+  .feed-create-wizard .pf-c-wizard__outer-wrap {
+    max-height: 100%;
+  }
+}
+
+/* Basic Information */
+
+.basic-information {
+  // typerheader
+  .rbt-input-multi {
+    padding: 5px 34px 5px 12px;
+
+  }
+  .rbt-close {
+    margin-top:3px;
+  }
+  .dropdown-menu {
+    margin-top:0;
+  }
+  .rbt-token {
+    background: var(--pf-global--Color--light-100);
+    border:solid 1px  var(--pf-global--Color--dark-200);
+    border-radius: 3px;
+    color: $pf-color-black-900;
+    font-size: 14px;
+    line-height: 1em;
+    margin: 0 5px 4px 0;
+    padding: 8px 30px 4px 10px;
+
+    button {
+        font-size: 18px !important;
+        padding-top: 8px !important;
+        margin-top: 0;
+    }
+
+  }
+}
+
+/* Data Configuration */
+
+.local-file-upload, .chris-file-select {
+  .pf-l-split__item:first-child { // "file upload/select" section
+    border-right: 1px solid #a4a4a4;
+    padding-right: var(--pf-l-split--m-gutter--MarginRight);
+  }
+  .section-header {
+    margin-bottom: 10px;
+  }
+  .file-remove {
+    cursor: pointer;
+  }
+}
+
+/* ChRIS File Select and Local File Upload */
+
+.chris-file-select-wrap, .local-file-upload-wrap {
+
+  .pf-c-wizard__main, .pf-c-wizard__main > div {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+  }
+
+  .pf-l-split {
+    display: flex;
+    overflow: hidden !important;
+  }
+
+  .pf-l-split__item {
+    display: flex;
+    overflow: hidden !important;
+    flex-direction: column;
+  }
+
+  // allow file select and file lists to scroll automatically
+  .m-tree, .file-list {
+    overflow: auto;
+  }
+
+  
+
+}
+
+.chris-file-select {
+  
+  .m-node .inner span {
+    display: inline-block;
+  }
+  
+  // hidden root level
+  .m-tree > .m-node {
+    padding-left: 0 !important;
+    padding-top: 5px !important;
+    & > {
+      .inner {
+        display: none;
+      }
+      .children {
+        padding-left: 0 !important;
+      }
+    }
+  }
+  
+  .m-node {
+    padding: 10px 15px;
+    .name {
+      margin-left: 20px;
+    }
+  }
+  
+  // top-level nodes
+  .m-tree > .m-node > .children > .m-node:not(:first-child) {
+    border-top: 1px solid $fe-viewer-border;
+  }
+  
+  .pf-c-check {
+    display: inline-block !important;
+    margin-right: 3px;
+  }
+
+  .children .m-node:last-child {
+    padding-bottom: 0;
+  }
+
+  .m-node svg {
+    font-size: 18px;
+    margin: 0 10px;
+  }
+
+  .match-highlight {
+    background: $file-explorer-yellow;
+  }
+
+  // arrow next to folders
+  .collapse:before {
+    position: relative;
+    content: "" !important;
+    display: inline-block;
+    width: 0.7em;
+    height: 0.7em;
+    left: -2px;
+    margin-right: 0.45em; // should be 1/2 of width and height
+    border-right: 0.2em solid black;
+    border-top: 0.2em solid black;
+    transform: rotate(45deg);
+  }
+
+  .caret-down {
+    transform: rotate(90deg);
+    margin-right: 5px;
+  }
+
+}
+
+.local-file-upload-wrap {
+  .file-list-wrap {
+    max-width: 60%;
+  }
+}
+
+.review {
+  .tag {
+    margin-right: 10px !important;
+  }
+  .file-warning {
+    font-weight: bold;
+    svg {
+      font-size: 1.5em;
+      color: var(--pf-global--warning-color--100);
+      margin-right: 10px;
+      vertical-align: -0.225em;
+    }
+  }
+}

@@ -17,3 +17,5 @@ export const getPluginInstanceListSuccess = (items: IPluginItem[]) => action(Fee
 
 
 export const destroyFeed = () => action(FeedActionTypes.RESET_STATE);
+
+export const addFeed = (feed: IFeedItem) => action(FeedActionTypes.ADD_FEED, feed);

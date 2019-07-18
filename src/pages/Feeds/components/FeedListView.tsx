@@ -14,6 +14,7 @@ import { LinkIcon } from "@patternfly/react-icons";
 import { DataTableToolbar } from "../../../components/index";
 import _ from "lodash";
 import debounce from "lodash/debounce";
+import CreateFeed from "../../../components/feed/CreateFeed/CreateFeed";
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getAllFeedsRequest: typeof getAllFeedsRequest;
@@ -40,10 +41,12 @@ class AllFeedsPage extends React.Component<AllProps> {
 
   render() {
     const { feeds } = this.props;
+    
     return (
       <PageSection>
         {!!feeds && (
           <div className="white-bg pf-u-p-lg">
+            <CreateFeed />
             <DataTableToolbar onSearch={this.onSearch} label="name" />
             <Table
               aria-label="Data table"
