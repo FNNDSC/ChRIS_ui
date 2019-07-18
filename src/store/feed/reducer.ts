@@ -22,6 +22,13 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     case FeedActionTypes.RESET_STATE: {
       return { ...state, items: undefined, details: undefined };
     }
+    case FeedActionTypes.ADD_FEED: {
+      if (state.feeds) {
+        return { ...state, feeds: [ action.payload, ...state.feeds ] }
+      } else {
+        return { ...state, feeds: [action.payload] };
+      }
+    }
     default: {
       return state;
     }

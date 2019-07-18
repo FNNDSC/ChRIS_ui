@@ -22,5 +22,6 @@ export const FeedActionTypes = keyMirror({
     GET_FEED_DETAILS_SUCCESS: null,
     GET_PLUGIN_INSTANCES: null,
     GET_PLUGIN_INSTANCES_SUCCESS: null,
-    RESET_STATE: null
+    RESET_STATE: null,
+    ADD_FEED: null
 });

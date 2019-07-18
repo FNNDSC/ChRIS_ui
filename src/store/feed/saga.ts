@@ -55,7 +55,7 @@ function* watchGetFeedRequest() {
 }
 
 // ------------------------------------------------------------------------
-// Description: Get Plugin instances
+// Description: Get Plugin instances and attempt to register files in unfinished instances
 // ------------------------------------------------------------------------
 function* handleGetPluginInstances(action: IActionTypeParam) {
   try {
@@ -63,6 +63,25 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
     if (res.error) {
       console.error(res.error);
     } else {
+
+      // plugin instances are not marked as "finished" until queried directly
+      const instances = res.data.results;
+      const startedIIndices = []; // indices of instances marked as "started"
+      for (let i = 0; i < instances.length; i++) {
+        const instance = instances[i];
+        if (instance.status === 'started') {
+          startedIIndices.push(i);
+        }
+      }
+
+      const queriedInstances = yield all(startedIIndices.map((index: number) => {
+        return call(ChrisModel.fetchRequest, instances[index].url);
+      }));
+      for (let j = 0; j < queriedInstances.length; j++) {
+        // replace instance data with new data
+        instances[startedIIndices[j]] = queriedInstances[j].data;
+      }
+
       yield put(getPluginInstanceListSuccess(res));
     }
   } catch (error) {
