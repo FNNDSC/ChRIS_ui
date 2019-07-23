@@ -183,7 +183,35 @@ declare module "@fnndsc/chrisapi" {
      * @return {Object} - JS Promise, resolves to a ``PluginList`` object
      */
     getPlugins: (searchParams?: IPluginsSearchParams, timeout?: number) => Promise<PluginsList>;
+    
 
+    /**
+     * Get a plugin instance resource object given its id.
+     *
+     * @param {number} id - plugin instance id
+     * @param {number} [timeout=30000] - request timeout
+     *
+     * @return {Object} - JS Promise, resolves to a ``PluginInstance`` object
+     */
+    getPluginInstance: (id: number, timeout?: number) => Promise<PluginInstance>;
+
+    /**
+     * Create a new plugin instance resource through the REST API.
+     *
+     * @param {number} pluginId - plugin id
+     * @param {Object} data - request data object which is plugin-specific
+     * @param {number} data.previous_id=null - id of the previous plugin instance
+     * @param {string} [data.title] - title
+     * @param {string} [data.cpu_limit] - cpu limit
+     * @param {string} [data.memory_limit] - memory limit
+     * @param {string} [data.number_of_workers] - number of workers
+     * @param {string} [data.gpu_limit] - gpu limit
+     * @param {number} [timeout=30000] - request timeout
+     *
+     * @return {Object} - JS Promise, resolves to ``PluginInstance`` object
+     */
+
+    createPluginInstance: (pluginId: number, data: IPluginCreateData, timeout?: number) => Promise<PluginInstance>;
   }
 
   /**
@@ -482,6 +510,40 @@ declare module "@fnndsc/chrisapi" {
   }
 
   /**
+   * Plugin instance file list resource object representing a list of files written by
+   * a plugin instance.
+   */
+  export declare class PluginInstanceFileList extends ListResource {
+
+    /**
+     * Constructor
+     *
+     * @param {string} url - url of the resource
+     * @param {Object} auth - authentication object
+     * @param {string} auth.token - authentication token
+     */
+    constructor(url: string, auth: IAuth);
+  
+    /**
+     * Fetch the feed associated to this file list from the REST API.
+     *
+     * @param {number} [timeout=30000] - request timeout
+     *
+     * @return {Object} - JS Promise, resolves to a ``Feed`` object
+     */
+    getFeed: (timeout?: number) => Promise<Feed>;
+  
+    /**
+     * Fetch the plugin instance associated to this file list from the REST API.
+     *
+     * @param {number} [timeout=30000] - request timeout
+     *
+     * @return {Object} - JS Promise, resolves to a ``PluginInstance`` object
+     */
+    getPluginInstance: (timeout?: number) => Promise<PluginInstance>; 
+  }
+
+  /**
    * Note item resource object representing a feed's note.
    */
   export declare class Note extends ItemResource {
@@ -629,6 +691,18 @@ declare module "@fnndsc/chrisapi" {
      * @return {Object} - JS Promise, resolves to a ``PluginInstanceParameterList`` object
      */
     getParameters: (params: IParams, timeout?: number) => Promise<PluginInstanceDescendantList>;
+
+    /**
+     * Fetch a list of files created by this plugin instance from the REST API.
+     *
+     * @param {Object} [params=null] - page parameters
+     * @param {number} [params.limit] - page limit
+     * @param {number} [params.offset] - page offset
+     * @param {number} [timeout=30000] - request timeout
+     *
+     * @return {Object} - JS Promise, resolves to a ``PluginInstanceFileList`` object
+     */
+    getFiles: (params: IParams, timeout?: number) => Promise<PluginInstanceFileList>;
   }
 
   /**
@@ -1489,5 +1563,14 @@ declare module "@fnndsc/chrisapi" {
     min_creation_date?: string,
     max_creation_date?: string
   }
-}
 
+  
+  export interface IPluginCreateData {
+    title?: string,
+    previous_id?: number,
+    cpu_limit?: string,
+    memory_limit?: string,
+    number_of_workers?: string,
+    gpu_limit?: string
+  }
+}
