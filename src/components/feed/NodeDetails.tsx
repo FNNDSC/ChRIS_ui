@@ -19,7 +19,7 @@ interface INodeProps {
 class NodeDetails extends React.Component<INodeProps> {
   // Description: Share pipeline with others ***** Working
   handleSharePipeline() {
-    // Stub - To be done
+    // Stub - To be done 
   }
 
   // Description: Add new node to the feed ***** Working
