@@ -11,9 +11,10 @@ import { IFeedState } from "../../../store/feed/types";
 import { IUserState } from "../../../store/user/types";
 import { IPluginState } from "../../../store/plugin/types";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
-import { FeedTree, FeedDetails, NodeDetails, PluginDetailPanel } from "../../../components/index";
+import { FeedTree, FeedDetails, NodeDetails } from "../../../components/index";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 import "../feed.scss";
+import FeedOutputBrowser from "../../../components/feed/FeedOutputBrowser";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -49,7 +50,7 @@ class FeedView extends React.Component<AllProps> {
   }
 
   render() {
-    const { items, details, selected, descendants } = this.props;
+    const { items, details, selected, descendants, token } = this.props;
 
     return (
       <React.Fragment>
@@ -69,7 +70,7 @@ class FeedView extends React.Component<AllProps> {
             <GridItem className="feed-block pf-u-p-md" sm={12} md={6}>
               <h1>Feed Graph</h1>
               {!!items ? (
-                <FeedTree items={items} onNodeClick={this.onNodeClick} />
+                <FeedTree items={items} selected={selected} onNodeClick={this.onNodeClick} />
               ) : (
                 <div>This Feed does not exist: <Link to="/feeds">Go to All Feeds</Link></div>
               )}
@@ -88,7 +89,12 @@ class FeedView extends React.Component<AllProps> {
         {/* Bottom section with information */}
         <PageSection>
           <div className="plugin-info pf-u-py-md">
-            {!!selected ? <PluginDetailPanel /> : <h1>Select plugin</h1>}
+            <FeedOutputBrowser
+              token={token || ''}
+              selected={selected} 
+              plugins={items}
+              handlePluginSelect={this.onNodeClick}
+            />
           </div>
         </PageSection>
         {/* END OF Bottom section with information */}

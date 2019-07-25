@@ -7,6 +7,7 @@ import { IPluginItem, getPluginInstanceTitle } from "../../api/models/pluginInst
 
 interface ITreeProps {
   items: IPluginItem[];
+  selected?: IPluginItem;
 }
 
 interface ITreeActions {
@@ -17,15 +18,33 @@ type AllProps = ITreeProps & ITreeActions;
 
 class FeedTree extends React.Component<AllProps> {
   private treeRef = createRef<HTMLDivElement>();
+  private tree?: TreeModel;
+
   componentDidMount() {
     const { items } = this.props;
     if (!!this.treeRef.current && !!items && items.length > 0) {
       const tree = new TreeModel(items);
+      this.tree = tree;
       if (!!tree.treeChart) {
         this.buildFeedTree(tree.treeChart, this.treeRef);
-        // Set root node active on load:
-        tree.treeChart.nodes.length > 0 &&
-          this.setActiveNode(tree.treeChart.nodes[0]);
+        // Set root node active on load:r
+        if (tree.treeChart.nodes.length) {
+          const rootNode = tree.treeChart.nodes[0];
+          this.setActiveNode(rootNode);
+          this.handleNodeClick(rootNode);
+        }
+
+      }
+    }
+  }
+
+  componentDidUpdate(prevProps: AllProps) {
+    const { selected } = this.props;
+    const prevSelected= prevProps.selected;
+    if (prevSelected && selected && this.tree && prevSelected.id !== selected.id) {
+      const activeNode = this.tree.treeChart.nodes.find(node => node.item.id === selected.id);
+      if (activeNode) {
+        this.setActiveNode(activeNode);
       }
     }
   }
@@ -40,13 +59,16 @@ class FeedTree extends React.Component<AllProps> {
 
   // Description: set active node
   setActiveNode = (node: INode) => {
-    const { onNodeClick } = this.props;
     d3.selectAll(".nodegroup.active").attr("class", "nodegroup");
     const activeNode = d3.select(`#node_${node.item.id}`);
     if (!!activeNode && !activeNode.empty()) {
       activeNode.attr("class", "nodegroup active");
-      onNodeClick(node.item);
     }
+  }
+
+  // Description: Call prop to set active node in parent state
+  handleNodeClick = (node: INode) => {
+    this.props.onNodeClick(node.item)
   }
 
   // ---------------------------------------------------------------------
@@ -126,7 +148,7 @@ class FeedTree extends React.Component<AllProps> {
         return `node_${d.item.id}`;
       })
       .attr("class", "nodegroup")
-      .on("click", this.setActiveNode)
+      .on("click", this.handleNodeClick)
       .call(d3cola.drag);
 
     const label = elemEnter

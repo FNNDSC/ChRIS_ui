@@ -10,7 +10,7 @@
 
 // File detail view
 // -----------------------------------------------
-.output-viewer{
+.output-viewer, .gallery-wrapper {
   .catchall{ // catchall
     .pf-c-alert{
       max-width: $fe-viewer-max-width-sm;
