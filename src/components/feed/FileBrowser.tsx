@@ -214,13 +214,22 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
   // Gets the file path for a node. Temporary, until IUITreeNode is replaced
   getNodePath(node: IUITreeNode) {
     if (node.file) {
-      return node.file.fname;
+      return `/${node.file.fname}`;
+    }
+
+    const { breadcrumbs } = this.state;
+
+    // currently on top-level directory
+    if (breadcrumbs.length === 1) { 
+      return `/${node.module}`;
     }
     
     // IUITreeNode.file is not set if the the node is a folder
-    const path = this.state.breadcrumbs
+    const path = breadcrumbs
+      .slice(1) // exclude the plugin directory
       .map((breadcrumb: IUITreeNode) => breadcrumb.module)
       .join('/');
+      
     return `/${path}/${node.module}`;
   }
 

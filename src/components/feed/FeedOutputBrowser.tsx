@@ -89,7 +89,7 @@ class FeedOutputBrowser extends React.Component<FeedOutputBrowserProps, FeedOutp
     }
   }
 
-  /* DATA FETCHING */
+  /* DATA FETCHING & MANIPULATION */
 
   async fetchPluginFiles(plugin: IPluginItem) {
     const id = plugin.id as number;
@@ -119,6 +119,39 @@ class FeedOutputBrowser extends React.Component<FeedOutputBrowserProps, FeedOutp
         [id]: files,
       }
     });
+  }
+
+  createTreeFromFiles(files: FeedFile[], selected: IPluginItem) {
+    if (!files) {
+      return null;
+    }
+    const model = new UITreeNodeModel(convertFiles(files, selected), selected);
+    const tree = model.getTree();
+    tree.module = this.getPluginName(selected);
+    return this.sortTree(tree);
+  }
+
+  sortTree(root: IUITreeNode) {
+    let children: IUITreeNode[] = [];
+    if (root.children) {
+
+      children = root.children.sort((a: IUITreeNode, b: IUITreeNode) => {
+        if (a.children && !b.children) {
+          return -1;
+        } else if (!a.children && b.children) {
+          return 1;
+        }
+        return 0;
+      });
+
+      for (const child of root.children) {
+        if (child.children) {
+          child.children = this.sortTree(child).children;
+        }
+      }
+
+    }
+    return { ...root, children };
   }
 
   /* EVENT LISTENERS */
@@ -209,12 +242,7 @@ class FeedOutputBrowser extends React.Component<FeedOutputBrowserProps, FeedOutp
     const pluginDisplayName = this.getPluginDisplayName(selected);
 
     const selectedFiles = files[selected.id as number];
-    let tree;
-    if (selectedFiles) {
-      const model = new UITreeNodeModel(convertFiles(selectedFiles, selected), selected);
-      tree = model.getTree();
-      tree.module = pluginName;
-    }
+    const tree = this.createTreeFromFiles(selectedFiles, selected);
     
     return (
       <div className="feed-output-browser">
