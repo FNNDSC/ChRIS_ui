@@ -48,7 +48,7 @@ class NodeDetails extends React.Component<INodeProps> {
     return (
       <React.Fragment>
 
-        <div className="header-wrap">
+        <div className="details-header-wrap">
           <div>
             Selected Node:
             <Title headingLevel="h2" size="xl">
