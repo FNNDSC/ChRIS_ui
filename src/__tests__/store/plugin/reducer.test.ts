@@ -1,17 +1,15 @@
 import { PluginActionTypes ,IPluginState} from "../../../store/plugin/types";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import {pluginReducer} from "../../../store/plugin/reducer";
-import {IUITreeNode} from "../../../api/models/file-explorer";
 import { IFeedFile } from "../../../api/models/feed-file.model";
 import { chrisId } from "../../../api/models/base.model";
 
 const InitialState:IPluginState = {
     selected: undefined,
     descendants: undefined,
-    files: [],
-    explorer: undefined,
-    parameters: []
-    }
+    files: undefined,
+    parameters: undefined
+}
 
 const TestItem:IPluginItem[] = [{
     id: 1,
@@ -78,56 +76,6 @@ describe("Reducer of plugin", () => {
         )
 
 
-    });
-
-    it("setExplorerSuccess should return" ,()=> {
-        
-        const Testfile:IFeedFile[] = [{
-            id: TestChrisId1,
-            feed_id: TestChrisId1,
-            plugin_inst_id: TestChrisId1,
-            fname: "boston_BU_MRI",
-            url: "www.chrisfeed.com",
-            file_resource: "www.chrismocbackend.com",
-            plugin_instances: "MRI",
-        }];
-        const TestTreeNode :IUITreeNode = {
-            module: "root",
-            children: []
-          };
-        
-        const TestIUItreeNode2 = {
-            module: "test",
-            children: [],
-            collapsed: false,
-            leaf: false,
-            file: 1
-        }
-        const TestIUItreeNode = {
-            module: "test",
-            children: [TestIUItreeNode2],
-            collapsed: false,
-            leaf: false,
-            file: 1
-        }
-        //  {Testfile:IFeedFile[],TestItem:IPluginItem}
-        
-        expect(pluginReducer(InitialState,{
-            type:PluginActionTypes.SET_EXPLORER_SUCCESS,
-            payload: TestIUItreeNode
-        })).toEqual(
-            {
-            ...InitialState,
-            explorer: 
-            {
-                module: "test",
-                children: [TestIUItreeNode2],
-                collapsed: false,
-                leaf: false,
-                file: 1
-            }
-            }
-        );
     });
 
     it("FetchError should return",() => {
