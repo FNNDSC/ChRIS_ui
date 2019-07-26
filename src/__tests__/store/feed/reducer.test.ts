@@ -92,56 +92,6 @@ describe("feed reducer", () => {
       })
   })
 
-  it("should handle FETCH_REQUEST", () => {
-    expect(
-      feedReducer(initialState, {
-        type: FeedActionTypes.FETCH_REQUEST,
-      })
-    ).toEqual(
-      {
-        ...initialState,
-      })
-  })
-
-  it("should handle FETCH_SUCCESS", () => {
-    expect(
-      feedReducer(initialState, {
-        type: FeedActionTypes.FETCH_SUCCESS,
-        payload: {
-          data: {
-          results: Testitems
-         }
-        }
-      })
-    ).toEqual(
-      {
-        ...initialState,
-        items: Testitems
-      })
-  })
-
-  it("should handle FETCH_ERROR", () => {
-    expect(
-      feedReducer(initialState, {
-        type: FeedActionTypes.FETCH_ERROR,
-      })
-    ).toEqual(
-      {
-        ...initialState,
-      })
-  })
-
-  it("should handle FETCH_COMPLETE", () => {
-    expect(
-      feedReducer(initialState, {
-        type: FeedActionTypes.FETCH_COMPLETE,
-      })
-    ).toEqual(
-      {
-        ...initialState,
-      })
-  })
-
   it("should handle RESET_STATE", () => {
     expect(
       feedReducer(initialState, {
