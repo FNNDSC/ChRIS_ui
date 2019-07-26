@@ -38,4 +38,25 @@
             margin-right: 3px;
         }
     }
+
+    // patternfly copy component
+    .pf-c-clipboard-copy__group {
+        border: none;
+        display: flex;
+        justify-content: flex-end;
+        input.pf-c-form-control {
+            display: none;
+        }
+        button.pf-c-clipboard-copy__group-copy {
+            border: none;
+            color: #3693c6;
+            &:before {
+                border: none;
+            }
+            &:after {
+                content: 'Copy text';
+                margin-left: 5px;
+            }
+        }
+    }
 }
