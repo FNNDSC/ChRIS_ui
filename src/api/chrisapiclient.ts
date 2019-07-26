@@ -8,6 +8,12 @@ declare var process: {
 
 const AUTH_TOKEN_KEY = 'AUTH_TOKEN';
 
+/**
+ * This is a singleton to hold an instantiated, authenticated `Client` object,
+ * in order to prevent  every component that needs the client from having to be
+ * passed the token, declare process.env variables, etc.
+ */
+
 class ChrisAPIClient {
 
   private static client: Client;
