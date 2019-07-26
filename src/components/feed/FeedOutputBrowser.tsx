@@ -6,16 +6,17 @@ import JSZip from 'jszip';
 import { Title, Split, SplitItem, Button } from '@patternfly/react-core';
 import { FolderOpenIcon, FolderCloseIcon, DownloadIcon, SpinnerIcon } from '@patternfly/react-icons';
 import Client, { FeedFile, Collection } from '@fnndsc/chrisapi';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { getPluginInstanceTitle, IPluginItem } from '../../api/models/pluginInstance.model';
 import UITreeNodeModel, { IUITreeNode } from '../../api/models/file-explorer.model';
+import ChrisAPIClient from '../../api/chrisapiclient';
 import FileViewerModel from '../../api/models/file-viewer.model';
 import { IFeedFile } from '../../api/models/feed-file.model';
 import PluginViewerModal from '../plugin/PluginViewerModal';
 import { setSelectedFile } from '../../store/explorer/actions';
 
 import FileBrowser from './FileBrowser';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // UTILITIES
 
@@ -55,8 +56,6 @@ interface FeedOutputBrowserState {
 }
 
 class FeedOutputBrowser extends React.Component<FeedOutputBrowserProps, FeedOutputBrowserState> {
-
-  client: Client = new Client(process.env.REACT_APP_CHRIS_UI_URL || '', { token: this.props.token });
 
   constructor(props: FeedOutputBrowserProps) {
     super(props);
@@ -98,8 +97,9 @@ class FeedOutputBrowser extends React.Component<FeedOutputBrowserProps, FeedOutp
     }
     
     // get all files
+    const client = ChrisAPIClient.getClient();
     const params = { limit: 100, offset: 0 };
-    const pluginInstance = await this.client.getPluginInstance(id);
+    const pluginInstance = await client.getPluginInstance(id);
     let fileList = await pluginInstance.getFiles(params);
     const files = fileList.getItems();
   
