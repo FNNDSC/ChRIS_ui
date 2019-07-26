@@ -12,6 +12,7 @@ interface TextCopyPopoverProps {
   isVisible?: boolean,
   position?: BasicPlacement,
   subheaderContent?: string,
+  rows?: number,
 
   tabIndex?: number,
   className?: string
@@ -67,13 +68,14 @@ class TextCopyPopover extends React.Component<TextCopyPopoverProps, TextCopyPopo
 
   render() {
 
-    const { text, children, subheaderContent, className, ...props } = this.props;
+    const { text, children, subheaderContent, className, rows, ...props } = this.props;
 
     const body = (
       <React.Fragment>
         { subheaderContent }
         <TextArea
           value={text}
+          rows={rows}
           spellCheck={false}
           aria-label="full-path"
         />

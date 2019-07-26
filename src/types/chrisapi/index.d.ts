@@ -184,6 +184,15 @@ declare module "@fnndsc/chrisapi" {
      */
     getPlugins: (searchParams?: IPluginsSearchParams, timeout?: number) => Promise<PluginsList>;
     
+    /**
+     * Get a plugin resource object given its id.
+     *
+     * @param {number} id - plugin id
+     * @param {number} [timeout=30000] - request timeout
+     *
+     * @return {Object} - JS Promise, resolves to a ``Plugin`` object
+     */
+    getPlugin: (id: number, timeout?: number) => Promise<Plugin>;
 
     /**
      * Get a plugin instance resource object given its id.
@@ -690,7 +699,7 @@ declare module "@fnndsc/chrisapi" {
      * @param {number} [timeout=30000] - request timeout
      * @return {Object} - JS Promise, resolves to a ``PluginInstanceParameterList`` object
      */
-    getParameters: (params: IParams, timeout?: number) => Promise<PluginInstanceDescendantList>;
+    getParameters: (params?: IParams, timeout?: number) => Promise<PluginInstanceDescendantList>;
 
     /**
      * Fetch a list of files created by this plugin instance from the REST API.
