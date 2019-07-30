@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { Popover, TextArea, ClipboardCopy } from '@patternfly/react-core-updated';
-import { CopyIcon } from '@patternfly/react-icons';
 import { Instance, BasicPlacement } from 'tippy.js';
 
 import './textcopypopover.scss';
