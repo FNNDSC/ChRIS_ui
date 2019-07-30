@@ -49,8 +49,8 @@ export default class FileViewerModel {
 // Description: Mapping for plugin tabs *Note: Should come from db
 export const pluginViewerMap: any = {
   default: ["FileBrowserViewer"],
-  dircopy: ["RevViewer", "FileBrowserViewer"],
-  pacscopy: ["RevViewer", "FileBrowserViewer"],
+  dircopy: ["FileBrowserViewer", "RevViewer"],
+  pacscopy: ["FileBrowserViewer", "RevViewer"],
   // mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
   freesurfer_pp: [
     "FileBrowserViewer",
@@ -59,10 +59,10 @@ export const pluginViewerMap: any = {
     "FreesurferDataTable",
   ],
   simpledsapp: [
+    "FileBrowserViewer",
     "VolumeGrowth",
     "SegmentAnalysis",
-    "ZScoreDataTable",
-    "FileBrowserViewer"
+    "ZScoreDataTable"
   ],
   mpcs: [
     "VolumeGrowth",

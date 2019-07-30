@@ -25,7 +25,6 @@ interface ChrisFilePath {
 }
 
 interface ChrisFileSelectProps {
-  client: Client,
   files: ChrisFile[],
   handleFileAdd: (file: ChrisFile) => void,
   handleFileRemove: (file: ChrisFile) => void
@@ -141,7 +140,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
 
   
   async fetchChrisFiles(): Promise<ChrisFilePath[]> {
-    const files = await fetchAllChrisFiles(this.props.client);
+    const files = await fetchAllChrisFiles();
 
     return Promise.all(files.map(async file => {
       const fileData = (file as UploadedFile).data;

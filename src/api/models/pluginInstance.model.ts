@@ -28,6 +28,7 @@ export interface IPluginItem extends IPluginItemLinks  {
     previous_id?: number;
     plugin_id: number;
     plugin_name: string;
+    plugin_version: string;
     pipeline_inst: null;
     feed_id: number;
     start_date: string;

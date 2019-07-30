@@ -19,7 +19,6 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
       return {
         ...state,
         explorer: action.payload,
-        selectedFolder: action.payload
       };
     }
     case ExplorerActionTypes.SET_SELECTED_FILE: {
