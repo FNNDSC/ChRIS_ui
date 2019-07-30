@@ -1,0 +1,62 @@
+// TODO: replace with css variables
+
+.text-copy-popover {
+    top: -5px;
+    .pf-c-popover__arrow {
+        width: 15px;
+        height: 15px;
+        left: calc(100% - 20px) !important;
+    }
+    .pf-c-popover__content {
+        padding: 12px 15px;
+    }
+    .pf-c-title {
+        --pf-c-title--m-xl--FontSize: 16px;
+        --pf-c-title--m-xl--FontWeight: 600;
+        --pf-c-popover--c-title--MarginBottom: 4px;
+    }
+    button[aria-label="Close"] {
+        display: none;
+    }
+    outline: none;
+    textarea {
+        font-family: monospace;
+        margin-top: 15px;
+        resize: none;
+        outline:none;
+    }
+    a {
+        text-align: right;
+        display: block;
+        color: #3693c6;
+        font-weight: 400;
+        outline: none;
+        &:hover {
+            color: #3693c6;
+        }
+        svg {
+            margin-right: 3px;
+        }
+    }
+
+    // patternfly copy component
+    .pf-c-clipboard-copy__group {
+        border: none;
+        display: flex;
+        justify-content: flex-end;
+        input.pf-c-form-control {
+            display: none;
+        }
+        button.pf-c-clipboard-copy__group-copy {
+            border: none;
+            color: #3693c6;
+            &:before {
+                border: none;
+            }
+            &:after {
+                content: 'Copy text';
+                margin-left: 5px;
+            }
+        }
+    }
+}

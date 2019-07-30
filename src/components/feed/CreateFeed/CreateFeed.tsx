@@ -3,10 +3,11 @@ import { connect } from 'react-redux';
 import { Dispatch } from "redux";
 import _ from 'lodash';
 
-import Client, { Plugin, UploadedFile, Tag, PluginInstance, Collection, UploadedFileList } from "@fnndsc/chrisapi";
+import { Plugin, UploadedFile, Tag, PluginInstance, Collection } from "@fnndsc/chrisapi";
 import { Button, Wizard } from "@patternfly/react-core";
 
 import { IFeedItem } from "../../../api/models/feed.model";
+import ChrisAPIClient from "../../../api/chrisapiclient";
 import { addFeed } from "../../../store/feed/actions";
 import { ApplicationState } from "../../../store/root/applicationState";
 
@@ -17,15 +18,10 @@ import Review from "./Review";
 
 import './createfeed.scss';
 
-export declare var process: { 
-  env: {
-    REACT_APP_CHRIS_UI_URL: string,
-  }
-};
-
 // UTILS
 
-export async function fetchAllChrisFiles(client: Client) {
+export async function fetchAllChrisFiles() {
+  const client = ChrisAPIClient.getClient();
   const params = { limit: 100, offset: 0 };
   let fileList = await client.getUploadedFiles(params);
   const files = fileList.getItems();
@@ -90,8 +86,6 @@ interface CreateFeedState {
 }
 
 class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
-
-  client: Client = new Client(process.env.REACT_APP_CHRIS_UI_URL, { token: this.props.authToken });
 
   constructor(props: CreateFeedProps) {
     super(props);
@@ -267,12 +261,12 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     if ('blob' in file) {
       return (file as LocalFile).blob;
     }
-    const uploadedFile = await this.client.getUploadedFile((file as ChrisFile).id || 0);
+    const uploadedFile = await ChrisAPIClient.getClient().getUploadedFile((file as ChrisFile).id || 0);
     return uploadedFile.getFileBlob();
   }
 
   async uploadFilesToTempDir(files: DataFile[], tempDirName: string): Promise<UploadedFile[]> {
-    const uploadedFiles = await this.client.getUploadedFiles();
+    const uploadedFiles = await ChrisAPIClient.getClient().getUploadedFiles();
 
     const pendingUploads = files.map(async file => {
       const blob = await this.getDataFileBlob(file);
@@ -299,7 +293,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
 
   async removeTempFiles(tempDirName: string) {
     const files = [...this.getAllSelectedChrisFiles(), ...this.state.data.localFiles];
-    const uploadedFiles = await fetchAllChrisFiles(this.client);
+    const uploadedFiles = await fetchAllChrisFiles();
     
     for (const uploadedFile of uploadedFiles) {
       const path = uploadedFile.data.upload_path;
@@ -313,10 +307,11 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   // DIRCOPY PLUGIN
 
   async getDircopyPlugin(): Promise<Plugin | null> {
+    const client = ChrisAPIClient.getClient();
     let dircopyPlugin;
     let page = 0;
     do {
-      const pluginsPage = (await this.client.getPlugins({ limit: 25, offset: page * 25 }));
+      const pluginsPage = await client.getPlugins({ limit: 25, offset: page * 25 });
       const plugins = pluginsPage.getItems();
       if (!plugins) {
         return null;
@@ -425,7 +420,6 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     const enableSave = (data.chrisFiles.length > 0 || data.localFiles.length > 0) && !saving;
 
     const basicInformation = <BasicInformation
-      client={ this.client }
       feedName={ data.feedName }
       feedDescription={ data.feedDescription }
       tags={ data.tags }
@@ -435,7 +429,6 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     />;
 
     const chrisFileSelect = <ChrisFileSelect
-      client={ this.client }
       files={ data.chrisFiles }
       handleFileAdd={ this.handleChrisFileAdd }
       handleFileRemove={ this.handleChrisFileRemove }

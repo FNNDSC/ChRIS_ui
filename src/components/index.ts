@@ -8,7 +8,7 @@ export  { default as FeedTree} from "./feed/FeedTree";
 export  { default as FeedDetails} from "./feed/FeedDetails";
 
 // Pipeline
-export  { default as NodeDetails} from "./pipeline/NodeDetails";
+export  { default as NodeDetails} from "./feed/NodeDetails";
 
 // Plugin
 export  { default as PluginDetailPanel} from "./plugin/PluginDetailPanel";
