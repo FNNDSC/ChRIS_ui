@@ -1,4 +1,4 @@
-import React, { FormEvent } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { Tabs, Tab, Alert } from "@patternfly/react-core";
 import { ApplicationState } from "../../store/root/applicationState";
@@ -49,9 +49,9 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
   }
 
   // Description: Toggle currently active tab
-  handleTabClick = (event: FormEvent<HTMLInputElement>, tabIndex: number) => {
+  handleTabClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, tabIndex: React.ReactText) => {
     this.setState({
-      activeTabKey: tabIndex
+      activeTabKey: tabIndex as number
     });
   }
   // Description: Build Tabs from data

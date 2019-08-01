@@ -252,7 +252,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
 
         <Split gutter="md">
 
-          <SplitItem isMain={true}>
+          <SplitItem isFilled={true}>
             <Table 
               caption="files"
               variant={TableVariant.compact}
@@ -267,7 +267,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
 
           {
             previewingFile &&
-            <SplitItem isMain={true}>
+            <SplitItem isFilled={true}>
               <FileDetailView
                 selectedFile={ previewingFile }
                 toggleViewerMode={() => handleViewerModeToggle(previewingFile, directory)}

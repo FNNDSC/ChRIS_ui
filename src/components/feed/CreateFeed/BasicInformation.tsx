@@ -10,8 +10,8 @@ interface BasicInformationProps {
   feedName: string,
   feedDescription: string,
   tags: Tag[],
-  handleFeedNameChange: (val: string, ev: React.ChangeEvent<HTMLInputElement>) => void,
-  handleFeedDescriptionChange: (val: string, ev: React.ChangeEvent<HTMLInputElement>) => void,
+  handleFeedNameChange: (val: string) => void,
+  handleFeedDescriptionChange: (val: string) => void,
   handleTagsChange: (tags: Tag[]) => void,
 }
 
