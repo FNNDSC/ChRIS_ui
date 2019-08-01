@@ -293,7 +293,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
         <p>Please choose the data files you'd like to add to your feed.</p>
         <br />
         <Split gutter="lg">
-          <SplitItem isMain>
+          <SplitItem isFilled>
             <DataTableToolbar
               label="filename"
               onSearch={this.handleFilterChange}
@@ -308,7 +308,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
                 <LoadingComponent />
             }
           </SplitItem>
-          <SplitItem isMain className="file-list-wrap">
+          <SplitItem isFilled className="file-list-wrap">
             <p className="section-header">Files to add to new feed:</p>
             <div className="file-list">
               {fileList}

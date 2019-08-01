@@ -252,13 +252,13 @@ class FeedOutputBrowser extends React.Component<FeedOutputBrowserProps, FeedOutp
         </header>
       
         <Split>
-          <SplitItem isMain={false}>
+          <SplitItem>
             <ul className="sidebar">
               { plugins.map(this.generateSidebarItem) }
             </ul>
           </SplitItem>
 
-          <SplitItem isMain>
+          <SplitItem isFilled>
             <div className="file-browser-header">
               <div>
                 <Title headingLevel="h1" size="2xl" className="plugin-name">

@@ -456,7 +456,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
           { id: 3, name: 'Local File Upload', component: localFileUpload },
         ] 
       },
-      { id: 4, name: 'Review', component: review, enableNext: enableSave},
+      { id: 4, name: 'Review', component: review, enableNext: enableSave, nextButtonText: 'Save' },
     ];
 
     return (
