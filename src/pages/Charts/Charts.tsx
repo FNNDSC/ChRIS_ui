@@ -1,4 +1,4 @@
-import React, { FormEvent } from "react";
+import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import { Tabs, Tab, PageSection } from "@patternfly/react-core";
@@ -20,7 +20,7 @@ class ChartsPage extends React.Component<AllProps> {
   };
 
   // Toggle currently active tab
-  handleTabClick = (event: FormEvent<HTMLInputElement>, tabIndex: number) => {
+  handleTabClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, tabIndex: React.ReactText) => {
     this.setState({
       activeTabKey: tabIndex
     });

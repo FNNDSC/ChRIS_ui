@@ -57,13 +57,13 @@ class LocalFileUpload extends React.Component<LocalFileUploadProps> {
         <p>Please choose the data files you'd like to add to your feed.</p>
         <br />
         <Split gutter="lg">
-          <SplitItem isMain>
+          <SplitItem isFilled>
             <p className="section-header">File Upload</p>
             <Button onClick={this.handleChoseFilesClick.bind(this)}>
               Choose Files...
               </Button>
           </SplitItem>
-          <SplitItem isMain className="file-list-wrap">
+          <SplitItem isFilled className="file-list-wrap">
             <p className="section-header">Local files to add to new feed:</p>
             <div className="file-list">
               {fileList}

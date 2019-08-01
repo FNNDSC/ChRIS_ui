@@ -1,10 +1,9 @@
 import React from "react";
 import Moment from "react-moment";
 
-import { Button, Grid, GridItem, Title } from "@patternfly/react-core";
+import { Button, Grid, GridItem, Title, PopoverPosition } from "@patternfly/react-core";
 import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import { ShareAltIcon, InfrastructureIcon, TerminalIcon, CaretDownIcon, CheckIcon, CalendarDayIcon } from "@patternfly/react-icons";
-import { PopoverPosition } from "@patternfly/react-core-updated";
 
 import { IPluginItem, statusLabels } from "../../api/models/pluginInstance.model";
 import ChrisAPIClient from "../../api/chrisapiclient";
