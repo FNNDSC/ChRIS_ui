@@ -56,11 +56,11 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
 
         <br />
         <Split>
-          <SplitItem isMain className="file-list">
+          <SplitItem isFilled className="file-list">
             <p>ChRIS files to add to new feed:</p>
             { generateFileList(chrisFiles) }
           </SplitItem>
-          <SplitItem isMain className="file-list">
+          <SplitItem isFilled className="file-list">
             <p>Local files to add to new feed:</p>
             { generateFileList(localFiles) }
           </SplitItem>

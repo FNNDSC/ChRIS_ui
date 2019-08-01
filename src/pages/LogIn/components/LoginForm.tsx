@@ -36,7 +36,7 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
   }
 
   // Description: Create a fake user to work with API, redux store
-  handleSubmit(event: Event) {
+  handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     const { getAuthToken } = this.props;
     const authObj = {
       password: this.state.passwordValue,
