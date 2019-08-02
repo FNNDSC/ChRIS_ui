@@ -393,7 +393,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
         creation_date: data.creation_date,
         modification_date: data.modification_date,
         creator_username: data.creator_username,
-        owner: [data.owner_username],
+        owner: [data.creator_username],
         url: feed.url,
         files: getLinkUrl('files'),
         comments: getLinkUrl('comments'),
