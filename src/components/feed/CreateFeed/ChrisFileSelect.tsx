@@ -6,7 +6,7 @@ import { Checkbox, Split, SplitItem } from '@patternfly/react-core';
 
 import Tree from 'react-ui-tree';
 
-import LoadingComponent from '../../common/loading/Loading';
+import LoadingSpinner from '../../common/loading/LoadingSpinner';
 import { ChrisFile, fetchAllChrisFiles } from './CreateFeed';
 import { DataTableToolbar } from '../..';
 
@@ -305,7 +305,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
                   renderNode={this.renderTreeNode}
                   paddingLeft={20}
                 /> :
-                <LoadingComponent />
+                <LoadingSpinner />
             }
           </SplitItem>
           <SplitItem isFilled className="file-list-wrap">
