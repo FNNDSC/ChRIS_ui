@@ -86,6 +86,18 @@ declare module "@fnndsc/chrisapi" {
      */
     getFeeds: (params?: IParams, timeout?: number) => Promise<FeedList>;
 
+
+    /**
+     * Fetch a list of currently authenticated user's feed from the REST API.
+     *
+     * @param {number} [params=null] - page parameters
+     * 
+     * @param {number} [timeout=30000] - request timeout
+     * @return {Object} - JS Promise, resolves to a ``Feed`` object
+     */
+    getFeed: (id: number, timeout?: number) => Promise<Feed>;
+    
+
     /**
      * Create a new user account.
      *

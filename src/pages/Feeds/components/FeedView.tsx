@@ -2,10 +2,18 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { RouteComponentProps, Link } from "react-router-dom";
-import { PageSection, PageSectionVariants, Grid, GridItem } from "@patternfly/react-core";
+import {
+  PageSection,
+  PageSectionVariants,
+  Grid,
+  GridItem
+} from "@patternfly/react-core";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import { getFeedDetailsRequest, destroyFeed } from "../../../store/feed/actions";
+import {
+  getFeedDetailsRequest,
+  destroyFeed
+} from "../../../store/feed/actions";
 import { getPluginDetailsRequest } from "../../../store/plugin/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { IUserState } from "../../../store/user/types";
@@ -65,14 +73,22 @@ class FeedView extends React.Component<AllProps> {
         {/* Mid section with Feed and node actions */}
         <PageSection
           className={pf4UtilityStyles.spacingStyles.p_0}
-          variant={PageSectionVariants.light} >
+          variant={PageSectionVariants.light}
+        >
           <Grid className="feed-view">
             <GridItem className="feed-block pf-u-p-md" sm={12} md={6}>
               <h1>Feed Graph</h1>
               {!!items ? (
-                <FeedTree items={items} selected={selected} onNodeClick={this.onNodeClick} />
+                <FeedTree
+                  items={items}
+                  selected={selected}
+                  onNodeClick={this.onNodeClick}
+                />
               ) : (
-                <div>This Feed does not exist: <Link to="/feeds">Go to All Feeds</Link></div>
+                <div>
+                  This Feed does not exist:{" "}
+                  <Link to="/feeds">Go to All Feeds</Link>
+                </div>
               )}
             </GridItem>
             <GridItem className="node-block pf-u-p-md" sm={12} md={6}>
@@ -90,8 +106,8 @@ class FeedView extends React.Component<AllProps> {
         <PageSection>
           <div className="plugin-info pf-u-py-md">
             <FeedOutputBrowser
-              token={token || ''}
-              selected={selected} 
+              token={token || ""}
+              selected={selected}
               plugins={items}
               handlePluginSelect={this.onNodeClick}
             />
@@ -116,8 +132,10 @@ class FeedView extends React.Component<AllProps> {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedDetailsRequest: (id: string) => dispatch(getFeedDetailsRequest(id)),
-  setSidebarActive: (active: { activeItem: string; activeGroup: string }) => dispatch(setSidebarActive(active)),
-  getPluginDetailsRequest: (item: IPluginItem) => dispatch(getPluginDetailsRequest(item)),
+  setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
+    dispatch(setSidebarActive(active)),
+  getPluginDetailsRequest: (item: IPluginItem) =>
+    dispatch(getPluginDetailsRequest(item)),
   destroyFeed: () => dispatch(destroyFeed())
 });
 
