@@ -135,7 +135,7 @@ class FeedDetails extends React.Component<AllProps, IFeedDescriptionState> {
 								<li>
 									<small>Feed Description</small>
 									<p>
-										<FontAwesomeIcon icon={['far', 'file-alt']} />
+										<FontAwesomeIcon icon={['far', 'calendar-alt']} />
 										{!feedDescription ? (
 											<em> None Provided </em>
 										) : (
