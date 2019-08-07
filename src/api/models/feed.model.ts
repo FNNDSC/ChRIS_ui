@@ -3,7 +3,7 @@ import { ITemplate, chrisId } from "./base.model";
 // These will come from ClienAPI ts definition when completed
 // ------------------------------------------
 export interface IFeedItem extends IFeedLinks {
-  id: chrisId;
+  id?: chrisId;
   creation_date: string;
   modification_date: string;
   name: string;

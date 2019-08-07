@@ -4,10 +4,62 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import imgPlaceholder from '../../assets/images/feed_ph_70x70.png';
 import { IFeedState } from '../../store/feed/types';
 import { Title } from '@patternfly/react-core';
+import ChrisAPIClient from '../../api/chrisapiclient';
 
+/* Import Note for the Feed Description */
+import { Note } from '@fnndsc/chrisapi';
+/*****       *****/
+
+interface INoteState {
+	feedDescription?: Note;
+}
 type AllProps = IFeedState;
 
-class FeedDetails extends React.Component<AllProps> {
+class FeedDetails extends React.Component<AllProps, INoteState> {
+	constructor(props: AllProps) {
+		super(props);
+		this.state = {};
+	}
+
+	/* Code to display Feed Description */
+
+	async componentDidMount() {
+		const { details } = this.props;
+		if (details) {
+			// tslint:disable-next-line: indent
+			const id = details.id as number;
+			console.log('Component did mount', id);
+			this.fetchNote(id);
+		}
+	}
+
+	componentDidUpdate(prevProps: AllProps) {
+		const { details } = this.props;
+		if (!details) {
+			return;
+		}
+		const id = details.id as number;
+		console.log('Component did mount', id);
+
+		if (!prevProps.details || prevProps.details.id !== details.id) {
+			this.fetchNote(id);
+		}
+	}
+
+	async fetchNote(feed_id: number) {
+		const client = ChrisAPIClient.getClient();
+		const feed = await client.getFeed(feed_id);
+		const note = await feed.getNote();
+		const { data } = note;
+		console.log('Fetch Note', note.data);
+
+		this.setState({
+			feedDescription: data.content
+		});
+	}
+
+	/*******        ****** */
+
 	calculateTotalRuntime() {
 		const plugins = this.props.items;
 		if (!plugins) {
@@ -39,8 +91,10 @@ class FeedDetails extends React.Component<AllProps> {
 
 	render() {
 		const { details } = this.props;
+		const { feedDescription } = this.state;
+		console.log('Feed Description', feedDescription);
+
 		const runtime = this.calculateTotalRuntime();
-		console.log('Displaying details', details.note);
 
 		return (
 			!!details && (
@@ -83,11 +137,12 @@ class FeedDetails extends React.Component<AllProps> {
 										{runtime}
 									</p>
 								</li>
+
 								<li>
-									<small>Description</small>
+									<small>Feed Description</small>
 									<p>
 										<FontAwesomeIcon icon={['far', 'calendar-alt']} />
-										{runtime}
+										{feedDescription}
 									</p>
 								</li>
 							</ul>
