@@ -84,7 +84,17 @@ declare module "@fnndsc/chrisapi" {
      * @param {number} [timeout=30000] - request timeout
      * @return {Object} - JS Promise, resolves to a ``FeedList`` object
      */
-    getFeeds: (params?: IParams, timeout?: number) => Promise<FeedList>;
+    getFeeds: (params?: IFeedsSearchParams, timeout?: number) => Promise<FeedList>;
+
+    /**
+     * Get a feed resource object given its id.
+     *
+     * @param {number} id - feed id
+     * @param {number} [timeout=30000] - request timeout
+     *
+     * @return {Object} - JS Promise, resolves to a ``Feed`` object
+     */
+    getFeed: (id: number, timeout?: number) => Promise<Feed>;
 
     /**
      * Create a new user account.
@@ -379,14 +389,18 @@ declare module "@fnndsc/chrisapi" {
      * @return {Object} - JS Promise, resolves to a ``FeedFileList`` object
      */
     getFiles: (params: IParams, timeout?: number) => Promise<FeedFileList>;
-
+    
     /**
-     * Fetch the plugin instance that created this feed from the REST API.
+     * Fetch a list of plugin instances associated to this feed from the REST API.
      *
+     * @param {Object} [params=null] - page parameters object
+     * @param {number} [params.limit] - page limit
+     * @param {number} [params.offset] - page offset
      * @param {number} [timeout=30000] - request timeout
-     * @return {Object} - JS Promise, resolves to a ``PluginInstance`` object
+     *
+     * @return {Object} - JS Promise, resolves to a ``FeedPluginInstanceList`` object
      */
-    getPluginInstance: (timeout?: number) => Promise<PluginInstance>;
+    getPluginInstances: (params?: IParams, timeout?: number) => Promise<FeedPluginInstanceList>
 
     /**
      * Tag the feed given the id of the tag.
@@ -692,6 +706,27 @@ declare module "@fnndsc/chrisapi" {
      * @return {Object} - JS Promise, resolves to a ``FeedList`` object
      */
     getFeeds: (params: IParams, timeout?: number) => Promise<FeedList>
+  }
+
+  export class FeedPluginInstanceList extends ListResource {
+    /**
+     * Constructor
+     *
+     * @param {string} url - url of the resource
+     * @param {Object} auth - authentication object
+     * @param {string} auth.token - authentication token
+     */
+    constructor(url: string, auth: IAuth);
+  
+    /**
+     * Fetch the feed associated to this feed-specific list of plugin instances from
+     * the REST API.
+     *
+     * @param {number} [timeout=30000] - request timeout
+     *
+     * @return {Object} - JS Promise, resolves to a ``Feed`` object
+     */
+    getFeed: (timeout?: number) => Promise<Feed>;
   }
 
   /**
@@ -1198,6 +1233,12 @@ declare module "@fnndsc/chrisapi" {
     get hasPreviousPage(): boolean;
 
     /**
+     * Get the total count of items of the entire collection across pages in the paginated REST API.
+     * Return -1 if no data has been fetched or the total number of items info is not available from the fetched data.
+     */
+    get totalCount(): number;
+
+    /**
      * Get an array of item resource objects corresponding to the items in this
      * list resource object.
      *
@@ -1673,6 +1714,14 @@ declare module "@fnndsc/chrisapi" {
   
   // Search Parameter Interfaces
   export interface IParams { limit?: number; offset?: number; id?: number }
+  export interface IFeedsSearchParams extends IParams {
+    id?: number,
+    min_id?: number,
+    max_id?: number,
+    name?: string,
+    min_creation_date?: number,
+    max_creation_date?: number
+  }
   export interface ITagsSearchParams extends IParams {
     name?: string,
     owner_username?: string,

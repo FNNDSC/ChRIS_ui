@@ -40,6 +40,84 @@
   }
 }
 
+.feed-header {
+
+  padding-top: 25px !important;
+  padding-bottom: 25px !important;
+
+  .pf-c-breadcrumb__heading {
+    color: var(--pf-global--primary-color--100);
+    font-weight: 500;
+  }
+
+  .bottom {
+    margin-top: 15px;
+  }
+
+  .pf-c-title {
+    display: inline-block;
+    font-weight: 500 !important;
+  }
+
+  .feed-count {
+    color: var(--pf-global--Color--200);
+    font-weight: normal;
+  }
+
+}
+
+.feed-list {
+
+  // table
+  .pf-c-table {
+    --pf-c-table-tbody-cell--PaddingTop: 15px;
+    --pf-c-table-tbody-cell--PaddingBottom: 15px;
+    margin-bottom: 20px;
+    color: black;
+    thead {
+      color: var(--pf-global--secondary-color--100);
+    }
+  }
+
+  // filter and pagination
+  .feed-list-controls {
+    display: flex;
+  }
+
+  // table columns
+  .feed-name {
+    outline: none;
+    cursor: pointer;
+    img {
+      width: 40px;
+      margin-right: 10px;
+      transform: rotate(180deg);
+    }
+  }
+
+  .last-commit{
+    display: block;
+    &::first-letter {
+      text-transform: uppercase;
+    }
+  }
+
+  td:last-child { // "view feed details" column
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .feed-list-loading .loading-content {
+    margin-bottom: 10px !important;
+  }
+}
+
+.feed-description-popover {
+  button[aria-label="Close"] {
+    outline: none;
+  }
+}
+
 .feed-view{
     min-height: 25vh; // Temp for dev
     >div{
