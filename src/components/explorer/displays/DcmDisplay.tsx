@@ -3,7 +3,7 @@ import { IFileBlob } from "../../../api/models/file-viewer.model";
 import DcmImageSeries from "../../dicomViewer/DcmImageSeries";
 import DcmImage from "../../dicomViewer/DcmImage";
 import { IGalleryItem } from "../../../api/models/gallery.model";
-import { LoadingComponent } from "../..";
+import { LoadingSpinner } from "../..";
 
 type AllProps = {
   galleryItem: IGalleryItem;

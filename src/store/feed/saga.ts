@@ -13,8 +13,10 @@ import {
 // pass it a param and do a search querie
 // ------------------------------------------------------------------------
 function* handleGetAllFeeds(action: IActionTypeParam) {
+  const { name, limit, offset } = action.payload;
   try {
-    const url =  !!action.payload ? `${process.env.REACT_APP_CHRIS_UI_URL}search/?name=${action.payload}` : `${process.env.REACT_APP_CHRIS_UI_URL}`;
+    const query = `limit=${limit}&offset=${offset}`;
+    const url =  !!action.payload.name ? `${process.env.REACT_APP_CHRIS_UI_URL}search/?name=${name}&${query}` : `${process.env.REACT_APP_CHRIS_UI_URL}?${query}`;
     const res = yield call(ChrisModel.fetchRequest, url);
     if (res.error) {
       console.error(res.error);

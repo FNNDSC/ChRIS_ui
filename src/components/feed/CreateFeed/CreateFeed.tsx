@@ -462,7 +462,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     return (
       <React.Fragment>
         <Button className="create-feed-button" variant="primary" onClick={this.toggleCreateWizard}>
-          Create Feed
+          Create New Feed
         </Button>
         {
           wizardOpen && (
