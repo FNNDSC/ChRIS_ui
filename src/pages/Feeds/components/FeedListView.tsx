@@ -18,6 +18,7 @@ import { IFeedState } from "../../../store/feed/types";
 import { DataTableToolbar, LoadingSpinner } from "../../../components/index";
 import CreateFeed from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
+import feedIcon from '../../../assets/images/bw-pipeline.svg';
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -141,7 +142,10 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           className="feed-description-popover"
           onShow={() => this.handleDescriptionPopoverShow(feed)}
         >
-          <span className="feed-name">{feed.name}</span>
+          <span className="feed-name">
+            <img src={feedIcon} />
+            {feed.name}
+          </span>
         </Popover>
       )
     }

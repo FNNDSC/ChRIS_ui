@@ -88,6 +88,11 @@
   .feed-name {
     outline: none;
     cursor: pointer;
+    img {
+      width: 40px;
+      margin-right: 10px;
+      transform: rotate(180deg);
+    }
   }
 
   .last-commit{
