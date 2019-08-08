@@ -6,9 +6,7 @@ import { IFeedState } from "../../store/feed/types";
 import { Title } from "@patternfly/react-core";
 import ChrisAPIClient from "../../api/chrisapiclient";
 
-/* Import Note for the Feed Description */
 import { Note } from "@fnndsc/chrisapi";
-/*****       *****/
 
 interface INoteState {
   feedDescription?: Note;
@@ -21,34 +19,18 @@ class FeedDetails extends React.Component<AllProps, INoteState> {
     this.state = {};
   }
 
-  /* Code to display Feed Description */
-
-  async componentDidMount() {
-    const { details } = this.props;
-    if (details) {
-      // tslint:disable-next-line: indent
-      const id = details.id as number;
-      console.log("Component did mount", id);
-      this.fetchNote(id);
-    }
-  }
-
-  componentDidUpdate(prevProps: AllProps) {
+  componentDidMount() {
     const { details } = this.props;
     if (!details) {
       return;
     }
     const id = details.id as number;
-    console.log("Component did mount", id);
-
-    if (!prevProps.details || prevProps.details.id !== details.id) {
-      this.fetchNote(id);
-    }
+    this.fetchNote(id);
   }
 
-  async fetchNote(feed_id: number) {
+  async fetchNote(feedId: number) {
     const client = ChrisAPIClient.getClient();
-    const feed = await client.getFeed(feed_id);
+    const feed = await client.getFeed(feedId);
     const note = await feed.getNote();
     const { data } = note;
     console.log("Fetch Note", note.data);
@@ -57,8 +39,6 @@ class FeedDetails extends React.Component<AllProps, INoteState> {
       feedDescription: data.content
     });
   }
-
-  /*******        ****** */
 
   calculateTotalRuntime() {
     const plugins = this.props.items;
@@ -141,8 +121,12 @@ class FeedDetails extends React.Component<AllProps, INoteState> {
                 <li>
                   <small>Feed Description</small>
                   <p>
-                    <FontAwesomeIcon icon={["far", "calendar-alt"]} />
-                    {feedDescription}
+                    <FontAwesomeIcon icon={["far", "file-alt"]} />
+                    {!feedDescription ? (
+                      <em>None Provided</em>
+                    ) : (
+                      feedDescription
+                    )}
                   </p>
                 </li>
               </ul>
