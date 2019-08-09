@@ -1,4 +1,5 @@
 import {ICollectionLinks, chrisId} from "./base.model";
+import { PluginInstance } from "@fnndsc/chrisapi";
 // import _ from "lodash";
 
 // Plugin Instances
@@ -54,4 +55,18 @@ export function getPluginInstanceTitle(plugin: IPluginItem) {
         (plugin.plugin_name === "freesurfer_pp") ? ("Freesurfer") :
     (!!plugin.title &&  plugin.title.length) ? plugin.title : plugin.plugin_name;
     return title;
+}
+
+// Description: Similar to above  above, but works with new types and appends version.
+export function getPluginInstanceDisplayName(plugin: PluginInstance) {
+    const { plugin_name, plugin_version, title } = plugin.data;
+    let finalTitle;
+    if (plugin_name === 'dircopy') {
+        finalTitle = 'PACS Pull';
+    } else if (plugin_name === 'freesurfer_pp') {
+        finalTitle = 'Freesurfer';
+    } else {
+        finalTitle = title && title.length ? title : plugin_name;
+    }
+    return `${finalTitle} v. ${plugin_version}`;
 }

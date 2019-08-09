@@ -11,6 +11,7 @@ import TreeNodeModel from "../../api/models/tree-node.model";
 import { getPluginInstanceTitle } from "../../api/models/pluginInstance.model";
 
 import TextCopyPopover from "../common/textcopypopover/TextCopyPopover";
+import AddNode from "./AddNode/AddNode";
 
 interface INodeProps {
   selected: IPluginItem;
@@ -153,14 +154,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
         <br /><br />
         <label>Actions:</label>
         <div className="btn-div">
-          <Button
-            variant="tertiary"
-            isBlock
-            onClick={this.handleAddNewNode}
-          >
-            <InfrastructureIcon />
-            Add new node(s)...
-          </Button>
+          <AddNode />
           {
             this.isNodePipelineRoot(selected) && (
               <Button variant="tertiary" isBlock onClick={this.handleSharePipeline}>

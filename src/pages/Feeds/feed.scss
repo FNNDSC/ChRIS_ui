@@ -130,6 +130,7 @@
     
     // Right side panel to display node information
     .node-block{
+        position: relative;
         background: $node-block-background;
         border-left: 3px solid $node-block-border;
         font-size: $plugin-data-font-size;
