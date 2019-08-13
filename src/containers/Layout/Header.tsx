@@ -21,19 +21,15 @@ class Header extends React.Component<IHeaderProps> {
     const avatar = !!user.token && <Avatar src={avatarImg} alt="Avatar image" />;
     const brand = <Brand src={brandImg} alt="ChRIS Logo" />;
 
-    // NOTE: this is a way to get around a "Warning: Invalid attribute name: ``" bug in PageHeader ***** Working: will be revised *****
-    // Issue #1336 - https://github.com/patternfly/patternfly-react/issues/1336
-    // The PageHeaderProps defaultProps comes in with and extra empty attribute. See line: 75 PageHeader.js in @patternfly/react-core
-    PageHeader.defaultProps = {
-      "className": "header",
-      "aria-label": "Page Header",
-      "avatar": avatar,
-      "logo": brand,
-      "toolbar": pageToolbar,
-      "showNavToggle": true,
-      "onNavToggle": onSidebarToggle
-    };
-    return <PageHeader />;
+    return <PageHeader 
+      className="header"
+      aria-label="Page Header"
+      avatar={avatar}
+      logo={brand}
+      toolbar={pageToolbar}
+      showNavToggle
+      onNavToggle={onSidebarToggle}
+    />;
   }
 }
 

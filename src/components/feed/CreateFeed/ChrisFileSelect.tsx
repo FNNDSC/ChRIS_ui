@@ -6,7 +6,7 @@ import { Checkbox, Split, SplitItem } from '@patternfly/react-core';
 
 import Tree from 'react-ui-tree';
 
-import LoadingComponent from '../../common/loading/Loading';
+import LoadingSpinner from '../../common/loading/LoadingSpinner';
 import { ChrisFile, fetchAllChrisFiles } from './CreateFeed';
 import { DataTableToolbar } from '../..';
 
@@ -293,7 +293,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
         <p>Please choose the data files you'd like to add to your feed.</p>
         <br />
         <Split gutter="lg">
-          <SplitItem isMain>
+          <SplitItem isFilled>
             <DataTableToolbar
               label="filename"
               onSearch={this.handleFilterChange}
@@ -305,10 +305,10 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
                   renderNode={this.renderTreeNode}
                   paddingLeft={20}
                 /> :
-                <LoadingComponent />
+                <LoadingSpinner />
             }
           </SplitItem>
-          <SplitItem isMain className="file-list-wrap">
+          <SplitItem isFilled className="file-list-wrap">
             <p className="section-header">Files to add to new feed:</p>
             <div className="file-list">
               {fileList}

@@ -84,7 +84,17 @@ declare module "@fnndsc/chrisapi" {
      * @param {number} [timeout=30000] - request timeout
      * @return {Object} - JS Promise, resolves to a ``FeedList`` object
      */
-    getFeeds: (params?: IParams, timeout?: number) => Promise<FeedList>;
+    getFeeds: (params?: IFeedsSearchParams, timeout?: number) => Promise<FeedList>;
+
+    /**
+     * Get a feed resource object given its id.
+     *
+     * @param {number} id - feed id
+     * @param {number} [timeout=30000] - request timeout
+     *
+     * @return {Object} - JS Promise, resolves to a ``Feed`` object
+     */
+    getFeed: (id: number, timeout?: number) => Promise<Feed>;
 
 
     /**
@@ -249,6 +259,13 @@ declare module "@fnndsc/chrisapi" {
      */
     constructor(url: string, auth: IAuth): string
 
+    data: {
+      id: number;
+      title: string;
+      owner: string;
+      content: string;
+    }
+
     /**
      * Fetch the feed associated to the comment item from the REST API.
      *
@@ -336,6 +353,14 @@ declare module "@fnndsc/chrisapi" {
      */
     constructor(url: string, auth: IAuth): string
 
+    data: {
+      id: number;
+      name: string;
+      creation_date: string;
+      modification_date: string;
+      creator_username: string;
+    }
+
     /**
      * Fetch the note associated to this feed from the REST API.
      *
@@ -376,14 +401,18 @@ declare module "@fnndsc/chrisapi" {
      * @return {Object} - JS Promise, resolves to a ``FeedFileList`` object
      */
     getFiles: (params: IParams, timeout?: number) => Promise<FeedFileList>;
-
+    
     /**
-     * Fetch the plugin instance that created this feed from the REST API.
+     * Fetch a list of plugin instances associated to this feed from the REST API.
      *
+     * @param {Object} [params=null] - page parameters object
+     * @param {number} [params.limit] - page limit
+     * @param {number} [params.offset] - page offset
      * @param {number} [timeout=30000] - request timeout
-     * @return {Object} - JS Promise, resolves to a ``PluginInstance`` object
+     *
+     * @return {Object} - JS Promise, resolves to a ``FeedPluginInstanceList`` object
      */
-    getPluginInstance: (timeout?: number) => Promise<PluginInstance>;
+    getPluginInstances: (params?: IParams, timeout?: number) => Promise<FeedPluginInstanceList>
 
     /**
      * Tag the feed given the id of the tag.
@@ -483,6 +512,13 @@ declare module "@fnndsc/chrisapi" {
      */
     constructor(url: string, auth: IAuth): string
 
+    data: {
+      id: number;
+      fname: string;
+      feed_id: string;
+      plugin_inst_id: string;
+    }
+
     /**
      * Fetch the file blob associated to this file item from the REST API.
      *
@@ -577,6 +613,12 @@ declare module "@fnndsc/chrisapi" {
      */
     constructor(url: string, auth: IAuth): string
 
+    data: {
+      id: number;
+      title: string;
+      content: string;
+    }
+
     /**
      * Make a PUT request to modify this note item resource through the REST API.
      *
@@ -601,6 +643,34 @@ declare module "@fnndsc/chrisapi" {
      * @param {string} auth.token - authentication token
      */
     constructor(url: string, auth: IAuth): string
+
+    data: {
+      id: number;
+      name: string;
+      dock_image: string;
+      creation_date: string;
+      modification_date: string;
+      type: 'fs' | 'ds';
+      authors: string;
+      title: string;
+      category: string;
+      description: string;
+      documentation: string;
+      license: string;
+      version: string;
+      execshell: string;
+      selfpath: string;
+      selfexec: string;
+      compute_resource_identifier: string;
+      min_number_of_workers: number;
+      max_number_of_workers: number;
+      min_cpu_limit: number;
+      max_cpu_limit: number;
+      min_memory_limit: number;
+      max_memory_limit: number;
+      min_gpu_limit: number;
+      max_gpu_limit: number;
+    }
 
     /**
      * Fetch a list of plugin parameters associated to this plugin from the REST API.
@@ -650,6 +720,27 @@ declare module "@fnndsc/chrisapi" {
     getFeeds: (params: IParams, timeout?: number) => Promise<FeedList>
   }
 
+  export class FeedPluginInstanceList extends ListResource {
+    /**
+     * Constructor
+     *
+     * @param {string} url - url of the resource
+     * @param {Object} auth - authentication object
+     * @param {string} auth.token - authentication token
+     */
+    constructor(url: string, auth: IAuth);
+  
+    /**
+     * Fetch the feed associated to this feed-specific list of plugin instances from
+     * the REST API.
+     *
+     * @param {number} [timeout=30000] - request timeout
+     *
+     * @return {Object} - JS Promise, resolves to a ``Feed`` object
+     */
+    getFeed: (timeout?: number) => Promise<Feed>;
+  }
+
   /**
    * Plugin instance item resource object representing a plugin instance.
    */
@@ -662,6 +753,26 @@ declare module "@fnndsc/chrisapi" {
      * @param {string} auth.token - authentication token
      */
     constructor(url: string, auth: IAuth);
+
+    data: {
+      id: number;
+      title: string;
+      previous_id?: number;
+      plugin_id: number;
+      plugin_name: string;
+      plugin_version: string;
+      pipeline_inst: null;
+      feed_id: number;
+      start_date: string;
+      end_date: string;
+      status: string;
+      owner_username: string;
+      compute_resource_identifier: string;
+      cpu_limit: number;
+      memory_limit: number;
+      number_of_workers: number;
+      gpu_limit: number;
+    }
 
     /**
      * Fetch the feed created by this plugin instance from the REST API
@@ -789,6 +900,13 @@ declare module "@fnndsc/chrisapi" {
      */
     constructor(url: string, auth: IAuth);
 
+    data: {
+      id: number;
+      param_name: string;
+      value: string;
+      type: string;
+    }
+
     /**
      * Fetch the plugin instance associated to this parameter item from the REST API.
      *
@@ -834,6 +952,18 @@ declare module "@fnndsc/chrisapi" {
      * @param {string} auth.token - authentication token
      */
     constructor(url: string, auth: IAuth);
+
+    data: {
+      id: number;
+      name: string;
+      type: string;
+      optional: boolean;
+      default: string;
+      flag: string;
+      action: string;
+      help: string;
+      ui_exposed: boolean;
+    }
 
     /**
      * Fetch the plugin associated to this parameter item from the REST API.
@@ -1115,6 +1245,12 @@ declare module "@fnndsc/chrisapi" {
     get hasPreviousPage(): boolean;
 
     /**
+     * Get the total count of items of the entire collection across pages in the paginated REST API.
+     * Return -1 if no data has been fetched or the total number of items info is not available from the fetched data.
+     */
+    get totalCount(): number;
+
+    /**
      * Get an array of item resource objects corresponding to the items in this
      * list resource object.
      *
@@ -1279,6 +1415,13 @@ declare module "@fnndsc/chrisapi" {
     */
     constructor(url: string, auth: IAuth);
 
+    data: {
+      id: number;
+      name: string;
+      owner_username: string;
+      color: string;
+    }
+
     /**
      * Fetch a list of feeds that are tagged with this tag from the REST API.
      *
@@ -1395,6 +1538,14 @@ declare module "@fnndsc/chrisapi" {
      * @param {string} auth.token - authentication token
      */
     constructor(url: string, auth: IAuth);
+
+    data: {
+      id: string;
+      owner_username: string;
+      tag_id: number;
+      feed_id: number;
+    }
+
     /**
      * Fetch the tag associated to this tagging from the REST API.
      *
@@ -1459,7 +1610,7 @@ declare module "@fnndsc/chrisapi" {
    * Uploaded file item resource object representing a user's uploaded file.
    */
   export class UploadedFile extends ItemResource {
-    item: { data: Array<{ name: string, value: string }> };
+    
     /**
      * Constructor
      *
@@ -1468,6 +1619,12 @@ declare module "@fnndsc/chrisapi" {
      * @param {string} auth.token - authentication token
      */
     constructor(url: string, auth: IAuth);
+
+    data: {
+      id: number;
+      upload_path: string;  
+    }
+
     /**
      * Fetch the file blob associated to this file item from the REST API.
      *
@@ -1535,6 +1692,13 @@ declare module "@fnndsc/chrisapi" {
      * @param {string} auth.token - authentication token
      */
     constructor(url: string, auth: IAuth);
+
+    data: {
+      username: string;
+      password: string;
+      email: string;
+    }
+
     /**
      * Make a PUT request to modify this user item resource through the REST API.
      *
@@ -1562,6 +1726,14 @@ declare module "@fnndsc/chrisapi" {
   
   // Search Parameter Interfaces
   export interface IParams { limit?: number; offset?: number; id?: number }
+  export interface IFeedsSearchParams extends IParams {
+    id?: number,
+    min_id?: number,
+    max_id?: number,
+    name?: string,
+    min_creation_date?: number,
+    max_creation_date?: number
+  }
   export interface ITagsSearchParams extends IParams {
     name?: string,
     owner_username?: string,

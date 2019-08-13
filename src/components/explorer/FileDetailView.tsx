@@ -5,7 +5,7 @@ import { getFileExtension, IUITreeNode } from "../../api/models/file-explorer.mo
 import { IFileBlob } from "../../api/models/file-viewer.model";
 import ChrisModel from "../../api/models/base.model";
 import FileViewerModel, { fileViewerMap } from "../../api/models/file-viewer.model";
-import { LoadingComponent } from "..";
+import { LoadingSpinner } from "..";
 import ViewerDisplay from "./displays/ViewerDisplay";
 import _ from "lodash";
 import "./file-detail.scss";
@@ -37,7 +37,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const fileTypeViewer = () => {
       if (!_.isEqual(selectedFile.file, this.state.file)) {
         this.fetchData();
-        return <LoadingComponent color="#ddd" />;
+        return <LoadingSpinner color="#ddd" />;
       } else {
         const viewerName = fileViewerMap[this.state.fileType];
         return (
