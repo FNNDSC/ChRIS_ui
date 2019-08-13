@@ -33,7 +33,7 @@ class FeedDetails extends React.Component<AllProps, INoteState> {
     const feed = await client.getFeed(feedId);
     const note = await feed.getNote();
     const { data } = note;
-    console.log("Fetch Note", note.data);
+    
 
     this.setState({
       feedDescription: data.content
@@ -72,7 +72,7 @@ class FeedDetails extends React.Component<AllProps, INoteState> {
   render() {
     const { details } = this.props;
     const { feedDescription } = this.state;
-    console.log("Feed Description", feedDescription);
+    
 
     const runtime = this.calculateTotalRuntime();
 
