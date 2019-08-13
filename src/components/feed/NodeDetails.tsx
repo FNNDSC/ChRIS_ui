@@ -1,10 +1,9 @@
 import React from "react";
 import Moment from "react-moment";
 
-import { Button, Grid, GridItem, Title } from "@patternfly/react-core";
-import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
+import { Button, Grid, GridItem, Title, PopoverPosition } from "@patternfly/react-core";
+import { Plugin, PluginInstanceParameter } from "@fnndsc/chrisapi";
 import { ShareAltIcon, InfrastructureIcon, TerminalIcon, CaretDownIcon, CheckIcon, CalendarDayIcon } from "@patternfly/react-icons";
-import { PopoverPosition } from "@patternfly/react-core-updated";
 
 import { IPluginItem, statusLabels } from "../../api/models/pluginInstance.model";
 import ChrisAPIClient from "../../api/chrisapiclient";
@@ -20,7 +19,7 @@ interface INodeProps {
 
 interface INodeState {
   plugin?: Plugin; // the plugin which the currently selected instance is an instance of
-  params?: PluginParameter[];
+  params?: PluginInstanceParameter[];
 }
 
 class NodeDetails extends React.Component<INodeProps, INodeState> {
@@ -71,7 +70,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     return (!TreeNodeModel.isRootNode(item) && !TreeNodeModel.isLeafNode(item, descendants));
   }
 
-  getCommand(plugin: Plugin, params: PluginParameter[]) {
+  getCommand(plugin: Plugin, params: PluginInstanceParameter[]) {
     const { dock_image, selfexec } = plugin.data;
     let command = `
     docker run -v $(pwd)/in:/incoming -v 

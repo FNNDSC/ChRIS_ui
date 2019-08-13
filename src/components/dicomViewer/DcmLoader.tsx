@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LoadingComponent } from "..";
+import { LoadingSpinner } from "..";
 
 interface ILoadingProps {
     totalParsed: number;
@@ -8,7 +8,7 @@ interface ILoadingProps {
 
 const DcmLoader: React.FunctionComponent<any> = (props: ILoadingProps) => {
     return (<div className="loader">
-        <LoadingComponent color="#fff" isLocal />
+        <LoadingSpinner color="#fff" isLocal />
         {`${props.totalParsed} of ${props.totalFiles} loaded`}
     </div>
     )

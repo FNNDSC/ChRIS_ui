@@ -393,7 +393,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
         creation_date: data.creation_date,
         modification_date: data.modification_date,
         creator_username: data.creator_username,
-        owner: [data.owner_username],
+        owner: [data.creator_username],
         url: feed.url,
         files: getLinkUrl('files'),
         comments: getLinkUrl('comments'),
@@ -456,13 +456,13 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
           { id: 3, name: 'Local File Upload', component: localFileUpload },
         ] 
       },
-      { id: 4, name: 'Review', component: review, enableNext: enableSave},
+      { id: 4, name: 'Review', component: review, enableNext: enableSave, nextButtonText: 'Save' },
     ];
 
     return (
       <React.Fragment>
         <Button className="create-feed-button" variant="primary" onClick={this.toggleCreateWizard}>
-          Create Feed
+          Create New Feed
         </Button>
         {
           wizardOpen && (

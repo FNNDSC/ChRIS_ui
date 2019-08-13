@@ -9,7 +9,7 @@ import { IGalleryState } from "../../store/gallery/types";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
 import FileViewerModel, { fileViewerMap } from "../../api/models/file-viewer.model";
 import GalleryModel, { IGalleryItem, galleryActions } from "../../api/models/gallery.model";
-import { LoadingComponent } from "..";
+import { LoadingSpinner } from "..";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import ViewerDisplay from "./displays/ViewerDisplay";
 import GalleryInfoPanel from "../gallery/GalleryInfoPanel/GalleryInfoPanel";
@@ -82,7 +82,7 @@ class GalleryView extends React.Component<AllProps, {viewInfoPanel: boolean}> {
               variant="danger"
               title="There was an error loading this file"
               className="empty" /> :
-              <LoadingComponent color="#fff" />
+              <LoadingSpinner color="#fff" />
         }
       </GalleryWrapper>
     )
