@@ -96,18 +96,6 @@ declare module "@fnndsc/chrisapi" {
      */
     getFeed: (id: number, timeout?: number) => Promise<Feed>;
 
-
-    /**
-     * Fetch a list of currently authenticated user's feed from the REST API.
-     *
-     * @param {number} [params=null] - page parameters
-     * 
-     * @param {number} [timeout=30000] - request timeout
-     * @return {Object} - JS Promise, resolves to a ``Feed`` object
-     */
-    getFeed: (id: number, timeout?: number) => Promise<Feed>;
-    
-
     /**
      * Create a new user account.
      *
@@ -204,7 +192,7 @@ declare module "@fnndsc/chrisapi" {
      *
      * @return {Object} - JS Promise, resolves to a ``PluginList`` object
      */
-    getPlugins: (searchParams?: IPluginsSearchParams, timeout?: number) => Promise<PluginsList>;
+    getPlugins: (searchParams?: IPluginsSearchParams, timeout?: number) => Promise<PluginList>;
     
     /**
      * Get a plugin resource object given its id.
@@ -215,6 +203,29 @@ declare module "@fnndsc/chrisapi" {
      * @return {Object} - JS Promise, resolves to a ``Plugin`` object
      */
     getPlugin: (id: number, timeout?: number) => Promise<Plugin>;
+
+    /**
+     * Get a paginated list of plugin instances from the REST API given query search
+     * parameters. If no search parameters then get the default first page.
+     *
+     * @param {Object} [searchParams=null] - search parameters object
+     * @param {number} [searchParams.limit] - page limit
+     * @param {number} [searchParams.offset] - page offset
+     * @param {number} [searchParams.id] - match plugin instance id exactly with this number
+     * @param {string} [searchParams.title] - match plugin instance title containing this string
+     * @param {string} [searchParams.status] - match plugin instance execution status exactly with this string
+     * @param {string} [searchParams.owner_username] - match plugin instances's owner username exactly with this string
+     * @param {number} [searchParams.feed_id] - match associated feed's id exactly with this number
+     * @param {number} [searchParams.root_id] - match root plugin instance's id exactly with this number
+     * @param {number} [searchParams.plugin_id] - match associated plugin's id exactly with this number
+     * @param {number} [searchParams.plugin_name] - match associated plugin's name containing this string
+     * @param {number} [searchParams.plugin_name_exact] - match associated plugin's name exact with this string
+     * @param {number} [searchParams.plugin_version] - match associated plugin's verion exactly with this string
+     * @param {number} [timeout=30000] - request timeout
+     *
+     * @return {Object} - JS Promise, resolves to ``AllPluginInstanceList`` object
+     */
+    getPluginInstances: (searchParams?: IPluginInstancesSearchParams, timeout?: number) => Promise<AllPluginInstanceList>;
 
     /**
      * Get a plugin instance resource object given its id.
@@ -681,7 +692,7 @@ declare module "@fnndsc/chrisapi" {
      * @param {number} [timeout=30000] - request timeout
      * @return {Object} - JS Promise, resolves to a ``PluginParameterList`` object
      */
-    getPluginParameters: (params: IParams, timeout?: number) => Promise<PluginParameterList>;
+    getPluginParameters: (params?: IParams, timeout?: number) => Promise<PluginParameterList>;
 
     /**
      * Fetch a list of plugin instances associated to this plugin from the REST API.
@@ -869,6 +880,37 @@ declare module "@fnndsc/chrisapi" {
      * @return {Object} - JS Promise, resolves to ``this`` object
      */
     post: (data: object, timeout?: number) => Promise<PluginInstanceList>;
+  }
+
+  /**
+   * Plugin instance list resource object representing a list of all plugin
+   * instances.
+   */
+  export class AllPluginInstanceList extends ListResource {
+
+    /**
+     * Constructor
+     *
+     * @param {string} url - url of the resource
+     * @param {Object} auth - authentication object
+     * @param {string} auth.token - authentication token
+     */
+    constructor(url: string, auth: IAuth);
+
+    /**
+     * Fetch a list of plugins from the REST API.
+     *
+     * @param {Object} [searchParams=null] - search parameters object which is
+     * resource-specific, the ``PluginList.getSearchParameters`` method can be
+     * used to get a list of possible search parameters
+     * @param {number} [searchParams.limit] - page limit
+     * @param {number} [searchParams.offset] - page offset
+     * @param {number} [timeout=30000] - request timeout
+     *
+     * @return {Object} - JS Promise, resolves to a ``PluginList`` object
+     */
+    getPlugins: (searchParams?: IParams, timeout?: number) => Promuise<PluginList>;
+
   }
 
   /**
