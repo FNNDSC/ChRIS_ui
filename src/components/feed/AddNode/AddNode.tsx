@@ -74,13 +74,11 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
       return;
     }
     const parent = await this.convertPluginInstance(selected);
-    console.log("parent", parent);
-    console.log("nodes is feed items", nodes);
+
     const transformedNodes = await Promise.all(
       nodes.map(this.convertPluginInstance)
     );
 
-    console.log("Transformed nodes", transformedNodes);
     this.setState(prevState => ({
       nodes: transformedNodes,
       data: {
@@ -96,11 +94,30 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
     }));
   }
 
-  handleModalClose() {
+  async handleModalClose() {
     this.setState({
       open: false,
       step: 0,
       data: {}
+    });
+
+    /* Writing the code to add a node to the backend here */
+    console.log("Add node clicked");
+    console.log("Starting creation process...");
+    const { plugin } = this.state.data;
+    const { selected } = this.props;
+
+    if (!plugin || !selected) {
+      console.log("Some stuff does not exist rip");
+      return;
+    }
+    const client = ChrisAPIClient.getClient();
+    const pluginId = plugin.data.id;
+
+    await client.createPluginInstance(pluginId, {
+      title: "TEST",
+      previous_id: selected.id as number,
+      //ageSpec:"10-06-01"
     });
   }
 
@@ -147,6 +164,7 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
         <Button variant="secondary" onClick={this.handleBackClick}>
           Back
         </Button>
+
         <Button onClick={this.handleModalClose}>
           <CodeBranchIcon />
           Add new node

@@ -1,10 +1,13 @@
-import React from "react";
+import React, { SyntheticEvent } from "react";
 import matchAll from "string.prototype.matchall";
 import { PluginParameter } from "@fnndsc/chrisapi";
+import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 
 /* NOTE: The string parsing is done "outside" of react 
    (not using state, etc.) to enable selection restoration 
   */
+
+
 
 function parseHtml(
   paramString: string,
@@ -121,6 +124,7 @@ interface ParameterEditorProps {
   initialParamString: string;
   params: PluginParameter[];
   handleErrorChange: (error: string[]) => void;
+  handleParameterChange: (params: string) => void;
 }
 
 class ParameterEditor extends React.Component<ParameterEditorProps> {
@@ -133,14 +137,18 @@ class ParameterEditor extends React.Component<ParameterEditorProps> {
   handleInput(e: React.FormEvent<HTMLDivElement>) {
     const { target } = e;
     const editor = target as HTMLDivElement;
+
     const transformedHtml = editor.innerHTML
       .replace(/<[^>]*>/g, "")
       .replace(/&nbsp;/g, " ");
 
     const [html, errors] = parseHtml(transformedHtml, this.props.params);
+
     const saved = saveSelection(editor);
+
     editor.innerHTML = html.replace(/ (?![^<]*>)/g, "&nbsp"); // replace all spaces except those in tags
     restoreSelection(target, saved);
+    const finalOutput = editor.innerHTML;
 
     this.props.handleErrorChange(errors);
   }
@@ -159,4 +167,54 @@ class ParameterEditor extends React.Component<ParameterEditorProps> {
   }
 }
 
+
+
 export default ParameterEditor;
+
+
+/*
+interface ParameterEditorProps {
+  initialParamString: string;
+  params: PluginParameter[];
+  handleErrorChange: (error: string[]) => void;
+  handleParameterChange: (params: string) => void;
+}
+
+interface ParamterEditorState{
+    html:string;
+
+}
+
+class ParameterEditor extends React.Component<ParameterEditorProps, ParamterEditorState> {
+  constructor(props: ParameterEditorProps) {
+    super(props);
+    this.state = {
+      html: ""
+    };
+  }
+
+  componentDidMount(){
+      const {initialParamString}=this.props
+      this.setState({
+          html:initialParamString
+      })
+  }
+  
+
+  handleChange = (e:Syn) => {
+    this.setState({ html: e.target.value });
+  };
+
+  render() {
+    return (
+      <ContentEditable
+        html={this.state.html}
+        disabled={false}
+        onChange={this.handleChange}
+      />
+    );
+  }
+}
+
+export default ParameterEditor;
+*/
