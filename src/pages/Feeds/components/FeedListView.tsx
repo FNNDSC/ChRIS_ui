@@ -98,6 +98,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   async fetchFeedsCount() {
     const client = ChrisAPIClient.getClient();
     const feedList = await client.getFeeds({ limit: 1, offset: 0 });
+
     this.setState({ feedsCount: feedList.totalCount });
   }
 
@@ -226,6 +227,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   render() {
     const { feeds } = this.props;
     const { feedsCount } = this.state;
+    console.log("Feeds", feeds);
 
     const cells = ["Feed", "Created", "Last Commit", ""];
     const rows = (feeds || []).map(this.generateTableRow);

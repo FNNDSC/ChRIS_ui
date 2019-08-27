@@ -52,20 +52,21 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
   async componentDidUpdate(prevProps: INodeProps) {
     const { selected: prevSelected } = prevProps;
     const { selected } = this.props;
-   
     if (prevSelected.id !== selected.id) {
       this.fetchPluginData();
     }
   }
 
   async fetchPluginData() {
-    console.log("Selected plugin", this.props.selected);
     const { id, plugin_id } = this.props.selected;
+
     const client = ChrisAPIClient.getClient();
     const plugin = await client.getPlugin(plugin_id);
+
     const params = await (await client.getPluginInstance(
       id as number
     )).getParameters();
+
     this.setState({
       plugin,
       params: params.getItems()

@@ -1,10 +1,10 @@
 import React from "react";
-/*import ContentEditable, { ContentEditableEvent } from "react-contenteditable";*/
+import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 import matchAll from "string.prototype.matchall";
 
 import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import { Expandable, TextInput } from "@patternfly/react-core";
-import { ExclamationTriangleIcon } from "@patternfly/react-icons";
+import { ExclamationTriangleIcon, ThemeisleIcon } from "@patternfly/react-icons";
 import ParameterEditor from "./ParameterEditor";
 
 interface ScreenTwoProps {
@@ -49,12 +49,22 @@ class ScreenTwo extends React.Component<ScreenTwoProps, ScreenTwoState> {
     const { plugin } = this.props;
     const paramList = await plugin.getPluginParameters();
     const params = paramList.getItems();
+    console.log("Displaying params", params);
+
     const paramString = this.generateDefaultParamString(params);
     this.setState({ params, paramString });
   }
 
   handleErrorChange(errors: string[]) {
     this.setState({ errors });
+  }
+
+  /*handle Parameter Change*/
+
+  handleParameterChange() {
+    this.setState({
+      params: []
+    });
   }
 
   handleDocsToggle() {
@@ -85,6 +95,7 @@ class ScreenTwo extends React.Component<ScreenTwoProps, ScreenTwoState> {
           initialParamString={paramString}
           params={params}
           handleErrorChange={this.handleErrorChange}
+          handleParameterChange={this.handleParameterChange}
         />
 
         <div className="errors">
