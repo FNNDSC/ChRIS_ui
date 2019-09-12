@@ -12,7 +12,7 @@ import "./addnode.scss";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import AddNodeModal from "./AddNodeModal";
 import ScreenOne from "./ScreenOne";
-import ScreenTwo from "./ScreenTwo";
+import Editor from "./ParameterEditor";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
@@ -30,6 +30,7 @@ interface AddNodeState {
     parent?: PluginInstance;
     plugin?: Plugin;
   };
+  errors: string[];
 }
 
 class AddNode extends React.Component<AddNodeProps, AddNodeState> {
@@ -38,7 +39,8 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
     this.state = {
       open: false,
       step: 0,
-      data: {}
+      data: {},
+      errors: []
     };
 
     this.handleConfigureClick = this.handleConfigureClick.bind(this);
@@ -94,6 +96,16 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
     }));
   }
 
+
+
+
+
+
+
+
+
+
+
   async handleModalClose() {
     this.setState({
       open: false,
@@ -113,13 +125,39 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
     }
     const client = ChrisAPIClient.getClient();
     const pluginId = plugin.data.id;
+    const data = {
+      previous_id: null,
+      ageSpec: "10-06-01"
+    };
 
-    await client.createPluginInstance(pluginId, {
+    const response = await client.createPluginInstance(pluginId, {
       title: "TEST",
       previous_id: selected.id as number,
-      //ageSpec:"10-06-01"
+      ageSpec: "10-06-01"
     });
+
+    console.log("Checking the response out", response);
   }
+
+
+
+
+async handleCreate(){
+
+
+
+  
+}
+
+
+
+
+
+
+
+
+
+
 
   handlePluginSelect(plugin: Plugin) {
     this.setState(prevState => ({
@@ -165,31 +203,16 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
           Back
         </Button>
 
-        <Button onClick={this.handleModalClose}>
+        <Button
+          isDisabled={!this.state.errors ? true : false}
+          onClick={this.handleModalClose}
+        >
           <CodeBranchIcon />
           Add new node
         </Button>
       </>
     );
   }
-
-  handleCreate = async () => {
-    console.log("Starting creation process...");
-    const { plugin } = this.state.data;
-    const { selected } = this.props;
-
-    if (!plugin || !selected) {
-      console.log("Some stuff does not exist rip");
-      return;
-    }
-    const client = ChrisAPIClient.getClient();
-    const pluginId = plugin.data.id;
-
-    await client.createPluginInstance(pluginId, {
-      title: "TEST",
-      previous_id: selected.id as number
-    });
-  };
 
   render() {
     const { open, step, nodes, data } = this.state;
@@ -203,7 +226,7 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
 
         <AddNodeModal
           open={open}
-          handleModalClose={this.handleCreate}
+          handleModalClose={this.handleModalClose}
           footer={this.generateFooter()}
         >
           {step === 0 && data.parent && nodes ? (
@@ -215,7 +238,7 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
               handlePluginSelect={this.handlePluginSelect}
             />
           ) : (
-            data.plugin && <ScreenTwo plugin={data.plugin} />
+            data.plugin && <Editor plugin={data.plugin} />
           )}
         </AddNodeModal>
       </React.Fragment>

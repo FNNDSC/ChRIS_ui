@@ -1,220 +1,167 @@
 import React, { SyntheticEvent } from "react";
-import matchAll from "string.prototype.matchall";
-import { PluginParameter } from "@fnndsc/chrisapi";
-import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
+import matchall from "string.prototype.matchall";
+
+import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
+import { Expandable, TextInput } from "@patternfly/react-core";
+import { ExclamationTriangleIcon } from "@patternfly/react-icons";
+
+interface Data {
+  param: string;
+}
+
+const validate = (
+  paramString: string,
+  params: PluginParameter[]
+): [string[], {}] => {
+  const tokenRegex = /([^\s=]+)(?:(?:=|\s+|[^--])([^ --]+))?/g;
+  const errors = [];
+  let data = {} as Data;
+
+  const tokens = [...matchall(paramString, tokenRegex)];
+
+  for (const token of tokens) {
+    const [_, flag, value] = token;
+
+    const paramName = flag.replace(/-/g, "");
+    const validParam = params.find(param => param.data.flag.startsWith(flag));
+
+    if (!validParam) {
+      errors.push(`${paramName} is not a valid Parameter name`);
+    } else {
+      const param = validParam.data.flag;
+      data.param = value;
+    }
+    console.log("Displaying Data", data);
+  }
+  return [errors, data];
+};
 
 /* NOTE: The string parsing is done "outside" of react 
    (not using state, etc.) to enable selection restoration 
   */
 
-
-
-function parseHtml(
-  paramString: string,
-  params: PluginParameter[]
-): [string, string[]] {
-  // locates flag/value pairs
-  const tokenRegex = /([^\s=]+)(?:(?:=|\s+|[^--])([^ --]+))?/g;
-
-  const tokens = [...matchAll(paramString, tokenRegex)];
-  const errors = [];
-  let str = paramString;
-  let offset = 0;
-
-  for (const token of tokens) {
-    const [_, flag, value] = token;
-    const paramName = flag.replace(/-/g, "");
-    const validParam = params.find(param => param.data.flag.startsWith(flag));
-    if (!validParam) {
-      str = `${str.substring(0, token.index + offset)}<span class="warning">${
-        token[0]
-      }</span>${str.substring(token.index + offset + token[0].length)}`;
-      offset += `<span class="warning"></span>`.length;
-      errors.push(`'${paramName}' is not a valid parameter name.`);
-    } else if (validParam.data.type === "path") {
-      const dirRegex = /^\.?\/?(\/[\w-]+)*\/?$/;
-
-      // TODO: Currently this only checks if it is a syntactically valid path
-      // It should also check that the path exists in the parent plugins output dir
-
-      if (value && value.match(dirRegex) === null) {
-        str = `${str.substring(
-          0,
-          token.index + offset + flag.length + 1
-        )}<span class="warning">${value}</span>${str.substring(
-          token.index + offset + flag.length + value.length + 1
-        )}`; // the one is for the space or equals sign
-        offset += '<span class="warning"></span>'.length;
-        errors.push(
-          `The value provided for '${paramName}' is not a valid path.`
-        );
-      }
-    }
-  }
-
-  return [str, errors];
-}
-
-interface Selection {
-  start: number;
-  end: number;
-}
-
-function saveSelection(containerEl: Node) {
-  const sel = window.getSelection();
-  if (!sel) return { start: 0, end: 0 };
-  const range = sel.getRangeAt(0);
-  const preSelectionRange = range.cloneRange();
-  preSelectionRange.selectNodeContents(containerEl);
-  preSelectionRange.setEnd(range.startContainer, range.startOffset);
-  const start = preSelectionRange.toString().length;
-
-  return {
-    start: start,
-    end: start + range.toString().length
-  };
-}
-
-function restoreSelection(containerEl: any, savedSel: Selection) {
-  let charIndex = 0;
-  const range = document.createRange();
-  range.setStart(containerEl, 0);
-  range.collapse(true);
-  const nodeStack = [containerEl];
-  let node;
-  let foundStart = false;
-  let stop = false;
-
-  while (!stop && (node = nodeStack.pop())) {
-    if (node.nodeType == 3) {
-      let nextCharIndex = charIndex + node.length;
-      if (
-        !foundStart &&
-        savedSel.start >= charIndex &&
-        savedSel.start <= nextCharIndex
-      ) {
-        range.setStart(node, savedSel.start - charIndex);
-        foundStart = true;
-      }
-      if (
-        foundStart &&
-        savedSel.end >= charIndex &&
-        savedSel.end <= nextCharIndex
-      ) {
-        range.setEnd(node, savedSel.end - charIndex);
-        stop = true;
-      }
-      charIndex = nextCharIndex;
-    } else {
-      let i = node.childNodes.length;
-      while (i--) {
-        nodeStack.push(node.childNodes[i]);
-      }
-    }
-  }
-
-  const sel = window.getSelection();
-  if (sel) {
-    sel.removeAllRanges();
-    sel.addRange(range);
-  }
-}
-
-interface ParameterEditorProps {
-  initialParamString: string;
+interface EditorState {
+  paramString: string;
+  errors: string[];
   params: PluginParameter[];
-  handleErrorChange: (error: string[]) => void;
-  handleParameterChange: (params: string) => void;
+  docsExpanded: boolean;
 }
 
-class ParameterEditor extends React.Component<ParameterEditorProps> {
-  constructor(props: ParameterEditorProps) {
-    super(props);
-
-    this.handleInput = this.handleInput.bind(this);
-  }
-
-  handleInput(e: React.FormEvent<HTMLDivElement>) {
-    const { target } = e;
-    const editor = target as HTMLDivElement;
-
-    const transformedHtml = editor.innerHTML
-      .replace(/<[^>]*>/g, "")
-      .replace(/&nbsp;/g, " ");
-
-    const [html, errors] = parseHtml(transformedHtml, this.props.params);
-
-    const saved = saveSelection(editor);
-
-    editor.innerHTML = html.replace(/ (?![^<]*>)/g, "&nbsp"); // replace all spaces except those in tags
-    restoreSelection(target, saved);
-    const finalOutput = editor.innerHTML;
-
-    this.props.handleErrorChange(errors);
-  }
-
-  render() {
-    const { initialParamString } = this.props;
-
-    return (
-      <div
-        contentEditable
-        spellCheck={false}
-        onInput={this.handleInput}
-        dangerouslySetInnerHTML={{ __html: initialParamString }}
-      />
-    );
-  }
+interface EditorProps {
+  plugin: Plugin;
 }
 
-
-
-export default ParameterEditor;
-
-
-/*
-interface ParameterEditorProps {
-  initialParamString: string;
-  params: PluginParameter[];
-  handleErrorChange: (error: string[]) => void;
-  handleParameterChange: (params: string) => void;
-}
-
-interface ParamterEditorState{
-    html:string;
-
-}
-
-class ParameterEditor extends React.Component<ParameterEditorProps, ParamterEditorState> {
-  constructor(props: ParameterEditorProps) {
+class Editor extends React.Component<EditorProps, EditorState> {
+  constructor(props: EditorProps) {
     super(props);
     this.state = {
-      html: ""
+      paramString: "",
+      params: [],
+      errors: [],
+      docsExpanded: true
     };
+
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleInput = this.handleInput.bind(this);
+    this.handleDocsToggle = this.handleDocsToggle.bind(this);
   }
 
-  componentDidMount(){
-      const {initialParamString}=this.props
+  componentDidMount() {
+    this.fetchParams();
+  }
+
+  componendDidUpdate(prevProps: EditorProps) {
+    if (prevProps.plugin.data.id !== this.props.plugin.data.id) {
+      this.fetchParams();
+    }
+  }
+
+  async fetchParams() {
+    const { plugin } = this.props;
+    const paramList = await plugin.getPluginParameters();
+    const params = paramList.getItems();
+    const paramString = this.generateDefaultParamString(params);
+    this.setState({ params, paramString });
+  }
+
+  generateDefaultParamString(params: PluginParameter[]) {
+    return params
+      .map(param => `${param.data.flag} ${param.data.default}`)
+      .join(" ");
+  }
+
+  handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const { paramString, params } = this.state;
+    const [errors, data] = validate(paramString, params);
+    console.log("Errors", errors);
+    if (errors) {
       this.setState({
-          html:initialParamString
-      })
+        errors
+      });
+    }
   }
-  
 
-  handleChange = (e:Syn) => {
-    this.setState({ html: e.target.value });
-  };
+  handleInput(e: React.FormEvent<HTMLInputElement>) {
+    const { value } = e.target as HTMLInputElement;
+    this.setState({
+      paramString: value
+    });
+  }
+
+  handleDocsToggle() {
+    this.setState((prevState: EditorState) => ({
+      docsExpanded: !prevState.docsExpanded
+    }));
+  }
 
   render() {
+    const { params, paramString, errors, docsExpanded } = this.state;
+
     return (
-      <ContentEditable
-        html={this.state.html}
-        disabled={false}
-        onChange={this.handleChange}
-      />
+      <div className="screen-two">
+        <TextInput
+          value={this.props.plugin.data.name}
+          className="plugin-name"
+          aria-label="Selected Plugin Name"
+          spellCheck={false}
+        />
+        <form onSubmit={this.handleSubmit}>
+          <input type="text" value={paramString} onChange={this.handleInput} />
+        </form>
+        <div className="errors">
+          {errors.map((error, i) => (
+            <div key={i}>
+              <ExclamationTriangleIcon />
+              <span className="error-message">{error}</span>
+            </div>
+          ))}
+        </div>
+        <Expandable
+          className="docs"
+          toggleText="Plugin configuration documentation:"
+          isExpanded={docsExpanded}
+          onToggle={this.handleDocsToggle}
+        >
+          {this.state.params
+            .filter(param => param.data.ui_exposed)
+            .map(param => {
+              return (
+                <div key={param.data.id} className="param-item">
+                  <b className="param-title">
+                    [{param.data.flag} &lt;{param.data.type} : {param.data.name}
+                    &gt;]
+                  </b>
+                  {!param.data.optional && (
+                    <span className="required-star"> *</span>
+                  )}
+                  <div className="param-help">{param.data.help}</div>
+                </div>
+              );
+            })}
+        </Expandable>
+      </div>
     );
   }
 }
-
-export default ParameterEditor;
-*/
+export default Editor;
