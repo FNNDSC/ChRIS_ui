@@ -22,9 +22,11 @@
     }
 
     .modal-content {
-      height: calc(100vh - #{250px});
+      height: calc(100vh - #{270px});
+
       display: flex;
       flex-direction: column;
+      margin-top: 10rem;
 
       .modal-body {
         flex-grow: 1;
@@ -36,6 +38,10 @@
   &.fade:not(.in) .modal-dialog {
     -webkit-transform: translate3d(-25%, 0, 0);
     transform: translate3d(25%, 0, 0);
+  }
+
+  .pficon .pficon-close {
+    color: #8a8a8a;
   }
 
   .pf-c-form__group {
@@ -140,28 +146,16 @@
     &::after {
       content: none !important;
     }
-    svg {
-      transform: rotate(180deg);
-    }
-  }
-
-  // Back button
-  button.pf-m-secondary {
-    color: var(--pf-global--primary-color--100) !important;
-    border: 1px solid var(--pf-global--primary-color--100) !important;
-  }
-
-  // Cancel button
-  button.pf-m-link {
-    color: var(--pf-global--primary-color--100) !important;
   }
 }
 
 .screen-two {
-  margin-top: 10px;
-
   .plugin-name {
     background: white;
+  }
+
+  .plugin-input {
+    margin-top: -5px;
   }
 
   [contenteditable] {
@@ -179,7 +173,6 @@
   }
 
   .errors {
-    padding-left: 5px;
     font-size: 16px;
     .error-message {
       color: #783e02 !important;
@@ -188,8 +181,62 @@
       color: #ec7909;
       margin-right: 7px;
     }
-    margin-top: 15px;
-    margin-bottom: 15px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  .pf-c-form__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  button.pf-m-primary {
+    &:hover,
+    &:focus {
+      background: var(--pf-c-button--m-primary--BackgroundColor) !important;
+      color: white !important;
+    }
+
+    &::after {
+      content: none !important;
+    }
+    svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  button.pf-m-secondary {
+    color: white !important;
+    border: 1px solid var(--pf-global--primary-color--100) !important;
+    background: var(--pf-c-button--m-primary--BackgroundColor) !important;
+
+    &:hover {
+      color: white !important;
+    }
+    &::after {
+      content: none !important;
+    }
+    svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  // Cancel button
+  button.pf-m-tertiary {
+    color: white !important;
+    background: var(--pf-c-button--m-primary--BackgroundColor) !important;
+
+    &:hover {
+      color: white !important;
+      background: var(--pf-c-button--m-primary--BackgroundColor) !important;
+    }
+    &::after {
+      content: none !important;
+      background: var(--pf-c-button--m-primary--BackgroundColor) !important;
+    }
+    svg {
+      transform: rotate(180deg);
+    }
   }
 
   .docs {
@@ -216,14 +263,10 @@
     .pf-c-expandable__content * {
       color: black !important;
     }
+
     .param-item {
       padding-bottom: 15px;
       padding-left: 10px;
     }
   }
-}
-
-input {
-  width: 100%;
-  height: 200%;
 }

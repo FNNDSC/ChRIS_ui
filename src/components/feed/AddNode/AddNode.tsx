@@ -1,21 +1,25 @@
 import React from "react";
 import { connect } from "react-redux";
 
-import { Button } from "@patternfly/react-core";
-import {
-  InfrastructureIcon,
-  CloseIcon,
-  CodeBranchIcon
-} from "@patternfly/react-icons";
+import { Button, ActionGroup } from "@patternfly/react-core";
+
+import { InfrastructureIcon, CodeBranchIcon } from "@patternfly/react-icons";
 
 import "./addnode.scss";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
-import AddNodeModal from "./AddNodeModal";
 import ScreenOne from "./ScreenOne";
-import Editor from "./ParameterEditor";
+import AddModal from "./AddModal";
+
+import Editor from "./Editor";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { IPluginItem } from "../../../api/models/pluginInstance.model";
+import {
+  IPluginItem,
+  IPluginItemInstanceResponse
+} from "../../../api/models/pluginInstance.model";
+
+import { Dispatch } from "redux";
+import { timeThursday } from "d3";
 
 interface AddNodeProps {
   selected?: IPluginItem;
@@ -23,7 +27,7 @@ interface AddNodeProps {
 }
 
 interface AddNodeState {
-  open: boolean;
+  showOverlay: boolean;
   step: number;
   nodes?: PluginInstance[]; // converted props.nodes
   data: {
@@ -31,16 +35,22 @@ interface AddNodeState {
     plugin?: Plugin;
   };
   errors: string[];
+  input: string;
+}
+
+interface PluginData {
+  [key: string]: string;
 }
 
 class AddNode extends React.Component<AddNodeProps, AddNodeState> {
   constructor(props: AddNodeProps) {
     super(props);
     this.state = {
-      open: false,
+      showOverlay: false,
       step: 0,
       data: {},
-      errors: []
+      errors: [],
+      input: ""
     };
 
     this.handleConfigureClick = this.handleConfigureClick.bind(this);
@@ -49,6 +59,7 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
     this.handleModalClose = this.handleModalClose.bind(this);
     this.handlePluginSelect = this.handlePluginSelect.bind(this);
     this.handleParentSelect = this.handleParentSelect.bind(this);
+    this.handleCreate = this.handleCreate.bind(this);
   }
 
   componentDidMount() {
@@ -81,83 +92,29 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
       nodes.map(this.convertPluginInstance)
     );
 
-    this.setState(prevState => ({
-      nodes: transformedNodes,
-      data: {
-        ...prevState.data,
-        parent
-      }
-    }));
+    transformedNodes &&
+      parent &&
+      this.setState(prevState => ({
+        nodes: transformedNodes,
+        data: {
+          ...prevState.data,
+          parent
+        }
+      }));
   }
 
   handleAddClick() {
     this.setState(prevState => ({
-      open: !prevState.open
+      showOverlay: !prevState.showOverlay
     }));
   }
 
-
-
-
-
-
-
-
-
-
-
-  async handleModalClose() {
-    this.setState({
-      open: false,
-      step: 0,
-      data: {}
-    });
-
-    /* Writing the code to add a node to the backend here */
-    console.log("Add node clicked");
-    console.log("Starting creation process...");
-    const { plugin } = this.state.data;
-    const { selected } = this.props;
-
-    if (!plugin || !selected) {
-      console.log("Some stuff does not exist rip");
-      return;
-    }
-    const client = ChrisAPIClient.getClient();
-    const pluginId = plugin.data.id;
-    const data = {
-      previous_id: null,
-      ageSpec: "10-06-01"
-    };
-
-    const response = await client.createPluginInstance(pluginId, {
-      title: "TEST",
-      previous_id: selected.id as number,
-      ageSpec: "10-06-01"
-    });
-
-    console.log("Checking the response out", response);
+  handleModalClose() {
+    this.setState(prevState => ({
+      showOverlay: !prevState.showOverlay,
+      step: 0
+    }));
   }
-
-
-
-
-async handleCreate(){
-
-
-
-  
-}
-
-
-
-
-
-
-
-
-
-
 
   handlePluginSelect(plugin: Plugin) {
     this.setState(prevState => ({
@@ -187,35 +144,48 @@ async handleCreate(){
     this.setState({ step: 0 });
   }
 
+  async handleCreate(data: any) {
+    console.log("Starting creation process...");
+    const { plugin } = this.state.data;
+    const { selected } = this.props;
+
+    if (!plugin || !selected) {
+      console.log("Some stuff does not exist rip");
+      return;
+    }
+    const client = ChrisAPIClient.getClient();
+    const pluginId = plugin.data.id;
+
+    let createParameterList = {};
+
+    for (let parameter of data) {
+      createParameterList = { ...createParameterList, ...parameter };
+    }
+
+    await client.createPluginInstance(pluginId, {
+      title: "Test",
+      previous_id: selected.id as number,
+      ...createParameterList
+    });
+
+    this.handleModalClose();
+  }
+
   generateFooter() {
     const { step, data } = this.state;
-    return step === 0 ? (
-      <Button onClick={this.handleConfigureClick} isDisabled={!data.plugin}>
-        <CodeBranchIcon />
-        Configure new node...
-      </Button>
-    ) : (
-      <>
-        <Button variant="link" onClick={this.handleModalClose}>
-          Cancel
-        </Button>
-        <Button variant="secondary" onClick={this.handleBackClick}>
-          Back
-        </Button>
 
-        <Button
-          isDisabled={!this.state.errors ? true : false}
-          onClick={this.handleModalClose}
-        >
+    return (
+      step === 0 && (
+        <Button onClick={this.handleConfigureClick} isDisabled={!data.plugin}>
           <CodeBranchIcon />
-          Add new node
+          Configure new node...
         </Button>
-      </>
+      )
     );
   }
 
   render() {
-    const { open, step, nodes, data } = this.state;
+    const { step, data, nodes, showOverlay } = this.state;
 
     return (
       <React.Fragment>
@@ -223,11 +193,11 @@ async handleCreate(){
           <InfrastructureIcon />
           Add new node(s)...
         </Button>
-
-        <AddNodeModal
-          open={open}
-          handleModalClose={this.handleModalClose}
+        <AddModal
           footer={this.generateFooter()}
+          showOverlay={showOverlay}
+          handleModalClose={this.handleModalClose}
+          step={step}
         >
           {step === 0 && data.parent && nodes ? (
             <ScreenOne
@@ -238,9 +208,16 @@ async handleCreate(){
               handlePluginSelect={this.handlePluginSelect}
             />
           ) : (
-            data.plugin && <Editor plugin={data.plugin} />
+            data.plugin && (
+              <Editor
+                plugin={data.plugin}
+                handleModalClose={this.handleModalClose}
+                handleCreate={this.handleCreate}
+                handleBackClick={this.handleBackClick}
+              />
+            )
           )}
-        </AddNodeModal>
+        </AddModal>
       </React.Fragment>
     );
   }
