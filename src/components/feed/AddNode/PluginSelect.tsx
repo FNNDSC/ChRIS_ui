@@ -54,8 +54,6 @@ class PluginList extends React.Component<PluginListProps, PluginListState> {
         <LoadingContent width="100%" height="35px" bottom="4px" key={i} />
       ));
 
-   
-
     return (
       <ul className="plugin-list">
         <TextInput
@@ -119,7 +117,6 @@ class PluginSelect extends React.Component<
     const pluginList = await client.getPlugins();
     const plugins = pluginList.getItems();
 
-    //Write a filter for ds plugins here in the future
     this.setState({ allPlugins: plugins });
   }
 

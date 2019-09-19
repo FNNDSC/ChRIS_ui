@@ -27,7 +27,6 @@ const validate = (
   paramString: string,
   params: PluginParameter[]
 ): [string[], {}] => {
-  //const tokenRegex = /([^\s=]+)(?:(?:=|\s+|[^--])([^--][\sa-zA-Z0-9,/]+))/g;
   const tokenRegex = /([^\s=]+)(?:(?:=|\s+|[^--])([^ --][\w,]+))?/g;
   const errors = [];
   let data = [];
@@ -44,7 +43,6 @@ const validate = (
       errors.push(`${paramName} is not a valid Parameter name`);
     } else {
       data.push(objectify(paramName, value));
-      console.log(data);
     }
   }
   return [errors, data];
@@ -135,7 +133,7 @@ class Editor extends React.Component<EditorProps, EditorState> {
         this.setState({
           errors: []
         });
-      }, 3000);
+      }, 5000);
     } else {
       handleCreate(data);
     }
@@ -181,7 +179,7 @@ class Editor extends React.Component<EditorProps, EditorState> {
             isExpanded={docsExpanded}
             onToggle={this.handleDocsToggle}
           >
-            {this.state.params
+            {params
               .filter(param => param.data.ui_exposed)
               .map(param => {
                 return (
