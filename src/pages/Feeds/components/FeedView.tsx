@@ -43,11 +43,13 @@ class FeedView extends React.Component<AllProps> {
     const { setSidebarActive, match } = this.props;
     const feedId = match.params.id;
     !!feedId && this.fetchFeedData(feedId);
+
     document.title = "My Feeds - ChRIS UI site";
     setSidebarActive({
       activeGroup: "feeds_grp",
       activeItem: "my_feeds"
     });
+
     this.onNodeClick = this.onNodeClick.bind(this);
   }
 
@@ -125,6 +127,7 @@ class FeedView extends React.Component<AllProps> {
   }
 
   // Reset feed state so
+
   componentWillUnmount() {
     this.props.destroyFeed();
   }
