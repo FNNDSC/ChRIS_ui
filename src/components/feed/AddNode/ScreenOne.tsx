@@ -50,8 +50,6 @@ class ScreenOne extends React.Component<ScreenOneProps, ScreenOneState> {
     this.setState({ typeDropdownOpen: open });
   }
 
-  handleParentNodeSelect() {}
-
   /* UI GENERATORS */
 
   generateParentDropdown() {

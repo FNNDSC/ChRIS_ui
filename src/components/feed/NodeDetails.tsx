@@ -78,11 +78,6 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     // Stub - To be done
   }
 
-  // Description: Add new node to the feed ***** Working
-  handleAddNewNode() {
-    // Stub - To be done
-  }
-
   // Description: root node or leaf nodes in the graph will not have the 'share this pipeline' button
   // Find out from descendants if this node is a leaf or root node
   isNodePipelineRoot(item: IPluginItem) {
