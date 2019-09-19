@@ -145,12 +145,11 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
   }
 
   async handleCreate(data: any) {
-    console.log("Starting creation process...");
     const { plugin } = this.state.data;
     const { selected } = this.props;
 
     if (!plugin || !selected) {
-      console.log("Some stuff does not exist rip");
+      
       return;
     }
     const client = ChrisAPIClient.getClient();
