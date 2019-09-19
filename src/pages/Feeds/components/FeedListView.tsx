@@ -5,7 +5,16 @@ import { Link } from "react-router-dom";
 import Moment from "react-moment";
 import debounce from "lodash/debounce";
 
-import { PageSection, Title, Breadcrumb, BreadcrumbItem, BreadcrumbHeading, Popover, PopoverPosition, Pagination } from "@patternfly/react-core";
+import {
+  PageSection,
+  Title,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbHeading,
+  Popover,
+  PopoverPosition,
+  Pagination
+} from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import { EyeIcon } from "@patternfly/react-icons";
 
@@ -18,7 +27,7 @@ import { IFeedState } from "../../../store/feed/types";
 import { DataTableToolbar, LoadingSpinner } from "../../../components/index";
 import CreateFeed from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
-import feedIcon from '../../../assets/images/bw-pipeline.svg';
+import feedIcon from "../../../assets/images/bw-pipeline.svg";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -36,22 +45,23 @@ interface FeedsListViewState {
 }
 
 class FeedListView extends React.Component<AllProps, FeedsListViewState> {
-
   constructor(props: AllProps) {
     super(props);
     this.state = {
       perPage: 10,
       page: 1,
-      filter: '',
+      filter: "",
       descriptions: {}
-    }
+    };
 
     this.generateTableRow = this.generateTableRow.bind(this);
     this.handlePageSet = this.handlePageSet.bind(this);
     this.handlePerPageSet = this.handlePerPageSet.bind(this);
     this.handleFilterChange = this.handleFilterChange.bind(this);
     this.fetchFeedDescription = this.fetchFeedDescription.bind(this);
-    this.handleDescriptionPopoverShow = this.handleDescriptionPopoverShow.bind(this);
+    this.handleDescriptionPopoverShow = this.handleDescriptionPopoverShow.bind(
+      this
+    );
   }
 
   componentDidMount() {
@@ -63,12 +73,15 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     });
     this.fetchFeeds();
     this.fetchFeedsCount();
-
   }
 
   componentDidUpdate(prevProps: AllProps, prevState: FeedsListViewState) {
     const { page, perPage, filter } = this.state;
-    if (prevState.page !== page || prevState.perPage !== perPage || prevState.filter !== filter) {
+    if (
+      prevState.page !== page ||
+      prevState.perPage !== perPage ||
+      prevState.filter !== filter
+    ) {
       this.fetchFeeds();
     }
   }
@@ -85,6 +98,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   async fetchFeedsCount() {
     const client = ChrisAPIClient.getClient();
     const feedList = await client.getFeeds({ limit: 1, offset: 0 });
+
     this.setState({ feedsCount: feedList.totalCount });
   }
 
@@ -96,7 +110,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     this.setState((state: FeedsListViewState) => ({
       descriptions: {
         ...state.descriptions,
-        [feedItem.id]: note.data.content
+        [feedItem.id as number]: note.data.content
       }
     }));
   }
@@ -129,9 +143,12 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     const { descriptions } = this.state;
 
     const feedDescription = descriptions[feed.id as number];
-    const namePopoverBody = feedDescription !== undefined ?
-      <span>{feedDescription || <i>No description</i>}</span> :
-      <LoadingSpinner isLocal size="sm" />;
+    const namePopoverBody =
+      feedDescription !== undefined ? (
+        <span>{feedDescription || <i>No description</i>}</span>
+      ) : (
+        <LoadingSpinner isLocal size="sm" />
+      );
 
     const name = {
       title: (
@@ -148,15 +165,19 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           </span>
         </Popover>
       )
-    }
+    };
 
     const created = {
       title: <Moment format="DD MMM YYYY">{feed.creation_date}</Moment>
-    }
+    };
 
     const lastCommit = {
-      title: <Moment fromNow className="last-commit">{feed.modification_date}</Moment>
-    }
+      title: (
+        <Moment fromNow className="last-commit">
+          {feed.modification_date}
+        </Moment>
+      )
+    };
 
     const viewDetails = {
       title: (
@@ -165,7 +186,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           View feed details
         </Link>
       )
-    }
+    };
 
     return [name, created, lastCommit, viewDetails];
   }
@@ -186,7 +207,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
         onSetPage={this.handlePageSet}
         onPerPageSelect={this.handlePerPageSet}
       />
-    )
+    );
   }
 
   generateTableLoading() {
@@ -194,27 +215,25 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
       <tbody className="feed-list-loading">
         <tr>
           <td colSpan={4}>
-            {
-              new Array(3).fill(null).map((_, i) => (
-                <LoadingContent height="45px" width="100%" key={i} />
-              ))
-            }
+            {new Array(3).fill(null).map((_, i) => (
+              <LoadingContent height="45px" width="100%" key={i} />
+            ))}
           </td>
         </tr>
       </tbody>
-    )
+    );
   }
 
   render() {
     const { feeds } = this.props;
     const { feedsCount } = this.state;
+    console.log("Feeds", feeds);
 
-    const cells = ['Feed', 'Created', 'Last Commit', ''];
+    const cells = ["Feed", "Created", "Last Commit", ""];
     const rows = (feeds || []).map(this.generateTableRow);
 
     return (
       <React.Fragment>
-
         <PageSection variant="light" className="feed-header">
           <Breadcrumb>
             <BreadcrumbItem>Feeds</BreadcrumbItem>
@@ -223,9 +242,9 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           <div className="bottom">
             <Title headingLevel="h1" size="3xl">
               My Feeds
-              {
-                feedsCount && <span className="feed-count"> ({feedsCount})</span>
-              }
+              {feedsCount && (
+                <span className="feed-count"> ({feedsCount})</span>
+              )}
             </Title>
             <CreateFeed />
           </div>
@@ -234,27 +253,21 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
         <PageSection className="feed-list">
           <div className="white-bg pf-u-p-lg">
             <div className="feed-list-controls">
-              <DataTableToolbar onSearch={this.handleFilterChange} label="name" />
+              <DataTableToolbar
+                onSearch={this.handleFilterChange}
+                label="name"
+              />
               {this.generatePagination()}
             </div>
 
-            <Table
-              aria-label="Data table"
-              cells={cells}
-              rows={rows}
-            >
+            <Table aria-label="Data table" cells={cells} rows={rows}>
               <TableHeader />
-              {
-                feeds ?
-                  <TableBody /> :
-                  this.generateTableLoading()
-              }
+              {feeds ? <TableBody /> : this.generateTableLoading()}
             </Table>
 
             {this.generatePagination()}
           </div>
         </PageSection>
-
       </React.Fragment>
     );
   }
@@ -263,7 +276,8 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
-  getAllFeedsRequest: (name?: string, limit?: number, offset?: number) => dispatch(getAllFeedsRequest(name, limit, offset))
+  getAllFeedsRequest: (name?: string, limit?: number, offset?: number) =>
+    dispatch(getAllFeedsRequest(name, limit, offset))
 });
 
 const mapStateToProps = ({ feed }: ApplicationState) => ({
