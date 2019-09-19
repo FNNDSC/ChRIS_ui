@@ -9,7 +9,7 @@ import ChrisAPIClient from "../../api/chrisapiclient";
 import { Note } from "@fnndsc/chrisapi";
 
 interface INoteState {
-  feedDescription?: Note;
+  feedDescription?: string;
 }
 type AllProps = IFeedState;
 
@@ -33,7 +33,6 @@ class FeedDetails extends React.Component<AllProps, INoteState> {
     const feed = await client.getFeed(feedId);
     const note = await feed.getNote();
     const { data } = note;
-    
 
     this.setState({
       feedDescription: data.content
@@ -72,7 +71,6 @@ class FeedDetails extends React.Component<AllProps, INoteState> {
   render() {
     const { details } = this.props;
     const { feedDescription } = this.state;
-    
 
     const runtime = this.calculateTotalRuntime();
 

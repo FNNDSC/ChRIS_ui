@@ -1,6 +1,6 @@
 import { all, call, fork, put, takeEvery } from "redux-saga/effects";
 import { PluginActionTypes } from "./types";
-import ChrisModel,  { IActionTypeParam } from "../../api/models/base.model";
+import ChrisModel, { IActionTypeParam } from "../../api/models/base.model";
 import {
   getPluginDetailsSuccess,
   getPluginDescendantsSuccess,
@@ -17,13 +17,16 @@ import { IPluginItem } from "../../api/models/pluginInstance.model";
 function* handleGetPluginDetails(action: IActionTypeParam) {
   try {
     const item: IPluginItem = action.payload;
+
     const res = yield call(ChrisModel.fetchRequest, item.descendants); // Get descendants first:
     if (res.error) {
       console.error(res.error);
     } else {
       yield put(getPluginDetailsSuccess(res));
+
       !!item.files && (yield put(getPluginFilesRequest(item)));
-      !!item.parameters && (yield put(getPluginParametersRequest(item.parameters)));
+      !!item.parameters &&
+        (yield put(getPluginParametersRequest(item.parameters)));
     }
   } catch (error) {
     console.error(error);
@@ -101,7 +104,6 @@ function* watchGetPluginParameters() {
     handleGetPluginParameters
   );
 }
-
 
 // ------------------------------------------------------------------------
 // We can also use `fork()` here to split our saga into multiple watchers.
