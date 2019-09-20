@@ -1,6 +1,5 @@
 import { ICollectionLinks, chrisId } from "./base.model";
 import { PluginInstance } from "@fnndsc/chrisapi";
-// import _ from "lodash";
 
 // Plugin Instances
 // ------------------------------------------
@@ -16,9 +15,9 @@ export interface IPluginItemLinks {
   url: string;
   feed: string;
   descendants: string;
-  files: string;
-  parameters: string;
-  plugin: string;
+  files?: string;
+  parameters?: string;
+  plugin?: string;
   next?: string;
   previous?: string;
 }
