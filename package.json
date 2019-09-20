@@ -50,6 +50,7 @@
     "react-scripts": "2.1.8",
     "react-ui-tree": "^4.0.0",
     "redux-saga": "^1.0.2",
+    "serve": "^11.1.0",
     "string.prototype.matchall": "^3.0.1",
     "three": "^0.103.0",
     "typesafe-actions": "^3.2.1",
@@ -57,8 +58,8 @@
     "webcola": "^3.3.8"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-scripts --max_old_space_size=4096 start",
+    "build": "react-scripts --max_old_space_size=4096 build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

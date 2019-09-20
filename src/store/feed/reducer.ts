@@ -24,7 +24,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
     case FeedActionTypes.ADD_FEED: {
       if (state.feeds) {
-        return { ...state, feeds: [ action.payload, ...state.feeds ] }
+        return { ...state, feeds: [action.payload, ...state.feeds] };
       } else {
         return { ...state, feeds: [action.payload] };
       }
