@@ -28,3 +28,10 @@ yarn-error.log*
 /**/*/local
 
 /.idea
+
+# container stuff
+.config/
+.npm/
+.cache/
+.yarnrc
+yarn-error.log
