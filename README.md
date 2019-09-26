@@ -4,13 +4,13 @@ UI for ChRIS.
 
 ## Preconditions
 
-### Install latest Docker. Currently tested platforms
+### Install latest Docker. Currently tested platforms:
 * ``Ubuntu (16.04/17.04/17.10)``
 * ``MAC OS X 10.11+``
 
 ### Optionally get the backend services up so you can fully test the UI against actual data
 * Install latest ``Docker Compose``
-* On a Linux machine make sure to add your computer user to the ``docker group``
+* On a Linux machine make sure to add your computer user to the ``docker`` group
 
 Then open a terminal and fire the backend services up:
 ```bash
@@ -68,8 +68,6 @@ It correctly bundles React in production mode and optimizes the build for the be
 
 The build is minified and the filenames include the hashes.<br>
 Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
 
 ## Deploy and serve the ChRIS UI app
