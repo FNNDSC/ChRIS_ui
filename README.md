@@ -21,6 +21,8 @@ $ ./docker-make-chris_dev.sh -U -I -i
 
 You can later remove all the backend containers and release storage volumes with:
 ```bash
+$ cd ChRIS_ultron_backEnd
+$ sudo rm -r FS
 $ ./docker-destroy-chris_dev.sh
 ```
 
@@ -52,7 +54,6 @@ $ docker exec -it chris_ui npm test
 Launches the test runner in the interactive watch mode.<br>
 
 The unit test scripts are under `./__tests__` folder and tested functions are under `./src/store`.
-
 The tested functions are all the actions and reducers of feed, message, plugin, ui, and user.
 
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
@@ -65,7 +66,6 @@ $ cd ChRIS_ui
 $ docker build -t local/chris_ui .
 ```
 It correctly bundles React in production mode and optimizes the build for the best performance.
-
 The build is minified and the filenames include the hashes.<br>
 Your app is ready to be deployed!
 
