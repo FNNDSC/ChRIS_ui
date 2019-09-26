@@ -16,11 +16,11 @@
 #
 # To run the server up during development, do:
 #
-#   docker run --rm -it -v $(pwd):/home/localuser -p 3000:3000 -u $(id -u):$(id -g) local/chris_ui:dev
+#   docker run --rm -it -v $(pwd):/home/localuser -p 3000:3000 -u $(id -u):$(id -g) --name chris_ui local/chris_ui:dev
 #
 # To run an interactive shell inside this container, do:
 #
-#   docker exec -it <container_id> sh
+#   docker exec -it chris_ui sh
 #
 
 FROM node:12

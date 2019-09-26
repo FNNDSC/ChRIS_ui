@@ -2,43 +2,53 @@
 UI for ChRIS.
 
 
-## Installation
+## Preconditions
 
+### Install latest Docker. Currently tested platforms
+* ``Ubuntu (16.04/17.04/17.10)``
+* ``MAC OS X 10.11+``
+
+### Optionally get the backend services up so you can fully test the UI against actual data
+* Install latest ``Docker Compose``
+* On a Linux machine make sure to add your computer user to the ``docker group``
+
+Then open a terminal and fire the backend services up:
+```bash
+$ git clone https://github.com/FNNDSC/ChRIS_ultron_backEnd.git
+$ cd ChRIS_ultron_backEnd
+$ ./docker-make-chris_dev.sh -U -I -i
 ```
+
+You can later remove all the backend containers and release storage volumes with:
+```bash
+$ ./docker-destroy-chris_dev.sh
+```
+
+
+## Start UI development server
+
+Open a new terminal and type:
+```bash
 $ git clone https://github.com/FNNDSC/ChRIS_ui.git
 $ cd ChRIS_ui
-$ npm install
+$ docker run --rm -it -v $(pwd):/home/localuser -p 3000:3000 -u $(id -u):$(id -g) --name chris_ui fnndsc/chris_ui:dev
 ```
-
-## Run the app locally
-```
-$ npm start
-```
-
-Runs the app in the development mode.<br>
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
 
 ## Notes:
-1. Add .env.local, .env.local, .env.development.local, .env.test.local, .env.production.local file at root to change any local settings 
+1. Add .env.local, .env.local, .env.development.local, .env.test.local, .env.production.local file at root to change any local settings
 
-
-## Additional Notes from Create React App: 
+## Additional Notes from Create React App:
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
 
-In the project directory, you can run:
+## Run the interactive tests
 
-### `npm start`
-
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
-
-### `npm test`
-
+Open a new terminal and type:
+```bash
+$ docker exec -it chris_ui npm test
+```
 Launches the test runner in the interactive watch mode.<br>
 
 The unit test scripts are under `./__tests__` folder and tested functions are under `./src/store`.
@@ -47,9 +57,13 @@ The tested functions are all the actions and reducers of feed, message, plugin, 
 
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.<br>
+## Build the ChRIS UI app for production
+
+```bash
+$ cd ChRIS_ui
+$ docker build -t local/chris_ui .
+```
 It correctly bundles React in production mode and optimizes the build for the best performance.
 
 The build is minified and the filenames include the hashes.<br>
@@ -57,15 +71,18 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Deploy and serve the ChRIS UI app
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+$ docker run --name chris_ui -p <desired port>:3000 -d local/chris_ui
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Development and deployment of the ChRIS UI directly on the metal
+
+Consult the Wiki [here](https://github.com/FNNDSC/ChRIS_ui/wiki).
+
 
 ## Learn More
 
