@@ -6,6 +6,7 @@ type AllProps = {
 }
 
 const GalleryArrows: React.FunctionComponent<AllProps> = (props: AllProps) => {
+    /* eslint-disable */
     return (
         <div className="arrows">
             <a className="prev" onClick={() => props.onSlideChange(-1)}><span className="pf-u-screen-reader">Previous</span><ChevronLeftIcon color="white" /></a>
@@ -13,4 +14,5 @@ const GalleryArrows: React.FunctionComponent<AllProps> = (props: AllProps) => {
         </div>
     )
 }
+/* eslint-enable */
 export default React.memo(GalleryArrows);

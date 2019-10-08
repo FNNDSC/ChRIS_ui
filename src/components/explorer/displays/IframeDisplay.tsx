@@ -14,6 +14,7 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
         src={url}
         height={window.innerHeight}
         width="100%"
+        title="Gallery"
       />
     </div>
   );

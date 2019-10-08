@@ -7,7 +7,7 @@ import { getAuthTokenSuccess } from "./actions";
 // ----------------------------------------------------------------
 // Description: List - Get all Users
 // ----------------------------------------------------------------
-const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
+//const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
 function* handleLogin(action: any) {
   try {
     const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;

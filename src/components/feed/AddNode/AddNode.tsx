@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 
-import { Button, ActionGroup } from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core";
 
 import { InfrastructureIcon, CodeBranchIcon } from "@patternfly/react-icons";
 
@@ -13,13 +13,7 @@ import AddModal from "./AddModal";
 import Editor from "./Editor";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { ApplicationState } from "../../../store/root/applicationState";
-import {
-  IPluginItem,
-  IPluginItemInstanceResponse
-} from "../../../api/models/pluginInstance.model";
-
-import { Dispatch } from "redux";
-import { timeThursday } from "d3";
+import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
 interface AddNodeProps {
   selected?: IPluginItem;
@@ -149,7 +143,7 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
     const { selected } = this.props;
 
     if (!plugin || !selected) {
-      
+
       return;
     }
     const client = ChrisAPIClient.getClient();

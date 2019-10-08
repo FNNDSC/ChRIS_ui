@@ -1,4 +1,3 @@
-import * as cola from "webcola";
 import { IPluginItem } from "./pluginInstance.model";
 import { NodeId, INode } from "./tree-node.model";
 import _ from "lodash";

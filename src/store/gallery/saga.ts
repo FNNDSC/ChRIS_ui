@@ -1,4 +1,4 @@
-import { all, call, fork, put, takeEvery, select } from "redux-saga/effects";
+import { all, call, fork, put, takeEvery } from "redux-saga/effects";
 import { GalleryActionTypes } from "./types";
 import {
   setGalleryItemsSuccess,
@@ -10,7 +10,6 @@ import GalleryModel, {
   GalleryListModel,
   GalleryItemModel
 } from "../../api/models/gallery.model";
-import _ from "lodash";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
 
 // ------------------------------------------------------------------------
