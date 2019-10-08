@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Form, FormGroup, TextInput, TextArea } from '@patternfly/react-core';
-import Client, { Tag } from '@fnndsc/chrisapi';
+import { Tag } from '@fnndsc/chrisapi';
 import { Typeahead } from 'react-bootstrap-typeahead';
 
 import ChrisAPIClient from '../../../api/chrisapiclient';
@@ -17,11 +17,11 @@ interface BasicInformationProps {
 
 interface BasicInformationState {
   availableTagsLoaded: boolean,
-  availableTags: Tag[], 
+  availableTags: Tag[],
 }
 
 class BasicInformation extends React.Component<BasicInformationProps, BasicInformationState> {
-  
+
   constructor(props: BasicInformationProps) {
     super(props);
     this.state = {
@@ -45,7 +45,7 @@ class BasicInformation extends React.Component<BasicInformationProps, BasicInfor
     const params = { limit: 30, offset: 0 };
     let tagList = await client.getTags(params);
     const tags = tagList.getItems();
-  
+
     while (tagList.hasNextPage) {
       try {
         params.offset += params.limit;
@@ -58,11 +58,11 @@ class BasicInformation extends React.Component<BasicInformationProps, BasicInfor
     return tags;
   }
 
-  render() { 
+  render() {
 
-    const { 
+    const {
       feedName, feedDescription, tags,
-      handleFeedNameChange, handleFeedDescriptionChange, handleTagsChange 
+      handleFeedNameChange, handleFeedDescriptionChange, handleTagsChange
     } = this.props;
     const { availableTagsLoaded, availableTags } = this.state;
 

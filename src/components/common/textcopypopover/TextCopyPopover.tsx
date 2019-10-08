@@ -22,7 +22,7 @@ interface TextCopyPopoverProps {
 }
 
 class TextCopyPopover extends React.Component<TextCopyPopoverProps> {
-
+  // eslint-disable-next-line
   constructor(props: TextCopyPopoverProps) {
     super(props);
   }

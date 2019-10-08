@@ -6,7 +6,6 @@ import { IFeedState } from "../../store/feed/types";
 import { Title } from "@patternfly/react-core";
 import ChrisAPIClient from "../../api/chrisapiclient";
 
-import { Note } from "@fnndsc/chrisapi";
 
 interface INoteState {
   feedDescription?: string;

@@ -37,7 +37,7 @@ class DcmImage extends React.Component<AllProps> {
 
   // Description: Run AMI CODE ***** working to be abstracted out
   initAmi = (file: string) => {
-    const container = document.getElementById("container"); 
+    const container = document.getElementById("container");
     if (!!container) {
       const renderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -138,6 +138,7 @@ class DcmImage extends React.Component<AllProps> {
       animate();
 
       // Description: Builds the control box on the top right:
+      //eslint-disable-next-line
       const gui = (stackHelper: any) => {
         const gui = new dat.GUI({
           autoPlace: false,
