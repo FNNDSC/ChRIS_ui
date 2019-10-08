@@ -109,17 +109,17 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     this.handleLocalFileRemove = this.handleLocalFileRemove.bind(this);
     this.createFeed = this.createFeed.bind(this);
   }
-  
+
   /*
-    -------------- 
-    EVENT HANDLERS 
+    --------------
+    EVENT HANDLERS
     --------------
   */
 
   // WIZARD HANDLERS
 
   resetState() {
-    this.setState({ 
+    this.setState({
       data: getDefaultCreateFeedData(),
       step: 1,
       saving: false,
@@ -155,7 +155,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   // BASIC INFORMATION HANDLERS
 
   handleFeedNameChange(val: string) {
-    this.setState({ data: { ...this.state.data, feedName: val }});3
+    this.setState({ data: { ...this.state.data, feedName: val }});
   }
   handleFeedDescriptionChange(val: string) {
     this.setState({ data: { ...this.state.data, feedDescription: val }});
@@ -167,12 +167,12 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   // CHRIS FILE SELECT HANDLERS
 
   handleChrisFileAdd(file: ChrisFile) {
-    this.setState({ data: { 
-      ...this.state.data, 
+    this.setState({ data: {
+      ...this.state.data,
       chrisFiles: [...this.state.data.chrisFiles, file ]
     }});
   }
-  
+
   handleChrisFileRemove(file: ChrisFile) {
     this.setState({ data: {
       ...this.state.data,
@@ -181,12 +181,12 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   }
 
   // LOCAL FILE UPLOAD HANDLERS
-  
+
   handleLocalFilesAdd(files: LocalFile[]) {
     this.setState({ data: { ...this.state.data, localFiles: [ ...this.state.data.localFiles, ...files ] } })
   }
   handleLocalFileRemove(fileName: string) {
-    this.setState({ 
+    this.setState({
       data: {
         ...this.state.data,
         localFiles: this.state.data.localFiles.filter(file => file.name !== fileName)
@@ -234,7 +234,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
 
   /* dircopy is run on a single directory, so all selected/uploaded files need to be moved into
      a temporary directory. This fn generates its name, based on the feed name.
-     the files are removed afterwards. however, in case the script fails or the page is closed, 
+     the files are removed afterwards. however, in case the script fails or the page is closed,
      having it be in a (probably) seperate directory will minimize the risk of it getting mixed up
   */
   generateTempDirName() {
@@ -284,7 +284,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     const files = this.state.data.localFiles;
     return this.uploadFilesToTempDir(files, tempDirName);
   }
-  
+
   // Selected ChRIS files are copied into the temp directory
   async copyChrisFiles(tempDirName: string) {
     const files = this.getAllSelectedChrisFiles();
@@ -294,7 +294,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   async removeTempFiles(tempDirName: string) {
     const files = [...this.getAllSelectedChrisFiles(), ...this.state.data.localFiles];
     const uploadedFiles = await fetchAllChrisFiles();
-    
+
     for (const uploadedFile of uploadedFiles) {
       const path = uploadedFile.data.upload_path;
       const matchesFile = files.find(f => this.getDataFileTempPath(f, tempDirName) === path);
@@ -323,13 +323,13 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   }
 
   async createFeed() {
-    
+
     this.setState({ saving: true });
     const tempDirName = this.generateTempDirName();
 
     try {
 
-      
+
       // Upload/copy files
       await this.uploadLocalFiles(tempDirName);
       await this.copyChrisFiles(tempDirName);
@@ -337,7 +337,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       // Find dircopy plugin
       const dircopy = await this.getDircopyPlugin();
       if (!dircopy) {
-        throw 'Dircopy not found. Giving up.';
+        throw new Error('Dircopy not found. Giving up.');
       }
 
       // Create new instance of dircopy plugin
@@ -349,21 +349,21 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       // when the `post` finishes, the dircopyInstances's internal collection is updated
       const createdInstance: PluginInstance = dircopyInstances.getItems()[0];
       if (!createdInstance) {
-        throw 'Created instance is undefined. Giving up.';
+        throw new Error('Created instance is undefined. Giving up.');
       }
-      
+
       // Retrieve created feed
       const feed = await createdInstance.getFeed();
       if (!feed) {
-        throw 'New feed is undefined. Giving up.'
+        throw new Error('New feed is undefined. Giving up.');
       }
-      
+
       // Remove temporary files
       this.removeTempFiles(tempDirName);
 
       // Set feed name
-      await feed.put({ 
-        name: this.state.data.feedName 
+      await feed.put({
+        name: this.state.data.feedName
       });
 
       // Set feed tags
@@ -433,7 +433,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       handleFileAdd={ this.handleChrisFileAdd }
       handleFileRemove={ this.handleChrisFileRemove }
     />;
-    
+
     const localFileUpload = <LocalFileUpload
       files={ data.localFiles }
       handleFilesAdd={ this.handleLocalFilesAdd }
@@ -443,18 +443,18 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     const review = <Review data={ data } />
 
     const steps = [
-      { 
+      {
         id: 1, // id corresponds to step number
-        name: 'Basic Information', 
+        name: 'Basic Information',
         component: basicInformation,
         enableNext: !!data.feedName
       },
-      { 
+      {
         name: 'Data Configuration',
         steps: [
           { id: 2, name: 'ChRIS File Select', component: chrisFileSelect },
           { id: 3, name: 'Local File Upload', component: localFileUpload },
-        ] 
+        ]
       },
       { id: 4, name: 'Review', component: review, enableNext: enableSave, nextButtonText: 'Save' },
     ];

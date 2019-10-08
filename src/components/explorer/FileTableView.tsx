@@ -48,6 +48,7 @@ class FileTableView extends React.Component<AllProps> {
 
   // Description: Build each table data row
   buildRow = (node: IUITreeNode) => {
+    // eslint-disable-next-line
     const arr = new Array();
     if (!!node.children && node.children.length) {
       node.children.forEach((child: IUITreeNode) => {
@@ -74,6 +75,7 @@ class FileTableView extends React.Component<AllProps> {
     const { onClickNode } = this.props;
     return (
       <React.Fragment>
+        { /* eslint-disable-next-line */ }
         <a
           className="black-900"
           onClick={() => {
@@ -93,6 +95,7 @@ class FileTableView extends React.Component<AllProps> {
     return (
       <React.Fragment>
         {isfile ? (
+            //eslint-disable-next-line
           <a
             onClick={() => {
               downloadFileNode(child);

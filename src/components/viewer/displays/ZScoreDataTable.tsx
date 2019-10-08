@@ -15,6 +15,7 @@ type AllProps = {
 const ZScoreDataTable: React.FunctionComponent<AllProps> = (
   props: AllProps
 ) => {
+  // eslint-disable-next-line
   const onSearch = (term: string) => {
     // Note: Stub search table data to be done
   };
@@ -59,6 +60,13 @@ const ZScoreDataTable: React.FunctionComponent<AllProps> = (
   );
 };
 
+// This can be adjusted to change colors
+enum colorCode {
+  red = "red",
+  orange = "orange",
+  yellow= "yellow"
+}
+
 // Description: determine the color for the dot, depending on value "significance"
 // Change color as needed to red, orange, yellow || return "" if no sign
 const dotColor = (value: number) => {
@@ -70,12 +78,6 @@ const dotColor = (value: number) => {
         (absVal >= 1.5 && absVal < 2.5) ? colorCode.yellow : "";
   }
   return color; // orange, yellow
-}
-// This can be adjusted to change colors
-enum colorCode {
-  red = "red",
-  orange = "orange",
-  yellow= "yellow"
 }
 
 const formatValue = (value: number): number => {

@@ -7,10 +7,9 @@ import { Title, Split, SplitItem, Button } from "@patternfly/react-core";
 import {
   FolderOpenIcon,
   FolderCloseIcon,
-  DownloadIcon,
-  SpinnerIcon
+  DownloadIcon
 } from "@patternfly/react-icons";
-import Client, { FeedFile, Collection } from "@fnndsc/chrisapi";
+import { FeedFile, Collection } from "@fnndsc/chrisapi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import {

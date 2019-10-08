@@ -5,7 +5,6 @@ import { IUITreeNode } from "../../api/models/file-explorer.model";
 import GalleryModel, { galleryActions } from "../../api/models/gallery.model";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import DcmImageSeries from "../dicomViewer/DcmImageSeries";
-import _ from "lodash";
 import "./file-detail.scss";
 
 

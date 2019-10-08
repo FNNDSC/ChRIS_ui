@@ -1,5 +1,5 @@
 import * as React from "react";
-import { RouteComponentProps, Route, Switch, Redirect } from "react-router-dom";
+import { RouteComponentProps, Route, Switch } from "react-router-dom";
 import { setSidebarActive } from "../../store/ui/actions";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import AllFeedsPage from "./components/FeedListView";

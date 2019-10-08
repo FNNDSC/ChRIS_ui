@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CaretUpIcon, ChevronCircleUpIcon, ArrowAltCircleUpIcon } from "@patternfly/react-icons";
+import { ArrowAltCircleUpIcon } from "@patternfly/react-icons";
 import "./gotop.scss";
 
 
@@ -19,6 +19,7 @@ const Gotop: React.FunctionComponent<AllProps> = (props: AllProps) => {
   }
 
   return (
+      // eslint-disable-next-line
     <a id="gotop" className={`gotop ${props.isActive ? "active" : ""}`}
       onClick={handleScrollTop} >
       <ArrowAltCircleUpIcon color="#007bba" />

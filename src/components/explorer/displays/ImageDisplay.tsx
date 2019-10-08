@@ -1,4 +1,4 @@
-import React, { createRef } from "react";
+import React from "react";
 import { IGalleryItem } from "../../../api/models/gallery.model";
 type AllProps = {
   galleryItem: IGalleryItem;
@@ -11,7 +11,7 @@ const ImageDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     : "";
   return (
     <div className="image-block">
-        <img id={props.galleryItem.fileName} src={url} />
+        <img id={props.galleryItem.fileName} src={url} alt="" />
     </div>
   );
 };

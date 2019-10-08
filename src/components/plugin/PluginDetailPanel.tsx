@@ -32,13 +32,13 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
 
   // Description: Download Plugin output data ***** Working
   handleDownloadData() {
-    const { files } = this.props;
+    // const { files } = this.props;
     // Stub - To be done
   }
 
   // Description: View Plugin output data ***** Working
   handleViewData() {
-    const { files } = this.props;
+    // const { files } = this.props;
     // Stub - To be done
   }
 
@@ -142,7 +142,7 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                         handleDownloadData={this.handleDownloadData}
                         handleViewData={this.handleViewData}
                       /> : <LoadingSpinner size="3x" isLocal color="#777" />
-                    } 
+                    }
                   </DataListContent>
                 </DataListItem>
               </DataList>

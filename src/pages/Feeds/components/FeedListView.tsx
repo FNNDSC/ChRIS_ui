@@ -160,7 +160,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           onShow={() => this.handleDescriptionPopoverShow(feed)}
         >
           <span className="feed-name">
-            <img src={feedIcon} />
+            <img src={feedIcon} alt=""/>
             {feed.name}
           </span>
         </Popover>

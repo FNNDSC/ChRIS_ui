@@ -11,7 +11,6 @@ import {
 import { Plugin, PluginInstanceParameter } from "@fnndsc/chrisapi";
 import {
   ShareAltIcon,
-  InfrastructureIcon,
   TerminalIcon,
   CaretDownIcon,
   CheckIcon,

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Client, { UploadedFile } from '@fnndsc/chrisapi';
+import { UploadedFile } from '@fnndsc/chrisapi';
 import { FolderCloseIcon, FolderOpenIcon, FileIcon, CloseIcon } from '@patternfly/react-icons';
 import { Checkbox, Split, SplitItem } from '@patternfly/react-core';
 
@@ -138,7 +138,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
     return { ...root, children };
   }
 
-  
+
   async fetchChrisFiles(): Promise<ChrisFilePath[]> {
     const files = await fetchAllChrisFiles();
 
@@ -273,7 +273,7 @@ class ChrisFileSelect extends React.Component<ChrisFileSelectProps, ChrisFileSel
   }
 
   render() {
-    
+
     const { files, handleFileRemove } = this.props;
     const { initialTreeLoaded, visibleTree } = this.state;
 
