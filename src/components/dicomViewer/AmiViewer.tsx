@@ -55,6 +55,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
   }
 
   render() {
+    /* eslint-disable */
     return (
       <React.Fragment>
         {/* {(this.state.totalParsed < this.state.totalFiles) && <div>Loading: {this.state.totalParsed} of {this.state.totalFiles} loaded </div>} */}
@@ -72,7 +73,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
       </React.Fragment>
     );
   }
-
+  /* eslint-enable */
   // Ami methods and props - working *****
   private _stackHelper: any;
   private _currentIndex: number = 0;
@@ -200,6 +201,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
       animate();
 
       // Description: Builds the control box on the top right:
+      // eslint-disable-next-line
       const gui = (stackHelper: any) => {
         const gui = new dat.GUI({
           autoPlace: false,
@@ -218,6 +220,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
 
   // Getting Images
   _loadUrls(galleryItems: IGalleryItem[]) {
+    // eslint-disable-next-line
     const loadSequences = new Array();
     galleryItems.forEach((_galleryItem: IGalleryItem) => {
       const url = _galleryItem.file_resource;

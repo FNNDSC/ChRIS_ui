@@ -1,9 +1,10 @@
 /*
 *  File:            _utilities.scss
 *  Description:     This files holds styles for utility classes
-*                   
+*
 *  Author:          ChRIS UI
 */
+@import "../vendors/patternfly/patternfly";
 
 .capitalize {
   text-transform: capitalize;
@@ -52,7 +53,7 @@
 /* While in fullscreen, hide any children with class 'tohide' */
 div:-webkit-full-screen {
   width: 100% !important;
-  
+
   .tohide {
     display: none;
   }
@@ -71,7 +72,7 @@ div:-ms-fullscreen {
 }
 div:fullscreen {
   width: 100% !important;
- 
+
   .tohide {
     display: none;
   }

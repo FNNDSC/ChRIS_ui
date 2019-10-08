@@ -69,7 +69,7 @@ export default class GalleryModel {
 }
 
 export class GalleryListModel {
-  galleryItems: IGalleryItem[] = new Array();
+  galleryItems: IGalleryItem[] = [];
   constructor(selectedFile: IUITreeNode, selectedFolder: IUITreeNode) {
     this.galleryItems = this._buildGalleryArray(selectedFile, selectedFolder);
   }
@@ -81,7 +81,7 @@ export class GalleryListModel {
     !!selectedFolder.children &&
       selectedFolder.children.map((node: IUITreeNode, index: number) => {
         const galleryItem = new GalleryItemModel(node, index).galleryItem;
-        this.galleryItems.push(galleryItem);
+        return this.galleryItems.push(galleryItem);
       });
     return this.galleryItems;
   }

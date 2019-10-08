@@ -7,8 +7,8 @@ import { ApplicationState } from "../../store/root/applicationState";
 import { IPluginState } from "../../store/plugin/types";
 import { getPluginFilesRequest } from "../../store/plugin/actions";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
-import { IGalleryItem } from "../../api/models/gallery.model";
-import {galleryItems, galleryItem} from "../../assets/temp/viewer_data";
+//import { IGalleryItem } from "../../api/models/gallery.model";
+import {galleryItems} from "../../assets/temp/viewer_data";
 import AmiViewer from "../../components/dicomViewer/AmiViewer";
 import "./viewer.scss";
 
@@ -18,6 +18,7 @@ interface IPropsFromDispatch {
 type AllProps = IPluginState & IPropsFromDispatch & RouteComponentProps;
 
 class ViewerPage extends React.Component<AllProps> {
+  // eslint-disable-next-line
   constructor(props: AllProps) {
     super(props);
     // const { getPluginFilesRequest } = this.props;

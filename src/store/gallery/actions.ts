@@ -1,7 +1,6 @@
 import { action } from "typesafe-actions";
-import { GalleryActionTypes, IGalleryState } from "./types";
-import GalleryModel, { IGalleryItem } from "../../api/models/gallery.model";
-import { IFileBlob } from "../../api/models/file-viewer.model";
+import { GalleryActionTypes } from "./types";
+import { IGalleryItem } from "../../api/models/gallery.model";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
 
 // Description: sets and manage gallery - Stores the current parent folder of the selected file when displaying gallery style displays for next, prev, play, others functionalities

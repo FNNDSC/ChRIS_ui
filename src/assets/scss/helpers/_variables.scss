@@ -14,7 +14,7 @@ $global-icon-margin-right:           5px;
 
 // Site specific Variables:
 // --------------------------------------------------------------------
-$image-url:                         '../../assets/images/';
+$image-url:                         '../../images/';
 $chris-background-filter:           'chris_ui_background_filter.svg#image_overlay';
 $chris-background-image:            'chris_ui_background_576.jpg';
 $chris-background-image-2x:         'chris_ui_background_576@2x.jpg';  //var(--pf-c-background-image--BackgroundImage-2x);
@@ -50,7 +50,7 @@ $tree-tooltip-arrow-width:       0.9375rem;
 $plugin-label-font-size:         0.8125rem;
 $plugin-data-font-size:          0.875rem;
 
-// Data Output and Viewer - File Browser 
+// Data Output and Viewer - File Browser
 $file-explorer-yellow:          #ffee99;
 $file-explorer-blue:            $chris-highlight-background-blue;
 $fe-viewer-border:              #eee;

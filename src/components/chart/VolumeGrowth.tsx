@@ -11,7 +11,7 @@ interface ComponentState {
   pushedSegments: [];
 }
 
-const data : any[] = [];
+//const data : any[] = [];
 
 const defaultChartData = [
   age,
@@ -35,6 +35,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
 
   fetchData() {
     for(let i = 0; i < 74; i++){
+      // eslint-disable-next-line
       let segment: any[] = [];
     }
   }

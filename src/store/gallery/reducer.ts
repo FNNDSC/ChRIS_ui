@@ -1,6 +1,5 @@
 import { Reducer } from "redux";
 import { GalleryActionTypes, IGalleryState } from "./types";
-import { IGalleryItem } from "../../api/models/gallery.model";
 
 const initialState: IGalleryState = {
   galleryItem: undefined,

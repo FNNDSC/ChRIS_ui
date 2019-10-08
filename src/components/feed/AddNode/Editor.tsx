@@ -1,4 +1,4 @@
-import React, { SyntheticEvent } from "react";
+import React from "react";
 import matchall from "string.prototype.matchall";
 
 import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
@@ -34,6 +34,7 @@ const validate = (
   const tokens = [...matchall(paramString, tokenRegex)];
 
   for (const token of tokens) {
+    // eslint-disable-next-line
     const [_, flag, value] = token;
 
     const paramName = flag.replace(/-/g, "");

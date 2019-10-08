@@ -183,6 +183,7 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
 
       animate();
       // Description: Builds the control box on the top right:
+      // eslint-disable-next-line
       const gui = (stackHelper: any) => {
         const gui = new dat.GUI({
           autoPlace: false,
@@ -201,6 +202,7 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
 
   // Getting Images
   _loadUrls(galleryItems: string[]) {
+    // eslint-disable-next-line
     const loadSequences = new Array();
     galleryItems.forEach((url: string) => {
       loadSequences.push(this._loadUrl(url));
