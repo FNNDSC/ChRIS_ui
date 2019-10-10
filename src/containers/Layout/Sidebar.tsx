@@ -10,7 +10,7 @@ import {
     NavExpandable,
     NavItem,
     NavList,
-    NavGroup
+    NavGroup, NavItemSeparator
 } from "@patternfly/react-core";
 
 
@@ -33,7 +33,7 @@ class Sidebar extends React.Component<AllProps> {
         );
 
         const PageNav = (
-            <Nav aria-label="ChRIS Demo site navigation">
+            <Nav aria-label="ChRIS Demo site navigation" theme="dark">
                 <NavList>
                     <NavGroup title="Main Navigation">
                         <NavExpandable title="Library" groupId="library_grp" isActive={sidebarActiveGroup === "library_grp"}>
@@ -41,6 +41,7 @@ class Sidebar extends React.Component<AllProps> {
                                 <Link to={`/libraryitem`}>Library Item</Link>
                             </NavItem>
                         </NavExpandable>
+                        <NavItemSeparator/>
                         <NavExpandable title="My Studies" groupId="studies_grp" isActive={sidebarActiveGroup === "studies_grp"}>
                             <NavItem groupId="studies_grp" itemId="my_studies" isActive={sidebarActiveItem === "my_studies"}>
                                 <Link to={`/studies`}> My Studies</Link>
@@ -52,6 +53,7 @@ class Sidebar extends React.Component<AllProps> {
                             </NavItem>
                             {loggedInFeedNav}
                         </NavExpandable>
+                        <NavItemSeparator/>
                         <NavItem to="pipelines" itemId="pipelines" isActive={sidebarActiveItem === "pipelines"}>
                             <Link to="/pipelines">Pipelines</Link>
                         </NavItem>
@@ -82,7 +84,7 @@ class Sidebar extends React.Component<AllProps> {
             </Nav>
         );
         return (
-            <PageSidebar nav={PageNav} isNavOpen={isSidebarOpen} />
+            <PageSidebar nav={PageNav} isNavOpen={isSidebarOpen} theme="dark" />
         );
     }
 }
