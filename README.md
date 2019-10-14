@@ -5,7 +5,7 @@ UI for ChRIS.
 ## Preconditions
 
 ### Install latest Docker. Currently tested platforms:
-* ``Ubuntu (16.04/17.04/17.10)``
+* ``Ubuntu 16.04+``
 * ``MAC OS X 10.11+``
 
 ### Optionally get the backend services up so you can fully test the UI against actual data
