@@ -33,7 +33,7 @@ ENV UID=$UID  HOME="/home/localuser" VERSION="0.1"
 RUN adduser --uid $UID --disabled-password localuser  \
   && npm install chrome -g
 
-# Start as user localuser
+# Start as user localuser && npm install chrome -g
 USER localuser
 
 WORKDIR $HOME
