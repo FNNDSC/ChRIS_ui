@@ -32,7 +32,8 @@ ENV UID=$UID  HOME="/home/localuser"  VERSION="0.1"
 
 ENV APPROOT="${HOME}/build"
 
-RUN adduser --uid $UID --disabled-password localuser
+RUN adduser --uid $UID --disabled-password localuser \
+  && npm install chrome -g
 
 COPY --chown=localuser ["./", "${HOME}"]
 

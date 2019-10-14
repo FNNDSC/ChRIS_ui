@@ -30,7 +30,8 @@ MAINTAINER fnndsc "dev@babymri.org"
 ARG UID=1001
 ENV UID=$UID  HOME="/home/localuser" VERSION="0.1"
 
-RUN adduser --uid $UID --disabled-password localuser
+RUN adduser --uid $UID --disabled-password localuser  \
+  && npm install chrome -g
 
 # Start as user localuser
 USER localuser
