@@ -26,3 +26,6 @@ export const destroyFeed = () => action(FeedActionTypes.RESET_STATE);
 
 export const addFeed = (feed: IFeedItem) =>
   action(FeedActionTypes.ADD_FEED, feed);
+
+export const addNode = (pluginItem: IPluginItem) =>
+  action(FeedActionTypes.ADD_NODE, pluginItem);

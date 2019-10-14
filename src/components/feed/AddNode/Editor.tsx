@@ -17,9 +17,9 @@ interface Data {
 }
 
 function objectify(key: string, value: string = "null") {
-  let obj = {} as Data;
+  const obj = {} as Data;
 
-  obj[key] = value;
+  obj[key] = value.trim();
   return obj;
 }
 
@@ -27,10 +27,9 @@ const validate = (
   paramString: string,
   params: PluginParameter[]
 ): [string[], {}] => {
-  const tokenRegex = /([^\s=]+)(?:(?:=|\s+|[^--])([^ --][\w,]+))?/g;
+  const tokenRegex = /(-{1,2}[^\s]+)(\s+".+?"|\s+[^\s-]+)?/g;
+  const data = [];
   const errors = [];
-  let data = [];
-
   const tokens = [...matchall(paramString, tokenRegex)];
 
   for (const token of tokens) {
@@ -54,13 +53,6 @@ interface EditorState {
   errors: string[];
   params: PluginParameter[];
   docsExpanded: boolean;
-}
-interface PluginData {
-  data: [
-    {
-      [key: string]: string;
-    }
-  ];
 }
 
 interface EditorProps {
