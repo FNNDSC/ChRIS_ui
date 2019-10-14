@@ -160,7 +160,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           onShow={() => this.handleDescriptionPopoverShow(feed)}
         >
           <span className="feed-name">
-            <img src={feedIcon} alt=""/>
+            <img src={feedIcon} alt="" />
             {feed.name}
           </span>
         </Popover>
@@ -227,7 +227,6 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   render() {
     const { feeds } = this.props;
     const { feedsCount } = this.state;
-    console.log("Feeds", feeds);
 
     const cells = ["Feed", "Created", "Last Commit", ""];
     const rows = (feeds || []).map(this.generateTableRow);

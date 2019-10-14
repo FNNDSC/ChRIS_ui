@@ -3,7 +3,10 @@ import * as d3 from "d3";
 import * as cola from "webcola";
 import TreeModel, { ITreeChart } from "../../api/models/tree.model";
 import TreeNodeModel, { INode } from "../../api/models/tree-node.model";
-import { IPluginItem, getPluginInstanceTitle } from "../../api/models/pluginInstance.model";
+import {
+  IPluginItem,
+  getPluginInstanceTitle
+} from "../../api/models/pluginInstance.model";
 
 interface ITreeProps {
   items: IPluginItem[];
@@ -22,9 +25,15 @@ class FeedTree extends React.Component<AllProps> {
 
   componentDidMount() {
     const { items } = this.props;
+    this.fetchTree(items);
+  }
+
+  fetchTree(items: IPluginItem[]) {
     if (!!this.treeRef.current && !!items && items.length > 0) {
       const tree = new TreeModel(items);
+
       this.tree = tree;
+
       if (!!tree.treeChart) {
         this.buildFeedTree(tree.treeChart, this.treeRef);
         // Set root node active on load:r
@@ -33,19 +42,35 @@ class FeedTree extends React.Component<AllProps> {
           this.setActiveNode(rootNode);
           this.handleNodeClick(rootNode);
         }
-
       }
     }
   }
 
   componentDidUpdate(prevProps: AllProps) {
     const { selected } = this.props;
-    const prevSelected= prevProps.selected;
-    if (prevSelected && selected && this.tree && prevSelected.id !== selected.id) {
-      const activeNode = this.tree.treeChart.nodes.find(node => node.item.id === selected.id);
+    const prevSelected = prevProps.selected;
+    if (
+      prevSelected &&
+      selected &&
+      this.tree &&
+      prevSelected.id !== selected.id
+    ) {
+      const activeNode = this.tree.treeChart.nodes.find(
+        node => node.item.id === selected.id
+      );
       if (activeNode) {
         this.setActiveNode(activeNode);
       }
+    }
+
+    if (prevProps.items && prevProps.items !== this.props.items) {
+      console.log(
+        d3
+          .select("#tree")
+          .selectAll("svg")
+          .remove()
+      );
+      this.fetchTree(this.props.items);
     }
   }
 
@@ -64,12 +89,12 @@ class FeedTree extends React.Component<AllProps> {
     if (!!activeNode && !activeNode.empty()) {
       activeNode.attr("class", "nodegroup active");
     }
-  }
+  };
 
   // Description: Call prop to set active node in parent state
   handleNodeClick = (node: INode) => {
-    this.props.onNodeClick(node.item)
-  }
+    this.props.onNodeClick(node.item);
+  };
 
   // ---------------------------------------------------------------------
   // Description: Builds Webcola/D3 Feed Tree
@@ -104,8 +129,6 @@ class FeedTree extends React.Component<AllProps> {
           ? `${label.substring(0, labelMaxChar)}...`
           : label;
     });
-
-
 
     // Set up Webcola
     d3cola
@@ -199,7 +222,7 @@ class FeedTree extends React.Component<AllProps> {
         return `translate(${d.x - nodeRadius * 2}, ${d.y + nodeRadius * 2.5} )`;
       });
     }); // end of on tick
-  }
+  };
 
   handleMouseOver = (d: any, i: number) => {
     const tooltip = document.getElementById("tooltip");
@@ -210,10 +233,10 @@ class FeedTree extends React.Component<AllProps> {
       const height = tooltip.offsetHeight;
       tooltip.style.width = tooltipWidth + "px";
       tooltip.style.opacity = "1";
-      tooltip.style.left = (d.x - tooltipWidth * 0.5) + "px";
-      tooltip.style.top = (d.y - (height + 25)) + "px";
+      tooltip.style.left = d.x - tooltipWidth * 0.5 + "px";
+      tooltip.style.top = d.y - (height + 25) + "px";
     }
-  }
+  };
 
   handleMouseOut = (d: any, i: number) => {
     const tooltip = document.getElementById("tooltip");
@@ -222,7 +245,7 @@ class FeedTree extends React.Component<AllProps> {
       tooltip.style.opacity = "0";
       tooltip.style.left = "-9999px";
     }
-  }
+  };
 
   // Description: Destroy d3 content
   componentWillUnmount() {
