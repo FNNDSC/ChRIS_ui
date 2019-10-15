@@ -3,10 +3,7 @@ import * as d3 from "d3";
 import * as cola from "webcola";
 import TreeModel, { ITreeChart } from "../../api/models/tree.model";
 import TreeNodeModel, { INode } from "../../api/models/tree-node.model";
-import {
-  IPluginItem,
-  getPluginInstanceTitle
-} from "../../api/models/pluginInstance.model";
+import { IPluginItem } from "../../api/models/pluginInstance.model";
 
 interface ITreeProps {
   items: IPluginItem[];
@@ -120,10 +117,10 @@ class FeedTree extends React.Component<AllProps> {
       .attr("width", width)
       .attr("height", height);
 
-    const nodeRadius = 8;
+    const nodeRadius = 10;
     tree.nodes.forEach((v: any) => {
       v.height = v.width = 2 * nodeRadius;
-      const label = getPluginInstanceTitle(v.item);
+      const label = `${v.item.plugin_name} v. ${v.item.plugin_version}`;
       v.label =
         label.length > labelMaxChar
           ? `${label.substring(0, labelMaxChar)}...`

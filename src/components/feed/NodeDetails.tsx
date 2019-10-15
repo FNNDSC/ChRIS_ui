@@ -23,7 +23,6 @@ import {
 } from "../../api/models/pluginInstance.model";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import TreeNodeModel from "../../api/models/tree-node.model";
-import { getPluginInstanceTitle } from "../../api/models/pluginInstance.model";
 
 import TextCopyPopover from "../common/textcopypopover/TextCopyPopover";
 import AddNode from "./AddNode/AddNode";
@@ -118,9 +117,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     const { selected } = this.props;
     const { plugin, params } = this.state;
 
-    const pluginTitle = `${getPluginInstanceTitle(selected)} v. ${
-      selected.plugin_version
-    }`;
+    const pluginTitle = `${selected.plugin_name} v. ${selected.plugin_version}`;
     const command =
       plugin && params ? this.getCommand(plugin, params) : "Loading command...";
 
