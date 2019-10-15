@@ -12,10 +12,7 @@ import {
 import { FeedFile, Collection } from "@fnndsc/chrisapi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import {
-  getPluginInstanceTitle,
-  IPluginItem
-} from "../../api/models/pluginInstance.model";
+import { IPluginItem } from "../../api/models/pluginInstance.model";
 import UITreeNodeModel, {
   IUITreeNode
 } from "../../api/models/file-explorer.model";
@@ -226,7 +223,7 @@ class FeedOutputBrowser extends React.Component<
 
   // Format plugin name to "Name_vVersion_ID"
   getPluginName(plugin: IPluginItem) {
-    const title = getPluginInstanceTitle(plugin);
+    const title = plugin.plugin_name;
     const formattedTitle = title.replace(/\s+/, "_");
     const { plugin_version, id } = plugin;
     return `${formattedTitle}_v${plugin_version}_${id}`;
@@ -234,7 +231,7 @@ class FeedOutputBrowser extends React.Component<
 
   // Format plugin name to "Name v. Version"
   getPluginDisplayName(plugin: IPluginItem) {
-    return `${getPluginInstanceTitle(plugin)} v. ${plugin.plugin_version}`;
+    return `${plugin.plugin_name} v. ${plugin.plugin_version}`;
   }
 
   render() {

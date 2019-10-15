@@ -6,7 +6,7 @@ import { Button } from "@patternfly/react-core";
 import { InfrastructureIcon, CodeBranchIcon } from "@patternfly/react-icons";
 
 import "./addnode.scss";
-import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
+import { Plugin, PluginInstance, Collection } from "@fnndsc/chrisapi";
 import ScreenOne from "./ScreenOne";
 import AddModal from "./AddModal";
 
@@ -15,9 +15,13 @@ import ChrisAPIClient from "../../../api/chrisapiclient";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
+import { Dispatch } from "redux";
+import { addNode } from "../../../store/feed/actions";
+
 interface AddNodeProps {
   selected?: IPluginItem;
   nodes?: IPluginItem[];
+  addNode: (pluginItem: IPluginItem) => void;
 }
 
 interface AddNodeState {
@@ -138,12 +142,11 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
     this.setState({ step: 0 });
   }
 
-  async handleCreate(data: any) {
+  async handleCreate(parameters: any) {
     const { plugin } = this.state.data;
     const { selected } = this.props;
 
     if (!plugin || !selected) {
-
       return;
     }
     const client = ChrisAPIClient.getClient();
@@ -151,15 +154,35 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
 
     let createParameterList = {};
 
-    for (let parameter of data) {
+    for (let parameter of parameters) {
       createParameterList = { ...createParameterList, ...parameter };
     }
 
-    await client.createPluginInstance(pluginId, {
+    const node = await client.createPluginInstance(pluginId, {
       title: "Test",
       previous_id: selected.id as number,
       ...createParameterList
     });
+
+    // Add node to redux
+
+    const { data, collection } = node;
+    const createdNodeLinks = collection.items[0];
+
+    const getLinkUrl = (resource: string) => {
+      return Collection.getLinkRelationUrls(createdNodeLinks, resource)[0];
+    };
+
+    const nodeobj = {
+      ...data,
+      descendants: getLinkUrl("descendants"),
+      feed: getLinkUrl("feed"),
+      files: getLinkUrl("files"),
+      parameters: getLinkUrl("parameters"),
+      plugin: getLinkUrl("plugin"),
+      url: node.url
+    };
+    this.props.addNode(nodeobj);
 
     this.handleModalClose();
   }
@@ -220,5 +243,11 @@ const mapStateToProps = (state: ApplicationState) => ({
   selected: state.plugin.selected,
   nodes: state.feed.items
 });
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  addNode: (pluginItem: IPluginItem) => dispatch(addNode(pluginItem))
+});
 
-export default connect(mapStateToProps)(AddNode);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AddNode);
