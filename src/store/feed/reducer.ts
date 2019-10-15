@@ -29,6 +29,14 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         return { ...state, feeds: [action.payload] };
       }
     }
+
+    case FeedActionTypes.ADD_NODE: {
+      if (state.items) {
+        return { ...state, items: [...state.items, action.payload] };
+      }
+      return { ...state, items: [action.payload] };
+    }
+
     default: {
       return state;
     }
