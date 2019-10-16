@@ -32,13 +32,12 @@ ENV UID=$UID  HOME="/home/localuser"  VERSION="0.1"
 
 ENV APPROOT="${HOME}/build"
 
-RUN adduser --uid $UID --disabled-password localuser \
-  && npm install chrome -g
+RUN adduser --uid $UID --disabled-password localuser
 
 COPY --chown=localuser ["./", "${HOME}"]
 
 # build the app for production and install server
-RUN su - localuser -c "npm install && npm run build && yarn add serve --network-timeout 100000"
+RUN su - localuser -c "npm install && npm run build && npm install serve"
 
 # Start as user localuser
 USER localuser
