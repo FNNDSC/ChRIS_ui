@@ -1,0 +1,18 @@
+.dockerignore
+Dockerfile*
+.gitignore
+.travis.yml
+.git
+LICENSE
+README.md
+
+
+# dev container stuff that might end up here bc of the dev environment
+node_modules
+.config/
+.npm/
+.cache/
+.yarnrc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
