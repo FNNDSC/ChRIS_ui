@@ -329,6 +329,7 @@ class ChrisFileSelect extends React.Component<
             />
             {initialTreeLoaded ? (
               <Tree
+                className="tree"
                 tree={visibleTree}
                 renderNode={this.renderTreeNode}
                 paddingLeft={20}
@@ -337,6 +338,7 @@ class ChrisFileSelect extends React.Component<
               <LoadingSpinner />
             )}
           </SplitItem>
+
           <SplitItem isFilled className="file-list-wrap">
             <p className="section-header">Files to add to new feed:</p>
             <div className="file-list">{fileList}</div>

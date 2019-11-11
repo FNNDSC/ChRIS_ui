@@ -114,8 +114,19 @@ class PluginSelect extends React.Component<
 
   async fetchAllPlugins() {
     const client = ChrisAPIClient.getClient();
-    const pluginList = await client.getPlugins();
+    const params = { limit: 25, offset: 0 };
+    let pluginList = await client.getPlugins(params);
     const plugins = pluginList.getItems();
+
+    while (pluginList.hasNextPage) {
+      try {
+        params.offset += params.limit;
+        pluginList = await client.getPlugins(params);
+        plugins.push(...pluginList.getItems());
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
     this.setState({ allPlugins: plugins });
   }

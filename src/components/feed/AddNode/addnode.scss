@@ -1,43 +1,28 @@
 @import "../../../assets/scss/helpers/variables";
 
-.modal.right-side-modal-pf {
-  right: 0;
-  left: initial;
-  position: absolute;
-  overflow: visible;
+.pf-c-modal-box {
+  right: 0 !important;
+  left: initial !important;
+  position: absolute !important;
+  width: 40% !important;
 
-  .modal-dialog {
-    transform: none !important;
-    margin-left: auto;
-    margin-right: -1px;
-
-    .modal-header {
-      background: #f9f9f9;
-      border-bottom: none;
-      font-size: 16px;
-      border-top-right-radius: 0;
-      .modal-close {
-        color: #8a8a8a;
-      }
-    }
-
-    .modal-content {
-      height: calc(100vh - #{270px});
-
-      display: flex;
-      flex-direction: column;
-      margin-top: 10rem;
-
-      .modal-body {
-        flex-grow: 1;
-        overflow: hidden auto;
-      }
-    }
+  -webkit-transform: translate3d(0%, 0, 0);
+  -ms-transform: translate3d(0%, 0, 0);
+  -o-transform: translate3d(0%, 0, 0);
+  transform: translate3d(0%, 0, 0);
+  &__body {
+    display: flex;
+    flex-direction: column;
   }
+}
 
-  &.fade:not(.in) .modal-dialog {
-    -webkit-transform: translate3d(-25%, 0, 0);
-    transform: translate3d(25%, 0, 0);
+.screen-one {
+  .pf-c-dropdown__toggle-text,
+  .pf-c-dropdown__toggle svg {
+    color: var(--pf-c-dropdown__toggle--Color) !important;
+  }
+  .pf-c-dropdown__toggle {
+    margin-bottom: 0 !important;
   }
 
   .pficon .pficon-close {
@@ -55,16 +40,6 @@
   .pf-c-form__label-text {
     color: black;
     font-size: 15px;
-  }
-}
-
-.screen-one {
-  .pf-c-dropdown__toggle-text,
-  .pf-c-dropdown__toggle svg {
-    color: var(--pf-c-dropdown__toggle--Color) !important;
-  }
-  .pf-c-dropdown__toggle {
-    margin-bottom: 0 !important;
   }
 }
 
@@ -154,22 +129,43 @@
     background: white;
   }
 
-  .plugin-input {
-    margin-top: -5px;
+  .param-form {
+    display: flex;
+    flex-direction: row;
+    font-family: monospace !important;
   }
 
-  [contenteditable] {
+  .param-form-item-2 {
+    background-color: white !important;
+    color: white !important;
+    font-size: 18px !important;
+    font-family: monospace !important;
+    border: 1px solid black;
+    width: 60% !important;
+  }
+
+  .approved {
+    background-color: green !important;
+  }
+
+  .not-approved {
+    background-color: #ec7909 !important;
+  }
+
+  .param-form-item-3 {
     color: black !important;
-    border: 1px solid gray;
-    padding: 5px;
-    font-size: 13px;
-    font-family: monospace;
-    .warning {
-      color: #b35b01 !important;
-    }
-    .autocomplete {
-      color: gray !important;
-    }
+    border: 1px solid gray !important;
+    font-family: monospace !important;
+  }
+  .param-form-item-help {
+    margin-top: -15px !important;
+    background-color: white !important;
+    color: black !important;
+    text-align: left !important;
+  }
+
+  .plugin-input {
+    margin-top: -5px;
   }
 
   .errors {
@@ -183,90 +179,5 @@
     }
     margin-top: 10px;
     margin-bottom: 10px;
-  }
-
-  .pf-c-form__actions {
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  button.pf-m-primary {
-    &:hover,
-    &:focus {
-      background: var(--pf-c-button--m-primary--BackgroundColor) !important;
-      color: white !important;
-    }
-
-    &::after {
-      content: none !important;
-    }
-    svg {
-      transform: rotate(180deg);
-    }
-  }
-
-  button.pf-m-secondary {
-    color: white !important;
-    border: 1px solid var(--pf-global--primary-color--100) !important;
-    background: var(--pf-c-button--m-primary--BackgroundColor) !important;
-
-    &:hover {
-      color: white !important;
-    }
-    &::after {
-      content: none !important;
-    }
-    svg {
-      transform: rotate(180deg);
-    }
-  }
-
-  // Cancel button
-  button.pf-m-tertiary {
-    color: white !important;
-    background: var(--pf-c-button--m-primary--BackgroundColor) !important;
-
-    &:hover {
-      color: white !important;
-      background: var(--pf-c-button--m-primary--BackgroundColor) !important;
-    }
-    &::after {
-      content: none !important;
-      background: var(--pf-c-button--m-primary--BackgroundColor) !important;
-    }
-    svg {
-      transform: rotate(180deg);
-    }
-  }
-
-  .docs {
-    border: 1px solid #f3be3a;
-    background: #fbeabc;
-    font-size: 15px;
-    .pf-c-expandable__toggle {
-      border-bottom: 1px solid #f3be3a;
-      font-size: 15px !important;
-      padding-left: 10px;
-      color: black !important;
-      background: #f9d67a !important;
-      width: 100%;
-      display: flex;
-      flex-direction: row-reverse;
-      justify-content: space-between;
-      font-weight: bold;
-      outline: none;
-      svg {
-        margin: 0;
-        font-size: 20px;
-      }
-    }
-    .pf-c-expandable__content * {
-      color: black !important;
-    }
-
-    .param-item {
-      padding-bottom: 15px;
-      padding-left: 10px;
-    }
   }
 }

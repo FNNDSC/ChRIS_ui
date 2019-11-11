@@ -135,7 +135,7 @@ class FeedOutputBrowser extends React.Component<
   }
 
   createTreeFromFiles(files: FeedFile[], selected: IPluginItem) {
-    if (!files) {
+    if (!files || !files.length) {
       return null;
     }
     const model = new UITreeNodeModel(convertFiles(files, selected), selected);

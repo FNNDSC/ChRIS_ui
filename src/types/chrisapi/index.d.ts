@@ -1799,18 +1799,13 @@ declare module "@fnndsc/chrisapi" {
     max_creation_date?: string
   }
 
-  /*
-  
   export interface IPluginCreateData {
-    
-
-
     title?: string,
-    previous_id?: number,
+    previous_id?: string,
     cpu_limit?: string,
     memory_limit?: string,
     number_of_workers?: string,
     gpu_limit?: string
   }
-  */
+  
 }

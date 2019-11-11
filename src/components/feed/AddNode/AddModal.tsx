@@ -1,7 +1,5 @@
 import React from "react";
-import { ModelessOverlay, Modal } from "patternfly-react";
-
-import { CloseIcon } from "@patternfly/react-icons";
+import { Modal } from "@patternfly/react-core";
 
 interface AddModalProps {
   handleModalClose: () => void;
@@ -13,27 +11,20 @@ interface AddModalProps {
 
 class AddModal extends React.Component<AddModalProps> {
   render() {
-    const {
-      children,
-      handleModalClose,
-      footer,
-      showOverlay,
-      step
-    } = this.props;
+    const { children, handleModalClose, footer, showOverlay } = this.props;
+
     return (
-      <ModelessOverlay show={showOverlay}>
-        <Modal.Header>
-          <Modal.Title className="modal-font-color">Add A Node</Modal.Title>
-          <CloseIcon
-            className="modal-close"
-            onClick={() => handleModalClose()}
-          />
-        </Modal.Header>
-
-        <Modal.Body className="modal-font-color">{children}</Modal.Body>
-
-        {step === 0 && <Modal.Footer>{footer}</Modal.Footer>}
-      </ModelessOverlay>
+      <Modal
+        isLarge
+        isOpen={showOverlay}
+        title="Add Node"
+        ariaDescribedById="custom-header-example"
+        onClose={handleModalClose}
+        footer={footer}
+        isFooterLeftAligned
+      >
+        <span id="custom-header-example">{children}</span>
+      </Modal>
     );
   }
 }

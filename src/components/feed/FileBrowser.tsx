@@ -1,28 +1,46 @@
-import React from 'react';
-import classNames from 'classnames';
+import React from "react";
+import classNames from "classnames";
 
-import { Breadcrumb, BreadcrumbItem, Split, SplitItem, PopoverPosition } from '@patternfly/react-core';
-import { FileImageIcon, FileCodeIcon, FileAltIcon, FileIcon, FolderCloseIcon, DownloadIcon  } from '@patternfly/react-icons';
-import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  Split,
+  SplitItem,
+  PopoverPosition
+} from "@patternfly/react-core";
+import {
+  FileImageIcon,
+  FileCodeIcon,
+  FileAltIcon,
+  FileIcon,
+  FolderCloseIcon,
+  DownloadIcon
+} from "@patternfly/react-icons";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableVariant
+} from "@patternfly/react-table";
 
-import FileViewerModel from '../../api/models/file-viewer.model';
-import { IUITreeNode } from '../../api/models/file-explorer.model';
-import ChrisModel from '../../api/models/base.model';
-import TextCopyPopover from '../common/textcopypopover/TextCopyPopover';
-import FileDetailView from '../explorer/FileDetailView';
+import FileViewerModel from "../../api/models/file-viewer.model";
+import { IUITreeNode } from "../../api/models/file-explorer.model";
+import ChrisModel from "../../api/models/base.model";
+import TextCopyPopover from "../common/textcopypopover/TextCopyPopover";
+import FileDetailView from "../explorer/FileDetailView";
 
 function getIcon(type: string) {
   switch (type.toLowerCase()) {
-    case 'dir':
+    case "dir":
       return <FolderCloseIcon />;
-    case 'dcm':
-    case 'jpg':
-    case 'png':
+    case "dcm":
+    case "jpg":
+    case "png":
       return <FileImageIcon />;
-    case 'html':
-    case 'json':
+    case "html":
+    case "json":
       return <FileCodeIcon />;
-    case 'txt':
+    case "txt":
       return <FileAltIcon />;
     default:
       return <FileIcon />;
@@ -40,17 +58,15 @@ interface FileBrowerState {
   breadcrumbs: IUITreeNode[];
   previewingFile?: IUITreeNode; // file selected for preview
   pathViewingFile?: IUITreeNode; // file selected via shift-click for viewing full path
-
 }
 
 class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
-
   constructor(props: FileBrowserProps) {
     super(props);
     this.state = {
       directory: props.root,
-      breadcrumbs: [props.root],
-    }
+      breadcrumbs: [props.root]
+    };
 
     this.generateTableRow = this.generateTableRow.bind(this);
     this.generateBreadcrumb = this.generateBreadcrumb.bind(this);
@@ -64,8 +80,8 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
 
   handleFileClick(e: React.MouseEvent, rows: any[], rowData: any) {
     const target = e.nativeEvent.target as HTMLElement;
-    if (e.button !== 0 || target.closest('.download-file')) {
-       // not alt-click or download click
+    if (e.button !== 0 || target.closest(".download-file")) {
+      // not alt-click or download click
       return;
     }
 
@@ -75,41 +91,45 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
       return;
     }
     const file = directory.children[rowIndex];
-    
+
     if (e.nativeEvent.altKey) {
-        if (pathSelectedFile && pathSelectedFile.uiId === file.uiId) {
-          return;
-        }
-        return this.handlePathPopoverOpen(file);
+      if (pathSelectedFile && pathSelectedFile.uiId === file.uiId) {
+        return;
+      }
+      return this.handlePathPopoverOpen(file);
     }
 
     if (file.children) {
       this.setState({
         directory: file,
         breadcrumbs: [...this.state.breadcrumbs, file],
-        previewingFile: undefined,
+        previewingFile: undefined
       });
     } else {
       this.setState({
         previewingFile: file
-      })
+      });
     }
   }
 
-  handleBreadcrumbClick(e: React.MouseEvent, folder: IUITreeNode, prevBreadcrumbs: IUITreeNode[]) {
+  handleBreadcrumbClick(
+    e: React.MouseEvent,
+    folder: IUITreeNode,
+    prevBreadcrumbs: IUITreeNode[]
+  ) {
     e.preventDefault();
     this.setState({
       directory: folder,
       breadcrumbs: [...prevBreadcrumbs, folder],
-      previewingFile: undefined,
-    })
+      previewingFile: undefined
+    });
   }
 
   handleDownloadClick(e: React.MouseEvent, node: IUITreeNode) {
     e.stopPropagation();
-    ChrisModel.getFileBlob(node.file.file_resource).then(({data: blob}) => {
+    ChrisModel.getFileBlob(node.file.file_resource).then(({ data: blob }) => {
       FileViewerModel.downloadFile(blob, node.module);
-    })
+    });
   }
 
   // PATH POPOVER LISTENERS
@@ -119,7 +139,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
   }
 
   handlePathPopoverClose() {
-    this.setState({ pathViewingFile: undefined })
+    this.setState({ pathViewingFile: undefined });
   }
 
   // Prevent the click from propagating to file, which would open filepreview
@@ -131,7 +151,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
   // Close the path popover if click is outside, otherwise do nothing
   handlePathPopoverBlur(e: React.FocusEvent) {
     const relatedTarget = e.nativeEvent.relatedTarget as Element;
-    if (!relatedTarget || !relatedTarget.closest('.path-popover-wrap')) {
+    if (!relatedTarget || !relatedTarget.closest(".path-popover-wrap")) {
       this.handlePathPopoverClose();
     }
   }
@@ -146,10 +166,8 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
         text={path}
         children={children}
         isVisible={isVisible}
-
         className="path-popover-wrap"
         tabIndex={0}
-
         position={PopoverPosition.bottom}
         onMouseDown={this.handlePathPopoverClick}
         onBlur={this.handlePathPopoverBlur}
@@ -159,56 +177,76 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
   }
 
   generateTableRow(node: IUITreeNode) {
-
-    let type = 'File';
+    let type = "File";
     if (node.children) {
-      type = 'Dir';
+      type = "Dir";
     } else if (node.file) {
       const name = node.module;
-      if (name.indexOf('.') > -1) {
-        type = name.split('.').splice(-1)[0].toUpperCase();
+      if (name.indexOf(".") > -1) {
+        type = name
+          .split(".")
+          .splice(-1)[0]
+          .toUpperCase();
       }
     }
     const icon = getIcon(type);
-    const isPathSelected = !!this.state.pathViewingFile && this.state.pathViewingFile.uiId === node.uiId;
-    const isPreviewing = !!this.state.previewingFile && this.state.previewingFile.uiId === node.uiId;
+    const isPathSelected =
+      !!this.state.pathViewingFile &&
+      this.state.pathViewingFile.uiId === node.uiId;
+    const isPreviewing =
+      !!this.state.previewingFile &&
+      this.state.previewingFile.uiId === node.uiId;
 
     const fileName = (
       <div
-        className={classNames('file-name', isPathSelected && 'path-selected', isPreviewing && 'previewing')}
+        className={classNames(
+          "file-name",
+          isPathSelected && "path-selected",
+          isPreviewing && "previewing"
+        )}
       >
-        { icon }
-        { node.module }
-      </div> 
-    )
-    
+        {icon}
+        {node.module}
+      </div>
+    );
+
     const name = {
-      title: this.generatePopover(this.getNodePath(node), fileName, isPathSelected)
-    }
-    const size = ''; // Getting sizes would require loading each file. Deferred until server implements a `size` field.
+      title: this.generatePopover(
+        this.getNodePath(node),
+        fileName,
+        isPathSelected
+      )
+    };
+    const size = ""; // Getting sizes would require loading each file. Deferred until server implements a `size` field.
     const download = {
-      title: node.children ?
-        '' : 
+      title: node.children ? (
+        ""
+      ) : (
         <DownloadIcon
           className="download-file-icon"
-          onClick={e => this.handleDownloadClick(e, node)} 
+          onClick={e => this.handleDownloadClick(e, node)}
         />
+      )
     };
-    return [name, type, size, download];
+
+    return {
+      cells: [name, type, size, download]
+    };
   }
 
-  generateBreadcrumb(folder: IUITreeNode, i: number, breadcrumbs: IUITreeNode[]) {
+  generateBreadcrumb(
+    folder: IUITreeNode,
+    i: number,
+    breadcrumbs: IUITreeNode[]
+  ) {
     const prevBreadcrumbs = breadcrumbs.slice(0, i);
-    const onClick = (e: React.MouseEvent) => this.handleBreadcrumbClick(e, folder, prevBreadcrumbs);
+    const onClick = (e: React.MouseEvent) =>
+      this.handleBreadcrumbClick(e, folder, prevBreadcrumbs);
     return (
-      <BreadcrumbItem
-        className="breadcrumb"
-        onClick={onClick}
-        key={i}
-      >
-        { folder.module }
+      <BreadcrumbItem className="breadcrumb" onClick={onClick} key={i}>
+        {folder.module}
       </BreadcrumbItem>
-    )
+    );
   }
 
   // Gets the file path for a node. Temporary, until IUITreeNode is replaced
@@ -220,16 +258,16 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     const { breadcrumbs } = this.state;
 
     // currently on top-level directory
-    if (breadcrumbs.length === 1) { 
+    if (breadcrumbs.length === 1) {
       return `/${node.module}`;
     }
-    
+
     // IUITreeNode.file is not set if the the node is a folder
     const path = breadcrumbs
       .slice(1) // exclude the plugin directory
       .map((breadcrumb: IUITreeNode) => breadcrumb.module)
-      .join('/');
-      
+      .join("/");
+
     return `/${path}/${node.module}`;
   }
 
@@ -237,23 +275,20 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     const { handleViewerModeToggle } = this.props;
     const { directory, breadcrumbs, previewingFile } = this.state;
 
-    if (!directory.children) {
-      return <div>No files in this directory.</div>
+    if (!directory.children || !directory.children.length) {
+      return <div>No files in this directory.</div>;
     }
 
-    const cols = ['Name', 'Type', 'Size', '']; // final col is download
+    const cols = ["Name", "Type", "Size", ""]; // final col is download
     const rows = directory.children.map(this.generateTableRow);
 
     return (
       <div className="file-browser">
-        <Breadcrumb>
-          { breadcrumbs.map(this.generateBreadcrumb) }
-        </Breadcrumb>
+        <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
 
         <Split gutter="md">
-
           <SplitItem isFilled={true}>
-            <Table 
+            <Table
               caption="files"
               variant={TableVariant.compact}
               cells={cols}
@@ -265,16 +300,16 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
             </Table>
           </SplitItem>
 
-          {
-            previewingFile &&
+          {previewingFile && (
             <SplitItem isFilled={true}>
               <FileDetailView
-                selectedFile={ previewingFile }
-                toggleViewerMode={() => handleViewerModeToggle(previewingFile, directory)}
+                selectedFile={previewingFile}
+                toggleViewerMode={() =>
+                  handleViewerModeToggle(previewingFile, directory)
+                }
               />
             </SplitItem>
-          }
-
+          )}
         </Split>
       </div>
     );

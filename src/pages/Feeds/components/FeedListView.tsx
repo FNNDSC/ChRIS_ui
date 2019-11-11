@@ -188,7 +188,9 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
       )
     };
 
-    return [name, created, lastCommit, viewDetails];
+    return {
+      cells: [name, created, lastCommit, viewDetails]
+    };
   }
 
   generatePagination() {

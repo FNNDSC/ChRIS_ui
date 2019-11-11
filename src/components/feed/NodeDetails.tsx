@@ -89,8 +89,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
   getCommand(plugin: Plugin, params: PluginInstanceParameter[]) {
     const { dock_image, selfexec } = plugin.data;
     let command = `
-    docker run -v $(pwd)/in:/incoming -v 
-    $(pwd)/out:outgoing
+   
     ${dock_image} ${selfexec}`;
 
     if (params.length) {

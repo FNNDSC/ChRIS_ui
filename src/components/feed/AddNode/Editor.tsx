@@ -1,57 +1,25 @@
 import React from "react";
-import matchall from "string.prototype.matchall";
 
 import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import {
-  Expandable,
   TextInput,
   ActionGroup,
   Form,
-  FormGroup,
-  Button
+  Button,
+  Checkbox,
+  Label
 } from "@patternfly/react-core";
-import { ExclamationTriangleIcon } from "@patternfly/react-icons";
-
-interface Data {
-  [key: string]: string | null;
-}
-
-function objectify(key: string, value: string = "null") {
-  const obj = {} as Data;
-
-  obj[key] = value.trim();
-  return obj;
-}
-
-const validate = (
-  paramString: string,
-  params: PluginParameter[]
-): [string[], {}] => {
-  const tokenRegex = /(-{1,2}[^\s]+)(\s+".+?"|\s+[^\s-]+)?/g;
-  const data = [];
-  const errors = [];
-  const tokens = [...matchall(paramString, tokenRegex)];
-
-  for (const token of tokens) {
-    // eslint-disable-next-line
-    const [_, flag, value] = token;
-
-    const paramName = flag.replace(/-/g, "");
-    const validParam = params.find(param => param.data.flag === flag);
-
-    if (!validParam) {
-      errors.push(`${paramName} is not a valid Parameter name`);
-    } else {
-      data.push(objectify(paramName, value));
-    }
-  }
-  return [errors, data];
-};
+//import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 interface EditorState {
-  paramString: string;
   errors: string[];
   params: PluginParameter[];
+  userInput: {
+    [key: string]: string | null;
+  };
+  checked: {
+    [key: string]: boolean;
+  };
   docsExpanded: boolean;
 }
 
@@ -66,13 +34,14 @@ class Editor extends React.Component<EditorProps, EditorState> {
   constructor(props: EditorProps) {
     super(props);
     this.state = {
-      paramString: "",
       params: [],
-      errors: [],
-      docsExpanded: true
+      docsExpanded: true,
+      userInput: {},
+      checked: {},
+      errors: []
     };
 
-    this.handleInput = this.handleInput.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.handleDocsToggle = this.handleDocsToggle.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -91,21 +60,37 @@ class Editor extends React.Component<EditorProps, EditorState> {
     const { plugin } = this.props;
     const paramList = await plugin.getPluginParameters();
     const params = paramList.getItems();
-    const paramString = this.generateDefaultParamString(params);
-    this.setState({ params, paramString });
+    //const paramString = this.generateDefaultParamString(params);
+    this.setState({ params });
   }
 
   generateDefaultParamString(params: PluginParameter[]) {
     return params
-      .map(param => `${param.data.flag} ${param.data.default}`)
+      .map(param => `[${param.data.name} = ${param.data.default}] ;`)
       .join(" ");
   }
 
-  handleInput(paramString: string) {
+  handleChange(value: string, event: React.FormEvent<HTMLInputElement>) {
+    event.persist();
+    const target = event.target as HTMLInputElement;
+    const name = target.name;
+
     this.setState({
-      paramString
+      userInput: {
+        ...this.state.userInput,
+        [name]: value.trim()
+      }
     });
   }
+
+  handleCheckboxChange = (checked: boolean, data: any) => {
+    this.setState({
+      checked: {
+        ...this.state.checked,
+        [data.name]: checked
+      }
+    });
+  };
 
   handleDocsToggle() {
     this.setState((prevState: EditorState) => ({
@@ -113,83 +98,73 @@ class Editor extends React.Component<EditorProps, EditorState> {
     }));
   }
 
-  handleSubmit() {
-    const { paramString, params } = this.state;
-    const { handleCreate } = this.props;
-
-    const [errors, data] = validate(paramString, params);
-    if (errors !== null && errors.length > 0) {
-      this.setState({
-        errors
+  handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    event.preventDefault();
+    const test = Object.keys(this.state.checked)
+      .filter(checkbox => this.state.checked[checkbox])
+      .map(checkbox => {
+        return {
+          [checkbox]: this.state.userInput[checkbox]
+        };
       });
-      setTimeout(() => {
-        this.setState({
-          errors: []
-        });
-      }, 5000);
-    } else {
-      handleCreate(data);
-    }
+    this.props.handleCreate(test);
   }
 
   render() {
-    const { params, paramString, errors, docsExpanded } = this.state;
+    const { params, checked, userInput } = this.state;
     const { handleBackClick, handleModalClose } = this.props;
 
     return (
       <div className="screen-two">
         <Form>
-          <FormGroup fieldId="selected-plugin" label="Selected Plugin:">
-            <TextInput
-              value={this.props.plugin.data.name}
-              className="plugin-name"
-              aria-label="Selected Plugin Name"
-              spellCheck={false}
-            />
-          </FormGroup>
+          <TextInput
+            value={this.props.plugin.data.name}
+            className="plugin-name"
+            aria-label="Selected Plugin Name"
+            spellCheck={false}
+          />
 
-          <FormGroup fieldId="parameter-input" label="Plugin Configuration:">
-            <TextInput
-              type="text"
-              value={paramString}
-              onChange={this.handleInput}
-              className="plugin-input"
-              aria-label="Plugin Parameters"
-            />
-          </FormGroup>
+          {params.map(param => {
+            return (
+              <React.Fragment key={param.data.help}>
+                <div className="param-form">
+                  <Checkbox
+                    className="param-form-item-1"
+                    key={param.data.id}
+                    id={param.data.flag}
+                    isChecked={checked[param.data.name]}
+                    name={param.data.name}
+                    onChange={isChecked =>
+                      this.handleCheckboxChange(isChecked, param.data)
+                    }
+                    aria-label="controlled checkbox example"
+                  />
+                  <Label
+                    className={`param-form-item-2 ${
+                      checked[param.data.name] ? "approved" : "not-approved"
+                    } `}
+                  >
+                    <b>{param.data.flag} </b>{" "}
+                  </Label>
+                  <TextInput
+                    className="param-form-item-3"
+                    key={param.data.name}
+                    type="text"
+                    placeholder={`${param.data.default}`}
+                    onChange={this.handleChange}
+                    aria-label="simple-form-name-helper"
+                    value={userInput[param.data.name] || ""}
+                    name={param.data.name}
+                  />{" "}
+                </div>
 
-          <div className="errors">
-            {errors.map((error, i) => (
-              <div key={i}>
-                <ExclamationTriangleIcon />
-                <span className="error-message">{error}</span>
-              </div>
-            ))}
-          </div>
-          <Expandable
-            className="docs"
-            toggleText="Plugin configuration documentation:"
-            isExpanded={docsExpanded}
-            onToggle={this.handleDocsToggle}
-          >
-            {params
-              .filter(param => param.data.ui_exposed)
-              .map(param => {
-                return (
-                  <div key={param.data.id} className="param-item">
-                    <b className="param-title">
-                      [{param.data.flag} &lt;{param.data.type} :{" "}
-                      {param.data.name}
-                      &gt;]
-                    </b>
-                    {!param.data.optional && (
-                      <span className="required-star"> *</span>
-                    )}
-                    <div className="param-help">{param.data.help}</div>
-                  </div>
-                );
-              })}
-          </Expandable>
+                <Label className="param-form-item-help">
+                  <b>{param.data.help}</b>{" "}
+                </Label>
+              </React.Fragment>
+            );
+          })}
+
           <ActionGroup>
             <Button onClick={this.handleSubmit}>Add a Node</Button>
             <Button onClick={() => handleModalClose()}>Cancel</Button>

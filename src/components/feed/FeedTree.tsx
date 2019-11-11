@@ -117,7 +117,7 @@ class FeedTree extends React.Component<AllProps> {
       .attr("width", width)
       .attr("height", height);
 
-    const nodeRadius = 10;
+    const nodeRadius = 12;
     tree.nodes.forEach((v: any) => {
       v.height = v.width = 2 * nodeRadius;
       const label = `${v.item.plugin_name} v. ${v.item.plugin_version}`;

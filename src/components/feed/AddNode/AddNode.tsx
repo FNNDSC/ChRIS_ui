@@ -36,10 +36,6 @@ interface AddNodeState {
   input: string;
 }
 
-interface PluginData {
-  [key: string]: string;
-}
-
 class AddNode extends React.Component<AddNodeProps, AddNodeState> {
   constructor(props: AddNodeProps) {
     super(props);
@@ -145,24 +141,25 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
   async handleCreate(parameters: any) {
     const { plugin } = this.state.data;
     const { selected } = this.props;
+    console.log(selected);
 
     if (!plugin || !selected) {
       return;
     }
-    const client = ChrisAPIClient.getClient();
-    const pluginId = plugin.data.id;
 
     let createParameterList = {};
 
     for (let parameter of parameters) {
-      createParameterList = { ...createParameterList, ...parameter };
+      createParameterList = {
+        ...createParameterList,
+        ...parameter,
+        previous_id: `${selected.id}`
+      };
     }
 
-    const node = await client.createPluginInstance(pluginId, {
-      title: "Test",
-      previous_id: selected.id as number,
-      ...createParameterList
-    });
+    const pluginInstances = await plugin.getPluginInstances();
+    await pluginInstances.post(createParameterList);
+    const node = pluginInstances.getItems()[0];
 
     // Add node to redux
 
