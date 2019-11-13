@@ -23,27 +23,36 @@
 #   docker exec -it chris_ui sh
 #
 
-FROM node:12
+FROM node:12 as builder
 MAINTAINER fnndsc "dev@babymri.org"
 
+WORKDIR /app/
+
+COPY . .
+
+# Build the app for production
+RUN npm install && npm run build
+
+
+FROM node:12-alpine
 # Pass a UID on build command line (see above) to set internal UID
 ARG UID=1001
-ENV UID=$UID  HOME="/home/localuser"  VERSION="0.1"
+ENV UID=$UID  VERSION="0.1"
 
-ENV APPROOT="${HOME}/build"
+# Install server
+RUN yarn global add serve --network-timeout 100000
 
-RUN adduser --uid $UID --disabled-password localuser
+RUN adduser --uid $UID --disabled-password localuser  \
+  && su - localuser -c "mkdir app"
 
-COPY --chown=localuser ["./", "${HOME}"]
+WORKDIR /home/localuser/app/
 
-# build the app for production and install server
-RUN su - localuser -c "npm install && npm run build && npm install serve"
+COPY --from=builder --chown=localuser /app/build .
 
 # Start as user localuser
 USER localuser
 
-WORKDIR $APPROOT
 EXPOSE 3000
 
-# serve the production build
-CMD /home/localuser/node_modules/serve/bin/serve.js --single -l 3000 .
+# Serve the production build
+CMD serve --single -l 3000 .
