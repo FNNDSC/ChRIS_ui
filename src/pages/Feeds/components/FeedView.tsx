@@ -59,18 +59,6 @@ class FeedView extends React.Component<AllProps> {
     getFeedDetailsRequest(feedId);
   }
 
-  componentDidUpdate(prevProps: AllProps) {
-    const { selected, match } = this.props;
-
-    if (!selected) {
-      return;
-    }
-    if (!prevProps.selected || prevProps.selected.id !== selected.id) {
-      const feedId = match.params.id;
-      !!feedId && this.fetchFeedData(feedId);
-    }
-  }
-
   render() {
     const { items, details, selected, descendants, token } = this.props;
 

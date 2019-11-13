@@ -153,7 +153,7 @@ class FeedOutputBrowser extends React.Component<
     const tree = model.getTree();
 
     tree.module = this.getPluginName(selected);
-    return this.sortTree(tree);
+    return tree;
   }
 
   sortTree(root: IUITreeNode) {
