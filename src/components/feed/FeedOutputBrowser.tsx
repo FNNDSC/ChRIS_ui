@@ -88,14 +88,18 @@ class FeedOutputBrowser extends React.Component<
 
   componentDidUpdate(prevProps: FeedOutputBrowserProps) {
     const { selected } = this.props;
+
     if (!selected) {
       return;
     }
     const id = selected.id as number;
     const files = this.state.files[id];
+
     if (
       !prevProps.selected ||
-      (prevProps.selected.id !== selected.id && !files)
+      (prevProps.selected.id !== selected.id &&
+        prevProps.selected.status !== selected.status &&
+        !files)
     ) {
       this.fetchPluginFiles(selected);
     }
@@ -104,15 +108,22 @@ class FeedOutputBrowser extends React.Component<
   /* DATA FETCHING & MANIPULATION */
 
   async fetchPluginFiles(plugin: IPluginItem) {
+    console.log("Fetch called", plugin.status);
+
     const id = plugin.id as number;
-    if (this.state.files[id]) {
+    console.log(this.state.files[id]);
+
+    if (!this.state.files && this.state.files[id]) {
+      console.log("Returned");
       return;
     }
 
     // get all files
     const client = ChrisAPIClient.getClient();
     const params = { limit: 100, offset: 0 };
+
     const pluginInstance = await client.getPluginInstance(id);
+
     let fileList = await pluginInstance.getFiles(params);
     const files = fileList.getItems();
 
@@ -140,6 +151,7 @@ class FeedOutputBrowser extends React.Component<
     }
     const model = new UITreeNodeModel(convertFiles(files, selected), selected);
     const tree = model.getTree();
+
     tree.module = this.getPluginName(selected);
     return this.sortTree(tree);
   }
@@ -251,6 +263,7 @@ class FeedOutputBrowser extends React.Component<
     const pluginDisplayName = this.getPluginDisplayName(selected);
 
     const selectedFiles = files[selected.id as number];
+
     const tree = this.createTreeFromFiles(selectedFiles, selected);
 
     return (

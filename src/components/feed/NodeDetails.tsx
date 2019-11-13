@@ -115,6 +115,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
   render() {
     const { selected } = this.props;
     const { plugin, params } = this.state;
+    console.log(selected);
 
     const pluginTitle = `${selected.plugin_name} v. ${selected.plugin_version}`;
     const command =
@@ -165,6 +166,14 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
             <CalendarDayIcon />
             <Moment format="DD MMM YYYY @ HH:mm">{selected.start_date}</Moment>
           </GridItem>
+          <GridItem span={2} className="title">
+            Completed
+          </GridItem>
+          <GridItem span={10} className="value">
+            <CalendarDayIcon />
+            <Moment format="DD MMM YYYY @ HH:mm">{selected.end_date}</Moment>
+          </GridItem>
+
           <GridItem span={2} className="title">
             Node ID
           </GridItem>

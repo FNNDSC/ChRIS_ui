@@ -287,7 +287,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
         <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
 
         <Split gutter="md">
-          <SplitItem isFilled={true}>
+          <SplitItem isFilled>
             <Table
               caption="files"
               variant={TableVariant.compact}
@@ -301,7 +301,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
           </SplitItem>
 
           {previewingFile && (
-            <SplitItem isFilled={true}>
+            <SplitItem>
               <FileDetailView
                 selectedFile={previewingFile}
                 toggleViewerMode={() =>

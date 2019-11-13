@@ -64,19 +64,22 @@ class PluginList extends React.Component<PluginListProps, PluginListState> {
           placeholder="Filter by Name"
         />
         {plugins
-          ? plugins.filter(this.matchesFilter).map(plugin => {
-              const { id, name } = plugin.data;
-              const isSelected = selected && id === selected.data.id;
-              return (
-                <li
-                  key={id}
-                  className={classNames(isSelected && "selected")}
-                  onClick={() => handlePluginSelect(plugin)}
-                >
-                  {name}
-                </li>
-              );
-            })
+          ? plugins
+              .sort((a, b) => a.data.name.localeCompare(b.data.name))
+              .filter(this.matchesFilter)
+              .map(plugin => {
+                const { id, name } = plugin.data;
+                const isSelected = selected && id === selected.data.id;
+                return (
+                  <li
+                    key={id}
+                    className={classNames(isSelected && "selected")}
+                    onClick={() => handlePluginSelect(plugin)}
+                  >
+                    {name}
+                  </li>
+                );
+              })
           : loading}
       </ul>
     );

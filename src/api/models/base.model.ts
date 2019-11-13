@@ -58,14 +58,16 @@ export default class ChrisModel {
     const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
     const header = {
       "Content-Type": "application/vnd.collection+json",
-      "Authorization": "Token " + auth.token
+      Authorization: "Token " + auth.token
     };
+   
 
     const config: AxiosRequestConfig = {
       headers: header,
       method: "get",
       url
     };
+
     return axios(config);
   }
 
@@ -74,7 +76,7 @@ export default class ChrisModel {
     const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
     const header = {
       "Content-Type": "application/vnd.collection+json",
-      "Authorization": "Token " + auth.token
+      Authorization: "Token " + auth.token
     };
 
     const config: AxiosRequestConfig = {
@@ -91,7 +93,7 @@ export default class ChrisModel {
     const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
     const header = {
       "Content-Type": "application/vnd.collection+json",
-      "Authorization": "Token " + auth.token
+      Authorization: "Token " + auth.token
     };
     const config: AxiosRequestConfig = {
       headers: header,

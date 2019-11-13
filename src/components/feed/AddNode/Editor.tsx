@@ -107,6 +107,7 @@ class Editor extends React.Component<EditorProps, EditorState> {
           [checkbox]: this.state.userInput[checkbox]
         };
       });
+
     this.props.handleCreate(test);
   }
 

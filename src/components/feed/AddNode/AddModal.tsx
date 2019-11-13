@@ -15,7 +15,6 @@ class AddModal extends React.Component<AddModalProps> {
 
     return (
       <Modal
-        isLarge
         isOpen={showOverlay}
         title="Add Node"
         ariaDescribedById="custom-header-example"

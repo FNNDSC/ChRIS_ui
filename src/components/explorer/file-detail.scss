@@ -10,35 +10,38 @@
 
 // File detail view
 // -----------------------------------------------
-.output-viewer, .gallery-wrapper {
-  .catchall{ // catchall
-    .pf-c-alert{
+.output-viewer,
+.gallery-wrapper {
+  .catchall {
+    // catchall
+    .pf-c-alert {
       max-width: $fe-viewer-max-width-sm;
       margin: 1rem 3rem;
-      label{
+      label {
         display: block;
         margin-bottom: 0.5rem;
       }
     }
   }
   // Iframe to display the file contents
-  .default-display, .json-display{
+  .default-display,
+  .json-display {
     min-height: $fe-viewer-min-heigth;
   }
-  .default-display{
+  .default-display {
     background: white;
     border: solid 1px $fe-viewer-border;
     border-radius: 4px;
 
     max-width: $fe-viewer-max-width-sm;
-    iframe{
-      height:  calc(100vh - 350px);
+    iframe {
+      height: calc(100vh - 350px);
       margin: 0 auto;
       padding: 5px;
       width: 100%;
     }
   }
-  .json-display{
+  .json-display {
     background: $fe-viewer-background;
     border: solid 1px $fe-viewer-border;
     border-radius: 4px;
@@ -52,25 +55,24 @@
   }
 
   // Image display
-  .image-block{
+  .image-block {
     text-align: center;
-    img{
+    img {
       max-height: $fe-viewer-min-heigth;
     }
   }
-  // File Detail view div  
-  .iframedisplay .header-panel{
+  // File Detail view div
+  .iframedisplay .header-panel {
     max-width: $fe-viewer-max-width-sm;
   }
-  .imagedisplay .image-block{
-      text-align: left;
+  .imagedisplay .image-block {
+    text-align: left;
   }
-  
 }
 
-.header-panel{
-  h1{
-    padding-top:15px;
+.header-panel {
+  h1 {
+    padding-top: 15px;
     margin-bottom: 10px;
   }
 }

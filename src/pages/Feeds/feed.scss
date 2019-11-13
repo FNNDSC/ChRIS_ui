@@ -4,26 +4,25 @@
 *  Author:          ChRIS UI
 */
 
-
-@import '../../assets/scss/helpers/variables'; 
+@import "../../assets/scss/helpers/variables";
 
 /* Header */
 .feed-details {
   .feed-info-block {
     h1 {
-        font-size: 	1.2rem;
-        margin: 0.65rem 0;
+      font-size: 1.2rem;
+      margin: 0.65rem 0;
     }
     p {
-        margin-top: 0.3rem;
+      margin-top: 0.3rem;
     }
     .pf-c-list.pf-m-inline li:not(:last-child) {
-        margin-right: 2rem;
+      margin-right: 2rem;
     }
     img {
-        margin-right:0.5rem;
-        max-width: 70px;
-        width: 90%;
+      margin-right: 0.5rem;
+      max-width: 70px;
+      width: 90%;
     }
   }
   .feed-breadcrumbs {
@@ -41,7 +40,6 @@
 }
 
 .feed-header {
-
   padding-top: 25px !important;
   padding-bottom: 25px !important;
 
@@ -63,11 +61,9 @@
     color: var(--pf-global--Color--200);
     font-weight: normal;
   }
-
 }
 
 .feed-list {
-
   // table
   .pf-c-table {
     --pf-c-table-tbody-cell--PaddingTop: 15px;
@@ -95,14 +91,15 @@
     }
   }
 
-  .last-commit{
+  .last-commit {
     display: block;
     &::first-letter {
       text-transform: uppercase;
     }
   }
 
-  td:last-child { // "view feed details" column
+  td:last-child {
+    // "view feed details" column
     padding-right: 0;
     padding-left: 0;
   }
@@ -118,159 +115,160 @@
   }
 }
 
-.feed-view{
-    min-height: 25vh; // Temp for dev
-    >div{
-        color: #fff;
-    }
-    // Left side panel displaying feed tree
-    .feed-block{
-      background: $feed-block-background;
-    }
-    
-    // Right side panel to display node information
-    .node-block{
-        background: $node-block-background;
-        border-left: 3px solid $node-block-border;
-        font-size: $plugin-data-font-size;
-        div{
-            color: #fff;
-            label{
-                display:block;
-                font-size: $plugin-label-font-size;
-                
-            } 
-        }
-        .pf-l-grid{
-            margin-top: 1rem;
-        }
-        .btn-div{
-            margin-top: 0.5rem;
-            max-width: 200px;
-            button{
-                color: #fff;
-                font-size: $plugin-data-font-size;
-                margin-bottom: 0.5rem;
-                text-align: left;
-                outline-color: #fff;
-                svg{
-                    margin-right: 5px;
-                }
-                &:hover, &:focus{
-                    background: #fff;
-                    color: $node-block-background;
-                    &::after {
-                        border-color: #fff;
-                    }
-                }
-            }
-        }
-        // selected node and view command button
-        .details-header-wrap {
-            display: flex;
-            justify-content: space-between;
-            .pf-c-title {
-                color: #fff;
-                font-weight: bold;
-            }
-            .pf-c-button {
-                --pf-c-button--BorderRadius: 3px;
-                svg:first-child {
-                    margin-right: 12px;
-                }
-                svg:last-child {
-                    margin-left: 10px;
-                }
-            }
-        }
+.feed-view {
+  min-height: 25vh; // Temp for dev
+  > div {
+    color: #fff;
+  }
+  // Left side panel displaying feed tree
+  .feed-block {
+    background: $feed-block-background;
+  }
 
-        // status, created & node id
-        .node-details-grid {
-          row-gap: 10px !important;
-          .title {
-            font-size: 15px !important;
-          }
-          .value {
-            font-size: 16px !important;
-          }
-          .value svg {
-            margin-right: 10px;
+  // Right side panel to display node information
+  .node-block {
+    background: $node-block-background;
+    border-left: 3px solid $node-block-border;
+    font-size: $plugin-data-font-size;
+    div {
+      color: #fff;
+      label {
+        display: block;
+        font-size: $plugin-label-font-size;
+      }
+    }
+    .pf-l-grid {
+      margin-top: 1rem;
+    }
+    .btn-div {
+      margin-top: 0.5rem;
+      max-width: 200px;
+      button {
+        color: #fff;
+        font-size: $plugin-data-font-size;
+        margin-bottom: 0.5rem;
+        text-align: left;
+        outline-color: #fff;
+        svg {
+          margin-right: 5px;
+        }
+        &:hover,
+        &:focus {
+          background: #fff;
+          color: $node-block-background;
+          &::after {
+            border-color: #fff;
           }
         }
+      }
     }
+    // selected node and view command button
+    .details-header-wrap {
+      display: flex;
+      justify-content: space-between;
+      .pf-c-title {
+        color: #fff;
+        font-weight: bold;
+      }
+      .pf-c-button {
+        --pf-c-button--BorderRadius: 3px;
+        svg:first-child {
+          margin-right: 12px;
+        }
+        svg:last-child {
+          margin-left: 10px;
+        }
+      }
+    }
+
+    // status, created & node id
+    .node-details-grid {
+      row-gap: 10px !important;
+      .title {
+        font-size: 15px !important;
+      }
+      .value {
+        font-size: 16px !important;
+      }
+      .value svg {
+        margin-right: 10px;
+      }
+    }
+  }
 }
 
 // Misc
-.svg-inline--fa{
-    margin-right: 5px;
+.svg-inline--fa {
+  margin-right: 5px;
 }
 
 // Tree Chart Section
 // ------------------------------
 .link {
-    fill:none;
-    marker-end: url(#end-arrow);
-    opacity: 0.8;
-    stroke: $tree-links-color; //007bba - active
-    stroke-width: 1px;
+  fill: none;
+  marker-end: url(#end-arrow);
+  opacity: 0.8;
+  stroke: $tree-links-color; //007bba - active
+  stroke-width: 1px;
 }
-.nodelabel{
-    fill: $tree-node-backgound;
-    font-size: 0.75rem;
+.nodelabel {
+  fill: $tree-node-backgound;
+  font-size: 0.75rem;
 }
-.nodegroup{
-    cursor: pointer;
-    fill: $tree-node-backgound;
-    &.active{
-        fill: $tree-node-active-backgound;
-        .nodelabel{
-            fill: $tree-node-active-backgound;
-        }
+.nodegroup {
+  cursor: pointer;
+  fill: $tree-node-backgound;
+  &.active {
+    fill: $tree-node-active-backgound;
+    .nodelabel {
+      fill: $tree-node-active-backgound;
     }
+  }
 }
 // For tree tooltip
-#tree, #pipelineTree{
-    position: relative;
+#tree,
+#pipelineTree {
+  position: relative;
 }
-.tooltip{
-    background: $tree-tooltip-background; // rgb(57, 63, 68); // 393f44
-    color: #fff;
-    font-size: 0.875rem;
-    min-height: 50px;
-    opacity: 0;
-    padding: 1rem;
-    position: absolute; 
-    transition: opacity 1s; 
-    transition-delay: 0.5s;
-    &::before{
-        background: $tree-tooltip-background;
-        content: "";
-        display: block;
-        height: $tree-tooltip-arrow-width;
-        left: 100px; 
-        position: absolute;
-        pointer-events: none;
-        top: 100%; //0
-        transform:translate(-50%, -50%) rotate(45deg);
-        width: $tree-tooltip-arrow-width;
-        
-    }
+.tooltip {
+  background: $tree-tooltip-background; // rgb(57, 63, 68); // 393f44
+  color: #fff;
+  font-size: 0.875rem;
+  min-height: 50px;
+  opacity: 0;
+  padding: 1rem;
+  position: absolute;
+  transition: opacity 1s;
+  transition-delay: 0.5s;
+  &::before {
+    background: $tree-tooltip-background;
+    content: "";
+    display: block;
+    height: $tree-tooltip-arrow-width;
+    left: 100px;
+    position: absolute;
+    pointer-events: none;
+    top: 100%; //0
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: $tree-tooltip-arrow-width;
+  }
 }
 
-#pipelineTree{
-    .nodegroup{
-        cursor: default;
-    }
+#pipelineTree {
+  .nodegroup {
+    cursor: default;
+  }
 }
 
 /* INLINE FEED OUTPUT BROWSER */
 
 .feed-output-browser {
   background: white;
-  
-  header { // "output browser" header
+
+  header {
+    // "output browser" header
     padding: 0 1rem;
-    margin-bottom:1rem;
+    margin-bottom: 1rem;
     border-bottom: 1px solid var(--pf-global--BorderColor--light-200);
     padding-bottom: 10px;
   }
@@ -303,11 +301,11 @@
       --pf-c-button--BorderRadius: 5px;
       --pf-c-button--BorderWidth: 2px;
       margin-left: 10px;
-      svg { // download icon
+      svg {
+        // download icon
         margin-right: 10px;
       }
     }
-
   }
   .sidebar {
     margin-right: 20px;
@@ -318,7 +316,7 @@
       font-weight: normal;
       border-radius: 4px;
       cursor: pointer;
-    }      
+    }
 
     .selected {
       color: white;
@@ -358,16 +356,18 @@
     .pf-c-breadcrumb__item-divider {
       display: none;
     }
-
   }
 }
 
 .feed-output-browser .file-browser {
   // file list and file preview take up 50% width
   // so that split doesn't change based on file size
+
   .pf-l-split__item:not(:only-child) {
-    width: 50%;
+    overflow: auto;
+    flex-grow: 1;
   }
+
   td {
     font-size: 15px;
     color: black;
@@ -375,10 +375,10 @@
 }
 
 .feed-output-browser .file-browser .file-list {
-
   // Table Layout Resets
 
-  td, th {
+  td,
+  th {
     padding-left: 5px;
   }
 
@@ -390,7 +390,10 @@
     display: none;
   }
 
-  td[data-label="Name"], .td:last-child, .download-file-icon { // Name & download icon
+  td[data-label="Name"],
+  .td:last-child,
+  .download-file-icon {
+    // Name & download icon
     padding: 0;
   }
 
@@ -419,7 +422,6 @@
       border-color: var(--pf-global--primary-color--100);
     }
   }
-
 }
 
 /* PATH POPOVER */

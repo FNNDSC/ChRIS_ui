@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import JSONPretty from "react-json-pretty";
 import { IGalleryItem } from "../../../api/models/gallery.model";
 
@@ -20,9 +20,10 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     }
   };
   getBlobText();
+  console.log("Called");
   return (
     <div className="json-display">
-     {!!blobText && <JSONPretty data={blobText} />}
+      {!!blobText && <JSONPretty data={blobText} />}
     </div>
   );
 };

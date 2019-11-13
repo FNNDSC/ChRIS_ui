@@ -19,6 +19,7 @@ function* handleGetPluginDetails(action: IActionTypeParam) {
     const item: IPluginItem = action.payload;
 
     const res = yield call(ChrisModel.fetchRequest, item.descendants); // Get descendants first:
+
     if (res.error) {
       console.error(res.error);
     } else {
@@ -64,24 +65,7 @@ function* watchGetPluginDescendants() {
 // Description: Get Plugin Details: Parameters, files and others
 // @Param: action.payload === selected plugin
 // ------------------------------------------------------------------------
-function* handleGetPluginFiles(action: IActionTypeParam) {
-  try {
-    const selected = action.payload;
-    const url = `${selected.files}?limit=1000`;
-    const res = yield call(ChrisModel.fetchRequest, url); // NOTE: TEMP Modification until pagination is developed
-    if (res.error) {
-      console.error(res.error);
-    } else {
-      yield put(getPluginFilesSuccess(res));
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
 
-function* watchGetPluginFiles() {
-  yield takeEvery(PluginActionTypes.GET_PLUGIN_FILES, handleGetPluginFiles);
-}
 // ------------------------------------------------------------------------
 // Description: Get Plugin Details: Parameters, files and others
 // ------------------------------------------------------------------------
@@ -112,7 +96,7 @@ export function* pluginSaga() {
   yield all([
     fork(watchGetPluginDetails),
     fork(watchGetPluginDescendants),
-    fork(watchGetPluginFiles),
+
     fork(watchGetPluginParameters)
   ]);
 }
