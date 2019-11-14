@@ -11,12 +11,18 @@ interface AddModalProps {
 
 class AddModal extends React.Component<AddModalProps> {
   render() {
-    const { children, handleModalClose, footer, showOverlay } = this.props;
+    const {
+      children,
+      handleModalClose,
+      footer,
+      showOverlay,
+      step
+    } = this.props;
 
     return (
       <Modal
         isOpen={showOverlay}
-        title="Add Node"
+        title={step === 0 ? "Add Node" : "Choose the Parameters for your node"}
         ariaDescribedById="custom-header-example"
         onClose={handleModalClose}
         footer={footer}
