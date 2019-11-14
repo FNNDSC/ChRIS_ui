@@ -141,7 +141,6 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
   async handleCreate(parameters: any) {
     const { plugin } = this.state.data;
     const { selected } = this.props;
-    console.log(selected);
 
     if (!plugin || !selected) {
       return;
@@ -202,7 +201,12 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
 
     return (
       <React.Fragment>
-        <Button variant="tertiary" isBlock onClick={this.handleAddClick}>
+        <Button
+          variant="tertiary"
+          isBlock
+          onClick={this.handleAddClick}
+          disabled={!this.props.selected}
+        >
           <InfrastructureIcon />
           Add new node(s)...
         </Button>

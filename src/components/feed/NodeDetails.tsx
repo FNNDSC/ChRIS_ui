@@ -115,7 +115,6 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
   render() {
     const { selected } = this.props;
     const { plugin, params } = this.state;
-    console.log(selected);
 
     const pluginTitle = `${selected.plugin_name} v. ${selected.plugin_version}`;
     const command =

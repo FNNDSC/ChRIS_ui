@@ -97,9 +97,7 @@ class FeedOutputBrowser extends React.Component<
 
     if (
       !prevProps.selected ||
-      (prevProps.selected.id !== selected.id &&
-        prevProps.selected.status !== selected.status &&
-        !files)
+      (prevProps.selected.id !== selected.id && !files)
     ) {
       this.fetchPluginFiles(selected);
     }
@@ -108,13 +106,9 @@ class FeedOutputBrowser extends React.Component<
   /* DATA FETCHING & MANIPULATION */
 
   async fetchPluginFiles(plugin: IPluginItem) {
-    console.log("Fetch called", plugin.status);
-
     const id = plugin.id as number;
-    console.log(this.state.files[id]);
 
     if (!this.state.files && this.state.files[id]) {
-      console.log("Returned");
       return;
     }
 
@@ -153,7 +147,7 @@ class FeedOutputBrowser extends React.Component<
     const tree = model.getTree();
 
     tree.module = this.getPluginName(selected);
-    return tree;
+    return this.sortTree(tree);
   }
 
   sortTree(root: IUITreeNode) {
@@ -305,7 +299,13 @@ class FeedOutputBrowser extends React.Component<
                 handleViewerModeToggle={this.handlePluginModalOpen}
               />
             ) : (
-              <FontAwesomeIcon icon="spinner" pulse size="2x" />
+              <FontAwesomeIcon
+                title="This may take a while...."
+                icon="spinner"
+                pulse
+                size="6x"
+                color="black"
+              />
             )}
           </SplitItem>
         </Split>

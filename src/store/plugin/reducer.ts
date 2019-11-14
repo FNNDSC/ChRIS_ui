@@ -5,8 +5,8 @@ import { PluginActionTypes, IPluginState } from "./types";
 const initialState: IPluginState = {
   selected: undefined,
   descendants: undefined,
-
-  parameters: undefined
+  parameters: undefined,
+  status: ""
 };
 
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {
@@ -39,6 +39,14 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
         parameters: []
       };
     }
+
+    case PluginActionTypes.GET_PLUGIN_STATUS: {
+      return {
+        ...state,
+        status: action.payload
+      };
+    }
+
     default: {
       return state;
     }

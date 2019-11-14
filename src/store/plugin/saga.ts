@@ -4,10 +4,9 @@ import ChrisModel, { IActionTypeParam } from "../../api/models/base.model";
 import {
   getPluginDetailsSuccess,
   getPluginDescendantsSuccess,
-  getPluginFilesSuccess,
   getPluginParametersSuccess,
-  getPluginFilesRequest,
-  getPluginParametersRequest
+  getPluginParametersRequest,
+  getPluginStatus
 } from "./actions";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 
@@ -18,16 +17,17 @@ function* handleGetPluginDetails(action: IActionTypeParam) {
   try {
     const item: IPluginItem = action.payload;
 
+    //This request registers the file in Swift
+    const pluginData = yield call(ChrisModel.fetchRequest, item.url);
+
+    yield put(getPluginStatus(pluginData.data.status));
+
     const res = yield call(ChrisModel.fetchRequest, item.descendants); // Get descendants first:
 
     if (res.error) {
       console.error(res.error);
     } else {
       yield put(getPluginDetailsSuccess(res));
-
-      !!item.files && (yield put(getPluginFilesRequest(item)));
-      !!item.parameters &&
-        (yield put(getPluginParametersRequest(item.parameters)));
     }
   } catch (error) {
     console.error(error);
@@ -69,34 +69,10 @@ function* watchGetPluginDescendants() {
 // ------------------------------------------------------------------------
 // Description: Get Plugin Details: Parameters, files and others
 // ------------------------------------------------------------------------
-function* handleGetPluginParameters(action: IActionTypeParam) {
-  try {
-    const res = yield call(ChrisModel.fetchRequest, action.payload);
-    if (res.error) {
-      console.error(res.error);
-    } else {
-      yield put(getPluginParametersSuccess(res));
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-function* watchGetPluginParameters() {
-  yield takeEvery(
-    PluginActionTypes.GET_PLUGIN_PARAMETERS,
-    handleGetPluginParameters
-  );
-}
 
 // ------------------------------------------------------------------------
 // We can also use `fork()` here to split our saga into multiple watchers.
 // ------------------------------------------------------------------------
 export function* pluginSaga() {
-  yield all([
-    fork(watchGetPluginDetails),
-    fork(watchGetPluginDescendants),
-
-    fork(watchGetPluginParameters)
-  ]);
+  yield all([fork(watchGetPluginDetails), fork(watchGetPluginDescendants)]);
 }
