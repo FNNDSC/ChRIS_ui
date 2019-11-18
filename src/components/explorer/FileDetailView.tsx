@@ -74,6 +74,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   // Description: Fetch blob and read it into state to display preview
   fetchData() {
     const { selectedFile } = this.props;
+
     const fileUrl = selectedFile.file.file_resource,
       fileName = selectedFile.module,
       fileType = getFileExtension(fileName);

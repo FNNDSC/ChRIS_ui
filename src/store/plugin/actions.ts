@@ -1,6 +1,7 @@
 import { action } from "typesafe-actions";
 import { PluginActionTypes } from "./types";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
+import { FeedFile } from "@fnndsc/chrisapi";
 
 export const getPluginDescendantsRequest = (url: string) =>
   action(PluginActionTypes.GET_PLUGIN_DESCENDANTS, url);
@@ -26,3 +27,6 @@ export const destroyPlugin = () => action(PluginActionTypes.RESET_PLUGIN_STATE);
 
 export const getPluginStatus = (pluginStatus: String) =>
   action(PluginActionTypes.GET_PLUGIN_STATUS, pluginStatus);
+
+export const addFiles = (files: FeedFile[]) =>
+  action(PluginActionTypes.ADD_FILES, files);

@@ -26,5 +26,6 @@ export const PluginActionTypes = keyMirror({
   GET_PLUGIN_DETAILS: null,
   GET_PLUGIN_DETAILS_SUCCESS: null,
   RESET_PLUGIN_STATE: null,
-  GET_PLUGIN_STATUS: null
+  GET_PLUGIN_STATUS: null,
+  ADD_FILES: null
 });

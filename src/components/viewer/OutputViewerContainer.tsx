@@ -4,7 +4,7 @@ import { Tabs, Tab, Alert } from "@patternfly/react-core";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IFeedFile } from "../../api/models/feed-file.model";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
-import {pluginViewerMap} from "../../api/models/file-viewer.model";
+import { pluginViewerMap } from "../../api/models/file-viewer.model";
 import {
   DicomViewer,
   RevViewer,
@@ -22,7 +22,10 @@ type AllProps = {
   selected?: IPluginItem;
 };
 
-class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: number }> {
+class OutputViewerContainer extends React.Component<
+  AllProps,
+  { activeTabKey: number }
+> {
   constructor(props: AllProps) {
     super(props);
     this.handleTabClick = this.handleTabClick.bind(this);
@@ -33,6 +36,8 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
   };
 
   render() {
+    console.log(this.props.files, this.props.selected);
+
     const tabs = this.buildTabArray();
     return (
       <div className="output-viewer">
@@ -40,7 +45,8 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
           <Tabs
             activeKey={this.state.activeTabKey}
             onSelect={this.handleTabClick}
-            children={tabs} />
+            children={tabs}
+          />
         ) : (
           <Alert variant="info" title="Empty Result Set" className="empty" />
         )}
@@ -49,17 +55,21 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
   }
 
   // Description: Toggle currently active tab
-  handleTabClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, tabIndex: React.ReactText) => {
+  handleTabClick = (
+    event: React.MouseEvent<HTMLElement, MouseEvent>,
+    tabIndex: React.ReactText
+  ) => {
     this.setState({
       activeTabKey: tabIndex as number
     });
-  }
+  };
   // Description: Build Tabs from data
   buildTabArray = () => {
     const { files, selected } = this.props;
     const tabs: any[] = [];
     if (!!selected) {
-      const tabArr = pluginViewerMap[selected.plugin_name] || pluginViewerMap.default;
+      const tabArr =
+        pluginViewerMap[selected.plugin_name] || pluginViewerMap.default;
       tabArr.forEach((key: string, i: number) => {
         let tabContent;
         let label = "tab";
@@ -82,7 +92,9 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
             break;
           case "FileBrowserViewer":
             label = "File Browser";
-            tabContent = (!!files && !!selected) && <FileBrowserViewer files={files} selected={selected} />;
+            tabContent = !!files && !!selected && (
+              <FileBrowserViewer files={files} selected={selected} />
+            );
             break;
           case "DataTableViewer":
             label = "Data Table";
@@ -98,31 +110,37 @@ class OutputViewerContainer extends React.Component<AllProps, { activeTabKey: nu
             break;
           case "VolumeGrowth":
             label = "Volume";
-            tabContent = (<React.Fragment>
+            tabContent = (
+              <React.Fragment>
                 <h1 className="pf-c-title pf-u-m-xl">Volume Segments</h1>
                 <VolumeGrowth />
-              </React.Fragment>)
+              </React.Fragment>
+            );
             break;
           case "SegmentAnalysis":
             label = "Segment";
-            tabContent = (<React.Fragment>
+            tabContent = (
+              <React.Fragment>
                 <h1 className="pf-c-title pf-u-m-xl">Z-Score</h1>
                 <SegmentAnalysis />;
-            </React.Fragment>)
+              </React.Fragment>
+            );
             break;
         }
-        tabs.push(<Tab eventKey={i} title={label}>
-          {tabContent}
-        </Tab>);
+        tabs.push(
+          <Tab eventKey={i} title={label}>
+            {tabContent}
+          </Tab>
+        );
       });
     }
     return tabs;
-  }
+  };
 }
 
 const mapStateToProps = ({ plugin }: ApplicationState) => ({
   files: plugin.files,
-  selected: plugin.selected,
+  selected: plugin.selected
 });
 
 export default connect(
