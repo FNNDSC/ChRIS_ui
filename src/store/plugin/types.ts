@@ -13,7 +13,6 @@ export interface IPluginState {
   descendants?: IPluginItem[];
   files?: IFeedFile[];
   parameters?: any[];
-  status: String;
 }
 
 export const PluginActionTypes = keyMirror({

@@ -2,20 +2,16 @@ import * as React from "react";
 import { Modal } from "@patternfly/react-core";
 import OutputViewerContainer from "../viewer/OutputViewerContainer";
 import { Gotop } from "../index";
-import { IFeedFile } from "../../api/models/feed-file.model";
-import { IPluginItem } from "../../api/models/pluginInstance.model";
 
 type AllProps = {
   isModalOpen: boolean;
   handleModalToggle: (open: boolean) => void;
-  files?: [] | undefined;
-  selected?: IPluginItem;
 };
 
 type ModalState = {
   gotopActive: boolean;
   scrollDivId: string;
-};
+}
 
 class PluginViewerModal extends React.Component<AllProps, ModalState> {
   state = {
@@ -23,15 +19,14 @@ class PluginViewerModal extends React.Component<AllProps, ModalState> {
     scrollDivId: ""
   };
   handleScroll = (e: any) => {
-    e.target.id.indexOf("pf-modal") >= 0 &&
+    (e.target.id.indexOf("pf-modal") >= 0) &&
       this.setState({
-        gotopActive: !!e.target.scrollTop && e.target.scrollTop > 0,
+        gotopActive: (!!e.target.scrollTop &&  e.target.scrollTop > 0),
         scrollDivId: e.target.id
       });
-  };
+  }
   render() {
     const { isModalOpen, handleModalToggle } = this.props;
-    console.log(this.props.files);
     return (
       <React.Fragment>
         <Modal
@@ -39,13 +34,9 @@ class PluginViewerModal extends React.Component<AllProps, ModalState> {
           title="ChRIS Output Viewer"
           isOpen={isModalOpen}
           onScroll={this.handleScroll}
-          onClose={() => handleModalToggle(false)}
-        >
+          onClose={() => handleModalToggle(false)} >
           <OutputViewerContainer />
-          <Gotop
-            isActive={this.state.gotopActive}
-            scrollable={this.state.scrollDivId}
-          />
+          <Gotop isActive={this.state.gotopActive} scrollable={this.state.scrollDivId} />
         </Modal>
       </React.Fragment>
     );

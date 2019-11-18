@@ -36,8 +36,6 @@ class OutputViewerContainer extends React.Component<
   };
 
   render() {
-    console.log(this.props.files, this.props.selected);
-
     const tabs = this.buildTabArray();
     return (
       <div className="output-viewer">

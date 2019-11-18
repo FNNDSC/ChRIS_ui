@@ -23,7 +23,6 @@ import PluginViewerModal from "../plugin/PluginViewerModal";
 import { setSelectedFile } from "../../store/explorer/actions";
 
 import FileBrowser from "./FileBrowser";
-import { addFiles } from "../../store/plugin/actions";
 
 // UTILITIES
 
@@ -57,7 +56,6 @@ interface FeedOutputBrowserProps {
 
   handlePluginSelect: Function;
   setSelectedFile: Function;
-  addFiles: Function;
 }
 
 interface FeedOutputBrowserState {
@@ -132,9 +130,6 @@ class FeedOutputBrowser extends React.Component<
         console.error(e);
       }
     }
-
-    //Add Files to the reducer
-    this.props.addFiles(files);
 
     this.setState({
       files: {
@@ -248,6 +243,7 @@ class FeedOutputBrowser extends React.Component<
   render() {
     const { plugins, selected } = this.props;
     const { files, pluginModalOpen } = this.state;
+    console.log(selected);
 
     if (!selected || !plugins) {
       return (
@@ -326,8 +322,7 @@ class FeedOutputBrowser extends React.Component<
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSelectedFile: (file: IUITreeNode, folder: IUITreeNode) =>
-    dispatch(setSelectedFile(file, folder)),
-  addFiles: (files: FeedFile[]) => dispatch(addFiles(files))
+    dispatch(setSelectedFile(file, folder))
 });
 
 export default connect(

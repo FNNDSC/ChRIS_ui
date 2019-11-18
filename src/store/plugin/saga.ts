@@ -4,9 +4,10 @@ import ChrisModel, { IActionTypeParam } from "../../api/models/base.model";
 import {
   getPluginDetailsSuccess,
   getPluginDescendantsSuccess,
+  getPluginFilesSuccess,
   getPluginParametersSuccess,
-  getPluginParametersRequest,
-  getPluginStatus
+  getPluginFilesRequest,
+  getPluginParametersRequest
 } from "./actions";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 
@@ -17,10 +18,6 @@ function* handleGetPluginDetails(action: IActionTypeParam) {
   try {
     const item: IPluginItem = action.payload;
 
-    //This request registers the file in Swift
-    const pluginStatus = yield call(ChrisModel.fetchRequest, item.url);
-    yield put(getPluginStatus(pluginStatus));
-
     const res = yield call(ChrisModel.fetchRequest, item.descendants); // Get descendants first:
 
     if (res.error) {
@@ -28,6 +25,7 @@ function* handleGetPluginDetails(action: IActionTypeParam) {
     } else {
       yield put(getPluginDetailsSuccess(res));
 
+      !!item.files && (yield put(getPluginFilesRequest(item)));
       !!item.parameters &&
         (yield put(getPluginParametersRequest(item.parameters)));
     }
@@ -67,7 +65,24 @@ function* watchGetPluginDescendants() {
 // Description: Get Plugin Details: Parameters, files and others
 // @Param: action.payload === selected plugin
 // ------------------------------------------------------------------------
+function* handleGetPluginFiles(action: IActionTypeParam) {
+  try {
+    const selected = action.payload;
+    const url = `${selected.files}?limit=1000`;
+    const res = yield call(ChrisModel.fetchRequest, url); // NOTE: TEMP Modification until pagination is developed
+    if (res.error) {
+      console.error(res.error);
+    } else {
+      yield put(getPluginFilesSuccess(res));
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
 
+function* watchGetPluginFiles() {
+  yield takeEvery(PluginActionTypes.GET_PLUGIN_FILES, handleGetPluginFiles);
+}
 // ------------------------------------------------------------------------
 // Description: Get Plugin Details: Parameters, files and others
 // ------------------------------------------------------------------------
@@ -98,6 +113,7 @@ export function* pluginSaga() {
   yield all([
     fork(watchGetPluginDetails),
     fork(watchGetPluginDescendants),
+    fork(watchGetPluginFiles),
     fork(watchGetPluginParameters)
   ]);
 }
