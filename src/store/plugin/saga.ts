@@ -19,6 +19,7 @@ function* handleGetPluginDetails(action: IActionTypeParam) {
     const item: IPluginItem = action.payload;
 
     const res = yield call(ChrisModel.fetchRequest, item.descendants); // Get descendants first:
+    yield call(ChrisModel.fetchRequest, item.url);
 
     if (res.error) {
       console.error(res.error);
