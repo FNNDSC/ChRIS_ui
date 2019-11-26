@@ -8,7 +8,8 @@ import {
   UploadedFile,
   Tag,
   PluginInstance,
-  Collection
+  Collection,
+  FeedFile
 } from "@fnndsc/chrisapi";
 import { Button, Wizard } from "@patternfly/react-core";
 
@@ -28,20 +29,50 @@ import "./createfeed.scss";
 
 export async function fetchAllChrisFiles() {
   const client = ChrisAPIClient.getClient();
-  const params = { limit: 100, offset: 0 };
+  const params = {
+    limit: 100,
+    offset: 0
+  };
   let fileList = await client.getUploadedFiles(params);
   const files = fileList.getItems();
 
   while (fileList.hasNextPage) {
     try {
       params.offset += params.limit;
+
       fileList = await client.getUploadedFiles(params);
       files.push(...fileList.getItems());
     } catch (e) {
       console.error(e);
     }
   }
-  return files;
+
+  const feedList = await client.getFeeds();
+
+  const feedData = feedList.getItems().map(feed => feed.data.id);
+
+  let feedFiles: FeedFile[] = [];
+
+  for (let id of feedData) {
+    let feed = await client.getFeed(id);
+
+    let fileList = await feed.getFiles({ limit: 100, offset: 0 });
+    let files = fileList.getItems();
+    /*
+    while (fileList.hasNextPage) {
+      try {
+        params.offset += params.limit;
+        fileList = await feed.getFiles(params);
+        files.push(...fileList.getItems());
+      } catch (e) {
+        console.error(e);
+      }
+    }
+*/
+    feedFiles = feedFiles.concat(...files);
+  }
+  console.log(files);
+  return [...files, ...feedFiles];
 }
 
 // INTERFACES
@@ -52,6 +83,7 @@ export interface ChrisFile {
   id?: number; // only defined for files
   children?: ChrisFile[];
   collapsed?: boolean;
+  blob?: {};
 }
 
 export interface LocalFile {
@@ -179,6 +211,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   // CHRIS FILE SELECT HANDLERS
 
   handleChrisFileAdd(file: ChrisFile) {
+    console.log(file);
     this.setState({
       data: {
         ...this.state.data,
@@ -275,7 +308,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     let path;
     if ("path" in file) {
       // ChrisFile
-      path = (file as ChrisFile).path.slice(1);
+      path = (file as ChrisFile).path;
     } else {
       path = file.name;
     }
@@ -284,12 +317,14 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   }
 
   async getDataFileBlob(file: DataFile) {
+    console.log(file);
     if ("blob" in file) {
       return (file as LocalFile).blob;
     } else {
       const uploadedFile = await ChrisAPIClient.getClient().getUploadedFile(
         (file as ChrisFile).id || 0
       );
+
       return await uploadedFile.getFileBlob();
     }
   }
@@ -301,7 +336,6 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     const uploadedFiles = await ChrisAPIClient.getClient().getUploadedFiles();
     return await Promise.all(
       files.map(async file => {
-        const blob = await this.getDataFileBlob(file);
         const pathName = this.getDataFileTempPath(file, tempDirName);
 
         return await uploadedFiles.post(
@@ -309,7 +343,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
             upload_path: pathName
           },
           {
-            fname: blob
+            fname: file.blob || {}
           }
         );
       })
@@ -559,7 +593,4 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   addFeed: (feed: IFeedItem) => dispatch(addFeed(feed))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreateFeed);
+export default connect(mapStateToProps, mapDispatchToProps)(CreateFeed);

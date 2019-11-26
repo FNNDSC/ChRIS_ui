@@ -27,6 +27,7 @@ function getEmptyTree() {
 interface ChrisFilePath {
   path: string;
   id: number;
+  blob: {};
 }
 
 interface ChrisFileSelectProps {
@@ -96,8 +97,11 @@ class ChrisFileSelect extends React.Component<
   buildInitialFileTree(filePaths: ChrisFilePath[]) {
     const root = getEmptyTree();
     for (const pathObj of filePaths) {
-      const { path, id } = pathObj;
-      const parts = path.split("/").slice(1); // remove initial '/'
+      const { id, blob } = pathObj;
+      let { path } = pathObj;
+
+      const parts = path.split("/");
+
       const name = parts[parts.length - 1];
       const dirs = parts.slice(0, parts.length - 1);
 
@@ -121,7 +125,7 @@ class ChrisFileSelect extends React.Component<
         currentDir.push(newDir);
         currentDir = newDir.children;
       }
-      currentDir.push({ name, path, id });
+      currentDir.push({ name, path, id, blob });
     }
 
     return this.sortTree(root);
@@ -156,10 +160,20 @@ class ChrisFileSelect extends React.Component<
 
     return Promise.all(
       files.map(async file => {
-        const fileData = (file as UploadedFile).data;
+        const fileData = file.data;
+
+        if (!fileData.upload_path) {
+          return {
+            path: fileData.fname,
+            id: Number(fileData.id),
+            blob: await file.getFileBlob()
+          };
+        }
+
         return {
           path: fileData.upload_path,
-          id: Number(fileData.id)
+          id: Number(fileData.id),
+          blob: await file.getFileBlob()
         };
       })
     );
@@ -167,7 +181,8 @@ class ChrisFileSelect extends React.Component<
 
   /* EVENT HANDLERS */
 
-  handleCheckboxChange(isChecked: boolean, file: ChrisFile) {
+  async handleCheckboxChange(isChecked: boolean, file: ChrisFile) {
+    console.log("What is the file here", file);
     if (isChecked) {
       this.props.handleFileAdd(file);
     } else {

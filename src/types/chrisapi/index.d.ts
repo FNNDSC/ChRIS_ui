@@ -254,6 +254,8 @@ declare module "@fnndsc/chrisapi" {
      */
 
     createPluginInstance: (pluginId: number, data: IPluginCreateData, timeout?: number) => Promise<PluginInstance>;
+  
+  
   }
 
   /**
@@ -411,7 +413,8 @@ declare module "@fnndsc/chrisapi" {
      * @param {number} [timeout=30000] - request timeout
      * @return {Object} - JS Promise, resolves to a ``FeedFileList`` object
      */
-    getFiles: (params: IParams, timeout?: number) => Promise<FeedFileList>;
+    getFiles: 
+    (params: IParams, timeout?: number) => Promise<FeedFileList>;
     
     /**
      * Fetch a list of plugin instances associated to this feed from the REST API.

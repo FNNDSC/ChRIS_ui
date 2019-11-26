@@ -78,6 +78,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const fileUrl = selectedFile.file.file_resource,
       fileName = selectedFile.module,
       fileType = getFileExtension(fileName);
+
     ChrisModel.getFileBlob(fileUrl).then((result: any) => {
       const _self = this;
       if (!!result.data) {

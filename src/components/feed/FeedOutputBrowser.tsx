@@ -97,7 +97,7 @@ class FeedOutputBrowser extends React.Component<
 
     if (
       !prevProps.selected ||
-      (prevProps.selected.id !== selected.id && (files && files.length == 0))
+      (prevProps.selected.id !== selected.id && !files)
     ) {
       this.fetchPluginFiles(selected);
     }
@@ -145,7 +145,6 @@ class FeedOutputBrowser extends React.Component<
     }
     const model = new UITreeNodeModel(convertFiles(files, selected), selected);
     const tree = model.getTree();
-
     tree.module = this.getPluginName(selected);
     return this.sortTree(tree);
   }
@@ -325,7 +324,4 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(setSelectedFile(file, folder))
 });
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(FeedOutputBrowser);
+export default connect(null, mapDispatchToProps)(FeedOutputBrowser);
