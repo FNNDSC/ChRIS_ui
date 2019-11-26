@@ -100,6 +100,10 @@ class ChrisFileSelect extends React.Component<
       const { id, blob } = pathObj;
       let { path } = pathObj;
 
+      if (path.startsWith("/DICOM")) {
+        path = "uploads".concat(path);
+      }
+
       const parts = path.split("/");
 
       const name = parts[parts.length - 1];
