@@ -27,54 +27,6 @@ import "./createfeed.scss";
 
 // UTILS
 
-export async function fetchAllChrisFiles() {
-  const client = ChrisAPIClient.getClient();
-  const params = {
-    limit: 100,
-    offset: 0
-  };
-  let fileList = await client.getUploadedFiles(params);
-  const files = fileList.getItems();
-
-  while (fileList.hasNextPage) {
-    try {
-      params.offset += params.limit;
-
-      fileList = await client.getUploadedFiles(params);
-      files.push(...fileList.getItems());
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  const feedList = await client.getFeeds();
-
-  const feedData = feedList.getItems().map(feed => feed.data.id);
-
-  let feedFiles: FeedFile[] = [];
-
-  for (let id of feedData) {
-    let feed = await client.getFeed(id);
-
-    let fileList = await feed.getFiles({ limit: 100, offset: 0 });
-    let files = fileList.getItems();
-    /*
-    while (fileList.hasNextPage) {
-      try {
-        params.offset += params.limit;
-        fileList = await feed.getFiles(params);
-        files.push(...fileList.getItems());
-      } catch (e) {
-        console.error(e);
-      }
-    }
-*/
-    feedFiles = feedFiles.concat(...files);
-  }
-  console.log(files);
-  return [...files, ...feedFiles];
-}
-
 // INTERFACES
 
 export interface ChrisFile {
@@ -211,7 +163,6 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
   // CHRIS FILE SELECT HANDLERS
 
   handleChrisFileAdd(file: ChrisFile) {
-    console.log(file);
     this.setState({
       data: {
         ...this.state.data,
@@ -316,19 +267,6 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     return `${tempDirName}/${path}`;
   }
 
-  async getDataFileBlob(file: DataFile) {
-    console.log(file);
-    if ("blob" in file) {
-      return (file as LocalFile).blob;
-    } else {
-      const uploadedFile = await ChrisAPIClient.getClient().getUploadedFile(
-        (file as ChrisFile).id || 0
-      );
-
-      return await uploadedFile.getFileBlob();
-    }
-  }
-
   async uploadFilesToTempDir(
     files: DataFile[],
     tempDirName: string
@@ -364,6 +302,8 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     return this.uploadFilesToTempDir(files, tempDirName);
   }
 
+  /*
+
   async removeTempFiles(tempDirName: string) {
     const files = [
       ...this.getAllSelectedChrisFiles(),
@@ -381,6 +321,8 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       }
     }
   }
+
+  */
 
   // DIRCOPY PLUGIN
 
@@ -442,7 +384,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       }
 
       // Remove temporary files
-      this.removeTempFiles(tempDirName);
+     // this.removeTempFiles(tempDirName);
 
       // Set feed name
       await feed.put({
@@ -490,7 +432,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
 
       this.props.addFeed(feedObj);
     } catch (e) {
-      this.removeTempFiles(tempDirName); // clean up temp files if anything failed
+      //this.removeTempFiles(tempDirName); // clean up temp files if anything failed
       console.error(e);
     } finally {
       this.resetState();

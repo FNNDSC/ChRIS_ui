@@ -12,8 +12,11 @@ import { Checkbox, Split, SplitItem } from "@patternfly/react-core";
 import Tree from "react-ui-tree";
 
 import LoadingSpinner from "../../common/loading/LoadingSpinner";
-import { ChrisFile, fetchAllChrisFiles } from "./CreateFeed";
+import { ChrisFile } from "./CreateFeed";
 import { DataTableToolbar } from "../..";
+
+import ChrisAPIClient from "../../../api/chrisapiclient";
+import _ from "lodash";
 
 function getEmptyTree() {
   return {
@@ -25,9 +28,9 @@ function getEmptyTree() {
 
 // used between fetching the files and building the tree
 interface ChrisFilePath {
-  path: string;
-  id: number;
-  blob: {};
+  path?: string;
+  id?: number;
+  blob?: {};
 }
 
 interface ChrisFileSelectProps {
@@ -41,6 +44,7 @@ interface ChrisFileSelectState {
   initialTreeLoaded: boolean;
   initialTree: ChrisFile;
   visibleTree: ChrisFile;
+  fileCache: ChrisFilePath[];
 }
 
 class ChrisFileSelect extends React.Component<
@@ -53,27 +57,82 @@ class ChrisFileSelect extends React.Component<
       filter: "",
       initialTreeLoaded: false,
       initialTree: getEmptyTree(),
-      visibleTree: getEmptyTree()
+      visibleTree: getEmptyTree(),
+      fileCache: []
     };
+  }
+
+  async fetchAllChrisFiles() {
+    const client = ChrisAPIClient.getClient();
+    const params = {
+      limit: 100,
+      offset: 0
+    };
+
+    let fileList = await client.getUploadedFiles(params);
+    const files = fileList.getItems();
+
+    while (fileList.hasNextPage) {
+      try {
+        params.offset += params.limit;
+        fileList = await client.getUploadedFiles(params);
+        files.push(...fileList.getItems());
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    return files;
+  }
+
+  async fetchChrisFiles(): Promise<ChrisFilePath[]> {
+    const files = await this.fetchAllChrisFiles();
+
+    return Promise.all(
+      files.map(async file => {
+        const fileData = file.data;
+
+        if (!fileData.upload_path) {
+          return {
+            path: fileData.fname,
+            id: Number(fileData.id),
+            blob: await file.getFileBlob()
+          };
+        }
+
+        return {
+          path: fileData.upload_path,
+          id: Number(fileData.id),
+          blob: await file.getFileBlob()
+        };
+      })
+    );
   }
 
   componentDidMount() {
     this.disableTreeDraggables();
     this.fetchChrisFiles().then((files: ChrisFilePath[]) => {
-      const tree = this.buildInitialFileTree(files);
+      console.log("Component Did Mount");
+      //const tree = this.buildInitialFileTree(files);
       this.setState({
         initialTreeLoaded: true,
-        initialTree: tree,
-        visibleTree: tree
+        fileCache: [...files]
+        // initialTree: tree,
+        // visibleTree: tree,
       });
     });
 
-    this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
-    this.handleFilterChange = this.handleFilterChange.bind(this);
+    // this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+    //this.handleFilterChange = this.handleFilterChange.bind(this);
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(
+    prevprops: ChrisFileSelectProps,
+    prevState: ChrisFileSelectState
+  ) {
     this.disableTreeDraggables();
+    if (_.isEqual(prevState.fileCache, this.state.fileCache)) {
+      console.log("Hey there almost there");
+    }
   }
 
   // finds all nodes and disables the draggable function that comes with the react-ui-tree
@@ -91,13 +150,14 @@ class ChrisFileSelect extends React.Component<
     }
   }
 
-  /* DATA FETCHING */
-
   // Transforms list of ChrisFilePaths into a ChrisFile tree
+  /*
   buildInitialFileTree(filePaths: ChrisFilePath[]) {
+   
     const root = getEmptyTree();
     for (const pathObj of filePaths) {
       const { id, blob } = pathObj;
+
       let { path } = pathObj;
 
       if (path.startsWith("/DICOM")) {
@@ -133,6 +193,7 @@ class ChrisFileSelect extends React.Component<
     }
 
     return this.sortTree(root);
+
   }
 
   // Moves folders to top and orders alphabetically
@@ -158,31 +219,7 @@ class ChrisFileSelect extends React.Component<
     }
     return { ...root, children };
   }
-
-  async fetchChrisFiles(): Promise<ChrisFilePath[]> {
-    const files = await fetchAllChrisFiles();
-
-    return Promise.all(
-      files.map(async file => {
-        const fileData = file.data;
-
-        if (!fileData.upload_path) {
-          return {
-            path: fileData.fname,
-            id: Number(fileData.id),
-            blob: await file.getFileBlob()
-          };
-        }
-
-        return {
-          path: fileData.upload_path,
-          id: Number(fileData.id),
-          blob: await file.getFileBlob()
-        };
-      })
-    );
-  }
-
+ */
   /* EVENT HANDLERS */
 
   async handleCheckboxChange(isChecked: boolean, file: ChrisFile) {
@@ -321,6 +358,8 @@ class ChrisFileSelect extends React.Component<
   render() {
     const { files, handleFileRemove } = this.props;
     const { initialTreeLoaded, visibleTree } = this.state;
+
+    console.log("File Cache", this.state.fileCache);
 
     const fileList = files.map(file => (
       <div className="file-preview" key={file.path}>
