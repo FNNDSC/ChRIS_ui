@@ -40,8 +40,8 @@ interface ChrisFilePath {
 }
 
 interface IReduxProps {
-  feedFiles?: any;
-  getFiles?: () => void;
+  feedFiles?: UploadedFile[];
+  getAllFiles?: typeof getAllFiles;
 }
 
 interface ChrisFileSelectProps {
@@ -414,12 +414,12 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
   }
 }
 
-export const mapStateToProps = (state: ApplicationState) => ({
-  feedfiles: state.feed.files
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  getAllFiles: () => dispatch(getAllFiles())
 });
 
-export const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getFiles: () => dispatch(getAllFiles())
+export const mapStateToProps = (state: ApplicationState) => ({
+  feedfiles: state.feed.files
 });
 
 export default connect(mapStateToProps)(mapDispatchToProps)(ChrisFileSelect);

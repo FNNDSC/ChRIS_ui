@@ -32,7 +32,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_ALL_FILES: {
-      return { ...state, feed: action.payload };
+      return { ...state, feed: [...action.payload] };
     }
 
     case FeedActionTypes.ADD_NODE: {
