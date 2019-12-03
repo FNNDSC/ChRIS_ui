@@ -5,7 +5,8 @@ import { IFeedState, FeedActionTypes } from "./types";
 const initialState: IFeedState = {
   details: undefined,
   items: undefined,
-  feeds: undefined
+  feeds: undefined,
+  files: undefined
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -28,6 +29,10 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       } else {
         return { ...state, feeds: [action.payload] };
       }
+    }
+
+    case FeedActionTypes.GET_ALL_FILES: {
+      return { ...state, feed: action.payload };
     }
 
     case FeedActionTypes.ADD_NODE: {

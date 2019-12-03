@@ -29,3 +29,5 @@ export const addFeed = (feed: IFeedItem) =>
 
 export const addNode = (pluginItem: IPluginItem) =>
   action(FeedActionTypes.ADD_NODE, pluginItem);
+
+export const getAllFiles = () => action(FeedActionTypes.GET_ALL_FILES);

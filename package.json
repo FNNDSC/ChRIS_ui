@@ -21,7 +21,7 @@
     "@types/react": "16.9.5",
     "@types/react-bootstrap-typeahead": "^3.4.3",
     "@types/react-dom": "16.0.11",
-    "@types/react-redux": "^7.0.2",
+    "@types/react-redux": "^7.1.5",
     "@types/three": "^0.93.30",
     "ami.js": "github:FNNDSC/ami",
     "axios": "^0.18.0",

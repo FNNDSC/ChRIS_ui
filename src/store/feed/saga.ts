@@ -1,6 +1,7 @@
 import { all, call, fork, put, takeEvery } from "redux-saga/effects";
 import { FeedActionTypes } from "./types";
 import ChrisModel, { IActionTypeParam } from "../../api/models/base.model";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import {
   getAllFeedsSuccess,
   getFeedDetailsSuccess,
@@ -103,6 +104,32 @@ function* watchGetPluginInstances() {
   );
 }
 
+function* handleGetAllFiles() {
+  const client = ChrisAPIClient.getClient();
+  const params = {
+    limit: 100,
+    offset: 0
+  };
+
+  let fileList = yield client.getUploadedFiles(params);
+  const files = fileList.getItems();
+
+  while (fileList.hasNextPage) {
+    try {
+      params.offset += params.limit;
+      fileList = yield client.getUploadedFiles(params);
+      files.push(...fileList.getItems());
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  return files;
+}
+
+function* watchGetAllFiles() {
+  yield takeEvery(FeedActionTypes.GET_ALL_FILES, handleGetAllFiles);
+}
+
 // ------------------------------------------------------------------------
 // We can also use `fork()` here to split our saga into multiple watchers.
 // ------------------------------------------------------------------------
@@ -110,6 +137,7 @@ export function* feedSaga() {
   yield all([
     fork(watchGetAllFeedsRequest),
     fork(watchGetFeedRequest),
-    fork(watchGetPluginInstances)
+    fork(watchGetPluginInstances),
+    fork(watchGetAllFiles)
   ]);
 }

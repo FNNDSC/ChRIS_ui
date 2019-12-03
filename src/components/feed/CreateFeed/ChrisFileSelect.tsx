@@ -1,6 +1,9 @@
 import React from "react";
 
 import { UploadedFile } from "@fnndsc/chrisapi";
+
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
 import {
   FolderCloseIcon,
   FolderOpenIcon,
@@ -15,7 +18,10 @@ import LoadingSpinner from "../../common/loading/LoadingSpinner";
 import { ChrisFile } from "./CreateFeed";
 import { DataTableToolbar } from "../..";
 
+import { ApplicationState } from "../../../store/root/applicationState";
 import ChrisAPIClient from "../../../api/chrisapiclient";
+import { getAllFiles } from "../../../store/feed/actions";
+
 import _ from "lodash";
 
 function getEmptyTree() {
@@ -33,11 +39,18 @@ interface ChrisFilePath {
   blob?: {};
 }
 
+interface IReduxProps {
+  feedFiles?: any;
+  getFiles?: () => void;
+}
+
 interface ChrisFileSelectProps {
   files: ChrisFile[];
   handleFileAdd: (file: ChrisFile) => void;
   handleFileRemove: (file: ChrisFile) => void;
 }
+
+type AllProps = ChrisFileSelectProps & IReduxProps;
 
 interface ChrisFileSelectState {
   filter: string;
@@ -47,11 +60,8 @@ interface ChrisFileSelectState {
   fileCache: ChrisFilePath[];
 }
 
-class ChrisFileSelect extends React.Component<
-  ChrisFileSelectProps,
-  ChrisFileSelectState
-> {
-  constructor(props: ChrisFileSelectProps) {
+class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
+  constructor(props: AllProps) {
     super(props);
     this.state = {
       filter: "",
@@ -110,8 +120,8 @@ class ChrisFileSelect extends React.Component<
 
   componentDidMount() {
     this.disableTreeDraggables();
+
     this.fetchChrisFiles().then((files: ChrisFilePath[]) => {
-      console.log("Component Did Mount");
       //const tree = this.buildInitialFileTree(files);
       this.setState({
         initialTreeLoaded: true,
@@ -125,10 +135,7 @@ class ChrisFileSelect extends React.Component<
     //this.handleFilterChange = this.handleFilterChange.bind(this);
   }
 
-  componentDidUpdate(
-    prevprops: ChrisFileSelectProps,
-    prevState: ChrisFileSelectState
-  ) {
+  componentDidUpdate(prevprops: AllProps, prevState: ChrisFileSelectState) {
     this.disableTreeDraggables();
     if (_.isEqual(prevState.fileCache, this.state.fileCache)) {
       console.log("Hey there almost there");
@@ -407,4 +414,12 @@ class ChrisFileSelect extends React.Component<
   }
 }
 
-export default ChrisFileSelect;
+export const mapStateToProps = (state: ApplicationState) => ({
+  feedfiles: state.feed.files
+});
+
+export const mapDispatchToProps = (dispatch: Dispatch) => ({
+  getFiles: () => dispatch(getAllFiles())
+});
+
+export default connect(mapStateToProps)(mapDispatchToProps)(ChrisFileSelect);
