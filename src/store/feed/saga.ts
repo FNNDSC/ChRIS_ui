@@ -6,8 +6,10 @@ import {
   getAllFeedsSuccess,
   getFeedDetailsSuccess,
   getPluginInstanceListRequest,
-  getPluginInstanceListSuccess
+  getPluginInstanceListSuccess,
+  getAllFilesSucess
 } from "./actions";
+import { UploadedFile } from "@fnndsc/chrisapi";
 
 // ------------------------------------------------------------------------
 // Description: Get Feeds list and search list by feed name (form input driven)
@@ -21,6 +23,7 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
       ? `${process.env.REACT_APP_CHRIS_UI_URL}search/?name=${name}&${query}`
       : `${process.env.REACT_APP_CHRIS_UI_URL}?${query}`;
     const res = yield call(ChrisModel.fetchRequest, url);
+
     if (res.error) {
       console.error(res.error);
     } else {
@@ -112,7 +115,7 @@ function* handleGetAllFiles() {
   };
 
   let fileList = yield client.getUploadedFiles(params);
-  const files = fileList.getItems();
+  let files = fileList.getItems();
 
   while (fileList.hasNextPage) {
     try {
@@ -123,7 +126,8 @@ function* handleGetAllFiles() {
       console.error(e);
     }
   }
-  return files;
+
+  yield put(getAllFilesSucess(files));
 }
 
 function* watchGetAllFiles() {

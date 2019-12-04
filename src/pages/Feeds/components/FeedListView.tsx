@@ -28,10 +28,12 @@ import { DataTableToolbar, LoadingSpinner } from "../../../components/index";
 import CreateFeed from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
 import feedIcon from "../../../assets/images/bw-pipeline.svg";
+import { getAllFiles } from "../../../store/feed/actions";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getAllFeedsRequest: typeof getAllFeedsRequest;
+  getAllFiles: typeof getAllFiles;
 }
 
 type AllProps = IFeedState & IPropsFromDispatch;
@@ -73,6 +75,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     });
     this.fetchFeeds();
     this.fetchFeedsCount();
+    this.props.getAllFiles();
   }
 
   componentDidUpdate(prevProps: AllProps, prevState: FeedsListViewState) {
@@ -278,14 +281,12 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
   getAllFeedsRequest: (name?: string, limit?: number, offset?: number) =>
-    dispatch(getAllFeedsRequest(name, limit, offset))
+    dispatch(getAllFeedsRequest(name, limit, offset)),
+  getAllFiles: () => dispatch(getAllFiles())
 });
 
 const mapStateToProps = ({ feed }: ApplicationState) => ({
   feeds: feed.feeds
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(FeedListView);
+export default connect(mapStateToProps, mapDispatchToProps)(FeedListView);

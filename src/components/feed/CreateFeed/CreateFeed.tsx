@@ -8,8 +8,7 @@ import {
   UploadedFile,
   Tag,
   PluginInstance,
-  Collection,
-  FeedFile
+  Collection
 } from "@fnndsc/chrisapi";
 import { Button, Wizard } from "@patternfly/react-core";
 
@@ -22,8 +21,10 @@ import BasicInformation from "./BasicInformation";
 import ChrisFileSelect from "./ChrisFileSelect";
 import LocalFileUpload from "./LocalFileUpload";
 import Review from "./Review";
+import { getAllFiles } from "../../../store/feed/actions";
 
 import "./createfeed.scss";
+import { IFeedState } from "../../../store/feed/types";
 
 // UTILS
 
@@ -68,6 +69,8 @@ interface CreateFeedProps {
   addFeed: (feed: IFeedItem) => void;
 }
 
+type AllProps = IFeedState & CreateFeedProps;
+
 interface CreateFeedState {
   wizardOpen: boolean;
   saving: boolean;
@@ -75,8 +78,8 @@ interface CreateFeedState {
   data: CreateFeedData;
 }
 
-class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
-  constructor(props: CreateFeedProps) {
+class CreateFeed extends React.Component<AllProps, CreateFeedState> {
+  constructor(props: AllProps) {
     super(props);
     this.state = {
       wizardOpen: false,
@@ -302,27 +305,26 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
     return this.uploadFilesToTempDir(files, tempDirName);
   }
 
-  /*
-
   async removeTempFiles(tempDirName: string) {
     const files = [
       ...this.getAllSelectedChrisFiles(),
       ...this.state.data.localFiles
     ];
-    const uploadedFiles = await fetchAllChrisFiles();
+    const { feedFiles } = this.props;
 
-    for (const uploadedFile of uploadedFiles) {
-      const path = uploadedFile.data.upload_path;
-      const matchesFile = files.find(
-        f => this.getDataFileTempPath(f, tempDirName) === path
-      );
-      if (matchesFile) {
-        uploadedFile.delete();
+    if (feedFiles) {
+      console.log(feedFiles);
+      for (const uploadedFile of feedFiles) {
+        const path = uploadedFile.data.upload_path;
+        const matchesFile = files.find(
+          f => this.getDataFileTempPath(f, tempDirName) === path
+        );
+        if (matchesFile) {
+          uploadedFile.delete();
+        }
       }
     }
   }
-
-  */
 
   // DIRCOPY PLUGIN
 
@@ -384,7 +386,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       }
 
       // Remove temporary files
-     // this.removeTempFiles(tempDirName);
+      // this.removeTempFiles(tempDirName);
 
       // Set feed name
       await feed.put({
@@ -432,7 +434,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
 
       this.props.addFeed(feedObj);
     } catch (e) {
-      //this.removeTempFiles(tempDirName); // clean up temp files if anything failed
+      this.removeTempFiles(tempDirName); // clean up temp files if anything failed
       console.error(e);
     } finally {
       this.resetState();
@@ -442,6 +444,7 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
 
   render() {
     const { data, saving, wizardOpen, step } = this.state;
+    const { feedFiles } = this.props;
 
     const enableSave =
       (data.chrisFiles.length > 0 || data.localFiles.length > 0) && !saving;
@@ -457,9 +460,10 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
       />
     );
 
-    const chrisFileSelect = (
+    const chrisFileSelect = feedFiles && (
       <ChrisFileSelect
         files={data.chrisFiles}
+        feedFiles={feedFiles}
         handleFileAdd={this.handleChrisFileAdd}
         handleFileRemove={this.handleChrisFileRemove}
       />
@@ -528,7 +532,8 @@ class CreateFeed extends React.Component<CreateFeedProps, CreateFeedState> {
 }
 
 const mapStateToProps = (state: ApplicationState) => ({
-  authToken: state.user.token || ""
+  authToken: state.user.token || "",
+  feedFiles: state.feed.feedFiles
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
