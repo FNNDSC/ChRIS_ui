@@ -14,7 +14,10 @@ import {
   getFeedDetailsRequest,
   destroyFeed
 } from "../../../store/feed/actions";
-import { getPluginDetailsRequest } from "../../../store/plugin/actions";
+import {
+  getPluginDetailsRequest,
+  getPluginFilesRequest
+} from "../../../store/plugin/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { IUserState } from "../../../store/user/types";
 import { IPluginState } from "../../../store/plugin/types";
@@ -29,6 +32,7 @@ interface IPropsFromDispatch {
   getFeedDetailsRequest: typeof getFeedDetailsRequest;
   getPluginDetailsRequest: typeof getPluginDetailsRequest;
   destroyFeed: typeof destroyFeed;
+  getPluginFilesRequest: typeof getPluginFilesRequest;
 }
 
 type AllProps = IUserState &
@@ -124,6 +128,7 @@ class FeedView extends React.Component<AllProps> {
   onNodeClick(node: IPluginItem) {
     const { getPluginDetailsRequest } = this.props;
     getPluginDetailsRequest(node);
+    getPluginFilesRequest(node);
   }
 
   // Reset feed state so
@@ -139,7 +144,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(setSidebarActive(active)),
   getPluginDetailsRequest: (item: IPluginItem) =>
     dispatch(getPluginDetailsRequest(item)),
-  destroyFeed: () => dispatch(destroyFeed())
+  destroyFeed: () => dispatch(destroyFeed()),
+  getPluginFilesRequest: (item: IPluginItem) =>
+    dispatch(getPluginFilesRequest(item))
 });
 
 const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({
@@ -149,10 +156,8 @@ const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({
   items: feed.items,
   details: feed.details,
   selected: plugin.selected,
-  descendants: plugin.descendants
+  descendants: plugin.descendants,
+  files: plugin.files
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(FeedView);
+export default connect(mapStateToProps, mapDispatchToProps)(FeedView);

@@ -26,7 +26,6 @@ function* handleGetPluginDetails(action: IActionTypeParam) {
     } else {
       yield put(getPluginDetailsSuccess(res));
 
-      !!item.files && (yield put(getPluginFilesRequest(item)));
       !!item.parameters &&
         (yield put(getPluginParametersRequest(item.parameters)));
     }
