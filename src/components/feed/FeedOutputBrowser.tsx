@@ -143,6 +143,7 @@ class FeedOutputBrowser extends React.Component<
     if (!files || !files.length) {
       return null;
     }
+
     const model = new UITreeNodeModel(convertFiles(files, selected), selected);
     const tree = model.getTree();
     tree.module = this.getPluginName(selected);
