@@ -1,6 +1,7 @@
 import { all, call, fork, put, takeEvery } from "redux-saga/effects";
 import { PluginActionTypes } from "./types";
 import ChrisModel, { IActionTypeParam } from "../../api/models/base.model";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import {
   getPluginDetailsSuccess,
   getPluginDescendantsSuccess,
@@ -66,17 +67,26 @@ function* watchGetPluginDescendants() {
 // @Param: action.payload === selected plugin
 // ------------------------------------------------------------------------
 function* handleGetPluginFiles(action: IActionTypeParam) {
-  try {
-    const selected = action.payload;
-    const url = `${selected.files}?limit=1000`;
-    const res = yield call(ChrisModel.fetchRequest, url); // NOTE: TEMP Modification until pagination is developed
-    if (res.error) {
-      console.error(res.error);
-    } else {
-      yield put(getPluginFilesSuccess(res));
+  const item = action.payload;
+  const id = item.id as number;
+  //  const id = item.id as number;
+  const client = ChrisAPIClient.getClient();
+  const params = { limit: 100, offset: 0 };
+
+  const pluginInstance = yield client.getPluginInstance(id);
+
+  let fileList = yield pluginInstance.getFiles(params);
+  const files = fileList.getItems();
+
+  while (fileList.hasNextPage) {
+    try {
+      params.offset += params.limit;
+      fileList = yield pluginInstance.getFiles(params);
+      files.push(...fileList.getItems());
+      yield put(getPluginFilesSuccess(files));
+    } catch (e) {
+      console.error(e);
     }
-  } catch (error) {
-    console.error(error);
   }
 }
 

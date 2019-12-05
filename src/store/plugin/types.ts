@@ -6,12 +6,12 @@
  */
 import keyMirror from "keymirror";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
-import { IFeedFile } from "../../api/models/feed-file.model";
+import { FeedFile } from "@fnndsc/chrisapi";
 
 export interface IPluginState {
   selected?: IPluginItem;
   descendants?: IPluginItem[];
-  files?: IFeedFile[];
+  files?: FeedFile[];
   parameters?: any[];
 }
 

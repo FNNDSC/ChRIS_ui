@@ -64,7 +64,8 @@ class FeedView extends React.Component<AllProps> {
   }
 
   render() {
-    const { items, details, selected, descendants, token } = this.props;
+    const { items, details, selected, descendants, token, files } = this.props;
+    console.log("Feeds from Redux", files);
 
     return (
       <React.Fragment>
@@ -116,6 +117,7 @@ class FeedView extends React.Component<AllProps> {
               selected={selected}
               plugins={items}
               handlePluginSelect={this.onNodeClick}
+              files={files}
             />
           </div>
         </PageSection>
@@ -126,7 +128,7 @@ class FeedView extends React.Component<AllProps> {
 
   // Description: handle node clicks to load next node information - descendants, params, and files
   onNodeClick(node: IPluginItem) {
-    const { getPluginDetailsRequest } = this.props;
+    const { getPluginDetailsRequest, getPluginFilesRequest } = this.props;
     getPluginDetailsRequest(node);
     getPluginFilesRequest(node);
   }

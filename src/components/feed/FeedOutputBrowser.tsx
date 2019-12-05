@@ -56,10 +56,11 @@ interface FeedOutputBrowserProps {
 
   handlePluginSelect: Function;
   setSelectedFile: Function;
+  files: IFeedFile[];
 }
 
 interface FeedOutputBrowserState {
-  files: { [pluginId: number]: FeedFile[] };
+  files: { [pluginId: number]: IFeedFile[] };
   pluginModalOpen: boolean;
 }
 
@@ -93,7 +94,7 @@ class FeedOutputBrowser extends React.Component<
       return;
     }
     const id = selected.id as number;
-    const files: FeedFile[] = this.state.files[id];
+    const files: IFeedFile[] = this.state.files[id];
 
     if (
       !prevProps.selected ||
@@ -107,11 +108,13 @@ class FeedOutputBrowser extends React.Component<
 
   async fetchPluginFiles(plugin: IPluginItem) {
     const id = plugin.id as number;
+    const { files } = this.props;
 
     if (this.state.files[id] && this.state.files[id].length > 0) {
       return;
     }
 
+    /*
     // get all files
     const client = ChrisAPIClient.getClient();
     const params = { limit: 100, offset: 0 };
@@ -130,7 +133,7 @@ class FeedOutputBrowser extends React.Component<
         console.error(e);
       }
     }
-
+*/
     this.setState({
       files: {
         ...this.state.files,
@@ -243,7 +246,7 @@ class FeedOutputBrowser extends React.Component<
   render() {
     const { plugins, selected } = this.props;
     const { files, pluginModalOpen } = this.state;
-    console.log(selected);
+    console.log(this.state.files, this.props.files);
 
     if (!selected || !plugins) {
       return (

@@ -15,7 +15,7 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
       return { ...state, files: undefined, parameters: undefined };
     }
     case PluginActionTypes.GET_PLUGIN_FILES_SUCCESS: {
-      return { ...state, files: action.payload.data.results };
+      return { ...state, files: action.payload };
     }
     case PluginActionTypes.GET_PLUGIN_PARAMETERS_SUCCESS: {
       return { ...state, parameters: action.payload.data.results };
