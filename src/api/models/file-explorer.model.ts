@@ -133,7 +133,8 @@ export default class UITreeNodeModel {
 
   // Description: covert file string to an array
   private _convertFiletoArray = (item: FeedFile, pluginName: string) => {
-    const fileName = item.data.fname;
+    const fileName = item.data.fname.split(`${pluginName}`)[1].slice(1);
+
     // find the pluginName within the filename string then decompose the substring
     return fileName
       .substring(fileName.indexOf(pluginName), fileName.length)

@@ -59,43 +59,7 @@ class FeedOutputBrowser extends React.Component<
     this.generateSidebarItem = this.generateSidebarItem.bind(this);
   }
 
-  componentDidMount() {
-    console.log(this.props.files);
-    if (this.props.selected) {
-      this.fetchPluginFiles(this.props.selected);
-    }
-  }
-
-  componentDidUpdate(prevProps: FeedOutputBrowserProps) {
-    const { selected, files } = this.props;
-
-    if (!selected) {
-      return;
-    }
-    const id = selected.id as number;
-    // const files: FeedFile[] = this.state.files[id];
-
-    if (!prevProps.selected || prevProps.selected.id !== selected.id) {
-      this.fetchPluginFiles(selected);
-    }
-  }
-
   /* DATA FETCHING & MANIPULATION */
-
-  async fetchPluginFiles(plugin: IPluginItem) {
-    console.log("Fetch Plugin Files called", this.props.files);
-    const id = plugin.id as number;
-    const { files } = this.props;
-
-    if (files) {
-      this.setState({
-        fileCache: {
-          ...this.state.fileCache,
-          [id]: files
-        }
-      });
-    }
-  }
 
   createTreeFromFiles(files: FeedFile[], selected: IPluginItem) {
     if (!files || !files.length) {
@@ -163,7 +127,6 @@ class FeedOutputBrowser extends React.Component<
   }
 
   handleSidebarItemClick(plugin: IPluginItem) {
-    this.fetchPluginFiles(plugin);
     this.props.handlePluginSelect(plugin);
   }
 
