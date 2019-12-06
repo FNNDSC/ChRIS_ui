@@ -2,6 +2,7 @@ import React from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import JSZip from "jszip";
+import _ from "lodash";
 
 import { Title, Split, SplitItem, Button } from "@patternfly/react-core";
 import {
@@ -9,43 +10,20 @@ import {
   FolderCloseIcon,
   DownloadIcon
 } from "@patternfly/react-icons";
-import { FeedFile, Collection } from "@fnndsc/chrisapi";
+import { FeedFile } from "@fnndsc/chrisapi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import UITreeNodeModel, {
   IUITreeNode
 } from "../../api/models/file-explorer.model";
-import ChrisAPIClient from "../../api/chrisapiclient";
+
 import FileViewerModel from "../../api/models/file-viewer.model";
-import { IFeedFile } from "../../api/models/feed-file.model";
+
 import PluginViewerModal from "../plugin/PluginViewerModal";
 import { setSelectedFile } from "../../store/explorer/actions";
 
 import FileBrowser from "./FileBrowser";
-
-// UTILITIES
-
-// Temporary utility for transitioning between internal types and chrisapi types
-function convertFiles(files: FeedFile[], selected: IPluginItem): IFeedFile[] {
-  return files.map(file => {
-    const getRelation = (name: string) => {
-      return Collection.getLinkRelationUrls(file.collection.items[0], name)[0];
-    };
-
-    return {
-      url: file.url,
-      file_resource: getRelation("file_resource"),
-      plugin_instances: getRelation("plugin_instances"),
-      id: file.data.id,
-      feed_id: file.data.feed_id,
-      plugin_inst_id: file.data.plugin_inst_id,
-      fname: file.data.fname
-        .split(`${selected.plugin_name}_${selected.id}`)[1]
-        .slice(1)
-    };
-  });
-}
 
 // INTERFACES
 
@@ -56,11 +34,11 @@ interface FeedOutputBrowserProps {
 
   handlePluginSelect: Function;
   setSelectedFile: Function;
-  files: FeedFile[];
+  files?: FeedFile[];
 }
 
 interface FeedOutputBrowserState {
-  files: { [pluginId: number]: FeedFile[] };
+  fileCache?: { [pluginId: number]: FeedFile[] };
   pluginModalOpen: boolean;
 }
 
@@ -71,7 +49,7 @@ class FeedOutputBrowser extends React.Component<
   constructor(props: FeedOutputBrowserProps) {
     super(props);
     this.state = {
-      files: [],
+      fileCache: [],
       pluginModalOpen: false
     };
 
@@ -82,24 +60,22 @@ class FeedOutputBrowser extends React.Component<
   }
 
   componentDidMount() {
+    console.log(this.props.files);
     if (this.props.selected) {
       this.fetchPluginFiles(this.props.selected);
     }
   }
 
   componentDidUpdate(prevProps: FeedOutputBrowserProps) {
-    const { selected } = this.props;
+    const { selected, files } = this.props;
 
     if (!selected) {
       return;
     }
     const id = selected.id as number;
-    const files: FeedFile[] = this.state.files[id];
+    // const files: FeedFile[] = this.state.files[id];
 
-    if (
-      !prevProps.selected ||
-      (prevProps.selected.id !== selected.id && !files)
-    ) {
+    if (!prevProps.selected || prevProps.selected.id !== selected.id) {
       this.fetchPluginFiles(selected);
     }
   }
@@ -107,39 +83,18 @@ class FeedOutputBrowser extends React.Component<
   /* DATA FETCHING & MANIPULATION */
 
   async fetchPluginFiles(plugin: IPluginItem) {
+    console.log("Fetch Plugin Files called", this.props.files);
     const id = plugin.id as number;
     const { files } = this.props;
 
-    if (this.state.files[id] && this.state.files[id].length > 0) {
-      return;
+    if (files) {
+      this.setState({
+        fileCache: {
+          ...this.state.fileCache,
+          [id]: files
+        }
+      });
     }
-
-    /*
-    // get all files
-    const client = ChrisAPIClient.getClient();
-    const params = { limit: 100, offset: 0 };
-
-    const pluginInstance = await client.getPluginInstance(id);
-
-    let fileList = await pluginInstance.getFiles(params);
-    const files = fileList.getItems();
-
-    while (fileList.hasNextPage) {
-      try {
-        params.offset += params.limit;
-        fileList = await pluginInstance.getFiles(params);
-        files.push(...fileList.getItems());
-      } catch (e) {
-        console.error(e);
-      }
-    }
-*/
-    this.setState({
-      files: {
-        ...this.state.files,
-        [id]: files
-      }
-    });
   }
 
   createTreeFromFiles(files: FeedFile[], selected: IPluginItem) {
@@ -147,7 +102,7 @@ class FeedOutputBrowser extends React.Component<
       return null;
     }
 
-    const model = new UITreeNodeModel(convertFiles(files, selected), selected);
+    const model = new UITreeNodeModel(files, selected);
     const tree = model.getTree();
     tree.module = this.getPluginName(selected);
     return this.sortTree(tree);
@@ -178,16 +133,21 @@ class FeedOutputBrowser extends React.Component<
 
   async handleDownloadAllClick() {
     const { selected } = this.props;
+    const { fileCache } = this.state;
     if (!selected) {
       return;
     }
 
-    const files = this.state.files[selected.id as number];
+    const files = fileCache && fileCache[selected.id as number];
+
     const zip = new JSZip();
-    for (const file of files) {
-      const fileBlob = await file.getFileBlob();
-      zip.file(file.data.fname, fileBlob);
+    if (files) {
+      for (const file of files) {
+        const fileBlob = await file.getFileBlob();
+        zip.file(file.data.fname, fileBlob);
+      }
     }
+
     const blob = await zip.generateAsync({ type: "blob" });
     const filename = `${this.getPluginName(selected)}.zip`;
     FileViewerModel.downloadFile(blob, filename);
@@ -245,8 +205,7 @@ class FeedOutputBrowser extends React.Component<
 
   render() {
     const { plugins, selected } = this.props;
-    const { files, pluginModalOpen } = this.state;
-    console.log(this.state.files, this.props.files);
+    const { fileCache, pluginModalOpen } = this.state;
 
     if (!selected || !plugins) {
       return (
@@ -260,9 +219,12 @@ class FeedOutputBrowser extends React.Component<
     const pluginName = this.getPluginName(selected);
     const pluginDisplayName = this.getPluginDisplayName(selected);
 
-    const selectedFiles = files[selected.id as number];
+    const selectedFiles = fileCache && fileCache[selected.id as number];
 
-    const tree = this.createTreeFromFiles(selectedFiles, selected);
+    let tree;
+    if (selectedFiles) {
+      tree = this.createTreeFromFiles(selectedFiles, selected);
+    }
 
     return (
       <div className="feed-output-browser">

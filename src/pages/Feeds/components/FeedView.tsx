@@ -25,6 +25,7 @@ import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { FeedTree, FeedDetails, NodeDetails } from "../../../components/index";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 import "../feed.scss";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FeedOutputBrowser from "../../../components/feed/FeedOutputBrowser";
 
 interface IPropsFromDispatch {
@@ -65,7 +66,6 @@ class FeedView extends React.Component<AllProps> {
 
   render() {
     const { items, details, selected, descendants, token, files } = this.props;
-    console.log("Feeds from Redux", files);
 
     return (
       <React.Fragment>
@@ -112,13 +112,23 @@ class FeedView extends React.Component<AllProps> {
         {/* Bottom section with information */}
         <PageSection>
           <div className="plugin-info pf-u-py-md">
-            <FeedOutputBrowser
-              token={token || ""}
-              selected={selected}
-              plugins={items}
-              handlePluginSelect={this.onNodeClick}
-              files={files}
-            />
+            {!!files ? (
+              <FeedOutputBrowser
+                token={token || ""}
+                selected={selected}
+                plugins={items}
+                handlePluginSelect={this.onNodeClick}
+                files={files}
+              />
+            ) : (
+              <FontAwesomeIcon
+                title="This may take a while...."
+                icon="spinner"
+                pulse
+                size="6x"
+                color="black"
+              />
+            )}
           </div>
         </PageSection>
         {/* END OF Bottom section with information */}

@@ -1,6 +1,7 @@
 import { IPluginItem } from "./pluginInstance.model";
-import { FeedFile } from "@fnndsc/chrisapi";
+
 import _ from "lodash";
+import { FeedFile } from "@fnndsc/chrisapi";
 
 // Description: Builds the file explorer tree
 export interface IUITreeNode {
@@ -74,7 +75,7 @@ export default class UITreeNodeModel {
   ) => {
     fileArray.forEach((item: string, i: number) => {
       const isLeaf = i === fileArray.length - 1;
-      const uiId = `uiId_${i}_${index}_${!isLeaf ? item : file.id}`;
+      const uiId = `uiId_${i}_${index}_${!isLeaf ? item : file.data.id}`;
       !isLeaf ? this._AddFolder(item, uiId) : this._addFile(item, uiId, file);
     });
   };
@@ -132,7 +133,7 @@ export default class UITreeNodeModel {
 
   // Description: covert file string to an array
   private _convertFiletoArray = (item: FeedFile, pluginName: string) => {
-    const fileName = item.fname;
+    const fileName = item.data.fname;
     // find the pluginName within the filename string then decompose the substring
     return fileName
       .substring(fileName.indexOf(pluginName), fileName.length)
