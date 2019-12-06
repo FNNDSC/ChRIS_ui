@@ -5,11 +5,11 @@ import {
   EyeIcon,
   DownloadIcon
 } from "@patternfly/react-icons";
-import { IFeedFile } from "../../api/models/feed-file.model";
+import { FeedFile } from "@fnndsc/chrisapi";
 import PluginViewerModal from "./PluginViewerModal";
 
 type AllProps = {
-  files: IFeedFile[];
+  files: FeedFile[];
   handleDownloadData: () => void;
   handleViewData: () => void;
 };
@@ -27,8 +27,8 @@ class PluginOutput extends React.Component<AllProps, { isModalOpen: boolean }> {
 
   // Description: Handle key down to open modal ctrl+zZ
   handleKeyDown = (event: KeyboardEvent) => {
-    (event.keyCode === 90 && event.ctrlKey) && this.handleModalToggle();
-  }
+    event.keyCode === 90 && event.ctrlKey && this.handleModalToggle();
+  };
 
   // Set local state
   handleModalToggle = () => {
@@ -60,7 +60,8 @@ class PluginOutput extends React.Component<AllProps, { isModalOpen: boolean }> {
               <Button
                 variant="secondary"
                 isBlock
-                onClick={this.handleModalToggle} >
+                onClick={this.handleModalToggle}
+              >
                 <EyeIcon /> View Data
               </Button>
             </div>

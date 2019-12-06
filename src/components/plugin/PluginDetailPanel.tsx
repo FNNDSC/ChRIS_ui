@@ -73,7 +73,9 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                   isExpanded={this.state.expanded.includes("plugin-detail")}
                 >
                   <div className="datalist-header">
-                    <span className="capitalize">{getPluginInstanceTitle(selected)}</span>
+                    <span className="capitalize">
+                      {getPluginInstanceTitle(selected)}
+                    </span>
                     <DataListToggle
                       onClick={() => toggle("plugin-detail")}
                       isExpanded={this.state.expanded.includes("plugin-detail")}
@@ -84,7 +86,8 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                   </div>
                   <DataListContent
                     aria-label="Primary Content Details for plugin"
-                    isHidden={!this.state.expanded.includes("plugin-detail")}  >
+                    isHidden={!this.state.expanded.includes("plugin-detail")}
+                  >
                     <PluginInformation selected={selected} />
                   </DataListContent>
                 </DataListItem>
@@ -94,7 +97,8 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
               <DataList aria-label="Plugin Configuration">
                 <DataListItem
                   aria-labelledby="Plugin Configuration"
-                  isExpanded={this.state.expanded.includes("plugin-config")}  >
+                  isExpanded={this.state.expanded.includes("plugin-config")}
+                >
                   <div className="datalist-header">
                     Configuration
                     <DataListToggle
@@ -108,11 +112,13 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                   <DataListContent
                     className={!!!parameters ? "empty" : ""}
                     aria-label="Plugin Configuration"
-                    isHidden={!this.state.expanded.includes("plugin-config")}  >
-                    {!!parameters ?
-                      <PluginConfiguration parameters={parameters} /> :
-                       <LoadingSpinner size="3x" isLocal color="#777" />
-                    }
+                    isHidden={!this.state.expanded.includes("plugin-config")}
+                  >
+                    {!!parameters ? (
+                      <PluginConfiguration parameters={parameters} />
+                    ) : (
+                      <LoadingSpinner size="3x" isLocal color="#777" />
+                    )}
                   </DataListContent>
                 </DataListItem>
               </DataList>
@@ -121,7 +127,8 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
               <DataList aria-label="Plugin Output">
                 <DataListItem
                   aria-labelledby="ex-item1"
-                  isExpanded={this.state.expanded.includes("plugin-data")}  >
+                  isExpanded={this.state.expanded.includes("plugin-data")}
+                >
                   <div className="datalist-header">
                     Output
                     <DataListToggle
@@ -135,14 +142,17 @@ class PluginDetailPanel extends React.Component<IPluginState, IState> {
                   <DataListContent
                     className={!!!files ? "empty" : ""}
                     aria-label="Plugin Output"
-                    isHidden={!this.state.expanded.includes("plugin-data")} >
-                    {!!files ?
+                    isHidden={!this.state.expanded.includes("plugin-data")}
+                  >
+                    {!!files ? (
                       <PluginOutput
                         files={files}
                         handleDownloadData={this.handleDownloadData}
                         handleViewData={this.handleViewData}
-                      /> : <LoadingSpinner size="3x" isLocal color="#777" />
-                    }
+                      />
+                    ) : (
+                      <LoadingSpinner size="3x" isLocal color="#777" />
+                    )}
                   </DataListContent>
                 </DataListItem>
               </DataList>
@@ -160,7 +170,4 @@ const mapStateToProps = ({ plugin }: ApplicationState) => ({
   parameters: plugin.parameters
 });
 
-export default connect(
-  mapStateToProps,
-  null
-)(PluginDetailPanel);
+export default connect(mapStateToProps, null)(PluginDetailPanel);

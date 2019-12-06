@@ -56,11 +56,11 @@ interface FeedOutputBrowserProps {
 
   handlePluginSelect: Function;
   setSelectedFile: Function;
-  files: IFeedFile[];
+  files: FeedFile[];
 }
 
 interface FeedOutputBrowserState {
-  files: { [pluginId: number]: IFeedFile[] };
+  files: { [pluginId: number]: FeedFile[] };
   pluginModalOpen: boolean;
 }
 
@@ -94,7 +94,7 @@ class FeedOutputBrowser extends React.Component<
       return;
     }
     const id = selected.id as number;
-    const files: IFeedFile[] = this.state.files[id];
+    const files: FeedFile[] = this.state.files[id];
 
     if (
       !prevProps.selected ||

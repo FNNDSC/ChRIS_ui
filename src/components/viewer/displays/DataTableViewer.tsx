@@ -6,9 +6,9 @@ import {
   TableVariant
 } from "@patternfly/react-table";
 import { DataTableToolbar } from "../../index";
-import { IFeedFile } from "../../../api/models/feed-file.model";
+import { FeedFile } from "@fnndsc/chrisapi";
 type AllProps = {
-  files: IFeedFile[];
+  files: FeedFile[];
 };
 
 const DataTableViewer: React.FunctionComponent<AllProps> = (

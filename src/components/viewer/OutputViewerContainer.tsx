@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { Tabs, Tab, Alert } from "@patternfly/react-core";
 import { ApplicationState } from "../../store/root/applicationState";
-import { IFeedFile } from "../../api/models/feed-file.model";
+import { FeedFile } from "@fnndsc/chrisapi";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import { pluginViewerMap } from "../../api/models/file-viewer.model";
 import {
@@ -18,7 +18,7 @@ import SegmentAnalysis from "../../components/chart/SegmentAnalysis";
 import "./viewer.scss";
 
 type AllProps = {
-  files?: IFeedFile[];
+  files?: FeedFile[];
   selected?: IPluginItem;
 };
 
@@ -141,7 +141,4 @@ const mapStateToProps = ({ plugin }: ApplicationState) => ({
   selected: plugin.selected
 });
 
-export default connect(
-  mapStateToProps,
-  null
-)(OutputViewerContainer);
+export default connect(mapStateToProps, null)(OutputViewerContainer);
