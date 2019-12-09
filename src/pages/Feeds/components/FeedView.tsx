@@ -92,7 +92,6 @@ class FeedView extends React.Component<AllProps, Test> {
 
   fetchPluginFiles(files: FeedFile[], selected: IPluginItem) {
     const id = selected.id as number;
-    console.log("Files", files);
 
     this.setState({
       fileCache: {

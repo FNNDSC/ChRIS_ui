@@ -75,7 +75,6 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     });
     this.fetchFeeds();
     this.fetchFeedsCount();
-    this.props.getAllFiles();
   }
 
   componentDidUpdate(prevProps: AllProps, prevState: FeedsListViewState) {
@@ -99,10 +98,10 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
 
   // fetch total amount of feeds, regardless of filter/pagination
   async fetchFeedsCount() {
-    const client = ChrisAPIClient.getClient();
-    const feedList = await client.getFeeds({ limit: 1, offset: 0 });
-
-    this.setState({ feedsCount: feedList.totalCount });
+    const { feeds } = this.props;
+    if (feeds) {
+      this.setState({ feedsCount: feeds.length });
+    }
   }
 
   async fetchFeedDescription(feedItem: IFeedItem) {
@@ -231,6 +230,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
 
   render() {
     const { feeds } = this.props;
+
     const { feedsCount } = this.state;
 
     const cells = ["Feed", "Created", "Last Commit", ""];
@@ -281,8 +281,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
   getAllFeedsRequest: (name?: string, limit?: number, offset?: number) =>
-    dispatch(getAllFeedsRequest(name, limit, offset)),
-  getAllFiles: () => dispatch(getAllFiles())
+    dispatch(getAllFeedsRequest(name, limit, offset))
 });
 
 const mapStateToProps = ({ feed }: ApplicationState) => ({

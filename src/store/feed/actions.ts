@@ -33,5 +33,5 @@ export const addNode = (pluginItem: IPluginItem) =>
 
 export const getAllFiles = () => action(FeedActionTypes.GET_ALL_FILES);
 
-export const getAllFilesSucess = (files: UploadedFile) =>
+export const getAllFilesSuccess = (files: UploadedFile) =>
   action(FeedActionTypes.GET_ALL_FILES_SUCCESS, files);

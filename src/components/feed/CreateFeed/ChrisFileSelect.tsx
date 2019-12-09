@@ -67,16 +67,7 @@ class ChrisFileSelect extends React.Component<
       Promise.all(
         this.props.feedFiles.map(async file => {
           const fileData = file.data;
-          /*
 
-        if (!fileData.upload_path) {
-          return {
-            path: fileData.fname,
-            id: Number(fileData.id),
-            blob: await file.getFileBlob()
-          };
-        }
-*/
           return {
             path: fileData.upload_path,
             id: Number(fileData.id),
@@ -191,7 +182,6 @@ class ChrisFileSelect extends React.Component<
   /* EVENT HANDLERS */
 
   async handleCheckboxChange(isChecked: boolean, file: ChrisFile) {
-    console.log("What is the file here", file);
     if (isChecked) {
       this.props.handleFileAdd(file);
     } else {

@@ -7,27 +7,37 @@ import {
   getFeedDetailsSuccess,
   getPluginInstanceListRequest,
   getPluginInstanceListSuccess,
-  getAllFilesSucess
+  getAllFilesSuccess
 } from "./actions";
-import { UploadedFile } from "@fnndsc/chrisapi";
+import { UploadedFile, FeedFile } from "@fnndsc/chrisapi";
 
 // ------------------------------------------------------------------------
 // Description: Get Feeds list and search list by feed name (form input driven)
 // pass it a param and do a search querie
 // ------------------------------------------------------------------------
 function* handleGetAllFeeds(action: IActionTypeParam) {
-  const { name, limit, offset } = action.payload;
-  try {
-    const query = `limit=${limit}&offset=${offset}`;
-    const url = !!action.payload.name
-      ? `${process.env.REACT_APP_CHRIS_UI_URL}search/?name=${name}&${query}`
-      : `${process.env.REACT_APP_CHRIS_UI_URL}?${query}`;
-    const res = yield call(ChrisModel.fetchRequest, url);
+  const client = ChrisAPIClient.getClient();
+  let params = {
+    limit: 100,
+    offset: 0
+  };
 
-    if (res.error) {
-      console.error(res.error);
+  let feedList = yield client.getFeeds(params);
+  let feeds = feedList.getItems();
+
+  while (feeds.hasNextPage) {
+    params.offset += params.limit;
+    feedList = yield client.getFeeds(params);
+    feeds.push(...feedList);
+  }
+
+  feeds = feeds.map((feed: FeedFile) => feed.data);
+
+  try {
+    if (feeds) {
+      yield put(getAllFeedsSuccess(feeds));
     } else {
-      yield put(getAllFeedsSuccess(res));
+      console.error("Feeds does not exist");
     }
   } catch (error) {
     console.error(error);
@@ -127,7 +137,7 @@ function* handleGetAllFiles() {
     }
   }
 
-  yield put(getAllFilesSucess(files));
+  yield put(getAllFilesSuccess(files));
 }
 
 function* watchGetAllFiles() {
