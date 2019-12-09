@@ -60,6 +60,33 @@ class FeedOutputBrowser extends React.Component<
   }
 
   /* DATA FETCHING & MANIPULATION */
+  componentDidMount() {
+    if (this.props.files && this.props.selected) {
+      const id = this.props.selected.id as number;
+      this.setState({
+        fileCache: {
+          ...this.state.fileCache,
+          [id]: this.props.files
+        }
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps: FeedOutputBrowserProps) {
+    const { files } = this.props;
+    if (!files) {
+      return;
+    }
+    if (prevProps.files !== files && prevProps.selected) {
+      const id = prevProps.selected.id as number;
+      this.setState({
+        fileCache: {
+          ...this.state.fileCache,
+          [id]: files
+        }
+      });
+    }
+  }
 
   createTreeFromFiles(files: FeedFile[], selected: IPluginItem) {
     if (!files || !files.length) {
@@ -167,6 +194,7 @@ class FeedOutputBrowser extends React.Component<
   }
 
   render() {
+    console.log(this.state.fileCache);
     const { plugins, selected } = this.props;
     const { fileCache, pluginModalOpen } = this.state;
 

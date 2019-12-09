@@ -28,7 +28,6 @@ import "../feed.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FeedOutputBrowser from "../../../components/feed/FeedOutputBrowser";
 import { FeedFile } from "@fnndsc/chrisapi";
-import _ from "lodash";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -36,11 +35,6 @@ interface IPropsFromDispatch {
   getPluginDetailsRequest: typeof getPluginDetailsRequest;
   destroyFeed: typeof destroyFeed;
   getPluginFilesRequest: typeof getPluginFilesRequest;
-  files?: FeedFile[];
-}
-
-interface Test {
-  fileCache?: { [pluginId: number]: FeedFile[] };
 }
 
 type AllProps = IUserState &
@@ -49,7 +43,7 @@ type AllProps = IUserState &
   IPropsFromDispatch &
   RouteComponentProps<{ id: string }>;
 
-class FeedView extends React.Component<AllProps, Test> {
+class FeedView extends React.Component<AllProps> {
   constructor(props: AllProps) {
     super(props);
     const { setSidebarActive, match } = this.props;
@@ -61,45 +55,8 @@ class FeedView extends React.Component<AllProps, Test> {
       activeGroup: "feeds_grp",
       activeItem: "my_feeds"
     });
-    this.state = {
-      fileCache: []
-    };
+
     this.onNodeClick = this.onNodeClick.bind(this);
-  }
-
-  componentDidMount() {
-    if (this.props.files && this.props.selected) {
-      this.fetchPluginFiles(this.props.files, this.props.selected);
-    }
-  }
-  componentDidUpdate(prevProps: AllProps) {
-    const { selected, files } = this.props;
-    const { fileCache } = this.state;
-    if (!selected) {
-      return;
-    }
-    const id = selected.id as number;
-    //const existingFiles = fileCache && fileCache[id];
-    if (
-      !prevProps.selected ||
-      (prevProps.selected.id !== selected.id &&
-        !_.isEqual(prevProps.files, files))
-    ) {
-      !!files && console.log(files);
-      !!files && this.fetchPluginFiles(files, selected);
-    }
-  }
-
-  fetchPluginFiles(files: FeedFile[], selected: IPluginItem) {
-    const id = selected.id as number;
-    console.log("Files", files);
-
-    this.setState({
-      fileCache: {
-        ...this.state.fileCache,
-        [id]: files
-      }
-    });
   }
 
   // Description: this will get the feed details then retrieve the plugin_instances object
