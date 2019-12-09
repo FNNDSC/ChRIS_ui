@@ -67,7 +67,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   }
 
   componentDidMount() {
-    const { setSidebarActive } = this.props;
+    const { setSidebarActive, getAllFiles } = this.props;
     document.title = "All Feeds - ChRIS UI site";
     setSidebarActive({
       activeGroup: "feeds_grp",
@@ -75,6 +75,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     });
     this.fetchFeeds();
     this.fetchFeedsCount();
+    getAllFiles();
   }
 
   componentDidUpdate(prevProps: AllProps, prevState: FeedsListViewState) {
@@ -85,6 +86,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
       prevState.filter !== filter
     ) {
       this.fetchFeeds();
+      this.props.getAllFiles();
     }
   }
 
@@ -281,7 +283,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
   getAllFeedsRequest: (name?: string, limit?: number, offset?: number) =>
-    dispatch(getAllFeedsRequest(name, limit, offset))
+    dispatch(getAllFeedsRequest(name, limit, offset)),
+  getAllFiles: () => dispatch(getAllFiles())
 });
 
 const mapStateToProps = ({ feed }: ApplicationState) => ({
