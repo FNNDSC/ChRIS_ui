@@ -166,6 +166,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
   // CHRIS FILE SELECT HANDLERS
 
   handleChrisFileAdd(file: ChrisFile) {
+    console.log("file", file);
     this.setState({
       data: {
         ...this.state.data,
@@ -311,6 +312,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
       ...this.state.data.localFiles
     ];
     const { feedFiles } = this.props;
+    console.log(feedFiles);
 
     if (feedFiles) {
       console.log(feedFiles);
@@ -433,6 +435,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
       };
 
       this.props.addFeed(feedObj);
+      this.removeTempFiles(tempDirName); // clean up temp files if anything failed
     } catch (e) {
       this.removeTempFiles(tempDirName); // clean up temp files if anything failed
       console.error(e);

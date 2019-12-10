@@ -1,6 +1,8 @@
 import React from "react";
+import { connect } from "react-redux";
 
-import { UploadedFile } from "@fnndsc/chrisapi";
+import { UploadedFile, PluginInstance } from "@fnndsc/chrisapi";
+import { IFeedState } from "../../../store/feed/types";
 
 import {
   FolderCloseIcon,
@@ -15,8 +17,10 @@ import Tree from "react-ui-tree";
 import LoadingSpinner from "../../common/loading/LoadingSpinner";
 import { ChrisFile } from "./CreateFeed";
 import { DataTableToolbar } from "../..";
+import { ApplicationState } from "../../../store/root/applicationState";
 
 import _ from "lodash";
+import ChrisAPIClient from "../../../api/chrisapiclient";
 
 function getEmptyTree() {
   return {
@@ -30,7 +34,7 @@ function getEmptyTree() {
 interface ChrisFilePath {
   path: string;
   id: number;
-  blob: {};
+  blob?: {};
 }
 
 interface ChrisFileSelectProps {
@@ -40,6 +44,8 @@ interface ChrisFileSelectProps {
   feedFiles: UploadedFile[];
 }
 
+type AllProps = IFeedState & ChrisFileSelectProps;
+
 interface ChrisFileSelectState {
   filter: string;
   initialTreeLoaded: boolean;
@@ -47,11 +53,8 @@ interface ChrisFileSelectState {
   visibleTree: ChrisFile;
 }
 
-class ChrisFileSelect extends React.Component<
-  ChrisFileSelectProps,
-  ChrisFileSelectState
-> {
-  constructor(props: ChrisFileSelectProps) {
+class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
+  constructor(props: AllProps) {
     super(props);
     this.state = {
       filter: "",
@@ -67,7 +70,6 @@ class ChrisFileSelect extends React.Component<
       Promise.all(
         this.props.feedFiles.map(async file => {
           const fileData = file.data;
-
           return {
             path: fileData.upload_path,
             id: Number(fileData.id),
@@ -78,18 +80,46 @@ class ChrisFileSelect extends React.Component<
     );
   }
 
-  componentDidMount() {
+  async fetchFeeds() {
+    const { feeds } = this.props;
+    const client = ChrisAPIClient.getClient();
+
+    if (feeds) {
+      const plugins = Promise.all(
+        feeds.map(async feed => {
+          const createdFeed = await client.getFeed(feed.id as number);
+          const pluginInstanceList = await createdFeed.getPluginInstances();
+          const plugins = pluginInstanceList.getItems();
+
+          return plugins.map((plugin: PluginInstance) => {
+            console.log(plugin.getFiles({ limit: 100, offset: 0 }));
+            const path = `chris/${feed.name}/${plugin.data.plugin_name}/`;
+            const id = plugin.data.id;
+            return {
+              path,
+              id
+            };
+          });
+        })
+      );
+
+      return plugins;
+    }
+  }
+
+  async componentDidMount() {
     this.disableTreeDraggables();
 
-    this.fetchChrisFiles().then(files => {
-      const tree = this.buildInitialFileTree(files);
-      this.setState({
-        initialTreeLoaded: true,
-        initialTree: tree,
-        visibleTree: tree
-      });
-    });
+    const files = await this.fetchChrisFiles();
+    const feeds = _.flatten(await this.fetchFeeds());
+    const treeFiles = [...files, ...feeds];
 
+    const tree = this.buildInitialFileTree(treeFiles);
+    this.setState({
+      initialTreeLoaded: true,
+      initialTree: tree,
+      visibleTree: tree
+    });
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
     this.handleFilterChange = this.handleFilterChange.bind(this);
   }
@@ -131,6 +161,7 @@ class ChrisFileSelect extends React.Component<
       const dirs = parts.slice(0, parts.length - 1);
 
       let currentDir: ChrisFile[] = root.children;
+      console.log(currentDir);
       for (const dirName of dirs) {
         const existingDir = currentDir.find(
           (pathObj: ChrisFile) => pathObj.name === dirName
@@ -363,4 +394,8 @@ class ChrisFileSelect extends React.Component<
   }
 }
 
-export default ChrisFileSelect;
+const mapStateToProps = ({ feed }: ApplicationState) => ({
+  feeds: feed.feeds
+});
+
+export default connect(mapStateToProps)(ChrisFileSelect);
