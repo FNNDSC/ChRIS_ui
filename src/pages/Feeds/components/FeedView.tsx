@@ -25,10 +25,7 @@ import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { FeedTree, FeedDetails, NodeDetails } from "../../../components/index";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 import "../feed.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FeedOutputBrowser from "../../../components/feed/FeedOutputBrowser";
-import { FeedFile } from "@fnndsc/chrisapi";
-import _ from "lodash";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -36,11 +33,6 @@ interface IPropsFromDispatch {
   getPluginDetailsRequest: typeof getPluginDetailsRequest;
   destroyFeed: typeof destroyFeed;
   getPluginFilesRequest: typeof getPluginFilesRequest;
-  files?: FeedFile[];
-}
-
-interface Test {
-  fileCache?: { [pluginId: number]: FeedFile[] };
 }
 
 type AllProps = IUserState &
@@ -49,7 +41,7 @@ type AllProps = IUserState &
   IPropsFromDispatch &
   RouteComponentProps<{ id: string }>;
 
-class FeedView extends React.Component<AllProps, Test> {
+class FeedView extends React.Component<AllProps> {
   constructor(props: AllProps) {
     super(props);
     const { setSidebarActive, match } = this.props;
@@ -61,44 +53,8 @@ class FeedView extends React.Component<AllProps, Test> {
       activeGroup: "feeds_grp",
       activeItem: "my_feeds"
     });
-    this.state = {
-      fileCache: []
-    };
+
     this.onNodeClick = this.onNodeClick.bind(this);
-  }
-
-  componentDidMount() {
-    if (this.props.files && this.props.selected) {
-      this.fetchPluginFiles(this.props.files, this.props.selected);
-    }
-  }
-  componentDidUpdate(prevProps: AllProps) {
-    const { selected, files } = this.props;
-    const { fileCache } = this.state;
-    if (!selected) {
-      return;
-    }
-    const id = selected.id as number;
-    //const existingFiles = fileCache && fileCache[id];
-    if (
-      !prevProps.selected ||
-      (prevProps.selected.id !== selected.id &&
-        !_.isEqual(prevProps.files, files))
-    ) {
-      !!files && console.log(files);
-      !!files && this.fetchPluginFiles(files, selected);
-    }
-  }
-
-  fetchPluginFiles(files: FeedFile[], selected: IPluginItem) {
-    const id = selected.id as number;
-
-    this.setState({
-      fileCache: {
-        ...this.state.fileCache,
-        [id]: files
-      }
-    });
   }
 
   // Description: this will get the feed details then retrieve the plugin_instances object
@@ -155,23 +111,13 @@ class FeedView extends React.Component<AllProps, Test> {
         {/* Bottom section with information */}
         <PageSection>
           <div className="plugin-info pf-u-py-md">
-            {!!files ? (
-              <FeedOutputBrowser
-                token={token || ""}
-                selected={selected}
-                plugins={items}
-                handlePluginSelect={this.onNodeClick}
-                files={files}
-              />
-            ) : (
-              <FontAwesomeIcon
-                title="This may take a while...."
-                icon="spinner"
-                pulse
-                size="6x"
-                color="black"
-              />
-            )}
+            <FeedOutputBrowser
+              token={token || ""}
+              selected={selected}
+              plugins={items}
+              handlePluginSelect={this.onNodeClick}
+              files={files}
+            />
           </div>
         </PageSection>
         {/* END OF Bottom section with information */}
@@ -182,8 +128,8 @@ class FeedView extends React.Component<AllProps, Test> {
   // Description: handle node clicks to load next node information - descendants, params, and files
   onNodeClick(node: IPluginItem) {
     const { getPluginDetailsRequest, getPluginFilesRequest } = this.props;
-    getPluginDetailsRequest(node);
     getPluginFilesRequest(node);
+    getPluginDetailsRequest(node);
   }
 
   // Reset feed state so
