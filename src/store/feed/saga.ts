@@ -7,16 +7,19 @@ import {
   getFeedDetailsSuccess,
   getPluginInstanceListRequest,
   getPluginInstanceListSuccess,
-  getAllFilesSuccess
+  getAllFilesSuccess,
+  getAllUploadedFiles
 } from "./actions";
-import { UploadedFile, FeedFile } from "@fnndsc/chrisapi";
+import { FeedFile } from "@fnndsc/chrisapi";
 
 // ------------------------------------------------------------------------
 // Description: Get Feeds list and search list by feed name (form input driven)
 // pass it a param and do a search querie
 // ------------------------------------------------------------------------
+
+const client = ChrisAPIClient.getClient();
+
 function* handleGetAllFeeds(action: IActionTypeParam) {
-  const client = ChrisAPIClient.getClient();
   let params = {
     limit: 100,
     offset: 0
@@ -36,6 +39,7 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
   try {
     if (feeds) {
       yield put(getAllFeedsSuccess(feeds));
+      yield getAllUploadedFiles();
     } else {
       console.error("Feeds does not exist");
     }
@@ -55,6 +59,7 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
   try {
     const url = `${process.env.REACT_APP_CHRIS_UI_URL}${action.payload}`;
     const res = yield call(ChrisModel.fetchRequest, url);
+
     if (res.error) {
       console.error(res.error);
     } else {
@@ -118,6 +123,7 @@ function* watchGetPluginInstances() {
 }
 
 function* handleGetAllFiles() {
+  console.log("called");
   const client = ChrisAPIClient.getClient();
   const params = {
     limit: 100,
@@ -140,6 +146,37 @@ function* handleGetAllFiles() {
   yield put(getAllFilesSuccess(files));
 }
 
+function* handleDeleteTempFiles(action: IActionTypeParam) {
+  const params = {
+    limit: 200,
+    offset: 0
+  };
+  let fileList = yield client.getUploadedFiles(params);
+  let files = fileList.getItems();
+
+  while (fileList.hasNextPage) {
+    try {
+      params.offset += params.limit;
+      fileList = yield client.getUploadedFiles(params);
+      files.push(...fileList.getItems());
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  for (const uploadedFile of files) {
+    const path = uploadedFile.data.upload_path;
+    const match = action.payload.find((f: string) => f === path);
+
+    if (match) {
+      uploadedFile.delete();
+    }
+  }
+}
+
+function* watchDeleteTempFiles() {
+  yield takeEvery(FeedActionTypes.DELETE_TEMP_FILES, handleDeleteTempFiles);
+}
+
 function* watchGetAllFiles() {
   yield takeEvery(FeedActionTypes.GET_ALL_FILES, handleGetAllFiles);
 }
@@ -152,6 +189,7 @@ export function* feedSaga() {
     fork(watchGetAllFeedsRequest),
     fork(watchGetFeedRequest),
     fork(watchGetPluginInstances),
-    fork(watchGetAllFiles)
+    fork(watchGetAllFiles),
+    fork(watchDeleteTempFiles)
   ]);
 }

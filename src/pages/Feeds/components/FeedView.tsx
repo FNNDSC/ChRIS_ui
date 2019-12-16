@@ -63,6 +63,8 @@ class FeedView extends React.Component<AllProps> {
     getFeedDetailsRequest(feedId);
   }
 
+  componentDidMount() {}
+
   render() {
     const { items, details, selected, descendants, token, files } = this.props;
 

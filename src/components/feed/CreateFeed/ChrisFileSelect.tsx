@@ -33,7 +33,7 @@ function getEmptyTree() {
 // used between fetching the files and building the tree
 interface ChrisFilePath {
   path: string;
-  id: number;
+  id?: number;
   blob?: {};
 }
 
@@ -41,7 +41,6 @@ interface ChrisFileSelectProps {
   files: ChrisFile[];
   handleFileAdd: (file: ChrisFile) => void;
   handleFileRemove: (file: ChrisFile) => void;
-  feedFiles: UploadedFile[];
 }
 
 type AllProps = IFeedState & ChrisFileSelectProps;
@@ -65,10 +64,11 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
   }
 
   fetchChrisFiles() {
+    const { uploadedFiles } = this.props;
     return (
-      this.props.feedFiles &&
+      uploadedFiles &&
       Promise.all(
-        this.props.feedFiles.map(async file => {
+        uploadedFiles.map(async file => {
           const fileData = file.data;
           return {
             path: fileData.upload_path,
@@ -80,30 +80,45 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
     );
   }
 
-  async fetchFeeds() {
+  async fetchFeedFiles() {
     const { feeds } = this.props;
     const client = ChrisAPIClient.getClient();
 
     if (feeds) {
-      const plugins = Promise.all(
+      const files = await Promise.all(
         feeds.map(async feed => {
-          const createdFeed = await client.getFeed(feed.id as number);
-          const pluginInstanceList = await createdFeed.getPluginInstances();
-          const plugins = pluginInstanceList.getItems();
+          const pluginInstanceList = await (
+            await client.getFeed(feed.id as number)
+          ).getPluginInstances();
 
-          return plugins.map((plugin: PluginInstance) => {
-            console.log(plugin.getFiles({ limit: 100, offset: 0 }));
-            const path = `chris/${feed.name}/${plugin.data.plugin_name}/`;
-            const id = plugin.data.id;
-            return {
-              path,
-              id
-            };
-          });
+          return await Promise.all(
+            pluginInstanceList
+              .getItems()
+              .map(async (plugin: PluginInstance) => {
+                const id = plugin.data.id;
+
+                const fileList = await (
+                  await client.getPluginInstance(id as number)
+                ).getFiles({
+                  limit: 100,
+                  offset: 0
+                });
+                return await Promise.all(
+                  fileList.getItems().map(async file => {
+                    const fileBlob = await file.getFileBlob();
+                    return {
+                      path: file.data.fname,
+                      id: Number(file.data.id),
+                      blob: fileBlob
+                    };
+                  })
+                );
+              })
+          );
         })
       );
 
-      return plugins;
+      return files;
     }
   }
 
@@ -111,8 +126,9 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
     this.disableTreeDraggables();
 
     const files = await this.fetchChrisFiles();
-    const feeds = _.flatten(await this.fetchFeeds());
-    const treeFiles = [...files, ...feeds];
+    const feedFiles = _.flattenDepth(await this.fetchFeedFiles(), 2);
+
+    const treeFiles = [...files, ...feedFiles];
 
     const tree = this.buildInitialFileTree(treeFiles);
     this.setState({
@@ -145,7 +161,7 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
 
   // Transforms list of ChrisFilePaths into a ChrisFile tree
 
-  buildInitialFileTree(filePaths: ChrisFilePath[]) {
+  buildInitialFileTree(filePaths: any) {
     const root = getEmptyTree();
     for (const pathObj of filePaths) {
       const { id, blob } = pathObj;
@@ -161,7 +177,6 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
       const dirs = parts.slice(0, parts.length - 1);
 
       let currentDir: ChrisFile[] = root.children;
-      console.log(currentDir);
       for (const dirName of dirs) {
         const existingDir = currentDir.find(
           (pathObj: ChrisFile) => pathObj.name === dirName
@@ -299,8 +314,10 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
       this.normalizeString(filter)
     );
     const before = name.substring(0, matchIndex);
+
     const match = name.substring(matchIndex, matchIndex + filter.length);
     const after = name.substring(matchIndex + filter.length);
+    console.log(before, match, after);
     return (
       <React.Fragment>
         {before}
@@ -313,6 +330,7 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
   renderTreeNode = (node: ChrisFile) => {
     const { files } = this.props;
     const isFolder = !!node.children;
+
     let isSelected;
     if (isFolder) {
       // there can never be multiple folders with the same path, and folders don't have ids

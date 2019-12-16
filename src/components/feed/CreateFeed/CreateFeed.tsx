@@ -14,14 +14,13 @@ import { Button, Wizard } from "@patternfly/react-core";
 
 import { IFeedItem } from "../../../api/models/feed.model";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { addFeed } from "../../../store/feed/actions";
+import { addFeed, deleteTempFiles } from "../../../store/feed/actions";
 import { ApplicationState } from "../../../store/root/applicationState";
 
 import BasicInformation from "./BasicInformation";
 import ChrisFileSelect from "./ChrisFileSelect";
 import LocalFileUpload from "./LocalFileUpload";
 import Review from "./Review";
-import { getAllFiles } from "../../../store/feed/actions";
 
 import "./createfeed.scss";
 import { IFeedState } from "../../../store/feed/types";
@@ -67,6 +66,7 @@ function getDefaultCreateFeedData(): CreateFeedData {
 interface CreateFeedProps {
   authToken: string;
   addFeed: (feed: IFeedItem) => void;
+  deleteTempFiles: (files: string[], pathName: string) => void;
 }
 
 type AllProps = IFeedState & CreateFeedProps;
@@ -276,6 +276,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
     tempDirName: string
   ): Promise<UploadedFile[]> {
     const uploadedFiles = await ChrisAPIClient.getClient().getUploadedFiles();
+
     return await Promise.all(
       files.map(async file => {
         const pathName = this.getDataFileTempPath(file, tempDirName);
@@ -310,22 +311,8 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
     const files = [
       ...this.getAllSelectedChrisFiles(),
       ...this.state.data.localFiles
-    ];
-    const { feedFiles } = this.props;
-    console.log(feedFiles);
-
-    if (feedFiles) {
-      console.log(feedFiles);
-      for (const uploadedFile of feedFiles) {
-        const path = uploadedFile.data.upload_path;
-        const matchesFile = files.find(
-          f => this.getDataFileTempPath(f, tempDirName) === path
-        );
-        if (matchesFile) {
-          uploadedFile.delete();
-        }
-      }
-    }
+    ].map(file => this.getDataFileTempPath(file, tempDirName));
+    this.props.deleteTempFiles(files, tempDirName);
   }
 
   // DIRCOPY PLUGIN
@@ -388,7 +375,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
       }
 
       // Remove temporary files
-      // this.removeTempFiles(tempDirName);
+      this.removeTempFiles(tempDirName);
 
       // Set feed name
       await feed.put({
@@ -435,7 +422,6 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
       };
 
       this.props.addFeed(feedObj);
-      this.removeTempFiles(tempDirName); // clean up temp files if anything failed
     } catch (e) {
       this.removeTempFiles(tempDirName); // clean up temp files if anything failed
       console.error(e);
@@ -447,7 +433,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
 
   render() {
     const { data, saving, wizardOpen, step } = this.state;
-    const { feedFiles } = this.props;
+    const { uploadedFiles } = this.props;
 
     const enableSave =
       (data.chrisFiles.length > 0 || data.localFiles.length > 0) && !saving;
@@ -463,12 +449,12 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
       />
     );
 
-    const chrisFileSelect = feedFiles && (
+    const chrisFileSelect = (
       <ChrisFileSelect
         files={data.chrisFiles}
-        feedFiles={feedFiles}
         handleFileAdd={this.handleChrisFileAdd}
         handleFileRemove={this.handleChrisFileRemove}
+        uploadedFiles={uploadedFiles}
       />
     );
 
@@ -535,12 +521,13 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
 }
 
 const mapStateToProps = (state: ApplicationState) => ({
-  authToken: state.user.token || "",
-  feedFiles: state.feed.feedFiles
+  authToken: state.user.token || ""
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  addFeed: (feed: IFeedItem) => dispatch(addFeed(feed))
+  addFeed: (feed: IFeedItem) => dispatch(addFeed(feed)),
+  deleteTempFiles: (files: string[], pathName: string) =>
+    dispatch(deleteTempFiles(files, pathName))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(CreateFeed);

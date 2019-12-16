@@ -14,7 +14,7 @@ export interface IFeedState {
   details?: IFeedItem;
   feeds?: IFeedItem[];
   items?: IPluginItem[];
-  feedFiles?: UploadedFile[];
+  uploadedFiles?: UploadedFile[];
 }
 
 export const FeedActionTypes = keyMirror({
@@ -28,5 +28,6 @@ export const FeedActionTypes = keyMirror({
   GET_ALL_FILES_SUCCESS: null,
   RESET_STATE: null,
   ADD_FEED: null,
-  ADD_NODE: null
+  ADD_NODE: null,
+  DELETE_TEMP_FILES: null
 });

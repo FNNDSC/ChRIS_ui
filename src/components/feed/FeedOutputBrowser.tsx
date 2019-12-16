@@ -194,7 +194,6 @@ class FeedOutputBrowser extends React.Component<
   }
 
   render() {
-    console.log(this.state.fileCache);
     const { plugins, selected } = this.props;
     const { fileCache, pluginModalOpen } = this.state;
 

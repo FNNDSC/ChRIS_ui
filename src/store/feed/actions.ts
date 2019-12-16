@@ -3,6 +3,7 @@ import { FeedActionTypes } from "./types";
 import { IFeedItem } from "../../api/models/feed.model";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import { UploadedFile } from "@fnndsc/chrisapi";
+import { DataFile } from "../../components/feed/CreateFeed/CreateFeed";
 
 // type them properly as well -> For more info: https://github.com/piotrwitek/typesafe-actions
 export const getAllFeedsRequest = (
@@ -31,7 +32,10 @@ export const addFeed = (feed: IFeedItem) =>
 export const addNode = (pluginItem: IPluginItem) =>
   action(FeedActionTypes.ADD_NODE, pluginItem);
 
-export const getAllFiles = () => action(FeedActionTypes.GET_ALL_FILES);
+export const getAllUploadedFiles = () => action(FeedActionTypes.GET_ALL_FILES);
 
 export const getAllFilesSuccess = (files: UploadedFile) =>
   action(FeedActionTypes.GET_ALL_FILES_SUCCESS, files);
+
+export const deleteTempFiles = (files: string[], pathName: string) =>
+  action(FeedActionTypes.DELETE_TEMP_FILES, files, pathName);

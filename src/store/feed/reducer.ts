@@ -6,7 +6,7 @@ const initialState: IFeedState = {
   details: undefined,
   items: undefined,
   feeds: undefined,
-  feedFiles: undefined
+  uploadedFiles: undefined
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -32,7 +32,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_ALL_FILES_SUCCESS: {
-      return { ...state, feedFiles: action.payload };
+      return { ...state, uploadedFiles: action.payload };
     }
 
     case FeedActionTypes.ADD_NODE: {

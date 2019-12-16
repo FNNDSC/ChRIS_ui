@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import Moment from "react-moment";
 import debounce from "lodash/debounce";
+import _ from "lodash";
 
 import {
   PageSection,
@@ -28,12 +29,12 @@ import { DataTableToolbar, LoadingSpinner } from "../../../components/index";
 import CreateFeed from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
 import feedIcon from "../../../assets/images/bw-pipeline.svg";
-import { getAllFiles } from "../../../store/feed/actions";
+import { getAllUploadedFiles } from "../../../store/feed/actions";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getAllFeedsRequest: typeof getAllFeedsRequest;
-  getAllFiles: typeof getAllFiles;
+  getAllUploadedFiles: typeof getAllUploadedFiles;
 }
 
 type AllProps = IFeedState & IPropsFromDispatch;
@@ -67,26 +68,27 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   }
 
   componentDidMount() {
-    const { setSidebarActive, getAllFiles } = this.props;
+    const { setSidebarActive, getAllUploadedFiles } = this.props;
     document.title = "All Feeds - ChRIS UI site";
     setSidebarActive({
       activeGroup: "feeds_grp",
       activeItem: "my_feeds"
     });
     this.fetchFeeds();
+    getAllUploadedFiles();
     this.fetchFeedsCount();
-    getAllFiles();
   }
 
   componentDidUpdate(prevProps: AllProps, prevState: FeedsListViewState) {
     const { page, perPage, filter } = this.state;
+
     if (
       prevState.page !== page ||
       prevState.perPage !== perPage ||
       prevState.filter !== filter
     ) {
       this.fetchFeeds();
-      this.props.getAllFiles();
+      getAllUploadedFiles();
     }
   }
 
@@ -231,7 +233,8 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   }
 
   render() {
-    const { feeds } = this.props;
+    const { feeds, uploadedFiles } = this.props;
+    console.log(uploadedFiles);
 
     const { feedsCount } = this.state;
 
@@ -248,11 +251,9 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           <div className="bottom">
             <Title headingLevel="h1" size="3xl">
               My Feeds
-              {feedsCount && (
-                <span className="feed-count"> ({feedsCount})</span>
-              )}
+              {feedsCount && <span className="feed-count">({feedsCount})</span>}
             </Title>
-            <CreateFeed />
+            <CreateFeed uploadedFiles={uploadedFiles} />}
           </div>
         </PageSection>
 
@@ -284,11 +285,12 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(setSidebarActive(active)),
   getAllFeedsRequest: (name?: string, limit?: number, offset?: number) =>
     dispatch(getAllFeedsRequest(name, limit, offset)),
-  getAllFiles: () => dispatch(getAllFiles())
+  getAllUploadedFiles: () => dispatch(getAllUploadedFiles())
 });
 
 const mapStateToProps = ({ feed }: ApplicationState) => ({
-  feeds: feed.feeds
+  feeds: feed.feeds,
+  uploadedFiles: feed.uploadedFiles
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedListView);
