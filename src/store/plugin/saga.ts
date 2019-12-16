@@ -6,9 +6,7 @@ import {
   getPluginDetailsSuccess,
   getPluginDescendantsSuccess,
   getPluginFilesSuccess,
-  getPluginParametersSuccess,
-  getPluginFilesRequest,
-  getPluginParametersRequest
+  getPluginFiles
 } from "./actions";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 
@@ -27,8 +25,7 @@ function* handleGetPluginDetails(action: IActionTypeParam) {
     } else {
       yield put(getPluginDetailsSuccess(res));
 
-      !!item.parameters &&
-        (yield put(getPluginParametersRequest(item.parameters)));
+      yield put(getPluginFiles(item));
     }
   } catch (error) {
     console.error(error);
@@ -95,26 +92,6 @@ function* watchGetPluginFiles() {
 }
 // ------------------------------------------------------------------------
 // Description: Get Plugin Details: Parameters, files and others
-// ------------------------------------------------------------------------
-function* handleGetPluginParameters(action: IActionTypeParam) {
-  try {
-    const res = yield call(ChrisModel.fetchRequest, action.payload);
-    if (res.error) {
-      console.error(res.error);
-    } else {
-      yield put(getPluginParametersSuccess(res));
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-function* watchGetPluginParameters() {
-  yield takeEvery(
-    PluginActionTypes.GET_PLUGIN_PARAMETERS,
-    handleGetPluginParameters
-  );
-}
 
 // ------------------------------------------------------------------------
 // We can also use `fork()` here to split our saga into multiple watchers.
@@ -123,7 +100,6 @@ export function* pluginSaga() {
   yield all([
     fork(watchGetPluginDetails),
     fork(watchGetPluginDescendants),
-    fork(watchGetPluginFiles),
-    fork(watchGetPluginParameters)
+    fork(watchGetPluginFiles)
   ]);
 }

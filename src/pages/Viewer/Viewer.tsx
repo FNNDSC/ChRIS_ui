@@ -5,15 +5,15 @@ import { Dispatch } from "redux";
 import { HomeIcon } from "@patternfly/react-icons";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IPluginState } from "../../store/plugin/types";
-import { getPluginFilesRequest } from "../../store/plugin/actions";
+//import { getPluginFilesRequest } from "../../store/plugin/actions";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 //import { IGalleryItem } from "../../api/models/gallery.model";
-import {galleryItems} from "../../assets/temp/viewer_data";
+import { galleryItems } from "../../assets/temp/viewer_data";
 import AmiViewer from "../../components/dicomViewer/AmiViewer";
 import "./viewer.scss";
 
 interface IPropsFromDispatch {
-  getPluginFilesRequest: typeof getPluginFilesRequest;
+  //getPluginFilesRequest: typeof getPluginFilesRequest;
 }
 type AllProps = IPluginState & IPropsFromDispatch & RouteComponentProps;
 
@@ -35,33 +35,33 @@ class ViewerPage extends React.Component<AllProps> {
           <Link to={`/`} className="pf-u-mr-lg">
             <HomeIcon />
           </Link>
-          Ami Viewer: {!!galleryItems ? `${galleryItems.length} files` : "no files were found"}
+          Ami Viewer:{" "}
+          {!!galleryItems
+            ? `${galleryItems.length} files`
+            : "no files were found"}
         </h1>
         {!!galleryItems && galleryItems.length ? (
           <AmiViewer galleryItems={galleryItems} />
         ) : (
-            <div>No plugin instance selected</div>
-          )}
+          <div>No plugin instance selected</div>
+        )}
       </div>
     );
   }
 }
 
+/*
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getPluginFilesRequest: (item: IPluginItem) => dispatch(getPluginFilesRequest(item))
+  getPluginFilesRequest: (item: IPluginItem) =>
+   // dispatch(getPluginFilesRequest(item))
 });
-
+*/
 const mapStateToProps = ({ plugin }: ApplicationState) => ({
   files: plugin.files
   // selected: plugin.selected
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ViewerPage);
-
-
+export default connect(mapStateToProps)(ViewerPage);
 
 // const selected = {
 //   compute_resource_identifier: "host",

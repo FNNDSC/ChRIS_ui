@@ -14,10 +14,7 @@ import {
   getFeedDetailsRequest,
   destroyFeed
 } from "../../../store/feed/actions";
-import {
-  getPluginDetailsRequest,
-  getPluginFilesRequest
-} from "../../../store/plugin/actions";
+import { getPluginDetailsRequest } from "../../../store/plugin/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { IUserState } from "../../../store/user/types";
 import { IPluginState } from "../../../store/plugin/types";
@@ -25,14 +22,14 @@ import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { FeedTree, FeedDetails, NodeDetails } from "../../../components/index";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 import "../feed.scss";
-import FeedOutputBrowser from "../../../components/feed/FeedOutputBrowser";
+//import FeedOutputBrowser from "../../../components/feed/FeedOutputBrowser";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getFeedDetailsRequest: typeof getFeedDetailsRequest;
   getPluginDetailsRequest: typeof getPluginDetailsRequest;
   destroyFeed: typeof destroyFeed;
-  getPluginFilesRequest: typeof getPluginFilesRequest;
+  // getPluginFilesRequest: typeof getPluginFilesRequest;
 }
 
 type AllProps = IUserState &
@@ -63,10 +60,9 @@ class FeedView extends React.Component<AllProps> {
     getFeedDetailsRequest(feedId);
   }
 
-  componentDidMount() {}
-
   render() {
     const { items, details, selected, descendants, token, files } = this.props;
+    console.log(files);
 
     return (
       <React.Fragment>
@@ -113,13 +109,14 @@ class FeedView extends React.Component<AllProps> {
         {/* Bottom section with information */}
         <PageSection>
           <div className="plugin-info pf-u-py-md">
-            <FeedOutputBrowser
-              token={token || ""}
-              selected={selected}
-              plugins={items}
-              handlePluginSelect={this.onNodeClick}
-              files={files}
-            />
+            {/*
+              <FeedOutputBrowser
+                token={token || ""}
+                selected={selected}
+                plugins={items}
+                handlePluginSelect={this.onNodeClick}
+              />
+              */}
           </div>
         </PageSection>
         {/* END OF Bottom section with information */}
@@ -129,8 +126,7 @@ class FeedView extends React.Component<AllProps> {
 
   // Description: handle node clicks to load next node information - descendants, params, and files
   onNodeClick(node: IPluginItem) {
-    const { getPluginDetailsRequest, getPluginFilesRequest } = this.props;
-    getPluginFilesRequest(node);
+    const { getPluginDetailsRequest } = this.props;
     getPluginDetailsRequest(node);
   }
 
@@ -147,9 +143,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(setSidebarActive(active)),
   getPluginDetailsRequest: (item: IPluginItem) =>
     dispatch(getPluginDetailsRequest(item)),
-  destroyFeed: () => dispatch(destroyFeed()),
-  getPluginFilesRequest: (item: IPluginItem) =>
-    dispatch(getPluginFilesRequest(item))
+  destroyFeed: () => dispatch(destroyFeed())
 });
 
 const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({

@@ -26,7 +26,7 @@ import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest } from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { DataTableToolbar, LoadingSpinner } from "../../../components/index";
-import CreateFeed from "../../../components/feed/CreateFeed/CreateFeed";
+import CreateFeed from "../components/";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
 import feedIcon from "../../../assets/images/bw-pipeline.svg";
 import { getAllUploadedFiles } from "../../../store/feed/actions";
@@ -234,7 +234,6 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
 
   render() {
     const { feeds, uploadedFiles } = this.props;
-    console.log(uploadedFiles);
 
     const { feedsCount } = this.state;
 

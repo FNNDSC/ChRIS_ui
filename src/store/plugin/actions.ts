@@ -8,7 +8,7 @@ export const getPluginDescendantsRequest = (url: string) =>
 export const getPluginDescendantsSuccess = (items: IPluginItem[]) =>
   action(PluginActionTypes.GET_PLUGIN_DESCENDANTS_SUCCESS, items);
 
-export const getPluginFilesRequest = (selected: IPluginItem) =>
+export const getPluginFiles = (selected: IPluginItem) =>
   action(PluginActionTypes.GET_PLUGIN_FILES, selected);
 export const getPluginFilesSuccess = (items: IPluginItem[]) =>
   action(PluginActionTypes.GET_PLUGIN_FILES_SUCCESS, items);
