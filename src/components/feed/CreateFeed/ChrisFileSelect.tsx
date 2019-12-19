@@ -232,7 +232,6 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
   /* EVENT HANDLERS */
 
   async handleCheckboxChange(isChecked: boolean, file: ChrisFile) {
-    console.log("Clicked", file);
     if (isChecked) {
       this.props.handleFileAdd(file);
     } else {
