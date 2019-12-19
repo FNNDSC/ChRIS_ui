@@ -6,7 +6,7 @@ import {
   IUITreeNode
 } from "../../api/models/file-explorer.model";
 import { IFileBlob } from "../../api/models/file-viewer.model";
-import ChrisModel from "../../api/models/base.model";
+
 import FileViewerModel, {
   fileViewerMap
 } from "../../api/models/file-viewer.model";
@@ -24,10 +24,10 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   _isMounted = false;
   constructor(props: AllProps) {
     super(props);
-    this.fetchData();
   }
   componentDidMount() {
     this._isMounted = true;
+    this.fetchData();
   }
   state = {
     blob: undefined,
@@ -41,7 +41,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const { selectedFile } = this.props;
 
     const fileTypeViewer = () => {
-      if (!_.isEqual(selectedFile.file, this.state.file)) {
+      if (!_.isEqual(selectedFile.file.data, this.state.file)) {
         this.fetchData();
         return <LoadingSpinner color="#ddd" />;
       } else {
@@ -75,26 +75,24 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   fetchData() {
     const { selectedFile } = this.props;
 
-    const fileUrl = selectedFile.file.file_resource,
-      fileName = selectedFile.module,
+    const fileName = selectedFile.module,
       fileType = getFileExtension(fileName);
-
-    ChrisModel.getFileBlob(fileUrl).then((result: any) => {
+    selectedFile.file.getFileBlob().then((result: any) => {
       const _self = this;
-      if (!!result.data) {
+      if (!!result) {
         const reader = new FileReader();
         reader.addEventListener("loadend", (e: any) => {
           const blobText = e.target.result;
           _self._isMounted &&
             _self.setState({
-              blob: result.data,
+              blob: result,
               blobName: fileName,
               fileType,
               blobText,
-              file: Object.assign({}, selectedFile.file)
+              file: Object.assign({}, selectedFile.file.data)
             });
         });
-        reader.readAsText(result.data);
+        reader.readAsText(result);
       }
     });
   }

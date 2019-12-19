@@ -13,6 +13,7 @@ const reducer: Reducer<IGalleryState> = (state = initialState, action) => {
       return { ...state, galleryItem: action.payload };
     }
     case GalleryActionTypes.SET_GALLERY_ITEMS_SUCCESS: {
+      console.log(action.payload);
       return { ...state, galleryItems: action.payload };
     }
     case GalleryActionTypes.DESTROY_GALLERY: {

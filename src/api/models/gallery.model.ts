@@ -30,7 +30,7 @@ export const galleryActions = keyMirror({
 export type galleryModelItemType = IUITreeNode | IGalleryItem;
 export default class GalleryModel {
   static getGalleryItemBlob(galleryItem: IGalleryItem) {
-    return ChrisModel.getFileBlob(galleryItem.file_resource).catch((error) => {
+    return ChrisModel.getFileBlob(galleryItem.url).catch(error => {
       return { error }; // HANDLE ERROR FILES
     });
   }
@@ -45,14 +45,11 @@ export default class GalleryModel {
     });
   }
 
-  static getArrayItemIndex(
-    url: string,
-    urlArray: string[]
-  ) {
+  static getArrayItemIndex(url: string, urlArray: string[]) {
     const index = _.findIndex(urlArray, (itemUrl: string) => {
       return _.isEqual(url, itemUrl);
     });
-    return (index < 0 ? 0 : index);
+    return index < 0 ? 0 : index;
   }
 
   // Description: is this a dcm file

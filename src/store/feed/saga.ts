@@ -123,7 +123,6 @@ function* watchGetPluginInstances() {
 }
 
 function* handleGetAllFiles() {
-  console.log("called");
   const client = ChrisAPIClient.getClient();
   const params = {
     limit: 100,

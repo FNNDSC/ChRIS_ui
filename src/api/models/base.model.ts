@@ -60,7 +60,6 @@ export default class ChrisModel {
       "Content-Type": "application/vnd.collection+json",
       Authorization: "Token " + auth.token
     };
-   
 
     const config: AxiosRequestConfig = {
       headers: header,

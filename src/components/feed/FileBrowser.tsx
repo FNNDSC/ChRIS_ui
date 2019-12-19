@@ -274,6 +274,9 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
   render() {
     const { handleViewerModeToggle } = this.props;
     const { directory, breadcrumbs, previewingFile } = this.state;
+    if (previewingFile) {
+      console.log("previewing File", previewingFile);
+    }
 
     if (!directory.children || !directory.children.length) {
       return <div>No files in this directory.</div>;

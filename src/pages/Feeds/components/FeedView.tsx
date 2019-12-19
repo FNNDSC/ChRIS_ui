@@ -22,7 +22,8 @@ import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { FeedTree, FeedDetails, NodeDetails } from "../../../components/index";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 import "../feed.scss";
-//import FeedOutputBrowser from "../../../components/feed/FeedOutputBrowser";
+import FeedOutputBrowser from "../../../components/feed/FeedOutputBrowser";
+import _ from "lodash";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -60,9 +61,17 @@ class FeedView extends React.Component<AllProps> {
     getFeedDetailsRequest(feedId);
   }
 
+  componentDidUpdate(prevProps: AllProps) {
+    const { files, match } = this.props;
+    const feedId = match.params.id;
+
+    if (prevProps && _.isEqual(prevProps.files, files)) {
+      getFeedDetailsRequest(feedId);
+    }
+  }
+
   render() {
     const { items, details, selected, descendants, token, files } = this.props;
-    console.log(files);
 
     return (
       <React.Fragment>
@@ -109,14 +118,13 @@ class FeedView extends React.Component<AllProps> {
         {/* Bottom section with information */}
         <PageSection>
           <div className="plugin-info pf-u-py-md">
-            {/*
-              <FeedOutputBrowser
-                token={token || ""}
-                selected={selected}
-                plugins={items}
-                handlePluginSelect={this.onNodeClick}
-              />
-              */}
+            <FeedOutputBrowser
+              token={token || ""}
+              selected={selected}
+              plugins={items}
+              handlePluginSelect={this.onNodeClick}
+              pluginFiles={files}
+            />
           </div>
         </PageSection>
         {/* END OF Bottom section with information */}

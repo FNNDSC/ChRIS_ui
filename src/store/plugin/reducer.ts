@@ -5,8 +5,7 @@ import { PluginActionTypes, IPluginState } from "./types";
 const initialState: IPluginState = {
   selected: undefined,
   descendants: undefined,
-  files: undefined,
-  parameters: undefined
+  files: undefined
 };
 
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {
@@ -15,11 +14,10 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
       return { ...state, files: undefined, parameters: undefined };
     }
     case PluginActionTypes.GET_PLUGIN_FILES_SUCCESS: {
+      console.log(action.payload);
       return { ...state, files: action.payload };
     }
-    case PluginActionTypes.GET_PLUGIN_PARAMETERS_SUCCESS: {
-      return { ...state, parameters: action.payload.data.results };
-    }
+
     case PluginActionTypes.GET_PLUGIN_DETAILS_SUCCESS: {
       const descendants = action.payload.data.results;
       const selected =
@@ -33,8 +31,7 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
         ...state,
         selected: undefined,
         descendants: undefined,
-        files: undefined,
-        parameters: []
+        files: undefined
       };
     }
     default: {

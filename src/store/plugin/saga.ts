@@ -24,7 +24,6 @@ function* handleGetPluginDetails(action: IActionTypeParam) {
       console.error(res.error);
     } else {
       yield put(getPluginDetailsSuccess(res));
-
       yield put(getPluginFiles(item));
     }
   } catch (error) {
@@ -66,7 +65,7 @@ function* watchGetPluginDescendants() {
 function* handleGetPluginFiles(action: IActionTypeParam) {
   const item = action.payload;
   const id = item.id as number;
-  //  const id = item.id as number;
+
   const client = ChrisAPIClient.getClient();
   const params = { limit: 100, offset: 0 };
 
@@ -80,11 +79,11 @@ function* handleGetPluginFiles(action: IActionTypeParam) {
       params.offset += params.limit;
       fileList = yield pluginInstance.getFiles(params);
       files.push(...fileList.getItems());
-      yield put(getPluginFilesSuccess(files));
     } catch (e) {
       console.error(e);
     }
   }
+  yield put(getPluginFilesSuccess(files));
 }
 
 function* watchGetPluginFiles() {

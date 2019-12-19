@@ -13,11 +13,6 @@ export const getPluginFiles = (selected: IPluginItem) =>
 export const getPluginFilesSuccess = (items: IPluginItem[]) =>
   action(PluginActionTypes.GET_PLUGIN_FILES_SUCCESS, items);
 
-export const getPluginParametersRequest = (url: string) =>
-  action(PluginActionTypes.GET_PLUGIN_PARAMETERS, url);
-export const getPluginParametersSuccess = (items: IPluginItem[]) =>
-  action(PluginActionTypes.GET_PLUGIN_PARAMETERS_SUCCESS, items);
-
 export const getPluginDetailsRequest = (item: IPluginItem) =>
   action(PluginActionTypes.GET_PLUGIN_DETAILS, item);
 export const getPluginDetailsSuccess = (items: IPluginItem[]) =>

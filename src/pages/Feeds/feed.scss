@@ -275,6 +275,7 @@
 
   .file-browser-header {
     display: flex;
+
     padding-right: 10px;
     margin-bottom: 10px;
     justify-content: space-between; // seperate name and download button
@@ -364,8 +365,7 @@
   // so that split doesn't change based on file size
 
   .pf-l-split__item:not(:only-child) {
-    overflow: auto;
-    flex-grow: 1;
+    width: 50%;
   }
 
   td {

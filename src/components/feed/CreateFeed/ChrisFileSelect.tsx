@@ -106,8 +106,12 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
                 return await Promise.all(
                   fileList.getItems().map(async file => {
                     const fileBlob = await file.getFileBlob();
+
                     return {
-                      path: file.data.fname,
+                      path: file.data.fname.replace(
+                        "data",
+                        `data_${file.data.plugin_inst_id}`
+                      ),
                       id: Number(file.data.id),
                       blob: fileBlob
                     };
@@ -228,6 +232,7 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
   /* EVENT HANDLERS */
 
   async handleCheckboxChange(isChecked: boolean, file: ChrisFile) {
+    console.log("Clicked", file);
     if (isChecked) {
       this.props.handleFileAdd(file);
     } else {
@@ -334,7 +339,10 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
     let isSelected;
     if (isFolder) {
       // there can never be multiple folders with the same path, and folders don't have ids
-      isSelected = !!files.find(f => f.path === node.path);
+      isSelected = !!files.find(f => {
+        console.log("File.path", f, node);
+        return f.path === node.path;
+      });
     } else {
       // but there can be multiple files with the same path
       isSelected = !!files.find(f => f.id === node.id);

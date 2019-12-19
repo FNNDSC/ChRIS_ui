@@ -11,11 +11,13 @@ import GalleryModel, {
   GalleryItemModel
 } from "../../api/models/gallery.model";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
 // ------------------------------------------------------------------------
 // Description: Get ALL Gallery Items set the active gallery item and items array
 // ------------------------------------------------------------------------
 function* handleInitGalleryRequest(action: any) {
+  console.log(action);
   try {
     const selectedFile: IUITreeNode = action.payload.selectedFile;
     const selectedFolder: IUITreeNode = action.payload.selectedFolder;
@@ -26,13 +28,19 @@ function* handleInitGalleryRequest(action: any) {
         )
       : 0;
     const galleryItemModel = new GalleryItemModel(selectedFile, index);
+
     const res = yield call(
       GalleryModel.getGalleryItemBlob,
       galleryItemModel.galleryItem
     );
+
     // Handles errors in files
-    const data  = (!!res.error) ? {error: res.error} : {blob: res.data};
-    yield put( setGalleryActiveItemSuccess( galleryItemModel.setGalleryItemBlob(data)));
+    const data = !!res.error ? { error: res.error } : { blob: res.data };
+    console.log(data);
+    console.log(data);
+    yield put(
+      setGalleryActiveItemSuccess(galleryItemModel.setGalleryItemBlob(data))
+    );
 
     // Initiate gallery Items call
     yield put(setGalleryItems({ selectedFile, selectedFolder }));
