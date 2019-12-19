@@ -38,9 +38,8 @@ type AllProps = {
 
 class FileBrowserViewer extends React.Component<AllProps> {
   componentDidMount() {
-    console.log("Props", this.props);
     const { files, selected, setExplorerRequest } = this.props;
-    console.log(files, selected);
+
     setExplorerRequest(files, selected);
   }
 
