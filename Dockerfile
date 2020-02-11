@@ -24,7 +24,6 @@
 #
 
 FROM node:12 as builder
-MAINTAINER fnndsc "dev@babymri.org"
 
 WORKDIR /app/
 
@@ -32,6 +31,9 @@ COPY . .
 
 # Build the app for production
 RUN npm install && npm run build
+
+
+
 
 
 FROM node:12-alpine
