@@ -23,9 +23,8 @@ import { setSelectedFile } from "../../store/explorer/actions";
 import { getPluginFiles } from "../../store/plugin/actions";
 
 import FileBrowser from "./FileBrowser";
-import _ from "lodash";
+
 import { ApplicationState } from "../../store/root/applicationState";
-import { getSelectedFiles } from "../../store/plugin/selector";
 
 // INTERFACES
 
