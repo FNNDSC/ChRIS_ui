@@ -50,6 +50,7 @@
     "react-scripts": "^3.3.1",
     "react-ui-tree": "^4.0.0",
     "redux-saga": "^1.0.2",
+    "reselect": "^4.0.0",
     "serve": "^11.1.0",
     "string.prototype.matchall": "^3.0.1",
     "three": "^0.103.0",
