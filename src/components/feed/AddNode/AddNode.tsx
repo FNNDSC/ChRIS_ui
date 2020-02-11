@@ -6,7 +6,7 @@ import { Button } from "@patternfly/react-core";
 import { InfrastructureIcon, CodeBranchIcon } from "@patternfly/react-icons";
 
 import "./addnode.scss";
-import { Plugin, PluginInstance, Collection } from "@fnndsc/chrisapi";
+import { Plugin, Collection } from "@fnndsc/chrisapi";
 import ScreenOne from "./ScreenOne";
 import AddModal from "./AddModal";
 
@@ -17,6 +17,8 @@ import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
 import { Dispatch } from "redux";
 import { addNode } from "../../../store/feed/actions";
+import { getPluginDetailsRequest } from "../../../store/plugin/actions";
+import _ from "lodash";
 
 interface AddNodeProps {
   selected?: IPluginItem;
@@ -27,17 +29,13 @@ interface AddNodeProps {
 interface AddNodeState {
   showOverlay: boolean;
   step: number;
-  nodes?: PluginInstance[]; // converted props.nodes
+  nodes: IPluginItem[];
   data: {
-    parent?: PluginInstance;
     plugin?: Plugin;
+    parent?: IPluginItem;
   };
   errors: string[];
   input: string;
-}
-
-interface PluginData {
-  [key: string]: string;
 }
 
 class AddNode extends React.Component<AddNodeProps, AddNodeState> {
@@ -46,6 +44,7 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
     this.state = {
       showOverlay: false,
       step: 0,
+      nodes: [],
       data: {},
       errors: [],
       input: ""
@@ -56,7 +55,6 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
     this.handleAddClick = this.handleAddClick.bind(this);
     this.handleModalClose = this.handleModalClose.bind(this);
     this.handlePluginSelect = this.handlePluginSelect.bind(this);
-    this.handleParentSelect = this.handleParentSelect.bind(this);
     this.handleCreate = this.handleCreate.bind(this);
   }
 
@@ -65,9 +63,9 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
   }
 
   componentDidUpdate(prevProps: AddNodeProps) {
-    const { selected } = this.props;
-    const { selected: prevSelected } = prevProps;
-    if (!prevSelected || (selected && prevSelected.id !== selected.id)) {
+    const { selected, nodes } = this.props;
+
+    if (prevProps.selected !== selected || !_.isEqual(prevProps.nodes, nodes)) {
       this.convertData();
     }
   }
@@ -78,27 +76,18 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
     return client.getPluginInstance(pluginInstance.id as number);
   }
 
-  // Temporary. Converts selected from IPluginItem into parent: PluginInstance
-  async convertData() {
+  convertData() {
     const { selected, nodes } = this.props;
     if (!selected || !nodes) {
       return;
     }
-    const parent = await this.convertPluginInstance(selected);
-
-    const transformedNodes = await Promise.all(
-      nodes.map(this.convertPluginInstance)
-    );
-
-    transformedNodes &&
-      parent &&
-      this.setState(prevState => ({
-        nodes: transformedNodes,
-        data: {
-          ...prevState.data,
-          parent
-        }
-      }));
+    this.setState({
+      nodes,
+      data: {
+        ...this.state.data,
+        parent: selected
+      }
+    });
   }
 
   handleAddClick() {
@@ -123,15 +112,6 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
     }));
   }
 
-  handleParentSelect(node: PluginInstance) {
-    this.setState(prevState => ({
-      data: {
-        ...prevState.data,
-        parent: node
-      }
-    }));
-  }
-
   // Navigation
 
   handleConfigureClick() {
@@ -149,20 +129,20 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
     if (!plugin || !selected) {
       return;
     }
-    const client = ChrisAPIClient.getClient();
-    const pluginId = plugin.data.id;
 
     let createParameterList = {};
 
     for (let parameter of parameters) {
-      createParameterList = { ...createParameterList, ...parameter };
+      createParameterList = {
+        ...createParameterList,
+        ...parameter,
+        previous_id: `${selected.id}`
+      };
     }
 
-    const node = await client.createPluginInstance(pluginId, {
-      title: "Test",
-      previous_id: selected.id as number,
-      ...createParameterList
-    });
+    const pluginInstances = await plugin.getPluginInstances();
+    await pluginInstances.post(createParameterList);
+    const node = pluginInstances.getItems()[0];
 
     // Add node to redux
 
@@ -201,26 +181,32 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
   }
 
   render() {
-    const { step, data, nodes, showOverlay } = this.state;
+    const { step, data, showOverlay } = this.state;
+    const { nodes, selected } = this.props;
 
     return (
       <React.Fragment>
-        <Button variant="tertiary" isBlock onClick={this.handleAddClick}>
+        <Button
+          variant="tertiary"
+          isBlock
+          onClick={this.handleAddClick}
+          disabled={!this.props.selected}
+        >
           <InfrastructureIcon />
           Add new node(s)...
         </Button>
+
         <AddModal
           footer={this.generateFooter()}
           showOverlay={showOverlay}
           handleModalClose={this.handleModalClose}
           step={step}
         >
-          {step === 0 && data.parent && nodes ? (
+          {step === 0 && selected && nodes ? (
             <ScreenOne
               selectedPlugin={data.plugin}
-              parent={data.parent}
+              parent={selected}
               nodes={nodes}
-              handleParentSelect={this.handleParentSelect}
               handlePluginSelect={this.handlePluginSelect}
             />
           ) : (
@@ -247,7 +233,4 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   addNode: (pluginItem: IPluginItem) => dispatch(addNode(pluginItem))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AddNode);
+export default connect(mapStateToProps, mapDispatchToProps)(AddNode);
