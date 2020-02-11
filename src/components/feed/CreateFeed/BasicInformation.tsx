@@ -1,41 +1,47 @@
-import React from 'react';
+import React from "react";
 
-import { Form, FormGroup, TextInput, TextArea } from '@patternfly/react-core';
-import { Tag } from '@fnndsc/chrisapi';
-import { Typeahead } from 'react-bootstrap-typeahead';
+import { Form, FormGroup, TextInput, TextArea } from "@patternfly/react-core";
+import { Tag } from "@fnndsc/chrisapi";
+import { Typeahead } from "react-bootstrap-typeahead";
 
-import ChrisAPIClient from '../../../api/chrisapiclient';
+import ChrisAPIClient from "../../../api/chrisapiclient";
 
 interface BasicInformationProps {
-  feedName: string,
-  feedDescription: string,
-  tags: Tag[],
-  handleFeedNameChange: (val: string) => void,
-  handleFeedDescriptionChange: (val: string) => void,
-  handleTagsChange: (tags: Tag[]) => void,
+  feedName: string;
+  feedDescription: string;
+  tags: Tag[];
+  handleFeedNameChange: (val: string) => void;
+  handleFeedDescriptionChange: (val: string) => void;
+  handleTagsChange: (tags: Tag[]) => void;
 }
 
 interface BasicInformationState {
-  availableTagsLoaded: boolean,
-  availableTags: Tag[],
+  availableTagsLoaded: boolean;
+  availableTags: Tag[];
 }
 
-class BasicInformation extends React.Component<BasicInformationProps, BasicInformationState> {
-
+class BasicInformation extends React.Component<
+  BasicInformationProps,
+  BasicInformationState
+> {
+  _ismounted = false;
   constructor(props: BasicInformationProps) {
     super(props);
     this.state = {
       availableTagsLoaded: false,
-      availableTags: [],
-    }
+      availableTags: []
+    };
   }
 
   componentWillMount() {
+    this._ismounted = true;
     this.fetchTagList().then((tags: Tag[]) => {
-      this.setState({
-        availableTagsLoaded: true,
-        availableTags: tags
-      })
+      if (this._ismounted) {
+        this.setState({
+          availableTagsLoaded: true,
+          availableTags: tags
+        });
+      }
     });
   }
 
@@ -58,22 +64,25 @@ class BasicInformation extends React.Component<BasicInformationProps, BasicInfor
     return tags;
   }
 
-  render() {
+  componentWillUnmount() {
+    this._ismounted = false;
+  }
 
+  render() {
     const {
-      feedName, feedDescription, tags,
-      handleFeedNameChange, handleFeedDescriptionChange, handleTagsChange
+      feedName,
+      feedDescription,
+      tags,
+      handleFeedNameChange,
+      handleFeedDescriptionChange,
+      handleTagsChange
     } = this.props;
     const { availableTagsLoaded, availableTags } = this.state;
 
     return (
       <Form className="pf-u-w-75 basic-information">
         <h1 className="pf-c-title pf-m-2xl">Basic Information</h1>
-        <FormGroup
-          label="Feed Name"
-          isRequired
-          fieldId="feed-name"
-        >
+        <FormGroup label="Feed Name" isRequired fieldId="feed-name">
           <TextInput
             isRequired
             type="text"
@@ -86,10 +95,7 @@ class BasicInformation extends React.Component<BasicInformationProps, BasicInfor
           />
         </FormGroup>
 
-        <FormGroup
-          label="Feed Description"
-          fieldId="feed-description"
-        >
+        <FormGroup label="Feed Description" fieldId="feed-description">
           <TextArea
             id="feed-description"
             name="feed-description"
@@ -100,23 +106,24 @@ class BasicInformation extends React.Component<BasicInformationProps, BasicInfor
           />
         </FormGroup>
 
-        <FormGroup
-          label="Tags"
-          fieldId="tags"
-        >
+        <FormGroup label="Tags" fieldId="tags">
           <Typeahead
             id="tags"
-            placeholder={ availableTagsLoaded ? 'Chose a tag...' : 'Loading tags...' }
+            placeholder={
+              availableTagsLoaded ? "Chose a tag..." : "Loading tags..."
+            }
             multiple
             options={availableTags}
             onChange={handleTagsChange}
             selected={tags}
-            labelKey={ (tag: Tag) => tag.data.name }
-            emptyLabel={ availableTagsLoaded ? 'No tags found' : 'Loading tags...' }
+            labelKey={(tag: Tag) => tag.data.name}
+            emptyLabel={
+              availableTagsLoaded ? "No tags found" : "Loading tags..."
+            }
           />
         </FormGroup>
       </Form>
-    )
+    );
   }
 }
 
