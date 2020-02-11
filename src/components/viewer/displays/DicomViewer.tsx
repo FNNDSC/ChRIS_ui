@@ -10,16 +10,23 @@ type AllProps = {
 
 // Description: Will be replaced with a DCM Fyle viewer
 const DicomViewer: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  const imageSrc = (props.pluginType === "DicomViewer_3D") ? brainImg3dPlaceholder :
-  (props.pluginType === "DicomViewer_2D") ? brainImg2DPlaceholder : brainImgZScorePlaceholder;
+  const imageSrc =
+    props.pluginType === "DicomViewer_3D"
+      ? brainImg3dPlaceholder
+      : props.pluginType === "DicomViewer_2D"
+      ? brainImg2DPlaceholder
+      : brainImgZScorePlaceholder;
   return (
     <div className="plugin-viewer  pf-u-px-lg">
-    <div className="image-frame">
-      <img src={imageSrc} alt="placeholder for Viewer Images" />
-      {
-        (props.pluginType === "ZScoreViewer") &&
-         <img  className="legend" src={zscoreLegend} alt="legend for z-score labels on Images" />
-      }
+      <div className="image-frame">
+        <img src={imageSrc} alt="placeholder for Viewer Images" />
+        {props.pluginType === "ZScoreViewer" && (
+          <img
+            className="legend"
+            src={zscoreLegend}
+            alt="legend for z-score labels on Images"
+          />
+        )}
       </div>
     </div>
   );
