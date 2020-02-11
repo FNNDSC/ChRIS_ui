@@ -4,40 +4,39 @@
 *                   replaces background-image.scss from patternfly 4
 *  Author:          ChRIS UI
 */
-@import '../../../assets/scss/helpers/variables';
-@import "../vendors/patternfly/patternfly";
 
 // Full background image in back
-.pf-background{
-    &:after{
-        background: transparent url("#{$image-url}#{$chris-background-image}") no-repeat top center;
-        background-size: cover;
-        content: '';
-        height: 100%;
-        left: 0;
-        position: fixed;
-        top: 0;
-        width: 100%;
-        z-index: -1;
-       // filter: url("../images/chris_ui_background_filter.svg#image_overlay");
-       filter: url("#{$image-url}#{$chris-background-filter}"); //$chris-background-filter
-        @media (max-width: $pf-global--breakpoint--sm) and (-webkit-min-device-pixel-ratio: 2),
-        (max-width: $pf-global--breakpoint--sm) and (min-resolution: 192dpi) {
-            background-image: url("#{$image-url}#{$chris-background-image-2x}"); //xs2x
-        }
-        // small screens: 576px - 992px
-        @media (min-width: $pf-global--breakpoint--sm) {
-            background-image: url("#{$image-url}#{$chris-background-image-sm}");//BackgroundImage--sm
-        }
-
-        @media (min-width: $pf-global--breakpoint--sm) and (-webkit-min-device-pixel-ratio: 2),
-            (min-width: $pf-global--breakpoint--sm) and (min-resolution: 192dpi) {
-            background-image: url("#{$image-url}#{$chris-background-image-sm-2x}"); //sm2x
-        }
-
-        // large screens: 992px and up
-        @media (min-width: $pf-global--breakpoint--lg) {
-            background-image: url("#{$image-url}#{$chris-background-image-lg}");//-BackgroundImage--lg
-        }
+.pf-background {
+  &:after {
+    background: transparent url("#{$image-url}#{$chris-background-image}")
+      no-repeat top center;
+    background-size: cover;
+    content: "";
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: -1;
+    // filter: url("../images/chris_ui_background_filter.svg#image_overlay");
+    filter: url("#{$image-url}#{$chris-background-filter}"); //$chris-background-filter
+    @media (max-width: $pf-global--breakpoint--sm) and (-webkit-min-device-pixel-ratio: 2),
+      (max-width: $pf-global--breakpoint--sm) and (min-resolution: 192dpi) {
+      background-image: url("#{$image-url}#{$chris-background-image-2x}"); //xs2x
     }
+    // small screens: 576px - 992px
+    @media (min-width: $pf-global--breakpoint--sm) {
+      background-image: url("#{$image-url}#{$chris-background-image-sm}"); //BackgroundImage--sm
+    }
+
+    @media (min-width: $pf-global--breakpoint--sm) and (-webkit-min-device-pixel-ratio: 2),
+      (min-width: $pf-global--breakpoint--sm) and (min-resolution: 192dpi) {
+      background-image: url("#{$image-url}#{$chris-background-image-sm-2x}"); //sm2x
+    }
+
+    // large screens: 992px and up
+    @media (min-width: $pf-global--breakpoint--lg) {
+      background-image: url("#{$image-url}#{$chris-background-image-lg}"); //-BackgroundImage--lg
+    }
+  }
 }

@@ -6,64 +6,63 @@
 
 // Colors:
 
-$chris-blue:                         #002030;
-$chris-light-blue:                   #007bba;
-$chris-highlight-background-blue:    #def7f7;
-$global-icon-margin-right:           5px;
-
+$chris-blue: #002030;
+$chris-light-blue: #007bba;
+$chris-highlight-background-blue: #def7f7;
+$global-icon-margin-right: 5px;
 
 // Site specific Variables:
 // --------------------------------------------------------------------
-$image-url:                         '../../images/';
-$chris-background-filter:           'chris_ui_background_filter.svg#image_overlay';
-$chris-background-image:            'chris_ui_background_576.jpg';
-$chris-background-image-2x:         'chris_ui_background_576@2x.jpg';  //var(--pf-c-background-image--BackgroundImage-2x);
-$chris-background-image-sm:         'chris_ui_background_768.jpg'; //var(--pf-c-background-image--BackgroundImage--sm);
-$chris-background-image-sm-2x:      'chris_ui_background_768@2x.jpg'; //var(--pf-c-background-image--BackgroundImage--sm-2x);
-$chris-background-image-lg:         'chris_ui_background.png'; //var(--pf-c-background-image--BackgroundImage--lg);
+$image-url: "../../../assets/images/";
+$chris-background-filter: "chris_ui_background_filter.svg#image_overlay";
+$chris-background-image: "chris_ui_background_576.jpg";
+$chris-background-image-2x: "chris_ui_background_576@2x.jpg"; //var(--pf-c-background-image--BackgroundImage-2x);
+$chris-background-image-sm: "chris_ui_background_768.jpg"; //var(--pf-c-background-image--BackgroundImage--sm);
+$chris-background-image-sm-2x: "chris_ui_background_768@2x.jpg"; //var(--pf-c-background-image--BackgroundImage--sm-2x);
+$chris-background-image-lg: "chris_ui_background.png"; //var(--pf-c-background-image--BackgroundImage--lg);
 
-$login-background-image:            'pfbg_576.jpg';
-$login-background-image-2x:         'pfbg_576@2x.jpg';  //var(--pf-c-background-image--BackgroundImage-2x);
-$login-background-image-sm:         'pfbg_768.jpg'; //var(--pf-c-background-image--BackgroundImage--sm);
-$login-background-image-sm-2x:      'pfbg_768@2x.jpg'; //var(--pf-c-background-image--BackgroundImage--sm-2x);
-$login-background-image-lg:         'pfbg_2000.jpg'; //var(--pf-c-background-image--BackgroundImage--lg);
+$login-background-image: "pfbg_576.jpg";
+$login-background-image-2x: "pfbg_576@2x.jpg"; //var(--pf-c-background-image--BackgroundImage-2x);
+$login-background-image-sm: "pfbg_768.jpg"; //var(--pf-c-background-image--BackgroundImage--sm);
+$login-background-image-sm-2x: "pfbg_768@2x.jpg"; //var(--pf-c-background-image--BackgroundImage--sm-2x);
+$login-background-image-lg: "pfbg_2000.jpg"; //var(--pf-c-background-image--BackgroundImage--lg);
 
 //Gotop component
-$gotop-bg:                        $chris-highlight-background-blue;
-$gotop-bg:                        $chris-light-blue;
-$gotop-bg-active:                 $chris-light-blue;
-$gotop-dimension:                 50px;
+$gotop-bg: $chris-highlight-background-blue;
+$gotop-bg: $chris-light-blue;
+$gotop-bg-active: $chris-light-blue;
+$gotop-dimension: 50px;
 
 // Feed pages
-$feed-block-background:          #000;
-$node-block-background:          $chris-blue;
-$node-block-border:              $chris-light-blue;
+$feed-block-background: #000;
+$node-block-background: $chris-blue;
+$node-block-border: $chris-light-blue;
 
 // Tree colors
-$tree-node-backgound:            #fff;
-$tree-links-color:               #fff;
-$tree-node-active-backgound:     $chris-light-blue;
-$tree-tooltip-background:        #282d33; //#393f44;
-$tree-tooltip-arrow-width:       0.9375rem;
+$tree-node-backgound: #fff;
+$tree-links-color: #fff;
+$tree-node-active-backgound: $chris-light-blue;
+$tree-tooltip-background: #282d33; //#393f44;
+$tree-tooltip-arrow-width: 0.9375rem;
 
 // Label and data sizes for plugin panel
-$plugin-label-font-size:         0.8125rem;
-$plugin-data-font-size:          0.875rem;
+$plugin-label-font-size: 0.8125rem;
+$plugin-data-font-size: 0.875rem;
 
 // Data Output and Viewer - File Browser
-$file-explorer-yellow:          #ffee99;
-$file-explorer-blue:            $chris-highlight-background-blue;
-$fe-viewer-border:              #eee;
-$fe-viewer-background:          #f8f9fa;
-$fe-viewer-max-width-sm:        768px;
-$fe-viewer-max-width-md:        992px;
-$fe-viewer-min-heigth:          calc(100vh - 280px);
-$gallery-arrows-height:         48px;
-$gallery-toolbar-bottom:        5px;
+$file-explorer-yellow: #ffee99;
+$file-explorer-blue: $chris-highlight-background-blue;
+$fe-viewer-border: #eee;
+$fe-viewer-background: #f8f9fa;
+$fe-viewer-max-width-sm: 768px;
+$fe-viewer-max-width-md: 992px;
+$fe-viewer-min-heigth: calc(100vh - 280px);
+$gallery-arrows-height: 48px;
+$gallery-toolbar-bottom: 5px;
 
-$dot-background-gray:           #ddd;
-$dot-background-red:            #c83737;
-$dot-background-orange:         #ff7f2a;
-$dot-background-yellow:         #ffdd55;
+$dot-background-gray: #ddd;
+$dot-background-red: #c83737;
+$dot-background-orange: #ff7f2a;
+$dot-background-yellow: #ffdd55;
 
-$table-stripe-background:       $chris-highlight-background-blue;//rgba(0, 0, 0, 0.05);
+$table-stripe-background: $chris-highlight-background-blue; //rgba(0, 0, 0, 0.05);
