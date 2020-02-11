@@ -64,19 +64,22 @@ class PluginList extends React.Component<PluginListProps, PluginListState> {
           placeholder="Filter by Name"
         />
         {plugins
-          ? plugins.filter(this.matchesFilter).map(plugin => {
-              const { id, name } = plugin.data;
-              const isSelected = selected && id === selected.data.id;
-              return (
-                <li
-                  key={id}
-                  className={classNames(isSelected && "selected")}
-                  onClick={() => handlePluginSelect(plugin)}
-                >
-                  {name}
-                </li>
-              );
-            })
+          ? plugins
+              .sort((a, b) => a.data.name.localeCompare(b.data.name))
+              .filter(this.matchesFilter)
+              .map(plugin => {
+                const { id, name } = plugin.data;
+                const isSelected = selected && id === selected.data.id;
+                return (
+                  <li
+                    key={id}
+                    className={classNames(isSelected && "selected")}
+                    onClick={() => handlePluginSelect(plugin)}
+                  >
+                    {name}
+                  </li>
+                );
+              })
           : loading}
       </ul>
     );
@@ -114,8 +117,19 @@ class PluginSelect extends React.Component<
 
   async fetchAllPlugins() {
     const client = ChrisAPIClient.getClient();
-    const pluginList = await client.getPlugins();
+    const params = { limit: 25, offset: 0 };
+    let pluginList = await client.getPlugins(params);
     const plugins = pluginList.getItems();
+
+    while (pluginList.hasNextPage) {
+      try {
+        params.offset += params.limit;
+        pluginList = await client.getPlugins(params);
+        plugins.push(...pluginList.getItems());
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
     this.setState({ allPlugins: plugins });
   }
