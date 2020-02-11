@@ -116,7 +116,7 @@ class ToolbarComponent extends React.Component<AllProps> {
             <Dropdown
               isPlain
               position="right"
-              onSelect={this.onKebabDropdownSelect}
+              //onSelect={this.onKebabDropdownSelect}
               toggle={<KebabToggle onToggle={this.onKebabDropdownToggle} />}
               isOpen={isKebabDropdownOpen}
               dropdownItems={kebabDropdownItems}
@@ -130,7 +130,7 @@ class ToolbarComponent extends React.Component<AllProps> {
             <Dropdown
               isPlain
               position="right"
-              onSelect={this.onDropdownSelect}
+              //onSelect={this.onDropdownSelect}
               isOpen={isDropdownOpen}
               toggle={
                 <DropdownToggle onToggle={this.onDropdownToggle}>
