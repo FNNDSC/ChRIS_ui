@@ -5,11 +5,11 @@ import {
   TableBody,
   TableVariant
 } from "@patternfly/react-table";
-import { IFeedFile } from "../../../api/models/feed-file.model";
+import { FeedFile } from "@fnndsc/chrisapi";
 import { csvData } from "../../../assets/temp/segmentData";
 import "./zScoreData.scss";
 type AllProps = {
-  files: IFeedFile[];
+  files: FeedFile[];
 };
 
 const ZScoreDataTable: React.FunctionComponent<AllProps> = (
@@ -41,8 +41,7 @@ const ZScoreDataTable: React.FunctionComponent<AllProps> = (
           )
         }
       ];
-    }
-    );
+    });
   };
   const rows = formatData(csvData);
   return (
@@ -52,7 +51,8 @@ const ZScoreDataTable: React.FunctionComponent<AllProps> = (
         aria-label="Data table"
         variant={TableVariant.compact}
         cells={headers}
-        rows={rows} >
+        rows={rows}
+      >
         <TableHeader />
         <TableBody />
       </Table>
@@ -64,7 +64,7 @@ const ZScoreDataTable: React.FunctionComponent<AllProps> = (
 enum colorCode {
   red = "red",
   orange = "orange",
-  yellow= "yellow"
+  yellow = "yellow"
 }
 
 // Description: determine the color for the dot, depending on value "significance"
@@ -73,15 +73,20 @@ const dotColor = (value: number) => {
   let color = "";
   if (!isNaN(value)) {
     const absVal = Math.abs(value);
-    color = (absVal >= 3.5) ? colorCode.red :
-      (absVal >= 2.5 && absVal < 3.5) ? colorCode.orange :
-        (absVal >= 1.5 && absVal < 2.5) ? colorCode.yellow : "";
+    color =
+      absVal >= 3.5
+        ? colorCode.red
+        : absVal >= 2.5 && absVal < 3.5
+        ? colorCode.orange
+        : absVal >= 1.5 && absVal < 2.5
+        ? colorCode.yellow
+        : "";
   }
   return color; // orange, yellow
-}
+};
 
 const formatValue = (value: number): number => {
   return !isNaN(value) ? Number(value.toFixed(2)) : value;
-}
+};
 
 export default React.memo(ZScoreDataTable);
