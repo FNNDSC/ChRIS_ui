@@ -86,13 +86,11 @@ class FeedOutputBrowser extends React.Component<
     const id = selected.id as number;
 
     const files = pluginFiles && pluginFiles[id];
-    console.log("Files in DidUpdate", files);
 
     if (
       !prevProps.selected ||
       (prevProps.selected.id !== selected.id && !files)
     ) {
-      console.log("Calling fetch plugin");
       this.fetchPluginFiles(selected);
     }
   }
