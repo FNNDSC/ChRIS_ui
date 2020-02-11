@@ -5,17 +5,17 @@ import {
   Dropdown,
   FormGroup,
   DropdownToggle,
-  DropdownItem
+  DropdownItem,
+  TextInput
 } from "@patternfly/react-core";
-import { getPluginInstanceDisplayName } from "../../../api/models/pluginInstance.model";
+
 import PluginSelect from "./PluginSelect";
+import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
 interface ScreenOneProps {
-  nodes: PluginInstance[];
-  parent: PluginInstance;
+  nodes: IPluginItem[];
+  parent: IPluginItem;
   selectedPlugin?: Plugin;
-
-  handleParentSelect: (node: PluginInstance) => void;
   handlePluginSelect: (plugin: Plugin) => void;
 }
 
@@ -34,16 +34,7 @@ class ScreenOne extends React.Component<ScreenOneProps, ScreenOneState> {
       nodes: []
     };
 
-    this.handleParentDropdownToggle = this.handleParentDropdownToggle.bind(
-      this
-    );
     this.handleTypeDropdownToggle = this.handleTypeDropdownToggle.bind(this);
-  }
-
-  /* EVENT LISTENERS */
-
-  handleParentDropdownToggle(open: boolean) {
-    this.setState({ parentDropdownOpen: open });
   }
 
   handleTypeDropdownToggle(open: boolean) {
@@ -51,39 +42,6 @@ class ScreenOne extends React.Component<ScreenOneProps, ScreenOneState> {
   }
 
   /* UI GENERATORS */
-
-  generateParentDropdown() {
-    const { nodes, parent, handleParentSelect } = this.props;
-
-    const dropdownItems = nodes.map(node => {
-      const name = getPluginInstanceDisplayName(node);
-      const isSelected = node.data.id === parent.data.id;
-      return (
-        <DropdownItem
-          onClick={() => handleParentSelect(node)}
-          key={node.data.id}
-          isHovered={isSelected}
-        >
-          {name}
-        </DropdownItem>
-      );
-    });
-
-    const toggle = (
-      <DropdownToggle onToggle={this.handleParentDropdownToggle}>
-        {getPluginInstanceDisplayName(parent)}
-      </DropdownToggle>
-    );
-
-    return (
-      <Dropdown
-        toggle={toggle}
-        dropdownItems={dropdownItems}
-        isOpen={this.state.parentDropdownOpen}
-        onSelect={() => this.handleParentDropdownToggle(false)}
-      />
-    );
-  }
 
   // Currently, only the plugin item is selectable, so the value is not stored in the state
   generateTypeDropdown() {
@@ -112,12 +70,17 @@ class ScreenOne extends React.Component<ScreenOneProps, ScreenOneState> {
   }
 
   render() {
-    const { selectedPlugin, handlePluginSelect } = this.props;
+    const { selectedPlugin, handlePluginSelect, parent } = this.props;
 
     return (
       <div className="screen-one">
         <FormGroup label="Parent node:" fieldId="parent-node">
-          {this.generateParentDropdown()}
+          <TextInput
+            className=""
+            value={parent.plugin_name}
+            aria-label="Selected Plugin Name"
+            spellCheck={false}
+          />
         </FormGroup>
 
         <FormGroup label="Type of node(s) to add:" fieldId="type">
