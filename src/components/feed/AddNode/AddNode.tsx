@@ -17,7 +17,7 @@ import { IPluginItem } from "../../../api/models/pluginInstance.model";
 
 import { Dispatch } from "redux";
 import { addNode } from "../../../store/feed/actions";
-import { getPluginDetailsRequest } from "../../../store/plugin/actions";
+
 import _ from "lodash";
 
 interface AddNodeProps {
