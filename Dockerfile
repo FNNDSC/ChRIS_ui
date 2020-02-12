@@ -16,7 +16,7 @@
 #
 # To run the server up, do:
 #
-#   docker run --name chris_ui -p <port>:3000 -d local/chris_ui
+#   docker run --name chris_ui -p 3000:3000 -d local/chris_ui
 #
 # To run an interactive shell inside this container, do:
 #
