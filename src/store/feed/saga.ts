@@ -1,21 +1,29 @@
 import { all, call, fork, put, takeEvery } from "redux-saga/effects";
 import { FeedActionTypes } from "./types";
 import ChrisModel, { IActionTypeParam } from "../../api/models/base.model";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import {
   getAllFeedsSuccess,
   getFeedDetailsSuccess,
   getPluginInstanceListRequest,
-  getPluginInstanceListSuccess
+  getPluginInstanceListSuccess,
+  getUploadedFilesSuccess
 } from "./actions";
 
 // ------------------------------------------------------------------------
 // Description: Get Feeds list and search list by feed name (form input driven)
 // pass it a param and do a search querie
 // ------------------------------------------------------------------------
+
 function* handleGetAllFeeds(action: IActionTypeParam) {
-  const { name, limit, offset } = action.payload;
+  const { name } = action.payload;
+  let params = {
+    limit: 100,
+    offset: 0
+  };
+
   try {
-    const query = `limit=${limit}&offset=${offset}`;
+    const query = `limit=${params.limit}&offset=${params.offset}`;
     const url = !!action.payload.name
       ? `${process.env.REACT_APP_CHRIS_UI_URL}search/?name=${name}&${query}`
       : `${process.env.REACT_APP_CHRIS_UI_URL}?${query}`;
@@ -41,6 +49,7 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
   try {
     const url = `${process.env.REACT_APP_CHRIS_UI_URL}${action.payload}`;
     const res = yield call(ChrisModel.fetchRequest, url);
+
     if (res.error) {
       console.error(res.error);
     } else {
@@ -103,6 +112,40 @@ function* watchGetPluginInstances() {
   );
 }
 
+function* getUploadedFiles() {
+  const client = ChrisAPIClient.getClient();
+  const params = {
+    limit: 100,
+    offset: 0
+  };
+
+  let fileList = yield client.getUploadedFiles(params);
+  let files = fileList.getItems();
+
+  while (fileList.hasNextPage) {
+    try {
+      params.offset += params.limit;
+      fileList = yield client.getUploadedFiles(params);
+      files.push(...fileList.getItems());
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  return files;
+}
+
+function* handleUploadedFiles() {
+  const files = yield getUploadedFiles();
+  if (files.length > 0) {
+    yield put(getUploadedFilesSuccess(files));
+  }
+}
+
+function* watchGetUploadedFiles() {
+  yield takeEvery(FeedActionTypes.GET_UPLOADED_FILES, handleUploadedFiles);
+}
+
 // ------------------------------------------------------------------------
 // We can also use `fork()` here to split our saga into multiple watchers.
 // ------------------------------------------------------------------------
@@ -110,6 +153,7 @@ export function* feedSaga() {
   yield all([
     fork(watchGetAllFeedsRequest),
     fork(watchGetFeedRequest),
-    fork(watchGetPluginInstances)
+    fork(watchGetPluginInstances),
+    fork(watchGetUploadedFiles)
   ]);
 }

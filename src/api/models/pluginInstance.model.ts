@@ -43,7 +43,8 @@ export interface IPluginItem extends IPluginItemLinks {
 }
 export const statusLabels: any = {
   finishedSuccessfully: "Finished Successfully",
-  started: "Started"
+  started: "Started",
+  finishedWithError: "Finished With An Error"
   // Add more status strings as BE devs...
 };
 

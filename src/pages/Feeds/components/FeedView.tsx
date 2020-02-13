@@ -152,7 +152,4 @@ const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({
   descendants: plugin.descendants
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(FeedView);
+export default connect(mapStateToProps, mapDispatchToProps)(FeedView);

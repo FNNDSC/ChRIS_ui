@@ -5,7 +5,7 @@ import imgPlaceholder from "../../assets/images/feed_ph_70x70.png";
 import { IFeedState } from "../../store/feed/types";
 import { Title } from "@patternfly/react-core";
 import ChrisAPIClient from "../../api/chrisapiclient";
-
+import ShareFeed from "../../components/feed/ShareFeed/ShareFeed";
 
 interface INoteState {
   feedDescription?: string;
@@ -125,6 +125,10 @@ class FeedDetails extends React.Component<AllProps, INoteState> {
                       feedDescription
                     )}
                   </p>
+                </li>
+
+                <li>
+                  <ShareFeed details={details} />
                 </li>
               </ul>
             </div>

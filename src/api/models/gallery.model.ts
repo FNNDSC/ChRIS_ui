@@ -8,6 +8,7 @@ import _ from "lodash";
 export interface IGalleryItem extends IFeedFile {
   uiId: string;
   fileName: string;
+  blobName?: string;
   blob?: Blob;
   blobText?: any;
   fileType?: string;
@@ -28,9 +29,10 @@ export const galleryActions = keyMirror({
 });
 
 export type galleryModelItemType = IUITreeNode | IGalleryItem;
+
 export default class GalleryModel {
   static getGalleryItemBlob(galleryItem: IGalleryItem) {
-    return ChrisModel.getFileBlob(galleryItem.file_resource).catch((error) => {
+    return ChrisModel.getFileBlob(galleryItem.url).catch(error => {
       return { error }; // HANDLE ERROR FILES
     });
   }
@@ -45,14 +47,11 @@ export default class GalleryModel {
     });
   }
 
-  static getArrayItemIndex(
-    url: string,
-    urlArray: string[]
-  ) {
+  static getArrayItemIndex(url: string, urlArray: string[]) {
     const index = _.findIndex(urlArray, (itemUrl: string) => {
       return _.isEqual(url, itemUrl);
     });
-    return (index < 0 ? 0 : index);
+    return index < 0 ? 0 : index;
   }
 
   // Description: is this a dcm file
@@ -91,8 +90,8 @@ export class GalleryListModel {
       this.galleryItems,
       responses,
       (galleryItem: IGalleryItem, response: any) => {
-        const responseObj = !!response.data
-          ? { blob: response.data }
+        const responseObj = !!response
+          ? { blob: response }
           : { error: response, blob: null };
         return Object.assign({}, galleryItem, responseObj);
       }
@@ -110,9 +109,10 @@ export class GalleryItemModel {
 
   // Sets the blob and returns active item
   setGalleryItemBlob(response: any) {
-    const responseObj = !!response.blob
-      ? response
+    const responseObj = !!response
+      ? { blob: response }
       : { error: response.error, blob: null };
+
     return Object.assign({}, this.galleryItem, responseObj); /// { ...this.galleryItem, responseObj };
   }
 

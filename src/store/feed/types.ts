@@ -7,12 +7,14 @@
 import keyMirror from "keymirror";
 import { IFeedItem } from "../../api/models/feed.model";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
+import { UploadedFile } from "@fnndsc/chrisapi";
 
 // Description state for main user items[] and item
 export interface IFeedState {
   details?: IFeedItem;
   feeds?: IFeedItem[];
   items?: IPluginItem[];
+  uploadedFiles?: UploadedFile[];
 }
 
 export const FeedActionTypes = keyMirror({
@@ -22,6 +24,8 @@ export const FeedActionTypes = keyMirror({
   GET_FEED_DETAILS_SUCCESS: null,
   GET_PLUGIN_INSTANCES: null,
   GET_PLUGIN_INSTANCES_SUCCESS: null,
+  GET_UPLOADED_FILES: null,
+  GET_UPLOADED_FILES_SUCCESS: null,
   RESET_STATE: null,
   ADD_FEED: null,
   ADD_NODE: null

@@ -254,6 +254,8 @@ declare module "@fnndsc/chrisapi" {
      */
 
     createPluginInstance: (pluginId: number, data: IPluginCreateData, timeout?: number) => Promise<PluginInstance>;
+  
+  
   }
 
   /**
@@ -411,7 +413,8 @@ declare module "@fnndsc/chrisapi" {
      * @param {number} [timeout=30000] - request timeout
      * @return {Object} - JS Promise, resolves to a ``FeedFileList`` object
      */
-    getFiles: (params: IParams, timeout?: number) => Promise<FeedFileList>;
+    getFiles: 
+    (params: IParams, timeout?: number) => Promise<FeedFileList>;
     
     /**
      * Fetch a list of plugin instances associated to this feed from the REST API.
@@ -1664,7 +1667,8 @@ declare module "@fnndsc/chrisapi" {
 
     data: {
       id: number;
-      upload_path: string;  
+      upload_path: string;
+      fname:string;  
     }
 
     /**
@@ -1799,18 +1803,13 @@ declare module "@fnndsc/chrisapi" {
     max_creation_date?: string
   }
 
-  /*
-  
   export interface IPluginCreateData {
-    
-
-
     title?: string,
-    previous_id?: number,
+    previous_id?: string,
     cpu_limit?: string,
     memory_limit?: string,
     number_of_workers?: string,
     gpu_limit?: string
   }
-  */
+  
 }

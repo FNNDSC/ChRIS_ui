@@ -9,43 +9,22 @@ import {
   FolderCloseIcon,
   DownloadIcon
 } from "@patternfly/react-icons";
-import { FeedFile, Collection } from "@fnndsc/chrisapi";
+import { FeedFile } from "@fnndsc/chrisapi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import UITreeNodeModel, {
   IUITreeNode
 } from "../../api/models/file-explorer.model";
-import ChrisAPIClient from "../../api/chrisapiclient";
+
 import FileViewerModel from "../../api/models/file-viewer.model";
-import { IFeedFile } from "../../api/models/feed-file.model";
 import PluginViewerModal from "../plugin/PluginViewerModal";
 import { setSelectedFile } from "../../store/explorer/actions";
+import { getPluginFiles } from "../../store/plugin/actions";
 
 import FileBrowser from "./FileBrowser";
 
-// UTILITIES
-
-// Temporary utility for transitioning between internal types and chrisapi types
-function convertFiles(files: FeedFile[], selected: IPluginItem): IFeedFile[] {
-  return files.map(file => {
-    const getRelation = (name: string) => {
-      return Collection.getLinkRelationUrls(file.collection.items[0], name)[0];
-    };
-
-    return {
-      url: file.url,
-      file_resource: getRelation("file_resource"),
-      plugin_instances: getRelation("plugin_instances"),
-      id: file.data.id,
-      feed_id: file.data.feed_id,
-      plugin_inst_id: file.data.plugin_inst_id,
-      fname: file.data.fname
-        .split(`${selected.plugin_name}_${selected.id}`)[1]
-        .slice(1)
-    };
-  });
-}
+import { ApplicationState } from "../../store/root/applicationState";
 
 // INTERFACES
 
@@ -53,13 +32,14 @@ interface FeedOutputBrowserProps {
   selected?: IPluginItem;
   plugins?: IPluginItem[];
   token: string;
+  pluginFiles?: { [pluginId: number]: FeedFile[] };
 
   handlePluginSelect: Function;
   setSelectedFile: Function;
+  getPluginFiles: Function;
 }
 
 interface FeedOutputBrowserState {
-  files: { [pluginId: number]: FeedFile[] };
   pluginModalOpen: boolean;
 }
 
@@ -70,7 +50,6 @@ class FeedOutputBrowser extends React.Component<
   constructor(props: FeedOutputBrowserProps) {
     super(props);
     this.state = {
-      files: [],
       pluginModalOpen: false
     };
 
@@ -81,18 +60,32 @@ class FeedOutputBrowser extends React.Component<
   }
 
   componentDidMount() {
-    if (this.props.selected) {
-      this.fetchPluginFiles(this.props.selected);
+    const { selected } = this.props;
+
+    if (selected) {
+      this.fetchPluginFiles(selected);
+    }
+  }
+
+  fetchPluginFiles(plugin: IPluginItem) {
+    const id = plugin.id as number;
+    const { pluginFiles, getPluginFiles } = this.props;
+    if (pluginFiles && pluginFiles[id]) {
+      return;
+    } else {
+      getPluginFiles(plugin);
     }
   }
 
   componentDidUpdate(prevProps: FeedOutputBrowserProps) {
-    const { selected } = this.props;
+    const { selected, pluginFiles } = this.props;
     if (!selected) {
       return;
     }
     const id = selected.id as number;
-    const files = this.state.files[id];
+
+    const files = pluginFiles && pluginFiles[id];
+
     if (
       !prevProps.selected ||
       (prevProps.selected.id !== selected.id && !files)
@@ -103,42 +96,12 @@ class FeedOutputBrowser extends React.Component<
 
   /* DATA FETCHING & MANIPULATION */
 
-  async fetchPluginFiles(plugin: IPluginItem) {
-    const id = plugin.id as number;
-    if (this.state.files[id]) {
-      return;
-    }
-
-    // get all files
-    const client = ChrisAPIClient.getClient();
-    const params = { limit: 100, offset: 0 };
-    const pluginInstance = await client.getPluginInstance(id);
-    let fileList = await pluginInstance.getFiles(params);
-    const files = fileList.getItems();
-
-    while (fileList.hasNextPage) {
-      try {
-        params.offset += params.limit;
-        fileList = await pluginInstance.getFiles(params);
-        files.push(...fileList.getItems());
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    this.setState({
-      files: {
-        ...this.state.files,
-        [id]: files
-      }
-    });
-  }
-
-  createTreeFromFiles(files: FeedFile[], selected: IPluginItem) {
+  createTreeFromFiles(selected: IPluginItem, files?: FeedFile[]) {
     if (!files) {
       return null;
     }
-    const model = new UITreeNodeModel(convertFiles(files, selected), selected);
+
+    const model = new UITreeNodeModel(files, selected);
     const tree = model.getTree();
     tree.module = this.getPluginName(selected);
     return this.sortTree(tree);
@@ -168,17 +131,21 @@ class FeedOutputBrowser extends React.Component<
   /* EVENT LISTENERS */
 
   async handleDownloadAllClick() {
-    const { selected } = this.props;
+    const { selected, pluginFiles } = this.props;
     if (!selected) {
       return;
     }
 
-    const files = this.state.files[selected.id as number];
+    const files = pluginFiles && pluginFiles[selected.id as number];
+
     const zip = new JSZip();
-    for (const file of files) {
-      const fileBlob = await file.getFileBlob();
-      zip.file(file.data.fname, fileBlob);
+    if (files) {
+      for (const file of files) {
+        const fileBlob = await file.getFileBlob();
+        zip.file(file.data.fname, fileBlob);
+      }
     }
+
     const blob = await zip.generateAsync({ type: "blob" });
     const filename = `${this.getPluginName(selected)}.zip`;
     FileViewerModel.downloadFile(blob, filename);
@@ -186,6 +153,7 @@ class FeedOutputBrowser extends React.Component<
 
   handlePluginModalOpen(file: IUITreeNode, folder: IUITreeNode) {
     this.setState({ pluginModalOpen: true });
+    console.log(file, folder);
     this.props.setSelectedFile(file, folder);
   }
 
@@ -194,8 +162,9 @@ class FeedOutputBrowser extends React.Component<
   }
 
   handleSidebarItemClick(plugin: IPluginItem) {
+    const { handlePluginSelect } = this.props;
+    handlePluginSelect(plugin);
     this.fetchPluginFiles(plugin);
-    this.props.handlePluginSelect(plugin);
   }
 
   /* GENERATE UI ELEMENTS */
@@ -235,8 +204,8 @@ class FeedOutputBrowser extends React.Component<
   }
 
   render() {
-    const { plugins, selected } = this.props;
-    const { files, pluginModalOpen } = this.state;
+    const { plugins, selected, pluginFiles } = this.props;
+    const { pluginModalOpen } = this.state;
 
     if (!selected || !plugins) {
       return (
@@ -250,8 +219,8 @@ class FeedOutputBrowser extends React.Component<
     const pluginName = this.getPluginName(selected);
     const pluginDisplayName = this.getPluginDisplayName(selected);
 
-    const selectedFiles = files[selected.id as number];
-    const tree = this.createTreeFromFiles(selectedFiles, selected);
+    const selectedFiles = pluginFiles && pluginFiles[selected.id as number];
+    const tree = this.createTreeFromFiles(selected, selectedFiles);
 
     return (
       <div className="feed-output-browser">
@@ -259,7 +228,11 @@ class FeedOutputBrowser extends React.Component<
 
         <Split>
           <SplitItem>
-            <ul className="sidebar">{plugins.map(this.generateSidebarItem)}</ul>
+            <ul className="sidebar">
+              {plugins
+                .sort((a, b) => (a.id as number) - (b.id as number))
+                .map(this.generateSidebarItem)}
+            </ul>
           </SplitItem>
 
           <SplitItem isFilled>
@@ -292,7 +265,13 @@ class FeedOutputBrowser extends React.Component<
                 handleViewerModeToggle={this.handlePluginModalOpen}
               />
             ) : (
-              <FontAwesomeIcon icon="spinner" pulse size="2x" />
+              <FontAwesomeIcon
+                title="This may take a while...."
+                icon="spinner"
+                pulse
+                size="6x"
+                color="black"
+              />
             )}
           </SplitItem>
         </Split>
@@ -306,12 +285,14 @@ class FeedOutputBrowser extends React.Component<
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setSelectedFile: (file: IUITreeNode, folder: IUITreeNode) =>
-    dispatch(setSelectedFile(file, folder))
+const mapStateToProps = (state: ApplicationState) => ({
+  pluginFiles: state.plugin.pluginFiles
 });
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(FeedOutputBrowser);
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  setSelectedFile: (file: IUITreeNode, folder: IUITreeNode) =>
+    dispatch(setSelectedFile(file, folder)),
+  getPluginFiles: (plugin: IPluginItem) => dispatch(getPluginFiles(plugin))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(FeedOutputBrowser);

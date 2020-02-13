@@ -7,7 +7,6 @@ import GalleryWrapper from "../gallery/GalleryWrapper";
 import DcmImageSeries from "../dicomViewer/DcmImageSeries";
 import "./file-detail.scss";
 
-
 type AllProps = {
   selectedFile: IUITreeNode;
   selectedFolder: IUITreeNode;
@@ -26,7 +25,10 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   constructor(props: AllProps) {
     super(props);
     const urlArray = this._getUrlArray(this.props.selectedFolder.children),
-    currentIndex = GalleryModel.getArrayItemIndex(props.selectedFile.file.file_resource, urlArray);
+      currentIndex = GalleryModel.getArrayItemIndex(
+        props.selectedFile.file.file_resource,
+        urlArray
+      );
     this.state = {
       viewInfoPanel: true,
       urlArray,
@@ -41,41 +43,48 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   }
 
   render() {
-    return (
-      <React.Fragment>
-        {this.renderContent()}
-      </React.Fragment>
-    )
+    return <React.Fragment>{this.renderContent()}</React.Fragment>;
   }
 
   // Decription: Render the individual viewers by filetype
   renderContent() {
     const { selectedFolder } = this.props;
     return (
-      !!selectedFolder.children &&
-      <GalleryWrapper
-        index={this.state.currentIndex}
-        total={this.state.totalFiles}
-        hideDownload
-        handleOnToolbarAction={(action: string) => { (this.handleGalleryActions as any)[action].call(); }}>
-        <Button className="close-btn"
-          variant="link" onClick={() => this.props.toggleViewerMode(true)} ><CloseIcon size="md" /> </Button>
-        <DcmImageSeries
-          imageArray={this.state.urlArray}
-          currentIndex={this.state.currentIndex}
-          viewInfoPanel={this.state.viewInfoPanel} />
-      </GalleryWrapper>
-    )
+      !!selectedFolder.children && (
+        <GalleryWrapper
+          index={this.state.currentIndex}
+          total={this.state.totalFiles}
+          hideDownload
+          handleOnToolbarAction={(action: string) => {
+            (this.handleGalleryActions as any)[action].call();
+          }}
+        >
+          <Button
+            className="close-btn"
+            variant="link"
+            onClick={() => this.props.toggleViewerMode(true)}
+          >
+            <CloseIcon size="md" />{" "}
+          </Button>
+          <DcmImageSeries
+            imageArray={this.state.urlArray}
+            currentIndex={this.state.currentIndex}
+            viewInfoPanel={this.state.viewInfoPanel}
+          />
+        </GalleryWrapper>
+      )
+    );
   }
 
   // Only user dcm file - can add on to this
   _getUrlArray(selectedFolder: IUITreeNode[] = []): string[] {
     return selectedFolder
       .filter((item: IUITreeNode) => {
-        return GalleryModel.isDicomFile(item.module)
+        return GalleryModel.isDicomFile(item.module);
       })
       .map((item: IUITreeNode) => {
-        return item.file.file_resource;
+        const file_resource = `${item.file.url}/${item.module}`; //Temporary hack
+        return file_resource;
       });
   }
 
@@ -84,15 +93,17 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   handleGalleryActions = {
     next: () => {
       const i = this.state.currentIndex;
-      this._isMounted && this.setState({
-        currentIndex: ((i + 1 < this.state.urlArray.length) ? (i + 1) : 0)
-      });
+      this._isMounted &&
+        this.setState({
+          currentIndex: i + 1 < this.state.urlArray.length ? i + 1 : 0
+        });
     },
     previous: () => {
       const i = this.state.currentIndex;
-      this._isMounted && this.setState({
-        currentIndex: ((i > 0) ? (i - 1) : 0)
-      });
+      this._isMounted &&
+        this.setState({
+          currentIndex: i > 0 ? i - 1 : 0
+        });
     },
     play: () => {
       this._playInterval = setInterval(() => {
@@ -103,11 +114,12 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
       clearInterval(this._playInterval);
     },
     information: () => {
-      this._isMounted && this.setState({
-        viewInfoPanel: !this.state.viewInfoPanel
-      });
+      this._isMounted &&
+        this.setState({
+          viewInfoPanel: !this.state.viewInfoPanel
+        });
     }
-  }
+  };
 
   componentWillUnmount() {
     clearInterval(this._playInterval);

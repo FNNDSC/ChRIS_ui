@@ -38,22 +38,22 @@ class ToolbarComponent extends React.Component<AllProps> {
   onDropdownToggle = (isOpened: boolean) => {
     const { onDropdownSelect } = this.props;
     onDropdownSelect(isOpened);
-  }
+  };
 
   onDropdownSelect = (event: React.SyntheticEvent<HTMLDivElement>) => {
     const { onDropdownSelect, isDropdownOpen } = this.props;
     !!isDropdownOpen && onDropdownSelect(!isDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
-  }
+  };
 
   onKebabDropdownToggle = (isOpened: boolean) => {
     const { onKebabDropdownSelect } = this.props;
     onKebabDropdownSelect(isOpened);
-  }
+  };
 
   onKebabDropdownSelect = (event: React.SyntheticEvent<HTMLDivElement>) => {
     const { onKebabDropdownSelect, isKebabDropdownOpen } = this.props;
     !!isKebabDropdownOpen && onKebabDropdownSelect(isKebabDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
-  }
+  };
 
   // Description: Logout user
   onLogout() {
@@ -84,9 +84,7 @@ class ToolbarComponent extends React.Component<AllProps> {
     return (
       <Toolbar>
         <ToolbarGroup
-          className={`${pf4UtilityStyles.accessibleStyles.screenReader} ${
-            pf4UtilityStyles.accessibleStyles.visibleOnLg
-          }`}
+          className={`${pf4UtilityStyles.accessibleStyles.screenReader} ${pf4UtilityStyles.accessibleStyles.visibleOnLg}`}
         >
           <ToolbarItem>
             <Button
@@ -109,28 +107,24 @@ class ToolbarComponent extends React.Component<AllProps> {
         </ToolbarGroup>
         <ToolbarGroup>
           <ToolbarItem
-            className={`${pf4UtilityStyles.accessibleStyles.hiddenOnLg} ${
-              pf4UtilityStyles.spacingStyles.mr_0
-            }`}
+            className={`${pf4UtilityStyles.accessibleStyles.hiddenOnLg} ${pf4UtilityStyles.spacingStyles.mr_0}`}
           >
             <Dropdown
               isPlain
               position="right"
-              onSelect={this.onKebabDropdownSelect}
+              //onSelect={this.onKebabDropdownSelect}
               toggle={<KebabToggle onToggle={this.onKebabDropdownToggle} />}
               isOpen={isKebabDropdownOpen}
               dropdownItems={kebabDropdownItems}
             />
           </ToolbarItem>
           <ToolbarItem
-            className={`${pf4UtilityStyles.accessibleStyles.screenReader} ${
-              pf4UtilityStyles.accessibleStyles.visibleOnMd
-            }`}
+            className={`${pf4UtilityStyles.accessibleStyles.screenReader} ${pf4UtilityStyles.accessibleStyles.visibleOnMd}`}
           >
             <Dropdown
               isPlain
               position="right"
-              onSelect={this.onDropdownSelect}
+              //onSelect={this.onDropdownSelect}
               isOpen={isDropdownOpen}
               toggle={
                 <DropdownToggle onToggle={this.onDropdownToggle}>
@@ -159,7 +153,4 @@ const mapStateToProps = ({ ui, user }: ApplicationState) => ({
   username: user.username
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ToolbarComponent);
+export default connect(mapStateToProps, mapDispatchToProps)(ToolbarComponent);
