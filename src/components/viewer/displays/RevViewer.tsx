@@ -1,18 +1,18 @@
 import * as React from "react";
-import { IFeedFile } from "../../../api/models/feed-file.model";
+import { FeedFile } from "@fnndsc/chrisapi";
 type AllProps = {
-  files: IFeedFile[];
+  files: FeedFile[];
 };
 
 const RevViewer: React.FunctionComponent<AllProps> = (props: AllProps) => {
   return (
     <div className="plugin-viewer pf-u-px-lg">
       <iframe
-          src="http://fnndsc.childrens.harvard.edu/rev/viewer/?year=03&month=11&example=01"
-          height={window.innerHeight}
-          width="100%"
-          title="Viewer"
-        />
+        src="http://fnndsc.childrens.harvard.edu/rev/viewer/?year=03&month=11&example=01"
+        height={window.innerHeight}
+        width="100%"
+        title="Viewer"
+      />
     </div>
   );
 };

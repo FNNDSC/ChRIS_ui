@@ -1,12 +1,12 @@
 import * as React from "react";
 import { Grid, GridItem } from "@patternfly/react-core";
-import { IFeedFile } from "../../../api/models/feed-file.model";
+import { FeedFile } from "@fnndsc/chrisapi";
 import { lhData } from "../../../assets/temp/lh.aparc.a2009s";
 import { rhData } from "../../../assets/temp/rh.aparc.a2009s";
 import "./freesurferData.scss";
 import _ from "lodash";
 type AllProps = {
-  files: IFeedFile[];
+  files: FeedFile[];
 };
 
 interface IfsRow {
@@ -59,7 +59,7 @@ class FreesurferDataTable extends React.Component<AllProps> {
 const GridRow = (props: { row: IfsRow[]; key: string }) => {
   if (props.row.length > 0) {
     const lh = props.row[0],
-         rh = props.row[1];
+      rh = props.row[1];
     return (
       <Grid className="fs-row">
         <GridItem className="name" sm={12} md={4}>
@@ -69,25 +69,25 @@ const GridRow = (props: { row: IfsRow[]; key: string }) => {
           <b>left:</b> {lh.SurfArea}
         </GridItem>
         <GridItem className="highlight" sm={12} md={1}>
-        <b>right:</b> {rh.SurfArea}
+          <b>right:</b> {rh.SurfArea}
         </GridItem>
         <GridItem sm={12} md={1}>
-        <b>left:</b> {lh.GrayVol}
+          <b>left:</b> {lh.GrayVol}
         </GridItem>
         <GridItem className="highlight" sm={12} md={1}>
-        <b>right:</b> {rh.GrayVol}
+          <b>right:</b> {rh.GrayVol}
         </GridItem>
         <GridItem sm={12} md={1}>
-        <b>left:</b> {lh.ThickAvg}
+          <b>left:</b> {lh.ThickAvg}
         </GridItem>
         <GridItem className="highlight" sm={12} md={1}>
-        <b>right:</b> {rh.ThickAvg}
+          <b>right:</b> {rh.ThickAvg}
         </GridItem>
         <GridItem sm={12} md={1}>
-        <b>left:</b> {lh.ThickStd}
+          <b>left:</b> {lh.ThickStd}
         </GridItem>
         <GridItem className="highlight" sm={12} md={1}>
-         <b>right:</b> {rh.ThickStd}
+          <b>right:</b> {rh.ThickStd}
         </GridItem>
       </Grid>
     );
@@ -102,7 +102,6 @@ const GridRow = (props: { row: IfsRow[]; key: string }) => {
   }
 };
 
-
 // Description: Build the Grid headers
 const GridviewHeader = () => {
   return (
@@ -111,10 +110,14 @@ const GridviewHeader = () => {
         <b>Basic Structure</b>
       </GridItem>
       <GridItem sm={12} md={2}>
-        <b>Surf Area (mm<sup>2</sup>)</b>
+        <b>
+          Surf Area (mm<sup>2</sup>)
+        </b>
       </GridItem>
       <GridItem sm={12} md={2}>
-        <b>Volume (mm<sup>3</sup>)</b>
+        <b>
+          Volume (mm<sup>3</sup>)
+        </b>
       </GridItem>
       <GridItem sm={12} md={2}>
         <b>Thick Avg (mm)</b>

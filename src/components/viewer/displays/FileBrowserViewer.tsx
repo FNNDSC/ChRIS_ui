@@ -11,7 +11,7 @@ import {
   destroyExplorer
 } from "../../../store/explorer/actions";
 import { IExplorerState } from "../../../store/explorer/types";
-import { IFeedFile } from "../../../api/models/feed-file.model";
+import { FeedFile } from "@fnndsc/chrisapi";
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import FileViewerModel from "../../../api/models/file-viewer.model";
@@ -31,7 +31,7 @@ interface IPropsFromDispatch {
 }
 
 type AllProps = {
-  files: IFeedFile[];
+  files: FeedFile[];
   selected: IPluginItem;
 } & IExplorerState &
   IPropsFromDispatch;
@@ -52,16 +52,22 @@ class FileBrowserViewer extends React.Component<AllProps> {
 
   toggleViewerMode = (isViewerMode: boolean) => {
     this.props.toggleViewerMode(!isViewerMode);
-  }
+  };
 
   render() {
-    const { explorer, selectedFile, selectedFolder, viewerMode, isViewerModeDicom } = this.props;
+    const {
+      explorer,
+      selectedFile,
+      selectedFolder,
+      viewerMode,
+      isViewerModeDicom
+    } = this.props;
     return (
       // Note: check to see if explorer children have been init.
       !!explorer &&
       !!explorer.children && (
         <div className="pf-u-px-lg">
-          {!viewerMode ?
+          {!viewerMode ? (
             <Grid>
               <GridItem className="pf-u-p-sm" sm={12} md={3}>
                 {
@@ -74,7 +80,10 @@ class FileBrowserViewer extends React.Component<AllProps> {
               </GridItem>
               <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
                 {!!selectedFile && !!selectedFolder ? (
-                  <FileDetailView selectedFile={selectedFile} toggleViewerMode={this.toggleViewerMode} />
+                  <FileDetailView
+                    selectedFile={selectedFile}
+                    toggleViewerMode={this.toggleViewerMode}
+                  />
                 ) : !!selectedFolder ? (
                   <FileTableView
                     selectedFolder={selectedFolder}
@@ -82,29 +91,33 @@ class FileBrowserViewer extends React.Component<AllProps> {
                     downloadFileNode={this.handleFileDownload}
                   />
                 ) : (
-                      <Alert
-                        variant="info"
-                        title="Please select a file or folder from the file explorer"
-                        className="empty"
-                      />
-                    )}
+                  <Alert
+                    variant="info"
+                    title="Please select a file or folder from the file explorer"
+                    className="empty"
+                  />
+                )}
               </GridItem>
-            </Grid> :
+            </Grid>
+          ) : (
             <div className="viewer-data">
-             {(!!selectedFile && !!selectedFolder) &&
-              (isViewerModeDicom ? <GalleryDicomView
-                selectedFile={selectedFile}
-                selectedFolder={selectedFolder}
-                toggleViewerMode={this.toggleViewerMode}
-                /> :
-                <GalleryView
-                selectedFile={selectedFile}
-                selectedFolder={selectedFolder}
-                toggleViewerMode={this.toggleViewerMode}
-                />)
-              }
+              {!!selectedFile &&
+                !!selectedFolder &&
+                (isViewerModeDicom ? (
+                  <GalleryDicomView
+                    selectedFile={selectedFile}
+                    selectedFolder={selectedFolder}
+                    toggleViewerMode={this.toggleViewerMode}
+                  />
+                ) : (
+                  <GalleryView
+                    selectedFile={selectedFile}
+                    selectedFolder={selectedFolder}
+                    toggleViewerMode={this.toggleViewerMode}
+                  />
+                ))}
             </div>
-          }
+          )}
         </div>
       )
     );
@@ -129,11 +142,14 @@ class FileBrowserViewer extends React.Component<AllProps> {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setExplorerRequest: (files: IFeedFile[], selected: IPluginItem) =>
+  setExplorerRequest: (files: FeedFile[], selected: IPluginItem) =>
     dispatch(setExplorerRequest(files, selected)),
-  setSelectedFile: (selectedFile: IUITreeNode, selectedFolder?: IUITreeNode) => dispatch(setSelectedFile(selectedFile, selectedFolder)),
-  setSelectedFolder: (selectedFolder: IUITreeNode) => dispatch(setSelectedFolder(selectedFolder)),
-  toggleViewerMode: (isViewerOpened: boolean) => dispatch(toggleViewerMode(isViewerOpened)),
+  setSelectedFile: (selectedFile: IUITreeNode, selectedFolder?: IUITreeNode) =>
+    dispatch(setSelectedFile(selectedFile, selectedFolder)),
+  setSelectedFolder: (selectedFolder: IUITreeNode) =>
+    dispatch(setSelectedFolder(selectedFolder)),
+  toggleViewerMode: (isViewerOpened: boolean) =>
+    dispatch(toggleViewerMode(isViewerOpened)),
   destroyExplorer: () => dispatch(destroyExplorer())
 });
 
@@ -145,7 +161,4 @@ const mapStateToProps = ({ explorer }: ApplicationState) => ({
   isViewerModeDicom: explorer.isViewerModeDicom
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(FileBrowserViewer);
+export default connect(mapStateToProps, mapDispatchToProps)(FileBrowserViewer);

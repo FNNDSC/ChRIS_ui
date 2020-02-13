@@ -16,7 +16,7 @@
 #
 # To run the server up, do:
 #
-#   docker run --name chris_ui -p <port>:3000 -d local/chris_ui
+#   docker run --name chris_ui -p 3000:3000 -d local/chris_ui
 #
 # To run an interactive shell inside this container, do:
 #
@@ -24,7 +24,6 @@
 #
 
 FROM node:12 as builder
-MAINTAINER fnndsc "dev@babymri.org"
 
 WORKDIR /app/
 
@@ -32,6 +31,9 @@ COPY . .
 
 # Build the app for production
 RUN npm install && npm run build
+
+
+
 
 
 FROM node:12-alpine

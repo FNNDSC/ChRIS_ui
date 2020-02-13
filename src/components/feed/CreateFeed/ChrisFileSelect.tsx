@@ -1,6 +1,11 @@
 import React from "react";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
 
-import { UploadedFile } from "@fnndsc/chrisapi";
+import { UploadedFile, PluginInstance } from "@fnndsc/chrisapi";
+import { IFeedState } from "../../../store/feed/types";
+import { uuid } from "uuidv4";
+
 import {
   FolderCloseIcon,
   FolderOpenIcon,
@@ -12,8 +17,14 @@ import { Checkbox, Split, SplitItem } from "@patternfly/react-core";
 import Tree from "react-ui-tree";
 
 import LoadingSpinner from "../../common/loading/LoadingSpinner";
-import { ChrisFile, fetchAllChrisFiles } from "./CreateFeed";
+import { ChrisFile } from "./CreateFeed";
 import { DataTableToolbar } from "../..";
+import { ApplicationState } from "../../../store/root/applicationState";
+
+import _ from "lodash";
+import ChrisAPIClient from "../../../api/chrisapiclient";
+import { getUploadedFiles } from "../../../store/feed/actions";
+import { flattenMyTree, findWhere, filterArray } from "./utils/utils";
 
 function getEmptyTree() {
   return {
@@ -23,17 +34,21 @@ function getEmptyTree() {
   };
 }
 
-// used between fetching the files and building the tree
-interface ChrisFilePath {
-  path: string;
+interface Tree {
   id: number;
+  name: string;
+  parentId?: number;
+  children?: Tree[];
 }
 
 interface ChrisFileSelectProps {
   files: ChrisFile[];
   handleFileAdd: (file: ChrisFile) => void;
   handleFileRemove: (file: ChrisFile) => void;
+  getUploadedFiles: () => void;
 }
+
+type AllProps = IFeedState & ChrisFileSelectProps;
 
 interface ChrisFileSelectState {
   filter: string;
@@ -42,11 +57,9 @@ interface ChrisFileSelectState {
   visibleTree: ChrisFile;
 }
 
-class ChrisFileSelect extends React.Component<
-  ChrisFileSelectProps,
-  ChrisFileSelectState
-> {
-  constructor(props: ChrisFileSelectProps) {
+class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
+  _isMounted = false;
+  constructor(props: AllProps) {
     super(props);
     this.state = {
       filter: "",
@@ -54,25 +67,144 @@ class ChrisFileSelect extends React.Component<
       initialTree: getEmptyTree(),
       visibleTree: getEmptyTree()
     };
-  }
-
-  componentDidMount() {
-    this.disableTreeDraggables();
-    this.fetchChrisFiles().then((files: ChrisFilePath[]) => {
-      const tree = this.buildInitialFileTree(files);
-      this.setState({
-        initialTreeLoaded: true,
-        initialTree: tree,
-        visibleTree: tree
-      });
-    });
 
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
     this.handleFilterChange = this.handleFilterChange.bind(this);
   }
 
-  componentDidUpdate() {
+  /* Lifecycle methods */
+
+  async componentDidMount() {
+    this._isMounted = true;
     this.disableTreeDraggables();
+
+    const { getUploadedFiles } = this.props;
+    getUploadedFiles();
+
+    /* Create tree after mounting */
+    const feeds = _.flattenDepth(await this.fetchChrisFeeds());
+    const files = await this.fetchChrisFiles();
+
+    const treeFiles = [...files, ...feeds];
+    this.buildTree(treeFiles);
+  }
+
+  async componentDidUpdate(prevProps: AllProps) {
+    this._isMounted = true;
+    if (!_.isEqual(prevProps.uploadedFiles, this.props.uploadedFiles)) {
+      const feeds = _.flattenDepth(await this.fetchChrisFeeds());
+      const files = await this.fetchChrisFiles();
+      const treeFiles = [...files, ...feeds];
+      this.buildTree(treeFiles);
+    }
+    this.disableTreeDraggables();
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
+  /* Fetching files for creating a Tree */
+
+  async fetchChrisFiles() {
+    const { uploadedFiles } = this.props;
+
+    if (!uploadedFiles) {
+      return [];
+    }
+
+    const testFiles = await Promise.all(
+      uploadedFiles.map(file => {
+        const fileData = (file as UploadedFile).data;
+
+        const path = fileData.fname
+          .split("/")
+          .slice(0, -1)
+          .join("/");
+
+        return {
+          path,
+          id: uuid()
+        };
+      })
+    );
+
+    const filteredArray = filterArray(testFiles);
+    return filteredArray;
+  }
+
+  fetchChrisFeeds() {
+    const { feeds } = this.props;
+
+    if (!feeds) {
+      return;
+    }
+
+    return Promise.all(
+      feeds.map(async feed => {
+        const pluginInstances = await (
+          await ChrisAPIClient.getClient().getFeed(feed.id as number)
+        ).getPluginInstances();
+
+        const pluginInstanceList = pluginInstances.getItems();
+
+        let root: Tree = {
+          id: feed.id as number,
+          name: `${feed.creator_username}/feed_${feed.id}`,
+          children: []
+        };
+
+        const test: Tree[] = this.createRecursiveTree(pluginInstanceList);
+        root.children = test;
+
+        const tree = [root];
+        const flattenedTree = flattenMyTree(tree); // js utility
+
+        const feedFiles = flattenedTree.map(tree => {
+          return {
+            path: tree.pathname
+          };
+        });
+
+        return feedFiles;
+      })
+    );
+  }
+
+  createRecursiveTree(arr: PluginInstance[]) {
+    let hashTable = Object.create(null);
+
+    let pluginInstances = arr
+      .map(pluginInstance => ({
+        id: pluginInstance.data.id,
+        parentId: pluginInstance.data.previous_id,
+        name: `${pluginInstance.data.plugin_name}_${pluginInstance.data.id}`
+      }))
+      .sort((a, b) => a.id - b.id);
+
+    pluginInstances.forEach(instance => {
+      hashTable[instance.id] = { ...instance, children: [] };
+    });
+
+    let dataTree: Tree[] = [];
+
+    pluginInstances.forEach(instance => {
+      if (instance.parentId)
+        hashTable[instance.parentId].children.push(hashTable[instance.id]);
+      else dataTree.push(hashTable[instance.id]);
+    });
+    return dataTree;
+  }
+
+  buildTree(files: any) {
+    const tree = this.buildInitialFileTree(files);
+    if (this._isMounted) {
+      this.setState({
+        initialTreeLoaded: true,
+        initialTree: tree,
+        visibleTree: tree
+      });
+    }
   }
 
   // finds all nodes and disables the draggable function that comes with the react-ui-tree
@@ -90,45 +222,51 @@ class ChrisFileSelect extends React.Component<
     }
   }
 
-  /* DATA FETCHING */
-
   // Transforms list of ChrisFilePaths into a ChrisFile tree
-  buildInitialFileTree(filePaths: ChrisFilePath[]) {
-    const root = getEmptyTree();
-    for (const pathObj of filePaths) {
-      const { path, id } = pathObj;
-      const parts = path.split("/").slice(1); // remove initial '/'
-      const name = parts[parts.length - 1];
-      const dirs = parts.slice(0, parts.length - 1);
 
-      let currentDir: ChrisFile[] = root.children;
-      for (const dirName of dirs) {
-        const existingDir = currentDir.find(
-          (pathObj: ChrisFile) => pathObj.name === dirName
-        );
+  buildInitialFileTree(filePaths: any) {
+    const paths = filePaths.map((filepath: any) => {
+      const parts = filepath.path.split("/");
+      return parts;
+    });
 
-        if (existingDir && existingDir.children) {
-          currentDir = existingDir.children;
-          continue;
+    const tree = getEmptyTree();
+
+    for (var i = 0; i < paths.length; i++) {
+      var path = paths[i];
+      var currentLevel: { name: any; children: never[] }[] = tree.children;
+
+      for (var j = 0; j < path.length; j++) {
+        var part = path[j];
+
+        var existingPath = findWhere(currentLevel, "name", part);
+        if (existingPath) {
+          currentLevel = existingPath.children;
+        } else {
+          let upload_path = "";
+          if (!path.includes("uploads")) {
+            upload_path = path.join("/") + "/data";
+          } else {
+            upload_path = path.join("/");
+          }
+          var newPart = {
+            name: part,
+            path: upload_path,
+            children: [],
+            id: uuid(),
+            collapsed: true
+          };
+          currentLevel.push(newPart);
+          currentLevel = newPart.children;
         }
-
-        const newDir = {
-          name: dirName,
-          children: [],
-          path: `${dirName.split(dirName)[0]}${dirName}`,
-          collapsed: true
-        };
-        currentDir.push(newDir);
-        currentDir = newDir.children;
       }
-      currentDir.push({ name, path, id });
     }
 
-    return this.sortTree(root);
+    return this.sortTree(tree);
   }
 
   // Moves folders to top and orders alphabetically
-  sortTree(root: ChrisFile) {
+  sortTree(root: any) {
     let children: ChrisFile[] = [];
     if (root.children) {
       children = root.children.sort((a: ChrisFile, b: ChrisFile) => {
@@ -151,23 +289,9 @@ class ChrisFileSelect extends React.Component<
     return { ...root, children };
   }
 
-  async fetchChrisFiles(): Promise<ChrisFilePath[]> {
-    const files = await fetchAllChrisFiles();
-
-    return Promise.all(
-      files.map(async file => {
-        const fileData = (file as UploadedFile).data;
-        return {
-          path: fileData.upload_path,
-          id: Number(fileData.id)
-        };
-      })
-    );
-  }
-
   /* EVENT HANDLERS */
 
-  handleCheckboxChange(isChecked: boolean, file: ChrisFile) {
+  async handleCheckboxChange(isChecked: boolean, file: ChrisFile) {
     if (isChecked) {
       this.props.handleFileAdd(file);
     } else {
@@ -254,8 +378,10 @@ class ChrisFileSelect extends React.Component<
       this.normalizeString(filter)
     );
     const before = name.substring(0, matchIndex);
+
     const match = name.substring(matchIndex, matchIndex + filter.length);
     const after = name.substring(matchIndex + filter.length);
+
     return (
       <React.Fragment>
         {before}
@@ -268,10 +394,13 @@ class ChrisFileSelect extends React.Component<
   renderTreeNode = (node: ChrisFile) => {
     const { files } = this.props;
     const isFolder = !!node.children;
+
     let isSelected;
     if (isFolder) {
       // there can never be multiple folders with the same path, and folders don't have ids
-      isSelected = !!files.find(f => f.path === node.path);
+      isSelected = !!files.find(f => {
+        return f.name === node.name;
+      });
     } else {
       // but there can be multiple files with the same path
       isSelected = !!files.find(f => f.id === node.id);
@@ -303,16 +432,18 @@ class ChrisFileSelect extends React.Component<
     const { files, handleFileRemove } = this.props;
     const { initialTreeLoaded, visibleTree } = this.state;
 
-    const fileList = files.map(file => (
-      <div className="file-preview" key={file.path}>
-        {file.children ? <FolderCloseIcon /> : <FileIcon />}
-        <span className="file-name">{file.name}</span>
-        <CloseIcon
-          className="file-remove"
-          onClick={() => handleFileRemove(file)}
-        />
-      </div>
-    ));
+    const fileList = files.map(file => {
+      return (
+        <div className="file-preview" key={file.id}>
+          {file.children ? <FolderCloseIcon /> : <FileIcon />}
+          <span className="file-name">{file.name}</span>
+          <CloseIcon
+            className="file-remove"
+            onClick={() => handleFileRemove(file)}
+          />
+        </div>
+      );
+    });
 
     return (
       <div className="chris-file-select">
@@ -329,6 +460,7 @@ class ChrisFileSelect extends React.Component<
             />
             {initialTreeLoaded ? (
               <Tree
+                className="tree"
                 tree={visibleTree}
                 renderNode={this.renderTreeNode}
                 paddingLeft={20}
@@ -337,6 +469,7 @@ class ChrisFileSelect extends React.Component<
               <LoadingSpinner />
             )}
           </SplitItem>
+
           <SplitItem isFilled className="file-list-wrap">
             <p className="section-header">Files to add to new feed:</p>
             <div className="file-list">{fileList}</div>
@@ -347,4 +480,13 @@ class ChrisFileSelect extends React.Component<
   }
 }
 
-export default ChrisFileSelect;
+const mapStateToProps = ({ feed }: ApplicationState) => ({
+  feeds: feed.feeds,
+  uploadedFiles: feed.uploadedFiles
+});
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  getUploadedFiles: () => dispatch(getUploadedFiles())
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ChrisFileSelect);

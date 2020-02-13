@@ -1,4 +1,4 @@
-import { all, call, fork, put, takeEvery } from "redux-saga/effects";
+import { all, fork, put, takeEvery } from "redux-saga/effects";
 import { GalleryActionTypes } from "./types";
 import {
   setGalleryItemsSuccess,
@@ -6,7 +6,6 @@ import {
   setGalleryItems
 } from "./actions";
 import GalleryModel, {
-  IGalleryItem,
   GalleryListModel,
   GalleryItemModel
 } from "../../api/models/gallery.model";
@@ -26,13 +25,12 @@ function* handleInitGalleryRequest(action: any) {
         )
       : 0;
     const galleryItemModel = new GalleryItemModel(selectedFile, index);
-    const res = yield call(
-      GalleryModel.getGalleryItemBlob,
-      galleryItemModel.galleryItem
+
+    const data = yield selectedFile.file.getFileBlob();
+
+    yield put(
+      setGalleryActiveItemSuccess(galleryItemModel.setGalleryItemBlob(data))
     );
-    // Handles errors in files
-    const data  = (!!res.error) ? {error: res.error} : {blob: res.data};
-    yield put( setGalleryActiveItemSuccess( galleryItemModel.setGalleryItemBlob(data)));
 
     // Initiate gallery Items call
     yield put(setGalleryItems({ selectedFile, selectedFolder }));
@@ -57,18 +55,15 @@ function* handleGetGalleryItemsRequest(action: any) {
     const selectedFile = action.payload.selectedFile;
     const selectedFolder = action.payload.selectedFolder;
     const galleryList = new GalleryListModel(selectedFile, selectedFolder);
-    const responses = yield all(
-      galleryList.galleryItems.map((item: IGalleryItem) =>
-        call(function*() {
-          try {
-            return yield call(GalleryModel.getGalleryItemBlob, item);
-          } catch (error) {
-            return { error };
-          }
-        })
-      )
+
+    const testResponses = yield all(
+      selectedFolder.children.map(async (item: IUITreeNode) => {
+        const file = item.file;
+        return await file.getFileBlob();
+      })
     );
-    galleryList.setGalleryItem(responses);
+
+    galleryList.setGalleryItem(testResponses);
     yield put(setGalleryItemsSuccess(galleryList.galleryItems));
   } catch (error) {
     console.error(error);
