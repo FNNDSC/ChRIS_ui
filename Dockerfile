@@ -30,7 +30,7 @@ WORKDIR /app/
 COPY . .
 
 # Build the app for production
-RUN npm install && npm run build
+RUN npm install && npm run build -- --profile
 
 
 
