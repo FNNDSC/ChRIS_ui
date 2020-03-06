@@ -11,6 +11,7 @@ import { CloseIcon } from "@patternfly/react-icons";
 
 interface SimpleDropdownState {
   isOpen: boolean;
+  value: string;
 }
 
 interface SimpleDropdownProps {
@@ -29,10 +30,10 @@ class SimpleDropdown extends React.Component<
   constructor(props: SimpleDropdownProps) {
     super(props);
     this.state = {
-      isOpen: false
+      isOpen: false,
+      value: ""
     };
   }
-
   onToggle = (isOpen: boolean) => {
     this.setState({
       isOpen
@@ -44,8 +45,18 @@ class SimpleDropdown extends React.Component<
     });
   };
 
+  handleClick = (event: any) => {
+    console.log("handleClick", event.target.value);
+  };
+
+  handleInputChange = (value: string) => {
+    this.setState({
+      value
+    });
+  };
+
   render() {
-    const { isOpen } = this.state;
+    const { isOpen, value } = this.state;
     const { params } = this.props;
 
     if (!params) {
@@ -53,7 +64,12 @@ class SimpleDropdown extends React.Component<
     }
     const dropdownItems = params.map(param => {
       return (
-        <DropdownItem key={param.data.id} component="button">
+        <DropdownItem
+          key={param.data.id}
+          onClick={this.handleClick}
+          component="button"
+          className="plugin-parameter"
+        >
           {param.data.flag}
         </DropdownItem>
       );
@@ -76,7 +92,13 @@ class SimpleDropdown extends React.Component<
           className="plugin-dropdown"
           dropdownItems={dropdownItems}
         />
-        <TextInput type="text" aria-label="text" className="plugin-input" />
+        <TextInput
+          type="text"
+          aria-label="text"
+          className="plugin-input"
+          onChange={this.handleInputChange}
+          value={value}
+        />
         <CloseIcon />
       </div>
     );

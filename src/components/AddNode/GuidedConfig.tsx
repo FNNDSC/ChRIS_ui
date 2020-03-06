@@ -93,7 +93,7 @@ class GuidedConfig extends React.Component<
 
   render() {
     const { isChecked, params } = this.state;
-    console.log("Params", params);
+
     return (
       <div className="screen-two">
         <h1 className="pf-c-title pf-m-2xl">
