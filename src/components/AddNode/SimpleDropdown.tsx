@@ -12,6 +12,8 @@ import { CloseIcon } from "@patternfly/react-icons";
 interface SimpleDropdownState {
   isOpen: boolean;
   value: string;
+  flag: string;
+  parameterName: string;
 }
 
 interface SimpleDropdownProps {
@@ -21,6 +23,7 @@ interface SimpleDropdownProps {
   isOpen?: boolean;
   dropdownItems?: any[];
   key?: number;
+  handleChange(flag: string, value: string): void;
 }
 
 class SimpleDropdown extends React.Component<
@@ -31,7 +34,9 @@ class SimpleDropdown extends React.Component<
     super(props);
     this.state = {
       isOpen: false,
-      value: ""
+      value: "",
+      flag: "",
+      parameterName: ""
     };
   }
   onToggle = (isOpen: boolean) => {
@@ -46,17 +51,32 @@ class SimpleDropdown extends React.Component<
   };
 
   handleClick = (event: any) => {
-    console.log("handleClick", event.target.value);
+    const { handleChange } = this.props;
+    this.setState(
+      {
+        flag: event.target.value,
+        parameterName: event.target.name
+      },
+      () => {
+        handleChange(this.state.parameterName, this.state.value);
+      }
+    );
   };
 
   handleInputChange = (value: string) => {
-    this.setState({
-      value
-    });
+    const { handleChange } = this.props;
+    this.setState(
+      {
+        value
+      },
+      () => {
+        handleChange(this.state.parameterName, this.state.value);
+      }
+    );
   };
 
   render() {
-    const { isOpen, value } = this.state;
+    const { isOpen, value, flag } = this.state;
     const { params } = this.props;
 
     if (!params) {
@@ -69,6 +89,8 @@ class SimpleDropdown extends React.Component<
           onClick={this.handleClick}
           component="button"
           className="plugin-parameter"
+          value={param.data.flag}
+          name={param.data.name}
         >
           {param.data.flag}
         </DropdownItem>
@@ -85,7 +107,7 @@ class SimpleDropdown extends React.Component<
               onToggle={this.onToggle}
               iconComponent={CaretDownIcon}
             >
-              Choose a Parameter
+              {flag ? `${flag}` : "Choose a Parameter"}
             </DropdownToggle>
           }
           isOpen={isOpen}
