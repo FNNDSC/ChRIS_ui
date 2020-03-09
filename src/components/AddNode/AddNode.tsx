@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Dispatch } from "redux";
 import { Button, Wizard, WizardStepFunctionType } from "@patternfly/react-core";
 
 import ScreenOne from "../../components/feed/AddNode/ScreenOne";
@@ -8,14 +9,19 @@ import { Plugin } from "@fnndsc/chrisapi";
 import _ from "lodash";
 import { ApplicationState } from "../../store/root/applicationState";
 import "./addnode.scss";
-import GuidedConfig from "./GuidedConfig";
 import LoadingSpinner from "../common/loading/LoadingSpinner";
+import SwitchConfig from "./SwitchConfig";
+import Review from "./Review";
+import { addNode } from "../../store/feed/actions";
+import { Collection } from "@fnndsc/chrisapi";
 
 interface AddNodeState {
   isOpen: boolean;
-  allStepsValid: boolean;
+  userInput: {
+    [key: string]: string;
+  };
   stepIdReached: number;
-  isFormValid: boolean;
+
   nodes?: IPluginItem[];
   data: {
     plugin?: Plugin;
@@ -26,7 +32,7 @@ interface AddNodeState {
 interface AddNodeProps {
   selected?: IPluginItem;
   nodes?: IPluginItem[];
-  addNode?: (pluginItem: IPluginItem) => void;
+  addNode: (pluginItem: IPluginItem) => void;
 }
 
 class AddNode extends Component<AddNodeProps, AddNodeState> {
@@ -34,11 +40,10 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     super(props);
     this.state = {
       isOpen: false,
-      allStepsValid: false,
       stepIdReached: 1,
-      isFormValid: false,
       nodes: [],
-      data: {}
+      data: {},
+      userInput: {}
     };
   }
 
@@ -68,14 +73,64 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     });
   }
 
+  inputChange = (flag: string, value: string) => {
+    const { userInput } = this.state;
+
+    this.setState({
+      userInput: {
+        ...userInput,
+        [flag]: value
+      }
+    });
+  };
+
   toggleOpen = () => {
     this.setState((state: AddNodeState) => ({
       isOpen: !state.isOpen
     }));
   };
 
-  handleSave = () => {
+  handleSave = async () => {
     console.log("Saving and closing wizard");
+
+    const { userInput } = this.state;
+    const { plugin } = this.state.data;
+    const { selected } = this.props;
+
+    if (!plugin || !selected) {
+      return;
+    }
+
+    let parameterInput = {
+      ...userInput,
+      previous_id: `${selected.id}`
+    };
+
+    const pluginInstances = await plugin.getPluginInstances();
+    await pluginInstances.post(parameterInput);
+    const node = pluginInstances.getItems()[0];
+
+    // Add node to redux
+
+    const { data, collection } = node;
+    const createdNodeLinks = collection.items[0];
+
+    const getLinkUrl = (resource: string) => {
+      return Collection.getLinkRelationUrls(createdNodeLinks, resource)[0];
+    };
+
+    const nodeobj = {
+      ...data,
+      descendants: getLinkUrl("descendants"),
+      feed: getLinkUrl("feed"),
+      files: getLinkUrl("files"),
+      parameters: getLinkUrl("parameters"),
+      plugin: getLinkUrl("plugin"),
+      url: node.url
+    };
+
+    this.props.addNode(nodeobj);
+
     this.setState({
       isOpen: false
     });
@@ -92,13 +147,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
   onBack: WizardStepFunctionType = ({ id, name }) => {
     console.log(`current id : ${id}`);
-    this.areAllStepsValid();
-  };
-
-  areAllStepsValid = () => {
-    this.setState({
-      allStepsValid: this.state.isFormValid
-    });
   };
 
   onGoToStep: WizardStepFunctionType = ({ id, name }) => {
@@ -111,18 +159,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     }));
   };
 
-  getStepName(): string {
-    const stepNames = [
-      "basic-information",
-      "chris-file-select",
-      "local-file-upload",
-      "review"
-    ];
-    return stepNames[this.state.stepIdReached - 1]; // this.state.step starts at 1
-  }
-
   render() {
-    const { isOpen, isFormValid, stepIdReached, data } = this.state;
+    const { isOpen, data, userInput } = this.state;
     const { nodes, selected } = this.props;
 
     const screenOne = selected && nodes && (
@@ -134,38 +172,39 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       />
     );
 
-    const guidedConfig = data.plugin ? (
-      <GuidedConfig plugin={data.plugin} />
+    const switchConfig = data.plugin ? (
+      <SwitchConfig
+        userInput={userInput}
+        plugin={data.plugin}
+        onInputChange={this.inputChange}
+      />
+    ) : (
+      <LoadingSpinner />
+    );
+
+    const review = data.plugin ? (
+      <Review data={data} userInput={userInput} />
     ) : (
       <LoadingSpinner />
     );
 
     const steps = [
-      { id: 1, name: "Plugin Selection", component: screenOne },
       {
-        name: "Configuration",
-        steps: [
-          {
-            id: 2,
-            name: "Guided Configuration",
-            component: guidedConfig,
-            enableNext: isFormValid,
-            canJumpTo: stepIdReached <= 2
-          },
-          {
-            id: 3,
-            name: "Editor",
-            component: <p>Substep B</p>,
-            canJumpTo: stepIdReached >= 3
-          }
-        ]
+        id: 1,
+        name: "Plugin Selection",
+        component: screenOne,
+        enableNext: !!data.plugin
       },
       {
-        id: 4,
+        id: 2,
+        name: "Plugin Configuration",
+        component: switchConfig
+      },
+      {
+        id: 3,
         name: "Review",
-        component: <p>Step 4</p>,
-        nextButtonText: "Close",
-        canJumpTo: stepIdReached >= 4
+        component: review,
+        nextButtonText: "Add Node"
       }
     ];
 
@@ -186,7 +225,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
             onNext={this.onNext}
             onBack={this.onBack}
             onGoToStep={this.onGoToStep}
-            className={`add-node-wizard ${this.getStepName()}-wrap}`}
           />
         )}
       </React.Fragment>
@@ -199,4 +237,8 @@ const mapStateToProps = (state: ApplicationState) => ({
   nodes: state.feed.items
 });
 
-export default connect(mapStateToProps, null)(AddNode);
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  addNode: (pluginItem: IPluginItem) => dispatch(addNode(pluginItem))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddNode);
