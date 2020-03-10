@@ -247,8 +247,10 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
           if (!path.includes("uploads")) {
             upload_path = path.join("/") + "/data";
           } else {
-            upload_path = path.join("/");
+            const index = path.indexOf(part);
+            upload_path = path.slice(0, index + 1).join("/");
           }
+
           var newPart = {
             name: part,
             path: upload_path,

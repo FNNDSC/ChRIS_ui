@@ -211,6 +211,9 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
     return (
       <React.Fragment>
+        <Button variant="primary" onClick={this.toggleOpen}>
+          Add a Node
+        </Button>
         {isOpen && (
           <Wizard
             isOpen={isOpen}
