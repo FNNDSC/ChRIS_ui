@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { Grid, GridItem } from "@patternfly/react-core";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import { Plugin } from "@fnndsc/chrisapi";

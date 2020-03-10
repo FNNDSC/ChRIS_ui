@@ -77,7 +77,6 @@ class ScreenOne extends React.Component<ScreenOneProps, ScreenOneState> {
         <h1 className="pf-c-title pf-m-2xl">Plugin Selection</h1>
         <FormGroup label="Parent node:" fieldId="parent-node">
           <TextInput
-            className=""
             value={parent.plugin_name}
             aria-label="Selected Plugin Name"
             spellCheck={false}

@@ -1,11 +1,35 @@
 import React, { Component } from "react";
+import { TextArea } from "@patternfly/react-core";
 
-class Editor extends Component {
+interface EditorState {
+  value: string;
+}
+
+class Editor extends React.Component<{}, EditorState> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {
+      value: ""
+    };
+  }
+
+  handleInputChange = (value: string) => {
+    this.setState({
+      value
+    });
+  };
+
   render() {
+    const { value } = this.state;
     return (
-      <div>
-        <h1>This works</h1>
-      </div>
+      <TextArea
+        type="text"
+        aria-label="text"
+        className="editor"
+        resizeOrientation="vertical"
+        onChange={this.handleInputChange}
+        value={value}
+      />
     );
   }
 }
