@@ -9,7 +9,6 @@
     "@fortawesome/free-solid-svg-icons": "^5.7.2",
     "@fortawesome/react-fontawesome": "^0.1.4",
     "@patternfly/patternfly": "^2.68.3",
-    "@patternfly/react-core": "^3.140.11",
     "@patternfly/react-table": "^2.14.23",
     "@types/c3": "^0.6.3",
     "@types/classnames": "^2.2.9",
