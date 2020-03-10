@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Dispatch } from "redux";
-import { Button, Wizard, WizardStepFunctionType } from "@patternfly/react-core";
+import { Wizard, WizardStepFunctionType } from "@patternfly/react-core";
 
 import ScreenOne from "../../components/feed/AddNode/ScreenOne";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
@@ -14,6 +14,7 @@ import SwitchConfig from "./SwitchConfig";
 import Review from "./Review";
 import { addNode } from "../../store/feed/actions";
 import { Collection } from "@fnndsc/chrisapi";
+import { Button } from "@patternfly/react-core";
 
 interface AddNodeState {
   isOpen: boolean;
@@ -210,10 +211,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
     return (
       <React.Fragment>
-        <Button variant="primary" onClick={this.toggleOpen}>
-          Add a Node
-        </Button>
-
         {isOpen && (
           <Wizard
             isOpen={isOpen}
