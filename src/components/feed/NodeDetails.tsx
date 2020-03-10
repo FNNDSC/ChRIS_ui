@@ -25,7 +25,7 @@ import ChrisAPIClient from "../../api/chrisapiclient";
 import TreeNodeModel from "../../api/models/tree-node.model";
 
 import TextCopyPopover from "../common/textcopypopover/TextCopyPopover";
-import AddNode from "./AddNode/AddNode";
+import AddNode from "../AddNode/AddNode";
 
 interface INodeProps {
   selected: IPluginItem;
@@ -61,9 +61,9 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     const client = ChrisAPIClient.getClient();
     const plugin = await client.getPlugin(plugin_id);
 
-    const params = await (await client.getPluginInstance(
-      id as number
-    )).getParameters();
+    const params = await (
+      await client.getPluginInstance(id as number)
+    ).getParameters();
 
     this.setState({
       plugin,

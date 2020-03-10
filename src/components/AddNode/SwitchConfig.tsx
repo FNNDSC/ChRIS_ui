@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { Switch } from "@patternfly/react-core";
 import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
+import { Switch } from "@patternfly/react-core";
 
 interface SwitchConfigState {
   isChecked: boolean;
