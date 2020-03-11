@@ -125,11 +125,10 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     });
   }
 
-  handleDownloadClick(e: React.MouseEvent, node: IUITreeNode) {
+  async handleDownloadClick(e: React.MouseEvent, node: IUITreeNode) {
     e.stopPropagation();
-    ChrisModel.getFileBlob(node.file.file_resource).then(({ data: blob }) => {
-      FileViewerModel.downloadFile(blob, node.module);
-    });
+    const blob = await node.file.getFileBlob();
+    FileViewerModel.downloadFile(blob, node.module);
   }
 
   // PATH POPOVER LISTENERS
