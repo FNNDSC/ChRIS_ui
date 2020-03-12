@@ -3,6 +3,7 @@ import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
 import { Switch } from "@patternfly/react-core";
+import { CodeBranchIcon } from "@patternfly/react-icons";
 
 interface SwitchConfigState {
   isChecked: boolean;
@@ -53,7 +54,7 @@ class SwitchConfig extends Component<SwitchConfigProps, SwitchConfigState> {
   };
   render() {
     const { isChecked, params } = this.state;
-    const { onInputChange, userInput } = this.props;
+    const { onInputChange, userInput, plugin } = this.props;
     return (
       <div className="configure-container">
         <div className="configure-options">
@@ -72,6 +73,7 @@ class SwitchConfig extends Component<SwitchConfigProps, SwitchConfigState> {
               userInput={userInput}
               params={params}
               inputChange={onInputChange}
+              plugin={plugin}
             />
           ) : (
             <Editor />

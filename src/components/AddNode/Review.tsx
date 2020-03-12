@@ -17,7 +17,7 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
 
   let generatedCommand = "";
   for (let i in userInput) {
-    generatedCommand += `  ${i}  ${userInput[i]}`;
+    generatedCommand += `  --${i}  ${userInput[i]}`;
   }
 
   return (
@@ -35,7 +35,9 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
         <GridItem span={2}>Selected plugin:</GridItem>
         <GridItem span={10}>{data.plugin && data.plugin.data.name}</GridItem>
         <GridItem span={2}>Plugin configuration:</GridItem>
-        <GridItem span={10}>{generatedCommand}</GridItem>
+        <GridItem span={10}>
+          <span className="required-text">{generatedCommand}</span>
+        </GridItem>
       </Grid>
     </div>
   );
