@@ -15,6 +15,7 @@ import Review from "./Review";
 import { addNode } from "../../store/feed/actions";
 import { Collection } from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
+import { InfrastructureIcon } from "@patternfly/react-icons";
 
 interface AddNodeState {
   isOpen: boolean;
@@ -85,6 +86,16 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     });
   };
 
+  resetState = () => {
+    this.setState({
+      isOpen: false,
+      stepIdReached: 1,
+      nodes: [],
+      data: {},
+      userInput: {}
+    });
+  };
+
   toggleOpen = () => {
     this.setState((state: AddNodeState) => ({
       isOpen: !state.isOpen
@@ -131,10 +142,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     };
 
     this.props.addNode(nodeobj);
-
-    this.setState({
-      isOpen: false
-    });
+    this.resetState();
   };
 
   onNext: WizardStepFunctionType = ({ id, name }, { prevId, prevName }) => {
@@ -211,7 +219,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
     return (
       <React.Fragment>
-        <Button variant="primary" onClick={this.toggleOpen}>
+        <Button variant="primary" isBlock onClick={this.toggleOpen}>
+          <InfrastructureIcon />
           Add a Node
         </Button>
         {isOpen && (
