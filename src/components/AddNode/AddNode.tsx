@@ -86,7 +86,17 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     });
   };
 
+  inputChangeFromEditor = (input: {}) => {
+    this.setState({
+      userInput: {
+        ...this.state.userInput,
+        ...input
+      }
+    });
+  };
+
   resetState = () => {
+    console.log("Reset state called");
     this.setState({
       isOpen: false,
       stepIdReached: 1,
@@ -97,9 +107,16 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   };
 
   toggleOpen = () => {
-    this.setState((state: AddNodeState) => ({
-      isOpen: !state.isOpen
-    }));
+    this.setState(
+      (state: AddNodeState) => ({
+        isOpen: !state.isOpen
+      }),
+      () => {
+        if (this.state.isOpen === false) {
+          this.resetState();
+        }
+      }
+    );
   };
 
   handleSave = async () => {
@@ -155,7 +172,9 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   };
 
   onBack: WizardStepFunctionType = ({ id, name }) => {
-    console.log(`current id : ${id}`);
+    this.setState({
+      userInput: {}
+    });
   };
 
   onGoToStep: WizardStepFunctionType = ({ id, name }) => {
@@ -166,6 +185,19 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     this.setState(prevState => ({
       data: { ...prevState.data, plugin }
     }));
+  };
+
+  deleteInput = (input: string) => {
+    const { userInput } = this.state;
+    let newObject = Object.keys(userInput)
+      .filter(key => key !== input)
+      .reduce((result: any, current) => {
+        result[current] = userInput[current];
+        return result;
+      }, {});
+    this.setState({
+      userInput: newObject
+    });
   };
 
   render() {
@@ -186,6 +218,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         userInput={userInput}
         plugin={data.plugin}
         onInputChange={this.inputChange}
+        deleteInput={this.deleteInput}
+        editorInput={this.inputChangeFromEditor}
       />
     ) : (
       <LoadingSpinner />

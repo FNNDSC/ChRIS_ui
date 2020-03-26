@@ -1,12 +1,17 @@
 import React, { Component } from "react";
 import { TextArea } from "@patternfly/react-core";
+import matchAll from "string.prototype.matchall";
 
 interface EditorState {
   value: string;
 }
 
-class Editor extends React.Component<{}, EditorState> {
-  constructor(props: {}) {
+interface EditorProps {
+  editorInput(input: {}): void;
+}
+
+class Editor extends React.Component<EditorProps, EditorState> {
+  constructor(props: EditorProps) {
     super(props);
     this.state = {
       value: ""
@@ -14,9 +19,24 @@ class Editor extends React.Component<{}, EditorState> {
   }
 
   handleInputChange = (value: string) => {
-    this.setState({
-      value
-    });
+    const { editorInput } = this.props;
+    this.setState(
+      {
+        value
+      },
+      () => {
+        const tokenRegex = /(--(?<option>.+?)\s+(?<value>.(?:[^-].+?)?(?:(?=--)|$))?)+?/gm;
+        const tokens = [...matchAll(this.state.value, tokenRegex)];
+        let result: any = {};
+
+        for (const token of tokens) {
+          console.log(token);
+          const [_, input, flag, value] = token;
+          result[flag] = value && value.trim();
+        }
+        editorInput(result);
+      }
+    );
   };
 
   render() {
