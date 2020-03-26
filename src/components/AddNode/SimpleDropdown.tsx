@@ -13,7 +13,6 @@ interface SimpleDropdownState {
   isOpen: boolean;
   value: string;
   flag: string;
-  parameterName: string;
 }
 
 interface SimpleDropdownProps {
@@ -25,6 +24,7 @@ interface SimpleDropdownProps {
   id: number;
   handleChange(flag: string, value: string): void;
   deleteComponent(id: number): void;
+  deleteInput(input: string): void;
 }
 
 class SimpleDropdown extends React.Component<
@@ -36,8 +36,7 @@ class SimpleDropdown extends React.Component<
     this.state = {
       isOpen: false,
       value: "",
-      flag: "",
-      parameterName: ""
+      flag: ""
     };
   }
   onToggle = (isOpen: boolean) => {
@@ -52,20 +51,31 @@ class SimpleDropdown extends React.Component<
   };
 
   handleClick = (event: any) => {
+    event.persist();
     const { handleChange } = this.props;
+    const flag = event.target.value;
+    const value = this.state.value;
+
+    console.log(flag, value, event.target.name);
+
     this.setState(
-      {
-        flag: event.target.value,
-        parameterName: event.target.name
+      prevState => {
+        return {
+          flag: event.target.value,
+          value: ""
+        };
       },
       () => {
-        handleChange(this.state.parameterName, this.state.value);
+        handleChange(this.state.flag, this.state.value);
       }
     );
   };
 
   deleteDropdown = () => {
-    const { id, deleteComponent } = this.props;
+    const { id, deleteComponent, deleteInput } = this.props;
+    const { flag } = this.state;
+
+    deleteInput(flag);
     deleteComponent(id);
   };
 
@@ -76,7 +86,7 @@ class SimpleDropdown extends React.Component<
         value
       },
       () => {
-        handleChange(this.state.parameterName, this.state.value);
+        handleChange(this.state.flag, this.state.value);
       }
     );
   };
@@ -89,16 +99,17 @@ class SimpleDropdown extends React.Component<
       return;
     }
     const dropdownItems = params.map(param => {
+      const id = param.data.id;
       return (
         <DropdownItem
-          key={param.data.id}
+          key={id}
           onClick={this.handleClick}
           component="button"
           className="plugin-parameter"
-          value={param.data.flag}
-          name={param.data.name}
+          value={param.data.name}
+          name={`${param.data.name}_${id}`}
         >
-          {param.data.flag}
+          {param.data.name}
         </DropdownItem>
       );
     });

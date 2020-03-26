@@ -13,9 +13,11 @@ interface SwitchConfigState {
 interface SwitchConfigProps {
   plugin: Plugin;
   onInputChange(flag: string, value: string): void;
+  editorInput(input: {}): void;
   userInput: {
     [key: string]: string;
   };
+  deleteInput(input: string): void;
 }
 
 class SwitchConfig extends Component<SwitchConfigProps, SwitchConfigState> {
@@ -54,7 +56,13 @@ class SwitchConfig extends Component<SwitchConfigProps, SwitchConfigState> {
   };
   render() {
     const { isChecked, params } = this.state;
-    const { onInputChange, userInput, plugin } = this.props;
+    const {
+      onInputChange,
+      userInput,
+      plugin,
+      deleteInput,
+      editorInput
+    } = this.props;
     return (
       <div className="configure-container">
         <div className="configure-options">
@@ -74,9 +82,10 @@ class SwitchConfig extends Component<SwitchConfigProps, SwitchConfigState> {
               params={params}
               inputChange={onInputChange}
               plugin={plugin}
+              deleteInput={deleteInput}
             />
           ) : (
-            <Editor />
+            <Editor editorInput={editorInput} />
           )}
         </div>
       </div>
