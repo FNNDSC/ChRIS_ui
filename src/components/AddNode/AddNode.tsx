@@ -36,6 +36,9 @@ interface AddNodeState {
     plugin?: Plugin;
     parent?: IPluginItem;
   };
+  editorState: {
+    [key: string]: string;
+  };
 }
 
 interface AddNodeProps {
@@ -52,7 +55,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       stepIdReached: 1,
       nodes: [],
       data: {},
-      userInput: {}
+      userInput: {},
+      editorState: {}
     };
   }
 
@@ -96,8 +100,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
   inputChangeFromEditor = (input: {}) => {
     this.setState({
-      userInput: {
-        ...this.state.userInput,
+      editorState: {
+        ...this.state.editorState,
         ...input
       }
     });
@@ -223,7 +227,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   };
 
   render() {
-    const { isOpen, data, userInput } = this.state;
+    const { isOpen, data, userInput, editorState } = this.state;
     const { nodes, selected } = this.props;
 
     const screenOne = selected && nodes && (
@@ -248,7 +252,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     );
 
     const review = data.plugin ? (
-      <Review data={data} userInput={userInput} />
+      <Review data={data} userInput={userInput} editorState={editorState} />
     ) : (
       <LoadingSpinner />
     );

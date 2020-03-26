@@ -12,16 +12,24 @@ interface ReviewProps {
       [key: string]: string;
     };
   };
+  editorState: {
+    [key: string]: string;
+  };
 }
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
-  const { data, userInput } = props;
+  const { data, userInput, editorState } = props;
 
   let generatedCommand = "";
-  for (let object in userInput) {
-    const flag = Object.keys(userInput[object])[0];
-    const value = userInput[object][flag];
-    generatedCommand += `--${flag}  ${value}`;
+
+  if (userInput) {
+    for (let object in userInput) {
+      const flag = Object.keys(userInput[object])[0];
+      const value = userInput[object][flag];
+      generatedCommand += `--${flag}  ${value}`;
+    }
+  }
+  if (editorState) {
   }
 
   return (
