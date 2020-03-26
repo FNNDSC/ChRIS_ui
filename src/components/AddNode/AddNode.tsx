@@ -1,6 +1,10 @@
 import React, { Component } from "react";
 import { Dispatch } from "redux";
-import { Wizard, WizardStepFunctionType } from "@patternfly/react-core";
+import {
+  Wizard,
+  WizardStepFunctionType,
+  AccordionToggle
+} from "@patternfly/react-core";
 
 import ScreenOne from "../../components/feed/AddNode/ScreenOne";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
@@ -19,8 +23,11 @@ import { InfrastructureIcon } from "@patternfly/react-icons";
 
 interface AddNodeState {
   isOpen: boolean;
+
   userInput: {
-    [key: string]: string;
+    [key: number]: {
+      [key: string]: string;
+    };
   };
   stepIdReached: number;
 
@@ -75,13 +82,14 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     });
   }
 
-  inputChange = (flag: string, value: string) => {
-    const { userInput } = this.state;
+  inputChange = (id: number, paramName: string, value: string) => {
+    const input: { [key: string]: string } = {};
+    input[paramName] = value;
 
     this.setState({
       userInput: {
-        ...userInput,
-        [flag]: value
+        ...this.state.userInput,
+        [id]: input
       }
     });
   };
@@ -189,12 +197,26 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
   deleteInput = (input: string) => {
     const { userInput } = this.state;
-    let newObject = Object.keys(userInput)
-      .filter(key => key !== input)
-      .reduce((result: any, current) => {
-        result[current] = userInput[current];
-        return result;
-      }, {});
+    let newObject = Object.entries(userInput)
+      .filter(([key, value]) => {
+        let testvalue = Object.keys(value)[0];
+        return testvalue !== input;
+      })
+      .reduce(
+        (
+          acc: {
+            [key: string]: {
+              [key: string]: string;
+            };
+          },
+          [key, value]
+        ) => {
+          acc[key] = value;
+          return acc;
+        },
+        {}
+      );
+
     this.setState({
       userInput: newObject
     });

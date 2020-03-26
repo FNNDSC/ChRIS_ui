@@ -7,8 +7,10 @@ interface ReviewProps {
     plugin?: Plugin;
     parent?: IPluginItem;
   };
-  userInput?: {
-    [key: string]: string;
+  userInput: {
+    [key: number]: {
+      [key: string]: string;
+    };
   };
 }
 
@@ -16,8 +18,10 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
   const { data, userInput } = props;
 
   let generatedCommand = "";
-  for (let i in userInput) {
-    generatedCommand += `  --${i}  ${userInput[i]}`;
+  for (let object in userInput) {
+    const flag = Object.keys(userInput[object])[0];
+    const value = userInput[object][flag];
+    generatedCommand += `--${flag}  ${value}`;
   }
 
   return (

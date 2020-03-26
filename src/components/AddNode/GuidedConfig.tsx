@@ -13,9 +13,11 @@ interface GuidedConfigState {
 
 interface GuidedConfigProps {
   params: PluginParameter[];
-  inputChange(flag: string, value: string): void;
+  inputChange(id: number, paramName: string, value: string): void;
   userInput: {
-    [key: string]: string;
+    [key: number]: {
+      [key: string]: string;
+    };
   };
   plugin?: Plugin;
   deleteInput(input: string): void;
@@ -50,7 +52,9 @@ class GuidedConfig extends React.Component<
         paramName: name
       },
       () => {
-        inputChange(this.state.paramName, this.state.value);
+        //Required params have a default id of 0
+        const id = 0;
+        inputChange(id, this.state.paramName, this.state.value);
       }
     );
   };
@@ -129,8 +133,11 @@ class GuidedConfig extends React.Component<
     const { userInput, plugin } = this.props;
 
     let generatedCommand = plugin && `${plugin.data.name}: `;
-    for (let i in userInput) {
-      generatedCommand += ` --${i} ${userInput[i]}`;
+
+    for (let object in userInput) {
+      const flag = Object.keys(userInput[object])[0];
+      const value = userInput[object][flag];
+      generatedCommand += ` --${flag} ${value}`;
     }
 
     return (

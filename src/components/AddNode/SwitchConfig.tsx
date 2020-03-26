@@ -12,11 +12,13 @@ interface SwitchConfigState {
 
 interface SwitchConfigProps {
   plugin: Plugin;
-  onInputChange(flag: string, value: string): void;
-  editorInput(input: {}): void;
+  onInputChange(id: number, paramName: string, value: string): void;
   userInput: {
-    [key: string]: string;
+    [key: number]: {
+      [key: string]: string;
+    };
   };
+  editorInput(input: {}): void;
   deleteInput(input: string): void;
 }
 
