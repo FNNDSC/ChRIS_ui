@@ -30,10 +30,10 @@ class Editor extends React.Component<EditorProps, EditorState> {
         let result: any = {};
 
         for (const token of tokens) {
-          console.log(token);
           const [_, input, flag, value] = token;
           result[flag] = value && value.trim();
         }
+      
         editorInput(result);
       }
     );

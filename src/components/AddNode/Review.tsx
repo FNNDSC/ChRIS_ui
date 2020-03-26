@@ -29,7 +29,11 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
       generatedCommand += `--${flag}  ${value}`;
     }
   }
+
   if (editorState) {
+    for (let i in editorState) {
+      generatedCommand += `  --${i}  ${editorState[i]}`;
+    }
   }
 
   return (
