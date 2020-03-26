@@ -13,6 +13,7 @@ interface SimpleDropdownState {
   isOpen: boolean;
   value: string;
   flag: string;
+  test: string;
 }
 
 interface SimpleDropdownProps {
@@ -22,7 +23,7 @@ interface SimpleDropdownProps {
   isOpen?: boolean;
   dropdownItems?: any[];
   id: number;
-  handleChange(flag: string, value: string): void;
+  handleChange(id: number, paramName: string, value: string): void;
   deleteComponent(id: number): void;
   deleteInput(input: string): void;
 }
@@ -36,7 +37,8 @@ class SimpleDropdown extends React.Component<
     this.state = {
       isOpen: false,
       value: "",
-      flag: ""
+      flag: "",
+      test: ""
     };
   }
   onToggle = (isOpen: boolean) => {
@@ -52,7 +54,7 @@ class SimpleDropdown extends React.Component<
 
   handleClick = (event: any) => {
     event.persist();
-    const { handleChange } = this.props;
+    const { handleChange, id } = this.props;
     const flag = event.target.value;
     const value = this.state.value;
 
@@ -61,12 +63,11 @@ class SimpleDropdown extends React.Component<
     this.setState(
       prevState => {
         return {
-          flag: event.target.value,
-          value: ""
+          flag: event.target.value
         };
       },
       () => {
-        handleChange(this.state.flag, this.state.value);
+        handleChange(id, this.state.flag, this.state.value);
       }
     );
   };
@@ -80,13 +81,13 @@ class SimpleDropdown extends React.Component<
   };
 
   handleInputChange = (value: string) => {
-    const { handleChange } = this.props;
+    const { handleChange, id } = this.props;
     this.setState(
       {
         value
       },
       () => {
-        handleChange(this.state.flag, this.state.value);
+        handleChange(id, this.state.flag, this.state.value);
       }
     );
   };
@@ -107,7 +108,7 @@ class SimpleDropdown extends React.Component<
           component="button"
           className="plugin-parameter"
           value={param.data.name}
-          name={`${param.data.name}_${id}`}
+          name={param.data.name}
         >
           {param.data.name}
         </DropdownItem>
