@@ -3,11 +3,12 @@ import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
 import { Switch } from "@patternfly/react-core";
-import { CodeBranchIcon } from "@patternfly/react-icons";
+import SimpleDropdown from "./SimpleDropdown";
 
 interface SwitchConfigState {
   isChecked: boolean;
   params: PluginParameter[];
+  componentList: any[];
 }
 
 interface SwitchConfigProps {
@@ -27,7 +28,8 @@ class SwitchConfig extends Component<SwitchConfigProps, SwitchConfigState> {
     super(props);
     this.state = {
       params: [],
-      isChecked: true
+      isChecked: true,
+      componentList: []
     };
   }
 
@@ -56,8 +58,50 @@ class SwitchConfig extends Component<SwitchConfigProps, SwitchConfigState> {
   handleChange = (isChecked: boolean) => {
     this.setState({ isChecked });
   };
+  deleteComponent = (id: number) => {
+    const { componentList } = this.state;
+
+    let component = componentList.filter((component, index) => {
+      return index !== id;
+    });
+
+    this.setState(
+      {
+        componentList: component
+      },
+      () => {
+        console.log(this.state.componentList);
+      }
+    );
+  };
+
+  handleAddComponent = () => {
+    console.log("Inside Add");
+    const { componentList, params } = this.state;
+    const { deleteInput, onInputChange } = this.props;
+    if (componentList.length < params.length) {
+      const key = componentList.length;
+
+      this.setState({
+        componentList: [
+          ...componentList,
+          <SimpleDropdown
+            key={key}
+            params={params}
+            handleChange={onInputChange}
+            id={key}
+            deleteComponent={this.deleteComponent}
+            deleteInput={deleteInput}
+          />
+        ]
+      });
+    } else {
+      console.log("You cannot add any more input Change parameters");
+    }
+  };
+
   render() {
-    const { isChecked, params } = this.state;
+    const { isChecked, params, componentList } = this.state;
     const {
       onInputChange,
       userInput,
@@ -85,6 +129,8 @@ class SwitchConfig extends Component<SwitchConfigProps, SwitchConfigState> {
               inputChange={onInputChange}
               plugin={plugin}
               deleteInput={deleteInput}
+              handleAddComponent={this.handleAddComponent}
+              componentList={componentList}
             />
           ) : (
             <Editor editorInput={editorInput} />

@@ -21,6 +21,8 @@ interface GuidedConfigProps {
   };
   plugin?: Plugin;
   deleteInput(input: string): void;
+  handleAddComponent(): void;
+  componentList: any[];
 }
 
 class GuidedConfig extends React.Component<
@@ -32,6 +34,7 @@ class GuidedConfig extends React.Component<
     this.state = {
       isOpen: false,
       componentList: [],
+
       value: "",
       paramName: ""
     };
@@ -55,23 +58,6 @@ class GuidedConfig extends React.Component<
         //Required params have a default id of 0
         const id = 0;
         inputChange(id, this.state.paramName, this.state.value);
-      }
-    );
-  };
-
-  deleteComponent = (id: number) => {
-    const { componentList } = this.state;
-
-    let component = componentList.filter((component, index) => {
-      return index !== id;
-    });
-
-    this.setState(
-      {
-        componentList: component
-      },
-      () => {
-        console.log(this.state.componentList);
       }
     );
   };
@@ -100,32 +86,12 @@ class GuidedConfig extends React.Component<
   };
 
   addParam = () => {
-    const { componentList } = this.state;
-    const { params, inputChange, deleteInput } = this.props;
-
-    if (componentList.length < params.length) {
-      const key = componentList.length;
-
-      this.setState({
-        componentList: [
-          ...componentList,
-          <SimpleDropdown
-            key={key}
-            params={params}
-            handleChange={inputChange}
-            id={key}
-            deleteComponent={this.deleteComponent}
-            deleteInput={deleteInput}
-          />
-        ]
-      });
-    } else {
-      console.log("You cannot add any more input Change parameters");
-    }
+    const { handleAddComponent } = this.props;
+    handleAddComponent();
   };
 
   renderDropdowns = () => {
-    const { componentList } = this.state;
+    const { componentList } = this.props;
     return componentList.map(component => component);
   };
 
