@@ -27,8 +27,11 @@ class Editor extends React.Component<EditorProps, EditorState> {
     if (editorState) {
       for (let inputString in editorState) {
         const value = editorState[inputString];
-        result += `--${inputString} ${value}`;
+        if (value) {
+          result += `--${inputString} ${value} `;
+        }
       }
+
       this.setState({
         value: result
       });

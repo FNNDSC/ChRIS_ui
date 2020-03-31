@@ -231,7 +231,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   render() {
     const { isOpen, data, userInput, editorState } = this.state;
     const { nodes, selected } = this.props;
-    console.log("Editor State", editorState);
 
     const screenOne = selected && nodes && (
       <ScreenOne
