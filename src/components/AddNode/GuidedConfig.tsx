@@ -22,7 +22,8 @@ interface GuidedConfigProps {
   plugin?: Plugin;
   deleteInput(input: string): void;
   handleAddComponent(): void;
-  componentList: any[];
+  componentList: number;
+  deleteComponent(): void;
 }
 
 class GuidedConfig extends React.Component<
@@ -34,7 +35,6 @@ class GuidedConfig extends React.Component<
     this.state = {
       isOpen: false,
       componentList: [],
-
       value: "",
       paramName: ""
     };
@@ -91,8 +91,32 @@ class GuidedConfig extends React.Component<
   };
 
   renderDropdowns = () => {
-    const { componentList } = this.props;
-    return componentList.map(component => component);
+    const {
+      componentList,
+      deleteInput,
+      params,
+      inputChange,
+      userInput,
+      deleteComponent
+    } = this.props;
+
+    let i = 1;
+    let test: any[] = [];
+    while (i <= componentList) {
+      test = test.concat(
+        <SimpleDropdown
+          key={i}
+          params={params}
+          handleChange={inputChange}
+          id={i}
+          deleteComponent={deleteComponent}
+          deleteInput={deleteInput}
+          userInput={userInput}
+        />
+      );
+      i++;
+    }
+    return test;
   };
 
   render() {

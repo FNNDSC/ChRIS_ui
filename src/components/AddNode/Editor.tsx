@@ -8,6 +8,9 @@ interface EditorState {
 
 interface EditorProps {
   editorInput(input: {}): void;
+  editorState: {
+    [key: string]: string;
+  };
 }
 
 class Editor extends React.Component<EditorProps, EditorState> {
@@ -18,26 +21,45 @@ class Editor extends React.Component<EditorProps, EditorState> {
     };
   }
 
-  handleInputChange = (value: string) => {
-    const { editorInput } = this.props;
-    this.setState(
-      {
-        value
-      },
-      () => {
-        const tokenRegex = /(--(?<option>.+?)\s+(?<value>.(?:[^-].+?)?(?:(?=--)|$))?)+?/gm;
-        const tokens = [...matchAll(this.state.value, tokenRegex)];
-        let result: any = {};
+  componentDidMount() {
+    const { editorState } = this.props;
+    let result = "";
+    if (editorState) {
+      for (let inputString in editorState) {
+        const value = editorState[inputString];
+        result += `--${inputString} ${value}`;
+      }
+      this.setState({
+        value: result
+      });
+    }
+  }
 
-        for (const token of tokens) {
-          const [_, input, flag, value] = token;
-          result[flag] = value && value.trim();
-        }
-      
-        editorInput(result);
+  handleInputChange = (value: string) => {
+    this.setState(
+      prevState => ({
+        value
+      }),
+      () => {
+        this.handleRegex();
       }
     );
   };
+
+  handleRegex() {
+    const { value } = this.state;
+    const { editorInput } = this.props;
+    const tokenRegex = /(--(?<option>.+?)\s+(?<value>.(?:[^-].+?)?(?:(?=--)|$))?)+?/gm;
+    const tokens = [...matchAll(this.state.value, tokenRegex)];
+    let result: any = {};
+
+    for (const token of tokens) {
+      const [_, input, flag, value] = token;
+      result[flag] = value && value.trim();
+    }
+
+    editorInput(result);
+  }
 
   render() {
     const { value } = this.state;

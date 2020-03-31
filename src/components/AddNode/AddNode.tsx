@@ -66,6 +66,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
   componentDidUpdate(prevProps: AddNodeProps) {
     const { selected, nodes } = this.props;
+    const { userInput } = this.state;
 
     if (prevProps.selected !== selected || !_.isEqual(prevProps.nodes, nodes)) {
       this.handleFetchedData();
@@ -230,6 +231,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   render() {
     const { isOpen, data, userInput, editorState } = this.state;
     const { nodes, selected } = this.props;
+    console.log("Editor State", editorState);
 
     const screenOne = selected && nodes && (
       <ScreenOne
@@ -247,6 +249,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         onInputChange={this.inputChange}
         deleteInput={this.deleteInput}
         editorInput={this.inputChangeFromEditor}
+        editorState={editorState}
       />
     ) : (
       <LoadingSpinner />
