@@ -13,7 +13,6 @@ interface SimpleDropdownState {
   isOpen: boolean;
   value: string;
   flag: string;
-  test: string;
 }
 
 interface SimpleDropdownProps {
@@ -24,8 +23,13 @@ interface SimpleDropdownProps {
   dropdownItems?: any[];
   id: number;
   handleChange(id: number, paramName: string, value: string): void;
-  deleteComponent(id: number): void;
+  deleteComponent(): void;
   deleteInput(input: string): void;
+  userInput: {
+    [key: number]: {
+      [key: string]: string;
+    };
+  };
 }
 
 class SimpleDropdown extends React.Component<
@@ -37,8 +41,7 @@ class SimpleDropdown extends React.Component<
     this.state = {
       isOpen: false,
       value: "",
-      flag: "",
-      test: ""
+      flag: ""
     };
   }
   onToggle = (isOpen: boolean) => {
@@ -52,13 +55,21 @@ class SimpleDropdown extends React.Component<
     });
   };
 
+  componentDidMount() {
+    const { userInput, id } = this.props;
+    if (userInput[id]) {
+      const flag = Object.keys(userInput[id])[0];
+      const value = userInput[id][flag];
+      this.setState({
+        flag,
+        value
+      });
+    }
+  }
+
   handleClick = (event: any) => {
     event.persist();
     const { handleChange, id } = this.props;
-    const flag = event.target.value;
-    const value = this.state.value;
-
-    console.log(flag, value, event.target.name);
 
     this.setState(
       prevState => {
@@ -73,11 +84,11 @@ class SimpleDropdown extends React.Component<
   };
 
   deleteDropdown = () => {
-    const { id, deleteComponent, deleteInput } = this.props;
+    const { id, deleteInput, deleteComponent } = this.props;
     const { flag } = this.state;
 
     deleteInput(flag);
-    deleteComponent(id);
+    deleteComponent();
   };
 
   handleInputChange = (value: string) => {

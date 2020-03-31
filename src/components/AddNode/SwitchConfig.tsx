@@ -4,11 +4,16 @@ import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
 import { Switch } from "@patternfly/react-core";
 import SimpleDropdown from "./SimpleDropdown";
-
+import _ from "lodash";
 interface SwitchConfigState {
   isChecked: boolean;
   params: PluginParameter[];
-  componentList: any[];
+  componentList: number;
+  testInput: {
+    [key: number]: {
+      [key: string]: string;
+    };
+  };
 }
 
 interface SwitchConfigProps {
@@ -21,6 +26,9 @@ interface SwitchConfigProps {
   };
   editorInput(input: {}): void;
   deleteInput(input: string): void;
+  editorState: {
+    [key: string]: string;
+  };
 }
 
 class SwitchConfig extends Component<SwitchConfigProps, SwitchConfigState> {
@@ -29,7 +37,8 @@ class SwitchConfig extends Component<SwitchConfigProps, SwitchConfigState> {
     this.state = {
       params: [],
       isChecked: true,
-      componentList: []
+      componentList: 0,
+      testInput: {}
     };
   }
 
@@ -41,6 +50,12 @@ class SwitchConfig extends Component<SwitchConfigProps, SwitchConfigState> {
     if (prevProps.plugin.data.id !== this.props.plugin.data.id) {
       this.fetchParams();
     }
+  }
+
+  componentWillReceiveProps(nextProps: SwitchConfigProps) {
+    this.setState({
+      testInput: nextProps.userInput
+    });
   }
 
   async fetchParams() {
@@ -58,57 +73,33 @@ class SwitchConfig extends Component<SwitchConfigProps, SwitchConfigState> {
   handleChange = (isChecked: boolean) => {
     this.setState({ isChecked });
   };
-  deleteComponent = (id: number) => {
-    const { componentList } = this.state;
-
-    let component = componentList.filter((component, index) => {
-      return index !== id;
-    });
-
-    this.setState(
-      {
-        componentList: component
-      },
-      () => {
-        console.log(this.state.componentList);
-      }
-    );
-  };
 
   handleAddComponent = () => {
-    console.log("Inside Add");
-    const { componentList, params } = this.state;
-    const { deleteInput, onInputChange } = this.props;
-    if (componentList.length < params.length) {
-      const key = componentList.length;
+    const { componentList } = this.state;
 
-      this.setState({
-        componentList: [
-          ...componentList,
-          <SimpleDropdown
-            key={key}
-            params={params}
-            handleChange={onInputChange}
-            id={key}
-            deleteComponent={this.deleteComponent}
-            deleteInput={deleteInput}
-          />
-        ]
-      });
-    } else {
-      console.log("You cannot add any more input Change parameters");
-    }
+    this.setState({
+      componentList: componentList + 1
+    });
+  };
+
+  deleteComponent = () => {
+    const { componentList } = this.state;
+    this.setState({
+      componentList: componentList - 1
+    });
   };
 
   render() {
-    const { isChecked, params, componentList } = this.state;
+    const { isChecked, params, componentList, testInput } = this.state;
     const {
       onInputChange,
-      userInput,
+
       plugin,
       deleteInput,
-      editorInput
+      editorInput,
+      editorState
     } = this.props;
+
     return (
       <div className="configure-container">
         <div className="configure-options">
@@ -124,16 +115,17 @@ class SwitchConfig extends Component<SwitchConfigProps, SwitchConfigState> {
           />
           {isChecked ? (
             <GuidedConfig
-              userInput={userInput}
+              userInput={testInput}
               params={params}
               inputChange={onInputChange}
               plugin={plugin}
               deleteInput={deleteInput}
               handleAddComponent={this.handleAddComponent}
               componentList={componentList}
+              deleteComponent={this.deleteComponent}
             />
           ) : (
-            <Editor editorInput={editorInput} />
+            <Editor editorInput={editorInput} editorState={editorState} />
           )}
         </div>
       </div>
