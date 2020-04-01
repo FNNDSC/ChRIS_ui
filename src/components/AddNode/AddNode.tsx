@@ -115,7 +115,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       stepIdReached: 1,
       nodes: [],
       data: {},
-      userInput: {}
+      userInput: {},
+      editorState: {}
     });
   };
 
@@ -135,16 +136,31 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   handleSave = async () => {
     console.log("Saving and closing wizard");
 
-    const { userInput } = this.state;
+    const { userInput, editorState } = this.state;
     const { plugin } = this.state.data;
     const { selected } = this.props;
+
+    let result: {
+      [key: string]: string;
+    } = {};
+    for (let parameter in userInput) {
+      const object = userInput[parameter];
+      const flag = Object.keys(object)[0];
+      const value = object[flag];
+      result[flag] = value;
+    }
+
+    let nodeParamter = {
+      ...result,
+      ...editorState
+    };
 
     if (!plugin || !selected) {
       return;
     }
 
     let parameterInput = {
-      ...userInput,
+      ...nodeParamter,
       previous_id: `${selected.id}`
     };
 

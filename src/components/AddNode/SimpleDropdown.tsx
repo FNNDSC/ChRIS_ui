@@ -13,6 +13,7 @@ interface SimpleDropdownState {
   isOpen: boolean;
   value: string;
   flag: string;
+  placeholder: string;
 }
 
 interface SimpleDropdownProps {
@@ -41,7 +42,8 @@ class SimpleDropdown extends React.Component<
     this.state = {
       isOpen: false,
       value: "",
-      flag: ""
+      flag: "",
+      placeholder: ""
     };
   }
   onToggle = (isOpen: boolean) => {
@@ -74,7 +76,8 @@ class SimpleDropdown extends React.Component<
     this.setState(
       prevState => {
         return {
-          flag: event.target.value
+          flag: event.target.value,
+          placeholder: event.target.name
         };
       },
       () => {
@@ -104,7 +107,7 @@ class SimpleDropdown extends React.Component<
   };
 
   render() {
-    const { isOpen, value, flag } = this.state;
+    const { isOpen, value, flag, placeholder } = this.state;
     const { params } = this.props;
 
     if (!params) {
@@ -119,7 +122,7 @@ class SimpleDropdown extends React.Component<
           component="button"
           className="plugin-parameter"
           value={param.data.name}
-          name={param.data.name}
+          name={param.data.help}
         >
           {param.data.name}
         </DropdownItem>
@@ -148,6 +151,7 @@ class SimpleDropdown extends React.Component<
           aria-label="text"
           className="plugin-input"
           onChange={this.handleInputChange}
+          placeholder={placeholder}
           value={value}
         />
         <div className="close-icon">
