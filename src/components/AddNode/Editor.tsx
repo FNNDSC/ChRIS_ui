@@ -50,7 +50,6 @@ class Editor extends React.Component<EditorProps, EditorState> {
   };
 
   handleRegex() {
-    const { value } = this.state;
     const { editorInput } = this.props;
     const tokenRegex = /(--(?<option>.+?)\s+(?<value>.(?:[^-].+?)?(?:(?=--)|$))?)+?/gm;
     const tokens = [...matchAll(this.state.value, tokenRegex)];
