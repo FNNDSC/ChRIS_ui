@@ -3,12 +3,13 @@ import { Form, Label, TextInput, Button } from "@patternfly/react-core";
 import { PluginParameter } from "@fnndsc/chrisapi";
 import SimpleDropdown from "./SimpleDropdown";
 import { Plugin } from "@fnndsc/chrisapi";
+import _ from "lodash";
 
 interface GuidedConfigState {
   isOpen: boolean;
   componentList: any[];
   value: string;
-  paramName: string;
+  flag: string;
 }
 
 interface GuidedConfigProps {
@@ -19,6 +20,7 @@ interface GuidedConfigProps {
       [key: string]: string;
     };
   };
+
   plugin?: Plugin;
   deleteInput(input: string): void;
   handleAddComponent(): void;
@@ -36,9 +38,10 @@ class GuidedConfig extends React.Component<
       isOpen: false,
       componentList: [],
       value: "",
-      paramName: ""
+      flag: ""
     };
   }
+
 
   handleInputChange = (
     value: string,
@@ -48,29 +51,35 @@ class GuidedConfig extends React.Component<
     event.persist();
     const target = event.target as HTMLInputElement;
     const name = target.name;
+    const id = parseInt(target.id);
 
     this.setState(
       {
-        value,
-        paramName: name
+        flag: name,
+        value
       },
       () => {
-        //Required params have a default id of 0
-        const id = 0;
-        inputChange(id, this.state.paramName, this.state.value);
+        inputChange(id, this.state.flag, this.state.value);
       }
     );
   };
 
   renderRequiredParams = () => {
-    const { params } = this.props;
+    const { params, userInput } = this.props;
 
-    let count = 1;
     return params.map(param => {
       if (param.data.optional === false) {
-        count += 1;
+        let testValue = "";
+        if (!_.isEmpty(userInput)) {
+          const test = userInput[param.data.id];
+          if (test) {
+            let value = Object.keys(test)[0];
+            testValue = test[value];
+          }
+        }
+
         return (
-          <Form className="required-params" key={count}>
+          <Form className="required-params" key={param.data.id}>
             <Label className="required-label">{`${param.data.flag}:`}</Label>
             <TextInput
               aria-label="required-param"
@@ -78,6 +87,9 @@ class GuidedConfig extends React.Component<
               onChange={this.handleInputChange}
               name={param.data.name}
               className="required-param"
+              placeholder={param.data.help}
+              value={testValue || ""}
+              id={`${param.data.id}`}
             />
           </Form>
         );

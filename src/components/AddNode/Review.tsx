@@ -26,13 +26,13 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
     for (let object in userInput) {
       const flag = Object.keys(userInput[object])[0];
       const value = userInput[object][flag];
-      generatedCommand += `--${flag}  ${value}`;
+      generatedCommand += ` --${flag} ${value} `;
     }
   }
 
   if (editorState) {
     for (let i in editorState) {
-      generatedCommand += `  --${i}  ${editorState[i]}`;
+      generatedCommand += ` --${i} ${editorState[i]} `;
     }
   }
 

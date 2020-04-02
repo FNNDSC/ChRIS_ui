@@ -149,6 +149,13 @@
   }
 }
 
+.required-text {
+  font-weight: bold !important;
+  font-family: monospace;
+  font-size: 1.15rem !important;
+  letter-spacing: 0.08rem;
+}
+
 .plugin-config {
   display: flex;
   margin: 15px 0;
