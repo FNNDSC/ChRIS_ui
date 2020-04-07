@@ -1,12 +1,18 @@
 import React, { Component } from "react";
-import { TextArea } from "@patternfly/react-core";
+import { TextArea, Expandable } from "@patternfly/react-core";
 import matchAll from "string.prototype.matchall";
+import { PluginParameter, Plugin } from "@fnndsc/chrisapi";
+import { connect } from "react-redux";
+import { ApplicationState } from "../../store/root/applicationState";
 
 interface EditorState {
   value: string;
+  docsExpanded: boolean;
 }
 
 interface EditorProps {
+  plugin: Plugin;
+  params?: PluginParameter[];
   editorInput(input: {}): void;
   editorState: {
     [key: string]: string;
@@ -17,31 +23,41 @@ class Editor extends React.Component<EditorProps, EditorState> {
   constructor(props: EditorProps) {
     super(props);
     this.state = {
-      value: ""
+      value: "",
+      docsExpanded: true,
     };
   }
 
   componentDidMount() {
     const { editorState } = this.props;
+
     let result = "";
+
     if (editorState) {
       for (let inputString in editorState) {
         const value = editorState[inputString];
+
         if (value) {
           result += `--${inputString} ${value} `;
         }
       }
 
       this.setState({
-        value: result
+        value: result,
       });
     }
   }
 
+  handleDocsToggle = () => {
+    this.setState({
+      docsExpanded: !this.state.docsExpanded,
+    });
+  };
+
   handleInputChange = (value: string) => {
     this.setState(
-      prevState => ({
-        value
+      (prevState) => ({
+        value,
       }),
       () => {
         this.handleRegex();
@@ -65,17 +81,49 @@ class Editor extends React.Component<EditorProps, EditorState> {
 
   render() {
     const { value } = this.state;
+    const { params } = this.props;
     return (
-      <TextArea
-        type="text"
-        aria-label="text"
-        className="editor"
-        resizeOrientation="vertical"
-        onChange={this.handleInputChange}
-        value={value}
-      />
+      <div className="configure-container">
+        <div className="configure-options">
+          <h1 className="pf-c-title pf-m-2xl">
+            Configure MPC Volume Calculation Plugin
+          </h1>
+          <TextArea
+            type="text"
+            aria-label="text"
+            className="editor"
+            resizeOrientation="vertical"
+            onChange={this.handleInputChange}
+            value={value}
+          />
+          <Expandable
+            className="docs"
+            toggleText="Plugin configuration documentation:"
+            isExpanded={this.state.docsExpanded}
+            onToggle={this.handleDocsToggle}
+          >
+            {params &&
+              params
+                .filter((param) => param.data.ui_exposed)
+                .map((param) => {
+                  return (
+                    <div key={param.data.id} className="param-item">
+                      <b className="param-title">[--{param.data.name}]</b>
+                      {!param.data.optional && (
+                        <span className="required-star"> *</span>
+                      )}
+                      <div className="param-help">{param.data.help}</div>
+                    </div>
+                  );
+                })}
+          </Expandable>
+        </div>
+      </div>
     );
   }
 }
+const mapStateToProps = (state: ApplicationState) => ({
+  params: state.plugin.parameters,
+});
 
-export default Editor;
+export default connect(mapStateToProps, null)(Editor);

@@ -4,7 +4,7 @@ import {
   fork,
   put,
   takeEvery,
-  takeLatest
+  takeLatest,
 } from "redux-saga/effects";
 import { PluginActionTypes } from "./types";
 import ChrisModel, { IActionTypeParam } from "../../api/models/base.model";
@@ -12,7 +12,8 @@ import ChrisAPIClient from "../../api/chrisapiclient";
 import {
   getPluginDetailsSuccess,
   getPluginDescendantsSuccess,
-  getPluginFilesSuccess
+  getPluginFilesSuccess,
+  getParamsSuccess,
 } from "./actions";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 
@@ -36,8 +37,24 @@ function* handleGetPluginDetails(action: IActionTypeParam) {
   }
 }
 
+function* handleGetParams(action: IActionTypeParam) {
+  try {
+    const plugin = action.payload;
+
+    const paramList = yield plugin.getPluginParameters();
+    const params = paramList.getItems();
+    yield put(getParamsSuccess(params));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 function* watchGetPluginDetails() {
   yield takeEvery(PluginActionTypes.GET_PLUGIN_DETAILS, handleGetPluginDetails);
+}
+
+function* watchGetParams() {
+  yield takeEvery(PluginActionTypes.GET_PARAMS, handleGetParams);
 }
 
 // ------------------------------------------------------------------------
@@ -111,6 +128,7 @@ export function* pluginSaga() {
   yield all([
     fork(watchGetPluginDetails),
     fork(watchGetPluginDescendants),
-    fork(watchGetPluginFiles)
+    fork(watchGetPluginFiles),
+    fork(watchGetParams),
   ]);
 }
