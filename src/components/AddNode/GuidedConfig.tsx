@@ -1,19 +1,21 @@
 import React from "react";
 import { Form, Label, TextInput, Button } from "@patternfly/react-core";
-import { PluginParameter } from "@fnndsc/chrisapi";
+import { PluginParameter, Plugin } from "@fnndsc/chrisapi";
 import SimpleDropdown from "./SimpleDropdown";
-import { Plugin } from "@fnndsc/chrisapi";
+import { connect } from "react-redux";
+import { ApplicationState } from "../../store/root/applicationState";
 import _ from "lodash";
 
 interface GuidedConfigState {
   isOpen: boolean;
-  componentList: any[];
+  componentList: number;
   value: string;
   flag: string;
 }
 
-interface GuidedConfigProps {
-  params: PluginParameter[];
+export interface GuidedConfigProps {
+  plugin: Plugin;
+  params?: PluginParameter[];
   inputChange(id: number, paramName: string, value: string): void;
   userInput: {
     [key: number]: {
@@ -21,11 +23,7 @@ interface GuidedConfigProps {
     };
   };
 
-  plugin?: Plugin;
   deleteInput(input: string): void;
-  handleAddComponent(): void;
-  componentList: number;
-  deleteComponent(): void;
 }
 
 class GuidedConfig extends React.Component<
@@ -36,12 +34,18 @@ class GuidedConfig extends React.Component<
     super(props);
     this.state = {
       isOpen: false,
-      componentList: [],
+      componentList: 0,
       value: "",
-      flag: ""
+      flag: "",
     };
   }
 
+  deleteComponent = () => {
+    const { componentList } = this.state;
+    this.setState({
+      componentList: componentList - 1,
+    });
+  };
 
   handleInputChange = (
     value: string,
@@ -56,7 +60,7 @@ class GuidedConfig extends React.Component<
     this.setState(
       {
         flag: name,
-        value
+        value,
       },
       () => {
         inputChange(id, this.state.flag, this.state.value);
@@ -67,50 +71,50 @@ class GuidedConfig extends React.Component<
   renderRequiredParams = () => {
     const { params, userInput } = this.props;
 
-    return params.map(param => {
-      if (param.data.optional === false) {
-        let testValue = "";
-        if (!_.isEmpty(userInput)) {
-          const test = userInput[param.data.id];
-          if (test) {
-            let value = Object.keys(test)[0];
-            testValue = test[value];
+    return (
+      params &&
+      params.map((param) => {
+        if (param.data.optional === false) {
+          let testValue = "";
+          if (!_.isEmpty(userInput)) {
+            const test = userInput[param.data.id];
+            if (test) {
+              let value = Object.keys(test)[0];
+              testValue = test[value];
+            }
           }
-        }
 
-        return (
-          <Form className="required-params" key={param.data.id}>
-            <Label className="required-label">{`${param.data.flag}:`}</Label>
-            <TextInput
-              aria-label="required-param"
-              spellCheck={false}
-              onChange={this.handleInputChange}
-              name={param.data.name}
-              className="required-param"
-              placeholder={param.data.help}
-              value={testValue || ""}
-              id={`${param.data.id}`}
-            />
-          </Form>
-        );
-      }
-    });
+          return (
+            <Form className="required-params" key={param.data.id}>
+              <Label className="required-label">{`${param.data.flag}:`}</Label>
+              <TextInput
+                aria-label="required-param"
+                spellCheck={false}
+                onChange={this.handleInputChange}
+                name={param.data.name}
+                className="required-param"
+                placeholder={param.data.help}
+                value={testValue || ""}
+                id={`${param.data.id}`}
+              />
+            </Form>
+          );
+        }
+      })
+    );
   };
 
   addParam = () => {
-    const { handleAddComponent } = this.props;
-    handleAddComponent();
+    const { componentList } = this.state;
+
+    this.setState({
+      componentList: componentList + 1,
+    });
   };
 
   renderDropdowns = () => {
-    const {
-      componentList,
-      deleteInput,
-      params,
-      inputChange,
-      userInput,
-      deleteComponent
-    } = this.props;
+    const { componentList } = this.state;
+    const { userInput, deleteInput, inputChange, params } = this.props;
 
     let i = 1;
     let test: any[] = [];
@@ -121,7 +125,7 @@ class GuidedConfig extends React.Component<
           params={params}
           handleChange={inputChange}
           id={i}
-          deleteComponent={deleteComponent}
+          deleteComponent={this.deleteComponent}
           deleteInput={deleteInput}
           userInput={userInput}
         />
@@ -143,30 +147,41 @@ class GuidedConfig extends React.Component<
     }
 
     return (
-      <>
-        <Button onClick={this.addParam} variant="primary">
-          Add Configuration options
-        </Button>
+      <div className="configure-container">
+        <div className="configure-options">
+          <h1 className="pf-c-title pf-m-2xl">
+            Configure MPC Volume Calculation Plugin
+          </h1>
 
-        <div className="config-container">
-          <div className="generated-config">
-            {this.renderRequiredParams()}
-            {this.renderDropdowns()}
-          </div>
+          <Button
+            className="config-button"
+            onClick={this.addParam}
+            variant="primary"
+          >
+            Add Configuration options
+          </Button>
 
-          <div className="autogenerated-config">
-            <Label className="autogenerated-label">Generated Command:</Label>
-            <TextInput
-              className="autogenerated-text"
-              type="text"
-              aria-label="autogenerated-config"
-              value={generatedCommand}
-            />
+          <div className="config-container">
+            <div className="generated-config">{this.renderDropdowns()}</div>
+
+            <div className="autogenerated-config">
+              <Label className="autogenerated-label">Generated Command:</Label>
+              <TextInput
+                className="autogenerated-text"
+                type="text"
+                aria-label="autogenerated-config"
+                value={generatedCommand}
+              />
+            </div>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 }
 
-export default GuidedConfig;
+const mapStateToProps = (state: ApplicationState) => ({
+  params: state.plugin.parameters,
+});
+
+export default connect(mapStateToProps, null)(GuidedConfig);

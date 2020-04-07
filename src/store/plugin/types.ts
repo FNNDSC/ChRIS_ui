@@ -6,11 +6,12 @@
  */
 import keyMirror from "keymirror";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
+import { PluginParameter } from "@fnndsc/chrisapi";
 
 export interface IPluginState {
   selected?: IPluginItem;
   descendants?: IPluginItem[];
-  parameters?: any[];
+  parameters?: PluginParameter[];
   pluginFiles?: {};
 }
 
@@ -26,5 +27,7 @@ export const PluginActionTypes = keyMirror({
   GET_PLUGIN_DETAILS_SUCCESS: null,
   RESET_PLUGIN_STATE: null,
   GET_PLUGIN_STATUS: null,
-  ADD_FILES: null
+  ADD_FILES: null,
+  GET_PARAMS: null,
+  GET_PARAMS_SUCCESS: null,
 });

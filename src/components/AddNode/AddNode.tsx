@@ -1,11 +1,6 @@
 import React, { Component } from "react";
 import { Dispatch } from "redux";
-import {
-  Wizard,
-  WizardStepFunctionType,
-  AccordionToggle
-} from "@patternfly/react-core";
-
+import { Wizard, WizardStepFunctionType } from "@patternfly/react-core";
 import ScreenOne from "../../components/feed/AddNode/ScreenOne";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import { connect } from "react-redux";
@@ -14,12 +9,14 @@ import _ from "lodash";
 import { ApplicationState } from "../../store/root/applicationState";
 import "./addnode.scss";
 import LoadingSpinner from "../common/loading/LoadingSpinner";
-import SwitchConfig from "./SwitchConfig";
 import Review from "./Review";
 import { addNode } from "../../store/feed/actions";
 import { Collection } from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
 import { InfrastructureIcon } from "@patternfly/react-icons";
+import { getParams } from "../../store/plugin/actions";
+import GuidedConfig from "./GuidedConfig";
+import Editor from "./Editor";
 
 interface AddNodeState {
   isOpen: boolean;
@@ -45,6 +42,7 @@ interface AddNodeProps {
   selected?: IPluginItem;
   nodes?: IPluginItem[];
   addNode: (pluginItem: IPluginItem) => void;
+  getParams: (plugin: Plugin) => void;
 }
 
 class AddNode extends Component<AddNodeProps, AddNodeState> {
@@ -56,7 +54,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       nodes: [],
       data: {},
       userInput: {},
-      editorState: {}
+      editorState: {},
     };
   }
 
@@ -66,7 +64,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
   componentDidUpdate(prevProps: AddNodeProps) {
     const { selected, nodes } = this.props;
-    const { userInput } = this.state;
 
     if (prevProps.selected !== selected || !_.isEqual(prevProps.nodes, nodes)) {
       this.handleFetchedData();
@@ -82,8 +79,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       nodes,
       data: {
         ...this.state.data,
-        parent: selected
-      }
+        parent: selected,
+      },
     });
   }
 
@@ -94,17 +91,18 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     this.setState({
       userInput: {
         ...this.state.userInput,
-        [id]: input
-      }
+        [id]: input,
+      },
     });
   };
 
   inputChangeFromEditor = (input: {}) => {
+    console.log("Input", input);
     this.setState({
       editorState: {
         ...this.state.editorState,
-        ...input
-      }
+        ...input,
+      },
     });
   };
 
@@ -116,14 +114,14 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       nodes: [],
       data: {},
       userInput: {},
-      editorState: {}
+      editorState: {},
     });
   };
 
   toggleOpen = () => {
     this.setState(
       (state: AddNodeState) => ({
-        isOpen: !state.isOpen
+        isOpen: !state.isOpen,
       }),
       () => {
         if (this.state.isOpen === false) {
@@ -152,7 +150,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
     let nodeParamter = {
       ...result,
-      ...editorState
+      ...editorState,
     };
 
     if (!plugin || !selected) {
@@ -161,7 +159,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
     let parameterInput = {
       ...nodeParamter,
-      previous_id: `${selected.id}`
+      previous_id: `${selected.id}`,
     };
 
     const pluginInstances = await plugin.getPluginInstances();
@@ -184,7 +182,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       files: getLinkUrl("files"),
       parameters: getLinkUrl("parameters"),
       plugin: getLinkUrl("plugin"),
-      url: node.url
+      url: node.url,
     };
 
     this.props.addNode(nodeobj);
@@ -196,14 +194,14 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     id &&
       console.log(`current id: ${id}`) &&
       this.setState({
-        stepIdReached: stepIdReached < id ? (id as number) : stepIdReached
+        stepIdReached: stepIdReached < id ? (id as number) : stepIdReached,
       });
   };
 
   onBack: WizardStepFunctionType = ({ id, name }) => {
     this.setState({
       userInput: {},
-      editorState: {}
+      editorState: {},
     });
   };
 
@@ -212,9 +210,11 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   };
 
   handlePluginSelect = (plugin: Plugin) => {
-    this.setState(prevState => ({
-      data: { ...prevState.data, plugin }
+    const { getParams } = this.props;
+    this.setState((prevState) => ({
+      data: { ...prevState.data, plugin },
     }));
+    getParams(plugin);
   };
 
   deleteInput = (input: string) => {
@@ -240,7 +240,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       );
 
     this.setState({
-      userInput: newObject
+      userInput: newObject,
     });
   };
 
@@ -257,14 +257,22 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       />
     );
 
-    const switchConfig = data.plugin ? (
-      <SwitchConfig
-        userInput={userInput}
-        plugin={data.plugin}
-        onInputChange={this.inputChange}
+    const form = data.plugin ? (
+      <GuidedConfig
+        inputChange={this.inputChange}
         deleteInput={this.deleteInput}
-        editorInput={this.inputChangeFromEditor}
+        plugin={data.plugin}
+        userInput={userInput}
+      />
+    ) : (
+      <LoadingSpinner />
+    );
+
+    const editor = data.plugin ? (
+      <Editor
+        plugin={data.plugin}
         editorState={editorState}
+        editorInput={this.inputChangeFromEditor}
       />
     ) : (
       <LoadingSpinner />
@@ -281,19 +289,24 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         id: 1,
         name: "Plugin Selection",
         component: screenOne,
-        enableNext: !!data.plugin
+        enableNext: !!data.plugin,
       },
       {
         id: 2,
-        name: "Plugin Configuration",
-        component: switchConfig
+        name: "Plugin Configuration-Form",
+        component: form,
       },
       {
         id: 3,
+        name: "Plugin Configuration-Editor",
+        component: editor,
+      },
+      {
+        id: 4,
         name: "Review",
         component: review,
-        nextButtonText: "Add Node"
-      }
+        nextButtonText: "Add Node",
+      },
     ];
 
     return (
@@ -322,11 +335,12 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
 const mapStateToProps = (state: ApplicationState) => ({
   selected: state.plugin.selected,
-  nodes: state.feed.items
+  nodes: state.feed.items,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  addNode: (pluginItem: IPluginItem) => dispatch(addNode(pluginItem))
+  getParams: (plugin: Plugin) => dispatch(getParams(plugin)),
+  addNode: (pluginItem: IPluginItem) => dispatch(addNode(pluginItem)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AddNode);
