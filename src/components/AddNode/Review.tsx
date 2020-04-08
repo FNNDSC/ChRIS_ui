@@ -19,6 +19,7 @@ interface ReviewProps {
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
   const { data, userInput, editorState } = props;
+  console.log("Editor State", editorState);
 
   let generatedCommand = "";
 
