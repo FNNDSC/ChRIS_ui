@@ -199,12 +199,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       });
   };
 
-  onBack: WizardStepFunctionType = ({ id, name }) => {
-    this.setState({
-      userInput: {},
-      editorState: {},
-    });
-  };
+  onBack: WizardStepFunctionType = ({ id, name }) => {};
 
   onGoToStep: WizardStepFunctionType = ({ id, name }) => {
     console.log(`current id : ${id}`);

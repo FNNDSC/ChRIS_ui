@@ -3,7 +3,7 @@ import {
   Dropdown,
   DropdownToggle,
   DropdownItem,
-  TextInput
+  TextInput,
 } from "@patternfly/react-core";
 import { CaretDownIcon } from "@patternfly/react-icons";
 import { PluginParameter } from "@fnndsc/chrisapi";
@@ -24,8 +24,8 @@ interface SimpleDropdownProps {
   dropdownItems?: any[];
   id: number;
   handleChange(id: number, paramName: string, value: string): void;
-  deleteComponent(id:number): void;
-  deleteInput(id:number): void;
+  deleteComponent(id: number): void;
+  deleteInput(id: number): void;
   userInput: {
     [key: number]: {
       [key: string]: string;
@@ -43,30 +43,23 @@ class SimpleDropdown extends React.Component<
       isOpen: false,
       value: "",
       flag: "",
-      placeholder: ""
+      placeholder: "",
     };
   }
   onToggle = (isOpen: boolean) => {
     this.setState({
-      isOpen
+      isOpen,
     });
   };
   onSelect = (event?: React.SyntheticEvent<HTMLDivElement>): void => {
     this.setState({
-      isOpen: !this.state.isOpen
+      isOpen: !this.state.isOpen,
     });
   };
 
   componentDidMount() {
     const { userInput, id } = this.props;
-    if (userInput[id]) {
-      const flag = Object.keys(userInput[id])[0];
-      const value = userInput[id][flag];
-      this.setState({
-        flag,
-        value
-      });
-    }
+    console.log("UserInput in Didmount", userInput, id);
   }
 
   handleClick = (event: any) => {
@@ -74,10 +67,10 @@ class SimpleDropdown extends React.Component<
     const { handleChange, id } = this.props;
 
     this.setState(
-      prevState => {
+      (prevState) => {
         return {
           flag: event.target.value,
-          placeholder: event.target.name
+          placeholder: event.target.name,
         };
       },
       () => {
@@ -98,7 +91,7 @@ class SimpleDropdown extends React.Component<
     const { handleChange, id } = this.props;
     this.setState(
       {
-        value
+        value,
       },
       () => {
         handleChange(id, this.state.flag, this.state.value);
@@ -113,7 +106,7 @@ class SimpleDropdown extends React.Component<
     if (!params) {
       return;
     }
-    const dropdownItems = params.map(param => {
+    const dropdownItems = params.map((param) => {
       const id = param.data.id;
       return (
         <DropdownItem

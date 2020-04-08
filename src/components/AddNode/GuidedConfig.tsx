@@ -11,6 +11,8 @@ interface GuidedConfigState {
   componentList: any[];
   value: string;
   flag: string;
+  defaultDropdownFlag: "";
+  defaultDropdownValue: "";
 }
 
 export interface GuidedConfigProps {
@@ -22,7 +24,6 @@ export interface GuidedConfigProps {
       [key: string]: string;
     };
   };
-
   deleteInput(input: number): void;
 }
 
@@ -37,8 +38,38 @@ class GuidedConfig extends React.Component<
       componentList: [],
       value: "",
       flag: "",
+      defaultDropdownFlag: "",
+      defaultDropdownValue: "",
     };
   }
+
+  componentDidMount() {
+    console.log("Guided Config mount", console.log(this.props.userInput));
+    this.setDropdownDefaults(this.props.userInput);
+  }
+
+  componentDidUpdate(prevProps: GuidedConfigProps) {
+    if (!_.isEqual(prevProps.userInput, this.props.userInput)) {
+      this.setDropdownDefaults(this.props.userInput);
+    }
+  }
+
+  setDropdownDefaults = (userInput: {
+    [key: number]: {
+      [key: string]: string;
+    };
+  }) => {
+    if (this.state.componentList.length >= 1) {
+      return;
+    }
+    let defaultComponentList = Object.entries(userInput).map(([key, value]) => {
+      return key;
+    });
+
+    this.setState({
+      componentList: defaultComponentList,
+    });
+  };
 
   deleteComponent = (id: number) => {
     const { componentList } = this.state;
