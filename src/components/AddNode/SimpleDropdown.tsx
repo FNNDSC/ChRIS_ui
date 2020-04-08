@@ -24,8 +24,8 @@ interface SimpleDropdownProps {
   dropdownItems?: any[];
   id: number;
   handleChange(id: number, paramName: string, value: string): void;
-  deleteComponent(): void;
-  deleteInput(input: string): void;
+  deleteComponent(id:number): void;
+  deleteInput(id:number): void;
   userInput: {
     [key: number]: {
       [key: string]: string;
@@ -90,8 +90,8 @@ class SimpleDropdown extends React.Component<
     const { id, deleteInput, deleteComponent } = this.props;
     const { flag } = this.state;
 
-    deleteInput(flag);
-    deleteComponent();
+    deleteInput(id);
+    deleteComponent(id);
   };
 
   handleInputChange = (value: string) => {

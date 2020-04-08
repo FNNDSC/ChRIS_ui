@@ -4,6 +4,7 @@ import matchAll from "string.prototype.matchall";
 import { PluginParameter, Plugin } from "@fnndsc/chrisapi";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../store/root/applicationState";
+import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 interface EditorState {
   value: string;
@@ -19,7 +20,7 @@ interface EditorProps {
   };
 }
 
-class Editor extends React.Component<EditorProps, EditorState> {
+class Editor extends Component<EditorProps, EditorState> {
   constructor(props: EditorProps) {
     super(props);
     this.state = {
@@ -75,6 +76,7 @@ class Editor extends React.Component<EditorProps, EditorState> {
       const [_, input, flag, value] = token;
       result[flag] = value && value.trim();
     }
+    console.log("Result", result);
 
     editorInput(result);
   }
@@ -95,7 +97,17 @@ class Editor extends React.Component<EditorProps, EditorState> {
             resizeOrientation="vertical"
             onChange={this.handleInputChange}
             value={value}
+            spellCheck={false}
           />
+          <div className="errors">
+            <div>
+              <ExclamationTriangleIcon />
+              <span className="error-message">
+                You will loose your changes if you go back.
+              </span>
+            </div>
+          </div>
+
           <Expandable
             className="docs"
             toggleText="Plugin configuration documentation:"

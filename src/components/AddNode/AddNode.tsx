@@ -20,14 +20,12 @@ import Editor from "./Editor";
 
 interface AddNodeState {
   isOpen: boolean;
-
   userInput: {
     [key: number]: {
       [key: string]: string;
     };
   };
   stepIdReached: number;
-
   nodes?: IPluginItem[];
   data: {
     plugin?: Plugin;
@@ -97,13 +95,12 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   };
 
   inputChangeFromEditor = (input: {}) => {
-    console.log("Input", input);
-    this.setState({
-      editorState: {
-        ...this.state.editorState,
-        ...input,
+    this.setState(
+      {
+        editorState: input,
       },
-    });
+      () => {}
+    );
   };
 
   resetState = () => {
@@ -148,10 +145,14 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       result[flag] = value;
     }
 
+    console.log("EditorState", editorState);
+
     let nodeParamter = {
       ...result,
       ...editorState,
     };
+
+    console.log("Node Param", nodeParamter);
 
     if (!plugin || !selected) {
       return;
@@ -217,12 +218,11 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     getParams(plugin);
   };
 
-  deleteInput = (input: string) => {
+  deleteInput = (input: number) => {
     const { userInput } = this.state;
     let newObject = Object.entries(userInput)
       .filter(([key, value]) => {
-        let testvalue = Object.keys(value)[0];
-        return testvalue !== input;
+        return parseInt(key) !== input;
       })
       .reduce(
         (
@@ -256,7 +256,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         handlePluginSelect={this.handlePluginSelect}
       />
     );
-
     const form = data.plugin ? (
       <GuidedConfig
         inputChange={this.inputChange}
