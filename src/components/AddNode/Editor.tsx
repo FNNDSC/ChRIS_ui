@@ -4,7 +4,7 @@ import matchAll from "string.prototype.matchall";
 import { PluginParameter, Plugin } from "@fnndsc/chrisapi";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../store/root/applicationState";
-import { ExclamationTriangleIcon } from "@patternfly/react-icons";
+import _ from "lodash";
 
 interface EditorState {
   value: string;
@@ -14,9 +14,22 @@ interface EditorState {
 interface EditorProps {
   plugin: Plugin;
   params?: PluginParameter[];
-  editorInput(input: {}): void;
-  editorState: {
-    [key: string]: string;
+  editorInput(
+    id: number,
+    paramName: string,
+    value: string,
+    required: boolean
+  ): void;
+
+  dropdownInput: {
+    [key: number]: {
+      [key: string]: string;
+    };
+  };
+  requiredInput: {
+    [key: number]: {
+      [key: string]: string;
+    };
   };
 }
 
@@ -30,13 +43,30 @@ class Editor extends Component<EditorProps, EditorState> {
   }
 
   componentDidMount() {
-    const { editorState } = this.props;
+    const { dropdownInput, requiredInput } = this.props;
+    console.log("DropdownInput,requiredInput", dropdownInput, requiredInput);
+
+    let test = {
+      ...dropdownInput,
+      ...requiredInput,
+    };
+    let test1: { [key: string]: string } = {};
+
+    for (let object in test) {
+      const flag = Object.keys(test[object])[0];
+      const value = test[object][flag];
+      test1[flag] = value;
+    }
+
+    let finalTest = {
+      ...test1,
+    };
 
     let result = "";
 
-    if (editorState) {
-      for (let inputString in editorState) {
-        const value = editorState[inputString];
+    if (finalTest) {
+      for (let inputString in finalTest) {
+        const value = finalTest[inputString];
 
         if (value) {
           result += `--${inputString} ${value} `;
@@ -67,17 +97,30 @@ class Editor extends Component<EditorProps, EditorState> {
   };
 
   handleRegex() {
-    const { editorInput } = this.props;
+    const { editorInput, params, dropdownInput, requiredInput } = this.props;
+    let test = { ...dropdownInput, ...requiredInput };
+    let keys = Object.keys(test).map((id) => {
+      return id;
+    });
+
+    let requiredParams =
+      params &&
+      params.map((param) => {
+        if (param.data.optional === false) return param.data.name;
+      });
+
     const tokenRegex = /(--(?<option>.+?)\s+(?<value>.(?:[^-].+?)?(?:(?=--)|$))?)+?/gm;
     const tokens = [...matchAll(this.state.value, tokenRegex)];
-    let result: any = {};
 
     for (const token of tokens) {
-      const [_, input, flag, value] = token;
-      result[flag] = value && value.trim();
+      let id = 1;
+      const [_, input, flag, editorValue] = token;
+      if (requiredParams && requiredParams.includes(flag)) {
+        editorInput(id, flag, editorValue, true);
+      } else {
+        editorInput(id, flag, editorValue, false);
+      }
     }
-
-    editorInput(result);
   }
 
   render() {
@@ -98,15 +141,6 @@ class Editor extends Component<EditorProps, EditorState> {
             value={value}
             spellCheck={false}
           />
-          <div className="errors">
-            <div>
-              <ExclamationTriangleIcon />
-              <span className="error-message">
-                If you choose to type in the Editor, any changes in the form
-                will be lost.
-              </span>
-            </div>
-          </div>
 
           <Expandable
             className="docs"

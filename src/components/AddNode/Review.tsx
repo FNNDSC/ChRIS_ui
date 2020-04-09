@@ -13,9 +13,7 @@ interface ReviewProps {
       [key: string]: string;
     };
   };
-  editorState: {
-    [key: string]: string;
-  };
+
   requiredInput: {
     [key: number]: {
       [key: string]: string;
@@ -24,7 +22,7 @@ interface ReviewProps {
 }
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
-  const { data, dropdownInput, requiredInput, editorState } = props;
+  const { data, dropdownInput, requiredInput } = props;
 
   let generatedCommand = "";
 
@@ -41,11 +39,6 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
       const flag = Object.keys(requiredInput[object])[0];
       const value = requiredInput[object][flag];
       generatedCommand += ` --${flag} ${value} `;
-    }
-  }
-  if (editorState) {
-    for (let i in editorState) {
-      generatedCommand += ` --${i} ${editorState[i]} `;
     }
   }
 

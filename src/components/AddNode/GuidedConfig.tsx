@@ -6,6 +6,7 @@ import { connect } from "react-redux";
 import { ApplicationState } from "../../store/root/applicationState";
 import _ from "lodash";
 
+
 interface GuidedConfigState {
   isOpen: boolean;
   componentList: any[];
@@ -56,6 +57,8 @@ class GuidedConfig extends React.Component<
   }
 
   componentDidMount() {
+    const { dropdownInput, requiredInput } = this.props;
+    console.log("Test", dropdownInput, requiredInput);
     this.setDropdownDefaults(this.props.dropdownInput);
   }
 
