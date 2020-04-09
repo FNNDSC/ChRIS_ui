@@ -20,7 +20,12 @@ import Editor from "./Editor";
 
 interface AddNodeState {
   isOpen: boolean;
-  userInput: {
+  dropdownInput: {
+    [key: number]: {
+      [key: string]: string;
+    };
+  };
+  requiredInput: {
     [key: number]: {
       [key: string]: string;
     };
@@ -51,7 +56,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       stepIdReached: 1,
       nodes: [],
       data: {},
-      userInput: {},
+      requiredInput: {},
+      dropdownInput: {},
       editorState: {},
     };
   }
@@ -82,35 +88,50 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     });
   }
 
-  inputChange = (id: number, paramName: string, value: string) => {
+  inputChange = (
+    id: number,
+    paramName: string,
+    value: string,
+    required = false
+  ) => {
     const input: { [key: string]: string } = {};
     input[paramName] = value;
 
-    this.setState({
-      userInput: {
-        ...this.state.userInput,
-        [id]: input,
-      },
-    });
+    if (required === true) {
+      this.setState({
+        editorState: {},
+        requiredInput: {
+          ...this.state.requiredInput,
+          [id]: input,
+        },
+      });
+    } else {
+      this.setState({
+        editorState: {},
+        dropdownInput: {
+          ...this.state.dropdownInput,
+          [id]: input,
+        },
+      });
+    }
   };
 
   inputChangeFromEditor = (input: {}) => {
-    this.setState(
-      {
-        editorState: input,
-      },
-      () => {}
-    );
+    this.setState({
+      editorState: input,
+      dropdownInput: {},
+      requiredInput: {},
+    });
   };
 
   resetState = () => {
-    console.log("Reset state called");
     this.setState({
       isOpen: false,
       stepIdReached: 1,
       nodes: [],
       data: {},
-      userInput: {},
+      dropdownInput: {},
+      requiredInput: {},
       editorState: {},
     });
   };
@@ -131,28 +152,36 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   handleSave = async () => {
     console.log("Saving and closing wizard");
 
-    const { userInput, editorState } = this.state;
+    const { dropdownInput, editorState, requiredInput } = this.state;
     const { plugin } = this.state.data;
     const { selected } = this.props;
 
     let result: {
       [key: string]: string;
     } = {};
-    for (let parameter in userInput) {
-      const object = userInput[parameter];
-      const flag = Object.keys(object)[0];
-      const value = object[flag];
-      result[flag] = value;
+
+    if (dropdownInput) {
+      for (let parameter in dropdownInput) {
+        const object = dropdownInput[parameter];
+        const flag = Object.keys(object)[0];
+        const value = object[flag];
+        result[flag] = value;
+      }
     }
 
-    console.log("EditorState", editorState);
+    if (requiredInput) {
+      for (let parameter in requiredInput) {
+        const object = requiredInput[parameter];
+        const flag = Object.keys(object)[0];
+        const value = object[flag];
+        result[flag] = value;
+      }
+    }
 
     let nodeParamter = {
       ...result,
       ...editorState,
     };
-
-    console.log("Node Param", nodeParamter);
 
     if (!plugin || !selected) {
       return;
@@ -199,12 +228,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       });
   };
 
-  onBack: WizardStepFunctionType = ({ id, name }) => {};
-
-  onGoToStep: WizardStepFunctionType = ({ id, name }) => {
-    console.log(`current id : ${id}`);
-  };
-
   handlePluginSelect = (plugin: Plugin) => {
     const { getParams } = this.props;
     this.setState((prevState) => ({
@@ -214,8 +237,9 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   };
 
   deleteInput = (input: number) => {
-    const { userInput } = this.state;
-    let newObject = Object.entries(userInput)
+    const { dropdownInput } = this.state;
+
+    let newObject = Object.entries(dropdownInput)
       .filter(([key, value]) => {
         return parseInt(key) !== input;
       })
@@ -235,12 +259,18 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       );
 
     this.setState({
-      userInput: newObject,
+      dropdownInput: newObject,
     });
   };
 
   render() {
-    const { isOpen, data, userInput, editorState } = this.state;
+    const {
+      isOpen,
+      data,
+      dropdownInput,
+      editorState,
+      requiredInput,
+    } = this.state;
     const { nodes, selected } = this.props;
 
     const screenOne = selected && nodes && (
@@ -256,7 +286,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         inputChange={this.inputChange}
         deleteInput={this.deleteInput}
         plugin={data.plugin}
-        userInput={userInput}
+        dropdownInput={dropdownInput}
+        requiredInput={requiredInput}
       />
     ) : (
       <LoadingSpinner />
@@ -273,7 +304,12 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     );
 
     const review = data.plugin ? (
-      <Review data={data} userInput={userInput} editorState={editorState} />
+      <Review
+        data={data}
+        dropdownInput={dropdownInput}
+        requiredInput={requiredInput}
+        editorState={editorState}
+      />
     ) : (
       <LoadingSpinner />
     );
@@ -318,8 +354,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
             onSave={this.handleSave}
             steps={steps}
             onNext={this.onNext}
-            onBack={this.onBack}
-            onGoToStep={this.onGoToStep}
           />
         )}
       </React.Fragment>
