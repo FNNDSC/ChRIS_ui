@@ -134,6 +134,22 @@
     min-width: 30%;
   }
 
+  .required-design {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .required-star {
+    color: #c9190b;
+    font-weight: 900;
+  }
+
+  .required-info {
+    background-color: #fff;
+    color: #72767b;
+    margin-top: -5px;
+  }
+
   .required-params {
     margin: 20px 0;
     display: flex;
@@ -200,10 +216,10 @@
   padding-left: 5px;
   font-size: 16px;
   .error-message {
-    color: #783e02 !important;
+    color: #c9190b !important;
   }
   svg {
-    color: #ec7909;
+    color: #c9190b;
     margin-right: 7px;
   }
   margin-top: 15px;

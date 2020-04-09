@@ -76,7 +76,6 @@ class Editor extends Component<EditorProps, EditorState> {
       const [_, input, flag, value] = token;
       result[flag] = value && value.trim();
     }
-    console.log("Result", result);
 
     editorInput(result);
   }
@@ -103,7 +102,8 @@ class Editor extends Component<EditorProps, EditorState> {
             <div>
               <ExclamationTriangleIcon />
               <span className="error-message">
-                You will loose your changes if you go back.
+                If you choose to type in the Editor, any changes in the form
+                will be lost.
               </span>
             </div>
           </div>

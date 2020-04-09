@@ -23,10 +23,15 @@ interface SimpleDropdownProps {
   isOpen?: boolean;
   dropdownItems?: any[];
   id: number;
-  handleChange(id: number, paramName: string, value: string): void;
+  handleChange(
+    id: number,
+    paramName: string,
+    value: string,
+    required: boolean
+  ): void;
   deleteComponent(id: number): void;
   deleteInput(id: number): void;
-  userInput: {
+  dropdownInput: {
     [key: number]: {
       [key: string]: string;
     };
@@ -58,8 +63,16 @@ class SimpleDropdown extends React.Component<
   };
 
   componentDidMount() {
-    const { userInput, id } = this.props;
-    console.log("UserInput in Didmount", userInput, id);
+    const { dropdownInput, id } = this.props;
+
+    if (id in dropdownInput) {
+      const flag = Object.keys(dropdownInput[id])[0];
+      const value = dropdownInput[id][flag];
+      this.setState({
+        flag,
+        value,
+      });
+    }
   }
 
   handleClick = (event: any) => {
@@ -74,14 +87,13 @@ class SimpleDropdown extends React.Component<
         };
       },
       () => {
-        handleChange(id, this.state.flag, this.state.value);
+        handleChange(id, this.state.flag, this.state.value, false);
       }
     );
   };
 
   deleteDropdown = () => {
     const { id, deleteInput, deleteComponent } = this.props;
-    const { flag } = this.state;
 
     deleteInput(id);
     deleteComponent(id);
@@ -94,7 +106,7 @@ class SimpleDropdown extends React.Component<
         value,
       },
       () => {
-        handleChange(id, this.state.flag, this.state.value);
+        handleChange(id, this.state.flag, this.state.value, false);
       }
     );
   };

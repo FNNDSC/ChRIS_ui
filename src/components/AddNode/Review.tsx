@@ -1,13 +1,14 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Grid, GridItem } from "@patternfly/react-core";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import { Plugin } from "@fnndsc/chrisapi";
+import _ from "lodash";
 interface ReviewProps {
   data: {
     plugin?: Plugin;
     parent?: IPluginItem;
   };
-  userInput: {
+  dropdownInput: {
     [key: number]: {
       [key: string]: string;
     };
@@ -15,22 +16,33 @@ interface ReviewProps {
   editorState: {
     [key: string]: string;
   };
+  requiredInput: {
+    [key: number]: {
+      [key: string]: string;
+    };
+  };
 }
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
-  const { data, userInput, editorState } = props;
-  console.log("Editor State", editorState);
+  const { data, dropdownInput, requiredInput, editorState } = props;
 
   let generatedCommand = "";
 
-  if (userInput) {
-    for (let object in userInput) {
-      const flag = Object.keys(userInput[object])[0];
-      const value = userInput[object][flag];
+  if (dropdownInput) {
+    for (let object in dropdownInput) {
+      const flag = Object.keys(dropdownInput[object])[0];
+      const value = dropdownInput[object][flag];
       generatedCommand += ` --${flag} ${value} `;
     }
   }
 
+  if (requiredInput) {
+    for (let object in requiredInput) {
+      const flag = Object.keys(requiredInput[object])[0];
+      const value = requiredInput[object][flag];
+      generatedCommand += ` --${flag} ${value} `;
+    }
+  }
   if (editorState) {
     for (let i in editorState) {
       generatedCommand += ` --${i} ${editorState[i]} `;
