@@ -10,7 +10,7 @@ import {
   FolderCloseIcon,
   FolderOpenIcon,
   FileIcon,
-  CloseIcon
+  CloseIcon,
 } from "@patternfly/react-icons";
 import { Checkbox, Split, SplitItem } from "@patternfly/react-core";
 
@@ -30,7 +30,7 @@ function getEmptyTree() {
   return {
     name: "ChRIS Files",
     path: "/",
-    children: []
+    children: [],
   };
 }
 
@@ -65,7 +65,7 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
       filter: "",
       initialTreeLoaded: false,
       initialTree: getEmptyTree(),
-      visibleTree: getEmptyTree()
+      visibleTree: getEmptyTree(),
     };
 
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
@@ -114,17 +114,14 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
     }
 
     const testFiles = await Promise.all(
-      uploadedFiles.map(file => {
+      uploadedFiles.map((file) => {
         const fileData = (file as UploadedFile).data;
 
-        const path = fileData.fname
-          .split("/")
-          .slice(0, -1)
-          .join("/");
+        const path = fileData.fname.split("/").slice(0, -1).join("/");
 
         return {
           path,
-          id: uuid()
+          id: uuid(),
         };
       })
     );
@@ -141,7 +138,7 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
     }
 
     return Promise.all(
-      feeds.map(async feed => {
+      feeds.map(async (feed) => {
         const pluginInstances = await (
           await ChrisAPIClient.getClient().getFeed(feed.id as number)
         ).getPluginInstances();
@@ -151,7 +148,7 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
         let root: Tree = {
           id: feed.id as number,
           name: `${feed.creator_username}/feed_${feed.id}`,
-          children: []
+          children: [],
         };
 
         const test: Tree[] = this.createRecursiveTree(pluginInstanceList);
@@ -160,9 +157,9 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
         const tree = [root];
         const flattenedTree = flattenMyTree(tree); // js utility
 
-        const feedFiles = flattenedTree.map(tree => {
+        const feedFiles = flattenedTree.map((tree) => {
           return {
-            path: tree.pathname
+            path: tree.pathname,
           };
         });
 
@@ -175,20 +172,20 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
     let hashTable = Object.create(null);
 
     let pluginInstances = arr
-      .map(pluginInstance => ({
+      .map((pluginInstance) => ({
         id: pluginInstance.data.id,
         parentId: pluginInstance.data.previous_id,
-        name: `${pluginInstance.data.plugin_name}_${pluginInstance.data.id}`
+        name: `${pluginInstance.data.plugin_name}_${pluginInstance.data.id}`,
       }))
       .sort((a, b) => a.id - b.id);
 
-    pluginInstances.forEach(instance => {
+    pluginInstances.forEach((instance) => {
       hashTable[instance.id] = { ...instance, children: [] };
     });
 
     let dataTree: Tree[] = [];
 
-    pluginInstances.forEach(instance => {
+    pluginInstances.forEach((instance) => {
       if (instance.parentId)
         hashTable[instance.parentId].children.push(hashTable[instance.id]);
       else dataTree.push(hashTable[instance.id]);
@@ -202,7 +199,7 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
       this.setState({
         initialTreeLoaded: true,
         initialTree: tree,
-        visibleTree: tree
+        visibleTree: tree,
       });
     }
   }
@@ -256,7 +253,7 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
             path: upload_path,
             children: [],
             id: uuid(),
-            collapsed: true
+            collapsed: true,
           };
           currentLevel.push(newPart);
           currentLevel = newPart.children;
@@ -323,8 +320,8 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
         visibleTree: {
           name: "ChRIS Files",
           path: "/",
-          children: visibleTopLevelChildren
-        }
+          children: visibleTopLevelChildren,
+        },
       });
     }
   }
@@ -341,7 +338,7 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
           const folder = {
             name: child.name,
             path: child.path,
-            children: folderShownChildren
+            children: folderShownChildren,
           };
           shownChildren.push(folder);
           continue; // do not re-evaluate folder once it's shown
@@ -400,12 +397,12 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
     let isSelected;
     if (isFolder) {
       // there can never be multiple folders with the same path, and folders don't have ids
-      isSelected = !!files.find(f => {
+      isSelected = !!files.find((f) => {
         return f.name === node.name;
       });
     } else {
       // but there can be multiple files with the same path
-      isSelected = !!files.find(f => f.id === node.id);
+      isSelected = !!files.find((f) => f.id === node.id);
     }
     const icon = isFolder ? (
       node.collapsed ? (
@@ -422,7 +419,7 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
           isChecked={isSelected}
           id={`check-${node.path}`}
           aria-label=""
-          onChange={isChecked => this.handleCheckboxChange(isChecked, node)}
+          onChange={(isChecked) => this.handleCheckboxChange(isChecked, node)}
         />
         {icon}
         {this.generateFileName(node)}
@@ -434,7 +431,7 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
     const { files, handleFileRemove } = this.props;
     const { initialTreeLoaded, visibleTree } = this.state;
 
-    const fileList = files.map(file => {
+    const fileList = files.map((file) => {
       return (
         <div className="file-preview" key={file.id}>
           {file.children ? <FolderCloseIcon /> : <FileIcon />}
@@ -484,11 +481,11 @@ class ChrisFileSelect extends React.Component<AllProps, ChrisFileSelectState> {
 
 const mapStateToProps = ({ feed }: ApplicationState) => ({
   feeds: feed.feeds,
-  uploadedFiles: feed.uploadedFiles
+  uploadedFiles: feed.uploadedFiles,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getUploadedFiles: () => dispatch(getUploadedFiles())
+  getUploadedFiles: () => dispatch(getUploadedFiles()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChrisFileSelect);

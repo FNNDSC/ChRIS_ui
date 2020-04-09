@@ -36,9 +36,6 @@ interface AddNodeState {
     plugin?: Plugin;
     parent?: IPluginItem;
   };
-  editorState: {
-    [key: string]: string;
-  };
 }
 
 interface AddNodeProps {
@@ -58,7 +55,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       data: {},
       requiredInput: {},
       dropdownInput: {},
-      editorState: {},
     };
   }
 
@@ -99,7 +95,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
     if (required === true) {
       this.setState({
-        editorState: {},
         requiredInput: {
           ...this.state.requiredInput,
           [id]: input,
@@ -107,7 +102,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       });
     } else {
       this.setState({
-        editorState: {},
         dropdownInput: {
           ...this.state.dropdownInput,
           [id]: input,
@@ -116,12 +110,30 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     }
   };
 
-  inputChangeFromEditor = (input: {}) => {
-    this.setState({
-      editorState: input,
-      dropdownInput: {},
-      requiredInput: {},
-    });
+  inputChangeFromEditor = (
+    id: number,
+    paramName: string,
+    value: string,
+    required = false
+  ) => {
+    const input: { [key: string]: string } = {};
+    input[paramName] = value;
+
+    if (required === true) {
+      this.setState({
+        requiredInput: {
+          ...this.state.requiredInput,
+          [id]: input,
+        },
+      });
+    } else {
+      this.setState({
+        dropdownInput: {
+          ...this.state.dropdownInput,
+          [id]: input,
+        },
+      });
+    }
   };
 
   resetState = () => {
@@ -132,7 +144,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       data: {},
       dropdownInput: {},
       requiredInput: {},
-      editorState: {},
     });
   };
 
@@ -152,7 +163,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   handleSave = async () => {
     console.log("Saving and closing wizard");
 
-    const { dropdownInput, editorState, requiredInput } = this.state;
+    const { dropdownInput, requiredInput } = this.state;
     const { plugin } = this.state.data;
     const { selected } = this.props;
 
@@ -180,7 +191,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
     let nodeParamter = {
       ...result,
-      ...editorState,
     };
 
     if (!plugin || !selected) {
@@ -264,13 +274,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   };
 
   render() {
-    const {
-      isOpen,
-      data,
-      dropdownInput,
-      editorState,
-      requiredInput,
-    } = this.state;
+    const { isOpen, data, dropdownInput, requiredInput } = this.state;
     const { nodes, selected } = this.props;
 
     const screenOne = selected && nodes && (
@@ -296,8 +300,9 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     const editor = data.plugin ? (
       <Editor
         plugin={data.plugin}
-        editorState={editorState}
         editorInput={this.inputChangeFromEditor}
+        dropdownInput={dropdownInput}
+        requiredInput={requiredInput}
       />
     ) : (
       <LoadingSpinner />
@@ -308,7 +313,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         data={data}
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
-        editorState={editorState}
       />
     ) : (
       <LoadingSpinner />
