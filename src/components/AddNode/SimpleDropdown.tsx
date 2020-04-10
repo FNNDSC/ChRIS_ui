@@ -22,17 +22,17 @@ interface SimpleDropdownProps {
   onSelect?: (event: React.SyntheticEvent<HTMLDivElement>) => void;
   isOpen?: boolean;
   dropdownItems?: any[];
-  id: number;
+  id: string;
   handleChange(
-    id: number,
+    id: string,
     paramName: string,
     value: string,
     required: boolean
   ): void;
-  deleteComponent(id: number): void;
-  deleteInput(id: number): void;
+  deleteComponent(id: string): void;
+  deleteInput(id: string): void;
   dropdownInput: {
-    [key: number]: {
+    [key: string]: {
       [key: string]: string;
     };
   };
@@ -105,6 +105,7 @@ class SimpleDropdown extends React.Component<
       {
         value,
       },
+
       () => {
         handleChange(id, this.state.flag, this.state.value, false);
       }

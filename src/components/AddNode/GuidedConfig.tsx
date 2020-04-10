@@ -5,7 +5,7 @@ import SimpleDropdown from "./SimpleDropdown";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../store/root/applicationState";
 import _ from "lodash";
-
+import { uuid } from "uuidv4";
 
 interface GuidedConfigState {
   isOpen: boolean;
@@ -20,24 +20,23 @@ export interface GuidedConfigProps {
   plugin: Plugin;
   params?: PluginParameter[];
   inputChange(
-    id: number,
+    id: string,
     paramName: string,
     value: string,
     required: boolean
   ): void;
-
   dropdownInput: {
-    [key: number]: {
+    [key: string]: {
       [key: string]: string;
     };
   };
   requiredInput: {
-    [key: number]: {
+    [key: string]: {
       [key: string]: string;
     };
   };
 
-  deleteInput(input: number): void;
+  deleteInput(input: string): void;
 }
 
 class GuidedConfig extends React.Component<
@@ -58,8 +57,8 @@ class GuidedConfig extends React.Component<
 
   componentDidMount() {
     const { dropdownInput, requiredInput } = this.props;
-    console.log("Test", dropdownInput, requiredInput);
-    this.setDropdownDefaults(this.props.dropdownInput);
+
+    this.setDropdownDefaults(dropdownInput);
   }
 
   componentDidUpdate(prevProps: GuidedConfigProps) {
@@ -76,7 +75,7 @@ class GuidedConfig extends React.Component<
     if (!_.isEmpty(dropdownInput)) {
       let defaultComponentList = Object.entries(dropdownInput).map(
         ([key, value]) => {
-          return parseInt(key);
+          return key;
         }
       );
 
@@ -86,10 +85,10 @@ class GuidedConfig extends React.Component<
     }
   };
 
-  deleteComponent = (id: number) => {
+  deleteComponent = (id: string) => {
     const { componentList } = this.state;
-    let filteredList = componentList.filter((index: number) => {
-      return index !== id;
+    let filteredList = componentList.filter((key) => {
+      return key !== id;
     });
     this.setState({
       componentList: filteredList,
@@ -104,7 +103,7 @@ class GuidedConfig extends React.Component<
     event.persist();
     const target = event.target as HTMLInputElement;
     const name = target.name;
-    const id = parseInt(target.id);
+    const id = target.id;
 
     this.setState(
       {
@@ -164,7 +163,7 @@ class GuidedConfig extends React.Component<
     const { componentList } = this.state;
 
     this.setState({
-      componentList: [...this.state.componentList, componentList.length + 1],
+      componentList: [...componentList, uuid()],
     });
   };
 
@@ -174,10 +173,10 @@ class GuidedConfig extends React.Component<
 
     let test: any[] = [];
 
-    test = componentList.map((id) => {
+    test = componentList.map((id, index) => {
       return (
         <SimpleDropdown
-          key={id}
+          key={index}
           params={params}
           handleChange={inputChange}
           id={id}
@@ -192,7 +191,7 @@ class GuidedConfig extends React.Component<
   };
 
   render() {
-    const { dropdownInput, plugin } = this.props;
+    const { dropdownInput, plugin, requiredInput } = this.props;
 
     let generatedCommand = plugin && `${plugin.data.name}: `;
 
@@ -200,6 +199,12 @@ class GuidedConfig extends React.Component<
       const flag = Object.keys(dropdownInput[object])[0];
       const value = dropdownInput[object][flag];
       generatedCommand += ` --${flag} ${value}`;
+    }
+
+    for (let object in requiredInput) {
+      const flag = Object.keys(requiredInput[object])[0];
+      const value = requiredInput[object][flag];
+      generatedCommand += ` --${flag} ${value} `;
     }
 
     return (
