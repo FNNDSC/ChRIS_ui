@@ -103,10 +103,11 @@ class Editor extends Component<EditorProps, EditorState> {
       return id;
     });
 
-    let requiredParams =
+    const requiredParams =
       params &&
       params.map((param) => {
-        if (param.data.optional === false) return param.data.name;
+        if (param.data.optional === false)
+          return `${param.data.name}_${param.data.id}`;
       });
 
     const tokenRegex = /(--(?<option>.+?)\s+(?<value>.(?:[^-].+?)?(?:(?=--)|$))?)+?/gm;
@@ -115,10 +116,14 @@ class Editor extends Component<EditorProps, EditorState> {
     for (const token of tokens) {
       let id = 1;
       const [_, input, flag, editorValue] = token;
-      if (requiredParams && requiredParams.includes(flag)) {
-        editorInput(id, flag, editorValue, true);
-      } else {
-        editorInput(id, flag, editorValue, false);
+
+      if (requiredParams) {
+        for (let param of requiredParams) {
+          if (param && param.split("_")[0] === flag) {
+            const id = parseInt(param.split("_")[1]);
+            editorInput(id, flag, editorValue, true);
+          }
+        }
       }
     }
   }
