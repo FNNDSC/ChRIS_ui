@@ -21,12 +21,12 @@ import Editor from "./Editor";
 interface AddNodeState {
   isOpen: boolean;
   dropdownInput: {
-    [key: number]: {
+    [key: string]: {
       [key: string]: string;
     };
   };
   requiredInput: {
-    [key: number]: {
+    [key: string]: {
       [key: string]: string;
     };
   };
@@ -85,36 +85,10 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   }
 
   inputChange = (
-    id: number,
+    id: string,
     paramName: string,
     value: string,
-    required = false
-  ) => {
-    const input: { [key: string]: string } = {};
-    input[paramName] = value;
-
-    if (required === true) {
-      this.setState({
-        requiredInput: {
-          ...this.state.requiredInput,
-          [id]: input,
-        },
-      });
-    } else {
-      this.setState({
-        dropdownInput: {
-          ...this.state.dropdownInput,
-          [id]: input,
-        },
-      });
-    }
-  };
-
-  inputChangeFromEditor = (
-    id: number,
-    paramName: string,
-    value: string,
-    required = false
+    required: boolean
   ) => {
     const input: { [key: string]: string } = {};
     input[paramName] = value;
@@ -246,12 +220,12 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     getParams(plugin);
   };
 
-  deleteInput = (input: number) => {
+  deleteInput = (input: string) => {
     const { dropdownInput } = this.state;
 
     let newObject = Object.entries(dropdownInput)
       .filter(([key, value]) => {
-        return parseInt(key) !== input;
+        return key !== input;
       })
       .reduce(
         (
@@ -300,7 +274,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     const editor = data.plugin ? (
       <Editor
         plugin={data.plugin}
-        editorInput={this.inputChangeFromEditor}
+        inputChange={this.inputChange}
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
       />

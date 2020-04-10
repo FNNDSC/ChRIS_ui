@@ -5,6 +5,7 @@ import { PluginParameter, Plugin } from "@fnndsc/chrisapi";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../store/root/applicationState";
 import _ from "lodash";
+import { uuid } from "uuidv4";
 
 interface EditorState {
   value: string;
@@ -14,13 +15,12 @@ interface EditorState {
 interface EditorProps {
   plugin: Plugin;
   params?: PluginParameter[];
-  editorInput(
-    id: number,
+  inputChange(
+    id: string,
     paramName: string,
     value: string,
     required: boolean
   ): void;
-
   dropdownInput: {
     [key: number]: {
       [key: string]: string;
@@ -97,28 +97,38 @@ class Editor extends Component<EditorProps, EditorState> {
   };
 
   handleRegex() {
-    const { editorInput, params, dropdownInput, requiredInput } = this.props;
-    let test = { ...dropdownInput, ...requiredInput };
-    let keys = Object.keys(test).map((id) => {
-      return id;
-    });
+    const { inputChange, params, dropdownInput } = this.props;
 
-    let requiredParams =
+    const requiredParams =
       params &&
       params.map((param) => {
-        if (param.data.optional === false) return param.data.name;
+        if (param.data.optional === false)
+          return `${param.data.name}_${param.data.id}`;
       });
 
     const tokenRegex = /(--(?<option>.+?)\s+(?<value>.(?:[^-].+?)?(?:(?=--)|$))?)+?/gm;
     const tokens = [...matchAll(this.state.value, tokenRegex)];
 
     for (const token of tokens) {
-      let id = 1;
       const [_, input, flag, editorValue] = token;
-      if (requiredParams && requiredParams.includes(flag)) {
-        editorInput(id, flag, editorValue, true);
-      } else {
-        editorInput(id, flag, editorValue, false);
+
+      if (requiredParams) {
+        for (let param of requiredParams) {
+          if (param && param.split("_")[0] === flag) {
+            const id = param.split("_")[1];
+            inputChange(id, flag, editorValue, true);
+          }
+        }
+      }
+
+      if (Object.keys(dropdownInput).length > 0) {
+        for (let id in dropdownInput) {
+          let existingId = Object.keys(dropdownInput)[0];
+          let existingFlag = dropdownInput[id][existingId];
+          if (flag === existingFlag) {
+            inputChange(existingId, flag, editorValue, false);
+          }
+        }
       }
     }
   }
