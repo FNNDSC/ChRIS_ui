@@ -6,37 +6,9 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 import { CaretDownIcon } from "@patternfly/react-icons";
-import { PluginParameter } from "@fnndsc/chrisapi";
 import { CloseIcon } from "@patternfly/react-icons";
-
-interface SimpleDropdownState {
-  isOpen: boolean;
-  value: string;
-  flag: string;
-  placeholder: string;
-}
-
-interface SimpleDropdownProps {
-  params?: PluginParameter[];
-  toggle?: React.ReactElement<any>;
-  onSelect?: (event: React.SyntheticEvent<HTMLDivElement>) => void;
-  isOpen?: boolean;
-  dropdownItems?: any[];
-  id: string;
-  handleChange(
-    id: string,
-    paramName: string,
-    value: string,
-    required: boolean
-  ): void;
-  deleteComponent(id: string): void;
-  deleteInput(id: string): void;
-  dropdownInput: {
-    [key: string]: {
-      [key: string]: string;
-    };
-  };
-}
+import { SimpleDropdownProps, SimpleDropdownState } from "./types";
+import { unPackForKeyValue } from "./lib/utils";
 
 class SimpleDropdown extends React.Component<
   SimpleDropdownProps,
@@ -65,9 +37,9 @@ class SimpleDropdown extends React.Component<
   componentDidMount() {
     const { dropdownInput, id } = this.props;
 
+    //Setting dropdown
     if (id in dropdownInput) {
-      const flag = Object.keys(dropdownInput[id])[0];
-      const value = dropdownInput[id][flag];
+      const [flag, value] = unPackForKeyValue(dropdownInput[id]);
       this.setState({
         flag,
         value,
@@ -94,7 +66,6 @@ class SimpleDropdown extends React.Component<
 
   deleteDropdown = () => {
     const { id, deleteInput, deleteComponent } = this.props;
-
     deleteInput(id);
     deleteComponent(id);
   };
@@ -119,24 +90,27 @@ class SimpleDropdown extends React.Component<
     if (!params) {
       return;
     }
-    const dropdownItems = params.map((param) => {
-      const id = param.data.id;
-      return (
-        <DropdownItem
-          key={id}
-          onClick={this.handleClick}
-          component="button"
-          className="plugin-parameter"
-          value={param.data.name}
-          name={param.data.help}
-        >
-          {param.data.name}
-        </DropdownItem>
-      );
-    });
+    const dropdownItems = params
+      .map((param) => {
+        const id = param.data.id;
+        if (param.data.optional === true)
+          return (
+            <DropdownItem
+              key={id}
+              onClick={this.handleClick}
+              component="button"
+              className="plugin-configuration__parameter"
+              value={param.data.name}
+              name={param.data.help}
+            >
+              {param.data.name}
+            </DropdownItem>
+          );
+      })
+      .filter((item) => item !== undefined);
 
     return (
-      <div className="plugin-config">
+      <div className="plugin-configuration">
         <Dropdown
           onSelect={this.onSelect}
           toggle={
@@ -149,13 +123,13 @@ class SimpleDropdown extends React.Component<
             </DropdownToggle>
           }
           isOpen={isOpen}
-          className="plugin-dropdown"
-          dropdownItems={dropdownItems}
+          className="plugin-configuration__dropdown"
+          dropdownItems={dropdownItems.length > 0 ? dropdownItems : []}
         />
         <TextInput
           type="text"
           aria-label="text"
-          className="plugin-input"
+          className="plugin-configuration__input"
           onChange={this.handleInputChange}
           placeholder={placeholder}
           value={value}

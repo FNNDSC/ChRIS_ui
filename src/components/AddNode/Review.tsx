@@ -1,45 +1,19 @@
 import React from "react";
 import { Grid, GridItem } from "@patternfly/react-core";
-import { IPluginItem } from "../../api/models/pluginInstance.model";
-import { Plugin } from "@fnndsc/chrisapi";
 import _ from "lodash";
-interface ReviewProps {
-  data: {
-    plugin?: Plugin;
-    parent?: IPluginItem;
-  };
-  dropdownInput: {
-    [key: number]: {
-      [key: string]: string;
-    };
-  };
-
-  requiredInput: {
-    [key: number]: {
-      [key: string]: string;
-    };
-  };
-}
+import { ReviewProps } from "./types";
+import { unpackParametersIntoString } from "./lib/utils";
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
   const { data, dropdownInput, requiredInput } = props;
 
   let generatedCommand = "";
-
-  if (dropdownInput) {
-    for (let object in dropdownInput) {
-      const flag = Object.keys(dropdownInput[object])[0];
-      const value = dropdownInput[object][flag];
-      generatedCommand += ` --${flag} ${value} `;
-    }
+  if (requiredInput) {
+    generatedCommand += unpackParametersIntoString(requiredInput);
   }
 
-  if (requiredInput) {
-    for (let object in requiredInput) {
-      const flag = Object.keys(requiredInput[object])[0];
-      const value = requiredInput[object][flag];
-      generatedCommand += ` --${flag} ${value} `;
-    }
+  if (dropdownInput) {
+    generatedCommand += unpackParametersIntoString(dropdownInput);
   }
 
   return (
