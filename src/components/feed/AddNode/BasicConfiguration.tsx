@@ -1,37 +1,24 @@
 import React from "react";
-import { PluginInstance, Plugin } from "@fnndsc/chrisapi";
-
 import {
   Dropdown,
   FormGroup,
   DropdownToggle,
   DropdownItem,
-  TextInput
+  TextInput,
 } from "@patternfly/react-core";
-
 import PluginSelect from "./PluginSelect";
-import { IPluginItem } from "../../../api/models/pluginInstance.model";
+import { BasicConfigurationProps, BasicConfigurationState } from "./types";
 
-interface ScreenOneProps {
-  nodes: IPluginItem[];
-  parent: IPluginItem;
-  selectedPlugin?: Plugin;
-  handlePluginSelect: (plugin: Plugin) => void;
-}
-
-interface ScreenOneState {
-  parentDropdownOpen: boolean;
-  typeDropdownOpen: boolean;
-  nodes: PluginInstance[];
-}
-
-class ScreenOne extends React.Component<ScreenOneProps, ScreenOneState> {
-  constructor(props: ScreenOneProps) {
+class BasicConfiguration extends React.Component<
+  BasicConfigurationProps,
+  BasicConfigurationState
+> {
+  constructor(props: BasicConfigurationProps) {
     super(props);
     this.state = {
       parentDropdownOpen: false,
       typeDropdownOpen: false,
-      nodes: []
+      nodes: [],
     };
 
     this.handleTypeDropdownToggle = this.handleTypeDropdownToggle.bind(this);
@@ -51,7 +38,7 @@ class ScreenOne extends React.Component<ScreenOneProps, ScreenOneState> {
       </DropdownItem>,
       <DropdownItem key={1} isDisabled>
         Pipeline
-      </DropdownItem>
+      </DropdownItem>,
     ];
     const toggle = (
       <DropdownToggle onToggle={this.handleTypeDropdownToggle}>
@@ -98,4 +85,4 @@ class ScreenOne extends React.Component<ScreenOneProps, ScreenOneState> {
   }
 }
 
-export default ScreenOne;
+export default BasicConfiguration;

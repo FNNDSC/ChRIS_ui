@@ -1,82 +1,52 @@
-import React from "react";
-import { connect } from "react-redux";
-
-import { Button } from "@patternfly/react-core";
-
-import { InfrastructureIcon, CodeBranchIcon } from "@patternfly/react-icons";
-
-import "./addnode.scss";
-import { Plugin, Collection } from "@fnndsc/chrisapi";
-import ScreenOne from "./ScreenOne";
-import AddModal from "./AddModal";
-
-import Editor from "./Editor";
-import ChrisAPIClient from "../../../api/chrisapiclient";
-import { ApplicationState } from "../../../store/root/applicationState";
-import { IPluginItem } from "../../../api/models/pluginInstance.model";
-
+import React, { Component } from "react";
 import { Dispatch } from "redux";
+import { Wizard, WizardStepFunctionType } from "@patternfly/react-core";
+
+import { IPluginItem } from "../../../api/models/pluginInstance.model";
+import { connect } from "react-redux";
+import { Plugin } from "@fnndsc/chrisapi";
+import { isEqual } from "lodash";
+import { ApplicationState } from "../../../store/root/applicationState";
+import "./styles/addnode.scss";
+import LoadingSpinner from "../../common/loading/LoadingSpinner";
+import Review from "./Review";
 import { addNode } from "../../../store/feed/actions";
+import { Collection } from "@fnndsc/chrisapi";
+import { Button } from "@patternfly/react-core";
+import { InfrastructureIcon } from "@patternfly/react-icons";
+import { getParams } from "../../../store/plugin/actions";
+import GuidedConfig from "./GuidedConfig";
+import Editor from "./Editor";
+import BasicConfiguration from "./BasicConfiguration";
+import { unpackParametersIntoObject } from "./lib/utils";
+import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
 
-import _ from "lodash";
-
-interface AddNodeProps {
-  selected?: IPluginItem;
-  nodes?: IPluginItem[];
-  addNode: (pluginItem: IPluginItem) => void;
-}
-
-interface AddNodeState {
-  showOverlay: boolean;
-  step: number;
-  nodes: IPluginItem[];
-  data: {
-    plugin?: Plugin;
-    parent?: IPluginItem;
-  };
-  errors: string[];
-  input: string;
-}
-
-class AddNode extends React.Component<AddNodeProps, AddNodeState> {
+class AddNode extends Component<AddNodeProps, AddNodeState> {
   constructor(props: AddNodeProps) {
     super(props);
     this.state = {
-      showOverlay: false,
-      step: 0,
+      isOpen: false,
+      stepIdReached: 1,
       nodes: [],
       data: {},
-      errors: [],
-      input: ""
+      requiredInput: {},
+      dropdownInput: {},
     };
-
-    this.handleConfigureClick = this.handleConfigureClick.bind(this);
-    this.handleBackClick = this.handleBackClick.bind(this);
-    this.handleAddClick = this.handleAddClick.bind(this);
-    this.handleModalClose = this.handleModalClose.bind(this);
-    this.handlePluginSelect = this.handlePluginSelect.bind(this);
-    this.handleCreate = this.handleCreate.bind(this);
   }
 
   componentDidMount() {
-    this.convertData();
+    this.handleFetchedData();
   }
 
   componentDidUpdate(prevProps: AddNodeProps) {
     const { selected, nodes } = this.props;
 
-    if (prevProps.selected !== selected || !_.isEqual(prevProps.nodes, nodes)) {
-      this.convertData();
+    if (prevProps.selected !== selected || !isEqual(prevProps.nodes, nodes)) {
+      this.handleFetchedData();
     }
   }
 
-  // Temporary. Converts IPluginItem to PluginInstance
-  convertPluginInstance(pluginInstance: IPluginItem) {
-    const client = ChrisAPIClient.getClient();
-    return client.getPluginInstance(pluginInstance.id as number);
-  }
-
-  convertData() {
+  handleFetchedData = () => {
     const { selected, nodes } = this.props;
     if (!selected || !nodes) {
       return;
@@ -85,63 +55,151 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
       nodes,
       data: {
         ...this.state.data,
-        parent: selected
-      }
+        parent: selected,
+      },
     });
-  }
+  };
 
-  handleAddClick() {
-    this.setState(prevState => ({
-      showOverlay: !prevState.showOverlay
+  inputChange = (
+    id: string,
+    paramName: string,
+    value: string,
+    required: boolean
+  ) => {
+    const input: InputIndex = {};
+    input[paramName] = value;
+
+    if (required === true) {
+      this.setState({
+        requiredInput: {
+          ...this.state.requiredInput,
+          [id]: input,
+        },
+      });
+    } else {
+      this.setState({
+        dropdownInput: {
+          ...this.state.dropdownInput,
+          [id]: input,
+        },
+      });
+    }
+  };
+
+  inputChangeFromEditor = (
+    dropdownInput: InputType,
+    requiredInput: InputType
+  ) => {
+    this.setState((prevState) => ({
+      dropdownInput: dropdownInput,
     }));
-  }
 
-  handleModalClose() {
-    this.setState(prevState => ({
-      showOverlay: !prevState.showOverlay,
-      step: 0
+    this.setState((prevState) => ({
+      requiredInput: requiredInput,
     }));
-  }
+  };
 
-  handlePluginSelect(plugin: Plugin) {
-    this.setState(prevState => ({
-      data: {
-        ...prevState.data,
-        plugin
+  toggleOpen = () => {
+    this.setState(
+      (state: AddNodeState) => ({
+        isOpen: !state.isOpen,
+      }),
+      () => {
+        if (this.state.isOpen === false) {
+          this.resetState();
+        }
       }
+    );
+  };
+
+  onNext: WizardStepFunctionType = ({ id, name }, { prevId, prevName }) => {
+    const { stepIdReached } = this.state;
+    id &&
+      console.log(`current id: ${id}`) &&
+      this.setState({
+        stepIdReached: stepIdReached < id ? (id as number) : stepIdReached,
+      });
+  };
+
+  onBack: WizardStepFunctionType = ({ id, name }, { prevId, prevName }) => {
+    if (id === 1) {
+      this.setState({
+        dropdownInput: {},
+        requiredInput: {},
+      });
+    }
+  };
+
+  handlePluginSelect = (plugin: Plugin) => {
+    const { getParams } = this.props;
+    this.setState((prevState) => ({
+      data: { ...prevState.data, plugin },
     }));
-  }
+    getParams(plugin);
+  };
 
-  // Navigation
+  deleteInput = (input: string) => {
+    const { dropdownInput } = this.state;
 
-  handleConfigureClick() {
-    this.setState({ step: 1 });
-  }
+    let newObject = Object.entries(dropdownInput)
+      .filter(([key, value]) => {
+        return key !== input;
+      })
+      .reduce((acc: InputType, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {});
 
-  handleBackClick() {
-    this.setState({ step: 0 });
-  }
+    this.setState({
+      dropdownInput: newObject,
+    });
+  };
 
-  async handleCreate(parameters: any) {
+  resetState = () => {
+    this.setState({
+      isOpen: false,
+      stepIdReached: 1,
+      nodes: [],
+      data: {},
+      dropdownInput: {},
+      requiredInput: {},
+    });
+  };
+
+  handleSave = async () => {
+    console.log("Saving and closing wizard");
+
+    const { dropdownInput, requiredInput } = this.state;
     const { plugin } = this.state.data;
-    const { selected } = this.props;
+    const { selected, addNode } = this.props;
+
+    let dropdownUnpacked;
+    let requiredUnpacked;
+
+    if (dropdownInput) {
+      dropdownUnpacked = unpackParametersIntoObject(dropdownInput);
+    }
+
+    if (requiredInput) {
+      requiredUnpacked = unpackParametersIntoObject(requiredInput);
+    }
+
+    let nodeParamter = {
+      ...dropdownUnpacked,
+      ...requiredUnpacked,
+    };
 
     if (!plugin || !selected) {
       return;
     }
 
-    let createParameterList = {};
-
-    for (let parameter of parameters) {
-      createParameterList = {
-        ...createParameterList,
-        ...parameter,
-        previous_id: `${selected.id}`
-      };
-    }
+    let parameterInput = {
+      ...nodeParamter,
+      previous_id: `${selected.id}`,
+    };
 
     const pluginInstances = await plugin.getPluginInstances();
-    await pluginInstances.post(createParameterList);
+    await pluginInstances.post(parameterInput);
     const node = pluginInstances.getItems()[0];
 
     // Add node to redux
@@ -160,66 +218,102 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
       files: getLinkUrl("files"),
       parameters: getLinkUrl("parameters"),
       plugin: getLinkUrl("plugin"),
-      url: node.url
+      url: node.url,
     };
-    this.props.addNode(nodeobj);
 
-    this.handleModalClose();
-  }
-
-  generateFooter() {
-    const { step, data } = this.state;
-
-    return (
-      step === 0 && (
-        <Button onClick={this.handleConfigureClick} isDisabled={!data.plugin}>
-          <CodeBranchIcon />
-          Configure new node...
-        </Button>
-      )
-    );
-  }
+    addNode(nodeobj);
+    this.resetState();
+  };
 
   render() {
-    const { step, data, showOverlay } = this.state;
+    const { isOpen, data, dropdownInput, requiredInput } = this.state;
     const { nodes, selected } = this.props;
+
+    const basicConfiguration = selected && nodes && (
+      <BasicConfiguration
+        selectedPlugin={data.plugin}
+        parent={selected}
+        nodes={nodes}
+        handlePluginSelect={this.handlePluginSelect}
+      />
+    );
+    const form = data.plugin ? (
+      <GuidedConfig
+        inputChange={this.inputChange}
+        deleteInput={this.deleteInput}
+        plugin={data.plugin}
+        dropdownInput={dropdownInput}
+        requiredInput={requiredInput}
+      />
+    ) : (
+      <LoadingSpinner />
+    );
+
+    const editor = data.plugin ? (
+      <Editor
+        plugin={data.plugin}
+        inputChange={this.inputChange}
+        dropdownInput={dropdownInput}
+        requiredInput={requiredInput}
+        inputChangeFromEditor={this.inputChangeFromEditor}
+      />
+    ) : (
+      <LoadingSpinner />
+    );
+
+    const review = data.plugin ? (
+      <Review
+        data={data}
+        dropdownInput={dropdownInput}
+        requiredInput={requiredInput}
+      />
+    ) : (
+      <LoadingSpinner />
+    );
+
+    const steps = [
+      {
+        id: 1,
+        name: "Plugin Selection",
+        component: basicConfiguration,
+        enableNext: !!data.plugin,
+      },
+      {
+        id: 2,
+        name: "Plugin Configuration-Form",
+        component: form,
+      },
+      {
+        id: 3,
+        name: "Plugin Configuration-Editor",
+        component: editor,
+      },
+      {
+        id: 4,
+        name: "Review",
+        component: review,
+        nextButtonText: "Add Node",
+      },
+    ];
 
     return (
       <React.Fragment>
-        <Button
-          variant="tertiary"
-          isBlock
-          onClick={this.handleAddClick}
-          disabled={!this.props.selected}
-        >
+        <Button variant="primary" isBlock onClick={this.toggleOpen}>
           <InfrastructureIcon />
-          Add new node(s)...
+          Add a Node
         </Button>
-
-        <AddModal
-          footer={this.generateFooter()}
-          showOverlay={showOverlay}
-          handleModalClose={this.handleModalClose}
-          step={step}
-        >
-          {step === 0 && selected && nodes ? (
-            <ScreenOne
-              selectedPlugin={data.plugin}
-              parent={selected}
-              nodes={nodes}
-              handlePluginSelect={this.handlePluginSelect}
-            />
-          ) : (
-            data.plugin && (
-              <Editor
-                plugin={data.plugin}
-                handleModalClose={this.handleModalClose}
-                handleCreate={this.handleCreate}
-                handleBackClick={this.handleBackClick}
-              />
-            )
-          )}
-        </AddModal>
+        {isOpen && (
+          <Wizard
+            isOpen={isOpen}
+            onClose={this.toggleOpen}
+            title="Add a New Node"
+            description="This wizard allows you to add a node to a feed"
+            onSave={this.handleSave}
+            steps={steps}
+            onNext={this.onNext}
+            onBack={this.onBack}
+          />
+        )}
       </React.Fragment>
     );
   }
@@ -227,10 +321,12 @@ class AddNode extends React.Component<AddNodeProps, AddNodeState> {
 
 const mapStateToProps = (state: ApplicationState) => ({
   selected: state.plugin.selected,
-  nodes: state.feed.items
+  nodes: state.feed.items,
 });
+
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  addNode: (pluginItem: IPluginItem) => dispatch(addNode(pluginItem))
+  getParams: (plugin: Plugin) => dispatch(getParams(plugin)),
+  addNode: (pluginItem: IPluginItem) => dispatch(addNode(pluginItem)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AddNode);

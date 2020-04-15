@@ -1,5 +1,5 @@
-import { IPluginItem } from "../../api/models/pluginInstance.model";
-import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
+import { IPluginItem } from "../../../../api/models/pluginInstance.model";
+import { Plugin, PluginParameter, PluginInstance } from "@fnndsc/chrisapi";
 
 export interface InputIndex {
   [key: string]: string;
@@ -12,6 +12,40 @@ export interface InputType {
 export interface InputState {
   dropdownInput: InputType;
   requiredInput: InputType;
+}
+
+export interface BasicConfigurationProps {
+  nodes: IPluginItem[];
+  parent: IPluginItem;
+  selectedPlugin?: Plugin;
+  handlePluginSelect: (plugin: Plugin) => void;
+}
+
+export interface BasicConfigurationState {
+  parentDropdownOpen: boolean;
+  typeDropdownOpen: boolean;
+  nodes: PluginInstance[];
+}
+
+export interface PluginListProps {
+  handlePluginSelect: (plugin: Plugin) => void;
+  plugins?: Plugin[];
+  selected?: Plugin;
+}
+
+export interface PluginListState {
+  filter: string;
+}
+
+export interface PluginSelectProps {
+  selected?: Plugin;
+  handlePluginSelect: (plugin: Plugin) => void;
+}
+
+export interface PluginSelectState {
+  expanded: string;
+  allPlugins?: Plugin[];
+  recentPlugins?: Plugin[];
 }
 
 export interface AddNodeState extends InputState {
