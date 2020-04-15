@@ -6,27 +6,23 @@ import {
   AccordionItem,
   AccordionContent,
   AccordionToggle,
-  TextInput
+  TextInput,
 } from "@patternfly/react-core";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import LoadingContent from "../../common/loading/LoadingContent";
-
-interface PluginListProps {
-  handlePluginSelect: (plugin: Plugin) => void;
-  plugins?: Plugin[];
-  selected?: Plugin;
-}
-
-interface PluginListState {
-  filter: string;
-}
+import {
+  PluginListState,
+  PluginListProps,
+  PluginSelectProps,
+  PluginSelectState,
+} from "./types";
 
 class PluginList extends React.Component<PluginListProps, PluginListState> {
   constructor(props: PluginListProps) {
     super(props);
     this.state = {
-      filter: ""
+      filter: "",
     };
 
     this.handleFilterChange = this.handleFilterChange.bind(this);
@@ -67,7 +63,7 @@ class PluginList extends React.Component<PluginListProps, PluginListState> {
           ? plugins
               .sort((a, b) => a.data.name.localeCompare(b.data.name))
               .filter(this.matchesFilter)
-              .map(plugin => {
+              .map((plugin) => {
                 const { id, name } = plugin.data;
                 const isSelected = selected && id === selected.data.id;
                 return (
@@ -86,17 +82,6 @@ class PluginList extends React.Component<PluginListProps, PluginListState> {
   }
 }
 
-interface PluginSelectProps {
-  selected?: Plugin;
-  handlePluginSelect: (plugin: Plugin) => void;
-}
-
-interface PluginSelectState {
-  expanded: string;
-  allPlugins?: Plugin[];
-  recentPlugins?: Plugin[];
-}
-
 class PluginSelect extends React.Component<
   PluginSelectProps,
   PluginSelectState
@@ -104,7 +89,7 @@ class PluginSelect extends React.Component<
   constructor(props: PluginSelectProps) {
     super(props);
     this.state = {
-      expanded: "all"
+      expanded: "all",
     };
 
     this.handleAccordionToggle = this.handleAccordionToggle.bind(this);
@@ -155,9 +140,9 @@ class PluginSelect extends React.Component<
             // dedeuplicate plugins
             const { plugin_id } = pluginInst.data;
             const inCurrentList = instances.find(
-              p => p.data.plugin_id === plugin_id
+              (p) => p.data.plugin_id === plugin_id
             );
-            const inTotalList = pluginIds.find(p => p === plugin_id);
+            const inTotalList = pluginIds.find((p) => p === plugin_id);
             return (
               !inTotalList &&
               inCurrentList &&
@@ -175,7 +160,7 @@ class PluginSelect extends React.Component<
     }
 
     const plugins = await Promise.all(
-      pluginIds.map(id => {
+      pluginIds.map((id) => {
         return client.getPlugin(id);
       })
     );

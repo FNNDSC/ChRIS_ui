@@ -6,7 +6,7 @@ import {
   Grid,
   GridItem,
   Title,
-  PopoverPosition
+  PopoverPosition,
 } from "@patternfly/react-core";
 import { Plugin, PluginInstanceParameter } from "@fnndsc/chrisapi";
 import {
@@ -14,12 +14,12 @@ import {
   TerminalIcon,
   CaretDownIcon,
   CheckIcon,
-  CalendarDayIcon
+  CalendarDayIcon,
 } from "@patternfly/react-icons";
 
 import {
   IPluginItem,
-  statusLabels
+  statusLabels,
 } from "../../api/models/pluginInstance.model";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import TreeNodeModel from "../../api/models/tree-node.model";
@@ -61,13 +61,13 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     const client = ChrisAPIClient.getClient();
     const plugin = await client.getPlugin(plugin_id);
 
-    const params = await (await client.getPluginInstance(
-      id as number
-    )).getParameters();
+    const params = await (
+      await client.getPluginInstance(id as number)
+    ).getParameters();
 
     this.setState({
       plugin,
-      params: params.getItems()
+      params: params.getItems(),
     });
   }
 
@@ -90,14 +90,14 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     const { dock_image, selfexec } = plugin.data;
     let command = `
     docker run -v $(pwd)/in:/incoming -v 
-    $(pwd)/out:outgoing
+    $(pwd)/out:/outgoing
     ${dock_image} ${selfexec}`;
 
     if (params.length) {
       command +=
         "\n" +
         params
-          .map(param => `    --${param.data.param_name} ${param.data.value}`)
+          .map((param) => `    --${param.data.param_name} ${param.data.value}`)
           .join("\n");
     }
 
@@ -108,7 +108,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     const longest = lines.reduce((a, b) => (a.length > b.length ? a : b))
       .length;
     return lines
-      .map(line => `${line.padEnd(longest)}  \\`)
+      .map((line) => `${line.padEnd(longest)}  \\`)
       .join("\n")
       .slice(0, -1); // remove final backslash
   }
@@ -151,7 +151,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
           </div>
         </div>
 
-        <Grid gutter="sm" className="node-details-grid">
+        <Grid className="node-details-grid">
           <GridItem span={2} className="title">
             Status
           </GridItem>

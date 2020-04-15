@@ -1,7 +1,7 @@
 import { action } from "typesafe-actions";
 import { PluginActionTypes } from "./types";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
-import { FeedFile } from "@fnndsc/chrisapi";
+import { FeedFile, PluginParameter, Plugin } from "@fnndsc/chrisapi";
 
 export const getPluginDescendantsRequest = (url: string) =>
   action(PluginActionTypes.GET_PLUGIN_DESCENDANTS, url);
@@ -25,3 +25,9 @@ export const getPluginStatus = (pluginStatus: String) =>
 
 export const addFiles = (files: FeedFile[]) =>
   action(PluginActionTypes.ADD_FILES, files);
+
+export const getParams = (plugin: Plugin) =>
+  action(PluginActionTypes.GET_PARAMS, plugin);
+
+export const getParamsSuccess = (params: PluginParameter[]) =>
+  action(PluginActionTypes.GET_PARAMS_SUCCESS, params);

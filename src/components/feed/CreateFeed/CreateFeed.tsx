@@ -161,6 +161,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
   // CHRIS FILE SELECT HANDLERS
 
   async handleChrisFileAdd(file: ChrisFile) {
+    console.log("File", file);
     this.setState({
       data: {
         ...this.state.data,
