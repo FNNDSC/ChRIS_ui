@@ -1,44 +1,18 @@
 import React from "react";
 import { Form, Label, TextInput, Button } from "@patternfly/react-core";
-import { PluginParameter, Plugin } from "@fnndsc/chrisapi";
 import SimpleDropdown from "./SimpleDropdown";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../store/root/applicationState";
-import _ from "lodash";
-
-
-interface GuidedConfigState {
-  isOpen: boolean;
-  componentList: any[];
-  value: string;
-  flag: string;
-  defaultDropdownFlag: "";
-  defaultDropdownValue: "";
-}
-
-export interface GuidedConfigProps {
-  plugin: Plugin;
-  params?: PluginParameter[];
-  inputChange(
-    id: number,
-    paramName: string,
-    value: string,
-    required: boolean
-  ): void;
-
-  dropdownInput: {
-    [key: number]: {
-      [key: string]: string;
-    };
-  };
-  requiredInput: {
-    [key: number]: {
-      [key: string]: string;
-    };
-  };
-
-  deleteInput(input: number): void;
-}
+import { isEqual, isEmpty } from "lodash";
+import { uuid } from "uuidv4";
+import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
+import { GuidedConfigState, GuidedConfigProps } from "./types";
+import {
+  getRequiredParams,
+  unPackForKeyValue,
+  unpackParametersIntoString,
+} from "./lib/utils";
+import { InputType } from "./types";
 
 class GuidedConfig extends React.Component<
   GuidedConfigProps,
@@ -51,45 +25,49 @@ class GuidedConfig extends React.Component<
       componentList: [],
       value: "",
       flag: "",
-      defaultDropdownFlag: "",
-      defaultDropdownValue: "",
+      count: 1,
+      errors: [],
+      alertVisible: false,
     };
   }
 
   componentDidMount() {
-    const { dropdownInput, requiredInput } = this.props;
-    console.log("Test", dropdownInput, requiredInput);
-    this.setDropdownDefaults(this.props.dropdownInput);
+    const { dropdownInput, params } = this.props;
+    if (params && params.length > 0) {
+      let requiredParams = getRequiredParams(params);
+      this.setState({
+        count: requiredParams.length,
+      });
+    }
+    this.setDropdownDefaults(dropdownInput);
   }
 
   componentDidUpdate(prevProps: GuidedConfigProps) {
-    if (!_.isEqual(prevProps.dropdownInput, this.props.dropdownInput)) {
-      this.setDropdownDefaults(this.props.dropdownInput);
+    const { dropdownInput } = this.props;
+    if (!isEqual(prevProps.dropdownInput, dropdownInput)) {
+      this.setDropdownDefaults(dropdownInput);
     }
   }
 
-  setDropdownDefaults = (dropdownInput: {
-    [key: number]: {
-      [key: string]: string;
-    };
-  }) => {
-    if (!_.isEmpty(dropdownInput)) {
+  setDropdownDefaults = (dropdownInput: InputType) => {
+    if (!isEmpty(dropdownInput)) {
       let defaultComponentList = Object.entries(dropdownInput).map(
         ([key, value]) => {
-          return parseInt(key);
+          return key;
         }
       );
 
       this.setState({
         componentList: defaultComponentList,
+        count: defaultComponentList.length,
       });
     }
   };
 
-  deleteComponent = (id: number) => {
+  deleteComponent = (id: string) => {
     const { componentList } = this.state;
-    let filteredList = componentList.filter((index: number) => {
-      return index !== id;
+    let filteredList = componentList.filter((key) => {
+      return key !== id;
     });
     this.setState({
       componentList: filteredList,
@@ -100,11 +78,12 @@ class GuidedConfig extends React.Component<
     value: string,
     event: React.FormEvent<HTMLInputElement>
   ) => {
-    const { inputChange } = this.props;
     event.persist();
+    const { inputChange } = this.props;
+
     const target = event.target as HTMLInputElement;
     const name = target.name;
-    const id = parseInt(target.id);
+    const id = target.id;
 
     this.setState(
       {
@@ -124,33 +103,36 @@ class GuidedConfig extends React.Component<
       params &&
       params.map((param) => {
         if (param.data.optional === false) {
-          let testValue = "";
-          if (!_.isEmpty(requiredInput)) {
-            const test = requiredInput[param.data.id];
-            if (test) {
-              let value = Object.keys(test)[0];
-              testValue = test[value];
+          let parameterValue = "";
+          if (!isEmpty(requiredInput)) {
+            if (requiredInput[param.data.id]) {
+              const [_key, value] = unPackForKeyValue(
+                requiredInput[param.data.id]
+              );
+              parameterValue = value;
             }
           }
 
           return (
             <Form className="required-params" key={param.data.id}>
-              <div className="required-design">
-                <Label className="required-label">
+              <div className="required-params__layout">
+                <Label className="required-params__label">
                   {`${param.data.flag}:`}
-                  <span className="required-star">*</span>
+                  <span className="required-params__star">*</span>
                 </Label>
-                <Label className="required-info">(*Required)</Label>
+                <Label className="required-params__infoLabel">
+                  (*Required)
+                </Label>
               </div>
 
               <TextInput
-                aria-label="required-param"
+                aria-label="required-params__textInput"
                 spellCheck={false}
                 onChange={this.handleInputChange}
                 name={param.data.name}
-                className="required-param"
+                className="required-params__textInput"
                 placeholder={param.data.help}
-                value={testValue || ""}
+                value={parameterValue || ""}
                 id={`${param.data.id}`}
               />
             </Form>
@@ -161,23 +143,36 @@ class GuidedConfig extends React.Component<
   };
 
   addParam = () => {
-    const { componentList } = this.state;
+    const { componentList, count, alertVisible } = this.state;
+    const { params } = this.props;
 
-    this.setState({
-      componentList: [...this.state.componentList, componentList.length + 1],
-    });
+    if (params && count < params.length) {
+      this.setState({
+        componentList: [...componentList, uuid()],
+        count: this.state.count + 1,
+      });
+    }
+
+    if (params && count >= params.length) {
+      this.setState({
+        errors: ["You cannot add more parameters to this plugin"],
+        alertVisible: !alertVisible,
+      });
+    }
+  };
+
+  hideAlert = () => {
+    this.setState({ alertVisible: !this.state.alertVisible });
   };
 
   renderDropdowns = () => {
     const { componentList } = this.state;
     const { dropdownInput, deleteInput, inputChange, params } = this.props;
 
-    let test: any[] = [];
-
-    test = componentList.map((id) => {
+    return componentList.map((id, index) => {
       return (
         <SimpleDropdown
-          key={id}
+          key={index}
           params={params}
           handleChange={inputChange}
           id={id}
@@ -187,46 +182,56 @@ class GuidedConfig extends React.Component<
         />
       );
     });
-
-    return test;
   };
 
   render() {
-    const { dropdownInput, plugin } = this.props;
+    const { dropdownInput, plugin, requiredInput } = this.props;
+    const { alertVisible, errors } = this.state;
 
     let generatedCommand = plugin && `${plugin.data.name}: `;
-
-    for (let object in dropdownInput) {
-      const flag = Object.keys(dropdownInput[object])[0];
-      const value = dropdownInput[object][flag];
-      generatedCommand += ` --${flag} ${value}`;
+    if (!isEmpty(requiredInput)) {
+      generatedCommand += unpackParametersIntoString(requiredInput);
+    }
+    if (!isEmpty(dropdownInput)) {
+      generatedCommand += unpackParametersIntoString(dropdownInput);
     }
 
     return (
-      <div className="configure-container">
-        <div className="configure-options">
+      <div className="configuration">
+        <div className="configuration__options">
           <h1 className="pf-c-title pf-m-2xl">
             Configure MPC Volume Calculation Plugin
           </h1>
 
           <Button
-            className="config-button"
+            className="configuration__button"
             onClick={this.addParam}
             variant="primary"
           >
-            Add Configuration options
+            Add Optional Parameters
           </Button>
 
-          <div className="config-container">
-            <div className="generated-config">
+          <div>
+            <div className="configuration__renders">
               {this.renderRequiredParams()}
               {this.renderDropdowns()}
             </div>
-
-            <div className="autogenerated-config">
-              <Label className="autogenerated-label">Generated Command:</Label>
+            {alertVisible &&
+              errors.length > 0 &&
+              errors.map((error, index) => {
+                return (
+                  <Alert
+                    key={index}
+                    variant="danger"
+                    title={error}
+                    action={<AlertActionCloseButton onClose={this.hideAlert} />}
+                  />
+                );
+              })}
+            <div className="autogenerated">
+              <Label className="autogenerated__label">Generated Command:</Label>
               <TextInput
-                className="autogenerated-text"
+                className="autogenerated__text"
                 type="text"
                 aria-label="autogenerated-config"
                 spellCheck={false}
@@ -240,8 +245,8 @@ class GuidedConfig extends React.Component<
   }
 }
 
-const mapStateToProps = (state: ApplicationState) => ({
-  params: state.plugin.parameters,
+const mapStateToProps = ({ plugin }: ApplicationState) => ({
+  params: plugin.parameters,
 });
 
 export default connect(mapStateToProps, null)(GuidedConfig);
