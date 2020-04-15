@@ -2,7 +2,7 @@ import React from "react";
 import { Form, Label, TextInput, Button } from "@patternfly/react-core";
 import SimpleDropdown from "./SimpleDropdown";
 import { connect } from "react-redux";
-import { ApplicationState } from "../../store/root/applicationState";
+import { ApplicationState } from "../../../store/root/applicationState";
 import { isEqual, isEmpty } from "lodash";
 import { uuid } from "uuidv4";
 import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
