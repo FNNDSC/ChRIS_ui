@@ -30,7 +30,7 @@ export const getRequiredParams = (params: PluginParameter[]) => {
     .map((param) => {
       if (param.data.optional === false) {
         return param.data.name;
-      }
+      } else return undefined;
     })
     .filter((element) => element !== undefined);
 };
@@ -44,6 +44,7 @@ export const getRequiredParamsWithId = (params: PluginParameter[]) => {
     .map((param) => {
       if (param.data.optional === false)
         return `${param.data.name}_${param.data.id}`;
+      else return undefined;
     })
     .filter((element) => element !== undefined);
 };
