@@ -116,13 +116,13 @@
 
     &__label,
     &__textInput {
-      font-family: monospace;
+      font-family: monospace !important;
     }
 
     &__label {
       background-color: #fff;
       color: #000;
-      margin-right: 10px;
+      margin-right: 10px !important;
       font-weight: 900;
       font-size: 1.25rem;
     }
@@ -150,7 +150,8 @@
     background-color: #fff !important;
     color: #000 !important;
     margin: 10px 0 !important;
-    font-size: 1.1rem !important;
+    font-size: 1.25rem !important;
+    font-family: monospace !important;
   }
 
   &__text {
@@ -167,6 +168,13 @@
   }
 }
 
+.required-text {
+  font-weight: bold !important;
+  font-family: monospace;
+  font-size: 1.15rem !important;
+  letter-spacing: 0.08rem;
+}
+
 .plugin-configuration {
   display: flex;
   margin: 15px 0;
@@ -175,8 +183,12 @@
   &__input,
   &__parameter {
     font-family: monospace !important;
-    font-weight: 700 !important;
-    margin-right: 10px;
+    margin-right: 10px !important;
+  }
+
+  &__parameter,
+  .pf-c-dropdown__toggle-text {
+    font-weight: 900 !important;
   }
 
   &__input {

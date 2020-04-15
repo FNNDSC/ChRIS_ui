@@ -170,7 +170,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
     const { dropdownInput, requiredInput } = this.state;
     const { plugin } = this.state.data;
-    const { selected } = this.props;
+    const { selected, addNode } = this.props;
 
     let dropdownUnpacked;
     let requiredUnpacked;
@@ -220,7 +220,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       url: node.url,
     };
 
-    this.props.addNode(nodeobj);
+    addNode(nodeobj);
     this.resetState();
   };
 
