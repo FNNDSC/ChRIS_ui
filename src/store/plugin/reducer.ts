@@ -5,7 +5,8 @@ import { PluginActionTypes, IPluginState } from "./types";
 const initialState: IPluginState = {
   selected: undefined,
   descendants: undefined,
-  pluginFiles: undefined
+  pluginFiles: undefined,
+  parameters: [],
 };
 
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {
@@ -19,8 +20,16 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
         ...state,
         pluginFiles: {
           ...state.pluginFiles,
-          [id]: action.payload
-        }
+          [id]: action.payload,
+        },
+      };
+    }
+
+    case PluginActionTypes.GET_PARAMS_SUCCESS: {
+      const params = action.payload;
+      return {
+        ...state,
+        parameters: params,
       };
     }
 
@@ -37,7 +46,7 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
         ...state,
         selected: undefined,
         descendants: undefined,
-        files: undefined
+        files: undefined,
       };
     }
     default: {
