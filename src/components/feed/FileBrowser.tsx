@@ -6,7 +6,7 @@ import {
   BreadcrumbItem,
   Split,
   SplitItem,
-  PopoverPosition
+  PopoverPosition,
 } from "@patternfly/react-core";
 import {
   FileImageIcon,
@@ -14,18 +14,17 @@ import {
   FileAltIcon,
   FileIcon,
   FolderCloseIcon,
-  DownloadIcon
+  DownloadIcon,
 } from "@patternfly/react-icons";
 import {
   Table,
   TableHeader,
   TableBody,
-  TableVariant
+  TableVariant,
 } from "@patternfly/react-table";
 
 import FileViewerModel from "../../api/models/file-viewer.model";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
-import ChrisModel from "../../api/models/base.model";
 import TextCopyPopover from "../common/textcopypopover/TextCopyPopover";
 import FileDetailView from "../explorer/FileDetailView";
 
@@ -65,7 +64,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     super(props);
     this.state = {
       directory: props.root,
-      breadcrumbs: [props.root]
+      breadcrumbs: [props.root],
     };
 
     this.generateTableRow = this.generateTableRow.bind(this);
@@ -103,11 +102,11 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
       this.setState({
         directory: file,
         breadcrumbs: [...this.state.breadcrumbs, file],
-        previewingFile: undefined
+        previewingFile: undefined,
       });
     } else {
       this.setState({
-        previewingFile: file
+        previewingFile: file,
       });
     }
   }
@@ -121,7 +120,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     this.setState({
       directory: folder,
       breadcrumbs: [...prevBreadcrumbs, folder],
-      previewingFile: undefined
+      previewingFile: undefined,
     });
   }
 
@@ -182,10 +181,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     } else if (node.file) {
       const name = node.module;
       if (name.indexOf(".") > -1) {
-        type = name
-          .split(".")
-          .splice(-1)[0]
-          .toUpperCase();
+        type = name.split(".").splice(-1)[0].toUpperCase();
       }
     }
     const icon = getIcon(type);
@@ -214,7 +210,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
         this.getNodePath(node),
         fileName,
         isPathSelected
-      )
+      ),
     };
     const size = ""; // Getting sizes would require loading each file. Deferred until server implements a `size` field.
     const download = {
@@ -223,13 +219,13 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
       ) : (
         <DownloadIcon
           className="download-file-icon"
-          onClick={e => this.handleDownloadClick(e, node)}
+          onClick={(e) => this.handleDownloadClick(e, node)}
         />
-      )
+      ),
     };
 
     return {
-      cells: [name, type, size, download]
+      cells: [name, type, size, download],
     };
   }
 

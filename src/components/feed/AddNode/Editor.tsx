@@ -75,7 +75,7 @@ class Editor extends Component<EditorProps, EditorState> {
     let errorCompilation: string[] = [];
 
     for (const token of tokens) {
-      const [_, input, flag, editorValue] = token;
+      const [_, _input, flag, editorValue] = token;
 
       let result: InputIndex = {};
 

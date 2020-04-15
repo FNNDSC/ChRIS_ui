@@ -1,6 +1,5 @@
 import React from "react";
 import { Grid, GridItem } from "@patternfly/react-core";
-import _ from "lodash";
 import { ReviewProps } from "./types";
 import { unpackParametersIntoString } from "./lib/utils";
 

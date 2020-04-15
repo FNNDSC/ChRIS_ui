@@ -27,12 +27,10 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
 
     case PluginActionTypes.GET_PARAMS_SUCCESS: {
       const params = action.payload;
-      if (params) {
-        return {
-          ...state,
-          parameters: params,
-        };
-      }
+      return {
+        ...state,
+        parameters: params,
+      };
     }
 
     case PluginActionTypes.GET_PLUGIN_DETAILS_SUCCESS: {
