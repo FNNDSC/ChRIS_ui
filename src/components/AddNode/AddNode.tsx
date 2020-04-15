@@ -5,7 +5,7 @@ import ScreenOne from "../../components/feed/AddNode/ScreenOne";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import { connect } from "react-redux";
 import { Plugin } from "@fnndsc/chrisapi";
-import _ from "lodash";
+import { isEqual } from "lodash";
 import { ApplicationState } from "../../store/root/applicationState";
 import "./addnode.scss";
 import LoadingSpinner from "../common/loading/LoadingSpinner";
@@ -17,33 +17,8 @@ import { InfrastructureIcon } from "@patternfly/react-icons";
 import { getParams } from "../../store/plugin/actions";
 import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
-
-interface AddNodeState {
-  isOpen: boolean;
-  dropdownInput: {
-    [key: string]: {
-      [key: string]: string;
-    };
-  };
-  requiredInput: {
-    [key: string]: {
-      [key: string]: string;
-    };
-  };
-  stepIdReached: number;
-  nodes?: IPluginItem[];
-  data: {
-    plugin?: Plugin;
-    parent?: IPluginItem;
-  };
-}
-
-interface AddNodeProps {
-  selected?: IPluginItem;
-  nodes?: IPluginItem[];
-  addNode: (pluginItem: IPluginItem) => void;
-  getParams: (plugin: Plugin) => void;
-}
+import { unpackParametersIntoObject } from "./lib/utils";
+import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
 
 class AddNode extends Component<AddNodeProps, AddNodeState> {
   constructor(props: AddNodeProps) {
@@ -65,12 +40,12 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   componentDidUpdate(prevProps: AddNodeProps) {
     const { selected, nodes } = this.props;
 
-    if (prevProps.selected !== selected || !_.isEqual(prevProps.nodes, nodes)) {
+    if (prevProps.selected !== selected || !isEqual(prevProps.nodes, nodes)) {
       this.handleFetchedData();
     }
   }
 
-  handleFetchedData() {
+  handleFetchedData = () => {
     const { selected, nodes } = this.props;
     if (!selected || !nodes) {
       return;
@@ -82,7 +57,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         parent: selected,
       },
     });
-  }
+  };
 
   inputChange = (
     id: string,
@@ -90,7 +65,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     value: string,
     required: boolean
   ) => {
-    const input: { [key: string]: string } = {};
+    const input: InputIndex = {};
     input[paramName] = value;
 
     if (required === true) {
@@ -110,15 +85,17 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     }
   };
 
-  resetState = () => {
-    this.setState({
-      isOpen: false,
-      stepIdReached: 1,
-      nodes: [],
-      data: {},
-      dropdownInput: {},
-      requiredInput: {},
-    });
+  inputChangeFromEditor = (
+    dropdownInput: InputType,
+    requiredInput: InputType
+  ) => {
+    this.setState((prevState) => ({
+      dropdownInput: dropdownInput,
+    }));
+
+    this.setState((prevState) => ({
+      requiredInput: requiredInput,
+    }));
   };
 
   toggleOpen = () => {
@@ -134,6 +111,60 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     );
   };
 
+  onNext: WizardStepFunctionType = ({ id, name }, { prevId, prevName }) => {
+    const { stepIdReached } = this.state;
+    id &&
+      console.log(`current id: ${id}`) &&
+      this.setState({
+        stepIdReached: stepIdReached < id ? (id as number) : stepIdReached,
+      });
+  };
+
+  onBack: WizardStepFunctionType = ({ id, name }, { prevId, prevName }) => {
+    if (id === 1) {
+      this.setState({
+        dropdownInput: {},
+        requiredInput: {},
+      });
+    }
+  };
+
+  handlePluginSelect = (plugin: Plugin) => {
+    const { getParams } = this.props;
+    this.setState((prevState) => ({
+      data: { ...prevState.data, plugin },
+    }));
+    getParams(plugin);
+  };
+
+  deleteInput = (input: string) => {
+    const { dropdownInput } = this.state;
+
+    let newObject = Object.entries(dropdownInput)
+      .filter(([key, value]) => {
+        return key !== input;
+      })
+      .reduce((acc: InputType, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {});
+
+    this.setState({
+      dropdownInput: newObject,
+    });
+  };
+
+  resetState = () => {
+    this.setState({
+      isOpen: false,
+      stepIdReached: 1,
+      nodes: [],
+      data: {},
+      dropdownInput: {},
+      requiredInput: {},
+    });
+  };
+
   handleSave = async () => {
     console.log("Saving and closing wizard");
 
@@ -141,30 +172,20 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     const { plugin } = this.state.data;
     const { selected } = this.props;
 
-    let result: {
-      [key: string]: string;
-    } = {};
+    let dropdownUnpacked;
+    let requiredUnpacked;
 
     if (dropdownInput) {
-      for (let parameter in dropdownInput) {
-        const object = dropdownInput[parameter];
-        const flag = Object.keys(object)[0];
-        const value = object[flag];
-        result[flag] = value;
-      }
+      dropdownUnpacked = unpackParametersIntoObject(dropdownInput);
     }
 
     if (requiredInput) {
-      for (let parameter in requiredInput) {
-        const object = requiredInput[parameter];
-        const flag = Object.keys(object)[0];
-        const value = object[flag];
-        result[flag] = value;
-      }
+      requiredUnpacked = unpackParametersIntoObject(requiredInput);
     }
 
     let nodeParamter = {
-      ...result,
+      ...dropdownUnpacked,
+      ...requiredUnpacked,
     };
 
     if (!plugin || !selected) {
@@ -203,50 +224,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     this.resetState();
   };
 
-  onNext: WizardStepFunctionType = ({ id, name }, { prevId, prevName }) => {
-    const { stepIdReached } = this.state;
-    id &&
-      console.log(`current id: ${id}`) &&
-      this.setState({
-        stepIdReached: stepIdReached < id ? (id as number) : stepIdReached,
-      });
-  };
-
-  handlePluginSelect = (plugin: Plugin) => {
-    const { getParams } = this.props;
-    this.setState((prevState) => ({
-      data: { ...prevState.data, plugin },
-    }));
-    getParams(plugin);
-  };
-
-  deleteInput = (input: string) => {
-    const { dropdownInput } = this.state;
-
-    let newObject = Object.entries(dropdownInput)
-      .filter(([key, value]) => {
-        return key !== input;
-      })
-      .reduce(
-        (
-          acc: {
-            [key: string]: {
-              [key: string]: string;
-            };
-          },
-          [key, value]
-        ) => {
-          acc[key] = value;
-          return acc;
-        },
-        {}
-      );
-
-    this.setState({
-      dropdownInput: newObject,
-    });
-  };
-
   render() {
     const { isOpen, data, dropdownInput, requiredInput } = this.state;
     const { nodes, selected } = this.props;
@@ -277,6 +254,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         inputChange={this.inputChange}
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
+        inputChangeFromEditor={this.inputChangeFromEditor}
       />
     ) : (
       <LoadingSpinner />
@@ -332,6 +310,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
             onSave={this.handleSave}
             steps={steps}
             onNext={this.onNext}
+            onBack={this.onBack}
           />
         )}
       </React.Fragment>
