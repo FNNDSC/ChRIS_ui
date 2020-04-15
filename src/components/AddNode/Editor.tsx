@@ -1,37 +1,19 @@
 import React, { Component } from "react";
 import { TextArea, Expandable } from "@patternfly/react-core";
 import matchAll from "string.prototype.matchall";
-import { PluginParameter, Plugin } from "@fnndsc/chrisapi";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../store/root/applicationState";
-import _ from "lodash";
-
-interface EditorState {
-  value: string;
-  docsExpanded: boolean;
-}
-
-interface EditorProps {
-  plugin: Plugin;
-  params?: PluginParameter[];
-  editorInput(
-    id: number,
-    paramName: string,
-    value: string,
-    required: boolean
-  ): void;
-
-  dropdownInput: {
-    [key: number]: {
-      [key: string]: string;
-    };
-  };
-  requiredInput: {
-    [key: number]: {
-      [key: string]: string;
-    };
-  };
-}
+import { isEmpty } from "lodash";
+import { uuid } from "uuidv4";
+import { ExclamationTriangleIcon } from "@patternfly/react-icons";
+import { InputType, InputIndex } from "./types";
+import { EditorState, EditorProps } from "./types";
+import {
+  unpackParametersIntoString,
+  getRequiredParams,
+  getAllParamsWithName,
+  getRequiredParamsWithId,
+} from "./lib/utils";
 
 class Editor extends Component<EditorProps, EditorState> {
   constructor(props: EditorProps) {
@@ -39,44 +21,23 @@ class Editor extends Component<EditorProps, EditorState> {
     this.state = {
       value: "",
       docsExpanded: true,
+      errors: [],
     };
   }
 
   componentDidMount() {
     const { dropdownInput, requiredInput } = this.props;
-    console.log("DropdownInput,requiredInput", dropdownInput, requiredInput);
-
-    let test = {
-      ...dropdownInput,
-      ...requiredInput,
-    };
-    let test1: { [key: string]: string } = {};
-
-    for (let object in test) {
-      const flag = Object.keys(test[object])[0];
-      const value = test[object][flag];
-      test1[flag] = value;
+    let generatedCommand = "";
+    if (!isEmpty(requiredInput)) {
+      generatedCommand += unpackParametersIntoString(requiredInput);
+    }
+    if (!isEmpty(dropdownInput)) {
+      generatedCommand += unpackParametersIntoString(dropdownInput);
     }
 
-    let finalTest = {
-      ...test1,
-    };
-
-    let result = "";
-
-    if (finalTest) {
-      for (let inputString in finalTest) {
-        const value = finalTest[inputString];
-
-        if (value) {
-          result += `--${inputString} ${value} `;
-        }
-      }
-
-      this.setState({
-        value: result,
-      });
-    }
+    this.setState({
+      value: generatedCommand,
+    });
   }
 
   handleDocsToggle = () => {
@@ -87,9 +48,9 @@ class Editor extends Component<EditorProps, EditorState> {
 
   handleInputChange = (value: string) => {
     this.setState(
-      (prevState) => ({
+      {
         value,
-      }),
+      },
       () => {
         this.handleRegex();
       }
@@ -97,43 +58,64 @@ class Editor extends Component<EditorProps, EditorState> {
   };
 
   handleRegex() {
-    const { editorInput, params, dropdownInput, requiredInput } = this.props;
-    let test = { ...dropdownInput, ...requiredInput };
-    let keys = Object.keys(test).map((id) => {
-      return id;
-    });
+    const { inputChangeFromEditor, params } = this.props;
 
-    const requiredParams =
-      params &&
-      params.map((param) => {
-        if (param.data.optional === false)
-          return `${param.data.name}_${param.data.id}`;
-      });
+    const requiredParamsWithId = params && getRequiredParamsWithId(params);
+    const requiredParams = params && getRequiredParams(params);
+    const allParams = params && getAllParamsWithName(params);
 
     const tokenRegex = /(--(?<option>.+?)\s+(?<value>.(?:[^-].+?)?(?:(?=--)|$))?)+?/gm;
     const tokens = [...matchAll(this.state.value, tokenRegex)];
 
+    // Creating required and dropdown objects based on User input
+    // If the user navigates to the form, the DOM will be re-created.
+
+    let dropdownObject: InputType = {};
+    let requiredObject: InputType = {};
+    let errorCompilation: string[] = [];
+
     for (const token of tokens) {
-      let id = 1;
       const [_, input, flag, editorValue] = token;
 
-      if (requiredParams) {
-        for (let param of requiredParams) {
+      let result: InputIndex = {};
+
+      if (allParams && !allParams.includes(flag)) {
+        let errorString = `-- ${flag} is not a valid parameter`;
+        errorCompilation.push(errorString);
+      }
+      if (
+        requiredParamsWithId &&
+        requiredParams &&
+        requiredParams.includes(flag)
+      ) {
+        for (let param of requiredParamsWithId) {
           if (param && param.split("_")[0] === flag) {
-            const id = parseInt(param.split("_")[1]);
-            editorInput(id, flag, editorValue, true);
+            const id = param.split("_")[1];
+            result[flag] = editorValue && editorValue.trim();
+            requiredObject[id] = result;
           }
         }
+      } else if (allParams && allParams.includes(flag) && editorValue) {
+        const id = uuid();
+        result[flag] = editorValue.trim();
+        dropdownObject[id] = result;
       }
     }
+
+    this.setState({
+      errors: errorCompilation,
+    });
+
+    inputChangeFromEditor(dropdownObject, requiredObject);
   }
 
   render() {
-    const { value } = this.state;
+    const { value, errors } = this.state;
+
     const { params } = this.props;
     return (
-      <div className="configure-container">
-        <div className="configure-options">
+      <div className="configuration">
+        <div className="configuration__options">
           <h1 className="pf-c-title pf-m-2xl">
             Configure MPC Volume Calculation Plugin
           </h1>
@@ -146,6 +128,14 @@ class Editor extends Component<EditorProps, EditorState> {
             value={value}
             spellCheck={false}
           />
+          <div className="errors">
+            {errors.map((error, i) => (
+              <div key={i}>
+                <ExclamationTriangleIcon />
+                <span className="error-message">{error}</span>
+              </div>
+            ))}
+          </div>
 
           <Expandable
             className="docs"
@@ -173,8 +163,8 @@ class Editor extends Component<EditorProps, EditorState> {
     );
   }
 }
-const mapStateToProps = (state: ApplicationState) => ({
-  params: state.plugin.parameters,
+const mapStateToProps = ({ plugin }: ApplicationState) => ({
+  params: plugin.parameters,
 });
 
 export default connect(mapStateToProps, null)(Editor);
