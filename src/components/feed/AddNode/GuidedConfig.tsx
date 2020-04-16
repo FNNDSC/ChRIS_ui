@@ -71,6 +71,7 @@ class GuidedConfig extends React.Component<
     });
     this.setState({
       componentList: filteredList,
+      count: this.state.count - 1,
     });
   };
 
