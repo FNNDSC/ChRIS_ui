@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Dispatch } from "redux";
-import { Wizard, WizardStepFunctionType } from "@patternfly/react-core";
+import { Wizard } from "@patternfly/react-core";
 
 import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { connect } from "react-redux";

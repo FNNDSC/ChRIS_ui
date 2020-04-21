@@ -1,12 +1,5 @@
 import React, { Component } from "react";
-import {
-  TextArea,
-  Expandable,
-  Checkbox,
-  Label,
-  Alert,
-  AlertActionCloseButton,
-} from "@patternfly/react-core";
+import { TextArea, Expandable, Checkbox, Label } from "@patternfly/react-core";
 import matchAll from "string.prototype.matchall";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
