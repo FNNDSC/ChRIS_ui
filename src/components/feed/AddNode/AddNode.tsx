@@ -123,7 +123,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     );
   }
 
-  onNext(newStep: { id?: string | number; name: string }) {
+  onNext(newStep: { id?: string | number; name: React.ReactNode }) {
     const { stepIdReached } = this.state;
     const { id } = newStep;
     id &&
@@ -132,7 +132,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       });
   }
 
-  onBack(newStep: { id?: string | number; name: string }) {
+  onBack(newStep: { id?: string | number; name: React.ReactNode }) {
     const { id } = newStep;
     if (id === 1) {
       this.setState({

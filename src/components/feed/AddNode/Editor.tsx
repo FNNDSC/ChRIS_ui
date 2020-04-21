@@ -192,13 +192,11 @@ class Editor extends Component<EditorProps, EditorState> {
           <div className="editor">
             <Label className="editor__label">Edit Plugin Configuration:</Label>
             <TextArea
-              type="text"
               aria-label="text"
               className="editor__text"
               resizeOrientation="vertical"
               onChange={this.handleInputChange}
               value={value}
-              spellCheck={false}
             />
           </div>
 
@@ -230,13 +228,11 @@ class Editor extends Component<EditorProps, EditorState> {
               </div>
 
               <TextArea
-                type="text"
                 aria-label="text"
                 className="runtime-parameters__text"
                 resizeOrientation="vertical"
                 onChange={this.handleRuntimeParameters}
                 value={runtimeParam}
-                spellCheck={false}
               />
             </div>
           )}
