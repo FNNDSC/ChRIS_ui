@@ -29,6 +29,10 @@ class GuidedConfig extends React.Component<
       errors: [],
       alertVisible: false,
     };
+    this.deleteComponent = this.deleteComponent.bind(this);
+    this.addParam = this.addParam.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.hideAlert = this.hideAlert.bind(this);
   }
 
   componentDidMount() {
@@ -49,10 +53,10 @@ class GuidedConfig extends React.Component<
     }
   }
 
-  setDropdownDefaults = (dropdownInput: InputType) => {
+  setDropdownDefaults(dropdownInput: InputType) {
     if (!isEmpty(dropdownInput)) {
       let defaultComponentList = Object.entries(dropdownInput).map(
-        ([key, value]) => {
+        ([key, _value]) => {
           return key;
         }
       );
@@ -62,9 +66,9 @@ class GuidedConfig extends React.Component<
         count: defaultComponentList.length,
       });
     }
-  };
+  }
 
-  deleteComponent = (id: string) => {
+  deleteComponent(id: string) {
     const { componentList } = this.state;
     let filteredList = componentList.filter((key) => {
       return key !== id;
@@ -73,12 +77,9 @@ class GuidedConfig extends React.Component<
       componentList: filteredList,
       count: this.state.count - 1,
     });
-  };
+  }
 
-  handleInputChange = (
-    value: string,
-    event: React.FormEvent<HTMLInputElement>
-  ) => {
+  handleInputChange(value: string, event: React.FormEvent<HTMLInputElement>) {
     event.persist();
     const { inputChange } = this.props;
 
@@ -95,9 +96,28 @@ class GuidedConfig extends React.Component<
         inputChange(id, this.state.flag, this.state.value, true);
       }
     );
-  };
+  }
 
-  renderRequiredParams = () => {
+  addParam() {
+    const { componentList, count, alertVisible } = this.state;
+    const { params } = this.props;
+
+    if (params && count < params.length) {
+      this.setState({
+        componentList: [...componentList, uuid()],
+        count: this.state.count + 1,
+      });
+    }
+
+    if (params && count >= params.length) {
+      this.setState({
+        errors: ["You cannot add more parameters to this plugin"],
+        alertVisible: !alertVisible,
+      });
+    }
+  }
+
+  renderRequiredParams() {
     const { params, requiredInput } = this.props;
 
     return (
@@ -141,32 +161,13 @@ class GuidedConfig extends React.Component<
         }
       })
     );
-  };
+  }
 
-  addParam = () => {
-    const { componentList, count, alertVisible } = this.state;
-    const { params } = this.props;
-
-    if (params && count < params.length) {
-      this.setState({
-        componentList: [...componentList, uuid()],
-        count: this.state.count + 1,
-      });
-    }
-
-    if (params && count >= params.length) {
-      this.setState({
-        errors: ["You cannot add more parameters to this plugin"],
-        alertVisible: !alertVisible,
-      });
-    }
-  };
-
-  hideAlert = () => {
+  hideAlert() {
     this.setState({ alertVisible: !this.state.alertVisible });
-  };
+  }
 
-  renderDropdowns = () => {
+  renderDropdowns() {
     const { componentList } = this.state;
     const { dropdownInput, deleteInput, inputChange, params } = this.props;
 
@@ -183,7 +184,7 @@ class GuidedConfig extends React.Component<
         />
       );
     });
-  };
+  }
 
   render() {
     const { dropdownInput, plugin, requiredInput } = this.props;

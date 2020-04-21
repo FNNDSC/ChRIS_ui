@@ -22,18 +22,12 @@ class SimpleDropdown extends React.Component<
       flag: "",
       placeholder: "",
     };
+    this.onSelect = this.onSelect.bind(this);
+    this.onToggle = this.onToggle.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.deleteDropdown = this.deleteDropdown.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
   }
-  onToggle = (isOpen: boolean) => {
-    this.setState({
-      isOpen,
-    });
-  };
-  onSelect = (event?: React.SyntheticEvent<HTMLDivElement>): void => {
-    this.setState({
-      isOpen: !this.state.isOpen,
-    });
-  };
-
   componentDidMount() {
     const { dropdownInput, id } = this.props;
 
@@ -47,7 +41,18 @@ class SimpleDropdown extends React.Component<
     }
   }
 
-  handleClick = (event: any) => {
+  onToggle(isOpen: boolean) {
+    this.setState({
+      isOpen,
+    });
+  }
+  onSelect(event?: React.SyntheticEvent<HTMLDivElement>): void {
+    this.setState({
+      isOpen: !this.state.isOpen,
+    });
+  }
+
+  handleClick(event: any) {
     event.persist();
     const { handleChange, id } = this.props;
 
@@ -62,15 +67,15 @@ class SimpleDropdown extends React.Component<
         handleChange(id, this.state.flag, this.state.value, false);
       }
     );
-  };
+  }
 
-  deleteDropdown = () => {
+  deleteDropdown() {
     const { id, deleteInput, deleteComponent } = this.props;
     deleteInput(id);
     deleteComponent(id);
-  };
+  }
 
-  handleInputChange = (value: string) => {
+  handleInputChange(value: string) {
     const { handleChange, id } = this.props;
     this.setState(
       {
@@ -81,7 +86,7 @@ class SimpleDropdown extends React.Component<
         handleChange(id, this.state.flag, this.state.value, false);
       }
     );
-  };
+  }
 
   render() {
     const { isOpen, value, flag, placeholder } = this.state;

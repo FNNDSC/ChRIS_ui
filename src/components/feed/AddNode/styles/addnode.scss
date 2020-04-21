@@ -150,8 +150,8 @@
     background-color: #fff !important;
     color: #000 !important;
     margin: 10px 0 !important;
-    font-size: 1.25rem !important;
-    font-family: monospace !important;
+    font-size: 1rem !important;
+    font-weight: 900 !important;
   }
 
   &__text {
@@ -198,23 +198,54 @@
 }
 
 .editor {
-  background-color: #000 !important;
-  color: #fff !important;
-  font-family: monospace !important;
-  font-weight: 700 !important;
-  height: 200px !important;
-  font-size: 1.4rem !important;
-  letter-spacing: 0.08rem;
-  margin-top: 10px !important;
+  display: flex;
+  flex-direction: column;
+
+  &__label {
+    background-color: #fff !important;
+    color: #000 !important;
+    margin: 5px 0 !important;
+    font-size: 1rem !important;
+    text-align: left !important;
+    font-weight: 900 !important;
+  }
+
+  &__text {
+    background-color: #000 !important;
+    color: #fff !important;
+    font-family: monospace !important;
+    font-weight: 700 !important;
+    height: 100px !important;
+    font-size: 1.4rem !important;
+    letter-spacing: 0.08rem;
+  }
 }
+
+.runtime-parameters {
+  &__text {
+    margin-top: 15px !important;
+    background-color: #000 !important;
+    color: #fff !important;
+    font-family: monospace !important;
+    font-weight: 700 !important;
+    height: 70px !important;
+    font-size: 1.4rem !important;
+    letter-spacing: 0.08rem;
+  }
+
+  &__alert {
+    margin-top: 10px !important;
+  }
+}
+
 .pf-c-wizard__footer {
   flex-direction: row-reverse;
 }
 .errors {
-  padding-left: 5px;
   font-size: 16px;
   .error-message {
     color: #c9190b !important;
+    font-weight: 700;
   }
   svg {
     color: #c9190b;

@@ -9,9 +9,15 @@ export interface InputType {
   [key: string]: InputIndex;
 }
 
+export interface InputProps {
+  dropdownInput: InputType;
+  requiredInput: InputType;
+}
+
 export interface InputState {
   dropdownInput: InputType;
   requiredInput: InputType;
+  runtimeInput: InputType;
 }
 
 export interface BasicConfigurationProps {
@@ -74,7 +80,7 @@ export interface GuidedConfigState {
   errors: string[];
   alertVisible: boolean;
 }
-export interface GuidedConfigProps extends InputState {
+export interface GuidedConfigProps extends InputProps {
   plugin: Plugin;
   params?: PluginParameter[];
   inputChange(
@@ -90,6 +96,8 @@ export interface EditorState {
   value: string;
   docsExpanded: boolean;
   errors: string[];
+  isChecked: boolean;
+  runtimeParam: string;
 }
 
 export interface EditorProps extends InputState {
@@ -105,6 +113,7 @@ export interface EditorProps extends InputState {
     dropdownInput: InputType,
     requiredInput: InputType
   ): void;
+  inputChangeFromRuntimeEditor(requiredInput: InputType): void;
 }
 
 export interface SimpleDropdownState {

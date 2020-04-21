@@ -4,7 +4,7 @@ import { ReviewProps } from "./types";
 import { unpackParametersIntoString } from "./lib/utils";
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
-  const { data, dropdownInput, requiredInput } = props;
+  const { data, dropdownInput, requiredInput, runtimeInput } = props;
 
   let generatedCommand = "";
   if (requiredInput) {
@@ -15,6 +15,9 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
     generatedCommand += unpackParametersIntoString(dropdownInput);
   }
 
+  if (runtimeInput) {
+    generatedCommand += unpackParametersIntoString(runtimeInput);
+  }
   return (
     <div className="review">
       <h1 className="pf-c-title pf-m-2xl">Review</h1>
