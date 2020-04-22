@@ -31,20 +31,18 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       data: {},
       requiredInput: {},
       dropdownInput: {},
-      runtimeInput: {},
+      isRuntimeChecked: false,
     };
 
     this.inputChange = this.inputChange.bind(this);
     this.inputChangeFromEditor = this.inputChangeFromEditor.bind(this);
-    this.inputChangeFromRuntimeEditor = this.inputChangeFromRuntimeEditor.bind(
-      this
-    );
     this.toggleOpen = this.toggleOpen.bind(this);
     this.onBack = this.onBack.bind(this);
     this.onNext = this.onNext.bind(this);
     this.handlePluginSelect = this.handlePluginSelect.bind(this);
     this.handleSave = this.handleSave.bind(this);
     this.deleteInput = this.deleteInput.bind(this);
+    this.handleRuntimeChecked = this.handleRuntimeChecked.bind(this);
   }
 
   componentDidMount() {
@@ -101,12 +99,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
     this.setState((prevState) => ({
       requiredInput: requiredInput,
-    }));
-  }
-
-  inputChangeFromRuntimeEditor(runtimeInput: InputType) {
-    this.setState((prevState) => ({
-      runtimeInput,
     }));
   }
 
@@ -175,18 +167,24 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       data: {},
       dropdownInput: {},
       requiredInput: {},
-      runtimeInput: {},
+      isRuntimeChecked: false,
+    });
+  }
+
+  handleRuntimeChecked(isChecked: boolean) {
+    this.setState({
+      isRuntimeChecked: isChecked,
     });
   }
 
   async handleSave() {
-    const { dropdownInput, requiredInput, runtimeInput } = this.state;
+    const { dropdownInput, requiredInput, isRuntimeChecked } = this.state;
     const { plugin } = this.state.data;
     const { selected, addNode } = this.props;
 
     let dropdownUnpacked;
     let requiredUnpacked;
-    let runtimeUnpacked;
+    let runtimeobject: InputIndex = {};
 
     if (dropdownInput) {
       dropdownUnpacked = unpackParametersIntoObject(dropdownInput);
@@ -196,14 +194,14 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       requiredUnpacked = unpackParametersIntoObject(requiredInput);
     }
 
-    if (runtimeInput) {
-      runtimeUnpacked = unpackParametersIntoObject(runtimeInput);
+    if (isRuntimeChecked === true) {
+      runtimeobject["runtime"] = "nvidia";
     }
 
     let nodeParamter = {
       ...dropdownUnpacked,
       ...requiredUnpacked,
-      ...runtimeUnpacked,
+      ...runtimeobject,
     };
 
     if (!plugin || !selected) {
@@ -248,7 +246,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       data,
       dropdownInput,
       requiredInput,
-      runtimeInput,
+      isRuntimeChecked,
     } = this.state;
     const { nodes, selected } = this.props;
 
@@ -278,9 +276,9 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         inputChange={this.inputChange}
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
-        runtimeInput={runtimeInput}
         inputChangeFromEditor={this.inputChangeFromEditor}
-        inputChangeFromRuntimeEditor={this.inputChangeFromRuntimeEditor}
+        runtimeChecked={isRuntimeChecked}
+        handleRuntimeChecked={this.handleRuntimeChecked}
       />
     ) : (
       <LoadingSpinner />
@@ -291,7 +289,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         data={data}
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
-        runtimeInput={runtimeInput}
+        runtimeChecked={isRuntimeChecked}
       />
     ) : (
       <LoadingSpinner />

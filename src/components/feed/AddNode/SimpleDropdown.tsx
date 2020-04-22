@@ -96,23 +96,22 @@ class SimpleDropdown extends React.Component<
       return;
     }
     const dropdownItems = params
+      .filter((param) => param.data.optional === true)
       .map((param) => {
         const id = param.data.id;
-        if (param.data.optional === true)
-          return (
-            <DropdownItem
-              key={id}
-              onClick={this.handleClick}
-              component="button"
-              className="plugin-configuration__parameter"
-              value={param.data.name}
-              name={param.data.help}
-            >
-              {param.data.name}
-            </DropdownItem>
-          );
-      })
-      .filter((item) => item !== undefined);
+        return (
+          <DropdownItem
+            key={id}
+            onClick={this.handleClick}
+            component="button"
+            className="plugin-configuration__parameter"
+            value={param.data.name}
+            name={param.data.help}
+          >
+            {param.data.name}
+          </DropdownItem>
+        );
+      });
 
     return (
       <div className="plugin-configuration">

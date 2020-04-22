@@ -23,8 +23,6 @@ class GuidedConfig extends React.Component<
     this.state = {
       isOpen: false,
       componentList: [],
-      value: "",
-      flag: "",
       count: 1,
       errors: [],
       alertVisible: false,
@@ -87,15 +85,7 @@ class GuidedConfig extends React.Component<
     const name = target.name;
     const id = target.id;
 
-    this.setState(
-      {
-        flag: name,
-        value,
-      },
-      () => {
-        inputChange(id, this.state.flag, this.state.value, true);
-      }
-    );
+    inputChange(id, name, value, true);
   }
 
   addParam() {
@@ -122,11 +112,13 @@ class GuidedConfig extends React.Component<
 
     return (
       params &&
-      params.map((param) => {
-        if (param.data.optional === false) {
+      params
+        .filter((param) => param.data.optional === false)
+        .map((param) => {
           let parameterValue = "";
           if (!isEmpty(requiredInput)) {
             if (requiredInput[param.data.id]) {
+              //eslint-disable-next-line
               const [_key, value] = unPackForKeyValue(
                 requiredInput[param.data.id]
               );
@@ -157,8 +149,7 @@ class GuidedConfig extends React.Component<
               />
             </Form>
           );
-        }
-      })
+        })
     );
   }
 

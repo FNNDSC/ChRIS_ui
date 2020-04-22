@@ -4,7 +4,7 @@ import { ReviewProps } from "./types";
 import { unpackParametersIntoString } from "./lib/utils";
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
-  const { data, dropdownInput, requiredInput, runtimeInput } = props;
+  const { data, dropdownInput, requiredInput, runtimeChecked } = props;
 
   let generatedCommand = "";
   if (requiredInput) {
@@ -15,9 +15,10 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
     generatedCommand += unpackParametersIntoString(dropdownInput);
   }
 
-  if (runtimeInput) {
-    generatedCommand += unpackParametersIntoString(runtimeInput);
+  if (runtimeChecked === true) {
+    generatedCommand += ` --runtime nvidia`;
   }
+
   return (
     <div className="review">
       <h1 className="pf-c-title pf-m-2xl">Review</h1>
@@ -35,6 +36,10 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
         <GridItem span={2}>Plugin configuration:</GridItem>
         <GridItem span={10}>
           <span className="required-text">{generatedCommand}</span>
+        </GridItem>
+        <GridItem span={2}>Local GPU processing:</GridItem>
+        <GridItem span={10}>
+          {runtimeChecked === true ? "Enabled" : "Disabled"}
         </GridItem>
       </Grid>
     </div>
