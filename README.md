@@ -1,4 +1,4 @@
-# ChRIS_ui
+# ![ChRIS logo](https://github.com/FNNDSC/ChRIS_ultron_backEnd/blob/master/docs/assets/logo_chris.png) ChRIS_ui
 UI for ChRIS.
 
 ![License][license-badge]
@@ -19,14 +19,14 @@ Then open a terminal and fire the backend services up:
 ```bash
 $ git clone https://github.com/FNNDSC/ChRIS_ultron_backEnd.git
 $ cd ChRIS_ultron_backEnd
-$ ./docker-make-chris_dev.sh -U -I -i
+$ ./docker-make.sh -U -I -i
 ```
 
 You can later remove all the backend containers and release storage volumes with:
 ```bash
 $ cd ChRIS_ultron_backEnd
 $ sudo rm -r FS
-$ ./docker-destroy-chris_dev.sh
+$ ./docker-destroy.sh
 ```
 
 
