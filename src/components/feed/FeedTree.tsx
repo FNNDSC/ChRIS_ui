@@ -14,7 +14,6 @@ interface ITreeProps {
   items: IPluginItem[];
   selected?: IPluginItem;
   getPluginFiles: Function;
-
   pluginFiles?: { [pluginId: number]: FeedFile[] };
 }
 
@@ -80,6 +79,7 @@ class FeedTree extends React.Component<AllProps> {
     }
 
     if (prevProps.items && prevProps.items !== this.props.items) {
+      d3.select("#tree").selectAll("svg").remove();
       this.fetchTree(this.props.items);
     }
   }
@@ -261,11 +261,11 @@ class FeedTree extends React.Component<AllProps> {
   }
 }
 
-const mapStateToProps = (state: ApplicationState) => ({
-  pluginFiles: state.plugin.pluginFiles,
-});
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getPluginFiles: (plugin: IPluginItem) => dispatch(getPluginFiles(plugin)),
+});
+const mapStateToProps = (state: ApplicationState) => ({
+  pluginFiles: state.plugin.pluginFiles,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedTree);
