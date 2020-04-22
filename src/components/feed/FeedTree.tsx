@@ -4,10 +4,18 @@ import * as cola from "webcola";
 import TreeModel, { ITreeChart } from "../../api/models/tree.model";
 import TreeNodeModel, { INode } from "../../api/models/tree-node.model";
 import { IPluginItem } from "../../api/models/pluginInstance.model";
+import { getPluginFiles } from "../../store/plugin/actions";
+import { Dispatch } from "redux";
+import { connect } from "react-redux";
+import { ApplicationState } from "../../store/root/applicationState";
+import { FeedFile } from "@fnndsc/chrisapi";
 
 interface ITreeProps {
   items: IPluginItem[];
   selected?: IPluginItem;
+  getPluginFiles: Function;
+
+  pluginFiles?: { [pluginId: number]: FeedFile[] };
 }
 
 interface ITreeActions {
@@ -43,6 +51,17 @@ class FeedTree extends React.Component<AllProps> {
     }
   }
 
+  fetchPluginFiles(plugin: IPluginItem) {
+    const id = plugin.id as number;
+    const { pluginFiles, getPluginFiles } = this.props;
+
+    if (pluginFiles && pluginFiles[id]) {
+      return;
+    } else {
+      getPluginFiles(plugin);
+    }
+  }
+
   componentDidUpdate(prevProps: AllProps) {
     const { selected } = this.props;
     const prevSelected = prevProps.selected;
@@ -53,7 +72,7 @@ class FeedTree extends React.Component<AllProps> {
       prevSelected.id !== selected.id
     ) {
       const activeNode = this.tree.treeChart.nodes.find(
-        node => node.item.id === selected.id
+        (node) => node.item.id === selected.id
       );
       if (activeNode) {
         this.setActiveNode(activeNode);
@@ -61,12 +80,6 @@ class FeedTree extends React.Component<AllProps> {
     }
 
     if (prevProps.items && prevProps.items !== this.props.items) {
-      console.log(
-        d3
-          .select("#tree")
-          .selectAll("svg")
-          .remove()
-      );
       this.fetchTree(this.props.items);
     }
   }
@@ -90,6 +103,7 @@ class FeedTree extends React.Component<AllProps> {
 
   // Description: Call prop to set active node in parent state
   handleNodeClick = (node: INode) => {
+    this.fetchPluginFiles(node.item);
     this.props.onNodeClick(node.item);
   };
 
@@ -106,10 +120,7 @@ class FeedTree extends React.Component<AllProps> {
           : window.innerWidth / 2 - 290,
       height = TreeNodeModel.calculateTotalTreeHeight(tree.totalRows);
 
-    const d3cola = cola
-      .d3adaptor(d3)
-      .avoidOverlaps(true)
-      .size([width, height]);
+    const d3cola = cola.d3adaptor(d3).avoidOverlaps(true).size([width, height]);
 
     const svg = d3
       .select("#tree")
@@ -250,4 +261,11 @@ class FeedTree extends React.Component<AllProps> {
   }
 }
 
-export default FeedTree;
+const mapStateToProps = (state: ApplicationState) => ({
+  pluginFiles: state.plugin.pluginFiles,
+});
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  getPluginFiles: (plugin: IPluginItem) => dispatch(getPluginFiles(plugin)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(FeedTree);

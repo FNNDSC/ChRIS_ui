@@ -66,7 +66,6 @@ class BasicConfiguration extends React.Component<
           <TextInput
             value={parent.plugin_name}
             aria-label="Selected Plugin Name"
-            spellCheck={false}
           />
         </FormGroup>
 

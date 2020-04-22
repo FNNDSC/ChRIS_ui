@@ -9,6 +9,11 @@ export interface InputType {
   [key: string]: InputIndex;
 }
 
+export interface InputProps {
+  dropdownInput: InputType;
+  requiredInput: InputType;
+}
+
 export interface InputState {
   dropdownInput: InputType;
   requiredInput: InputType;
@@ -56,6 +61,7 @@ export interface AddNodeState extends InputState {
     plugin?: Plugin;
     parent?: IPluginItem;
   };
+  isRuntimeChecked: boolean;
 }
 
 export interface AddNodeProps {
@@ -68,13 +74,11 @@ export interface AddNodeProps {
 export interface GuidedConfigState {
   isOpen: boolean;
   componentList: string[];
-  value: string;
-  flag: string;
   count: number;
   errors: string[];
   alertVisible: boolean;
 }
-export interface GuidedConfigProps extends InputState {
+export interface GuidedConfigProps extends InputProps {
   plugin: Plugin;
   params?: PluginParameter[];
   inputChange(
@@ -105,6 +109,8 @@ export interface EditorProps extends InputState {
     dropdownInput: InputType,
     requiredInput: InputType
   ): void;
+  runtimeChecked: boolean;
+  handleRuntimeChecked(isChecked: boolean): void;
 }
 
 export interface SimpleDropdownState {
@@ -137,4 +143,5 @@ export interface ReviewProps extends InputState {
     plugin?: Plugin;
     parent?: IPluginItem;
   };
+  runtimeChecked: boolean;
 }
