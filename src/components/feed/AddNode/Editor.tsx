@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { TextArea, Expandable } from "@patternfly/react-core";
+import { TextArea, Expandable, Checkbox, Label } from "@patternfly/react-core";
 import matchAll from "string.prototype.matchall";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
@@ -23,11 +23,16 @@ class Editor extends Component<EditorProps, EditorState> {
       docsExpanded: true,
       errors: [],
     };
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleDocsToggle = this.handleDocsToggle.bind(this);
+    this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
   }
 
   componentDidMount() {
-    const { dropdownInput, requiredInput } = this.props;
-    let generatedCommand = "";
+    const { dropdownInput, requiredInput, plugin } = this.props;
+
+    let generatedCommand = `${plugin.data.name}: `;
+
     if (!isEmpty(requiredInput)) {
       generatedCommand += unpackParametersIntoString(requiredInput);
     }
@@ -40,41 +45,52 @@ class Editor extends Component<EditorProps, EditorState> {
     });
   }
 
-  handleDocsToggle = () => {
+  handleDocsToggle() {
     this.setState({
       docsExpanded: !this.state.docsExpanded,
     });
-  };
+  }
 
-  handleInputChange = (value: string) => {
+  handleInputChange(value: string) {
     this.setState(
       {
         value,
       },
       () => {
-        this.handleRegex();
+        this.handleRegex(this.state.value);
       }
     );
-  };
+  }
 
-  handleRegex() {
+  handleCheckboxChange(checkbox: boolean) {
+    const { handleRuntimeChecked } = this.props;
+    handleRuntimeChecked(checkbox);
+  }
+
+  handleGetTokens(value: string) {
+    const tokenRegex = /(--(?<option>.+?)\s+(?<value>.(?:[^-].+?)?(?:(?=--)|$))?)+?/gm;
+    return [...matchAll(value, tokenRegex)];
+  }
+
+  handleRegex(value: string) {
     const { inputChangeFromEditor, params } = this.props;
 
     const requiredParamsWithId = params && getRequiredParamsWithId(params);
     const requiredParams = params && getRequiredParams(params);
     const allParams = params && getAllParamsWithName(params);
 
-    const tokenRegex = /(--(?<option>.+?)\s+(?<value>.(?:[^-].+?)?(?:(?=--)|$))?)+?/gm;
-    const tokens = [...matchAll(this.state.value, tokenRegex)];
+    const tokens = this.handleGetTokens(value);
 
     // Creating required and dropdown objects based on User input
     // If the user navigates to the form, the DOM will be re-created.
 
     let dropdownObject: InputType = {};
     let requiredObject: InputType = {};
+
     let errorCompilation: string[] = [];
 
     for (const token of tokens) {
+      //eslint-disable-next-line
       const [_, _input, flag, editorValue] = token;
 
       let result: InputIndex = {};
@@ -110,24 +126,28 @@ class Editor extends Component<EditorProps, EditorState> {
   }
 
   render() {
-    const { value, errors } = this.state;
+    const { value, errors, docsExpanded } = this.state;
+    const { params, runtimeChecked, plugin } = this.props;
 
-    const { params } = this.props;
     return (
       <div className="configuration">
         <div className="configuration__options">
           <h1 className="pf-c-title pf-m-2xl">
             Configure MPC Volume Calculation Plugin
           </h1>
-          <TextArea
-            type="text"
-            aria-label="text"
-            className="editor"
-            resizeOrientation="vertical"
-            onChange={this.handleInputChange}
-            value={value}
-            spellCheck={false}
-          />
+
+          <div className="editor">
+            <Label className="editor__label">Edit Plugin Configuration:</Label>
+            <TextArea
+              aria-label="text"
+              className="editor__text"
+              resizeOrientation="vertical"
+              onChange={this.handleInputChange}
+              value={value}
+              spellCheck={false}
+            />
+          </div>
+
           <div className="errors">
             {errors.map((error, i) => (
               <div key={i}>
@@ -137,10 +157,34 @@ class Editor extends Component<EditorProps, EditorState> {
             ))}
           </div>
 
+          {plugin.data.compute_resource_identifier === "host" && (
+            <div className="runtime-parameters">
+              <Checkbox
+                id="runtime-parameters"
+                aria-label="Checkbox with description "
+                isChecked={runtimeChecked}
+                onChange={this.handleCheckboxChange}
+              />
+              <Label className="runtime-parameters__label">
+                Enable GPU Processing (toggles{" "}
+                <pre className="runtime-parameters__flag">--runtime nvidia</pre>{" "}
+                on the docker executable)
+              </Label>
+            </div>
+          )}
+          {runtimeChecked === true && (
+            <div className="errors">
+              <ExclamationTriangleIcon />
+              <span className="error-message">
+                Warning: This has no effect on plugins run on OpenShift
+              </span>
+            </div>
+          )}
+
           <Expandable
             className="docs"
             toggleText="Plugin configuration documentation:"
-            isExpanded={this.state.docsExpanded}
+            isExpanded={docsExpanded}
             onToggle={this.handleDocsToggle}
           >
             {params &&
