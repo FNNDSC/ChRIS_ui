@@ -22,20 +22,17 @@ class Editor extends Component<EditorProps, EditorState> {
       value: "",
       docsExpanded: true,
       errors: [],
-      isChecked: false,
-      runtimeParam: "",
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleDocsToggle = this.handleDocsToggle.bind(this);
-    this.handleRuntimeParameters = this.handleRuntimeParameters.bind(this);
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
   }
 
   componentDidMount() {
-    const { dropdownInput, requiredInput, runtimeInput } = this.props;
+    const { dropdownInput, requiredInput, plugin } = this.props;
 
-    let generatedCommand = "";
-    let runtimeCommand = "";
+    let generatedCommand = `${plugin.data.name}: `;
+
     if (!isEmpty(requiredInput)) {
       generatedCommand += unpackParametersIntoString(requiredInput);
     }
@@ -43,16 +40,8 @@ class Editor extends Component<EditorProps, EditorState> {
       generatedCommand += unpackParametersIntoString(dropdownInput);
     }
 
-    if (!isEmpty(runtimeInput)) {
-      runtimeCommand += unpackParametersIntoString(runtimeInput);
-      this.setState({
-        runtimeParam: runtimeCommand,
-        isChecked: true,
-      });
-    }
     this.setState({
       value: generatedCommand,
-      runtimeParam: runtimeCommand,
     });
   }
 
@@ -73,28 +62,9 @@ class Editor extends Component<EditorProps, EditorState> {
     );
   }
 
-  handleRuntimeParameters(value: string) {
-    this.setState(
-      {
-        runtimeParam: value,
-      },
-      () => {
-        this.handleRuntimeRegex(this.state.runtimeParam);
-      }
-    );
-  }
-
   handleCheckboxChange(checkbox: boolean) {
-    this.setState(
-      {
-        isChecked: checkbox,
-      },
-      () => {
-        if (this.state.isChecked === false) {
-          this.props.inputChangeFromRuntimeEditor({});
-        }
-      }
-    );
+    const { handleRuntimeChecked } = this.props;
+    handleRuntimeChecked(checkbox);
   }
 
   handleGetTokens(value: string) {
@@ -120,6 +90,7 @@ class Editor extends Component<EditorProps, EditorState> {
     let errorCompilation: string[] = [];
 
     for (const token of tokens) {
+      //eslint-disable-next-line
       const [_, _input, flag, editorValue] = token;
 
       let result: InputIndex = {};
@@ -154,27 +125,10 @@ class Editor extends Component<EditorProps, EditorState> {
     inputChangeFromEditor(dropdownObject, requiredObject);
   }
 
-  handleRuntimeRegex = (value: string) => {
-    const { inputChangeFromRuntimeEditor } = this.props;
-    let runtimeObject: InputType = {};
-    let result: InputIndex = {};
-
-    const tokens = this.handleGetTokens(value);
-    for (const token of tokens) {
-      const [_, _input, flag, editorValue] = token;
-      if (editorValue) {
-        const id = uuid();
-        result[flag] = editorValue;
-        runtimeObject[id] = result;
-      }
-    }
-
-    inputChangeFromRuntimeEditor(runtimeObject);
-  };
-
   render() {
-    const { value, errors, isChecked, runtimeParam, docsExpanded } = this.state;
-    const { params } = this.props;
+    const { value, errors, docsExpanded } = this.state;
+    const { params, runtimeChecked, plugin } = this.props;
+
     return (
       <div className="configuration">
         <div className="configuration__options">
@@ -190,6 +144,7 @@ class Editor extends Component<EditorProps, EditorState> {
               resizeOrientation="vertical"
               onChange={this.handleInputChange}
               value={value}
+              spellCheck={false}
             />
           </div>
 
@@ -202,31 +157,27 @@ class Editor extends Component<EditorProps, EditorState> {
             ))}
           </div>
 
-          <Checkbox
-            id="runtime-parameters"
-            label="Add optional advanced docker parameters"
-            aria-label="Checkbox with description example"
-            isChecked={isChecked}
-            onChange={this.handleCheckboxChange}
-          />
-
-          {isChecked === true && (
+          {plugin.data.compute_resource_identifier === "host" && (
             <div className="runtime-parameters">
-              <div className="errors">
-                <ExclamationTriangleIcon />
-                <span className="error-message">
-                  Warning ! This is an advanced feature to add runtime
-                  parameters to your plugin.
-                </span>
-              </div>
-
-              <TextArea
-                aria-label="text"
-                className="runtime-parameters__text"
-                resizeOrientation="vertical"
-                onChange={this.handleRuntimeParameters}
-                value={runtimeParam}
+              <Checkbox
+                id="runtime-parameters"
+                aria-label="Checkbox with description "
+                isChecked={runtimeChecked}
+                onChange={this.handleCheckboxChange}
               />
+              <Label className="runtime-parameters__label">
+                Enable GPU Processing (toggles{" "}
+                <pre className="runtime-parameters__flag">--runtime nvidia</pre>{" "}
+                on the docker executable)
+              </Label>
+            </div>
+          )}
+          {runtimeChecked === true && (
+            <div className="errors">
+              <ExclamationTriangleIcon />
+              <span className="error-message">
+                Warning: This has no effect on plugins run on OpenShift
+              </span>
             </div>
           )}
 
