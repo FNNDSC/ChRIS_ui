@@ -7,14 +7,14 @@ import { Title, Split, SplitItem, Button } from "@patternfly/react-core";
 import {
   FolderOpenIcon,
   FolderCloseIcon,
-  DownloadIcon
+  DownloadIcon,
 } from "@patternfly/react-icons";
 import { FeedFile } from "@fnndsc/chrisapi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { IPluginItem } from "../../api/models/pluginInstance.model";
 import UITreeNodeModel, {
-  IUITreeNode
+  IUITreeNode,
 } from "../../api/models/file-explorer.model";
 
 import FileViewerModel from "../../api/models/file-viewer.model";
@@ -50,7 +50,7 @@ class FeedOutputBrowser extends React.Component<
   constructor(props: FeedOutputBrowserProps) {
     super(props);
     this.state = {
-      pluginModalOpen: false
+      pluginModalOpen: false,
     };
 
     this.handleDownloadAllClick = this.handleDownloadAllClick.bind(this);
@@ -153,7 +153,7 @@ class FeedOutputBrowser extends React.Component<
 
   handlePluginModalOpen(file: IUITreeNode, folder: IUITreeNode) {
     this.setState({ pluginModalOpen: true });
-    console.log(file, folder);
+
     this.props.setSelectedFile(file, folder);
   }
 
@@ -286,13 +286,13 @@ class FeedOutputBrowser extends React.Component<
 }
 
 const mapStateToProps = (state: ApplicationState) => ({
-  pluginFiles: state.plugin.pluginFiles
+  pluginFiles: state.plugin.pluginFiles,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSelectedFile: (file: IUITreeNode, folder: IUITreeNode) =>
     dispatch(setSelectedFile(file, folder)),
-  getPluginFiles: (plugin: IPluginItem) => dispatch(getPluginFiles(plugin))
+  getPluginFiles: (plugin: IPluginItem) => dispatch(getPluginFiles(plugin)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedOutputBrowser);

@@ -45,7 +45,7 @@ class TextCopyPopover extends React.Component<TextCopyPopoverProps> {
       <React.Fragment>
         {subheaderContent}
 
-        <TextArea value={text} aria-label="full-path" />
+        <TextArea value={text} rows={rows} aria-label="full-path" />
         <ClipboardCopy>{text}</ClipboardCopy>
       </React.Fragment>
     );
