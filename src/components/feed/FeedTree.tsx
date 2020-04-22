@@ -79,7 +79,7 @@ class FeedTree extends React.Component<AllProps> {
     }
 
     if (prevProps.items && prevProps.items !== this.props.items) {
-      console.log(d3.select("#tree").selectAll("svg").remove());
+      d3.select("#tree").selectAll("svg").remove();
       this.fetchTree(this.props.items);
     }
   }
