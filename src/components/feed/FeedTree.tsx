@@ -54,7 +54,7 @@ class FeedTree extends React.Component<AllProps> {
   fetchPluginFiles(plugin: IPluginItem) {
     const id = plugin.id as number;
     const { pluginFiles, getPluginFiles } = this.props;
-    console.log(id, pluginFiles);
+
     if (pluginFiles && pluginFiles[id]) {
       return;
     } else {
@@ -80,7 +80,6 @@ class FeedTree extends React.Component<AllProps> {
     }
 
     if (prevProps.items && prevProps.items !== this.props.items) {
-      console.log(d3.select("#tree").selectAll("svg").remove());
       this.fetchTree(this.props.items);
     }
   }
