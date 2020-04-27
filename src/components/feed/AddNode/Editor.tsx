@@ -14,6 +14,8 @@ import {
   getAllParamsWithName,
   getRequiredParamsWithId,
 } from "./lib/utils";
+import { Plugin } from "@fnndsc/chrisapi";
+import { isEqual } from "lodash";
 
 class Editor extends Component<EditorProps, EditorState> {
   constructor(props: EditorProps) {
@@ -30,7 +32,24 @@ class Editor extends Component<EditorProps, EditorState> {
 
   componentDidMount() {
     const { dropdownInput, requiredInput, plugin } = this.props;
+    this.generateCommand(dropdownInput, requiredInput, plugin);
+  }
 
+  componentDidUpdate(prevProps: EditorProps) {
+    const { dropdownInput, requiredInput, plugin } = this.props;
+    if (
+      !isEqual(prevProps.dropdownInput, dropdownInput) ||
+      !isEqual(prevProps.requiredInput, requiredInput)
+    ) {
+      this.generateCommand(dropdownInput, requiredInput, plugin);
+    }
+  }
+
+  generateCommand(
+    dropdownInput: InputType,
+    requiredInput: InputType,
+    plugin: Plugin
+  ) {
     let generatedCommand = `${plugin.data.name}: `;
 
     if (!isEmpty(requiredInput)) {
