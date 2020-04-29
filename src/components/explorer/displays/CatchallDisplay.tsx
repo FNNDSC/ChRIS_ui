@@ -1,5 +1,5 @@
 import * as React from "react";
-import { getFileExtension } from "../../../api/models/file-explorer.model";
+
 import { IGalleryItem } from "../../../api/models/gallery.model";
 import { DownloadIcon } from "@patternfly/react-icons";
 import { Alert, Button } from "@patternfly/react-core";
