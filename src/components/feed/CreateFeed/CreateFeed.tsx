@@ -8,7 +8,7 @@ import {
   UploadedFile,
   Tag,
   PluginInstance,
-  Collection
+  Collection,
 } from "@fnndsc/chrisapi";
 import { Button, Wizard } from "@patternfly/react-core";
 
@@ -55,7 +55,7 @@ function getDefaultCreateFeedData(): CreateFeedData {
     feedDescription: "",
     tags: [],
     chrisFiles: [],
-    localFiles: []
+    localFiles: [],
   };
 }
 
@@ -80,7 +80,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
       wizardOpen: false,
       saving: false,
       step: 1,
-      data: getDefaultCreateFeedData()
+      data: getDefaultCreateFeedData(),
     };
 
     this.toggleCreateWizard = this.toggleCreateWizard.bind(this);
@@ -111,7 +111,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
     this.setState({
       data: getDefaultCreateFeedData(),
       step: 1,
-      saving: false
+      saving: false,
     });
   }
 
@@ -123,8 +123,8 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
     if (this.state.wizardOpen) {
       this.resetState();
     }
-    this.setState(state => ({
-      wizardOpen: !state.wizardOpen
+    this.setState((state) => ({
+      wizardOpen: !state.wizardOpen,
     }));
   }
 
@@ -141,7 +141,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
       "basic-information",
       "chris-file-select",
       "local-file-upload",
-      "review"
+      "review",
     ];
     return stepNames[this.state.step - 1]; // this.state.step starts at 1
   }
@@ -161,12 +161,11 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
   // CHRIS FILE SELECT HANDLERS
 
   async handleChrisFileAdd(file: ChrisFile) {
-    console.log("File", file);
     this.setState({
       data: {
         ...this.state.data,
-        chrisFiles: [...this.state.data.chrisFiles, file]
-      }
+        chrisFiles: [...this.state.data.chrisFiles, file],
+      },
     });
   }
 
@@ -174,8 +173,10 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
     this.setState({
       data: {
         ...this.state.data,
-        chrisFiles: this.state.data.chrisFiles.filter(f => f.path !== file.path)
-      }
+        chrisFiles: this.state.data.chrisFiles.filter(
+          (f) => f.path !== file.path
+        ),
+      },
     });
   }
 
@@ -185,8 +186,8 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
     this.setState({
       data: {
         ...this.state.data,
-        localFiles: [...this.state.data.localFiles, ...files]
-      }
+        localFiles: [...this.state.data.localFiles, ...files],
+      },
     });
   }
   handleLocalFileRemove(fileName: string) {
@@ -194,9 +195,9 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
       data: {
         ...this.state.data,
         localFiles: this.state.data.localFiles.filter(
-          file => file.name !== fileName
-        )
-      }
+          (file) => file.name !== fileName
+        ),
+      },
     });
   }
 
@@ -242,15 +243,15 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
     const uploadedFiles = await ChrisAPIClient.getClient().getUploadedFiles();
 
     return await Promise.all(
-      files.map(async file => {
+      files.map(async (file) => {
         const pathName = this.getDataFileTempPath(file, tempDirName);
         const blob = await this.getDataFileBlob(file);
         return await uploadedFiles.post(
           {
-            upload_path: pathName
+            upload_path: pathName,
           },
           {
-            fname: blob
+            fname: blob,
           }
         );
       })
@@ -272,7 +273,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
     do {
       const pluginsPage = await client.getPlugins({
         limit: 25,
-        offset: page * 25
+        offset: page * 25,
       });
       const plugins = pluginsPage.getItems();
       if (!plugins) {
@@ -298,12 +299,9 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
       if (this.state.data.localFiles.length > 0) {
         const local_upload_path = this.generateTempDirName();
         const files = await this.uploadLocalFiles(local_upload_path);
-        const flattenedPath = _.flattenDepth(files.map(file => file.data));
+        const flattenedPath = _.flattenDepth(files.map((file) => file.data));
 
-        dirPath = flattenedPath[0].fname
-          .split("/")
-          .slice(0, -1)
-          .join("/");
+        dirPath = flattenedPath[0].fname.split("/").slice(0, -1).join("/");
       }
       // Find dircopy plugin
       const dircopy = await this.getDircopyPlugin();
@@ -315,7 +313,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
       const dircopyInstances = await dircopy.getPluginInstances();
 
       await dircopyInstances.post({
-        dir: dirPath
+        dir: dirPath,
       });
 
       //when the `post` finishes, the dircopyInstances's internal collection is updated
@@ -335,7 +333,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
 
       // Set feed name
       await feed.put({
-        name: this.state.data.feedName
+        name: this.state.data.feedName,
       });
 
       // Set feed tags
@@ -348,7 +346,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
       await note.put(
         {
           title: "Description",
-          content: this.state.data.feedDescription
+          content: this.state.data.feedDescription,
         },
         1000
       );
@@ -374,7 +372,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
         comments: getLinkUrl("comments"),
         tags: getLinkUrl("tags"),
         taggings: getLinkUrl("taggings"),
-        plugin_instances: getLinkUrl("plugininstances")
+        plugin_instances: getLinkUrl("plugininstances"),
       };
 
       this.props.addFeed(feedObj);
@@ -429,22 +427,22 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
         id: 1, // id corresponds to step number
         name: "Basic Information",
         component: basicInformation,
-        enableNext: !!data.feedName
+        enableNext: !!data.feedName,
       },
       {
         name: "Data Configuration",
         steps: [
           { id: 2, name: "ChRIS File Select", component: chrisFileSelect },
-          { id: 3, name: "Local File Upload", component: localFileUpload }
-        ]
+          { id: 3, name: "Local File Upload", component: localFileUpload },
+        ],
       },
       {
         id: 4,
         name: "Review",
         component: review,
         enableNext: enableSave,
-        nextButtonText: "Save"
-      }
+        nextButtonText: "Save",
+      },
     ];
 
     return (
@@ -478,11 +476,11 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
 
 const mapStateToProps = (state: ApplicationState) => ({
   authToken: state.user.token || "",
-  feeds: state.feed.feeds
+  feeds: state.feed.feeds,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  addFeed: (feed: IFeedItem) => dispatch(addFeed(feed))
+  addFeed: (feed: IFeedItem) => dispatch(addFeed(feed)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(CreateFeed);

@@ -6,7 +6,7 @@ import {
   DataList,
   DataListItem,
   DataListToggle,
-  DataListContent
+  DataListContent,
 } from "@patternfly/react-core";
 import { ApplicationState } from "../../store/root/applicationState";
 
@@ -15,7 +15,7 @@ import PluginConfiguration from "./PluginConfiguration";
 import PluginOutput from "./PluginOutput";
 import {
   getPluginInstanceTitle,
-  IPluginItem
+  IPluginItem,
 } from "../../api/models/pluginInstance.model";
 import "./plugin.scss";
 import { LoadingSpinner } from "..";
@@ -34,7 +34,7 @@ class PluginDetailPanel extends React.Component<IPluginProps, IState> {
   constructor(props: IPluginProps) {
     super(props);
     this.state = {
-      expanded: ["plugin-detail", "plugin-config", "plugin-data"]
+      expanded: ["plugin-detail", "plugin-config", "plugin-data"],
     };
     this.handleDownloadData = this.handleDownloadData.bind(this);
     this.handleViewData = this.handleViewData.bind(this);
@@ -53,7 +53,6 @@ class PluginDetailPanel extends React.Component<IPluginProps, IState> {
   }
 
   render() {
-    console.log("PluginDetailPanelCalled");
     // Note: Keep toggle of sub panels in local state
     const toggle = (id: string) => {
       const expanded = this.state.expanded;
@@ -62,7 +61,7 @@ class PluginDetailPanel extends React.Component<IPluginProps, IState> {
         index >= 0
           ? [
               ...expanded.slice(0, index),
-              ...expanded.slice(index + 1, expanded.length)
+              ...expanded.slice(index + 1, expanded.length),
             ]
           : [...expanded, id];
       this.setState(() => ({ expanded: newExpanded }));
@@ -178,7 +177,7 @@ class PluginDetailPanel extends React.Component<IPluginProps, IState> {
 const mapStateToProps = (state: ApplicationState) => ({
   selected: state.plugin.selected,
   files: getSelectedFiles(state),
-  parameters: state.plugin.parameters
+  parameters: state.plugin.parameters,
 });
 
 export default connect(mapStateToProps, null)(PluginDetailPanel);
