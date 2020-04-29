@@ -3,12 +3,12 @@ import { Button } from "@patternfly/react-core";
 import { DownloadIcon, ExpandIcon } from "@patternfly/react-icons";
 import {
   getFileExtension,
-  IUITreeNode
+  IUITreeNode,
 } from "../../api/models/file-explorer.model";
 import { IFileBlob } from "../../api/models/file-viewer.model";
 
 import FileViewerModel, {
-  fileViewerMap
+  fileViewerMap,
 } from "../../api/models/file-viewer.model";
 import { LoadingSpinner } from "..";
 import ViewerDisplay from "./displays/ViewerDisplay";
@@ -32,7 +32,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     blobName: "",
     blobText: null,
     fileType: "",
-    file: undefined
+    file: undefined,
   };
 
   render() {
@@ -46,7 +46,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         const viewerName = fileViewerMap[this.state.fileType];
 
         return (
-          <div className={viewerName.toLowerCase()}>
+          <div className={viewerName ? viewerName.toLowerCase() : ""}>
             {this.renderHeader()}
             <ViewerDisplay tag={viewerName} galleryItem={this.state} />
           </div>
@@ -87,7 +87,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
               blobName: fileName,
               fileType,
               blobText,
-              file: Object.assign({}, selectedFile.file.data)
+              file: Object.assign({}, selectedFile.file.data),
             });
         });
         reader.readAsText(result);

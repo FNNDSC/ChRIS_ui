@@ -8,36 +8,45 @@ type AllProps = {
   galleryItem: IGalleryItem;
 };
 // Description: No preview message available for this file type
-const CatchallDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
-    const noPreviewMessage = () => {
-        const { galleryItem } = props;
-        const ext = getFileExtension(galleryItem.fileName);
-        const alertText = (
-        <React.Fragment>
-            <label>
-              <b>File Name:</b> {galleryItem.fileName}
-            </label>
-            <label>
-              <b>File Type:</b> {ext}
-            </label>
-           <Button
-              variant="primary"
-              className="float-right"
-              onClick={ () => FileViewerModel.downloadFile(galleryItem.blob, galleryItem.fileName) }
-            ><DownloadIcon /> Download</Button>
-        </React.Fragment>
-      );
-        return (
-        <div className="catchall">
-          <Alert
-            variant="info"
-            title="No preview available for file:"
-            children={alertText}
-          />
-        </div>
-      );
-    }
-    return noPreviewMessage();
-}
+const CatchallDisplay: React.FunctionComponent<AllProps> = (
+  props: AllProps
+) => {
+  const noPreviewMessage = () => {
+    const { galleryItem } = props;
+
+    const ext = galleryItem.fileType ? galleryItem.fileType : "";
+    const alertText = (
+      <React.Fragment>
+        <label>
+          <b>File Name:</b> {galleryItem.blobName}
+        </label>
+        <br></br>
+        <label>
+          <b>File Type:</b> {ext}
+        </label>
+        <Button
+          variant="primary"
+          className="float-right"
+          onClick={() =>
+            galleryItem.blobName &&
+            FileViewerModel.downloadFile(galleryItem.blob, galleryItem.blobName)
+          }
+        >
+          <DownloadIcon /> Download
+        </Button>
+      </React.Fragment>
+    );
+    return (
+      <div className="catchall">
+        <Alert
+          variant="info"
+          title="No preview available for file:"
+          children={alertText}
+        />
+      </div>
+    );
+  };
+  return noPreviewMessage();
+};
 
 export default React.memo(CatchallDisplay);
