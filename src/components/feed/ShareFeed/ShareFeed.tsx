@@ -41,7 +41,7 @@ class ShareFeed extends React.Component<ShareFeedProps, ShareFeedState> {
     const id = details.id as number;
     const client = ChrisAPIClient.getClient();
     const feed = await client.getFeed(id);
-    const test = await feed.put({
+    await feed.put({
       owner: username,
     });
 
