@@ -11,7 +11,7 @@ import {
   DataTableViewer,
   FreesurferDataTable,
   ZScoreDataTable,
-  FileBrowserViewer
+  FileBrowserViewer,
 } from "./displays/index";
 import VolumeGrowth from "../../components/chart/VolumeGrowth";
 import SegmentAnalysis from "../../components/chart/SegmentAnalysis";
@@ -34,7 +34,7 @@ class OutputViewerContainer extends React.Component<
   }
 
   state = {
-    activeTabKey: 0
+    activeTabKey: 0,
   };
 
   render() {
@@ -60,7 +60,7 @@ class OutputViewerContainer extends React.Component<
     tabIndex: React.ReactText
   ) => {
     this.setState({
-      activeTabKey: tabIndex as number
+      activeTabKey: tabIndex as number,
     });
   };
   // Description: Build Tabs from data
@@ -141,7 +141,7 @@ class OutputViewerContainer extends React.Component<
 
 const mapStateToProps = (state: ApplicationState) => ({
   files: getSelectedFiles(state),
-  selected: state.plugin.selected
+  selected: state.plugin.selected,
 });
 
 export default connect(mapStateToProps, null)(OutputViewerContainer);

@@ -29,7 +29,7 @@ class FreesurferDataTable extends React.Component<AllProps> {
     this.rows = this.mergeData();
   }
   // Description: build table rows from json/ts file
-  // We need somev validation for this merge ***** working
+  // We need some validation for this merge ***** working
   mergeData = () => {
     const customizer = (objValue: any, srcValue: any) => {
       return [objValue, srcValue];

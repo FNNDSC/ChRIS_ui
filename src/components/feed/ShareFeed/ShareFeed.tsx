@@ -20,7 +20,7 @@ class ShareFeed extends React.Component<ShareFeedProps, ShareFeedState> {
   constructor(props: ShareFeedProps) {
     super(props);
     this.state = {
-      showOverlay: false
+      showOverlay: false,
     };
     this.handleAddClick = this.handleAddClick.bind(this);
     this.handleModalClose = this.handleModalClose.bind(this);
@@ -28,14 +28,12 @@ class ShareFeed extends React.Component<ShareFeedProps, ShareFeedState> {
   }
 
   handleAddClick() {
-    this.setState(prevState => ({
-      showOverlay: !prevState.showOverlay
+    this.setState((prevState) => ({
+      showOverlay: !prevState.showOverlay,
     }));
   }
 
   async handleCreate(username: string) {
-    console.log("username", username);
-
     const { details } = this.props;
     if (!details) {
       return;
@@ -44,16 +42,15 @@ class ShareFeed extends React.Component<ShareFeedProps, ShareFeedState> {
     const client = ChrisAPIClient.getClient();
     const feed = await client.getFeed(id);
     const test = await feed.put({
-      owner: username
+      owner: username,
     });
-    console.log(test);
 
     this.handleModalClose();
   }
 
   handleModalClose() {
-    this.setState(prevState => ({
-      showOverlay: !prevState.showOverlay
+    this.setState((prevState) => ({
+      showOverlay: !prevState.showOverlay,
     }));
   }
 
