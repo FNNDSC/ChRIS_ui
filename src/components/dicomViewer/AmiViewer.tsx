@@ -9,7 +9,7 @@ import * as AMI from "ami.js";
 import {
   orthographicCameraFactory,
   stackHelperFactory,
-  trackballOrthoControlFactory
+  trackballOrthoControlFactory,
 } from "ami.js";
 import "./amiViewer.scss";
 import { getFileExtension } from "../../api/models/file-explorer.model";
@@ -17,7 +17,7 @@ import DcmInfoPanel from "./DcmInfoPanel/DcmInfoPanel";
 
 type AllProps = {
   galleryItems: IGalleryItem[];
-  galleryItem?: IGalleryItem
+  galleryItem?: IGalleryItem;
 };
 interface IState {
   imageArray: string[];
@@ -30,15 +30,17 @@ interface IState {
 class AmiViewer extends React.Component<AllProps, IState> {
   _isMounted = false;
   private _removeResizeEventListener?: () => void = undefined;
+  private containerRef: React.RefObject<HTMLInputElement>;
   constructor(props: AllProps) {
     super(props);
     const imageArray = this._getUrlArray();
+    this.containerRef = React.createRef();
     this.state = {
       imageArray,
       totalFiles: imageArray.length,
       totalLoaded: 0,
       totalParsed: 0,
-      workingSeriesItem: undefined
+      workingSeriesItem: undefined,
     };
   }
 
@@ -50,8 +52,12 @@ class AmiViewer extends React.Component<AllProps, IState> {
   // Only user dcm file - can add on to this
   _getUrlArray(): string[] {
     return this.props.galleryItems
-      .filter((item: IGalleryItem) => { return getFileExtension(item.fileName).toLowerCase() === "dcm" })
-      .map((item: IGalleryItem) => { return item.file_resource; });
+      .filter((item: IGalleryItem) => {
+        return getFileExtension(item.fileName).toLowerCase() === "dcm";
+      })
+      .map((item: IGalleryItem) => {
+        return item.file_resource;
+      });
   }
 
   render() {
@@ -59,16 +65,23 @@ class AmiViewer extends React.Component<AllProps, IState> {
     return (
       <React.Fragment>
         {/* {(this.state.totalParsed < this.state.totalFiles) && <div>Loading: {this.state.totalParsed} of {this.state.totalFiles} loaded </div>} */}
-        {this.state.totalParsed < this.state.totalFiles && <DcmLoader totalFiles={this.state.totalFiles} totalParsed={this.state.totalParsed} />}
+        {this.state.totalParsed < this.state.totalFiles && (
+          <DcmLoader
+            totalFiles={this.state.totalFiles}
+            totalParsed={this.state.totalParsed}
+          />
+        )}
         <div className="ami-viewer">
-          {!!this.state.workingSeriesItem && <DcmInfoPanel seriesItem={this.state.workingSeriesItem} />}
-          <div id="my-gui-container" >
+          {!!this.state.workingSeriesItem && (
+            <DcmInfoPanel seriesItem={this.state.workingSeriesItem} />
+          )}
+          <div id="my-gui-container">
             <a onClick={() => this.handleClick(-1)}> Prev</a> |
-          <a onClick={() => this.handleClick(1)}> Next</a> |
-          <a onClick={() => this.handlePlay()}> Play</a> |
-          <a onClick={() => this.handlePause()}> Pause</a>
+            <a onClick={() => this.handleClick(1)}> Next</a> |
+            <a onClick={() => this.handlePlay()}> Play</a> |
+            <a onClick={() => this.handlePause()}> Pause</a>
           </div>
-          <div id="container" />
+          <div ref={this.containerRef} id="container" />
         </div>
       </React.Fragment>
     );
@@ -93,7 +106,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
   // Description: Run AMI CODE ***** working to be abstracted out
   initAmi = () => {
     const { galleryItems } = this.props;
-    const container = document.getElementById("container"); // console.log("initialize AMI", this.state, container);
+    const container = this.containerRef.current; // console.log("initialize AMI", this.state, container);
     if (!!container) {
       const renderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -112,7 +125,9 @@ class AmiViewer extends React.Component<AllProps, IState> {
         width / 2,
         height / 2,
         height / -2,
-        0.1, 2000);
+        0.1,
+        2000
+      );
 
       // Setup controls
       const TrackballOrthoControl = trackballOrthoControlFactory(THREE);
@@ -133,7 +148,8 @@ class AmiViewer extends React.Component<AllProps, IState> {
 
       // Deal with the loader
       this._loadUrls(galleryItems)
-        .then((series: any) => {   // merge series
+        .then((series: any) => {
+          // merge series
           const mergedSeries = series[0].mergeSeries(series);
           const firstSeries = mergedSeries[0];
           return firstSeries;
@@ -155,9 +171,10 @@ class AmiViewer extends React.Component<AllProps, IState> {
           // gui(stackHelper);
           // Set compoent helpers:
           this._stackHelper = stackHelper;
-          this._isMounted && this.setState({
-            workingSeriesItem: series
-          })
+          this._isMounted &&
+            this.setState({
+              workingSeriesItem: series,
+            });
 
           // center camera and interactor to center of bouding box
           const worldbb = stack.worldBoundingBox();
@@ -169,7 +186,11 @@ class AmiViewer extends React.Component<AllProps, IState> {
 
           const box = {
             center: stack.worldCenter().clone(),
-            halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+            halfDimensions: new THREE.Vector3(
+              lpsDims.x + 10,
+              lpsDims.y + 10,
+              lpsDims.z + 10
+            ),
           };
 
           // init and zoom
@@ -184,8 +205,10 @@ class AmiViewer extends React.Component<AllProps, IState> {
           camera.fitBox(2);
           // Bind event handler at the end
           window.addEventListener("resize", onWindowResize, false);
-          this._removeResizeEventListener = () => window.removeEventListener("resize", onWindowResize, false);
-        }).catch((error: any) => {
+          this._removeResizeEventListener = () =>
+            window.removeEventListener("resize", onWindowResize, false);
+        })
+        .catch((error: any) => {
           console.error(error);
         });
 
@@ -216,7 +239,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
         stackFolder.open();
       };
     }
-  }
+  };
 
   // Getting Images
   _loadUrls(galleryItems: IGalleryItem[]) {
@@ -225,7 +248,8 @@ class AmiViewer extends React.Component<AllProps, IState> {
     galleryItems.forEach((_galleryItem: IGalleryItem) => {
       const url = _galleryItem.file_resource;
       // ONLY PUSH FILES THAT ARE READABLE - to be completed ***** working
-      const isDicomFile = getFileExtension(_galleryItem.fileName).toLowerCase() === "dcm";
+      const isDicomFile =
+        getFileExtension(_galleryItem.fileName).toLowerCase() === "dcm";
       isDicomFile && loadSequences.push(this._loadUrl(url));
     });
 
@@ -239,31 +263,33 @@ class AmiViewer extends React.Component<AllProps, IState> {
     return fetcher
       .then((arrayBuffer: any) => {
         const totalLoaded = this.state.totalLoaded + 1;
-        _self._isMounted && this.setState({
-          totalLoaded
-        })
-        return loader.parse({
-          url,
-          buffer: arrayBuffer,
-        })
+        _self._isMounted &&
+          this.setState({
+            totalLoaded,
+          });
+        return loader
+          .parse({
+            url,
+            buffer: arrayBuffer,
+          })
           .then((response: any) => {
             const totalParsed = this.state.totalParsed + 1;
-            _self._isMounted && this.setState({
-              totalParsed
-            })
+            _self._isMounted &&
+              this.setState({
+                totalParsed,
+              });
             return response;
           });
       })
       .catch((error: any) => {
-        console.log(error);
+        console.error(error);
       });
   }
 
   _fetchUrl(url: string) {
-    return ChrisModel.getFileBufferArrayArray(url)
-      .then((response: any) => {
-        return response.data;
-      });
+    return ChrisModel.getFileBufferArrayArray(url).then((response: any) => {
+      return response.data;
+    });
   }
 
   // Destroy Methods
@@ -273,7 +299,6 @@ class AmiViewer extends React.Component<AllProps, IState> {
     !!this._removeResizeEventListener && this._removeResizeEventListener();
     clearInterval(this._playInterval);
   }
-
 }
 
 // Will move out!
@@ -281,8 +306,7 @@ const colors = {
   darkGrey: 0x353535,
   white: 0xffffff,
   black: 0x000000,
-  red: 0xff0000
+  red: 0xff0000,
 };
-
 
 export default AmiViewer;

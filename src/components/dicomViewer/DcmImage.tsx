@@ -6,7 +6,7 @@ import * as AMI from "ami.js";
 import {
   orthographicCameraFactory,
   stackHelperFactory,
-  trackballOrthoControlFactory
+  trackballOrthoControlFactory,
 } from "ami.js";
 import "./amiViewer.scss";
 
@@ -18,6 +18,11 @@ type AllProps = {
 class DcmImage extends React.Component<AllProps> {
   private _removeResizeEventListener?: () => void = undefined;
   // dynamicImagePixelData: string | ArrayBuffer | null = null;
+  private containerRef: React.RefObject<HTMLInputElement>;
+  constructor(props: AllProps) {
+    super(props);
+    this.containerRef = React.createRef();
+  }
   componentDidMount() {
     const { file } = this.props;
     if (!!file.blob) {
@@ -30,14 +35,14 @@ class DcmImage extends React.Component<AllProps> {
     return (
       <div className="ami-viewer">
         <div id="my-gui-container" />
-        <div id="container" />
+        <div ref={this.containerRef} id="container" />
       </div>
     );
   }
 
   // Description: Run AMI CODE ***** working to be abstracted out
   initAmi = (file: string) => {
-    const container = document.getElementById("container");
+    const container = this.containerRef.current;
     if (!!container) {
       const renderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -50,14 +55,16 @@ class DcmImage extends React.Component<AllProps> {
       const scene = new THREE.Scene();
       const OrthograhicCamera = orthographicCameraFactory(THREE);
       const width = container.clientWidth,
-      height = container.clientHeight;
+        height = container.clientHeight;
       // type => ( left : number, right : number, top : number, bottom : number, near : number =  0.1, far : number = 2000 ) => void
       const camera = new OrthograhicCamera(
         width / -2,
         width / 2,
         height / 2,
         height / -2,
-         0.1, 2000);
+        0.1,
+        2000
+      );
 
       // Setup controls
       const TrackballOrthoControl = trackballOrthoControlFactory(THREE);
@@ -104,7 +111,11 @@ class DcmImage extends React.Component<AllProps> {
 
           const box = {
             center: stack.worldCenter().clone(),
-            halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+            halfDimensions: new THREE.Vector3(
+              lpsDims.x + 10,
+              lpsDims.y + 10,
+              lpsDims.z + 10
+            ),
           };
 
           // init and zoom
@@ -120,8 +131,10 @@ class DcmImage extends React.Component<AllProps> {
 
           // Bind event handler at the end
           window.addEventListener("resize", onWindowResize, false);
-          this._removeResizeEventListener = () => window.removeEventListener("resize", onWindowResize, false);
-        }).catch((error: any) => {
+          this._removeResizeEventListener = () =>
+            window.removeEventListener("resize", onWindowResize, false);
+        })
+        .catch((error: any) => {
           console.error(error);
         });
 
@@ -172,10 +185,7 @@ class DcmImage extends React.Component<AllProps> {
           camera.rotate();
         });
 
-        cameraFolder
-          .add(camera, "angle", 0, 360)
-          .step(1)
-          .listen();
+        cameraFolder.add(camera, "angle", 0, 360).step(1).listen();
 
         const orientationUpdate = cameraFolder.add(camUtils, "orientation", [
           "default",
@@ -190,7 +200,10 @@ class DcmImage extends React.Component<AllProps> {
           stackHelper.orientation = camera.stackOrientation;
         });
 
-        const conventionUpdate = cameraFolder.add(camUtils, "convention", ["radio", "neuro"]);
+        const conventionUpdate = cameraFolder.add(camUtils, "convention", [
+          "radio",
+          "neuro",
+        ]);
         conventionUpdate.onChange((value: any) => {
           camera.convention = value;
           camera.update();
@@ -211,7 +224,7 @@ class DcmImage extends React.Component<AllProps> {
         stackFolder.open();
       };
     }
-  }
+  };
   componentWillUnmount() {
     !!this._removeResizeEventListener && this._removeResizeEventListener();
   }
@@ -222,8 +235,7 @@ const colors = {
   darkGrey: 0x353535,
   white: 0xffffff,
   black: 0x000000,
-  red: 0xff0000
+  red: 0xff0000,
 };
-
 
 export default DcmImage;
