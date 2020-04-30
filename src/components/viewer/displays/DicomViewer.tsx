@@ -8,7 +8,7 @@ type AllProps = {
   pluginType?: string;
 };
 
-// Description: Will be replaced with a DCM Fyle viewer
+// Description: Will be replaced with a DCM File viewer
 const DicomViewer: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const imageSrc =
     props.pluginType === "DicomViewer_3D"
