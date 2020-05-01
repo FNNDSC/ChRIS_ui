@@ -25,14 +25,14 @@ export const galleryActions = keyMirror({
   previous: null,
   download: null,
   fullscreen: null,
-  information: null
+  information: null,
 });
 
 export type galleryModelItemType = IUITreeNode | IGalleryItem;
 
 export default class GalleryModel {
   static getGalleryItemBlob(galleryItem: IGalleryItem) {
-    return ChrisModel.getFileBlob(galleryItem.url).catch(error => {
+    return ChrisModel.getFileBlob(galleryItem.url).catch((error) => {
       return { error }; // HANDLE ERROR FILES
     });
   }
@@ -125,7 +125,7 @@ export class GalleryItemModel {
       fileName: node.module,
       fileType,
       isActive: false,
-      index: this.index
+      index: this.index,
     };
 
     return galleryItem;
