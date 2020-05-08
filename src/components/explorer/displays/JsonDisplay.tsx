@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-//import JSONPretty from "react-json-pretty";
+
 import { IGalleryItem } from "../../../api/models/gallery.model";
 import ReactJSON from "react-json-view";
 import _ from "lodash";
@@ -30,10 +30,9 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
           name={false}
           displayDataTypes={false}
           src={blobText}
-          theme={"monokai"}
           displayObjectSize={false}
           style={{
-            fontSize: "18px",
+            fontSize: "16px",
           }}
         />
       )}
