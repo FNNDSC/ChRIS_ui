@@ -35,16 +35,6 @@ class Editor extends Component<EditorProps, EditorState> {
     this.generateCommand(dropdownInput, requiredInput, plugin);
   }
 
-  componentDidUpdate(prevProps: EditorProps) {
-    const { dropdownInput, requiredInput, plugin } = this.props;
-    if (
-      !isEqual(prevProps.dropdownInput, dropdownInput) ||
-      !isEqual(prevProps.requiredInput, requiredInput)
-    ) {
-      this.generateCommand(dropdownInput, requiredInput, plugin);
-    }
-  }
-
   generateCommand(
     dropdownInput: InputType,
     requiredInput: InputType,
