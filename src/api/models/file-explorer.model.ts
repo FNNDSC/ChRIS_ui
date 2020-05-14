@@ -24,7 +24,7 @@ export default class UITreeNodeModel {
   private _worker: IUITreeNode = {
     module: "root",
     uiId: "root",
-    children: []
+    children: [],
   };
   private _previousItem = "root";
   private _previousObj = this._worker;
@@ -33,13 +33,13 @@ export default class UITreeNodeModel {
     uiId: "",
     collapsed: false,
     leaf: false,
-    children: []
+    children: [],
   };
   private _fileTemplate: IUITreeNode = {
     module: "",
     uiId: "",
     leaf: true,
-    file: {}
+    file: {},
   };
   tree: IUITreeNode = this._worker;
 
@@ -85,7 +85,7 @@ export default class UITreeNodeModel {
   private _AddFolder = (item: string, uiId: string) => {
     const newFolder = Object.assign({}, this._folderTemplate, {
       module: item,
-      uiId
+      uiId,
     }); // This is what we will add
     if (!!this._previousObj && !!this._previousObj.children) {
       const newArr = this._previousObj.children.slice();
@@ -104,7 +104,7 @@ export default class UITreeNodeModel {
     const newFile = Object.assign({}, this._fileTemplate, {
       module: item,
       uiId,
-      file
+      file,
     });
     this._findChildrenArr(this._previousItem, this._worker);
     if (!!this._previousObj && !!this._previousObj.children) {

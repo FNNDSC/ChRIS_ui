@@ -7,7 +7,7 @@ import {
   getFeedDetailsSuccess,
   getPluginInstanceListRequest,
   getPluginInstanceListSuccess,
-  getUploadedFilesSuccess
+  getUploadedFilesSuccess,
 } from "./actions";
 
 // ------------------------------------------------------------------------
@@ -15,24 +15,16 @@ import {
 // pass it a param and do a search querie
 // ------------------------------------------------------------------------
 
-function* handleGetAllFeeds(action: IActionTypeParam) {
-  const { name } = action.payload;
+function* handleGetAllFeeds() {
   let params = {
     limit: 100,
-    offset: 0
+    offset: 0,
   };
 
   try {
-    const query = `limit=${params.limit}&offset=${params.offset}`;
-    const url = !!action.payload.name
-      ? `${process.env.REACT_APP_CHRIS_UI_URL}search/?name=${name}&${query}`
-      : `${process.env.REACT_APP_CHRIS_UI_URL}?${query}`;
-    const res = yield call(ChrisModel.fetchRequest, url);
-    if (res.error) {
-      console.error(res.error);
-    } else {
-      yield put(getAllFeedsSuccess(res));
-    }
+    const client = ChrisAPIClient.getClient();
+    const feeds = yield client.getFeeds(params);
+    yield put(getAllFeedsSuccess(feeds));
   } catch (error) {
     console.error(error);
   }
@@ -116,7 +108,7 @@ function* getUploadedFiles() {
   const client = ChrisAPIClient.getClient();
   const params = {
     limit: 100,
-    offset: 0
+    offset: 0,
   };
 
   let fileList = yield client.getUploadedFiles(params);
@@ -154,6 +146,6 @@ export function* feedSaga() {
     fork(watchGetAllFeedsRequest),
     fork(watchGetFeedRequest),
     fork(watchGetPluginInstances),
-    fork(watchGetUploadedFiles)
+    fork(watchGetUploadedFiles),
   ]);
 }
