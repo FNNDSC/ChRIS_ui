@@ -5,11 +5,10 @@ import { ChrisFile } from "./CreateFeed";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { Feed } from "@fnndsc/chrisapi";
 import { findWhere } from "./utils/utils";
-//import { Tree } from "antd";
+import { Tree } from "antd";
 import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
-
-import Tree from "rc-tree";
-import "rc-tree/assets/index.css";
+import "antd/dist/antd.css";
+import { uuid } from "uuidv4";
 
 interface IChrisFileSelect {
   files: ChrisFile[];
@@ -18,32 +17,29 @@ interface IChrisFileSelect {
   feeds?: Feed["data"][];
 }
 
-const ChrisFileSelect: React.FC<IChrisFileSelect> = (props) => {
+const ChrisFileSelect: React.FC<IChrisFileSelect> = ({ feeds }) => {
   const [tree, setTree] = useState<DataNode[]>(getEmptyTree());
-  const [checkedKeys, setCheckedKeys] = useState([]);
+  const [checkedKeys, setCheckedKeys] = useState<
+    | {
+        checked: Key[];
+        halfChecked: Key[];
+      }
+    | Key[]
+  >([]);
+  const [expandedKeys, setExpandedKeys] = useState<Key[]>();
 
-  useEffect(() => {
-    /*
-    const getFiles = async () => {
-      let files = await getUploadedFiles();
+  useEffect(() => {}, []);
 
-      const filePaths = files.map((file, index) => {
-        return {
-          path: file.data.upload_path,
-        };
-      });
-      let tree = buildTree(filePaths, "0");
-      let arr = [tree];
-      setTree(arr);
-      console.log("Tree", tree);
-      // setTree(tree);
-    };
-
-    getFiles();
-    */
-  }, []);
-
-  const onCheck = () => {};
+  const onCheck = (
+    checkedKeys:
+      | {
+          checked: Key[];
+          halfChecked: Key[];
+        }
+      | Key[]
+  ) => {
+    setCheckedKeys(checkedKeys);
+  };
 
   const onLoad = (treeNode: EventDataNode): Promise<void> => {
     const { key, children } = treeNode;
@@ -55,18 +51,27 @@ const ChrisFileSelect: React.FC<IChrisFileSelect> = (props) => {
       }
 
       setTimeout(() => {
-        updateTreeData(tree, key, generateTreeNodes(treeNode));
-        setTree(tree);
+        generateTreeNodes(treeNode).then((nodes) => {
+          setTree((origin) => {
+            const tree = updateTreeData(nodes);
+            console.log("tree", tree);
+            return tree;
+          });
+        });
+
         resolve();
       }, 1000);
     });
   };
 
-  console.log("TreeData", tree);
-
+  const onExpand = (expandedKeys: Key[]) => {
+    console.log("ExpandedKeys", expandedKeys);
+    setExpandedKeys(expandedKeys);
+  };
   return (
     <div style={{ height: 500 }}>
       <Tree
+        onExpand={onExpand}
         onCheck={onCheck}
         loadData={onLoad}
         checkedKeys={checkedKeys}
@@ -88,41 +93,22 @@ export default connect(mapStateToProps, null)(ChrisFileSelect);
  *
  *
  * utility functions to be abstracted out once this works
+ *
  */
 
-function updateTreeData(
-  treeData: DataNode[],
-  currentKey: Key,
-  child: Promise<DataNode[]>
-) {
-  child.then((child) => {
-    const loop = (data: DataNode[]) => {
-      data.forEach((item) => {
-        if ((currentKey as string).indexOf(item.key as string) === 0) {
-          if (item.children) {
-            loop(item.children);
-          } else {
-            item.children = child;
-          }
-        }
-      });
-    };
+// It's just a simple demo. You can use tree map to optimize update perf.
 
-    loop(treeData);
-    setLeaf(treeData, currentKey);
+function updateTreeData(children: DataNode[]): DataNode[] {
+  const tree = children.map((node) => {
+    return node;
   });
+  setLeaf(tree);
+  return tree;
 }
 
-function setLeaf(treeData: DataNode[], curKey: Key) {
+function setLeaf(treeData: DataNode[]) {
   const loopLeaf = (data: DataNode[]) => {
     data.forEach((item) => {
-      if (
-        (item.key as string).length > (curKey as string).length
-          ? (item.key as string).indexOf(curKey as string) !== 0
-          : (curKey as string).indexOf(item.key as string) !== 0
-      ) {
-        return;
-      }
       if (item.children && item.children.length > 0) {
         loopLeaf(item.children);
       } else {
@@ -134,8 +120,14 @@ function setLeaf(treeData: DataNode[], curKey: Key) {
 }
 
 async function generateTreeNodes(treeNode: EventDataNode): Promise<DataNode[]> {
+  console.log("TreeNode", treeNode);
   let arr = [];
-  const { key } = treeNode;
+  const feeds = await getFeeds();
+  const feedPaths = feeds.map((feed) => {
+    return {
+      path: `feed_${feed.data.id}`,
+    };
+  });
 
   const files = await getUploadedFiles();
   const filePaths = files.map((file, index) => {
@@ -143,28 +135,24 @@ async function generateTreeNodes(treeNode: EventDataNode): Promise<DataNode[]> {
       path: file.data.upload_path,
     };
   });
-  const tree = buildTree(filePaths, key);
-  arr.push(tree);
+  const paths = [...feedPaths, ...filePaths];
+  buildTree(paths, treeNode);
+  arr.push(treeNode);
   return arr;
 }
 
-function buildTree(filePaths: any[], currentkey: Key) {
+function buildTree(filePaths: any[], treeNode: EventDataNode) {
   const paths = filePaths.map((filePath: any) => {
-    const parts = filePath.path.split("/").slice(1);
+    const parts = filePath.path.split("/");
     return parts;
   });
 
-  let tree = {
-    title: "uploads",
-    children: [],
-    key: `${currentkey}-0`,
-  };
+  treeNode.children = [];
 
   for (let i = 0; i < paths.length; i++) {
     let path = paths[i];
 
-    let currentLevel: DataNode[] = tree.children;
-    let uniqueKey = tree.key;
+    let currentLevel: DataNode[] = treeNode.children;
 
     for (let j = 0; j < path.length; j++) {
       let part = path[j];
@@ -172,13 +160,11 @@ function buildTree(filePaths: any[], currentkey: Key) {
       let existingPath = findWhere(currentLevel, "title", part);
 
       if (existingPath) {
-        console.log("ExistingPath", existingPath);
         currentLevel = existingPath.children;
-        uniqueKey = `${existingPath.key}`;
       } else {
         let newPart = {
           title: part,
-          key: `${uniqueKey}-${i}`,
+          key: uuid(),
           children: [],
         };
         currentLevel && currentLevel.push(newPart);
@@ -186,7 +172,21 @@ function buildTree(filePaths: any[], currentkey: Key) {
       }
     }
   }
-  return tree;
+}
+
+async function getFeeds() {
+  let params = {
+    limit: 100,
+    offset: 0,
+  };
+  let feeds = [];
+  try {
+    const client = ChrisAPIClient.getClient();
+    feeds = (await client.getFeeds(params)).getItems();
+  } catch (error) {
+    console.error(error);
+  }
+  return feeds;
 }
 
 async function getUploadedFiles() {
