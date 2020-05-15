@@ -7,11 +7,12 @@ import { Feed } from "@fnndsc/chrisapi";
 
 import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
 
-import Tree from "rc-tree";
-import "rc-tree/assets/index.css";
-//import { Tree } from "antd";
-//import "antd/dist/antd.css";
-import { findWhere } from "./utils/utils";
+//import Tree from "rc-tree";
+//import "rc-tree/assets/index.css";
+import { Tree } from "antd";
+import "antd/dist/antd.css";
+
+import _ from "lodash";
 
 interface IChrisFileSelect {
   files: ChrisFile[];
@@ -129,6 +130,7 @@ function updateTreeData(
   child: DataNode[]
 ) {
   const loop = (data: DataNode[]) => {
+    console.log("Data,child", data, child);
     data.forEach((item) => {
       if (currentKey.indexOf(item.key as string) === 0) {
         if (item.children) {
@@ -141,13 +143,20 @@ function updateTreeData(
   };
 
   loop(treeData);
-  //setLeaf(treeData);
 }
 
-function setLeaf(treeData: DataNode[]) {
-  const loopLeaf = (data: DataNode[]) => {
+/*
+function setLeaf(treeData, curKey, level) {
+  const loopLeaf = (data) => {
     data.forEach((item) => {
-      if (item.children && item.children.length > 0) {
+      if (
+        item.key.length > curKey.length
+          ? item.key.indexOf(curKey) !== 0
+          : curKey.indexOf(item.key) !== 0
+      ) {
+        return;
+      }
+      if (item.children) {
         loopLeaf(item.children);
       } else {
         item.isLeaf = true;
@@ -156,13 +165,9 @@ function setLeaf(treeData: DataNode[]) {
   };
   loopLeaf(treeData);
 }
+*/
 
 async function generateTreeNodes(treeNode: EventDataNode): Promise<DataNode[]> {
-  console.log(
-    "TreeNode",
-    treeNode.pos,
-    treeNode.title && treeNode.title.toString()
-  );
   const key = treeNode.pos;
   let arr = [];
 
@@ -175,7 +180,6 @@ async function generateTreeNodes(treeNode: EventDataNode): Promise<DataNode[]> {
   }
 
   if (treeNode.title && treeNode.title.toString().indexOf("feed") === 0) {
-    console.log("Tree node feed?", treeNode.title);
     const id = treeNode.title.toString().split("_")[1];
 
     const pluginInstances = await getPluginInstancesForFeed(parseInt(id));
@@ -191,52 +195,22 @@ async function generateTreeNodes(treeNode: EventDataNode): Promise<DataNode[]> {
   if (treeNode.title && treeNode.title.toString().indexOf("uploads") === 0) {
     const files = await getUploadedFiles();
     const filePaths = files.map((file) => file.data.upload_path);
-    const tree = buildTree(treeNode, filePaths);
-    console.log("Tree", tree);
 
-    //const uniquePaths = Array.from(new Set(filePaths));
+    buildTree(filePaths, (tree) => {
+      traverse(tree, treeNode.pos);
 
-    /*
-    for (let i = 0; i < uniquePaths.length; i++) {
-      arr.push({
-        title: uniquePaths[i],
-        key: `${key}-${i}`,
-        children: [
-          {
-            title: "dicom",
-            key: `${key}-0-0`,
-          },
-        ],
-      });
-    }
-    */
+      arr.push(tree[0]);
+    });
   }
 
-  /*
-  const feedPaths = feeds.map((feed) => {
-    return {
-      path: `feed_${feed.data.id}`,
-    };
-  });
-  */
-
-  /*
-  const files = await getUploadedFiles();
-  const filePaths = files.map((file, index) => {
-    return {
-      path: file.data.upload_path,
-    };
-  });
-
-  /*
-
-
-  
-  const paths = [...feedPaths, ...filePaths];
-  buildTree(paths, treeNode);
-  arr.push(treeNode);
-  */
   return arr;
+}
+
+function traverse(tree: DataNode[], startIndex: string) {
+  _.each(tree, function (item, index) {
+    item.key = `${startIndex}-${index}`;
+    if (item.children) traverse(item.children, item.key);
+  });
 }
 
 async function getFeeds() {
@@ -286,46 +260,29 @@ async function getUploadedFiles() {
   return files;
 }
 
-function buildTree(treeNode: EventDataNode, filePaths: any[]) {
-  const paths = filePaths.map((filePath: any) => {
-    const parts = filePath.split("/").slice(1);
-    return parts;
-  });
-  let tree: DataNode = {
-    title: treeNode.title,
-    key: treeNode.key,
-  };
+function buildTree(paths: string[], cb: (tree: any[]) => void) {
+  var tree: any[] = [];
 
-  tree.children = [];
-
-  for (let i = 0; i < paths.length; i++) {
-    let path = paths[i];
-
-    let currentLevel = tree.children;
-    let key = `${treeNode.key}-${i}`;
-    let level = path.length;
-
-    for (let j = 0; j < path.length; j++) {
-      let part = path[j];
-      console.log("Level", level);
-
-      let existingPath = findWhere(currentLevel, "title", part);
-
+  _.each(paths, function (path) {
+    var pathParts = path.split("/");
+    pathParts.shift();
+    var currentLevel = tree;
+    _.each(pathParts, function (part) {
+      var existingPath = _.find(currentLevel, {
+        title: part,
+      });
       if (existingPath) {
         currentLevel = existingPath.children;
       } else {
-        let newPart = {
+        var newPart = {
           title: part,
-          key: `${key}-${i}`,
           children: [],
         };
-
-        currentLevel && currentLevel.push(newPart);
-        level--;
-
+        currentLevel.push(newPart);
         currentLevel = newPart.children;
       }
-    }
-  }
-  return tree;
+    });
+  });
+
+  cb(tree);
 }
