@@ -39,7 +39,6 @@ const ChrisFileSelect: React.FC<IChrisFileSelect> = ({ feeds }) => {
       }
     | Key[]
   >([]);
-  const [expandedKeys, setExpandedKeys] = useState<Key[]>();
 
   useEffect(() => {}, []);
 
@@ -49,9 +48,22 @@ const ChrisFileSelect: React.FC<IChrisFileSelect> = ({ feeds }) => {
           checked: Key[];
           halfChecked: Key[];
         }
-      | Key[]
+      | Key[],
+    info: {
+      event: "check";
+      node: EventDataNode;
+      checked: boolean;
+      nativeEvent: MouseEvent;
+      checkedNodes: DataNode[];
+      checkedNodesPositions?: {
+        node: DataNode;
+        pos: string;
+      }[];
+      halfCheckedKeys?: Key[];
+    }
   ) => {
     setCheckedKeys(checkedKeys);
+    console.log("CheckedKeys", checkedKeys, info);
   };
 
   const onLoad = (treeNode: EventDataNode): Promise<void> => {
@@ -68,7 +80,6 @@ const ChrisFileSelect: React.FC<IChrisFileSelect> = ({ feeds }) => {
         generateTreeNodes(treeNode).then((nodes) => {
           const treeData = [...tree];
           updateTreeData(treeData, treeNode.pos, nodes);
-          console.log("TreeData", treeData);
           setTree(treeData);
         });
 
@@ -77,32 +88,15 @@ const ChrisFileSelect: React.FC<IChrisFileSelect> = ({ feeds }) => {
     });
   };
 
-  const onExpand = (expandedKeys: Key[]) => {
-    console.log("ExpandedKeys", expandedKeys);
-    setExpandedKeys(expandedKeys);
-  };
-
-  const onSelect = (
-    selectedKeys: Key[],
-    info: {
-      event: "select";
-      selected: boolean;
-      node: EventDataNode;
-      selectedNodes: DataNode[];
-      nativeEvent: MouseEvent;
-    }
-  ) => {};
-
   return (
     <div style={{ height: 500 }}>
       <Tree
-        onExpand={onExpand}
-        onSelect={onSelect}
         onCheck={onCheck}
         loadData={onLoad}
         checkedKeys={checkedKeys}
         checkable
         treeData={tree}
+        checkStrictly
       />
     </div>
   );
@@ -145,18 +139,10 @@ function updateTreeData(
   loop(treeData);
 }
 
-/*
-function setLeaf(treeData, curKey, level) {
-  const loopLeaf = (data) => {
+function setLeaf(treeData: DataNode[]) {
+  const loopLeaf = (data: DataNode[]) => {
     data.forEach((item) => {
-      if (
-        item.key.length > curKey.length
-          ? item.key.indexOf(curKey) !== 0
-          : curKey.indexOf(item.key) !== 0
-      ) {
-        return;
-      }
-      if (item.children) {
+      if (item.children && item.children.length > 0) {
         loopLeaf(item.children);
       } else {
         item.isLeaf = true;
@@ -165,7 +151,6 @@ function setLeaf(treeData, curKey, level) {
   };
   loopLeaf(treeData);
 }
-*/
 
 async function generateTreeNodes(treeNode: EventDataNode): Promise<DataNode[]> {
   const key = treeNode.pos;
@@ -181,25 +166,30 @@ async function generateTreeNodes(treeNode: EventDataNode): Promise<DataNode[]> {
 
   if (treeNode.title && treeNode.title.toString().indexOf("feed") === 0) {
     const id = treeNode.title.toString().split("_")[1];
+    const feedFiles = await getFeedFiles(parseInt(id));
+    const feedPaths = feedFiles.map(
+      (file) => file.data.fname.split(treeNode.title)[1]
+    );
+    buildTree(feedPaths, (tree) => {
+      traverse(tree, treeNode.pos);
+      setLeaf(tree);
 
-    const pluginInstances = await getPluginInstancesForFeed(parseInt(id));
-    for (let i = 0; i < pluginInstances.length; i++) {
-      let title = `${pluginInstances[i].data.plugin_name}_${pluginInstances[i].data.id}`;
-      arr.push({
-        title,
-        key: `${key}-${i}`,
-      });
-    }
+      arr.push(tree[0]);
+    });
   }
 
   if (treeNode.title && treeNode.title.toString().indexOf("uploads") === 0) {
     const files = await getUploadedFiles();
+    console.log("Files", files);
     const filePaths = files.map((file) => file.data.upload_path);
 
     buildTree(filePaths, (tree) => {
       traverse(tree, treeNode.pos);
+      setLeaf(tree);
 
-      arr.push(tree[0]);
+      for (let i = 0; i < tree.length; i++) {
+        arr.push(tree[i]);
+      }
     });
   }
 
@@ -228,13 +218,26 @@ async function getFeeds() {
   return feeds;
 }
 
-async function getPluginInstancesForFeed(id: number) {
+async function getFeedFiles(id: number) {
   const client = ChrisAPIClient.getClient();
+  let params = {
+    limit: 100,
+    offset: 0,
+  };
 
-  const pluginInstanceList = await (
-    await client.getFeed(id)
-  ).getPluginInstances();
-  return pluginInstanceList.getItems();
+  let fileList = await (await client.getFeed(id)).getFiles(params);
+  let feedFiles = fileList.getItems();
+
+  while (fileList.hasNextPage) {
+    try {
+      params.offset += params.limit;
+      fileList = await (await client.getFeed(id)).getFiles(params);
+      feedFiles.push(...fileList.getItems());
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  return feedFiles;
 }
 
 async function getUploadedFiles() {
