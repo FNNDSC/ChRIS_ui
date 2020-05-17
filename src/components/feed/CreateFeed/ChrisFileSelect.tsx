@@ -1,37 +1,51 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { connect } from "react-redux";
-import { ChrisFile } from "./CreateFeed";
+
 import { ApplicationState } from "../../../store/root/applicationState";
 import { Feed } from "@fnndsc/chrisapi";
+import { Split, SplitItem } from "@patternfly/react-core";
 
 import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
+import { FolderCloseIcon, FileIcon, CloseIcon } from "@patternfly/react-icons";
 
-//import Tree from "rc-tree";
-//import "rc-tree/assets/index.css";
 import { Tree } from "antd";
+
 import "antd/dist/antd.css";
+
+//import { getNewTreeData } from "rc-tree/es/";
 
 import _ from "lodash";
 
 interface IChrisFileSelect {
-  files: ChrisFile[];
-  handleFileAdd: (file: ChrisFile) => void;
-  handleFileRemove: (file: ChrisFile) => void;
+  files: EventNode[];
+  handleFileAdd: (file: EventNode, filePath: string) => void;
+  handleFileRemove: (file: EventNode) => void;
   feeds?: Feed["data"][];
 }
 
+type Breadcrumb = {
+  breadcrumb?: string;
+};
+export type EventNode = EventDataNode & Breadcrumb;
+type DataBreadcrumb = DataNode & Breadcrumb;
+
 function getEmptyTree() {
-  let node: DataNode[] = [];
+  let node: DataBreadcrumb[] = [];
   node.push({
+    breadcrumb: "chris",
     title: "chris",
     key: "0-0",
   });
   return node;
 }
 
-const ChrisFileSelect: React.FC<IChrisFileSelect> = ({ feeds }) => {
-  const [tree, setTree] = useState<DataNode[]>(getEmptyTree());
+const ChrisFileSelect: React.FC<IChrisFileSelect> = ({
+  handleFileAdd,
+  handleFileRemove,
+  files,
+}) => {
+  const [tree, setTree] = useState<DataBreadcrumb[]>(getEmptyTree());
   const [checkedKeys, setCheckedKeys] = useState<
     | {
         checked: Key[];
@@ -39,8 +53,6 @@ const ChrisFileSelect: React.FC<IChrisFileSelect> = ({ feeds }) => {
       }
     | Key[]
   >([]);
-
-  useEffect(() => {}, []);
 
   const onCheck = (
     checkedKeys:
@@ -51,7 +63,7 @@ const ChrisFileSelect: React.FC<IChrisFileSelect> = ({ feeds }) => {
       | Key[],
     info: {
       event: "check";
-      node: EventDataNode;
+      node: EventNode;
       checked: boolean;
       nativeEvent: MouseEvent;
       checkedNodes: DataNode[];
@@ -63,7 +75,14 @@ const ChrisFileSelect: React.FC<IChrisFileSelect> = ({ feeds }) => {
     }
   ) => {
     setCheckedKeys(checkedKeys);
-    console.log("CheckedKeys", checkedKeys, info);
+    console.log("Info", info);
+
+    if (info.node.breadcrumb) {
+      let path = `chris/${info.node.breadcrumb}`;
+
+      if (info.checked === true) handleFileAdd(info.node, path);
+      else handleFileRemove(info.node);
+    }
   };
 
   const onLoad = (treeNode: EventDataNode): Promise<void> => {
@@ -79,7 +98,7 @@ const ChrisFileSelect: React.FC<IChrisFileSelect> = ({ feeds }) => {
       setTimeout(() => {
         generateTreeNodes(treeNode).then((nodes) => {
           const treeData = [...tree];
-          updateTreeData(treeData, treeNode.pos, nodes);
+          getNewTreeData(treeData, treeNode.pos, nodes);
           setTree(treeData);
         });
 
@@ -88,16 +107,45 @@ const ChrisFileSelect: React.FC<IChrisFileSelect> = ({ feeds }) => {
     });
   };
 
+  const fileList = files.map((file: EventNode, index) => {
+    const isFolder = file.children && file.children.length > 0;
+    const icon = isFolder ? <FolderCloseIcon /> : <FileIcon />;
+
+    return (
+      <div className="File-preview" key={index}>
+        {icon}
+        <span className="file-name">{file.title}</span>
+        <CloseIcon
+          className="file-remove"
+          onClick={() => handleFileRemove(file)}
+        />
+      </div>
+    );
+  });
+
   return (
-    <div style={{ height: 500 }}>
-      <Tree
-        onCheck={onCheck}
-        loadData={onLoad}
-        checkedKeys={checkedKeys}
-        checkable
-        treeData={tree}
-        checkStrictly
-      />
+    <div className="chris-file-select">
+      <h1 className="pf-c-title pf-m-2xl">
+        Data Configuration: ChRIS File Select
+      </h1>
+      <p>Please choose the data files you'd like to add to your feed.</p>
+      <br />
+      <Split gutter="lg">
+        <SplitItem isFilled>
+          <Tree
+            onCheck={onCheck}
+            loadData={onLoad}
+            checkedKeys={checkedKeys}
+            checkable
+            treeData={tree}
+            checkStrictly
+          />
+        </SplitItem>
+        <SplitItem isFilled className="file-list-wrap">
+          <p className="section-header">Files to add to new feed:</p>
+          <div className="file-list">{fileList}</div>
+        </SplitItem>
+      </Split>
     </div>
   );
 };
@@ -116,17 +164,15 @@ export default connect(mapStateToProps, null)(ChrisFileSelect);
  *
  */
 
-// It's just a simple demo. You can use tree map to optimize update perf.
-
-function updateTreeData(
-  treeData: DataNode[],
-  currentKey: string,
-  child: DataNode[]
+function getNewTreeData(
+  treeData: DataBreadcrumb[],
+  curKey: string,
+  child: DataBreadcrumb[]
 ) {
-  const loop = (data: DataNode[]) => {
-    console.log("Data,child", data, child);
+  console.log("CurKey", curKey);
+  const loop = (data: DataBreadcrumb[]) => {
     data.forEach((item) => {
-      if (currentKey.indexOf(item.key as string) === 0) {
+      if (curKey.indexOf(item.key as string) === 0) {
         if (item.children) {
           loop(item.children);
         } else {
@@ -135,12 +181,12 @@ function updateTreeData(
       }
     });
   };
-
   loop(treeData);
+  //setLeaf(treeData);
 }
 
-function setLeaf(treeData: DataNode[]) {
-  const loopLeaf = (data: DataNode[]) => {
+function setLeaf(treeData: DataBreadcrumb[]) {
+  const loopLeaf = (data: DataBreadcrumb[]) => {
     data.forEach((item) => {
       if (item.children && item.children.length > 0) {
         loopLeaf(item.children);
@@ -152,54 +198,71 @@ function setLeaf(treeData: DataNode[]) {
   loopLeaf(treeData);
 }
 
-async function generateTreeNodes(treeNode: EventDataNode): Promise<DataNode[]> {
-  const key = treeNode.pos;
+async function generateTreeNodes(
+  treeNode: EventDataNode
+): Promise<DataBreadcrumb[]> {
+  const key = treeNode.key;
   let arr = [];
 
   if (treeNode.title === "chris") {
     const feeds = await getFeeds();
+    let breadcrumb = "chris";
     for (let i = 0; i < feeds.length; i += 1) {
-      arr.push({ title: `feed_${1}`, key: `${key}-${i}` });
+      arr.push({
+        breadcrumb: `${breadcrumb}/feed_${i + 1}`,
+        title: `feed_${i + 1}`,
+        key: `${key}-${i}`,
+      });
     }
-    arr.push({ title: "uploads", key: `${key}-${feeds.length}` });
+    arr.push({
+      breadcrumb: `${breadcrumb}/uploads`,
+      title: "uploads",
+      key: `${key}-${feeds.length}`,
+    });
   }
 
   if (treeNode.title && treeNode.title.toString().indexOf("feed") === 0) {
+    let breadcrumb = treeNode.title.toString();
     const id = treeNode.title.toString().split("_")[1];
     const feedFiles = await getFeedFiles(parseInt(id));
     const feedPaths = feedFiles.map(
       (file) => file.data.fname.split(treeNode.title)[1]
     );
-    buildTree(feedPaths, (tree) => {
-      traverse(tree, treeNode.pos);
-      setLeaf(tree);
-
-      arr.push(tree[0]);
-    });
+    if (feedPaths.length > 0)
+      buildTree(feedPaths, breadcrumb, (tree) => {
+        traverse(tree, treeNode.pos, breadcrumb);
+        setLeaf(tree);
+        arr.push(tree[0]);
+      });
   }
 
   if (treeNode.title && treeNode.title.toString().indexOf("uploads") === 0) {
+    let breadcrumb = treeNode.title.toString();
     const files = await getUploadedFiles();
-    console.log("Files", files);
+
     const filePaths = files.map((file) => file.data.upload_path);
 
-    buildTree(filePaths, (tree) => {
-      traverse(tree, treeNode.pos);
-      setLeaf(tree);
-
-      for (let i = 0; i < tree.length; i++) {
-        arr.push(tree[i]);
-      }
-    });
+    if (filePaths.length > 0)
+      buildTree(filePaths, breadcrumb, (tree) => {
+        traverse(tree, treeNode.pos, breadcrumb);
+        setLeaf(tree);
+        console.log("Tree", tree);
+        arr = tree;
+      });
   }
 
   return arr;
 }
 
-function traverse(tree: DataNode[], startIndex: string) {
+function traverse(
+  tree: DataBreadcrumb[],
+  startIndex: string | number,
+  breadcrumb: string
+) {
   _.each(tree, function (item, index) {
     item.key = `${startIndex}-${index}`;
-    if (item.children) traverse(item.children, item.key);
+    item.breadcrumb = `${breadcrumb}/${item.breadcrumb}`;
+    if (item.children) traverse(item.children, item.key, item.breadcrumb);
   });
 }
 
@@ -263,7 +326,11 @@ async function getUploadedFiles() {
   return files;
 }
 
-function buildTree(paths: string[], cb: (tree: any[]) => void) {
+function buildTree(
+  paths: string[],
+  breadcrumb: string,
+  cb: (tree: any[]) => void
+) {
   var tree: any[] = [];
 
   _.each(paths, function (path) {
@@ -278,6 +345,7 @@ function buildTree(paths: string[], cb: (tree: any[]) => void) {
         currentLevel = existingPath.children;
       } else {
         var newPart = {
+          breadcrumb: part,
           title: part,
           children: [],
         };

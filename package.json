@@ -38,7 +38,7 @@
     "jszip": "^3.2.2",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
-    "node-sass": "^4.13.1",
+    "node-sass": "^4.14.1",
     "patternfly-react": "^2.36.8",
     "rc-tree": "^3.2.2",
     "react": "^16.12.0",
