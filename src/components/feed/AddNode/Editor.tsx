@@ -15,7 +15,6 @@ import {
   getRequiredParamsWithId,
 } from "./lib/utils";
 import { Plugin } from "@fnndsc/chrisapi";
-import { isEqual } from "lodash";
 
 class Editor extends Component<EditorProps, EditorState> {
   constructor(props: EditorProps) {
