@@ -21,6 +21,7 @@ import BasicInformation from "./BasicInformation";
 import ChrisFileSelect from "./ChrisFileSelect";
 import LocalFileUpload from "./LocalFileUpload";
 import Review from "./Review";
+import { EventNode } from "./ChrisFileSelect";
 
 import "./createfeed.scss";
 import { IFeedState } from "../../../store/feed/types";
@@ -45,8 +46,9 @@ export interface CreateFeedData {
   feedName: string;
   feedDescription: string;
   tags: Tag[];
-  chrisFiles: ChrisFile[];
+  chrisFiles: EventNode[];
   localFiles: LocalFile[];
+  path: string;
 }
 
 function getDefaultCreateFeedData(): CreateFeedData {
@@ -56,6 +58,7 @@ function getDefaultCreateFeedData(): CreateFeedData {
     tags: [],
     chrisFiles: [],
     localFiles: [],
+    path: "",
   };
 }
 
@@ -160,21 +163,24 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
 
   // CHRIS FILE SELECT HANDLERS
 
-  async handleChrisFileAdd(file: ChrisFile) {
+  async handleChrisFileAdd(file: EventNode, filePath: string) {
     this.setState({
       data: {
         ...this.state.data,
+        path: filePath,
         chrisFiles: [...this.state.data.chrisFiles, file],
       },
     });
   }
 
-  handleChrisFileRemove(file: ChrisFile) {
+  handleChrisFileRemove(file: EventNode) {
+    console.log("In fileRemove", file);
+
     this.setState({
       data: {
         ...this.state.data,
         chrisFiles: this.state.data.chrisFiles.filter(
-          (f) => f.path !== file.path
+          (node) => node.title !== file.title
         ),
       },
     });
@@ -293,7 +299,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
     try {
       let dirPath = "";
       if (this.state.data.chrisFiles.length > 0) {
-        dirPath = `${this.state.data.chrisFiles[0].path}`;
+        dirPath = this.state.data.path;
       }
 
       if (this.state.data.localFiles.length > 0) {
@@ -301,7 +307,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
         const files = await this.uploadLocalFiles(local_upload_path);
         const flattenedPath = _.flattenDepth(files.map((file) => file.data));
 
-        dirPath = flattenedPath[0].fname.split("/").slice(0, -1).join("/");
+        dirPath = flattenedPath[0].fname;
       }
       // Find dircopy plugin
       const dircopy = await this.getDircopyPlugin();
@@ -311,6 +317,7 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
 
       // Create new instance of dircopy plugin
       const dircopyInstances = await dircopy.getPluginInstances();
+      console.log("Dirpath", dirPath);
 
       await dircopyInstances.post({
         dir: dirPath,
