@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useContext } from "react";
+import { CreateFeedContext } from "./context";
 
 import {
   FolderCloseIcon,
@@ -6,36 +7,41 @@ import {
   WarningTriangleIcon,
 } from "@patternfly/react-icons";
 import { Split, SplitItem, Grid, GridItem } from "@patternfly/react-core";
-import { ChrisFile, CreateFeedData, DataFile } from "./CreateFeed";
+import { unpackParametersIntoString } from "../AddNode/lib/utils";
 
-interface ReviewProps {
-  data: CreateFeedData;
-}
-
-function generateFileList(files: DataFile[]) {
+function generateFileList(files: any[], local: boolean) {
   return files.map((file) => {
-    let icon = (file as ChrisFile).children ? ( // file is a ChrisFile folder
+    let icon = file.children ? ( // file is a ChrisFile folder
       <FolderCloseIcon />
     ) : (
       <FileIcon />
     );
+    let name = local === true ? file.name : file.title;
     return (
-      <div className="file-preview" key={file.name}>
+      <div className="file-preview" key={name}>
         {icon}
-        <span className="file-name">{file.name}</span>
+        <span className="file-name">{name}</span>
       </div>
     );
   });
 }
 
-const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
+const Review: React.FunctionComponent = () => {
+  const { state } = useContext(CreateFeedContext);
+
   const {
     feedName,
     feedDescription,
     tags,
     chrisFiles,
     localFiles,
-  } = props.data;
+  } = state.data;
+  const {
+    dropdownInput,
+    requiredInput,
+    selectedConfig,
+    selectedPlugin,
+  } = state;
 
   // the installed version of @patternfly/react-core doesn't support read-only chips
   const tagList = tags.map((tag) => (
@@ -46,6 +52,63 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
 
   const showFileWarning = !(chrisFiles.length > 0 || localFiles.length > 0);
   const moreThanOneDirWarning = chrisFiles.length > 0 && localFiles.length > 0;
+
+  const getReviewDetails = () => {
+    if (selectedConfig === "fs_plugin") {
+      let generatedCommand = "";
+      if (requiredInput) {
+        generatedCommand += unpackParametersIntoString(requiredInput);
+      }
+
+      if (dropdownInput) {
+        generatedCommand += unpackParametersIntoString(dropdownInput);
+      }
+
+      return (
+        <Grid gutter="sm">
+          <GridItem span={2}>Type of node:</GridItem>
+          <GridItem span={10}>FS Plugin</GridItem>
+          <GridItem span={2}>Selected plugin:</GridItem>
+          <GridItem span={10} style={{ fontWeight: 700 }}>
+            {selectedPlugin && selectedPlugin.data.name}
+          </GridItem>
+          <GridItem span={2}>Plugin configuration:</GridItem>
+          <GridItem span={10}>
+            <span className="required-text">{generatedCommand}</span>
+          </GridItem>
+        </Grid>
+      );
+    }
+    if (selectedConfig === "file_select") {
+      return (
+        <>
+          <Split>
+            <SplitItem isFilled className="file-list">
+              <p>ChRIS files to add to new feed:</p>
+              {generateFileList(chrisFiles, false)}
+            </SplitItem>
+            <SplitItem isFilled className="file-list">
+              <p>Local files to add to new feed:</p>
+              {generateFileList(localFiles, true)}
+            </SplitItem>
+          </Split>
+
+          {showFileWarning && (
+            <div className="file-warning">
+              <WarningTriangleIcon />
+              Please select at least one file.
+            </div>
+          )}
+          {moreThanOneDirWarning && (
+            <div className="file-warning">
+              <WarningTriangleIcon />
+              Please provide a single directory as input to Dircopy
+            </div>
+          )}
+        </>
+      );
+    }
+  };
 
   return (
     <div className="review">
@@ -65,34 +128,10 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
         <GridItem span={2}>Tags</GridItem>
         <GridItem span={10}>{tagList}</GridItem>
       </Grid>
+      <br />
+      {getReviewDetails()}
 
       <br />
-      <Split>
-        <SplitItem isFilled className="file-list">
-          <p>ChRIS files to add to new feed:</p>
-          {
-            //generateFileList(chrisFiles)
-          }
-        </SplitItem>
-        <SplitItem isFilled className="file-list">
-          <p>Local files to add to new feed:</p>
-          {generateFileList(localFiles)}
-        </SplitItem>
-      </Split>
-
-      <br />
-      {showFileWarning && (
-        <div className="file-warning">
-          <WarningTriangleIcon />
-          Please select at least one file.
-        </div>
-      )}
-      {moreThanOneDirWarning && (
-        <div className="file-warning">
-          <WarningTriangleIcon />
-          Please provide a single directory as input to Dircopy
-        </div>
-      )}
     </div>
   );
 };

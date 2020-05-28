@@ -40,9 +40,11 @@ function* handleGetPluginDetails(action: IActionTypeParam) {
 function* handleGetParams(action: IActionTypeParam) {
   try {
     const plugin = action.payload;
+    console.log("Plugin call in saga", plugin);
 
     const paramList = yield plugin.getPluginParameters();
     const params = paramList.getItems();
+
     yield put(getParamsSuccess(params));
   } catch (error) {
     console.error(error);

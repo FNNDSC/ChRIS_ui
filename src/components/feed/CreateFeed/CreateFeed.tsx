@@ -1,338 +1,114 @@
-import * as React from "react";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
-import _ from "lodash";
-
-import {
-  Plugin,
-  UploadedFile,
-  Tag,
-  PluginInstance,
-  Collection,
-} from "@fnndsc/chrisapi";
+import React, { useContext } from "react";
 import { Button, Wizard } from "@patternfly/react-core";
-
-import { IFeedItem } from "../../../api/models/feed.model";
-import ChrisAPIClient from "../../../api/chrisapiclient";
-import { addFeed } from "../../../store/feed/actions";
-import { ApplicationState } from "../../../store/root/applicationState";
-
+import { CreateFeedContext } from "./context";
+import { Types, CreateFeedReduxProp } from "./types";
 import BasicInformation from "./BasicInformation";
 import ChrisFileSelect from "./ChrisFileSelect";
 import LocalFileUpload from "./LocalFileUpload";
+import ChooseConfig from "./ChooseConfig";
+import DataPacks from "./DataPacks";
+import GuidedConfig from "../AddNode/GuidedConfig";
 import Review from "./Review";
-import { EventNode } from "./ChrisFileSelect";
-
+import { InputIndex } from "../AddNode/types";
 import "./createfeed.scss";
-import { IFeedState } from "../../../store/feed/types";
+import { Dispatch } from "redux";
+import { ApplicationState } from "../../../store/root/applicationState";
+import { connect } from "react-redux";
+import { addFeed } from "../../../store/feed/actions";
+import { IFeedItem } from "../../../api/models/feed.model";
+import { createFeed, getName } from "./utils/createFeed";
+import { Collection } from "@fnndsc/chrisapi";
 
-export interface ChrisFile {
-  name: string;
-  path: string; // full path, including file name
-  id?: number; // only defined for files
-  children?: ChrisFile[];
-  collapsed?: boolean;
-  blob?: {};
-}
+const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
+  const { state, dispatch } = useContext(CreateFeedContext);
+  const {
+    wizardOpen,
+    step,
+    data,
+    selectedConfig,
+    selectedPlugin,
+    dropdownInput,
+    requiredInput,
+  } = state;
 
-export interface LocalFile {
-  name: string;
-  blob: Blob;
-}
+  const enableSave =
+    data.chrisFiles.length > 0 ||
+    data.localFiles.length > 0 ||
+    Object.keys(requiredInput).length > 0 ||
+    Object.keys(dropdownInput).length > 0 ||
+    selectedPlugin !== undefined
+      ? true
+      : false;
 
-export type DataFile = ChrisFile | LocalFile;
-
-export interface CreateFeedData {
-  feedName: string;
-  feedDescription: string;
-  tags: Tag[];
-  chrisFiles: EventNode[];
-  localFiles: LocalFile[];
-  path: string;
-}
-
-function getDefaultCreateFeedData(): CreateFeedData {
-  return {
-    feedName: "",
-    feedDescription: "",
-    tags: [],
-    chrisFiles: [],
-    localFiles: [],
-    path: "",
-  };
-}
-
-interface CreateFeedProps {
-  authToken: string;
-  addFeed: (feed: IFeedItem) => void;
-}
-
-type AllProps = IFeedState & CreateFeedProps;
-
-interface CreateFeedState {
-  wizardOpen: boolean;
-  saving: boolean;
-  step: number;
-  data: CreateFeedData;
-}
-
-class CreateFeed extends React.Component<AllProps, CreateFeedState> {
-  constructor(props: AllProps) {
-    super(props);
-    this.state = {
-      wizardOpen: false,
-      saving: false,
-      step: 1,
-      data: getDefaultCreateFeedData(),
-    };
-
-    this.toggleCreateWizard = this.toggleCreateWizard.bind(this);
-    this.handleStepChange = this.handleStepChange.bind(this);
-    this.handleSave = this.handleSave.bind(this);
-    this.getStepName = this.getStepName.bind(this);
-    this.handleFeedNameChange = this.handleFeedNameChange.bind(this);
-    this.handleFeedDescriptionChange = this.handleFeedDescriptionChange.bind(
-      this
-    );
-    this.handleTagsChange = this.handleTagsChange.bind(this);
-    this.handleChrisFileAdd = this.handleChrisFileAdd.bind(this);
-    this.handleChrisFileRemove = this.handleChrisFileRemove.bind(this);
-    this.handleLocalFilesAdd = this.handleLocalFilesAdd.bind(this);
-    this.handleLocalFileRemove = this.handleLocalFileRemove.bind(this);
-    this.createFeed = this.createFeed.bind(this);
-  }
-
-  /*
-    --------------
-    EVENT HANDLERS
-    --------------
-  */
-
-  // WIZARD HANDLERS
-
-  resetState() {
-    this.setState({
-      data: getDefaultCreateFeedData(),
-      step: 1,
-      saving: false,
-    });
-  }
-
-  closeCreateWizard() {
-    this.setState({ wizardOpen: false });
-  }
-
-  toggleCreateWizard() {
-    if (this.state.wizardOpen) {
-      this.resetState();
-    }
-    this.setState((state) => ({
-      wizardOpen: !state.wizardOpen,
-    }));
-  }
-
-  handleStepChange(step: any) {
-    this.setState({ step: step.id });
-  }
-
-  handleSave() {
-    this.createFeed();
-  }
-
-  getStepName(): string {
+  const getStepName = (): string => {
     const stepNames = [
       "basic-information",
+      "choose-config",
       "chris-file-select",
       "local-file-upload",
+      "data-packs",
+      "guidedConfig",
       "review",
     ];
-    return stepNames[this.state.step - 1]; // this.state.step starts at 1
-  }
+    return stepNames[step - 1];
+  };
 
-  // BASIC INFORMATION HANDLERS
-
-  handleFeedNameChange(val: string) {
-    this.setState({ data: { ...this.state.data, feedName: val } });
-  }
-  handleFeedDescriptionChange(val: string) {
-    this.setState({ data: { ...this.state.data, feedDescription: val } });
-  }
-  handleTagsChange(tags: Tag[]) {
-    this.setState({ data: { ...this.state.data, tags } });
-  }
-
-  // CHRIS FILE SELECT HANDLERS
-
-  async handleChrisFileAdd(file: EventNode, filePath: string) {
-    this.setState({
-      data: {
-        ...this.state.data,
-        path: filePath,
-        chrisFiles: [...this.state.data.chrisFiles, file],
+  const handleStepChange = (step: any) => {
+    const { id } = step;
+    dispatch({
+      type: Types.SetStep,
+      payload: {
+        id,
       },
     });
-  }
+  };
 
-  handleChrisFileRemove(file: EventNode) {
-    console.log("In fileRemove", file);
-
-    this.setState({
-      data: {
-        ...this.state.data,
-        chrisFiles: this.state.data.chrisFiles.filter(
-          (node) => node.title !== file.title
-        ),
+  const deleteInput = (index: string) => {
+    dispatch({
+      type: Types.DeleteInput,
+      payload: {
+        input: index,
       },
     });
-  }
+  };
 
-  // LOCAL FILE UPLOAD HANDLERS
-
-  async handleLocalFilesAdd(files: LocalFile[]) {
-    this.setState({
-      data: {
-        ...this.state.data,
-        localFiles: [...this.state.data.localFiles, ...files],
-      },
-    });
-  }
-  handleLocalFileRemove(fileName: string) {
-    this.setState({
-      data: {
-        ...this.state.data,
-        localFiles: this.state.data.localFiles.filter(
-          (file) => file.name !== fileName
-        ),
-      },
-    });
-  }
-
-  /*
-    -------------
-    FEED CREATION
-    -------------
-
-*/
-
-  generateTempDirName() {
-    const randomCode = Math.floor(Math.random() * 10000); // random 4-digit code, to minimize risk of folder already existing
-    const normalizedFeedName = this.state.data.feedName
-      .toLowerCase()
-      .replace(/ /g, "-")
-      .replace(/\//g, "");
-    return `${normalizedFeedName}-temp-${randomCode}`;
-  }
-
-  // get the path in the temp dir of a datafile
-  getDataFileTempPath(file: DataFile, tempDirName: string) {
-    let path;
-    path = file.name;
-
-    return `${tempDirName}/${path}`;
-  }
-
-  async getDataFileBlob(file: DataFile) {
-    if ("blob" in file) {
-      return (file as LocalFile).blob;
+  const inputChange = (
+    id: string,
+    paramName: string,
+    value: string,
+    required: boolean
+  ) => {
+    const input: InputIndex = {};
+    input[paramName] = value;
+    if (required === true) {
+      dispatch({
+        type: Types.RequiredInput,
+        payload: {
+          id,
+          input,
+        },
+      });
+    } else {
+      dispatch({
+        type: Types.DropdownInput,
+        payload: {
+          id,
+          input,
+        },
+      });
     }
+  };
 
-    const uploadedFile = await ChrisAPIClient.getClient().getUploadedFile(
-      (file as ChrisFile).id || 0
-    );
-    return uploadedFile.getFileBlob();
-  }
-
-  async uploadFilesToTempDir(
-    files: DataFile[],
-    tempDirName: string
-  ): Promise<UploadedFile[]> {
-    const uploadedFiles = await ChrisAPIClient.getClient().getUploadedFiles();
-
-    return await Promise.all(
-      files.map(async (file) => {
-        const pathName = this.getDataFileTempPath(file, tempDirName);
-        const blob = await this.getDataFileBlob(file);
-        return await uploadedFiles.post(
-          {
-            upload_path: pathName,
-          },
-          {
-            fname: blob,
-          }
-        );
-      })
-    );
-  }
-
-  // Local files are uploaded into the temp directory
-  async uploadLocalFiles(tempDirName: string) {
-    const files = this.state.data.localFiles;
-    return this.uploadFilesToTempDir(files, tempDirName);
-  }
-
-  // DIRCOPY PLUGIN
-
-  async getDircopyPlugin(): Promise<Plugin | null> {
-    const client = ChrisAPIClient.getClient();
-    let dircopyPlugin;
-    let page = 0;
-    do {
-      const pluginsPage = await client.getPlugins({
-        limit: 25,
-        offset: page * 25,
-      });
-      const plugins = pluginsPage.getItems();
-      if (!plugins) {
-        return null;
-      }
-      dircopyPlugin = plugins.find(
-        (plugin: Plugin) => plugin.data.name === "dircopy"
-      );
-      page++;
-    } while (!dircopyPlugin);
-    return dircopyPlugin;
-  }
-
-  async createFeed() {
-    this.setState({ saving: true });
-
+  const handleSave = async () => {
+    const username = user && user.username;
     try {
-      let dirPath = "";
-      if (this.state.data.chrisFiles.length > 0) {
-        dirPath = this.state.data.path;
-      }
-
-      if (this.state.data.localFiles.length > 0) {
-        const local_upload_path = this.generateTempDirName();
-        const files = await this.uploadLocalFiles(local_upload_path);
-        const flattenedPath = _.flattenDepth(files.map((file) => file.data));
-
-        dirPath = flattenedPath[0].fname;
-      }
-      // Find dircopy plugin
-      const dircopy = await this.getDircopyPlugin();
-      if (!dircopy) {
-        throw new Error("Dircopy not found. Giving up.");
-      }
-
-      // Create new instance of dircopy plugin
-      const dircopyInstances = await dircopy.getPluginInstances();
-      console.log("Dirpath", dirPath);
-
-      await dircopyInstances.post({
-        dir: dirPath,
-      });
-
-      //when the `post` finishes, the dircopyInstances's internal collection is updated
-
-      const createdInstance: PluginInstance = dircopyInstances.getItems()[0];
-
-      if (!createdInstance) {
-        throw new Error("Created instance is undefined. Giving up.");
-      }
-
-      // Retrieve created feed
-      const feed = await createdInstance.getFeed();
+      const feed = await createFeed(
+        state.data,
+        dropdownInput,
+        requiredInput,
+        selectedPlugin,
+        username
+      );
 
       if (!feed) {
         throw new Error("New feed is undefined. Giving up.");
@@ -340,11 +116,11 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
 
       // Set feed name
       await feed.put({
-        name: this.state.data.feedName,
+        name: state.data.feedName,
       });
 
       // Set feed tags
-      for (const tag of this.state.data.tags) {
+      for (const tag of state.data.tags) {
         feed.tagFeed(tag.data.id);
       }
 
@@ -353,11 +129,10 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
       await note.put(
         {
           title: "Description",
-          content: this.state.data.feedDescription,
+          content: state.data.feedDescription,
         },
         1000
       );
-
       // Add data to redux
       const { data, collection } = feed;
       const createdFeedLinks = collection.items[0];
@@ -367,8 +142,8 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
       };
 
       const feedObj = {
-        name: this.state.data.feedName,
-        note: this.state.data.feedDescription,
+        name: state.data.feedName,
+        note: state.data.feedDescription,
         id: feed.data.id,
         creation_date: data.creation_date,
         modification_date: data.modification_date,
@@ -382,110 +157,120 @@ class CreateFeed extends React.Component<AllProps, CreateFeedState> {
         plugin_instances: getLinkUrl("plugininstances"),
       };
 
-      this.props.addFeed(feedObj);
-    } catch (e) {
-      console.error(e);
+      addFeed && addFeed(feedObj);
+    } catch (error) {
+      console.error(error);
     } finally {
-      this.resetState();
-      this.closeCreateWizard();
+      dispatch({
+        type: Types.ToggleWizzard,
+      });
     }
-  }
+  };
 
-  render() {
-    const { data, saving, wizardOpen, step } = this.state;
+  const basicInformation = <BasicInformation />;
+  const chooseConfig = <ChooseConfig />;
+  const chrisFileSelect = <ChrisFileSelect />;
+  const localFileUpload = <LocalFileUpload />;
+  const packs = <DataPacks />;
+  const guidedConfig = (
+    <GuidedConfig
+      plugin={selectedPlugin}
+      inputChange={inputChange}
+      deleteInput={deleteInput}
+      dropdownInput={dropdownInput}
+      requiredInput={requiredInput}
+    />
+  );
+  const review = <Review />;
 
-    const enableSave =
-      (data.chrisFiles.length > 0 && data.localFiles.length > 0) ||
-      (data.chrisFiles.length === 0 && data.localFiles.length === 0)
-        ? false
-        : !saving;
+  const getFeedSynthesisStep = () => {
+    if (selectedConfig === "fs_plugin")
+      return [
+        {
+          id: 3,
+          name: "Data Packs",
+          component: packs,
+          enableNext: selectedPlugin !== undefined,
+        },
+        { id: 4, name: "Parameter Configuration", component: guidedConfig },
+      ];
+    else if (selectedConfig === "file_select") {
+      return [
+        { id: 3, name: "ChRIS File Select", component: chrisFileSelect },
+        { id: 4, name: "Local File Upload", component: localFileUpload },
+      ];
+    }
+  };
 
-    const basicInformation = (
-      <BasicInformation
-        feedName={data.feedName}
-        feedDescription={data.feedDescription}
-        tags={data.tags}
-        handleFeedNameChange={this.handleFeedNameChange}
-        handleFeedDescriptionChange={this.handleFeedDescriptionChange}
-        handleTagsChange={this.handleTagsChange}
-      />
-    );
+  const steps = [
+    {
+      id: 1,
+      name: "Basic Information",
+      component: basicInformation,
+      enableNext: !!data.feedName,
+      canJumpTo: step >= 1,
+    },
+    {
+      id: 2,
+      name: "Data Configuration",
+      component: chooseConfig,
+      enableNext: selectedConfig.length > 0,
+      canJumpTo: step >= 2,
+    },
+    {
+      name: getName(selectedConfig),
+      steps: getFeedSynthesisStep(),
+      canJumTo: step >= 3,
+    },
+    {
+      id: 5,
+      name: "Review",
+      component: review,
+      enableNext: enableSave,
+      nextButtonText: "Save",
+    },
+  ];
 
-    const chrisFileSelect = (
-      <ChrisFileSelect
-        files={data.chrisFiles}
-        handleFileAdd={this.handleChrisFileAdd}
-        handleFileRemove={this.handleChrisFileRemove}
-      />
-    );
-
-    const localFileUpload = (
-      <LocalFileUpload
-        files={data.localFiles}
-        handleFilesAdd={this.handleLocalFilesAdd}
-        handleFileRemove={this.handleLocalFileRemove}
-      />
-    );
-
-    const review = <Review data={data} />;
-
-    const steps = [
-      {
-        id: 1, // id corresponds to step number
-        name: "Basic Information",
-        component: basicInformation,
-        enableNext: !!data.feedName,
-      },
-      {
-        name: "Data Configuration",
-        steps: [
-          { id: 2, name: "ChRIS File Select", component: chrisFileSelect },
-          { id: 3, name: "Local File Upload", component: localFileUpload },
-        ],
-      },
-      {
-        id: 4,
-        name: "Review",
-        component: review,
-        enableNext: enableSave,
-        nextButtonText: "Save",
-      },
-    ];
-
-    return (
-      <React.Fragment>
-        <Button
-          className="create-feed-button"
-          variant="primary"
-          onClick={this.toggleCreateWizard}
-        >
-          Create New Feed
-        </Button>
-        {wizardOpen && (
-          <Wizard
-            isOpen={wizardOpen}
-            onClose={this.toggleCreateWizard}
-            title="Create a New Feed"
-            description="This wizard allows you to create a new feed and add an initial dataset to it."
-            className={`feed-create-wizard ${this.getStepName()}-wrap`}
-            steps={steps}
-            startAtStep={step}
-            onNext={this.handleStepChange}
-            onBack={this.handleStepChange}
-            onGoToStep={this.handleStepChange}
-            onSave={this.handleSave}
-          />
-        )}
-      </React.Fragment>
-    );
-  }
-}
+  return (
+    <>
+      <Button
+        className="create-feed-button"
+        variant="primary"
+        onClick={() => {
+          dispatch({
+            type: Types.ToggleWizzard,
+          });
+        }}
+      >
+        Create New Feed
+      </Button>
+      {wizardOpen && (
+        <Wizard
+          isOpen={wizardOpen}
+          onClose={() => {
+            dispatch({
+              type: Types.ToggleWizzard,
+            });
+          }}
+          title="Create a New Feed"
+          description="This wizard allows you to create a new Feed
+          and add an internal dataset to it"
+          className={`feed-create-wizard ${getStepName()}-wrap`}
+          steps={steps}
+          startAtStep={step}
+          onNext={handleStepChange}
+          onBack={handleStepChange}
+          onGoToStep={handleStepChange}
+          onSave={handleSave}
+        />
+      )}
+    </>
+  );
+};
 
 const mapStateToProps = (state: ApplicationState) => ({
-  authToken: state.user.token || "",
-  feeds: state.feed.feeds,
+  user: state.user,
 });
-
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   addFeed: (feed: IFeedItem) => dispatch(addFeed(feed)),
 });
