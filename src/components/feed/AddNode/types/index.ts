@@ -79,7 +79,7 @@ export interface GuidedConfigState {
   alertVisible: boolean;
 }
 export interface GuidedConfigProps extends InputProps {
-  plugin: Plugin;
+  plugin?: Plugin;
   params?: PluginParameter[];
   inputChange(
     id: string,

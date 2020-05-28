@@ -27,6 +27,7 @@ import CreateFeed from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
 import feedIcon from "../../../assets/images/bw-pipeline.svg";
 import { Feed } from "@fnndsc/chrisapi";
+import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -248,7 +249,9 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
                 <span className="feed-count"> ({feedsCount})</span>
               )}
             </Title>
-            <CreateFeed />
+            <CreateFeedProvider>
+              <CreateFeed />
+            </CreateFeedProvider>
           </div>
         </PageSection>
 
