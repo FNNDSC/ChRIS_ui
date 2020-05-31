@@ -1,42 +1,35 @@
 import React, { useState, useContext } from "react";
 import { CreateFeedContext } from "./context";
-import {
-  Split,
-  SplitItem,
-  DataToolbarItem,
-  TextInput,
-  Button,
-  ButtonVariant,
-  InputGroup,
-} from "@patternfly/react-core";
+import { Split, SplitItem } from "@patternfly/react-core";
 import { EventDataNode, Key } from "rc-tree/lib/interface";
-import {
-  FolderCloseIcon,
-  FileIcon,
-  CloseIcon,
-  SearchIcon,
-} from "@patternfly/react-icons";
+import { FolderCloseIcon, FileIcon, CloseIcon } from "@patternfly/react-icons";
 import { Tree } from "antd";
 import "antd/dist/antd.css";
-import { Types, Info, DataBreadcrumb, EventNode } from "./types";
+import {
+  Types,
+  Info,
+  DataBreadcrumb,
+  EventNode,
+  ChrisFileSelectProp,
+} from "./types";
 import { generateTreeNodes, getNewTreeData } from "./utils/fileSelect";
 
 const { DirectoryTree } = Tree;
 
-function getEmptyTree() {
+function getEmptyTree(username: string) {
   let node: DataBreadcrumb[] = [];
   node.push({
-    breadcrumb: "chris",
-    title: "chris",
+    breadcrumb: username,
+    title: username,
     key: "0-0",
   });
   return node;
 }
 
-const ChrisFileSelect: React.FC = () => {
+const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { chrisFiles } = state.data;
-  const [tree, setTree] = useState<DataBreadcrumb[]>(getEmptyTree());
+  const [tree, setTree] = useState<DataBreadcrumb[]>(getEmptyTree(username));
   const [checkedKeys, setCheckedKeys] = useState<
     | {
         checked: Key[];
@@ -44,7 +37,9 @@ const ChrisFileSelect: React.FC = () => {
       }
     | Key[]
   >([]);
-  const [expandedKeys, setExpandedKeys] = useState<Key[]>([]);
+  const [expandedKeys, setExpandedKeys] = useState<(string | number | null)[]>(
+    []
+  );
   const [autoExpandParent, setautoExpandParent] = useState(false);
 
   const onExpand = (expandedKeys: Key[]) => {
@@ -119,7 +114,9 @@ const ChrisFileSelect: React.FC = () => {
           onClick={() => {
             dispatch({
               type: Types.RemoveChrisFile,
-              file,
+              payload: {
+                file,
+              },
             });
           }}
         />
@@ -136,24 +133,6 @@ const ChrisFileSelect: React.FC = () => {
       <br />
       <Split gutter="lg">
         <SplitItem isFilled>
-          <DataToolbarItem>
-            <InputGroup>
-              <TextInput
-                name="filter_plugin"
-                id="filter_plugin"
-                type="search"
-                aria-label="search input"
-                placeholder="Search by name..."
-              />
-              <Button
-                variant={ButtonVariant.control}
-                aria-label="search button for the plugin"
-              >
-                <SearchIcon />
-              </Button>
-            </InputGroup>
-          </DataToolbarItem>
-          <br></br>
           <DirectoryTree
             onExpand={onExpand}
             expandedKeys={expandedKeys}
