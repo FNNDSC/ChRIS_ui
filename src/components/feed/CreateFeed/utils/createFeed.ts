@@ -45,16 +45,18 @@ export const createFeedInstanceWithDircopy = async (
   username: string | null | undefined
 ) => {
   const { chrisFiles, localFiles } = data;
-  
-   //chrisFiles receive a computed path from the fileBrowser
-   
+  console.log();
+
+  //chrisFiles receive a computed path from the fileBrowser
+  console.log("ChRISFiles", chrisFiles);
+
   let dirpath = "";
   if (chrisFiles.length > 0) {
     dirpath = `${username}/${path}`;
   }
-  
-    //localFiles need to have their path computed
-   
+
+  //localFiles need to have their path computed
+
   if (localFiles.length > 0) {
     const local_upload_path = `${username}/uploads/${generatePathForLocalFile(
       data
@@ -70,6 +72,8 @@ export const createFeedInstanceWithDircopy = async (
   await dircopyInstance.post({
     dir: dirpath,
   });
+
+
 
   //when the `post` finishes, the dircopyInstances's internal collection is updated
   let createdInstance = dircopyInstance.getItems()[0];
@@ -119,7 +123,7 @@ export const generatePathForLocalFile = (data: CreateFeedData) => {
     .toLowerCase()
     .replace(/ /g, "-")
     .replace(/\//g, "");
-  return `${normalizedFeedName}-local-upload-${randomCode}`;
+  return `${normalizedFeedName}-upload-${randomCode}`;
 };
 
 export const uploadLocalFiles = async (
