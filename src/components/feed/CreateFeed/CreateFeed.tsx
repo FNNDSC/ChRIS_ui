@@ -162,6 +162,9 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
       console.error(error);
     } finally {
       dispatch({
+        type: Types.ResetState,
+      });
+      dispatch({
         type: Types.ToggleWizzard,
       });
     }
@@ -169,7 +172,9 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
 
   const basicInformation = <BasicInformation />;
   const chooseConfig = <ChooseConfig />;
-  const chrisFileSelect = <ChrisFileSelect />;
+  const chrisFileSelect = user && user.username && (
+    <ChrisFileSelect username={user.username} />
+  );
   const localFileUpload = <LocalFileUpload />;
   const packs = <DataPacks />;
   const guidedConfig = (
