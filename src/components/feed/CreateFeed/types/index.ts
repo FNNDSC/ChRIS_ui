@@ -112,6 +112,10 @@ export interface CreateFeedReduxProp {
   addFeed?: (feed: IFeedItem) => void;
 }
 
+export interface ChrisFileSelectProp {
+  username: string;
+}
+
 /**
  *
  *Types for the ChRIS File Select

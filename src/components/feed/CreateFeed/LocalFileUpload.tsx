@@ -48,7 +48,7 @@ const LocalFileUpload: React.FC = () => {
           dispatch({
             type: Types.RemoveLocalFile,
             payload: {
-              file: file.name,
+              filename: file.name,
             },
           });
         }}

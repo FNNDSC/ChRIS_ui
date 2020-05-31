@@ -76,7 +76,8 @@ export const createFeedReducer = (
           path: action.payload.path,
         },
       };
-    case Types.RemoveChrisFile:
+    case Types.RemoveChrisFile: {
+      console.log(action.payload);
       return {
         ...state,
         data: {
@@ -86,6 +87,7 @@ export const createFeedReducer = (
           ),
         },
       };
+    }
 
     case Types.AddLocalFile:
       return {

@@ -38,26 +38,6 @@ const setLeaf = (treeData: DataBreadcrumb[]) => {
   loopLeaf(treeData);
 };
 
-const getParentKey = (key: Key, tree: DataBreadcrumb[]): Key | undefined => {
-  let parentKey;
-  for (let i = 0; i < tree.length; i++) {
-    const node = tree[i];
-
-    if (node.children) {
-      if (
-        node.children.some((item) =>
-          (item.key as string).includes(key as string)
-        )
-      ) {
-        parentKey = node.key;
-      } else if (getParentKey(key, node.children)) {
-        parentKey = getParentKey(key, node.children);
-      }
-    }
-  }
-  return parentKey;
-};
-
 export const generateTreeNodes = async (
   treeNode: EventDataNode
 ): Promise<DataBreadcrumb[]> => {
