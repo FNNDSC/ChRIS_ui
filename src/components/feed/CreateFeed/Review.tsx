@@ -8,6 +8,7 @@ import {
 } from "@patternfly/react-icons";
 import { Split, SplitItem, Grid, GridItem } from "@patternfly/react-core";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
+import { local } from "d3";
 
 function generateFileList(files: any[], local: boolean) {
   return files.map((file) => {
@@ -51,7 +52,9 @@ const Review: React.FunctionComponent = () => {
   ));
 
   const showFileWarning = !(chrisFiles.length > 0 || localFiles.length > 0);
-  const moreThanOneDirWarning = chrisFiles.length > 0 && localFiles.length > 0;
+  const moreThanOneDirWarning = chrisFiles.length > 1 ? true : false;
+  const chrisFileSelectOrLocalFileUpload =
+    chrisFiles.length > 0 && localFiles.length > 0;
 
   const getReviewDetails = () => {
     if (selectedConfig === "fs_plugin") {
@@ -103,6 +106,12 @@ const Review: React.FunctionComponent = () => {
             <div className="file-warning">
               <WarningTriangleIcon />
               Please provide a single directory as input to Dircopy
+            </div>
+          )}
+          {chrisFileSelectOrLocalFileUpload && (
+            <div className="file-warning">
+              <WarningTriangleIcon />
+              Please using either the file-browser or the local file upload.
             </div>
           )}
         </>

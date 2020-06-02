@@ -92,11 +92,14 @@
   display: flex;
   flex-direction: column;
 
-  .configuration__options {
+  &__options {
     display: flex;
     flex-direction: column;
   }
-  .configuration__button {
+  &__button {
+    margin-top: 20px !important;
+  }
+  &__renders {
     margin-top: 20px !important;
   }
 
