@@ -215,6 +215,7 @@ class GuidedConfig extends React.Component<
               errors.map((error, index) => {
                 return (
                   <Alert
+                    className="configuration__renders__alert"
                     key={index}
                     variant="danger"
                     title={error}

@@ -45,10 +45,8 @@ export const createFeedInstanceWithDircopy = async (
   username: string | null | undefined
 ) => {
   const { chrisFiles, localFiles } = data;
-  console.log();
 
   //chrisFiles receive a computed path from the fileBrowser
-  console.log("ChRISFiles", chrisFiles);
 
   let dirpath = "";
   if (chrisFiles.length > 0) {
@@ -73,13 +71,10 @@ export const createFeedInstanceWithDircopy = async (
     dir: dirpath,
   });
 
-
-
   //when the `post` finishes, the dircopyInstances's internal collection is updated
   let createdInstance = dircopyInstance.getItems()[0];
 
   const feed = await createdInstance.getFeed();
-  console.log("CreatedInstance", createdInstance, feed);
   return feed;
 };
 
@@ -131,7 +126,6 @@ export const uploadLocalFiles = async (
   directory: string
 ) => {
   let uploadedFiles = await ChrisAPIClient.getClient().getUploadedFiles();
-  console.log("Files to be uploaded", files);
 
   Promise.all(
     files.map(async (file: LocalFile) => {
