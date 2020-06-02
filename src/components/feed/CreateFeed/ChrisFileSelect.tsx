@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { CreateFeedContext } from "./context";
 import { Split, SplitItem } from "@patternfly/react-core";
 import { EventDataNode, Key } from "rc-tree/lib/interface";
@@ -44,7 +44,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
 
   const onExpand = (expandedKeys: Key[]) => {
     setExpandedKeys(expandedKeys);
-    setautoExpandParent(false);
+    setautoExpandParent(true);
   };
 
   const onCheck = (
