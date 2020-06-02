@@ -253,6 +253,11 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
         <Wizard
           isOpen={wizardOpen}
           onClose={() => {
+            if (wizardOpen === true) {
+              dispatch({
+                type: Types.ResetState,
+              });
+            }
             dispatch({
               type: Types.ToggleWizzard,
             });
