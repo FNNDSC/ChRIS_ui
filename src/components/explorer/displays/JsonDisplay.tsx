@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 import { IGalleryItem } from "../../../api/models/gallery.model";
 import ReactJSON from "react-json-view";
-import _ from "lodash";
 
 type AllProps = {
   galleryItem: IGalleryItem;
