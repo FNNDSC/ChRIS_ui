@@ -32,7 +32,6 @@ export const createFeedReducer = (
   state: CreateFeedState,
   action: CreateFeedActions
 ): CreateFeedState => {
-  console.log("Action", action);
   switch (action.type) {
     case Types.ToggleWizzard:
       return {
@@ -77,7 +76,6 @@ export const createFeedReducer = (
         },
       };
     case Types.RemoveChrisFile: {
-      console.log(action.payload);
       return {
         ...state,
         data: {
@@ -146,7 +144,6 @@ export const createFeedReducer = (
     case Types.DeleteInput: {
       const { dropdownInput } = state;
       const { input } = action.payload;
-      console.log("Input", input);
 
       let newObject = Object.entries(dropdownInput)
         .filter(([key, value]) => {

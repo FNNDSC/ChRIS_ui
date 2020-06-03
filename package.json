@@ -15,6 +15,7 @@
     "@types/classnames": "^2.2.9",
     "@types/d3": "^5.7.1",
     "@types/dat.gui": "^0.7.2",
+    "@types/enzyme": "^3.10.5",
     "@types/jest": "23.3.13",
     "@types/jszip": "^3.1.6",
     "@types/node": "10.12.21",
@@ -83,6 +84,9 @@
     "@types/react-router-dom": "^4.3.1",
     "@types/react-sortable-tree": "^0.3.11",
     "@types/redux-logger": "^3.0.7",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "jest-enzyme": "^7.1.2",
     "keymirror": "^0.1.1",
     "redux-logger": "^3.0.6",
     "tslint": "^5.13.1"

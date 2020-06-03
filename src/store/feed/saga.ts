@@ -15,12 +15,13 @@ import {
 // pass it a param and do a search querie
 // ------------------------------------------------------------------------
 
-function* handleGetAllFeeds() {
+function* handleGetAllFeeds(action: IActionTypeParam) {
+  const { name, limit, offset } = action.payload;
   let params = {
-    limit: 100,
-    offset: 0,
+    name,
+    limit,
+    offset,
   };
-
   try {
     const client = ChrisAPIClient.getClient();
     const feeds = yield client.getFeeds(params);
