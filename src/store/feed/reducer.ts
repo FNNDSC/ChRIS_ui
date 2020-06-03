@@ -12,8 +12,7 @@ const initialState: IFeedState = {
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
   switch (action.type) {
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
-      console.log("Feed", action.payload.data);
-      return { ...state, feeds: action.payload.data};
+      return { ...state, feeds: action.payload.data };
     }
     case FeedActionTypes.GET_FEED_DETAILS_SUCCESS: {
       return { ...state, details: action.payload };

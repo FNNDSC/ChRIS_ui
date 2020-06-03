@@ -24,7 +24,6 @@ function* handleGetPluginDetails(action: IActionTypeParam) {
   try {
     const item: IPluginItem = action.payload;
 
-    //yield call(ChrisModel.fetchRequest, item.url);
     const res = yield call(ChrisModel.fetchRequest, item.descendants); // Get descendants first:
 
     if (res.error) {
@@ -40,7 +39,6 @@ function* handleGetPluginDetails(action: IActionTypeParam) {
 function* handleGetParams(action: IActionTypeParam) {
   try {
     const plugin = action.payload;
-    console.log("Plugin call in saga", plugin);
 
     const paramList = yield plugin.getPluginParameters();
     const params = paramList.getItems();
@@ -90,13 +88,15 @@ function* watchGetPluginDescendants() {
 function* handleGetPluginFiles(action: IActionTypeParam) {
   const item = action.payload;
   const id = item.id as number;
-  yield call(ChrisModel.fetchRequest, item.url);
+  //yield call(ChrisModel.fetchRequest, item.url);
 
   try {
     const client = yield ChrisAPIClient.getClient();
     const params = { limit: 500, offset: 0 };
 
     const pluginInstance = yield client.getPluginInstance(id);
+    const pluginStatus = yield pluginInstance.get();
+    console.log("Status", pluginStatus.data.status);
 
     let fileList = yield pluginInstance.getFiles(params);
     const files = fileList.getItems();

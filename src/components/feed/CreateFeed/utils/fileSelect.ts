@@ -1,5 +1,5 @@
 import ChrisAPIClient from "../../../../api/chrisapiclient";
-import { EventDataNode, Key } from "rc-tree/lib/interface";
+import { EventDataNode } from "rc-tree/lib/interface";
 import { DataBreadcrumb } from "../types";
 import _ from "lodash";
 

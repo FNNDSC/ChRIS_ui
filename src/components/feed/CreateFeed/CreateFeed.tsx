@@ -237,7 +237,7 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
   ];
 
   return (
-    <>
+    <div className="create-feed">
       <Button
         className="create-feed-button"
         variant="primary"
@@ -274,7 +274,7 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
           onSave={handleSave}
         />
       )}
-    </>
+    </div>
   );
 };
 

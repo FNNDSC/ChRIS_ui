@@ -67,10 +67,10 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props) => {
       );
 
       setfsPlugins(currentPluginList);
-      setFilterState({
+      setFilterState((filterState) => ({
         ...filterState,
         itemCount,
-      });
+      }));
 
       if (filter.length > 0) {
         const filteredList = pluginList.filter((plugin: Plugin) => {

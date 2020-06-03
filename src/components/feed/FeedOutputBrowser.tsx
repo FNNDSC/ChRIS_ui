@@ -163,7 +163,7 @@ class FeedOutputBrowser extends React.Component<
 
   handleSidebarItemClick(plugin: IPluginItem) {
     const { handlePluginSelect } = this.props;
-    handlePluginSelect(plugin);
+    handlePluginSelect(plugin); 
     this.fetchPluginFiles(plugin);
   }
 
