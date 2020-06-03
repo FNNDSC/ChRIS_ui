@@ -75,12 +75,22 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     this.fetchFeedsCount();
   }
 
-  componentDidUpdate(prevProps: AllProps) {
+  componentDidUpdate(prevProps: AllProps, prevState: FeedsListViewState) {
+    const { page, perPage, filter } = this.state;
     const { feeds } = this.props;
+    setSidebarActive({
+      activeGroup: "feeds_grp",
+      activeItem: "my_feeds",
+    });
 
-    if (!feeds) {
-      return;
+    if (
+      prevState.page !== page ||
+      prevState.perPage !== perPage ||
+      prevState.filter !== filter
+    ) {
+      this.fetchFeeds();
     }
+
     if (prevProps.feeds !== feeds) {
       this.fetchFeedsCount();
     }
@@ -129,7 +139,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   // only update filter every half-second, to avoid too many requests
   handleFilterChange = debounce((value: string) => {
     this.setState({ filter: value });
-  }, 500);
+  }, 200);
 
   handleDescriptionPopoverShow(feed: Feed["data"]) {
     const description = this.state.descriptions[feed.id as number];
@@ -245,9 +255,10 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           <div className="bottom">
             <Title headingLevel="h1" size="3xl">
               My Feeds
-              {(feedsCount || feedsCount === 0) && (
-                <span className="feed-count"> ({feedsCount})</span>
-              )}
+              <span className="feed-count">
+                {" "}
+                ({feedsCount === undefined ? "0" : feedsCount})
+              </span>
             </Title>
             <CreateFeedProvider>
               <CreateFeed />
@@ -267,7 +278,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
 
             <Table aria-label="Data table" cells={cells} rows={rows}>
               <TableHeader />
-              {feeds ? <TableBody /> : this.generateTableLoading()}
+              {feeds && <TableBody />}
             </Table>
 
             {this.generatePagination()}

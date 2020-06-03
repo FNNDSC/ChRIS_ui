@@ -8,7 +8,6 @@ import {
 } from "@patternfly/react-icons";
 import { Split, SplitItem, Grid, GridItem } from "@patternfly/react-core";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
-import { local } from "d3";
 
 function generateFileList(files: any[], local: boolean) {
   return files.map((file) => {
