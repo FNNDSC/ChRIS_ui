@@ -18,6 +18,7 @@ import { addFeed } from "../../../store/feed/actions";
 import { IFeedItem } from "../../../api/models/feed.model";
 import { createFeed, getName } from "./utils/createFeed";
 import { Collection } from "@fnndsc/chrisapi";
+import FinishedStep from "./FinishedStep";
 
 const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -61,6 +62,10 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
         id,
       },
     });
+    if (id === 6) {
+      console.log("Next clicked, lets create");
+      handleSave();
+    }
   };
 
   const deleteInput = (index: string) => {
@@ -99,7 +104,25 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
     }
   };
 
+  const getCreationStatus = (status: string) => {
+    dispatch({
+      type: Types.SetProgress,
+      payload: {
+        feedProgress: status,
+      },
+    });
+  };
+  const getCreationError = (error: string) => {
+    dispatch({
+      type: Types.SetError,
+      payload: {
+        feedError: error,
+      },
+    });
+  };
+
   const handleSave = async () => {
+    // Set the progress to 'Started'
     const username = user && user.username;
     try {
       const feed = await createFeed(
@@ -107,7 +130,9 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
         dropdownInput,
         requiredInput,
         selectedPlugin,
-        username
+        username,
+        getCreationStatus,
+        getCreationError
       );
 
       if (!feed) {
@@ -162,10 +187,10 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
       console.error(error);
     } finally {
       dispatch({
-        type: Types.ResetState,
-      });
-      dispatch({
-        type: Types.ToggleWizzard,
+        type: Types.SetProgress,
+        payload: {
+          feedProgress: "Configuration Complete",
+        },
       });
     }
   };
@@ -187,6 +212,7 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
     />
   );
   const review = <Review />;
+  const finishedStep = <FinishedStep />;
 
   const getFeedSynthesisStep = () => {
     if (selectedConfig === "fs_plugin")
@@ -234,6 +260,11 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
       enableNext: enableSave,
       nextButtonText: "Save",
     },
+    {
+      id: 6,
+      name: "Finish",
+      component: finishedStep,
+    },
   ];
 
   return (
@@ -271,7 +302,6 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
           onNext={handleStepChange}
           onBack={handleStepChange}
           onGoToStep={handleStepChange}
-          onSave={handleSave}
         />
       )}
     </div>
