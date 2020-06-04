@@ -31,6 +31,8 @@ export enum Types {
   DropdownInput = "DROPDOWN_INPUT",
   DeleteInput = "DELETE_INPUT",
   ResetState = "RESET_STATE",
+  SetProgress = "SET_PROGRESS",
+  SetError = "SET_ERROR",
 }
 
 type CreateFeedPayload = {
@@ -79,6 +81,12 @@ type CreateFeedPayload = {
     input: string;
   };
   [Types.ResetState]: boolean;
+  [Types.SetProgress]: {
+    feedProgress: "string";
+  };
+  [Types.SetError]: {
+    feedError: string;
+  };
 };
 
 export type CreateFeedActions = ActionMap<CreateFeedPayload>[keyof ActionMap<
@@ -105,6 +113,9 @@ export interface CreateFeedState extends InputState {
   data: CreateFeedData;
   selectedConfig: string;
   selectedPlugin?: Plugin;
+  feedProgress: string;
+  feedError: string;
+  value: number;
 }
 
 export interface CreateFeedReduxProp {

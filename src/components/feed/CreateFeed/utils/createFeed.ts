@@ -3,6 +3,7 @@ import { CreateFeedData, LocalFile } from "../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin } from "@fnndsc/chrisapi";
+import { feedReducer } from "../../../../store/feed/reducer";
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
@@ -17,7 +18,9 @@ export const createFeed = async (
   dropdownInput: InputType,
   requiredInput: InputType,
   selectedPlugin: Plugin | undefined,
-  username: string | null | undefined
+  username: string | null | undefined,
+  setProgressCallback: (status: string) => void,
+  setErrorCallback: (error: string) => void
 ) => {
   const { chrisFiles, localFiles, path } = data;
 
@@ -27,13 +30,22 @@ export const createFeed = async (
    */
   let feed;
 
+  setProgressCallback("started");
   if (chrisFiles.length > 0 || localFiles.length > 0) {
-    feed = await createFeedInstanceWithDircopy(data, path, username);
+    feed = await createFeedInstanceWithDircopy(
+      data,
+      path,
+      username,
+      setProgressCallback,
+      setErrorCallback
+    );
   } else if (dropdownInput || requiredInput) {
     feed = await createFeedInstanceWithFS(
       dropdownInput,
       requiredInput,
-      selectedPlugin
+      selectedPlugin,
+      setProgressCallback,
+      setErrorCallback
     );
   }
   return feed;
@@ -42,7 +54,9 @@ export const createFeed = async (
 export const createFeedInstanceWithDircopy = async (
   data: CreateFeedData,
   path: string,
-  username: string | null | undefined
+  username: string | null | undefined,
+  statusCallback: (status: string) => void,
+  errorCallback: (error: string) => void
 ) => {
   const { chrisFiles, localFiles } = data;
 
@@ -50,38 +64,51 @@ export const createFeedInstanceWithDircopy = async (
 
   let dirpath = "";
   if (chrisFiles.length > 0) {
+    statusCallback("Computing path for dircopy");
     dirpath = `${username}/${path}`;
   }
 
   //localFiles need to have their path computed
 
   if (localFiles.length > 0) {
+    statusCallback("Uploading Files To Cube");
     const local_upload_path = `${username}/uploads/${generatePathForLocalFile(
       data
     )}`;
 
-    await uploadLocalFiles(localFiles, local_upload_path);
+    try {
+      await uploadLocalFiles(localFiles, local_upload_path);
+    } catch (error) {
+      errorCallback(error);
+    }
     dirpath = local_upload_path;
   }
 
-  const dircopy = await getPlugin("dircopy");
+  let feed;
+  statusCallback("Creating Plugin Instance");
+  try {
+    const dircopy = await getPlugin("dircopy");
+    const dircopyInstance = await dircopy.getPluginInstances();
+    await dircopyInstance.post({
+      dir: dirpath,
+    });
+    //when the `post` finishes, the dircopyInstances's internal collection is updated
+    let createdInstance = dircopyInstance.getItems()[0];
+    statusCallback("Creating Feed");
+    feed = await createdInstance.getFeed();
+  } catch (error) {
+    errorCallback(error);
+  }
 
-  const dircopyInstance = await dircopy.getPluginInstances();
-  await dircopyInstance.post({
-    dir: dirpath,
-  });
-
-  //when the `post` finishes, the dircopyInstances's internal collection is updated
-  let createdInstance = dircopyInstance.getItems()[0];
-
-  const feed = await createdInstance.getFeed();
   return feed;
 };
 
 export const createFeedInstanceWithFS = async (
   dropdownInput: InputType,
   requiredInput: InputType,
-  selectedPlugin: Plugin | undefined
+  selectedPlugin: Plugin | undefined,
+  statusCallback: (status: string) => void,
+  errorCallback: (error: string) => void
 ) => {
   let dropdownUnpacked;
   let requiredUnpacked;
@@ -92,24 +119,32 @@ export const createFeedInstanceWithFS = async (
   if (requiredInput) {
     requiredUnpacked = unpackParametersIntoObject(requiredInput);
   }
+  statusCallback("Unpacking parameters");
   let inputParameter = {
     ...dropdownUnpacked,
     ...requiredUnpacked,
   };
 
+  let feed;
   if (selectedPlugin) {
     const pluginName = selectedPlugin.data.name;
-    const fsPlugin = await getPlugin(pluginName);
-    const fsPluginInstance = await fsPlugin.getPluginInstances();
+    try {
+      const fsPlugin = await getPlugin(pluginName);
+      statusCallback("Creating Plugin Instance");
+      const fsPluginInstance = await fsPlugin.getPluginInstances();
 
-    await fsPluginInstance.post({
-      ...inputParameter,
-    });
+      await fsPluginInstance.post({
+        ...inputParameter,
+      });
 
-    const createdInstance = fsPluginInstance.getItems()[0];
-    const feed = await createdInstance.getFeed();
-    return feed;
+      const createdInstance = fsPluginInstance.getItems()[0];
+      statusCallback("Created Feed Instance");
+      feed = await createdInstance.getFeed();
+    } catch (error) {
+      errorCallback(error);
+    }
   }
+  return feed;
 };
 
 export const generatePathForLocalFile = (data: CreateFeedData) => {
@@ -127,7 +162,7 @@ export const uploadLocalFiles = async (
 ) => {
   let uploadedFiles = await ChrisAPIClient.getClient().getUploadedFiles();
 
-  Promise.all(
+  return Promise.all(
     files.map(async (file: LocalFile) => {
       uploadedFiles.post(
         {
