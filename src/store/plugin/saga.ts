@@ -88,15 +88,13 @@ function* watchGetPluginDescendants() {
 function* handleGetPluginFiles(action: IActionTypeParam) {
   const item = action.payload;
   const id = item.id as number;
-  //yield call(ChrisModel.fetchRequest, item.url);
 
   try {
     const client = yield ChrisAPIClient.getClient();
     const params = { limit: 500, offset: 0 };
 
     const pluginInstance = yield client.getPluginInstance(id);
-    const pluginStatus = yield pluginInstance.get();
-    console.log("Status", pluginStatus.data.status);
+    pluginInstance.get();
 
     let fileList = yield pluginInstance.getFiles(params);
     const files = fileList.getItems();

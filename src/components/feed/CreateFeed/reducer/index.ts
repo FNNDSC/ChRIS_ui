@@ -26,6 +26,9 @@ export const initialState = {
   selectedConfig: "",
   requiredInput: {},
   dropdownInput: {},
+  feedProgress: "",
+  feedError: "",
+  value: 0,
 };
 
 export const createFeedReducer = (
@@ -169,6 +172,22 @@ export const createFeedReducer = (
         selectedConfig: "",
         requiredInput: {},
         dropdownInput: {},
+        feedProgress: "",
+        value: 0,
+      };
+    }
+
+    case Types.SetProgress: {
+      return {
+        ...state,
+        feedProgress: action.payload.feedProgress,
+        value: state.value + 20,
+      };
+    }
+    case Types.SetError: {
+      return {
+        ...state,
+        feedError: action.payload.feedError,
       };
     }
 
