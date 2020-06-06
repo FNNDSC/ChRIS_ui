@@ -63,7 +63,6 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
       },
     });
     if (id === 6) {
-      console.log("Next clicked, lets create");
       handleSave();
     }
   };

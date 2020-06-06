@@ -55,12 +55,14 @@ type CreateFeedPayload = {
   [Types.AddChrisFile]: {
     file: EventNode;
     path: string;
+    numberOfFiles: number;
   };
   [Types.RemoveChrisFile]: {
     file: EventNode;
   };
   [Types.AddLocalFile]: {
     files: LocalFile[];
+    numOfFiles: number;
   };
   [Types.RemoveLocalFile]: {
     filename: string;

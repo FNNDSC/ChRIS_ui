@@ -178,6 +178,7 @@ export const createFeedReducer = (
     }
 
     case Types.SetProgress: {
+      console.log("action", action.payload.feedProgress);
       return {
         ...state,
         feedProgress: action.payload.feedProgress,

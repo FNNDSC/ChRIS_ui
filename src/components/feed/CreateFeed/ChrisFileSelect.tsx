@@ -140,6 +140,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
             checkedKeys={checkedKeys}
             checkable
             treeData={tree}
+            checkStrictly
           />
         </SplitItem>
         <SplitItem isFilled className="file-list-wrap">
