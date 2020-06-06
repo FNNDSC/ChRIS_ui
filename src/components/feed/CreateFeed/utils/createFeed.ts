@@ -3,7 +3,6 @@ import { CreateFeedData, LocalFile } from "../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin } from "@fnndsc/chrisapi";
-import { feedReducer } from "../../../../store/feed/reducer";
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
@@ -65,18 +64,22 @@ export const createFeedInstanceWithDircopy = async (
   let dirpath = "";
   if (chrisFiles.length > 0) {
     statusCallback("Computing path for dircopy");
+    if (path.includes(username as string)) {
+      dirpath = `${username}`;
+    }
+
     dirpath = `${username}/${path}`;
+    console.log("Dirpath", dirpath);
   }
 
   //localFiles need to have their path computed
-
   if (localFiles.length > 0) {
-    statusCallback("Uploading Files To Cube");
     const local_upload_path = `${username}/uploads/${generatePathForLocalFile(
       data
     )}`;
 
     try {
+      statusCallback("Uploading Files To Cube");
       await uploadLocalFiles(localFiles, local_upload_path);
     } catch (error) {
       errorCallback(error);
@@ -164,7 +167,7 @@ export const uploadLocalFiles = async (
 
   return Promise.all(
     files.map(async (file: LocalFile) => {
-      uploadedFiles.post(
+      await uploadedFiles.post(
         {
           upload_path: `${directory}/${file.name}`,
         },
