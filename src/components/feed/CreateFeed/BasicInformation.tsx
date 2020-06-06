@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-
 import { Form, FormGroup, TextInput, TextArea } from "@patternfly/react-core";
 import { Tag } from "@fnndsc/chrisapi";
 import { Typeahead } from "react-bootstrap-typeahead";
-import ChrisAPIClient from "../../../api/chrisapiclient";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types";
+import { fetchTagList } from "./utils/basicInformation";
 
 const BasicInformation: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -95,26 +94,3 @@ const BasicInformation: React.FC = () => {
 };
 
 export default BasicInformation;
-
-/**
- * Utils to be abstracted out
- */
-
-async function fetchTagList() {
-  const client = ChrisAPIClient.getClient();
-
-  const params = { limit: 30, offset: 0 };
-  let tagList = await client.getTags(params);
-  const tags = tagList.getItems();
-
-  while (tagList.hasNextPage) {
-    try {
-      params.offset += params.limit;
-      tagList = await client.getTags(params);
-      tags.push(...tagList.getItems());
-    } catch (e) {
-      console.error(e);
-    }
-  }
-  return tags;
-}
