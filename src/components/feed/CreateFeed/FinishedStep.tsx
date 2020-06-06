@@ -1,40 +1,47 @@
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import {
   Progress,
   ProgressMeasureLocation,
   ProgressVariant,
-  Flex,
-  FlexItem,
-  FlexModifiers,
+  Button,
+  Stack,
+  StackItem,
 } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
-import { Types } from "./types";
+import { Types, EventNode, LocalFile } from "./types";
+import { CogsIcon } from "@patternfly/react-icons";
 
 const FinishedStep: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { feedProgress, feedError, value } = state;
+  const { chrisFiles, localFiles } = state.data;
+
+  const numberOfFiles = useMemo(() => {
+    return generateNumOfFiles(chrisFiles, localFiles);
+  }, [chrisFiles, localFiles]);
 
   return (
-    <Flex
-      breakpointMods={[
-        { modifier: FlexModifiers.column },
-        { modifier: FlexModifiers["align-self-center"] },
-      ]}
-    >
-      <FlexItem>
-        <div className="pf-c-empty-state pf-m-lg">
-          <i
-            className="fas fa- fa-cogs pf-c-empty-state__icon"
-            aria-hidden="true"
-          />
-          <h1 className="pf-c-title pf-m-lg">
-            {value === 100 ? "Feed Created" : "Feed Creation in progress"}
-          </h1>
-        </div>
-      </FlexItem>
+    <Stack>
+      <StackItem>
+        <div className="finished-step">
+          <CogsIcon className="finished-step__icon" />
 
-      <FlexItem>
+          <p className="finished-step__header pf-c-title pf-m-lg">
+            {value === 100
+              ? "Feed Created"
+              : `Creating feed with ${numberOfFiles} ${
+                  numberOfFiles && numberOfFiles > 1 ? "files" : "file"
+                }`}
+          </p>
+        </div>
+      </StackItem>
+
+      <StackItem></StackItem>
+
+      <StackItem isFilled>
         <Progress
+          size="md"
+          className="finished-step__progessbar"
           max={100}
           value={value}
           measureLocation={ProgressMeasureLocation.outside}
@@ -42,16 +49,13 @@ const FinishedStep: React.FC = () => {
           valueText={feedProgress}
           variant={feedError ? ProgressVariant.danger : ProgressVariant.success}
         />
-      </FlexItem>
+      </StackItem>
 
-      <FlexItem>
-        <div className="pf-c-empty-state__body">
-          <button
-            className={
-              value === 100
-                ? "pf-c-button pf-m-primary"
-                : "pf-c-button pf-m-link"
-            }
+      <StackItem>
+        <div className="finished-step__button">
+          <Button
+            className="finished-step__buton-type"
+            variant={value === 100 ? "primary" : "link"}
             onClick={() => {
               dispatch({
                 type: Types.ResetState,
@@ -62,11 +66,29 @@ const FinishedStep: React.FC = () => {
             }}
           >
             {value === 100 ? "Close" : "Cancel"}
-          </button>
+          </Button>
         </div>
-      </FlexItem>
-    </Flex>
+      </StackItem>
+    </Stack>
   );
 };
 
 export default FinishedStep;
+
+const generateNumOfFiles = (
+  chrisFiles: EventNode[],
+  localFiles: LocalFile[]
+) => {
+  let fileLength;
+  if (chrisFiles.length > 0) {
+    fileLength = chrisFiles.reduce((acc, file) => {
+      if (file.children && file.children?.length > 0) {
+        return (acc += file.children.length);
+      } else return (acc += 1);
+    }, 0);
+  }
+  if (localFiles.length > 0) {
+    fileLength = localFiles.length;
+  }
+  return fileLength;
+};

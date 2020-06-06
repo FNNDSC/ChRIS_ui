@@ -309,3 +309,28 @@
 [data-theme="dark"] .site-tree-search-value {
   color: #d84a1b;
 }
+
+.finished-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: -15em;
+  margin-top: 5em;
+
+  &__header {
+    margin-bottom: 15px !important;
+  }
+  &__icon {
+    height: 4em;
+    width: 4em;
+    margin-bottom: 15px !important;
+  }
+
+  &__button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: -15em;
+    margin-top: 15px;
+  }
+}
