@@ -69,7 +69,6 @@ export const createFeedInstanceWithDircopy = async (
     }
 
     dirpath = `${username}/${path}`;
-    console.log("Dirpath", dirpath);
   }
 
   //localFiles need to have their path computed

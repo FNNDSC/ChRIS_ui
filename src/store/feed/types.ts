@@ -13,6 +13,7 @@ import { UploadedFile, Feed } from "@fnndsc/chrisapi";
 export interface IFeedState {
   details?: IFeedItem;
   feeds?: Feed["data"][];
+  feedsCount?: number;
   items?: IPluginItem[];
   uploadedFiles?: UploadedFile[];
 }

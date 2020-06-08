@@ -53,32 +53,15 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props) => {
   const { perPage, currentPage, filter, itemCount } = filterState;
 
   useEffect(() => {
-    getPlugins().then((plugins) => {
-      const pluginList = plugins.filter((plugin: Plugin) => {
-        return plugin.data.type === "fs";
-      });
-      const itemCount = pluginList.length;
-
-      const indexOfLastPlugin = currentPage * perPage;
-      const indexOfFirstPlugin = indexOfLastPlugin - perPage;
-      const currentPluginList = pluginList.slice(
-        indexOfFirstPlugin,
-        indexOfLastPlugin
-      );
-
-      setfsPlugins(currentPluginList);
-      setFilterState((filterState) => ({
-        ...filterState,
-        itemCount,
-      }));
-
-      if (filter.length > 0) {
-        const filteredList = pluginList.filter((plugin: Plugin) => {
-          return plugin.data.name.includes(filter);
-        });
-        setfsPlugins(filteredList);
+    getPlugins(filter, perPage, perPage * (currentPage - 1), "fs").then(
+      (pluginDetails) => {
+        setfsPlugins(pluginDetails.plugins);
+        setFilterState((filterState) => ({
+          ...filterState,
+          itemCount: pluginDetails.totalCount,
+        }));
       }
-    });
+    );
   }, [filter, perPage, currentPage, selectedPlugin]);
 
   // only update filter every half-second, to avoid too many requests
