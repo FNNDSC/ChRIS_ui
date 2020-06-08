@@ -172,8 +172,6 @@ export const createFeedReducer = (
         selectedConfig: "",
         requiredInput: {},
         dropdownInput: {},
-        feedProgress: "",
-        value: 0,
       };
     }
 
@@ -188,6 +186,14 @@ export const createFeedReducer = (
       return {
         ...state,
         feedError: action.payload.feedError,
+      };
+    }
+    case Types.ResetProgress: {
+      return {
+        ...state,
+        feedProgress: "",
+        value: 0,
+        feedError: "",
       };
     }
 

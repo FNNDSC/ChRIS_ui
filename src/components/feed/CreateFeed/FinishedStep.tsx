@@ -62,9 +62,6 @@ const FinishedStep: React.FC = () => {
             variant={value === 100 ? "primary" : "link"}
             onClick={() => {
               dispatch({
-                type: Types.ResetState,
-              });
-              dispatch({
                 type: Types.ToggleWizzard,
               });
             }}
