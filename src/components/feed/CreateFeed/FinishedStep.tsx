@@ -13,7 +13,7 @@ import { CogsIcon } from "@patternfly/react-icons";
 
 const FinishedStep: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { feedProgress, feedError, value } = state;
+  const { feedProgress, feedError, value, selectedPlugin } = state;
   const { chrisFiles, localFiles } = state.data;
 
   const numberOfFiles = useMemo(() => {
@@ -29,8 +29,12 @@ const FinishedStep: React.FC = () => {
           <p className="finished-step__header pf-c-title pf-m-lg">
             {value === 100
               ? "Feed Created"
-              : `Creating feed with ${numberOfFiles} ${
-                  numberOfFiles && numberOfFiles > 1 ? "files" : "file"
+              : `Creating feed with ${
+                  numberOfFiles === undefined
+                    ? selectedPlugin?.data.name
+                    : numberOfFiles && numberOfFiles > 1
+                    ? "files"
+                    : "1 file"
                 }`}
           </p>
         </div>

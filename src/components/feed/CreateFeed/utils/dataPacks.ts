@@ -1,20 +1,20 @@
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 
-export const getPlugins = async () => {
+export const getPlugins = async (
+  name: string,
+  limit: number,
+  offset: number,
+  type: string
+) => {
   const client = ChrisAPIClient.getClient();
-  const params = { limit: 25, offset: 0 };
+  const params = { name, limit, offset, type };
   let pluginList = await client.getPlugins(params);
+
   let plugins = pluginList.getItems();
+  let totalCount = pluginList.totalCount;
 
-  while (pluginList.hasNextPage) {
-    try {
-      params.offset += params.limit;
-      pluginList = await client.getPlugins(params);
-      plugins.push(...pluginList.getItems());
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  return plugins;
+  return {
+    plugins,
+    totalCount,
+  };
 };
