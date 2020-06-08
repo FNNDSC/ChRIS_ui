@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, ReactText } from "react";
 import { CreateFeedContext } from "./context";
 import { Split, SplitItem } from "@patternfly/react-core";
 import { EventDataNode, Key } from "rc-tree/lib/interface";
@@ -11,6 +11,7 @@ import {
   DataBreadcrumb,
   EventNode,
   ChrisFileSelectProp,
+  CheckedKeys,
 } from "./types";
 import { generateTreeNodes, getNewTreeData } from "./utils/fileSelect";
 
@@ -28,15 +29,9 @@ function getEmptyTree(username: string) {
 
 const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { chrisFiles } = state.data;
+  const { chrisFiles, checkedKeys } = state.data;
   const [tree, setTree] = useState<DataBreadcrumb[]>(getEmptyTree(username));
-  const [checkedKeys, setCheckedKeys] = useState<
-    | {
-        checked: Key[];
-        halfChecked: Key[];
-      }
-    | Key[]
-  >([]);
+
   const [expandedKeys, setExpandedKeys] = useState<Key[]>([]);
   const [autoExpandParent, setautoExpandParent] = useState(false);
 
@@ -45,26 +40,16 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
     setautoExpandParent(true);
   };
 
-  const onCheck = (
-    checkedKeys:
-      | {
-          checked: Key[];
-          halfChecked: Key[];
-        }
-      | Key[],
-    info: Info
-  ) => {
-    setCheckedKeys(checkedKeys);
-
+  const onCheck = (checkedKeys: CheckedKeys, info: Info) => {
     if (info.node.breadcrumb) {
       let path = `${info.node.breadcrumb}`;
-
       if (info.checked === true)
         dispatch({
           type: Types.AddChrisFile,
           payload: {
             file: info.node,
             path,
+            checkedKeys,
           },
         });
       else {
@@ -72,6 +57,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
           type: Types.RemoveChrisFile,
           payload: {
             file: info.node,
+            checkedKeys,
           },
         });
       }
@@ -107,17 +93,6 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
       <div className="File-preview" key={index}>
         {icon}
         <span className="file-name">{file.title}</span>
-        <CloseIcon
-          className="file-remove"
-          onClick={() => {
-            dispatch({
-              type: Types.RemoveChrisFile,
-              payload: {
-                file,
-              },
-            });
-          }}
-        />
       </div>
     );
   });
