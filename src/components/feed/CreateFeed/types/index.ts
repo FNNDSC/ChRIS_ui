@@ -33,6 +33,7 @@ export enum Types {
   ResetState = "RESET_STATE",
   SetProgress = "SET_PROGRESS",
   SetError = "SET_ERROR",
+  ResetProgress = "RESET_PROGRESS",
 }
 
 type CreateFeedPayload = {
@@ -89,6 +90,7 @@ type CreateFeedPayload = {
   [Types.SetError]: {
     feedError: string;
   };
+  [Types.ResetProgress]: boolean;
 };
 
 export type CreateFeedActions = ActionMap<CreateFeedPayload>[keyof ActionMap<

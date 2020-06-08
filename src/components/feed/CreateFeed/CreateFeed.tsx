@@ -65,6 +65,11 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
     if (id === 6) {
       handleSave();
     }
+    if (id === 5) {
+      dispatch({
+        type: Types.ResetProgress,
+      });
+    }
   };
 
   const deleteInput = (index: string) => {
@@ -150,13 +155,10 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
 
       // Set feed description
       const note = await feed.getNote();
-      await note.put(
-        {
-          title: "Description",
-          content: state.data.feedDescription,
-        },
-        1000
-      );
+      await note.put({
+        title: "Description",
+        content: state.data.feedDescription,
+      });
       // Add data to redux
       const { data, collection } = feed;
       const createdFeedLinks = collection.items[0];
@@ -238,19 +240,19 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
       name: "Basic Information",
       component: basicInformation,
       enableNext: !!data.feedName,
-      canJumpTo: step >= 1,
+      canJumpTo: step === 1,
     },
     {
       id: 2,
       name: "Data Configuration",
       component: chooseConfig,
       enableNext: selectedConfig.length > 0,
-      canJumpTo: step >= 2,
+      canJumpTo: step === 2,
     },
     {
       name: getName(selectedConfig),
       steps: getFeedSynthesisStep(),
-      canJumTo: step >= 3,
+      canJumTo: step === 3,
     },
     {
       id: 5,
