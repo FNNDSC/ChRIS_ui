@@ -6,13 +6,18 @@ const initialState: IFeedState = {
   details: undefined,
   items: undefined,
   feeds: undefined,
+  feedsCount: 0,
   uploadedFiles: undefined,
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
   switch (action.type) {
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
-      return { ...state, feeds: action.payload.data };
+      return {
+        ...state,
+        feeds: action.payload.data,
+        feedsCount: action.payload.totalCount,
+      };
     }
     case FeedActionTypes.GET_FEED_DETAILS_SUCCESS: {
       return { ...state, details: action.payload };

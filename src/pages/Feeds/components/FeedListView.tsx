@@ -40,7 +40,6 @@ interface FeedsListViewState {
   perPage: number;
   page: number;
   filter: string;
-  feedsCount?: number;
   descriptions: { [feedId: number]: string };
 }
 
@@ -72,7 +71,6 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
       activeItem: "my_feeds",
     });
     this.fetchFeeds();
-    this.fetchFeedsCount();
   }
 
   componentDidUpdate(prevProps: AllProps, prevState: FeedsListViewState) {
@@ -90,10 +88,6 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     ) {
       this.fetchFeeds();
     }
-
-    if (prevProps.feeds !== feeds) {
-      this.fetchFeedsCount();
-    }
   }
 
   /* DATA FETCHING */
@@ -105,13 +99,6 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   }
 
   // fetch total amount of feeds, regardless of filter/pagination
-  async fetchFeedsCount() {
-    const { feeds } = this.props;
-
-    if (feeds) {
-      this.setState({ feedsCount: feeds.length });
-    }
-  }
 
   async fetchFeedDescription(feedItem: Feed["data"]) {
     const client = ChrisAPIClient.getClient();
@@ -205,10 +192,10 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   }
 
   generatePagination() {
-    const { feeds } = this.props;
-    const { perPage, page, feedsCount } = this.state;
+    const { feeds, feedsCount } = this.props;
+    const { perPage, page } = this.state;
 
-    if (!feedsCount || !feeds) {
+    if (!feeds || !feedsCount) {
       return null;
     }
 
@@ -238,9 +225,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   }
 
   render() {
-    const { feeds } = this.props;
-
-    const { feedsCount } = this.state;
+    const { feeds, feedsCount } = this.props;
 
     const cells = ["Feed", "Created", "Last Commit", ""];
     const rows = (feeds || []).map(this.generateTableRow);
@@ -298,6 +283,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 const mapStateToProps = ({ feed }: ApplicationState) => ({
   feeds: feed.feeds,
+  feedsCount: feed.feedsCount,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedListView);

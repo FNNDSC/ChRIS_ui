@@ -17,18 +17,16 @@ import {
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
   const { name, limit, offset } = action.payload;
+
   let params = {
     name,
     limit,
     offset,
   };
-  try {
-    const client = ChrisAPIClient.getClient();
-    const feeds = yield client.getFeeds(params);
-    yield put(getAllFeedsSuccess(feeds));
-  } catch (error) {
-    console.error(error);
-  }
+  const client = ChrisAPIClient.getClient();
+  let feedsList = yield client.getFeeds(params);
+  let feeds = feedsList;
+  yield put(getAllFeedsSuccess(feeds));
 }
 
 function* watchGetAllFeedsRequest() {
