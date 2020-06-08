@@ -3,6 +3,7 @@ import {
   CreateFeedActions,
   CreateFeedState,
   Types,
+  CheckedKeys,
 } from "../types";
 
 import { InputType } from "../../AddNode/types";
@@ -15,6 +16,7 @@ function getDefaultCreateFeedData(): CreateFeedData {
     chrisFiles: [],
     localFiles: [],
     path: "",
+    checkedKeys: [],
   };
 }
 
@@ -76,9 +78,11 @@ export const createFeedReducer = (
           ...state.data,
           chrisFiles: [...state.data.chrisFiles, action.payload.file],
           path: action.payload.path,
+          checkedKeys: action.payload.checkedKeys,
         },
       };
     case Types.RemoveChrisFile: {
+      console.log(action.payload);
       return {
         ...state,
         data: {
@@ -86,6 +90,7 @@ export const createFeedReducer = (
           chrisFiles: state.data.chrisFiles.filter(
             (node) => node.title !== action.payload.file.title
           ),
+          checkedKeys: action.payload.checkedKeys,
         },
       };
     }

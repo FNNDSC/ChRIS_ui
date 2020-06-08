@@ -56,14 +56,14 @@ type CreateFeedPayload = {
   [Types.AddChrisFile]: {
     file: EventNode;
     path: string;
-    numberOfFiles: number;
+    checkedKeys: CheckedKeys;
   };
   [Types.RemoveChrisFile]: {
     file: EventNode;
+    checkedKeys: CheckedKeys;
   };
   [Types.AddLocalFile]: {
     files: LocalFile[];
-    numOfFiles: number;
   };
   [Types.RemoveLocalFile]: {
     filename: string;
@@ -107,6 +107,7 @@ export interface CreateFeedData {
   feedDescription: string;
   tags: Tag[];
   chrisFiles: EventNode[];
+  checkedKeys: CheckedKeys;
   localFiles: LocalFile[];
   path: string;
 }
@@ -155,3 +156,10 @@ export type Info = {
   }[];
   halfCheckedKeys?: Key[];
 };
+
+export type CheckedKeys =
+  | {
+      checked: Key[];
+      halfChecked: Key[];
+    }
+  | Key[];
