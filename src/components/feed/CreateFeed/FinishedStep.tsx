@@ -32,8 +32,8 @@ const FinishedStep: React.FC = () => {
               : `Creating feed with ${
                   numberOfFiles === undefined
                     ? selectedPlugin?.data.name
-                    : numberOfFiles && numberOfFiles > 1
-                    ? "files"
+                    : numberOfFiles > 1
+                    ? `${numberOfFiles} files`
                     : "1 file"
                 }`}
           </p>
