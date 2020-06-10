@@ -97,13 +97,14 @@ function* handleGetPluginFiles(action: IActionTypeParam) {
     pluginInstance.get();
 
     let fileList = yield pluginInstance.getFiles(params);
-    const files = fileList.getItems();
+
+    let files = fileList.getItems();
 
     while (fileList.hasNextPage) {
       try {
         params.offset += params.limit;
         fileList = yield pluginInstance.getFiles(params);
-        files.push(...fileList.getItems());
+        files = files.concat(fileList.getItems());
       } catch (e) {
         console.error(e);
       }
