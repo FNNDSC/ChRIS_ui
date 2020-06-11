@@ -29,10 +29,20 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return { ...state, items: undefined, details: undefined };
     }
     case FeedActionTypes.ADD_FEED: {
-      if (state.feeds) {
-        return { ...state, feeds: [action.payload, ...state.feeds] };
+      if (state.feeds && state.feedsCount) {
+        return {
+          ...state,
+          feeds: [action.payload, ...state.feeds],
+          feedsCount: state.feedsCount + 1,
+        };
       } else {
-        return { ...state, feeds: [action.payload] };
+        return {
+          ...state,
+          feeds: [action.payload],
+          feedsCount: state.feedsCount
+            ? state.feedsCount + 1
+            : state.feedsCount,
+        };
       }
     }
     case FeedActionTypes.GET_UPLOADED_FILES_SUCCESS: {
