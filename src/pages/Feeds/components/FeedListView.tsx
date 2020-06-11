@@ -28,6 +28,7 @@ import LoadingContent from "../../../components/common/loading/LoadingContent";
 import feedIcon from "../../../assets/images/bw-pipeline.svg";
 import { Feed } from "@fnndsc/chrisapi";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
+import { isEqual } from "lodash";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -75,7 +76,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
 
   componentDidUpdate(prevProps: AllProps, prevState: FeedsListViewState) {
     const { page, perPage, filter } = this.state;
-    const { feeds } = this.props;
+
     setSidebarActive({
       activeGroup: "feeds_grp",
       activeItem: "my_feeds",
@@ -84,7 +85,8 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     if (
       prevState.page !== page ||
       prevState.perPage !== perPage ||
-      prevState.filter !== filter
+      prevState.filter !== filter ||
+      isEqual(prevProps.feeds, this.props.feeds)
     ) {
       this.fetchFeeds();
     }
@@ -242,7 +244,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
               My Feeds
               <span className="feed-count">
                 {" "}
-                ({feedsCount === undefined ? "0" : feedsCount})
+                ({feedsCount === -1 ? "0" : feedsCount})
               </span>
             </Title>
             <CreateFeedProvider>
