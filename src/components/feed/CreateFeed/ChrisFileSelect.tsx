@@ -86,13 +86,28 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
   };
 
   const fileList = chrisFiles.map((file: EventNode, index) => {
-    const isFolder = file.children && file.children.length > 0;
+    const isFolder =
+      (file.children && file.children.length > 0) ||
+      (file.title as string).includes("uploads") ||
+      (file.title as string).includes("feed");
     const icon = isFolder ? <FolderCloseIcon /> : <FileIcon />;
 
     return (
       <div className="File-preview" key={index}>
         {icon}
         <span className="file-name">{file.title}</span>
+        <CloseIcon
+          className="file-remove"
+          onClick={() =>
+            dispatch({
+              type: Types.RemoveChrisFile,
+              payload: {
+                file,
+                checkedKeys,
+              },
+            })
+          }
+        />
       </div>
     );
   });
