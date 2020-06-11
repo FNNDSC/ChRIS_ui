@@ -82,7 +82,6 @@ export const createFeedReducer = (
         },
       };
     case Types.RemoveChrisFile: {
-      console.log(action.payload);
       return {
         ...state,
         data: {
