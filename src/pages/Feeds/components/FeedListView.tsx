@@ -86,7 +86,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
       prevState.page !== page ||
       prevState.perPage !== perPage ||
       prevState.filter !== filter ||
-      isEqual(prevProps.feeds, this.props.feeds)
+      !isEqual(prevProps.feeds, this.props.feeds)
     ) {
       this.fetchFeeds();
     }
