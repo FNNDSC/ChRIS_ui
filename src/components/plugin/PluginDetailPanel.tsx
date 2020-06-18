@@ -13,19 +13,17 @@ import { ApplicationState } from "../../store/root/applicationState";
 import PluginInformation from "./PluginInformation";
 import PluginConfiguration from "./PluginConfiguration";
 import PluginOutput from "./PluginOutput";
-import {
-  getPluginInstanceTitle,
-  IPluginItem,
-} from "../../api/models/pluginInstance.model";
+import { getPluginInstanceTitle } from "../../api/models/pluginInstance.model";
 import "./plugin.scss";
 import { LoadingSpinner } from "..";
 import { getSelectedFiles } from "../../store/plugin/selector";
+import { PluginInstance } from "@fnndsc/chrisapi";
 interface IState {
   expanded: string[];
 }
 
 interface IPluginProps {
-  selected?: IPluginItem;
+  selected?: PluginInstance;
   files?: any[];
   parameters?: any[];
 }

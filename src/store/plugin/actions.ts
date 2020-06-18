@@ -1,21 +1,26 @@
 import { action } from "typesafe-actions";
 import { PluginActionTypes } from "./types";
-import { IPluginItem } from "../../api/models/pluginInstance.model";
-import { FeedFile, PluginParameter, Plugin } from "@fnndsc/chrisapi";
+
+import {
+  FeedFile,
+  PluginParameter,
+  Plugin,
+  PluginInstance,
+} from "@fnndsc/chrisapi";
 
 export const getPluginDescendantsRequest = (url: string) =>
   action(PluginActionTypes.GET_PLUGIN_DESCENDANTS, url);
-export const getPluginDescendantsSuccess = (items: IPluginItem[]) =>
+export const getPluginDescendantsSuccess = (items: PluginInstance[]) =>
   action(PluginActionTypes.GET_PLUGIN_DESCENDANTS_SUCCESS, items);
 
-export const getPluginFiles = (selected: IPluginItem) =>
+export const getPluginFiles = (selected: PluginInstance) =>
   action(PluginActionTypes.GET_PLUGIN_FILES, selected);
-export const getPluginFilesSuccess = (items: IPluginItem[]) =>
+export const getPluginFilesSuccess = (items: PluginInstance[]) =>
   action(PluginActionTypes.GET_PLUGIN_FILES_SUCCESS, items);
 
-export const getPluginDetailsRequest = (item: IPluginItem) =>
+export const getPluginDetailsRequest = (item: PluginInstance) =>
   action(PluginActionTypes.GET_PLUGIN_DETAILS, item);
-export const getPluginDetailsSuccess = (items: IPluginItem[]) =>
+export const getPluginDetailsSuccess = (items: PluginInstance[]) =>
   action(PluginActionTypes.GET_PLUGIN_DETAILS_SUCCESS, items);
 
 export const destroyPlugin = () => action(PluginActionTypes.RESET_PLUGIN_STATE);

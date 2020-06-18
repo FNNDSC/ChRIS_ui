@@ -6,27 +6,24 @@ import {
   PageSection,
   PageSectionVariants,
   Grid,
-  GridItem
+  GridItem,
 } from "@patternfly/react-core";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import {
-  getFeedDetailsRequest,
-  destroyFeed
-} from "../../../store/feed/actions";
+import { getFeedRequest, destroyFeed } from "../../../store/feed/actions";
 import { getPluginDetailsRequest } from "../../../store/plugin/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { IUserState } from "../../../store/user/types";
 import { IPluginState } from "../../../store/plugin/types";
-import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { FeedTree, FeedDetails, NodeDetails } from "../../../components/index";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 import "../feed.scss";
 import FeedOutputBrowser from "../../../components/feed/FeedOutputBrowser";
+import { PluginInstance } from "@fnndsc/chrisapi";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
-  getFeedDetailsRequest: typeof getFeedDetailsRequest;
+  getFeedRequest: typeof getFeedRequest;
   getPluginDetailsRequest: typeof getPluginDetailsRequest;
   destroyFeed: typeof destroyFeed;
 }
@@ -47,7 +44,7 @@ class FeedView extends React.Component<AllProps> {
     document.title = "My Feeds - ChRIS UI site";
     setSidebarActive({
       activeGroup: "feeds_grp",
-      activeItem: "my_feeds"
+      activeItem: "my_feeds",
     });
 
     this.onNodeClick = this.onNodeClick.bind(this);
@@ -55,19 +52,19 @@ class FeedView extends React.Component<AllProps> {
 
   // Description: this will get the feed details then retrieve the plugin_instances object
   fetchFeedData(feedId: string) {
-    const { getFeedDetailsRequest } = this.props;
-    getFeedDetailsRequest(feedId);
+    const { getFeedRequest } = this.props;
+    getFeedRequest(feedId);
   }
 
   render() {
-    const { items, details, selected, descendants, token } = this.props;
+    const { items, feed, selected, descendants, token } = this.props;
 
     return (
       <React.Fragment>
         {/* Top section with Feed information */}
-        {!!details && !!items && (
+        {!!feed && !!items && (
           <PageSection variant={PageSectionVariants.darker}>
-            <FeedDetails details={details} items={items} />
+            <FeedDetails feed={feed} items={items} />
           </PageSection>
         )}
         {/* END Top section with Feed information */}
@@ -107,12 +104,14 @@ class FeedView extends React.Component<AllProps> {
         {/* Bottom section with information */}
         <PageSection>
           <div className="plugin-info pf-u-py-md">
-            <FeedOutputBrowser
-              token={token || ""}
-              selected={selected}
-              plugins={items}
-              handlePluginSelect={this.onNodeClick}
-            />
+            {/*
+              <FeedOutputBrowser
+                token={token || ""}
+                selected={selected}
+                plugins={items}
+                handlePluginSelect={this.onNodeClick}
+              />
+              */}
           </div>
         </PageSection>
         {/* END OF Bottom section with information */}
@@ -121,7 +120,7 @@ class FeedView extends React.Component<AllProps> {
   }
 
   // Description: handle node clicks to load next node information - descendants, params, and files
-  onNodeClick(node: IPluginItem) {
+  onNodeClick(node: PluginInstance) {
     const { getPluginDetailsRequest } = this.props;
     getPluginDetailsRequest(node);
   }
@@ -134,12 +133,12 @@ class FeedView extends React.Component<AllProps> {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getFeedDetailsRequest: (id: string) => dispatch(getFeedDetailsRequest(id)),
+  getFeedDetailsRequest: (id: string) => dispatch(getFeedRequest(id)),
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
-  getPluginDetailsRequest: (item: IPluginItem) =>
+  getPluginDetailsRequest: (item: PluginInstance) =>
     dispatch(getPluginDetailsRequest(item)),
-  destroyFeed: () => dispatch(destroyFeed())
+  destroyFeed: () => dispatch(destroyFeed()),
 });
 
 const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({
@@ -147,9 +146,9 @@ const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({
   sidebarActiveItem: ui.sidebarActiveItem,
   token: user.token,
   items: feed.items,
-  details: feed.details,
+  feed: feed.feed,
   selected: plugin.selected,
-  descendants: plugin.descendants
+  descendants: plugin.descendants,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedView);

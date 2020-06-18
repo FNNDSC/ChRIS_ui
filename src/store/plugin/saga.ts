@@ -15,21 +15,20 @@ import {
   getPluginFilesSuccess,
   getParamsSuccess,
 } from "./actions";
-import { IPluginItem } from "../../api/models/pluginInstance.model";
-
+import { PluginInstance } from "@fnndsc/chrisapi";
 // ------------------------------------------------------------------------
 // Description: Get Plugin Descendants, files and parameters on change
 // ------------------------------------------------------------------------
 function* handleGetPluginDetails(action: IActionTypeParam) {
   try {
-    const item: IPluginItem = action.payload;
+    const item: PluginInstance = action.payload;
+    const descendantsList = yield item.getDescendantPluginInstances({});
+    const descendants = descendantsList.getItems();
 
-    const res = yield call(ChrisModel.fetchRequest, item.descendants); // Get descendants first:
-
-    if (res.error) {
-      console.error(res.error);
+    if (descendants.length < 0) {
+      console.error("This plugin has no descendants");
     } else {
-      yield put(getPluginDetailsSuccess(res));
+      yield put(getPluginDetailsSuccess(descendants));
     }
   } catch (error) {
     console.error(error);
@@ -39,7 +38,6 @@ function* handleGetPluginDetails(action: IActionTypeParam) {
 function* handleGetParams(action: IActionTypeParam) {
   try {
     const plugin = action.payload;
-
     const paramList = yield plugin.getPluginParameters();
     const params = paramList.getItems();
 
