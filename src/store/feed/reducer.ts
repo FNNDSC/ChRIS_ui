@@ -3,7 +3,7 @@ import { IFeedState, FeedActionTypes } from "./types";
 
 // Type-safe initialState
 const initialState: IFeedState = {
-  details: undefined,
+  feed: undefined,
   items: undefined,
   feeds: undefined,
   feedsCount: 0,
@@ -19,11 +19,11 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         feedsCount: action.payload.totalCount,
       };
     }
-    case FeedActionTypes.GET_FEED_DETAILS_SUCCESS: {
+    case FeedActionTypes.GET_FEED_SUCCESS: {
       return { ...state, details: action.payload };
     }
     case FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS: {
-      return { ...state, items: action.payload.data.results };
+      return { ...state, items: action.payload };
     }
     case FeedActionTypes.RESET_STATE: {
       return { ...state, items: undefined, details: undefined };

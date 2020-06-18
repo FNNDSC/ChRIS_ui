@@ -17,10 +17,8 @@ import {
   CalendarDayIcon,
 } from "@patternfly/react-icons";
 
-import {
-  IPluginItem,
-  statusLabels,
-} from "../../api/models/pluginInstance.model";
+import { statusLabels } from "../../api/models/pluginInstance.model";
+import { PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import TreeNodeModel from "../../api/models/tree-node.model";
 
@@ -28,8 +26,8 @@ import TextCopyPopover from "../common/textcopypopover/TextCopyPopover";
 import AddNode from "./AddNode/AddNode";
 
 interface INodeProps {
-  selected: IPluginItem;
-  descendants: IPluginItem[];
+  selected: PluginInstance;
+  descendants: PluginInstance[];
 }
 
 interface INodeState {
@@ -50,13 +48,13 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
   async componentDidUpdate(prevProps: INodeProps) {
     const { selected: prevSelected } = prevProps;
     const { selected } = this.props;
-    if (prevSelected.id !== selected.id) {
+    if (prevSelected.data.id !== selected.data.id) {
       this.fetchPluginData();
     }
   }
 
   async fetchPluginData() {
-    const { id, plugin_id } = this.props.selected;
+    const { id, plugin_id } = this.props.selected.data;
 
     const client = ChrisAPIClient.getClient();
     const plugin = await client.getPlugin(plugin_id);
@@ -78,7 +76,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
 
   // Description: root node or leaf nodes in the graph will not have the 'share this pipeline' button
   // Find out from descendants if this node is a leaf or root node
-  isNodePipelineRoot(item: IPluginItem) {
+  isNodePipelineRoot(item: PluginInstance) {
     const { descendants } = this.props;
     return (
       !TreeNodeModel.isRootNode(item) &&
@@ -117,7 +115,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     const { selected } = this.props;
     const { plugin, params } = this.state;
 
-    const pluginTitle = `${selected.plugin_name} v. ${selected.plugin_version}`;
+    const pluginTitle = `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;
     const command =
       plugin && params ? this.getCommand(plugin, params) : "Loading command...";
 
@@ -157,20 +155,22 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
           </GridItem>
           <GridItem span={10} className="value">
             <CheckIcon />
-            {statusLabels[selected.status] || selected.status}
+            {statusLabels[selected.data.status] || selected.data.status}
           </GridItem>
           <GridItem span={2} className="title">
             Created
           </GridItem>
           <GridItem span={10} className="value">
             <CalendarDayIcon />
-            <Moment format="DD MMM YYYY @ HH:mm">{selected.start_date}</Moment>
+            <Moment format="DD MMM YYYY @ HH:mm">
+              {selected.data.start_date}
+            </Moment>
           </GridItem>
           <GridItem span={2} className="title">
             Node ID
           </GridItem>
           <GridItem span={10} className="value">
-            {selected.id}
+            {selected.data.id}
           </GridItem>
         </Grid>
 
