@@ -1,7 +1,5 @@
-import { IPluginItem } from "./pluginInstance.model";
-
 import _ from "lodash";
-import { FeedFile } from "@fnndsc/chrisapi";
+import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
 
 // Description: Builds the file explorer tree
 export interface IUITreeNode {
@@ -43,7 +41,7 @@ export default class UITreeNodeModel {
   };
   tree: IUITreeNode = this._worker;
 
-  constructor(items: FeedFile[], selected: IPluginItem) {
+  constructor(items: FeedFile[], selected: PluginInstance) {
     this._items = items;
     this.parseUiTree(items, selected);
   }
@@ -52,9 +50,9 @@ export default class UITreeNodeModel {
   };
 
   // Description: Parse Plugin file array into IUITreeNode object - build the tree
-  parseUiTree(items: FeedFile[], selected: IPluginItem) {
-    const pluginName = `${selected.plugin_name}_${selected.id}`;
-    const root = `chris/feed_${selected.feed_id}/...`; // modules Name
+  parseUiTree(items: FeedFile[], selected: PluginInstance) {
+    const pluginName = `${selected.data.plugin_name}_${selected.data.id}`;
+    const root = `chris/feed_${selected.data.feed_id}/...`; // modules Name
 
     this._worker.module = this._previousItem = root;
 

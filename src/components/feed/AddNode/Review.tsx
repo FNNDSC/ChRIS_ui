@@ -28,7 +28,7 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
 
       <Grid gutter="sm">
         <GridItem span={2}>Parent Node:</GridItem>
-        <GridItem span={10}>{data.parent && data.parent.plugin_name}</GridItem>
+        <GridItem span={10}>{data.parent && data.parent.data.plugin_name}</GridItem>
         <GridItem span={2}>Type of node:</GridItem>
         <GridItem span={10}>Plugin</GridItem>
         <GridItem span={2}>Selected plugin:</GridItem>

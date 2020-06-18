@@ -1,4 +1,6 @@
 import React from "react";
+
+/*
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import JSZip from "jszip";
@@ -25,6 +27,8 @@ import { getPluginFiles } from "../../store/plugin/actions";
 import FileBrowser from "./FileBrowser";
 
 import { ApplicationState } from "../../store/root/applicationState";
+
+
 
 // INTERFACES
 
@@ -94,7 +98,7 @@ class FeedOutputBrowser extends React.Component<
     }
   }
 
-  /* DATA FETCHING & MANIPULATION */
+  /* DATA FETCHING & MANIPULATION 
 
   createTreeFromFiles(selected: IPluginItem, files?: FeedFile[]) {
     if (!files) {
@@ -128,7 +132,7 @@ class FeedOutputBrowser extends React.Component<
     return { ...root, children };
   }
 
-  /* EVENT LISTENERS */
+  /* EVENT LISTENERS 
 
   async handleDownloadAllClick() {
     const { selected, pluginFiles } = this.props;
@@ -167,7 +171,7 @@ class FeedOutputBrowser extends React.Component<
     this.fetchPluginFiles(plugin);
   }
 
-  /* GENERATE UI ELEMENTS */
+  /* GENERATE UI ELEMENTS 
 
   // Description: Generate plugin item for sidebar
   generateSidebarItem(plugin: IPluginItem) {
@@ -296,3 +300,4 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedOutputBrowser);
+*/

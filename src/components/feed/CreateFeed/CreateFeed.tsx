@@ -15,9 +15,9 @@ import { Dispatch } from "redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { connect } from "react-redux";
 import { addFeed } from "../../../store/feed/actions";
-import { IFeedItem } from "../../../api/models/feed.model";
+
 import { createFeed, getName } from "./utils/createFeed";
-import { Collection } from "@fnndsc/chrisapi";
+import { Collection, Feed } from "@fnndsc/chrisapi";
 import FinishedStep from "./FinishedStep";
 
 const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
@@ -167,23 +167,7 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
         return Collection.getLinkRelationUrls(createdFeedLinks, resource)[0];
       };
 
-      const feedObj = {
-        name: state.data.feedName,
-        note: state.data.feedDescription,
-        id: feed.data.id,
-        creation_date: data.creation_date,
-        modification_date: data.modification_date,
-        creator_username: data.creator_username,
-        owner: [data.creator_username],
-        url: feed.url,
-        files: getLinkUrl("files"),
-        comments: getLinkUrl("comments"),
-        tags: getLinkUrl("tags"),
-        taggings: getLinkUrl("taggings"),
-        plugin_instances: getLinkUrl("plugininstances"),
-      };
-
-      addFeed && addFeed(feedObj);
+      addFeed && addFeed(feed);
     } catch (error) {
       console.error(error);
     } finally {
@@ -313,7 +297,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   user: state.user,
 });
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  addFeed: (feed: IFeedItem) => dispatch(addFeed(feed)),
+  addFeed: (feed: Feed) => dispatch(addFeed(feed)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(CreateFeed);

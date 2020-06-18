@@ -5,12 +5,12 @@
  *  Notes:           .
  */
 import keyMirror from "keymirror";
-import { IPluginItem } from "../../api/models/pluginInstance.model";
-import { PluginParameter } from "@fnndsc/chrisapi";
+
+import { PluginParameter, PluginInstance } from "@fnndsc/chrisapi";
 
 export interface IPluginState {
-  selected?: IPluginItem;
-  descendants?: IPluginItem[];
+  selected?: PluginInstance;
+  descendants?: PluginInstance[];
   parameters?: PluginParameter[];
   pluginFiles?: {};
 }

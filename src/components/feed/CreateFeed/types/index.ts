@@ -1,7 +1,8 @@
 import { Tag, Plugin } from "@fnndsc/chrisapi";
 import { InputState, InputIndex } from "../../AddNode/types";
 import { IUserState } from "../../../../store/user/types";
-import { IFeedItem } from "../../../../api/models/feed.model";
+import { Feed } from "@fnndsc/chrisapi";
+
 import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
 
 type ActionMap<M extends { [index: string]: any }> = {
@@ -125,7 +126,7 @@ export interface CreateFeedState extends InputState {
 
 export interface CreateFeedReduxProp {
   user?: IUserState;
-  addFeed?: (feed: IFeedItem) => void;
+  addFeed?: (feed: Feed) => void;
 }
 
 export interface ChrisFileSelectProp {

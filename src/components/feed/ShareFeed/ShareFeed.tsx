@@ -3,6 +3,7 @@ import ShareModal from "./ShareModal";
 import { Button } from "@patternfly/react-core";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import "./sharefeed.scss";
+import { Feed } from "@fnndsc/chrisapi";
 
 import { UsersIcon } from "@patternfly/react-icons";
 
@@ -13,7 +14,7 @@ interface ShareFeedState {
 }
 
 interface ShareFeedProps {
-  details: any;
+  feed?: Feed;
 }
 
 class ShareFeed extends React.Component<ShareFeedProps, ShareFeedState> {
@@ -34,13 +35,10 @@ class ShareFeed extends React.Component<ShareFeedProps, ShareFeedState> {
   }
 
   async handleCreate(username: string) {
-    const { details } = this.props;
-    if (!details) {
+    const { feed } = this.props;
+    if (!feed) {
       return;
     }
-    const id = details.id as number;
-    const client = ChrisAPIClient.getClient();
-    const feed = await client.getFeed(id);
     await feed.put({
       owner: username,
     });
