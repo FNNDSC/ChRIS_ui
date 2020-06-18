@@ -7,6 +7,7 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 import PluginSelect from "./PluginSelect";
+
 import { BasicConfigurationProps, BasicConfigurationState } from "./types";
 
 class BasicConfiguration extends React.Component<
@@ -64,7 +65,7 @@ class BasicConfiguration extends React.Component<
         <h1 className="pf-c-title pf-m-2xl">Plugin Selection</h1>
         <FormGroup label="Parent node:" fieldId="parent-node">
           <TextInput
-            value={parent.plugin_name}
+            value={parent.data.plugin_name}
             aria-label="Selected Plugin Name"
           />
         </FormGroup>

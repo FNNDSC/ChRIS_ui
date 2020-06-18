@@ -4,7 +4,7 @@ import ChrisModel, { IActionTypeParam } from "../../api/models/base.model";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import {
   getAllFeedsSuccess,
-  getFeedDetailsSuccess,
+  getFeedSuccess,
   getPluginInstanceListRequest,
   getPluginInstanceListSuccess,
   getUploadedFilesSuccess,
@@ -17,7 +17,6 @@ import {
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
   const { name, limit, offset } = action.payload;
-
   let params = {
     name,
     limit,
@@ -36,18 +35,16 @@ function* watchGetAllFeedsRequest() {
 // ------------------------------------------------------------------------
 // Description: Get Feed's details
 // ------------------------------------------------------------------------
+const client = ChrisAPIClient.getClient();
 function* handleGetFeedDetails(action: IActionTypeParam) {
   try {
-    const url = `${process.env.REACT_APP_CHRIS_UI_URL}${action.payload}`;
-    const res = yield call(ChrisModel.fetchRequest, url);
-
-    if (res.error) {
-      console.error(res.error);
+    const id = Number(action.payload);
+    const feed = yield client.getFeed(id);
+    if (feed) {
+      yield put(getFeedSuccess(feed));
+      yield put(getPluginInstanceListRequest(feed));
     } else {
-      yield put(getFeedDetailsSuccess(res.data));
-      // Note: Call the plugin instance pass it all in one state call
-      const url = res.data.plugin_instances;
-      yield put(getPluginInstanceListRequest(url));
+      console.error("Feed does not exist");
     }
   } catch (error) {
     console.error(error);
@@ -55,42 +52,45 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
 }
 
 function* watchGetFeedRequest() {
-  yield takeEvery(FeedActionTypes.GET_FEED_DETAILS, handleGetFeedDetails);
+  yield takeEvery(FeedActionTypes.GET_FEED, handleGetFeedDetails);
 }
 
 // ------------------------------------------------------------------------
 // Description: Get Plugin instances and attempt to register files in unfinished instances
 // ------------------------------------------------------------------------
 function* handleGetPluginInstances(action: IActionTypeParam) {
+  const feed = action.payload;
+
   try {
-    const res = yield call(ChrisModel.fetchRequest, action.payload); // const res = yield call(FeedModel.fetchRequest, action.payload);
-    if (res.error) {
-      console.error(res.error);
-    } else {
-      // plugin instances are not marked as "finished" until queried directly
+    let params = {
+      limit: 100,
+      offset: 0,
+    };
+    const pluginInstanceList = yield feed.getPluginInstances(params);
+    //const res = yield call(ChrisModel.fetchRequest, action.payload); // const res = yield call(FeedModel.fetchRequest, action.payload);
+    const pluginInstances = pluginInstanceList.getItems();
 
-      const instances = res.data.results;
+    // plugin instances are not marked as "finished" until queried directly
 
-      const startedIIndices = []; // indices of instances marked as "started"
-      for (let i = 0; i < instances.length; i++) {
-        const instance = instances[i];
-        if (instance.status === "started") {
-          startedIIndices.push(i);
-        }
+    const startedIIndices = []; // indices of instances marked as "started"
+    for (let i = 0; i < pluginInstances.length; i++) {
+      const instance = pluginInstances[i];
+      if (instance.data.status === "started") {
+        startedIIndices.push(i);
       }
-
+    }
+    if (startedIIndices.length > 0) {
       const queriedInstances = yield all(
         startedIIndices.map((index: number) => {
-          return call(ChrisModel.fetchRequest, instances[index].url);
+          return pluginInstances[index].get();
         })
       );
       for (let j = 0; j < queriedInstances.length; j++) {
         // replace instance data with new data
-        instances[startedIIndices[j]] = queriedInstances[j].data;
+        pluginInstances[startedIIndices[j]] = queriedInstances[j].data;
       }
-
-      yield put(getPluginInstanceListSuccess(res));
     }
+    yield put(getPluginInstanceListSuccess(pluginInstances));
   } catch (error) {
     console.error(error);
   }
