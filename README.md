@@ -19,14 +19,14 @@ Then open a terminal and fire the backend services up:
 ```bash
 $ git clone https://github.com/FNNDSC/ChRIS_ultron_backEnd.git
 $ cd ChRIS_ultron_backEnd
-$ ./docker-make.sh -U -I -i
+$ ./make.sh -U -I -i
 ```
 
 You can later remove all the backend containers and release storage volumes with:
 ```bash
 $ cd ChRIS_ultron_backEnd
 $ sudo rm -r FS
-$ ./docker-destroy.sh
+$ ./unmake.sh
 ```
 
 
