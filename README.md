@@ -1,5 +1,6 @@
 # ![ChRIS logo](https://github.com/FNNDSC/ChRIS_ultron_backEnd/blob/master/docs/assets/logo_chris.png) ChRIS_ui
-UI for ChRIS.
+
+This repository contains the reference UI for ChRIS, allowing users to create and interact with dynamic containerized workflows.
 
 ![License][license-badge]
 ![Last Commit][last-commit-badge]
