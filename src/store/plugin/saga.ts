@@ -4,32 +4,30 @@ import {
   fork,
   put,
   takeEvery,
-  takeLatest,
+  delay,
+  cancelled,
+  cancel,
 } from "redux-saga/effects";
 import { PluginActionTypes } from "./types";
-import ChrisModel, { IActionTypeParam } from "../../api/models/base.model";
-import ChrisAPIClient from "../../api/chrisapiclient";
+import { IActionTypeParam } from "../../api/models/base.model";
+
 import {
-  getPluginDetailsSuccess,
-  getPluginDescendantsSuccess,
+  getPluginFiles,
+  getPluginStatus,
   getPluginFilesSuccess,
   getParamsSuccess,
 } from "./actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
+import { getSelectedPluginSuccess } from "../feed/actions";
+
 // ------------------------------------------------------------------------
 // Description: Get Plugin Descendants, files and parameters on change
 // ------------------------------------------------------------------------
 function* handleGetPluginDetails(action: IActionTypeParam) {
   try {
     const item: PluginInstance = action.payload;
-    const descendantsList = yield item.getDescendantPluginInstances({});
-    const descendants = descendantsList.getItems();
-
-    if (descendants.length < 0) {
-      console.error("This plugin has no descendants");
-    } else {
-      yield put(getPluginDetailsSuccess(descendants));
-    }
+    yield put(getSelectedPluginSuccess(item));
+    yield put(getPluginFiles(item));
   } catch (error) {
     console.error(error);
   }
@@ -56,52 +54,48 @@ function* watchGetParams() {
 }
 
 // ------------------------------------------------------------------------
-// Description: Get Plugin Descendants
-// ------------------------------------------------------------------------
-function* handleGetPluginDescendants(action: IActionTypeParam) {
-  try {
-    const res = yield call(ChrisModel.fetchRequest, action.payload);
-    if (res.error) {
-      console.error(res.error);
-    } else {
-      yield put(getPluginDescendantsSuccess(res));
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-function* watchGetPluginDescendants() {
-  yield takeEvery(
-    PluginActionTypes.GET_PLUGIN_DESCENDANTS,
-    handleGetPluginDescendants
-  );
-}
-
-// ------------------------------------------------------------------------
 // Description: Get Plugin Details: Parameters, files and others
 // @Param: action.payload === selected plugin
 // ------------------------------------------------------------------------
 
 function* handleGetPluginFiles(action: IActionTypeParam) {
-  const item = action.payload;
-  const id = item.id as number;
+  const pluginInstance = action.payload;
 
+  while (true) {
+    try {
+      const pluginDetails = yield pluginInstance.get();
+      yield put(getPluginStatus(pluginDetails.data.summary));
+      if (pluginDetails.data.status === "finishedSuccessfully") {
+        yield call(putPluginFiles, pluginInstance);
+        yield cancel();
+      }
+      yield delay(2000);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      if (yield cancelled()) {
+        console.log("In cancel");
+      }
+    }
+  }
+
+  /*
+  const pluginInstance = action.payload.data;
+
+  */
+}
+
+function* putPluginFiles(plugin: PluginInstance) {
   try {
-    const client = yield ChrisAPIClient.getClient();
     const params = { limit: 500, offset: 0 };
-
-    const pluginInstance = yield client.getPluginInstance(id);
-    pluginInstance.get();
-
-    let fileList = yield pluginInstance.getFiles(params);
+    let fileList = yield plugin.getFiles(params);
 
     let files = fileList.getItems();
 
     while (fileList.hasNextPage) {
       try {
         params.offset += params.limit;
-        fileList = yield pluginInstance.getFiles(params);
+        fileList = yield plugin.getFiles(params);
         files = files.concat(fileList.getItems());
       } catch (e) {
         console.error(e);
@@ -115,7 +109,7 @@ function* handleGetPluginFiles(action: IActionTypeParam) {
 }
 
 function* watchGetPluginFiles() {
-  yield takeLatest(PluginActionTypes.GET_PLUGIN_FILES, handleGetPluginFiles);
+  yield takeEvery(PluginActionTypes.GET_PLUGIN_FILES, handleGetPluginFiles);
 }
 // ------------------------------------------------------------------------
 // Description: Get Plugin Details: Parameters, files and others
@@ -126,7 +120,6 @@ function* watchGetPluginFiles() {
 export function* pluginSaga() {
   yield all([
     fork(watchGetPluginDetails),
-    fork(watchGetPluginDescendants),
     fork(watchGetPluginFiles),
     fork(watchGetParams),
   ]);

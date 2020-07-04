@@ -3,11 +3,11 @@ import * as d3 from "d3";
 import * as cola from "webcola";
 import TreeModel, { ITreeChart } from "../../api/models/tree.model";
 import TreeNodeModel, { INode } from "../../api/models/tree-node.model";
-import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
+import { PluginInstance } from "@fnndsc/chrisapi";
 
 interface ITreeProps {
   items: PluginInstance[];
-  selected?: PluginInstance;
+  selected: PluginInstance;
 }
 interface ITreeActions {
   onNodeClick: (node: any) => void;
@@ -24,6 +24,9 @@ class FeedTree extends React.Component<AllProps> {
   }
 
   fetchTree(items: PluginInstance[]) {
+    const { selected } = this.props;
+    if (!selected) return;
+
     if (!!this.treeRef.current && !!items && items.length > 0) {
       const tree = new TreeModel(items);
 
@@ -32,10 +35,13 @@ class FeedTree extends React.Component<AllProps> {
       if (!!tree.treeChart) {
         this.buildFeedTree(tree.treeChart, this.treeRef);
         // Set root node active on load:r
-        if (tree.treeChart.nodes.length) {
-          const rootNode = tree.treeChart.nodes[0];
-          this.setActiveNode(rootNode);
-          this.handleNodeClick(rootNode);
+        if (tree.treeChart.nodes.length > 0) {
+          const rootNode = tree.treeChart.nodes.filter((node) => {
+            if (selected.data.id === node.item.data.id) {
+              return node;
+            }
+          });
+          if (rootNode[0]) this.setActiveNode(rootNode[0]);
         }
       }
     }
@@ -156,7 +162,7 @@ class FeedTree extends React.Component<AllProps> {
       .append("g")
       .attr("id", (d: any) => {
         // set the node id using the plugin id
-        return `node_${d.item.id}`;
+        return `node_${Number(d.item.data.id)}`;
       })
       .attr("class", "nodegroup")
       .on("click", this.handleNodeClick)

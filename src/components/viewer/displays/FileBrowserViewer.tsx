@@ -8,11 +8,11 @@ import {
   setSelectedFile,
   setSelectedFolder,
   toggleViewerMode,
-  destroyExplorer
+  destroyExplorer,
 } from "../../../store/explorer/actions";
 import { IExplorerState } from "../../../store/explorer/types";
-import { FeedFile } from "@fnndsc/chrisapi";
-import { IPluginItem } from "../../../api/models/pluginInstance.model";
+import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
+
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import ChrisModel from "../../../api/models/base.model";
@@ -32,7 +32,7 @@ interface IPropsFromDispatch {
 
 type AllProps = {
   files: FeedFile[];
-  selected: IPluginItem;
+  selected: PluginInstance;
 } & IExplorerState &
   IPropsFromDispatch;
 
@@ -60,10 +60,12 @@ class FileBrowserViewer extends React.Component<AllProps> {
       selectedFile,
       selectedFolder,
       viewerMode,
-      isViewerModeDicom
+      isViewerModeDicom,
     } = this.props;
+    console.log("Explorer", explorer);
     return (
       // Note: check to see if explorer children have been init.
+
       !!explorer &&
       !!explorer.children && (
         <div className="pf-u-px-lg">
@@ -142,7 +144,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setExplorerRequest: (files: FeedFile[], selected: IPluginItem) =>
+  setExplorerRequest: (files: FeedFile[], selected: PluginInstance) =>
     dispatch(setExplorerRequest(files, selected)),
   setSelectedFile: (selectedFile: IUITreeNode, selectedFolder?: IUITreeNode) =>
     dispatch(setSelectedFile(selectedFile, selectedFolder)),
@@ -150,7 +152,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(setSelectedFolder(selectedFolder)),
   toggleViewerMode: (isViewerOpened: boolean) =>
     dispatch(toggleViewerMode(isViewerOpened)),
-  destroyExplorer: () => dispatch(destroyExplorer())
+  destroyExplorer: () => dispatch(destroyExplorer()),
 });
 
 const mapStateToProps = ({ explorer }: ApplicationState) => ({
@@ -158,7 +160,7 @@ const mapStateToProps = ({ explorer }: ApplicationState) => ({
   selectedFolder: explorer.selectedFolder,
   explorer: explorer.explorer,
   viewerMode: explorer.viewerMode,
-  isViewerModeDicom: explorer.isViewerModeDicom
+  isViewerModeDicom: explorer.isViewerModeDicom,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileBrowserViewer);

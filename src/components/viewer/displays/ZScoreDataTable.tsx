@@ -3,7 +3,7 @@ import {
   Table,
   TableHeader,
   TableBody,
-  TableVariant
+  TableVariant,
 } from "@patternfly/react-table";
 import { FeedFile } from "@fnndsc/chrisapi";
 import { csvData } from "../../../assets/temp/segmentData";
@@ -31,15 +31,15 @@ const ZScoreDataTable: React.FunctionComponent<AllProps> = (
             <span>
               <i className={`dot ${dotColor(left)}`} /> {left}
             </span>
-          )
+          ),
         },
         {
           title: (
             <span>
               <i className={`dot ${dotColor(right)}`} /> {right}
             </span>
-          )
-        }
+          ),
+        },
       ];
     });
   };
@@ -64,7 +64,7 @@ const ZScoreDataTable: React.FunctionComponent<AllProps> = (
 enum colorCode {
   red = "red",
   orange = "orange",
-  yellow = "yellow"
+  yellow = "yellow",
 }
 
 // Description: determine the color for the dot, depending on value "significance"

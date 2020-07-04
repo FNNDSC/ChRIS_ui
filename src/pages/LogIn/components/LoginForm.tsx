@@ -30,7 +30,7 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
       isRememberMeChecked: true,
       showHelperText: false,
       isValidUsername: true,
-      isValidPassword: true
+      isValidPassword: true,
     };
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -41,7 +41,7 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
     const authObj = {
       password: this.state.passwordValue,
       username: this.state.usernameValue,
-      isRememberMe: this.state.isRememberMeChecked
+      isRememberMe: this.state.isRememberMeChecked,
     };
     getAuthToken(authObj);
     event.preventDefault();
@@ -49,20 +49,20 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
 
   handleUsernameChange = (value: string) => {
     this.setState({ usernameValue: value });
-  }
+  };
   handlePasswordChange = (passwordValue: string) => {
     this.setState({ passwordValue });
-  }
+  };
 
   onRememberMeClick = () => {
     this.setState({ isRememberMeChecked: !this.state.isRememberMeChecked });
-  }
+  };
 
   render() {
     return (
       <LoginForm
         showHelperText={this.state.showHelperText}
-        helperText= "Invalid login credentials."
+        helperText="Invalid login credentials."
         usernameLabel="Username"
         usernameValue={this.state.usernameValue}
         onChangeUsername={this.handleUsernameChange}
@@ -83,11 +83,8 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
 
 // export default withRouter(LoginFormComponent);
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getAuthToken: (user: IUserState) => dispatch(getAuthToken(user))
+  getAuthToken: (user: IUserState) => dispatch(getAuthToken(user)),
 });
 export default withRouter(
-  connect(
-    null,
-    mapDispatchToProps
-  )(LoginFormComponent)
+  connect(null, mapDispatchToProps)(LoginFormComponent)
 );

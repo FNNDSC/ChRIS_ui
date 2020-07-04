@@ -7,16 +7,16 @@ import { CloseIcon } from "@patternfly/react-icons";
 import {
   initializeGallery,
   destroyGallery,
-  setGalleryActiveItemSuccess
+  setGalleryActiveItemSuccess,
 } from "../../store/gallery/actions";
 import { IGalleryState } from "../../store/gallery/types";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
 import FileViewerModel, {
-  fileViewerMap
+  fileViewerMap,
 } from "../../api/models/file-viewer.model";
 import GalleryModel, {
   IGalleryItem,
-  galleryActions
+  galleryActions,
 } from "../../api/models/gallery.model";
 import { LoadingSpinner } from "..";
 import GalleryWrapper from "../gallery/GalleryWrapper";
@@ -47,7 +47,7 @@ class GalleryView extends React.Component<
     this._initGallery();
   }
   state = {
-    viewInfoPanel: true
+    viewInfoPanel: true,
   };
   // Description: Initialize galleryitems call only if folder is different and gallery was not init before; else use preloaded data
   _initGallery() {
@@ -58,7 +58,7 @@ class GalleryView extends React.Component<
       galleryItem,
       galleryItems,
       destroyGallery,
-      setGalleryActiveItemSuccess
+      setGalleryActiveItemSuccess,
     } = this.props;
 
     const index = GalleryModel.getGalleryItemIndex(
@@ -80,6 +80,7 @@ class GalleryView extends React.Component<
   // Decription: Render the individual viewers by filetype
   renderContent() {
     const { galleryItem, galleryItems } = this.props;
+
     const viewerName =
       !!galleryItem && !!galleryItem.fileType
         ? fileViewerMap[galleryItem.fileType]
@@ -135,7 +136,7 @@ class GalleryView extends React.Component<
       const {
         galleryItem,
         galleryItems,
-        setGalleryActiveItemSuccess
+        setGalleryActiveItemSuccess,
       } = this.props;
       if (!!galleryItem) {
         const i = galleryItem.index,
@@ -148,7 +149,7 @@ class GalleryView extends React.Component<
       const {
         galleryItem,
         galleryItems,
-        setGalleryActiveItemSuccess
+        setGalleryActiveItemSuccess,
       } = this.props;
       if (!!galleryItem) {
         const i = galleryItem.index,
@@ -173,9 +174,9 @@ class GalleryView extends React.Component<
     information: () => {
       //const visible = this.state.viewInfoPanel;
       this.setState({
-        viewInfoPanel: !this.state.viewInfoPanel
+        viewInfoPanel: !this.state.viewInfoPanel,
       });
-    }
+    },
   };
 
   componentWillUnmount() {
@@ -190,12 +191,12 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   }) => dispatch(initializeGallery(data)),
   setGalleryActiveItemSuccess: (galleryItem: IGalleryItem) =>
     dispatch(setGalleryActiveItemSuccess(galleryItem)),
-  destroyGallery: () => dispatch(destroyGallery())
+  destroyGallery: () => dispatch(destroyGallery()),
 });
 
 const mapStateToProps = ({ gallery }: ApplicationState) => ({
   galleryItem: gallery.galleryItem,
-  galleryItems: gallery.galleryItems
+  galleryItems: gallery.galleryItems,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(GalleryView);
