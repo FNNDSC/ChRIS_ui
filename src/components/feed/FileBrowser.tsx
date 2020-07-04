@@ -48,7 +48,7 @@ function getIcon(type: string) {
 
 interface FileBrowserProps {
   root: IUITreeNode;
-  pluginName: string;
+  pluginName?: string;
   handleViewerModeToggle: (file: IUITreeNode, directory: IUITreeNode) => void;
 }
 

@@ -2,14 +2,19 @@ import React from "react";
 import Moment from "react-moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import imgPlaceholder from "../../assets/images/feed_ph_70x70.png";
-import { IFeedState } from "../../store/feed/types";
+import { PluginInstance, Feed } from "@fnndsc/chrisapi";
 import { Title } from "@patternfly/react-core";
 import ShareFeed from "../../components/feed/ShareFeed/ShareFeed";
 
 interface INoteState {
   feedDescription?: string;
+  feed?: Feed;
 }
-type AllProps = IFeedState;
+
+interface AllProps {
+  items?: PluginInstance[];
+  feed: Feed;
+}
 
 class FeedDetails extends React.Component<AllProps, INoteState> {
   constructor(props: AllProps) {

@@ -44,7 +44,7 @@ class ViewerPage extends React.Component<AllProps> {
 
 const mapStateToProps = (state: ApplicationState) => ({
   files: getSelectedFiles(state),
-  selected: state.plugin.selected
+  selected: state.feed.selected,
 });
 
 export default connect(mapStateToProps)(ViewerPage);

@@ -1,5 +1,7 @@
 import React from "react";
 import Moment from "react-moment";
+import { connect } from "react-redux";
+import { ApplicationState } from "../../../store/root/applicationState";
 
 import {
   Button,
@@ -13,21 +15,22 @@ import {
   ShareAltIcon,
   TerminalIcon,
   CaretDownIcon,
-  CheckIcon,
   CalendarDayIcon,
 } from "@patternfly/react-icons";
 
-import { statusLabels } from "../../api/models/pluginInstance.model";
+import { statusLabels } from "../../../api/models/pluginInstance.model";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import TreeNodeModel from "../../api/models/tree-node.model";
-
-import TextCopyPopover from "../common/textcopypopover/TextCopyPopover";
-import AddNode from "./AddNode/AddNode";
+import ChrisAPIClient from "../../../api/chrisapiclient";
+import TreeNodeModel from "../../../api/models/tree-node.model";
+import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
+import AddNode from "../AddNode/AddNode";
+import Stepper, { StepInterface } from "./Stepper";
+import { PluginStatusLabels } from "../FeedOutputBrowser/PluginStatus";
 
 interface INodeProps {
   selected: PluginInstance;
   descendants: PluginInstance[];
+  pluginStatus?: string;
 }
 
 interface INodeState {
@@ -111,9 +114,59 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
       .slice(0, -1); // remove final backslash
   }
 
+  getCurrentTitle(statusLabels: PluginStatusLabels) {
+    if (statusLabels.pushPath.status !== true) {
+      return "Push Path";
+    } else if (statusLabels.compute.submit.status !== true) {
+      return "Compute Submit";
+    } else if (statusLabels.compute.return.status !== true) {
+      return "Compute Return";
+    } else if (statusLabels.pullPath.status !== true) {
+      return "Pull Path";
+    } else if (statusLabels.swiftPut.status !== true) {
+      return "Swift Put";
+    }
+  }
+
   render() {
-    const { selected } = this.props;
+    const { selected, pluginStatus } = this.props;
     const { plugin, params } = this.state;
+
+    const pluginStatusLabels: PluginStatusLabels =
+      pluginStatus && JSON.parse(pluginStatus);
+    let label: StepInterface[] = [];
+    let title;
+
+    if (pluginStatusLabels) {
+      label = [
+        {
+          id: 0,
+          title: "Push Path",
+          completed: pluginStatusLabels.pushPath.status === true,
+        },
+        {
+          id: 1,
+          title: "Compute Submit",
+          completed: pluginStatusLabels.compute.submit.status === true,
+        },
+        {
+          id: 2,
+          title: "Compute Return",
+          completed: pluginStatusLabels.compute.return.status === true,
+        },
+        {
+          id: 3,
+          title: "Pull Path",
+          completed: pluginStatusLabels.pullPath.status === true,
+        },
+
+        {
+          id: 4,
+          title: "Swift Put",
+          completed: pluginStatusLabels.swiftPut.status === true,
+        },
+      ];
+    }
 
     const pluginTitle = `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;
     const command =
@@ -154,9 +207,16 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
             Status
           </GridItem>
           <GridItem span={10} className="value">
-            <CheckIcon />
-            {statusLabels[selected.data.status] || selected.data.status}
+            {pluginStatusLabels
+              ? this.getCurrentTitle(pluginStatusLabels)
+              : "Started"}
           </GridItem>
+          <GridItem span={2}></GridItem>
+          <GridItem span={10}>
+            <Stepper steps={label} />
+          </GridItem>
+          <GridItem span={2} className="title"></GridItem>
+          <GridItem span={10} className="value"></GridItem>
           <GridItem span={2} className="title">
             Created
           </GridItem>
@@ -166,6 +226,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
               {selected.data.start_date}
             </Moment>
           </GridItem>
+
           <GridItem span={2} className="title">
             Node ID
           </GridItem>
@@ -198,4 +259,9 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
   }
 }
 
-export default NodeDetails;
+const mapStateToProps = (state: ApplicationState) => ({
+  pluginFiles: state.plugin.pluginFiles,
+  pluginStatus: state.plugin.pluginStatus,
+});
+
+export default connect(mapStateToProps, null)(NodeDetails);
