@@ -10,10 +10,7 @@ export interface IFileBlob {
 }
 
 export default class FileViewerModel {
-  static findParentFolder(
-    node: IUITreeNode,
-    explorer: IUITreeNode
-  ) {
+  static findParentFolder(node: IUITreeNode, explorer: IUITreeNode) {
     this._findParentNode(node, explorer);
     return this._parentFolderNode;
   }
@@ -51,7 +48,7 @@ export const pluginViewerMap: any = {
   default: ["FileBrowserViewer"],
   dircopy: ["FileBrowserViewer", "RevViewer"],
   pacscopy: ["FileBrowserViewer", "RevViewer"],
-  // mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
+  mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
   freesurfer_pp: [
     "FileBrowserViewer",
     "DicomViewer_2D",
@@ -62,15 +59,15 @@ export const pluginViewerMap: any = {
     "FileBrowserViewer",
     "VolumeGrowth",
     "SegmentAnalysis",
-    "ZScoreDataTable"
+    "ZScoreDataTable",
   ],
   mpcs: [
     "VolumeGrowth",
     "SegmentAnalysis",
     "ZScoreDataTable",
-    "FileBrowserViewer"
+    "FileBrowserViewer",
   ],
-  z2labelmap: ["ZScoreViewer", "FileBrowserViewer"]
+  z2labelmap: ["ZScoreViewer", "FileBrowserViewer"],
 };
 
 // Description: Mapping for Viewer type by file type *Note: Should come from db
@@ -87,5 +84,5 @@ export const fileViewerMap: any = {
   jpeg: "ImageDisplay",
   gif: "ImageDisplay",
   dcm: "DcmDisplay",
-  default: "CatchallDisplay"
+  default: "CatchallDisplay",
 };

@@ -11,20 +11,20 @@ type AllProps = {
 type ModalState = {
   gotopActive: boolean;
   scrollDivId: string;
-}
+};
 
 class PluginViewerModal extends React.Component<AllProps, ModalState> {
   state = {
     gotopActive: false,
-    scrollDivId: ""
+    scrollDivId: "",
   };
   handleScroll = (e: any) => {
-    (e.target.id.indexOf("pf-modal") >= 0) &&
+    e.target.id.indexOf("pf-modal") >= 0 &&
       this.setState({
-        gotopActive: (!!e.target.scrollTop &&  e.target.scrollTop > 0),
-        scrollDivId: e.target.id
+        gotopActive: !!e.target.scrollTop && e.target.scrollTop > 0,
+        scrollDivId: e.target.id,
       });
-  }
+  };
   render() {
     const { isModalOpen, handleModalToggle } = this.props;
     return (
@@ -34,9 +34,13 @@ class PluginViewerModal extends React.Component<AllProps, ModalState> {
           title="ChRIS Output Viewer"
           isOpen={isModalOpen}
           onScroll={this.handleScroll}
-          onClose={() => handleModalToggle(false)} >
+          onClose={() => handleModalToggle(false)}
+        >
           <OutputViewerContainer />
-          <Gotop isActive={this.state.gotopActive} scrollable={this.state.scrollDivId} />
+          <Gotop
+            isActive={this.state.gotopActive}
+            scrollable={this.state.scrollDivId}
+          />
         </Modal>
       </React.Fragment>
     );

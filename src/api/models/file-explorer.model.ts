@@ -52,10 +52,8 @@ export default class UITreeNodeModel {
   // Description: Parse Plugin file array into IUITreeNode object - build the tree
   parseUiTree(items: FeedFile[], selected: PluginInstance) {
     const pluginName = `${selected.data.plugin_name}_${selected.data.id}`;
-    const root = `chris/feed_${selected.data.feed_id}/...`; // modules Name
-
+    const root = `${selected.data.owner_username}/feed_${selected.data.id}`; // modules Name
     this._worker.module = this._previousItem = root;
-
     if (!!items && items.length) {
       items.forEach((item: FeedFile, index: number) => {
         const fileArray = this._convertFiletoArray(item, pluginName);
@@ -87,8 +85,8 @@ export default class UITreeNodeModel {
     }); // This is what we will add
     if (!!this._previousObj && !!this._previousObj.children) {
       const newArr = this._previousObj.children.slice();
-      const existinModule = _.find(newArr, { module: item });
-      if (!!!existinModule) {
+      const existingModule = _.find(newArr, { module: item });
+      if (!!!existingModule) {
         newArr.push(newFolder);
         this._previousObj.children = newArr;
       }
@@ -136,7 +134,7 @@ export default class UITreeNodeModel {
 
     // find the pluginName within the filename string then decompose the substring
     return fileName
-      .substring(fileName.indexOf(pluginName), fileName.length)
+      .substring(fileName.indexOf("data"), fileName.length)
       .split("/");
   };
 

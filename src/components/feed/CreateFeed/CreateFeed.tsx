@@ -1,5 +1,10 @@
 import React, { useContext } from "react";
-import { Button, Wizard } from "@patternfly/react-core";
+import {
+  Button,
+  Wizard,
+  WizardFooter,
+  WizardContextConsumer,
+} from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { Types, CreateFeedReduxProp } from "./types";
 import BasicInformation from "./BasicInformation";
@@ -52,24 +57,6 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
       "review",
     ];
     return stepNames[step - 1];
-  };
-
-  const handleStepChange = (step: any) => {
-    const { id } = step;
-    dispatch({
-      type: Types.SetStep,
-      payload: {
-        id,
-      },
-    });
-    if (id === 6) {
-      handleSave();
-    }
-    if (id === 5) {
-      dispatch({
-        type: Types.ResetProgress,
-      });
-    }
   };
 
   const deleteInput = (index: string) => {
@@ -159,13 +146,6 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
         title: "Description",
         content: state.data.feedDescription,
       });
-      // Add data to redux
-      const { data, collection } = feed;
-      const createdFeedLinks = collection.items[0];
-
-      const getLinkUrl = (resource: string) => {
-        return Collection.getLinkRelationUrls(createdFeedLinks, resource)[0];
-      };
 
       addFeed && addFeed(feed);
     } catch (error) {
@@ -197,7 +177,7 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
     />
   );
   const review = <Review />;
-  const finishedStep = <FinishedStep />;
+  const finishedStep = <FinishedStep createFeed={handleSave} />;
 
   const getFeedSynthesisStep = () => {
     if (selectedConfig === "fs_plugin")
@@ -252,6 +232,54 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
     },
   ];
 
+  const CustomFooter = (
+    <WizardFooter>
+      <WizardContextConsumer>
+        {({ activeStep, onNext, onBack, onClose }) => {
+          if (activeStep.name !== "Finish") {
+            console.log("ActiveStep", activeStep);
+            return (
+              <>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  onClick={onNext}
+                  isDisabled={activeStep.enableNext === false ? true : false}
+                >
+                  Next
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={onBack}
+                  className={
+                    activeStep.name === "Step 1" ? "pf-m-disabled" : ""
+                  }
+                >
+                  Back
+                </Button>
+                <Button
+                  variant="link"
+                  onClick={() => {
+                    if (wizardOpen === true) {
+                      dispatch({
+                        type: Types.ResetState,
+                      });
+                    }
+                    dispatch({
+                      type: Types.ToggleWizzard,
+                    });
+                  }}
+                >
+                  Cancel
+                </Button>
+              </>
+            );
+          }
+        }}
+      </WizardContextConsumer>
+    </WizardFooter>
+  );
+
   return (
     <div className="create-feed">
       <Button
@@ -284,9 +312,7 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
           className={`feed-create-wizard ${getStepName()}-wrap`}
           steps={steps}
           startAtStep={step}
-          onNext={handleStepChange}
-          onBack={handleStepChange}
-          onGoToStep={handleStepChange}
+          footer={CustomFooter}
         />
       )}
     </div>

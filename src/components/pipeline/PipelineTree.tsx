@@ -3,11 +3,12 @@ import * as d3 from "d3";
 import * as cola from "webcola";
 import TreeModel, { ITreeChart } from "../../api/models/tree.model";
 import TreeNodeModel, { INode } from "../../api/models/tree-node.model";
-import { IPluginItem, getPluginInstanceTitle } from "../../api/models/pluginInstance.model";
+import { getPluginInstanceTitle } from "../../api/models/pluginInstance.model";
+import { PluginInstance } from "@fnndsc/chrisapi";
 import * as _ from "lodash";
 interface ITreeProps {
-  selected: IPluginItem;
-  items: IPluginItem[];
+  selected: PluginInstance;
+  items: PluginInstance[];
 }
 
 class PipelineTree extends React.Component<ITreeProps> {
@@ -30,15 +31,11 @@ class PipelineTree extends React.Component<ITreeProps> {
     );
   }
   // Description: Build the tree from items passed to the component
-  updateTree(items: IPluginItem[]) {
+  updateTree(items: PluginInstance[]) {
     const { selected } = this.props;
-    !!d3 &&
-      d3
-        .select("#pipelineTree")
-        .selectAll("svg")
-        .remove();
+    !!d3 && d3.select("#pipelineTree").selectAll("svg").remove();
     const _items = TreeNodeModel.isRootNode(selected) ? [selected] : items;
-    const tree = new TreeModel(_items, selected.previous_id);
+    const tree = new TreeModel(_items, selected.data.previous_id);
     !!tree.treeChart && this.buildPipelineTree(tree.treeChart, this.treeRef);
   }
 
@@ -55,10 +52,7 @@ class PipelineTree extends React.Component<ITreeProps> {
           : window.innerWidth / 2 - 290,
       height = TreeNodeModel.calculateTotalTreeHeight(tree.totalRows); // Need to calculate SVG height ***** working
 
-    const d3cola = cola
-      .d3adaptor(d3)
-      .avoidOverlaps(true)
-      .size([width, height]);
+    const d3cola = cola.d3adaptor(d3).avoidOverlaps(true).size([width, height]);
 
     const svg = d3
       .select("#pipelineTree")
@@ -69,7 +63,7 @@ class PipelineTree extends React.Component<ITreeProps> {
     const nodeRadius = 8;
     tree.nodes.forEach((v: any) => {
       v.height = v.width = 2 * nodeRadius;
-      const label = getPluginInstanceTitle(v.item);
+      const label = getPluginInstanceTitle(v.data.item);
       v.label =
         label.length > labelMaxChar
           ? `${label.substring(0, labelMaxChar)}...`
@@ -167,13 +161,13 @@ class PipelineTree extends React.Component<ITreeProps> {
         return `translate(${d.x - nodeRadius * 2}, ${d.y + nodeRadius * 2.5} )`;
       });
     }); // end of on tick
-  }
+  };
 
   handleMouseOver = (d: any, i: number) => {
     const tooltip = document.getElementById("pTooltip");
     const tooltipWidth = 200;
     if (!!tooltip) {
-      const title = `Plugin Name: ${d.item.plugin_name}`;
+      const title = `Plugin Name: ${d.item.data.plugin_name}`;
       tooltip.innerHTML = title;
       const height = tooltip.offsetHeight;
       tooltip.style.width = tooltipWidth + "px";
@@ -181,7 +175,7 @@ class PipelineTree extends React.Component<ITreeProps> {
       tooltip.style.left = d.x - tooltipWidth * 0.5 + "px";
       tooltip.style.top = d.y - (height + 25) + "px";
     }
-  }
+  };
 
   handleMouseOut = (d: any, i: number) => {
     const tooltip = document.getElementById("pTooltip");
@@ -190,7 +184,7 @@ class PipelineTree extends React.Component<ITreeProps> {
       tooltip.style.opacity = "0";
       tooltip.style.left = "-9999px";
     }
-  }
+  };
 
   // Description: Destroy d3 content
   componentWillUnmount() {
