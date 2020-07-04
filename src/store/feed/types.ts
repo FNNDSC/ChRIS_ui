@@ -5,15 +5,15 @@
  *  Notes:           Work in progres ...
  */
 import keyMirror from "keymirror";
-import { UploadedFile, Feed, PluginInstance } from "@fnndsc/chrisapi";
+import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 
 // Description state for main user items[] and item
 export interface IFeedState {
   feed?: Feed;
   feeds?: Feed["data"][];
   feedsCount?: number;
-  items?: PluginInstance[];
-  uploadedFiles?: UploadedFile[];
+  pluginInstances?: PluginInstance[];
+  selected?: PluginInstance;
 }
 
 export const FeedActionTypes = keyMirror({
@@ -23,9 +23,9 @@ export const FeedActionTypes = keyMirror({
   GET_FEED_SUCCESS: null,
   GET_PLUGIN_INSTANCES: null,
   GET_PLUGIN_INSTANCES_SUCCESS: null,
-  GET_UPLOADED_FILES: null,
-  GET_UPLOADED_FILES_SUCCESS: null,
   RESET_STATE: null,
   ADD_FEED: null,
+  GET_SELECTED_PLUGIN: null,
   ADD_NODE: null,
+  ADD_NODE_SUCCESS: null,
 });

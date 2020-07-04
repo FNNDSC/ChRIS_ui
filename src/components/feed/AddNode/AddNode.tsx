@@ -8,7 +8,7 @@ import "./styles/addnode.scss";
 import LoadingSpinner from "../../common/loading/LoadingSpinner";
 import Review from "./Review";
 import { addNode } from "../../../store/feed/actions";
-import { Collection, PluginInstance, Plugin } from "@fnndsc/chrisapi";
+import { PluginInstance, Plugin } from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
 import { InfrastructureIcon } from "@patternfly/react-icons";
 import { getParams } from "../../../store/plugin/actions";
@@ -213,27 +213,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     const pluginInstances = await plugin.getPluginInstances();
     await pluginInstances.post(parameterInput);
     const node = pluginInstances.getItems()[0];
-
-    // Add node to redux
-
-    const { data, collection } = node;
-    const createdNodeLinks = collection.items[0];
-
-    const getLinkUrl = (resource: string) => {
-      return Collection.getLinkRelationUrls(createdNodeLinks, resource)[0];
-    };
-
-    const nodeobj = {
-      ...data,
-      descendants: getLinkUrl("descendants"),
-      feed: getLinkUrl("feed"),
-      files: getLinkUrl("files"),
-      parameters: getLinkUrl("parameters"),
-      plugin: getLinkUrl("plugin"),
-      url: node.url,
-    };
-
-    addNode(nodeobj);
+    addNode(node);
     this.resetState();
   }
 
@@ -341,8 +321,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 }
 
 const mapStateToProps = (state: ApplicationState) => ({
-  selected: state.plugin.selected,
-  nodes: state.feed.items,
+  selected: state.feed.selected,
+  nodes: state.feed.pluginInstances,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

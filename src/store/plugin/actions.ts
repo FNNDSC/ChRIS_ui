@@ -8,11 +8,6 @@ import {
   PluginInstance,
 } from "@fnndsc/chrisapi";
 
-export const getPluginDescendantsRequest = (url: string) =>
-  action(PluginActionTypes.GET_PLUGIN_DESCENDANTS, url);
-export const getPluginDescendantsSuccess = (items: PluginInstance[]) =>
-  action(PluginActionTypes.GET_PLUGIN_DESCENDANTS_SUCCESS, items);
-
 export const getPluginFiles = (selected: PluginInstance) =>
   action(PluginActionTypes.GET_PLUGIN_FILES, selected);
 export const getPluginFilesSuccess = (items: PluginInstance[]) =>

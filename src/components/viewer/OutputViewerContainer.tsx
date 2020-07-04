@@ -2,8 +2,8 @@ import React from "react";
 import { connect } from "react-redux";
 import { Tabs, Tab, Alert } from "@patternfly/react-core";
 import { ApplicationState } from "../../store/root/applicationState";
-import { FeedFile } from "@fnndsc/chrisapi";
-import { IPluginItem } from "../../api/models/pluginInstance.model";
+import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
+
 import { pluginViewerMap } from "../../api/models/file-viewer.model";
 import {
   DicomViewer,
@@ -21,7 +21,7 @@ import { getSelectedFiles } from "../../store/plugin/selector";
 
 type AllProps = {
   files?: FeedFile[];
-  selected?: IPluginItem;
+  selected?: PluginInstance;
 };
 
 class OutputViewerContainer extends React.Component<
@@ -66,11 +66,14 @@ class OutputViewerContainer extends React.Component<
   // Description: Build Tabs from data
   buildTabArray = () => {
     const { files, selected } = this.props;
+    console.log("Files", selected);
 
     const tabs: any[] = [];
     if (!!selected) {
-      const tabArr =
-        pluginViewerMap[selected.plugin_name] || pluginViewerMap.default;
+      const plugin_name = selected.data.plugin_name.split("-")[1];
+      console.log("Plugin_Name", plugin_name);
+      const tabArr = pluginViewerMap[plugin_name] || pluginViewerMap.default;
+
       tabArr.forEach((key: string, i: number) => {
         let tabContent;
         let label = "tab";
@@ -141,7 +144,7 @@ class OutputViewerContainer extends React.Component<
 
 const mapStateToProps = (state: ApplicationState) => ({
   files: getSelectedFiles(state),
-  selected: state.plugin.selected,
+  selected: state.feed.selected,
 });
 
 export default connect(mapStateToProps, null)(OutputViewerContainer);

@@ -11,10 +11,18 @@ import { CreateFeedContext } from "./context";
 import { Types, EventNode, LocalFile } from "./types";
 import { CogsIcon } from "@patternfly/react-icons";
 
-const FinishedStep: React.FC = () => {
+interface FinishedStepProp {
+  createFeed: () => void;
+}
+
+const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { feedProgress, feedError, value, selectedPlugin } = state;
   const { chrisFiles, localFiles } = state.data;
+
+  React.useEffect(() => {
+    createFeed();
+  }, []);
 
   const numberOfFiles = useMemo(() => {
     return generateNumOfFiles(chrisFiles, localFiles);
@@ -78,6 +86,8 @@ const FinishedStep: React.FC = () => {
 };
 
 export default FinishedStep;
+
+
 
 const generateNumOfFiles = (
   chrisFiles: EventNode[],

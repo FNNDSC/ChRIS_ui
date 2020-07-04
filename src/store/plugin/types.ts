@@ -9,10 +9,9 @@ import keyMirror from "keymirror";
 import { PluginParameter, PluginInstance } from "@fnndsc/chrisapi";
 
 export interface IPluginState {
-  selected?: PluginInstance;
-  descendants?: PluginInstance[];
   parameters?: PluginParameter[];
   pluginFiles?: {};
+  pluginStatus?: string;
 }
 
 export const PluginActionTypes = keyMirror({
