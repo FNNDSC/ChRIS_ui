@@ -1,8 +1,6 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
 import PrivateRoute from "./components/common/PrivateRoute";
-
-// Add view routes here
 import { Dashboard } from "./pages/Dashboard/Dashboard";
 import FeedsPage from "./pages/Feeds/Feeds";
 import { LogIn } from "./pages/LogIn/Login";
@@ -18,9 +16,6 @@ const Routes: React.FunctionComponent = () => (
       <Route exact path="/ami" component={ViewerPage} />
       <Route exact path="/login" component={LogIn} />
       <PrivateRoute path="/feeds" component={FeedsPage} />{" "}
-      {/* Optional: redirectPath="/" */}
-      {/* ADD MORE ROUTES HERE: <Route  path="/route" component={RouteComponent} /> */}
-      {/* 404 Page Not found  */}
       <Route component={NotFound} />
     </Switch>
   </React.Fragment>

@@ -26,6 +26,5 @@ export default (history: History) =>
     user: userReducer,
     plugin: pluginReducer,
     explorer: explorerReducer,
-    gallery: galleryReducer
-    // rest of your reducers ...
+    gallery: galleryReducer,
   });
