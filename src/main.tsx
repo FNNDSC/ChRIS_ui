@@ -1,11 +1,10 @@
-import * as React from 'react';
-import Routes from './routes';
-import { Provider } from 'react-redux';
-import { Store } from 'redux';
-import { History } from 'history';
-import { ConnectedRouter } from 'connected-react-router';
-import { ApplicationState } from './store/root/applicationState';
-
+import * as React from "react";
+import Routes from "./routes";
+import { Provider } from "react-redux";
+import { Store } from "redux";
+import { History } from "history";
+import { ConnectedRouter } from "connected-react-router";
+import { ApplicationState } from "./store/root/applicationState";
 
 interface AllProps {
   store: Store<ApplicationState>;
@@ -18,9 +17,9 @@ class Main extends React.Component<AllProps> {
 
     return (
       <Provider store={store}>
-       <ConnectedRouter history={history}>
-         <Routes />
-       </ConnectedRouter>
+        <ConnectedRouter history={history}>
+          <Routes />
+        </ConnectedRouter>
       </Provider>
     );
   }

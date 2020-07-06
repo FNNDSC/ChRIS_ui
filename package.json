@@ -80,6 +80,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@testing-library/react": "^10.4.4",
     "@types/history": "^4.7.2",
     "@types/keymirror": "^0.1.1",
     "@types/lodash": "^4.14.122",
@@ -92,6 +93,7 @@
     "jest-enzyme": "^7.1.2",
     "keymirror": "^0.1.1",
     "redux-logger": "^3.0.6",
+    "redux-mock-store": "^1.5.4",
     "tslint": "^5.13.1"
   }
 }

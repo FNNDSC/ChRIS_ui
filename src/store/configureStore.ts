@@ -7,17 +7,20 @@
 import { Store, createStore, applyMiddleware } from "redux";
 import { createLogger } from "redux-logger";
 import createSagaMiddleware from "redux-saga";
-import { routerMiddleware  } from "connected-react-router"; // `react-router-redux` is deprecated use `connected-react-router`
+import { routerMiddleware } from "connected-react-router"; // `react-router-redux` is deprecated use `connected-react-router`
 import { initialGlobalState, ApplicationState } from "./root/applicationState";
 // import rootReducer from './root/rootReducer';
 import createRootReducer from "./root/rootReducer";
 import { rootSaga } from "./root/rootSaga";
-import { History } from "history";
+import { createBrowserHistory, History } from "history";
 
-export default function configureStore(history: History): Store<ApplicationState> {
+export const history = createBrowserHistory();
+export const store = configureStore(history);
+
+function configureStore(history: History): Store<ApplicationState> {
   // Custom redux logger
   const logger = createLogger({
-    collapsed: true
+    collapsed: true,
   });
 
   // Build Saga middleware
@@ -30,12 +33,9 @@ export default function configureStore(history: History): Store<ApplicationState
       sagaMiddleware,
       routerMiddleware(history),
       logger
-    )
+    );
   } else {
-    middleware = applyMiddleware(
-      sagaMiddleware,
-      routerMiddleware(history),
-    )
+    middleware = applyMiddleware(sagaMiddleware, routerMiddleware(history));
   }
 
   // Create store
