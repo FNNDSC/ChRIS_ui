@@ -3,7 +3,7 @@ import { IFeedState, FeedActionTypes } from "./types";
 import { PluginInstance } from "@fnndsc/chrisapi";
 
 // Type-safe initialState
-const initialState: IFeedState = {
+export const initialState: IFeedState = {
   feed: undefined,
   feeds: undefined,
   feedsCount: 0,

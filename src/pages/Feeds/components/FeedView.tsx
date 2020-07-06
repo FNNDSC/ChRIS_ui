@@ -33,13 +33,13 @@ interface IPropsFromDispatch {
   getPluginDetailsRequest: typeof getPluginDetailsRequest;
   destroyFeed: typeof destroyFeed;
 }
-type AllProps = IUserState &
+export type FeedViewProps = IUserState &
   IFeedState &
   IPluginState &
   IPropsFromDispatch &
   RouteComponentProps<{ id: string }>;
 
-const FeedView: React.FC<AllProps> = ({
+export const _FeedView: React.FC<FeedViewProps> = ({
   feed,
   selected,
   pluginInstances,
@@ -65,8 +65,6 @@ const FeedView: React.FC<AllProps> = ({
   const onNodeClick = (node: PluginInstance) => {
     getPluginDetailsRequest(node);
   };
-
-  console.log("Selected", selected);
 
   return (
     <React.Fragment>
@@ -133,10 +131,14 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({
   sidebarActiveGroup: ui.sidebarActiveGroup,
   sidebarActiveItem: ui.sidebarActiveItem,
-  token: user.token,
   feed: feed.feed,
   selected: feed.selected,
   pluginInstances: feed.pluginInstances,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedView);
+const ConnectedFeedView = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(_FeedView);
+
+export default ConnectedFeedView;
