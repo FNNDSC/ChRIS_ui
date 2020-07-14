@@ -9,6 +9,7 @@ import {
   GridItem,
   Title,
   PopoverPosition,
+  Spinner,
 } from "@patternfly/react-core";
 import { Plugin, PluginInstanceParameter } from "@fnndsc/chrisapi";
 import {
@@ -16,9 +17,9 @@ import {
   TerminalIcon,
   CaretDownIcon,
   CalendarDayIcon,
+  CheckIcon,
 } from "@patternfly/react-icons";
 
-import { statusLabels } from "../../../api/models/pluginInstance.model";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import TreeNodeModel from "../../../api/models/tree-node.model";
@@ -98,7 +99,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
       command +=
         "\n" +
         params
-          .map((param) => `    --${param.data.param_name} ${param.data.value}`)
+          .map((param) => `--${param.data.param_name} ${param.data.value}`)
           .join("\n");
     }
 
@@ -125,6 +126,13 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
       return "Pull Path";
     } else if (statusLabels.swiftPut.status !== true) {
       return "Swift Put";
+    } else {
+      return (
+        <>
+          <CheckIcon />
+          <span>Finished Successfully</span>
+        </>
+      );
     }
   }
 
@@ -134,9 +142,8 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
 
     const pluginStatusLabels: PluginStatusLabels =
       pluginStatus && JSON.parse(pluginStatus);
-    let label: StepInterface[] = [];
-    let title;
 
+    let label: StepInterface[] = [];
     if (pluginStatusLabels) {
       label = [
         {
@@ -207,13 +214,15 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
             Status
           </GridItem>
           <GridItem span={10} className="value">
-            {pluginStatusLabels
-              ? this.getCurrentTitle(pluginStatusLabels)
-              : "Started"}
+            {pluginStatusLabels && this.getCurrentTitle(pluginStatusLabels)}
           </GridItem>
           <GridItem span={2}></GridItem>
           <GridItem span={10}>
-            <Stepper steps={label} />
+            {label.length < 0 ? (
+              <Spinner size="md" />
+            ) : (
+              <Stepper steps={label} />
+            )}
           </GridItem>
           <GridItem span={2} className="title"></GridItem>
           <GridItem span={10} className="value"></GridItem>
@@ -260,7 +269,6 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
 }
 
 const mapStateToProps = (state: ApplicationState) => ({
-  pluginFiles: state.plugin.pluginFiles,
   pluginStatus: state.plugin.pluginStatus,
 });
 

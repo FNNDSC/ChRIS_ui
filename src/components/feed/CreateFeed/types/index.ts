@@ -1,4 +1,4 @@
-import { Tag, Plugin } from "@fnndsc/chrisapi";
+import { Tag, Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { InputState, InputIndex } from "../../AddNode/types";
 import { IUserState } from "../../../../store/user/types";
 import { Feed } from "@fnndsc/chrisapi";
@@ -127,6 +127,7 @@ export interface CreateFeedState extends InputState {
 export interface CreateFeedReduxProp {
   user?: IUserState;
   addFeed?: (feed: Feed) => void;
+  getSelectedPlugin?: (item: PluginInstance) => void;
 }
 
 export interface ChrisFileSelectProp {

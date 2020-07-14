@@ -1,4 +1,4 @@
-import React, { useState, useContext, ReactText } from "react";
+import React, { useState, useContext} from "react";
 import { CreateFeedContext } from "./context";
 import { Split, SplitItem } from "@patternfly/react-core";
 import { EventDataNode, Key } from "rc-tree/lib/interface";
