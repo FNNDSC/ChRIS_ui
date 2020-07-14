@@ -16,13 +16,19 @@ import { IUserState } from "../../../store/user/types";
 import { IPluginState } from "../../../store/plugin/types";
 import { RouteComponentProps, Link } from "react-router-dom";
 import { setSidebarActive } from "../../../store/ui/actions";
-import { getFeedRequest, destroyFeed } from "../../../store/feed/actions";
-import { getPluginDetailsRequest } from "../../../store/plugin/actions";
+import {
+  getFeedRequest,
+  destroyFeedState,
+  getSelectedPlugin,
+} from "../../../store/feed/actions";
+import { destroyPluginState } from "../../../store/plugin/actions";
+
 import {
   PageSection,
   PageSectionVariants,
   Grid,
   GridItem,
+  Spinner,
 } from "@patternfly/react-core";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 import "../feed.scss";
@@ -30,47 +36,56 @@ import "../feed.scss";
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getFeedRequest: typeof getFeedRequest;
-  getPluginDetailsRequest: typeof getPluginDetailsRequest;
-  destroyFeed: typeof destroyFeed;
+  destroyFeedState: typeof destroyFeedState;
+  destroyPluginState: typeof destroyPluginState;
+  getSelectedPlugin: typeof getSelectedPlugin;
 }
-type AllProps = IUserState &
+export type FeedViewProps = IUserState &
   IFeedState &
   IPluginState &
   IPropsFromDispatch &
   RouteComponentProps<{ id: string }>;
 
-const FeedView: React.FC<AllProps> = ({
+export const _FeedView: React.FC<FeedViewProps> = ({
   feed,
   selected,
   pluginInstances,
   setSidebarActive,
-  match,
+  match: {
+    params: { id },
+  },
   getFeedRequest,
-  destroyFeed,
-  getPluginDetailsRequest,
+  destroyFeedState,
+  destroyPluginState,
+  getSelectedPlugin,
 }) => {
   React.useEffect(() => {
-    const feedId = match.params.id;
+    document.title = "My Feeds - ChRIS UI site";
     setSidebarActive({
       activeGroup: "feeds_grp",
       activeItem: "my_feeds",
     });
-    document.title = "My Feeds - ChRIS UI site";
-    getFeedRequest(feedId);
+
+    getFeedRequest(id);
     return () => {
-      destroyFeed();
+      destroyFeedState();
+      destroyPluginState();
     };
-  }, []);
+  }, [
+    id,
+    getFeedRequest,
+    destroyFeedState,
+    destroyPluginState,
+    setSidebarActive,
+  ]);
 
   const onNodeClick = (node: PluginInstance) => {
-    getPluginDetailsRequest(node);
+    getSelectedPlugin(node);
   };
-
-  console.log("Selected", selected);
 
   return (
     <React.Fragment>
-      {!!feed && !!pluginInstances && (
+      {!!feed && !!pluginInstances && pluginInstances.length > 0 && (
         <PageSection variant={PageSectionVariants.darker}>
           <FeedDetails feed={feed} items={pluginInstances} />
         </PageSection>
@@ -82,7 +97,7 @@ const FeedView: React.FC<AllProps> = ({
         <Grid className="feed-view">
           <GridItem className="feed-block pf-u-p-md" sm={12} md={6}>
             <h1>Feed Graph</h1>
-            {!!pluginInstances && !!selected ? (
+            {!!pluginInstances && pluginInstances.length > 0 && !!selected ? (
               <FeedTree
                 items={pluginInstances}
                 selected={selected}
@@ -90,13 +105,13 @@ const FeedView: React.FC<AllProps> = ({
               />
             ) : (
               <div>
-                This Feed does not exist:{" "}
+                <h1>This Feed does not exist: </h1>
                 <Link to="/feeds">Go to All Feeds</Link>
               </div>
             )}
           </GridItem>
           <GridItem className="node-block pf-u-p-md" sm={12} md={6}>
-            {!!pluginInstances && !!selected ? (
+            {!!pluginInstances && pluginInstances.length > 0 && !!selected ? (
               <NodeDetails descendants={pluginInstances} selected={selected} />
             ) : (
               <div>Please click on a node to work on a plugin</div>
@@ -106,14 +121,14 @@ const FeedView: React.FC<AllProps> = ({
       </PageSection>
       <PageSection>
         <div className="plugin-info pf-u-py-md">
-          {!!pluginInstances && !!selected ? (
+          {!!pluginInstances && pluginInstances.length > 0 && !!selected ? (
             <FeedOutputBrowser
               selected={selected}
               plugins={pluginInstances}
               handlePluginSelect={onNodeClick}
             />
           ) : (
-            <div>Fetching Files....</div>
+            <Spinner size="lg" />
           )}
         </div>
       </PageSection>
@@ -125,18 +140,23 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedRequest: (id: string) => dispatch(getFeedRequest(id)),
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
-  getPluginDetailsRequest: (item: PluginInstance) =>
-    dispatch(getPluginDetailsRequest(item)),
-  destroyFeed: () => dispatch(destroyFeed()),
+  destroyFeedState: () => dispatch(destroyFeedState()),
+  destroyPluginState: () => dispatch(destroyPluginState()),
+  getSelectedPlugin: (item: PluginInstance) =>
+    dispatch(getSelectedPlugin(item)),
 });
 
-const mapStateToProps = ({ ui, feed, user, plugin }: ApplicationState) => ({
+const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
   sidebarActiveGroup: ui.sidebarActiveGroup,
   sidebarActiveItem: ui.sidebarActiveItem,
-  token: user.token,
   feed: feed.feed,
   selected: feed.selected,
   pluginInstances: feed.pluginInstances,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedView);
+const ConnectedFeedView = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(_FeedView);
+
+export default ConnectedFeedView;

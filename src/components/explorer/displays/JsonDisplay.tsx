@@ -10,6 +10,7 @@ type AllProps = {
 const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const [blobText, setBlobText] = useState({});
   const { galleryItem } = props;
+
   const getBlobText = () => {
     if (!!galleryItem.blob) {
       const reader = new FileReader();

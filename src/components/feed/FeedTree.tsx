@@ -36,11 +36,9 @@ class FeedTree extends React.Component<AllProps> {
         this.buildFeedTree(tree.treeChart, this.treeRef);
         // Set root node active on load:r
         if (tree.treeChart.nodes.length > 0) {
-          const rootNode = tree.treeChart.nodes.filter((node) => {
-            if (selected.data.id === node.item.data.id) {
-              return node;
-            }
-          });
+          const rootNode = tree.treeChart.nodes.filter(
+            (node) => selected.data.id === node.item.data.id
+          );
           if (rootNode[0]) this.setActiveNode(rootNode[0]);
         }
       }
