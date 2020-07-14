@@ -3,17 +3,16 @@ import { PluginActionTypes, IPluginState } from "./types";
 
 // Type-safe initialState
 const initialState: IPluginState = {
-  pluginFiles: undefined,
+  pluginFiles: {},
   parameters: [],
+  pluginStatus: "",
+  pluginLog: {},
 };
 
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {
   switch (action.type) {
-    case PluginActionTypes.GET_PLUGIN_DETAILS: {
-      return { ...state, pluginFiles: undefined, parameters: undefined };
-    }
     case PluginActionTypes.GET_PLUGIN_FILES_SUCCESS: {
-      const id = parseInt(action.payload[0].data.plugin_inst_id);
+      const id = Number(action.payload[0].data.plugin_inst_id);
       return {
         ...state,
         pluginFiles: {
@@ -38,12 +37,18 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
       };
     }
 
+    case PluginActionTypes.GET_PLUGIN_LOG: {
+      return {
+        ...state,
+        pluginLog: action.payload,
+      };
+    }
+
     case PluginActionTypes.RESET_PLUGIN_STATE: {
       return {
         ...state,
-        selected: undefined,
-        descendants: undefined,
-        pluginfiles: undefined,
+        pluginFiles: {},
+        pluginStatus: "",
       };
     }
 

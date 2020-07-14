@@ -22,7 +22,12 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
 
   React.useEffect(() => {
     createFeed();
-  }, []);
+    return () => {
+      dispatch({
+        type: Types.ResetProgress,
+      });
+    };
+  });
 
   const numberOfFiles = useMemo(() => {
     return generateNumOfFiles(chrisFiles, localFiles);
@@ -86,8 +91,6 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
 };
 
 export default FinishedStep;
-
-
 
 const generateNumOfFiles = (
   chrisFiles: EventNode[],

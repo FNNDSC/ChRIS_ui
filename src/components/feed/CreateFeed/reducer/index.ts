@@ -3,7 +3,6 @@ import {
   CreateFeedActions,
   CreateFeedState,
   Types,
-  CheckedKeys,
 } from "../types";
 
 import { InputType } from "../../AddNode/types";
