@@ -2,16 +2,15 @@ import { all, fork, put, takeEvery } from "redux-saga/effects";
 import { FeedActionTypes } from "./types";
 import { IActionTypeParam } from "../../api/models/base.model";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import { Feed } from "@fnndsc/chrisapi";
 import {
   getAllFeedsSuccess,
   getFeedSuccess,
-  getPluginInstanceListRequest,
-  getPluginInstanceListSuccess,
-  getSelectedPluginSuccess,
+  getPluginInstancesRequest,
+  getPluginInstancesSuccess,
+  getSelectedPlugin,
   addNodeSuccess,
 } from "./actions";
-import { getPluginDetailsRequest } from "../plugin/actions";
 
 // ------------------------------------------------------------------------
 // Description: Get Feeds list and search list by feed name (form input driven)
@@ -46,7 +45,7 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
 
     if (feed) {
       yield put(getFeedSuccess(feed));
-      yield put(getPluginInstanceListRequest(feed));
+      yield put(getPluginInstancesRequest(feed));
     } else {
       console.error("Feed does not exist");
     }
@@ -59,17 +58,13 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
   const feed: Feed = action.payload;
   try {
     const pluginInstanceList = yield feed.getPluginInstances({});
-    const pluginInstances = pluginInstanceList.getItems();
-    const sortedPluginInstanceList = pluginInstances.sort(
-      (a: PluginInstance, b: PluginInstance) => {
-        return b.data.id - a.data.id;
-      }
-    );
+    const pluginInstances = yield pluginInstanceList.getItems();
+    const selected = pluginInstances[pluginInstances.length - 1];
 
-    const selected = sortedPluginInstanceList[0];
-
-    yield put(getPluginInstanceListSuccess(sortedPluginInstanceList));
-    yield put(getPluginDetailsRequest(selected));
+    yield all([
+      put(getSelectedPlugin(selected)),
+      put(getPluginInstancesSuccess(pluginInstances)),
+    ]);
   } catch (err) {
     console.error(err);
   }
@@ -77,10 +72,8 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
 
 function* handleAddNode(action: IActionTypeParam) {
   const item = action.payload;
-
   try {
-    yield put(addNodeSuccess(item));
-    yield put(getPluginDetailsRequest(item));
+    yield all([put(addNodeSuccess(item)), put(getSelectedPlugin(item))]);
   } catch (err) {
     console.error(err);
   }
@@ -88,13 +81,13 @@ function* handleAddNode(action: IActionTypeParam) {
 
 function* watchGetPluginInstanceRequest() {
   yield takeEvery(
-    FeedActionTypes.GET_PLUGIN_INSTANCES,
+    FeedActionTypes.GET_PLUGIN_INSTANCES_REQUEST,
     handleGetPluginInstances
   );
 }
 
 function* watchGetFeedRequest() {
-  yield takeEvery(FeedActionTypes.GET_FEED, handleGetFeedDetails);
+  yield takeEvery(FeedActionTypes.GET_FEED_REQUEST, handleGetFeedDetails);
 }
 
 function* watchAddNode() {

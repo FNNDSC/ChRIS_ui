@@ -3,7 +3,7 @@ import { IFeedState, FeedActionTypes } from "./types";
 import { PluginInstance } from "@fnndsc/chrisapi";
 
 // Type-safe initialState
-const initialState: IFeedState = {
+export const initialState: IFeedState = {
   feed: undefined,
   feeds: undefined,
   feedsCount: 0,
@@ -26,7 +26,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     case FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS: {
       return { ...state, pluginInstances: action.payload };
     }
-    case FeedActionTypes.RESET_STATE: {
+    case FeedActionTypes.RESET_FEED_STATE: {
       return {
         ...state,
         pluginInstances: [],
@@ -58,20 +58,18 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       };
     }
     case FeedActionTypes.ADD_NODE_SUCCESS: {
-      if (state.pluginInstances && state.pluginInstances.length > 0) {
+      if (state.pluginInstances) {
+        const sortedPluginList = [
+          ...state.pluginInstances,
+          action.payload,
+        ].sort((a: PluginInstance, b: PluginInstance) => {
+          return b.data.id - a.data.id;
+        });
         return {
           ...state,
-          pluginInstances: [...state.pluginInstances, action.payload].sort(
-            (a: PluginInstance, b: PluginInstance) => {
-              return b.data.id - a.data.id;
-            }
-          ),
+          pluginInstances: sortedPluginList,
         };
       }
-      return {
-        ...state,
-        pluginInstances: [action.payload],
-      };
     }
 
     default: {

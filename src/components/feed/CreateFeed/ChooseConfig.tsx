@@ -27,8 +27,9 @@ const ChooseConfig: React.FC = () => {
           });
         }}
         label="Select a FS plugin from this ChRIS server"
-        name="fs_plugins"
+        name="fs_plugin"
         id="fs_plugin"
+        data-testid="fs_plugin"
       />{" "}
       <Radio
         value="file_select"

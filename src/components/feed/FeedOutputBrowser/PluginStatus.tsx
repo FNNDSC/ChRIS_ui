@@ -1,14 +1,15 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Steps } from "antd";
-import { Spinner } from "@patternfly/react-core";
+import { Spinner, Split, SplitItem } from "@patternfly/react-core";
 import { CheckCircleIcon } from "@patternfly/react-icons";
 import "antd/dist/antd.css";
+import ReactJSON from "react-json-view";
 
 const { Step } = Steps;
 
 export interface PluginStatusProps {
   pluginStatus?: string;
+  pluginLog?: {};
   direction: "horizontal" | "vertical";
   progressDot: string;
   icon: string;
@@ -40,9 +41,19 @@ export interface PluginStatusLabels {
 export interface Label {
   [key: string]: boolean;
 }
+export interface Logs {
+  [info: string]: {
+    [key: string]: {};
+  };
+}
+
+export interface LogStatus {
+  [key: string]: {};
+}
 
 const PluginStatus: React.FC<PluginStatusProps> = ({
   pluginStatus,
+  pluginLog,
   direction,
   progressDot,
   icon,
@@ -51,6 +62,16 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
 }) => {
   const pluginStatusLabels: PluginStatusLabels =
     pluginStatus && JSON.parse(pluginStatus);
+
+  const src: Logs | undefined = pluginLog && pluginLog;
+  let logs: LogStatus = {};
+
+  if (src && src.info) {
+    logs["pushPath"] = src.info.pushPath;
+    logs["compute"] = src.info.compute;
+    logs["pullPath"] = src.info.pullPath;
+    logs["swiftPut"] = src.info.swiftPut;
+  }
 
   let labels: Label = {};
   if (pluginStatusLabels) {
@@ -72,73 +93,85 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
     };
 
     return (
-      <Steps
-        direction={direction}
-        progressDot={progressDot === "true" ? true : false}
-      >
-        <Step
-          title={title === "true" && "Push Path"}
-          description={displayDescription("pushPath")}
-          icon={displayIcon}
-          className={
-            labels["pushPath"] === true
-              ? "ant-steps-item-active ant-steps-item-process"
-              : "undefined"
-          }
-        />
-        <Step
-          title={title === "true" && "Compute Submit"}
-          description={displayDescription("computeSubmit")}
-          icon={displayIcon}
-          className={
-            labels["computeSubmit"] === true
-              ? "ant-steps-item-active ant-steps-item-process"
-              : "undefined"
-          }
-        />
-        <Step
-          title={title === "true" && "Compute Return"}
-          description={displayDescription("computReturn")}
-          icon={displayIcon}
-          className={
-            labels["computeReturn"] === true
-              ? "ant-steps-item-active ant-steps-item-process"
-              : "undefined"
-          }
-        />
+      <div className="file-browser">
+        <Split gutter="md" className="file-browser__flex1">
+          <SplitItem className="file-browser__flex__item1">
+            <Steps
+              direction={direction}
+              progressDot={progressDot === "true" ? true : false}
+            >
+              <Step
+                title={title === "true" && "Push Path"}
+                description={displayDescription("pushPath")}
+                icon={displayIcon}
+                className={
+                  labels["pushPath"] === true
+                    ? "ant-steps-item-active ant-steps-item-process"
+                    : "undefined"
+                }
+              />
+              <Step
+                title={title === "true" && "Compute Submit"}
+                description={displayDescription("computeSubmit")}
+                icon={displayIcon}
+                className={
+                  labels["computeSubmit"] === true
+                    ? "ant-steps-item-active ant-steps-item-process"
+                    : "undefined"
+                }
+              />
+              <Step
+                title={title === "true" && "Compute Return"}
+                description={displayDescription("computReturn")}
+                icon={displayIcon}
+                className={
+                  labels["computeReturn"] === true
+                    ? "ant-steps-item-active ant-steps-item-process"
+                    : "undefined"
+                }
+              />
 
-        <Step
-          title={title === "true" && "PullPath"}
-          description={displayDescription("pullPath")}
-          icon={displayIcon}
-          className={
-            labels["pullPath"] === true
-              ? "ant-steps-item-active ant-steps-item-process"
-              : "undefined"
-          }
-        />
-        <Step
-          title={title === "true" && "Swift Put"}
-          description={displayDescription("swiftPut")}
-          icon={displayIcon}
-          className={
-            labels["swiftPut"] === true
-              ? "ant-steps-item-active ant-steps-item-process"
-              : "undefined"
-          }
-        />
-      </Steps>
+              <Step
+                title={title === "true" && "PullPath"}
+                description={displayDescription("pullPath")}
+                icon={displayIcon}
+                className={
+                  labels["pullPath"] === true
+                    ? "ant-steps-item-active ant-steps-item-process"
+                    : "undefined"
+                }
+              />
+              <Step
+                title={title === "true" && "Swift Put"}
+                description={displayDescription("swiftPut")}
+                icon={displayIcon}
+                className={
+                  labels["swiftPut"] === true
+                    ? "ant-steps-item-active ant-steps-item-process"
+                    : "undefined"
+                }
+              />
+            </Steps>
+          </SplitItem>
+
+          <SplitItem className="file-browser__flex__item2">
+            {logs && (
+              <ReactJSON
+                name={false}
+                displayDataTypes={false}
+                style={{
+                  fontSize: "16px",
+                }}
+                displayObjectSize={false}
+                src={logs}
+              />
+            )}
+          </SplitItem>
+        </Split>
+      </div>
     );
   }
-  return (
-    <FontAwesomeIcon
-      title="This may take a while...."
-      icon="spinner"
-      pulse
-      size="6x"
-      color="black"
-    />
-  );
+  return <Spinner size="lg" />;
 };
 
 export default PluginStatus;

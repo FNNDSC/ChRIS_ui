@@ -12,7 +12,7 @@ import FileViewerModel, {
 } from "../../api/models/file-viewer.model";
 import { LoadingSpinner } from "..";
 import ViewerDisplay from "./displays/ViewerDisplay";
-import _ from "lodash";
+import { isEqual } from "lodash";
 import "./file-detail.scss";
 
 type AllProps = {
@@ -39,7 +39,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const { selectedFile } = this.props;
 
     const fileTypeViewer = () => {
-      if (!_.isEqual(selectedFile.file.data, this.state.file)) {
+      if (!isEqual(selectedFile.file.data, this.state.file)) {
         this.fetchData();
         return <LoadingSpinner color="#ddd" />;
       } else {

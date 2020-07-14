@@ -1,6 +1,5 @@
 import React, { CSSProperties } from "react";
 import Step from "./Step";
-import { GridItem } from "@patternfly/react-core";
 
 export interface StepInterface {
   id: number;
@@ -65,7 +64,6 @@ const styles = {
 function Stepper(props: StepperProps) {
   const {
     steps,
-    activeStep,
     activeColor,
     completeColor,
     defaultColor,
