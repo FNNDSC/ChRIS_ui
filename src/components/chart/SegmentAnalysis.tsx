@@ -1,20 +1,18 @@
 import * as React from "react";
-import * as c3 from "c3";
+//import * as c3 from "c3";
 import { Typeahead } from "react-bootstrap-typeahead";
-import {csvData} from "../../assets/temp/segmentData";
+import { csvData } from "../../assets/temp/segmentData";
 import "./chart.scss";
 
-interface ComponentProps {
-
-}
+interface ComponentProps {}
 
 interface ComponentState {
-    pushedSegments: string[];
+  pushedSegments: string[];
 }
 
 const defaultSegments: any[] = [];
-const defaultLeft : any[] = [];
-const defaultRight : any[] = [];
+const defaultLeft: any[] = [];
+const defaultRight: any[] = [];
 
 const segments: any[] = [];
 const segmentValues: any[] = [];
@@ -31,7 +29,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
   }
 
   readData() {
-    for(let i = 0; i < csvData.length; i++){
+    for (let i = 0; i < csvData.length; i++) {
       segments.push(csvData[i][0]);
       segmentValues.push([csvData[i][1], csvData[i][2]]);
     }
@@ -42,7 +40,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
     defaultLeft.push("leftHemisphere");
     defaultRight.push("rightHemisphere");
     // Top-4 Offset segments displayed by default
-    for ( let i = 0; i < 4; i++ ) {
+    for (let i = 0; i < 4; i++) {
       segmentData = this.getSegmentData(segmentOffSet[i][0]);
       if (segmentData) {
         defaultSegments.push(segmentData[0]);
@@ -51,23 +49,25 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
       }
     }
 
-    this.setState({ pushedSegments: defaultSegments})
+    this.setState({ pushedSegments: defaultSegments });
   }
 
   sortFunction(a: any, b: any) {
     if (a[1] === b[1]) {
       return 0;
     } else {
-      return (a[1] < b[1]) ? 1 : -1;
+      return a[1] < b[1] ? 1 : -1;
     }
   }
 
   calculateOffset() {
     let segmentOffSet: any[] = [];
     let result: any[] = [];
-    for ( let i = 0; i < segments.length; i++ ) {
-      segmentOffSet.push([segments[i], Math.abs(segmentValues[i][0]) +
-                                        Math.abs(segmentValues[i][1])]);
+    for (let i = 0; i < segments.length; i++) {
+      segmentOffSet.push([
+        segments[i],
+        Math.abs(segmentValues[i][0]) + Math.abs(segmentValues[i][1]),
+      ]);
     }
     result = segmentOffSet.sort(this.sortFunction);
     this.pickDefaultSegments(result);
@@ -80,9 +80,9 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
   }
 
   componentDidMount() {
-    this.callChart([defaultLeft, defaultRight]);
+    //this.callChart([defaultLeft, defaultRight]);
   }
-
+  /*
   callChart(inputChart: any) {
     c3.generate({
       bindto: "#SegmentAnalysis",
@@ -124,7 +124,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
       }
     });
   }
-
+*/
   parseData(filteredData: any) {
     const leftHemisphereData = ["leftHemisphere"];
     const rightHemisphereData = ["rightHemisphere"];
@@ -139,7 +139,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
 
   getSegmentData(segment: any) {
     const segmentData = csvData.find((segmentData) => {
-      return (segmentData[0] === segment);
+      return segmentData[0] === segment;
     });
     return segmentData;
   }
@@ -148,8 +148,9 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
     let filteredData: any[] = [];
     let parsedData: any[] = [];
     if (this.state.pushedSegments.length > 0) {
-        filteredData = this.state.pushedSegments.map((segment) =>
-          this.getSegmentData(segment));
+      filteredData = this.state.pushedSegments.map((segment) =>
+        this.getSegmentData(segment)
+      );
     }
     parsedData = this.parseData(filteredData);
     return parsedData;
@@ -158,13 +159,16 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
   changeData(selectedSegments: any) {
     // Call back function to avoid asynchronous setState
     let processedData;
-    this.setState({
-      pushedSegments : selectedSegments
-    }, () => {
-      // Input processing
-      processedData = this.setFilter();
-      this.callChart(processedData);
-    });
+    this.setState(
+      {
+        pushedSegments: selectedSegments,
+      },
+      () => {
+        // Input processing
+        processedData = this.setFilter();
+        //this.callChart(processedData);
+      }
+    );
   }
 
   render() {

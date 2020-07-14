@@ -1,7 +1,7 @@
 import React from "react";
 import ShareModal from "./ShareModal";
 import { Button } from "@patternfly/react-core";
-import ChrisAPIClient from "../../../api/chrisapiclient";
+
 import "./sharefeed.scss";
 import { Feed } from "@fnndsc/chrisapi";
 

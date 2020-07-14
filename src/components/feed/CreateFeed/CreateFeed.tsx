@@ -22,10 +22,13 @@ import { connect } from "react-redux";
 import { addFeed } from "../../../store/feed/actions";
 
 import { createFeed, getName } from "./utils/createFeed";
-import { Collection, Feed } from "@fnndsc/chrisapi";
+import { Feed } from "@fnndsc/chrisapi";
 import FinishedStep from "./FinishedStep";
 
-const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
+export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
+  user,
+  addFeed,
+}) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const {
     wizardOpen,
@@ -204,19 +207,19 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
       name: "Basic Information",
       component: basicInformation,
       enableNext: !!data.feedName,
-      canJumpTo: step === 1,
+      canJumpTo: step > 1,
     },
     {
       id: 2,
       name: "Data Configuration",
       component: chooseConfig,
       enableNext: selectedConfig.length > 0,
-      canJumpTo: step === 2,
+      canJumpTo: step > 2,
     },
     {
       name: getName(selectedConfig),
       steps: getFeedSynthesisStep(),
-      canJumTo: step === 3,
+      canJumpTo: step > 3,
     },
     {
       id: 5,
@@ -224,11 +227,13 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
       component: review,
       enableNext: enableSave,
       nextButtonText: "Save",
+      canJumpTo: step > 5,
     },
     {
       id: 6,
       name: "Finish",
       component: finishedStep,
+      canJumpTo: step > 6,
     },
   ];
 
@@ -237,7 +242,6 @@ const CreateFeed: React.FC<CreateFeedReduxProp> = ({ user, addFeed }) => {
       <WizardContextConsumer>
         {({ activeStep, onNext, onBack, onClose }) => {
           if (activeStep.name !== "Finish") {
-            console.log("ActiveStep", activeStep);
             return (
               <>
                 <Button
@@ -326,4 +330,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   addFeed: (feed: Feed) => dispatch(addFeed(feed)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateFeed);
+export const CreateFeed = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(_CreateFeed);
