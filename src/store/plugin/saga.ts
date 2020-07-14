@@ -5,33 +5,26 @@ import {
   put,
   takeEvery,
   delay,
-  cancelled,
   cancel,
+  takeLatest,
 } from "redux-saga/effects";
 import { PluginActionTypes } from "./types";
 import { IActionTypeParam } from "../../api/models/base.model";
 
 import {
-  getPluginFiles,
   getPluginStatus,
   getPluginFilesSuccess,
   getParamsSuccess,
+  getPluginLog,
+  stopPolling,
 } from "./actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { getSelectedPluginSuccess } from "../feed/actions";
+import { inflate } from "pako";
+import { Task } from "redux-saga";
 
 // ------------------------------------------------------------------------
 // Description: Get Plugin Descendants, files and parameters on change
 // ------------------------------------------------------------------------
-function* handleGetPluginDetails(action: IActionTypeParam) {
-  try {
-    const item: PluginInstance = action.payload;
-    yield put(getSelectedPluginSuccess(item));
-    yield put(getPluginFiles(item));
-  } catch (error) {
-    console.error(error);
-  }
-}
 
 function* handleGetParams(action: IActionTypeParam) {
   try {
@@ -44,11 +37,6 @@ function* handleGetParams(action: IActionTypeParam) {
     console.error(error);
   }
 }
-
-function* watchGetPluginDetails() {
-  yield takeEvery(PluginActionTypes.GET_PLUGIN_DETAILS, handleGetPluginDetails);
-}
-
 function* watchGetParams() {
   yield takeEvery(PluginActionTypes.GET_PARAMS, handleGetParams);
 }
@@ -65,31 +53,33 @@ function* handleGetPluginFiles(action: IActionTypeParam) {
     try {
       const pluginDetails = yield pluginInstance.get();
       yield put(getPluginStatus(pluginDetails.data.summary));
+      let output = {};
+      if (pluginDetails.data.raw.length > 0) {
+        output = getLog(pluginDetails.data.raw);
+      }
+      yield put(getPluginLog(output));
+
       if (pluginDetails.data.status === "finishedSuccessfully") {
         yield call(putPluginFiles, pluginInstance);
-        yield cancel();
+        yield put(stopPolling());
+      } else {
+        yield delay(2000);
       }
-      yield delay(2000);
     } catch (err) {
       console.error(err);
-    } finally {
-      if (yield cancelled()) {
-        console.log("In cancel");
-      }
+      yield put(stopPolling());
     }
   }
+}
 
-  /*
-  const pluginInstance = action.payload.data;
-
-  */
+function* cancelPolling(task: Task) {
+  yield cancel(task);
 }
 
 function* putPluginFiles(plugin: PluginInstance) {
   try {
     const params = { limit: 500, offset: 0 };
     let fileList = yield plugin.getFiles(params);
-
     let files = fileList.getItems();
 
     while (fileList.hasNextPage) {
@@ -109,7 +99,19 @@ function* putPluginFiles(plugin: PluginInstance) {
 }
 
 function* watchGetPluginFiles() {
-  yield takeEvery(PluginActionTypes.GET_PLUGIN_FILES, handleGetPluginFiles);
+  yield takeLatest(
+    PluginActionTypes.GET_PLUGIN_FILES_REQUEST,
+    pollOrCancelEndpoint
+  );
+}
+
+function* pollOrCancelEndpoint(action: IActionTypeParam) {
+  const pollTask = yield fork(handleGetPluginFiles, action);
+  yield watchCancelPoll(pollTask);
+}
+
+function* watchCancelPoll(task: Task) {
+  yield takeEvery(PluginActionTypes.STOP_POLLING, () => cancelPolling(task));
 }
 // ------------------------------------------------------------------------
 // Description: Get Plugin Details: Parameters, files and others
@@ -118,9 +120,17 @@ function* watchGetPluginFiles() {
 // We can also use `fork()` here to split our saga into multiple watchers.
 // ------------------------------------------------------------------------
 export function* pluginSaga() {
-  yield all([
-    fork(watchGetPluginDetails),
-    fork(watchGetPluginFiles),
-    fork(watchGetParams),
-  ]);
+  yield all([fork(watchGetPluginFiles), fork(watchGetParams)]);
+}
+
+function getLog(raw: string) {
+  const strData = atob(raw);
+  const data = inflate(strData);
+
+  let output = "";
+  for (let i = 0; i < data.length; i++) {
+    output += String.fromCharCode(parseInt(data[i]));
+  }
+
+  return JSON.parse(output);
 }

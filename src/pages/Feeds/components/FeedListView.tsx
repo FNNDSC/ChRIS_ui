@@ -23,7 +23,7 @@ import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest } from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { DataTableToolbar, LoadingSpinner } from "../../../components/index";
-import CreateFeed from "../../../components/feed/CreateFeed/CreateFeed";
+import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
 import feedIcon from "../../../assets/images/bw-pipeline.svg";
 import { Feed } from "@fnndsc/chrisapi";

@@ -1,16 +1,7 @@
 import React, { CSSProperties } from "react";
 
 const Step = (props: any) => {
-  const {
-    title,
-    index,
-    active,
-    completed,
-    first,
-    isLast,
-    href,
-    onClick,
-  } = props;
+  const { active, completed, first, isLast, href, onClick } = props;
 
   const styles = getStyles(props);
   const circleStyle = Object.assign(
@@ -71,7 +62,6 @@ Step.defaultProps = {
 function getStyles(props: any) {
   const {
     activeColor,
-    completeColor,
     defaultColor,
     circleFontColor,
     activeTitleColor,
@@ -82,7 +72,6 @@ function getStyles(props: any) {
     titleFontSize,
     circleTop,
     titleTop,
-    width,
     completeOpacity,
     activeOpacity,
     defaultOpacity,
@@ -99,7 +88,6 @@ function getStyles(props: any) {
     completeBorderStyle,
     activeBorderStyle,
     activeCircleFontColor,
-    defaultCircleFontColor,
     fontFamily,
     circleCursor,
     barHeight,

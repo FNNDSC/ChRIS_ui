@@ -3,7 +3,13 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import JSZip from "jszip";
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
-import { Title, Split, SplitItem, Button } from "@patternfly/react-core";
+import {
+  Title,
+  Split,
+  SplitItem,
+  Button,
+  Spinner,
+} from "@patternfly/react-core";
 import {
   FolderOpenIcon,
   FolderCloseIcon,
@@ -20,25 +26,44 @@ import FileBrowser from "../FileBrowser";
 import PluginStatus from "./PluginStatus";
 import PluginViewerModal from "../../plugin/PluginViewerModal";
 import "./FeedOutputBrowser.scss";
+import {
+  getPluginFilesRequest,
+  stopPolling,
+} from "../../../store/plugin/actions";
 
 interface FeedOutputBrowserProps {
   selected?: PluginInstance;
   plugins?: PluginInstance[];
   pluginFiles?: { [pluginId: number]: FeedFile[] };
   pluginStatus?: string;
+  pluginLog?: {};
   handlePluginSelect: Function;
   setSelectedFile: Function;
+  getPluginFilesRequest: (selected: PluginInstance) => void;
+  stopPolling: () => void;
 }
 
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   plugins,
   pluginFiles,
   pluginStatus,
+  pluginLog,
   selected,
   handlePluginSelect,
+  getPluginFilesRequest,
   setSelectedFile,
+  stopPolling,
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (selected) {
+      getPluginFilesRequest(selected);
+    }
+    return () => {
+      stopPolling();
+    };
+  }, [stopPolling, selected, getPluginFilesRequest]);
 
   const pluginName = selected && getPluginName(selected);
   const pluginDisplayName = selected && getPluginDisplayName(selected);
@@ -135,17 +160,18 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               key={selected.data.id}
               handleViewerModeToggle={handlePluginModalOpen}
             />
+          ) : selected && selected.data.status === "finishedSuccessfully" ? (
+            <Spinner size="lg" />
           ) : (
-            <div>
-              <PluginStatus
-                icon="true"
-                progressDot="false"
-                direction="vertical"
-                pluginStatus={pluginStatus}
-                description="true"
-                title="true"
-              />
-            </div>
+            <PluginStatus
+              icon="true"
+              progressDot="false"
+              direction="vertical"
+              pluginStatus={pluginStatus}
+              pluginLog={pluginLog}
+              description="true"
+              title="true"
+            />
           )}
         </SplitItem>
       </Split>
@@ -160,11 +186,15 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 const mapStateToProps = (state: ApplicationState) => ({
   pluginFiles: state.plugin.pluginFiles,
   pluginStatus: state.plugin.pluginStatus,
+  pluginLog: state.plugin.pluginLog,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
+  getPluginFilesRequest: (selected: PluginInstance) =>
+    dispatch(getPluginFilesRequest(selected)),
   setSelectedFile: (file: IUITreeNode, folder: IUITreeNode) =>
     dispatch(setSelectedFile(file, folder)),
+  stopPolling: () => dispatch(stopPolling()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedOutputBrowser);
