@@ -27,7 +27,7 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
         type: Types.ResetProgress,
       });
     };
-  });
+  }, []);
 
   const numberOfFiles = useMemo(() => {
     return generateNumOfFiles(chrisFiles, localFiles);
