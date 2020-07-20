@@ -11,11 +11,12 @@ import { unpackParametersIntoString } from "../AddNode/lib/utils";
 
 function generateFileList(files: any[], local: boolean) {
   return files.map((file) => {
-    let icon = file.children ? ( // file is a ChrisFile folder
-      <FolderCloseIcon />
-    ) : (
-      <FileIcon />
-    );
+    let icon =
+      file.children && file.children.length > 0 ? ( // file is a ChrisFile folder
+        <FolderCloseIcon />
+      ) : (
+        <FileIcon />
+      );
     let name = local === true ? file.name : file.title;
     return (
       <div className="file-preview" key={name}>
