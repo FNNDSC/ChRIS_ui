@@ -26,7 +26,9 @@ import TreeNodeModel from "../../../api/models/tree-node.model";
 import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
 import AddNode from "../AddNode/AddNode";
 import Stepper, { StepInterface } from "./Stepper";
+import Timer from "./Timer";
 import { PluginStatusLabels } from "../FeedOutputBrowser/PluginStatus";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface INodeProps {
   selected: PluginInstance;
@@ -115,17 +117,42 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
       .slice(0, -1); // remove final backslash
   }
 
+  calculateTotalRuntime = () => {
+    const { selected } = this.props;
+    let runtime = 0;
+    const start = new Date(selected.data.start_date);
+    const end = new Date(selected.data.end_date);
+    const elapsed = end.getTime() - start.getTime(); // milliseconds between start and end
+    runtime += elapsed;
+
+    // format millisecond amount into human-readable string
+    let runtimeStrings = [];
+    const timeParts = [
+      ["day", Math.floor(runtime / (1000 * 60 * 60 * 24))],
+      ["hr", Math.floor((runtime / (1000 * 60 * 60)) % 24)],
+      ["min", Math.floor((runtime / 1000 / 60) % 60)],
+      ["sec", Math.floor((runtime / 1000) % 60)],
+    ];
+    for (const part of timeParts) {
+      const [name, value] = part;
+      if (value > 0) {
+        runtimeStrings.push(`${value} ${name}`);
+      }
+    }
+    return runtimeStrings.join(", ");
+  };
+
   getCurrentTitle(statusLabels: PluginStatusLabels) {
     if (statusLabels.pushPath.status !== true) {
-      return "Push Path";
+      return "Transmitting Data";
     } else if (statusLabels.compute.submit.status !== true) {
-      return "Compute Submit";
+      return "Setting Compute Enviornment";
     } else if (statusLabels.compute.return.status !== true) {
-      return "Compute Return";
+      return "Computing";
     } else if (statusLabels.pullPath.status !== true) {
-      return "Pull Path";
+      return "Syncing Data";
     } else if (statusLabels.swiftPut.status !== true) {
-      return "Swift Put";
+      return "Finishing up";
     } else {
       return (
         <>
@@ -139,6 +166,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
   render() {
     const { selected, pluginStatus } = this.props;
     const { plugin, params } = this.state;
+    let runtime = this.calculateTotalRuntime();
 
     const pluginStatusLabels: PluginStatusLabels =
       pluginStatus && JSON.parse(pluginStatus);
@@ -148,32 +176,36 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
       label = [
         {
           id: 0,
-          title: "Push Path",
+          title: "Send Data",
           completed: pluginStatusLabels.pushPath.status === true,
         },
         {
           id: 1,
-          title: "Compute Submit",
+          title: "Submit Job",
           completed: pluginStatusLabels.compute.submit.status === true,
         },
         {
           id: 2,
-          title: "Compute Return",
+          title: "Execute Job",
           completed: pluginStatusLabels.compute.return.status === true,
         },
         {
           id: 3,
-          title: "Pull Path",
+          title: "Pull Results",
           completed: pluginStatusLabels.pullPath.status === true,
         },
 
         {
           id: 4,
-          title: "Swift Put",
+          title: "Register Results",
           completed: pluginStatusLabels.swiftPut.status === true,
         },
       ];
     }
+
+    const handleClick = () => {
+      console.log("To be written");
+    };
 
     const pluginTitle = `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;
     const command =
@@ -214,14 +246,26 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
             Status
           </GridItem>
           <GridItem span={10} className="value">
-            {pluginStatusLabels && this.getCurrentTitle(pluginStatusLabels)}
+            {pluginStatusLabels ? (
+              <div className="node-details-grid__title">
+                <h3
+                  className="node-details-grid__title-label"
+                  style={{ color: "white" }}
+                >
+                  {this.getCurrentTitle(pluginStatusLabels)}
+                </h3>
+              </div>
+            ) : (
+              "Started"
+            )}
           </GridItem>
+
           <GridItem span={2}></GridItem>
           <GridItem span={10}>
-            {label.length < 0 ? (
-              <Spinner size="md" />
+            {label.length > 0 ? (
+              <Stepper onClick={handleClick} steps={label} />
             ) : (
-              <Stepper steps={label} />
+              <Spinner size="md" />
             )}
           </GridItem>
           <GridItem span={2} className="title"></GridItem>
@@ -241,6 +285,13 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
           </GridItem>
           <GridItem span={10} className="value">
             {selected.data.id}
+          </GridItem>
+          <GridItem span={2} className="title">
+            <FontAwesomeIcon icon={["far", "calendar-alt"]} />
+            Total Runtime:
+          </GridItem>
+          <GridItem span={10} className="value">
+            {runtime}
           </GridItem>
         </Grid>
 
