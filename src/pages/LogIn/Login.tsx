@@ -15,7 +15,6 @@ class LogInPage extends React.Component<AllProps> {
     return (
       <LoginPage
         className="login pf-background"
-        //footerListVariants="inline"
         brandImgSrc={brandImg}
         brandImgAlt="PatternFly logo"
         textContent="Lorem ipsum dodafdlor sit amet, consectetur adipiscing elit."

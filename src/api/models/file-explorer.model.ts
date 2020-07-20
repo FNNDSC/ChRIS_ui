@@ -1,7 +1,5 @@
-import { IPluginItem } from "./pluginInstance.model";
-
 import _ from "lodash";
-import { FeedFile } from "@fnndsc/chrisapi";
+import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
 
 // Description: Builds the file explorer tree
 export interface IUITreeNode {
@@ -24,7 +22,7 @@ export default class UITreeNodeModel {
   private _worker: IUITreeNode = {
     module: "root",
     uiId: "root",
-    children: []
+    children: [],
   };
   private _previousItem = "root";
   private _previousObj = this._worker;
@@ -33,17 +31,17 @@ export default class UITreeNodeModel {
     uiId: "",
     collapsed: false,
     leaf: false,
-    children: []
+    children: [],
   };
   private _fileTemplate: IUITreeNode = {
     module: "",
     uiId: "",
     leaf: true,
-    file: {}
+    file: {},
   };
   tree: IUITreeNode = this._worker;
 
-  constructor(items: FeedFile[], selected: IPluginItem) {
+  constructor(items: FeedFile[], selected: PluginInstance) {
     this._items = items;
     this.parseUiTree(items, selected);
   }
@@ -52,12 +50,10 @@ export default class UITreeNodeModel {
   };
 
   // Description: Parse Plugin file array into IUITreeNode object - build the tree
-  parseUiTree(items: FeedFile[], selected: IPluginItem) {
-    const pluginName = `${selected.plugin_name}_${selected.id}`;
-    const root = `chris/feed_${selected.feed_id}/...`; // modules Name
-
+  parseUiTree(items: FeedFile[], selected: PluginInstance) {
+    const pluginName = `${selected.data.plugin_name}_${selected.data.id}`;
+    const root = `${selected.data.owner_username}/feed_${selected.data.id}`; // modules Name
     this._worker.module = this._previousItem = root;
-
     if (!!items && items.length) {
       items.forEach((item: FeedFile, index: number) => {
         const fileArray = this._convertFiletoArray(item, pluginName);
@@ -85,12 +81,12 @@ export default class UITreeNodeModel {
   private _AddFolder = (item: string, uiId: string) => {
     const newFolder = Object.assign({}, this._folderTemplate, {
       module: item,
-      uiId
+      uiId,
     }); // This is what we will add
     if (!!this._previousObj && !!this._previousObj.children) {
       const newArr = this._previousObj.children.slice();
-      const existinModule = _.find(newArr, { module: item });
-      if (!!!existinModule) {
+      const existingModule = _.find(newArr, { module: item });
+      if (!!!existingModule) {
         newArr.push(newFolder);
         this._previousObj.children = newArr;
       }
@@ -104,7 +100,7 @@ export default class UITreeNodeModel {
     const newFile = Object.assign({}, this._fileTemplate, {
       module: item,
       uiId,
-      file
+      file,
     });
     this._findChildrenArr(this._previousItem, this._worker);
     if (!!this._previousObj && !!this._previousObj.children) {
@@ -138,7 +134,7 @@ export default class UITreeNodeModel {
 
     // find the pluginName within the filename string then decompose the substring
     return fileName
-      .substring(fileName.indexOf(pluginName), fileName.length)
+      .substring(fileName.indexOf("data"), fileName.length)
       .split("/");
   };
 

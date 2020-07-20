@@ -13,21 +13,22 @@ import {
   BreadcrumbHeading,
   Popover,
   PopoverPosition,
-  Pagination
+  Pagination,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import { EyeIcon } from "@patternfly/react-icons";
-
-import { IFeedItem } from "../../../api/models/feed.model";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest } from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { DataTableToolbar, LoadingSpinner } from "../../../components/index";
-import CreateFeed from "../../../components/feed/CreateFeed/CreateFeed";
+import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
 import feedIcon from "../../../assets/images/bw-pipeline.svg";
+import { Feed } from "@fnndsc/chrisapi";
+import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
+import { isEqual } from "lodash";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -40,7 +41,6 @@ interface FeedsListViewState {
   perPage: number;
   page: number;
   filter: string;
-  feedsCount?: number;
   descriptions: { [feedId: number]: string };
 }
 
@@ -51,7 +51,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
       perPage: 10,
       page: 1,
       filter: "",
-      descriptions: {}
+      descriptions: {},
     };
 
     this.generateTableRow = this.generateTableRow.bind(this);
@@ -69,20 +69,26 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     document.title = "All Feeds - ChRIS UI site";
     setSidebarActive({
       activeGroup: "feeds_grp",
-      activeItem: "my_feeds"
+      activeItem: "my_feeds",
     });
     this.fetchFeeds();
-    this.fetchFeedsCount();
   }
 
-  componentDidUpdate(prevProps: AllProps) {
-    const { feeds } = this.props;
+  componentDidUpdate(prevProps: AllProps, prevState: FeedsListViewState) {
+    const { page, perPage, filter } = this.state;
 
-    if (!feeds) {
-      return;
-    }
-    if (prevProps.feeds !== feeds) {
-      this.fetchFeedsCount();
+    setSidebarActive({
+      activeGroup: "feeds_grp",
+      activeItem: "my_feeds",
+    });
+
+    if (
+      prevState.page !== page ||
+      prevState.perPage !== perPage ||
+      prevState.filter !== filter ||
+      !isEqual(prevProps.feeds, this.props.feeds)
+    ) {
+      this.fetchFeeds();
     }
   }
 
@@ -95,24 +101,17 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   }
 
   // fetch total amount of feeds, regardless of filter/pagination
-  async fetchFeedsCount() {
-    const { feeds } = this.props;
 
-    if (feeds) {
-      this.setState({ feedsCount: feeds.length });
-    }
-  }
-
-  async fetchFeedDescription(feedItem: IFeedItem) {
+  async fetchFeedDescription(feedItem: Feed["data"]) {
     const client = ChrisAPIClient.getClient();
-    const feed = await client.getFeed(feedItem.id as number);
+    const feed = await client.getFeed(feedItem.id);
     const note = await feed.getNote();
 
     this.setState((state: FeedsListViewState) => ({
       descriptions: {
         ...state.descriptions,
-        [feedItem.id as number]: note.data.content
-      }
+        [feedItem.id as number]: note.data.content,
+      },
     }));
   }
 
@@ -129,9 +128,9 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   // only update filter every half-second, to avoid too many requests
   handleFilterChange = debounce((value: string) => {
     this.setState({ filter: value });
-  }, 500);
+  }, 200);
 
-  handleDescriptionPopoverShow(feed: IFeedItem) {
+  handleDescriptionPopoverShow(feed: Feed["data"]) {
     const description = this.state.descriptions[feed.id as number];
     if (!description) {
       this.fetchFeedDescription(feed);
@@ -140,10 +139,10 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
 
   /* UI GENERATORS */
 
-  generateTableRow(feed: IFeedItem) {
+  generateTableRow(feed: Feed["data"]) {
     const { descriptions } = this.state;
 
-    const feedDescription = descriptions[feed.id as number];
+    const feedDescription = descriptions[feed.id];
     const namePopoverBody =
       feedDescription !== undefined ? (
         <span>{feedDescription || <i>No description</i>}</span>
@@ -165,11 +164,11 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
             {feed.name}
           </span>
         </Popover>
-      )
+      ),
     };
 
     const created = {
-      title: <Moment format="DD MMM YYYY">{feed.creation_date}</Moment>
+      title: <Moment format="DD MMM YYYY">{feed.creation_date}</Moment>,
     };
 
     const lastCommit = {
@@ -177,7 +176,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
         <Moment fromNow className="last-commit">
           {feed.modification_date}
         </Moment>
-      )
+      ),
     };
 
     const viewDetails = {
@@ -186,19 +185,19 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           <EyeIcon />
           View feed details
         </Link>
-      )
+      ),
     };
 
     return {
-      cells: [name, created, lastCommit, viewDetails]
+      cells: [name, created, lastCommit, viewDetails],
     };
   }
 
   generatePagination() {
-    const { feeds } = this.props;
-    const { perPage, page, feedsCount } = this.state;
+    const { feeds, feedsCount } = this.props;
+    const { perPage, page } = this.state;
 
-    if (!feedsCount || !feeds) {
+    if (!feeds || !feedsCount) {
       return null;
     }
 
@@ -228,9 +227,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   }
 
   render() {
-    const { feeds } = this.props;
-
-    const { feedsCount } = this.state;
+    const { feeds, feedsCount } = this.props;
 
     const cells = ["Feed", "Created", "Last Commit", ""];
     const rows = (feeds || []).map(this.generateTableRow);
@@ -245,11 +242,14 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           <div className="bottom">
             <Title headingLevel="h1" size="3xl">
               My Feeds
-              {(feedsCount || feedsCount === 0) && (
-                <span className="feed-count"> ({feedsCount})</span>
-              )}
+              <span className="feed-count">
+                {" "}
+                ({feedsCount === -1 ? "0" : feedsCount})
+              </span>
             </Title>
-            <CreateFeed />
+            <CreateFeedProvider>
+              <CreateFeed />
+            </CreateFeedProvider>
           </div>
         </PageSection>
 
@@ -265,7 +265,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
 
             <Table aria-label="Data table" cells={cells} rows={rows}>
               <TableHeader />
-              {feeds ? <TableBody /> : this.generateTableLoading()}
+              {feeds && <TableBody />}
             </Table>
 
             {this.generatePagination()}
@@ -280,11 +280,12 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
   getAllFeedsRequest: (name?: string, limit?: number, offset?: number) =>
-    dispatch(getAllFeedsRequest(name, limit, offset))
+    dispatch(getAllFeedsRequest(name, limit, offset)),
 });
 
 const mapStateToProps = ({ feed }: ApplicationState) => ({
-  feeds: feed.feeds
+  feeds: feed.feeds,
+  feedsCount: feed.feedsCount,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedListView);

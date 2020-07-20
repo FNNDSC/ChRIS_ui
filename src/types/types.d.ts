@@ -12,3 +12,7 @@ declare module "d3v4";
 declare module "react-ui-tree";
 declare module "ami.js";
 declare module "string.prototype.matchall";
+declare module "enzyme-adapter-react-16";
+declare module "pako";
+declare module "redux-mock-store";
+declare module "react-reveal/Pulse";

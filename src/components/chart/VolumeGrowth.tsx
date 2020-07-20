@@ -1,11 +1,10 @@
 import * as React from "react";
-import * as c3 from "c3";
+//import * as c3 from "c3";
 import { Typeahead } from "react-bootstrap-typeahead";
-import {segments, volumeData, age} from "../../assets/temp/volumeData";
+import { segments, volumeData, age } from "../../assets/temp/volumeData";
 import "./chart.scss";
 
-interface ComponentProps {
-}
+interface ComponentProps {}
 
 interface ComponentState {
   pushedSegments: [];
@@ -16,9 +15,36 @@ interface ComponentState {
 const defaultChartData = [
   age,
   ["G_and_S_frontomargin_RHPatient", null, null, null, 2030, null, null, null],
-  ["G_and_S_frontomargin_RHAverage", 1517.2, 1679.0, 1923.3333333333333, 2060.0, 2373.0, 2450.6, 2499.25],
-  ["G_and_S_frontomargin_RHFirstDevPos", 1567.2, 1729.0, 1970.3333333333333, 2110.0, 2423.0, 2500.6, 2549.25],
-  ["G_and_S_frontomargin_RHFirstDevNeg", 1467.2, 1629.0, 1876.3333333333333, 2010.0, 2323.0, 2400.6, 2449.25]
+  [
+    "G_and_S_frontomargin_RHAverage",
+    1517.2,
+    1679.0,
+    1923.3333333333333,
+    2060.0,
+    2373.0,
+    2450.6,
+    2499.25,
+  ],
+  [
+    "G_and_S_frontomargin_RHFirstDevPos",
+    1567.2,
+    1729.0,
+    1970.3333333333333,
+    2110.0,
+    2423.0,
+    2500.6,
+    2549.25,
+  ],
+  [
+    "G_and_S_frontomargin_RHFirstDevNeg",
+    1467.2,
+    1629.0,
+    1876.3333333333333,
+    2010.0,
+    2323.0,
+    2400.6,
+    2449.25,
+  ],
 ];
 
 const defaultSegments = ["G_and_S_frontomargin_RH"];
@@ -27,14 +53,14 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   constructor(props: ComponentProps) {
     super(props);
     this.state = {
-      pushedSegments: []
+      pushedSegments: [],
     };
 
     this.changeData = this.changeData.bind(this);
   }
 
   fetchData() {
-    for(let i = 0; i < 74; i++){
+    for (let i = 0; i < 74; i++) {
       // eslint-disable-next-line
       let segment: any[] = [];
     }
@@ -45,10 +71,11 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   }
 
   componentDidMount() {
-    this.callChart(defaultChartData);
+    //this.callChart(defaultChartData);
   }
 
   callChart(inputChart: any) {
+    /*
     c3.generate({
       bindto: "#VolumeGrowth",
       data: {
@@ -137,25 +164,26 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
         }
       }
     });
+    */
   }
 
   // Use this function once data of devation is available
   getDeviation(segment: string, deviation: number) {
     let devSegment: any;
 
-    if(deviation > 0) {
+    if (deviation > 0) {
       devSegment = segment.replace("FirstDevPos", "");
     } else {
       devSegment = segment.replace("FirstDevNeg", "");
     }
 
     let segmentData: any;
-    segmentData = volumeData.find(segmentData => {
-        return segmentData[0] === devSegment + "Average";
+    segmentData = volumeData.find((segmentData) => {
+      return segmentData[0] === devSegment + "Average";
     });
 
-    for(let i = 0; i < segmentData.length; i++){
-      if(i > 0) {
+    for (let i = 0; i < segmentData.length; i++) {
+      if (i > 0) {
         segmentData[i] = segmentData[i] + deviation;
       } else {
         segmentData[i] = segment;
@@ -166,7 +194,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   }
 
   getSegmentData(segment: string) {
-    const segmentData = volumeData.find(segmentData => {
+    const segmentData = volumeData.find((segmentData) => {
       return segmentData[0] === segment;
     });
     return segmentData;
@@ -174,13 +202,20 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
 
   setFilter() {
     let filteredData: any[] = [];
-    const volumeParameters = ["Average", "Patient", "FirstDevPos", "FirstDevNeg"];
+    const volumeParameters = [
+      "Average",
+      "Patient",
+      "FirstDevPos",
+      "FirstDevNeg",
+    ];
 
     if (this.state.pushedSegments.length > 0) {
-      for(let i = 0; i < volumeParameters.length; i++) {
-        filteredData = filteredData.concat(this.state.pushedSegments.map(segment =>
-          this.getSegmentData(segment + volumeParameters[i])
-        ));
+      for (let i = 0; i < volumeParameters.length; i++) {
+        filteredData = filteredData.concat(
+          this.state.pushedSegments.map((segment) =>
+            this.getSegmentData(segment + volumeParameters[i])
+          )
+        );
       }
     }
 
@@ -193,12 +228,12 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
     let processedData;
     this.setState(
       {
-        pushedSegments: selectedSegments
+        pushedSegments: selectedSegments,
       },
       () => {
         // Input processing
         processedData = this.setFilter();
-        this.callChart(processedData);
+        //this.callChart(processedData);
       }
     );
   }
@@ -214,7 +249,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
             multiple
             options={segments}
             placeholder="Choose a brain segment..."
-            onChange={selectedSegments => this.changeData(selectedSegments)}
+            onChange={(selectedSegments) => this.changeData(selectedSegments)}
           />
         </React.Fragment>
         <div id="VolumeGrowth" />

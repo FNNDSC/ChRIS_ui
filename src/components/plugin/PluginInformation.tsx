@@ -2,13 +2,11 @@ import * as React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CalendarAltIcon } from "@patternfly/react-icons";
 import Moment from "react-moment";
-import {
-  IPluginItem,
-  statusLabels
-} from "../../api/models/pluginInstance.model";
+import { statusLabels } from "../../api/models/pluginInstance.model";
+import { PluginInstance } from "@fnndsc/chrisapi";
 
 type Props = {
-  selected: IPluginItem;
+  selected: PluginInstance;
 };
 
 const PluginInformation: React.FunctionComponent<Props> = (props: Props) => {
@@ -17,20 +15,20 @@ const PluginInformation: React.FunctionComponent<Props> = (props: Props) => {
       <div>
         <label>Status:</label>
         <FontAwesomeIcon icon="check" color="green" />
-        {statusLabels[props.selected.status] || props.selected.status}
+        {statusLabels[props.selected.data.status] || props.selected.data.status}
       </div>
       <div>
         <label>Start Date:</label>
         <CalendarAltIcon />
         <Moment format="DD MMM YYYY @ HH:mm">
-          {props.selected.start_date}
+          {props.selected.data.start_date}
         </Moment>
       </div>
       <div>
         <label>End Date:</label>
         <CalendarAltIcon />
-         <Moment format="DD MMM YYYY @ HH:mm">
-          {props.selected.end_date}
+        <Moment format="DD MMM YYYY @ HH:mm">
+          {props.selected.data.end_date}
         </Moment>
       </div>
     </React.Fragment>

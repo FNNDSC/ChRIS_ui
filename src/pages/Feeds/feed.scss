@@ -193,6 +193,16 @@
       .value svg {
         margin-right: 10px;
       }
+
+      &__title {
+        display: flex;
+
+        &-label {
+          color: white;
+          margin-right: 5px;
+          font-weight: 700;
+        }
+      }
     }
   }
 }
@@ -373,6 +383,10 @@
     &__item2 {
       flex-grow: 1;
       max-width: 50%;
+
+      &-json {
+        margin-top: 15px;
+      }
     }
   }
 

@@ -1,13 +1,16 @@
 import { action } from "typesafe-actions";
 import { ExplorerActionTypes } from "./types";
-import { FeedFile } from "@fnndsc/chrisapi";
-import { IPluginItem } from "../../api/models/pluginInstance.model";
+import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
+
 import UITreeNodeModel, {
-  IUITreeNode
+  IUITreeNode,
 } from "../../api/models/file-explorer.model";
 
 // Description: Parse the files array into a File tree obj
-export const setExplorerRequest = (files: FeedFile[], selected: IPluginItem) =>
+export const setExplorerRequest = (
+  files: FeedFile[],
+  selected: PluginInstance
+) =>
   action(
     ExplorerActionTypes.SET_EXPLORER_REQUEST,
     new UITreeNodeModel(files, selected).getTree()
@@ -20,7 +23,7 @@ export const setSelectedFile = (
 ) =>
   action(ExplorerActionTypes.SET_SELECTED_FILE, {
     selectedFile,
-    selectedFolder
+    selectedFolder,
   });
 
 // Description: Stores the current selected folder or parent folder of the selected file

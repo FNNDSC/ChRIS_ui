@@ -1,17 +1,14 @@
 import React, { Component } from "react";
 import { Dispatch } from "redux";
 import { Wizard } from "@patternfly/react-core";
-
-import { IPluginItem } from "../../../api/models/pluginInstance.model";
 import { connect } from "react-redux";
-import { Plugin } from "@fnndsc/chrisapi";
 import { isEqual } from "lodash";
 import { ApplicationState } from "../../../store/root/applicationState";
 import "./styles/addnode.scss";
 import LoadingSpinner from "../../common/loading/LoadingSpinner";
 import Review from "./Review";
 import { addNode } from "../../../store/feed/actions";
-import { Collection } from "@fnndsc/chrisapi";
+import { PluginInstance, Plugin } from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
 import { InfrastructureIcon } from "@patternfly/react-icons";
 import { getParams } from "../../../store/plugin/actions";
@@ -210,33 +207,13 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
     let parameterInput = {
       ...nodeParamter,
-      previous_id: `${selected.id}`,
+      previous_id: `${selected.data.id}`,
     };
 
     const pluginInstances = await plugin.getPluginInstances();
     await pluginInstances.post(parameterInput);
     const node = pluginInstances.getItems()[0];
-
-    // Add node to redux
-
-    const { data, collection } = node;
-    const createdNodeLinks = collection.items[0];
-
-    const getLinkUrl = (resource: string) => {
-      return Collection.getLinkRelationUrls(createdNodeLinks, resource)[0];
-    };
-
-    const nodeobj = {
-      ...data,
-      descendants: getLinkUrl("descendants"),
-      feed: getLinkUrl("feed"),
-      files: getLinkUrl("files"),
-      parameters: getLinkUrl("parameters"),
-      plugin: getLinkUrl("plugin"),
-      url: node.url,
-    };
-
-    addNode(nodeobj);
+    addNode(node);
     this.resetState();
   }
 
@@ -344,13 +321,13 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 }
 
 const mapStateToProps = (state: ApplicationState) => ({
-  selected: state.plugin.selected,
-  nodes: state.feed.items,
+  selected: state.feed.selected,
+  nodes: state.feed.pluginInstances,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getParams: (plugin: Plugin) => dispatch(getParams(plugin)),
-  addNode: (pluginItem: IPluginItem) => dispatch(addNode(pluginItem)),
+  addNode: (pluginItem: PluginInstance) => dispatch(addNode(pluginItem)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AddNode);

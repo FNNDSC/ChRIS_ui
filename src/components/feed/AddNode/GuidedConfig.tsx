@@ -35,8 +35,10 @@ class GuidedConfig extends React.Component<
 
   componentDidMount() {
     const { dropdownInput, params } = this.props;
+
     if (params && params.length > 0) {
       let requiredParams = getRequiredParams(params);
+
       this.setState({
         count: requiredParams.length,
       });
@@ -213,6 +215,7 @@ class GuidedConfig extends React.Component<
               errors.map((error, index) => {
                 return (
                   <Alert
+                    className="configuration__renders__alert"
                     key={index}
                     variant="danger"
                     title={error}
