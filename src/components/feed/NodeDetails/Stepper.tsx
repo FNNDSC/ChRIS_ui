@@ -44,6 +44,7 @@ interface StepperProps {
   fontFamily?: string;
   circleCursor?: string;
   barHeight?: string;
+  onClick: () => void;
 }
 
 const styles = {
@@ -97,7 +98,9 @@ function Stepper(props: StepperProps) {
     fontFamily,
     circleCursor,
     barHeight,
+    onClick,
   } = props;
+
   return (
     <div style={styles.root as CSSProperties}>
       <div style={styles.stepper}>
@@ -145,6 +148,7 @@ function Stepper(props: StepperProps) {
               fontFamily={fontFamily}
               circleCursor={circleCursor}
               barHeight={barHeight}
+              onClick={onClick}
             />
           );
         })}
