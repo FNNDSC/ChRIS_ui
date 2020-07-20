@@ -126,7 +126,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       <Split>
         <SplitItem>
           <ul className="sidebar">
-            {plugins ? plugins.map(generateSideItem) : "No plugins found"}
+            {plugins ? plugins.map(generateSideItem) : <Spinner size="md" />}
           </ul>
         </SplitItem>
         <SplitItem isFilled>
@@ -143,7 +143,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               <div className="files-info">
                 {selectedFiles.length} files
                 <Button
-                  className="download-all-button s"
+                  className="download-all-button"
                   variant="secondary"
                   onClick={downloadAllClick}
                 >
@@ -163,15 +163,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           ) : selected && selected.data.status === "finishedSuccessfully" ? (
             <Spinner size="lg" />
           ) : (
-            <PluginStatus
-              icon="true"
-              progressDot="false"
-              direction="vertical"
-              pluginStatus={pluginStatus}
-              pluginLog={pluginLog}
-              description="true"
-              title="true"
-            />
+            <PluginStatus pluginStatus={pluginStatus} pluginLog={pluginLog} />
           )}
         </SplitItem>
       </Split>
@@ -200,7 +192,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 export default connect(mapStateToProps, mapDispatchToProps)(FeedOutputBrowser);
 
 /**
- *
+ * Utility Function
  */
 
 function createTreeFromFiles(selected: PluginInstance, files?: FeedFile[]) {

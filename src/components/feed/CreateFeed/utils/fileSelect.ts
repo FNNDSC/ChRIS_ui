@@ -48,6 +48,7 @@ export const generateTreeNodes = async (
     const feeds = await getFeeds();
     let breadcrumb = "chris";
     for (let i = 0; i < feeds.length; i += 1) {
+      // First level is feeds and uploads
       arr.push({
         breadcrumb: `${breadcrumb}/feed_${i + 1}`,
         title: `feed_${i + 1}`,

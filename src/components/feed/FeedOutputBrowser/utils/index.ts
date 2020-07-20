@@ -15,3 +15,4 @@ export function getPluginName(plugin: PluginInstance) {
 export function getPluginDisplayName(plugin: PluginInstance) {
   return `${plugin.data.plugin_name} v. ${plugin.data.plugin_version}`;
 }
+

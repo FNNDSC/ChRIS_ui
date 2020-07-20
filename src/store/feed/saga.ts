@@ -58,7 +58,10 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
   const feed: Feed = action.payload;
   try {
     const pluginInstanceList = yield feed.getPluginInstances({});
+
+
     const pluginInstances = yield pluginInstanceList.getItems();
+    
     const selected = pluginInstances[pluginInstances.length - 1];
 
     yield all([
