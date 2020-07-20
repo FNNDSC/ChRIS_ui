@@ -66,7 +66,6 @@ class OutputViewerContainer extends React.Component<
   // Description: Build Tabs from data
   buildTabArray = () => {
     const { files, selected } = this.props;
-    console.log("Files", selected);
 
     const tabs: any[] = [];
     if (!!selected) {
