@@ -1,4 +1,4 @@
-import { all, call, fork, put, takeEvery } from "redux-saga/effects";
+import { all, fork, put, takeEvery } from "redux-saga/effects";
 import { push } from "connected-react-router";
 import Client from "@fnndsc/chrisapi";
 import { UserActionTypes } from "./types";
@@ -12,21 +12,14 @@ function* handleLogin(action: any) {
   try {
     const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
     const username = action.payload.username;
-    const authObj = {
-      password: action.payload.password,
-      username
-    };
-    const res = yield call(
-      Client.getAuthToken,
-      authURL,
-      authObj.username,
-      authObj.password
-    );
-    if (res.error) {
-      console.error(res.error); // working ***** user messaging
+    const password = action.payload.password;
+    const token = yield Client.getAuthToken(authURL, username, password);
+
+    if (!token) {
+      console.error("Count not set Token"); // working ***** user messaging
     } else {
-      yield put(getAuthTokenSuccess(res));
-      window.sessionStorage.setItem("AUTH_TOKEN", res);
+      yield put(getAuthTokenSuccess(token));
+      window.sessionStorage.setItem("AUTH_TOKEN", token);
       window.sessionStorage.setItem("USERNAME", username);
       yield put(push("/"));
     }

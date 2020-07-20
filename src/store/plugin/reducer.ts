@@ -3,19 +3,16 @@ import { PluginActionTypes, IPluginState } from "./types";
 
 // Type-safe initialState
 const initialState: IPluginState = {
-  selected: undefined,
-  descendants: undefined,
-  pluginFiles: undefined,
+  pluginFiles: {},
   parameters: [],
+  pluginStatus: "",
+  pluginLog: {},
 };
 
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {
   switch (action.type) {
-    case PluginActionTypes.GET_PLUGIN_DETAILS: {
-      return { ...state, files: undefined, parameters: undefined };
-    }
     case PluginActionTypes.GET_PLUGIN_FILES_SUCCESS: {
-      const id = parseInt(action.payload[0].data.plugin_inst_id);
+      const id = Number(action.payload[0].data.plugin_inst_id);
       return {
         ...state,
         pluginFiles: {
@@ -33,22 +30,28 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
       };
     }
 
-    case PluginActionTypes.GET_PLUGIN_DETAILS_SUCCESS: {
-      const descendants = action.payload.data.results;
-      const selected =
-        !!action.payload.data.results &&
-        action.payload.data.results.length &&
-        action.payload.data.results[0]; // set first node as selected
-      return { ...state, descendants, selected };
+    case PluginActionTypes.GET_PLUGIN_STATUS: {
+      return {
+        ...state,
+        pluginStatus: action.payload,
+      };
     }
+
+    case PluginActionTypes.GET_PLUGIN_LOG: {
+      return {
+        ...state,
+        pluginLog: action.payload,
+      };
+    }
+
     case PluginActionTypes.RESET_PLUGIN_STATE: {
       return {
         ...state,
-        selected: undefined,
-        descendants: undefined,
-        files: undefined,
+        pluginFiles: {},
+        pluginStatus: "",
       };
     }
+
     default: {
       return state;
     }

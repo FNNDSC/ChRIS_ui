@@ -1,4 +1,3 @@
-import { IPluginItem } from "../../../../api/models/pluginInstance.model";
 import { Plugin, PluginParameter, PluginInstance } from "@fnndsc/chrisapi";
 
 export interface InputIndex {
@@ -20,8 +19,8 @@ export interface InputState {
 }
 
 export interface BasicConfigurationProps {
-  nodes: IPluginItem[];
-  parent: IPluginItem;
+  nodes: PluginInstance[];
+  parent: PluginInstance;
   selectedPlugin?: Plugin;
   handlePluginSelect: (plugin: Plugin) => void;
 }
@@ -56,18 +55,18 @@ export interface PluginSelectState {
 export interface AddNodeState extends InputState {
   isOpen: boolean;
   stepIdReached: number;
-  nodes?: IPluginItem[];
+  nodes?: PluginInstance[];
   data: {
     plugin?: Plugin;
-    parent?: IPluginItem;
+    parent?: PluginInstance;
   };
   isRuntimeChecked: boolean;
 }
 
 export interface AddNodeProps {
-  selected?: IPluginItem;
-  nodes?: IPluginItem[];
-  addNode: (pluginItem: IPluginItem) => void;
+  selected?: PluginInstance;
+  nodes?: PluginInstance[];
+  addNode: (pluginItem: PluginInstance) => void;
   getParams: (plugin: Plugin) => void;
 }
 
@@ -79,7 +78,7 @@ export interface GuidedConfigState {
   alertVisible: boolean;
 }
 export interface GuidedConfigProps extends InputProps {
-  plugin: Plugin;
+  plugin?: Plugin;
   params?: PluginParameter[];
   inputChange(
     id: string,
@@ -141,7 +140,7 @@ export interface SimpleDropdownProps {
 export interface ReviewProps extends InputState {
   data: {
     plugin?: Plugin;
-    parent?: IPluginItem;
+    parent?: PluginInstance;
   };
   runtimeChecked: boolean;
 }

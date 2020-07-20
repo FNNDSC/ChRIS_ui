@@ -3,24 +3,15 @@ import * as d3 from "d3";
 import * as cola from "webcola";
 import TreeModel, { ITreeChart } from "../../api/models/tree.model";
 import TreeNodeModel, { INode } from "../../api/models/tree-node.model";
-import { IPluginItem } from "../../api/models/pluginInstance.model";
-import { getPluginFiles } from "../../store/plugin/actions";
-import { Dispatch } from "redux";
-import { connect } from "react-redux";
-import { ApplicationState } from "../../store/root/applicationState";
-import { FeedFile } from "@fnndsc/chrisapi";
+import { PluginInstance } from "@fnndsc/chrisapi";
 
 interface ITreeProps {
-  items: IPluginItem[];
-  selected?: IPluginItem;
-  getPluginFiles: Function;
-  pluginFiles?: { [pluginId: number]: FeedFile[] };
+  items: PluginInstance[];
+  selected: PluginInstance;
 }
-
 interface ITreeActions {
   onNodeClick: (node: any) => void;
 }
-
 type AllProps = ITreeProps & ITreeActions;
 
 class FeedTree extends React.Component<AllProps> {
@@ -32,7 +23,10 @@ class FeedTree extends React.Component<AllProps> {
     this.fetchTree(items);
   }
 
-  fetchTree(items: IPluginItem[]) {
+  fetchTree(items: PluginInstance[]) {
+    const { selected } = this.props;
+    if (!selected) return;
+
     if (!!this.treeRef.current && !!items && items.length > 0) {
       const tree = new TreeModel(items);
 
@@ -41,23 +35,13 @@ class FeedTree extends React.Component<AllProps> {
       if (!!tree.treeChart) {
         this.buildFeedTree(tree.treeChart, this.treeRef);
         // Set root node active on load:r
-        if (tree.treeChart.nodes.length) {
-          const rootNode = tree.treeChart.nodes[0];
-          this.setActiveNode(rootNode);
-          this.handleNodeClick(rootNode);
+        if (tree.treeChart.nodes.length > 0) {
+          const rootNode = tree.treeChart.nodes.filter(
+            (node) => selected.data.id === node.item.data.id
+          );
+          if (rootNode[0]) this.setActiveNode(rootNode[0]);
         }
       }
-    }
-  }
-
-  fetchPluginFiles(plugin: IPluginItem) {
-    const id = plugin.id as number;
-    const { pluginFiles, getPluginFiles } = this.props;
-
-    if (pluginFiles && pluginFiles[id]) {
-      return;
-    } else {
-      getPluginFiles(plugin);
     }
   }
 
@@ -68,10 +52,10 @@ class FeedTree extends React.Component<AllProps> {
       prevSelected &&
       selected &&
       this.tree &&
-      prevSelected.id !== selected.id
+      prevSelected.data.id !== selected.data.id
     ) {
       const activeNode = this.tree.treeChart.nodes.find(
-        (node) => node.item.id === selected.id
+        (node) => node.item.data.id === selected.data.id
       );
       if (activeNode) {
         this.setActiveNode(activeNode);
@@ -95,7 +79,8 @@ class FeedTree extends React.Component<AllProps> {
   // Description: set active node
   setActiveNode = (node: INode) => {
     d3.selectAll(".nodegroup.active").attr("class", "nodegroup");
-    const activeNode = d3.select(`#node_${node.item.id}`);
+
+    const activeNode = d3.select(`#node_${node.item.data.id}`);
     if (!!activeNode && !activeNode.empty()) {
       activeNode.attr("class", "nodegroup active");
     }
@@ -103,7 +88,6 @@ class FeedTree extends React.Component<AllProps> {
 
   // Description: Call prop to set active node in parent state
   handleNodeClick = (node: INode) => {
-    this.fetchPluginFiles(node.item);
     this.props.onNodeClick(node.item);
   };
 
@@ -131,7 +115,7 @@ class FeedTree extends React.Component<AllProps> {
     const nodeRadius = 10;
     tree.nodes.forEach((v: any) => {
       v.height = v.width = 2 * nodeRadius;
-      const label = `${v.item.plugin_name} v. ${v.item.plugin_version}`;
+      const label = `${v.item.data.plugin_name} v. ${v.item.data.plugin_version}`;
       v.label =
         label.length > labelMaxChar
           ? `${label.substring(0, labelMaxChar)}...`
@@ -176,7 +160,7 @@ class FeedTree extends React.Component<AllProps> {
       .append("g")
       .attr("id", (d: any) => {
         // set the node id using the plugin id
-        return `node_${d.item.id}`;
+        return `node_${Number(d.item.data.id)}`;
       })
       .attr("class", "nodegroup")
       .on("click", this.handleNodeClick)
@@ -236,7 +220,7 @@ class FeedTree extends React.Component<AllProps> {
     const tooltip = document.getElementById("tooltip");
     const tooltipWidth = 200;
     if (!!tooltip) {
-      const title = `Plugin Name: ${d.item.plugin_name}`;
+      const title = `Plugin Name: ${d.item.data.plugin_name}`;
       tooltip.innerHTML = title;
       const height = tooltip.offsetHeight;
       tooltip.style.width = tooltipWidth + "px";
@@ -261,11 +245,4 @@ class FeedTree extends React.Component<AllProps> {
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getPluginFiles: (plugin: IPluginItem) => dispatch(getPluginFiles(plugin)),
-});
-const mapStateToProps = (state: ApplicationState) => ({
-  pluginFiles: state.plugin.pluginFiles,
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(FeedTree);
+export default FeedTree;

@@ -13,19 +13,17 @@ import { ApplicationState } from "../../store/root/applicationState";
 import PluginInformation from "./PluginInformation";
 import PluginConfiguration from "./PluginConfiguration";
 import PluginOutput from "./PluginOutput";
-import {
-  getPluginInstanceTitle,
-  IPluginItem,
-} from "../../api/models/pluginInstance.model";
 import "./plugin.scss";
 import { LoadingSpinner } from "..";
 import { getSelectedFiles } from "../../store/plugin/selector";
+import { PluginInstance } from "@fnndsc/chrisapi";
+import { getPluginInstanceTitle } from "../../api/models/pluginInstance.model";
 interface IState {
   expanded: string[];
 }
 
 interface IPluginProps {
-  selected?: IPluginItem;
+  selected?: PluginInstance;
   files?: any[];
   parameters?: any[];
 }
@@ -175,7 +173,7 @@ class PluginDetailPanel extends React.Component<IPluginProps, IState> {
 }
 
 const mapStateToProps = (state: ApplicationState) => ({
-  selected: state.plugin.selected,
+  selected: state.feed.selected,
   files: getSelectedFiles(state),
   parameters: state.plugin.parameters,
 });

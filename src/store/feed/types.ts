@@ -5,28 +5,27 @@
  *  Notes:           Work in progres ...
  */
 import keyMirror from "keymirror";
-import { IFeedItem } from "../../api/models/feed.model";
-import { IPluginItem } from "../../api/models/pluginInstance.model";
-import { UploadedFile } from "@fnndsc/chrisapi";
+import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 
 // Description state for main user items[] and item
 export interface IFeedState {
-  details?: IFeedItem;
-  feeds?: IFeedItem[];
-  items?: IPluginItem[];
-  uploadedFiles?: UploadedFile[];
+  feed?: Feed;
+  feeds?: Feed["data"][];
+  feedsCount?: number;
+  pluginInstances?: PluginInstance[];
+  selected?: PluginInstance;
 }
 
 export const FeedActionTypes = keyMirror({
   GET_ALL_FEEDS: null,
   GET_ALL_FEEDS_SUCCESS: null,
-  GET_FEED_DETAILS: null,
-  GET_FEED_DETAILS_SUCCESS: null,
-  GET_PLUGIN_INSTANCES: null,
+  GET_FEED_REQUEST: null,
+  GET_FEED_SUCCESS: null,
+  GET_PLUGIN_INSTANCES_REQUEST: null,
   GET_PLUGIN_INSTANCES_SUCCESS: null,
-  GET_UPLOADED_FILES: null,
-  GET_UPLOADED_FILES_SUCCESS: null,
-  RESET_STATE: null,
+  RESET_FEED_STATE: null,
   ADD_FEED: null,
-  ADD_NODE: null
+  GET_SELECTED_PLUGIN: null,
+  ADD_NODE: null,
+  ADD_NODE_SUCCESS: null,
 });

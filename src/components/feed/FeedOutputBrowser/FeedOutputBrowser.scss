@@ -1,0 +1,38 @@
+.ant-steps-item-content {
+  .ant-steps-item-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+}
+
+.ant-steps-vertical
+  > .ant-steps-item
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  width: 2px !important;
+}
+
+.ant-steps-item-tail {
+  padding: 24px + 6px 0 6px !important;
+}
+
+.file-browser {
+  &__step,
+  &__step-title {
+    cursor: pointer;
+  }
+}
+
+.divider {
+  width: 2px;
+  margin: 6px 0;
+  background: #d1d1d1;
+}
+
+.ant-steps-item-finish .ant-steps-item-icon {
+  background: #0066cc;
+}
+
+.ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
+  color: white;
+}
