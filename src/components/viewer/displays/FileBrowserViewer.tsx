@@ -62,7 +62,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
       viewerMode,
       isViewerModeDicom,
     } = this.props;
-    console.log("Explorer", explorer);
+
     return (
       // Note: check to see if explorer children have been init.
 

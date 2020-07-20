@@ -75,8 +75,6 @@ class FeedDetails extends React.Component<AllProps, INoteState> {
     const { feed } = this.props;
     const { feedDescription } = this.state;
 
-    const runtime = this.calculateTotalRuntime();
-
     return (
       <div className="feed-details">
         <ul className="feed-breadcrumbs">
@@ -108,13 +106,6 @@ class FeedDetails extends React.Component<AllProps, INoteState> {
                   <Moment format="DD MMM YYYY @ HH:mm">
                     {feed ? feed.data.creation_date : ""}
                   </Moment>
-                </p>
-              </li>
-              <li>
-                <small>Total Runtime</small>
-                <p>
-                  <FontAwesomeIcon icon={["far", "calendar-alt"]} />
-                  {runtime}
                 </p>
               </li>
 

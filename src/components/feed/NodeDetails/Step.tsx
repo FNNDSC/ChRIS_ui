@@ -24,14 +24,10 @@ const Step = (props: any) => {
   );
 
   return (
-    <div style={styles.step as CSSProperties}>
+    <div onClick={onClick} style={styles.step as CSSProperties}>
       <div style={circleStyle as CSSProperties}></div>
       {completed ? (
-        <a
-          href={href}
-          onClick={onClick}
-          style={titleStyle as CSSProperties}
-        ></a>
+        <a href={href} style={titleStyle as CSSProperties}></a>
       ) : (
         <div style={titleStyle as CSSProperties}></div>
       )}
@@ -100,6 +96,7 @@ function getStyles(props: any) {
       display: "table-cell",
       position: "relative",
       paddingTop: circleTop,
+      cursor: "pointer",
     },
     circle: {
       width: size,

@@ -69,7 +69,11 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state,
           pluginInstances: sortedPluginList,
         };
-      }
+      } else
+        return {
+          ...state,
+          pluginInstances: [action.payload],
+        };
     }
 
     default: {
