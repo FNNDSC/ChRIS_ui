@@ -52,7 +52,6 @@ function* handleGetPluginFiles(action: IActionTypeParam) {
   while (true) {
     try {
       const pluginDetails = yield pluginInstance.get();
-      console.log("PluginDetails", pluginDetails);
 
       yield put(getPluginStatus(pluginDetails.data.summary));
       let output = {};
@@ -65,7 +64,7 @@ function* handleGetPluginFiles(action: IActionTypeParam) {
         yield call(putPluginFiles, pluginInstance);
         yield put(stopPolling());
       } else {
-        yield delay(2000);
+        yield delay(3000);
       }
     } catch (err) {
       console.error(err);
