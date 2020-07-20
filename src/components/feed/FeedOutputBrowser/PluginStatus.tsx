@@ -157,6 +157,11 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
   return <Spinner size="lg" />;
 };
 
+
+/**
+ * Utility Functions
+ */
+
 export default PluginStatus;
 
 function getStatusLabels(labels: PluginStatusLabels) {

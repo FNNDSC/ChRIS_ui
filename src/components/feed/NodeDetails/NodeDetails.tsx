@@ -26,7 +26,7 @@ import TreeNodeModel from "../../../api/models/tree-node.model";
 import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
 import AddNode from "../AddNode/AddNode";
 import Stepper, { StepInterface } from "./Stepper";
-import Timer from "./Timer";
+
 import { PluginStatusLabels } from "../FeedOutputBrowser/PluginStatus";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
