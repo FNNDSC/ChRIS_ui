@@ -88,12 +88,14 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
               {labels.map((label: any) => {
                 const currentDescription = displayDescription(label);
                 let showIcon: boolean = false;
+             
+
                 if (currentDescription) {
                   showIcon =
                     currentDescription === "transmitting data" ||
                     currentDescription === "computing" ||
                     currentDescription === "finishing up" ||
-                    currentDescription === "setting up compute env" ||
+                    currentDescription === "setting compute env" ||
                     currentDescription === "syncing data";
                 }
                 return (
@@ -213,7 +215,7 @@ function displayDescription(label: any) {
     label.previousComplete === true &&
     label.status !== true
   ) {
-    return "setting up compute env";
+    return "setting compute env";
   } else if (
     label.previous === "computeSubmit" &&
     label.previousComplete === true &&

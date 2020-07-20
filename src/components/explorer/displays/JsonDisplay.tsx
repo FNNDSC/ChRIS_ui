@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { IGalleryItem } from "../../../api/models/gallery.model";
 import ReactJSON from "react-json-view";
@@ -10,13 +10,23 @@ type AllProps = {
 const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const [blobText, setBlobText] = useState({});
   const { galleryItem } = props;
+  let _isMounted = false;
+
+  useEffect(() => {
+    _isMounted = true;
+    getBlobText();
+
+    return () => {
+      _isMounted = false;
+    };
+  }, []);
 
   const getBlobText = () => {
     if (!!galleryItem.blob) {
       const reader = new FileReader();
       reader.addEventListener("loadend", (e: any) => {
         const blobText = e.target.result;
-        setBlobText(JSON.parse(blobText));
+        if (_isMounted === true) setBlobText(JSON.parse(blobText));
       });
       reader.readAsText(galleryItem.blob);
     }
