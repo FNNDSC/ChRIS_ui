@@ -88,7 +88,6 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
               {labels.map((label: any) => {
                 const currentDescription = displayDescription(label);
                 let showIcon: boolean = false;
-             
 
                 if (currentDescription) {
                   showIcon =
@@ -157,7 +156,6 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
   return <Spinner size="lg" />;
 };
 
-
 /**
  * Utility Functions
  */
@@ -179,7 +177,7 @@ function getStatusLabels(labels: PluginStatusLabels) {
     id: 2,
     status: labels.compute.submit.status,
     title: "Setup Compute Environment",
-    previous: "pushpath",
+    previous: "pushPath",
     previousComplete: labels.pushPath.status === true,
   };
 

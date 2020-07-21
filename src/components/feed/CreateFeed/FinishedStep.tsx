@@ -27,6 +27,7 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
         type: Types.ResetProgress,
       });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const numberOfFiles = useMemo(() => {
