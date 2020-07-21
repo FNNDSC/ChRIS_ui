@@ -1,5 +1,5 @@
 import * as React from "react";
-//import * as c3 from "c3";
+import * as c3 from "c3";
 import { Typeahead } from "react-bootstrap-typeahead";
 import { segments, volumeData, age } from "../../assets/temp/volumeData";
 import "./chart.scss";
@@ -71,11 +71,10 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
   }
 
   componentDidMount() {
-    //this.callChart(defaultChartData);
+    this.callChart(defaultChartData);
   }
 
   callChart(inputChart: any) {
-    /*
     c3.generate({
       bindto: "#VolumeGrowth",
       data: {
@@ -107,64 +106,63 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
           G_and_S_paracentral_LHPatient: "#FFA500",
           G_and_S_paracentral_LHAverage: "#006600",
           G_and_S_paracentral_LHFirstDevPos: "#009900",
-          G_and_S_paracentral_LHFirstDevNeg: "#009900"
+          G_and_S_paracentral_LHFirstDevNeg: "#009900",
         },
         regions: {
-          "G_and_S_frontomargin_RHFirstDevPos": [{'end':13}],
-          "G_and_S_frontomargin_RHFirstDevNeg": [{'end':13}],
-          "G_and_S_frontomargin_LHFirstDevPos": [{'end':13}],
-          "G_and_S_frontomargin_LHFirstDevNeg": [{'end':13}],
+          G_and_S_frontomargin_RHFirstDevPos: [{ end: 13 }],
+          G_and_S_frontomargin_RHFirstDevNeg: [{ end: 13 }],
+          G_and_S_frontomargin_LHFirstDevPos: [{ end: 13 }],
+          G_and_S_frontomargin_LHFirstDevNeg: [{ end: 13 }],
 
-          "G_and_S_occipital_inf_RHFirstDevPos": [{'end':13}],
-          "G_and_S_occipital_inf_RHFirstDevNeg": [{'end':13}],
-          "G_and_S_occipital_inf_LHFirstDevPos": [{'end':13}],
-          "G_and_S_occipital_inf_LHFirstDevNeg": [{'end':13}],
+          G_and_S_occipital_inf_RHFirstDevPos: [{ end: 13 }],
+          G_and_S_occipital_inf_RHFirstDevNeg: [{ end: 13 }],
+          G_and_S_occipital_inf_LHFirstDevPos: [{ end: 13 }],
+          G_and_S_occipital_inf_LHFirstDevNeg: [{ end: 13 }],
 
-          "G_and_S_paracentral_RHFirstDevPos": [{'end':13}],
-          "G_and_S_paracentral_RHFirstDevNeg": [{'end':13}],
-          "G_and_S_paracentral_LHFirstDevPos": [{'end':13}],
-          "G_and_S_paracentral_LHFirstDevNeg": [{'end':13}]
-        }
+          G_and_S_paracentral_RHFirstDevPos: [{ end: 13 }],
+          G_and_S_paracentral_RHFirstDevNeg: [{ end: 13 }],
+          G_and_S_paracentral_LHFirstDevPos: [{ end: 13 }],
+          G_and_S_paracentral_LHFirstDevNeg: [{ end: 13 }],
+        },
       },
       padding: {
         top: 40,
         bottom: 20,
-        right: 30
+        right: 30,
       },
       axis: {
         x: {
           label: {
             text: "Age in Years",
-            position: "outer-center"
-          }
+            position: "outer-center",
+          },
         },
         y: {
           label: {
             text: "Volume in mm\u00B3",
-            position: "outer-middle"
-          }
-        }
+            position: "outer-middle",
+          },
+        },
       },
       tooltip: {
         format: {
           title(d) {
             return d + " Years old";
-          }
-        }
+          },
+        },
       },
       size: {
-        height: 500 // **** Working find the element and resize to modal
+        height: 500, // **** Working find the element and resize to modal
       },
       grid: {
         x: {
-            show: true
+          show: true,
         },
         y: {
-            show: true
-        }
-      }
+          show: true,
+        },
+      },
     });
-    */
   }
 
   // Use this function once data of devation is available
@@ -233,7 +231,7 @@ class VolumeGrowth extends React.Component<ComponentProps, ComponentState> {
       () => {
         // Input processing
         processedData = this.setFilter();
-        //this.callChart(processedData);
+        this.callChart(processedData);
       }
     );
   }
