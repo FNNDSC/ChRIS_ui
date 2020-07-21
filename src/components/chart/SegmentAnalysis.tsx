@@ -1,5 +1,5 @@
 import * as React from "react";
-//import * as c3 from "c3";
+import * as c3 from "c3";
 import { Typeahead } from "react-bootstrap-typeahead";
 import { csvData } from "../../assets/temp/segmentData";
 import "./chart.scss";
@@ -80,9 +80,9 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
   }
 
   componentDidMount() {
-    //this.callChart([defaultLeft, defaultRight]);
+    this.callChart([defaultLeft, defaultRight]);
   }
-  /*
+
   callChart(inputChart: any) {
     c3.generate({
       bindto: "#SegmentAnalysis",
@@ -90,41 +90,39 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
         columns: inputChart,
         type: "bar",
         colors: {
-            leftHemisphere: "#FFA500",
-            rightHemisphere: "#00BFFF"
-        }
+          leftHemisphere: "#FFA500",
+          rightHemisphere: "#00BFFF",
+        },
       },
       axis: {
         x: {
-            type: "category",
-            categories: this.state.pushedSegments,
+          type: "category",
+          categories: this.state.pushedSegments,
         },
         y: {
-            label: {
-                text: "Standard Deviation",
-                position: "outer-middle"
-            }
-        }
+          label: {
+            text: "Standard Deviation",
+            position: "outer-middle",
+          },
+        },
       },
       grid: {
         y: {
-            lines: [
-                {value: 0, text: "", position: "start"},
-            ],
-            show: true
-        }
+          lines: [{ value: 0, text: "", position: "start" }],
+          show: true,
+        },
       },
       padding: {
         top: 40,
         bottom: 20,
-        right: 50
+        right: 50,
       },
       size: {
-        height: 500 // **** Working find the element and resize to modal
-      }
+        height: 500, // **** Working find the element and resize to modal
+      },
     });
   }
-*/
+
   parseData(filteredData: any) {
     const leftHemisphereData = ["leftHemisphere"];
     const rightHemisphereData = ["rightHemisphere"];
@@ -166,7 +164,7 @@ class SegmentAnalysis extends React.Component<ComponentProps, ComponentState> {
       () => {
         // Input processing
         processedData = this.setFilter();
-        //this.callChart(processedData);
+        this.callChart(processedData);
       }
     );
   }

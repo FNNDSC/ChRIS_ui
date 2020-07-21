@@ -190,13 +190,29 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           name: "Data Packs",
           component: packs,
           enableNext: selectedPlugin !== undefined,
+          canJumpTo: step > 3,
         },
-        { id: 4, name: "Parameter Configuration", component: guidedConfig },
+        {
+          id: 4,
+          name: "Parameter Configuration",
+          component: guidedConfig,
+          canJumpTo: step > 4,
+        },
       ];
     else if (selectedConfig === "file_select") {
       return [
-        { id: 3, name: "ChRIS File Select", component: chrisFileSelect },
-        { id: 4, name: "Local File Upload", component: localFileUpload },
+        {
+          id: 3,
+          name: "ChRIS File Select",
+          component: chrisFileSelect,
+          canJumpTo: step > 3,
+        },
+        {
+          id: 4,
+          name: "Local File Upload",
+          component: localFileUpload,
+          canJumpTo: step > 4,
+        },
       ];
     }
   };

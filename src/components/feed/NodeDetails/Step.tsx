@@ -27,7 +27,9 @@ const Step = (props: any) => {
     <div onClick={onClick} style={styles.step as CSSProperties}>
       <div style={circleStyle as CSSProperties}></div>
       {completed ? (
-        <a href={href} style={titleStyle as CSSProperties}></a>
+        <a href={href} style={titleStyle as CSSProperties}>
+          
+        </a>
       ) : (
         <div style={titleStyle as CSSProperties}></div>
       )}
