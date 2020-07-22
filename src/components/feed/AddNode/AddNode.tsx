@@ -224,6 +224,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       dropdownInput,
       requiredInput,
       isRuntimeChecked,
+      stepIdReached,
     } = this.state;
     const { nodes, selected } = this.props;
 
@@ -278,22 +279,26 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         name: "Plugin Selection",
         component: basicConfiguration,
         enableNext: !!data.plugin,
+        canJumpTo: stepIdReached > 1,
       },
       {
         id: 2,
         name: "Plugin Configuration-Form",
         component: form,
+        canJumpTo: stepIdReached > 2,
       },
       {
         id: 3,
         name: "Plugin Configuration-Editor",
         component: editor,
+        canJumpTo: stepIdReached > 3,
       },
       {
         id: 4,
         name: "Review",
         component: review,
         nextButtonText: "Add Node",
+        canJumpTo: stepIdReached > 4,
       },
     ];
 
