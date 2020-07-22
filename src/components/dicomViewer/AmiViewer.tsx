@@ -168,7 +168,7 @@ class AmiViewer extends React.Component<AllProps, IState> {
           scene.add(stackHelper);
 
           // Add the control box
-          // gui(stackHelper);
+          gui(stackHelper);
           // Set compoent helpers:
           this._stackHelper = stackHelper;
           this._isMounted &&

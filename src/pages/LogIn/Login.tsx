@@ -15,9 +15,9 @@ class LogInPage extends React.Component<AllProps> {
     return (
       <LoginPage
         className="login pf-background"
+        style={{ background: "black" }}
         brandImgSrc={brandImg}
         brandImgAlt="PatternFly logo"
-        textContent="Lorem ipsum dodafdlor sit amet, consectetur adipiscing elit."
         loginTitle="Log in to your account"
       >
         <LoginFormComponent />
