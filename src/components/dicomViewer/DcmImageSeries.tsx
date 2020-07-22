@@ -137,7 +137,7 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
           scene.add(stackHelper);
 
           // Add the control box
-          // gui(stackHelper); // NOTE: use control for dev
+          gui(stackHelper); // NOTE: use control for dev
           // Set compoent helpers:
           this._stackHelper = stackHelper;
           this._isMounted &&
