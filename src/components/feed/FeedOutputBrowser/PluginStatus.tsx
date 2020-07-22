@@ -91,11 +91,13 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
 
                 if (currentDescription) {
                   showIcon =
-                    currentDescription === "transmitting data" ||
+                    currentDescription ===
+                      "transmitting data to compute environment" ||
                     currentDescription === "computing" ||
                     currentDescription === "finishing up" ||
-                    currentDescription === "setting compute env" ||
-                    currentDescription === "syncing data";
+                    currentDescription === "setting compute environment" ||
+                    currentDescription ===
+                      "syncing data from compute environment";
                 }
                 return (
                   <Step
@@ -212,13 +214,13 @@ function getStatusLabels(labels: PluginStatusLabels) {
 
 function displayDescription(label: any) {
   if (label.status === "pushing") {
-    return "transmitting data";
+    return "transmitting data to compute environment";
   } else if (
     label.previous === "pushPath" &&
     label.previousComplete === true &&
     label.status !== true
   ) {
-    return "setting compute env";
+    return "setting compute environment";
   } else if (
     label.previous === "computeSubmit" &&
     label.previousComplete === true &&
@@ -230,7 +232,7 @@ function displayDescription(label: any) {
     label.previousComplete === true &&
     label.status !== true
   ) {
-    return "syncing data";
+    return "syncing data from compute environment";
   } else if (
     label.previous === "pullPath" &&
     label.previousComplete === true &&
