@@ -15,7 +15,6 @@ export interface IGalleryState {
 
 export interface IGalleryToolbarState {
   isFullscreen: boolean;
-  isPlaying: boolean;
 }
 
 export const GalleryActionTypes = keyMirror({
@@ -24,5 +23,5 @@ export const GalleryActionTypes = keyMirror({
   SET_GALLERY_ACTIVE_ITEM: null,
   SET_GALLERY_ACTIVE_ITEM_SUCCESS: null,
   SET_GALLERY_ITEMS: null,
-  SET_GALLERY_ITEMS_SUCCESS: null
+  SET_GALLERY_ITEMS_SUCCESS: null,
 });

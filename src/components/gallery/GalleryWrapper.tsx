@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { IGalleryToolbarState } from "../../store/gallery/types";
 import { galleryActions } from "../../api/models/gallery.model";
@@ -10,6 +9,7 @@ type AllProps = {
   index: number;
   total: number;
   hideDownload?: boolean;
+  listOpenFilesScrolling?: boolean;
   handleOnToolbarAction: (action: string) => void;
 };
 
@@ -53,10 +53,10 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
   // Description: triggers toolbar functionality - Group gallery actions
   handleGalleryActions = {
     play: () => {
-      this.props.handleOnToolbarAction(galleryActions.play);
+      this.props.handleOnToolbarAction("listOpenFilesScrolling");
     },
     pause: () => {
-      this.props.handleOnToolbarAction(galleryActions.pause);
+      this.props.handleOnToolbarAction("listOpenFilesScrolling");
     },
     // Description: will make the view full screen
     fullscreen: () => {
@@ -64,14 +64,16 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
       !!elem && (isFullScreen() ? closeFullScreen() : openFullScreen(elem));
     },
     next: () => {
-      this.state.isPlaying &&
-        (this.handleGalleryActions as any)[galleryActions.pause].call();
       this.props.handleOnToolbarAction(galleryActions.next);
     },
     previous: () => {
-      this.state.isPlaying &&
-        (this.handleGalleryActions as any)[galleryActions.pause].call();
       this.props.handleOnToolbarAction(galleryActions.previous);
+    },
+    first: () => {
+      this.props.handleOnToolbarAction(galleryActions.first);
+    },
+    last: () => {
+      this.props.handleOnToolbarAction(galleryActions.last);
     },
     download: () => {
       this.props.handleOnToolbarAction(galleryActions.download);

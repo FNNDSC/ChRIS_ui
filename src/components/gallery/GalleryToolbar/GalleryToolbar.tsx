@@ -8,6 +8,8 @@ import {
   CompressIcon,
   InfoCircleIcon,
   DownloadIcon,
+  AngleDoubleLeftIcon,
+  AngleDoubleRightIcon,
 } from "@patternfly/react-icons";
 import { Grid, GridItem, Button } from "@patternfly/react-core";
 import { IGalleryToolbarState } from "../../../store/gallery/types";
@@ -18,6 +20,7 @@ type AllProps = {
   total: number;
   hideDownload?: boolean;
   onToolbarClick: (action: string) => void; // Description: switch play/pause functionality
+  isPlaying?: boolean;
 } & IGalleryToolbarState;
 
 const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
@@ -25,6 +28,12 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
     <Grid className="gallery-toolbar">
       <GridItem sm={12} md={7}>
         <div>
+          <Button
+            variant="link"
+            onClick={() => props.onToolbarClick(galleryActions.first)}
+          >
+            <AngleDoubleLeftIcon />
+          </Button>
           <Button
             variant="link"
             onClick={() => props.onToolbarClick(galleryActions.previous)}
@@ -46,6 +55,12 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
             onClick={() => props.onToolbarClick(galleryActions.next)}
           >
             <StepForwardIcon />
+          </Button>
+          <Button
+            variant="link"
+            onClick={() => props.onToolbarClick(galleryActions.last)}
+          >
+            <AngleDoubleRightIcon />
           </Button>
         </div>
       </GridItem>
