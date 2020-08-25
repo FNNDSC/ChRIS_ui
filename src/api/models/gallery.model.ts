@@ -26,6 +26,8 @@ export const galleryActions = keyMirror({
   download: null,
   fullscreen: null,
   information: null,
+  first: null,
+  last: null,
 });
 
 export type galleryModelItemType = IUITreeNode | IGalleryItem;

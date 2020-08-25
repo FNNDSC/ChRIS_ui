@@ -60,6 +60,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   // Description: Render the individual viewers by filetype
   renderContent() {
     const { selectedFolder } = this.props;
+    const { listOpenFilesScrolling } = this.state;
     return (
       !!selectedFolder.children && (
         <GalleryWrapper
@@ -69,6 +70,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
           handleOnToolbarAction={(action: string) => {
             (this.handleGalleryActions as any)[action].call();
           }}
+          listOpenFilesScrolling={listOpenFilesScrolling}
         >
           <Button
             className="close-btn"
@@ -133,7 +135,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
         }
       );
     },
-    play: () => {
+    listOpenFilesScrolling: () => {
       const scrolling = this.state.listOpenFilesScrolling;
       this.setState(
         {
@@ -150,8 +152,8 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
         }
       );
     },
-    pause: () => {},
-    firstFrame: () => {
+
+    first: () => {
       const index = 0;
       this.setState(
         {
@@ -162,7 +164,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
         }
       );
     },
-    lastFrame: () => {
+    last: () => {
       let index = this.state.sliceMax - 1;
       this.setState({ sliceIndex: index }, () => {
         this.handleOpenImage(index);
