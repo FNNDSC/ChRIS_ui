@@ -85,6 +85,9 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
               return (this.runTool = ref.runTool);
             }}
             imageArray={this.state.urlArray}
+            handleOnToolbarAction={(action: string) => {
+              (this.handleGalleryActions as any)[action].call();
+            }}
           />
         </GalleryWrapper>
       )

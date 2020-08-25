@@ -25,7 +25,6 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
   }
   state = {
     isFullscreen: false,
-    isPlaying: false,
   };
 
   render() {
