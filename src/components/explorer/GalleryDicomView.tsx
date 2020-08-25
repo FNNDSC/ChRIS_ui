@@ -2,7 +2,7 @@ import * as React from "react";
 import { Button } from "@patternfly/react-core";
 import { CloseIcon } from "@patternfly/react-icons";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
-import GalleryModel, { galleryActions } from "../../api/models/gallery.model";
+import GalleryModel from "../../api/models/gallery.model";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import DcmImageSeries from "../dicomViewer/DcmImageSeries";
 import "./file-detail.scss";
@@ -14,46 +14,57 @@ type AllProps = {
 };
 interface IState {
   viewInfoPanel: boolean;
-  urlArray: string[];
-  totalFiles: number;
-  totalParsed: number;
-  currentIndex: number;
+  urlArray: Blob[];
+  sliceIndex: number;
+  sliceMax: number;
+  listOpenFilesScrolling: boolean;
 }
 
 class GalleryDicomView extends React.Component<AllProps, IState> {
   _isMounted = false;
+  runTool: (toolName: string, opt?: any) => void;
+  timerScrolling: any;
+
   constructor(props: AllProps) {
     super(props);
-    const urlArray = this._getUrlArray(this.props.selectedFolder.children),
-      currentIndex = GalleryModel.getArrayItemIndex(
-        props.selectedFile.file.file_resource,
-        urlArray
-      );
     this.state = {
       viewInfoPanel: true,
-      urlArray,
-      currentIndex,
-      totalFiles: urlArray.length,
-      totalParsed: 0
+      urlArray: [],
+      sliceIndex: 0,
+      sliceMax: 1,
+      listOpenFilesScrolling: false,
     };
+    this.runTool = () => {};
+    this.timerScrolling = null;
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this._isMounted = true;
+
+    const urlArray = await this._getUrlArray(
+      this.props.selectedFolder.children
+    );
+
+    if (urlArray.length > 0 && this._isMounted) {
+      this.setState({
+        urlArray,
+        sliceMax: urlArray.length,
+      });
+    }
   }
 
   render() {
     return <React.Fragment>{this.renderContent()}</React.Fragment>;
   }
 
-  // Decription: Render the individual viewers by filetype
+  // Description: Render the individual viewers by filetype
   renderContent() {
     const { selectedFolder } = this.props;
     return (
       !!selectedFolder.children && (
         <GalleryWrapper
-          index={this.state.currentIndex}
-          total={this.state.totalFiles}
+          index={this.state.sliceIndex}
+          total={this.state.sliceIndex}
           hideDownload
           handleOnToolbarAction={(action: string) => {
             (this.handleGalleryActions as any)[action].call();
@@ -66,10 +77,12 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
           >
             <CloseIcon size="md" />{" "}
           </Button>
+
           <DcmImageSeries
+            runTool={(ref: any) => {
+              return (this.runTool = ref.runTool);
+            }}
             imageArray={this.state.urlArray}
-            currentIndex={this.state.currentIndex}
-            viewInfoPanel={this.state.viewInfoPanel}
           />
         </GalleryWrapper>
       )
@@ -77,52 +90,94 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   }
 
   // Only user dcm file - can add on to this
-  _getUrlArray(selectedFolder: IUITreeNode[] = []): string[] {
-    return selectedFolder
-      .filter((item: IUITreeNode) => {
-        return GalleryModel.isDicomFile(item.module);
-      })
-      .map((item: IUITreeNode) => {
-        const file_resource = `${item.file.url}/${item.module}`; //Temporary hack
-        return file_resource;
-      });
+  async _getUrlArray(selectedFolder: IUITreeNode[] = []) {
+    const files = selectedFolder.filter((item: IUITreeNode) => {
+      return GalleryModel.isDicomFile(item.module);
+    });
+    const filesMap = await Promise.all(
+      files.map(async (item: IUITreeNode) => await item.file.getFileBlob())
+    );
+
+    return filesMap;
+    //
   }
 
+  handleOpenImage = (index: number) => {
+    this.runTool("openImage", index);
+  };
+
   // Description: change the gallery item state
-  _playInterval: any = undefined;
+
   handleGalleryActions = {
     next: () => {
-      const i = this.state.currentIndex;
-      this._isMounted &&
-        this.setState({
-          currentIndex: i + 1 < this.state.urlArray.length ? i + 1 : 0
-        });
+      let index = this.state.sliceIndex;
+      index = index === this.state.sliceMax - 1 ? 0 : index + 1;
+      this.setState(
+        {
+          sliceIndex: index,
+        },
+        () => {
+          this.handleOpenImage(index);
+        }
+      );
     },
     previous: () => {
-      const i = this.state.currentIndex;
-      this._isMounted &&
-        this.setState({
-          currentIndex: i > 0 ? i - 1 : 0
-        });
+      let index = this.state.sliceIndex;
+      index = index === 0 ? this.state.sliceMax - 1 : index - 1;
+      this.setState(
+        {
+          sliceIndex: index,
+        },
+        () => {
+          this.handleOpenImage(index);
+        }
+      );
     },
     play: () => {
-      this._playInterval = setInterval(() => {
-        (this.handleGalleryActions as any)[galleryActions.next].call();
-      }, 200);
+      const scrolling = this.state.listOpenFilesScrolling;
+      this.setState(
+        {
+          listOpenFilesScrolling: !scrolling,
+        },
+        () => {
+          if (scrolling) {
+            if (this.timerScrolling) clearInterval(this.timerScrolling);
+          } else {
+            this.timerScrolling = setInterval(() => {
+              this.handleGalleryActions["next"]();
+            }, 100);
+          }
+        }
+      );
     },
-    pause: () => {
-      clearInterval(this._playInterval);
+    pause: () => {},
+    firstFrame: () => {
+      const index = 0;
+      this.setState(
+        {
+          sliceIndex: index,
+        },
+        () => {
+          this.handleOpenImage(index);
+        }
+      );
+    },
+    lastFrame: () => {
+      let index = this.state.sliceMax - 1;
+      this.setState({ sliceIndex: index }, () => {
+        this.handleOpenImage(index);
+      });
     },
     information: () => {
       this._isMounted &&
         this.setState({
-          viewInfoPanel: !this.state.viewInfoPanel
+          viewInfoPanel: !this.state.viewInfoPanel,
         });
-    }
+    },
   };
 
   componentWillUnmount() {
-    clearInterval(this._playInterval);
+    clearInterval(this.timerScrolling);
     this._isMounted = false;
   }
 }
