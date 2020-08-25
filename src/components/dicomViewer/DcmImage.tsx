@@ -8,6 +8,7 @@ import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import Hammer from "hammerjs";
 import * as dicomParser from "dicom-parser";
 import { DcmImageProps, DcmImageState } from "./types";
+import "./amiViewer.scss";
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;

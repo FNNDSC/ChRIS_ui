@@ -42,6 +42,7 @@ cornerstoneTools.external.Hammer = Hammer;
 type AllProps = {
   imageArray: Blob[];
   runTool: (ref: any) => void;
+  handleOnToolbarAction: (action: string) => void;
 };
 interface IState {}
 // Description: Will be replaced with a DCM Fyle viewer
@@ -49,24 +50,47 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
   _isMounted = false;
   private containerRef: React.RefObject<HTMLInputElement>;
   private items: Item[];
+  private _shouldScroll: boolean;
 
   constructor(props: AllProps) {
     super(props);
 
     this.containerRef = React.createRef();
     this.items = [];
+    this._shouldScroll = false;
   }
   componentDidMount() {
     this._isMounted = true;
     this.props.runTool(this);
-    if (this.props.imageArray.length > 0) this.displayImageFromFiles(0);
+    if (this.props.imageArray.length > 0) {
+      const element = this.containerRef.current;
+      if (element) {
+        this._shouldScroll = true;
+        element.addEventListener("wheel", this.handleMouseScroll);
+      }
+      this.displayImageFromFiles(0);
+    }
   }
 
   componentDidUpdate(prevProps: AllProps) {
     if (prevProps.imageArray.length !== this.props.imageArray.length) {
+      const element = this.containerRef.current;
+      if (element) {
+        this._shouldScroll = true;
+        element.addEventListener("wheel", this.handleMouseScroll);
+      }
       this.displayImageFromFiles(0);
     }
   }
+
+  handleMouseScroll = (e: MouseWheelEvent) => {
+    if (this._shouldScroll) {
+      if (e.deltaY > 0) {
+        console.log("Here");
+        this.props.handleOnToolbarAction("next");
+      } else if (e.deltaY < 0) this.props.handleOnToolbarAction("previous");
+    }
+  };
 
   render() {
     return (
