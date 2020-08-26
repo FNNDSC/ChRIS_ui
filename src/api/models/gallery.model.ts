@@ -62,6 +62,9 @@ export default class GalleryModel {
       case "dcm":
       case "dic":
       case "dicom":
+      case "png":
+      case "jpg":
+      case "jpeg":
         return true;
       default:
         return false;

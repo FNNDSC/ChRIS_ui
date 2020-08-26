@@ -14,7 +14,7 @@ type AllProps = {
 };
 interface IState {
   viewInfoPanel: boolean;
-  urlArray: Blob[];
+  urlArray: IUITreeNode[];
   sliceIndex: number;
   sliceMax: number;
   listOpenFilesScrolling: boolean;
@@ -99,11 +99,8 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
     const files = selectedFolder.filter((item: IUITreeNode) => {
       return GalleryModel.isDicomFile(item.module);
     });
-    const filesMap = await Promise.all(
-      files.map(async (item: IUITreeNode) => await item.file.getFileBlob())
-    );
 
-    return filesMap;
+    return files;
     //
   }
 

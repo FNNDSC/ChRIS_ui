@@ -8,24 +8,8 @@ import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import Hammer from "hammerjs";
 import * as dicomParser from "dicom-parser";
 import { Image, Item } from "./types";
-import {
-  getDicomPatientName,
-  getDicomStudyId,
-  getDicomStudyDate,
-  getDicomStudyTime,
-  getDicomStudyDescription,
-  getDicomSeriesDate,
-  getDicomSeriesTime,
-  getDicomSeriesDescription,
-  getDicomSeriesNumber,
-  getDicomInstanceNumber,
-  getDicomSliceLocation,
-  getDicomSliceDistance,
-  getDicomRows,
-  getDicomColumns,
-  getDicomEchoNumber,
-  dicomDateTimeToLocale,
-} from "./utils";
+import { isDicom } from "./utils";
+import { IUITreeNode } from "../../api/models/file-explorer.model";
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
@@ -40,7 +24,7 @@ cornerstoneTools.init({
 cornerstoneTools.external.Hammer = Hammer;
 
 type AllProps = {
-  imageArray: Blob[];
+  imageArray: IUITreeNode[];
   runTool: (ref: any) => void;
   handleOnToolbarAction: (action: string) => void;
 };
@@ -86,7 +70,6 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
   handleMouseScroll = (e: MouseWheelEvent) => {
     if (this._shouldScroll) {
       if (e.deltaY > 0) {
-        console.log("Here");
         this.props.handleOnToolbarAction("next");
       } else if (e.deltaY < 0) this.props.handleOnToolbarAction("previous");
     }
@@ -111,64 +94,23 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
     }
   };
 
-  displayImageFromFiles = (index: number) => {
+  displayImageFromFiles = async (index: number) => {
     const { imageArray } = this.props;
     if (imageArray.length < 0) return;
     const element = this.containerRef.current; // console.log("initialize AMI", this.state, container);
     if (!!element) {
       cornerstone.enable(element);
-      const file = imageArray[index];
-      let imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(file);
+      const item = imageArray[index];
+      let imageId: string = "";
+      if (isDicom(item.module)) {
+        const file = await item.file.getFileBlob();
+        imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(file);
+      } else {
+        const file = await item.file.getFileBlob();
+        imageId = cornerstoneFileImageLoader.fileManager.add(file);
+      }
+
       cornerstone.loadImage(imageId).then((image: Image) => {
-        const patientName = getDicomPatientName(image);
-        const studyId = getDicomStudyId(image);
-        const studyDate = getDicomStudyDate(image);
-        const studyTime = getDicomStudyTime(image);
-        const studyDescription = getDicomStudyDescription(image);
-
-        const seriesDate = getDicomSeriesDate(image);
-        const seriesTime = getDicomSeriesTime(image);
-        const seriesDescription = getDicomSeriesDescription(image);
-        const seriesNumber = getDicomSeriesNumber(image);
-
-        const instanceNumber = getDicomInstanceNumber(image);
-        const sliceDistance = getDicomSliceDistance(image);
-        const echoNumber = getDicomEchoNumber(image);
-        const sliceLocation = getDicomSliceLocation(image);
-        const columns = getDicomColumns(image);
-        const rows = getDicomRows(image);
-        const studyDateTime =
-          studyDate === undefined
-            ? undefined
-            : dicomDateTimeToLocale(`${studyDate}.${studyTime}`);
-
-        let item: Item = {
-          imageId: imageId,
-          instanceNumber: instanceNumber,
-          name: "test",
-          image: image,
-          rows: rows,
-          columns: columns,
-          sliceDistance: sliceDistance,
-          sliceLocation: sliceLocation,
-          patient: {
-            patientName: patientName,
-          },
-          study: {
-            studyId: studyId,
-            studyDate: studyDate,
-            studyTime: studyTime,
-            studyDateTime: studyDateTime,
-            studyDescription: studyDescription,
-          },
-          series: {
-            seriesDate: seriesDate,
-            seriesTime: seriesTime,
-            seriesDescription: seriesDescription,
-            seriesNumber: seriesNumber,
-            echoNumber: echoNumber,
-          },
-        };
         let stack = {
           imageIds: [imageId],
           currentImageIdIndex: index,
@@ -183,6 +125,7 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
   // Destroy Methods
   componentWillUnmount() {
     this._isMounted = false;
+    cornerstone.disable(this.containerRef.current);
   }
 }
 
