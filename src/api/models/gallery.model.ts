@@ -28,6 +28,10 @@ export const galleryActions = keyMirror({
   information: null,
   first: null,
   last: null,
+  zoom: null,
+  pan: null,
+  wwwc: null,
+  invert: null,
 });
 
 export type galleryModelItemType = IUITreeNode | IGalleryItem;
@@ -57,7 +61,7 @@ export default class GalleryModel {
   }
 
   // Description: is this a dcm file
-  static isDicomFile(filename: string): boolean {
+  static isValidFile(filename: string): boolean {
     switch (getFileExtension(filename).toLowerCase()) {
       case "dcm":
       case "dic":

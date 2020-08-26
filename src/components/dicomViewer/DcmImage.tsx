@@ -64,6 +64,7 @@ class DcmImage extends React.Component<DcmImageProps, DcmImageState> {
     if (element) {
       const viewport = cornerstone.getViewport(element);
       this.setState({
+        ...this.state,
         viewport,
       });
     }

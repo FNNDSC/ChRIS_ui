@@ -10,6 +10,7 @@ import * as dicomParser from "dicom-parser";
 import { Image, Item } from "./types";
 import { isDicom } from "./utils";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
+import DicomHeader from "./DcmInfoPanel/DcmInfoPanel";
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
@@ -26,11 +27,11 @@ cornerstoneTools.external.Hammer = Hammer;
 type AllProps = {
   imageArray: IUITreeNode[];
   runTool: (ref: any) => void;
-  handleOnToolbarAction: (action: string) => void;
+  handleToolbarAction: (action: string) => void;
 };
-interface IState {}
-// Description: Will be replaced with a DCM Fyle viewer
-class DcmImageSeries extends React.Component<AllProps, IState> {
+
+// Description: Will be replaced with a DCM File viewer
+class DcmImageSeries extends React.Component<AllProps> {
   _isMounted = false;
   private containerRef: React.RefObject<HTMLInputElement>;
   private items: Item[];
@@ -43,6 +44,7 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
     this.items = [];
     this._shouldScroll = false;
   }
+
   componentDidMount() {
     this._isMounted = true;
     this.props.runTool(this);
@@ -70,14 +72,15 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
   handleMouseScroll = (e: MouseWheelEvent) => {
     if (this._shouldScroll) {
       if (e.deltaY > 0) {
-        this.props.handleOnToolbarAction("next");
-      } else if (e.deltaY < 0) this.props.handleOnToolbarAction("previous");
+        this.props.handleToolbarAction("next");
+      } else if (e.deltaY < 0) this.props.handleToolbarAction("previous");
     }
   };
 
   render() {
     return (
       <React.Fragment>
+        <DicomHeader handleToolbarAction={this.props.handleToolbarAction} />
         <div className="ami-viewer">
           <div ref={this.containerRef} id="container" />
           <canvas className="cornerstone-canvas" />
@@ -86,12 +89,50 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
     );
   }
 
-  runTool = (toolName: string, opt: any) => {
+  runTool = (toolName: string, opt?: any) => {
+    console.log("ToolName", toolName);
     switch (toolName) {
       case "openImage": {
         this.displayImageFromFiles(opt);
+        break;
+      }
+      case "Wwwc": {
+        cornerstoneTools.setToolActive("Wwwc", { mouseButtonMask: 1 });
+        break;
+      }
+      case "Pan": {
+        cornerstoneTools.setToolActive("Pan", { mouseButtonMask: 1 });
+        break;
+      }
+      case "Zoom": {
+        cornerstoneTools.setToolActive("Zoom", {
+          mouseButtonMask: 1,
+        });
+        break;
+      }
+
+      case "Invert": {
+        const element = this.containerRef.current;
+        const viewport = cornerstone.getViewport(element);
+        viewport.invert = !viewport.invert;
+        cornerstone.setViewport(element, viewport);
+        break;
       }
     }
+  };
+
+  enableTool = () => {
+    const WwwcTool = cornerstoneTools.WwwcTool;
+    const PanTool = cornerstoneTools.PanTool;
+    const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
+    const ZoomTool = cornerstoneTools.ZoomTool;
+    const MagnifyTool = cornerstoneTools.MagnifyTool;
+
+    cornerstoneTools.addTool(MagnifyTool);
+    cornerstoneTools.addTool(WwwcTool);
+    cornerstoneTools.addTool(PanTool);
+    cornerstoneTools.addTool(ZoomTouchPinchTool);
+    cornerstoneTools.addTool(ZoomTool);
   };
 
   displayImageFromFiles = async (index: number) => {
@@ -109,15 +150,9 @@ class DcmImageSeries extends React.Component<AllProps, IState> {
         const file = await item.file.getFileBlob();
         imageId = cornerstoneFileImageLoader.fileManager.add(file);
       }
-
       cornerstone.loadImage(imageId).then((image: Image) => {
-        let stack = {
-          imageIds: [imageId],
-          currentImageIdIndex: index,
-        };
         cornerstone.displayImage(element, image);
-        cornerstoneTools.addStackStateManager(element, ["stack"]);
-        cornerstoneTools.addToolState(element, "stack", stack);
+        this.enableTool();
       });
     }
   };

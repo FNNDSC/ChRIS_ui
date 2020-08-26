@@ -53,13 +53,12 @@ class FileBrowserViewer extends React.Component<AllProps> {
   };
 
   render() {
-    console.log("Is Viewer Mode Dicom", this.props.isViewerModeDicom);
     const {
       explorer,
       selectedFile,
       selectedFolder,
       viewerMode,
-      isViewerModeDicom,
+      isViewerMode,
     } = this.props;
 
     return (
@@ -102,7 +101,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
             </Grid>
           ) : (
             <div className="viewer-data">
-              {!!selectedFile && !!selectedFolder && (
+              {!!selectedFile && !!selectedFolder && isViewerMode && (
                 <GalleryDicomView
                   selectedFile={selectedFile}
                   selectedFolder={selectedFolder}
@@ -151,7 +150,7 @@ const mapStateToProps = ({ explorer }: ApplicationState) => ({
   selectedFolder: explorer.selectedFolder,
   explorer: explorer.explorer,
   viewerMode: explorer.viewerMode,
-  isViewerModeDicom: explorer.isViewerModeDicom,
+  isViewerMode: explorer.isViewerMode,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileBrowserViewer);
