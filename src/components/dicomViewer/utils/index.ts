@@ -189,3 +189,8 @@ export function dicomDateTimeToLocale(dateTime: string) {
   });
   return `${localeDate} - ${time}`;
 }
+
+export function isDicom(fileName: string) {
+  const fileExt = fileName.substring(fileName.lastIndexOf(".") + 1);
+  if (fileExt === "dcm" || fileExt === "dicom") return true;
+}

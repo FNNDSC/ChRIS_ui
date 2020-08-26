@@ -12,14 +12,12 @@ import {
 } from "../../../store/explorer/actions";
 import { IExplorerState } from "../../../store/explorer/types";
 import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
-
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import ChrisModel from "../../../api/models/base.model";
 import FileExplorer from "../../explorer/FileExplorer";
 import FileTableView from "../../explorer/FileTableView";
 import FileDetailView from "../../explorer/FileDetailView";
-import GalleryView from "../../explorer/GalleryView";
 import GalleryDicomView from "../../explorer/GalleryDicomView";
 
 interface IPropsFromDispatch {
@@ -55,6 +53,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
   };
 
   render() {
+    console.log("Is Viewer Mode Dicom", this.props.isViewerModeDicom);
     const {
       explorer,
       selectedFile,
@@ -103,21 +102,13 @@ class FileBrowserViewer extends React.Component<AllProps> {
             </Grid>
           ) : (
             <div className="viewer-data">
-              {!!selectedFile &&
-                !!selectedFolder &&
-                (isViewerModeDicom ? (
-                  <GalleryDicomView
-                    selectedFile={selectedFile}
-                    selectedFolder={selectedFolder}
-                    toggleViewerMode={this.toggleViewerMode}
-                  />
-                ) : (
-                  <GalleryView
-                    selectedFile={selectedFile}
-                    selectedFolder={selectedFolder}
-                    toggleViewerMode={this.toggleViewerMode}
-                  />
-                ))}
+              {!!selectedFile && !!selectedFolder && (
+                <GalleryDicomView
+                  selectedFile={selectedFile}
+                  selectedFolder={selectedFolder}
+                  toggleViewerMode={this.toggleViewerMode}
+                />
+              )}
             </div>
           )}
         </div>
