@@ -1,25 +1,33 @@
-/*
-*  File:            GalleryInfoPanel.scss
-*  Description:     This files holds styles specific for the file explorer Gallery Toolbar
-*  Author:          ChRIS UI
-*/
-@import "../../../assets/scss/helpers/variables";
-.dcm-info{
-  left: 0;
-  padding: 1rem;
-  position: absolute;
-  top: 0;
-  width: 100%;
-  z-index: 9999;
-  *{
-    color: #999;
-    font-size: 0.875rem;
+$imgViewerBackgroundColour: black;
+$textColor: white;
+$GreyTextColor: #868686;
+$opacityLevel: 0.75;
+$headerBlue: #73bcf7;
+
+.dicom-header {
+  z-index: 2;
+  width: 100vw;
+  align-items: center;
+  background: rgba(0, 0, 0, $opacityLevel); //$imgViewerBackgroundColour;
+  color: $textColor;
+  height: 8vh;
+  display: flex;
+  flex-direction: row;
+
+  &__body {
+    padding: 0 2em;
+    text-align: center;
   }
-  label{
-    color: #777;
-    margin: 0 5px 0 0;
-  }
-  .right{
-    text-align: right;
+}
+
+.dicom-logo {
+  margin-right: 4rem;
+  padding: 0.8rem;
+  &__text {
+    font-family: Overpass-Bold;
+    font-size: 1.4rem;
+    color: $headerBlue !important;
+    font-weight: 900;
+    display: block;
   }
 }

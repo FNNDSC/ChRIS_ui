@@ -85,7 +85,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
               return (this.runTool = ref.runTool);
             }}
             imageArray={this.state.urlArray}
-            handleOnToolbarAction={(action: string) => {
+            handleToolbarAction={(action: string) => {
               (this.handleGalleryActions as any)[action].call();
             }}
           />
@@ -97,9 +97,8 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   // Only user dcm file - can add on to this
   async _getUrlArray(selectedFolder: IUITreeNode[] = []) {
     const files = selectedFolder.filter((item: IUITreeNode) => {
-      return GalleryModel.isDicomFile(item.module);
+      return GalleryModel.isValidFile(item.module);
     });
-
     return files;
     //
   }
@@ -175,6 +174,21 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
         this.setState({
           viewInfoPanel: !this.state.viewInfoPanel,
         });
+    },
+
+    zoom: () => {
+      this.runTool("Zoom");
+    },
+
+    pan: () => {
+      this.runTool("Pan");
+    },
+
+    wwwc: () => {
+      this.runTool("Wwwc");
+    },
+    invert: () => {
+      this.runTool("Invert");
     },
   };
 
