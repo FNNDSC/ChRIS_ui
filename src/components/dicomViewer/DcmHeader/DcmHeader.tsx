@@ -1,18 +1,19 @@
 import React from "react";
 import { Tooltip, TooltipPosition, Button } from "@patternfly/react-core";
 import {
+  SearchPlusIcon,
   SearchIcon,
   HandPaperIcon,
   AdjustIcon,
   BurnIcon,
 } from "@patternfly/react-icons";
-import "./DcmInfoPanel.scss";
+import "./DcmHeader.scss";
 
 interface DicomHeaderProps {
   handleToolbarAction: (action: string) => void;
 }
 
-const DicomHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
+const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
   return (
     <div className="dicom-header">
       <div className="dicom-logo">
@@ -30,6 +31,20 @@ const DicomHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
             variant="link"
             onClick={() => {
               handleToolbarAction("zoom");
+            }}
+          >
+            <SearchPlusIcon size="md" />
+          </Button>
+        </Tooltip>
+        <Tooltip
+          position={TooltipPosition.bottom}
+          isContentLeftAligned
+          content={<span>Magnify</span>}
+        >
+          <Button
+            variant="link"
+            onClick={() => {
+              handleToolbarAction("magnify");
             }}
           >
             <SearchIcon size="md" />
@@ -78,4 +93,4 @@ const DicomHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
   );
 };
 
-export default DicomHeader;
+export default DcmHeader;
