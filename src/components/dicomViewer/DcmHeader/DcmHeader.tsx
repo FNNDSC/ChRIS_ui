@@ -17,7 +17,7 @@ const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
   return (
     <div className="dicom-header">
       <div className="dicom-logo">
-        <span className="dicom-logo__text">File Viewer</span>
+        <span className="dicom-logo__text">Image Viewer</span>
         <span>Powered by cornerstone.js</span>
       </div>
       <div className="dicom-header__body">
