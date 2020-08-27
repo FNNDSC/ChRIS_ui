@@ -41,9 +41,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   async componentDidMount() {
     this._isMounted = true;
 
-    const urlArray = await this._getUrlArray(
-      this.props.selectedFolder.children
-    );
+    const urlArray = this._getUrlArray(this.props.selectedFolder.children);
 
     if (urlArray.length > 0 && this._isMounted) {
       this.setState({
@@ -95,7 +93,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   }
 
   // Only user dcm file - can add on to this
-  async _getUrlArray(selectedFolder: IUITreeNode[] = []) {
+  _getUrlArray(selectedFolder: IUITreeNode[] = []) {
     const files = selectedFolder.filter((item: IUITreeNode) => {
       return GalleryModel.isValidFile(item.module);
     });
@@ -189,6 +187,10 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
     },
     invert: () => {
       this.runTool("Invert");
+    },
+
+    magnify: () => {
+      this.runTool("Magnify");
     },
   };
 
