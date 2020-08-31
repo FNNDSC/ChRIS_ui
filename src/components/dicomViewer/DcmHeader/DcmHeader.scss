@@ -14,19 +14,46 @@ $headerBlue: #73bcf7;
   display: flex;
   flex-direction: row;
 
-  &__body {
-    padding: 0 2em;
-    text-align: center;
+  button {
+    margin: 0.3rem;
+    svg {
+      color: #fff;
+    }
+  }
+
+  .pf-m-active {
+    color: red !important;
+  }
+
+  button:hover,
+  button:focus {
+    svg {
+      color: $headerBlue;
+    }
+  }
+
+  &__body-tools {
+    padding: 0 22rem 0 2rem;
+  }
+  &__body-functions {
+    padding: 0 2rem 0 2rem;
   }
 }
 
 .dicom-logo {
-  margin-right: 4rem;
   padding: 0.8rem;
+  margin-right: 4rem;
+
   &__text {
     font-size: 1.4rem;
     color: $headerBlue !important;
     font-weight: 900;
     display: block;
+  }
+
+  &__subtext {
+    color: white;
+    display: block;
+    font-weight: 900;
   }
 }

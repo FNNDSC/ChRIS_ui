@@ -25,6 +25,9 @@ type AllProps = {
   imageArray: IUITreeNode[];
   runTool: (ref: any) => void;
   handleToolbarAction: (action: string) => void;
+  setEnableTool: (value: boolean) => void;
+  dcmEnableTool: boolean;
+  toolActive: string;
 };
 
 type AllState = {
@@ -114,7 +117,10 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
           <DicomLoader />
         ) : (
           <React.Fragment>
-            <DicomHeader handleToolbarAction={this.props.handleToolbarAction} />
+            <DicomHeader
+              toolActive={this.props.toolActive}
+              handleToolbarAction={this.props.handleToolbarAction}
+            />
             <div className="ami-viewer">
               <div ref={this.containerRef} id="container">
                 <canvas className="cornerstone-canvas" />
@@ -130,7 +136,6 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
     switch (toolName) {
       case "openImage": {
         cornerstone.disable(this.containerRef.current);
-        this.disableAllTools();
         this.displayImageFromFiles(opt);
         break;
       }
@@ -153,34 +158,51 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
         const viewport = cornerstone.getViewport(element);
         viewport.invert = !viewport.invert;
         cornerstone.setViewport(element, viewport);
+        break;
       }
 
       case "Magnify": {
         cornerstoneTools.setToolActive("Magnify", {
           mouseButtonMask: 1,
         });
+        break;
+      }
+      case "Rotate": {
+        const element = this.containerRef.current;
+        const viewport = cornerstone.getViewport(element);
+        viewport.rotation -= 90;
+        cornerstone.setViewport(element, viewport);
+        break;
+      }
+
+      case "Reset": {
+        cornerstone.reset(this.containerRef.current);
+        break;
       }
     }
   };
 
   enableTools = () => {
+    if (this.props.dcmEnableTool) return;
     const WwwcTool = cornerstoneTools.WwwcTool;
     const PanTool = cornerstoneTools.PanTool;
     const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
     const ZoomTool = cornerstoneTools.ZoomTool;
     const MagnifyTool = cornerstoneTools.MagnifyTool;
+    const RotateTool = cornerstoneTools.RotateTool;
 
     cornerstoneTools.addTool(MagnifyTool);
     cornerstoneTools.addTool(WwwcTool);
     cornerstoneTools.addTool(PanTool);
     cornerstoneTools.addTool(ZoomTouchPinchTool);
     cornerstoneTools.addTool(ZoomTool);
+    cornerstoneTools.addTool(RotateTool);
+    this.props.setEnableTool(true);
   };
 
   disableAllTools = () => {
-    cornerstoneTools.setToolPassive("Wwwc");
-    cornerstoneTools.setToolPassive("Pan");
-    cornerstoneTools.setToolPassive("Zoom");
+    this.props.setEnableTool(false);
+    cornerstone.disable(this.containerRef.current);
   };
 
   // helper function used by the tool button handlers to disable the active tool
@@ -201,7 +223,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   componentWillUnmount() {
     this._isMounted = false;
     this._shouldScroll = false;
-    cornerstone.disable(this.containerRef.current);
+    this.disableAllTools();
   }
 }
 

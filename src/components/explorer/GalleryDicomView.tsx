@@ -18,6 +18,8 @@ interface IState {
   sliceIndex: number;
   sliceMax: number;
   listOpenFilesScrolling: boolean;
+  toolActive: string;
+  dcmEnableTool: boolean;
 }
 
 class GalleryDicomView extends React.Component<AllProps, IState> {
@@ -33,6 +35,8 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
       sliceIndex: 0,
       sliceMax: 1,
       listOpenFilesScrolling: false,
+      toolActive: "",
+      dcmEnableTool: false,
     };
     this.runTool = () => {};
     this.timerScrolling = null;
@@ -63,7 +67,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
       !!selectedFolder.children && (
         <GalleryWrapper
           index={this.state.sliceIndex}
-          total={this.state.sliceIndex}
+          total={this.state.sliceMax}
           hideDownload
           handleOnToolbarAction={(action: string) => {
             (this.handleGalleryActions as any)[action].call();
@@ -79,6 +83,8 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
           </Button>
 
           <DcmImageSeries
+            dcmEnableTool={this.state.dcmEnableTool}
+            setEnableTool={this.setDcmEnableTool}
             runTool={(ref: any) => {
               return (this.runTool = ref.runTool);
             }}
@@ -86,6 +92,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
             handleToolbarAction={(action: string) => {
               (this.handleGalleryActions as any)[action].call();
             }}
+            toolActive={this.state.toolActive}
           />
         </GalleryWrapper>
       )
@@ -100,6 +107,23 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
     return files;
     //
   }
+
+  setDcmEnableTool = (value: boolean) => {
+    this.setState({
+      dcmEnableTool: value,
+    });
+  };
+
+  toolExecute = (tool: string) => {
+    this.setState(
+      {
+        toolActive: tool,
+      },
+      () => {
+        this.runTool(tool);
+      }
+    );
+  };
 
   handleOpenImage = (index: number) => {
     this.runTool("openImage", index);
@@ -175,22 +199,25 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
     },
 
     zoom: () => {
-      this.runTool("Zoom");
+      this.toolExecute("Zoom");
     },
 
     pan: () => {
-      this.runTool("Pan");
+      this.toolExecute("Pan");
     },
 
     wwwc: () => {
-      this.runTool("Wwwc");
+      this.toolExecute("Wwwc");
     },
     invert: () => {
-      this.runTool("Invert");
+      this.toolExecute("Invert");
     },
 
     magnify: () => {
-      this.runTool("Magnify");
+      this.toolExecute("Magnify");
+    },
+    rotate: () => {
+      this.toolExecute("Rotate");
     },
   };
 

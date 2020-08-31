@@ -29,12 +29,12 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
 
   render() {
     const { children, index, total, listOpenFilesScrolling } = this.props;
+    console.log("Total", total);
     return (
       !!children && (
-        
         <div id="gallery" className="gallery-wrapper">
           {children}
-          {
+          {total > 1 && (
             <GalleryToolbar
               isPlaying={listOpenFilesScrolling}
               index={index}
@@ -45,7 +45,7 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
               }}
               {...this.state}
             />
-          }
+          )}
         </div>
       )
     );
