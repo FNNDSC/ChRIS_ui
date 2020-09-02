@@ -7,11 +7,11 @@ import * as cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import Hammer from "hammerjs";
 import * as dicomParser from "dicom-parser";
-import { Image } from "./types";
 import { isDicom } from "./utils";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
 import DicomHeader from "./DcmHeader/DcmHeader";
 import DicomLoader from "./DcmLoader";
+import CornerstoneViewport from "react-cornerstone-viewport";
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
@@ -20,40 +20,47 @@ cornerstoneWebImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 cornerstoneTools.external.Hammer = Hammer;
+cornerstoneTools.init();
 
 type AllProps = {
+  inPlay: boolean;
   imageArray: IUITreeNode[];
   runTool: (ref: any) => void;
   handleToolbarAction: (action: string) => void;
-  setEnableTool: (value: boolean) => void;
-  dcmEnableTool: boolean;
-  toolActive: string;
 };
 
 type AllState = {
-  items: Image[];
+  imageIds: string[];
+  element: any;
+  isViewerZoomMode: boolean;
+  isViewerPanMode: boolean;
+  isViewerStackScrollMode: boolean;
+  isViewerMagnifyMode: boolean;
+  isViewerWwwcMode: boolean;
 };
 
 // Description: Will be replaced with a DCM File viewer
 class DcmImageSeries extends React.Component<AllProps, AllState> {
   _isMounted = false;
-  private containerRef: React.RefObject<HTMLInputElement>;
-  private _shouldScroll: boolean;
 
   constructor(props: AllProps) {
     super(props);
 
-    this.containerRef = React.createRef();
     this.state = {
-      items: [],
+      imageIds: [],
+      element: null,
+      isViewerZoomMode: false,
+      isViewerPanMode: false,
+      isViewerStackScrollMode: false,
+      isViewerMagnifyMode: false,
+      isViewerWwwcMode: false,
     };
-    this._shouldScroll = false;
   }
 
   componentDidMount() {
     this._isMounted = true;
     this.props.runTool(this);
-    if (this.props.imageArray.length > 0) {
+    if (this._isMounted && this.props.imageArray.length > 0) {
       this.loadImagesIntoCornerstone();
     }
   }
@@ -81,49 +88,34 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
         imageIds.push(cornerstoneFileImageLoader.fileManager.add(file));
       }
     }
-    let images: Image[] = [];
 
-    images = await Promise.all(
-      imageIds.map(async (imageId: string) => {
-        const image = await cornerstone.loadImage(imageId);
-        return image;
-      })
-    );
-
-    if (images.length > 0) {
-      this.setState(
-        {
-          items: images,
-        },
-        () => {
-          this.displayImageFromFiles(0);
-        }
-      );
-    }
-  };
-
-  handleMouseScroll = (e: MouseWheelEvent) => {
-    if (this._shouldScroll) {
-      if (e.deltaY > 0) {
-        this.props.handleToolbarAction("next");
-      } else if (e.deltaY < 0) this.props.handleToolbarAction("previous");
+    if (imageIds.length > 0) {
+      this.setState({
+        imageIds,
+      });
     }
   };
 
   render() {
+    console.log(this.state);
     return (
       <React.Fragment>
-        {this.state.items.length === 0 ? (
+        {this.state.imageIds.length === 0 ? (
           <DicomLoader />
         ) : (
           <React.Fragment>
-            <DicomHeader
-              toolActive={this.props.toolActive}
-              handleToolbarAction={this.props.handleToolbarAction}
-            />
+            <DicomHeader handleToolbarAction={this.props.handleToolbarAction} />
             <div className="ami-viewer">
-              <div ref={this.containerRef} id="container">
-                <canvas className="cornerstone-canvas" />
+              <div id="container">
+                <CornerstoneViewport
+                  imageIds={this.state.imageIds}
+                  onElementEnabled={(elementEnabledEvt: any) => {
+                    const cornerstoneElement = elementEnabledEvt.detail.element;
+                    this.setState({
+                      element: cornerstoneElement,
+                    });
+                  }}
+                />
               </div>
             </div>
           </React.Fragment>
@@ -132,98 +124,165 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
     );
   }
 
+  runCinePlayer = (cmdName: string) => {
+    const element = this.state.element;
+
+    switch (cmdName) {
+      case "play": {
+        cornerstoneTools.playClip(element, 30);
+        break;
+      }
+
+      case "pause": {
+        cornerstoneTools.stopClip(element);
+        break;
+      }
+    }
+  };
+
   runTool = (toolName: string, opt?: any) => {
+    console.log("ToolName", toolName);
     switch (toolName) {
       case "openImage": {
-        cornerstone.disable(this.containerRef.current);
-        this.displayImageFromFiles(opt);
+        this.runCinePlayer(opt);
         break;
       }
       case "Wwwc": {
-        cornerstoneTools.setToolActive("Wwwc", { mouseButtonMask: 1 });
+        //if (this.state.isViewerWwwcMode) return;
+        this.setState(
+          {
+            isViewerWwwcMode: true,
+            isViewerPanMode: false,
+            isViewerZoomMode: false,
+            isViewerMagnifyMode: false,
+          },
+          () => {
+            if (this.state.isViewerWwwcMode) {
+              const WwwcTool = cornerstoneTools.WwwcTool;
+              cornerstoneTools.addTool(WwwcTool);
+              cornerstoneTools.setToolActive("Wwwc", { mouseButtonMask: 1 });
+            } else if (!this.state.isViewerWwwcMode) {
+              cornerstoneTools.setToolPassive("Wwwc", {
+                mouseButtonMask: 1,
+              });
+            }
+          }
+        );
         break;
       }
       case "Pan": {
-        cornerstoneTools.setToolActive("Pan", { mouseButtonMask: 1 });
+        if (this.state.isViewerPanMode) return;
+        this.setState(
+          {
+            isViewerPanMode: true,
+            isViewerZoomMode: false,
+            isViewerWwwcMode: true,
+            isViewerMagnifyMode: false,
+          },
+          () => {
+            if (this.state.isViewerPanMode) {
+              const PanTool = cornerstoneTools.PanTool;
+              cornerstoneTools.addTool(PanTool);
+              cornerstoneTools.setToolActive("Pan", { mouseButtonMask: 1 });
+            } else {
+              cornerstoneTools.setToolPassive("Pan", {
+                mouseButtonMask: 1,
+              });
+            }
+          }
+        );
         break;
       }
       case "Zoom": {
-        cornerstoneTools.setToolActive("Zoom", {
-          mouseButtonMask: 1,
-        });
+        if (this.state.isViewerZoomMode) return;
+
+        this.setState(
+          {
+            isViewerZoomMode: true,
+            isViewerPanMode: false,
+            isViewerWwwcMode: false,
+            isViewerMagnifyMode: false,
+          },
+          () => {
+            if (this.state.isViewerZoomMode) {
+              const ZoomTool = cornerstoneTools.ZoomTool;
+              cornerstoneTools.addTool(ZoomTool, {
+                configuration: {
+                  invert: false,
+                  preventZoomOutsideImage: false,
+                  minScale: 0.1,
+                  maxScale: 20.0,
+                },
+              });
+              cornerstoneTools.setToolActive("Zoom", { mouseButtonMask: 1 });
+            } else {
+              cornerstoneTools.setToolPassive("Zoom", {
+                mouseButtonMask: 1,
+              });
+            }
+          }
+        );
+
         break;
       }
       case "Invert": {
-        const element = this.containerRef.current;
-        const viewport = cornerstone.getViewport(element);
+        const element = this.state.element;
+        let viewport = cornerstone.getViewport(element);
         viewport.invert = !viewport.invert;
         cornerstone.setViewport(element, viewport);
         break;
       }
 
       case "Magnify": {
-        cornerstoneTools.setToolActive("Magnify", {
-          mouseButtonMask: 1,
-        });
+        if (this.state.isViewerMagnifyMode) return;
+        this.setState(
+          {
+            isViewerMagnifyMode: true,
+            isViewerZoomMode: false,
+            isViewerPanMode: false,
+            isViewerWwwcMode: false,
+          },
+          () => {
+            if (this.state.isViewerMagnifyMode) {
+              const MagnifyTool = cornerstoneTools.MagnifyTool;
+              cornerstoneTools.addTool(MagnifyTool);
+              cornerstoneTools.setToolActive("Magnify", { mouseButtonMask: 1 });
+            } else {
+              cornerstoneTools.setToolPassive("Magnify", {
+                mouseButtonMask: 1,
+              });
+            }
+          }
+        );
         break;
       }
       case "Rotate": {
-        const element = this.containerRef.current;
+        const element = this.state.element;
         const viewport = cornerstone.getViewport(element);
         viewport.rotation -= 90;
         cornerstone.setViewport(element, viewport);
         break;
       }
 
-      case "Reset": {
-        cornerstone.reset(this.containerRef.current);
+      case "StackScroll": {
+        if (this.state.isViewerStackScrollMode) return;
         break;
       }
-    }
-  };
 
-  enableTools = () => {
-    if (this.props.dcmEnableTool) return;
-    const WwwcTool = cornerstoneTools.WwwcTool;
-    const PanTool = cornerstoneTools.PanTool;
-    const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
-    const ZoomTool = cornerstoneTools.ZoomTool;
-    const MagnifyTool = cornerstoneTools.MagnifyTool;
-    const RotateTool = cornerstoneTools.RotateTool;
-
-    cornerstoneTools.addTool(MagnifyTool);
-    cornerstoneTools.addTool(WwwcTool);
-    cornerstoneTools.addTool(PanTool);
-    cornerstoneTools.addTool(ZoomTouchPinchTool);
-    cornerstoneTools.addTool(ZoomTool);
-    cornerstoneTools.addTool(RotateTool);
-    this.props.setEnableTool(true);
-  };
-
-  disableAllTools = () => {
-    this.props.setEnableTool(false);
-    cornerstone.disable(this.containerRef.current);
-  };
-
-  // helper function used by the tool button handlers to disable the active tool
-  // before making a new tool active
-
-  displayImageFromFiles = async (index: number) => {
-    const element = this.containerRef.current; // console.log("initialize AMI", this.state, container);
-    if (!!element) {
-      this._shouldScroll = true;
-      cornerstone.enable(element);
-      cornerstone.displayImage(element, this.state.items[index]);
-      element.addEventListener("wheel", this.handleMouseScroll);
-      this.enableTools();
+      case "Reset": {
+        cornerstone.reset(this.state.element);
+        break;
+      }
     }
   };
 
   // Destroy Methods
   componentWillUnmount() {
     this._isMounted = false;
-    this._shouldScroll = false;
-    this.disableAllTools();
+    if (this.props.inPlay) {
+      console.log("Cleanup?");
+      cornerstoneTools.stopClip(this.state.element);
+    }
   }
 }
 

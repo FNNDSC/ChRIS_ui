@@ -24,3 +24,4 @@ declare module "cornerstone-file-image-loader";
 declare module "cornerstone-web-image-loader";
 declare module "cornerstone-wado-image-loader";
 declare module "dicom-parser";
+declare module "react-cornerstone-viewport";
