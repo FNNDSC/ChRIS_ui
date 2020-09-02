@@ -19,13 +19,9 @@ import "./DcmHeader.scss";
 
 interface DicomHeaderProps {
   handleToolbarAction: (action: string) => void;
-  toolActive: string;
 }
 
-const DcmHeader: React.FC<DicomHeaderProps> = ({
-  toolActive,
-  handleToolbarAction,
-}) => {
+const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
   return (
     <div className="dicom-header">
       <Grid>
@@ -55,7 +51,6 @@ const DcmHeader: React.FC<DicomHeaderProps> = ({
               content={<span>LMB + Drag</span>}
             >
               <Button
-                isActive={toolActive === "Zoom" ? true : undefined}
                 variant="link"
                 onClick={() => {
                   handleToolbarAction("zoom");

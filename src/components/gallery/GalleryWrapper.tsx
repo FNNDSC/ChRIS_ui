@@ -6,7 +6,6 @@ import "./GalleryWrapper.scss";
 
 type AllProps = {
   children: any;
-  index: number;
   total: number;
   hideDownload?: boolean;
   listOpenFilesScrolling?: boolean;
@@ -28,7 +27,7 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
   };
 
   render() {
-    const { children, index, total, listOpenFilesScrolling } = this.props;
+    const { children, total, listOpenFilesScrolling } = this.props;
     console.log("Total", total);
     return (
       !!children && (
@@ -37,7 +36,6 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
           {total > 1 && (
             <GalleryToolbar
               isPlaying={listOpenFilesScrolling}
-              index={index}
               total={total}
               hideDownload={!!this.props.hideDownload}
               onToolbarClick={(action: string) => {
@@ -54,10 +52,10 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
   // Description: triggers toolbar functionality - Group gallery actions
   handleGalleryActions = {
     play: () => {
-      this.props.handleOnToolbarAction("listOpenFilesScrolling");
+      this.props.handleOnToolbarAction(galleryActions.play);
     },
     pause: () => {
-      this.props.handleOnToolbarAction("listOpenFilesScrolling");
+      this.props.handleOnToolbarAction(galleryActions.pause);
     },
     // Description: will make the view full screen
     fullscreen: () => {

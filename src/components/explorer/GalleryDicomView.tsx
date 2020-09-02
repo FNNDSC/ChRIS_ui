@@ -13,13 +13,8 @@ type AllProps = {
   toggleViewerMode: (isViewerMode: boolean) => void;
 };
 interface IState {
-  viewInfoPanel: boolean;
   urlArray: IUITreeNode[];
-  sliceIndex: number;
-  sliceMax: number;
-  listOpenFilesScrolling: boolean;
-  toolActive: string;
-  dcmEnableTool: boolean;
+  inPlay: boolean;
 }
 
 class GalleryDicomView extends React.Component<AllProps, IState> {
@@ -30,13 +25,8 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   constructor(props: AllProps) {
     super(props);
     this.state = {
-      viewInfoPanel: true,
       urlArray: [],
-      sliceIndex: 0,
-      sliceMax: 1,
-      listOpenFilesScrolling: false,
-      toolActive: "",
-      dcmEnableTool: false,
+      inPlay: false,
     };
     this.runTool = () => {};
     this.timerScrolling = null;
@@ -50,7 +40,6 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
     if (urlArray.length > 0 && this._isMounted) {
       this.setState({
         urlArray,
-        sliceMax: urlArray.length,
       });
     }
   }
@@ -62,17 +51,16 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   // Description: Render the individual viewers by filetype
   renderContent() {
     const { selectedFolder } = this.props;
-    const { listOpenFilesScrolling } = this.state;
+    const { inPlay } = this.state;
     return (
       !!selectedFolder.children && (
         <GalleryWrapper
-          index={this.state.sliceIndex}
-          total={this.state.sliceMax}
+          total={this.state.urlArray.length}
           hideDownload
           handleOnToolbarAction={(action: string) => {
             (this.handleGalleryActions as any)[action].call();
           }}
-          listOpenFilesScrolling={listOpenFilesScrolling}
+          listOpenFilesScrolling={inPlay}
         >
           <Button
             className="close-btn"
@@ -83,8 +71,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
           </Button>
 
           <DcmImageSeries
-            dcmEnableTool={this.state.dcmEnableTool}
-            setEnableTool={this.setDcmEnableTool}
+            inPlay={this.state.inPlay}
             runTool={(ref: any) => {
               return (this.runTool = ref.runTool);
             }}
@@ -92,7 +79,6 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
             handleToolbarAction={(action: string) => {
               (this.handleGalleryActions as any)[action].call();
             }}
-            toolActive={this.state.toolActive}
           />
         </GalleryWrapper>
       )
@@ -108,94 +94,48 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
     //
   }
 
-  setDcmEnableTool = (value: boolean) => {
-    this.setState({
-      dcmEnableTool: value,
-    });
-  };
-
   toolExecute = (tool: string) => {
-    this.setState(
-      {
-        toolActive: tool,
-      },
-      () => {
-        this.runTool(tool);
-      }
-    );
+    this.runTool(tool);
   };
 
-  handleOpenImage = (index: number) => {
-    this.runTool("openImage", index);
+  handleOpenImage = (cmdName: string) => {
+    this.runTool("openImage", cmdName);
   };
 
   // Description: change the gallery item state
 
   handleGalleryActions = {
-    next: () => {
-      let index = this.state.sliceIndex;
-      index = index === this.state.sliceMax - 1 ? 0 : index + 1;
+    next: () => {},
+    previous: () => {},
+    play: () => {
       this.setState(
         {
-          sliceIndex: index,
+          inPlay: true,
         },
         () => {
-          this.handleOpenImage(index);
+          this.handleOpenImage("play");
         }
       );
     },
-    previous: () => {
-      let index = this.state.sliceIndex;
-      index = index === 0 ? this.state.sliceMax - 1 : index - 1;
+    pause: () => {
       this.setState(
         {
-          sliceIndex: index,
+          inPlay: false,
         },
         () => {
-          this.handleOpenImage(index);
+          this.handleOpenImage("pause");
         }
       );
     },
-    listOpenFilesScrolling: () => {
-      const scrolling = this.state.listOpenFilesScrolling;
-      this.setState(
-        {
-          listOpenFilesScrolling: !scrolling,
-        },
-        () => {
-          if (scrolling) {
-            if (this.timerScrolling) clearInterval(this.timerScrolling);
-          } else {
-            this.timerScrolling = setInterval(() => {
-              this.handleGalleryActions["next"]();
-            }, 100);
-          }
-        }
-      );
-    },
-
-    first: () => {
-      const index = 0;
-      this.setState(
-        {
-          sliceIndex: index,
-        },
-        () => {
-          this.handleOpenImage(index);
-        }
-      );
-    },
-    last: () => {
-      let index = this.state.sliceMax - 1;
-      this.setState({ sliceIndex: index }, () => {
-        this.handleOpenImage(index);
-      });
-    },
+    first: () => {},
+    last: () => {},
     information: () => {
+      /*
       this._isMounted &&
         this.setState({
           viewInfoPanel: !this.state.viewInfoPanel,
         });
+      */
     },
 
     zoom: () => {
