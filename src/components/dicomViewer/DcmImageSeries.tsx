@@ -180,7 +180,6 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   };
 
   runTool = (toolName: string, opt?: any) => {
-    console.log("ToolName", toolName);
     switch (toolName) {
       case "openImage": {
         this.runCinePlayer(opt);

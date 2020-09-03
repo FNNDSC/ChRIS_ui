@@ -24,7 +24,11 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return { ...state, feed: action.payload };
     }
     case FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS: {
-      return { ...state, pluginInstances: action.payload };
+      return {
+        ...state,
+        selected: action.payload.selected,
+        pluginInstances: action.payload.pluginInstances,
+      };
     }
     case FeedActionTypes.RESET_FEED_STATE: {
       return {
