@@ -28,7 +28,7 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
 
   render() {
     const { children, total, listOpenFilesScrolling } = this.props;
-    console.log("Total", total);
+
     return (
       !!children && (
         <div id="gallery" className="gallery-wrapper">
