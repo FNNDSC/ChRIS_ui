@@ -37,7 +37,7 @@ interface INodeProps {
 }
 
 interface INodeState {
-  plugin?: Plugin; // the plugin which the currently selected instance is an instance of
+  plugin?: Plugin;
   params?: PluginInstanceParameter[];
 }
 
@@ -60,17 +60,13 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
   }
 
   async fetchPluginData() {
-    const { id, plugin_id } = this.props.selected.data;
+    const { selected } = this.props;
 
-    const client = ChrisAPIClient.getClient();
-    const plugin = await client.getPlugin(plugin_id);
-
-    const params = await (
-      await client.getPluginInstance(id as number)
-    ).getParameters();
+    const params = await selected.getParameters();
+    const plugin = await selected.getPlugin();
 
     this.setState({
-      plugin,
+      plugin: plugin,
       params: params.getItems(),
     });
   }
@@ -94,8 +90,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     const { dock_image, selfexec } = plugin.data;
     let command = `
     docker run -v $(pwd)/in:/incoming -v 
-    $(pwd)/out:/outgoing
-    ${dock_image} ${selfexec}`;
+    $(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
 
     if (params.length) {
       command +=
@@ -165,7 +160,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
 
   render() {
     const { selected, pluginStatus } = this.props;
-    const { plugin, params } = this.state;
+    const { params, plugin } = this.state;
     let runtime = this.calculateTotalRuntime();
 
     const pluginStatusLabels: PluginStatusLabels =
@@ -204,7 +199,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     }
 
     const handleClick = () => {
-      console.log("To be written");
+      //console.log("To be written");
     };
 
     const pluginTitle = `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;

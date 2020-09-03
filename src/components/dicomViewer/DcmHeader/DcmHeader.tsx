@@ -65,7 +65,7 @@ const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
         <Tooltip
           position={TooltipPosition.bottom}
           isContentLeftAligned
-          content={<span>Scroll</span>}
+          content={<span>LMB + Drag</span>}
         >
           <Button
             variant="link"
@@ -100,7 +100,7 @@ const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
             <BurnIcon size="md"></BurnIcon>
           </Button>
         </Tooltip>
-        <Tooltip position={TooltipPosition.bottom} content={<div>Invert</div>}>
+        <Tooltip position={TooltipPosition.bottom} content={<div>Rotate</div>}>
           <Button
             variant="link"
             onClick={() => {
