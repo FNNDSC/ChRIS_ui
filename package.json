@@ -30,7 +30,7 @@
     "c3": "^0.7.18",
     "classnames": "^2.2.6",
     "connected-react-router": "^6.8.0",
-    "cornerstone-core": "^2.2.8",
+    "cornerstone-core": "^2.3.0",
     "cornerstone-file-image-loader": "^0.3.0",
     "cornerstone-math": "^0.1.8",
     "cornerstone-tools": "^4.21.0",

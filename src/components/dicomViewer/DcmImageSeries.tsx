@@ -97,7 +97,6 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   };
 
   render() {
-    console.log(this.state);
     return (
       <React.Fragment>
         {this.state.imageIds.length === 0 ? (
@@ -114,6 +113,46 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
                     this.setState({
                       element: cornerstoneElement,
                     });
+
+                    cornerstoneElement.addEventListener(
+                      "cornerstoneimagerendered",
+                      (eventData: any) => {
+                        const viewport = eventData.detail.viewport;
+                        const image = eventData.detail.image;
+                        const newViewport: any = {};
+                        newViewport.voi = viewport.voi || {};
+                        newViewport.voi.windowWidth = image.windowWidth;
+                        newViewport.voi.windowCenter = image.windowCenter;
+                        if (!viewport.displayedArea) {
+                          newViewport.displayedArea = {
+                            // Top Left Hand Corner
+                            tlhc: {
+                              x: 1,
+                              y: 1,
+                            },
+                            // Bottom Right Hand Corner
+                            brhc: {
+                              x: 256,
+                              y: 256,
+                            },
+                            rowPixelSpacing: 1,
+                            columnPixelSpacing: 1,
+                            //presentationSizeMode: "SCALE TO FIT",
+                            presentationSizeMode: "None",
+                          };
+                        }
+                        const setViewport = Object.assign(
+                          {},
+                          viewport,
+                          newViewport
+                        );
+
+                        cornerstone.setViewport(
+                          cornerstoneElement,
+                          setViewport
+                        );
+                      }
+                    );
                   }}
                 />
               </div>
@@ -280,7 +319,6 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   componentWillUnmount() {
     this._isMounted = false;
     if (this.props.inPlay) {
-      console.log("Cleanup?");
       cornerstoneTools.stopClip(this.state.element);
     }
   }
