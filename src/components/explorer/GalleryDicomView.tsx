@@ -44,6 +44,12 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
     }
   }
 
+  setPlayer = (status: boolean) => {
+    this.setState({
+      inPlay: status,
+    });
+  };
+
   render() {
     return <React.Fragment>{this.renderContent()}</React.Fragment>;
   }
@@ -71,6 +77,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
           </Button>
 
           <DcmImageSeries
+            setPlayer={this.setPlayer}
             inPlay={this.state.inPlay}
             runTool={(ref: any) => {
               return (this.runTool = ref.runTool);
@@ -158,6 +165,9 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
     },
     rotate: () => {
       this.toolExecute("Rotate");
+    },
+    stackScroll: () => {
+      this.toolExecute("StackScroll");
     },
   };
 

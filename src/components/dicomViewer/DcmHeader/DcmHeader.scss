@@ -7,7 +7,6 @@ $headerBlue: #73bcf7;
 .dicom-header {
   z-index: 2;
   width: 100vw;
-  align-items: center;
   background: rgba(0, 0, 0, $opacityLevel); //$imgViewerBackgroundColour;
   color: $textColor;
   height: 8vh;
@@ -20,6 +19,9 @@ $headerBlue: #73bcf7;
       color: #fff;
     }
   }
+  .dicom-header__body-tools {
+    margin-left: 25%;
+  }
 
   .pf-m-active {
     color: red !important;
@@ -30,13 +32,6 @@ $headerBlue: #73bcf7;
     svg {
       color: $headerBlue;
     }
-  }
-
-  &__body-tools {
-    padding: 0 22rem 0 2rem;
-  }
-  &__body-functions {
-    padding: 0 2rem 0 2rem;
   }
 }
 

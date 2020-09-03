@@ -20,23 +20,21 @@ cornerstoneWebImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 cornerstoneTools.external.Hammer = Hammer;
-cornerstoneTools.init();
 
 type AllProps = {
   inPlay: boolean;
   imageArray: IUITreeNode[];
   runTool: (ref: any) => void;
   handleToolbarAction: (action: string) => void;
+  setPlayer: (status: boolean) => void;
 };
 
 type AllState = {
   imageIds: string[];
   element: any;
-  isViewerZoomMode: boolean;
-  isViewerPanMode: boolean;
-  isViewerStackScrollMode: boolean;
-  isViewerMagnifyMode: boolean;
-  isViewerWwwcMode: boolean;
+  activeTool: string;
+  tools: any;
+  frameRate: number;
 };
 
 // Description: Will be replaced with a DCM File viewer
@@ -49,11 +47,31 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
     this.state = {
       imageIds: [],
       element: null,
-      isViewerZoomMode: false,
-      isViewerPanMode: false,
-      isViewerStackScrollMode: false,
-      isViewerMagnifyMode: false,
-      isViewerWwwcMode: false,
+      activeTool: "Zoom",
+      tools: [
+        {
+          name: "Zoom",
+          mode: "active",
+          modeOptions: { mouseButtonMask: 1 },
+        },
+
+        {
+          name: "Pan",
+          mode: "active",
+          modeOptions: { mouseButtonMask: 4 },
+        },
+        {
+          name: "Wwwc",
+          mode: "active",
+          modeOptions: { mouseButtonMask: 1 },
+        },
+        {
+          name: "StackScrollMouseWheel",
+          mode: "active",
+        },
+        { name: "Magnify", mode: "active" },
+      ],
+      frameRate: 22,
     };
   }
 
@@ -107,6 +125,10 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
             <div className="ami-viewer">
               <div id="container">
                 <CornerstoneViewport
+                  isPlaying={this.props.inPlay}
+                  frameRate={this.state.frameRate}
+                  activeTool={this.state.activeTool}
+                  tools={this.state.tools}
                   imageIds={this.state.imageIds}
                   onElementEnabled={(elementEnabledEvt: any) => {
                     const cornerstoneElement = elementEnabledEvt.detail.element;
@@ -164,16 +186,14 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   }
 
   runCinePlayer = (cmdName: string) => {
-    const element = this.state.element;
-
     switch (cmdName) {
       case "play": {
-        cornerstoneTools.playClip(element, 30);
+        this.props.setPlayer(true);
         break;
       }
 
       case "pause": {
-        cornerstoneTools.stopClip(element);
+        this.props.setPlayer(false);
         break;
       }
     }
@@ -186,81 +206,27 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
         break;
       }
       case "Wwwc": {
-        //if (this.state.isViewerWwwcMode) return;
-        this.setState(
-          {
-            isViewerWwwcMode: true,
-            isViewerPanMode: false,
-            isViewerZoomMode: false,
-            isViewerMagnifyMode: false,
-          },
-          () => {
-            if (this.state.isViewerWwwcMode) {
-              const WwwcTool = cornerstoneTools.WwwcTool;
-              cornerstoneTools.addTool(WwwcTool);
-              cornerstoneTools.setToolActive("Wwwc", { mouseButtonMask: 1 });
-            } else if (!this.state.isViewerWwwcMode) {
-              cornerstoneTools.setToolPassive("Wwwc", {
-                mouseButtonMask: 1,
-              });
-            }
-          }
-        );
+        if (this.state.activeTool === "Wwwc") return;
+
+        this.setState({
+          activeTool: "Wwwc",
+        });
         break;
       }
       case "Pan": {
-        if (this.state.isViewerPanMode) return;
-        this.setState(
-          {
-            isViewerPanMode: true,
-            isViewerZoomMode: false,
-            isViewerWwwcMode: true,
-            isViewerMagnifyMode: false,
-          },
-          () => {
-            if (this.state.isViewerPanMode) {
-              const PanTool = cornerstoneTools.PanTool;
-              cornerstoneTools.addTool(PanTool);
-              cornerstoneTools.setToolActive("Pan", { mouseButtonMask: 1 });
-            } else {
-              cornerstoneTools.setToolPassive("Pan", {
-                mouseButtonMask: 1,
-              });
-            }
-          }
-        );
+        if (this.state.activeTool === "Pan") return;
+
+        this.setState({
+          activeTool: "Pan",
+        });
         break;
       }
       case "Zoom": {
-        if (this.state.isViewerZoomMode) return;
+        if (this.state.activeTool === "Zoom") return;
 
-        this.setState(
-          {
-            isViewerZoomMode: true,
-            isViewerPanMode: false,
-            isViewerWwwcMode: false,
-            isViewerMagnifyMode: false,
-          },
-          () => {
-            if (this.state.isViewerZoomMode) {
-              const ZoomTool = cornerstoneTools.ZoomTool;
-              cornerstoneTools.addTool(ZoomTool, {
-                configuration: {
-                  invert: false,
-                  preventZoomOutsideImage: false,
-                  minScale: 0.1,
-                  maxScale: 20.0,
-                },
-              });
-              cornerstoneTools.setToolActive("Zoom", { mouseButtonMask: 1 });
-            } else {
-              cornerstoneTools.setToolPassive("Zoom", {
-                mouseButtonMask: 1,
-              });
-            }
-          }
-        );
-
+        this.setState({
+          activeTool: "Zoom",
+        });
         break;
       }
       case "Invert": {
@@ -272,26 +238,11 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
       }
 
       case "Magnify": {
-        if (this.state.isViewerMagnifyMode) return;
-        this.setState(
-          {
-            isViewerMagnifyMode: true,
-            isViewerZoomMode: false,
-            isViewerPanMode: false,
-            isViewerWwwcMode: false,
-          },
-          () => {
-            if (this.state.isViewerMagnifyMode) {
-              const MagnifyTool = cornerstoneTools.MagnifyTool;
-              cornerstoneTools.addTool(MagnifyTool);
-              cornerstoneTools.setToolActive("Magnify", { mouseButtonMask: 1 });
-            } else {
-              cornerstoneTools.setToolPassive("Magnify", {
-                mouseButtonMask: 1,
-              });
-            }
-          }
-        );
+        if (this.state.activeTool === "Magnify") return;
+
+        this.setState({
+          activeTool: "Magnify",
+        });
         break;
       }
       case "Rotate": {
@@ -303,7 +254,11 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
       }
 
       case "StackScroll": {
-        if (this.state.isViewerStackScrollMode) return;
+        if (this.state.activeTool === "StackScrollMouseWheel") return;
+
+        this.setState({
+          activeTool: "StackScrollMouseWheel",
+        });
         break;
       }
 
