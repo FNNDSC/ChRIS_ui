@@ -15,9 +15,8 @@ interface StepperProps {
 const styles = {
   root: {
     width: "35%",
-    minHeight: 0,
-    padding: 0,
-    marginTop: "-20px",
+    minHeight: "0",
+    paddingTop: "12px",
     marginLeft: "-30px",
   },
   stepper: {

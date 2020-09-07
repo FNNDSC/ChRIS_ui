@@ -21,7 +21,6 @@ import {
 } from "@patternfly/react-icons";
 
 import { PluginInstance } from "@fnndsc/chrisapi";
-import ChrisAPIClient from "../../../api/chrisapiclient";
 import TreeNodeModel from "../../../api/models/tree-node.model";
 import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
 import AddNode from "../AddNode/AddNode";
@@ -34,6 +33,7 @@ interface INodeProps {
   selected: PluginInstance;
   descendants: PluginInstance[];
   pluginStatus?: string;
+  pluginLog?: {};
 }
 
 interface INodeState {
@@ -316,6 +316,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
 
 const mapStateToProps = (state: ApplicationState) => ({
   pluginStatus: state.plugin.pluginStatus,
+  pluginLog: state.plugin.pluginLog,
 });
 
 export default connect(mapStateToProps, null)(NodeDetails);

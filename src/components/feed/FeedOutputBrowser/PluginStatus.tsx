@@ -61,6 +61,7 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
 
   const src: Logs | undefined = pluginLog && pluginLog;
   let pluginLogs: LogStatus = {};
+  console.log("Src", src);
 
   if (src && src.info) {
     pluginLogs["pushPath"] = src.info.pushPath.return;

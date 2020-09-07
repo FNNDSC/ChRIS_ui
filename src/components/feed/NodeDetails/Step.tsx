@@ -1,4 +1,5 @@
 import React, { CSSProperties } from "react";
+import { Tooltip } from "@patternfly/react-core";
 
 const Step = (props: any) => {
   const { active, completed, first, isLast, onClick } = props;
@@ -19,11 +20,13 @@ const Step = (props: any) => {
   );
 
   return (
-    <div onClick={onClick} style={styles.step as CSSProperties}>
-      <div style={circleStyle as CSSProperties}></div>
-      {!first && <div style={leftStyle as CSSProperties} />}
-      {!isLast && <div style={rightStyle as CSSProperties} />}
-    </div>
+    <Tooltip content={<div>Test</div>}>
+      <div onClick={onClick} style={styles.step as CSSProperties}>
+        <div style={circleStyle as CSSProperties}></div>
+        {!first && <div style={leftStyle as CSSProperties} />}
+        {!isLast && <div style={rightStyle as CSSProperties} />}
+      </div>
+    </Tooltip>
   );
 };
 
@@ -38,7 +41,7 @@ Step.defaultProps = {
   size: 18,
   circleFontSize: 16,
   titleFontSize: 16,
-  circleTop: 24,
+  circleTop: 0,
   titleTop: 8,
   defaultBarColor: "#E0E0E0",
   barStyle: "solid",
