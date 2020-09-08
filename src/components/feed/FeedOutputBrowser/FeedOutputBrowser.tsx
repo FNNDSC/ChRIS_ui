@@ -55,6 +55,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   stopPolling,
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
+  console.log("Selected", selected);
 
   React.useEffect(() => {
     if (selected) {

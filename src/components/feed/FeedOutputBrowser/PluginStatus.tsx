@@ -4,50 +4,17 @@ import { Spinner, Split, SplitItem } from "@patternfly/react-core";
 import ReactJSON from "react-json-view";
 import "antd/dist/antd.css";
 import "../../explorer/file-detail.scss";
+import { getStatusLabels, displayDescription } from "./utils";
+import {
+  PluginStatusProps,
+  PluginStatusLabels,
+  Logs,
+  LogStatus,
+} from "./types";
+
 import classNames from "classnames";
 
 const { Step } = Steps;
-
-export interface PluginStatusProps {
-  pluginStatus?: string;
-  pluginLog?: {};
-}
-
-type Return = {
-  [key: string]: [boolean];
-};
-
-type Status = {
-  [key: string]: boolean;
-};
-
-type Submit = {
-  submit: boolean;
-};
-
-export interface PluginStatusLabels {
-  pushPath: { [key: string]: boolean };
-  compute: {
-    [key: string]: Return & Status & Submit;
-  };
-  swiftPut: { [key: string]: boolean };
-  pullPath: { [key: string]: boolean };
-}
-
-export interface Label {
-  [key: string]: boolean;
-}
-export interface Logs {
-  [info: string]: {
-    [key: string]: {
-      [key: string]: string;
-    };
-  };
-}
-
-export interface LogStatus {
-  [key: string]: {};
-}
 
 const PluginStatus: React.FC<PluginStatusProps> = ({
   pluginStatus,
@@ -61,7 +28,6 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
 
   const src: Logs | undefined = pluginLog && pluginLog;
   let pluginLogs: LogStatus = {};
-  console.log("Src", src);
 
   if (src && src.info) {
     pluginLogs["pushPath"] = src.info.pushPath.return;
@@ -164,81 +130,3 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
  */
 
 export default PluginStatus;
-
-function getStatusLabels(labels: PluginStatusLabels) {
-  let label = [];
-
-  label[0] = {
-    step: "pushPath",
-    status: labels.pushPath.status,
-    id: 1,
-    title: "Transmit Data",
-  };
-
-  label[1] = {
-    step: "computeSubmit",
-    id: 2,
-    status: labels.compute.submit.status,
-    title: "Setup Compute Environment",
-    previous: "pushPath",
-    previousComplete: labels.pushPath.status === true,
-  };
-
-  label[2] = {
-    step: "computeReturn",
-    id: 3,
-    status: labels.compute.return.status,
-    title: "Compute",
-    previous: "computeSubmit",
-    previousComplete: labels.compute.submit.status === true,
-  };
-
-  label[3] = {
-    step: "pullPath",
-    id: 4,
-    status: labels.pullPath.status,
-    title: "Sync Data",
-    previous: "computeReturn",
-    previousComplete: labels.compute.return.status === true,
-  };
-  label[4] = {
-    step: "swiftPut",
-    id: 5,
-    status: labels.swiftPut.status,
-    title: "Finish Up",
-    previous: "pullPath",
-    previousComplete: labels.pullPath.status === true,
-  };
-
-  return label;
-}
-
-function displayDescription(label: any) {
-  if (label.status === "pushing") {
-    return "transmitting data to compute environment";
-  } else if (
-    label.previous === "pushPath" &&
-    label.previousComplete === true &&
-    label.status !== true
-  ) {
-    return "setting compute environment";
-  } else if (
-    label.previous === "computeSubmit" &&
-    label.previousComplete === true &&
-    label.status !== true
-  ) {
-    return "computing";
-  } else if (
-    label.previous === "computeReturn" &&
-    label.previousComplete === true &&
-    label.status !== true
-  ) {
-    return "syncing data from compute environment";
-  } else if (
-    label.previous === "pullPath" &&
-    label.previousComplete === true &&
-    label.status !== true
-  ) {
-    return "finishing up";
-  }
-}
