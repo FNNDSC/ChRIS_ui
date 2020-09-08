@@ -149,8 +149,8 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
                           newViewport.displayedArea = {
                             // Top Left Hand Corner
                             tlhc: {
-                              x: 1,
-                              y: 1,
+                              x: image.width,
+                              y: image.height,
                             },
                             // Bottom Right Hand Corner
                             brhc: {
@@ -160,7 +160,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
                             rowPixelSpacing: 1,
                             columnPixelSpacing: 1,
                             //presentationSizeMode: "SCALE TO FIT",
-                            presentationSizeMode: "None",
+                            presentationSizeMode: "SCALE TO FIT",
                           };
                         }
                         const setViewport = Object.assign(
