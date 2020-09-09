@@ -149,8 +149,8 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
                           newViewport.displayedArea = {
                             // Top Left Hand Corner
                             tlhc: {
-                              x: image.width,
-                              y: image.height,
+                              x: 1,
+                              y: 1,
                             },
                             // Bottom Right Hand Corner
                             brhc: {

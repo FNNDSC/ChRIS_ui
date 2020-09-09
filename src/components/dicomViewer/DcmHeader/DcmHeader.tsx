@@ -10,6 +10,7 @@ import {
   DownloadIcon,
   BarsIcon,
 } from "@patternfly/react-icons";
+
 import "./DcmHeader.scss";
 
 interface DicomHeaderProps {
