@@ -5,6 +5,7 @@ import { IUITreeNode } from "../../api/models/file-explorer.model";
 import GalleryModel from "../../api/models/gallery.model";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import DcmImageSeries from "../dicomViewer/DcmImageSeries";
+import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import "./file-detail.scss";
 
 type AllProps = {
@@ -16,6 +17,34 @@ interface IState {
   urlArray: IUITreeNode[];
   inPlay: boolean;
 }
+
+const theme = createMuiTheme({
+  overrides: {
+    MuiFormControlLabel: {
+      label: {
+        fontSize: "0.85em",
+      },
+    },
+    MuiFormLabel: {
+      root: {
+        "&$focused": {
+          color: "#CCCCCC",
+        },
+      },
+    },
+  },
+  palette: {
+    primary: {
+      main: "#004d40",
+    },
+    secondary: {
+      main: "#888888",
+    },
+    type: "dark",
+  },
+});
+
+
 
 class GalleryDicomView extends React.Component<AllProps, IState> {
   _isMounted = false;
@@ -75,18 +104,19 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
           >
             <CloseIcon size="md" />{" "}
           </Button>
-
-          <DcmImageSeries
-            setPlayer={this.setPlayer}
-            inPlay={this.state.inPlay}
-            runTool={(ref: any) => {
-              return (this.runTool = ref.runTool);
-            }}
-            imageArray={this.state.urlArray}
-            handleToolbarAction={(action: string) => {
-              (this.handleGalleryActions as any)[action].call();
-            }}
-          />
+          <MuiThemeProvider theme={theme}>
+            <DcmImageSeries
+              setPlayer={this.setPlayer}
+              inPlay={this.state.inPlay}
+              runTool={(ref: any) => {
+                return (this.runTool = ref.runTool);
+              }}
+              imageArray={this.state.urlArray}
+              handleToolbarAction={(action: string) => {
+                (this.handleGalleryActions as any)[action].call();
+              }}
+            />
+          </MuiThemeProvider>
         </GalleryWrapper>
       )
     );
@@ -168,6 +198,10 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
     },
     stackScroll: () => {
       this.toolExecute("StackScroll");
+    },
+
+    dicomHeader: () => {
+      this.toolExecute("DicomHeader");
     },
   };
 
