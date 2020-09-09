@@ -12,6 +12,10 @@ import { IUITreeNode } from "../../api/models/file-explorer.model";
 import DicomHeader from "./DcmHeader/DcmHeader";
 import DicomLoader from "./DcmLoader";
 import CornerstoneViewport from "react-cornerstone-viewport";
+import { Drawer } from "@material-ui/core";
+import { withStyles, Theme, createStyles } from "@material-ui/core/styles";
+import DicomTag from "./DicomTag";
+import { Image, Viewport } from "./types";
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
@@ -24,9 +28,11 @@ cornerstoneTools.external.Hammer = Hammer;
 type AllProps = {
   inPlay: boolean;
   imageArray: IUITreeNode[];
+
   runTool: (ref: any) => void;
   handleToolbarAction: (action: string) => void;
   setPlayer: (status: boolean) => void;
+  classes?: any;
 };
 
 type AllState = {
@@ -35,7 +41,134 @@ type AllState = {
   activeTool: string;
   tools: any;
   frameRate: number;
+  visibleHeader: boolean;
+  currentImage: Image | undefined;
 };
+interface EnabledElement {
+  element: HTMLElement;
+  image?: Image;
+  viewport?: Viewport;
+  canvas?: HTMLCanvasElement;
+  invalid: boolean;
+  needsRedraw: boolean;
+  layers?: EnabledElementLayer[];
+  syncViewports?: boolean;
+  lastSyncViewportsState?: boolean;
+}
+interface EnabledElementLayer {
+  element: HTMLElement;
+  image?: Image;
+  viewport?: Viewport;
+  canvas?: HTMLCanvasElement;
+  needsRedraw: boolean;
+  options?: { renderer?: "webgl" };
+}
+
+interface CornerstoneEventData {
+  canvasContext?: CanvasRenderingContext2D;
+  element?: HTMLElement;
+  enabledElement?: EnabledElement;
+  image?: Image;
+  renderTimeInMs?: number;
+  viewport?: Viewport;
+  oldImage?: Image;
+  frameRate?: number;
+}
+
+interface CornerstoneEvent extends Event {
+  detail?: CornerstoneEventData;
+}
+
+const drawerWidth = 500;
+const iconColor = "#FFFFFF";
+const activeColor = "rgba(0, 255, 0, 1.0)";
+
+const styles = (theme: Theme) =>
+  createStyles({
+    "@global": {
+      body: {
+        backgroundColor: theme.palette.common.black,
+      },
+    },
+
+    grow: {
+      flexGrow: 1,
+    },
+
+    root: {
+      display: "flex",
+    },
+
+    menuButton: {
+      marginRight: theme.spacing(2),
+    },
+
+    title: {
+      flexGrow: 1,
+    },
+
+    appBar: {
+      position: "relative",
+      zIndex: theme.zIndex.drawer + 1,
+      transition: theme.transitions.create(["width", "margin"], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+      }),
+    },
+
+    appBarShift: {
+      marginLeft: drawerWidth,
+      width: `calc(100% - ${drawerWidth}px)`,
+      transition: theme.transitions.create(["width", "margin"], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    },
+
+    hide: {
+      display: "none",
+    },
+
+    drawer: {
+      width: drawerWidth,
+      height: "300vh",
+      flexShrink: 0,
+      whiteSpace: "nowrap",
+    },
+
+    drawerOpen: {
+      width: drawerWidth,
+      transition: theme.transitions.create("width", {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    },
+
+    drawerClose: {
+      transition: theme.transitions.create("width", {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+      }),
+      overflowX: "hidden",
+      width: theme.spacing(7) + 1,
+      [theme.breakpoints.up("sm")]: {
+        width: theme.spacing(9) + 1,
+      },
+    },
+
+    // Loads information about the app bar, including app bar height
+    toolbar: theme.mixins.toolbar,
+
+    content: {
+      flexGrow: 1,
+      padding: theme.spacing(3),
+    },
+
+    listItemText: {
+      fontSize: "0.85em",
+      marginLeft: "-20px",
+    },
+  });
 
 // Description: Will be replaced with a DCM File viewer
 class DcmImageSeries extends React.Component<AllProps, AllState> {
@@ -48,6 +181,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
       imageIds: [],
       element: null,
       activeTool: "Zoom",
+      currentImage: undefined,
       tools: [
         {
           name: "Zoom",
@@ -72,6 +206,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
         { name: "Magnify", mode: "active" },
       ],
       frameRate: 22,
+      visibleHeader: false,
     };
   }
 
@@ -114,7 +249,14 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
     }
   };
 
+  toggleHeader = () => {
+    this.setState({
+      visibleHeader: !this.state.visibleHeader,
+    });
+  };
+
   render() {
+    const { classes } = this.props;
     return (
       <React.Fragment>
         {this.state.imageIds.length === 0 ? (
@@ -122,59 +264,91 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
         ) : (
           <React.Fragment>
             <DicomHeader handleToolbarAction={this.props.handleToolbarAction} />
+
             <div className="ami-viewer">
               <div id="container">
+                <Drawer
+                  style={{
+                    top: "48px !important",
+                  }}
+                  variant="persistent"
+                  anchor="right"
+                  open={this.state.visibleHeader}
+                  onClose={this.toggleHeader}
+                >
+                  {this.state.visibleHeader && (
+                    <DicomTag
+                      image={this.state.currentImage}
+                      classes={classes}
+                    />
+                  )}
+                </Drawer>
                 <CornerstoneViewport
                   isPlaying={this.props.inPlay}
                   frameRate={this.state.frameRate}
                   activeTool={this.state.activeTool}
                   tools={this.state.tools}
                   imageIds={this.state.imageIds}
-                  onElementEnabled={(elementEnabledEvt: any) => {
-                    const cornerstoneElement = elementEnabledEvt.detail.element;
-                    this.setState({
-                      element: cornerstoneElement,
-                    });
+                  onElementEnabled={(elementEnabledEvt: CornerstoneEvent) => {
+                    if (elementEnabledEvt.detail) {
+                      const cornerstoneElement =
+                        elementEnabledEvt.detail.element;
+                      this.setState({
+                        element: cornerstoneElement,
+                      });
 
-                    cornerstoneElement.addEventListener(
-                      "cornerstoneimagerendered",
-                      (eventData: any) => {
-                        const viewport = eventData.detail.viewport;
-                        const image = eventData.detail.image;
-                        const newViewport: any = {};
-                        newViewport.voi = viewport.voi || {};
-                        newViewport.voi.windowWidth = image.windowWidth;
-                        newViewport.voi.windowCenter = image.windowCenter;
-                        if (!viewport.displayedArea) {
-                          newViewport.displayedArea = {
-                            // Top Left Hand Corner
-                            tlhc: {
-                              x: 1,
-                              y: 1,
-                            },
-                            // Bottom Right Hand Corner
-                            brhc: {
-                              x: 256,
-                              y: 256,
-                            },
-                            rowPixelSpacing: 1,
-                            columnPixelSpacing: 1,
-                            //presentationSizeMode: "SCALE TO FIT",
-                            presentationSizeMode: "SCALE TO FIT",
-                          };
-                        }
-                        const setViewport = Object.assign(
-                          {},
-                          viewport,
-                          newViewport
-                        );
+                      if (cornerstoneElement) {
+                        cornerstoneElement.addEventListener(
+                          "cornerstoneimagerendered",
+                          (eventData: CornerstoneEvent) => {
+                            if (eventData.detail) {
+                              const currentImage = eventData.detail.image;
+                              this.setState({
+                                currentImage,
+                              });
 
-                        cornerstone.setViewport(
-                          cornerstoneElement,
-                          setViewport
+                              const viewport = eventData.detail.viewport;
+                              if (viewport) {
+                                const newViewport: any = {};
+                                newViewport.voi = viewport.voi || {};
+                                newViewport.voi.windowWidth =
+                                  currentImage && currentImage.windowWidth;
+                                newViewport.voi.windowCenter =
+                                  currentImage && currentImage.windowCenter;
+                                if (!viewport.displayedArea) {
+                                  newViewport.displayedArea = {
+                                    // Top Left Hand Corner
+                                    tlhc: {
+                                      x: 0,
+                                      y: 0,
+                                    },
+                                    // Bottom Right Hand Corner
+                                    brhc: {
+                                      x: 256,
+                                      y: 256,
+                                    },
+                                    rowPixelSpacing: 1,
+                                    columnPixelSpacing: 1,
+                                    //presentationSizeMode: "SCALE TO FIT",
+                                    presentationSizeMode: "SCALE TO FIT",
+                                  };
+                                }
+                                const setViewport = Object.assign(
+                                  {},
+                                  viewport,
+                                  newViewport
+                                );
+
+                                cornerstone.setViewport(
+                                  cornerstoneElement,
+                                  setViewport
+                                );
+                              }
+                            }
+                          }
                         );
                       }
-                    );
+                    }
                   }}
                 />
               </div>
@@ -262,6 +436,12 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
         break;
       }
 
+      case "DicomHeader": {
+        this.setState({
+          visibleHeader: !this.state.visibleHeader,
+        });
+      }
+
       case "Reset": {
         cornerstone.reset(this.state.element);
         break;
@@ -278,4 +458,4 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   }
 }
 
-export default DcmImageSeries;
+export default withStyles(styles)(DcmImageSeries);

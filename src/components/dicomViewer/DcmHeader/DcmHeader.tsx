@@ -9,6 +9,7 @@ import {
   UndoIcon,
   DownloadIcon,
   BarsIcon,
+  FileAltIcon,
 } from "@patternfly/react-icons";
 
 import "./DcmHeader.scss";
@@ -122,6 +123,19 @@ const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
             }}
           >
             <BarsIcon size="md"></BarsIcon>
+          </Button>
+        </Tooltip>
+        <Tooltip
+          position={TooltipPosition.bottom}
+          content={<div>Dicom Tag Information</div>}
+        >
+          <Button
+            variant="link"
+            onClick={() => {
+              handleToolbarAction("dicomHeader");
+            }}
+          >
+            <FileAltIcon size="md" />
           </Button>
         </Tooltip>
         <Button variant="link">
