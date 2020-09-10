@@ -44,8 +44,6 @@ const theme = createMuiTheme({
   },
 });
 
-
-
 class GalleryDicomView extends React.Component<AllProps, IState> {
   _isMounted = false;
   runTool: (toolName: string, opt?: any) => void;
@@ -198,6 +196,9 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
     },
     stackScroll: () => {
       this.toolExecute("StackScroll");
+    },
+    reset: () => {
+      this.toolExecute("Reset");
     },
 
     dicomHeader: () => {

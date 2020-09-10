@@ -43,6 +43,8 @@ type AllState = {
   frameRate: number;
   visibleHeader: boolean;
   currentImage: Image | undefined;
+  totalFiles: number;
+  filesParsed: number;
 };
 interface EnabledElement {
   element: HTMLElement;
@@ -182,6 +184,8 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
       element: null,
       activeTool: "Zoom",
       currentImage: undefined,
+      totalFiles: 0,
+      filesParsed: 0,
       tools: [
         {
           name: "Zoom",
@@ -230,8 +234,15 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
     const { imageArray } = this.props;
     if (imageArray.length < 0) return;
     let imageIds: string[] = [];
+    this.setState({
+      totalFiles: imageArray.length - 1,
+    });
+
     for (let i = 0; i < imageArray.length; i++) {
       const item = imageArray[i];
+      this.setState({
+        filesParsed: i,
+      });
 
       if (isDicom(item.module)) {
         const file = await item.file.getFileBlob();
@@ -257,10 +268,14 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
 
   render() {
     const { classes } = this.props;
+
     return (
       <React.Fragment>
         {this.state.imageIds.length === 0 ? (
-          <DicomLoader />
+          <DicomLoader
+            totalFiles={this.state.totalFiles}
+            filesParsed={this.state.filesParsed}
+          />
         ) : (
           <React.Fragment>
             <DicomHeader handleToolbarAction={this.props.handleToolbarAction} />

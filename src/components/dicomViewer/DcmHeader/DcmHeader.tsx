@@ -10,6 +10,7 @@ import {
   DownloadIcon,
   BarsIcon,
   FileAltIcon,
+  RedoIcon,
 } from "@patternfly/react-icons";
 
 import "./DcmHeader.scss";
@@ -136,6 +137,19 @@ const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
             }}
           >
             <FileAltIcon size="md" />
+          </Button>
+        </Tooltip>
+        <Tooltip
+          position={TooltipPosition.bottom}
+          content={<div>Reset State</div>}
+        >
+          <Button
+            variant="link"
+            onClick={() => {
+              handleToolbarAction("reset");
+            }}
+          >
+            <RedoIcon size="md" />
           </Button>
         </Tooltip>
         <Button variant="link">

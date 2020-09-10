@@ -36,6 +36,7 @@ export const galleryActions = keyMirror({
   rotate: null,
   stackScroll: null,
   dicomHeader: null,
+  reset: null,
 });
 
 export type galleryModelItemType = IUITreeNode | IGalleryItem;
