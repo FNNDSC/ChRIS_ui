@@ -81,6 +81,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
               <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
                 {!!selectedFile && !!selectedFolder ? (
                   <FileDetailView
+                    fullScreenMode={true}
                     selectedFile={selectedFile}
                     toggleViewerMode={this.toggleViewerMode}
                   />
