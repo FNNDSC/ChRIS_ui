@@ -80,10 +80,7 @@ interface CornerstoneEventData {
 interface CornerstoneEvent extends Event {
   detail?: CornerstoneEventData;
 }
-
 const drawerWidth = 500;
-const iconColor = "#FFFFFF";
-const activeColor = "rgba(0, 255, 0, 1.0)";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -455,6 +452,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
         this.setState({
           visibleHeader: !this.state.visibleHeader,
         });
+        break;
       }
 
       case "Reset": {

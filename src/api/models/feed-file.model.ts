@@ -1,4 +1,3 @@
-import axios, { AxiosRequestConfig } from "axios";
 import { chrisId } from "./base.model";
 
 // Description: ChRIS API Feed File
