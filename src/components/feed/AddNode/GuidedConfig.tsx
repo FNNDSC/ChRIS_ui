@@ -202,7 +202,7 @@ class GuidedConfig extends React.Component<
             onClick={this.addParam}
             variant="primary"
           >
-            Add Optional Parameters
+            Add more parameters
           </Button>
 
           <div>
