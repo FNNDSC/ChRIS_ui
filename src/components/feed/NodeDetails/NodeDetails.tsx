@@ -62,7 +62,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
   async fetchPluginData() {
     const { selected } = this.props;
 
-    const params = await selected.getParameters();
+    const params = await selected.getParameters({});
     const plugin = await selected.getPlugin();
 
     this.setState({
