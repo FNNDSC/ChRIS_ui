@@ -4,7 +4,7 @@ import SimpleDropdown from "./SimpleDropdown";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { isEqual, isEmpty } from "lodash";
-import { uuid } from "uuidv4";
+import { v4 } from "uuid";
 import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
 import { GuidedConfigState, GuidedConfigProps } from "./types";
 import {
@@ -96,7 +96,7 @@ class GuidedConfig extends React.Component<
 
     if (params && count < params.length) {
       this.setState({
-        componentList: [...componentList, uuid()],
+        componentList: [...componentList, v4()],
         count: this.state.count + 1,
       });
     }

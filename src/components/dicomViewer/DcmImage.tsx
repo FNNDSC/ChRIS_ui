@@ -27,15 +27,14 @@ class DcmImage extends React.Component<DcmImageProps, DcmImageState> {
   constructor(props: DcmImageProps) {
     super(props);
     this.containerRef = React.createRef();
+    this.state = {
+      viewport: cornerstone.getDefaultViewport(null, undefined),
+      stack: {
+        imageId: [],
+        currentImageIdIndex: 0,
+      },
+    };
   }
-
-  state = {
-    viewport: cornerstone.getDefaultViewport(null, undefined),
-    stack: {
-      imageId: [],
-      currentImageIdIndex: 0,
-    },
-  };
 
   componentDidMount() {
     const { file } = this.props;

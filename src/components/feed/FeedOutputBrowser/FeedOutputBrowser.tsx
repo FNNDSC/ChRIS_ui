@@ -55,7 +55,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   stopPolling,
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
-  console.log("Selected", selected);
 
   React.useEffect(() => {
     if (selected) {
@@ -162,15 +161,17 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               </div>
             )}
           </div>
-          {selected && tree ? (
+          {selected &&
+          selected.data.status === "finishedSuccessfully" &&
+          tree ? (
             <FileBrowser
               pluginName={pluginName}
               root={tree}
               key={selected.data.id}
               handleViewerModeToggle={handlePluginModalOpen}
             />
-          ) : selected && selected.data.status === "finishedSuccessfully" ? (
-            <Spinner size="lg" />
+          ) : selected?.data.status === "finishedSuccessfully" && !tree ? (
+            <Spinner size="md" />
           ) : (
             <PluginStatus pluginStatus={pluginStatus} pluginLog={pluginLog} />
           )}
