@@ -1,19 +1,15 @@
 import React, { CSSProperties } from "react";
+import { Tooltip } from "@patternfly/react-core";
 
 const Step = (props: any) => {
-  const { active, completed, first, isLast, href, onClick } = props;
+  const { active, completed, first, isLast, onClick } = props;
 
   const styles = getStyles(props);
   const circleStyle = Object.assign(
     styles.circle,
-    completed === true ? styles.completedCircle : {},
-    active === true ? styles.activeCircle : {}
+    completed === true ? styles.completedCircle : styles.activeCircle
   );
-  const titleStyle = Object.assign(
-    styles.title,
-    completed ? styles.completedTitle : {},
-    active ? styles.activeTitle : {}
-  );
+
   const leftStyle = Object.assign(
     styles.leftBar,
     active || completed ? styles.completedBar : {}
@@ -24,18 +20,13 @@ const Step = (props: any) => {
   );
 
   return (
-    <div onClick={onClick} style={styles.step as CSSProperties}>
-      <div style={circleStyle as CSSProperties}></div>
-      {completed ? (
-        <a href={href} style={titleStyle as CSSProperties}>
-          
-        </a>
-      ) : (
-        <div style={titleStyle as CSSProperties}></div>
-      )}
-      {!first && <div style={leftStyle as CSSProperties} />}
-      {!isLast && <div style={rightStyle as CSSProperties} />}
-    </div>
+    <Tooltip content={<div>Test</div>}>
+      <div onClick={onClick} style={styles.step as CSSProperties}>
+        <div style={circleStyle as CSSProperties}></div>
+        {!first && <div style={leftStyle as CSSProperties} />}
+        {!isLast && <div style={rightStyle as CSSProperties} />}
+      </div>
+    </Tooltip>
   );
 };
 
@@ -50,7 +41,7 @@ Step.defaultProps = {
   size: 18,
   circleFontSize: 16,
   titleFontSize: 16,
-  circleTop: 24,
+  circleTop: 0,
   titleTop: 8,
   defaultBarColor: "#E0E0E0",
   barStyle: "solid",
@@ -113,18 +104,16 @@ function getStyles(props: any) {
       alignItems: "center",
       justifyContent: "center",
       opacity: defaultOpacity,
-      borderWidth: defaultBorderColor ? 3 : 0,
+      borderWidth: defaultBorderColor ? 4 : 0,
       borderColor: defaultBorderColor,
       borderStyle: defaultBorderStyle,
-      cursor: circleCursor,
     },
     activeCircle: {
-      backgroundColor: "grey",
+      backgroundColor: "#D2D2D2",
       opacity: activeOpacity,
       borderWidth: activeBorderColor ? 3 : 0,
       borderColor: activeBorderColor,
       borderStyle: activeBorderStyle,
-      cursor: circleCursor,
     },
     completedCircle: {
       backgroundColor: activeColor,

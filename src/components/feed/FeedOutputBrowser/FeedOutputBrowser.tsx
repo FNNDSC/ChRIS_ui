@@ -76,7 +76,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     const name = getPluginName(plugin);
     const isSelected = selected && selected.data.id === id;
     const icon = isSelected ? <FolderOpenIcon /> : <FolderCloseIcon />;
-    const className = isSelected ? "selected" : "";
+    const className = isSelected ? "selected" : undefined;
 
     const handleSidebarItemClick = (plugin: PluginInstance) => {
       handlePluginSelect(plugin);
@@ -126,7 +126,15 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       <Split>
         <SplitItem>
           <ul className="sidebar">
-            {plugins ? plugins.map(generateSideItem) : <Spinner size="md" />}
+            {plugins ? (
+              plugins
+                .sort((a: PluginInstance, b: PluginInstance) => {
+                  return a.data.id - b.data.id;
+                })
+                .map(generateSideItem)
+            ) : (
+              <Spinner size="md" />
+            )}
           </ul>
         </SplitItem>
         <SplitItem isFilled>
@@ -153,15 +161,17 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               </div>
             )}
           </div>
-          {selected && tree ? (
+          {selected &&
+          selected.data.status === "finishedSuccessfully" &&
+          tree ? (
             <FileBrowser
               pluginName={pluginName}
               root={tree}
               key={selected.data.id}
               handleViewerModeToggle={handlePluginModalOpen}
             />
-          ) : selected && selected.data.status === "finishedSuccessfully" ? (
-            <Spinner size="lg" />
+          ) : selected?.data.status === "finishedSuccessfully" && !tree ? (
+            <Spinner size="md" />
           ) : (
             <PluginStatus pluginStatus={pluginStatus} pluginLog={pluginLog} />
           )}

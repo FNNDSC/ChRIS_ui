@@ -12,14 +12,12 @@ import {
 } from "../../../store/explorer/actions";
 import { IExplorerState } from "../../../store/explorer/types";
 import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
-
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import ChrisModel from "../../../api/models/base.model";
 import FileExplorer from "../../explorer/FileExplorer";
 import FileTableView from "../../explorer/FileTableView";
 import FileDetailView from "../../explorer/FileDetailView";
-import GalleryView from "../../explorer/GalleryView";
 import GalleryDicomView from "../../explorer/GalleryDicomView";
 
 interface IPropsFromDispatch {
@@ -60,7 +58,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
       selectedFile,
       selectedFolder,
       viewerMode,
-      isViewerModeDicom,
+      isViewerMode,
     } = this.props;
 
     return (
@@ -83,6 +81,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
               <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
                 {!!selectedFile && !!selectedFolder ? (
                   <FileDetailView
+                    fullScreenMode={true}
                     selectedFile={selectedFile}
                     toggleViewerMode={this.toggleViewerMode}
                   />
@@ -103,21 +102,13 @@ class FileBrowserViewer extends React.Component<AllProps> {
             </Grid>
           ) : (
             <div className="viewer-data">
-              {!!selectedFile &&
-                !!selectedFolder &&
-                (isViewerModeDicom ? (
-                  <GalleryDicomView
-                    selectedFile={selectedFile}
-                    selectedFolder={selectedFolder}
-                    toggleViewerMode={this.toggleViewerMode}
-                  />
-                ) : (
-                  <GalleryView
-                    selectedFile={selectedFile}
-                    selectedFolder={selectedFolder}
-                    toggleViewerMode={this.toggleViewerMode}
-                  />
-                ))}
+              {!!selectedFile && !!selectedFolder && isViewerMode && (
+                <GalleryDicomView
+                  selectedFile={selectedFile}
+                  selectedFolder={selectedFolder}
+                  toggleViewerMode={this.toggleViewerMode}
+                />
+              )}
             </div>
           )}
         </div>
@@ -160,7 +151,7 @@ const mapStateToProps = ({ explorer }: ApplicationState) => ({
   selectedFolder: explorer.selectedFolder,
   explorer: explorer.explorer,
   viewerMode: explorer.viewerMode,
-  isViewerModeDicom: explorer.isViewerModeDicom,
+  isViewerMode: explorer.isViewerMode,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileBrowserViewer);

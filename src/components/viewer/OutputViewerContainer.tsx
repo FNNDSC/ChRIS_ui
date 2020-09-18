@@ -6,8 +6,6 @@ import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
 
 import { pluginViewerMap } from "../../api/models/file-viewer.model";
 import {
-  DicomViewer,
-  RevViewer,
   DataTableViewer,
   FreesurferDataTable,
   ZScoreDataTable,
@@ -77,22 +75,6 @@ class OutputViewerContainer extends React.Component<
         let tabContent;
         let label = "tab";
         switch (key) {
-          case "ZScoreViewer":
-            label = "Viewer";
-            tabContent = !!files && <DicomViewer pluginType="ZScoreViewer" />;
-            break;
-          case "DicomViewer_3D":
-            label = "3D Viewer";
-            tabContent = !!files && <DicomViewer pluginType="DicomViewer_3D" />;
-            break;
-          case "DicomViewer_2D":
-            label = "Viewer";
-            tabContent = !!files && <DicomViewer pluginType="DicomViewer_2D" />;
-            break;
-          case "RevViewer":
-            label = "Viewer";
-            tabContent = !!files && <RevViewer files={files} />;
-            break;
           case "FileBrowserViewer":
             label = "File Browser";
             tabContent = !!files && !!selected && (

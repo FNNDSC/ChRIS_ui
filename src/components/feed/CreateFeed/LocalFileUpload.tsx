@@ -61,7 +61,7 @@ const LocalFileUpload: React.FC = () => {
       <h1 className="pf-c-title pf-m-2xl">
         Data Configuration: Local File Upload
       </h1>
-      <p>Please choose the data files you'd like to add to your feed.</p>
+      <p>Choose files from your local computer to create a feed</p>
       <br />
       <Split gutter="lg">
         <SplitItem isFilled>

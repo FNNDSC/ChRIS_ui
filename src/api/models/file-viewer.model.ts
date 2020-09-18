@@ -46,15 +46,10 @@ export default class FileViewerModel {
 // Description: Mapping for plugin tabs *Note: Should come from db
 export const pluginViewerMap: any = {
   default: ["FileBrowserViewer"],
-  dircopy: ["FileBrowserViewer", "RevViewer"],
-  pacscopy: ["FileBrowserViewer", "RevViewer"],
-  mri10yr06mo01da_normal: ["RevViewer", "FileBrowserViewer"], // This is temp for custom display
-  freesurfer_pp: [
-    "FileBrowserViewer",
-    "DicomViewer_2D",
-    "DicomViewer_3D",
-    "FreesurferDataTable",
-  ],
+  dircopy: ["FileBrowserViewer"],
+  pacscopy: ["FileBrowserViewer"],
+  mri10yr06mo01da_normal: ["FileBrowserViewer"], // This is temp for custom display
+  freesurfer_pp: ["FileBrowserViewer", "FreesurferDataTable"],
   simpledsapp: [
     "FileBrowserViewer",
     "VolumeGrowth",
@@ -67,7 +62,7 @@ export const pluginViewerMap: any = {
     "ZScoreDataTable",
     "FileBrowserViewer",
   ],
-  z2labelmap: ["ZScoreViewer", "FileBrowserViewer"],
+  z2labelmap: ["FileBrowserViewer"],
 };
 
 // Description: Mapping for Viewer type by file type *Note: Should come from db

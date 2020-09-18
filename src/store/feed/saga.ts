@@ -44,8 +44,10 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
     const feed = yield client.getFeed(id);
 
     if (feed) {
-      yield put(getFeedSuccess(feed));
-      yield put(getPluginInstancesRequest(feed));
+      yield all([
+        put(getFeedSuccess(feed)),
+        put(getPluginInstancesRequest(feed)),
+      ]);
     } else {
       console.error("Feed does not exist");
     }
@@ -58,16 +60,16 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
   const feed: Feed = action.payload;
   try {
     const pluginInstanceList = yield feed.getPluginInstances({});
-
-
     const pluginInstances = yield pluginInstanceList.getItems();
-    
+
     const selected = pluginInstances[pluginInstances.length - 1];
 
-    yield all([
-      put(getSelectedPlugin(selected)),
-      put(getPluginInstancesSuccess(pluginInstances)),
-    ]);
+    let pluginInstanceObj = {
+      selected,
+      pluginInstances,
+    };
+
+    yield put(getPluginInstancesSuccess(pluginInstanceObj));
   } catch (err) {
     console.error(err);
   }

@@ -4,7 +4,7 @@ import matchAll from "string.prototype.matchall";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { isEmpty } from "lodash";
-import { uuid } from "uuidv4";
+import { v4 } from "uuid";
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { InputType, InputIndex } from "./types";
 import { EditorState, EditorProps } from "./types";
@@ -120,7 +120,7 @@ class Editor extends Component<EditorProps, EditorState> {
           }
         }
       } else if (allParams && allParams.includes(flag) && editorValue) {
-        const id = uuid();
+        const id = v4();
         result[flag] = editorValue.trim();
         dropdownObject[id] = result;
       }

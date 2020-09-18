@@ -1,8 +1,8 @@
 import { all, fork, put, takeEvery } from "redux-saga/effects";
-import { push } from "connected-react-router";
 import Client from "@fnndsc/chrisapi";
 import { UserActionTypes } from "./types";
 import { getAuthTokenSuccess } from "./actions";
+import history from "../../utils";
 
 // ----------------------------------------------------------------
 // Description: List - Get all Users
@@ -21,11 +21,11 @@ function* handleLogin(action: any) {
       yield put(getAuthTokenSuccess(token));
       window.sessionStorage.setItem("AUTH_TOKEN", token);
       window.sessionStorage.setItem("USERNAME", username);
-      yield put(push("/"));
+      history.push("/");
     }
   } catch (error) {
     console.error(error); // working user messaging
-    yield put(push("/not-found"));
+    history.push("/not-found");
   }
 }
 
@@ -37,10 +37,10 @@ function* watchLoginRequest() {
 
 // ----------------------------------------------------------------
 // Log user out
-function* handleLogout(action: any) {
+function handleLogout(action: any) {
   window.sessionStorage.removeItem("AUTH_TOKEN");
   window.sessionStorage.removeItem("USERNAME");
-  yield put(push("/login"));
+  history.push("/login");
 }
 function* watchLogoutRequest() {
   yield takeEvery(UserActionTypes.LOGOUT_USER, handleLogout);
