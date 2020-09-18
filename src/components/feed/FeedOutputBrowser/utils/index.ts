@@ -24,6 +24,7 @@ export function getStatusLabels(labels: PluginStatusLabels) {
     step: "pushPath",
     status: labels.pushPath.status,
     id: 1,
+    previous: "none",
     title: "Transmit Data",
   };
 
@@ -66,7 +67,7 @@ export function getStatusLabels(labels: PluginStatusLabels) {
 }
 
 export function displayDescription(label: any) {
-  if (label.status === "pushing") {
+  if (label.status === "pushing" && label.previous === "none") {
     return "transmitting data to compute environment";
   } else if (
     label.previous === "pushPath" &&
@@ -83,7 +84,7 @@ export function displayDescription(label: any) {
   } else if (
     label.previous === "computeReturn" &&
     label.previousComplete === true &&
-    label.status !== true
+    (label.status !== true || label.status === "pushing")
   ) {
     return "syncing data from compute environment";
   } else if (

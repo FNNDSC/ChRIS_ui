@@ -67,7 +67,7 @@ interface EnabledElementLayer {
 }
 
 interface CornerstoneEventData {
-  canvasContext?: CanvasRenderingContext2D;
+  canvasContext?: any;
   element?: HTMLElement;
   enabledElement?: EnabledElement;
   image?: Image;
