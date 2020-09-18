@@ -1,0 +1,54 @@
+$imgViewerBackgroundColour: black;
+$textColor: white;
+$GreyTextColor: #868686;
+$opacityLevel: 0.75;
+$headerBlue: #73bcf7;
+
+.dicom-header {
+  z-index: 2;
+  width: 100vw;
+  background: rgba(0, 0, 0, $opacityLevel); //$imgViewerBackgroundColour;
+  color: $textColor;
+  height: 8vh;
+  display: flex;
+  flex-direction: row;
+
+  button {
+    margin: 0.3rem;
+    svg {
+      color: #fff;
+    }
+  }
+  .dicom-header__body-tools {
+    margin-left: 25%;
+  }
+
+  .pf-m-active {
+    color: red !important;
+  }
+
+  button:hover,
+  button:focus {
+    svg {
+      color: $headerBlue;
+    }
+  }
+}
+
+.dicom-logo {
+  padding: 0.8rem;
+  margin-right: 4rem;
+
+  &__text {
+    font-size: 1.4rem;
+    color: $headerBlue !important;
+    font-weight: 900;
+    display: block;
+  }
+
+  &__subtext {
+    color: white;
+    display: block;
+    font-weight: 900;
+  }
+}

@@ -22,7 +22,6 @@ type AllProps = IUiState & IOtherProps & IPropsFromDispatch;
 class Wrapper extends React.Component<AllProps> {
   // Description: toggles sidebar on pageresize
   onPageResize = (data: { mobileView: boolean; windowSize: number }) => {
-    console.log("Page resize called");
     const { isSidebarOpen, onSidebarToggle } = this.props;
     !data.mobileView && !isSidebarOpen && onSidebarToggle(!isSidebarOpen);
   };

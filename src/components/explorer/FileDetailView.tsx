@@ -17,6 +17,7 @@ import "./file-detail.scss";
 
 type AllProps = {
   selectedFile: IUITreeNode;
+  fullScreenMode?: boolean;
   toggleViewerMode: (isViewerMode: boolean) => void;
 };
 
@@ -96,6 +97,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   }
 
   renderDownloadButton = () => {
+    const { fullScreenMode } = this.props;
     return (
       <div className="float-right">
         <Button
@@ -104,7 +106,8 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
             this.props.toggleViewerMode(false);
           }}
         >
-          <ExpandIcon /> open in viewer
+          <ExpandIcon />
+          {fullScreenMode ? " Open Image Viewer" : " Full Screen"}
         </Button>
         <Button
           variant="secondary"

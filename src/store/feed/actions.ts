@@ -3,6 +3,11 @@ import { FeedActionTypes } from "./types";
 
 import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 
+interface PluginInstanceObj {
+  selected: PluginInstance;
+  pluginInstances: PluginInstance[];
+}
+
 // type them properly as well -> For more info: https://github.com/piotrwitek/typesafe-actions
 export const getAllFeedsRequest = (
   name?: string,
@@ -19,7 +24,7 @@ export const getSelectedPlugin = (item: PluginInstance) =>
   action(FeedActionTypes.GET_SELECTED_PLUGIN, item);
 export const getPluginInstancesRequest = (feed: Feed) =>
   action(FeedActionTypes.GET_PLUGIN_INSTANCES_REQUEST, feed);
-export const getPluginInstancesSuccess = (items: PluginInstance[]) =>
+export const getPluginInstancesSuccess = (items: PluginInstanceObj) =>
   action(FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS, items);
 export const destroyFeedState = () => action(FeedActionTypes.RESET_FEED_STATE);
 export const addFeed = (feed: Feed) => action(FeedActionTypes.ADD_FEED, feed);

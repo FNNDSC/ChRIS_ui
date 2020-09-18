@@ -1,17 +1,22 @@
 import * as React from "react";
 import { LoadingSpinner } from "..";
 
-interface ILoadingProps {
-    totalParsed: number;
-    totalFiles: number;
+interface DicomLoaderProps {
+  totalFiles: number;
+  filesParsed: number;
 }
 
-const DcmLoader: React.FunctionComponent<any> = (props: ILoadingProps) => {
-    return (<div className="loader">
-        <LoadingSpinner color="#fff" isLocal />
-        {`${props.totalParsed} of ${props.totalFiles} loaded`}
+const DcmLoader: React.FunctionComponent<DicomLoaderProps> = ({
+  totalFiles,
+  filesParsed,
+}) => {
+  
+  return (
+    <div className="loader">
+      <LoadingSpinner color="#fff" isLocal />
+      {`${filesParsed} of ${totalFiles} loaded`}
     </div>
-    )
+  );
 };
 
 export default DcmLoader;

@@ -2,9 +2,10 @@ import * as React from "react";
 import { Button } from "@patternfly/react-core";
 import { CloseIcon } from "@patternfly/react-icons";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
-import GalleryModel, { galleryActions } from "../../api/models/gallery.model";
+import GalleryModel from "../../api/models/gallery.model";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import DcmImageSeries from "../dicomViewer/DcmImageSeries";
+import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import "./file-detail.scss";
 
 type AllProps = {
@@ -13,51 +14,86 @@ type AllProps = {
   toggleViewerMode: (isViewerMode: boolean) => void;
 };
 interface IState {
-  viewInfoPanel: boolean;
-  urlArray: string[];
-  totalFiles: number;
-  totalParsed: number;
-  currentIndex: number;
+  urlArray: IUITreeNode[];
+  inPlay: boolean;
 }
+
+const theme = createMuiTheme({
+  overrides: {
+    MuiFormControlLabel: {
+      label: {
+        fontSize: "0.85em",
+      },
+    },
+    MuiFormLabel: {
+      root: {
+        "&$focused": {
+          color: "#CCCCCC",
+        },
+      },
+    },
+  },
+  palette: {
+    primary: {
+      main: "#004d40",
+    },
+    secondary: {
+      main: "#888888",
+    },
+    type: "dark",
+  },
+});
 
 class GalleryDicomView extends React.Component<AllProps, IState> {
   _isMounted = false;
+  runTool: (toolName: string, opt?: any) => void;
+  timerScrolling: any;
+
   constructor(props: AllProps) {
     super(props);
-    const urlArray = this._getUrlArray(this.props.selectedFolder.children),
-      currentIndex = GalleryModel.getArrayItemIndex(
-        props.selectedFile.file.file_resource,
-        urlArray
-      );
     this.state = {
-      viewInfoPanel: true,
-      urlArray,
-      currentIndex,
-      totalFiles: urlArray.length,
-      totalParsed: 0
+      urlArray: [],
+      inPlay: false,
     };
+    this.runTool = () => {};
+    this.timerScrolling = null;
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this._isMounted = true;
+
+    const urlArray = this._getUrlArray(this.props.selectedFolder.children);
+
+    if (urlArray.length > 0 && this._isMounted) {
+      this.setState({
+        urlArray,
+      });
+    }
   }
+
+  setPlayer = (status: boolean) => {
+    this.setState({
+      inPlay: status,
+    });
+  };
 
   render() {
     return <React.Fragment>{this.renderContent()}</React.Fragment>;
   }
 
-  // Decription: Render the individual viewers by filetype
+  // Description: Render the individual viewers by filetype
   renderContent() {
     const { selectedFolder } = this.props;
+    const { inPlay } = this.state;
     return (
       !!selectedFolder.children && (
         <GalleryWrapper
-          index={this.state.currentIndex}
-          total={this.state.totalFiles}
+          total={this.state.urlArray.length}
           hideDownload
           handleOnToolbarAction={(action: string) => {
             (this.handleGalleryActions as any)[action].call();
           }}
+          listOpenFilesScrolling={inPlay}
         >
           <Button
             className="close-btn"
@@ -66,63 +102,112 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
           >
             <CloseIcon size="md" />{" "}
           </Button>
-          <DcmImageSeries
-            imageArray={this.state.urlArray}
-            currentIndex={this.state.currentIndex}
-            viewInfoPanel={this.state.viewInfoPanel}
-          />
+          <MuiThemeProvider theme={theme}>
+            <DcmImageSeries
+              setPlayer={this.setPlayer}
+              inPlay={this.state.inPlay}
+              runTool={(ref: any) => {
+                return (this.runTool = ref.runTool);
+              }}
+              imageArray={this.state.urlArray}
+              handleToolbarAction={(action: string) => {
+                (this.handleGalleryActions as any)[action].call();
+              }}
+            />
+          </MuiThemeProvider>
         </GalleryWrapper>
       )
     );
   }
 
   // Only user dcm file - can add on to this
-  _getUrlArray(selectedFolder: IUITreeNode[] = []): string[] {
-    return selectedFolder
-      .filter((item: IUITreeNode) => {
-        return GalleryModel.isDicomFile(item.module);
-      })
-      .map((item: IUITreeNode) => {
-        const file_resource = `${item.file.url}/${item.module}`; //Temporary hack
-        return file_resource;
-      });
+  _getUrlArray(selectedFolder: IUITreeNode[] = []) {
+    const files = selectedFolder.filter((item: IUITreeNode) => {
+      return GalleryModel.isValidFile(item.module);
+    });
+    return files;
+    //
   }
 
+  toolExecute = (tool: string) => {
+    this.runTool(tool);
+  };
+
+  handleOpenImage = (cmdName: string) => {
+    this.runTool("openImage", cmdName);
+  };
+
   // Description: change the gallery item state
-  _playInterval: any = undefined;
+
   handleGalleryActions = {
-    next: () => {
-      const i = this.state.currentIndex;
-      this._isMounted &&
-        this.setState({
-          currentIndex: i + 1 < this.state.urlArray.length ? i + 1 : 0
-        });
-    },
-    previous: () => {
-      const i = this.state.currentIndex;
-      this._isMounted &&
-        this.setState({
-          currentIndex: i > 0 ? i - 1 : 0
-        });
-    },
+    next: () => {},
+    previous: () => {},
     play: () => {
-      this._playInterval = setInterval(() => {
-        (this.handleGalleryActions as any)[galleryActions.next].call();
-      }, 200);
+      this.setState(
+        {
+          inPlay: true,
+        },
+        () => {
+          this.handleOpenImage("play");
+        }
+      );
     },
     pause: () => {
-      clearInterval(this._playInterval);
+      this.setState(
+        {
+          inPlay: false,
+        },
+        () => {
+          this.handleOpenImage("pause");
+        }
+      );
     },
+    first: () => {},
+    last: () => {},
     information: () => {
+      /*
       this._isMounted &&
         this.setState({
-          viewInfoPanel: !this.state.viewInfoPanel
+          viewInfoPanel: !this.state.viewInfoPanel,
         });
-    }
+      */
+    },
+
+    zoom: () => {
+      this.toolExecute("Zoom");
+    },
+
+    pan: () => {
+      this.toolExecute("Pan");
+    },
+
+    wwwc: () => {
+      this.toolExecute("Wwwc");
+    },
+    invert: () => {
+      this.toolExecute("Invert");
+    },
+
+    magnify: () => {
+      this.toolExecute("Magnify");
+    },
+    rotate: () => {
+      this.toolExecute("Rotate");
+    },
+    stackScroll: () => {
+      this.toolExecute("StackScroll");
+    },
+    reset: () => {
+      this.toolExecute("Reset");
+    },
+
+    dicomHeader: () => {
+      this.toolExecute("DicomHeader");
+    },
   };
 
   componentWillUnmount() {
-    clearInterval(this._playInterval);
+    clearInterval(this.timerScrolling);
     this._isMounted = false;
   }
 }
