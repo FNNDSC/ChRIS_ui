@@ -1,11 +1,7 @@
 import React, { useContext } from "react";
 import { CreateFeedContext } from "./context";
 
-import {
-  FolderCloseIcon,
-  FileIcon,
-  WarningTriangleIcon,
-} from "@patternfly/react-icons";
+import { FolderCloseIcon, FileIcon } from "@patternfly/react-icons";
 import { Split, SplitItem, Grid, GridItem } from "@patternfly/react-core";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
 
@@ -51,11 +47,6 @@ const Review: React.FunctionComponent = () => {
     </div>
   ));
 
-  const showFileWarning = !(chrisFiles.length > 0 || localFiles.length > 0);
-  const moreThanOneDirWarning = chrisFiles.length > 1 ? true : false;
-  const chrisFileSelectOrLocalFileUpload =
-    chrisFiles.length > 0 && localFiles.length > 0;
-
   const getReviewDetails = () => {
     if (selectedConfig === "fs_plugin") {
       let generatedCommand = "";
@@ -81,13 +72,12 @@ const Review: React.FunctionComponent = () => {
           </GridItem>
         </Grid>
       );
-    }
-    if (selectedConfig === "file_select") {
+    } else if (selectedConfig === "multiple_select") {
       return (
         <>
           <Split>
             <SplitItem isFilled className="file-list">
-              <p>ChRIS files to add to new feed:</p>
+              <p>Existing Files to add to new feed:</p>
               {generateFileList(chrisFiles, false)}
             </SplitItem>
             <SplitItem isFilled className="file-list">
@@ -95,26 +85,25 @@ const Review: React.FunctionComponent = () => {
               {generateFileList(localFiles, true)}
             </SplitItem>
           </Split>
-
-          {showFileWarning && (
-            <div className="file-warning">
-              <WarningTriangleIcon />
-              Please select at least one file.
-            </div>
-          )}
-          {moreThanOneDirWarning && (
-            <div className="file-warning">
-              <WarningTriangleIcon />
-              Please provide a single directory as input to Dircopy
-            </div>
-          )}
-          {chrisFileSelectOrLocalFileUpload && (
-            <div className="file-warning">
-              <WarningTriangleIcon />
-              Please using either the file-browser or the local file upload.
-            </div>
-          )}
         </>
+      );
+    } else if (selectedConfig === "swift_storage") {
+      return (
+        <Split>
+          <SplitItem isFilled className="file-list">
+            <p>Existing Files to add to new feed:</p>
+            {generateFileList(chrisFiles, false)}
+          </SplitItem>
+        </Split>
+      );
+    } else if (selectedConfig === "local_select") {
+      return (
+        <Split>
+          <SplitItem isFilled className="file-list">
+            <p>Local Files to add to new feed:</p>
+            {generateFileList(localFiles, true)}
+          </SplitItem>
+        </Split>
       );
     }
   };

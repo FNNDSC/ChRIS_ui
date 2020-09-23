@@ -20,7 +20,7 @@ export const unpackParametersIntoString = (input: InputType) => {
   let string = "";
   for (let parameter in input) {
     const [flag, value] = unPackForKeyValue(input[parameter]);
-    string += `--${flag} ${value} `;
+    string += `${flag} ${value} `;
   }
   return string;
 };
@@ -36,7 +36,7 @@ export const getRequiredParams = (params: PluginParameter[]) => {
 };
 
 export const getAllParamsWithName = (params: PluginParameter[]) => {
-  return params.map((param) => param.data.name);
+  return params.map((param) => param.data.flag);
 };
 
 export const getRequiredParamsWithId = (params: PluginParameter[]) => {

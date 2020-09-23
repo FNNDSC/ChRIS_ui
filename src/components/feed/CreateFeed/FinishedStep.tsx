@@ -18,6 +18,7 @@ interface FinishedStepProp {
 const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { feedProgress, feedError, value, selectedPlugin } = state;
+
   const { chrisFiles, localFiles } = state.data;
 
   React.useEffect(() => {
@@ -39,12 +40,11 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
       <StackItem>
         <div className="finished-step">
           <CogsIcon className="finished-step__icon" />
-
           <p className="finished-step__header pf-c-title pf-m-lg">
-            {value === 100
-              ? "Feed Created"
+            {value >= 100
+              ? "You can safely close the wizard now."
               : `Creating feed with ${
-                  numberOfFiles === undefined
+                  numberOfFiles === 0
                     ? selectedPlugin?.data.name
                     : numberOfFiles > 1
                     ? `${numberOfFiles} files`
@@ -60,7 +60,7 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
         <Progress
           size="md"
           className="finished-step__progessbar"
-          max={100}
+          max={120}
           value={value}
           measureLocation={ProgressMeasureLocation.outside}
           label={feedProgress}
@@ -73,7 +73,7 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
         <div className="finished-step__button">
           <Button
             className="finished-step__buton-type"
-            variant={value === 100 ? "primary" : "link"}
+            variant={value >= 100 ? "primary" : "link"}
             onClick={() => {
               dispatch({
                 type: Types.ResetState,
@@ -83,7 +83,7 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
               });
             }}
           >
-            {value === 100 ? "Close" : "Cancel"}
+            {value >= 100 ? "Close" : "Cancel"}
           </Button>
         </div>
       </StackItem>
@@ -97,7 +97,7 @@ const generateNumOfFiles = (
   chrisFiles: EventNode[],
   localFiles: LocalFile[]
 ) => {
-  let fileLength;
+  let fileLength: number = 0;
   if (chrisFiles.length > 0) {
     fileLength = chrisFiles.reduce((acc, file) => {
       if (file.children && file.children?.length > 0) {
@@ -105,8 +105,10 @@ const generateNumOfFiles = (
       } else return (acc += 1);
     }, 0);
   }
+
   if (localFiles.length > 0) {
-    fileLength = localFiles.length;
+    fileLength += localFiles.length;
   }
+
   return fileLength;
 };

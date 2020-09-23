@@ -143,7 +143,7 @@ class GuidedConfig extends React.Component<
               <TextInput
                 aria-label="required-parameters"
                 onChange={this.handleInputChange}
-                name={param.data.name}
+                name={param.data.flag}
                 className="required-params__textInput"
                 placeholder={param.data.help}
                 value={parameterValue || ""}
