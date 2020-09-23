@@ -14,7 +14,7 @@ function getDefaultCreateFeedData(): CreateFeedData {
     tags: [],
     chrisFiles: [],
     localFiles: [],
-    path: "",
+    path: [],
     checkedKeys: [],
   };
 }
@@ -68,6 +68,14 @@ export const createFeedReducer = (
     case Types.SelectedConfig:
       return {
         ...state,
+        data: {
+          ...state.data,
+          chrisFiles: [],
+          localFiles: [],
+        },
+        requiredInput: {},
+        dropdownInput: {},
+        selectedPlugin: undefined,
         selectedConfig: action.payload.selectedConfig,
       };
     case Types.AddChrisFile:
@@ -76,7 +84,7 @@ export const createFeedReducer = (
         data: {
           ...state.data,
           chrisFiles: [...state.data.chrisFiles, action.payload.file],
-          path: action.payload.path,
+          path: [...state.data.path, action.payload.path],
           checkedKeys: action.payload.checkedKeys,
         },
       };

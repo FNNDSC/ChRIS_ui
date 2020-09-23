@@ -52,7 +52,7 @@ export const createFeed = async (
 
 export const createFeedInstanceWithDircopy = async (
   data: CreateFeedData,
-  path: string,
+  paths: string[],
   username: string | null | undefined,
   statusCallback: (status: string) => void,
   errorCallback: (error: string) => void
@@ -61,14 +61,11 @@ export const createFeedInstanceWithDircopy = async (
 
   //chrisFiles receive a computed path from the fileBrowser
 
-  let dirpath = "";
+  let dirpath: string[] = [];
+
   if (chrisFiles.length > 0) {
     statusCallback("Computing path for dircopy");
-    if (path.includes(username as string)) {
-      dirpath = `${username}`;
-    }
-
-    dirpath = `${username}/${path}`;
+    dirpath = paths.map((path: string) => `${username}/${path}`);
   }
 
   //localFiles need to have their path computed
@@ -81,9 +78,10 @@ export const createFeedInstanceWithDircopy = async (
       statusCallback("Uploading Files To Cube");
       await uploadLocalFiles(localFiles, local_upload_path);
     } catch (error) {
+      console.log("Error", error);
       errorCallback(error);
     }
-    dirpath = local_upload_path;
+    dirpath.push(local_upload_path);
   }
 
   let feed;
@@ -91,13 +89,15 @@ export const createFeedInstanceWithDircopy = async (
   try {
     const dircopy = await getPlugin("dircopy");
     const dircopyInstance = await dircopy.getPluginInstances();
+
     await dircopyInstance.post({
-      dir: dirpath,
+      dir: dirpath.join(","),
     });
     //when the `post` finishes, the dircopyInstances's internal collection is updated
     let createdInstance = dircopyInstance.getItems()[0];
     statusCallback("Creating Feed");
     feed = await createdInstance.getFeed();
+    statusCallback("Feed Created");
   } catch (error) {
     errorCallback(error);
   }

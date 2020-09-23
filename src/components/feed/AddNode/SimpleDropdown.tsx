@@ -77,6 +77,7 @@ class SimpleDropdown extends React.Component<
 
   handleInputChange(value: string) {
     const { handleChange, id } = this.props;
+
     this.setState(
       {
         value,
@@ -95,6 +96,7 @@ class SimpleDropdown extends React.Component<
     if (!params) {
       return;
     }
+
     const dropdownItems = params
       .filter((param) => param.data.optional === true)
       .map((param) => {
@@ -105,10 +107,10 @@ class SimpleDropdown extends React.Component<
             onClick={this.handleClick}
             component="button"
             className="plugin-configuration__parameter"
-            value={param.data.name}
+            value={param.data.flag}
             name={param.data.help}
           >
-            {param.data.name}
+            {param.data.flag}
           </DropdownItem>
         );
       });

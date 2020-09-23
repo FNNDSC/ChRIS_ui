@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import { TextArea, Expandable, Checkbox, Label } from "@patternfly/react-core";
-import matchAll from "string.prototype.matchall";
+import { TextArea, Expandable, Label } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { isEmpty } from "lodash";
@@ -14,7 +13,7 @@ import {
   getAllParamsWithName,
   getRequiredParamsWithId,
 } from "./lib/utils";
-import { Plugin } from "@fnndsc/chrisapi";
+import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 
 class Editor extends Component<EditorProps, EditorState> {
   constructor(props: EditorProps) {
@@ -26,7 +25,6 @@ class Editor extends Component<EditorProps, EditorState> {
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleDocsToggle = this.handleDocsToggle.bind(this);
-    this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
   }
 
   componentDidMount() {
@@ -70,14 +68,38 @@ class Editor extends Component<EditorProps, EditorState> {
     );
   }
 
-  handleCheckboxChange(checkbox: boolean) {
-    const { handleRuntimeChecked } = this.props;
-    handleRuntimeChecked(checkbox);
-  }
-
   handleGetTokens(value: string) {
-    const tokenRegex = /(--(?<option>.+?)\s+(?<value>.(?:[^-].+?)?(?:(?=--)|$))?)+?/gm;
-    return [...matchAll(value, tokenRegex)];
+    const userValue = value.trim().split(" ").slice(1);
+    const { params } = this.props;
+    let paramArray = [];
+    let errors: string[] = [];
+
+    if (params && params?.length > 0) {
+      let compareParams = params.map(
+        (param: PluginParameter) => param.data.flag
+      );
+      for (let i = 0; i < userValue.length; i++) {
+        if (compareParams.indexOf(userValue[i]) !== -1) {
+          const flag = userValue[i];
+          const value = userValue[i + 1];
+          paramArray.push([flag, value]);
+        } else {
+          const integer = Number.isInteger(parseInt(userValue[i]));
+          if (
+            !integer &&
+            (userValue[i].startsWith("--") || userValue[i].startsWith("-"))
+          ) {
+            errors.push(`${userValue[i]} is not present in the list of flags`);
+          }
+        }
+      }
+    }
+    this.setState({
+      errors,
+    });
+
+    //const tokenRegex = /(--(?<option>.+?)\s+(?<value>.(?:[^-].+?)?(?:(?=--)|$))?)+?/gm;
+    return [...paramArray];
   }
 
   handleRegex(value: string) {
@@ -95,18 +117,12 @@ class Editor extends Component<EditorProps, EditorState> {
     let dropdownObject: InputType = {};
     let requiredObject: InputType = {};
 
-    let errorCompilation: string[] = [];
-
     for (const token of tokens) {
       //eslint-disable-next-line
-      const [_, _input, flag, editorValue] = token;
+      const [flag, editorValue] = token;
 
       let result: InputIndex = {};
 
-      if (allParams && !allParams.includes(flag)) {
-        let errorString = `-- ${flag} is not a valid parameter`;
-        errorCompilation.push(errorString);
-      }
       if (
         requiredParamsWithId &&
         requiredParams &&
@@ -126,16 +142,12 @@ class Editor extends Component<EditorProps, EditorState> {
       }
     }
 
-    this.setState({
-      errors: errorCompilation,
-    });
-
     inputChangeFromEditor(dropdownObject, requiredObject);
   }
 
   render() {
     const { value, errors, docsExpanded } = this.state;
-    const { params, runtimeChecked, plugin } = this.props;
+    const { params } = this.props;
 
     return (
       <div className="configuration">
@@ -165,30 +177,6 @@ class Editor extends Component<EditorProps, EditorState> {
             ))}
           </div>
 
-          {plugin.data.compute_resource_identifier === "host" && (
-            <div className="runtime-parameters">
-              <Checkbox
-                id="runtime-parameters"
-                aria-label="Checkbox with description "
-                isChecked={runtimeChecked}
-                onChange={this.handleCheckboxChange}
-              />
-              <Label className="runtime-parameters__label">
-                Enable GPU Processing (toggles{" "}
-                <pre className="runtime-parameters__flag">--runtime nvidia</pre>{" "}
-                on the docker executable)
-              </Label>
-            </div>
-          )}
-          {runtimeChecked === true && (
-            <div className="errors">
-              <ExclamationTriangleIcon />
-              <span className="error-message">
-                Warning: This has no effect on plugins run on OpenShift
-              </span>
-            </div>
-          )}
-
           <Expandable
             className="docs"
             toggleText="Plugin configuration documentation:"
@@ -201,7 +189,7 @@ class Editor extends Component<EditorProps, EditorState> {
                 .map((param) => {
                   return (
                     <div key={param.data.id} className="param-item">
-                      <b className="param-title">[--{param.data.name}]</b>
+                      <b className="param-title">[{param.data.flag}]</b>
                       {!param.data.optional && (
                         <span className="required-star"> *</span>
                       )}
