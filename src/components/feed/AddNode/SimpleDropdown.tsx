@@ -6,7 +6,7 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 import { CaretDownIcon } from "@patternfly/react-icons";
-import { CloseIcon } from "@patternfly/react-icons";
+import { OutlinedTrashAltIcon } from "@patternfly/react-icons";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./lib/utils";
 
@@ -141,7 +141,7 @@ class SimpleDropdown extends React.Component<
           value={value}
         />
         <div className="close-icon">
-          <CloseIcon onClick={this.deleteDropdown} />
+          <OutlinedTrashAltIcon onClick={this.deleteDropdown} />
         </div>
       </div>
     );
