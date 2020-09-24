@@ -15,8 +15,8 @@ import { getParams } from "../../../store/plugin/actions";
 import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
 import BasicConfiguration from "./BasicConfiguration";
-import { unpackParametersIntoObject } from "./lib/utils";
 import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
+import { getRequiredObject } from "../CreateFeed/utils/createFeed";
 
 class AddNode extends Component<AddNodeProps, AddNodeState> {
   constructor(props: AddNodeProps) {
@@ -170,30 +170,16 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     const { plugin } = this.state.data;
     const { selected, addNode } = this.props;
 
-    let dropdownUnpacked;
-    let requiredUnpacked;
-
-    if (dropdownInput) {
-      dropdownUnpacked = unpackParametersIntoObject(dropdownInput);
-    }
-
-    if (requiredInput) {
-      requiredUnpacked = unpackParametersIntoObject(requiredInput);
-    }
-
-    let nodeParamter = {
-      ...dropdownUnpacked,
-      ...requiredUnpacked,
-    };
-
     if (!plugin || !selected) {
       return;
     }
 
-    let parameterInput = {
-      ...nodeParamter,
-      previous_id: `${selected.data.id}`,
-    };
+    let parameterInput = await getRequiredObject(
+      dropdownInput,
+      requiredInput,
+      plugin,
+      selected
+    );
 
     const pluginInstances = await plugin.getPluginInstances();
     console.log("ParameterInput", parameterInput);
