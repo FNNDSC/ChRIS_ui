@@ -12,7 +12,7 @@ const ChooseConfig: React.FC = () => {
       <h1 className="pf-c-title pf-m-2xl">Data Configuration</h1>
       <br />
       <p className="data-configuration__subtitle">
-        You may create the feed in one of two ways:
+        You may create the feed in one of the following ways:
       </p>
       <br />
       <Radio
@@ -26,14 +26,14 @@ const ChooseConfig: React.FC = () => {
             },
           });
         }}
-        label="Select a FS plugin from this ChRIS server"
+        label="Generate files from running an FS plugin from this ChRIS server"
         name="fs_plugin"
         id="fs_plugin"
         data-testid="fs_plugin"
       />{" "}
       <Radio
-        value="file_select"
-        isChecked={selectedConfig === "file_select"}
+        value="swift_storage"
+        isChecked={selectedConfig === "swift_storage"}
         onChange={(_, event) => {
           dispatch({
             type: Types.SelectedConfig,
@@ -42,9 +42,39 @@ const ChooseConfig: React.FC = () => {
             },
           });
         }}
-        label="Select files from your ChRIS storage and/or upload files from your local computer"
-        name="file_select"
-        id="file_select"
+        label="Choose existing files already registered to ChRIS"
+        name="swift_storage"
+        id="swift_storage"
+      />
+      <Radio
+        value="local_select"
+        isChecked={selectedConfig === "local_select"}
+        onChange={(_, event) => {
+          dispatch({
+            type: Types.SelectedConfig,
+            payload: {
+              selectedConfig: event.currentTarget.value,
+            },
+          });
+        }}
+        label="Upload new files from your local computer"
+        name="local_select"
+        id="local_select"
+      />
+      <Radio
+        value="multiple_select"
+        isChecked={selectedConfig === "multiple_select"}
+        onChange={(_, event) => {
+          dispatch({
+            type: Types.SelectedConfig,
+            payload: {
+              selectedConfig: event.currentTarget.value,
+            },
+          });
+        }}
+        label="Choose existing files AND upload new ones"
+        name="multiple_select"
+        id="multiple_select"
       />
     </div>
   );

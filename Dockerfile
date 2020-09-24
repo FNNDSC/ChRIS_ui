@@ -33,9 +33,6 @@ COPY . .
 RUN npm install && npm run build 
 
 
-
-
-
 FROM node:12-alpine
 # Pass a UID on build command line (see above) to set internal UID
 ARG UID=1001

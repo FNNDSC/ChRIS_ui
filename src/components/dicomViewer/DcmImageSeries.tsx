@@ -16,6 +16,7 @@ import { Drawer } from "@material-ui/core";
 import { withStyles, Theme, createStyles } from "@material-ui/core/styles";
 import DicomTag from "./DicomTag";
 import { Image, Viewport } from "./types";
+import { import as csTools } from "cornerstone-tools";
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
@@ -24,6 +25,8 @@ cornerstoneWebImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 cornerstoneTools.external.Hammer = Hammer;
+
+const scrollToIndex = csTools("util/scrollToIndex");
 
 type AllProps = {
   inPlay: boolean;
@@ -45,6 +48,8 @@ type AllState = {
   currentImage: Image | undefined;
   totalFiles: number;
   filesParsed: number;
+  frame: number;
+  numberOfFrames: number;
 };
 interface EnabledElement {
   element: HTMLElement;
@@ -183,6 +188,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
       currentImage: undefined,
       totalFiles: 0,
       filesParsed: 0,
+      numberOfFrames: 1,
       tools: [
         {
           name: "Zoom",
@@ -207,6 +213,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
         { name: "Magnify", mode: "active" },
       ],
       frameRate: 22,
+      frame: 1,
       visibleHeader: false,
     };
   }
@@ -232,13 +239,13 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
     if (imageArray.length < 0) return;
     let imageIds: string[] = [];
     this.setState({
-      totalFiles: imageArray.length - 1,
+      totalFiles: imageArray.length,
     });
 
     for (let i = 0; i < imageArray.length; i++) {
       const item = imageArray[i];
       this.setState({
-        filesParsed: i,
+        filesParsed: i + 1,
       });
 
       if (isDicom(item.module)) {
@@ -253,6 +260,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
     if (imageIds.length > 0) {
       this.setState({
         imageIds,
+        numberOfFrames: imageIds.length,
       });
     }
   };
@@ -315,6 +323,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
                           (eventData: CornerstoneEvent) => {
                             if (eventData.detail) {
                               const currentImage = eventData.detail.image;
+
                               this.setState({
                                 currentImage,
                               });
@@ -380,6 +389,56 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
 
       case "pause": {
         this.props.setPlayer(false);
+        break;
+      }
+
+      case "next": {
+        console.log("This.state.frame", this.state.frame);
+        if (this.state.frame < this.state.numberOfFrames) {
+          let frame = this.state.frame + 1;
+          this.setState(
+            {
+              frame,
+            },
+            () => {
+              scrollToIndex(this.state.element, this.state.frame - 1);
+            }
+          );
+        }
+
+        break;
+      }
+      case "previous": {
+        if (this.state.frame > 1) {
+          let frame = this.state.frame - 1;
+          this.setState(
+            {
+              frame,
+            },
+            () => {
+              scrollToIndex(this.state.element, frame - 1);
+            }
+          );
+        }
+        break;
+      }
+      case "first": {
+        let frame = 1;
+        this.setState(
+          {
+            frame,
+          },
+          () => {
+            scrollToIndex(this.state.element, 0);
+          }
+        );
+        break;
+      }
+
+      case "last": {
+        let frame = this.state.numberOfFrames;
+        this.setState({ frame: frame });
+        scrollToIndex(this.state.element, frame - 1);
         break;
       }
     }
