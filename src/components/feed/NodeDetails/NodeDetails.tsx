@@ -18,6 +18,12 @@ import {
   CaretDownIcon,
   CalendarDayIcon,
   CheckIcon,
+  MixcloudIcon,
+  CloudUploadAltIcon,
+  DockerIcon,
+  StorageDomainIcon,
+  OnRunningIcon,
+  ServicesIcon,
 } from "@patternfly/react-icons";
 
 import { PluginInstance } from "@fnndsc/chrisapi";
@@ -139,15 +145,40 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
 
   getCurrentTitle(statusLabels: PluginStatusLabels) {
     if (statusLabels.pushPath.status !== true) {
-      return "Transmitting Data";
+      return (
+        <>
+          <CloudUploadAltIcon />
+          <span>Transmitting Data</span>
+        </>
+      );
     } else if (statusLabels.compute.submit.status !== true) {
-      return "Setting Compute Enviornment";
+      return (
+        <>
+          <DockerIcon />
+          <span>Setting Compute Environment</span>
+        </>
+      );
     } else if (statusLabels.compute.return.status !== true) {
-      return "Computing";
+      return (
+        <>
+          <ServicesIcon />
+          <span>Computing</span>
+        </>
+      );
     } else if (statusLabels.pullPath.status !== true) {
-      return "Syncing Data";
+      return (
+        <>
+          <MixcloudIcon />
+          <span>Syncing Data</span>
+        </>
+      );
     } else if (statusLabels.swiftPut.status !== true) {
-      return "Finishing up";
+      return (
+        <>
+          <StorageDomainIcon />
+          <span>Finishing up</span>
+        </>
+      );
     } else {
       return (
         <>
@@ -162,7 +193,6 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     const { selected, pluginStatus } = this.props;
     const { params, plugin } = this.state;
     let runtime = this.calculateTotalRuntime();
-    console.log("Runtime", runtime);
 
     const pluginStatusLabels: PluginStatusLabels =
       pluginStatus && JSON.parse(pluginStatus);
@@ -253,20 +283,12 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
                 </h3>
               </div>
             ) : (
-              "Started"
+              <>
+                <OnRunningIcon />
+                <span>Started</span>
+              </>
             )}
           </GridItem>
-          {/*
-          <GridItem span={2}></GridItem>
-         
-  <GridItem span={10}>
-  {label.length > 0 ? (
-    <Stepper onClick={handleClick} steps={label} />
-  ) : (
-    <Spinner size="md" />
-  )}
-</GridItem>
-*/}
 
           <GridItem span={2} className="title">
             Created
