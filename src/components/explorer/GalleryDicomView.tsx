@@ -140,8 +140,13 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   // Description: change the gallery item state
 
   handleGalleryActions = {
-    next: () => {},
-    previous: () => {},
+    next: () => {
+      console.log("Next");
+      this.handleOpenImage("next");
+    },
+    previous: () => {
+      this.handleOpenImage("previous");
+    },
     play: () => {
       this.setState(
         {
@@ -162,15 +167,11 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
         }
       );
     },
-    first: () => {},
-    last: () => {},
-    information: () => {
-      /*
-      this._isMounted &&
-        this.setState({
-          viewInfoPanel: !this.state.viewInfoPanel,
-        });
-      */
+    first: () => {
+      this.handleOpenImage("first");
+    },
+    last: () => {
+      this.handleOpenImage("last");
     },
 
     zoom: () => {

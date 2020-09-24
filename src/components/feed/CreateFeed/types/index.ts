@@ -110,7 +110,7 @@ export interface CreateFeedData {
   chrisFiles: EventNode[];
   checkedKeys: CheckedKeys;
   localFiles: LocalFile[];
-  path: string;
+  path: string[];
 }
 
 export interface CreateFeedState extends InputState {

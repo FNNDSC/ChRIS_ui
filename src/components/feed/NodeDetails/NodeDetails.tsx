@@ -162,6 +162,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     const { selected, pluginStatus } = this.props;
     const { params, plugin } = this.state;
     let runtime = this.calculateTotalRuntime();
+    console.log("Runtime", runtime);
 
     const pluginStatusLabels: PluginStatusLabels =
       pluginStatus && JSON.parse(pluginStatus);
@@ -240,6 +241,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
           <GridItem span={2} className="title">
             Status
           </GridItem>
+          {}
           <GridItem span={10} className="value">
             {pluginStatusLabels ? (
               <div className="node-details-grid__title">
@@ -254,17 +256,18 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
               "Started"
             )}
           </GridItem>
-
+          {/*
           <GridItem span={2}></GridItem>
-          <GridItem span={10}>
-            {label.length > 0 ? (
-              <Stepper onClick={handleClick} steps={label} />
-            ) : (
-              <Spinner size="md" />
-            )}
-          </GridItem>
-          <GridItem span={2} className="title"></GridItem>
-          <GridItem span={10} className="value"></GridItem>
+         
+  <GridItem span={10}>
+  {label.length > 0 ? (
+    <Stepper onClick={handleClick} steps={label} />
+  ) : (
+    <Spinner size="md" />
+  )}
+</GridItem>
+*/}
+
           <GridItem span={2} className="title">
             Created
           </GridItem>
@@ -281,13 +284,17 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
           <GridItem span={10} className="value">
             {selected.data.id}
           </GridItem>
-          <GridItem span={2} className="title">
-            <FontAwesomeIcon icon={["far", "calendar-alt"]} />
-            Total Runtime:
-          </GridItem>
-          <GridItem span={10} className="value">
-            {runtime}
-          </GridItem>
+          {runtime && (
+            <>
+              <GridItem span={2} className="title">
+                <FontAwesomeIcon icon={["far", "calendar-alt"]} />
+                Total Runtime:
+              </GridItem>
+              <GridItem span={10} className="value">
+                {runtime}
+              </GridItem>
+            </>
+          )}
         </Grid>
 
         <br />

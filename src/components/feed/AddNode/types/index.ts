@@ -60,7 +60,6 @@ export interface AddNodeState extends InputState {
     plugin?: Plugin;
     parent?: PluginInstance;
   };
-  isRuntimeChecked: boolean;
 }
 
 export interface AddNodeProps {
@@ -108,8 +107,6 @@ export interface EditorProps extends InputState {
     dropdownInput: InputType,
     requiredInput: InputType
   ): void;
-  runtimeChecked: boolean;
-  handleRuntimeChecked(isChecked: boolean): void;
 }
 
 export interface SimpleDropdownState {
@@ -142,5 +139,4 @@ export interface ReviewProps extends InputState {
     plugin?: Plugin;
     parent?: PluginInstance;
   };
-  runtimeChecked: boolean;
 }

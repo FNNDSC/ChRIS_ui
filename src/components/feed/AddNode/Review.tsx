@@ -4,7 +4,7 @@ import { ReviewProps } from "./types";
 import { unpackParametersIntoString } from "./lib/utils";
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
-  const { data, dropdownInput, requiredInput, runtimeChecked } = props;
+  const { data, dropdownInput, requiredInput } = props;
 
   let generatedCommand = "";
   if (requiredInput) {
@@ -13,10 +13,6 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
 
   if (dropdownInput) {
     generatedCommand += unpackParametersIntoString(dropdownInput);
-  }
-
-  if (runtimeChecked === true) {
-    generatedCommand += ` --runtime nvidia`;
   }
 
   return (
@@ -28,7 +24,9 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
 
       <Grid gutter="sm">
         <GridItem span={2}>Parent Node:</GridItem>
-        <GridItem span={10}>{data.parent && data.parent.data.plugin_name}</GridItem>
+        <GridItem span={10}>
+          {data.parent && data.parent.data.plugin_name}
+        </GridItem>
         <GridItem span={2}>Type of node:</GridItem>
         <GridItem span={10}>Plugin</GridItem>
         <GridItem span={2}>Selected plugin:</GridItem>
@@ -36,10 +34,6 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
         <GridItem span={2}>Plugin configuration:</GridItem>
         <GridItem span={10}>
           <span className="required-text">{generatedCommand}</span>
-        </GridItem>
-        <GridItem span={2}>Local GPU processing:</GridItem>
-        <GridItem span={10}>
-          {runtimeChecked === true ? "Enabled" : "Disabled"}
         </GridItem>
       </Grid>
     </div>

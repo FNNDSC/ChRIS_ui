@@ -20,7 +20,6 @@ import { Dispatch } from "redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { connect } from "react-redux";
 import { addFeed } from "../../../store/feed/actions";
-
 import { createFeed, getName } from "./utils/createFeed";
 import { Feed } from "@fnndsc/chrisapi";
 import FinishedStep from "./FinishedStep";
@@ -199,7 +198,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           canJumpTo: step > 4,
         },
       ];
-    else if (selectedConfig === "file_select") {
+    else if (selectedConfig === "multiple_select") {
       return [
         {
           id: 3,
@@ -212,6 +211,24 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           name: "Local File Upload",
           component: localFileUpload,
           canJumpTo: step > 4,
+        },
+      ];
+    } else if (selectedConfig === "swift_storage") {
+      return [
+        {
+          id: 3,
+          name: "ChRIS File Select",
+          component: chrisFileSelect,
+          canJumpTo: step > 3,
+        },
+      ];
+    } else if (selectedConfig === "local_select") {
+      return [
+        {
+          id: 3,
+          name: "Local File Upload",
+          component: localFileUpload,
+          canJumpTo: step > 3,
         },
       ];
     }
@@ -256,7 +273,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   const CustomFooter = (
     <WizardFooter>
       <WizardContextConsumer>
-        {({ activeStep, onNext, onBack, onClose }) => {
+        {({ activeStep, onNext, onBack}) => {
           if (activeStep.name !== "Finish") {
             return (
               <>

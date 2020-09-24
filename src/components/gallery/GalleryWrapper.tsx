@@ -77,10 +77,6 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
     download: () => {
       this.props.handleOnToolbarAction(galleryActions.download);
     },
-    information: () => {
-      // Note: for toggling gallery to information panel (show/hide)
-      this.props.handleOnToolbarAction(galleryActions.information);
-    },
   };
 
   // Set flag for full screen changes

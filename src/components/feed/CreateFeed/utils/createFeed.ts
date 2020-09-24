@@ -2,7 +2,7 @@ import { unpackParametersIntoObject } from "../../AddNode/lib/utils";
 import { CreateFeedData, LocalFile } from "../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
-import { Plugin } from "@fnndsc/chrisapi";
+import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
@@ -52,7 +52,7 @@ export const createFeed = async (
 
 export const createFeedInstanceWithDircopy = async (
   data: CreateFeedData,
-  path: string,
+  paths: string[],
   username: string | null | undefined,
   statusCallback: (status: string) => void,
   errorCallback: (error: string) => void
@@ -61,14 +61,11 @@ export const createFeedInstanceWithDircopy = async (
 
   //chrisFiles receive a computed path from the fileBrowser
 
-  let dirpath = "";
+  let dirpath: string[] = [];
+
   if (chrisFiles.length > 0) {
     statusCallback("Computing path for dircopy");
-    if (path.includes(username as string)) {
-      dirpath = `${username}`;
-    }
-
-    dirpath = `${username}/${path}`;
+    dirpath = paths.map((path: string) => `${username}/${path}`);
   }
 
   //localFiles need to have their path computed
@@ -81,9 +78,10 @@ export const createFeedInstanceWithDircopy = async (
       statusCallback("Uploading Files To Cube");
       await uploadLocalFiles(localFiles, local_upload_path);
     } catch (error) {
+      console.log("Error", error);
       errorCallback(error);
     }
-    dirpath = local_upload_path;
+    dirpath.push(local_upload_path);
   }
 
   let feed;
@@ -91,13 +89,15 @@ export const createFeedInstanceWithDircopy = async (
   try {
     const dircopy = await getPlugin("dircopy");
     const dircopyInstance = await dircopy.getPluginInstances();
+
     await dircopyInstance.post({
-      dir: dirpath,
+      dir: dirpath.join(","),
     });
     //when the `post` finishes, the dircopyInstances's internal collection is updated
     let createdInstance = dircopyInstance.getItems()[0];
     statusCallback("Creating Feed");
     feed = await createdInstance.getFeed();
+    statusCallback("Feed Created");
   } catch (error) {
     errorCallback(error);
   }
@@ -112,29 +112,20 @@ export const createFeedInstanceWithFS = async (
   statusCallback: (status: string) => void,
   errorCallback: (error: string) => void
 ) => {
-  let dropdownUnpacked;
-  let requiredUnpacked;
-  if (dropdownInput) {
-    dropdownUnpacked = unpackParametersIntoObject(dropdownInput);
-  }
-
-  if (requiredInput) {
-    requiredUnpacked = unpackParametersIntoObject(requiredInput);
-  }
   statusCallback("Unpacking parameters");
-  let inputParameter = {
-    ...dropdownUnpacked,
-    ...requiredUnpacked,
-  };
-
   let feed;
   if (selectedPlugin) {
     const pluginName = selectedPlugin.data.name;
     try {
       const fsPlugin = await getPlugin(pluginName);
-      statusCallback("Creating Plugin Instance");
+      let inputParameter = await getRequiredObject(
+        dropdownInput,
+        requiredInput,
+        fsPlugin
+      );
       const fsPluginInstance = await fsPlugin.getPluginInstances();
-
+      statusCallback("Creating Plugin Instance");
+      console.log("InputParameter", inputParameter);
       await fsPluginInstance.post({
         ...inputParameter,
       });
@@ -186,4 +177,57 @@ export const getPlugin = async (pluginName: string) => {
   const plugin = pluginList.getItems();
 
   return plugin[0];
+};
+
+export const getRequiredObject = async (
+  dropdownInput: InputType,
+  requiredInput: InputType,
+  plugin: Plugin,
+  selected?: PluginInstance
+) => {
+  let dropdownUnpacked;
+  let requiredUnpacked;
+  let mappedParameter: {
+    [key: string]: string;
+  } = {};
+
+  if (dropdownInput) {
+    dropdownUnpacked = unpackParametersIntoObject(dropdownInput);
+  }
+
+  if (requiredInput) {
+    requiredUnpacked = unpackParametersIntoObject(requiredInput);
+  }
+
+  let nodeParameter: {
+    [key: string]: string;
+  } = {
+    ...dropdownUnpacked,
+    ...requiredUnpacked,
+  };
+
+  const params = (await plugin.getPluginParameters())
+    .getItems()
+    .map((param: PluginParameter) => {
+      return param.data;
+    });
+
+  for (let i = 0; i < params.length; i++) {
+    if (Object.keys(nodeParameter).includes(params[i].flag)) {
+      mappedParameter[params[i].name] = nodeParameter[params[i].flag];
+    }
+  }
+  let parameterInput;
+  if (selected) {
+    parameterInput = {
+      ...mappedParameter,
+      previous_id: `${selected.data.id}`,
+    };
+  } else {
+    parameterInput = {
+      ...mappedParameter,
+    };
+  }
+
+  return parameterInput;
 };
