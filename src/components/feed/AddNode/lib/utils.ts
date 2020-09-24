@@ -36,6 +36,7 @@ export const getRequiredParams = (params: PluginParameter[]) => {
 };
 
 export const getAllParamsWithName = (params: PluginParameter[]) => {
+  
   return params.map((param) => param.data.flag);
 };
 
