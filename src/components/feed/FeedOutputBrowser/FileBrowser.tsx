@@ -1,4 +1,5 @@
 import React from "react";
+
 import classNames from "classnames";
 
 import {
@@ -9,12 +10,12 @@ import {
   PopoverPosition,
 } from "@patternfly/react-core";
 import {
+  DownloadIcon,
   FileImageIcon,
   FileCodeIcon,
   FileAltIcon,
   FileIcon,
   FolderCloseIcon,
-  DownloadIcon,
 } from "@patternfly/react-icons";
 import {
   Table,
@@ -23,41 +24,11 @@ import {
   TableVariant,
 } from "@patternfly/react-table";
 
-import FileViewerModel from "../../api/models/file-viewer.model";
-import { IUITreeNode } from "../../api/models/file-explorer.model";
-import TextCopyPopover from "../common/textcopypopover/TextCopyPopover";
-import FileDetailView from "../explorer/FileDetailView";
-
-function getIcon(type: string) {
-  switch (type.toLowerCase()) {
-    case "dir":
-      return <FolderCloseIcon />;
-    case "dcm":
-    case "jpg":
-    case "png":
-      return <FileImageIcon />;
-    case "html":
-    case "json":
-      return <FileCodeIcon />;
-    case "txt":
-      return <FileAltIcon />;
-    default:
-      return <FileIcon />;
-  }
-}
-
-interface FileBrowserProps {
-  root: IUITreeNode;
-  pluginName?: string;
-  handleViewerModeToggle: (file: IUITreeNode, directory: IUITreeNode) => void;
-}
-
-interface FileBrowerState {
-  directory: IUITreeNode;
-  breadcrumbs: IUITreeNode[];
-  previewingFile?: IUITreeNode; // file selected for preview
-  pathViewingFile?: IUITreeNode; // file selected via shift-click for viewing full path
-}
+import FileViewerModel from "../../../api/models/file-viewer.model";
+import { IUITreeNode } from "../../../api/models/file-explorer.model";
+import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
+import FileDetailView from "../../explorer/FileDetailView";
+import { FileBrowserProps, FileBrowerState } from "./types";
 
 class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
   constructor(props: FileBrowserProps) {
@@ -267,7 +238,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
   }
 
   render() {
-    const { handleViewerModeToggle } = this.props;
+    const { handleFileBrowserToggle, handleFileViewerToggle } = this.props;
     const { directory, breadcrumbs, previewingFile } = this.state;
 
     if (!directory.children || !directory.children.length) {
@@ -298,10 +269,14 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
           {previewingFile && (
             <SplitItem className="file-browser__flex__item2">
               <FileDetailView
+                fullScreenMode={true}
                 selectedFile={previewingFile}
-                toggleViewerMode={() =>
-                  handleViewerModeToggle(previewingFile, directory)
-                }
+                toggleFileBrowser={() => {
+                  handleFileBrowserToggle(previewingFile, directory);
+                }}
+                toggleFileViewer={() => {
+                  handleFileViewerToggle(previewingFile, directory);
+                }}
               />
             </SplitItem>
           )}
@@ -312,3 +287,21 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
 }
 
 export default FileBrowser;
+
+const getIcon = (type: string) => {
+  switch (type.toLowerCase()) {
+    case "dir":
+      return <FolderCloseIcon />;
+    case "dcm":
+    case "jpg":
+    case "png":
+      return <FileImageIcon />;
+    case "html":
+    case "json":
+      return <FileCodeIcon />;
+    case "txt":
+      return <FileAltIcon />;
+    default:
+      return <FileIcon />;
+  }
+};

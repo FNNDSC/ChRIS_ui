@@ -1,15 +1,14 @@
 import * as React from "react";
 import { Button } from "@patternfly/react-core";
-import { DownloadIcon, ExpandIcon } from "@patternfly/react-icons";
+import { DownloadIcon, ExpandIcon, FilmIcon } from "@patternfly/react-icons";
 import {
   getFileExtension,
   IUITreeNode,
 } from "../../api/models/file-explorer.model";
 import { IFileBlob } from "../../api/models/file-viewer.model";
 
-import FileViewerModel, {
-  fileViewerMap,
-} from "../../api/models/file-viewer.model";
+import { fileViewerMap } from "../../api/models/file-viewer.model";
+
 import { LoadingSpinner } from "..";
 import ViewerDisplay from "./displays/ViewerDisplay";
 import { isEqual } from "lodash";
@@ -18,7 +17,9 @@ import "./file-detail.scss";
 type AllProps = {
   selectedFile: IUITreeNode;
   fullScreenMode?: boolean;
-  toggleViewerMode: (isViewerMode: boolean) => void;
+  toggleFileBrowser: () => void;
+  toggleFileViewer: () => void;
+  isDicom?: boolean;
 };
 
 class FileDetailView extends React.Component<AllProps, IFileBlob> {
@@ -30,8 +31,6 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   }
   state = {
     blob: undefined,
-    blobName: "",
-    blobText: null,
     fileType: "",
     file: undefined,
   };
@@ -44,12 +43,13 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         this.fetchData();
         return <LoadingSpinner color="#ddd" />;
       } else {
+        console.log("FileType", this.state.fileType);
         const viewerName = fileViewerMap[this.state.fileType];
-
+        console.log("Viewname", viewerName);
         return (
           <div className={viewerName ? viewerName.toLowerCase() : ""}>
             {this.renderHeader()}
-            <ViewerDisplay tag={viewerName} galleryItem={this.state} />
+            <ViewerDisplay tag={viewerName} fileItem={this.state} />
           </div>
         );
       }
@@ -75,19 +75,16 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const { selectedFile } = this.props;
 
     const fileName = selectedFile.module,
-      fileType = getFileExtension(fileName);
+    fileType = getFileExtension(fileName);
     selectedFile.file.getFileBlob().then((result: any) => {
       const _self = this;
       if (!!result) {
         const reader = new FileReader();
         reader.addEventListener("loadend", (e: any) => {
-          const blobText = e.target.result;
           _self._isMounted &&
             _self.setState({
               blob: result,
-              blobName: fileName,
               fileType,
-              blobText,
               file: Object.assign({}, selectedFile.file.data),
             });
         });
@@ -98,17 +95,35 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
 
   renderDownloadButton = () => {
     const { fullScreenMode } = this.props;
+
     return (
       <div className="float-right">
-        <Button
-          variant="link"
-          onClick={() => {
-            this.props.toggleViewerMode(false);
-          }}
-        >
-          <ExpandIcon />
-          {fullScreenMode ? " Open Image Viewer" : " Full Screen"}
-        </Button>
+        {fullScreenMode === true && (
+          <Button
+            variant="link"
+            onClick={() => {
+              this.props.toggleFileBrowser();
+            }}
+          >
+            <ExpandIcon />
+            <span> Maximize</span>
+          </Button>
+        )}
+
+        {(this.state.fileType === "dcm" ||
+          this.state.fileType === "png" ||
+          this.state.fileType === "jpg" ||
+          this.state.fileType === "jpeg") && (
+          <Button
+            variant="link"
+            onClick={() => {
+              this.props.toggleFileViewer();
+            }}
+          >
+            <FilmIcon />
+            <span> Open Image Viewer</span>
+          </Button>
+        )}
         <Button
           variant="secondary"
           onClick={() => {
@@ -122,9 +137,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   };
 
   // Download Curren File blob
-  downloadFileNode = () => {
-    return FileViewerModel.downloadFile(this.state.blob, this.state.blobName);
-  };
+  downloadFileNode = () => {};
 
   componentWillUnmount() {
     this._isMounted = false;

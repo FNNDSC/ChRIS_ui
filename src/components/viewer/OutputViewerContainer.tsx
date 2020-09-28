@@ -10,7 +10,7 @@ import {
   FreesurferDataTable,
   ZScoreDataTable,
   FileBrowserViewer,
-} from "./displays/index";
+} from "./displays";
 import VolumeGrowth from "../../components/chart/VolumeGrowth";
 import SegmentAnalysis from "../../components/chart/SegmentAnalysis";
 import "./viewer.scss";

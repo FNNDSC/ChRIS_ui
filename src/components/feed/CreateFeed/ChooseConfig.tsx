@@ -9,7 +9,7 @@ const ChooseConfig: React.FC = () => {
 
   return (
     <div className="local-file-upload">
-      <h1 className="pf-c-title pf-m-2xl">Data Configuration</h1>
+      <h1 className="pf-c-title pf-m-2xl">Feed Configuration</h1>
       <br />
       <p className="data-configuration__subtitle">
         You may create the feed in one of the following ways:

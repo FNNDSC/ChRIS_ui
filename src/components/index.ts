@@ -10,9 +10,6 @@ export { default as FeedDetails } from "./feed/FeedDetails";
 // Pipeline
 export { default as NodeDetails } from "./feed/NodeDetails/NodeDetails";
 
-// Plugin
-export { default as PluginDetailPanel } from "./plugin/PluginDetailPanel";
-
 //FeedOutputBrowser
 
 export { default as FeedOutputBrowser } from "./feed/FeedOutputBrowser/FeedOutputBrowser";

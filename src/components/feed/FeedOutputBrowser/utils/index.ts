@@ -1,8 +1,21 @@
 /**
  * Utils to be abstracted out
  */
-import { PluginInstance } from "@fnndsc/chrisapi";
+import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 import { PluginStatusLabels } from "../types";
+import UITreeNodeModel from "../../../../api/models/file-explorer.model";;
+
+export function createTreeFromFiles(
+  selected: PluginInstance,
+  files?: FeedFile[]
+) {
+  if (!files) return null;
+
+  const model = new UITreeNodeModel(files, selected);
+  const tree = model.getTree();
+  tree.module = getPluginName(selected);
+  return tree;
+}
 
 // Format plugin name to "Name_vVersion_ID"
 export function getPluginName(plugin: PluginInstance) {
@@ -95,3 +108,5 @@ export function displayDescription(label: any) {
     return "finishing up";
   }
 }
+
+
