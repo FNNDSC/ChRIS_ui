@@ -9,7 +9,6 @@ import {
   GridItem,
   Title,
   PopoverPosition,
-  Spinner,
 } from "@patternfly/react-core";
 import { Plugin, PluginInstanceParameter } from "@fnndsc/chrisapi";
 import {
@@ -30,7 +29,7 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 import TreeNodeModel from "../../../api/models/tree-node.model";
 import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
 import AddNode from "../AddNode/AddNode";
-import Stepper, { StepInterface } from "./Stepper";
+import { StepInterface } from "./Stepper";
 import { PluginStatusLabels } from "../FeedOutputBrowser/types";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -228,10 +227,6 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
         },
       ];
     }
-
-    const handleClick = () => {
-      //console.log("To be written");
-    };
 
     const pluginTitle = `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;
     const command =

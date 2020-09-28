@@ -70,7 +70,7 @@ export const fileViewerMap: any = {
   txt: "IframeDisplay",
   html: "IframeDisplay",
   csv: "IframeDisplay",
-  pdf: "IFrameDisplay",
+  pdf: "CatchallDisplay",
   ctab: "IframeDisplay",
   json: "JsonDisplay",
   png: "ImageDisplay",

@@ -7,9 +7,8 @@ import {
 } from "../../api/models/file-explorer.model";
 import { IFileBlob } from "../../api/models/file-viewer.model";
 
-import FileViewerModel, {
-  fileViewerMap,
-} from "../../api/models/file-viewer.model";
+import { fileViewerMap } from "../../api/models/file-viewer.model";
+
 import { LoadingSpinner } from "..";
 import ViewerDisplay from "./displays/ViewerDisplay";
 import { isEqual } from "lodash";
@@ -20,6 +19,7 @@ type AllProps = {
   fullScreenMode?: boolean;
   toggleFileBrowser: () => void;
   toggleFileViewer: () => void;
+  isDicom?: boolean;
 };
 
 class FileDetailView extends React.Component<AllProps, IFileBlob> {
@@ -43,7 +43,9 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         this.fetchData();
         return <LoadingSpinner color="#ddd" />;
       } else {
+        console.log("FileType", this.state.fileType);
         const viewerName = fileViewerMap[this.state.fileType];
+        console.log("Viewname", viewerName);
         return (
           <div className={viewerName ? viewerName.toLowerCase() : ""}>
             {this.renderHeader()}
@@ -73,7 +75,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const { selectedFile } = this.props;
 
     const fileName = selectedFile.module,
-      fileType = getFileExtension(fileName);
+    fileType = getFileExtension(fileName);
     selectedFile.file.getFileBlob().then((result: any) => {
       const _self = this;
       if (!!result) {
@@ -93,6 +95,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
 
   renderDownloadButton = () => {
     const { fullScreenMode } = this.props;
+
     return (
       <div className="float-right">
         {fullScreenMode === true && (
@@ -107,15 +110,20 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
           </Button>
         )}
 
-        <Button
-          variant="link"
-          onClick={() => {
-            this.props.toggleFileViewer();
-          }}
-        >
-          <FilmIcon />
-          <span> Open Image Viewer</span>
-        </Button>
+        {(this.state.fileType === "dcm" ||
+          this.state.fileType === "png" ||
+          this.state.fileType === "jpg" ||
+          this.state.fileType === "jpeg") && (
+          <Button
+            variant="link"
+            onClick={() => {
+              this.props.toggleFileViewer();
+            }}
+          >
+            <FilmIcon />
+            <span> Open Image Viewer</span>
+          </Button>
+        )}
         <Button
           variant="secondary"
           onClick={() => {

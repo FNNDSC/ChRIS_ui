@@ -1,4 +1,5 @@
 import React from "react";
+
 import classNames from "classnames";
 
 import {
@@ -9,12 +10,12 @@ import {
   PopoverPosition,
 } from "@patternfly/react-core";
 import {
+  DownloadIcon,
   FileImageIcon,
   FileCodeIcon,
   FileAltIcon,
   FileIcon,
   FolderCloseIcon,
-  DownloadIcon,
 } from "@patternfly/react-icons";
 import {
   Table,
@@ -27,38 +28,7 @@ import FileViewerModel from "../../../api/models/file-viewer.model";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
 import FileDetailView from "../../explorer/FileDetailView";
-
-function getIcon(type: string) {
-  switch (type.toLowerCase()) {
-    case "dir":
-      return <FolderCloseIcon />;
-    case "dcm":
-    case "jpg":
-    case "png":
-      return <FileImageIcon />;
-    case "html":
-    case "json":
-      return <FileCodeIcon />;
-    case "txt":
-      return <FileAltIcon />;
-    default:
-      return <FileIcon />;
-  }
-}
-
-interface FileBrowserProps {
-  root: IUITreeNode;
-  pluginName?: string;
-  handleFileBrowserToggle: (file: IUITreeNode, directory: IUITreeNode) => void;
-  handleFileViewerToggle: (file: IUITreeNode, directory: IUITreeNode) => void;
-}
-
-interface FileBrowerState {
-  directory: IUITreeNode;
-  breadcrumbs: IUITreeNode[];
-  previewingFile?: IUITreeNode; // file selected for preview
-  pathViewingFile?: IUITreeNode; // file selected via shift-click for viewing full path
-}
+import { FileBrowserProps, FileBrowerState } from "./types";
 
 class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
   constructor(props: FileBrowserProps) {
@@ -317,3 +287,21 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
 }
 
 export default FileBrowser;
+
+const getIcon = (type: string) => {
+  switch (type.toLowerCase()) {
+    case "dir":
+      return <FolderCloseIcon />;
+    case "dcm":
+    case "jpg":
+    case "png":
+      return <FileImageIcon />;
+    case "html":
+    case "json":
+      return <FileCodeIcon />;
+    case "txt":
+      return <FileAltIcon />;
+    default:
+      return <FileIcon />;
+  }
+};

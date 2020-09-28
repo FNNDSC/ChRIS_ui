@@ -27,6 +27,7 @@ class ViewerDisplay extends React.Component<AllProps> {
     const TagName = (this.components as any)[
       this.props.tag || "CatchallDisplay"
     ];
+
     return <TagName {...this.props} />;
   }
 }
