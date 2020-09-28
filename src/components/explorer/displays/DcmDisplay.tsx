@@ -4,17 +4,15 @@ import DcmImage from "../../dicomViewer/DcmImage";
 import { IGalleryItem } from "../../../api/models/gallery.model";
 
 type AllProps = {
-  galleryItem: IGalleryItem;
+  fileItem: IFileBlob;
   galleryItems: IGalleryItem[];
 };
 
 const DcmDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  const { galleryItem } = props;
+  const { fileItem } = props;
   const fileBlob: IFileBlob = {
-    blob: galleryItem.blob,
-    blobName: galleryItem.fileName,
-    blobText: "",
-    fileType: galleryItem.fileType || "dcm"
+    blob: fileItem.blob,
+    fileType: fileItem.fileType || "dcm",
   };
 
   return (

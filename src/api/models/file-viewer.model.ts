@@ -3,8 +3,6 @@ import { IUITreeNode } from "./file-explorer.model";
 import _ from "lodash";
 export interface IFileBlob {
   blob?: Blob;
-  blobName: string;
-  blobText: any;
   fileType: string;
   file?: IFeedFile;
 }
@@ -72,6 +70,7 @@ export const fileViewerMap: any = {
   txt: "IframeDisplay",
   html: "IframeDisplay",
   csv: "IframeDisplay",
+  pdf: "CatchallDisplay",
   ctab: "IframeDisplay",
   json: "JsonDisplay",
   png: "ImageDisplay",
