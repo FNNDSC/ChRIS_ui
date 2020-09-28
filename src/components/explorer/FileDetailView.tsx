@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button } from "@patternfly/react-core";
-import { DownloadIcon, ExpandIcon } from "@patternfly/react-icons";
+import { DownloadIcon, ExpandIcon, FilmIcon } from "@patternfly/react-icons";
 import {
   getFileExtension,
   IUITreeNode,
@@ -18,7 +18,8 @@ import "./file-detail.scss";
 type AllProps = {
   selectedFile: IUITreeNode;
   fullScreenMode?: boolean;
-  toggleViewerMode: (isViewerMode: boolean) => void;
+  toggleFileBrowser: () => void;
+  toggleFileViewer: () => void;
 };
 
 class FileDetailView extends React.Component<AllProps, IFileBlob> {
@@ -30,8 +31,6 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   }
   state = {
     blob: undefined,
-    blobName: "",
-    blobText: null,
     fileType: "",
     file: undefined,
   };
@@ -45,11 +44,10 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         return <LoadingSpinner color="#ddd" />;
       } else {
         const viewerName = fileViewerMap[this.state.fileType];
-
         return (
           <div className={viewerName ? viewerName.toLowerCase() : ""}>
             {this.renderHeader()}
-            <ViewerDisplay tag={viewerName} galleryItem={this.state} />
+            <ViewerDisplay tag={viewerName} fileItem={this.state} />
           </div>
         );
       }
@@ -81,13 +79,10 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
       if (!!result) {
         const reader = new FileReader();
         reader.addEventListener("loadend", (e: any) => {
-          const blobText = e.target.result;
           _self._isMounted &&
             _self.setState({
               blob: result,
-              blobName: fileName,
               fileType,
-              blobText,
               file: Object.assign({}, selectedFile.file.data),
             });
         });
@@ -100,14 +95,26 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const { fullScreenMode } = this.props;
     return (
       <div className="float-right">
+        {fullScreenMode === true && (
+          <Button
+            variant="link"
+            onClick={() => {
+              this.props.toggleFileBrowser();
+            }}
+          >
+            <ExpandIcon />
+            <span> Maximize</span>
+          </Button>
+        )}
+
         <Button
           variant="link"
           onClick={() => {
-            this.props.toggleViewerMode(false);
+            this.props.toggleFileViewer();
           }}
         >
-          <ExpandIcon />
-          {fullScreenMode ? " Open Image Viewer" : " Full Screen"}
+          <FilmIcon />
+          <span> Open Image Viewer</span>
         </Button>
         <Button
           variant="secondary"
@@ -122,9 +129,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   };
 
   // Download Curren File blob
-  downloadFileNode = () => {
-    return FileViewerModel.downloadFile(this.state.blob, this.state.blobName);
-  };
+  downloadFileNode = () => {};
 
   componentWillUnmount() {
     this._isMounted = false;

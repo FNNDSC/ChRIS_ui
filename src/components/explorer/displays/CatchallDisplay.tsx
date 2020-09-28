@@ -1,24 +1,26 @@
 import * as React from "react";
 
-import { IGalleryItem } from "../../../api/models/gallery.model";
 import { DownloadIcon } from "@patternfly/react-icons";
 import { Alert, Button } from "@patternfly/react-core";
-import FileViewerModel from "../../../api/models/file-viewer.model";
+import FileViewerModel, {
+  IFileBlob,
+} from "../../../api/models/file-viewer.model";
 type AllProps = {
-  galleryItem: IGalleryItem;
+  fileItem: IFileBlob;
 };
 // Description: No preview message available for this file type
 const CatchallDisplay: React.FunctionComponent<AllProps> = (
   props: AllProps
 ) => {
   const noPreviewMessage = () => {
-    const { galleryItem } = props;
+    const { fileItem } = props;
 
-    const ext = galleryItem.fileType ? galleryItem.fileType : "";
+    const ext = fileItem.fileType ? fileItem.fileType : "";
     const alertText = (
       <React.Fragment>
         <label>
-          <b>File Name:</b> {galleryItem.blobName}
+          <b>File Name:</b>{" "}
+          {fileItem.file ? fileItem.file.fname : "Not available"}
         </label>
         <br></br>
         <label>
@@ -28,8 +30,9 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
           variant="primary"
           className="float-right"
           onClick={() =>
-            galleryItem.blobName &&
-            FileViewerModel.downloadFile(galleryItem.blob, galleryItem.blobName)
+            fileItem.file &&
+            fileItem.file.fname &&
+            FileViewerModel.downloadFile(fileItem.blob, fileItem.file.fname)
           }
         >
           <DownloadIcon /> Download

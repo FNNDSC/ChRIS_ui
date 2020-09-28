@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Modal } from "@patternfly/react-core";
-import OutputViewerContainer from "../viewer/OutputViewerContainer";
-import { Gotop } from "../index";
+import OutputViewerContainer from "../../viewer/OutputViewerContainer";
+import { Gotop } from "../../index";
 
 type AllProps = {
   isModalOpen: boolean;

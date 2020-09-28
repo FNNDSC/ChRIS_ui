@@ -1,17 +1,22 @@
 import React from "react";
-import { IGalleryItem } from "../../../api/models/gallery.model";
+import { IFileBlob } from "../../../api/models/file-viewer.model";
+
 type AllProps = {
-  galleryItem: IGalleryItem;
+  fileItem: IFileBlob;
 };
 
 const ImageDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  const { galleryItem } = props;
-  const url = !!galleryItem.blob
-    ? window.URL.createObjectURL(new Blob([galleryItem.blob]))
+  const { fileItem } = props;
+  const url = !!fileItem.blob
+    ? window.URL.createObjectURL(new Blob([fileItem.blob]))
     : "";
   return (
     <div className="image-block">
-        <img id={props.galleryItem.fileName} src={url} alt="" />
+      <img
+        id={props.fileItem.file ? props.fileItem.file.fname : ""}
+        src={url}
+        alt=""
+      />
     </div>
   );
 };

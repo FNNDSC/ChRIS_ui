@@ -227,7 +227,11 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   }
 
   componentDidUpdate(prevProps: AllProps) {
-    if (prevProps.imageArray.length !== this.props.imageArray.length) {
+    this._isMounted = true;
+    if (
+      this._isMounted &&
+      prevProps.imageArray.length !== this.props.imageArray.length
+    ) {
       if (this.props.imageArray.length > 0) {
         this.loadImagesIntoCornerstone();
       }
@@ -238,9 +242,11 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
     const { imageArray } = this.props;
     if (imageArray.length < 0) return;
     let imageIds: string[] = [];
-    this.setState({
-      totalFiles: imageArray.length,
-    });
+    if (this._isMounted) {
+      this.setState({
+        totalFiles: imageArray.length,
+      });
+    }
 
     for (let i = 0; i < imageArray.length; i++) {
       const item = imageArray[i];
@@ -257,11 +263,13 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
       }
     }
 
-    if (imageIds.length > 0) {
-      this.setState({
-        imageIds,
-        numberOfFrames: imageIds.length,
-      });
+    if (this._isMounted) {
+      if (imageIds.length > 0) {
+        this.setState({
+          imageIds,
+          numberOfFrames: imageIds.length,
+        });
+      }
     }
   };
 

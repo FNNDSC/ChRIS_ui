@@ -2,7 +2,7 @@ import React from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import JSZip from "jszip";
-import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
+import { PluginInstance } from "@fnndsc/chrisapi";
 import {
   Title,
   Split,
@@ -16,32 +16,23 @@ import {
   DownloadIcon,
 } from "@patternfly/react-icons";
 import { getPluginName, getPluginDisplayName } from "./utils";
-import { setSelectedFile } from "../../../store/explorer/actions";
-import UITreeNodeModel, {
-  IUITreeNode,
-} from "../../../api/models/file-explorer.model";
+import {
+  setSelectedFile,
+  toggleViewerMode,
+} from "../../../store/explorer/actions";
+import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { ApplicationState } from "../../../store/root/applicationState";
-import FileBrowser from "../FileBrowser";
+import FileBrowser from "./FileBrowser";
 import PluginStatus from "./PluginStatus";
-import PluginViewerModal from "../../plugin/PluginViewerModal";
-import "./FeedOutputBrowser.scss";
+import PluginViewerModal from "./PluginViewerModal";
 import {
   getPluginFilesRequest,
   stopPolling,
 } from "../../../store/plugin/actions";
-
-interface FeedOutputBrowserProps {
-  selected?: PluginInstance;
-  plugins?: PluginInstance[];
-  pluginFiles?: { [pluginId: number]: FeedFile[] };
-  pluginStatus?: string;
-  pluginLog?: {};
-  handlePluginSelect: Function;
-  setSelectedFile: Function;
-  getPluginFilesRequest: (selected: PluginInstance) => void;
-  stopPolling: () => void;
-}
+import { FeedOutputBrowserProps } from "./types";
+import { createTreeFromFiles } from "./utils";
+import "./FeedOutputBrowser.scss";
 
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   plugins,
@@ -53,6 +44,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   getPluginFilesRequest,
   setSelectedFile,
   stopPolling,
+  viewerMode,
+  toggleViewerMode,
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
 
@@ -111,9 +104,15 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     FileViewerModel.downloadFile(blob, filename);
   };
 
-  const handlePluginModalOpen = (file: IUITreeNode, folder: IUITreeNode) => {
+  const handleFileBrowserOpen = (file: IUITreeNode, folder: IUITreeNode) => {
     setPluginModalOpen(true);
     setSelectedFile(file, folder);
+  };
+
+  const handleFileViewerOpen = (file: IUITreeNode, folder: IUITreeNode) => {
+    setPluginModalOpen(true);
+    setSelectedFile(file, folder);
+    toggleViewerMode(!viewerMode);
   };
 
   const handlePluginModalClose = () => {
@@ -168,7 +167,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               pluginName={pluginName}
               root={tree}
               key={selected.data.id}
-              handleViewerModeToggle={handlePluginModalOpen}
+              handleFileBrowserToggle={handleFileBrowserOpen}
+              handleFileViewerToggle={handleFileViewerOpen}
             />
           ) : selected?.data.status === "finishedSuccessfully" && !tree ? (
             <Spinner size="md" />
@@ -189,6 +189,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   pluginFiles: state.plugin.pluginFiles,
   pluginStatus: state.plugin.pluginStatus,
   pluginLog: state.plugin.pluginLog,
+  viewerMode: state.explorer.viewerMode,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -196,20 +197,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(getPluginFilesRequest(selected)),
   setSelectedFile: (file: IUITreeNode, folder: IUITreeNode) =>
     dispatch(setSelectedFile(file, folder)),
+  toggleViewerMode: (isViewerOpened: boolean) =>
+    dispatch(toggleViewerMode(isViewerOpened)),
   stopPolling: () => dispatch(stopPolling()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedOutputBrowser);
-
-/**
- * Utility Function
- */
-
-function createTreeFromFiles(selected: PluginInstance, files?: FeedFile[]) {
-  if (!files) return null;
-
-  const model = new UITreeNodeModel(files, selected);
-  const tree = model.getTree();
-  tree.module = getPluginName(selected);
-  return tree;
-}

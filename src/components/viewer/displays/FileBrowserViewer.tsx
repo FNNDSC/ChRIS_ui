@@ -48,8 +48,8 @@ class FileBrowserViewer extends React.Component<AllProps> {
       : setSelectedFolder(node);
   };
 
-  toggleViewerMode = (isViewerMode: boolean) => {
-    this.props.toggleViewerMode(!isViewerMode);
+  toggleViewerMode = () => {
+    this.props.toggleViewerMode(!this.props.viewerMode);
   };
 
   render() {
@@ -58,7 +58,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
       selectedFile,
       selectedFolder,
       viewerMode,
-      isViewerMode,
+      isDicom,
     } = this.props;
 
     return (
@@ -81,9 +81,10 @@ class FileBrowserViewer extends React.Component<AllProps> {
               <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
                 {!!selectedFile && !!selectedFolder ? (
                   <FileDetailView
-                    fullScreenMode={true}
+                    fullScreenMode={false}
                     selectedFile={selectedFile}
-                    toggleViewerMode={this.toggleViewerMode}
+                    toggleFileBrowser={() => {}}
+                    toggleFileViewer={this.toggleViewerMode}
                   />
                 ) : !!selectedFolder ? (
                   <FileTableView
@@ -102,7 +103,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
             </Grid>
           ) : (
             <div className="viewer-data">
-              {!!selectedFile && !!selectedFolder && isViewerMode && (
+              {!!selectedFile && !!selectedFolder && isDicom && (
                 <GalleryDicomView
                   selectedFile={selectedFile}
                   selectedFolder={selectedFolder}
@@ -151,7 +152,7 @@ const mapStateToProps = ({ explorer }: ApplicationState) => ({
   selectedFolder: explorer.selectedFolder,
   explorer: explorer.explorer,
   viewerMode: explorer.viewerMode,
-  isViewerMode: explorer.isViewerMode,
+  isDicom: explorer.isDicom,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileBrowserViewer);

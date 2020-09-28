@@ -1,6 +1,22 @@
+import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
+
 export interface PluginStatusProps {
   pluginStatus?: string;
   pluginLog?: {};
+}
+
+export interface FeedOutputBrowserProps {
+  selected?: PluginInstance;
+  plugins?: PluginInstance[];
+  viewerMode?: boolean;
+  pluginFiles?: { [pluginId: number]: FeedFile[] };
+  pluginStatus?: string;
+  pluginLog?: {};
+  handlePluginSelect: Function;
+  setSelectedFile: Function;
+  getPluginFilesRequest: (selected: PluginInstance) => void;
+  stopPolling: () => void;
+  toggleViewerMode: (isViewerOpened: boolean) => void;
 }
 
 type Return = {
