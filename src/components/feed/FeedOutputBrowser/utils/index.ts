@@ -3,9 +3,7 @@
  */
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 import { PluginStatusLabels } from "../types";
-import UITreeNodeModel, {
-  IUITreeNode,
-} from "../../../../api/models/file-explorer.model";
+import UITreeNodeModel from "../../../../api/models/file-explorer.model";;
 
 export function createTreeFromFiles(
   selected: PluginInstance,
@@ -110,3 +108,5 @@ export function displayDescription(label: any) {
     return "finishing up";
   }
 }
+
+

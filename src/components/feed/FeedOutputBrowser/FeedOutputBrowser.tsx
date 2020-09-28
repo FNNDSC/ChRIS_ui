@@ -45,6 +45,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   setSelectedFile,
   stopPolling,
   viewerMode,
+
   toggleViewerMode,
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
