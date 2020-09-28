@@ -6,12 +6,12 @@ import {
   JsonDisplay,
   IframeDisplay,
   ImageDisplay,
-  DcmDisplay
+  DcmDisplay,
 } from "./index";
 
 type AllProps = {
   tag: string;
-  galleryItem: IGalleryItem | IFileBlob;
+  fileItem: IGalleryItem | IFileBlob;
   galleryItems?: IGalleryItem[];
 };
 
@@ -21,7 +21,7 @@ class ViewerDisplay extends React.Component<AllProps> {
     IframeDisplay,
     ImageDisplay,
     DcmDisplay,
-    CatchallDisplay
+    CatchallDisplay,
   };
   render() {
     const TagName = (this.components as any)[

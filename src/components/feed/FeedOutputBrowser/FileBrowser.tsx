@@ -23,10 +23,10 @@ import {
   TableVariant,
 } from "@patternfly/react-table";
 
-import FileViewerModel from "../../api/models/file-viewer.model";
-import { IUITreeNode } from "../../api/models/file-explorer.model";
-import TextCopyPopover from "../common/textcopypopover/TextCopyPopover";
-import FileDetailView from "../explorer/FileDetailView";
+import FileViewerModel from "../../../api/models/file-viewer.model";
+import { IUITreeNode } from "../../../api/models/file-explorer.model";
+import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
+import FileDetailView from "../../explorer/FileDetailView";
 
 function getIcon(type: string) {
   switch (type.toLowerCase()) {
@@ -49,7 +49,8 @@ function getIcon(type: string) {
 interface FileBrowserProps {
   root: IUITreeNode;
   pluginName?: string;
-  handleViewerModeToggle: (file: IUITreeNode, directory: IUITreeNode) => void;
+  handleFileBrowserToggle: (file: IUITreeNode, directory: IUITreeNode) => void;
+  handleFileViewerToggle: (file: IUITreeNode, directory: IUITreeNode) => void;
 }
 
 interface FileBrowerState {
@@ -267,7 +268,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
   }
 
   render() {
-    const { handleViewerModeToggle } = this.props;
+    const { handleFileBrowserToggle, handleFileViewerToggle } = this.props;
     const { directory, breadcrumbs, previewingFile } = this.state;
 
     if (!directory.children || !directory.children.length) {
@@ -298,10 +299,14 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
           {previewingFile && (
             <SplitItem className="file-browser__flex__item2">
               <FileDetailView
+                fullScreenMode={true}
                 selectedFile={previewingFile}
-                toggleViewerMode={() =>
-                  handleViewerModeToggle(previewingFile, directory)
-                }
+                toggleFileBrowser={() => {
+                  handleFileBrowserToggle(previewingFile, directory);
+                }}
+                toggleFileViewer={() => {
+                  handleFileViewerToggle(previewingFile, directory);
+                }}
               />
             </SplitItem>
           )}

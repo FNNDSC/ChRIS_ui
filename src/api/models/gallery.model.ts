@@ -8,9 +8,7 @@ import _ from "lodash";
 export interface IGalleryItem extends IFeedFile {
   uiId: string;
   fileName: string;
-  blobName?: string;
   blob?: Blob;
-  blobText?: any;
   fileType?: string;
   isActive: boolean;
   index: number;
