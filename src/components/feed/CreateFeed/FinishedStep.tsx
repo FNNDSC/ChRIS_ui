@@ -60,7 +60,7 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
         <Progress
           size="md"
           className="finished-step__progessbar"
-          max={120}
+          max={100}
           value={value}
           measureLocation={ProgressMeasureLocation.outside}
           label={feedProgress}
