@@ -43,9 +43,8 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         this.fetchData();
         return <LoadingSpinner color="#ddd" />;
       } else {
-        console.log("FileType", this.state.fileType);
         const viewerName = fileViewerMap[this.state.fileType];
-        console.log("Viewname", viewerName);
+
         return (
           <div className={viewerName ? viewerName.toLowerCase() : ""}>
             {this.renderHeader()}
@@ -75,7 +74,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const { selectedFile } = this.props;
 
     const fileName = selectedFile.module,
-    fileType = getFileExtension(fileName);
+      fileType = getFileExtension(fileName);
     selectedFile.file.getFileBlob().then((result: any) => {
       const _self = this;
       if (!!result) {

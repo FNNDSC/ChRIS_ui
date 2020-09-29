@@ -141,7 +141,6 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
 
   handleGalleryActions = {
     next: () => {
-      console.log("Next");
       this.handleOpenImage("next");
     },
     previous: () => {
