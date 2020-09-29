@@ -187,11 +187,18 @@ export const createFeedReducer = (
     }
 
     case Types.SetProgress: {
-      return {
-        ...state,
-        feedProgress: action.payload.feedProgress,
-        value: state.value + 20,
-      };
+      if (state.feedProgress.includes("Uploading Files To Cube")) {
+        return {
+          ...state,
+          feedProgress: action.payload.feedProgress,
+        };
+      } else {
+        return {
+          ...state,
+          feedProgress: action.payload.feedProgress,
+          value: state.value + 20,
+        };
+      }
     }
     case Types.SetError: {
       return {

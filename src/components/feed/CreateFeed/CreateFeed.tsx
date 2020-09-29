@@ -244,7 +244,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     },
     {
       id: 2,
-      name: "Data Configuration",
+      name: "Feed Configuration",
       component: chooseConfig,
       enableNext: selectedConfig.length > 0,
       canJumpTo: step > 2,
@@ -273,7 +273,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   const CustomFooter = (
     <WizardFooter>
       <WizardContextConsumer>
-        {({ activeStep, onNext, onBack}) => {
+        {({ activeStep, onNext, onBack }) => {
           if (activeStep.name !== "Finish") {
             return (
               <>
