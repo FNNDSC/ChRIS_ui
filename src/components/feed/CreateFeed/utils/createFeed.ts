@@ -6,10 +6,10 @@ import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
-    return "Feed Synthesis using FS Plugin";
+    return "Feed Creation using an FS Plugin";
   } else if (selectedConfig === "file_select") {
-    return "Feed Synthesis using File Select";
-  } else return "Feed Sythesis";
+    return "Feed Creation using File Select";
+  } else return "Feed Creation";
 }
 
 export const createFeed = async (
@@ -75,10 +75,8 @@ export const createFeedInstanceWithDircopy = async (
     )}`;
 
     try {
-      statusCallback("Uploading Files To Cube");
-      await uploadLocalFiles(localFiles, local_upload_path);
+      await uploadLocalFiles(localFiles, local_upload_path, statusCallback);
     } catch (error) {
-      console.log("Error", error);
       errorCallback(error);
     }
     dirpath.push(local_upload_path);
@@ -125,7 +123,6 @@ export const createFeedInstanceWithFS = async (
       );
       const fsPluginInstance = await fsPlugin.getPluginInstances();
       statusCallback("Creating Plugin Instance");
-      console.log("InputParameter", inputParameter);
       await fsPluginInstance.post({
         ...inputParameter,
       });
@@ -152,13 +149,15 @@ export const generatePathForLocalFile = (data: CreateFeedData) => {
 
 export const uploadLocalFiles = async (
   files: LocalFile[],
-  directory: string
+  directory: string,
+  statusCallback: (status: string) => void
 ) => {
   let uploadedFiles = await ChrisAPIClient.getClient().getUploadedFiles();
+  let count = 0;
 
   return Promise.all(
     files.map(async (file: LocalFile) => {
-      await uploadedFiles.post(
+      const uploadedFile = await uploadedFiles.post(
         {
           upload_path: `${directory}/${file.name}`,
         },
@@ -166,6 +165,8 @@ export const uploadLocalFiles = async (
           fname: (file as LocalFile).blob,
         }
       );
+      count = uploadedFile ? count + 1 : count;
+      statusCallback(`Uploading Files To Cube ${count}/${files.length}`);
     })
   );
 };
