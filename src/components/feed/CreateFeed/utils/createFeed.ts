@@ -166,7 +166,7 @@ export const uploadLocalFiles = async (
         }
       );
       count = uploadedFile ? count + 1 : count;
-      statusCallback(`Uploading Files To Cube ${count}/${files.length}`);
+      statusCallback(`Uploading Files To Cube (${count}/${files.length})`);
     })
   );
 };

@@ -182,7 +182,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     );
 
     const pluginInstances = await plugin.getPluginInstances();
-    console.log("ParameterInput", parameterInput);
+
     await pluginInstances.post(parameterInput);
 
     const node = pluginInstances.getItems()[0];
