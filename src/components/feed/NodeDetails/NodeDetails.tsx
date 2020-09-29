@@ -23,6 +23,8 @@ import {
   StorageDomainIcon,
   OnRunningIcon,
   ServicesIcon,
+  FileArchiveIcon,
+  OutlinedClockIcon,
 } from "@patternfly/react-icons";
 
 import { PluginInstance } from "@fnndsc/chrisapi";
@@ -143,6 +145,8 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
   };
 
   getCurrentTitle(statusLabels: PluginStatusLabels) {
+    const { selected } = this.props;
+
     if (statusLabels.pushPath.status !== true) {
       return (
         <>
@@ -178,11 +182,21 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
           <span>Finishing up</span>
         </>
       );
-    } else {
+    } else if (selected.data.status === "finishedSuccessfully") {
       return (
         <>
           <CheckIcon />
           <span>Finished Successfully</span>
+        </>
+      );
+    } else if (
+      statusLabels.swiftPut.status === true &&
+      selected.data.status !== "finishedSuccessfully"
+    ) {
+      return (
+        <>
+          <FileArchiveIcon />
+          <span>Fetching files from Storage to browse</span>
         </>
       );
     }
@@ -277,6 +291,11 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
                   {this.getCurrentTitle(pluginStatusLabels)}
                 </h3>
               </div>
+            ) : selected.data.status === "scheduled" ? (
+              <>
+                <OutlinedClockIcon />
+                <span>Scheduled</span>
+              </>
             ) : (
               <>
                 <OnRunningIcon />
