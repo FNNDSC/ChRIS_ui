@@ -401,7 +401,6 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
       }
 
       case "next": {
-        console.log("This.state.frame", this.state.frame);
         if (this.state.frame < this.state.numberOfFrames) {
           let frame = this.state.frame + 1;
           this.setState(
