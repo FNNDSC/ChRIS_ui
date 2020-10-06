@@ -59,8 +59,18 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
 function* handleGetPluginInstances(action: IActionTypeParam) {
   const feed: Feed = action.payload;
   try {
-    const pluginInstanceList = yield feed.getPluginInstances({});
-    const pluginInstances = yield pluginInstanceList.getItems();
+    const params = { limit: 10, offset: 0 };
+    let pluginInstanceList = yield feed.getPluginInstances(params);
+    let pluginInstances = yield pluginInstanceList.getItems();
+    while (pluginInstanceList.hasNextPage) {
+      try {
+        params.offset += params.limit;
+        pluginInstanceList = yield feed.getPluginInstances(params);
+        pluginInstances = pluginInstances.concat(pluginInstanceList.getItems());
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
     const selected = pluginInstances[pluginInstances.length - 1];
 
