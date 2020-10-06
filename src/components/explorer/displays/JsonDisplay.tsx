@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-
-import { IGalleryItem } from "../../../api/models/gallery.model";
 import ReactJSON from "react-json-view";
 
+import { IFileBlob } from "../../../api/models/file-viewer.model";
+
 type AllProps = {
-  galleryItem: IGalleryItem;
+  fileItem: IFileBlob;
 };
 
 const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const [blobText, setBlobText] = useState({});
-  const { galleryItem } = props;
+  const { fileItem } = props;
   let _isMounted = useRef(false);
 
   useEffect(() => {
@@ -23,13 +23,13 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   }, []);
 
   const getBlobText = () => {
-    if (!!galleryItem.blob) {
+    if (!!fileItem.blob) {
       const reader = new FileReader();
       reader.addEventListener("loadend", (e: any) => {
         const blobText = e.target.result;
         if (_isMounted.current === true) setBlobText(JSON.parse(blobText));
       });
-      reader.readAsText(galleryItem.blob);
+      reader.readAsText(fileItem.blob);
     }
   };
   getBlobText();
