@@ -13,11 +13,30 @@ import {
   NavGroup,
   NavItemSeparator,
 } from "@patternfly/react-core";
+import { setSidebarActive } from "../../store/ui/actions";
+import { Dispatch } from "redux";
 import "./layout.scss";
 
-type AllProps = IUiState & IUserState;
+type ReduxProp = {
+  setSidebarActive: (active: {
+    activeItem: string;
+    activeGroup: string;
+  }) => void;
+};
+type AllProps = IUiState & IUserState & ReduxProp;
 
 class Sidebar extends React.Component<AllProps> {
+  onSelect = (selectedItem: {
+    groupId: number | string;
+    itemId: number | string;
+    to: string;
+    event: React.FormEvent<HTMLInputElement>;
+  }) => {
+    this.props.setSidebarActive({
+      activeItem: selectedItem.itemId as string,
+      activeGroup: selectedItem.groupId as string,
+    });
+  };
   render() {
     const {
       isSidebarOpen,
@@ -25,6 +44,7 @@ class Sidebar extends React.Component<AllProps> {
       sidebarActiveGroup,
       isLoggedIn,
     } = this.props;
+
     const loggedInFeedNav = isLoggedIn && (
       <React.Fragment>
         <NavItem
@@ -38,7 +58,7 @@ class Sidebar extends React.Component<AllProps> {
     );
 
     const PageNav = (
-      <Nav theme="light" aria-label="ChRIS Demo site navigation">
+      <Nav onSelect={this.onSelect} aria-label="ChRIS Demo site navigation">
         <NavList>
           <NavGroup title="Navigation">
             <NavExpandable
@@ -72,4 +92,9 @@ const mapStateToProps = ({ ui, user }: ApplicationState) => ({
   isLoggedIn: user.isLoggedIn,
 });
 
-export default connect(mapStateToProps)(Sidebar);
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
+    dispatch(setSidebarActive(active)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);

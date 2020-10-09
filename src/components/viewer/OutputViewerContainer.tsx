@@ -3,18 +3,9 @@ import { connect } from "react-redux";
 import { Tabs, Tab, Alert } from "@patternfly/react-core";
 import { ApplicationState } from "../../store/root/applicationState";
 import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
-
 import { pluginViewerMap } from "../../api/models/file-viewer.model";
-import {
-  DataTableViewer,
-  FreesurferDataTable,
-  ZScoreDataTable,
-  FileBrowserViewer,
-} from "./displays";
-import VolumeGrowth from "../../components/chart/VolumeGrowth";
-import SegmentAnalysis from "../../components/chart/SegmentAnalysis";
+import { FileBrowserViewer } from "./displays";
 import "./viewer.scss";
-
 import { getSelectedFiles } from "../../store/plugin/selector";
 
 type AllProps = {
@@ -79,36 +70,6 @@ class OutputViewerContainer extends React.Component<
             label = "File Browser";
             tabContent = !!files && !!selected && (
               <FileBrowserViewer files={files} selected={selected} />
-            );
-            break;
-          case "DataTableViewer":
-            label = "Data Table";
-            tabContent = !!files && <DataTableViewer files={files} />;
-            break;
-          case "ZScoreDataTable":
-            label = "Data Table";
-            tabContent = !!files && <ZScoreDataTable files={files} />;
-            break;
-          case "FreesurferDataTable":
-            label = "FreeSurfer Data";
-            tabContent = !!files && <FreesurferDataTable files={files} />;
-            break;
-          case "VolumeGrowth":
-            label = "Volume";
-            tabContent = (
-              <React.Fragment>
-                <h1 className="pf-c-title pf-u-m-xl">Volume Segments</h1>
-                <VolumeGrowth />
-              </React.Fragment>
-            );
-            break;
-          case "SegmentAnalysis":
-            label = "Segment";
-            tabContent = (
-              <React.Fragment>
-                <h1 className="pf-c-title pf-u-m-xl">Z-Score</h1>
-                <SegmentAnalysis />;
-              </React.Fragment>
             );
             break;
         }

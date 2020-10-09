@@ -47,19 +47,9 @@ export const pluginViewerMap: any = {
   dircopy: ["FileBrowserViewer"],
   pacscopy: ["FileBrowserViewer"],
   mri10yr06mo01da_normal: ["FileBrowserViewer"], // This is temp for custom display
-  freesurfer_pp: ["FileBrowserViewer", "FreesurferDataTable"],
-  simpledsapp: [
-    "FileBrowserViewer",
-    "VolumeGrowth",
-    "SegmentAnalysis",
-    "ZScoreDataTable",
-  ],
-  mpcs: [
-    "VolumeGrowth",
-    "SegmentAnalysis",
-    "ZScoreDataTable",
-    "FileBrowserViewer",
-  ],
+  freesurfer_pp: ["FileBrowserViewer"],
+  simpledsapp: ["FileBrowserViewer"],
+  mpcs: ["FileBrowserViewer"],
   z2labelmap: ["FileBrowserViewer"],
 };
 
