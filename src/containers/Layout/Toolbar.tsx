@@ -10,18 +10,14 @@ import {
 } from "../../store/ui/actions";
 import { setUserLogout } from "../../store/user/actions";
 import {
-  Button,
-  ButtonVariant,
   Dropdown,
   DropdownItem,
   DropdownToggle,
-  KebabToggle,
   Toolbar,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
 import { pf4UtilityStyles } from "../../lib/pf4-styleguides";
-import { BellIcon, CogIcon } from "@patternfly/react-icons";
 
 interface IPropsFromDispatch {
   onDropdownSelect: typeof onDropdownSelect;
@@ -60,15 +56,7 @@ class ToolbarComponent extends React.Component<AllProps> {
     this.props.setUserLogout();
   }
   render() {
-    const { isDropdownOpen, isKebabDropdownOpen, username } = this.props;
-    const kebabDropdownItems = [
-      <DropdownItem key="kebab1">
-        <BellIcon /> Notifications
-      </DropdownItem>,
-      <DropdownItem key="kebab2">
-        <CogIcon /> Settings
-      </DropdownItem>,
-    ];
+    const { isDropdownOpen, username } = this.props;
 
     const userDropdownItems = [
       <DropdownItem key="dd5" component="a" onClick={this.onLogout}>
@@ -80,38 +68,6 @@ class ToolbarComponent extends React.Component<AllProps> {
         <ToolbarGroup
           className={`${pf4UtilityStyles.accessibleStyles.screenReader} ${pf4UtilityStyles.accessibleStyles.visibleOnLg}`}
         >
-          <ToolbarItem>
-            <Button
-              id="expanded-example-uid-01"
-              aria-label="Notifications actions"
-              variant={ButtonVariant.plain}
-            >
-              <BellIcon />
-            </Button>
-          </ToolbarItem>
-          <ToolbarItem>
-            <Button
-              id="expanded-example-uid-02"
-              aria-label="Settings actions"
-              variant={ButtonVariant.plain}
-            >
-              <CogIcon />
-            </Button>
-          </ToolbarItem>
-        </ToolbarGroup>
-        <ToolbarGroup>
-          <ToolbarItem
-            className={`${pf4UtilityStyles.accessibleStyles.hiddenOnLg} ${pf4UtilityStyles.spacingStyles.mr_0}`}
-          >
-            <Dropdown
-              isPlain
-              position="right"
-              //onSelect={this.onKebabDropdownSelect}
-              toggle={<KebabToggle onToggle={this.onKebabDropdownToggle} />}
-              isOpen={isKebabDropdownOpen}
-              dropdownItems={kebabDropdownItems}
-            />
-          </ToolbarItem>
           <ToolbarItem
             className={`${pf4UtilityStyles.accessibleStyles.screenReader} ${pf4UtilityStyles.accessibleStyles.visibleOnMd}`}
           >
