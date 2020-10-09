@@ -105,14 +105,17 @@ const traverse = (
 };
 
 const getFeeds = async () => {
-  let params = {
-    limit: 100,
+  const params = {
+    limit: 10,
     offset: 0,
   };
-  let feeds = [];
+  const client = ChrisAPIClient.getClient();
+  let feedList = await client.getFeeds(params);
+  let feeds = feedList.getItems();
   try {
-    const client = ChrisAPIClient.getClient();
-    feeds = (await client.getFeeds(params)).getItems();
+    params.offset += params.limit;
+    feedList = await client.getFeeds(params);
+    feeds = feeds.concat(feedList.getItems());
   } catch (error) {
     console.error(error);
   }

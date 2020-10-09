@@ -29,14 +29,13 @@ export const getRequiredParams = (params: PluginParameter[]) => {
   return params
     .map((param) => {
       if (param.data.optional === false) {
-        return param.data.name;
+        return param.data.flag;
       } else return undefined;
     })
     .filter((element) => element !== undefined);
 };
 
 export const getAllParamsWithName = (params: PluginParameter[]) => {
-  
   return params.map((param) => param.data.flag);
 };
 
@@ -44,7 +43,7 @@ export const getRequiredParamsWithId = (params: PluginParameter[]) => {
   return params
     .map((param) => {
       if (param.data.optional === false)
-        return `${param.data.name}_${param.data.id}`;
+        return `${param.data.flag}_${param.data.id}`;
       else return undefined;
     })
     .filter((element) => element !== undefined);

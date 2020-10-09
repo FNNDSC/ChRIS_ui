@@ -34,7 +34,6 @@ class Wrapper extends React.Component<AllProps> {
 
     return (
       <Page
-        className="pf-background"
         header={<Header onSidebarToggle={this.onToggle} user={user} />}
         sidebar={<Sidebar />}
         onPageResize={this.onPageResize}
