@@ -186,7 +186,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       return [
         {
           id: 3,
-          name: "Data Packs",
+          name: "Select an FS Plugin",
           component: packs,
           enableNext: selectedPlugin !== undefined,
           canJumpTo: step > 3,
