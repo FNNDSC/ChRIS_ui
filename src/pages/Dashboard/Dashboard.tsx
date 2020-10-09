@@ -1,11 +1,7 @@
 import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import Wrapper from "../../containers/Layout/PageWrapper";
-import {
-  Alert,
-  PageSection,
-  PageSectionVariants,
-} from "@patternfly/react-core";
+import { Alert, PageSection } from "@patternfly/react-core";
 
 type AllProps = RouteComponentProps;
 
