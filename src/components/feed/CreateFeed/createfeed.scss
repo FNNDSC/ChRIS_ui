@@ -8,13 +8,18 @@
   border-radius: 4px !important;
 }
 
+.pf-c-wizard {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.pf-c-modal-box {
+  padding: 0 !important;
+}
+
 .feed-create-wizard {
   .pf-c-wizard__header {
     background: #282d33;
-  }
-
-  .pf-c-wizard__outer-wrap {
-    max-height: 646px;
   }
 
   .pf-c-wizard__footer {
@@ -23,33 +28,6 @@
 
   .pf-c-wizard__nav .pf-m-current {
     color: var(--pf-c-wizard__nav-link--m-current--before--BackgroundColor);
-  }
-
-  .pf-c-wizard__main {
-    height: 100%;
-  }
-  .local-file-upload {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  .pf-l-split {
-    height: 100%;
-  }
-  .file-list {
-    .file-preview svg {
-      font-size: 17px;
-    }
-    .file-name {
-      margin: 0 10px;
-      vertical-align: top;
-    }
-  }
-}
-
-@media (max-width: $pf-global--breakpoint--lg) {
-  .feed-create-wizard .pf-c-wizard__outer-wrap {
-    max-height: 100%;
   }
 }
 

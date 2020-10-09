@@ -115,14 +115,14 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
   return (
     <div className="chris-file-select">
       <h1 className="pf-c-title pf-m-2xl">
-        Data Configuration: File Select from internal ChRIS storage
+        File Selection: File Select from internal ChRIS storage
       </h1>
       <p>
         Navigate the internal ChRIS storage and select files/directories to
         create a feed
       </p>
       <br />
-      <Split gutter="lg">
+      <Split hasGutter={true}>
         <SplitItem isFilled>
           <DirectoryTree
             onExpand={onExpand}

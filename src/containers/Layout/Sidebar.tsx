@@ -13,6 +13,7 @@ import {
   NavGroup,
   NavItemSeparator,
 } from "@patternfly/react-core";
+import "./layout.scss";
 
 type AllProps = IUiState & IUserState;
 
@@ -31,17 +32,17 @@ class Sidebar extends React.Component<AllProps> {
           itemId="my_feeds"
           isActive={sidebarActiveItem === "my_feeds"}
         >
-          <Link to="/feeds">My Feeds</Link>
+          <Link to="/feeds">Feeds List</Link>
         </NavItem>
       </React.Fragment>
     );
 
     const PageNav = (
-      <Nav aria-label="ChRIS Demo site navigation" theme="dark">
+      <Nav theme="light" aria-label="ChRIS Demo site navigation">
         <NavList>
-          <NavGroup title="Main Navigation">
+          <NavGroup title="Navigation">
             <NavExpandable
-              title="My Feeds"
+              title="My Dashboard"
               groupId="feeds_grp"
               isActive={sidebarActiveGroup === "feeds_grp"}
               isExpanded
@@ -51,7 +52,7 @@ class Sidebar extends React.Component<AllProps> {
                 itemId="dashboard"
                 isActive={sidebarActiveItem === "dashboard"}
               >
-                <Link to={`/`}>Dashboard</Link>
+                <Link to={`/`}>Welcome</Link>
               </NavItem>
               <NavItemSeparator />
               {loggedInFeedNav}
@@ -60,7 +61,7 @@ class Sidebar extends React.Component<AllProps> {
         </NavList>
       </Nav>
     );
-    return <PageSidebar nav={PageNav} isNavOpen={isSidebarOpen} theme="dark" />;
+    return <PageSidebar nav={PageNav} isNavOpen={isSidebarOpen} />;
   }
 }
 

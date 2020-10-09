@@ -252,7 +252,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
       <div className="file-browser">
         <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
 
-        <Split gutter="md" className="file-browser__flex">
+        <Split hasGutter={true} className="file-browser__flex">
           <SplitItem className="file-browser__flex__item1">
             <Table
               caption="files"

@@ -22,7 +22,7 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
       <br />
       <br />
 
-      <Grid gutter="sm">
+      <Grid hasGutter={true}>
         <GridItem span={2}>Parent Node:</GridItem>
         <GridItem span={10}>
           {data.parent && data.parent.data.plugin_name}

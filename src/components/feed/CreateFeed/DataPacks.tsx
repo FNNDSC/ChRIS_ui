@@ -12,6 +12,7 @@ import {
   DataListCell,
   DataListItemRow,
   Pagination,
+  ToolbarItem,
 } from "@patternfly/react-core";
 import {
   Button,
@@ -21,7 +22,7 @@ import {
 } from "@patternfly/react-core";
 import { SearchIcon } from "@patternfly/react-icons";
 import debounce from "lodash/debounce";
-import { DataToolbarItem } from "@patternfly/react-core";
+
 import { getParams } from "../../../store/plugin/actions";
 import { getPlugins } from "./utils/dataPacks";
 
@@ -87,12 +88,12 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props) => {
 
   return (
     <div className="local-file-upload">
-      <h1 className="pf-c-title pf-m-2xl">Data Packs</h1>
-      <p>Please choose the data files you'd like to add to your feed.</p>
+      <h1 className="pf-c-title pf-m-2xl">Feed Synthesis Plugin</h1>
+      <p>Please choose the Feed Synthesis Plugin you'd like to run</p>
       <br />
 
       <div className="fsplugin__datatoolbar">
-        <DataToolbarItem>
+        <ToolbarItem>
           <InputGroup>
             <TextInput
               name="filter_plugin"
@@ -109,8 +110,8 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props) => {
               <SearchIcon />
             </Button>
           </InputGroup>
-        </DataToolbarItem>
-        <DataToolbarItem variant="pagination">
+        </ToolbarItem>
+        <ToolbarItem variant="pagination">
           <Pagination
             itemCount={itemCount}
             perPage={perPage}
@@ -118,7 +119,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props) => {
             onSetPage={handlePageSet}
             onPerPageSelect={handlePerPageSet}
           />
-        </DataToolbarItem>
+        </ToolbarItem>
       </div>
 
       <DataList aria-label="FS Plugins">

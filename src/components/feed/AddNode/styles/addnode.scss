@@ -271,7 +271,7 @@
   background: #fbeabc;
   font-size: 15px;
   margin-top: 15px !important;
-  .pf-c-expandable__toggle {
+  .pf-c-expandable-section__toggle {
     border-bottom: 1px solid #f3be3a;
     font-size: 15px !important;
     padding-left: 10px;
@@ -288,7 +288,7 @@
       font-size: 20px;
     }
   }
-  .pf-c-expandable__content * {
+  .pf-c-expandable-section__content * {
     color: black !important;
   }
   .param-item {
