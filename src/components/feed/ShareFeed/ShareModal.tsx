@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal } from "@patternfly/react-core";
+import { Modal, ModalVariant } from "@patternfly/react-core";
 
 interface ShareModalProps {
   handleModalClose: () => void;
@@ -12,7 +12,7 @@ class ShareModal extends React.Component<ShareModalProps> {
     const { children, showOverlay, handleModalClose } = this.props;
     return (
       <Modal
-        isSmall
+        variant={ModalVariant.small}
         title="Share with others"
         isOpen={showOverlay}
         onClose={handleModalClose}

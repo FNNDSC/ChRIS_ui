@@ -123,7 +123,7 @@ class SimpleDropdown extends React.Component<
             <DropdownToggle
               id="toggle-id"
               onToggle={this.onToggle}
-              iconComponent={CaretDownIcon}
+              toggleIndicator={CaretDownIcon}
             >
               {flag ? `${flag}` : "Choose a Parameter"}
             </DropdownToggle>

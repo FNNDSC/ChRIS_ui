@@ -6,7 +6,7 @@ import { IUiState } from "../../store/ui/types";
 import { IUserState } from "../../store/user/types";
 import {
   onDropdownSelect,
-  onKebabDropdownSelect
+  onKebabDropdownSelect,
 } from "../../store/ui/actions";
 import { setUserLogout } from "../../store/user/actions";
 import {
@@ -18,7 +18,7 @@ import {
   KebabToggle,
   Toolbar,
   ToolbarGroup,
-  ToolbarItem
+  ToolbarItem,
 } from "@patternfly/react-core";
 import { pf4UtilityStyles } from "../../lib/pf4-styleguides";
 import { BellIcon, CogIcon } from "@patternfly/react-icons";
@@ -67,19 +67,13 @@ class ToolbarComponent extends React.Component<AllProps> {
       </DropdownItem>,
       <DropdownItem key="kebab2">
         <CogIcon /> Settings
-      </DropdownItem>
+      </DropdownItem>,
     ];
 
     const userDropdownItems = [
-      <DropdownItem key="dd1">Link 1</DropdownItem>,
-      <DropdownItem key="dd2" component="a">
-        Link 2
-      </DropdownItem>,
-      <DropdownItem key="dd3">Link 3</DropdownItem>,
-      <DropdownItem key="dd4">Link 4</DropdownItem>,
       <DropdownItem key="dd5" component="a" onClick={this.onLogout}>
         Sign out
-      </DropdownItem>
+      </DropdownItem>,
     ];
     return (
       <Toolbar>
@@ -124,7 +118,6 @@ class ToolbarComponent extends React.Component<AllProps> {
             <Dropdown
               isPlain
               position="right"
-              //onSelect={this.onDropdownSelect}
               isOpen={isDropdownOpen}
               toggle={
                 <DropdownToggle onToggle={this.onDropdownToggle}>
@@ -144,13 +137,13 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   onDropdownSelect: (isOpened: boolean) => dispatch(onDropdownSelect(isOpened)),
   onKebabDropdownSelect: (isOpened: boolean) =>
     dispatch(onKebabDropdownSelect(isOpened)),
-  setUserLogout: () => dispatch(setUserLogout())
+  setUserLogout: () => dispatch(setUserLogout()),
 });
 
 const mapStateToProps = ({ ui, user }: ApplicationState) => ({
   isDropdownOpen: ui.isDropdownOpen,
   isKebabDropdownOpen: ui.isKebabDropdownOpen,
-  username: user.username
+  username: user.username,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ToolbarComponent);

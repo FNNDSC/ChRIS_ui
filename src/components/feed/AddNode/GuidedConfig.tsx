@@ -193,9 +193,7 @@ class GuidedConfig extends React.Component<
     return (
       <div className="configuration">
         <div className="configuration__options">
-          <h1 className="pf-c-title pf-m-2xl">
-            Configure MPC Volume Calculation Plugin
-          </h1>
+          <h1 className="pf-c-title pf-m-2xl">{`Configure ${plugin?.data.name}`}</h1>
 
           <Button
             className="configuration__button"
@@ -219,7 +217,9 @@ class GuidedConfig extends React.Component<
                     key={index}
                     variant="danger"
                     title={error}
-                    action={<AlertActionCloseButton onClose={this.hideAlert} />}
+                    actionClose={
+                      <AlertActionCloseButton onClose={this.hideAlert} />
+                    }
                   />
                 );
               })}
