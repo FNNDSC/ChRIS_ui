@@ -49,7 +49,7 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
     let labels = getStatusLabels(pluginStatusLabels);
     return (
       <div className="file-browser">
-        <Split gutter="md" className="file-browser__flex1">
+        <Split hasGutter={true} className="file-browser__flex1">
           <SplitItem className="file-browser__flex__item1">
             <Steps direction="vertical">
               {labels.map((label: any) => {

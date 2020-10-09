@@ -285,15 +285,18 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
                 >
                   Next
                 </Button>
-                <Button
-                  variant="secondary"
-                  onClick={onBack}
-                  className={
-                    activeStep.name === "Step 1" ? "pf-m-disabled" : ""
-                  }
-                >
-                  Back
-                </Button>
+                {activeStep.name !== "Basic Information" && (
+                  <Button
+                    variant="secondary"
+                    onClick={onBack}
+                    className={
+                      activeStep.name === "Step 1" ? "pf-m-disabled" : ""
+                    }
+                  >
+                    Back
+                  </Button>
+                )}
+
                 <Button
                   variant="link"
                   onClick={() => {
@@ -318,7 +321,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   );
 
   return (
-    <div className="create-feed">
+    <>
       <Button
         className="create-feed-button"
         variant="primary"
@@ -352,7 +355,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           footer={CustomFooter}
         />
       )}
-    </div>
+    </>
   );
 };
 

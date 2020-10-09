@@ -59,7 +59,7 @@ const Review: React.FunctionComponent = () => {
       }
 
       return (
-        <Grid gutter="sm">
+        <Grid hasGutter={true}>
           <GridItem span={2}>Type of node:</GridItem>
           <GridItem span={10}>FS Plugin</GridItem>
           <GridItem span={2}>Selected plugin:</GridItem>
@@ -118,7 +118,7 @@ const Review: React.FunctionComponent = () => {
       <br />
       <br />
 
-      <Grid gutter="sm">
+      <Grid hasGutter={true}>
         <GridItem span={2}>Feed Name</GridItem>
         <GridItem span={10}>{feedName}</GridItem>
         <GridItem span={2}>Feed Description</GridItem>

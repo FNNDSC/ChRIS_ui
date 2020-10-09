@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Popover, TextArea, ClipboardCopy } from "@patternfly/react-core";
-import { Instance, BasePlacement } from "tippy.js";
+import { BasePlacement } from "tippy.js";
 
 import "./textcopypopover.scss";
 
@@ -15,7 +15,7 @@ interface TextCopyPopoverProps {
 
   tabIndex?: number;
   className?: string;
-  shouldClose?: (instance: Instance) => void;
+  shouldClose?: () => void;
   onMouseDown?: (event: React.MouseEvent) => void;
   onBlur?: (event: React.FocusEvent) => void;
   maxWidth?: string;

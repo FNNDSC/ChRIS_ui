@@ -58,12 +58,10 @@ const LocalFileUpload: React.FC = () => {
 
   return (
     <div className="local-file-upload">
-      <h1 className="pf-c-title pf-m-2xl">
-        Data Configuration: Local File Upload
-      </h1>
+      <h1 className="pf-c-title pf-m-2xl">File Selection: Local File Upload</h1>
       <p>Choose files from your local computer to create a feed</p>
       <br />
-      <Split gutter="lg">
+      <Split hasGutter={true}>
         <SplitItem isFilled>
           <p className="section-header">File Upload</p>
           <Button onClick={() => handleChoseFilesClick()}>

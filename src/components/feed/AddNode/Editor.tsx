@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { TextArea, Expandable, Label } from "@patternfly/react-core";
+import { TextArea, ExpandableSection, Label } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { isEmpty } from "lodash";
@@ -98,7 +98,6 @@ class Editor extends Component<EditorProps, EditorState> {
       errors,
     });
 
-    //const tokenRegex = /(--(?<option>.+?)\s+(?<value>.(?:[^-].+?)?(?:(?=--)|$))?)+?/gm;
     return [...paramArray];
   }
 
@@ -147,13 +146,13 @@ class Editor extends Component<EditorProps, EditorState> {
 
   render() {
     const { value, errors, docsExpanded } = this.state;
-    const { params } = this.props;
+    const { params, plugin } = this.props;
 
     return (
       <div className="configuration">
         <div className="configuration__options">
           <h1 className="pf-c-title pf-m-2xl">
-            Configure MPC Volume Calculation Plugin
+            {`Configure ${plugin?.data.name}`}
           </h1>
 
           <div className="editor">
@@ -177,7 +176,7 @@ class Editor extends Component<EditorProps, EditorState> {
             ))}
           </div>
 
-          <Expandable
+          <ExpandableSection
             className="docs"
             toggleText="Plugin configuration documentation:"
             isExpanded={docsExpanded}
@@ -197,7 +196,7 @@ class Editor extends Component<EditorProps, EditorState> {
                     </div>
                   );
                 })}
-          </Expandable>
+          </ExpandableSection>
         </div>
       </div>
     );
