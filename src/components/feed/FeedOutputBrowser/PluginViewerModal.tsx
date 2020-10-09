@@ -5,7 +5,7 @@ import { Gotop } from "../../index";
 
 type AllProps = {
   isModalOpen: boolean;
-  handleModalToggle: (open: boolean) => void;
+  handleModalToggle: () => void;
 };
 
 type ModalState = {
@@ -27,6 +27,7 @@ class PluginViewerModal extends React.Component<AllProps, ModalState> {
   };
   render() {
     const { isModalOpen, handleModalToggle } = this.props;
+
     return (
       <React.Fragment>
         <Modal
@@ -34,7 +35,7 @@ class PluginViewerModal extends React.Component<AllProps, ModalState> {
           title="ChRIS Output Viewer"
           isOpen={isModalOpen}
           onScroll={this.handleScroll}
-          onClose={() => handleModalToggle(false)}
+          onClose={() => handleModalToggle()}
         >
           <OutputViewerContainer />
           <Gotop

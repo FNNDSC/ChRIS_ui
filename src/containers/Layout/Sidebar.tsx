@@ -38,7 +38,7 @@ class Sidebar extends React.Component<AllProps> {
     );
 
     const PageNav = (
-      <Nav theme="light" aria-label="ChRIS Demo site navigation">
+      <Nav aria-label="ChRIS Demo site navigation">
         <NavList>
           <NavGroup title="Navigation">
             <NavExpandable
