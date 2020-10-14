@@ -1,9 +1,10 @@
 import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { LoginPage } from "@patternfly/react-core";
+import { LoginPage,LoginMainFooterBandItem } from "@patternfly/react-core";
 import LoginFormComponent from "./components/LoginForm";
 import "./login.scss";
-import brandImg from "../../assets/images/logo_chris_dashboard.png";
+
+import {Link} from 'react-router-dom'
 type AllProps = RouteComponentProps;
 
 class LogInPage extends React.Component<AllProps> {
@@ -12,13 +13,23 @@ class LogInPage extends React.Component<AllProps> {
   }
 
   render() {
+    const signUpForAccountMessage=(
+      <LoginMainFooterBandItem>
+         Need an account ? <Link to='/signup'>Sign up</Link>
+      </LoginMainFooterBandItem>
+    )
+
+    const forgotCredentials=(
+      <LoginMainFooterBandItem>
+        <a href="#">Forgot username or password?</a>
+      </LoginMainFooterBandItem>
+    )
     return (
       <LoginPage
         className="login pf-background"
-        style={{ background: "black" }}
-        brandImgSrc={brandImg}
-        brandImgAlt="PatternFly logo"
         loginTitle="Log in to your account"
+        signUpForAccountMessage={signUpForAccountMessage}
+        forgotCredentials={forgotCredentials}       
       >
         <LoginFormComponent />
       </LoginPage>

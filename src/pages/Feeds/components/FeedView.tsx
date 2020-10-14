@@ -147,7 +147,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 });
 
 const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
-  sidebarActiveGroup: ui.sidebarActiveGroup,
   sidebarActiveItem: ui.sidebarActiveItem,
   feed: feed.feed,
   selected: feed.selected,

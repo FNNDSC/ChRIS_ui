@@ -7,10 +7,8 @@ import { IUserState } from "../../store/user/types";
 import {
   PageSidebar,
   Nav,
-  NavExpandable,
   NavItem,
   NavList,
-  NavGroup,
   NavItemSeparator,
 } from "@patternfly/react-core";
 import { setSidebarActive } from "../../store/ui/actions";
@@ -39,10 +37,11 @@ class Sidebar extends React.Component<AllProps> {
   };
   render() {
     const {
-      isSidebarOpen,
+      isNavOpen,
       sidebarActiveItem,
-      sidebarActiveGroup,
       isLoggedIn,
+      isMobileView,
+      isNavOpenMobile,
     } = this.props;
 
     const loggedInFeedNav = isLoggedIn && (
@@ -60,13 +59,6 @@ class Sidebar extends React.Component<AllProps> {
     const PageNav = (
       <Nav onSelect={this.onSelect} aria-label="ChRIS Demo site navigation">
         <NavList>
-          <NavGroup title="Navigation">
-            <NavExpandable
-              title="My Dashboard"
-              groupId="feeds_grp"
-              isActive={sidebarActiveGroup === "feeds_grp"}
-              isExpanded
-            >
               <NavItem
                 groupId="feeds_grp"
                 itemId="dashboard"
@@ -76,19 +68,21 @@ class Sidebar extends React.Component<AllProps> {
               </NavItem>
               <NavItemSeparator />
               {loggedInFeedNav}
-            </NavExpandable>
-          </NavGroup>
         </NavList>
       </Nav>
     );
-    return <PageSidebar nav={PageNav} isNavOpen={isSidebarOpen} />;
+
+    return <PageSidebar 
+    theme="dark"
+    nav={PageNav} isNavOpen={isMobileView ? isNavOpenMobile:isNavOpen} />;
   }
 }
 
 const mapStateToProps = ({ ui, user }: ApplicationState) => ({
-  isSidebarOpen: ui.isSidebarOpen,
+  isMobileView:ui.isMobileView,
+  isNavOpenMobile:ui.isNavOpenMobile,
+  isNavOpen: ui.isNavOpen,
   sidebarActiveItem: ui.sidebarActiveItem,
-  sidebarActiveGroup: ui.sidebarActiveGroup,
   isLoggedIn: user.isLoggedIn,
 });
 
