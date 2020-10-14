@@ -6,7 +6,6 @@ import { IUiState } from "../../store/ui/types";
 import { IUserState } from "../../store/user/types";
 import {
   onDropdownSelect,
-  onKebabDropdownSelect,
 } from "../../store/ui/actions";
 import { setUserLogout } from "../../store/user/actions";
 import {
@@ -21,7 +20,6 @@ import { pf4UtilityStyles } from "../../lib/pf4-styleguides";
 
 interface IPropsFromDispatch {
   onDropdownSelect: typeof onDropdownSelect;
-  onKebabDropdownSelect: typeof onKebabDropdownSelect;
   setUserLogout: typeof setUserLogout;
 }
 type AllProps = IUserState & IUiState & IPropsFromDispatch;
@@ -39,16 +37,6 @@ class ToolbarComponent extends React.Component<AllProps> {
   onDropdownSelect = (event: React.SyntheticEvent<HTMLDivElement>) => {
     const { onDropdownSelect, isDropdownOpen } = this.props;
     !!isDropdownOpen && onDropdownSelect(!isDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
-  };
-
-  onKebabDropdownToggle = (isOpened: boolean) => {
-    const { onKebabDropdownSelect } = this.props;
-    onKebabDropdownSelect(isOpened);
-  };
-
-  onKebabDropdownSelect = (event: React.SyntheticEvent<HTMLDivElement>) => {
-    const { onKebabDropdownSelect, isKebabDropdownOpen } = this.props;
-    !!isKebabDropdownOpen && onKebabDropdownSelect(isKebabDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
   };
 
   // Description: Logout user
@@ -91,14 +79,11 @@ class ToolbarComponent extends React.Component<AllProps> {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onDropdownSelect: (isOpened: boolean) => dispatch(onDropdownSelect(isOpened)),
-  onKebabDropdownSelect: (isOpened: boolean) =>
-    dispatch(onKebabDropdownSelect(isOpened)),
   setUserLogout: () => dispatch(setUserLogout()),
 });
 
 const mapStateToProps = ({ ui, user }: ApplicationState) => ({
   isDropdownOpen: ui.isDropdownOpen,
-  isKebabDropdownOpen: ui.isKebabDropdownOpen,
   username: user.username,
 });
 

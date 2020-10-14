@@ -7,12 +7,12 @@ import { PageHeader, PageHeaderTools, Brand } from "@patternfly/react-core";
 
 interface IHeaderProps {
   user: IUserState;
-  onSidebarToggle: () => void;
+  onNavToggle: () => void;
 }
 
 class Header extends React.Component<IHeaderProps> {
   render() {
-    const { onSidebarToggle, user } = this.props;
+    const { onNavToggle, user } = this.props;
     const pageToolbar = !!user.token ? (
       <PageHeaderTools>
         <ToolbarComponent />
@@ -32,7 +32,7 @@ class Header extends React.Component<IHeaderProps> {
         logo={brand}
         headerTools={pageToolbar}
         showNavToggle
-        onNavToggle={onSidebarToggle}
+        onNavToggle={onNavToggle}
       />
     );
   }

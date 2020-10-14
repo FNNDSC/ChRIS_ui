@@ -7,31 +7,32 @@ const initialState: IUiState = {
     loading: false,
     progress: 0,
     isDropdownOpen: false,
-    isKebabDropdownOpen: false,
-    isSidebarOpen: true,
     sidebarActiveItem: "dashboard",
-    sidebarActiveGroup: "feeds_grp"
+    isNavOpen: true,
+    isMobileView:true,
+    isNavOpenMobile:false
 };
 
 const reducer: Reducer<IUiState> = (state = initialState, action) => { //  ***** Working ***** //
     switch (action.type) {
-        case UiActionTypes.FETCH_REQUEST: {
-            return { ...state, loading: true };
-        }
-        case UiActionTypes.FETCH_COMPLETE: {
-            return { ...state, loading: false };
-        }
+       
         case UiActionTypes.TOGGLE_TOOLBAR_DROPDOWN: {
             return { ...state, isDropdownOpen: action.payload };
         }
-        case UiActionTypes.TOGGLE_TOOLBAR_KEBAB: {
-            return { ...state,  isKebabDropdownOpen: action.payload };
-        }
-        case UiActionTypes.TOGGLE_SIDEBAR: {
-            return { ...state,  isSidebarOpen: action.payload };
+       
+        case UiActionTypes.TOGGLE_NAV: {
+            return { ...state,  isNavOpen: action.payload };
         }
         case UiActionTypes.SET_SIDEBAR_ACTIVE_ITEM: {
             return {...state, sidebarActiveItem: action.payload.activeItem, sidebarActiveGroup: action.payload.activeGroup };
+        }
+
+        case UiActionTypes.TOGGLE_MOBILE_VIEW:{
+            return {...state, isMobileView:action.payload}
+        }
+
+        case UiActionTypes.TOGGLE_MOBILE_NAV:{
+            return {...state, isNavOpenMobile:action.payload}
         }
 
        // TOGGLE_SIDEBAR

@@ -19,6 +19,7 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { feedProgress, feedError, value, selectedPlugin } = state;
 
+
   const { chrisFiles, localFiles } = state.data;
 
   React.useEffect(() => {
