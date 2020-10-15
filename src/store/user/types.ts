@@ -17,10 +17,10 @@ export interface IUserState {
 }
 
 export const UserActionTypes = keyMirror({
-    FETCH_TOKEN: null, // before request
-    FETCH_TOKEN_ERROR: null, // request failed
-    FETCH_TOKEN_SUCCESS: null, // request is successful
-    LOGOUT_USER: null
+  SET_TOKEN: null, // before request
+  SET_TOKEN_ERROR: null, // request failed
+  SET_TOKEN_SUCCESS: null, // request is successful
+  LOGOUT_USER: null,
 });
 
 
