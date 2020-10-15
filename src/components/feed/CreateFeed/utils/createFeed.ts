@@ -29,7 +29,7 @@ export const createFeed = async (
    */
   let feed;
 
-  setProgressCallback("started");
+  setProgressCallback("Started");
   if (chrisFiles.length > 0 || localFiles.length > 0) {
     feed = await createFeedInstanceWithDircopy(
       data,
@@ -85,9 +85,8 @@ export const createFeedInstanceWithDircopy = async (
   let feed;
   statusCallback("Creating Plugin Instance");
   try {
-    const dircopy = await getPlugin("dircopy");
+    const dircopy = await getPlugin("pl-dircopy");
     const dircopyInstance = await dircopy.getPluginInstances();
-
     await dircopyInstance.post({
       dir: dirpath.join(","),
     });

@@ -1,5 +1,5 @@
 import { action } from "typesafe-actions";
-import { UserActionTypes, IUserState } from "./types";
+import { UserActionTypes } from "./types";
 
 // type them properly as well -> For more info: https://github.com/piotrwitek/typesafe-actions
 export const setAuthToken = (auth: { token: string; username: string }) =>

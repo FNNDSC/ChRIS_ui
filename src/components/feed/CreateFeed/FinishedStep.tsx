@@ -1,7 +1,6 @@
 import React, { useContext, useMemo } from "react";
 import {
   Progress,
-  ProgressMeasureLocation,
   ProgressVariant,
   Button,
   Stack,
@@ -17,7 +16,7 @@ interface FinishedStepProp {
 
 const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { feedProgress, feedError, value, selectedPlugin } = state;
+  const { feedProgress, value, selectedPlugin } = state;
 
 
   const { chrisFiles, localFiles } = state.data;
@@ -63,10 +62,8 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
           className="finished-step__progessbar"
           max={100}
           value={value}
-          measureLocation={ProgressMeasureLocation.outside}
-          label={feedProgress}
-          valueText={feedProgress}
-          variant={feedError ? ProgressVariant.danger : ProgressVariant.success}
+          title={feedProgress}
+          variant={ProgressVariant.success}
         />
       </StackItem>
 
