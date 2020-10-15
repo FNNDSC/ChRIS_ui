@@ -132,10 +132,8 @@ const getFeedFiles = async (id: number) => {
     offset: 0,
   };
   const client = ChrisAPIClient.getClient(); 
-  console.log('Id',id,typeof id)
- 
-  let feed= await client.getFeed(id)
-  console.log("Feed",feed)
+  
+  let feed = await client.getFeed(id);
   let fileList = await feed.getFiles(params);
   let feedFiles = fileList.getItems();
 

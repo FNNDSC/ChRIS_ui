@@ -13,23 +13,16 @@ class LogInPage extends React.Component<AllProps> {
   }
 
   render() {
-    const signUpForAccountMessage=(
+    const signUpForAccountMessage = (
       <LoginMainFooterBandItem>
-         Need an account ? <Link to='/signup'>Sign up</Link>
+        Need an account ? <Link to="/signup">Sign up</Link>
       </LoginMainFooterBandItem>
-    )
-
-    const forgotCredentials=(
-      <LoginMainFooterBandItem>
-        <a href="#">Forgot username or password?</a>
-      </LoginMainFooterBandItem>
-    )
+    );
     return (
       <LoginPage
         className="login pf-background"
         loginTitle="Log in to your account"
         signUpForAccountMessage={signUpForAccountMessage}
-        forgotCredentials={forgotCredentials}       
       >
         <LoginFormComponent />
       </LoginPage>

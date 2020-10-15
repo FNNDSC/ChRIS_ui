@@ -1,4 +1,4 @@
-import React from "react";
+import React, { KeyboardEventHandler } from "react";
 import {
   Dropdown,
   DropdownToggle,
@@ -27,6 +27,7 @@ class SimpleDropdown extends React.Component<
     this.handleClick = this.handleClick.bind(this);
     this.deleteDropdown = this.deleteDropdown.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
   }
   componentDidMount() {
     const { dropdownInput, id } = this.props;
@@ -75,7 +76,15 @@ class SimpleDropdown extends React.Component<
     deleteComponent(id);
   }
 
-  handleInputChange(value: string) {
+  handleKeyPress(event: React.ChangeEvent<HTMLInputElement>) {
+    //event:React.KeyboardEvent<HTMLInputElement>
+
+    console.log("In here");
+    console.log("Hooking enter to keyboard");
+  }
+
+  handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    /*
     const { handleChange, id } = this.props;
 
     this.setState(
@@ -87,6 +96,7 @@ class SimpleDropdown extends React.Component<
         handleChange(id, this.state.flag, this.state.value, false);
       }
     );
+    */
   }
 
   render() {
@@ -132,11 +142,11 @@ class SimpleDropdown extends React.Component<
           className="plugin-configuration__dropdown"
           dropdownItems={dropdownItems.length > 0 ? dropdownItems : []}
         />
-        <TextInput
+        <input
           type="text"
           aria-label="text"
           className="plugin-configuration__input"
-          onChange={this.handleInputChange}
+          onChange={this.handleKeyPress}
           placeholder={placeholder}
           value={value}
         />

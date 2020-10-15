@@ -117,7 +117,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   };
 
   const handlePluginModalClose = () => {
-    console.log("ModalClose Called");
     setPluginModalOpen(!pluginModalOpen);
   };
 
