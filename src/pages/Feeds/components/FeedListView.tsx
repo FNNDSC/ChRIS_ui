@@ -161,7 +161,9 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
         >
           <span className="feed-name">
             <img src={feedIcon} alt="" />
-            {feed.name}
+           <Link to={`/feeds/${feed.id}`}>
+             {feed.name}
+            </Link>
           </span>
         </Popover>
       ),
@@ -228,6 +230,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
 
   render() {
     const { feeds, feedsCount } = this.props;
+    console.log('FeedsCount', feedsCount)
 
     const cells = ["Feed", "Created", "Last Commit", ""];
     const rows = (feeds || []).map(this.generateTableRow);
@@ -242,10 +245,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           <div className="bottom">
             <Title headingLevel="h1" size="3xl">
               My Feeds
-              <span className="feed-count">
-                {" "}
-                ({feedsCount === -1 ? "0" : feedsCount})
-              </span>
+              {feedsCount && feedsCount > 0 && <span className="feed-count"> ({feedsCount})</span>}
             </Title>
             <CreateFeedProvider>
               <CreateFeed />

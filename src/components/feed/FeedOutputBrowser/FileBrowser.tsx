@@ -183,7 +183,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
         isPathSelected
       ),
     };
-    const size = ""; // Getting sizes would require loading each file. Deferred until server implements a `size` field.
+
     const download = {
       title: node.children ? (
         ""
@@ -196,7 +196,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     };
 
     return {
-      cells: [name, type, size, download],
+      cells: [name, type, download],
     };
   }
 
@@ -245,7 +245,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
       return <div>No files in this directory.</div>;
     }
 
-    const cols = ["Name", "Type", "Size", ""]; // final col is download
+    const cols = ["Name", "Type", ""]; // final col is download
     const rows = directory.children.map(this.generateTableRow);
 
     return (
@@ -255,8 +255,9 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
         <Split hasGutter={true} className="file-browser__flex">
           <SplitItem className="file-browser__flex__item1">
             <Table
-              caption="files"
+              aria-label="feed-browser-table"
               variant={TableVariant.compact}
+              caption="files"
               cells={cols}
               rows={rows}
               className="file-list"

@@ -18,18 +18,17 @@ class ChrisAPIClient {
   private static client: Client;
   private static tokenUnauthorized: boolean;
 
-  static getClient() {
-    if (!this.client || this.tokenUnauthorized) {
-      const token: string = window.sessionStorage.getItem(AUTH_TOKEN_KEY) || "";
-      if (token === "") {
-        this.tokenUnauthorized = true;
-      } else {
-        this.tokenUnauthorized = false;
+  static getClient(): Client {
+      const token= window.sessionStorage.getItem(AUTH_TOKEN_KEY) 
+      if(!token){
+        this.tokenUnauthorized=false
       }
-      this.client = new Client(process.env.REACT_APP_CHRIS_UI_URL, {
+      else {
+       this.client = new Client(process.env.REACT_APP_CHRIS_UI_URL, {
         token,
       });
-    }
+      this.tokenUnauthorized=true
+      }
     return this.client;
   }
 }

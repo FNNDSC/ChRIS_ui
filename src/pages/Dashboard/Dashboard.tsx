@@ -16,7 +16,7 @@ class DashboardPage extends React.Component<AllProps> {
       <Wrapper>
         <PageSection>
           <Alert aria-label="welcome wagon" variant="info" title="Welcome!">
-            Welcome to ChRIS UI site's Dashboard
+            Welcome to ChRIS UI's Dashboard
           </Alert>
           {children}
         </PageSection>

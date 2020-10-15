@@ -13,22 +13,22 @@ const initialState: IUserState = {
 // ***** NOTE: Working *****
 const reducer: Reducer<IUserState> = (state = initialState, action) => {
     switch (action.type) {
-        case UserActionTypes.FETCH_TOKEN: {
-            return { ...state, username: action.payload.username };
-        }
-        case UserActionTypes.FETCH_TOKEN_SUCCESS: {
-            return { ...state, token: action.payload, isLoggedIn: true };
-        }
-        case UserActionTypes.FETCH_TOKEN_ERROR: {
-            return { ...state, username: null, token: null, isLoggedIn: false  };
-        }
-        case UserActionTypes.LOGOUT_USER: {
-            return { ...state, username: null, token: null, isLoggedIn: false };
-        }
+      case UserActionTypes.SET_TOKEN: {
+        return { ...state, username: action.payload.username };
+      }
+      case UserActionTypes.SET_TOKEN_SUCCESS: {
+        return { ...state, token: action.payload, isLoggedIn: true };
+      }
+      case UserActionTypes.SET_TOKEN_ERROR: {
+        return { ...state, username: null, token: null, isLoggedIn: false };
+      }
+      case UserActionTypes.LOGOUT_USER: {
+        return { ...state, username: null, token: null, isLoggedIn: false };
+      }
 
-        default: {
-            return state;
-        }
+      default: {
+        return state;
+      }
     }
 };
 

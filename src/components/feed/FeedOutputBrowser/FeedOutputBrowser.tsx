@@ -140,27 +140,27 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         </SplitItem>
         <SplitItem isFilled>
           <div className="file-browser-header">
-            <div>
+            <div className="file-browser-header_container">
               <Title headingLevel="h1" size="2xl" className="plugin-name">
                 {pluginDisplayName}
               </Title>
               <span className="plugin-id">
                 ID: {selected && selected.data.id}
               </span>
+              {selectedFiles && (
+                <div className="files-info">
+                  {selectedFiles.length} files
+                  <Button
+                    className="download-all-button"
+                    variant="secondary"
+                    onClick={downloadAllClick}
+                  >
+                    <DownloadIcon />
+                    Download All
+                  </Button>
+                </div>
+              )}
             </div>
-            {selectedFiles && (
-              <div className="files-info">
-                {selectedFiles.length} files
-                <Button
-                  className="download-all-button"
-                  variant="secondary"
-                  onClick={downloadAllClick}
-                >
-                  <DownloadIcon />
-                  Download All
-                </Button>
-              </div>
-            )}
           </div>
           {selected &&
           selected.data.status === "finishedSuccessfully" &&
