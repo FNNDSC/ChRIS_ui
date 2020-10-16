@@ -14,13 +14,14 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
 ) => {
   const noPreviewMessage = () => {
     const { fileItem } = props;
+    const itemArray = fileItem.file && fileItem.file.fname.split("/");
+    const fileName = itemArray && itemArray[itemArray.length - 1];
 
     const ext = fileItem.fileType ? fileItem.fileType : "";
     const alertText = (
       <React.Fragment>
         <label>
-          <b>File Name:</b>{" "}
-          {fileItem.file ? fileItem.file.fname : "Not available"}
+          <b>File Name:</b> {fileName ? fileName : "Not available"}
         </label>
         <br></br>
         <label>

@@ -54,8 +54,6 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
         </div>
       </StackItem>
 
-      <StackItem></StackItem>
-
       <StackItem isFilled>
         <Progress
           size="md"
