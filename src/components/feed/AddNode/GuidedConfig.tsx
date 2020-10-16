@@ -1,11 +1,18 @@
 import React from "react";
-import { Form, Label, TextInput, Button } from "@patternfly/react-core";
+import {
+  Form,
+  Label,
+  TextInput,
+  Button,
+  Alert,
+  AlertActionCloseButton,
+} from "@patternfly/react-core";
 import SimpleDropdown from "./SimpleDropdown";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { isEqual, isEmpty } from "lodash";
 import { v4 } from "uuid";
-import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
+import {} from "@patternfly/react-core";
 import { GuidedConfigState, GuidedConfigProps } from "./types";
 import {
   getRequiredParams,
@@ -230,7 +237,10 @@ class GuidedConfig extends React.Component<
       <div className="configuration">
         <div className="configuration__options">
           <h1 className="pf-c-title pf-m-2xl">{`Configure ${plugin?.data.name}`}</h1>
-
+          <p>
+            Use the "Add more parameters" button to add command line flags and
+            values to the plugin.
+          </p>
           <Button
             className="configuration__button"
             onClick={this.addParam}
@@ -238,7 +248,6 @@ class GuidedConfig extends React.Component<
           >
             Add more parameters
           </Button>
-
           <div>
             <div className="configuration__renders">
               {this.renderRequiredParams()}
@@ -268,6 +277,13 @@ class GuidedConfig extends React.Component<
                 value={generatedCommand}
               />
             </div>
+            <Alert
+              style={{
+                marginTop: "15px",
+              }}
+              variant="info"
+              title="If you prefer a free form input box where you might copy paste all the command line parameters, you can safely hit 'next' here."
+            />
           </div>
         </div>
       </div>
