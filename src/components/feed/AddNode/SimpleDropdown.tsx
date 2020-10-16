@@ -5,7 +5,7 @@ import {
   DropdownItem,
   TextInput,
 } from "@patternfly/react-core";
-import { CaretDownIcon, IoxhostIcon } from "@patternfly/react-icons";
+import { CaretDownIcon} from "@patternfly/react-icons";
 import TrashAltIcon from "@patternfly/react-icons/dist/js/icons/trash-alt-icon";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./lib/utils";
