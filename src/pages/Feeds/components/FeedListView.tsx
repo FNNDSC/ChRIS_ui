@@ -45,6 +45,8 @@ interface FeedsListViewState {
 }
 
 class FeedListView extends React.Component<AllProps, FeedsListViewState> {
+  _ismounted = false;
+
   constructor(props: AllProps) {
     super(props);
     this.state = {
@@ -65,6 +67,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   }
 
   componentDidMount() {
+    this._ismounted  =  true;;
     const { setSidebarActive } = this.props;
     document.title = "All Feeds - ChRIS UI site";
     setSidebarActive({
@@ -92,6 +95,10 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     }
   }
 
+  componentWillUnmount(){
+    this._ismounted=false;
+  }
+
   /* DATA FETCHING */
 
   // fetch feeds based on current filter & pagination
@@ -106,13 +113,15 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     const client = ChrisAPIClient.getClient();
     const feed = await client.getFeed(feedItem.id);
     const note = await feed.getNote();
-
-    this.setState((state: FeedsListViewState) => ({
-      descriptions: {
-        ...state.descriptions,
-        [feedItem.id as number]: note.data.content,
-      },
-    }));
+    
+ 
+   this.setState((state: FeedsListViewState) => ({
+         descriptions: {
+           ...state.descriptions,
+           [feedItem.id as number]: note.data.content,
+         },
+       }));  
+   
   }
 
   /* EVENT HANDLERS */
@@ -132,7 +141,8 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
 
   handleDescriptionPopoverShow(feed: Feed["data"]) {
     const description = this.state.descriptions[feed.id as number];
-    if (!description) {
+   
+    if (!description && this._ismounted) {
       this.fetchFeedDescription(feed);
     }
   }
@@ -227,8 +237,9 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   }
 
   render() {
+   
     const { feeds, feedsCount } = this.props;
-
+  
     const cells = ["Feed", "Created", "Last Commit", ""];
     const rows = (feeds || []).map(this.generateTableRow);
 
@@ -242,10 +253,10 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           <div className="bottom">
             <Title headingLevel="h1" size="3xl">
               My Feeds
-              <span className="feed-count">
-                {" "}
-                ({feedsCount === -1 ? "0" : feedsCount})
-              </span>
+              {feedsCount && feedsCount > 0 ?
+               <span className="feed-count"> ({feedsCount})</span>
+               :null
+              }
             </Title>
             <CreateFeedProvider>
               <CreateFeed />

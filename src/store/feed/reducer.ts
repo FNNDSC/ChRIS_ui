@@ -1,5 +1,6 @@
 import { Reducer } from "redux";
 import { IFeedState, FeedActionTypes } from "./types";
+import { UserActionTypes } from "../user/types";
 import { PluginInstance } from "@fnndsc/chrisapi";
 
 // Type-safe initialState
@@ -78,6 +79,16 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state,
           pluginInstances: [action.payload],
         };
+    }
+    case UserActionTypes.LOGOUT_USER: {
+      return {
+        ...state,
+        feed: undefined,
+        feeds: undefined,
+        feedsCount: 0,
+        pluginInstances: [],
+        selected: undefined,
+      };
     }
 
     default: {

@@ -39,14 +39,17 @@ const setLeaf = (treeData: DataBreadcrumb[]) => {
 };
 
 export const generateTreeNodes = async (
-  treeNode: EventDataNode
+  treeNode: EventDataNode,
+  username:string
+
 ): Promise<DataBreadcrumb[]> => {
   const key = treeNode.key;
   let arr = [];
-
-  if (treeNode.title === "chris") {
-    const feeds = await getFeeds();
-    let breadcrumb = "chris";
+  let feeds=[];
+ let breadcrumb = username;
+  if (treeNode.title === username) {
+    if(username==='chris'){
+    feeds = await getFeeds();
     for (let i = 0; i < feeds.length; i += 1) {
       // First level is feeds and uploads
       arr.push({
@@ -54,6 +57,7 @@ export const generateTreeNodes = async (
         title: `feed_${i + 1}`,
         key: `${key}-${i}`,
       });
+    }
     }
     arr.push({
       breadcrumb: `${breadcrumb}/uploads`,
@@ -123,19 +127,20 @@ const getFeeds = async () => {
 };
 
 const getFeedFiles = async (id: number) => {
-  const client = ChrisAPIClient.getClient();
   let params = {
     limit: 100,
     offset: 0,
   };
-
-  let fileList = await (await client.getFeed(id)).getFiles(params);
+  const client = ChrisAPIClient.getClient(); 
+  
+  let feed = await client.getFeed(id);
+  let fileList = await feed.getFiles(params);
   let feedFiles = fileList.getItems();
 
   while (fileList.hasNextPage) {
     try {
       params.offset += params.limit;
-      fileList = await (await client.getFeed(id)).getFiles(params);
+      fileList = await feed.getFiles(params);
       feedFiles.push(...fileList.getItems());
     } catch (e) {
       console.error(e);

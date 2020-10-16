@@ -1,7 +1,7 @@
 import { all, fork, put, takeEvery } from "redux-saga/effects";
-import Client from "@fnndsc/chrisapi";
+
 import { UserActionTypes } from "./types";
-import { getAuthTokenSuccess } from "./actions";
+import { setAuthTokenSuccess } from "./actions";
 import history from "../../utils";
 
 // ----------------------------------------------------------------
@@ -9,30 +9,21 @@ import history from "../../utils";
 // ----------------------------------------------------------------
 //const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
 function* handleLogin(action: any) {
-  try {
-    const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
-    const username = action.payload.username;
-    const password = action.payload.password;
-    const token = yield Client.getAuthToken(authURL, username, password);
-
-    if (!token) {
-      console.error("Count not set Token"); // working ***** user messaging
-    } else {
-      yield put(getAuthTokenSuccess(token));
-      window.sessionStorage.setItem("AUTH_TOKEN", token);
-      window.sessionStorage.setItem("USERNAME", username);
-      history.push("/");
-    }
-  } catch (error) {
-    console.error(error); // working user messaging
-    history.push("/not-found");
-  }
+        try {
+          yield put(setAuthTokenSuccess(action.payload.token));
+          window.sessionStorage.setItem("AUTH_TOKEN", action.payload.token);
+          window.sessionStorage.setItem("USERNAME", action.payload.username);
+          history.push("/");
+        } catch (error) {
+          console.error(error); // working user messaging
+          history.push("/not-found");
+        }
 }
 
 // This is our watcher function. We use `take*()` functions to watch Redux for a specific action
 // type, and run our saga, for example the `handleFetch()` saga above.
 function* watchLoginRequest() {
-  yield takeEvery(UserActionTypes.FETCH_TOKEN, handleLogin);
+  yield takeEvery(UserActionTypes.SET_TOKEN, handleLogin);
 }
 
 // ----------------------------------------------------------------

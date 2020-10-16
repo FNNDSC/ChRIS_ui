@@ -26,7 +26,7 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
   const pluginStatusLabels: PluginStatusLabels =
     pluginStatus && JSON.parse(pluginStatus);
 
-  const src: Logs | undefined = pluginLog && pluginLog;
+  const src: Logs | undefined = pluginLog; 
   let pluginLogs: LogStatus = {};
 
   if (src && src.info) {

@@ -49,6 +49,7 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
         ...state,
         pluginFiles: {},
         pluginStatus: "",
+        pluginLog: {},
       };
     }
 

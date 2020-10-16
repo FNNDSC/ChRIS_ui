@@ -12,21 +12,17 @@ export interface IUiState {
   loading?: boolean;
   progress?: number;
   isDropdownOpen?: boolean;
-  isKebabDropdownOpen?: boolean;
-  isSidebarOpen?: boolean;
+  isNavOpen?: boolean;
   sidebarActiveItem?: string;
-  sidebarActiveGroup?: string;
+  isMobileView?:boolean;
+  isNavOpenMobile?:boolean;
 }
 
 
 export const UiActionTypes = keyMirror({
-    FETCH_REQUEST: null, // before request
-    FETCH_SUCCESS: null, // request is successful
-    FETCH_ERROR: null, // request failed
-    FETCH_COMPLETE: null, // after request completes
-    PROGRESS_REQUEST: null, // not in user yet - TBD
-    PROGRESS_COMPLETE: null, // not in user yet - TBD
-    TOGGLE_TOOLBAR_KEBAB: null,
+    TOGGLE_MOBILE_VIEW:null,
+    TOGGLE_NAV:null,
+    TOGGLE_MOBILE_NAV:null,
     TOGGLE_TOOLBAR_DROPDOWN: null,
     TOGGLE_SIDEBAR: null,
     SET_SIDEBAR_ACTIVE_ITEM: null

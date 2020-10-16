@@ -5,8 +5,8 @@ import {
   DropdownItem,
   TextInput,
 } from "@patternfly/react-core";
-import { CaretDownIcon } from "@patternfly/react-icons";
-import { OutlinedTrashAltIcon } from "@patternfly/react-icons";
+import { CaretDownIcon} from "@patternfly/react-icons";
+import TrashAltIcon from "@patternfly/react-icons/dist/js/icons/trash-alt-icon";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./lib/utils";
 
@@ -14,6 +14,7 @@ class SimpleDropdown extends React.Component<
   SimpleDropdownProps,
   SimpleDropdownState
 > {
+  timer:number=0;
   constructor(props: SimpleDropdownProps) {
     super(props);
     this.state = {
@@ -27,6 +28,7 @@ class SimpleDropdown extends React.Component<
     this.handleClick = this.handleClick.bind(this);
     this.deleteDropdown = this.deleteDropdown.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleKeyDown=this.handleKeyDown.bind(this)
   }
   componentDidMount() {
     const { dropdownInput, id } = this.props;
@@ -39,6 +41,10 @@ class SimpleDropdown extends React.Component<
         value,
       });
     }
+  }
+
+  componentWillUnmount(){
+    clearTimeout(this.timer)
   }
 
   onToggle(isOpen: boolean) {
@@ -69,24 +75,36 @@ class SimpleDropdown extends React.Component<
     );
   }
 
+  triggerChange=(eventType:string)=>{
+   
+    const { handleChange, id } = this.props;
+    if(eventType==='keyDown'){
+      this.props.addParam()
+    }
+    handleChange(id, this.state.flag, this.state.value, false);
+  }
+
+  handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>){
+    if(event.key==="Enter"){
+        clearTimeout(this.timer)
+        this.triggerChange('keyDown');
+    }
+    else return;
+  }
+
   deleteDropdown() {
     const { id, deleteInput, deleteComponent } = this.props;
     deleteInput(id);
     deleteComponent(id);
   }
 
-  handleInputChange(value: string) {
-    const { handleChange, id } = this.props;
 
+  handleInputChange(value: string, event: React.FormEvent<HTMLInputElement>) {   
     this.setState(
       {
         value,
-      },
-
-      () => {
-        handleChange(id, this.state.flag, this.state.value, false);
-      }
-    );
+      });
+      this.timer=setTimeout(this.triggerChange,100,'inputChange')
   }
 
   render() {
@@ -137,11 +155,12 @@ class SimpleDropdown extends React.Component<
           aria-label="text"
           className="plugin-configuration__input"
           onChange={this.handleInputChange}
+          onKeyDown={this.handleKeyDown}
           placeholder={placeholder}
           value={value}
         />
         <div className="close-icon">
-          <OutlinedTrashAltIcon onClick={this.deleteDropdown} />
+          <TrashAltIcon onClick={this.deleteDropdown} />
         </div>
       </div>
     );
