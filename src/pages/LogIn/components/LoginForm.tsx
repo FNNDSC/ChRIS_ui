@@ -1,13 +1,15 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { getAuthToken } from "../../../store/user/actions";
-import { IUserState } from "../../../store/user/types";
+import { setAuthToken } from "../../../store/user/actions";
 import { withRouter } from "react-router-dom";
 import { RouteComponentProps } from "react-router";
 import { LoginForm } from "@patternfly/react-core";
+import ChrisApiClient from "@fnndsc/chrisapi";
+import { ExclamationCircleIcon } from "@patternfly/react-icons";
+
 interface IPropsFromDispatch {
-  getAuthToken: typeof getAuthToken;
+  setAuthToken: typeof setAuthToken;
 }
 
 interface IState {
@@ -25,8 +27,8 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
   constructor(props: AllProps) {
     super(props);
     this.state = {
-      usernameValue: "chris",
-      passwordValue: "chris1234",
+      usernameValue: "",
+      passwordValue: "",
       isRememberMeChecked: true,
       showHelperText: false,
       isValidUsername: true,
@@ -36,22 +38,42 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
   }
 
   // Description: Create a fake user to work with API, redux store
-  handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    const { getAuthToken } = this.props;
-    const authObj = {
-      password: this.state.passwordValue,
-      username: this.state.usernameValue,
-      isRememberMe: this.state.isRememberMeChecked,
-    };
-    getAuthToken(authObj);
+  async handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     event.preventDefault();
+    const { setAuthToken } = this.props;
+    const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
+    let token;
+    try {
+      token = await ChrisApiClient.getAuthToken(
+        authURL,
+        this.state.usernameValue,
+        this.state.passwordValue
+      );
+    } catch (error) {
+      this.setState({
+        showHelperText: true,
+      });
+    }
+
+    if(token && this.state.usernameValue){
+      setAuthToken({
+        token,
+        username:this.state.usernameValue
+      })
+    } 
   }
 
   handleUsernameChange = (value: string) => {
-    this.setState({ usernameValue: value });
+    this.setState({ usernameValue: value ,
+    showHelperText:false
+    });
   };
   handlePasswordChange = (passwordValue: string) => {
-    this.setState({ passwordValue });
+    this.setState({
+      passwordValue,
+      showHelperText: false,
+    });
+
   };
 
   onRememberMeClick = () => {
@@ -59,10 +81,18 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
   };
 
   render() {
+    let helperText;
+    if  (this.state.showHelperText)  {
+       helperText= <>
+               <ExclamationCircleIcon  />
+               <span> Invalid Login Credentials</span>
+           </>;;
+   }
+
     return (
       <LoginForm
         showHelperText={this.state.showHelperText}
-        helperText="Invalid login credentials."
+        helperText={helperText}
         usernameLabel="Username"
         usernameValue={this.state.usernameValue}
         onChangeUsername={this.handleUsernameChange}
@@ -80,9 +110,12 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
   }
 }
 
-// export default withRouter(LoginFormComponent);
+
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getAuthToken: (user: IUserState) => dispatch(getAuthToken(user)),
+  setAuthToken: (auth:{
+    token:string,
+    username:string
+  }) => dispatch(setAuthToken(auth)),
 });
 export default withRouter(
   connect(null, mapDispatchToProps)(LoginFormComponent)

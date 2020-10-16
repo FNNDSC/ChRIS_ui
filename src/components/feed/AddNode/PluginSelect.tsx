@@ -86,6 +86,7 @@ class PluginSelect extends React.Component<
   PluginSelectProps,
   PluginSelectState
 > {
+  _isMounted = false;
   constructor(props: PluginSelectProps) {
     super(props);
     this.state = {
@@ -96,8 +97,13 @@ class PluginSelect extends React.Component<
   }
 
   componentDidMount() {
+    this._isMounted  =  true;
     this.fetchAllPlugins();
     this.fetchRecentPlugins();
+  }
+
+  componentWillUnmount(){
+    this._isMounted=false
   }
 
   async fetchAllPlugins() {
@@ -115,7 +121,8 @@ class PluginSelect extends React.Component<
         console.error(e);
       }
     }
-
+    
+    if(this._isMounted)
     this.setState({ allPlugins: plugins });
   }
 
@@ -164,6 +171,7 @@ class PluginSelect extends React.Component<
         return client.getPlugin(id);
       })
     );
+    if(this._isMounted)
     this.setState({ recentPlugins: plugins });
   }
 

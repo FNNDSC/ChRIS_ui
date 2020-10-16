@@ -181,12 +181,9 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       selected
     );
 
-    const pluginInstances = await plugin.getPluginInstances();
-
-    await pluginInstances.post(parameterInput);
-
-    const node = pluginInstances.getItems()[0];
-
+    const pluginInstance = await plugin.getPluginInstances();
+    await pluginInstance.post(parameterInput);
+    const node = pluginInstance.getItems()[0];
     addNode(node);
     this.resetState();
   }

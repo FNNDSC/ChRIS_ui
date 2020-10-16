@@ -88,7 +88,12 @@ class FeedDetails extends React.Component<AllProps, INoteState> {
             <img src={imgPlaceholder} alt="placeholder for feed" />
           </div>
           <div className="pf-l-grid__item pf-m-11-col">
-            <Title headingLevel="h1" size="3xl" className="capitalize">
+            <Title
+              style={{ color: "white" }}
+              headingLevel="h1"
+              size="3xl"
+              className="capitalize"
+            >
               {feed ? feed.data.name : ""}
             </Title>
             <ul className="pf-c-list pf-m-inline">
