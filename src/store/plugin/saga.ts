@@ -52,7 +52,6 @@ function* handleGetPluginFiles(action: IActionTypeParam) {
   while (true) {
     try {
       const pluginDetails = yield pluginInstance.get();
-      console.log("PluginDetails", pluginDetails);
 
       yield put(getPluginStatus(pluginDetails.data.summary));
       let output = {};

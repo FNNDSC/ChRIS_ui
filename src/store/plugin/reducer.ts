@@ -53,14 +53,6 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
       };
     }
 
-    case PluginActionTypes.STOP_POLLING: {
-      return {
-        ...state,
-        pluginStatus: "",
-        pluginLog: {},
-      };
-    }
-
     default: {
       return state;
     }
