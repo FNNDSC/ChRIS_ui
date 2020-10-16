@@ -171,7 +171,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
         >
           <span className="feed-name">
             <img src={feedIcon} alt="" />
-            <Link to={`/feeds/${feed.id}`}>{feed.name}</Link>
+            {feed.name}
           </span>
         </Popover>
       ),
@@ -253,9 +253,10 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           <div className="bottom">
             <Title headingLevel="h1" size="3xl">
               My Feeds
-              {feedsCount && feedsCount > 0 && (
-                <span className="feed-count"> ({feedsCount})</span>
-              )}
+              {feedsCount && feedsCount > 0 ?
+               <span className="feed-count"> ({feedsCount})</span>
+               :null
+              }
             </Title>
             <CreateFeedProvider>
               <CreateFeed />
