@@ -14,10 +14,18 @@ import {
 } from "./lib/utils";
 import { InputType } from "./types";
 
+type InputObj={
+  id:string,
+  name:string,
+  value:string,
+  required:boolean
+}
+
 class GuidedConfig extends React.Component<
   GuidedConfigProps,
   GuidedConfigState
 > {
+  timer: number = 0;
   constructor(props: GuidedConfigProps) {
     super(props);
     this.state = {
@@ -30,6 +38,7 @@ class GuidedConfig extends React.Component<
     this.deleteComponent = this.deleteComponent.bind(this);
     this.addParam = this.addParam.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
     this.hideAlert = this.hideAlert.bind(this);
   }
 
@@ -44,6 +53,10 @@ class GuidedConfig extends React.Component<
       });
     }
     this.setDropdownDefaults(dropdownInput);
+  }
+
+  componentWillUnmount(){
+    clearTimeout(this.timer)
   }
 
   componentDidUpdate(prevProps: GuidedConfigProps) {
@@ -80,14 +93,34 @@ class GuidedConfig extends React.Component<
   }
 
   handleInputChange(value: string, event: React.FormEvent<HTMLInputElement>) {
-    event.persist();
-    const { inputChange } = this.props;
-
     const target = event.target as HTMLInputElement;
     const name = target.name;
     const id = target.id;
+    const inputObj:InputObj={
+      id,
+      name,
+      value,
+      required:true
+    }
+    this.timer = setTimeout(this.triggerChange, 10, "inputChange",inputObj);
+  }
 
-    inputChange(id, name, value, true);
+  triggerChange = (eventType: string,input?:InputObj) => {
+    const { inputChange } = this.props;  
+    if (eventType === "keyDown") {
+      this.addParam();
+    }
+    if(input && eventType==='inputChange'){
+      inputChange(input.id, input.name, input.value, input.required);
+    }  
+  };
+
+  handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      clearTimeout(this.timer);
+      this.triggerChange("keyDown");
+    } else return;
   }
 
   addParam() {
@@ -141,12 +174,14 @@ class GuidedConfig extends React.Component<
               </div>
 
               <TextInput
+                type="text"
                 aria-label="required-parameters"
                 onChange={this.handleInputChange}
+                onKeyDown={this.handleKeyDown}
                 name={param.data.flag}
                 className="required-params__textInput"
                 placeholder={param.data.help}
-                value={parameterValue || ""}
+                value={parameterValue}
                 id={`${param.data.id}`}
               />
             </Form>
@@ -173,6 +208,7 @@ class GuidedConfig extends React.Component<
           deleteComponent={this.deleteComponent}
           deleteInput={deleteInput}
           dropdownInput={dropdownInput}
+          addParam={this.addParam}
         />
       );
     });

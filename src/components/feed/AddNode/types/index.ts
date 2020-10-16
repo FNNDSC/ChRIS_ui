@@ -132,6 +132,7 @@ export interface SimpleDropdownProps {
   deleteComponent(id: string): void;
   deleteInput(id: string): void;
   dropdownInput: InputType;
+  addParam: () => void;
 }
 
 export interface ReviewProps extends InputState {
