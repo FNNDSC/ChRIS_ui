@@ -26,7 +26,7 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
   const pluginStatusLabels: PluginStatusLabels =
     pluginStatus && JSON.parse(pluginStatus);
 
-  const src: Logs | undefined = pluginLog; 
+  const src: Logs | undefined = pluginLog;
   let pluginLogs: LogStatus = {};
 
   if (src && src.info) {
@@ -47,10 +47,13 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
 
   if (pluginStatusLabels) {
     let labels = getStatusLabels(pluginStatusLabels);
+
     return (
       <div className="file-browser">
         <Split hasGutter={true} className="file-browser__flex1">
-          <SplitItem className="file-browser__flex__item1">
+          <SplitItem 
+          style={{marginTop:"20px"}}      
+          className="file-browser__flex__item1">
             <Steps direction="vertical">
               {labels.map((label: any) => {
                 const currentDescription = displayDescription(label);
@@ -112,7 +115,7 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
                     displayObjectSize={false}
                     src={logs}
                     indentWidth={4}
-                    collapsed={true}
+                    collapsed={false}
                   />
                 )}
               </div>
