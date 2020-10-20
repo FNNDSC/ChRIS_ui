@@ -35,21 +35,21 @@ export interface FileBrowerState {
 }
 
 type Return = {
-  [key: string]: [boolean];
-};
-
-type Status = {
-  [key: string]: boolean;
+  l_logs: [];
+  l_status: [];
+  status: boolean;
 };
 
 type Submit = {
-  submit: boolean;
+  status: boolean;
 };
 
 export interface PluginStatusLabels {
   pushPath: { [key: string]: boolean };
   compute: {
-    [key: string]: Return & Status & Submit;
+    return: Return;
+    status: boolean;
+    submit: Submit;
   };
   swiftPut: { [key: string]: boolean };
   pullPath: { [key: string]: boolean };
