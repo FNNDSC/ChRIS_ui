@@ -53,7 +53,7 @@ export function getStatusLabels(labels: PluginStatusLabels) {
   label[2] = {
     step: "computeReturn",
     id: 3,
-    status: labels.compute.return.status,
+    status: labels.compute.return.status && labels.compute.status,
     title: "Compute",
     previous: "computeSubmit",
     previousComplete: labels.compute.submit.status === true,
@@ -65,7 +65,8 @@ export function getStatusLabels(labels: PluginStatusLabels) {
     status: labels.pullPath.status,
     title: "Sync Data",
     previous: "computeReturn",
-    previousComplete: labels.compute.return.status === true,
+    previousComplete:
+      labels.compute.return.status === true && labels.compute.status === true,
   };
   label[4] = {
     id: 5,
