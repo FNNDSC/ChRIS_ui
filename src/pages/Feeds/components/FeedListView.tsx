@@ -11,8 +11,6 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbHeading,
-  Popover,
-  PopoverPosition,
   Pagination,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
@@ -162,18 +160,10 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
 
     const name = {
       title: (
-        <Popover
-          position={PopoverPosition.right}
-          bodyContent={namePopoverBody}
-          aria-label="Feed Description"
-          className="feed-description-popover"
-          onShow={() => this.handleDescriptionPopoverShow(feed)}
-        >
-          <span className="feed-name">
-            <img src={feedIcon} alt="" />
-            {feed.name}
-          </span>
-        </Popover>
+        <span className="feed-name">
+          <img src={feedIcon} alt="" />
+          <Link to={`/feeds/${feed.id}`}>{feed.name}</Link>
+        </span>
       ),
     };
 
