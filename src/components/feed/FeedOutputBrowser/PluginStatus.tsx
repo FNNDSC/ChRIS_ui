@@ -22,12 +22,21 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
 }) => {
   const [logs, setLogs] = React.useState({});
   const [logTitle, setLogTitle] = React.useState("");
+  const [currentStep, setCurrentStep] = React.useState("");
 
   const pluginStatusLabels: PluginStatusLabels =
     pluginStatus && JSON.parse(pluginStatus);
 
   const src: Logs | undefined = pluginLog;
   let pluginLogs: LogStatus = {};
+
+  React.useEffect(() => {
+    if (currentStep && src && src.info) {
+      const currentLog = pluginLogs[currentStep];
+      if (currentLog) setLogs(pluginLogs[currentStep]);
+    }
+  }, [src]);
+
 
   if (src && src.info) {
     pluginLogs["pushPath"] = src.info.pushPath.return;
@@ -41,6 +50,7 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
     let currentLog = pluginLogs[step];
     if (currentLog) {
       setLogs(currentLog);
+      setCurrentStep(step);
       setLogTitle(title);
     }
   };
