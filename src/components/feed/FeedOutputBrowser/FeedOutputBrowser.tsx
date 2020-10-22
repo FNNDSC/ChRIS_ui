@@ -123,14 +123,18 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
   return (
     <div className="feed-output-browser">
-      <Title 
-      style={{
-        marginBottom:"1rem",
-        marginLeft:"1rem"
-      }}
-      headingLevel="h1" size={TitleSizes.lg}>Feed Output Browser</Title>
-      <Grid>
-        <GridItem span={2}>
+      <Title
+        style={{
+          marginBottom: "1rem",
+          marginLeft: "1rem",
+        }}
+        headingLevel="h1"
+        size={TitleSizes.lg}
+      >
+        Feed Output Browser
+      </Title>
+      <Grid hasGutter>
+        <GridItem className="feed-output-browser__sidebar" span={2}>
           <ul className="sidebar">
             {plugins ? (
               plugins
@@ -143,8 +147,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             )}
           </ul>
         </GridItem>
-        
-        <GridItem span={10}>
+
+        <GridItem className="feed-output-browser__main" span={10}>
           <div className="file-browser-header">
             <div className="file-browser-header_container">
               <Title headingLevel="h1" size="2xl" className="plugin-name">

@@ -252,7 +252,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
       <div className="file-browser">
         <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
         <Grid hasGutter={true}>
-          <GridItem span={6} rowSpan={6}>
+          <GridItem className="file-browser__table" span={6} rowSpan={6}>
             <Table
               aria-label="feed-browser-table"
               variant={TableVariant.compact}
@@ -267,7 +267,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
           </GridItem>
 
           {previewingFile && (
-            <GridItem span={6}>
+            <GridItem className="file-browser__detail" rowSpan={4} span={6}>
               <FileDetailView
                 fullScreenMode={true}
                 selectedFile={previewingFile}

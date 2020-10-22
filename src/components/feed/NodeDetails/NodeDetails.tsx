@@ -184,11 +184,9 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
   };
 
   render() {
-    const { selected, pluginStatus,isComputeError } = this.props;
+    const { selected, pluginStatus, isComputeError } = this.props;
     const { params, plugin } = this.state;
     let runtime = this.calculateTotalRuntime();
-
-    console.log('ComputeError',isComputeError)
 
     const pluginTitle = `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;
     const command =
@@ -230,44 +228,44 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
           </GridItem>
           {}
           <GridItem span={10} className="value">
-          {selected.data.status==="waitingForPrevious"?(
-            <>
-            <OutlinedClockIcon/>
-            <span>Waiting for Previous</span>
-            </>
-          ):selected.data.status === "scheduled" ? (
+            {selected.data.status === "waitingForPrevious" ? (
+              <>
+                <OutlinedClockIcon />
+                <span>Waiting for Previous</span>
+              </>
+            ) : selected.data.status === "scheduled" ? (
               <>
                 <InProgressIcon />
                 <span>Scheduled</span>
               </>
-            ): selected.data.status==='registeringFiles'?(
+            ) : selected.data.status === "registeringFiles" ? (
               <>
-              <FileArchiveIcon/>
-              <span>Registering Files</span>
+                <FileArchiveIcon />
+                <span>Registering Files</span>
               </>
-            ) : selected.data.status==='finishedWithError' ? (
+            ) : selected.data.status === "finishedWithError" ? (
               <>
                 <ErrorCircleOIcon />
                 <span>FinishedWithError</span>
               </>
-            ): selected.data.status==='finishedSuccessfully'?(
+            ) : selected.data.status === "finishedSuccessfully" ? (
               <>
-              <CheckIcon/>
-              <span>FinishedSuccessfully</span>
+                <CheckIcon />
+                <span>FinishedSuccessfully</span>
               </>
-            ): pluginStatus ? (
+            ) : pluginStatus ? (
               <div className="node-details-grid__title">
                 <h3
                   className="node-details-grid__title-label"
                   style={{ color: "white" }}
                 >
-               {this.getCurrentTitleFromStatus(pluginStatus)}
+                  {this.getCurrentTitleFromStatus(pluginStatus)}
                 </h3>
               </div>
-            ) :(
+            ) : (
               <>
-               <OnRunningIcon/>
-               <span>Started</span>
+                <OnRunningIcon />
+                <span>Started</span>
               </>
             )}
           </GridItem>

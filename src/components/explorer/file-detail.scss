@@ -24,8 +24,8 @@
     }
   }
   // Iframe to display the file contents
-  .default-display,
-  .json-display {
+  .default-display
+  {
     min-height: $fe-viewer-min-heigth;
   }
   .default-display {
@@ -41,14 +41,14 @@
       width: 100%;
     }
   }
-  .json-display {
-    background: $fe-viewer-background;
-    border: solid 1px $fe-viewer-border;
-    border-radius: 4px;
-    padding: 1rem;
-    max-height: $fe-viewer-min-heigth;
-  }
+ 
   // AMI / DCMDisplay
+
+  .dcm-display{
+    text-align:center;
+    max-height:$fe-viewer-min-heigth;
+    max-width: $fe-viewer-max-width-sm;
+  }
 
   // Image display
   .image-block {
