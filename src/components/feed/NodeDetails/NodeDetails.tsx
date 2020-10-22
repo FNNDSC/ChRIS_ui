@@ -17,6 +17,7 @@ import {
   CaretDownIcon,
   CalendarDayIcon,
   CheckIcon,
+  ErrorCircleOIcon,
   MixcloudIcon,
   CloudUploadAltIcon,
   DockerIcon,
@@ -25,22 +26,25 @@ import {
   ServicesIcon,
   FileArchiveIcon,
   OutlinedClockIcon,
+  InProgressIcon,
 } from "@patternfly/react-icons";
 
 import { PluginInstance } from "@fnndsc/chrisapi";
-import TreeNodeModel from "../../../api/models/tree-node.model";
 import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
 import AddNode from "../AddNode/AddNode";
 import { StepInterface } from "./Stepper";
 import { PluginStatusLabels } from "../FeedOutputBrowser/types";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { PluginStatus } from "../../../store/plugin/types";
+import { displayDescription } from "../FeedOutputBrowser/utils";
 
 interface INodeProps {
   selected: PluginInstance;
   descendants: PluginInstance[];
-  pluginStatus?: string;
+  pluginStatus?: PluginStatus[];
   pluginLog?: {};
+  isComputeError?:boolean
 }
 
 interface INodeState {
@@ -78,20 +82,55 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     });
   }
 
-  // Description: Share pipeline with others ***** Working
-  handleSharePipeline() {
-    // Stub - To be done
+  
+  getCurrentTitleFromStatus(statusLabels: PluginStatus[]) {
+    
+
+    const currentTitle=statusLabels.map((label)=>{
+      const computedTitle=displayDescription(label)
+      if(computedTitle){
+        switch(computedTitle){
+          case 'Transmitting data to compute environment':
+            return (
+              <>
+                <CloudUploadAltIcon />
+                <span>Transmitting Data</span>
+              </>
+            );
+           case 'Setting compute environment': return (
+             <>
+               <DockerIcon />
+               <span>Setting Compute Environment</span>
+             </>
+           );
+
+           case 'Computing': return (
+             <>
+               <ServicesIcon />
+               <span>Computing</span>
+             </>
+           );
+
+           case 'Syncing data from compute environment': return (
+             <>
+               <MixcloudIcon />
+               <span>Syncing Data</span>
+             </>
+           );
+
+           case 'Finishing up': return (
+             <>
+               <StorageDomainIcon />
+               <span>Finishing up</span>
+             </>
+           );
+        }
+      }
+      return computedTitle;
+    }).filter((title)=>title!==undefined)
+    return currentTitle[0];
   }
 
-  // Description: root node or leaf nodes in the graph will not have the 'share this pipeline' button
-  // Find out from descendants if this node is a leaf or root node
-  isNodePipelineRoot(item: PluginInstance) {
-    const { descendants } = this.props;
-    return (
-      !TreeNodeModel.isRootNode(item) &&
-      !TreeNodeModel.isLeafNode(item, descendants)
-    );
-  }
 
   getCommand(plugin: Plugin, params: PluginInstanceParameter[]) {
     const { dock_image, selfexec } = plugin.data;
@@ -144,103 +183,12 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     return runtimeStrings.join(", ");
   };
 
-  getCurrentTitle(statusLabels: PluginStatusLabels) {
-    const { selected } = this.props;
-
-    if (statusLabels.pushPath.status !== true) {
-      return (
-        <>
-          <CloudUploadAltIcon />
-          <span>Transmitting Data</span>
-        </>
-      );
-    } else if (statusLabels.compute.submit.status !== true) {
-      return (
-        <>
-          <DockerIcon />
-          <span>Setting Compute Environment</span>
-        </>
-      );
-    } else if (statusLabels.compute.return.status !== true) {
-      return (
-        <>
-          <ServicesIcon />
-          <span>Computing</span>
-        </>
-      );
-    } else if (statusLabels.pullPath.status !== true) {
-      return (
-        <>
-          <MixcloudIcon />
-          <span>Syncing Data</span>
-        </>
-      );
-    } else if (statusLabels.swiftPut.status !== true) {
-      return (
-        <>
-          <StorageDomainIcon />
-          <span>Finishing up</span>
-        </>
-      );
-    } else if (selected.data.status === "finishedSuccessfully") {
-      return (
-        <>
-          <CheckIcon />
-          <span>Finished Successfully</span>
-        </>
-      );
-    } else if (
-      statusLabels.swiftPut.status === true &&
-      selected.data.status !== "finishedSuccessfully"
-    ) {
-      return (
-        <>
-          <FileArchiveIcon />
-          <span>Fetching files from Storage to browse</span>
-        </>
-      );
-    }
-  }
-
   render() {
-    const { selected, pluginStatus } = this.props;
+    const { selected, pluginStatus,isComputeError } = this.props;
     const { params, plugin } = this.state;
     let runtime = this.calculateTotalRuntime();
 
-    const pluginStatusLabels: PluginStatusLabels =
-      pluginStatus && JSON.parse(pluginStatus);
-
-    let label: StepInterface[] = [];
-    if (pluginStatusLabels) {
-      label = [
-        {
-          id: 0,
-          title: "Send Data",
-          completed: pluginStatusLabels.pushPath.status === true,
-        },
-        {
-          id: 1,
-          title: "Submit Job",
-          completed: pluginStatusLabels.compute.submit.status === true,
-        },
-        {
-          id: 2,
-          title: "Execute Job",
-          completed: pluginStatusLabels.compute.return.status === true,
-        },
-        {
-          id: 3,
-          title: "Pull Results",
-          completed: pluginStatusLabels.pullPath.status === true,
-        },
-
-        {
-          id: 4,
-          title: "Register Results",
-          completed: pluginStatusLabels.swiftPut.status === true,
-        },
-      ];
-    }
+    console.log('ComputeError',isComputeError)
 
     const pluginTitle = `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;
     const command =
@@ -282,24 +230,44 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
           </GridItem>
           {}
           <GridItem span={10} className="value">
-            {pluginStatusLabels ? (
+          {selected.data.status==="waitingForPrevious"?(
+            <>
+            <OutlinedClockIcon/>
+            <span>Waiting for Previous</span>
+            </>
+          ):selected.data.status === "scheduled" ? (
+              <>
+                <InProgressIcon />
+                <span>Scheduled</span>
+              </>
+            ): selected.data.status==='registeringFiles'?(
+              <>
+              <FileArchiveIcon/>
+              <span>Registering Files</span>
+              </>
+            ) : selected.data.status==='finishedWithError' ? (
+              <>
+                <ErrorCircleOIcon />
+                <span>FinishedWithError</span>
+              </>
+            ): selected.data.status==='finishedSuccessfully'?(
+              <>
+              <CheckIcon/>
+              <span>FinishedSuccessfully</span>
+              </>
+            ): pluginStatus ? (
               <div className="node-details-grid__title">
                 <h3
                   className="node-details-grid__title-label"
                   style={{ color: "white" }}
                 >
-                  {this.getCurrentTitle(pluginStatusLabels)}
+               {this.getCurrentTitleFromStatus(pluginStatus)}
                 </h3>
               </div>
-            ) : selected.data.status === "scheduled" ? (
+            ) :(
               <>
-                <OutlinedClockIcon />
-                <span>Scheduled</span>
-              </>
-            ) : (
-              <>
-                <OnRunningIcon />
-                <span>Started</span>
+               <OnRunningIcon/>
+               <span>Started</span>
               </>
             )}
           </GridItem>
@@ -338,15 +306,6 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
         <label>Actions:</label>
         <div className="btn-div">
           <AddNode />
-          {this.isNodePipelineRoot(selected) && (
-            <Button
-              variant="tertiary"
-              isBlock
-              onClick={this.handleSharePipeline}
-            >
-              <ShareAltIcon /> Share this pipeline...
-            </Button>
-          )}
         </div>
 
         <br />
@@ -360,6 +319,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
 const mapStateToProps = (state: ApplicationState) => ({
   pluginStatus: state.plugin.pluginStatus,
   pluginLog: state.plugin.pluginLog,
+  isComputeError:state.plugin.computeError
 });
 
 export default connect(mapStateToProps, null)(NodeDetails);

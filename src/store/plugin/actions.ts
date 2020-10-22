@@ -25,3 +25,7 @@ export const stopPolling = () => action(PluginActionTypes.STOP_POLLING);
 
 export const getPluginLog = (pluginLog: {}) =>
   action(PluginActionTypes.GET_PLUGIN_LOG, pluginLog);
+
+
+export const getComputeErrorSuccess = (computeError: boolean) =>
+  action(PluginActionTypes.GET_COMPUTE_ERROR_SUCCESS, computeError);

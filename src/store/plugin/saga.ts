@@ -17,6 +17,7 @@ import {
   getParamsSuccess,
   getPluginLog,
   stopPolling,
+  getComputeErrorSuccess,
 } from "./actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { inflate } from "pako";
@@ -29,9 +30,19 @@ import { Task } from "redux-saga";
 function* handleGetParams(action: IActionTypeParam) {
   try {
     const plugin = action.payload;
-    const paramList = yield plugin.getPluginParameters();
-    const params = paramList.getItems();
-
+    const paginate = { limit: 20, offset: 0 };
+    let paramList = yield plugin.getPluginParameters(paginate);
+    let params = paramList.getItems();
+    while (paramList.hasNextPage) {
+      try {
+        paginate.offset += paginate.offset;
+        paramList = plugin.getPluginParameters(paginate);
+        params = params.concat(paramList.getItems());
+      } catch (error) {
+        // Error handling to be done
+        console.error(error);
+      }
+    }
     yield put(getParamsSuccess(params));
   } catch (error) {
     console.error(error);
@@ -52,13 +63,19 @@ function* handleGetPluginFiles(action: IActionTypeParam) {
   while (true) {
     try {
       const pluginDetails = yield pluginInstance.get();
-
+      console.log("PluginDetails", pluginDetails.data.status);
+      
       yield put(getPluginStatus(pluginDetails.data.summary));
       let output = {};
       if (pluginDetails.data.raw.length > 0) {
         output = getLog(pluginDetails.data.raw);
       }
       yield put(getPluginLog(output));
+
+      if (pluginDetails.data.status === "finishedWithError") {
+        yield put(getComputeErrorSuccess(true));
+        yield put(stopPolling());
+      }
 
       if (pluginDetails.data.status === "finishedSuccessfully") {
         yield call(putPluginFiles, pluginInstance);

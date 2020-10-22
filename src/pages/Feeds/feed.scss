@@ -374,21 +374,8 @@
   // file list and file preview take up 50% width
   // so that split doesn't change based on file size
 
-  &__flex {
-    display: flex !important;
-
-    &__item1 {
-      flex-basis: 650px;
-    }
-
-    &__item2 {
-      flex-grow: 1;
-      max-width: 50%;
-
-      &-json {
-        margin-top: 15px;
-      }
-    }
+  &__plugin-status{
+    min-width:50% !important;
   }
 
   td {
@@ -402,7 +389,7 @@
 
   td,
   th {
-    padding-left: 5px;
+    padding-left: 3px;
   }
 
   tbody tr {
@@ -462,3 +449,6 @@
     margin-top: 0 !important;
   }
 }
+
+
+
