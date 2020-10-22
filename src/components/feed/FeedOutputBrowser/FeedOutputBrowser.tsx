@@ -5,10 +5,11 @@ import JSZip from "jszip";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {
   Title,
-  Split,
-  SplitItem,
+  TitleSizes,
+  Grid,
+  GridItem,
   Button,
-  Spinner,
+  Spinner,  
 } from "@patternfly/react-core";
 import {
   FolderOpenIcon,
@@ -122,9 +123,14 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
   return (
     <div className="feed-output-browser">
-      <header className="header-top">Output Browser</header>
-      <Split>
-        <SplitItem>
+      <Title 
+      style={{
+        marginBottom:"1rem",
+        marginLeft:"1rem"
+      }}
+      headingLevel="h1" size={TitleSizes.lg}>Feed Output Browser</Title>
+      <Grid>
+        <GridItem span={2}>
           <ul className="sidebar">
             {plugins ? (
               plugins
@@ -136,8 +142,9 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               <Spinner size="md" />
             )}
           </ul>
-        </SplitItem>
-        <SplitItem isFilled>
+        </GridItem>
+        
+        <GridItem span={10}>
           <div className="file-browser-header">
             <div className="file-browser-header_container">
               <Title headingLevel="h1" size="2xl" className="plugin-name">
@@ -176,8 +183,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           ) : (
             <PluginStatus pluginStatus={pluginStatus} pluginLog={pluginLog} />
           )}
-        </SplitItem>
-      </Split>
+        </GridItem>
+      </Grid>
       <PluginViewerModal
         isModalOpen={pluginModalOpen}
         handleModalToggle={handlePluginModalClose}

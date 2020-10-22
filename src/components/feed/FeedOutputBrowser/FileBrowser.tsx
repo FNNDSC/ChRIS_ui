@@ -5,8 +5,8 @@ import classNames from "classnames";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  Split,
-  SplitItem,
+  Grid,
+  GridItem,
   PopoverPosition,
 } from "@patternfly/react-core";
 import {
@@ -251,9 +251,8 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     return (
       <div className="file-browser">
         <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
-
-        <Split hasGutter={true} className="file-browser__flex">
-          <SplitItem className="file-browser__flex__item1">
+        <Grid hasGutter={true}>
+          <GridItem span={6} rowSpan={6}>
             <Table
               aria-label="feed-browser-table"
               variant={TableVariant.compact}
@@ -265,10 +264,10 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
               <TableHeader />
               <TableBody onRowClick={this.handleFileClick} />
             </Table>
-          </SplitItem>
+          </GridItem>
 
           {previewingFile && (
-            <SplitItem className="file-browser__flex__item2">
+            <GridItem span={6}>
               <FileDetailView
                 fullScreenMode={true}
                 selectedFile={previewingFile}
@@ -279,9 +278,9 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
                   handleFileViewerToggle(previewingFile, directory);
                 }}
               />
-            </SplitItem>
+            </GridItem>
           )}
-        </Split>
+        </Grid>
       </div>
     );
   }

@@ -60,12 +60,12 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   renderHeader() {
     const { selectedFile } = this.props;
     return (
-      <div className="header-panel">
-        {this.renderDownloadButton()}
-        <h1>
-          File Preview: <b>{selectedFile.module}</b>
-        </h1>
-      </div>
+        <div className="header-panel">
+          {this.renderDownloadButton()}
+          <h1>
+            File Preview: <b>{selectedFile.module}</b>
+          </h1>
+        </div>
     );
   }
 
