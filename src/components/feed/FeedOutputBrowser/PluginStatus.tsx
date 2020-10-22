@@ -19,7 +19,6 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
   pluginStatus,
   pluginLog,
 }) => {
-  console.log('PluginStatus',pluginStatus)
   const [logs, setLogs] = React.useState({});
   const [logTitle, setLogTitle] = React.useState("");
   const [currentStep, setCurrentStep] = React.useState("");
@@ -30,16 +29,14 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
 
   React.useEffect(() => {
     if (currentStep && src && src.info) {
-      const currentLog = pluginLogs[currentStep];  
+      const currentLog = pluginLogs[currentStep];
       if (currentLog && !isEmpty(currentLog)) {
         setLogs(pluginLogs[currentStep]);
-       }
-      else {
-        setLogs({})
+      } else {
+        setLogs({});
       }
     }
   }, [src]);
-
 
   if (src && src.info) {
     pluginLogs["pushPath"] = src.info.pushPath.return;
@@ -57,22 +54,21 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
       setLogTitle(title);
       setLogError(false);
     } else {
-      setLogs({})
+      setLogs({});
       setLogError(true);
       setCurrentStep(step);
       setLogTitle(title);
     }
   };
 
- 
-  if (pluginStatus && pluginStatus?.length>0) {
+  if (pluginStatus && pluginStatus?.length > 0) {
     return (
       <div className="file-browser">
         <Grid>
-          <GridItem span={4}>
+          <GridItem className="file-browser__steps" span={4} rowSpan={6}>
             <Steps direction="vertical">
               {pluginStatus.map((label: any) => {
-                const currentDescription = displayDescription(label);  
+                const currentDescription = displayDescription(label);
                 return (
                   <Step
                     onClick={() => {
@@ -91,24 +87,33 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
                         {label.title}
                       </span>
                     }
-                    status={label.error? 'error': label.status === true ? "finish" : "wait"}
+                    status={
+                      label.error
+                        ? "error"
+                        : label.status === true
+                        ? "finish"
+                        : "wait"
+                    }
                   />
                 );
               })}
             </Steps>
           </GridItem>
-          <GridItem className="file-browser__plugin-status" span={8} rowSpan={6}>
-              <div className="header-panel">
-                <h1>
-                  {Object.keys(logs).length > 0 &&
-                    `Showing logs for ${logTitle} :`}
-                </h1>
-              </div>
-              <div>
-                {
-                logs &&
-                (  
-                <ReactJSON
+          <GridItem
+            className="file-browser__plugin-status"
+            span={8}
+            rowSpan={6}
+          >
+            <div className="header-panel">
+              <h1>
+                {Object.keys(logs).length > 0 &&
+                  `Showing logs for ${logTitle} :`}
+              </h1>
+            </div>
+            <div>
+              {logs && (
+                <div className="json-display">
+                  <ReactJSON
                     name={false}
                     displayDataTypes={false}
                     style={{
@@ -117,10 +122,12 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
                     displayObjectSize={false}
                     src={logs}
                     collapsed={false}
-                  />     
-                )
-            }
-              </div>
+                    collapseStringsAfterLength={15}
+                    indentWidth={0}
+                  />
+                </div>
+              )}
+            </div>
           </GridItem>
         </Grid>
       </div>
