@@ -1,9 +1,11 @@
 import React, { createRef, RefObject } from "react";
+import ReactDOM from "react-dom";
 import * as d3 from "d3";
 import * as cola from "webcola";
-import TreeModel, { ITreeChart } from "../../api/models/tree.model";
-import TreeNodeModel, { INode } from "../../api/models/tree-node.model";
+import TreeModel, { ITreeChart } from "../../../api/models/tree.model";
+import TreeNodeModel, { INode } from "../../../api/models/tree-node.model";
 import { PluginInstance } from "@fnndsc/chrisapi";
+import { getTreeItems, getFeedTree, TreeType } from "./utils";
 
 interface ITreeProps {
   items: PluginInstance[];
@@ -20,6 +22,7 @@ class FeedTree extends React.Component<AllProps> {
 
   componentDidMount() {
     const { items } = this.props;
+
     this.fetchTree(items);
   }
 
@@ -28,8 +31,15 @@ class FeedTree extends React.Component<AllProps> {
     if (!selected) return;
 
     if (!!this.treeRef.current && !!items && items.length > 0) {
-      const tree = new TreeModel(items);
+      const treeItems = getTreeItems(items);
+      const tree = getFeedTree(treeItems);
+      //const tree = new TreeModel(items);
 
+      if (tree.length > 0) {
+        this.buildTree(tree, this.treeRef);
+      }
+
+      /*
       this.tree = tree;
 
       if (!!tree.treeChart) {
@@ -42,11 +52,93 @@ class FeedTree extends React.Component<AllProps> {
           if (rootNode[0]) this.setActiveNode(rootNode[0]);
         }
       }
+      */
     }
   }
 
+  buildTree = (tree: TreeType[], ref: RefObject<HTMLDivElement>) => {
+    console.log("In build Tree", tree);
+
+    let svg = d3
+      .select("#tree")
+      .append("svg")
+      .attr("width", 500)
+      .attr("height", 500);
+
+    let d3TreeLayout = d3.tree();
+    d3TreeLayout.size([400, 300]);
+    let root = d3.hierarchy(tree);
+    d3TreeLayout(root);
+    console.log("Root", root, root.descendants(), root.links());
+
+    svg
+      .selectAll(".node")
+      .data(root.descendants())
+      .join("circle")
+      .attr("class", "node")
+      .attr("r", 12)
+      .attr("fill", "#fff")
+      .attr("cx", (node: any) => node.x)
+      .attr("cy", (node: any) => node.y);
+
+    console.log("Nodes", root.descendants(), root.links());
+    const linkGenerator = d3
+      .linkVertical()
+      .x((node: any) => node.x)
+      .y((node: any) => node.y);
+    // Nodes
+
+    console.log("LinkGenerator", linkGenerator);
+
+    svg
+      .selectAll(".link")
+      .data(root.links())
+      .join("path")
+      .attr("class", "link")
+      .attr("fill", "node")
+      .attr("stroke", "black");
+
+    /*
+    d3.select("svg g.nodes")
+      .selectAll("circle.node")
+      .data(root.descendants())
+      .enter()
+      .append("circle")
+      .classed("node", true)
+      .attr("cx", function (d: any) {
+        return d.x;
+      })
+      .attr("cy", function (d: any) {
+        return d.y;
+      })
+      .attr("r", 4);
+
+    // Links
+
+    d3.select("svg g.links")
+      .selectAll("link.link")
+      .data(root.links())
+      .enter()
+      .append("line")
+      .classed("link", true)
+      .attr("x1", function (d: any) {
+        return d.source.x;
+      })
+      .attr("y1", function (d: any) {
+        return d.source.y;
+      })
+      .attr("x2", function (d: any) {
+        return d.target.x;
+      })
+      .attr("y2", function (d: any) {
+        return d.target.y;
+      });
+      */
+  };
+
   componentDidUpdate(prevProps: AllProps) {
     const { selected } = this.props;
+
     const prevSelected = prevProps.selected;
     if (
       prevSelected &&
@@ -69,11 +161,7 @@ class FeedTree extends React.Component<AllProps> {
   }
 
   render() {
-    return (
-      <div ref={this.treeRef} id="tree">
-        <div id="tooltip" className="tooltip" />
-      </div>
-    );
+    return <div ref={this.treeRef} id="tree"></div>;
   }
 
   // Description: set active node
@@ -90,6 +178,8 @@ class FeedTree extends React.Component<AllProps> {
   handleNodeClick = (node: INode) => {
     this.props.onNodeClick(node.item);
   };
+
+  /*
 
   // ---------------------------------------------------------------------
   // Description: Builds Webcola/D3 Feed Tree
@@ -238,6 +328,7 @@ class FeedTree extends React.Component<AllProps> {
       tooltip.style.left = "-9999px";
     }
   };
+  */
 
   // Description: Destroy d3 content
   componentWillUnmount() {

@@ -4,7 +4,7 @@ export { default as LoadingSpinner } from "./common/loading/LoadingSpinner";
 export { default as DataTableToolbar } from "./common/dataTableToolbar/DataTableToolbar";
 
 // Feed
-export { default as FeedTree } from "./feed/FeedTree";
+export { default as FeedTree } from "./feed/FeedTree/FeedTree";
 export { default as FeedDetails } from "./feed/FeedDetails";
 
 // Pipeline

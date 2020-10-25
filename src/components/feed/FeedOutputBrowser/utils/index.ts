@@ -92,7 +92,10 @@ export function getStatusLabels(labels: PluginStatusLabels): PluginStatus[]  {
 }
 
 export function displayDescription(label: any) {
-  if (label.status === "pushing" && label.previous === "none") {
+
+  if (label.error) {
+    return "Error in compute";
+  } else if (label.status === "pushing" && label.previous === "none") {
     return "Transmitting data to compute environment";
   } else if (
     label.previous === "pushPath" &&
@@ -118,7 +121,7 @@ export function displayDescription(label: any) {
     label.status !== true
   ) {
     return "Finishing up";
-  }
+  } 
 }
 
 
