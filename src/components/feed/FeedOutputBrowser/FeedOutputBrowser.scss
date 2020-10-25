@@ -42,6 +42,18 @@
   color: white;
 }
 
+.ant-steps-item-error .ant-steps-item-icon {
+  background:#C9190B;
+}
+
+.ant-steps-item-error .ant-steps-item-icon > .ant-steps-icon {
+  color: white;
+}
+
+.ant-steps-item-error > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
+    color: #000
+}
+
 
 .file-browser-header_container{
   display:flex;
