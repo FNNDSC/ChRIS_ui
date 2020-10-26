@@ -6,6 +6,8 @@ import TreeModel, { ITreeChart } from "../../../api/models/tree.model";
 import TreeNodeModel, { INode } from "../../../api/models/tree-node.model";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { getTreeItems, getFeedTree, TreeType } from "./utils";
+import { linkHorizontal, DefaultLinkObject,Link } from "d3";
+import { sumBy } from "lodash";
 
 interface ITreeProps {
   items: PluginInstance[];
@@ -35,12 +37,14 @@ class FeedTree extends React.Component<AllProps> {
       const tree = getFeedTree(treeItems);
       //const tree = new TreeModel(items);
 
+      
       if (tree.length > 0) {
-        this.buildTree(tree, this.treeRef);
+        this.buildFeedTree(tree[0], this.treeRef);
       }
+      
 
-      /*
-      this.tree = tree;
+      
+     /*
 
       if (!!tree.treeChart) {
         this.buildFeedTree(tree.treeChart, this.treeRef);
@@ -52,13 +56,12 @@ class FeedTree extends React.Component<AllProps> {
           if (rootNode[0]) this.setActiveNode(rootNode[0]);
         }
       }
-      */
+    */
+      
     }
   }
 
-  buildTree = (tree: TreeType[], ref: RefObject<HTMLDivElement>) => {
-    console.log("In build Tree", tree);
-
+  buildFeedTree = (tree: TreeType, ref: RefObject<HTMLDivElement>) => {
     let svg = d3
       .select("#tree")
       .append("svg")
@@ -67,73 +70,83 @@ class FeedTree extends React.Component<AllProps> {
 
     let d3TreeLayout = d3.tree();
     d3TreeLayout.size([400, 300]);
-    let root = d3.hierarchy(tree);
+    const root = d3.hierarchy(tree);
     d3TreeLayout(root);
-    console.log("Root", root, root.descendants(), root.links());
 
+    let nodeRadius=8
+
+    // Nodes
     svg
       .selectAll(".node")
       .data(root.descendants())
       .join("circle")
       .attr("class", "node")
-      .attr("r", 12)
+      .attr("r", nodeRadius)
       .attr("fill", "#fff")
       .attr("cx", (node: any) => node.x)
-      .attr("cy", (node: any) => node.y);
+      .attr("cy", (node: any) => node.y)
+      .attr("opacity", 0)
+      .transition()
+      .duration(100)
+      .delay((node) => node.depth * 200)
+      .attr("opacity", 1);
 
-    console.log("Nodes", root.descendants(), root.links());
     const linkGenerator = d3
       .linkVertical()
       .x((node: any) => node.x)
       .y((node: any) => node.y);
-    // Nodes
 
-    console.log("LinkGenerator", linkGenerator);
+  // Links
 
     svg
       .selectAll(".link")
       .data(root.links())
       .join("path")
+      // @ts-ignore
+      .attr("d", linkGenerator)
+      // @ts-ignore
+      .attr("stroke-dasharray", function () {
+        // @ts-ignore
+        const length = this.getTotalLength();
+        return `${length} ${length}`;
+      })
+      .attr("stroke-dashhoffset", function () {
+        // @ts-ignore
+        return this.getTotalLength();
+      })
+      .transition()
+      .duration(100)
+      .delay((linkObj) => linkObj.source.depth * 200)
+      .attr("stroke-dashoffset", 0)
       .attr("class", "link")
       .attr("fill", "node")
-      .attr("stroke", "black");
+      .attr("stroke", "white");
 
-    /*
-    d3.select("svg g.nodes")
-      .selectAll("circle.node")
+      // labels
+
+      svg.selectAll('.label')
       .data(root.descendants())
-      .enter()
-      .append("circle")
-      .classed("node", true)
-      .attr("cx", function (d: any) {
-        return d.x;
+      .join('text')
+      .attr('class',"label")
+      .text(node=>node.data.name)
+      .attr("transform", (d: any) => {
+        return `translate(${d.x - nodeRadius * 4}, ${d.y + nodeRadius * 2.5} )`;
       })
-      .attr("cy", function (d: any) {
-        return d.y;
-      })
-      .attr("r", 4);
+      .attr('fill','#fff')
+      .attr('font-size',12)
+      .attr('font-weight','bold')
+      .attr("opacity",0)
+      .transition()
+      .duration(100)
+      .delay(node=>node.depth*200)
+      .attr('opacity',1)
+      
 
-    // Links
 
-    d3.select("svg g.links")
-      .selectAll("link.link")
-      .data(root.links())
-      .enter()
-      .append("line")
-      .classed("link", true)
-      .attr("x1", function (d: any) {
-        return d.source.x;
-      })
-      .attr("y1", function (d: any) {
-        return d.source.y;
-      })
-      .attr("x2", function (d: any) {
-        return d.target.x;
-      })
-      .attr("y2", function (d: any) {
-        return d.target.y;
-      });
-      */
+
+
+
+
   };
 
   componentDidUpdate(prevProps: AllProps) {
