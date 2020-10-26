@@ -1,13 +1,19 @@
-import React, { createRef, RefObject } from "react";
-import ReactDOM from "react-dom";
+import React, {
+  createRef,
+  RefObject,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
 import * as d3 from "d3";
-import * as cola from "webcola";
 import TreeModel, { ITreeChart } from "../../../api/models/tree.model";
 import TreeNodeModel, { INode } from "../../../api/models/tree-node.model";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { getTreeItems, getFeedTree, TreeType } from "./utils";
-import { linkHorizontal, DefaultLinkObject,Link } from "d3";
-import { sumBy } from "lodash";
+import { linkHorizontal, DefaultLinkObject, Link, tree } from "d3";
+//import './styles/FeedTree.scss'
+
+
 
 interface ITreeProps {
   items: PluginInstance[];
@@ -18,13 +24,147 @@ interface ITreeActions {
 }
 type AllProps = ITreeProps & ITreeActions;
 
+
+
+const FeedTree:React.FC<AllProps>=(props)=>{
+const treeRef=useRef<HTMLDivElement>(null);
+const svgRef=useRef<SVGSVGElement>(null);
+
+useEffect(()=>{
+fetchTree(props.items) 
+},[props.items])
+
+const fetchTree=(items:PluginInstance[])=>{
+  if(!props.selected) return;
+
+  if(!!treeRef.current && !!items && items.length>0){
+    const treeItems=getTreeItems(items)
+    const tree=getFeedTree(treeItems)
+
+    if(tree.length>0){
+      buildFeedTree(tree[0],treeRef)
+    }
+  }
+}
+
+const buildFeedTree = (tree: TreeType, ref: RefObject<HTMLDivElement>) => {
+  let svg = d3
+    .select(svgRef.current)
+    .attr('width','500')
+    .attr('height','500')
+    
+  let d3TreeLayout = d3.tree();
+  d3TreeLayout.size([400,300]);
+  const root = d3.hierarchy(tree);
+  d3TreeLayout(root);
+
+  let nodeRadius = 8;
+
+  // Nodes
+  svg
+    .selectAll(".node")
+    .data(root.descendants())
+    .join((enter) => enter.append("circle").attr("opacity", 0))
+    .attr("class", "node")
+    .attr("r", nodeRadius)
+    .attr("fill", "#fff")
+    .attr("cx", (node: any) => node.x)
+    .attr("cy", (node: any) => node.y)
+    .attr("opacity", 0)
+    .transition()
+    .duration(100)
+    .delay((node) => node.depth * 200)
+    .attr("opacity", 1);
+
+  const linkGenerator = d3
+    .linkVertical()
+    .x((node: any) => node.x)
+    .y((node: any) => node.y);
+
+  // Links
+
+  svg
+    .selectAll(".link")
+    .data(root.links())
+    .join("path")
+    // @ts-ignore
+    .attr("d", linkGenerator)
+    // @ts-ignore
+    .attr("stroke-dasharray", function () {
+      // @ts-ignore
+      const length = this.getTotalLength();
+      return `${length} ${length}`;
+    })
+    .attr("stroke-dashhoffset", function () {
+      // @ts-ignore
+      return this.getTotalLength();
+    })
+    .transition()
+    .duration(100)
+    .delay((linkObj) => linkObj.source.depth * 200)
+    .attr("stroke-dashoffset", 0)
+    .attr("class", "link")
+    .attr("fill", "node")
+    .attr("stroke", "white");
+
+  // labels
+
+  svg
+    .selectAll(".label")
+    .data(root.descendants())
+    .join("text")
+    .attr("class", "label")
+    .text((node) => node.data.name)
+    .attr("transform", (d: any) => {
+      return `translate(${d.x - nodeRadius * 4}, ${d.y + nodeRadius * 4} )`;
+    })
+    .attr("fill", "#fff")
+    .attr("font-size", 14)
+    .attr("font-weight", "bold")
+    .attr("opacity", 0)
+    .transition()
+    .duration(100)
+    .delay((node) => node.depth * 200)
+    .attr("opacity", 1);
+};
+
+
+return (
+  <div ref={treeRef} id="tree">
+    <svg className="svg-content" ref={svgRef}></svg>
+  </div>
+);
+
+}
+
+export default FeedTree;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
 class FeedTree extends React.Component<AllProps> {
   private treeRef = createRef<HTMLDivElement>();
   private tree?: TreeModel;
 
   componentDidMount() {
     const { items } = this.props;
-
     this.fetchTree(items);
   }
 
@@ -56,98 +196,12 @@ class FeedTree extends React.Component<AllProps> {
           if (rootNode[0]) this.setActiveNode(rootNode[0]);
         }
       }
-    */
+    
       
     }
   }
 
-  buildFeedTree = (tree: TreeType, ref: RefObject<HTMLDivElement>) => {
-    let svg = d3
-      .select("#tree")
-      .append("svg")
-      .attr("width", 500)
-      .attr("height", 500);
-
-    let d3TreeLayout = d3.tree();
-    d3TreeLayout.size([400, 300]);
-    const root = d3.hierarchy(tree);
-    d3TreeLayout(root);
-
-    let nodeRadius=8
-
-    // Nodes
-    svg
-      .selectAll(".node")
-      .data(root.descendants())
-      .join("circle")
-      .attr("class", "node")
-      .attr("r", nodeRadius)
-      .attr("fill", "#fff")
-      .attr("cx", (node: any) => node.x)
-      .attr("cy", (node: any) => node.y)
-      .attr("opacity", 0)
-      .transition()
-      .duration(100)
-      .delay((node) => node.depth * 200)
-      .attr("opacity", 1);
-
-    const linkGenerator = d3
-      .linkVertical()
-      .x((node: any) => node.x)
-      .y((node: any) => node.y);
-
-  // Links
-
-    svg
-      .selectAll(".link")
-      .data(root.links())
-      .join("path")
-      // @ts-ignore
-      .attr("d", linkGenerator)
-      // @ts-ignore
-      .attr("stroke-dasharray", function () {
-        // @ts-ignore
-        const length = this.getTotalLength();
-        return `${length} ${length}`;
-      })
-      .attr("stroke-dashhoffset", function () {
-        // @ts-ignore
-        return this.getTotalLength();
-      })
-      .transition()
-      .duration(100)
-      .delay((linkObj) => linkObj.source.depth * 200)
-      .attr("stroke-dashoffset", 0)
-      .attr("class", "link")
-      .attr("fill", "node")
-      .attr("stroke", "white");
-
-      // labels
-
-      svg.selectAll('.label')
-      .data(root.descendants())
-      .join('text')
-      .attr('class',"label")
-      .text(node=>node.data.name)
-      .attr("transform", (d: any) => {
-        return `translate(${d.x - nodeRadius * 4}, ${d.y + nodeRadius * 2.5} )`;
-      })
-      .attr('fill','#fff')
-      .attr('font-size',12)
-      .attr('font-weight','bold')
-      .attr("opacity",0)
-      .transition()
-      .duration(100)
-      .delay(node=>node.depth*200)
-      .attr('opacity',1)
-      
-
-
-
-
-
-
-  };
+  
 
   componentDidUpdate(prevProps: AllProps) {
     const { selected } = this.props;
@@ -341,12 +395,13 @@ class FeedTree extends React.Component<AllProps> {
       tooltip.style.left = "-9999px";
     }
   };
-  */
+ 
 
   // Description: Destroy d3 content
   componentWillUnmount() {
     !!d3 && d3.select("#tree").remove();
   }
 }
+*/
 
-export default FeedTree;
+
