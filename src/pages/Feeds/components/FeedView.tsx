@@ -96,7 +96,6 @@ export const _FeedView: React.FC<FeedViewProps> = ({
       >
         <Grid className="feed-view">
           <GridItem className="feed-block pf-u-p-md" sm={12} md={6}>
-            <h1>Feed Graph</h1>
             {!!pluginInstances && pluginInstances.length > 0 && !!selected ? (
               <FeedTree
                 items={pluginInstances}
