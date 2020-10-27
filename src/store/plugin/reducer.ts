@@ -37,8 +37,8 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
       let status;
 
       if(action.payload){
-       pluginStatus = JSON.parse(action.payload);
-       status = getStatusLabels(pluginStatus);
+        pluginStatus = JSON.parse(action.payload);
+        status = getStatusLabels(pluginStatus);
       }
       
       return {
