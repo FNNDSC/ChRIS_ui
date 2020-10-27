@@ -8,6 +8,7 @@ import {
   Grid,
   GridItem,
   PopoverPosition,
+  Alert,
 } from "@patternfly/react-core";
 import {
   DownloadIcon,
@@ -249,39 +250,53 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     const rows = directory.children.map(this.generateTableRow);
 
     return (
-      <div className="file-browser">
-        <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
-        <Grid hasGutter={true}>
-          <GridItem className="file-browser__table" span={6} rowSpan={6}>
-            <Table
-              aria-label="feed-browser-table"
-              variant={TableVariant.compact}
-              caption="files"
-              cells={cols}
-              rows={rows}
-              className="file-list"
-            >
-              <TableHeader />
-              <TableBody onRowClick={this.handleFileClick} />
-            </Table>
-          </GridItem>
+      <Grid hasGutter className="file-browser">
+        <GridItem span={12} rowSpan={2}>
+          <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
+        </GridItem>
+        <GridItem className="file-browser__table" span={6} rowSpan={10}>
+          <Table
+            aria-label="feed-browser-table"
+            variant={TableVariant.compact}
+            caption="files"
+            cells={cols}
+            rows={rows}
+            className="file-list"
+          >
+            <TableHeader />
+            <TableBody onRowClick={this.handleFileClick} />
+          </Table>
+        </GridItem>
 
-          {previewingFile && (
-            <GridItem className="file-browser__detail" rowSpan={4} span={6}>
-              <FileDetailView
-                fullScreenMode={true}
-                selectedFile={previewingFile}
-                toggleFileBrowser={() => {
-                  handleFileBrowserToggle(previewingFile, directory);
-                }}
-                toggleFileViewer={() => {
-                  handleFileViewerToggle(previewingFile, directory);
-                }}
-              />
-            </GridItem>
-          )}
-        </Grid>
-      </div>
+        {previewingFile ? (
+          <GridItem className="file-browser__detail" span={6} rowSpan={12}>
+            <FileDetailView
+              fullScreenMode={true}
+              selectedFile={previewingFile}
+              toggleFileBrowser={() => {
+                handleFileBrowserToggle(previewingFile, directory);
+              }}
+              toggleFileViewer={() => {
+                handleFileViewerToggle(previewingFile, directory);
+              }}
+            />
+          </GridItem>
+        ) : (
+          <GridItem
+            className="file-browser__previewTab  viewer-display"
+            span={6}
+            rowSpan={12}
+          >
+            <Alert
+              style={{
+                width: "80%",
+              }}
+              title="Click on the file to preview"
+              variant="info"
+            />
+          </GridItem>
+        )}
+      </Grid>
     );
   }
 }

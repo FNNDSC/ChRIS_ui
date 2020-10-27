@@ -95,7 +95,7 @@ export const _FeedView: React.FC<FeedViewProps> = ({
         variant={PageSectionVariants.light}
       >
         <Grid className="feed-view">
-          <GridItem className="feed-block pf-u-p-md" sm={12} md={6}>
+          <GridItem className="feed-block" span={6} rowSpan={12}>
             {!!pluginInstances && pluginInstances.length > 0 && !!selected ? (
               <FeedTree
                 items={pluginInstances}
@@ -109,7 +109,7 @@ export const _FeedView: React.FC<FeedViewProps> = ({
               </div>
             )}
           </GridItem>
-          <GridItem className="node-block pf-u-p-md" sm={12} md={6}>
+          <GridItem className="node-block" span={6} rowSpan={12}>
             {!!pluginInstances && pluginInstances.length > 0 && !!selected ? (
               <NodeDetails descendants={pluginInstances} selected={selected} />
             ) : (
@@ -119,17 +119,23 @@ export const _FeedView: React.FC<FeedViewProps> = ({
         </Grid>
       </PageSection>
       <PageSection>
-        <div className="plugin-info pf-u-py-md">
-          {!!pluginInstances && pluginInstances.length > 0 && !!selected ? (
-            <FeedOutputBrowser
-              selected={selected}
-              plugins={pluginInstances}
-              handlePluginSelect={onNodeClick}
-            />
-          ) : (
-            <Spinner size="lg" />
-          )}
-        </div>
+        <Grid>
+          <GridItem span={12} rowSpan={12}>
+            {!!pluginInstances && pluginInstances.length > 0 && !!selected ? (
+              <FeedOutputBrowser
+                selected={selected}
+                plugins={pluginInstances}
+                handlePluginSelect={onNodeClick}
+              />
+            ) : (
+              <Grid hasGutter>
+                <GridItem span={12} rowSpan={12}>
+                  <Spinner size="md" />
+                </GridItem>
+              </Grid>
+            )}
+          </GridItem>
+        </Grid>
       </PageSection>
     </React.Fragment>
   );

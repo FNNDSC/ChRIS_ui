@@ -1,6 +1,6 @@
 import React from "react";
 import { Steps } from "antd";
-import { Spinner, GridItem, Grid } from "@patternfly/react-core";
+import { Spinner, GridItem, Grid,Title } from "@patternfly/react-core";
 import ReactJSON from "react-json-view";
 import "antd/dist/antd.css";
 import "../../explorer/file-detail.scss";
@@ -21,22 +21,12 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
 }) => {
   const [logs, setLogs] = React.useState({});
   const [logTitle, setLogTitle] = React.useState("");
-  const [currentStep, setCurrentStep] = React.useState("");
-  const [logError, setLogError] = React.useState(false);
+ 
 
   const src: Logs | undefined = pluginLog;
   let pluginLogs: LogStatus = {};
 
-  React.useEffect(() => {
-    if (currentStep && src && src.info) {
-      const currentLog = pluginLogs[currentStep];
-      if (currentLog && !isEmpty(currentLog)) {
-        setLogs(pluginLogs[currentStep]);
-      } else {
-        setLogs({});
-      }
-    }
-  }, [src]);
+ 
 
   if (src && src.info) {
     pluginLogs["pushPath"] = src.info.pushPath.return;
@@ -47,25 +37,16 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
   }
 
   const handleClick = (step: string, title: string) => {
-    let currentLog = pluginLogs[step];
-    if (currentLog && !isEmpty(currentLog)) {
-      setLogs(currentLog);
-      setCurrentStep(step);
-      setLogTitle(title);
-      setLogError(false);
-    } else {
-      setLogs({});
-      setLogError(true);
-      setCurrentStep(step);
-      setLogTitle(title);
-    }
+    
   };
 
   if (pluginStatus && pluginStatus?.length > 0) {
     return (
-      <div className="file-browser">
-        <Grid>
-          <GridItem className="file-browser__steps" span={4} rowSpan={6}>
+        <Grid hasGutter className='file-browser'>
+          <GridItem span={12} rowSpan={2}>
+            <Title headingLevel="h2">Plugin Execution Status</Title>
+          </GridItem>
+          <GridItem className="file-browser__steps" span={6} rowSpan={10}>
             <Steps direction="vertical">
               {pluginStatus.map((label: any) => {
                 const currentDescription = displayDescription(label);
@@ -101,8 +82,8 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
           </GridItem>
           <GridItem
             className="file-browser__plugin-status"
-            span={8}
-            rowSpan={6}
+            span={6}
+            rowSpan={12}
           >
             <div className="header-panel">
               <h1>
@@ -112,7 +93,7 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
             </div>
             <div>
               {logs && (
-                <div className="json-display">
+                <div className="viewer-display">
                   <ReactJSON
                     name={false}
                     displayDataTypes={false}
@@ -130,7 +111,7 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
             </div>
           </GridItem>
         </Grid>
-      </div>
+     
     );
   }
   return <Spinner size="lg" />;
