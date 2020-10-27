@@ -1,16 +1,12 @@
 import React, {
-  createRef,
   RefObject,
   useEffect,
-  useState,
   useRef,
 } from "react";
-import * as d3 from "d3";
-import TreeModel, { ITreeChart } from "../../../api/models/tree.model";
-import TreeNodeModel, { INode } from "../../../api/models/tree-node.model";
+
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { getTreeItems, getFeedTree, TreeType } from "./utils";
-import { linkHorizontal, DefaultLinkObject, Link, tree } from "d3";
+import { getTreeItems, getFlattenedTree, TreeType } from "./utils";
+import {  tree ,select,linkVertical,stratify, selectAll } from "d3";
 //import './styles/FeedTree.scss'
 
 
@@ -32,58 +28,85 @@ const svgRef=useRef<SVGSVGElement>(null);
 
 useEffect(()=>{
 fetchTree(props.items) 
-},[props.items])
+},[props.items,props.selected])
 
 const fetchTree=(items:PluginInstance[])=>{
   if(!props.selected) return;
+  console.log("Props",props.items)
 
   if(!!treeRef.current && !!items && items.length>0){
-    const treeItems=getTreeItems(items)
-    const tree=getFeedTree(treeItems)
-
-    if(tree.length>0){
-      buildFeedTree(tree[0],treeRef)
+    
+  
+    if(props.items.length>0){
+      buildFeedTree(props.items,treeRef)
     }
   }
 }
 
-const buildFeedTree = (tree: TreeType, ref: RefObject<HTMLDivElement>) => {
-  let svg = d3
-    .select(svgRef.current)
-    .attr('width','500')
-    .attr('height','500')
-    
-  let d3TreeLayout = d3.tree();
-  d3TreeLayout.size([400,300]);
-  const root = d3.hierarchy(tree);
+const handleNodeClick=(node:any)=>{
+props.onNodeClick(node.data)
+}
+
+const buildFeedTree = (d3Tree:PluginInstance[], ref: RefObject<HTMLDivElement>) => {
+  let dimensions = { height: 300, width: 700 };
+  select('#tree').selectAll('svg').selectAll('g').remove();
+
+  let svg = select(svgRef.current)
+    .attr("width", `${dimensions.width + 100}`)
+    .attr("height", `${dimensions.height + 100}`);
+
+
+  const activeNode=d3Tree.find(node=>{
+    return node.data.id===props.selected.data.id
+  })
+
+  const errorNode=d3Tree.find(node=>{
+    return node.data.status==='finishedWithError'
+  })
+
+  
+
+  let graph = svg.append("g").attr("transform", "translate(50,50)");
+
+  graph.selectAll(".node").remove();
+  graph.selectAll(".link").remove();
+  const stratified = stratify().id((d:any)=>d.data.id).parentId((d:any)=>d.data.previous_id);
+  const root=stratified(d3Tree)
+  let d3TreeLayout = tree()
+  d3TreeLayout.size([dimensions.width, dimensions.height]);
   d3TreeLayout(root);
 
   let nodeRadius = 8;
 
   // Nodes
-  svg
+  graph
     .selectAll(".node")
     .data(root.descendants())
     .join((enter) => enter.append("circle").attr("opacity", 0))
+    .on('click',handleNodeClick)
     .attr("class", "node")
+  
+    .attr('id',(d:any)=>{
+      
+      return `node_${d.data.data.id}`
+    })
     .attr("r", nodeRadius)
     .attr("fill", "#fff")
     .attr("cx", (node: any) => node.x)
     .attr("cy", (node: any) => node.y)
-    .attr("opacity", 0)
-    .transition()
-    .duration(100)
-    .delay((node) => node.depth * 200)
-    .attr("opacity", 1);
+    .attr("opacity", 1)
+    
+    
+    
 
-  const linkGenerator = d3
-    .linkVertical()
+  const linkGenerator =
+    linkVertical()
     .x((node: any) => node.x)
     .y((node: any) => node.y);
 
   // Links
 
-  svg
+  graph
     .selectAll(".link")
     .data(root.links())
     .join("path")
@@ -99,33 +122,45 @@ const buildFeedTree = (tree: TreeType, ref: RefObject<HTMLDivElement>) => {
       // @ts-ignore
       return this.getTotalLength();
     })
-    .transition()
-    .duration(100)
-    .delay((linkObj) => linkObj.source.depth * 200)
-    .attr("stroke-dashoffset", 0)
+   .attr("stroke-dashoffset", 0)
     .attr("class", "link")
-    .attr("fill", "node")
-    .attr("stroke", "white");
+    .attr("fill", "none")
+    .attr('stroke-width',2)
+    .attr("stroke", "white")
+    .attr('opacity',1);
 
   // labels
 
-  svg
+  graph
     .selectAll(".label")
     .data(root.descendants())
     .join("text")
     .attr("class", "label")
-    .text((node) => node.data.name)
+    .text((node:any) => node.data.data.plugin_name)
     .attr("transform", (d: any) => {
       return `translate(${d.x - nodeRadius * 4}, ${d.y + nodeRadius * 4} )`;
     })
     .attr("fill", "#fff")
     .attr("font-size", 14)
     .attr("font-weight", "bold")
-    .attr("opacity", 0)
-    .transition()
-    .duration(100)
-    .delay((node) => node.depth * 200)
     .attr("opacity", 1);
+
+
+    if (activeNode) {
+        const d3activeNode = select(`#node_${activeNode.data.id}`);
+        if (!!d3activeNode && !d3activeNode.empty()) {
+          d3activeNode.attr("class", "node active");
+        }
+      }
+
+  if(errorNode){
+    const d3errorNode=select(`#node_${errorNode.data.id}`)
+    if(!!d3errorNode && !d3errorNode.empty()){
+      d3errorNode.attr('class','node error')
+    }
+  }
+
+    
 };
 
 

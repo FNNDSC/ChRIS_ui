@@ -225,14 +225,18 @@
   fill: $tree-node-backgound;
   font-size: 0.75rem;
 }
-.nodegroup {
+.node {
   cursor: pointer;
+
   fill: $tree-node-backgound;
   &.active {
     fill: $tree-node-active-backgound;
-    .nodelabel {
+    .label {
       fill: $tree-node-active-backgound;
     }
+  }
+  &.error{
+    fill:#C9190B;
   }
 }
 // For tree tooltip
