@@ -116,10 +116,8 @@
 }
 
 .feed-view {
-  min-height: 25vh; // Temp for dev
-  > div {
-    color: #fff;
-  }
+ 
+ 
   // Left side panel displaying feed tree
   .feed-block {
     background: $feed-block-background;
@@ -291,6 +289,8 @@
     margin-top: 0 !important;
   }
 }
+
+
 
 
 

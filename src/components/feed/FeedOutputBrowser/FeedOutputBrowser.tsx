@@ -122,19 +122,26 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   };
 
   return (
-    <div className="feed-output-browser">
-      <Title
-        style={{
-          marginBottom: "1rem",
-          marginLeft: "1rem",
-        }}
-        headingLevel="h1"
-        size={TitleSizes.lg}
-      >
-        Feed Output Browser
-      </Title>
-      <Grid hasGutter>
-        <GridItem className="feed-output-browser__sidebar" span={2}>
+    <>
+      <Grid hasGutter className="feed-output-browser">
+        <GridItem span={12} rowSpan={2}>
+          <Title
+            style={{
+              marginBottom: "1rem",
+              marginLeft: "1rem",
+            }}
+            headingLevel="h1"
+            size={TitleSizes.lg}
+          >
+            Feed Output Browser
+          </Title>
+        </GridItem>
+
+        <GridItem
+          className="feed-output-browser__sidebar"
+          rowSpan={12}
+          span={2}
+        >
           <ul className="sidebar">
             {plugins ? (
               plugins
@@ -148,52 +155,64 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           </ul>
         </GridItem>
 
-        <GridItem className="feed-output-browser__main" span={10}>
-          <div className="file-browser-header">
-            <div className="file-browser-header_container">
-              <Title headingLevel="h1" size="2xl" className="plugin-name">
-                {pluginDisplayName}
-              </Title>
-              <span className="plugin-id">
-                ID: {selected && selected.data.id}
-              </span>
-              {selectedFiles && (
-                <div className="files-info">
-                  {selectedFiles.length} files
-                  <Button
-                    className="download-all-button"
-                    variant="secondary"
-                    onClick={downloadAllClick}
-                  >
-                    <DownloadIcon />
-                    Download All
-                  </Button>
+        <GridItem className="feed-output-browser__main" span={10} rowSpan={12}>
+          <Grid>
+            <GridItem span={12} rowSpan={2}>
+              <div className="file-browser-header">
+                <div className="file-browser-header_container">
+                  <Title headingLevel="h1" size="2xl" className="plugin-name">
+                    {pluginDisplayName}
+                  </Title>
+                  <span className="plugin-id">
+                    ID: {selected && selected.data.id}
+                  </span>
+                  {selectedFiles && (
+                    <div className="files-info">
+                      {selectedFiles.length} files
+                      <Button
+                        className="download-all-button"
+                        variant="secondary"
+                        onClick={downloadAllClick}
+                      >
+                        <DownloadIcon />
+                        Download All
+                      </Button>
+                    </div>
+                  )}
                 </div>
+              </div>
+            </GridItem>
+
+            <GridItem span={12} rowSpan={10}>
+              {selected &&
+              selected.data.status === "finishedSuccessfully" &&
+              tree ? (
+                <FileBrowser
+                  pluginName={pluginName}
+                  root={tree}
+                  key={selected.data.id}
+                  handleFileBrowserToggle={handleFileBrowserOpen}
+                  handleFileViewerToggle={handleFileViewerOpen}
+                />
+              ) : selected?.data.status === "finishedSuccessfully" && !tree ? (
+                <GridItem span={12} rowSpan={12}>
+                  <Spinner size="md" />
+                </GridItem>
+              ) : (
+                <PluginStatus
+                  pluginStatus={pluginStatus}
+                  pluginLog={pluginLog}
+                />
               )}
-            </div>
-          </div>
-          {selected &&
-          selected.data.status === "finishedSuccessfully" &&
-          tree ? (
-            <FileBrowser
-              pluginName={pluginName}
-              root={tree}
-              key={selected.data.id}
-              handleFileBrowserToggle={handleFileBrowserOpen}
-              handleFileViewerToggle={handleFileViewerOpen}
-            />
-          ) : selected?.data.status === "finishedSuccessfully" && !tree ? (
-            <Spinner size="md" />
-          ) : (
-            <PluginStatus pluginStatus={pluginStatus} pluginLog={pluginLog} />
-          )}
+            </GridItem>
+          </Grid>
         </GridItem>
       </Grid>
       <PluginViewerModal
         isModalOpen={pluginModalOpen}
         handleModalToggle={handlePluginModalClose}
       />
-    </div>
+    </>
   );
 };
 
