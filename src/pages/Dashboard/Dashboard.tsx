@@ -15,26 +15,27 @@ class DashboardPage extends React.Component<AllProps> {
     return (
       <>
         <span
-        style={{
-          marginBottom:'0.5rem',
-          fontSize:'24px',
-          display:'block'
-        }}>
+          style={{
+            marginBottom: "0.5rem",
+            fontSize: "24px",
+            display: "block",
+          }}
+        >
           Welcome to ChRIS UI's Dashboard
         </span>
         <Badge
           style={{
             marginRight: "1rem",
-            display:'inline-block'
+            display: "inline-block",
           }}
           key={4}
         >
-          <span>Version: 1.0.0</span>
+          <span>Version: 1.0.1</span>
         </Badge>
         <Badge key={3}>
           <span>
-            Latest update: <Moment
-            format="DD MMM YYYY">{`2020-10-27`}</Moment>
+            Latest update:{" "}
+            <Moment format="DD MMM YYYY @ HH:mm">{`2020-10-28T01:45:14.297464-04:00`}</Moment>
           </span>
         </Badge>
       </>

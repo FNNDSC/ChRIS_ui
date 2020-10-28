@@ -74,6 +74,7 @@ class FeedDetails extends React.Component<AllProps, INoteState> {
   render() {
     const { feed } = this.props;
     const { feedDescription } = this.state;
+    console.log("Feed", feed);
 
     return (
       <div className="feed-details">
