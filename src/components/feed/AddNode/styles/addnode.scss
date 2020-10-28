@@ -30,6 +30,7 @@
 .plugin-select {
   color: black !important;
   border: 1px solid #f1f1f1;
+  
   box-shadow: none;
   .pf-c-accordion__toggle,
   .pf-c-accordion__expanded-content-body {
@@ -48,6 +49,11 @@
     }
   }
 
+  #recent-toggle{
+    margin-top:10px!important;
+    margin-bottom:10px!important;
+  }
+
   #all-content,
   #recent-content {
     margin-left: 15px;
@@ -63,6 +69,7 @@
     max-height: 250px;
     overflow: auto;
     padding-right: 10px;
+    margin-top:10px;
   }
 
   .plugin-list-filter {

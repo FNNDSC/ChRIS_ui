@@ -45,13 +45,11 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
           style={{
             fontSize: "16px",
           }}
-          collapsed={true}
+          collapsed={false}
         />
-      ):(
-        <div>
-        </div>
-      )
-    }
+      ) : (
+        <div></div>
+      )}
     </>
   );
 };

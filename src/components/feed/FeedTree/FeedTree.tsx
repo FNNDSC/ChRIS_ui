@@ -146,7 +146,13 @@ const handleNodeClick = (node: any) => {
 
 
 return (
-  <div ref={treeRef} id="tree">
+  <div
+    style={{
+      textAlign: "center",
+    }}
+    ref={treeRef}
+    id="tree"
+  >
     <svg className="svg-content" ref={svgRef}></svg>
   </div>
 );
