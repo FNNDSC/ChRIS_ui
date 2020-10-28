@@ -80,61 +80,61 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     });
   }
 
-  
   getCurrentTitleFromStatus(statusLabels: PluginStatus[]) {
-    
+    const currentTitle = statusLabels
+      .map((label) => {
+        const computedTitle = displayDescription(label);
+        if (computedTitle) {
+          switch (computedTitle) {
+            case "Transmitting data to compute environment":
+              return (
+                <>
+                  <CloudUploadAltIcon />
+                  <span>Transmitting Data</span>
+                </>
+              );
+            case "Setting compute environment":
+              return (
+                <>
+                  <DockerIcon />
+                  <span>Setting Compute Environment</span>
+                </>
+              );
 
-    const currentTitle=statusLabels.map((label)=>{
-      const computedTitle=displayDescription(label)
-      if(computedTitle){
-        switch(computedTitle){
-          case 'Transmitting data to compute environment':
-            return (
-              <>
-                <CloudUploadAltIcon />
-                <span>Transmitting Data</span>
-              </>
-            );
-           case 'Setting compute environment': return (
-             <>
-               <DockerIcon />
-               <span>Setting Compute Environment</span>
-             </>
-           );
+            case "Computing":
+              return (
+                <>
+                  <ServicesIcon />
+                  <span>Computing</span>
+                </>
+              );
 
-           case 'Computing': return (
-             <>
-               <ServicesIcon />
-               <span>Computing</span>
-             </>
-           );
+            case "Syncing data from compute environment":
+              return (
+                <>
+                  <MixcloudIcon />
+                  <span>Syncing Data</span>
+                </>
+              );
 
-           case 'Syncing data from compute environment': return (
-             <>
-               <MixcloudIcon />
-               <span>Syncing Data</span>
-             </>
-           );
-
-           case 'Finishing up': return (
-             <>
-               <StorageDomainIcon />
-               <span>Finishing up</span>
-             </>
-           );
+            case "Finishing up":
+              return (
+                <>
+                  <StorageDomainIcon />
+                  <span>Finishing up</span>
+                </>
+              );
+          }
         }
-      }
-      return computedTitle;
-    }).filter((title)=>title!==undefined)
+        return computedTitle;
+      })
+      .filter((title) => title !== undefined);
     return currentTitle[0];
   }
 
-
   getCommand(plugin: Plugin, params: PluginInstanceParameter[]) {
     const { dock_image, selfexec } = plugin.data;
-    let command = `
-    docker run -v $(pwd)/in:/incoming -v 
-    $(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
+    let command = `docker run -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
 
     if (params.length) {
       command +=
@@ -299,14 +299,16 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
 
         <br />
         <br />
-        <label>Actions:</label>
+      
         <div className="btn-div">
           <AddNode />
         </div>
 
         <br />
         <br />
-        <label>Plugin output may be viewed below.</label>
+        <label style={{ color: "white", fontWeight:'bold' }}>
+          Plugin output may be viewed below.
+        </label>
       </React.Fragment>
     );
   }

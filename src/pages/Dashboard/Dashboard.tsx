@@ -21,7 +21,7 @@ class DashboardPage extends React.Component<AllProps> {
             display: "block",
           }}
         >
-          Welcome to ChRIS UI's Dashboard
+          Welcome to the ChRIS UI Dashboard
         </span>
         <Badge
           style={{
@@ -30,12 +30,12 @@ class DashboardPage extends React.Component<AllProps> {
           }}
           key={4}
         >
-          <span>Version: 1.0.1</span>
+          <span>Version: 1.0.2</span>
         </Badge>
         <Badge key={3}>
           <span>
             Latest update:{" "}
-            <Moment format="DD MMM YYYY @ HH:mm">{`2020-10-28T01:45:14.297464-04:00`}</Moment>
+            <Moment format="DD MMM YYYY @ HH:mm">{`2020-10-28T14:15:14.297464-04:00`}</Moment>
           </span>
         </Badge>
       </>
