@@ -200,8 +200,10 @@
 
 .feed-output-browser .file-browser  {
   // Table Layout Resets
+  
 
   &__table{
+    overflow-y:scroll;
     height:100vh;
      td,
      th {
