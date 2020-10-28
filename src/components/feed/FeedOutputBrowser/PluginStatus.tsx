@@ -1,6 +1,6 @@
 import React from "react";
 import { Steps } from "antd";
-import { Spinner, GridItem, Grid,Title } from "@patternfly/react-core";
+import { Spinner, GridItem, Grid,Title,Alert } from "@patternfly/react-core";
 import ReactJSON from "react-json-view";
 import "antd/dist/antd.css";
 import "../../explorer/file-detail.scss";
@@ -8,19 +8,29 @@ import { displayDescription } from "./utils";
 import {
   PluginStatusProps,
   Logs,
-  LogStatus,
+LogStatus
 } from "./types";
 import { isEmpty } from "lodash";
 import classNames from "classnames";
+import LogTabs from "./LogTabs";
+import LogTerminal from './LogTerminal'
 
 const { Step } = Steps;
+
+type ComputeLog = {
+  d_ret?: {
+    l_logs?: string[];
+  };
+};
 
 const PluginStatus: React.FC<PluginStatusProps> = ({
   pluginStatus,
   pluginLog,
 }) => {
   const [logs, setLogs] = React.useState({});
-  const [logTitle, setLogTitle] = React.useState("");
+  const [activeKey, setActiveKey] = React.useState<React.ReactText>(0);
+  const [computeLog,setComputeLog]=React.useState<string>("")
+  const [step,setCurrentStep]=React.useState('')
 
   const src: Logs | undefined = pluginLog;
   let pluginLogs: LogStatus = {};
@@ -33,19 +43,58 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
     pluginLogs["swiftPut"] = src.info.swiftPut.return;
   }
 
-  const handleClick = (step: string, title: string) => {
-    let currentLog  =  pluginLogs[step];
-    if(currentLog){
-      setLogs(currentLog);
-      setLogTitle(title)
+  React.useEffect(()=>{
+    let computeLog: string | undefined = "";
+    if (step === "computeReturn" && activeKey === 1) {
+      let currentLog: ComputeLog = pluginLogs[step];
+      computeLog =
+        currentLog.d_ret &&
+        currentLog.d_ret.l_logs &&
+        currentLog.d_ret.l_logs[0];
+
+      if (computeLog) setComputeLog(computeLog);
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[pluginLog,step])
+
+  const handleClick = (step: string, title: string) => {
+    let currentLog = pluginLogs[step];
+    let computeLog:string|undefined=''
+    if (step === "computeReturn") {
+      let currentLog: ComputeLog = pluginLogs[step];
+      computeLog=currentLog.d_ret &&
+          currentLog.d_ret.l_logs &&
+          currentLog.d_ret.l_logs[0]
+      if(computeLog)
+      setComputeLog(computeLog) 
+    }
+    else{
+      setComputeLog('')
+    }
+    if(currentLog){
+      setLogs(currentLog)
+    }
+    setCurrentStep(step)
+    
+    
   };
+
+  const handleActiveKey = (activeKey: React.ReactText) => {
+    setActiveKey(activeKey);
+  };
+
+  
 
   if (pluginStatus && pluginStatus?.length > 0) {
     return (
       <Grid hasGutter className="file-browser">
         <GridItem span={12} rowSpan={2}>
-          <Title headingLevel="h4">Plugin Execution Status:</Title>
+          <Title
+          style={{
+            marginBottom:'1em'
+          }}
+          headingLevel="h4">Plugin Execution Status:</Title>
         </GridItem>
         <GridItem className="file-browser__steps" span={6} rowSpan={12}>
           <Steps direction="vertical">
@@ -81,45 +130,54 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
             })}
           </Steps>
         </GridItem>
-        {!isEmpty(logs) ? (
-          <GridItem
+        <GridItem
             className="file-browser__plugin-status"
             span={6}
             rowSpan={12}
           >
-            <div className="header-panel">
-              <h1>{`Showing logs for ${logTitle} :`}</h1>
-            </div>
+            <LogTabs activeKey={activeKey} setActiveKey={handleActiveKey}/>
+            {
+            activeKey===0 && !isEmpty(logs)?
             <div className="viewer-display">
-                <ReactJSON
-                  name={false}
-                  displayDataTypes={false}
-                  style={{
-                    fontSize: "16px",
-                  }}
-                  displayObjectSize={false}
-                  src={logs}
-                  indentWidth={4}
-                  collapsed={false}
-                />              
+              <ReactJSON
+                name={false}
+                displayDataTypes={false}
+                style={{
+                  fontSize: "16px",
+                }}
+                displayObjectSize={false}
+                src={logs}
+                indentWidth={4}
+                collapsed={false}
+              />
             </div>
+            :
+              activeKey===1 && !computeLog ?
+              <div className="viewer-display">
+              <Alert variant="info" title="The terminal feature is only available for the compute logs"/>
+              </div>: 
+              activeKey===1 && computeLog ? 
+              <div className='viewer-display'>
+               <LogTerminal text={computeLog}/>
+              </div> 
+              :<div className="viewer-display">
+                <Alert
+                style={{
+                  marginTop:'1rem'
+                }}
+                variant='info' title="Logs are not available at the moment. Please click on the step to fetch logs in a few minutes"/>
+              </div>
+            }
           </GridItem>
-        ) : (
-          <GridItem
-            className="file-browser__plugin-status"
-            span={6}
-            rowSpan={12}
-          >
-            <div className="viewerDisplay"></div>
-          </GridItem>
-        )}
-      </Grid>
+         </Grid>
     );
   }
   return (
     <Grid>
       <GridItem span={12} rowSpan={2}>
-        <Title headingLevel="h4">Plugin Execution Status</Title>
+        <Title style={{
+          marginBottom:'1rem'
+        }} headingLevel="h4">Plugin Execution Status</Title>
       </GridItem>
       <GridItem span={12} rowSpan={12}>
         <Spinner size="lg" />
