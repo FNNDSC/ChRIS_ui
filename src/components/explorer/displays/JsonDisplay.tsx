@@ -35,8 +35,8 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   getBlobText();
 
   return (
-    <div className="json-display">
-      {blobText && (
+    <>
+      {blobText ? (
         <ReactJSON
           name={false}
           displayDataTypes={false}
@@ -47,8 +47,12 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
           }}
           collapsed={true}
         />
-      )}
-    </div>
+      ):(
+        <div>
+        </div>
+      )
+    }
+    </>
   );
 };
 

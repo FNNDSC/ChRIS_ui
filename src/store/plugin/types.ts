@@ -5,14 +5,24 @@
  *  Notes:           .
  */
 import keyMirror from "keymirror";
-
 import { PluginParameter } from "@fnndsc/chrisapi";
+
+
+export interface PluginStatus {
+  step: string;
+  status: boolean;
+  id: number;
+  previous: string;
+  title: string;
+  previousComplete: boolean;
+}
 
 export interface IPluginState {
   parameters?: PluginParameter[];
   pluginFiles?: {};
-  pluginStatus?: string;
+  pluginStatus?:PluginStatus[],
   pluginLog?: {};
+  computeError?: boolean;
 }
 
 export const PluginActionTypes = keyMirror({
@@ -30,5 +40,6 @@ export const PluginActionTypes = keyMirror({
   GET_PLUGIN_LOG: null,
   GET_PARAMS: null,
   GET_PARAMS_SUCCESS: null,
+  GET_COMPUTE_ERROR_SUCCESS: null,
   STOP_POLLING: null,
 });

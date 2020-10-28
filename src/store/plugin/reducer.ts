@@ -1,12 +1,14 @@
 import { Reducer } from "redux";
+import { getStatusLabels } from "../../components/feed/FeedOutputBrowser/utils";
 import { PluginActionTypes, IPluginState } from "./types";
 
 // Type-safe initialState
 const initialState: IPluginState = {
   pluginFiles: {},
   parameters: [],
-  pluginStatus: "",
+  pluginStatus:  [],
   pluginLog: {},
+  computeError: false,
 };
 
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {
@@ -31,9 +33,33 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
     }
 
     case PluginActionTypes.GET_PLUGIN_STATUS: {
+      let pluginStatus;
+      let status;
+
+      if(action.payload){
+        pluginStatus = JSON.parse(action.payload);
+        status = getStatusLabels(pluginStatus);
+      }
+      
       return {
         ...state,
-        pluginStatus: action.payload,
+        pluginStatus:status,
+      };
+    }
+
+    case PluginActionTypes.STOP_POLLING:{
+      return {
+        ...state,
+        computeError:false
+      }
+    }
+
+
+    case PluginActionTypes.GET_COMPUTE_ERROR_SUCCESS: {
+     
+      return {
+        ...state,
+        computeError: action.payload,
       };
     }
 
@@ -43,13 +69,15 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
         pluginLog: action.payload,
       };
     }
+    
 
     case PluginActionTypes.RESET_PLUGIN_STATE: {
       return {
         ...state,
         pluginFiles: {},
-        pluginStatus: "",
+        pluginStatus: undefined,
         pluginLog: {},
+        computeError:false
       };
     }
 

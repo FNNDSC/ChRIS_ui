@@ -181,9 +181,7 @@
   }
 }
 
-.file-list-wrap {
-  max-width: 60%;
-}
+
 
 .review {
   .tag {
@@ -316,3 +314,20 @@
     margin-top: 3em;
   }
 }
+
+
+
+.file-preview{
+    margin-top: 5px;
+  }
+ .trash-icon, .file-icon{
+      font-weight: 900;
+      color: #06c ;
+      margin-right:5px;
+      margin-left:5px 
+  }
+  .file-name{
+      font-size: 0.9rem;
+      font-weight:300;
+      letter-spacing: 0.025rem;
+  }

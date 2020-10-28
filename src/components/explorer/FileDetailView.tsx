@@ -46,10 +46,12 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         const viewerName = fileViewerMap[this.state.fileType];
 
         return (
-          <div className={viewerName ? viewerName.toLowerCase() : ""}>
+          <>
             {this.renderHeader()}
-            <ViewerDisplay tag={viewerName} fileItem={this.state} />
-          </div>
+            <div className="viewer-display">
+              <ViewerDisplay tag={viewerName} fileItem={this.state} />
+            </div>
+          </>
         );
       }
     };
@@ -60,12 +62,12 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
   renderHeader() {
     const { selectedFile } = this.props;
     return (
-      <div className="header-panel">
-        {this.renderDownloadButton()}
-        <h1>
-          File Preview: <b>{selectedFile.module}</b>
-        </h1>
-      </div>
+        <div className="header-panel">
+          {this.renderDownloadButton()}
+          <h1>
+            File Preview: <b>{selectedFile.module}</b>
+          </h1>
+        </div>
     );
   }
 
@@ -96,7 +98,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const { fullScreenMode } = this.props;
 
     return (
-      <div className="float-right">
+      <>
         {fullScreenMode === true && (
           <Button
             variant="link"
@@ -131,7 +133,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         >
           <DownloadIcon />
         </Button>
-      </div>
+      </>
     );
   };
 
