@@ -257,6 +257,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
         <GridItem className="file-browser__table" span={6} rowSpan={12}>
           <Table
             aria-label="feed-browser-table"
+            variant={TableVariant.compact}
             caption="files"
             cells={cols}
             rows={rows}
