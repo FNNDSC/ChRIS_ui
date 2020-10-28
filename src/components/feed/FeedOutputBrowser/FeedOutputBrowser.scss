@@ -20,13 +20,7 @@
   padding: 24px + 6px 0 6px !important;
 }
 
-.file-browser {
-  
-  &__step,
-  &__step-title {
-    cursor: pointer;
-  }
-}
+
 
 .divider {
   width: 2px;
@@ -73,6 +67,13 @@
 
   &__sidebar {
     width:100%;
+    height:$fe-viewer-min-heigth; 
+
+  }
+
+  &__main {
+    width: 100%;
+    height:$fe-viewer-min-heigth
   }
 
 
@@ -184,27 +185,26 @@
     border: solid 1px $fe-viewer-border;
     border-radius: 4px;
     overflow-y: auto;
-    max-height: $fe-viewer-min-heigth;
-    
-  }
+   }
 
-  &__empty-log{
-     max-height: $fe-viewer-min-heigth;
+  &__lazyLog, &__spinner-status, &__empty-log, &__plugin-status, &__previewTab, &__steps,  &__detail, &__table {
+     height: $fe-viewer-min-heigth;
+     width:100%;
+  }
+  
+  &__step,
+  &__step-title {
+    cursor: pointer;
   }
 }
 
 
-
-
-
-
 .feed-output-browser .file-browser  {
   // Table Layout Resets
-  
 
   &__table{
     overflow-y:scroll;
-    height:100vh;
+   
      td,
      th {
     padding-left: 3px;
@@ -229,6 +229,7 @@
   }
     
   }
+
  
 
   .file-name {
@@ -252,9 +253,7 @@
   }
 }
 
-.viewer-display {
-    width: 100%;
-    height:100vh;
+.viewer-display { 
     background: $fe-viewer-background;
     border: solid 1px $fe-viewer-border;
     border-radius: 4px;   

@@ -31,12 +31,17 @@ class BasicConfiguration extends React.Component<
         <h1 className="pf-c-title pf-m-2xl">Plugin Selection</h1>
         <FormGroup label="Parent node:" fieldId="parent-node">
           <TextInput
+            style={{
+              letterSpacing: "0.02em",
+              fontSize: "18px",
+            }}
             value={parent.data.plugin_name}
             aria-label="Selected Plugin Name"
           />
         </FormGroup>
 
-        <FormGroup label="Select plugin to add:" fieldId="plugin">
+        <FormGroup
+        label="Select plugin to add:" fieldId="plugin">
           <PluginSelect
             selected={selectedPlugin}
             handlePluginSelect={handlePluginSelect}

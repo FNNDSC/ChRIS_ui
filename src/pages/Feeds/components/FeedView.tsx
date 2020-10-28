@@ -128,7 +128,7 @@ export const _FeedView: React.FC<FeedViewProps> = ({
                 handlePluginSelect={onNodeClick}
               />
             ) : (
-              <Grid hasGutter>
+              <Grid className="grid-spinner" hasGutter>
                 <GridItem span={12} rowSpan={12}>
                   <Spinner size="md" />
                 </GridItem>

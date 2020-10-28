@@ -47,10 +47,11 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
     let computeLog: string | undefined = "";
     if (step === "computeReturn" && activeKey === 1) {
       let currentLog: ComputeLog = pluginLogs[step];
+      if(currentLog){
       computeLog =
-        currentLog.d_ret &&
-        currentLog.d_ret.l_logs &&
-        currentLog.d_ret.l_logs[0];
+       currentLog.d_ret && currentLog.d_ret.l_logs && currentLog.d_ret.l_logs[0];
+      }
+      
 
       if (computeLog) setComputeLog(computeLog);
     }
@@ -96,7 +97,7 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
           }}
           headingLevel="h4">Plugin Execution Status:</Title>
         </GridItem>
-        <GridItem className="file-browser__steps" span={6} rowSpan={12}>
+        <GridItem className="file-browser__steps" span={4} rowSpan={12}>
           <Steps direction="vertical">
             {pluginStatus.map((label: any) => {
               const currentDescription = displayDescription(label);
@@ -122,8 +123,7 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
                     label.error
                       ? "error"
                       : label.status === true
-                      ? "finish"
-                      : "wait"
+                      ? "finish": 'process'
                   }
                 />
               );
@@ -132,7 +132,7 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
         </GridItem>
         <GridItem
             className="file-browser__plugin-status"
-            span={6}
+            span={8}
             rowSpan={12}
           >
             <LogTabs activeKey={activeKey} setActiveKey={handleActiveKey}/>
@@ -174,12 +174,12 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
   }
   return (
     <Grid>
-      <GridItem span={12} rowSpan={2}>
+      <GridItem className="file-browser__spinner-title" span={12} rowSpan={2}>
         <Title style={{
           marginBottom:'1rem'
         }} headingLevel="h4">Plugin Execution Status</Title>
       </GridItem>
-      <GridItem span={12} rowSpan={12}>
+      <GridItem className="file-browser__spinner-status" span={12} rowSpan={12}>
         <Spinner size="lg" />
       </GridItem>
     </Grid>

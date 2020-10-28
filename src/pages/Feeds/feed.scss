@@ -116,8 +116,10 @@
 }
 
 .feed-view {
- 
- 
+  width: 100%;
+  height:500px;
+
+
   // Left side panel displaying feed tree
   .feed-block {
     background: $feed-block-background;
