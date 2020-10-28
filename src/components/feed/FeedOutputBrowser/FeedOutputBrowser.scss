@@ -193,13 +193,20 @@
   }
 }
 
-.feed-output-browser .file-browser .file-list {
+
+
+
+
+
+.feed-output-browser .file-browser  {
   // Table Layout Resets
 
-  td,
-  th {
+  &__table{
+    height:100vh;
+     td,
+     th {
     padding-left: 3px;
-  }
+     }
 
   tbody tr {
     cursor: pointer;
@@ -215,11 +222,12 @@
     padding: 0;
   }
 
-  
-
   svg {
     color: var(--pf-global--primary-color--100);
   }
+    
+  }
+ 
 
   .file-name {
     padding: 7px 5px;

@@ -200,6 +200,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 </GridItem>
               ) : (
                 <PluginStatus
+                  selected={selected}
                   pluginStatus={pluginStatus}
                   pluginLog={pluginLog}
                 />

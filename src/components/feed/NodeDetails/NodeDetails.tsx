@@ -12,7 +12,6 @@ import {
 } from "@patternfly/react-core";
 import { Plugin, PluginInstanceParameter } from "@fnndsc/chrisapi";
 import {
-  ShareAltIcon,
   TerminalIcon,
   CaretDownIcon,
   CalendarDayIcon,
@@ -32,8 +31,7 @@ import {
 import { PluginInstance } from "@fnndsc/chrisapi";
 import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
 import AddNode from "../AddNode/AddNode";
-import { StepInterface } from "./Stepper";
-import { PluginStatusLabels } from "../FeedOutputBrowser/types";
+
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PluginStatus } from "../../../store/plugin/types";
@@ -184,7 +182,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
   };
 
   render() {
-    const { selected, pluginStatus, isComputeError } = this.props;
+    const { selected, pluginStatus } = this.props;
     const { params, plugin } = this.state;
     let runtime = this.calculateTotalRuntime();
 
