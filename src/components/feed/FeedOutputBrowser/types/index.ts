@@ -5,6 +5,7 @@ import { PluginStatus } from "../../../../store/plugin/types";
 export interface PluginStatusProps {
   pluginStatus?: PluginStatus[];
   pluginLog?: {};
+  selected?: PluginInstance;
 }
 
 export interface FeedOutputBrowserProps {

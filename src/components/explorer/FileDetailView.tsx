@@ -98,7 +98,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const { fullScreenMode } = this.props;
 
     return (
-      <div className="float-right">
+      <>
         {fullScreenMode === true && (
           <Button
             variant="link"
@@ -133,7 +133,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         >
           <DownloadIcon />
         </Button>
-      </div>
+      </>
     );
   };
 

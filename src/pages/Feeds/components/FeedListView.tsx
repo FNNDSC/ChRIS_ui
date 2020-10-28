@@ -148,7 +148,8 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   /* UI GENERATORS */
 
   generateTableRow(feed: Feed["data"]) {
-    const { descriptions } = this.state;
+    
+    console.log("Feed", feed);
 
     const name = {
       title: (

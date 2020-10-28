@@ -21,12 +21,9 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
 }) => {
   const [logs, setLogs] = React.useState({});
   const [logTitle, setLogTitle] = React.useState("");
- 
 
   const src: Logs | undefined = pluginLog;
   let pluginLogs: LogStatus = {};
-
- 
 
   if (src && src.info) {
     pluginLogs["pushPath"] = src.info.pushPath.return;
@@ -37,84 +34,98 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
   }
 
   const handleClick = (step: string, title: string) => {
-    
+    let currentLog  =  pluginLogs[step];
+    if(currentLog){
+      setLogs(currentLog);
+      setLogTitle(title)
+    }
   };
 
   if (pluginStatus && pluginStatus?.length > 0) {
     return (
-        <Grid hasGutter className='file-browser'>
-          <GridItem span={12} rowSpan={2}>
-            <Title headingLevel="h2">Plugin Execution Status</Title>
-          </GridItem>
-          <GridItem className="file-browser__steps" span={6} rowSpan={10}>
-            <Steps direction="vertical">
-              {pluginStatus.map((label: any) => {
-                const currentDescription = displayDescription(label);
-                return (
-                  <Step
-                    onClick={() => {
-                      handleClick(label.step, label.title);
-                    }}
-                    description={currentDescription}
-                    className={classNames("file-browser__step")}
-                    key={label.id}
-                    title={
-                      <span
-                        className="file-browser__step-title"
-                        onClick={() => {
-                          handleClick(label.step, label.title);
-                        }}
-                      >
-                        {label.title}
-                      </span>
-                    }
-                    status={
-                      label.error
-                        ? "error"
-                        : label.status === true
-                        ? "finish"
-                        : "wait"
-                    }
-                  />
-                );
-              })}
-            </Steps>
-          </GridItem>
+      <Grid hasGutter className="file-browser">
+        <GridItem span={12} rowSpan={2}>
+          <Title headingLevel="h4">Plugin Execution Status:</Title>
+        </GridItem>
+        <GridItem className="file-browser__steps" span={6} rowSpan={12}>
+          <Steps direction="vertical">
+            {pluginStatus.map((label: any) => {
+              const currentDescription = displayDescription(label);
+              return (
+                <Step
+                  onClick={() => {
+                    handleClick(label.step, label.title);
+                  }}
+                  description={currentDescription}
+                  className={classNames("file-browser__step")}
+                  key={label.id}
+                  title={
+                    <span
+                      className="file-browser__step-title"
+                      onClick={() => {
+                        handleClick(label.step, label.title);
+                      }}
+                    >
+                      {label.title}
+                    </span>
+                  }
+                  status={
+                    label.error
+                      ? "error"
+                      : label.status === true
+                      ? "finish"
+                      : "wait"
+                  }
+                />
+              );
+            })}
+          </Steps>
+        </GridItem>
+        {!isEmpty(logs) ? (
           <GridItem
             className="file-browser__plugin-status"
             span={6}
             rowSpan={12}
           >
             <div className="header-panel">
-              <h1>
-                {Object.keys(logs).length > 0 &&
-                  `Showing logs for ${logTitle} :`}
-              </h1>
+              <h1>{`Showing logs for ${logTitle} :`}</h1>
             </div>
-            <div>
-              {logs && (
-                <div className="viewer-display">
-                  <ReactJSON
-                    name={false}
-                    displayDataTypes={false}
-                    style={{
-                      fontSize: "16px",
-                    }}
-                    displayObjectSize={false}
-                    src={logs}
-                    collapsed={false}
-                    collapseStringsAfterLength={15}
-                    indentWidth={0}
-                  />
-                </div>
-              )}
+            <div className="viewer-display">
+                <ReactJSON
+                  name={false}
+                  displayDataTypes={false}
+                  style={{
+                    fontSize: "16px",
+                  }}
+                  displayObjectSize={false}
+                  src={logs}
+                  indentWidth={4}
+                  collapsed={false}
+                />              
             </div>
           </GridItem>
-        </Grid>
-     
+        ) : (
+          <GridItem
+            className="file-browser__plugin-status"
+            span={6}
+            rowSpan={12}
+          >
+            <div className="viewerDisplay"></div>
+          </GridItem>
+        )}
+      </Grid>
     );
   }
-  return <Spinner size="lg" />;
+  return (
+    <Grid>
+      <GridItem span={12} rowSpan={2}>
+        <Title headingLevel="h4">Plugin Execution Status</Title>
+      </GridItem>
+      <GridItem span={12} rowSpan={12}>
+        <Spinner size="lg" />
+      </GridItem>
+    </Grid>
+  );
 };
 
 /**

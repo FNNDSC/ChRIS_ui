@@ -254,10 +254,9 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
         <GridItem span={12} rowSpan={2}>
           <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
         </GridItem>
-        <GridItem className="file-browser__table" span={6} rowSpan={10}>
+        <GridItem className="file-browser__table" span={6} rowSpan={12}>
           <Table
             aria-label="feed-browser-table"
-            variant={TableVariant.compact}
             caption="files"
             cells={cols}
             rows={rows}
@@ -282,11 +281,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
             />
           </GridItem>
         ) : (
-          <GridItem
-            className="file-browser__previewTab  viewer-display"
-            span={6}
-            rowSpan={12}
-          >
+          <GridItem className="file-browser__previewTab" span={6} rowSpan={12}>
             <Alert
               style={{
                 width: "80%",
