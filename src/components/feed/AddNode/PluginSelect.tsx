@@ -90,7 +90,7 @@ class PluginSelect extends React.Component<
   constructor(props: PluginSelectProps) {
     super(props);
     this.state = {
-      expanded: "all",
+      expanded: "all-toggle",
     };
 
     this.handleAccordionToggle = this.handleAccordionToggle.bind(this);
@@ -176,7 +176,14 @@ class PluginSelect extends React.Component<
   }
 
   handleAccordionToggle(expanded: string) {
-    this.setState({ expanded });
+    if (expanded === this.state.expanded) {
+      this.setState({
+        expanded: "",
+      });
+    }
+    else{
+     this.setState({ expanded });
+    }  
   }
 
   render() {
@@ -185,17 +192,17 @@ class PluginSelect extends React.Component<
 
     return (
       <Accordion className="plugin-select">
-        <AccordionItem>
+        <AccordionItem >
           <AccordionToggle
-            onClick={() => this.handleAccordionToggle("recent")}
-            isExpanded={this.state.expanded === "recent"}
+            onClick={() => this.handleAccordionToggle("recent-toggle")}
+            isExpanded={this.state.expanded === "recent-toggle"}
             id="recent-toggle"
           >
             Recently Used Plugins
           </AccordionToggle>
           <AccordionContent
             id="recent-content"
-            isHidden={this.state.expanded !== "recent"}
+            isHidden={this.state.expanded !== "recent-toggle"}
           >
             <PluginList
               plugins={recentPlugins}
@@ -206,15 +213,15 @@ class PluginSelect extends React.Component<
         </AccordionItem>
         <AccordionItem>
           <AccordionToggle
-            onClick={() => this.handleAccordionToggle("all")}
-            isExpanded={this.state.expanded === "all"}
+            onClick={() => this.handleAccordionToggle("all-toggle")}
+            isExpanded={this.state.expanded === "all-toggle"}
             id="all-toggle"
           >
             All Plugins
           </AccordionToggle>
           <AccordionContent
             id="all-content"
-            isHidden={this.state.expanded !== "all"}
+            isHidden={this.state.expanded !== "all-toggle"}
           >
             <PluginList
               plugins={allPlugins}
