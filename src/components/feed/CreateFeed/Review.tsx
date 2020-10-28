@@ -4,14 +4,19 @@ import { CreateFeedContext } from "./context";
 import { FolderCloseIcon, FileIcon } from "@patternfly/react-icons";
 import { Split, SplitItem, Grid, GridItem } from "@patternfly/react-core";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
+import "./createfeed.scss";
 
 function generateFileList(files: any[], local: boolean) {
   return files.map((file) => {
     let icon =
       file.children && file.children.length > 0 ? ( // file is a ChrisFile folder
-        <FolderCloseIcon />
+        <span className="file-icon">
+          <FolderCloseIcon />
+        </span>
       ) : (
-        <FileIcon />
+        <span className="file-icon">
+          <FileIcon />
+        </span>
       );
     let name = local === true ? file.name : file.title;
     return (

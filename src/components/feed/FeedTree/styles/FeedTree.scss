@@ -1,0 +1,16 @@
+/*
+*  File:            FeedTree.scss
+*  Description:     This files holds styles specific for Feed Tree
+*  Author:          ChRIS UI
+*/
+
+@import "../../../../assets/scss/helpers/variables";
+
+
+
+.nodegroup{
+    cursor:pointer;
+    &.active {
+        fill:$tree-node-active-background
+    }
+}

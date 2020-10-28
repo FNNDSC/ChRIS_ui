@@ -1,8 +1,12 @@
 import React, { useState, useContext } from "react";
 import { CreateFeedContext } from "./context";
-import { Split, SplitItem } from "@patternfly/react-core";
+import { Grid, GridItem } from "@patternfly/react-core";
 import { EventDataNode, Key } from "rc-tree/lib/interface";
-import { FolderCloseIcon, FileIcon, CloseIcon } from "@patternfly/react-icons";
+import {
+  FolderCloseIcon,
+  FileIcon,
+  OutlinedTrashAltIcon,
+} from "@patternfly/react-icons";
 import { Tree } from "antd";
 import "antd/dist/antd.css";
 import {
@@ -93,21 +97,23 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
     const icon = isFolder ? <FolderCloseIcon /> : <FileIcon />;
 
     return (
-      <div className="File-preview" key={index}>
-        {icon}
+      <div className="file-preview" key={index}>
+        <span className="file-icon">{icon}</span>
         <span className="file-name">{file.title}</span>
-        <CloseIcon
-          className="file-remove"
-          onClick={() =>
-            dispatch({
-              type: Types.RemoveChrisFile,
-              payload: {
-                file,
-                checkedKeys,
-              },
-            })
-          }
-        />
+        <span className="trash-icon">
+          <OutlinedTrashAltIcon
+            className="file-remove"
+            onClick={() =>
+              dispatch({
+                type: Types.RemoveChrisFile,
+                payload: {
+                  file,
+                  checkedKeys,
+                },
+              })
+            }
+          />
+        </span>
       </div>
     );
   });
@@ -122,8 +128,8 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
         create a feed
       </p>
       <br />
-      <Split hasGutter={true}>
-        <SplitItem isFilled>
+      <Grid hasGutter={true}>
+        <GridItem span={6} rowSpan={12}>
           <DirectoryTree
             onExpand={onExpand}
             expandedKeys={expandedKeys}
@@ -135,12 +141,12 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
             treeData={tree}
             checkStrictly
           />
-        </SplitItem>
-        <SplitItem isFilled className="file-list-wrap">
+        </GridItem>
+        <GridItem span={6} rowSpan={12}>
           <p className="section-header">Files to add to new feed:</p>
           <div className="file-list">{fileList}</div>
-        </SplitItem>
-      </Split>
+        </GridItem>
+      </Grid>
     </div>
   );
 };

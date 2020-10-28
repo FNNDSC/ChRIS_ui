@@ -114,8 +114,8 @@ const SignUpForm=()=>{
             setLoading(false);
             setPasswordState({
               ...passwordState,
-              invalidText: "Password should be alteast 8 characters",
-              validated:'error'
+              invalidText: "Password should be at least 8 characters",
+              validated: "error",
             });
           }
         } else {
@@ -156,8 +156,8 @@ const SignUpForm=()=>{
           name="username"
           onChange={(value: string) =>
             setUserState({
-              invalidText:'',
-              validated:'default',
+              invalidText: "",
+              validated: "default",
               username: value,
             })
           }
@@ -182,9 +182,9 @@ const SignUpForm=()=>{
           name="email"
           onChange={(value: string) =>
             setEmailState({
-              invalidText:'',
-              validated:'default',
-              email:value,
+              invalidText: "",
+              validated: "default",
+              email: value,
             })
           }
         />
@@ -194,7 +194,7 @@ const SignUpForm=()=>{
         label="Password"
         isRequired
         fieldId="password"
-        helperText="Password should have atleast 8 characters"
+        helperText="Password should have at least 8 characters"
         helperTextInvalidIcon={<ExclamationCircleIcon />}
         helperTextInvalid={passwordState.invalidText}
         validated={passwordState.validated}
@@ -208,9 +208,9 @@ const SignUpForm=()=>{
           name="password"
           onChange={(value: string) =>
             setPasswordState({
-            invalidText:'',
-            validated:'default',
-            password: value,
+              invalidText: "",
+              validated: "default",
+              password: value,
             })
           }
         />

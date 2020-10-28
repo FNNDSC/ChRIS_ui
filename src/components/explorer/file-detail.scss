@@ -10,6 +10,8 @@
 
 // File detail view
 // -----------------------------------------------
+
+
 .output-viewer,
 .gallery-wrapper {
   .catchall {
@@ -24,31 +26,31 @@
     }
   }
   // Iframe to display the file contents
-  .default-display,
-  .json-display {
+  .default-display
+  {
     min-height: $fe-viewer-min-heigth;
   }
   .default-display {
     background: white;
     border: solid 1px $fe-viewer-border;
     border-radius: 4px;
-
     max-width: $fe-viewer-max-width-sm;
     iframe {
-      height: calc(100vh - 350px);
+      //height: calc(100vh - 350px);
+      min-height: $fe-viewer-min-heigth;
+      width: 100%;
       margin: 0 auto;
       padding: 5px;
-      width: 100%;
+      
     }
   }
-  .json-display {
-    background: $fe-viewer-background;
-    border: solid 1px $fe-viewer-border;
-    border-radius: 4px;
-    padding: 1rem;
-    max-height: $fe-viewer-min-heigth;
-  }
+ 
   // AMI / DCMDisplay
+
+  .dcm-display{
+    text-align:center;
+    max-width: $fe-viewer-max-width-sm;
+  }
 
   // Image display
   .image-block {
@@ -57,10 +59,8 @@
       max-height: $fe-viewer-min-heigth;
     }
   }
-  // File Detail view div
-  .iframedisplay .header-panel {
-    max-width: $fe-viewer-max-width-sm;
-  }
+ 
+
   .imagedisplay .image-block {
     text-align: left;
   }
@@ -72,3 +72,6 @@
     margin-bottom: 10px;
   }
 }
+
+
+

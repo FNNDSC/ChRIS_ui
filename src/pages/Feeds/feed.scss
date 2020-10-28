@@ -116,10 +116,8 @@
 }
 
 .feed-view {
-  min-height: 25vh; // Temp for dev
-  > div {
-    color: #fff;
-  }
+ 
+ 
   // Left side panel displaying feed tree
   .feed-block {
     background: $feed-block-background;
@@ -130,6 +128,7 @@
     background: $node-block-background;
     border-left: 3px solid $node-block-border;
     font-size: $plugin-data-font-size;
+    padding:1rem 1rem;
     div {
       color: #fff;
       label {
@@ -225,18 +224,22 @@
   fill: $tree-node-backgound;
   font-size: 0.75rem;
 }
-.nodegroup {
+.node {
   cursor: pointer;
+
   fill: $tree-node-backgound;
   &.active {
     fill: $tree-node-active-backgound;
-    .nodelabel {
+    .label {
       fill: $tree-node-active-backgound;
     }
   }
+  &.error{
+    fill:#C9190B;
+  }
 }
 // For tree tooltip
-#tree,
+
 #pipelineTree {
   position: relative;
 }
@@ -270,182 +273,7 @@
   }
 }
 
-/* INLINE FEED OUTPUT BROWSER */
 
-.feed-output-browser {
-  background: white;
-
-  header {
-    // "output browser" header
-    padding: 0 1rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid var(--pf-global--BorderColor--light-200);
-    padding-bottom: 10px;
-  }
-
-  .file-browser-header {
-    display: flex;
-    padding-right: 10px;
-    margin-bottom: 10px;
-    justify-content: space-between; // seperate name and download button
-
-    .plugin-name {
-      font-weight: bold;
-      display: inline-block;
-      margin-right: 10px;
-      padding: 0;
-      font-size: 30px;
-      
-    }
-
-    .plugin-id {
-      font-size: 15px;
-    }
-
-    .files-info {
-      position: relative;
-      bottom: 7px;
-      font-weight: 500;
-    }
-
-    .download-all-button {
-      --pf-c-button--BorderRadius: 5px;
-      --pf-c-button--BorderWidth: 2px;
-      margin-left: 10px;
-      svg {
-        // download icon
-        margin-right: 10px;
-      }
-    }
-  }
-  .sidebar {
-    margin-right: 20px;
-    margin-left: 1rem;
-
-    li {
-      padding: 5px 10px;
-      font-weight: normal;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .selected {
-      color: white;
-      background: var(--pf-global--primary-color--100);
-    }
-
-    svg {
-      color: #f7e0be;
-    }
-  }
-
-  .breadcrumb {
-    padding: 5px 10px;
-    cursor: pointer;
-    margin-right: 0 !important;
-    border: 1px solid #949494;
-    border-radius: 0;
-
-    &:first-child {
-      border-top-left-radius: 5px;
-      border-bottom-left-radius: 5px;
-    }
-
-    &:not(:first-child) {
-      border-left: 0;
-    }
-
-    &:last-child {
-      border-top-right-radius: 5px;
-      border-bottom-right-radius: 5px;
-      &:not(:only-child) {
-        color: white;
-        background: var(--pf-global--primary-color--100);
-      }
-    }
-
-    .pf-c-breadcrumb__item-divider {
-      display: none;
-    }
-  }
-}
-
-.feed-output-browser .file-browser {
-  // file list and file preview take up 50% width
-  // so that split doesn't change based on file size
-
-  &__flex {
-    display: flex !important;
-
-    &__item1 {
-      flex-basis: 650px;
-    }
-
-    &__item2 {
-      flex-grow: 1;
-      max-width: 50%;
-
-      &-json {
-        margin-top: 15px;
-      }
-    }
-  }
-
-  td {
-    font-size: 15px;
-    color: black;
-  }
-}
-
-.feed-output-browser .file-browser .file-list {
-  // Table Layout Resets
-
-  td,
-  th {
-    padding-left: 5px;
-  }
-
-  tbody tr {
-    cursor: pointer;
-  }
-
-  caption {
-    display: none;
-  }
-
-  td[data-label="Name"],
-  .td:last-child,
-  .download-file-icon {
-    // Name & download icon
-    padding: 0;
-  }
-
-  // Style
-
-  svg {
-    color: var(--pf-global--primary-color--100);
-  }
-
-  .file-name {
-    padding: 7px 5px;
-    border: 1px solid transparent;
-    border-radius: 5px;
-    outline: none;
-    cursor: pointer;
-
-    &.previewing {
-      background: var(--pf-global--primary-color--100);
-      color: white;
-      svg {
-        color: white;
-      }
-    }
-
-    &.path-selected {
-      border-color: var(--pf-global--primary-color--100);
-    }
-  }
-}
 
 /* PATH POPOVER */
 
@@ -462,3 +290,8 @@
     margin-top: 0 !important;
   }
 }
+
+
+
+
+

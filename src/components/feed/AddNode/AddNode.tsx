@@ -271,7 +271,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
     return (
       <React.Fragment>
-        <Button variant="primary" isBlock onClick={this.toggleOpen}>
+        <Button variant="primary" onClick={this.toggleOpen}>
           <InfrastructureIcon />
           Add a Node
         </Button>

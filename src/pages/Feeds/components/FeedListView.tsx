@@ -20,7 +20,7 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest } from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
-import { DataTableToolbar, LoadingSpinner } from "../../../components/index";
+import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
 import feedIcon from "../../../assets/images/bw-pipeline.svg";
@@ -148,15 +148,8 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   /* UI GENERATORS */
 
   generateTableRow(feed: Feed["data"]) {
-    const { descriptions } = this.state;
-
-    const feedDescription = descriptions[feed.id];
-    const namePopoverBody =
-      feedDescription !== undefined ? (
-        <span>{feedDescription || <i>No description</i>}</span>
-      ) : (
-        <LoadingSpinner isLocal size="sm" />
-      );
+    
+    console.log("Feed", feed);
 
     const name = {
       title: (
