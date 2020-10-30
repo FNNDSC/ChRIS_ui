@@ -1,0 +1,6 @@
+# https://create-react-app.dev/docs/deployment/#serving-apps-with-client-side-routing
+Options -MultiViews
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.html [QSA,L]
+
