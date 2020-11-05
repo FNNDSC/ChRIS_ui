@@ -7,7 +7,7 @@ import {
   StackItem,
 } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
-import { Types, EventNode, LocalFile } from "./types";
+import { Types} from "./types";
 import { CogsIcon } from "@patternfly/react-icons";
 
 interface FinishedStepProp {
@@ -16,10 +16,9 @@ interface FinishedStepProp {
 
 const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { feedProgress, value, selectedPlugin } = state;
+  const { feedProgress, value } = state;
 
-
-  const { chrisFiles, localFiles } = state.data;
+  
 
   React.useEffect(() => {
     createFeed();
@@ -31,25 +30,17 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const numberOfFiles = useMemo(() => {
-    return generateNumOfFiles(chrisFiles, localFiles);
-  }, [chrisFiles, localFiles]);
-
   return (
     <Stack>
       <StackItem>
         <div className="finished-step">
           <CogsIcon className="finished-step__icon" />
           <p className="finished-step__header pf-c-title pf-m-lg">
-            {value >= 100
+            {
+            value >= 100
               ? "You can safely close the wizard now."
-              : `Creating feed with ${
-                  numberOfFiles === 0
-                    ? selectedPlugin?.data.name
-                    : numberOfFiles > 1
-                    ? `${numberOfFiles} files`
-                    : "1 file"
-                }`}
+              : "Creating feed"
+            }
           </p>
         </div>
       </StackItem>
@@ -89,22 +80,3 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
 
 export default FinishedStep;
 
-const generateNumOfFiles = (
-  chrisFiles: EventNode[],
-  localFiles: LocalFile[]
-) => {
-  let fileLength: number = 0;
-  if (chrisFiles.length > 0) {
-    fileLength = chrisFiles.reduce((acc, file) => {
-      if (file.children && file.children?.length > 0) {
-        return (acc += file.children.length);
-      } else return (acc += 1);
-    }, 0);
-  }
-
-  if (localFiles.length > 0) {
-    fileLength += localFiles.length;
-  }
-
-  return fileLength;
-};

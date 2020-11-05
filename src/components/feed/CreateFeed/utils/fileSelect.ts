@@ -1,4 +1,5 @@
 import ChrisAPIClient from "../../../../api/chrisapiclient";
+import {Feed} from '@fnndsc/chrisapi'
 import { EventDataNode } from "rc-tree/lib/interface";
 import { DataBreadcrumb } from "../types";
 import _ from "lodash";
@@ -40,25 +41,25 @@ const setLeaf = (treeData: DataBreadcrumb[]) => {
 
 export const generateTreeNodes = async (
   treeNode: EventDataNode,
-  username:string
-
+  username:string,
+  
 ): Promise<DataBreadcrumb[]> => {
   const key = treeNode.key;
   let arr = [];
   let feeds=[];
  let breadcrumb = username;
   if (treeNode.title === username) {
-    if(username==='chris'){
+    // First level is feeds and uploads
     feeds = await getFeeds();
     for (let i = 0; i < feeds.length; i += 1) {
-      // First level is feeds and uploads
+      let id = feeds[i].data.id;
       arr.push({
-        breadcrumb: `${breadcrumb}/feed_${i + 1}`,
-        title: `feed_${i + 1}`,
+        breadcrumb: `${breadcrumb}/feed_${id}`,
+        title: `feed_${id}`,
         key: `${key}-${i}`,
       });
     }
-    }
+
     arr.push({
       breadcrumb: `${breadcrumb}/uploads`,
       title: "uploads",
@@ -67,7 +68,8 @@ export const generateTreeNodes = async (
   }
 
   if (treeNode.title && treeNode.title.toString().indexOf("feed") === 0) {
-    let breadcrumb = treeNode.title.toString();
+    // Second level are the feeds amd uploads
+    let newBreadcrumb =`${breadcrumb}/${treeNode.title.toString()}`;
     const id = treeNode.title.toString().split("_")[1];
     const feedFiles = await getFeedFiles(parseInt(id));
     const feedPaths = feedFiles.map(
@@ -75,24 +77,25 @@ export const generateTreeNodes = async (
     );
     if (feedPaths.length > 0)
       buildTree(feedPaths, (tree) => {
-        traverse(tree, treeNode.pos, breadcrumb);
+        traverse(tree, treeNode.pos, newBreadcrumb);
         setLeaf(tree);
         arr = tree;
       });
   }
 
   if (treeNode.title && treeNode.title.toString().indexOf("uploads") === 0) {
-    let breadcrumb = treeNode.title.toString();
+    let newBreadcrumb = `${breadcrumb}/${treeNode.title.toString()}`;
     const files = await getUploadedFiles();
 
     const filePaths = files.map((file) => file.data.fname.split("uploads")[1]);
     if (filePaths.length > 0)
       buildTree(filePaths, (tree) => {
-        traverse(tree, treeNode.pos, breadcrumb);
+        traverse(tree, treeNode.pos, newBreadcrumb);
         setLeaf(tree);
         arr = tree;
       });
   }
+  console.log("arr",arr)
   return arr;
 };
 
@@ -132,21 +135,26 @@ const getFeedFiles = async (id: number) => {
     offset: 0,
   };
   const client = ChrisAPIClient.getClient(); 
-  
-  let feed = await client.getFeed(id);
-  let fileList = await feed.getFiles(params);
-  let feedFiles = fileList.getItems();
+  const feed:Feed = await client.getFeed(id);
 
-  while (fileList.hasNextPage) {
-    try {
-      params.offset += params.limit;
-      fileList = await feed.getFiles(params);
-      feedFiles.push(...fileList.getItems());
-    } catch (e) {
-      console.error(e);
+  if(feed){
+    let fileList = await feed.getFiles(params);
+    let feedFiles = fileList.getItems();
+
+    while (fileList.hasNextPage) {
+      try {
+        params.offset += params.limit;
+        fileList = await feed.getFiles(params);
+        feedFiles.push(...fileList.getItems());
+      } catch (e) {
+        console.error(e);
+      }
     }
+    return feedFiles;
+
   }
-  return feedFiles;
+  else return []
+ 
 };
 
 const getUploadedFiles = async () => {
