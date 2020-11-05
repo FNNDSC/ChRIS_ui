@@ -11,6 +11,7 @@ import history from "../../utils";
 function* handleLogin(action: any) {
         try {
           yield put(setAuthTokenSuccess(action.payload.token));
+          console.log("Token", action.payload.token);
           window.sessionStorage.setItem("AUTH_TOKEN", action.payload.token);
           window.sessionStorage.setItem("USERNAME", action.payload.username);
           history.push("/");

@@ -1,8 +1,9 @@
 import React, { useContext } from "react";
 import { CreateFeedContext } from "./context";
 import { Grid, GridItem, Button } from "@patternfly/react-core";
-import { FileIcon, OutlinedTrashAltIcon } from "@patternfly/react-icons";
+
 import { LocalFile, Types } from "./types";
+import { LocalFileList } from "./helperComponents";
 
 const LocalFileUpload: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -38,26 +39,14 @@ const LocalFileUpload: React.FC = () => {
     });
   };
 
-  const fileList = localFiles.map((file) => (
-    <div className="file-preview" key={file.name}>
-      <span className="file-icon">
-        <FileIcon />
-      </span>
-      <span className="file-name">{file.name}</span>
-      <span className="trash-icon">
-        <OutlinedTrashAltIcon
-          onClick={() => {
-            dispatch({
-              type: Types.RemoveLocalFile,
-              payload: {
-                filename: file.name,
-              },
-            });
-          }}
-        />
-      </span>
-    </div>
-  ));
+  const fileList =
+    localFiles.length > 0
+      ? localFiles.map((file: LocalFile, index: number) => (
+          <React.Fragment key={index}>
+            <LocalFileList file={file} index={index} />
+          </React.Fragment>
+        ))
+      : null;
 
   return (
     <div className="local-file-upload">

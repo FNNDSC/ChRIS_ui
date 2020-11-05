@@ -37,6 +37,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     selectedPlugin,
     dropdownInput,
     requiredInput,
+    value,
   } = state;
 
   const enableSave =

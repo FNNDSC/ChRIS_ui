@@ -1,32 +1,32 @@
 import React, { useContext } from "react";
 import { CreateFeedContext } from "./context";
-
-import { FolderCloseIcon, FileIcon } from "@patternfly/react-icons";
 import { Split, SplitItem, Grid, GridItem } from "@patternfly/react-core";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
+import { LocalFile } from "./types";
+import { LocalFileList, FileList } from "./helperComponents";
 import "./createfeed.scss";
 
-function generateFileList(files: any[], local: boolean) {
-  return files.map((file) => {
-    let icon =
-      file.children && file.children.length > 0 ? ( // file is a ChrisFile folder
-        <span className="file-icon">
-          <FolderCloseIcon />
-        </span>
-      ) : (
-        <span className="file-icon">
-          <FileIcon />
-        </span>
-      );
-    let name = local === true ? file.name : file.title;
-    return (
-      <div className="file-preview" key={name}>
-        {icon}
-        <span className="file-name">{name}</span>
-      </div>
-    );
-  });
-}
+
+
+ function generateLocalFileList(localFiles: LocalFile[]) {
+   return localFiles.map((file: LocalFile, index: number) => {
+     return (
+       <React.Fragment key={index}>
+         <LocalFileList file={file} index={index} />
+       </React.Fragment>
+     );
+   });
+ }
+
+ function generateChrisFileList(chrisFiles: string[]) {
+   return chrisFiles.map((file: string, index: number) => {
+     return (
+       <React.Fragment key={index}>
+         <FileList file={file} index={index} />
+       </React.Fragment>
+     );
+   });
+ }
 
 const Review: React.FunctionComponent = () => {
   const { state } = useContext(CreateFeedContext);
@@ -83,11 +83,11 @@ const Review: React.FunctionComponent = () => {
           <Split>
             <SplitItem isFilled className="file-list">
               <p>Existing Files to add to new feed:</p>
-              {generateFileList(chrisFiles, false)}
+              {generateChrisFileList(chrisFiles)}
             </SplitItem>
             <SplitItem isFilled className="file-list">
               <p>Local files to add to new feed:</p>
-              {generateFileList(localFiles, true)}
+              {generateLocalFileList(localFiles)}
             </SplitItem>
           </Split>
         </>
@@ -97,7 +97,7 @@ const Review: React.FunctionComponent = () => {
         <Split>
           <SplitItem isFilled className="file-list">
             <p>Existing Files to add to new feed:</p>
-            {generateFileList(chrisFiles, false)}
+            {generateChrisFileList(chrisFiles)}
           </SplitItem>
         </Split>
       );
@@ -106,7 +106,7 @@ const Review: React.FunctionComponent = () => {
         <Split>
           <SplitItem isFilled className="file-list">
             <p>Local Files to add to new feed:</p>
-            {generateFileList(localFiles, true)}
+            {generateLocalFileList(localFiles)}
           </SplitItem>
         </Split>
       );
