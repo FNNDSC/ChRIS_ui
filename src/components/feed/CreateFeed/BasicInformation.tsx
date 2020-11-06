@@ -72,7 +72,7 @@ const BasicInformation: React.FC = () => {
         <Typeahead
           id="tags"
           placeholder={
-            availableTagsLoaded ? "Chose a tag..." : "Loading tags..."
+            availableTagsLoaded ? "Choose a tag..." : "Loading tags..."
           }
           multiple
           options={availableTags}

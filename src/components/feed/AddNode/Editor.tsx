@@ -13,7 +13,7 @@ import {
   getAllParamsWithName,
   getRequiredParamsWithId,
 } from "./lib/utils";
-import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
+import { Plugin,  } from "@fnndsc/chrisapi";
 
 class Editor extends Component<EditorProps, EditorState> {
   constructor(props: EditorProps) {
@@ -69,79 +69,91 @@ class Editor extends Component<EditorProps, EditorState> {
   }
 
   handleGetTokens(value: string) {
+    let paramFlags:string[]=[]
+    let errors:string[]=[]
+    let paramsArray=[]
+    let paramDict:{
+      [key:string]:string
+    }={}
+
+
     const userValue = value.trim().split(" ").slice(1);
-    const { params } = this.props;
-    let paramArray = [];
-    let errors: string[] = [];
-
-    if (params && params?.length > 0) {
-      let compareParams = params.map(
-        (param: PluginParameter) => param.data.flag
-      );
-      for (let i = 0; i < userValue.length; i++) {
-        if (compareParams.indexOf(userValue[i]) !== -1) {
-          const flag = userValue[i];
-          const value = userValue[i + 1];
-          paramArray.push([flag, value]);
-        } else {
-          const integer = Number.isInteger(parseInt(userValue[i]));
-          if (
-            !integer &&
-            (userValue[i].startsWith("--") || userValue[i].startsWith("-"))
-          ) {
-            errors.push(`${userValue[i]} is not present in the list of flags`);
-          }
+    const {params}=this.props;
+   
+     if (params && params.length > 0) {
+       paramFlags = params.map((param) => param.data.flag);
+     }
+     
+     if(userValue.length>0){
+       for(let i=0; i<=userValue.length; i++){
+         const flag=userValue[i]
+         let value=userValue[i+1]
+         let missingValue=''     
+         if(paramFlags.includes(flag)){
+          if(!value || ((value.startsWith('--') || value.startsWith('-')) && (paramFlags.includes(value)))){
+             paramDict[flag] = missingValue;
+          } 
+          else {
+            paramDict[flag]= value
+          }       
+         }
         }
-      }
-    }
-    this.setState({
-      errors,
-    });
 
-    return [...paramArray];
+       return paramDict;
+     }
   }
 
   handleRegex(value: string) {
     const { inputChangeFromEditor, params } = this.props;
-
     const requiredParamsWithId = params && getRequiredParamsWithId(params);
     const requiredParams = params && getRequiredParams(params);
     const allParams = params && getAllParamsWithName(params);
+    
 
     const tokens = this.handleGetTokens(value);
+    const tokenize = [];
+    for (let token in tokens) {
+      const value = tokens[token];
+      const flag = token;
+      tokenize.push([flag, value]);
+  }
 
     // Creating required and dropdown objects based on User input
     // If the user navigates to the form, the DOM will be re-created.
 
     let dropdownObject: InputType = {};
     let requiredObject: InputType = {};
+    console.log('Tokenize',tokenize)
 
-    for (const token of tokens) {
+    for (const token of tokenize) {
       //eslint-disable-next-line
       const [flag, editorValue] = token;
 
       let result: InputIndex = {};
-
       if (
         requiredParamsWithId &&
         requiredParams &&
         requiredParams.includes(flag)
       ) {
+        
         for (let param of requiredParamsWithId) {
           if (param && param.split("_")[0] === flag) {
             const id = param.split("_")[1];
-            result[flag] = editorValue && editorValue.trim();
+            result[flag] = editorValue;
             requiredObject[id] = result;
           }
         }
-      } else if (allParams && allParams.includes(flag) && editorValue) {
+      } else if (allParams && allParams.includes(flag)) {
         const id = v4();
-        result[flag] = editorValue.trim();
+        result[flag] = editorValue;
         dropdownObject[id] = result;
       }
     }
+   
 
     inputChangeFromEditor(dropdownObject, requiredObject);
+
+    
   }
 
   render() {
