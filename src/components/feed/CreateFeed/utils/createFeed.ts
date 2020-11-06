@@ -214,7 +214,7 @@ export const getRequiredObject = async (
   let dropdownUnpacked;
   let requiredUnpacked;
   let mappedParameter: {
-    [key: string]: string;
+    [key: string]: string | boolean;
   } = {};
 
   if (dropdownInput) {
@@ -231,18 +231,41 @@ export const getRequiredObject = async (
     ...dropdownUnpacked,
     ...requiredUnpacked,
   };
+ 
 
-  const params = (await plugin.getPluginParameters())
-    .getItems()
-    .map((param: PluginParameter) => {
-      return param.data;
-    });
-
-  for (let i = 0; i < params.length; i++) {
-    if (Object.keys(nodeParameter).includes(params[i].flag)) {
-      mappedParameter[params[i].name] = nodeParameter[params[i].flag];
+  const paginate = { limit: 30, offset: 0 };
+  let paramList = await plugin.getPluginParameters(paginate);
+  let params = paramList.getItems();
+  while (paramList.hasNextPage) {
+    try {
+      paginate.offset += paginate.limit;
+      paramList = await plugin.getPluginParameters(paginate);
+      params = params.concat(paramList.getItems());
+    } catch (error) {
+      // Error handling to be done
+      console.error(error);
     }
   }
+  console.log("Params", params);
+  
+
+  for (let i = 0; i < params.length; i++) {
+    if (Object.keys(nodeParameter).includes(params[i].data.flag)) {
+      let value: string | boolean = nodeParameter[params[i].data.flag];
+      console.log("value", value);
+      if (value === "" || value === undefined) {
+        value = params[i].data.default;
+      } else if (value === "true" || value === "false") {
+        value = Boolean(value);
+      }
+      mappedParameter[params[i].data.name] = value;
+    }   
+  }
+
+  console.log("map", mappedParameter);
+
+
+
   let parameterInput;
   if (selected) {
     parameterInput = {

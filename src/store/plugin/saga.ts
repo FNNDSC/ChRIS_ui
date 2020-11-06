@@ -35,7 +35,7 @@ function* handleGetParams(action: IActionTypeParam) {
     let params = paramList.getItems();
     while (paramList.hasNextPage) {
       try {
-        paginate.offset += paginate.offset;
+        paginate.offset += paginate.limit;
         paramList = plugin.getPluginParameters(paginate);
         params = params.concat(paramList.getItems());
       } catch (error) {

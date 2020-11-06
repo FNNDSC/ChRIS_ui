@@ -61,12 +61,12 @@
   }
 
   .pf-c-accordion__expanded-content-body {
-    padding-right: 15px !important;
-    padding-left: 15px !important;
+    padding-right: 5px !important;
+    padding-left: 5px !important;
   }
 
   .plugin-list {
-    max-height: 250px;
+    height:auto;
     overflow: auto;
     padding-right: 10px;
     margin-top:10px;
@@ -78,6 +78,7 @@
 
   .plugin-list li {
     padding: 10px 5px;
+    font-size: 0.9rem;
     cursor: pointer;
     &:hover {
       background: #f5f5f5;
@@ -211,6 +212,8 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
+  
+  
 
   &__label {
     background-color: #fff !important;
