@@ -126,6 +126,7 @@ export interface CreateFeedState extends InputState {
   feedProgress: string;
   feedError: string;
   value: number;
+  computeEnvironment: string;
 }
 
 export interface CreateFeedReduxProp {

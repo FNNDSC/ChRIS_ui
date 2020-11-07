@@ -69,38 +69,38 @@ class Editor extends Component<EditorProps, EditorState> {
   }
 
   handleGetTokens(value: string) {
-    let paramFlags:string[]=[]
-    let errors:string[]=[]
-    let paramsArray=[]
-    let paramDict:{
-      [key:string]:string
-    }={}
-
+    let paramFlags: string[] = [];
+    let paramDict: {
+      [key: string]: string;
+    } = {};
 
     const userValue = value.trim().split(" ").slice(1);
-    const {params}=this.props;
-   
-     if (params && params.length > 0) {
-       paramFlags = params.map((param) => param.data.flag);
-     }
-     
-     if(userValue.length>0){
-       for(let i=0; i<=userValue.length; i++){
-         const flag=userValue[i]
-         let value=userValue[i+1]
-         let missingValue=''     
-         if(paramFlags.includes(flag)){
-          if(!value || ((value.startsWith('--') || value.startsWith('-')) && (paramFlags.includes(value)))){
-             paramDict[flag] = missingValue;
-          } 
-          else {
-            paramDict[flag]= value
-          }       
-         }
-        }
+    const { params } = this.props;
 
-       return paramDict;
-     }
+    if (params && params.length > 0) {
+      paramFlags = params.map((param) => param.data.flag);
+    }
+
+    if (userValue.length > 0) {
+      for (let i = 0; i <= userValue.length; i++) {
+        const flag = userValue[i];
+        let value = userValue[i + 1];
+        let missingValue = "";
+        if (paramFlags.includes(flag)) {
+          if (
+            !value ||
+            ((value.startsWith("--") || value.startsWith("-")) &&
+              paramFlags.includes(value))
+          ) {
+            paramDict[flag] = missingValue;
+          } else {
+            paramDict[flag] = value;
+          }
+        }
+      }
+
+      return paramDict;
+    }
   }
 
   handleRegex(value: string) {
@@ -108,7 +108,6 @@ class Editor extends Component<EditorProps, EditorState> {
     const requiredParamsWithId = params && getRequiredParamsWithId(params);
     const requiredParams = params && getRequiredParams(params);
     const allParams = params && getAllParamsWithName(params);
-    
 
     const tokens = this.handleGetTokens(value);
     const tokenize = [];
@@ -116,14 +115,14 @@ class Editor extends Component<EditorProps, EditorState> {
       const value = tokens[token];
       const flag = token;
       tokenize.push([flag, value]);
-  }
+    }
 
     // Creating required and dropdown objects based on User input
     // If the user navigates to the form, the DOM will be re-created.
 
     let dropdownObject: InputType = {};
     let requiredObject: InputType = {};
-    console.log('Tokenize',tokenize)
+    console.log("Tokenize", tokenize);
 
     for (const token of tokenize) {
       //eslint-disable-next-line
@@ -135,7 +134,6 @@ class Editor extends Component<EditorProps, EditorState> {
         requiredParams &&
         requiredParams.includes(flag)
       ) {
-        
         for (let param of requiredParamsWithId) {
           if (param && param.split("_")[0] === flag) {
             const id = param.split("_")[1];
@@ -149,11 +147,8 @@ class Editor extends Component<EditorProps, EditorState> {
         dropdownObject[id] = result;
       }
     }
-   
 
     inputChangeFromEditor(dropdownObject, requiredObject);
-
-    
   }
 
   render() {

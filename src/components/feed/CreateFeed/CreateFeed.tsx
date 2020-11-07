@@ -37,7 +37,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     selectedPlugin,
     dropdownInput,
     requiredInput,
-    value,
+    computeEnvironment,
   } = state;
 
   const enableSave =
@@ -70,6 +70,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       },
     });
   };
+
+  const setComputeEnviroment = (computeEnv: string) => {};
 
   const inputChange = (
     id: string,
@@ -177,6 +179,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       deleteInput={deleteInput}
       dropdownInput={dropdownInput}
       requiredInput={requiredInput}
+      computeEnvironment={computeEnvironment}
+      setComputeEnviroment={setComputeEnviroment}
     />
   );
   const review = <Review />;

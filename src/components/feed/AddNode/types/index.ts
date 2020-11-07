@@ -60,6 +60,7 @@ export interface AddNodeState extends InputState {
     plugin?: Plugin;
     parent?: PluginInstance;
   };
+  computeEnv: string;
 }
 
 export interface AddNodeProps {
@@ -79,6 +80,7 @@ export interface GuidedConfigState {
 export interface GuidedConfigProps extends InputProps {
   plugin?: Plugin;
   params?: PluginParameter[];
+  computeEnvs?: any[];
   inputChange(
     id: string,
     paramName: string,
@@ -86,6 +88,8 @@ export interface GuidedConfigProps extends InputProps {
     required: boolean
   ): void;
   deleteInput(input: string): void;
+  computeEnvironment: string;
+  setComputeEnviroment: (computeEnv:  string)  =>  void;
 }
 
 export interface EditorState {
@@ -140,4 +144,5 @@ export interface ReviewProps extends InputState {
     plugin?: Plugin;
     parent?: PluginInstance;
   };
+  computeEnvironment:string
 }
