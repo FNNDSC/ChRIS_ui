@@ -32,6 +32,7 @@ export const initialState = {
   feedProgress: "",
   feedError: "",
   value: 0,
+  computeEnvironment: "host",
 };
 
 export const createFeedReducer = (

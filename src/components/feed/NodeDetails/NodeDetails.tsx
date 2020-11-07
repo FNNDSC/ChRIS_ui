@@ -8,6 +8,8 @@ import {
   Grid,
   GridItem,
   Title,
+  Popover,
+  Label,
   PopoverPosition,
 } from "@patternfly/react-core";
 import { Plugin, PluginInstanceParameter } from "@fnndsc/chrisapi";
@@ -27,15 +29,13 @@ import {
   OutlinedClockIcon,
   InProgressIcon,
 } from "@patternfly/react-icons";
-
 import { PluginInstance } from "@fnndsc/chrisapi";
-import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
 import AddNode from "../AddNode/AddNode";
-
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PluginStatus } from "../../../store/plugin/types";
 import { displayDescription } from "../FeedOutputBrowser/utils";
+import "./NodeDetails.scss"
+
 
 interface INodeProps {
   selected: PluginInstance;
@@ -43,11 +43,13 @@ interface INodeProps {
   pluginStatus?: PluginStatus[];
   pluginLog?: {};
   isComputeError?:boolean
+  
 }
 
 interface INodeState {
   plugin?: Plugin;
   params?: PluginInstanceParameter[];
+  
 }
 
 class NodeDetails extends React.Component<INodeProps, INodeState> {
@@ -132,28 +134,11 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     return currentTitle[0];
   }
 
-  getCommand(plugin: Plugin, params: PluginInstanceParameter[]) {
-    const { dock_image, selfexec } = plugin.data;
-    let command = `docker run -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
-
-    if (params.length) {
-      command +=
-        "\n" +
-        params
-          .map((param) => `--${param.data.param_name} ${param.data.value}`)
-          .join("\n");
-    }
-
-    command = `${command}\n    /incoming /outgoing`.trim();
-
-    // append backslashes
-    const lines = command.split("\n");
-    const longest = lines.reduce((a, b) => (a.length > b.length ? a : b))
-      .length;
-    return lines
-      .map((line) => `${line.padEnd(longest)}  \\`)
-      .join("\n")
-      .slice(0, -1); // remove final backslash
+  getCommand(params: PluginInstanceParameter[]) {
+    const inputString= params
+       .map((param) => `--${param.data.param_name} ${param.data.value}`)
+       .join("\n");
+    return inputString
   }
 
   calculateTotalRuntime = () => {
@@ -185,13 +170,12 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     const { selected, pluginStatus } = this.props;
     const { params, plugin } = this.state;
     let runtime = this.calculateTotalRuntime();
+    
 
     const pluginTitle = `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;
-    const command =
-      plugin && params ? this.getCommand(plugin, params) : "Loading command...";
-
-    const commandRows = command.split("\n").length;
-
+    const command = params ? this.getCommand(params) : "Loading command...";
+    
+    
     return (
       <React.Fragment>
         <div className="details-header-wrap">
@@ -202,21 +186,40 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
             </Title>
           </div>
           <div>
-            <TextCopyPopover
-              text={command}
-              headerContent={`Command for ${pluginTitle}`}
-              subheaderContent="This plugin was run via the following command:"
-              position={PopoverPosition.bottom}
-              rows={commandRows}
-              className="view-command-wrap"
-              maxWidth="27rem"
+            <Popover
+              className="node-configuration"
+              headerContent={`Configuration used for ${pluginTitle}`}
+              bodyContent={
+                <div className="node-configuration__body">
+                  <div className="node-configuration__container">
+                    <Label className="node-configuration__label">
+                      Parameters:
+                    </Label>
+                    <span className="node-configuration__command">
+                      {command}
+                    </span>
+                  </div>
+                  <div className="node-configuration__container">
+                    <Label className="node-configuration__label">
+                      Compute Resource:
+                    </Label>
+
+                    <span className="node-configuration__command">
+                      {
+                        // @ts-ignore
+                        selected && selected.data.compute_resource_name
+                      }
+                    </span>
+                  </div>
+                </div>
+              }
             >
               <Button>
                 <TerminalIcon />
                 View Command
                 <CaretDownIcon />
               </Button>
-            </TextCopyPopover>
+            </Popover>
           </div>
         </div>
 
@@ -299,14 +302,14 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
 
         <br />
         <br />
-      
+
         <div className="btn-div">
           <AddNode />
         </div>
 
         <br />
         <br />
-        <label style={{ color: "white", fontWeight:'bold' }}>
+        <label style={{ color: "white", fontWeight: "bold" }}>
           Plugin output may be viewed below.
         </label>
       </React.Fragment>

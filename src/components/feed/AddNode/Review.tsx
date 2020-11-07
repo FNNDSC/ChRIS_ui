@@ -4,7 +4,7 @@ import { ReviewProps } from "./types";
 import { unpackParametersIntoString } from "./lib/utils";
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
-  const { data, dropdownInput, requiredInput } = props;
+  const { data, dropdownInput, requiredInput, computeEnvironment } = props;
 
   let generatedCommand = "";
   if (requiredInput) {
@@ -35,6 +35,8 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
         <GridItem span={10}>
           <span className="required-text">{generatedCommand}</span>
         </GridItem>
+        <GridItem span={2}>Compute Environment:</GridItem>
+        <GridItem span={10}>{computeEnvironment}</GridItem>
       </Grid>
     </div>
   );

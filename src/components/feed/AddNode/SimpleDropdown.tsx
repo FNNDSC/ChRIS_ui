@@ -116,7 +116,9 @@ class SimpleDropdown extends React.Component<
     }
 
     const dropdownItems = params
-      .filter((param) => param.data.optional === true)
+      .filter(
+        (param) => param.data.optional === true && param.data.type !== "boolean"
+      )
       .map((param) => {
         const id = param.data.id;
         return (
@@ -158,6 +160,7 @@ class SimpleDropdown extends React.Component<
           onKeyDown={this.handleKeyDown}
           placeholder={placeholder}
           value={value}
+          isDisabled={true}
         />
         <div className="close-icon">
           <TrashAltIcon onClick={this.deleteDropdown} />

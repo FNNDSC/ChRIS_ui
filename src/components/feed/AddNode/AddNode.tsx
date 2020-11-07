@@ -28,11 +28,13 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       data: {},
       requiredInput: {},
       dropdownInput: {},
+      computeEnv: "host",
     };
 
     this.inputChange = this.inputChange.bind(this);
     this.inputChangeFromEditor = this.inputChangeFromEditor.bind(this);
     this.toggleOpen = this.toggleOpen.bind(this);
+    this.setComputeEnv  =  this.setComputeEnv.bind(this);
     this.onBack = this.onBack.bind(this);
     this.onNext = this.onNext.bind(this);
     this.handlePluginSelect = this.handlePluginSelect.bind(this);
@@ -137,6 +139,13 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     getParams(plugin);
   }
 
+  setComputeEnv(computeEnv: string) {
+    this.setState({
+      ...this.state,
+      computeEnv,
+    });
+  }
+
   deleteInput(input: string) {
     const { dropdownInput } = this.state;
 
@@ -166,7 +175,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   }
 
   async handleSave() {
-    const { dropdownInput, requiredInput } = this.state;
+    const { dropdownInput, requiredInput, computeEnv } = this.state;
     const { plugin } = this.state.data;
     const { selected, addNode } = this.props;
 
@@ -181,8 +190,17 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       selected
     );
 
+    parameterInput={
+      ...parameterInput,
+      'compute_resource_name':computeEnv
+    }
+
     const pluginInstance = await plugin.getPluginInstances();
     await pluginInstance.post(parameterInput);
+  
+
+    console.log('PluginInstance',pluginInstance)
+
     const node = pluginInstance.getItems()[0];
     addNode(node);
     this.resetState();
@@ -195,6 +213,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       dropdownInput,
       requiredInput,
       stepIdReached,
+      computeEnv,
     } = this.state;
     const { nodes, selected } = this.props;
 
@@ -213,6 +232,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         plugin={data.plugin}
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
+        computeEnvironment={computeEnv}
+        setComputeEnviroment={this.setComputeEnv}
       />
     ) : (
       <LoadingSpinner />
@@ -235,6 +256,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         data={data}
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
+        computeEnvironment={computeEnv}
       />
     ) : (
       <LoadingSpinner />
