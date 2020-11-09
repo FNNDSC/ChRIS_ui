@@ -145,8 +145,6 @@ class Editor extends Component<EditorProps, EditorState> {
     const requiredParams = params && getRequiredParams(params);
     const {paramDict, errors}= this.handleGetTokens(value);
    
-
-    
     let dropdownObject: InputType = {};
     let requiredObject: InputType = {};
 
@@ -158,10 +156,10 @@ class Editor extends Component<EditorProps, EditorState> {
       const placeholder=paramDict[token].placeholder;
       if (requiredParams && requiredParams.length>0 && requiredParams.includes(flag)) {
         const value =
-          params && getRequiredParamsWithName(flag, editorValue,type,placeholder);
+          params && getRequiredParamsWithName(id,flag, editorValue,type,placeholder);
         if (value) requiredObject[id] = value;
       } else {
-        const value = params && getAllParamsWithName(flag, editorValue,type,placeholder);
+        const value = params && getAllParamsWithName(id,flag, editorValue,type,placeholder);
         if (value) dropdownObject[id] = value;
       }
     }

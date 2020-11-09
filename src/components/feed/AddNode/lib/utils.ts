@@ -2,27 +2,31 @@ import { InputType, InputIndex } from "../types";
 import { PluginParameter } from "@fnndsc/chrisapi";
 
 export const unPackForKeyValue = (input: InputIndex) => {
-
- 
-  const index=input['id']
-  const flag = Object.keys(input)[0];
+  
+  const flag = Object.keys(input)[1];
+  console.log('flag',flag)
   const value = input[flag];
   const type = input["type"];
   const placeholder = input["placeholder"];
- 
+  const index=input['id']
 
-  //const type = input[type];
+
 
   return [index, flag, value, type, placeholder];
 };
 
 export const unpackParametersIntoObject = (input: InputType) => {
-  let result: InputIndex = {};
+  let result: {
+    [key: string]: {
+      [key: string]: string;
+    };
+  } = {};
   for (let parameter in input) {
-    const [, flag, value, , ] = unPackForKeyValue(
-      input[parameter]
-    );
-    result[flag] = value;
+    const [, flag, value, type, ,] = unPackForKeyValue(input[parameter]);
+    result[flag] = {
+      value,
+      type,
+    };
   }
 
   return result;
@@ -48,12 +52,14 @@ export const getRequiredParams = (params: PluginParameter[]) => {
 };
 
 export const getAllParamsWithName = (
+  id: string,
   flag: string,
   value: string,
   type: string,
   placeholder: string
 ) => {
   let result: InputIndex = {};
+  result['id']=id;
   result[flag] = value;
   result["type"] = type;
   result["placeholder"] = placeholder;
@@ -61,12 +67,14 @@ export const getAllParamsWithName = (
 };
 
 export function getRequiredParamsWithName(
+  id: string,
   flag: string,
   value: string,
   type: string,
   placeholder: string
 ) {
   let result: InputIndex = {};
+  result['id']=id;
   result[flag] = value;
   result["type"] = type;
   result["placeholder"] = placeholder;

@@ -211,7 +211,8 @@ export const getRequiredObject = async (
   plugin: Plugin,
   selected?: PluginInstance
 ) => {
-  /*
+  
+  
   let dropdownUnpacked;
   let requiredUnpacked;
   let mappedParameter: {
@@ -227,12 +228,15 @@ export const getRequiredObject = async (
   }
 
   let nodeParameter: {
-    [key: string]: string;
+    [key: string]: {
+      [key:string]:string
+    }
   } = {
     ...dropdownUnpacked,
     ...requiredUnpacked,
   };
-
+  
+  
   const paginate = { limit: 30, offset: 0 };
   let paramList = await plugin.getPluginParameters(paginate);
   let params = paramList.getItems();
@@ -241,25 +245,34 @@ export const getRequiredObject = async (
       paginate.offset += paginate.limit;
       paramList = await plugin.getPluginParameters(paginate);
       params = params.concat(paramList.getItems());
-    } catch (error) {
-      
+    } catch (error) {    
       console.error(error);
     }
   }
-  console.log("Params", params);
+
+  console.log('Params',params)
+  
 
   for (let i = 0; i < params.length; i++) {
-    if (Object.keys(nodeParameter).includes(params[i].data.flag)) {
-      let value: string | boolean = nodeParameter[params[i].data.flag];
-      if (value === "" || value === undefined) {
-        value = params[i].data.default;
-      } else if (value === "true" || value === "false") {
-        value = Boolean(value);
+    let flag=params[i].data.flag;
+    let defaultValue= params[i].data.default;
+    if (Object.keys(nodeParameter).includes(flag)) {
+      let value:string | boolean=nodeParameter[flag].value;
+      let type=nodeParameter[flag].type;
+
+      if (value === "" && type==='boolean') {
+        if (defaultValue === false) {
+          value = true;
+        } else {
+          value = false;
+        }
+      } else if(value==="" || value==='undefined') {
+        value=defaultValue;
       }
       mappedParameter[params[i].data.name] = value;
-    }
-    
+    }    
   }
+
 
   let parameterInput;
   if (selected) {
@@ -274,8 +287,7 @@ export const getRequiredObject = async (
   }
 
   return parameterInput;
-  */
-    return {};;;
+
 };
 
 
