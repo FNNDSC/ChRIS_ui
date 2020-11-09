@@ -34,6 +34,7 @@ const SimpleDropdown:React.FC<SimpleDropdownProps>=({
     deleteInput, 
     deleteComponent
   })=>{
+    
 
     const [dropdownState,setDropdownState]=React.useState<SimpleDropdownState>(getInitialState)
     const {
@@ -46,23 +47,21 @@ const SimpleDropdown:React.FC<SimpleDropdownProps>=({
     }=dropdownState
 
   React.useEffect(()=>{
- 
-    if(!dropdownInput || !dropdownInput[id]) return;
-      const [index, flag, value, type, placeholder] = unPackForKeyValue(
-        dropdownInput[id]
-      );
+    if (!dropdownInput || !dropdownInput[id]) return;
+    const [index, flag, value, type, placeholder] = unPackForKeyValue(
+      dropdownInput[id]
+    );
 
-      setDropdownState((dropdownState) => {
-        return {
-          ...dropdownState,
-          paramId: index,
-          flag,
-          paramValue:value,
-          type,
-          placeholder,
-        };
-      });
-
+    setDropdownState((dropdownState) => {
+      return {
+        ...dropdownState,
+        paramId: index,
+        flag,
+        paramValue: value,
+        type,
+        placeholder,
+      };
+    });
   },[dropdownInput,id])
 
   const onToggle =(isOpen: boolean)=> {
@@ -125,6 +124,7 @@ const SimpleDropdown:React.FC<SimpleDropdownProps>=({
   }
 
   const handleInputChange=(value: string, event: React.FormEvent<HTMLInputElement>)=> {
+  console.log("ParamID", dropdownState);
   handleChange(paramId, flag, value, false, type, placeholder);
   }
 

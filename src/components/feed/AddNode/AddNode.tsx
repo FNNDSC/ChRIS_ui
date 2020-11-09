@@ -77,15 +77,11 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     placeholder:string
   ) {
     const input: InputIndex = {};
-  
-   
+    input["id"] = id;
     input[paramName] = value;
-    input['type']=type;
-    input['placeholder']=placeholder
-    input['id']=id
-   
-  
-    
+    input["type"] = type;
+    input["placeholder"] = placeholder;
+
     if (required === true) {
       this.setState({
         requiredInput: {
@@ -208,12 +204,15 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       ...parameterInput,
       compute_resource_name: computeEnv,
     };
+    console.log("ParameterInput", parameterInput);
 
     const pluginInstance = await plugin.getPluginInstances();
-    await pluginInstance.post(parameterInput);
+
+    const test = await pluginInstance.post(parameterInput);
+    console.log("Test", test);
 
     const node = pluginInstance.getItems()[0];
-    addNode(node);
+    //addNode(node);
     this.resetState();
   }
 
