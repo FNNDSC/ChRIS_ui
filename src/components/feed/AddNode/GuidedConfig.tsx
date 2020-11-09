@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Form,
   Label,
   TextInput,
   Button,
@@ -8,6 +7,7 @@ import {
   AlertActionCloseButton,
 } from "@patternfly/react-core";
 import SimpleDropdown from "./SimpleDropdown";
+import RequiredParam from "./RequiredParam";
 import ComputeEnvironments from './ComputeEnvironment'
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
@@ -17,17 +17,8 @@ import { v4 } from "uuid";
 import { GuidedConfigState, GuidedConfigProps, InputType } from "./types";
 import {
   getRequiredParams,
-  unPackForKeyValue,
   unpackParametersIntoString,
 } from "./lib/utils";
-
-
-type InputObj={
-  id:string,
-  name:string,
-  value:string,
-  required:boolean
-}
 
 class GuidedConfig extends React.Component<
   GuidedConfigProps,
@@ -45,13 +36,12 @@ class GuidedConfig extends React.Component<
     };
     this.deleteComponent = this.deleteComponent.bind(this);
     this.addParam = this.addParam.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
     this.hideAlert = this.hideAlert.bind(this);
   }
 
   componentDidMount() {
     const { dropdownInput, params } = this.props;
+ 
 
     if (params && params.length > 0) {
       let requiredParams = getRequiredParams(params);
@@ -100,37 +90,6 @@ class GuidedConfig extends React.Component<
     });
   }
 
-  handleInputChange(value: string, event: React.FormEvent<HTMLInputElement>) {
-    const target = event.target as HTMLInputElement;
-    const name = target.name;
-    const id = target.id;
-    const inputObj: InputObj = {
-      id,
-      name,
-      value,
-      required: true,
-    };
-    this.timer = setTimeout(this.triggerChange, 10, "inputChange", inputObj);
-  }
-
-  triggerChange = (eventType: string, input?: InputObj) => {
-    const { inputChange } = this.props;
-    if (eventType === "keyDown") {
-      this.addParam();
-    }
-    if (input && eventType === "inputChange") {
-      inputChange(input.id, input.name, input.value, input.required);
-    }
-  };
-
-  handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      clearTimeout(this.timer);
-      this.triggerChange("keyDown");
-    } else return;
-  }
-
   addParam() {
     const { componentList, count, alertVisible } = this.state;
     const { params } = this.props;
@@ -150,78 +109,52 @@ class GuidedConfig extends React.Component<
     }
   }
 
-
-  renderComputeEnvs(){
-   const {computeEnvs, computeEnvironment, setComputeEnviroment}=this.props;
-   if(computeEnvs && computeEnvs.length>0){
-    return (
-      <div className="configure-compute">
-        <Label className="configure-compute__label">Configure a compute environment: </Label>
-        <ComputeEnvironments 
-        selectedOption={computeEnvironment}
-        computeEnvs={computeEnvs}
-        setComputeEnviroment={setComputeEnviroment}
-        />
-      </div>
-    );
-   }
+  renderComputeEnvs() {
+    const {
+      computeEnvs,
+      computeEnvironment,
+      setComputeEnviroment,
+    } = this.props;
+    if (computeEnvs && computeEnvs.length > 0) {
+      return (
+        <div className="configure-compute">
+          <Label className="configure-compute__label">
+            Configure a compute environment:{" "}
+          </Label>
+          <ComputeEnvironments
+            selectedOption={computeEnvironment}
+            computeEnvs={computeEnvs}
+            setComputeEnviroment={setComputeEnviroment}
+          />
+        </div>
+      );
+    }
   }
-  
+
   renderRequiredParams() {
-    const { params, requiredInput } = this.props;
-
-    return (
-      params &&
-      params
-        .filter((param) => param.data.optional === false)
-        .map((param) => {
-          let parameterValue = "";
-          if (!isEmpty(requiredInput)) {
-            if (requiredInput[param.data.id]) {
-              //eslint-disable-next-line
-              const [_key, value] = unPackForKeyValue(
-                requiredInput[param.data.id]
-              );
-              parameterValue = value;
-            }
-          }
-
+    const { params, requiredInput, inputChange } = this.props;
+    if (params && params.length > 0) {
+      return params.map((param, index) => {
+        if (param.data.optional === false) {
           return (
-            <Form className="required-params" key={param.data.id}>
-              <div className="required-params__layout">
-                <Label className="required-params__label">
-                  {`${param.data.flag}:`}
-                  <span className="required-params__star">*</span>
-                </Label>
-                <Label className="required-params__infoLabel">
-                  (*Required)
-                </Label>
-              </div>
-
-              <TextInput
-                type="text"
-                aria-label="required-parameters"
-                onChange={this.handleInputChange}
-                onKeyDown={this.handleKeyDown}
-                name={param.data.flag}
-                className="required-params__textInput"
-                placeholder={param.data.help}
-                value={parameterValue}
-                id={`${param.data.id}`}
+            <React.Fragment key={index}>
+              <RequiredParam
+                param={param}
+                requiredInput={requiredInput}
+                addParam={this.addParam}
+                inputChange={inputChange}
               />
-            </Form>
+            </React.Fragment>
           );
-        })
-    );
-  }
-
-  hideAlert() {
-    this.setState({ alertVisible: !this.state.alertVisible });
+        }
+      });
+    }
   }
 
   renderDropdowns() {
     const { componentList } = this.state;
     const { dropdownInput, deleteInput, inputChange, params } = this.props;
+   
 
     return componentList.map((id, index) => {
       return (
@@ -237,6 +170,10 @@ class GuidedConfig extends React.Component<
         />
       );
     });
+  }
+
+  hideAlert() {
+    this.setState({ alertVisible: !this.state.alertVisible });
   }
 
   render() {
@@ -269,46 +206,43 @@ class GuidedConfig extends React.Component<
             </Button>
           </div>
 
-
           <div className="configuration__renders">
-              {this.renderRequiredParams()}
-              {this.renderDropdowns()}
-              {this.renderComputeEnvs()}
-
+            {this.renderRequiredParams()}
+            {this.renderDropdowns()}
+            {this.renderComputeEnvs()}
           </div>
           {alertVisible &&
-              errors.length > 0 &&
-              errors.map((error, index) => {
-                return (
-                  <Alert
-                    className="configuration__renders__alert"
-                    key={index}
-                    variant="danger"
-                    title={error}
-                    actionClose={
-                      <AlertActionCloseButton onClose={this.hideAlert} />
-                    }
-                  />
-                );
+            errors.length > 0 &&
+            errors.map((error, index) => {
+              return (
+                <Alert
+                  className="configuration__renders__alert"
+                  key={index}
+                  variant="danger"
+                  title={error}
+                  actionClose={
+                    <AlertActionCloseButton onClose={this.hideAlert} />
+                  }
+                />
+              );
             })}
-            <div className="autogenerated">
-              <Label className="autogenerated__label">Generated Command:</Label>
-              <TextInput
-                className="autogenerated__text"
-                type="text"
-                aria-label="autogenerated-text"
-                value={generatedCommand}
-              />
-            </div>
-            
-            <Alert
-              style={{
-                marginTop: "15px",
-              }}
-              variant="info"
-              title="If you prefer a free form input box where you might copy paste all the command line parameters, you can safely hit 'next' here."
+          <div className="autogenerated">
+            <Label className="autogenerated__label">Generated Command:</Label>
+            <TextInput
+              className="autogenerated__text"
+              type="text"
+              aria-label="autogenerated-text"
+              value={generatedCommand}
             />
-          
+          </div>
+
+          <Alert
+            style={{
+              marginTop: "15px",
+            }}
+            variant="info"
+            title="If you prefer a free form input box where you might copy paste all the command line parameters, you can safely hit 'next' here."
+          />
         </div>
       </div>
     );
