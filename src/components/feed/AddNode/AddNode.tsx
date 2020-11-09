@@ -15,7 +15,7 @@ import { getParams } from "../../../store/plugin/actions";
 import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
 import BasicConfiguration from "./BasicConfiguration";
-import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
+import { AddNodeState, AddNodeProps, InputType,InputIndex} from "./types";
 import { getRequiredObject } from "../CreateFeed/utils/createFeed";
 
 class AddNode extends Component<AddNodeProps, AddNodeState> {
@@ -34,7 +34,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     this.inputChange = this.inputChange.bind(this);
     this.inputChangeFromEditor = this.inputChangeFromEditor.bind(this);
     this.toggleOpen = this.toggleOpen.bind(this);
-    this.setComputeEnv  =  this.setComputeEnv.bind(this);
+    this.setComputeEnv = this.setComputeEnv.bind(this);
     this.onBack = this.onBack.bind(this);
     this.onNext = this.onNext.bind(this);
     this.handlePluginSelect = this.handlePluginSelect.bind(this);
@@ -68,10 +68,24 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     });
   }
 
-  inputChange(id: string, paramName: string, value: string, required: boolean) {
+  inputChange(
+    id: string,
+    paramName: string,
+    value: string,
+    required: boolean,
+    type:string,
+    placeholder:string
+  ) {
     const input: InputIndex = {};
+  
+   
     input[paramName] = value;
-
+    input['type']=type;
+    input['placeholder']=placeholder
+    input['id']=id
+   
+  
+    
     if (required === true) {
       this.setState({
         requiredInput: {
@@ -190,16 +204,13 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       selected
     );
 
-    parameterInput={
+    parameterInput = {
       ...parameterInput,
-      'compute_resource_name':computeEnv
-    }
+      compute_resource_name: computeEnv,
+    };
 
     const pluginInstance = await plugin.getPluginInstances();
     await pluginInstance.post(parameterInput);
-  
-
-    console.log('PluginInstance',pluginInstance)
 
     const node = pluginInstance.getItems()[0];
     addNode(node);

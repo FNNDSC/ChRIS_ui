@@ -85,12 +85,15 @@ export interface GuidedConfigProps extends InputProps {
     id: string,
     paramName: string,
     value: string,
-    required: boolean
+    required: boolean,
+    type: string,
+    placeholder: string
   ): void;
   deleteInput(input: string): void;
   computeEnvironment: string;
-  setComputeEnviroment: (computeEnv:  string)  =>  void;
+  setComputeEnviroment: (computeEnv: string) => void;
 }
+
 
 export interface EditorState {
   value: string;
@@ -105,7 +108,9 @@ export interface EditorProps extends InputState {
     id: string,
     paramName: string,
     value: string,
-    required: boolean
+    required: boolean,
+    type: string,
+    placeholder: string
   ): void;
   inputChangeFromEditor(
     dropdownInput: InputType,
@@ -113,11 +118,14 @@ export interface EditorProps extends InputState {
   ): void;
 }
 
+   
 export interface SimpleDropdownState {
+  paramId:string,
   isOpen: boolean;
-  value: string;
+  paramValue: string;
   flag: string;
   placeholder: string;
+  type: string;
 }
 
 export interface SimpleDropdownProps {
@@ -131,7 +139,9 @@ export interface SimpleDropdownProps {
     id: string,
     paramName: string,
     value: string,
-    required: boolean
+    required: boolean,
+    type: string,
+    placeholder: string
   ): void;
   deleteComponent(id: string): void;
   deleteInput(id: string): void;
@@ -146,3 +156,6 @@ export interface ReviewProps extends InputState {
   };
   computeEnvironment:string
 }
+
+
+   

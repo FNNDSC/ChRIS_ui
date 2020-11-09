@@ -211,6 +211,7 @@ export const getRequiredObject = async (
   plugin: Plugin,
   selected?: PluginInstance
 ) => {
+  /*
   let dropdownUnpacked;
   let requiredUnpacked;
   let mappedParameter: {
@@ -257,6 +258,7 @@ export const getRequiredObject = async (
       }
       mappedParameter[params[i].data.name] = value;
     }
+    
   }
 
   let parameterInput;
@@ -272,6 +274,8 @@ export const getRequiredObject = async (
   }
 
   return parameterInput;
+  */
+    return {};;;
 };
 
 

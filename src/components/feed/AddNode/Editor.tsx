@@ -3,15 +3,15 @@ import { TextArea, ExpandableSection, Label } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { isEmpty } from "lodash";
-import { v4 } from "uuid";
+
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
-import { InputType, InputIndex } from "./types";
+import { InputType } from "./types";
 import { EditorState, EditorProps } from "./types";
 import {
   unpackParametersIntoString,
   getRequiredParams,
   getAllParamsWithName,
-  getRequiredParamsWithId,
+  getRequiredParamsWithName
 } from "./lib/utils";
 import { Plugin,  } from "@fnndsc/chrisapi";
 
@@ -69,86 +69,104 @@ class Editor extends Component<EditorProps, EditorState> {
   }
 
   handleGetTokens(value: string) {
-    let paramFlags: string[] = [];
+    let test: { [key: string]: string }[] = [];
+    let errors:string[] = [];
     let paramDict: {
-      [key: string]: string;
+      [key: string]: {
+        [key:string]:string
+      }
     } = {};
 
     const userValue = value.trim().split(" ").slice(1);
     const { params } = this.props;
 
     if (params && params.length > 0) {
-      paramFlags = params.map((param) => param.data.flag);
+      test = params.map((param) => {
+        return {
+          id:`${param.data.id}`,
+          flag: param.data.flag,
+          type: param.data.type,
+          placeholder:param.data.help
+        };
+      });
     }
 
-    if (userValue.length > 0) {
+    
+    let paramFlags  = params && params.map(param =>  param.data.flag)
+
+    if (userValue.length > 0) {  
       for (let i = 0; i <= userValue.length; i++) {
         const flag = userValue[i];
         let value = userValue[i + 1];
-        let missingValue = "";
-        if (paramFlags.includes(flag)) {
-          if (
-            !value ||
-            ((value.startsWith("--") || value.startsWith("-")) &&
-              paramFlags.includes(value))
-          ) {
-            paramDict[flag] = missingValue;
-          } else {
-            paramDict[flag] = value;
-          }
-        }
-      }
+       
 
-      return paramDict;
+        test.forEach((param) => {
+          if (param.flag === flag) {
+            if (
+              !value ||
+              ((value.startsWith("--") || value.startsWith("-")) &&
+                (paramFlags && paramFlags.includes(value)))
+            ) {
+              paramDict[flag] = {
+                value:'',
+                id:param.id,
+                placeholder:param.placeholder,
+                type:param.type
+              }       
+            } else if (param.type === "boolean" && value) {
+              paramDict[flag] = {
+                value:'',
+                id:param.id,
+                placeholder:param.placeholder,
+                type:param.type
+              }
+              errors.push(
+                `Please don't provide values for boolean flag ${param.flag}`
+              );
+            } else {
+              paramDict[flag] = {
+                value,
+                id:param.id,
+                placeholder:param.placeholder,
+                type:param.type
+              }   
+            }
+          }
+        });
+      }
     }
+    
+
+    return {paramDict, errors};
   }
 
   handleRegex(value: string) {
     const { inputChangeFromEditor, params } = this.props;
-    const requiredParamsWithId = params && getRequiredParamsWithId(params);
     const requiredParams = params && getRequiredParams(params);
-    const allParams = params && getAllParamsWithName(params);
+    const {paramDict, errors}= this.handleGetTokens(value);
+   
 
-    const tokens = this.handleGetTokens(value);
-    const tokenize = [];
-    for (let token in tokens) {
-      const value = tokens[token];
-      const flag = token;
-      tokenize.push([flag, value]);
-    }
-
-    // Creating required and dropdown objects based on User input
-    // If the user navigates to the form, the DOM will be re-created.
-
+    
     let dropdownObject: InputType = {};
     let requiredObject: InputType = {};
-    console.log("Tokenize", tokenize);
 
-    for (const token of tokenize) {
-      //eslint-disable-next-line
-      const [flag, editorValue] = token;
-
-      let result: InputIndex = {};
-      if (
-        requiredParamsWithId &&
-        requiredParams &&
-        requiredParams.includes(flag)
-      ) {
-        for (let param of requiredParamsWithId) {
-          if (param && param.split("_")[0] === flag) {
-            const id = param.split("_")[1];
-            result[flag] = editorValue;
-            requiredObject[id] = result;
-          }
-        }
-      } else if (allParams && allParams.includes(flag)) {
-        const id = v4();
-        result[flag] = editorValue;
-        dropdownObject[id] = result;
+    for (let token in paramDict) {
+      const id = paramDict[token].id;
+      const editorValue=paramDict[token].value;
+      const flag = token;
+      const type=paramDict[token].type;
+      const placeholder=paramDict[token].placeholder;
+      if (requiredParams && requiredParams.length>0 && requiredParams.includes(flag)) {
+        const value =
+          params && getRequiredParamsWithName(flag, editorValue,type,placeholder);
+        if (value) requiredObject[id] = value;
+      } else {
+        const value = params && getAllParamsWithName(flag, editorValue,type,placeholder);
+        if (value) dropdownObject[id] = value;
       }
     }
 
-    inputChangeFromEditor(dropdownObject, requiredObject);
+   inputChangeFromEditor(dropdownObject, requiredObject);
   }
 
   render() {
