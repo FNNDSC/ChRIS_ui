@@ -6,7 +6,6 @@ import {
   BreadcrumbItem,
   Grid,
   GridItem,
-  PopoverPosition,
   Alert,
   Button,
 } from "@patternfly/react-core";
@@ -27,7 +26,7 @@ import {
 
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
-import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
+
 import FileDetailView from "../../explorer/FileDetailView";
 import { FileBrowserProps, FileBrowerState } from "./types";
 
@@ -43,8 +42,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     this.generateBreadcrumb = this.generateBreadcrumb.bind(this);
     this.handleFileClick = this.handleFileClick.bind(this);
     this.handleBreadcrumbClick = this.handleBreadcrumbClick.bind(this);
-    this.handlePathPopoverClose = this.handlePathPopoverClose.bind(this);
-    this.handlePathPopoverBlur = this.handlePathPopoverBlur.bind(this);
+    
   }
 
   /* EVENT LISTENERS */
@@ -57,18 +55,11 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     }
 
     const rowIndex: number = rowData.rowIndex;
-    const { directory, pathViewingFile: pathSelectedFile } = this.state;
+    const { directory} = this.state;
     if (!directory.children) {
       return;
     }
     const file = directory.children[rowIndex];
-
-    if (e.nativeEvent.altKey) {
-      if (pathSelectedFile && pathSelectedFile.uiId === file.uiId) {
-        return;
-      }
-      return this.handlePathPopoverOpen(file);
-    }
 
     if (file.children) {
       this.setState({
@@ -102,49 +93,11 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     FileViewerModel.downloadFile(blob, node.module);
   }
 
-  // PATH POPOVER LISTENERS
-
-  handlePathPopoverOpen(file: IUITreeNode) {
-    this.setState({ pathViewingFile: file });
-  }
-
-  handlePathPopoverClose() {
-    this.setState({ pathViewingFile: undefined });
-  }
-
-  // Prevent the click from propagating to file, which would open filepreview
-  handlePathPopoverClick(e: React.MouseEvent) {
-    e.stopPropagation();
-    e.nativeEvent.stopImmediatePropagation();
-  }
-
-  // Close the path popover if click is outside, otherwise do nothing
-  handlePathPopoverBlur(e: React.FocusEvent) {
-    const relatedTarget = e.nativeEvent.relatedTarget as Element;
-    if (!relatedTarget || !relatedTarget.closest(".path-popover-wrap")) {
-      this.handlePathPopoverClose();
-    }
-  }
+ 
 
   /* GENERATE UI ELEMENTS */
 
-  generatePopover(path: string, children: JSX.Element, isVisible: boolean) {
-    const header = <span>Full file path</span>;
-    return (
-      <TextCopyPopover
-        headerContent={header}
-        text={path}
-        children={children}
-        isVisible={isVisible}
-        className="path-popover-wrap"
-        tabIndex={0}
-        position={PopoverPosition.bottom}
-        onMouseDown={this.handlePathPopoverClick}
-        onBlur={this.handlePathPopoverBlur}
-        shouldClose={this.handlePathPopoverClose}
-      />
-    );
-  }
+ 
 
   generateTableRow(node: IUITreeNode) {
     let type = "File";
@@ -178,11 +131,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     );
 
     const name = {
-      title: this.generatePopover(
-        this.getNodePath(node),
-        fileName,
-        isPathSelected
-      ),
+      title: fileName
     };
 
     const download = {
