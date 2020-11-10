@@ -2,6 +2,7 @@ import React from "react";
 import { Grid, GridItem, Alert } from "@patternfly/react-core";
 import { ReviewProps } from "./types";
 import { unpackParametersIntoString } from "./lib/utils";
+import { PluginDetails } from "./helperComponents/ReviewGrid";
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
   const {
@@ -46,36 +47,13 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
             {data.parent && data.parent.data.plugin_name}
           </span>
         </GridItem>
+        <PluginDetails
+          generatedCommand={generatedCommand}
+          selectedPlugin={data.plugin}
+          computeEnvironment={computeEnvironment}
+        />
         <GridItem span={2}>
-          <span className="review__title">Selected Plugin:</span>
-        </GridItem>
-        <GridItem span={10}>
-          <span className="review__value">
-            {data.plugin && data.plugin.data.name}
-          </span>
-        </GridItem>
-        <GridItem span={2}>
-          <span className="review__title">Type of Plugin:</span>
-        </GridItem>
-        <GridItem span={10}>
-          <span className="review__value">
-            {data.plugin && data.plugin.data.type.toUpperCase()}
-          </span>
-        </GridItem>
-        <GridItem span={2}>
-          <span className="review__title">Plugin Configuration:</span>
-        </GridItem>
-        <GridItem span={10}>
-          <span className="required-text">{generatedCommand}</span>
-        </GridItem>
-        <GridItem span={2}>
-          <span className="review__title">Compute Enviroment:</span>
-        </GridItem>
-        <GridItem span={10}>
-          <span className="review__value">{computeEnvironment}</span>
-        </GridItem>
-        <GridItem span={2}>
-          <span className="review__title">GPU toggle:</span>
+          <span className="review__title">Gpu Toggle</span>
         </GridItem>
         <GridItem span={10}>
           <span className="review__value">

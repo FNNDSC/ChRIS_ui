@@ -1,5 +1,10 @@
 import React, { useContext } from "react";
-import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  Split,
+  SplitItem,
+} from "@patternfly/react-core";
 import { OutlinedTrashAltIcon, FileIcon } from "@patternfly/react-icons";
 import { CreateFeedContext } from "../context";
 import { Types, LocalFile } from "../types";
@@ -61,3 +66,49 @@ export const LocalFileList = ({
     </div>
   );
 };
+
+ function generateLocalFileList(localFiles: LocalFile[]) {
+   return localFiles.map((file: LocalFile, index: number) => {
+     return (
+       <React.Fragment key={index}>
+         <LocalFileList file={file} index={index} />
+       </React.Fragment>
+     );
+   });
+ }
+
+ function generateChrisFileList(chrisFiles: string[]) {
+   return chrisFiles.map((file: string, index: number) => {
+     return (
+       <React.Fragment key={index}>
+         <FileList file={file} index={index} />
+       </React.Fragment>
+     );
+   });
+ }
+
+ export const ChrisFileDetails = ({ chrisFiles }: { chrisFiles: string[] }) => {
+   return (
+     <Split>
+       <SplitItem isFilled className="file-list">
+         <p>Existing Files to add to new feed:</p>
+         {generateChrisFileList(chrisFiles)}
+       </SplitItem>
+     </Split>
+   );
+ };
+
+ export const LocalFileDetails = ({
+   localFiles,
+ }: {
+   localFiles: LocalFile[];
+ }) => {
+   return (
+     <Split>
+       <SplitItem isFilled className="file-list">
+         <p>Local Files to add to new feed:</p>
+         {generateLocalFileList(localFiles)}
+       </SplitItem>
+     </Split>
+   );
+ };

@@ -4,19 +4,15 @@ import { connect } from "react-redux";
 import JSZip from "jszip";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {
-  Title,
-  TitleSizes,
   Grid,
   GridItem,
-  Button,
   Spinner,  
 } from "@patternfly/react-core";
 import {
   FolderOpenIcon,
   FolderCloseIcon,
-  DownloadIcon,
 } from "@patternfly/react-icons";
-import { getPluginName, getPluginDisplayName } from "./utils";
+import { getPluginName} from "./utils";
 import {
   setSelectedFile,
   toggleViewerMode,
@@ -61,7 +57,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   }, [stopPolling, selected, getPluginFilesRequest]);
 
   const pluginName = selected && getPluginName(selected);
-  const pluginDisplayName = selected && getPluginDisplayName(selected);
   const selectedFiles =
     pluginFiles && selected && pluginFiles[selected.data.id as number];
   const tree = selected && createTreeFromFiles(selected, selectedFiles);
@@ -150,6 +145,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               selected.data.status === "finishedSuccessfully" &&
               tree ? (
                 <FileBrowser
+                  selectedFiles={selectedFiles}
                   pluginName={pluginName}
                   root={tree}
                   key={selected.data.id}

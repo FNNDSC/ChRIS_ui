@@ -157,6 +157,21 @@ export interface SimpleDropdownProps {
   addParam: () => void;
 }
 
+
+export interface RequiredParamProp {
+  param: PluginParameter;
+  addParam: () => void;
+  requiredInput: InputType;
+  inputChange(
+    id: string,
+    paramName: string,
+    value: string,
+    required: boolean,
+    type: string,
+    placeholder: string
+  ): void;
+}
+
 export interface ReviewProps extends InputState {
   data: {
     plugin?: Plugin;

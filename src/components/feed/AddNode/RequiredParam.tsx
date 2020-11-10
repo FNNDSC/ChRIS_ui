@@ -1,21 +1,10 @@
 import React from "react";
 import { Form, Label } from "@patternfly/react-core";
 import { PluginParameter } from "@fnndsc/chrisapi";
-import { InputType } from "./types";
+import {RequiredParamProp} from './types'
+import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
+import { css } from "@patternfly/react-styles";
 
-interface RequiredParamProp {
-  param: PluginParameter;
-  addParam: () => void;
-  requiredInput: InputType;
-  inputChange(
-    id: string,
-    paramName: string,
-    value: string,
-    required: boolean,
-    type: string,
-    placeholder: string
-  ): void;
-}
 
 const RequiredParam: React.FC<RequiredParamProp> = ({
   param,
@@ -65,13 +54,12 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
         </Label>
         <Label className="required-params__infoLabel">(*Required)</Label>
       </div>
-
       <input
+        className={css(styles.formControl,  `required-params__textInput`)}
         type="text"
         aria-label="required-parameters"
         onChange={(event: any) => handleInputChange(param, event)}
         onKeyDown={handleKeyDown}
-        className="required-params__textInput"
         placeholder={param.data.help}
         value={value}
       />
