@@ -27,6 +27,7 @@ export interface FileBrowserProps {
   pluginName?: string;
   handleFileBrowserToggle: (file: IUITreeNode, directory: IUITreeNode) => void;
   handleFileViewerToggle: (file: IUITreeNode, directory: IUITreeNode) => void;
+  downloadAllClick: () => void;
 }
 
 export interface FileBrowerState {

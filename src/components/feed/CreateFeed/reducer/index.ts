@@ -229,11 +229,16 @@ export const createFeedReducer = (
            feedProgress: action.payload.feedProgress,
            value: state.value + 20,
          };
-       }
-     
+       }    
     }
 
-  
+    case Types.SetComputeEnvironment:{
+      return {
+        ...state,
+        computeEnvironment:action.payload.computeEnvironment
+      }
+    }
+
     case Types.SetError: {
       return {
         ...state,

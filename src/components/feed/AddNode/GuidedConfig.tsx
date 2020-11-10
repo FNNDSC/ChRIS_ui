@@ -5,6 +5,7 @@ import {
   Button,
   Alert,
   AlertActionCloseButton,
+  ExpandableSection
 } from "@patternfly/react-core";
 import SimpleDropdown from "./SimpleDropdown";
 import RequiredParam from "./RequiredParam";
@@ -33,15 +34,16 @@ class GuidedConfig extends React.Component<
       count: 1,
       errors: [],
       alertVisible: false,
+      docsExpanded: false,
     };
     this.deleteComponent = this.deleteComponent.bind(this);
     this.addParam = this.addParam.bind(this);
     this.hideAlert = this.hideAlert.bind(this);
+
   }
 
   componentDidMount() {
     const { dropdownInput, params } = this.props;
- 
 
     if (params && params.length > 0) {
       let requiredParams = getRequiredParams(params);
@@ -109,6 +111,12 @@ class GuidedConfig extends React.Component<
     }
   }
 
+  handleDocsToggle=()=>{
+    this.setState({
+      docsExpanded:!this.state.docsExpanded
+    })
+  }
+
   renderComputeEnvs() {
     const {
       computeEnvs,
@@ -126,6 +134,27 @@ class GuidedConfig extends React.Component<
             computeEnvs={computeEnvs}
             setComputeEnviroment={setComputeEnviroment}
           />
+          <ExpandableSection
+            className="docs"
+            toggleText="Compute Environment configuration"
+            isExpanded={this.state.docsExpanded}
+            onToggle={this.handleDocsToggle}
+          >
+            {computeEnvs &&
+              computeEnvs.map((computeEnv) => {
+                return (
+                  <div key={computeEnv.data.id} className="param-item">
+                    <b className="param-title">{computeEnv.data.name}</b>
+                    <div className="param-help">
+                      {computeEnv.data.description}
+                    </div>
+                    <div className="param-help">
+                      {computeEnv.data.compute_url}
+                    </div>
+                  </div>
+                );
+              })}
+          </ExpandableSection>
         </div>
       );
     }

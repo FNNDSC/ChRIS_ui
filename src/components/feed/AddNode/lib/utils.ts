@@ -2,15 +2,11 @@ import { InputType, InputIndex } from "../types";
 import { PluginParameter } from "@fnndsc/chrisapi";
 
 export const unPackForKeyValue = (input: InputIndex) => {
-  
   const flag = Object.keys(input)[1];
-  console.log('flag',flag)
   const value = input[flag];
   const type = input["type"];
   const placeholder = input["placeholder"];
-  const index=input['id']
-
-
+  const index = input["id"];
 
   return [index, flag, value, type, placeholder];
 };

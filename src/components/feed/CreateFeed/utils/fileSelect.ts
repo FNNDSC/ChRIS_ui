@@ -46,8 +46,8 @@ export const generateTreeNodes = async (
 ): Promise<DataBreadcrumb[]> => {
   const key = treeNode.key;
   let arr = [];
-  let feeds=[];
- let breadcrumb = username;
+  let feeds = [];
+  let breadcrumb = username;
   if (treeNode.title === username) {
     // First level is feeds and uploads
     feeds = await getFeeds();
@@ -69,7 +69,7 @@ export const generateTreeNodes = async (
 
   if (treeNode.title && treeNode.title.toString().indexOf("feed") === 0) {
     // Second level are the feeds amd uploads
-    let newBreadcrumb =`${breadcrumb}/${treeNode.title.toString()}`;
+    let newBreadcrumb = `${breadcrumb}/${treeNode.title.toString()}`;
     const id = treeNode.title.toString().split("_")[1];
     const feedFiles = await getFeedFiles(parseInt(id));
     const feedPaths = feedFiles.map(
@@ -95,7 +95,7 @@ export const generateTreeNodes = async (
         arr = tree;
       });
   }
-  console.log("arr",arr)
+
   return arr;
 };
 

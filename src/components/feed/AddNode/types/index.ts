@@ -61,6 +61,11 @@ export interface AddNodeState extends InputState {
     parent?: PluginInstance;
   };
   computeEnv: string;
+  errors: {
+    [key: string]: string[];
+  };
+  toggleGPU: boolean;
+  gpuInput: InputIndex;
 }
 
 export interface AddNodeProps {
@@ -76,6 +81,7 @@ export interface GuidedConfigState {
   count: number;
   errors: string[];
   alertVisible: boolean;
+  docsExpanded: boolean;
 }
 export interface GuidedConfigProps extends InputProps {
   plugin?: Plugin;
@@ -116,6 +122,8 @@ export interface EditorProps extends InputState {
     dropdownInput: InputType,
     requiredInput: InputType
   ): void;
+  toggleGPU: boolean;
+  addGpuToggle: (toggleGPU: boolean) => void;
 }
 
    
@@ -154,7 +162,11 @@ export interface ReviewProps extends InputState {
     plugin?: Plugin;
     parent?: PluginInstance;
   };
-  computeEnvironment:string
+  computeEnvironment: string;
+  errors: {
+    [key: string]: string[];
+  };
+  gpuToggled: boolean;
 }
 
 

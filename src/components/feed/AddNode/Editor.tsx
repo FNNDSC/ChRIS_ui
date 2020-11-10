@@ -1,9 +1,13 @@
 import React, { Component } from "react";
-import { TextArea, ExpandableSection, Label } from "@patternfly/react-core";
+import {
+  TextArea,
+  ExpandableSection,
+  Label,
+  Checkbox,
+} from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { isEmpty } from "lodash";
-
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { InputType } from "./types";
 import { EditorState, EditorProps } from "./types";
@@ -20,7 +24,7 @@ class Editor extends Component<EditorProps, EditorState> {
     super(props);
     this.state = {
       value: "",
-      docsExpanded: true,
+      docsExpanded: false,
       errors: [],
     };
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -70,11 +74,11 @@ class Editor extends Component<EditorProps, EditorState> {
 
   handleGetTokens(value: string) {
     let test: { [key: string]: string }[] = [];
-    let errors:string[] = [];
+    let errors: string[] = [];
     let paramDict: {
       [key: string]: {
-        [key:string]:string
-      }
+        [key: string]: string;
+      };
     } = {};
 
     const userValue = value.trim().split(" ").slice(1);
@@ -83,88 +87,100 @@ class Editor extends Component<EditorProps, EditorState> {
     if (params && params.length > 0) {
       test = params.map((param) => {
         return {
-          id:`${param.data.id}`,
+          id: `${param.data.id}`,
           flag: param.data.flag,
           type: param.data.type,
-          placeholder:param.data.help
+          placeholder: param.data.help,
         };
       });
     }
 
-    
-    let paramFlags  = params && params.map(param =>  param.data.flag)
+    let paramFlags = params && params.map((param) => param.data.flag);
 
-    if (userValue.length > 0) {  
+    if (userValue.length > 0) {
       for (let i = 0; i <= userValue.length; i++) {
         const flag = userValue[i];
         let value = userValue[i + 1];
-       
 
         test.forEach((param) => {
           if (param.flag === flag) {
             if (
               !value ||
               ((value.startsWith("--") || value.startsWith("-")) &&
-                (paramFlags && paramFlags.includes(value)))
+                paramFlags &&
+                paramFlags.includes(value))
             ) {
               paramDict[flag] = {
-                value:'',
-                id:param.id,
-                placeholder:param.placeholder,
-                type:param.type
-              }       
+                value: "",
+                id: param.id,
+                placeholder: param.placeholder,
+                type: param.type,
+              };
             } else if (param.type === "boolean" && value) {
               paramDict[flag] = {
-                value:'',
-                id:param.id,
-                placeholder:param.placeholder,
-                type:param.type
-              }
+                value: "",
+                id: param.id,
+                placeholder: param.placeholder,
+                type: param.type,
+              };
               errors.push(
                 `Please don't provide values for boolean flag ${param.flag}`
               );
             } else {
               paramDict[flag] = {
                 value,
-                id:param.id,
-                placeholder:param.placeholder,
-                type:param.type
-              }   
+                id: param.id,
+                placeholder: param.placeholder,
+                type: param.type,
+              };
             }
           }
         });
       }
     }
-    
 
-    return {paramDict, errors};
+    return { paramDict, errors };
   }
+
+  handleCheckboxChange = (
+    checked: boolean,
+    event: React.FormEvent<HTMLInputElement>
+  ) => {
+    this.props.addGpuToggle(checked);
+  };
 
   handleRegex(value: string) {
     const { inputChangeFromEditor, params } = this.props;
     const requiredParams = params && getRequiredParams(params);
-    const {paramDict, errors}= this.handleGetTokens(value);
-   
+    const { paramDict, errors } = this.handleGetTokens(value);
+
     let dropdownObject: InputType = {};
     let requiredObject: InputType = {};
 
     for (let token in paramDict) {
       const id = paramDict[token].id;
-      const editorValue=paramDict[token].value;
+      const editorValue = paramDict[token].value;
       const flag = token;
-      const type=paramDict[token].type;
-      const placeholder=paramDict[token].placeholder;
-      if (requiredParams && requiredParams.length>0 && requiredParams.includes(flag)) {
+      const type = paramDict[token].type;
+      const placeholder = paramDict[token].placeholder;
+      if (
+        requiredParams &&
+        requiredParams.length > 0 &&
+        requiredParams.includes(flag)
+      ) {
         const value =
-          params && getRequiredParamsWithName(id,flag, editorValue,type,placeholder);
+          params &&
+          getRequiredParamsWithName(id, flag, editorValue, type, placeholder);
         if (value) requiredObject[id] = value;
       } else {
-        const value = params && getAllParamsWithName(id,flag, editorValue,type,placeholder);
+        const value =
+          params &&
+          getAllParamsWithName(id, flag, editorValue, type, placeholder);
         if (value) dropdownObject[id] = value;
       }
     }
 
-   inputChangeFromEditor(dropdownObject, requiredObject);
+    inputChangeFromEditor(dropdownObject, requiredObject);
   }
 
   render() {
@@ -197,6 +213,16 @@ class Editor extends Component<EditorProps, EditorState> {
                 <span className="error-message">{error}</span>
               </div>
             ))}
+          </div>
+
+          <div className="gputoggle">
+            <Checkbox
+              isChecked={this.props.toggleGPU}
+              onChange={this.handleCheckboxChange}
+              aria-label="gpus toggle"
+              id="gpu-1"
+              label="Toggle the checkbox to add the --gpus flag to your configuration"
+            />
           </div>
 
           <ExpandableSection

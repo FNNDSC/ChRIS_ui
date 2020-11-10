@@ -35,6 +35,7 @@ export enum Types {
   SetError = "SET_ERROR",
   ResetProgress = "RESET_PROGRESS",
   SetProgressPercent = "SET_PROGRESS_PERCENT",
+  SetComputeEnvironment = "SET_COMPUTE_ENVIRONMENT",
 }
 
 type CreateFeedPayload = {
@@ -92,6 +93,9 @@ type CreateFeedPayload = {
   };
   [Types.SetProgressPercent]: {
     percent: number;
+  };
+  [Types.SetComputeEnvironment]: {
+    computeEnvironment: string;
   };
   [Types.ResetProgress]: boolean;
 };
