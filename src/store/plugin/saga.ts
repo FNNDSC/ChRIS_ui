@@ -49,8 +49,8 @@ function* handleGetParams(action: IActionTypeParam) {
     while (computeEnvList.hasNextPage) {
       try {
         paginate.offset += paginate.limit;
-        computeEnvList = plugin.getPluginParameters(paginate);
-        computeEnvs = params.concat(paramList.getItems());
+        computeEnvList = plugin.getPluginComputeResources(paginate);
+        computeEnvs = computeEnvs.concat(computeEnvList.getItems());
       } catch (error) {
         console.error(error);
       }

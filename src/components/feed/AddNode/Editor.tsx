@@ -152,7 +152,7 @@ class Editor extends Component<EditorProps, EditorState> {
   handleRegex(value: string) {
     const { inputChangeFromEditor, params } = this.props;
     const requiredParams = params && getRequiredParams(params);
-    const { paramDict, errors } = this.handleGetTokens(value);
+    const { paramDict } = this.handleGetTokens(value);
 
     let dropdownObject: InputType = {};
     let requiredObject: InputType = {};

@@ -8,9 +8,6 @@ import {
   Grid,
   GridItem,
   Title,
-  Popover,
-  Label,
-  PopoverPosition,
 } from "@patternfly/react-core";
 import { Plugin, PluginInstanceParameter } from "@fnndsc/chrisapi";
 import {
@@ -35,6 +32,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PluginStatus } from "../../../store/plugin/types";
 import { displayDescription } from "../FeedOutputBrowser/utils";
 import "./NodeDetails.scss"
+import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
 
 
 interface INodeProps {
@@ -134,11 +132,17 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     return currentTitle[0];
   }
 
-  getCommand(params: PluginInstanceParameter[]) {
-    const inputString= params
-       .map((param) => `--${param.data.param_name} ${param.data.value}`)
-       .join("\n");
-    return inputString
+  getCommand(plugin:Plugin,params: PluginInstanceParameter[]) {
+    const {dock_image, selfexec}=plugin.data;
+   
+    let command = `docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
+    if(params.length){
+      command+= "\n" + params.map((param)=>`--${param.data.param_name} ${param.data.value}`).join("\n")   
+    }
+    command=`${command}\n /incoming/outgoing`.trim()
+    const lines=command.split('\n');
+    const longest=lines.reduce((a,b)=>(a.length>b.length?a:b)).length
+    return lines.map((line)=>`${line.padEnd(longest)} \\`).join('\n').slice(0,-1)
   }
 
   calculateTotalRuntime = () => {
@@ -173,8 +177,8 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     
 
     const pluginTitle = `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;
-    const command = params ? this.getCommand(params) : "Loading command...";
-    
+    const command = plugin && params ? this.getCommand(plugin,params) : "Loading command...";
+   
     
     return (
       <React.Fragment>
@@ -186,40 +190,18 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
             </Title>
           </div>
           <div>
-            <Popover
-              className="node-configuration"
-              headerContent={`Configuration used for ${pluginTitle}`}
-              bodyContent={
-                <div className="node-configuration__body">
-                  <div className="node-configuration__container">
-                    <Label className="node-configuration__label">
-                      Parameters:
-                    </Label>
-                    <span className="node-configuration__command">
-                      {command}
-                    </span>
-                  </div>
-                  <div className="node-configuration__container">
-                    <Label className="node-configuration__label">
-                      Compute Resource:
-                    </Label>
-
-                    <span className="node-configuration__command">
-                      {
-                        // @ts-ignore
-                        selected && selected.data.compute_resource_name
-                      }
-                    </span>
-                  </div>
-                </div>
-              }
+            <TextCopyPopover
+              text={command}
+              headerContent={`Docker Command for ${pluginTitle}`}
+              max-width='50rem'
+              className='view-command-wrap'
             >
               <Button>
                 <TerminalIcon />
                 View Command
                 <CaretDownIcon />
               </Button>
-            </Popover>
+            </TextCopyPopover>
           </div>
         </div>
 
@@ -227,7 +209,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
           <GridItem span={2} className="title">
             Status
           </GridItem>
-          {}
+
           <GridItem span={10} className="value">
             {selected.data.status === "waitingForPrevious" ? (
               <>

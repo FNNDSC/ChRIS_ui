@@ -175,7 +175,7 @@ class GuidedConfig extends React.Component<
               />
             </React.Fragment>
           );
-        }
+        } else return undefined;
       });
     }
   }

@@ -239,7 +239,11 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
   }
 
   render() {
-    const { handleFileBrowserToggle, handleFileViewerToggle } = this.props;
+    const {
+      handleFileBrowserToggle,
+      handleFileViewerToggle,
+      selectedFiles,
+    } = this.props;
     const { directory, breadcrumbs, previewingFile } = this.state;
 
     if (!directory.children || !directory.children.length) {
@@ -253,15 +257,17 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
       <Grid hasGutter className="file-browser">
         <GridItem className="file-browser__table" span={6} rowSpan={12}>
           <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
+          <span className="files-info">
+            {selectedFiles ? `${selectedFiles.length} files` : "Empty Directory"}
+          </span>
           <Button
             className="download-all-button"
             variant="secondary"
-            onClick={() =>  this.props.downloadAllClick()}
+            onClick={() => this.props.downloadAllClick()}
           >
             <DownloadIcon />
-            Download All Files
+            Download All 
           </Button>
-
           <Table
             aria-label="feed-browser-table"
             variant={TableVariant.compact}
