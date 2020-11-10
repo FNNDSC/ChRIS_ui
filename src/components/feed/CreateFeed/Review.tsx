@@ -43,6 +43,7 @@ const Review: React.FunctionComponent = () => {
     requiredInput,
     selectedConfig,
     selectedPlugin,
+    computeEnvironment,
   } = state;
 
   // the installed version of @patternfly/react-core doesn't support read-only chips
@@ -74,6 +75,10 @@ const Review: React.FunctionComponent = () => {
           <GridItem span={2}>Plugin configuration:</GridItem>
           <GridItem span={10}>
             <span className="required-text">{generatedCommand}</span>
+          </GridItem>
+          <GridItem span={2}>Compute Environement:</GridItem>
+          <GridItem span={10}>
+            <span className="required-text">{computeEnvironment}</span>
           </GridItem>
         </Grid>
       );

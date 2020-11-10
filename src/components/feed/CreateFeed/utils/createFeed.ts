@@ -20,23 +20,23 @@ export const createFeed = async (
   dropdownInput: InputType,
   requiredInput: InputType,
   selectedPlugin: Plugin | undefined,
-  username: string | null | undefined,  
+  username: string | null | undefined,
   setProgressCallback: (status: string) => void,
-  setErrorCallback: (error: string) => void
+  setErrorCallback: (error: string) => void,
+  computeEnvironment: string
 ) => {
   const { chrisFiles, localFiles } = data;
- 
 
   /**
    * Dircopy requires a path from the ChRIS object storage
    * as in input
    */
   let feed;
-  setProgressCallback('Started')
+  setProgressCallback("Started");
 
   if (chrisFiles.length > 0 || localFiles.length > 0) {
     feed = await createFeedInstanceWithDircopy(
-      data, 
+      data,
       username,
       setProgressCallback,
       setErrorCallback
@@ -47,7 +47,8 @@ export const createFeed = async (
       requiredInput,
       selectedPlugin,
       setProgressCallback,
-      setErrorCallback
+      setErrorCallback,
+      computeEnvironment
     );
   }
   return feed;
@@ -129,7 +130,8 @@ export const createFeedInstanceWithFS = async (
   requiredInput: InputType,
   selectedPlugin: Plugin | undefined,
   statusCallback: (status: string) => void,
-  errorCallback: (error: string) => void
+  errorCallback: (error: string) => void,
+  computeEnvironment: string
 ) => {
   statusCallback("Unpacking parameters");
   let feed;
@@ -143,9 +145,10 @@ export const createFeedInstanceWithFS = async (
         fsPlugin
       );
       const fsPluginInstance = await fsPlugin.getPluginInstances();
-     statusCallback("Creating Plugin Instance");
+      statusCallback("Creating Plugin Instance");
       await fsPluginInstance.post({
         ...inputParameter,
+        compute_resource_name: computeEnvironment,
       });
 
       const createdInstance = fsPluginInstance.getItems()[0];
@@ -211,8 +214,6 @@ export const getRequiredObject = async (
   plugin: Plugin,
   selected?: PluginInstance
 ) => {
-  
-  
   let dropdownUnpacked;
   let requiredUnpacked;
   let mappedParameter: {
@@ -229,14 +230,13 @@ export const getRequiredObject = async (
 
   let nodeParameter: {
     [key: string]: {
-      [key:string]:string
-    }
+      [key: string]: string;
+    };
   } = {
     ...dropdownUnpacked,
     ...requiredUnpacked,
   };
-  
-  
+
   const paginate = { limit: 30, offset: 0 };
   let paramList = await plugin.getPluginParameters(paginate);
   let params = paramList.getItems();
@@ -245,34 +245,30 @@ export const getRequiredObject = async (
       paginate.offset += paginate.limit;
       paramList = await plugin.getPluginParameters(paginate);
       params = params.concat(paramList.getItems());
-    } catch (error) {    
+    } catch (error) {
       console.error(error);
     }
   }
 
-  console.log('Params',params)
-  
-
   for (let i = 0; i < params.length; i++) {
-    let flag=params[i].data.flag;
-    let defaultValue= params[i].data.default;
+    let flag = params[i].data.flag;
+    let defaultValue = params[i].data.default;
     if (Object.keys(nodeParameter).includes(flag)) {
-      let value:string | boolean=nodeParameter[flag].value;
-      let type=nodeParameter[flag].type;
+      let value: string | boolean = nodeParameter[flag].value;
+      let type = nodeParameter[flag].type;
 
-      if (value === "" && type==='boolean') {
+      if (value === "" && type === "boolean") {
         if (defaultValue === false) {
           value = true;
         } else {
           value = false;
         }
-      } else if(value==="" || value==='undefined') {
-        value=defaultValue;
+      } else if (value === "" || value === "undefined") {
+        value = defaultValue;
       }
       mappedParameter[params[i].data.name] = value;
-    }    
+    }
   }
-
 
   let parameterInput;
   if (selected) {
@@ -287,7 +283,6 @@ export const getRequiredObject = async (
   }
 
   return parameterInput;
-
 };
 
 

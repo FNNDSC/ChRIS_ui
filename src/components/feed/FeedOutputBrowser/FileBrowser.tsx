@@ -1,5 +1,4 @@
 import React from "react";
-
 import classNames from "classnames";
 
 import {
@@ -9,6 +8,7 @@ import {
   GridItem,
   PopoverPosition,
   Alert,
+  Button,
 } from "@patternfly/react-core";
 import {
   DownloadIcon,
@@ -53,7 +53,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     const target = e.nativeEvent.target as HTMLElement;
     if (e.button !== 0 || target.closest(".download-file")) {
       // not alt-click or download click
-      return;
+     return;
     }
 
     const rowIndex: number = rowData.rowIndex;
@@ -251,10 +251,17 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
 
     return (
       <Grid hasGutter className="file-browser">
-        <GridItem span={12} rowSpan={2}>
-          <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
-        </GridItem>
         <GridItem className="file-browser__table" span={6} rowSpan={12}>
+          <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
+          <Button
+            className="download-all-button"
+            variant="secondary"
+            onClick={() =>  this.props.downloadAllClick()}
+          >
+            <DownloadIcon />
+            Download All Files
+          </Button>
+
           <Table
             aria-label="feed-browser-table"
             variant={TableVariant.compact}

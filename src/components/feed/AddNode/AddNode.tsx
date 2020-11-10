@@ -18,6 +18,7 @@ import BasicConfiguration from "./BasicConfiguration";
 import { AddNodeState, AddNodeProps, InputType,InputIndex} from "./types";
 import { getRequiredObject } from "../CreateFeed/utils/createFeed";
 
+
 class AddNode extends Component<AddNodeProps, AddNodeState> {
   constructor(props: AddNodeProps) {
     super(props);
@@ -29,6 +30,9 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       requiredInput: {},
       dropdownInput: {},
       computeEnv: "host",
+      errors: {},
+      toggleGPU: false,
+      gpuInput:   {},
     };
 
     this.inputChange = this.inputChange.bind(this);
@@ -40,6 +44,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     this.handlePluginSelect = this.handlePluginSelect.bind(this);
     this.handleSave = this.handleSave.bind(this);
     this.deleteInput = this.deleteInput.bind(this);
+    this.addGpuToggle = this.addGpuToggle.bind(this);
   }
 
   componentDidMount() {
@@ -73,8 +78,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     paramName: string,
     value: string,
     required: boolean,
-    type:string,
-    placeholder:string
+    type: string,
+    placeholder: string
   ) {
     const input: InputIndex = {};
     input["id"] = id;
@@ -84,28 +89,46 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
 
     if (required === true) {
       this.setState({
+        ...this.state,
         requiredInput: {
           ...this.state.requiredInput,
           [id]: input,
         },
+        errors: {},
       });
     } else {
       this.setState({
+        ...this.state,
         dropdownInput: {
           ...this.state.dropdownInput,
           [id]: input,
         },
+        errors: {},
       });
     }
   }
 
+  addGpuToggle(toggleGPU: boolean) {
+    let input:InputIndex={}
+    input['gpus']='all'
+    this.setState({
+      ...this.state,
+      toggleGPU,
+      gpuInput:input
+    });
+  }
+
   inputChangeFromEditor(dropdownInput: InputType, requiredInput: InputType) {
     this.setState((prevState) => ({
+      ...prevState,
       dropdownInput: dropdownInput,
+      errors: {},
     }));
 
     this.setState((prevState) => ({
+      ...prevState,
       requiredInput: requiredInput,
+      errors: {},
     }));
   }
 
@@ -181,6 +204,10 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       data: {},
       dropdownInput: {},
       requiredInput: {},
+      errors: {},
+      computeEnv: "host",
+      toggleGPU:false,
+      gpuInput:{}
     });
   }
 
@@ -199,21 +226,27 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       plugin,
       selected
     );
+   
 
     parameterInput = {
       ...parameterInput,
+      ...this.state.gpuInput,
       compute_resource_name: computeEnv,
     };
-    console.log("ParameterInput", parameterInput);
+ 
 
     const pluginInstance = await plugin.getPluginInstances();
 
-    const test = await pluginInstance.post(parameterInput);
-    console.log("Test", test);
-
-    const node = pluginInstance.getItems()[0];
-    //addNode(node);
-    this.resetState();
+    try {
+      await pluginInstance.post(parameterInput);
+      const node = pluginInstance.getItems()[0];
+      addNode(node);
+      this.resetState();
+    } catch (error) {
+      this.setState({
+        errors: error.response.data,
+      });
+    }
   }
 
   render() {
@@ -224,6 +257,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       requiredInput,
       stepIdReached,
       computeEnv,
+      errors,
+      toggleGPU
     } = this.state;
     const { nodes, selected } = this.props;
 
@@ -256,6 +291,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
         inputChangeFromEditor={this.inputChangeFromEditor}
+        addGpuToggle={this.addGpuToggle}
+        toggleGPU={toggleGPU}
       />
     ) : (
       <LoadingSpinner />
@@ -267,6 +304,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
         computeEnvironment={computeEnv}
+        errors={errors}
+        gpuToggled={toggleGPU}
       />
     ) : (
       <LoadingSpinner />

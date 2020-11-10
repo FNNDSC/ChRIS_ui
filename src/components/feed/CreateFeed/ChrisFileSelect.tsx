@@ -48,7 +48,7 @@ export function clearCache(){
   cache['tree']=[]
 }
 
-console.log('Cache',cache)
+
 
 
 
