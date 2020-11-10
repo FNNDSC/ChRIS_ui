@@ -1,5 +1,4 @@
 import React from "react";
-
 import { Popover, TextArea, ClipboardCopy } from "@patternfly/react-core";
 import { BasePlacement } from "tippy.js";
 
@@ -12,7 +11,6 @@ interface TextCopyPopoverProps {
   position?: BasePlacement;
   subheaderContent?: string;
   rows?: number;
-
   tabIndex?: number;
   className?: string;
   shouldClose?: () => void;
@@ -21,45 +19,41 @@ interface TextCopyPopoverProps {
   maxWidth?: string;
 }
 
-class TextCopyPopover extends React.Component<TextCopyPopoverProps> {
-  // eslint-disable-next-line
-  constructor(props: TextCopyPopoverProps) {
-    super(props);
+const TextCopyPopover:React.FC<TextCopyPopoverProps>=({
+  text,
+  children,
+  className,
+  headerContent,
+  maxWidth
+})=>{
+
+  const mergeClassNames=(...names:(string|undefined)[])=>{
+    return names.join(" ")
   }
+  
 
-  mergeClassnames(...names: (string | undefined)[]) {
-    return names.join(" ");
-  }
-
-  render() {
-    const {
-      text,
-      children,
-      subheaderContent,
-      className,
-      rows,
-      ...props
-    } = this.props;
-
-    const body = (
-      <React.Fragment>
-        {subheaderContent}
-
-        <TextArea value={text} rows={rows} aria-label="full-path" />
-        <ClipboardCopy>{text}</ClipboardCopy>
-      </React.Fragment>
-    );
-
-    return (
-      <Popover
-        bodyContent={body}
-        className={this.mergeClassnames("text-copy-popover", className)}
-        {...props}
-      >
-        {children as React.ReactElement<any>}
-      </Popover>
-    );
-  }
+  const rows= text ? text.split(`\n`).length : 0
+  const body = (
+    <>
+      <TextArea value={text} rows={rows} aria-label="full-path" />
+      <ClipboardCopy>{text}</ClipboardCopy>
+    </>
+  );
+  return(
+    <Popover
+    headerContent={headerContent}
+    bodyContent={body}
+    className={
+      mergeClassNames(`text-copy-popover`, className)
+    }
+    enableFlip={true}
+    minWidth={maxWidth}
+    position='bottom'
+    >
+      {children as React.ReactElement<any>}
+    </Popover>
+  )
 }
+
 
 export default TextCopyPopover;

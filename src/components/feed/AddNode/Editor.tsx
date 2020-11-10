@@ -1,26 +1,30 @@
 import React, { Component } from "react";
-import { TextArea, ExpandableSection, Label } from "@patternfly/react-core";
+import {
+  TextArea,
+  ExpandableSection,
+  Label,
+  Checkbox,
+} from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { isEmpty } from "lodash";
-import { v4 } from "uuid";
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
-import { InputType, InputIndex } from "./types";
+import { InputType } from "./types";
 import { EditorState, EditorProps } from "./types";
 import {
   unpackParametersIntoString,
   getRequiredParams,
   getAllParamsWithName,
-  getRequiredParamsWithId,
+  getRequiredParamsWithName
 } from "./lib/utils";
-import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
+import { Plugin,  } from "@fnndsc/chrisapi";
 
 class Editor extends Component<EditorProps, EditorState> {
   constructor(props: EditorProps) {
     super(props);
     this.state = {
       value: "",
-      docsExpanded: true,
+      docsExpanded: false,
       errors: [],
     };
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -69,75 +73,110 @@ class Editor extends Component<EditorProps, EditorState> {
   }
 
   handleGetTokens(value: string) {
+    let test: { [key: string]: string }[] = [];
+    let errors: string[] = [];
+    let paramDict: {
+      [key: string]: {
+        [key: string]: string;
+      };
+    } = {};
+
     const userValue = value.trim().split(" ").slice(1);
     const { params } = this.props;
-    let paramArray = [];
-    let errors: string[] = [];
 
-    if (params && params?.length > 0) {
-      let compareParams = params.map(
-        (param: PluginParameter) => param.data.flag
-      );
-      for (let i = 0; i < userValue.length; i++) {
-        if (compareParams.indexOf(userValue[i]) !== -1) {
-          const flag = userValue[i];
-          const value = userValue[i + 1];
-          paramArray.push([flag, value]);
-        } else {
-          const integer = Number.isInteger(parseInt(userValue[i]));
-          if (
-            !integer &&
-            (userValue[i].startsWith("--") || userValue[i].startsWith("-"))
-          ) {
-            errors.push(`${userValue[i]} is not present in the list of flags`);
+    if (params && params.length > 0) {
+      test = params.map((param) => {
+        return {
+          id: `${param.data.id}`,
+          flag: param.data.flag,
+          type: param.data.type,
+          placeholder: param.data.help,
+        };
+      });
+    }
+
+    let paramFlags = params && params.map((param) => param.data.flag);
+
+    if (userValue.length > 0) {
+      for (let i = 0; i <= userValue.length; i++) {
+        const flag = userValue[i];
+        let value = userValue[i + 1];
+
+        test.forEach((param) => {
+          if (param.flag === flag) {
+            if (
+              !value ||
+              ((value.startsWith("--") || value.startsWith("-")) &&
+                paramFlags &&
+                paramFlags.includes(value))
+            ) {
+              paramDict[flag] = {
+                value: "",
+                id: param.id,
+                placeholder: param.placeholder,
+                type: param.type,
+              };
+            } else if (param.type === "boolean" && value) {
+              paramDict[flag] = {
+                value: "",
+                id: param.id,
+                placeholder: param.placeholder,
+                type: param.type,
+              };
+              errors.push(
+                `Please don't provide values for boolean flag ${param.flag}`
+              );
+            } else {
+              paramDict[flag] = {
+                value,
+                id: param.id,
+                placeholder: param.placeholder,
+                type: param.type,
+              };
+            }
           }
-        }
+        });
       }
     }
-    this.setState({
-      errors,
-    });
 
-    return [...paramArray];
+    return { paramDict, errors };
   }
+
+  handleCheckboxChange = (
+    checked: boolean,
+    event: React.FormEvent<HTMLInputElement>
+  ) => {
+    this.props.addGpuToggle(checked);
+  };
 
   handleRegex(value: string) {
     const { inputChangeFromEditor, params } = this.props;
-
-    const requiredParamsWithId = params && getRequiredParamsWithId(params);
     const requiredParams = params && getRequiredParams(params);
-    const allParams = params && getAllParamsWithName(params);
-
-    const tokens = this.handleGetTokens(value);
-
-    // Creating required and dropdown objects based on User input
-    // If the user navigates to the form, the DOM will be re-created.
+    const { paramDict } = this.handleGetTokens(value);
 
     let dropdownObject: InputType = {};
     let requiredObject: InputType = {};
 
-    for (const token of tokens) {
-      //eslint-disable-next-line
-      const [flag, editorValue] = token;
-
-      let result: InputIndex = {};
-
+    for (let token in paramDict) {
+      const id = paramDict[token].id;
+      const editorValue = paramDict[token].value;
+      const flag = token;
+      const type = paramDict[token].type;
+      const placeholder = paramDict[token].placeholder;
       if (
-        requiredParamsWithId &&
         requiredParams &&
+        requiredParams.length > 0 &&
         requiredParams.includes(flag)
       ) {
-        for (let param of requiredParamsWithId) {
-          if (param && param.split("_")[0] === flag) {
-            const id = param.split("_")[1];
-            result[flag] = editorValue && editorValue.trim();
-            requiredObject[id] = result;
-          }
-        }
-      } else if (allParams && allParams.includes(flag) && editorValue) {
-        const id = v4();
-        result[flag] = editorValue.trim();
-        dropdownObject[id] = result;
+        const value =
+          params &&
+          getRequiredParamsWithName(id, flag, editorValue, type, placeholder);
+        if (value) requiredObject[id] = value;
+      } else {
+        const value =
+          params &&
+          getAllParamsWithName(id, flag, editorValue, type, placeholder);
+        if (value) dropdownObject[id] = value;
       }
     }
 
@@ -174,6 +213,16 @@ class Editor extends Component<EditorProps, EditorState> {
                 <span className="error-message">{error}</span>
               </div>
             ))}
+          </div>
+
+          <div className="gputoggle">
+            <Checkbox
+              isChecked={this.props.toggleGPU}
+              onChange={this.handleCheckboxChange}
+              aria-label="gpus toggle"
+              id="gpu-1"
+              label="Toggle the checkbox to add the --gpus flag to your configuration"
+            />
           </div>
 
           <ExpandableSection

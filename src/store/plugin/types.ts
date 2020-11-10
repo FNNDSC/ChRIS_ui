@@ -19,8 +19,9 @@ export interface PluginStatus {
 
 export interface IPluginState {
   parameters?: PluginParameter[];
+  computeEnv?: any[];
   pluginFiles?: {};
-  pluginStatus?:PluginStatus[],
+  pluginStatus?: PluginStatus[];
   pluginLog?: {};
   computeError?: boolean;
 }
@@ -42,4 +43,6 @@ export const PluginActionTypes = keyMirror({
   GET_PARAMS_SUCCESS: null,
   GET_COMPUTE_ERROR_SUCCESS: null,
   STOP_POLLING: null,
+  GET_COMPUTE_ENV: null,
+  GET_COMPUTE_ENV_SUCCESS: null,
 });

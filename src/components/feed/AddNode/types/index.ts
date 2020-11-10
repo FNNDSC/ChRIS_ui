@@ -60,6 +60,12 @@ export interface AddNodeState extends InputState {
     plugin?: Plugin;
     parent?: PluginInstance;
   };
+  computeEnv: string;
+  errors: {
+    [key: string]: string[];
+  };
+  toggleGPU: boolean;
+  gpuInput: InputIndex;
 }
 
 export interface AddNodeProps {
@@ -75,18 +81,25 @@ export interface GuidedConfigState {
   count: number;
   errors: string[];
   alertVisible: boolean;
+  docsExpanded: boolean;
 }
 export interface GuidedConfigProps extends InputProps {
   plugin?: Plugin;
   params?: PluginParameter[];
+  computeEnvs?: any[];
   inputChange(
     id: string,
     paramName: string,
     value: string,
-    required: boolean
+    required: boolean,
+    type: string,
+    placeholder: string
   ): void;
   deleteInput(input: string): void;
+  computeEnvironment: string;
+  setComputeEnviroment: (computeEnv: string) => void;
 }
+
 
 export interface EditorState {
   value: string;
@@ -101,19 +114,26 @@ export interface EditorProps extends InputState {
     id: string,
     paramName: string,
     value: string,
-    required: boolean
+    required: boolean,
+    type: string,
+    placeholder: string
   ): void;
   inputChangeFromEditor(
     dropdownInput: InputType,
     requiredInput: InputType
   ): void;
+  toggleGPU: boolean;
+  addGpuToggle: (toggleGPU: boolean) => void;
 }
 
+   
 export interface SimpleDropdownState {
+  paramId:string,
   isOpen: boolean;
-  value: string;
+  paramValue: string;
   flag: string;
   placeholder: string;
+  type: string;
 }
 
 export interface SimpleDropdownProps {
@@ -127,7 +147,9 @@ export interface SimpleDropdownProps {
     id: string,
     paramName: string,
     value: string,
-    required: boolean
+    required: boolean,
+    type: string,
+    placeholder: string
   ): void;
   deleteComponent(id: string): void;
   deleteInput(id: string): void;
@@ -135,9 +157,32 @@ export interface SimpleDropdownProps {
   addParam: () => void;
 }
 
+
+export interface RequiredParamProp {
+  param: PluginParameter;
+  addParam: () => void;
+  requiredInput: InputType;
+  inputChange(
+    id: string,
+    paramName: string,
+    value: string,
+    required: boolean,
+    type: string,
+    placeholder: string
+  ): void;
+}
+
 export interface ReviewProps extends InputState {
   data: {
     plugin?: Plugin;
     parent?: PluginInstance;
   };
+  computeEnvironment: string;
+  errors: {
+    [key: string]: string[];
+  };
+  gpuToggled: boolean;
 }
+
+
+   

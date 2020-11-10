@@ -2,7 +2,6 @@ import { Tag, Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { InputState, InputIndex } from "../../AddNode/types";
 import { IUserState } from "../../../../store/user/types";
 import { Feed } from "@fnndsc/chrisapi";
-
 import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
 
 type ActionMap<M extends { [index: string]: any }> = {
@@ -35,6 +34,8 @@ export enum Types {
   SetProgress = "SET_PROGRESS",
   SetError = "SET_ERROR",
   ResetProgress = "RESET_PROGRESS",
+  SetProgressPercent = "SET_PROGRESS_PERCENT",
+  SetComputeEnvironment = "SET_COMPUTE_ENVIRONMENT",
 }
 
 type CreateFeedPayload = {
@@ -55,13 +56,12 @@ type CreateFeedPayload = {
     selectedConfig: string;
   };
   [Types.AddChrisFile]: {
-    file: EventNode;
-    path: string;
-    checkedKeys: CheckedKeys;
+    file: string;
+    checkedKeys: Key[];
   };
   [Types.RemoveChrisFile]: {
-    file: EventNode;
-    checkedKeys: CheckedKeys;
+    file: string;
+    checkedKeys: Key[];
   };
   [Types.AddLocalFile]: {
     files: LocalFile[];
@@ -91,6 +91,12 @@ type CreateFeedPayload = {
   [Types.SetError]: {
     feedError: string;
   };
+  [Types.SetProgressPercent]: {
+    percent: number;
+  };
+  [Types.SetComputeEnvironment]: {
+    computeEnvironment: string;
+  };
   [Types.ResetProgress]: boolean;
 };
 
@@ -107,10 +113,12 @@ export interface CreateFeedData {
   feedName: string;
   feedDescription: string;
   tags: Tag[];
-  chrisFiles: EventNode[];
-  checkedKeys: CheckedKeys;
+  chrisFiles: string[];
+  checkedKeys: {
+    [key: string]: Key[];
+  };
   localFiles: LocalFile[];
-  path: string[];
+ 
 }
 
 export interface CreateFeedState extends InputState {
@@ -122,6 +130,7 @@ export interface CreateFeedState extends InputState {
   feedProgress: string;
   feedError: string;
   value: number;
+  computeEnvironment: string;
 }
 
 export interface CreateFeedReduxProp {

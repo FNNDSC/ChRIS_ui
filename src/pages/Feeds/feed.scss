@@ -240,40 +240,6 @@
     fill:#C9190B;
   }
 }
-// For tree tooltip
-
-#pipelineTree {
-  position: relative;
-}
-.tooltip {
-  background: $tree-tooltip-background; // rgb(57, 63, 68); // 393f44
-  color: #fff;
-  font-size: 0.875rem;
-  min-height: 50px;
-  opacity: 0;
-  padding: 1rem;
-  position: absolute;
-  transition: opacity 1s;
-  transition-delay: 0.5s;
-  &::before {
-    background: $tree-tooltip-background;
-    content: "";
-    display: block;
-    height: $tree-tooltip-arrow-width;
-    left: 100px;
-    position: absolute;
-    pointer-events: none;
-    top: 100%; //0
-    transform: translate(-50%, -50%) rotate(45deg);
-    width: $tree-tooltip-arrow-width;
-  }
-}
-
-#pipelineTree {
-  .nodegroup {
-    cursor: default;
-  }
-}
 
 
 
@@ -294,6 +260,15 @@
 }
 
 
+.review {
+  &__title, &__value {
+    font-size: 0.9rem;
+    letter-spacing: 0.05rem;
+  }
 
+  &__title{
+    font-weight:900
+  }
+}
 
 

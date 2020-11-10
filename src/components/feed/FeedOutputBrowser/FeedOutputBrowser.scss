@@ -110,15 +110,7 @@
       font-weight: 500;
     }
 
-    .download-all-button {
-      --pf-c-button--BorderRadius: 5px;
-      --pf-c-button--BorderWidth: 2px;
-      margin-left: 10px;
-      svg {
-        // download icon
-        margin-right: 10px;
-      }
-    }
+ 
   }
   .sidebar {
    
@@ -204,6 +196,16 @@
 
   &__table{
     overflow-y:scroll;
+    
+    .download-all-button {
+      --pf-c-button--BorderRadius: 5px;
+      --pf-c-button--BorderWidth: 2px;
+      margin-left: 20px;
+      svg {
+        // download icon
+        margin-right: 10px;
+      }
+    }
    
      td,
      th {

@@ -36,27 +36,25 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
       let pluginStatus;
       let status;
 
-      if(action.payload){
+      if (action.payload) {
         pluginStatus = JSON.parse(action.payload);
         status = getStatusLabels(pluginStatus);
       }
-      
+
       return {
         ...state,
-        pluginStatus:status,
+        pluginStatus: status,
       };
     }
 
-    case PluginActionTypes.STOP_POLLING:{
+    case PluginActionTypes.STOP_POLLING: {
       return {
         ...state,
-        computeError:false
-      }
+        computeError: false,
+      };
     }
 
-
     case PluginActionTypes.GET_COMPUTE_ERROR_SUCCESS: {
-     
       return {
         ...state,
         computeError: action.payload,
@@ -69,7 +67,13 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
         pluginLog: action.payload,
       };
     }
-    
+
+    case PluginActionTypes.GET_COMPUTE_ENV_SUCCESS: {
+      return {
+        ...state,
+        computeEnv: action.payload,
+      };
+    }
 
     case PluginActionTypes.RESET_PLUGIN_STATE: {
       return {
@@ -77,7 +81,7 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
         pluginFiles: {},
         pluginStatus: undefined,
         pluginLog: {},
-        computeError:false
+        computeError: false,
       };
     }
 

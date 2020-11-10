@@ -18,6 +18,7 @@ import {
   getPluginLog,
   stopPolling,
   getComputeErrorSuccess,
+  getComputeEnvSuccess,
 } from "./actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { inflate } from "pako";
@@ -32,10 +33,12 @@ function* handleGetParams(action: IActionTypeParam) {
     const plugin = action.payload;
     const paginate = { limit: 20, offset: 0 };
     let paramList = yield plugin.getPluginParameters(paginate);
+    let computeEnvList = yield plugin.getPluginComputeResources(paginate);
     let params = paramList.getItems();
+    let computeEnvs = computeEnvList.getItems();
     while (paramList.hasNextPage) {
       try {
-        paginate.offset += paginate.offset;
+        paginate.offset += paginate.limit;
         paramList = plugin.getPluginParameters(paginate);
         params = params.concat(paramList.getItems());
       } catch (error) {
@@ -43,7 +46,20 @@ function* handleGetParams(action: IActionTypeParam) {
         console.error(error);
       }
     }
-    yield put(getParamsSuccess(params));
+    while (computeEnvList.hasNextPage) {
+      try {
+        paginate.offset += paginate.limit;
+        computeEnvList = plugin.getPluginComputeResources(paginate);
+        computeEnvs = computeEnvs.concat(computeEnvList.getItems());
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    yield all([
+      put(getParamsSuccess(params)),
+      put(getComputeEnvSuccess(computeEnvs)),
+    ]);
   } catch (error) {
     console.error(error);
   }

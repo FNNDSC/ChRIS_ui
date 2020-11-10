@@ -1,6 +1,7 @@
 // TODO: replace with css variables
 
 .text-copy-popover {
+    min-width:20% !important;
     top: -5px;
     .pf-c-popover__arrow {
         width: 15px;
@@ -20,16 +21,21 @@
     }
     outline: none;
     textarea {
+        height:150px;
         font-family: monospace;
         margin-top: 15px;
         resize: none;
         outline:none;
+        font-size: 0.9rem;
+        letter-spacing: 0.05rem;
+        overflow:auto;
+
     }
     a {
         text-align: right;
         display: block;
         color: #3693c6;
-        font-weight: 400;
+        font-weight: 900;
         outline: none;
         &:hover {
             color: #3693c6;
@@ -39,11 +45,16 @@
         }
     }
 
+
     // patternfly copy component
+    .pf-c-clipboard-copy{
+   
     .pf-c-clipboard-copy__group {
         border: none;
         display: flex;
         justify-content: flex-end;
+        
+      
         input.pf-c-form-control {
             display: none;
         }
@@ -59,4 +70,6 @@
             }
         }
     }
+    }
+    
 }
