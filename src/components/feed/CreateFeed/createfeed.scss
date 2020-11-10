@@ -84,104 +84,6 @@
 
 /* ChRIS File Select and Local File Upload */
 
-.chris-file-select,
-.local-file-upload {
-  .pf-c-wizard__main,
-  .pf-c-wizard__main > div {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden !important;
-  }
-
-  .pf-l-split {
-    display: flex;
-    overflow: hidden !important;
-  }
-
-  .pf-l-split__item {
-    display: flex;
-    overflow: hidden !important;
-    flex-direction: column;
-  }
-
-  // allow file select and file lists to scroll automatically
-  .m-tree,
-  .file-list {
-    display: flex;
-    flex-direction: column;
-  }
-}
-
-.chris-file-select {
-  .m-node .inner span {
-    display: inline-block;
-  }
-
-  // hidden root level
-  .m-tree > .m-node {
-    padding-left: 0 !important;
-    padding-top: 5px !important;
-    & > {
-      .inner {
-        display: none;
-      }
-      .children {
-        padding-left: 0 !important;
-      }
-    }
-  }
-
-  .m-node {
-    padding: 10px 15px;
-    .name {
-      margin-left: 20px;
-    }
-  }
-
-  // top-level nodes
-  .m-tree > .m-node > .children > .m-node:not(:first-child) {
-    border-top: 1px solid $fe-viewer-border;
-  }
-
-  .pf-c-check {
-    display: inline-block !important;
-    margin-right: 3px;
-  }
-
-  .children .m-node:last-child {
-    padding-bottom: 0;
-  }
-
-  .m-node svg {
-    font-size: 18px;
-    margin: 0 10px;
-  }
-
-  .match-highlight {
-    background: $file-explorer-yellow;
-  }
-
-  // arrow next to folders
-  .collapse:before {
-    position: relative;
-    content: "" !important;
-    display: inline-block;
-    width: 0.7em;
-    height: 0.7em;
-    left: -2px;
-    margin-right: 0.45em; // should be 1/2 of width and height
-    border-right: 0.2em solid black;
-    border-top: 0.2em solid black;
-    transform: rotate(45deg);
-  }
-
-  .caret-down {
-    transform: rotate(90deg);
-    margin-right: 5px;
-  }
-}
-
-
 
 .review {
   .tag {
@@ -314,8 +216,6 @@
     margin-top: 3em;
   }
 }
-
-
 
 .file-preview{
     margin-top: 5px;

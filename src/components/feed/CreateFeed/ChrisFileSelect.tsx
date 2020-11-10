@@ -2,22 +2,20 @@ import React, { useState, useContext } from "react";
 import { CreateFeedContext } from "./context";
 import { Grid, GridItem } from "@patternfly/react-core";
 import { EventDataNode, Key } from "rc-tree/lib/interface";
-import {
-  FolderCloseIcon,
-  FileIcon,
-  OutlinedTrashAltIcon,
-} from "@patternfly/react-icons";
 import { Tree } from "antd";
 import "antd/dist/antd.css";
+
 import {
   Types,
   Info,
   DataBreadcrumb,
-  EventNode,
   ChrisFileSelectProp,
   CheckedKeys,
 } from "./types";
 import { generateTreeNodes, getNewTreeData } from "./utils/fileSelect";
+import { FileList } from "./helperComponents";
+import { isEmpty } from "lodash";
+
 
 const { DirectoryTree } = Tree;
 
@@ -31,19 +29,42 @@ function getEmptyTree(username: string) {
   return node;
 }
 
+
+let cache: {
+  tree: DataBreadcrumb[];
+} = {
+  tree: [],
+};
+
+function setCacheTree(tree: DataBreadcrumb[]) {
+  cache["tree"] = tree;
+}
+
+function getCacheTree() {
+  return cache["tree"];
+}
+
+export function clearCache(){
+  cache['tree']=[]
+}
+
+
+
+
+
 const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { chrisFiles, checkedKeys } = state.data;
-  const [tree, setTree] = useState<DataBreadcrumb[]>(getEmptyTree(username));
+  const [tree, setTree] = useState<DataBreadcrumb[]>(
+    (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username)
+  );
 
-  const [expandedKeys, setExpandedKeys] = useState<Key[]>([]);
-  const [autoExpandParent, setautoExpandParent] = useState(false);
+  const fetchKeysFromDict: Key[] = React.useMemo(
+    () => getCheckedKeys(checkedKeys),
+    [checkedKeys]
+  );
 
-  const onExpand = (expandedKeys: Key[]) => {
-    setExpandedKeys(expandedKeys);
-    setautoExpandParent(true);
-  };
-
+ 
   const onCheck = (checkedKeys: CheckedKeys, info: Info) => {
     if (info.node.breadcrumb) {
       let path = `${info.node.breadcrumb}`;
@@ -51,8 +72,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
         dispatch({
           type: Types.AddChrisFile,
           payload: {
-            file: info.node,
-            path,
+            file: path,
             checkedKeys,
           },
         });
@@ -60,7 +80,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
         dispatch({
           type: Types.RemoveChrisFile,
           payload: {
-            file: info.node,
+            file: path,
             checkedKeys,
           },
         });
@@ -78,10 +98,11 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
       }
 
       setTimeout(() => {
-        generateTreeNodes(treeNode,username).then((nodes) => {
+        generateTreeNodes(treeNode, username).then((nodes) => {
           const treeData = [...tree];
           if (nodes.length > 0) getNewTreeData(treeData, treeNode.pos, nodes);
           setTree(treeData);
+          setCacheTree(treeData);;
         });
 
         resolve();
@@ -89,34 +110,14 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
     });
   };
 
-  const fileList = chrisFiles.map((file: EventNode, index) => {
-    const isFolder =
-      (file.children && file.children.length > 0) ||
-      (file.title as string).includes("uploads") ||
-      (file.title as string).includes("feed");
-    const icon = isFolder ? <FolderCloseIcon /> : <FileIcon />;
-
-    return (
-      <div className="file-preview" key={index}>
-        <span className="file-icon">{icon}</span>
-        <span className="file-name">{file.title}</span>
-        <span className="trash-icon">
-          <OutlinedTrashAltIcon
-            className="file-remove"
-            onClick={() =>
-              dispatch({
-                type: Types.RemoveChrisFile,
-                payload: {
-                  file,
-                  checkedKeys,
-                },
-              })
-            }
-          />
-        </span>
-      </div>
-    );
-  });
+  const fileList =
+    chrisFiles.length > 0
+      ? chrisFiles.map((file: string, index: number) => (
+          <React.Fragment key={index}>
+            <FileList file={file} index={index} />
+          </React.Fragment>
+        ))
+      : null;
 
   return (
     <div className="chris-file-select">
@@ -130,16 +131,12 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
       <br />
       <Grid hasGutter={true}>
         <GridItem span={6} rowSpan={12}>
-          <DirectoryTree
-            onExpand={onExpand}
-            expandedKeys={expandedKeys}
-            autoExpandParent={autoExpandParent}
+          <DirectoryTree     
             onCheck={onCheck}
             loadData={onLoad}
-            checkedKeys={checkedKeys}
+            checkedKeys={fetchKeysFromDict}
             checkable
             treeData={tree}
-            checkStrictly
           />
         </GridItem>
         <GridItem span={6} rowSpan={12}>
@@ -152,3 +149,16 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
 };
 
 export default ChrisFileSelect;
+
+
+
+
+function getCheckedKeys(checkedKeys: { [key: string]: Key[] }) {
+  let checkedKeysArray: Key[] = [];
+
+  for (let i in checkedKeys) {
+    checkedKeysArray.push(...checkedKeys[i]);
+  }
+
+  return checkedKeysArray;
+}

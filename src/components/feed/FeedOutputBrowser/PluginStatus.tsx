@@ -15,6 +15,7 @@ import classNames from "classnames";
 import LogTabs from "./LogTabs";
 import LogTerminal from './LogTerminal'
 
+
 const { Step } = Steps;
 
 type ComputeLog = {
@@ -51,8 +52,6 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
       computeLog =
        currentLog.d_ret && currentLog.d_ret.l_logs && currentLog.d_ret.l_logs[0];
       }
-      
-
       if (computeLog) setComputeLog(computeLog);
     }
 
@@ -77,27 +76,17 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
       setLogs(currentLog)
     }
     setCurrentStep(step)
-    
-    
+
   };
 
   const handleActiveKey = (activeKey: React.ReactText) => {
     setActiveKey(activeKey);
   };
 
-  
-
   if (pluginStatus && pluginStatus?.length > 0) {
     return (
       <Grid hasGutter className="file-browser">
-        <GridItem span={12} rowSpan={2}>
-          <Title
-          style={{
-            marginBottom:'1em'
-          }}
-          headingLevel="h4">Plugin Execution Status:</Title>
-        </GridItem>
-        <GridItem className="file-browser__steps" span={4} rowSpan={12}>
+        <GridItem className="file-browser__steps" span={4} rowSpan={12}> 
           <Steps direction="vertical">
             {pluginStatus.map((label: any) => {
               const currentDescription = displayDescription(label);
@@ -123,21 +112,17 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
                     label.error
                       ? "error"
                       : label.status === true
-                      ? "finish": 'process'
+                      ? "finish"
+                      : "wait"
                   }
                 />
               );
             })}
           </Steps>
         </GridItem>
-        <GridItem
-            className="file-browser__plugin-status"
-            span={8}
-            rowSpan={12}
-          >
-            <LogTabs activeKey={activeKey} setActiveKey={handleActiveKey}/>
-            {
-            activeKey===0 && !isEmpty(logs)?
+        <GridItem className="file-browser__plugin-status" span={8} rowSpan={12}>
+          <LogTabs activeKey={activeKey} setActiveKey={handleActiveKey} />
+          {activeKey === 0 && !isEmpty(logs) ? (
             <div className="viewer-display">
               <ReactJSON
                 name={false}
@@ -151,33 +136,43 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
                 collapsed={false}
               />
             </div>
-            :
-              activeKey===1 && !computeLog ?
-              <div className="viewer-display">
-              <Alert variant="info" title="The terminal feature is only available for the compute logs"/>
-              </div>: 
-              activeKey===1 && computeLog ? 
-              <div className='viewer-display'>
-               <LogTerminal text={computeLog}/>
-              </div> 
-              :<div className="viewer-display">
-                <Alert
+          ) : activeKey === 1 && !computeLog ? (
+            <div className="viewer-display">
+              <Alert
+                variant="info"
+                title="The terminal feature is only available for the compute logs"
+              />
+            </div>
+          ) : activeKey === 1 && computeLog ? (
+            <div className="viewer-display">
+              <LogTerminal text={computeLog} />
+            </div>
+          ) : (
+            <div className="viewer-display">
+              <Alert
                 style={{
-                  marginTop:'1rem'
+                  marginTop: "1rem",
                 }}
-                variant='info' title="Logs are not available at the moment. Please click on the step to fetch logs in a few minutes"/>
-              </div>
-            }
-          </GridItem>
-         </Grid>
+                variant="info"
+                title="Logs are not available at the moment. Please click on the step to fetch logs in a few minutes"
+              />
+            </div>
+          )}
+        </GridItem>
+      </Grid>
     );
   }
   return (
     <Grid>
       <GridItem className="file-browser__spinner-title" span={12} rowSpan={2}>
-        <Title style={{
-          marginBottom:'1rem'
-        }} headingLevel="h4">Plugin Execution Status</Title>
+        <Title
+          style={{
+            marginBottom: "1rem",
+          }}
+          headingLevel="h4"
+        >
+          Plugin Execution Status
+        </Title>
       </GridItem>
       <GridItem className="file-browser__spinner-status" span={12} rowSpan={12}>
         <Spinner size="lg" />

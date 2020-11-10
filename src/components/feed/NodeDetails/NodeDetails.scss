@@ -6,3 +6,37 @@
 .ant-steps-item:first-child {
   left: -2px !important;
 }
+
+.pf-c-popover {
+  width: 250px !important
+}
+
+
+.node-configuration {
+ 
+  &__body{
+    border:1px solid #002952;
+  }
+
+  &__container{
+    padding:4px;
+  }
+
+  &__label{
+    background-color:#e7f1fa !important;
+    color:white !important;
+    margin-right:2px !important;
+  }
+  
+  &__label, &__command {
+    font-size:0.9rem !important;
+    letter-spacing: 0.05rem !important;
+  }
+
+  &__command{
+    font-family: monospace !important;
+    font-weight: 900 !important;
+  }
+
+
+}

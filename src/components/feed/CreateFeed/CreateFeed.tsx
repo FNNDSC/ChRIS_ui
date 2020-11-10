@@ -37,6 +37,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     selectedPlugin,
     dropdownInput,
     requiredInput,
+    computeEnvironment,
   } = state;
 
   const enableSave =
@@ -70,14 +71,28 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     });
   };
 
+  const setComputeEnviroment = (computeEnvironment: string) => {
+    dispatch({
+      type: Types.SetComputeEnvironment,
+      payload: {
+        computeEnvironment,
+      },
+    });
+  };
+
   const inputChange = (
     id: string,
     paramName: string,
     value: string,
-    required: boolean
+    required: boolean,
+    type: string,
+    placeholder: string
   ) => {
     const input: InputIndex = {};
+    input["id"] = id;
     input[paramName] = value;
+    input["type"] = type;
+    input["placeholder"] = placeholder;
     if (required === true) {
       dispatch({
         type: Types.RequiredInput,
@@ -125,7 +140,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         selectedPlugin,
         username,
         getCreationStatus,
-        getCreationError
+        getCreationError,
+        computeEnvironment
       );
 
       if (!feed) {
@@ -171,11 +187,13 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   const packs = <DataPacks />;
   const guidedConfig = (
     <GuidedConfig
-      plugin={selectedPlugin}
       inputChange={inputChange}
       deleteInput={deleteInput}
+      plugin={selectedPlugin}
       dropdownInput={dropdownInput}
       requiredInput={requiredInput}
+      computeEnvironment={computeEnvironment}
+      setComputeEnviroment={setComputeEnviroment}
     />
   );
   const review = <Review />;

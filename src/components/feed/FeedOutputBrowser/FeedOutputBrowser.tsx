@@ -4,19 +4,15 @@ import { connect } from "react-redux";
 import JSZip from "jszip";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {
-  Title,
-  TitleSizes,
   Grid,
   GridItem,
-  Button,
   Spinner,  
 } from "@patternfly/react-core";
 import {
   FolderOpenIcon,
   FolderCloseIcon,
-  DownloadIcon,
 } from "@patternfly/react-icons";
-import { getPluginName, getPluginDisplayName } from "./utils";
+import { getPluginName} from "./utils";
 import {
   setSelectedFile,
   toggleViewerMode,
@@ -61,7 +57,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   }, [stopPolling, selected, getPluginFilesRequest]);
 
   const pluginName = selected && getPluginName(selected);
-  const pluginDisplayName = selected && getPluginDisplayName(selected);
   const selectedFiles =
     pluginFiles && selected && pluginFiles[selected.data.id as number];
   const tree = selected && createTreeFromFiles(selected, selectedFiles);
@@ -90,6 +85,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   };
 
   const downloadAllClick = async () => {
+    console.log("DownloadAllClicked");
     if (!selected) return;
     const files = pluginFiles && pluginFiles[selected.data.id as number];
 
@@ -124,19 +120,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   return (
     <>
       <Grid hasGutter className="feed-output-browser">
-        <GridItem span={12} rowSpan={2}>
-          <Title
-            style={{
-              marginBottom: "1rem",
-              marginLeft: "1rem",
-            }}
-            headingLevel="h1"
-            size={TitleSizes.lg}
-          >
-            Feed Output Browser
-          </Title>
-        </GridItem>
-
         <GridItem
           className="feed-output-browser__sidebar"
           rowSpan={12}
@@ -157,42 +140,18 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
         <GridItem className="feed-output-browser__main" span={10} rowSpan={12}>
           <Grid>
-            <GridItem span={12} rowSpan={2}>
-              <div className="file-browser-header">
-                <div className="file-browser-header_container">
-                  <Title headingLevel="h1" size="2xl" className="plugin-name">
-                    {pluginDisplayName}
-                  </Title>
-                  <span className="plugin-id">
-                    ID: {selected && selected.data.id}
-                  </span>
-                  {selectedFiles && (
-                    <div className="files-info">
-                      {selectedFiles.length} files
-                      <Button
-                        className="download-all-button"
-                        variant="secondary"
-                        onClick={downloadAllClick}
-                      >
-                        <DownloadIcon />
-                        Download All
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </GridItem>
-
             <GridItem span={12} rowSpan={10}>
               {selected &&
               selected.data.status === "finishedSuccessfully" &&
               tree ? (
                 <FileBrowser
+                  selectedFiles={selectedFiles}
                   pluginName={pluginName}
                   root={tree}
                   key={selected.data.id}
                   handleFileBrowserToggle={handleFileBrowserOpen}
                   handleFileViewerToggle={handleFileViewerOpen}
+                  downloadAllClick={downloadAllClick}
                 />
               ) : selected?.data.status === "finishedSuccessfully" && !tree ? (
                 <GridItem span={12} rowSpan={12}>

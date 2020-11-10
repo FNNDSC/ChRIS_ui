@@ -8,7 +8,6 @@ import {
   Grid,
   GridItem,
   Title,
-  PopoverPosition,
 } from "@patternfly/react-core";
 import { Plugin, PluginInstanceParameter } from "@fnndsc/chrisapi";
 import {
@@ -27,15 +26,14 @@ import {
   OutlinedClockIcon,
   InProgressIcon,
 } from "@patternfly/react-icons";
-
 import { PluginInstance } from "@fnndsc/chrisapi";
-import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
 import AddNode from "../AddNode/AddNode";
-
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PluginStatus } from "../../../store/plugin/types";
 import { displayDescription } from "../FeedOutputBrowser/utils";
+import "./NodeDetails.scss"
+import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
+
 
 interface INodeProps {
   selected: PluginInstance;
@@ -43,11 +41,13 @@ interface INodeProps {
   pluginStatus?: PluginStatus[];
   pluginLog?: {};
   isComputeError?:boolean
+  
 }
 
 interface INodeState {
   plugin?: Plugin;
   params?: PluginInstanceParameter[];
+  
 }
 
 class NodeDetails extends React.Component<INodeProps, INodeState> {
@@ -132,28 +132,17 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     return currentTitle[0];
   }
 
-  getCommand(plugin: Plugin, params: PluginInstanceParameter[]) {
-    const { dock_image, selfexec } = plugin.data;
-    let command = `docker run -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
-
-    if (params.length) {
-      command +=
-        "\n" +
-        params
-          .map((param) => `--${param.data.param_name} ${param.data.value}`)
-          .join("\n");
+  getCommand(plugin:Plugin,params: PluginInstanceParameter[]) {
+    const {dock_image, selfexec}=plugin.data;
+   
+    let command = `docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
+    if(params.length){
+      command+= "\n" + params.map((param)=>`--${param.data.param_name} ${param.data.value}`).join("\n")   
     }
-
-    command = `${command}\n    /incoming /outgoing`.trim();
-
-    // append backslashes
-    const lines = command.split("\n");
-    const longest = lines.reduce((a, b) => (a.length > b.length ? a : b))
-      .length;
-    return lines
-      .map((line) => `${line.padEnd(longest)}  \\`)
-      .join("\n")
-      .slice(0, -1); // remove final backslash
+    command=`${command}\n /incoming/outgoing`.trim()
+    const lines=command.split('\n');
+    const longest=lines.reduce((a,b)=>(a.length>b.length?a:b)).length
+    return lines.map((line)=>`${line.padEnd(longest)} \\`).join('\n').slice(0,-1)
   }
 
   calculateTotalRuntime = () => {
@@ -185,13 +174,12 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     const { selected, pluginStatus } = this.props;
     const { params, plugin } = this.state;
     let runtime = this.calculateTotalRuntime();
+    
 
     const pluginTitle = `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;
-    const command =
-      plugin && params ? this.getCommand(plugin, params) : "Loading command...";
-
-    const commandRows = command.split("\n").length;
-
+    const command = plugin && params ? this.getCommand(plugin,params) : "Loading command...";
+   
+    
     return (
       <React.Fragment>
         <div className="details-header-wrap">
@@ -204,12 +192,9 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
           <div>
             <TextCopyPopover
               text={command}
-              headerContent={`Command for ${pluginTitle}`}
-              subheaderContent="This plugin was run via the following command:"
-              position={PopoverPosition.bottom}
-              rows={commandRows}
-              className="view-command-wrap"
-              maxWidth="27rem"
+              headerContent={`Docker Command for ${pluginTitle}`}
+              max-width='50rem'
+              className='view-command-wrap'
             >
               <Button>
                 <TerminalIcon />
@@ -224,7 +209,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
           <GridItem span={2} className="title">
             Status
           </GridItem>
-          {}
+
           <GridItem span={10} className="value">
             {selected.data.status === "waitingForPrevious" ? (
               <>
@@ -299,14 +284,14 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
 
         <br />
         <br />
-      
+
         <div className="btn-div">
           <AddNode />
         </div>
 
         <br />
         <br />
-        <label style={{ color: "white", fontWeight:'bold' }}>
+        <label style={{ color: "white", fontWeight: "bold" }}>
           Plugin output may be viewed below.
         </label>
       </React.Fragment>

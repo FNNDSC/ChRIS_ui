@@ -15,8 +15,9 @@ import { getParams } from "../../../store/plugin/actions";
 import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
 import BasicConfiguration from "./BasicConfiguration";
-import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
+import { AddNodeState, AddNodeProps, InputType,InputIndex} from "./types";
 import { getRequiredObject } from "../CreateFeed/utils/createFeed";
+
 
 class AddNode extends Component<AddNodeProps, AddNodeState> {
   constructor(props: AddNodeProps) {
@@ -28,16 +29,22 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       data: {},
       requiredInput: {},
       dropdownInput: {},
+      computeEnv: "host",
+      errors: {},
+      toggleGPU: false,
+      gpuInput:   {},
     };
 
     this.inputChange = this.inputChange.bind(this);
     this.inputChangeFromEditor = this.inputChangeFromEditor.bind(this);
     this.toggleOpen = this.toggleOpen.bind(this);
+    this.setComputeEnv = this.setComputeEnv.bind(this);
     this.onBack = this.onBack.bind(this);
     this.onNext = this.onNext.bind(this);
     this.handlePluginSelect = this.handlePluginSelect.bind(this);
     this.handleSave = this.handleSave.bind(this);
     this.deleteInput = this.deleteInput.bind(this);
+    this.addGpuToggle = this.addGpuToggle.bind(this);
   }
 
   componentDidMount() {
@@ -66,34 +73,62 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     });
   }
 
-  inputChange(id: string, paramName: string, value: string, required: boolean) {
+  inputChange(
+    id: string,
+    paramName: string,
+    value: string,
+    required: boolean,
+    type: string,
+    placeholder: string
+  ) {
     const input: InputIndex = {};
+    input["id"] = id;
     input[paramName] = value;
+    input["type"] = type;
+    input["placeholder"] = placeholder;
 
     if (required === true) {
       this.setState({
+        ...this.state,
         requiredInput: {
           ...this.state.requiredInput,
           [id]: input,
         },
+        errors: {},
       });
     } else {
       this.setState({
+        ...this.state,
         dropdownInput: {
           ...this.state.dropdownInput,
           [id]: input,
         },
+        errors: {},
       });
     }
   }
 
+  addGpuToggle(toggleGPU: boolean) {
+    let input:InputIndex={}
+    input['gpus']='all'
+    this.setState({
+      ...this.state,
+      toggleGPU,
+      gpuInput:input
+    });
+  }
+
   inputChangeFromEditor(dropdownInput: InputType, requiredInput: InputType) {
     this.setState((prevState) => ({
+      ...prevState,
       dropdownInput: dropdownInput,
+      errors: {},
     }));
 
     this.setState((prevState) => ({
+      ...prevState,
       requiredInput: requiredInput,
+      errors: {},
     }));
   }
 
@@ -137,6 +172,13 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     getParams(plugin);
   }
 
+  setComputeEnv(computeEnv: string) {
+    this.setState({
+      ...this.state,
+      computeEnv,
+    });
+  }
+
   deleteInput(input: string) {
     const { dropdownInput } = this.state;
 
@@ -162,11 +204,15 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       data: {},
       dropdownInput: {},
       requiredInput: {},
+      errors: {},
+      computeEnv: "host",
+      toggleGPU:false,
+      gpuInput:{}
     });
   }
 
   async handleSave() {
-    const { dropdownInput, requiredInput } = this.state;
+    const { dropdownInput, requiredInput, computeEnv } = this.state;
     const { plugin } = this.state.data;
     const { selected, addNode } = this.props;
 
@@ -180,12 +226,27 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       plugin,
       selected
     );
+   
+
+    parameterInput = {
+      ...parameterInput,
+      ...this.state.gpuInput,
+      compute_resource_name: computeEnv,
+    };
+ 
 
     const pluginInstance = await plugin.getPluginInstances();
-    await pluginInstance.post(parameterInput);
-    const node = pluginInstance.getItems()[0];
-    addNode(node);
-    this.resetState();
+
+    try {
+      await pluginInstance.post(parameterInput);
+      const node = pluginInstance.getItems()[0];
+      addNode(node);
+      this.resetState();
+    } catch (error) {
+      this.setState({
+        errors: error.response.data,
+      });
+    }
   }
 
   render() {
@@ -195,6 +256,9 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       dropdownInput,
       requiredInput,
       stepIdReached,
+      computeEnv,
+      errors,
+      toggleGPU
     } = this.state;
     const { nodes, selected } = this.props;
 
@@ -213,6 +277,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         plugin={data.plugin}
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
+        computeEnvironment={computeEnv}
+        setComputeEnviroment={this.setComputeEnv}
       />
     ) : (
       <LoadingSpinner />
@@ -225,6 +291,8 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
         inputChangeFromEditor={this.inputChangeFromEditor}
+        addGpuToggle={this.addGpuToggle}
+        toggleGPU={toggleGPU}
       />
     ) : (
       <LoadingSpinner />
@@ -235,6 +303,9 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         data={data}
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
+        computeEnvironment={computeEnv}
+        errors={errors}
+        gpuToggled={toggleGPU}
       />
     ) : (
       <LoadingSpinner />

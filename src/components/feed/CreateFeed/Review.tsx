@@ -1,32 +1,11 @@
 import React, { useContext } from "react";
 import { CreateFeedContext } from "./context";
-
-import { FolderCloseIcon, FileIcon } from "@patternfly/react-icons";
-import { Split, SplitItem, Grid, GridItem } from "@patternfly/react-core";
+import { Grid, GridItem } from "@patternfly/react-core";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
 import "./createfeed.scss";
+import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
+import { ChrisFileDetails, LocalFileDetails } from "./helperComponents";
 
-function generateFileList(files: any[], local: boolean) {
-  return files.map((file) => {
-    let icon =
-      file.children && file.children.length > 0 ? ( // file is a ChrisFile folder
-        <span className="file-icon">
-          <FolderCloseIcon />
-        </span>
-      ) : (
-        <span className="file-icon">
-          <FileIcon />
-        </span>
-      );
-    let name = local === true ? file.name : file.title;
-    return (
-      <div className="file-preview" key={name}>
-        {icon}
-        <span className="file-name">{name}</span>
-      </div>
-    );
-  });
-}
 
 const Review: React.FunctionComponent = () => {
   const { state } = useContext(CreateFeedContext);
@@ -43,6 +22,7 @@ const Review: React.FunctionComponent = () => {
     requiredInput,
     selectedConfig,
     selectedPlugin,
+    computeEnvironment,
   } = state;
 
   // the installed version of @patternfly/react-core doesn't support read-only chips
@@ -65,51 +45,24 @@ const Review: React.FunctionComponent = () => {
 
       return (
         <Grid hasGutter={true}>
-          <GridItem span={2}>Type of node:</GridItem>
-          <GridItem span={10}>FS Plugin</GridItem>
-          <GridItem span={2}>Selected plugin:</GridItem>
-          <GridItem span={10} style={{ fontWeight: 700 }}>
-            {selectedPlugin && selectedPlugin.data.name}
-          </GridItem>
-          <GridItem span={2}>Plugin configuration:</GridItem>
-          <GridItem span={10}>
-            <span className="required-text">{generatedCommand}</span>
-          </GridItem>
+          <PluginDetails
+            generatedCommand={generatedCommand}
+            selectedPlugin={selectedPlugin}
+            computeEnvironment={computeEnvironment}
+          />
         </Grid>
       );
     } else if (selectedConfig === "multiple_select") {
       return (
         <>
-          <Split>
-            <SplitItem isFilled className="file-list">
-              <p>Existing Files to add to new feed:</p>
-              {generateFileList(chrisFiles, false)}
-            </SplitItem>
-            <SplitItem isFilled className="file-list">
-              <p>Local files to add to new feed:</p>
-              {generateFileList(localFiles, true)}
-            </SplitItem>
-          </Split>
+          <ChrisFileDetails chrisFiles={chrisFiles} />
+          <LocalFileDetails localFiles={localFiles} />
         </>
       );
     } else if (selectedConfig === "swift_storage") {
-      return (
-        <Split>
-          <SplitItem isFilled className="file-list">
-            <p>Existing Files to add to new feed:</p>
-            {generateFileList(chrisFiles, false)}
-          </SplitItem>
-        </Split>
-      );
+      return <ChrisFileDetails chrisFiles={chrisFiles} />;
     } else if (selectedConfig === "local_select") {
-      return (
-        <Split>
-          <SplitItem isFilled className="file-list">
-            <p>Local Files to add to new feed:</p>
-            {generateFileList(localFiles, true)}
-          </SplitItem>
-        </Split>
-      );
+      return <LocalFileDetails localFiles={localFiles} />;
     }
   };
 
@@ -122,18 +75,28 @@ const Review: React.FunctionComponent = () => {
       <p>Use the 'Back' button to make changes.</p>
       <br />
       <br />
-
       <Grid hasGutter={true}>
-        <GridItem span={2}>Feed Name</GridItem>
-        <GridItem span={10}>{feedName}</GridItem>
-        <GridItem span={2}>Feed Description</GridItem>
-        <GridItem span={10}>{feedDescription}</GridItem>
-        <GridItem span={2}>Tags</GridItem>
-        <GridItem span={10}>{tagList}</GridItem>
+        <GridItem span={2}>
+          <span className="review__title">Feed Name</span>
+        </GridItem>
+        <GridItem span={10}>
+          <span className="review__value">{feedName}</span>
+        </GridItem>
+        <GridItem span={2}>
+          <span className="review__title">Feed Description</span>
+        </GridItem>
+        <GridItem span={10}>
+          <span className="review__value">{feedDescription}</span>
+        </GridItem>
+        <GridItem span={2}>
+          <span className="review__title">Tags</span>
+        </GridItem>
+        <GridItem span={10}>
+          <span className="review__value">{tagList}</span>
+        </GridItem>
       </Grid>
       <br />
       {getReviewDetails()}
-
       <br />
     </div>
   );
