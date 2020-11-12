@@ -3,13 +3,13 @@ import Moment from "react-moment";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 
+import { Button, Grid, GridItem, Title } from "@patternfly/react-core";
 import {
-  Button,
-  Grid,
-  GridItem,
-  Title,
-} from "@patternfly/react-core";
-import { Plugin, PluginInstanceParameter } from "@fnndsc/chrisapi";
+  Plugin,
+  PluginInstanceParameter,
+  PluginParameter,
+  PluginInstance
+} from "@fnndsc/chrisapi";
 import {
   TerminalIcon,
   CaretDownIcon,
@@ -26,7 +26,7 @@ import {
   OutlinedClockIcon,
   InProgressIcon,
 } from "@patternfly/react-icons";
-import { PluginInstance } from "@fnndsc/chrisapi";
+
 import AddNode from "../AddNode/AddNode";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PluginStatus } from "../../../store/plugin/types";
@@ -47,7 +47,7 @@ interface INodeProps {
 interface INodeState {
   plugin?: Plugin;
   params?: PluginInstanceParameter[];
-  
+  parameters?: PluginParameter[];
 }
 
 class NodeDetails extends React.Component<INodeProps, INodeState> {
@@ -73,6 +73,16 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
 
     const params = await selected.getParameters({});
     const plugin = await selected.getPlugin();
+    const parameters = await plugin.getPluginParameters({
+      limit: 100,
+      offset: 0,
+    });
+
+    this.setState({
+      plugin: plugin,
+      params: params.getItems(),
+      parameters: parameters.getItems(),
+    });
 
     this.setState({
       plugin: plugin,
@@ -132,17 +142,44 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
     return currentTitle[0];
   }
 
-  getCommand(plugin:Plugin,params: PluginInstanceParameter[]) {
-    const {dock_image, selfexec}=plugin.data;
-   
-    let command = `docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
-    if(params.length){
-      command+= "\n" + params.map((param)=>`--${param.data.param_name} ${param.data.value}`).join("\n")   
+  getCommand(
+    plugin: Plugin,
+    params: PluginInstanceParameter[],
+    parameters: PluginParameter[]
+  ) {
+    const { dock_image, selfexec } = plugin.data;
+    let modifiedParams: {
+      name?: string;
+      value?: string;
+    }[] = [];
+
+    for (let i = 0; i < params.length; i++) {
+      for (let j = 0; j < parameters.length; j++) {
+        if (params[i].data.param_name === parameters[j].data.name) {
+          modifiedParams.push({
+            name: parameters[j].data.flag,
+            value: params[i].data.value,
+          });
+        }
+      }
     }
-    command=`${command}\n /incoming/outgoing`.trim()
-    const lines=command.split('\n');
-    const longest=lines.reduce((a,b)=>(a.length>b.length?a:b)).length
-    return lines.map((line)=>`${line.padEnd(longest)} \\`).join('\n').slice(0,-1)
+
+    let command = `docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
+    if (modifiedParams.length) {
+      command +=
+        "\n" +
+        modifiedParams
+          .map((param) => `${param.name} ${param.value}`)
+          .join("\n");
+    }
+    command = `${command}\n /incoming/outgoing`.trim();
+    const lines = command.split("\n");
+    const longest = lines.reduce((a, b) => (a.length > b.length ? a : b))
+      .length;
+    return lines
+      .map((line) => `${line.padEnd(longest)} \\`)
+      .join("\n")
+      .slice(0, -1);
   }
 
   calculateTotalRuntime = () => {
@@ -172,14 +209,15 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
 
   render() {
     const { selected, pluginStatus } = this.props;
-    const { params, plugin } = this.state;
+    const { params, plugin , parameters} = this.state;
     let runtime = this.calculateTotalRuntime();
-    
 
     const pluginTitle = `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;
-    const command = plugin && params ? this.getCommand(plugin,params) : "Loading command...";
-   
-    
+    const command =
+      plugin && params && parameters
+        ? this.getCommand(plugin, params, parameters)
+        : "Loading command...";
+
     return (
       <React.Fragment>
         <div className="details-header-wrap">
@@ -193,8 +231,8 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
             <TextCopyPopover
               text={command}
               headerContent={`Docker Command for ${pluginTitle}`}
-              max-width='50rem'
-              className='view-command-wrap'
+              max-width="50rem"
+              className="view-command-wrap"
             >
               <Button>
                 <TerminalIcon />

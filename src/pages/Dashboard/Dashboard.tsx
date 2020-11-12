@@ -30,12 +30,12 @@ class DashboardPage extends React.Component<AllProps> {
           }}
           key={4}
         >
-          <span>Version: 1.0.3</span>
+          <span>Version: 1.0.4</span>
         </Badge>
         <Badge key={3}>
           <span>
             Latest update:{" "}
-            <Moment format="DD MMM YYYY @ HH:mm">{`2020-11-10T16:30:14.297464-04:00`}</Moment>
+            <Moment format="DD MMM YYYY @ HH:mm">{`2020-11-12T15:00:14.297464-04:00`}</Moment>
           </span>
         </Badge>
       </>
