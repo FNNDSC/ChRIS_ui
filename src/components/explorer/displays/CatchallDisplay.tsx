@@ -44,7 +44,7 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
       <div className="catchall">
         <Alert
           variant="info"
-          title="No preview available for file:"
+          title="No preview available for large files"
           children={alertText}
         />
       </div>

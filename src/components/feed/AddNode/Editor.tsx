@@ -82,6 +82,7 @@ class Editor extends Component<EditorProps, EditorState> {
     } = {};
 
     const userValue = value.trim().split(" ").slice(1);
+
     const { params } = this.props;
 
     if (params && params.length > 0) {

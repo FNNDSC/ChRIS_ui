@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import Moment from "react-moment";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
@@ -6,9 +6,9 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { Button, Grid, GridItem, Title } from "@patternfly/react-core";
 import {
   Plugin,
-  PluginInstanceParameter,
-  PluginParameter,
-  PluginInstance
+  PluginInstance,
+  PluginInstanceDescendantList,
+  PluginParameterList
 } from "@fnndsc/chrisapi";
 import {
   TerminalIcon,
@@ -31,223 +31,106 @@ import AddNode from "../AddNode/AddNode";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PluginStatus } from "../../../store/plugin/types";
 import { displayDescription } from "../FeedOutputBrowser/utils";
-import "./NodeDetails.scss"
+import "./NodeDetails.scss";
 import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
-
 
 interface INodeProps {
   selected: PluginInstance;
   descendants: PluginInstance[];
   pluginStatus?: PluginStatus[];
   pluginLog?: {};
-  isComputeError?:boolean
-  
+  isComputeError?: boolean;
 }
 
 interface INodeState {
   plugin?: Plugin;
-  params?: PluginInstanceParameter[];
-  parameters?: PluginParameter[];
+  instanceParameters?: PluginInstanceDescendantList;
+  pluginParameters?: PluginParameterList;
 }
 
-class NodeDetails extends React.Component<INodeProps, INodeState> {
-  constructor(props: INodeProps) {
-    super(props);
-    this.state = {};
-  }
-
-  async componentDidMount() {
-    this.fetchPluginData();
-  }
-
-  async componentDidUpdate(prevProps: INodeProps) {
-    const { selected: prevSelected } = prevProps;
-    const { selected } = this.props;
-    if (prevSelected.data.id !== selected.data.id) {
-      this.fetchPluginData();
-    }
-  }
-
-  async fetchPluginData() {
-    const { selected } = this.props;
-
-    const params = await selected.getParameters({});
-    const plugin = await selected.getPlugin();
-    const parameters = await plugin.getPluginParameters({
-      limit: 100,
-      offset: 0,
-    });
-
-    this.setState({
-      plugin: plugin,
-      params: params.getItems(),
-      parameters: parameters.getItems(),
-    });
-
-    this.setState({
-      plugin: plugin,
-      params: params.getItems(),
-    });
-  }
-
-  getCurrentTitleFromStatus(statusLabels: PluginStatus[]) {
-    const currentTitle = statusLabels
-      .map((label) => {
-        const computedTitle = displayDescription(label);
-        if (computedTitle) {
-          switch (computedTitle) {
-            case "Transmitting data to compute environment":
-              return (
-                <>
-                  <CloudUploadAltIcon />
-                  <span>Transmitting Data</span>
-                </>
-              );
-            case "Setting compute environment":
-              return (
-                <>
-                  <DockerIcon />
-                  <span>Setting Compute Environment</span>
-                </>
-              );
-
-            case "Computing":
-              return (
-                <>
-                  <ServicesIcon />
-                  <span>Computing</span>
-                </>
-              );
-
-            case "Syncing data from compute environment":
-              return (
-                <>
-                  <MixcloudIcon />
-                  <span>Syncing Data</span>
-                </>
-              );
-
-            case "Finishing up":
-              return (
-                <>
-                  <StorageDomainIcon />
-                  <span>Finishing up</span>
-                </>
-              );
-          }
-        }
-        return computedTitle;
-      })
-      .filter((title) => title !== undefined);
-    return currentTitle[0];
-  }
-
-  getCommand(
-    plugin: Plugin,
-    params: PluginInstanceParameter[],
-    parameters: PluginParameter[]
-  ) {
-    const { dock_image, selfexec } = plugin.data;
-    let modifiedParams: {
-      name?: string;
-      value?: string;
-    }[] = [];
-
-    for (let i = 0; i < params.length; i++) {
-      for (let j = 0; j < parameters.length; j++) {
-        if (params[i].data.param_name === parameters[j].data.name) {
-          modifiedParams.push({
-            name: parameters[j].data.flag,
-            value: params[i].data.value,
-          });
-        }
-      }
-    }
-
-    let command = `docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
-    if (modifiedParams.length) {
-      command +=
-        "\n" +
-        modifiedParams
-          .map((param) => `${param.name} ${param.value}`)
-          .join("\n");
-    }
-    command = `${command}\n /incoming/outgoing`.trim();
-    const lines = command.split("\n");
-    const longest = lines.reduce((a, b) => (a.length > b.length ? a : b))
-      .length;
-    return lines
-      .map((line) => `${line.padEnd(longest)} \\`)
-      .join("\n")
-      .slice(0, -1);
-  }
-
-  calculateTotalRuntime = () => {
-    const { selected } = this.props;
-    let runtime = 0;
-    const start = new Date(selected.data.start_date);
-    const end = new Date(selected.data.end_date);
-    const elapsed = end.getTime() - start.getTime(); // milliseconds between start and end
-    runtime += elapsed;
-
-    // format millisecond amount into human-readable string
-    let runtimeStrings = [];
-    const timeParts = [
-      ["day", Math.floor(runtime / (1000 * 60 * 60 * 24))],
-      ["hr", Math.floor((runtime / (1000 * 60 * 60)) % 24)],
-      ["min", Math.floor((runtime / 1000 / 60) % 60)],
-      ["sec", Math.floor((runtime / 1000) % 60)],
-    ];
-    for (const part of timeParts) {
-      const [name, value] = part;
-      if (value > 0) {
-        runtimeStrings.push(`${value} ${name}`);
-      }
-    }
-    return runtimeStrings.join(", ");
+function getInitialState(){
+  return {
+    plugin: undefined,
+    instanceParameters:undefined,
+    pluginParameters: undefined,
   };
+}
 
-  render() {
-    const { selected, pluginStatus } = this.props;
-    const { params, plugin , parameters} = this.state;
-    let runtime = this.calculateTotalRuntime();
 
-    const pluginTitle = `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;
-    const command =
-      plugin && params && parameters
-        ? this.getCommand(plugin, params, parameters)
-        : "Loading command...";
+const NodeDetails:React.FC<INodeProps>=({
+  selected,
+  pluginStatus,
+  
+})=>{
 
-    return (
-      <React.Fragment>
-        <div className="details-header-wrap">
-          <div>
-            Selected Node:
-            <Title headingLevel="h2" size="xl">
-              {pluginTitle}
-            </Title>
-          </div>
-          <div>
-            <TextCopyPopover
-              text={command}
-              headerContent={`Docker Command for ${pluginTitle}`}
-              max-width="50rem"
-              className="view-command-wrap"
-            >
-              <Button>
-                <TerminalIcon />
-                View Command
-                <CaretDownIcon />
-              </Button>
-            </TextCopyPopover>
-          </div>
+  const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
+  const { plugin, instanceParameters, pluginParameters } = nodeState;
+
+  React.useEffect(()=>{
+    async function fetchData(){
+      const instanceParameters = await selected.getParameters({
+        limit: 100,
+        offset: 0,
+      });
+
+      const plugin = await selected.getPlugin();
+      const pluginParameters = await plugin.getPluginParameters({
+        limit: 100,
+        offset: 0,
+      });
+
+       setNodeState({
+         plugin,
+         instanceParameters,
+         pluginParameters,
+       });
+    }
+    fetchData();
+  },[selected])
+
+
+  const command = React.useCallback(getCommand, [
+    plugin,instanceParameters,pluginParameters
+  ]); 
+  const title=React.useCallback(getCurrentTitleFromStatus,[pluginStatus])
+  const runTime=React.useCallback(getRuntimeString,[selected, pluginStatus])
+  const pluginTitle=React.useMemo(()=>{
+    return `${selected.data.plugin_name} v. ${selected.data.plugin_version}`
+  },[selected])
+
+
+  return (
+    <>
+      <div className="details-header-wrap">
+        <div>
+          Selected Node:
+          <Title headingLevel="h2" size="xl">
+            {pluginTitle}
+          </Title>
         </div>
-
+        <div>
+          <TextCopyPopover
+            text={
+              plugin && instanceParameters && pluginParameters
+                ? command(plugin, instanceParameters, pluginParameters)
+                : ""
+            }
+            headerContent={`Docker Command for ${pluginTitle}`}
+            max-width="50rem"
+            className="view-command-wrap"
+          >
+            <Button>
+              <TerminalIcon />
+              View Command
+              <CaretDownIcon />
+            </Button>
+          </TextCopyPopover>
+        </div>
+      </div>
         <Grid className="node-details-grid">
           <GridItem span={2} className="title">
             Status
           </GridItem>
-
           <GridItem span={10} className="value">
             {selected.data.status === "waitingForPrevious" ? (
               <>
@@ -280,7 +163,7 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
                   className="node-details-grid__title-label"
                   style={{ color: "white" }}
                 >
-                  {this.getCurrentTitleFromStatus(pluginStatus)}
+                  {title(pluginStatus)}
                 </h3>
               </div>
             ) : (
@@ -307,19 +190,18 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
           <GridItem span={10} className="value">
             {selected.data.id}
           </GridItem>
-          {runtime && (
+          {runTime && (
             <>
               <GridItem span={2} className="title">
                 <FontAwesomeIcon icon={["far", "calendar-alt"]} />
                 Total Runtime:
               </GridItem>
               <GridItem span={10} className="value">
-                {runtime}
+                {runTime(selected)}
               </GridItem>
             </>
           )}
         </Grid>
-
         <br />
         <br />
 
@@ -332,15 +214,140 @@ class NodeDetails extends React.Component<INodeProps, INodeState> {
         <label style={{ color: "white", fontWeight: "bold" }}>
           Plugin output may be viewed below.
         </label>
-      </React.Fragment>
-    );
-  }
+      
+    </>
+  );
+
 }
+
 
 const mapStateToProps = (state: ApplicationState) => ({
   pluginStatus: state.plugin.pluginStatus,
   pluginLog: state.plugin.pluginLog,
-  isComputeError:state.plugin.computeError
+  isComputeError: state.plugin.computeError,
 });
 
 export default connect(mapStateToProps, null)(NodeDetails);
+
+
+
+function getCurrentTitleFromStatus(statusLabels: PluginStatus[]) {
+  const currentTitle = statusLabels
+    .map((label) => {
+      const computedTitle = displayDescription(label);
+      switch (computedTitle) {
+        case "Transmitting data to compute environment":
+          return (
+            <>
+              <CloudUploadAltIcon />
+              <span>Transmitting Data</span>
+            </>
+          );
+        case "Setting compute environment":
+          return (
+            <>
+              <DockerIcon />
+              <span>Setting Compute Environment</span>
+            </>
+          );
+
+        case "Computing":
+          return (
+            <>
+              <ServicesIcon />
+              <span>Computing</span>
+            </>
+          );
+
+        case "Syncing data from compute environment":
+          return (
+            <>
+              <MixcloudIcon />
+              <span>Syncing Data</span>
+            </>
+          );
+
+        case "Finishing up":
+          return (
+            <>
+              <StorageDomainIcon />
+              <span>Finishing up</span>
+            </>
+          );
+
+        default:
+          return undefined;
+      }
+    })
+    .filter((title) => title !== undefined);
+  return currentTitle[0];
+}
+
+function getRuntimeString(selected:PluginInstance) {
+  let runtime = 0;
+  const start = new Date(selected.data.start_date);
+  const end = new Date(selected.data.end_date);
+  const elapsed = end.getTime() - start.getTime(); // milliseconds between start and end
+  runtime += elapsed;
+
+  // format millisecond amount into human-readable string
+  let runtimeStrings = [];
+  const timeParts = [
+    ["day", Math.floor(runtime / (1000 * 60 * 60 * 24))],
+    ["hr", Math.floor((runtime / (1000 * 60 * 60)) % 24)],
+    ["min", Math.floor((runtime / 1000 / 60) % 60)],
+    ["sec", Math.floor((runtime / 1000) % 60)],
+  ];
+  for (const part of timeParts) {
+    const [name, value] = part;
+    if (value > 0) {
+      runtimeStrings.push(`${value} ${name}`);
+    }
+  }
+  return runtimeStrings.join(", ");
+}
+
+function getCommand(
+  plugin: Plugin,
+  params: PluginInstanceDescendantList,
+  parameters: PluginParameterList
+) {
+  const { dock_image, selfexec } = plugin.data;
+  let modifiedParams: {
+    name?: string;
+    value?: string;
+  }[] = [];
+
+  let instanceParameters=params.getItems();
+  let pluginParameters=parameters.getItems();
+  
+
+    for (let i = 0; i < instanceParameters.length; i++) {
+      for (let j = 0; j < pluginParameters.length; j++) {
+        if (instanceParameters[i].data.param_name === pluginParameters[j].data.name) {
+          modifiedParams.push({
+            name: pluginParameters[j].data.flag,
+            value: instanceParameters[i].data.value,
+          });
+        }
+      }
+    }
+
+    let command = `docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
+    if (modifiedParams.length) {
+      command +=
+        "\n" +
+        modifiedParams
+          .map((param) => `${param.name} ${param.value}`)
+          .join("\n");
+    }
+    command = `${command}\n /incoming/outgoing`.trim();
+    const lines = command.split("\n");
+    const longest = lines.reduce((a, b) => (a.length > b.length ? a : b))
+      .length;
+    return lines
+      .map((line) => `${line.padEnd(longest)} \\`)
+      .join("\n")
+      .slice(0, -1);
+    
+}
