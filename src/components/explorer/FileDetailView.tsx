@@ -24,16 +24,20 @@ type AllProps = {
 
 class FileDetailView extends React.Component<AllProps, IFileBlob> {
   _isMounted = false;
+  constructor(props:AllProps){
+    super(props);
+    this.state = {
+        blob: undefined,
+        fileType: "",
+        file: undefined,
+      };
+  }
 
   componentDidMount() {
     this._isMounted = true;
     this.fetchData();
   }
-  state = {
-    blob: undefined,
-    fileType: "",
-    file: undefined,
-  };
+;
 
   render() {
     const { selectedFile } = this.props;
@@ -43,7 +47,19 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         this.fetchData();
         return <LoadingSpinner color="#ddd" />;
       } else {
-        const viewerName = fileViewerMap[this.state.fileType];
+        let viewerName: string = "";
+        let filesize: number = 1000000;
+        if(this.state.blob && this.state.blob.size > filesize){
+
+          viewerName='CatchallDisplay'
+        }
+        else if (!fileViewerMap[this.state.fileType]) {
+          viewerName = "IframeDisplay";
+        } else {
+          viewerName = fileViewerMap[this.state.fileType];
+        }
+
+
 
         return (
           <>
