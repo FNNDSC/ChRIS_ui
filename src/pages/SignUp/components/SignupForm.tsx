@@ -1,4 +1,7 @@
 import React from 'react'
+import {connect} from 'react-redux'
+import {Dispatch} from 'redux'
+import {withRouter} from 'react-router-dom'
 import {
   Form,
   FormGroup,
@@ -9,16 +12,23 @@ import {
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 import ChrisApiClient from "@fnndsc/chrisapi";
-import { Redirect, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { has } from "lodash";
 import { validate } from "email-validator";
+import {setAuthToken} from '../../../store/user/actions'
 
 
 type Validated = {
   error: undefined | "error" | "default" | "success" | "warning";
 };
 
-const SignUpForm=()=>{
+type SignUpForm={
+  setAuthToken:(auth:{token:string,username:string})=>void;
+}
+
+const SignUpForm:React.FC<SignUpForm>=({
+  setAuthToken
+})=>{
   const [userState, setUserState] = React.useState<{
     username: string;
     validated: Validated["error"];
@@ -49,7 +59,7 @@ const SignUpForm=()=>{
 
   const [loading, setLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
-  const [toLogin, setToLogin] = React.useState(false);
+ 
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -77,10 +87,11 @@ const SignUpForm=()=>{
       });
     }
 
- 
     setLoading(true);
     const userURL = process.env.REACT_APP_CHRIS_UI_USERS_URL;
+    const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
     let user;
+    let token;
 
     if (userURL) {
       try {
@@ -90,6 +101,13 @@ const SignUpForm=()=>{
           passwordState.password,
           emailState.email
         );
+
+      token=await ChrisApiClient.getAuthToken(
+        authURL,
+        userState.username,
+        passwordState.password
+      )
+       
       } catch (error) {
         if (has(error, "response")) {
           if (has(error, "response.data.username")) {
@@ -106,7 +124,7 @@ const SignUpForm=()=>{
             setEmailState({
               ...emailState,
               invalidText: "This email address already exists",
-              validated:'error'
+              validated: "error",
             });
           }
 
@@ -124,8 +142,12 @@ const SignUpForm=()=>{
       }
     }
 
-    if (user) {
-      setToLogin(!toLogin);
+    if (user && token) {
+      setAuthToken({
+        token,
+        username:user.data.username
+      })
+      
     }
   };
 
@@ -133,9 +155,7 @@ const SignUpForm=()=>{
     setShowPassword(checked);
   };
 
-  if (toLogin) {
-    return <Redirect to="/login" />;
-  }
+ 
   return (
     <Form onSubmit={handleSubmit} noValidate>
       <FormGroup
@@ -233,4 +253,12 @@ const SignUpForm=()=>{
   );
 }
 
-export default SignUpForm;
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  setAuthToken: (auth: { token: string; username: string }) =>
+    dispatch(setAuthToken(auth)),
+});
+
+
+export default withRouter(
+  connect(null, mapDispatchToProps)(SignUpForm)
+);
