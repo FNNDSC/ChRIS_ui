@@ -220,7 +220,6 @@ const NodeDetails:React.FC<INodeProps>=({
 
 }
 
-
 const mapStateToProps = (state: ApplicationState) => ({
   pluginStatus: state.plugin.pluginStatus,
   pluginLog: state.plugin.pluginLog,
@@ -228,7 +227,6 @@ const mapStateToProps = (state: ApplicationState) => ({
 });
 
 export default connect(mapStateToProps, null)(NodeDetails);
-
 
 
 function getCurrentTitleFromStatus(statusLabels: PluginStatus[]) {

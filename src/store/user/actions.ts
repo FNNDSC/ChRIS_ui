@@ -4,5 +4,8 @@ import { UserActionTypes } from "./types";
 // type them properly as well -> For more info: https://github.com/piotrwitek/typesafe-actions
 export const setAuthToken = (auth: { token: string; username: string }) =>
   action(UserActionTypes.SET_TOKEN, auth);
-export const setAuthTokenSuccess = (token: string) => action(UserActionTypes.SET_TOKEN_SUCCESS, token); // NOTE: To be done: Save user token to cookie or session
+export const setAuthTokenSuccess = (auth:{
+  token:string, username:string
+}) => action(UserActionTypes.SET_TOKEN_SUCCESS, auth); // NOTE: To be done: Save user token to cookie or session
 export const setUserLogout = () => action(UserActionTypes.LOGOUT_USER);
+export const setAuthError = () => action(UserActionTypes.SET_TOKEN_ERROR);

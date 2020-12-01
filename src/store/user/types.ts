@@ -21,6 +21,8 @@ export const UserActionTypes = keyMirror({
   SET_TOKEN_ERROR: null, // request failed
   SET_TOKEN_SUCCESS: null, // request is successful
   LOGOUT_USER: null,
+  GET_AUTH_TOKEN: null,
+  GET_AUTH_TOKEN_SUCCESS: null,
 });
 
 

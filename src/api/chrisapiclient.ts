@@ -14,21 +14,17 @@ const AUTH_TOKEN_KEY = "AUTH_TOKEN";
  * passed the token, declare process.env variables, etc.
  */
 
+
 class ChrisAPIClient {
   private static client: Client;
-  private static tokenUnauthorized: boolean;
 
-  static getClient(): Client {
-      const token= window.sessionStorage.getItem(AUTH_TOKEN_KEY) 
-      if(!token){
-        this.tokenUnauthorized=false
-      }
-      else {
-       this.client = new Client(process.env.REACT_APP_CHRIS_UI_URL, {
+  static getClient() {
+    if (!this.client) {
+      const token: string = window.sessionStorage.getItem(AUTH_TOKEN_KEY) || "";
+      this.client = new Client(process.env.REACT_APP_CHRIS_UI_URL, {
         token,
       });
-      this.tokenUnauthorized=true
-      }
+    }
     return this.client;
   }
 }

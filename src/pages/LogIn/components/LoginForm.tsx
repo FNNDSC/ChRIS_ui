@@ -117,6 +117,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     username:string
   }) => dispatch(setAuthToken(auth)),
 });
+
+
 export default withRouter(
   connect(null, mapDispatchToProps)(LoginFormComponent)
 );
