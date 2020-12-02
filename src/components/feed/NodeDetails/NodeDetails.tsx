@@ -28,6 +28,7 @@ import {
 } from "@patternfly/react-icons";
 
 import AddNode from "../AddNode/AddNode";
+import DeleteNode from "../DeleteNode";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PluginStatus } from "../../../store/plugin/types";
 import { displayDescription } from "../FeedOutputBrowser/utils";
@@ -57,17 +58,16 @@ function getInitialState(){
 }
 
 
-const NodeDetails:React.FC<INodeProps>=({
+const NodeDetails: React.FC<INodeProps> = ({
   selected,
   pluginStatus,
-  
-})=>{
-
+  descendants,
+}) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
 
-  React.useEffect(()=>{
-    async function fetchData(){
+  React.useEffect(() => {
+    async function fetchData() {
       const instanceParameters = await selected.getParameters({
         limit: 100,
         offset: 0,
@@ -79,25 +79,25 @@ const NodeDetails:React.FC<INodeProps>=({
         offset: 0,
       });
 
-       setNodeState({
-         plugin,
-         instanceParameters,
-         pluginParameters,
-       });
+      setNodeState({
+        plugin,
+        instanceParameters,
+        pluginParameters,
+      });
     }
     fetchData();
-  },[selected])
-
+  }, [selected]);
 
   const command = React.useCallback(getCommand, [
-    plugin,instanceParameters,pluginParameters
-  ]); 
-  const title=React.useCallback(getCurrentTitleFromStatus,[pluginStatus])
-  const runTime=React.useCallback(getRuntimeString,[selected, pluginStatus])
-  const pluginTitle=React.useMemo(()=>{
-    return `${selected.data.plugin_name} v. ${selected.data.plugin_version}`
-  },[selected])
-
+    plugin,
+    instanceParameters,
+    pluginParameters,
+  ]);
+  const title = React.useCallback(getCurrentTitleFromStatus, [pluginStatus]);
+  const runTime = React.useCallback(getRuntimeString, [selected, pluginStatus]);
+  const pluginTitle = React.useMemo(() => {
+    return `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;
+  }, [selected]);
 
   return (
     <>
@@ -127,98 +127,100 @@ const NodeDetails:React.FC<INodeProps>=({
           </TextCopyPopover>
         </div>
       </div>
-        <Grid className="node-details-grid">
-          <GridItem span={2} className="title">
-            Status
-          </GridItem>
-          <GridItem span={10} className="value">
-            {selected.data.status === "waitingForPrevious" ? (
-              <>
-                <OutlinedClockIcon />
-                <span>Waiting for Previous</span>
-              </>
-            ) : selected.data.status === "scheduled" ? (
-              <>
-                <InProgressIcon />
-                <span>Scheduled</span>
-              </>
-            ) : selected.data.status === "registeringFiles" ? (
-              <>
-                <FileArchiveIcon />
-                <span>Registering Files</span>
-              </>
-            ) : selected.data.status === "finishedWithError" ? (
-              <>
-                <ErrorCircleOIcon />
-                <span>FinishedWithError</span>
-              </>
-            ) : selected.data.status === "finishedSuccessfully" ? (
-              <>
-                <CheckIcon />
-                <span>FinishedSuccessfully</span>
-              </>
-            ) : pluginStatus ? (
-              <div className="node-details-grid__title">
-                <h3
-                  className="node-details-grid__title-label"
-                  style={{ color: "white" }}
-                >
-                  {title(pluginStatus)}
-                </h3>
-              </div>
-            ) : (
-              <>
-                <OnRunningIcon />
-                <span>Started</span>
-              </>
-            )}
-          </GridItem>
-
-          <GridItem span={2} className="title">
-            Created
-          </GridItem>
-          <GridItem span={10} className="value">
-            <CalendarDayIcon />
-            <Moment format="DD MMM YYYY @ HH:mm">
-              {selected.data.start_date}
-            </Moment>
-          </GridItem>
-
-          <GridItem span={2} className="title">
-            Node ID
-          </GridItem>
-          <GridItem span={10} className="value">
-            {selected.data.id}
-          </GridItem>
-          {runTime && (
+      <Grid className="node-details-grid">
+        <GridItem span={2} className="title">
+          Status
+        </GridItem>
+        <GridItem span={10} className="value">
+          {selected.data.status === "waitingForPrevious" ? (
             <>
-              <GridItem span={2} className="title">
-                <FontAwesomeIcon icon={["far", "calendar-alt"]} />
-                Total Runtime:
-              </GridItem>
-              <GridItem span={10} className="value">
-                {runTime(selected)}
-              </GridItem>
+              <OutlinedClockIcon />
+              <span>Waiting for Previous</span>
+            </>
+          ) : selected.data.status === "scheduled" ? (
+            <>
+              <InProgressIcon />
+              <span>Scheduled</span>
+            </>
+          ) : selected.data.status === "registeringFiles" ? (
+            <>
+              <FileArchiveIcon />
+              <span>Registering Files</span>
+            </>
+          ) : selected.data.status === "finishedWithError" ? (
+            <>
+              <ErrorCircleOIcon />
+              <span>FinishedWithError</span>
+            </>
+          ) : selected.data.status === "finishedSuccessfully" ? (
+            <>
+              <CheckIcon />
+              <span>FinishedSuccessfully</span>
+            </>
+          ) : pluginStatus ? (
+            <div className="node-details-grid__title">
+              <h3
+                className="node-details-grid__title-label"
+                style={{ color: "white" }}
+              >
+                {title(pluginStatus)}
+              </h3>
+            </div>
+          ) : (
+            <>
+              <OnRunningIcon />
+              <span>Started</span>
             </>
           )}
-        </Grid>
-        <br />
-        <br />
+        </GridItem>
 
-        <div className="btn-div">
-          <AddNode />
-        </div>
+        <GridItem span={2} className="title">
+          Created
+        </GridItem>
+        <GridItem span={10} className="value">
+          <CalendarDayIcon />
+          <Moment format="DD MMM YYYY @ HH:mm">
+            {selected.data.start_date}
+          </Moment>
+        </GridItem>
 
-        <br />
-        <br />
-        <label style={{ color: "white", fontWeight: "bold" }}>
-          Plugin output may be viewed below.
-        </label>
-      
+        <GridItem span={2} className="title">
+          Node ID
+        </GridItem>
+        <GridItem span={10} className="value">
+          {selected.data.id}
+        </GridItem>
+        {runTime && (
+          <>
+            <GridItem span={2} className="title">
+              <FontAwesomeIcon icon={["far", "calendar-alt"]} />
+              Total Runtime:
+            </GridItem>
+            <GridItem span={10} className="value">
+              {runTime(selected)}
+            </GridItem>
+          </>
+        )}
+        <GridItem span={2}>
+          <div className="btn-div">
+            <AddNode />
+          </div>
+        </GridItem>
+
+        <GridItem span={2}>
+          <div className="btn-div">
+            {descendants.length > 1 && <DeleteNode />}
+          </div>
+        </GridItem>
+      </Grid>
+      <br />
+      <br />
+      <label style={{ color: "white", fontWeight: "bold" }}>
+        Plugin output may be viewed below.
+      </label>
     </>
   );
-
-}
+};
 
 const mapStateToProps = (state: ApplicationState) => ({
   pluginStatus: state.plugin.pluginStatus,

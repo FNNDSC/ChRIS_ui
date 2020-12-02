@@ -32,3 +32,9 @@ export const addNode = (pluginItem: PluginInstance) =>
   action(FeedActionTypes.ADD_NODE, pluginItem);
 export const addNodeSuccess = (pluginItem: PluginInstance) =>
   action(FeedActionTypes.ADD_NODE_SUCCESS, pluginItem);
+export const deleteNode = (pluginItem: PluginInstance) => {
+  return action(FeedActionTypes.DELETE_NODE, pluginItem);
+};
+export const deleteNodeSuccess = () =>
+  action(FeedActionTypes.DELETE_NODE_SUCCESS);
+

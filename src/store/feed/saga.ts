@@ -1,4 +1,4 @@
-import { all, fork, put, takeEvery } from "redux-saga/effects";
+import { all, fork, put, takeEvery, call } from "redux-saga/effects";
 import { FeedActionTypes } from "./types";
 import { IActionTypeParam } from "../../api/models/base.model";
 import ChrisAPIClient from "../../api/chrisapiclient";
@@ -10,7 +10,9 @@ import {
   getPluginInstancesSuccess,
   getSelectedPlugin,
   addNodeSuccess,
+  deleteNodeSuccess,
 } from "./actions";
+import { stopPolling } from "../plugin/actions";
 
 // ------------------------------------------------------------------------
 // Description: Get Feeds list and search list by feed name (form input driven)
@@ -87,8 +89,23 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
 
 function* handleAddNode(action: IActionTypeParam) {
   const item = action.payload;
+
   try {
     yield all([put(addNodeSuccess(item)), put(getSelectedPlugin(item))]);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+
+function* handleDeleteNode(action: IActionTypeParam) {
+  const item = action.payload;
+  const feed = yield item.getFeed();
+
+  try {
+    yield item.delete();
+    yield call(stopPolling);
+    yield all([put(getPluginInstancesRequest(feed)), put(deleteNodeSuccess())]);
   } catch (err) {
     console.error(err);
   }
@@ -109,6 +126,12 @@ function* watchAddNode() {
   yield takeEvery(FeedActionTypes.ADD_NODE, handleAddNode);
 }
 
+
+function* watchDeleteNode() {
+  yield takeEvery(FeedActionTypes.DELETE_NODE, handleDeleteNode);
+}
+
+
 // ------------------------------------------------------------------------
 // We can also use `fork()` here to split our saga into multiple watchers.
 // ------------------------------------------------------------------------
@@ -118,5 +141,6 @@ export function* feedSaga() {
     fork(watchGetFeedRequest),
     fork(watchGetPluginInstanceRequest),
     fork(watchAddNode),
+    fork(watchDeleteNode),
   ]);
 }
