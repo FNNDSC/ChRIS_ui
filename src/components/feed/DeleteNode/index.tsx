@@ -1,0 +1,75 @@
+import React from "react";
+import { Dispatch } from "redux";
+import { Button, Modal, ModalVariant } from "@patternfly/react-core";
+import { connect } from "react-redux";
+import { ApplicationState } from "../../../store/root/applicationState";
+import { PluginInstance } from "@fnndsc/chrisapi";
+import { deleteNode } from "../../../store/feed/actions";
+
+interface DeleteNodeProps {
+  selected?: PluginInstance;
+  deleteNode: (pluginItem: PluginInstance) => void;
+  deleteNodeSuccess: boolean;
+}
+
+const DeleteNode: React.FC<DeleteNodeProps> = ({
+  selected,
+  deleteNode,
+  deleteNodeSuccess,
+}) => {
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const handleModalToggle = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+
+  const handleDelete = async () => {
+    if (selected) {
+      deleteNode(selected);
+    }
+    if (deleteNodeSuccess) {
+      setIsModalOpen(!isModalOpen);
+    }
+  };
+
+  return (
+    <React.Fragment>
+      <Button
+        disabled={!selected}
+        onClick={handleModalToggle}
+        variant="primary"
+      >
+        Delete Node
+      </Button>
+      <Modal
+        variant={ModalVariant.small}
+        title="Delete Node Confirmation"
+        isOpen={isModalOpen}
+        onClose={handleModalToggle}
+        actions={[
+          <React.Fragment key="modal-action">
+            <Button key="confirm" variant="primary" onClick={handleDelete}>
+              Confirm
+            </Button>
+            <Button key="cancel" variant="link" onClick={handleModalToggle}>
+              Cancel
+            </Button>
+          </React.Fragment>,
+        ]}
+      >
+        Deleting a node will delete all it's descendants as well. Please confirm
+        if you are sure
+      </Modal>
+    </React.Fragment>
+  );
+};
+
+const mapStateToProps = (state: ApplicationState) => ({
+  selected: state.feed.selected,
+  deleteNodeSuccess: state.feed.deleteNodeSuccess,
+});
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  deleteNode: (pluginItem: PluginInstance) => dispatch(deleteNode(pluginItem)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(DeleteNode);

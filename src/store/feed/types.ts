@@ -14,6 +14,7 @@ export interface IFeedState {
   feedsCount?: number;
   pluginInstances?: PluginInstance[];
   selected?: PluginInstance;
+  deleteNodeSuccess: boolean;
 }
 
 export const FeedActionTypes = keyMirror({
@@ -28,4 +29,6 @@ export const FeedActionTypes = keyMirror({
   GET_SELECTED_PLUGIN: null,
   ADD_NODE: null,
   ADD_NODE_SUCCESS: null,
+  DELETE_NODE: null,
+  DELETE_NODE_SUCCESS: null,
 });

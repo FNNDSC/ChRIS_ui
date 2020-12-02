@@ -10,6 +10,7 @@ export const initialState: IFeedState = {
   feedsCount: 0,
   pluginInstances: [],
   selected: undefined,
+  deleteNodeSuccess: false,
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -80,6 +81,14 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           pluginInstances: [action.payload],
         };
     }
+
+    case FeedActionTypes.DELETE_NODE_SUCCESS: {
+      return {
+        ...state,
+        deleteNodeSuccess: !state.deleteNodeSuccess,
+      };
+    }
+
     case UserActionTypes.LOGOUT_USER: {
       return {
         ...state,
