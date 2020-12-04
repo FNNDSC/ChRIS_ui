@@ -33,7 +33,6 @@ export function getPluginDisplayName(plugin: PluginInstance){
 
 export function getStatusLabels(labels: PluginStatusLabels): PluginStatus[]  {
   let label = [];
-  console.log("Labels", labels);
 
   const isError = labels.compute.return.l_status[0] === "finishedWithError";
   const isComputeSuccessful = isError ? false : true;

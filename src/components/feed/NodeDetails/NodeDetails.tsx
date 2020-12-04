@@ -58,11 +58,7 @@ function getInitialState(){
 }
 
 
-const NodeDetails: React.FC<INodeProps> = ({
-  selected,
-  pluginStatus,
-  descendants,
-}) => {
+const NodeDetails: React.FC<INodeProps> = ({ selected, pluginStatus }) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
 
@@ -209,7 +205,7 @@ const NodeDetails: React.FC<INodeProps> = ({
 
         <GridItem span={2}>
           <div className="btn-div">
-            {descendants.length > 1 && <DeleteNode />}
+            {!selected.data.plugin_name.includes("dircopy") && <DeleteNode />}
           </div>
         </GridItem>
       </Grid>
