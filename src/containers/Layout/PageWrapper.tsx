@@ -43,8 +43,6 @@ class Wrapper extends React.Component<AllProps> {
 
   render() {
     const { children, user, isMobileView } = this.props;
-     console.log("Wrapper", this.props.user);
-      
 
     return (
       <Page

@@ -29,10 +29,10 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       data: {},
       requiredInput: {},
       dropdownInput: {},
-      computeEnv: "host",
+      computeEnv: " ",
       errors: {},
       toggleGPU: false,
-      gpuInput:   {},
+      gpuInput: {},
     };
 
     this.inputChange = this.inputChange.bind(this);

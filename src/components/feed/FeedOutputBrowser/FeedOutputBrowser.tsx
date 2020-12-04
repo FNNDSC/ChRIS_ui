@@ -85,7 +85,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   };
 
   const downloadAllClick = async () => {
-    console.log("DownloadAllClicked");
     if (!selected) return;
     const files = pluginFiles && pluginFiles[selected.data.id as number];
 
