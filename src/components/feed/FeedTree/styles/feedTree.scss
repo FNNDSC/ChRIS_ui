@@ -55,7 +55,7 @@
     animation-name:queued;
     animation-duration:2s;
     animation-timing-function:ease-in;
-    animation-iteration-count:infinite;
+    animation-iteration-count:5;
     animation-delay:1s;
     animation-fill-mode:both;
    
@@ -68,7 +68,7 @@
     animation-name:success;
     animation-duration:2s;
     animation-timing-function:ease-in;
-    animation-iteration-count:infinite;
+    animation-iteration-count:1;
     animation-delay:1s;
     animation-fill-mode:both;
    
@@ -81,7 +81,7 @@
     animation-name: error;
     animation-duration: 2s;
     animation-timing-function: ease-in;
-    animation-iteration-count: 5;
+    animation-iteration-count: 3;
     animation-delay: 1s;
     animation-fill-mode: both;
     .label{

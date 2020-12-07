@@ -6,6 +6,7 @@
  */
 import keyMirror from "keymirror";
 import { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import { PluginStatus } from "../plugin/types";
 
 // Description state for main user items[] and item
 export interface IFeedState {
@@ -15,6 +16,7 @@ export interface IFeedState {
   pluginInstances?: PluginInstance[];
   selected?: PluginInstance;
   deleteNodeSuccess: boolean;
+  testStatus?: "";
 }
 
 export const FeedActionTypes = keyMirror({
@@ -31,4 +33,7 @@ export const FeedActionTypes = keyMirror({
   ADD_NODE_SUCCESS: null,
   DELETE_NODE: null,
   DELETE_NODE_SUCCESS: null,
+  STOP_FETCHING_PLUGIN_RESOURCES: null,
+  POLLING_STATUS: null,
+  GET_TEST_STATUS: null,
 });

@@ -6,9 +6,10 @@ import { PluginActionTypes, IPluginState } from "./types";
 const initialState: IPluginState = {
   pluginFiles: {},
   parameters: [],
-  pluginStatus:  [],
+  pluginStatus: [],
   pluginLog: {},
   computeError: false,
+ 
 };
 
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {
