@@ -8,6 +8,12 @@ interface PluginInstanceObj {
   pluginInstances: PluginInstance[];
 }
 
+interface AddNodePayload {
+  pluginItem: PluginInstance;
+  nodes?: PluginInstance[];
+}
+
+
 // type them properly as well -> For more info: https://github.com/piotrwitek/typesafe-actions
 export const getAllFeedsRequest = (
   name?: string,
@@ -28,8 +34,8 @@ export const getPluginInstancesSuccess = (items: PluginInstanceObj) =>
   action(FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS, items);
 export const destroyFeedState = () => action(FeedActionTypes.RESET_FEED_STATE);
 export const addFeed = (feed: Feed) => action(FeedActionTypes.ADD_FEED, feed);
-export const addNode = (pluginItem: PluginInstance) =>
-  action(FeedActionTypes.ADD_NODE, pluginItem);
+export const addNode = (item: AddNodePayload) =>
+  action(FeedActionTypes.ADD_NODE, item);
 export const addNodeSuccess = (pluginItem: PluginInstance) =>
   action(FeedActionTypes.ADD_NODE_SUCCESS, pluginItem);
 export const deleteNode = (pluginItem: PluginInstance) => {

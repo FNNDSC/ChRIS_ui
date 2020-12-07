@@ -8,7 +8,7 @@ import "./styles/addnode.scss";
 import LoadingSpinner from "../../common/loading/LoadingSpinner";
 import Review from "./Review";
 import { addNode } from "../../../store/feed/actions";
-import { PluginInstance, Plugin } from "@fnndsc/chrisapi";
+import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
 import { InfrastructureIcon } from "@patternfly/react-icons";
 import { getParams } from "../../../store/plugin/actions";
@@ -214,7 +214,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   async handleSave() {
     const { dropdownInput, requiredInput, computeEnv } = this.state;
     const { plugin } = this.state.data;
-    const { selected, addNode } = this.props;
+    const { selected, addNode, nodes } = this.props;
 
     if (!plugin || !selected) {
       return;
@@ -240,7 +240,10 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     try {
       await pluginInstance.post(parameterInput);
       const node = pluginInstance.getItems()[0];
-      addNode(node);
+      addNode({
+        pluginItem: node,
+        nodes,
+      });
       this.resetState();
     } catch (error) {
       this.setState({
@@ -370,7 +373,8 @@ const mapStateToProps = (state: ApplicationState) => ({
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getParams: (plugin: Plugin) => dispatch(getParams(plugin)),
-  addNode: (pluginItem: PluginInstance) => dispatch(addNode(pluginItem)),
+  addNode: (item: { pluginItem: PluginInstance; nodes?: PluginInstance[] }) =>
+    dispatch(addNode(item)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AddNode);

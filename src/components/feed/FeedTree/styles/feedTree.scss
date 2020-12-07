@@ -37,15 +37,13 @@
 
 
 @keyframes queued {
-    0%    { fill: #aaa; }
+    0%    { fill: grey; }
     50%   { fill: #444; }
-    100%  { fill: #aaa; }
+    100%  { fill:grey; }
 }
 
-@keyframes success {
-    0%    { fill: green; }
-    100%  { fill: white; }
-}
+
+
 
 .node {
   cursor: pointer;
@@ -65,15 +63,9 @@
   }
 
   &.success{
-    animation-name:success;
-    animation-duration:2s;
-    animation-timing-function:ease-in;
-    animation-iteration-count:1;
-    animation-delay:1s;
-    animation-fill-mode:both;
-   
+    fill:#004080;
     .label {
-      fill: #6EC664;
+      fill: #004080;
     }
    }
 
@@ -98,12 +90,12 @@
     animation-delay:1s;
     animation-fill-mode:both;
     .label {
-      fill: $tree-node-active-backgound;
+      fill: #0066CC;
     }
   }
 
     &.selected{
-     fill:$tree-node-active-backgound !important
+     fill:white
    }
 
 }
