@@ -60,7 +60,7 @@ export interface AddNodeState extends InputState {
     plugin?: Plugin;
     parent?: PluginInstance;
   };
-  computeEnv: string;
+  selectedComputeEnv: string;
   errors: {
     [key: string]: string[];
   };
@@ -77,7 +77,6 @@ export interface AddNodeProps {
   }) => void;
   getParams: (plugin: Plugin) => void;
 }
-
 
 
 export interface GuidedConfigState {
@@ -101,7 +100,7 @@ export interface GuidedConfigProps extends InputProps {
     placeholder: string
   ): void;
   deleteInput(input: string): void;
-  computeEnvironment: string;
+  selectedComputeEnv: string;
   setComputeEnviroment: (computeEnv: string) => void;
 }
 

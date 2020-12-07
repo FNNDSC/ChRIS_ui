@@ -212,7 +212,7 @@ export const createFeedReducer = (
         selectedConfig: "",
         requiredInput: {},
         dropdownInput: {},
-        
+        computeEnvironment: "",
       };
     }
 

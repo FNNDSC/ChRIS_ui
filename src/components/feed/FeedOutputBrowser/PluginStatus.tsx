@@ -15,7 +15,6 @@ import classNames from "classnames";
 import LogTabs from "./LogTabs";
 import LogTerminal from './LogTerminal'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ErrorCircleOIcon, CheckCircleIcon } from "@patternfly/react-icons";
 
 
 const { Step } = Steps;
