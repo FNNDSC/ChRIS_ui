@@ -9,8 +9,6 @@ import "./styles/feedTree.scss";
 import { getPluginInstanceResources } from "../../../store/plugin/actions";
 import { stopFetchingPluginResources } from "../../../store/feed/actions";
 
-
-
 interface ITreeProps {
   items: PluginInstance[];
   selected: PluginInstance;
@@ -21,6 +19,7 @@ interface ITreeProps {
 interface ITreeActions {
   onNodeClick: (node: any) => void;
   getPluginInstanceResources: (items: PluginInstance[]) => void;
+  stopFetchingPluginResources: (id: number) => void;
 }
 type AllProps = ITreeProps & ITreeActions;
 
@@ -30,7 +29,7 @@ const treeRef=useRef<HTMLDivElement>(null);
 const svgRef=useRef<SVGSVGElement>(null);
 
 useEffect(() => {
-  console.log('Re-rendering in useEffect')
+  console.log("Rendering Feed Tree");;
   if (!!treeRef.current && !!props.items && props.items.length > 0) {
     const { items } = props;
     let dimensions = { height: 300, width: 700 };
@@ -182,8 +181,9 @@ useEffect(() => {
     }
   }
 
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [props.items, props.selected,  props.testStatus]);
+}, [props.items, props.selected, props.testStatus]);
 
 
 
@@ -215,6 +215,8 @@ const mapStateToProps = (state: ApplicationState) => ({
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getPluginInstanceResources: (items: PluginInstance[]) =>
     dispatch(getPluginInstanceResources(items)),
+  stopFetchingPluginResources: (id: number) =>
+    dispatch(stopFetchingPluginResources(id)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedTree);

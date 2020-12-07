@@ -71,9 +71,14 @@ export interface AddNodeState extends InputState {
 export interface AddNodeProps {
   selected?: PluginInstance;
   nodes?: PluginInstance[];
-  addNode: (pluginItem: PluginInstance) => void;
+  addNode: (item: {
+    pluginItem: PluginInstance;
+    nodes?: PluginInstance[];
+  }) => void;
   getParams: (plugin: Plugin) => void;
 }
+
+
 
 export interface GuidedConfigState {
   isOpen: boolean;
