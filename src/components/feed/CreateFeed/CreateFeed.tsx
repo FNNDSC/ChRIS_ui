@@ -71,7 +71,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     });
   };
 
-  const setComputeEnviroment = (computeEnvironment: string) => {
+  const setComputeEnvironment = (computeEnvironment: string) => {
     dispatch({
       type: Types.SetComputeEnvironment,
       payload: {
@@ -192,8 +192,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       plugin={selectedPlugin}
       dropdownInput={dropdownInput}
       requiredInput={requiredInput}
-      computeEnvironment={computeEnvironment}
-      setComputeEnviroment={setComputeEnviroment}
+      selectedComputeEnv={computeEnvironment}
+      setComputeEnviroment={setComputeEnvironment}
     />
   );
   const review = <Review />;

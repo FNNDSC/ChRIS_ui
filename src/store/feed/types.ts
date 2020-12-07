@@ -6,7 +6,7 @@
  */
 import keyMirror from "keymirror";
 import { Feed, PluginInstance } from "@fnndsc/chrisapi";
-import { PluginStatus } from "../plugin/types";
+
 
 // Description state for main user items[] and item
 export interface IFeedState {

@@ -88,8 +88,6 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
       }
     }
 
-    console.log("PluginInstances After Request",pluginInstances)
-
     const selected = pluginInstances[pluginInstances.length - 1];
 
     let pluginInstanceObj = {

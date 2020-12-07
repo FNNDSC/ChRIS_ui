@@ -29,7 +29,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       data: {},
       requiredInput: {},
       dropdownInput: {},
-      computeEnv: " ",
+      selectedComputeEnv: "",
       errors: {},
       toggleGPU: false,
       gpuInput: {},
@@ -175,7 +175,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
   setComputeEnv(computeEnv: string) {
     this.setState({
       ...this.state,
-      computeEnv,
+      selectedComputeEnv: computeEnv,
     });
   }
 
@@ -205,14 +205,14 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       dropdownInput: {},
       requiredInput: {},
       errors: {},
-      computeEnv: "host",
-      toggleGPU:false,
-      gpuInput:{}
+      selectedComputeEnv: "",
+      toggleGPU: false,
+      gpuInput: {},
     });
   }
 
   async handleSave() {
-    const { dropdownInput, requiredInput, computeEnv } = this.state;
+    const { dropdownInput, requiredInput, selectedComputeEnv } = this.state;
     const { plugin } = this.state.data;
     const { selected, addNode, nodes } = this.props;
 
@@ -231,7 +231,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     parameterInput = {
       ...parameterInput,
       ...this.state.gpuInput,
-      compute_resource_name: computeEnv,
+      compute_resource_name: selectedComputeEnv,
     };
  
 
@@ -259,9 +259,9 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       dropdownInput,
       requiredInput,
       stepIdReached,
-      computeEnv,
+      selectedComputeEnv,
       errors,
-      toggleGPU
+      toggleGPU,
     } = this.state;
     const { nodes, selected } = this.props;
 
@@ -280,7 +280,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         plugin={data.plugin}
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
-        computeEnvironment={computeEnv}
+        selectedComputeEnv={selectedComputeEnv}
         setComputeEnviroment={this.setComputeEnv}
       />
     ) : (
@@ -306,7 +306,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         data={data}
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
-        computeEnvironment={computeEnv}
+        computeEnvironment={selectedComputeEnv}
         errors={errors}
         gpuToggled={toggleGPU}
       />
