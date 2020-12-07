@@ -14,6 +14,8 @@ import { isEmpty } from "lodash";
 import classNames from "classnames";
 import LogTabs from "./LogTabs";
 import LogTerminal from './LogTerminal'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ErrorCircleOIcon, CheckCircleIcon } from "@patternfly/react-icons";
 
 
 const { Step } = Steps;
@@ -90,13 +92,25 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
           <Steps direction="vertical">
             {pluginStatus.map((label: any) => {
               const currentDescription = displayDescription(label);
+              let showIcon:boolean=false;
+
+               if (currentDescription) {
+                 showIcon =
+                   currentDescription === "Transmitting data to compute environment" ||
+                   currentDescription === "Computing" ||
+                   currentDescription === "Finishing up" ||
+                   currentDescription === "Setting compute environment" ||
+                   currentDescription === "Syncing data from compute environment";
+               }
               return (
                 <Step
                   onClick={() => {
                     handleClick(label.step, label.title);
                   }}
                   description={currentDescription}
-                  className={classNames("file-browser__step")}
+                  className={classNames(
+                    "file-browser__step",
+                  )}
                   key={label.id}
                   title={
                     <span
@@ -108,13 +122,12 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
                       {label.title}
                     </span>
                   }
-                  status={
-                    label.error
-                      ? "error"
-                      : label.status === true
-                      ? "finish"
-                      : "wait"
+                  icon={
+                   showIcon && (
+                      <FontAwesomeIcon icon="spinner" spin={true} />
+                    )
                   }
+                  status={label.error===true ? 'error' : label.status===true ? 'finish':undefined}
                 />
               );
             })}
