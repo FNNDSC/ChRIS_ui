@@ -11,6 +11,7 @@ export const initialState: IFeedState = {
   pluginInstances: [],
   selected: undefined,
   deleteNodeSuccess: false,
+  testStatus: "",
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -97,6 +98,13 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         feedsCount: 0,
         pluginInstances: [],
         selected: undefined,
+      };
+    }
+
+    case FeedActionTypes.GET_TEST_STATUS: {
+      return {
+        ...state,
+        testStatus: action.payload,
       };
     }
 

@@ -38,3 +38,8 @@ export const deleteNode = (pluginItem: PluginInstance) => {
 export const deleteNodeSuccess = () =>
   action(FeedActionTypes.DELETE_NODE_SUCCESS);
 
+export const stopFetchingPluginResources = (id: number) =>
+  action(FeedActionTypes.STOP_FETCHING_PLUGIN_RESOURCES, id);
+
+export const getTestStatus = (pluginStatus: string) =>
+  action(FeedActionTypes.GET_TEST_STATUS, pluginStatus);

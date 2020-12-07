@@ -1,8 +1,16 @@
-import { all, fork, put, takeEvery, call } from "redux-saga/effects";
+import {
+  all,
+  fork,
+  put,
+  takeEvery,
+  call,
+  delay,
+  cancel,
+} from "redux-saga/effects";
 import { FeedActionTypes } from "./types";
 import { IActionTypeParam } from "../../api/models/base.model";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { Feed } from "@fnndsc/chrisapi";
+import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import {
   getAllFeedsSuccess,
   getFeedSuccess,
@@ -11,13 +19,21 @@ import {
   getSelectedPlugin,
   addNodeSuccess,
   deleteNodeSuccess,
+  stopFetchingPluginResources,
+  getTestStatus,
 } from "./actions";
-import { stopPolling } from "../plugin/actions";
+import { stopPolling, getPluginInstanceResources } from "../plugin/actions";
+import { PluginActionTypes } from "../plugin/types";
+import { Task } from "redux-saga";
 
 // ------------------------------------------------------------------------
 // Description: Get Feeds list and search list by feed name (form input driven)
 // pass it a param and do a search querie
 // ------------------------------------------------------------------------
+
+let pollTask: {
+  [id: number]: Task;
+} = {};
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
   const { name, limit, offset } = action.payload;
@@ -81,7 +97,10 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
       pluginInstances,
     };
 
-    yield put(getPluginInstancesSuccess(pluginInstanceObj));
+    yield all([
+      put(getPluginInstancesSuccess(pluginInstanceObj)),
+      put(getPluginInstanceResources(pluginInstanceObj.pluginInstances)),
+    ]);
   } catch (err) {
     console.error(err);
   }
@@ -92,11 +111,17 @@ function* handleAddNode(action: IActionTypeParam) {
 
   try {
     yield all([put(addNodeSuccess(item)), put(getSelectedPlugin(item))]);
+    const feed = yield item.getFeed();
+    let params = {
+      limit: 30,
+      offset: 0,
+    };
+    const pluginInstances = yield feed.getPluginInstances(params);
+    yield put(getPluginInstanceResources(pluginInstances));
   } catch (err) {
     console.error(err);
   }
 }
-
 
 function* handleDeleteNode(action: IActionTypeParam) {
   const item = action.payload;
@@ -126,11 +151,78 @@ function* watchAddNode() {
   yield takeEvery(FeedActionTypes.ADD_NODE, handleAddNode);
 }
 
-
 function* watchDeleteNode() {
   yield takeEvery(FeedActionTypes.DELETE_NODE, handleDeleteNode);
 }
 
+function* handleGetPluginStatus(node: {
+  taskId: number;
+  instance: PluginInstance;
+}) {
+  while (true) {
+    try {
+      const pluginDetails = yield node.instance.get();
+
+      if (pluginDetails.data.status === "finishedWithError") {
+        yield put(getTestStatus(pluginDetails.data.summary));
+        yield put(stopFetchingPluginResources(node.instance.data.id));
+      }
+      if (pluginDetails.data.status === "finishedSuccessfully") {
+        yield put(getTestStatus(pluginDetails.data.summary));
+        yield put(stopFetchingPluginResources(node.instance.data.id));
+      } else {
+        console.log("In here action test");
+        yield put(getTestStatus(pluginDetails.data.summary));
+        yield delay(3000);
+      }
+    } catch (error) {
+      console.log("Error", error);
+      yield put(stopFetchingPluginResources(node.instance.data.id));
+    }
+  }
+}
+
+function* cancelPolling(task: Task) {
+  yield cancel(task);
+}
+
+function* handleCancelPoll(action: IActionTypeParam) {
+  const id = action.payload;
+  yield cancelPolling(pollTask[id]);
+  delete pollTask[id];
+}
+
+function* watchCancelPoll() {
+  yield takeEvery(
+    FeedActionTypes.STOP_FETCHING_PLUGIN_RESOURCES,
+    handleCancelPoll
+  );
+}
+
+function* pollorCancelEndpoints(action: IActionTypeParam) {
+  const pluginInstances = action.payload;
+  console.log("PluginInstances", pluginInstances);
+
+  for (let i = 0; i < pluginInstances.length; i++) {
+    const task = yield fork(handleGetPluginStatus, {
+      taskId: i,
+      instance: pluginInstances[i],
+    });
+    //@ts-ignore
+    pollTask[pluginInstances[i].data.id] = task;
+  }
+
+  for (let i = 0; i < Object.keys(pollTask).length; i++) {
+    yield watchCancelPoll();
+  }
+}
+
+function* watchGetPluginInstanceResources() {
+  yield takeEvery(
+    PluginActionTypes.GET_PLUGIN_RESOURCES,
+    pollorCancelEndpoints
+  );
+}
 
 // ------------------------------------------------------------------------
 // We can also use `fork()` here to split our saga into multiple watchers.
@@ -142,5 +234,6 @@ export function* feedSaga() {
     fork(watchGetPluginInstanceRequest),
     fork(watchAddNode),
     fork(watchDeleteNode),
+    fork(watchGetPluginInstanceResources),
   ]);
 }
