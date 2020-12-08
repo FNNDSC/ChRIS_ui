@@ -24,9 +24,9 @@
 }
 
  @keyframes active{
-     0%    { fill:$tree-node-active-backgound; }
+     0%    { fill:#73BCF7; }
     50%   { fill: black; }
-    100%  { fill: $tree-node-active-backgound; }
+    100%  { fill: #73BCF7; }
  }
 
  @keyframes error {
@@ -53,7 +53,7 @@
     animation-name:queued;
     animation-duration:2s;
     animation-timing-function:ease-in;
-    animation-iteration-count:5;
+    animation-iteration-count:3;
     animation-delay:1s;
     animation-fill-mode:both;
    
@@ -65,7 +65,7 @@
   &.success{
     fill:#004080;
     .label {
-      fill: #004080;
+      fill: #0066CC;
     }
    }
 
@@ -73,7 +73,7 @@
     animation-name: error;
     animation-duration: 2s;
     animation-timing-function: ease-in;
-    animation-iteration-count: 3;
+    animation-iteration-count: 2;
     animation-delay: 1s;
     animation-fill-mode: both;
     .label{
@@ -90,7 +90,7 @@
     animation-delay:1s;
     animation-fill-mode:both;
     .label {
-      fill: #0066CC;
+      fill: #BEE1F4;
     }
   }
 
