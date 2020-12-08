@@ -29,7 +29,6 @@ const treeRef=useRef<HTMLDivElement>(null);
 const svgRef=useRef<SVGSVGElement>(null);
 
 useEffect(() => {
-  console.log("Rendering Feed Tree");;
   if (!!treeRef.current && !!props.items && props.items.length > 0) {
     const { items } = props;
     let dimensions = { height: 300, width: 700 };
@@ -180,7 +179,6 @@ useEffect(() => {
       });
     }
   }
-
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [props.items, props.selected, props.testStatus]);
