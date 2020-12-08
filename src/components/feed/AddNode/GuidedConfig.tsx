@@ -148,9 +148,6 @@ class GuidedConfig extends React.Component<
                     <div className="param-help">
                       {computeEnv.data.description}
                     </div>
-                    <div className="param-help">
-                      {computeEnv.data.compute_url}
-                    </div>
                   </div>
                 );
               })}

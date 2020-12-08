@@ -64,8 +64,6 @@ export interface AddNodeState extends InputState {
   errors: {
     [key: string]: string[];
   };
-  toggleGPU: boolean;
-  gpuInput: InputIndex;
 }
 
 export interface AddNodeProps {
@@ -126,8 +124,6 @@ export interface EditorProps extends InputState {
     dropdownInput: InputType,
     requiredInput: InputType
   ): void;
-  toggleGPU: boolean;
-  addGpuToggle: (toggleGPU: boolean) => void;
 }
 
    
@@ -185,7 +181,6 @@ export interface ReviewProps extends InputState {
   errors: {
     [key: string]: string[];
   };
-  gpuToggled: boolean;
 }
 
 

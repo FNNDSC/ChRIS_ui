@@ -31,8 +31,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       dropdownInput: {},
       selectedComputeEnv: "",
       errors: {},
-      toggleGPU: false,
-      gpuInput: {},
     };
 
     this.inputChange = this.inputChange.bind(this);
@@ -44,7 +42,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
     this.handlePluginSelect = this.handlePluginSelect.bind(this);
     this.handleSave = this.handleSave.bind(this);
     this.deleteInput = this.deleteInput.bind(this);
-    this.addGpuToggle = this.addGpuToggle.bind(this);
+   
   }
 
   componentDidMount() {
@@ -106,16 +104,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         errors: {},
       });
     }
-  }
-
-  addGpuToggle(toggleGPU: boolean) {
-    let input:InputIndex={}
-    input['gpus']='all'
-    this.setState({
-      ...this.state,
-      toggleGPU,
-      gpuInput:input
-    });
   }
 
   inputChangeFromEditor(dropdownInput: InputType, requiredInput: InputType) {
@@ -206,8 +194,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       requiredInput: {},
       errors: {},
       selectedComputeEnv: "",
-      toggleGPU: false,
-      gpuInput: {},
     });
   }
 
@@ -226,14 +212,11 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       plugin,
       selected
     );
-   
 
     parameterInput = {
       ...parameterInput,
-      ...this.state.gpuInput,
       compute_resource_name: selectedComputeEnv,
     };
- 
 
     const pluginInstance = await plugin.getPluginInstances();
 
@@ -261,7 +244,7 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
       stepIdReached,
       selectedComputeEnv,
       errors,
-      toggleGPU,
+   
     } = this.state;
     const { nodes, selected } = this.props;
 
@@ -294,8 +277,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         dropdownInput={dropdownInput}
         requiredInput={requiredInput}
         inputChangeFromEditor={this.inputChangeFromEditor}
-        addGpuToggle={this.addGpuToggle}
-        toggleGPU={toggleGPU}
       />
     ) : (
       <LoadingSpinner />
@@ -308,7 +289,6 @@ class AddNode extends Component<AddNodeProps, AddNodeState> {
         requiredInput={requiredInput}
         computeEnvironment={selectedComputeEnv}
         errors={errors}
-        gpuToggled={toggleGPU}
       />
     ) : (
       <LoadingSpinner />
