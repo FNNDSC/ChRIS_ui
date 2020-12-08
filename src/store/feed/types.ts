@@ -16,7 +16,9 @@ export interface IFeedState {
   pluginInstances?: PluginInstance[];
   selected?: PluginInstance;
   deleteNodeSuccess: boolean;
-  testStatus?: "";
+  testStatus: {
+    [key: string]: string;
+  };
 }
 
 export const FeedActionTypes = keyMirror({

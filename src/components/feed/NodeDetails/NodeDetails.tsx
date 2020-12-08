@@ -332,10 +332,7 @@ function getCommand(
     let command = `docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
     if (modifiedParams.length) {
       command +=
-        "\n" +
-        modifiedParams
-          .map((param) => `${param.name} ${param.value}`)
-          .join("\n");
+        "\n" + modifiedParams.map((param) => `${param.name} ${param.value}`);
     }
     command = `${command}\n /incoming/outgoing`.trim();
     const lines = command.split("\n");

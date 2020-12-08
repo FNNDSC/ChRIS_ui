@@ -156,7 +156,7 @@ function* handleGetPluginStatus(
   while (true) {
     try {
       const pluginDetails = yield instance.get();
-      yield put(getTestStatus(pluginDetails.data.summary));
+      yield put(getTestStatus(instance));
 
       if (pluginDetails.data.status === "finishedWithError") {
         yield put(stopFetchingPluginResources(instance.data.id));
@@ -208,7 +208,6 @@ function* pollorCancelEndpoints(action: IActionTypeParam) {
 }
 
 function* watchGetPluginInstanceResources() {
-
   yield takeLatest(
     PluginActionTypes.GET_PLUGIN_RESOURCES,
     pollorCancelEndpoints
