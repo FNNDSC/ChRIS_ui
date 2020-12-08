@@ -154,7 +154,9 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 />
               ) : selected?.data.status === "finishedSuccessfully" && !tree ? (
                 <GridItem span={12} rowSpan={12}>
-                  <Spinner size="md" />
+                  <div>
+                    <Spinner size="md" />
+                  </div>
                 </GridItem>
               ) : (
                 <PluginStatus

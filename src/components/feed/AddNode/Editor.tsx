@@ -143,12 +143,7 @@ class Editor extends Component<EditorProps, EditorState> {
     return { paramDict, errors };
   }
 
-  handleCheckboxChange = (
-    checked: boolean,
-    event: React.FormEvent<HTMLInputElement>
-  ) => {
-    this.props.addGpuToggle(checked);
-  };
+ 
 
   handleRegex(value: string) {
     const { inputChangeFromEditor, params } = this.props;
@@ -214,16 +209,6 @@ class Editor extends Component<EditorProps, EditorState> {
                 <span className="error-message">{error}</span>
               </div>
             ))}
-          </div>
-
-          <div className="gputoggle">
-            <Checkbox
-              isChecked={this.props.toggleGPU}
-              onChange={this.handleCheckboxChange}
-              aria-label="gpus toggle"
-              id="gpu-1"
-              label="Toggle the checkbox to add the --gpus flag to your configuration"
-            />
           </div>
 
           <ExpandableSection
