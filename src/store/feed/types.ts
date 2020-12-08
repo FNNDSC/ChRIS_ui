@@ -10,9 +10,19 @@ import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 
 // Description state for main user items[] and item
 export interface IFeedState {
-  feed?: Feed;
-  feeds?: Feed["data"][];
-  feedsCount?: number;
+  allFeeds: {
+    data?: Feed["data"][];
+    error: any;
+    loading: boolean;
+    totalFeedsCount: 0;
+  };
+
+  currentFeed: {
+    data?: Feed;
+    error: any;
+    loading: boolean;
+  };
+
   pluginInstances?: PluginInstance[];
   selected?: PluginInstance;
   deleteNodeSuccess: boolean;
@@ -22,10 +32,12 @@ export interface IFeedState {
 }
 
 export const FeedActionTypes = keyMirror({
-  GET_ALL_FEEDS: null,
+  GET_ALL_FEEDS_REQUEST: null,
+  GET_ALL_FEEDS_ERROR: null,
   GET_ALL_FEEDS_SUCCESS: null,
   GET_FEED_REQUEST: null,
   GET_FEED_SUCCESS: null,
+  GET_FEED_ERROR:  null,
   GET_PLUGIN_INSTANCES_REQUEST: null,
   GET_PLUGIN_INSTANCES_SUCCESS: null,
   RESET_FEED_STATE: null,

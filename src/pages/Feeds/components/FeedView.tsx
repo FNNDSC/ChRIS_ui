@@ -47,7 +47,7 @@ export type FeedViewProps = IUserState &
   RouteComponentProps<{ id: string }>;
 
 export const _FeedView: React.FC<FeedViewProps> = ({
-  feed,
+  currentFeed,
   selected,
   pluginInstances,
   setSidebarActive,
@@ -59,13 +59,14 @@ export const _FeedView: React.FC<FeedViewProps> = ({
   destroyPluginState,
   getSelectedPlugin,
 }) => {
+  const {data,error,loading }  =  currentFeed;
+
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
     setSidebarActive({
       activeGroup: "feeds_grp",
       activeItem: "my_feeds",
     });
-
     getFeedRequest(id);
     return () => {
       destroyFeedState();
@@ -85,9 +86,9 @@ export const _FeedView: React.FC<FeedViewProps> = ({
 
   return (
     <React.Fragment>
-      {!!feed && !!pluginInstances && pluginInstances.length > 0 && (
+      {!!data && !!pluginInstances && pluginInstances.length > 0 && (
         <PageSection variant={PageSectionVariants.darker}>
-          <FeedDetails feed={feed} items={pluginInstances} />
+          <FeedDetails feed={data} items={pluginInstances} />
         </PageSection>
       )}
       <PageSection
@@ -153,7 +154,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
   sidebarActiveItem: ui.sidebarActiveItem,
-  feed: feed.feed,
+  currentFeed: feed.currentFeed,
   selected: feed.selected,
   pluginInstances: feed.pluginInstances,
 });

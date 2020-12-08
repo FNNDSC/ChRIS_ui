@@ -45,39 +45,43 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
     pluginLogs["swiftPut"] = src.info.swiftPut.return;
   }
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     let computeLog: string | undefined = "";
     if (step === "computeReturn" && activeKey === 1) {
       let currentLog: ComputeLog = pluginLogs[step];
-      if(currentLog){
-      computeLog =
-       currentLog.d_ret && currentLog.d_ret.l_logs && currentLog.d_ret.l_logs[0];
+      if (currentLog) {
+        computeLog =
+          currentLog.d_ret &&
+          currentLog.d_ret.l_logs &&
+          currentLog.d_ret.l_logs[0];
       }
-      if (computeLog) setComputeLog(computeLog);
+      if (computeLog) {
+        setLogs(currentLog);;
+        setComputeLog(computeLog);
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[pluginLog,step])
+  }, [pluginLog, step]);
 
   const handleClick = (step: string, title: string) => {
     let currentLog = pluginLogs[step];
     let computeLog:string|undefined=''
     if (step === "computeReturn") {
       let currentLog: ComputeLog = pluginLogs[step];
-      computeLog=currentLog.d_ret &&
-          currentLog.d_ret.l_logs &&
-          currentLog.d_ret.l_logs[0]
-      if(computeLog)
-      setComputeLog(computeLog) 
-    }
-    else{
-      setComputeLog('')
+      computeLog =
+        currentLog.d_ret &&
+        currentLog.d_ret.l_logs &&
+        currentLog.d_ret.l_logs[0];
+      if (computeLog) setComputeLog(computeLog);
+      else {
+        setComputeLog("");
+      }
     }
     if(currentLog){
       setLogs(currentLog)
     }
     setCurrentStep(step)
-
   };
 
   const handleActiveKey = (activeKey: React.ReactText) => {

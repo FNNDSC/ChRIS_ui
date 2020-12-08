@@ -5,9 +5,17 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 
 // Type-safe initialState
 export const initialState: IFeedState = {
-  feed: undefined,
-  feeds: undefined,
-  feedsCount: 0,
+  allFeeds: {
+    data: undefined,
+    error: "",
+    loading: false,
+    totalFeedsCount: 0,
+  },
+  currentFeed: {
+    data: undefined,
+    error: "",
+    loading:false
+  },
   pluginInstances: [],
   selected: undefined,
   deleteNodeSuccess: false,
@@ -16,16 +24,73 @@ export const initialState: IFeedState = {
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
   switch (action.type) {
+
+    case FeedActionTypes.GET_ALL_FEEDS_REQUEST:{
+      return {
+        ...state,
+        allFeeds:{
+          ...state.allFeeds,
+          loading:true
+        }
+      }
+    }
+
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
       return {
         ...state,
-        feeds: action.payload.data,
-        feedsCount: action.payload.totalCount,
+        allFeeds: {
+          data: action.payload.data,
+          error: "",
+          loading: false,
+          totalFeedsCount: action.payload.totalCount,
+        },
       };
     }
-    case FeedActionTypes.GET_FEED_SUCCESS: {
-      return { ...state, feed: action.payload };
+
+    case FeedActionTypes.GET_ALL_FEEDS_ERROR:{
+      return {
+        ...state,
+        allFeeds:{
+          ...state.allFeeds,
+          error:action.payload
+        }
+      }
     }
+
+    case FeedActionTypes.GET_FEED_REQUEST:{
+      return {
+        ...state,
+        currentFeed:{
+          ...state.currentFeed,
+          loading:true
+        }
+      }
+    }
+
+
+    case FeedActionTypes.GET_FEED_SUCCESS: {
+      return { ...state, 
+      currentFeed:{
+        data:action.payload,
+        error:'',
+        loading:false,
+        
+      }
+    };
+  }
+
+
+  case FeedActionTypes.GET_FEED_ERROR:{
+    return {
+      ...state,
+      currentFeed:{
+        ...state.currentFeed,
+        error:action.payload
+      }
+    }
+  }
+
+
     case FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS: {
       return {
         ...state,
@@ -37,24 +102,42 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         pluginInstances: [],
-        feed: undefined,
-        selected: undefined,
+        selected:undefined,
+        deleteNodeSuccess:false,
+        testStatus:{},
+        allFeeds: {
+          data: undefined,
+          error: "",
+          loading: false,
+          totalFeedsCount: 0,
+        },
+        currentFeed: {
+          data: undefined,
+          error: "",
+          loading: false,
+        },
       };
     }
     case FeedActionTypes.ADD_FEED: {
-      if (state.feeds && state.feedsCount) {
+      if (state.allFeeds.data && state.allFeeds.totalFeedsCount) {
         return {
           ...state,
-          feeds: [action.payload, ...state.feeds],
-          feedsCount: state.feedsCount + 1,
+          allFeeds:{
+            data:[action.payload,...state.allFeeds.data],
+            error:'',
+            loading:false,
+            totalFeedsCount:state.allFeeds.totalFeedsCount+1
+          }
         };
       } else {
         return {
           ...state,
-          feeds: [action.payload],
-          feedsCount: state.feedsCount
-            ? state.feedsCount + 1
-            : state.feedsCount,
+         allFeeds:{
+           data:[action.payload],
+           error:'',
+           loading:false,
+           totalFeedsCount:state.allFeeds.totalFeedsCount+1
+         } 
         };
       }
     }

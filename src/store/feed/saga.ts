@@ -13,6 +13,7 @@ import ChrisAPIClient from "../../api/chrisapiclient";
 import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import {
   getAllFeedsSuccess,
+  getAllFeedsError,
   getFeedSuccess,
   getPluginInstancesRequest,
   getPluginInstancesSuccess,
@@ -41,12 +42,19 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
     offset,
   };
   const client = ChrisAPIClient.getClient();
-  let feedsList = yield client.getFeeds(params);
-  yield put(getAllFeedsSuccess(feedsList));
+  try {
+    let feedsList = yield client.getFeeds(params);
+    yield put(getAllFeedsSuccess(feedsList));
+  }
+  catch(error){
+    yield put(getAllFeedsError(error))
+  }
+  
+  
 }
 
 function* watchGetAllFeedsRequest() {
-  yield takeEvery(FeedActionTypes.GET_ALL_FEEDS, handleGetAllFeeds);
+  yield takeEvery(FeedActionTypes.GET_ALL_FEEDS_REQUEST, handleGetAllFeeds);
 }
 
 // ------------------------------------------------------------------------

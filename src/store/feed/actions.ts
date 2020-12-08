@@ -19,9 +19,15 @@ export const getAllFeedsRequest = (
   name?: string,
   limit?: number,
   offset?: number
-) => action(FeedActionTypes.GET_ALL_FEEDS, { name, limit, offset });
+) => action(FeedActionTypes.GET_ALL_FEEDS_REQUEST, { name, limit, offset });
+
 export const getAllFeedsSuccess = (feeds: Feed[]) =>
   action(FeedActionTypes.GET_ALL_FEEDS_SUCCESS, feeds);
+
+export const getAllFeedsError = (error: any) =>
+  action(FeedActionTypes.GET_ALL_FEEDS_ERROR, error);
+
+
 export const getFeedRequest = (id: string) =>
   action(FeedActionTypes.GET_FEED_REQUEST, id);
 export const getFeedSuccess = (item: Feed) =>
