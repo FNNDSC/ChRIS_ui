@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { PluginStatus } from "../../../store/plugin/types";
-import { tree, select, linkVertical, stratify } from "d3";
+import { tree, select, linkVertical, stratify, svg } from "d3";
 import "./styles/feedTree.scss";
 import { getPluginInstanceResources } from "../../../store/plugin/actions";
 import { stopFetchingPluginResources } from "../../../store/feed/actions";
@@ -14,7 +14,9 @@ interface ITreeProps {
   selected: PluginInstance;
   pluginStatus?: PluginStatus[];
   isComputeError?: boolean;
-  testStatus?: string;
+  testStatus: {
+    [key: string]: string;
+  };
 }
 interface ITreeActions {
   onNodeClick: (node: any) => void;
@@ -29,6 +31,7 @@ const treeRef=useRef<HTMLDivElement>(null);
 const svgRef=useRef<SVGSVGElement>(null);
 
 useEffect(() => {
+  console.log("Selected", props.testStatus);
   if (!!treeRef.current && !!props.items && props.items.length > 0) {
     const { items } = props;
     let dimensions = { height: 300, width: 700 };
@@ -73,7 +76,7 @@ useEffect(() => {
     d3TreeLayout.size([dimensions.width, dimensions.height]);
     d3TreeLayout(root);
 
-    let nodeRadius = 8;
+    let nodeRadius = 10;
 
     // Nodes
     graph
@@ -105,7 +108,7 @@ useEffect(() => {
       // @ts-ignore
       .attr("d", linkGenerator)
       // @ts-ignore
-      .attr("stroke-dasharray", function () {
+      .attr("stroke", function () {
         // @ts-ignore
         const length = this.getTotalLength();
         return `${length} ${length}`;

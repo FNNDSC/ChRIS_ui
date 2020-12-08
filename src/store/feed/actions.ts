@@ -47,5 +47,5 @@ export const deleteNodeSuccess = () =>
 export const stopFetchingPluginResources = (id: number) =>
   action(FeedActionTypes.STOP_FETCHING_PLUGIN_RESOURCES, id);
 
-export const getTestStatus = (pluginStatus: string) =>
-  action(FeedActionTypes.GET_TEST_STATUS, pluginStatus);
+export const getTestStatus = (instance: PluginInstance) =>
+  action(FeedActionTypes.GET_TEST_STATUS, instance);

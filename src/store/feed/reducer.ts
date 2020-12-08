@@ -11,7 +11,7 @@ export const initialState: IFeedState = {
   pluginInstances: [],
   selected: undefined,
   deleteNodeSuccess: false,
-  testStatus: "",
+  testStatus: {},
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -102,9 +102,31 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_TEST_STATUS: {
+      const instance = action.payload;
+
       return {
         ...state,
-        testStatus: action.payload,
+        testStatus: {
+          ...state.testStatus,
+          [instance.data.id]: action.payload.data.status,
+        },
+      };;
+    }
+
+    case FeedActionTypes.STOP_FETCHING_PLUGIN_RESOURCES:{
+      const id=`${action.payload}` 
+      let newObject = Object.entries(state.testStatus)
+        .filter(([key, value]) => {
+          return key !== id;
+        })
+        .reduce((acc:{[key:string]:string}, [key, value]) => {
+          acc[key] = value;
+          return acc;
+        }, {});
+        
+      return {
+        ...state,
+        testStatus: newObject,
       };
     }
 
@@ -115,3 +137,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
 };
 
 export { reducer as feedReducer };
+
+
+
+
