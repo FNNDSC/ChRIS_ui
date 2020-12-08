@@ -24,6 +24,7 @@ import { createFeed, getName } from "./utils/createFeed";
 import { Feed } from "@fnndsc/chrisapi";
 import FinishedStep from "./FinishedStep";
 
+
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
   addFeed,
@@ -167,7 +168,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
 
       addFeed && addFeed(feed);
     } catch (error) {
-      console.error(error);
+      throw new Error(`${error}`);
     } finally {
       dispatch({
         type: Types.SetProgress,

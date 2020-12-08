@@ -3,6 +3,7 @@ import { CreateFeedData, LocalFile } from "../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
+import { useAsync } from "../../../../utils";
 
 
 let cache:number[]=[]
@@ -134,6 +135,7 @@ export const createFeedInstanceWithFS = async (
   computeEnvironment: string
 ) => {
   statusCallback("Unpacking parameters");
+
   let feed;
   if (selectedPlugin) {
     const pluginName = selectedPlugin.data.name;

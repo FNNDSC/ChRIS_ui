@@ -1,5 +1,4 @@
 import ChrisAPIClient from "../../../../api/chrisapiclient";
-import {Feed} from '@fnndsc/chrisapi'
 import { EventDataNode } from "rc-tree/lib/interface";
 import { DataBreadcrumb } from "../types";
 import _ from "lodash";
@@ -50,7 +49,13 @@ export const generateTreeNodes = async (
   let breadcrumb = username;
   if (treeNode.title === username) {
     // First level is feeds and uploads
-    feeds = await getFeeds();
+
+    try {
+      feeds = await getFeeds();
+    } catch (error) {
+      throw new Error(`${error}`);
+    }
+
     for (let i = 0; i < feeds.length; i += 1) {
       let id = feeds[i].data.id;
       arr.push({
@@ -124,7 +129,7 @@ const getFeeds = async () => {
     feedList = await client.getFeeds(params);
     feeds = feeds.concat(feedList.getItems());
   } catch (error) {
-    console.error(error);
+    throw new Error(`Error while fetching feeds, ${error}`);
   }
   return feeds;
 };
@@ -135,13 +140,19 @@ const getFeedFiles = async (id: number) => {
     offset: 0,
   };
   const client = ChrisAPIClient.getClient(); 
-  const feed:Feed = await client.getFeed(id);
+  let feed;
+  try {
+    feed = await client.getFeed(id);
+  } catch (error) {
+    throw new Error(`Error while fetching feed by it's id, ${error}`);
+  }
 
   if(feed){
-    let fileList = await feed.getFiles(params);
-    let feedFiles = fileList.getItems();
+    try{
+       let fileList = await feed.getFiles(params);
+       let feedFiles = fileList.getItems();
 
-    while (fileList.hasNextPage) {
+       while (fileList.hasNextPage) {
       try {
         params.offset += params.limit;
         fileList = await feed.getFiles(params);
@@ -150,11 +161,13 @@ const getFeedFiles = async (id: number) => {
         console.error(e);
       }
     }
-    return feedFiles;
-
+    return feedFiles;    
+    }
+    catch(error){
+      throw new Error(`Error while fetching feed files ${error}`)
+    }
   }
   else return []
- 
 };
 
 const getUploadedFiles = async () => {
@@ -164,20 +177,24 @@ const getUploadedFiles = async () => {
     offset: 0,
   };
 
-  let fileList = await client.getUploadedFiles(params);
-  let files = fileList.getItems();
+  try{
+     let fileList = await client.getUploadedFiles(params);
+     let files = fileList.getItems();
 
-  while (fileList.hasNextPage) {
-    try {
-      params.offset += params.limit;
-      fileList = await client.getUploadedFiles(params);
-      files.push(...fileList.getItems());
-    } catch (e) {
-      console.error(e);
-    }
+     while (fileList.hasNextPage) {
+       try {
+         params.offset += params.limit;
+         fileList = await client.getUploadedFiles(params);
+         files.push(...fileList.getItems());
+       } catch (error) {
+         throw new Error(`Error caused while paginating uploaded files, ${error}`)
+       }
+     }
+     return files;
   }
-
-  return files;
+  catch(error){
+    throw new Error(`Error caused while fetching uploaded files, ${error}`)
+  }
 };
 
 const buildTree = (paths: string[], cb: (tree: any[]) => void) => {
