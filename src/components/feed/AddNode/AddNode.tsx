@@ -303,25 +303,35 @@ const handleSave=async()=>{
 
 
   return (
-  <React.Fragment>
-    <Button variant="primary" onClick={toggleOpen}>
-      <InfrastructureIcon />
-      {loadingAddNode? 'Adding a Node': Object.keys(errors).length>0 ? 'Please try again' : 'Add a Node'} 
-    </Button>
-    {isOpen && (
-      <Wizard
-        isOpen={isOpen}
-        onClose={toggleOpen}
-        title="Add a New Node"
-        description="This wizard allows you to add a node to a feed"
-        onSave={handleSave}
-        steps={steps}
-        onNext={onNext}
-        onBack={onBack}
-      />
-    )}
-  </React.Fragment>
-);
+    <React.Fragment>
+      <Button
+        style={{
+          marginTop: "20px",
+        }}
+        variant="primary"
+        onClick={toggleOpen}
+      >
+        <InfrastructureIcon style={{ marginRight: "4px" }} />
+        {loadingAddNode
+          ? "Adding a Node"
+          : Object.keys(errors).length > 0
+          ? "Please try again"
+          : "Add a Node"}
+      </Button>
+      {isOpen && (
+        <Wizard
+          isOpen={isOpen}
+          onClose={toggleOpen}
+          title="Add a New Node"
+          description="This wizard allows you to add a node to a feed"
+          onSave={handleSave}
+          steps={steps}
+          onNext={onNext}
+          onBack={onBack}
+        />
+      )}
+    </React.Fragment>
+  );
 
 }
 
