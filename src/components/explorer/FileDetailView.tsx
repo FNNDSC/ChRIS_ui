@@ -49,17 +49,13 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
       } else {
         let viewerName: string = "";
         let filesize: number = 1000000;
-        if(this.state.blob && this.state.blob.size > filesize){
-
-          viewerName='CatchallDisplay'
-        }
-        else if (!fileViewerMap[this.state.fileType]) {
+        if (this.state.blob && this.state.blob.size > filesize) {
+          viewerName = "CatchallDisplay";
+        } else if (!fileViewerMap[this.state.fileType]) {
           viewerName = "IframeDisplay";
         } else {
           viewerName = fileViewerMap[this.state.fileType];
         }
-
-
 
         return (
           <>
