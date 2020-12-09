@@ -1,12 +1,12 @@
 import { createSelector } from "reselect";
 
 const getPluginFiles = (state) => state.plugin.pluginFiles;
-const getSelected = (state) => state.feed.selected;
+const getSelected = (state) => state.feed.selectedPlugin;
 
 export const getSelectedFiles = createSelector(
   [getPluginFiles, getSelected],
-  (pluginFiles, selected) => {
-    const id = selected && parseInt(selected.data.id);
+  (pluginFiles, selectedPlugin) => {
+    const id = selectedPlugin && parseInt(selectedPlugin.data.id);
     return pluginFiles && pluginFiles[id];
   }
 );
