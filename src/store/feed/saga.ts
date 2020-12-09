@@ -22,6 +22,7 @@ import {
   deleteNodeSuccess,
   stopFetchingPluginResources,
   getTestStatus,
+  getFeedError,
 } from "./actions";
 import { stopPolling, getPluginInstanceResources } from "../plugin/actions";
 import { PluginActionTypes } from "../plugin/types";
@@ -45,17 +46,12 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
   try {
     let feedsList = yield client.getFeeds(params);
     yield put(getAllFeedsSuccess(feedsList));
+  } catch (error) {
+    yield put(getAllFeedsError(error));
   }
-  catch(error){
-    yield put(getAllFeedsError(error))
-  }
-  
-  
 }
 
-function* watchGetAllFeedsRequest() {
-  yield takeEvery(FeedActionTypes.GET_ALL_FEEDS_REQUEST, handleGetAllFeeds);
-}
+
 
 // ------------------------------------------------------------------------
 // Description: Get Feed's details
@@ -73,31 +69,36 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
         put(getPluginInstancesRequest(feed)),
       ]);
     } else {
-      console.error("Feed does not exist");
+      throw new Error(`Unable to fetch a Feed with that ID `);
     }
   } catch (error) {
-    console.error(error);
+    yield put(getFeedError(error));
   }
 }
+
+// ------------------------------------------------------------------------
+// Description: Get Feed's Plugin Instances
+// ------------------------------------------------------------------------
+
 
 function* handleGetPluginInstances(action: IActionTypeParam) {
   const feed: Feed = action.payload;
   try {
-    const params = { limit: 10, offset: 0 };
+    const params = { limit: 15, offset: 0 };
     let pluginInstanceList = yield feed.getPluginInstances(params);
     let pluginInstances = yield pluginInstanceList.getItems();
     while (pluginInstanceList.hasNextPage) {
       try {
         params.offset += params.limit;
         pluginInstanceList = yield feed.getPluginInstances(params);
-        pluginInstances = pluginInstances.concat(pluginInstanceList.getItems());
+        pluginInstances = [...pluginInstances, pluginInstanceList.getItems()];
       } catch (e) {
-        console.error(e);
+        throw new Error(
+          "Error while fetching a paginated list of plugin Instances"
+        );
       }
     }
-
     const selected = pluginInstances[pluginInstances.length - 1];
-
     let pluginInstanceObj = {
       selected,
       pluginInstances,
@@ -144,18 +145,15 @@ function* watchGetPluginInstanceRequest() {
   );
 }
 
-function* watchGetFeedRequest() {
-  yield takeEvery(FeedActionTypes.GET_FEED_REQUEST, handleGetFeedDetails);
-}
+
 
 function* watchAddNode() {
-  yield takeEvery(FeedActionTypes.ADD_NODE, handleAddNode);
+  yield takeEvery(FeedActionTypes.ADD_NODE_REQUEST, handleAddNode);
 }
 
 function* watchDeleteNode() {
   yield takeEvery(FeedActionTypes.DELETE_NODE, handleDeleteNode)
 }
-
 
 function* handleGetPluginStatus( 
   instance: PluginInstance
@@ -172,11 +170,9 @@ function* handleGetPluginStatus(
       if (pluginDetails.data.status === "finishedSuccessfully") {
         yield put(stopFetchingPluginResources(instance.data.id));
       } else {
-        //yield put(getTestStatus(pluginDetails.data.summary));
         yield delay(3000);
       }
     } catch (error) {
-      console.log("Error", error);
       yield put(stopFetchingPluginResources(instance.data.id));
     }
   }
@@ -188,6 +184,15 @@ function cancelPolling(task: Task) {
   }
 
 }
+
+function* watchGetAllFeedsRequest() {
+  yield takeEvery(FeedActionTypes.GET_ALL_FEEDS_REQUEST, handleGetAllFeeds);
+}
+
+function* watchGetFeedRequest() {
+  yield takeEvery(FeedActionTypes.GET_FEED_REQUEST, handleGetFeedDetails);
+}
+
 
 function* watchCancelPoll(pollTask: { [id: number]: Task }) {
   yield takeEvery(

@@ -1,10 +1,5 @@
 import React, { Component } from "react";
-import {
-  TextArea,
-  ExpandableSection,
-  Label,
-  Checkbox,
-} from "@patternfly/react-core";
+import { TextArea, ExpandableSection, Label } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { isEmpty } from "lodash";
@@ -24,7 +19,7 @@ class Editor extends Component<EditorProps, EditorState> {
     super(props);
     this.state = {
       value: "",
-      docsExpanded: false,
+      docsExpanded: true,
       errors: [],
     };
     this.handleInputChange = this.handleInputChange.bind(this);

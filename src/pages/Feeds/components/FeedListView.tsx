@@ -206,12 +206,11 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   }
 
   generateTableLoading() {
-    const {totalFeedsCount}=this.props.allFeeds
     return (
       <tbody className="feed-list-loading">
         <tr>
           <td colSpan={4}>
-            {new Array(totalFeedsCount).fill(null).map((_, i) => (
+            {new Array(4).fill(null).map((_, i) => (
               <LoadingContent height="45px" width="100%" key={i} />
             ))}
           </td>

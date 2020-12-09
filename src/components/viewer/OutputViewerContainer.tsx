@@ -86,7 +86,7 @@ class OutputViewerContainer extends React.Component<
 
 const mapStateToProps = (state: ApplicationState) => ({
   files: getSelectedFiles(state),
-  selected: state.feed.selected,
+  selected: state.feed.selectedPlugin,
 });
 
 export default connect(mapStateToProps, null)(OutputViewerContainer);

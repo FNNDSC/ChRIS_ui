@@ -26,7 +26,7 @@ const defaultInitialState = {
   error: null,
 };
 
-function useAsync(initialState: any) {
+function useAsync(initialState?: any) {
   const initialStateRef = React.useRef({
     ...defaultInitialState,
     initialState,

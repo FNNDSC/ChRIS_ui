@@ -23,8 +23,13 @@ export interface IFeedState {
     loading: boolean;
   };
 
-  pluginInstances?: PluginInstance[];
-  selected?: PluginInstance;
+  pluginInstances: {
+    data?: PluginInstance[];
+    error: any;
+    loading: boolean;
+  };
+  selectedPlugin?: PluginInstance;
+  loadingAddNode: boolean;
   deleteNodeSuccess: boolean;
   testStatus: {
     [key: string]: string;
@@ -37,13 +42,14 @@ export const FeedActionTypes = keyMirror({
   GET_ALL_FEEDS_SUCCESS: null,
   GET_FEED_REQUEST: null,
   GET_FEED_SUCCESS: null,
-  GET_FEED_ERROR:  null,
+  GET_FEED_ERROR: null,
   GET_PLUGIN_INSTANCES_REQUEST: null,
   GET_PLUGIN_INSTANCES_SUCCESS: null,
+  GET_PLUGIN_INSTANCES_ERROR: null,
   RESET_FEED_STATE: null,
   ADD_FEED: null,
   GET_SELECTED_PLUGIN: null,
-  ADD_NODE: null,
+  ADD_NODE_REQUEST: null,
   ADD_NODE_SUCCESS: null,
   DELETE_NODE: null,
   DELETE_NODE_SUCCESS: null,

@@ -207,7 +207,9 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
         <GridItem className="file-browser__table" span={6} rowSpan={12}>
           <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
           <span className="files-info">
-            {selectedFiles ? `${selectedFiles.length} files` : "Empty Directory"}
+            {selectedFiles
+              ? `${selectedFiles.length} files`
+              : "Empty Directory"}
           </span>
           <Button
             className="download-all-button"
@@ -215,7 +217,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
             onClick={() => this.props.downloadAllClick()}
           >
             <DownloadIcon />
-            Download All 
+            Download All
           </Button>
           <Table
             aria-label="feed-browser-table"
@@ -245,11 +247,13 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
           </GridItem>
         ) : (
           <GridItem className="file-browser__previewTab" span={6} rowSpan={12}>
+            
             <Alert
               style={{
-                width: "80%",
+                width: "50%",
+                margin: "10px",
               }}
-              title="Click on the file to preview"
+              title="Click on the file to see a preview."
               variant="info"
             />
           </GridItem>

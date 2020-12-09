@@ -67,8 +67,13 @@ export interface AddNodeState extends InputState {
 }
 
 export interface AddNodeProps {
-  selected?: PluginInstance;
-  nodes?: PluginInstance[];
+  selectedPlugin?: PluginInstance;
+  pluginInstances?: {
+    data?: PluginInstance[];
+    error: any;
+    loading: boolean;
+  };
+  loadingAddNode: boolean;
   addNode: (item: {
     pluginItem: PluginInstance;
     nodes?: PluginInstance[];

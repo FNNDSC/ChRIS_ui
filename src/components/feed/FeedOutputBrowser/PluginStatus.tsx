@@ -91,29 +91,29 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
   if (pluginStatus && pluginStatus?.length > 0) {
     return (
       <Grid hasGutter className="file-browser">
-        <GridItem className="file-browser__steps" span={4} rowSpan={12}> 
+        <GridItem className="file-browser__steps" span={4} rowSpan={12}>
           <Steps direction="vertical">
             {pluginStatus.map((label: any) => {
               const currentDescription = displayDescription(label);
-              let showIcon:boolean=false;
+              let showIcon: boolean = false;
 
-               if (currentDescription) {
-                 showIcon =
-                   currentDescription === "Transmitting data to compute environment" ||
-                   currentDescription === "Computing" ||
-                   currentDescription === "Finishing up" ||
-                   currentDescription === "Setting compute environment" ||
-                   currentDescription === "Syncing data from compute environment";
-               }
+              if (currentDescription) {
+                showIcon =
+                  currentDescription ===
+                    "Transmitting data to compute environment" ||
+                  currentDescription === "Computing" ||
+                  currentDescription === "Finishing up" ||
+                  currentDescription === "Setting compute environment" ||
+                  currentDescription ===
+                    "Syncing data from compute environment";
+              }
               return (
                 <Step
                   onClick={() => {
                     handleClick(label.step, label.title);
                   }}
                   description={currentDescription}
-                  className={classNames(
-                    "file-browser__step",
-                  )}
+                  className={classNames("file-browser__step")}
                   key={label.id}
                   title={
                     <span
@@ -126,11 +126,15 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
                     </span>
                   }
                   icon={
-                   showIcon && (
-                      <FontAwesomeIcon icon="spinner" spin={true} />
-                    )
+                    showIcon && <FontAwesomeIcon icon="spinner" spin={true} />
                   }
-                  status={label.error===true ? 'error' : label.status===true ? 'finish':undefined}
+                  status={
+                    label.error === true
+                      ? "error"
+                      : label.status === true
+                      ? "finish"
+                      : undefined
+                  }
                 />
               );
             })}
@@ -155,8 +159,13 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
           ) : activeKey === 1 && !computeLog ? (
             <div className="viewer-display">
               <Alert
+                isLiveRegion={true}
+                style={{
+                  width: "50%",
+                  margin: "10px",
+                }}
                 variant="info"
-                title="The terminal feature is only available for the compute logs"
+                title="The terminal feature are currenly only available for logs in the compute step."
               />
             </div>
           ) : activeKey === 1 && computeLog ? (
@@ -166,11 +175,13 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
           ) : (
             <div className="viewer-display">
               <Alert
+                isLiveRegion={true}
                 style={{
-                  marginTop: "1rem",
+                  width: "50%",
+                  margin: "10px",
                 }}
                 variant="info"
-                title="Logs are not available at the moment. Please click on the step to fetch logs in a few minutes"
+                title="Logs are not available immediately. Please click on the step to fetch logs in a few minutes"
               />
             </div>
           )}
