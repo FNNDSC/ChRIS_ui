@@ -85,7 +85,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   };
 
   const downloadAllClick = async () => {
-    console.log("DownloadAllClicked");
     if (!selected) return;
     const files = pluginFiles && pluginFiles[selected.data.id as number];
 
@@ -155,7 +154,9 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 />
               ) : selected?.data.status === "finishedSuccessfully" && !tree ? (
                 <GridItem span={12} rowSpan={12}>
-                  <Spinner size="md" />
+                  <div>
+                    <Spinner size="md" />
+                  </div>
                 </GridItem>
               ) : (
                 <PluginStatus

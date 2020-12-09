@@ -213,33 +213,6 @@
   margin-right: 5px;
 }
 
-// Tree Chart Section
-// ------------------------------
-.link {
-  fill: none;
-  marker-end: url(#end-arrow);
-  opacity: 0.8;
-  stroke: $tree-links-color; //007bba - active
-  stroke-width: 1px;
-}
-.nodelabel {
-  fill: $tree-node-backgound;
-  font-size: 0.75rem;
-}
-.node {
-  cursor: pointer;
-
-  fill: $tree-node-backgound;
-  &.active {
-    fill: $tree-node-active-backgound;
-    .label {
-      fill: $tree-node-active-backgound;
-    }
-  }
-  &.error{
-    fill:#C9190B;
-  }
-}
 
 
 

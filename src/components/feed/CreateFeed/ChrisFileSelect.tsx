@@ -3,6 +3,7 @@ import { CreateFeedContext } from "./context";
 import { Grid, GridItem } from "@patternfly/react-core";
 import { EventDataNode, Key } from "rc-tree/lib/interface";
 import { Tree } from "antd";
+import { ErrorBoundary } from "react-error-boundary";
 import "antd/dist/antd.css";
 
 import {
@@ -15,6 +16,7 @@ import {
 import { generateTreeNodes, getNewTreeData } from "./utils/fileSelect";
 import { FileList } from "./helperComponents";
 import { isEmpty } from "lodash";
+import {ErrorMessage} from './lib'
 
 
 const { DirectoryTree } = Tree;
@@ -29,6 +31,8 @@ function getEmptyTree(username: string) {
   return node;
 }
 
+
+// Needs to be replaced with a better caching solution
 
 let cache: {
   tree: DataBreadcrumb[];
@@ -47,9 +51,6 @@ function getCacheTree() {
 export function clearCache(){
   cache['tree']=[]
 }
-
-
-
 
 
 const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
@@ -131,13 +132,17 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
       <br />
       <Grid hasGutter={true}>
         <GridItem span={6} rowSpan={12}>
-          <DirectoryTree     
-            onCheck={onCheck}
-            loadData={onLoad}
-            checkedKeys={fetchKeysFromDict}
-            checkable
-            treeData={tree}
-          />
+          <ErrorBoundary
+          FallbackComponent={ErrorFallback}
+          >
+            <DirectoryTree
+              onCheck={onCheck}
+              loadData={onLoad}
+              checkedKeys={fetchKeysFromDict}
+              checkable
+              treeData={tree}
+            />
+          </ErrorBoundary>
         </GridItem>
         <GridItem span={6} rowSpan={12}>
           <p className="section-header">Files to add to new feed:</p>
@@ -161,4 +166,13 @@ function getCheckedKeys(checkedKeys: { [key: string]: Key[] }) {
   }
 
   return checkedKeysArray;
+}
+
+
+function ErrorFallback({error}:any){
+  return(
+    <ErrorMessage
+    error={error}
+    />
+  )
 }

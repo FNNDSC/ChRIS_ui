@@ -24,6 +24,7 @@ import { createFeed, getName } from "./utils/createFeed";
 import { Feed } from "@fnndsc/chrisapi";
 import FinishedStep from "./FinishedStep";
 
+
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
   addFeed,
@@ -71,7 +72,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     });
   };
 
-  const setComputeEnviroment = (computeEnvironment: string) => {
+  const setComputeEnvironment = (computeEnvironment: string) => {
     dispatch({
       type: Types.SetComputeEnvironment,
       payload: {
@@ -167,7 +168,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
 
       addFeed && addFeed(feed);
     } catch (error) {
-      console.error(error);
+      throw new Error(`${error}`);
     } finally {
       dispatch({
         type: Types.SetProgress,
@@ -192,8 +193,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       plugin={selectedPlugin}
       dropdownInput={dropdownInput}
       requiredInput={requiredInput}
-      computeEnvironment={computeEnvironment}
-      setComputeEnviroment={setComputeEnviroment}
+      selectedComputeEnv={computeEnvironment}
+      setComputeEnviroment={setComputeEnvironment}
     />
   );
   const review = <Review />;

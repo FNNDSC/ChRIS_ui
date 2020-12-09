@@ -12,6 +12,8 @@ import {
   BreadcrumbItem,
   BreadcrumbHeading,
   Pagination,
+  EmptyState,
+  EmptyStateBody,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import { EyeIcon } from "@patternfly/react-icons";
@@ -87,7 +89,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
       prevState.page !== page ||
       prevState.perPage !== perPage ||
       prevState.filter !== filter ||
-      !isEqual(prevProps.feeds, this.props.feeds)
+      !isEqual(prevProps.allFeeds.data, this.props.allFeeds.data)
     ) {
       this.fetchFeeds();
     }
@@ -184,16 +186,17 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   }
 
   generatePagination() {
-    const { feeds, feedsCount } = this.props;
+    const { allFeeds } = this.props;
+    const { data, totalFeedsCount } = allFeeds;
     const { perPage, page } = this.state;
 
-    if (!feeds || !feedsCount) {
+    if (!data || !totalFeedsCount) {
       return null;
     }
 
     return (
       <Pagination
-        itemCount={feedsCount}
+        itemCount={totalFeedsCount}
         perPage={perPage}
         page={page}
         onSetPage={this.handlePageSet}
@@ -207,7 +210,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
       <tbody className="feed-list-loading">
         <tr>
           <td colSpan={4}>
-            {new Array(3).fill(null).map((_, i) => (
+            {new Array(4).fill(null).map((_, i) => (
               <LoadingContent height="45px" width="100%" key={i} />
             ))}
           </td>
@@ -217,11 +220,25 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
   }
 
   render() {
-   
-    const { feeds, feedsCount } = this.props;
-  
+    const { allFeeds } = this.props;
+    const { data, loading, error, totalFeedsCount } = allFeeds;
+
     const cells = ["Feed", "Created", "Last Commit", ""];
-    const rows = (feeds || []).map(this.generateTableRow);
+    const rows = (data || []).map(this.generateTableRow);
+
+    if (error) {
+      return (
+        <React.Fragment>
+          <EmptyState>
+            <EmptyStateBody>
+              Oops ! Unable to fetch feeds at the moment. Please refresh the
+              browser. If the issue persists, Contact the dev team at FNNDSC to
+              report your error.
+            </EmptyStateBody>
+          </EmptyState>
+        </React.Fragment>
+      );
+    }
 
     return (
       <React.Fragment>
@@ -233,10 +250,9 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
           <div className="bottom">
             <Title headingLevel="h1" size="3xl">
               My Feeds
-              {feedsCount && feedsCount > 0 ?
-               <span className="feed-count"> ({feedsCount})</span>
-               :null
-              }
+              {totalFeedsCount > 0 ? (
+                <span className="feed-count"> ({totalFeedsCount})</span>
+              ) : null}
             </Title>
             <CreateFeedProvider>
               <CreateFeed />
@@ -256,7 +272,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
 
             <Table aria-label="Data table" cells={cells} rows={rows}>
               <TableHeader />
-              {feeds && <TableBody />}
+              {loading  ===  true ? this.generateTableLoading() : <TableBody />}
             </Table>
 
             {this.generatePagination()}
@@ -275,8 +291,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 });
 
 const mapStateToProps = ({ feed }: ApplicationState) => ({
-  feeds: feed.feeds,
-  feedsCount: feed.feedsCount,
+  allFeeds: feed.allFeeds,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedListView);

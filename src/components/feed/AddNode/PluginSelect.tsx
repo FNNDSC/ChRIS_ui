@@ -110,7 +110,7 @@ class PluginSelect extends React.Component<
     const client = ChrisAPIClient.getClient();
     const params = { limit: 25, offset: 0 };
     let pluginList = await client.getPlugins(params);
-    const plugins = pluginList.getItems();
+    let plugins = pluginList.getItems();
 
     while (pluginList.hasNextPage) {
       try {
@@ -121,6 +121,8 @@ class PluginSelect extends React.Component<
         console.error(e);
       }
     }
+
+    plugins = plugins.filter((plugin) => plugin.data.type === "ds");
     
     if(this._isMounted)
     this.setState({ allPlugins: plugins });

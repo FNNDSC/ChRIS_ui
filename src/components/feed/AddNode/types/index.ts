@@ -60,20 +60,27 @@ export interface AddNodeState extends InputState {
     plugin?: Plugin;
     parent?: PluginInstance;
   };
-  computeEnv: string;
+  selectedComputeEnv: string;
   errors: {
     [key: string]: string[];
   };
-  toggleGPU: boolean;
-  gpuInput: InputIndex;
 }
 
 export interface AddNodeProps {
-  selected?: PluginInstance;
-  nodes?: PluginInstance[];
-  addNode: (pluginItem: PluginInstance) => void;
+  selectedPlugin?: PluginInstance;
+  pluginInstances?: {
+    data?: PluginInstance[];
+    error: any;
+    loading: boolean;
+  };
+  loadingAddNode: boolean;
+  addNode: (item: {
+    pluginItem: PluginInstance;
+    nodes?: PluginInstance[];
+  }) => void;
   getParams: (plugin: Plugin) => void;
 }
+
 
 export interface GuidedConfigState {
   isOpen: boolean;
@@ -96,7 +103,7 @@ export interface GuidedConfigProps extends InputProps {
     placeholder: string
   ): void;
   deleteInput(input: string): void;
-  computeEnvironment: string;
+  selectedComputeEnv: string;
   setComputeEnviroment: (computeEnv: string) => void;
 }
 
@@ -122,8 +129,6 @@ export interface EditorProps extends InputState {
     dropdownInput: InputType,
     requiredInput: InputType
   ): void;
-  toggleGPU: boolean;
-  addGpuToggle: (toggleGPU: boolean) => void;
 }
 
    
@@ -181,7 +186,6 @@ export interface ReviewProps extends InputState {
   errors: {
     [key: string]: string[];
   };
-  gpuToggled: boolean;
 }
 
 

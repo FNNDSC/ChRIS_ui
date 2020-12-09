@@ -32,7 +32,7 @@ export const initialState = {
   feedProgress: "",
   feedError: "",
   value: 0,
-  computeEnvironment: "host",
+  computeEnvironment: " ",
 };
 
 export const createFeedReducer = (
@@ -212,7 +212,7 @@ export const createFeedReducer = (
         selectedConfig: "",
         requiredInput: {},
         dropdownInput: {},
-        
+        computeEnvironment: "",
       };
     }
 

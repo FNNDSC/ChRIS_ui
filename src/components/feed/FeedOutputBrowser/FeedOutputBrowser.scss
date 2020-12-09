@@ -48,6 +48,13 @@
     color: #000
 }
 
+.ant-steps-icon{
+  svg:not(:root).svg-inline--fa {
+    overflow: visible;
+    color:#0066cc;
+}
+}
+
 
 .file-browser-header_container{
   display:flex;

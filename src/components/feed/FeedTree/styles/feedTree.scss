@@ -1,0 +1,101 @@
+/*
+*  File:            FeedTree.scss
+*  Description:     This files holds styles specific for Feed Tree
+*  Author:          ChRIS UI
+*/
+
+@import "../../../../assets/scss/helpers/variables";
+
+
+
+// Tree Chart Section
+// ------------------------------
+.link {
+  fill: none;
+  marker-end: url(#end-arrow);
+  opacity: 0.8;
+  stroke: $tree-links-color; //007bba - active
+  stroke-width: 1px;
+}
+.nodelabel {
+  fill: $tree-node-backgound;
+  font-size: 0.75rem;
+  font-family: sans-serif;
+}
+
+ @keyframes active{
+     0%    { fill:#73BCF7; }
+    50%   { fill: black; }
+    100%  { fill: #73BCF7; }
+ }
+
+ @keyframes error {
+    0%    { fill:#C9190B; }
+    90%   { fill: orange; }
+    100%  { fill:#C9190B }
+}
+
+
+@keyframes queued {
+    0%    { fill: grey; }
+    50%   { fill: #444; }
+    100%  { fill:grey; }
+}
+
+
+
+
+.node {
+  cursor: pointer;
+  fill: $tree-node-backgound;
+
+  &.queued {
+    animation-name:queued;
+    animation-duration:2s;
+    animation-timing-function:ease-in;
+    animation-iteration-count:3;
+    animation-delay:1s;
+    animation-fill-mode:both;
+   
+    .label {
+      fill: #aaa;
+    }
+  }
+
+  &.success{
+    fill:#004080;
+    .label {
+      fill: #0066CC;
+    }
+   }
+
+   &.error{
+    animation-name: error;
+    animation-duration: 2s;
+    animation-timing-function: ease-in;
+    animation-iteration-count: 2;
+    animation-delay: 1s;
+    animation-fill-mode: both;
+    .label{
+      fill:#C9190B
+    }
+   }
+
+
+    &.active {
+    animation-name:active;
+    animation-duration:2s;
+    animation-timing-function:ease-in;
+    animation-iteration-count:infinite;
+    animation-delay:1s;
+    animation-fill-mode:both;
+    .label {
+      fill: #BEE1F4;
+    }
+  }
+
+    &.selected{
+     fill:white
+   }
+
+}
