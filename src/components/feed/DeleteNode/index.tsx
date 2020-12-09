@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { deleteNode } from "../../../store/feed/actions";
+import { InfrastructureIcon } from "@patternfly/react-icons";
 
 interface DeleteNodeProps {
   selectedPlugin?: PluginInstance;
@@ -37,7 +38,11 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
         disabled={!selectedPlugin}
         onClick={handleModalToggle}
         variant="primary"
+        style={{
+          marginTop: "20px",
+        }}
       >
+        <InfrastructureIcon style={{ marginRight: "4px" }} />
         Delete Node
       </Button>
       <Modal

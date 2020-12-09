@@ -197,18 +197,12 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginStatus }) => {
             </GridItem>
           </>
         )}
-        <GridItem span={2}>
-          <div className="btn-div">
-            <AddNode />
-          </div>
-        </GridItem>
-
-        <GridItem span={2}>
-          <div className="btn-div">
-            {!selected.data.plugin_name.includes("dircopy") && <DeleteNode />}
-          </div>
-        </GridItem>
       </Grid>
+      <div className="btn-container">
+        <AddNode />
+        {!selected.data.plugin_name.includes("dircopy") && <DeleteNode />}
+      </div>
+
       <br />
       <br />
       <label style={{ color: "white", fontWeight: "bold" }}>
