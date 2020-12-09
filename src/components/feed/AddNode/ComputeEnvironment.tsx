@@ -8,40 +8,51 @@ import {
 type ComputeProp = {
   computeEnvs: any[];
   selectedOption: string;
-  setComputeEnviroment: (computeEnv: string) => void;
+  setComputeEnvironment: (computeEnv: string) => void;
 };
 
 function getInititalState() {
   return {
     isOpen: false,
-    toggleTemplateText: "host",
+    toggleTemplateText: "",
   };
 }
 
 const ComputeEnvironment: React.FC<ComputeProp> = ({
   computeEnvs,
   selectedOption,
-  setComputeEnviroment,
+  setComputeEnvironment,
 }) => {
-  const [computeEnv, setComputeEnv] = React.useState(getInititalState);
-  const { isOpen, toggleTemplateText } = computeEnv;
+  const [menuState, setMenuState] = React.useState(getInititalState);
+  const { isOpen, toggleTemplateText } = menuState;
+  
+
+  React.useEffect(() => {
+    setMenuState({
+      ...menuState,
+      toggleTemplateText: computeEnvs[0].data.name,
+    });
+    setComputeEnvironment(computeEnvs[0].data.name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onToggle = (isOpen: boolean) => {
-    setComputeEnv({
-      ...computeEnv,
+    setMenuState({
+      ...menuState,
       isOpen,
     });
   };
+  
   const onSelect = (
     event?: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent
   ) => {
     const id = event?.currentTarget.id;
     if (id) {
-      setComputeEnv({
-        ...computeEnv,
+      setMenuState({
+        ...menuState,
         toggleTemplateText: id,
       });
-      setComputeEnviroment(id);
+      setComputeEnvironment(id);
     }
   };
 

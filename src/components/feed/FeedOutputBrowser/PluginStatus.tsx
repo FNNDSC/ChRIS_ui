@@ -14,6 +14,7 @@ import { isEmpty } from "lodash";
 import classNames from "classnames";
 import LogTabs from "./LogTabs";
 import LogTerminal from './LogTerminal'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
 const { Step } = Steps;
@@ -44,39 +45,43 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
     pluginLogs["swiftPut"] = src.info.swiftPut.return;
   }
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     let computeLog: string | undefined = "";
     if (step === "computeReturn" && activeKey === 1) {
       let currentLog: ComputeLog = pluginLogs[step];
-      if(currentLog){
-      computeLog =
-       currentLog.d_ret && currentLog.d_ret.l_logs && currentLog.d_ret.l_logs[0];
+      if (currentLog) {
+        computeLog =
+          currentLog.d_ret &&
+          currentLog.d_ret.l_logs &&
+          currentLog.d_ret.l_logs[0];
       }
-      if (computeLog) setComputeLog(computeLog);
+      if (computeLog) {
+        setLogs(currentLog);;
+        setComputeLog(computeLog);
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[pluginLog,step])
+  }, [pluginLog, step]);
 
   const handleClick = (step: string, title: string) => {
     let currentLog = pluginLogs[step];
     let computeLog:string|undefined=''
     if (step === "computeReturn") {
       let currentLog: ComputeLog = pluginLogs[step];
-      computeLog=currentLog.d_ret &&
-          currentLog.d_ret.l_logs &&
-          currentLog.d_ret.l_logs[0]
-      if(computeLog)
-      setComputeLog(computeLog) 
-    }
-    else{
-      setComputeLog('')
+      computeLog =
+        currentLog.d_ret &&
+        currentLog.d_ret.l_logs &&
+        currentLog.d_ret.l_logs[0];
+      if (computeLog) setComputeLog(computeLog);
+      else {
+        setComputeLog("");
+      }
     }
     if(currentLog){
       setLogs(currentLog)
     }
     setCurrentStep(step)
-
   };
 
   const handleActiveKey = (activeKey: React.ReactText) => {
@@ -86,10 +91,22 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
   if (pluginStatus && pluginStatus?.length > 0) {
     return (
       <Grid hasGutter className="file-browser">
-        <GridItem className="file-browser__steps" span={4} rowSpan={12}> 
+        <GridItem className="file-browser__steps" span={4} rowSpan={12}>
           <Steps direction="vertical">
             {pluginStatus.map((label: any) => {
               const currentDescription = displayDescription(label);
+              let showIcon: boolean = false;
+
+              if (currentDescription) {
+                showIcon =
+                  currentDescription ===
+                    "Transmitting data to compute environment" ||
+                  currentDescription === "Computing" ||
+                  currentDescription === "Finishing up" ||
+                  currentDescription === "Setting compute environment" ||
+                  currentDescription ===
+                    "Syncing data from compute environment";
+              }
               return (
                 <Step
                   onClick={() => {
@@ -108,12 +125,15 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
                       {label.title}
                     </span>
                   }
+                  icon={
+                    showIcon && <FontAwesomeIcon icon="spinner" spin={true} />
+                  }
                   status={
-                    label.error
+                    label.error === true
                       ? "error"
                       : label.status === true
                       ? "finish"
-                      : "wait"
+                      : undefined
                   }
                 />
               );
@@ -139,8 +159,13 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
           ) : activeKey === 1 && !computeLog ? (
             <div className="viewer-display">
               <Alert
+                isLiveRegion={true}
+                style={{
+                  width: "50%",
+                  margin: "10px",
+                }}
                 variant="info"
-                title="The terminal feature is only available for the compute logs"
+                title="The terminal feature are currenly only available for logs in the compute step."
               />
             </div>
           ) : activeKey === 1 && computeLog ? (
@@ -150,11 +175,13 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
           ) : (
             <div className="viewer-display">
               <Alert
+                isLiveRegion={true}
                 style={{
-                  marginTop: "1rem",
+                  width: "50%",
+                  margin: "10px",
                 }}
                 variant="info"
-                title="Logs are not available at the moment. Please click on the step to fetch logs in a few minutes"
+                title="Logs are not available immediately. Please click on the step to fetch logs in a few minutes"
               />
             </div>
           )}

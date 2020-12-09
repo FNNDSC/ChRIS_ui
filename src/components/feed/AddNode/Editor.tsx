@@ -1,10 +1,5 @@
 import React, { Component } from "react";
-import {
-  TextArea,
-  ExpandableSection,
-  Label,
-  Checkbox,
-} from "@patternfly/react-core";
+import { TextArea, ExpandableSection, Label } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { isEmpty } from "lodash";
@@ -24,7 +19,7 @@ class Editor extends Component<EditorProps, EditorState> {
     super(props);
     this.state = {
       value: "",
-      docsExpanded: false,
+      docsExpanded: true,
       errors: [],
     };
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -82,6 +77,7 @@ class Editor extends Component<EditorProps, EditorState> {
     } = {};
 
     const userValue = value.trim().split(" ").slice(1);
+
     const { params } = this.props;
 
     if (params && params.length > 0) {
@@ -142,12 +138,7 @@ class Editor extends Component<EditorProps, EditorState> {
     return { paramDict, errors };
   }
 
-  handleCheckboxChange = (
-    checked: boolean,
-    event: React.FormEvent<HTMLInputElement>
-  ) => {
-    this.props.addGpuToggle(checked);
-  };
+ 
 
   handleRegex(value: string) {
     const { inputChangeFromEditor, params } = this.props;
@@ -213,16 +204,6 @@ class Editor extends Component<EditorProps, EditorState> {
                 <span className="error-message">{error}</span>
               </div>
             ))}
-          </div>
-
-          <div className="gputoggle">
-            <Checkbox
-              isChecked={this.props.toggleGPU}
-              onChange={this.handleCheckboxChange}
-              aria-label="gpus toggle"
-              id="gpu-1"
-              label="Toggle the checkbox to add the --gpus flag to your configuration"
-            />
           </div>
 
           <ExpandableSection

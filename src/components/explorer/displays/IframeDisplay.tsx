@@ -11,14 +11,17 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     : "";
 
   return (
-    <div className="json-display">
+    <>
       <iframe
         key={fileItem.file && fileItem.file.fname}
         src={url}
         width="100%"
+        style={{
+          height:'100vh'
+        }}
         title="Gallery"
       />
-    </div>
+    </>
   );
 };
 

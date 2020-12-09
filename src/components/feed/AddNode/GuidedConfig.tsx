@@ -120,7 +120,7 @@ class GuidedConfig extends React.Component<
   renderComputeEnvs() {
     const {
       computeEnvs,
-      computeEnvironment,
+      selectedComputeEnv,
       setComputeEnviroment,
     } = this.props;
     if (computeEnvs && computeEnvs.length > 0) {
@@ -130,9 +130,9 @@ class GuidedConfig extends React.Component<
             Configure a compute environment:{" "}
           </Label>
           <ComputeEnvironments
-            selectedOption={computeEnvironment}
+            selectedOption={selectedComputeEnv}
             computeEnvs={computeEnvs}
-            setComputeEnviroment={setComputeEnviroment}
+            setComputeEnvironment={setComputeEnviroment}
           />
           <ExpandableSection
             className="docs"
@@ -147,9 +147,6 @@ class GuidedConfig extends React.Component<
                     <b className="param-title">{computeEnv.data.name}</b>
                     <div className="param-help">
                       {computeEnv.data.description}
-                    </div>
-                    <div className="param-help">
-                      {computeEnv.data.compute_url}
                     </div>
                   </div>
                 );

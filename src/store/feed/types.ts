@@ -7,25 +7,53 @@
 import keyMirror from "keymirror";
 import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 
+
 // Description state for main user items[] and item
 export interface IFeedState {
-  feed?: Feed;
-  feeds?: Feed["data"][];
-  feedsCount?: number;
-  pluginInstances?: PluginInstance[];
-  selected?: PluginInstance;
+  allFeeds: {
+    data?: Feed["data"][];
+    error: any;
+    loading: boolean;
+    totalFeedsCount: 0;
+  };
+
+  currentFeed: {
+    data?: Feed;
+    error: any;
+    loading: boolean;
+  };
+
+  pluginInstances: {
+    data?: PluginInstance[];
+    error: any;
+    loading: boolean;
+  };
+  selectedPlugin?: PluginInstance;
+  loadingAddNode: boolean;
+  deleteNodeSuccess: boolean;
+  testStatus: {
+    [key: string]: string;
+  };
 }
 
 export const FeedActionTypes = keyMirror({
-  GET_ALL_FEEDS: null,
+  GET_ALL_FEEDS_REQUEST: null,
+  GET_ALL_FEEDS_ERROR: null,
   GET_ALL_FEEDS_SUCCESS: null,
   GET_FEED_REQUEST: null,
   GET_FEED_SUCCESS: null,
+  GET_FEED_ERROR: null,
   GET_PLUGIN_INSTANCES_REQUEST: null,
   GET_PLUGIN_INSTANCES_SUCCESS: null,
+  GET_PLUGIN_INSTANCES_ERROR: null,
   RESET_FEED_STATE: null,
   ADD_FEED: null,
   GET_SELECTED_PLUGIN: null,
-  ADD_NODE: null,
+  ADD_NODE_REQUEST: null,
   ADD_NODE_SUCCESS: null,
+  DELETE_NODE: null,
+  DELETE_NODE_SUCCESS: null,
+  STOP_FETCHING_PLUGIN_RESOURCES: null,
+  POLLING_STATUS: null,
+  GET_TEST_STATUS: null,
 });

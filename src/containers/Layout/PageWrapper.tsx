@@ -25,27 +25,35 @@ interface IPropsFromDispatch {
 type AllProps = IUiState & IOtherProps & IPropsFromDispatch;
 
 class Wrapper extends React.Component<AllProps> {
+
+  
   // Description: toggles sidebar on pageresize
   onPageResize = (data: { mobileView: boolean; windowSize: number }) => {
-   this.props.setMobileView(data.mobileView)
+    this.props.setMobileView(data.mobileView);
+  };
+  
+
+  onNavToggleMobile = () => {
+    this.props.setIsNavOpenMobile(!this.props.isNavOpenMobile);
   };
 
-  onNavToggleMobile=()=>{
-    this.props.setIsNavOpenMobile(!this.props.isNavOpenMobile)
-  }
-
-  onNavToggle=()=>{
-    this.props.setIsNavOpen(!this.props.isNavOpen)
-  }
+  onNavToggle = () => {
+    this.props.setIsNavOpen(!this.props.isNavOpen);
+  };
 
   render() {
-    const { children, user,isMobileView, } = this.props;
+    const { children, user, isMobileView } = this.props;
 
     return (
       <Page
-        header={<Header onNavToggle={
-        isMobileView ? this.onNavToggleMobile : this.onNavToggle
-        } user={user} />}
+        header={
+          <Header
+            onNavToggle={
+              isMobileView ? this.onNavToggleMobile : this.onNavToggle
+            }
+            user={user}
+          />
+        }
         sidebar={<Sidebar />}
         onPageResize={this.onPageResize}
       >

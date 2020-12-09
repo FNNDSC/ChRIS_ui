@@ -45,4 +45,5 @@ export const PluginActionTypes = keyMirror({
   STOP_POLLING: null,
   GET_COMPUTE_ENV: null,
   GET_COMPUTE_ENV_SUCCESS: null,
+  GET_PLUGIN_RESOURCES: null,
 });
