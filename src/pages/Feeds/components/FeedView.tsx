@@ -48,7 +48,7 @@ export type FeedViewProps = IUserState &
 
 export const _FeedView: React.FC<FeedViewProps> = ({
   currentFeed,
-  selected,
+  selectedPlugin,
   pluginInstances,
   setSidebarActive,
   match: {
@@ -59,7 +59,10 @@ export const _FeedView: React.FC<FeedViewProps> = ({
   destroyPluginState,
   getSelectedPlugin,
 }) => {
-  const {data,error,loading }  =  currentFeed;
+  const { data: feedData, error:feedError } = currentFeed;
+  const {data: nodes, loading: pluginInstancesLoading, error:pluginInstancesFetchError}=pluginInstances
+  
+ 
 
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
@@ -84,23 +87,32 @@ export const _FeedView: React.FC<FeedViewProps> = ({
     getSelectedPlugin(node);
   };
 
+ 
   return (
     <React.Fragment>
-      {!!data && !!pluginInstances && pluginInstances.length > 0 && (
-        <PageSection variant={PageSectionVariants.darker}>
-          <FeedDetails feed={data} items={pluginInstances} />
-        </PageSection>
-      )}
+      <PageSection variant={PageSectionVariants.darker}>
+        {
+          pluginInstancesLoading ? <Spinner size='lg'/> : (feedData && nodes) ? (
+              <FeedDetails feed={feedData} items={nodes} />
+          ):(feedError || pluginInstancesFetchError)?(
+            <div>
+              <span>Oh snap ! Failed to fetch the plugins. Could you please try again?</span>
+            </div>
+          ):null                
+        }
+      </PageSection>
+     
       <PageSection
         className={pf4UtilityStyles.spacingStyles.p_0}
         variant={PageSectionVariants.light}
       >
         <Grid className="feed-view">
           <GridItem className="feed-block" span={6} rowSpan={12}>
-            {!!pluginInstances && pluginInstances.length > 0 && !!selected ? (
+            {
+            !!nodes && nodes.length > 0 && !!selectedPlugin ? (
               <FeedTree
-                items={pluginInstances}
-                selected={selected}
+                items={nodes}
+                selected={selectedPlugin}
                 onNodeClick={onNodeClick}
               />
             ) : (
@@ -111,8 +123,8 @@ export const _FeedView: React.FC<FeedViewProps> = ({
             )}
           </GridItem>
           <GridItem className="node-block" span={6} rowSpan={12}>
-            {!!pluginInstances && pluginInstances.length > 0 && !!selected ? (
-              <NodeDetails descendants={pluginInstances} selected={selected} />
+            {!!nodes && nodes.length > 0 && !!selectedPlugin ? (
+              <NodeDetails descendants={nodes} selected={selectedPlugin} />
             ) : (
               <div>Please click on a node to work on a plugin</div>
             )}
@@ -122,10 +134,10 @@ export const _FeedView: React.FC<FeedViewProps> = ({
       <PageSection>
         <Grid>
           <GridItem span={12} rowSpan={12}>
-            {!!pluginInstances && pluginInstances.length > 0 && !!selected ? (
+            {!!nodes && nodes.length > 0 && !!selectedPlugin ? (
               <FeedOutputBrowser
-                selected={selected}
-                plugins={pluginInstances}
+                selected={selectedPlugin}
+                plugins={nodes}
                 handlePluginSelect={onNodeClick}
               />
             ) : (
@@ -155,7 +167,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
   sidebarActiveItem: ui.sidebarActiveItem,
   currentFeed: feed.currentFeed,
-  selected: feed.selected,
+  selectedPlugin: feed.selectedPlugin,
   pluginInstances: feed.pluginInstances,
 });
 

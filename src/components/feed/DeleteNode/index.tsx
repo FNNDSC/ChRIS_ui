@@ -7,13 +7,13 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 import { deleteNode } from "../../../store/feed/actions";
 
 interface DeleteNodeProps {
-  selected?: PluginInstance;
+  selectedPlugin?: PluginInstance;
   deleteNode: (pluginItem: PluginInstance) => void;
   deleteNodeSuccess: boolean;
 }
 
 const DeleteNode: React.FC<DeleteNodeProps> = ({
-  selected,
+  selectedPlugin,
   deleteNode,
   deleteNodeSuccess,
 }) => {
@@ -23,8 +23,8 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
   };
 
   const handleDelete = async () => {
-    if (selected) {
-      deleteNode(selected);
+    if (selectedPlugin) {
+      deleteNode(selectedPlugin);
     }
     if (deleteNodeSuccess) {
       setIsModalOpen(!isModalOpen);
@@ -34,7 +34,7 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
   return (
     <React.Fragment>
       <Button
-        disabled={!selected}
+        disabled={!selectedPlugin}
         onClick={handleModalToggle}
         variant="primary"
       >
@@ -64,7 +64,7 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  selected: state.feed.selected,
+  selectedPlugin: state.feed.selectedPlugin,
   deleteNodeSuccess: state.feed.deleteNodeSuccess,
 });
 

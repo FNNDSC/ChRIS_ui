@@ -32,6 +32,10 @@ export const getFeedRequest = (id: string) =>
   action(FeedActionTypes.GET_FEED_REQUEST, id);
 export const getFeedSuccess = (item: Feed) =>
   action(FeedActionTypes.GET_FEED_SUCCESS, item);
+export const getFeedError = (error: any) =>
+  action(FeedActionTypes.GET_FEED_ERROR, error);
+
+
 export const getSelectedPlugin = (item: PluginInstance) =>
   action(FeedActionTypes.GET_SELECTED_PLUGIN, item);
 export const getPluginInstancesRequest = (feed: Feed) =>
@@ -40,10 +44,11 @@ export const getPluginInstancesSuccess = (items: PluginInstanceObj) =>
   action(FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS, items);
 export const destroyFeedState = () => action(FeedActionTypes.RESET_FEED_STATE);
 export const addFeed = (feed: Feed) => action(FeedActionTypes.ADD_FEED, feed);
-export const addNode = (item: AddNodePayload) =>
-  action(FeedActionTypes.ADD_NODE, item);
+export const addNodeRequest = (item: AddNodePayload) =>
+  action(FeedActionTypes.ADD_NODE_REQUEST, item);
 export const addNodeSuccess = (pluginItem: PluginInstance) =>
   action(FeedActionTypes.ADD_NODE_SUCCESS, pluginItem);
+
 export const deleteNode = (pluginItem: PluginInstance) => {
   return action(FeedActionTypes.DELETE_NODE, pluginItem);
 };

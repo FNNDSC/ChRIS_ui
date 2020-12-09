@@ -3,7 +3,7 @@ import { CreateFeedData, LocalFile } from "../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
-import { useAsync } from "../../../../utils";
+
 
 
 let cache:number[]=[]

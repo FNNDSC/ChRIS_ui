@@ -30,9 +30,10 @@ const ComputeEnvironment: React.FC<ComputeProp> = ({
   React.useEffect(() => {
     setMenuState({
       ...menuState,
-      toggleTemplateText:computeEnvs[0].data.name
-    })
+      toggleTemplateText: computeEnvs[0].data.name,
+    });
     setComputeEnvironment(computeEnvs[0].data.name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onToggle = (isOpen: boolean) => {

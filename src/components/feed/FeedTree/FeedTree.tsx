@@ -31,7 +31,6 @@ const treeRef=useRef<HTMLDivElement>(null);
 const svgRef=useRef<SVGSVGElement>(null);
 
 useEffect(() => {
-  console.log("Selected", props.testStatus);
   if (!!treeRef.current && !!props.items && props.items.length > 0) {
     const { items } = props;
     let dimensions = { height: 300, width: 700 };
