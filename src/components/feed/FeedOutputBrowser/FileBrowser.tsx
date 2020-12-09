@@ -205,20 +205,23 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     return (
       <Grid hasGutter className="file-browser">
         <GridItem className="file-browser__table" span={6} rowSpan={12}>
-          <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
-          <span className="files-info">
-            {selectedFiles
-              ? `${selectedFiles.length} files`
-              : "Empty Directory"}
-          </span>
-          <Button
-            className="download-all-button"
-            variant="secondary"
-            onClick={() => this.props.downloadAllClick()}
-          >
-            <DownloadIcon />
-            Download All
-          </Button>
+          <div className="file-browser__table__header">
+            <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
+            <span className="files-info">
+              {selectedFiles
+                ? `${selectedFiles.length} files`
+                : "Empty Directory"}
+            </span>
+            <Button
+              className="download-all-button"
+              variant="secondary"
+              onClick={() => this.props.downloadAllClick()}
+            >
+              <DownloadIcon />
+              Download All
+            </Button>
+          </div>
+
           <Table
             aria-label="feed-browser-table"
             variant={TableVariant.compact}
@@ -247,7 +250,6 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
           </GridItem>
         ) : (
           <GridItem className="file-browser__previewTab" span={6} rowSpan={12}>
-            
             <Alert
               style={{
                 width: "50%",
