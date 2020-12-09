@@ -268,196 +268,114 @@
     border-radius: 4px;   
 }
 
-  
-@media screen and (min-width:1450px){
+
+
+/* Media Queries */
+
+
+
+@media only screen and (min-width: 768px) and (max-width: 1200px){
  
-  /**
-    Sidebar for the Feed output browser
-  **/
-  .pf-l-grid > .pf-m-2-col {
-  --pf-l-grid__item--GridColumnEnd: span 4 !important;
-     }
 
-    /**
-    Main section for the Feed output browser
-    **/
-  .pf-l-grid > .pf-m-10-col {
-    --pf-l-grid__item--GridColumnEnd: span 8 !important;  
-  }
-
-  
-  /** Table in the File Browser **/
-
-  .pf-l-grid > .pf-m-6-col {
-    --pf-l-grid__item--GridColumnEnd: span 12 !important;
-   }
-
-   
-   /** Steps in Plugin Status **/
-
-   .pf-l-grid > .pf-m-4-col {
-    --pf-l-grid__item--GridColumnEnd: span 12 !important;
+ 
 }
 
-.pf-l-grid > .pf-m-8-col {
-    --pf-l-grid__item--GridColumnEnd: span 12 !important;
-}
-
-   .file-browser{
+@media only screen and (min-width: 1200px) and (max-width: 1450px){
+ 
+.file-browser{
 
      &__table , &__steps{
        margin-bottom:30px !important 
      }
    }
-
-} 
-
-
-@media screen and (min-width: 1200px){
-
-  /**Sidebar **/
-  .pf-l-grid > .pf-m-2-col {
-    --pf-l-grid__item--GridColumnEnd: span 4 !important; 
-}
-
-/** Main **/
-.pf-l-grid > .pf-m-10-col {
-    --pf-l-grid__item--GridColumnEnd: span 8 !important;
-}
-
-/** Table in the File Browser **/
-
-.pf-l-grid > .pf-m-6-col {
-    --pf-l-grid__item--GridColumnEnd: span 12 !important;
-}
-
-/** Steps in Plugin Status **/
-
-   .pf-l-grid > .pf-m-4-col {
-    --pf-l-grid__item--GridColumnEnd: span 12 !important;
-}
-
-.pf-l-grid > .pf-m-8-col {
-    --pf-l-grid__item--GridColumnEnd: span 12 !important;
-}
-
-}
-  
-@media screen and (min-width: 1450px) {
-
-   /**Sidebar **/
-  .pf-l-grid > .pf-m-2-col {
-    --pf-l-grid__item--GridColumnEnd: span 4 !important; 
-}
-  /** Main **/
-.pf-l-grid > .pf-m-10-col {
-    --pf-l-grid__item--GridColumnEnd: span 8 !important;
-}
-
-/** Table in the File Browser **/
-
-.pf-l-grid > .pf-m-6-col {
-    --pf-l-grid__item--GridColumnEnd: span 12 !important;
-}
-
-/** Steps in Plugin Status **/
-   .pf-l-grid > .pf-m-4-col {
-    --pf-l-grid__item--GridColumnEnd: span 12 !important;
-}
-
-}
-
-@media screen and (min-width: 1600px) {
-
-   /**Sidebar **/
-  .pf-l-grid > .pf-m-2-col {
-    --pf-l-grid__item--GridColumnEnd: span 3 !important; 
-}
-  /** Main **/
-.pf-l-grid > .pf-m-10-col {
-    --pf-l-grid__item--GridColumnEnd: span 9 !important;
-}
-
-/** Table in the File Browser **/
-
-.pf-l-grid > .pf-m-6-col {
-    --pf-l-grid__item--GridColumnEnd: span 13 !important;
-}
-
-
-/** Steps in Plugin Status **/
-
-   .pf-l-grid > .pf-m-4-col {
-    --pf-l-grid__item--GridColumnEnd: span 6 !important;
-}
-
-.pf-l-grid > .pf-m-8-col {
-    --pf-l-grid__item--GridColumnEnd: span 6 !important;
-}
  
 }
 
 
-@media screen and (min-width:1658px){
+@media only screen and (min-width: 1450px) and (max-width: 1650px){
+ 
 
-   /**Sidebar **/
-  .pf-l-grid > .pf-m-2-col {
-    --pf-l-grid__item--GridColumnEnd: span 3 !important; 
+ 
+}
+
+@media only screen and (min-width: 1650px) and (max-width: 1900px){
+ 
+.feed-output-browser{
+  &__sidebar{
+    .pf-l-grid > .pf-m-10-col {
+    --pf-l-grid__item--GridColumnEnd: span 4;
+}
   }
 
-   /** Main **/
-.pf-l-grid > .pf-m-10-col {
-    --pf-l-grid__item--GridColumnEnd: span 9 !important;
- }
-
- /** Table in the File Browser **/
-
-.pf-l-grid > .pf-m-6-col {
-    --pf-l-grid__item--GridColumnEnd: span 12 !important;
+  &__main{
+    .pf-l-grid > .pf-m-10-col {
+    --pf-l-grid__item--GridColumnEnd: span 8;
+  }
+  }
 }
 
-/** Steps in Plugin Status **/
-
-.pf-l-grid > .pf-m-4-col {
-    --pf-l-grid__item--GridColumnEnd: span 4 !important;
-}
-
-.pf-l-grid > .pf-m-8-col {
-    --pf-l-grid__item--GridColumnEnd: span 8 !important;
+.file-browser{
+  &__table{
+    &__header{
+      display:flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .download-all-button{
+        margin-top:10px!important;
+        display:inline-block;
+        width:50%
+      }
+    }
+  }
 }
  
 }
 
-
-
-@media screen and (min-width: 1900px) {
-
-   /**Sidebar **/
-  .pf-l-grid > .pf-m-2-col {
-    --pf-l-grid__item--GridColumnEnd: span 2 !important; 
+@media only screen and (min-width: 1900px) and (max-width: 2500px){
+ .feed-output-browser{
+  &__sidebar{
+    .pf-l-grid > .pf-m-10-col {
+    --pf-l-grid__item--GridColumnEnd: span 4;
 }
-  /** Main **/
-.pf-l-grid > .pf-m-10-col {
-    --pf-l-grid__item--GridColumnEnd: span 10 !important;
+  }
+
+  &__main{
+    .pf-l-grid > .pf-m-10-col {
+    --pf-l-grid__item--GridColumnEnd: span 8;
+  }
+  }
+
+
+  &__sidebar{
+    .pf-l-grid > .pf-m-10-col {
+    --pf-l-grid__item--GridColumnEnd: span 4;
+}
+  }
+
+
 }
 
-/** Table in the File Browser **/
+.file-browser{
+  &__table{
+    &__header{
+      display:flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .download-all-button{
+        margin-top:10px!important;
+        display:inline-block;
+        width:50%
+      }
+    }
+  }
 
-.pf-l-grid > .pf-m-6-col {
-    --pf-l-grid__item--GridColumnEnd: span 6 !important;
+  &__steps{
+    
+  }
 }
 
-/** Steps in Plugin Status **/
-
-.pf-l-grid > .pf-m-4-col {
-    --pf-l-grid__item--GridColumnEnd: span 4 !important;
 }
 
-.pf-l-grid > .pf-m-8-col {
-    --pf-l-grid__item--GridColumnEnd: span 8 !important;
-}
-  
-}
 
 /**
 Log Terminal
