@@ -59,7 +59,6 @@ class OutputViewerContainer extends React.Component<
     const tabs: any[] = [];
     if (!!selected) {
       const plugin_name = selected.data.plugin_name.split("-")[1];
-
       const tabArr = pluginViewerMap[plugin_name] || pluginViewerMap.default;
 
       tabArr.forEach((key: string, i: number) => {
