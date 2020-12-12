@@ -17,16 +17,20 @@ import {
   getFeedSuccess,
   getPluginInstancesRequest,
   getPluginInstancesSuccess,
+  getPluginInstancesError,
   getSelectedPlugin,
+  getPluginFilesSuccess,
+  getPluginFilesError,
   addNodeSuccess,
   deleteNodeSuccess,
+  getPluginInstanceResources,
+  getPluginInstanceResourceSuccess,
   stopFetchingPluginResources,
-  getTestStatus,
   getFeedError,
 } from "./actions";
-import { stopPolling, getPluginInstanceResources } from "../plugin/actions";
-import { PluginActionTypes } from "../plugin/types";
+
 import { Task } from "redux-saga";
+import { inflate } from "pako";
 
 // ------------------------------------------------------------------------
 // Description: Get Feeds list and search list by feed name (form input driven)
@@ -98,6 +102,7 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
         );
       }
     }
+    console.log('PluginInstances',pluginInstances)
     const selected = pluginInstances[pluginInstances.length - 1];
     let pluginInstanceObj = {
       selected,
@@ -108,8 +113,8 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
       put(getPluginInstancesSuccess(pluginInstanceObj)),
       put(getPluginInstanceResources(pluginInstanceObj.pluginInstances)),
     ]);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+     yield put(getPluginInstancesError(error));
   }
 }
 
@@ -128,31 +133,12 @@ function* handleAddNode(action: IActionTypeParam) {
 function* handleDeleteNode(action: IActionTypeParam) {
   const item = action.payload;
   const feed = yield item.getFeed();
-
   try {
     yield item.delete();
-    yield call(stopPolling);
     yield all([put(getPluginInstancesRequest(feed)), put(deleteNodeSuccess())]);
   } catch (err) {
-    console.error(err);
+    //yield put(deleteNodeError())
   }
-}
-
-function* watchGetPluginInstanceRequest() {
-  yield takeEvery(
-    FeedActionTypes.GET_PLUGIN_INSTANCES_REQUEST,
-    handleGetPluginInstances
-  );
-}
-
-
-
-function* watchAddNode() {
-  yield takeEvery(FeedActionTypes.ADD_NODE_REQUEST, handleAddNode);
-}
-
-function* watchDeleteNode() {
-  yield takeEvery(FeedActionTypes.DELETE_NODE, handleDeleteNode)
 }
 
 function* handleGetPluginStatus( 
@@ -162,12 +148,25 @@ function* handleGetPluginStatus(
   while (true) {
     try {
       const pluginDetails = yield instance.get();
-      yield put(getTestStatus(instance));
+     
+      let output = {};
+      if (pluginDetails.data.raw.legnth > 0) {
+        output = getLog(pluginDetails.data.raw);
+      }
+    
+      let payload = {
+        id:pluginDetails.data.id,
+        pluginStatus: pluginDetails.data.summary,
+        pluginLog: output,
+        files:[]
+      };
+      yield put(getPluginInstanceResourceSuccess(payload));
 
       if (pluginDetails.data.status === "finishedWithError") {
         yield put(stopFetchingPluginResources(instance.data.id));
       }
       if (pluginDetails.data.status === "finishedSuccessfully") {
+        yield call(fetchPluginFiles,  instance);
         yield put(stopFetchingPluginResources(instance.data.id));
       } else {
         yield delay(3000);
@@ -178,19 +177,40 @@ function* handleGetPluginStatus(
   }
 }
 
-function cancelPolling(task: Task) {
-  if(task){
-  task.cancel();
+function* fetchPluginFiles(plugin: PluginInstance) {
+  try {
+    const params = { limit: 500, offset: 0 };
+    let fileList = yield plugin.getFiles(params);
+    let files = fileList.getItems();
+
+    while (fileList.hasNextPage) {
+      try {
+        params.offset += params.limit;
+        fileList = yield plugin.getFiles(params);
+        files = files.concat(fileList.getItems());
+      } catch (e) {
+        throw new Error("Error while paginating files");
+      }
+    }
+    const payload={
+      id:plugin.data.id,
+      status:plugin.data.status,
+      log:{},
+      files:files
+    }
+
+    if (files.length > 0) yield put(getPluginFilesSuccess(payload));
+  } catch (error) {
+    yield put(getPluginFilesError(error));;
   }
-
 }
 
-function* watchGetAllFeedsRequest() {
-  yield takeEvery(FeedActionTypes.GET_ALL_FEEDS_REQUEST, handleGetAllFeeds);
-}
 
-function* watchGetFeedRequest() {
-  yield takeEvery(FeedActionTypes.GET_FEED_REQUEST, handleGetFeedDetails);
+
+function cancelPolling(task: Task) {
+  if  (task)  {
+    task.cancel();
+  }
 }
 
 
@@ -220,12 +240,43 @@ function* pollorCancelEndpoints(action: IActionTypeParam) {
   yield watchCancelPoll(pollTask);
 }
 
+/**
+ * Watchers for actions
+ */
+
+
+function* watchGetAllFeedsRequest() {
+  yield takeEvery(FeedActionTypes.GET_ALL_FEEDS_REQUEST, handleGetAllFeeds);
+}
+
+function* watchGetFeedRequest() {
+  yield takeEvery(FeedActionTypes.GET_FEED_REQUEST, handleGetFeedDetails);
+}
+
+function* watchGetPluginInstanceRequest() {
+  yield takeEvery(
+    FeedActionTypes.GET_PLUGIN_INSTANCES_REQUEST,
+    handleGetPluginInstances
+  );
+}
+
 function* watchGetPluginInstanceResources() {
   yield takeLatest(
-    PluginActionTypes.GET_PLUGIN_RESOURCES,
+    FeedActionTypes.GET_PLUGIN_INSTANCE_RESOURCE_REQUEST,
     pollorCancelEndpoints
   );
 }
+
+function* watchAddNode() {
+  yield takeEvery(FeedActionTypes.ADD_NODE_REQUEST, handleAddNode);
+}
+
+function* watchDeleteNode() {
+  yield takeEvery(FeedActionTypes.DELETE_NODE, handleDeleteNode);
+}
+
+
+
 
 // ------------------------------------------------------------------------
 // We can also use `fork()` here to split our saga into multiple watchers.
@@ -235,9 +286,24 @@ export function* feedSaga() {
     fork(watchGetAllFeedsRequest),
     fork(watchGetFeedRequest),
     fork(watchGetPluginInstanceRequest),
+    fork(watchGetPluginInstanceResources),
     fork(watchAddNode),
     fork(watchDeleteNode),
-    fork(watchGetPluginInstanceResources),
-   
   ]);
+}
+
+/**
+ * Utility Functions
+ */
+
+function getLog(raw: string) {
+  const strData = atob(raw);
+  const data = inflate(strData);
+
+  let output = "";
+  for (let i = 0; i < data.length; i++) {
+    output += String.fromCharCode(parseInt(data[i]));
+  }
+
+  return JSON.parse(output);
 }

@@ -1,6 +1,8 @@
-import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 import { IUITreeNode } from "../../../../api/models/file-explorer.model";
+import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 import { PluginStatus } from "../../../../store/plugin/types";
+import { PluginInstanceResourcePayload} from '../../../../store/feed/types'
+
 
 export interface PluginStatusProps {
   pluginStatus?: PluginStatus[];
@@ -12,13 +14,11 @@ export interface FeedOutputBrowserProps {
   selected?: PluginInstance;
   plugins?: PluginInstance[];
   viewerMode?: boolean;
-  pluginFiles?: { [pluginId: number]: FeedFile[] };
-  pluginStatus?: PluginStatus[];
-  pluginLog?: {};
+  pluginInstanceResource:PluginInstanceResourcePayload,
+  
   handlePluginSelect: Function;
   setSelectedFile: Function;
   getPluginFilesRequest: (selected: PluginInstance) => void;
-  stopPolling: () => void;
   toggleViewerMode: (isViewerOpened: boolean) => void;
 }
 
@@ -39,7 +39,7 @@ export interface FileBrowerState {
 }
 
 type Return = {
-  l_logs: [];
+  l_logs: any[];
   l_status: string[];
   status: boolean;
 };

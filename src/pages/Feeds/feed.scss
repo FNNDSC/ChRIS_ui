@@ -6,38 +6,7 @@
 
 @import "../../assets/scss/helpers/variables";
 
-/* Header */
-.feed-details {
-  .feed-info-block {
-    h1 {
-      font-size: 1.2rem;
-      margin: 0.65rem 0;
-    }
-    p {
-      margin-top: 0.3rem;
-    }
-    .pf-c-list.pf-m-inline li:not(:last-child) {
-      margin-right: 2rem;
-    }
-    img {
-      margin-right: 0.5rem;
-      max-width: 70px;
-      width: 90%;
-    }
-  }
-  .feed-breadcrumbs {
-    margin-bottom: 20px;
-    li {
-      font-size: 14px;
-      display: inline-block;
-      margin-right: 20px;
-    }
-    li:not(:last-child) a {
-      color: var(--pf-global--primary-color--100) !important;
-      text-decoration: none;
-    }
-  }
-}
+
 
 .feed-header {
   padding-top: 25px !important;
