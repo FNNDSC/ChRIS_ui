@@ -37,5 +37,4 @@ export const getComputeErrorSuccess = (computeError: boolean) =>
   action(PluginActionTypes.GET_COMPUTE_ERROR_SUCCESS, computeError);
 
 
-export const getPluginInstanceResources = (pluginInstances: PluginInstance[]) =>
-  action(PluginActionTypes.GET_PLUGIN_RESOURCES, pluginInstances);
+

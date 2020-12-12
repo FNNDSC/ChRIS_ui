@@ -15,16 +15,15 @@ export const initialState: IFeedState = {
     error: "",
     loading: false,
   },
-  selectedPlugin:undefined,
+  selectedPlugin: undefined,
   pluginInstances: {
     data: undefined,
     error: "",
     loading: false,
-  
   },
-  loadingAddNode:false,
+  loadingAddNode: false,
   deleteNodeSuccess: false,
-  testStatus: {},
+  pluginInstanceResource: {},
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -77,7 +76,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         currentFeed: {
           data: action.payload,
           error: "",
-          loading: false,
+          loading:false
         },
       };
     }
@@ -88,18 +87,19 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         currentFeed: {
           ...state.currentFeed,
           error: action.payload,
+          loading:false
         },
       };
     }
 
-    case FeedActionTypes.GET_PLUGIN_INSTANCES_REQUEST:{
+    case FeedActionTypes.GET_PLUGIN_INSTANCES_REQUEST: {
       return {
         ...state,
-        pluginInstances:{
+        pluginInstances: {
           ...state.pluginInstances,
-          loading:true
-        }
-      }
+          loading: true,
+        },
+      };
     }
 
     case FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS: {
@@ -108,33 +108,65 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         selectedPlugin: action.payload.selected,
         pluginInstances: {
           data: action.payload.pluginInstances,
-          error:'',
-          loading:false,
-        
+          error: "",
+          loading: false,
         },
       };
     }
 
-
-    case FeedActionTypes.GET_PLUGIN_INSTANCES_ERROR:{
+    case FeedActionTypes.GET_PLUGIN_INSTANCES_ERROR: {
       return {
         ...state,
-        pluginInstances:{
-          data:undefined,
-          error:action.payload,
-          loading:false
-        }
-      }
+        pluginInstances: {
+          data: undefined,
+          error: action.payload,
+          loading: false,
+        },
+      };
     }
 
+    case FeedActionTypes.GET_PLUGIN_INSTANCE_RESOURCE_SUCCESS: {
+      const {id, pluginStatus, pluginLog, files,}=action.payload
+     
+       return {
+         ...state,
+         pluginInstanceResource:{
+           ...state.pluginInstanceResource,
+           [id]:{
+             ...state.pluginInstanceResource[id],
+             pluginLog,
+             pluginStatus,
+             files
+           }
+         }
+       }       
+  }
+
+  case FeedActionTypes.GET_PLUGIN_FILES_SUCCESS:{
+     const {id,pluginLog,pluginStatus,files}=action.payload
+      return {
+         ...state,
+         pluginInstanceResource:{
+           ...state.pluginInstanceResource,
+           [id]:{
+             ...state.pluginInstanceResource[id],
+             pluginLog,
+             pluginStatus,
+             files
+           }
+         }
+       }
+     }
+  
+  
 
     case FeedActionTypes.RESET_FEED_STATE: {
       return {
         ...state,
         pluginInstances: {
-          data:undefined,
-          error:'',
-          loading:false
+          data: undefined,
+          error: "",
+          loading: false,
         },
         selectedPlugin: undefined,
         deleteNodeSuccess: false,
@@ -181,16 +213,13 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         selectedPlugin: action.payload,
       };
     }
-    
 
-    case FeedActionTypes.ADD_NODE_REQUEST:{
-      return{
+    case FeedActionTypes.ADD_NODE_REQUEST: {
+      return {
         ...state,
-        loadingAddNode:true
-      }
+        loadingAddNode: true,
+      };
     }
-
-
 
     case FeedActionTypes.ADD_NODE_SUCCESS: {
       if (state.pluginInstances.data) {
@@ -203,79 +232,28 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         return {
           ...state,
           pluginInstances: {
-            data:sortedPluginList,
-            error:'',
-            loading:false
+            data: sortedPluginList,
+            error: "",
+            loading: false,
           },
-          loadingAddNode:false
+          loadingAddNode: false,
         };
       } else
         return {
           ...state,
-          pluginInstances:{
-            data:[action.payload],
-            error:'',
-            loading:false
+          pluginInstances: {
+            data: [action.payload],
+            error: "",
+            loading: false,
           },
-          loadingAddNode:false
+          loadingAddNode: false,
         };
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     case FeedActionTypes.DELETE_NODE_SUCCESS: {
       return {
         ...state,
         deleteNodeSuccess: !state.deleteNodeSuccess,
-      };
-    }
-
-   
-
-    case FeedActionTypes.GET_TEST_STATUS: {
-      const instance = action.payload;
-
-      return {
-        ...state,
-        testStatus: {
-          ...state.testStatus,
-          [instance.data.id]: action.payload.data.status,
-        },
-      };
-    }
-
-    case FeedActionTypes.STOP_FETCHING_PLUGIN_RESOURCES: {
-      const id = `${action.payload}`;
-      let newObject = Object.entries(state.testStatus)
-        .filter(([key, value]) => {
-          return key !== id;
-        })
-        .reduce((acc: { [key: string]: string }, [key, value]) => {
-          acc[key] = value;
-          return acc;
-        }, {});
-
-      return {
-        ...state,
-        testStatus: newObject,
       };
     }
 

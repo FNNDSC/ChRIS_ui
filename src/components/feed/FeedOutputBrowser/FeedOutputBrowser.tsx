@@ -21,50 +21,36 @@ import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { ApplicationState } from "../../../store/root/applicationState";
 import FileBrowser from "./FileBrowser";
-import PluginStatus from "./PluginStatus";
 import PluginViewerModal from "./PluginViewerModal";
 import {
   getPluginFilesRequest,
-  stopPolling,
-} from "../../../store/plugin/actions";
+} from "../../../store/feed/actions";
 import { FeedOutputBrowserProps } from "./types";
 import { createTreeFromFiles } from "./utils";
 import "./FeedOutputBrowser.scss";
 
+
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   plugins,
-  pluginFiles,
-  pluginStatus,
-  pluginLog,
+  pluginInstanceResource,
   selected,
   handlePluginSelect,
-  getPluginFilesRequest,
   setSelectedFile,
-  stopPolling,
   viewerMode,
-
   toggleViewerMode,
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
 
-  React.useEffect(() => {
-    if (selected) {
-      getPluginFilesRequest(selected);
-    }
-    return () => {
-      stopPolling();
-    };
-  }, [stopPolling, selected, getPluginFilesRequest]);
 
   const pluginName = selected && getPluginName(selected);
   const selectedFiles =
-    pluginFiles && selected && pluginFiles[selected.data.id as number];
+    pluginInstanceResource && selected && pluginInstanceResource[selected.data.id] && pluginInstanceResource[selected.data.id as number].files;
   const tree = selected && createTreeFromFiles(selected, selectedFiles);
 
   const generateSideItem = (plugin: PluginInstance): React.ReactNode => {
     const { id } = plugin.data;
     const name = getPluginName(plugin);
-    const isSelected = selected && selected.data.id === id;
+    const isSelected = selected && selected.data && selected.data.id === id;
     const icon = isSelected ? <FolderOpenIcon /> : <FolderCloseIcon />;
     const className = isSelected ? "selected" : undefined;
 
@@ -86,7 +72,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
   const downloadAllClick = async () => {
     if (!selected) return;
-    const files = pluginFiles && pluginFiles[selected.data.id as number];
+    const files = pluginInstanceResource && pluginInstanceResource[selected.data.id as number].files;
 
     const zip = new JSZip();
     if (files) {
@@ -159,11 +145,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                   </div>
                 </GridItem>
               ) : (
-                <PluginStatus
-                  selected={selected}
-                  pluginStatus={pluginStatus}
-                  pluginLog={pluginLog}
-                />
+                <div>{`${pluginInstanceResource}`}</div>
               )}
             </GridItem>
           </Grid>
@@ -178,9 +160,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  pluginFiles: state.plugin.pluginFiles,
-  pluginStatus: state.plugin.pluginStatus,
-  pluginLog: state.plugin.pluginLog,
+  pluginInstanceResource:state.feed.pluginInstanceResource,
   viewerMode: state.explorer.viewerMode,
 });
 
@@ -191,7 +171,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(setSelectedFile(file, folder)),
   toggleViewerMode: (isViewerOpened: boolean) =>
     dispatch(toggleViewerMode(isViewerOpened)),
-  stopPolling: () => dispatch(stopPolling()),
+  
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedOutputBrowser);
