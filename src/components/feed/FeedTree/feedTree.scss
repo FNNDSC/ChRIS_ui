@@ -12,10 +12,10 @@
 // ------------------------------
 .link {
   fill: none;
-  marker-end: url(#end-arrow);
-  opacity: 0.8;
-  stroke: $tree-links-color; //007bba - active
+  stroke: #fff;
   stroke-width: 1px;
+  opacity: 0.8;
+  marker-end: url(#end-arrow);
 }
 .nodelabel {
   fill: $tree-node-backgound;
@@ -23,31 +23,12 @@
   font-family: sans-serif;
 }
 
- @keyframes active{
-     0%    { fill:#73BCF7; }
-    50%   { fill: black; }
-    100%  { fill: #73BCF7; }
- }
-
- @keyframes error {
-    0%    { fill:#C9190B; }
-    90%   { fill: orange; }
-    100%  { fill:#C9190B }
-}
-
-
-@keyframes queued {
-    0%    { fill: grey; }
-    50%   { fill: #444; }
-    100%  { fill:grey; }
-}
-
-
-
 
 .node {
-  cursor: pointer;
-  fill: $tree-node-backgound;
+   stroke: #fff;
+   stroke-width: 1.5px;
+   cursor: pointer;
+
 
   &.queued {
     animation-name:queued;

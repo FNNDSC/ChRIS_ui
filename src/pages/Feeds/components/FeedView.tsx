@@ -57,10 +57,6 @@ export const _FeedView: React.FC<FeedViewProps> = ({
   getFeedRequest,
   getSelectedPlugin,
 }) => {
-  
-  const {data: nodes, loading: pluginInstancesLoading, error:pluginInstancesFetchError}=pluginInstances
-  
- 
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
     setSidebarActive({
@@ -68,11 +64,7 @@ export const _FeedView: React.FC<FeedViewProps> = ({
       activeItem: "my_feeds",
     });
     getFeedRequest(id);
-  }, [
-    id,
-    getFeedRequest,
-    setSidebarActive,
-  ]);
+  }, [id, getFeedRequest, setSidebarActive]);
 
   const onNodeClick = (node: PluginInstance) => {
     getSelectedPlugin(node);
@@ -80,33 +72,30 @@ export const _FeedView: React.FC<FeedViewProps> = ({
 
   return (
     <React.Fragment>
-      <PageSection 
-      isWidthLimited
-      style={{
-        height:'220px'
-      }}
-      variant={PageSectionVariants.darker}>
-        <FeedDetails />                 
+      <PageSection
+        isWidthLimited
+        style={{
+          height: "220px",
+        }}
+        variant={PageSectionVariants.darker}
+      >
+        <FeedDetails />
       </PageSection>
-     
+
       <PageSection
         className={pf4UtilityStyles.spacingStyles.p_0}
         variant={PageSectionVariants.dark}
       >
         <Grid className="feed-view">
           <GridItem className="feed-block" span={6} rowSpan={12}>
-            <FeedTree/>    
+            <FeedTree />
           </GridItem>
-          <GridItem className="node-block" span={6} rowSpan={12}>
-            
-          </GridItem>
+          <GridItem className="node-block" span={6} rowSpan={12}></GridItem>
         </Grid>
       </PageSection>
       <PageSection>
         <Grid>
-          <GridItem span={12} rowSpan={12}>
-           
-          </GridItem>
+          <GridItem span={12} rowSpan={12}></GridItem>
         </Grid>
       </PageSection>
     </React.Fragment>
