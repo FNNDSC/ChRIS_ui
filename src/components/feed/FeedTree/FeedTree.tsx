@@ -31,9 +31,8 @@ const FeedTree: React.FC<ITreeProps> = ({
   );
 
   const buildTree = React.useCallback(
-
     (items: PluginInstance[]) => {
-      console.log('Build Tree called')
+      console.log("Build Tree called");
       const tree = new TreeModel(items);
 
       let dimensions = { height: 350, width: 700 };
@@ -48,7 +47,7 @@ const FeedTree: React.FC<ITreeProps> = ({
 
       d3.select("#tree").selectAll("svg").remove();
 
-     const svg = d3
+      const svg = d3
         .select("#tree")
         .append("svg")
         .attr("width", dimensions.width)
@@ -66,7 +65,7 @@ const FeedTree: React.FC<ITreeProps> = ({
         .nodes(tree.treeChart.nodes)
         .links(tree.treeChart.links)
         .flowLayout("y", 70)
-        .symmetricDiffLinkLengths(30)
+        .jaccardLinkLengths(70)
         .start(10, 15, 20);
 
       // Define arrow markers for tree links
@@ -89,8 +88,7 @@ const FeedTree: React.FC<ITreeProps> = ({
         .data(tree.treeChart.links)
         .enter()
         .append("svg:path")
-        .attr("class", "link")
-      
+        .attr("class", "link");
 
       // Create and place the "blocks" containing the circle and the text
       const elemEnter = svg
@@ -153,24 +151,34 @@ const FeedTree: React.FC<ITreeProps> = ({
         });
       }); // end of on tick
 
+      const activeNode=instances?.filter((node)=>node.data.status==='started')
 
-      const errorNode=instances?.filter((node)=>{
-        return node.data.status==='finishedWithError'
-      })
+      const errorNode = instances?.filter((node) => {
+        return node.data.status === "finishedWithError";
+      });
 
-      const queuedNode=instances?.filter(node=>{
-        return node.data.status==='waitingForPrevious'
-      })
+      const queuedNode = instances?.filter((node) => {
+        return node.data.status === "waitingForPrevious";
+      });
 
-      const successNode=instances?.filter(node=>{
-        return node.data.status==='finishedSuccessfully'
-      })
+      const successNode = instances?.filter((node) => {
+        return node.data.status === "finishedSuccessfully";
+      });
 
-      if (errorNode &&errorNode.length > 0) {
+      if (activeNode && activeNode.length > 0) {
+          activeNode.forEach(function (node) {
+            const d3activeNode = d3.select(`#node_${node.data.id}`);
+            if (!!d3activeNode && !d3activeNode.empty()) {
+              d3activeNode.attr("class", `nodegroup active`);
+            }
+          });
+        }
+
+      if (errorNode && errorNode.length > 0) {
         errorNode.forEach(function (node) {
           const d3errorNode = d3.select(`#node_${node.data.id}`);
           if (!!d3errorNode && !d3errorNode.empty()) {
-            d3errorNode.attr("class",'nodegroup error');
+            d3errorNode.attr("class", "nodegroup error");
           }
         });
       }
@@ -188,17 +196,13 @@ const FeedTree: React.FC<ITreeProps> = ({
         successNode.forEach(function (node) {
           const d3SuccessNode = d3.select(`#node_${node.data.id}`);
           if (!!d3SuccessNode && !d3SuccessNode.empty()) {
-            d3SuccessNode.attr(
-              "class", `nodegroup success `
-            );
+            d3SuccessNode.attr("class", `nodegroup success `);
           }
         });
       }
-     
     },
 
-    
-    [selectedPlugin,instances, pluginInstanceResource]
+    [selectedPlugin, instances, pluginInstanceResource]
   );
 
 
