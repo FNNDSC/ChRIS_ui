@@ -40,11 +40,13 @@ const FeedTree: React.FC<ITreeProps> = ({
       if (instances?.length === 2) {
         dimensions.height = 300;
       }
-   
+
       const d3cola = cola
         .d3adaptor(d3)
         .avoidOverlaps(true)
-        .size([dimensions.width+100, dimensions.height+30]);
+        .size([dimensions.width + 100, dimensions.height + 30]);
+
+      d3.select("#tree").selectAll("svg").remove();
 
      const svg = d3
         .select("#tree")
@@ -202,8 +204,6 @@ const FeedTree: React.FC<ITreeProps> = ({
 
   useEffect(() => {
     if (instances && instances.length > 0) {
-      d3.select("#tree").selectAll("svg").remove();
-
       buildTree(instances);
     }
   }, [instances, selectedPlugin, buildTree]);
