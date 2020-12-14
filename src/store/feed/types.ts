@@ -20,7 +20,13 @@ export interface PluginInstanceResourcePayload {
   [id: string]: {
     pluginStatus?: PluginInstance[];
     pluginLog?: {};
+  };
+}
+
+export interface FilesPayload {
+  [id: string]: {
     files: FeedFile[];
+    error: any;
   };
 }
 
@@ -45,12 +51,13 @@ export interface IFeedState {
     loading: boolean;
     totalFeedsCount: 0;
   };
-  currentFeed:  FeedPayload;
+  currentFeed: FeedPayload;
   pluginInstances: PluginInstancePayload;
   selectedPlugin?: PluginInstance;
   loadingAddNode: boolean;
   deleteNodeSuccess: boolean;
   pluginInstanceResource: PluginInstanceResourcePayload;
+  pluginFiles: FilesPayload;
 }
 
 export const FeedActionTypes = keyMirror({

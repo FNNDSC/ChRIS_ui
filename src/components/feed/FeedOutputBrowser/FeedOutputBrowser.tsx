@@ -25,13 +25,31 @@ import PluginViewerModal from "./PluginViewerModal";
 import {
   getPluginFilesRequest,
 } from "../../../store/feed/actions";
-import { FeedOutputBrowserProps } from "./types";
+
 import { createTreeFromFiles } from "./utils";
+import {
+  PluginInstanceResourcePayload,
+  FilesPayload,
+  PluginInstancePayload,
+} from "../../../store/feed/types";
 import "./FeedOutputBrowser.scss";
 
 
+export interface FeedOutputBrowserProps {
+  pluginInstances: PluginInstancePayload;
+  selected?: PluginInstance;
+  pluginFiles: FilesPayload;
+  viewerMode?: boolean;
+  pluginInstanceResource: PluginInstanceResourcePayload;
+  handlePluginSelect: Function;
+  setSelectedFile: Function;
+  getPluginFilesRequest: (selected: PluginInstance) => void;
+  toggleViewerMode: (isViewerOpened: boolean) => void;
+}
+
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
-  plugins,
+  pluginInstances,
+  pluginFiles,
   pluginInstanceResource,
   selected,
   handlePluginSelect,
@@ -39,13 +57,26 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   viewerMode,
   toggleViewerMode,
 }) => {
+  console.log(
+    "Feed Output Browser:",
+    pluginInstanceResource,
+    pluginFiles,
+    selected
+  );
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
+  const { data: plugins, loading, error } = pluginInstances;
 
+  React.useEffect(() => {
+    if (selected) {
+      getPluginFilesRequest(selected);
+    }
+  }, [selected]);
 
   const pluginName = selected && getPluginName(selected);
-  const selectedFiles =
-    pluginInstanceResource && selected && pluginInstanceResource[selected.data.id] && pluginInstanceResource[selected.data.id as number].files;
-  const tree = selected && createTreeFromFiles(selected, selectedFiles);
+  const id = selected?.data.id;
+  const selectedFiles = id && pluginFiles[id]  && pluginFiles[id].files;
+  const tree =
+     selected && selectedFiles && createTreeFromFiles(selected, selectedFiles);
 
   const generateSideItem = (plugin: PluginInstance): React.ReactNode => {
     const { id } = plugin.data;
@@ -72,7 +103,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
   const downloadAllClick = async () => {
     if (!selected) return;
-    const files = pluginInstanceResource && pluginInstanceResource[selected.data.id as number].files;
+    const id=selected.data.id
+    const files = pluginFiles[id] && pluginFiles[selected.data.id].files;
 
     const zip = new JSZip();
     if (files) {
@@ -128,7 +160,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             <GridItem span={12} rowSpan={10}>
               {selected &&
               selected.data.status === "finishedSuccessfully" &&
-              tree ? (
+              tree &&
+              selectedFiles ? (
                 <FileBrowser
                   selectedFiles={selectedFiles}
                   pluginName={pluginName}
@@ -160,7 +193,10 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  pluginInstanceResource:state.feed.pluginInstanceResource,
+  pluginInstanceResource: state.feed.pluginInstanceResource,
+  selected: state.feed.selectedPlugin,
+  pluginFiles: state.feed.pluginFiles,
+  pluginInstances: state.feed.pluginInstances,
   viewerMode: state.explorer.viewerMode,
 });
 

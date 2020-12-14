@@ -34,13 +34,15 @@ import { PluginStatus } from "../../../store/plugin/types";
 import { displayDescription } from "../FeedOutputBrowser/utils";
 import "./NodeDetails.scss";
 import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
+import {
+  
+  PluginInstanceResourcePayload,
+} from "../../../store/feed/types";
+
 
 interface INodeProps {
-  selected: PluginInstance;
-  descendants: PluginInstance[];
-  pluginStatus?: PluginStatus[];
-  pluginLog?: {};
-  isComputeError?: boolean;
+  selected?: PluginInstance;
+  pluginInstanceResource: PluginInstanceResourcePayload;
 }
 
 interface INodeState {
@@ -57,29 +59,33 @@ function getInitialState(){
   };
 }
 
-
-const NodeDetails: React.FC<INodeProps> = ({ selected, pluginStatus }) => {
+const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource }) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
+  const {pluginStatus}=pluginInstanceResource
+
+  console.log("Node Details", pluginInstanceResource)
 
   React.useEffect(() => {
     async function fetchData() {
-      const instanceParameters = await selected.getParameters({
+      const instanceParameters = await selected?.getParameters({
         limit: 100,
         offset: 0,
       });
 
-      const plugin = await selected.getPlugin();
-      const pluginParameters = await plugin.getPluginParameters({
+      const plugin = await selected?.getPlugin();
+      const pluginParameters = await plugin?.getPluginParameters({
         limit: 100,
         offset: 0,
       });
 
-      setNodeState({
-        plugin,
-        instanceParameters,
-        pluginParameters,
-      });
+      if  (pluginParameters && instanceParameters)  {
+              setNodeState({
+                plugin,
+                instanceParameters,
+                pluginParameters,
+              });
+      }
     }
     fetchData();
   }, [selected]);
@@ -92,8 +98,9 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginStatus }) => {
   const title = React.useCallback(getCurrentTitleFromStatus, [pluginStatus]);
   const runTime = React.useCallback(getRuntimeString, [selected, pluginStatus]);
   const pluginTitle = React.useMemo(() => {
-    return `${selected.data.plugin_name} v. ${selected.data.plugin_version}`;
+    return `${selected?.data.plugin_name} v. ${selected?.data.plugin_version}`;
   }, [selected]);
+
 
   return (
     <>
@@ -128,27 +135,27 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginStatus }) => {
           Status
         </GridItem>
         <GridItem span={10} className="value">
-          {selected.data.status === "waitingForPrevious" ? (
+          {selected?.data.status === "waitingForPrevious" ? (
             <>
               <OutlinedClockIcon />
               <span>Waiting for Previous</span>
             </>
-          ) : selected.data.status === "scheduled" ? (
+          ) : selected?.data.status === "scheduled" ? (
             <>
               <InProgressIcon />
               <span>Scheduled</span>
             </>
-          ) : selected.data.status === "registeringFiles" ? (
+          ) : selected?.data.status === "registeringFiles" ? (
             <>
               <FileArchiveIcon />
               <span>Registering Files</span>
             </>
-          ) : selected.data.status === "finishedWithError" ? (
+          ) : selected?.data.status === "finishedWithError" ? (
             <>
               <ErrorCircleOIcon />
               <span>FinishedWithError</span>
             </>
-          ) : selected.data.status === "finishedSuccessfully" ? (
+          ) : selected?.data.status === "finishedSuccessfully" ? (
             <>
               <CheckIcon />
               <span>FinishedSuccessfully</span>
@@ -159,7 +166,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginStatus }) => {
                 className="node-details-grid__title-label"
                 style={{ color: "white" }}
               >
-                {title(pluginStatus)}
+                
               </h3>
             </div>
           ) : (
@@ -176,7 +183,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginStatus }) => {
         <GridItem span={10} className="value">
           <CalendarDayIcon />
           <Moment format="DD MMM YYYY @ HH:mm">
-            {selected.data.start_date}
+            {selected?.data.start_date}
           </Moment>
         </GridItem>
 
@@ -184,7 +191,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginStatus }) => {
           Node ID
         </GridItem>
         <GridItem span={10} className="value">
-          {selected.data.id}
+          {selected?.data.id}
         </GridItem>
         {runTime && (
           <>
@@ -193,14 +200,14 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginStatus }) => {
               Total Runtime:
             </GridItem>
             <GridItem span={10} className="value">
-              {runTime(selected)}
+              {selected && runTime(selected)}
             </GridItem>
           </>
         )}
       </Grid>
       <div className="btn-container">
         <AddNode />
-        {!selected.data.plugin_name.includes("dircopy") && <DeleteNode />}
+        {!selected?.data.plugin_name.includes("dircopy") && <DeleteNode />}
       </div>
 
       <br />
@@ -213,12 +220,11 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginStatus }) => {
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  pluginStatus: state.plugin.pluginStatus,
-  pluginLog: state.plugin.pluginLog,
-  isComputeError: state.plugin.computeError,
+  selected:state.feed.selectedPlugin,
+  pluginInstanceResource:state.feed.pluginInstanceResource
 });
 
-export default connect(mapStateToProps, null)(NodeDetails);
+export default connect(mapStateToProps, {})(NodeDetails);
 
 
 function getCurrentTitleFromStatus(statusLabels: PluginStatus[]) {

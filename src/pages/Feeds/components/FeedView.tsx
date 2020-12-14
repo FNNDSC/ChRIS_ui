@@ -48,8 +48,6 @@ export type FeedViewProps = IUserState &
   RouteComponentProps<{ id: string }>;
 
 export const _FeedView: React.FC<FeedViewProps> = ({
-
-  pluginInstances,
   setSidebarActive,
   match: {
     params: { id },
@@ -90,12 +88,18 @@ export const _FeedView: React.FC<FeedViewProps> = ({
           <GridItem className="feed-block" span={6} rowSpan={12}>
             <FeedTree />
           </GridItem>
-          <GridItem className="node-block" span={6} rowSpan={12}></GridItem>
+          <GridItem className="node-block" span={6} rowSpan={12}>
+            <NodeDetails/>
+          </GridItem>
         </Grid>
       </PageSection>
       <PageSection>
         <Grid>
-          <GridItem span={12} rowSpan={12}></GridItem>
+          <GridItem span={12} rowSpan={12}>
+            <FeedOutputBrowser 
+            handlePluginSelect={onNodeClick}
+            />
+          </GridItem>
         </Grid>
       </PageSection>
     </React.Fragment>

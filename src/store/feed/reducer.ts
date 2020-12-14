@@ -24,6 +24,7 @@ export const initialState: IFeedState = {
   loadingAddNode: false,
   deleteNodeSuccess: false,
   pluginInstanceResource: {},
+  pluginFiles:{}
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -126,64 +127,53 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_PLUGIN_INSTANCE_RESOURCE_SUCCESS: {
-      const {id, pluginStatus, pluginLog, files,}=action.payload
-     
-       return {
-         ...state,
-         pluginInstanceResource:{
-           ...state.pluginInstanceResource,
-           [id]:{
-             ...state.pluginInstanceResource[id],
-             pluginLog,
-             pluginStatus,
-             files
-           }
-         }
-       }       
+      const {id, pluginStatus, pluginLog}=action.payload;
+      return{
+        ...state,
+        pluginInstanceResource:{
+          ...state.pluginInstanceResource,
+          [id]:{
+            pluginStatus,
+            pluginLog 
+          }
+        }
+      }
   }
 
+
   case FeedActionTypes.GET_PLUGIN_FILES_SUCCESS:{
-     const {id,pluginLog,pluginStatus,files}=action.payload
-      return {
+    const {id,files}=action.payload   
+    
+    return {
          ...state,
-         pluginInstanceResource:{
-           ...state.pluginInstanceResource,
+         pluginFiles:{
+           ...state.pluginFiles,
            [id]:{
-             ...state.pluginInstanceResource[id],
-             pluginLog,
-             pluginStatus,
-             files
+             files,
+             error:''
            }
          }
        }
-     }
-  
-  
+  }
 
-    case FeedActionTypes.RESET_FEED_STATE: {
-      return {
-        ...state,
-        pluginInstances: {
-          data: undefined,
-          error: "",
-          loading: false,
-        },
-        selectedPlugin: undefined,
-        deleteNodeSuccess: false,
-        testStatus: {},
-        allFeeds: {
-          data: undefined,
-          error: "",
-          loading: false,
-          totalFeedsCount: 0,
-        },
-        currentFeed: {
-          data: undefined,
-          error: "",
-          loading: false,
-        },
-      };
+case FeedActionTypes.GET_PLUGIN_FILES_ERROR:{
+  const {id,error}=action.payload
+  return {
+    ...state,
+    pluginFiles:{
+      ...state.pluginFiles,
+      [id]:{
+        files:[],
+        error
+      }
     }
+
+  }
+
+}
+
+ 
+
     case FeedActionTypes.ADD_FEED: {
       if (state.allFeeds.data && state.allFeeds.totalFeedsCount) {
         return {
