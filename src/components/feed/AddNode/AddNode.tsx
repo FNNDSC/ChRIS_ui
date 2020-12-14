@@ -42,10 +42,10 @@ const AddNode:React.FC<AddNodeProps>=({
 const [addNodeState,setNodeState]= React.useState<AddNodeState>(getInitialState)
 const {isOpen,stepIdReached,nodes,data,requiredInput,dropdownInput,selectedComputeEnv,errors}=addNodeState
 
-React.useEffect(()=>{
+React.useEffect(() => {
   handleFetchedData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-},[])
+}, [pluginInstances]);
 
 const handleFetchedData=()=>{
 if(pluginInstances){

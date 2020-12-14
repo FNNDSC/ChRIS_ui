@@ -10,7 +10,7 @@ import {
 import { FeedActionTypes } from "./types";
 import { IActionTypeParam } from "../../api/models/base.model";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import { Feed, PluginInstance, PluginInstanceFileList } from "@fnndsc/chrisapi";
 import {
   getAllFeedsSuccess,
   getAllFeedsError,
@@ -102,7 +102,7 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
         );
       }
     }
-    console.log('PluginInstances',pluginInstances)
+
     const selected = pluginInstances[pluginInstances.length - 1];
     let pluginInstanceObj = {
       selected,
@@ -150,15 +150,14 @@ function* handleGetPluginStatus(
       const pluginDetails = yield instance.get();
      
       let output = {};
-      if (pluginDetails.data.raw.legnth > 0) {
+      if (pluginDetails.data.raw.length > 0) {
         output = getLog(pluginDetails.data.raw);
       }
     
       let payload = {
-        id:pluginDetails.data.id,
+        id: pluginDetails.data.id,
         pluginStatus: pluginDetails.data.summary,
         pluginLog: output,
-        files:[]
       };
       yield put(getPluginInstanceResourceSuccess(payload));
 
@@ -180,7 +179,7 @@ function* handleGetPluginStatus(
 function* fetchPluginFiles(plugin: PluginInstance) {
   try {
     const params = { limit: 500, offset: 0 };
-    let fileList = yield plugin.getFiles(params);
+    let fileList: PluginInstanceFileList = yield plugin.getFiles(params);
     let files = fileList.getItems();
 
     while (fileList.hasNextPage) {
@@ -192,16 +191,22 @@ function* fetchPluginFiles(plugin: PluginInstance) {
         throw new Error("Error while paginating files");
       }
     }
-    const payload={
-      id:plugin.data.id,
-      status:plugin.data.status,
-      log:{},
-      files:files
-    }
+
+    let id = plugin.data.id;
+
+    let payload = {
+      id,
+      files,
+    };
 
     if (files.length > 0) yield put(getPluginFilesSuccess(payload));
   } catch (error) {
-    yield put(getPluginFilesError(error));;
+    let id = plugin.data.id;
+    let payload = {
+      id,
+      error,
+    };
+    yield put(getPluginFilesError(payload));
   }
 }
 
