@@ -15,10 +15,30 @@ export interface PluginStatus {
   title: string;
   previousComplete: boolean;
 }
+type Return = {
+  l_logs: any[];
+  l_status: string[];
+  status: boolean;
+};
+
+type Submit = {
+  status: boolean;
+};
+
+export interface PluginStatusLabels {
+  pushPath: { [key: string]: boolean };
+  compute: {
+    return: Return;
+    status: boolean;
+    submit: Submit;
+  };
+  swiftPut: { [key: string]: boolean };
+  pullPath: { [key: string]: boolean };
+}
 
 export interface PluginInstanceResourcePayload {
   [id: string]: {
-    pluginStatus?: PluginInstance[];
+    pluginStatus?: PluginStatus[];
     pluginLog?: {};
   };
 }
@@ -83,6 +103,4 @@ export const FeedActionTypes = keyMirror({
   DELETE_NODE: null,
   DELETE_NODE_SUCCESS: null,
   STOP_FETCHING_PLUGIN_RESOURCES: null,
-  POLLING_STATUS: null,
-  GET_TEST_STATUS: null,
 });

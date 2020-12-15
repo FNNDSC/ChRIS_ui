@@ -2,7 +2,6 @@ import React from "react";
 import { Steps } from "antd";
 import { Spinner, GridItem, Grid,Title,Alert } from "@patternfly/react-core";
 import ReactJSON from "react-json-view";
-import "antd/dist/antd.css";
 import "../../explorer/file-detail.scss";
 import { displayDescription } from "./utils";
 import {

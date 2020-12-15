@@ -20,9 +20,10 @@
   stroke: $tree-links-color; //007bba - active
   stroke-width: 1.5px;
 }
-.nodelabel {
+
+.label{
   fill: $tree-node-backgound;
-  font-size: 0.65rem;
+  font-size: 0.5rem;
   font-family: sans-serif;
 }
 
@@ -41,12 +42,12 @@
 
 @keyframes queued {
     0%    { fill: grey; }
-    50%   { fill: #444; }
+    50%   { fill: black; }
     100%  { fill:grey; }
 }
 
 
-.nodegroup {
+.node {
   cursor: pointer;
 
     &.queued {
@@ -57,14 +58,14 @@
     animation-delay:1s;
     animation-fill-mode:both;
    
-    .nodelabel {
+    .label {
       fill: #aaa;
     }
   }
 
     &.success{
     fill:#004080;
-    .nodelabel {
+    .label {
       fill: #0066CC;
     }
    }
@@ -73,13 +74,14 @@
     animation-name: error;
     animation-duration: 2s;
     animation-timing-function: ease-in;
-    animation-iteration-count: 2;
+    animation-iteration-count: 1;
     animation-delay: 1s;
     animation-fill-mode: both;
 
-     .nodelabel{
+     .label{
       fill:#C9190B
     }
+  }
   
   &.active {
     animation-name:active;
@@ -88,7 +90,7 @@
     animation-iteration-count:infinite;
     animation-delay:1s;
     animation-fill-mode:both;
-    .nodelabel {
+    .label {
       fill: #BEE1F4;
     }
   }
@@ -96,4 +98,3 @@
   }
 
 
-}

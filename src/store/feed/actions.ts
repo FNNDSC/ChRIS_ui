@@ -1,7 +1,7 @@
 import { action } from "typesafe-actions";
 import { FeedActionTypes } from "./types";
 
-import { Feed, PluginInstance, FeedFile } from "@fnndsc/chrisapi";
+import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 
 interface PluginInstanceObj {
   selected: PluginInstance;
@@ -56,7 +56,6 @@ export const getPluginFilesSuccess = (filesPayload: {
 export const getPluginFilesError = (payload: { id: number; error: any }) =>
   action(FeedActionTypes.GET_PLUGIN_FILES_ERROR, payload);
 
-export const destroyFeedState = () => action(FeedActionTypes.RESET_FEED_STATE);
 export const addFeed = (feed: Feed) => action(FeedActionTypes.ADD_FEED, feed);
 export const addNodeRequest = (item: AddNodePayload) =>
   action(FeedActionTypes.ADD_NODE_REQUEST, item);
@@ -72,5 +71,4 @@ export const deleteNodeSuccess = () =>
 export const stopFetchingPluginResources = (id: number) =>
   action(FeedActionTypes.STOP_FETCHING_PLUGIN_RESOURCES, id);
 
-export const getTestStatus = (instance: PluginInstance) =>
-  action(FeedActionTypes.GET_TEST_STATUS, instance);
+export const destroyFeedState = () => action(FeedActionTypes.RESET_FEED_STATE);

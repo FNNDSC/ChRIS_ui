@@ -161,7 +161,10 @@ function* handleGetPluginStatus(
       };
       yield put(getPluginInstanceResourceSuccess(payload));
 
-      if (pluginDetails.data.status === "finishedWithError") {
+      if (
+        pluginDetails.data.status === "finishedWithError" ||
+        pluginDetails.data.status === "cancelled"
+      ) {
         yield put(stopFetchingPluginResources(instance.data.id));
       }
       if (pluginDetails.data.status === "finishedSuccessfully") {

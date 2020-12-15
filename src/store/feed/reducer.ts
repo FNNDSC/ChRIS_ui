@@ -1,6 +1,7 @@
 import { Reducer } from "redux";
 import { IFeedState, FeedActionTypes } from "./types";
 import { PluginInstance } from "@fnndsc/chrisapi";
+import {getStatusLabels} from './utils'
 
 // Type-safe initialState
 export const initialState: IFeedState = {
@@ -77,7 +78,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         currentFeed: {
           data: action.payload,
           error: "",
-          loading:false
+          loading: false,
         },
       };
     }
@@ -88,7 +89,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         currentFeed: {
           ...state.currentFeed,
           error: action.payload,
-          loading:false
+          loading: false,
         },
       };
     }
@@ -127,52 +128,54 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_PLUGIN_INSTANCE_RESOURCE_SUCCESS: {
-      const {id, pluginStatus, pluginLog}=action.payload;
-      return{
+      let { id, pluginStatus, pluginLog } = action.payload;
+      
+      if(pluginStatus){
+        let parsedStatus=JSON.parse(pluginStatus)
+        pluginStatus=getStatusLabels(parsedStatus)
+      }
+
+
+      return {
         ...state,
-        pluginInstanceResource:{
+        pluginInstanceResource: {
           ...state.pluginInstanceResource,
-          [id]:{
+          [id]: {
             pluginStatus,
-            pluginLog 
-          }
-        }
-      }
-  }
-
-
-  case FeedActionTypes.GET_PLUGIN_FILES_SUCCESS:{
-    const {id,files}=action.payload   
-    
-    return {
-         ...state,
-         pluginFiles:{
-           ...state.pluginFiles,
-           [id]:{
-             files,
-             error:''
-           }
-         }
-       }
-  }
-
-case FeedActionTypes.GET_PLUGIN_FILES_ERROR:{
-  const {id,error}=action.payload
-  return {
-    ...state,
-    pluginFiles:{
-      ...state.pluginFiles,
-      [id]:{
-        files:[],
-        error
-      }
+            pluginLog,
+          },
+        },
+      };
     }
 
-  }
+    case FeedActionTypes.GET_PLUGIN_FILES_SUCCESS: {
+      const { id, files } = action.payload;
 
-}
+      return {
+        ...state,
+        pluginFiles: {
+          ...state.pluginFiles,
+          [id]: {
+            files,
+            error: "",
+          },
+        },
+      };
+    }
 
- 
+    case FeedActionTypes.GET_PLUGIN_FILES_ERROR: {
+      const { id, error } = action.payload;
+      return {
+        ...state,
+        pluginFiles: {
+          ...state.pluginFiles,
+          [id]: {
+            files: [],
+            error,
+          },
+        },
+      };
+    }
 
     case FeedActionTypes.ADD_FEED: {
       if (state.allFeeds.data && state.allFeeds.totalFeedsCount) {
@@ -232,7 +235,7 @@ case FeedActionTypes.GET_PLUGIN_FILES_ERROR:{
         return {
           ...state,
           pluginInstances: {
-            data: [action.payload],
+            data: action.payload,
             error: "",
             loading: false,
           },
@@ -247,11 +250,31 @@ case FeedActionTypes.GET_PLUGIN_FILES_ERROR:{
       };
     }
 
+    case FeedActionTypes.RESET_FEED_STATE:{
+      return {
+        ...state,
+        currentFeed: {
+          data: undefined,
+          error: "",
+          loading: false,
+        },
+        pluginInstances: {
+          data: undefined,
+          error: "",
+          loading: false,
+        },
+        pluginInstanceResource: {},
+        pluginFiles: {},
+      };
+    }
+
     default: {
       return state;
     }
   }
 };
+
+
 
 export { reducer as feedReducer };
 

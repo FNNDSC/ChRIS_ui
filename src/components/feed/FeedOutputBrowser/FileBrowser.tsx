@@ -6,7 +6,6 @@ import {
   BreadcrumbItem,
   Grid,
   GridItem,
-  Alert,
   Button,
 } from "@patternfly/react-core";
 import {
@@ -26,7 +25,6 @@ import {
 
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
-
 import FileDetailView from "../../explorer/FileDetailView";
 import { FileBrowserProps, FileBrowerState } from "./types";
 
@@ -50,7 +48,6 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
   handleFileClick(e: React.MouseEvent, rows: any[], rowData: any) {
     const target = e.nativeEvent.target as HTMLElement;
     if (e.button !== 0 || target.closest(".download-file")) {
-      // not alt-click or download click
      return;
     }
 
@@ -96,8 +93,6 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
  
 
   /* GENERATE UI ELEMENTS */
-
- 
 
   generateTableRow(node: IUITreeNode) {
     let type = "File";
@@ -170,7 +165,6 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     if (node.file) {
       return `/${node.file.fname}`;
     }
-
     const { breadcrumbs } = this.state;
 
     // currently on top-level directory
@@ -250,14 +244,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
           </GridItem>
         ) : (
           <GridItem className="file-browser__previewTab" span={6} rowSpan={12}>
-            <Alert
-              style={{
-                width: "50%",
-                margin: "10px",
-              }}
-              title="Click on the file to see a preview."
-              variant="info"
-            />
+            
           </GridItem>
         )}
       </Grid>
