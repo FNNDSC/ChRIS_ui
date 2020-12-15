@@ -1,5 +1,5 @@
 import { Reducer } from "redux";
-import { getStatusLabels } from "../../components/feed/FeedOutputBrowser/utils";
+
 import { PluginActionTypes, IPluginState } from "./types";
 
 // Type-safe initialState

@@ -3,7 +3,7 @@ import Moment from "react-moment";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 
-import { Button, Grid, GridItem, Title } from "@patternfly/react-core";
+import { Button, Grid, GridItem, Title, Skeleton } from "@patternfly/react-core";
 import {
   Plugin,
   PluginInstance,
@@ -62,9 +62,8 @@ function getInitialState(){
 const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource }) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
-  const {pluginStatus}=pluginInstanceResource
-
-  console.log("Node Details", pluginInstanceResource)
+  const id  =  selected?.data?.id;
+  const pluginStatus = id && pluginInstanceResource[id] ? pluginInstanceResource[id].pluginStatus : undefined;
 
   React.useEffect(() => {
     async function fetchData() {
@@ -79,12 +78,12 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
         offset: 0,
       });
 
-      if  (pluginParameters && instanceParameters)  {
-              setNodeState({
-                plugin,
-                instanceParameters,
-                pluginParameters,
-              });
+      if (pluginParameters && instanceParameters) {
+        setNodeState({
+          plugin,
+          instanceParameters,
+          pluginParameters,
+        });
       }
     }
     fetchData();
@@ -95,12 +94,14 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
     instanceParameters,
     pluginParameters,
   ]);
-  const title = React.useCallback(getCurrentTitleFromStatus, [pluginStatus]);
+
+  const title = React.useMemo(()=>{
+    return pluginStatus && getCurrentTitleFromStatus(pluginStatus);
+  },[pluginStatus])
   const runTime = React.useCallback(getRuntimeString, [selected, pluginStatus]);
   const pluginTitle = React.useMemo(() => {
-    return `${selected?.data.plugin_name} v. ${selected?.data.plugin_version}`;
+    return `${selected?.data?.plugin_name} v. ${selected?.data?.plugin_version}`;
   }, [selected]);
-
 
   return (
     <>
@@ -135,27 +136,28 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
           Status
         </GridItem>
         <GridItem span={10} className="value">
-          {selected?.data.status === "waitingForPrevious" ? (
+          {selected?.data?.status === "waitingForPrevious" ? (
             <>
               <OutlinedClockIcon />
               <span>Waiting for Previous</span>
             </>
-          ) : selected?.data.status === "scheduled" ? (
+          ) : selected?.data?.status === "scheduled" ? (
             <>
               <InProgressIcon />
               <span>Scheduled</span>
             </>
-          ) : selected?.data.status === "registeringFiles" ? (
+          ) : selected?.data?.status === "registeringFiles" ? (
             <>
               <FileArchiveIcon />
               <span>Registering Files</span>
             </>
-          ) : selected?.data.status === "finishedWithError" ? (
+          ) : selected?.data?.status === "finishedWithError" ? (
             <>
               <ErrorCircleOIcon />
               <span>FinishedWithError</span>
             </>
-          ) : selected?.data.status === "finishedSuccessfully" ? (
+          ) : selected?.data?.status==='cancelled' ? <><ErrorCircleOIcon/><span>Cancelled</span></>: 
+              selected?.data?.status === "finishedSuccessfully" ? (
             <>
               <CheckIcon />
               <span>FinishedSuccessfully</span>
@@ -166,7 +168,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
                 className="node-details-grid__title-label"
                 style={{ color: "white" }}
               >
-                
+                {title ? title : <Skeleton width='33%'/> }
               </h3>
             </div>
           ) : (
@@ -183,7 +185,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
         <GridItem span={10} className="value">
           <CalendarDayIcon />
           <Moment format="DD MMM YYYY @ HH:mm">
-            {selected?.data.start_date}
+            {selected?.data?.start_date}
           </Moment>
         </GridItem>
 
@@ -191,7 +193,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
           Node ID
         </GridItem>
         <GridItem span={10} className="value">
-          {selected?.data.id}
+          {selected?.data?.id}
         </GridItem>
         {runTime && (
           <>
@@ -200,14 +202,14 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
               Total Runtime:
             </GridItem>
             <GridItem span={10} className="value">
-              {selected && runTime(selected)}
+              {selected && selected.data && runTime(selected)}
             </GridItem>
           </>
         )}
       </Grid>
       <div className="btn-container">
         <AddNode />
-        {!selected?.data.plugin_name.includes("dircopy") && <DeleteNode />}
+        {!selected?.data?.plugin_name.includes("dircopy") && <DeleteNode />}
       </div>
 
       <br />
@@ -227,56 +229,57 @@ const mapStateToProps = (state: ApplicationState) => ({
 export default connect(mapStateToProps, {})(NodeDetails);
 
 
-function getCurrentTitleFromStatus(statusLabels: PluginStatus[]) {
-  const currentTitle = statusLabels
+function getCurrentTitleFromStatus(statusLabels?: PluginStatus[]) {
+  console.log("StatusLabels",statusLabels)
+  const currentTitle = statusLabels && statusLabels
     .map((label) => {
       const computedTitle = displayDescription(label);
-      switch (computedTitle) {
-        case "Transmitting data to compute environment":
-          return (
-            <>
-              <CloudUploadAltIcon />
-              <span>Transmitting Data</span>
-            </>
-          );
-        case "Setting compute environment":
-          return (
-            <>
-              <DockerIcon />
-              <span>Setting Compute Environment</span>
-            </>
-          );
+      
+         switch (computedTitle) {
+           case "Transmitting data to compute environment":
+             return (
+               <>
+                 <CloudUploadAltIcon />
+                 <span>Transmitting Data</span>
+               </>
+             );
+           case "Setting compute environment":
+             return (
+               <>
+                 <DockerIcon />
+                 <span>Setting Compute Environment</span>
+               </>
+             );
 
-        case "Computing":
-          return (
-            <>
-              <ServicesIcon />
-              <span>Computing</span>
-            </>
-          );
+           case "Computing":
+             return (
+               <>
+                 <ServicesIcon />
+                 <span>Computing</span>
+               </>
+             );
 
-        case "Syncing data from compute environment":
-          return (
-            <>
-              <MixcloudIcon />
-              <span>Syncing Data</span>
-            </>
-          );
+           case "Syncing data from compute environment":
+             return (
+               <>
+                 <MixcloudIcon />
+                 <span>Syncing Data</span>
+               </>
+             );
 
-        case "Finishing up":
-          return (
-            <>
-              <StorageDomainIcon />
-              <span>Finishing up</span>
-            </>
-          );
+           case "Finishing up":
+             return (
+               <>
+                 <StorageDomainIcon />
+                 <span>Finishing up</span>
+               </>
+             );
 
-        default:
-          return undefined;
-      }
-    })
-    .filter((title) => title !== undefined);
-  return currentTitle[0];
+           default:
+             return "Unknown Status";
+         }
+    }).filter((node)=>node!=='Unknown Status')
+  return currentTitle && currentTitle[0];
 }
 
 function getRuntimeString(selected:PluginInstance) {

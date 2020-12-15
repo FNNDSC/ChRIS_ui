@@ -12,11 +12,11 @@ import { IUITreeNode } from "../../api/models/file-explorer.model";
 import DicomHeader from "./DcmHeader/DcmHeader";
 import DicomLoader from "./DcmLoader";
 import CornerstoneViewport from "react-cornerstone-viewport";
-import { Drawer } from "@material-ui/core";
-import { withStyles, Theme, createStyles } from "@material-ui/core/styles";
+import { Drawer } from "antd";
 import DicomTag from "./DicomTag";
 import { Image, Viewport } from "./types";
 import { import as csTools } from "cornerstone-tools";
+
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
@@ -31,11 +31,10 @@ const scrollToIndex = csTools("util/scrollToIndex");
 type AllProps = {
   inPlay: boolean;
   imageArray: IUITreeNode[];
-
   runTool: (ref: any) => void;
   handleToolbarAction: (action: string) => void;
   setPlayer: (status: boolean) => void;
-  classes?: any;
+ 
 };
 
 type AllState = {
@@ -85,94 +84,6 @@ interface CornerstoneEventData {
 interface CornerstoneEvent extends Event {
   detail?: CornerstoneEventData;
 }
-const drawerWidth = 500;
-
-const styles = (theme: Theme) =>
-  createStyles({
-    "@global": {
-      body: {
-        backgroundColor: theme.palette.common.black,
-      },
-    },
-
-    grow: {
-      flexGrow: 1,
-    },
-
-    root: {
-      display: "flex",
-    },
-
-    menuButton: {
-      marginRight: theme.spacing(2),
-    },
-
-    title: {
-      flexGrow: 1,
-    },
-
-    appBar: {
-      position: "relative",
-      zIndex: theme.zIndex.drawer + 1,
-      transition: theme.transitions.create(["width", "margin"], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-    },
-
-    appBarShift: {
-      marginLeft: drawerWidth,
-      width: `calc(100% - ${drawerWidth}px)`,
-      transition: theme.transitions.create(["width", "margin"], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-    },
-
-    hide: {
-      display: "none",
-    },
-
-    drawer: {
-      width: drawerWidth,
-      height: "300vh",
-      flexShrink: 0,
-      whiteSpace: "nowrap",
-    },
-
-    drawerOpen: {
-      width: drawerWidth,
-      transition: theme.transitions.create("width", {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-    },
-
-    drawerClose: {
-      transition: theme.transitions.create("width", {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-      overflowX: "hidden",
-      width: theme.spacing(7) + 1,
-      [theme.breakpoints.up("sm")]: {
-        width: theme.spacing(9) + 1,
-      },
-    },
-
-    // Loads information about the app bar, including app bar height
-    toolbar: theme.mixins.toolbar,
-
-    content: {
-      flexGrow: 1,
-      padding: theme.spacing(3),
-    },
-
-    listItemText: {
-      fontSize: "0.85em",
-      marginLeft: "-20px",
-    },
-  });
 
 // Description: Will be replaced with a DCM File viewer
 class DcmImageSeries extends React.Component<AllProps, AllState> {
@@ -241,6 +152,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   loadImagesIntoCornerstone = async () => {
     const { imageArray } = this.props;
     if (imageArray.length < 0) return;
+    
     let imageIds: string[] = [];
     if (this._isMounted) {
       this.setState({
@@ -250,6 +162,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
 
     for (let i = 0; i < imageArray.length; i++) {
       const item = imageArray[i];
+
       this.setState({
         filesParsed: i + 1,
       });
@@ -280,8 +193,6 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   };
 
   render() {
-    const { classes } = this.props;
-
     return (
       <React.Fragment>
         {this.state.imageIds.length === 0 ? (
@@ -295,22 +206,20 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
 
             <div className="ami-viewer">
               <div id="container">
-                <Drawer
-                  style={{
-                    top: "48px !important",
-                  }}
-                  variant="persistent"
-                  anchor="right"
-                  open={this.state.visibleHeader}
-                  onClose={this.toggleHeader}
-                >
-                  {this.state.visibleHeader && (
-                    <DicomTag
-                      image={this.state.currentImage}
-                      classes={classes}
-                    />
-                  )}
-                </Drawer>
+                  <Drawer
+                    title="Dicom Tag Information"
+                    placement="right"
+                    closable={true}
+                    onClose={this.toggleHeader}
+                    visible={this.state.visibleHeader}
+                    style={{ position: "absolute",
+                    width:'40%'}}
+                  >
+                    {this.state.visibleHeader && (
+                      <DicomTag image={this.state.currentImage} />
+                    )}
+                  </Drawer>
+                
                 <CornerstoneViewport
                   isPlaying={this.props.inPlay}
                   frameRate={this.state.frameRate}
@@ -537,4 +446,4 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   }
 }
 
-export default withStyles(styles)(DcmImageSeries);
+export default DcmImageSeries;

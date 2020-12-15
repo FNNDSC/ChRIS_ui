@@ -1,12 +1,9 @@
 import {
   all,
-  call,
   fork,
   put,
   takeEvery,
-  delay,
-  cancel,
-  takeLatest,
+
 } from "redux-saga/effects";
 import { PluginActionTypes } from "./types";
 import { IActionTypeParam } from "../../api/models/base.model";

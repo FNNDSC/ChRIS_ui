@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { connect } from "react-redux";
-import * as d3 from "d3";
-import * as cola from "webcola";
+import {Dispatch} from 'redux'
+import {select, tree, stratify} from 'd3'
 import {Spinner} from '@patternfly/react-core'
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {
@@ -9,200 +9,205 @@ import {
   PluginInstanceResourcePayload,
 } from "../../../store/feed/types";
 import { ApplicationState } from "../../../store/root/applicationState";
-import TreeModel from "../../../api/models/tree.model";
 import "./feedTree.scss";
+import { stopFetchingPluginResources } from "../../../store/feed/actions";
 
 
 interface ITreeProps {
   pluginInstances: PluginInstancePayload;
   selectedPlugin?: PluginInstance;
   pluginInstanceResource: PluginInstanceResourcePayload;
+  stopFetchingPluginResources:(id:number)=>void;
 }
 
-const FeedTree: React.FC<ITreeProps> = ({
+interface OwnProps {
+  onNodeClick:(node:PluginInstance)=>void;
+}
+
+const FeedTree: React.FC<ITreeProps & OwnProps> = ({
   pluginInstances,
   selectedPlugin,
-  pluginInstanceResource
+  pluginInstanceResource,
+  stopFetchingPluginResources,
+  onNodeClick
 }) => {
   const treeRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
   const { data: instances, error, loading } = pluginInstances;
-  console.log("Feed Tree:", pluginInstanceResource, instances,
-  selectedPlugin
+
+  const handleNodeClick = React.useCallback(
+    (node: any) => {
+      onNodeClick(node.data);
+    },
+    [onNodeClick]
   );
 
+
   const buildTree = React.useCallback(
-    (items: PluginInstance[]) => {
-      console.log("Build Tree called");
-      const tree = new TreeModel(items);
+    (instances: PluginInstance[]) => {
+       let dimensions = { height: 300, width: 700 };
+       select("#tree").selectAll("svg").selectAll("g").remove();
+       let svg = select(svgRef.current)
+         .attr("width", `${dimensions.width + 100}`)
+         .attr("height", `${dimensions.height + 100}`);
 
-      let dimensions = { height: 350, width: 700 };
-      if (instances?.length === 2) {
-        dimensions.height = 300;
-      }
+       const activeNode = instances.filter((node) => {
+         return (
+           node.data.status === "started" ||
+           node.data.status === "scheduled" ||
+           node.data.status === "registeringFiles"
+         );
+       });
 
-      const d3cola = cola
-        .d3adaptor(d3)
-        .avoidOverlaps(true)
-        .size([dimensions.width + 100, dimensions.height + 30]);
+       const errorNode = instances.filter((node) => {
+         return node.data.status === "finishedWithError" || node.data.status==='cancelled';
+       });
 
-      d3.select("#tree").selectAll("svg").remove();
+       const queuedNode = instances.filter((node) => {
+         return node.data.status === "waitingForPrevious";
+       });
 
-      const svg = d3
-        .select("#tree")
-        .append("svg")
-        .attr("width", dimensions.width)
-        .attr("height", dimensions.height);
+       const successNode = instances.filter((node) => {
+         return node.data.status === "finishedSuccessfully";
+       });
 
-      const nodeRadius = 10;
-      tree.treeChart.nodes.forEach((v: any) => {
-        v.height = v.width = 2 * nodeRadius;
-        const label = `${v.item.data.plugin_name}`;
-        v.label = label;
-      });
+      
 
-      // Set up Webcola
-      d3cola
-        .nodes(tree.treeChart.nodes)
-        .links(tree.treeChart.links)
-        .flowLayout("y", 70)
-        .jaccardLinkLengths(70)
-        .start(10, 15, 20);
+       let graph = svg.append("g").attr("transform", "translate(50,50)");
+       graph.selectAll(".node").remove();
+       graph.selectAll(".link").remove();
+       const stratified = stratify()
+         .id((d: any) => d.data.id)
+         .parentId((d: any) => d.data.previous_id);
+       const root = stratified(instances);
+       let d3TreeLayout = tree();
+       d3TreeLayout.size([dimensions.width, dimensions.height]);
+       d3TreeLayout(root);
 
-      // Define arrow markers for tree links
-      svg
-        .append("svg:defs")
-        .append("svg:marker")
-        .attr("id", "end-arrow")
-        .attr("viewBox", "0 -5 10 10")
-        .attr("refX", 6)
-        .attr("markerWidth", 5)
-        .attr("markerHeight", 5)
-        .attr("orient", "auto")
-        .append("svg:path")
-        .attr("d", "M0,-5L10,0L0,5")
-        .attr("fill", "#fff");
+       let nodeRadius = 10;
 
-      // Define tree links
-      const path = svg
-        .selectAll(".link")
-        .data(tree.treeChart.links)
-        .enter()
-        .append("svg:path")
-        .attr("class", "link");
+       // Nodes
+        graph
+         .selectAll(".node")
+         .data(root.descendants())
+         .join((enter) => enter.append("circle").attr("opacity", 0))
+         .on("click", handleNodeClick)
+         .attr("class", "node")
+         .attr("id", (d: any) => {
+           return `node_${d.data.data.id}`;
+         })
+         .attr("r", nodeRadius)
+         .attr("fill", "#fff")
+         .attr("cx", (node: any) => node.x)
+         .attr("cy", (node: any) => node.y)
+         .attr("opacity", 1);
 
-      // Create and place the "blocks" containing the circle and the text
-      const elemEnter = svg
-        .selectAll("g")
-        .data(tree.treeChart.nodes)
-        .enter()
-        .append("g")
-        .attr("id", (d: any) => {
-          return `node_${Number(d.item.data.id)}`;
-        })
-        .attr("class", "nodegroup")
-        .call(d3cola.drag);
+       graph
+         .append("svg:defs")
+         .append("svg:marker")
+         .attr("id", "end-arrow")
+         .attr("viewBox", "0 -5 10 10")
+         .attr("refX", 6)
+         .attr("markerWidth", 6)
+         .attr("markerHeight", 6)
+         .attr("orient", "auto")
+         .append("svg:path")
+         .attr("d", "M0,-5L10,0L0,5")
+         .attr("fill", "#fff");
 
-      const label = elemEnter
-        .append("text")
-        .text((d: any) => {
-          return d.label;
-        })
-        .attr("class", "nodelabel");
+       // Links
 
-      // Define tree nodes
-      const node = elemEnter
-        .append("circle")
-        .attr("class", "node")
-        .attr("r", nodeRadius);
+       graph
+         .selectAll(".link")
+         .data(root.links())
+         .join("path")
+         // @ts-ignore
+         .attr("d", function (d: any) {
+           const deltaX = d.target.x - d.source.x,
+             deltaY = d.target.y - d.source.y,
+             dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+             normX = deltaX / dist,
+             normY = deltaY / dist,
+             sourcePadding = nodeRadius,
+             targetPadding = nodeRadius + 3,
+             sourceX = d.source.x + sourcePadding * normX,
+             sourceY = d.source.y + sourcePadding * normY,
+             targetX = d.target.x - targetPadding * normX,
+             targetY = d.target.y - targetPadding * normY;
+           return `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
+         })
+         .attr("class", "link")
+         .attr("fill", "none")
+         .attr("stroke-width", 2)
+         .attr("stroke", "white")
+         .attr("opacity", 1);
 
-      // Move links and nodes together
-      d3cola.on("tick", () => {
-        // draw directed edges with proper padding from node centers
-        path.attr("d", (d: any) => {
-          const deltaX = d.target.x - d.source.x,
-            deltaY = d.target.y - d.source.y,
-            dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-            normX = deltaX / dist,
-            normY = deltaY / dist,
-            sourcePadding = nodeRadius,
-            targetPadding = nodeRadius + 2,
-            sourceX = d.source.x + sourcePadding * normX,
-            sourceY = d.source.y + sourcePadding * normY,
-            targetX = d.target.x - targetPadding * normX,
-            targetY = d.target.y - targetPadding * normY;
-          return `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
-        });
+       // labels
 
-        // path.attr("stroke-dasharray", "5, 5") // For dashed lines
-        // Position the nodes:
-        node
-          .attr("cx", (d: any) => {
-            return d.x;
-          })
-          .attr("cy", (d: any) => {
-            return d.y;
-          });
+       graph
+         .selectAll(".label")
+         .data(root.descendants())
+         .join("text")
+         .attr("class", "label")
+         .text((node: any) => node.data.data.plugin_name)
 
-        // Position labels and tooltip:
-        label.attr("transform", (d: any) => {
-          return `translate(${d.x - nodeRadius * 4}, ${
-            d.y + nodeRadius * 2.5
-          } )`;
-        });
-      }); // end of on tick
+         .attr("fill", "#fff")
+         .attr("font-size", 14)
+         .attr("font-weight", "bold")
+         .attr("opacity", 1)
+         .attr("transform", (d: any) => {
+           return `translate(${d.x - nodeRadius * 2}, ${
+             d.y + nodeRadius * 3.5
+           } )`;
+         });
 
-      const activeNode=instances?.filter((node)=>node.data.status==='started')
+     
 
-      const errorNode = instances?.filter((node) => {
-        return node.data.status === "finishedWithError";
-      });
+       if (activeNode.length > 0) {
+         activeNode.forEach(function (node) {
+           const d3activeNode = select(`#node_${node.data.id}`);
+           if (!!d3activeNode && !d3activeNode.empty()) {
+             d3activeNode.attr("class", `node active`)
+           }
+         });
+       }
 
-      const queuedNode = instances?.filter((node) => {
-        return node.data.status === "waitingForPrevious";
-      });
+       if (errorNode.length > 0) {
+         errorNode.forEach(function (node) {
+           const d3errorNode = select(`#node_${node.data.id}`);          
+           if (!!d3errorNode && !d3errorNode.empty()) {
+             d3errorNode.attr(
+               "class",
+               `node error`
+             );
+           }
+         });
+       }
 
-      const successNode = instances?.filter((node) => {
-        return node.data.status === "finishedSuccessfully";
-      });
+       if (queuedNode.length > 0) {
+         queuedNode.forEach(function (node) {
+           const d3QueuedNode = select(`#node_${node.data.id}`);
+         
+           if (!!d3QueuedNode && !d3QueuedNode.empty()) {
+             d3QueuedNode.attr("class", `node queued `);
+           }
+         });
+       }
 
-      if (activeNode && activeNode.length > 0) {
-          activeNode.forEach(function (node) {
-            const d3activeNode = d3.select(`#node_${node.data.id}`);
-            if (!!d3activeNode && !d3activeNode.empty()) {
-              d3activeNode.attr("class", `nodegroup active`);
-            }
-          });
-        }
+       if (successNode.length > 0) {
+         successNode.forEach(function (node) {
+           const d3SuccessNode = select(`#node_${node.data.id}`);
+          
+           if (!!d3SuccessNode && !d3SuccessNode.empty()) {
+             d3SuccessNode.attr(
+               "class",
+               `node success `)
+           }
+         });
+       }
 
-      if (errorNode && errorNode.length > 0) {
-        errorNode.forEach(function (node) {
-          const d3errorNode = d3.select(`#node_${node.data.id}`);
-          if (!!d3errorNode && !d3errorNode.empty()) {
-            d3errorNode.attr("class", "nodegroup error");
-          }
-        });
-      }
-
-      if (queuedNode && queuedNode.length > 0) {
-        queuedNode.forEach(function (node) {
-          const d3QueuedNode = d3.select(`#node_${node.data.id}`);
-          if (!!d3QueuedNode && !d3QueuedNode.empty()) {
-            d3QueuedNode.attr("class", `nodegroup queued`);
-          }
-        });
-      }
-
-      if (successNode && successNode.length > 0) {
-        successNode.forEach(function (node) {
-          const d3SuccessNode = d3.select(`#node_${node.data.id}`);
-          if (!!d3SuccessNode && !d3SuccessNode.empty()) {
-            d3SuccessNode.attr("class", `nodegroup success `);
-          }
-        });
-      }
     },
-
-    [selectedPlugin, instances, pluginInstanceResource]
+   [handleNodeClick]
   );
 
 
@@ -210,12 +215,21 @@ const FeedTree: React.FC<ITreeProps> = ({
     if (instances && instances.length > 0) {
       buildTree(instances);
     }
-  }, [instances, selectedPlugin, buildTree]);
+
+    return ()=> {
+       //@ts-ignore
+       instances?.filter(node=>(node.data.status==='started' || node.data.status==='waitingForPrevious' || node.data.status==='scheduled'
+       || node.data.status==='registeringFiles')).forEach(node=>{
+         stopFetchingPluginResources(node.data.id)
+       })
+    }
+  }, [instances, selectedPlugin, buildTree, pluginInstanceResource,
+     stopFetchingPluginResources
+  ]);
 
   
-
   if (loading) {
-    return <Spinner size="sm" />;
+    return <Spinner size="xl" />;
   }
 
   if (error) {
@@ -231,7 +245,9 @@ const FeedTree: React.FC<ITreeProps> = ({
       }}
       ref={treeRef}
       id="tree"
-    ></div>
+    >
+      <svg className="svg-content" ref={svgRef}></svg>
+    </div>
   );
 };
 
@@ -242,9 +258,14 @@ const mapStateToProps = (state: ApplicationState) => ({
   selectedPlugin: state.feed.selectedPlugin,
 });
 
+const mapDispatchToProps=(dispatch:Dispatch)=>({
+  stopFetchingPluginResources:(id:number)=>dispatch(stopFetchingPluginResources(id))
+})
 
 
-export default connect(mapStateToProps, {})(FeedTree);
+
+export default connect(mapStateToProps, mapDispatchToProps)(FeedTree);
+
 
 
 
