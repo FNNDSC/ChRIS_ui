@@ -131,8 +131,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       let { id, pluginStatus, pluginLog } = action.payload;
       
       if(pluginStatus){
-        let parsedStatus=JSON.parse(pluginStatus)
-        pluginStatus=getStatusLabels(parsedStatus)
+        pluginStatus = getStatusLabels(pluginStatus);
       }
 
 

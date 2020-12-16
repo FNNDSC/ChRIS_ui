@@ -50,17 +50,13 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
 
   const buildTree = React.useCallback(
     (instances: PluginInstance[]) => {
-      console.log("Instances",   instances);
-      let dimensions = { height: 300, width: 700 };
+      console.log("Instances", instances);
+      let dimensions = { height: 350, width: 700 };
       select("#tree").selectAll("svg").selectAll("g").remove();
       let svg = select(svgRef.current)
         .attr("width", `${dimensions.width + 100}`)
         .attr("height", `${dimensions.height + 100}`);
 
-        
-      const cancelledNode = instances.filter((node) => {
-       return node.data.status === "cancelled";
-      });
       const activeNode = instances.filter((node) => {
         return (
           node.data.status === "started" ||
@@ -70,11 +66,8 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
       });
 
       const errorNode = instances.filter((node) => {
-        return (
-          node.data.status === "finishedWithError" );
+        return node.data.status === "finishedWithError" || node.data.status==='cancelled';
       });
-
-    
 
       const queuedNode = instances.filter((node) => {
         return node.data.status === "waitingForPrevious";
@@ -84,7 +77,7 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
         return node.data.status === "finishedSuccessfully";
       });
 
-      console.log("Error Nodes", errorNode, cancelledNode)
+      
 
       let graph = svg.append("g").attr("transform", "translate(50,50)");
       graph.selectAll(".node").remove();
@@ -191,8 +184,6 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
           }
         });
       }
-
-
 
       if (queuedNode.length > 0) {
         queuedNode.forEach(function (node) {

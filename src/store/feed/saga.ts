@@ -28,6 +28,7 @@ import {
   stopFetchingPluginResources,
   getFeedError,
 } from "./actions";
+import {PluginStatusLabels} from './types'
 
 import { Task } from "redux-saga";
 import { inflate } from "pako";
@@ -153,6 +154,13 @@ function* handleGetPluginStatus(
   while (true) {
     try {
       const pluginDetails = yield instance.get();
+      const pluginStatus= yield pluginDetails.data.summary;
+      let parsedStatus:PluginStatusLabels | undefined = undefined
+      if(pluginStatus) 
+      {
+        parsedStatus = JSON.parse(pluginStatus);
+      }
+    
 
       let output = {};
       if (pluginDetails.data.raw.length > 0) {
@@ -161,24 +169,31 @@ function* handleGetPluginStatus(
 
       let payload = {
         id: pluginDetails.data.id,
-        pluginStatus: pluginDetails.data.summary,
+        pluginStatus: parsedStatus,
         pluginLog: output,
       };
       yield put(getPluginInstanceResourceSuccess(payload));
 
-      if (
+      if (parsedStatus?.compute?.return?.l_status[0] === "undefined") {
+        pluginDetails.put({
+          status: "cancelled",
+        });
+        yield put(stopFetchingPluginResources(instance.data.id));
+      }
+      else if (
         pluginDetails.data.status === "finishedWithError" ||
         pluginDetails.data.status === "cancelled"
       ) {
         yield put(stopFetchingPluginResources(instance.data.id));
       }
-      if (pluginDetails.data.status === "finishedSuccessfully") {
+      else if (pluginDetails.data.status === "finishedSuccessfully") {
         yield call(fetchPluginFiles, instance);
         yield put(stopFetchingPluginResources(instance.data.id));
       } else {
         yield delay(3000);
       }
     } catch (error) {
+      console.log('Error',error)
       yield put(stopFetchingPluginResources(instance.data.id));
     }
   }
