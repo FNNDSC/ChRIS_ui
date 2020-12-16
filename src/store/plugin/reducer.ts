@@ -4,12 +4,8 @@ import { PluginActionTypes, IPluginState } from "./types";
 
 // Type-safe initialState
 const initialState: IPluginState = {
-  pluginFiles: {},
   parameters: [],
-  pluginStatus: [],
-  pluginLog: {},
-  computeError: false,
- 
+  computeEnv: undefined,
 };
 
 const reducer: Reducer<IPluginState> = (state = initialState, action) => {

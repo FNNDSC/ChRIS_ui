@@ -95,7 +95,12 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
       try {
         params.offset += params.limit;
         pluginInstanceList = yield feed.getPluginInstances(params);
-        pluginInstances = [...pluginInstances, pluginInstanceList.getItems()];
+
+        pluginInstances = [
+          ...pluginInstances,
+          ...pluginInstanceList.getItems(),
+        ];
+     
       } catch (e) {
         throw new Error(
           "Error while fetching a paginated list of plugin Instances"
@@ -148,12 +153,12 @@ function* handleGetPluginStatus(
   while (true) {
     try {
       const pluginDetails = yield instance.get();
-     
+
       let output = {};
       if (pluginDetails.data.raw.length > 0) {
         output = getLog(pluginDetails.data.raw);
       }
-    
+
       let payload = {
         id: pluginDetails.data.id,
         pluginStatus: pluginDetails.data.summary,
@@ -168,7 +173,7 @@ function* handleGetPluginStatus(
         yield put(stopFetchingPluginResources(instance.data.id));
       }
       if (pluginDetails.data.status === "finishedSuccessfully") {
-        yield call(fetchPluginFiles,  instance);
+        yield call(fetchPluginFiles, instance);
         yield put(stopFetchingPluginResources(instance.data.id));
       } else {
         yield delay(3000);

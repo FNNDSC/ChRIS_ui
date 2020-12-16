@@ -36,11 +36,13 @@ export interface PluginStatusLabels {
   pullPath: { [key: string]: boolean };
 }
 
+export interface ResourcePayload {
+  pluginStatus?: PluginStatus[];
+  pluginLog?: {};
+}
+
 export interface PluginInstanceResourcePayload {
-  [id: string]: {
-    pluginStatus?: PluginStatus[];
-    pluginLog?: {};
-  };
+  [id: string]: ResourcePayload;
 }
 
 export interface FilesPayload {

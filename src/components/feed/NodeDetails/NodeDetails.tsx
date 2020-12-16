@@ -1,6 +1,7 @@
 import React from 'react';
 import Moment from "react-moment";
 import { connect } from "react-redux";
+import {Dispatch} from 'redux'
 import { ApplicationState } from "../../../store/root/applicationState";
 
 import { Button, Grid, GridItem, Title, Skeleton } from "@patternfly/react-core";
@@ -34,15 +35,19 @@ import { PluginStatus } from "../../../store/plugin/types";
 import { displayDescription } from "../FeedOutputBrowser/utils";
 import "./NodeDetails.scss";
 import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
+import { PluginInstancePayload, ResourcePayload } from "../../../store/feed/types";
 import {
-  
-  PluginInstanceResourcePayload,
-} from "../../../store/feed/types";
+  getSelectedInstanceResource,
+  getPluginInstances,
+} from "../../../store/feed/selector";
+import { stopFetchingPluginResources } from '../../../store/feed/actions';
 
 
 interface INodeProps {
   selected?: PluginInstance;
-  pluginInstanceResource: PluginInstanceResourcePayload;
+  pluginInstanceResource: ResourcePayload;
+  pluginInstances?:PluginInstancePayload;
+  stopFetchingPluginResource:(id:number)=>void;
 }
 
 interface INodeState {
@@ -59,11 +64,11 @@ function getInitialState(){
   };
 }
 
-const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource }) => {
+const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, pluginInstances, stopFetchingPluginResource }) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
-  const id  =  selected?.data?.id;
-  const pluginStatus = id && pluginInstanceResource[id] ? pluginInstanceResource[id].pluginStatus : undefined;
+  const pluginStatus =
+    pluginInstanceResource && pluginInstanceResource.pluginStatus;
 
   React.useEffect(() => {
     async function fetchData() {
@@ -87,7 +92,11 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
       }
     }
     fetchData();
-  }, [selected]);
+    return () => {
+      pluginInstances?.data?.filter((node:PluginInstance)=>node.data.status==='started'|| node.data.status==='scheduled'
+      || node.data.status==='waitingForPrevious').forEach((node:PluginInstance)=>stopFetchingPluginResources(node.data.id))
+    };
+  }, [selected, pluginInstances]);
 
   const command = React.useCallback(getCommand, [
     plugin,
@@ -100,7 +109,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
   },[pluginStatus])
   const runTime = React.useCallback(getRuntimeString, [selected, pluginStatus]);
   const pluginTitle = React.useMemo(() => {
-    return `${selected?.data?.plugin_name} v. ${selected?.data?.plugin_version}`;
+    return `${selected?.data.plugin_name} v. ${selected?.data.plugin_version}`;
   }, [selected]);
 
   return (
@@ -136,28 +145,32 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
           Status
         </GridItem>
         <GridItem span={10} className="value">
-          {selected?.data?.status === "waitingForPrevious" ? (
+          {selected?.data.status === "waitingForPrevious" ? (
             <>
               <OutlinedClockIcon />
               <span>Waiting for Previous</span>
             </>
-          ) : selected?.data?.status === "scheduled" ? (
+          ) : selected?.data.status === "scheduled" ? (
             <>
               <InProgressIcon />
               <span>Scheduled</span>
             </>
-          ) : selected?.data?.status === "registeringFiles" ? (
+          ) : selected?.data.status === "registeringFiles" ? (
             <>
               <FileArchiveIcon />
               <span>Registering Files</span>
             </>
-          ) : selected?.data?.status === "finishedWithError" ? (
+          ) : selected?.data.status === "finishedWithError" ? (
             <>
               <ErrorCircleOIcon />
               <span>FinishedWithError</span>
             </>
-          ) : selected?.data?.status==='cancelled' ? <><ErrorCircleOIcon/><span>Cancelled</span></>: 
-              selected?.data?.status === "finishedSuccessfully" ? (
+          ) : selected?.data.status === "cancelled" ? (
+            <>
+              <ErrorCircleOIcon />
+              <span>Cancelled</span>
+            </>
+          ) : selected?.data.status === "finishedSuccessfully" ? (
             <>
               <CheckIcon />
               <span>FinishedSuccessfully</span>
@@ -168,7 +181,11 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
                 className="node-details-grid__title-label"
                 style={{ color: "white" }}
               >
-                {title ? title : <Skeleton width='33%'/> }
+                {!title || title === "Unknown Status" ? (
+                  <Skeleton width="33%" />
+                ) : (
+                  title
+                )}
               </h3>
             </div>
           ) : (
@@ -185,7 +202,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
         <GridItem span={10} className="value">
           <CalendarDayIcon />
           <Moment format="DD MMM YYYY @ HH:mm">
-            {selected?.data?.start_date}
+            {selected?.data.start_date}
           </Moment>
         </GridItem>
 
@@ -193,7 +210,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
           Node ID
         </GridItem>
         <GridItem span={10} className="value">
-          {selected?.data?.id}
+          {selected?.data.id}
         </GridItem>
         {runTime && (
           <>
@@ -209,7 +226,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
       </Grid>
       <div className="btn-container">
         <AddNode />
-        {!selected?.data?.plugin_name.includes("dircopy") && <DeleteNode />}
+        {!selected?.data.plugin_name.includes("dircopy") && <DeleteNode />}
       </div>
 
       <br />
@@ -222,15 +239,20 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource })
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  selected:state.feed.selectedPlugin,
-  pluginInstanceResource:state.feed.pluginInstanceResource
+  selected: state.feed.selectedPlugin,
+  pluginInstanceResource: getSelectedInstanceResource(state),
+  instances: getPluginInstances(state),
 });
 
-export default connect(mapStateToProps, {})(NodeDetails);
+const mapDispatchToProps=(dispatch:Dispatch)=>({
+  stopFetchingPluginResource:(id:number)=>dispatch(stopFetchingPluginResources(id))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(NodeDetails);
 
 
 function getCurrentTitleFromStatus(statusLabels?: PluginStatus[]) {
-  console.log("StatusLabels",statusLabels)
+  
   const currentTitle = statusLabels && statusLabels
     .map((label) => {
       const computedTitle = displayDescription(label);
