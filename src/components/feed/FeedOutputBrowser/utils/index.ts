@@ -5,12 +5,8 @@ import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 import UITreeNodeModel from "../../../../api/models/file-explorer.model";import { PluginStatus } from "../../../../store/plugin/types";
 ;
 
-export function createTreeFromFiles(
-  selected: PluginInstance,
-  files?: FeedFile[]
-) {
-  if (!files) return null;
-
+export function createTreeFromFiles(selected?: PluginInstance, files?: FeedFile[]) {
+  if (!files || !selected) return null;
   const model = new UITreeNodeModel(files, selected);
   const tree = model.getTree();
   tree.module = getPluginName(selected);
@@ -19,9 +15,10 @@ export function createTreeFromFiles(
 
 // Format plugin name to "Name_vVersion_ID"
 export function getPluginName(plugin: PluginInstance) {
-  const title = plugin.data?.plugin_name;
-  const formattedTitle = title?.replace(/\s+/, "_");
-  const { plugin_version, id } = plugin?.data;
+  const title = plugin.data.plugin_name;
+  const formattedTitle = title.replace(/\s+/, "_");
+  const plugin_version = plugin.data?.plugin_version;
+  const id = plugin.data.id;
   return `${formattedTitle}_v${plugin_version}_${id}`;
 }
 

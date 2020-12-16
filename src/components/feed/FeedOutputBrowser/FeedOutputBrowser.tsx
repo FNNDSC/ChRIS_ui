@@ -7,6 +7,7 @@ import {
   Grid,
   GridItem,
   Spinner,  
+  Skeleton
 } from "@patternfly/react-core";
 import {
   FolderOpenIcon,
@@ -19,17 +20,18 @@ import {
   setSelectedFile,
   toggleViewerMode,
 } from "../../../store/explorer/actions";
-import { getPluginFilesRequest, stopFetchingPluginResources } from "../../../store/feed/actions";
+import { getPluginFilesRequest,} from "../../../store/feed/actions";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { createTreeFromFiles, getPluginName } from "./utils";
 import {
-  PluginInstanceResourcePayload,
-  FilesPayload,
   PluginInstancePayload,
+  ResourcePayload
 } from "../../../store/feed/types";
-import { PluginInstance } from "@fnndsc/chrisapi";
+import {getSelectedInstanceResource, getSelectedFiles} from '../../../store/feed/selector'
+import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
+import {isEmpty} from 'lodash'
 import "./FeedOutputBrowser.scss";
 
 
@@ -37,9 +39,9 @@ import "./FeedOutputBrowser.scss";
 export interface FeedOutputBrowserProps {
   pluginInstances: PluginInstancePayload;
   selected?: PluginInstance;
-  pluginFiles: FilesPayload;
+  pluginFiles: FeedFile[];
   viewerMode?: boolean;
-  pluginInstanceResource: PluginInstanceResourcePayload;
+  pluginInstanceResource: ResourcePayload
   handlePluginSelect: Function;
   setSelectedFile: Function;
   getPluginFilesRequest: (selected: PluginInstance) => void;
@@ -57,149 +59,177 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   toggleViewerMode,
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
-  const { data: plugins } = pluginInstances;
+  const { data: plugins, loading, error } = pluginInstances;
+  const pluginStatus= pluginInstanceResource && pluginInstanceResource.pluginStatus
+  const pluginLog=pluginInstanceResource && pluginInstanceResource.pluginLog
   
-
   React.useEffect(() => {
     if (selected) {
       getPluginFilesRequest(selected);
     }
   }, [selected]);
 
-
-
-  const pluginName = selected && selected.data && getPluginName(selected);
-  const id = selected?.data?.id;
-  const selectedFiles = id && pluginFiles[id] ? pluginFiles[id].files: undefined;
-  const pluginStatus= id && pluginInstanceResource[id] ? pluginInstanceResource[id].pluginStatus : undefined
-  const pluginLog=id && pluginInstanceResource[id] ? pluginInstanceResource[id].pluginLog : undefined
-  const tree =
-    selected && selectedFiles && createTreeFromFiles(selected, selectedFiles);
-
-  const generateSideItem = (plugin: PluginInstance): React.ReactNode => {
-    const id  = plugin && plugin.data?.id;
-    const name = getPluginName(plugin);
-    const isSelected = selected && selected?.data && selected?.data?.id === id;
-    const icon = isSelected ? <FolderOpenIcon /> : <FolderCloseIcon />;
-    const className = isSelected ? "selected" : undefined;
-
-    const handleSidebarItemClick = (plugin: PluginInstance) => {
-      handlePluginSelect(plugin);
-    };
-
+  if(!selected || isEmpty(pluginInstances) || loading){
     return (
-      <li
-        className={className}
-        key={id}
-        onClick={() => handleSidebarItemClick(plugin)}
-      >
-        {icon}
-        {name}
-      </li>
-    );
-  };
-
-  const downloadAllClick = async () => {
-    if (!selected) return;
-  
-    const zip = new JSZip();
-    if (selectedFiles) {
-      for (const file of selectedFiles) {
-        const fileBlob = await file.getFileBlob();
-        zip.file(file.data.fname, fileBlob);
-      }
-    }
-
-    const blob = await zip.generateAsync({ type: "blob" });
-    const filename = `${getPluginName(selected)}.zip`;
-    FileViewerModel.downloadFile(blob, filename);
-  };
-
-  const handleFileBrowserOpen = (file: IUITreeNode, folder: IUITreeNode) => {
-    setPluginModalOpen(true);
-    setSelectedFile(file, folder);
-  };
-
-  const handleFileViewerOpen = (file: IUITreeNode, folder: IUITreeNode) => {
-    setPluginModalOpen(true);
-    setSelectedFile(file, folder);
-    toggleViewerMode(!viewerMode);
-  };
-
-  const handlePluginModalClose = () => {
-    setPluginModalOpen(!pluginModalOpen);
-  };
-
-  return (
-    <>
       <Grid hasGutter className="feed-output-browser">
         <GridItem
           className="feed-output-browser__sidebar"
           rowSpan={12}
           span={2}
         >
-          <ul className="sidebar">
-            {plugins ? (
-              plugins
-                .sort((a: PluginInstance, b: PluginInstance) => {
-                  return a?.data?.id - b?.data?.id;
-                })
-                .map(generateSideItem)
-            ) : (
-              <Spinner size="md" />
-            )}
+          <ul>
+            <Skeleton
+              shape="square"
+              width="30%"
+              screenreaderText="Loading Sidebar"
+            />
           </ul>
         </GridItem>
-
-        <GridItem className="feed-output-browser__main" span={10} rowSpan={12}>
+        <GridItem className='feed-output-browser__main' span={10}
+        rowSpan={12}>
           <Grid>
             <GridItem span={12} rowSpan={12}>
-              {selected &&
-              selected.data?.status === "finishedSuccessfully" &&
-              tree &&
-              selectedFiles ? (
-                <FileBrowser
-                  selectedFiles={selectedFiles}
-                  pluginName={pluginName}
-                  root={tree}
-                  key={selected.data.id}
-                  handleFileBrowserToggle={handleFileBrowserOpen}
-                  handleFileViewerToggle={handleFileViewerOpen}
-                  downloadAllClick={downloadAllClick}
-                />
-              ) : selected?.data.status === "finishedSuccessfully" && !tree ? (
-                <GridItem span={12} rowSpan={12}>
-                  <div>
-                    <Spinner size="md" />
-                  </div>
-                </GridItem>
-              ) : (
-                <div>
-                  <GridItem span={12} rowSpan={12}>
-                    <PluginStatus
-                      selected={selected}
-                      pluginStatus={pluginStatus}
-                      pluginLog={pluginLog}
-                    />
-                  </GridItem>
-                </div>
-              )}
+              <Skeleton height='75%' width='75%' screenreaderText='Fetching Plugin Resources'/>
             </GridItem>
           </Grid>
         </GridItem>
       </Grid>
-      <PluginViewerModal
-        isModalOpen={pluginModalOpen}
-        handleModalToggle={handlePluginModalClose}
-      />
-    </>
-  );
+    );
+  }
+  else {
+   
+    const pluginName = selected && selected.data && getPluginName(selected)
+    const tree = createTreeFromFiles(selected, pluginFiles);
+    const generateSideItem = (plugin: PluginInstance): React.ReactNode => {
+      const id = plugin && plugin.data.id;
+      const name = getPluginName(plugin);
+      const isSelected =
+        selected && selected.data && selected.data.id === id;
+      const icon = isSelected ? <FolderOpenIcon /> : <FolderCloseIcon />;
+      const className = isSelected ? "selected" : undefined;
+
+      const handleSidebarItemClick = (plugin: PluginInstance) => {
+        handlePluginSelect(plugin);
+      };
+
+      return (
+        <li
+          className={className}
+          key={id}
+          onClick={() => handleSidebarItemClick(plugin)}
+        >
+          {icon}
+          {name}
+        </li>
+      );
+    };
+
+    const downloadAllClick = async () => {
+      if (!selected) return;
+
+      const zip = new JSZip();
+      if (pluginFiles) {
+        for (const file of pluginFiles) {
+          const fileBlob = await file.getFileBlob();
+          zip.file(file.data.fname, fileBlob);
+        }
+      }
+
+      const blob = await zip.generateAsync({ type: "blob" });
+      const filename = `${getPluginName(selected)}.zip`;
+      FileViewerModel.downloadFile(blob, filename);
+    };
+
+    const handleFileBrowserOpen = (file: IUITreeNode, folder: IUITreeNode) => {
+      setPluginModalOpen(true);
+      setSelectedFile(file, folder);
+    };
+
+    const handleFileViewerOpen = (file: IUITreeNode, folder: IUITreeNode) => {
+      setPluginModalOpen(true);
+      setSelectedFile(file, folder);
+      toggleViewerMode(!viewerMode);
+    };
+
+    const handlePluginModalClose = () => {
+      setPluginModalOpen(!pluginModalOpen);
+    };
+
+    return (
+      <>
+        <Grid hasGutter className="feed-output-browser">
+          <GridItem
+            className="feed-output-browser__sidebar"
+            rowSpan={12}
+            span={2}
+          >
+            <ul className="sidebar">
+              {plugins && plugins.length > 0
+                ? plugins
+                    .sort((a: PluginInstance, b: PluginInstance) => {
+                      return a?.data?.id - b?.data?.id;
+                    })
+                    .map(generateSideItem)
+                    : new Array(4).map((_, i) => (
+                    <Skeleton width="25%" screenreaderText="Fetching Plugins" />
+                  ))}
+            </ul>
+          </GridItem>
+
+          <GridItem
+            className="feed-output-browser__main"
+            span={10}
+            rowSpan={12}
+          >
+            <Grid>
+              <GridItem span={12} rowSpan={12}>
+                {selected && selected.data.status === "finishedSuccessfully" && tree ? (
+                  <FileBrowser
+                    selectedFiles={pluginFiles}
+                    pluginName={pluginName}
+                    root={tree}
+                    key={selected.data.id}
+                    handleFileBrowserToggle={handleFileBrowserOpen}
+                    handleFileViewerToggle={handleFileViewerOpen}
+                    downloadAllClick={downloadAllClick}
+                  />
+                ) : selected.data.status === "finishedSuccessfully" &&
+                  !tree ? (
+                  <GridItem span={12} rowSpan={12}>
+                    <div>
+                      <Spinner size="md" />
+                    </div>
+                  </GridItem>
+                  
+                ) : (
+                  <div>
+                    <GridItem span={12} rowSpan={12}>
+                      <PluginStatus
+                        selected={selected}
+                        pluginStatus={pluginStatus}
+                        pluginLog={pluginLog}
+                      />
+                    </GridItem>
+                  </div>
+                )}
+              </GridItem>
+            </Grid>
+          </GridItem>
+        </Grid>
+        <PluginViewerModal
+          isModalOpen={pluginModalOpen}
+          handleModalToggle={handlePluginModalClose}
+        />
+      </>
+    );
+  }
+  
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  pluginInstanceResource: state.feed.pluginInstanceResource,
+  pluginInstanceResource: getSelectedInstanceResource(state),
   selected: state.feed.selectedPlugin,
-  pluginFiles: state.feed.pluginFiles,
+  pluginFiles: getSelectedFiles(state),
   pluginInstances: state.feed.pluginInstances,
   viewerMode: state.explorer.viewerMode,
 });

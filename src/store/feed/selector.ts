@@ -3,11 +3,28 @@ import { ApplicationState } from "../../store/root/applicationState";
 
 const getPluginFiles = (state: ApplicationState) => state.feed.pluginFiles;
 const getSelected = (state: ApplicationState) => state.feed.selectedPlugin;
+const getPluginInstanceResource = (state: ApplicationState) =>
+  state.feed.pluginInstanceResource;
+
+export const getPluginInstances=(state:ApplicationState)=>state.feed.pluginInstances
 
 export const getSelectedFiles = createSelector(
   [getPluginFiles, getSelected],
   (pluginFiles, selectedPlugin) => {
+    const id = selectedPlugin?.data.id;
+    if (id) {
+      return pluginFiles[id] && pluginFiles[id].files;
+    } else return [];
+  }
+);
+
+export const getSelectedInstanceResource = createSelector(
+  [getPluginInstanceResource, getSelected],
+  (pluginInstanceResource, selectedPlugin) => {
     const id = selectedPlugin && selectedPlugin.data.id;
-    return id && pluginFiles && pluginFiles[id] && pluginFiles[id].files;
+    if(id){
+      return pluginInstanceResource && pluginInstanceResource[id] 
+    }
+    else return {} 
   }
 );
