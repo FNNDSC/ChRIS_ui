@@ -139,6 +139,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
 
   componentDidUpdate(prevProps: AllProps) {
     this._isMounted = true;
+    console.log(this._isMounted);
     if (
       this._isMounted &&
       prevProps.imageArray.length !== this.props.imageArray.length
@@ -152,36 +153,38 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   loadImagesIntoCornerstone = async () => {
     const { imageArray } = this.props;
     if (imageArray.length < 0) return;
-    
+
     let imageIds: string[] = [];
     if (this._isMounted) {
       this.setState({
         totalFiles: imageArray.length,
       });
-    }
 
-    for (let i = 0; i < imageArray.length; i++) {
-      const item = imageArray[i];
+      for (let i = 0; i < imageArray.length; i++) {
+        const item = imageArray[i];
 
-      this.setState({
-        filesParsed: i + 1,
-      });
-
-      if (isDicom(item.module)) {
-        const file = await item.file.getFileBlob();
-        imageIds.push(cornerstoneWADOImageLoader.wadouri.fileManager.add(file));
-      } else {
-        const file = await item.file.getFileBlob();
-        imageIds.push(cornerstoneFileImageLoader.fileManager.add(file));
-      }
-    }
-
-    if (this._isMounted) {
-      if (imageIds.length > 0) {
         this.setState({
-          imageIds,
-          numberOfFrames: imageIds.length,
+          filesParsed: i + 1,
         });
+
+        if (isDicom(item.module)) {
+          const file = await item.file.getFileBlob();
+          imageIds.push(
+            cornerstoneWADOImageLoader.wadouri.fileManager.add(file)
+          );
+        } else {
+          const file = await item.file.getFileBlob();
+          imageIds.push(cornerstoneFileImageLoader.fileManager.add(file));
+        }
+      }
+
+      if (this._isMounted) {
+        if (imageIds.length > 0) {
+          this.setState({
+            imageIds,
+            numberOfFrames: imageIds.length,
+          });
+        }
       }
     }
   };
@@ -206,20 +209,19 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
 
             <div className="ami-viewer">
               <div id="container">
-                  <Drawer
-                    title="Dicom Tag Information"
-                    placement="right"
-                    closable={true}
-                    onClose={this.toggleHeader}
-                    visible={this.state.visibleHeader}
-                    style={{ position: "absolute",
-                    width:'40%'}}
-                  >
-                    {this.state.visibleHeader && (
-                      <DicomTag image={this.state.currentImage} />
-                    )}
-                  </Drawer>
-                
+                <Drawer
+                  title="Dicom Tag Information"
+                  placement="right"
+                  closable={true}
+                  onClose={this.toggleHeader}
+                  visible={this.state.visibleHeader}
+                  style={{ position: "absolute", width: "40%" }}
+                >
+                  {this.state.visibleHeader && (
+                    <DicomTag image={this.state.currentImage} />
+                  )}
+                </Drawer>
+
                 <CornerstoneViewport
                   isPlaying={this.props.inPlay}
                   frameRate={this.state.frameRate}
@@ -440,6 +442,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   // Destroy Methods
   componentWillUnmount() {
     this._isMounted = false;
+    console.log("Unmounting the gallery", this._isMounted);
     if (this.props.inPlay) {
       cornerstoneTools.stopClip(this.state.element);
     }

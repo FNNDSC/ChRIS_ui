@@ -39,9 +39,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
 
   async componentDidMount() {
     this._isMounted = true;
-
     const urlArray = this._getUrlArray(this.props.selectedFolder.children);
-
     if (urlArray.length > 0 && this._isMounted) {
       this.setState({
         urlArray,
@@ -191,6 +189,11 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   componentWillUnmount() {
     clearInterval(this.timerScrolling);
     this._isMounted = false;
+    if (this._isMounted === false) {
+      this.setState({
+        urlArray: [],
+      });
+    }
   }
 }
 export default GalleryDicomView;

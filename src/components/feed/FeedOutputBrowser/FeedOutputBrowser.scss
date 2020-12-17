@@ -71,11 +71,34 @@
 
 .feed-output-browser {
   background: white;
+::-webkit-scrollbar {
+  width: 18px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #E7F1FA;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #E7F1FA;
+  border-radius: 20px;
+  border: 6px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #73BCF7;
+}
+
 
   &__sidebar {
+    overflow-y: scroll;
     width:100%;
     height:$fe-viewer-min-heigth; 
-
   }
 
   &__main {
@@ -198,12 +221,14 @@
 }
 
 
+
+
 .feed-output-browser .file-browser  {
   // Table Layout Resets
 
-  &__table{
-    overflow-y:scroll;
-    
+
+&__table{ 
+    overflow-y: scroll;
     .download-all-button {
       --pf-c-button--BorderRadius: 5px;
       --pf-c-button--BorderWidth: 2px;

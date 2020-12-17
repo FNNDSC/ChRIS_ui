@@ -2,7 +2,9 @@ import { PluginStatus, PluginStatusLabels } from "./types";
 export function getStatusLabels(labels: PluginStatusLabels): PluginStatus[] {
   let label = [];
 
-  const isError = labels.compute.return.l_status[0] === "finishedWithError";
+  const isError =
+    labels.compute.return.l_status[0] === "finishedWithError" ||
+    labels.compute.return.l_status[0] === "undefined";
   const isComputeSuccessful = isError ? false : true;
 
   label[0] = {

@@ -1,18 +1,7 @@
 import { action } from "typesafe-actions";
-import { FeedActionTypes } from "./types";
+import { FeedActionTypes, AddNodePayload, PluginInstanceObj } from "./types";
 
 import { Feed, PluginInstance } from "@fnndsc/chrisapi";
-
-interface PluginInstanceObj {
-  selected: PluginInstance;
-  pluginInstances: PluginInstance[];
-}
-
-interface AddNodePayload {
-  pluginItem: PluginInstance;
-  nodes?: PluginInstance[];
-}
-
 
 // type them properly as well -> For more info: https://github.com/piotrwitek/typesafe-actions
 export const getAllFeedsRequest = (

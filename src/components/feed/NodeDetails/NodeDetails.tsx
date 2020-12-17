@@ -252,55 +252,58 @@ export default connect(mapStateToProps, mapDispatchToProps)(NodeDetails);
 
 
 function getCurrentTitleFromStatus(statusLabels?: PluginStatus[]) {
-  
-  const currentTitle = statusLabels && statusLabels
-    .map((label) => {
-      const computedTitle = displayDescription(label);
-      
-         switch (computedTitle) {
-           case "Transmitting data to compute environment":
-             return (
-               <>
-                 <CloudUploadAltIcon />
-                 <span>Transmitting Data</span>
-               </>
-             );
-           case "Setting compute environment":
-             return (
-               <>
-                 <DockerIcon />
-                 <span>Setting Compute Environment</span>
-               </>
-             );
+  const currentTitle =
+    statusLabels &&
+    statusLabels
+      .map((label) => {
+        const computedTitle = displayDescription(label);
 
-           case "Computing":
-             return (
-               <>
-                 <ServicesIcon />
-                 <span>Computing</span>
-               </>
-             );
+        switch (computedTitle) {
+          case "Transmitting data to compute environment":
+            return (
+              <>
+                <CloudUploadAltIcon />
+                <span>Transmitting Data</span>
+              </>
+            );
+          case "Setting compute environment":
+            return (
+              <>
+                <DockerIcon />
+                <span>Setting Compute Environment</span>
+              </>
+            );
 
-           case "Syncing data from compute environment":
-             return (
-               <>
-                 <MixcloudIcon />
-                 <span>Syncing Data</span>
-               </>
-             );
+          case "Computing":
+            return (
+              <>
+                <ServicesIcon />
+                <span>Computing</span>
+              </>
+            );
 
-           case "Finishing up":
-             return (
-               <>
-                 <StorageDomainIcon />
-                 <span>Finishing up</span>
-               </>
-             );
+          case "Syncing data from compute environment":
+            return (
+              <>
+                <MixcloudIcon />
+                <span>Syncing Data</span>
+              </>
+            );
 
-           default:
-             return "Unknown Status";
-         }
-    }).filter((node)=>node!=='Unknown Status')
+          case "Finishing up":
+            return (
+              <>
+                <StorageDomainIcon />
+                <span>Finishing up</span>
+              </>
+            );
+
+          default:
+            return "Unknown Status";
+        }
+      })
+      .filter((node) => node !== "Unknown Status");
+
   return currentTitle && currentTitle[0];
 }
 

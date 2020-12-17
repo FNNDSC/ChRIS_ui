@@ -129,8 +129,7 @@ class FeedDetails extends React.Component<ReduxProps, INoteState> {
                   <FlexItem>
                     <Title
                       style={{ color: "white" }}
-                      headingLevel="h1"
-                      size="3xl"
+                      headingLevel="h2"
                       className="capitalize"
                     >
                       {feed ? feed.data.name : ""}

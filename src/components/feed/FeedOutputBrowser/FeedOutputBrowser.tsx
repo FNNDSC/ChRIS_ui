@@ -73,7 +73,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     return (
       <Grid hasGutter className="feed-output-browser">
         <GridItem
-          className="feed-output-browser__sidebar"
+          className="feed-output-browser__sidebar "
           rowSpan={12}
           span={2}
         >
@@ -85,11 +85,14 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             />
           </ul>
         </GridItem>
-        <GridItem className='feed-output-browser__main' span={10}
-        rowSpan={12}>
+        <GridItem className="feed-output-browser__main" span={10} rowSpan={12}>
           <Grid>
             <GridItem span={12} rowSpan={12}>
-              <Skeleton height='75%' width='75%' screenreaderText='Fetching Plugin Resources'/>
+              <Skeleton
+                height="75%"
+                width="75%"
+                screenreaderText="Fetching Plugin Resources"
+              />
             </GridItem>
           </Grid>
         </GridItem>
@@ -157,7 +160,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
     return (
       <>
-        <Grid hasGutter className="feed-output-browser">
+        <Grid hasGutter className="feed-output-browser ">
           <GridItem
             className="feed-output-browser__sidebar"
             rowSpan={12}
@@ -170,7 +173,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                       return a?.data?.id - b?.data?.id;
                     })
                     .map(generateSideItem)
-                    : new Array(4).map((_, i) => (
+                : new Array(4).map((_, i) => (
                     <Skeleton width="25%" screenreaderText="Fetching Plugins" />
                   ))}
             </ul>
@@ -183,8 +186,11 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           >
             <Grid>
               <GridItem span={12} rowSpan={12}>
-                {selected && selected.data.status === "finishedSuccessfully" && tree ? (
+                {selected &&
+                selected.data.status === "finishedSuccessfully" &&
+                tree ? (
                   <FileBrowser
+                    pluginLog={pluginLog}
                     selectedFiles={pluginFiles}
                     pluginName={pluginName}
                     root={tree}
@@ -193,14 +199,12 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                     handleFileViewerToggle={handleFileViewerOpen}
                     downloadAllClick={downloadAllClick}
                   />
-                ) : selected.data.status === "finishedSuccessfully" &&
-                  !tree ? (
+                ) : selected.data.status === "finishedSuccessfully" && !tree ? (
                   <GridItem span={12} rowSpan={12}>
                     <div>
                       <Spinner size="md" />
                     </div>
                   </GridItem>
-                  
                 ) : (
                   <div>
                     <GridItem span={12} rowSpan={12}>
