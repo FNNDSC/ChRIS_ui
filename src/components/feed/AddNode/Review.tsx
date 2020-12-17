@@ -51,9 +51,6 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
           selectedPlugin={data.plugin}
           computeEnvironment={computeEnvironment}
         />
-        <GridItem span={2}>
-          <span className="review__title">Gpu Toggle</span>
-        </GridItem>
         {command.length > 0 && (
           <Alert variant="danger" isInline title={command} />
         )}

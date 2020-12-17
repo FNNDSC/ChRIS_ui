@@ -21,3 +21,4 @@ declare module "cornerstone-wado-image-loader";
 declare module "dicom-parser";
 declare module "react-cornerstone-viewport";
 declare module "react-lazylog";
+declare module "@react-pdf/renderer";

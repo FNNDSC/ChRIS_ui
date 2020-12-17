@@ -2,7 +2,8 @@ import { createSelector } from "reselect";
 import { ApplicationState } from "../../store/root/applicationState";
 
 const getPluginFiles = (state: ApplicationState) => state.feed.pluginFiles;
-const getSelected = (state: ApplicationState) => state.feed.selectedPlugin;
+export const getSelected = (state: ApplicationState) =>
+  state.feed.selectedPlugin;
 const getPluginInstanceResource = (state: ApplicationState) =>
   state.feed.pluginInstanceResource;
 

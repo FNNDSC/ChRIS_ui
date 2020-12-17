@@ -139,7 +139,6 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
 
   componentDidUpdate(prevProps: AllProps) {
     this._isMounted = true;
-    console.log(this._isMounted);
     if (
       this._isMounted &&
       prevProps.imageArray.length !== this.props.imageArray.length
@@ -442,7 +441,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   // Destroy Methods
   componentWillUnmount() {
     this._isMounted = false;
-    console.log("Unmounting the gallery", this._isMounted);
+
     if (this.props.inPlay) {
       cornerstoneTools.stopClip(this.state.element);
     }

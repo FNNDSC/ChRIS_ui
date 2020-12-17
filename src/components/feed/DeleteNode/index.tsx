@@ -3,17 +3,19 @@ import { Dispatch } from "redux";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { PluginInstance } from "@fnndsc/chrisapi";
+import { PluginInstance, Feed } from "@fnndsc/chrisapi";
 import { deleteNode } from "../../../store/feed/actions";
 import { InfrastructureIcon } from "@patternfly/react-icons";
 
 interface DeleteNodeProps {
+  currentFeed?: Feed;
   selectedPlugin?: PluginInstance;
-  deleteNode: (pluginItem: PluginInstance) => void;
+  deleteNode: (feed:  Feed) => void;
   deleteNodeSuccess: boolean;
 }
 
 const DeleteNode: React.FC<DeleteNodeProps> = ({
+  currentFeed,
   selectedPlugin,
   deleteNode,
   deleteNodeSuccess,
@@ -24,8 +26,10 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
   };
 
   const handleDelete = async () => {
-    if (selectedPlugin) {
-      deleteNode(selectedPlugin);
+    
+    if (selectedPlugin && currentFeed) {
+      selectedPlugin._delete();
+      deleteNode(currentFeed);
     }
     if (deleteNodeSuccess) {
       setIsModalOpen(!isModalOpen);
@@ -69,12 +73,13 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
+  currentFeed: state.feed.currentFeed.data,
   selectedPlugin: state.feed.selectedPlugin,
   deleteNodeSuccess: state.feed.deleteNodeSuccess,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  deleteNode: (pluginItem: PluginInstance) => dispatch(deleteNode(pluginItem)),
+  deleteNode: (feed: Feed) => dispatch(deleteNode(feed)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(DeleteNode);
