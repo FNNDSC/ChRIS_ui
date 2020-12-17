@@ -30,7 +30,7 @@ class DashboardPage extends React.Component<AllProps> {
           }}
           key={4}
         >
-          <span>Version: 1.0.5</span>
+          <span>Version: 1.0.6</span>
         </Badge>
         <Badge key={3}>
           <span>
