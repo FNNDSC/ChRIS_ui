@@ -1,6 +1,7 @@
 import * as React from "react";
-import { Button } from "@patternfly/react-core";
-import { ExpandIcon, FilmIcon } from "@patternfly/react-icons";
+import { Button, Label } from "@patternfly/react-core";
+import { ErrorBoundary } from "react-error-boundary";
+import { ExpandIcon, FilmIcon, InfoCircleIcon } from "@patternfly/react-icons";
 import {
   getFileExtension,
   IUITreeNode,
@@ -83,9 +84,35 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
           <>
             {this.renderHeader()}
             <div className="viewer-display">
-              <React.Suspense fallback={<Skeleton shape="square" width="50%" screenreaderText="Fallback component being lodaded"/>}>
-              <ViewerDisplayComponent tag={viewerName} fileItem={this.state} />
-             </React.Suspense>
+              <React.Suspense
+                fallback={
+                  <Skeleton
+                    shape="square"
+                    width="50%"
+                    screenreaderText="Fallback component being lodaded"
+                  />
+                }
+              >
+                <ErrorBoundary
+                  fallback={
+                    <span>
+                      <Label
+                        icon={<InfoCircleIcon />}
+                        color="red"
+                        href="#filled"
+                      >
+                        Oh snap ! Looks like there was an error. Please refresh
+                        the browser or try again.
+                      </Label>
+                    </span>
+                  }
+                >
+                  <ViewerDisplayComponent
+                    tag={viewerName}
+                    fileItem={this.state}
+                  />
+                </ErrorBoundary>
+              </React.Suspense>
             </div>
           </>
         );

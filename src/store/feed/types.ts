@@ -7,6 +7,17 @@
 import keyMirror from "keymirror";
 import { Feed, FeedFile, PluginInstance } from "@fnndsc/chrisapi";
 
+
+export interface PluginInstanceObj {
+  selected: PluginInstance;
+  pluginInstances: PluginInstance[];
+}
+
+export interface AddNodePayload {
+  pluginItem: PluginInstance;
+  nodes?: PluginInstance[];
+}
+
 export interface PluginStatus {
   step: string;
   status: boolean;
@@ -36,9 +47,17 @@ export interface PluginStatusLabels {
   pullPath: { [key: string]: boolean };
 }
 
+export interface Logs {
+  [info: string]: {
+    [key: string]: {
+      [key: string]: {};
+    };
+  };
+}
+
 export interface ResourcePayload {
   pluginStatus?: PluginStatus[];
-  pluginLog?: {};
+  pluginLog?: Logs;
 }
 
 export interface PluginInstanceResourcePayload {

@@ -10,11 +10,8 @@ import {
 } from "../../../store/feed/types";
 import { ApplicationState } from "../../../store/root/applicationState";
 import "./feedTree.scss";
-
 import {
-  getSelectedInstanceResource,
-  getPluginInstances,
-} from "../../../store/feed/selector";
+  getSelectedInstanceResource } from "../../../store/feed/selector";
 
 
 interface ITreeProps {
@@ -50,12 +47,20 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
 
   const buildTree = React.useCallback(
     (instances: PluginInstance[]) => {
-      console.log("Instances", instances);
-      let dimensions = { height: 350, width: 700 };
+      console.log("Build Tree")
+      
+      let dimensions = { height: 300, width: 700 };
       select("#tree").selectAll("svg").selectAll("g").remove();
       let svg = select(svgRef.current)
         .attr("width", `${dimensions.width + 100}`)
         .attr("height", `${dimensions.height + 100}`);
+
+
+      const errorNode = instances.filter((node) => {
+            return (
+              node.data.status === "finishedWithError" || node.data.status==='cancelled'
+            );
+          });
 
       const activeNode = instances.filter((node) => {
         return (
@@ -63,10 +68,6 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
           node.data.status === "scheduled" ||
           node.data.status === "registeringFiles"
         );
-      });
-
-      const errorNode = instances.filter((node) => {
-        return node.data.status === "finishedWithError" || node.data.status==='cancelled';
       });
 
       const queuedNode = instances.filter((node) => {
@@ -79,6 +80,7 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
 
       
 
+    
       let graph = svg.append("g").attr("transform", "translate(50,50)");
       graph.selectAll(".node").remove();
       graph.selectAll(".link").remove();
@@ -167,6 +169,18 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
           } )`;
         });
 
+     
+
+      
+       if (errorNode.length > 0) {
+         errorNode.forEach(function (node) {
+           const d3errorNode = select(`#node_${node.data.id}`);
+           if (!!d3errorNode && !d3errorNode.empty()) {
+             d3errorNode.attr("class", `node error`);
+           }
+         });
+       }
+
       if (activeNode.length > 0) {
         activeNode.forEach(function (node) {
           const d3activeNode = select(`#node_${node.data.id}`);
@@ -176,15 +190,7 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
         });
       }
 
-      if (errorNode.length > 0) {
-        errorNode.forEach(function (node) {
-          const d3errorNode = select(`#node_${node.data.id}`);
-          if (!!d3errorNode && !d3errorNode.empty()) {
-            d3errorNode.attr("class", `node error`);
-          }
-        });
-      }
-
+  
       if (queuedNode.length > 0) {
         queuedNode.forEach(function (node) {
           const d3QueuedNode = select(`#node_${node.data.id}`);
@@ -204,7 +210,9 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
           }
         });
       }
+      
     },
+    
    [handleNodeClick]
   );
 
@@ -223,7 +231,7 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
 
   
   if (loading) {
-    return <Spinner size="xl" />;
+    return <Spinner size="sm" />;
   }
 
   if (error) {
@@ -248,7 +256,7 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
 
 const mapStateToProps = (state: ApplicationState) => ({
   pluginInstanceResource: getSelectedInstanceResource(state),
-  pluginInstances: getPluginInstances(state),
+  pluginInstances: state.feed.pluginInstances,
   selectedPlugin: state.feed.selectedPlugin,
 });
 

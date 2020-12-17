@@ -2,8 +2,7 @@
  * Utils to be abstracted out
  */
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
-import UITreeNodeModel from "../../../../api/models/file-explorer.model";import { PluginStatus } from "../../../../store/plugin/types";
-;
+import UITreeNodeModel from "../../../../api/models/file-explorer.model";
 
 export function createTreeFromFiles(selected?: PluginInstance, files?: FeedFile[]) {
   if (!files || !selected) return null;

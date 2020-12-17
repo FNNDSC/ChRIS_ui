@@ -22,11 +22,11 @@ import {
   TableBody,
   TableVariant,
 } from "@patternfly/react-table";
-
+import FileDetailView from "../../explorer/FileDetailView";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
-import FileDetailView from "../../explorer/FileDetailView";
-import { FileBrowserProps, FileBrowerState } from "./types";
+import LogTerminal from "./LogTerminal";
+import { FileBrowserProps, FileBrowerState, ComputeLog } from "./types";
 
 class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
   constructor(props: FileBrowserProps) {
@@ -40,7 +40,6 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     this.generateBreadcrumb = this.generateBreadcrumb.bind(this);
     this.handleFileClick = this.handleFileClick.bind(this);
     this.handleBreadcrumbClick = this.handleBreadcrumbClick.bind(this);
-    
   }
 
   /* EVENT LISTENERS */
@@ -48,11 +47,11 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
   handleFileClick(e: React.MouseEvent, rows: any[], rowData: any) {
     const target = e.nativeEvent.target as HTMLElement;
     if (e.button !== 0 || target.closest(".download-file")) {
-     return;
+      return;
     }
 
     const rowIndex: number = rowData.rowIndex;
-    const { directory} = this.state;
+    const { directory } = this.state;
     if (!directory.children) {
       return;
     }
@@ -90,8 +89,6 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     FileViewerModel.downloadFile(blob, node.module);
   }
 
- 
-
   /* GENERATE UI ELEMENTS */
 
   generateTableRow(node: IUITreeNode) {
@@ -126,7 +123,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     );
 
     const name = {
-      title: fileName
+      title: fileName,
     };
 
     const download = {
@@ -186,8 +183,11 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
       handleFileBrowserToggle,
       handleFileViewerToggle,
       selectedFiles,
+      pluginLog,
     } = this.props;
     const { directory, breadcrumbs, previewingFile } = this.state;
+    const computeLog: ComputeLog | undefined = pluginLog?.info?.compute?.return;
+    const typedLog: string[] | undefined = computeLog?.d_ret?.l_logs;
 
     if (!directory.children || !directory.children.length) {
       return <div>No files in this directory.</div>;
@@ -222,7 +222,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
             caption="files"
             cells={cols}
             rows={rows}
-            className="file-list"
+            className="file-list "
           >
             <TableHeader />
             <TableBody onRowClick={this.handleFileClick} />
@@ -244,7 +244,13 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
           </GridItem>
         ) : (
           <GridItem className="file-browser__previewTab" span={6} rowSpan={12}>
-            
+            <LogTerminal
+              text={
+                typedLog && typedLog[0]
+                  ? typedLog[0]
+                  : "Logs are not available for this plugin."
+              }
+            />
           </GridItem>
         )}
       </Grid>

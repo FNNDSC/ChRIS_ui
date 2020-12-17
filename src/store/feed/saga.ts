@@ -117,7 +117,7 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
 
     yield all([
       put(getPluginInstancesSuccess(pluginInstanceObj)),
-      put(getPluginInstanceResources(pluginInstanceObj.pluginInstances)),
+     put(getPluginInstanceResources(pluginInstanceObj.pluginInstances)),
     ]);
   } catch (error) {
      yield put(getPluginInstancesError(error));
@@ -154,13 +154,11 @@ function* handleGetPluginStatus(
   while (true) {
     try {
       const pluginDetails = yield instance.get();
-      const pluginStatus= yield pluginDetails.data.summary;
-      let parsedStatus:PluginStatusLabels | undefined = undefined
-      if(pluginStatus) 
-      {
+      const pluginStatus = yield pluginDetails.data.summary;
+      let parsedStatus: PluginStatusLabels | undefined = undefined;
+      if (pluginStatus) {
         parsedStatus = JSON.parse(pluginStatus);
       }
-    
 
       let output = {};
       if (pluginDetails.data.raw.length > 0) {
@@ -173,27 +171,25 @@ function* handleGetPluginStatus(
         pluginLog: output,
       };
       yield put(getPluginInstanceResourceSuccess(payload));
-
-      if (parsedStatus?.compute?.return?.l_status[0] === "undefined") {
-        pluginDetails.put({
-          status: "cancelled",
-        });
-        yield put(stopFetchingPluginResources(instance.data.id));
-      }
-      else if (
+      if (
         pluginDetails.data.status === "finishedWithError" ||
         pluginDetails.data.status === "cancelled"
       ) {
         yield put(stopFetchingPluginResources(instance.data.id));
+      }  
+      else if(parsedStatus?.compute.return?.l_status[0]==='undefined'){
+        yield instance._put({
+          status:'cancelled'
+        })
+        yield put(stopFetchingPluginResources(instance.data.id))     
       }
-      else if (pluginDetails.data.status === "finishedSuccessfully") {
+       else if (pluginDetails.data.status === "finishedSuccessfully") {
         yield call(fetchPluginFiles, instance);
         yield put(stopFetchingPluginResources(instance.data.id));
       } else {
         yield delay(3000);
       }
     } catch (error) {
-      console.log('Error',error)
       yield put(stopFetchingPluginResources(instance.data.id));
     }
   }
@@ -232,8 +228,6 @@ function* fetchPluginFiles(plugin: PluginInstance) {
     yield put(getPluginFilesError(payload));
   }
 }
-
-
 
 function cancelPolling(task: Task) {
   if  (task)  {

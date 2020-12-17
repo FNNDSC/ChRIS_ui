@@ -8,7 +8,6 @@ import "antd/dist/antd.css";
 import "./assets/scss/main.scss";
 
 
-// Description: Set up store configurations
 
 ReactDOM.render(<Main store={store} />, document.getElementById("root"));
 
