@@ -1,196 +1,239 @@
 import React, { useEffect, useRef } from "react";
-import { PluginInstance } from "@fnndsc/chrisapi";
 import { connect } from "react-redux";
-import { Dispatch } from "redux";
+
+import {select, tree, stratify} from 'd3'
+import {Spinner} from '@patternfly/react-core'
+import { Spin, Space } from "antd";
+import { PluginInstance } from "@fnndsc/chrisapi";
+import {
+  PluginInstancePayload,
+  ResourcePayload,
+} from "../../../store/feed/types";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { PluginStatus } from "../../../store/plugin/types";
-import { tree, select, linkVertical, stratify, svg } from "d3";
-import "./styles/feedTree.scss";
-import { getPluginInstanceResources } from "../../../store/plugin/actions";
-import { stopFetchingPluginResources } from "../../../store/feed/actions";
+import "./feedTree.scss";
+import {
+  getSelectedInstanceResource } from "../../../store/feed/selector";
+  
+
 
 interface ITreeProps {
-  items: PluginInstance[];
-  selected: PluginInstance;
-  pluginStatus?: PluginStatus[];
-  isComputeError?: boolean;
-  testStatus: {
-    [key: string]: string;
-  };
+  pluginInstances: PluginInstancePayload;
+  selectedPlugin?: PluginInstance;
+  pluginInstanceResource: ResourcePayload;
+  
 }
-interface ITreeActions {
-  onNodeClick: (node: any) => void;
-  getPluginInstanceResources: (items: PluginInstance[]) => void;
-  stopFetchingPluginResources: (id: number) => void;
+
+interface OwnProps {
+  onNodeClick:(node:PluginInstance)=>void;
 }
-type AllProps = ITreeProps & ITreeActions;
+
+const FeedTree: React.FC<ITreeProps & OwnProps> = ({
+  pluginInstances,
+  selectedPlugin,
+  pluginInstanceResource,
+  onNodeClick
+}) => {
+  const pluginStatus =
+    pluginInstanceResource && pluginInstanceResource.pluginLog;
+  const treeRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const { data: instances, error, loading } = pluginInstances;
+
+  const handleNodeClick = React.useCallback(
+    (node: any) => {
+      onNodeClick(node.data);
+    },
+    [onNodeClick]
+  );
 
 
-const FeedTree:React.FC<AllProps>=(props)=>{
-const treeRef=useRef<HTMLDivElement>(null);
-const svgRef=useRef<SVGSVGElement>(null);
+  const buildTree = React.useCallback(
+    (instances: PluginInstance[]) => {
+      let dimensions = { height: 250, width: 700 };
+      
+      select("#tree").selectAll("svg").selectAll("g").remove();
+      let svg = select(svgRef.current)
+        .attr("width", `${dimensions.width + 100}`)
+        .attr("height", `${dimensions.height + 100}`);
 
-useEffect(() => {
-  if (!!treeRef.current && !!props.items && props.items.length > 0) {
-    const { items } = props;
-    let dimensions = { height: 300, width: 700 };
+      const errorNode = instances.filter((node) => {
+        return (
+          node.data.status === "finishedWithError" ||
+          node.data.status === "cancelled"
+        );
+      });
 
-    if (items.length === 2) {
-      dimensions.height = 100;
-    }
+      const activeNode = instances.filter((node) => {
+        return (
+          node.data.status === "started" ||
+          node.data.status === "scheduled" ||
+          node.data.status === "registeringFiles"
+        );
+      });
 
-    select("#tree").selectAll("svg").selectAll("g").remove();
-    let svg = select(svgRef.current)
-      .attr("width", `${dimensions.width + 100}`)
-      .attr("height", `${dimensions.height + 100}`);
+      const queuedNode = instances.filter((node) => {
+        return node.data.status === "waitingForPrevious";
+      });
 
-    const activeNode = items.filter((node) => {
-      return (
-        node.data.status === "started" ||
-        node.data.status === "scheduled" ||
-        node.data.status === "registeringFiles"
-      );
-    });
+      const successNode = instances.filter((node) => {
+        return node.data.status === "finishedSuccessfully";
+      });
 
-    const errorNode = items.filter((node) => {
-      return node.data.status === "finishedWithError";
-    });
+      let graph = svg.append("g").attr("transform", "translate(50,50)");
+      graph.selectAll(".node").remove();
+      graph.selectAll(".link").remove();
+      const stratified = stratify()
+        .id((d: any) => d.data.id)
+        .parentId((d: any) => d.data.previous_id);
+      const root = stratified(instances);
+      let d3TreeLayout = tree();
+      d3TreeLayout.size([dimensions.width, dimensions.height]);
+      d3TreeLayout(root);
 
-    const queuedNode = items.filter((node) => {
-      return node.data.status === "waitingForPrevious";
-    });
+      let nodeRadius = 12;
 
-    const successNode = items.filter((node) => {
-      return node.data.status === "finishedSuccessfully";
-    });
+      // Nodes
+      graph
+        .selectAll(".node")
+        .data(root.descendants())
+        .join((enter) => enter.append("circle").attr("opacity", 0))
+        .on("click", handleNodeClick)
+        .attr("class", "node")
+        .attr("id", (d: any) => {
+          return `node_${d.data.data.id}`;
+        })
+        .attr("r", nodeRadius)
+        .attr("fill", "#fff")
+        .attr("cx", (node: any) => node.x)
+        .attr("cy", (node: any) => node.y)
+        .attr("opacity", 1);
 
-    let graph = svg.append("g").attr("transform", "translate(50,50)");
-    graph.selectAll(".node").remove();
-    graph.selectAll(".link").remove();
-    const stratified = stratify()
-      .id((d: any) => d.data.id)
-      .parentId((d: any) => d.data.previous_id);
-    const root = stratified(items);
-    let d3TreeLayout = tree();
-    d3TreeLayout.size([dimensions.width, dimensions.height]);
-    d3TreeLayout(root);
+      graph
+        .append("svg:defs")
+        .append("svg:marker")
+        .attr("id", "end-arrow")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 6)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("svg:path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "#fff");
 
-    let nodeRadius = 10;
+      // Links
 
-    // Nodes
-    graph
-      .selectAll(".node")
-      .data(root.descendants())
-      .join((enter) => enter.append("circle").attr("opacity", 0))
-      .on("click", handleNodeClick)
-      .attr("class", "node")
-
-      .attr("id", (d: any) => {
-        return `node_${d.data.data.id}`;
-      })
-      .attr("r", nodeRadius)
-      .attr("fill", "#fff")
-      .attr("cx", (node: any) => node.x)
-      .attr("cy", (node: any) => node.y)
-      .attr("opacity", 1);
-
-    const linkGenerator = linkVertical()
-      .x((node: any) => node.x)
-      .y((node: any) => node.y);
-
-    // Links
-
-    graph
-      .selectAll(".link")
-      .data(root.links())
-      .join("path")
-      // @ts-ignore
-      .attr("d", linkGenerator)
-      // @ts-ignore
-      .attr("stroke", function () {
+      graph
+        .selectAll(".link")
+        .data(root.links())
+        .join("path")
         // @ts-ignore
-        const length = this.getTotalLength();
-        return `${length} ${length}`;
-      })
-      .attr("stroke-dashhoffset", function () {
-        // @ts-ignore
-        return this.getTotalLength();
-      })
-      .attr("stroke-dashoffset", 0)
-      .attr("class", "link")
-      .attr("fill", "none")
-      .attr("stroke-width", 2)
-      .attr("stroke", "white")
-      .attr("opacity", 1);
+        .attr("d", function (d: any) {
+          const deltaX = d.target.x - d.source.x,
+            deltaY = d.target.y - d.source.y,
+            dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+            normX = deltaX / dist,
+            normY = deltaY / dist,
+            sourcePadding = nodeRadius,
+            targetPadding = nodeRadius + 4,
+            sourceX = d.source.x + sourcePadding * normX,
+            sourceY = d.source.y + sourcePadding * normY,
+            targetX = d.target.x - targetPadding * normX,
+            targetY = d.target.y - targetPadding * normY;
+          return `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
+        })
+        .attr("class", "link")
+        .attr("fill", "none")
+        .attr("stroke-width", 2)
+        .attr("stroke", "white")
+        .attr("opacity", 1);
 
-    // labels
+      // labels
 
-    graph
-      .selectAll(".label")
-      .data(root.descendants())
-      .join("text")
-      .attr("class", "label")
-      .text((node: any) => node.data.data.plugin_name)
-      .attr("transform", (d: any) => {
-        return `translate(${d.x - nodeRadius * 4}, ${d.y + nodeRadius * 4} )`;
-      })
-      .attr("fill", "#fff")
-      .attr("font-size", 14)
-      .attr("font-weight", "bold")
-      .attr("opacity", 1);
+      graph
+        .selectAll(".label")
+        .data(root.descendants())
+        .join("text")
+        .attr("class", "label")
+        .text((node: any) => node.data.data.plugin_name)
 
-    if (activeNode.length > 0) {
-      activeNode.forEach(function (node) {
-        const d3activeNode = select(`#node_${node.data.id}`);
+        .attr("fill", "#fff")
+        .attr("font-size", 14)
+        .attr("font-weight", "bold")
+        .attr("opacity", 1)
+        .attr("transform", (d: any) => {
+          return `translate(${d.x - nodeRadius * 2}, ${
+            d.y + nodeRadius * 2.5
+          } )`;
+        });
 
-        if (!!d3activeNode && !d3activeNode.empty()) {
-          d3activeNode.attr("class", `node active`);
-        }
-      });
+      if (errorNode.length > 0) {
+        errorNode.forEach(function (node) {
+          const d3errorNode = select(`#node_${node.data.id}`);
+          if (!!d3errorNode && !d3errorNode.empty()) {
+            d3errorNode.attr("class", `node error`);
+          }
+        });
+      }
+
+      if (activeNode.length > 0) {
+        activeNode.forEach(function (node) {
+          const d3activeNode = select(`#node_${node.data.id}`);
+          if (!!d3activeNode && !d3activeNode.empty()) {
+            d3activeNode.attr("class", `node active`);
+          }
+        });
+      }
+
+      if (queuedNode.length > 0) {
+        queuedNode.forEach(function (node) {
+          const d3QueuedNode = select(`#node_${node.data.id}`);
+
+          if (!!d3QueuedNode && !d3QueuedNode.empty()) {
+            d3QueuedNode.attr("class", `node queued `);
+          }
+        });
+      }
+
+      if (successNode.length > 0) {
+        successNode.forEach(function (node) {
+          const d3SuccessNode = select(`#node_${node.data.id}`);
+
+          if (!!d3SuccessNode && !d3SuccessNode.empty()) {
+            d3SuccessNode.attr("class", `node success `);
+          }
+        });
+      }
+    },
+
+    [handleNodeClick]
+  );
+
+  useEffect(() => {
+    if (instances && instances.length > 0) {
+      buildTree(instances);
     }
+  }, [instances, selectedPlugin, buildTree, pluginStatus]);
 
-    if (errorNode.length > 0) {
-      errorNode.forEach(function (node) {
-        const d3errorNode = select(`#node_${node.data.id}`);
-        const isSelected = node.data.id === props.selected.data.id;
-        if (!!d3errorNode && !d3errorNode.empty()) {
-          d3errorNode.attr("class", `node error ${isSelected && "selected"}`);
-        }
-      });
-    }
 
-    if (queuedNode.length > 0) {
-      queuedNode.forEach(function (node) {
-        const d3QueuedNode = select(`#node_${node.data.id}`);
-        if (!!d3QueuedNode && !d3QueuedNode.empty()) {
-          d3QueuedNode.attr("class", `node queued`);
-        }
-      });
-    }
-
-    if (successNode.length > 0) {
-      successNode.forEach(function (node) {
-        const d3SuccessNode = select(`#node_${node.data.id}`);
-        const isSelected = node.data.id === props.selected.data.id;
-        if (!!d3SuccessNode && !d3SuccessNode.empty()) {
-          d3SuccessNode.attr(
-            "class",
-            `node success ${isSelected && "selected"}`
-          );
-        }
-      });
-    }
+  if (!selectedPlugin || !selectedPlugin.data) {
+    return (
+      <Space size="middle">
+        <Spin size="small" />
+        <Spin />
+        <Spin size="large" />
+      </Space>
+    );
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [props.items, props.selected, props.testStatus]);
+  else {
+if (loading) {
+  return <Spinner size="sm" />;
+}
 
-
-
-const handleNodeClick = (node: any) => {
-  props.onNodeClick(node.data);
-};
-
+if (error) {
+  return <div>Oh snap ! Something went wrong. Please refresh your browser</div>;
+}
 
 return (
   <div
@@ -203,23 +246,23 @@ return (
     <svg className="svg-content" ref={svgRef}></svg>
   </div>
 );
+  }
 
-}
+
+  
+  
+};
+
 
 const mapStateToProps = (state: ApplicationState) => ({
-  pluginStatus: state.plugin.pluginStatus,
-  testStatus: state.feed.testStatus,
-  isComputeError: state.plugin.computeError,
+  pluginInstanceResource: getSelectedInstanceResource(state),
+  pluginInstances: state.feed.pluginInstances,
+  selectedPlugin: state.feed.selectedPlugin,
 });
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getPluginInstanceResources: (items: PluginInstance[]) =>
-    dispatch(getPluginInstanceResources(items)),
-  stopFetchingPluginResources: (id: number) =>
-    dispatch(stopFetchingPluginResources(id)),
-});
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedTree);
+export default connect(mapStateToProps, {})(FeedTree);
+
 
 
 

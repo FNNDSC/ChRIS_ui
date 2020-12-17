@@ -1,5 +1,4 @@
 import { all, fork, put, takeEvery } from "redux-saga/effects";
-
 import { UserActionTypes } from "./types";
 import { setAuthError, setAuthTokenSuccess } from "./actions";
 import history from "../../utils";
@@ -7,7 +6,7 @@ import history from "../../utils";
 // ----------------------------------------------------------------
 // Description: List - Get all Users
 // ----------------------------------------------------------------
-//const url = `${process.env.REACT_APP_CHRIS_UI_URL}`;
+
 function* handleResponse(action: any) {
   try {
     yield put(
@@ -33,7 +32,7 @@ function* watchLoginRequest() {
 }
 
 // ----------------------------------------------------------------
-// Log user out
+
 function handleLogout(action: any) {
   window.sessionStorage.removeItem("AUTH_TOKEN");
   window.sessionStorage.removeItem('USERNAME')
@@ -44,7 +43,7 @@ function* watchLogoutRequest() {
 }
 
 // ----------------------------------------------------------------
-// We can also use `fork()` here to split our saga into multiple watchers.
+
 export function* userSaga() {
   yield all([fork(watchLoginRequest), fork(watchLogoutRequest)]);
 }

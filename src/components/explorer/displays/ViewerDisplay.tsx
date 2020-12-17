@@ -7,6 +7,7 @@ import {
   IframeDisplay,
   ImageDisplay,
   DcmDisplay,
+  PdfDisplay,
 } from "./index";
 
 type AllProps = {
@@ -22,12 +23,12 @@ class ViewerDisplay extends React.Component<AllProps> {
     ImageDisplay,
     DcmDisplay,
     CatchallDisplay,
+    PdfDisplay,
   };
   render() {
     const TagName = (this.components as any)[
       this.props.tag || "CatchallDisplay"
     ];
-
     return <TagName {...this.props} />;
   }
 }

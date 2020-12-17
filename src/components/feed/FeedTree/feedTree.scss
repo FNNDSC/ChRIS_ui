@@ -4,22 +4,26 @@
 *  Author:          ChRIS UI
 */
 
-@import "../../../../assets/scss/helpers/variables";
+@import "../../../assets/scss/helpers/variables";
+
 
 
 
 // Tree Chart Section
 // ------------------------------
+
+
 .link {
   fill: none;
   marker-end: url(#end-arrow);
   opacity: 0.8;
   stroke: $tree-links-color; //007bba - active
-  stroke-width: 1px;
+  stroke-width: 1.5px;
 }
-.nodelabel {
+
+.label{
   fill: $tree-node-backgound;
-  font-size: 0.75rem;
+  font-size: 0.5rem;
   font-family: sans-serif;
 }
 
@@ -38,18 +42,15 @@
 
 @keyframes queued {
     0%    { fill: grey; }
-    50%   { fill: #444; }
+    50%   { fill: black; }
     100%  { fill:grey; }
 }
 
 
-
-
 .node {
   cursor: pointer;
-  fill: $tree-node-backgound;
 
-  &.queued {
+    &.queued {
     animation-name:queued;
     animation-duration:2s;
     animation-timing-function:ease-in;
@@ -62,7 +63,7 @@
     }
   }
 
-  &.success{
+    &.success{
     fill:#004080;
     .label {
       fill: #0066CC;
@@ -73,16 +74,16 @@
     animation-name: error;
     animation-duration: 2s;
     animation-timing-function: ease-in;
-    animation-iteration-count: 2;
+    animation-iteration-count: 1;
     animation-delay: 1s;
     animation-fill-mode: both;
-    .label{
+
+     .label{
       fill:#C9190B
     }
-   }
-
-
-    &.active {
+  }
+  
+  &.active {
     animation-name:active;
     animation-duration:2s;
     animation-timing-function:ease-in;
@@ -94,8 +95,8 @@
     }
   }
 
-    &.selected{
-     fill:white
-   }
+  
 
-}
+  }
+
+

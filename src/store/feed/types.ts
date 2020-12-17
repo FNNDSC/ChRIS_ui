@@ -5,7 +5,83 @@
  *  Notes:           Work in progres ...
  */
 import keyMirror from "keymirror";
-import { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import { Feed, FeedFile, PluginInstance } from "@fnndsc/chrisapi";
+
+
+export interface PluginInstanceObj {
+  selected: PluginInstance;
+  pluginInstances: PluginInstance[];
+}
+
+export interface AddNodePayload {
+  pluginItem: PluginInstance;
+  nodes?: PluginInstance[];
+}
+
+export interface PluginStatus {
+  step: string;
+  status: boolean;
+  id: number;
+  previous: string;
+  title: string;
+  previousComplete: boolean;
+}
+type Return = {
+  l_logs: any[];
+  l_status: string[];
+  status: boolean;
+};
+
+type Submit = {
+  status: boolean;
+};
+
+export interface PluginStatusLabels {
+  pushPath: { [key: string]: boolean };
+  compute: {
+    return: Return;
+    status: boolean;
+    submit: Submit;
+  };
+  swiftPut: { [key: string]: boolean };
+  pullPath: { [key: string]: boolean };
+}
+
+export interface Logs {
+  [info: string]: {
+    [key: string]: {
+      [key: string]: {};
+    };
+  };
+}
+
+export interface ResourcePayload {
+  pluginStatus?: PluginStatus[];
+  pluginLog?: Logs;
+}
+
+export interface PluginInstanceResourcePayload {
+  [id: string]: ResourcePayload;
+}
+
+export interface FilesPayload {
+  [id: string]: {
+    files: FeedFile[];
+    error: any;
+  };
+}
+
+export interface FeedPayload { 
+    data?: Feed;
+    error: any;
+    loading: boolean;
+}
+
+export interface PluginInstancePayload {
+  data?: PluginInstance[];
+  error: any;
+  loading: boolean;
+}
 
 
 // Description state for main user items[] and item
@@ -16,24 +92,13 @@ export interface IFeedState {
     loading: boolean;
     totalFeedsCount: 0;
   };
-
-  currentFeed: {
-    data?: Feed;
-    error: any;
-    loading: boolean;
-  };
-
-  pluginInstances: {
-    data?: PluginInstance[];
-    error: any;
-    loading: boolean;
-  };
+  currentFeed: FeedPayload;
+  pluginInstances: PluginInstancePayload;
   selectedPlugin?: PluginInstance;
   loadingAddNode: boolean;
   deleteNodeSuccess: boolean;
-  testStatus: {
-    [key: string]: string;
-  };
+  pluginInstanceResource: PluginInstanceResourcePayload;
+  pluginFiles: FilesPayload;
 }
 
 export const FeedActionTypes = keyMirror({
@@ -46,6 +111,11 @@ export const FeedActionTypes = keyMirror({
   GET_PLUGIN_INSTANCES_REQUEST: null,
   GET_PLUGIN_INSTANCES_SUCCESS: null,
   GET_PLUGIN_INSTANCES_ERROR: null,
+  GET_PLUGIN_INSTANCE_RESOURCE_REQUEST: null,
+  GET_PLUGIN_INSTANCE_RESOURCE_SUCCESS: null,
+  GET_PLUGIN_FILES_REQUEST: null,
+  GET_PLUGIN_FILES_SUCCESS: null,
+  GET_PLUGIN_FILES_ERROR: null,
   RESET_FEED_STATE: null,
   ADD_FEED: null,
   GET_SELECTED_PLUGIN: null,
@@ -54,6 +124,4 @@ export const FeedActionTypes = keyMirror({
   DELETE_NODE: null,
   DELETE_NODE_SUCCESS: null,
   STOP_FETCHING_PLUGIN_RESOURCES: null,
-  POLLING_STATUS: null,
-  GET_TEST_STATUS: null,
 });

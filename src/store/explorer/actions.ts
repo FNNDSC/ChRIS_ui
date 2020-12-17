@@ -6,7 +6,7 @@ import UITreeNodeModel, {
   IUITreeNode,
 } from "../../api/models/file-explorer.model";
 
-// Description: Parse the files array into a File tree obj
+
 export const setExplorerRequest = (
   files: FeedFile[],
   selected: PluginInstance
@@ -16,7 +16,7 @@ export const setExplorerRequest = (
     new UITreeNodeModel(files, selected).getTree()
   );
 
-// Description: Stores the current selected file
+
 export const setSelectedFile = (
   selectedFile: IUITreeNode,
   selectedFolder?: IUITreeNode
@@ -26,7 +26,7 @@ export const setSelectedFile = (
     selectedFolder,
   });
 
-// Description: Stores the current selected folder or parent folder of the selected file
+
 export const setSelectedFolder = (selectedFolder: IUITreeNode) =>
   action(ExplorerActionTypes.SET_SELECTED_FOLDER, selectedFolder);
 

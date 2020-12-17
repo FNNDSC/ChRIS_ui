@@ -42,10 +42,10 @@ const AddNode:React.FC<AddNodeProps>=({
 const [addNodeState,setNodeState]= React.useState<AddNodeState>(getInitialState)
 const {isOpen,stepIdReached,nodes,data,requiredInput,dropdownInput,selectedComputeEnv,errors}=addNodeState
 
-React.useEffect(()=>{
+React.useEffect(() => {
   handleFetchedData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-},[])
+}, [pluginInstances]);
 
 const handleFetchedData=()=>{
 if(pluginInstances){
@@ -312,11 +312,7 @@ const handleSave=async()=>{
         onClick={toggleOpen}
       >
         <InfrastructureIcon style={{ marginRight: "4px" }} />
-        {loadingAddNode
-          ? "Adding a Node"
-          : Object.keys(errors).length > 0
-          ? "Please try again"
-          : "Add a Node"}
+        Add a Node
       </Button>
       {isOpen && (
         <Wizard

@@ -6,7 +6,7 @@ import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
 import { pluginViewerMap } from "../../api/models/file-viewer.model";
 import { FileBrowserViewer } from "./displays";
 import "./viewer.scss";
-import { getSelectedFiles } from "../../store/plugin/selector";
+import { getSelectedFiles } from "../../store/feed/selector";
 
 type AllProps = {
   files?: FeedFile[];

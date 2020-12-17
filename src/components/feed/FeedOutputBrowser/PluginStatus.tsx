@@ -1,94 +1,54 @@
-import React from "react";
+import React from 'react';
 import { Steps } from "antd";
-import { Spinner, GridItem, Grid,Title,Alert } from "@patternfly/react-core";
+import { GridItem, Grid, Title } from "@patternfly/react-core";
+import {Spin, Alert} from 'antd' 
 import ReactJSON from "react-json-view";
-import "antd/dist/antd.css";
 import "../../explorer/file-detail.scss";
 import { displayDescription } from "./utils";
-import {
-  PluginStatusProps,
-  Logs,
-LogStatus
-} from "./types";
+import { PluginStatusProps, ComputeLog} from "./types";
 import { isEmpty } from "lodash";
 import classNames from "classnames";
 import LogTabs from "./LogTabs";
-import LogTerminal from './LogTerminal'
+import LogTerminal from "./LogTerminal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 
 const { Step } = Steps;
 
-type ComputeLog = {
-  d_ret?: {
-    l_logs?: string[];
-  };
-};
 
-const PluginStatus: React.FC<PluginStatusProps> = ({
+
+const PluginStatus:React.FC<PluginStatusProps>=({
   pluginStatus,
-  pluginLog,
-}) => {
-  const [logs, setLogs] = React.useState({});
-  const [activeKey, setActiveKey] = React.useState<React.ReactText>(0);
-  const [computeLog,setComputeLog]=React.useState<string>("")
-  const [step,setCurrentStep]=React.useState('')
+  pluginLog
+})=>{
+  const [activeKey, setActiveKey] = React.useState<React.ReactText>(0)
+  const [currentLog,setCurrentLog]=React.useState({})
 
-  const src: Logs | undefined = pluginLog;
-  let pluginLogs: LogStatus = {};
-
-  if (src && src.info) {
-    pluginLogs["pushPath"] = src.info.pushPath.return;
-    pluginLogs["computeSubmit"] = src.info.compute.submit;
-    pluginLogs["computeReturn"] = src.info.compute.return;
-    pluginLogs["pullPath"] = src.info.pullPath.return;
-    pluginLogs["swiftPut"] = src.info.swiftPut.return;
+  const handleClick=(step:string)=>{
+   
+    if(step==='computeReturn'){
+      const log= pluginLog?.info?.compute?.return || {}
+      setCurrentLog(log)
+    }
+    else if(step==='computeSubmit'){
+      const log=pluginLog?.info?.compute?.submit || {}
+      setCurrentLog(log)
+    }
+    else {
+      const log=pluginLog?.info[step]?.return|| {}
+      setCurrentLog(log)
+    }
   }
 
-  React.useEffect(() => {
-    let computeLog: string | undefined = "";
-    if (step === "computeReturn" && activeKey === 1) {
-      let currentLog: ComputeLog = pluginLogs[step];
-      if (currentLog) {
-        computeLog =
-          currentLog.d_ret &&
-          currentLog.d_ret.l_logs &&
-          currentLog.d_ret.l_logs[0];
-      }
-      if (computeLog) {
-        setLogs(currentLog);;
-        setComputeLog(computeLog);
-      }
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pluginLog, step]);
-
-  const handleClick = (step: string, title: string) => {
-    let currentLog = pluginLogs[step];
-    let computeLog:string|undefined=''
-    if (step === "computeReturn") {
-      let currentLog: ComputeLog = pluginLogs[step];
-      computeLog =
-        currentLog.d_ret &&
-        currentLog.d_ret.l_logs &&
-        currentLog.d_ret.l_logs[0];
-      if (computeLog) setComputeLog(computeLog);
-      else {
-        setComputeLog("");
-      }
-    }
-    if(currentLog){
-      setLogs(currentLog)
-    }
-    setCurrentStep(step)
-  };
+  
+  const computeLog:ComputeLog|undefined=pluginLog?.info?.compute?.return
+  const typedLog:string[] | undefined=computeLog?.d_ret?.l_logs
+  
 
   const handleActiveKey = (activeKey: React.ReactText) => {
     setActiveKey(activeKey);
   };
 
-  if (pluginStatus && pluginStatus?.length > 0) {
+  if(pluginStatus && pluginStatus.length>0){
     return (
       <Grid hasGutter className="file-browser">
         <GridItem className="file-browser__steps" span={4} rowSpan={12}>
@@ -108,9 +68,8 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
                     "Syncing data from compute environment";
               }
               return (
-                <Step
-                  onClick={() => {
-                    handleClick(label.step, label.title);
+                <Step onClick={() => {
+                    handleClick(label.step);
                   }}
                   description={currentDescription}
                   className={classNames("file-browser__step")}
@@ -119,7 +78,7 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
                     <span
                       className="file-browser__step-title"
                       onClick={() => {
-                        handleClick(label.step, label.title);
+                        handleClick(label.step);
                       }}
                     >
                       {label.title}
@@ -142,53 +101,32 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
         </GridItem>
         <GridItem className="file-browser__plugin-status" span={8} rowSpan={12}>
           <LogTabs activeKey={activeKey} setActiveKey={handleActiveKey} />
-          {activeKey === 0 && !isEmpty(logs) ? (
+          {activeKey === 0 && pluginLog && !isEmpty(pluginLog.info) ? (
             <div className="viewer-display">
               <ReactJSON
                 name={false}
                 displayDataTypes={false}
                 style={{
-                  fontSize: "16px",
+                  fontSize: "12px",
                 }}
                 displayObjectSize={false}
-                src={logs}
+                src={currentLog}
                 indentWidth={4}
                 collapsed={false}
               />
             </div>
-          ) : activeKey === 1 && !computeLog ? (
+          ) :  activeKey === 1 && (
             <div className="viewer-display">
-              <Alert
-                isLiveRegion={true}
-                style={{
-                  width: "50%",
-                  margin: "10px",
-                }}
-                variant="info"
-                title="The terminal feature are currenly only available for logs in the compute step."
-              />
-            </div>
-          ) : activeKey === 1 && computeLog ? (
-            <div className="viewer-display">
-              <LogTerminal text={computeLog} />
-            </div>
-          ) : (
-            <div className="viewer-display">
-              <Alert
-                isLiveRegion={true}
-                style={{
-                  width: "50%",
-                  margin: "10px",
-                }}
-                variant="info"
-                title="Logs are not available immediately. Please click on the step to fetch logs in a few minutes"
-              />
+              <LogTerminal text={
+                typedLog && typedLog[0] ? typedLog[0] : "The compute logs aren't available right now. Please wait as they are being fetched." 
+              } />
             </div>
           )}
         </GridItem>
       </Grid>
     );
   }
+
   return (
     <Grid>
       <GridItem className="file-browser__spinner-title" span={12} rowSpan={2}>
@@ -201,15 +139,18 @@ const PluginStatus: React.FC<PluginStatusProps> = ({
           Plugin Execution Status
         </Title>
       </GridItem>
-      <GridItem className="file-browser__spinner-status" span={12} rowSpan={12}>
-        <Spinner size="lg" />
+      <GridItem className="file-browser__spinner-status" span={4} rowSpan={12}>
+        <Spin
+        tip='Loading....'>
+          <Alert message="Retrieving Plugin's execution"
+          type='info'
+          />
+        </Spin>
       </GridItem>
     </Grid>
   );
-};
 
-/**
- * Utility Functions
- */
+
+}
 
 export default PluginStatus;
