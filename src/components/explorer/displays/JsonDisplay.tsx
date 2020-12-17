@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactJSON from "react-json-view";
-
 import { IFileBlob } from "../../../api/models/file-viewer.model";
 
 type AllProps = {
@@ -48,7 +47,9 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
           collapsed={false}
         />
       ) : (
-        <div></div>
+        <div>
+          <span>Could not load json payload at the moment....</span>
+        </div>
       )}
     </>
   );

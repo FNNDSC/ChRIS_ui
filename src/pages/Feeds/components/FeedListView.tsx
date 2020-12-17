@@ -113,8 +113,6 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     const client = ChrisAPIClient.getClient();
     const feed = await client.getFeed(feedItem.id);
     const note = await feed.getNote();
-    
- 
    this.setState((state: FeedsListViewState) => ({
          descriptions: {
            ...state.descriptions,

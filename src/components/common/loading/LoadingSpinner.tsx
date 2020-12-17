@@ -1,23 +1,14 @@
 import * as React from "react";
-import styles from "./LoadingSpinner.module.scss";
-import {SizeProp} from "@fortawesome/fontawesome-svg-core";
-import { FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { Spinner } from "@patternfly/react-core";
 
-interface ILoadingProps {
-  size?: SizeProp;
-  isLocal?: boolean; // loading to local component
-  color?: string;
-}
 
-const LoadingSpinner: React.FunctionComponent<any> = (props: ILoadingProps) => {
-  const size = !!props.size ? props.size : "5x";
-  const color = !!props.color ? props.color : "black";
+
+const LoadingSpinner: React.FunctionComponent<any> = () => {
   return (
-    <div className={`${!!props.isLocal ? styles.loadinglocal : styles.loading }` }>
-      <FontAwesomeIcon icon="spinner" size={size} color={color} pulse />
+    <div>
+      <Spinner size="xl" />
     </div>
-  )
-
+  );
 };
 
 export default LoadingSpinner;

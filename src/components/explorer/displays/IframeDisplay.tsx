@@ -7,26 +7,26 @@ type AllProps = {
 const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const { fileItem } = props;
 
-  console.log("FileItem", fileItem);
   let url = "";
 
   if (fileItem.fileType === "html") {
-     url = !!fileItem.blob
-       ? window.URL.createObjectURL(
-           new Blob([fileItem.blob], { type: "text/html" })
-         )
-       : "";
+    url = !!fileItem.blob
+      ? window.URL.createObjectURL(
+          new Blob([fileItem.blob], { type: "text/html" })
+        )
+      : "";
+  }else  if (fileItem.fileType === "pdf") {
+    url = !!fileItem.blob
+      ? window.URL.createObjectURL(
+          new Blob([fileItem.blob], { type: "application/pdf" })
+        )
+      : "";
+  } else {
+    url = !!fileItem.blob
+      ? window.URL.createObjectURL(new Blob([fileItem.blob]))
+      : "";
   }
-  else {
-     url = !!fileItem.blob
-       ? window.URL.createObjectURL(
-           new Blob([fileItem.blob])
-         )
-       : "";
 
-  }
-
-  
   return (
     <>
       <iframe
@@ -34,7 +34,7 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
         src={url}
         width="100%"
         style={{
-          height: "100vh",
+          height: "60vh",
         }}
         title="Gallery"
       />

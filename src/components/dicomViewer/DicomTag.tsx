@@ -1,20 +1,13 @@
 import React from "react";
-import {
-  List,
-  ListItem,
-  Toolbar,
-  ListItemText,
-  Typography,
-} from "@material-ui/core";
+import { List, ListItem, Text, Toolbar } from "@patternfly/react-core";
 import { Image } from "./types";
 import { uids } from "./constants";
 
 interface DicomTagProps {
   image: Image | undefined;
-  classes: any;
 }
 
-const DicomTag: React.FC<DicomTagProps> = ({ image, classes }) => {
+const DicomTag: React.FC<DicomTagProps> = ({ image }) => {
   let header = [];
   header.push({
     name: "SOP Instance UID",
@@ -181,8 +174,9 @@ const DicomTag: React.FC<DicomTagProps> = ({ image, classes }) => {
   const listItems = header.map((item, index) => {
     if (item.value !== undefined) {
       return (
-        <ListItem dense={true} key={index}>
-          <ListItemText primary={item.name} secondary={item.value} />
+        <ListItem key={index}>
+           {item.name}
+           {item.value}
         </ListItem>
       );
     } else return undefined;
@@ -190,32 +184,24 @@ const DicomTag: React.FC<DicomTagProps> = ({ image, classes }) => {
 
   return (
     <div style={{ marginTop: "18px" }}>
-      <Toolbar variant="dense">
-        <Typography
-          style={{
-            color: "white",
-          }}
-          variant="subtitle1"
-          className={classes.title}
-        >
+      <Toolbar id='toolbar'>
+        <Text>
           Dicom Tag Info:
-        </Typography>
+        </Text>
       </Toolbar>
       <div>
         {listItems.filter((item) => item !== undefined).length > 0 ? (
-          <List dense={true} component="div">
+          <List>
             {listItems}
           </List>
         ) : (
-          <Typography
+          <Text
             style={{
               padding: "10px",
-            }}
-            variant="body2"
-            className={classes.root}
+            }}   
           >
             The tag information is only available for dicoms currently
-          </Typography>
+          </Text>
         )}
       </div>
     </div>

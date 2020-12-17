@@ -1,12 +1,15 @@
 import * as React from "react";
-import { Button } from "@patternfly/react-core";
+import { Button, Backdrop, Bullseye, Spinner } from "@patternfly/react-core";
 import { CloseIcon } from "@patternfly/react-icons";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
 import GalleryModel from "../../api/models/gallery.model";
 import GalleryWrapper from "../gallery/GalleryWrapper";
-import DcmImageSeries from "../dicomViewer/DcmImageSeries";
-import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
+
 import "./file-detail.scss";
+
+const DcmImageSeries = React.lazy(
+  () => import("../dicomViewer/DcmImageSeries")
+);
 
 type AllProps = {
   selectedFile: IUITreeNode;
@@ -18,31 +21,6 @@ interface IState {
   inPlay: boolean;
 }
 
-const theme = createMuiTheme({
-  overrides: {
-    MuiFormControlLabel: {
-      label: {
-        fontSize: "0.85em",
-      },
-    },
-    MuiFormLabel: {
-      root: {
-        "&$focused": {
-          color: "#CCCCCC",
-        },
-      },
-    },
-  },
-  palette: {
-    primary: {
-      main: "#004d40",
-    },
-    secondary: {
-      main: "#888888",
-    },
-    type: "dark",
-  },
-});
 
 class GalleryDicomView extends React.Component<AllProps, IState> {
   _isMounted = false;
@@ -61,9 +39,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
 
   async componentDidMount() {
     this._isMounted = true;
-
     const urlArray = this._getUrlArray(this.props.selectedFolder.children);
-
     if (urlArray.length > 0 && this._isMounted) {
       this.setState({
         urlArray,
@@ -102,7 +78,11 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
           >
             <CloseIcon size="md" />{" "}
           </Button>
-          <MuiThemeProvider theme={theme}>
+          <React.Suspense fallback={<Backdrop>   
+          <Bullseye>
+            <Spinner/>
+          </Bullseye>
+          </Backdrop>}>
             <DcmImageSeries
               setPlayer={this.setPlayer}
               inPlay={this.state.inPlay}
@@ -114,7 +94,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
                 (this.handleGalleryActions as any)[action].call();
               }}
             />
-          </MuiThemeProvider>
+          </React.Suspense>
         </GalleryWrapper>
       )
     );
@@ -209,6 +189,11 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
   componentWillUnmount() {
     clearInterval(this.timerScrolling);
     this._isMounted = false;
+    if (this._isMounted === false) {
+      this.setState({
+        urlArray: [],
+      });
+    }
   }
 }
 export default GalleryDicomView;

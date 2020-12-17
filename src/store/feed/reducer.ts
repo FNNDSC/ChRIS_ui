@@ -1,6 +1,7 @@
 import { Reducer } from "redux";
 import { IFeedState, FeedActionTypes } from "./types";
 import { PluginInstance } from "@fnndsc/chrisapi";
+import {getStatusLabels} from './utils'
 
 // Type-safe initialState
 export const initialState: IFeedState = {
@@ -15,16 +16,16 @@ export const initialState: IFeedState = {
     error: "",
     loading: false,
   },
-  selectedPlugin:undefined,
+  selectedPlugin: undefined,
   pluginInstances: {
     data: undefined,
     error: "",
     loading: false,
-  
   },
-  loadingAddNode:false,
+  loadingAddNode: false,
   deleteNodeSuccess: false,
-  testStatus: {},
+  pluginInstanceResource: {},
+  pluginFiles:{}
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -88,18 +89,19 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         currentFeed: {
           ...state.currentFeed,
           error: action.payload,
+          loading: false,
         },
       };
     }
 
-    case FeedActionTypes.GET_PLUGIN_INSTANCES_REQUEST:{
+    case FeedActionTypes.GET_PLUGIN_INSTANCES_REQUEST: {
       return {
         ...state,
-        pluginInstances:{
+        pluginInstances: {
           ...state.pluginInstances,
-          loading:true
-        }
-      }
+          loading: true,
+        },
+      };
     }
 
     case FeedActionTypes.GET_PLUGIN_INSTANCES_SUCCESS: {
@@ -108,50 +110,72 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         selectedPlugin: action.payload.selected,
         pluginInstances: {
           data: action.payload.pluginInstances,
-          error:'',
-          loading:false,
-        
+          error: "",
+          loading: false,
         },
       };
     }
 
-
-    case FeedActionTypes.GET_PLUGIN_INSTANCES_ERROR:{
-      return {
-        ...state,
-        pluginInstances:{
-          data:undefined,
-          error:action.payload,
-          loading:false
-        }
-      }
-    }
-
-
-    case FeedActionTypes.RESET_FEED_STATE: {
+    case FeedActionTypes.GET_PLUGIN_INSTANCES_ERROR: {
       return {
         ...state,
         pluginInstances: {
-          data:undefined,
-          error:'',
-          loading:false
-        },
-        selectedPlugin: undefined,
-        deleteNodeSuccess: false,
-        testStatus: {},
-        allFeeds: {
           data: undefined,
-          error: "",
-          loading: false,
-          totalFeedsCount: 0,
-        },
-        currentFeed: {
-          data: undefined,
-          error: "",
+          error: action.payload,
           loading: false,
         },
       };
     }
+
+    case FeedActionTypes.GET_PLUGIN_INSTANCE_RESOURCE_SUCCESS: {
+      let { id, pluginStatus, pluginLog } = action.payload;
+      
+      if(pluginStatus){
+        pluginStatus = getStatusLabels(pluginStatus);
+      }
+
+
+      return {
+        ...state,
+        pluginInstanceResource: {
+          ...state.pluginInstanceResource,
+          [id]: {
+            pluginStatus,
+            pluginLog,
+          },
+        },
+      };
+    }
+
+    case FeedActionTypes.GET_PLUGIN_FILES_SUCCESS: {
+      const { id, files } = action.payload;
+
+      return {
+        ...state,
+        pluginFiles: {
+          ...state.pluginFiles,
+          [id]: {
+            files,
+            error: "",
+          },
+        },
+      };
+    }
+
+    case FeedActionTypes.GET_PLUGIN_FILES_ERROR: {
+      const { id, error } = action.payload;
+      return {
+        ...state,
+        pluginFiles: {
+          ...state.pluginFiles,
+          [id]: {
+            files: [],
+            error,
+          },
+        },
+      };
+    }
+
     case FeedActionTypes.ADD_FEED: {
       if (state.allFeeds.data && state.allFeeds.totalFeedsCount) {
         return {
@@ -181,16 +205,13 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         selectedPlugin: action.payload,
       };
     }
-    
 
-    case FeedActionTypes.ADD_NODE_REQUEST:{
-      return{
+    case FeedActionTypes.ADD_NODE_REQUEST: {
+      return {
         ...state,
-        loadingAddNode:true
-      }
+        loadingAddNode: true,
+      };
     }
-
-
 
     case FeedActionTypes.ADD_NODE_SUCCESS: {
       if (state.pluginInstances.data) {
@@ -203,43 +224,23 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         return {
           ...state,
           pluginInstances: {
-            data:sortedPluginList,
-            error:'',
-            loading:false
+            data: sortedPluginList,
+            error: "",
+            loading: false,
           },
-          loadingAddNode:false
+          loadingAddNode: false,
         };
       } else
         return {
           ...state,
-          pluginInstances:{
-            data:[action.payload],
-            error:'',
-            loading:false
+          pluginInstances: {
+            data: action.payload,
+            error: "",
+            loading: false,
           },
-          loadingAddNode:false
+          loadingAddNode: false,
         };
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     case FeedActionTypes.DELETE_NODE_SUCCESS: {
       return {
@@ -248,34 +249,21 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       };
     }
 
-   
-
-    case FeedActionTypes.GET_TEST_STATUS: {
-      const instance = action.payload;
-
+    case FeedActionTypes.RESET_FEED_STATE:{
       return {
         ...state,
-        testStatus: {
-          ...state.testStatus,
-          [instance.data.id]: action.payload.data.status,
+        currentFeed: {
+          data: undefined,
+          error: "",
+          loading: false,
         },
-      };
-    }
-
-    case FeedActionTypes.STOP_FETCHING_PLUGIN_RESOURCES: {
-      const id = `${action.payload}`;
-      let newObject = Object.entries(state.testStatus)
-        .filter(([key, value]) => {
-          return key !== id;
-        })
-        .reduce((acc: { [key: string]: string }, [key, value]) => {
-          acc[key] = value;
-          return acc;
-        }, {});
-
-      return {
-        ...state,
-        testStatus: newObject,
+        pluginInstances: {
+          data: undefined,
+          error: "",
+          loading: false,
+        },
+        pluginInstanceResource: {},
+        pluginFiles: {},
       };
     }
 
@@ -284,6 +272,8 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
   }
 };
+
+
 
 export { reducer as feedReducer };
 
