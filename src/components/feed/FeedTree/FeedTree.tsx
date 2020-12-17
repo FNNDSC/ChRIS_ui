@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 
 import {select, tree, stratify} from 'd3'
 import {Spinner} from '@patternfly/react-core'
+import { Spin, Space } from "antd";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {
   PluginInstancePayload,
@@ -12,6 +13,7 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import "./feedTree.scss";
 import {
   getSelectedInstanceResource } from "../../../store/feed/selector";
+  
 
 
 interface ITreeProps {
@@ -47,20 +49,19 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
 
   const buildTree = React.useCallback(
     (instances: PluginInstance[]) => {
-      console.log("Build Tree")
+      let dimensions = { height: 250, width: 700 };
       
-      let dimensions = { height: 300, width: 700 };
       select("#tree").selectAll("svg").selectAll("g").remove();
       let svg = select(svgRef.current)
         .attr("width", `${dimensions.width + 100}`)
         .attr("height", `${dimensions.height + 100}`);
 
-
       const errorNode = instances.filter((node) => {
-            return (
-              node.data.status === "finishedWithError" || node.data.status==='cancelled'
-            );
-          });
+        return (
+          node.data.status === "finishedWithError" ||
+          node.data.status === "cancelled"
+        );
+      });
 
       const activeNode = instances.filter((node) => {
         return (
@@ -78,9 +79,6 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
         return node.data.status === "finishedSuccessfully";
       });
 
-      
-
-    
       let graph = svg.append("g").attr("transform", "translate(50,50)");
       graph.selectAll(".node").remove();
       graph.selectAll(".link").remove();
@@ -169,17 +167,14 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
           } )`;
         });
 
-     
-
-      
-       if (errorNode.length > 0) {
-         errorNode.forEach(function (node) {
-           const d3errorNode = select(`#node_${node.data.id}`);
-           if (!!d3errorNode && !d3errorNode.empty()) {
-             d3errorNode.attr("class", `node error`);
-           }
-         });
-       }
+      if (errorNode.length > 0) {
+        errorNode.forEach(function (node) {
+          const d3errorNode = select(`#node_${node.data.id}`);
+          if (!!d3errorNode && !d3errorNode.empty()) {
+            d3errorNode.attr("class", `node error`);
+          }
+        });
+      }
 
       if (activeNode.length > 0) {
         activeNode.forEach(function (node) {
@@ -190,7 +185,6 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
         });
       }
 
-  
       if (queuedNode.length > 0) {
         queuedNode.forEach(function (node) {
           const d3QueuedNode = select(`#node_${node.data.id}`);
@@ -210,47 +204,53 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
           }
         });
       }
-      
     },
-    
-   [handleNodeClick]
-  );
 
+    [handleNodeClick]
+  );
 
   useEffect(() => {
     if (instances && instances.length > 0) {
       buildTree(instances);
     }
-  }, [
-    instances,
-    selectedPlugin,
-    buildTree,
-    pluginStatus,
-   
-  ]);
+  }, [instances, selectedPlugin, buildTree, pluginStatus]);
 
-  
-  if (loading) {
-    return <Spinner size="sm" />;
-  }
 
-  if (error) {
+  if (!selectedPlugin || !selectedPlugin.data) {
     return (
-      <div>Oh snap ! Something went wrong. Please refresh your browser</div>
+      <Space size="middle">
+        <Spin size="small" />
+        <Spin />
+        <Spin size="large" />
+      </Space>
     );
   }
 
-  return (
-    <div
-      style={{
-        textAlign: "center",
-      }}
-      ref={treeRef}
-      id="tree"
-    >
-      <svg className="svg-content" ref={svgRef}></svg>
-    </div>
-  );
+  else {
+if (loading) {
+  return <Spinner size="sm" />;
+}
+
+if (error) {
+  return <div>Oh snap ! Something went wrong. Please refresh your browser</div>;
+}
+
+return (
+  <div
+    style={{
+      textAlign: "center",
+    }}
+    ref={treeRef}
+    id="tree"
+  >
+    <svg className="svg-content" ref={svgRef}></svg>
+  </div>
+);
+  }
+
+
+  
+  
 };
 
 

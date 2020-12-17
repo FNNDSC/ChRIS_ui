@@ -59,7 +59,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   toggleViewerMode,
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
-  const { data: plugins, loading, error } = pluginInstances;
+  const { data: plugins, loading } = pluginInstances;
   const pluginStatus= pluginInstanceResource && pluginInstanceResource.pluginStatus
   const pluginLog=pluginInstanceResource && pluginInstanceResource.pluginLog
   

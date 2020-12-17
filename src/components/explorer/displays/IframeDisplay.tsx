@@ -15,6 +15,12 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
           new Blob([fileItem.blob], { type: "text/html" })
         )
       : "";
+  }else  if (fileItem.fileType === "pdf") {
+    url = !!fileItem.blob
+      ? window.URL.createObjectURL(
+          new Blob([fileItem.blob], { type: "application/pdf" })
+        )
+      : "";
   } else {
     url = !!fileItem.blob
       ? window.URL.createObjectURL(new Blob([fileItem.blob]))
@@ -28,7 +34,7 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
         src={url}
         width="100%"
         style={{
-          height: "100vh",
+          height: "60vh",
         }}
         title="Gallery"
       />

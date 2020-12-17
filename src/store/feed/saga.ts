@@ -115,6 +115,8 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
       pluginInstances,
     };
 
+    console.log("PluginInstances", pluginInstances, feed);
+
     yield all([
       put(getPluginInstancesSuccess(pluginInstanceObj)),
      put(getPluginInstanceResources(pluginInstanceObj.pluginInstances)),
@@ -137,15 +139,18 @@ function* handleAddNode(action: IActionTypeParam) {
 }
 
 function* handleDeleteNode(action: IActionTypeParam) {
-  const item = action.payload;
-  const feed = yield item.getFeed();
+  const feed = action.payload;
+  
   try {
-    yield item.delete();
     yield all([put(getPluginInstancesRequest(feed)), put(deleteNodeSuccess())]);
   } catch (err) {
-    //yield put(deleteNodeError())
+    console.log("Delete Node Error", err);
   }
 }
+
+
+
+
 
 function* handleGetPluginStatus( 
   instance: PluginInstance
