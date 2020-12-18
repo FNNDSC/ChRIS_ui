@@ -50,7 +50,7 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
   const buildTree = React.useCallback(
     (instances: PluginInstance[]) => {
       let dimensions = { height: 250, width: 700 };
-      
+
       select("#tree").selectAll("svg").selectAll("g").remove();
       let svg = select(svgRef.current)
         .attr("width", `${dimensions.width + 100}`)
@@ -170,8 +170,9 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
       if (errorNode.length > 0) {
         errorNode.forEach(function (node) {
           const d3errorNode = select(`#node_${node.data.id}`);
+          const isSelected = node.data.id === selectedPlugin?.data.id;
           if (!!d3errorNode && !d3errorNode.empty()) {
-            d3errorNode.attr("class", `node error`);
+            d3errorNode.attr("class", `node error ${isSelected && 'selected'}`);
           }
         });
       }
@@ -179,8 +180,9 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
       if (activeNode.length > 0) {
         activeNode.forEach(function (node) {
           const d3activeNode = select(`#node_${node.data.id}`);
+          const isSelected = node.data.id === selectedPlugin?.data.id;
           if (!!d3activeNode && !d3activeNode.empty()) {
-            d3activeNode.attr("class", `node active`);
+            d3activeNode.attr("class", `node active ${isSelected && 'selected'}`);
           }
         });
       }
@@ -188,9 +190,9 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
       if (queuedNode.length > 0) {
         queuedNode.forEach(function (node) {
           const d3QueuedNode = select(`#node_${node.data.id}`);
-
+           const isSelected = node.data.id === selectedPlugin?.data.id;
           if (!!d3QueuedNode && !d3QueuedNode.empty()) {
-            d3QueuedNode.attr("class", `node queued `);
+            d3QueuedNode.attr("class", `node queued ${isSelected && 'selected'}`);
           }
         });
       }
@@ -198,15 +200,16 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
       if (successNode.length > 0) {
         successNode.forEach(function (node) {
           const d3SuccessNode = select(`#node_${node.data.id}`);
+          const isSelected  = node.data.id  ===  selectedPlugin?.data.id;
 
           if (!!d3SuccessNode && !d3SuccessNode.empty()) {
-            d3SuccessNode.attr("class", `node success `);
+            d3SuccessNode.attr("class", `node success ${isSelected && 'selected'}`);
           }
         });
       }
     },
 
-    [handleNodeClick]
+    [handleNodeClick, selectedPlugin]
   );
 
   useEffect(() => {
