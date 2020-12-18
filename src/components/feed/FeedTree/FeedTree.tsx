@@ -34,7 +34,7 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
   onNodeClick
 }) => {
   const pluginStatus =
-    pluginInstanceResource && pluginInstanceResource.pluginLog;
+    pluginInstanceResource && pluginInstanceResource.pluginStatus;
   const treeRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const { data: instances, error, loading } = pluginInstances;
@@ -45,7 +45,6 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
     },
     [onNodeClick]
   );
-
 
   const buildTree = React.useCallback(
     (instances: PluginInstance[]) => {
@@ -172,7 +171,7 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
           const d3errorNode = select(`#node_${node.data.id}`);
           const isSelected = node.data.id === selectedPlugin?.data.id;
           if (!!d3errorNode && !d3errorNode.empty()) {
-            d3errorNode.attr("class", `node error ${isSelected && 'selected'}`);
+            d3errorNode.attr("class", `node error ${isSelected && "selected"}`);
           }
         });
       }
@@ -182,7 +181,10 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
           const d3activeNode = select(`#node_${node.data.id}`);
           const isSelected = node.data.id === selectedPlugin?.data.id;
           if (!!d3activeNode && !d3activeNode.empty()) {
-            d3activeNode.attr("class", `node active ${isSelected && 'selected'}`);
+            d3activeNode.attr(
+              "class",
+              `node active ${isSelected && "selected"}`
+            );
           }
         });
       }
@@ -190,9 +192,12 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
       if (queuedNode.length > 0) {
         queuedNode.forEach(function (node) {
           const d3QueuedNode = select(`#node_${node.data.id}`);
-           const isSelected = node.data.id === selectedPlugin?.data.id;
+          const isSelected = node.data.id === selectedPlugin?.data.id;
           if (!!d3QueuedNode && !d3QueuedNode.empty()) {
-            d3QueuedNode.attr("class", `node queued ${isSelected && 'selected'}`);
+            d3QueuedNode.attr(
+              "class",
+              `node queued ${isSelected && "selected"}`
+            );
           }
         });
       }
@@ -200,10 +205,13 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
       if (successNode.length > 0) {
         successNode.forEach(function (node) {
           const d3SuccessNode = select(`#node_${node.data.id}`);
-          const isSelected  = node.data.id  ===  selectedPlugin?.data.id;
+          const isSelected = node.data.id === selectedPlugin?.data.id;
 
           if (!!d3SuccessNode && !d3SuccessNode.empty()) {
-            d3SuccessNode.attr("class", `node success ${isSelected && 'selected'}`);
+            d3SuccessNode.attr(
+              "class",
+              `node success ${isSelected && "selected"}`
+            );
           }
         });
       }
@@ -218,7 +226,6 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
     }
   }, [instances, selectedPlugin, buildTree, pluginStatus]);
 
-
   if (!selectedPlugin || !selectedPlugin.data) {
     return (
       <Space size="middle">
@@ -227,33 +234,29 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
         <Spin size="large" />
       </Space>
     );
+  } else {
+    if (loading) {
+      return <Spinner size="sm" />;
+    }
+
+    if (error) {
+      return (
+        <div>Oh snap ! Something went wrong. Please refresh your browser</div>
+      );
+    }
+
+    return (
+      <div
+        style={{
+          textAlign: "center",
+        }}
+        ref={treeRef}
+        id="tree"
+      >
+        <svg className="svg-content" ref={svgRef}></svg>
+      </div>
+    );
   }
-
-  else {
-if (loading) {
-  return <Spinner size="sm" />;
-}
-
-if (error) {
-  return <div>Oh snap ! Something went wrong. Please refresh your browser</div>;
-}
-
-return (
-  <div
-    style={{
-      textAlign: "center",
-    }}
-    ref={treeRef}
-    id="tree"
-  >
-    <svg className="svg-content" ref={svgRef}></svg>
-  </div>
-);
-  }
-
-
-  
-  
 };
 
 
