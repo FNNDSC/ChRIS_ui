@@ -154,7 +154,6 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
                   max-width="80rem"
                   rows={15}
                   className="view-command-wrap"
-                  tabIndex={1}
                 >
                   <Button>
                     <TerminalIcon />
@@ -388,17 +387,17 @@ function getCommand(
       }
     }
 
-    let command = `docker run --rm \\\n -v $(pwd)/in:/incoming \\\n -v $(pwd)/out:/outgoing \\\n ${dock_image} \\\n ${selfexec} \\\n`;
+    let command = `docker run --rm \\\n-v $(pwd)/in:/incoming \\\n-v $(pwd)/out:/outgoing \\\n${dock_image} \\\n${selfexec} \\\n`;
     let parameterCommand=[]
     
     
     if (modifiedParams.length) {
       parameterCommand=modifiedParams.map((param) => `${param.name} ${param.value}`);
       if(parameterCommand.length>0){
-        command+=parameterCommand.join(' ') + ' \\\n'
+        command += parameterCommand.join(" ") + " \\\n";
       }
     }
-    command = `${command} /incoming/outgoing`.trim();
+    command = `${command}/incoming/outgoing`.trim();
   
     return command;
 }
