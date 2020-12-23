@@ -386,18 +386,17 @@ function getCommand(
       }
     }
 
-    let command = `docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
-    if (modifiedParams.length) {
-      command +=
-        "\n" + modifiedParams.map((param) => `${param.name} ${param.value}`);
-    }
-    command = `${command}\n /incoming/outgoing`.trim();
-    const lines = command.split("\n");
-    const longest = lines.reduce((a, b) => (a.length > b.length ? a : b))
-      .length;
-    return lines
-      .map((line) => `${line.padEnd(longest)} \\`)
-      .join("\n")
-      .slice(0, -1);
+    let command = `docker run --rm \\\n -v $(pwd)/in:/incoming \\\n -v $(pwd)/out:/outgoing \\\n ${dock_image} \\\n ${selfexec} \\\n`;
+    let parameterCommand=[]
     
+    
+    if (modifiedParams.length) {
+      parameterCommand=modifiedParams.map((param) => `${param.name} ${param.value}`);
+      if(parameterCommand.length>0){
+        command+=parameterCommand.join(' ') + ' \\\n'
+      }
+    }
+    command = `${command} /incoming/outgoing`.trim();
+  
+    return command;
 }

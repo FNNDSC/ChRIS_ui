@@ -11,16 +11,12 @@ import {
 } from "../../../store/feed/types";
 import { ApplicationState } from "../../../store/root/applicationState";
 import "./feedTree.scss";
-import {
-  getSelectedInstanceResource } from "../../../store/feed/selector";
-  
 
 
 interface ITreeProps {
   pluginInstances: PluginInstancePayload;
   selectedPlugin?: PluginInstance;
   pluginInstanceResource: ResourcePayload;
-  
 }
 
 interface OwnProps {
@@ -31,10 +27,8 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
   pluginInstances,
   selectedPlugin,
   pluginInstanceResource,
-  onNodeClick
+  onNodeClick,
 }) => {
-  const pluginStatus =
-    pluginInstanceResource && pluginInstanceResource.pluginStatus;
   const treeRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const { data: instances, error, loading } = pluginInstances;
@@ -224,7 +218,7 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
     if (instances && instances.length > 0) {
       buildTree(instances);
     }
-  }, [instances, selectedPlugin, buildTree, pluginStatus]);
+  }, [instances, selectedPlugin, buildTree, pluginInstanceResource]);
 
   if (!selectedPlugin || !selectedPlugin.data) {
     return (
@@ -261,7 +255,7 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
 
 
 const mapStateToProps = (state: ApplicationState) => ({
-  pluginInstanceResource: getSelectedInstanceResource(state),
+  pluginInstanceResource: state.feed.pluginInstanceResource,
   pluginInstances: state.feed.pluginInstances,
   selectedPlugin: state.feed.selectedPlugin,
 });
