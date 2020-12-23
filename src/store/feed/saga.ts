@@ -192,7 +192,7 @@ function* handleGetPluginStatus(
         yield call(fetchPluginFiles, instance);
         yield put(stopFetchingPluginResources(instance.data.id));
       } else {
-        yield delay(3000);
+        yield delay(7000);
       }
     } catch (error) {
       yield put(stopFetchingPluginResources(instance.data.id));
