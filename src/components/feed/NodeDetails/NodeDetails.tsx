@@ -151,8 +151,10 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
                       : ""
                   }
                   headerContent={`Docker Command for ${pluginTitle}`}
-                  max-width="50rem"
+                  max-width="80rem"
+                  rows={15}
                   className="view-command-wrap"
+                  tabIndex={1}
                 >
                   <Button>
                     <TerminalIcon />
@@ -179,10 +181,9 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
                   </>
                 ) : selected?.data.status === "registeringFiles" ? (
                   <>
-                  <FileArchiveIcon/>
-                   <span>Registering Files</span>
+                    <FileArchiveIcon />
+                    <span>Registering Files</span>
                   </>
-                 
                 ) : selected?.data.status === "finishedWithError" ? (
                   <>
                     <ErrorCircleOIcon />
@@ -248,9 +249,10 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
               )}
             </Grid>
             <div className="btn-container">
-              { 
-              selected.data.status ==='finishedWithError' || selected.data.status==='cancelled' ? null : <AddNode/>
-              }
+              {selected.data.status === "finishedWithError" ||
+              selected.data.status === "cancelled" ? null : (
+                <AddNode />
+              )}
               {!selected?.data.plugin_name.includes("dircopy") && (
                 <DeleteNode />
               )}
