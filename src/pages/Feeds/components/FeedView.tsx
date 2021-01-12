@@ -26,7 +26,7 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { IFeedState } from "../../../store/feed/types";
 import { IUserState } from "../../../store/user/types";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
-import "../feed.scss";
+
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -68,19 +68,13 @@ export const FeedView: React.FC<FeedViewProps> = ({
 
   return (
     <React.Fragment>
-      <PageSection
-        isWidthLimited
-        style={{
-          height: "220px",
-        }}
-        variant={PageSectionVariants.darker}
-      >
+      <PageSection isWidthLimited variant={PageSectionVariants.darker}>
         <FeedDetails />
       </PageSection>
 
       <PageSection
         className={pf4UtilityStyles.spacingStyles.p_0}
-        variant={PageSectionVariants.dark}
+        variant={PageSectionVariants.darker}
       >
         <Grid className="feed-view">
           <GridItem className="feed-block" span={6} rowSpan={12}>

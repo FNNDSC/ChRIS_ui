@@ -7,6 +7,7 @@ import debounce from "lodash/debounce";
 
 import {
   PageSection,
+  PageSectionVariants,
   Title,
   Breadcrumb,
   BreadcrumbItem,
@@ -16,8 +17,8 @@ import {
   EmptyStateBody,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
-import { EyeIcon } from "@patternfly/react-icons";
-import ChrisAPIClient from "../../../api/chrisapiclient";
+import { EyeIcon, CodeBranchIcon } from "@patternfly/react-icons";
+
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest } from "../../../store/feed/actions";
@@ -25,133 +26,44 @@ import { IFeedState } from "../../../store/feed/types";
 import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
-import feedIcon from "../../../assets/images/bw-pipeline.svg";
 import { Feed } from "@fnndsc/chrisapi";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
-import { isEqual } from "lodash";
+
+
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getAllFeedsRequest: typeof getAllFeedsRequest;
 }
 
-type AllProps = IFeedState & IPropsFromDispatch;
-
-interface FeedsListViewState {
+interface FeedListViewState {
   perPage: number;
   page: number;
   filter: string;
   descriptions: { [feedId: number]: string };
 }
 
-class FeedListView extends React.Component<AllProps, FeedsListViewState> {
-  _ismounted = false;
+type AllProps = IFeedState & IPropsFromDispatch;
 
-  constructor(props: AllProps) {
-    super(props);
-    this.state = {
-      perPage: 10,
-      page: 1,
-      filter: "",
-      descriptions: {},
-    };
 
-    this.generateTableRow = this.generateTableRow.bind(this);
-    this.handlePageSet = this.handlePageSet.bind(this);
-    this.handlePerPageSet = this.handlePerPageSet.bind(this);
-    this.handleFilterChange = this.handleFilterChange.bind(this);
-    this.fetchFeedDescription = this.fetchFeedDescription.bind(this);
-    this.handleDescriptionPopoverShow = this.handleDescriptionPopoverShow.bind(
-      this
-    );
-  }
+const FeedListView:React.FC<AllProps>=({
+  setSidebarActive,
+  allFeeds,
+  getAllFeedsRequest
+})=>{
 
-  componentDidMount() {
-    this._ismounted  =  true;;
-    const { setSidebarActive } = this.props;
-    document.title = "All Feeds - ChRIS UI site";
-    setSidebarActive({
-      activeGroup: "feeds_grp",
-      activeItem: "my_feeds",
-    });
-    this.fetchFeeds();
-  }
+  const [filterState, setFilterState] = React.useState<FeedListViewState>({
+    perPage: 10,
+    page: 1,
+    filter: "",
+    descriptions: {},
+  });
 
-  componentDidUpdate(prevProps: AllProps, prevState: FeedsListViewState) {
-    const { page, perPage, filter } = this.state;
-
-    setSidebarActive({
-      activeGroup: "feeds_grp",
-      activeItem: "my_feeds",
-    });
-
-    if (
-      prevState.page !== page ||
-      prevState.perPage !== perPage ||
-      prevState.filter !== filter ||
-      !isEqual(prevProps.allFeeds.data, this.props.allFeeds.data)
-    ) {
-      this.fetchFeeds();
-    }
-  }
-
-  componentWillUnmount(){
-    this._ismounted=false;
-  }
-
-  /* DATA FETCHING */
-
-  // fetch feeds based on current filter & pagination
-  async fetchFeeds() {
-    const { filter, perPage, page } = this.state;
-    this.props.getAllFeedsRequest(filter, perPage, perPage * (page - 1));
-  }
-
-  // fetch total amount of feeds, regardless of filter/pagination
-
-  async fetchFeedDescription(feedItem: Feed["data"]) {
-    const client = ChrisAPIClient.getClient();
-    const feed = await client.getFeed(feedItem.id);
-    const note = await feed.getNote();
-   this.setState((state: FeedsListViewState) => ({
-         descriptions: {
-           ...state.descriptions,
-           [feedItem.id as number]: note.data.content,
-         },
-       }));  
-   
-  }
-
-  /* EVENT HANDLERS */
-
-  handlePageSet(e: any, page: number) {
-    this.setState({ page });
-  }
-
-  handlePerPageSet(e: any, perPage: number) {
-    this.setState({ perPage });
-  }
-
-  // only update filter every half-second, to avoid too many requests
-  handleFilterChange = debounce((value: string) => {
-    this.setState({ filter: value });
-  }, 200);
-
-  handleDescriptionPopoverShow(feed: Feed["data"]) {
-    const description = this.state.descriptions[feed.id as number];
-   
-    if (!description && this._ismounted) {
-      this.fetchFeedDescription(feed);
-    }
-  }
-
-  /* UI GENERATORS */
-
-  generateTableRow(feed: Feed["data"]) {
+   const generateTableRow=(feed: Feed["data"])=> {
     const name = {
       title: (
-        <span className="feed-name">
-          <img src={feedIcon} alt="" />
+        <span className="feed-list__name">
+          <CodeBranchIcon/>
           <Link to={`/feeds/${feed.id}`}>{feed.name}</Link>
         </span>
       ),
@@ -163,7 +75,7 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
 
     const lastCommit = {
       title: (
-        <Moment fromNow className="last-commit">
+        <Moment fromNow className="feed-list__last-commit">
           {feed.modification_date}
         </Moment>
       ),
@@ -183,11 +95,30 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     };
   }
 
-  generatePagination() {
-    const { allFeeds } = this.props;
-    const { data, totalFeedsCount } = allFeeds;
-    const { perPage, page } = this.state;
+  const {page,perPage,filter}=filterState;
+  const {data, loading, error, totalFeedsCount}=allFeeds;
+   const cells = ["Feed", "Created", "Last Commit", ""];
+   const rows = (data || []).map(generateTableRow);
 
+  const handlePageSet=(e: any, page: number)=>{
+    setFilterState({ 
+      ...filterState,
+      page });
+  }
+
+  const handlePerPageSet=(e: any, perPage: number)=>{
+     setFilterState({...filterState, 
+      perPage });
+  }
+
+  const handleFilterChange = debounce((value: string) => {
+     setFilterState({ 
+      ...filterState, 
+      filter: value });
+   }, 200);
+
+
+  const generatePagination=() => {
     if (!data || !totalFeedsCount) {
       return null;
     }
@@ -197,15 +128,16 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
         itemCount={totalFeedsCount}
         perPage={perPage}
         page={page}
-        onSetPage={this.handlePageSet}
-        onPerPageSelect={this.handlePerPageSet}
+        onSetPage={handlePageSet}
+        onPerPageSelect={handlePerPageSet}
       />
     );
   }
 
-  generateTableLoading() {
+
+  const generateTableLoading= () => {
     return (
-      <tbody className="feed-list-loading">
+      <tbody className="feed-list__loading">
         <tr>
           <td colSpan={4}>
             {new Array(4).fill(null).map((_, i) => (
@@ -217,68 +149,73 @@ class FeedListView extends React.Component<AllProps, FeedsListViewState> {
     );
   }
 
-  render() {
-    const { allFeeds } = this.props;
-    const { data, loading, error, totalFeedsCount } = allFeeds;
 
-    const cells = ["Feed", "Created", "Last Commit", ""];
-    const rows = (data || []).map(this.generateTableRow);
+  React.useEffect(()=>{
+       document.title = "All Feeds - ChRIS UI ";
+       setSidebarActive({
+         activeGroup: "feeds_grp",
+         activeItem: "my_feeds",
+       });  
+  },[setSidebarActive])
 
-    if (error) {
-      return (
-        <React.Fragment>
-          <EmptyState>
-            <EmptyStateBody>
-              Oops ! Unable to fetch feeds at the moment. Please refresh the
-              browser. If the issue persists, Contact the dev team at FNNDSC to
-              report your error.
-            </EmptyStateBody>
-          </EmptyState>
-        </React.Fragment>
-      );
-    }
+  React.useEffect(()=>{
+    getAllFeedsRequest(filter, perPage, perPage * (page - 1));
+  },[page,perPage,filter])
 
+  if(error){
     return (
       <React.Fragment>
-        <PageSection variant="light" className="feed-header">
+        <EmptyState>
+          <EmptyStateBody>
+            Oops ! Unable to fetch feeds at the moment. Please refresh the
+            browser. If the issue persists, Contact the dev team at FNNDSC to
+            report your error.
+          </EmptyStateBody>
+        </EmptyState>
+      </React.Fragment>
+    );
+  }
+
+
+  return (
+    <React.Fragment>
+      <PageSection variant={PageSectionVariants.light} className="feed-header">
+        <div className="feed-header__split">
           <Breadcrumb>
             <BreadcrumbItem>Feeds</BreadcrumbItem>
             <BreadcrumbHeading>My Feeds</BreadcrumbHeading>
           </Breadcrumb>
-          <div className="bottom">
-            <Title headingLevel="h1" size="3xl">
-              My Feeds
-              {totalFeedsCount > 0 ? (
-                <span className="feed-count"> ({totalFeedsCount})</span>
-              ) : null}
-            </Title>
-            <CreateFeedProvider>
-              <CreateFeed />
-            </CreateFeedProvider>
-          </div>
-        </PageSection>
+          <Title headingLevel="h1" size="3xl">
+            My Feeds
+            {
+              totalFeedsCount > 0 ? (
+                <span className='feed-header__count'>
+                ({totalFeedsCount})
+                </span> 
+              ):null 
+            }
+          </Title>
+        </div>
+        <CreateFeedProvider>
+          <CreateFeed />
+        </CreateFeedProvider>
+      </PageSection>
 
-        <PageSection className="feed-list">
-          <div className="white-bg pf-u-p-lg">
-            <div className="feed-list-controls">
-              <DataTableToolbar
-                onSearch={this.handleFilterChange}
-                label="name"
-              />
-              {this.generatePagination()}
-            </div>
+      <PageSection
+      className='feed-list'
+      >
+        <div className='feed-list__split'>
+          <DataTableToolbar onSearch={handleFilterChange} label="name" />
+          {generatePagination()}
+        </div>
 
-            <Table aria-label="Data table" cells={cells} rows={rows}>
-              <TableHeader />
-              {loading  ===  true ? this.generateTableLoading() : <TableBody />}
-            </Table>
-
-            {this.generatePagination()}
-          </div>
-        </PageSection>
-      </React.Fragment>
-    );
-  }
+        <Table aria-label="Data table" cells={cells} rows={rows}>
+          <TableHeader />
+          {loading === true ? generateTableLoading() : <TableBody />}
+        </Table>
+      </PageSection>
+    </React.Fragment>
+  );
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
