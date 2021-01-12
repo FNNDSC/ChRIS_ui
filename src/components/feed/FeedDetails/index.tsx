@@ -4,11 +4,7 @@ import { connect } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   Title,
-  Grid,
-  GridItem,
   Skeleton,
-  Flex,
-  FlexItem,
 } from "@patternfly/react-core";
 import ShareFeed from "../../../components/feed/ShareFeed/ShareFeed";
 import { FeedPayload, PluginInstancePayload } from "../../../store/feed/types";
@@ -85,65 +81,41 @@ class FeedDetails extends React.Component<ReduxProps, INoteState> {
 
     if (currentFeed) {
       let { data: feed, error: feedError, loading: feedLoading } = currentFeed;
+
       if (feedLoading) {
         return (
-          <Grid className="feed-details" span={12}>
-            <GridItem>
-              <Skeleton screenreaderText="Fetching Content" />
-              <br />
-              <Skeleton screenreaderText="Fetching Content" />
-              <br />
-              <Skeleton screenreaderText="Fetching Content" />
-            </GridItem>
-          </Grid>
+          <div className="feed-details">
+            <Skeleton screenreaderText="Fetching Content" />
+            <br />
+            <Skeleton screenreaderText="Fetching Content" />
+            <br />
+            <Skeleton screenreaderText="Fetching Content" />
+          </div>
         );
       } else if (feedError) {
         return (
-          <Grid className="feed-details" span={12}>
-            <GridItem>
-              <p>
-                Oh snap! Looks like something went wrong. Please try again
-                later.
-              </p>
-            </GridItem>
-          </Grid>
+          <div className="feed-details">
+            <p>
+              Oh snap! Looks like something went wrong. Please try again later.
+            </p>
+          </div>
         );
       } else if (feed) {
         return (
-          <>
-            <Grid className="feed-details" span={12}>
-              <GridItem>
-                <Flex className="feed-breadcrumbs">
-                  <FlexItem>
-                    <a href="/feeds">My feeds</a>
-                  </FlexItem>
-                  <FlexItem>{feed ? feed.data.name : ""}</FlexItem>
-                </Flex>
-              </GridItem>
+          <React.Fragment>
+            <div className="feed-details">
+              <div className="feed-details__info">
+                <img src={imgPlaceholder} alt="placeholder" />
+                <Title headingLevel="h2">{feed ? feed.data.name : ""}</Title>
+              </div>
 
-              <GridItem>
-                <Flex>
-                  <FlexItem>
-                    <img src={imgPlaceholder} alt="placeholder for feed" />
-                  </FlexItem>
-                  <FlexItem>
-                    <Title
-                      style={{ color: "white" }}
-                      headingLevel="h2"
-                      className="capitalize"
-                    >
-                      {feed ? feed.data.name : ""}
-                    </Title>
-                  </FlexItem>
-                </Flex>
-              </GridItem>
-              <GridItem span={12}>
-                <ul className="pf-c-list pf-m-inline">
+              <div className="feed-details__list">
+                <ul>
                   <li>
                     <small>Creator</small>
                     <p>
                       <FontAwesomeIcon icon={["far", "user"]} />{" "}
-                      {feed ? feed.data.creator_username : ""}
+                      {feed && <span> {feed.data.creator_username} </span>}
                     </p>
                   </li>
                   <li>
@@ -151,7 +123,7 @@ class FeedDetails extends React.Component<ReduxProps, INoteState> {
                     <p>
                       <FontAwesomeIcon icon={["far", "calendar-alt"]} />
                       <Moment format="DD MMM YYYY @ HH:mm">
-                        {feed ? feed.data.creation_date : ""}
+                        {feed && feed.data.creation_date}
                       </Moment>
                     </p>
                   </li>
@@ -163,22 +135,20 @@ class FeedDetails extends React.Component<ReduxProps, INoteState> {
                       {!feedDescription ? (
                         <span>None Provided</span>
                       ) : (
-                        feedDescription
+                        <span>{feedDescription}</span>
                       )}
                     </p>
                   </li>
-
                   <li>
                     <ShareFeed feed={feed} />
                   </li>
                 </ul>
-              </GridItem>
-            </Grid>
-          </>
+              </div>
+            </div>
+          </React.Fragment>
         );
       } else return null;
-    }
-    return null;
+    } 
   }
 }
 
