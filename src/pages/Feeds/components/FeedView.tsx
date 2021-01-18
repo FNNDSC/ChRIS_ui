@@ -7,6 +7,7 @@ import {
   Grid,
   GridItem,
 } from "@patternfly/react-core";
+import classNames from 'classnames';
 import {
   FeedTree,
   FeedDetails,
@@ -68,29 +69,54 @@ export const FeedView: React.FC<FeedViewProps> = ({
 
   return (
     <React.Fragment>
-      <PageSection isWidthLimited variant={PageSectionVariants.darker}>
+      <PageSection 
+      className='section-one'
+      isWidthLimited variant={PageSectionVariants.darker}>
         <FeedDetails />
       </PageSection>
 
       <PageSection
-        className={pf4UtilityStyles.spacingStyles.p_0}
+        className={classNames(pf4UtilityStyles.spacingStyles.p_0,
+          'section-two'
+          )}
         variant={PageSectionVariants.darker}
       >
-        <Grid className="feed-view">
-          <GridItem className="feed-block" span={6} rowSpan={12}>
+        <Grid
+        span={12}
+        className="feed-view">
+          <GridItem
+            className="feed-block"
+            sm={12}
+            smRowSpan={12}
+            md={12}
+            mdRowSpan={12}
+            lg={12}
+            lgRowSpan={12}
+            xl={12}
+            xlRowSpan={12}
+            xl2={6}
+            xl2RowSpan={12}
+          >
             <FeedTree onNodeClick={onNodeClick} />
           </GridItem>
-          <GridItem className="node-block" span={6} rowSpan={12}>
+          <GridItem 
+          sm={12}
+          smRowSpan={12}
+          md={12}
+          mdRowSpan={12}
+          lg={12}
+          lgRowSpan={12}
+          xl={12}
+          xlRowSpan={12}
+          xl2={6}
+          xl2RowSpan={12}
+          className="node-block" >
             <NodeDetails />
           </GridItem>
         </Grid>
       </PageSection>
       <PageSection>
-        <Grid>
-          <GridItem span={12} rowSpan={12}>
-            <FeedOutputBrowser handlePluginSelect={onNodeClick} />
-          </GridItem>
-        </Grid>
+        <FeedOutputBrowser handlePluginSelect={onNodeClick} />
       </PageSection>
     </React.Fragment>
   );

@@ -3,7 +3,7 @@ import { RouteComponentProps, Route, Switch } from "react-router-dom";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import AllFeedsPage from "./components/FeedListView";
 import FeedView from "./components/FeedView";
-import "./feed.scss";
+import "./Feed.scss";
 
 type AllProps = RouteComponentProps;
 

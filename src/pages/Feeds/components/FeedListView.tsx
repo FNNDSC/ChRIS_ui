@@ -158,8 +158,12 @@ const FeedListView:React.FC<AllProps>=({
        });  
   },[setSidebarActive])
 
+  
+
   React.useEffect(()=>{
     getAllFeedsRequest(filter, perPage, perPage * (page - 1));
+    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[page,perPage,filter])
 
   if(error){

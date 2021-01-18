@@ -17,14 +17,7 @@ const LogTabs = (props: LogTabsProps) => {
 
   return (
     <>
-      <Tabs
-        style={{
-          marginBottom: "1rem",
-        }}
-        isFilled
-        activeKey={props.activeKey}
-        onSelect={handleTabClick}
-      >
+      <Tabs isFilled activeKey={props.activeKey} onSelect={handleTabClick}>
         <Tab
           eventKey={0}
           title={
