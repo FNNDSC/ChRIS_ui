@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { connect } from "react-redux";
-
-import {select, tree, stratify} from 'd3'
+import { select, tree, stratify, zoom, event } from "d3";
 import {Spinner} from '@patternfly/react-core'
 import { Spin, Space } from "antd";
 import { PluginInstance } from "@fnndsc/chrisapi";
@@ -45,9 +44,26 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
       let dimensions = { height: 250, width: 700 };
 
       select("#tree").selectAll("svg").selectAll("g").remove();
+
+      let zoomFunction = zoom()
+        .extent([
+          [90, 20],
+          [dimensions.width, dimensions.height],
+        ])
+        .scaleExtent([0.1, 10])
+        .on("zoom", zoomed);
+
+      function zoomed() {
+        let x = event.transform.x;
+        let y = event.transform.y;
+        svg.attr("transform", "translate(" + x + "," + y + ") scale(1)");
+      }
+
       let svg = select(svgRef.current)
         .attr("width", `${dimensions.width + 100}`)
-        .attr("height", `${dimensions.height + 100}`);
+        .attr("height", `${dimensions.height + 100}`)
+        //@ts-ignore
+        .call(zoomFunction);
 
       const errorNode = instances.filter((node) => {
         return (
@@ -72,7 +88,9 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
         return node.data.status === "finishedSuccessfully";
       });
 
-      let graph = svg.append("g").attr("transform", "translate(50,50)");
+      let graph = svg
+        .append("g")
+        .attr("transform", "translate(" + 90 + "," + 20 + ")");
       graph.selectAll(".node").remove();
       graph.selectAll(".link").remove();
       const stratified = stratify()
@@ -137,9 +155,9 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
         })
         .attr("class", "link")
         .attr("fill", "none")
-        .attr("stroke-width", 2)
+        .attr("stroke-width", 0.5)
         .attr("stroke", "white")
-        .attr("opacity", 1);
+        .attr("opacity", 0.5);
 
       // labels
 
@@ -216,7 +234,7 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
 
   useEffect(() => {
     if (instances && instances.length > 0) {
-      buildTree(instances);
+    buildTree(instances);
     }
   }, [instances, selectedPlugin, buildTree, pluginInstanceResource]);
 

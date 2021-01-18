@@ -4,10 +4,11 @@
 *  Author:          ChRIS UI
 */
 
+@import "../../assets/scss/abstracts/colors";
 
 
 .feed-header {
-  
+
   &__split {
   display:flex;
   flex-direction: column;  
@@ -60,5 +61,22 @@
     padding-left: 0;
   }
 
+}
+
+.section-one {
+  min-height: 202px !important;
+}
+
+.section-two {
+  min-height:356px !important;
+}
+
+.feed-view {
+min-height: 356px;
+}
+
+.feed-block {
+  background: $tree-node-backgound;
+ 
 }
 
