@@ -11,10 +11,9 @@ import classNames from "classnames";
 import LogTabs from "./LogTabs";
 import LogTerminal from "./LogTerminal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "antd/dist/antd.css";
 
 const { Step } = Steps;
-
-
 
 const PluginStatus:React.FC<PluginStatusProps>=({
   pluginStatus,
@@ -102,7 +101,6 @@ const PluginStatus:React.FC<PluginStatusProps>=({
         <GridItem className="file-browser__plugin-status" span={8} rowSpan={12}>
           <LogTabs activeKey={activeKey} setActiveKey={handleActiveKey} />
           {activeKey === 0 && pluginLog && !isEmpty(pluginLog.info) ? (
-            <div className="viewer-display">
               <ReactJSON
                 name={false}
                 displayDataTypes={false}
@@ -114,13 +112,10 @@ const PluginStatus:React.FC<PluginStatusProps>=({
                 indentWidth={4}
                 collapsed={false}
               />
-            </div>
           ) :  activeKey === 1 && (
-            <div className="viewer-display">
               <LogTerminal text={
                 typedLog && typedLog[0] ? typedLog[0] : "The compute logs aren't available right now. Please wait as they are being fetched." 
               } />
-            </div>
           )}
         </GridItem>
       </Grid>

@@ -17,9 +17,7 @@ const PdfDisplay: React.FC<AllProps> = ({ fileItem }) => {
       key={fileItem.file && fileItem.file.fname}
       src={url}
       width="100%"
-      style={{
-        height: "60vh",
-      }}
+      height="100%"
       title="Gallery"
     />
   );
