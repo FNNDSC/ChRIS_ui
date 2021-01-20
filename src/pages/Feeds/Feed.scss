@@ -83,7 +83,7 @@
 }
 
 .section-two {
-  height:30vh;
+  height:auto;
 
   @include media-query(992px){
    height:auto;
