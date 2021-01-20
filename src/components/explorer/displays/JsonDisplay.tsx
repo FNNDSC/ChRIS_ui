@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactJSON from "react-json-view";
 import { IFileBlob } from "../../../api/models/file-viewer.model";
-
+import { Text } from "@patternfly/react-core";
 type AllProps = {
   fileItem: IFileBlob;
 };
@@ -41,15 +41,10 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
           displayDataTypes={false}
           src={blobText}
           displayObjectSize={false}
-          style={{
-            fontSize: "16px",
-          }}
           collapsed={false}
         />
       ) : (
-        <div>
-          <span>Could not load json payload at the moment....</span>
-        </div>
+        <Text component="p">Could not load json payload at the moment....</Text>
       )}
     </>
   );

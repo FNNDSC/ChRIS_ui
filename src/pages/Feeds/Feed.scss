@@ -5,6 +5,8 @@
 */
 
 @import "../../assets/scss/abstracts/colors";
+@import '../../assets/scss/helpers/mixins';
+
 
 
 .feed-header {
@@ -64,19 +66,53 @@
 }
 
 .section-one {
-  min-height: 202px !important;
+ height:auto;
+ 
+@include media-query(992px){
+   height:auto
+ }
+
+ @include media-query(768px){
+   height:auto
+ }
+
+ @include media-query(1200px){
+   height:auto;
+ }
+
 }
 
 .section-two {
-  min-height:356px !important;
+  height:30vh;
+
+  @include media-query(992px){
+   height:auto;
+ }
+ @include media-query(768px){
+   height:auto
+ }
+
+  @include media-query(1200px){
+   height:30vh;
+ }
+
+
+}
+
+.section-three {
+  @include section-three;
 }
 
 .feed-view {
-min-height: 356px;
+  height:100%;
 }
 
 .feed-block {
   background: $tree-node-backgound;
- 
+  height:100%;
+}
+
+.node-block{
+  height:100%;
 }
 

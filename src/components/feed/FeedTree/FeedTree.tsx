@@ -1,15 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import { connect } from "react-redux";
-import { select, tree, stratify, zoom, event } from "d3";
-import {Spinner} from '@patternfly/react-core'
-import { Spin, Space } from "antd";
+import { select, tree, stratify } from "d3";
+import {Spinner, Text} from '@patternfly/react-core'
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {
   PluginInstancePayload,
   ResourcePayload,
 } from "../../../store/feed/types";
 import { ApplicationState } from "../../../store/root/applicationState";
-import "./feedTree.scss";
+import "./FeedTree.scss";
 
 
 interface ITreeProps {
@@ -21,6 +20,7 @@ interface ITreeProps {
 interface OwnProps {
   onNodeClick:(node:PluginInstance)=>void;
 }
+
 
 const FeedTree: React.FC<ITreeProps & OwnProps> = ({
   pluginInstances,
@@ -42,28 +42,11 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
   const buildTree = React.useCallback(
     (instances: PluginInstance[]) => {
       let dimensions = { height: 250, width: 700 };
-
       select("#tree").selectAll("svg").selectAll("g").remove();
-
-      let zoomFunction = zoom()
-        .extent([
-          [90, 20],
-          [dimensions.width, dimensions.height],
-        ])
-        .scaleExtent([0.1, 10])
-        .on("zoom", zoomed);
-
-      function zoomed() {
-        let x = event.transform.x;
-        let y = event.transform.y;
-        svg.attr("transform", "translate(" + x + "," + y + ") scale(1)");
-      }
 
       let svg = select(svgRef.current)
         .attr("width", `${dimensions.width + 100}`)
-        .attr("height", `${dimensions.height + 100}`)
-        //@ts-ignore
-        .call(zoomFunction);
+        .attr("height", `${dimensions.height + 100}`);;
 
       const errorNode = instances.filter((node) => {
         return (
@@ -240,28 +223,23 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
 
   if (!selectedPlugin || !selectedPlugin.data) {
     return (
-      <Space size="middle">
-        <Spin size="small" />
-        <Spin />
-        <Spin size="large" />
-      </Space>
+      <Text component='h6' >
+        Please wait as the tree is being created.
+      </Text>
     );
   } else {
     if (loading) {
-      return <Spinner size="sm" />;
+      return <Spinner size="xl" />;
     }
 
     if (error) {
       return (
-        <div>Oh snap ! Something went wrong. Please refresh your browser</div>
+        <Text component='h6'>Oh snap ! Something went wrong. Please refresh your browser</Text>
       );
     }
 
     return (
       <div
-        style={{
-          textAlign: "center",
-        }}
         ref={treeRef}
         id="tree"
       >

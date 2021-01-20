@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import Moment from "react-moment";
 import debounce from "lodash/debounce";
-
 import {
   PageSection,
   PageSectionVariants,
@@ -18,7 +17,6 @@ import {
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import { EyeIcon, CodeBranchIcon } from "@patternfly/react-icons";
-
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest } from "../../../store/feed/actions";
@@ -26,7 +24,6 @@ import { IFeedState } from "../../../store/feed/types";
 import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
-import { Feed } from "@fnndsc/chrisapi";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
 
 
@@ -46,12 +43,11 @@ interface FeedListViewState {
 type AllProps = IFeedState & IPropsFromDispatch;
 
 
-const FeedListView:React.FC<AllProps>=({
+const FeedListView: React.FC<AllProps> = ({
   setSidebarActive,
   allFeeds,
-  getAllFeedsRequest
-})=>{
-
+  getAllFeedsRequest,
+}) => {
   const [filterState, setFilterState] = React.useState<FeedListViewState>({
     perPage: 10,
     page: 1,
@@ -59,11 +55,12 @@ const FeedListView:React.FC<AllProps>=({
     descriptions: {},
   });
 
-   const generateTableRow=(feed: Feed["data"])=> {
+  const generateTableRow = (feed: any) => {
+    console.log("Feed", feed);
     const name = {
       title: (
         <span className="feed-list__name">
-          <CodeBranchIcon/>
+          <CodeBranchIcon />
           <Link to={`/feeds/${feed.id}`}>{feed.name}</Link>
         </span>
       ),
@@ -93,32 +90,32 @@ const FeedListView:React.FC<AllProps>=({
     return {
       cells: [name, created, lastCommit, viewDetails],
     };
-  }
+  };
 
-  const {page,perPage,filter}=filterState;
-  const {data, loading, error, totalFeedsCount}=allFeeds;
-   const cells = ["Feed", "Created", "Last Commit", ""];
-   const rows = (data || []).map(generateTableRow);
+  const { page, perPage, filter } = filterState;
+  const { data, loading, error, totalFeedsCount } = allFeeds;
+  const cells = ["Feed", "Created", "Last Commit", ""];
+  const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
 
-  const handlePageSet=(e: any, page: number)=>{
-    setFilterState({ 
+  const handlePageSet = (e: any, page: number) => {
+    setFilterState({
       ...filterState,
-      page });
-  }
+      page,
+    });
+  };
 
-  const handlePerPageSet=(e: any, perPage: number)=>{
-     setFilterState({...filterState, 
-      perPage });
-  }
+  const handlePerPageSet = (e: any, perPage: number) => {
+    setFilterState({ ...filterState, perPage });
+  };
 
   const handleFilterChange = debounce((value: string) => {
-     setFilterState({ 
-      ...filterState, 
-      filter: value });
-   }, 200);
+    setFilterState({
+      ...filterState,
+      filter: value,
+    });
+  }, 200);
 
-
-  const generatePagination=() => {
+  const generatePagination = () => {
     if (!data || !totalFeedsCount) {
       return null;
     }
@@ -132,10 +129,9 @@ const FeedListView:React.FC<AllProps>=({
         onPerPageSelect={handlePerPageSet}
       />
     );
-  }
+  };
 
-
-  const generateTableLoading= () => {
+  const generateTableLoading = () => {
     return (
       <tbody className="feed-list__loading">
         <tr>
@@ -147,26 +143,25 @@ const FeedListView:React.FC<AllProps>=({
         </tr>
       </tbody>
     );
-  }
+  };
 
+  React.useEffect(() => {
+    document.title = "All Feeds - ChRIS UI ";
+    setSidebarActive({
+      activeGroup: "feeds_grp",
+      activeItem: "my_feeds",
+    });
+  }, [setSidebarActive]);
 
-  React.useEffect(()=>{
-       document.title = "All Feeds - ChRIS UI ";
-       setSidebarActive({
-         activeGroup: "feeds_grp",
-         activeItem: "my_feeds",
-       });  
-  },[setSidebarActive])
-
-  
-
-  React.useEffect(()=>{
+  const getAllFeeds = React.useCallback(() => {
     getAllFeedsRequest(filter, perPage, perPage * (page - 1));
-    
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[page,perPage,filter])
+  }, [page, perPage, filter, getAllFeedsRequest]);
 
-  if(error){
+  React.useEffect(() => {
+    getAllFeeds();
+  }, [getAllFeeds]);
+
+  if (error) {
     return (
       <React.Fragment>
         <EmptyState>
@@ -180,7 +175,6 @@ const FeedListView:React.FC<AllProps>=({
     );
   }
 
-
   return (
     <React.Fragment>
       <PageSection variant={PageSectionVariants.light} className="feed-header">
@@ -191,13 +185,9 @@ const FeedListView:React.FC<AllProps>=({
           </Breadcrumb>
           <Title headingLevel="h1" size="3xl">
             My Feeds
-            {
-              totalFeedsCount > 0 ? (
-                <span className='feed-header__count'>
-                ({totalFeedsCount})
-                </span> 
-              ):null 
-            }
+            {totalFeedsCount > 0 ? (
+              <span className="feed-header__count">({totalFeedsCount})</span>
+            ) : null}
           </Title>
         </div>
         <CreateFeedProvider>
@@ -205,10 +195,8 @@ const FeedListView:React.FC<AllProps>=({
         </CreateFeedProvider>
       </PageSection>
 
-      <PageSection
-      className='feed-list'
-      >
-        <div className='feed-list__split'>
+      <PageSection className="feed-list">
+        <div className="feed-list__split">
           <DataTableToolbar onSearch={handleFilterChange} label="name" />
           {generatePagination()}
         </div>
@@ -220,7 +208,7 @@ const FeedListView:React.FC<AllProps>=({
       </PageSection>
     </React.Fragment>
   );
-}
+};
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>

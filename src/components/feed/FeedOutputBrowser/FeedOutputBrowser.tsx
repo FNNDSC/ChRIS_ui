@@ -63,11 +63,14 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   const pluginStatus= pluginInstanceResource && pluginInstanceResource.pluginStatus
   const pluginLog=pluginInstanceResource && pluginInstanceResource.pluginLog
   
-  React.useEffect(() => {
-    if (selected) {
-      getPluginFilesRequest(selected);
-    }
+
+  const getPluginFiles = React.useCallback(() => {
+    selected && getPluginFilesRequest(selected);
   }, [selected]);
+
+  React.useEffect(() => {
+    getPluginFiles();
+  }, [getPluginFiles]);
 
   if (!selected || isEmpty(pluginInstances) || loading) {
     return (

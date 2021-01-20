@@ -151,11 +151,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     const onClick = (e: React.MouseEvent) =>
       this.handleBreadcrumbClick(e, folder, prevBreadcrumbs);
     return (
-      <BreadcrumbItem
-        className="file-browser__breadcrumb"
-        onClick={onClick}
-        key={i}
-      >
+      <BreadcrumbItem onClick={onClick} key={i}>
         {folder.module}
       </BreadcrumbItem>
     );
@@ -212,7 +208,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
           mdRowSpan={12}
           sm={12}
           smRowSpan={12}
-          className='file-browser__table'
+          className="file-browser__table"
         >
           <div className="file-browser__header">
             <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
@@ -270,7 +266,9 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
             <LogTerminal
               text={
                 typedLog && typedLog[0]
-                  ? typedLog[0]
+
+                                   ? typedLog[0]
+                 
                   : "Logs are not available for this plugin."
               }
             />

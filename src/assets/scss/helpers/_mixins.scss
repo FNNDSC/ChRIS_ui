@@ -41,7 +41,6 @@
   }
 
 
-
   @mixin media-query($size){
       @media only screen and (min-width:$size){
           @content;
@@ -50,7 +49,21 @@
 
 
 
+@mixin section-three {
+ height: 50vh;
 
+ @include media-query(768px){
+   height:auto  
+ }
 
+  @include media-query(992px){
+   height:45vh;
+ }
+  
+@include media-query(1200px){
+   height:50vh;
+ }
+
+}
 
 
