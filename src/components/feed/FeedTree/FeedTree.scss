@@ -13,9 +13,17 @@
 // ------------------------------
 
 #tree {
-  text-align:center;
+  cursor: move; /* fallback if grab cursor is unsupported */
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
 }
 
+#tree:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
 
 .link {
   fill: none;
@@ -27,14 +35,16 @@
 
 .label{
   fill: $tree-node-backgound;
-  font-size: 0.5rem;
+  font-size: 0.85rem;
   font-family: sans-serif;
 }
 
  @keyframes active{
-     0%    { fill:#0088ce; }
-    50%   { fill: #7dc3e8; }
-    100%  { fill: #0088ce; }
+     0%    {fill: #7dc3e8; }
+    50%   { fill: #0088ce ; }
+    100%  { fill: #004080; }
+   
+   
  }
 
  @keyframes error {
@@ -84,7 +94,7 @@
   
   &.active {
     animation-name:active;
-    animation-duration:2s;
+    animation-duration:3s;
     animation-timing-function:ease-in;
     animation-iteration-count:infinite;
     animation-delay:1s;
@@ -98,7 +108,6 @@
     stroke:white;
     stroke-width: 3px;
   }
-
   }
 
 

@@ -86,10 +86,10 @@
   height:auto;
 
   @include media-query(992px){
-   height:auto;
+   min-height:auto;
  }
  @include media-query(768px){
-   height:auto
+   min-height:auto
  }
 
   @include media-query(1200px){

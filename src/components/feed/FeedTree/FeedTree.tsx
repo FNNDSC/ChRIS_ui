@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { connect } from "react-redux";
-import { select, tree, stratify } from "d3";
+import { select, tree, stratify, hierarchy, zoom,zoomIdentity,event } from "d3";
 import {Spinner, Text} from '@patternfly/react-core'
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {
@@ -9,6 +9,8 @@ import {
 } from "../../../store/feed/types";
 import { ApplicationState } from "../../../store/root/applicationState";
 import "./FeedTree.scss";
+import {getFeedTree} from './data'
+import { v4 as uuidv4 } from "uuid";
 
 
 interface ITreeProps {
@@ -22,6 +24,7 @@ interface OwnProps {
 }
 
 
+
 const FeedTree: React.FC<ITreeProps & OwnProps> = ({
   pluginInstances,
   selectedPlugin,
@@ -31,23 +34,32 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
   const treeRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const { data: instances, error, loading } = pluginInstances;
+  const [translate, setTranslate]=React.useState({
+    x:0,
+    y:0
+  })
+
 
   const handleNodeClick = React.useCallback(
     (node: any) => {
-      onNodeClick(node.data);
+      console.log("Node",node)
+      onNodeClick(node.data.item);
     },
     [onNodeClick]
   );
 
+
   const buildTree = React.useCallback(
-    (instances: PluginInstance[]) => {
+    (instances:PluginInstance[]) => {
+      const feedTree = getFeedTree(instances);
       let dimensions = { height: 250, width: 700 };
       select("#tree").selectAll("svg").selectAll("g").remove();
-
+     
       let svg = select(svgRef.current)
-        .attr("width", `${dimensions.width + 100}`)
-        .attr("height", `${dimensions.height + 100}`);;
+        .attr("width", `${dimensions.width + 10}`)
+        .attr("height", `${dimensions.height + 10}`);
 
+    
       const errorNode = instances.filter((node) => {
         return (
           node.data.status === "finishedWithError" ||
@@ -72,30 +84,48 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
       });
 
       let graph = svg
-        .append("g")
-        .attr("transform", "translate(" + 90 + "," + 20 + ")");
+        .append("g").attr("transform", "translate(10,10)");
+
+      
+      let scaleExtent = { min: 0.1, max: 1 };
+      
+      //@ts-ignore
+      
+      svg.call(zoom().transform, zoomIdentity.translate(translate.x, translate.y).scale(1))
+      //@ts-ignore
+      svg.call(zoom().scaleExtent([scaleExtent.min, scaleExtent.max]).on("zoom",()=>{
+        graph.attr('transform',event.transform);
+        setTranslate((t)=>{
+          return {
+            ...t,
+            x: event.transform.x,
+            y: event.transform.y,
+          };
+        }
+          )
+      })
+      )
+    
       graph.selectAll(".node").remove();
       graph.selectAll(".link").remove();
-      const stratified = stratify()
-        .id((d: any) => d.data.id)
-        .parentId((d: any) => d.data.previous_id);
-      const root = stratified(instances);
+     
+      const root = hierarchy(feedTree[0]);
       let d3TreeLayout = tree();
       d3TreeLayout.size([dimensions.width, dimensions.height]);
       d3TreeLayout(root);
 
-      let nodeRadius = 12;
+      let nodeRadius=12;
 
       // Nodes
       graph
         .selectAll(".node")
         .data(root.descendants())
         .join((enter) => enter.append("circle").attr("opacity", 0))
-        .on("click", handleNodeClick)
         .attr("class", "node")
         .attr("id", (d: any) => {
-          return `node_${d.data.data.id}`;
+          return `node_${d.data.id}`;
         })
+        .on("click", handleNodeClick)
         .attr("r", nodeRadius)
         .attr("fill", "#fff")
         .attr("cx", (node: any) => node.x)
@@ -149,8 +179,7 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
         .data(root.descendants())
         .join("text")
         .attr("class", "label")
-        .text((node: any) => node.data.data.plugin_name)
-
+        .text((node: any) => node.data.name)
         .attr("fill", "#fff")
         .attr("font-size", 14)
         .attr("font-weight", "bold")
@@ -160,6 +189,7 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
             d.y + nodeRadius * 2.5
           } )`;
         });
+          
 
       if (errorNode.length > 0) {
         errorNode.forEach(function (node) {
@@ -209,16 +239,20 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
             );
           }
         });
-      }
+      }   
     },
 
     [handleNodeClick, selectedPlugin]
   );
 
+ 
+
+
   useEffect(() => {
-    if (instances && instances.length > 0) {
-    buildTree(instances);
+    if(instances && instances.length>0){
+       buildTree(instances);
     }
+    
   }, [instances, selectedPlugin, buildTree, pluginInstanceResource]);
 
   if (!selectedPlugin || !selectedPlugin.data) {
@@ -242,8 +276,12 @@ const FeedTree: React.FC<ITreeProps & OwnProps> = ({
       <div
         ref={treeRef}
         id="tree"
+        style={{textAlign:'center'}}
       >
-        <svg className="svg-content" ref={svgRef}></svg>
+        <svg 
+        height='100%'
+        width='100%'
+        className="svg-content" ref={svgRef}></svg>
       </div>
     );
   }
