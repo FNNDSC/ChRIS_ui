@@ -56,7 +56,6 @@ const FeedListView: React.FC<AllProps> = ({
   });
 
   const generateTableRow = (feed: any) => {
-    console.log("Feed", feed);
     const name = {
       title: (
         <span className="feed-list__name">
