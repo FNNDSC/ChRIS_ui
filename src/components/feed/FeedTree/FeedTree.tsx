@@ -1,17 +1,21 @@
 import React from "react";
 import { connect } from "react-redux";
 import { select, tree, hierarchy, zoom as d3Zoom, zoomIdentity, event } from "d3";
-import { Spinner, Text } from "@patternfly/react-core";
+
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {
   PluginInstancePayload,
   ResourcePayload,
 } from "../../../store/feed/types";
+
 import { ApplicationState } from "../../../store/root/applicationState";
 import "./FeedTree.scss";
+import { dequal as deepEqual } from "dequal/lite";
 import { getFeedTree, Datum } from "./data";
 import Link from './Link'
 import Node from './Node'
+import Marker from './Marker'
+import TransitionGroupWrapper from "./TransitionGroupWrapper";
 
 
 
@@ -28,17 +32,20 @@ interface Point {
 
 interface OwnProps {
   onNodeClick: (node: PluginInstance) => void;
-  translate:Point;
-  scaleExtent:{
+  translate: Point;
+  scaleExtent: {
     min: number;
     max: number;
- };
- zoom:number;
- nodeSize:{
-   x:number;
-   y:number
- }
-  
+  };
+  zoom: number;
+  nodeSize: {
+    x: number;
+    y: number;
+  };
+  separation: {
+    siblings: number;
+    nonSiblings: number;
+  };
 }
 
 type AllProps = ITreeProps & OwnProps;
@@ -52,12 +59,8 @@ type FeedTreeState = {
 }
 
 
-
-
 const svgClassName='feed-tree__svg';
 const graphClassName='feed-tree__graph'
-
-
 
 
 class FeedTree extends React.Component<AllProps, FeedTreeState> {
@@ -66,6 +69,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     scaleExtent: { min: 0.1, max: 1 },
     zoom: 1,
     nodeSize: { x: 140, y: 140 },
+    separation: { siblings: 1, nonSiblings: 2 }
   };
 
   constructor(props: AllProps) {
@@ -144,12 +148,23 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
         });
       }
     }
+
+    if (
+      !deepEqual(this.props.translate, prevProps.translate) ||
+      !deepEqual(this.props.scaleExtent, prevProps.scaleExtent) ||
+      this.props.zoom !== prevProps.zoom
+    ) {
+      this.bindZoomListener(this.props);
+    }
   }
 
   generateTree() {
-    const {nodeSize}=this.props;
+    const {nodeSize, separation}=this.props;
     const d3Tree = tree<Datum>().nodeSize([nodeSize.x , nodeSize.y
-    ]);
+    ]).separation((a,b)=> {
+     return a.data.parentId === b.data.parentId ? separation.siblings : separation.nonSiblings;
+    })
+   
     let nodes;
     let links;
     if(this.state.data){
@@ -164,36 +179,39 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
 
   render() {
     const { nodes, links } = this.generateTree();
-    const {translate, scale}=this.state.d3;
+    const { translate, scale } = this.state.d3;
+    console.log("FeedTree", this.state);
 
     return (
-      <div className='feed-tree grabbable'>
-        <svg className={`${svgClassName}`}>
-          {
-            links?.map((linkData, i)=>{
-            return <Link key={"link" + i} linkData={linkData} />;
-            })
-          }
+      <div className="feed-tree grabbable">
+        <svg className={`${svgClassName}`}
+        width='100%'
+        height='100%'
+        >
+  
+          <TransitionGroupWrapper
+          component='g'
+          className={graphClassName}
+          transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
+          >
+            {links?.map((linkData, i) => {
+              return <Link key={"link" + i} linkData={linkData} />;
+            })}
 
-          {
-            nodes?.map(({data, x , y, parent, ...rest},i)=>{
-              return(
-              <Node
-              key={`node + ${i}`}
-              data={data}
-              position={{x,y}}
-              parent={parent}
-              className={graphClassName}
-              />
-              )
-            })
-          }
-         
+            {nodes?.map(({ data, x, y, parent, ...rest }, i) => {
+              return (
+                <Node
+                  key={`node + ${i}`}
+                  data={data}
+                  position={{ x, y }}
+                  parent={parent}
+                />
+              );
+            })}
+          </TransitionGroupWrapper>
         </svg>
       </div>
-    )
-    
-  
+    );
   }
 }
 

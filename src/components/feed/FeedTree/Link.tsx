@@ -1,6 +1,7 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { Datum } from "./data";
 import { HierarchyPointNode } from "d3";
+import Marker from "./Marker";
 
 export interface TreeLinkDatum {
   source: HierarchyPointNode<Datum>;
@@ -32,6 +33,11 @@ export default class Link extends React.Component<LinkProps> {
   };
 
   render() {
-    return <path className="link" d={this.drawPath()} />;
+    return (
+      <Fragment>
+        <path className="link" d={this.drawPath()} />
+      </Fragment>
+    );
+  
   }
 }
