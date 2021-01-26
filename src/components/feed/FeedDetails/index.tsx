@@ -1,16 +1,17 @@
 import React from "react";
 import Moment from "react-moment";
 import { connect } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  Title,
-  Skeleton,
-} from "@patternfly/react-core";
+import { Skeleton } from "@patternfly/react-core";
 import ShareFeed from "../../../components/feed/ShareFeed/ShareFeed";
 import { FeedPayload, PluginInstancePayload } from "../../../store/feed/types";
 import { ApplicationState } from "../../../store/root/applicationState";
-import imgPlaceholder from "../../../assets/images/feed_ph_70x70.png";
-import "./feedDetails.scss";
+import "./FeedDetails.scss";
+import {
+  UserIcon,
+  CodeBranchIcon,
+  CalendarAltIcon,
+  FileAltIcon,
+} from "@patternfly/react-icons";
 
 interface INoteState {
   feedDescription?: string;
@@ -86,10 +87,6 @@ class FeedDetails extends React.Component<ReduxProps, INoteState> {
         return (
           <div className="feed-details">
             <Skeleton screenreaderText="Fetching Content" />
-            <br />
-            <Skeleton screenreaderText="Fetching Content" />
-            <br />
-            <Skeleton screenreaderText="Fetching Content" />
           </div>
         );
       } else if (feedError) {
@@ -104,24 +101,26 @@ class FeedDetails extends React.Component<ReduxProps, INoteState> {
         return (
           <React.Fragment>
             <div className="feed-details">
-              <div className="feed-details__info">
-                <img src={imgPlaceholder} alt="placeholder" />
-                <Title headingLevel="h2">{feed ? feed.data.name : ""}</Title>
-              </div>
-
               <div className="feed-details__list">
                 <ul>
                   <li>
+                    <small>Feed Name</small>
+                    <p>
+                      <CodeBranchIcon size="sm" />
+                      {feed && <span> {feed.data.name} </span>}
+                    </p>
+                  </li>
+                  <li>
                     <small>Creator</small>
                     <p>
-                      <FontAwesomeIcon icon={["far", "user"]} />{" "}
+                      <UserIcon size="sm" />{" "}
                       {feed && <span> {feed.data.creator_username} </span>}
                     </p>
                   </li>
                   <li>
                     <small>Created</small>
                     <p>
-                      <FontAwesomeIcon icon={["far", "calendar-alt"]} />
+                      <CalendarAltIcon size="sm" />
                       <Moment format="DD MMM YYYY @ HH:mm">
                         {feed && feed.data.creation_date}
                       </Moment>
@@ -131,7 +130,7 @@ class FeedDetails extends React.Component<ReduxProps, INoteState> {
                   <li>
                     <small>Feed Description</small>
                     <p>
-                      <FontAwesomeIcon icon={["far", "file-alt"]} />
+                      <FileAltIcon />
                       {!feedDescription ? (
                         <span>None Provided</span>
                       ) : (

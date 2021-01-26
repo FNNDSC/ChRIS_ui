@@ -4,10 +4,6 @@
   "private": true,
   "dependencies": {
     "@fnndsc/chrisapi": "^1.4.0",
-    "@fortawesome/fontawesome-svg-core": "^1.2.15",
-    "@fortawesome/free-regular-svg-icons": "^5.7.2",
-    "@fortawesome/free-solid-svg-icons": "^5.7.2",
-    "@fortawesome/react-fontawesome": "^0.1.4",
     "@patternfly/patternfly": "^4.59.1",
     "@patternfly/react-core": "^4.75.2",
     "@patternfly/react-icons": "^4.7.11",
@@ -38,7 +34,6 @@
     "react": "^16.14.0",
     "react-bootstrap-typeahead": "^4.0.0-alpha.5",
     "react-cornerstone-viewport": "^4.0.2",
-    "react-d3-tree": "^2.0.0",
     "react-dom": "^16.14.0",
     "react-error-boundary": "^3.1.0",
     "react-json-view": "^1.20.2",

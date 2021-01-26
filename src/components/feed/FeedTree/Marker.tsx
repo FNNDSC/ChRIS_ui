@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { select } from "d3";
 
 const Marker = () => {
-  const markerRef = useRef<SVGDefsElement>(null);
+  const markerRef = useRef<SVGMarkerElement>(null);
 
   useEffect(() => {
     select(markerRef.current)
@@ -14,11 +14,11 @@ const Marker = () => {
       .append("svg:path")
       .attr("d", "M0,-5L10,0L0,5")
       .attr("fill", "#fff");
-  });
+  }, []);
 
   return (
-    <defs ref={markerRef}>
-      <marker id="end-arrow"></marker>
+    <defs>
+      <marker ref={markerRef} id="end-arrow"></marker>
     </defs>
   );
 };

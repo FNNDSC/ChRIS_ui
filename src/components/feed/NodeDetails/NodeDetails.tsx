@@ -26,11 +26,11 @@ import {
   FileArchiveIcon,
   OutlinedClockIcon,
   InProgressIcon,
+  CalendarAltIcon,
 } from "@patternfly/react-icons";
 
 import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PluginStatus } from "../../../store/plugin/types";
 import { displayDescription } from "../FeedOutputBrowser/utils";
 import "./NodeDetails.scss";
@@ -141,7 +141,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
           <div className="node-details">
             <div className="node-details__title">
               <Title headingLevel="h3" size="xl">
-              {pluginTitle}
+                {pluginTitle}
               </Title>
               <TextCopyPopover
                 text={
@@ -161,7 +161,9 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
                 </Button>
               </TextCopyPopover>
             </div>
-            <Grid className="node-details__grid">
+            <Grid 
+           
+            className="node-details__grid">
               <GridItem span={2} className="title">
                 Status
               </GridItem>
@@ -197,9 +199,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
                     <span>FinishedSuccessfully</span>
                   </>
                 ) : pluginStatus ? (
-                  <div className="title">
-                    {title}
-                  </div>
+                  <div className="title">{title}</div>
                 ) : (
                   <>
                     <OnRunningIcon />
@@ -227,7 +227,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
               {runTime && (
                 <Fragment>
                   <GridItem span={2} className="title">
-                    <FontAwesomeIcon icon={["far", "calendar-alt"]} />
+                    <CalendarAltIcon   />
                     Total Runtime:
                   </GridItem>
                   <GridItem span={10} className="value">
@@ -246,9 +246,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
               )}
             </div>
             <div className="node-details__infoLabel">
-              <label>
-                Plugin output may be viewed below.
-              </label>
+              <label>Plugin output may be viewed below.</label>
             </div>
           </div>
         );

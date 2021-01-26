@@ -99,7 +99,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
             lgRowSpan={12}
             xl={12}
             xlRowSpan={12}
-            xl2={6}
+            xl2={7}
             xl2RowSpan={12}
           >
             <FeedTree onNodeClick={onNodeClick} />
@@ -113,7 +113,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
             lgRowSpan={12}
             xl={12}
             xlRowSpan={12}
-            xl2={6}
+            xl2={5}
             xl2RowSpan={12}
             className="node-block"
           >

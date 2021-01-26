@@ -26,6 +26,7 @@ type AllProps = IUiState & IOtherProps & IPropsFromDispatch;
 
 class Wrapper extends React.Component<AllProps> {
   // Description: toggles sidebar on pageresize
+
   onPageResize = (data: { mobileView: boolean; windowSize: number }) => {
     this.props.setMobileView(data.mobileView);
   };
@@ -40,6 +41,7 @@ class Wrapper extends React.Component<AllProps> {
 
   render() {
     const { children, user, isMobileView } = this.props;
+    
 
     return (
       <Page

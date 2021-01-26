@@ -1,4 +1,5 @@
 @import "../../../assets/scss/helpers/variables";
+@import '../../../assets/scss/helpers/mixins';
 
 .node-block {
   background: $node-block-background;
@@ -6,6 +7,7 @@
   color: white;
 
   .node-details {
+    
     .pf-c-title {
       color:inherit;
       font-weight: 600;
@@ -28,10 +30,10 @@
     &__actions {
       display: flex;
       justify-content:flex-start;
-      gap:1em; 
+      gap:2em; 
 
       button {
-      width:20%;  
+      min-width:30%;  
       }
       
     }
@@ -41,6 +43,13 @@
       font-weight: 700;
     }
 
+  }
+
+
+  @include media-query(1200px){
+     .pf-l-grid > .pf-m-2-col {
+       margin-bottom: 1em;
+     }   
   }
 
 }
