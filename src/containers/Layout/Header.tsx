@@ -20,8 +20,9 @@ interface IHeaderProps {
 let BadgeStyle = {
   marginRight: "1rem",
   display: "inline-block",
-  background: "#06c",
+  background: "transparent",
   fontSize: "0.85rem",
+  color: "#8b8d8f",
 };
 
 
@@ -47,7 +48,7 @@ class Header extends React.Component<IHeaderProps> {
         <Badge key={3} style={BadgeStyle}>
           <span>
             Latest update:{" "}
-            <Moment format="DD MMM YYYY @ HH:mm">{`2021-01-25T23:30:14.297464-04:00`}</Moment>
+            <Moment format="DD MMM YYYY @ HH:mm">{`2021-01-26T09:30:14.297464-04:00`}</Moment>
           </span>
         </Badge>
       </React.Fragment>
