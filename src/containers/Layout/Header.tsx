@@ -21,7 +21,7 @@ let BadgeStyle = {
   marginRight: "1rem",
   display: "inline-block",
   background: "#06c",
-  fontSize: "1rem",
+  fontSize: "0.85rem",
 };
 
 

@@ -1,19 +1,18 @@
 import React from "react";
 import { connect } from "react-redux";
-import {Spinner} from '@patternfly/react-core';
 import { select, tree, hierarchy, zoom as d3Zoom, zoomIdentity, event } from "d3";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {
   PluginInstancePayload,
   ResourcePayload,
 } from "../../../store/feed/types";
+
 import { ApplicationState } from "../../../store/root/applicationState";
 import "./FeedTree.scss";
-import { dequal as deepEqual } from "dequal/lite";
 import { getFeedTree, Datum } from "./data";
+import {isEqual} from 'lodash'
 import Link from './Link'
 import Node from './Node'
-
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
 
 
@@ -63,10 +62,8 @@ const graphClassName='feed-tree__graph'
 
 
 class FeedTree extends React.Component<AllProps, FeedTreeState> {
-  containerRef: HTMLDivElement | null = null;
-
   static defaultProps: Partial<AllProps> = {
-    translate: { x: 600, y: 50 },
+    translate: { x:600, y:50},
     scaleExtent: { min: 0.1, max: 1 },
     zoom: 1,
     nodeSize: { x: 120, y: 120 },
@@ -90,7 +87,6 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     } else {
       scale = nextProps.zoom;
     }
-
     return {
       translate: nextProps.translate,
       scale,
@@ -99,7 +95,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
 
   componentDidMount() {
     this.bindZoomListener(this.props);
-    const { data: instances } = this.props.pluginInstances;
+    const { data: instances, error, loading } = this.props.pluginInstances;
     if (instances && instances.length > 0) {
       const tree = getFeedTree(instances);
       this.setState({
@@ -108,12 +104,6 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       });
     }
   }
-
- 
- handleNodeClick=(node:PluginInstance)=>{
-   this.props.onNodeClick(node);
- }
-
 
   bindZoomListener = (props: AllProps) => {
     const { zoom, scaleExtent, translate } = props;
@@ -161,12 +151,16 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     }
 
     if (
-      !deepEqual(this.props.translate, prevProps.translate) ||
-      !deepEqual(this.props.scaleExtent, prevProps.scaleExtent) ||
+      !isEqual(this.props.translate, prevProps.translate) ||
+      !isEqual(this.props.scaleExtent, prevProps.scaleExtent) ||
       this.props.zoom !== prevProps.zoom
     ) {
       this.bindZoomListener(this.props);
     }
+  }
+
+  handleNodeClick=(item:PluginInstance)=>{
+    this.props.onNodeClick(item)
   }
 
   generateTree() {
@@ -193,20 +187,11 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   render() {
     const { nodes, links } = this.generateTree();
     const { translate, scale } = this.state.d3;
-    const { selectedPlugin, onNodeClick, pluginInstances } = this.props;
-    const {error, loading} = pluginInstances
+    const { selectedPlugin} = this.props;
 
-    if(error || loading){
-     return <Spinner size='lg'/>
-    }
-
+   
     return (
-      <div
-        ref={(n) => {
-          this.containerRef = n;
-        }}
-        className="feed-tree grabbable"
-      >
+      <div  className="feed-tree grabbable">
         <svg className={`${svgClassName}`} width="100%" height="100%">
           <TransitionGroupWrapper
             component="g"
@@ -225,7 +210,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
                   position={{ x, y }}
                   parent={parent}
                   selectedPlugin={selectedPlugin}
-                  onNodeClick={onNodeClick}
+                  onNodeClick={this.handleNodeClick}
                 />
               );
             })}
