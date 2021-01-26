@@ -1,172 +1,55 @@
 @import "../../../assets/scss/helpers/variables";
-
-
-.ant-steps {
-  width: 30%;
-  left: -5px;
-}
-
-.ant-steps-item:first-child {
-  left: -2px !important;
-}
-
-.pf-c-popover {
-  width: 250px !important
-}
+@import '../../../assets/scss/helpers/mixins';
 
 .node-block {
-    background: $node-block-background;
-    border-left: 3px solid $node-block-border;
-    font-size: $plugin-data-font-size;
-    padding:1rem 1rem;
-    div {
-      color: #fff;
-      label {
-        display: block;
-        font-size: $plugin-label-font-size;
-      }
+  background: $node-block-background;
+  padding:1rem;
+  color: white;
+
+  .node-details {
+    
+    .pf-c-title {
+      color:inherit;
+      font-weight: 600;
     }
-    .pf-l-grid {
-      margin-top: 1rem;
-    }
-    .btn-div {
-      margin-top: 0.5rem;
-     
-      button {
-        color: #fff;
-        font-size: $plugin-data-font-size;
-        margin-bottom: 0.5rem;
-        text-align: left;
-        
-        svg {
-          margin-right: 5px;
-        }
-        &:hover,
-        &:focus {
-          color: $node-block-background;
-          &::after {
-            border-color: #fff;
-          }
-        }
-      }
-    }
-    // selected node and view command button
-    .details-header-wrap {
-      display: flex;
+
+    &__title {
+      display:flex;
       justify-content: space-between;
-      .pf-c-title {
-        color: #fff;
-        font-weight: bold;
-      }
-      .pf-c-button {
-        --pf-c-button--BorderRadius: 3px;
-        svg:first-child {
-          margin-right: 12px;
-        }
-        svg:last-child {
-          margin-left: 10px;
-        }
-      }
-    }
-
-    // status, created & node id
-    .node-details-grid {
-      row-gap: 10px !important;
-      .title {
-        font-size: 15px !important;
-      }
-      .value {
-        font-size: 16px !important;
-      }
-      .value svg {
-        margin-right: 10px;
-      }
-
-      &__title {
-        display: flex;
-
-        &-label {
-          color: white;
-          margin-right: 5px;
-          font-weight: 700;
-        }
-      }
 
     }
-     .btn-container{
-        width:30%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+
+    &__grid > *, &__actions, &__infoLabel {
+      margin-top: 0.75em;
+    }
+
+    .value svg, .title svg {
+        margin-right:0.5em
+    }
+
+    &__actions {
+      display: flex;
+      justify-content:flex-start;
+      gap:2em; 
+
+      button {
+      min-width:30%;  
+      }
       
-      }
+    }
+
+    .pf-c-form-control {
+      font-family: monospace;
+      font-weight: 700;
+    }
 
   }
 
 
-.pf-c-popover{
-
-::-webkit-scrollbar {
-  width: 20px;
-}
-
-::-webkit-scrollbar-track {
-  background-color: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #E7F1FA;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #E7F1FA;
-  border-radius: 20px;
-  border: 6px solid transparent;
-  background-clip: content-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #73BCF7;
-}
-}
-
-.path-popover-wrap {
-  --popover-border: 1px solid #999;
-  border: var(--popover-border);
-
-  .pf-c-popover__arrow {
-    border: var(--popover-border);
-  }
-
-  textarea {
-    margin-top: 0 !important;
-  }
-}
-
-.node-configuration {
- 
-  &__body{
-    border:1px solid #002952;
-  }
-
-  &__container{
-    padding:4px;
-  }
-
-  &__label{
-    background-color:#e7f1fa !important;
-    color:white !important;
-    margin-right:2px !important;
-  }
-  
-  &__label, &__command {
-    font-size:0.9rem !important;
-    letter-spacing: 0.05rem !important;
-  }
-
-  &__command{
-    font-family: monospace !important;
-    font-weight: 900 !important;
+  @include media-query(1200px){
+     .pf-l-grid > .pf-m-2-col {
+       margin-bottom: 1em;
+     }   
   }
 
 }

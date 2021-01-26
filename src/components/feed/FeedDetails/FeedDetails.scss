@@ -2,7 +2,42 @@
 
 /* Header */
 .feed-details {
-  height:100% !important;
+  
+  &__list {
+    
+    
+    ul{
+      display:flex;
+      gap:3rem;
+
+      li p span {
+        margin-left:0.25em;
+      }
+
+      li p time {
+         margin-left:0.25em;
+      }
+    }
+  }
+
+ 
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+  /*
+
+ 
   .feed-info-block {
     h1 {
       font-size: 1.2rem;
@@ -36,4 +71,6 @@
       text-decoration: none;
     }
   }
+*/
+
 }

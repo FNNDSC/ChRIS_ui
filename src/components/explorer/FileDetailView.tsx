@@ -1,5 +1,5 @@
-import * as React from "react";
-import { Button, Label } from "@patternfly/react-core";
+import React, { Fragment } from "react";
+import { Button, Label, Text } from "@patternfly/react-core";
 import { ErrorBoundary } from "react-error-boundary";
 import { ExpandIcon, FilmIcon, InfoCircleIcon } from "@patternfly/react-icons";
 import {
@@ -11,7 +11,6 @@ import { IFileBlob } from "../../api/models/file-viewer.model";
 import { fileViewerMap } from "../../api/models/file-viewer.model";
 import { isEqual } from "lodash";
 import "./file-detail.scss";
-
 const ViewerDisplayComponent=React.lazy(()=>import('./displays/ViewerDisplay'))
 
 type AllProps = {
@@ -66,9 +65,13 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const fileTypeViewer = () => {
       if (!isEqual(selectedFile.file.data, this.state.file)) {
         this.fetchData();
-        return <div className="viewer-display">
-          <Skeleton shape='square'  width="50%" screenreaderText="Loading File Preview"/>
-        </div>
+        return (
+          <Skeleton
+            shape="square"
+            width="50%"
+            screenreaderText="Loading File Preview"
+          />
+        );
       } else {
         let viewerName: string = "";
         let filesize: number = 1000000;
@@ -81,40 +84,38 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
         }
 
         return (
-          <>
+          <Fragment>
             {this.renderHeader()}
-            <div className="viewer-display">
-              <React.Suspense
+            <React.Suspense
+              fallback={
+                <Skeleton
+                  shape="square"
+                  width="50%"
+                  screenreaderText="Fallback component being lodaded"
+                />
+              }
+            >
+              <ErrorBoundary
                 fallback={
-                  <Skeleton
-                    shape="square"
-                    width="50%"
-                    screenreaderText="Fallback component being lodaded"
-                  />
-                }
-              >
-                <ErrorBoundary
-                  fallback={
-                    <span>
-                      <Label
-                        icon={<InfoCircleIcon />}
-                        color="red"
-                        href="#filled"
-                      >
+                  <span>
+                    <Label icon={<InfoCircleIcon />} color="red" href="#filled">
+                      <Text component="p">
                         Oh snap ! Looks like there was an error. Please refresh
                         the browser or try again.
-                      </Label>
-                    </span>
-                  }
-                >
+                      </Text>
+                    </Label>
+                  </span>
+                }
+              >
+                <div className="preview">
                   <ViewerDisplayComponent
                     tag={viewerName}
                     fileItem={this.state}
                   />
-                </ErrorBoundary>
-              </React.Suspense>
-            </div>
-          </>
+                </div>
+              </ErrorBoundary>
+            </React.Suspense>
+          </Fragment>
         );
       }
     };

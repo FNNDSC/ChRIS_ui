@@ -42,9 +42,6 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
         disabled={!selectedPlugin}
         onClick={handleModalToggle}
         variant="primary"
-        style={{
-          marginTop: "20px",
-        }}
       >
         <InfrastructureIcon style={{ marginRight: "4px" }} />
         Delete Node

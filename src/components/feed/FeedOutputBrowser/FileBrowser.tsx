@@ -151,7 +151,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     const onClick = (e: React.MouseEvent) =>
       this.handleBreadcrumbClick(e, folder, prevBreadcrumbs);
     return (
-      <BreadcrumbItem className="breadcrumb" onClick={onClick} key={i}>
+      <BreadcrumbItem onClick={onClick} key={i}>
         {folder.module}
       </BreadcrumbItem>
     );
@@ -192,22 +192,33 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     if (!directory.children || !directory.children.length) {
       return <div>No files in this directory.</div>;
     }
-
     const cols = ["Name", "Type", ""]; // final col is download
     const rows = directory.children.map(this.generateTableRow);
 
     return (
       <Grid hasGutter className="file-browser">
-        <GridItem className="file-browser__table" span={6} rowSpan={12}>
-          <div className="file-browser__table__header">
+        <GridItem
+          xl2={4}
+          xl2RowSpan={12}
+          xl={4}
+          xlRowSpan={12}
+          lg={4}
+          lgRowSpan={12}
+          md={4}
+          mdRowSpan={12}
+          sm={12}
+          smRowSpan={12}
+          className="file-browser__table"
+        >
+          <div className="file-browser__header">
             <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
-            <span className="files-info">
+            <span className="files-browser__fileCount">
               {selectedFiles
                 ? `${selectedFiles.length} files`
                 : "Empty Directory"}
             </span>
             <Button
-              className="download-all-button"
+              className="file-browser__downloadButton"
               variant="secondary"
               onClick={() => this.props.downloadAllClick()}
             >
@@ -217,20 +228,30 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
           </div>
 
           <Table
-            aria-label="feed-browser-table"
+            aria-label="file-browser"
             variant={TableVariant.compact}
-            caption="files"
             cells={cols}
             rows={rows}
-            className="file-list "
           >
             <TableHeader />
             <TableBody onRowClick={this.handleFileClick} />
           </Table>
         </GridItem>
 
-        {previewingFile ? (
-          <GridItem className="file-browser__detail" span={6} rowSpan={12}>
+        <GridItem
+          xl2={8}
+          xl2RowSpan={12}
+          xl={8}
+          xlRowSpan={12}
+          lg={8}
+          lgRowSpan={12}
+          md={8}
+          mdRowSpan={12}
+          sm={12}
+          smRowSpan={12}
+          className="file-browser__detail"
+        >
+          {previewingFile ? (
             <FileDetailView
               fullScreenMode={true}
               selectedFile={previewingFile}
@@ -241,18 +262,18 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
                 handleFileViewerToggle(previewingFile, directory);
               }}
             />
-          </GridItem>
-        ) : (
-          <GridItem className="file-browser__previewTab" span={6} rowSpan={12}>
+          ) : (
             <LogTerminal
               text={
                 typedLog && typedLog[0]
-                  ? typedLog[0]
+
+                                   ? typedLog[0]
+                 
                   : "Logs are not available for this plugin."
               }
             />
-          </GridItem>
-        )}
+          )}
+        </GridItem>
       </Grid>
     );
   }

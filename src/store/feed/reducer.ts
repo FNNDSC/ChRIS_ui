@@ -41,6 +41,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
+      console.log("Action.payload", action.payload);
       return {
         ...state,
         allFeeds: {
@@ -181,7 +182,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         return {
           ...state,
           allFeeds: {
-            data: [action.payload, ...state.allFeeds.data],
+            data: [action.payload.data, ...state.allFeeds.data],
             error: "",
             loading: false,
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
@@ -191,7 +192,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         return {
           ...state,
           allFeeds: {
-            data: [action.payload],
+            data: [action.payload.data],
             error: "",
             loading: false,
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,

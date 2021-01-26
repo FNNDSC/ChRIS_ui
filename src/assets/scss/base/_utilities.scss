@@ -6,6 +6,10 @@
 */
 @import "../vendors/patternfly/patternfly";
 
+iframe {
+  height:100vh;
+}
+
 .capitalize {
   text-transform: capitalize;
 }
@@ -77,4 +81,32 @@ div:fullscreen {
     display: none;
   }
 }
+
+/* Custom Scrollbar */
+
+
+::-webkit-scrollbar {
+  width: 0.75rem;
+  
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #73BCF7;
+}
+
 

@@ -7,7 +7,7 @@ type LogTerminalProps = {
 
 const LogTerminal = ({ text }: LogTerminalProps) => {
   return (
-    <div className="file-browser__lazyLog ">
+    <div className="file-browser__lazyLog preview">
       <LazyLog extraLines={1} enableSearch text={text} caseInsensitive />;
     </div>
   );

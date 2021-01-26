@@ -14,13 +14,6 @@ $pf-global--breakpoint--md:         768px;
 $pf-global--breakpoint--lg:         992px;
 $pf-global--breakpoint--xl:         1200px;
 
-
-
-
-
-
-
-
 $pf-root-directory:                 '~@patternfly/patternfly/';
 // Fontpath
 $pf-global--font-path:              '~@patternfly/patternfly/assets/fonts';
@@ -28,14 +21,5 @@ $pf-global--font-path:              '~@patternfly/patternfly/assets/fonts';
 $fa-font-path:                      '~@patternfly/patternfly/assets/fonts/webfonts';
 // FontIcon Path
 $pf-global--fonticon-path:          '~@patternfly/patternfly/assets/pficon';
-
 // Imagepath
 $pf-global--image-path:             '~@patternfly/patternfly/assets/images';
-
-
-$pf-global--BorderRadius--sm:        0; // Changed to override button radius might need to override actual styles
-
-// Color overrides
-// --------------------------------------------------------------------
-$pf-color-black-900:                #282d33;
-
