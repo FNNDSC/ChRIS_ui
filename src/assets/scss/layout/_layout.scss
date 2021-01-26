@@ -11,6 +11,8 @@
 }
 
 
+
+
 // Page Header:
 // ---------------------------------------------------------
 .header{
@@ -21,5 +23,11 @@
         }
     }
 }
+
+
+.pf-c-page__main {
+    overflow-y: scroll !important;  
+}
+
 
 

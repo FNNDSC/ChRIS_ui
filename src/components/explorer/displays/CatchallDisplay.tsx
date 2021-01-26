@@ -8,7 +8,7 @@ import FileViewerModel, {
 type AllProps = {
   fileItem: IFileBlob;
 };
-// Description: No preview message available for this file type
+
 const CatchallDisplay: React.FunctionComponent<AllProps> = (
   props: AllProps
 ) => {
@@ -41,13 +41,11 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
       </React.Fragment>
     );
     return (
-      <div className="catchall">
         <Alert
           variant="info"
           title="No preview available for large files"
           children={alertText}
         />
-      </div>
     );
   };
   return noPreviewMessage();

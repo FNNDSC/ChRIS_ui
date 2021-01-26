@@ -1,16 +1,20 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { connect } from "react-redux";
-
-import {select, tree, stratify} from 'd3'
-import {Spinner} from '@patternfly/react-core'
-import { Spin, Space } from "antd";
+import { select, tree, hierarchy, zoom as d3Zoom, zoomIdentity, event } from "d3";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {
   PluginInstancePayload,
   ResourcePayload,
 } from "../../../store/feed/types";
+
 import { ApplicationState } from "../../../store/root/applicationState";
-import "./feedTree.scss";
+import "./FeedTree.scss";
+import { getFeedTree, Datum } from "./data";
+import {isEqual} from 'lodash'
+import Link from './Link'
+import Node from './Node'
+import TransitionGroupWrapper from "./TransitionGroupWrapper";
+
 
 
 interface ITreeProps {
@@ -19,239 +23,204 @@ interface ITreeProps {
   pluginInstanceResource: ResourcePayload;
 }
 
-interface OwnProps {
-  onNodeClick:(node:PluginInstance)=>void;
+interface Point {
+  x: number;
+  y: number; 
 }
 
-const FeedTree: React.FC<ITreeProps & OwnProps> = ({
-  pluginInstances,
-  selectedPlugin,
-  pluginInstanceResource,
-  onNodeClick,
-}) => {
-  const treeRef = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
-  const { data: instances, error, loading } = pluginInstances;
+interface OwnProps {
+  onNodeClick: (node: PluginInstance) => void;
+  translate: Point;
+  scaleExtent: {
+    min: number;
+    max: number;
+  };
+  zoom: number;
+  nodeSize: {
+    x: number;
+    y: number;
+  };
+  separation: {
+    siblings: number;
+    nonSiblings: number;
+  };
+}
 
-  const handleNodeClick = React.useCallback(
-    (node: any) => {
-      onNodeClick(node.data);
-    },
-    [onNodeClick]
-  );
+type AllProps = ITreeProps & OwnProps;
 
-  const buildTree = React.useCallback(
-    (instances: PluginInstance[]) => {
-      let dimensions = { height: 250, width: 700 };
+type FeedTreeState = {
+  data?:Datum;
+  d3:{
+    translate:Point,
+    scale:number
+  }
+}
 
-      select("#tree").selectAll("svg").selectAll("g").remove();
-      let svg = select(svgRef.current)
-        .attr("width", `${dimensions.width + 100}`)
-        .attr("height", `${dimensions.height + 100}`);
 
-      const errorNode = instances.filter((node) => {
-        return (
-          node.data.status === "finishedWithError" ||
-          node.data.status === "cancelled"
-        );
-      });
+const svgClassName='feed-tree__svg';
+const graphClassName='feed-tree__graph'
 
-      const activeNode = instances.filter((node) => {
-        return (
-          node.data.status === "started" ||
-          node.data.status === "scheduled" ||
-          node.data.status === "registeringFiles"
-        );
-      });
 
-      const queuedNode = instances.filter((node) => {
-        return node.data.status === "waitingForPrevious";
-      });
+class FeedTree extends React.Component<AllProps, FeedTreeState> {
+  static defaultProps: Partial<AllProps> = {
+    translate: { x:600, y:50},
+    scaleExtent: { min: 0.1, max: 1 },
+    zoom: 1,
+    nodeSize: { x: 120, y: 120 },
+    separation: { siblings: 1, nonSiblings: 2 },
+  };
 
-      const successNode = instances.filter((node) => {
-        return node.data.status === "finishedSuccessfully";
-      });
+  constructor(props: AllProps) {
+    super(props);
 
-      let graph = svg.append("g").attr("transform", "translate(50,50)");
-      graph.selectAll(".node").remove();
-      graph.selectAll(".link").remove();
-      const stratified = stratify()
-        .id((d: any) => d.data.id)
-        .parentId((d: any) => d.data.previous_id);
-      const root = stratified(instances);
-      let d3TreeLayout = tree();
-      d3TreeLayout.size([dimensions.width, dimensions.height]);
-      d3TreeLayout(root);
+    this.state = {
+      d3: FeedTree.calculateD3Geometry(this.props),
+    };
+  }
 
-      let nodeRadius = 12;
+  static calculateD3Geometry(nextProps: AllProps) {
+    let scale;
+    if (nextProps.zoom > nextProps.scaleExtent.max) {
+      scale = nextProps.scaleExtent.max;
+    } else if (nextProps.zoom < nextProps.scaleExtent.min) {
+      scale = nextProps.scaleExtent.min;
+    } else {
+      scale = nextProps.zoom;
+    }
+    return {
+      translate: nextProps.translate,
+      scale,
+    };
+  }
 
-      // Nodes
-      graph
-        .selectAll(".node")
-        .data(root.descendants())
-        .join((enter) => enter.append("circle").attr("opacity", 0))
-        .on("click", handleNodeClick)
-        .attr("class", "node")
-        .attr("id", (d: any) => {
-          return `node_${d.data.data.id}`;
-        })
-        .attr("r", nodeRadius)
-        .attr("fill", "#fff")
-        .attr("cx", (node: any) => node.x)
-        .attr("cy", (node: any) => node.y)
-        .attr("opacity", 1);
-
-      graph
-        .append("svg:defs")
-        .append("svg:marker")
-        .attr("id", "end-arrow")
-        .attr("viewBox", "0 -5 10 10")
-        .attr("refX", 6)
-        .attr("markerWidth", 6)
-        .attr("markerHeight", 6)
-        .attr("orient", "auto")
-        .append("svg:path")
-        .attr("d", "M0,-5L10,0L0,5")
-        .attr("fill", "#fff");
-
-      // Links
-
-      graph
-        .selectAll(".link")
-        .data(root.links())
-        .join("path")
-        // @ts-ignore
-        .attr("d", function (d: any) {
-          const deltaX = d.target.x - d.source.x,
-            deltaY = d.target.y - d.source.y,
-            dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-            normX = deltaX / dist,
-            normY = deltaY / dist,
-            sourcePadding = nodeRadius,
-            targetPadding = nodeRadius + 4,
-            sourceX = d.source.x + sourcePadding * normX,
-            sourceY = d.source.y + sourcePadding * normY,
-            targetX = d.target.x - targetPadding * normX,
-            targetY = d.target.y - targetPadding * normY;
-          return `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
-        })
-        .attr("class", "link")
-        .attr("fill", "none")
-        .attr("stroke-width", 2)
-        .attr("stroke", "white")
-        .attr("opacity", 1);
-
-      // labels
-
-      graph
-        .selectAll(".label")
-        .data(root.descendants())
-        .join("text")
-        .attr("class", "label")
-        .text((node: any) => node.data.data.plugin_name)
-
-        .attr("fill", "#fff")
-        .attr("font-size", 14)
-        .attr("font-weight", "bold")
-        .attr("opacity", 1)
-        .attr("transform", (d: any) => {
-          return `translate(${d.x - nodeRadius * 2}, ${
-            d.y + nodeRadius * 2.5
-          } )`;
-        });
-
-      if (errorNode.length > 0) {
-        errorNode.forEach(function (node) {
-          const d3errorNode = select(`#node_${node.data.id}`);
-          const isSelected = node.data.id === selectedPlugin?.data.id;
-          if (!!d3errorNode && !d3errorNode.empty()) {
-            d3errorNode.attr("class", `node error ${isSelected && "selected"}`);
-          }
-        });
-      }
-
-      if (activeNode.length > 0) {
-        activeNode.forEach(function (node) {
-          const d3activeNode = select(`#node_${node.data.id}`);
-          const isSelected = node.data.id === selectedPlugin?.data.id;
-          if (!!d3activeNode && !d3activeNode.empty()) {
-            d3activeNode.attr(
-              "class",
-              `node active ${isSelected && "selected"}`
-            );
-          }
-        });
-      }
-
-      if (queuedNode.length > 0) {
-        queuedNode.forEach(function (node) {
-          const d3QueuedNode = select(`#node_${node.data.id}`);
-          const isSelected = node.data.id === selectedPlugin?.data.id;
-          if (!!d3QueuedNode && !d3QueuedNode.empty()) {
-            d3QueuedNode.attr(
-              "class",
-              `node queued ${isSelected && "selected"}`
-            );
-          }
-        });
-      }
-
-      if (successNode.length > 0) {
-        successNode.forEach(function (node) {
-          const d3SuccessNode = select(`#node_${node.data.id}`);
-          const isSelected = node.data.id === selectedPlugin?.data.id;
-
-          if (!!d3SuccessNode && !d3SuccessNode.empty()) {
-            d3SuccessNode.attr(
-              "class",
-              `node success ${isSelected && "selected"}`
-            );
-          }
-        });
-      }
-    },
-
-    [handleNodeClick, selectedPlugin]
-  );
-
-  useEffect(() => {
+  componentDidMount() {
+    this.bindZoomListener(this.props);
+    const { data: instances, error, loading } = this.props.pluginInstances;
     if (instances && instances.length > 0) {
-      buildTree(instances);
+      const tree = getFeedTree(instances);
+      this.setState({
+        ...this.state,
+        data: tree[0],
+      });
     }
-  }, [instances, selectedPlugin, buildTree, pluginInstanceResource]);
+  }
 
-  if (!selectedPlugin || !selectedPlugin.data) {
-    return (
-      <Space size="middle">
-        <Spin size="small" />
-        <Spin />
-        <Spin size="large" />
-      </Space>
+  bindZoomListener = (props: AllProps) => {
+    const { zoom, scaleExtent, translate } = props;
+    const svg = select(`.${svgClassName}`);
+    const g = select(`.${graphClassName}`);
+
+    svg.call(
+      //@ts-ignore
+      d3Zoom().transform,
+      zoomIdentity.translate(translate.x, translate.y).scale(zoom)
     );
-  } else {
-    if (loading) {
-      return <Spinner size="sm" />;
+
+    svg.call(
+      //@ts-ignore
+      d3Zoom()
+        .scaleExtent([scaleExtent.min, scaleExtent.max])
+        .on("zoom", () => {
+          g.attr("transform", event.transform);
+          this.setState({
+            ...this.state,
+            d3: {
+              ...this.state.d3,
+              translate: {
+                x: event.transform.x,
+                y: event.transform.y,
+              },
+            },
+          });
+        })
+    );
+  };
+
+  componentDidUpdate(prevProps: AllProps) {
+    const prevData = prevProps.pluginInstances.data;
+    const thisData = this.props.pluginInstances.data;
+
+    if (prevData !== thisData) {
+      if (thisData) {
+        const tree = getFeedTree(thisData);
+        this.setState({
+          ...this.state,
+          data: tree[0],
+        });
+      }
     }
 
-    if (error) {
-      return (
-        <div>Oh snap ! Something went wrong. Please refresh your browser</div>
-      );
+    if (
+      !isEqual(this.props.translate, prevProps.translate) ||
+      !isEqual(this.props.scaleExtent, prevProps.scaleExtent) ||
+      this.props.zoom !== prevProps.zoom
+    ) {
+      this.bindZoomListener(this.props);
+    }
+  }
+
+  handleNodeClick=(item:PluginInstance)=>{
+    this.props.onNodeClick(item)
+  }
+
+  generateTree() {
+    const { nodeSize, separation } = this.props;
+    const d3Tree = tree<Datum>()
+      .nodeSize([nodeSize.x, nodeSize.y])
+      .separation((a, b) => {
+        return a.data.parentId === b.data.parentId
+          ? separation.siblings
+          : separation.nonSiblings;
+      });
+
+    let nodes;
+    let links;
+    if (this.state.data) {
+      const rootNode = d3Tree(hierarchy(this.state.data));
+      nodes = rootNode.descendants();
+      links = rootNode.links();
     }
 
+    return { nodes, links };
+  }
+
+  render() {
+    const { nodes, links } = this.generateTree();
+    const { translate, scale } = this.state.d3;
+    const { selectedPlugin} = this.props;
+
+   
     return (
-      <div
-        style={{
-          textAlign: "center",
-        }}
-        ref={treeRef}
-        id="tree"
-      >
-        <svg className="svg-content" ref={svgRef}></svg>
+      <div  className="feed-tree grabbable">
+        <svg className={`${svgClassName}`} width="100%" height="100%">
+          <TransitionGroupWrapper
+            component="g"
+            className={graphClassName}
+            transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
+          >
+            {links?.map((linkData, i) => {
+              return <Link key={"link" + i} linkData={linkData} />;
+            })}
+
+            {nodes?.map(({ data, x, y, parent, ...rest }, i) => {
+              return (
+                <Node
+                  key={`node + ${i}`}
+                  data={data}
+                  position={{ x, y }}
+                  parent={parent}
+                  selectedPlugin={selectedPlugin}
+                  onNodeClick={this.handleNodeClick}
+                />
+              );
+            })}
+          </TransitionGroupWrapper>
+        </svg>
       </div>
     );
   }
-};
+}
+
 
 
 const mapStateToProps = (state: ApplicationState) => ({
@@ -260,17 +229,4 @@ const mapStateToProps = (state: ApplicationState) => ({
   selectedPlugin: state.feed.selectedPlugin,
 });
 
-
 export default connect(mapStateToProps, {})(FeedTree);
-
-
-
-
-
-
-
-
-
-
-
-

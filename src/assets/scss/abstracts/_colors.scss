@@ -11,8 +11,6 @@ $chris-light-blue: #007bba;
 $chris-highlight-background-blue: #def7f7;
 $global-icon-margin-right: 5px;
 
-
-
 // Site specific Variables:
 // --------------------------------------------------------------------
 $image-url: "../../../assets/images/";
@@ -36,16 +34,13 @@ $gotop-bg-active: $chris-light-blue;
 $gotop-dimension: 50px;
 
 // Feed pages
-$feed-block-background: #000;
+
 $node-block-background: $chris-blue;
 $node-block-border: $chris-light-blue;
 
 // Tree colors
-$tree-node-backgound: #fff;
-$tree-links-color: #fff;
-$tree-node-active-backgound: $chris-light-blue;
-$tree-tooltip-background: #282d33; //#393f44;
-$tree-tooltip-arrow-width: 0.9375rem;
+$tree-node-backgound: rgb(40, 45, 51);
+
 
 // Label and data sizes for plugin panel
 $plugin-label-font-size: 0.8125rem;

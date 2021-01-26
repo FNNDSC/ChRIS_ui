@@ -4,8 +4,6 @@ import { Grid, GridItem } from "@patternfly/react-core";
 import { EventDataNode, Key } from "rc-tree/lib/interface";
 import { Tree } from "antd";
 import { ErrorBoundary } from "react-error-boundary";
-
-
 import {
   Types,
   Info,

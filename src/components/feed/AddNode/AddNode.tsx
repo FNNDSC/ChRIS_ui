@@ -304,13 +304,7 @@ const handleSave=async()=>{
 
   return (
     <React.Fragment>
-      <Button
-        style={{
-          marginTop: "20px",
-        }}
-        variant="primary"
-        onClick={toggleOpen}
-      >
+      <Button variant="primary" onClick={toggleOpen}>
         <InfrastructureIcon style={{ marginRight: "4px" }} />
         Add a Node
       </Button>

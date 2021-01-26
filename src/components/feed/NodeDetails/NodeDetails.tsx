@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import Moment from "react-moment";
 import { connect } from "react-redux";
 import {Dispatch} from 'redux'
@@ -26,11 +26,11 @@ import {
   FileArchiveIcon,
   OutlinedClockIcon,
   InProgressIcon,
+  CalendarAltIcon,
 } from "@patternfly/react-icons";
 
 import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PluginStatus } from "../../../store/plugin/types";
 import { displayDescription } from "../FeedOutputBrowser/utils";
 import "./NodeDetails.scss";
@@ -71,27 +71,28 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
   const pluginStatus =
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
 
+ 
   React.useEffect(() => {
-    async function fetchData() {
-      const instanceParameters = await selected?.getParameters({
-        limit: 100,
-        offset: 0,
-      });
+     const fetchData = async () => {
+       const instanceParameters = await selected?.getParameters({
+         limit: 100,
+         offset: 0,
+       });
 
-      const plugin = await selected?.getPlugin();
-      const pluginParameters = await plugin?.getPluginParameters({
-        limit: 100,
-        offset: 0,
-      });
+       const plugin = await selected?.getPlugin();
+       const pluginParameters = await plugin?.getPluginParameters({
+         limit: 100,
+         offset: 0,
+       });
 
-      if (pluginParameters && instanceParameters) {
-        setNodeState({
-          plugin,
-          instanceParameters,
-          pluginParameters,
-        });
-      }
-    }
+       if (pluginParameters && instanceParameters) {
+         setNodeState({
+           plugin,
+           instanceParameters,
+           pluginParameters,
+         });
+       }
+     };
     fetchData();
     return () => {
       pluginInstances?.data
@@ -107,7 +108,7 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
     };
   }, [selected, pluginInstances]);
 
-   const command = React.useCallback(getCommand, [
+  const command = React.useCallback(getCommand, [
      plugin,
      instanceParameters,
      pluginParameters,
@@ -116,10 +117,12 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
    const title = React.useMemo(() => {
      return pluginStatus && getCurrentTitleFromStatus(pluginStatus);
    }, [pluginStatus]);
+   
    const runTime = React.useCallback(getRuntimeString, [
      selected,
      pluginStatus,
    ]);
+   
    const pluginTitle = React.useMemo(() => {
      return `${selected?.data.plugin_name} v. ${selected?.data.plugin_version}`;
    }, [selected]);
@@ -135,82 +138,68 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
     );
   } else {
         return (
-          <>
-            <div className="details-header-wrap">
-              <div>
-                Selected Node:
-                <Title headingLevel="h2" size="xl">
-                  {pluginTitle}
-                </Title>
-              </div>
-              <div>
-                <TextCopyPopover
-                  text={
-                    plugin && instanceParameters && pluginParameters
-                      ? command(plugin, instanceParameters, pluginParameters)
-                      : ""
-                  }
-                  headerContent={`Docker Command for ${pluginTitle}`}
-                  max-width="80rem"
-                  rows={15}
-                  className="view-command-wrap"
-                >
-                  <Button>
-                    <TerminalIcon />
-                    View Command
-                    <CaretDownIcon />
-                  </Button>
-                </TextCopyPopover>
-              </div>
+          <div className="node-details">
+            <div className="node-details__title">
+              <Title headingLevel="h3" size="xl">
+                {pluginTitle}
+              </Title>
+              <TextCopyPopover
+                text={
+                  plugin && instanceParameters && pluginParameters
+                    ? command(plugin, instanceParameters, pluginParameters)
+                    : ""
+                }
+                headerContent={`Docker Command for ${pluginTitle}`}
+                max-width="80rem"
+                rows={15}
+                className="view-command-wrap"
+              >
+                <Button>
+                  <TerminalIcon />
+                  View Command
+                  <CaretDownIcon />
+                </Button>
+              </TextCopyPopover>
             </div>
-            <Grid className="node-details-grid">
+            <Grid 
+           
+            className="node-details__grid">
               <GridItem span={2} className="title">
                 Status
               </GridItem>
               <GridItem span={10} className="value">
-                {selected?.data.status === "waitingForPrevious" ? (
+                {selected.data.status === "waitingForPrevious" ? (
                   <>
                     <OutlinedClockIcon />
                     <span>Waiting for Previous</span>
                   </>
-                ) : selected?.data.status === "scheduled" ? (
+                ) : selected.data.status === "scheduled" ? (
                   <>
                     <InProgressIcon />
                     <span>Scheduled</span>
                   </>
-                ) : selected?.data.status === "registeringFiles" ? (
+                ) : selected.data.status === "registeringFiles" ? (
                   <>
                     <FileArchiveIcon />
                     <span>Registering Files</span>
                   </>
-                ) : selected?.data.status === "finishedWithError" ? (
+                ) : selected.data.status === "finishedWithError" ? (
                   <>
                     <ErrorCircleOIcon />
                     <span>FinishedWithError</span>
                   </>
-                ) : selected?.data.status === "cancelled" ? (
+                ) : selected.data.status === "cancelled" ? (
                   <>
                     <ErrorCircleOIcon />
                     <span>Cancelled</span>
                   </>
-                ) : selected?.data.status === "finishedSuccessfully" ? (
+                ) : selected.data.status === "finishedSuccessfully" ? (
                   <>
                     <CheckIcon />
                     <span>FinishedSuccessfully</span>
                   </>
                 ) : pluginStatus ? (
-                  <div className="node-details-grid__title">
-                    <h3
-                      className="node-details-grid__title-label"
-                      style={{ color: "white" }}
-                    >
-                      {!title || title === "Unknown Status" ? (
-                        <Skeleton width="33%" />
-                      ) : (
-                        title
-                      )}
-                    </h3>
-                  </div>
+                  <div className="title">{title}</div>
                 ) : (
                   <>
                     <OnRunningIcon />
@@ -236,18 +225,18 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
                 {selected?.data.id}
               </GridItem>
               {runTime && (
-                <>
+                <Fragment>
                   <GridItem span={2} className="title">
-                    <FontAwesomeIcon icon={["far", "calendar-alt"]} />
+                    <CalendarAltIcon   />
                     Total Runtime:
                   </GridItem>
                   <GridItem span={10} className="value">
                     {selected && selected.data && runTime(selected)}
                   </GridItem>
-                </>
+                </Fragment>
               )}
             </Grid>
-            <div className="btn-container">
+            <div className="node-details__actions">
               {selected.data.status === "finishedWithError" ||
               selected.data.status === "cancelled" ? null : (
                 <AddNode />
@@ -256,13 +245,10 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
                 <DeleteNode />
               )}
             </div>
-
-            <br />
-            <br />
-            <label style={{ color: "white", fontWeight: "bold" }}>
-              Plugin output may be viewed below.
-            </label>
-          </>
+            <div className="node-details__infoLabel">
+              <label>Plugin output may be viewed below.</label>
+            </div>
+          </div>
         );
   }
 

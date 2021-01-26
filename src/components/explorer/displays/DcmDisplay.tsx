@@ -16,9 +16,7 @@ const DcmDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   };
 
   return (
-    <div className="dcm-display">
       <DcmImage file={fileBlob} />
-    </div>
   );
 };
 

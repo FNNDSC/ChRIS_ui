@@ -1,0 +1,117 @@
+/*
+*  File:            feed.scss
+*  Description:     This files holds styles specific for the Feed view page
+*  Author:          ChRIS UI
+*/
+
+@import "../../assets/scss/abstracts/colors";
+@import '../../assets/scss/helpers/mixins';
+
+
+
+.feed-header {
+
+  &__split {
+  display:flex;
+  flex-direction: column;  
+  }
+
+  .pf-c-title {
+    display:inline-block;
+    margin-top: 0.5rem;
+  }
+
+  &__count {
+    color:var(--pf-global--Color-200);
+    font-weight: var(--fw-normal);
+    margin-left:0.25em;
+  }
+
+}
+
+
+.feed-list {
+  .pf-c-table {
+     --pf-c-table-tbody-cell--PaddingTop: 1rem;
+     --pf-c-table-tbody-cell--PaddingBottom: 1rem;
+     margin-bottom:1rem;
+  }
+
+  &__split {
+    display:flex;
+    align-items: center;
+  }
+
+  &__name {
+    a {
+      margin-left:0.25em;
+    }
+    cursor:pointer;
+    outline:none;
+  }
+
+  &__last-commit {
+    display:block;
+     &::first-letter {
+      text-transform: uppercase;
+    }
+
+  }
+
+   td:last-child {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+}
+
+.section-one {
+ height: 7vh;
+@include media-query(992px){
+  min-height: 5vh;
+ }
+
+ @include media-query(768px){
+  min-height: 5vh;
+ }
+
+ @include media-query(1200px){
+   min-height: 5vh;
+ }
+
+}
+
+.section-two {
+ height:45vh;
+
+@include media-query(992px){
+  min-height:45vh;
+ }
+ @include media-query(768px){
+  min-height:45vh;
+ }
+
+  @include media-query(1200px){
+   min-height:45vh;
+ }
+
+
+}
+
+.section-three {
+  @include section-three;
+}
+
+.feed-view {
+  height:100%;
+}
+
+.feed-block {
+  background: $tree-node-backgound;
+  height:100%;
+}
+
+.node-block{
+  height:100%;
+}
+

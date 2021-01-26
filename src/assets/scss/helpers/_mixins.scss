@@ -41,3 +41,29 @@
   }
 
 
+  @mixin media-query($size){
+      @media only screen and (min-width:$size){
+          @content;
+      }
+  }
+
+
+
+@mixin section-three {
+ height: 45vh;
+
+ @include media-query(768px){
+   min-height:45vh  
+ }
+
+  @include media-query(992px){
+   min-height:45vh;
+ }
+  
+@include media-query(1200px){
+   min-height:45vh;
+ }
+
+}
+
+

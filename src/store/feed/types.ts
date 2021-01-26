@@ -87,7 +87,7 @@ export interface PluginInstancePayload {
 // Description state for main user items[] and item
 export interface IFeedState {
   allFeeds: {
-    data?: Feed["data"][];
+    data?: Feed[];
     error: any;
     loading: boolean;
     totalFeedsCount: 0;

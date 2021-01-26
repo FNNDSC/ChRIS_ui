@@ -4,7 +4,10 @@
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 import UITreeNodeModel from "../../../../api/models/file-explorer.model";
 
-export function createTreeFromFiles(selected?: PluginInstance, files?: FeedFile[]) {
+export function createTreeFromFiles(
+  selected?: PluginInstance,
+  files?: FeedFile[]
+) {
   if (!files || !selected) return null;
   const model = new UITreeNodeModel(files, selected);
   const tree = model.getTree();
@@ -22,13 +25,11 @@ export function getPluginName(plugin: PluginInstance) {
 }
 
 // Format plugin name to "Name v. Version"
-export function getPluginDisplayName(plugin: PluginInstance){
+export function getPluginDisplayName(plugin: PluginInstance) {
   return `${plugin.data.plugin_name} v. ${plugin.data.plugin_version}`;
 }
 
-
 export function displayDescription(label: any) {
-
   if (label.error) {
     return "Error in compute";
   } else if (label.status === "pushing" && label.previous === "none") {
@@ -57,7 +58,5 @@ export function displayDescription(label: any) {
     label.status !== true
   ) {
     return "Finishing up";
-  } 
+  }
 }
-
-

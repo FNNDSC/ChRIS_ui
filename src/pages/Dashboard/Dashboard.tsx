@@ -14,30 +14,7 @@ class DashboardPage extends React.Component<AllProps> {
   getTitle=()=>{
     return (
       <>
-        <span
-          style={{
-            marginBottom: "0.5rem",
-            fontSize: "24px",
-            display: "block",
-          }}
-        >
-          Welcome to the ChRIS UI Dashboard
-        </span>
-        <Badge
-          style={{
-            marginRight: "1rem",
-            display: "inline-block",
-          }}
-          key={4}
-        >
-          <span>Version: 1.0.6</span>
-        </Badge>
-        <Badge key={3}>
-          <span>
-            Latest update:{" "}
-            <Moment format="DD MMM YYYY @ HH:mm">{`2020-12-23T16:00:14.297464-04:00`}</Moment>
-          </span>
-        </Badge>
+        <span>Welcome to the ChRIS UI Dashboard</span>
       </>
     );
   }
