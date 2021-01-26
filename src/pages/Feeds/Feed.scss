@@ -66,34 +66,33 @@
 }
 
 .section-one {
- height:auto;
- 
+ height: 7vh;
 @include media-query(992px){
-   height:auto
+  min-height: 5vh;
  }
 
  @include media-query(768px){
-   height:auto
+  min-height: 5vh;
  }
 
  @include media-query(1200px){
-   height:auto;
+   min-height: 5vh;
  }
 
 }
 
 .section-two {
-  height:auto;
+ height:45vh;
 
-  @include media-query(992px){
-   min-height:auto;
+@include media-query(992px){
+  min-height:45vh;
  }
  @include media-query(768px){
-   min-height:auto
+  min-height:45vh;
  }
 
   @include media-query(1200px){
-   height:30vh;
+   min-height:45vh;
  }
 
 

@@ -3,12 +3,27 @@ import { Link } from "react-router-dom";
 import ToolbarComponent from "./Toolbar";
 import brandImg from "../../assets/images/logo_chris_dashboard.png";
 import { IUserState } from "../../store/user/types";
-import { PageHeader, PageHeaderTools, Brand } from "@patternfly/react-core";
+import {
+  PageHeader,
+  PageHeaderTools,
+  Brand,
+  Badge,
+} from "@patternfly/react-core";
+import Moment from "react-moment";
+
 
 interface IHeaderProps {
   user: IUserState;
   onNavToggle: () => void;
 }
+
+let BadgeStyle = {
+  marginRight: "1rem",
+  display: "inline-block",
+  background: "#06c",
+  fontSize: "1rem",
+};
+
 
 class Header extends React.Component<IHeaderProps> {
   render() {
@@ -23,7 +38,20 @@ class Header extends React.Component<IHeaderProps> {
       </PageHeaderTools>
     );
 
-    const brand = <Brand src={brandImg} alt="ChRIS Logo" />;
+    const brand = (
+      <React.Fragment>
+        <Brand src={brandImg} alt="ChRIS Logo" />
+        <Badge key={4} style={BadgeStyle}>
+          <span>Version: 1.0.6</span>
+        </Badge>
+        <Badge key={3} style={BadgeStyle}>
+          <span>
+            Latest update:{" "}
+            <Moment format="DD MMM YYYY @ HH:mm">{`2021-01-25T21:30:14.297464-04:00`}</Moment>
+          </span>
+        </Badge>
+      </React.Fragment>
+    );
 
     return (
       <PageHeader

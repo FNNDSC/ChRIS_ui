@@ -1,6 +1,6 @@
 import React from 'react';
 import { Steps } from "antd";
-import { GridItem, Grid, Title } from "@patternfly/react-core";
+import { GridItem, Grid, Title, Spinner } from "@patternfly/react-core";
 import {Spin, Alert} from 'antd' 
 import ReactJSON from "react-json-view";
 import "../../explorer/file-detail.scss";
@@ -10,7 +10,7 @@ import { isEmpty } from "lodash";
 import classNames from "classnames";
 import LogTabs from "./LogTabs";
 import LogTerminal from "./LogTerminal";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import "antd/dist/antd.css";
 
 const { Step } = Steps;
@@ -67,7 +67,8 @@ const PluginStatus:React.FC<PluginStatusProps>=({
                     "Syncing data from compute environment";
               }
               return (
-                <Step onClick={() => {
+                <Step
+                  onClick={() => {
                     handleClick(label.step);
                   }}
                   description={currentDescription}
@@ -83,9 +84,7 @@ const PluginStatus:React.FC<PluginStatusProps>=({
                       {label.title}
                     </span>
                   }
-                  icon={
-                    showIcon && <FontAwesomeIcon icon="spinner" spin={true} />
-                  }
+                  icon={showIcon && <Spinner size="md" />}
                   status={
                     label.error === true
                       ? "error"
