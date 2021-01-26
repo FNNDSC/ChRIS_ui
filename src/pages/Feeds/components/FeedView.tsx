@@ -72,7 +72,6 @@ export const FeedView: React.FC<FeedViewProps> = ({
 
   return (
     <React.Fragment>
-    
       <PageSection
         className="section-one"
         isWidthLimited
@@ -121,9 +120,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
           </GridItem>
         </Grid>
       </PageSection>
-      <PageSection
-      className='section-three'
-      >
+      <PageSection className="section-three">
         <FeedOutputBrowser handlePluginSelect={onNodeClick} />
       </PageSection>
     </React.Fragment>
