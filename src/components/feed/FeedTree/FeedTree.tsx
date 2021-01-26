@@ -95,7 +95,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
 
   componentDidMount() {
     this.bindZoomListener(this.props);
-    const { data: instances, error, loading } = this.props.pluginInstances;
+    const { data: instances } = this.props.pluginInstances;
     if (instances && instances.length > 0) {
       const tree = getFeedTree(instances);
       this.setState({
