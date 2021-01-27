@@ -27,6 +27,7 @@ import {
   OutlinedClockIcon,
   InProgressIcon,
   CalendarAltIcon,
+  ErrorCircleOIconConfig
 } from "@patternfly/react-icons";
 
 import AddNode from "../AddNode/AddNode";
@@ -71,28 +72,27 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
   const pluginStatus =
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
 
- 
   React.useEffect(() => {
-     const fetchData = async () => {
-       const instanceParameters = await selected?.getParameters({
-         limit: 100,
-         offset: 0,
-       });
+    const fetchData = async () => {
+      const instanceParameters = await selected?.getParameters({
+        limit: 100,
+        offset: 0,
+      });
 
-       const plugin = await selected?.getPlugin();
-       const pluginParameters = await plugin?.getPluginParameters({
-         limit: 100,
-         offset: 0,
-       });
+      const plugin = await selected?.getPlugin();
+      const pluginParameters = await plugin?.getPluginParameters({
+        limit: 100,
+        offset: 0,
+      });
 
-       if (pluginParameters && instanceParameters) {
-         setNodeState({
-           plugin,
-           instanceParameters,
-           pluginParameters,
-         });
-       }
-     };
+      if (pluginParameters && instanceParameters) {
+        setNodeState({
+          plugin,
+          instanceParameters,
+          pluginParameters,
+        });
+      }
+    };
     fetchData();
     return () => {
       pluginInstances?.data
@@ -109,25 +109,21 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
   }, [selected, pluginInstances]);
 
   const command = React.useCallback(getCommand, [
-     plugin,
-     instanceParameters,
-     pluginParameters,
-   ]);
+    plugin,
+    instanceParameters,
+    pluginParameters,
+  ]);
 
-   const title = React.useMemo(() => {
-     return pluginStatus && getCurrentTitleFromStatus(pluginStatus);
-   }, [pluginStatus]);
-   
-   const runTime = React.useCallback(getRuntimeString, [
-     selected,
-     pluginStatus,
-   ]);
-   
-   const pluginTitle = React.useMemo(() => {
-     return `${selected?.data.plugin_name} v. ${selected?.data.plugin_version}`;
-   }, [selected]);
+  const title = React.useMemo(() => {
+    return pluginStatus && getCurrentTitleFromStatus(pluginStatus);
+  }, [pluginStatus]);
 
- 
+  const runTime = React.useCallback(getRuntimeString, [selected, pluginStatus]);
+
+  const pluginTitle = React.useMemo(() => {
+    return `${selected?.data.plugin_name} v. ${selected?.data.plugin_version}`;
+  }, [selected]);
+
   if (!selected || !selected.data) {
     return (
       <Skeleton
@@ -137,121 +133,117 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
       />
     );
   } else {
-        return (
-          <div className="node-details">
-            <div className="node-details__title">
-              <Title headingLevel="h3" size="xl">
-                {pluginTitle}
-              </Title>
-              <TextCopyPopover
-                text={
-                  plugin && instanceParameters && pluginParameters
-                    ? command(plugin, instanceParameters, pluginParameters)
-                    : ""
-                }
-                headerContent={`Docker Command for ${pluginTitle}`}
-                max-width="80rem"
-                rows={15}
-                className="view-command-wrap"
-              >
-                <Button>
-                  <TerminalIcon />
-                  View Command
-                  <CaretDownIcon />
-                </Button>
-              </TextCopyPopover>
-            </div>
-            <Grid 
-           
-            className="node-details__grid">
-              <GridItem span={2} className="title">
-                Status
-              </GridItem>
-              <GridItem span={10} className="value">
-                {selected.data.status === "waitingForPrevious" ? (
-                  <>
-                    <OutlinedClockIcon />
-                    <span>Waiting for Previous</span>
-                  </>
-                ) : selected.data.status === "scheduled" ? (
-                  <>
-                    <InProgressIcon />
-                    <span>Scheduled</span>
-                  </>
-                ) : selected.data.status === "registeringFiles" ? (
-                  <>
-                    <FileArchiveIcon />
-                    <span>Registering Files</span>
-                  </>
-                ) : selected.data.status === "finishedWithError" ? (
-                  <>
-                    <ErrorCircleOIcon />
-                    <span>FinishedWithError</span>
-                  </>
-                ) : selected.data.status === "cancelled" ? (
-                  <>
-                    <ErrorCircleOIcon />
-                    <span>Cancelled</span>
-                  </>
-                ) : selected.data.status === "finishedSuccessfully" ? (
-                  <>
-                    <CheckIcon />
-                    <span>FinishedSuccessfully</span>
-                  </>
-                ) : pluginStatus ? (
-                  <div className="title">{title}</div>
-                ) : (
-                  <>
-                    <OnRunningIcon />
-                    <span>Started</span>
-                  </>
-                )}
-              </GridItem>
+    console.log("PluginStatus",  pluginStatus);;
+    return (
+      <div className="node-details">
+        <div className="node-details__title">
+          <Title headingLevel="h3" size="xl">
+            {pluginTitle}
+          </Title>
+          <TextCopyPopover
+            text={
+              plugin && instanceParameters && pluginParameters
+                ? command(plugin, instanceParameters, pluginParameters)
+                : ""
+            }
+            headerContent={`Docker Command for ${pluginTitle}`}
+            max-width="80rem"
+            rows={15}
+            className="view-command-wrap"
+          >
+            <Button>
+              <TerminalIcon />
+              View Command
+              <CaretDownIcon />
+            </Button>
+          </TextCopyPopover>
+        </div>
+        <Grid className="node-details__grid">
+          <GridItem span={2} className="title">
+            Status
+          </GridItem>
+          <GridItem span={10} className="value">
+            {selected.data.status === "waitingForPrevious" ? (
+              <>
+                <OutlinedClockIcon />
+                <span>Waiting for Previous</span>
+              </>
+            ) : selected.data.status === "scheduled" ? (
+              <>
+                <InProgressIcon />
+                <span>Scheduled</span>
+              </>
+            ) : selected.data.status === "registeringFiles" ? (
+              <>
+                <FileArchiveIcon />
+                <span>Registering Files</span>
+              </>
+            ) : selected.data.status === "finishedWithError" ? (
+              <>
+                <ErrorCircleOIcon />
+                <span>FinishedWithError</span>
+              </>
+            ) : selected.data.status === "cancelled" ? (
+              <>
+                <ErrorCircleOIcon />
+                <span>Cancelled</span>
+              </>
+            ) : selected.data.status === "finishedSuccessfully" ? (
+              <>
+                <CheckIcon />
+                <span>FinishedSuccessfully</span>
+              </>
+            ) : pluginStatus ? (
+              <div className="title">{title}</div>
+            ) : (
+              <>
+                <OnRunningIcon />
+                <span>Started</span>
+              </>
+            )}
+          </GridItem>
 
-              <GridItem span={2} className="title">
-                Created
-              </GridItem>
-              <GridItem span={10} className="value">
-                <CalendarDayIcon />
-                <Moment format="DD MMM YYYY @ HH:mm">
-                  {selected?.data.start_date}
-                </Moment>
-              </GridItem>
+          <GridItem span={2} className="title">
+            Created
+          </GridItem>
+          <GridItem span={10} className="value">
+            <CalendarDayIcon />
+            <Moment format="DD MMM YYYY @ HH:mm">
+              {selected?.data.start_date}
+            </Moment>
+          </GridItem>
 
+          <GridItem span={2} className="title">
+            Node ID
+          </GridItem>
+          <GridItem span={10} className="value">
+            {selected?.data.id}
+          </GridItem>
+          {runTime && (
+            <Fragment>
               <GridItem span={2} className="title">
-                Node ID
+                <CalendarAltIcon />
+                Total Runtime:
               </GridItem>
               <GridItem span={10} className="value">
-                {selected?.data.id}
+                {selected && selected.data && runTime(selected)}
               </GridItem>
-              {runTime && (
-                <Fragment>
-                  <GridItem span={2} className="title">
-                    <CalendarAltIcon   />
-                    Total Runtime:
-                  </GridItem>
-                  <GridItem span={10} className="value">
-                    {selected && selected.data && runTime(selected)}
-                  </GridItem>
-                </Fragment>
-              )}
-            </Grid>
-            <div className="node-details__actions">
-              {selected.data.status === "finishedWithError" ||
-              selected.data.status === "cancelled" ? null : (
-                <AddNode />
-              )}
-              {!selected?.data.plugin_name.includes("dircopy") && (
-                <DeleteNode />
-              )}
-            </div>
-            <div className="node-details__infoLabel">
-              <label>Plugin output may be viewed below.</label>
-            </div>
-          </div>
-        );
+            </Fragment>
+          )}
+        </Grid>
+        <div className="node-details__actions">
+          {selected.data.status === "finishedWithError" ||
+          selected.data.status === "cancelled" ? null : (
+            <AddNode />
+          )}
+          {!selected?.data.plugin_name.includes("dircopy") && <DeleteNode />}
+        </div>
+        <div className="node-details__infoLabel">
+          <label>Plugin output may be viewed below.</label>
+        </div>
+      </div>
+    );
   }
-
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
@@ -273,7 +265,7 @@ function getCurrentTitleFromStatus(statusLabels?: PluginStatus[]) {
     statusLabels
       .map((label) => {
         const computedTitle = displayDescription(label);
-
+        
         switch (computedTitle) {
           case "Transmitting data to compute environment":
             return (
@@ -313,6 +305,14 @@ function getCurrentTitleFromStatus(statusLabels?: PluginStatus[]) {
                 <span>Finishing up</span>
               </>
             );
+
+          case "Error in compute": 
+          return(
+            <> 
+            <ErrorCircleOIcon/>
+            <span>Error in Compute</span>
+            </>
+          )
 
           default:
             return "Unknown Status";

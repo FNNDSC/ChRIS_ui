@@ -27,11 +27,13 @@ import {
   getPluginInstanceResourceSuccess,
   stopFetchingPluginResources,
   getFeedError,
+  checkQueue,
 } from "./actions";
 import {PluginStatusLabels} from './types'
 
 import { Task } from "redux-saga";
 import { inflate } from "pako";
+import { AvStop } from "material-ui/svg-icons";
 
 // ------------------------------------------------------------------------
 // Description: Get Feeds list and search list by feed name (form input driven)
@@ -101,7 +103,6 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
           ...pluginInstances,
           ...pluginInstanceList.getItems(),
         ];
-     
       } catch (e) {
         throw new Error(
           "Error while fetching a paginated list of plugin Instances"
@@ -115,11 +116,9 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
       pluginInstances,
     };
 
-    console.log("PluginInstances", pluginInstances, feed);
-
     yield all([
       put(getPluginInstancesSuccess(pluginInstanceObj)),
-     put(getPluginInstanceResources(pluginInstanceObj.pluginInstances)),
+      put(getPluginInstanceResources(pluginInstanceObj.pluginInstances)),
     ]);
   } catch (error) {
      yield put(getPluginInstancesError(error));
@@ -147,8 +146,6 @@ function* handleDeleteNode(action: IActionTypeParam) {
     console.log("Delete Node Error", err);
   }
 }
-
-
 
 
 
@@ -182,20 +179,20 @@ function* handleGetPluginStatus(
       ) {
         yield put(stopFetchingPluginResources(instance.data.id));
       }  
-      else if(parsedStatus?.compute.return?.l_status[0]==='undefined'){
-        yield instance._put({
-          status:'cancelled'
-        })
-        yield put(stopFetchingPluginResources(instance.data.id))     
-      }
-       else if (pluginDetails.data.status === "finishedSuccessfully") {
-        yield call(fetchPluginFiles, instance);
-        yield put(stopFetchingPluginResources(instance.data.id));
-      } else {
+      if(
+        pluginDetails.data.status==='finishedSuccessfully'
+      ){
+         
+         yield call(fetchPluginFiles, instance);
+         yield call(checkQueue);
+         yield put(stopFetchingPluginResources(instance.data.id));
+        }
+       else {
         yield delay(7000);
       }
     } catch (error) {
       yield put(stopFetchingPluginResources(instance.data.id));
+      
     }
   }
 }
@@ -217,7 +214,6 @@ function* fetchPluginFiles(plugin: PluginInstance) {
     }
 
     let id = plugin.data.id;
-
     let payload = {
       id,
       files,
@@ -241,30 +237,61 @@ function cancelPolling(task: Task) {
 }
 
 
-function* watchCancelPoll(pollTask: { [id: number]: Task }) {
+type PollTask={
+   [id: number]: Task 
+}
+
+function* watchCancelPoll(pollTask: PollTask, tasks:PluginInstance[]) {
+
   yield takeEvery(
     FeedActionTypes.STOP_FETCHING_PLUGIN_RESOURCES,
-    (action:  IActionTypeParam)  =>  {
+    function* (action:  IActionTypeParam) {
       const id  =  action.payload;
       const taskToCancel  =  pollTask[id];
       cancelPolling(taskToCancel)
+      const instance = tasks.shift();
+      if(instance){
+         const task:Task = yield fork(handleGetPluginStatus, instance);
+         pollTask[instance.data.id] = task;
+      }   
     }
   );
 }
 
 function* pollorCancelEndpoints(action: IActionTypeParam) {
-  
   const pluginInstances = action.payload;
-  
   let pollTask: {
     [id: number]: Task;
   } = {};
 
+  let tasks:PluginInstance[]=[]
+
   for (let i = 0; i < pluginInstances.length; i++) {
-    const task = yield fork(handleGetPluginStatus,pluginInstances[i]);
-    pollTask[pluginInstances[i].data.id] = task; 
+    const instance = pluginInstances[i];
+    if(instance.data.status==='waitingForPrevious'){
+      tasks.push(instance)
+    }
+    if(instance.data.status==='finishedSuccessfully'){
+      yield call(fetchPluginFiles, instance);
+    }
+    else if(instance.data.status==='started') {
+      const task = yield fork(handleGetPluginStatus, instance); 
+      pollTask[instance.data.id] = task;
+    }
+   
   }
-  yield watchCancelPoll(pollTask);
+
+  yield watchCancelPoll(pollTask, tasks);
+ 
+}
+
+
+function* handleFeedReset(action:IActionTypeParam){
+  const pluginInstances=action.payload;
+
+  for(let i=0; i < pluginInstances.length; i++){
+    yield put(stopFetchingPluginResources(pluginInstances[i].data.id));
+  }
 }
 
 /**
@@ -302,6 +329,10 @@ function* watchDeleteNode() {
   yield takeEvery(FeedActionTypes.DELETE_NODE, handleDeleteNode);
 }
 
+function* watchResetState(){
+  yield takeEvery(FeedActionTypes.RESET_FEED_STATE, handleFeedReset)
+}
+
 
 
 
@@ -316,6 +347,7 @@ export function* feedSaga() {
     fork(watchGetPluginInstanceResources),
     fork(watchAddNode),
     fork(watchDeleteNode),
+    fork(watchResetState)
   ]);
 }
 

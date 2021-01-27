@@ -41,7 +41,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
-      console.log("Action.payload", action.payload);
       return {
         ...state,
         allFeeds: {
@@ -130,11 +129,10 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
 
     case FeedActionTypes.GET_PLUGIN_INSTANCE_RESOURCE_SUCCESS: {
       let { id, pluginStatus, pluginLog } = action.payload;
-      
-      if(pluginStatus){
+
+      if (pluginStatus) {
         pluginStatus = getStatusLabels(pluginStatus);
       }
-
 
       return {
         ...state,
@@ -250,7 +248,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       };
     }
 
-    case FeedActionTypes.RESET_FEED_STATE:{
+    case FeedActionTypes.RESET_FEED_STATE: {
       return {
         ...state,
         currentFeed: {

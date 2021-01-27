@@ -48,11 +48,15 @@ export const FeedView: React.FC<FeedViewProps> = ({
   },
   getFeedRequest,
   getSelectedPlugin,
-  destroyFeedState
+  destroyFeedState,
+  pluginInstances,
 }) => {
   const getFeed = React.useCallback(() => {
     getFeedRequest(id);
   }, [id, getFeedRequest]);
+
+  const {data}=pluginInstances;
+  console.log("Data", data);
 
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
@@ -61,10 +65,16 @@ export const FeedView: React.FC<FeedViewProps> = ({
       activeItem: "my_feeds",
     });
     getFeed();
+    
+  }, [id, getFeed, setSidebarActive]);
+
+
+  React.useEffect(()=>{
     return () => {
-      destroyFeedState();
-    };
-  }, [id, getFeed, setSidebarActive, destroyFeedState]);
+        if(data)
+        destroyFeedState(data)
+    }
+  },[data, destroyFeedState])
 
   const onNodeClick = (node: PluginInstance) => {
     getSelectedPlugin(node);
@@ -131,14 +141,12 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedRequest: (id: string) => dispatch(getFeedRequest(id)),
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
-  destroyFeedState: () => dispatch(destroyFeedState()),
+  destroyFeedState: (data:PluginInstance[]) => dispatch(destroyFeedState(data)),
   getSelectedPlugin: (item: PluginInstance) =>
     dispatch(getSelectedPlugin(item)),
 });
 
 const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
-  sidebarActiveItem: ui.sidebarActiveItem,
-  selectedPlugin: feed.selectedPlugin,
   pluginInstances: feed.pluginInstances,
 });
 

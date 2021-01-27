@@ -73,6 +73,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   }, [getPluginFiles]);
 
   if (!selected || isEmpty(pluginInstances) || loading) {
+    
     return (
       <Grid hasGutter className="feed-output-browser">
         <GridItem
@@ -80,19 +81,17 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           rowSpan={12}
           span={2}
         >
-          <ul>
             <Skeleton
               shape="square"
               width="30%"
               screenreaderText="Loading Sidebar"
             />
-          </ul>
         </GridItem>
         <GridItem className="feed-output-browser__main" span={10} rowSpan={12}>
           <Grid>
             <GridItem span={12} rowSpan={12}>
               <Skeleton
-                height="75%"
+                height="100%"
                 width="75%"
                 screenreaderText="Fetching Plugin Resources"
               />
