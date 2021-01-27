@@ -17,9 +17,9 @@ import {
 import { setSidebarActive } from "../../../store/ui/actions";
 import {
   getFeedRequest,
-  destroyFeedState,
-  getSelectedPlugin,
  
+  getSelectedPlugin,
+  destroyPluginState,
 } from "../../../store/feed/actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { RouteComponentProps } from "react-router-dom";
@@ -32,7 +32,7 @@ import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getFeedRequest: typeof getFeedRequest;
-  destroyFeedState: typeof destroyFeedState;
+  destroyPluginState: typeof destroyPluginState;
   getSelectedPlugin: typeof getSelectedPlugin;
 }
 
@@ -48,15 +48,14 @@ export const FeedView: React.FC<FeedViewProps> = ({
   },
   getFeedRequest,
   getSelectedPlugin,
-  destroyFeedState,
+  destroyPluginState,
   pluginInstances,
 }) => {
   const getFeed = React.useCallback(() => {
     getFeedRequest(id);
   }, [id, getFeedRequest]);
 
-  const {data}=pluginInstances;
-  console.log("Data", data);
+  const { data } = pluginInstances;
 
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
@@ -65,16 +64,14 @@ export const FeedView: React.FC<FeedViewProps> = ({
       activeItem: "my_feeds",
     });
     getFeed();
-    
   }, [id, getFeed, setSidebarActive]);
 
-
   React.useEffect(()=>{
-    return () => {
-        if(data)
-        destroyFeedState(data)
-    }
-  },[data, destroyFeedState])
+     return ()=>{
+          if(data)
+           destroyPluginState(data)
+     }
+  },[data, destroyPluginState])
 
   const onNodeClick = (node: PluginInstance) => {
     getSelectedPlugin(node);
@@ -141,7 +138,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedRequest: (id: string) => dispatch(getFeedRequest(id)),
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
-  destroyFeedState: (data:PluginInstance[]) => dispatch(destroyFeedState(data)),
+  destroyPluginState: (data: PluginInstance[]) =>
+    dispatch(destroyPluginState(data)),
   getSelectedPlugin: (item: PluginInstance) =>
     dispatch(getSelectedPlugin(item)),
 });

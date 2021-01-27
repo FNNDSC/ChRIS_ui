@@ -38,7 +38,7 @@ const PluginStatus:React.FC<PluginStatusProps>=({
     }
   }
 
-  
+
   const computeLog:ComputeLog|undefined=pluginLog?.info?.compute?.return
   const typedLog:string[] | undefined=computeLog?.d_ret?.l_logs
   
@@ -84,7 +84,7 @@ const PluginStatus:React.FC<PluginStatusProps>=({
                       {label.title}
                     </span>
                   }
-                  icon={showIcon && <Spinner size="md" />}
+                  icon={showIcon && <Spinner size="lg" />}
                   status={
                     label.error === true
                       ? "error"
