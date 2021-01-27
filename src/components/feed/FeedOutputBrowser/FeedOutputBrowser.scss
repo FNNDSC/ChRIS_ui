@@ -8,9 +8,14 @@
   height:100%;
   overflow-y: scroll;
 
+  .pf-c-skeleton, .pf-m-square {
+    background-color: var(--pf-global--palette--black-300) !important;
+  }
+
 
   &__sidebar {
      width:100%;
+     
      .selected {
       color: white;
       background: var(--pf-global--primary-color--100);

@@ -124,4 +124,5 @@ export const FeedActionTypes = keyMirror({
   DELETE_NODE: null,
   DELETE_NODE_SUCCESS: null,
   STOP_FETCHING_PLUGIN_RESOURCES: null,
+  CHECK_QUEUE: null,
 });

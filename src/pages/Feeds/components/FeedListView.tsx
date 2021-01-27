@@ -56,7 +56,7 @@ const FeedListView: React.FC<AllProps> = ({
   });
 
   const generateTableRow = (feed: any) => {
-    console.log("Feed", feed);
+  
     const name = {
       title: (
         <span className="feed-list__name">
@@ -95,7 +95,7 @@ const FeedListView: React.FC<AllProps> = ({
   const { page, perPage, filter } = filterState;
   const { data, loading, error, totalFeedsCount } = allFeeds;
   const cells = ["Feed", "Created", "Last Commit", ""];
-  console.log("AllFeeds", data);
+
   const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
 
   const handlePageSet = (e: any, page: number) => {

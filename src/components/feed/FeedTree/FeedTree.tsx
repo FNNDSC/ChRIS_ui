@@ -6,7 +6,6 @@ import {
   PluginInstancePayload,
   ResourcePayload,
 } from "../../../store/feed/types";
-
 import { ApplicationState } from "../../../store/root/applicationState";
 import "./FeedTree.scss";
 import { getFeedTree, Datum } from "./data";
@@ -14,7 +13,6 @@ import {isEqual} from 'lodash'
 import Link from './Link'
 import Node from './Node'
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
-
 
 
 interface ITreeProps {
@@ -187,11 +185,10 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   render() {
     const { nodes, links } = this.generateTree();
     const { translate, scale } = this.state.d3;
-    const { selectedPlugin} = this.props;
+    const { selectedPlugin } = this.props;
 
-   
     return (
-      <div  className="feed-tree grabbable">
+      <div className="feed-tree grabbable">
         <svg className={`${svgClassName}`} width="100%" height="100%">
           <TransitionGroupWrapper
             component="g"
