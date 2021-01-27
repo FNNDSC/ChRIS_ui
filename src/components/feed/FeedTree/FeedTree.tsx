@@ -61,7 +61,7 @@ const graphClassName='feed-tree__graph'
 
 class FeedTree extends React.Component<AllProps, FeedTreeState> {
   static defaultProps: Partial<AllProps> = {
-    translate: { x:600, y:50},
+    translate: { x: 600, y: 50 },
     scaleExtent: { min: 0.1, max: 1 },
     zoom: 1,
     nodeSize: { x: 120, y: 120 },
@@ -148,6 +148,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       }
     }
 
+    
     if (
       !isEqual(this.props.translate, prevProps.translate) ||
       !isEqual(this.props.scaleExtent, prevProps.scaleExtent) ||
@@ -157,9 +158,24 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     }
   }
 
-  handleNodeClick=(item:PluginInstance)=>{
-    this.props.onNodeClick(item)
+  shouldComponentUpdate(nextProps:AllProps){
+    const prevData = nextProps.pluginInstances.data;
+    const thisData = this.props.pluginInstances.data;
+    if(!isEqual(this.props.translate, nextProps.translate) ||
+      !isEqual(this.props.scaleExtent, nextProps.scaleExtent) || 
+      !isEqual(this.props.pluginInstanceResource, nextProps.pluginInstanceResource)||
+      this.props.selectedPlugin!==nextProps.selectedPlugin || !isEqual(prevData,thisData) ||
+      this.props.zoom !== nextProps.zoom){
+          return true;
+      }
+      return false;
   }
+
+
+  handleNodeClick = (item: PluginInstance) => {
+    this.props.onNodeClick(item);
+  };
+
 
   generateTree() {
     const { nodeSize, separation } = this.props;
@@ -183,6 +199,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   }
 
   render() {
+    console.log("Feed Tree renders")
     const { nodes, links } = this.generateTree();
     const { translate, scale } = this.state.d3;
     const { selectedPlugin } = this.props;
@@ -216,8 +233,9 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       </div>
     );
   }
-}
 
+
+}
 
 
 const mapStateToProps = (state: ApplicationState) => ({

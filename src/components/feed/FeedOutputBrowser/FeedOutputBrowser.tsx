@@ -6,8 +6,9 @@ import JSZip from "jszip";
 import {
   Grid,
   GridItem,
-  Spinner,  
-  Skeleton
+  Spinner,
+  Skeleton,
+  TreeView,
 } from "@patternfly/react-core";
 import {
   FolderOpenIcon,
@@ -32,6 +33,7 @@ import {
 import {getSelectedInstanceResource, getSelectedFiles} from '../../../store/feed/selector'
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 import {isEmpty} from 'lodash'
+import { getFeedTree } from "./data";
 import "./FeedOutputBrowser.scss";
 
 
@@ -70,10 +72,9 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
   React.useEffect(() => {
     getPluginFiles();
-  }, [getPluginFiles]);
+  }, [getPluginFiles, pluginStatus, pluginLog]);
 
   if (!selected || isEmpty(pluginInstances) || loading) {
-    
     return (
       <Grid hasGutter className="feed-output-browser">
         <GridItem
@@ -81,11 +82,11 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           rowSpan={12}
           span={2}
         >
-            <Skeleton
-              shape="square"
-              width="30%"
-              screenreaderText="Loading Sidebar"
-            />
+          <Skeleton
+            shape="square"
+            width="30%"
+            screenreaderText="Loading Sidebar"
+          />
         </GridItem>
         <GridItem className="feed-output-browser__main" span={10} rowSpan={12}>
           <Grid>
@@ -103,28 +104,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   } else {
     const pluginName = selected && selected.data && getPluginName(selected);
     const tree = createTreeFromFiles(selected, pluginFiles);
-    const generateSideItem = (plugin: PluginInstance): React.ReactNode => {
-      const id = plugin && plugin.data.id;
-      const name = getPluginName(plugin);
-      const isSelected = selected && selected.data && selected.data.id === id;
-      const icon = isSelected ? <FolderOpenIcon /> : <FolderCloseIcon />;
-      const className = isSelected ? "selected" : undefined;
-
-      const handleSidebarItemClick = (plugin: PluginInstance) => {
-        handlePluginSelect(plugin);
-      };
-
-      return (
-        <li
-          className={className}
-          key={id}
-          onClick={() => handleSidebarItemClick(plugin)}
-        >
-          {icon}
-          {name}
-        </li>
-      );
-    };
 
     const downloadAllClick = async () => {
       if (!selected) return;
@@ -136,7 +115,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           zip.file(file.data.fname, fileBlob);
         }
       }
-
       const blob = await zip.generateAsync({ type: "blob" });
       const filename = `${getPluginName(selected)}.zip`;
       FileViewerModel.downloadFile(blob, filename);
@@ -157,6 +135,11 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       setPluginModalOpen(!pluginModalOpen);
     };
 
+    let pluginSidebarTree;
+    if (plugins && plugins.length > 0) {
+      pluginSidebarTree = getFeedTree(plugins);
+    }
+
     return (
       <>
         <Grid hasGutter className="feed-output-browser ">
@@ -173,17 +156,17 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             sm={12}
             smRowSpan={12}
           >
-            <ul>
-              {plugins && plugins.length > 0
-                ? plugins
-                    .sort((a: PluginInstance, b: PluginInstance) => {
-                      return a?.data?.id - b?.data?.id;
-                    })
-                    .map(generateSideItem)
-                : new Array(4).map((_, i) => (
-                    <Skeleton width="25%" screenreaderText="Fetching Plugins" />
-                  ))}
-            </ul>
+            {pluginSidebarTree && (
+              <TreeView
+                icon={<FolderCloseIcon />}
+                expandedIcon={<FolderOpenIcon />}
+                data={pluginSidebarTree}
+                defaultAllExpanded
+                onSelect={()=>{
+                  
+                }}
+              />
+            )}
           </GridItem>
           <GridItem
             className="feed-output-browser__main"

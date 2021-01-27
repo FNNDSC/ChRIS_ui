@@ -33,7 +33,7 @@ import {PluginStatusLabels} from './types'
 
 import { Task } from "redux-saga";
 import { inflate } from "pako";
-import { AvStop } from "material-ui/svg-icons";
+
 
 // ------------------------------------------------------------------------
 // Description: Get Feeds list and search list by feed name (form input driven)
@@ -148,7 +148,6 @@ function* handleDeleteNode(action: IActionTypeParam) {
 }
 
 
-
 function* handleGetPluginStatus( 
   instance: PluginInstance
 ) {
@@ -179,20 +178,15 @@ function* handleGetPluginStatus(
       ) {
         yield put(stopFetchingPluginResources(instance.data.id));
       }  
-      if(
-        pluginDetails.data.status==='finishedSuccessfully'
-      ){
-         
-         yield call(fetchPluginFiles, instance);
-         yield call(checkQueue);
-         yield put(stopFetchingPluginResources(instance.data.id));
-        }
-       else {
+      if (pluginDetails.data.status === "finishedSuccessfully") {
+        yield call(fetchPluginFiles, instance);
+        yield call(checkQueue);
+        yield put(stopFetchingPluginResources(instance.data.id));
+      } else {
         yield delay(7000);
       }
     } catch (error) {
       yield put(stopFetchingPluginResources(instance.data.id));
-      
     }
   }
 }
@@ -264,32 +258,29 @@ function* pollorCancelEndpoints(action: IActionTypeParam) {
     [id: number]: Task;
   } = {};
 
-  let tasks:PluginInstance[]=[]
+  let tasks: PluginInstance[] = [];
 
   for (let i = 0; i < pluginInstances.length; i++) {
     const instance = pluginInstances[i];
-    if(instance.data.status==='waitingForPrevious'){
-      tasks.push(instance)
-    }
-    if(instance.data.status==='finishedSuccessfully'){
+    const status = instance.data.status;
+    if (status === "waitingForPrevious") {
+      tasks.push(instance);
+    } else if (status === "finishedSuccessfully") {
       yield call(fetchPluginFiles, instance);
-    }
-    else if(instance.data.status==='started') {
-      const task = yield fork(handleGetPluginStatus, instance); 
+    } else if (status === "started") {
+      const task = yield fork(handleGetPluginStatus, instance);
       pollTask[instance.data.id] = task;
     }
-   
   }
 
   yield watchCancelPoll(pollTask, tasks);
- 
 }
 
 
-function* handleFeedReset(action:IActionTypeParam){
-  const pluginInstances=action.payload;
+function* handlePluginReset(action: IActionTypeParam) {
+  const pluginInstances = action.payload;
 
-  for(let i=0; i < pluginInstances.length; i++){
+  for (let i = 0; i < pluginInstances.length; i++) {
     yield put(stopFetchingPluginResources(pluginInstances[i].data.id));
   }
 }
@@ -330,7 +321,7 @@ function* watchDeleteNode() {
 }
 
 function* watchResetState(){
-  yield takeEvery(FeedActionTypes.RESET_FEED_STATE, handleFeedReset)
+  yield takeEvery(FeedActionTypes.RESET_PLUGIN_STATE, handlePluginReset);
 }
 
 

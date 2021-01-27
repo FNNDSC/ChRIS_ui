@@ -27,7 +27,6 @@ import {
   OutlinedClockIcon,
   InProgressIcon,
   CalendarAltIcon,
-  ErrorCircleOIconConfig
 } from "@patternfly/react-icons";
 
 import AddNode from "../AddNode/AddNode";
@@ -67,6 +66,7 @@ function getInitialState(){
 }
 
 const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, pluginInstances, stopFetchingPluginResource }) => {
+  console.log("Node Details renders");
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const pluginStatus =
@@ -133,7 +133,6 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
       />
     );
   } else {
-    console.log("PluginStatus",  pluginStatus);;
     return (
       <div className="node-details">
         <div className="node-details__title">

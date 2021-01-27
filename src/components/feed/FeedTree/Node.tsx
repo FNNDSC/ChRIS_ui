@@ -83,7 +83,7 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     ) {
       statusClass = "active";
     }
-    if (status === "waitingForPrevious") {
+    if (status === "waitingForPrevious" || status === "scheduled") {
       statusClass = "queued";
     }
 

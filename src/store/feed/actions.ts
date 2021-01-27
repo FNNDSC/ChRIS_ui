@@ -61,8 +61,10 @@ export const deleteNodeSuccess = () =>
 export const stopFetchingPluginResources = (id: number) =>
   action(FeedActionTypes.STOP_FETCHING_PLUGIN_RESOURCES, id);
 
-export const destroyFeedState = (data: PluginInstance[]) =>
-  action(FeedActionTypes.RESET_FEED_STATE, data);
+export const destroyPluginState = (data: PluginInstance[]) =>
+  action(FeedActionTypes.RESET_PLUGIN_STATE, data);
+
+
 
 export const checkQueue = () => {
   return action(FeedActionTypes.CHECK_QUEUE);
