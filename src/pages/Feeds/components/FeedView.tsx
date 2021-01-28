@@ -66,13 +66,6 @@ export const FeedView: React.FC<FeedViewProps> = ({
     getFeed();
   }, [id, getFeed, setSidebarActive]);
 
-  React.useEffect(()=>{
-     return ()=>{
-          if(data)
-           destroyPluginState(data)
-     }
-  },[data, destroyPluginState])
-
   const onNodeClick = (node: PluginInstance) => {
     getSelectedPlugin(node);
   };

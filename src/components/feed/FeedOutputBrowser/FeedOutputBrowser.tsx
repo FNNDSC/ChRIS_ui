@@ -8,12 +8,8 @@ import {
   GridItem,
   Spinner,
   Skeleton,
-  TreeView,
 } from "@patternfly/react-core";
-import {
-  FolderOpenIcon,
-  FolderCloseIcon,
-} from "@patternfly/react-icons";
+
 import FileBrowser from "./FileBrowser";
 import PluginViewerModal from "./PluginViewerModal";
 import PluginStatus from './PluginStatus'
@@ -34,9 +30,11 @@ import {getSelectedInstanceResource, getSelectedFiles} from '../../../store/feed
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 import {isEmpty} from 'lodash'
 import { getFeedTree } from "./data";
+import { Tree } from "antd";
 import "./FeedOutputBrowser.scss";
-
-
+import "antd/dist/antd.css";
+import {DataNode} from './data'
+const {DirectoryTree}=Tree;
 
 export interface FeedOutputBrowserProps {
   pluginInstances: PluginInstancePayload;
@@ -62,17 +60,19 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const { data: plugins, loading } = pluginInstances;
-  const pluginStatus= pluginInstanceResource && pluginInstanceResource.pluginStatus
-  const pluginLog=pluginInstanceResource && pluginInstanceResource.pluginLog
+  const pluginStatus =
+    pluginInstanceResource && pluginInstanceResource.pluginStatus;
+  const pluginLog = pluginInstanceResource && pluginInstanceResource.pluginLog;
   
 
+ 
   const getPluginFiles = React.useCallback(() => {
     selected && getPluginFilesRequest(selected);
   }, [selected]);
 
   React.useEffect(() => {
     getPluginFiles();
-  }, [getPluginFiles, pluginStatus, pluginLog]);
+  }, [getPluginFiles]);
 
   if (!selected || isEmpty(pluginInstances) || loading) {
     return (
@@ -139,6 +139,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     if (plugins && plugins.length > 0) {
       pluginSidebarTree = getFeedTree(plugins);
     }
+    
 
     return (
       <>
@@ -157,13 +158,15 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             smRowSpan={12}
           >
             {pluginSidebarTree && (
-              <TreeView
-                icon={<FolderCloseIcon />}
-                expandedIcon={<FolderOpenIcon />}
-                data={pluginSidebarTree}
-                defaultAllExpanded
-                onSelect={()=>{
-                  
+              <DirectoryTree
+                multiple
+                defaultExpandAll
+                treeData={pluginSidebarTree}
+                onSelect={(node,selectedNode)=>{
+                  //@ts-ignore
+                  console.log("Node", selectedNode.node.item);
+                  //@ts-ignore
+                  handlePluginSelect(selectedNode.node.item);
                 }}
               />
             )}
@@ -216,7 +219,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       </>
     );
   }
-  
 };
 
 const mapStateToProps = (state: ApplicationState) => ({

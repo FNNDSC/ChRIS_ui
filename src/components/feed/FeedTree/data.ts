@@ -8,10 +8,19 @@ export interface Datum {
   children: Datum[];
 }
 
+export interface TreeNodeDatum extends Datum {
+  children: TreeNodeDatum[];
+  __rd3t: {
+    id: string;
+    depth: number;
+    collapsed: boolean;
+  };
+}
+
 export const getFeedTree = (items: PluginInstance[]) => {
   let tree = [],
     mappedArr: {
-      [key: string]: Datum;
+      [key: string]: TreeNodeDatum;
     } = {};
 
   items.forEach((item) => {
@@ -23,6 +32,11 @@ export const getFeedTree = (items: PluginInstance[]) => {
         parentId: item.data.previous_id,
         item: item,
         children: [],
+        __rd3t: {
+          id: "",
+          depth: 0,
+          collapsed: false,
+        },
       };
     }
   });

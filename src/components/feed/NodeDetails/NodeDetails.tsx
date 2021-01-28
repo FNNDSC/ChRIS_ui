@@ -66,7 +66,6 @@ function getInitialState(){
 }
 
 const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, pluginInstances, stopFetchingPluginResource }) => {
-  console.log("Node Details renders");
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const pluginStatus =

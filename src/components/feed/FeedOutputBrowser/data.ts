@@ -1,26 +1,30 @@
 import { PluginInstance } from "@fnndsc/chrisapi";
 
-export interface TreeViewDataItem {
-  name: React.ReactNode;
-  id?: string;
-  children: TreeViewDataItem[];
-  defaultExpanded?: boolean;
+export interface DataNode {
+  children: DataNode[];
+  isLeaf?: boolean;
+  key: string | number;
+  title?: React.ReactNode;
+  item: PluginInstance;
   parentId?: number;
 }
+
+const firstElement = [];
 
 export const getFeedTree = (items: PluginInstance[]) => {
   let tree = [],
     mappedArr: {
-      [key: string]: TreeViewDataItem;
+      [key: string]: DataNode;
     } = {};
 
   items.forEach((item) => {
     let id = item.data.id;
     if (!mappedArr.hasOwnProperty(id)) {
       mappedArr[id] = {
-        id: `${id}`,
-        name: item.data.plugin_name + `_${id}`,
+        key: id,
+        title: item.data.plugin_name,
         parentId: item.data.previous_id,
+        item: item,
         children: [],
       };
     }
@@ -35,6 +39,7 @@ export const getFeedTree = (items: PluginInstance[]) => {
         let parentId = mappedElem.parentId;
         if (parentId) mappedArr[parentId].children.push(mappedElem);
       } else {
+        firstElement.push(mappedElem);
         tree.push(mappedElem);
       }
     }
