@@ -2,7 +2,7 @@ import { Reducer } from "redux";
 import { IFeedState, FeedActionTypes } from "./types";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {getStatusLabels} from './utils'
-import { SSL_OP_ALL } from "constants";
+
 
 // Type-safe initialState
 export const initialState: IFeedState = {

@@ -1,7 +1,6 @@
 import React, {Fragment} from 'react';
 import Moment from "react-moment";
 import { connect } from "react-redux";
-import {Dispatch} from 'redux'
 import { ApplicationState } from "../../../store/root/applicationState";
 
 import { Button, Grid, GridItem, Title, Skeleton } from "@patternfly/react-core";

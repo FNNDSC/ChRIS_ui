@@ -50,20 +50,20 @@
 
 
 @mixin section-three {
- height: 45vh;
+ height: 47.5vh;
+ background: #d2d2d2!important;
 
  @include media-query(768px){
-   min-height:45vh  
+   min-height:47.5vh  
  }
 
   @include media-query(992px){
-   min-height:45vh;
+   min-height:47.5vh;
  }
   
 @include media-query(1200px){
-   min-height:45vh;
+   min-height:47.5vh;
  }
-
 }
 
 
