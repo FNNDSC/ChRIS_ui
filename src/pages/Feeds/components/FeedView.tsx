@@ -17,7 +17,6 @@ import {
 import { setSidebarActive } from "../../../store/ui/actions";
 import {
   getFeedRequest,
- 
   getSelectedPlugin,
   destroyPluginState,
 } from "../../../store/feed/actions";
@@ -34,6 +33,7 @@ interface IPropsFromDispatch {
   getFeedRequest: typeof getFeedRequest;
   destroyPluginState: typeof destroyPluginState;
   getSelectedPlugin: typeof getSelectedPlugin;
+ 
 }
 
 export type FeedViewProps = IUserState &
@@ -49,6 +49,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
   getFeedRequest,
   getSelectedPlugin,
   destroyPluginState,
+ 
   pluginInstances,
 }) => {
   const getFeed = React.useCallback(() => {
@@ -101,7 +102,8 @@ export const FeedView: React.FC<FeedViewProps> = ({
             xl2={7}
             xl2RowSpan={12}
           >
-            <FeedTree onNodeClick={onNodeClick} />
+            <FeedTree 
+            onNodeClick={onNodeClick} />
           </GridItem>
           <GridItem
             sm={12}

@@ -2,6 +2,7 @@ import { Reducer } from "redux";
 import { IFeedState, FeedActionTypes } from "./types";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {getStatusLabels} from './utils'
+import { SSL_OP_ALL } from "constants";
 
 // Type-safe initialState
 export const initialState: IFeedState = {
@@ -25,7 +26,14 @@ export const initialState: IFeedState = {
   loadingAddNode: false,
   deleteNodeSuccess: false,
   pluginInstanceResource: {},
-  pluginFiles:{}
+  pluginFiles: {},
+  feedTreeProp: {
+    orientation: "vertical",
+    translate: {
+      x: 600,
+      y: 50,
+    },
+  },
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -38,6 +46,27 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           loading: true,
         },
       };
+    }
+
+    case FeedActionTypes.GET_FEED_TREE_PROP: {
+      const currentOrientation = action.payload;
+      if (currentOrientation === "horizontal")
+        return {
+          ...state,
+          feedTreeProp: {
+            ...state.feedTreeProp,
+            orientation: "vertical",
+          },
+        };
+      else {
+        return {
+          ...state,
+          feedTreeProp: {
+            ...state.feedTreeProp,
+            orientation: "horizontal",
+          },
+        };
+      }
     }
 
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
