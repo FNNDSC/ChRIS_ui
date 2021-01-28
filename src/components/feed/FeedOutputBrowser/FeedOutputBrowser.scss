@@ -8,28 +8,25 @@
   height:100%;
   overflow-y: scroll;
 
+  .pf-c-skeleton, .pf-m-square {
+    background-color: var(--pf-global--palette--black-300) !important;
+  }
+
+  .ant-tree{
+    background-color: inherit !important;
+  }
+
+  .ant-steps-item-icon {
+    background: inherit !important;
+  }
+
 
   &__sidebar {
      width:100%;
-     .selected {
-      color: white;
-      background: var(--pf-global--primary-color--100);
-    }
-
-    svg {
-      color: #f7e0be;
-    }
   }
 
   &__main {
     width:100%;
-  }
-
-  
-  &__sidebar ul li {
-      padding: 0.25em;
-      border-radius: 0.25em;
-      cursor: pointer;
   }
 
 }

@@ -11,6 +11,7 @@ import {
   CodeBranchIcon,
   CalendarAltIcon,
   FileAltIcon,
+ 
 } from "@patternfly/react-icons";
 
 interface INoteState {
@@ -103,12 +104,9 @@ class FeedDetails extends React.Component<ReduxProps, INoteState> {
             <div className="feed-details">
               <div className="feed-details__list">
                 <ul>
-                  <li>
-                    <small>Feed Name</small>
-                    <p>
-                      <CodeBranchIcon size="sm" />
+                  <li className="feed-details__list--first">
+                      <CodeBranchIcon/>
                       {feed && <span> {feed.data.name} </span>}
-                    </p>
                   </li>
                   <li>
                     <small>Creator</small>

@@ -17,9 +17,8 @@ import {
 import { setSidebarActive } from "../../../store/ui/actions";
 import {
   getFeedRequest,
-  destroyFeedState,
   getSelectedPlugin,
- 
+  destroyPluginState,
 } from "../../../store/feed/actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { RouteComponentProps } from "react-router-dom";
@@ -32,8 +31,9 @@ import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getFeedRequest: typeof getFeedRequest;
-  destroyFeedState: typeof destroyFeedState;
+  destroyPluginState: typeof destroyPluginState;
   getSelectedPlugin: typeof getSelectedPlugin;
+ 
 }
 
 export type FeedViewProps = IUserState &
@@ -48,11 +48,25 @@ export const FeedView: React.FC<FeedViewProps> = ({
   },
   getFeedRequest,
   getSelectedPlugin,
-  destroyFeedState
+  destroyPluginState,
+  pluginInstances,
 }) => {
   const getFeed = React.useCallback(() => {
     getFeedRequest(id);
   }, [id, getFeedRequest]);
+
+  let dataRef=React.useRef<PluginInstance[]|undefined>(undefined)
+
+  const { data } = pluginInstances;
+  dataRef.current=data;
+
+  React.useEffect(() => {
+    return () => {
+      if (dataRef.current) {
+        destroyPluginState(dataRef.current);
+      }
+    };
+  }, [destroyPluginState]);
 
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
@@ -61,14 +75,12 @@ export const FeedView: React.FC<FeedViewProps> = ({
       activeItem: "my_feeds",
     });
     getFeed();
-    return () => {
-      destroyFeedState();
-    };
-  }, [id, getFeed, setSidebarActive, destroyFeedState]);
+  }, [id, getFeed, setSidebarActive]);
 
   const onNodeClick = (node: PluginInstance) => {
     getSelectedPlugin(node);
   };
+
 
   return (
     <React.Fragment>
@@ -131,14 +143,13 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedRequest: (id: string) => dispatch(getFeedRequest(id)),
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
-  destroyFeedState: () => dispatch(destroyFeedState()),
+  destroyPluginState: (data: PluginInstance[]) =>
+    dispatch(destroyPluginState(data)),
   getSelectedPlugin: (item: PluginInstance) =>
     dispatch(getSelectedPlugin(item)),
 });
 
 const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
-  sidebarActiveItem: ui.sidebarActiveItem,
-  selectedPlugin: feed.selectedPlugin,
   pluginInstances: feed.pluginInstances,
 });
 

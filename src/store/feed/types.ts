@@ -83,6 +83,14 @@ export interface PluginInstancePayload {
   loading: boolean;
 }
 
+export interface FeedTreeProp {
+  orientation: "horizontal" | "vertical";
+  translate: {
+    x: number;
+    y: number;
+  };
+}
+
 
 // Description state for main user items[] and item
 export interface IFeedState {
@@ -99,6 +107,7 @@ export interface IFeedState {
   deleteNodeSuccess: boolean;
   pluginInstanceResource: PluginInstanceResourcePayload;
   pluginFiles: FilesPayload;
+  feedTreeProp: FeedTreeProp;
 }
 
 export const FeedActionTypes = keyMirror({
@@ -124,4 +133,6 @@ export const FeedActionTypes = keyMirror({
   DELETE_NODE: null,
   DELETE_NODE_SUCCESS: null,
   STOP_FETCHING_PLUGIN_RESOURCES: null,
+  RESET_PLUGIN_STATE: null,
+  GET_FEED_TREE_PROP: null,
 });

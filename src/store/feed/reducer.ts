@@ -3,6 +3,7 @@ import { IFeedState, FeedActionTypes } from "./types";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {getStatusLabels} from './utils'
 
+
 // Type-safe initialState
 export const initialState: IFeedState = {
   allFeeds: {
@@ -25,7 +26,14 @@ export const initialState: IFeedState = {
   loadingAddNode: false,
   deleteNodeSuccess: false,
   pluginInstanceResource: {},
-  pluginFiles:{}
+  pluginFiles: {},
+  feedTreeProp: {
+    orientation: "vertical",
+    translate: {
+      x: 600,
+      y: 50,
+    },
+  },
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -40,8 +48,28 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       };
     }
 
+    case FeedActionTypes.GET_FEED_TREE_PROP: {
+      const currentOrientation = action.payload;
+      if (currentOrientation === "horizontal")
+        return {
+          ...state,
+          feedTreeProp: {
+            ...state.feedTreeProp,
+            orientation: "vertical",
+          },
+        };
+      else {
+        return {
+          ...state,
+          feedTreeProp: {
+            ...state.feedTreeProp,
+            orientation: "horizontal",
+          },
+        };
+      }
+    }
+
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
-      console.log("Action.payload", action.payload);
       return {
         ...state,
         allFeeds: {
@@ -130,11 +158,10 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
 
     case FeedActionTypes.GET_PLUGIN_INSTANCE_RESOURCE_SUCCESS: {
       let { id, pluginStatus, pluginLog } = action.payload;
-      
-      if(pluginStatus){
+
+      if (pluginStatus) {
         pluginStatus = getStatusLabels(pluginStatus);
       }
-
 
       return {
         ...state,
@@ -250,7 +277,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       };
     }
 
-    case FeedActionTypes.RESET_FEED_STATE:{
+    case FeedActionTypes.RESET_PLUGIN_STATE: {
       return {
         ...state,
         currentFeed: {
@@ -265,6 +292,14 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         },
         pluginInstanceResource: {},
         pluginFiles: {},
+        selectedPlugin: undefined,
+        feedProp: {
+          orientation: "vertical",
+          translate: {
+            x: 600,
+            y: 50,
+          },
+        },
       };
     }
 

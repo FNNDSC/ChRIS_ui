@@ -6,13 +6,10 @@ import JSZip from "jszip";
 import {
   Grid,
   GridItem,
-  Spinner,  
-  Skeleton
+  Spinner,
+  Skeleton,
 } from "@patternfly/react-core";
-import {
-  FolderOpenIcon,
-  FolderCloseIcon,
-} from "@patternfly/react-icons";
+
 import FileBrowser from "./FileBrowser";
 import PluginViewerModal from "./PluginViewerModal";
 import PluginStatus from './PluginStatus'
@@ -32,9 +29,11 @@ import {
 import {getSelectedInstanceResource, getSelectedFiles} from '../../../store/feed/selector'
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 import {isEmpty} from 'lodash'
+import { getFeedTree } from "./data";
+import { Tree } from "antd";
 import "./FeedOutputBrowser.scss";
-
-
+import "antd/dist/antd.css";
+const {DirectoryTree}=Tree;
 
 export interface FeedOutputBrowserProps {
   pluginInstances: PluginInstancePayload;
@@ -60,10 +59,12 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const { data: plugins, loading } = pluginInstances;
-  const pluginStatus= pluginInstanceResource && pluginInstanceResource.pluginStatus
-  const pluginLog=pluginInstanceResource && pluginInstanceResource.pluginLog
-  
+  const pluginStatus =
+    pluginInstanceResource && pluginInstanceResource.pluginStatus;
+  const pluginLog = pluginInstanceResource && pluginInstanceResource.pluginLog;
 
+
+ 
   const getPluginFiles = React.useCallback(() => {
     selected && getPluginFilesRequest(selected);
   }, [selected]);
@@ -80,19 +81,17 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           rowSpan={12}
           span={2}
         >
-          <ul>
-            <Skeleton
-              shape="square"
-              width="30%"
-              screenreaderText="Loading Sidebar"
-            />
-          </ul>
+          <Skeleton
+            shape="square"
+            width="30%"
+            screenreaderText="Loading Sidebar"
+          />
         </GridItem>
         <GridItem className="feed-output-browser__main" span={10} rowSpan={12}>
           <Grid>
             <GridItem span={12} rowSpan={12}>
               <Skeleton
-                height="75%"
+                height="100%"
                 width="75%"
                 screenreaderText="Fetching Plugin Resources"
               />
@@ -104,28 +103,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   } else {
     const pluginName = selected && selected.data && getPluginName(selected);
     const tree = createTreeFromFiles(selected, pluginFiles);
-    const generateSideItem = (plugin: PluginInstance): React.ReactNode => {
-      const id = plugin && plugin.data.id;
-      const name = getPluginName(plugin);
-      const isSelected = selected && selected.data && selected.data.id === id;
-      const icon = isSelected ? <FolderOpenIcon /> : <FolderCloseIcon />;
-      const className = isSelected ? "selected" : undefined;
-
-      const handleSidebarItemClick = (plugin: PluginInstance) => {
-        handlePluginSelect(plugin);
-      };
-
-      return (
-        <li
-          className={className}
-          key={id}
-          onClick={() => handleSidebarItemClick(plugin)}
-        >
-          {icon}
-          {name}
-        </li>
-      );
-    };
 
     const downloadAllClick = async () => {
       if (!selected) return;
@@ -137,7 +114,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           zip.file(file.data.fname, fileBlob);
         }
       }
-
       const blob = await zip.generateAsync({ type: "blob" });
       const filename = `${getPluginName(selected)}.zip`;
       FileViewerModel.downloadFile(blob, filename);
@@ -158,6 +134,12 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       setPluginModalOpen(!pluginModalOpen);
     };
 
+    let pluginSidebarTree;
+    if (plugins && plugins.length > 0) {
+      pluginSidebarTree = getFeedTree(plugins);
+    }
+    
+
     return (
       <>
         <Grid hasGutter className="feed-output-browser ">
@@ -174,17 +156,19 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             sm={12}
             smRowSpan={12}
           >
-            <ul>
-              {plugins && plugins.length > 0
-                ? plugins
-                    .sort((a: PluginInstance, b: PluginInstance) => {
-                      return a?.data?.id - b?.data?.id;
-                    })
-                    .map(generateSideItem)
-                : new Array(4).map((_, i) => (
-                    <Skeleton width="25%" screenreaderText="Fetching Plugins" />
-                  ))}
-            </ul>
+            {pluginSidebarTree && (
+              <DirectoryTree
+                multiple
+                defaultExpandAll
+                defaultExpandedKeys={[selected.data.id]}
+                treeData={pluginSidebarTree}
+                selectedKeys={[selected.data.id]}
+                onSelect={(node, selectedNode) => {
+                  //@ts-ignore
+                  handlePluginSelect(selectedNode.node.item);
+                }}
+              />
+            )}
           </GridItem>
           <GridItem
             className="feed-output-browser__main"
@@ -234,7 +218,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       </>
     );
   }
-  
 };
 
 const mapStateToProps = (state: ApplicationState) => ({

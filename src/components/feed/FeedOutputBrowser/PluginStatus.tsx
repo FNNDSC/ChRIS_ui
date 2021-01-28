@@ -11,7 +11,7 @@ import classNames from "classnames";
 import LogTabs from "./LogTabs";
 import LogTerminal from "./LogTerminal";
 
-import "antd/dist/antd.css";
+
 
 const { Step } = Steps;
 
@@ -38,7 +38,7 @@ const PluginStatus:React.FC<PluginStatusProps>=({
     }
   }
 
-  
+
   const computeLog:ComputeLog|undefined=pluginLog?.info?.compute?.return
   const typedLog:string[] | undefined=computeLog?.d_ret?.l_logs
   
@@ -84,7 +84,7 @@ const PluginStatus:React.FC<PluginStatusProps>=({
                       {label.title}
                     </span>
                   }
-                  icon={showIcon && <Spinner size="md" />}
+                  icon={showIcon && <Spinner size="lg" />}
                   status={
                     label.error === true
                       ? "error"
@@ -100,21 +100,24 @@ const PluginStatus:React.FC<PluginStatusProps>=({
         <GridItem className="file-browser__plugin-status" span={8} rowSpan={12}>
           <LogTabs activeKey={activeKey} setActiveKey={handleActiveKey} />
           {activeKey === 0 && pluginLog && !isEmpty(pluginLog.info) ? (
-              <ReactJSON
-                name={false}
-                displayDataTypes={false}
-                style={{
-                  fontSize: "12px",
-                }}
-                displayObjectSize={false}
-                src={currentLog}
-                indentWidth={4}
-                collapsed={false}
+            <ReactJSON
+              name={false}
+              displayDataTypes={false}
+              displayObjectSize={false}
+              src={currentLog}
+              indentWidth={4}
+              collapsed={false}
+            />
+          ) : (
+            activeKey === 1 && (
+              <LogTerminal
+                text={
+                  typedLog && typedLog[0]
+                    ? typedLog[0]
+                    : "The compute logs aren't available right now. Please wait as they are being fetched."
+                }
               />
-          ) :  activeKey === 1 && (
-              <LogTerminal text={
-                typedLog && typedLog[0] ? typedLog[0] : "The compute logs aren't available right now. Please wait as they are being fetched." 
-              } />
+            )
           )}
         </GridItem>
       </Grid>
