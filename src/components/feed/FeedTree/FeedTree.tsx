@@ -37,6 +37,11 @@ interface Point {
   y: number; 
 }
 
+interface Separation {
+  siblings:number,
+  nonSiblings:number
+}
+
 interface OwnProps {
   onNodeClick: (node: PluginInstance) => void;
   translate: Point;
@@ -49,11 +54,7 @@ interface OwnProps {
     x: number;
     y: number;
   };
-  separation: {
-    siblings: number;
-    nonSiblings: number;
-  };
-
+  separation: Separation;
   orientation: "horizontal" | "vertical";
 }
 
@@ -65,6 +66,7 @@ type FeedTreeState = {
     translate: Point;
     scale: number;
   };
+  separation: Separation;
 };
 
 
@@ -77,7 +79,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     orientation:"vertical",
     scaleExtent: { min: 0.1, max: 1 },
     zoom: 1,
-    nodeSize: { x: 120, y: 120 },
+    nodeSize: { x: 100, y: 100 },
     separation: { siblings: 1, nonSiblings: 2 },
   };
 
@@ -86,6 +88,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
 
     this.state = {
       d3: FeedTree.calculateD3Geometry(this.props),
+      separation: this.props.separation,
     };
   }
 
@@ -105,18 +108,36 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   }
 
  
-
   componentDidMount() {
     this.bindZoomListener(this.props);
+   
     const { data: instances } = this.props.pluginInstances;
+
     if (instances && instances.length > 0) {
       const tree = getFeedTree(instances);
       const transformedNode = FeedTree.assignInternalProperties(clone(tree));
+      let separation:Separation | undefined=undefined;
+      if(instances.length > 20){
+        separation = {
+          siblings: 0.5,
+          nonSiblings: 0.5,
+        };
+      }
 
-      this.setState({
-        ...this.state,
-        data: transformedNode,
-      });
+      if(separation){
+        this.setState({
+          ...this.state,
+          data:transformedNode,
+          separation
+        })
+      }
+      else {
+        this.setState({
+          ...this.state,
+          data: transformedNode,
+        });
+
+      }      
     }
   }
 
@@ -224,15 +245,32 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   componentDidUpdate(prevProps: AllProps) {
     const prevData = prevProps.pluginInstances.data;
     const thisData = this.props.pluginInstances.data;
-   
+
+    
+  
     if (prevData !== thisData) {
       if (thisData) {
         const tree = getFeedTree(thisData);
         const transformedData = FeedTree.assignInternalProperties(clone(tree));
-        this.setState({
-          ...this.state,
-          data: transformedData,
-        });
+          let separation:Separation| undefined = undefined;
+          if (thisData.length > 20) {
+            separation = {
+              siblings: 0.5,
+              nonSiblings: 0.5,
+            };
+          }
+          if (separation) {
+            this.setState({
+              ...this.state,
+              data: transformedData,
+              separation,
+            });
+          } else {
+            this.setState({
+              ...this.state,
+              data: transformedData,
+            });
+          } 
       }
     }
 
@@ -270,7 +308,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   };
 
   generateTree() {
-    const { nodeSize, separation, orientation } = this.props;
+    const { nodeSize , orientation } = this.props;
+    const {separation}=this.state;
     const d3Tree = tree<TreeNodeDatum>()
       .nodeSize(
         orientation === "horizontal"
@@ -296,7 +335,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   }
 
   render() {
-    console.log("Feed Tree Renders")
+   
   
     const { nodes, links } = this.generateTree();
     const { translate, scale } = this.state.d3;
@@ -305,14 +344,17 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
 
     return (
       <div className="feed-tree grabbable">
-        <div 
-        onClick={() => {setFeedTreeProp(orientation)}}
-        className='feed-tree__orientation'>
-          {
-           orientation==='vertical' ? (
-           <RedoIcon className="feed-tree__orientation--icon"/>) : (
-           <UndoIcon className="feed-tree__orientation--icon"/>)    
-          }
+        <div
+          onClick={() => {
+            setFeedTreeProp(orientation);
+          }}
+          className="feed-tree__orientation"
+        >
+          {orientation === "vertical" ? (
+            <RedoIcon className="feed-tree__orientation--icon" />
+          ) : (
+            <UndoIcon className="feed-tree__orientation--icon" />
+          )}
         </div>
         <svg className={`${svgClassName}`} width="100%" height="100%">
           <TransitionGroupWrapper
