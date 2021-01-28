@@ -130,6 +130,7 @@ function* handleAddNode(action: IActionTypeParam) {
   const pluginInstances=[...action.payload.nodes, item]
 
   try {
+    yield put;
     yield all([put(addNodeSuccess(item)), put(getSelectedPlugin(item))]);
     yield put(getPluginInstanceResources(pluginInstances))
   } catch (err) {
@@ -265,9 +266,7 @@ function* pollorCancelEndpoints(action: IActionTypeParam) {
     const status = instance.data.status;
     if (status === "waitingForPrevious") {
       tasks.push(instance);
-    } else if (status === "finishedSuccessfully") {
-      yield call(fetchPluginFiles, instance);
-    } else if (status === "started") {
+    } else {
       const task = yield fork(handleGetPluginStatus, instance);
       pollTask[instance.data.id] = task;
     }

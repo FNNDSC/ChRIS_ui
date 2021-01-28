@@ -11,12 +11,13 @@ export interface TreeLinkDatum {
 interface LinkProps {
   linkData: TreeLinkDatum;
   key: string;
+  orientation: "horizontal" | "vertical";
 }
 
 export default class Link extends React.Component<LinkProps> {
   nodeRadius = 12;
   drawPath = () => {
-    const { linkData } = this.props;
+    const { linkData, orientation } = this.props;
     const { source, target } = linkData;
     const deltaX = target.x - source.x,
       deltaY = target.y - source.y,
@@ -29,7 +30,11 @@ export default class Link extends React.Component<LinkProps> {
       sourceY = source.y + sourcePadding * normY,
       targetX = target.x - targetPadding * normX,
       targetY = target.y - targetPadding * normY;
-    return `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
+
+    return orientation === "horizontal"
+      ? `M ${sourceY} ${sourceX} L ${targetY} ${targetX}`
+      : `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
+
   };
 
   render() {
