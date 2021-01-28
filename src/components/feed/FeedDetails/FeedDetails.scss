@@ -4,6 +4,13 @@
 .feed-details {
   
   &__list {
+
+    &--first {
+     display:flex;
+     align-items:center;
+     font-size:1.5rem;
+     gap:0.5rem;
+    }
     
     
     ul{

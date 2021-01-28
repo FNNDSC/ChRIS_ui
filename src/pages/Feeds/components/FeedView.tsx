@@ -49,14 +49,24 @@ export const FeedView: React.FC<FeedViewProps> = ({
   getFeedRequest,
   getSelectedPlugin,
   destroyPluginState,
- 
   pluginInstances,
 }) => {
   const getFeed = React.useCallback(() => {
     getFeedRequest(id);
   }, [id, getFeedRequest]);
 
+  let dataRef=React.useRef<PluginInstance[]|undefined>(undefined)
+
   const { data } = pluginInstances;
+  dataRef.current=data;
+
+  React.useEffect(() => {
+    return () => {
+      if (dataRef.current) {
+        destroyPluginState(dataRef.current);
+      }
+    };
+  }, [destroyPluginState]);
 
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
@@ -70,6 +80,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
   const onNodeClick = (node: PluginInstance) => {
     getSelectedPlugin(node);
   };
+
 
   return (
     <React.Fragment>
@@ -102,8 +113,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
             xl2={7}
             xl2RowSpan={12}
           >
-            <FeedTree 
-            onNodeClick={onNodeClick} />
+            <FeedTree onNodeClick={onNodeClick} />
           </GridItem>
           <GridItem
             sm={12}

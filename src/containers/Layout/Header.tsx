@@ -43,12 +43,12 @@ class Header extends React.Component<IHeaderProps> {
       <React.Fragment>
         <Brand src={brandImg} alt="ChRIS Logo" />
         <Badge key={4} style={BadgeStyle}>
-          <span>Version: 1.0.7</span>
+          <span>Version: 1.0.8</span>
         </Badge>
         <Badge key={3} style={BadgeStyle}>
           <span>
             Latest update:{" "}
-            <Moment format="DD MMM YYYY @ HH:mm">{`2021-01-26T09:30:14.297464-04:00`}</Moment>
+            <Moment format="DD MMM YYYY @ HH:mm">{`2021-01-28T13:00:14.297464-04:00`}</Moment>
           </span>
         </Badge>
       </React.Fragment>

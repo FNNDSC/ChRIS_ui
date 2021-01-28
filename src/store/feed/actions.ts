@@ -69,6 +69,3 @@ export const setFeedTreeProp = (orientation: string) =>
 
 
 
-export const checkQueue = () => {
-  return action(FeedActionTypes.CHECK_QUEUE);
-};
