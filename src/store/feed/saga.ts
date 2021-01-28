@@ -33,6 +33,7 @@ import {PluginStatusLabels} from './types'
 import { Task } from "redux-saga";
 import { inflate } from "pako";
 
+
 // ------------------------------------------------------------------------
 // Description: Get Feeds list and search list by feed name (form input driven)
 // pass it a param and do a search querie
@@ -101,7 +102,6 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
           ...pluginInstances,
           ...pluginInstanceList.getItems(),
         ];
-     
       } catch (e) {
         throw new Error(
           "Error while fetching a paginated list of plugin Instances"
@@ -115,11 +115,9 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
       pluginInstances,
     };
 
-    console.log("PluginInstances", pluginInstances, feed);
-
     yield all([
       put(getPluginInstancesSuccess(pluginInstanceObj)),
-     put(getPluginInstanceResources(pluginInstanceObj.pluginInstances)),
+      put(getPluginInstanceResources(pluginInstanceObj.pluginInstances)),
     ]);
   } catch (error) {
      yield put(getPluginInstancesError(error));
@@ -131,6 +129,7 @@ function* handleAddNode(action: IActionTypeParam) {
   const pluginInstances=[...action.payload.nodes, item]
 
   try {
+    yield put;
     yield all([put(addNodeSuccess(item)), put(getSelectedPlugin(item))]);
     yield put(getPluginInstanceResources(pluginInstances))
   } catch (err) {
@@ -147,9 +146,6 @@ function* handleDeleteNode(action: IActionTypeParam) {
     console.log("Delete Node Error", err);
   }
 }
-
-
-
 
 
 function* handleGetPluginStatus( 
@@ -182,13 +178,7 @@ function* handleGetPluginStatus(
       ) {
         yield put(stopFetchingPluginResources(instance.data.id));
       }  
-      else if(parsedStatus?.compute.return?.l_status[0]==='undefined'){
-        yield instance._put({
-          status:'cancelled'
-        })
-        yield put(stopFetchingPluginResources(instance.data.id))     
-      }
-       else if (pluginDetails.data.status === "finishedSuccessfully") {
+      if (pluginDetails.data.status === "finishedSuccessfully") {
         yield call(fetchPluginFiles, instance);
         yield put(stopFetchingPluginResources(instance.data.id));
       } else {
@@ -217,7 +207,6 @@ function* fetchPluginFiles(plugin: PluginInstance) {
     }
 
     let id = plugin.data.id;
-
     let payload = {
       id,
       files,
@@ -241,30 +230,46 @@ function cancelPolling(task: Task) {
 }
 
 
-function* watchCancelPoll(pollTask: { [id: number]: Task }) {
+type PollTask={
+   [id: number]: Task 
+}
+
+function* watchCancelPoll(pollTask: PollTask) {
+
   yield takeEvery(
     FeedActionTypes.STOP_FETCHING_PLUGIN_RESOURCES,
-    (action:  IActionTypeParam)  =>  {
+    function (action:  IActionTypeParam) {
       const id  =  action.payload;
       const taskToCancel  =  pollTask[id];
       cancelPolling(taskToCancel)
-    }
-  );
+    });
 }
 
 function* pollorCancelEndpoints(action: IActionTypeParam) {
-  
   const pluginInstances = action.payload;
-  
   let pollTask: {
     [id: number]: Task;
   } = {};
 
+  
+
   for (let i = 0; i < pluginInstances.length; i++) {
-    const task = yield fork(handleGetPluginStatus,pluginInstances[i]);
-    pollTask[pluginInstances[i].data.id] = task; 
+    const instance = pluginInstances[i];
+    const task = yield fork(handleGetPluginStatus, instance);
+    pollTask[instance.data.id] = task;
+    
   }
+
   yield watchCancelPoll(pollTask);
+}
+
+
+function* handlePluginReset(action: IActionTypeParam) {
+  const pluginInstances = action.payload;
+ 
+  for (let i = 0; i < pluginInstances.length; i++) {
+    yield put(stopFetchingPluginResources(pluginInstances[i].data.id));
+  }
 }
 
 /**
@@ -302,6 +307,10 @@ function* watchDeleteNode() {
   yield takeEvery(FeedActionTypes.DELETE_NODE, handleDeleteNode);
 }
 
+function* watchResetState(){
+  yield takeEvery(FeedActionTypes.RESET_PLUGIN_STATE, handlePluginReset);
+}
+
 
 
 
@@ -316,6 +325,7 @@ export function* feedSaga() {
     fork(watchGetPluginInstanceResources),
     fork(watchAddNode),
     fork(watchDeleteNode),
+    fork(watchResetState)
   ]);
 }
 

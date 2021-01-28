@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { select } from "d3";
+import { select } from "d3-selection";
 
 const Marker = () => {
   const markerRef = useRef<SVGMarkerElement>(null);

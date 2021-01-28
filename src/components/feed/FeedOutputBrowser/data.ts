@@ -1,42 +1,31 @@
 import { PluginInstance } from "@fnndsc/chrisapi";
 
-export interface Datum {
-  id?: number;
-  name?: string;
+export interface DataNode {
+  children: DataNode[];
+  isLeaf?: boolean;
+  key: string | number;
+  title?: React.ReactNode;
+  item: PluginInstance;
   parentId?: number;
-  item?: PluginInstance;
-  children: Datum[];
 }
 
-export interface TreeNodeDatum extends Datum {
-  children: TreeNodeDatum[];
-  __rd3t: {
-    id: string;
-    depth: number;
-    collapsed: boolean;
-  };
-}
+const firstElement = [];
 
 export const getFeedTree = (items: PluginInstance[]) => {
   let tree = [],
     mappedArr: {
-      [key: string]: TreeNodeDatum;
+      [key: string]: DataNode;
     } = {};
 
   items.forEach((item) => {
     let id = item.data.id;
     if (!mappedArr.hasOwnProperty(id)) {
       mappedArr[id] = {
-        id: id,
-        name: item.data.plugin_name,
+        key: id,
+        title: item.data.plugin_name,
         parentId: item.data.previous_id,
         item: item,
         children: [],
-        __rd3t: {
-          id: "",
-          depth: 0,
-          collapsed: false,
-        },
       };
     }
   });
@@ -50,6 +39,7 @@ export const getFeedTree = (items: PluginInstance[]) => {
         let parentId = mappedElem.parentId;
         if (parentId) mappedArr[parentId].children.push(mappedElem);
       } else {
+        firstElement.push(mappedElem);
         tree.push(mappedElem);
       }
     }

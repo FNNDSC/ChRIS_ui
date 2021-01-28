@@ -23,9 +23,9 @@ export const getSelectedInstanceResource = createSelector(
   [getPluginInstanceResource, getSelected],
   (pluginInstanceResource, selectedPlugin) => {
     const id = selectedPlugin && selectedPlugin.data.id;
-    if(id){
-      return pluginInstanceResource && pluginInstanceResource[id] 
-    }
-    else return {} 
+
+    if (id) {
+      return pluginInstanceResource && pluginInstanceResource[id];
+    } else return {};
   }
 );

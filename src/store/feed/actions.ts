@@ -61,4 +61,11 @@ export const deleteNodeSuccess = () =>
 export const stopFetchingPluginResources = (id: number) =>
   action(FeedActionTypes.STOP_FETCHING_PLUGIN_RESOURCES, id);
 
-export const destroyFeedState = () => action(FeedActionTypes.RESET_FEED_STATE);
+export const destroyPluginState = (data: PluginInstance[]) =>
+  action(FeedActionTypes.RESET_PLUGIN_STATE, data);
+
+export const setFeedTreeProp = (orientation: string) =>
+  action(FeedActionTypes.GET_FEED_TREE_PROP, orientation);
+
+
+
