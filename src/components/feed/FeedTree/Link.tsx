@@ -30,11 +30,9 @@ export default class Link extends React.Component<LinkProps> {
       sourceY = source.y + sourcePadding * normY,
       targetX = target.x - targetPadding * normX,
       targetY = target.y - targetPadding * normY;
-
     return orientation === "horizontal"
       ? `M ${sourceY} ${sourceX} L ${targetY} ${targetX}`
       : `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
-
   };
 
   render() {
