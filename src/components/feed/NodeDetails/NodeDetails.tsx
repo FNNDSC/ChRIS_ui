@@ -41,14 +41,13 @@ import {
   getPluginInstances,
   getSelected,
 } from "../../../store/feed/selector";
-import { stopFetchingPluginResources } from '../../../store/feed/actions';
+
 
 
 interface INodeProps {
   selected?: PluginInstance;
   pluginInstanceResource: ResourcePayload;
-  pluginInstances?:PluginInstancePayload;
-  stopFetchingPluginResource:(id:number)=>void;
+  pluginInstances?: PluginInstancePayload;
 }
 
 interface INodeState {
@@ -65,7 +64,11 @@ function getInitialState(){
   };
 }
 
-const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, pluginInstances, stopFetchingPluginResource }) => {
+const NodeDetails: React.FC<INodeProps> = ({
+  selected,
+  pluginInstanceResource,
+  pluginInstances,
+}) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const pluginStatus =
@@ -93,18 +96,6 @@ const NodeDetails: React.FC<INodeProps> = ({ selected, pluginInstanceResource, p
       }
     };
     fetchData();
-    return () => {
-      pluginInstances?.data
-        ?.filter(
-          (node: PluginInstance) =>
-            node.data.status === "started" ||
-            node.data.status === "scheduled" ||
-            node.data.status === "waitingForPrevious"
-        )
-        .forEach((node: PluginInstance) =>
-          stopFetchingPluginResources(node.data.id)
-        );
-    };
   }, [selected, pluginInstances]);
 
   const command = React.useCallback(getCommand, [
@@ -250,11 +241,9 @@ const mapStateToProps = (state: ApplicationState) => ({
   instances: getPluginInstances(state),
 });
 
-const mapDispatchToProps=(dispatch:Dispatch)=>({
-  stopFetchingPluginResource:(id:number)=>dispatch(stopFetchingPluginResources(id))
-})
 
-export default connect(mapStateToProps, mapDispatchToProps)(NodeDetails);
+
+export default connect(mapStateToProps)(NodeDetails);
 
 
 function getCurrentTitleFromStatus(statusLabels?: PluginStatus[]) {

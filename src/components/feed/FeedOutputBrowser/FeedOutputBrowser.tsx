@@ -164,8 +164,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 treeData={pluginSidebarTree}
                 onSelect={(node,selectedNode)=>{
                   //@ts-ignore
-                  console.log("Node", selectedNode.node.item);
-                  //@ts-ignore
                   handlePluginSelect(selectedNode.node.item);
                 }}
               />

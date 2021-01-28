@@ -1,5 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
+import { Dispatch } from "redux";
 import { tree, hierarchy } from "d3-hierarchy";
 import { select, event } from "d3-selection";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
@@ -7,6 +8,7 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 import {
   PluginInstancePayload,
   ResourcePayload,
+  FeedTreeProp,
 } from "../../../store/feed/types";
 import { ApplicationState } from "../../../store/root/applicationState";
 import "./FeedTree.scss";
@@ -18,6 +20,7 @@ import TransitionGroupWrapper from "./TransitionGroupWrapper";
 import { EnhancementIcon } from "@patternfly/react-icons";
 import { v4 as uuidv4 } from "uuid";
 import clone from "clone";
+import { setFeedTreeProp } from "../../../store/feed/actions";
 
 
 
@@ -25,6 +28,8 @@ interface ITreeProps {
   pluginInstances: PluginInstancePayload;
   selectedPlugin?: PluginInstance;
   pluginInstanceResource: ResourcePayload;
+  feedTreeProp: FeedTreeProp;
+  setFeedTreeProp:(orientation:string)=>void;
 }
 
 interface Point {
@@ -68,13 +73,12 @@ const graphClassName='feed-tree__graph'
 
 
 class FeedTree extends React.Component<AllProps, FeedTreeState> {
-  static defaultProps: Partial<AllProps> = {
-    translate: { x: 50, y: 230 },
+  static defaultProps: Partial<AllProps> = { 
+    orientation:"vertical",
     scaleExtent: { min: 0.1, max: 1 },
     zoom: 1,
     nodeSize: { x: 120, y: 120 },
     separation: { siblings: 1, nonSiblings: 2 },
-    orientation: "horizontal",
   };
 
   constructor(props: AllProps) {
@@ -95,10 +99,12 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       scale = nextProps.zoom;
     }
     return {
-      translate: nextProps.translate,
+      translate: nextProps.feedTreeProp.translate,
       scale,
     };
   }
+
+ 
 
   componentDidMount() {
     this.bindZoomListener(this.props);
@@ -165,6 +171,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
         hits = this.findNodesById(nodeId, node.children, hits);
       }
     });
+    
     return hits;
   }
 
@@ -172,6 +179,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     const data = clone(this.state.data);
     const matches = this.findNodesById(nodeId, data, []);
     const targetNodeDatum = matches[0];
+  
     if (targetNodeDatum.__rd3t.collapsed) {
       FeedTree.expandNode(targetNodeDatum);
     } else {
@@ -182,7 +190,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   };
 
   bindZoomListener = (props: AllProps) => {
-    const { zoom, scaleExtent, translate } = props;
+    const { zoom, scaleExtent, feedTreeProp } = props;
+    const {translate}=feedTreeProp;
     const svg = select(`.${svgClassName}`);
     const g = select(`.${graphClassName}`);
 
@@ -215,7 +224,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   componentDidUpdate(prevProps: AllProps) {
     const prevData = prevProps.pluginInstances.data;
     const thisData = this.props.pluginInstances.data;
-
+   
     if (prevData !== thisData) {
       if (thisData) {
         const tree = getFeedTree(thisData);
@@ -227,8 +236,10 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       }
     }
 
+
     if (
-      !isEqual(this.props.translate, prevProps.translate) ||
+      !isEqual(this.props.feedTreeProp.translate, prevProps.feedTreeProp.translate) ||
+      this.props.feedTreeProp.orientation!==prevProps.feedTreeProp.orientation ||
       !isEqual(this.props.scaleExtent, prevProps.scaleExtent) ||
       this.props.zoom !== prevProps.zoom
     ) {
@@ -236,9 +247,10 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     }
   }
 
-  shouldComponentUpdate(nextProps: AllProps) {
+  shouldComponentUpdate(nextProps: AllProps,) {
     if (
-      !isEqual(this.props.translate, nextProps.translate) ||
+      !isEqual(this.props.feedTreeProp.translate, nextProps.feedTreeProp.translate) ||
+      this.props.feedTreeProp.orientation!==nextProps.feedTreeProp.orientation ||
       !isEqual(this.props.scaleExtent, nextProps.scaleExtent) ||
       !isEqual(
         this.props.pluginInstanceResource,
@@ -273,7 +285,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
 
     let nodes;
     let links;
-    if (this.state.data) {
+    
+    if (this.state.data) { 
       const rootNode = d3Tree(hierarchy(this.state.data[0],d=> (d.__rd3t.collapsed ? null : d.children)));
       nodes = rootNode.descendants();
       links = rootNode.links();
@@ -283,13 +296,24 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   }
 
   render() {
+    console.log("Feed Tree Renders")
+  
     const { nodes, links } = this.generateTree();
     const { translate, scale } = this.state.d3;
-    const { selectedPlugin, orientation } = this.props;
+    const { selectedPlugin, feedTreeProp, setFeedTreeProp } = this.props;
+    const {orientation}=feedTreeProp;
 
     return (
       <div className="feed-tree grabbable">
-        <EnhancementIcon />
+        <div className='feed-tree__orientation'>
+          <EnhancementIcon
+            className="feed-tree__orientation--icon"
+            onClick={() => {
+              setFeedTreeProp(orientation)
+            }}
+          />
+        </div>
+
         <svg className={`${svgClassName}`} width="100%" height="100%">
           <TransitionGroupWrapper
             component="g"
@@ -317,6 +341,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
                   onNodeClick={this.handleNodeClick}
                   onNodeToggle={this.handleNodeToggle}
                   orientation={orientation}
+                  pluginInstances={this.props.pluginInstances}
                 />
               );
             })}
@@ -332,6 +357,11 @@ const mapStateToProps = (state: ApplicationState) => ({
   pluginInstanceResource: state.feed.pluginInstanceResource,
   pluginInstances: state.feed.pluginInstances,
   selectedPlugin: state.feed.selectedPlugin,
+  feedTreeProp: state.feed.feedTreeProp,
 });
 
-export default connect(mapStateToProps, {})(FeedTree);
+const mapDispatchToProps=(dispatch:Dispatch)=>({
+  setFeedTreeProp:(orientation:string)=>dispatch(setFeedTreeProp(orientation))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(FeedTree);

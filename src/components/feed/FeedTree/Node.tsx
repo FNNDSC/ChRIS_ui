@@ -3,6 +3,7 @@ import { select } from "d3-selection";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { Datum, TreeNodeDatum } from "./data";
 import { PluginInstance } from "@fnndsc/chrisapi";
+import { PluginInstancePayload } from "../../../store/feed/types";
 
 const DEFAULT_NODE_CIRCLE_RADIUS = 15;
 
@@ -15,8 +16,9 @@ type NodeProps = {
   parent: HierarchyPointNode<Datum> | null;
   selectedPlugin?: PluginInstance;
   onNodeClick: (node: PluginInstance) => void;
-  onNodeToggle:(nodeId:string)=>void;
+  onNodeToggle: (nodeId: string) => void;
   orientation: "horizontal" | "vertical";
+  pluginInstances: PluginInstancePayload;
 };
 
 type NodeState = {
@@ -78,10 +80,25 @@ export default class Node extends React.Component<NodeProps, NodeState> {
   }
 
   render() {
-    const { data, selectedPlugin, onNodeClick} = this.props;
+    const { data, selectedPlugin, onNodeClick, pluginInstances } = this.props;
     let statusClass: string = "";
+    const { data: instances } = pluginInstances;
 
-    const status = data.item?.data.status;
+    let currentInstance: PluginInstance | undefined = undefined;
+    if (instances) {
+      currentInstance = instances.find((instance) => {
+        if (data.item)
+          if (instance.data.id === data?.item.data.id) {
+            return instance.data.status;
+          }
+      });
+    }
+
+    let status: string = "scheduled";
+    if (currentInstance) {
+      status = currentInstance.data.status;
+    }
+
     const currentId = data.item?.data.id;
     if (
       status &&

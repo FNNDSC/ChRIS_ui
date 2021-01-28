@@ -64,6 +64,9 @@ export const stopFetchingPluginResources = (id: number) =>
 export const destroyPluginState = (data: PluginInstance[]) =>
   action(FeedActionTypes.RESET_PLUGIN_STATE, data);
 
+export const setFeedTreeProp = (orientation: string) =>
+  action(FeedActionTypes.GET_FEED_TREE_PROP, orientation);
+
 
 
 export const checkQueue = () => {
