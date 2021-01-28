@@ -17,7 +17,7 @@ import {isEqual} from 'lodash'
 import Link from './Link'
 import Node from './Node'
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
-import { EnhancementIcon } from "@patternfly/react-icons";
+import {  UndoIcon, RedoIcon } from "@patternfly/react-icons";
 import { v4 as uuidv4 } from "uuid";
 import clone from "clone";
 import { setFeedTreeProp } from "../../../store/feed/actions";
@@ -305,15 +305,15 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
 
     return (
       <div className="feed-tree grabbable">
-        <div className='feed-tree__orientation'>
-          <EnhancementIcon
-            className="feed-tree__orientation--icon"
-            onClick={() => {
-              setFeedTreeProp(orientation)
-            }}
-          />
+        <div 
+        onClick={() => {setFeedTreeProp(orientation)}}
+        className='feed-tree__orientation'>
+          {
+           orientation==='vertical' ? (
+           <RedoIcon className="feed-tree__orientation--icon"/>) : (
+           <UndoIcon className="feed-tree__orientation--icon"/>)    
+          }
         </div>
-
         <svg className={`${svgClassName}`} width="100%" height="100%">
           <TransitionGroupWrapper
             component="g"
