@@ -33,7 +33,6 @@ import { getFeedTree } from "./data";
 import { Tree } from "antd";
 import "./FeedOutputBrowser.scss";
 import "antd/dist/antd.css";
-import {DataNode} from './data'
 const {DirectoryTree}=Tree;
 
 export interface FeedOutputBrowserProps {
@@ -63,7 +62,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   const pluginStatus =
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
   const pluginLog = pluginInstanceResource && pluginInstanceResource.pluginLog;
-  
+
 
  
   const getPluginFiles = React.useCallback(() => {
@@ -161,8 +160,10 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               <DirectoryTree
                 multiple
                 defaultExpandAll
+                defaultExpandedKeys={[selected.data.id]}
                 treeData={pluginSidebarTree}
-                onSelect={(node,selectedNode)=>{
+                selectedKeys={[selected.data.id]}
+                onSelect={(node, selectedNode) => {
                   //@ts-ignore
                   handlePluginSelect(selectedNode.node.item);
                 }}

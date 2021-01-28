@@ -27,7 +27,6 @@ import {
   getPluginInstanceResourceSuccess,
   stopFetchingPluginResources,
   getFeedError,
-  checkQueue,
 } from "./actions";
 import {PluginStatusLabels} from './types'
 
@@ -181,7 +180,6 @@ function* handleGetPluginStatus(
       }  
       if (pluginDetails.data.status === "finishedSuccessfully") {
         yield call(fetchPluginFiles, instance);
-        yield call(checkQueue);
         yield put(stopFetchingPluginResources(instance.data.id));
       } else {
         yield delay(7000);
@@ -236,21 +234,15 @@ type PollTask={
    [id: number]: Task 
 }
 
-function* watchCancelPoll(pollTask: PollTask, tasks:PluginInstance[]) {
+function* watchCancelPoll(pollTask: PollTask) {
 
   yield takeEvery(
     FeedActionTypes.STOP_FETCHING_PLUGIN_RESOURCES,
-    function* (action:  IActionTypeParam) {
+    function (action:  IActionTypeParam) {
       const id  =  action.payload;
       const taskToCancel  =  pollTask[id];
       cancelPolling(taskToCancel)
-      const instance = tasks.shift();
-      if(instance){
-         const task:Task = yield fork(handleGetPluginStatus, instance);
-         pollTask[instance.data.id] = task;
-      }   
-    }
-  );
+    });
 }
 
 function* pollorCancelEndpoints(action: IActionTypeParam) {
@@ -259,26 +251,22 @@ function* pollorCancelEndpoints(action: IActionTypeParam) {
     [id: number]: Task;
   } = {};
 
-  let tasks: PluginInstance[] = [];
+  
 
   for (let i = 0; i < pluginInstances.length; i++) {
     const instance = pluginInstances[i];
-    const status = instance.data.status;
-    if (status === "waitingForPrevious") {
-      tasks.push(instance);
-    } else {
-      const task = yield fork(handleGetPluginStatus, instance);
-      pollTask[instance.data.id] = task;
-    }
+    const task = yield fork(handleGetPluginStatus, instance);
+    pollTask[instance.data.id] = task;
+    
   }
 
-  yield watchCancelPoll(pollTask, tasks);
+  yield watchCancelPoll(pollTask);
 }
 
 
 function* handlePluginReset(action: IActionTypeParam) {
   const pluginInstances = action.payload;
-
+ 
   for (let i = 0; i < pluginInstances.length; i++) {
     yield put(stopFetchingPluginResources(pluginInstances[i].data.id));
   }

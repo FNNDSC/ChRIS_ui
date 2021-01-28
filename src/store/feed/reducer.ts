@@ -277,7 +277,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       };
     }
 
-    case FeedActionTypes.RESET_FEED_STATE: {
+    case FeedActionTypes.RESET_PLUGIN_STATE: {
       return {
         ...state,
         currentFeed: {
@@ -292,6 +292,14 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         },
         pluginInstanceResource: {},
         pluginFiles: {},
+        selectedPlugin: undefined,
+        feedProp: {
+          orientation: "vertical",
+          translate: {
+            x: 600,
+            y: 50,
+          },
+        },
       };
     }
 
