@@ -228,9 +228,13 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       }
     }
     case FeedActionTypes.GET_SELECTED_PLUGIN: {
+     const pluginInstance = state.pluginInstances.data?.find((instance) => {
+       return instance.data.id === action.payload.data.id;
+     });
+
       return {
         ...state,
-        selectedPlugin: action.payload,
+        selectedPlugin: pluginInstance,
       };
     }
 
