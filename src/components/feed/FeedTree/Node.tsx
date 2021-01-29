@@ -47,15 +47,6 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     },
   };
   componentDidMount() {
-    if(this.circleRef){
-      this.circleRef.addEventListener('click',(e)=>{
-        if(e.ctrlKey){
-          this.handleNodeToggle();
-          return;
-        }
-      })
-    }
-    
     this.commitTransform();
   }
 
@@ -135,17 +126,17 @@ export default class Node extends React.Component<NodeProps, NodeState> {
           ref={(n) => {
             this.nodeRef = n;
           }}
+          onClick={(event) => {
+            if (event.ctrlKey) {
+              this.handleNodeToggle();
+            }
+            if (data.item) {
+              onNodeClick(data.item);
+            }
+          }}
           transform={this.state.nodeTransform}
         >
           <circle
-            ref={(n) => {
-              this.circleRef = n;
-            }}
-            onClick={() => {
-              if (data.item) {
-                onNodeClick(data.item);
-              }
-            }}
             id={`node_${data.id}`}
             className={`node ${statusClass} 
               ${selectedPlugin?.data.id === currentId && `selected`}
