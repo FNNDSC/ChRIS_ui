@@ -62,7 +62,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   const pluginStatus =
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
   const pluginLog = pluginInstanceResource && pluginInstanceResource.pluginLog;
-   const getPluginFiles = React.useCallback(() => {
+  const getPluginFiles = React.useCallback(() => {
     selected && getPluginFilesRequest(selected);
   }, [selected]);
 
