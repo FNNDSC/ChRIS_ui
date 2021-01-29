@@ -34,7 +34,7 @@ const textLayout = {
 
 export default class Node extends React.Component<NodeProps, NodeState> {
   nodeRef: SVGElement | null = null;
-  textRef: SVGElement | null = null;
+  circleRef: SVGCircleElement | null = null;
   state = {
     nodeTransform: this.setNodeTransform(
       this.props.orientation,
@@ -47,6 +47,15 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     },
   };
   componentDidMount() {
+    if(this.circleRef){
+      this.circleRef.addEventListener('click',(e)=>{
+        if(e.ctrlKey){
+          this.handleNodeToggle();
+          return;
+        }
+      })
+    }
+    
     this.commitTransform();
   }
 
@@ -60,24 +69,24 @@ export default class Node extends React.Component<NodeProps, NodeState> {
 
   commitTransform() {
     const { parent, position, orientation } = this.props;
-    const nodeTransform = this.setNodeTransform(orientation,position, parent);
+    const nodeTransform = this.setNodeTransform(orientation, position, parent);
     this.applyNodeTransform(nodeTransform);
   }
 
   setNodeTransform(
-    orientation:NodeProps['orientation'],
+    orientation: NodeProps["orientation"],
     position: NodeProps["position"],
     parent: NodeProps["parent"],
     shouldTranslateToOrigin = false
-  ) {    
-     return orientation === "horizontal"
-    ? `translate(${position.y},${position.x})`
-    : `translate(${position.x},${position.y})`;
+  ) {
+    return orientation === "horizontal"
+      ? `translate(${position.y},${position.x})`
+      : `translate(${position.x},${position.y})`;
   }
 
-  handleNodeToggle=()=>{
-      this.props.onNodeToggle(this.props.data.__rd3t.id)
-  }
+  handleNodeToggle = () => {
+    this.props.onNodeToggle(this.props.data.__rd3t.id);
+  };
 
   render() {
     const { data, selectedPlugin, onNodeClick, pluginInstances } = this.props;
@@ -129,9 +138,11 @@ export default class Node extends React.Component<NodeProps, NodeState> {
           transform={this.state.nodeTransform}
         >
           <circle
+            ref={(n) => {
+              this.circleRef = n;
+            }}
             onClick={() => {
               if (data.item) {
-                this.handleNodeToggle();
                 onNodeClick(data.item);
               }
             }}
@@ -141,7 +152,7 @@ export default class Node extends React.Component<NodeProps, NodeState> {
               `}
             r={DEFAULT_NODE_CIRCLE_RADIUS}
           ></circle>
-          <g ref={(n) => (this.textRef = n)} {...textLayout}>
+          <g {...textLayout}>
             <text className="label__title">{data.name}</text>
           </g>
         </g>
