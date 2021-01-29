@@ -17,7 +17,7 @@ import {isEqual} from 'lodash'
 import Link from './Link'
 import Node from './Node'
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
-import {  UndoIcon, RedoIcon } from "@patternfly/react-icons";
+import { UndoIcon, RedoIcon} from "@patternfly/react-icons";
 import { v4 as uuidv4 } from "uuid";
 import clone from "clone";
 import { setFeedTreeProp } from "../../../store/feed/actions";
@@ -67,6 +67,7 @@ type FeedTreeState = {
     scale: number;
   };
   separation: Separation;
+  
 };
 
 
@@ -75,8 +76,8 @@ const graphClassName='feed-tree__graph'
 
 
 class FeedTree extends React.Component<AllProps, FeedTreeState> {
-  static defaultProps: Partial<AllProps> = { 
-    orientation:"vertical",
+  static defaultProps: Partial<AllProps> = {
+    orientation: "vertical",
     scaleExtent: { min: 0.1, max: 1 },
     zoom: 1,
     nodeSize: { x: 100, y: 100 },
@@ -89,6 +90,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     this.state = {
       d3: FeedTree.calculateD3Geometry(this.props),
       separation: this.props.separation,
+     
     };
   }
 
@@ -107,43 +109,40 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     };
   }
 
- 
   componentDidMount() {
     this.bindZoomListener(this.props);
-   
+
     const { data: instances } = this.props.pluginInstances;
 
     if (instances && instances.length > 0) {
       const tree = getFeedTree(instances);
       const transformedNode = FeedTree.assignInternalProperties(clone(tree));
-      let separation:Separation | undefined=undefined;
-      if(instances.length > 20){
+      let separation: Separation | undefined = undefined;
+      if (instances.length > 20) {
         separation = {
           siblings: 0.5,
           nonSiblings: 0.5,
         };
       }
 
-      if(separation){
+      if (separation) {
         this.setState({
           ...this.state,
-          data:transformedNode,
-          separation
-        })
-      }
-      else {
+          data: transformedNode,
+          separation,
+        });
+      } else {
         this.setState({
           ...this.state,
           data: transformedNode,
         });
-
-      }      
+      }
     }
   }
 
   static assignInternalProperties(data: Datum[], currentDepth: number = 0) {
     const d = Array.isArray(data) ? data : [data];
-    
+
     return d.map((n) => {
       const nodeDatum = n as TreeNodeDatum;
 
@@ -192,7 +191,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
         hits = this.findNodesById(nodeId, node.children, hits);
       }
     });
-    
+
     return hits;
   }
 
@@ -200,19 +199,19 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     const data = clone(this.state.data);
     const matches = this.findNodesById(nodeId, data, []);
     const targetNodeDatum = matches[0];
-  
+
     if (targetNodeDatum.__rd3t.collapsed) {
       FeedTree.expandNode(targetNodeDatum);
     } else {
       FeedTree.collapseNode(targetNodeDatum);
     }
 
-    this.setState({data});
+    this.setState({ data });
   };
 
   bindZoomListener = (props: AllProps) => {
     const { zoom, scaleExtent, feedTreeProp } = props;
-    const {translate}=feedTreeProp;
+    const { translate } = feedTreeProp;
     const svg = select(`.${svgClassName}`);
     const g = select(`.${graphClassName}`);
 
@@ -246,38 +245,39 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     const prevData = prevProps.pluginInstances.data;
     const thisData = this.props.pluginInstances.data;
 
-    
-  
     if (prevData !== thisData) {
       if (thisData) {
         const tree = getFeedTree(thisData);
         const transformedData = FeedTree.assignInternalProperties(clone(tree));
-          let separation:Separation| undefined = undefined;
-          if (thisData.length > 20) {
-            separation = {
-              siblings: 0.5,
-              nonSiblings: 0.5,
-            };
-          }
-          if (separation) {
-            this.setState({
-              ...this.state,
-              data: transformedData,
-              separation,
-            });
-          } else {
-            this.setState({
-              ...this.state,
-              data: transformedData,
-            });
-          } 
+        let separation: Separation | undefined = undefined;
+        if (thisData.length > 20) {
+          separation = {
+            siblings: 0.5,
+            nonSiblings: 0.5,
+          };
+        }
+        if (separation) {
+          this.setState({
+            ...this.state,
+            data: transformedData,
+            separation,
+          });
+        } else {
+          this.setState({
+            ...this.state,
+            data: transformedData,
+          });
+        }
       }
     }
 
-
     if (
-      !isEqual(this.props.feedTreeProp.translate, prevProps.feedTreeProp.translate) ||
-      this.props.feedTreeProp.orientation!==prevProps.feedTreeProp.orientation ||
+      !isEqual(
+        this.props.feedTreeProp.translate,
+        prevProps.feedTreeProp.translate
+      ) ||
+      this.props.feedTreeProp.orientation !==
+        prevProps.feedTreeProp.orientation ||
       !isEqual(this.props.scaleExtent, prevProps.scaleExtent) ||
       this.props.zoom !== prevProps.zoom
     ) {
@@ -285,10 +285,14 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     }
   }
 
-  shouldComponentUpdate(nextProps: AllProps,) {
+  shouldComponentUpdate(nextProps: AllProps, nextState: FeedTreeState) {
     if (
-      !isEqual(this.props.feedTreeProp.translate, nextProps.feedTreeProp.translate) ||
-      this.props.feedTreeProp.orientation!==nextProps.feedTreeProp.orientation ||
+      !isEqual(
+        this.props.feedTreeProp.translate,
+        nextProps.feedTreeProp.translate
+      ) ||
+      this.props.feedTreeProp.orientation !==
+        nextProps.feedTreeProp.orientation ||
       !isEqual(this.props.scaleExtent, nextProps.scaleExtent) ||
       !isEqual(
         this.props.pluginInstanceResource,
@@ -308,8 +312,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   };
 
   generateTree() {
-    const { nodeSize , orientation } = this.props;
-    const {separation}=this.state;
+    const { nodeSize, orientation } = this.props;
+    const { separation } = this.state;
     const d3Tree = tree<TreeNodeDatum>()
       .nodeSize(
         orientation === "horizontal"
@@ -324,9 +328,13 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
 
     let nodes;
     let links;
-    
-    if (this.state.data) { 
-      const rootNode = d3Tree(hierarchy(this.state.data[0],d=> (d.__rd3t.collapsed ? null : d.children)));
+
+    if (this.state.data) {
+      const rootNode = d3Tree(
+        hierarchy(this.state.data[0], (d) =>
+          d.__rd3t.collapsed ? null : d.children
+        )
+      );
       nodes = rootNode.descendants();
       links = rootNode.links();
     }
@@ -335,12 +343,10 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   }
 
   render() {
-   
-  
     const { nodes, links } = this.generateTree();
     const { translate, scale } = this.state.d3;
     const { selectedPlugin, feedTreeProp, setFeedTreeProp } = this.props;
-    const {orientation}=feedTreeProp;
+    const { orientation } = feedTreeProp;  
 
     return (
       <div className="feed-tree grabbable">
@@ -356,6 +362,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
             <UndoIcon className="feed-tree__orientation--icon" />
           )}
         </div>
+    
         <svg className={`${svgClassName}`} width="100%" height="100%">
           <TransitionGroupWrapper
             component="g"
