@@ -22,7 +22,7 @@ export const getFeedTree = (items: PluginInstance[]) => {
     if (!mappedArr.hasOwnProperty(id)) {
       mappedArr[id] = {
         key: id,
-        title: item.data.plugin_name,
+        title: item.data.title || item.data.plugin_name,
         parentId: item.data.previous_id,
         item: item,
         children: [],

@@ -66,20 +66,18 @@
 }
 
 .section-one {
- 
  overflow: hidden;
-
 .pf-c-page__main-body{
  padding-top:0.25rem !important;
  padding-bottom: 0.25rem !important;
 }
 
 @include media-query(992px){
-  min-height: 4.8vh;
+  min-height: 5vh;
  }
 
  @include media-query(768px){
-  min-height: 4.8vh;
+  min-height: 5vh;
  }
 
  @include media-query(1200px){
@@ -93,17 +91,17 @@
 }
 
 .section-two {
- height:47.5vh;
+ height:46.5vh;
 
 @include media-query(992px){
-  min-height:47.5vh;
+  min-height:46.5vh;
  }
  @include media-query(768px){
-  min-height:47.5vh;
+  min-height:46.5vh;
  }
 
   @include media-query(1200px){
-   min-height:47.5vh;
+   min-height:46.5vh;
  }
 
 

@@ -17,11 +17,8 @@ export function createTreeFromFiles(
 
 // Format plugin name to "Name_vVersion_ID"
 export function getPluginName(plugin: PluginInstance) {
-  const title = plugin.data.plugin_name;
-  const formattedTitle = title.replace(/\s+/, "_");
-  const plugin_version = plugin.data?.plugin_version;
-  const id = plugin.data.id;
-  return `${formattedTitle}_v${plugin_version}_${id}`;
+  const title = plugin.data.title || plugin.data.plugin_name;
+  return title;
 }
 
 // Format plugin name to "Name v. Version"
