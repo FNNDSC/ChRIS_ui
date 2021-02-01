@@ -42,24 +42,30 @@ const AddNode:React.FC<AddNodeProps>=({
 const [addNodeState,setNodeState]= React.useState<AddNodeState>(getInitialState)
 const {isOpen,stepIdReached,nodes,data,requiredInput,dropdownInput,selectedComputeEnv,errors}=addNodeState
 
+
+const handleFetchedData = React.useCallback(() => {
+  if (pluginInstances) {
+    const { data: nodes } = pluginInstances;
+    setNodeState((addNodeState)=>{
+      return {
+        ...addNodeState,
+        nodes,
+        data: {
+          ...addNodeState.data,
+          parent: selectedPlugin,
+        },
+      };
+    }
+    );
+  }
+}, [pluginInstances, selectedPlugin]);
+
+
+
 React.useEffect(() => {
   handleFetchedData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [pluginInstances]);
+}, [handleFetchedData]);
 
-const handleFetchedData=()=>{
-if(pluginInstances){
-const { data: nodes } = pluginInstances;
-setNodeState({
-  ...addNodeState,
-  nodes,
-  data:{
-    ...addNodeState.data,
-    parent:selectedPlugin
-  }
-})
- }
-}
 
 const inputChange=(
     id: string,
