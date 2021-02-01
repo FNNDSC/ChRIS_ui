@@ -3,11 +3,12 @@ import { LazyLog } from "react-lazylog";
 
 type LogTerminalProps = {
   text: string;
+  className?: string;
 };
 
-const LogTerminal = ({ text }: LogTerminalProps) => {
+const LogTerminal = ({ text, className }: LogTerminalProps) => {
   return (
-    <div className="file-browser__lazyLog preview">
+    <div className={`file-browser__lazyLog ${className} preview`}>
       <LazyLog extraLines={1} enableSearch text={text} caseInsensitive />;
     </div>
   );

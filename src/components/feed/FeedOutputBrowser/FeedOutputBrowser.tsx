@@ -66,6 +66,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     selected && getPluginFilesRequest(selected);
   }, [selected]);
 
+ 
   React.useEffect(() => {
     getPluginFiles();
   }, [getPluginFiles]);
@@ -193,17 +194,13 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 downloadAllClick={downloadAllClick}
               />
             ) : selected.data.status === "finishedSuccessfully" && !tree ? (
-              <div>
                 <Spinner size="md" />
-              </div>
-            ) : (
-              <div>
+             ) : (  
                 <PluginStatus
                   selected={selected}
                   pluginStatus={pluginStatus}
                   pluginLog={pluginLog}
                 />
-              </div>
             )}
           </GridItem>
         </Grid>

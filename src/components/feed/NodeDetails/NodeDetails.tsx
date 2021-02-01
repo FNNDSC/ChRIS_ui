@@ -110,7 +110,10 @@ const NodeDetails: React.FC<INodeProps> = ({
   const runTime = React.useCallback(getRuntimeString, [selected, pluginStatus]);
 
   const pluginTitle = React.useMemo(() => {
-    return `${selected?.data.plugin_name} v. ${selected?.data.plugin_version}`;
+    return (
+      selected?.data.title ||
+      `${selected?.data.plugin_name} v. ${selected?.data.plugin_version}`
+    );
   }, [selected]);
 
   if (!selected || !selected.data) {
