@@ -3,6 +3,7 @@ import { Tabs, Tab, TabTitleText, TabTitleIcon } from "@patternfly/react-core";
 import { TerminalIcon, AtomIcon } from "@patternfly/react-icons";
 
 type LogTabsProps = {
+  className: string;
   activeKey: React.ReactText;
   setActiveKey: (key: React.ReactText) => void;
 };
@@ -17,7 +18,12 @@ const LogTabs = (props: LogTabsProps) => {
 
   return (
     <>
-      <Tabs isFilled activeKey={props.activeKey} onSelect={handleTabClick}>
+      <Tabs
+        className={props.className}
+        isFilled
+        activeKey={props.activeKey}
+        onSelect={handleTabClick}
+      >
         <Tab
           eventKey={0}
           title={

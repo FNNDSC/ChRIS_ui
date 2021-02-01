@@ -98,19 +98,28 @@ const PluginStatus:React.FC<PluginStatusProps>=({
           </Steps>
         </GridItem>
         <GridItem className="file-browser__plugin-status" span={8} rowSpan={12}>
-          <LogTabs activeKey={activeKey} setActiveKey={handleActiveKey} />
+          <LogTabs
+            className="file-browser__plugin-status--tabs"
+            activeKey={activeKey}
+            setActiveKey={handleActiveKey}
+          />
           {activeKey === 0 && pluginLog && !isEmpty(pluginLog.info) ? (
-            <ReactJSON
-              name={false}
-              displayDataTypes={false}
-              displayObjectSize={false}
-              src={currentLog}
-              indentWidth={4}
-              collapsed={false}
-            />
+            <div
+            className="file-browser__plugin-status--json"
+            >
+              <ReactJSON
+                name={false}
+                displayDataTypes={false}
+                displayObjectSize={false}
+                src={currentLog}
+                indentWidth={4}
+                collapsed={false}
+              />
+            </div>
           ) : (
             activeKey === 1 && (
               <LogTerminal
+                className="file-browser__plugin-status--terminal"
                 text={
                   typedLog && typedLog[0]
                     ? typedLog[0]
