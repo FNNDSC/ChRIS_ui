@@ -92,8 +92,24 @@
     overflow-y: scroll;
   }
 
-}
+  &__plugin-status {
+    &--tabs {
+      height:3vh 
+    }
 
+    &--json {
+      overflow-y: scroll;
+    }
+
+    &--terminal, &--json {
+      height: 40.5vh!important;
+      @include media-query(1200px){
+       min-height:40.5vh !important;
+    }
+   }
+  }
+
+}
 
 
 /**
