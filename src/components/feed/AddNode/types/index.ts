@@ -83,7 +83,6 @@ export interface AddNodeProps {
 
 
 export interface GuidedConfigState {
-  isOpen: boolean;
   componentList: string[];
   count: number;
   errors: string[];
@@ -116,6 +115,7 @@ export interface EditorState {
 
 export interface EditorProps extends InputState {
   plugin: Plugin;
+
   params?: PluginParameter[];
   inputChange(
     id: string,

@@ -1,5 +1,5 @@
 import React from "react";
-import { FormGroup, TextInput } from "@patternfly/react-core";
+import { FormGroup, TextInput, Title } from "@patternfly/react-core";
 import PluginSelect from "./PluginSelect";
 
 import { BasicConfigurationProps, BasicConfigurationState } from "./types";
@@ -28,20 +28,15 @@ class BasicConfiguration extends React.Component<
 
     return (
       <div className="screen-one">
-        <h1 className="pf-c-title pf-m-2xl">Plugin Selection</h1>
+        <Title headingLevel="h1">Plugin Selection</Title>
         <FormGroup label="Parent node:" fieldId="parent-node">
           <TextInput
-            style={{
-              letterSpacing: "0.02em",
-              fontSize: "18px",
-            }}
             value={parent.data.plugin_name}
             aria-label="Selected Plugin Name"
           />
         </FormGroup>
 
-        <FormGroup
-        label="Select plugin to add:" fieldId="plugin">
+        <FormGroup label="Select plugin to add:" fieldId="plugin">
           <PluginSelect
             selected={selectedPlugin}
             handlePluginSelect={handlePluginSelect}

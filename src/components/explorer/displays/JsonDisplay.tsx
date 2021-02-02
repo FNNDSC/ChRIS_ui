@@ -11,6 +11,18 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const { fileItem } = props;
   let _isMounted = useRef(false);
 
+  const getBlobText = React.useCallback(() => {
+    const { blob } = fileItem;
+    if (!!blob) {
+      const reader = new FileReader();
+      reader.addEventListener("loadend", (e: any) => {
+        const blobText = e.target.result;
+        if (_isMounted.current === true) setBlobText(JSON.parse(blobText));
+      });
+      reader.readAsText(blob);
+    }
+  }, [fileItem]);
+
   useEffect(() => {
     _isMounted.current = true;
     getBlobText();
@@ -18,19 +30,8 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     return () => {
       _isMounted.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [getBlobText]);
 
-  const getBlobText = () => {
-    if (!!fileItem.blob) {
-      const reader = new FileReader();
-      reader.addEventListener("loadend", (e: any) => {
-        const blobText = e.target.result;
-        if (_isMounted.current === true) setBlobText(JSON.parse(blobText));
-      });
-      reader.readAsText(fileItem.blob);
-    }
-  };
   getBlobText();
 
   return (
