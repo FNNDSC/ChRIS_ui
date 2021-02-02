@@ -90,7 +90,7 @@ export default class Node extends React.Component<NodeProps, NodeState> {
         if (data.item)
           if (instance.data.id === data?.item.data.id) {
             return instance.data.status;
-          }
+          } else return undefined;
       });
     }
 
