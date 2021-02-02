@@ -28,14 +28,14 @@ const ComputeEnvironment: React.FC<ComputeProp> = ({
   
 
   React.useEffect(() => {
-    setMenuState((menuState)  =>  {
+    setMenuState((menuState) => {
       return {
         ...menuState,
         toggleTemplateText: computeEnvs[0].data.name,
       };
     });
     setComputeEnvironment(computeEnvs[0].data.name);
-  }, [computeEnvs]);
+  }, [computeEnvs, setComputeEnvironment]);
 
   const onToggle = (isOpen: boolean) => {
     setMenuState({

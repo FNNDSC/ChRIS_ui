@@ -4,7 +4,7 @@ import { Wizard } from "@patternfly/react-core";
 import { connect } from "react-redux";
 
 import { ApplicationState } from "../../../store/root/applicationState";
-import "./styles/addnode.scss";
+import "./styles/AddNode.scss";
 import LoadingSpinner from "../../common/loading/LoadingSpinner";
 import Review from "./Review";
 import { addNodeRequest } from "../../../store/feed/actions";
@@ -37,44 +37,50 @@ const AddNode:React.FC<AddNodeProps>=({
   pluginInstances,
   getParams,
   addNode,
-  loadingAddNode
+ 
 })=>{
-const [addNodeState,setNodeState]= React.useState<AddNodeState>(getInitialState)
-const {isOpen,stepIdReached,nodes,data,requiredInput,dropdownInput,selectedComputeEnv,errors}=addNodeState
+  const [addNodeState, setNodeState] = React.useState<AddNodeState>(
+    getInitialState
+  );
+  const {
+    isOpen,
+    stepIdReached,
+    nodes,
+    data,
+    requiredInput,
+    dropdownInput,
+    selectedComputeEnv,
+    errors,
+  } = addNodeState;
 
-
-const handleFetchedData = React.useCallback(() => {
-  if (pluginInstances) {
-    const { data: nodes } = pluginInstances;
-    setNodeState((addNodeState)=>{
-      return {
-        ...addNodeState,
-        nodes,
-        data: {
-          ...addNodeState.data,
-          parent: selectedPlugin,
-        },
-      };
+  const handleFetchedData = React.useCallback(() => {
+    if (pluginInstances) {
+      const { data: nodes } = pluginInstances;
+      setNodeState((addNodeState) => {
+        return {
+          ...addNodeState,
+          nodes,
+          data: {
+            ...addNodeState.data,
+            parent: selectedPlugin,
+          },
+        };
+      });
     }
-    );
-  }
-}, [pluginInstances, selectedPlugin]);
+  }, [pluginInstances, selectedPlugin]);
 
+  React.useEffect(() => {
+    handleFetchedData();
+  }, [handleFetchedData]);
 
-
-React.useEffect(() => {
-  handleFetchedData();
-}, [handleFetchedData]);
-
-
-const inputChange=(
+  const inputChange = (
     id: string,
     paramName: string,
     value: string,
     required: boolean,
     type: string,
     placeholder: string
-  ) =>{
+  ) => {
     const input: InputIndex = {};
     input["id"] = id;
     input[paramName] = value;
@@ -100,9 +106,12 @@ const inputChange=(
         errors: {},
       });
     }
-  }
+  };
 
-  const inputChangeFromEditor=(dropdownInput: InputType, requiredInput: InputType)=> {
+  const inputChangeFromEditor = (
+    dropdownInput: InputType,
+    requiredInput: InputType
+  ) => {
     setNodeState((prevState) => ({
       ...prevState,
       dropdownInput: dropdownInput,
@@ -114,18 +123,16 @@ const inputChange=(
       requiredInput: requiredInput,
       errors: {},
     }));
-  }
+  };
 
-  const toggleOpen=()=> {
+  const toggleOpen = () => {
     setNodeState((state: AddNodeState) => ({
-      ...state,  
+      ...state,
       isOpen: !state.isOpen,
-      })
-  )
-     
-  }
+    }));
+  };
 
-  const onNext=(newStep: { id?: string | number; name: React.ReactNode })=> {
+  const onNext = (newStep: { id?: string | number; name: React.ReactNode }) => {
     const { stepIdReached } = addNodeState;
     const { id } = newStep;
     id &&
@@ -133,39 +140,44 @@ const inputChange=(
         ...addNodeState,
         stepIdReached: stepIdReached < id ? (id as number) : stepIdReached,
       });
-  }
+  };
 
-  const onBack=(newStep: { id?: string | number; name: React.ReactNode })=>{
+  const onBack = (newStep: { id?: string | number; name: React.ReactNode }) => {
     const { id } = newStep;
-    if (id === 1) {
+   
+    if (id === 1) {      
       setNodeState({
         ...addNodeState,
         dropdownInput: {},
         requiredInput: {},
       });
     }
-  }
 
- const handlePluginSelect=(plugin: Plugin)=>{
+    id &&
+      setNodeState({
+        ...addNodeState,
+        stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
+      });
+  };
+
+  const handlePluginSelect = (plugin: Plugin) => {
     setNodeState((prevState) => ({
       ...prevState,
       data: { ...prevState.data, plugin },
     }));
     getParams(plugin);
-  }
+  };
 
-const setComputeEnv=React.useCallback((computeEnv: string)=>{
-    setNodeState((addNodeState)=>{
+  const setComputeEnv = React.useCallback((computeEnv: string) => {
+    setNodeState((addNodeState) => {
       return {
         ...addNodeState,
         selectedComputeEnv: computeEnv,
       };
-    }
-    );
-  },[])
+    });
+  }, []);
 
-
-const deleteInput=(input: string)=>{
+  const deleteInput = (input: string) => {
     const { dropdownInput } = addNodeState;
 
     let newObject = Object.entries(dropdownInput)
@@ -181,9 +193,9 @@ const deleteInput=(input: string)=>{
       ...addNodeState,
       dropdownInput: newObject,
     });
-  }
+  };
 
-const resetState=()=>{
+  const resetState = () => {
     setNodeState({
       isOpen: false,
       stepIdReached: 1,
@@ -194,12 +206,12 @@ const resetState=()=>{
       errors: {},
       selectedComputeEnv: "",
     });
-  }
+  };
 
-const handleSave=async()=>{
-    const { dropdownInput, requiredInput, selectedComputeEnv, } = addNodeState;
+  const handleSave = async () => {
+    const { dropdownInput, requiredInput, selectedComputeEnv } = addNodeState;
     const { plugin } = addNodeState.data;
-    
+
     if (!plugin || !selectedPlugin || !pluginInstances) {
       return;
     }
@@ -233,8 +245,9 @@ const handleSave=async()=>{
         errors: error.response.data,
       });
     }
-  }
+  };
 
+  
   const basicConfiguration = selectedPlugin && nodes && (
     <BasicConfiguration
       selectedPlugin={addNodeState.data.plugin}
@@ -264,6 +277,7 @@ const handleSave=async()=>{
       dropdownInput={dropdownInput}
       requiredInput={requiredInput}
       inputChangeFromEditor={inputChangeFromEditor}
+     
     />
   ) : (
     <LoadingSpinner />
@@ -310,6 +324,7 @@ const handleSave=async()=>{
     },
   ];
 
+  
 
   return (
     <React.Fragment>
@@ -331,7 +346,6 @@ const handleSave=async()=>{
       )}
     </React.Fragment>
   );
-
 }
 
 

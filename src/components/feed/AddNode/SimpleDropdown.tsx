@@ -81,7 +81,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     const flag = param.data.flag;
     const placeholder = param.data.help;
     const type = param.data.type;
-    const paramId = `${param.data.id}`;
+    const paramId = id;
 
     setDropdownState({
       ...dropdownState,
@@ -112,11 +112,8 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   };
 
   const handleInputChange  =  (
-    
     value: string,
-   
     event: React.FormEvent<HTMLInputElement>
-  
   )  => {
     handleChange(paramId, flag, value, false, type, placeholder);
   };;
