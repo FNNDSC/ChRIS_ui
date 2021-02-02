@@ -130,7 +130,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     });
   };
 
-  const handleSave = async () => {
+  const handleSave =  React.useCallback(async () => {
     // Set the progress to 'Started'
     const username = user && user.username;
     try {
@@ -177,7 +177,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         },
       });
     }
-  };
+  },[addFeed, computeEnvironment, dispatch, dropdownInput, getCreationError, getCreationStatus, requiredInput, selectedPlugin, state.data, user ]);
 
   const basicInformation = <BasicInformation />;
   const chooseConfig = <ChooseConfig />;
