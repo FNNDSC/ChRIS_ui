@@ -154,12 +154,15 @@ const inputChange=(
     getParams(plugin);
   }
 
-const setComputeEnv=(computeEnv: string)=>{
-    setNodeState({
-      ...addNodeState,
-      selectedComputeEnv: computeEnv,
-    });
-  }
+const setComputeEnv=React.useCallback((computeEnv: string)=>{
+    setNodeState((addNodeState)=>{
+      return {
+        ...addNodeState,
+        selectedComputeEnv: computeEnv,
+      };
+    }
+    );
+  },[])
 
 
 const deleteInput=(input: string)=>{
