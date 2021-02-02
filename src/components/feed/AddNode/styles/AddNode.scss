@@ -14,26 +14,22 @@
   }
 
   .pf-c-form__group {
-    margin: 15px 0;
+    margin: 0.5rem 0;
   }
 
   .pf-c-form__label {
-    margin-bottom: 10px;
+    margin-bottom: 0.5rem;
   }
 
   .pf-c-form__label-text {
-    color: black;
     font-size: 0.9rem;
-    letter-spacing: 0.03rem;
     font-weight: 900!important;
   }
 }
 
 .plugin-select {
   margin-top:10px!important;
-  color: black !important;
-  
-  
+
   box-shadow: none;
   .pf-c-accordion__toggle,
   .pf-c-accordion__expanded-content-body {
@@ -41,12 +37,12 @@
   }
   .pf-c-accordion__toggle {
     border: none !important;
-    padding-left: 15px;
-    padding-right: 10px;
+    padding-left: 1rem;
+    padding-right: 0.8rem;
     margin-bottom: 0 !important;
     .pf-c-accordion__toggle-text {
       font-size: 0.85rem;
-      letter-spacing: 0.05rem;
+      
     }
     &.pf-m-expanded .pf-c-accordion__toggle-text {
       font-weight: 900 !important;
@@ -54,38 +50,36 @@
   }
 
   #recent-toggle{
-    margin-top:10px!important;
-    margin-bottom:10px!important;
+    margin-top:0.5rem!important;
+    margin-bottom:0.5rem!important;
 
   }
 
   #all-content,
   #recent-content {
-    margin-left: 15px;
-    margin-bottom: 10px;
+    margin-left: 1rem;
+    margin-bottom: 0.5rem;
   }
 
   .pf-c-accordion__expanded-content-body {
-    padding-right: 5px !important;
-    padding-left: 5px !important;
+    padding-right: 0.25rem !important;
+    padding-left: 0.25rem !important;
   }
 
   .plugin-list {
     height:auto;
     overflow: auto;
-    padding-right: 10px;
-    margin-top:10px;
+    padding-right: 0.15rem;
+    margin-top:0.10rem;
   }
 
   .plugin-list-filter {
-    margin-bottom: 5px;
-    font-size: 0.9rem !important;
-    letter-spacing: 0.05rem;
+    margin-bottom: 0.10rem;
+    font-size: 0.85rem !important;
   }
 
   .plugin-list li {
     padding: 10px 5px;
-    font-size: 0.9rem;
     cursor: pointer;
     &:hover {
       background: #f5f5f5;
@@ -112,23 +106,19 @@
     flex-direction: column;
   }
 
-
   &__button {
-    margin-top: 20px !important;
-    margin-right:20px !important;
+    margin-top: 1.25rem !important;
+    margin-right:1.25rem !important;
     max-width:50%!important;
   }
 
   &__renders {
-    margin-top: 20px !important;
+    margin-top: 1.25rem !important;
   }
 
   .pf-c-banner{
     background-color: #73bcf7;
-    padding:10px;
-  
-    letter-spacing: 0.05rem;
-
+    padding:0.25rem;
   }
 
   
@@ -149,11 +139,10 @@
       font-size: 1rem;
       font-weight: 500 !important;  
     }
-
     &__label {
       background-color: #fff;
       color: #000;
-      margin-right: 10px !important;  
+      margin-right: 0.25rem !important;  
     }
     &__star {
       color: #c9190b;
@@ -179,17 +168,17 @@
     font-size: 1rem !important;
     font-weight: 900 !important;
     color: #000 !important;
-    margin: 10px 0 !important;
+    margin: 0.10 0 !important;
     background-color: #fff !important;
   }
 
   &__optionsmenu{
-    margin-left:10px !important;
+    margin-left:0.10rem !important;
   }
   .pf-c-options-menu__toggle-text{
     font-size: 1rem !important;
     color:#000 !important;
-    letter-spacing: 0.05rem !important;
+    
   }
 }
 
@@ -197,7 +186,6 @@
   margin-top: 40px;
 
   &__label, &__text {
-    letter-spacing: 0.05rem;
     font-size: 1rem !important;
     font-weight: 700 !important;
     color: #000 !important;
@@ -205,7 +193,7 @@
  
   &__label {
     background-color: #fff !important;
-    margin: 10px 0 !important;
+    margin: 0.10 0 !important;
     
   }
 
@@ -222,13 +210,13 @@
 
 .plugin-configuration {
   display: flex;
-  margin: 15px 0;
+  margin: 1rem 0;
 
   &__dropdown,
   &__input,
   &__parameter {
     font-family: monospace !important;
-    margin-right: 10px !important;
+    margin-right: 0.10rem !important;
     font-size: 1rem !important;
   }
 
@@ -247,14 +235,13 @@
 .editor {
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
+  margin-bottom: 0.10rem;
   
   &__label {
     background-color: #fff !important;
     color: #000 !important;
-    margin: 10px 0 !important;
+    margin: 0.10 0 !important;
     font-size: 1rem !important;
-    letter-spacing: 0.05rem;
     font-weight: 600 !important;
   }
 
@@ -264,9 +251,7 @@
     font-family: monospace !important;
     font-weight: 900 !important;
     height: 170px !important;
-    font-size: 1.1rem !important;
-    letter-spacing: 0.05rem;
-  
+    font-size: 1rem !important;
   }
 }
 
@@ -314,21 +299,16 @@
 .docs {
   border: 1px solid #f3be3a;
   background: #fbeabc;
-  
-  margin-top: 15px !important;
-
-
-
+  margin-top: 0.9rem !important;
 
   .pf-c-expandable-section__toggle {
     border-bottom: 1px solid #f3be3a;
 
     &-text{
       font-size: 0.9rem !important;
-      letter-spacing: 0.05rem;
     }
    
-    padding: 5px;
+    padding: 0.15rem;
     color: black !important;
     background: #f9d67a !important;
     width: 100%;
@@ -339,7 +319,7 @@
     outline: none;
     svg {
       margin: 0;
-      font-size: 20px;
+      font-size: 1.25rem;
     }
   }
   .pf-c-expandable-section__content * {
@@ -347,13 +327,12 @@
     margin-top:10px
   }
   .param-item {
-    padding-bottom: 15px;
-    padding-left: 10px;
+    padding-bottom: 1rem;
+    padding-left: 0.5rem;
   }
   .param-title {
     font-size: 1rem;
     font-family: monospace;
-    letter-spacing: 0.05rem;
   }
   .param-help {
     font-size: 1rem;
@@ -366,7 +345,6 @@
 
 .required-text {
   font-family: monospace;
-  letter-spacing: 0.05rem;
   font-size:0.9rem;
 
 }
@@ -378,7 +356,6 @@
 .review {
   &__title, &__value {
     font-size: 0.9rem;
-    letter-spacing: 0.05rem;
   }
 
   &__title{
