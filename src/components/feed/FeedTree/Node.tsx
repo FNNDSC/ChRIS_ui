@@ -5,7 +5,7 @@ import { Datum, TreeNodeDatum, Point } from "./data";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { PluginInstancePayload } from "../../../store/feed/types";
 
-const DEFAULT_NODE_CIRCLE_RADIUS = 15;
+const DEFAULT_NODE_CIRCLE_RADIUS = 12;
 
 type NodeProps = {
   data: TreeNodeDatum;
