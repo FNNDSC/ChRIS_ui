@@ -13,9 +13,24 @@
 // ------------------------------
 
 .feed-tree {
+
   width:100%;
   height:100%;
   position:relative;
+
+  .pf-c-switch {
+  
+    display:flex;
+    row-gap: 0.30rem;
+    flex-direction: column;
+
+    &__label {
+      color:white !important;
+      padding-left:0;
+      margin-left:-0.25em;
+      padding-top:0.25rem;
+    }
+  }
 
   &__orientation {
     padding-left: 1rem;
@@ -27,7 +42,9 @@
     }
   }
 
-  
+  &__container {
+    display:flex;
+  }
 
 }
 

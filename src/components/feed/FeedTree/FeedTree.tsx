@@ -1,4 +1,4 @@
-import React, {RefObject} from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { tree, hierarchy } from "d3-hierarchy";
@@ -17,10 +17,12 @@ import {isEqual} from 'lodash'
 import Link from './Link'
 import Node from './Node'
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
-import { UndoIcon, RedoIcon} from "@patternfly/react-icons";
+import { UndoIcon, RedoIcon, SearchPlusIcon} from "@patternfly/react-icons";
 import { v4 as uuidv4 } from "uuid";
 import clone from "clone";
 import { setFeedTreeProp } from "../../../store/feed/actions";
+import {Switch} from '@patternfly/react-core';
+
 
 
 
@@ -53,6 +55,7 @@ interface OwnProps {
   };
   separation: Separation;
   orientation: "horizontal" | "vertical";
+ 
 }
 
 type AllProps = ITreeProps & OwnProps;
@@ -64,7 +67,8 @@ type FeedTreeState = {
     scale: number;
   };
   separation: Separation;
-  
+  collapsible: boolean;
+
 };
 
 
@@ -79,6 +83,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     zoom: 1,
     nodeSize: { x: 80, y: 60 },
     separation: { siblings: 1, nonSiblings: 2 },
+   
+   
   };
 
   constructor(props: AllProps) {
@@ -87,6 +93,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     this.state = {
       d3: FeedTree.calculateD3Geometry(this.props),
       separation: this.props.separation,
+      collapsible: false,
     };
   }
 
@@ -191,18 +198,44 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     return hits;
   }
 
+  findNodesAtDepth(
+    depth: number,
+    nodeSet: TreeNodeDatum[],
+    accumulator: TreeNodeDatum[]
+  ) {
+    accumulator = accumulator.concat(
+      nodeSet.filter((node) => node.__rd3t.depth === depth)
+    );
+    nodeSet.forEach((node) => {
+      if (node.children && node.children.length > 0) {
+        accumulator = this.findNodesAtDepth(depth, node.children, accumulator);
+      }
+    });
+    return accumulator;
+  }
+
+  collapseNeighborNodes(targetNode: TreeNodeDatum, nodeSet: TreeNodeDatum[]) {
+    const neighbors = this.findNodesAtDepth(
+      targetNode.__rd3t.depth,
+      nodeSet,
+      []
+    ).filter((node) => node.__rd3t.id !== targetNode.__rd3t.id);
+    neighbors.forEach((neighbor) => FeedTree.collapseNode(neighbor));
+  }
+
   handleNodeToggle = (nodeId: string) => {
     const data = clone(this.state.data);
     const matches = this.findNodesById(nodeId, data, []);
     const targetNodeDatum = matches[0];
 
-    if (targetNodeDatum.__rd3t.collapsed) {
-      FeedTree.expandNode(targetNodeDatum);
-    } else {
-      FeedTree.collapseNode(targetNodeDatum);
+    if (this.state.collapsible) {
+      if (targetNodeDatum.__rd3t.collapsed) {
+        FeedTree.expandNode(targetNodeDatum);
+      } else {
+        FeedTree.collapseNode(targetNodeDatum);
+      }
+      this.setState({ data });
     }
-
-    this.setState({ data });
   };
 
   bindZoomListener = (props: AllProps) => {
@@ -294,6 +327,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
         this.props.pluginInstanceResource,
         nextProps.pluginInstanceResource
       ) ||
+      nextState.collapsible!==this.state.collapsible||
+      !isEqual(nextState.data, this.state.data) ||
       this.props.selectedPlugin !== nextProps.selectedPlugin ||
       this.props.zoom !== nextProps.zoom ||
       this.props.pluginInstances.data !== nextProps.pluginInstances.data
@@ -338,25 +373,45 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     return { nodes, links };
   }
 
+
+  handleChange=()=>{
+    this.setState({
+      ...this.state,
+      collapsible:!this.state.collapsible
+    })
+
+  }
+
   render() {
     const { nodes, links } = this.generateTree();
     const { translate, scale } = this.state.d3;
-    const { selectedPlugin, feedTreeProp, setFeedTreeProp } = this.props;
+    const { selectedPlugin, feedTreeProp, setFeedTreeProp} = this.props;
     const { orientation } = feedTreeProp;
-
+  
     return (
       <div className="feed-tree grabbable">
-        <div
-          onClick={() => {
-            setFeedTreeProp(orientation);
-          }}
-          className="feed-tree__orientation"
-        >
-          {orientation === "vertical" ? (
-            <RedoIcon className="feed-tree__orientation--icon" />
-          ) : (
-            <UndoIcon className="feed-tree__orientation--icon" />
-          )}
+        <div className="feed-tree__container">
+          <div
+            onClick={() => {
+              setFeedTreeProp(orientation);
+            }}
+            className="feed-tree__orientation"
+          >
+            {orientation === "vertical" ? (
+              <RedoIcon className="feed-tree__orientation--icon" />
+            ) : (
+              <UndoIcon className="feed-tree__orientation--icon" />
+            )}
+          </div>
+          <div className="feed-tree__orientation">
+            <Switch
+              id="collapsible"
+              label="Collapsible on"
+              labelOff="Collapsible off"
+              isChecked={this.state.collapsible}
+              onChange={this.handleChange}
+            />
+          </div>
         </div>
 
         <svg className={`${svgClassName}`} width="100%" height="100%">
