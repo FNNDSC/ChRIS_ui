@@ -77,14 +77,13 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     orientation: "vertical",
     scaleExtent: { min: 0.1, max: 1 },
     zoom: 1,
-    nodeSize: { x: 100, y: 100 },
+    nodeSize: { x: 80, y: 60 },
     separation: { siblings: 1, nonSiblings: 2 },
   };
 
-
   constructor(props: AllProps) {
     super(props);
-   
+
     this.state = {
       d3: FeedTree.calculateD3Geometry(this.props),
       separation: this.props.separation,
@@ -307,8 +306,6 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   handleNodeClick = (item: PluginInstance) => {
     this.props.onNodeClick(item);
   };
-
-  
 
   generateTree() {
     const { nodeSize, orientation } = this.props;
