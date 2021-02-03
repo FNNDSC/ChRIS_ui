@@ -72,14 +72,17 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     });
   };
 
-  const setComputeEnvironment = (computeEnvironment: string) => {
-    dispatch({
-      type: Types.SetComputeEnvironment,
-      payload: {
-        computeEnvironment,
+  const setComputeEnvironment = React.useCallback(
+    (computeEnvironment: string) => {
+        dispatch({
+          type: Types.SetComputeEnvironment,
+          payload: {
+            computeEnvironment,
+          },
+        });
       },
-    });
-  };
+    [dispatch]
+  );
 
   const inputChange = (
     id: string,
