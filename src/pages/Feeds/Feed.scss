@@ -91,17 +91,17 @@
 }
 
 .section-two {
- height:46.5vh;
+ height:44vh;
 
 @include media-query(992px){
-  min-height:46.5vh;
+  min-height:44vh;
  }
  @include media-query(768px){
-  min-height:46.5vh;
+  min-height:44vh;
  }
 
   @include media-query(1200px){
-   min-height:46.5vh;
+   min-height:44vh;
  }
 
 
