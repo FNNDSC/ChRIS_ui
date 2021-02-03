@@ -140,10 +140,8 @@ export default class Node extends React.Component<NodeProps, NodeState> {
             });
           }}
           onClick={(event) => {
-            if (event.ctrlKey) {
-              this.handleNodeToggle();
-            }
             if (data.item) {
+              this.handleNodeToggle();
               onNodeClick(data.item);
             }
           }}
