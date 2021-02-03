@@ -50,19 +50,19 @@
 
 
 @mixin section-three {
- height: 46.5vh;
+ height: 48vh;
  
 
  @include media-query(768px){
-   min-height:46.5vh  
+   min-height:48vh  
  }
 
   @include media-query(992px){
-   min-height:46.5vh;
+   min-height:48vh;
  }
   
 @include media-query(1200px){
-   min-height:46.5vh;
+   min-height:48vh;
  }
 }
 

@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
 import { Datum } from "./data";
-import { HierarchyPointNode } from "d3";
-
+import { HierarchyPointNode } from "d3-hierarchy";
+import { select } from "d3-selection";
 
 export interface TreeLinkDatum {
   source: HierarchyPointNode<Datum>;
@@ -14,7 +14,30 @@ interface LinkProps {
   orientation: "horizontal" | "vertical";
 }
 
-export default class Link extends React.Component<LinkProps> {
+type LinkState = {
+  initialStyle: { opacity: number };
+};
+
+export default class Link extends React.Component<LinkProps, LinkState> {
+  private linkRef: SVGPathElement | null=null;
+  state = {
+    initialStyle: {
+      opacity: 0,
+    },
+  };
+
+  componentDidMount() {
+    this.applyOpacity(1, 500);
+  }
+
+  componentWillLeave(done:()=>{}) {
+    this.applyOpacity(0, 500, done);
+  }
+
+  applyOpacity(opacity: number, transitionDuration: number, done = () => {}) {
+    select(this.linkRef).transition().duration(transitionDuration).style('opacity',opacity).on('end',done)
+  }
+
   nodeRadius = 12;
   drawPath = () => {
     const { linkData, orientation } = this.props;
@@ -36,11 +59,20 @@ export default class Link extends React.Component<LinkProps> {
   };
 
   render() {
+    const { linkData } = this.props;
     return (
       <Fragment>
-        <path className="link" d={this.drawPath()} />
+        <path
+          ref={l=>{
+            this.linkRef=l;
+          }}
+          className="link"
+          d={this.drawPath()}
+          style={{   ...this.state.initialStyle   }}
+          data-source-id={linkData.source.id}
+          data-target-id={linkData.target.id}
+        />
       </Fragment>
     );
-  
   }
 }
