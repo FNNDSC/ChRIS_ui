@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
 import { select } from "d3-selection";
 import { HierarchyPointNode } from "d3-hierarchy";
-import { Datum, TreeNodeDatum } from "./data";
+import { Datum, TreeNodeDatum, Point } from "./data";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { PluginInstancePayload } from "../../../store/feed/types";
 
@@ -9,10 +9,7 @@ const DEFAULT_NODE_CIRCLE_RADIUS = 15;
 
 type NodeProps = {
   data: TreeNodeDatum;
-  position: {
-    x: number;
-    y: number;
-  };
+  position: Point;
   parent: HierarchyPointNode<Datum> | null;
   selectedPlugin?: PluginInstance;
   onNodeClick: (node: PluginInstance) => void;
@@ -23,18 +20,15 @@ type NodeProps = {
 
 type NodeState = {
   nodeTransform: string;
- 
+  hovered: boolean;
 };
 
-const textLayout = {
-  title: {
-    textAnchor: "start",
-  },
-};
+
 
 export default class Node extends React.Component<NodeProps, NodeState> {
   nodeRef: SVGElement | null = null;
   circleRef: SVGCircleElement | null = null;
+  textRef:  SVGTextElement | null = null;
   state = {
     nodeTransform: this.setNodeTransform(
       this.props.orientation,
@@ -45,6 +39,7 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     initialStyle: {
       opacity: 0,
     },
+    hovered: false,
   };
   componentDidMount() {
     this.commitTransform();
@@ -56,6 +51,7 @@ export default class Node extends React.Component<NodeProps, NodeState> {
 
   applyNodeTransform(transform: string, opacity = 1, done = () => {}) {
     select(this.nodeRef).attr("transform", transform).style("opacity", opacity);
+    select(this.textRef).attr('transform', `translate(-40, 28)`)
   }
 
   commitTransform() {
@@ -80,17 +76,23 @@ export default class Node extends React.Component<NodeProps, NodeState> {
   };
 
   render() {
-    const { data, selectedPlugin, onNodeClick, pluginInstances } = this.props;
+    const {
+      data,
+      selectedPlugin,
+      onNodeClick,
+      pluginInstances,
+    } = this.props;
     let statusClass: string = "";
     const { data: instances } = pluginInstances;
 
     let currentInstance: PluginInstance | undefined = undefined;
     if (instances) {
       currentInstance = instances.find((instance) => {
-        if (data.item)
+        if (data.item) {
           if (instance.data.id === data?.item.data.id) {
             return instance.data.status;
           } else return undefined;
+        }
       });
     }
 
@@ -123,8 +125,19 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     return (
       <Fragment>
         <g
+          id="node"
           ref={(n) => {
             this.nodeRef = n;
+          }}
+          onMouseOver={() => {
+            this.setState({
+              hovered: !this.state.hovered,
+            });
+          }}
+          onMouseOut={() => {
+            this.setState({
+              hovered: !this.state.hovered,
+            });
           }}
           onClick={(event) => {
             if (event.ctrlKey) {
@@ -143,9 +156,18 @@ export default class Node extends React.Component<NodeProps, NodeState> {
               `}
             r={DEFAULT_NODE_CIRCLE_RADIUS}
           ></circle>
-          <g {...textLayout}>
-            <text className="label__title">{data.name}</text>
-          </g>
+          {this.state.hovered && (
+            <g>
+              <text
+                ref={(n) => {
+                  this.textRef = n;
+                }}
+                className="label__title"
+              >
+                {data.item?.data.title || data.item?.data.plugin_name}
+              </text>
+            </g>
+          )}
         </g>
       </Fragment>
     );

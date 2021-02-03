@@ -1,4 +1,4 @@
-import React from "react";
+import React, {RefObject} from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { tree, hierarchy } from "d3-hierarchy";
@@ -12,7 +12,7 @@ import {
 } from "../../../store/feed/types";
 import { ApplicationState } from "../../../store/root/applicationState";
 import "./FeedTree.scss";
-import { getFeedTree, Datum, TreeNodeDatum } from "./data";
+import { getFeedTree, Datum, TreeNodeDatum, Point } from "./data";
 import {isEqual} from 'lodash'
 import Link from './Link'
 import Node from './Node'
@@ -32,10 +32,7 @@ interface ITreeProps {
   setFeedTreeProp:(orientation:string)=>void;
 }
 
-interface Point {
-  x: number;
-  y: number; 
-}
+
 
 interface Separation {
   siblings:number,
@@ -84,13 +81,13 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     separation: { siblings: 1, nonSiblings: 2 },
   };
 
+
   constructor(props: AllProps) {
     super(props);
-
+   
     this.state = {
       d3: FeedTree.calculateD3Geometry(this.props),
       separation: this.props.separation,
-     
     };
   }
 
@@ -311,6 +308,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     this.props.onNodeClick(item);
   };
 
+  
+
   generateTree() {
     const { nodeSize, orientation } = this.props;
     const { separation } = this.state;
@@ -346,7 +345,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     const { nodes, links } = this.generateTree();
     const { translate, scale } = this.state.d3;
     const { selectedPlugin, feedTreeProp, setFeedTreeProp } = this.props;
-    const { orientation } = feedTreeProp;  
+    const { orientation } = feedTreeProp;
 
     return (
       <div className="feed-tree grabbable">
@@ -362,7 +361,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
             <UndoIcon className="feed-tree__orientation--icon" />
           )}
         </div>
-    
+
         <svg className={`${svgClassName}`} width="100%" height="100%">
           <TransitionGroupWrapper
             component="g"

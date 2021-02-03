@@ -8,6 +8,11 @@ export interface Datum {
   children: Datum[];
 }
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
 export interface TreeNodeDatum extends Datum {
   children: TreeNodeDatum[];
   __rd3t: {
