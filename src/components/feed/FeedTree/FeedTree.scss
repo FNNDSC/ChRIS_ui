@@ -15,6 +15,7 @@
 .feed-tree {
   width:100%;
   height:100%;
+  position:relative;
 
   &__orientation {
     padding-left: 1rem;
@@ -25,6 +26,9 @@
       cursor: pointer;
     }
   }
+
+  
+
 }
 
 
@@ -52,9 +56,11 @@
 }
 
 .label{
+
   &__title {
   fill: $tree-node-backgound;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 900;
   font-family: sans-serif;
   }
 }
