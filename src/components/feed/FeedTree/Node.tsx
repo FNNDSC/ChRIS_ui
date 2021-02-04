@@ -16,6 +16,7 @@ type NodeProps = {
   onNodeToggle: (nodeId: string) => void;
   orientation: "horizontal" | "vertical";
   pluginInstances: PluginInstancePayload;
+  toggleLabel: boolean;
 };
 
 type NodeState = {
@@ -51,7 +52,7 @@ export default class Node extends React.Component<NodeProps, NodeState> {
 
   applyNodeTransform(transform: string, opacity = 1, done = () => {}) {
     select(this.nodeRef).attr("transform", transform).style("opacity", opacity);
-    select(this.textRef).attr('transform', `translate(-40, 28)`)
+    select(this.textRef).attr("transform", `translate(-40, 28)`);
   }
 
   commitTransform() {
@@ -81,7 +82,9 @@ export default class Node extends React.Component<NodeProps, NodeState> {
       selectedPlugin,
       onNodeClick,
       pluginInstances,
+      toggleLabel,
     } = this.props;
+    const { hovered } = this.state;
     let statusClass: string = "";
     const { data: instances } = pluginInstances;
 
@@ -92,7 +95,7 @@ export default class Node extends React.Component<NodeProps, NodeState> {
           if (instance.data.id === data?.item.data.id) {
             return instance.data.status;
           } else return undefined;
-        }
+        } else return undefined;
       });
     }
 
@@ -121,6 +124,19 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     if (status === "finishedWithError" || status === "cancelled") {
       statusClass = "error";
     }
+
+    const textLabel = (
+      <g id="text">
+        <text
+          ref={(n) => {
+            this.textRef = n;
+          }}
+          className="label__title"
+        >
+          {data.item?.data.title || data.item?.data.plugin_name}
+        </text>
+      </g>
+    );
 
     return (
       <Fragment>
@@ -154,18 +170,7 @@ export default class Node extends React.Component<NodeProps, NodeState> {
               `}
             r={DEFAULT_NODE_CIRCLE_RADIUS}
           ></circle>
-          {this.state.hovered && (
-            <g>
-              <text
-                ref={(n) => {
-                  this.textRef = n;
-                }}
-                className="label__title"
-              >
-                {data.item?.data.title || data.item?.data.plugin_name}
-              </text>
-            </g>
-          )}
+          {toggleLabel ? textLabel : hovered ? textLabel : null}
         </g>
       </Fragment>
     );
