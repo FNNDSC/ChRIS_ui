@@ -81,11 +81,11 @@
  }
 
  @include media-query(1200px){
-   height: 7vh;
+   min-height: 5vh;
  }
 
  @include media-query(1920px){
-   height:5vh;
+  min-height:5vh;
  }
 
 }
