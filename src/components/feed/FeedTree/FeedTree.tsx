@@ -68,7 +68,7 @@ type FeedTreeState = {
   };
   separation: Separation;
   collapsible: boolean;
-
+  toggleLabel: boolean;
 };
 
 
@@ -81,8 +81,9 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     orientation: "vertical",
     scaleExtent: { min: 0.1, max: 1 },
     zoom: 1,
-    nodeSize: { x: 80, y: 60 },
+    nodeSize: { x: 85, y: 60 },
     separation: { siblings: 1, nonSiblings: 2 },
+   
   };
 
   constructor(props: AllProps) {
@@ -92,6 +93,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       d3: FeedTree.calculateD3Geometry(this.props),
       separation: this.props.separation,
       collapsible: false,
+      toggleLabel: true,
     };
   }
 
@@ -325,7 +327,12 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
         this.props.pluginInstanceResource,
         nextProps.pluginInstanceResource
       ) ||
+<<<<<<< HEAD
       nextState.collapsible !== this.state.collapsible ||
+=======
+      nextState.collapsible!==this.state.collapsible||
+      nextState.toggleLabel!==this.state.toggleLabel ||
+>>>>>>> master
       !isEqual(nextState.data, this.state.data) ||
       this.props.selectedPlugin !== nextProps.selectedPlugin ||
       this.props.zoom !== nextProps.zoom ||
@@ -371,12 +378,32 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     return { nodes, links };
   }
 
+<<<<<<< HEAD
   handleChange = () => {
     this.setState({
       ...this.state,
       collapsible: !this.state.collapsible,
     });
   };
+=======
+
+  handleChange=(feature:string)=>{
+    if(feature==='collpasible'){
+       this.setState({
+         ...this.state,
+         collapsible: !this.state.collapsible,
+       });
+    }
+
+    if(feature==='label'){
+      this.setState({
+        ...this.state,
+        toggleLabel:!this.state.toggleLabel
+      })
+    }
+   
+  }
+>>>>>>> master
 
   render() {
     const { nodes, links } = this.generateTree();
@@ -405,11 +432,29 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
               label="Collapsible on"
               labelOff="Collapsible off"
               isChecked={this.state.collapsible}
-              onChange={this.handleChange}
+              onChange={()  =>  {
+                this.handleChange("collapsible");
+              }}
+            />
+          </div>
+          <div className="feed-tree__orientation">
+            <Switch
+              id="labels"
+              label="Show Labels"
+              labelOff="Hide Labels"
+              isChecked={this.state.toggleLabel}
+              onChange={()=>{
+                this.handleChange('label');
+              }}
             />
           </div>
         </div>
+<<<<<<< HEAD
         <svg className={`${svgClassName}`} width="100%" height="100%">
+=======
+
+        <svg className={`${svgClassName}`} width="100%" height="85%">
+>>>>>>> master
           <TransitionGroupWrapper
             component="g"
             className={graphClassName}
@@ -437,6 +482,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
                   onNodeToggle={this.handleNodeToggle}
                   orientation={orientation}
                   pluginInstances={this.props.pluginInstances}
+                  toggleLabel={this.state.toggleLabel}
                 />
               );
             })}

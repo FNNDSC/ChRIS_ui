@@ -13,6 +13,7 @@ import {
 } from "@patternfly/react-core";
 import { setSidebarActive } from "../../store/ui/actions";
 import { Dispatch } from "redux";
+import "./Sidebar.scss";
 
 
 type ReduxProp = {
