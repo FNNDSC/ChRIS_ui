@@ -17,7 +17,7 @@ import {isEqual} from 'lodash'
 import Link from './Link'
 import Node from './Node'
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
-import { UndoIcon, RedoIcon, SearchPlusIcon} from "@patternfly/react-icons";
+import { UndoIcon, RedoIcon } from "@patternfly/react-icons";
 import { v4 as uuidv4 } from "uuid";
 import clone from "clone";
 import { setFeedTreeProp } from "../../../store/feed/actions";
@@ -83,8 +83,6 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     zoom: 1,
     nodeSize: { x: 80, y: 60 },
     separation: { siblings: 1, nonSiblings: 2 },
-   
-   
   };
 
   constructor(props: AllProps) {
@@ -327,7 +325,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
         this.props.pluginInstanceResource,
         nextProps.pluginInstanceResource
       ) ||
-      nextState.collapsible!==this.state.collapsible||
+      nextState.collapsible !== this.state.collapsible ||
       !isEqual(nextState.data, this.state.data) ||
       this.props.selectedPlugin !== nextProps.selectedPlugin ||
       this.props.zoom !== nextProps.zoom ||
@@ -373,21 +371,19 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     return { nodes, links };
   }
 
-
-  handleChange=()=>{
+  handleChange = () => {
     this.setState({
       ...this.state,
-      collapsible:!this.state.collapsible
-    })
-
-  }
+      collapsible: !this.state.collapsible,
+    });
+  };
 
   render() {
     const { nodes, links } = this.generateTree();
     const { translate, scale } = this.state.d3;
-    const { selectedPlugin, feedTreeProp, setFeedTreeProp} = this.props;
+    const { selectedPlugin, feedTreeProp, setFeedTreeProp } = this.props;
     const { orientation } = feedTreeProp;
-  
+
     return (
       <div className="feed-tree grabbable">
         <div className="feed-tree__container">
@@ -413,7 +409,6 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
             />
           </div>
         </div>
-
         <svg className={`${svgClassName}`} width="100%" height="100%">
           <TransitionGroupWrapper
             component="g"
