@@ -10,10 +10,12 @@ import {
 import classNames from 'classnames';
 import {
   FeedTree,
+  FeedGraph,
   FeedDetails,
   NodeDetails,
   FeedOutputBrowser,
 } from "../../../components";
+
 import { setSidebarActive } from "../../../store/ui/actions";
 import {
   getFeedRequest,
@@ -113,7 +115,8 @@ export const FeedView: React.FC<FeedViewProps> = ({
             xl2={7}
             xl2RowSpan={12}
           >
-            <FeedTree onNodeClick={onNodeClick} />
+            {/* <FeedTree onNodeClick={onNodeClick} /> */}
+            <FeedGraph />
           </GridItem>
           <GridItem
             sm={12}
