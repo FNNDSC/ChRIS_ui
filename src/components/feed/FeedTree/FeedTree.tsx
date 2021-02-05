@@ -395,9 +395,9 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   render() {
     const { nodes, links } = this.generateTree();
     const { translate, scale } = this.state.d3;
-    const { selectedPlugin, feedTreeProp, setFeedTreeProp} = this.props;
+    const { selectedPlugin, feedTreeProp, setFeedTreeProp } = this.props;
     const { orientation } = feedTreeProp;
-  
+
     return (
       <div className="feed-tree grabbable">
         <div className="feed-tree__container">

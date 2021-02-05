@@ -32,6 +32,7 @@
     }
   }
 
+
  
   &__orientation {
     padding-left: 1rem;
@@ -44,7 +45,8 @@
   }
 
   &__container {
-    display:flex;
+    display:inline-flex;
+
   }
 
 }
@@ -155,5 +157,7 @@
     stroke-width: 3px;
   }
   }
+
+
 
 

@@ -5,14 +5,9 @@ import _ from "lodash";
 export type NodeId = chrisId | undefined;
 export interface INode {
   // extends cola.Node extends SVGSVGElement
+  id:  number;
   item: PluginInstance;
-  index: number;
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
-  bounds?: any;
-  label?: string;
+  group?:number;
   isRoot?: boolean;
 }
 

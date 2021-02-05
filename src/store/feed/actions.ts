@@ -69,3 +69,4 @@ export const setFeedTreeProp = (orientation: string) =>
 
 
 
+export const setFeedLayout = () => action(FeedActionTypes.SET_LAYOUT);

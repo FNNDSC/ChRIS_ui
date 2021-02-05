@@ -69,7 +69,8 @@ export default class TreeModel {
     if (!!parentItem) {
       this._nodes.push({
         item: parentItem,
-        index: this._workingIndex,
+        id: this._workingIndex,
+        group: 0,
         isRoot: true,
       });
       this._workingItems = this._removeWorkingItem(parentItem);
@@ -89,11 +90,12 @@ export default class TreeModel {
     const cloneArr: PluginInstance[] = workingItems.slice();
     cloneArr.forEach((item: PluginInstance) => {
       if (item.data.previous_id === _workingId) {
-        const index = this._workingIndex;
+        const id = this._workingIndex;
         // is this a child to the node we are working on?
         this._nodes.push({
+          id,
           item,
-          index,
+          group: item.data.previous_id,
         });
         this._links.push({
           target: this._workingIndex,
@@ -102,7 +104,7 @@ export default class TreeModel {
         });
         this._workingItems = this._removeWorkingItem(item);
         this._workingIndex++;
-        this._findChildrenNodes(item.data.id, index);
+        this._findChildrenNodes(item.data.id, id);
       }
     });
     workingItems.length > 0 && this._totalRows++; // Increment total rows for counting vertical levels
