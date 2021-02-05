@@ -327,12 +327,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
         this.props.pluginInstanceResource,
         nextProps.pluginInstanceResource
       ) ||
-<<<<<<< HEAD
-      nextState.collapsible !== this.state.collapsible ||
-=======
       nextState.collapsible!==this.state.collapsible||
       nextState.toggleLabel!==this.state.toggleLabel ||
->>>>>>> master
       !isEqual(nextState.data, this.state.data) ||
       this.props.selectedPlugin !== nextProps.selectedPlugin ||
       this.props.zoom !== nextProps.zoom ||
@@ -378,14 +374,6 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     return { nodes, links };
   }
 
-<<<<<<< HEAD
-  handleChange = () => {
-    this.setState({
-      ...this.state,
-      collapsible: !this.state.collapsible,
-    });
-  };
-=======
 
   handleChange=(feature:string)=>{
     if(feature==='collpasible'){
@@ -403,7 +391,6 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     }
    
   }
->>>>>>> master
 
   render() {
     const { nodes, links } = this.generateTree();
@@ -449,12 +436,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
             />
           </div>
         </div>
-<<<<<<< HEAD
-        <svg className={`${svgClassName}`} width="100%" height="100%">
-=======
 
         <svg className={`${svgClassName}`} width="100%" height="85%">
->>>>>>> master
           <TransitionGroupWrapper
             component="g"
             className={graphClassName}
