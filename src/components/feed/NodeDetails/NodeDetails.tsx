@@ -77,10 +77,9 @@ const NodeDetails: React.FC<INodeProps> = ({
   const pluginStatus =
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
 
-  const isMounted  =  React.useRef(true);
+ 
 
-  React.useEffect(() => {
-    
+  React.useEffect(() => {    
     const fetchData = async () => {
       const instanceParameters = await selected?.getParameters({
         limit: 100,
@@ -101,12 +100,8 @@ const NodeDetails: React.FC<INodeProps> = ({
         });
       }
     };
-    if(isMounted.current)
+   
     fetchData();
-
-    return ()=>{
-      isMounted.current=false;
-    }
   }, [selected, pluginInstances]);
 
   const command = React.useCallback(getCommand, [
