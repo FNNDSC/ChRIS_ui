@@ -1,6 +1,7 @@
 import React, {Fragment} from 'react';
 import Moment from "react-moment";
 import { connect } from "react-redux";
+import { Dispatch } from "redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 
 import { Button, Grid, GridItem, Title, Skeleton } from "@patternfly/react-core";
@@ -40,6 +41,7 @@ import {
   getPluginInstances,
   getSelected,
 } from "../../../store/feed/selector";
+import { setFeedLayout } from "../../../store/feed/actions";
 
 
 
@@ -47,6 +49,7 @@ interface INodeProps {
   selected?: PluginInstance;
   pluginInstanceResource: ResourcePayload;
   pluginInstances?: PluginInstancePayload;
+  setFeedLayout: typeof setFeedLayout;
 }
 
 interface INodeState {
@@ -67,13 +70,17 @@ const NodeDetails: React.FC<INodeProps> = ({
   selected,
   pluginInstanceResource,
   pluginInstances,
+  setFeedLayout,
 }) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const pluginStatus =
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
 
+  const isMounted  =  React.useRef(true);
+
   React.useEffect(() => {
+    
     const fetchData = async () => {
       const instanceParameters = await selected?.getParameters({
         limit: 100,
@@ -94,7 +101,12 @@ const NodeDetails: React.FC<INodeProps> = ({
         });
       }
     };
+    if(isMounted.current)
     fetchData();
+
+    return ()=>{
+      isMounted.current=false;
+    }
   }, [selected, pluginInstances]);
 
   const command = React.useCallback(getCommand, [
@@ -229,6 +241,10 @@ const NodeDetails: React.FC<INodeProps> = ({
           )}
           {!selected?.data.plugin_name.includes("dircopy") && <DeleteNode />}
         </div>
+        <div className="node-details__actions">
+          <Button onClick={()=> setFeedLayout()}>Switch Layout</Button>
+        </div>
+
         <div className="node-details__infoLabel">
           <label>Plugin output may be viewed below.</label>
         </div>
@@ -243,9 +259,13 @@ const mapStateToProps = (state: ApplicationState) => ({
   instances: getPluginInstances(state),
 });
 
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  setFeedLayout: () => dispatch(setFeedLayout()),
+});
 
 
-export default connect(mapStateToProps)(NodeDetails);
+
+export default connect(mapStateToProps, mapDispatchToProps)(NodeDetails);
 
 
 function getCurrentTitleFromStatus(statusLabels?: PluginStatus[]) {
