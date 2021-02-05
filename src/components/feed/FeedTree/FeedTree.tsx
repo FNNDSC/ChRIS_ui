@@ -376,11 +376,11 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
 
 
   handleChange=(feature:string)=>{
-    if(feature==='collpasible'){
-       this.setState({
-         ...this.state,
-         collapsible: !this.state.collapsible,
-       });
+    if (feature === "collapsible") {
+      this.setState({
+        ...this.state,
+        collapsible: !this.state.collapsible,
+      });
     }
 
     if(feature==='label'){
