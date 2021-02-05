@@ -6,14 +6,14 @@ import {
   PageSectionVariants,
   Grid,
   GridItem,
+  Skeleton
 } from "@patternfly/react-core";
 import classNames from 'classnames';
 import {
-  FeedTree,
   FeedDetails,
-  NodeDetails,
-  FeedOutputBrowser,
+
 } from "../../../components";
+
 import { setSidebarActive } from "../../../store/ui/actions";
 import {
   getFeedRequest,
@@ -26,6 +26,19 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { IFeedState } from "../../../store/feed/types";
 import { IUserState } from "../../../store/user/types";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
+
+const FeedTree = React.lazy(
+  () => import("../../../components/feed/FeedTree/FeedTree")
+);
+const FeedGraph = React.lazy(
+  () => import("../../../components/feed/FeedTree/FeedGraph")
+);
+
+const FeedOutputBrowser = React.lazy(
+  () => import("../../../components/feed/FeedOutputBrowser/FeedOutputBrowser")
+);
+
+const NodeDetails=React.lazy(()=>import("../../../components/feed/NodeDetails/NodeDetails"))
 
 
 interface IPropsFromDispatch {
@@ -50,15 +63,16 @@ export const FeedView: React.FC<FeedViewProps> = ({
   getSelectedPlugin,
   destroyPluginState,
   pluginInstances,
+  currentLayout,
 }) => {
   const getFeed = React.useCallback(() => {
     getFeedRequest(id);
   }, [id, getFeedRequest]);
 
-  let dataRef=React.useRef<PluginInstance[]|undefined>(undefined)
+  let dataRef = React.useRef<PluginInstance[] | undefined>(undefined);
 
   const { data } = pluginInstances;
-  dataRef.current=data;
+  dataRef.current = data;
 
   React.useEffect(() => {
     return () => {
@@ -80,7 +94,6 @@ export const FeedView: React.FC<FeedViewProps> = ({
   const onNodeClick = (node: PluginInstance) => {
     getSelectedPlugin(node);
   };
-
 
   return (
     <React.Fragment>
@@ -113,7 +126,15 @@ export const FeedView: React.FC<FeedViewProps> = ({
             xl2={7}
             xl2RowSpan={12}
           >
-            <FeedTree onNodeClick={onNodeClick} />
+            <React.Suspense
+              fallback={<div>Fetching the Resources in a moment</div>}
+            >
+              {currentLayout ? (
+                <FeedTree onNodeClick={onNodeClick} />
+              ) : (
+                <FeedGraph onNodeClick={onNodeClick} />
+              )}
+            </React.Suspense>
           </GridItem>
           <GridItem
             sm={12}
@@ -128,12 +149,33 @@ export const FeedView: React.FC<FeedViewProps> = ({
             xl2RowSpan={12}
             className="node-block"
           >
-            <NodeDetails />
+            <React.Suspense
+              fallback={
+                <Skeleton
+                  height="75%"
+                  width="75%"
+                  screenreaderText="Loading Node details"
+                />
+              }
+            >
+              <NodeDetails />
+            </React.Suspense>
           </GridItem>
         </Grid>
       </PageSection>
       <PageSection className="section-three">
-        <FeedOutputBrowser handlePluginSelect={onNodeClick} />
+        <React.Suspense
+          fallback={
+            <Skeleton
+              height="100%"
+              width="100%"
+              screenreaderText="Fetching Plugin Resources"
+            />
+          }
+        >
+          {" "}
+          <FeedOutputBrowser handlePluginSelect={onNodeClick} />
+        </React.Suspense>
       </PageSection>
     </React.Fragment>
   );
@@ -151,6 +193,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
   pluginInstances: feed.pluginInstances,
+  currentLayout: feed.currentLayout,
 });
 
 

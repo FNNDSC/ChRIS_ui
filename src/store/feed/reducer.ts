@@ -34,6 +34,7 @@ export const initialState: IFeedState = {
       y: 50,
     },
   },
+  currentLayout: true,
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -46,27 +47,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           loading: true,
         },
       };
-    }
-
-    case FeedActionTypes.GET_FEED_TREE_PROP: {
-      const currentOrientation = action.payload;
-      if (currentOrientation === "horizontal")
-        return {
-          ...state,
-          feedTreeProp: {
-            ...state.feedTreeProp,
-            orientation: "vertical",
-          },
-        };
-      else {
-        return {
-          ...state,
-          feedTreeProp: {
-            ...state.feedTreeProp,
-            orientation: "horizontal",
-          },
-        };
-      }
     }
 
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
@@ -228,9 +208,9 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       }
     }
     case FeedActionTypes.GET_SELECTED_PLUGIN: {
-     const pluginInstance = state.pluginInstances.data?.find((instance) => {
-       return instance.data.id === action.payload.data.id;
-     });
+      const pluginInstance = state.pluginInstances.data?.find((instance) => {
+        return instance.data.id === action.payload.data.id;
+      });
 
       return {
         ...state,
@@ -304,6 +284,35 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
             y: 50,
           },
         },
+        currentLayout: true,
+      };
+    }
+
+    case FeedActionTypes.GET_FEED_TREE_PROP: {
+      const currentOrientation = action.payload;
+      if (currentOrientation === "horizontal")
+        return {
+          ...state,
+          feedTreeProp: {
+            ...state.feedTreeProp,
+            orientation: "vertical",
+          },
+        };
+      else {
+        return {
+          ...state,
+          feedTreeProp: {
+            ...state.feedTreeProp,
+            orientation: "horizontal",
+          },
+        };
+      }
+    }
+
+    case FeedActionTypes.SET_LAYOUT: {
+      return {
+        ...state,
+        currentLayout: !state.currentLayout,
       };
     }
 

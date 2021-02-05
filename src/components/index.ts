@@ -13,3 +13,6 @@ export { default as NodeDetails } from "./feed/NodeDetails/NodeDetails";
 //FeedOutputBrowser
 
 export { default as FeedOutputBrowser } from "./feed/FeedOutputBrowser/FeedOutputBrowser";
+
+
+export { default as FeedGraph } from "./feed/FeedTree/FeedGraph";

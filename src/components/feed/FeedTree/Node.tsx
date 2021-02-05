@@ -52,7 +52,7 @@ export default class Node extends React.Component<NodeProps, NodeState> {
 
   applyNodeTransform(transform: string, opacity = 1, done = () => {}) {
     select(this.nodeRef).attr("transform", transform).style("opacity", opacity);
-    select(this.textRef).attr("transform", `translate(-40, 28)`);
+    select(this.textRef).attr("transform", `translate(-28, 28)`);
   }
 
   commitTransform() {
