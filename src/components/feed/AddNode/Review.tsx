@@ -43,7 +43,8 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
         </GridItem>
         <GridItem span={10}>
           <span className="review__value">
-            {data.parent && data.parent.data.plugin_name}
+            {data.parent &&
+              (data.parent.data.title || data.parent.data.plugin_name)}
           </span>
         </GridItem>
         <PluginDetails
