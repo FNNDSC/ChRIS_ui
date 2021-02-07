@@ -193,6 +193,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
   pluginInstances: feed.pluginInstances,
+  selectedPlugin: feed.selectedPlugin,
   currentLayout: feed.currentLayout,
 });
 

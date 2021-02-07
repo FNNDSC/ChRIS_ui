@@ -5,7 +5,8 @@ import { Datum, TreeNodeDatum, Point } from "./data";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { PluginInstanceResourcePayload } from "../../../store/feed/types";
+import { PluginInstanceStatusPayload } from "../../../store/feed/types";
+
 
 
 const DEFAULT_NODE_CIRCLE_RADIUS = 12;
@@ -20,7 +21,7 @@ type NodeProps = {
   orientation: "horizontal" | "vertical";
   instances: PluginInstance[];
   toggleLabel: boolean;
-  pluginInstanceResource?:  PluginInstanceResourcePayload;
+  pluginInstanceStatus?: PluginInstanceStatusPayload;
 };
 
 type NodeState = {
@@ -65,17 +66,18 @@ class Node extends React.Component<NodeProps, NodeState> {
     this.applyNodeTransform(nodeTransform);
   }
 
-  shouldComponentUpdate(nextProps:NodeProps, nextState:NodeState){
-  
-    const prevData=nextProps.pluginInstanceResource
-    const thisData=this.props.pluginInstanceResource
-    if(prevData !==thisData || nextProps.selectedPlugin !==this.props.selectedPlugin
-      || nextProps.data !== this.props.data || nextProps.position !==this.props.position     
-      ){
+  shouldComponentUpdate(nextProps: NodeProps, nextState: NodeState) {
+    const prevData = nextProps.pluginInstanceStatus;
+    const thisData = this.props.pluginInstanceStatus;
+    if (
+      prevData !== thisData ||
+      nextProps.selectedPlugin !== this.props.selectedPlugin ||
+      nextProps.data !== this.props.data ||
+      nextProps.position !== this.props.position
+    ) {
       return true;
     }
     return false;
-
   }
 
   setNodeTransform(
@@ -97,28 +99,21 @@ class Node extends React.Component<NodeProps, NodeState> {
     const {
       data,
       selectedPlugin,
-      onNodeClick,
-      instances,
+      onNodeClick, 
       toggleLabel,
+      pluginInstanceStatus
     } = this.props;
     const { hovered } = this.state;
-  
-    let statusClass: string = "";
-    let currentInstance: PluginInstance | undefined = undefined;
-    if (instances) {
-      currentInstance = instances.find((instance) => {
-        if (data.item) {
-          if (instance.data.id === data?.item.data.id) {
-            return instance.data.status;
-          } else return undefined;
-        } else return undefined;
-      });
+    let status="";
+    let statusClass="";
+
+    if(data.item && data.item.data.id && pluginInstanceStatus && pluginInstanceStatus[data.item.data.id]){
+      status=pluginInstanceStatus[data.item.data.id].status;
+    }
+    else if(data.item) {
+      status=data.item.data.status;
     }
 
-    let status: string = "scheduled";
-    if (currentInstance) {
-      status = currentInstance.data.status;
-    }
 
     const currentId = data.item?.data.id;
     if (
@@ -194,8 +189,11 @@ class Node extends React.Component<NodeProps, NodeState> {
 }
 
 const mapStateToProps = (state: ApplicationState) => ({
-  pluginInstanceResource: state.feed.pluginInstanceResource,
-  selectedPlugin:state.feed.selectedPlugin
+  pluginInstanceStatus: state.feed.pluginInstanceStatus,
+  selectedPlugin: state.feed.selectedPlugin,
 });
 
-export default connect(mapStateToProps, null)(Node);
+
+
+
+export default connect(mapStateToProps)(Node);

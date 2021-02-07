@@ -356,21 +356,15 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   render() {
     const { nodes, links } = this.generateTree();
     const { translate, scale } = this.state.d3;
-    const {
-      instances,
-      feedTreeProp,
-      changeOrientation
-     
-    } = this.props;
+    const { instances, feedTreeProp, changeOrientation } = this.props;
     const { orientation } = feedTreeProp;
-    console.log("FEED TREE RENDERS")
 
     return (
       <div className="feed-tree grabbable">
         <div className="feed-tree__container">
           <div
             onClick={() => {
-              changeOrientation(orientation)
+              changeOrientation(orientation);
             }}
             className="feed-tree__orientation"
           >

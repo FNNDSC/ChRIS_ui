@@ -24,8 +24,9 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { createTreeFromFiles, getPluginName } from "./utils";
 import {
   PluginInstancePayload,
-  ResourcePayload
+  ResourcePayload,
 } from "../../../store/feed/types";
+
 import {getSelectedInstanceResource, getSelectedFiles} from '../../../store/feed/selector'
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 import {isEmpty} from 'lodash'
@@ -35,12 +36,17 @@ import "./FeedOutputBrowser.scss";
 import "antd/dist/antd.css";
 const {DirectoryTree}=Tree;
 
+
 export interface FeedOutputBrowserProps {
   pluginInstances: PluginInstancePayload;
   selected?: PluginInstance;
-  pluginFiles: FeedFile[];
+  pluginFilesPayload?: {
+    files: FeedFile[];
+    error: any;
+    hasNext: boolean;
+  } 
   viewerMode?: boolean;
-  pluginInstanceResource: ResourcePayload
+  pluginInstanceResource: ResourcePayload;
   handlePluginSelect: Function;
   setSelectedFile: Function;
   getPluginFilesRequest: (selected: PluginInstance) => void;
@@ -49,29 +55,30 @@ export interface FeedOutputBrowserProps {
 
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   pluginInstances,
-  pluginFiles,
+  pluginFilesPayload,
   pluginInstanceResource,
   selected,
   handlePluginSelect,
   setSelectedFile,
   viewerMode,
   toggleViewerMode,
+  getPluginFilesRequest,
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const { data: plugins, loading } = pluginInstances;
   const pluginStatus =
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
   const pluginLog = pluginInstanceResource && pluginInstanceResource.pluginLog;
-  const getPluginFiles = React.useCallback(() => {
-    selected && getPluginFilesRequest(selected);
-  }, [selected]);
+
+  React.useEffect(() => {
+    if (!pluginFilesPayload && selected) {
+      getPluginFilesRequest(selected);
+    }
+  }, [selected, pluginFilesPayload, getPluginFilesRequest]);
 
  
-  React.useEffect(() => {
-    getPluginFiles();
-  }, [getPluginFiles]);
-
-  if (!selected || isEmpty(pluginInstances) || loading) {
+  if (!selected || isEmpty(pluginInstances) || loading ) {
+   
     return (
       <Grid hasGutter className="feed-output-browser">
         <GridItem
@@ -98,9 +105,11 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         </GridItem>
       </Grid>
     );
-  } else {
-    const pluginName = selected && selected.data && getPluginName(selected);
-    const tree = createTreeFromFiles(selected, pluginFiles);
+  } else {  
+     const pluginName = selected && selected.data && getPluginName(selected);
+  
+     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
+     const tree = createTreeFromFiles(selected, pluginFiles);  
 
     const downloadAllClick = async () => {
       if (!selected) return;
@@ -194,13 +203,13 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 downloadAllClick={downloadAllClick}
               />
             ) : selected.data.status === "finishedSuccessfully" && !tree ? (
-                <Spinner size="md" />
-             ) : (  
-                <PluginStatus
-                  selected={selected}
-                  pluginStatus={pluginStatus}
-                  pluginLog={pluginLog}
-                />
+              <Spinner size="md" />
+            ) : (
+              <PluginStatus
+                selected={selected}
+                pluginStatus={pluginStatus}
+                pluginLog={pluginLog}
+              />
             )}
           </GridItem>
         </Grid>
@@ -210,13 +219,14 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         />
       </>
     );
+    
   }
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
   pluginInstanceResource: getSelectedInstanceResource(state),
   selected: state.feed.selectedPlugin,
-  pluginFiles: getSelectedFiles(state),
+  pluginFilesPayload: getSelectedFiles(state),
   pluginInstances: state.feed.pluginInstances,
   viewerMode: state.explorer.viewerMode,
 });
