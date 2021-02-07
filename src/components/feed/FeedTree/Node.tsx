@@ -3,7 +3,10 @@ import { select } from "d3-selection";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { Datum, TreeNodeDatum, Point } from "./data";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { PluginInstancePayload } from "../../../store/feed/types";
+import { connect } from "react-redux";
+import { ApplicationState } from "../../../store/root/applicationState";
+import { PluginInstanceResourcePayload } from "../../../store/feed/types";
+
 
 const DEFAULT_NODE_CIRCLE_RADIUS = 12;
 
@@ -15,8 +18,9 @@ type NodeProps = {
   onNodeClick: (node: PluginInstance) => void;
   onNodeToggle: (nodeId: string) => void;
   orientation: "horizontal" | "vertical";
-  pluginInstances: PluginInstancePayload;
+  instances: PluginInstance[];
   toggleLabel: boolean;
+  pluginInstanceResource?:  PluginInstanceResourcePayload;
 };
 
 type NodeState = {
@@ -26,10 +30,10 @@ type NodeState = {
 
 
 
-export default class Node extends React.Component<NodeProps, NodeState> {
+class Node extends React.Component<NodeProps, NodeState> {
   nodeRef: SVGElement | null = null;
   circleRef: SVGCircleElement | null = null;
-  textRef:  SVGTextElement | null = null;
+  textRef: SVGTextElement | null = null;
   state = {
     nodeTransform: this.setNodeTransform(
       this.props.orientation,
@@ -61,6 +65,19 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     this.applyNodeTransform(nodeTransform);
   }
 
+  shouldComponentUpdate(nextProps:NodeProps, nextState:NodeState){
+  
+    const prevData=nextProps.pluginInstanceResource
+    const thisData=this.props.pluginInstanceResource
+    if(prevData !==thisData || nextProps.selectedPlugin !==this.props.selectedPlugin
+      || nextProps.data !== this.props.data || nextProps.position !==this.props.position     
+      ){
+      return true;
+    }
+    return false;
+
+  }
+
   setNodeTransform(
     orientation: NodeProps["orientation"],
     position: NodeProps["position"],
@@ -81,13 +98,12 @@ export default class Node extends React.Component<NodeProps, NodeState> {
       data,
       selectedPlugin,
       onNodeClick,
-      pluginInstances,
+      instances,
       toggleLabel,
     } = this.props;
     const { hovered } = this.state;
+  
     let statusClass: string = "";
-    const { data: instances } = pluginInstances;
-
     let currentInstance: PluginInstance | undefined = undefined;
     if (instances) {
       currentInstance = instances.find((instance) => {
@@ -126,7 +142,7 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     }
 
     const textLabel = (
-      <g id="text">
+      <g id={`text_${data.id}`}>
         <text
           ref={(n) => {
             this.textRef = n;
@@ -141,7 +157,7 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     return (
       <Fragment>
         <g
-          id="node"
+          id={`${data.id}`}
           ref={(n) => {
             this.nodeRef = n;
           }}
@@ -176,3 +192,10 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     );
   }
 }
+
+const mapStateToProps = (state: ApplicationState) => ({
+  pluginInstanceResource: state.feed.pluginInstanceResource,
+  selectedPlugin:state.feed.selectedPlugin
+});
+
+export default connect(mapStateToProps, null)(Node);

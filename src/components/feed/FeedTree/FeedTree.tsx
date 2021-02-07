@@ -1,18 +1,15 @@
 import React from "react";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
 import { tree, hierarchy } from "d3-hierarchy";
 import { select, event } from "d3-selection";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import {
-  PluginInstancePayload,
   ResourcePayload,
   FeedTreeProp,
 } from "../../../store/feed/types";
-import { ApplicationState } from "../../../store/root/applicationState";
+
 import "./FeedTree.scss";
-import { getFeedTree, Datum, TreeNodeDatum, Point } from "./data";
+import { Datum, TreeNodeDatum, Point } from "./data";
 import {isEqual} from 'lodash'
 import Link from './Link'
 import Node from './Node'
@@ -20,20 +17,13 @@ import TransitionGroupWrapper from "./TransitionGroupWrapper";
 import { UndoIcon, RedoIcon } from "@patternfly/react-icons";
 import { v4 as uuidv4 } from "uuid";
 import clone from "clone";
-import { setFeedTreeProp } from "../../../store/feed/actions";
 import {Switch} from '@patternfly/react-core';
 
-
-
-
 interface ITreeProps {
-  pluginInstances: PluginInstancePayload;
-  selectedPlugin?: PluginInstance;
+  instances:  PluginInstance[];
   pluginInstanceResource: ResourcePayload;
   feedTreeProp: FeedTreeProp;
-  setFeedTreeProp:(orientation:string)=>void;
 }
-
 
 
 interface Separation {
@@ -42,6 +32,7 @@ interface Separation {
 }
 
 interface OwnProps {
+  data: TreeNodeDatum[];
   onNodeClick: (node: PluginInstance) => void;
   translate: Point;
   scaleExtent: {
@@ -55,20 +46,22 @@ interface OwnProps {
   };
   separation: Separation;
   orientation: "horizontal" | "vertical";
- 
+  changeOrientation:(orientation:string)=>void;
 }
 
 type AllProps = ITreeProps & OwnProps;
 
 type FeedTreeState = {
+  dataRef?: TreeNodeDatum[];
   data?: TreeNodeDatum[];
   d3: {
     translate: Point;
     scale: number;
   };
-  separation: Separation;
   collapsible: boolean;
   toggleLabel: boolean;
+  isInitialRenderForDataset:   boolean;
+  
 };
 
 
@@ -82,19 +75,43 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     scaleExtent: { min: 0.1, max: 1 },
     zoom: 1,
     nodeSize: { x: 85, y: 60 },
-    separation: { siblings: 1, nonSiblings: 2 },
-   
   };
 
   constructor(props: AllProps) {
     super(props);
 
     this.state = {
+      dataRef: this.props.data,
+      data: FeedTree.assignInternalProperties(clone(this.props.data)),
       d3: FeedTree.calculateD3Geometry(this.props),
-      separation: this.props.separation,
       collapsible: false,
       toggleLabel: true,
+      isInitialRenderForDataset: true,
     };
+  }
+
+  static getDerivedStateFromProps(
+    nextProps: AllProps,
+    prevState: FeedTreeState
+  ) {
+    //@ts-ignore
+    let derivedState: Partial<FeedTreeState> = null;
+
+    if (nextProps.data !== prevState.dataRef) {
+      derivedState = {
+        dataRef: nextProps.data,
+        data: FeedTree.assignInternalProperties(clone(nextProps.data)),
+        isInitialRenderForDataset: true,
+      };
+    }
+
+    const d3 = FeedTree.calculateD3Geometry(nextProps);
+    if (!isEqual(d3, prevState.d3)) {
+      derivedState = derivedState || {};
+      derivedState.d3 = d3;
+    }
+
+    return derivedState;
   }
 
   static calculateD3Geometry(nextProps: AllProps) {
@@ -114,32 +131,28 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
 
   componentDidMount() {
     this.bindZoomListener(this.props);
+    this.setState({
+      ...this.state,
+      isInitialRenderForDataset: false,
+    });
+  }
 
-    const { data: instances } = this.props.pluginInstances;
+  componentDidUpdate(prevProps: AllProps) {
+    if (this.props.data !== prevProps.data) {
+      this.setState({
+        ...this.state,
+        isInitialRenderForDataset: false,
+      });
+    }
 
-    if (instances && instances.length > 0) {
-      const tree = getFeedTree(instances);
-      const transformedNode = FeedTree.assignInternalProperties(clone(tree));
-      let separation: Separation | undefined = undefined;
-      if (instances.length > 20) {
-        separation = {
-          siblings: 0.5,
-          nonSiblings: 0.5,
-        };
-      }
-
-      if (separation) {
-        this.setState({
-          ...this.state,
-          data: transformedNode,
-          separation,
-        });
-      } else {
-        this.setState({
-          ...this.state,
-          data: transformedNode,
-        });
-      }
+    if (
+      !isEqual(this.props.translate, prevProps.translate) ||
+      !isEqual(this.props.scaleExtent, prevProps.scaleExtent) ||
+      this.props.zoom !== prevProps.zoom
+    ) {
+      // If zoom-specific props change -> rebind listener with new values.
+      // Or: rebind zoom listeners to new DOM nodes in case legacy transitions were enabled/disabled.
+      this.bindZoomListener(this.props);
     }
   }
 
@@ -270,49 +283,9 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     );
   };
 
-  componentDidUpdate(prevProps: AllProps) {
-    const prevData = prevProps.pluginInstances.data;
-    const thisData = this.props.pluginInstances.data;
-
-    if (prevData !== thisData) {
-      if (thisData) {
-        const tree = getFeedTree(thisData);
-        const transformedData = FeedTree.assignInternalProperties(clone(tree));
-        let separation: Separation | undefined = undefined;
-        if (thisData.length > 20) {
-          separation = {
-            siblings: 0.5,
-            nonSiblings: 0.5,
-          };
-        }
-        if (separation) {
-          this.setState({
-            ...this.state,
-            data: transformedData,
-            separation,
-          });
-        } else {
-          this.setState({
-            ...this.state,
-            data: transformedData,
-          });
-        }
-      }
-    }
-
-    if (
-      !isEqual(
-        this.props.feedTreeProp.translate,
-        prevProps.feedTreeProp.translate
-      ) ||
-      this.props.feedTreeProp.orientation !==
-        prevProps.feedTreeProp.orientation ||
-      !isEqual(this.props.scaleExtent, prevProps.scaleExtent) ||
-      this.props.zoom !== prevProps.zoom
-    ) {
-      this.bindZoomListener(this.props);
-    }
-  }
+  handleNodeClick = (item: PluginInstance) => {
+    this.props.onNodeClick(item);
+  };
 
   shouldComponentUpdate(nextProps: AllProps, nextState: FeedTreeState) {
     if (
@@ -323,29 +296,19 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       this.props.feedTreeProp.orientation !==
         nextProps.feedTreeProp.orientation ||
       !isEqual(this.props.scaleExtent, nextProps.scaleExtent) ||
-      !isEqual(
-        this.props.pluginInstanceResource,
-        nextProps.pluginInstanceResource
-      ) ||
-      nextState.collapsible!==this.state.collapsible||
-      nextState.toggleLabel!==this.state.toggleLabel ||
-      !isEqual(nextState.data, this.state.data) ||
-      this.props.selectedPlugin !== nextProps.selectedPlugin ||
+      nextState.collapsible !== this.state.collapsible ||
+      nextState.toggleLabel !== this.state.toggleLabel ||
+      !isEqual(this.state.data, nextState.data)||
       this.props.zoom !== nextProps.zoom ||
-      this.props.pluginInstances.data !== nextProps.pluginInstances.data
-    ) {
+      this.props.instances !== nextProps.instances) {
       return true;
     }
     return false;
   }
 
-  handleNodeClick = (item: PluginInstance) => {
-    this.props.onNodeClick(item);
-  };
-
   generateTree() {
-    const { nodeSize, orientation } = this.props;
-    const { separation } = this.state;
+    const { nodeSize, orientation, separation } = this.props;
+    
     const d3Tree = tree<TreeNodeDatum>()
       .nodeSize(
         orientation === "horizontal"
@@ -374,8 +337,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     return { nodes, links };
   }
 
-
-  handleChange=(feature:string)=>{
+  handleChange = (feature: string) => {
     if (feature === "collapsible") {
       this.setState({
         ...this.state,
@@ -383,27 +345,32 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       });
     }
 
-    if(feature==='label'){
+    if (feature === "label") {
       this.setState({
         ...this.state,
-        toggleLabel:!this.state.toggleLabel
-      })
+        toggleLabel: !this.state.toggleLabel,
+      });
     }
-   
-  }
+  };
 
   render() {
     const { nodes, links } = this.generateTree();
     const { translate, scale } = this.state.d3;
-    const { selectedPlugin, feedTreeProp, setFeedTreeProp } = this.props;
+    const {
+      instances,
+      feedTreeProp,
+      changeOrientation
+     
+    } = this.props;
     const { orientation } = feedTreeProp;
+    console.log("FEED TREE RENDERS")
 
     return (
       <div className="feed-tree grabbable">
         <div className="feed-tree__container">
           <div
             onClick={() => {
-              setFeedTreeProp(orientation);
+              changeOrientation(orientation)
             }}
             className="feed-tree__orientation"
           >
@@ -419,7 +386,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
               label="Collapsible on"
               labelOff="Collapsible off"
               isChecked={this.state.collapsible}
-              onChange={()  =>  {
+              onChange={() => {
                 this.handleChange("collapsible");
               }}
             />
@@ -430,8 +397,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
               label="Show Labels"
               labelOff="Hide Labels"
               isChecked={this.state.toggleLabel}
-              onChange={()=>{
-                this.handleChange('label');
+              onChange={() => {
+                this.handleChange("label");
               }}
             />
           </div>
@@ -460,11 +427,10 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
                   data={data}
                   position={{ x, y }}
                   parent={parent}
-                  selectedPlugin={selectedPlugin}
                   onNodeClick={this.handleNodeClick}
                   onNodeToggle={this.handleNodeToggle}
                   orientation={orientation}
-                  pluginInstances={this.props.pluginInstances}
+                  instances={instances}
                   toggleLabel={this.state.toggleLabel}
                 />
               );
@@ -477,15 +443,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
 }
 
 
-const mapStateToProps = (state: ApplicationState) => ({
-  pluginInstanceResource: state.feed.pluginInstanceResource,
-  pluginInstances: state.feed.pluginInstances,
-  selectedPlugin: state.feed.selectedPlugin,
-  feedTreeProp: state.feed.feedTreeProp,
-});
 
-const mapDispatchToProps=(dispatch:Dispatch)=>({
-  setFeedTreeProp:(orientation:string)=>dispatch(setFeedTreeProp(orientation))
-})
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedTree);
+
+export default FeedTree;
