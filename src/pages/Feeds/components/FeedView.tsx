@@ -27,8 +27,8 @@ import { IFeedState } from "../../../store/feed/types";
 import { IUserState } from "../../../store/user/types";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 
-const FeedTree = React.lazy(
-  () => import("../../../components/feed/FeedTree/FeedTree")
+const ParentComponent = React.lazy(
+  () => import("../../../components/feed/FeedTree/ParentComponent")
 );
 const FeedGraph = React.lazy(
   () => import("../../../components/feed/FeedTree/FeedGraph")
@@ -130,7 +130,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
               fallback={<div>Fetching the Resources in a moment</div>}
             >
               {currentLayout ? (
-                <FeedTree onNodeClick={onNodeClick} />
+                <ParentComponent onNodeClick={onNodeClick} />
               ) : (
                 <FeedGraph onNodeClick={onNodeClick} />
               )}
@@ -193,6 +193,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
   pluginInstances: feed.pluginInstances,
+  selectedPlugin: feed.selectedPlugin,
   currentLayout: feed.currentLayout,
 });
 

@@ -7,6 +7,8 @@ export const getSelected = (state: ApplicationState) =>
 const getPluginInstanceResource = (state: ApplicationState) =>
   state.feed.pluginInstanceResource;
 
+
+
 export const getPluginInstances=(state:ApplicationState)=>state.feed.pluginInstances
 
 export const getSelectedFiles = createSelector(
@@ -14,8 +16,8 @@ export const getSelectedFiles = createSelector(
   (pluginFiles, selectedPlugin) => {
     const id = selectedPlugin?.data.id;
     if (id) {
-      return pluginFiles[id] && pluginFiles[id].files;
-    } else return [];
+      return pluginFiles[id] && pluginFiles[id];
+    } else return undefined;
   }
 );
 
@@ -29,3 +31,5 @@ export const getSelectedInstanceResource = createSelector(
     } else return {};
   }
 );
+
+

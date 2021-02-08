@@ -205,7 +205,6 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
         ) : (
           <React.Fragment>
             <DicomHeader handleToolbarAction={this.props.handleToolbarAction} />
-
             <div className="ami-viewer">
               <div id="container">
                 <Drawer
@@ -214,7 +213,6 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
                   closable={true}
                   onClose={this.toggleHeader}
                   visible={this.state.visibleHeader}
-                  style={{ position: "absolute", width: "40%" }}
                 >
                   {this.state.visibleHeader && (
                     <DicomTag image={this.state.currentImage} />
@@ -410,7 +408,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
       case "Rotate": {
         const element = this.state.element;
         const viewport = cornerstone.getViewport(element);
-        viewport.rotation -= 90;
+        viewport.rotation += 90;
         cornerstone.setViewport(element, viewport);
         break;
       }

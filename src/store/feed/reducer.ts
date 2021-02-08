@@ -18,6 +18,7 @@ export const initialState: IFeedState = {
     loading: false,
   },
   selectedPlugin: undefined,
+  pluginInstanceStatus: {},
   pluginInstances: {
     data: undefined,
     error: "",
@@ -156,7 +157,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_PLUGIN_FILES_SUCCESS: {
-      const { id, files } = action.payload;
+      const { id, files, hasNext } = action.payload;
 
       return {
         ...state,
@@ -165,6 +166,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           [id]: {
             files,
             error: "",
+            hasNext: hasNext,
           },
         },
       };
@@ -179,6 +181,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           [id]: {
             files: [],
             error,
+            hasNext: false,
           },
         },
       };
@@ -275,6 +278,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           loading: false,
         },
         pluginInstanceResource: {},
+        pluginInstanceStatus:  {},
         pluginFiles: {},
         selectedPlugin: undefined,
         feedProp: {
@@ -307,6 +311,20 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           },
         };
       }
+    }
+
+    case FeedActionTypes.GET_PLUGIN_STATUS_SUCCESS: {
+      const { selected, status } = action.payload;
+
+      return {
+        ...state,
+        pluginInstanceStatus: {
+          ...state.pluginInstanceStatus,
+          [selected.data.id]: {
+            status,
+          },
+        },
+      };
     }
 
     case FeedActionTypes.SET_LAYOUT: {

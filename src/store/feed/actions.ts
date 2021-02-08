@@ -38,12 +38,15 @@ export const getPluginInstanceResourceSuccess = (resource: any) =>
 
 export const getPluginFilesRequest = (selected: PluginInstance) =>
   action(FeedActionTypes.GET_PLUGIN_FILES_REQUEST, selected);
+
+
 export const getPluginFilesSuccess = (filesPayload: {
   id: number;
   files: any[];
 }) => action(FeedActionTypes.GET_PLUGIN_FILES_SUCCESS, filesPayload);
+
 export const getPluginFilesError = (payload: { id: number; error: any }) =>
-  action(FeedActionTypes.GET_PLUGIN_FILES_ERROR, payload);
+  action(FeedActionTypes.GET_PLUGIN_FILES_ERROR, payload); 
 
 export const addFeed = (feed: Feed) => action(FeedActionTypes.ADD_FEED, feed);
 export const addNodeRequest = (item: AddNodePayload) =>
@@ -70,3 +73,14 @@ export const setFeedTreeProp = (orientation: string) =>
 
 
 export const setFeedLayout = () => action(FeedActionTypes.SET_LAYOUT);
+
+export const getPluginInstanceStatusRequest = (items: PluginInstanceObj) =>
+  action(FeedActionTypes.GET_PLUGIN_STATUS_REQUEST, items);
+
+export const getPluginInstanceStatusSuccess = (statusPayload: {
+  selected: PluginInstance;
+  status: string;
+}) => action(FeedActionTypes.GET_PLUGIN_STATUS_SUCCESS, statusPayload);
+
+export const stopFetchingStatusResources = (id: number) =>
+  action(FeedActionTypes.STOP_FETCHING_STATUS_RESOURCES, id);

@@ -37,7 +37,8 @@ export const getFeedTree = (items: PluginInstance[]) => {
 
       if (mappedElem.parentId) {
         let parentId = mappedElem.parentId;
-        if (parentId) mappedArr[parentId].children.push(mappedElem);
+        if (parentId && mappedArr[parentId] && mappedArr[parentId].children)
+          mappedArr[parentId].children.push(mappedElem);
       } else {
         firstElement.push(mappedElem);
         tree.push(mappedElem);

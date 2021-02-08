@@ -387,7 +387,7 @@ function getCommand(
         command += parameterCommand.join(" ") + " \\\n";
       }
     }
-    command = `${command}/incoming/outgoing`.trim();
+    command = `${command}/incoming /outgoing`.trim();
   
     return command;
 }

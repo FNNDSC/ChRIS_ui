@@ -3,7 +3,11 @@ import { select } from "d3-selection";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { Datum, TreeNodeDatum, Point } from "./data";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { PluginInstancePayload } from "../../../store/feed/types";
+import { connect } from "react-redux";
+import { ApplicationState } from "../../../store/root/applicationState";
+import { PluginInstanceStatusPayload } from "../../../store/feed/types";
+
+
 
 const DEFAULT_NODE_CIRCLE_RADIUS = 12;
 
@@ -15,8 +19,9 @@ type NodeProps = {
   onNodeClick: (node: PluginInstance) => void;
   onNodeToggle: (nodeId: string) => void;
   orientation: "horizontal" | "vertical";
-  pluginInstances: PluginInstancePayload;
+  instances: PluginInstance[];
   toggleLabel: boolean;
+  pluginInstanceStatus?: PluginInstanceStatusPayload;
 };
 
 type NodeState = {
@@ -26,10 +31,10 @@ type NodeState = {
 
 
 
-export default class Node extends React.Component<NodeProps, NodeState> {
+class Node extends React.Component<NodeProps, NodeState> {
   nodeRef: SVGElement | null = null;
   circleRef: SVGCircleElement | null = null;
-  textRef:  SVGTextElement | null = null;
+  textRef: SVGTextElement | null = null;
   state = {
     nodeTransform: this.setNodeTransform(
       this.props.orientation,
@@ -61,6 +66,21 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     this.applyNodeTransform(nodeTransform);
   }
 
+  shouldComponentUpdate(nextProps: NodeProps, nextState: NodeState) {
+    const prevData = nextProps.pluginInstanceStatus;
+    const thisData = this.props.pluginInstanceStatus;
+    if (
+      prevData !== thisData ||
+      nextProps.selectedPlugin !== this.props.selectedPlugin ||
+      nextProps.data !== this.props.data ||
+      nextProps.position !== this.props.position ||
+      nextState.hovered !== this.state.hovered
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   setNodeTransform(
     orientation: NodeProps["orientation"],
     position: NodeProps["position"],
@@ -80,29 +100,21 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     const {
       data,
       selectedPlugin,
-      onNodeClick,
-      pluginInstances,
+      onNodeClick, 
       toggleLabel,
+      pluginInstanceStatus
     } = this.props;
     const { hovered } = this.state;
-    let statusClass: string = "";
-    const { data: instances } = pluginInstances;
+    let status="";
+    let statusClass="";
 
-    let currentInstance: PluginInstance | undefined = undefined;
-    if (instances) {
-      currentInstance = instances.find((instance) => {
-        if (data.item) {
-          if (instance.data.id === data?.item.data.id) {
-            return instance.data.status;
-          } else return undefined;
-        } else return undefined;
-      });
+    if(data.item && data.item.data.id && pluginInstanceStatus && pluginInstanceStatus[data.item.data.id]){
+      status=pluginInstanceStatus[data.item.data.id].status;
+    }
+    else if(data.item) {
+      status=data.item.data.status;
     }
 
-    let status: string = "scheduled";
-    if (currentInstance) {
-      status = currentInstance.data.status;
-    }
 
     const currentId = data.item?.data.id;
     if (
@@ -126,7 +138,7 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     }
 
     const textLabel = (
-      <g id="text">
+      <g id={`text_${data.id}`}>
         <text
           ref={(n) => {
             this.textRef = n;
@@ -141,7 +153,7 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     return (
       <Fragment>
         <g
-          id="node"
+          id={`${data.id}`}
           ref={(n) => {
             this.nodeRef = n;
           }}
@@ -176,3 +188,13 @@ export default class Node extends React.Component<NodeProps, NodeState> {
     );
   }
 }
+
+const mapStateToProps = (state: ApplicationState) => ({
+  pluginInstanceStatus: state.feed.pluginInstanceStatus,
+  selectedPlugin: state.feed.selectedPlugin,
+});
+
+
+
+
+export default connect(mapStateToProps)(Node);
