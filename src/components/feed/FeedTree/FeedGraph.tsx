@@ -65,15 +65,13 @@ const FeedGraph = (props: IFeedProps) => {
   }
 
 
-  React.useEffect(()=>{
-    if(instances && instances.length>0) {
-      const tree= new TreeModel(instances); 
+  React.useEffect(() => {
+    if (instances && instances.length > 0) {
+      const tree = new TreeModel(instances);
       //@ts-ignore
-      setGraphData(tree.treeChart)
+      setGraphData(tree.treeChart);
     }
-   
-    
-  },[instances, selectedPlugin])
+  }, [instances]);
 
   return (
     <div className="feed-tree" ref={containerRef}>

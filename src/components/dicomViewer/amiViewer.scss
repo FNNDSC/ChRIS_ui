@@ -40,3 +40,42 @@
     color:white;
   }
 }
+
+
+.ant-drawer.ant-drawer-open .ant-drawer-mask {
+ opacity: 0;   
+}
+
+.ant-drawer-right.ant-drawer-open .ant-drawer-content-wrapper {
+  width:20% !important;
+}
+
+
+.ant-drawer-header {
+  padding:0.5rem;
+}
+
+.ant-drawer-title {
+  font-weight: 900;
+}
+
+.ant-drawer-body {
+  padding:0.5rem
+}
+
+
+.dicomTag {
+
+
+  &__toolbar--text{
+    padding:0;
+    font-size: 1rem;
+  }
+  &__list__item--name {
+    padding:0.2rem;
+    font-weight: 900;
+
+  };
+
+
+}

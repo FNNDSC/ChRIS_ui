@@ -174,31 +174,23 @@ const DicomTag: React.FC<DicomTagProps> = ({ image }) => {
   const listItems = header.map((item, index) => {
     if (item.value !== undefined) {
       return (
-        <ListItem key={index}>
-           {item.name}
-           {item.value}
+        <ListItem className="dicomTag__list__item" key={index}>
+          <span className="dicomTag__list__item--name">{item.name}:</span>
+          <span className="dicomTag__list__item--value">{item.value}</span>
         </ListItem>
       );
     } else return undefined;
   });
 
   return (
-    <div style={{ marginTop: "18px" }}>
-      <Toolbar id='toolbar'>
-        <Text>
-          Dicom Tag Info:
-        </Text>
-      </Toolbar>
-      <div>
+    <div className="dicomTag">
+      <div className='dicomTag__list'>
         {listItems.filter((item) => item !== undefined).length > 0 ? (
           <List>
             {listItems}
           </List>
         ) : (
-          <Text
-            style={{
-              padding: "10px",
-            }}   
+          <Text  
           >
             The tag information is only available for dicoms currently
           </Text>
