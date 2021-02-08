@@ -197,7 +197,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   render() {
     return (
       <React.Fragment>
-        {this.state.imageIds.length > 0 ? (
+        {this.state.imageIds.length === 0 ? (
           <DicomLoader
             totalFiles={this.state.totalFiles}
             filesParsed={this.state.filesParsed}
