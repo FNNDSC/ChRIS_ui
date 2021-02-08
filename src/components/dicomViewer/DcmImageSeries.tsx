@@ -205,7 +205,6 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
         ) : (
           <React.Fragment>
             <DicomHeader handleToolbarAction={this.props.handleToolbarAction} />
-
             <div className="ami-viewer">
               <div id="container">
                 <Drawer

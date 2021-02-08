@@ -1,11 +1,11 @@
 import React from "react";
 import { Dispatch } from "redux";
-import { Wizard } from "@patternfly/react-core";
+import { Wizard, Spinner } from "@patternfly/react-core";
 import { connect } from "react-redux";
 
 import { ApplicationState } from "../../../store/root/applicationState";
 import "./styles/AddNode.scss";
-import LoadingSpinner from "../../common/loading/LoadingSpinner";
+
 import Review from "./Review";
 import { addNodeRequest } from "../../../store/feed/actions";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
@@ -267,7 +267,7 @@ const AddNode:React.FC<AddNodeProps>=({
       setComputeEnviroment={setComputeEnv}
     />
   ) : (
-    <LoadingSpinner />
+    <Spinner size="xl" />
   );
 
   const editor = data.plugin ? (
@@ -277,10 +277,9 @@ const AddNode:React.FC<AddNodeProps>=({
       dropdownInput={dropdownInput}
       requiredInput={requiredInput}
       inputChangeFromEditor={inputChangeFromEditor}
-     
     />
   ) : (
-    <LoadingSpinner />
+    <Spinner size="xl" />
   );
 
   const review = data.plugin ? (
@@ -292,7 +291,7 @@ const AddNode:React.FC<AddNodeProps>=({
       errors={errors}
     />
   ) : (
-    <LoadingSpinner />
+    <Spinner size="xl" />
   );
 
   const steps = [

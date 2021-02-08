@@ -37,7 +37,7 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
     this.timerScrolling = null;
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     this._isMounted = true;
     const urlArray = this._getUrlArray(this.props.selectedFolder.children);
     if (urlArray.length > 0 && this._isMounted) {
@@ -65,7 +65,6 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
       !!selectedFolder.children && (
         <GalleryWrapper
           total={this.state.urlArray.length}
-          hideDownload
           handleOnToolbarAction={(action: string) => {
             (this.handleGalleryActions as any)[action].call();
           }}
@@ -78,11 +77,15 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
           >
             <CloseIcon size="md" />{" "}
           </Button>
-          <React.Suspense fallback={<Backdrop>   
-          <Bullseye>
-            <Spinner/>
-          </Bullseye>
-          </Backdrop>}>
+          <React.Suspense
+            fallback={
+              <Backdrop>
+                <Bullseye>
+                  <Spinner />
+                </Bullseye>
+              </Backdrop>
+            }
+          >
             <DcmImageSeries
               setPlayer={this.setPlayer}
               inPlay={this.state.inPlay}

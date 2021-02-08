@@ -26,14 +26,17 @@
   }
 }
 
+
 .loader {
-  color: #fff;
-  left: 45%;
-  position: fixed;
-  text-align: center;
-  top: 40%;
-  //z-index: 10;
-  > div {
-    margin-bottom: 20px;
+  margin-top:-5rem;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  height:100vh;
+  flex-direction: column;
+  gap:1.5rem;
+
+  span {
+    color:white;
   }
 }

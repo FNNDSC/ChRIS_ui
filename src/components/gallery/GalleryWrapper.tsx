@@ -37,7 +37,6 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
             <GalleryToolbar
               isPlaying={listOpenFilesScrolling}
               total={total}
-              hideDownload={!!this.props.hideDownload}
               onToolbarClick={(action: string) => {
                 (this.handleGalleryActions as any)[action].call();
               }}
@@ -73,9 +72,6 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
     },
     last: () => {
       this.props.handleOnToolbarAction(galleryActions.last);
-    },
-    download: () => {
-      this.props.handleOnToolbarAction(galleryActions.download);
     },
   };
 

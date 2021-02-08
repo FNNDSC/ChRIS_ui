@@ -6,8 +6,6 @@ import {
   StepBackwardIcon,
   ExpandIcon,
   CompressIcon,
-  InfoCircleIcon,
-  DownloadIcon,
   AngleDoubleLeftIcon,
   AngleDoubleRightIcon,
 } from "@patternfly/react-icons";
@@ -69,20 +67,6 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
           onClick={() => props.onToolbarClick(galleryActions.fullscreen)}
         >
           {props.isFullscreen ? <CompressIcon size="md" /> : <ExpandIcon />}
-        </Button>
-        {!props.hideDownload && (
-          <Button
-            variant="link"
-            onClick={() => props.onToolbarClick(galleryActions.download)}
-          >
-            <DownloadIcon />
-          </Button>
-        )}
-        <Button
-          variant="link"
-          onClick={() => props.onToolbarClick(galleryActions.information)}
-        >
-          <InfoCircleIcon />
         </Button>
       </GridItem>
     </Grid>

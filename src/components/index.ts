@@ -1,6 +1,6 @@
 // Common Components:
 export { default as Gotop } from "./common/gotop/Gotop";
-export { default as LoadingSpinner } from "./common/loading/LoadingSpinner";
+
 export { default as DataTableToolbar } from "./common/dataTableToolbar/DataTableToolbar";
 
 // Feed
