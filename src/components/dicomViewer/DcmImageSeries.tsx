@@ -408,7 +408,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
       case "Rotate": {
         const element = this.state.element;
         const viewport = cornerstone.getViewport(element);
-        viewport.rotation -= 90;
+        viewport.rotation += 90;
         cornerstone.setViewport(element, viewport);
         break;
       }
