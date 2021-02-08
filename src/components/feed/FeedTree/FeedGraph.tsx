@@ -77,10 +77,11 @@ const FeedGraph = (props: IFeedProps) => {
 
 
 
+  console.log("GraphData", graphData);
   
   return (
     <div className="feed-tree" ref={graphRef}>
-      {size && graphData && (
+      {size && graphData ? (
         <ErrorBoundary
           fallback={
             <Text>
@@ -110,7 +111,7 @@ const FeedGraph = (props: IFeedProps) => {
             linkWidth={2}
           />
         </ErrorBoundary>
-      )}
+      ): <Text>Fetching the Graph....</Text>}
     </div>
   );
  
