@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LoadingSpinner } from "..";
+import { Spinner } from "@patternfly/react-core";
 
 interface DicomLoaderProps {
   totalFiles: number;
@@ -13,8 +13,8 @@ const DcmLoader: React.FunctionComponent<DicomLoaderProps> = ({
   
   return (
     <div className="loader">
-      <LoadingSpinner color="#fff" isLocal />
-      {`${filesParsed} of ${totalFiles} loaded`}
+      <Spinner size="xl" />
+      <span>{`${filesParsed} of ${totalFiles} loaded`}</span>
     </div>
   );
 };
