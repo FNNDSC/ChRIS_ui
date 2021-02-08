@@ -6,6 +6,8 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import useResizeObserver from '@react-hook/resize-observer';
 import TreeModel from '../../../api/models/tree.model'
 import {PluginInstance} from '@fnndsc/chrisapi'
+import {ErrorBoundary} from "react-error-boundary";
+import {Text} from '@patternfly/react-core'
 import './FeedTree.scss';
 
 
@@ -32,12 +34,12 @@ const useSize=(target:MutableRefObject<HTMLDivElement | null>)=>{
 const FeedGraph = (props: IFeedProps) => {
   const { pluginInstances, selectedPlugin, onNodeClick} = props;
   const { data: instances } = pluginInstances;
-  const containerRef=React.useRef<HTMLDivElement | null>(null);
+  const graphRef=React.useRef<HTMLDivElement | null>(null);
   const fgRef = React.useRef <ForceGraphMethods | undefined>();
   
   
   
-  const size=useSize(containerRef)
+  const size=useSize(graphRef)
   const [graphData, setGraphData]=React.useState();
  
     
@@ -73,30 +75,41 @@ const FeedGraph = (props: IFeedProps) => {
     }
   }, [instances]);
 
+
+
+  
   return (
-    <div className="feed-tree" ref={containerRef}>
-     
-      
-      {size && graphData &&  (
-        <ForceGraph3D
-         ref={fgRef}
-          //@ts-ignore
-          height={size.height}
-          //@ts-ignore
-          width={size.width}
-          graphData={graphData}
-          nodeAutoColorBy={(d:any)=> {
-             if(selectedPlugin && d.item.data.id===selectedPlugin.data.id){  
-                return '#fff';
-            }
-            return d.group
-          }}         
-          onNodeClick={handleNodeClick}
-          nodeLabel={(d:any)=>{
-            return `${d.item.data.title || d.item.data.plugin_name}`;
-          }}
-          linkWidth={2}
-        />
+    <div className="feed-tree" ref={graphRef}>
+      {size && graphData && (
+        <ErrorBoundary
+          fallback={
+            <Text>
+              If you see this message, it means that the graph modules weren't loaded.
+              Please refresh your browser.
+            
+            </Text>
+                }
+        >
+          <ForceGraph3D
+            ref={fgRef}
+            //@ts-ignore
+            height={size.height || 500}
+            //@ts-ignore
+            width={size.width || 500}
+            graphData={graphData}
+            nodeAutoColorBy={(d: any) => {
+              if (selectedPlugin && d.item.data.id === selectedPlugin.data.id) {
+                return "#fff";
+              }
+              return d.group;
+            }}
+            onNodeClick={handleNodeClick}
+            nodeLabel={(d: any) => {
+              return `${d.item.data.title || d.item.data.plugin_name}`;
+            }}
+            linkWidth={2}
+          />
+        </ErrorBoundary>
       )}
     </div>
   );
