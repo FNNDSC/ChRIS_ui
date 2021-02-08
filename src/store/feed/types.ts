@@ -68,6 +68,7 @@ export interface FilesPayload {
   [id: string]: {
     files: FeedFile[];
     error: any;
+    hasNext: boolean;
   };
 }
 
@@ -81,6 +82,12 @@ export interface PluginInstancePayload {
   data?: PluginInstance[];
   error: any;
   loading: boolean;
+}
+
+export interface PluginInstanceStatusPayload {
+  [id: string]: {
+    status: string;
+  };
 }
 
 export interface FeedTreeProp {
@@ -105,6 +112,7 @@ export interface IFeedState {
   selectedPlugin?: PluginInstance;
   loadingAddNode: boolean;
   deleteNodeSuccess: boolean;
+  pluginInstanceStatus: PluginInstanceStatusPayload;
   pluginInstanceResource: PluginInstanceResourcePayload;
   pluginFiles: FilesPayload;
   feedTreeProp: FeedTreeProp;
@@ -137,4 +145,7 @@ export const FeedActionTypes = keyMirror({
   RESET_PLUGIN_STATE: null,
   GET_FEED_TREE_PROP: null,
   SET_LAYOUT: null,
+  GET_PLUGIN_STATUS_REQUEST: null,
+  GET_PLUGIN_STATUS_SUCCESS: null,
+  STOP_FETCHING_STATUS_RESOURCES: null,
 });

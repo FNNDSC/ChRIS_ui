@@ -51,7 +51,10 @@ export default class UITreeNodeModel {
 
   // Description: Parse Plugin file array into IUITreeNode object - build the tree
   parseUiTree(items: FeedFile[], selected: PluginInstance) {
-    const pluginName = `${selected.data.plugin_name}_${selected.data.id}`;
+    const pluginName = `${selected.data.title || selected.data.plugin_name}_${
+      selected.data.id
+    }`;
+    
     const root = `${selected.data.owner_username}/feed_${selected.data.id}`; // modules Name
     this._worker.module = this._previousItem = root;
     if (!!items && items.length) {

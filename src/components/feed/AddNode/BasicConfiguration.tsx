@@ -31,7 +31,7 @@ class BasicConfiguration extends React.Component<
         <Title headingLevel="h1">Plugin Selection</Title>
         <FormGroup label="Parent node:" fieldId="parent-node">
           <TextInput
-            value={parent.data.plugin_name}
+            value={parent.data.title || parent.data.plugin_name}
             aria-label="Selected Plugin Name"
           />
         </FormGroup>

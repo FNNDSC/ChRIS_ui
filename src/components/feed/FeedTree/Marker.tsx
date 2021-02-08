@@ -23,4 +23,4 @@ const Marker = () => {
   );
 };
 
-export default Marker;
+export default React.memo(Marker);
