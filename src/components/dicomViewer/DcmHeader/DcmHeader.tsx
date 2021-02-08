@@ -6,11 +6,11 @@ import {
   HandPaperIcon,
   AdjustIcon,
   BurnIcon,
-  UndoIcon,
+  RedoIcon,
   DownloadIcon,
   BarsIcon,
-  FileAltIcon,
-  RedoIcon,
+  EditIcon,
+  InfoCircleIcon,
 } from "@patternfly/react-icons";
 
 import "./DcmHeader.scss";
@@ -30,7 +30,7 @@ const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
       <div className="dicom-header__body-tools">
         <span
           style={{
-            marginRight: "0.3rem",
+            marginRight: "0.5rem",
             color: "white",
           }}
         >
@@ -110,7 +110,7 @@ const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
               handleToolbarAction("rotate");
             }}
           >
-            <UndoIcon size="md"></UndoIcon>
+            <RedoIcon size='md'/>
           </Button>
         </Tooltip>
         <Tooltip
@@ -136,7 +136,7 @@ const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
               handleToolbarAction("dicomHeader");
             }}
           >
-            <FileAltIcon size="md" />
+            <InfoCircleIcon size="md" />
           </Button>
         </Tooltip>
         <Tooltip
@@ -149,12 +149,18 @@ const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
               handleToolbarAction("reset");
             }}
           >
-            <RedoIcon size="md" />
+            <EditIcon size="md" />
           </Button>
         </Tooltip>
-        <Button variant="link">
+        {
+          /*
+          <Button variant="link">
           <DownloadIcon size="md" />
         </Button>
+        */
+
+        }
+        
       </div>
     </div>
   );

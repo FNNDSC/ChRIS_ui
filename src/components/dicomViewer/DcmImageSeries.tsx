@@ -197,7 +197,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   render() {
     return (
       <React.Fragment>
-        {this.state.imageIds.length === 0 ? (
+        {this.state.imageIds.length > 0 ? (
           <DicomLoader
             totalFiles={this.state.totalFiles}
             filesParsed={this.state.filesParsed}
@@ -213,7 +213,6 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
                   closable={true}
                   onClose={this.toggleHeader}
                   visible={this.state.visibleHeader}
-                  style={{ position: "absolute", width: "40%" }}
                 >
                   {this.state.visibleHeader && (
                     <DicomTag image={this.state.currentImage} />
