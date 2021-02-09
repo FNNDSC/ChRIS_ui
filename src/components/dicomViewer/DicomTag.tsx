@@ -1,5 +1,5 @@
 import React from "react";
-import { List, ListItem, Text, Toolbar } from "@patternfly/react-core";
+import { List, ListItem, Text } from "@patternfly/react-core";
 import { Image } from "./types";
 import { uids } from "./constants";
 
