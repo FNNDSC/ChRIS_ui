@@ -124,22 +124,6 @@ const NodeDetails: React.FC<INodeProps> = ({
       />
     );
   } else {
-
-    const customDot = (
-      dot: any,
-      { status, index }: { status: string; index: number }
-    ) => (
-      <Popover
-        content={
-          <span>
-            step {index} status: {status}
-          </span>
-        }
-      >
-        {dot}
-      </Popover>
-    );
-    
     return (
       <div className="node-details">
         <div className="node-details__title">

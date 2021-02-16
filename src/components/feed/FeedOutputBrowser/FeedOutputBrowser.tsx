@@ -2,17 +2,10 @@ import React from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import JSZip from "jszip";
-
-import {
-  Grid,
-  GridItem,
-  Spinner,
-  Skeleton,
-} from "@patternfly/react-core";
-
+import { Grid, GridItem, Skeleton } from "@patternfly/react-core";
+import { Spin, Alert } from "antd"; 
 import FileBrowser from "./FileBrowser";
 import PluginViewerModal from "./PluginViewerModal";
-import PluginStatus from './PluginStatus'
 import {
   setSelectedFile,
   toggleViewerMode,
@@ -66,8 +59,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const { data: plugins, loading } = pluginInstances;
-  const pluginStatus =
-    pluginInstanceResource && pluginInstanceResource.pluginStatus;
+
   const pluginLog = pluginInstanceResource && pluginInstanceResource.pluginLog;
 
   React.useEffect(() => {
@@ -76,9 +68,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     }
   }, [selected, pluginFilesPayload, getPluginFilesRequest]);
 
- 
-  if (!selected || isEmpty(pluginInstances) || loading ) {
-   
+  if (!selected || isEmpty(pluginInstances) || loading) {
     return (
       <Grid hasGutter className="feed-output-browser">
         <GridItem
@@ -105,11 +95,11 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         </GridItem>
       </Grid>
     );
-  } else {  
-     const pluginName = selected && selected.data && getPluginName(selected);
-  
-     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
-     const tree = createTreeFromFiles(selected, pluginFiles);  
+  } else {
+    const pluginName = selected && selected.data && getPluginName(selected);
+
+    const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
+    const tree = createTreeFromFiles(selected, pluginFiles);
 
     const downloadAllClick = async () => {
       if (!selected) return;
@@ -190,7 +180,17 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             smRowSpan={12}
           >
             {selected &&
-            selected.data.status === "test" &&
+
+
+
+
+
+                                                                   selected.data.status === "finishedSuccessfully" &&
+           
+           
+           
+           
+           
             tree ? (
               <FileBrowser
                 pluginLog={pluginLog}
@@ -202,14 +202,10 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 handleFileViewerToggle={handleFileViewerOpen}
                 downloadAllClick={downloadAllClick}
               />
-            ) : selected.data.status === "test" && !tree ? (
-              <Spinner size="md" />
             ) : (
-              <PluginStatus
-                selected={selected}
-                pluginStatus={pluginStatus}
-                pluginLog={pluginLog}
-              />
+              <Spin tip="Loading....">
+                <Alert message="Retrieving Plugin's Files" type="info" />
+              </Spin>
             )}
           </GridItem>
         </Grid>
@@ -219,7 +215,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         />
       </>
     );
-    
   }
 };
 
