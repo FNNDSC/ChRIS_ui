@@ -19,12 +19,12 @@ export interface AddNodePayload {
 }
 
 export interface PluginStatus {
-  step: string;
-  status: boolean;
+  
   id: number;
-  previous: string;
-  title: string;
-  previousComplete: boolean;
+  title:string;
+  status:boolean;
+  isCurrentStep:boolean;
+  error:boolean
 }
 type Return = {
   l_logs: any[];
@@ -96,6 +96,12 @@ export interface FeedTreeProp {
     x: number;
     y: number;
   };
+}
+
+
+export interface DestroyData {
+  data?: PluginInstance[];
+  selectedPlugin?: PluginInstance;
 }
 
 

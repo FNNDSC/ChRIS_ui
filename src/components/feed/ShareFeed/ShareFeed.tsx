@@ -5,7 +5,7 @@ import { Button } from "@patternfly/react-core";
 import "./sharefeed.scss";
 import { Feed } from "@fnndsc/chrisapi";
 
-import { UsersIcon } from "@patternfly/react-icons";
+import { CodeBranchIcon } from "@patternfly/react-icons";
 
 import InputUser from "./InputUser";
 
@@ -61,7 +61,7 @@ class ShareFeed extends React.Component<ShareFeedProps, ShareFeedState> {
           variant="primary"
           onClick={this.handleAddClick}
         >
-          <UsersIcon />
+          <CodeBranchIcon />
           <span className="share-feed-icon-text">Share Feed</span>
         </Button>
         <ShareModal

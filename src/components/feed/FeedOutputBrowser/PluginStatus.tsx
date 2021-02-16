@@ -19,53 +19,42 @@ const PluginStatus:React.FC<PluginStatusProps>=({
   pluginStatus,
   pluginLog
 })=>{
-  const [activeKey, setActiveKey] = React.useState<React.ReactText>(0)
-  const [currentLog,setCurrentLog]=React.useState({})
+  const [activeKey, setActiveKey] = React.useState<React.ReactText>(0);
+  const [currentLog, setCurrentLog] = React.useState({});
 
-  const handleClick=(step:string)=>{
-   
-    if(step==='computeReturn'){
-      const log= pluginLog?.info?.compute?.return || {}
-      setCurrentLog(log)
+  const handleClick = (step: string) => {
+    console.log("STEP",  step);
+    if (step === "compute") {
+      const log = pluginLog?.compute || {};
+      console.log(log)
+      setCurrentLog(log);
+    } else if (step === "compute") {
+      const log = pluginLog?.compute || {};
+      setCurrentLog(log);
+    } else {
+      /*
+      const log = pluginLog?.info[step]?.return || {};
+      setCurrentLog(log);
+      */
     }
-    else if(step==='computeSubmit'){
-      const log=pluginLog?.info?.compute?.submit || {}
-      setCurrentLog(log)
-    }
-    else {
-      const log=pluginLog?.info[step]?.return|| {}
-      setCurrentLog(log)
-    }
-  }
+  };
 
-
-  const computeLog:ComputeLog|undefined=pluginLog?.info?.compute?.return
-  const typedLog:string[] | undefined=computeLog?.d_ret?.l_logs
-  
+  const computeLog: ComputeLog | undefined = pluginLog?.info?.compute?.return;
+  const typedLog: string[] | undefined = computeLog?.d_ret?.l_logs;
 
   const handleActiveKey = (activeKey: React.ReactText) => {
     setActiveKey(activeKey);
   };
 
-  if(pluginStatus && pluginStatus.length>0){
+  if (pluginStatus && pluginStatus.length > 0) {
     return (
       <Grid hasGutter className="file-browser">
         <GridItem className="file-browser__steps" span={4} rowSpan={12}>
           <Steps direction="vertical">
             {pluginStatus.map((label: any) => {
               const currentDescription = displayDescription(label);
-              let showIcon: boolean = false;
+              let showIcon= ['Finished Successfully', 'Finished With Error', 'Cancelled'].includes(label.title) ? false: label.isCurrentStep ? true : false;
 
-              if (currentDescription) {
-                showIcon =
-                  currentDescription ===
-                    "Transmitting data to compute environment" ||
-                  currentDescription === "Computing" ||
-                  currentDescription === "Finishing up" ||
-                  currentDescription === "Setting compute environment" ||
-                  currentDescription ===
-                    "Syncing data from compute environment";
-              }
               return (
                 <Step
                   onClick={() => {
@@ -86,11 +75,10 @@ const PluginStatus:React.FC<PluginStatusProps>=({
                   }
                   icon={showIcon && <Spinner size="lg" />}
                   status={
+                    label.status === true
+                    ? "finish" :
                     label.error === true
-                      ? "error"
-                      : label.status === true
-                      ? "finish"
-                      : undefined
+                      ? "error" : undefined
                   }
                 />
               );
@@ -104,9 +92,7 @@ const PluginStatus:React.FC<PluginStatusProps>=({
             setActiveKey={handleActiveKey}
           />
           {activeKey === 0 && pluginLog && !isEmpty(pluginLog.info) ? (
-            <div
-            className="file-browser__plugin-status--json"
-            >
+            <div className="file-browser__plugin-status--json">
               <ReactJSON
                 name={false}
                 displayDataTypes={false}
@@ -146,17 +132,12 @@ const PluginStatus:React.FC<PluginStatusProps>=({
         </Title>
       </GridItem>
       <GridItem className="file-browser__spinner-status" span={4} rowSpan={12}>
-        <Spin
-        tip='Loading....'>
-          <Alert message="Retrieving Plugin's execution"
-          type='info'
-          />
+        <Spin tip="Loading....">
+          <Alert message="Retrieving Plugin's execution" type="info" />
         </Spin>
       </GridItem>
     </Grid>
   );
-
-
 }
 
 export default PluginStatus;

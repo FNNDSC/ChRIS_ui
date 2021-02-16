@@ -23,7 +23,7 @@ import {
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { RouteComponentProps } from "react-router-dom";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { IFeedState } from "../../../store/feed/types";
+import { IFeedState, DestroyData } from "../../../store/feed/types";
 import { IUserState } from "../../../store/user/types";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 
@@ -49,6 +49,8 @@ interface IPropsFromDispatch {
  
 }
 
+
+
 export type FeedViewProps = IUserState &
   IFeedState &
   IPropsFromDispatch &
@@ -64,15 +66,20 @@ export const FeedView: React.FC<FeedViewProps> = ({
   destroyPluginState,
   pluginInstances,
   currentLayout,
+  selectedPlugin,
 }) => {
   const getFeed = React.useCallback(() => {
     getFeedRequest(id);
   }, [id, getFeedRequest]);
 
-  let dataRef = React.useRef<PluginInstance[] | undefined>(undefined);
+  let dataRef = React.useRef<DestroyData>();
 
   const { data } = pluginInstances;
-  dataRef.current = data;
+
+  dataRef.current = {
+    data,
+    selectedPlugin: selectedPlugin,
+  };
 
   React.useEffect(() => {
     return () => {
@@ -97,11 +104,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
 
   return (
     <React.Fragment>
-      <PageSection
-        className="section-one"
-        isWidthLimited
-        variant={PageSectionVariants.darker}
-      >
+      <PageSection className="section-one" variant={PageSectionVariants.darker}>
         <FeedDetails />
       </PageSection>
 
@@ -185,8 +188,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   getFeedRequest: (id: string) => dispatch(getFeedRequest(id)),
   setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
-  destroyPluginState: (data: PluginInstance[]) =>
-    dispatch(destroyPluginState(data)),
+  destroyPluginState: (data: DestroyData) => dispatch(destroyPluginState(data)),
   getSelectedPlugin: (item: PluginInstance) =>
     dispatch(getSelectedPlugin(item)),
 });

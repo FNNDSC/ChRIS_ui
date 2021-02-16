@@ -104,41 +104,46 @@ class FeedDetails extends React.Component<ReduxProps, INoteState> {
             <div className="feed-details">
               <div className="feed-details__list">
                 <ul>
-                  <li className="feed-details__list--first">
-                      <CodeBranchIcon/>
+                  <div className="feed-details__list--container-1">
+                    <li className="feed-details__list--first">
+                      <CodeBranchIcon />
                       {feed && <span> {feed.data.name} </span>}
-                  </li>
-                  <li>
-                    <small>Creator</small>
-                    <p>
-                      <UserIcon size="sm" />{" "}
-                      {feed && <span> {feed.data.creator_username} </span>}
-                    </p>
-                  </li>
-                  <li>
-                    <small>Created</small>
-                    <p>
-                      <CalendarAltIcon size="sm" />
-                      <Moment format="DD MMM YYYY @ HH:mm">
-                        {feed && feed.data.creation_date}
-                      </Moment>
-                    </p>
-                  </li>
+                    </li>
+                    <li>
+                      <small>Creator</small>
+                      <p>
+                        <UserIcon size="sm" />{" "}
+                        {feed && <span> {feed.data.creator_username} </span>}
+                      </p>
+                    </li>
+                    <li>
+                      <small>Created</small>
+                      <p>
+                        <CalendarAltIcon size="sm" />
+                        <Moment format="DD MMM YYYY @ HH:mm">
+                          {feed && feed.data.creation_date}
+                        </Moment>
+                      </p>
+                    </li>
 
-                  <li>
-                    <small>Feed Description</small>
-                    <p>
-                      <FileAltIcon />
-                      {!feedDescription ? (
-                        <span>None Provided</span>
-                      ) : (
-                        <span>{feedDescription}</span>
-                      )}
-                    </p>
-                  </li>
-                  <li>
-                    <ShareFeed feed={feed} />
-                  </li>
+                    <li>
+                      <small>Feed Description</small>
+                      <p>
+                        <FileAltIcon />
+                        {!feedDescription ? (
+                          <span>None Provided</span>
+                        ) : (
+                          <span>{feedDescription}</span>
+                        )}
+                      </p>
+                    </li>
+                  </div>
+
+                  <div className="feed-details__list--container-2">
+                    <li>
+                      <ShareFeed feed={feed} />
+                    </li>
+                  </div>
                 </ul>
               </div>
             </div>

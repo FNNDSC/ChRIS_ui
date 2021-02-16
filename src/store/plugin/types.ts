@@ -8,14 +8,7 @@ import keyMirror from "keymirror";
 import { PluginParameter } from "@fnndsc/chrisapi";
 
 
-export interface PluginStatus {
-  step: string;
-  status: boolean;
-  id: number;
-  previous: string;
-  title: string;
-  previousComplete: boolean;
-}
+
 
 export interface IPluginState {
   parameters?: PluginParameter[];
