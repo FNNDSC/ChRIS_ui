@@ -1,19 +1,17 @@
 import React from 'react';
 import { Steps } from "antd";
-import { GridItem, Grid, Title, Spinner } from "@patternfly/react-core";
+import { GridItem, Grid, Title } from "@patternfly/react-core";
 import {Spin, Alert} from 'antd' 
 import ReactJSON from "react-json-view";
 import "../../explorer/file-detail.scss";
-import { displayDescription } from "./utils";
 import { PluginStatusProps, ComputeLog} from "./types";
 import { isEmpty } from "lodash";
-import classNames from "classnames";
 import LogTabs from "./LogTabs";
 import LogTerminal from "./LogTerminal";
 
 
 
-const { Step } = Steps;
+
 
 const PluginStatus:React.FC<PluginStatusProps>=({
   pluginStatus,
@@ -22,22 +20,7 @@ const PluginStatus:React.FC<PluginStatusProps>=({
   const [activeKey, setActiveKey] = React.useState<React.ReactText>(0);
   const [currentLog, setCurrentLog] = React.useState({});
 
-  const handleClick = (step: string) => {
-    console.log("STEP",  step);
-    if (step === "compute") {
-      const log = pluginLog?.compute || {};
-      console.log(log)
-      setCurrentLog(log);
-    } else if (step === "compute") {
-      const log = pluginLog?.compute || {};
-      setCurrentLog(log);
-    } else {
-      /*
-      const log = pluginLog?.info[step]?.return || {};
-      setCurrentLog(log);
-      */
-    }
-  };
+  
 
   const computeLog: ComputeLog | undefined = pluginLog?.info?.compute?.return;
   const typedLog: string[] | undefined = computeLog?.d_ret?.l_logs;
@@ -50,40 +33,7 @@ const PluginStatus:React.FC<PluginStatusProps>=({
     return (
       <Grid hasGutter className="file-browser">
         <GridItem className="file-browser__steps" span={4} rowSpan={12}>
-          <Steps direction="vertical">
-            {pluginStatus.map((label: any) => {
-              const currentDescription = displayDescription(label);
-              let showIcon= ['Finished Successfully', 'Finished With Error', 'Cancelled'].includes(label.title) ? false: label.isCurrentStep ? true : false;
-
-              return (
-                <Step
-                  onClick={() => {
-                    handleClick(label.step);
-                  }}
-                  description={currentDescription}
-                  className={classNames("file-browser__step")}
-                  key={label.id}
-                  title={
-                    <span
-                      className="file-browser__step-title"
-                      onClick={() => {
-                        handleClick(label.step);
-                      }}
-                    >
-                      {label.title}
-                    </span>
-                  }
-                  icon={showIcon && <Spinner size="lg" />}
-                  status={
-                    label.status === true
-                    ? "finish" :
-                    label.error === true
-                      ? "error" : undefined
-                  }
-                />
-              );
-            })}
-          </Steps>
+         
         </GridItem>
         <GridItem className="file-browser__plugin-status" span={8} rowSpan={12}>
           <LogTabs

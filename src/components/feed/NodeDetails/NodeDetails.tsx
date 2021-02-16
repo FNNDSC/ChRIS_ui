@@ -3,13 +3,20 @@ import Moment from "react-moment";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { ApplicationState } from "../../../store/root/applicationState";
-
-import { Button, Grid, GridItem, Title, Skeleton } from "@patternfly/react-core";
+import {
+  Button,
+  Grid,
+  GridItem,
+  Title,
+  Skeleton,
+  Spinner,
+} from "@patternfly/react-core";
+import { Steps, Popover } from "antd";
 import {
   Plugin,
   PluginInstance,
   PluginInstanceDescendantList,
-  PluginParameterList
+  PluginParameterList,
 } from "@fnndsc/chrisapi";
 import {
   TerminalIcon,
@@ -26,6 +33,7 @@ import { getPluginInstances, getSelected, getSelectedInstanceResource } from "..
 import { setFeedLayout } from "../../../store/feed/actions";
 
 
+const { Step } = Steps;
 
 
 interface INodeProps {
@@ -116,8 +124,22 @@ const NodeDetails: React.FC<INodeProps> = ({
       />
     );
   } else {
-    
 
+    const customDot = (
+      dot: any,
+      { status, index }: { status: string; index: number }
+    ) => (
+      <Popover
+        content={
+          <span>
+            step {index} status: {status}
+          </span>
+        }
+      >
+        {dot}
+      </Popover>
+    );
+    
     return (
       <div className="node-details">
         <div className="node-details__title">
@@ -147,7 +169,43 @@ const NodeDetails: React.FC<INodeProps> = ({
             Status
           </GridItem>
           <GridItem span={10} className="value">
-            {statusTitle ? statusTitle : <Skeleton width="25%" screenreaderText='Fetching Status'/>}
+            {statusTitle ? (
+              statusTitle
+            ) : (
+              <Skeleton width="25%" screenreaderText="Fetching Status" />
+            )}
+          </GridItem>
+
+          <GridItem span={2} className="title"></GridItem>
+          <GridItem span={10} className="value">
+            <Steps direction="horizontal" size="small">
+              {pluginStatus &&
+                pluginStatus.map((label: any) => {
+                  let showIcon = [
+                    "Finished Successfully",
+                    "Finished With Error",
+                    "Cancelled",
+                  ].includes(label.title)
+                    ? false
+                    : label.isCurrentStep
+                    ? true
+                    : false;
+
+                  return (
+                    <Step
+                      key={label.id}
+                      icon={showIcon && <Spinner size="lg" />}
+                      status={
+                        label.status === true
+                          ? "finish"
+                          : label.error === true
+                          ? "error"
+                          : undefined
+                      }
+                    />
+                  );
+                })}
+            </Steps>
           </GridItem>
 
           <GridItem span={2} className="title">
@@ -209,13 +267,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 
 export default connect(mapStateToProps, mapDispatchToProps)(NodeDetails);
-
-
-function convertTitle(title:string){
-  const word = title.replace(/([a-z])([A-Z])/g, "$1 $2");
-  const computedTitle = word.charAt(0).toUpperCase() + word.slice(1);
-  return computedTitle;
-}
 
 
 
