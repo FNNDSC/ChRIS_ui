@@ -26,23 +26,4 @@ export function getPluginDisplayName(plugin: PluginInstance) {
   return `${plugin.data.plugin_name} v. ${plugin.data.plugin_version}`;
 }
 
-export function displayDescription(label: any) {
- 
- if (label.error) {
-   return "Error in compute";
- } 
-  else if (
-   label.step === "started" &&
-   label.previousComplete === true &&
-   label.status !== true
- ) {
-   return "Started";
- } else if (
-   label.step === "compute" &&
-   label.previousComplete === true &&
-   label.status !== true
- ) {
-   return "Computing";
- } 
- 
-}
+

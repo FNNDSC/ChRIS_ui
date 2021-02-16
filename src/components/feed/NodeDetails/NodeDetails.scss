@@ -53,3 +53,45 @@
   }
 
 }
+
+
+
+
+/******
+
+Steps Designs Icon
+
+******/
+
+.ant-steps-item-icon {
+  width:24px !important;
+  height:24px !important;
+  font-size: 10px !important;
+  border-radius: 24px !important;
+  line-height:24px !important;
+  margin: 0 2px 0 2px !important;
+
+
+}
+
+
+.ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item {
+    padding-left:0;
+}
+
+.ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item-tail {
+    display:outline !important;
+}
+
+.ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-description {
+    color: white !important;
+}
+
+.ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item {
+
+    white-space: nowrap;
+}
+
+.ant-steps-item-title {
+  padding-right: 0;
+}
