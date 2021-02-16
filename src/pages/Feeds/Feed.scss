@@ -67,10 +67,8 @@
 
 .section-one {
  overflow: hidden;
-.pf-c-page__main-body{
- padding-top:0.25rem !important;
- padding-bottom: 0.25rem !important;
-}
+ padding: 0 1rem !important;
+
 
 @include media-query(992px){
   min-height: 5vh;

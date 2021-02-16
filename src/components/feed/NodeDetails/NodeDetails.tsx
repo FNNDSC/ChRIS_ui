@@ -14,40 +14,23 @@ import {
 import {
   TerminalIcon,
   CaretDownIcon,
-  CalendarDayIcon,
-  CheckIcon,
-  ErrorCircleOIcon,
-  MixcloudIcon,
-  CloudUploadAltIcon,
-  DockerIcon,
-  StorageDomainIcon,
-  OnRunningIcon,
-  ServicesIcon,
-  FileArchiveIcon,
-  OutlinedClockIcon,
-  InProgressIcon,
   CalendarAltIcon,
+  CalendarDayIcon,
 } from "@patternfly/react-icons";
-
 import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
-import { PluginStatus } from "../../../store/plugin/types";
-import { displayDescription } from "../FeedOutputBrowser/utils";
 import "./NodeDetails.scss";
 import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
-import { PluginInstancePayload, ResourcePayload } from "../../../store/feed/types";
-import {
-  getSelectedInstanceResource,
-  getPluginInstances,
-  getSelected,
-} from "../../../store/feed/selector";
+import { ResourcePayload, PluginInstancePayload, PluginStatus } from "../../../store/feed/types";
+import { getPluginInstances, getSelected, getSelectedInstanceResource } from "../../../store/feed/selector";
 import { setFeedLayout } from "../../../store/feed/actions";
+
 
 
 
 interface INodeProps {
   selected?: PluginInstance;
-  pluginInstanceResource: ResourcePayload;
+  pluginInstanceResource?: ResourcePayload;
   pluginInstances?: PluginInstancePayload;
   setFeedLayout: typeof setFeedLayout;
 }
@@ -69,17 +52,15 @@ function getInitialState(){
 const NodeDetails: React.FC<INodeProps> = ({
   selected,
   pluginInstanceResource,
-  pluginInstances,
   setFeedLayout,
 }) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const pluginStatus =
-    pluginInstanceResource && pluginInstanceResource.pluginStatus;
+      pluginInstanceResource && pluginInstanceResource.pluginStatus;
 
- 
 
-  React.useEffect(() => {    
+  React.useEffect(() => {
     const fetchData = async () => {
       const instanceParameters = await selected?.getParameters({
         limit: 100,
@@ -100,19 +81,15 @@ const NodeDetails: React.FC<INodeProps> = ({
         });
       }
     };
-   
+
     fetchData();
-  }, [selected, pluginInstances]);
+  }, [selected]);
 
   const command = React.useCallback(getCommand, [
     plugin,
     instanceParameters,
     pluginParameters,
   ]);
-
-  const title = React.useMemo(() => {
-    return pluginStatus && getCurrentTitleFromStatus(pluginStatus);
-  }, [pluginStatus]);
 
   const runTime = React.useCallback(getRuntimeString, [selected, pluginStatus]);
 
@@ -123,7 +100,14 @@ const NodeDetails: React.FC<INodeProps> = ({
     );
   }, [selected]);
 
-  if (!selected || !selected.data) {
+  let statusTitle:string | undefined=undefined;
+
+  if(pluginStatus){
+    statusTitle= getCurrentTitleFromStatus(pluginStatus);
+  }
+
+   
+  if (!selected) {
     return (
       <Skeleton
         height="75%"
@@ -132,6 +116,8 @@ const NodeDetails: React.FC<INodeProps> = ({
       />
     );
   } else {
+    
+
     return (
       <div className="node-details">
         <div className="node-details__title">
@@ -161,44 +147,7 @@ const NodeDetails: React.FC<INodeProps> = ({
             Status
           </GridItem>
           <GridItem span={10} className="value">
-            {selected.data.status === "waitingForPrevious" ? (
-              <>
-                <OutlinedClockIcon />
-                <span>Waiting for Previous</span>
-              </>
-            ) : selected.data.status === "scheduled" ? (
-              <>
-                <InProgressIcon />
-                <span>Scheduled</span>
-              </>
-            ) : selected.data.status === "registeringFiles" ? (
-              <>
-                <FileArchiveIcon />
-                <span>Registering Files</span>
-              </>
-            ) : selected.data.status === "finishedWithError" ? (
-              <>
-                <ErrorCircleOIcon />
-                <span>FinishedWithError</span>
-              </>
-            ) : selected.data.status === "cancelled" ? (
-              <>
-                <ErrorCircleOIcon />
-                <span>Cancelled</span>
-              </>
-            ) : selected.data.status === "finishedSuccessfully" ? (
-              <>
-                <CheckIcon />
-                <span>FinishedSuccessfully</span>
-              </>
-            ) : pluginStatus ? (
-              <div className="title">{title}</div>
-            ) : (
-              <>
-                <OnRunningIcon />
-                <span>Started</span>
-              </>
-            )}
+            {statusTitle ? statusTitle : <Skeleton width="25%" screenreaderText='Fetching Status'/>}
           </GridItem>
 
           <GridItem span={2} className="title">
@@ -207,7 +156,7 @@ const NodeDetails: React.FC<INodeProps> = ({
           <GridItem span={10} className="value">
             <CalendarDayIcon />
             <Moment format="DD MMM YYYY @ HH:mm">
-              {selected?.data.start_date}
+              {selected.data.start_date}
             </Moment>
           </GridItem>
 
@@ -215,7 +164,7 @@ const NodeDetails: React.FC<INodeProps> = ({
             Node ID
           </GridItem>
           <GridItem span={10} className="value">
-            {selected?.data.id}
+            {selected.data.id}
           </GridItem>
           {runTime && (
             <Fragment>
@@ -234,10 +183,10 @@ const NodeDetails: React.FC<INodeProps> = ({
           selected.data.status === "cancelled" ? null : (
             <AddNode />
           )}
-          {!selected?.data.plugin_name.includes("dircopy") && <DeleteNode />}
+          {!selected.data.plugin_name.includes("dircopy") && <DeleteNode />}
         </div>
         <div className="node-details__actions">
-          <Button onClick={()=> setFeedLayout()}>Switch Layout</Button>
+          <Button onClick={() => setFeedLayout()}>Switch Layout</Button>
         </div>
 
         <div className="node-details__infoLabel">
@@ -259,73 +208,16 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 });
 
 
-
 export default connect(mapStateToProps, mapDispatchToProps)(NodeDetails);
 
 
-function getCurrentTitleFromStatus(statusLabels?: PluginStatus[]) {
-  const currentTitle =
-    statusLabels &&
-    statusLabels
-      .map((label) => {
-        const computedTitle = displayDescription(label);
-        
-        switch (computedTitle) {
-          case "Transmitting data to compute environment":
-            return (
-              <>
-                <CloudUploadAltIcon />
-                <span>Transmitting Data</span>
-              </>
-            );
-          case "Setting compute environment":
-            return (
-              <>
-                <DockerIcon />
-                <span>Setting Compute Environment</span>
-              </>
-            );
-
-          case "Computing":
-            return (
-              <>
-                <ServicesIcon />
-                <span>Computing</span>
-              </>
-            );
-
-          case "Syncing data from compute environment":
-            return (
-              <>
-                <MixcloudIcon />
-                <span>Syncing Data</span>
-              </>
-            );
-
-          case "Finishing up":
-            return (
-              <>
-                <StorageDomainIcon />
-                <span>Finishing up</span>
-              </>
-            );
-
-          case "Error in compute": 
-          return(
-            <> 
-            <ErrorCircleOIcon/>
-            <span>Error in Compute</span>
-            </>
-          )
-
-          default:
-            return "Unknown Status";
-        }
-      })
-      .filter((node) => node !== "Unknown Status");
-
-  return currentTitle && currentTitle[0];
+function convertTitle(title:string){
+  const word = title.replace(/([a-z])([A-Z])/g, "$1 $2");
+  const computedTitle = word.charAt(0).toUpperCase() + word.slice(1);
+  return computedTitle;
 }
+
+
 
 function getRuntimeString(selected:PluginInstance) {
   let runtime = 0;
@@ -390,4 +282,17 @@ function getCommand(
     command = `${command}/incoming /outgoing`.trim();
   
     return command;
+}
+
+
+function getCurrentTitleFromStatus(statusLabels:PluginStatus[]){
+
+  const title= statusLabels.map((label)=>{
+    if(label.isCurrentStep===true){
+      return label.title
+    }
+  }).filter(label => label && label);
+
+  return title[0];
+
 }

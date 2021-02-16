@@ -190,7 +190,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             smRowSpan={12}
           >
             {selected &&
-            selected.data.status === "finishedSuccessfully" &&
+            selected.data.status === "test" &&
             tree ? (
               <FileBrowser
                 pluginLog={pluginLog}
@@ -202,7 +202,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 handleFileViewerToggle={handleFileViewerOpen}
                 downloadAllClick={downloadAllClick}
               />
-            ) : selected.data.status === "finishedSuccessfully" && !tree ? (
+            ) : selected.data.status === "test" && !tree ? (
               <Spinner size="md" />
             ) : (
               <PluginStatus

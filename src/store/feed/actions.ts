@@ -1,5 +1,10 @@
 import { action } from "typesafe-actions";
-import { FeedActionTypes, AddNodePayload, PluginInstanceObj } from "./types";
+import {
+  FeedActionTypes,
+  AddNodePayload,
+  PluginInstanceObj,
+  DestroyData,
+} from "./types";
 
 import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 
@@ -38,13 +43,10 @@ export const getPluginInstanceResourceSuccess = (resource: any) =>
 
 export const getPluginFilesRequest = (selected: PluginInstance) =>
   action(FeedActionTypes.GET_PLUGIN_FILES_REQUEST, selected);
-
-
 export const getPluginFilesSuccess = (filesPayload: {
   id: number;
   files: any[];
 }) => action(FeedActionTypes.GET_PLUGIN_FILES_SUCCESS, filesPayload);
-
 export const getPluginFilesError = (payload: { id: number; error: any }) =>
   action(FeedActionTypes.GET_PLUGIN_FILES_ERROR, payload); 
 
@@ -64,7 +66,7 @@ export const deleteNodeSuccess = () =>
 export const stopFetchingPluginResources = (id: number) =>
   action(FeedActionTypes.STOP_FETCHING_PLUGIN_RESOURCES, id);
 
-export const destroyPluginState = (data: PluginInstance[]) =>
+export const destroyPluginState = (data: DestroyData) =>
   action(FeedActionTypes.RESET_PLUGIN_STATE, data);
 
 export const setFeedTreeProp = (orientation: string) =>

@@ -1,66 +1,110 @@
-import { PluginStatus, PluginStatusLabels } from "./types";
-export function getStatusLabels(labels: PluginStatusLabels): PluginStatus[] {
-  let label = [];
 
-  const isError =
-    labels.compute.return.l_status[0] === "finishedWithError" ||
-    labels.compute.return.l_status[0] === "undefined";
-  const isComputeSuccessful = isError ? false : true;
+import { PluginStatusLabels } from "./types";
 
-  label[0] = {
-    step: "pushPath",
-    status: labels.pushPath.status,
-    id: 1,
-    previous: "none",
-    title: "Transmit Data",
-    previousComplete: true,
-    error: false,
-  };
 
-  label[1] = {
-    step: "computeSubmit",
-    id: 2,
-    status: labels.compute.submit.status,
-    title: "Setup Compute Environment",
-    previous: "pushPath",
-    previousComplete: labels.pushPath.status === true,
-    error: false,
-  };
+export function getStatusLabels(labels: PluginStatusLabels, pluginDetails:any) {
+  
+const isError =
+  labels?.compute.return.l_status[0] === "finishedWithError" ||
+  labels?.compute.return.l_status[0] === "undefined" ? true : false
 
-  label[2] = {
-    step: "computeReturn",
-    id: 3,
-    status:
-      labels.compute.return.status &&
-      labels.compute.status &&
-      isComputeSuccessful,
-    title: "Compute",
-    previous: "computeSubmit",
-    previousComplete: labels.compute.submit.status,
-    error: isError,
-  };
 
-  label[3] = {
-    step: "pullPath",
-    id: 4,
-    status: labels.pullPath.status,
-    title: "Sync Data",
-    previous: "computeReturn",
-    previousComplete:
-      labels.compute.return.status === true &&
-      labels.compute.status === true &&
-      isComputeSuccessful,
-    error: isError,
-  };
-  label[4] = {
-    id: 5,
-    step: "swiftPut",
-    status: labels.swiftPut.status,
-    title: "Finish Up",
-    previous: "pullPath",
-    previousComplete: labels.pullPath.status === true,
-    error: isError,
-  };
+const isComputeSuccessful = isError ? false : true;
 
-  return label;
+let status=[];
+
+let statusLabels=['waiting', 'scheduled', 'started', 'compute' , 'registeringFiles', 'finishedSuccessfully', 'finishedWithError', 'cancelled']
+const pluginStatus=pluginDetails.data.status;
+const errorFound= pluginDetails.data.status === "finishedWithError" ||
+ pluginDetails.data.status === "cancelled"
+   ? true
+   : false;
+const error = errorFound || !isComputeSuccessful ? true : false;
+
+ 
+status[0]={
+  id:1,
+  title:'Waiting',
+  status: statusLabels.indexOf(pluginStatus) > 0 ? true :false,
+  isCurrentStep: pluginDetails.data.status==='waiting',
+  error
+ 
 }
+
+status[1] = {
+  id: 2,
+  title: "Scheduled",
+  status: statusLabels.indexOf(pluginStatus) > 1 ? true : false,
+  isCurrentStep: pluginDetails.data.status === "scheduled" ? true : false,
+  error
+};
+
+status[2] = {
+  id: 3,
+  title: "Started",
+  status: labels?.pushPath.status === true ? true : false,
+  isCurrenStep:
+    pluginDetails.data.status === "started" && labels.pushPath.status !== true
+      ? true
+      : false,
+  error
+};
+
+
+
+status[3] = {
+  id: 4,
+  title: "Compute",
+  status:
+    labels?.compute.return.status === true &&
+    labels?.pullPath.status === true &&
+    isComputeSuccessful &&
+    statusLabels.indexOf(pluginStatus) > 3
+      ? true
+      : false,
+  isCurrentStep:
+    (labels?.compute.return.status !== true ||
+      labels?.pullPath.status !== true) &&
+    statusLabels.indexOf(pluginStatus) > 1 &&
+    !error
+      ? true
+      : false,
+  error:  error 
+};
+
+status[4] = {
+  id: 5,
+  title: "Registering Files",
+  status:
+    statusLabels.indexOf(pluginStatus) > 3 && labels?.pullPath.status === true
+      ? true
+      : false,
+  isCurrentStep:
+   pluginStatus === "registeringFiles" ? true : false,
+  error: error
+};
+
+status[5] = {
+  id: 6,
+  title: `${
+    pluginStatus === "finishedWithError"
+      ? "Finished With Error"
+      : pluginStatus === "cancelled"
+      ? "Cancelled"
+      : "Finished Successfully"
+  }`,
+  status: statusLabels.indexOf(pluginStatus) > 4 ? true : false,
+  isCurrentStep: pluginStatus==='finishedSuccessfully' || pluginStatus==='cancelled' || pluginStatus==='finishedWithError' ? true : false,
+  error
+};
+
+
+
+
+return status;
+
+}
+
+
+
+
