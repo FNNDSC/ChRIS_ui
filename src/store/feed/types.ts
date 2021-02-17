@@ -8,6 +8,12 @@ import keyMirror from "keymirror";
 import { Feed, FeedFile, PluginInstance } from "@fnndsc/chrisapi";
 
 
+export interface NodeDetailsProps {
+  selected?: PluginInstance;
+  pluginInstanceResource?: ResourcePayload;
+}
+
+
 export interface PluginInstanceObj {
   selected: PluginInstance;
   pluginInstances: PluginInstance[];
@@ -48,11 +54,11 @@ export interface PluginStatusLabels {
 }
 
 export interface Logs {
-  [info: string]: {
-    [key: string]: {
-      [key: string]: {};
+  [key: string]: {
+      [d_ret: string]: {
+        l_logs: string[];
+      };
     };
-  };
 }
 
 export interface ResourcePayload {

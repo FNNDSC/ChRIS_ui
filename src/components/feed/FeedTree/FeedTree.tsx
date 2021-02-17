@@ -60,8 +60,7 @@ type FeedTreeState = {
   };
   collapsible: boolean;
   toggleLabel: boolean;
-  isInitialRenderForDataset:   boolean;
-  
+  isInitialRenderForDataset: boolean;
 };
 
 
@@ -85,7 +84,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       data: FeedTree.assignInternalProperties(clone(this.props.data)),
       d3: FeedTree.calculateD3Geometry(this.props),
       collapsible: false,
-      toggleLabel: true,
+      toggleLabel: false,
       isInitialRenderForDataset: true,
     };
   }

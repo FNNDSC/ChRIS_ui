@@ -9,9 +9,9 @@ import {
   GridItem,
   Title,
   Skeleton,
-  Spinner,
+  ExpandableSection,  
 } from "@patternfly/react-core";
-import { Steps, Popover } from "antd";
+import { Popover } from "antd";
 import {
   Plugin,
   PluginInstance,
@@ -19,26 +19,25 @@ import {
   PluginParameterList,
 } from "@fnndsc/chrisapi";
 import {
+  TreeIcon,
   TerminalIcon,
-  CaretDownIcon,
   CalendarAltIcon,
   CalendarDayIcon,
 } from "@patternfly/react-icons";
 import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
-import "./NodeDetails.scss";
+import PluginLog from './PluginLog';
+import Status from './Status';
+import StatusTitle from './StatusTitle'
 import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
-import { ResourcePayload, PluginInstancePayload, PluginStatus } from "../../../store/feed/types";
-import { getPluginInstances, getSelected, getSelectedInstanceResource } from "../../../store/feed/selector";
+import { PluginInstancePayload, } from "../../../store/feed/types";
+import { getPluginInstances, getSelected } from "../../../store/feed/selector";
 import { setFeedLayout } from "../../../store/feed/actions";
-
-
-const { Step } = Steps;
+import "./NodeDetails.scss";
 
 
 interface INodeProps {
   selected?: PluginInstance;
-  pluginInstanceResource?: ResourcePayload;
   pluginInstances?: PluginInstancePayload;
   setFeedLayout: typeof setFeedLayout;
 }
@@ -59,15 +58,13 @@ function getInitialState(){
 
 const NodeDetails: React.FC<INodeProps> = ({
   selected,
-  pluginInstanceResource,
   setFeedLayout,
 }) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
-  const pluginStatus =
-      pluginInstanceResource && pluginInstanceResource.pluginStatus;
-
-
+  const [isVisible, setIsVisible]=React.useState(false);
+  const [isExpanded, setIsExpanded]  =  React.useState(false);
+  
   React.useEffect(() => {
     const fetchData = async () => {
       const instanceParameters = await selected?.getParameters({
@@ -92,6 +89,7 @@ const NodeDetails: React.FC<INodeProps> = ({
 
     fetchData();
   }, [selected]);
+  
 
   const command = React.useCallback(getCommand, [
     plugin,
@@ -99,7 +97,7 @@ const NodeDetails: React.FC<INodeProps> = ({
     pluginParameters,
   ]);
 
-  const runTime = React.useCallback(getRuntimeString, [selected, pluginStatus]);
+  const runTime = React.useCallback(getRuntimeString, [selected]);
 
   const pluginTitle = React.useMemo(() => {
     return (
@@ -108,13 +106,7 @@ const NodeDetails: React.FC<INodeProps> = ({
     );
   }, [selected]);
 
-  let statusTitle:string | undefined=undefined;
 
-  if(pluginStatus){
-    statusTitle= getCurrentTitleFromStatus(pluginStatus);
-  }
-
-   
   if (!selected) {
     return (
       <Skeleton
@@ -130,6 +122,7 @@ const NodeDetails: React.FC<INodeProps> = ({
           <Title headingLevel="h3" size="xl">
             {pluginTitle}
           </Title>
+
           <TextCopyPopover
             text={
               plugin && instanceParameters && pluginParameters
@@ -141,84 +134,61 @@ const NodeDetails: React.FC<INodeProps> = ({
             rows={15}
             className="view-command-wrap"
           >
-            <Button>
-              <TerminalIcon />
-              View Command
-              <CaretDownIcon />
+            <Button type="button" icon={<TerminalIcon />}>
+              View Docker Command
             </Button>
           </TextCopyPopover>
         </div>
+
         <Grid className="node-details__grid">
           <GridItem span={2} className="title">
             Status
           </GridItem>
           <GridItem span={10} className="value">
-            {statusTitle ? (
-              statusTitle
-            ) : (
-              <Skeleton width="25%" screenreaderText="Fetching Status" />
-            )}
+            <StatusTitle/>
           </GridItem>
 
           <GridItem span={2} className="title"></GridItem>
           <GridItem span={10} className="value">
-            <Steps direction="horizontal" size="small">
-              {pluginStatus &&
-                pluginStatus.map((label: any) => {
-                  let showIcon = [
-                    "Finished Successfully",
-                    "Finished With Error",
-                    "Cancelled",
-                  ].includes(label.title)
-                    ? false
-                    : label.isCurrentStep
-                    ? true
-                    : false;
-
-                  return (
-                    <Step
-                      key={label.id}
-                      icon={showIcon && <Spinner size="lg" />}
-                      status={
-                        label.status === true
-                          ? "finish"
-                          : label.error === true
-                          ? "error"
-                          : undefined
-                      }
-                    />
-                  );
-                })}
-            </Steps>
+           <Status/> 
           </GridItem>
 
-          <GridItem span={2} className="title">
-            Created
-          </GridItem>
-          <GridItem span={10} className="value">
-            <CalendarDayIcon />
-            <Moment format="DD MMM YYYY @ HH:mm">
-              {selected.data.start_date}
-            </Moment>
-          </GridItem>
-
-          <GridItem span={2} className="title">
-            Node ID
-          </GridItem>
-          <GridItem span={10} className="value">
-            {selected.data.id}
-          </GridItem>
-          {runTime && (
-            <Fragment>
+          <ExpandableSection
+            toggleText={isExpanded ? "Show Less Details" : "Show More Details"}
+            onToggle={() => setIsExpanded(!isExpanded)}
+            isExpanded={isExpanded}
+            className="node-details__expandable"
+          >
+            <Grid className="node-details__grid">
               <GridItem span={2} className="title">
-                <CalendarAltIcon />
-                Total Runtime:
+                Created
               </GridItem>
               <GridItem span={10} className="value">
-                {selected && selected.data && runTime(selected)}
+                <CalendarDayIcon />
+                <Moment format="DD MMM YYYY @ HH:mm">
+                  {selected.data.start_date}
+                </Moment>
               </GridItem>
-            </Fragment>
-          )}
+
+              <GridItem span={2} className="title">
+                Node ID
+              </GridItem>
+              <GridItem span={10} className="value">
+                {selected.data.id}
+              </GridItem>
+              {runTime && (
+                <Fragment>
+                  <GridItem span={2} className="title">
+                    <CalendarAltIcon />
+                    Total Runtime:
+                  </GridItem>
+                  <GridItem span={10} className="value">
+                    {selected && selected.data && runTime(selected)}
+                  </GridItem>
+                </Fragment>
+              )}
+            </Grid>
+          </ExpandableSection>
         </Grid>
         <div className="node-details__actions">
           {selected.data.status === "finishedWithError" ||
@@ -226,13 +196,30 @@ const NodeDetails: React.FC<INodeProps> = ({
             <AddNode />
           )}
           {!selected.data.plugin_name.includes("dircopy") && <DeleteNode />}
-        </div>
-        <div className="node-details__actions">
-          <Button onClick={() => setFeedLayout()}>Switch Layout</Button>
+          <Button icon= {<TreeIcon/>} type='button' onClick={() => setFeedLayout()}>Switch Layout</Button>
         </div>
 
         <div className="node-details__infoLabel">
-          <label>Plugin output may be viewed below.</label>
+          <Popover
+            content={
+              <PluginLog/>
+            }
+            title="Terminal"
+            placement="bottom"
+            visible={isVisible}
+            trigger="click"
+            onVisibleChange={(visible: boolean) => {
+              setIsVisible(visible);
+            }}
+          >
+            <Button
+              className="node-details__popover-button"
+              icon={<TerminalIcon />}
+              type="button"
+            >
+              View Terminal
+            </Button>
+          </Popover>
         </div>
       </div>
     );
@@ -241,7 +228,6 @@ const NodeDetails: React.FC<INodeProps> = ({
 
 const mapStateToProps = (state: ApplicationState) => ({
   selected: getSelected(state),
-  pluginInstanceResource: getSelectedInstanceResource(state),
   instances: getPluginInstances(state),
 });
 
@@ -251,7 +237,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 
 export default connect(mapStateToProps, mapDispatchToProps)(NodeDetails);
-
 
 
 function getRuntimeString(selected:PluginInstance) {
@@ -320,14 +305,3 @@ function getCommand(
 }
 
 
-function getCurrentTitleFromStatus(statusLabels:PluginStatus[]){
-
-  const title= statusLabels.map((label)=>{
-    if(label.isCurrentStep===true){
-      return label.title
-    }
-  }).filter(label => label && label);
-
-  return title[0];
-
-}

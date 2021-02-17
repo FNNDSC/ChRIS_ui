@@ -10,7 +10,7 @@ export interface PluginStatusProps {
 
 export interface FileBrowserProps {
   hasNext?: boolean;
-  pluginLog?: Logs;
+
   selectedFiles?: FeedFile[];
   root: IUITreeNode;
   pluginName?: string;

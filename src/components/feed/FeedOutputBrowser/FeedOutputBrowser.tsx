@@ -60,8 +60,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const { data: plugins, loading } = pluginInstances;
 
-  const pluginLog = pluginInstanceResource && pluginInstanceResource.pluginLog;
-
   React.useEffect(() => {
     if (!pluginFilesPayload && selected) {
       getPluginFilesRequest(selected);
@@ -97,7 +95,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     );
   } else {
     const pluginName = selected && selected.data && getPluginName(selected);
-
     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
     const tree = createTreeFromFiles(selected, pluginFiles);
 
@@ -180,20 +177,9 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             smRowSpan={12}
           >
             {selected &&
-
-
-
-
-
-                                                                   selected.data.status === "finishedSuccessfully" &&
-           
-           
-           
-           
-           
+            selected.data.status === "finishedSuccessfully" &&
             tree ? (
               <FileBrowser
-                pluginLog={pluginLog}
                 selectedFiles={pluginFiles}
                 pluginName={pluginName}
                 root={tree}
