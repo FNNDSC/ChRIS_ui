@@ -148,8 +148,8 @@ const NodeDetails: React.FC<INodeProps> = ({
             <StatusTitle />
           </GridItem>
 
-          <GridItem span={2} className="title"></GridItem>
-          <GridItem span={10} className="value">
+        
+          <GridItem span={12} className="value">
             <Status />
           </GridItem>
 
@@ -197,7 +197,7 @@ const NodeDetails: React.FC<INodeProps> = ({
           )}
           {!selected.data.plugin_name.includes("dircopy") && <DeleteNode />}
           <Button
-            icon={<CodeBranchIcon    />}
+            icon={<CodeBranchIcon />}
             type="button"
             onClick={() => setFeedLayout()}
           >
