@@ -19,7 +19,7 @@ import {
   PluginParameterList,
 } from "@fnndsc/chrisapi";
 import {
-  TreeIcon,
+  CodeBranchIcon,
   TerminalIcon,
   CalendarAltIcon,
   CalendarDayIcon,
@@ -145,12 +145,12 @@ const NodeDetails: React.FC<INodeProps> = ({
             Status
           </GridItem>
           <GridItem span={10} className="value">
-            <StatusTitle/>
+            <StatusTitle />
           </GridItem>
 
           <GridItem span={2} className="title"></GridItem>
           <GridItem span={10} className="value">
-           <Status/> 
+            <Status />
           </GridItem>
 
           <ExpandableSection
@@ -196,14 +196,18 @@ const NodeDetails: React.FC<INodeProps> = ({
             <AddNode />
           )}
           {!selected.data.plugin_name.includes("dircopy") && <DeleteNode />}
-          <Button icon= {<TreeIcon/>} type='button' onClick={() => setFeedLayout()}>Switch Layout</Button>
+          <Button
+            icon={<CodeBranchIcon    />}
+            type="button"
+            onClick={() => setFeedLayout()}
+          >
+            Switch Layout
+          </Button>
         </div>
 
         <div className="node-details__infoLabel">
           <Popover
-            content={
-              <PluginLog/>
-            }
+            content={<PluginLog />}
             title="Terminal"
             placement="bottom"
             visible={isVisible}

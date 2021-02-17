@@ -2,7 +2,16 @@ import React from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import JSZip from "jszip";
-import { Grid, GridItem, Skeleton } from "@patternfly/react-core";
+import {
+  Grid,
+  GridItem,
+  Skeleton,
+  EmptyState,
+  EmptyStateBody,
+  Title,
+  EmptyStateIcon,
+  EmptyStateVariant,
+} from "@patternfly/react-core";
 import { Spin, Alert } from "antd"; 
 import FileBrowser from "./FileBrowser";
 import PluginViewerModal from "./PluginViewerModal";
@@ -27,6 +36,7 @@ import { getFeedTree } from "./data";
 import { Tree } from "antd";
 import "./FeedOutputBrowser.scss";
 import "antd/dist/antd.css";
+import { CubeIcon } from "@patternfly/react-icons";
 const {DirectoryTree}=Tree;
 
 
@@ -188,6 +198,16 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 handleFileViewerToggle={handleFileViewerOpen}
                 downloadAllClick={downloadAllClick}
               />
+            ) : selected.data.status === "cancelled" ||
+              selected.data.status === "finishedWithError" ? (
+              <EmptyState variant={EmptyStateVariant.large}>
+                <EmptyStateIcon icon={CubeIcon} />
+                <Title headingLevel="h4" size="lg" />
+                <EmptyStateBody>
+                  The plugin execution was either cancelled or it finished with
+                  error.
+                </EmptyStateBody>
+              </EmptyState>
             ) : (
               <Spin tip="Loading....">
                 <Alert message="Retrieving Plugin's Files" type="info" />
