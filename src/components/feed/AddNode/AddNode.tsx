@@ -327,9 +327,8 @@ const AddNode:React.FC<AddNodeProps>=({
 
   return (
     <React.Fragment>
-      <Button variant="primary" onClick={toggleOpen}>
-        <PlusCircleIcon style={{ marginRight: "4px" }} />
-        <span>Add a Child Node</span>
+      <Button icon={<PlusCircleIcon />} type="button" onClick={toggleOpen}>
+        Add a Child Node
       </Button>
       {isOpen && (
         <Wizard

@@ -25,8 +25,8 @@ import {
 import FileDetailView from "../../explorer/FileDetailView";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
-import LogTerminal from "./LogTerminal";
-import { FileBrowserProps, FileBrowerState, ComputeLog } from "./types";
+
+import { FileBrowserProps, FileBrowerState } from "./types";
 
 
 
@@ -185,11 +185,8 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
       handleFileBrowserToggle,
       handleFileViewerToggle,
       selectedFiles,
-      pluginLog,
     } = this.props;
     const { directory, breadcrumbs, previewingFile } = this.state;
-    const computeLog: ComputeLog | undefined = pluginLog?.info?.compute?.return;
-    const typedLog: string[] | undefined = computeLog?.d_ret?.l_logs;
 
     if (!directory.children || !directory.children.length) {
       return <div>No files in this directory.</div>;
@@ -253,7 +250,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
           smRowSpan={12}
           className="file-browser__detail"
         >
-          {previewingFile ? (
+          {previewingFile && (
             <FileDetailView
               fullScreenMode={true}
               selectedFile={previewingFile}
@@ -263,16 +260,6 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
               toggleFileViewer={() => {
                 handleFileViewerToggle(previewingFile, directory);
               }}
-            />
-          ) : (
-            <LogTerminal
-              text={
-                typedLog && typedLog[0]
-
-                                   ? typedLog[0]
-                 
-                  : "Logs are not available for this plugin."
-              }
             />
           )}
         </GridItem>

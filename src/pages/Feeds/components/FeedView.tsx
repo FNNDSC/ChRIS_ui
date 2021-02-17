@@ -122,8 +122,8 @@ export const FeedView: React.FC<FeedViewProps> = ({
               panelContent={
                 <DrawerPanelContent
                   isResizable
-                  defaultSize={"44vh"}
-                  minSize={"30%"}
+                  defaultSize="30%"
+                  minSize={"15%"}
                 >
                   <GridItem
                     sm={12}

@@ -41,9 +41,9 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
       <Button
         disabled={!selectedPlugin}
         onClick={handleModalToggle}
-        variant="primary"
+        icon={<TrashIcon />}
+        type='button'
       >
-        <TrashIcon style={{ marginRight: "4px" }} />
         Delete Node
       </Button>
       <Modal
