@@ -16,7 +16,6 @@ const PluginLog = ({
 
   let terminalOutput  = text ? text : "";
   terminalOutput +=
-   
     log && !isEmpty(log) ? log.compute.logs : "Fetching logs ......";
 
   return <LogTerminal text={terminalOutput} />;
