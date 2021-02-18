@@ -4,7 +4,7 @@ import { Steps } from "antd";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { getSelectedInstanceResource } from "../../../store/feed/selector";
 import { ResourcePayload } from "../../../store/feed/types";
-import { Spinner, List, ListItem, ListVariant } from "@patternfly/react-core";
+import { Spinner } from "@patternfly/react-core";
 
 const { Step } = Steps;
 
@@ -47,7 +47,7 @@ const Status = ({ pluginInstanceResource }: PluginStatusProps) => {
         </Steps>
         <Steps direction="horizontal" size="small" className="stepsClass">
           {pluginStatus.map((label: any) => {
-            return <Step key={label.id} title={label.title} />;
+            return <Step key={label.id} description={label.description} />;
           })}
         </Steps>
       </>
