@@ -10,7 +10,12 @@ interface StatusTitleProps {
 }
 
 const StatusTitle = ({ pluginInstanceResource }: StatusTitleProps) => {
-  let statusTitle: string | undefined = undefined;
+  let statusTitle:
+    | {
+        title: string;
+        icon: any;
+      }
+    | undefined = undefined;
   const pluginStatus =
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
 
@@ -19,7 +24,13 @@ const StatusTitle = ({ pluginInstanceResource }: StatusTitleProps) => {
   }
 
   if (statusTitle) {
-    return <span> {statusTitle} </span>;
+  
+    return (
+      <>
+        <span>{<statusTitle.icon />}</span>
+        <span>{statusTitle.title} </span>{" "}
+      </>
+    );
   } else return <Skeleton width="25%"></Skeleton>;
 };
 
@@ -33,8 +44,8 @@ function getCurrentTitleFromStatus(statusLabels: PluginStatus[]) {
   const title = statusLabels
     .map((label) => {
       if (label.isCurrentStep === true) {
-        return label.title;
-      }
+        return { title: label.title, icon: label.icon };
+      } else return undefined;
     })
     .filter((label) => label && label);
 
