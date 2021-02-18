@@ -30,8 +30,7 @@ const Status = ({ pluginInstanceResource }: PluginStatusProps) => {
             : false;
 
           return (
-            <React.Fragment>
-              <Step
+              <Step  
                 title={label.title}
                 key={label.id}
                 icon={showIcon && <Spinner size="lg" />}
@@ -43,7 +42,7 @@ const Status = ({ pluginInstanceResource }: PluginStatusProps) => {
                     : undefined
                 }
               />
-            </React.Fragment>
+            
           );
         })}
       </Steps>
