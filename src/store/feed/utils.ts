@@ -36,6 +36,7 @@ export function getStatusLabels(
     status: statusLabels.indexOf(pluginStatus) > 0 ? true : false,
     isCurrentStep: pluginDetails.data.status === "waiting",
     error,
+    description: "Waiting to be scheduled",
   };
 
   status[1] = {
@@ -44,6 +45,7 @@ export function getStatusLabels(
     status: statusLabels.indexOf(pluginStatus) > 1 ? true : false,
     isCurrentStep: pluginDetails.data.status === "scheduled" ? true : false,
     error,
+    description: "Scheduled to the worker",
   };
 
   status[2] = {
@@ -55,6 +57,7 @@ export function getStatusLabels(
         ? true
         : false,
     error,
+    description: "Send to remote compute",
   };
 
   status[3] = {
@@ -75,6 +78,7 @@ export function getStatusLabels(
         ? true
         : false,
     error: error,
+    description: "Computing",
   };
 
   status[4] = {
@@ -86,6 +90,7 @@ export function getStatusLabels(
         : false,
     isCurrentStep: pluginStatus === "registeringFiles" ? true : false,
     error: error,
+    description: "Registering ouput files",
   };
 
   status[5] = {
@@ -105,6 +110,14 @@ export function getStatusLabels(
         ? true
         : false,
     error,
+    description:
+      pluginStatus === "finishedSuccessfully"
+        ? "Finished Successfully"
+        : pluginStatus === "cancelled"
+        ? "Cancelled"
+        : pluginStatus === "finishedWithError"
+        ? "Finished With Error"
+        : "Unknow Status",
   };
 
   return status;
