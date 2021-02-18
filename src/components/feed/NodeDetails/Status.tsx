@@ -33,7 +33,6 @@ const Status = ({ pluginInstanceResource }: PluginStatusProps) => {
             return (
               <Step
                 key={label.id}
-                title={label.title}
                 icon={showIcon && <Spinner size="lg" />}
                 status={
                   label.status === true
@@ -44,6 +43,11 @@ const Status = ({ pluginInstanceResource }: PluginStatusProps) => {
                 }
               />
             );
+          })}
+        </Steps>
+        <Steps direction="horizontal" size="small" className="stepsClass">
+          {pluginStatus.map((label: any) => {
+            return <Step key={label.id} title={label.title} />;
           })}
         </Steps>
       </>
