@@ -1,6 +1,14 @@
 
 import { PluginStatusLabels } from "./types";
-import { TimesCircleIcon } from "@patternfly/react-icons";
+import {
+  InProgressIcon,
+  OutlinedClockIcon,
+  AutomationIcon,
+  FileArchiveIcon,
+  CheckIcon,
+  OnRunningIcon,
+  ErrorCircleOIcon,
+} from "@patternfly/react-icons";
 
 
 export function getStatusLabels(
@@ -38,7 +46,7 @@ export function getStatusLabels(
     isCurrentStep: pluginDetails.data.status === "waiting",
     error,
     description: "Waiting to be scheduled",
-    icon: TimesCircleIcon,
+    icon: OutlinedClockIcon,
   };
 
   status[1] = {
@@ -48,6 +56,7 @@ export function getStatusLabels(
     isCurrentStep: pluginDetails.data.status === "scheduled" ? true : false,
     error,
     description: "Scheduled to the worker",
+    icon: InProgressIcon,
   };
 
   status[2] = {
@@ -60,6 +69,7 @@ export function getStatusLabels(
         : false,
     error,
     description: "Send to remote compute",
+    icon: OnRunningIcon,
   };
 
   status[3] = {
@@ -81,6 +91,7 @@ export function getStatusLabels(
         : false,
     error: error,
     description: "Computing",
+    icon: AutomationIcon,
   };
 
   status[4] = {
@@ -93,6 +104,7 @@ export function getStatusLabels(
     isCurrentStep: pluginStatus === "registeringFiles" ? true : false,
     error: error,
     description: "Registering ouput files",
+    icon: FileArchiveIcon,
   };
 
   status[5] = {
@@ -119,7 +131,13 @@ export function getStatusLabels(
         ? "Cancelled"
         : pluginStatus === "finishedWithError"
         ? "Finished With Error"
-        : "Unknow Status",
+        : "Waiting to Finish",
+    icon:
+      pluginStatus === "finishedSuccessfully"
+        ? CheckIcon
+        : pluginStatus === "cancelled" || pluginStatus === "finishedWithError"
+        ? ErrorCircleOIcon
+        : null,
   };
 
   return status;

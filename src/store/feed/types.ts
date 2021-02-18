@@ -26,12 +26,12 @@ export interface AddNodePayload {
 }
 
 export interface PluginStatus {
-  
   id: number;
-  title:string;
-  status:boolean;
-  isCurrentStep:boolean;
-  error:boolean
+  title: string;
+  status: boolean;
+  isCurrentStep: boolean;
+  error: boolean;
+  icon: any;
 }
 type Return = {
   l_logs: any[];
