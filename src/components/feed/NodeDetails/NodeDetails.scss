@@ -10,8 +10,6 @@
 
   .node-details {
 
-
-
     &__popover-button {
       margin-top: 1rem;
     }
@@ -86,17 +84,33 @@ Steps Designs Icon
 ******/
 
 .stepsClass {
+
+  .ant-steps-item {
+    padding-left: 0 !important;
+    overflow: visible !important;
+  }
+
+  .ant-steps-item:not(:first-child){
+     flex:1 1;
+     padding-left:20px !important;
+  }
   .ant-steps-item-icon {
     display:none;
+    
   }
-  
+
  .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item-tail {
     display: none !important;
 }
 
-  .ant-steps-item-tail::after {
+.ant-steps-item-title::after {
     display:none
   }
+ 
+
+
+
+  
 }
 
 .ant-steps-item-icon {
@@ -119,9 +133,23 @@ Steps Designs Icon
     display:outline !important;
 }
 
-.ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-description {
-    color: white !important;
+.ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-description{
+    color: white !important;   
 }
+
+.ant-steps-item-finish .ant-steps-item-icon {
+    background-color: #1890ff !important;
+}
+
+.ant-steps-item-error .ant-steps-item-icon {
+  background:#C9190B;
+}
+
+.ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon , .ant-steps-item-error .ant-steps-item-icon > .ant-steps-icon{
+    color: #fff !important;
+}
+
+
 
 
 .ant-steps-item-title {
