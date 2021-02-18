@@ -55,10 +55,8 @@ export interface PluginStatusLabels {
 
 export interface Logs {
   [key: string]: {
-      [d_ret: string]: {
-        l_logs: string[];
-      };
-    };
+    logs: string;
+  };
 }
 
 export interface ResourcePayload {

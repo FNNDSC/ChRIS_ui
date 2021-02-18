@@ -1,10 +1,10 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Steps, Popover } from "antd";
+import { Steps } from "antd";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { getSelectedInstanceResource } from "../../../store/feed/selector";
 import { ResourcePayload } from "../../../store/feed/types";
-import { Spinner } from "@patternfly/react-core";
+import { Spinner, List, ListItem, ListVariant } from "@patternfly/react-core";
 
 const { Step } = Steps;
 
@@ -17,22 +17,23 @@ const Status = ({ pluginInstanceResource }: PluginStatusProps) => {
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
   if (pluginStatus && pluginStatus.length > 0) {
     return (
-      <Steps direction="horizontal" size="small">
-        {pluginStatus.map((label: any) => {
-          let showIcon = [
-            "Finished Successfully",
-            "Finished With Error",
-            "Cancelled",
-          ].includes(label.title)
-            ? false
-            : label.isCurrentStep
-            ? true
-            : false;
+      <>
+        <Steps direction="horizontal" size="small">
+          {pluginStatus.map((label: any) => {
+            let showIcon = [
+              "Finished Successfully",
+              "Finished With Error",
+              "Cancelled",
+            ].includes(label.title)
+              ? false
+              : label.isCurrentStep
+              ? true
+              : false;
 
-          return (
-              <Step  
-                title={label.title}
+            return (
+              <Step
                 key={label.id}
+                title={label.title}
                 icon={showIcon && <Spinner size="lg" />}
                 status={
                   label.status === true
@@ -42,10 +43,10 @@ const Status = ({ pluginInstanceResource }: PluginStatusProps) => {
                     : undefined
                 }
               />
-            
-          );
-        })}
-      </Steps>
+            );
+          })}
+        </Steps>
+      </>
     );
   } else return null;
 };

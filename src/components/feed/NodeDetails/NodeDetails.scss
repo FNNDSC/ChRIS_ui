@@ -85,6 +85,20 @@ Steps Designs Icon
 
 ******/
 
+.stepsClass {
+  .ant-steps-item-icon {
+    display:none;
+  }
+  
+ .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item-tail {
+    display: none !important;
+}
+
+  .ant-steps-item-tail::after {
+    display:none
+  }
+}
+
 .ant-steps-item-icon {
   width:32px !important;
   height:32px !important;

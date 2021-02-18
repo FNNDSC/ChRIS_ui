@@ -10,10 +10,7 @@ const PluginLog = ({ pluginInstanceResource, selected }: NodeDetailsProps) => {
   const log =
     pluginInstanceResource && selected && pluginInstanceResource.pluginLog;
 
-  const text =
-    log && !isEmpty(log)
-      ? log?.compute?.d_ret?.l_logs[0]
-      : "Fetching logs ......";
+  const text = log && !isEmpty(log) ? log.compute.logs : "Fetching logs ......";
 
   return <LogTerminal text={text} />;
 };

@@ -48,7 +48,7 @@ class Header extends React.Component<IHeaderProps> {
         <Badge key={3} style={BadgeStyle}>
           <span>
             Latest update:{" "}
-            <Moment format="DD MMM YYYY @ HH:mm">{`2021-02-17T21:11:14.297464-04:00`}</Moment>
+            <Moment format="DD MMM YYYY @ HH:mm">{`2021-02-18T12:07:14.297464-04:00`}</Moment>
           </span>
         </Badge>
       </React.Fragment>
