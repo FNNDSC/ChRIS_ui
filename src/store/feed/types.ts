@@ -11,6 +11,7 @@ import { Feed, FeedFile, PluginInstance } from "@fnndsc/chrisapi";
 export interface NodeDetailsProps {
   selected?: PluginInstance;
   pluginInstanceResource?: ResourcePayload;
+  text?: string;
 }
 
 

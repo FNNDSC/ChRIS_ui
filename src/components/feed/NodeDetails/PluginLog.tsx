@@ -6,13 +6,20 @@ import LogTerminal from "./LogTerminal";
 import { isEmpty } from "lodash";
 import { getSelectedInstanceResource } from "../../../store/feed/selector";
 
-const PluginLog = ({ pluginInstanceResource, selected }: NodeDetailsProps) => {
+const PluginLog = ({
+  pluginInstanceResource,
+  selected,
+  text,
+}: NodeDetailsProps) => {
   const log =
     pluginInstanceResource && selected && pluginInstanceResource.pluginLog;
 
-  const text = log && !isEmpty(log) ? log.compute.logs : "Fetching logs ......";
+  let terminalOutput  = text ? text : "";
+  terminalOutput +=
+   
+    log && !isEmpty(log) ? log.compute.logs : "Fetching logs ......";
 
-  return <LogTerminal text={text} />;
+  return <LogTerminal text={terminalOutput} />;
 };
 
 const mapStateToProps = (state: ApplicationState) => ({

@@ -1,5 +1,6 @@
 
 import { PluginStatusLabels } from "./types";
+import { TimesCircleIcon } from "@patternfly/react-icons";
 
 
 export function getStatusLabels(
@@ -37,6 +38,7 @@ export function getStatusLabels(
     isCurrentStep: pluginDetails.data.status === "waiting",
     error,
     description: "Waiting to be scheduled",
+    icon: TimesCircleIcon,
   };
 
   status[1] = {
