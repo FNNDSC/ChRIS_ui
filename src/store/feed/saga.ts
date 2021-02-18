@@ -261,8 +261,6 @@ function* pollorCancelEndpoints(action: IActionTypeParam) {
 }
 
 
-
-
 function* handleGetInstanceStatus(instance:PluginInstance){
     while (true) {
       try {
