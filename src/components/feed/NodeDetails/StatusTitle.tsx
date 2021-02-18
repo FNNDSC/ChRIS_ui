@@ -13,6 +13,7 @@ const StatusTitle = ({ pluginInstanceResource }: StatusTitleProps) => {
   let statusTitle: string | undefined = undefined;
   const pluginStatus =
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
+ console.log("PluginStatus", pluginStatus);
 
   if (pluginStatus) {
     statusTitle = getCurrentTitleFromStatus(pluginStatus);
