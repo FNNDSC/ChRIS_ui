@@ -78,8 +78,7 @@ export function getStatusLabels(
     title: "Computing",
     status:
       labels?.compute.return.status === true &&
-      labels?.compute.submit.status === true &&
-      statusLabels.indexOf(pluginStatus) > 2
+      labels?.compute.submit.status === true
         ? true
         : false,
     isCurrentStep:
@@ -97,10 +96,7 @@ export function getStatusLabels(
   status[4] = {
     id: 5,
     title: "Pulling from Remote Compute",
-    status:
-      labels?.pullPath.status === true && statusLabels.indexOf(pluginStatus) > 2
-        ? true
-        : false,
+    status: labels?.pullPath.status === true ? true : false,
     isCurrentStep:
       labels?.compute.return.status === true &&
       labels?.pullPath.status !== true &&
