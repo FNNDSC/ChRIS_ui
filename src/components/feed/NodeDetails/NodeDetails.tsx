@@ -19,7 +19,7 @@ import {
   PluginParameterList,
 } from "@fnndsc/chrisapi";
 import {
-  CodeBranchIcon,
+  BezierCurveIcon,
   TerminalIcon,
   CalendarAltIcon,
   CalendarDayIcon,
@@ -28,8 +28,7 @@ import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
 import PluginLog from './PluginLog';
 import Status from './Status';
-import StatusTitle from './StatusTitle'
-import TextCopyPopover from "../../common/textcopypopover/TextCopyPopover";
+import StatusTitle from "./StatusTitle";
 import { PluginInstancePayload, } from "../../../store/feed/types";
 import { getPluginInstances, getSelected } from "../../../store/feed/selector";
 import { setFeedLayout } from "../../../store/feed/actions";
@@ -97,6 +96,12 @@ const NodeDetails: React.FC<INodeProps> = ({
     pluginParameters,
   ]);
 
+  const text =
+    plugin && instanceParameters && pluginParameters
+      ? command(plugin, instanceParameters, pluginParameters)
+      : "";
+  
+
   const runTime = React.useCallback(getRuntimeString, [selected]);
 
   const pluginTitle = React.useMemo(() => {
@@ -122,22 +127,6 @@ const NodeDetails: React.FC<INodeProps> = ({
           <Title headingLevel="h3" size="xl">
             {pluginTitle}
           </Title>
-
-          <TextCopyPopover
-            text={
-              plugin && instanceParameters && pluginParameters
-                ? command(plugin, instanceParameters, pluginParameters)
-                : ""
-            }
-            headerContent={`Docker Command for ${pluginTitle}`}
-            max-width="80rem"
-            rows={15}
-            className="view-command-wrap"
-          >
-            <Button type="button" icon={<TerminalIcon />}>
-              View Docker Command
-            </Button>
-          </TextCopyPopover>
         </div>
 
         <Grid className="node-details__grid">
@@ -148,7 +137,6 @@ const NodeDetails: React.FC<INodeProps> = ({
             <StatusTitle />
           </GridItem>
 
-        
           <GridItem span={12} className="value">
             <Status />
           </GridItem>
@@ -197,7 +185,7 @@ const NodeDetails: React.FC<INodeProps> = ({
           )}
           {!selected.data.plugin_name.includes("dircopy") && <DeleteNode />}
           <Button
-            icon={<CodeBranchIcon />}
+            icon={<BezierCurveIcon />}
             type="button"
             onClick={() => setFeedLayout()}
           >
@@ -207,7 +195,7 @@ const NodeDetails: React.FC<INodeProps> = ({
 
         <div className="node-details__infoLabel">
           <Popover
-            content={<PluginLog />}
+            content={<PluginLog text={text} />}
             title="Terminal"
             placement="bottom"
             visible={isVisible}
@@ -293,7 +281,7 @@ function getCommand(
       }
     }
 
-    let command = `docker run --rm \\\n-v $(pwd)/in:/incoming \\\n-v $(pwd)/out:/outgoing \\\n${dock_image} \\\n${selfexec} \\\n`;
+    let command = `$> docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing \\\n${dock_image} ${selfexec} `;
     let parameterCommand=[]
     
     
