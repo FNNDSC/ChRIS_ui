@@ -125,7 +125,7 @@ class Node extends React.Component<NodeProps, NodeState> {
     ) {
       statusClass = "active";
     }
-    if (status === "waitingForPrevious" || status === "scheduled") {
+    if (status === "waiting") {
       statusClass = "queued";
     }
 

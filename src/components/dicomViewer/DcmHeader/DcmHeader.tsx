@@ -7,7 +7,6 @@ import {
   AdjustIcon,
   BurnIcon,
   RedoIcon,
-  DownloadIcon,
   BarsIcon,
   EditIcon,
   InfoCircleIcon,

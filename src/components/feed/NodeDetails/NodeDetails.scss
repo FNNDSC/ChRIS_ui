@@ -6,7 +6,25 @@
   padding:1rem;
   color: white;
 
+
+
   .node-details {
+
+    &__popover-button {
+      margin-top: 1rem;
+    }
+   
+    .pf-c-expandable-section__toggle {
+      color:white;
+      font-size: 90%;
+      
+
+      &-icon {
+        margin-right:0.25em;
+      }
+    }
+
+
     
     .pf-c-title {
       color:inherit;
@@ -19,8 +37,8 @@
 
     }
 
-    &__grid > *, &__actions, &__infoLabel {
-      margin-top: 0.75em;
+    &__grid > *, &__infoLabel {
+      margin-top: 1em;
     }
 
     .value svg, .title svg {
@@ -33,8 +51,10 @@
       gap:2em; 
 
       button {
-      min-width:30%;  
+      min-width:20%;  
       }
+
+      margin-top: 2em;
       
     }
 
@@ -51,5 +71,105 @@
        margin-bottom: 1em;
      }   
   }
+
+}
+
+
+
+
+/******
+
+Steps Designs Icon
+
+******/
+
+.stepsClass {
+
+  .ant-steps-item {
+    padding-left: 0 !important;
+    overflow: visible !important;
+  }
+
+  .ant-steps-item:not(:first-child){
+     flex:1 1;
+     padding-left:20px !important;
+  }
+  .ant-steps-item-icon {
+    display:none;
+    
+  }
+
+ .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item-tail {
+    display: none !important;
+}
+
+.ant-steps-item-title::after {
+    display:none
+  }
+ 
+
+
+
+  
+}
+
+.ant-steps-item-icon {
+  width:32px !important;
+  height:32px !important;
+  font-size: 16px !important;
+  border-radius: 32px !important;
+  line-height:24px !important;
+  margin: 0 2px 0 2px !important;
+  cursor:pointer;
+  padding:4px;
+}
+
+
+.ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item {
+    padding-left:0;
+}
+
+.ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item-tail {
+    display:outline !important;
+}
+
+.ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-description{
+    color: white !important;   
+}
+
+.ant-steps-item-finish .ant-steps-item-icon {
+    background-color: #1890ff !important;
+}
+
+.ant-steps-item-error .ant-steps-item-icon {
+  background:#C9190B;
+}
+
+.ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon , .ant-steps-item-error .ant-steps-item-icon > .ant-steps-icon{
+    color: #fff !important;
+}
+
+
+
+
+.ant-steps-item-title {
+  padding-right: 0;
+}
+
+.ant-popover-inner-content{
+  width: 50rem !important;
+}
+
+.ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
+    color: white !important;
+    font-size: 0.75rem !important;
+}
+
+.ReactVirtualized__Grid__innerScrollContainer{
+  color:#fff;
+  font-size:0.75rem;
+  font-family:monospace;
+  height:100%;
+  width: 100%;
 
 }

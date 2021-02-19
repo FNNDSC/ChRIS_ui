@@ -1,7 +1,6 @@
 import { IUITreeNode } from "../../../../api/models/file-explorer.model";
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
-import { PluginStatus } from "../../../../store/plugin/types";
-import { Logs } from "../../../../store/feed/types";
+import { Logs, PluginStatus } from "../../../../store/feed/types";
 
 export interface PluginStatusProps {
   pluginStatus?: PluginStatus[];
@@ -11,7 +10,7 @@ export interface PluginStatusProps {
 
 export interface FileBrowserProps {
   hasNext?: boolean;
-  pluginLog?: Logs;
+
   selectedFiles?: FeedFile[];
   root: IUITreeNode;
   pluginName?: string;

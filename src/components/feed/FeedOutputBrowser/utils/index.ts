@@ -26,34 +26,4 @@ export function getPluginDisplayName(plugin: PluginInstance) {
   return `${plugin.data.plugin_name} v. ${plugin.data.plugin_version}`;
 }
 
-export function displayDescription(label: any) {
-  if (label.error) {
-    return "Error in compute";
-  } else if (label.status === "pushing" && label.previous === "none") {
-    return "Transmitting data to compute environment";
-  } else if (
-    label.previous === "pushPath" &&
-    label.previousComplete === true &&
-    label.status !== true
-  ) {
-    return "Setting compute environment";
-  } else if (
-    label.previous === "computeSubmit" &&
-    label.previousComplete === true &&
-    label.status !== true
-  ) {
-    return "Computing";
-  } else if (
-    label.previous === "computeReturn" &&
-    label.previousComplete === true &&
-    (label.status !== true || label.status === "pushing")
-  ) {
-    return "Syncing data from compute environment";
-  } else if (
-    label.previous === "pullPath" &&
-    label.previousComplete === true &&
-    label.status !== true
-  ) {
-    return "Finishing up";
-  }
-}
+
