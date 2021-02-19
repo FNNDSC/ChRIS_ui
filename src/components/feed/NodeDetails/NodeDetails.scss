@@ -63,27 +63,8 @@
       font-weight: 700;
     }
 
-  }
-
-
-  @include media-query(1200px){
-     .pf-l-grid > .pf-m-2-col {
-       margin-bottom: 1em;
-     }   
-  }
-
-}
-
-
-
-
-/******
-
-Steps Designs Icon
-
-******/
-
-.stepsClass {
+    &__status-descriptions {
+    
 
   .ant-steps-item {
     padding-left: 0 !important;
@@ -113,7 +94,30 @@ Steps Designs Icon
 
 
   
+
+    }
+
+  }
+
+
+  @include media-query(1200px){
+     .pf-l-grid > .pf-m-2-col {
+       margin-bottom: 1em;
+     }   
+  }
+
 }
+
+
+
+
+/******
+
+Steps Designs Icon
+
+******/
+
+
 
 .ant-steps-item-icon {
   width:32px !important;
@@ -144,7 +148,7 @@ Steps Designs Icon
 }
 
 .ant-steps-item-error .ant-steps-item-icon {
-  background:#C9190B;
+  background:#C9190B !important;
 }
 
 .ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon , .ant-steps-item-error .ant-steps-item-icon > .ant-steps-icon{
