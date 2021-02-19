@@ -1,5 +1,14 @@
 
 import { PluginStatusLabels } from "./types";
+import {
+  InProgressIcon,
+  OutlinedClockIcon,
+  AutomationIcon,
+  FileArchiveIcon,
+  CheckIcon,
+  OnRunningIcon,
+  ErrorCircleOIcon,
+} from "@patternfly/react-icons";
 
 
 export function getStatusLabels(
@@ -36,6 +45,8 @@ export function getStatusLabels(
     status: statusLabels.indexOf(pluginStatus) > 0 ? true : false,
     isCurrentStep: pluginDetails.data.status === "waiting",
     error,
+    description: "Waiting to be scheduled",
+    icon: OutlinedClockIcon,
   };
 
   status[1] = {
@@ -44,6 +55,8 @@ export function getStatusLabels(
     status: statusLabels.indexOf(pluginStatus) > 1 ? true : false,
     isCurrentStep: pluginDetails.data.status === "scheduled" ? true : false,
     error,
+    description: "Scheduled to the worker",
+    icon: InProgressIcon,
   };
 
   status[2] = {
@@ -55,6 +68,8 @@ export function getStatusLabels(
         ? true
         : false,
     error,
+    description: "Send to remote compute",
+    icon: OnRunningIcon,
   };
 
   status[3] = {
@@ -75,6 +90,8 @@ export function getStatusLabels(
         ? true
         : false,
     error: error,
+    description: "Computing",
+    icon: AutomationIcon,
   };
 
   status[4] = {
@@ -86,6 +103,8 @@ export function getStatusLabels(
         : false,
     isCurrentStep: pluginStatus === "registeringFiles" ? true : false,
     error: error,
+    description: "Registering ouput files",
+    icon: FileArchiveIcon,
   };
 
   status[5] = {
@@ -105,6 +124,20 @@ export function getStatusLabels(
         ? true
         : false,
     error,
+    description:
+      pluginStatus === "finishedSuccessfully"
+        ? "Finished Successfully"
+        : pluginStatus === "cancelled"
+        ? "Cancelled"
+        : pluginStatus === "finishedWithError"
+        ? "Finished With Error"
+        : "Waiting to Finish",
+    icon:
+      pluginStatus === "finishedSuccessfully"
+        ? CheckIcon
+        : pluginStatus === "cancelled" || pluginStatus === "finishedWithError"
+        ? ErrorCircleOIcon
+        : null,
   };
 
   return status;
