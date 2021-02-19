@@ -32,40 +32,34 @@ const useSize=(target:MutableRefObject<HTMLDivElement | null>)=>{
 }
 
 const FeedGraph = (props: IFeedProps) => {
-  const { pluginInstances, selectedPlugin, onNodeClick} = props;
+  const { pluginInstances, selectedPlugin, onNodeClick } = props;
   const { data: instances } = pluginInstances;
-  const graphRef=React.useRef<HTMLDivElement | null>(null);
-  const fgRef = React.useRef <ForceGraphMethods | undefined>();
-  
-  
-  
-  const size=useSize(graphRef)
-  const [graphData, setGraphData]=React.useState();
- 
-    
+  const graphRef = React.useRef<HTMLDivElement | null>(null);
+  const fgRef = React.useRef<ForceGraphMethods | undefined>();
 
-  const handleNodeClick=(node:NodeObject)=>{
-   const distance=40;
-   if(node && node.x && node.y && node.z && fgRef.current){
-       const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
-       
-        fgRef.current.cameraPosition(
-          {
-            x: node.x * distRatio,
-            y: node.y * distRatio,
-            z: node.z * distRatio,
-          }, // new position
-          //@ts-ignore
-          node, // lookAt ({ x, y, z })
-          3000 // ms transition duration
-        );
-   }
+  const size = useSize(graphRef);
+  const [graphData, setGraphData] = React.useState();
 
-   //@ts-ignore
-   onNodeClick(node.item)
-   
-  }
+  const handleNodeClick = (node: NodeObject) => {
+    const distance = 40;
+    if (node && node.x && node.y && node.z && fgRef.current) {
+      const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
 
+      fgRef.current.cameraPosition(
+        {
+          x: node.x * distRatio,
+          y: node.y * distRatio,
+          z: node.z * distRatio,
+        }, // new position
+        //@ts-ignore
+        node, // lookAt ({ x, y, z })
+        3000 // ms transition duration
+      );
+    }
+
+    //@ts-ignore
+    onNodeClick(node.item);
+  };
 
   React.useEffect(() => {
     if (instances && instances.length > 0) {
@@ -75,21 +69,16 @@ const FeedGraph = (props: IFeedProps) => {
     }
   }, [instances]);
 
-
-
-  console.log("GraphData", graphData);
-  
   return (
     <div className="feed-tree" ref={graphRef}>
       {size && graphData ? (
         <ErrorBoundary
           fallback={
             <Text>
-              If you see this message, it means that the graph modules weren't loaded.
-              Please refresh your browser.
-            
+              If you see this message, it means that the graph modules weren't
+              loaded. Please refresh your browser.
             </Text>
-                }
+          }
         >
           <ForceGraph3D
             ref={fgRef}
@@ -111,10 +100,11 @@ const FeedGraph = (props: IFeedProps) => {
             linkWidth={2}
           />
         </ErrorBoundary>
-      ): <Text>Fetching the Graph....</Text>}
+      ) : (
+        <Text>Fetching the Graph....</Text>
+      )}
     </div>
   );
- 
 };
 
 const mapStateToProps = (state: ApplicationState) => ({

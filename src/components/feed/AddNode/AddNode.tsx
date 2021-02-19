@@ -10,7 +10,7 @@ import Review from "./Review";
 import { addNodeRequest } from "../../../store/feed/actions";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
-import { InfrastructureIcon } from "@patternfly/react-icons";
+import { PlusCircleIcon } from "@patternfly/react-icons";
 import { getParams } from "../../../store/plugin/actions";
 import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
@@ -327,9 +327,8 @@ const AddNode:React.FC<AddNodeProps>=({
 
   return (
     <React.Fragment>
-      <Button variant="primary" onClick={toggleOpen}>
-        <InfrastructureIcon style={{ marginRight: "4px" }} />
-        Add a Node
+      <Button icon={<PlusCircleIcon />} type="button" onClick={toggleOpen}>
+        Add a Child Node
       </Button>
       {isOpen && (
         <Wizard

@@ -2,17 +2,19 @@ import React from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import JSZip from "jszip";
-
 import {
   Grid,
   GridItem,
-  Spinner,
   Skeleton,
+  EmptyState,
+  EmptyStateBody,
+  Title,
+  EmptyStateIcon,
+  EmptyStateVariant,
 } from "@patternfly/react-core";
-
+import { Spin, Alert } from "antd"; 
 import FileBrowser from "./FileBrowser";
 import PluginViewerModal from "./PluginViewerModal";
-import PluginStatus from './PluginStatus'
 import {
   setSelectedFile,
   toggleViewerMode,
@@ -34,6 +36,7 @@ import { getFeedTree } from "./data";
 import { Tree } from "antd";
 import "./FeedOutputBrowser.scss";
 import "antd/dist/antd.css";
+import { CubeIcon } from "@patternfly/react-icons";
 const {DirectoryTree}=Tree;
 
 
@@ -66,9 +69,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const { data: plugins, loading } = pluginInstances;
-  const pluginStatus =
-    pluginInstanceResource && pluginInstanceResource.pluginStatus;
-  const pluginLog = pluginInstanceResource && pluginInstanceResource.pluginLog;
 
   React.useEffect(() => {
     if (!pluginFilesPayload && selected) {
@@ -76,9 +76,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     }
   }, [selected, pluginFilesPayload, getPluginFilesRequest]);
 
- 
-  if (!selected || isEmpty(pluginInstances) || loading ) {
-   
+  if (!selected || isEmpty(pluginInstances) || loading) {
     return (
       <Grid hasGutter className="feed-output-browser">
         <GridItem
@@ -105,11 +103,10 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         </GridItem>
       </Grid>
     );
-  } else {  
-     const pluginName = selected && selected.data && getPluginName(selected);
-  
-     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
-     const tree = createTreeFromFiles(selected, pluginFiles);  
+  } else {
+    const pluginName = selected && selected.data && getPluginName(selected);
+    const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
+    const tree = createTreeFromFiles(selected, pluginFiles);
 
     const downloadAllClick = async () => {
       if (!selected) return;
@@ -193,7 +190,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             selected.data.status === "finishedSuccessfully" &&
             tree ? (
               <FileBrowser
-                pluginLog={pluginLog}
                 selectedFiles={pluginFiles}
                 pluginName={pluginName}
                 root={tree}
@@ -202,14 +198,20 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 handleFileViewerToggle={handleFileViewerOpen}
                 downloadAllClick={downloadAllClick}
               />
-            ) : selected.data.status === "finishedSuccessfully" && !tree ? (
-              <Spinner size="md" />
+            ) : selected.data.status === "cancelled" ||
+              selected.data.status === "finishedWithError" ? (
+              <EmptyState variant={EmptyStateVariant.large}>
+                <EmptyStateIcon icon={CubeIcon} />
+                <Title headingLevel="h4" size="lg" />
+                <EmptyStateBody>
+                  The plugin execution was either cancelled or it finished with
+                  error.
+                </EmptyStateBody>
+              </EmptyState>
             ) : (
-              <PluginStatus
-                selected={selected}
-                pluginStatus={pluginStatus}
-                pluginLog={pluginLog}
-              />
+              <Spin tip="Loading....">
+                <Alert message="Retrieving Plugin's Files" type="info" />
+              </Spin>
             )}
           </GridItem>
         </Grid>
@@ -219,7 +221,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         />
       </>
     );
-    
   }
 };
 
