@@ -19,7 +19,7 @@ import {
   PluginParameterList,
 } from "@fnndsc/chrisapi";
 import {
-  CodeBranchIcon,
+  BezierCurveIcon,
   TerminalIcon,
   CalendarAltIcon,
   CalendarDayIcon,
@@ -185,7 +185,7 @@ const NodeDetails: React.FC<INodeProps> = ({
           )}
           {!selected.data.plugin_name.includes("dircopy") && <DeleteNode />}
           <Button
-            icon={<CodeBranchIcon />}
+            icon={<BezierCurveIcon />}
             type="button"
             onClick={() => setFeedLayout()}
           >
@@ -281,7 +281,7 @@ function getCommand(
       }
     }
 
-    let command = `docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing \\\n${dock_image} ${selfexec} `;
+    let command = `$> docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing \\\n${dock_image} ${selfexec} `;
     let parameterCommand=[]
     
     

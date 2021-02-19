@@ -3,11 +3,12 @@ import { PluginStatusLabels } from "./types";
 import {
   InProgressIcon,
   OutlinedClockIcon,
-  AutomationIcon,
   FileArchiveIcon,
   CheckIcon,
   OnRunningIcon,
   ErrorCircleOIcon,
+  OutlinedArrowAltCircleRightIconConfig,
+  OutlinedArrowAltCircleLeftIconConfig,
 } from "@patternfly/react-icons";
 
 
@@ -17,6 +18,7 @@ export function getStatusLabels(
 ) {
   const isError = false;
   const isComputeSuccessful = isError ? false : true;
+  
 
 
   let status = [];
@@ -26,6 +28,7 @@ export function getStatusLabels(
     "scheduled",
     "started",
     "compute",
+    "syncData",
     "registeringFiles",
     "finishedSuccessfully",
     "finishedWithError",
@@ -55,7 +58,7 @@ export function getStatusLabels(
     status: statusLabels.indexOf(pluginStatus) > 1 ? true : false,
     isCurrentStep: pluginDetails.data.status === "scheduled" ? true : false,
     error,
-    description: "Scheduled to the worker",
+    description: "Scheduling to the worker",
     icon: InProgressIcon,
   };
 
@@ -68,7 +71,7 @@ export function getStatusLabels(
         ? true
         : false,
     error,
-    description: "Send to remote compute",
+    description: "Starting on compute env",
     icon: OnRunningIcon,
   };
 
@@ -77,38 +80,62 @@ export function getStatusLabels(
     title: "Compute",
     status:
       labels?.compute.return.status === true &&
-      labels?.pullPath.status === true &&
+      labels?.compute.submit.status === true &&
       isComputeSuccessful &&
-      statusLabels.indexOf(pluginStatus) > 3
+      statusLabels.indexOf(pluginStatus) > 2
         ? true
         : false,
     isCurrentStep:
       (labels?.compute.return.status !== true ||
-        labels?.pullPath.status !== true) &&
+        labels?.compute.submit.status !== true) &&
       statusLabels.indexOf(pluginStatus) > 1 &&
       !error
         ? true
         : false,
     error: error,
     description: "Computing",
-    icon: AutomationIcon,
+    icon: OutlinedArrowAltCircleRightIconConfig,
   };
 
   status[4] = {
     id: 5,
-    title: "Registering Files",
+    title: "Pulling from Remote Compute",
     status:
-      statusLabels.indexOf(pluginStatus) > 3 && labels?.pullPath.status === true
+      labels?.pullPath.status === true && statusLabels.indexOf(pluginStatus) > 2
         ? true
         : false,
-    isCurrentStep: pluginStatus === "registeringFiles" ? true : false,
+    isCurrentStep:
+      labels?.compute.return.status    === true &&
+     
+     
+     
+      labels?.pullPath.status !== true &&
+      statusLabels.indexOf(pluginStatus) > 1 &&
+      !error
+        ? true
+        : false,
     error: error,
-    description: "Registering ouput files",
-    icon: FileArchiveIcon,
+    description: "Pulling from Remote Compute",
+    icon: OutlinedArrowAltCircleLeftIconConfig,
   };
 
   status[5] = {
     id: 6,
+    title: "Registering Files",
+    status: statusLabels.indexOf(pluginStatus) > 5 ? true : false,
+    isCurrentStep:
+      pluginStatus === "registeringFiles" &&
+      labels.pullPath.status === true &&
+      statusLabels.indexOf(pluginStatus) > 2
+        ? true
+        : false,
+    error: error,
+    description: "Registering output files",
+    icon: FileArchiveIcon,
+  };
+
+  status[6] = {
+    id: 7,
     title: `${
       pluginStatus === "finishedWithError"
         ? "Finished With Error"
@@ -116,7 +143,7 @@ export function getStatusLabels(
         ? "Cancelled"
         : "Finished Successfully"
     }`,
-    status: statusLabels.indexOf(pluginStatus) > 4 ? true : false,
+    status: statusLabels.indexOf(pluginStatus) > 5 ? true : false,
     isCurrentStep:
       pluginStatus === "finishedSuccessfully" ||
       pluginStatus === "cancelled" ||
@@ -139,6 +166,8 @@ export function getStatusLabels(
         ? ErrorCircleOIcon
         : null,
   };
+
+  
 
   return status;
 }
