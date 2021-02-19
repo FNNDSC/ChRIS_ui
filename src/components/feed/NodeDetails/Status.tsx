@@ -45,9 +45,25 @@ const Status = ({ pluginInstanceResource }: PluginStatusProps) => {
             );
           })}
         </Steps>
-        <Steps direction="horizontal" size="small" className="stepsClass">
+        <Steps
+          direction="horizontal"
+          size="small"
+          className="node-details__status-descriptions"
+        >
           {pluginStatus.map((label: any) => {
-            return <Step key={label.id} description={label.description} />;
+            return (
+              <Step
+                key={label.id}
+                description={label.description}
+                status={
+                  label.status === true
+                    ? "finish"
+                    : label.error === true
+                    ? "error"
+                    : undefined
+                }
+              />
+            );
           })}
         </Steps>
       </>
