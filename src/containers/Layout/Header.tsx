@@ -43,7 +43,7 @@ class Header extends React.Component<IHeaderProps> {
       <React.Fragment>
         <Brand src={brandImg} alt="ChRIS Logo" />
         <Badge key={4} style={BadgeStyle}>
-          <span>Version: 1.1.7</span>
+          <span>Version: 1.1.9</span>
         </Badge>
         <Badge key={3} style={BadgeStyle}>
           <span>
