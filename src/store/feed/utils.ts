@@ -46,30 +46,30 @@ export function getStatusLabels(
     status: statusLabels.indexOf(pluginStatus) > 0 ? true : false,
     isCurrentStep: pluginDetails.data.status === "waiting",
     error,
-    description: "Waiting to be scheduled",
+    description: "Waiting",
     icon: OutlinedClockIcon,
   };
 
   status[1] = {
     id: 2,
-    title: "Scheduling to the worker",
+    title: "Scheduling",
     status: statusLabels.indexOf(pluginStatus) > 1 ? true : false,
     isCurrentStep: pluginDetails.data.status === "scheduled" ? true : false,
     error,
-    description: "Scheduling to the worker",
+    description: "Scheduling",
     icon: InProgressIcon,
   };
 
   status[2] = {
     id: 3,
-    title: "Starting on compute env",
+    title: "Transmitting",
     status: labels?.pushPath.status === true ? true : false,
     isCurrenStep:
       pluginDetails.data.status === "started" && labels.pushPath.status !== true
         ? true
         : false,
     error,
-    description: "Starting on compute env",
+    description: "Transmitting",
     icon: OnRunningIcon,
   };
 
@@ -95,7 +95,7 @@ export function getStatusLabels(
 
   status[4] = {
     id: 5,
-    title: "Pulling from Remote Compute",
+    title: "Receiving",
     status: labels?.pullPath.status === true ? true : false,
     isCurrentStep:
       labels?.compute.return.status === true &&
@@ -105,13 +105,13 @@ export function getStatusLabels(
         ? true
         : false,
     error: error,
-    description: "Pulling from Remote Compute",
+    description: "Receiving",
     icon: OutlinedArrowAltCircleLeftIcon,
   };
 
   status[5] = {
     id: 6,
-    title: "Registering Files",
+    title: "Registering",
     status: statusLabels.indexOf(pluginStatus) > 5 && labels.pullPath.status===true ? true : false ,
     isCurrentStep:
       pluginStatus === "registeringFiles" &&
@@ -120,7 +120,7 @@ export function getStatusLabels(
         ? true
         : false,
     error: error,
-    description: "Registering Files",
+    description: "Registering",
     icon: FileArchiveIcon,
   };
 
