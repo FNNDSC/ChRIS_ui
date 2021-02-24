@@ -218,10 +218,10 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
             </span>
             <Button
               className="file-browser__downloadButton"
-              variant="secondary"
               onClick={() => this.props.downloadAllClick()}
+              type="button"
+              icon={<DownloadIcon />}
             >
-              <DownloadIcon />
               Download All
             </Button>
           </div>

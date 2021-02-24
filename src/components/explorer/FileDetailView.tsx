@@ -85,7 +85,7 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
 
         return (
           <Fragment>
-            {this.renderHeader()}
+            {/*this.renderHeader()*/}
             <React.Suspense
               fallback={
                 <Skeleton
