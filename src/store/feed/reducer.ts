@@ -25,7 +25,7 @@ export const initialState: IFeedState = {
     loading: false,
   },
   loadingAddNode: false,
-  deleteNodeSuccess: false,
+
   pluginInstanceResource: {},
   pluginFiles: {},
   feedTreeProp: {
@@ -36,6 +36,7 @@ export const initialState: IFeedState = {
     },
   },
   currentLayout: true,
+  deleteNodeSuccess:false
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -227,16 +228,14 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
 
     case FeedActionTypes.ADD_NODE_SUCCESS: {
       if (state.pluginInstances.data) {
-        const sortedPluginList = [
+        const pluginList = [
           ...state.pluginInstances.data,
           action.payload,
-        ].sort((a: PluginInstance, b: PluginInstance) => {
-          return b.data.id - a.data.id;
-        });
+        ]
         return {
           ...state,
           pluginInstances: {
-            data: sortedPluginList,
+            data: pluginList,
             error: "",
             loading: false,
           },
@@ -252,41 +251,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           },
           loadingAddNode: false,
         };
-    }
-
-    case FeedActionTypes.DELETE_NODE_SUCCESS: {
-      return {
-        ...state,
-        deleteNodeSuccess: !state.deleteNodeSuccess,
-      };
-    }
-
-    case FeedActionTypes.RESET_PLUGIN_STATE: {
-      return {
-        ...state,
-        currentFeed: {
-          data: undefined,
-          error: "",
-          loading: false,
-        },
-        pluginInstances: {
-          data: undefined,
-          error: "",
-          loading: false,
-        },
-        pluginInstanceResource: {},
-        pluginInstanceStatus:  {},
-        pluginFiles: {},
-        selectedPlugin: undefined,
-        feedProp: {
-          orientation: "vertical",
-          translate: {
-            x: 600,
-            y: 50,
-          },
-        },
-        currentLayout: true,
-      };
     }
 
     case FeedActionTypes.GET_FEED_TREE_PROP: {
@@ -310,6 +274,39 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       }
     }
 
+
+    case FeedActionTypes.DELETE_NODE_SUCCESS: {
+      const id = action.payload;
+      const pluginInstances= state.pluginInstances.data?.map(instance => {
+        if(instance.data.id === id || instance.data.previous_id === id){
+          return undefined
+        }
+        else return instance;
+      }).filter(instance => instance);
+   
+      const selectedPlugin = pluginInstances && pluginInstances[pluginInstances.length - 1];
+      const pluginInstanceStatus=state.pluginInstanceStatus;
+      const pluginInstanceResource=state.pluginInstanceResource;
+      const pluginFiles = state.pluginFiles;
+      delete pluginInstanceStatus[id];
+      delete pluginInstanceResource[id];
+      delete pluginFiles[id];
+
+      return {
+        ...state,
+        pluginInstances: {
+          data:pluginInstances,
+          error:"",
+          loading:false
+        },
+        selectedPlugin,
+        pluginInstanceResource,
+        pluginInstanceStatus,
+        pluginFiles,
+        deleteNodeSuccess:true
+      }
+    }
+
     case FeedActionTypes.GET_PLUGIN_STATUS_SUCCESS: {
       const { selected, status } = action.payload;
 
@@ -328,6 +325,34 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         currentLayout: !state.currentLayout,
+      };
+    }
+
+    case FeedActionTypes.RESET_PLUGIN_STATE: {
+      return {
+        ...state,
+        currentFeed: {
+          data: undefined,
+          error: "",
+          loading: false,
+        },
+        pluginInstances: {
+          data: undefined,
+          error: "",
+          loading: false,
+        },
+        pluginInstanceResource: {},
+        pluginInstanceStatus: {},
+        pluginFiles: {},
+        selectedPlugin: undefined,
+        feedProp: {
+          orientation: "vertical",
+          translate: {
+            x: 600,
+            y: 50,
+          },
+        },
+        currentLayout: true,
       };
     }
 

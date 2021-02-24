@@ -45,6 +45,10 @@
     @include media-query(768px){
      max-width: 80 !important;
     }
+
+    svg {
+      fill:white;
+    }
   }
    
   &__header {

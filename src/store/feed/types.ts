@@ -122,12 +122,12 @@ export interface IFeedState {
   pluginInstances: PluginInstancePayload;
   selectedPlugin?: PluginInstance;
   loadingAddNode: boolean;
-  deleteNodeSuccess: boolean;
   pluginInstanceStatus: PluginInstanceStatusPayload;
   pluginInstanceResource: PluginInstanceResourcePayload;
   pluginFiles: FilesPayload;
   feedTreeProp: FeedTreeProp;
   currentLayout: boolean;
+  deleteNodeSuccess: boolean;
 }
 
 export const FeedActionTypes = keyMirror({

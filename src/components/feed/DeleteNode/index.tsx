@@ -3,22 +3,20 @@ import { Dispatch } from "redux";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { PluginInstance, Feed } from "@fnndsc/chrisapi";
+import { PluginInstance} from "@fnndsc/chrisapi";
 import { deleteNode } from "../../../store/feed/actions";
 import { TrashIcon } from "@patternfly/react-icons";
 
 interface DeleteNodeProps {
-  currentFeed?: Feed;
   selectedPlugin?: PluginInstance;
-  deleteNode: (feed:  Feed) => void;
-  deleteNodeSuccess: boolean;
+  deleteNode: (instance: PluginInstance) => void;
+  deleteNodeSuccess:boolean;
 }
 
 const DeleteNode: React.FC<DeleteNodeProps> = ({
-  currentFeed,
   selectedPlugin,
   deleteNode,
-  deleteNodeSuccess,
+  deleteNodeSuccess
 }) => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const handleModalToggle = () => {
@@ -26,13 +24,11 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
   };
 
   const handleDelete = async () => {
-    
-    if (selectedPlugin && currentFeed) {
-      selectedPlugin._delete();
-      deleteNode(currentFeed);
-    }
-    if (deleteNodeSuccess) {
-      setIsModalOpen(!isModalOpen);
+    if(selectedPlugin)
+    deleteNode(selectedPlugin);
+
+    if(deleteNodeSuccess){
+      setIsModalOpen(!isModalOpen)
     }
   };
 
@@ -42,7 +38,7 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
         disabled={!selectedPlugin}
         onClick={handleModalToggle}
         icon={<TrashIcon />}
-        type='button'
+        type="button"
       >
         Delete Node
       </Button>
@@ -70,13 +66,12 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  currentFeed: state.feed.currentFeed.data,
   selectedPlugin: state.feed.selectedPlugin,
-  deleteNodeSuccess: state.feed.deleteNodeSuccess,
+  deleteNodeSuccess:state.feed.deleteNodeSuccess
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  deleteNode: (feed: Feed) => dispatch(deleteNode(feed)),
+  deleteNode: (instance: PluginInstance) => dispatch(deleteNode(instance)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(DeleteNode);

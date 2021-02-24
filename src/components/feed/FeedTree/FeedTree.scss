@@ -42,12 +42,24 @@
       font-size: 1.25rem;
       cursor: pointer;
     }
+
+    
   }
 
   &__container {
-    display:inline-flex;
+    display:flex;
+    justify-content: space-between;
 
+    &--labels {
+      display:flex;
+    }
+
+    &--panelToggle {
+      padding-right: 1rem ;
+    }
   }
+
+  
 
 }
 
@@ -76,7 +88,6 @@
 }
 
 .label{
-
   &__title {
   fill: $tree-node-backgound;
   font-size: 0.75rem;
@@ -89,8 +100,6 @@
      0%    {fill: #7dc3e8; }
     50%   { fill: #0088ce ; }
     100%  { fill: #004080; }
-   
-   
  }
 
  @keyframes error {

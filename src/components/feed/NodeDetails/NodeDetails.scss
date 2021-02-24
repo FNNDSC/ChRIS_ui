@@ -49,11 +49,6 @@
       display: flex;
       justify-content:flex-start;
       gap:2em; 
-
-      button {
-      min-width:20%;  
-      }
-
       margin-top: 2em;
       
     }
@@ -89,13 +84,8 @@
 .ant-steps-item-title::after {
     display:none
   }
- 
 
-
-
-  
-
-    }
+ }
 
   }
 
@@ -113,11 +103,9 @@
 
 /******
 
-Steps Designs Icon
+Steps Design Icon
 
 ******/
-
-
 
 .ant-steps-item-icon {
   width:32px !important;
@@ -127,7 +115,7 @@ Steps Designs Icon
   line-height:24px !important;
   margin: 0 2px 0 2px !important;
   cursor:pointer;
-  padding:4px;
+  padding: 5px 7px;
 }
 
 
