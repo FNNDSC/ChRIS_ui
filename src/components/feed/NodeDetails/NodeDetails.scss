@@ -3,33 +3,13 @@
 
 .node-block {
   background: $node-block-background;
-  padding:1rem;
+  padding:0 1rem;
+  padding-top:2rem;
   color: white;
 
 
 
   .node-details {
-
-    &__popover-button {
-      margin-top: 1rem;
-    }
-   
-    .pf-c-expandable-section__toggle {
-      color:white;
-      font-size: 90%;
-      
-
-      &-icon {
-        margin-right:0.25em;
-      }
-    }
-
-
-    
-    .pf-c-title {
-      color:inherit;
-      font-weight: 600;
-    }
 
     &__title {
       display:flex;
@@ -37,7 +17,30 @@
 
     }
 
-    &__grid > *, &__infoLabel {
+    .pf-c-title {
+      color:inherit;
+      font-weight: 600;
+    }
+
+    &__grid > .status, &__expandable {
+       margin-bottom: 1em;
+    }
+
+    
+
+  
+   
+    .pf-c-expandable-section__toggle {
+      color:white;
+      font-size: 90%;
+      
+      &-icon {
+        margin-right:0.25em;
+      }
+    }
+
+
+    &__grid > * {
       margin-top: 1em;
     }
 
@@ -49,18 +52,20 @@
       display: flex;
       justify-content:flex-start;
       gap:2em; 
-      margin-top: 2em;
-      
+      margin-top: 1em;  
     }
 
-    .pf-c-form-control {
+  .pf-c-form-control {
       font-family: monospace;
       font-weight: 700;
     }
 
-    &__status-descriptions {
-    
+      &__popover-button {
+      margin-top: 1rem;
+    }
 
+  &__status-descriptions {
+    
   .ant-steps-item {
     padding-left: 0 !important;
     overflow: visible !important;
@@ -87,14 +92,17 @@
 
  }
 
-  }
+ /* Terminal Popover */
+
+ 
+}
 
 
-  @include media-query(1200px){
-     .pf-l-grid > .pf-m-2-col {
+@include media-query(1200px){
+   .pf-l-grid > .pf-m-2-col {
        margin-bottom: 1em;
-     }   
-  }
+    }   
+ }
 
 }
 
@@ -143,15 +151,13 @@ Steps Design Icon
     color: #fff !important;
 }
 
-
-
-
 .ant-steps-item-title {
   padding-right: 0;
 }
 
 .ant-popover-inner-content{
   width: 50rem !important;
+  padding:0 !important
 }
 
 .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {

@@ -110,7 +110,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
     setIsExpanded(!isExpanded);
   };
 
-  const panelContent = (
+  const nodePanel = (
     <GridItem
       sm={12}
       smRowSpan={12}
@@ -139,7 +139,23 @@ export const FeedView: React.FC<FeedViewProps> = ({
     </GridItem>
   );
 
-  const contentBody = (
+  const feedOutputBrowserPanel = (
+    <React.Suspense
+      fallback={
+        <Skeleton
+          height="100%"
+          width="100%"
+          screenreaderText="Fetching Plugin Resources"
+        />
+      }
+    >
+      <PageSection className="section-three">
+        <FeedOutputBrowser handlePluginSelect={onNodeClick} />
+      </PageSection>
+    </React.Suspense>
+  );
+
+  const feedTree = (
     <GridItem
       className="feed-block"
       sm={12}
@@ -174,27 +190,15 @@ export const FeedView: React.FC<FeedViewProps> = ({
         <FeedDetails />
       </PageSection>
 
-      <Drawer isExpanded={isExpanded} isInline position="bottom">
+      <Drawer isExpanded={true} isInline position="bottom">
         <DrawerContent
           panelContent={
             <DrawerPanelContent defaultSize="48vh" isResizable>
-              <React.Suspense
-                fallback={
-                  <Skeleton
-                    height="100%"
-                    width="100%"
-                    screenreaderText="Fetching Plugin Resources"
-                  />
-                }
-              >
-                <PageSection className="section-three">
-                  <FeedOutputBrowser handlePluginSelect={onNodeClick} />
-                </PageSection>
-              </React.Suspense>
+              {feedOutputBrowserPanel}
             </DrawerPanelContent>
           }
         >
-          <PageSection
+              <PageSection
             className={classNames(
               pf4UtilityStyles.spacingStyles.p_0,
               "section-two"
@@ -210,11 +214,11 @@ export const FeedView: React.FC<FeedViewProps> = ({
                       defaultSize="50%"
                       minSize={"15%"}
                     >
-                      {panelContent}
+                      {nodePanel}
                     </DrawerPanelContent>
                   }
                 >
-                  <DrawerContentBody>{contentBody}</DrawerContentBody>
+                  <DrawerContentBody>{feedTree}</DrawerContentBody>
                 </DrawerContent>
               </Drawer>
             </Grid>

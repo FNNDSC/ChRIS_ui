@@ -129,7 +129,7 @@ const NodeDetails: React.FC<INodeProps> = ({
           <Title headingLevel="h3" size="xl">
             {pluginTitle}
           </Title>
-          <Button onClick={expandDrawer} type="button" icon={<CloseIcon />} />
+          <Button onClick={expandDrawer} variant='tertiary' type='button' icon={<CloseIcon />} />
         </div>
 
         <Grid className="node-details__grid">
@@ -140,7 +140,7 @@ const NodeDetails: React.FC<INodeProps> = ({
             <StatusTitle />
           </GridItem>
 
-          <GridItem span={12} className="value">
+          <GridItem span={12} className="value status">
             <Status />
           </GridItem>
 
@@ -161,7 +161,7 @@ const NodeDetails: React.FC<INodeProps> = ({
                 </Moment>
               </GridItem>
 
-              <GridItem span={2} className="title">
+              <GridItem span={2} className="title status">
                 Node ID
               </GridItem>
               <GridItem span={10} className="value">
@@ -187,10 +187,7 @@ const NodeDetails: React.FC<INodeProps> = ({
             <AddNode />
           )}
 
-          {
-            //@ts-ignore
-            selected.data.previous_id !== undefined && <DeleteNode />
-          }
+          {selected.data.previous_id !== undefined && <DeleteNode />}
           <Button
             icon={<BezierCurveIcon />}
             type="button"
@@ -203,7 +200,6 @@ const NodeDetails: React.FC<INodeProps> = ({
         <div className="node-details__infoLabel">
           <Popover
             content={<PluginLog text={text} />}
-            title="Terminal"
             placement="bottom"
             visible={isVisible}
             trigger="click"
@@ -298,7 +294,7 @@ function getCommand(
         command += parameterCommand.join(" ") + " \\\n";
       }
     }
-    command = `${command}/incoming /outgoing`.trim();
+    command = `${command}/incoming /outgoing \n \n`;
   
     return command;
 }
