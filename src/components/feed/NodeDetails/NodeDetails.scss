@@ -26,10 +26,16 @@
        margin-bottom: 1em;
     }
 
-    
+    .pf-m-primary {
+      background-color: #004080 !important;
+      color:white;
+    }
+
+    .pf-m-primary:hover {
+      background-color: #06c!important    
+    }
 
   
-   
     .pf-c-expandable-section__toggle {
       color:white;
       font-size: 90%;

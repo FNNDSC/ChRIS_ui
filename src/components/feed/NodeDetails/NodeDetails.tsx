@@ -129,7 +129,12 @@ const NodeDetails: React.FC<INodeProps> = ({
           <Title headingLevel="h3" size="xl">
             {pluginTitle}
           </Title>
-          <Button onClick={expandDrawer} variant='tertiary' type='button' icon={<CloseIcon />} />
+          <Button
+            onClick={expandDrawer}
+            variant="tertiary"
+            type="button"
+            icon={<CloseIcon />}
+          />
         </div>
 
         <Grid className="node-details__grid">
@@ -192,6 +197,7 @@ const NodeDetails: React.FC<INodeProps> = ({
             icon={<BezierCurveIcon />}
             type="button"
             onClick={() => setFeedLayout()}
+            variant="primary"
           >
             Switch Layout
           </Button>

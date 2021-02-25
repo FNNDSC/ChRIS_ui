@@ -198,7 +198,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
             </DrawerPanelContent>
           }
         >
-              <PageSection
+          <PageSection
             className={classNames(
               pf4UtilityStyles.spacingStyles.p_0,
               "section-two"
