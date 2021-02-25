@@ -17,7 +17,7 @@ import TransitionGroupWrapper from "./TransitionGroupWrapper";
 import { UndoIcon, RedoIcon } from "@patternfly/react-icons";
 import { v4 as uuidv4 } from "uuid";
 import clone from "clone";
-import {Switch} from '@patternfly/react-core';
+import { Switch, Button } from "@patternfly/react-core";
 
 interface ITreeProps {
   instances:  PluginInstance[];
@@ -46,7 +46,9 @@ interface OwnProps {
   };
   separation: Separation;
   orientation: "horizontal" | "vertical";
-  changeOrientation:(orientation:string)=>void;
+  changeOrientation: (orientation: string) => void;
+  isPanelExpanded: boolean;
+  onExpand: () => void;
 }
 
 type AllProps = ITreeProps & OwnProps;
@@ -297,9 +299,11 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       !isEqual(this.props.scaleExtent, nextProps.scaleExtent) ||
       nextState.collapsible !== this.state.collapsible ||
       nextState.toggleLabel !== this.state.toggleLabel ||
-      !isEqual(this.state.data, nextState.data)||
+      nextProps.isPanelExpanded !== this.props.isPanelExpanded ||
+      !isEqual(this.state.data, nextState.data) ||
       this.props.zoom !== nextProps.zoom ||
-      this.props.instances !== nextProps.instances) {
+      this.props.instances !== nextProps.instances
+    ) {
       return true;
     }
     return false;
@@ -361,40 +365,51 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     return (
       <div className="feed-tree grabbable">
         <div className="feed-tree__container">
-          <div
-            onClick={() => {
-              changeOrientation(orientation);
-            }}
-            className="feed-tree__orientation"
-          >
-            {orientation === "vertical" ? (
-              <RedoIcon className="feed-tree__orientation--icon" />
-            ) : (
-              <UndoIcon className="feed-tree__orientation--icon" />
-            )}
-          </div>
-          <div className="feed-tree__orientation">
-            <Switch
-              id="collapsible"
-              label="Collapsible on"
-              labelOff="Collapsible off"
-              isChecked={this.state.collapsible}
-              onChange={() => {
-                this.handleChange("collapsible");
+          <div className="feed-tree__container--labels">
+            <div
+              onClick={() => {
+                changeOrientation(orientation);
               }}
-            />
+              className="feed-tree__orientation"
+            >
+              {orientation === "vertical" ? (
+                <RedoIcon className="feed-tree__orientation--icon" />
+              ) : (
+                <UndoIcon className="feed-tree__orientation--icon" />
+              )}
+            </div>
+            <div className="feed-tree__orientation">
+              <Switch
+                id="collapsible"
+                label="Collapsible on"
+                labelOff="Collapsible off"
+                isChecked={this.state.collapsible}
+                onChange={() => {
+                  this.handleChange("collapsible");
+                }}
+              />
+            </div>
+            <div className="feed-tree__orientation">
+              <Switch
+                id="labels"
+                label="Show Labels"
+                labelOff="Hide Labels"
+                isChecked={this.state.toggleLabel}
+                onChange={() => {
+                  this.handleChange("label");
+                }}
+              />
+            </div>
           </div>
-          <div className="feed-tree__orientation">
-            <Switch
-              id="labels"
-              label="Show Labels"
-              labelOff="Hide Labels"
-              isChecked={this.state.toggleLabel}
-              onChange={() => {
-                this.handleChange("label");
-              }}
-            />
-          </div>
+          {!this.props.isPanelExpanded && (
+            <div className="feed-tree__container--panelToggle">
+              <div className="feed-tree__orientation">
+                <Button type="button" onClick={this.props.onExpand}>
+                  Node Panel
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         <svg className={`${svgClassName}`} width="100%" height="85%">

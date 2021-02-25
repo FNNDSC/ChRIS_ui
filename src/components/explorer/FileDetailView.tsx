@@ -10,7 +10,7 @@ import { Skeleton } from "@patternfly/react-core";
 import { IFileBlob } from "../../api/models/file-viewer.model";
 import { fileViewerMap } from "../../api/models/file-viewer.model";
 import { isEqual } from "lodash";
-import "./file-detail.scss";
+
 const ViewerDisplayComponent=React.lazy(()=>import('./displays/ViewerDisplay'))
 
 type AllProps = {
@@ -127,10 +127,10 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const { selectedFile } = this.props;
     return (
       <div className="header-panel">
-        {this.renderDownloadButton()}
         <h1>
-          File Preview: <b>{selectedFile.module}</b>
+          <b>{selectedFile.module}</b>
         </h1>
+        {this.renderDownloadButton()}
       </div>
     );
   }
@@ -141,16 +141,16 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const { fullScreenMode } = this.props;
 
     return (
-      <>
+      <div className="header-panel__buttons">
         {fullScreenMode === true && (
           <Button
             variant="link"
             onClick={() => {
               this.props.toggleFileBrowser();
             }}
+            icon={<ExpandIcon />}
           >
-            <ExpandIcon />
-            <span> Maximize</span>
+            Maximize
           </Button>
         )}
 
@@ -163,12 +163,12 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
             onClick={() => {
               this.props.toggleFileViewer();
             }}
+            icon={<FilmIcon />}
           >
-            <FilmIcon />
-            <span> Open Image Viewer</span>
+             Open Image Viewer
           </Button>
-        )}   
-      </>
+        )}
+      </div>
     );
   };
 

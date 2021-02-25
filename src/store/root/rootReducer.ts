@@ -15,7 +15,7 @@ import { pluginReducer } from "../plugin/reducer";
 import { explorerReducer } from "../explorer/reducer";
 import { galleryReducer } from "../gallery/reducer";
 
-export default () =>
+const rootReducer = () =>
   combineReducers({
     ui: uiReducer,
     message: messageReducer,
@@ -25,3 +25,5 @@ export default () =>
     explorer: explorerReducer,
     gallery: galleryReducer,
   });
+
+export default rootReducer;

@@ -42,12 +42,24 @@
       font-size: 1.25rem;
       cursor: pointer;
     }
+
+    
   }
 
   &__container {
-    display:inline-flex;
+    display:flex;
+    justify-content: space-between;
 
+    &--labels {
+      display:flex;
+    }
+
+    &--panelToggle {
+      padding-right: 1rem ;
+    }
   }
+
+  
 
 }
 
@@ -70,15 +82,14 @@
 .link {
   fill: none;
   marker-end: url(#end-arrow);
-  opacity: 0.8;
-  stroke: $tree-links-color; //007bba - active
-  stroke-width: 1.5px;
+  opacity: 0.5;
+  stroke: var(--pf-global--palette--black-500); //007bba - active
+  stroke-width: 1px;
 }
 
 .label{
-
   &__title {
-  fill: $tree-node-backgound;
+  fill: var(--pf-global--palette--black-400);
   font-size: 0.75rem;
   font-weight: 900;
   font-family: sans-serif;
@@ -89,8 +100,6 @@
      0%    {fill: #7dc3e8; }
     50%   { fill: #0088ce ; }
     100%  { fill: #004080; }
-   
-   
  }
 
  @keyframes error {

@@ -22,13 +22,11 @@ type Validated = {
   error: undefined | "error" | "default" | "success" | "warning";
 };
 
-type SignUpForm={
-  setAuthToken:(auth:{token:string,username:string})=>void;
-}
+type SignUpFormProps = {
+  setAuthToken: (auth: { token: string; username: string }) => void;
+};
 
-const SignUpForm:React.FC<SignUpForm>=({
-  setAuthToken
-})=>{
+const SignUpForm: React.FC<SignUpFormProps> = ({ setAuthToken }) => {
   const [userState, setUserState] = React.useState<{
     username: string;
     validated: Validated["error"];
@@ -59,7 +57,6 @@ const SignUpForm:React.FC<SignUpForm>=({
 
   const [loading, setLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
- 
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -102,12 +99,11 @@ const SignUpForm:React.FC<SignUpForm>=({
           emailState.email
         );
 
-      token=await ChrisApiClient.getAuthToken(
-        authURL,
-        userState.username,
-        passwordState.password
-      )
-       
+        token = await ChrisApiClient.getAuthToken(
+          authURL,
+          userState.username,
+          passwordState.password
+        );
       } catch (error) {
         if (has(error, "response")) {
           if (has(error, "response.data.username")) {
@@ -145,9 +141,8 @@ const SignUpForm:React.FC<SignUpForm>=({
     if (user && token) {
       setAuthToken({
         token,
-        username:user.data.username
-      })
-      
+        username: user.data.username,
+      });
     }
   };
 
@@ -155,7 +150,6 @@ const SignUpForm:React.FC<SignUpForm>=({
     setShowPassword(checked);
   };
 
- 
   return (
     <Form onSubmit={handleSubmit} noValidate>
       <FormGroup
@@ -251,7 +245,7 @@ const SignUpForm:React.FC<SignUpForm>=({
       </ActionGroup>
     </Form>
   );
-}
+};
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setAuthToken: (auth: { token: string; username: string }) =>
