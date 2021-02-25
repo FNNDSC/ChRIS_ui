@@ -23,6 +23,7 @@ import {
   TerminalIcon,
   CalendarAltIcon,
   CalendarDayIcon,
+  CloseIcon,
 } from "@patternfly/react-icons";
 import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
@@ -39,6 +40,7 @@ interface INodeProps {
   selected?: PluginInstance;
   pluginInstances?: PluginInstancePayload;
   setFeedLayout: typeof setFeedLayout;
+  expandDrawer: () => void;
 }
 
 interface INodeState {
@@ -58,12 +60,13 @@ function getInitialState(){
 const NodeDetails: React.FC<INodeProps> = ({
   selected,
   setFeedLayout,
+  expandDrawer,
 }) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
-  const [isVisible, setIsVisible]=React.useState(false);
-  const [isExpanded, setIsExpanded]  =  React.useState(false);
-  
+  const [isVisible, setIsVisible] = React.useState(false);
+  const [isExpanded, setIsExpanded] = React.useState(false);
+
   React.useEffect(() => {
     const fetchData = async () => {
       const instanceParameters = await selected?.getParameters({
@@ -88,7 +91,6 @@ const NodeDetails: React.FC<INodeProps> = ({
 
     fetchData();
   }, [selected]);
-  
 
   const command = React.useCallback(getCommand, [
     plugin,
@@ -100,7 +102,6 @@ const NodeDetails: React.FC<INodeProps> = ({
     plugin && instanceParameters && pluginParameters
       ? command(plugin, instanceParameters, pluginParameters)
       : "";
-  
 
   const runTime = React.useCallback(getRuntimeString, [selected]);
 
@@ -111,7 +112,6 @@ const NodeDetails: React.FC<INodeProps> = ({
     );
   }, [selected]);
 
-
   if (!selected) {
     return (
       <Skeleton
@@ -121,12 +121,20 @@ const NodeDetails: React.FC<INodeProps> = ({
       />
     );
   } else {
+    
+   
     return (
       <div className="node-details">
         <div className="node-details__title">
           <Title headingLevel="h3" size="xl">
             {pluginTitle}
           </Title>
+          <Button
+            onClick={expandDrawer}
+            variant="tertiary"
+            type="button"
+            icon={<CloseIcon />}
+          />
         </div>
 
         <Grid className="node-details__grid">
@@ -137,7 +145,7 @@ const NodeDetails: React.FC<INodeProps> = ({
             <StatusTitle />
           </GridItem>
 
-          <GridItem span={12} className="value">
+          <GridItem span={12} className="value status">
             <Status />
           </GridItem>
 
@@ -158,7 +166,7 @@ const NodeDetails: React.FC<INodeProps> = ({
                 </Moment>
               </GridItem>
 
-              <GridItem span={2} className="title">
+              <GridItem span={2} className="title status">
                 Node ID
               </GridItem>
               <GridItem span={10} className="value">
@@ -183,11 +191,13 @@ const NodeDetails: React.FC<INodeProps> = ({
           selected.data.status === "cancelled" ? null : (
             <AddNode />
           )}
-          {!selected.data.plugin_name.includes("dircopy") && <DeleteNode />}
+
+          {selected.data.previous_id !== undefined && <DeleteNode />}
           <Button
             icon={<BezierCurveIcon />}
             type="button"
             onClick={() => setFeedLayout()}
+            variant="primary"
           >
             Switch Layout
           </Button>
@@ -196,7 +206,6 @@ const NodeDetails: React.FC<INodeProps> = ({
         <div className="node-details__infoLabel">
           <Popover
             content={<PluginLog text={text} />}
-            title="Terminal"
             placement="bottom"
             visible={isVisible}
             trigger="click"
@@ -291,7 +300,7 @@ function getCommand(
         command += parameterCommand.join(" ") + " \\\n";
       }
     }
-    command = `${command}/incoming /outgoing`.trim();
+    command = `${command}/incoming /outgoing \n \n`;
   
     return command;
 }

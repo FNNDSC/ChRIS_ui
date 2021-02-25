@@ -5,7 +5,6 @@ import { IUITreeNode } from "../../api/models/file-explorer.model";
 import GalleryModel from "../../api/models/gallery.model";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 
-import "./file-detail.scss";
 
 const DcmImageSeries = React.lazy(
   () => import("../dicomViewer/DcmImageSeries")

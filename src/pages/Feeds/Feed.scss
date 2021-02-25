@@ -109,10 +109,24 @@
   @include section-three;
   background: #d2d2d2!important;
   padding-right:0 !important;
+  padding-top:0.5rem !important;
+}
+
+.pf-c-drawer__splitter {
+  background-color:var(--pf-c-page__main-section--m-dark-100--BackgroundColor) !important;
+  
+  &-handle::after {
+      border-color:white !important;
+  }
+  
 }
 
 .feed-view {
   height:100%;
+
+  .pf-c-drawer__splitter {
+    background-color:#002030 !important;    
+  }
 }
 
 .feed-block {

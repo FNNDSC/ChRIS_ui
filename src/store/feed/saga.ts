@@ -41,7 +41,6 @@ import { inflate } from "pako";
 // ------------------------------------------------------------------------
 
 
-
 function* handleGetAllFeeds(action: IActionTypeParam) {
   const { name, limit, offset } = action.payload;
   let params = {
@@ -127,6 +126,10 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
   }
 }
 
+// ------------------------------------------------------------------------
+// Description: Add a node
+// ------------------------------------------------------------------------
+
 function* handleAddNode(action: IActionTypeParam) {
   const item: PluginInstance = action.payload.pluginItem;
   const pluginInstances: PluginInstance[] = [...action.payload.nodes, item];
@@ -146,15 +149,22 @@ function* handleAddNode(action: IActionTypeParam) {
   }
 }
 
+// ------------------------------------------------------------------------
+// Description: Delete a node
+// ------------------------------------------------------------------------
+
 function* handleDeleteNode(action: IActionTypeParam) {
-  const feed = action.payload;
-  
-  try {
-    yield all([put(getPluginInstancesRequest(feed)), put(deleteNodeSuccess())]);
-  } catch (err) {
-    console.log("Delete Node Error", err);
-  }
+  const instance = action.payload;
+  const id = instance.data.id;
+
+  yield all([
+    put(stopFetchingPluginResources(id)),
+    put(stopFetchingStatusResources(id)),
+  ]);
+  yield put(deleteNodeSuccess(id));
+  yield instance.delete();
 }
+
 
 
 

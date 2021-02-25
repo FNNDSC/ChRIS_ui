@@ -211,19 +211,20 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
         >
           <div className="file-browser__header">
             <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
-            <span className="files-browser__fileCount">
-              {selectedFiles
-                ? `${selectedFiles.length} files`
-                : "Empty Directory"}
-            </span>
-            <Button
-              className="file-browser__downloadButton"
-              variant="secondary"
-              onClick={() => this.props.downloadAllClick()}
-            >
-              <DownloadIcon />
-              Download All
-            </Button>
+            <div className="file-browser__header-info">
+              <span className="files-browser__fileCount">
+                {selectedFiles
+                  ? `(${selectedFiles.length} files)`
+                  : "Empty Directory"}
+              </span>
+              <Button
+                className="file-browser__downloadButton"
+                onClick={() => this.props.downloadAllClick()}
+                variant='secondary'
+              >
+                Download All
+              </Button>
+            </div>
           </div>
 
           <Table

@@ -74,7 +74,8 @@ class Node extends React.Component<NodeProps, NodeState> {
       nextProps.selectedPlugin !== this.props.selectedPlugin ||
       nextProps.data !== this.props.data ||
       nextProps.position !== this.props.position ||
-      nextState.hovered !== this.state.hovered
+      nextState.hovered !== this.state.hovered ||
+      nextProps.instances !== this.props.instances
     ) {
       return true;
     }

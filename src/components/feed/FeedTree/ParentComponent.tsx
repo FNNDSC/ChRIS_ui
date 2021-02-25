@@ -14,10 +14,19 @@ interface ParentComponentProps {
   onNodeClick: (node: PluginInstance) => void;
   feedTreeProp: FeedTreeProp;
   setFeedTreeProp: (orientation: string) => void;
+  isPanelExpanded: boolean;
+  onExpand: () => void;
 }
 
 const ParentComponent = (props: ParentComponentProps) => {
-  const { onNodeClick, pluginInstances, feedTreeProp, setFeedTreeProp } = props;
+  const {
+    onNodeClick,
+    pluginInstances,
+    feedTreeProp,
+    setFeedTreeProp,
+    isPanelExpanded,
+    onExpand,
+  } = props;
   const { data: instances } = pluginInstances;
   const [data, setData] = React.useState<TreeNodeDatum[]>([]);
 
@@ -52,6 +61,8 @@ const ParentComponent = (props: ParentComponentProps) => {
       feedTreeProp={feedTreeProp}
       instances={instances}
       changeOrientation={changeOrientation}
+      isPanelExpanded={isPanelExpanded}
+      onExpand={onExpand}
     />
   ) : (
     <Spinner size="lg" />

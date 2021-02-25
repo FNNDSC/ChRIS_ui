@@ -19,9 +19,7 @@ import {
 import { v4 } from 'uuid';
 
 
-type ParamArray = {
-  [key:string]:string
-}
+
 
 type ParameterDictionary = {
   [key: string]: {
