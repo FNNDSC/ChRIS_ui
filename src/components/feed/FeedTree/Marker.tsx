@@ -13,7 +13,7 @@ const Marker = () => {
       .attr("orient", "auto")
       .append("svg:path")
       .attr("d", "M0,-5L10,0L0,5")
-      .attr("fill", "#fff");
+      .attr("fill", "#8a8d90");
   }, []);
 
   return (

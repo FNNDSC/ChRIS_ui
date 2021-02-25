@@ -1,6 +1,5 @@
 import { Reducer } from "redux";
 import { IFeedState, FeedActionTypes } from "./types";
-import { PluginInstance } from "@fnndsc/chrisapi";
 import {getStatusLabels} from './utils'
 
 
