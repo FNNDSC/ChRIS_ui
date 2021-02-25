@@ -16,9 +16,6 @@ export function getStatusLabels(
   labels: PluginStatusLabels,
   pluginDetails: any
 ) {
-  
-  console.log("LABELS", labels);
-
   let status = [];
 
   let statusLabels = [
@@ -38,7 +35,6 @@ export function getStatusLabels(
     pluginDetails.data.status === "cancelled"
       ? true
       : false;
-  
 
   status[0] = {
     id: 1,
@@ -88,7 +84,7 @@ export function getStatusLabels(
       !error
         ? true
         : false,
-    error: error,
+    error,
     description: "Computing",
     icon: OutlinedArrowAltCircleRightIcon,
   };
@@ -104,7 +100,7 @@ export function getStatusLabels(
       !error
         ? true
         : false,
-    error: error,
+    error,
     description: "Receiving",
     icon: OutlinedArrowAltCircleLeftIcon,
   };
@@ -112,14 +108,17 @@ export function getStatusLabels(
   status[5] = {
     id: 6,
     title: "Registering",
-    status: statusLabels.indexOf(pluginStatus) > 5 && labels.pullPath.status===true ? true : false ,
+    status:
+      statusLabels.indexOf(pluginStatus) > 5 && labels.pullPath.status === true
+        ? true
+        : false,
     isCurrentStep:
       pluginStatus === "registeringFiles" &&
       labels.pullPath.status === true &&
       statusLabels.indexOf(pluginStatus) > 2
         ? true
         : false,
-    error: error,
+    error,
     description: "Registering",
     icon: FileArchiveIcon,
   };
@@ -133,7 +132,7 @@ export function getStatusLabels(
         ? "Cancelled"
         : "Finished Successfully"
     }`,
-    status: statusLabels.indexOf(pluginStatus) > 5 ? true : false,
+    status: pluginStatus==='cancelled' || pluginStatus==='finishedWithError' ? false : statusLabels.indexOf(pluginStatus) > 5 ? true : false,
     isCurrentStep:
       pluginStatus === "finishedSuccessfully" ||
       pluginStatus === "cancelled" ||
