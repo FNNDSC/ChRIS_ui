@@ -13,7 +13,7 @@ import {
 } from "@patternfly/react-core";
 import { setSidebarActive } from "../../store/ui/actions";
 import { Dispatch } from "redux";
-import "./Sidebar.scss";
+
 
 
 type ReduxProp = {
@@ -37,13 +37,7 @@ class Sidebar extends React.Component<AllProps> {
     });
   };
   render() {
-    const {
-      isNavOpen,
-      sidebarActiveItem,
-      isLoggedIn,
-      isMobileView,
-      isNavOpenMobile,
-    } = this.props;
+    const { isNavOpen, sidebarActiveItem, isLoggedIn } = this.props;
 
     const loggedInFeedNav = isLoggedIn && (
       <React.Fragment>
@@ -73,16 +67,11 @@ class Sidebar extends React.Component<AllProps> {
       </Nav>
     );
 
-    return <PageSidebar 
-    theme="dark"
-    nav={PageNav} isNavOpen={isMobileView ? isNavOpenMobile:isNavOpen} />;
+    return <PageSidebar theme="dark" nav={PageNav} isNavOpen={isNavOpen} />;
   }
 }
 
 const mapStateToProps = ({ ui, user }: ApplicationState) => ({
-  isMobileView:ui.isMobileView,
-  isNavOpenMobile:ui.isNavOpenMobile,
-  isNavOpen: ui.isNavOpen,
   sidebarActiveItem: ui.sidebarActiveItem,
   isLoggedIn: user.isLoggedIn,
 });

@@ -11,6 +11,10 @@
 
 .feed-header {
 
+  padding-right:0 !important;
+  padding-bottom:0 !important;
+  padding-top:0.5rem !important;
+
   &__split {
   display:flex;
   flex-direction: column;  
