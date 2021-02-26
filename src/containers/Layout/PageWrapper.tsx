@@ -4,12 +4,11 @@ import { Dispatch } from "redux";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IUiState } from "../../store/ui/types";
 import { IUserState } from "../../store/user/types";
-import { onSidebarToggle, setIsNavOpenMobile, setMobileView,
-setIsNavOpen
-} from "../../store/ui/actions";
+import { onSidebarToggle,setIsNavOpen } from "../../store/ui/actions";
 import { Page } from "@patternfly/react-core";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
+import './PageWrapper.scss'
 
 
 interface IOtherProps {
@@ -18,42 +17,28 @@ interface IOtherProps {
 }
 interface IPropsFromDispatch {
   onSidebarToggle: typeof onSidebarToggle;
-  setMobileView:typeof setMobileView;
-  setIsNavOpenMobile:typeof setIsNavOpenMobile;
   setIsNavOpen:typeof setIsNavOpen;
 }
 type AllProps = IUiState & IOtherProps & IPropsFromDispatch;
 
 class Wrapper extends React.Component<AllProps> {
-  // Description: toggles sidebar on page-resize
-
-  onPageResize = (data: { mobileView: boolean; windowSize: number }) => {
-    this.props.setMobileView(data.mobileView);
-  };
-
-  onNavToggleMobile = () => {
-    this.props.setIsNavOpenMobile(!this.props.isNavOpenMobile);
-  };
-
+  
   onNavToggle = () => {
     this.props.setIsNavOpen(!this.props.isNavOpen);
   };
 
   render() {
-    const { children, user, isMobileView } = this.props;
+    const { children, user} = this.props;
 
     return (
       <Page
         header={
           <Header
-            onNavToggle={
-                isMobileView ? this.onNavToggleMobile : this.onNavToggle
-            }
+            onNavToggle={this.onNavToggle}
             user={user}
           />
         }
-        sidebar={<Sidebar />}
-        onPageResize={this.onPageResize}
+        sidebar={<Sidebar isNavOpen={this.props.isNavOpen}/>}
       >
         {children}
       </Page>
@@ -63,8 +48,6 @@ class Wrapper extends React.Component<AllProps> {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onSidebarToggle: (isOpened: boolean) => dispatch(onSidebarToggle(isOpened)),
-  setMobileView:(isOpened:boolean)=>dispatch(setMobileView(isOpened)),
-  setIsNavOpenMobile:(isOpened:boolean)=>dispatch(setIsNavOpenMobile(isOpened)),
   setIsNavOpen:(isOpened:boolean)=>dispatch(setIsNavOpen(isOpened))
 
 });
@@ -73,8 +56,7 @@ const mapStateToProps = ({ ui, user }: ApplicationState) => ({
   isNavOpen:ui.isNavOpen,
   loading: ui.loading,
   user,
-  isMobileView:ui.isMobileView,
-  isNavOpenMobile:ui.isNavOpenMobile
+ 
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Wrapper);
