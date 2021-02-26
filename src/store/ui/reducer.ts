@@ -9,12 +9,9 @@ const initialState: IUiState = {
   isDropdownOpen: false,
   sidebarActiveItem: "dashboard",
   isNavOpen: true,
-  isMobileView: true,
-  isNavOpenMobile: false,
 };
 
 const reducer: Reducer<IUiState> = (state = initialState, action) => {
-  //  ***** Working ***** //
   switch (action.type) {
     case UiActionTypes.TOGGLE_TOOLBAR_DROPDOWN: {
       return { ...state, isDropdownOpen: action.payload };
@@ -31,19 +28,12 @@ const reducer: Reducer<IUiState> = (state = initialState, action) => {
       };
     }
 
-    case UiActionTypes.TOGGLE_MOBILE_VIEW: {
-      return { ...state, isMobileView: action.payload };
-    }
-
-    case UiActionTypes.TOGGLE_MOBILE_NAV: {
-      return { ...state, isNavOpenMobile: action.payload };
-    }
-
-    case UserActionTypes.LOGOUT_USER:{
-        return {
-            ...state, isDropdownOpen:false,
-            sidebarActiveItem:'dashboard'
-        }
+    case UserActionTypes.LOGOUT_USER: {
+      return {
+        ...state,
+        isDropdownOpen: false,
+        sidebarActiveItem: "dashboard",
+      };
     }
 
     // TOGGLE_SIDEBAR
