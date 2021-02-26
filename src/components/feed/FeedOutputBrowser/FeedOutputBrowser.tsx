@@ -28,7 +28,6 @@ import {
   PluginInstancePayload,
   ResourcePayload,
 } from "../../../store/feed/types";
-
 import {getSelectedInstanceResource, getSelectedFiles} from '../../../store/feed/selector'
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 import {isEmpty} from 'lodash'
@@ -59,7 +58,6 @@ export interface FeedOutputBrowserProps {
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   pluginInstances,
   pluginFilesPayload,
-  pluginInstanceResource,
   selected,
   handlePluginSelect,
   setSelectedFile,
