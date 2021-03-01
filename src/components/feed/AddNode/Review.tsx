@@ -34,7 +34,7 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
     <div className="review">
       <h1 className="pf-c-title pf-m-2xl">Review</h1>
       <p>
-        Review the information below and click `&apos;`Add`&apos;` to add a node
+        Review the information below and click &apos;Add&apos; to add a node
       </p>
       <br />
       <br />

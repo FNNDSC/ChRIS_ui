@@ -76,7 +76,7 @@ const FeedGraph = (props: IFeedProps) => {
           fallback={
             <Text>
               If you see this message, it means that the graph modules
-              weren&aspos;t loaded. Please refresh your browser.
+              weren&apos;t loaded. Please refresh your browser.
             </Text>
           }
         >
