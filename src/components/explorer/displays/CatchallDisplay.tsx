@@ -41,11 +41,9 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
       </React.Fragment>
     );
     return (
-        <Alert
-          variant="info"
-          title="No preview available for large files"
-          children={alertText}
-        />
+      <Alert variant="info" title="No preview available for large files">
+        {alertText}
+      </Alert>
     );
   };
   return noPreviewMessage();

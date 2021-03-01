@@ -114,7 +114,7 @@ export class GalleryListModel {
 export class GalleryItemModel {
   galleryItem: IGalleryItem;
   index: number;
-  constructor(node: IUITreeNode, index: number = 0) {
+  constructor(node: IUITreeNode, index = 0) {
     this.index = index;
     this.galleryItem = this._buildGalleryItem(node);
   }

@@ -106,7 +106,7 @@ export type CreateFeedActions = ActionMap<CreateFeedPayload>[keyof ActionMap<
 
 export interface LocalFile {
   name: string;
-  blob: object;
+  blob: File;
 }
 
 export interface CreateFeedData {

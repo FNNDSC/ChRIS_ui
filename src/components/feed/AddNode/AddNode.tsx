@@ -32,13 +32,12 @@ function getInitialState(){
 }
 
 
-const AddNode:React.FC<AddNodeProps>=({
+const AddNode: React.FC<AddNodeProps> = ({
   selectedPlugin,
   pluginInstances,
   getParams,
   addNode,
- 
-})=>{
+}: AddNodeProps) => {
   const [addNodeState, setNodeState] = React.useState<AddNodeState>(
     getInitialState
   );
@@ -144,8 +143,8 @@ const AddNode:React.FC<AddNodeProps>=({
 
   const onBack = (newStep: { id?: string | number; name: React.ReactNode }) => {
     const { id } = newStep;
-   
-    if (id === 1) {      
+
+    if (id === 1) {
       setNodeState({
         ...addNodeState,
         dropdownInput: {},
@@ -180,7 +179,7 @@ const AddNode:React.FC<AddNodeProps>=({
   const deleteInput = (input: string) => {
     const { dropdownInput } = addNodeState;
 
-    let newObject = Object.entries(dropdownInput)
+    const newObject = Object.entries(dropdownInput)
       .filter(([key, value]) => {
         return key !== input;
       })
@@ -247,7 +246,6 @@ const AddNode:React.FC<AddNodeProps>=({
     }
   };
 
-  
   const basicConfiguration = selectedPlugin && nodes && (
     <BasicConfiguration
       selectedPlugin={addNodeState.data.plugin}
@@ -323,8 +321,6 @@ const AddNode:React.FC<AddNodeProps>=({
     },
   ];
 
-  
-
   return (
     <React.Fragment>
       <Button icon={<PlusCircleIcon />} type="button" onClick={toggleOpen}>
@@ -344,7 +340,7 @@ const AddNode:React.FC<AddNodeProps>=({
       )}
     </React.Fragment>
   );
-}
+};
 
 
 const mapStateToProps = (state: ApplicationState) => ({

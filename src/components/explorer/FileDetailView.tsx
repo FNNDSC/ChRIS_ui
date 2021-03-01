@@ -43,12 +43,11 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
     const fileName = selectedFile.module,
       fileType = getFileExtension(fileName);
     selectedFile.file.getFileBlob().then((result: any) => {
-      const _self = this;
       if (!!result) {
         const reader = new FileReader();
-        reader.addEventListener("loadend", (e: any) => {
-          _self._isMounted &&
-            _self.setState({
+        reader.addEventListener("loadend", () => {
+          this._isMounted &&
+            this.setState({
               blob: result,
               fileType,
               file: Object.assign({}, selectedFile.file.data),
@@ -73,8 +72,8 @@ class FileDetailView extends React.Component<AllProps, IFileBlob> {
           />
         );
       } else {
-        let viewerName: string = "";
-        let filesize: number = 1000000;
+        let viewerName = "";
+        const filesize = 1000000;
         if (this.state.blob && this.state.blob.size > filesize) {
           viewerName = "CatchallDisplay";
         } else if (!fileViewerMap[this.state.fileType]) {

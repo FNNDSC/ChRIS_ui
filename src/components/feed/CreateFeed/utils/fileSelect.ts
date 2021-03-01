@@ -46,7 +46,7 @@ export const generateTreeNodes = async (
   const key = treeNode.key;
   let arr = [];
   let feeds = [];
-  let breadcrumb = username;
+  const breadcrumb = username;
   if (treeNode.title === username) {
     // First level is feeds and uploads
 
@@ -57,7 +57,7 @@ export const generateTreeNodes = async (
     }
 
     for (let i = 0; i < feeds.length; i += 1) {
-      let id = feeds[i].data.id;
+      const id = feeds[i].data.id;
       arr.push({
         breadcrumb: `${breadcrumb}/feed_${id}`,
         title: `feed_${id}`,
@@ -74,7 +74,7 @@ export const generateTreeNodes = async (
 
   if (treeNode.title && treeNode.title.toString().indexOf("feed") === 0) {
     // Second level are the feeds amd uploads
-    let newBreadcrumb = `${breadcrumb}/${treeNode.title.toString()}`;
+    const newBreadcrumb = `${breadcrumb}/${treeNode.title.toString()}`;
     const id = treeNode.title.toString().split("_")[1];
     const feedFiles = await getFeedFiles(parseInt(id));
     const feedPaths = feedFiles.map(
@@ -89,7 +89,7 @@ export const generateTreeNodes = async (
   }
 
   if (treeNode.title && treeNode.title.toString().indexOf("uploads") === 0) {
-    let newBreadcrumb = `${breadcrumb}/${treeNode.title.toString()}`;
+    const newBreadcrumb = `${breadcrumb}/${treeNode.title.toString()}`;
     const files = await getUploadedFiles();
 
     const filePaths = files.map((file) => file.data.fname.split("uploads")[1]);
@@ -135,7 +135,7 @@ const getFeeds = async () => {
 };
 
 const getFeedFiles = async (id: number) => {
-  let params = {
+  const params = {
     limit: 100,
     offset: 0,
   };
@@ -150,7 +150,7 @@ const getFeedFiles = async (id: number) => {
   if(feed){
     try{
        let fileList = await feed.getFiles(params);
-       let feedFiles = fileList.getItems();
+       const feedFiles = fileList.getItems();
 
        while (fileList.hasNextPage) {
       try {
@@ -179,7 +179,7 @@ const getUploadedFiles = async () => {
 
   try{
      let fileList = await client.getUploadedFiles(params);
-     let files = fileList.getItems();
+     const files = fileList.getItems();
 
      while (fileList.hasNextPage) {
        try {
@@ -198,19 +198,19 @@ const getUploadedFiles = async () => {
 };
 
 const buildTree = (paths: string[], cb: (tree: any[]) => void) => {
-  var tree: any[] = [];
+  const tree: any[] = [];
   _.each(paths, function (path) {
-    var pathParts = path.split("/");
+    const pathParts = path.split("/");
     pathParts.shift();
-    var currentLevel = tree;
+    let currentLevel = tree;
     _.each(pathParts, function (part) {
-      var existingPath = _.find(currentLevel, {
+      const existingPath = _.find(currentLevel, {
         title: part,
       });
       if (existingPath) {
         currentLevel = existingPath.children;
       } else {
-        var newPart = {
+        const newPart = {
           breadcrumb: part,
           title: part,
           children: [],

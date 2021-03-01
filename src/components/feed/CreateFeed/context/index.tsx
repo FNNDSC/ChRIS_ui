@@ -10,7 +10,13 @@ const CreateFeedContext = createContext<{
   dispatch: () => null,
 });
 
-const CreateFeedProvider: React.FC = ({ children }) => {
+interface CreateFeedProviderProps {
+  children: React.ReactNode;
+}
+
+const CreateFeedProvider: React.FC<CreateFeedProviderProps> = ({
+  children,
+}: CreateFeedProviderProps) => {
   const [state, dispatch] = useReducer(createFeedReducer, initialState);
   return (
     <CreateFeedContext.Provider value={{ state, dispatch }}>

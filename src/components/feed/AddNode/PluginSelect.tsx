@@ -135,7 +135,7 @@ class PluginSelect extends React.Component<
     const client = ChrisAPIClient.getClient();
     const pluginIds: number[] = [];
 
-    let params = { limit: 10, offset: 0 };
+    const params = { limit: 10, offset: 0 };
     let pluginInstanceList = await client.getPluginInstances(params);
 
     while (pluginIds.length < amount && pluginInstanceList.hasNextPage) {

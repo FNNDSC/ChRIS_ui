@@ -40,7 +40,7 @@ const Editor=({plugin, dropdownInput, requiredInput, inputChangeFromEditor,
 
 const generateCommand = React.useCallback(
   (plugin) => {
-    let generatedCommand = `${plugin.data.name}: `;
+    const generatedCommand = `${plugin.data.name}: `;
     setEditorState((editorState)=>{
       return {
         ...editorState,
@@ -56,17 +56,17 @@ const generateCommand = React.useCallback(
  },[plugin, generateCommand])
 
 
- let parameterArray=React.useMemo(()=>{
-   if(params)
-   return params.map ((param)=>{
-     return {
-       id: v4(),
-       flag: param.data.flag,
-       type: param.data.type,
-       placeholder: param.data.help,
-     };
-   })
- },[params])
+ const parameterArray = React.useMemo(() => {
+   if (params)
+     return params.map((param) => {
+       return {
+         id: v4(),
+         flag: param.data.flag,
+         type: param.data.type,
+         placeholder: param.data.help,
+       };
+     });
+ }, [params]);
  
  const handleInputChange=(value:string)=>{
    setEditorState({
@@ -87,14 +87,14 @@ const generateCommand = React.useCallback(
 
  const handleGetTokens=(value:string)=>{
    const userValue = value.trim().split(" ").slice(1);
-   let paramDictionary: ParameterDictionary = {};
+   const paramDictionary: ParameterDictionary = {};
   
   if(userValue.length>0){
     for(let i=0; i<=userValue.length; i++) {
       const flag= userValue[i];
-      let value= userValue[i+1];
+      const value = userValue[i + 1];
 
-      let flags= params && params.map((param)=>param.data.flag)
+      const flags = params && params.map((param) => param.data.flag);
 
       parameterArray?.forEach((parameter)=>{
               if (parameter.flag === flag) {
@@ -138,33 +138,33 @@ const generateCommand = React.useCallback(
 
  
  
-  let dropdownObject: InputType = {};
-  let requiredObject: InputType = {};
+  const dropdownObject: InputType = {};
+  const requiredObject: InputType = {};
    
 
-  let requiredParameters= params && getRequiredParams(params);
-    for (let token in paramDictionary) {
-      const id = paramDictionary[token].id;
-      const editorValue = paramDictionary[token].value;
-      const flag = token;
-      const type = paramDictionary[token].type;
-      const placeholder = paramDictionary[token].placeholder;
-      if (
-        requiredParameters &&
-        requiredParameters.length > 0 &&
-        requiredParameters.includes(flag)
-      ) {
-        const value =
-          params &&
-          getRequiredParamsWithName(id, flag, editorValue, type, placeholder);
-        if (value) requiredObject[id] = value;
-      } else {
-        const value =
-          params &&
-          getAllParamsWithName(id, flag, editorValue, type, placeholder);
-        if (value) dropdownObject[id] = value;
-      }
+  const requiredParameters = params && getRequiredParams(params);
+  for (const token in paramDictionary) {
+    const id = paramDictionary[token].id;
+    const editorValue = paramDictionary[token].value;
+    const flag = token;
+    const type = paramDictionary[token].type;
+    const placeholder = paramDictionary[token].placeholder;
+    if (
+      requiredParameters &&
+      requiredParameters.length > 0 &&
+      requiredParameters.includes(flag)
+    ) {
+      const value =
+        params &&
+        getRequiredParamsWithName(id, flag, editorValue, type, placeholder);
+      if (value) requiredObject[id] = value;
+    } else {
+      const value =
+        params &&
+        getAllParamsWithName(id, flag, editorValue, type, placeholder);
+      if (value) dropdownObject[id] = value;
     }
+  }
 
    
     if(!isEmpty(dropdownObject) || !isEmpty(requiredObject)){

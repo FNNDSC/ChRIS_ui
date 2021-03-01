@@ -26,7 +26,9 @@ type SignUpFormProps = {
   setAuthToken: (auth: { token: string; username: string }) => void;
 };
 
-const SignUpForm: React.FC<SignUpFormProps> = ({ setAuthToken }) => {
+const SignUpForm: React.FC<SignUpFormProps> = ({
+  setAuthToken,
+}: SignUpFormProps) => {
   const [userState, setUserState] = React.useState<{
     username: string;
     validated: Validated["error"];

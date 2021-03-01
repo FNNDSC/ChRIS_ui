@@ -34,8 +34,9 @@ class OutputViewerContainer extends React.Component<
           <Tabs
             activeKey={this.state.activeTabKey}
             onSelect={this.handleTabClick}
-            children={tabs}
-          />
+          >
+            {tabs}
+          </Tabs>
         ) : (
           <Alert variant="info" title="Empty Result Set" className="empty" />
         )}

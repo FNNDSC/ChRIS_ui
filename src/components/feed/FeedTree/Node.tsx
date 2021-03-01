@@ -55,7 +55,7 @@ class Node extends React.Component<NodeProps, NodeState> {
     this.commitTransform();
   }
 
-  applyNodeTransform(transform: string, opacity = 1, done = () => {}) {
+  applyNodeTransform(transform: string, opacity = 1) {
     select(this.nodeRef).attr("transform", transform).style("opacity", opacity);
     select(this.textRef).attr("transform", `translate(-28, 28)`);
   }
@@ -101,21 +101,24 @@ class Node extends React.Component<NodeProps, NodeState> {
     const {
       data,
       selectedPlugin,
-      onNodeClick, 
+      onNodeClick,
       toggleLabel,
-      pluginInstanceStatus
+      pluginInstanceStatus,
     } = this.props;
     const { hovered } = this.state;
-    let status="";
-    let statusClass="";
+    let status = "";
+    let statusClass = "";
 
-    if(data.item && data.item.data.id && pluginInstanceStatus && pluginInstanceStatus[data.item.data.id]){
-      status=pluginInstanceStatus[data.item.data.id].status;
+    if (
+      data.item &&
+      data.item.data.id &&
+      pluginInstanceStatus &&
+      pluginInstanceStatus[data.item.data.id]
+    ) {
+      status = pluginInstanceStatus[data.item.data.id].status;
+    } else if (data.item) {
+      status = data.item.data.status;
     }
-    else if(data.item) {
-      status=data.item.data.status;
-    }
-
 
     const currentId = data.item?.data.id;
     if (

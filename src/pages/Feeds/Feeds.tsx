@@ -5,9 +5,9 @@ import AllFeedsPage from "./components/FeedListView";
 import FeedView from "./components/FeedView";
 import "./Feed.scss";
 
-type AllProps = RouteComponentProps;
 
-class FeedsPage extends React.Component<AllProps> {
+
+class FeedsPage extends React.Component<RouteComponentProps> {
   render() {
     const { match } = this.props;
     return (
@@ -19,7 +19,9 @@ class FeedsPage extends React.Component<AllProps> {
 }
 
 // Description: Build My feeds sub routes
-const FeedsRoutes: React.FunctionComponent<any> = (props) => (
+const FeedsRoutes: React.FunctionComponent<{
+  match: RouteComponentProps["match"];
+}> = (props: { match: RouteComponentProps["match"] }) => (
   <Switch>
     <Route exact path={`${props.match.path}`} component={AllFeedsPage} />
     <Route path={`${props.match.path}/:id`} component={FeedView} />

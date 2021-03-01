@@ -59,7 +59,7 @@ class FeedDetails extends React.Component<ReduxProps, INoteState> {
         runtime += elapsed;
       }
       // format millisecond amount into human-readable string
-      let runtimeStrings = [];
+      const runtimeStrings = [];
       const timeParts = [
         ["day", Math.floor(runtime / (1000 * 60 * 60 * 24))],
         ["hr", Math.floor((runtime / (1000 * 60 * 60)) % 24)],
@@ -82,7 +82,11 @@ class FeedDetails extends React.Component<ReduxProps, INoteState> {
     const { feedDescription } = this.state;
 
     if (currentFeed) {
-      let { data: feed, error: feedError, loading: feedLoading } = currentFeed;
+      const {
+        data: feed,
+        error: feedError,
+        loading: feedLoading,
+      } = currentFeed;
 
       if (feedLoading) {
         return (

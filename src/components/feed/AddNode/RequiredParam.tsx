@@ -11,7 +11,7 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
   addParam,
   requiredInput,
   inputChange,
-}) => {
+}: RequiredParamProp) => {
   const [value, setValue] = React.useState("");
 
   React.useEffect(() => {
@@ -55,7 +55,7 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
         <Label className="required-params__infoLabel">(*Required)</Label>
       </div>
       <input
-        className={css(styles.formControl,  `required-params__textInput`)}
+        className={css(styles.formControl, `required-params__textInput`)}
         type="text"
         aria-label="required-parameters"
         onChange={(event: any) => handleInputChange(param, event)}

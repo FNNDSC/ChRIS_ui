@@ -28,7 +28,7 @@ import FinishedStep from "./FinishedStep";
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
   addFeed,
-}) => {
+}: CreateFeedReduxProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const {
     wizardOpen,
@@ -74,13 +74,13 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
 
   const setComputeEnvironment = React.useCallback(
     (computeEnvironment: string) => {
-        dispatch({
-          type: Types.SetComputeEnvironment,
-          payload: {
-            computeEnvironment,
-          },
-        });
-      },
+      dispatch({
+        type: Types.SetComputeEnvironment,
+        payload: {
+          computeEnvironment,
+        },
+      });
+    },
     [dispatch]
   );
 

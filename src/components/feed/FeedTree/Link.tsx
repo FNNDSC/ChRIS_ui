@@ -30,11 +30,21 @@ class Link extends React.Component<LinkProps, LinkState> {
     this.applyOpacity(1, 0);
   }
 
-  componentWillLeave(done: () => {}) {
+  componentWillLeave(done: () => null) {
     this.applyOpacity(1, 0, done);
   }
 
-  applyOpacity(opacity: number, transitionDuration: number, done = () => {}) {
+  applyOpacity(
+    
+    opacity: number,
+   
+    transitionDuration: number,
+
+       done = () => {
+        return null;
+      }
+  
+  ) {
     select(this.linkRef).style("opacity", opacity).on("end", done);
   }
 

@@ -17,7 +17,7 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
   let command = "";
 
   if (errors) {
-    for (let error in errors) {
+    for (const error in errors) {
       command = `${error}: ${errors[error]}`;
     }
   }
@@ -33,7 +33,9 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
   return (
     <div className="review">
       <h1 className="pf-c-title pf-m-2xl">Review</h1>
-      <p>Review the information below and click 'Add' to add a node</p>
+      <p>
+        Review the information below and click `&apos;`Add`&apos;` to add a node
+      </p>
       <br />
       <br />
 

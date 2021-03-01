@@ -16,9 +16,9 @@ export function getStatusLabels(
   labels: PluginStatusLabels,
   pluginDetails: any
 ) {
-  let status = [];
+  const status = [];
 
-  let statusLabels = [
+  const statusLabels = [
     "waiting",
     "scheduled",
     "started",

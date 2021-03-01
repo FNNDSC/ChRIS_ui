@@ -12,7 +12,7 @@ export const PluginDetails: React.FC<PluginDetailsProps> = ({
   generatedCommand,
   selectedPlugin,
   computeEnvironment,
-}) => {
+}: PluginDetailsProps) => {
   return (
     <>
       <GridItem span={2}>
