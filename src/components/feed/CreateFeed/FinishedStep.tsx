@@ -1,3 +1,4 @@
+
 import React, { useContext } from "react";
 import {
   Progress,
@@ -15,11 +16,12 @@ interface FinishedStepProp {
   createFeed: () => void;
 }
 
-const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
+const FinishedStep: React.FC<FinishedStepProp> = ({
+  createFeed,
+}: FinishedStepProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { feedProgress, value } = state;
-  const {run, isLoading, isError, isSuccess} = useAsync(state);
-  
+  const { run, isLoading, isError, isSuccess } = useAsync(state);
 
   React.useEffect(() => {
     run(createFeed());
@@ -37,7 +39,13 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
         <div className="finished-step">
           <CogsIcon className="finished-step__icon" />
           <p className="finished-step__header pf-c-title pf-m-lg">
-            {isLoading ? "Your feed is being created. Give it a moment" : isError? 'Oops ! There seems to be an error, Please try again' : isSuccess ? 'You can now safely close the wizard': null}
+            {isLoading
+              ? "Your feed is being created. Give it a moment"
+              : isError
+              ? "Oops ! There seems to be an error, Please try again"
+              : isSuccess
+              ? "You can now safely close the wizard"
+              : null}
           </p>
         </div>
       </StackItem>
@@ -57,7 +65,7 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
         <div className="finished-step__button">
           <Button
             className="finished-step__buton-type"
-            variant='primary'
+            variant="primary"
             onClick={() => {
               dispatch({
                 type: Types.ResetState,
@@ -67,7 +75,13 @@ const FinishedStep: React.FC<FinishedStepProp> = ({ createFeed }) => {
               });
             }}
           >
-            {isLoading ? "Creating Feed" : isError? 'Please try again' : isSuccess ? 'Close': 'Cancel'}
+            {isLoading
+              ? "Creating Feed"
+              : isError
+              ? "Please try again"
+              : isSuccess
+              ? "Close"
+              : "Cancel"}
           </Button>
         </div>
       </StackItem>

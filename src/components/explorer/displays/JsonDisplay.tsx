@@ -9,7 +9,7 @@ type AllProps = {
 const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const [blobText, setBlobText] = useState({});
   const { fileItem } = props;
-  let _isMounted = useRef(false);
+  const _isMounted = useRef(false);
 
   const getBlobText = React.useCallback(() => {
     const { blob } = fileItem;

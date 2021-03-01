@@ -18,7 +18,9 @@ interface DicomHeaderProps {
   handleToolbarAction: (action: string) => void;
 }
 
-const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
+const DcmHeader = ({
+  handleToolbarAction,
+}: DicomHeaderProps): React.ReactElement => {
   return (
     <div className="dicom-header">
       <div className="dicom-logo">
@@ -109,7 +111,7 @@ const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
               handleToolbarAction("rotate");
             }}
           >
-            <RedoIcon size='md'/>
+            <RedoIcon size="md" />
           </Button>
         </Tooltip>
         <Tooltip
@@ -151,15 +153,11 @@ const DcmHeader: React.FC<DicomHeaderProps> = ({ handleToolbarAction }) => {
             <EditIcon size="md" />
           </Button>
         </Tooltip>
-        {
-          /*
+        {/*
           <Button variant="link">
           <DownloadIcon size="md" />
         </Button>
-        */
-
-        }
-        
+        */}
       </div>
     </div>
   );

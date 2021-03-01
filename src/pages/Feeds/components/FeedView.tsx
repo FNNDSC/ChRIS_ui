@@ -50,8 +50,6 @@ interface IPropsFromDispatch {
  
 }
 
-
-
 export type FeedViewProps = IUserState &
   IFeedState &
   IPropsFromDispatch &
@@ -68,15 +66,14 @@ export const FeedView: React.FC<FeedViewProps> = ({
   pluginInstances,
   currentLayout,
   selectedPlugin,
-}) => {
-
+}: FeedViewProps) => {
   const [isExpanded, setIsExpanded] = React.useState(true);
 
   const getFeed = React.useCallback(() => {
     getFeedRequest(id);
   }, [id, getFeedRequest]);
 
-  let dataRef = React.useRef<DestroyData>();
+  const dataRef = React.useRef<DestroyData>();
 
   const { data } = pluginInstances;
 
@@ -238,7 +235,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(getSelectedPlugin(item)),
 });
 
-const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
+const mapStateToProps = ({ feed }: ApplicationState) => ({
   pluginInstances: feed.pluginInstances,
   selectedPlugin: feed.selectedPlugin,
   currentLayout: feed.currentLayout,

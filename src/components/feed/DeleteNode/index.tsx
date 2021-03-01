@@ -16,19 +16,18 @@ interface DeleteNodeProps {
 const DeleteNode: React.FC<DeleteNodeProps> = ({
   selectedPlugin,
   deleteNode,
-  deleteNodeSuccess
-}) => {
+  deleteNodeSuccess,
+}: DeleteNodeProps) => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);
   };
 
   const handleDelete = async () => {
-    if(selectedPlugin)
-    deleteNode(selectedPlugin);
+    if (selectedPlugin) deleteNode(selectedPlugin);
 
-    if(deleteNodeSuccess){
-      setIsModalOpen(!isModalOpen)
+    if (deleteNodeSuccess) {
+      setIsModalOpen(!isModalOpen);
     }
   };
 
@@ -58,7 +57,7 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
           </React.Fragment>,
         ]}
       >
-        Deleting a node will delete all it's descendants as well. Please confirm
+        Deleting a node will delete all it&apos;s descendants as well. Please confirm
         if you are sure
       </Modal>
     </React.Fragment>

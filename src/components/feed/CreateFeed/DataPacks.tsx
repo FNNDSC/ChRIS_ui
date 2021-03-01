@@ -46,7 +46,7 @@ interface DataPacksReduxProp {
   getParams: (plugin: Plugin) => void;
 }
 
-const DataPacks: React.FC<DataPacksReduxProp> = (props) => {
+const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { selectedPlugin } = state;
   const [fsPlugins, setfsPlugins] = useState<Plugin[]>([]);
@@ -89,7 +89,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props) => {
   return (
     <div className="local-file-upload">
       <h1 className="pf-c-title pf-m-2xl">Feed Synthesis Plugin</h1>
-      <p>Please choose the Feed Synthesis Plugin you'd like to run</p>
+      <p>Please choose the Feed Synthesis Plugin you&lsquo;d like to run</p>
       <br />
 
       <div className="fsplugin__datatoolbar">

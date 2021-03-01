@@ -44,11 +44,9 @@ const {componentList, count, errors, alertVisible, docsExpanded}=configState;
 
 const setDropdownDefaults=React.useCallback(()=>{
   if(!isEmpty(dropdownInput)){
-    let defaultComponentList=Object.entries(dropdownInput).map(
-      ([key , _value])=>{
-        return key;
-      }
-    )
+    const defaultComponentList = Object.entries(dropdownInput).map(([key]) => {
+      return key;
+    });
     setConfigState((configState) => {
       return {
         ...configState,
@@ -74,8 +72,8 @@ const handleDocsToggle = () => {
   }
 
 const deleteComponent = (id: string) => {
-let filteredList = componentList.filter((key) => {
-      return key !== id;
+const filteredList = componentList.filter((key) => {
+  return key !== id;
 });
 
   setConfigState({
@@ -198,8 +196,8 @@ const hideAlert = () => {
        <div className="configuration__options">
          <h1 className="pf-c-title pf-m-2xl">{`Configure ${plugin?.data.name}`}</h1>
          <p>
-           Use the "Add more parameters" button to add command line flags and
-           values to the plugin.
+           Use the &quot;Add more parameters&quot; button to add command line
+           flags and values to the plugin.
          </p>
          <div className="configuration__buttons">
            <Button
@@ -225,9 +223,7 @@ const hideAlert = () => {
                  key={index}
                  variant="danger"
                  title={error}
-                 actionClose={
-                   <AlertActionCloseButton onClose={hideAlert} />
-                 }
+                 actionClose={<AlertActionCloseButton onClose={hideAlert} />}
                />
              );
            })}

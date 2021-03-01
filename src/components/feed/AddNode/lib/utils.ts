@@ -12,12 +12,12 @@ export const unPackForKeyValue = (input: InputIndex) => {
 };
 
 export const unpackParametersIntoObject = (input: InputType) => {
-  let result: {
+  const result: {
     [key: string]: {
       [key: string]: string;
     };
   } = {};
-  for (let parameter in input) {
+  for (const parameter in input) {
     const [, flag, value, type, ,] = unPackForKeyValue(input[parameter]);
     result[flag] = {
       value,
@@ -30,7 +30,7 @@ export const unpackParametersIntoObject = (input: InputType) => {
 
 export const unpackParametersIntoString = (input: InputType) => {
   let string = "";
-  for (let parameter in input) {
+  for (const parameter in input) {
     const [, flag, value, ,] = unPackForKeyValue(input[parameter]);
     string += `${flag} ${value} `;
   }
@@ -54,7 +54,7 @@ export const getAllParamsWithName = (
   type: string,
   placeholder: string
 ) => {
-  let result: InputIndex = {};
+  const result: InputIndex = {};
   result['id']=id;
   result[flag] = value;
   result["type"] = type;
@@ -69,7 +69,7 @@ export function getRequiredParamsWithName(
   type: string,
   placeholder: string
 ) {
-  let result: InputIndex = {};
+  const result: InputIndex = {};
   result['id']=id;
   result[flag] = value;
   result["type"] = type;

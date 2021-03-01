@@ -1,6 +1,6 @@
 import Client from "@fnndsc/chrisapi";
 
-declare var process: {
+declare let process: {
   env: {
     REACT_APP_CHRIS_UI_URL: string;
   };

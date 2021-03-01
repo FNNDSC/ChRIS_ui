@@ -36,13 +36,7 @@ export const FileList = ({ file, index }: { file: string; index: number }) => {
   );
 };
 
-export const LocalFileList = ({
-  file,
-  index,
-}: {
-  file: LocalFile;
-  index: number;
-}) => {
+export const LocalFileList = ({ file }: { file: LocalFile; index: number }) => {
   const { dispatch } = useContext(CreateFeedContext);
 
   return (

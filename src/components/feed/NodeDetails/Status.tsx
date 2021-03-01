@@ -20,7 +20,7 @@ const Status = ({ pluginInstanceResource }: PluginStatusProps) => {
       <>
         <Steps direction="horizontal" size="small">
           {pluginStatus.map((label: any) => {
-            let showIcon = [
+            const showIcon = [
               "Finished Successfully",
               "Finished With Error",
               "Cancelled",

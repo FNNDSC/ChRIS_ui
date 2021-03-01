@@ -39,8 +39,7 @@ class Node extends React.Component<NodeProps, NodeState> {
     nodeTransform: this.setNodeTransform(
       this.props.orientation,
       this.props.position,
-      this.props.parent,
-      true
+     
     ),
     initialStyle: {
       opacity: 0,
@@ -55,14 +54,14 @@ class Node extends React.Component<NodeProps, NodeState> {
     this.commitTransform();
   }
 
-  applyNodeTransform(transform: string, opacity = 1, done = () => {}) {
+  applyNodeTransform(transform: string, opacity = 1) {
     select(this.nodeRef).attr("transform", transform).style("opacity", opacity);
     select(this.textRef).attr("transform", `translate(-28, 28)`);
   }
 
   commitTransform() {
-    const { parent, position, orientation } = this.props;
-    const nodeTransform = this.setNodeTransform(orientation, position, parent);
+    const {  position, orientation } = this.props;
+    const nodeTransform = this.setNodeTransform(orientation, position);
     this.applyNodeTransform(nodeTransform);
   }
 
@@ -85,8 +84,6 @@ class Node extends React.Component<NodeProps, NodeState> {
   setNodeTransform(
     orientation: NodeProps["orientation"],
     position: NodeProps["position"],
-    parent: NodeProps["parent"],
-    shouldTranslateToOrigin = false
   ) {
     return orientation === "horizontal"
       ? `translate(${position.y},${position.x})`
@@ -168,7 +165,7 @@ class Node extends React.Component<NodeProps, NodeState> {
               hovered: !this.state.hovered,
             });
           }}
-          onClick={(event) => {
+          onClick={() => {
             if (data.item) {
               this.handleNodeToggle();
               onNodeClick(data.item);
