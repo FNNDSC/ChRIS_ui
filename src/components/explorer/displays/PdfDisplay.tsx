@@ -6,7 +6,7 @@ type AllProps = {
   fileItem: IFileBlob;
 };
 
-const PdfDisplay: React.FC<AllProps> = ({ fileItem }) => {
+const PdfDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
   const url = !!fileItem.blob
     ? window.URL.createObjectURL(
         new Blob([fileItem.blob], { type: "application/pdf" })

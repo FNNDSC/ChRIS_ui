@@ -8,10 +8,10 @@ export const getPlugins = async (
 ) => {
   const client = ChrisAPIClient.getClient();
   const params = { name, limit, offset, type };
-  let pluginList = await client.getPlugins(params);
+  const pluginList = await client.getPlugins(params);
 
-  let plugins = pluginList.getItems();
-  let totalCount = pluginList.totalCount;
+  const plugins = pluginList.getItems();
+  const totalCount = pluginList.totalCount;
 
   return {
     plugins,

@@ -70,9 +70,11 @@ const Review: React.FunctionComponent = () => {
     <div className="review">
       <h1 className="pf-c-title pf-m-2xl">Review</h1>
       <p>
-        Review the information below and click 'Finish' to create your new feed.
+        Review the information below and click &apos;Finish&apos; to create your
+       
+        new feed.
       </p>
-      <p>Use the 'Back' button to make changes.</p>
+      <p>Use the &apos;Back&apos; button to make changes.</p>
       <br />
       <br />
       <Grid hasGutter={true}>

@@ -27,123 +27,112 @@ type ParameterDictionary = {
   };
 };
 
-const Editor=({plugin, dropdownInput, requiredInput, inputChangeFromEditor,
-  params}:EditorProps)=>{
- const [editorState, setEditorState] = React.useState<EditorState>({
-   value: "",
-   docsExpanded: true,
-   errors: [],
- });
+const Editor = ({ plugin, inputChangeFromEditor, params }: EditorProps) => {
+  const [editorState, setEditorState] = React.useState<EditorState>({
+    value: "",
+    docsExpanded: true,
+    errors: [],
+  });
 
- const {value, docsExpanded, errors } = editorState;
+  const { value, docsExpanded, errors } = editorState;
 
-
-const generateCommand = React.useCallback(
-  (plugin) => {
-    let generatedCommand = `${plugin.data.name}: `;
-    setEditorState((editorState)=>{
+  const generateCommand = React.useCallback((plugin) => {
+    const generatedCommand = `${plugin.data.name}: `;
+    setEditorState((editorState) => {
       return {
         ...editorState,
-        value:generatedCommand
+        value: generatedCommand,
+      };
+    });
+  }, []);
+
+  React.useEffect(() => {
+    generateCommand(plugin);
+  }, [plugin, generateCommand]);
+
+  const parameterArray = React.useMemo(() => {
+    if (params)
+      return params.map((param) => {
+        return {
+          id: v4(),
+          flag: param.data.flag,
+          type: param.data.type,
+          placeholder: param.data.help,
+        };
+      });
+  }, [params]);
+
+  const handleInputChange = (value: string) => {
+    setEditorState({
+      ...editorState,
+      value,
+    });
+    handleRegex(value);
+  };
+
+  const handleDocsToggle = () => {
+    setEditorState({
+      ...editorState,
+      docsExpanded: !editorState.docsExpanded,
+    });
+  };
+
+  const handleGetTokens = (value: string) => {
+    const userValue = value.trim().split(" ").slice(1);
+    const paramDictionary: ParameterDictionary = {};
+
+    if (userValue.length > 0) {
+      for (let i = 0; i <= userValue.length; i++) {
+        const flag = userValue[i];
+        const value = userValue[i + 1];
+
+        const flags = params && params.map((param) => param.data.flag);
+
+        parameterArray?.forEach((parameter) => {
+          if (parameter.flag === flag) {
+            if (
+              !value ||
+              ((value.startsWith("--") || value.startsWith("-")) &&
+                flags &&
+                flags.includes(value))
+            ) {
+              paramDictionary[flag] = {
+                value: "",
+                id: parameter.id,
+                placeholder: parameter.placeholder,
+                type: parameter.type,
+              };
+            } else if (parameter.type === "boolean" && value) {
+              paramDictionary[flag] = {
+                value: "",
+                id: parameter.id,
+                placeholder: parameter.placeholder,
+                type: parameter.type,
+              };
+            } else {
+              paramDictionary[flag] = {
+                value,
+                id: parameter.id,
+                placeholder: parameter.placeholder,
+                type: parameter.type,
+              };
+            }
+          }
+        });
       }
-    })     
-  },
-  []
-);
-
- React.useEffect(()=>{
-  generateCommand(plugin) 
- },[plugin, generateCommand])
-
-
- let parameterArray=React.useMemo(()=>{
-   if(params)
-   return params.map ((param)=>{
-     return {
-       id: v4(),
-       flag: param.data.flag,
-       type: param.data.type,
-       placeholder: param.data.help,
-     };
-   })
- },[params])
- 
- const handleInputChange=(value:string)=>{
-   setEditorState({
-     ...editorState,
-     value
-   })
-   handleRegex(value); 
- }
-
- const handleDocsToggle = () => {
-   setEditorState({
-     ...editorState,
-     docsExpanded:!editorState.docsExpanded
-   }) 
-
- }
-
-
- const handleGetTokens=(value:string)=>{
-   const userValue = value.trim().split(" ").slice(1);
-   let paramDictionary: ParameterDictionary = {};
-  
-  if(userValue.length>0){
-    for(let i=0; i<=userValue.length; i++) {
-      const flag= userValue[i];
-      let value= userValue[i+1];
-
-      let flags= params && params.map((param)=>param.data.flag)
-
-      parameterArray?.forEach((parameter)=>{
-              if (parameter.flag === flag) {
-                if (
-                  !value ||
-                  ((value.startsWith("--") || value.startsWith("-"))&&
-                  flags && flags.includes(value))
-                  ) {
-                  paramDictionary[flag] = {
-                    value: "",
-                    id: parameter.id,
-                    placeholder: parameter.placeholder,
-                    type: parameter.type,
-                  };
-                } else if (parameter.type === "boolean" && value) {
-                  paramDictionary[flag] = {
-                    value: "",
-                    id: parameter.id,
-                    placeholder: parameter.placeholder,
-                    type: parameter.type,
-                  };    
-                } else {
-                  paramDictionary[flag] = {
-                    value,
-                    id: parameter.id,
-                    placeholder: parameter.placeholder,
-                    type: parameter.type,
-                  };
-                }
-              }     
-      })
     }
-  }
-  
-   return { paramDictionary };
- }
 
+    return { paramDictionary };
+  };
 
- const handleRegex=(value:string)=>{
-  const {paramDictionary}=handleGetTokens(value);
+  const handleRegex = (value: string) => {
+    const { paramDictionary } = handleGetTokens(value);
 
- 
- 
-  let dropdownObject: InputType = {};
-  let requiredObject: InputType = {};
-   
+    const dropdownObject: InputType = {};
+    const requiredObject: InputType = {};
 
-  let requiredParameters= params && getRequiredParams(params);
-    for (let token in paramDictionary) {
+    const requiredParameters = params && getRequiredParams(params);
+    for (const token in paramDictionary) {
       const id = paramDictionary[token].id;
       const editorValue = paramDictionary[token].value;
       const flag = token;
@@ -166,14 +155,10 @@ const generateCommand = React.useCallback(
       }
     }
 
-   
-    if(!isEmpty(dropdownObject) || !isEmpty(requiredObject)){
-       inputChangeFromEditor(dropdownObject, requiredObject);
+    if (!isEmpty(dropdownObject) || !isEmpty(requiredObject)) {
+      inputChangeFromEditor(dropdownObject, requiredObject);
     }
- }
-
-
-
+  };
 
   return (
     <div className="configuration">
@@ -225,8 +210,7 @@ const generateCommand = React.useCallback(
       </div>
     </div>
   );
-  
-}
+};
 
 
 const mapStateToProps = ({ plugin }: ApplicationState) => ({

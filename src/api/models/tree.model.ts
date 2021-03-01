@@ -54,7 +54,7 @@ export default class TreeModel {
   }
 
   // Working props for parsing
-  private _workingIndex: number = 0;
+  private _workingIndex = 0;
   private _workingId: NodeId = 0;
   private _workingItems: PluginInstance[] = [];
   private _nodes: INode[] = [];
@@ -85,7 +85,7 @@ export default class TreeModel {
   private _parseTreeChildren(
     workingItems: PluginInstance[],
     _workingId: NodeId,
-    _parentIndex: number = 0
+    _parentIndex = 0
   ) {
     const cloneArr: PluginInstance[] = workingItems.slice();
     cloneArr.forEach((item: PluginInstance) => {

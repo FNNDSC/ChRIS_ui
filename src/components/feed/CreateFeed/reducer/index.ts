@@ -86,10 +86,10 @@ export const createFeedReducer = (
       
       };
     case Types.AddChrisFile:
-      let file=action.payload.file;
-      let checkedKeysDict: {
-        [key:string]:Key[]
-      } = {...state.data.checkedKeys};
+      const file = action.payload.file;
+      const checkedKeysDict: {
+        [key: string]: Key[];
+      } = { ...state.data.checkedKeys };
 
       if(!state.data.checkedKeys[file]){
         checkedKeysDict[file]=action.payload.checkedKeys
@@ -187,8 +187,8 @@ export const createFeedReducer = (
       const { dropdownInput } = state;
       const { input } = action.payload;
 
-      let newObject = Object.entries(dropdownInput)
-        .filter(([key, value]) => {
+      const newObject = Object.entries(dropdownInput)
+        .filter(([key]) => {
           return key !== input;
         })
         .reduce((acc: InputType, [key, value]) => {

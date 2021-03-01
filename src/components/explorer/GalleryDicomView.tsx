@@ -32,7 +32,9 @@ class GalleryDicomView extends React.Component<AllProps, IState> {
       urlArray: [],
       inPlay: false,
     };
-    this.runTool = () => {};
+    this.runTool = () => {
+      return null;
+    };
     this.timerScrolling = null;
   }
 

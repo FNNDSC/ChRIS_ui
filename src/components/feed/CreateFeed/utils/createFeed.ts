@@ -115,7 +115,7 @@ export const createFeedInstanceWithDircopy = async (
     cache=[]
     statusCallback("Creating Plugin Instance");
     //when the `post` finishes, the dircopyInstances's internal collection is updated
-    let createdInstance = dircopyInstance.getItems()[0];
+    const createdInstance = dircopyInstance.getItems()[0];
     statusCallback("Feed Created");
     
     feed = await createdInstance.getFeed();
@@ -141,7 +141,7 @@ export const createFeedInstanceWithFS = async (
     const pluginName = selectedPlugin.data.name;
     try {
       const fsPlugin = await getPlugin(pluginName);
-      let inputParameter = await getRequiredObject(
+      const inputParameter = await getRequiredObject(
         dropdownInput,
         requiredInput,
         fsPlugin
@@ -177,7 +177,7 @@ export const uploadLocalFiles = async (
   directory: string,
   statusCallback: (status: string) => void,
 ) => {
-  let uploadedFiles = await ChrisAPIClient.getClient().getUploadedFiles();
+  const uploadedFiles = await ChrisAPIClient.getClient().getUploadedFiles();
   let count = 0;
 
   return Promise.all(
@@ -218,7 +218,7 @@ export const getRequiredObject = async (
 ) => {
   let dropdownUnpacked;
   let requiredUnpacked;
-  let mappedParameter: {
+  const mappedParameter: {
     [key: string]: string | boolean;
   } = {};
 
@@ -230,7 +230,7 @@ export const getRequiredObject = async (
     requiredUnpacked = unpackParametersIntoObject(requiredInput);
   }
 
-  let nodeParameter: {
+  const nodeParameter: {
     [key: string]: {
       [key: string]: string;
     };
@@ -253,11 +253,11 @@ export const getRequiredObject = async (
   }
 
   for (let i = 0; i < params.length; i++) {
-    let flag = params[i].data.flag;
-    let defaultValue = params[i].data.default;
+    const flag = params[i].data.flag;
+    const defaultValue = params[i].data.default;
     if (Object.keys(nodeParameter).includes(flag)) {
       let value: string | boolean = nodeParameter[flag].value;
-      let type = nodeParameter[flag].type;
+      const type = nodeParameter[flag].type;
 
       if (value === "" && type === "boolean") {
         if (defaultValue === false) {

@@ -248,7 +248,7 @@ function getRuntimeString(selected:PluginInstance) {
   runtime += elapsed;
 
   // format millisecond amount into human-readable string
-  let runtimeStrings = [];
+  const runtimeStrings = [];
   const timeParts = [
     ["day", Math.floor(runtime / (1000 * 60 * 60 * 24))],
     ["hr", Math.floor((runtime / (1000 * 60 * 60)) % 24)],
@@ -270,13 +270,13 @@ function getCommand(
   parameters: PluginParameterList
 ) {
   const { dock_image, selfexec } = plugin.data;
-  let modifiedParams: {
+  const modifiedParams: {
     name?: string;
     value?: string;
   }[] = [];
 
-  let instanceParameters=params.getItems();
-  let pluginParameters=parameters.getItems();
+  const instanceParameters = params.getItems();
+  const pluginParameters = parameters.getItems();
   
 
     for (let i = 0; i < instanceParameters.length; i++) {
