@@ -138,15 +138,15 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_PLUGIN_INSTANCE_RESOURCE_SUCCESS: {
-      let { id, pluginStatus, pluginLog, pluginDetails } = action.payload;
-      pluginStatus = getStatusLabels(pluginStatus, pluginDetails);
+      const { id, pluginStatus, pluginLog, pluginDetails } = action.payload;
+      const pluginStatusLabels = getStatusLabels(pluginStatus, pluginDetails);
 
       return {
         ...state,
         pluginInstanceResource: {
           ...state.pluginInstanceResource,
           [id]: {
-            pluginStatus,
+            pluginStatus: pluginStatusLabels,
             pluginLog,
           },
         },

@@ -22,10 +22,9 @@ const ComputeEnvironment: React.FC<ComputeProp> = ({
   computeEnvs,
   selectedOption,
   setComputeEnvironment,
-}) => {
+}: ComputeProp) => {
   const [menuState, setMenuState] = React.useState(getInititalState);
   const { isOpen, toggleTemplateText } = menuState;
-  
 
   React.useEffect(() => {
     setMenuState((menuState) => {
@@ -43,7 +42,7 @@ const ComputeEnvironment: React.FC<ComputeProp> = ({
       isOpen,
     });
   };
-  
+
   const onSelect = (
     event?: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent
   ) => {

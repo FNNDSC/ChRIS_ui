@@ -47,7 +47,7 @@ const FeedListView: React.FC<AllProps> = ({
   setSidebarActive,
   allFeeds,
   getAllFeedsRequest,
-}) => {
+}: AllProps) => {
   const [filterState, setFilterState] = React.useState<FeedListViewState>({
     perPage: 10,
     page: 1,
@@ -56,7 +56,6 @@ const FeedListView: React.FC<AllProps> = ({
   });
 
   const generateTableRow = (feed: any) => {
-  
     const name = {
       title: (
         <span className="feed-list__name">

@@ -32,7 +32,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   addParam,
   deleteInput,
   deleteComponent,
-}) => {
+}: SimpleDropdownProps) => {
   const [dropdownState, setDropdownState] = React.useState<SimpleDropdownState>(
     getInitialState
   );
@@ -111,12 +111,12 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     deleteComponent(id);
   };
 
-  const handleInputChange  =  (
+  const handleInputChange = (
     value: string,
     event: React.FormEvent<HTMLInputElement>
-  )  => {
+  ) => {
     handleChange(paramId, flag, value, false, type, placeholder);
-  };;
+  };
 
   const dropdownItems =
     params &&

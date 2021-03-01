@@ -75,8 +75,8 @@ const FeedGraph = (props: IFeedProps) => {
         <ErrorBoundary
           fallback={
             <Text>
-              If you see this message, it means that the graph modules weren't
-              loaded. Please refresh your browser.
+              If you see this message, it means that the graph modules
+              weren&aspos;t loaded. Please refresh your browser.
             </Text>
           }
         >

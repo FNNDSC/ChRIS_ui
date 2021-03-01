@@ -12,13 +12,13 @@ export interface DataNode {
 const firstElement = [];
 
 export const getFeedTree = (items: PluginInstance[]) => {
-  let tree = [],
+  const tree = [],
     mappedArr: {
       [key: string]: DataNode;
     } = {};
 
   items.forEach((item) => {
-    let id = item.data.id;
+    const id = item.data.id;
     if (!mappedArr.hasOwnProperty(id)) {
       mappedArr[id] = {
         key: id,
@@ -30,13 +30,13 @@ export const getFeedTree = (items: PluginInstance[]) => {
     }
   });
 
-  for (let id in mappedArr) {
+  for (const id in mappedArr) {
     let mappedElem;
     if (mappedArr.hasOwnProperty(id)) {
       mappedElem = mappedArr[id];
 
       if (mappedElem.parentId) {
-        let parentId = mappedElem.parentId;
+        const parentId = mappedElem.parentId;
         if (parentId && mappedArr[parentId] && mappedArr[parentId].children)
           mappedArr[parentId].children.push(mappedElem);
       } else {

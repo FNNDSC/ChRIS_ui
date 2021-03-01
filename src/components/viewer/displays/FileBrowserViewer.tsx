@@ -83,7 +83,9 @@ class FileBrowserViewer extends React.Component<AllProps> {
                   <FileDetailView
                     fullScreenMode={false}
                     selectedFile={selectedFile}
-                    toggleFileBrowser={() => {}}
+                    toggleFileBrowser={() => {
+                      return;
+                    }}
                     toggleFileViewer={this.toggleViewerMode}
                   />
                 ) : !!selectedFolder ? (

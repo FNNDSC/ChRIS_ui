@@ -17,7 +17,7 @@ interface IHeaderProps {
   onNavToggle: () => void;
 }
 
-let BadgeStyle = {
+const BadgeStyle = {
   marginRight: "1rem",
   display: "inline-block",
   background: "transparent",

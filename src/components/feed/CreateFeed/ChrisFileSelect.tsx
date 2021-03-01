@@ -20,7 +20,7 @@ import {ErrorMessage} from './lib'
 const { DirectoryTree } = Tree;
 
 function getEmptyTree(username: string) {
-  let node: DataBreadcrumb[] = [];
+  const node: DataBreadcrumb[] = [];
   node.push({
     breadcrumb: username,
     title: username,
@@ -32,7 +32,7 @@ function getEmptyTree(username: string) {
 
 // Needs to be replaced with a better caching solution
 
-let cache: {
+const cache: {
   tree: DataBreadcrumb[];
 } = {
   tree: [],
@@ -51,7 +51,9 @@ export function clearCache(){
 }
 
 
-const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
+const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
+  username,
+}: ChrisFileSelectProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { chrisFiles, checkedKeys } = state.data;
   const [tree, setTree] = useState<DataBreadcrumb[]>(
@@ -63,10 +65,9 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
     [checkedKeys]
   );
 
- 
   const onCheck = (checkedKeys: CheckedKeys, info: Info) => {
     if (info.node.breadcrumb) {
-      let path = `${info.node.breadcrumb}`;
+      const path = `${info.node.breadcrumb}`;
       if (info.checked === true)
         dispatch({
           type: Types.AddChrisFile,
@@ -101,7 +102,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
           const treeData = [...tree];
           if (nodes.length > 0) getNewTreeData(treeData, treeNode.pos, nodes);
           setTree(treeData);
-          setCacheTree(treeData);;
+          setCacheTree(treeData);
         });
 
         resolve();
@@ -130,9 +131,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }) => {
       <br />
       <Grid hasGutter={true}>
         <GridItem span={6} rowSpan={12}>
-          <ErrorBoundary
-          FallbackComponent={ErrorFallback}
-          >
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
             <DirectoryTree
               onCheck={onCheck}
               loadData={onLoad}
@@ -157,9 +156,9 @@ export default ChrisFileSelect;
 
 
 function getCheckedKeys(checkedKeys: { [key: string]: Key[] }) {
-  let checkedKeysArray: Key[] = [];
+  const checkedKeysArray: Key[] = [];
 
-  for (let i in checkedKeys) {
+  for (const i in checkedKeys) {
     checkedKeysArray.push(...checkedKeys[i]);
   }
 

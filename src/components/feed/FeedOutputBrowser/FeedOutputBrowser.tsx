@@ -46,11 +46,11 @@ export interface FeedOutputBrowserProps {
     files: FeedFile[];
     error: any;
     hasNext: boolean;
-  } 
+  };
   viewerMode?: boolean;
   pluginInstanceResource: ResourcePayload;
-  handlePluginSelect: Function;
-  setSelectedFile: Function;
+  handlePluginSelect: (node:  PluginInstance) => void;
+  setSelectedFile: (file: IUITreeNode, folder: IUITreeNode) => void;
   getPluginFilesRequest: (selected: PluginInstance) => void;
   toggleViewerMode: (isViewerOpened: boolean) => void;
 }

@@ -7,8 +7,8 @@ interface DicomTagProps {
   image: Image | undefined;
 }
 
-const DicomTag: React.FC<DicomTagProps> = ({ image }) => {
-  let header = [];
+const DicomTag: React.FC<DicomTagProps> = ({ image }: DicomTagProps) => {
+  const header = [];
   header.push({
     name: "SOP Instance UID",
     value: getSopInstanceUID(image),
@@ -184,14 +184,11 @@ const DicomTag: React.FC<DicomTagProps> = ({ image }) => {
 
   return (
     <div className="dicomTag">
-      <div className='dicomTag__list'>
+      <div className="dicomTag__list">
         {listItems.filter((item) => item !== undefined).length > 0 ? (
-          <List>
-            {listItems}
-          </List>
+          <List>{listItems}</List>
         ) : (
-          <Text  
-          >
+          <Text>
             The tag information is only available for dicoms currently
           </Text>
         )}

@@ -135,7 +135,7 @@ export function getDicomSliceDistance(image: any) {
   try {
     const ipp = image.data.string("x00200032").split("\\"); // Image Position Patient
     //console.log("imagePosition: ", ipp)
-    let topLeftCorner = new Array(3).fill(0);
+    const topLeftCorner = new Array(3).fill(0);
     topLeftCorner[0] = parseFloat(ipp[0]); // X pos of frame (Top left) in real space
     topLeftCorner[1] = parseFloat(ipp[1]); // Y pos of frame (Top left) in real space
     topLeftCorner[2] = parseFloat(ipp[2]); // Z pos of frame (Top left) in real space
@@ -143,7 +143,7 @@ export function getDicomSliceDistance(image: any) {
 
     const iop = image.data.string("x00200037").split("\\"); // Image Orientation Patient
     //console.log("values: ", iop)
-    let v = new Array(3).fill(0).map(() => new Array(3).fill(0));
+    const v = new Array(3).fill(0).map(() => new Array(3).fill(0));
 
     v[0][0] = parseFloat(iop[0]); // the x direction cosines of the first row X
     v[0][1] = parseFloat(iop[1]); // the y direction cosines of the first row X

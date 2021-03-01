@@ -2,23 +2,20 @@ import React from 'react';
 import './loadingcontent.scss';
 
 interface LoadingContentProps {
-    className?: string;
-    type?: string;
-    width: string;
-    height: string;
-    top?: string;
-    left?: string;
-    bottom?: string;
-    right?: string;
+  width?: string;
+  height?: string;
+  top?: string;
+  left?: string;
+  bottom?: string;
+  right?: string;
+  className?: string;
+  type?: string;
 }
 
-/*
-  Rectangular placeholder for loading content blocks
-  Originally created by @jdtzmn for ChRIS_store_ui
-*/
-const LoadingContent: React.FunctionComponent<LoadingContentProps> = ({
+
+const LoadingContent = ({
     width, height, top, left, bottom, right, className, type
-}) => {
+}:LoadingContentProps): React.ReactElement => {
   const computedStyle = {
     width: width,
     height: height,
@@ -45,12 +42,12 @@ const LoadingContent: React.FunctionComponent<LoadingContentProps> = ({
 };
 
 LoadingContent.defaultProps = {
-  className: '',
-  type: '',
-  top: '0',
-  left: '0',
-  bottom: '0',
-  right: '0',
+  top: "0",
+  left: "0",
+  bottom: "0",
+  right: "0",
+  className: "",
+  type: "",
 };
 
 export default LoadingContent;

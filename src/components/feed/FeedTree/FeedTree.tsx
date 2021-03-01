@@ -157,7 +157,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     }
   }
 
-  static assignInternalProperties(data: Datum[], currentDepth: number = 0) {
+  static assignInternalProperties(data: Datum[], currentDepth = 0) {
     const d = Array.isArray(data) ? data : [data];
 
     return d.map((n) => {
@@ -311,7 +311,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
 
   generateTree() {
     const { nodeSize, orientation, separation } = this.props;
-    
+
     const d3Tree = tree<TreeNodeDatum>()
       .nodeSize(
         orientation === "horizontal"

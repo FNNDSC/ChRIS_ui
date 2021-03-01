@@ -153,7 +153,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
     const { imageArray } = this.props;
     if (imageArray.length < 0) return;
 
-    let imageIds: string[] = [];
+    const imageIds: string[] = [];
     if (this._isMounted) {
       this.setState({
         totalFiles: imageArray.length,
@@ -310,7 +310,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
 
       case "next": {
         if (this.state.frame < this.state.numberOfFrames) {
-          let frame = this.state.frame + 1;
+          const frame = this.state.frame + 1;
           this.setState(
             {
               frame,
@@ -325,7 +325,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
       }
       case "previous": {
         if (this.state.frame > 1) {
-          let frame = this.state.frame - 1;
+          const frame = this.state.frame - 1;
           this.setState(
             {
               frame,
@@ -338,7 +338,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
         break;
       }
       case "first": {
-        let frame = 1;
+        const frame = 1;
         this.setState(
           {
             frame,
@@ -351,7 +351,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
       }
 
       case "last": {
-        let frame = this.state.numberOfFrames;
+        const frame = this.state.numberOfFrames;
         this.setState({ frame: frame });
         scrollToIndex(this.state.element, frame - 1);
         break;
@@ -391,7 +391,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
       }
       case "Invert": {
         const element = this.state.element;
-        let viewport = cornerstone.getViewport(element);
+        const viewport = cornerstone.getViewport(element);
         viewport.invert = !viewport.invert;
         cornerstone.setViewport(element, viewport);
         break;

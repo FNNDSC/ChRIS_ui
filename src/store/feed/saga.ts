@@ -43,14 +43,14 @@ import { inflate } from "pako";
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
   const { name, limit, offset } = action.payload;
-  let params = {
+  const params = {
     name,
     limit,
     offset,
   };
   const client = ChrisAPIClient.getClient();
   try {
-    let feedsList = yield client.getFeeds(params);
+    const feedsList = yield client.getFeeds(params);
     yield put(getAllFeedsSuccess(feedsList));
   } catch (error) {
     yield put(getAllFeedsError(error));
@@ -112,7 +112,7 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
     }
     
     const selected = pluginInstances[pluginInstances.length - 1];
-    let pluginInstanceObj = {
+    const pluginInstanceObj = {
       selected,
       pluginInstances,
     };
@@ -189,11 +189,11 @@ function* handleGetPluginStatus(
       }
 
       
-      let payload = {
+      const payload = {
         id: pluginDetails.data.id,
         pluginStatus: parsedStatus,
         pluginLog: output,
-        pluginDetails:pluginDetails
+        pluginDetails: pluginDetails,
       };
       yield put(getPluginInstanceResourceSuccess(payload));
       if (
@@ -234,8 +234,8 @@ function* fetchPluginFiles(plugin: PluginInstance) {
       }
     }
 
-    let id = plugin.data.id;
-    let payload = {
+    const id = plugin.data.id;
+    const payload = {
       id,
       files,
       hasNext: fileList.hasNextPage,
@@ -243,8 +243,8 @@ function* fetchPluginFiles(plugin: PluginInstance) {
 
     if (files.length > 0) yield put(getPluginFilesSuccess(payload));
   } catch (error) {
-    let id = plugin.data.id;
-    let payload = {
+    const id = plugin.data.id;
+    const payload = {
       id,
       error,
     };
@@ -325,9 +325,9 @@ function* watchStatusCancelPoll(pollTask: PollTask) {
 function* pollInstanceEndpoints(action: IActionTypeParam) {
   const pluginInstances = action.payload.pluginInstances;
 
-  let pollTask:{
-    [id:number]:Task;
-  }={}
+  const pollTask: {
+    [id: number]: Task;
+  } = {};
 
   for(let i=0; i<pluginInstances.length; i++){
     const instance = pluginInstances[i];

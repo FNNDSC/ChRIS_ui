@@ -55,14 +55,16 @@ class FileTableView extends React.Component<AllProps> {
         const isfile = !!child.leaf && child.leaf;
         const newRow = [
           {
-            title: this.buildNameCellLink(child, isfile)
+            title: this.buildNameCellLink(child, isfile),
           },
           "TBD",
-          <span className="capitalize">{this.getItemType(child)}</span>,
+          <span key={child.uiId} className="capitalize">
+            {this.getItemType(child)}
+          </span>,
           "7.5 MB - TBD",
           {
-            title: this.buildActionCell(child, isfile)
-          }
+            title: this.buildActionCell(child, isfile),
+          },
         ];
         arr.push(newRow);
       });
