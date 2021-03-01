@@ -34,7 +34,7 @@ class ToolbarComponent extends React.Component<AllProps> {
     onDropdownSelect(isOpened);
   };
 
-  onDropdownSelect = (event: React.SyntheticEvent<HTMLDivElement>) => {
+  onDropdownSelect = () => {
     const { onDropdownSelect, isDropdownOpen } = this.props;
     !!isDropdownOpen && onDropdownSelect(!isDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
   };

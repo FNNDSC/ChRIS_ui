@@ -39,8 +39,7 @@ class Node extends React.Component<NodeProps, NodeState> {
     nodeTransform: this.setNodeTransform(
       this.props.orientation,
       this.props.position,
-      this.props.parent,
-      true
+     
     ),
     initialStyle: {
       opacity: 0,
@@ -61,8 +60,8 @@ class Node extends React.Component<NodeProps, NodeState> {
   }
 
   commitTransform() {
-    const { parent, position, orientation } = this.props;
-    const nodeTransform = this.setNodeTransform(orientation, position, parent);
+    const {  position, orientation } = this.props;
+    const nodeTransform = this.setNodeTransform(orientation, position);
     this.applyNodeTransform(nodeTransform);
   }
 
@@ -85,8 +84,6 @@ class Node extends React.Component<NodeProps, NodeState> {
   setNodeTransform(
     orientation: NodeProps["orientation"],
     position: NodeProps["position"],
-    parent: NodeProps["parent"],
-    shouldTranslateToOrigin = false
   ) {
     return orientation === "horizontal"
       ? `translate(${position.y},${position.x})`
@@ -101,24 +98,21 @@ class Node extends React.Component<NodeProps, NodeState> {
     const {
       data,
       selectedPlugin,
-      onNodeClick,
+      onNodeClick, 
       toggleLabel,
-      pluginInstanceStatus,
+      pluginInstanceStatus
     } = this.props;
     const { hovered } = this.state;
-    let status = "";
-    let statusClass = "";
+    let status="";
+    let statusClass="";
 
-    if (
-      data.item &&
-      data.item.data.id &&
-      pluginInstanceStatus &&
-      pluginInstanceStatus[data.item.data.id]
-    ) {
-      status = pluginInstanceStatus[data.item.data.id].status;
-    } else if (data.item) {
-      status = data.item.data.status;
+    if(data.item && data.item.data.id && pluginInstanceStatus && pluginInstanceStatus[data.item.data.id]){
+      status=pluginInstanceStatus[data.item.data.id].status;
     }
+    else if(data.item) {
+      status=data.item.data.status;
+    }
+
 
     const currentId = data.item?.data.id;
     if (
@@ -171,7 +165,7 @@ class Node extends React.Component<NodeProps, NodeState> {
               hovered: !this.state.hovered,
             });
           }}
-          onClick={(event) => {
+          onClick={() => {
             if (data.item) {
               this.handleNodeToggle();
               onNodeClick(data.item);

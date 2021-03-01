@@ -180,7 +180,7 @@ const AddNode: React.FC<AddNodeProps> = ({
     const { dropdownInput } = addNodeState;
 
     const newObject = Object.entries(dropdownInput)
-      .filter(([key, value]) => {
+      .filter(([key]) => {
         return key !== input;
       })
       .reduce((acc: InputType, [key, value]) => {
