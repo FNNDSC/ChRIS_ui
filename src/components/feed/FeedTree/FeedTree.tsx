@@ -428,7 +428,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
               );
             })}
 
-            {nodes?.map(({ data, x, y, parent, ...rest }, i) => {
+            {nodes?.map(({ data, x, y, parent }, i) => {
               return (
                 <Node
                   key={`node + ${i}`}

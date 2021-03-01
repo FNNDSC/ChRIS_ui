@@ -235,7 +235,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(getSelectedPlugin(item)),
 });
 
-const mapStateToProps = ({ ui, feed }: ApplicationState) => ({
+const mapStateToProps = ({ feed }: ApplicationState) => ({
   pluginInstances: feed.pluginInstances,
   selectedPlugin: feed.selectedPlugin,
   currentLayout: feed.currentLayout,

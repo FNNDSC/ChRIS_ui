@@ -70,7 +70,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     });
   };
 
-  const onSelect = (event?: React.SyntheticEvent<HTMLDivElement>): void => {
+  const onSelect = (): void => {
     setDropdownState({
       ...dropdownState,
       isOpen: !isOpen,
@@ -111,10 +111,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     deleteComponent(id);
   };
 
-  const handleInputChange = (
-    value: string,
-    event: React.FormEvent<HTMLInputElement>
-  ) => {
+  const handleInputChange = (value: string) => {
     handleChange(paramId, flag, value, false, type, placeholder);
   };
 

@@ -44,11 +44,9 @@ const {componentList, count, errors, alertVisible, docsExpanded}=configState;
 
 const setDropdownDefaults=React.useCallback(()=>{
   if(!isEmpty(dropdownInput)){
-    const defaultComponentList = Object.entries(dropdownInput).map(
-      ([key, _value]) => {
-        return key;
-      }
-    );
+    const defaultComponentList = Object.entries(dropdownInput).map(([key]) => {
+      return key;
+    });
     setConfigState((configState) => {
       return {
         ...configState,

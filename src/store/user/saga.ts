@@ -33,9 +33,9 @@ function* watchLoginRequest() {
 
 // ----------------------------------------------------------------
 
-function handleLogout(action: any) {
+function handleLogout() {
   window.sessionStorage.removeItem("AUTH_TOKEN");
-  window.sessionStorage.removeItem('USERNAME')
+  window.sessionStorage.removeItem("USERNAME");
   history.push("/login");
 }
 function* watchLogoutRequest() {

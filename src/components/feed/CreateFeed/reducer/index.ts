@@ -188,7 +188,7 @@ export const createFeedReducer = (
       const { input } = action.payload;
 
       const newObject = Object.entries(dropdownInput)
-        .filter(([key, value]) => {
+        .filter(([key]) => {
           return key !== input;
         })
         .reduce((acc: InputType, [key, value]) => {
