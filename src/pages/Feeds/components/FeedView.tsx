@@ -1,6 +1,5 @@
 import * as React from "react";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
+import { useFeedActions, useTypedSelector, useUiActions } from '../../../store/hooks';
 import {
   PageSection,
   PageSectionVariants,
@@ -14,72 +13,40 @@ import {
 } from "@patternfly/react-core";
 import classNames from 'classnames';
 import { FeedDetails } from "../../../components";
-
-import { setSidebarActive } from "../../../store/ui/actions";
-import {
-  getFeedRequest,
-  getSelectedPlugin,
-  destroyPluginState,
-} from "../../../store/feed/actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { RouteComponentProps } from "react-router-dom";
-import { ApplicationState } from "../../../store/root/applicationState";
-import { IFeedState, DestroyData } from "../../../store/feed/types";
-import { IUserState } from "../../../store/user/types";
+import { DestroyData } from "../../../store/feed/types";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
-
 const ParentComponent = React.lazy(
   () => import("../../../components/feed/FeedTree/ParentComponent")
 );
 const FeedGraph = React.lazy(
   () => import("../../../components/feed/FeedTree/FeedGraph")
 );
-
 const FeedOutputBrowser = React.lazy(
   () => import("../../../components/feed/FeedOutputBrowser/FeedOutputBrowser")
 );
-
 const NodeDetails=React.lazy(()=>import("../../../components/feed/NodeDetails/NodeDetails"))
 
+export type FeedViewProps = RouteComponentProps<{ id: string }>;
 
-interface IPropsFromDispatch {
-  setSidebarActive: typeof setSidebarActive;
-  getFeedRequest: typeof getFeedRequest;
-  destroyPluginState: typeof destroyPluginState;
-  getSelectedPlugin: typeof getSelectedPlugin;
- 
-}
-
-export type FeedViewProps = IUserState &
-  IFeedState &
-  IPropsFromDispatch &
-  RouteComponentProps<{ id: string }>;
-
-export const FeedView: React.FC<FeedViewProps> = ({
-  setSidebarActive,
-  match: {
-    params: { id },
-  },
-  getFeedRequest,
-  getSelectedPlugin,
-  destroyPluginState,
-  pluginInstances,
-  currentLayout,
-  selectedPlugin,
-}: FeedViewProps) => {
+export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: FeedViewProps) => {
   const [isExpanded, setIsExpanded] = React.useState(true);
-
+  const {pluginInstances, selectedPlugin, currentLayout}  =  useTypedSelector((state)  => state.feed);
+  const {getFeedRequest, destroyPluginState, getSelectedPlugin} =useFeedActions();
+  const {setSidebarActive} = useUiActions();
+ 
+ 
   const getFeed = React.useCallback(() => {
-    getFeedRequest(id);
-  }, [id, getFeedRequest]);
+    getFeedRequest(id)
+  }, [id]);
 
   const dataRef = React.useRef<DestroyData>();
-
   const { data } = pluginInstances;
 
   dataRef.current = {
     data,
-    selectedPlugin: selectedPlugin,
+    selectedPlugin
   };
 
   React.useEffect(() => {
@@ -88,7 +55,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
         destroyPluginState(dataRef.current);
       }
     };
-  }, [destroyPluginState]);
+  }, []);
 
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
@@ -97,7 +64,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
       activeItem: "my_feeds",
     });
     getFeed();
-  }, [id, getFeed, setSidebarActive]);
+  }, [id]);
 
   const onNodeClick = (node: PluginInstance) => {
     getSelectedPlugin(node);
@@ -226,20 +193,6 @@ export const FeedView: React.FC<FeedViewProps> = ({
   );
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getFeedRequest: (id: string) => dispatch(getFeedRequest(id)),
-  setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
-    dispatch(setSidebarActive(active)),
-  destroyPluginState: (data: DestroyData) => dispatch(destroyPluginState(data)),
-  getSelectedPlugin: (item: PluginInstance) =>
-    dispatch(getSelectedPlugin(item)),
-});
-
-const mapStateToProps = ({ feed }: ApplicationState) => ({
-  pluginInstances: feed.pluginInstances,
-  selectedPlugin: feed.selectedPlugin,
-  currentLayout: feed.currentLayout,
-});
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedView);
+export default FeedView;

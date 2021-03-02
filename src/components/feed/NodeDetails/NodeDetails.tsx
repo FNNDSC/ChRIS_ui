@@ -1,8 +1,5 @@
 import React, {Fragment} from 'react';
 import Moment from "react-moment";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
-import { ApplicationState } from "../../../store/root/applicationState";
 import {
   Button,
   Grid,
@@ -30,16 +27,11 @@ import DeleteNode from "../DeleteNode";
 import PluginLog from './PluginLog';
 import Status from './Status';
 import StatusTitle from "./StatusTitle";
-import { PluginInstancePayload, } from "../../../store/feed/types";
-import { getPluginInstances, getSelected } from "../../../store/feed/selector";
-import { setFeedLayout } from "../../../store/feed/actions";
+import { useTypedSelector, useFeedActions } from "../../../store/hooks";
 import "./NodeDetails.scss";
 
 
 interface INodeProps {
-  selected?: PluginInstance;
-  pluginInstances?: PluginInstancePayload;
-  setFeedLayout: typeof setFeedLayout;
   expandDrawer: () => void;
 }
 
@@ -57,24 +49,25 @@ function getInitialState(){
   };
 }
 
-const NodeDetails: React.FC<INodeProps> = ({
-  selected,
-  setFeedLayout,
-  expandDrawer,
-}) => {
+const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
+  const { selectedPlugin } = useTypedSelector(
+    (state) => state.feed );
+
+
+  const {setFeedLayout}  =  useFeedActions();
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isVisible, setIsVisible] = React.useState(false);
   const [isExpanded, setIsExpanded] = React.useState(false);
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const instanceParameters = await selected?.getParameters({
+      const instanceParameters = await selectedPlugin?.getParameters({
         limit: 100,
         offset: 0,
       });
 
-      const plugin = await selected?.getPlugin();
+      const plugin = await selectedPlugin?.getPlugin();
       const pluginParameters = await plugin?.getPluginParameters({
         limit: 100,
         offset: 0,
@@ -90,7 +83,7 @@ const NodeDetails: React.FC<INodeProps> = ({
     };
 
     fetchData();
-  }, [selected]);
+  }, [selectedPlugin]);
 
   const command = React.useCallback(getCommand, [
     plugin,
@@ -103,16 +96,16 @@ const NodeDetails: React.FC<INodeProps> = ({
       ? command(plugin, instanceParameters, pluginParameters)
       : "";
 
-  const runTime = React.useCallback(getRuntimeString, [selected]);
+  const runTime = React.useCallback(getRuntimeString, [selectedPlugin]);
 
   const pluginTitle = React.useMemo(() => {
     return (
-      selected?.data.title ||
-      `${selected?.data.plugin_name} v. ${selected?.data.plugin_version}`
+      selectedPlugin?.data.title ||
+      `${selectedPlugin?.data.plugin_name} v. ${selectedPlugin?.data.plugin_version}`
     );
-  }, [selected]);
+  }, [selectedPlugin]);
 
-  if (!selected) {
+  if (!selectedPlugin) {
     return (
       <Skeleton
         height="75%"
@@ -121,8 +114,6 @@ const NodeDetails: React.FC<INodeProps> = ({
       />
     );
   } else {
-    
-   
     return (
       <div className="node-details">
         <div className="node-details__title">
@@ -162,7 +153,7 @@ const NodeDetails: React.FC<INodeProps> = ({
               <GridItem span={10} className="value">
                 <CalendarDayIcon />
                 <Moment format="DD MMM YYYY @ HH:mm">
-                  {selected.data.start_date}
+                  {selectedPlugin.data.start_date}
                 </Moment>
               </GridItem>
 
@@ -170,7 +161,7 @@ const NodeDetails: React.FC<INodeProps> = ({
                 Node ID
               </GridItem>
               <GridItem span={10} className="value">
-                {selected.data.id}
+                {selectedPlugin.data.id}
               </GridItem>
               {runTime && (
                 <Fragment>
@@ -179,7 +170,7 @@ const NodeDetails: React.FC<INodeProps> = ({
                     Total Runtime:
                   </GridItem>
                   <GridItem span={10} className="value">
-                    {selected && selected.data && runTime(selected)}
+                    {selectedPlugin && selectedPlugin.data && runTime(selectedPlugin)}
                   </GridItem>
                 </Fragment>
               )}
@@ -187,12 +178,12 @@ const NodeDetails: React.FC<INodeProps> = ({
           </ExpandableSection>
         </Grid>
         <div className="node-details__actions">
-          {selected.data.status === "finishedWithError" ||
-          selected.data.status === "cancelled" ? null : (
+          {selectedPlugin.data.status === "finishedWithError" ||
+          selectedPlugin.data.status === "cancelled" ? null : (
             <AddNode />
           )}
 
-          {selected.data.previous_id !== undefined && <DeleteNode />}
+          {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
           <Button
             icon={<BezierCurveIcon />}
             type="button"
@@ -227,18 +218,8 @@ const NodeDetails: React.FC<INodeProps> = ({
   }
 };
 
-const mapStateToProps = (state: ApplicationState) => ({
-  selected: getSelected(state),
-  instances: getPluginInstances(state),
-});
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setFeedLayout: () => dispatch(setFeedLayout()),
-});
-
-
-export default connect(mapStateToProps, mapDispatchToProps)(NodeDetails);
-
+export default NodeDetails;
 
 function getRuntimeString(selected:PluginInstance) {
   let runtime = 0;
