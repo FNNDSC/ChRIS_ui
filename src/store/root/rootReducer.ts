@@ -15,15 +15,14 @@ import { pluginReducer } from "../plugin/reducer";
 import { explorerReducer } from "../explorer/reducer";
 import { galleryReducer } from "../gallery/reducer";
 
-const rootReducer = () =>
-  combineReducers({
-    ui: uiReducer,
-    message: messageReducer,
-    feed: feedReducer,
-    user: userReducer,
-    plugin: pluginReducer,
-    explorer: explorerReducer,
-    gallery: galleryReducer,
-  });
+const rootReducer = combineReducers({
+  ui: uiReducer,
+  message: messageReducer,
+  feed: feedReducer,
+  user: userReducer,
+  plugin: pluginReducer,
+  explorer: explorerReducer,
+  gallery: galleryReducer,
+});
 
 export default rootReducer;
