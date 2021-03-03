@@ -30,30 +30,32 @@ const NodeDetails=React.lazy(()=>import("../../../components/feed/NodeDetails/No
 
 export type FeedViewProps = RouteComponentProps<{ id: string }>;
 
+
 export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: FeedViewProps) => {
   const [isExpanded, setIsExpanded] = React.useState(true);
-  const {pluginInstances, selectedPlugin, currentLayout}  =  useTypedSelector((state)  => state.feed);
-  const {getFeedRequest, destroyPluginState, getSelectedPlugin} =useFeedActions();
-  const {setSidebarActive} = useUiActions();
- 
- 
-  const getFeed = React.useCallback(() => {
-    getFeedRequest(id)
-  }, [id]);
-
+  const { pluginInstances, selectedPlugin, currentLayout } = useTypedSelector(
+    (state) => state.feed
+  );
+  
+  const { setSidebarActive } = useUiActions();
+  const {
+    getFeedRequest,
+    destroyPluginState,
+    getSelectedPlugin,
+  } = useFeedActions();
   const dataRef = React.useRef<DestroyData>();
   const { data } = pluginInstances;
 
   dataRef.current = {
     data,
-    selectedPlugin
+    selectedPlugin,
   };
+  
 
   React.useEffect(() => {
     return () => {
-      if (dataRef.current) {
-        destroyPluginState(dataRef.current);
-      }
+      if(dataRef.current)
+      destroyPluginState(dataRef.current);
     };
   }, []);
 
@@ -63,7 +65,7 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
       activeGroup: "feeds_grp",
       activeItem: "my_feeds",
     });
-    getFeed();
+    getFeedRequest(id);
   }, [id]);
 
   const onNodeClick = (node: PluginInstance) => {
