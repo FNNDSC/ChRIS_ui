@@ -5,27 +5,17 @@ import AllFeedsPage from "./components/FeedListView";
 import FeedView from "./components/FeedView";
 import "./Feed.scss";
 
-
-
-class FeedsPage extends React.Component<RouteComponentProps> {
-  render() {
-    const { match } = this.props;
-    return (
-      <Wrapper>
-        <FeedsRoutes match={match} />
-      </Wrapper>
-    );
-  }
-}
-
-// Description: Build My feeds sub routes
-const FeedsRoutes: React.FunctionComponent<{
-  match: RouteComponentProps["match"];
-}> = (props: { match: RouteComponentProps["match"] }) => (
-  <Switch>
-    <Route exact path={`${props.match.path}`} component={AllFeedsPage} />
-    <Route path={`${props.match.path}/:id`} component={FeedView} />
-  </Switch>
-);
+const FeedsPage: React.FC<RouteComponentProps> = (
+  props: RouteComponentProps
+) => {
+  return (
+    <Wrapper>
+      <Switch>
+        <Route exact path={`${props.match.path}`} component={AllFeedsPage} />
+        <Route path={`${props.match.path}/:id`} component={FeedView} />
+      </Switch>
+    </Wrapper>
+  );
+};
 
 export default FeedsPage;

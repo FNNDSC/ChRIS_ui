@@ -12,14 +12,14 @@ import {
   EmptyStateIcon,
   EmptyStateVariant,
 } from "@patternfly/react-core";
-import { Spin, Alert } from "antd"; 
+import { Spin, Alert } from "antd";
 import FileBrowser from "./FileBrowser";
 import PluginViewerModal from "./PluginViewerModal";
 import {
   setSelectedFile,
   toggleViewerMode,
 } from "../../../store/explorer/actions";
-import { getPluginFilesRequest,} from "../../../store/feed/actions";
+import { getPluginFilesRequest } from "../../../store/feed/actions";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { ApplicationState } from "../../../store/root/applicationState";
@@ -28,16 +28,18 @@ import {
   PluginInstancePayload,
   ResourcePayload,
 } from "../../../store/feed/types";
-import {getSelectedInstanceResource, getSelectedFiles} from '../../../store/feed/selector'
+import {
+  getSelectedInstanceResource,
+  getSelectedFiles,
+} from "../../../store/feed/selector";
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
-import {isEmpty} from 'lodash'
+import { isEmpty } from "lodash";
 import { getFeedTree } from "./data";
 import { Tree } from "antd";
 import "./FeedOutputBrowser.scss";
 import "antd/dist/antd.css";
 import { CubeIcon } from "@patternfly/react-icons";
-const {DirectoryTree}=Tree;
-
+const { DirectoryTree } = Tree;
 
 export interface FeedOutputBrowserProps {
   pluginInstances: PluginInstancePayload;
@@ -49,7 +51,7 @@ export interface FeedOutputBrowserProps {
   };
   viewerMode?: boolean;
   pluginInstanceResource: ResourcePayload;
-  handlePluginSelect: (node:  PluginInstance) => void;
+  handlePluginSelect: (node: PluginInstance) => void;
   setSelectedFile: (file: IUITreeNode, folder: IUITreeNode) => void;
   getPluginFilesRequest: (selected: PluginInstance) => void;
   toggleViewerMode: (isViewerOpened: boolean) => void;
@@ -75,32 +77,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   }, [selected, pluginFilesPayload, getPluginFilesRequest]);
 
   if (!selected || isEmpty(pluginInstances) || loading) {
-    return (
-      <Grid hasGutter className="feed-output-browser">
-        <GridItem
-          className="feed-output-browser__sidebar "
-          rowSpan={12}
-          span={2}
-        >
-          <Skeleton
-            shape="square"
-            width="30%"
-            screenreaderText="Loading Sidebar"
-          />
-        </GridItem>
-        <GridItem className="feed-output-browser__main" span={10} rowSpan={12}>
-          <Grid>
-            <GridItem span={12} rowSpan={12}>
-              <Skeleton
-                height="100%"
-                width="75%"
-                screenreaderText="Fetching Plugin Resources"
-              />
-            </GridItem>
-          </Grid>
-        </GridItem>
-      </Grid>
-    );
+    return <LoadingFeedBrowser/>
   } else {
     const pluginName = selected && selected.data && getPluginName(selected);
     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
@@ -237,7 +214,31 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(setSelectedFile(file, folder)),
   toggleViewerMode: (isViewerOpened: boolean) =>
     dispatch(toggleViewerMode(isViewerOpened)),
-  
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedOutputBrowser);
+
+const LoadingFeedBrowser = () => {
+  return (
+    <Grid hasGutter className="feed-output-browser">
+      <GridItem className="feed-output-browser__sidebar " rowSpan={12} span={2}>
+        <Skeleton
+          shape="square"
+          width="30%"
+          screenreaderText="Loading Sidebar"
+        />
+      </GridItem>
+      <GridItem className="feed-output-browser__main" span={10} rowSpan={12}>
+        <Grid>
+          <GridItem span={12} rowSpan={12}>
+            <Skeleton
+              height="100%"
+              width="75%"
+              screenreaderText="Fetching Plugin Resources"
+            />
+          </GridItem>
+        </Grid>
+      </GridItem>
+    </Grid>
+  );
+};

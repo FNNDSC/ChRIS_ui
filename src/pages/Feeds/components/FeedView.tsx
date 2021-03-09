@@ -20,6 +20,7 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 import { RouteComponentProps } from "react-router-dom";
 import { DestroyData } from "../../../store/feed/types";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
+
 const ParentComponent = React.lazy(
   () => import("../../../components/feed/FeedTree/ParentComponent")
 );

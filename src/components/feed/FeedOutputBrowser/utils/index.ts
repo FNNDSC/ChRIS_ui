@@ -10,6 +10,7 @@ export function createTreeFromFiles(
 ) {
   if (!files || !selected) return null;
   const model = new UITreeNodeModel(files, selected);
+  
   const tree = model.getTree();
   tree.module = getPluginName(selected);
   return tree;
