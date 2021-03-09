@@ -7,8 +7,6 @@ import {
 } from "./types";
 
 import { Feed, PluginInstance } from "@fnndsc/chrisapi";
-
-
 export const getAllFeedsRequest = (
   name?: string,
   limit?: number,
@@ -29,8 +27,6 @@ export const getFeedError = (error: any) =>
 
 export const getSelectedPlugin = (item: PluginInstance) =>
   action(FeedActionTypes.GET_SELECTED_PLUGIN, item);
-
-
 export const getPluginInstancesRequest = (feed: Feed) =>
   action(FeedActionTypes.GET_PLUGIN_INSTANCES_REQUEST, feed);
 export const getPluginInstancesSuccess = (items: PluginInstanceObj) =>
