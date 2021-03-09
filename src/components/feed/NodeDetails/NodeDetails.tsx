@@ -8,6 +8,7 @@ import {
   Skeleton,
   ExpandableSection,  
 } from "@patternfly/react-core";
+import {useDispatch} from 'react-redux';
 import { Popover } from "antd";
 import {
   Plugin,
@@ -27,7 +28,8 @@ import DeleteNode from "../DeleteNode";
 import PluginLog from './PluginLog';
 import Status from './Status';
 import StatusTitle from "./StatusTitle";
-import { useTypedSelector, useFeedActions } from "../../../store/hooks";
+import {setFeedLayout} from '../../../store/feed/actions';
+import { useTypedSelector} from "../../../store/hooks";
 import "./NodeDetails.scss";
 
 
@@ -53,9 +55,8 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const { selectedPlugin } = useTypedSelector(
     (state) => state.feed );
-
-
-  const {setFeedLayout}  =  useFeedActions();
+  
+  const dispatch= useDispatch();
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isVisible, setIsVisible] = React.useState(false);
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -187,7 +188,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           <Button
             icon={<BezierCurveIcon />}
             type="button"
-            onClick={() => setFeedLayout()}
+            onClick={() => dispatch(setFeedLayout())}
             variant="primary"
           >
             Switch Layout

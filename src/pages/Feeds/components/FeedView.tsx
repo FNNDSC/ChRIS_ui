@@ -1,5 +1,6 @@
 import * as React from "react";
-import { useFeedActions, useTypedSelector, useUiActions } from '../../../store/hooks';
+import { useTypedSelector} from '../../../store/hooks';
+import {useDispatch} from 'react-redux';
 import {
   PageSection,
   PageSectionVariants,
@@ -13,6 +14,8 @@ import {
 } from "@patternfly/react-core";
 import classNames from 'classnames';
 import { FeedDetails } from "../../../components";
+import {destroyPluginState, getFeedRequest, getSelectedPlugin} from '../../../store/feed/actions'
+import {setSidebarActive} from '../../../store/ui/actions'
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { RouteComponentProps } from "react-router-dom";
 import { DestroyData } from "../../../store/feed/types";
@@ -36,13 +39,7 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
   const { pluginInstances, selectedPlugin, currentLayout } = useTypedSelector(
     (state) => state.feed
   );
-  
-  const { setSidebarActive } = useUiActions();
-  const {
-    getFeedRequest,
-    destroyPluginState,
-    getSelectedPlugin,
-  } = useFeedActions();
+  const dispatch=useDispatch();
   const dataRef = React.useRef<DestroyData>();
   const { data } = pluginInstances;
 
@@ -55,21 +52,21 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
   React.useEffect(() => {
     return () => {
       if(dataRef.current)
-      destroyPluginState(dataRef.current);
+      dispatch(destroyPluginState(dataRef.current));
     };
-  }, []);
+  }, [dispatch]);
 
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
-    setSidebarActive({
+    dispatch(setSidebarActive({
       activeGroup: "feeds_grp",
       activeItem: "my_feeds",
-    });
-    getFeedRequest(id);
-  }, [id]);
+    }));
+    dispatch(getFeedRequest(id));
+  }, [id, dispatch]);
 
   const onNodeClick = (node: PluginInstance) => {
-    getSelectedPlugin(node);
+    dispatch(getSelectedPlugin(node));
   };
 
   const onClick = () => {

@@ -1,10 +1,6 @@
 import * as React from "react";
-
-
 import { createBrowserHistory } from "history";
 export default createBrowserHistory();
-
-
 
 function useSafeDispatch(dispatch: any) {
   const mounted = React.useRef(false);
