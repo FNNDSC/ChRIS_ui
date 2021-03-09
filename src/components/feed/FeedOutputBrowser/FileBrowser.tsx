@@ -104,8 +104,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
       }
     }
     const icon = getIcon(type);
-    const isPathSelected =
-      !!this.state.pathViewingFile &&
+    const isPathSelected = !!this.state.pathViewingFile &&
       this.state.pathViewingFile.uiId === node.uiId;
     const isPreviewing =
       !!this.state.previewingFile &&

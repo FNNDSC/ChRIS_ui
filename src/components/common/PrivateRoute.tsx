@@ -20,6 +20,7 @@ interface PrivateRouteProps extends RouteProps {
 
 type RenderComponent = ((props: RouteComponentProps<any>) => React.ReactNode);
 type AllProps = PrivateRouteProps & IUserState;
+
 class PrivateRoute extends Route<AllProps> {
   render() {
     const {

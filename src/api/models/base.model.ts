@@ -102,15 +102,5 @@ export default class ChrisModel {
     return axios(config);
   }
 
-  // NOTE: This returns an IItem object needs to be parsed into client models ***** TBD
-  // Will be integrated for v2
-  // static fetchChrisRequest(url: string) {
-  //   const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
-  //   const req = new Request(auth, "application/vnd.collection+json");
-  //   return req.get(url).then((res) => {
-  //     return parseCollectiontoModel(res.data); // Need a parser form ICollection to IFeed and others
-  //   }) .catch((error) => {
-  //     return error;
-  //   })
-  // }
+ 
 }

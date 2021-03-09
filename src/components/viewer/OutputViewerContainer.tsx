@@ -74,7 +74,7 @@ class OutputViewerContainer extends React.Component<
             break;
         }
         tabs.push(
-          <Tab eventKey={i} title={label}>
+          <Tab key={i} eventKey={i} title={label}>
             {tabContent}
           </Tab>
         );
