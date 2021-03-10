@@ -16,6 +16,7 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
   switch (action.type) {
     // Description: Set the explorer object:
     case ExplorerActionTypes.SET_EXPLORER_REQUEST: {
+      
       return {
         ...state,
         explorer: action.payload,

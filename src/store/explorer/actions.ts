@@ -10,11 +10,17 @@ import UITreeNodeModel, {
 export const setExplorerRequest = (
   files: FeedFile[],
   selected: PluginInstance
-) =>
-  action(
+) => {
+
+  const model= new UITreeNodeModel(files, selected)
+  const tree= model.getTree();
+
+  return action(
     ExplorerActionTypes.SET_EXPLORER_REQUEST,
-    new UITreeNodeModel(files, selected).getTree()
+    tree
   );
+}
+ 
 
 
 export const setSelectedFile = (

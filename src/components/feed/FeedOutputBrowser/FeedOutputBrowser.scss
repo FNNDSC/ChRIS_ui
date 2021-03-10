@@ -50,13 +50,11 @@
     flex-direction: column;
     gap:0.25em;
 
-    &-info {
+    &__info {
       gap:2rem;
       display:flex;
       justify-content: flex-end;
     }
-
-
 
     @include media-query($pf-global--breakpoint--xl){
       display:flex;
@@ -70,11 +68,11 @@
     --pf-c-breadcrumb__item--FontSize: var(--pf-global--FontSize--md)
   }
   
-  &__table {
+   &__table {
     overflow-y: scroll;
     border-right:0.2px solid #f5f5f5;
     max-width: 100%;
-    tbody tr{
+    tbody tr {
       cursor: pointer;
     }
     svg{
