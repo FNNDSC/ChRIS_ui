@@ -66,7 +66,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     if (!directory.children) {
       return;
     }
-   
+
     const file = directory.children[rowIndex];
 
     if (file && file.children) {
@@ -75,9 +75,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         directory: file,
         breadcrumbs: [...breadcrumbs, file],
       });
-    } 
-    else {
-
+    } else {
       setfileBrowserState({
         ...fileBrowserState,
         previewingFile: file,
@@ -122,7 +120,12 @@ const FileBrowser = (props: FileBrowserProps) => {
     const icon = getIcon(type);
     const isPreviewing = !!previewingFile && previewingFile.uiId === node.uiId;
     const fileName = (
-      <div className={classNames("file-name", isPreviewing && "previewing")}>
+      <div
+        className={classNames(
+          "file-browser__table--fileName",
+          isPreviewing && "file-browser__table--isPreviewing"
+        )}
+      >
         {icon}
         {node.module}
       </div>
@@ -167,7 +170,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         mdRowSpan={12}
         sm={12}
         smRowSpan={12}
-        className="file-browser__table"
+        className="file-browser__firstGrid"
       >
         <div className="file-browser__header">
           <Breadcrumb>{breadcrumbs.map(generateBreadcrumb)}</Breadcrumb>
@@ -188,6 +191,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         </div>
 
         <Table
+          className="file-browser__table"
           aria-label="file-browser"
           variant={TableVariant.compact}
           cells={cols}
