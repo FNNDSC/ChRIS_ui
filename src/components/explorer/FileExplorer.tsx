@@ -38,6 +38,7 @@ class FileExplorer extends React.Component<AllProps> {
 
   render() {
     const {explorer} = this.props;
+  
     return (
       <div className="explorer-tree">
         <Tree

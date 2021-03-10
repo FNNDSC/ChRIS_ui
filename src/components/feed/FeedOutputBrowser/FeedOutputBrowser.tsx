@@ -77,7 +77,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   }, [selected, pluginFilesPayload, getPluginFilesRequest]);
 
   if (!selected || isEmpty(pluginInstances) || loading) {
-    return <LoadingFeedBrowser/>
+    return <LoadingFeedBrowser />;
   } else {
     const pluginName = selected && selected.data && getPluginName(selected);
     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
@@ -175,18 +175,9 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               />
             ) : selected.data.status === "cancelled" ||
               selected.data.status === "finishedWithError" ? (
-              <EmptyState variant={EmptyStateVariant.large}>
-                <EmptyStateIcon icon={CubeIcon} />
-                <Title headingLevel="h4" size="lg" />
-                <EmptyStateBody>
-                  The plugin execution was either cancelled or it finished with
-                  error.
-                </EmptyStateBody>
-              </EmptyState>
+              <EmptyStateLoader />
             ) : (
-              <Spin tip="Loading....">
-                <Alert message="Retrieving Plugin's Files" type="info" />
-              </Spin>
+              <FetchFilesLoader />
             )}
           </GridItem>
         </Grid>
@@ -240,5 +231,25 @@ const LoadingFeedBrowser = () => {
         </Grid>
       </GridItem>
     </Grid>
+  );
+};
+
+const EmptyStateLoader = () => {
+  return (
+    <EmptyState variant={EmptyStateVariant.large}>
+      <EmptyStateIcon icon={CubeIcon} />
+      <Title headingLevel="h4" size="lg" />
+      <EmptyStateBody>
+        The plugin execution was either cancelled or it finished with error.
+      </EmptyStateBody>
+    </EmptyState>
+  );
+};
+
+const FetchFilesLoader = () => {
+  return (
+    <Spin tip="Loading....">
+      <Alert message="Retrieving Plugin's Files" type="info" />
+    </Spin>
   );
 };

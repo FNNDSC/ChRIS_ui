@@ -45,6 +45,7 @@ export default class UITreeNodeModel {
     this._items = items;
     this.parseUiTree(items, selected);
   }
+
   getTree = () => {
     return this.tree;
   };
@@ -69,6 +70,7 @@ export default class UITreeNodeModel {
     file: FeedFile,
     index: number
   ) => {
+    
     fileArray.forEach((item: string, i: number) => {
       const isLeaf = i === fileArray.length - 1;
       const uiId = `uiId_${i}_${index}_${!isLeaf ? item : file.data.id}`;

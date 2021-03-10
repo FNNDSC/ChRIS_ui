@@ -19,7 +19,7 @@ export interface FileBrowserProps {
   downloadAllClick: () => void;
 }
 
-export interface FileBrowerState {
+export interface FileBrowserState {
   directory: IUITreeNode;
   breadcrumbs: IUITreeNode[];
   previewingFile?: IUITreeNode; // file selected for preview
