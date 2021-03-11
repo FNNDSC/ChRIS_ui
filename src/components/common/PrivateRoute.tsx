@@ -1,53 +1,29 @@
 import React from "react";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../store/root/applicationState";
-import {
-  Route,
-  RouteComponentProps,
-  RouteProps,
-  Redirect
-} from "react-router-dom";
-import { IUserState } from "../../store/user/types";
+import { Route, Redirect } from "react-router-dom";
+
 
 // Description: Protected routes. Only show if user is logged in
 // Pass an optional param: redirectPath - for passing a redirect option to another path / defaults to "/login"
-interface PrivateRouteProps extends RouteProps {
-  redirectPath?: string;
-  component:
-    | React.ComponentType<RouteComponentProps<any>>
-    | React.ComponentType<any>;
+interface PrivateRouteProps {
+  component: React.FC<any>;
+  path: string;
+  exact?: boolean;
+  isLoggedIn?: boolean;
 }
 
-type RenderComponent = ((props: RouteComponentProps<any>) => React.ReactNode);
-type AllProps = PrivateRouteProps & IUserState;
+type AllProps = PrivateRouteProps; 
 
-class PrivateRoute extends Route<AllProps> {
-  render() {
-    const {
-      component: Component,
-      redirectPath,
-      isLoggedIn,
-      ...rest
-    } = this.props;
+const PrivateRoute: React.FC<AllProps> = (props: AllProps) => {
+  const { isLoggedIn } = props;
 
-    // const isLoggedIn = this.props.isLoggedIn;
-    const renderComponent: RenderComponent = (props) =>
-      isLoggedIn ? (
-        <Component {...props} />
-      ) : (
-        <Redirect to={redirectPath || "/login"} />
-      );
+  return isLoggedIn ? <Route {...props} /> : <Redirect to="/login" />;
+};
 
-    return <Route {...rest} render={renderComponent} />;
-  }
-}
-
-const mapStateToProps = ({  user }: ApplicationState) => ({
-    isLoggedIn: user.isLoggedIn
+const mapStateToProps = ({ user }: ApplicationState) => ({
+  isLoggedIn: user.isLoggedIn,
 });
 
 // export default PrivateRoute;
-export default connect(
-  mapStateToProps,
-  null
-)(PrivateRoute);
+export default connect(mapStateToProps, null)(PrivateRoute);
