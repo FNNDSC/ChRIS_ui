@@ -1,7 +1,8 @@
 import { all, fork, put, takeEvery } from "redux-saga/effects";
 import { UserActionTypes } from "./types";
 import { setAuthError, setAuthTokenSuccess } from "./actions";
-import history from "../../utils";
+
+
 
 // ----------------------------------------------------------------
 // Description: List - Get all Users
@@ -16,12 +17,9 @@ function* handleResponse(action: any) {
       })
     );
     window.sessionStorage.setItem("AUTH_TOKEN", action.payload.token);
-    window.sessionStorage.setItem('USERNAME',action.payload.username)
-
-    history.push("/");
+    window.sessionStorage.setItem("USERNAME", action.payload.username);
   } catch (error) {
     setAuthError();
-    history.push("/not-found");
   }
 }
 
@@ -36,7 +34,6 @@ function* watchLoginRequest() {
 function handleLogout() {
   window.sessionStorage.removeItem("AUTH_TOKEN");
   window.sessionStorage.removeItem("USERNAME");
-  history.push("/login");
 }
 function* watchLogoutRequest() {
   yield takeEvery(UserActionTypes.LOGOUT_USER, handleLogout);
