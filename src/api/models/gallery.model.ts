@@ -1,11 +1,11 @@
-import { IFeedFile } from "./feed-file.model";
+
 import { IUITreeNode } from "./file-explorer.model";
 import { getFileExtension } from "./file-explorer.model";
 import ChrisModel from "./base.model";
 import keyMirror from "keymirror";
 import _ from "lodash";
 
-export interface IGalleryItem extends IFeedFile {
+export interface IGalleryItem {
   uiId: string;
   fileName: string;
   blob?: Blob;
@@ -40,29 +40,6 @@ export const galleryActions = keyMirror({
 export type galleryModelItemType = IUITreeNode | IGalleryItem;
 
 export default class GalleryModel {
-  static getGalleryItemBlob(galleryItem: IGalleryItem) {
-    return ChrisModel.getFileBlob(galleryItem.url).catch((error) => {
-      return { error }; // HANDLE ERROR FILES
-    });
-  }
-
-  // Description: Find a gallery item by uiId
-  static getGalleryItemIndex(
-    uiId: string,
-    galleryItems: galleryModelItemType[]
-  ) {
-    return _.findIndex(galleryItems, (item: galleryModelItemType) => {
-      return _.isEqual(uiId, item.uiId);
-    });
-  }
-
-  static getArrayItemIndex(url: string, urlArray: string[]) {
-    const index = _.findIndex(urlArray, (itemUrl: string) => {
-      return _.isEqual(url, itemUrl);
-    });
-    return index < 0 ? 0 : index;
-  }
-
   // Description: is this a dcm file
   static isValidFile(filename: string): boolean {
     switch (getFileExtension(filename).toLowerCase()) {

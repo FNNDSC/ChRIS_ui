@@ -1,10 +1,11 @@
-import { IFeedFile } from "./feed-file.model";
+
 import { IUITreeNode } from "./file-explorer.model";
+import { FeedFile } from "@fnndsc/chrisapi";
 import _ from "lodash";
 export interface IFileBlob {
   blob?: Blob;
+  file?: FeedFile;
   fileType: string;
-  file?: IFeedFile;
 }
 
 export default class FileViewerModel {
