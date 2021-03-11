@@ -23,10 +23,9 @@ import {
   TableVariant,
 } from "@patternfly/react-table";
 import FileViewerModel from "../../../api/models/file-viewer.model";
-import { IUITreeNode } from "../../../api/models/file-explorer.model";
-import { FileBrowserProps, FileBrowserState } from "./types";
+import { FileBrowserProps, FileBrowserState, TreeNode } from "./types";
 
-function getInitialState(root: IUITreeNode) {
+function getInitialState(root: TreeNode) {
   return {
     directory: root,
     breadcrumbs: [root],
@@ -47,11 +46,119 @@ const FileBrowser = (props: FileBrowserProps) => {
     setfileBrowserState,
   ] = React.useState<FileBrowserState>(getInitialState(root));
   const { breadcrumbs, directory, previewingFile } = fileBrowserState;
-  console.log("FileBrowserState", fileBrowserState);
 
-  const generateBreadcrumb = () => {
-    return <h1>Test</h1>;;
+  const handleBreadcrumbClick = (
+    e: React.MouseEvent,
+    folder: TreeNode,
+    prevBreadcrumbs: TreeNode[]
+  ) => {
+    e.preventDefault();
+
+    setfileBrowserState({
+      ...fileBrowserState,
+      directory: folder,
+      breadcrumbs: [...prevBreadcrumbs, folder],
+    });
   };
+
+  const handleFileClick = (e: React.MouseEvent, rows: any[], rowData: any) => {
+    const target = e.nativeEvent.target as HTMLElement;
+    if (e.button !== 0 || target.closest(".download-file")) {
+      return;
+    }
+
+    const rowIndex = rowData.rowIndex;
+    if (!directory.children) {
+      return;
+    }
+
+    const file = directory.children[rowIndex];
+
+    if (file && file.children) {
+      setfileBrowserState({
+        ...fileBrowserState,
+        directory: file,
+        breadcrumbs: [...breadcrumbs, file],
+      });
+    } else {
+      setfileBrowserState({
+        ...fileBrowserState,
+        previewingFile: file,
+      });
+    }
+  };
+
+  const handleDownloadClick = async (e: React.MouseEvent, node: TreeNode) => {
+    e.stopPropagation();
+    const blob = await node.file.getFileBlob();
+  };
+
+  const generateBreadcrumb = (
+    folder: TreeNode,
+    i: number,
+    breadcrumbs: TreeNode[]
+  ) => {
+    console.log("breadcrumb arguments", folder, breadcrumbs);
+    const prevBreadcrumbs = breadcrumbs.slice(0, i);
+    const onClick = (e: React.MouseEvent) =>
+      handleBreadcrumbClick(e, folder, prevBreadcrumbs);
+    return (
+      <BreadcrumbItem onClick={onClick} key={i}>
+        {folder.title}
+      </BreadcrumbItem>
+    );
+  };
+
+  const generateTableRow = (node: TreeNode) => {
+    let type = "UNKNOWN FORMAT";
+    if (node.children.length > 0) {
+      type = "dir";
+    } else if (node.file) {
+      const name = node.title;
+      if (name.indexOf(".") > -1) {
+        type = name.split(".").splice(-1)[0].toUpperCase();
+      }
+    }
+    const icon = getIcon(type);
+    const isPreviewing =
+      !!previewingFile && previewingFile.file.data.id === node.file.data.id;
+    const fileName = (
+      <div
+        className={classNames(
+          "file-browser__table--fileName",
+          isPreviewing && "file-browser__table--isPreviewing"
+        )}
+      >
+        {icon}
+        {node.title}
+      </div>
+    );
+    const name = {
+      title: fileName,
+    };
+
+    const download = {
+      title: node.children ? (
+        ""
+      ) : (
+        <DownloadIcon
+          className="download-file-icon"
+          onClick={(e) => handleDownloadClick(e, node)}
+        />
+      ),
+    };
+
+    return {
+      cells: [name, type, download],
+    };
+  };
+
+  const cols = ["Name", "Type", ""];
+  const rows = directory.children.map(generateTableRow);
+
+  if (!directory.children || !directory.children.length) {
+    return <div>No Files in this directory.</div>;
+  }
 
   return (
     <Grid hasGutter className="file-browser">
@@ -85,6 +192,17 @@ const FileBrowser = (props: FileBrowserProps) => {
             </Button>
           </div>
         </div>
+
+        <Table
+          className="file-browser__table"
+          aria-label="file-browser"
+          variant={TableVariant.compact}
+          cells={cols}
+          rows={rows}
+        >
+          <TableHeader />
+          <TableBody onRowClick={handleFileClick} />
+        </Table>
       </GridItem>
     </Grid>
   );
