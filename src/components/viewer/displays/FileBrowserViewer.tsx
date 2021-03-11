@@ -15,7 +15,7 @@ import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import ChrisModel from "../../../api/models/base.model";
-import SwiftFileBrowser from './SwiftFileBrowser'
+import SwiftFileBrowser from "./SwiftFileBrowser";
 import FileDetailView from "../../explorer/FileDetailView";
 import GalleryDicomView from "../../explorer/GalleryDicomView";
 
@@ -66,42 +66,12 @@ class FileBrowserViewer extends React.Component<AllProps> {
       !!explorer &&
       !!explorer.children && (
         <div className="pf-u-px-lg">
-          {!viewerMode ? (
+          {!viewerMode && (
             <Grid>
               <GridItem className="pf-u-p-sm" sm={12} md={3}>
-                {
-                  <SwiftFileBrowser/>
-                }
-              </GridItem>
-              <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
-                {!!selectedFile && !!selectedFolder ? (
-                  <FileDetailView
-                    fullScreenMode={false}
-                    selectedFile={selectedFile}
-                    toggleFileBrowser={() => {
-                      return;
-                    }}
-                    toggleFileViewer={this.toggleViewerMode}
-                  />
-                ) : (
-                  <Alert
-                    variant="info"
-                    title="Please select a file or folder from the file explorer"
-                    className="empty"
-                  />
-                )}
+                {<SwiftFileBrowser />}
               </GridItem>
             </Grid>
-          ) : (
-            <div className="viewer-data">
-              {!!selectedFile && !!selectedFolder && isDicom && (
-                <GalleryDicomView
-                  selectedFile={selectedFile}
-                  selectedFolder={selectedFolder}
-                  toggleViewerMode={this.toggleViewerMode}
-                />
-              )}
-            </div>
           )}
         </div>
       )

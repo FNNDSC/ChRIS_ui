@@ -21,6 +21,7 @@ export function createTreeFromFiles(
   buildTree(filePaths, (computedTree) => {
     tree = computedTree;
   });
+  console.log("TREE", tree);
 
   return tree;
 }
@@ -54,7 +55,7 @@ const buildTree = (
       } else {
         const newPart = {
           title: part,
-          file: file,
+          file: file.file,
           children: [],
         };
         currentLevel.push(newPart);
