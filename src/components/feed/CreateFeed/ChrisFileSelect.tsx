@@ -152,9 +152,6 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
 
 export default ChrisFileSelect;
 
-
-
-
 function getCheckedKeys(checkedKeys: { [key: string]: Key[] }) {
   const checkedKeysArray: Key[] = [];
 

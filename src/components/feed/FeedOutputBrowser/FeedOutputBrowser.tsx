@@ -118,6 +118,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       pluginSidebarTree = getFeedTree(plugins);
     }
 
+    console.log("Tree", tree);
+
     return (
       <>
         <Grid hasGutter className="feed-output-browser ">

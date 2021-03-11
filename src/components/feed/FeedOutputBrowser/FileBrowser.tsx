@@ -35,127 +35,23 @@ function getInitialState(root: IUITreeNode) {
 }
 
 const FileBrowser = (props: FileBrowserProps) => {
-  const { root, selectedFiles, downloadAllClick } = props;
+  const {
+    root,
+    selectedFiles,
+    downloadAllClick,
+    handleFileBrowserToggle,
+    handleFileViewerToggle,
+  } = props;
   const [
     fileBrowserState,
     setfileBrowserState,
   ] = React.useState<FileBrowserState>(getInitialState(root));
   const { breadcrumbs, directory, previewingFile } = fileBrowserState;
+  console.log("FileBrowserState", fileBrowserState);
 
-  const handleBreadcrumbClick = (
-    e: React.MouseEvent,
-    folder: IUITreeNode,
-    prevBreadcrumbs: IUITreeNode[]
-  ) => {
-    e.preventDefault();
-
-    setfileBrowserState({
-      ...fileBrowserState,
-      directory: folder,
-      breadcrumbs: [...prevBreadcrumbs, folder],
-    });
+  const generateBreadcrumb = () => {
+    return <h1>Test</h1>;;
   };
-
-  const handleFileClick = (e: React.MouseEvent, rows: any[], rowData: any) => {
-    const target = e.nativeEvent.target as HTMLElement;
-    if (e.button !== 0 || target.closest(".download-file")) {
-      return;
-    }
-
-    const rowIndex = rowData.rowIndex;
-    if (!directory.children) {
-      return;
-    }
-
-    const file = directory.children[rowIndex];
-
-    if (file && file.children) {
-      setfileBrowserState({
-        ...fileBrowserState,
-        directory: file,
-        breadcrumbs: [...breadcrumbs, file],
-      });
-    } else {
-      setfileBrowserState({
-        ...fileBrowserState,
-        previewingFile: file,
-      });
-    }
-  };
-
-  const handleDownloadClick = async (
-    e: React.MouseEvent,
-    node: IUITreeNode
-  ) => {
-    e.stopPropagation();
-    const blob = await node.file.getFileBlob();
-    FileViewerModel.downloadFile(blob, node.module);
-  };
-
-  const generateBreadcrumb = (
-    folder: IUITreeNode,
-    i: number,
-    breadcrumbs: IUITreeNode[]
-  ) => {
-    const prevBreadcrumbs = breadcrumbs.slice(0, i);
-    const onClick = (e: React.MouseEvent) =>
-      handleBreadcrumbClick(e, folder, prevBreadcrumbs);
-    return (
-      <BreadcrumbItem onClick={onClick} key={i}>
-        {folder.module}
-      </BreadcrumbItem>
-    );
-  };
-
-  const generateTableRow = (node: IUITreeNode) => {
-    let type = "UNKNOWN FORMAT";
-    if (node.children) {
-      type = "dir";
-    } else if (node.file) {
-      const name = node.module;
-      if (name.indexOf(".") > -1) {
-        type = name.split(".").splice(-1)[0].toUpperCase();
-      }
-    }
-    const icon = getIcon(type);
-    const isPreviewing = !!previewingFile && previewingFile.uiId === node.uiId;
-    const fileName = (
-      <div
-        className={classNames(
-          "file-browser__table--fileName",
-          isPreviewing && "file-browser__table--isPreviewing"
-        )}
-      >
-        {icon}
-        {node.module}
-      </div>
-    );
-    const name = {
-      title: fileName,
-    };
-
-    const download = {
-      title: node.children ? (
-        ""
-      ) : (
-        <DownloadIcon
-          className="download-file-icon"
-          onClick={(e) => handleDownloadClick(e, node)}
-        />
-      ),
-    };
-
-    return {
-      cells: [name, type, download],
-    };
-  };
-
-  if (!directory.children || !directory.children.length) {
-    return <div>No Files in this directory.</div>;
-  }
-
-  const cols = ["Name", "Type", ""];
-  const rows = directory.children.map(generateTableRow);
 
   return (
     <Grid hasGutter className="file-browser">
@@ -189,23 +85,18 @@ const FileBrowser = (props: FileBrowserProps) => {
             </Button>
           </div>
         </div>
-
-        <Table
-          className="file-browser__table"
-          aria-label="file-browser"
-          variant={TableVariant.compact}
-          cells={cols}
-          rows={rows}
-        >
-          <TableHeader />
-          <TableBody onRowClick={handleFileClick} />
-        </Table>
       </GridItem>
     </Grid>
   );
 };
 
 export default FileBrowser;
+
+/**
+ *
+ * @param type string
+ * @returns JSX Element
+ */
 
 const getIcon = (type: string) => {
   switch (type.toLowerCase()) {

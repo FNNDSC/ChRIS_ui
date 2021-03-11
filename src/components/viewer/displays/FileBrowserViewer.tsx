@@ -15,8 +15,7 @@ import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
 import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import ChrisModel from "../../../api/models/base.model";
-import FileExplorer from "../../explorer/FileExplorer";
-import FileTableView from "../../explorer/FileTableView";
+import SwiftFileBrowser from './SwiftFileBrowser'
 import FileDetailView from "../../explorer/FileDetailView";
 import GalleryDicomView from "../../explorer/GalleryDicomView";
 
@@ -71,11 +70,7 @@ class FileBrowserViewer extends React.Component<AllProps> {
             <Grid>
               <GridItem className="pf-u-p-sm" sm={12} md={3}>
                 {
-                  <FileExplorer
-                    explorer={explorer}
-                    selectedNode={selectedFile || selectedFolder}
-                    onClickNode={this.setActiveNode}
-                  />
+                  <SwiftFileBrowser/>
                 }
               </GridItem>
               <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={9}>
@@ -87,12 +82,6 @@ class FileBrowserViewer extends React.Component<AllProps> {
                       return;
                     }}
                     toggleFileViewer={this.toggleViewerMode}
-                  />
-                ) : !!selectedFolder ? (
-                  <FileTableView
-                    selectedFolder={selectedFolder}
-                    onClickNode={this.setActiveNode}
-                    downloadFileNode={this.handleFileDownload}
                   />
                 ) : (
                   <Alert

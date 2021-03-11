@@ -1,6 +1,8 @@
 import React from "react";
 import { useTypedSelector } from "../../store/hooks";
 import { Tabs, Tab, Alert } from "@patternfly/react-core";
+import { FileBrowserViewer } from "./displays";
+
 
 const OutputViewerContainer = () => {
   const { pluginFiles, selectedPlugin } = useTypedSelector(
@@ -15,16 +17,14 @@ const OutputViewerContainer = () => {
     const selectedFiles = pluginFiles[selectedPlugin.data.id];
 
     const buildTabs = () => {
-      const tabContent = !!selectedFiles && !!selectedPlugin && <div>Test</div>;
       const tabs = [];
 
       tabs.push(
         <Tab
-          key={selectedPlugin.data.id}
-          title="Tab"
-          eventKey={selectedPlugin.data.id}
+          title="Swift Browser"
+          eventKey={0}
         >
-          {tabContent}
+          {!!selectedPlugin && !! selectedFiles && <FileBrowserViewer files={selectedFiles.files} selected={selectedPlugin}/>}
         </Tab>
       );
 
