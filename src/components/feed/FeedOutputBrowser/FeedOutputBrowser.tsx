@@ -20,7 +20,6 @@ import {
   toggleViewerMode,
 } from "../../../store/explorer/actions";
 import { getPluginFilesRequest } from "../../../store/feed/actions";
-import { IUITreeNode } from "../../../api/models/file-explorer.model";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { createTreeFromFiles, getPluginName } from "./utils";
@@ -52,7 +51,6 @@ export interface FeedOutputBrowserProps {
   viewerMode?: boolean;
   pluginInstanceResource: ResourcePayload;
   handlePluginSelect: (node: PluginInstance) => void;
-  setSelectedFile: (file: IUITreeNode, folder: IUITreeNode) => void;
   getPluginFilesRequest: (selected: PluginInstance) => void;
   toggleViewerMode: (isViewerOpened: boolean) => void;
 }
@@ -62,7 +60,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   pluginFilesPayload,
   selected,
   handlePluginSelect,
-  setSelectedFile,
   viewerMode,
   toggleViewerMode,
   getPluginFilesRequest,
@@ -98,14 +95,13 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       FileViewerModel.downloadFile(blob, filename);
     };
 
-    const handleFileBrowserOpen = (file: IUITreeNode, folder: IUITreeNode) => {
+    const handleFileBrowserOpen = () => {
       setPluginModalOpen(true);
-      setSelectedFile(file, folder);
     };
 
-    const handleFileViewerOpen = (file: IUITreeNode, folder: IUITreeNode) => {
+    const handleFileViewerOpen = () => {
       setPluginModalOpen(true);
-      setSelectedFile(file, folder);
+
       toggleViewerMode(!viewerMode);
     };
 
@@ -117,9 +113,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     if (plugins && plugins.length > 0) {
       pluginSidebarTree = getFeedTree(plugins);
     }
-
-    console.log("Tree", tree);
-
+    
     return (
       <>
         <Grid hasGutter className="feed-output-browser ">
@@ -169,7 +163,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               <FileBrowser
                 selectedFiles={pluginFiles}
                 pluginName={pluginName}
-                root={tree}
+                root={tree[0]}
                 key={selected.data.id}
                 handleFileBrowserToggle={handleFileBrowserOpen}
                 handleFileViewerToggle={handleFileViewerOpen}
@@ -203,21 +197,16 @@ const mapStateToProps = (state: ApplicationState) => ({
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getPluginFilesRequest: (selected: PluginInstance) =>
     dispatch(getPluginFilesRequest(selected)),
-  setSelectedFile: (file: IUITreeNode, folder: IUITreeNode) =>
-    dispatch(setSelectedFile(file, folder)),
   toggleViewerMode: (isViewerOpened: boolean) =>
     dispatch(toggleViewerMode(isViewerOpened)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedOutputBrowser);
 
-
 /**
  * Utility Components
- * 
+ *
  */
-
-
 
 const LoadingFeedBrowser = () => {
   return (
