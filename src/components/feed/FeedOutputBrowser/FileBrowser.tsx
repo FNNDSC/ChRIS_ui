@@ -73,8 +73,9 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
 
     const file = directory.children[rowIndex];
+    console.log("File", file);
 
-    if (file && file.children) {
+    if (file && file.children.length > 0) {
       setfileBrowserState({
         ...fileBrowserState,
         directory: file,
@@ -98,7 +99,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     i: number,
     breadcrumbs: TreeNode[]
   ) => {
-    console.log("breadcrumb arguments", folder, breadcrumbs);
     const prevBreadcrumbs = breadcrumbs.slice(0, i);
     const onClick = (e: React.MouseEvent) =>
       handleBreadcrumbClick(e, folder, prevBreadcrumbs);
@@ -113,7 +113,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     let type = "UNKNOWN FORMAT";
     if (node.children.length > 0) {
       type = "dir";
-    } else if (node.file) {
+    } else {
       const name = node.title;
       if (name.indexOf(".") > -1) {
         type = name.split(".").splice(-1)[0].toUpperCase();
@@ -121,7 +121,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
     const icon = getIcon(type);
     const isPreviewing =
-      !!previewingFile && previewingFile.file.data.id === node.file.data.id;
+      !!previewingFile && previewingFile.title === node.title;
     const fileName = (
       <div
         className={classNames(
@@ -203,6 +203,33 @@ const FileBrowser = (props: FileBrowserProps) => {
           <TableHeader />
           <TableBody onRowClick={handleFileClick} />
         </Table>
+      </GridItem>
+
+      <GridItem
+        xl2={8}
+        xl2RowSpan={12}
+        xl={8}
+        xlRowSpan={12}
+        lg={8}
+        lgRowSpan={12}
+        md={8}
+        mdRowSpan={12}
+        sm={12}
+        smRowSpan={12}
+        className="file-browser__grid2"
+      >
+        {previewingFile && (
+          <FileDetailView
+            fullScreenMode={true}
+            selectedFile={previewingFile.file}
+            toggleFileBrowser={() => {
+              handleFileBrowserToggle(previewingFile, directory);
+            }}
+            toggleFileViewer={() => {
+              handleFileViewerToggle(previewingFile, directory);
+            }}
+          />
+        )}
       </GridItem>
     </Grid>
   );
