@@ -70,10 +70,11 @@ export default class UITreeNodeModel {
     file: FeedFile,
     index: number
   ) => {
-    
+  
     fileArray.forEach((item: string, i: number) => {
       const isLeaf = i === fileArray.length - 1;
       const uiId = `uiId_${i}_${index}_${!isLeaf ? item : file.data.id}`;
+   
       !isLeaf ? this._AddFolder(item, uiId) : this._addFile(item, uiId, file);
     });
   };
@@ -83,7 +84,8 @@ export default class UITreeNodeModel {
     const newFolder = Object.assign({}, this._folderTemplate, {
       module: item,
       uiId,
-    }); // This is what we will add
+    }); // This is what we will add 
+
     if (!!this._previousObj && !!this._previousObj.children) {
       const newArr = this._previousObj.children.slice();
       const existingModule = _.find(newArr, { module: item });
@@ -103,6 +105,7 @@ export default class UITreeNodeModel {
       uiId,
       file,
     });
+
     this._findChildrenArr(this._previousItem, this._worker);
     if (!!this._previousObj && !!this._previousObj.children) {
       const newArr = this._previousObj.children.slice();
@@ -115,6 +118,7 @@ export default class UITreeNodeModel {
   private _findChildrenArr = (item: string, node: IUITreeNode) => {
     if (!!node.children) {
       const resultArr = _.find(node.children, (o: IUITreeNode) => {
+        
         return o.module === item;
       });
 
@@ -132,7 +136,6 @@ export default class UITreeNodeModel {
   // Description: covert file string to an array
   private _convertFiletoArray = (item: FeedFile) => {
     const fileName = item.data.fname;
-
     // find the pluginName within the filename string then decompose the substring
     return fileName
       .substring(fileName.indexOf("data"), fileName.length)

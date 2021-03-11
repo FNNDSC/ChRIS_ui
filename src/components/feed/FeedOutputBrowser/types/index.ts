@@ -1,16 +1,7 @@
 import { IUITreeNode } from "../../../../api/models/file-explorer.model";
-import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
-import { Logs, PluginStatus } from "../../../../store/feed/types";
-
-export interface PluginStatusProps {
-  pluginStatus?: PluginStatus[];
-  pluginLog?: Logs;
-  selected?: PluginInstance;
-}
+import { FeedFile } from "@fnndsc/chrisapi";
 
 export interface FileBrowserProps {
-  hasNext?: boolean;
-
   selectedFiles?: FeedFile[];
   root: IUITreeNode;
   pluginName?: string;
@@ -32,8 +23,3 @@ export interface Label {
 }
 
 
-export type ComputeLog = {
-  d_ret?: {
-    l_logs?: string[];
-  };
-};

@@ -41,17 +41,7 @@ export default class FileViewerModel {
   }
 }
 
-// Description: Mapping for plugin tabs *Note: Should come from db
-export const pluginViewerMap: any = {
-  default: ["FileBrowserViewer"],
-  dircopy: ["FileBrowserViewer"],
-  pacscopy: ["FileBrowserViewer"],
-  mri10yr06mo01da_normal: ["FileBrowserViewer"], // This is temp for custom display
-  freesurfer_pp: ["FileBrowserViewer"],
-  simpledsapp: ["FileBrowserViewer"],
-  mpcs: ["FileBrowserViewer"],
-  z2labelmap: ["FileBrowserViewer"],
-};
+
 
 // Description: Mapping for Viewer type by file type *Note: Should come from db
 // File type: Viewer component name
