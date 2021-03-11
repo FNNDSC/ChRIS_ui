@@ -73,8 +73,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
 
     const file = directory.children[rowIndex];
-    console.log("File", file);
-
+    
     if (file && file.children.length > 0) {
       setfileBrowserState({
         ...fileBrowserState,

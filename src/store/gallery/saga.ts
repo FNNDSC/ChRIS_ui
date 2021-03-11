@@ -18,12 +18,7 @@ function* handleInitGalleryRequest(action: any) {
   try {
     const selectedFile: IUITreeNode = action.payload.selectedFile;
     const selectedFolder: IUITreeNode = action.payload.selectedFolder;
-    const index = !!selectedFolder.children
-      ? GalleryModel.getGalleryItemIndex(
-          selectedFile.uiId,
-          selectedFolder.children
-        )
-      : 0;
+    const index = !!selectedFolder.children ? 1 : 0;
     const galleryItemModel = new GalleryItemModel(selectedFile, index);
 
     const data = yield selectedFile.file.getFileBlob();
