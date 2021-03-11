@@ -61,8 +61,7 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
         username: this.state.usernameValue,
       });
 
-      this.props.history.push('/')
-
+      this.props.history.push("/");
     }
   }
 
