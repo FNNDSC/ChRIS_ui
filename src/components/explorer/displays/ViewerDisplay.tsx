@@ -27,7 +27,6 @@ const ViewerDisplay: React.FC<ViewerDisplayProps> = (
   props: ViewerDisplayProps
 ) => {
   const Component = (components as any)[props.viewerName || "CatchallDisplay"];
-
   return <Component {...props} />;
 };
 
