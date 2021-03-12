@@ -6,6 +6,7 @@ import { ExpandIcon, FilmIcon, InfoCircleIcon } from "@patternfly/react-icons";
 import { getFileExtension } from "../../api/models/file-explorer.model";
 import { IFileBlob, fileViewerMap } from "../../api/models/file-viewer.model";
 
+
 const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 
 interface AllProps {
@@ -27,8 +28,7 @@ function getInitialState() {
 const FileDetailView = (props: AllProps) => {
   const [fileState, setFileState] = React.useState<IFileBlob>(getInitialState);
   const { selectedFile, fullScreenMode, toggleFileBrowser } = props;
-  const { blob, file, fileType } = fileState;
-
+  const { blob, fileType } = fileState;
   const fetchData = React.useCallback(async () => {
     const fileName = selectedFile.data.fname,
       fileType = getFileExtension(fileName);
