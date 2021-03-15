@@ -1,6 +1,6 @@
 import React from "react";
-import { Dispatch } from "redux";
-import { connect } from "react-redux";
+import { useTypedSelector } from "../../../store/hooks";
+import { useDispatch } from "react-redux";
 import JSZip from "jszip";
 import {
   Grid,
@@ -12,73 +12,62 @@ import {
   EmptyStateIcon,
   EmptyStateVariant,
 } from "@patternfly/react-core";
-import { Spin, Alert } from "antd";
+import { CubeIcon } from "@patternfly/react-icons";
+import { Spin, Alert, Tree } from "antd";
 import FileBrowser from "./FileBrowser";
 import PluginViewerModal from "./PluginViewerModal";
 import {
+  setExplorerRequest,
   setSelectedFile,
   toggleViewerMode,
 } from "../../../store/explorer/actions";
 import { getPluginFilesRequest } from "../../../store/feed/actions";
 import FileViewerModel from "../../../api/models/file-viewer.model";
-import { ApplicationState } from "../../../store/root/applicationState";
 import { createTreeFromFiles, getPluginName } from "./utils";
-import {
-  PluginInstancePayload,
-  ResourcePayload,
-} from "../../../store/feed/types";
-import {
-  getSelectedInstanceResource,
-  getSelectedFiles,
-} from "../../../store/feed/selector";
-import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
+import { PluginInstance } from "@fnndsc/chrisapi";
 import { isEmpty } from "lodash";
 import { getFeedTree } from "./data";
-import { Tree } from "antd";
+import { DataNode } from "../../../store/explorer/types";
+
 import "./FeedOutputBrowser.scss";
 import "antd/dist/antd.css";
-import { CubeIcon } from "@patternfly/react-icons";
+
 const { DirectoryTree } = Tree;
 
 export interface FeedOutputBrowserProps {
-  pluginInstances: PluginInstancePayload;
-  selected?: PluginInstance;
-  pluginFilesPayload?: {
-    files: FeedFile[];
-    error: any;
-    hasNext: boolean;
-  };
-  viewerMode?: boolean;
-  pluginInstanceResource: ResourcePayload;
   handlePluginSelect: (node: PluginInstance) => void;
-  getPluginFilesRequest: (selected: PluginInstance) => void;
-  toggleViewerMode: (isViewerOpened: boolean) => void;
 }
 
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
-  pluginInstances,
-  pluginFilesPayload,
-  selected,
   handlePluginSelect,
-  viewerMode,
-  toggleViewerMode,
-  getPluginFilesRequest,
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
+  const dispatch = useDispatch();
+  const {
+    selectedPlugin: selected,
+    pluginFiles,
+    pluginInstances,
+  } = useTypedSelector((state) => state.feed);
+  const { viewerMode } = useTypedSelector((state) => state.explorer);
   const { data: plugins, loading } = pluginInstances;
+  const pluginFilesPayload = selected && pluginFiles[selected.data.id];
 
   React.useEffect(() => {
     if (!pluginFilesPayload && selected) {
-      getPluginFilesRequest(selected);
+      dispatch(getPluginFilesRequest(selected));
     }
-  }, [selected, pluginFilesPayload, getPluginFilesRequest]);
+  }, [selected, pluginFilesPayload, dispatch]);
 
   if (!selected || isEmpty(pluginInstances) || loading) {
     return <LoadingFeedBrowser />;
   } else {
     const pluginName = selected && selected.data && getPluginName(selected);
     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
-    const tree = createTreeFromFiles(selected, pluginFiles);
+    const tree: DataNode[] | null  = createTreeFromFiles(
+      selected,
+      pluginFiles
+    );
+    
 
     const downloadAllClick = async () => {
       if (!selected) return;
@@ -96,24 +85,27 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     };
 
     const handleFileBrowserOpen = () => {
-      setPluginModalOpen(true);
+    
+      if (tree) {
+        dispatch(setExplorerRequest(tree));
+      }
+       setPluginModalOpen(!pluginModalOpen)
     };
 
     const handleFileViewerOpen = () => {
-      setPluginModalOpen(true);
-
-      toggleViewerMode(!viewerMode);
+      setPluginModalOpen(!pluginModalOpen)
+      dispatch(toggleViewerMode(!viewerMode));
     };
 
     const handlePluginModalClose = () => {
-      setPluginModalOpen(!pluginModalOpen);
+     setPluginModalOpen(!pluginModalOpen)
     };
 
     let pluginSidebarTree;
     if (plugins && plugins.length > 0) {
       pluginSidebarTree = getFeedTree(plugins);
     }
-    
+
     return (
       <>
         <Grid hasGutter className="feed-output-browser ">
@@ -186,22 +178,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   }
 };
 
-const mapStateToProps = (state: ApplicationState) => ({
-  pluginInstanceResource: getSelectedInstanceResource(state),
-  selected: state.feed.selectedPlugin,
-  pluginFilesPayload: getSelectedFiles(state),
-  pluginInstances: state.feed.pluginInstances,
-  viewerMode: state.explorer.viewerMode,
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getPluginFilesRequest: (selected: PluginInstance) =>
-    dispatch(getPluginFilesRequest(selected)),
-  toggleViewerMode: (isViewerOpened: boolean) =>
-    dispatch(toggleViewerMode(isViewerOpened)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(FeedOutputBrowser);
+export default FeedOutputBrowser;
 
 /**
  * Utility Components

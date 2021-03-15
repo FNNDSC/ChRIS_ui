@@ -4,32 +4,28 @@ import GalleryModel from "../../api/models/gallery.model";
 
 // Type-safe initialState
 const initialState: IExplorerState = {
-  explorer: { module: "", uiId: "" },
+  explorer: undefined,
   selectedFile: undefined,
   selectedFolder: undefined,
   viewerMode: false,
   isDicom: false,
 };
 
-// Description: Handle File explorer state
+
 const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
   switch (action.type) {
-    // Description: Set the explorer object:
     case ExplorerActionTypes.SET_EXPLORER_REQUEST: {
-      
       return {
         ...state,
         explorer: action.payload,
       };
     }
     case ExplorerActionTypes.SET_SELECTED_FILE: {
-      const selectedFile = action.payload.selectedFile;
-      const isDicom = GalleryModel.isValidFile(selectedFile.module);
+      const selectedFile = action.payload;
+      //const isDicom = GalleryModel.isValidFile(selectedFile.module);
       return {
         ...state,
         selectedFile,
-        isDicom,
-        selectedFolder: action.payload.selectedFolder,
       };
     }
     case ExplorerActionTypes.SET_SELECTED_FOLDER: {
