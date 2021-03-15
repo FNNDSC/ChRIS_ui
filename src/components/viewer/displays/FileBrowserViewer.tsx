@@ -5,10 +5,11 @@ import { Tree } from "antd";
 import { GridItem, Grid } from "@patternfly/react-core";
 import { Key } from "../../../store/explorer/types";
 import FileDetailView from "../../explorer/FileDetailView";
+import GalleryDicomView from "../../explorer/GalleryDicomView";
 import { setSelectedFile } from "../../../store/explorer/actions";
 
 const FileBrowserViewer = () => {
-  const { explorer, selectedFile } = useTypedSelector(
+  const { explorer, selectedFile, viewerMode } = useTypedSelector(
     (state) => state.explorer
   );
   const dispatch = useDispatch();
@@ -23,28 +24,34 @@ const FileBrowserViewer = () => {
 
   return (
     <div className="pf-u-px-lg">
-      <Grid>
-        <GridItem className="pf-u-p-sm" sm={12} md={4}>
-          <Tree
-            defaultExpandedKeys={selectedKeys}
-            selectedKeys={selectedKeys}
-            treeData={explorer}
-            onSelect={onSelect}
-            showLine
-          />
-        </GridItem>
-        <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={8}>
-          {selectedFile && selectedFile.file && (
-            <FileDetailView
-              selectedFile={selectedFile.file}
-              toggleFileBrowser={() => {
-                return;
-              }}
-              toggleFileViewer={toggleViewerMode}
+      {!viewerMode ? (
+        <Grid>
+          <GridItem className="pf-u-p-sm" sm={12} md={4}>
+            <Tree
+              defaultExpandedKeys={selectedKeys}
+              selectedKeys={selectedKeys}
+              treeData={explorer}
+              onSelect={onSelect}
+              showLine
             />
-          )}
-        </GridItem>
-      </Grid>
+          </GridItem>
+          <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={8}>
+            {selectedFile && selectedFile.file && (
+              <FileDetailView
+                selectedFile={selectedFile.file}
+                toggleFileBrowser={() => {
+                  return;
+                }}
+                toggleFileViewer={toggleViewerMode}
+              />
+            )}
+          </GridItem>
+        </Grid>
+      ) : (
+        <div className="viewer-data">
+          <GalleryDicomView />
+        </div>
+      )}
     </div>
   );
 };

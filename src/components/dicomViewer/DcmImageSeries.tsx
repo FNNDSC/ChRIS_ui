@@ -8,7 +8,7 @@ import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import Hammer from "hammerjs";
 import * as dicomParser from "dicom-parser";
 import { isDicom } from "./utils";
-import { IUITreeNode } from "../../api/models/file-explorer.model";
+
 import DicomHeader from "./DcmHeader/DcmHeader";
 import DicomLoader from "./DcmLoader";
 import CornerstoneViewport from "react-cornerstone-viewport";
@@ -16,7 +16,7 @@ import { Drawer } from "antd";
 import DicomTag from "./DicomTag";
 import { Image, Viewport } from "./types";
 import { import as csTools } from "cornerstone-tools";
-
+import { FeedFile } from "@fnndsc/chrisapi";
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
@@ -30,11 +30,10 @@ const scrollToIndex = csTools("util/scrollToIndex");
 
 type AllProps = {
   inPlay: boolean;
-  imageArray: IUITreeNode[];
+  imageArray: FeedFile[];
   runTool: (ref: any) => void;
   handleToolbarAction: (action: string) => void;
   setPlayer: (status: boolean) => void;
- 
 };
 
 type AllState = {
@@ -166,13 +165,13 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
           filesParsed: i + 1,
         });
 
-        if (isDicom(item.module)) {
-          const file = await item.file.getFileBlob();
+        if (isDicom(item.data.fname)) {
+          const file = await item.getFileBlob();
           imageIds.push(
             cornerstoneWADOImageLoader.wadouri.fileManager.add(file)
           );
         } else {
-          const file = await item.file.getFileBlob();
+          const file = await item.getFileBlob();
           imageIds.push(cornerstoneFileImageLoader.fileManager.add(file));
         }
       }
