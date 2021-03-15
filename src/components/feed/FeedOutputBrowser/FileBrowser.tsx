@@ -1,6 +1,8 @@
 import React from "react";
 import classNames from "classnames";
 import FileDetailView from "../../explorer/FileDetailView";
+import { useTypedSelector } from "../../../store/hooks";
+import { useDispatch } from "react-redux";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -23,13 +25,15 @@ import {
   TableVariant,
 } from "@patternfly/react-table";
 import FileViewerModel from "../../../api/models/file-viewer.model";
-import { FileBrowserProps, FileBrowserState, TreeNode } from "./types";
+import { FileBrowserProps, FileBrowserState } from "./types";
+import { DataNode } from "../../../store/explorer/types";
+import { setSelectedFile } from "../../../store/explorer/actions";
 
-function getInitialState(root: TreeNode) {
+function getInitialState(root: DataNode) {
   return {
     directory: root,
     breadcrumbs: [root],
-    previewingFile: undefined,
+  
   };
 }
 
@@ -45,12 +49,14 @@ const FileBrowser = (props: FileBrowserProps) => {
     fileBrowserState,
     setfileBrowserState,
   ] = React.useState<FileBrowserState>(getInitialState(root));
-  const { breadcrumbs, directory, previewingFile } = fileBrowserState;
+  const { breadcrumbs, directory } = fileBrowserState;
+  const { selectedFile } = useTypedSelector((state) => state.explorer);
+  const dispatch = useDispatch();
 
   const handleBreadcrumbClick = (
     e: React.MouseEvent,
-    folder: TreeNode,
-    prevBreadcrumbs: TreeNode[]
+    folder: DataNode,
+    prevBreadcrumbs: DataNode[]
   ) => {
     e.preventDefault();
 
@@ -73,7 +79,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
 
     const file = directory.children[rowIndex];
-    
+
     if (file && file.children.length > 0) {
       setfileBrowserState({
         ...fileBrowserState,
@@ -81,22 +87,21 @@ const FileBrowser = (props: FileBrowserProps) => {
         breadcrumbs: [...breadcrumbs, file],
       });
     } else {
-      setfileBrowserState({
-        ...fileBrowserState,
-        previewingFile: file,
-      });
+      dispatch(setSelectedFile(file));
     }
   };
 
-  const handleDownloadClick = async (e: React.MouseEvent, node: TreeNode) => {
+  const handleDownloadClick = async (e: React.MouseEvent, node: DataNode) => {
     e.stopPropagation();
-    const blob = await node.file.getFileBlob();
+    if (node.file) {
+      const blob = await node.file.getFileBlob();
+    }
   };
 
   const generateBreadcrumb = (
-    folder: TreeNode,
+    folder: DataNode,
     i: number,
-    breadcrumbs: TreeNode[]
+    breadcrumbs: DataNode[]
   ) => {
     const prevBreadcrumbs = breadcrumbs.slice(0, i);
     const onClick = (e: React.MouseEvent) =>
@@ -108,9 +113,9 @@ const FileBrowser = (props: FileBrowserProps) => {
     );
   };
 
-  const generateTableRow = (node: TreeNode) => {
+  const generateTableRow = (node: DataNode) => {
     let type = "UNKNOWN FORMAT";
-    if (node.children.length > 0) {
+    if (node.children && node.children.length > 0) {
       type = "dir";
     } else {
       const name = node.title;
@@ -119,8 +124,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       }
     }
     const icon = getIcon(type);
-    const isPreviewing =
-      !!previewingFile && previewingFile.title === node.title;
+    const isPreviewing = selectedFile && selectedFile.title === node.title;
     const fileName = (
       <div
         className={classNames(
@@ -217,16 +221,14 @@ const FileBrowser = (props: FileBrowserProps) => {
         smRowSpan={12}
         className="file-browser__grid2"
       >
-        {previewingFile && (
+        {selectedFile && selectedFile.file && (
           <FileDetailView
             fullScreenMode={true}
-            selectedFile={previewingFile.file}
+            selectedFile={selectedFile.file}
             toggleFileBrowser={() => {
-              handleFileBrowserToggle(previewingFile, directory);
+              handleFileBrowserToggle();
             }}
-            toggleFileViewer={() => {
-              handleFileViewerToggle(previewingFile, directory);
-            }}
+            toggleFileViewer={handleFileViewerToggle}
           />
         )}
       </GridItem>

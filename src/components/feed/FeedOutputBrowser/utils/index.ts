@@ -3,11 +3,12 @@
  */
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 import _ from "lodash";
+import {DataNode} from '../../../../store/explorer/types';
 
 export function createTreeFromFiles(
   selected?: PluginInstance,
   files?: FeedFile[]
-) {
+): DataNode[] | null {
   if (!files || !selected) return null;
   const filePaths = files.map((file) => {
     return {
@@ -15,13 +16,11 @@ export function createTreeFromFiles(
       filePath: file.data.fname,
     };
   });
-
-  let tree;
+  let tree = null;
 
   buildTree(filePaths, (computedTree) => {
     tree = computedTree;
   });
-  console.log("TREE", tree);
 
   return tree;
 }
@@ -42,8 +41,8 @@ const buildTree = (
   cb: (tree: any[]) => void
 ) => {
   const tree: any[] = [];
-  _.each(files, function (file) {
-    const pathParts = file.filePath.split("/");
+  _.each(files, function (fileObj) {
+    const pathParts = fileObj.filePath.split("/");
     pathParts.shift();
     let currentLevel = tree;
     _.each(pathParts, function (part) {
@@ -54,8 +53,9 @@ const buildTree = (
         currentLevel = existingPath.children;
       } else {
         const newPart = {
+          key:   part,
           title: part,
-          file: file.file,
+          file: fileObj.file,
           children: [],
         };
         currentLevel.push(newPart);

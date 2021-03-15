@@ -1,25 +1,20 @@
 import { FeedFile } from "@fnndsc/chrisapi";
+import { DataNode } from "../../../../store/explorer/types";
 
-export type TreeNode = {
-  file: FeedFile;
-  title: string;
-  children: TreeNode[];
-};
 
 export interface FileBrowserProps {
   selectedFiles?: FeedFile[];
-  root: TreeNode;
+  root: DataNode;
   pluginName?: string;
-  handleFileBrowserToggle: (file: TreeNode, directory: TreeNode) => void;
-  handleFileViewerToggle: (file: TreeNode, directory: TreeNode) => void;
+  handleFileBrowserToggle: () => void;
+  handleFileViewerToggle: () => void;
   downloadAllClick: () => void;
 }
 
 export interface FileBrowserState {
-  directory: TreeNode;
-  breadcrumbs: TreeNode[];
-  previewingFile?: TreeNode; // file selected for preview
-  pathViewingFile?: TreeNode; // file selected via shift-click for viewing full path
+  directory: DataNode;
+  breadcrumbs: DataNode[];
+  previewingFile?: DataNode; // file selected for preview
 }
 
 export interface Label {

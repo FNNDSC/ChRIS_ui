@@ -103,9 +103,7 @@ const renderHeaderPanel = (
       {fullScreenMode === true && (
         <Button
           variant="link"
-          onClick={() => {
-            toggleFileBrowser();
-          }}
+          onClick={toggleFileBrowser}
           icon={<ExpandIcon />}
         >
           Maximize

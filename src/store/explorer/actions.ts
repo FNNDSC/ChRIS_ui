@@ -1,37 +1,15 @@
 import { action } from "typesafe-actions";
 import { ExplorerActionTypes } from "./types";
-import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
-
 import UITreeNodeModel, {
   IUITreeNode,
 } from "../../api/models/file-explorer.model";
+import { DataNode } from "./types";
 
+export const setExplorerRequest = (tree: DataNode[]) =>
+  action(ExplorerActionTypes.SET_EXPLORER_REQUEST, tree);
 
-export const setExplorerRequest = (
-  files: FeedFile[],
-  selected: PluginInstance
-) => {
-
-  const model= new UITreeNodeModel(files, selected)
-  const tree= model.getTree();
-
-  return action(
-    ExplorerActionTypes.SET_EXPLORER_REQUEST,
-    tree
-  );
-}
- 
-
-
-export const setSelectedFile = (
-  selectedFile: IUITreeNode,
-  selectedFolder?: IUITreeNode
-) =>
-  action(ExplorerActionTypes.SET_SELECTED_FILE, {
-    selectedFile,
-    selectedFolder,
-  });
-
+export const setSelectedFile = (selectedFile: DataNode) =>
+  action(ExplorerActionTypes.SET_SELECTED_FILE, selectedFile);
 
 export const setSelectedFolder = (selectedFolder: IUITreeNode) =>
   action(ExplorerActionTypes.SET_SELECTED_FOLDER, selectedFolder);
