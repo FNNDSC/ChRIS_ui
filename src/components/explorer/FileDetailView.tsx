@@ -5,7 +5,6 @@ import { FeedFile } from "@fnndsc/chrisapi";
 import { ExpandIcon, FilmIcon, InfoCircleIcon } from "@patternfly/react-icons";
 import { getFileExtension } from "../../api/models/file-explorer.model";
 import { IFileBlob, fileViewerMap } from "../../api/models/file-viewer.model";
-
 const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 
 interface AllProps {
