@@ -28,13 +28,7 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
         selectedFile,
       };
     }
-    case ExplorerActionTypes.SET_SELECTED_FOLDER: {
-      return {
-        ...state,
-        selectedFolder: action.payload,
-        selectedFile: undefined,
-      };
-    }
+
     case ExplorerActionTypes.TOGGLE_VIEWER_MODE: {
       return { ...state, viewerMode: action.payload };
     }
