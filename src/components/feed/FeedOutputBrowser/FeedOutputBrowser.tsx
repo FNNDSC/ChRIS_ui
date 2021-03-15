@@ -18,7 +18,6 @@ import FileBrowser from "./FileBrowser";
 import PluginViewerModal from "./PluginViewerModal";
 import {
   setExplorerRequest,
-  setSelectedFile,
   toggleViewerMode,
 } from "../../../store/explorer/actions";
 import { getPluginFilesRequest } from "../../../store/feed/actions";
@@ -28,7 +27,6 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 import { isEmpty } from "lodash";
 import { getFeedTree } from "./data";
 import { DataNode } from "../../../store/explorer/types";
-
 import "./FeedOutputBrowser.scss";
 import "antd/dist/antd.css";
 
@@ -63,11 +61,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   } else {
     const pluginName = selected && selected.data && getPluginName(selected);
     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
-    const tree: DataNode[] | null  = createTreeFromFiles(
-      selected,
-      pluginFiles
-    );
-    
+    const tree: DataNode[] | null = createTreeFromFiles(selected, pluginFiles);
 
     const downloadAllClick = async () => {
       if (!selected) return;
@@ -85,20 +79,19 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     };
 
     const handleFileBrowserOpen = () => {
-    
       if (tree) {
         dispatch(setExplorerRequest(tree));
       }
-       setPluginModalOpen(!pluginModalOpen)
+      setPluginModalOpen(!pluginModalOpen);
     };
 
     const handleFileViewerOpen = () => {
-      setPluginModalOpen(!pluginModalOpen)
+      setPluginModalOpen(!pluginModalOpen);
       dispatch(toggleViewerMode(!viewerMode));
     };
 
     const handlePluginModalClose = () => {
-     setPluginModalOpen(!pluginModalOpen)
+      setPluginModalOpen(!pluginModalOpen);
     };
 
     let pluginSidebarTree;
