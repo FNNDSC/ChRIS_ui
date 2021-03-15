@@ -6,7 +6,6 @@ import { ExpandIcon, FilmIcon, InfoCircleIcon } from "@patternfly/react-icons";
 import { getFileExtension } from "../../api/models/file-explorer.model";
 import { IFileBlob, fileViewerMap } from "../../api/models/file-viewer.model";
 
-
 const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 
 interface AllProps {
@@ -27,8 +26,14 @@ function getInitialState() {
 
 const FileDetailView = (props: AllProps) => {
   const [fileState, setFileState] = React.useState<IFileBlob>(getInitialState);
-  const { selectedFile, fullScreenMode, toggleFileBrowser } = props;
+  const {
+    selectedFile,
+    fullScreenMode,
+    toggleFileBrowser,
+    toggleFileViewer,
+  } = props;
   const { blob, fileType } = fileState;
+
   const fetchData = React.useCallback(async () => {
     const fileName = selectedFile.data.fname,
       fileType = getFileExtension(fileName);
@@ -61,7 +66,12 @@ const FileDetailView = (props: AllProps) => {
 
   return (
     <Fragment>
-      {renderHeaderPanel(fullScreenMode, toggleFileBrowser)}
+      {renderHeaderPanel(
+        fullScreenMode,
+        toggleFileBrowser,
+        toggleFileViewer,
+        fileType
+      )}
       <React.Suspense
         fallback={
           <Skeleton
@@ -96,7 +106,9 @@ export default FileDetailView;
 
 const renderHeaderPanel = (
   fullScreenMode: boolean | undefined,
-  toggleFileBrowser: () => void
+  toggleFileBrowser: () => void,
+  toggleFileViewer: () => void,
+  fileType: string
 ) => {
   return (
     <div className="header-panel__buttons">
@@ -107,6 +119,20 @@ const renderHeaderPanel = (
           icon={<ExpandIcon />}
         >
           Maximize
+        </Button>
+      )}
+      {(fileType === "dcm" ||
+        fileType === "png" ||
+        fileType === "jpg" ||
+        fileType === "jpeg") && (
+        <Button
+          variant="link"
+          onClick={() => {
+            toggleFileViewer();
+          }}
+          icon={<FilmIcon />}
+        >
+          Open Image Viewer
         </Button>
       )}
     </div>
