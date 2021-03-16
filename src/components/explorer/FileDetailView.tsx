@@ -124,13 +124,7 @@ const renderHeaderPanel = (
         fileType === "png" ||
         fileType === "jpg" ||
         fileType === "jpeg") && (
-        <Button
-          variant="link"
-          onClick={() => {
-            toggleFileViewer();
-          }}
-          icon={<FilmIcon />}
-        >
+        <Button variant="link" onClick={toggleFileViewer} icon={<FilmIcon />}>
           Open Image Viewer
         </Button>
       )}
