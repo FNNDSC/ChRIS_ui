@@ -49,6 +49,7 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
     offset,
   };
   const client = ChrisAPIClient.getClient();
+
   try {
     const feedsList = yield client.getFeeds(params);
     yield put(getAllFeedsSuccess(feedsList));

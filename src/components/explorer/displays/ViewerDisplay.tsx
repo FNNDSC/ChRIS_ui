@@ -7,6 +7,7 @@ import {
   ImageDisplay,
   DcmDisplay,
   PdfDisplay,
+  NiftiDisplay,
 } from "./index";
 
 const components = {
@@ -16,6 +17,7 @@ const components = {
   DcmDisplay,
   CatchallDisplay,
   PdfDisplay,
+  NiftiDisplay,
 };
 
 interface ViewerDisplayProps {
