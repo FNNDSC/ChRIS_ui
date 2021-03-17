@@ -49,6 +49,7 @@ export default class GalleryModel {
       case "png":
       case "jpg":
       case "jpeg":
+      case "nii":
         return true;
       default:
         return false;
