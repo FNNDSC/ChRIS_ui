@@ -31,7 +31,7 @@ const FileDetailView = (props: AllProps) => {
     toggleFileBrowser,
     toggleFileViewer,
   } = props;
-  const { blob, fileType } = fileState;
+  const { fileType } = fileState;
 
   const fetchData = React.useCallback(async () => {
     const fileName = selectedFile.data.fname,
@@ -54,14 +54,15 @@ const FileDetailView = (props: AllProps) => {
 
   let viewerName = "";
   const fileSize = 1000000;
+  console.log("FileType", fileType);
 
-  if (blob && blob.size > fileSize) {
-    viewerName = "CatchAllDisplay";
-  } else if (!fileViewerMap[fileType]) {
-    viewerName = "IframeDisplay";
-  } else {
-    viewerName = fileViewerMap[fileType];
-  }
+ if (!fileViewerMap[fileType]) {
+   viewerName = "IframeDisplay";
+ } else {
+   viewerName = fileViewerMap[fileType];
+ }
+
+  console.log("ViewerName", viewerName);
 
   return (
     <Fragment>

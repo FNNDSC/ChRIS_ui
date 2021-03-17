@@ -60,4 +60,5 @@ export const fileViewerMap: any = {
   gif: "ImageDisplay",
   dcm: "DcmDisplay",
   default: "CatchallDisplay",
+  nii: "NiftiDisplay",
 };
