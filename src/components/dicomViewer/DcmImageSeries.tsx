@@ -164,6 +164,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
         this.setState({
           filesParsed: i + 1,
         });
+        console.log("ITEM", item);
 
         if (isDicom(item.data.fname)) {
           const file = await item.getFileBlob();
