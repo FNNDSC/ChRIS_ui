@@ -3,9 +3,9 @@ import * as cornerstone from "cornerstone-core";
 import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import * as dicomParser from "dicom-parser";
-import { DcmImageProps } from "../../dicomViewer/types";
-import "../../dicomViewer/amiViewer.scss";
-import { IFileBlob } from "../../../api/models/file-viewer.model";
+import { DcmImageProps } from "../../../dicomViewer/types";
+import "../../../dicomViewer/amiViewer.scss";
+import { IFileBlob } from "../../../../api/models/file-viewer.model";
 
 cornerstoneFileImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;

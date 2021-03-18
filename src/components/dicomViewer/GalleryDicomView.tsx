@@ -1,9 +1,7 @@
 import React from "react";
 import { Button, Backdrop, Bullseye, Spinner } from "@patternfly/react-core";
 import { CloseIcon } from "@patternfly/react-icons";
-const DcmImageSeries = React.lazy(
-  () => import("../dicomViewer/DcmImageSeries")
-);
+const DcmImageSeries = React.lazy(() => import("./DcmImageSeries"));
 import { useTypedSelector } from "../../store/hooks";
 import { FeedFile } from "@fnndsc/chrisapi";
 import GalleryModel from "../../api/models/gallery.model";
@@ -45,7 +43,7 @@ const GalleryDicomView = () => {
       setGalleryDicomState((state) => {
         return {
           ...state,
-          dcmArray
+          dcmArray,
         };
       });
     }
@@ -146,17 +144,17 @@ const GalleryDicomView = () => {
     >
       <Button className="close-btn" variant="link" icon={<CloseIcon />} />
       <React.Suspense fallback={<FallBackComponent />}>
-          <DcmImageSeries
-            setPlayer={setPlayer}
-            inPlay={inPlay}
-            runTool={(ref: any) => {
-              return (runTool = ref.runTool);
-            }}
-            imageArray={dcmArray}
-            handleToolbarAction={(action: string) => {
-              (handleGalleryActions as any)[action].call();
-            }}
-          />
+        <DcmImageSeries
+          setPlayer={setPlayer}
+          inPlay={inPlay}
+          runTool={(ref: any) => {
+            return (runTool = ref.runTool);
+          }}
+          imageArray={dcmArray}
+          handleToolbarAction={(action: string) => {
+            (handleGalleryActions as any)[action].call();
+          }}
+        />
       </React.Suspense>
     </GalleryWrapper>
   );

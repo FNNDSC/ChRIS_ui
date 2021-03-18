@@ -3,7 +3,7 @@ import { DownloadIcon } from "@patternfly/react-icons";
 import { Alert, Button } from "@patternfly/react-core";
 import FileViewerModel, {
   IFileBlob,
-} from "../../../api/models/file-viewer.model";
+} from "../../../../api/models/file-viewer.model";
 type AllProps = {
   fileItem: IFileBlob;
 };

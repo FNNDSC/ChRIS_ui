@@ -4,8 +4,8 @@ import { useDispatch } from "react-redux";
 import { Tree } from "antd";
 import { GridItem, Grid } from "@patternfly/react-core";
 import { Key } from "../../../store/explorer/types";
-import FileDetailView from "../../explorer/FileDetailView";
-import GalleryDicomView from "../../explorer/GalleryDicomView";
+import FileDetailView from "../../feed/Preview/FileDetailView";
+import GalleryDicomView from "../../dicomViewer/GalleryDicomView";
 import {
   setSelectedFile,
   toggleViewerMode,
