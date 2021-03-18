@@ -10,13 +10,13 @@ import GalleryModel from "../../api/models/gallery.model";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 
 type GalleryState = {
-  urlArray: FeedFile[];
+  dcmArray: FeedFile[];
   inPlay: boolean;
 };
 
 function getInitialState() {
   return {
-    urlArray: [],
+    dcmArray: [],
     inPlay: false,
   };
 }
@@ -36,15 +36,15 @@ const GalleryDicomView = () => {
   ] = React.useState<GalleryState>(getInitialState);
 
   const files = selectedPlugin && pluginFiles[selectedPlugin.data.id].files;
-  const { urlArray, inPlay } = galleryDicomState;
+  const { dcmArray, inPlay } = galleryDicomState;
 
   React.useEffect(() => {
     if (files && files.length > 0) {
-      const urlArray = getUrlArray(files);
+      const dcmArray = getUrlArray(files);
       setGalleryDicomState((state) => {
         return {
           ...state,
-          urlArray,
+          dcmArray
         };
       });
     }
@@ -129,7 +129,7 @@ const GalleryDicomView = () => {
 
   return (
     <GalleryWrapper
-      total={urlArray.length || 0}
+      total={dcmArray.length || 0}
       handleOnToolbarAction={(action: string) => {
         (handleGalleryActions as any)[action].call();
       }}
@@ -137,17 +137,17 @@ const GalleryDicomView = () => {
     >
       <Button className="close-btn" variant="link" icon={<CloseIcon />} />
       <React.Suspense fallback={<FallBackComponent />}>
-        <DcmImageSeries
-          setPlayer={setPlayer}
-          inPlay={inPlay}
-          runTool={(ref: any) => {
-            return (runTool = ref.runTool);
-          }}
-          imageArray={urlArray}
-          handleToolbarAction={(action: string) => {
-            (handleGalleryActions as any)[action].call();
-          }}
-        />
+          <DcmImageSeries
+            setPlayer={setPlayer}
+            inPlay={inPlay}
+            runTool={(ref: any) => {
+              return (runTool = ref.runTool);
+            }}
+            imageArray={dcmArray}
+            handleToolbarAction={(action: string) => {
+              (handleGalleryActions as any)[action].call();
+            }}
+          />
       </React.Suspense>
     </GalleryWrapper>
   );
@@ -161,10 +161,11 @@ const GalleryDicomView = () => {
  */
 
 const getUrlArray = (feedFiles: FeedFile[]) => {
-  const files = feedFiles.filter((item: FeedFile) => {
-    return GalleryModel.isValidFile(item.data.fname);
+  const dcmFiles = feedFiles.filter((item: FeedFile) => {
+    return GalleryModel.isValidDcmFile(item.data.fname);
   });
-  return files;
+
+  return dcmFiles;
 };
 
 export default GalleryDicomView;
