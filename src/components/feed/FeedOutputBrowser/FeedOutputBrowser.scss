@@ -59,6 +59,10 @@
     }
   }
 
+  .preview {
+    @include section-three;
+  }
+
   &__header {
     display: flex;
     flex-direction: column;
@@ -99,25 +103,8 @@
     }
   }
 
-  &__detail {
+  &__grid2 {
     overflow-y: scroll;
-  }
-
-  &__plugin-status {
-    &--tabs {
-      height: 3vh;
-    }
-
-    &--json {
-      overflow-y: scroll;
-    }
-
-    &--json {
-      height: 40.5vh !important;
-      @include media-query(1200px) {
-        min-height: 40.5vh !important;
-      }
-    }
   }
 }
 

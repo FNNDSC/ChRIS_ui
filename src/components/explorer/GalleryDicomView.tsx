@@ -37,6 +37,7 @@ const GalleryDicomView = () => {
 
   const files = selectedPlugin && pluginFiles[selectedPlugin.data.id].files;
   const { dcmArray, inPlay } = galleryDicomState;
+  console.log("GalleryDicomView");
 
   React.useEffect(() => {
     if (files && files.length > 0) {
@@ -48,6 +49,14 @@ const GalleryDicomView = () => {
         };
       });
     }
+    return () => {
+      setGalleryDicomState((state) => {
+        return {
+          ...state,
+          dcmArray: [],
+        };
+      });
+    };
   }, [files]);
 
   const toolExecute = (tool: string) => {

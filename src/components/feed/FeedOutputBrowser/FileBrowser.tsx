@@ -95,6 +95,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     e.stopPropagation();
     if (node.file) {
       const blob = await node.file.getFileBlob();
+      FileViewerModel.downloadFile(blob, node.file.data.fname);
     }
   };
 

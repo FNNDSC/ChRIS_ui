@@ -6,9 +6,8 @@ import GalleryModel from "../../api/models/gallery.model";
 const initialState: IExplorerState = {
   explorer: undefined,
   selectedFile: undefined,
-  selectedFolder: undefined,
   viewerMode: false,
-  isDicom: false,
+
 };
 
 

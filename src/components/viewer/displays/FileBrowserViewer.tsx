@@ -6,20 +6,24 @@ import { GridItem, Grid } from "@patternfly/react-core";
 import { Key } from "../../../store/explorer/types";
 import FileDetailView from "../../explorer/FileDetailView";
 import GalleryDicomView from "../../explorer/GalleryDicomView";
-import { setSelectedFile } from "../../../store/explorer/actions";
+import {
+  setSelectedFile,
+  toggleViewerMode,
+} from "../../../store/explorer/actions";
 
 const FileBrowserViewer = () => {
   const { explorer, selectedFile, viewerMode } = useTypedSelector(
     (state) => state.explorer
   );
   const dispatch = useDispatch();
+
   const onSelect = (selectedKeys: Key[], info: any) => {
     dispatch(setSelectedFile(info.node));
   };
   const selectedKeys = selectedFile ? [selectedFile.key] : [];
 
-  const toggleViewerMode = () => {
-    return;
+  const handleToggleViewer = () => {
+    dispatch(toggleViewerMode(!viewerMode));
   };
 
   return (
@@ -39,10 +43,7 @@ const FileBrowserViewer = () => {
             {selectedFile && selectedFile.file && (
               <FileDetailView
                 selectedFile={selectedFile.file}
-                toggleFileBrowser={() => {
-                  return;
-                }}
-                toggleFileViewer={toggleViewerMode}
+                toggleFileViewer={handleToggleViewer}
               />
             )}
           </GridItem>

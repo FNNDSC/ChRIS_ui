@@ -8,7 +8,6 @@ import { FeedFile } from "@fnndsc/chrisapi";
 import keyMirror from "keymirror";
 import { IUITreeNode } from "../../api/models/file-explorer.model";
 
-
 export type Key = string | number;
 
 type FileInfo = {
@@ -68,13 +67,9 @@ export type CheckInfo = {
 export interface IExplorerState {
   explorer?: DataNode[];
   selectedFile?: DataNode;
-  selectedFolder?: IUITreeNode;
+
   viewerMode: boolean;
-  isDicom: boolean;
 }
-
-
-
 
 export const ExplorerActionTypes = keyMirror({
   SET_EXPLORER_REQUEST: null,
