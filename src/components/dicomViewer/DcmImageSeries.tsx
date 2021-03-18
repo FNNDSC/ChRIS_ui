@@ -5,9 +5,10 @@ import * as cornerstoneMath from "cornerstone-math";
 import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import * as cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
 import Hammer from "hammerjs";
 import * as dicomParser from "dicom-parser";
-import { isDicom } from "./utils";
+import { isDicom, isNifti } from "./utils";
 
 import DicomHeader from "./DcmHeader/DcmHeader";
 import DicomLoader from "./DcmLoader";
@@ -20,11 +21,23 @@ import { FeedFile } from "@fnndsc/chrisapi";
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
+cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
+cornerstoneNIFTIImageLoader.nifti.streamingMode = true;
 cornerstoneFileImageLoader.external.cornerstone = cornerstone;
 cornerstoneWebImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 cornerstoneTools.external.Hammer = Hammer;
+
+cornerstoneNIFTIImageLoader.nifti.configure({
+  headers: {
+    "Content-Type": "application/vnd.collection+json",
+    Authorization: "Token " + window.sessionStorage.getItem("AUTH_TOKEN"),
+  },
+  method: "get",
+  responseType: "arrayBuffer",
+});
+const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
 
 const scrollToIndex = csTools("util/scrollToIndex");
 
@@ -151,6 +164,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   loadImagesIntoCornerstone = async () => {
     const { imageArray } = this.props;
     if (imageArray.length < 0) return;
+    console.log("ImageArray", imageArray);
 
     const imageIds: string[] = [];
     if (this._isMounted) {
@@ -164,25 +178,48 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
         this.setState({
           filesParsed: i + 1,
         });
-        console.log("ITEM", item);
 
-        if (isDicom(item.data.fname)) {
-          const file = await item.getFileBlob();
-          imageIds.push(
-            cornerstoneWADOImageLoader.wadouri.fileManager.add(file)
-          );
+        if (isNifti(item.data.fname)) {
+          const fileArray = item.data.fname.split("/");
+          const fileName = fileArray[fileArray.length - 1];
+          const imageIdObject = ImageId.fromURL(`nifti:${item.url}${fileName}`);
+          cornerstone
+            .loadAndCacheImage(imageIdObject.url)
+            .then((image: any) => {
+              const numberOfFrames = cornerstone.metaData.get(
+                "multiFrameModule",
+                imageIdObject.url
+              ).numberOfFrames;
+              this.setState({
+                ...this.state,
+                imageIds: Array.from(
+                  Array(numberOfFrames),
+                  (_, i) =>
+                    `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
+                ),
+                frame: imageIdObject.slice.index,
+                numberOfFrames,
+              });
+            });
         } else {
-          const file = await item.getFileBlob();
-          imageIds.push(cornerstoneFileImageLoader.fileManager.add(file));
-        }
-      }
-
-      if (this._isMounted) {
-        if (imageIds.length > 0) {
-          this.setState({
-            imageIds,
-            numberOfFrames: imageIds.length,
-          });
+          if (isDicom(item.data.fname)) {
+            const file = await item.getFileBlob();
+            imageIds.push(
+              cornerstoneWADOImageLoader.wadouri.fileManager.add(file)
+            );
+          } else {
+            const file = await item.getFileBlob();
+            imageIds.push(cornerstoneFileImageLoader.fileManager.add(file));
+          }
+          if (this._isMounted) {
+            if (imageIds.length > 0) {
+              this.setState({
+                ...this.state,
+                imageIds,
+                numberOfFrames: imageIds.length,
+              });
+            }
+          }
         }
       }
     }
@@ -195,6 +232,7 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   };
 
   render() {
+    console.log("This.state", this.state);
     return (
       <React.Fragment>
         {this.state.imageIds.length === 0 ? (
@@ -239,11 +277,9 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
                           (eventData: CornerstoneEvent) => {
                             if (eventData.detail) {
                               const currentImage = eventData.detail.image;
-
                               this.setState({
                                 currentImage,
                               });
-
                               const viewport = eventData.detail.viewport;
                               if (viewport) {
                                 const newViewport: any = {};

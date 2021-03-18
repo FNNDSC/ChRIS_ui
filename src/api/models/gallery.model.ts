@@ -41,7 +41,7 @@ export type galleryModelItemType = IUITreeNode | IGalleryItem;
 
 export default class GalleryModel {
   // Description: is this a dcm file
-  static isValidFile(filename: string): boolean {
+  static isValidDcmFile(filename: string): boolean {
     switch (getFileExtension(filename).toLowerCase()) {
       case "dcm":
       case "dic":
@@ -55,7 +55,15 @@ export default class GalleryModel {
         return false;
     }
   }
+  static isValidNiiFile(filename: string): boolean {
+    const ext = getFileExtension(filename).toLowerCase();
+    if (ext === "nii") {
+      return true;
+    } else return false;
+  }
 }
+
+
 
 export class GalleryListModel {
   galleryItems: IGalleryItem[] = [];
