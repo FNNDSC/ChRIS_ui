@@ -1,7 +1,7 @@
 import React from "react";
 import * as cornerstone from "cornerstone-core";
 import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
-import { IFileBlob } from "../../../api/models/file-viewer.model";
+import { IFileBlob } from "../../../../api/models/file-viewer.model";
 
 cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
 cornerstoneNIFTIImageLoader.nifti.configure({

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Modal } from "@patternfly/react-core";
-import OutputViewerContainer from "../../viewer/OutputViewerContainer";
+import OutputViewerContainer from "../../detailedView/DetailedViewerContainer";
 import { Gotop } from "../../index";
 
 type AllProps = {

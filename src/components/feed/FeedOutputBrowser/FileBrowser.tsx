@@ -1,6 +1,6 @@
 import React from "react";
 import classNames from "classnames";
-import FileDetailView from "../../explorer/FileDetailView";
+import FileDetailView from "../Preview/FileDetailView";
 import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
 import {

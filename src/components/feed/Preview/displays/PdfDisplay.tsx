@@ -1,6 +1,6 @@
 import React from "react";
 
-import { IFileBlob } from "../../../api/models/file-viewer.model";
+import { IFileBlob } from "../../../../api/models/file-viewer.model";
 
 type AllProps = {
   fileItem: IFileBlob;
