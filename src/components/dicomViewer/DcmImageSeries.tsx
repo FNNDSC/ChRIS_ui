@@ -2,10 +2,10 @@ import * as React from "react";
 import * as cornerstone from "cornerstone-core";
 import * as cornerstoneTools from "cornerstone-tools";
 import * as cornerstoneMath from "cornerstone-math";
+import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
 import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import * as cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
 import Hammer from "hammerjs";
 import * as dicomParser from "dicom-parser";
 import { isDicom, isNifti } from "./utils";
@@ -183,24 +183,20 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
           const fileArray = item.data.fname.split("/");
           const fileName = fileArray[fileArray.length - 1];
           const imageIdObject = ImageId.fromURL(`nifti:${item.url}${fileName}`);
-          cornerstone
-            .loadAndCacheImage(imageIdObject.url)
-            .then((image: any) => {
-              const numberOfFrames = cornerstone.metaData.get(
-                "multiFrameModule",
-                imageIdObject.url
-              ).numberOfFrames;
-              this.setState({
-                ...this.state,
-                imageIds: Array.from(
-                  Array(numberOfFrames),
-                  (_, i) =>
-                    `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
-                ),
-                frame: imageIdObject.slice.index,
-                numberOfFrames,
-              });
-            });
+          const numberOfFrames = cornerstone.metaData.get(
+            "multiFrameModule",
+            imageIdObject.url
+          ).numberOfFrames;
+          this.setState({
+            ...this.state,
+            imageIds: Array.from(
+              Array(numberOfFrames),
+              (_, i) =>
+                `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
+            ),
+            frame: imageIdObject.slice.index,
+            numberOfFrames,
+          });
         } else {
           if (isDicom(item.data.fname)) {
             const file = await item.getFileBlob();
