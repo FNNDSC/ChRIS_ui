@@ -22,7 +22,6 @@ import { FeedFile } from "@fnndsc/chrisapi";
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
 cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
-cornerstoneNIFTIImageLoader.nifti.streamingMode = true;
 cornerstoneFileImageLoader.external.cornerstone = cornerstone;
 cornerstoneWebImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
@@ -38,7 +37,6 @@ cornerstoneNIFTIImageLoader.nifti.configure({
   responseType: "arrayBuffer",
 });
 const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
-
 const scrollToIndex = csTools("util/scrollToIndex");
 
 type AllProps = {
@@ -164,9 +162,9 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   loadImagesIntoCornerstone = async () => {
     const { imageArray } = this.props;
     if (imageArray.length < 0) return;
-    console.log("ImageArray", imageArray);
 
     const imageIds: string[] = [];
+    let numberOfFrames = 0
     if (this._isMounted) {
       this.setState({
         totalFiles: imageArray.length,
@@ -183,39 +181,40 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
           const fileArray = item.data.fname.split("/");
           const fileName = fileArray[fileArray.length - 1];
           const imageIdObject = ImageId.fromURL(`nifti:${item.url}${fileName}`);
-          const numberOfFrames = cornerstone.metaData.get(
+          const numberOfSlices = cornerstone.metaData.get(
             "multiFrameModule",
             imageIdObject.url
           ).numberOfFrames;
-          this.setState({
-            ...this.state,
-            imageIds: Array.from(
-              Array(numberOfFrames),
+          imageIds.push(
+            ...Array.from(
+              Array(numberOfSlices),
               (_, i) =>
                 `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
-            ),
-            frame: imageIdObject.slice.index,
-            numberOfFrames,
-          });
+            )
+          );
+          numberOfFrames=numberOfSlices;   
         } else {
           if (isDicom(item.data.fname)) {
             const file = await item.getFileBlob();
             imageIds.push(
               cornerstoneWADOImageLoader.wadouri.fileManager.add(file)
             );
+            numberOfFrames = imageIds.length;
           } else {
             const file = await item.getFileBlob();
             imageIds.push(cornerstoneFileImageLoader.fileManager.add(file));
+            numberOfFrames = imageIds.length;
           }
-          if (this._isMounted) {
-            if (imageIds.length > 0) {
-              this.setState({
-                ...this.state,
-                imageIds,
-                numberOfFrames: imageIds.length,
-              });
-            }
-          }
+        }
+      }
+
+      if (this._isMounted) {
+        if (imageIds.length > 0) {
+          this.setState({
+            ...this.state,
+            imageIds,
+            numberOfFrames,
+          });
         }
       }
     }
@@ -228,7 +227,6 @@ class DcmImageSeries extends React.Component<AllProps, AllState> {
   };
 
   render() {
-    console.log("This.state", this.state);
     return (
       <React.Fragment>
         {this.state.imageIds.length === 0 ? (

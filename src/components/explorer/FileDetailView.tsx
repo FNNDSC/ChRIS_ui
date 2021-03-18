@@ -1,16 +1,18 @@
 import React, { Fragment } from "react";
 import { Button, Label, Text, Skeleton } from "@patternfly/react-core";
 import { ErrorBoundary } from "react-error-boundary";
+
 import { FeedFile } from "@fnndsc/chrisapi";
 import { ExpandIcon, FilmIcon, InfoCircleIcon } from "@patternfly/react-icons";
 import { getFileExtension } from "../../api/models/file-explorer.model";
 import { IFileBlob, fileViewerMap } from "../../api/models/file-viewer.model";
+
 const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 
 interface AllProps {
   selectedFile: FeedFile;
   fullScreenMode?: boolean;
-  toggleFileBrowser: () => void;
+  toggleFileBrowser?: () => void;
   toggleFileViewer: () => void;
   isDicom?: boolean;
 }
@@ -32,12 +34,12 @@ const FileDetailView = (props: AllProps) => {
     toggleFileViewer,
   } = props;
   const { fileType } = fileState;
+ 
 
   const fetchData = React.useCallback(async () => {
     const fileName = selectedFile.data.fname,
       fileType = getFileExtension(fileName);
     const blob = await selectedFile.getFileBlob();
-
     setFileState((fileState) => {
       return {
         ...fileState,
@@ -53,24 +55,20 @@ const FileDetailView = (props: AllProps) => {
   }, [fetchData]);
 
   let viewerName = "";
-  const fileSize = 1000000;
-  console.log("FileType", fileType);
 
- if (!fileViewerMap[fileType]) {
-   viewerName = "IframeDisplay";
- } else {
-   viewerName = fileViewerMap[fileType];
- }
-
-  console.log("ViewerName", viewerName);
+  if (!fileViewerMap[fileType]) {
+    viewerName = "IframeDisplay";
+  } else {
+    viewerName = fileViewerMap[fileType];
+  }
 
   return (
     <Fragment>
       {renderHeaderPanel(
         fullScreenMode,
-        toggleFileBrowser,
         toggleFileViewer,
-        fileType
+        fileType,
+        toggleFileBrowser
       )}
       <React.Suspense
         fallback={
@@ -106,13 +104,13 @@ export default FileDetailView;
 
 const renderHeaderPanel = (
   fullScreenMode: boolean | undefined,
-  toggleFileBrowser: () => void,
   toggleFileViewer: () => void,
-  fileType: string
+  fileType: string,
+  toggleFileBrowser?: () => void
 ) => {
   return (
     <div className="header-panel__buttons">
-      {fullScreenMode === true && (
+      {fullScreenMode === true && toggleFileBrowser && (
         <Button
           variant="link"
           onClick={toggleFileBrowser}
