@@ -34,7 +34,6 @@ const FileDetailView = (props: AllProps) => {
     toggleFileViewer,
   } = props;
   const { fileType } = fileState;
- 
 
   const fetchData = React.useCallback(async () => {
     const fileName = selectedFile.data.fname,
