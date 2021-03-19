@@ -26,33 +26,30 @@
   }
 }
 
-
 .loader {
-  margin-top:-5rem;
-  display:flex;
+  margin-top: -5rem;
+  display: flex;
   justify-content: center;
   align-items: center;
-  height:100vh;
+  height: 100vh;
   flex-direction: column;
-  gap:1.5rem;
+  gap: 1.5rem;
 
   span {
-    color:white;
+    color: white;
   }
 }
 
-
 .ant-drawer.ant-drawer-open .ant-drawer-mask {
- opacity: 0;   
+  opacity: 0;
 }
 
 .ant-drawer-right.ant-drawer-open .ant-drawer-content-wrapper {
-  width:20% !important;
+  width: 20% !important;
 }
 
-
 .ant-drawer-header {
-  padding:0.5rem;
+  padding: 0.5rem;
 }
 
 .ant-drawer-title {
@@ -60,22 +57,16 @@
 }
 
 .ant-drawer-body {
-  padding:0.5rem
+  padding: 0.5rem;
 }
 
-
 .dicomTag {
-
-
-  &__toolbar--text{
-    padding:0;
+  &__toolbar--text {
+    padding: 0;
     font-size: 1rem;
   }
   &__list__item--name {
-    padding:0.2rem;
+    padding: 0.2rem;
     font-weight: 900;
-
-  };
-
-
+  }
 }
