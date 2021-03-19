@@ -33,7 +33,7 @@ class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
       !!children && (
         <div id="gallery" className="gallery-wrapper">
           {children}
-          {total > 1 && (
+          {total > 0 && (
             <GalleryToolbar
               isPlaying={listOpenFilesScrolling}
               total={total}
