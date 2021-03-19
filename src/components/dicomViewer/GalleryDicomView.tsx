@@ -13,7 +13,6 @@ import { CloseIcon } from "@patternfly/react-icons";
 import { useTypedSelector } from "../../store/hooks";
 import GalleryModel from "../../api/models/gallery.model";
 import GalleryWrapper from "../gallery/GalleryWrapper";
-
 import * as dicomParser from "dicom-parser";
 import { isDicom, isNifti } from "./utils";
 import DicomHeader from "./DcmHeader/DcmHeader";
@@ -466,8 +465,6 @@ const GalleryDicomView = () => {
       visibleHeader: !visibleHeader,
     });
   };
-
-  console.log("GalleryDicomState", galleryDicomState, element.current);
 
   return (
     <GalleryWrapper

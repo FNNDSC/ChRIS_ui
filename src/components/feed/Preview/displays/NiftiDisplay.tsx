@@ -1,7 +1,17 @@
 import React from "react";
 import * as cornerstone from "cornerstone-core";
+import * as cornerstoneMath from "cornerstone-math";
+import * as cornerstoneTools from "cornerstone-tools";
+import CornerstoneViewport from "react-cornerstone-viewport";
+import Hammer from "hammerjs";
 import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
 import { IFileBlob } from "../../../../api/models/file-viewer.model";
+import "../../../dicomViewer/amiViewer.scss";
+
+cornerstoneTools.external.cornerstone = cornerstone;
+cornerstoneTools.external.Hammer = Hammer;
+cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
+cornerstoneTools.init();
 
 cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
 cornerstoneNIFTIImageLoader.nifti.configure({
@@ -19,31 +29,30 @@ type AllProps = {
 };
 
 const NiftiDisplay = (props: AllProps) => {
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [imageIds, setImageIds] = React.useState<string[]>([]);
   const { fileItem } = props;
 
   const initAmi = React.useCallback((fileItem: IFileBlob) => {
     const { blob, file } = fileItem;
-    const element = containerRef.current;
-    if (!!element) {
-      cornerstone.enable(element);
-      if (blob && file) {
-        const fileArray = file.data.fname.split("/");
-        const fileName = fileArray[fileArray.length - 1];
-        const imageIdObject = ImageId.fromURL(`nifti:${file.url}${fileName}`);
-        cornerstone.loadAndCacheImage(imageIdObject.url).then((image: any) => {
-          cornerstone.displayImage(element, image);
-          const numberOfSlices = cornerstone.metaData.get(
-            "multiFrameModule",
-            imageIdObject.url
-          ).numberOfFrames;
-          const timeSlices = cornerstone.metaData.get(
-            "functional",
-            imageIdObject.url
-          );
-          console.log(numberOfSlices, timeSlices);
-        });
-      }
+    const imageIdArray: string[] = [];
+    if (blob && file) {
+      const fileArray = file.data.fname.split("/");
+      const fileName = fileArray[fileArray.length - 1];
+      const imageIdObject = ImageId.fromURL(`nifti:${file.url}${fileName}`);
+      cornerstone.loadAndCacheImage(imageIdObject.url).then((image: any) => {
+        const numberOfSlices = cornerstone.metaData.get(
+          "multiFrameModule",
+          imageIdObject.url
+        ).numberOfFrames;
+        imageIdArray.push(
+          ...Array.from(
+            Array(numberOfSlices),
+            (_, i) =>
+              `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
+          )
+        );
+        setImageIds(imageIdArray);
+      });
     }
   }, []);
 
@@ -53,11 +62,24 @@ const NiftiDisplay = (props: AllProps) => {
     }
   }, [fileItem, initAmi]);
   return (
-    <div className="ami-viewer">
-      <div ref={containerRef} id="container">
-        <canvas className="cornerstone-canvas" />
-      </div>
-    </div>
+    <>
+      {imageIds.length > 0 ? (
+        <CornerstoneViewport
+          style={{ minWidth: "100%", height: "512px", flex: "1" }}
+          imageIds={imageIds}
+          frameRate={22}
+          activeTool={"StackScrollMouseWheel"}
+          tools={[
+            {
+              name: "StackScrollMouseWheel",
+              mode: "active",
+            },
+          ]}
+        />
+      ) : (
+        <div>Loading....</div>
+      )}
+    </>
   );
 };
 
