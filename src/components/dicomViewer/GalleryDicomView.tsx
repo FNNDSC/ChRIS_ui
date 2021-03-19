@@ -1,11 +1,12 @@
 import React from "react";
 import * as cornerstone from "cornerstone-core";
-import * as cornerstoneTools from "cornerstone-tools";
 import * as cornerstoneMath from "cornerstone-math";
 import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
 import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import * as cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import * as cornerstoneTools from "cornerstone-tools";
+import Hammer from "hammerjs";
 import CornerstoneViewport from "react-cornerstone-viewport";
 import { Button, Backdrop, Bullseye, Spinner } from "@patternfly/react-core";
 import { CloseIcon } from "@patternfly/react-icons";
@@ -13,7 +14,6 @@ import { useTypedSelector } from "../../store/hooks";
 import GalleryModel from "../../api/models/gallery.model";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 
-import Hammer from "hammerjs";
 import * as dicomParser from "dicom-parser";
 import { isDicom, isNifti } from "./utils";
 import DicomHeader from "./DcmHeader/DcmHeader";
@@ -26,13 +26,27 @@ import { FeedFile } from "@fnndsc/chrisapi";
 import { import as csTools } from "cornerstone-tools";
 
 cornerstoneTools.external.cornerstone = cornerstone;
+cornerstoneTools.external.Hammer = Hammer;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
+cornerstoneTools.init();
 cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
 cornerstoneFileImageLoader.external.cornerstone = cornerstone;
 cornerstoneWebImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
-cornerstoneTools.external.Hammer = Hammer;
+
+cornerstoneWADOImageLoader.webWorkerManager.initialize({
+  maxWebWorkers: navigator.hardwareConcurrency || 1,
+  startWebWorkersOnDemand: true,
+  taskConfiguration: {
+    decodeTask: {
+      initializeCodecsOnStartup: false,
+      usePDFJS: false,
+      strict: false,
+    },
+  },
+});
+
 const scrollToIndex = csTools("util/scrollToIndex");
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
@@ -225,13 +239,7 @@ const GalleryDicomView = () => {
       });
       loadImagesIntoCornerstone(dcmArray);
     }
-
-    return () => {
-      if  (inPlay)  {
-        cornerstoneTools.stopClip(element.current);
-      }
-    };;
-  }, [files, loadImagesIntoCornerstone, inPlay]);
+  }, [files, loadImagesIntoCornerstone]);
 
   const toolExecute = (tool: string) => {
     runTool(tool);
@@ -330,7 +338,7 @@ const GalleryDicomView = () => {
             ...galleryDicomState,
             frame: nextFrame,
           });
-          scrollToIndex(element, frame + 1);
+          scrollToIndex(element.current, frame + 1);
         }
 
         break;
@@ -342,7 +350,7 @@ const GalleryDicomView = () => {
             ...galleryDicomState,
             frame: previousFrame,
           });
-          scrollToIndex(element, frame - 1);
+          scrollToIndex(element.current, frame - 1);
         }
         break;
       }
@@ -354,7 +362,7 @@ const GalleryDicomView = () => {
           frame,
         });
 
-        scrollToIndex(element, 0);
+        scrollToIndex(element.current, 0);
 
         break;
       }
@@ -365,7 +373,7 @@ const GalleryDicomView = () => {
           ...galleryDicomState,
           frame: frame,
         });
-        scrollToIndex(element, frame - 1);
+        scrollToIndex(element.current, frame - 1);
         break;
       }
     }
@@ -459,7 +467,7 @@ const GalleryDicomView = () => {
     });
   };
 
-  console.log("GalleryDicomState", galleryDicomState);
+  console.log("GalleryDicomState", galleryDicomState, element.current);
 
   return (
     <GalleryWrapper
@@ -471,7 +479,7 @@ const GalleryDicomView = () => {
     >
       <Button className="close-btn" variant="link" icon={<CloseIcon />} />
       <React.Suspense fallback={<FallBackComponent />}>
-        {totalFiles === 0 ? (
+        {imageIds.length === 0 ? (
           <DicomLoader totalFiles={totalFiles} filesParsed={filesParsed} />
         ) : (
           <React.Fragment>
