@@ -34,7 +34,7 @@ import "./NodeDetails.scss";
 
 
 interface INodeProps {
-  expandDrawer: () => void;
+  expandDrawer: (panel: string) => void;
 }
 
 interface INodeState {
@@ -122,7 +122,9 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             {pluginTitle}
           </Title>
           <Button
-            onClick={expandDrawer}
+            onClick={() => {
+              expandDrawer("side_panel");
+            }}
             variant="tertiary"
             type="button"
             icon={<CloseIcon />}
@@ -171,7 +173,9 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
                     Total Runtime:
                   </GridItem>
                   <GridItem span={10} className="value">
-                    {selectedPlugin && selectedPlugin.data && runTime(selectedPlugin)}
+                    {selectedPlugin &&
+                      selectedPlugin.data &&
+                      runTime(selectedPlugin)}
                   </GridItem>
                 </Fragment>
               )}

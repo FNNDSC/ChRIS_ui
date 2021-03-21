@@ -37,7 +37,8 @@ export type FeedViewProps = RouteComponentProps<{ id: string }>;
 
 
 export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: FeedViewProps) => {
-  const [isExpanded, setIsExpanded] = React.useState(true);
+  const [isSidePanelExpanded, setSidePanelExpanded] = React.useState(true);
+  const [isBottomPanelExpanded, setBottomPanelExpanded] = React.useState(true);
   const { pluginInstances, selectedPlugin, currentLayout } = useTypedSelector(
     (state) => state.feed
   );
@@ -72,8 +73,12 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
     dispatch(getSelectedPlugin(node));
   };
 
-  const onClick = () => {
-    setIsExpanded(!isExpanded);
+  const onClick = (panel: string) => {
+    if (panel === "side_panel") {
+      setSidePanelExpanded(!isSidePanelExpanded);
+    } else if (panel === "bottom_panel") {
+      setBottomPanelExpanded(!isBottomPanelExpanded);
+    }
   };
 
   const nodePanel = (
@@ -116,7 +121,10 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
       }
     >
       <PageSection className="section-three">
-        <FeedOutputBrowser handlePluginSelect={onNodeClick} />
+        <FeedOutputBrowser
+          expandDrawer={onClick}
+          handlePluginSelect={onNodeClick}
+        />
       </PageSection>
     </React.Suspense>
   );
@@ -139,7 +147,8 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
       <React.Suspense fallback={<div>Fetching the Resources in a moment</div>}>
         {currentLayout ? (
           <ParentComponent
-            isPanelExpanded={isExpanded}
+            isSidePanelExpanded={isSidePanelExpanded}
+            isBottomPanelExpanded={isBottomPanelExpanded}
             onExpand={onClick}
             onNodeClick={onNodeClick}
           />
@@ -156,7 +165,7 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
         <FeedDetails />
       </PageSection>
 
-      <Drawer isExpanded={true} isInline position="bottom">
+      <Drawer isExpanded={isBottomPanelExpanded} isInline position="bottom">
         <DrawerContent
           panelContent={
             <DrawerPanelContent defaultSize="48vh" isResizable>
@@ -172,7 +181,7 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
             variant={PageSectionVariants.darker}
           >
             <Grid span={12} className="feed-view">
-              <Drawer isExpanded={isExpanded} isInline>
+              <Drawer isExpanded={isSidePanelExpanded} isInline>
                 <DrawerContent
                   panelContent={
                     <DrawerPanelContent

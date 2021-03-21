@@ -22,10 +22,6 @@ const FileBrowserViewer = () => {
   };
   const selectedKeys = selectedFile ? [selectedFile.key] : [];
 
-  const handleToggleViewer = () => {
-    dispatch(toggleViewerMode(!viewerMode));
-  };
-
   return (
     <div className="pf-u-px-lg">
       {!viewerMode ? (
@@ -43,7 +39,6 @@ const FileBrowserViewer = () => {
             {selectedFile && selectedFile.file && (
               <FileDetailView
                 selectedFile={selectedFile.file}
-                toggleFileViewer={handleToggleViewer}
               />
             )}
           </GridItem>

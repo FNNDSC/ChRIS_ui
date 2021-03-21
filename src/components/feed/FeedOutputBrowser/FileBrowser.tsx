@@ -3,6 +3,7 @@ import classNames from "classnames";
 import FileDetailView from "../Preview/FileDetailView";
 import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
+import { getFileExtension } from "../../../api/models/file-explorer.model";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,6 +18,9 @@ import {
   FileAltIcon,
   FileIcon,
   FolderCloseIcon,
+  ExpandIcon,
+  FilmIcon,
+  CloseIcon,
 } from "@patternfly/react-icons";
 import {
   Table,
@@ -33,7 +37,6 @@ function getInitialState(root: DataNode) {
   return {
     directory: root,
     breadcrumbs: [root],
-  
   };
 }
 
@@ -44,6 +47,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     downloadAllClick,
     handleFileBrowserToggle,
     handleFileViewerToggle,
+    expandDrawer,
   } = props;
   const [
     fileBrowserState,
@@ -164,6 +168,11 @@ const FileBrowser = (props: FileBrowserProps) => {
     return <div>No Files in this directory.</div>;
   }
 
+  const fileType =
+    selectedFile &&
+    selectedFile.file &&
+    getFileExtension(selectedFile.file.data.fname);
+
   return (
     <Grid hasGutter className="file-browser">
       <GridItem
@@ -222,15 +231,14 @@ const FileBrowser = (props: FileBrowserProps) => {
         smRowSpan={12}
         className="file-browser__grid2"
       >
+        {renderHeaderPanel(
+          handleFileViewerToggle,
+          handleFileBrowserToggle,
+          expandDrawer,
+          fileType
+        )}
         {selectedFile && selectedFile.file && (
-          <FileDetailView
-            fullScreenMode={true}
-            selectedFile={selectedFile.file}
-            toggleFileBrowser={() => {
-              handleFileBrowserToggle();
-            }}
-            toggleFileViewer={handleFileViewerToggle}
-          />
+          <FileDetailView selectedFile={selectedFile.file} />
         )}
       </GridItem>
     </Grid>
@@ -261,4 +269,42 @@ const getIcon = (type: string) => {
     default:
       return <FileIcon />;
   }
+};
+
+const renderHeaderPanel = (
+  toggleFileViewer: () => void,
+  toggleFileBrowser: () => void,
+  expandDrawer: (panel: string) => void,
+  fileType?: string
+) => {
+  return (
+    <div className="header-panel__buttons">
+      <div className="header-panel__buttons--toggleViewer">
+        <Button
+          variant="link"
+          onClick={toggleFileBrowser}
+          icon={<ExpandIcon />}
+        >
+          Maximize
+        </Button>
+        {(fileType === "dcm" ||
+          fileType === "png" ||
+          fileType === "jpg" ||
+          fileType === "nii" ||
+          fileType === "jpeg") && (
+          <Button variant="link" onClick={toggleFileViewer} icon={<FilmIcon />}>
+            Open Image Viewer
+          </Button>
+        )}
+      </div>
+      <div className="header-panel__buttons--togglePanel">
+        <Button
+          onClick={() => expandDrawer("bottom_panel")}
+          variant="tertiary"
+          type="button"
+          icon={<CloseIcon />}
+        />
+      </div>
+    </div>
+  );
 };
