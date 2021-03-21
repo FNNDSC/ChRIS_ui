@@ -9,6 +9,7 @@ export interface FileBrowserProps {
   handleFileBrowserToggle: () => void;
   handleFileViewerToggle: () => void;
   downloadAllClick: () => void;
+  expandDrawer: (panel: string) => void;
 }
 
 export interface FileBrowserState {

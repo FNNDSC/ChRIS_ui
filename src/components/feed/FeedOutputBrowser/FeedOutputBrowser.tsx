@@ -30,14 +30,17 @@ import { DataNode } from "../../../store/explorer/types";
 import "./FeedOutputBrowser.scss";
 import "antd/dist/antd.css";
 
+
 const { DirectoryTree } = Tree;
 
 export interface FeedOutputBrowserProps {
   handlePluginSelect: (node: PluginInstance) => void;
+  expandDrawer: (panel: string) => void;
 }
 
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   handlePluginSelect,
+  expandDrawer
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const dispatch = useDispatch();
@@ -92,6 +95,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
     const handlePluginModalClose = () => {
       setPluginModalOpen(!pluginModalOpen);
+      dispatch(toggleViewerMode(false));
     };
 
     let pluginSidebarTree;
@@ -153,6 +157,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 handleFileBrowserToggle={handleFileBrowserOpen}
                 handleFileViewerToggle={handleFileViewerOpen}
                 downloadAllClick={downloadAllClick}
+                expandDrawer = {expandDrawer}
               />
             ) : selected.data.status === "cancelled" ||
               selected.data.status === "finishedWithError" ? (

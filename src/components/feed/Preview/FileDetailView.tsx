@@ -1,9 +1,8 @@
 import React, { Fragment } from "react";
-import { Button, Label, Text, Skeleton } from "@patternfly/react-core";
+import { Label, Text, Skeleton } from "@patternfly/react-core";
 import { ErrorBoundary } from "react-error-boundary";
-
 import { FeedFile } from "@fnndsc/chrisapi";
-import { ExpandIcon, FilmIcon, InfoCircleIcon } from "@patternfly/react-icons";
+import { InfoCircleIcon } from "@patternfly/react-icons";
 import { getFileExtension } from "../../../api/models/file-explorer.model";
 import {
   IFileBlob,
@@ -14,9 +13,6 @@ const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 
 interface AllProps {
   selectedFile: FeedFile;
-  fullScreenMode?: boolean;
-  toggleFileBrowser?: () => void;
-  toggleFileViewer: () => void;
   isDicom?: boolean;
 }
 
@@ -30,12 +26,7 @@ function getInitialState() {
 
 const FileDetailView = (props: AllProps) => {
   const [fileState, setFileState] = React.useState<IFileBlob>(getInitialState);
-  const {
-    selectedFile,
-    fullScreenMode,
-    toggleFileBrowser,
-    toggleFileViewer,
-  } = props;
+  const { selectedFile } = props;
   const { fileType } = fileState;
 
   const fetchData = React.useCallback(async () => {
@@ -66,12 +57,6 @@ const FileDetailView = (props: AllProps) => {
 
   return (
     <Fragment>
-      {renderHeaderPanel(
-        fullScreenMode,
-        toggleFileViewer,
-        fileType,
-        toggleFileBrowser
-      )}
       <React.Suspense
         fallback={
           <Skeleton
@@ -103,33 +88,3 @@ const FileDetailView = (props: AllProps) => {
 };
 
 export default FileDetailView;
-
-const renderHeaderPanel = (
-  fullScreenMode: boolean | undefined,
-  toggleFileViewer: () => void,
-  fileType: string,
-  toggleFileBrowser?: () => void
-) => {
-  return (
-    <div className="header-panel__buttons">
-      {fullScreenMode === true && toggleFileBrowser && (
-        <Button
-          variant="link"
-          onClick={toggleFileBrowser}
-          icon={<ExpandIcon />}
-        >
-          Maximize
-        </Button>
-      )}
-      {(fileType === "dcm" ||
-        fileType === "png" ||
-        fileType === "jpg" ||
-        fileType === "nii" ||
-        fileType === "jpeg") && (
-        <Button variant="link" onClick={toggleFileViewer} icon={<FilmIcon />}>
-          Open Image Viewer
-        </Button>
-      )}
-    </div>
-  );
-};

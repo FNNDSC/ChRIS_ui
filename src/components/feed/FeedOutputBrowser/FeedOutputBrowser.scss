@@ -105,25 +105,16 @@
 
   &__grid2 {
     overflow-y: scroll;
-  }
-}
 
-/**
+    .header-panel__buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.25em;
+      
+      button  {
+        padding-top: 0;
+      }
 
-Styles for the component FileDetailView
-
-**/
-
-.header-panel {
-  display: flex;
-  justify-content: space-between;
-
-  &__buttons {
-    padding-top: 0;
-
-    button {
-      padding-top: 0 !important;
-      padding-right: 0 !important;
     }
   }
 }
