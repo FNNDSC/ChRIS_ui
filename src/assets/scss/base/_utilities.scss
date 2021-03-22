@@ -6,9 +6,7 @@
 */
 @import "../vendors/patternfly/patternfly";
 
-iframe {
-  height:100vh;
-}
+
 
 .capitalize {
   text-transform: capitalize;
@@ -53,8 +51,8 @@ iframe {
   }
 }
 
-// Full screen view
-/* While in fullscreen, hide any children with class 'tohide' */
+/* Full screen view. While in fullscreen, hide any children with class 'tohide' */
+
 div:-webkit-full-screen {
   width: 100% !important;
 

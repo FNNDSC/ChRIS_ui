@@ -1,36 +1,33 @@
 import * as React from "react";
-import { RouteComponentProps } from "react-router-dom";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import { Alert, PageSection } from "@patternfly/react-core";
+import { RouteComponentProps } from "react-router-dom";
 
+interface DashboardProps extends RouteComponentProps {
+  children: React.ReactNode;
+}
 
-type AllProps = RouteComponentProps;
-
-class DashboardPage extends React.Component<AllProps> {
-  componentDidMount() {
-    document.title = "Dashboard - ChRIS UI site";
-  }
-
-  getTitle=()=>{
+const DashboardPage = (props: DashboardProps) => {
+  const { children } = props;
+  const getTitle = () => {
     return (
       <>
         <span>Welcome to the ChRIS UI Dashboard</span>
       </>
     );
-  }
+  };
+  return (
+    <Wrapper>
+      <PageSection>
+        <Alert
+          aria-label="welcome wagon"
+          variant="info"
+          title={getTitle()}
+        ></Alert>
+        {children}
+      </PageSection>
+    </Wrapper>
+  );
+};
 
-  render() {
-    const { children } = this.props;
-    return (
-      <Wrapper>
-        <PageSection>
-          <Alert aria-label="welcome wagon" variant="info" title={this.getTitle()}>
-          </Alert>
-          {children}
-        </PageSection>
-      </Wrapper>
-    );
-  }
-}
-
-export { DashboardPage as Dashboard };
+export default DashboardPage;

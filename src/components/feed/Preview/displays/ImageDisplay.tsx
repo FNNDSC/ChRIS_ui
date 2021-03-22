@@ -1,5 +1,5 @@
 import React from "react";
-import { IFileBlob } from "../../../api/models/file-viewer.model";
+import { IFileBlob } from "../../../../api/models/file-viewer.model";
 
 type AllProps = {
   fileItem: IFileBlob;
@@ -11,11 +11,11 @@ const ImageDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     ? window.URL.createObjectURL(new Blob([fileItem.blob]))
     : "";
   return (
-      <img
-        id={props.fileItem.file ? props.fileItem.file.fname : ""}
-        src={url}
-        alt=""
-      />
+    <img
+      id={props.fileItem.file ? props.fileItem.file.data.fname : ""}
+      src={url}
+      alt=""
+    />
   );
 };
 

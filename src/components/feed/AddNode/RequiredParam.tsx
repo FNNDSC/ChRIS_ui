@@ -1,10 +1,9 @@
 import React from "react";
 import { Form, Label } from "@patternfly/react-core";
 import { PluginParameter } from "@fnndsc/chrisapi";
-import {RequiredParamProp} from './types'
+import { RequiredParamProp } from "./types";
 import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
 import { css } from "@patternfly/react-styles";
-
 
 const RequiredParam: React.FC<RequiredParamProp> = ({
   param,
@@ -12,24 +11,18 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
   requiredInput,
   inputChange,
 }: RequiredParamProp) => {
-  const [value, setValue] = React.useState("");
-
-  React.useEffect(() => {
-    const id = `${param.data.id}`;
-    const flag = param.data.flag;
-    const input = requiredInput[id];
-    if (input) {
-      setValue(input[flag]);
-    }
-  }, [requiredInput, param]);
+  const value =
+    (requiredInput &&
+      requiredInput[param.data.flag] &&
+      requiredInput[param.data.flag]["value"]) ||
+    "";
 
   const handleInputChange = (param: PluginParameter, event: any) => {
+    const id = param.data.flag;;
     const placeholder = param.data.help;
-    const flag = param.data.flag;
-    const id = `${param.data.id}`;
     const type = param.data.type;
     const value = event.target.value;
-    inputChange(id, flag, value, true, type, placeholder);
+    inputChange(id, value, type, placeholder, true);
   };
 
   const triggerChange = (eventType: string) => {

@@ -1,6 +1,6 @@
 import React from "react";
-import { Dispatch } from "redux";
-import { connect } from "react-redux";
+import { useTypedSelector } from "../../../store/hooks";
+import { useDispatch } from "react-redux";
 import JSZip from "jszip";
 import {
   Grid,
@@ -12,99 +12,59 @@ import {
   EmptyStateIcon,
   EmptyStateVariant,
 } from "@patternfly/react-core";
-import { Spin, Alert } from "antd"; 
+import { CubeIcon } from "@patternfly/react-icons";
+import { Spin, Alert, Tree } from "antd";
 import FileBrowser from "./FileBrowser";
 import PluginViewerModal from "./PluginViewerModal";
 import {
-  setSelectedFile,
+  setExplorerRequest,
   toggleViewerMode,
 } from "../../../store/explorer/actions";
-import { getPluginFilesRequest,} from "../../../store/feed/actions";
-import { IUITreeNode } from "../../../api/models/file-explorer.model";
+import { getPluginFilesRequest } from "../../../store/feed/actions";
 import FileViewerModel from "../../../api/models/file-viewer.model";
-import { ApplicationState } from "../../../store/root/applicationState";
 import { createTreeFromFiles, getPluginName } from "./utils";
-import {
-  PluginInstancePayload,
-  ResourcePayload,
-} from "../../../store/feed/types";
-import {getSelectedInstanceResource, getSelectedFiles} from '../../../store/feed/selector'
-import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
-import {isEmpty} from 'lodash'
+import { PluginInstance } from "@fnndsc/chrisapi";
+import { isEmpty } from "lodash";
 import { getFeedTree } from "./data";
-import { Tree } from "antd";
+import { DataNode } from "../../../store/explorer/types";
 import "./FeedOutputBrowser.scss";
 import "antd/dist/antd.css";
-import { CubeIcon } from "@patternfly/react-icons";
-const {DirectoryTree}=Tree;
 
+
+const { DirectoryTree } = Tree;
 
 export interface FeedOutputBrowserProps {
-  pluginInstances: PluginInstancePayload;
-  selected?: PluginInstance;
-  pluginFilesPayload?: {
-    files: FeedFile[];
-    error: any;
-    hasNext: boolean;
-  };
-  viewerMode?: boolean;
-  pluginInstanceResource: ResourcePayload;
-  handlePluginSelect: (node:  PluginInstance) => void;
-  setSelectedFile: (file: IUITreeNode, folder: IUITreeNode) => void;
-  getPluginFilesRequest: (selected: PluginInstance) => void;
-  toggleViewerMode: (isViewerOpened: boolean) => void;
+  handlePluginSelect: (node: PluginInstance) => void;
+  expandDrawer: (panel: string) => void;
 }
 
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
-  pluginInstances,
-  pluginFilesPayload,
-  selected,
   handlePluginSelect,
-  setSelectedFile,
-  viewerMode,
-  toggleViewerMode,
-  getPluginFilesRequest,
+  expandDrawer
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
+  const dispatch = useDispatch();
+  const {
+    selectedPlugin: selected,
+    pluginFiles,
+    pluginInstances,
+  } = useTypedSelector((state) => state.feed);
+  const { viewerMode } = useTypedSelector((state) => state.explorer);
   const { data: plugins, loading } = pluginInstances;
+  const pluginFilesPayload = selected && pluginFiles[selected.data.id];
 
   React.useEffect(() => {
     if (!pluginFilesPayload && selected) {
-      getPluginFilesRequest(selected);
+      dispatch(getPluginFilesRequest(selected));
     }
-  }, [selected, pluginFilesPayload, getPluginFilesRequest]);
+  }, [selected, pluginFilesPayload, dispatch]);
 
   if (!selected || isEmpty(pluginInstances) || loading) {
-    return (
-      <Grid hasGutter className="feed-output-browser">
-        <GridItem
-          className="feed-output-browser__sidebar "
-          rowSpan={12}
-          span={2}
-        >
-          <Skeleton
-            shape="square"
-            width="30%"
-            screenreaderText="Loading Sidebar"
-          />
-        </GridItem>
-        <GridItem className="feed-output-browser__main" span={10} rowSpan={12}>
-          <Grid>
-            <GridItem span={12} rowSpan={12}>
-              <Skeleton
-                height="100%"
-                width="75%"
-                screenreaderText="Fetching Plugin Resources"
-              />
-            </GridItem>
-          </Grid>
-        </GridItem>
-      </Grid>
-    );
+    return <LoadingFeedBrowser />;
   } else {
     const pluginName = selected && selected.data && getPluginName(selected);
     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
-    const tree = createTreeFromFiles(selected, pluginFiles);
+    const tree: DataNode[] | null = createTreeFromFiles(selected, pluginFiles);
 
     const downloadAllClick = async () => {
       if (!selected) return;
@@ -121,19 +81,21 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       FileViewerModel.downloadFile(blob, filename);
     };
 
-    const handleFileBrowserOpen = (file: IUITreeNode, folder: IUITreeNode) => {
-      setPluginModalOpen(true);
-      setSelectedFile(file, folder);
+    const handleFileBrowserOpen = () => {
+      if (tree) {
+        dispatch(setExplorerRequest(tree));
+      }
+      setPluginModalOpen(!pluginModalOpen);
     };
 
-    const handleFileViewerOpen = (file: IUITreeNode, folder: IUITreeNode) => {
-      setPluginModalOpen(true);
-      setSelectedFile(file, folder);
-      toggleViewerMode(!viewerMode);
+    const handleFileViewerOpen = () => {
+      setPluginModalOpen(!pluginModalOpen);
+      dispatch(toggleViewerMode(!viewerMode));
     };
 
     const handlePluginModalClose = () => {
       setPluginModalOpen(!pluginModalOpen);
+      dispatch(toggleViewerMode(false));
     };
 
     let pluginSidebarTree;
@@ -190,26 +152,18 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               <FileBrowser
                 selectedFiles={pluginFiles}
                 pluginName={pluginName}
-                root={tree}
+                root={tree[0]}
                 key={selected.data.id}
                 handleFileBrowserToggle={handleFileBrowserOpen}
                 handleFileViewerToggle={handleFileViewerOpen}
                 downloadAllClick={downloadAllClick}
+                expandDrawer = {expandDrawer}
               />
             ) : selected.data.status === "cancelled" ||
               selected.data.status === "finishedWithError" ? (
-              <EmptyState variant={EmptyStateVariant.large}>
-                <EmptyStateIcon icon={CubeIcon} />
-                <Title headingLevel="h4" size="lg" />
-                <EmptyStateBody>
-                  The plugin execution was either cancelled or it finished with
-                  error.
-                </EmptyStateBody>
-              </EmptyState>
+              <EmptyStateLoader />
             ) : (
-              <Spin tip="Loading....">
-                <Alert message="Retrieving Plugin's Files" type="info" />
-              </Spin>
+              <FetchFilesLoader />
             )}
           </GridItem>
         </Grid>
@@ -222,22 +176,54 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   }
 };
 
-const mapStateToProps = (state: ApplicationState) => ({
-  pluginInstanceResource: getSelectedInstanceResource(state),
-  selected: state.feed.selectedPlugin,
-  pluginFilesPayload: getSelectedFiles(state),
-  pluginInstances: state.feed.pluginInstances,
-  viewerMode: state.explorer.viewerMode,
-});
+export default FeedOutputBrowser;
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getPluginFilesRequest: (selected: PluginInstance) =>
-    dispatch(getPluginFilesRequest(selected)),
-  setSelectedFile: (file: IUITreeNode, folder: IUITreeNode) =>
-    dispatch(setSelectedFile(file, folder)),
-  toggleViewerMode: (isViewerOpened: boolean) =>
-    dispatch(toggleViewerMode(isViewerOpened)),
-  
-});
+/**
+ * Utility Components
+ *
+ */
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedOutputBrowser);
+const LoadingFeedBrowser = () => {
+  return (
+    <Grid hasGutter className="feed-output-browser">
+      <GridItem className="feed-output-browser__sidebar " rowSpan={12} span={2}>
+        <Skeleton
+          shape="square"
+          width="30%"
+          screenreaderText="Loading Sidebar"
+        />
+      </GridItem>
+      <GridItem className="feed-output-browser__main" span={10} rowSpan={12}>
+        <Grid>
+          <GridItem span={12} rowSpan={12}>
+            <Skeleton
+              height="100%"
+              width="75%"
+              screenreaderText="Fetching Plugin Resources"
+            />
+          </GridItem>
+        </Grid>
+      </GridItem>
+    </Grid>
+  );
+};
+
+const EmptyStateLoader = () => {
+  return (
+    <EmptyState variant={EmptyStateVariant.large}>
+      <EmptyStateIcon icon={CubeIcon} />
+      <Title headingLevel="h4" size="lg" />
+      <EmptyStateBody>
+        The plugin execution was either cancelled or it finished with error.
+      </EmptyStateBody>
+    </EmptyState>
+  );
+};
+
+const FetchFilesLoader = () => {
+  return (
+    <Spin tip="Loading....">
+      <Alert message="Retrieving Plugin's Files" type="info" />
+    </Spin>
+  );
+};

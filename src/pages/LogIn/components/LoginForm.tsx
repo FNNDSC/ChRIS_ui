@@ -55,25 +55,24 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
       });
     }
 
-    if(token && this.state.usernameValue){
+    if (token && this.state.usernameValue) {
       setAuthToken({
         token,
-        username:this.state.usernameValue
-      })
-    } 
+        username: this.state.usernameValue,
+      });
+
+      this.props.history.push("/");
+    }
   }
 
   handleUsernameChange = (value: string) => {
-    this.setState({ usernameValue: value ,
-    showHelperText:false
-    });
+    this.setState({ usernameValue: value, showHelperText: false });
   };
   handlePasswordChange = (passwordValue: string) => {
     this.setState({
       passwordValue,
       showHelperText: false,
     });
-
   };
 
   onRememberMeClick = () => {
@@ -82,12 +81,14 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
 
   render() {
     let helperText;
-    if  (this.state.showHelperText)  {
-       helperText= <>
-               <ExclamationCircleIcon  />
-               <span> Invalid Login Credentials</span>
-           </>;;
-   }
+    if (this.state.showHelperText) {
+      helperText = (
+        <>
+          <ExclamationCircleIcon />
+          <span> Invalid Login Credentials</span>
+        </>
+      );
+    }
 
     return (
       <LoginForm
@@ -110,14 +111,10 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
   }
 }
 
-
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setAuthToken: (auth:{
-    token:string,
-    username:string
-  }) => dispatch(setAuthToken(auth)),
+  setAuthToken: (auth: { token: string; username: string }) =>
+    dispatch(setAuthToken(auth)),
 });
-
 
 export default withRouter(
   connect(null, mapDispatchToProps)(LoginFormComponent)

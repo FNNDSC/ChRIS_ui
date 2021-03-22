@@ -81,7 +81,6 @@ export interface AddNodeProps {
   getParams: (plugin: Plugin) => void;
 }
 
-
 export interface GuidedConfigState {
   componentList: string[];
   count: number;
@@ -95,17 +94,15 @@ export interface GuidedConfigProps extends InputProps {
   computeEnvs?: any[];
   inputChange(
     id: string,
-    paramName: string,
     value: string,
-    required: boolean,
     type: string,
-    placeholder: string
+    placeholder: string,
+    required: boolean
   ): void;
   deleteInput(input: string): void;
   selectedComputeEnv: string;
   setComputeEnviroment: (computeEnv: string) => void;
 }
-
 
 export interface EditorState {
   value: string;
@@ -119,11 +116,10 @@ export interface EditorProps extends InputState {
   params?: PluginParameter[];
   inputChange(
     id: string,
-    paramName: string,
     value: string,
-    required: boolean,
     type: string,
-    placeholder: string
+    placeholder: string,
+    required: boolean
   ): void;
   inputChangeFromEditor(
     dropdownInput: InputType,
@@ -131,12 +127,10 @@ export interface EditorProps extends InputState {
   ): void;
 }
 
-   
 export interface SimpleDropdownState {
-  paramId:string,
+  paramId: string;
   isOpen: boolean;
   paramValue: string;
-  flag: string;
   placeholder: string;
   type: string;
 }
@@ -150,11 +144,10 @@ export interface SimpleDropdownProps {
   id: string;
   handleChange(
     id: string,
-    paramName: string,
     value: string,
-    required: boolean,
     type: string,
-    placeholder: string
+    placeholder: string,
+    required: boolean,
   ): void;
   deleteComponent(id: string): void;
   deleteInput(id: string): void;
@@ -162,18 +155,16 @@ export interface SimpleDropdownProps {
   addParam: () => void;
 }
 
-
 export interface RequiredParamProp {
   param: PluginParameter;
   addParam: () => void;
   requiredInput: InputType;
   inputChange(
     id: string,
-    paramName: string,
     value: string,
-    required: boolean,
     type: string,
-    placeholder: string
+    placeholder: string,
+    required: boolean
   ): void;
 }
 
@@ -187,6 +178,3 @@ export interface ReviewProps extends InputState {
     [key: string]: string[];
   };
 }
-
-
-   

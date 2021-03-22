@@ -7,14 +7,14 @@
 import { Store, createStore, applyMiddleware } from "redux";
 import { createLogger } from "redux-logger";
 import createSagaMiddleware from "redux-saga";
-import { initialGlobalState, ApplicationState } from "./root/applicationState";
+import { RootState } from "./root/applicationState";
 // import rootReducer from './root/rootReducer';
-import createRootReducer from "./root/rootReducer";
+import rootReducer from "./root/rootReducer";
 import { rootSaga } from "./root/rootSaga";
 
 export const store = configureStore();
 
-function configureStore(): Store<ApplicationState> {
+function configureStore(): Store<RootState> {
   // Custom redux logger
   const logger = createLogger({
     collapsed: true,
@@ -33,8 +33,8 @@ function configureStore(): Store<ApplicationState> {
 
   // Create store
   const store = createStore(
-    createRootReducer(),
-    initialGlobalState,
+    rootReducer,
+    {},
     middleware
   );
 

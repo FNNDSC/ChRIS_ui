@@ -34,7 +34,7 @@ export enum IRel {
   Files = "files",
   Parameters = "parameters",
   Plugin = "plugin",
-  Previous = "previous"
+  Previous = "previous",
 }
 
 export interface ICollectionLinks {
@@ -58,59 +58,14 @@ export default class ChrisModel {
     const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
     const header = {
       "Content-Type": "application/vnd.collection+json",
-      "Authorization": "Token " + auth.token
+      Authorization: "Token " + auth.token,
     };
 
     const config: AxiosRequestConfig = {
       headers: header,
       method: "get",
-      url
+      url,
     };
     return axios(config);
   }
-
-  // Fetch file blob from server
-  static getFileBlob(url: string) {
-    const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
-    const header = {
-      "Content-Type": "application/vnd.collection+json",
-      "Authorization": "Token " + auth.token
-    };
-
-    const config: AxiosRequestConfig = {
-      headers: header,
-      method: "get",
-      responseType: "blob",
-      url
-    };
-    return axios(config);
-  }
-
-  // Fetch file Arraybuffer from server
-  static getFileBufferArrayArray(url: string) {
-    const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
-    const header = {
-      "Content-Type": "application/vnd.collection+json",
-      "Authorization": "Token " + auth.token
-    };
-    const config: AxiosRequestConfig = {
-      headers: header,
-      method: "get",
-      responseType: "arraybuffer",
-      url
-    };
-    return axios(config);
-  }
-
-  // NOTE: This returns an IItem object needs to be parsed into client models ***** TBD
-  // Will be integrated for v2
-  // static fetchChrisRequest(url: string) {
-  //   const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
-  //   const req = new Request(auth, "application/vnd.collection+json");
-  //   return req.get(url).then((res) => {
-  //     return parseCollectiontoModel(res.data); // Need a parser form ICollection to IFeed and others
-  //   }) .catch((error) => {
-  //     return error;
-  //   })
-  // }
 }

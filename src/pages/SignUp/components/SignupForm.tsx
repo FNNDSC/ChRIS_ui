@@ -1,7 +1,7 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import {Dispatch} from 'redux'
-import {withRouter} from 'react-router-dom'
+import { useHistory } from "react-router-dom";
 import {
   Form,
   FormGroup,
@@ -22,9 +22,11 @@ type Validated = {
   error: undefined | "error" | "default" | "success" | "warning";
 };
 
-type SignUpFormProps = {
+interface SignUpFormProps {
   setAuthToken: (auth: { token: string; username: string }) => void;
 };
+
+
 
 const SignUpForm: React.FC<SignUpFormProps> = ({
   setAuthToken,
@@ -59,6 +61,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 
   const [loading, setLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
+  const history = useHistory();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -145,6 +148,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         token,
         username: user.data.username,
       });
+      history.push("/");
     }
   };
 
@@ -255,6 +259,4 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 });
 
 
-export default withRouter(
-  connect(null, mapDispatchToProps)(SignUpForm)
-);
+export default connect(null, mapDispatchToProps)(SignUpForm);

@@ -14,7 +14,6 @@ export interface NodeDetailsProps {
   text?: string;
 }
 
-
 export interface PluginInstanceObj {
   selected: PluginInstance;
   pluginInstances: PluginInstance[];

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   TextArea,
   ExpandableSection,
@@ -15,11 +15,8 @@ import {
   getRequiredParams,
   getAllParamsWithName,
   getRequiredParamsWithName,
+  unpackParametersIntoString,
 } from "./lib/utils";
-import { v4 } from 'uuid';
-
-
-
 
 type ParameterDictionary = {
   [key: string]: {
@@ -27,34 +24,44 @@ type ParameterDictionary = {
   };
 };
 
-const Editor = ({ plugin, inputChangeFromEditor, params }: EditorProps) => {
+const Editor = ({
+  plugin,
+  inputChangeFromEditor,
+  params,
+  dropdownInput,
+  requiredInput,
+}: EditorProps) => {
   const [editorState, setEditorState] = React.useState<EditorState>({
-    value: "",
+    value: `${plugin.data.name}:`,
     docsExpanded: true,
     errors: [],
   });
 
-  const { value, docsExpanded, errors } = editorState;
-
-  const generateCommand = React.useCallback((plugin) => {
-    const generatedCommand = `${plugin.data.name}: `;
-    setEditorState((editorState) => {
-      return {
-        ...editorState,
-        value: generatedCommand,
-      };
-    });
-  }, []);
+  const { docsExpanded, errors } = editorState;
 
   React.useEffect(() => {
-    generateCommand(plugin);
-  }, [plugin, generateCommand]);
+    let value = `${plugin.data.name}: `;
+    if (requiredInput) {
+      value += unpackParametersIntoString(requiredInput);
+    }
+
+    if (dropdownInput) {
+      value += unpackParametersIntoString(dropdownInput);
+    }
+
+    setEditorState((state) => {
+      return {
+        ...state,
+        value,
+      };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const parameterArray = React.useMemo(() => {
     if (params)
       return params.map((param) => {
         return {
-          id: v4(),
           flag: param.data.flag,
           type: param.data.type,
           placeholder: param.data.help,
@@ -85,7 +92,6 @@ const Editor = ({ plugin, inputChangeFromEditor, params }: EditorProps) => {
       for (let i = 0; i <= userValue.length; i++) {
         const flag = userValue[i];
         const value = userValue[i + 1];
-
         const flags = params && params.map((param) => param.data.flag);
 
         parameterArray?.forEach((parameter) => {
@@ -98,21 +104,18 @@ const Editor = ({ plugin, inputChangeFromEditor, params }: EditorProps) => {
             ) {
               paramDictionary[flag] = {
                 value: "",
-                id: parameter.id,
                 placeholder: parameter.placeholder,
                 type: parameter.type,
               };
             } else if (parameter.type === "boolean" && value) {
               paramDictionary[flag] = {
                 value: "",
-                id: parameter.id,
                 placeholder: parameter.placeholder,
                 type: parameter.type,
               };
             } else {
               paramDictionary[flag] = {
                 value,
-                id: parameter.id,
                 placeholder: parameter.placeholder,
                 type: parameter.type,
               };
@@ -133,8 +136,8 @@ const Editor = ({ plugin, inputChangeFromEditor, params }: EditorProps) => {
 
     const requiredParameters = params && getRequiredParams(params);
     for (const token in paramDictionary) {
-      const id = paramDictionary[token].id;
       const editorValue = paramDictionary[token].value;
+
       const flag = token;
       const type = paramDictionary[token].type;
       const placeholder = paramDictionary[token].placeholder;
@@ -145,17 +148,17 @@ const Editor = ({ plugin, inputChangeFromEditor, params }: EditorProps) => {
       ) {
         const value =
           params &&
-          getRequiredParamsWithName(id, flag, editorValue, type, placeholder);
-        if (value) requiredObject[id] = value;
+          getRequiredParamsWithName(flag, editorValue, type, placeholder);
+        if (value) requiredObject[flag] = value;
       } else {
         const value =
-          params &&
-          getAllParamsWithName(id, flag, editorValue, type, placeholder);
-        if (value) dropdownObject[id] = value;
+          params && getAllParamsWithName(flag, editorValue, type, placeholder);
+        if (value) dropdownObject[flag] = value;
       }
     }
 
     if (!isEmpty(dropdownObject) || !isEmpty(requiredObject)) {
+      console.log("DropdownInput", dropdownInput);
       inputChangeFromEditor(dropdownObject, requiredObject);
     }
   };
@@ -172,7 +175,7 @@ const Editor = ({ plugin, inputChangeFromEditor, params }: EditorProps) => {
             className="editor__text"
             resizeOrientation="vertical"
             onChange={handleInputChange}
-            value={value}
+            value={editorState.value}
             spellCheck={false}
           />
         </div>
@@ -211,7 +214,6 @@ const Editor = ({ plugin, inputChangeFromEditor, params }: EditorProps) => {
     </div>
   );
 };
-
 
 const mapStateToProps = ({ plugin }: ApplicationState) => ({
   params: plugin.parameters,

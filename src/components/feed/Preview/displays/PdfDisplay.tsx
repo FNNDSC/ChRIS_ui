@@ -1,6 +1,6 @@
 import React from "react";
 
-import { IFileBlob } from "../../../api/models/file-viewer.model";
+import { IFileBlob } from "../../../../api/models/file-viewer.model";
 
 type AllProps = {
   fileItem: IFileBlob;
@@ -14,7 +14,7 @@ const PdfDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
     : "";
   return (
     <iframe
-      key={fileItem.file && fileItem.file.fname}
+      key={fileItem.file && fileItem.file.data.fname}
       src={url}
       width="100%"
       height="100%"

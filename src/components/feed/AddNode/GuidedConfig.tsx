@@ -15,12 +15,10 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { isEmpty } from "lodash";
 import { v4 } from "uuid";
 
-import { GuidedConfigState, GuidedConfigProps} from "./types";
+import { GuidedConfigState, GuidedConfigProps } from "./types";
 import { unpackParametersIntoString } from "./lib/utils";
 
-
-
-const GuidedConfig=({
+const GuidedConfig = ({
   dropdownInput,
   requiredInput,
   inputChange,
@@ -29,9 +27,9 @@ const GuidedConfig=({
   computeEnvs,
   selectedComputeEnv,
   setComputeEnviroment,
-  deleteInput
-}:GuidedConfigProps)=>{
-const [configState, setConfigState] = React.useState < GuidedConfigState >({
+  deleteInput,
+}: GuidedConfigProps) => {
+  const [configState, setConfigState] = React.useState<GuidedConfigState>({
     componentList: [],
     count: 1,
     errors: [],
@@ -39,79 +37,81 @@ const [configState, setConfigState] = React.useState < GuidedConfigState >({
     docsExpanded: false,
   });
 
-const {componentList, count, errors, alertVisible, docsExpanded}=configState;
+  const {
+    componentList,
+    count,
+    errors,
+    alertVisible,
+    docsExpanded,
+  } = configState;
 
+  const setDropdownDefaults = React.useCallback(() => {
+    if (!isEmpty(dropdownInput)) {
+      const defaultComponentList = Object.entries(dropdownInput).map(
+        ([key]) => {
+          return key;
+        }
+      );
+      setConfigState((configState) => {
+        return {
+          ...configState,
+          componentList: defaultComponentList,
+          count: defaultComponentList.length,
+        };
+      });
+    }
+  }, [dropdownInput]);
 
-const setDropdownDefaults=React.useCallback(()=>{
-  if(!isEmpty(dropdownInput)){
-    const defaultComponentList = Object.entries(dropdownInput).map(([key]) => {
-      return key;
-    });
-    setConfigState((configState) => {
-      return {
-        ...configState,
-        componentList: defaultComponentList,
-        count: defaultComponentList.length,
-      };
-    });
-  }
+  React.useEffect(() => {
+    setDropdownDefaults();
+  }, [setDropdownDefaults]);
 
-},[dropdownInput])
-
-
-React.useEffect(()=>{
- setDropdownDefaults();
-},[setDropdownDefaults])
-
-
-const handleDocsToggle = () => {
+  const handleDocsToggle = () => {
     setConfigState({
       ...configState,
       docsExpanded: !configState.docsExpanded,
     });
-  }
+  };
 
-const deleteComponent = (id: string) => {
-const filteredList = componentList.filter((key) => {
-  return key !== id;
-});
+  const deleteComponent = (id: string) => {
+    const filteredList = componentList.filter((key) => {
+      return key !== id;
+    });
 
-  setConfigState({
+    setConfigState({
       ...configState,
       componentList: filteredList,
       count: configState.count - 1,
     });
-  }
+  };
 
-const addParam = () => {
-    if(params && count < params.length){
+  const addParam = () => {
+    if (params && count < params.length) {
       setConfigState({
         ...configState,
-        componentList:[...configState.componentList, v4()],
-        count:configState.count+1
-      })
+        componentList: [...configState.componentList, v4()],
+        count: configState.count + 1,
+      });
     }
 
-
-    if(params && count >=params.length){
+    if (params && count >= params.length) {
       setConfigState({
         ...configState,
-        errors:["You cannot more parameters to this plugin"],
-        alertVisible:!configState.alertVisible
-      })
+        errors: ["You cannot more parameters to this plugin"],
+        alertVisible: !configState.alertVisible,
+      });
     }
-}
+  };
 
-const hideAlert = () => {
-  setConfigState({
-    ...configState,
-    alertVisible:!configState.alertVisible
-  })
-}
-
+  const hideAlert = () => {
+    setConfigState({
+      ...configState,
+      alertVisible: !configState.alertVisible,
+    });
+  };
 
   const renderComputeEnvs = () => {
-    if(computeEnvs && computeEnvs.length>0){
+    if (computeEnvs && computeEnvs.length > 0) {
       return (
         <div className="configure-compute">
           <Label className="configure-compute__label">
@@ -143,7 +143,7 @@ const hideAlert = () => {
         </div>
       );
     }
-  }
+  };
 
   const renderRequiredParams = () => {
     if (params && params.length > 0) {
@@ -162,10 +162,10 @@ const hideAlert = () => {
         } else return undefined;
       });
     }
-  }
+  };
 
-  const renderDropdowns=()=>{
-    return componentList.map((id,index)=>{
+  const renderDropdowns = () => {
+    return componentList.map((id, index) => {
       return (
         <SimpleDropdown
           key={index}
@@ -178,78 +178,74 @@ const hideAlert = () => {
           addParam={addParam}
         />
       );
-    })
-  }
-
+    });
+  };
 
   let generatedCommand = plugin && `${plugin.data.name}: `;
   if (!isEmpty(requiredInput)) {
-      generatedCommand += unpackParametersIntoString(requiredInput);
+    generatedCommand += unpackParametersIntoString(requiredInput);
   }
   if (!isEmpty(dropdownInput)) {
-      generatedCommand += unpackParametersIntoString(dropdownInput);
+    generatedCommand += unpackParametersIntoString(dropdownInput);
   }
 
+  return (
+    <div className="configuration">
+      <div className="configuration__options">
+        <h1 className="pf-c-title pf-m-2xl">{`Configure ${plugin?.data.name}`}</h1>
+        <p>
+          Use the &quot;Add more parameters&quot; button to add command line
+          flags and values to the plugin.
+        </p>
+        <div className="configuration__buttons">
+          <Button
+            className="configuration__button"
+            onClick={addParam}
+            variant="primary"
+          >
+            Add more parameters
+          </Button>
+        </div>
 
-   return (
-     <div className="configuration">
-       <div className="configuration__options">
-         <h1 className="pf-c-title pf-m-2xl">{`Configure ${plugin?.data.name}`}</h1>
-         <p>
-           Use the &quot;Add more parameters&quot; button to add command line
-           flags and values to the plugin.
-         </p>
-         <div className="configuration__buttons">
-           <Button
-             className="configuration__button"
-             onClick={addParam}
-             variant="primary"
-           >
-             Add more parameters
-           </Button>
-         </div>
+        <div className="configuration__renders">
+          {renderRequiredParams()}
+          {renderDropdowns()}
+          {renderComputeEnvs()}
+        </div>
+        {alertVisible &&
+          errors.length > 0 &&
+          errors.map((error, index) => {
+            return (
+              <Alert
+                className="configuration__renders__alert"
+                key={index}
+                variant="danger"
+                title={error}
+                actionClose={<AlertActionCloseButton onClose={hideAlert} />}
+              />
+            );
+          })}
+        <div className="autogenerated">
+          <Label className="autogenerated__label">Generated Command:</Label>
+          <TextInput
+            className="autogenerated__text"
+            type="text"
+            aria-label="autogenerated-text"
+            value={generatedCommand}
+          />
+        </div>
 
-         <div className="configuration__renders">
-           {renderRequiredParams()}
-           {renderDropdowns()}
-           {renderComputeEnvs()}
-         </div>
-         {alertVisible &&
-           errors.length > 0 &&
-           errors.map((error, index) => {
-             return (
-               <Alert
-                 className="configuration__renders__alert"
-                 key={index}
-                 variant="danger"
-                 title={error}
-                 actionClose={<AlertActionCloseButton onClose={hideAlert} />}
-               />
-             );
-           })}
-         <div className="autogenerated">
-           <Label className="autogenerated__label">Generated Command:</Label>
-           <TextInput
-             className="autogenerated__text"
-             type="text"
-             aria-label="autogenerated-text"
-             value={generatedCommand}
-           />
-         </div>
-
-         <Alert
-           style={{
-             marginTop: "15px",
-           }}
-           variant="info"
-           title="If you prefer a free form input box where you might copy paste all the command line parameters, you can safely hit 'next' here."
-         />
-       </div>
-     </div>
-   );
-
-}
-
+        <Alert
+          style={{
+            marginTop: "15px",
+          }}
+          variant="info"
+          title="If you prefer a free form input box where you might copy paste all the command line parameters, you can safely hit 'next' here."
+        />
+      </div>
+    </div>
+  );
+};
 
 const mapStateToProps = ({ plugin }: ApplicationState) => ({
   params: plugin.parameters,

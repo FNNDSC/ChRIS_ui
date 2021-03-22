@@ -3,16 +3,13 @@ import { tree, hierarchy } from "d3-hierarchy";
 import { select, event } from "d3-selection";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import {
-  ResourcePayload,
-  FeedTreeProp,
-} from "../../../store/feed/types";
+import { ResourcePayload, FeedTreeProp } from "../../../store/feed/types";
 
 import "./FeedTree.scss";
 import { Datum, TreeNodeDatum, Point } from "./data";
-import {isEqual} from 'lodash'
-import Link from './Link'
-import Node from './Node'
+import { isEqual } from "lodash";
+import Link from "./Link";
+import Node from "./Node";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
 import { UndoIcon, RedoIcon } from "@patternfly/react-icons";
 import { v4 as uuidv4 } from "uuid";
@@ -20,15 +17,14 @@ import clone from "clone";
 import { Switch, Button } from "@patternfly/react-core";
 
 interface ITreeProps {
-  instances:  PluginInstance[];
+  instances: PluginInstance[];
   pluginInstanceResource: ResourcePayload;
   feedTreeProp: FeedTreeProp;
 }
 
-
 interface Separation {
-  siblings:number,
-  nonSiblings:number
+  siblings: number;
+  nonSiblings: number;
 }
 
 interface OwnProps {
@@ -47,8 +43,9 @@ interface OwnProps {
   separation: Separation;
   orientation: "horizontal" | "vertical";
   changeOrientation: (orientation: string) => void;
-  isPanelExpanded: boolean;
-  onExpand: () => void;
+  isSidePanelExpanded: boolean;
+  isBottomPanelExpanded: boolean;
+  onExpand: (panel: string) => void;
 }
 
 type AllProps = ITreeProps & OwnProps;
@@ -65,10 +62,8 @@ type FeedTreeState = {
   isInitialRenderForDataset: boolean;
 };
 
-
-const svgClassName='feed-tree__svg';
-const graphClassName='feed-tree__graph'
-
+const svgClassName = "feed-tree__svg";
+const graphClassName = "feed-tree__graph";
 
 class FeedTree extends React.Component<AllProps, FeedTreeState> {
   static defaultProps: Partial<AllProps> = {
@@ -299,7 +294,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       !isEqual(this.props.scaleExtent, nextProps.scaleExtent) ||
       nextState.collapsible !== this.state.collapsible ||
       nextState.toggleLabel !== this.state.toggleLabel ||
-      nextProps.isPanelExpanded !== this.props.isPanelExpanded ||
+      nextProps.isSidePanelExpanded !== this.props.isSidePanelExpanded ||
+      nextProps.isBottomPanelExpanded !== this.props.isBottomPanelExpanded ||
       !isEqual(this.state.data, nextState.data) ||
       this.props.zoom !== nextProps.zoom ||
       this.props.instances !== nextProps.instances
@@ -401,10 +397,13 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
               />
             </div>
           </div>
-          {!this.props.isPanelExpanded && (
+          {!this.props.isSidePanelExpanded && (
             <div className="feed-tree__container--panelToggle">
               <div className="feed-tree__orientation">
-                <Button type="button" onClick={this.props.onExpand}>
+                <Button
+                  type="button"
+                  onClick={() => this.props.onExpand("side_panel")}
+                >
                   Node Panel
                 </Button>
               </div>
@@ -445,13 +444,21 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
             })}
           </TransitionGroupWrapper>
         </svg>
+        {!this.props.isBottomPanelExpanded && (
+          <div className="feed-tree__container--panelToggle">
+            <div className="feed-tree__orientation">
+              <Button
+                type="button"
+                onClick={() => this.props.onExpand("bottom_panel")}
+              >
+                Feed Browser
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 }
-
-
-
-
 
 export default FeedTree;

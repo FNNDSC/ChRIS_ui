@@ -194,3 +194,11 @@ export function isDicom(fileName: string) {
   const fileExt = fileName.substring(fileName.lastIndexOf(".") + 1);
   if (fileExt === "dcm" || fileExt === "dicom") return true;
 }
+
+export function isNifti(fileName: string) {
+  const fileExt = fileName.substring(fileName.lastIndexOf(".") + 1);
+  if (fileExt === "nii") {
+    return true;
+  }
+  return false;
+}

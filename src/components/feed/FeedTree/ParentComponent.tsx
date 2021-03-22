@@ -14,8 +14,9 @@ interface ParentComponentProps {
   onNodeClick: (node: PluginInstance) => void;
   feedTreeProp: FeedTreeProp;
   setFeedTreeProp: (orientation: string) => void;
-  isPanelExpanded: boolean;
-  onExpand: () => void;
+  isSidePanelExpanded: boolean;
+  isBottomPanelExpanded: boolean;
+  onExpand: (panel: string) => void;
 }
 
 const ParentComponent = (props: ParentComponentProps) => {
@@ -24,7 +25,8 @@ const ParentComponent = (props: ParentComponentProps) => {
     pluginInstances,
     feedTreeProp,
     setFeedTreeProp,
-    isPanelExpanded,
+    isSidePanelExpanded,
+    isBottomPanelExpanded,
     onExpand,
   } = props;
   const { data: instances } = pluginInstances;
@@ -61,7 +63,8 @@ const ParentComponent = (props: ParentComponentProps) => {
       feedTreeProp={feedTreeProp}
       instances={instances}
       changeOrientation={changeOrientation}
-      isPanelExpanded={isPanelExpanded}
+      isSidePanelExpanded={isSidePanelExpanded}
+      isBottomPanelExpanded={isBottomPanelExpanded}
       onExpand={onExpand}
     />
   ) : (
