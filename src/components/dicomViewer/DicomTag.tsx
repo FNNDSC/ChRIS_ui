@@ -14,7 +14,7 @@ const DicomTag: React.FC<DicomTagProps> = ({ image }: DicomTagProps) => {
     value: getSopInstanceUID(image),
   });
   if (image && image.data) {
-    header.push({ name: "SOP Class", valu: getSopClass(image) });
+    header.push({ name: "SOP Class", value: getSopClass(image) });
     header.push({
       name: "Modality",
       value: image.data.string("x00080060"),

@@ -1,119 +1,104 @@
 @import "../../../assets/scss/helpers/variables";
-@import '../../../assets/scss/helpers/mixins';
+@import "../../../assets/scss/helpers/mixins";
 
 .node-block {
   background: $node-block-background;
-  padding:0 1rem;
-  padding-top:2rem;
+  padding: 0 1rem;
+  padding-top: 2rem;
   color: white;
 
-
-
   .node-details {
-
     &__title {
-      display:flex;
+      display: flex;
       justify-content: space-between;
-
     }
 
     .pf-c-title {
-      color:inherit;
+      color: inherit;
       font-weight: 600;
     }
 
-    &__grid > .status, &__expandable {
-       margin-bottom: 1em;
+    &__grid > .status,
+    &__expandable {
+      margin-bottom: 1em;
     }
 
     .pf-m-primary {
       background-color: #004080 !important;
-      color:white;
+      color: white;
     }
 
     .pf-m-primary:hover {
-      background-color: #06c!important    
+      background-color: #06c !important;
     }
 
-  
     .pf-c-expandable-section__toggle {
-      color:white;
+      color: white;
       font-size: 90%;
-      
+
       &-icon {
-        margin-right:0.25em;
+        margin-right: 0.25em;
       }
     }
-
 
     &__grid > * {
       margin-top: 1em;
     }
 
-    .value svg, .title svg {
-        margin-right:0.5em
+    .value svg,
+    .title svg {
+      margin-right: 0.5em;
     }
 
     &__actions {
       display: flex;
-      justify-content:flex-start;
-      gap:2em; 
-      margin-top: 1em;  
+      justify-content: flex-start;
+      gap: 2em;
+      margin-top: 1em;
     }
 
-  .pf-c-form-control {
+    .pf-c-form-control {
       font-family: monospace;
       font-weight: 700;
     }
 
-      &__popover-button {
+    &__popover-button {
       margin-top: 1rem;
     }
 
-  &__status-descriptions {
-    
-  .ant-steps-item {
-    padding-left: 0 !important;
-    overflow: visible !important;
-   
+    &__status-descriptions {
+      .ant-steps-item {
+        padding-left: 0 !important;
+        overflow: visible !important;
+      }
+
+      .ant-steps-item-icon {
+        display: none;
+      }
+
+      .ant-steps-item-description {
+        color: #b8bbbe !important;
+      }
+
+      .ant-steps-horizontal:not(.ant-steps-label-vertical)
+        .ant-steps-item-tail {
+        display: none !important;
+      }
+
+      .ant-steps-item-title::after {
+        display: none;
+      }
+    }
+
+    /* Terminal Popover */
   }
 
-
-  .ant-steps-item-icon {
-    display:none;
-    
+  @include media-query(1200px) {
+    .pf-l-grid > .pf-m-2-col {
+      margin-bottom: 1em;
+    }
   }
-
-  .ant-steps-item-description {
-    color: #b8bbbe!important;
-  }
-
- .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item-tail {
-    display: none !important;
 }
-
-.ant-steps-item-title::after {
-    display:none
-  }
-
- }
-
- /* Terminal Popover */
-
- 
-}
-
-
-@include media-query(1200px){
-   .pf-l-grid > .pf-m-2-col {
-       margin-bottom: 1em;
-    }   
- }
-
-}
-
-
-
 
 /******
 
@@ -122,60 +107,62 @@ Steps Design Icon
 ******/
 
 .ant-steps-item-icon {
-  width:32px !important;
-  height:32px !important;
+  width: 32px !important;
+  height: 32px !important;
   font-size: 16px !important;
   border-radius: 32px !important;
-  line-height:24px !important;
+  line-height: 24px !important;
   margin: 0 2px 0 2px !important;
-  cursor:pointer;
+  cursor: pointer;
   padding: 5px 7px;
 }
 
-
 .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item {
-    padding-left:0;
+  padding-left: 0;
 }
 
 .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item-tail {
-    display:outline !important;
+  display: outline !important;
 }
 
-.ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-description {
-    color: white !important;   
+.ant-steps-item-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-description {
+  color: white !important;
 }
 
 .ant-steps-item-finish .ant-steps-item-icon {
-    background-color: #1890ff !important;
+  background-color: #1890ff !important;
 }
 
 .ant-steps-item-error .ant-steps-item-icon {
-  background:#C9190B !important;
+  background: #c9190b !important;
 }
 
-.ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon , .ant-steps-item-error .ant-steps-item-icon > .ant-steps-icon{
-    color: #fff !important;
+.ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon,
+.ant-steps-item-error .ant-steps-item-icon > .ant-steps-icon {
+  color: #fff !important;
 }
 
 .ant-steps-item-title {
   padding-right: 0;
 }
 
-.ant-popover-inner-content{
+.ant-popover-inner-content {
   width: 50rem !important;
-  padding:0 !important
+  padding: 0 !important;
 }
 
 .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
-    color: white !important;
-    font-size: 0.75rem !important;
+  color: white !important;
+  font-size: 0.75rem !important;
 }
 
-.ReactVirtualized__Grid__innerScrollContainer{
-  color:#fff;
-  font-size:0.75rem;
-  font-family:monospace;
-  height:100%;
+.ReactVirtualized__Grid__innerScrollContainer {
+  color: #fff;
+  font-size: 0.75rem;
+  font-family: monospace;
+  height: 100%;
   width: 100%;
-
 }

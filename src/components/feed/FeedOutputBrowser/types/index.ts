@@ -1,39 +1,23 @@
-import { IUITreeNode } from "../../../../api/models/file-explorer.model";
-import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
-import { Logs, PluginStatus } from "../../../../store/feed/types";
+import { FeedFile } from "@fnndsc/chrisapi";
+import { DataNode } from "../../../../store/explorer/types";
 
-export interface PluginStatusProps {
-  pluginStatus?: PluginStatus[];
-  pluginLog?: Logs;
-  selected?: PluginInstance;
-}
 
 export interface FileBrowserProps {
-  hasNext?: boolean;
-
   selectedFiles?: FeedFile[];
-  root: IUITreeNode;
+  root: DataNode;
   pluginName?: string;
-  handleFileBrowserToggle: (file: IUITreeNode, directory: IUITreeNode) => void;
-  handleFileViewerToggle: (file: IUITreeNode, directory: IUITreeNode) => void;
+  handleFileBrowserToggle: () => void;
+  handleFileViewerToggle: () => void;
   downloadAllClick: () => void;
+  expandDrawer: (panel: string) => void;
 }
 
-export interface FileBrowerState {
-  directory: IUITreeNode;
-  breadcrumbs: IUITreeNode[];
-  previewingFile?: IUITreeNode; // file selected for preview
-  pathViewingFile?: IUITreeNode; // file selected via shift-click for viewing full path
+export interface FileBrowserState {
+  directory: DataNode;
+  breadcrumbs: DataNode[];
+  previewingFile?: DataNode; // file selected for preview
 }
-
 
 export interface Label {
   [key: string]: boolean;
 }
-
-
-export type ComputeLog = {
-  d_ret?: {
-    l_logs?: string[];
-  };
-};

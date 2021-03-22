@@ -5,3 +5,4 @@ export { default as IframeDisplay} from "./IframeDisplay";
 export { default as ImageDisplay} from "./ImageDisplay";
 export { default as DcmDisplay} from "./DcmDisplay";
 export { default as PdfDisplay } from "./PdfDisplay";
+export { default as NiftiDisplay } from "./NiftiDisplay";

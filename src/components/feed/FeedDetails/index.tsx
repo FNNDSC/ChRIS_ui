@@ -2,7 +2,7 @@ import React from "react";
 import Moment from "react-moment";
 import { connect } from "react-redux";
 import { Skeleton } from "@patternfly/react-core";
-import ShareFeed from "../../../components/feed/ShareFeed/ShareFeed";
+import ShareFeed from "../ShareFeed/ShareFeed";
 import { FeedPayload, PluginInstancePayload } from "../../../store/feed/types";
 import { ApplicationState } from "../../../store/root/applicationState";
 import "./FeedDetails.scss";

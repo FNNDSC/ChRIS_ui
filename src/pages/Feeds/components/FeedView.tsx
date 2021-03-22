@@ -1,6 +1,6 @@
 import * as React from "react";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
+import { useTypedSelector} from '../../../store/hooks';
+import {useDispatch} from 'react-redux';
 import {
   PageSection,
   PageSectionVariants,
@@ -14,19 +14,13 @@ import {
 } from "@patternfly/react-core";
 import classNames from 'classnames';
 import { FeedDetails } from "../../../components";
-
-import { setSidebarActive } from "../../../store/ui/actions";
-import {
-  getFeedRequest,
-  getSelectedPlugin,
-  destroyPluginState,
-} from "../../../store/feed/actions";
+import {destroyPluginState, getFeedRequest, getSelectedPlugin} from '../../../store/feed/actions'
+import {setSidebarActive} from '../../../store/ui/actions'
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { RouteComponentProps } from "react-router-dom";
-import { ApplicationState } from "../../../store/root/applicationState";
-import { IFeedState, DestroyData } from "../../../store/feed/types";
-import { IUserState } from "../../../store/user/types";
+import { DestroyData } from "../../../store/feed/types";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
+import { destroyExplorer } from "../../../store/explorer/actions";
 
 const ParentComponent = React.lazy(
   () => import("../../../components/feed/FeedTree/ParentComponent")
@@ -34,77 +28,57 @@ const ParentComponent = React.lazy(
 const FeedGraph = React.lazy(
   () => import("../../../components/feed/FeedTree/FeedGraph")
 );
-
 const FeedOutputBrowser = React.lazy(
   () => import("../../../components/feed/FeedOutputBrowser/FeedOutputBrowser")
 );
-
 const NodeDetails=React.lazy(()=>import("../../../components/feed/NodeDetails/NodeDetails"))
 
+export type FeedViewProps = RouteComponentProps<{ id: string }>;
 
-interface IPropsFromDispatch {
-  setSidebarActive: typeof setSidebarActive;
-  getFeedRequest: typeof getFeedRequest;
-  destroyPluginState: typeof destroyPluginState;
-  getSelectedPlugin: typeof getSelectedPlugin;
- 
-}
 
-export type FeedViewProps = IUserState &
-  IFeedState &
-  IPropsFromDispatch &
-  RouteComponentProps<{ id: string }>;
-
-export const FeedView: React.FC<FeedViewProps> = ({
-  setSidebarActive,
-  match: {
-    params: { id },
-  },
-  getFeedRequest,
-  getSelectedPlugin,
-  destroyPluginState,
-  pluginInstances,
-  currentLayout,
-  selectedPlugin,
-}: FeedViewProps) => {
-  const [isExpanded, setIsExpanded] = React.useState(true);
-
-  const getFeed = React.useCallback(() => {
-    getFeedRequest(id);
-  }, [id, getFeedRequest]);
-
+export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: FeedViewProps) => {
+  const [isSidePanelExpanded, setSidePanelExpanded] = React.useState(true);
+  const [isBottomPanelExpanded, setBottomPanelExpanded] = React.useState(true);
+  const { pluginInstances, selectedPlugin, currentLayout } = useTypedSelector(
+    (state) => state.feed
+  );
+  const dispatch=useDispatch();
   const dataRef = React.useRef<DestroyData>();
-
   const { data } = pluginInstances;
 
   dataRef.current = {
     data,
-    selectedPlugin: selectedPlugin,
+    selectedPlugin,
   };
+  
 
   React.useEffect(() => {
     return () => {
-      if (dataRef.current) {
-        destroyPluginState(dataRef.current);
-      }
+      if(dataRef.current)
+      dispatch(destroyPluginState(dataRef.current));
+      dispatch(destroyExplorer());
     };
-  }, [destroyPluginState]);
+  }, [dispatch]);
 
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
-    setSidebarActive({
+    dispatch(setSidebarActive({
       activeGroup: "feeds_grp",
       activeItem: "my_feeds",
-    });
-    getFeed();
-  }, [id, getFeed, setSidebarActive]);
+    }));
+    dispatch(getFeedRequest(id));
+  }, [id, dispatch]);
 
   const onNodeClick = (node: PluginInstance) => {
-    getSelectedPlugin(node);
+    dispatch(getSelectedPlugin(node));
   };
 
-  const onClick = () => {
-    setIsExpanded(!isExpanded);
+  const onClick = (panel: string) => {
+    if (panel === "side_panel") {
+      setSidePanelExpanded(!isSidePanelExpanded);
+    } else if (panel === "bottom_panel") {
+      setBottomPanelExpanded(!isBottomPanelExpanded);
+    }
   };
 
   const nodePanel = (
@@ -147,7 +121,10 @@ export const FeedView: React.FC<FeedViewProps> = ({
       }
     >
       <PageSection className="section-three">
-        <FeedOutputBrowser handlePluginSelect={onNodeClick} />
+        <FeedOutputBrowser
+          expandDrawer={onClick}
+          handlePluginSelect={onNodeClick}
+        />
       </PageSection>
     </React.Suspense>
   );
@@ -170,7 +147,8 @@ export const FeedView: React.FC<FeedViewProps> = ({
       <React.Suspense fallback={<div>Fetching the Resources in a moment</div>}>
         {currentLayout ? (
           <ParentComponent
-            isPanelExpanded={isExpanded}
+            isSidePanelExpanded={isSidePanelExpanded}
+            isBottomPanelExpanded={isBottomPanelExpanded}
             onExpand={onClick}
             onNodeClick={onNodeClick}
           />
@@ -187,7 +165,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
         <FeedDetails />
       </PageSection>
 
-      <Drawer isExpanded={true} isInline position="bottom">
+      <Drawer isExpanded={isBottomPanelExpanded} isInline position="bottom">
         <DrawerContent
           panelContent={
             <DrawerPanelContent defaultSize="48vh" isResizable>
@@ -203,7 +181,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
             variant={PageSectionVariants.darker}
           >
             <Grid span={12} className="feed-view">
-              <Drawer isExpanded={isExpanded} isInline>
+              <Drawer isExpanded={isSidePanelExpanded} isInline>
                 <DrawerContent
                   panelContent={
                     <DrawerPanelContent
@@ -226,20 +204,6 @@ export const FeedView: React.FC<FeedViewProps> = ({
   );
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getFeedRequest: (id: string) => dispatch(getFeedRequest(id)),
-  setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
-    dispatch(setSidebarActive(active)),
-  destroyPluginState: (data: DestroyData) => dispatch(destroyPluginState(data)),
-  getSelectedPlugin: (item: PluginInstance) =>
-    dispatch(getSelectedPlugin(item)),
-});
-
-const mapStateToProps = ({ feed }: ApplicationState) => ({
-  pluginInstances: feed.pluginInstances,
-  selectedPlugin: feed.selectedPlugin,
-  currentLayout: feed.currentLayout,
-});
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedView);
+export default FeedView;

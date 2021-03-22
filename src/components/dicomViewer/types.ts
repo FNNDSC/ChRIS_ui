@@ -10,7 +10,7 @@ export interface Viewport {
   vfilip: boolean;
   modalityLUT: LUT | undefined;
   voiLUT: LUT | undefined;
-  colormap: string | object | undefined;
+  colormap: string | undefined;
   labelmap: boolean | undefined;
 
   displayedArea: {
@@ -47,7 +47,7 @@ interface Vec2 {
 }
 
 export type DcmImageProps = {
-  file: IFileBlob;
+  fileItem: IFileBlob;
 };
 
 export type DcmImageState = {
@@ -77,7 +77,7 @@ export type Image = {
   stats?: ImageStats;
   cachedLut: LUT;
   color: boolean;
-  colormap?: string | object;
+  colormap?: string;
   labelmap?: boolean;
   voiLUT?: LUT;
   width: number;

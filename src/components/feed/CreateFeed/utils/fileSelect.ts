@@ -197,7 +197,7 @@ const getUploadedFiles = async () => {
   }
 };
 
-const buildTree = (paths: string[], cb: (tree: any[]) => void) => {
+export const buildTree = (paths: string[], cb: (tree: any[]) => void) => {
   const tree: any[] = [];
   _.each(paths, function (path) {
     const pathParts = path.split("/");

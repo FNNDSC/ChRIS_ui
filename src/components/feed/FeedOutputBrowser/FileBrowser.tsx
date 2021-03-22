@@ -1,6 +1,9 @@
 import React from "react";
 import classNames from "classnames";
-
+import FileDetailView from "../Preview/FileDetailView";
+import { useTypedSelector } from "../../../store/hooks";
+import { useDispatch } from "react-redux";
+import { getFileExtension } from "../../../api/models/file-explorer.model";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,6 +18,9 @@ import {
   FileAltIcon,
   FileIcon,
   FolderCloseIcon,
+  ExpandIcon,
+  FilmIcon,
+  CloseIcon,
 } from "@patternfly/react-icons";
 import {
   Table,
@@ -22,108 +28,119 @@ import {
   TableBody,
   TableVariant,
 } from "@patternfly/react-table";
-import FileDetailView from "../../explorer/FileDetailView";
 import FileViewerModel from "../../../api/models/file-viewer.model";
-import { IUITreeNode } from "../../../api/models/file-explorer.model";
+import { FileBrowserProps, FileBrowserState } from "./types";
+import { DataNode } from "../../../store/explorer/types";
+import { setSelectedFile } from "../../../store/explorer/actions";
 
-import { FileBrowserProps, FileBrowerState } from "./types";
+function getInitialState(root: DataNode) {
+  return {
+    directory: root,
+    breadcrumbs: [root],
+  };
+}
 
+const FileBrowser = (props: FileBrowserProps) => {
+  const {
+    root,
+    selectedFiles,
+    downloadAllClick,
+    handleFileBrowserToggle,
+    handleFileViewerToggle,
+    expandDrawer,
+  } = props;
+  const [
+    fileBrowserState,
+    setfileBrowserState,
+  ] = React.useState<FileBrowserState>(getInitialState(root));
+  const { breadcrumbs, directory } = fileBrowserState;
+  const { selectedFile } = useTypedSelector((state) => state.explorer);
+  const dispatch = useDispatch();
 
+  const handleBreadcrumbClick = (
+    e: React.MouseEvent,
+    folder: DataNode,
+    prevBreadcrumbs: DataNode[]
+  ) => {
+    e.preventDefault();
 
-class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
-  constructor(props: FileBrowserProps) {
-    super(props);
-    this.state = {
-      directory: props.root,
-      breadcrumbs: [props.root],
-    };
+    setfileBrowserState({
+      ...fileBrowserState,
+      directory: folder,
+      breadcrumbs: [...prevBreadcrumbs, folder],
+    });
+  };
 
-    this.generateTableRow = this.generateTableRow.bind(this);
-    this.generateBreadcrumb = this.generateBreadcrumb.bind(this);
-    this.handleFileClick = this.handleFileClick.bind(this);
-    this.handleBreadcrumbClick = this.handleBreadcrumbClick.bind(this);
-  }
-
-  /* EVENT LISTENERS */
-
-  handleFileClick(e: React.MouseEvent, rows: any[], rowData: any) {
+  const handleFileClick = (e: React.MouseEvent, rows: any[], rowData: any) => {
     const target = e.nativeEvent.target as HTMLElement;
     if (e.button !== 0 || target.closest(".download-file")) {
       return;
     }
 
-    const rowIndex: number = rowData.rowIndex;
-    const { directory } = this.state;
+    const rowIndex = rowData.rowIndex;
     if (!directory.children) {
       return;
     }
+
     const file = directory.children[rowIndex];
 
-    if (file.children) {
-      this.setState({
+    if (file && file.children.length > 0) {
+      setfileBrowserState({
+        ...fileBrowserState,
         directory: file,
-        breadcrumbs: [...this.state.breadcrumbs, file],
-        previewingFile: undefined,
+        breadcrumbs: [...breadcrumbs, file],
       });
     } else {
-      this.setState({
-        previewingFile: file,
-      });
+      dispatch(setSelectedFile(file));
     }
-  }
+  };
 
-  handleBreadcrumbClick(
-    e: React.MouseEvent,
-    folder: IUITreeNode,
-    prevBreadcrumbs: IUITreeNode[]
-  ) {
-    e.preventDefault();
-    this.setState({
-      directory: folder,
-      breadcrumbs: [...prevBreadcrumbs, folder],
-      previewingFile: undefined,
-    });
-  }
-
-  async handleDownloadClick(e: React.MouseEvent, node: IUITreeNode) {
+  const handleDownloadClick = async (e: React.MouseEvent, node: DataNode) => {
     e.stopPropagation();
-    const blob = await node.file.getFileBlob();
-    FileViewerModel.downloadFile(blob, node.module);
-  }
+    if (node.file) {
+      const blob = await node.file.getFileBlob();
+      FileViewerModel.downloadFile(blob, node.file.data.fname);
+    }
+  };
 
-  /* GENERATE UI ELEMENTS */
+  const generateBreadcrumb = (
+    folder: DataNode,
+    i: number,
+    breadcrumbs: DataNode[]
+  ) => {
+    const prevBreadcrumbs = breadcrumbs.slice(0, i);
+    const onClick = (e: React.MouseEvent) =>
+      handleBreadcrumbClick(e, folder, prevBreadcrumbs);
+    return (
+      <BreadcrumbItem onClick={onClick} key={i}>
+        {folder.title}
+      </BreadcrumbItem>
+    );
+  };
 
-  generateTableRow(node: IUITreeNode) {
-    let type = "File";
-    if (node.children) {
-      type = "Dir";
-    } else if (node.file) {
-      const name = node.module;
+  const generateTableRow = (node: DataNode) => {
+    let type = "UNKNOWN FORMAT";
+    if (node.children && node.children.length > 0) {
+      type = "dir";
+    } else {
+      const name = node.title;
       if (name.indexOf(".") > -1) {
         type = name.split(".").splice(-1)[0].toUpperCase();
       }
     }
     const icon = getIcon(type);
-    const isPathSelected =
-      !!this.state.pathViewingFile &&
-      this.state.pathViewingFile.uiId === node.uiId;
-    const isPreviewing =
-      !!this.state.previewingFile &&
-      this.state.previewingFile.uiId === node.uiId;
-
+    const isPreviewing = selectedFile && selectedFile.title === node.title;
     const fileName = (
       <div
         className={classNames(
-          "file-name",
-          isPathSelected && "path-selected",
-          isPreviewing && "previewing"
+          "file-browser__table--fileName",
+          isPreviewing && "file-browser__table--isPreviewing"
         )}
       >
         {icon}
-        {node.module}
+        {node.title}
       </div>
     );
-
     const name = {
       title: fileName,
     };
@@ -134,7 +151,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
       ) : (
         <DownloadIcon
           className="download-file-icon"
-          onClick={(e) => this.handleDownloadClick(e, node)}
+          onClick={(e) => handleDownloadClick(e, node)}
         />
       ),
     };
@@ -142,134 +159,99 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowerState> {
     return {
       cells: [name, type, download],
     };
+  };
+
+  const cols = ["Name", "Type", ""];
+  const rows = directory.children.map(generateTableRow);
+
+  if (!directory.children || !directory.children.length) {
+    return <div>No Files in this directory.</div>;
   }
 
-  generateBreadcrumb(
-    folder: IUITreeNode,
-    i: number,
-    breadcrumbs: IUITreeNode[]
-  ) {
-    const prevBreadcrumbs = breadcrumbs.slice(0, i);
-    const onClick = (e: React.MouseEvent) =>
-      this.handleBreadcrumbClick(e, folder, prevBreadcrumbs);
-    return (
-      <BreadcrumbItem onClick={onClick} key={i}>
-        {folder.module}
-      </BreadcrumbItem>
-    );
-  }
+  const fileType =
+    selectedFile &&
+    selectedFile.file &&
+    getFileExtension(selectedFile.file.data.fname);
 
-  // Gets the file path for a node. Temporary, until IUITreeNode is replaced
-  getNodePath(node: IUITreeNode) {
-    if (node.file) {
-      return `/${node.file.fname}`;
-    }
-    const { breadcrumbs } = this.state;
-
-    // currently on top-level directory
-    if (breadcrumbs.length === 1) {
-      return `/${node.module}`;
-    }
-
-    // IUITreeNode.file is not set if the the node is a folder
-    const path = breadcrumbs
-      .slice(1) // exclude the plugin directory
-      .map((breadcrumb: IUITreeNode) => breadcrumb.module)
-      .join("/");
-
-    return `/${path}/${node.module}`;
-  }
-
-  render() {
-    const {
-      handleFileBrowserToggle,
-      handleFileViewerToggle,
-      selectedFiles,
-    } = this.props;
-    const { directory, breadcrumbs, previewingFile } = this.state;
-
-    if (!directory.children || !directory.children.length) {
-      return <div>No files in this directory.</div>;
-    }
-    const cols = ["Name", "Type", ""]; // final col is download
-    const rows = directory.children.map(this.generateTableRow);
-
-    return (
-      <Grid hasGutter className="file-browser">
-        <GridItem
-          xl2={4}
-          xl2RowSpan={12}
-          xl={4}
-          xlRowSpan={12}
-          lg={4}
-          lgRowSpan={12}
-          md={4}
-          mdRowSpan={12}
-          sm={12}
-          smRowSpan={12}
-          className="file-browser__table"
-        >
-          <div className="file-browser__header">
-            <Breadcrumb>{breadcrumbs.map(this.generateBreadcrumb)}</Breadcrumb>
-            <div className="file-browser__header-info">
-              <span className="files-browser__fileCount">
-                {selectedFiles
-                  ? `(${selectedFiles.length} files)`
-                  : "Empty Directory"}
-              </span>
-              <Button
-                className="file-browser__downloadButton"
-                onClick={() => this.props.downloadAllClick()}
-                variant='secondary'
-              >
-                Download All
-              </Button>
-            </div>
+  return (
+    <Grid hasGutter className="file-browser">
+      <GridItem
+        xl2={4}
+        xl2RowSpan={12}
+        xl={4}
+        xlRowSpan={12}
+        lg={4}
+        lgRowSpan={12}
+        md={4}
+        mdRowSpan={12}
+        sm={12}
+        smRowSpan={12}
+        className="file-browser__firstGrid"
+      >
+        <div className="file-browser__header">
+          <Breadcrumb>{breadcrumbs.map(generateBreadcrumb)}</Breadcrumb>
+          <div className="file-browser__header__info">
+            <span className="files-browser__header--fileCount">
+              {selectedFiles
+                ? `(${selectedFiles.length} files)`
+                : "Empty Directory"}
+            </span>
+            <Button
+              className="file-browser__header--downloadButton"
+              onClick={() => downloadAllClick()}
+              variant="secondary"
+            >
+              Download All
+            </Button>
           </div>
+        </div>
 
-          <Table
-            aria-label="file-browser"
-            variant={TableVariant.compact}
-            cells={cols}
-            rows={rows}
-          >
-            <TableHeader />
-            <TableBody onRowClick={this.handleFileClick} />
-          </Table>
-        </GridItem>
-
-        <GridItem
-          xl2={8}
-          xl2RowSpan={12}
-          xl={8}
-          xlRowSpan={12}
-          lg={8}
-          lgRowSpan={12}
-          md={8}
-          mdRowSpan={12}
-          sm={12}
-          smRowSpan={12}
-          className="file-browser__detail"
+        <Table
+          className="file-browser__table"
+          aria-label="file-browser"
+          variant={TableVariant.compact}
+          cells={cols}
+          rows={rows}
         >
-          {previewingFile && (
-            <FileDetailView
-              fullScreenMode={true}
-              selectedFile={previewingFile}
-              toggleFileBrowser={() => {
-                handleFileBrowserToggle(previewingFile, directory);
-              }}
-              toggleFileViewer={() => {
-                handleFileViewerToggle(previewingFile, directory);
-              }}
-            />
-          )}
-        </GridItem>
-      </Grid>
-    );
-  }
-}
+          <TableHeader />
+          <TableBody onRowClick={handleFileClick} />
+        </Table>
+      </GridItem>
+
+      <GridItem
+        xl2={8}
+        xl2RowSpan={12}
+        xl={8}
+        xlRowSpan={12}
+        lg={8}
+        lgRowSpan={12}
+        md={8}
+        mdRowSpan={12}
+        sm={12}
+        smRowSpan={12}
+        className="file-browser__grid2"
+      >
+        {renderHeaderPanel(
+          handleFileViewerToggle,
+          handleFileBrowserToggle,
+          expandDrawer,
+          fileType
+        )}
+        {selectedFile && selectedFile.file && (
+          <FileDetailView selectedFile={selectedFile.file} />
+        )}
+      </GridItem>
+    </Grid>
+  );
+};
 
 export default FileBrowser;
+
+/**
+ *
+ * @param type string
+ * @returns JSX Element
+ */
 
 const getIcon = (type: string) => {
   switch (type.toLowerCase()) {
@@ -287,4 +269,42 @@ const getIcon = (type: string) => {
     default:
       return <FileIcon />;
   }
+};
+
+const renderHeaderPanel = (
+  toggleFileViewer: () => void,
+  toggleFileBrowser: () => void,
+  expandDrawer: (panel: string) => void,
+  fileType?: string
+) => {
+  return (
+    <div className="header-panel__buttons">
+      <div className="header-panel__buttons--toggleViewer">
+        <Button
+          variant="link"
+          onClick={toggleFileBrowser}
+          icon={<ExpandIcon />}
+        >
+          Maximize
+        </Button>
+        {(fileType === "dcm" ||
+          fileType === "png" ||
+          fileType === "jpg" ||
+          fileType === "nii" ||
+          fileType === "jpeg") && (
+          <Button variant="link" onClick={toggleFileViewer} icon={<FilmIcon />}>
+            Open Image Viewer
+          </Button>
+        )}
+      </div>
+      <div className="header-panel__buttons--togglePanel">
+        <Button
+          onClick={() => expandDrawer("bottom_panel")}
+          variant="tertiary"
+          type="button"
+          icon={<CloseIcon />}
+        />
+      </div>
+    </div>
+  );
 };

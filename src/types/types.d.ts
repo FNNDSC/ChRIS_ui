@@ -18,6 +18,7 @@ declare module "cornerstone-math";
 declare module "cornerstone-file-image-loader";
 declare module "cornerstone-web-image-loader";
 declare module "cornerstone-wado-image-loader";
+declare module "cornerstone-nifti-image-loader";
 declare module "dicom-parser";
 declare module "react-cornerstone-viewport";
 declare module "react-lazylog";

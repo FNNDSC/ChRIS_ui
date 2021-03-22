@@ -1,10 +1,9 @@
 import * as React from "react";
-
 import { DownloadIcon } from "@patternfly/react-icons";
 import { Alert, Button } from "@patternfly/react-core";
 import FileViewerModel, {
   IFileBlob,
-} from "../../../api/models/file-viewer.model";
+} from "../../../../api/models/file-viewer.model";
 type AllProps = {
   fileItem: IFileBlob;
 };
@@ -14,15 +13,10 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
 ) => {
   const noPreviewMessage = () => {
     const { fileItem } = props;
-    const itemArray = fileItem.file && fileItem.file.fname.split("/");
-    const fileName = itemArray && itemArray[itemArray.length - 1];
-
     const ext = fileItem.fileType ? fileItem.fileType : "";
     const alertText = (
       <React.Fragment>
-        <label>
-          <b>File Name:</b> {fileName ? fileName : "Not available"}
-        </label>
+        <label></label>
         <br></br>
         <label>
           <b>File Type:</b> {ext}
@@ -32,8 +26,11 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
           className="float-right"
           onClick={() =>
             fileItem.file &&
-            fileItem.file.fname &&
-            FileViewerModel.downloadFile(fileItem.blob, fileItem.file.fname)
+            fileItem.file.data.fname &&
+            FileViewerModel.downloadFile(
+              fileItem.blob,
+              fileItem.file.data.fname
+            )
           }
         >
           <DownloadIcon /> Download

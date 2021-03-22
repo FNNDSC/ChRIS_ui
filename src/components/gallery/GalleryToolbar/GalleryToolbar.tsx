@@ -10,9 +10,14 @@ import {
   AngleDoubleRightIcon,
 } from "@patternfly/react-icons";
 import { Grid, GridItem, Button } from "@patternfly/react-core";
-import { IGalleryToolbarState } from "../../../store/gallery/types";
+
 import { galleryActions } from "../../../api/models/gallery.model";
 import "./GalleryToolbar.scss";
+
+type IGalleryToolbarState = {
+  isFullscreen: boolean;
+};
+
 type AllProps = {
   total: number;
   hideDownload?: boolean;

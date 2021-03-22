@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactJSON from "react-json-view";
-import { IFileBlob } from "../../../api/models/file-viewer.model";
+import { IFileBlob } from "../../../../api/models/file-viewer.model";
 import { Text } from "@patternfly/react-core";
 type AllProps = {
   fileItem: IFileBlob;

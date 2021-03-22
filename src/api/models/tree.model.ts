@@ -1,6 +1,15 @@
-import { NodeId, INode } from "./tree-node.model";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import _ from "lodash";
+import { chrisId } from "./base.model";
+
+export type NodeId = chrisId | undefined;
+export interface INode {
+  // extends cola.Node extends SVGSVGElement
+  id: number;
+  item: PluginInstance;
+  group?: number;
+  isRoot?: boolean;
+}
 
 // Builds the webcola tree chart
 export interface ITreeChart {

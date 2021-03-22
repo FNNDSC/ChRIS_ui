@@ -12,16 +12,14 @@ import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./lib/utils";
 import { PluginParameter } from "@fnndsc/chrisapi";
 
-
-function getInitialState(){
-  return{
-      isOpen: false,
-      paramId: "",
-      paramValue: "",
-      flag: "",
-      placeholder: "",
-      type: "",
-  }
+function getInitialState() {
+  return {
+    isOpen: false,
+    paramId: "",
+    paramValue: "",
+    placeholder: "",
+    type: "",
+  };
 }
 
 const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
@@ -36,26 +34,15 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   const [dropdownState, setDropdownState] = React.useState<SimpleDropdownState>(
     getInitialState
   );
-  const {
-    isOpen,
-    paramId,
-    paramValue,
-    flag,
-    placeholder,
-    type,
-  } = dropdownState;
+  const { isOpen, paramId, paramValue, placeholder, type } = dropdownState;
 
   React.useEffect(() => {
     if (!dropdownInput || !dropdownInput[id]) return;
-    const [index, flag, value, type, placeholder] = unPackForKeyValue(
-      dropdownInput[id]
-    );
-
+    const [value, type, placeholder] = unPackForKeyValue(dropdownInput[id]);
     setDropdownState((dropdownState) => {
       return {
         ...dropdownState,
-        paramId: index,
-        flag,
+        paramId: id,
         paramValue: value,
         type,
         placeholder,
@@ -78,20 +65,17 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   };
 
   const handleClick = (param: PluginParameter) => {
-    const flag = param.data.flag;
+    const id = param.data.flag;
     const placeholder = param.data.help;
     const type = param.data.type;
-    const paramId = id;
-
     setDropdownState({
       ...dropdownState,
-      paramId,
-      flag,
+      paramId: id,
       placeholder,
       type,
     });
 
-    handleChange(paramId, flag, paramValue, false, type, placeholder);
+    handleChange(id, paramValue, type, placeholder, false);
   };
 
   const triggerChange = (eventType: string) => {
@@ -112,7 +96,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   };
 
   const handleInputChange = (value: string) => {
-    handleChange(paramId, flag, value, false, type, placeholder);
+    handleChange(id, value, type, placeholder, false);
   };
 
   const dropdownItems =
@@ -146,7 +130,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
               onToggle={onToggle}
               toggleIndicator={CaretDownIcon}
             >
-              {flag ? `${flag}` : "Choose a Parameter"}
+              {paramId ? `${paramId}` : "Choose a Parameter"}
             </DropdownToggle>
           }
           isOpen={isOpen}
