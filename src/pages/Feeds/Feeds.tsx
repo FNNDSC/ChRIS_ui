@@ -1,5 +1,5 @@
 import * as React from "react";
-import { RouteComponentProps, Route, Switch } from "react-router-dom";
+import { RouteComponentProps, Route } from "react-router-dom";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import FeedListView from "./components/FeedListView";
 import FeedView from "./components/FeedView";

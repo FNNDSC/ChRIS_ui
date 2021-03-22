@@ -15,7 +15,7 @@ export const unpackParametersIntoObject = (input: InputType) => {
     };
   } = {};
   for (const parameter in input) {
-    const [value, type, placeholder] = unPackForKeyValue(input[parameter]);
+    const [value, type] = unPackForKeyValue(input[parameter]);
     result[parameter] = {
       value,
       type,

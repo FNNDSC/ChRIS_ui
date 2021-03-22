@@ -140,20 +140,20 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   const onBack = (newStep: { id?: string | number; name: React.ReactNode }) => {
     const { id } = newStep;
+    console.log("Id", id);
 
-    if (id === 1) {
-      setNodeState({
-        ...addNodeState,
-        dropdownInput: {},
-        requiredInput: {},
-      });
-    }
-
-    id &&
-      setNodeState({
-        ...addNodeState,
-        stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
-      });
+    id && id === 1
+      ? setNodeState({
+          ...addNodeState,
+          dropdownInput: {},
+          requiredInput: {},
+          stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
+        })
+      : id &&
+        setNodeState({
+          ...addNodeState,
+          stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
+        });
   };
 
   const handlePluginSelect = (plugin: Plugin) => {
@@ -318,6 +318,7 @@ const AddNode: React.FC<AddNodeProps> = ({
     },
   ];
 
+  console.log("AddNode State", addNodeState);
   return (
     <React.Fragment>
       <Button icon={<PlusCircleIcon />} type="button" onClick={toggleOpen}>

@@ -2,6 +2,7 @@ import React from "react";
 import { useTypedSelector } from "../../store/hooks";
 import { Tabs, Tab, Alert } from "@patternfly/react-core";
 import { FileBrowserViewer } from "./displays";
+import "./viewer.scss";
 
 const OutputViewerContainer = () => {
   const { pluginFiles, selectedPlugin } = useTypedSelector(
