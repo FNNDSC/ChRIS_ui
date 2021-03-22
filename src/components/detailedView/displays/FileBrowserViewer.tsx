@@ -6,10 +6,7 @@ import { GridItem, Grid } from "@patternfly/react-core";
 import { Key } from "../../../store/explorer/types";
 import FileDetailView from "../../feed/Preview/FileDetailView";
 import GalleryDicomView from "../../dicomViewer/GalleryDicomView";
-import {
-  setSelectedFile,
-  toggleViewerMode,
-} from "../../../store/explorer/actions";
+import { setSelectedFile } from "../../../store/explorer/actions";
 
 const FileBrowserViewer = () => {
   const { explorer, selectedFile, viewerMode } = useTypedSelector(

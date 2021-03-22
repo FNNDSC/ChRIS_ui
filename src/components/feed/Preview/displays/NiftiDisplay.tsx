@@ -39,7 +39,7 @@ const NiftiDisplay = (props: AllProps) => {
       const fileArray = file.data.fname.split("/");
       const fileName = fileArray[fileArray.length - 1];
       const imageIdObject = ImageId.fromURL(`nifti:${file.url}${fileName}`);
-      cornerstone.loadAndCacheImage(imageIdObject.url).then((image: any) => {
+      cornerstone.loadAndCacheImage(imageIdObject.url).then(() => {
         const numberOfSlices = cornerstone.metaData.get(
           "multiFrameModule",
           imageIdObject.url

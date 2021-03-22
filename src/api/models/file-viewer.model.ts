@@ -1,5 +1,5 @@
 import { FeedFile } from "@fnndsc/chrisapi";
-import _ from "lodash";
+
 export interface IFileBlob {
   blob?: Blob;
   file?: FeedFile;

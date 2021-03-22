@@ -1,6 +1,6 @@
 import { Reducer } from "redux";
 import { ExplorerActionTypes, IExplorerState } from "./types";
-import GalleryModel from "../../api/models/gallery.model";
+
 
 // Type-safe initialState
 const initialState: IExplorerState = {
