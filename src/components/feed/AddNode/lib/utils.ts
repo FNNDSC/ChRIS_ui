@@ -2,13 +2,10 @@ import { InputType, InputIndex } from "../types";
 import { PluginParameter } from "@fnndsc/chrisapi";
 
 export const unPackForKeyValue = (input: InputIndex) => {
-  const flag = Object.keys(input)[1];
-  const value = input[flag];
+  const value = input["value"];
   const type = input["type"];
   const placeholder = input["placeholder"];
-  const index = input["id"];
-
-  return [index, flag, value, type, placeholder];
+  return [value, type, placeholder];
 };
 
 export const unpackParametersIntoObject = (input: InputType) => {
@@ -18,8 +15,8 @@ export const unpackParametersIntoObject = (input: InputType) => {
     };
   } = {};
   for (const parameter in input) {
-    const [, flag, value, type, ,] = unPackForKeyValue(input[parameter]);
-    result[flag] = {
+    const [value, type, placeholder] = unPackForKeyValue(input[parameter]);
+    result[parameter] = {
       value,
       type,
     };
@@ -30,10 +27,13 @@ export const unpackParametersIntoObject = (input: InputType) => {
 
 export const unpackParametersIntoString = (input: InputType) => {
   let string = "";
+
   for (const parameter in input) {
-    const [, flag, value, ,] = unPackForKeyValue(input[parameter]);
+    const flag = parameter;
+    const value = input[parameter].value;
     string += `${flag} ${value} `;
   }
+
   return string;
 };
 
@@ -48,30 +48,26 @@ export const getRequiredParams = (params: PluginParameter[]) => {
 };
 
 export const getAllParamsWithName = (
-  id: string,
   flag: string,
   value: string,
   type: string,
   placeholder: string
 ) => {
   const result: InputIndex = {};
-  result['id']=id;
-  result[flag] = value;
+  result["value"] = value;
   result["type"] = type;
   result["placeholder"] = placeholder;
   return result;
 };
 
 export function getRequiredParamsWithName(
-  id: string,
   flag: string,
   value: string,
   type: string,
   placeholder: string
 ) {
   const result: InputIndex = {};
-  result['id']=id;
-  result[flag] = value;
+  result["value"] = value;
   result["type"] = type;
   result["placeholder"] = placeholder;
   return result;
