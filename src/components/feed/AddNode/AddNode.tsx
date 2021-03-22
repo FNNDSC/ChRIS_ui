@@ -18,7 +18,7 @@ import BasicConfiguration from "./BasicConfiguration";
 import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
 import { getRequiredObject } from "../CreateFeed/utils/createFeed";
 
-function getInitialState(){
+function getInitialState() {
   return {
     isOpen: false,
     stepIdReached: 1,
@@ -30,7 +30,6 @@ function getInitialState(){
     errors: {},
   };
 }
-
 
 const AddNode: React.FC<AddNodeProps> = ({
   selectedPlugin,
@@ -74,15 +73,13 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   const inputChange = (
     id: string,
-    paramName: string,
     value: string,
-    required: boolean,
     type: string,
-    placeholder: string
+    placeholder: string,
+    required: boolean
   ) => {
     const input: InputIndex = {};
-    input["id"] = id;
-    input[paramName] = value;
+    input["value"] = value;
     input["type"] = type;
     input["placeholder"] = placeholder;
 
@@ -342,11 +339,10 @@ const AddNode: React.FC<AddNodeProps> = ({
   );
 };
 
-
 const mapStateToProps = (state: ApplicationState) => ({
   selectedPlugin: state.feed.selectedPlugin,
   pluginInstances: state.feed.pluginInstances,
-  loadingAddNode:state.feed.loadingAddNode
+  loadingAddNode: state.feed.loadingAddNode,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -356,6 +352,3 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AddNode);
-
-
-

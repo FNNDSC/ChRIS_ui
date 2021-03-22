@@ -25,8 +25,6 @@ type AllProps = {
   isPlaying?: boolean;
 } & IGalleryToolbarState;
 
-
-
 const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
   return (
     <Grid className="gallery-toolbar">
