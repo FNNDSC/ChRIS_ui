@@ -1,8 +1,13 @@
 import * as React from "react";
-import { IGalleryToolbarState } from "../../store/gallery/types";
+
 import { galleryActions } from "../../api/models/gallery.model";
 import { GalleryToolbar } from ".";
 import "./GalleryWrapper.scss";
+
+type IGalleryToolbarState = {
+  isFullscreen: boolean;
+};
+
 
 type AllProps = {
   children: any;
