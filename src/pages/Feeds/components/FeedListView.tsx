@@ -8,12 +8,10 @@ import {
   PageSection,
   PageSectionVariants,
   Title,
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbHeading,
   Pagination,
   EmptyState,
   EmptyStateBody,
+  Button,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import { EyeIcon, CodeBranchIcon } from "@patternfly/react-icons";
@@ -25,8 +23,6 @@ import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
-
-
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -41,7 +37,6 @@ interface FeedListViewState {
 }
 
 type AllProps = IFeedState & IPropsFromDispatch;
-
 
 const FeedListView: React.FC<AllProps> = ({
   setSidebarActive,
@@ -80,8 +75,9 @@ const FeedListView: React.FC<AllProps> = ({
     const viewDetails = {
       title: (
         <Link to={`/feeds/${feed.id}`}>
-          <EyeIcon />
-          View feed details
+          <Button icon={<EyeIcon />} variant="link">
+            View feed details
+          </Button>
         </Link>
       ),
     };
@@ -179,29 +175,33 @@ const FeedListView: React.FC<AllProps> = ({
     <React.Fragment>
       <PageSection variant={PageSectionVariants.light} className="feed-header">
         <div className="feed-header__split">
-          <Breadcrumb>
-            <BreadcrumbItem>Feeds</BreadcrumbItem>
-            <BreadcrumbHeading>My Feeds</BreadcrumbHeading>
-          </Breadcrumb>
           <Title headingLevel="h1" size="3xl">
             My Feeds
             {totalFeedsCount > 0 ? (
               <span className="feed-header__count">({totalFeedsCount})</span>
             ) : null}
           </Title>
+          <CreateFeedProvider>
+            <CreateFeed />
+          </CreateFeedProvider>
         </div>
-        <CreateFeedProvider>
-          <CreateFeed />
-        </CreateFeedProvider>
       </PageSection>
 
       <PageSection className="feed-list">
         <div className="feed-list__split">
-          <DataTableToolbar onSearch={handleFilterChange} label="name" />
+          <DataTableToolbar
+            onSearch={handleFilterChange}
+            label="filter by name"
+          />
           {generatePagination()}
         </div>
 
-        <Table aria-label="Data table" cells={cells} rows={rows}>
+        <Table
+          variant="compact"
+          aria-label="Data table"
+          cells={cells}
+          rows={rows}
+        >
           <TableHeader />
           {loading === true ? generateTableLoading() : <TableBody />}
         </Table>

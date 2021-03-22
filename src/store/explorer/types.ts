@@ -6,7 +6,7 @@
  */
 import { FeedFile } from "@fnndsc/chrisapi";
 import keyMirror from "keymirror";
-import { IUITreeNode } from "../../api/models/file-explorer.model";
+
 
 export type Key = string | number;
 

@@ -13,7 +13,7 @@ import { feedReducer } from "../feed/reducer";
 import { userReducer } from "../user/reducer";
 import { pluginReducer } from "../plugin/reducer";
 import { explorerReducer } from "../explorer/reducer";
-import { galleryReducer } from "../gallery/reducer";
+
 
 const rootReducer = combineReducers({
   ui: uiReducer,
@@ -22,7 +22,6 @@ const rootReducer = combineReducers({
   user: userReducer,
   plugin: pluginReducer,
   explorer: explorerReducer,
-  gallery: galleryReducer,
 });
 
 export default rootReducer;
