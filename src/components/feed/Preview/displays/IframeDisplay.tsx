@@ -23,7 +23,7 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
 
   return (
     <Fragment>
-      <div className="iframe">
+      <div className="iframe-container">
         <iframe
           key={fileItem.file && fileItem.file.data.fname}
           src={url}
