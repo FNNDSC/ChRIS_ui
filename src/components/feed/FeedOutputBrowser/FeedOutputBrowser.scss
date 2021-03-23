@@ -110,11 +110,19 @@
       display: flex;
       justify-content: space-between;
       margin-bottom: 0.25em;
-      
-      button  {
+
+      button {
         padding-top: 0;
       }
-
     }
+  }
+}
+
+
+.iframe-container {
+  height:100%;
+
+  iframe {
+    height:100% !important;
   }
 }
