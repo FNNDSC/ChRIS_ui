@@ -11,9 +11,15 @@ export function createTreeFromFiles(
 ): DataNode[] | null {
   if (!files || !selected) return null;
   const filePaths = files.map((file) => {
+    const filePath = file.data.fname.substring(
+      file.data.fname.lastIndexOf(
+        `${selected.data.plugin_name}_${selected.data.id}`
+      ),
+      file.data.fname.length
+    );
     return {
       file: file,
-      filePath: file.data.fname,
+      filePath,
     };
   });
   let tree = null;
@@ -24,6 +30,29 @@ export function createTreeFromFiles(
 
   return tree;
 }
+
+export function createSwiftFileBrowser(
+  selected?: PluginInstance,
+  files?: FeedFile[]
+): DataNode[] | null {
+  if (!files || !selected) return null;
+  const filePaths = files.map((file) => {
+    const filePath = file.data.fname;
+    return {
+      file: file,
+      filePath,
+    };
+  });
+  let tree = null;
+
+  buildTree(filePaths, (computedTree) => {
+    tree = computedTree;
+  });
+
+  return tree;
+}
+
+
 
 // Format plugin name to "Name_vVersion_ID"
 export function getPluginName(plugin: PluginInstance) {
