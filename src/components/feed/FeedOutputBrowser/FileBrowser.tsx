@@ -36,7 +36,6 @@ import { setSelectedFile } from "../../../store/explorer/actions";
 function getInitialState(root: DataNode) {
   return {
     directory: root,
-    breadcrumbs: [root],
   };
 }
 
@@ -53,23 +52,9 @@ const FileBrowser = (props: FileBrowserProps) => {
     fileBrowserState,
     setfileBrowserState,
   ] = React.useState<FileBrowserState>(getInitialState(root));
-  const { breadcrumbs, directory } = fileBrowserState;
+  const { directory } = fileBrowserState;
   const { selectedFile } = useTypedSelector((state) => state.explorer);
   const dispatch = useDispatch();
-
-  const handleBreadcrumbClick = (
-    e: React.MouseEvent,
-    folder: DataNode,
-    prevBreadcrumbs: DataNode[]
-  ) => {
-    e.preventDefault();
-
-    setfileBrowserState({
-      ...fileBrowserState,
-      directory: folder,
-      breadcrumbs: [...prevBreadcrumbs, folder],
-    });
-  };
 
   const handleFileClick = (e: React.MouseEvent, rows: any[], rowData: any) => {
     const target = e.nativeEvent.target as HTMLElement;
@@ -78,17 +63,11 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
 
     const rowIndex = rowData.rowIndex;
-    if (!directory.children) {
-      return;
-    }
-
     const file = directory.children[rowIndex];
-
-    if (file && file.children.length > 0) {
+    if (file.children && file.children.length > 0) {
       setfileBrowserState({
         ...fileBrowserState,
         directory: file,
-        breadcrumbs: [...breadcrumbs, file],
       });
     } else {
       dispatch(setSelectedFile(file));
@@ -104,16 +83,13 @@ const FileBrowser = (props: FileBrowserProps) => {
   };
 
   const generateBreadcrumb = (
-    folder: DataNode,
-    i: number,
-    breadcrumbs: DataNode[]
+    value: DataNode,
+    index: number,
+    array: DataNode[]
   ) => {
-    const prevBreadcrumbs = breadcrumbs.slice(0, i);
-    const onClick = (e: React.MouseEvent) =>
-      handleBreadcrumbClick(e, folder, prevBreadcrumbs);
     return (
-      <BreadcrumbItem onClick={onClick} key={i}>
-        {folder.title}
+      <BreadcrumbItem key={index} isActive={index === array.length - 1}>
+        {value.title}
       </BreadcrumbItem>
     );
   };
@@ -162,16 +138,17 @@ const FileBrowser = (props: FileBrowserProps) => {
   };
 
   const cols = ["Name", "Type", ""];
-  const rows = directory.children.map(generateTableRow);
-
-  if (!directory.children || !directory.children.length) {
+  if (!directory || directory.children.length === 0) {
     return <div>No Files in this directory.</div>;
   }
+
+  const rows = directory.children.map(generateTableRow);
 
   const fileType =
     selectedFile &&
     selectedFile.file &&
     getFileExtension(selectedFile.file.data.fname);
+
 
   return (
     <Grid hasGutter className="file-browser">
@@ -189,7 +166,9 @@ const FileBrowser = (props: FileBrowserProps) => {
         className="file-browser__firstGrid"
       >
         <div className="file-browser__header">
-          <Breadcrumb>{breadcrumbs.map(generateBreadcrumb)}</Breadcrumb>
+          <Breadcrumb>
+            {[props.root].map(generateBreadcrumb)}
+          </Breadcrumb>
           <div className="file-browser__header__info">
             <span className="files-browser__header--fileCount">
               {selectedFiles

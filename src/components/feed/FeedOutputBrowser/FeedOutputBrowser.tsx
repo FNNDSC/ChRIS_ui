@@ -22,14 +22,17 @@ import {
 } from "../../../store/explorer/actions";
 import { getPluginFilesRequest } from "../../../store/feed/actions";
 import FileViewerModel from "../../../api/models/file-viewer.model";
-import { createTreeFromFiles, getPluginName } from "./utils";
+import {
+  createTreeFromFiles,
+  createSwiftFileBrowser,
+  getPluginName,
+} from "./utils";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { isEmpty } from "lodash";
 import { getFeedTree } from "./data";
 import { DataNode } from "../../../store/explorer/types";
 import "./FeedOutputBrowser.scss";
 import "antd/dist/antd.css";
-
 
 const { DirectoryTree } = Tree;
 
@@ -40,7 +43,7 @@ export interface FeedOutputBrowserProps {
 
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   handlePluginSelect,
-  expandDrawer
+  expandDrawer,
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const dispatch = useDispatch();
@@ -49,7 +52,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     pluginFiles,
     pluginInstances,
   } = useTypedSelector((state) => state.feed);
-  const { viewerMode } = useTypedSelector((state) => state.explorer);
+  const viewerMode = useTypedSelector((state) => state.explorer.viewerMode);
   const { data: plugins, loading } = pluginInstances;
   const pluginFilesPayload = selected && pluginFiles[selected.data.id];
 
@@ -82,8 +85,9 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     };
 
     const handleFileBrowserOpen = () => {
-      if (tree) {
-        dispatch(setExplorerRequest(tree));
+      const swiftBrowser = createSwiftFileBrowser(selected, pluginFiles);
+      if (swiftBrowser) {
+        dispatch(setExplorerRequest(swiftBrowser));
       }
       setPluginModalOpen(!pluginModalOpen);
     };
@@ -157,7 +161,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 handleFileBrowserToggle={handleFileBrowserOpen}
                 handleFileViewerToggle={handleFileViewerOpen}
                 downloadAllClick={downloadAllClick}
-                expandDrawer = {expandDrawer}
+                expandDrawer={expandDrawer}
               />
             ) : selected.data.status === "cancelled" ||
               selected.data.status === "finishedWithError" ? (

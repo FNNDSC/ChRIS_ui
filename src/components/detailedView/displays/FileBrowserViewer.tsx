@@ -34,9 +34,7 @@ const FileBrowserViewer = () => {
           </GridItem>
           <GridItem className="pf-u-py-sm pf-u-px-xl" sm={12} md={8}>
             {selectedFile && selectedFile.file && (
-              <FileDetailView
-                selectedFile={selectedFile.file}
-              />
+              <FileDetailView selectedFile={selectedFile.file} />
             )}
           </GridItem>
         </Grid>

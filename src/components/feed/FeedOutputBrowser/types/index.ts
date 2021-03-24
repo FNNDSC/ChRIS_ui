@@ -14,7 +14,6 @@ export interface FileBrowserProps {
 
 export interface FileBrowserState {
   directory: DataNode;
-  breadcrumbs: DataNode[];
   previewingFile?: DataNode; // file selected for preview
 }
 
