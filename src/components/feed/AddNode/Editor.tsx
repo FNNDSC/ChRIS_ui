@@ -158,7 +158,6 @@ const Editor = ({
     }
 
     if (!isEmpty(dropdownObject) || !isEmpty(requiredObject)) {
-      console.log("DropdownInput", dropdownInput);
       inputChangeFromEditor(dropdownObject, requiredObject);
     }
   };

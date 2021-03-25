@@ -68,7 +68,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     const pluginName = selected && selected.data && getPluginName(selected);
     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
     const tree: DataNode[] | null = createTreeFromFiles(selected, pluginFiles);
-
+    //@ts-ignore
+    const breadcrumb = selected.data.output_path.split("/");
     const downloadAllClick = async () => {
       if (!selected) return;
 
@@ -162,6 +163,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 handleFileViewerToggle={handleFileViewerOpen}
                 downloadAllClick={downloadAllClick}
                 expandDrawer={expandDrawer}
+                breadcrumb={breadcrumb}
               />
             ) : selected.data.status === "cancelled" ||
               selected.data.status === "finishedWithError" ? (

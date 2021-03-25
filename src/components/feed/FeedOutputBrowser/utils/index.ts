@@ -74,7 +74,7 @@ const buildTree = (
     const pathParts = fileObj.filePath.split("/");
     pathParts.shift();
     let currentLevel = tree;
-    _.each(pathParts, function (part) {
+    _.each(pathParts, function (part, index) {
       const existingPath = _.find(currentLevel, {
         title: part,
       });
@@ -82,7 +82,7 @@ const buildTree = (
         currentLevel = existingPath.children;
       } else {
         const newPart = {
-          key:   part,
+          key:  `${part}_${index}`,
           title: part,
           file: fileObj.file,
           children: [],

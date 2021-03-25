@@ -36,6 +36,8 @@ import { setSelectedFile } from "../../../store/explorer/actions";
 function getInitialState(root: DataNode) {
   return {
     directory: root,
+    currentFile: [root],
+    breadcrumbs: [root],
   };
 }
 
@@ -47,12 +49,13 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleFileBrowserToggle,
     handleFileViewerToggle,
     expandDrawer,
+    breadcrumb,
   } = props;
   const [
     fileBrowserState,
     setfileBrowserState,
   ] = React.useState<FileBrowserState>(getInitialState(root));
-  const { directory } = fileBrowserState;
+  const { directory, breadcrumbs, currentFile } = fileBrowserState;
   const { selectedFile } = useTypedSelector((state) => state.explorer);
   const dispatch = useDispatch();
 
@@ -64,10 +67,13 @@ const FileBrowser = (props: FileBrowserProps) => {
 
     const rowIndex = rowData.rowIndex;
     const file = directory.children[rowIndex];
+
     if (file.children && file.children.length > 0) {
       setfileBrowserState({
         ...fileBrowserState,
         directory: file,
+        currentFile: [...currentFile, file],
+        breadcrumbs: [...breadcrumbs, file],
       });
     } else {
       dispatch(setSelectedFile(file));
@@ -82,13 +88,44 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
   };
 
+  const handleBreadcrumbClick = (
+    e: React.MouseEvent,
+    value: DataNode,
+    prevBreadcrumbs: DataNode[]
+  ) => {
+    e.preventDefault();
+
+    if (directory) {
+      setfileBrowserState({
+        ...fileBrowserState,
+        directory: value,
+        breadcrumbs: [...prevBreadcrumbs, value],
+      });
+    }
+  };
+
   const generateBreadcrumb = (
     value: DataNode,
     index: number,
     array: DataNode[]
   ) => {
+    const prevBreadcrumbs = array.slice(0, index);
+    const onClick = (e: React.MouseEvent) =>
+      handleBreadcrumbClick(e, value, prevBreadcrumbs);
+
     return (
-      <BreadcrumbItem key={index} isActive={index === array.length - 1}>
+      <BreadcrumbItem
+        className="file-browser__header--crumb"
+        showDivider={true}
+        onClick={
+          index !== array.length - 1
+            ? onClick
+            : () => {
+                return;
+              }
+        }
+        key={index}
+      >
         {value.title}
       </BreadcrumbItem>
     );
@@ -105,7 +142,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       }
     }
     const icon = getIcon(type);
-    const isPreviewing = selectedFile && selectedFile.title === node.title;
+    const isPreviewing = selectedFile && selectedFile.key === node.key;
     const fileName = (
       <div
         className={classNames(
@@ -148,7 +185,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     selectedFile &&
     selectedFile.file &&
     getFileExtension(selectedFile.file.data.fname);
-
+ 
 
   return (
     <Grid hasGutter className="file-browser">
@@ -167,8 +204,11 @@ const FileBrowser = (props: FileBrowserProps) => {
       >
         <div className="file-browser__header">
           <Breadcrumb>
-            {[props.root].map(generateBreadcrumb)}
+            {breadcrumb.map((value: string, index: number) => {
+              return <BreadcrumbItem key={index}>{value}</BreadcrumbItem>;
+            })}
           </Breadcrumb>
+          <Breadcrumb>{breadcrumbs.map(generateBreadcrumb)}</Breadcrumb>
           <div className="file-browser__header__info">
             <span className="files-browser__header--fileCount">
               {selectedFiles
@@ -271,10 +311,10 @@ const renderHeaderPanel = (
           fileType === "jpg" ||
           fileType === "nii" ||
           fileType === "jpeg") && (
-          <Button variant="link" onClick={toggleFileViewer} icon={<FilmIcon />}>
-            Open Image Viewer
-          </Button>
-        )}
+            <Button variant="link" onClick={toggleFileViewer} icon={<FilmIcon />}>
+              Open Image Viewer
+            </Button>
+          )}
       </div>
       <div className="header-panel__buttons--togglePanel">
         <Button
