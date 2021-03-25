@@ -82,7 +82,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     };
 
     const handleFileBrowserOpen = () => {
-      
       if (tree) {
         dispatch(setExplorerRequest(tree));
       }
