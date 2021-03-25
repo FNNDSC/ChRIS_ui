@@ -68,6 +68,10 @@
     flex-direction: column;
     gap: 0.25em;
 
+    &--crumb {
+      color:var(--pf-global--primary-color--100);
+    }
+
     &__info {
       gap: 2rem;
       display: flex;

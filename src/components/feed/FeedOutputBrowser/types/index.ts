@@ -10,10 +10,13 @@ export interface FileBrowserProps {
   handleFileViewerToggle: () => void;
   downloadAllClick: () => void;
   expandDrawer: (panel: string) => void;
+  breadcrumb: string[];
 }
 
 export interface FileBrowserState {
   directory: DataNode;
+  breadcrumbs: DataNode[];
+  currentFile: DataNode[];
   previewingFile?: DataNode; // file selected for preview
 }
 
