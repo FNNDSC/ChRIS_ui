@@ -22,11 +22,7 @@ import {
 } from "../../../store/explorer/actions";
 import { getPluginFilesRequest } from "../../../store/feed/actions";
 import FileViewerModel from "../../../api/models/file-viewer.model";
-import {
-  createTreeFromFiles,
-  createSwiftFileBrowser,
-  getPluginName,
-} from "./utils";
+import { createTreeFromFiles, getPluginName } from "./utils";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { isEmpty } from "lodash";
 import { getFeedTree } from "./data";
@@ -86,9 +82,9 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     };
 
     const handleFileBrowserOpen = () => {
-      const swiftBrowser = createSwiftFileBrowser(selected, pluginFiles);
-      if (swiftBrowser) {
-        dispatch(setExplorerRequest(swiftBrowser));
+      
+      if (tree) {
+        dispatch(setExplorerRequest(tree));
       }
       setPluginModalOpen(!pluginModalOpen);
     };
