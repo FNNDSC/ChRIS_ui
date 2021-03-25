@@ -185,7 +185,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     selectedFile &&
     selectedFile.file &&
     getFileExtension(selectedFile.file.data.fname);
- 
 
   return (
     <Grid hasGutter className="file-browser">
@@ -203,12 +202,15 @@ const FileBrowser = (props: FileBrowserProps) => {
         className="file-browser__firstGrid"
       >
         <div className="file-browser__header">
-          <Breadcrumb>
-            {breadcrumb.map((value: string, index: number) => {
-              return <BreadcrumbItem key={index}>{value}</BreadcrumbItem>;
-            })}
-          </Breadcrumb>
-          <Breadcrumb>{breadcrumbs.map(generateBreadcrumb)}</Breadcrumb>
+          <div className="file-browser__header--breadcrumbContainer">
+            <Breadcrumb>
+              {breadcrumb.map((value: string, index: number) => {
+                return <BreadcrumbItem key={index}>{value}</BreadcrumbItem>;
+              })}
+            </Breadcrumb>
+            <Breadcrumb>{breadcrumbs.map(generateBreadcrumb)}</Breadcrumb>
+          </div>
+
           <div className="file-browser__header__info">
             <span className="files-browser__header--fileCount">
               {selectedFiles
@@ -311,10 +313,10 @@ const renderHeaderPanel = (
           fileType === "jpg" ||
           fileType === "nii" ||
           fileType === "jpeg") && (
-            <Button variant="link" onClick={toggleFileViewer} icon={<FilmIcon />}>
-              Open Image Viewer
-            </Button>
-          )}
+          <Button variant="link" onClick={toggleFileViewer} icon={<FilmIcon />}>
+            Open Image Viewer
+          </Button>
+        )}
       </div>
       <div className="header-panel__buttons--togglePanel">
         <Button

@@ -163,7 +163,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 handleFileViewerToggle={handleFileViewerOpen}
                 downloadAllClick={downloadAllClick}
                 expandDrawer={expandDrawer}
-                breadcrumb={breadcrumb}
+                breadcrumb={[...breadcrumb.slice(0, breadcrumb.length - 1), ""]}
               />
             ) : selected.data.status === "cancelled" ||
               selected.data.status === "finishedWithError" ? (
