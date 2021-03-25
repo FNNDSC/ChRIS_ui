@@ -17,7 +17,9 @@ const FileBrowserViewer = () => {
   const onSelect = (selectedKeys: Key[], info: any) => {
     dispatch(setSelectedFile(info.node));
   };
+
   const selectedKeys = selectedFile ? [selectedFile.key] : [];
+  console.log("SelectedKeys", selectedKeys);;
 
   return (
     <div className="pf-u-px-lg">

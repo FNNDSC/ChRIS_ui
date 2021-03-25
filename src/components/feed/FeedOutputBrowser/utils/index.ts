@@ -31,26 +31,6 @@ export function createTreeFromFiles(
   return tree;
 }
 
-export function createSwiftFileBrowser(
-  selected?: PluginInstance,
-  files?: FeedFile[]
-): DataNode[] | null {
-  if (!files || !selected) return null;
-  const filePaths = files.map((file) => {
-    const filePath = file.data.fname;
-    return {
-      file: file,
-      filePath,
-    };
-  });
-  let tree = null;
-
-  buildTree(filePaths, (computedTree) => {
-    tree = computedTree;
-  });
-
-  return tree;
-}
 
 
 
