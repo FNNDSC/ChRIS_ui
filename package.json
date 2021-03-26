@@ -10,7 +10,7 @@
     "@patternfly/react-styles": "^4.8.2",
     "@patternfly/react-table": "^4.23.2",
     "@react-hook/resize-observer": "^1.1.2",
-    "antd": "^4.2.2",
+    "antd": "^4.14.1",
     "axios": "^0.21.1",
     "bootstrap": "^4.5.2",
     "classnames": "^2.2.6",
@@ -73,8 +73,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.11.0",
     "@testing-library/react": "^10.4.4",
-    "@types/c3": "^0.6.3",
-    "@types/classnames": "^2.2.9",
+    "@types/classnames": "^2.2.11",
     "@types/d3-hierarchy": "^1.1.7",
     "@types/d3-selection": "^1.4.3",
     "@types/d3-zoom": "^1.8.2",

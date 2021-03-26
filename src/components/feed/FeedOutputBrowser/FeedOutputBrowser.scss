@@ -30,7 +30,7 @@
 
 .file-browser {
   height: 100%;
-  
+
   &__downloadButton {
     max-width: 50% !important;
 
@@ -63,9 +63,11 @@
     }
   }
 
-  .preview {
+  .small-preview {
     @include section-three;
   }
+
+  
 
   &__header {
     display: flex;

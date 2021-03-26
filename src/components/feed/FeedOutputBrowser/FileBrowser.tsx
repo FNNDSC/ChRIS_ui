@@ -259,7 +259,7 @@ const FileBrowser = (props: FileBrowserProps) => {
           fileType
         )}
         {selectedFile && selectedFile.file && (
-          <FileDetailView selectedFile={selectedFile.file} />
+          <FileDetailView selectedFile={selectedFile.file} preview="small" />
         )}
       </GridItem>
     </Grid>
