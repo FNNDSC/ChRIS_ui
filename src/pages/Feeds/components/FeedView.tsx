@@ -21,6 +21,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { DestroyData } from "../../../store/feed/types";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 import { destroyExplorer } from "../../../store/explorer/actions";
+import "antd/dist/antd.css";
 
 const ParentComponent = React.lazy(
   () => import("../../../components/feed/FeedTree/ParentComponent")
