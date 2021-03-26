@@ -64,7 +64,7 @@ class PluginList extends React.Component<PluginListProps, PluginListState> {
               .sort((a, b) => a.data.name.localeCompare(b.data.name))
               .filter(this.matchesFilter)
               .map((plugin) => {
-                const { id, name } = plugin.data;
+                const { id, name, version, description } = plugin.data;
                 const isSelected = selected && id === selected.data.id;
                 return (
                   <li
@@ -72,7 +72,11 @@ class PluginList extends React.Component<PluginListProps, PluginListState> {
                     className={classNames(isSelected && "selected")}
                     onClick={() => handlePluginSelect(plugin)}
                   >
-                    {name}
+                    <span> {name}</span>
+                    <span className="version">Version: {version}</span>
+                    <span className="description">
+                      Description: {description}
+                    </span>
                   </li>
                 );
               })
@@ -97,13 +101,13 @@ class PluginSelect extends React.Component<
   }
 
   componentDidMount() {
-    this._isMounted  =  true;
+    this._isMounted = true;
     this.fetchAllPlugins();
     this.fetchRecentPlugins();
   }
 
-  componentWillUnmount(){
-    this._isMounted=false
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   async fetchAllPlugins() {
@@ -123,9 +127,8 @@ class PluginSelect extends React.Component<
     }
 
     plugins = plugins.filter((plugin) => plugin.data.type === "ds");
-    
-    if(this._isMounted)
-    this.setState({ allPlugins: plugins });
+
+    if (this._isMounted) this.setState({ allPlugins: plugins });
   }
 
   // fetch last 5 used plugins
@@ -173,8 +176,7 @@ class PluginSelect extends React.Component<
         return client.getPlugin(id);
       })
     );
-    if(this._isMounted)
-    this.setState({ recentPlugins: plugins });
+    if (this._isMounted) this.setState({ recentPlugins: plugins });
   }
 
   handleAccordionToggle(expanded: string) {
@@ -182,10 +184,9 @@ class PluginSelect extends React.Component<
       this.setState({
         expanded: "",
       });
+    } else {
+      this.setState({ expanded });
     }
-    else{
-     this.setState({ expanded });
-    }  
   }
 
   render() {
@@ -194,7 +195,7 @@ class PluginSelect extends React.Component<
 
     return (
       <Accordion className="plugin-select">
-        <AccordionItem >
+        <AccordionItem>
           <AccordionToggle
             onClick={() => this.handleAccordionToggle("recent-toggle")}
             isExpanded={this.state.expanded === "recent-toggle"}

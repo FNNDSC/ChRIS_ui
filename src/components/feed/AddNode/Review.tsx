@@ -30,6 +30,9 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
     generatedCommand += unpackParametersIntoString(dropdownInput);
   }
 
+  const title =
+    data.parent && (data.parent.data.title || data.parent.data.plugin_name);
+
   return (
     <div className="review">
       <h1 className="pf-c-title pf-m-2xl">Review</h1>
@@ -45,8 +48,7 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
         </GridItem>
         <GridItem span={10}>
           <span className="review__value">
-            {data.parent &&
-              (data.parent.data.title || data.parent.data.plugin_name)}
+            {`${title} v.${data.parent?.data.plugin_version}`}
           </span>
         </GridItem>
         <PluginDetails

@@ -13,6 +13,7 @@ export const PluginDetails: React.FC<PluginDetailsProps> = ({
   selectedPlugin,
   computeEnvironment,
 }: PluginDetailsProps) => {
+  const title = selectedPlugin?.data.name;
   return (
     <>
       <GridItem span={2}>
@@ -20,7 +21,7 @@ export const PluginDetails: React.FC<PluginDetailsProps> = ({
       </GridItem>
       <GridItem span={10}>
         <span className="review__value">
-          {selectedPlugin && selectedPlugin.data.name}
+          {`${title} v.${selectedPlugin?.data.version}`}
         </span>
       </GridItem>
       <GridItem span={2}>

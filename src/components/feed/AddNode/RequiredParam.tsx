@@ -41,11 +41,11 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
   return (
     <Form className="required-params" key={param.data.id}>
       <div className="required-params__layout">
-        <Label className="required-params__label">
+        <div className="required-params__label">
           {`${param.data.flag}:`}
           <span className="required-params__star">*</span>
-        </Label>
-        <Label className="required-params__infoLabel">(*Required)</Label>
+        </div>
+        <span className="required-params__infoLabel">(*Required)</span>
       </div>
       <input
         className={css(styles.formControl, `required-params__textInput`)}
