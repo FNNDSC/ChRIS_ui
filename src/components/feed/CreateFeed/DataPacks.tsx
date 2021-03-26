@@ -124,12 +124,13 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
 
       <DataList aria-label="FS Plugins">
         {fsPlugins.map((plugin, index) => {
+         const name = plugin.data.name;
           return (
             <DataListItem key={index} aria-labelledby="plugin-checkbox">
               <DataListItemRow>
                 <DataListCheck
                   aria-labelledby="plugin-checkbox"
-                  name={plugin.data.name}
+                  name={`${name} v.${plugin.data.version}`}
                   onChange={(checked) => {
                     checked === true && props.getParams(plugin);
                     dispatch({
@@ -156,7 +157,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                           className="plugin-table-row__plugin-name"
                           id={`${plugin.data.name}`}
                         >
-                          {plugin.data.name}{" "}
+                          {name} v.{plugin.data.version}
                         </span>
                         <span
                           className="plugin-table-row__plugin-description"
