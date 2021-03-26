@@ -89,3 +89,16 @@
     background: $dot-background-yellow;
   }
 }
+
+
+.pf-c-breadcrumb__item {
+  font-size: 16px !important;
+  font-family: var(
+    --pf-global--FontFamily--redhatfont--sans-serif
+  ) !important;
+}
+
+
+.large-preview {
+  height: 100%;
+}

@@ -14,6 +14,7 @@ const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 interface AllProps {
   selectedFile: FeedFile;
   isDicom?: boolean;
+  preview: "large" | "small";
 }
 
 function getInitialState() {
@@ -26,7 +27,7 @@ function getInitialState() {
 
 const FileDetailView = (props: AllProps) => {
   const [fileState, setFileState] = React.useState<IFileBlob>(getInitialState);
-  const { selectedFile } = props;
+  const { selectedFile, preview } = props;
   const { fileType } = fileState;
 
   const fetchData = React.useCallback(async () => {
@@ -78,7 +79,9 @@ const FileDetailView = (props: AllProps) => {
             </span>
           }
         >
-          <div className="preview">
+          <div
+            className={preview === "small" ? "small-preview" : "large-preview"}
+          >
             <ViewerDisplay viewerName={viewerName} fileItem={fileState} />
           </div>
         </ErrorBoundary>

@@ -14,7 +14,6 @@ import {
 } from "@patternfly/react-core";
 import { CubeIcon } from "@patternfly/react-icons";
 import { Spin, Alert, Tree } from "antd";
-import FileBrowser from "./FileBrowser";
 import PluginViewerModal from "./PluginViewerModal";
 import {
   setExplorerRequest,
@@ -28,8 +27,8 @@ import { isEmpty } from "lodash";
 import { getFeedTree } from "./data";
 import { DataNode } from "../../../store/explorer/types";
 import "./FeedOutputBrowser.scss";
-import "antd/dist/antd.css";
 
+const FileBrowser = React.lazy(() => import("./FileBrowser"));
 
 const { DirectoryTree } = Tree;
 
@@ -40,7 +39,7 @@ export interface FeedOutputBrowserProps {
 
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   handlePluginSelect,
-  expandDrawer
+  expandDrawer,
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const dispatch = useDispatch();
@@ -49,7 +48,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     pluginFiles,
     pluginInstances,
   } = useTypedSelector((state) => state.feed);
-  const { viewerMode } = useTypedSelector((state) => state.explorer);
+  const viewerMode = useTypedSelector((state) => state.explorer.viewerMode);
   const { data: plugins, loading } = pluginInstances;
   const pluginFilesPayload = selected && pluginFiles[selected.data.id];
 
@@ -65,7 +64,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     const pluginName = selected && selected.data && getPluginName(selected);
     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
     const tree: DataNode[] | null = createTreeFromFiles(selected, pluginFiles);
-
+    //@ts-ignore
+    const breadcrumb = selected.data.output_path.split("/");
     const downloadAllClick = async () => {
       if (!selected) return;
 
@@ -149,16 +149,32 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             {selected &&
             selected.data.status === "finishedSuccessfully" &&
             tree ? (
-              <FileBrowser
-                selectedFiles={pluginFiles}
-                pluginName={pluginName}
-                root={tree[0]}
-                key={selected.data.id}
-                handleFileBrowserToggle={handleFileBrowserOpen}
-                handleFileViewerToggle={handleFileViewerOpen}
-                downloadAllClick={downloadAllClick}
-                expandDrawer = {expandDrawer}
-              />
+              <React.Suspense
+                fallback={
+                  <div>
+                    <Skeleton
+                      height="100%"
+                      width="100%"
+                      screenreaderText="Fetching the File Browser"
+                    />
+                  </div>
+                }
+              >
+                <FileBrowser
+                  selectedFiles={pluginFiles}
+                  pluginName={pluginName}
+                  root={tree[0]}
+                  key={selected.data.id}
+                  handleFileBrowserToggle={handleFileBrowserOpen}
+                  handleFileViewerToggle={handleFileViewerOpen}
+                  downloadAllClick={downloadAllClick}
+                  expandDrawer={expandDrawer}
+                  breadcrumb={[
+                    ...breadcrumb.slice(0, breadcrumb.length - 1),
+                    "",
+                  ]}
+                />
+              </React.Suspense>
             ) : selected.data.status === "cancelled" ||
               selected.data.status === "finishedWithError" ? (
               <EmptyStateLoader />

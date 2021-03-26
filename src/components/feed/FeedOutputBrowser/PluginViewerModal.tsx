@@ -1,7 +1,10 @@
 import * as React from "react";
 import { Modal } from "@patternfly/react-core";
-import OutputViewerContainer from "../../detailedView/DetailedViewerContainer";
 import { Gotop } from "../../index";
+
+const OutputViewerContainer = React.lazy(
+  () => import("../../detailedView/DetailedViewerContainer")
+);
 
 type AllProps = {
   isModalOpen: boolean;
@@ -39,7 +42,12 @@ const PluginViewerModal = (props: AllProps) => {
         onScroll={handleScroll}
         onClose={() => handleModalToggle()}
       >
-        <OutputViewerContainer />
+        <React.Suspense fallback={
+          <div>Fetching Resources....</div>
+        }>
+          <OutputViewerContainer />
+        </React.Suspense>
+
         <Gotop isActive={gotopActive} scrollable={scrollDivId} />
       </Modal>
     </React.Fragment>

@@ -11,9 +11,15 @@ export function createTreeFromFiles(
 ): DataNode[] | null {
   if (!files || !selected) return null;
   const filePaths = files.map((file) => {
+    const filePath = file.data.fname.substring(
+      file.data.fname.lastIndexOf(
+        `${selected.data.plugin_name}_${selected.data.id}`
+      ),
+      file.data.fname.length
+    );
     return {
       file: file,
-      filePath: file.data.fname,
+      filePath,
     };
   });
   let tree = null;
@@ -24,6 +30,9 @@ export function createTreeFromFiles(
 
   return tree;
 }
+
+
+
 
 // Format plugin name to "Name_vVersion_ID"
 export function getPluginName(plugin: PluginInstance) {
@@ -45,7 +54,7 @@ const buildTree = (
     const pathParts = fileObj.filePath.split("/");
     pathParts.shift();
     let currentLevel = tree;
-    _.each(pathParts, function (part) {
+    _.each(pathParts, function (part, index) {
       const existingPath = _.find(currentLevel, {
         title: part,
       });
@@ -53,7 +62,7 @@ const buildTree = (
         currentLevel = existingPath.children;
       } else {
         const newPart = {
-          key:   part,
+          key:  `${part}_${index}`,
           title: part,
           file: fileObj.file,
           children: [],

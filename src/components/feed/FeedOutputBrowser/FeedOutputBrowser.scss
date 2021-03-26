@@ -48,6 +48,10 @@
       border: 1px solid transparent;
       border-radius: 5px;
       outline: none;
+      font-size: 1em !important;
+      font-family: var(
+        --pf-global--FontFamily--redhatfont--sans-serif
+      ) !important;
     }
 
     &--isPreviewing {
@@ -59,14 +63,20 @@
     }
   }
 
-  .preview {
+  .small-preview {
     @include section-three;
   }
+
+  
 
   &__header {
     display: flex;
     flex-direction: column;
     gap: 0.25em;
+
+    &--crumb {
+      color: var(--pf-global--primary-color--100);
+    }
 
     &__info {
       gap: 2rem;
@@ -80,7 +90,6 @@
   }
 
   .pf-c-breadcrumb {
-    color: var(--pf-global--primary-color--100);
     cursor: pointer;
     --pf-c-breadcrumb__item--FontSize: var(--pf-global--FontSize--md);
   }
@@ -118,11 +127,10 @@
   }
 }
 
-
 .iframe-container {
-  height:100%;
+  height: 100%;
 
   iframe {
-    height:100% !important;
+    height: 100% !important;
   }
 }
