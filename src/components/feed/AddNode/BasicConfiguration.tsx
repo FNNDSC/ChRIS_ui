@@ -26,12 +26,15 @@ class BasicConfiguration extends React.Component<
   render() {
     const { selectedPlugin, handlePluginSelect, parent } = this.props;
 
+    const value = parent.data.title || parent.data.plugin_name;
+     
+    
     return (
       <div className="screen-one">
         <Title headingLevel="h1">Plugin Selection</Title>
         <FormGroup label="Parent node:" fieldId="parent-node">
           <TextInput
-            value={parent.data.title || parent.data.plugin_name}
+            value={`${value} v.${parent.data.plugin_version}`}
             aria-label="Selected Plugin Name"
           />
         </FormGroup>

@@ -165,10 +165,8 @@ const Editor = ({
   return (
     <div className="configuration">
       <div className="configuration__options">
-        <Title headingLevel="h1">{`Configure ${plugin?.data.name}`}</Title>
-
+        <Title headingLevel="h1">{`Configure ${plugin?.data.name} v.${plugin?.data.version}`}</Title>
         <div className="editor">
-          <Label className="editor__label">Edit Plugin Configuration:</Label>
           <TextArea
             aria-label="text"
             className="editor__text"
