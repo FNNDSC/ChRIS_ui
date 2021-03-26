@@ -10,11 +10,13 @@ import {
   Title,
   Pagination,
   EmptyState,
+  EmptyStateVariant,
+  EmptyStateIcon,
   EmptyStateBody,
   Button,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
-import { EyeIcon, CodeBranchIcon } from "@patternfly/react-icons";
+import { EyeIcon, CodeBranchIcon, SearchIcon } from "@patternfly/react-icons";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest } from "../../../store/feed/actions";
@@ -170,7 +172,6 @@ const FeedListView: React.FC<AllProps> = ({
       </React.Fragment>
     );
   }
-
   return (
     <React.Fragment>
       <PageSection variant={PageSectionVariants.light} className="feed-header">
@@ -186,7 +187,6 @@ const FeedListView: React.FC<AllProps> = ({
           </CreateFeedProvider>
         </div>
       </PageSection>
-
       <PageSection className="feed-list">
         <div className="feed-list__split">
           <DataTableToolbar
@@ -195,17 +195,36 @@ const FeedListView: React.FC<AllProps> = ({
           />
           {generatePagination()}
         </div>
-
-        <Table
-          variant="compact"
-          aria-label="Data table"
-          cells={cells}
-          rows={rows}
-        >
-          <TableHeader />
-          {loading === true ? generateTableLoading() : <TableBody />}
-        </Table>
+        {!data ? (
+          <React.Fragment>
+            <Table caption = "Empty Feed List" cells={cells} rows={rows}>
+              <TableHeader />
+              <TableBody />
+            </Table>
+            <EmptyState variant={EmptyStateVariant.small}>
+              <EmptyStateIcon icon={SearchIcon} />
+              <Title headingLevel="h2" size="lg">
+                No Feeds Found
+              </Title>
+              <EmptyStateBody>
+                Create a Feed by clicking on the &apos;Create Feed&apos; button
+                
+              </EmptyStateBody>
+            </EmptyState>
+          </React.Fragment>
+        ) : (
+          <Table
+            variant="compact"
+            aria-label="Data table"
+            cells={cells}
+            rows={rows}
+          >
+            <TableHeader />
+            {loading === true ? generateTableLoading() : <TableBody />}
+          </Table>
+        )}
       </PageSection>
+      )
     </React.Fragment>
   );
 };

@@ -36,6 +36,7 @@ import { setSelectedFile } from "../../../store/explorer/actions";
 function getInitialState(root: DataNode) {
   return {
     directory: root,
+    currentFile: [root],
     breadcrumbs: [root],
   };
 }
@@ -48,28 +49,15 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleFileBrowserToggle,
     handleFileViewerToggle,
     expandDrawer,
+    breadcrumb,
   } = props;
   const [
     fileBrowserState,
     setfileBrowserState,
   ] = React.useState<FileBrowserState>(getInitialState(root));
-  const { breadcrumbs, directory } = fileBrowserState;
+  const { directory, breadcrumbs, currentFile } = fileBrowserState;
   const { selectedFile } = useTypedSelector((state) => state.explorer);
   const dispatch = useDispatch();
-
-  const handleBreadcrumbClick = (
-    e: React.MouseEvent,
-    folder: DataNode,
-    prevBreadcrumbs: DataNode[]
-  ) => {
-    e.preventDefault();
-
-    setfileBrowserState({
-      ...fileBrowserState,
-      directory: folder,
-      breadcrumbs: [...prevBreadcrumbs, folder],
-    });
-  };
 
   const handleFileClick = (e: React.MouseEvent, rows: any[], rowData: any) => {
     const target = e.nativeEvent.target as HTMLElement;
@@ -78,16 +66,13 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
 
     const rowIndex = rowData.rowIndex;
-    if (!directory.children) {
-      return;
-    }
-
     const file = directory.children[rowIndex];
 
-    if (file && file.children.length > 0) {
+    if (file.children && file.children.length > 0) {
       setfileBrowserState({
         ...fileBrowserState,
         directory: file,
+        currentFile: [...currentFile, file],
         breadcrumbs: [...breadcrumbs, file],
       });
     } else {
@@ -103,17 +88,45 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
   };
 
-  const generateBreadcrumb = (
-    folder: DataNode,
-    i: number,
-    breadcrumbs: DataNode[]
+  const handleBreadcrumbClick = (
+    e: React.MouseEvent,
+    value: DataNode,
+    prevBreadcrumbs: DataNode[]
   ) => {
-    const prevBreadcrumbs = breadcrumbs.slice(0, i);
+    e.preventDefault();
+
+    if (directory) {
+      setfileBrowserState({
+        ...fileBrowserState,
+        directory: value,
+        breadcrumbs: [...prevBreadcrumbs, value],
+      });
+    }
+  };
+
+  const generateBreadcrumb = (
+    value: DataNode,
+    index: number,
+    array: DataNode[]
+  ) => {
+    const prevBreadcrumbs = array.slice(0, index);
     const onClick = (e: React.MouseEvent) =>
-      handleBreadcrumbClick(e, folder, prevBreadcrumbs);
+      handleBreadcrumbClick(e, value, prevBreadcrumbs);
+
     return (
-      <BreadcrumbItem onClick={onClick} key={i}>
-        {folder.title}
+      <BreadcrumbItem
+        className="file-browser__header--crumb"
+        showDivider={true}
+        onClick={
+          index !== array.length - 1
+            ? onClick
+            : () => {
+                return;
+              }
+        }
+        key={index}
+      >
+        {value.title}
       </BreadcrumbItem>
     );
   };
@@ -129,7 +142,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       }
     }
     const icon = getIcon(type);
-    const isPreviewing = selectedFile && selectedFile.title === node.title;
+    const isPreviewing = selectedFile && selectedFile.key === node.key;
     const fileName = (
       <div
         className={classNames(
@@ -162,11 +175,11 @@ const FileBrowser = (props: FileBrowserProps) => {
   };
 
   const cols = ["Name", "Type", ""];
-  const rows = directory.children.map(generateTableRow);
-
-  if (!directory.children || !directory.children.length) {
+  if (!directory || directory.children.length === 0) {
     return <div>No Files in this directory.</div>;
   }
+
+  const rows = directory.children.map(generateTableRow);
 
   const fileType =
     selectedFile &&
@@ -189,7 +202,15 @@ const FileBrowser = (props: FileBrowserProps) => {
         className="file-browser__firstGrid"
       >
         <div className="file-browser__header">
-          <Breadcrumb>{breadcrumbs.map(generateBreadcrumb)}</Breadcrumb>
+          <div className="file-browser__header--breadcrumbContainer">
+            <Breadcrumb>
+              {breadcrumb.map((value: string, index: number) => {
+                return <BreadcrumbItem key={index}>{value}</BreadcrumbItem>;
+              })}
+            </Breadcrumb>
+            <Breadcrumb>{breadcrumbs.map(generateBreadcrumb)}</Breadcrumb>
+          </div>
+
           <div className="file-browser__header__info">
             <span className="files-browser__header--fileCount">
               {selectedFiles
@@ -238,7 +259,7 @@ const FileBrowser = (props: FileBrowserProps) => {
           fileType
         )}
         {selectedFile && selectedFile.file && (
-          <FileDetailView selectedFile={selectedFile.file} />
+          <FileDetailView selectedFile={selectedFile.file} preview="small" />
         )}
       </GridItem>
     </Grid>

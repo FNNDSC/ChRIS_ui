@@ -140,7 +140,6 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   const onBack = (newStep: { id?: string | number; name: React.ReactNode }) => {
     const { id } = newStep;
-    console.log("Id", id);
 
     id && id === 1
       ? setNodeState({
@@ -318,7 +317,6 @@ const AddNode: React.FC<AddNodeProps> = ({
     },
   ];
 
-  console.log("AddNode State", addNodeState);
   return (
     <React.Fragment>
       <Button icon={<PlusCircleIcon />} type="button" onClick={toggleOpen}>
