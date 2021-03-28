@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Label } from "@patternfly/react-core";
+import { Form } from "@patternfly/react-core";
 import { PluginParameter } from "@fnndsc/chrisapi";
 import { RequiredParamProp } from "./types";
 import styles from "@patternfly/react-styles/css/components/FormControl/form-control";

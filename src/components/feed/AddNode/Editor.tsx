@@ -1,14 +1,10 @@
 import React from "react";
-import {
-  TextArea,
-  ExpandableSection,
-  Label,
-  Title,
-} from "@patternfly/react-core";
+import { TextArea, ExpandableSection, Title } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { isEmpty } from "lodash";
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
+import { v4 } from "uuid";
 import { InputType } from "./types";
 import { EditorState, EditorProps } from "./types";
 import {

@@ -45,6 +45,7 @@ const GuidedConfig = ({
   } = configState;
 
   const setDropdownDefaults = React.useCallback(() => {
+    console.log("DropdownInput", dropdownInput);
     if (!isEmpty(dropdownInput)) {
       const defaultComponentList = Object.entries(dropdownInput).map(
         ([key]) => {

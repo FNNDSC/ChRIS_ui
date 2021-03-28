@@ -122,10 +122,7 @@ const AddNode: React.FC<AddNodeProps> = ({
   };
 
   const toggleOpen = () => {
-    setNodeState((state: AddNodeState) => ({
-      ...state,
-      isOpen: !state.isOpen,
-    }));
+    resetState();
   };
 
   const onNext = (newStep: { id?: string | number; name: React.ReactNode }) => {
@@ -192,7 +189,7 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   const resetState = () => {
     setNodeState({
-      isOpen: false,
+      isOpen: !isOpen,
       stepIdReached: 1,
       nodes: [],
       data: {},

@@ -68,14 +68,10 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     const id = param.data.flag;
     const placeholder = param.data.help;
     const type = param.data.type;
-    setDropdownState({
-      ...dropdownState,
-      paramId: id,
-      placeholder,
-      type,
-    });
 
-    handleChange(id, paramValue, type, placeholder, false);
+    console.log("HandleClick", id, placeholder, type);
+
+     handleChange(id, paramValue, type, placeholder, false);
   };
 
   const triggerChange = (eventType: string) => {
@@ -156,8 +152,8 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
       </div>
       {type === "boolean" && (
         <Banner variant="info">
-          Input boxes are disabled for boolean values. Choose the flags to add
-          to run your plugin.
+          Boolean flags don&apos;t require the user to implicitly provide
+          values.
         </Banner>
       )}
     </>
