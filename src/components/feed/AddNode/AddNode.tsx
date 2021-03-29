@@ -73,6 +73,7 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   const inputChange = (
     id: string,
+    flag:string,
     value: string,
     type: string,
     placeholder: string,
@@ -80,6 +81,7 @@ const AddNode: React.FC<AddNodeProps> = ({
   ) => {
     const input: InputIndex = {};
     input["value"] = value;
+    input['flag']=flag;
     input["type"] = type;
     input["placeholder"] = placeholder;
 
@@ -215,6 +217,7 @@ const AddNode: React.FC<AddNodeProps> = ({
       plugin,
       selectedPlugin
     );
+    console.log("ParameterInput", parameterInput);
 
     parameterInput = {
       ...parameterInput,

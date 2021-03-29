@@ -45,7 +45,6 @@ const GuidedConfig = ({
   } = configState;
 
   const setDropdownDefaults = React.useCallback(() => {
-    console.log("DropdownInput", dropdownInput);
     if (!isEmpty(dropdownInput)) {
       const defaultComponentList = Object.entries(dropdownInput).map(
         ([key]) => {
@@ -156,6 +155,7 @@ const GuidedConfig = ({
                 requiredInput={requiredInput}
                 addParam={addParam}
                 inputChange={inputChange}
+                id={v4()}
               />
             </React.Fragment>
           );

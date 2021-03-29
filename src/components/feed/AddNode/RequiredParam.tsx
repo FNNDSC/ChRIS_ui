@@ -13,16 +13,17 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
 }: RequiredParamProp) => {
   const value =
     (requiredInput &&
-      requiredInput[param.data.flag] &&
-      requiredInput[param.data.flag]["value"]) ||
+      requiredInput[param.data.id] &&
+      requiredInput[param.data.id]["value"]) ||
     "";
 
   const handleInputChange = (param: PluginParameter, event: any) => {
-    const id = param.data.flag;;
+    const id = `${param.data.id}`;
+    const flag = param.data.flag;
     const placeholder = param.data.help;
     const type = param.data.type;
     const value = event.target.value;
-    inputChange(id, value, type, placeholder, true);
+    inputChange(id, flag, value, type, placeholder, true);
   };
 
   const triggerChange = (eventType: string) => {
