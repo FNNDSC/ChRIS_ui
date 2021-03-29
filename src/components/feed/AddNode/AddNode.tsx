@@ -73,6 +73,7 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   const inputChange = (
     id: string,
+    flag:string,
     value: string,
     type: string,
     placeholder: string,
@@ -80,6 +81,7 @@ const AddNode: React.FC<AddNodeProps> = ({
   ) => {
     const input: InputIndex = {};
     input["value"] = value;
+    input['flag']=flag;
     input["type"] = type;
     input["placeholder"] = placeholder;
 
@@ -122,10 +124,7 @@ const AddNode: React.FC<AddNodeProps> = ({
   };
 
   const toggleOpen = () => {
-    setNodeState((state: AddNodeState) => ({
-      ...state,
-      isOpen: !state.isOpen,
-    }));
+    resetState();
   };
 
   const onNext = (newStep: { id?: string | number; name: React.ReactNode }) => {
@@ -192,7 +191,7 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   const resetState = () => {
     setNodeState({
-      isOpen: false,
+      isOpen: !isOpen,
       stepIdReached: 1,
       nodes: [],
       data: {},
@@ -218,6 +217,7 @@ const AddNode: React.FC<AddNodeProps> = ({
       plugin,
       selectedPlugin
     );
+    console.log("ParameterInput", parameterInput);
 
     parameterInput = {
       ...parameterInput,

@@ -94,6 +94,7 @@ export interface GuidedConfigProps extends InputProps {
   computeEnvs?: any[];
   inputChange(
     id: string,
+    flag: string,
     value: string,
     type: string,
     placeholder: string,
@@ -116,6 +117,7 @@ export interface EditorProps extends InputState {
   params?: PluginParameter[];
   inputChange(
     id: string,
+    flag: string,
     value: string,
     type: string,
     placeholder: string,
@@ -128,7 +130,7 @@ export interface EditorProps extends InputState {
 }
 
 export interface SimpleDropdownState {
-  paramId: string;
+  paramFlag: string;
   isOpen: boolean;
   paramValue: string;
   placeholder: string;
@@ -144,10 +146,11 @@ export interface SimpleDropdownProps {
   id: string;
   handleChange(
     id: string,
+    flag: string,
     value: string,
     type: string,
     placeholder: string,
-    required: boolean,
+    required: boolean
   ): void;
   deleteComponent(id: string): void;
   deleteInput(id: string): void;
@@ -161,11 +164,13 @@ export interface RequiredParamProp {
   requiredInput: InputType;
   inputChange(
     id: string,
+    flag: string,
     value: string,
     type: string,
     placeholder: string,
     required: boolean
   ): void;
+  id:  string;
 }
 
 export interface ReviewProps extends InputState {
