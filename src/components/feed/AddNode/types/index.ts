@@ -174,10 +174,8 @@ export interface RequiredParamProp {
 }
 
 export interface ReviewProps extends InputState {
-  data: {
-    plugin?: Plugin;
-    parent?: PluginInstance;
-  };
+  parent?: PluginInstance;
+  currentPlugin:  Plugin;
   computeEnvironment: string;
   errors: {
     [key: string]: string[];
