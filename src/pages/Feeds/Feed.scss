@@ -41,6 +41,30 @@
     justify-content: space-between;
   }
 
+  &__status {
+    span {
+      margin-left:0.25em;
+    }
+  }
+
+  .completed {
+    svg {
+      color:forestgreen;
+    }
+  }
+
+  .running {
+    svg {
+      color:gray;
+    }
+  }
+
+  .error {
+    svg {
+      color:red;
+    }
+  }
+
   &__name {
     a {
       margin-left: 0.25em;
