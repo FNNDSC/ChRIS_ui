@@ -11,7 +11,7 @@ import TrashAltIcon from "@patternfly/react-icons/dist/js/icons/trash-alt-icon";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./lib/utils";
 import { PluginParameter } from "@fnndsc/chrisapi";
-import { v4 } from "uuid";
+
 
 function getInitialState() {
   return {
