@@ -86,13 +86,15 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
 
   const inputChange = (
     id: string,
+    flag: string,
     value: string,
     type: string,
     placeholder: string,
-    required: boolean,
+    required: boolean
   ) => {
     const input: InputIndex = {};
     input["id"] = id;
+    input["flag"]   =   flag;
     input["value"] = value;
     input["type"] = type;
     input["placeholder"] = placeholder;

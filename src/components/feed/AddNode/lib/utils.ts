@@ -2,10 +2,11 @@ import { InputType, InputIndex } from "../types";
 import { PluginParameter } from "@fnndsc/chrisapi";
 
 export const unPackForKeyValue = (input: InputIndex) => {
+  const flag = input["flag"];
   const value = input["value"];
   const type = input["type"];
   const placeholder = input["placeholder"];
-  return [value, type, placeholder];
+  return [flag, value, type, placeholder];
 };
 
 export const unpackParametersIntoObject = (input: InputType) => {
@@ -15,8 +16,8 @@ export const unpackParametersIntoObject = (input: InputType) => {
     };
   } = {};
   for (const parameter in input) {
-    const [value, type] = unPackForKeyValue(input[parameter]);
-    result[parameter] = {
+    const [flag, value, type] = unPackForKeyValue(input[parameter]);
+    result[flag] = {
       value,
       type,
     };
@@ -29,7 +30,7 @@ export const unpackParametersIntoString = (input: InputType) => {
   let string = "";
 
   for (const parameter in input) {
-    const flag = parameter;
+    const flag = input[parameter].flag;
     const value = input[parameter].value;
     string += `${flag} ${value} `;
   }
@@ -54,6 +55,7 @@ export const getAllParamsWithName = (
   placeholder: string
 ) => {
   const result: InputIndex = {};
+  result["flag"] = flag;
   result["value"] = value;
   result["type"] = type;
   result["placeholder"] = placeholder;
@@ -67,6 +69,7 @@ export function getRequiredParamsWithName(
   placeholder: string
 ) {
   const result: InputIndex = {};
+  result["flag"] = flag;
   result["value"] = value;
   result["type"] = type;
   result["placeholder"] = placeholder;
