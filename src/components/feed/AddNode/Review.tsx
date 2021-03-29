@@ -6,7 +6,8 @@ import { PluginDetails } from "./helperComponents/ReviewGrid";
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
   const {
-    data,
+    parent,
+    currentPlugin,
     dropdownInput,
     requiredInput,
     computeEnvironment,
@@ -30,8 +31,7 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
     generatedCommand += unpackParametersIntoString(dropdownInput);
   }
 
-  const title =
-    data.parent && (data.parent.data.title || data.parent.data.plugin_name);
+  const title = parent && (parent.data.title || parent.data.plugin_name);
 
   return (
     <div className="review">
@@ -48,12 +48,12 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
         </GridItem>
         <GridItem span={10}>
           <span className="review__value">
-            {`${title} v.${data.parent?.data.plugin_version}`}
+            {`${title} v.${parent?.data.plugin_version}`}
           </span>
         </GridItem>
         <PluginDetails
           generatedCommand={generatedCommand}
-          selectedPlugin={data.plugin}
+          selectedPlugin={currentPlugin}
           computeEnvironment={computeEnvironment}
         />
         {command.length > 0 && (
