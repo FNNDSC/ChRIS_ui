@@ -16,7 +16,14 @@ import {
   Button,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
-import { EyeIcon, CodeBranchIcon, SearchIcon } from "@patternfly/react-icons";
+import {
+  EyeIcon,
+  CodeBranchIcon,
+  SearchIcon,
+  CheckIcon,
+  ErrorCircleOIcon,
+  RunningIcon,
+} from "@patternfly/react-icons";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest } from "../../../store/feed/actions";
@@ -25,6 +32,7 @@ import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
+
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -53,6 +61,26 @@ const FeedListView: React.FC<AllProps> = ({
   });
 
   const generateTableRow = (feed: any) => {
+    const totalJobsCount =
+      feed.cancelled_jobs +
+      feed.created_jobs +
+      feed.errored_jobs +
+      feed.finished_jobs +
+      feed.registering_jobs +
+      feed.scheduled_jobs +
+      feed.started_jobs +
+      feed.waiting_jobs;
+
+    console.log("feed", feed.finished_jobs, totalJobsCount);
+
+    const feedStatus =
+      feed.errored_jobs > 0
+        ? "Error"
+        : feed.finished_jobs === totalJobsCount
+        ? "Completed"
+        : "Running";
+  
+
     const name = {
       title: (
         <span className="feed-list__name">
@@ -74,6 +102,41 @@ const FeedListView: React.FC<AllProps> = ({
       ),
     };
 
+    const status = {
+      title: (
+        <span
+          className={`feed-list__status  ${
+            feedStatus === "Completed"
+              ? "completed"
+              : feedStatus === "Error"
+              ? "error"
+              : "running"
+          }`}
+        >
+          {feedStatus === "Completed" ? (
+            <CheckIcon />
+          ) : feedStatus === "Error" ? (
+            <ErrorCircleOIcon />
+          ) : (
+            <RunningIcon />
+          )}
+          <span>{feedStatus}</span>
+        </span>
+      ),
+    };
+
+    const totalJobs = {
+      title: <span>{totalJobsCount}</span>,
+    };
+
+    const jobSuccess = {
+      title: <span>{feed.finished_jobs}</span>,
+    };
+
+    const jobErrored = {
+      title: <span>{feed.errored_jobs}</span>,
+    };
+
     const viewDetails = {
       title: (
         <Link to={`/feeds/${feed.id}`}>
@@ -85,13 +148,31 @@ const FeedListView: React.FC<AllProps> = ({
     };
 
     return {
-      cells: [name, created, lastCommit, viewDetails],
+      cells: [
+        name,
+        created,
+        lastCommit,
+        status,
+        totalJobs,
+        jobSuccess,
+        jobErrored,
+        viewDetails,
+      ],
     };
   };
 
   const { page, perPage, filter } = filterState;
   const { data, loading, error, totalFeedsCount } = allFeeds;
-  const cells = ["Feed", "Created", "Last Commit", ""];
+  const cells = [
+    "Feed",
+    "Created",
+    "Last Commit",
+    "Status",
+    "Total Jobs",
+    "Job Success",
+    "Job Error'd",
+    "",
+  ];
 
   const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
 
@@ -197,7 +278,7 @@ const FeedListView: React.FC<AllProps> = ({
         </div>
         {!data ? (
           <React.Fragment>
-            <Table caption = "Empty Feed List" cells={cells} rows={rows}>
+            <Table caption="Empty Feed List" cells={cells} rows={rows}>
               <TableHeader />
               <TableBody />
             </Table>
@@ -208,7 +289,6 @@ const FeedListView: React.FC<AllProps> = ({
               </Title>
               <EmptyStateBody>
                 Create a Feed by clicking on the &apos;Create Feed&apos; button
-                
               </EmptyStateBody>
             </EmptyState>
           </React.Fragment>
