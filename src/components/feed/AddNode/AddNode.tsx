@@ -217,7 +217,6 @@ const AddNode: React.FC<AddNodeProps> = ({
       plugin,
       selectedPlugin
     );
-    console.log("ParameterInput", parameterInput);
 
     parameterInput = {
       ...parameterInput,
@@ -278,7 +277,8 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   const review = data.plugin ? (
     <Review
-      data={data}
+      parent={selectedPlugin}
+      currentPlugin={data.plugin}
       dropdownInput={dropdownInput}
       requiredInput={requiredInput}
       computeEnvironment={selectedComputeEnv}
