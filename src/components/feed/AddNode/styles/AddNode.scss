@@ -212,10 +212,9 @@
 }
 
 .editor {
-  margin-top:0.5em;
+  margin-top: 0.5em;
   display: flex;
   flex-direction: column;
- 
 
   &__text {
     background-color: #000 !important;
@@ -272,13 +271,10 @@
   border: 1px solid #f3be3a;
   background: #fbeabc;
   margin-top: 0.9rem !important;
+  font-size: 0.9rem !important;
 
   .pf-c-expandable-section__toggle {
     border-bottom: 1px solid #f3be3a;
-
-    &-text {
-      font-size: 0.9rem !important;
-    }
 
     padding: 0.15rem;
     color: black !important;
@@ -303,11 +299,9 @@
     padding-left: 0.5rem;
   }
   .param-title {
-    font-size: 1rem;
     font-family: monospace;
   }
   .param-help {
-    font-size: 1rem;
     color: #4f5255 !important;
   }
 }

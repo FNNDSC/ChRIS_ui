@@ -155,6 +155,7 @@ const GuidedConfig = ({
                 requiredInput={requiredInput}
                 addParam={addParam}
                 inputChange={inputChange}
+                id={v4()}
               />
             </React.Fragment>
           );

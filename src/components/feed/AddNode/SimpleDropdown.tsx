@@ -11,11 +11,12 @@ import TrashAltIcon from "@patternfly/react-icons/dist/js/icons/trash-alt-icon";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./lib/utils";
 import { PluginParameter } from "@fnndsc/chrisapi";
+import { v4 } from "uuid";
 
 function getInitialState() {
   return {
     isOpen: false,
-    paramId: "",
+    paramFlag: "",
     paramValue: "",
     placeholder: "",
     type: "",
@@ -34,15 +35,18 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   const [dropdownState, setDropdownState] = React.useState<SimpleDropdownState>(
     getInitialState
   );
-  const { isOpen, paramId, paramValue, placeholder, type } = dropdownState;
+  const { isOpen, paramFlag, paramValue, placeholder, type } = dropdownState;
 
   React.useEffect(() => {
     if (!dropdownInput || !dropdownInput[id]) return;
-    const [value, type, placeholder] = unPackForKeyValue(dropdownInput[id]);
+    const [flag, value, type, placeholder] = unPackForKeyValue(
+      dropdownInput[id]
+    );
+
     setDropdownState((dropdownState) => {
       return {
         ...dropdownState,
-        paramId: id,
+        paramFlag: flag,
         paramValue: value,
         type,
         placeholder,
@@ -65,17 +69,11 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   };
 
   const handleClick = (param: PluginParameter) => {
-    const id = param.data.flag;
+    const flag = param.data.flag;
     const placeholder = param.data.help;
     const type = param.data.type;
-    setDropdownState({
-      ...dropdownState,
-      paramId: id,
-      placeholder,
-      type,
-    });
 
-    handleChange(id, paramValue, type, placeholder, false);
+    handleChange(id, flag, paramValue, type, placeholder, false);
   };
 
   const triggerChange = (eventType: string) => {
@@ -96,7 +94,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   };
 
   const handleInputChange = (value: string) => {
-    handleChange(id, value, type, placeholder, false);
+    handleChange(id, paramFlag, value, type, placeholder, false);
   };
 
   const dropdownItems =
@@ -130,7 +128,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
               onToggle={onToggle}
               toggleIndicator={CaretDownIcon}
             >
-              {paramId ? `${paramId}` : "Choose a Parameter"}
+              {paramFlag ? `${paramFlag}` : "Choose a Parameter"}
             </DropdownToggle>
           }
           isOpen={isOpen}
@@ -156,8 +154,8 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
       </div>
       {type === "boolean" && (
         <Banner variant="info">
-          Input boxes are disabled for boolean values. Choose the flags to add
-          to run your plugin.
+          Boolean flags don&apos;t require the user to implicitly provide
+          values.
         </Banner>
       )}
     </>

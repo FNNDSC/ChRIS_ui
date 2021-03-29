@@ -1,14 +1,10 @@
 import React from "react";
-import {
-  TextArea,
-  ExpandableSection,
-  Label,
-  Title,
-} from "@patternfly/react-core";
+import { TextArea, ExpandableSection, Title } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { isEmpty } from "lodash";
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
+import { v4 } from "uuid";
 import { InputType } from "./types";
 import { EditorState, EditorProps } from "./types";
 import {
@@ -40,19 +36,19 @@ const Editor = ({
   const { docsExpanded, errors } = editorState;
 
   React.useEffect(() => {
-    let value = `${plugin.data.name}: `;
+    let derivedValue = `${plugin.data.name}: `;
     if (requiredInput) {
-      value += unpackParametersIntoString(requiredInput);
+      derivedValue += unpackParametersIntoString(requiredInput);
     }
 
     if (dropdownInput) {
-      value += unpackParametersIntoString(dropdownInput);
+      derivedValue += unpackParametersIntoString(dropdownInput);
     }
 
     setEditorState((state) => {
       return {
         ...state,
-        value,
+        value: derivedValue.trim(),
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -62,6 +58,7 @@ const Editor = ({
     if (params)
       return params.map((param) => {
         return {
+          id: `${param.data.id}`,
           flag: param.data.flag,
           type: param.data.type,
           placeholder: param.data.help,
@@ -103,18 +100,21 @@ const Editor = ({
                 flags.includes(value))
             ) {
               paramDictionary[flag] = {
+                id: parameter.id,
                 value: "",
                 placeholder: parameter.placeholder,
                 type: parameter.type,
               };
             } else if (parameter.type === "boolean" && value) {
               paramDictionary[flag] = {
+                id: parameter.id,
                 value: "",
                 placeholder: parameter.placeholder,
                 type: parameter.type,
               };
             } else {
               paramDictionary[flag] = {
+                id: parameter.id,
                 value,
                 placeholder: parameter.placeholder,
                 type: parameter.type,
@@ -141,6 +141,7 @@ const Editor = ({
       const flag = token;
       const type = paramDictionary[token].type;
       const placeholder = paramDictionary[token].placeholder;
+      const id = paramDictionary[token].id;
       if (
         requiredParameters &&
         requiredParameters.length > 0 &&
@@ -149,11 +150,12 @@ const Editor = ({
         const value =
           params &&
           getRequiredParamsWithName(flag, editorValue, type, placeholder);
-        if (value) requiredObject[flag] = value;
+
+        if (value) requiredObject[id] = value;
       } else {
         const value =
           params && getAllParamsWithName(flag, editorValue, type, placeholder);
-        if (value) dropdownObject[flag] = value;
+        if (value) dropdownObject[v4()] = value;
       }
     }
 
