@@ -35,35 +35,25 @@
     margin-bottom: 1rem;
   }
 
+  thead {
+    background-color: var(--pf-global--palette--black-300);
+  }
+
+  &__count {
+    margin-left:1.25em;
+    display: block;
+  }
+
+  .error {
+    background-color:red;
+  }
+
   &__split {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
 
-  &__status {
-    span {
-      margin-left:0.25em;
-    }
-  }
-
-  .completed {
-    svg {
-      color:forestgreen;
-    }
-  }
-
-  .running {
-    svg {
-      color:gray;
-    }
-  }
-
-  .error {
-    svg {
-      color:#c9190b;
-    }
-  }
 
   &__name {
     a {
@@ -73,13 +63,7 @@
     outline: none;
   }
 
-  &__last-commit {
-    display: block;
-    &::first-letter {
-      text-transform: uppercase;
-    }
-  }
-
+ 
   td:last-child {
     padding-right: 0;
     padding-left: 0;
