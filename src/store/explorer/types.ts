@@ -12,6 +12,7 @@ export type Key = string | number;
 
 type FileInfo = {
   file?: FeedFile;
+  fileSize: string;
 };
 
 interface TreeNode {

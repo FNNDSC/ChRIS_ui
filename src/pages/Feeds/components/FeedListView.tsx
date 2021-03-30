@@ -71,15 +71,12 @@ const FeedListView: React.FC<AllProps> = ({
       feed.started_jobs +
       feed.waiting_jobs;
 
-    console.log("feed", feed.finished_jobs, totalJobsCount);
-
     const feedStatus =
       feed.errored_jobs > 0
         ? "Error"
         : feed.finished_jobs === totalJobsCount
         ? "Completed"
         : "Running";
-  
 
     const name = {
       title: (
