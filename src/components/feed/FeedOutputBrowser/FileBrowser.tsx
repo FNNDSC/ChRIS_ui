@@ -133,9 +133,12 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const generateTableRow = (node: DataNode) => {
     let type = "UNKNOWN FORMAT";
+    let fileSize = "N/A";
     if (node.children && node.children.length > 0) {
       type = "dir";
+      fileSize = "N/A";
     } else {
+      fileSize = node.fileSize;
       const name = node.title;
       if (name.indexOf(".") > -1) {
         type = name.split(".").splice(-1)[0].toUpperCase();
@@ -158,10 +161,12 @@ const FileBrowser = (props: FileBrowserProps) => {
       title: fileName,
     };
 
+    const size = {
+      title: fileSize,
+    };
+
     const download = {
-      title: node.children ? (
-        ""
-      ) : (
+      title: (
         <DownloadIcon
           className="download-file-icon"
           onClick={(e) => handleDownloadClick(e, node)}
@@ -170,11 +175,11 @@ const FileBrowser = (props: FileBrowserProps) => {
     };
 
     return {
-      cells: [name, type, download],
+      cells: [name, type, size, download],
     };
   };
 
-  const cols = ["Name", "Type", ""];
+  const cols = ["Name", "Type", "Size", ""];
   if (!directory || directory.children.length === 0) {
     return <div>No Files in this directory.</div>;
   }
