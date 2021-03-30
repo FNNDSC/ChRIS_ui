@@ -13,17 +13,10 @@ import {
   EmptyStateVariant,
   EmptyStateIcon,
   EmptyStateBody,
-  Button,
+  Button
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
-import {
-  EyeIcon,
-  CodeBranchIcon,
-  SearchIcon,
-  CheckIcon,
-  ErrorCircleOIcon,
-  RunningIcon,
-} from "@patternfly/react-icons";
+import { CodeBranchIcon, SearchIcon , EyeIcon} from "@patternfly/react-icons";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest } from "../../../store/feed/actions";
@@ -32,7 +25,6 @@ import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
-
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -61,22 +53,12 @@ const FeedListView: React.FC<AllProps> = ({
   });
 
   const generateTableRow = (feed: any) => {
-    const totalJobsCount =
-      feed.cancelled_jobs +
+    const totalJobsRunning =
       feed.created_jobs +
-      feed.errored_jobs +
-      feed.finished_jobs +
       feed.registering_jobs +
       feed.scheduled_jobs +
       feed.started_jobs +
       feed.waiting_jobs;
-
-    const feedStatus =
-      feed.errored_jobs > 0
-        ? "Error"
-        : feed.finished_jobs === totalJobsCount
-        ? "Completed"
-        : "Running";
 
     const name = {
       title: (
@@ -87,51 +69,22 @@ const FeedListView: React.FC<AllProps> = ({
       ),
     };
 
+    const errorCount = feed.errored_jobs + feed.cancelled_jobs;
+
     const created = {
-      title: <Moment format="DD MMM YYYY">{feed.creation_date}</Moment>,
+      title: <Moment format="DD MMM YYYY , HH:mm">{feed.creation_date}</Moment>,
     };
 
-    const lastCommit = {
-      title: (
-        <Moment fromNow className="feed-list__last-commit">
-          {feed.modification_date}
-        </Moment>
-      ),
+    const jobsRunning = {
+      title: <span className='feed-list__count'>{totalJobsRunning}</span>,
     };
 
-    const status = {
-      title: (
-        <span
-          className={`feed-list__status  ${
-            feedStatus === "Completed"
-              ? "completed"
-              : feedStatus === "Error"
-              ? "error"
-              : "running"
-          }`}
-        >
-          {feedStatus === "Completed" ? (
-            <CheckIcon />
-          ) : feedStatus === "Error" ? (
-            <ErrorCircleOIcon />
-          ) : (
-            <RunningIcon />
-          )}
-          <span>{feedStatus}</span>
-        </span>
-      ),
+    const jobsDone = {
+      title: <span className='feed-list__count'>{feed.finished_jobs}</span>,
     };
 
-    const totalJobs = {
-      title: <span>{totalJobsCount}</span>,
-    };
-
-    const jobSuccess = {
-      title: <span>{feed.finished_jobs}</span>,
-    };
-
-    const jobErrored = {
-      title: <span>{feed.errored_jobs}</span>,
+    const jobsErrors = {
+      title: <span className='feed-list__count'>{errorCount}</span>,
     };
 
     const viewDetails = {
@@ -145,31 +98,13 @@ const FeedListView: React.FC<AllProps> = ({
     };
 
     return {
-      cells: [
-        name,
-        created,
-        lastCommit,
-        status,
-        totalJobs,
-        jobSuccess,
-        jobErrored,
-        viewDetails,
-      ],
+      cells: [name, created, jobsRunning, jobsDone, jobsErrors, viewDetails],
     };
   };
 
   const { page, perPage, filter } = filterState;
   const { data, loading, error, totalFeedsCount } = allFeeds;
-  const cells = [
-    "Feed",
-    "Created",
-    "Last Commit",
-    "Status",
-    "Total Jobs",
-    "Job Success",
-    "Job Error'd",
-    "",
-  ];
+  const cells = ["Feed", "Created", "Job Running", "Jobs Done", "Errors", ""];
 
   const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
 
