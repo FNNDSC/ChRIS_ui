@@ -195,44 +195,40 @@ const FileBrowser = (props: FileBrowserProps) => {
     selectedFile.file &&
     getFileExtension(selectedFile.file.data.fname);
 
+  const previewPanel = (
+    <GridItem
+      xl2={8}
+      xl2RowSpan={12}
+      xl={8}
+      xlRowSpan={12}
+      lg={8}
+      lgRowSpan={12}
+      md={8}
+      mdRowSpan={12}
+      sm={12}
+      smRowSpan={12}
+      className="file-browser__grid2"
+    >
+      {renderHeaderPanel(
+        handleFileViewerToggle,
+        handleFileBrowserToggle,
+        expandDrawer,
+        fileType
+      )}
 
-  
+      {selectedFile && selectedFile.file && (
+        <FileDetailView selectedFile={selectedFile.file} preview="small" />
+      )}
+    </GridItem>
+  );
 
   return (
     <Grid hasGutter className="file-browser">
       <Drawer isExpanded={true} isInline>
         <DrawerContent
           panelContent={
-            <DrawerPanelContent defaultSize='60%' 
-            minSize='30%'
-            isResizable>
-              <GridItem
-                xl2={8}
-                xl2RowSpan={12}
-                xl={8}
-                xlRowSpan={12}
-                lg={8}
-                lgRowSpan={12}
-                md={8}
-                mdRowSpan={12}
-                sm={12}
-                smRowSpan={12}
-                className="file-browser__grid2"
-              >
-                {renderHeaderPanel(
-                  handleFileViewerToggle,
-                  handleFileBrowserToggle,
-                  expandDrawer,
-                  fileType
-                )}
-
-                {selectedFile && selectedFile.file && (
-                  <FileDetailView
-                    selectedFile={selectedFile.file}
-                    preview="small"
-                  />
-                )}
-              </GridItem>
+            <DrawerPanelContent defaultSize="60.5%" minSize="30%" isResizable>
+              {previewPanel}
             </DrawerPanelContent>
           }
         >
