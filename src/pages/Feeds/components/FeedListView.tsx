@@ -75,6 +75,11 @@ const FeedListView: React.FC<AllProps> = ({
       title: <Moment format="DD MMM YYYY , HH:mm">{feed.creation_date}</Moment>,
     };
 
+    const lastCommit = {
+      title: <Moment fromNow>{feed.modification_date}</Moment>,
+    };
+
+    
     const jobsRunning = {
       title: <span className='feed-list__count'>{totalJobsRunning}</span>,
     };
@@ -98,13 +103,29 @@ const FeedListView: React.FC<AllProps> = ({
     };
 
     return {
-      cells: [name, created, jobsRunning, jobsDone, jobsErrors, viewDetails],
+      cells: [
+        name,
+        created,
+        lastCommit,
+        jobsRunning,
+        jobsDone,
+        jobsErrors,
+        viewDetails,
+      ],
     };
   };
 
   const { page, perPage, filter } = filterState;
   const { data, loading, error, totalFeedsCount } = allFeeds;
-  const cells = ["Feed", "Created", "Job Running", "Jobs Done", "Errors", ""];
+  const cells = [
+    "Feed",
+    "Created",
+    "Last Commit",
+    "Job Running",
+    "Jobs Done",
+    "Errors",
+    "",
+  ];
 
   const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
 
