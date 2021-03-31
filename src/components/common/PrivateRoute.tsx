@@ -13,9 +13,11 @@ interface PrivateRouteProps {
   isLoggedIn?: boolean;
 }
 
-type AllProps = PrivateRouteProps; 
 
-const PrivateRoute: React.FC<AllProps> = (props: AllProps) => {
+
+const PrivateRoute: React.FC<PrivateRouteProps> = (
+  props: PrivateRouteProps
+) => {
   const { isLoggedIn } = props;
 
   return isLoggedIn ? <Route {...props} /> : <Redirect to="/login" />;
