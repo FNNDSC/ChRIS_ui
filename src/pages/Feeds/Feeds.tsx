@@ -11,7 +11,7 @@ const FeedsPage: React.FC<RouteComponentProps> = (
   return (
     <Wrapper>
       <Route exact path={`${props.match.path}`} component={FeedListView} />
-      <Route path={`${props.match.path}/:id`} component={FeedView} />
+      <Route exact path={`${props.match.path}/:id`} component={FeedView} />
     </Wrapper>
   );
 };
