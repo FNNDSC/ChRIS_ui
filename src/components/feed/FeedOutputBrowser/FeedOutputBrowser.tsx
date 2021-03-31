@@ -26,6 +26,7 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 import { isEmpty } from "lodash";
 import { getFeedTree } from "./data";
 import { DataNode } from "../../../store/explorer/types";
+import { useSafeDispatch } from "../../../utils";
 import "./FeedOutputBrowser.scss";
 
 const FileBrowser = React.lazy(() => import("./FileBrowser"));
@@ -43,6 +44,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const dispatch = useDispatch();
+  const safeDispatch = useSafeDispatch(dispatch);
   const {
     selectedPlugin: selected,
     pluginFiles,
@@ -54,9 +56,9 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
   React.useEffect(() => {
     if (!pluginFilesPayload && selected) {
-      dispatch(getPluginFilesRequest(selected));
+      safeDispatch(getPluginFilesRequest(selected));
     }
-  }, [selected, pluginFilesPayload, dispatch]);
+  }, [selected, pluginFilesPayload, safeDispatch]);
 
   if (!selected || isEmpty(pluginInstances) || loading) {
     return <LoadingFeedBrowser />;
