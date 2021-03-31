@@ -1,6 +1,6 @@
 import * as React from "react";
 
-function useSafeDispatch(dispatch: any) {
+export function useSafeDispatch(dispatch: any) {
   const mounted = React.useRef(false);
   React.useLayoutEffect(() => {
     mounted.current = true;
