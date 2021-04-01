@@ -79,17 +79,16 @@ const FeedListView: React.FC<AllProps> = ({
       title: <Moment fromNow>{feed.modification_date}</Moment>,
     };
 
-    
     const jobsRunning = {
-      title: <span className='feed-list__count'>{totalJobsRunning}</span>,
+      title: <span className="feed-list__count">{totalJobsRunning}</span>,
     };
 
     const jobsDone = {
-      title: <span className='feed-list__count'>{feed.finished_jobs}</span>,
+      title: <span className="feed-list__count">{feed.finished_jobs}</span>,
     };
 
     const jobsErrors = {
-      title: <span className='feed-list__count'>{errorCount}</span>,
+      title: <span className="feed-list__count">{errorCount}</span>,
     };
 
     const viewDetails = {

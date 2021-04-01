@@ -34,17 +34,6 @@ cornerstoneWebImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 
-cornerstoneWADOImageLoader.webWorkerManager.initialize({
-  maxWebWorkers: navigator.hardwareConcurrency || 1,
-  startWebWorkersOnDemand: true,
-  taskConfiguration: {
-    decodeTask: {
-      initializeCodecsOnStartup: false,
-      usePDFJS: false,
-      strict: false,
-    },
-  },
-});
 
 const scrollToIndex = csTools("util/scrollToIndex");
 cornerstoneNIFTIImageLoader.nifti.configure({
@@ -99,7 +88,6 @@ type GalleryState = {
   tools: any;
   frameRate: number;
   visibleHeader: boolean;
-  currentImage: Image | undefined;
   totalFiles: number;
   filesParsed: number;
   frame: number;
@@ -111,7 +99,6 @@ function getInitialState() {
     inPlay: false,
     imageIds: [],
     activeTool: "Zoom",
-    currentImage: undefined,
     totalFiles: 0,
     filesParsed: 0,
     numberOfFrames: 1,
@@ -159,7 +146,6 @@ const GalleryDicomView = () => {
     totalFiles,
     filesParsed,
     visibleHeader,
-    currentImage,
     frameRate,
     frame,
     tools,
@@ -168,6 +154,7 @@ const GalleryDicomView = () => {
     numberOfFrames,
   } = galleryDicomState;
   const element = React.useRef<HTMLElement | undefined>(undefined);
+  const currentImage = React.useRef<Image | undefined>(undefined);
 
   const loadImagesIntoCornerstone = React.useCallback(
     async (dcmArray: FeedFile[]) => {
@@ -494,7 +481,7 @@ const GalleryDicomView = () => {
                   onClose={toggleHeader}
                   visible={visibleHeader}
                 >
-                  {visibleHeader && <DicomTag image={currentImage} />}
+                  {visibleHeader && <DicomTag image={currentImage.current} />}
                 </Drawer>
 
                 <CornerstoneViewport
@@ -513,15 +500,17 @@ const GalleryDicomView = () => {
                           "cornerstoneimagerendered",
                           (eventData: CornerstoneEvent) => {
                             if (eventData.detail) {
-                              const currentImage = eventData.detail.image;
+                              const image = eventData.detail.image;
+                              currentImage.current = image;
+
                               const viewport = eventData.detail.viewport;
                               if (viewport) {
                                 const newViewport: any = {};
                                 newViewport.voi = viewport.voi || {};
                                 newViewport.voi.windowWidth =
-                                  currentImage && currentImage.windowWidth;
+                                  image && image.windowWidth;
                                 newViewport.voi.windowCenter =
-                                  currentImage && currentImage.windowCenter;
+                                  image && image.windowCenter;
                                 if (!viewport.displayedArea) {
                                   newViewport.displayedArea = {
                                     // Top Left Hand Corner
