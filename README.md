@@ -88,6 +88,8 @@ Consult the Wiki [here](https://github.com/FNNDSC/ChRIS_ui/wiki).
 
 ## Learn More
 
+If you are interested in contributing or joining us, Check [here](http://chrisproject.org/join-us).
+
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
