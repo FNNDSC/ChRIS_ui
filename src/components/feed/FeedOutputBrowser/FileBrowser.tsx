@@ -137,10 +137,9 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const generateTableRow = (node: DataNode) => {
     let type = "UNKNOWN FORMAT";
-    let fileSize = "N/A";
+    let fileSize = "";
     if (node.children && node.children.length > 0) {
       type = "dir";
-      fileSize = "N/A";
     } else {
       fileSize = node.fileSize;
       const name = node.title;
