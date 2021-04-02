@@ -17,6 +17,7 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { pf4UtilityStyles } from "../../lib/pf4-styleguides";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
 interface IPropsFromDispatch {
   onDropdownSelect: typeof onDropdownSelect;
@@ -41,6 +42,7 @@ class ToolbarComponent extends React.Component<AllProps> {
 
   // Description: Logout user
   onLogout() {
+    ChrisAPIClient.setIsTokenAuthorized(false);
     this.props.setUserLogout();
   }
   render() {

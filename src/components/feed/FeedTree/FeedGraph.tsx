@@ -38,6 +38,7 @@ const FeedGraph = (props: IFeedProps) => {
   const fgRef = React.useRef<ForceGraphMethods | undefined>();
 
   const size = useSize(graphRef);
+
   const [graphData, setGraphData] = React.useState();
 
   const handleNodeClick = (node: NodeObject) => {

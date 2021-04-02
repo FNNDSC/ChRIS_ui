@@ -52,6 +52,7 @@ const FinishedStep: React.FC<FinishedStepProp> = ({
 
       <StackItem isFilled>
         <Progress
+          aria-label="Feed Progress"
           size="md"
           className="finished-step__progessbar"
           max={100}
