@@ -175,7 +175,7 @@ const DicomTag: React.FC<DicomTagProps> = ({ image }: DicomTagProps) => {
     if (item.value !== undefined) {
       return (
         <ListItem className="dicomTag__list__item" key={index}>
-          <span className="dicomTag__list__item--name">{item.name}:</span>
+          <span className="dicomTag__list__item--name">{item.name}: </span>
           <span className="dicomTag__list__item--value">{item.value}</span>
         </ListItem>
       );
