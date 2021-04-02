@@ -10,7 +10,6 @@ import {
   BarsIcon,
   EditIcon,
   InfoCircleIcon,
-  DownloadIcon,
 } from "@patternfly/react-icons";
 
 import "./DcmHeader.scss";
