@@ -233,6 +233,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
               password: value,
             })
           }
+          style = {{
+            marginBottom:"1rem"
+          }}
         />
         <Checkbox
           isChecked={showPassword}
@@ -241,7 +244,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           id="showPassword"
           onChange={handleShowPassword}
         />
+       
       </FormGroup>
+      
 
       <ActionGroup>
         <Button variant="primary" type="submit">

@@ -25,19 +25,11 @@ const DcmHeader = ({
     <div className="dicom-header">
       <div className="dicom-logo">
         <span className="dicom-logo__text">Image Viewer</span>
-        <span className="dicom-logo__subtext">Powered by cornerstone.js</span>
+       
       </div>
 
       <div className="dicom-header__body-tools">
-        <span
-          style={{
-            marginRight: "0.5rem",
-            color: "white",
-          }}
-        >
-          Tools
-        </span>
-
+        <span>Tools</span>
         <Tooltip
           position={TooltipPosition.bottom}
           isContentLeftAligned
@@ -48,9 +40,8 @@ const DcmHeader = ({
             onClick={() => {
               handleToolbarAction("zoom");
             }}
-          >
-            <SearchPlusIcon size="md" />
-          </Button>
+            icon={<SearchPlusIcon size="md" />}
+          />
         </Tooltip>
         <Tooltip
           position={TooltipPosition.bottom}
@@ -62,9 +53,8 @@ const DcmHeader = ({
             onClick={() => {
               handleToolbarAction("magnify");
             }}
-          >
-            <SearchIcon size="md" />
-          </Button>
+            icon={<SearchIcon size="md" />}
+          />
         </Tooltip>
         <Tooltip
           position={TooltipPosition.bottom}
@@ -76,9 +66,8 @@ const DcmHeader = ({
             onClick={() => {
               handleToolbarAction("pan");
             }}
-          >
-            <HandPaperIcon size="md" />
-          </Button>
+            icon={<HandPaperIcon size="md" />}
+          />
         </Tooltip>
         <Tooltip
           position={TooltipPosition.bottom}
@@ -90,20 +79,10 @@ const DcmHeader = ({
             onClick={() => {
               handleToolbarAction("wwwc");
             }}
-          >
-            <AdjustIcon size="md" />
-          </Button>
+            icon={<AdjustIcon size="md" />}
+          />
         </Tooltip>
-        <Tooltip position={TooltipPosition.bottom} content={<div>Invert</div>}>
-          <Button
-            variant="link"
-            onClick={() => {
-              handleToolbarAction("invert");
-            }}
-          >
-            <BurnIcon size="md"></BurnIcon>
-          </Button>
-        </Tooltip>
+
         <Tooltip position={TooltipPosition.bottom} content={<div>Rotate</div>}>
           <Button
             variant="link"
@@ -123,10 +102,22 @@ const DcmHeader = ({
             onClick={() => {
               handleToolbarAction("stackScroll");
             }}
-          >
-            <BarsIcon size="md"></BarsIcon>
-          </Button>
+            icon={<BarsIcon size="md" />}
+          ></Button>
         </Tooltip>
+      </div>
+
+      <div className="dicom-header__body-resets">
+        <Tooltip position={TooltipPosition.bottom} content={<div>Invert</div>}>
+          <Button
+            variant="link"
+            onClick={() => {
+              handleToolbarAction("invert");
+            }}
+            icon={<BurnIcon size="md" />}
+          />
+        </Tooltip>
+
         <Tooltip
           position={TooltipPosition.bottom}
           content={<div>Dicom Tag Information</div>}
@@ -136,9 +127,8 @@ const DcmHeader = ({
             onClick={() => {
               handleToolbarAction("dicomHeader");
             }}
-          >
-            <InfoCircleIcon size="md" />
-          </Button>
+            icon={<InfoCircleIcon size="md" />}
+          />
         </Tooltip>
         <Tooltip
           position={TooltipPosition.bottom}
@@ -149,15 +139,9 @@ const DcmHeader = ({
             onClick={() => {
               handleToolbarAction("reset");
             }}
-          >
-            <EditIcon size="md" />
-          </Button>
+            icon={<EditIcon size="md" />}
+          />
         </Tooltip>
-        {/*
-          <Button variant="link">
-          <DownloadIcon size="md" />
-        </Button>
-        */}
       </div>
     </div>
   );

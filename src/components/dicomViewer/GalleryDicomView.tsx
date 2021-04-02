@@ -1,4 +1,5 @@
 import React from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import * as cornerstone from "cornerstone-core";
 import * as cornerstoneMath from "cornerstone-math";
 import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
@@ -6,23 +7,32 @@ import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import * as cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import * as cornerstoneTools from "cornerstone-tools";
+import { import as csTools } from "cornerstone-tools";
 import Hammer from "hammerjs";
 import CornerstoneViewport from "react-cornerstone-viewport";
-import { Button, Backdrop, Bullseye, Spinner } from "@patternfly/react-core";
-import { CloseIcon } from "@patternfly/react-icons";
+import {
+  Backdrop,
+  Bullseye,
+  Spinner,
+  Drawer,
+  DrawerPanelContent,
+  DrawerContent,
+  DrawerContentBody,
+  DrawerPanelBody,
+  DrawerHead,
+  DrawerActions,
+  DrawerCloseButton,
+} from "@patternfly/react-core";
 import { useTypedSelector } from "../../store/hooks";
-import GalleryModel from "../../api/models/gallery.model";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import * as dicomParser from "dicom-parser";
 import { isDicom, isNifti } from "./utils";
 import DicomHeader from "./DcmHeader/DcmHeader";
 import DicomLoader from "./DcmLoader";
-
-import { Drawer } from "antd";
 import DicomTag from "./DicomTag";
+import GalleryModel from "../../api/models/gallery.model";
 import { Image, Viewport } from "./types";
 import { FeedFile } from "@fnndsc/chrisapi";
-import { import as csTools } from "cornerstone-tools";
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.Hammer = Hammer;
@@ -33,18 +43,6 @@ cornerstoneFileImageLoader.external.cornerstone = cornerstone;
 cornerstoneWebImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
-
-cornerstoneWADOImageLoader.webWorkerManager.initialize({
-  maxWebWorkers: navigator.hardwareConcurrency || 1,
-  startWebWorkersOnDemand: true,
-  taskConfiguration: {
-    decodeTask: {
-      initializeCodecsOnStartup: false,
-      usePDFJS: false,
-      strict: false,
-    },
-  },
-});
 
 const scrollToIndex = csTools("util/scrollToIndex");
 cornerstoneNIFTIImageLoader.nifti.configure({
@@ -99,7 +97,6 @@ type GalleryState = {
   tools: any;
   frameRate: number;
   visibleHeader: boolean;
-  currentImage: Image | undefined;
   totalFiles: number;
   filesParsed: number;
   frame: number;
@@ -111,7 +108,6 @@ function getInitialState() {
     inPlay: false,
     imageIds: [],
     activeTool: "Zoom",
-    currentImage: undefined,
     totalFiles: 0,
     filesParsed: 0,
     numberOfFrames: 1,
@@ -119,13 +115,13 @@ function getInitialState() {
       {
         name: "Zoom",
         mode: "active",
-        modeOptions: { mouseButtonMask: 1 },
+        modeOptions: { mouseButtonMask: 2 },
       },
 
       {
         name: "Pan",
         mode: "active",
-        modeOptions: { mouseButtonMask: 4 },
+        modeOptions: { mouseButtonMask: 1 },
       },
       {
         name: "Wwwc",
@@ -159,7 +155,6 @@ const GalleryDicomView = () => {
     totalFiles,
     filesParsed,
     visibleHeader,
-    currentImage,
     frameRate,
     frame,
     tools,
@@ -168,6 +163,7 @@ const GalleryDicomView = () => {
     numberOfFrames,
   } = galleryDicomState;
   const element = React.useRef<HTMLElement | undefined>(undefined);
+  const currentImage = React.useRef<Image | undefined>(undefined);
 
   const loadImagesIntoCornerstone = React.useCallback(
     async (dcmArray: FeedFile[]) => {
@@ -466,6 +462,23 @@ const GalleryDicomView = () => {
     });
   };
 
+  const panelContent = (
+    <DrawerPanelContent
+      style={{
+        backgroundColor: "#f0f0f0",
+      }}
+    >
+      <DrawerHead>
+        <DrawerActions>
+          <DrawerCloseButton onClick={toggleHeader} />
+        </DrawerActions>
+      </DrawerHead>
+      <DrawerPanelBody>
+        <DicomTag image={currentImage.current} />
+      </DrawerPanelBody>
+    </DrawerPanelContent>
+  );
+
   return (
     <GalleryWrapper
       total={totalFiles > 0 ? totalFiles : 0}
@@ -474,7 +487,6 @@ const GalleryDicomView = () => {
       }}
       listOpenFilesScrolling={inPlay}
     >
-      <Button className="close-btn" variant="link" icon={<CloseIcon />} />
       <React.Suspense fallback={<FallBackComponent />}>
         {imageIds.length === 0 ? (
           <DicomLoader totalFiles={totalFiles} filesParsed={filesParsed} />
@@ -485,81 +497,84 @@ const GalleryDicomView = () => {
                 (handleGalleryActions as any)[action].call();
               }}
             />
-            <div className="ami-viewer">
-              <div id="container">
-                <Drawer
-                  title="Dicom Tag Information"
-                  placement="right"
-                  closable={true}
-                  onClose={toggleHeader}
-                  visible={visibleHeader}
-                >
-                  {visibleHeader && <DicomTag image={currentImage} />}
-                </Drawer>
+            <ErrorBoundary FallbackComponent={FallBackComponent}>
+              <div className="ami-viewer">
+                <Drawer isExpanded={visibleHeader}>
+                  <DrawerContent panelContent={panelContent}>
+                    <DrawerContentBody>
+                      <div id="container">
+                        <CornerstoneViewport
+                          isPlaying={inPlay}
+                          frameRate={frameRate}
+                          activeTool={activeTool}
+                          tools={tools}
+                          imageIds={imageIds}
+                          onElementEnabled={(
+                            elementEnabledEvt: CornerstoneEvent
+                          ) => {
+                            if (elementEnabledEvt.detail) {
+                              const cornerstoneElement =
+                                elementEnabledEvt.detail.element;
+                              element.current = cornerstoneElement;
+                              if (cornerstoneElement) {
+                                cornerstoneElement.addEventListener(
+                                  "cornerstoneimagerendered",
+                                  (eventData: CornerstoneEvent) => {
+                                    if (eventData.detail) {
+                                      const image = eventData.detail.image;
+                                      currentImage.current = image;
 
-                <CornerstoneViewport
-                  isPlaying={inPlay}
-                  frameRate={frameRate}
-                  activeTool={activeTool}
-                  tools={tools}
-                  imageIds={imageIds}
-                  onElementEnabled={(elementEnabledEvt: CornerstoneEvent) => {
-                    if (elementEnabledEvt.detail) {
-                      const cornerstoneElement =
-                        elementEnabledEvt.detail.element;
-                      element.current = cornerstoneElement;
-                      if (cornerstoneElement) {
-                        cornerstoneElement.addEventListener(
-                          "cornerstoneimagerendered",
-                          (eventData: CornerstoneEvent) => {
-                            if (eventData.detail) {
-                              const currentImage = eventData.detail.image;
-                              const viewport = eventData.detail.viewport;
-                              if (viewport) {
-                                const newViewport: any = {};
-                                newViewport.voi = viewport.voi || {};
-                                newViewport.voi.windowWidth =
-                                  currentImage && currentImage.windowWidth;
-                                newViewport.voi.windowCenter =
-                                  currentImage && currentImage.windowCenter;
-                                if (!viewport.displayedArea) {
-                                  newViewport.displayedArea = {
-                                    // Top Left Hand Corner
-                                    tlhc: {
-                                      x: 0,
-                                      y: 0,
-                                    },
-                                    // Bottom Right Hand Corner
-                                    brhc: {
-                                      x: 256,
-                                      y: 256,
-                                    },
-                                    rowPixelSpacing: 1,
-                                    columnPixelSpacing: 1,
-                                    //presentationSizeMode: "SCALE TO FIT",
-                                    presentationSizeMode: "SCALE TO FIT",
-                                  };
-                                }
-                                const setViewport = Object.assign(
-                                  {},
-                                  viewport,
-                                  newViewport
-                                );
+                                      const viewport =
+                                        eventData.detail.viewport;
+                                      if (viewport) {
+                                        const newViewport: any = {};
+                                        newViewport.voi = viewport.voi || {};
+                                        newViewport.voi.windowWidth =
+                                          image && image.windowWidth;
+                                        newViewport.voi.windowCenter =
+                                          image && image.windowCenter;
+                                        if (!viewport.displayedArea) {
+                                          newViewport.displayedArea = {
+                                            // Top Left Hand Corner
+                                            tlhc: {
+                                              x: 0,
+                                              y: 0,
+                                            },
+                                            // Bottom Right Hand Corner
+                                            brhc: {
+                                              x: 256,
+                                              y: 256,
+                                            },
+                                            rowPixelSpacing: 1,
+                                            columnPixelSpacing: 1,
+                                            presentationSizeMode:
+                                              "SCALE TO FIT",
+                                          };
+                                        }
+                                        const setViewport = Object.assign(
+                                          {},
+                                          viewport,
+                                          newViewport
+                                        );
 
-                                cornerstone.setViewport(
-                                  cornerstoneElement,
-                                  setViewport
+                                        cornerstone.setViewport(
+                                          cornerstoneElement,
+                                          setViewport
+                                        );
+                                      }
+                                    }
+                                  }
                                 );
                               }
                             }
-                          }
-                        );
-                      }
-                    }
-                  }}
-                />
+                          }}
+                        />
+                      </div>
+                    </DrawerContentBody>
+                  </DrawerContent>
+                </Drawer>
               </div>
-            </div>
+            </ErrorBoundary>
           </React.Fragment>
         )}
       </React.Suspense>
