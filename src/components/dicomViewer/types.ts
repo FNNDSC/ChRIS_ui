@@ -111,3 +111,52 @@ export type Item = {
   sliceLocation: number | undefined;
   instanceNumber: string;
 };
+
+
+interface EnabledElement {
+  element: HTMLElement;
+  image?: Image;
+  viewport?: Viewport;
+  canvas?: HTMLCanvasElement;
+  invalid: boolean;
+  needsRedraw: boolean;
+  layers?: EnabledElementLayer[];
+  syncViewports?: boolean;
+  lastSyncViewportsState?: boolean;
+}
+interface EnabledElementLayer {
+  element: HTMLElement;
+  image?: Image;
+  viewport?: Viewport;
+  canvas?: HTMLCanvasElement;
+  needsRedraw: boolean;
+  options?: { renderer?: "webgl" };
+}
+
+export interface CornerstoneEventData {
+  canvasContext?: any;
+  element?: HTMLElement;
+  enabledElement?: EnabledElement;
+  image?: Image;
+  renderTimeInMs?: number;
+  viewport?: Viewport;
+  oldImage?: Image;
+  frameRate?: number;
+}
+
+export interface CornerstoneEvent extends Event {
+  detail?: CornerstoneEventData;
+}
+
+export type GalleryState = {
+  inPlay: boolean;
+  imageIds: string[];
+  activeTool: string;
+  tools: any;
+  frameRate: number;
+  visibleHeader: boolean;
+  totalFiles: number;
+  filesParsed: number;
+  frame: number;
+  numberOfFrames: number;
+};

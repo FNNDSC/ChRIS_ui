@@ -30,7 +30,6 @@ import { useSafeDispatch } from "../../../utils";
 import "./FeedOutputBrowser.scss";
 
 const FileBrowser = React.lazy(() => import("./FileBrowser"));
-
 const { DirectoryTree } = Tree;
 
 export interface FeedOutputBrowserProps {

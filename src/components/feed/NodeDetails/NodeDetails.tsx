@@ -100,9 +100,14 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   const runTime = React.useCallback(getRuntimeString, [selectedPlugin]);
 
   const pluginTitle = React.useMemo(() => {
+    const title =
+      selectedPlugin?.data.title || selectedPlugin?.data.plugin_name;
+    const version = `v. ${selectedPlugin?.data.plugin_version}`;
     return (
-      selectedPlugin?.data.title ||
-      `${selectedPlugin?.data.plugin_name} v. ${selectedPlugin?.data.plugin_version}`
+      <>
+        <span>{title}</span>
+        <span className="node-details__version">{version}</span>
+      </>
     );
   }, [selectedPlugin]);
 
