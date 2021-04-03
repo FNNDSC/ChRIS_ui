@@ -106,7 +106,9 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     return (
       <>
         <span>{title}</span>
-        <span className="node-details__version">{version}</span>
+        <span className="node-details__version">
+          {!selectedPlugin?.data.title && version}
+        </span>
       </>
     );
   }, [selectedPlugin]);
