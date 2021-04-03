@@ -31,7 +31,7 @@ import DicomHeader from "./DcmHeader/DcmHeader";
 import DicomLoader from "./DcmLoader";
 import DicomTag from "./DicomTag";
 import GalleryModel from "../../api/models/gallery.model";
-import { Image, Viewport } from "./types";
+import { Image, GalleryState, CornerstoneEvent } from "./types";
 import { FeedFile } from "@fnndsc/chrisapi";
 
 cornerstoneTools.external.cornerstone = cornerstone;
@@ -55,53 +55,7 @@ cornerstoneNIFTIImageLoader.nifti.configure({
 });
 const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
 
-interface EnabledElement {
-  element: HTMLElement;
-  image?: Image;
-  viewport?: Viewport;
-  canvas?: HTMLCanvasElement;
-  invalid: boolean;
-  needsRedraw: boolean;
-  layers?: EnabledElementLayer[];
-  syncViewports?: boolean;
-  lastSyncViewportsState?: boolean;
-}
-interface EnabledElementLayer {
-  element: HTMLElement;
-  image?: Image;
-  viewport?: Viewport;
-  canvas?: HTMLCanvasElement;
-  needsRedraw: boolean;
-  options?: { renderer?: "webgl" };
-}
 
-interface CornerstoneEventData {
-  canvasContext?: any;
-  element?: HTMLElement;
-  enabledElement?: EnabledElement;
-  image?: Image;
-  renderTimeInMs?: number;
-  viewport?: Viewport;
-  oldImage?: Image;
-  frameRate?: number;
-}
-
-interface CornerstoneEvent extends Event {
-  detail?: CornerstoneEventData;
-}
-
-type GalleryState = {
-  inPlay: boolean;
-  imageIds: string[];
-  activeTool: string;
-  tools: any;
-  frameRate: number;
-  visibleHeader: boolean;
-  totalFiles: number;
-  filesParsed: number;
-  frame: number;
-  numberOfFrames: number;
-};
 
 function getInitialState() {
   return {
