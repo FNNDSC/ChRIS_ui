@@ -29,6 +29,7 @@
 }
 
 .file-browser {
+  
   height: 100%;
   &__downloadButton {
     max-width: 50% !important;
@@ -43,6 +44,8 @@
   }
 
   &__table {
+
+   
     &--fileName {
       border: 1px solid transparent;
       border-radius: 5px;
@@ -88,6 +91,8 @@
   }
 
   &__firstGrid {
+    overflow-y: scroll !important;
+    height: 100% !important;
     border-right: 0.2px solid #f5f5f5;
     max-width: 100%;
     tbody tr {
@@ -101,6 +106,8 @@
 
     .pf-c-table {
       background-color: inherit;
+     
+      
     }
   }
 
