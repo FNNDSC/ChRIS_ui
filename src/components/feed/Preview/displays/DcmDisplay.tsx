@@ -4,7 +4,6 @@ import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import * as dicomParser from "dicom-parser";
 import { DcmImageProps } from "../../../dicomViewer/types";
-import "../../../dicomViewer/amiViewer.scss";
 import { IFileBlob } from "../../../../api/models/file-viewer.model";
 
 cornerstoneFileImageLoader.external.cornerstone = cornerstone;
@@ -42,7 +41,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   }, [fileItem, initAmi]);
 
   return (
-    <div className="ami-viewer">
+    <div className="dcm-preview">
       <div ref={containerRef} id="container">
         <canvas className="cornerstone-canvas" />
       </div>
