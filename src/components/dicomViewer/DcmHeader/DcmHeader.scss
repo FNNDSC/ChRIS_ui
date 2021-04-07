@@ -16,11 +16,12 @@ $headerBlue: #73bcf7;
     margin: 0.3rem;
     svg {
       color: #fff;
+      font-size: 0.6rem;
     }
   }
   .dicom-header__body-tools,
   .dicom-header__body-resets {
-    padding-right: 4rem;
+    padding-right: 2rem;
   }
 
   .pf-m-active {
