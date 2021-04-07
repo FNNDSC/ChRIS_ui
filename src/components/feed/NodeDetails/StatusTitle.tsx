@@ -24,7 +24,6 @@ const StatusTitle = ({ pluginInstanceResource }: StatusTitleProps) => {
   }
 
   if (statusTitle) {
-  
     return (
       <>
         <span>{<statusTitle.icon />}</span>

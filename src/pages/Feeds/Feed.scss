@@ -83,7 +83,7 @@
   }
 
   @include media-query(1200px) {
-    min-height: 5vh;
+    min-height:5vh; 
   }
 
   @include media-query(1920px) {
@@ -92,22 +92,35 @@
 }
 
 .section-two {
-  height: 44vh;
+  height: 45vh;
 
   @include media-query(992px) {
-    min-height: 44vh;
+    min-height: 45vh;
   }
   @include media-query(768px) {
-    min-height: 44vh;
+    min-height: 45vh;
   }
 
   @include media-query(1200px) {
-    min-height: 44vh;
+    min-height: 45vh;
   }
 }
 
 .section-three {
-  @include section-three;
+  height: 45vh;
+ 
+  @include media-query(768px){
+    min-height:45vh  
+  }
+ 
+   @include media-query(992px){
+    min-height:45vh;
+  }
+   
+ @include media-query(1200px){
+    min-height:45vh;
+  }
+  
   background: #d2d2d2 !important;
   padding-right: 0 !important;
   padding-top: 0.5rem !important;
@@ -137,7 +150,9 @@
 }
 
 .node-block {
+  overflow: visible;
   height: 100%;
+  padding:0.5em;
 }
 
 .pf-c-drawer__content {

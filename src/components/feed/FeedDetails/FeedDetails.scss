@@ -1,11 +1,11 @@
 @import "../../../assets/scss/helpers/variables";
+@import "../../../assets/scss/helpers/mixins";
 
 /* Header */
 .feed-details {
   width: 100% important;
   
   &__list {
-
     &--first {
      display:flex;
      align-items:center;
@@ -21,8 +21,11 @@
 
      &--container-2 {
       align-self: flex-end;
+
+      @include media-query(1200px) {
+        padding-bottom:0.25em; 
+      }
     }
-    
     
     ul{
 

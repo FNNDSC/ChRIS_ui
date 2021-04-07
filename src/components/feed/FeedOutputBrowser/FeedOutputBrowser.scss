@@ -29,12 +29,9 @@
 }
 
 .file-browser {
-  
   height: 100%;
   &__downloadButton {
     max-width: 50% !important;
-
-
     @include media-query(768px) {
       max-width: 80 !important;
     }
@@ -45,8 +42,6 @@
   }
 
   &__table {
-
-   
     &--fileName {
       border: 1px solid transparent;
       border-radius: 5px;
@@ -70,7 +65,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.25em;
-    margin-right:0.25em;
+    margin-right: 0.25em;
 
     &--crumb {
       color: var(--pf-global--primary-color--100);
@@ -93,7 +88,6 @@
   }
 
   &__firstGrid {
-
     overflow-y: scroll !important;
     height: 100% !important;
     border-right: 0.2px solid #f5f5f5;
@@ -109,8 +103,6 @@
 
     .pf-c-table {
       background-color: inherit;
-     
-      
     }
   }
 
@@ -119,7 +111,7 @@
       display: flex;
       justify-content: space-between;
       margin-bottom: 0.25em;
-      margin-right:0.25em;
+      margin-right: 0.25em;
 
       button {
         padding-top: 0;
@@ -128,7 +120,39 @@
   }
 
   .small-preview {
-    height: 500px;
+   
+    @include media-query(1200px) {
+      height: 300px;
+    }
+
+    @include media-query(1920px) {
+      height: 500px;
+    }
+
+    width: 100%;
+  }
+
+  .dcm-preview {
+    position: relative;
+
+    @include media-query(1200px) {
+      min-height: 300px;
+    }
+
+    @include media-query(1920px) {
+      min-height: 500px;
+    }
+
+    #container {
+      bottom: 0;
+      height: 100%;
+      left: 0;
+      overflow: hidden;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
+    }
   }
 }
 
