@@ -49,21 +49,6 @@
 
 
 
-@mixin section-three {
- height: 48vh;
- 
 
- @include media-query(768px){
-   min-height:48vh  
- }
-
-  @include media-query(992px){
-   min-height:48vh;
- }
-  
-@include media-query(1200px){
-   min-height:48vh;
- }
-}
 
 

@@ -3,9 +3,16 @@
 
 .node-block {
   background: $node-block-background;
-  padding: 0 1rem;
   padding-top: 2rem;
   color: white;
+  font-size: 1rem;
+  button {
+    font-size: inherit;
+  }
+
+  @include media-query(1200px) {
+    font-size: 0.85rem;
+  }
 
   .node-details {
     &__title {
@@ -16,7 +23,7 @@
     &__version {
       font-size: 0.7em;
       font-weight: 500;
-      margin-left:0.25em;
+      margin-left: 0.25em;
     }
 
     .pf-c-title {
@@ -74,16 +81,18 @@
 
     &__status-descriptions {
       .ant-steps-item {
-        padding-left: 0 !important;
         overflow: visible !important;
       }
-
+      
       .ant-steps-item-icon {
         display: none;
       }
 
       .ant-steps-item-description {
         color: #b8bbbe !important;
+        max-width: 60px!important;
+        margin-top:0.5em;
+        font-size: 12px;
       }
 
       .ant-steps-horizontal:not(.ant-steps-label-vertical)
@@ -95,8 +104,6 @@
         display: none;
       }
     }
-
-    /* Terminal Popover */
   }
 
   @include media-query(1200px) {
@@ -113,11 +120,11 @@ Steps Design Icon
 ******/
 
 .ant-steps-item-icon {
-  width: 32px !important;
-  height: 32px !important;
-  font-size: 16px !important;
-  border-radius: 32px !important;
-  line-height: 24px !important;
+  width: 28px !important;
+  height: 28px !important;
+  font-size: 12px !important;
+  border-radius: 30px !important;
+  line-height: 20px !important;
   margin: 0 2px 0 2px !important;
   cursor: pointer;
   padding: 5px 7px;
@@ -162,7 +169,7 @@ Steps Design Icon
 
 .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
   color: white !important;
-  font-size: 0.75rem !important;
+  
 }
 
 .ReactVirtualized__Grid__innerScrollContainer {
