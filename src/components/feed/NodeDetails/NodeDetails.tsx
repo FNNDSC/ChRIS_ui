@@ -1,4 +1,4 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from "react";
 import Moment from "react-moment";
 import {
   Button,
@@ -6,9 +6,9 @@ import {
   GridItem,
   Title,
   Skeleton,
-  ExpandableSection,  
+  ExpandableSection,
 } from "@patternfly/react-core";
-import {useDispatch} from 'react-redux';
+import { useDispatch } from "react-redux";
 import { Popover } from "antd";
 import {
   Plugin,
@@ -25,13 +25,12 @@ import {
 } from "@patternfly/react-icons";
 import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
-import PluginLog from './PluginLog';
-import Status from './Status';
+import PluginLog from "./PluginLog";
+import Status from "./Status";
 import StatusTitle from "./StatusTitle";
-import {setFeedLayout} from '../../../store/feed/actions';
-import { useTypedSelector} from "../../../store/hooks";
+import { setFeedLayout } from "../../../store/feed/actions";
+import { useTypedSelector } from "../../../store/hooks";
 import "./NodeDetails.scss";
-
 
 interface INodeProps {
   expandDrawer: (panel: string) => void;
@@ -43,20 +42,19 @@ interface INodeState {
   pluginParameters?: PluginParameterList;
 }
 
-function getInitialState(){
+function getInitialState() {
   return {
     plugin: undefined,
-    instanceParameters:undefined,
+    instanceParameters: undefined,
     pluginParameters: undefined,
   };
 }
 
 const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
-  const { selectedPlugin } = useTypedSelector(
-    (state) => state.feed );
-  
-  const dispatch= useDispatch();
+  const { selectedPlugin } = useTypedSelector((state) => state.feed);
+
+  const dispatch = useDispatch();
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isVisible, setIsVisible] = React.useState(false);
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -145,11 +143,8 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           <GridItem span={10} className="value">
             <StatusTitle />
           </GridItem>
-
-          <GridItem span={12} className="value status">
-            <Status />
-          </GridItem>
-
+          {/** Status Component */}
+          <Status />
           <ExpandableSection
             toggleText={isExpanded ? "Show Less Details" : "Show More Details"}
             onToggle={() => setIsExpanded(!isExpanded)}
@@ -230,10 +225,9 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   }
 };
 
-
 export default NodeDetails;
 
-function getRuntimeString(selected:PluginInstance) {
+function getRuntimeString(selected: PluginInstance) {
   let runtime = 0;
   const start = new Date(selected.data.start_date);
   const end = new Date(selected.data.end_date);
@@ -270,32 +264,32 @@ function getCommand(
 
   const instanceParameters = params.getItems();
   const pluginParameters = parameters.getItems();
-  
 
-    for (let i = 0; i < instanceParameters.length; i++) {
-      for (let j = 0; j < pluginParameters.length; j++) {
-        if (instanceParameters[i].data.param_name === pluginParameters[j].data.name) {
-          modifiedParams.push({
-            name: pluginParameters[j].data.flag,
-            value: instanceParameters[i].data.value,
-          });
-        }
+  for (let i = 0; i < instanceParameters.length; i++) {
+    for (let j = 0; j < pluginParameters.length; j++) {
+      if (
+        instanceParameters[i].data.param_name === pluginParameters[j].data.name
+      ) {
+        modifiedParams.push({
+          name: pluginParameters[j].data.flag,
+          value: instanceParameters[i].data.value,
+        });
       }
     }
+  }
 
-    let command = `$> docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing \\\n${dock_image} ${selfexec} `;
-    let parameterCommand=[]
-    
-    
-    if (modifiedParams.length) {
-      parameterCommand=modifiedParams.map((param) => `${param.name} ${param.value}`);
-      if(parameterCommand.length>0){
-        command += parameterCommand.join(" ") + " \\\n";
-      }
+  let command = `$> docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing \\\n${dock_image} ${selfexec} `;
+  let parameterCommand = [];
+
+  if (modifiedParams.length) {
+    parameterCommand = modifiedParams.map(
+      (param) => `${param.name} ${param.value}`
+    );
+    if (parameterCommand.length > 0) {
+      command += parameterCommand.join(" ") + " \\\n";
     }
-    command = `${command}/incoming /outgoing \n \n`;
-  
-    return command;
+  }
+  command = `${command}/incoming /outgoing \n \n`;
+
+  return command;
 }
-
-
