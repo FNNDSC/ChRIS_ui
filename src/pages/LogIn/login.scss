@@ -28,6 +28,10 @@ $image-url:     '../../assets/images/';
         @media (min-width: $pf-global--breakpoint--lg) {
             background-image: url("#{$image-url}#{$login-background-image-lg}");//-BackgroundImage--lg
         }
+        // extra large screens: 1200px and up 
+        @media (min-width: $pf-global--breakpoint--xl) {
+            background-image: url("#{$image-url}#{$login-background-image-xl}");//-BackgroundImage--xl
+        }
     }
 }
 
