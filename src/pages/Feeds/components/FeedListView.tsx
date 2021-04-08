@@ -115,7 +115,7 @@ const FeedListView: React.FC<AllProps> = ({
   };
 
   const { page, perPage, filter } = filterState;
-  const { data, loading, error, totalFeedsCount } = allFeeds;
+  const { data, error, loading, totalFeedsCount } = allFeeds;
   const cells = [
     "Feed",
     "Created",
@@ -166,8 +166,8 @@ const FeedListView: React.FC<AllProps> = ({
     return (
       <tbody className="feed-list__loading">
         <tr>
-          <td colSpan={4}>
-            {new Array(4).fill(null).map((_, i) => (
+          <td colSpan={6}>
+            {new Array(6).fill(null).map((_, i) => (
               <LoadingContent height="45px" width="100%" key={i} />
             ))}
           </td>
@@ -197,9 +197,9 @@ const FeedListView: React.FC<AllProps> = ({
       <React.Fragment>
         <EmptyState>
           <EmptyStateBody>
-            Oops ! Unable to fetch feeds at the moment. Please refresh the
-            browser. If the issue persists, Contact the dev team at FNNDSC to
-            report your error.
+            Unable to fetch feeds at the moment. Please refresh the browser. If
+            the issue persists, Contact the dev team at FNNDSC to report your
+            error.
           </EmptyStateBody>
         </EmptyState>
       </React.Fragment>
@@ -228,7 +228,7 @@ const FeedListView: React.FC<AllProps> = ({
           />
           {generatePagination()}
         </div>
-        {!data ? (
+        {!data && !loading ? (
           <React.Fragment>
             <Table caption="Empty Feed List" cells={cells} rows={rows}>
               <TableHeader />
@@ -252,7 +252,7 @@ const FeedListView: React.FC<AllProps> = ({
             rows={rows}
           >
             <TableHeader />
-            {loading === true ? generateTableLoading() : <TableBody />}
+            {loading ? generateTableLoading() : <TableBody />}
           </Table>
         )}
       </PageSection>
