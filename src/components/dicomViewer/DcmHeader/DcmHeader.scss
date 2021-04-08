@@ -9,19 +9,44 @@ $headerBlue: #73bcf7;
   background: rgba(0, 0, 0, $opacityLevel); //$imgViewerBackgroundColour;
   color: $textColor;
   display: flex;
+  flex-wrap: nowrap;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
+
+  .dicom-logo{
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    .dicom-logo__text{
+      font-size: 0.8rem;
+
+
+    }
+  }
 
   button {
-    margin: 0.3rem;
+    margin: 0.3rem -4px;
     svg {
       color: #fff;
       font-size: 0.6rem;
     }
   }
-  .dicom-header__body-tools,
-  .dicom-header__body-resets {
-    padding-right: 2rem;
+  // .dicom-header__body-tools,
+  // .dicom-header__body-resets {
+  //   padding-right: 2rem;
+  // }
+  .dicom-header__center-tools{
+    display: flex;
+    flex-flow: row nowrap;
+
+    .dicom-header__tools-text{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.7rem;
+      padding-right: 1rem;
+    }
   }
 
   .pf-m-active {
