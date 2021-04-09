@@ -4,7 +4,11 @@
 *  Author:          ChRIS UI
 */
 @import "../../../assets/scss/helpers/variables";
-$iconfont-size: 0.7rem;
+@import '../../../assets/scss/helpers/mixins.scss';
+
+// $iconfont-size: 0.7rem;
+$iconfont-size-md: 0.6rem;
+$iconfont-size-lg:0.8rem;
 
 .gallery-toolbar{
     bottom: $gallery-toolbar-bottom;
@@ -32,9 +36,17 @@ $iconfont-size: 0.7rem;
       vertical-align: middle;
       svg {
         color: #fff;
-        font-size: $iconfont-size;
+       
+        @include media-query(1200px){
+          font-size: $iconfont-size-md;
+        }
+  
+        @include media-query(1920px){      
+         font-size:$iconfont-size-lg;
+        }
       }
     }
+
     span, em{
       color: #fff;
       font-size: 0.875rem;

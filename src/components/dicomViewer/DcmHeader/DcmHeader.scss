@@ -1,9 +1,12 @@
+@import '../../../assets/scss/helpers/mixins.scss';
+
 $imgViewerBackgroundColour: black;
 $textColor: white;
 $GreyTextColor: #868686;
 $opacityLevel: 0.75;
 $headerBlue: #73bcf7;
-$iconfont-size: 0.6rem;
+$iconfont-size-md: 0.6rem;
+$iconfont-size-lg:0.8rem;
 
 .dicom-header {
   z-index: 2;
@@ -18,9 +21,21 @@ $iconfont-size: 0.6rem;
     position: absolute;
     left: 0;
     top: 0;
+    padding: 0.8rem;
+    margin-right: 4rem;
+    
+    &__text{
+      @include media-query(1200px){
+        font-size: 0.8rem;
+      }
 
-    .dicom-logo__text{
-      font-size: 0.8rem;
+      @include media-query(1920px){      
+       font-size:1.4rem;
+      }
+      
+      color: $headerBlue !important;
+      font-weight: 900;
+      display: block;
     }
   }
 
@@ -28,13 +43,17 @@ $iconfont-size: 0.6rem;
     margin: 0.4rem -4px;
     svg {
       color: #fff;
-      font-size: $iconfont-size;
+
+      @include media-query(1200px){
+        font-size: $iconfont-size-md;
+      }
+
+      @include media-query(1920px){      
+       font-size:$iconfont-size-lg;
+      }
     }
   }
-  // .dicom-header__body-tools,
-  // .dicom-header__body-resets {
-  //   padding-right: 2rem;
-  // }
+  
   .dicom-header__center-tools{
     display: flex;
     flex-flow: row nowrap;
@@ -43,8 +62,15 @@ $iconfont-size: 0.6rem;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 0.7rem;
-      padding-right: 1rem;
+
+      @include media-query(1200px){
+        font-size: $iconfont-size-lg;
+      }
+
+      @include media-query(1920px){      
+       font-size: 1rem;
+      }
+    
     }
   }
 
@@ -57,18 +83,6 @@ $iconfont-size: 0.6rem;
     svg {
       color: $headerBlue;
     }
-  }
-}
-
-.dicom-logo {
-  padding: 0.8rem;
-  margin-right: 4rem;
-
-  &__text {
-    font-size: 1.4rem;
-    color: $headerBlue !important;
-    font-weight: 900;
-    display: block;
   }
 }
 
