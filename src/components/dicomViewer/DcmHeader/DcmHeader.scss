@@ -3,6 +3,7 @@ $textColor: white;
 $GreyTextColor: #868686;
 $opacityLevel: 0.75;
 $headerBlue: #73bcf7;
+$iconfont-size: 0.6rem;
 
 .dicom-header {
   z-index: 2;
@@ -20,16 +21,14 @@ $headerBlue: #73bcf7;
 
     .dicom-logo__text{
       font-size: 0.8rem;
-
-
     }
   }
 
   button {
-    margin: 0.3rem -4px;
+    margin: 0.4rem -4px;
     svg {
       color: #fff;
-      font-size: 0.6rem;
+      font-size: $iconfont-size;
     }
   }
   // .dicom-header__body-tools,

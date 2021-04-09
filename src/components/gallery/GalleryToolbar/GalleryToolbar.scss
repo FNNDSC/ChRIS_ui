@@ -4,21 +4,35 @@
 *  Author:          ChRIS UI
 */
 @import "../../../assets/scss/helpers/variables";
+$iconfont-size: 0.7rem;
+
 .gallery-toolbar{
     bottom: $gallery-toolbar-bottom;
     color: #fff;
     left: 0;
+    display: flex;
+    flex-flow: row nowrap;
     padding: 0 1rem;
     position: absolute;
     width: 100%;
     z-index: 9999;
+    justify-content: center;
+
     .pf-l-grid__item{
       text-align: right;
     }
+
+    .gallary-toolbar__expand-icon{
+      position: absolute;
+      bottom: 0;
+      right: 1rem;
+    }
+
     button {
       vertical-align: middle;
       svg {
         color: #fff;
+        font-size: $iconfont-size;
       }
     }
     span, em{

@@ -16,8 +16,21 @@
     right: 0;
     top: 0;
     width: 100%;
+    font-size: 0.7rem;
+  }
+
+}
+
+@media(min-width:1020px){
+  .ami-viewer {
+    
+    #container {
+      font-size: 1rem;
+    }
+  
   }
 }
+
 
 
 .loader {
