@@ -34,6 +34,7 @@ $ cd ChRIS_ultron_backEnd
 $ sudo rm -r FS
 $ ./unmake.sh
 ```
+You can also follow this repository [@FNNDSC/miniChRIS](https://github.com/FNNDSC/miniChRIS) to start backend for development process.
 
 ## Start UI development server
 
