@@ -9,7 +9,7 @@ import {
   AngleDoubleLeftIcon,
   AngleDoubleRightIcon,
 } from "@patternfly/react-icons";
-import { Grid, GridItem, Button } from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core";
 
 import { galleryActions } from "../../../api/models/gallery.model";
 import "./GalleryToolbar.scss";
@@ -27,8 +27,8 @@ type AllProps = {
 
 const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
   return (
-    <Grid className="gallery-toolbar">
-      <GridItem sm={12} md={7}>
+    <div className="gallery-toolbar">
+      <div >
         <div>
           <Button
             variant="link"
@@ -65,16 +65,17 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
             <AngleDoubleRightIcon />
           </Button>
         </div>
-      </GridItem>
-      <GridItem sm={12} md={5}>
+      </div>
+
+      <div className="gallary-toolbar__expand-icon">
         <Button
           variant="link"
           onClick={() => props.onToolbarClick(galleryActions.fullscreen)}
         >
           {props.isFullscreen ? <CompressIcon size="md" /> : <ExpandIcon />}
         </Button>
-      </GridItem>
-    </Grid>
+      </div>
+    </div>
   );
 };
 export default React.memo(GalleryToolbar);

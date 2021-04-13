@@ -27,9 +27,8 @@ const DcmHeader = ({
         <span className="dicom-logo__text">Image Viewer</span>
        
       </div>
-
-      <div className="dicom-header__body-tools">
-        <span>Tools</span>
+    <div className="dicom-header__center-tools">
+        <span className="dicom-header__tools-text">Tools</span>
         <Tooltip
           position={TooltipPosition.bottom}
           isContentLeftAligned
@@ -93,6 +92,7 @@ const DcmHeader = ({
             <RedoIcon size="md" />
           </Button>
         </Tooltip>
+
         <Tooltip
           position={TooltipPosition.bottom}
           content={<div>Stack Scroll</div>}
@@ -105,9 +105,7 @@ const DcmHeader = ({
             icon={<BarsIcon size="md" />}
           ></Button>
         </Tooltip>
-      </div>
 
-      <div className="dicom-header__body-resets">
         <Tooltip position={TooltipPosition.bottom} content={<div>Invert</div>}>
           <Button
             variant="link"
@@ -143,6 +141,7 @@ const DcmHeader = ({
           />
         </Tooltip>
       </div>
+
     </div>
   );
 };
