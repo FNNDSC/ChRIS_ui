@@ -34,4 +34,4 @@ yarn-error.log*
 .npm/
 .cache/
 .yarnrc
-.env
+
