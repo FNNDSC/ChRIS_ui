@@ -62,14 +62,12 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   if (!selected || isEmpty(pluginInstances) || loading) {
     return <LoadingFeedBrowser />;
   } else {
-    const pluginName = selected && selected.data && getPluginName(selected);
+    const pluginName = selected && getPluginName(selected);
     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
     const tree: DataNode[] | null = createTreeFromFiles(selected, pluginFiles);
     //@ts-ignore
     const breadcrumb = selected.data.output_path.split("/");
     const downloadAllClick = async () => {
-      if (!selected) return;
-
       const zip = new JSZip();
       if (pluginFiles) {
         for (const file of pluginFiles) {

@@ -29,6 +29,7 @@
 }
 
 .file-browser {
+
   height: 100%;
   &__downloadButton {
     max-width: 50% !important;
@@ -43,6 +44,8 @@
 
   &__table {
     &--fileName {
+      display:flex;
+      flex-direction: row;
       border: 1px solid transparent;
       border-radius: 5px;
       outline: none;
@@ -50,6 +53,15 @@
       font-family: var(
         --pf-global--FontFamily--redhatfont--sans-serif
       ) !important;
+    }
+
+    tr > *:first-child {
+      padding: 0;
+      text-align: right;
+    }
+
+    .pf-m-truncate {
+      padding-left: 0 !important;
     }
 
     &--isPreviewing {
@@ -60,6 +72,8 @@
       }
     }
   }
+
+
 
   &__header {
     display: flex;

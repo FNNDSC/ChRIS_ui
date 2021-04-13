@@ -30,7 +30,9 @@ import {
   Table,
   TableHeader,
   TableBody,
-  TableVariant,
+  cellWidth,
+  truncate,
+  TableText,
 } from "@patternfly/react-table";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { FileBrowserProps, FileBrowserState } from "./types";
@@ -149,16 +151,26 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
     const icon = getIcon(type);
     const isPreviewing = selectedFile && selectedFile.key === node.key;
+    const iconRow = {
+      title: icon,
+    };
     const fileName = (
       <div
-        className={classNames(
-          "file-browser__table--fileName",
-          isPreviewing && "file-browser__table--isPreviewing"
-        )}
+      className={classNames(
+        "file-browser__table--fileName",
+        isPreviewing && "file-browser__table--isPreviewing"
+      )}
       >
-        {icon}
+         <TableText
+        wrapModifier="truncate"
+      
+      >
+        {" "}
         {node.title}
+      </TableText>
+
       </div>
+     
     );
     const name = {
       title: fileName,
@@ -178,11 +190,18 @@ const FileBrowser = (props: FileBrowserProps) => {
     };
 
     return {
-      cells: [name, type, size, download],
+      cells: [iconRow, name, type, size, download],
     };
   };
 
-  const cols = ["Name", "Type", "Size", ""];
+  const cols = [
+    { title: "" },
+    { title: "Name", transforms: [cellWidth(55)], cellTransforms: [truncate] },
+    { title: "Type" },
+    { title: "Size" },
+    { title: "" },
+  ];
+
   if (!directory || directory.children.length === 0) {
     return <div>No Files in this directory.</div>;
   }
@@ -275,8 +294,8 @@ const FileBrowser = (props: FileBrowserProps) => {
 
               <Table
                 className="file-browser__table"
-                aria-label="file-browser"
-                variant={TableVariant.compact}
+                aria-label="file-browser-table"
+                variant="compact"
                 cells={cols}
                 rows={rows}
               >
