@@ -1,6 +1,6 @@
 /*
 *  File:            login.scss
-*  Description:     This files holds styles specific for login page
+*  Description:     This file holds styles specific for login page
 *  Author:          ChRIS UI
 */
 
@@ -9,6 +9,7 @@
 $image-url:     '../../assets/images/';
 .login{
     // Replace background image here
+    // This file takes background-image styles from 'assets/scss/components/_background-image.scss'
     &.pf-background::after{
         background-image: url("#{$image-url}#{$login-background-image}");
         @media (max-width: $pf-global--breakpoint--sm) and (-webkit-min-device-pixel-ratio: 2),
