@@ -6,8 +6,6 @@ This repository contains the reference UI for ChRIS, allowing users to create an
 
 ![License][license-badge]
 ![Last Commit][last-commit-badge]
-[![Stars][stars-badge]][repo-link]
-[![Forks][forks-badge]][repo-link]
 ![Code Size][code-size]
 
 
@@ -125,6 +123,4 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 [license-badge]: https://img.shields.io/github/license/fnndsc/chris_ui.svg
 [last-commit-badge]: https://img.shields.io/github/last-commit/fnndsc/chris_ui.svg
 [repo-link]: https://github.com/FNNDSC/ChRIS_ui
-[stars-badge]: https://img.shields.io/github/stars/FNNDSC/ChRIS_ui
-[forks-badge]: https://img.shields.io/github/forks/FNNDSC/ChRIS_ui
 [code-size]: https://img.shields.io/github/languages/code-size/FNNDSC/ChRIS_ui
