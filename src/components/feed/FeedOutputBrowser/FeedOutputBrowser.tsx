@@ -44,11 +44,11 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const dispatch = useDispatch();
   const safeDispatch = useSafeDispatch(dispatch);
-  const {
-    selectedPlugin: selected,
-    pluginFiles,
-    pluginInstances,
-  } = useTypedSelector((state) => state.feed);
+  const selected = useTypedSelector((state) => state.feed.selectedPlugin);
+  const pluginFiles = useTypedSelector((state) => state.feed.pluginFiles);
+  const pluginInstances = useTypedSelector(
+    (state) => state.feed.pluginInstances
+  );
   const viewerMode = useTypedSelector((state) => state.explorer.viewerMode);
   const currentFeed = useTypedSelector((state) => state.feed.currentFeed.data);
   const { data: plugins, loading } = pluginInstances;
@@ -59,11 +59,10 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       safeDispatch(getPluginFilesRequest(selected));
     }
   }, [selected, pluginFilesPayload, safeDispatch]);
-
   if (!selected || isEmpty(pluginInstances) || loading) {
     return <LoadingFeedBrowser />;
   } else {
-    const pluginName = selected && getPluginName(selected);
+    const pluginName = getPluginName(selected);
     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
     const tree: DataNode[] | null = createTreeFromFiles(selected, pluginFiles);
     const downloadAllClick = async () => {
@@ -106,8 +105,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       //@ts-ignore
       selected.data.output_path.split(`feed_${currentFeed.data.id}/`)[1];
     const breadcrumb = splitPath.split("/data")[0];
-    
-    
 
     return (
       <>
@@ -194,7 +191,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   }
 };
 
-export default FeedOutputBrowser;
+export default React.memo(FeedOutputBrowser);
 
 /**
  * Utility Components
