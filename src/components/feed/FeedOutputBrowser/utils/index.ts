@@ -10,6 +10,7 @@ export function createTreeFromFiles(
   files?: FeedFile[]
 ): DataNode[] | null {
   if (!files || !selected) return null;
+  console.log("Tree algo called");
   const filePaths = files.map((file) => {
     const filePath = file.data.fname.substring(
       file.data.fname.lastIndexOf(
