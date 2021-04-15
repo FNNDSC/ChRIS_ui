@@ -26,9 +26,7 @@ const BadgeStyle = {
 };
 
 
-class Header extends React.Component<IHeaderProps> {
-  render() {
-    const { onNavToggle, user } = this.props;
+const Header: React.FC<IHeaderProps> = ({ onNavToggle, user }: IHeaderProps) => {
     const pageToolbar = !!user.token ? (
       <PageHeaderTools>
         <ToolbarComponent />
@@ -65,6 +63,6 @@ class Header extends React.Component<IHeaderProps> {
       />
     );
   }
-}
+
 
 export default Header;
