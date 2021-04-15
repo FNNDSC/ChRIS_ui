@@ -51,6 +51,19 @@ $image-url:     '../../assets/images/';
             }
         }
     }
+
+    .pf-c-login__footer {
+        .pf-c-list {
+            list-style: none;
+            padding-left: 0;
+
+            li {
+                display: inline-block;
+                margin-right: 1em;
+                text-decoration: underline;
+            }
+        }
+    }
 }
 
 // Form styles
