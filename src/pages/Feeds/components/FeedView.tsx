@@ -40,10 +40,12 @@ export type FeedViewProps = RouteComponentProps<{ id: string }>;
 export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: FeedViewProps) => {
   const [isSidePanelExpanded, setSidePanelExpanded] = React.useState(true);
   const [isBottomPanelExpanded, setBottomPanelExpanded] = React.useState(true);
-  const { pluginInstances, selectedPlugin, currentLayout } = useTypedSelector(
-    (state) => state.feed
+  const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
+  const currentLayout = useTypedSelector((state) => state.feed.currentLayout);
+  const pluginInstances = useTypedSelector(
+    (state) => state.feed.pluginInstances
   );
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
   const dataRef = React.useRef<DestroyData>();
   const { data } = pluginInstances;
 
@@ -51,22 +53,22 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
     data,
     selectedPlugin,
   };
-  
 
   React.useEffect(() => {
     return () => {
-      if(dataRef.current)
-      dispatch(destroyPluginState(dataRef.current));
+      if (dataRef.current) dispatch(destroyPluginState(dataRef.current));
       dispatch(destroyExplorer());
     };
   }, [dispatch]);
 
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
-    dispatch(setSidebarActive({
-      activeGroup: "feeds_grp",
-      activeItem: "my_feeds",
-    }));
+    dispatch(
+      setSidebarActive({
+        activeGroup: "feeds_grp",
+        activeItem: "my_feeds",
+      })
+    );
     dispatch(getFeedRequest(id));
   }, [id, dispatch]);
 
