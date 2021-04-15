@@ -120,7 +120,7 @@ const FeedListView: React.FC<AllProps> = ({
     "Feed",
     "Created",
     "Last Commit",
-    "Job Running",
+    "Jobs Running",
     "Jobs Done",
     "Errors",
     "",
