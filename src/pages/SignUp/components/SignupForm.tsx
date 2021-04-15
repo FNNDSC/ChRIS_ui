@@ -15,7 +15,11 @@ import ChrisApiClient from "@fnndsc/chrisapi";
 import { Link } from "react-router-dom";
 import { has } from "lodash";
 import { validate } from "email-validator";
-import {setAuthToken} from '../../../store/user/actions'
+import {setAuthToken} from '../../../store/user/actions';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
+
+const eye = <FontAwesomeIcon icon={faEye} />;
 
 
 type Validated = {
@@ -152,8 +156,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     }
   };
 
-  const handleShowPassword = (checked: boolean) => {
-    setShowPassword(checked);
+  const handleShowPassword = () => {
+    setShowPassword(showPassword ? false : true);
   };
 
   return (
@@ -220,6 +224,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         validated={passwordState.validated}
       >
         <TextInput
+          style={{width:"93%", position:"relative",}}
           validated={passwordState.validated}
           value={passwordState.password}
           isRequired
@@ -233,17 +238,17 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
               password: value,
             })
           }
-          style = {{
-            marginBottom:"1rem"
+        />
+        <Button
+        style={{
+          position: "fixed",
+          paddingRight: "0.5rem",
+          paddingLeft: "0.5rem",
+          background: "gray" ,
+          borderRadius: "5px"
           }}
-        />
-        <Checkbox
-          isChecked={showPassword}
-          label="Show password"
-          aria-label="Show password"
-          id="showPassword"
-          onChange={handleShowPassword}
-        />
+        onClick={ handleShowPassword }>{eye}
+        </Button> 
        
       </FormGroup>
       
