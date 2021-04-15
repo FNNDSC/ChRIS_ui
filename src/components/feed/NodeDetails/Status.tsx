@@ -1,18 +1,14 @@
 import React from "react";
-import { connect } from "react-redux";
+
 import { Steps } from "antd";
-import { ApplicationState } from "../../../store/root/applicationState";
-import { getSelectedInstanceResource } from "../../../store/feed/selector";
-import { ResourcePayload } from "../../../store/feed/types";
+
 import { Spinner } from "@patternfly/react-core";
+import usePluginInstanceResource from "./usePluginInstanceResource";
 
 const { Step } = Steps;
 
-interface PluginStatusProps {
-  pluginInstanceResource?: ResourcePayload;
-}
-
-const Status = ({ pluginInstanceResource }: PluginStatusProps) => {
+const Status = () => {
+  const pluginInstanceResource = usePluginInstanceResource();
   const pluginStatus =
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
   if (pluginStatus && pluginStatus.length > 0) {
@@ -71,8 +67,4 @@ const Status = ({ pluginInstanceResource }: PluginStatusProps) => {
   } else return null;
 };
 
-const mapStateToProps = (state: ApplicationState) => ({
-  pluginInstanceResource: getSelectedInstanceResource(state),
-});
-
-export default connect(mapStateToProps, null)(Status);
+export default Status;
