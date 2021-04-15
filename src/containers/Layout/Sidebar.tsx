@@ -24,20 +24,18 @@ type ReduxProp = {
 };
 type AllProps = IUiState & IUserState & ReduxProp;
 
-class Sidebar extends React.Component<AllProps> {
-  onSelect = (selectedItem: {
+const Sidebar: React.FC<AllProps> = ({ isNavOpen, sidebarActiveItem, isLoggedIn }: AllProps) => {
+  const onSelect = (selectedItem: {
     groupId: number | string;
     itemId: number | string;
     to: string;
     event: React.FormEvent<HTMLInputElement>;
   }) => {
-    this.props.setSidebarActive({
+    setSidebarActive({
       activeItem: selectedItem.itemId as string,
       activeGroup: selectedItem.groupId as string,
     });
   };
-  render() {
-    const { isNavOpen, sidebarActiveItem, isLoggedIn } = this.props;
 
     const loggedInFeedNav = isLoggedIn && (
       <React.Fragment>
@@ -52,7 +50,7 @@ class Sidebar extends React.Component<AllProps> {
     );
 
     const PageNav = (
-      <Nav onSelect={this.onSelect} aria-label="ChRIS Demo site navigation">
+      <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
         <NavList>
               <NavItem
                 groupId="feeds_grp"
@@ -69,7 +67,6 @@ class Sidebar extends React.Component<AllProps> {
 
     return <PageSidebar theme="dark" nav={PageNav} isNavOpen={isNavOpen} />;
   }
-}
 
 const mapStateToProps = ({ ui, user }: ApplicationState) => ({
   sidebarActiveItem: ui.sidebarActiveItem,
