@@ -7,6 +7,7 @@
 @import '../../assets/scss/helpers/pf4-variables'; 
 @import '../../assets/scss/helpers/variables'; 
 $image-url:     '../../assets/images/';
+
 .login{
     // Replace background image here
     &.pf-background::after{
@@ -28,6 +29,14 @@ $image-url:     '../../assets/images/';
         @media (min-width: $pf-global--breakpoint--lg) {
             background-image: url("#{$image-url}#{$login-background-image-lg}");//-BackgroundImage--lg
         }
+    }
+
+    .pf-c-login__container {
+        padding: 1em;
+    }
+
+    .pf-c-login__header {
+        margin-top: 0;
     }
 }
 
