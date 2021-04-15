@@ -6,7 +6,7 @@ import {
   ListItem
 } from "@patternfly/react-core";
 
-import brandImg from '../../assets/images/chris-logo-inline.png'
+import brandImg from '../../assets/images/chris-logo.png'
 import LoginFormComponent from "./components/LoginForm";
 
 import "./login.scss";
