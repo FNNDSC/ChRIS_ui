@@ -18,7 +18,20 @@
     width: 100%;
     font-size: 0.7rem;
   }
+<<<<<<< HEAD
 
+=======
+  .iframe-container {
+    position:absolute;
+    width:100%;
+    height: 100%;
+  
+    iframe {
+      height: 100% !important;
+    }
+  }
+  
+>>>>>>> Fixed the inconsistency in file previews across all file formats
 }
 
 @media(min-width:1020px){

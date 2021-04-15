@@ -156,21 +156,13 @@ const FileBrowser = (props: FileBrowserProps) => {
     };
     const fileName = (
       <div
-      className={classNames(
-        "file-browser__table--fileName",
-        isPreviewing && "file-browser__table--isPreviewing"
-      )}
+        className={classNames(
+          "file-browser__table--fileName",
+          isPreviewing && "file-browser__table--isPreviewing"
+        )}
       >
-         <TableText
-        wrapModifier="truncate"
-      
-      >
-        {" "}
-        {node.title}
-      </TableText>
-
+        <TableText wrapModifier="truncate"> {node.title}</TableText>
       </div>
-     
     );
     const name = {
       title: fileName,
@@ -196,7 +188,7 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const cols = [
     { title: "" },
-    { title: "Name", transforms: [cellWidth(55)], cellTransforms: [truncate] },
+    { title: "Name", transforms: [cellWidth(40)], cellTransforms: [truncate] },
     { title: "Type" },
     { title: "Size" },
     { title: "" },
@@ -214,19 +206,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     getFileExtension(selectedFile.file.data.fname);
 
   const previewPanel = (
-    <GridItem
-      xl2={8}
-      xl2RowSpan={12}
-      xl={8}
-      xlRowSpan={12}
-      lg={8}
-      lgRowSpan={12}
-      md={8}
-      mdRowSpan={12}
-      sm={12}
-      smRowSpan={12}
-      className="file-browser__grid2"
-    >
+    <>
       {renderHeaderPanel(
         handleFileViewerToggle,
         handleFileBrowserToggle,
@@ -237,7 +217,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       {selectedFile && selectedFile.file && (
         <FileDetailView selectedFile={selectedFile.file} preview="small" />
       )}
-    </GridItem>
+    </>
   );
 
   return (
@@ -266,7 +246,7 @@ const FileBrowser = (props: FileBrowserProps) => {
             >
               <div className="file-browser__header">
                 <div className="file-browser__header--breadcrumbContainer">
-                  <Breadcrumb>
+                <Breadcrumb>
                     {breadcrumb.map((value: string, index: number) => {
                       return (
                         <BreadcrumbItem key={index}>{value}</BreadcrumbItem>
