@@ -14,7 +14,7 @@ import {
 } from "@patternfly/react-core";
 import { CubeIcon } from "@patternfly/react-icons";
 import { Spin, Alert, Tree } from "antd";
-import PluginViewerModal from "./PluginViewerModal";
+import PluginViewerModal from "../../detailedView/PluginViewerModal";
 import {
   setExplorerRequest,
   toggleViewerMode,
@@ -44,12 +44,13 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const dispatch = useDispatch();
   const safeDispatch = useSafeDispatch(dispatch);
-  const {
-    selectedPlugin: selected,
-    pluginFiles,
-    pluginInstances,
-  } = useTypedSelector((state) => state.feed);
+  const selected = useTypedSelector((state) => state.feed.selectedPlugin);
+  const pluginFiles = useTypedSelector((state) => state.feed.pluginFiles);
+  const pluginInstances = useTypedSelector(
+    (state) => state.feed.pluginInstances
+  );
   const viewerMode = useTypedSelector((state) => state.explorer.viewerMode);
+  const currentFeed = useTypedSelector((state) => state.feed.currentFeed.data);
   const { data: plugins, loading } = pluginInstances;
   const pluginFilesPayload = selected && pluginFiles[selected.data.id];
 
@@ -58,18 +59,13 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       safeDispatch(getPluginFilesRequest(selected));
     }
   }, [selected, pluginFilesPayload, safeDispatch]);
-
   if (!selected || isEmpty(pluginInstances) || loading) {
     return <LoadingFeedBrowser />;
   } else {
-    const pluginName = selected && selected.data && getPluginName(selected);
+    const pluginName = getPluginName(selected);
     const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
     const tree: DataNode[] | null = createTreeFromFiles(selected, pluginFiles);
-    //@ts-ignore
-    const breadcrumb = selected.data.output_path.split("/");
     const downloadAllClick = async () => {
-      if (!selected) return;
-
       const zip = new JSZip();
       if (pluginFiles) {
         for (const file of pluginFiles) {
@@ -104,6 +100,12 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       pluginSidebarTree = getFeedTree(plugins);
     }
 
+    const splitPath =
+      currentFeed &&
+      //@ts-ignore
+      selected.data.output_path.split(`feed_${currentFeed.data.id}/`)[1];
+    const breadcrumb = splitPath.split("/data")[0];
+
     return (
       <>
         <Grid hasGutter className="feed-output-browser ">
@@ -122,7 +124,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           >
             {pluginSidebarTree && (
               <DirectoryTree
-                multiple
                 defaultExpandAll
                 defaultExpandedKeys={[selected.data.id]}
                 treeData={pluginSidebarTree}
@@ -170,10 +171,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                   handleFileViewerToggle={handleFileViewerOpen}
                   downloadAllClick={downloadAllClick}
                   expandDrawer={expandDrawer}
-                  breadcrumb={[
-                    ...breadcrumb.slice(0, breadcrumb.length - 1),
-                    "",
-                  ]}
+                  breadcrumb={[...breadcrumb.split("/"), ""]}
                 />
               </React.Suspense>
             ) : selected.data.status === "cancelled" ||
@@ -193,7 +191,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   }
 };
 
-export default FeedOutputBrowser;
+export default React.memo(FeedOutputBrowser);
 
 /**
  * Utility Components
