@@ -54,8 +54,6 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
     selectedPlugin,
   };
 
-  console.log("Feed View:");
-
   React.useEffect(() => {
     return () => {
       if (dataRef.current) dispatch(destroyPluginState(dataRef.current));
