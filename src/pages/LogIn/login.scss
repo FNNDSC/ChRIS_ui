@@ -60,7 +60,13 @@ $image-url:     '../../assets/images/';
             li {
                 display: inline-block;
                 margin-right: 1em;
-                text-decoration: underline;
+                font-weight: bold;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            & {
+                text-align: center;
             }
         }
     }
