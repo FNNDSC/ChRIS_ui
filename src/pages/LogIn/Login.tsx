@@ -6,7 +6,7 @@ import {
   ListItem
 } from "@patternfly/react-core";
 
-import brandImg from '../../assets/images/chris-logo.png'
+import ChRIS_Logo from '../../assets/images/chris-logo.png'
 import LoginFormComponent from "./components/LoginForm";
 
 import "./login.scss";
@@ -18,7 +18,7 @@ const loginTextDesc = `
   and developers to data quickly and reliably from one computing environment to another.
   `
 
-const listItem = (
+const FooterLinks = (
   <React.Fragment>
     <ListItem>
       <LoginFooterItem href="#">Terms of Use </LoginFooterItem>
@@ -49,9 +49,9 @@ const LogInPage: React.FC<AllProps> = () => {
       loginTitle="Log in to your account"
       signUpForAccountMessage={signUpForAccountMessage}
       textContent={loginTextDesc}
-      brandImgSrc={brandImg}
+      brandImgSrc={ChRIS_Logo}
       brandImgAlt="ChRIS logo"
-      // footerListItems={listItem}
+      footerListItems={FooterLinks}
     >
       <LoginFormComponent />
     </LoginPage>
