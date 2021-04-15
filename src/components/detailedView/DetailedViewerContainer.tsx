@@ -2,7 +2,7 @@ import React from "react";
 import { useTypedSelector } from "../../store/hooks";
 import { Tabs, Tab, Alert } from "@patternfly/react-core";
 import { FileBrowserViewer } from "./displays";
-import "./viewer.scss";
+import "./Viewer.scss";
 
 const OutputViewerContainer = () => {
   const { pluginFiles, selectedPlugin } = useTypedSelector(
@@ -12,7 +12,7 @@ const OutputViewerContainer = () => {
   const [activeTabKey, setActiveTabKey] = React.useState(0);
 
   if (!selectedPlugin || !pluginFiles) {
-    return <Alert variant="info" title="Empty Result Set" className="empty" />;
+   return <Alert variant="info" title="Empty Result Set" className="empty" />;
   } else {
     const buildTabs = () => {
       const tabs = [];

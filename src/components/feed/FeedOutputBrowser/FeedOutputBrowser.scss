@@ -18,18 +18,9 @@
   .ant-tree {
     background-color: inherit !important;
   }
-
-  &__sidebar {
-    width: 100%;
-  }
-
-  &__main {
-    width: 100%;
-  }
 }
 
 .file-browser {
-
   height: 100%;
   &__downloadButton {
     max-width: 50% !important;
@@ -43,8 +34,9 @@
   }
 
   &__table {
+    padding-right: 0 !important;
     &--fileName {
-      display:flex;
+      display: flex;
       flex-direction: row;
       border: 1px solid transparent;
       border-radius: 5px;
@@ -72,8 +64,6 @@
       }
     }
   }
-
-
 
   &__header {
     display: flex;
@@ -120,42 +110,27 @@
     }
   }
 
-  &__grid2 {
-    .header-panel__buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.25em;
-      margin-right: 0.25em;
+  .header-panel__buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25em;
+    margin-right: 0.25em;
 
-      button {
-        padding-top: 0;
-      }
+    button {
+      padding-top: 0;
     }
   }
 
   .small-preview {
-   
-    @include media-query(1200px) {
-      height: 300px;
+    height: 90%;
+    img {
+      height: 100%;
     }
-
-    @include media-query(1920px) {
-      height: 500px;
-    }
-
-    width: 100%;
   }
 
   .dcm-preview {
     position: relative;
-
-    @include media-query(1200px) {
-      min-height: 300px;
-    }
-
-    @include media-query(1920px) {
-      min-height: 500px;
-    }
+    height: 100%;
 
     #container {
       bottom: 0;
