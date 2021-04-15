@@ -33,15 +33,19 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
     onDropdownSelect(isOpened);
   };
 
+  /*
+
   const onDropdownSelect = () => {
     const { onDropdownSelect, isDropdownOpen } = props;
     !!isDropdownOpen && onDropdownSelect(!isDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
   };
 
+  */
+
   // Description: Logout user
   const onLogout = () => {
     ChrisAPIClient.setIsTokenAuthorized(false);
-    props.setUserLogout();
+    setUserLogout();
   }
 
     const userDropdownItems = [
