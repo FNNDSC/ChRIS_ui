@@ -33,10 +33,23 @@ $image-url:     '../../assets/images/';
 
     .pf-c-login__container {
         padding: 1em;
+
+        .pf-c-login__main {
+            box-shadow: -15px 7px 25px #1C1C1C40;
+        }
     }
 
     .pf-c-login__header {
+        display: flex;
         margin-top: 0;
+
+        @media (max-width: 1200px) {
+            .pf-c-brand {
+                margin-left: auto;
+                margin-right: auto;
+                max-width: 10em;
+            }
+        }
     }
 }
 
