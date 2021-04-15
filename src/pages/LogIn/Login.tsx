@@ -1,15 +1,44 @@
 import * as React from "react";
-import { RouteComponentProps } from "react-router-dom";
-import { LoginPage, LoginMainFooterBandItem } from "@patternfly/react-core";
-import LoginFormComponent from "./components/LoginForm";
-import "./login.scss";
+import { Link, RouteComponentProps } from "react-router-dom";
+import { 
+  LoginPage, LoginMainFooterBandItem,
+  LoginFooterItem,
+  ListItem
+} from "@patternfly/react-core";
 
-import { Link } from "react-router-dom";
+import ChRIS_Logo from '../../assets/images/chris-logo.png'
+import ChRIS_Logo_inline from '../../assets/images/chris-logo-inline.png'
+import LoginFormComponent from "./components/LoginForm";
+
+import "./login.scss";
 
 type AllProps = RouteComponentProps;
 
+const loginTextDesc = `
+  ChRIS is a general-purpose, open source distributed data and computation platform that 
+  connects a community of researchers and developers to data between computing environments.
+`
+
+const FooterLinks = (
+  <React.Fragment>
+    <ListItem>
+      <LoginFooterItem href="https://www.fnndsc.org/">
+        Copyright © 2021 Boston Children&apos;s Hospital 
+        Fetal-Neonatal Neuroimaging and Developmental Science Center
+      </LoginFooterItem>
+    </ListItem>
+    {/* <ListItem>
+      <LoginFooterItem href="#">Help</LoginFooterItem>
+    </ListItem>
+    <ListItem>
+      <LoginFooterItem href="#">Privacy Policy</LoginFooterItem>
+    </ListItem> */}
+  </React.Fragment>
+);
+
 const LogInPage: React.FC<AllProps> = () => {
   React.useEffect(() => {
+    // Consider switching to react-helmet?
     document.title = "Log in into your ChRIS Account";
   }, []);
 
@@ -23,6 +52,10 @@ const LogInPage: React.FC<AllProps> = () => {
       className="login pf-background"
       loginTitle="Log in to your account"
       signUpForAccountMessage={signUpForAccountMessage}
+      textContent={loginTextDesc}
+      brandImgSrc={window.innerWidth < 1200 ? ChRIS_Logo_inline : ChRIS_Logo}
+      brandImgAlt="ChRIS_logo"
+      footerListItems={FooterLinks}
     >
       <LoginFormComponent />
     </LoginPage>
