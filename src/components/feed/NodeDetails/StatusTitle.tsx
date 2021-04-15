@@ -1,15 +1,11 @@
 import React from "react";
-import { connect } from "react-redux";
-import { ApplicationState } from "../../../store/root/applicationState";
-import { getSelectedInstanceResource } from "../../../store/feed/selector";
-import { ResourcePayload, PluginStatus } from "../../../store/feed/types";
+import usePluginInstanceResource from "./usePluginInstanceResource";
+import { PluginStatus } from "../../../store/feed/types";
 import { Skeleton } from "@patternfly/react-core";
 
-interface StatusTitleProps {
-  pluginInstanceResource?: ResourcePayload;
-}
+const StatusTitle = () => {
+  const pluginInstanceResource = usePluginInstanceResource();
 
-const StatusTitle = ({ pluginInstanceResource }: StatusTitleProps) => {
   let statusTitle:
     | {
         title: string;
@@ -33,11 +29,7 @@ const StatusTitle = ({ pluginInstanceResource }: StatusTitleProps) => {
   } else return <Skeleton width="25%"></Skeleton>;
 };
 
-const mapStateToProps = (state: ApplicationState) => ({
-  pluginInstanceResource: getSelectedInstanceResource(state),
-});
-
-export default connect(mapStateToProps, null)(StatusTitle);
+export default StatusTitle;
 
 function getCurrentTitleFromStatus(statusLabels: PluginStatus[]) {
   const title = statusLabels
