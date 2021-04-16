@@ -123,6 +123,10 @@
 
   .small-preview {
     height: 90%;
+
+    .viewport-wrapper {
+      height:100% !important;
+    }
     img {
       height: 100%;
     }

@@ -45,6 +45,7 @@ export default class GalleryModel {
       case "jpg":
       case "jpeg":
       case "nii":
+      case "gz":
         return true;
       default:
         return false;
@@ -52,7 +53,7 @@ export default class GalleryModel {
   }
   static isValidNiiFile(filename: string): boolean {
     const ext = getFileExtension(filename).toLowerCase();
-    if (ext === "nii") {
+    if (ext === "nii" || ext === "gz") {
       return true;
     } else return false;
   }

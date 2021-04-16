@@ -133,8 +133,7 @@ const GalleryDicomView = () => {
           };
         });
 
-        if (isNifti(item.data.fname)) {
-          const fileArray = item.data.fname.split("/");
+        if (isNifti(item.data.fname)) {const fileArray = item.data.fname.split("/");
           const fileName = fileArray[fileArray.length - 1];
           const imageIdObject = ImageId.fromURL(`nifti:${item.url}${fileName}`);
           const numberOfSlices = cornerstone.metaData.get(
