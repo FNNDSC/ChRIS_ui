@@ -9,13 +9,16 @@ import {PluginInstance} from '@fnndsc/chrisapi'
 import {ErrorBoundary} from "react-error-boundary";
 import {Text} from '@patternfly/react-core'
 import './FeedTree.scss';
-
+import { Button } from "@patternfly/react-core";
 
 
 interface IFeedProps {
   pluginInstances: PluginInstancePayload;
   selectedPlugin?: PluginInstance;
   onNodeClick: (node: PluginInstance) => void;
+  isSidePanelExpanded: boolean;
+  isBottomPanelExpanded: boolean;
+  onExpand: (panel: string) => void;
 }
 
 
@@ -32,7 +35,7 @@ const useSize=(target:MutableRefObject<HTMLDivElement | null>)=>{
 }
 
 const FeedGraph = (props: IFeedProps) => {
-  const { pluginInstances, selectedPlugin, onNodeClick } = props;
+  const { pluginInstances, selectedPlugin, onNodeClick, isSidePanelExpanded, isBottomPanelExpanded, onExpand } = props;
   const { data: instances } = pluginInstances;
   const graphRef = React.useRef<HTMLDivElement | null>(null);
   const fgRef = React.useRef<ForceGraphMethods | undefined>();
@@ -81,6 +84,18 @@ const FeedGraph = (props: IFeedProps) => {
             </Text>
           }
         >
+          {!isSidePanelExpanded && (
+            <div className="feed-tree__container--panelToggle node-graph-panel">
+              <div className="feed-tree__orientation">
+                <Button
+                  type="button"
+                  onClick={() => onExpand("side_panel")}
+                >
+                  Node Panel
+                </Button>
+              </div>
+            </div>
+          )}
           <ForceGraph3D
             ref={fgRef}
             //@ts-ignore
@@ -100,6 +115,18 @@ const FeedGraph = (props: IFeedProps) => {
             }}
             linkWidth={2}
           />
+          {!isBottomPanelExpanded && (
+          <div className="feed-tree__container--panelToggle graph">
+            <div className="feed-tree__orientation">
+              <Button
+                type="button"
+                onClick={() => onExpand("bottom_panel")}
+              >
+                Feed Browser
+              </Button>
+            </div>
+          </div>
+        )}
         </ErrorBoundary>
       ) : (
         <Text>Fetching the Graph....</Text>
