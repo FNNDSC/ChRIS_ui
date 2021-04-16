@@ -7,9 +7,8 @@ import useResizeObserver from '@react-hook/resize-observer';
 import TreeModel from '../../../api/models/tree.model'
 import {PluginInstance} from '@fnndsc/chrisapi'
 import {ErrorBoundary} from "react-error-boundary";
-import {Text} from '@patternfly/react-core'
+import {Text, Button} from '@patternfly/react-core'
 import './FeedTree.scss';
-import { Button } from "@patternfly/react-core";
 
 
 interface IFeedProps {
