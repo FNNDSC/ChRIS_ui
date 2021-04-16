@@ -7,8 +7,9 @@ import {
   FormGroup,
   TextInput,
   Button,
-  Checkbox,
+  InputGroup,
   ActionGroup,
+  ValidatedOptions
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 import ChrisApiClient from "@fnndsc/chrisapi";
@@ -16,10 +17,7 @@ import { Link } from "react-router-dom";
 import { has } from "lodash";
 import { validate } from "email-validator";
 import {setAuthToken} from '../../../store/user/actions';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
-
-const eye = <FontAwesomeIcon icon={faEye} />;
+import {EyeIcon, EyeSlashIcon} from '@patternfly/react-icons';
 
 
 type Validated = {
@@ -28,12 +26,25 @@ type Validated = {
 
 interface SignUpFormProps {
   setAuthToken: (auth: { token: string; username: string }) => void;
+  passwordLabel?: string;
+  passwordValue?: string;
+  onChangePassword?: (value: string, event: React.FormEvent<HTMLInputElement>) => void;
+  isValidPassword?: boolean;
+  isShowPasswordEnabled?: boolean;
+  showPasswordAriaLabel?: string;
+  hidePasswordAriaLabel?: string;
 };
-
 
 
 const SignUpForm: React.FC<SignUpFormProps> = ({
   setAuthToken,
+  passwordLabel = 'Password',
+  passwordValue = '',
+  onChangePassword = () => undefined as any,
+  isShowPasswordEnabled = true,
+  hidePasswordAriaLabel = 'Hide password',
+  showPasswordAriaLabel = 'Show password',
+  isValidPassword = true,
 }: SignUpFormProps) => {
   const [userState, setUserState] = React.useState<{
     username: string;
@@ -64,7 +75,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   });
 
   const [loading, setLoading] = React.useState(false);
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [passwordHidden, setPasswordHidden] = React.useState(true);
   const history = useHistory();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -156,9 +167,19 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     }
   };
 
-  const handleShowPassword = () => {
-    setShowPassword(showPassword ? false : true);
-  };
+  
+
+  const passwordInput = (
+    <TextInput
+      isRequired
+      type={passwordHidden ? 'password' : 'text'}
+      id="pf-login-password-id"
+      name="pf-login-password-id"
+      validated={isValidPassword ? ValidatedOptions.default : ValidatedOptions.error}
+      value={passwordValue}
+      onChange={onChangePassword}
+    />
+  );
 
   return (
     <Form onSubmit={handleSubmit} noValidate>
@@ -213,45 +234,27 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           }
         />
       </FormGroup>
-
-      <FormGroup
-        label="Password"
-        isRequired
-        fieldId="password"
-        helperText="Password should have at least 8 characters"
-        helperTextInvalidIcon={<ExclamationCircleIcon />}
-        helperTextInvalid={passwordState.invalidText}
-        validated={passwordState.validated}
-      >
-        <TextInput
-          style={{width:"93%", position:"relative",}}
-          validated={passwordState.validated}
-          value={passwordState.password}
-          isRequired
-          type={showPassword ? "text" : "password"}
-          id="chris-password"
-          name="password"
-          onChange={(value: string) =>
-            setPasswordState({
-              invalidText: "",
-              validated: "default",
-              password: value,
-            })
-          }
-        />
-        <Button
-        style={{
-          position: "fixed",
-          paddingRight: "0.5rem",
-          paddingLeft: "0.5rem",
-          background: "gray" ,
-          borderRadius: "5px"
-          }}
-        onClick={ handleShowPassword }>{eye}
-        </Button> 
-       
-      </FormGroup>
       
+      <FormGroup
+        label={passwordLabel}
+        isRequired
+        validated={isValidPassword ? ValidatedOptions.default : ValidatedOptions.error}
+        fieldId="pf-login-password-id"
+      >
+        {isShowPasswordEnabled && (
+          <InputGroup>
+            {passwordInput}
+            <Button
+              variant="control"
+              onClick={() => setPasswordHidden(!passwordHidden)}
+              aria-label={passwordHidden ? showPasswordAriaLabel : hidePasswordAriaLabel}
+            >
+              {passwordHidden ? <EyeIcon /> : <EyeSlashIcon />}
+            </Button>
+          </InputGroup>
+        )}
+        {!isShowPasswordEnabled && passwordInput}
+        </FormGroup>
 
       <ActionGroup>
         <Button variant="primary" type="submit">
