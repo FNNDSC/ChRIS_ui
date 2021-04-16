@@ -156,7 +156,12 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
             onNodeClick={onNodeClick}
           />
         ) : (
-          <FeedGraph onNodeClick={onNodeClick} />
+          <FeedGraph 
+            onNodeClick={onNodeClick}
+            isSidePanelExpanded={isSidePanelExpanded}
+            isBottomPanelExpanded={isBottomPanelExpanded}
+            onExpand={onClick}
+          />
         )}
       </React.Suspense>
     </GridItem>
