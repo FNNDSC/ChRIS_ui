@@ -28,7 +28,6 @@ interface SignUpFormProps {
   setAuthToken: (auth: { token: string; username: string }) => void;
   passwordLabel?: string;
   passwordValue?: string;
-  onChangePassword?: (value: string, event: React.FormEvent<HTMLInputElement>) => void;
   isValidPassword?: boolean;
   isShowPasswordEnabled?: boolean;
   showPasswordAriaLabel?: string;
@@ -40,7 +39,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   setAuthToken,
   passwordLabel = 'Password',
   passwordValue = '',
-  onChangePassword = () => undefined as any,
   isShowPasswordEnabled = true,
   hidePasswordAriaLabel = 'Hide password',
   showPasswordAriaLabel = 'Show password',
@@ -167,17 +165,16 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     }
   };
 
-  
-
   const passwordInput = (
     <TextInput
       isRequired
       type={passwordHidden ? 'password' : 'text'}
       id="pf-login-password-id"
       name="pf-login-password-id"
-      validated={isValidPassword ? ValidatedOptions.default : ValidatedOptions.error}
+      validated={passwordState.validated}
       value={passwordValue}
-      onChange={onChangePassword}
+      onChange={
+        (value:string) => {setPasswordState(passwordState)}}
     />
   );
 
@@ -238,7 +235,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
       <FormGroup
         label={passwordLabel}
         isRequired
-        validated={isValidPassword ? ValidatedOptions.default : ValidatedOptions.error}
+        validated={passwordState.validated}
         fieldId="pf-login-password-id"
       >
         {isShowPasswordEnabled && (
