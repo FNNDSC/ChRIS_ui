@@ -7,9 +7,9 @@ import {
   FormGroup,
   TextInput,
   Button,
-  InputGroup,
+  Checkbox,
   ActionGroup,
-  ValidatedOptions
+  InputGroup,
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 import ChrisApiClient from "@fnndsc/chrisapi";
@@ -26,23 +26,18 @@ type Validated = {
 
 interface SignUpFormProps {
   setAuthToken: (auth: { token: string; username: string }) => void;
-  passwordLabel?: string;
-  passwordValue?: string;
-  isValidPassword?: boolean;
   isShowPasswordEnabled?: boolean;
   showPasswordAriaLabel?: string;
   hidePasswordAriaLabel?: string;
 };
 
 
+
 const SignUpForm: React.FC<SignUpFormProps> = ({
   setAuthToken,
-  passwordLabel = 'Password',
-  passwordValue = '',
   isShowPasswordEnabled = true,
   hidePasswordAriaLabel = 'Hide password',
   showPasswordAriaLabel = 'Show password',
-  isValidPassword = true,
 }: SignUpFormProps) => {
   const [userState, setUserState] = React.useState<{
     username: string;
@@ -73,7 +68,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   });
 
   const [loading, setLoading] = React.useState(false);
-  const [passwordHidden, setPasswordHidden] = React.useState(true);
+  const [showPassword, setShowPassword] = React.useState(false);
   const history = useHistory();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -167,15 +162,20 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 
   const passwordInput = (
     <TextInput
-      isRequired
-      type={passwordHidden ? 'password' : 'text'}
-      id="pf-login-password-id"
-      name="pf-login-password-id"
-      validated={passwordState.validated}
-      value={passwordValue}
-      onChange={
-        (value:string) => {setPasswordState(passwordState)}}
-    />
+          validated={passwordState.validated}
+          value={passwordState.password}
+          isRequired
+          type={showPassword ? "text" : "password"}
+          id="chris-password"
+          name="password"
+          onChange={(value: string) =>
+            setPasswordState({
+              invalidText: "",
+              validated: "default",
+              password: value,
+            })
+          }
+        />
   );
 
   return (
@@ -231,27 +231,30 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           }
         />
       </FormGroup>
-      
+
       <FormGroup
-        label={passwordLabel}
+        label="Password"
         isRequired
+        fieldId="password"
+        helperText="Password should have at least 8 characters"
+        helperTextInvalidIcon={<ExclamationCircleIcon />}
+        helperTextInvalid={passwordState.invalidText}
         validated={passwordState.validated}
-        fieldId="pf-login-password-id"
       >
         {isShowPasswordEnabled && (
           <InputGroup>
             {passwordInput}
             <Button
               variant="control"
-              onClick={() => setPasswordHidden(!passwordHidden)}
-              aria-label={passwordHidden ? showPasswordAriaLabel : hidePasswordAriaLabel}
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword? showPasswordAriaLabel : hidePasswordAriaLabel}
             >
-              {passwordHidden ? <EyeIcon /> : <EyeSlashIcon />}
+              {showPassword ? <EyeIcon /> : <EyeSlashIcon />}
             </Button>
           </InputGroup>
-        )}
-        {!isShowPasswordEnabled && passwordInput}
-        </FormGroup>
+        )}       
+      </FormGroup>
+      
 
       <ActionGroup>
         <Button variant="primary" type="submit">
