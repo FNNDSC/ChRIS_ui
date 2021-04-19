@@ -9,6 +9,15 @@ This repository contains the reference UI for ChRIS, allowing users to create an
 ![Code Size][code-size]
 
 
+## Quickstart
+
+First, get the [ChRIS backend](https://github.com/FNNDSC/ChRIS_ultron_backEnd)
+running. Assuming the backend is on `http://localhost:8000/api/v1/`:
+
+```shell
+docker run --rm -d --name chris_ui -p 3000:3000 -e REACT_APP_CHRIS_UI_URL=http://localhost:8000/api/v1/ fnndsc/chris_ui:latest
+```
+
 ## Preconditions
 
 ### Install latest Docker. Currently tested platforms:
@@ -17,7 +26,7 @@ This repository contains the reference UI for ChRIS, allowing users to create an
 - Arch Linux
 - macOS 11.X+ (Big Sur)
 
-### Optionally get the backend services up so you can fully test the UI against actual data
+### Get the backend services up so you can fully test the UI against actual data
 
 * Install latest [``Docker Compose``](https://docs.docker.com/compose/)
 * On a Linux machine make sure to add your computer user to the ``docker`` group
@@ -56,10 +65,7 @@ $ sudo rm -r FS
 $ ./unmake.sh
 ```
 
-
-
 </details>
-
 
 
 ## Start UI development server
