@@ -27,5 +27,6 @@ COPY --from=builder /app/build /app
 COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["sirv", "--quiet", "--etag", "--single", "-H", "0.0.0.0", "-p", "3000"]
+ENV HOST=0.0.0.0 PORT=3000
+CMD ["sirv", "--quiet", "--etag", "--single"]
 EXPOSE 3000
