@@ -19,6 +19,8 @@ interface IState {
   showHelperText: boolean;
   isValidUsername: boolean;
   isValidPassword: boolean;
+  errorMessage:string,
+
 }
 
 type AllProps = IPropsFromDispatch & RouteComponentProps;
@@ -33,6 +35,7 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
       showHelperText: false,
       isValidUsername: true,
       isValidPassword: true,
+      errorMessage:"",
     };
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -51,6 +54,7 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
       );
     } catch (error) {
       this.setState({
+        errorMessage:(()=>error.message==='Bad server response!'?'Invalid Credentials':error.message)(),
         showHelperText: true,
       });
     }
@@ -85,7 +89,7 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
       helperText = (
         <>
           <ExclamationCircleIcon />
-          <span> Invalid Login Credentials</span>
+          <span> {this.state.errorMessage}</span>
         </>
       );
     }
