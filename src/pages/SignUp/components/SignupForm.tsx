@@ -249,7 +249,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
               onClick={() => setShowPassword(!showPassword)}
               aria-label={showPassword? showPasswordAriaLabel : hidePasswordAriaLabel}
             >
-              {showPassword ? <EyeIcon /> : <EyeSlashIcon />}
+              {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
             </Button>
           </InputGroup>
         )}       
