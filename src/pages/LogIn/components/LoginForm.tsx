@@ -54,7 +54,7 @@ class LoginFormComponent extends React.Component<AllProps, IState> {
       );
     } catch (error) {
       this.setState({
-        errorMessage:(()=>error.message==='Bad server response!'?'Invalid Credentials':error.message)(),
+        errorMessage:(()=>error.response?'Invalid Credentials':'There was a problem connecting to the server!')(),
         showHelperText: true,
       });
     }
