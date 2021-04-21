@@ -1,10 +1,14 @@
 import React from "react";
-import { tree, hierarchy } from "d3-hierarchy";
+import {
+  tree,
+  hierarchy,
+  HierarchyPointLink,
+  HierarchyPointNode,
+} from "d3-hierarchy";
 import { select, event } from "d3-selection";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { ResourcePayload, FeedTreeProp } from "../../../store/feed/types";
-
 import "./FeedTree.scss";
 import { Datum, TreeNodeDatum, Point } from "./data";
 import { isEqual } from "lodash";
@@ -14,8 +18,8 @@ import TransitionGroupWrapper from "./TransitionGroupWrapper";
 import { UndoIcon, RedoIcon } from "@patternfly/react-icons";
 import { v4 as uuidv4 } from "uuid";
 import clone from "clone";
-
 import { Switch, Button } from "@patternfly/react-core";
+import { TSID } from "./ParentComponent";
 
 interface ITreeProps {
   instances: PluginInstance[];
@@ -29,6 +33,7 @@ interface Separation {
 }
 
 interface OwnProps {
+  tsIds: TSID;
   data: TreeNodeDatum[];
   onNodeClick: (node: PluginInstance) => void;
   translate: Point;
@@ -299,7 +304,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       nextProps.isBottomPanelExpanded !== this.props.isBottomPanelExpanded ||
       !isEqual(this.state.data, nextState.data) ||
       this.props.zoom !== nextProps.zoom ||
-      this.props.instances !== nextProps.instances
+      this.props.instances !== nextProps.instances ||
+      this.props.tsIds !== nextProps.tsIds
     ) {
       return true;
     }
@@ -307,7 +313,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   }
 
   generateTree() {
-    const { nodeSize, orientation, separation } = this.props;
+    const { nodeSize, orientation, separation, tsIds } = this.props;
 
     const d3Tree = tree<TreeNodeDatum>()
       .nodeSize(
@@ -322,7 +328,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       });
 
     let nodes;
-    let links;
+    let links: HierarchyPointLink<TreeNodeDatum>[] | undefined = undefined;
+    const newLinks: HierarchyPointLink<TreeNodeDatum>[] = [];
 
     if (this.state.data) {
       const rootNode = d3Tree(
@@ -332,9 +339,48 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       );
       nodes = rootNode.descendants();
       links = rootNode.links();
-    }
 
-    return { nodes, links };
+      const targetNodes = links.filter((link) => {
+        //@ts-ignore
+        return link.target.data.item?.data.plugin_type === "ts";
+      });
+
+      console.log("TargetNodes", targetNodes, tsIds);
+
+      const remodifiedLinks = targetNodes.map((node) => {
+        const target = node.target;
+        const sources: HierarchyPointNode<TreeNodeDatum>[] = [];
+        // find all the source nodes;
+        links?.forEach((link) => {
+          if (
+            target.data.id &&
+            tsIds &&
+            tsIds[target.data.id] &&
+            tsIds[target.data.id].includes(`${link.target.data.id}`)
+          ) {
+            sources.push(link.target);
+          }
+        });
+
+        return sources?.map((source) => {
+          if (source) return { source, target };
+        });
+      });
+
+      if (remodifiedLinks) {
+        for (let i = 0; i < remodifiedLinks.length; i++) {
+          const tempLinks = remodifiedLinks[i];
+          if (tempLinks && tempLinks.length > 0) {
+            //@ts-ignore
+            newLinks.push(...tempLinks);
+          }
+        }
+      }
+    }
+    //@ts-ignore
+    newLinks.push(...links);
+
+    return { nodes, newLinks };
   }
 
   handleChange = (feature: string) => {
@@ -354,7 +400,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   };
 
   render() {
-    const { nodes, links } = this.generateTree();
+    const { nodes, newLinks: links } = this.generateTree();
     const { translate, scale } = this.state.d3;
     const { instances, feedTreeProp, changeOrientation } = this.props;
     const { orientation } = feedTreeProp;

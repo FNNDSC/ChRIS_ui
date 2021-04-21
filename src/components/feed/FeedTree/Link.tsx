@@ -1,4 +1,5 @@
 import React, { Fragment } from "react";
+import { linkHorizontal, linkVertical } from "d3-shape";
 import { Datum } from "./data";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
@@ -35,15 +36,11 @@ class Link extends React.Component<LinkProps, LinkState> {
   }
 
   applyOpacity(
-    
     opacity: number,
-   
     transitionDuration: number,
-
-       done = () => {
-        return null;
-      }
-  
+    done = () => {
+      return null;
+    }
   ) {
     select(this.linkRef).style("opacity", opacity).on("end", done);
   }
@@ -51,21 +48,40 @@ class Link extends React.Component<LinkProps, LinkState> {
   nodeRadius = 12;
   drawPath = () => {
     const { linkData, orientation } = this.props;
+    // console.log("LinkData", linkData);
     const { source, target } = linkData;
-    const deltaX = target.x - source.x,
-      deltaY = target.y - source.y,
-      dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-      normX = deltaX / dist,
-      normY = deltaY / dist,
-      sourcePadding = this.nodeRadius,
-      targetPadding = this.nodeRadius + 4,
-      sourceX = source.x + sourcePadding * normX,
-      sourceY = source.y + sourcePadding * normY,
-      targetX = target.x - targetPadding * normX,
-      targetY = target.y - targetPadding * normY;
-    return orientation === "horizontal"
-      ? `M ${sourceY} ${sourceX} L ${targetY} ${targetX}`
-      : `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
+
+    //@ts-ignore
+    if (target.data.item?.data.plugin_type === "ts") {
+      if (
+        target.data.item.data.previous_id !== source.data.item?.data.previous_id
+      ) {
+        return orientation === "horizontal"
+          ? linkHorizontal()({
+              source: [source.y, source.x],
+              target: [target.y, target.x],
+            })
+          : linkVertical()({
+              source: [source.x, source.y],
+              target: [target.x, target.y],
+            });
+      }
+    } else {
+      const deltaX = target.x - source.x,
+        deltaY = target.y - source.y,
+        dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+        normX = deltaX / dist,
+        normY = deltaY / dist,
+        sourcePadding = this.nodeRadius,
+        targetPadding = this.nodeRadius + 4,
+        sourceX = source.x + sourcePadding * normX,
+        sourceY = source.y + sourcePadding * normY,
+        targetX = target.x - targetPadding * normX,
+        targetY = target.y - targetPadding * normY;
+      return orientation === "horizontal"
+        ? `M ${sourceY} ${sourceX} L ${targetY} ${targetX}`
+        : `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
+    }
   };
 
   render() {
@@ -77,6 +93,7 @@ class Link extends React.Component<LinkProps, LinkState> {
             this.linkRef = l;
           }}
           className="link"
+          //@ts-ignore
           d={this.drawPath()}
           style={{ ...this.state.initialStyle }}
           data-source-id={linkData.source.id}
