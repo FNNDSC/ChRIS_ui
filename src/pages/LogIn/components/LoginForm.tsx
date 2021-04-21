@@ -13,16 +13,15 @@ interface IPropsFromDispatch {
   setAuthToken: typeof setAuthToken;
 }
 
-interface IState {
-  usernameValue: string;
-  passwordValue: string;
-  isRememberMeChecked: boolean;
-  showHelperText: boolean;
-  isValidUsername: boolean;
-  isValidPassword: boolean;
-  errorMessage:string,
-
-}
+// interface IState {
+//   usernameValue: string;
+//   passwordValue: string;
+//   isRememberMeChecked: boolean;
+//   showHelperText: boolean;
+//   isValidUsername: boolean;
+//   isValidPassword: boolean;
+//   errorMessage:string,
+// }
 
 type AllProps = IPropsFromDispatch & RouteComponentProps;
 const LoginFormComponent : React.FC<AllProps>=({
