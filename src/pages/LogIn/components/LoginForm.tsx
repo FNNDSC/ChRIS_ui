@@ -13,27 +13,17 @@ interface IPropsFromDispatch {
   setAuthToken: typeof setAuthToken;
 }
 
-// interface IState {
-//   usernameValue: string;
-//   passwordValue: string;
-//   isRememberMeChecked: boolean;
-//   showHelperText: boolean;
-//   isValidUsername: boolean;
-//   isValidPassword: boolean;
-//   errorMessage:string,
-// }
-
 type AllProps = IPropsFromDispatch & RouteComponentProps;
 const LoginFormComponent : React.FC<AllProps>=({
   setAuthToken,
 }: AllProps)=>{
-  const [usernameValue,setUsernameValue]=React.useState("");
-  const [passwordValue,setPasswordValue]=React.useState("");
-  const [isRememberMeChecked,setIsRememberMeChecked]=React.useState(true);
-  const [showHelperText,setShowHelperText]=React.useState(false);
-  const [isValidUsername,setIsValidUsername]=React.useState(true);
-  const [isValidPassword,setIsValidPassword]=React.useState(true);
-  const [errorMessage,setErrorMessage]=React.useState("");
+  const [usernameValue,setUsernameValue]=React.useState<string>("");
+  const [passwordValue,setPasswordValue]=React.useState<string>("");
+  const [isRememberMeChecked,setIsRememberMeChecked]=React.useState<boolean>(true);
+  const [showHelperText,setShowHelperText]=React.useState<boolean>(false);
+  const [isValidUsername,setIsValidUsername]=React.useState<boolean>(true);
+  const [isValidPassword,setIsValidPassword]=React.useState<boolean>(true);
+  const [errorMessage,setErrorMessage]=React.useState<string>("");
   const history = useHistory();
   async function handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     event.preventDefault();
@@ -57,6 +47,7 @@ const LoginFormComponent : React.FC<AllProps>=({
         passwordValue
       );
     } catch (error) {
+      console.log({error});
       setErrorMessage(
         (()=>error.response?'Invalid Credentials'
           :
