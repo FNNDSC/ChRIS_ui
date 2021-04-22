@@ -79,9 +79,7 @@ const FileDetailView = (props: AllProps) => {
             </span>
           }
         >
-          <div
-            className={preview === "small" ? "small-preview" : "large-preview"}
-          >
+          <div className={preview === "small" ? "small-preview" : "ami-viewer"}>
             <ViewerDisplay viewerName={viewerName} fileItem={fileState} />
           </div>
         </ErrorBoundary>

@@ -56,6 +56,17 @@
 
     &--panelToggle {
       padding-right: 1rem ;
+
+      &.node-graph-panel {
+        position: absolute;
+        right: 0;
+        z-index: 10;
+      }
+
+      &.graph {
+        position: absolute;
+        bottom: 30px;
+      }
     }
   }
 

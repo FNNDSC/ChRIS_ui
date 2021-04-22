@@ -11,13 +11,15 @@ import {
   ActionGroup,
   FormAlert,
   Alert,
+  InputGroup,
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 import ChrisApiClient from "@fnndsc/chrisapi";
 import { Link } from "react-router-dom";
 import { has } from "lodash";
 import { validate } from "email-validator";
-import {setAuthToken} from '../../../store/user/actions'
+import {setAuthToken} from '../../../store/user/actions';
+import {EyeIcon, EyeSlashIcon} from '@patternfly/react-icons';
 
 
 type Validated = {
@@ -26,12 +28,18 @@ type Validated = {
 
 interface SignUpFormProps {
   setAuthToken: (auth: { token: string; username: string }) => void;
+  isShowPasswordEnabled?: boolean;
+  showPasswordAriaLabel?: string;
+  hidePasswordAriaLabel?: string;
 };
 
 
 
 const SignUpForm: React.FC<SignUpFormProps> = ({
   setAuthToken,
+  isShowPasswordEnabled = true,
+  hidePasswordAriaLabel = 'Hide password',
+  showPasswordAriaLabel = 'Show password',
 }: SignUpFormProps) => {
   const [userState, setUserState] = React.useState<{
     username: string;
@@ -163,9 +171,23 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     }
   };
 
-  const handleShowPassword = (checked: boolean) => {
-    setShowPassword(checked);
-  };
+  const passwordInput = (
+    <TextInput
+          validated={passwordState.validated}
+          value={passwordState.password}
+          isRequired
+          type={showPassword ? "text" : "password"}
+          id="chris-password"
+          name="password"
+          onChange={(value: string) =>
+            setPasswordState({
+              invalidText: "",
+              validated: "default",
+              password: value,
+            })
+          }
+        />
+  );
 
   return (
     <Form onSubmit={handleSubmit} noValidate >
@@ -241,32 +263,18 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         helperTextInvalid={passwordState.invalidText}
         validated={passwordState.validated}
       >
-        <TextInput
-          validated={passwordState.validated}
-          value={passwordState.password}
-          isRequired
-          type={showPassword ? "text" : "password"}
-          id="chris-password"
-          name="password"
-          onChange={(value: string) =>
-            setPasswordState({
-              invalidText: "",
-              validated: "default",
-              password: value,
-            })
-          }
-          style = {{
-            marginBottom:"1rem"
-          }}
-        />
-        <Checkbox
-          isChecked={showPassword}
-          label="Show password"
-          aria-label="Show password"
-          id="showPassword"
-          onChange={handleShowPassword}
-        />
-       
+        {isShowPasswordEnabled && (
+          <InputGroup>
+            {passwordInput}
+            <Button
+              variant="control"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword? showPasswordAriaLabel : hidePasswordAriaLabel}
+            >
+              {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+            </Button>
+          </InputGroup>
+        )}       
       </FormGroup>
       
 

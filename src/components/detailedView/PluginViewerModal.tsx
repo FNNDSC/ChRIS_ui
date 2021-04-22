@@ -1,9 +1,9 @@
 import * as React from "react";
-import { Modal } from "@patternfly/react-core";
-import { Gotop } from "../../index";
+import { Modal, Skeleton } from "@patternfly/react-core";
+import Gotop from "../common/gotop/Gotop";
 
 const OutputViewerContainer = React.lazy(
-  () => import("../../detailedView/DetailedViewerContainer")
+  () => import("./DetailedViewerContainer")
 );
 
 type AllProps = {
@@ -42,9 +42,13 @@ const PluginViewerModal = (props: AllProps) => {
         onScroll={handleScroll}
         onClose={() => handleModalToggle()}
       >
-        <React.Suspense fallback={
-          <div>Fetching Resources....</div>
-        }>
+        <React.Suspense
+          fallback={
+            <div style={{ height: "100vh" }}>
+              <Skeleton height="100%" screenreaderText="Fetching Resources" />
+            </div>
+          }
+        >
           <OutputViewerContainer />
         </React.Suspense>
 

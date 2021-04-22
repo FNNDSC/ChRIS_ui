@@ -36,4 +36,5 @@ export const fileViewerMap: any = {
   dcm: "DcmDisplay",
   default: "CatchallDisplay",
   nii: "NiftiDisplay",
+  gz: "NiftiDisplay",
 };
