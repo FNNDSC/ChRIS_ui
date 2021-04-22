@@ -5,7 +5,6 @@ import { Skeleton } from "@patternfly/react-core";
 
 const StatusTitle = () => {
   const pluginInstanceResource = usePluginInstanceResource();
-
   let statusTitle:
     | {
         title: string;
@@ -29,7 +28,7 @@ const StatusTitle = () => {
   } else return <Skeleton width="25%"></Skeleton>;
 };
 
-export default StatusTitle;
+export default React.memo(StatusTitle);
 
 function getCurrentTitleFromStatus(statusLabels: PluginStatus[]) {
   const title = statusLabels

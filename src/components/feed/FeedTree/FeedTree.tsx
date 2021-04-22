@@ -345,8 +345,6 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
         return link.target.data.item?.data.plugin_type === "ts";
       });
 
-      console.log("TargetNodes", targetNodes, tsIds);
-
       const remodifiedLinks = targetNodes.map((node) => {
         const target = node.target;
         const sources: HierarchyPointNode<TreeNodeDatum>[] = [];
@@ -450,7 +448,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
                 <Button
                   type="button"
                   onClick={() => this.props.onExpand("side_panel")}
-                >
+                > 
                   Node Panel
                 </Button>
               </div>

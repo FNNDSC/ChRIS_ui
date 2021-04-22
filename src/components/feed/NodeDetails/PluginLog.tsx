@@ -15,6 +15,7 @@ const PluginLog = ({ text }: NodeDetailsProps) => {
     log && !isEmpty(log) ? log.compute.logs : "Fetching logs ......";
 
   return <LogTerminal text={terminalOutput} />;
+ 
 };
 
-export default PluginLog;
+export default React.memo(PluginLog);
