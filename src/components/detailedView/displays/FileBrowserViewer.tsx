@@ -40,7 +40,6 @@ const FileBrowserViewer = () => {
                 return <BreadcrumbItem key={index}>{item}</BreadcrumbItem>;
               })}
             </Breadcrumb>
-
             <Tree
               defaultExpandedKeys={selectedKeys}
               selectedKeys={selectedKeys}
@@ -49,7 +48,7 @@ const FileBrowserViewer = () => {
               showLine
             />
           </GridItem>
-          <GridItem  sm={12} md={8}>
+          <GridItem sm={12} md={8}>
             {selectedFile && selectedFile.file && (
               <FileDetailView
                 selectedFile={selectedFile.file}
@@ -59,9 +58,7 @@ const FileBrowserViewer = () => {
           </GridItem>
         </Grid>
       ) : (
-        <div className="viewer-data">
-          <GalleryDicomView />
-        </div>
+        <GalleryDicomView />
       )}
     </div>
   );

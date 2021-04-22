@@ -20,24 +20,21 @@ interface IPropsFromDispatch {
 }
 type AllProps = IUiState & IOtherProps & IPropsFromDispatch;
 
-class Wrapper extends React.Component<AllProps> {
-  onNavToggle = () => {
-    this.props.setIsNavOpen(!this.props.isNavOpen);
+const Wrapper: React.FC<AllProps> = (props: AllProps) => {
+  const {children, user}: IOtherProps = props
+  const onNavToggle = () => {
+    props.setIsNavOpen(!props.isNavOpen);
   };
-
-  render() {
-    const { children, user } = this.props;
 
     return (
       <Page
-        header={<Header onNavToggle={this.onNavToggle} user={user} />}
-        sidebar={<Sidebar isNavOpen={this.props.isNavOpen} />}
+        header={<Header onNavToggle={onNavToggle} user={user} />}
+        sidebar={<Sidebar isNavOpen={props.isNavOpen} />}
       >
         {children}
       </Page>
     );
   }
-}
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onSidebarToggle: (isOpened: boolean) => dispatch(onSidebarToggle(isOpened)),

@@ -10,6 +10,7 @@ export function createTreeFromFiles(
   files?: FeedFile[]
 ): DataNode[] | null {
   if (!files || !selected) return null;
+
   const filePaths = files.map((file) => {
     const filePath = file.data.fname.substring(
       file.data.fname.lastIndexOf(
@@ -17,7 +18,7 @@ export function createTreeFromFiles(
       ),
       file.data.fname.length
     );
-    //@ts-ignores
+    //@ts-ignore
     const fileSize = bytesToSize(file.data.fsize);
     return {
       file: file,
@@ -62,7 +63,7 @@ const buildTree = (
     const pathParts = fileObj.filePath.split("/");
     pathParts.shift();
     let currentLevel = tree;
-    _.each(pathParts, function (part, index) {
+    _.each(pathParts, function (part) {
       const existingPath = _.find(currentLevel, {
         title: part,
       });
@@ -70,7 +71,7 @@ const buildTree = (
         currentLevel = existingPath.children;
       } else {
         const newPart = {
-          key: `${part}_${index}`,
+          key: `${part}_${fileObj.file.data.id}`,
           title: part,
           file: fileObj.file,
           fileSize: fileObj.fileSize,

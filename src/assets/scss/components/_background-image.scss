@@ -1,6 +1,6 @@
 /*
 *  File:            _background-image.scss
-*  Description:     This files holds styles for background cover images
+*  Description:     This file holds styles for background cover images
 *                   replaces background-image.scss from patternfly 4
 *  Author:          ChRIS UI
 */
@@ -19,7 +19,7 @@
     width: 100%;
     z-index: -1;
     // filter: url("../images/chris_ui_background_filter.svg#image_overlay");
-    filter: url("#{$image-url}#{$chris-background-filter}"); //$chris-background-filter
+    // filter: url("#{$image-url}#{$chris-background-filter}"); //$chris-background-filter
     @media (max-width: $pf-global--breakpoint--sm) and (-webkit-min-device-pixel-ratio: 2),
       (max-width: $pf-global--breakpoint--sm) and (min-resolution: 192dpi) {
       background-image: url("#{$image-url}#{$chris-background-image-2x}"); //xs2x

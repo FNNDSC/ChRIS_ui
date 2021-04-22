@@ -30,7 +30,9 @@ import {
   Table,
   TableHeader,
   TableBody,
-  TableVariant,
+  cellWidth,
+  truncate,
+  TableText,
 } from "@patternfly/react-table";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { FileBrowserProps, FileBrowserState } from "./types";
@@ -149,6 +151,9 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
     const icon = getIcon(type);
     const isPreviewing = selectedFile && selectedFile.key === node.key;
+    const iconRow = {
+      title: icon,
+    };
     const fileName = (
       <div
         className={classNames(
@@ -156,8 +161,7 @@ const FileBrowser = (props: FileBrowserProps) => {
           isPreviewing && "file-browser__table--isPreviewing"
         )}
       >
-        {icon}
-        {node.title}
+        <TableText wrapModifier="truncate"> {node.title}</TableText>
       </div>
     );
     const name = {
@@ -178,11 +182,18 @@ const FileBrowser = (props: FileBrowserProps) => {
     };
 
     return {
-      cells: [name, type, size, download],
+      cells: [iconRow, name, type, size, download],
     };
   };
 
-  const cols = ["Name", "Type", "Size", ""];
+  const cols = [
+    { title: "" },
+    { title: "Name", transforms: [cellWidth(40)], cellTransforms: [truncate] },
+    { title: "Type" },
+    { title: "Size" },
+    { title: "" },
+  ];
+
   if (!directory || directory.children.length === 0) {
     return <div>No Files in this directory.</div>;
   }
@@ -195,19 +206,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     getFileExtension(selectedFile.file.data.fname);
 
   const previewPanel = (
-    <GridItem
-      xl2={8}
-      xl2RowSpan={12}
-      xl={8}
-      xlRowSpan={12}
-      lg={8}
-      lgRowSpan={12}
-      md={8}
-      mdRowSpan={12}
-      sm={12}
-      smRowSpan={12}
-      className="file-browser__grid2"
-    >
+    <>
       {renderHeaderPanel(
         handleFileViewerToggle,
         handleFileBrowserToggle,
@@ -218,7 +217,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       {selectedFile && selectedFile.file && (
         <FileDetailView selectedFile={selectedFile.file} preview="small" />
       )}
-    </GridItem>
+    </>
   );
 
   return (
@@ -247,7 +246,7 @@ const FileBrowser = (props: FileBrowserProps) => {
             >
               <div className="file-browser__header">
                 <div className="file-browser__header--breadcrumbContainer">
-                  <Breadcrumb>
+                <Breadcrumb>
                     {breadcrumb.map((value: string, index: number) => {
                       return (
                         <BreadcrumbItem key={index}>{value}</BreadcrumbItem>
@@ -275,8 +274,8 @@ const FileBrowser = (props: FileBrowserProps) => {
 
               <Table
                 className="file-browser__table"
-                aria-label="file-browser"
-                variant={TableVariant.compact}
+                aria-label="file-browser-table"
+                variant="compact"
                 cells={cols}
                 rows={rows}
               >
@@ -337,6 +336,7 @@ const renderHeaderPanel = (
           fileType === "png" ||
           fileType === "jpg" ||
           fileType === "nii" ||
+          fileType === "gz" ||
           fileType === "jpeg") && (
           <Button variant="link" onClick={toggleFileViewer} icon={<FilmIcon />}>
             Open Image Viewer

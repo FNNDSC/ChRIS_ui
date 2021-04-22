@@ -5,8 +5,8 @@
   "dependencies": {
     "@fnndsc/chrisapi": "^1.5.0",
     "@patternfly/patternfly": "^4.87.3",
-    "@patternfly/react-core": "^4.97.2",
-    "@patternfly/react-icons": "^4.9.2",
+    "@patternfly/react-core": "^4.106.2",
+    "@patternfly/react-icons": "^4.9.10",
     "@patternfly/react-styles": "^4.8.2",
     "@patternfly/react-table": "^4.23.2",
     "@react-hook/resize-observer": "^1.1.2",
@@ -30,7 +30,6 @@
     "hammerjs": "^2.0.8",
     "jszip": "^3.2.2",
     "lodash": "^4.17.19",
-    "moment": "^2.24.0",
     "node-sass": "^4.14.1",
     "pako": "^1.0.11",
     "rc-tree": "^3.2.2",
@@ -47,9 +46,7 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
-    "react-ui-tree": "^4.0.0",
     "redux-saga": "^1.1.3",
-    "reselect": "^4.0.0",
     "typesafe-actions": "^3.2.1",
     "typescript": "^3.8.3",
     "uuid": "^8.3.0"
