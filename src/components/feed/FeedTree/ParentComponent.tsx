@@ -30,6 +30,7 @@ const ParentComponent = (props: ParentComponentProps) => {
     (state) => state.feed.pluginInstances
   );
   const feedTreeProp = useTypedSelector((state) => state.feed.feedTreeProp);
+  const mode = useTypedSelector((state) => state.feed.treeMode);
   const { data: instances } = pluginInstances;
   const [data, setData] = React.useState<TreeNodeDatum[]>([]);
   const [tsIds, setTsIds] = React.useState<TSID>();
@@ -51,6 +52,7 @@ const ParentComponent = (props: ParentComponentProps) => {
 
   return data && data.length > 0 ? (
     <FeedTree
+      mode={mode}
       data={data}
       tsIds={tsIds}
       onNodeClick={onNodeClick}

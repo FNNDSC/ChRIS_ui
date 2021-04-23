@@ -7,7 +7,6 @@ import {
   FormGroup,
   TextInput,
   Button,
-  Checkbox,
   ActionGroup,
   InputGroup,
 } from "@patternfly/react-core";

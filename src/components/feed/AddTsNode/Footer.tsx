@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@patternfly/react-core";
+import { Plugin } from "@fnndsc/chrisapi";
 import { Space } from "antd";
 
 type FooterProps = {
@@ -7,14 +8,19 @@ type FooterProps = {
   onBack: () => void;
   onNext: () => void;
   onCancel: () => void;
+  selectedTsPlugin?: Plugin;
 };
 
-const Footer = ({ currentStep, onBack, onNext, onCancel }: FooterProps) => {
+const Footer = ({
+  currentStep,
+  onBack,
+  onNext,
+  onCancel,
+  selectedTsPlugin,
+}: FooterProps) => {
+  console.log("CurrentStep:", currentStep);
   return (
     <Space>
-      <Button onClick={onNext} type="button">
-        Next
-      </Button>
       <Button
         isDisabled={currentStep === 0 ? true : false}
         onClick={onBack}
@@ -22,6 +28,14 @@ const Footer = ({ currentStep, onBack, onNext, onCancel }: FooterProps) => {
       >
         Back
       </Button>
+      <Button
+        isDisabled={currentStep === 1 && !selectedTsPlugin ? true : false}
+        onClick={onNext}
+        type="button"
+      >
+        Next
+      </Button>
+
       <Button onClick={onCancel} type="button">
         Cancel
       </Button>

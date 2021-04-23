@@ -1,5 +1,5 @@
 import React from "react";
-import { Radio, Title } from "@patternfly/react-core";
+import { Radio } from "@patternfly/react-core";
 
 type ChooseConfig = {
   selectedConfig: string;
@@ -11,7 +11,7 @@ const ChooseConfig: React.FC<ChooseConfig> = ({
   handleConfig,
 }: ChooseConfig) => {
   return (
-    <>
+    <div className="list-container">
       <Radio
         onChange={(_, event) => {
           handleConfig(event.currentTarget.value);
@@ -34,7 +34,7 @@ const ChooseConfig: React.FC<ChooseConfig> = ({
         label="Split Nodes"
         description="This allows you to split nodes"
       />
-    </>
+    </div>
   );
 };
 

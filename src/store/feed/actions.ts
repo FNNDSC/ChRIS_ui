@@ -48,7 +48,7 @@ export const getPluginFilesSuccess = (filesPayload: {
   files: any[];
 }) => action(FeedActionTypes.GET_PLUGIN_FILES_SUCCESS, filesPayload);
 export const getPluginFilesError = (payload: { id: number; error: any }) =>
-  action(FeedActionTypes.GET_PLUGIN_FILES_ERROR, payload); 
+  action(FeedActionTypes.GET_PLUGIN_FILES_ERROR, payload);
 
 export const addFeed = (feed: Feed) => action(FeedActionTypes.ADD_FEED, feed);
 export const addNodeRequest = (item: AddNodePayload) =>
@@ -61,8 +61,6 @@ export const deleteNode = (instance: PluginInstance) => {
 };
 export const deleteNodeSuccess = (id: number) =>
   action(FeedActionTypes.DELETE_NODE_SUCCESS, id);
-
-
 
 export const destroyPluginState = (data: DestroyData) =>
   action(FeedActionTypes.RESET_PLUGIN_STATE, data);
@@ -79,3 +77,6 @@ export const getPluginInstanceStatusSuccess = (statusPayload: {
 }) => action(FeedActionTypes.GET_PLUGIN_STATUS_SUCCESS, statusPayload);
 export const stopFetchingStatusResources = (id: number) =>
   action(FeedActionTypes.STOP_FETCHING_STATUS_RESOURCES, id);
+
+export const switchTreeMode = (mode: string) =>
+  action(FeedActionTypes.SWITCH_TREE_MODE, mode);

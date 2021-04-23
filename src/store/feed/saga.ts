@@ -239,7 +239,6 @@ function* fetchPluginFiles(plugin: PluginInstance) {
     const payload = {
       id,
       files,
-      hasNext: fileList.hasNextPage,
     };
 
     if (files.length > 0) yield put(getPluginFilesSuccess(payload));

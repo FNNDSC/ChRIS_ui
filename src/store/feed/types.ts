@@ -72,7 +72,6 @@ export interface FilesPayload {
   [id: string]: {
     files: FeedFile[];
     error: any;
-    hasNext: boolean;
   };
 }
 
@@ -127,6 +126,7 @@ export interface IFeedState {
   feedTreeProp: FeedTreeProp;
   currentLayout: boolean;
   deleteNodeSuccess: boolean;
+  treeMode: string;
 }
 
 export const FeedActionTypes = keyMirror({
@@ -158,4 +158,5 @@ export const FeedActionTypes = keyMirror({
   GET_PLUGIN_STATUS_REQUEST: null,
   GET_PLUGIN_STATUS_SUCCESS: null,
   STOP_FETCHING_STATUS_RESOURCES: null,
+  SWITCH_TREE_MODE: null,
 });

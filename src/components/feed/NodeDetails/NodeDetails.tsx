@@ -27,7 +27,7 @@ import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
 import PluginLog from "./PluginLog";
 import Status from "./Status";
-import GraphNode from "./GraphNode/GraphNode";
+import GraphNode from "../AddTsNode/ParentContainer";
 import StatusTitle from "./StatusTitle";
 import { setFeedLayout } from "../../../store/feed/actions";
 import { useTypedSelector } from "../../../store/hooks";

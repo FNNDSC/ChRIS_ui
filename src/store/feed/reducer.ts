@@ -35,7 +35,8 @@ export const initialState: IFeedState = {
     },
   },
   currentLayout: true,
-  deleteNodeSuccess:false
+  deleteNodeSuccess: false,
+  treeMode: "tree",
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -154,7 +155,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_PLUGIN_FILES_SUCCESS: {
-      const { id, files, hasNext } = action.payload;
+      const { id, files } = action.payload;
 
       return {
         ...state,
@@ -163,7 +164,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           [id]: {
             files,
             error: "",
-            hasNext: hasNext,
           },
         },
       };
@@ -178,7 +178,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           [id]: {
             files: [],
             error,
-            hasNext: false,
           },
         },
       };
@@ -227,10 +226,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
 
     case FeedActionTypes.ADD_NODE_SUCCESS: {
       if (state.pluginInstances.data) {
-        const pluginList = [
-          ...state.pluginInstances.data,
-          action.payload,
-        ]
+        const pluginList = [...state.pluginInstances.data, action.payload];
         return {
           ...state,
           pluginInstances: {
@@ -273,19 +269,20 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       }
     }
 
-
     case FeedActionTypes.DELETE_NODE_SUCCESS: {
       const id = action.payload;
-      const pluginInstances= state.pluginInstances.data?.map(instance => {
-        if(instance.data.id === id || instance.data.previous_id === id){
-          return undefined
-        }
-        else return instance;
-      }).filter(instance => instance);
-   
-      const selectedPlugin = pluginInstances && pluginInstances[pluginInstances.length - 1];
-      const pluginInstanceStatus=state.pluginInstanceStatus;
-      const pluginInstanceResource=state.pluginInstanceResource;
+      const pluginInstances = state.pluginInstances.data
+        ?.map((instance) => {
+          if (instance.data.id === id || instance.data.previous_id === id) {
+            return undefined;
+          } else return instance;
+        })
+        .filter((instance) => instance);
+
+      const selectedPlugin =
+        pluginInstances && pluginInstances[pluginInstances.length - 1];
+      const pluginInstanceStatus = state.pluginInstanceStatus;
+      const pluginInstanceResource = state.pluginInstanceResource;
       const pluginFiles = state.pluginFiles;
       delete pluginInstanceStatus[id];
       delete pluginInstanceResource[id];
@@ -294,16 +291,16 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         pluginInstances: {
-          data:pluginInstances,
-          error:"",
-          loading:false
+          data: pluginInstances,
+          error: "",
+          loading: false,
         },
         selectedPlugin,
         pluginInstanceResource,
         pluginInstanceStatus,
         pluginFiles,
-        deleteNodeSuccess:true
-      }
+        deleteNodeSuccess: true,
+      };
     }
 
     case FeedActionTypes.GET_PLUGIN_STATUS_SUCCESS: {
@@ -352,6 +349,14 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           },
         },
         currentLayout: true,
+        treeMode: "",
+      };
+    }
+
+    case FeedActionTypes.SWITCH_TREE_MODE: {
+      return {
+        ...state,
+        treeMode: action.payload,
       };
     }
 

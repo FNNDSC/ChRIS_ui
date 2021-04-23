@@ -18,7 +18,7 @@ import TransitionGroupWrapper from "./TransitionGroupWrapper";
 import { UndoIcon, RedoIcon } from "@patternfly/react-icons";
 import { v4 as uuidv4 } from "uuid";
 import clone from "clone";
-import { Switch, Button } from "@patternfly/react-core";
+import { Switch, Button, Alert } from "@patternfly/react-core";
 import { TSID } from "./ParentComponent";
 
 interface ITreeProps {
@@ -52,6 +52,7 @@ interface OwnProps {
   isSidePanelExpanded: boolean;
   isBottomPanelExpanded: boolean;
   onExpand: (panel: string) => void;
+  mode: string;
 }
 
 type AllProps = ITreeProps & OwnProps;
@@ -305,7 +306,8 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
       !isEqual(this.state.data, nextState.data) ||
       this.props.zoom !== nextProps.zoom ||
       this.props.instances !== nextProps.instances ||
-      this.props.tsIds !== nextProps.tsIds
+      this.props.tsIds !== nextProps.tsIds ||
+      this.props.mode !== nextProps.mode
     ) {
       return true;
     }
@@ -400,11 +402,11 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   render() {
     const { nodes, newLinks: links } = this.generateTree();
     const { translate, scale } = this.state.d3;
-    const { instances, feedTreeProp, changeOrientation } = this.props;
+    const { instances, feedTreeProp, changeOrientation, mode } = this.props;
     const { orientation } = feedTreeProp;
 
     return (
-      <div className="feed-tree grabbable">
+      <div className={`feed-tree grabbable mode_${mode}`}>
         <div className="feed-tree__container">
           <div className="feed-tree__container--labels">
             <div
@@ -441,6 +443,14 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
                 }}
               />
             </div>
+            {mode === "graph" && (
+              <div className="feed-tree__orientation">
+                <Alert
+                  variant="info"
+                  title="You are now in a ts node selection mode"
+                />
+              </div>
+            )}
           </div>
           {!this.props.isSidePanelExpanded && (
             <div className="feed-tree__container--panelToggle">
@@ -448,7 +458,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
                 <Button
                   type="button"
                   onClick={() => this.props.onExpand("side_panel")}
-                > 
+                >
                   Node Panel
                 </Button>
               </div>

@@ -94,6 +94,7 @@
 .section-two {
   height: 45vh;
 
+
   @include media-query(992px) {
     min-height: 45vh;
   }
@@ -138,6 +139,7 @@
 
 .feed-view {
   height: 100%;
+
 
   .pf-c-drawer__splitter {
     background-color: #002030 !important;
