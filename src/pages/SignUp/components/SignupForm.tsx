@@ -123,8 +123,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           passwordState.password
         );
       } catch (error) {
-
-        console.log({error});
         if (has(error, "response")) {
           if (has(error, "response.data.username")) {
             setLoading(false);
