@@ -47,7 +47,6 @@ const LoginFormComponent : React.FC<AllProps>=({
         passwordValue
       );
     } catch (error) {
-      console.log({error});
       setErrorMessage(
         (()=>error.response?'Invalid Credentials'
           :
