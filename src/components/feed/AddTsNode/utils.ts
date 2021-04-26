@@ -1,7 +1,7 @@
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { InputType } from "./ParentContainer";
 
-export const getInput = (
+export const getJoinInput = (
   joinInput: InputType,
   tsNodes?: PluginInstance[],
   selectedPlugin?: PluginInstance
@@ -21,3 +21,4 @@ export const getInput = (
   }
   return input || {};
 };
+

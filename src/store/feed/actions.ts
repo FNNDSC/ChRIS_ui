@@ -4,6 +4,7 @@ import {
   AddNodePayload,
   PluginInstanceObj,
   DestroyData,
+  SplitNodesPayload,
 } from "./types";
 
 import { Feed, PluginInstance } from "@fnndsc/chrisapi";
@@ -86,3 +87,10 @@ export const addTSNodes = (node: PluginInstance) =>
 
 export const deleteTsNode = (node: PluginInstance) =>
   action(FeedActionTypes.DELETE_TS_NODE, node);
+
+
+export const addSplitNodes = (splitNodesPayload: SplitNodesPayload) =>
+  action(FeedActionTypes.ADD_SPLIT_NODES, splitNodesPayload);
+
+export const addSplitNodesSuccess = (splitNodes: PluginInstance[]) =>
+  action(FeedActionTypes.ADD_SPLIT_NODES_SUCCESS, splitNodes);

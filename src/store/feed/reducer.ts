@@ -1,5 +1,6 @@
 import { Reducer } from "redux";
 import { IFeedState, FeedActionTypes } from "./types";
+import { PluginInstance } from "@fnndsc/chrisapi";
 import { getStatusLabels } from "./utils";
 
 // Type-safe initialState
@@ -393,6 +394,24 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           tsNodes: filteredNodes,
         };
       } else return { ...state };
+    }
+
+    case FeedActionTypes.ADD_SPLIT_NODES_SUCCESS: {
+      const pluginInstances = state.pluginInstances.data;
+      if (pluginInstances) {
+        const newList: PluginInstance[] = [
+          ...pluginInstances,
+          ...action.payload,
+        ];
+        return {
+          ...state,
+          pluginInstances: {
+            data: newList,
+            error: "",
+            loading: false,
+          },
+        };
+      } else return state;
     }
 
     default: {

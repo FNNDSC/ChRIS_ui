@@ -93,6 +93,12 @@ export interface PluginInstanceStatusPayload {
   };
 }
 
+export interface SplitNodesPayload {
+  splitNodes: PluginInstance[];
+  nodes?: PluginInstance[];
+  selectedPlugin?: PluginInstance;
+}
+
 export interface FeedTreeProp {
   orientation: "horizontal" | "vertical";
   translate: {
@@ -162,4 +168,6 @@ export const FeedActionTypes = keyMirror({
   SWITCH_TREE_MODE: null,
   ADD_TS_NODE: null,
   DELETE_TS_NODE: null,
+  ADD_SPLIT_NODES: null,
+  ADD_SPLIT_NODES_SUCCESS: null,
 });

@@ -7,19 +7,24 @@ import Join from "./Join";
 import Split from "./Split";
 import ConfigureJoin from "./ConfigureJoin";
 import Review from "./Review";
-import { getInput } from "./utils";
+import { getJoinInput } from "./utils";
 import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
-import Client from '../../../api/chrisapiclient'
+import Client from "../../../api/chrisapiclient";
 
 import "./GraphNode.scss";
-import { addNodeRequest, switchTreeMode } from "../../../store/feed/actions";
+import {
+  addNodeRequest,
+  addSplitNodes,
+  switchTreeMode,
+} from "../../../store/feed/actions";
 
 function getNodeState() {
   return {
     selectedConfig: "join-node",
     selectedTsPlugin: undefined,
     joinInput: {},
+    splitInput: {},
   };
 }
 
@@ -31,6 +36,7 @@ export type NodeState = {
   selectedConfig: string;
   selectedTsPlugin?: Plugin;
   joinInput: InputType;
+  splitInput: InputType;
 };
 
 const GraphNode = () => {
@@ -40,7 +46,7 @@ const GraphNode = () => {
   const dispatch = useDispatch();
   const [stepNumber, setStepNumber] = React.useState(0);
   const [nodeState, setNodeState] = React.useState<NodeState>(getNodeState);
-  const { selectedConfig, selectedTsPlugin, joinInput } = nodeState;
+  const { selectedConfig, selectedTsPlugin, joinInput, splitInput } = nodeState;
   const handleConfig = (value: string) => {
     setNodeState({
       ...nodeState,
@@ -53,63 +59,71 @@ const GraphNode = () => {
   };
 
   const handleAdd = async () => {
-    console.log("Handing Add", nodeState.joinInput);
-    const { joinInput } = nodeState;
-    const input = getInput(joinInput, tsNodes, selectedPlugin);
+    const { joinInput, selectedConfig } = nodeState;
+    const input = getJoinInput(joinInput, tsNodes, selectedPlugin);
 
     if (selectedPlugin) {
-      const finalParameterList = {
-        ...input,
-        ["previous_id"]: `${selectedPlugin.data.id}`,
-      };
+      if (selectedConfig === "join-node") {
+        const finalParameterList = {
+          ...input,
+          ["previous_id"]: `${selectedPlugin.data.id}`,
+        };
 
-      const testList = {
-        "filter":"\.pdf$",
-        "cr_name":"host",
-        "pluginInstanceId":+selectedPlugin.data.id
-      }
-     
+        const pluginInstance = await selectedTsPlugin?.getPluginInstances();
 
-      const pluginInstance = await selectedTsPlugin?.getPluginInstances();
+        try {
+          await pluginInstance?.post(finalParameterList);
+          const node = pluginInstance?.getItems()[0];
+          dispatch(addNodeRequest({ pluginItem: node, nodes: nodes.data }));
+          dispatch(switchTreeMode(false));
+        } catch (error) {
+          console.log("ERROR", error);
+        }
+      } else {
+        const client = Client.getClient();
+        //@ts-ignores
+        const node = await client.createPluginInstanceSplit(
+          selectedPlugin.data.id,
+          splitInput["filter"] as string,
+          splitInput["compute_resource"] as string
+        );
+        const instanceIds = node.data.created_plugin_inst_ids.split(',');
+        console.log("instanceIds", instanceIds)
+        const splitNodes = [];
 
-      try {
-        /*
-        await pluginInstance?.post(finalParameterList);
-        const node = pluginInstance?.getItems()[0];
-       */
-
-        //@ts-ignore
-        const client=Client.getClient();
-         //@ts-ignore
-        const test=await client.createPluginInstanceSplit(
-          selectedPlugin.data.id, '\.pdf$','host'
-        )
-
-        console.log("test",test )
-
-      
-
-
-
-
-
-       // dispatch(addNodeRequest({ pluginItem: node, nodes: nodes.data }));
+        for (const i in instanceIds) {
+          const id = instanceIds[i];
+          console.log("ID", id);
+          const pluginInstance = await client.getPluginInstance(+id);
+          splitNodes.push(pluginInstance);
+        }
+        dispatch(addSplitNodes({  splitNodes, nodes:  nodes.data, selectedPlugin  }));
         dispatch(switchTreeMode(false));
-      } catch (error) {
-        console.log("ERROR", error);
       }
     }
   };
 
   const onNext = () => {
-    stepNumber < 3 && setStepNumber(stepNumber + 1);
-    if (stepNumber === 3) {
+    console.log("StepNumber", stepNumber);
+    if (stepNumber === 1 && selectedConfig === "split-node") {
+      setStepNumber(stepNumber + 2);
+    } else if (stepNumber === 3) {
       handleAdd();
-    }
+    } else stepNumber < 3 && setStepNumber(stepNumber + 1);
   };
 
   const onCancel = () => {
     console.log("clicked");
+  };
+
+  const handleSplitChange = (value: string, name: string) => {
+    setNodeState({
+      ...nodeState,
+      splitInput: {
+        ...nodeState.splitInput,
+        [name]: value,
+      },
+    });
   };
 
   const handleValueChange = (value: string, name: string) => {
@@ -158,7 +172,10 @@ const GraphNode = () => {
             handlePluginSelect={handlePluginSelect}
           />
         ) : (
-          <Split />
+          <Split
+            splitInput={splitInput}
+            handleSplitChange={handleSplitChange}
+          />
         ),
     },
     {
@@ -180,7 +197,12 @@ const GraphNode = () => {
 
   const title = [
     "Configure a Graph Node :",
-    `${selectedConfig==='join-node' ? "Select a 'TS' Node :" : "Configure Split Operation on " + selectedPlugin?.data.title || selectedPlugin?.data.plugin_name + ":"}`,
+    `${
+      selectedConfig === "join-node"
+        ? "Select a 'TS' Node :"
+        : "Configure Split Operation on " + selectedPlugin?.data.title ||
+          selectedPlugin?.data.plugin_name + ":"
+    }`,
     `Configure ${selectedTsPlugin?.data.name}`,
     "Review",
   ];
