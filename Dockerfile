@@ -11,7 +11,7 @@
 # In the case of a proxy (located at say 10.41.13.4:3128), do:
 #
 #    export PROXY="http://10.41.13.4:3128"
-#    docker build --build-arg http_proxy=${PROXY} --build-arg UID=$UID -t local/chris_ui .
+#    docker build --build-arg http_proxy=${PROXY} -t local/chris_ui .
 #
 # To run the server up, do:
 #
