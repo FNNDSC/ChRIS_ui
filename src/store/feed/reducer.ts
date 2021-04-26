@@ -1,7 +1,6 @@
 import { Reducer } from "redux";
 import { IFeedState, FeedActionTypes } from "./types";
-import {getStatusLabels} from './utils'
-
+import { getStatusLabels } from "./utils";
 
 // Type-safe initialState
 export const initialState: IFeedState = {
@@ -36,7 +35,8 @@ export const initialState: IFeedState = {
   },
   currentLayout: true,
   deleteNodeSuccess: false,
-  treeMode: "tree",
+  treeMode: true,
+  tsNodes: undefined,
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -349,15 +349,50 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           },
         },
         currentLayout: true,
-        treeMode: "",
+        treeMode: true,
       };
     }
 
     case FeedActionTypes.SWITCH_TREE_MODE: {
       return {
         ...state,
-        treeMode: action.payload,
+        treeMode: !action.payload,
       };
+    }
+
+    case FeedActionTypes.ADD_TS_NODE: {
+      if (!state.tsNodes) {
+        return {
+          ...state,
+          tsNodes: [action.payload],
+        };
+      } else {
+        const node = state.tsNodes.find(
+          (node) => node.data.id === action.payload.data.id
+        );
+
+        if (node) {
+          return {
+            ...state,
+          };
+        } else
+          return {
+            ...state,
+            tsNodes: [...state.tsNodes, action.payload],
+          };
+      }
+    }
+
+    case FeedActionTypes.DELETE_TS_NODE: {
+      if (state.tsNodes) {
+        const filteredNodes = state.tsNodes.filter(
+          (node) => node.data.id !== action.payload.data.id
+        );
+        return {
+          ...state,
+          tsNodes: filteredNodes,
+        };
+      } else return { ...state };
     }
 
     default: {
@@ -366,10 +401,4 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
   }
 };
 
-
-
 export { reducer as feedReducer };
-
-
-
-

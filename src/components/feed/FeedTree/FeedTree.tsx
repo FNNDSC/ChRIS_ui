@@ -36,6 +36,8 @@ interface OwnProps {
   tsIds: TSID;
   data: TreeNodeDatum[];
   onNodeClick: (node: PluginInstance) => void;
+  onNodeClickTs: (node: PluginInstance) => void;
+  changeMode: (mode: boolean) => void;
   translate: Point;
   scaleExtent: {
     min: number;
@@ -52,7 +54,7 @@ interface OwnProps {
   isSidePanelExpanded: boolean;
   isBottomPanelExpanded: boolean;
   onExpand: (panel: string) => void;
-  mode: string;
+  mode: boolean;
 }
 
 type AllProps = ITreeProps & OwnProps;
@@ -290,6 +292,10 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
     this.props.onNodeClick(item);
   };
 
+  handleNodeClickTs = (item: PluginInstance) => {
+    this.props.onNodeClickTs(item);
+  };
+
   shouldComponentUpdate(nextProps: AllProps, nextState: FeedTreeState) {
     if (
       !isEqual(
@@ -402,11 +408,17 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
   render() {
     const { nodes, newLinks: links } = this.generateTree();
     const { translate, scale } = this.state.d3;
-    const { instances, feedTreeProp, changeOrientation, mode } = this.props;
+    const {
+      instances,
+      feedTreeProp,
+      changeOrientation,
+      changeMode,
+      mode,
+    } = this.props;
     const { orientation } = feedTreeProp;
 
     return (
-      <div className={`feed-tree grabbable mode_${mode}`}>
+      <div className={`feed-tree grabbable mode_${mode===false ? 'graph':''}`}>
         <div className="feed-tree__container">
           <div className="feed-tree__container--labels">
             <div
@@ -443,7 +455,18 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
                 }}
               />
             </div>
-            {mode === "graph" && (
+
+            <div className="feed-tree__orientation">
+              <Switch
+                id="mode"
+                label="Switch Mode"
+                isChecked={mode === false}
+                onChange={() => {
+                  changeMode(mode);
+                }}
+              />
+            </div>
+            {mode === false && (
               <div className="feed-tree__orientation">
                 <Alert
                   variant="info"
@@ -490,6 +513,7 @@ class FeedTree extends React.Component<AllProps, FeedTreeState> {
                   position={{ x, y }}
                   parent={parent}
                   onNodeClick={this.handleNodeClick}
+                  onNodeClickTs={this.handleNodeClickTs}
                   onNodeToggle={this.handleNodeToggle}
                   orientation={orientation}
                   instances={instances}

@@ -78,5 +78,11 @@ export const getPluginInstanceStatusSuccess = (statusPayload: {
 export const stopFetchingStatusResources = (id: number) =>
   action(FeedActionTypes.STOP_FETCHING_STATUS_RESOURCES, id);
 
-export const switchTreeMode = (mode: string) =>
+export const switchTreeMode = (mode: boolean) =>
   action(FeedActionTypes.SWITCH_TREE_MODE, mode);
+
+export const addTSNodes = (node: PluginInstance) =>
+  action(FeedActionTypes.ADD_TS_NODE, node);
+
+export const deleteTsNode = (node: PluginInstance) =>
+  action(FeedActionTypes.DELETE_TS_NODE, node);

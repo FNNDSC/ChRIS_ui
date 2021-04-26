@@ -48,8 +48,20 @@ class Link extends React.Component<LinkProps, LinkState> {
   nodeRadius = 12;
   drawPath = () => {
     const { linkData, orientation } = this.props;
-    // console.log("LinkData", linkData);
+
     const { source, target } = linkData;
+
+    const deltaX = target.x - source.x,
+      deltaY = target.y - source.y,
+      dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+      normX = deltaX / dist,
+      normY = deltaY / dist,
+      sourcePadding = this.nodeRadius,
+      targetPadding = this.nodeRadius + 4,
+      sourceX = source.x + sourcePadding * normX,
+      sourceY = source.y + sourcePadding * normY,
+      targetX = target.x - targetPadding * normX,
+      targetY = target.y - targetPadding * normY;
 
     //@ts-ignore
     if (target.data.item?.data.plugin_type === "ts") {
@@ -58,26 +70,15 @@ class Link extends React.Component<LinkProps, LinkState> {
       ) {
         return orientation === "horizontal"
           ? linkHorizontal()({
-              source: [source.y, source.x],
-              target: [target.y, target.x],
+              source: [sourceY, sourceX],
+              target: [targetY, targetX],
             })
           : linkVertical()({
-              source: [source.x, source.y],
-              target: [target.x, target.y],
+              source: [sourceX, sourceY],
+              target: [targetX, targetY],
             });
       }
     } else {
-      const deltaX = target.x - source.x,
-        deltaY = target.y - source.y,
-        dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-        normX = deltaX / dist,
-        normY = deltaY / dist,
-        sourcePadding = this.nodeRadius,
-        targetPadding = this.nodeRadius + 4,
-        sourceX = source.x + sourcePadding * normX,
-        sourceY = source.y + sourcePadding * normY,
-        targetX = target.x - targetPadding * normX,
-        targetY = target.y - targetPadding * normY;
       return orientation === "horizontal"
         ? `M ${sourceY} ${sourceX} L ${targetY} ${targetX}`
         : `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;

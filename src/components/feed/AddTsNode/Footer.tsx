@@ -9,6 +9,7 @@ type FooterProps = {
   onNext: () => void;
   onCancel: () => void;
   selectedTsPlugin?: Plugin;
+  selectedConfig?:string;
 };
 
 const Footer = ({
@@ -17,8 +18,8 @@ const Footer = ({
   onNext,
   onCancel,
   selectedTsPlugin,
+  selectedConfig
 }: FooterProps) => {
-  console.log("CurrentStep:", currentStep);
   return (
     <Space>
       <Button
@@ -29,11 +30,15 @@ const Footer = ({
         Back
       </Button>
       <Button
-        isDisabled={currentStep === 1 && !selectedTsPlugin ? true : false}
+        isDisabled={
+          (currentStep === 1 && selectedConfig==='join-node' && !selectedTsPlugin) 
+            ? true
+            : false
+        }
         onClick={onNext}
         type="button"
       >
-        Next
+        {currentStep===3 ? 'Add Node' : 'Next'}
       </Button>
 
       <Button onClick={onCancel} type="button">

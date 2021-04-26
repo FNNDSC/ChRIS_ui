@@ -126,7 +126,8 @@ export interface IFeedState {
   feedTreeProp: FeedTreeProp;
   currentLayout: boolean;
   deleteNodeSuccess: boolean;
-  treeMode: string;
+  treeMode: boolean;
+  tsNodes?: PluginInstance[];
 }
 
 export const FeedActionTypes = keyMirror({
@@ -159,4 +160,6 @@ export const FeedActionTypes = keyMirror({
   GET_PLUGIN_STATUS_SUCCESS: null,
   STOP_FETCHING_STATUS_RESOURCES: null,
   SWITCH_TREE_MODE: null,
+  ADD_TS_NODE: null,
+  DELETE_TS_NODE: null,
 });

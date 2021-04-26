@@ -103,13 +103,25 @@
 
 @keyframes active {
   0% {
-    fill: #7dc3e8;
+    fill: #bee1f4
   }
   50% {
     fill: #0088ce;
   }
   100% {
-    fill: #004080;
+    fill: #73bcf7
+  }
+}
+
+@keyframes graph {
+  0% {
+    fill: #cbc1ff
+  }
+  50% {
+    fill: #b2a3ff
+  }
+  100% {
+    fill: #8476d1
   }
 }
 
@@ -140,6 +152,8 @@
 .node {
   cursor: pointer;
   fill: "white";
+
+
 
   &.queued {
     fill: #aaa;
@@ -184,6 +198,18 @@
   &.selected {
     stroke: white;
     stroke-width: 3px;
+  }
+
+  &.graphSelected {
+    animation-name: graph;
+    animation-duration: 5s;
+    animation-timing-function: ease-in;
+    animation-iteration-count: infinite;
+    animation-delay: 1s;
+    animation-fill-mode: both;
+    stroke: white;
+    stroke-width: 3px;
+    
   }
 }
 

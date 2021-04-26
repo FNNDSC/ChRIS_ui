@@ -2,12 +2,13 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../../store/hooks";
 import { Spinner } from "@patternfly/react-core";
-import { setFeedTreeProp } from "../../../store/feed/actions";
+import { setFeedTreeProp, switchTreeMode } from "../../../store/feed/actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import FeedTree from "./FeedTree";
 import { getFeedTree, TreeNodeDatum, getTsNodes } from "./data";
 
 interface ParentComponentProps {
+  onNodeClickTs: (node: PluginInstance) => void;
   onNodeClick: (node: PluginInstance) => void;
   isSidePanelExpanded: boolean;
   isBottomPanelExpanded: boolean;
@@ -21,6 +22,7 @@ export type TSID = {
 const ParentComponent = (props: ParentComponentProps) => {
   const {
     onNodeClick,
+    onNodeClickTs,
     isSidePanelExpanded,
     isBottomPanelExpanded,
     onExpand,
@@ -50,12 +52,19 @@ const ParentComponent = (props: ParentComponentProps) => {
     dispatch(setFeedTreeProp(orientation));
   };
 
+  const changeMode = (mode: boolean) => {
+    console.log("Mode", mode)
+    dispatch(switchTreeMode(mode));
+  };
+
   return data && data.length > 0 ? (
     <FeedTree
+      onNodeClickTs={onNodeClickTs}
       mode={mode}
       data={data}
       tsIds={tsIds}
       onNodeClick={onNodeClick}
+      changeMode={changeMode}
       zoom={1}
       nodeSize={{ x: 85, y: 60 }}
       separation={
@@ -75,6 +84,7 @@ const ParentComponent = (props: ParentComponentProps) => {
       isSidePanelExpanded={isSidePanelExpanded}
       isBottomPanelExpanded={isBottomPanelExpanded}
       onExpand={onExpand}
+
     />
   ) : (
     <Spinner size="lg" />
