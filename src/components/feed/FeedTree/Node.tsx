@@ -20,7 +20,7 @@ type NodeProps = {
   onNodeClickTs: (node: PluginInstance) => void;
   onNodeToggle: (nodeId: string) => void;
   orientation: "horizontal" | "vertical";
-  instances: PluginInstance[];
+  instances?: PluginInstance[];
   toggleLabel: boolean;
   pluginInstanceStatus?: PluginInstanceStatusPayload;
 };

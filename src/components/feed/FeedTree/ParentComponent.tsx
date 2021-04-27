@@ -56,7 +56,7 @@ const ParentComponent = (props: ParentComponentProps) => {
     dispatch(switchTreeMode(mode));
   };
 
-  return data && data.length > 0 && tsIds && instances  ? (
+  return data && data.length > 0 && instances ? (
     <FeedTree
       onNodeClickTs={onNodeClickTs}
       mode={mode}

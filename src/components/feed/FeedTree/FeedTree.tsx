@@ -17,12 +17,13 @@ import Node from "./Node";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
 import { UndoIcon, RedoIcon } from "@patternfly/react-icons";
 import { v4 as uuidv4 } from "uuid";
+
 import clone from "clone";
 import { Switch, Button, Alert } from "@patternfly/react-core";
 import { TSID } from "./ParentComponent";
 
 interface ITreeProps {
-  instances: PluginInstance[];
+  instances?: PluginInstance[];
   feedTreeProp: FeedTreeProp;
 }
 
@@ -32,7 +33,7 @@ interface Separation {
 }
 
 interface OwnProps {
-  tsIds: TSID;
+  tsIds?: TSID;
   data: TreeNodeDatum[];
   onNodeClick: (node: PluginInstance) => void;
   onNodeClickTs: (node: PluginInstance) => void;
@@ -59,7 +60,6 @@ interface OwnProps {
 type AllProps = ITreeProps & OwnProps;
 
 type FeedTreeState = {
-  dataRef?: TreeNodeDatum[];
   data?: TreeNodeDatum[];
   d3: {
     translate: Point;
@@ -67,7 +67,6 @@ type FeedTreeState = {
   };
   collapsible: boolean;
   toggleLabel: boolean;
-  isInitialRenderForDataset: boolean;
 };
 
 function assignInternalProperties(data: Datum[], currentDepth = 0) {
@@ -142,12 +141,10 @@ function expandNode(nodeDatum: TreeNodeDatum) {
 
 function getInitialState(props: AllProps) {
   return {
-    dataRef: props.data,
     data: assignInternalProperties(clone(props.data)),
     d3: calculateD3Geometry(props),
     collapsible: false,
     toggleLabel: false,
-    isInitialRenderForDataset: true,
   };
 }
 
@@ -160,7 +157,6 @@ const FeedTree = (props: AllProps) => {
   );
   const { translate, scale } = feedState.d3;
   const {
-    instances,
     feedTreeProp,
     changeOrientation,
     changeMode,
@@ -187,18 +183,6 @@ const FeedTree = (props: AllProps) => {
         .scaleExtent([scaleExtent.min, scaleExtent.max])
         .on("zoom", () => {
           g.attr("transform", event.transform);
-          setFeedState((feedState) => {
-            return {
-              ...feedState,
-              d3: {
-                ...feedState.d3,
-                translate: {
-                  x: event.transform.x,
-                  y: event.transform.y,
-                },
-              },
-            };
-          });
         })
     );
   }, [zoom, scaleExtent, feedTreeProp]);
@@ -208,6 +192,17 @@ const FeedTree = (props: AllProps) => {
     // Or: rebind zoom listeners to new DOM nodes in case legacy transitions were enabled/disabled.
     bindZoomListener();
   }, [bindZoomListener]);
+
+  React.useEffect(() => {
+    if (!props.data) {
+      setFeedState((feedState) => {
+        return {
+          ...feedState,
+          data: assignInternalProperties(clone(props.data)),
+        };
+      });
+    }
+  }, [props.data]);
 
   const handleChange = (feature: string) => {
     if (feature === "collapsible") {
@@ -421,7 +416,6 @@ const FeedTree = (props: AllProps) => {
                 onNodeClickTs={handleNodeClickTs}
                 onNodeToggle={handleNodeToggle}
                 orientation={orientation}
-                instances={instances}
                 toggleLabel={feedState.toggleLabel}
               />
             );
