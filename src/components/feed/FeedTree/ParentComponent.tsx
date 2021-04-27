@@ -56,7 +56,7 @@ const ParentComponent = (props: ParentComponentProps) => {
     dispatch(switchTreeMode(mode));
   };
 
-  return data && data.length > 0 ? (
+  return data && data.length > 0 && tsIds && instances  ? (
     <FeedTree
       onNodeClickTs={onNodeClickTs}
       mode={mode}
@@ -83,7 +83,6 @@ const ParentComponent = (props: ParentComponentProps) => {
       isSidePanelExpanded={isSidePanelExpanded}
       isBottomPanelExpanded={isBottomPanelExpanded}
       onExpand={onExpand}
-
     />
   ) : (
     <Spinner size="lg" />

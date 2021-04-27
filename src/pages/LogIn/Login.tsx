@@ -1,13 +1,14 @@
 import * as React from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
-import { 
-  LoginPage, LoginMainFooterBandItem,
+import {
+  LoginPage,
+  LoginMainFooterBandItem,
   LoginFooterItem,
-  ListItem
+  ListItem,
 } from "@patternfly/react-core";
 
-import ChRIS_Logo from '../../assets/images/chris-logo.png'
-import ChRIS_Logo_inline from '../../assets/images/chris-logo-inline.png'
+import ChRIS_Logo from "../../assets/images/chris-logo.png";
+import ChRIS_Logo_inline from "../../assets/images/chris-logo-inline.png";
 import LoginFormComponent from "./components/LoginForm";
 
 import "./login.scss";
@@ -15,24 +16,17 @@ import "./login.scss";
 type AllProps = RouteComponentProps;
 
 const loginTextDesc = `
-  ChRIS is a general-purpose, open source distributed data and computation platform that 
-  connects a community of researchers and developers to data between computing environments.
-`
+ChRIS is a general-purpose, open source, distributed data and computation platform that connects a community of researchers, developers, and clinicians together.
+`;
 
 const FooterLinks = (
   <React.Fragment>
     <ListItem>
       <LoginFooterItem href="https://www.fnndsc.org/">
-        Copyright © 2021 Boston Children&apos;s Hospital 
-        Fetal-Neonatal Neuroimaging and Developmental Science Center
+        Copyright © 2021 Boston Children&apos;s Hospital Fetal-Neonatal
+        Neuroimaging and Developmental Science Center
       </LoginFooterItem>
     </ListItem>
-    {/* <ListItem>
-      <LoginFooterItem href="#">Help</LoginFooterItem>
-    </ListItem>
-    <ListItem>
-      <LoginFooterItem href="#">Privacy Policy</LoginFooterItem>
-    </ListItem> */}
   </React.Fragment>
 );
 

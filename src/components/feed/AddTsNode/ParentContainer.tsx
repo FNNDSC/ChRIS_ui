@@ -25,6 +25,8 @@ function getNodeState() {
     selectedTsPlugin: undefined,
     joinInput: {},
     splitInput: {},
+    stepNumber: 0,
+    error: {},
   };
 }
 
@@ -37,6 +39,8 @@ export type NodeState = {
   selectedTsPlugin?: Plugin;
   joinInput: InputType;
   splitInput: InputType;
+  stepNumber: number;
+  error: any;
 };
 
 export type GraphNodeProps = {
@@ -51,10 +55,16 @@ const GraphNode = (props: GraphNodeProps) => {
   const tsNodes = useTypedSelector((state) => state.feed.tsNodes);
   const nodes = useTypedSelector((state) => state.feed.pluginInstances);
   const dispatch = useDispatch();
-  const [stepNumber, setStepNumber] = React.useState(0);
+
   const [nodeState, setNodeState] = React.useState<NodeState>(getNodeState);
-  const { selectedConfig, selectedTsPlugin, joinInput, splitInput } = nodeState;
-  
+  const {
+    selectedConfig,
+    selectedTsPlugin,
+    joinInput,
+    splitInput,
+    stepNumber,
+  } = nodeState;
+
   const handleConfig = (value: string) => {
     setNodeState({
       ...nodeState,
@@ -64,9 +74,16 @@ const GraphNode = (props: GraphNodeProps) => {
 
   const onBack = () => {
     if (stepNumber === 3 && selectedConfig === "split-node") {
-      setStepNumber(stepNumber - 2);
+      setNodeState({
+        ...nodeState,
+        stepNumber: stepNumber - 2,
+      });
     } else {
-      stepNumber > 0 && setStepNumber(stepNumber - 1);
+      stepNumber > 0 &&
+        setNodeState({
+          ...nodeState,
+          stepNumber: stepNumber - 1,
+        });
     }
   };
 
@@ -128,13 +145,22 @@ const GraphNode = (props: GraphNodeProps) => {
 
   const onNext = () => {
     if (stepNumber === 1 && selectedConfig === "split-node") {
-      setStepNumber(stepNumber + 2);
+      setNodeState({
+        ...nodeState,
+        stepNumber: stepNumber + 2,
+      });
     } else if (stepNumber === 3) {
       handleAdd();
-    } else stepNumber < 3 && setStepNumber(stepNumber + 1);
+    } else
+      stepNumber < 3 &&
+        setNodeState({
+          ...nodeState,
+          stepNumber: stepNumber + 1,
+        });
   };
 
   const onCancel = () => {
+    handleResets();
     onVisibleChange(!visible);
   };
 
