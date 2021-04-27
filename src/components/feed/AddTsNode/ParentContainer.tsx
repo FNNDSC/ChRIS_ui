@@ -39,7 +39,14 @@ export type NodeState = {
   splitInput: InputType;
 };
 
-const GraphNode = () => {
+export type GraphNodeProps = {
+  onVisibleChange: (visible: boolean) => void;
+  visible: boolean;
+};
+
+const GraphNode = (props: GraphNodeProps) => {
+  const { onVisibleChange, visible } = props;
+
   const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
   const tsNodes = useTypedSelector((state) => state.feed.tsNodes);
   const nodes = useTypedSelector((state) => state.feed.pluginInstances);
@@ -47,6 +54,7 @@ const GraphNode = () => {
   const [stepNumber, setStepNumber] = React.useState(0);
   const [nodeState, setNodeState] = React.useState<NodeState>(getNodeState);
   const { selectedConfig, selectedTsPlugin, joinInput, splitInput } = nodeState;
+  
   const handleConfig = (value: string) => {
     setNodeState({
       ...nodeState,
@@ -55,7 +63,15 @@ const GraphNode = () => {
   };
 
   const onBack = () => {
-    stepNumber > 0 && setStepNumber(stepNumber - 1);
+    if (stepNumber === 3 && selectedConfig === "split-node") {
+      setStepNumber(stepNumber - 2);
+    } else {
+      stepNumber > 0 && setStepNumber(stepNumber - 1);
+    }
+  };
+
+  const handleResets = () => {
+    setNodeState(getNodeState);
   };
 
   const handleAdd = async () => {
@@ -70,41 +86,47 @@ const GraphNode = () => {
         };
 
         const pluginInstance = await selectedTsPlugin?.getPluginInstances();
-
         try {
           await pluginInstance?.post(finalParameterList);
           const node = pluginInstance?.getItems()[0];
           dispatch(addNodeRequest({ pluginItem: node, nodes: nodes.data }));
           dispatch(switchTreeMode(false));
+          handleResets();
+          onVisibleChange(!visible);
         } catch (error) {
           console.log("ERROR", error);
         }
       } else {
-        const client = Client.getClient();
-        //@ts-ignores
-        const node = await client.createPluginInstanceSplit(
-          selectedPlugin.data.id,
-          splitInput["filter"] as string,
-          splitInput["compute_resource"] as string
-        );
-        const instanceIds = node.data.created_plugin_inst_ids.split(',');
-        console.log("instanceIds", instanceIds)
-        const splitNodes = [];
+        try {
+          const client = Client.getClient();
+          //@ts-ignore
+          const node = await client.createPluginInstanceSplit(
+            selectedPlugin.data.id,
+            splitInput["filter"] as string,
+            splitInput["compute_resource"] as string
+          );
+          const instanceIds = node.data.created_plugin_inst_ids.split(",");
+          const splitNodes = [];
 
-        for (const i in instanceIds) {
-          const id = instanceIds[i];
-          console.log("ID", id);
-          const pluginInstance = await client.getPluginInstance(+id);
-          splitNodes.push(pluginInstance);
+          for (const i in instanceIds) {
+            const id = instanceIds[i];
+            const pluginInstance = await client.getPluginInstance(+id);
+            splitNodes.push(pluginInstance);
+          }
+          dispatch(
+            addSplitNodes({ splitNodes, nodes: nodes.data, selectedPlugin })
+          );
+          dispatch(switchTreeMode(false));
+          handleResets();
+          onVisibleChange(!visible);
+        } catch (error) {
+          console.log("ERROR", error);
         }
-        dispatch(addSplitNodes({  splitNodes, nodes:  nodes.data, selectedPlugin  }));
-        dispatch(switchTreeMode(false));
       }
     }
   };
 
   const onNext = () => {
-    console.log("StepNumber", stepNumber);
     if (stepNumber === 1 && selectedConfig === "split-node") {
       setStepNumber(stepNumber + 2);
     } else if (stepNumber === 3) {
@@ -113,7 +135,7 @@ const GraphNode = () => {
   };
 
   const onCancel = () => {
-    console.log("clicked");
+    onVisibleChange(!visible);
   };
 
   const handleSplitChange = (value: string, name: string) => {
@@ -200,8 +222,9 @@ const GraphNode = () => {
     `${
       selectedConfig === "join-node"
         ? "Select a 'TS' Node :"
-        : "Configure Split Operation on " + selectedPlugin?.data.title ||
-          selectedPlugin?.data.plugin_name + ":"
+        : "Configure Split Operation on " +
+          (selectedPlugin?.data.title || selectedPlugin?.data.plugin_name) +
+          ":"
     }`,
     `Configure ${selectedTsPlugin?.data.name}`,
     "Review",

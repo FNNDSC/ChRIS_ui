@@ -21,6 +21,7 @@ const Split = ({ splitInput, handleSplitChange }: SplitProps) => {
         </Form.Item>
         <Form.Item name="compute_resource" label="compute resource">
           <Input
+            className="input"
             value={splitInput["compute_resource"] as string}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleSplitChange(e.target.value, "compute_resource");

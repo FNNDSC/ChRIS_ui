@@ -75,6 +75,7 @@ const FeedGraph = (props: IFeedProps) => {
   React.useEffect(() => {
     if (instances && instances.length > 0) {
       const tree = new TreeModel(instances);
+
       //@ts-ignore
       setGraphData(tree.treeChart);
     }

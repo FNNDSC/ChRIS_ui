@@ -97,7 +97,7 @@ export default class TreeModel {
     _parentIndex = 0
   ) {
     const cloneArr: PluginInstance[] = workingItems.slice();
-    cloneArr.forEach(async (item: PluginInstance) => {
+    cloneArr.forEach((item: PluginInstance) => {
       if (item.data.previous_id === _workingId) {
         const id = this._workingIndex;
         // is this a child to the node we are working on?
@@ -106,26 +106,11 @@ export default class TreeModel {
           item,
           group: item.data.previous_id,
         });
-        //@ts-ignore
-        if (item.data.plugin_type === "ts") {
-          const parameterList = await item.getParameters();
-          const parameters = parameterList.getItems();
-          const parentIds = parameters[0].data.value.split(",");
-          for (let i = 0; i < parentIds.length; i++) {
-            this._links.push({
-              target: this._workingIndex,
-              source: +parentIds[i],
-              value: 1,
-            });
-          }
-        } else {
-          this._links.push({
-            target: this._workingIndex,
-            source: _parentIndex,
-            value: 1,
-          });
-        }
-
+        this._links.push({
+          target: this._workingIndex,
+          source: _parentIndex,
+          value: 1,
+        });
         this._workingItems = this._removeWorkingItem(item);
         this._workingIndex++;
         this._findChildrenNodes(item.data.id, id);

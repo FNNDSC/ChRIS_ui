@@ -351,6 +351,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         },
         currentLayout: true,
         treeMode: true,
+        tsNodes: [],
       };
     }
 
@@ -358,6 +359,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         treeMode: !action.payload,
+        tsNodes: [],
       };
     }
 

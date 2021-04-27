@@ -113,6 +113,11 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     );
   }, [selectedPlugin]);
 
+
+  const handleVisibleChange = (visible: boolean) => {
+    setIsGraphNodeVisible(visible);
+  };
+
   if (!selectedPlugin) {
     return (
       <Skeleton
@@ -193,12 +198,12 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           )}
 
           <Popover
-            content={<GraphNode />}
+            content={<GraphNode 
+            visible={isGraphNodeVisible}  
+            onVisibleChange={handleVisibleChange} />}
             placement="bottom"
             visible={isGraphNodeVisible}
-            onVisibleChange={(visible: boolean) => {
-              setIsGraphNodeVisible(visible);
-            }}
+            onVisibleChange={handleVisibleChange}
             trigger="click"
           >
             <Button type="button" icon={<BezierCurveIcon />}>

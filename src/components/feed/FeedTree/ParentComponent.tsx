@@ -53,7 +53,6 @@ const ParentComponent = (props: ParentComponentProps) => {
   };
 
   const changeMode = (mode: boolean) => {
-    console.log("Mode", mode)
     dispatch(switchTreeMode(mode));
   };
 

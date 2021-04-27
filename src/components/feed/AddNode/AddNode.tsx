@@ -223,8 +223,6 @@ const AddNode: React.FC<AddNodeProps> = ({
       compute_resource_name: selectedComputeEnv,
     };
 
-    console.log("ParameterInput", parameterInput);
-
     const pluginInstance = await plugin.getPluginInstances();
 
     try {

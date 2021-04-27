@@ -2,31 +2,27 @@ import React from "react";
 import { InputType, NodeState } from "./ParentContainer";
 import { Grid, GridItem } from "@patternfly/react-core";
 import { useTypedSelector } from "../../../store/hooks";
-import { getJoinInput} from "./utils";
+import { getJoinInput } from "./utils";
 
 const Review = ({ nodeState }: { nodeState: NodeState }) => {
   const tsNodes = useTypedSelector((state) => state.feed.tsNodes);
   const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
   const { joinInput, splitInput, selectedConfig } = nodeState;
-  let generatedString=''
-  
+  let generatedString = "";
 
   const getInput = (input: InputType) => {
     let string = "";
-  
     for (const parameter in input) {
-      string += `  ${parameter} ${input[parameter]}`;
+      string += `  --${parameter} ${input[parameter]}`;
     }
-
     return string;
   };
 
   if (selectedConfig === "join-node") {
     const input = getJoinInput(joinInput, tsNodes, selectedPlugin);
-    generatedString=getInput(input);
+    generatedString = getInput(input);
   } else if (selectedConfig === "split-node") {
-    generatedString=getInput(splitInput);
-    
+    generatedString = getInput(splitInput);
   }
 
   return (

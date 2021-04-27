@@ -100,6 +100,7 @@ const ConfigureJoin = ({
                 return (
                   <Form.Item key={param.data.id} label={param.data.name}>
                     <Input
+                      className="input"
                       value={joinInput[param.data.name] as string}
                       onChange={(
                         event: React.ChangeEvent<HTMLInputElement>

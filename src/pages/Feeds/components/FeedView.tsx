@@ -79,6 +79,7 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
 
   const onNodeClick = (node: PluginInstance) => {
     dispatch(getSelectedPlugin(node));
+    dispatch(destroyExplorer());
   };
 
   const onNodeClickTS  =  (node:  PluginInstance) => {
