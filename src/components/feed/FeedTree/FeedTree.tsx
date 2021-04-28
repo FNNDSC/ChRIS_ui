@@ -11,22 +11,16 @@ import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { UndoIcon, RedoIcon } from "@patternfly/react-icons";
 import Link from "./Link";
-import Node from "./Node";
-import { FeedTreeProp } from "../../../store/feed/types";
+import NodeWrapper from "./Node";
 import { Datum, TreeNodeDatum, Point } from "./data";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
 import { isEqual } from "lodash";
-
-import "./FeedTree.scss";
-
 import clone from "clone";
 import { Switch, Button, Alert } from "@patternfly/react-core";
 import { TSID } from "./ParentComponent";
-
-interface ITreeProps {
-  instances?: PluginInstance[];
-  feedTreeProp: FeedTreeProp;
-}
+import { useTypedSelector } from "../../../store/hooks";
+import "./FeedTree.scss";
+import { FeedTreeProp } from "../../../store/feed/types";
 
 interface Separation {
   siblings: number;
@@ -38,7 +32,6 @@ interface OwnProps {
   data: TreeNodeDatum[];
   onNodeClick: (node: PluginInstance) => void;
   onNodeClickTs: (node: PluginInstance) => void;
-  changeMode: (mode: boolean) => void;
   translate?: Point;
   scaleExtent: {
     min: number;
@@ -55,10 +48,9 @@ interface OwnProps {
   isSidePanelExpanded: boolean;
   isBottomPanelExpanded: boolean;
   onExpand: (panel: string) => void;
-  mode: boolean;
 }
 
-type AllProps = ITreeProps & OwnProps;
+type AllProps = OwnProps;
 
 type FeedTreeState = {
   data?: TreeNodeDatum[];
@@ -88,7 +80,7 @@ function assignInternalProperties(data: Datum[], currentDepth = 0) {
   });
 }
 
-function calculateD3Geometry(nextProps: AllProps) {
+function calculateD3Geometry(nextProps: AllProps, feedTreeProp: FeedTreeProp) {
   let scale;
   if (nextProps.zoom > nextProps.scaleExtent.max) {
     scale = nextProps.scaleExtent.max;
@@ -98,7 +90,7 @@ function calculateD3Geometry(nextProps: AllProps) {
     scale = nextProps.zoom;
   }
   return {
-    translate: nextProps.feedTreeProp.translate,
+    translate: feedTreeProp.translate,
     scale,
   };
 }
@@ -140,10 +132,10 @@ function expandNode(nodeDatum: TreeNodeDatum) {
   nodeDatum.__rd3t.collapsed = false;
 }
 
-function getInitialState(props: AllProps) {
+function getInitialState(props: AllProps, feedTreeProp: FeedTreeProp) {
   return {
     data: assignInternalProperties(clone(props.data)),
-    d3: calculateD3Geometry(props),
+    d3: calculateD3Geometry(props, feedTreeProp),
     collapsible: false,
     toggleLabel: false,
   };
@@ -153,20 +145,18 @@ const svgClassName = "feed-tree__svg";
 const graphClassName = "feed-tree__graph";
 
 const FeedTree = (props: AllProps) => {
+  const feedTreeProp = useTypedSelector((state) => state.feed.feedTreeProp);
+  const mode = useTypedSelector((state) => state.feed.treeMode);
   const [feedState, setFeedState] = React.useState<FeedTreeState>(
-    getInitialState(props)
+    getInitialState(props, feedTreeProp)
   );
   const { translate, scale } = feedState.d3;
   const {
-    feedTreeProp,
     changeOrientation,
-    changeMode,
-    mode,
     zoom,
     scaleExtent,
   } = props;
   const { orientation } = feedTreeProp;
-  console.log("FeedTree");
 
   const bindZoomListener = React.useCallback(() => {
     const { translate } = feedTreeProp;
@@ -355,17 +345,6 @@ const FeedTree = (props: AllProps) => {
               }}
             />
           </div>
-
-          <div className="feed-tree__orientation">
-            <Switch
-              id="mode"
-              label="Switch Mode"
-              isChecked={mode === false}
-              onChange={() => {
-                changeMode(mode);
-              }}
-            />
-          </div>
           {mode === false && (
             <div className="feed-tree__orientation">
               <Alert
@@ -407,7 +386,7 @@ const FeedTree = (props: AllProps) => {
 
           {nodes?.map(({ data, x, y, parent }, i) => {
             return (
-              <Node
+              <NodeWrapper
                 key={`node + ${i}`}
                 data={data}
                 position={{ x, y }}
@@ -442,19 +421,11 @@ export default React.memo(
   FeedTree,
   (prevProps: AllProps, nextProps: AllProps) => {
     if (
-      !isEqual(
-        prevProps.feedTreeProp.translate,
-        nextProps.feedTreeProp.translate
-      ) ||
-      prevProps.feedTreeProp.orientation !==
-        nextProps.feedTreeProp.orientation ||
       nextProps.isSidePanelExpanded !== prevProps.isSidePanelExpanded ||
       nextProps.isBottomPanelExpanded !== prevProps.isBottomPanelExpanded ||
       !isEqual(prevProps.data, nextProps.data) ||
       prevProps.zoom !== nextProps.zoom ||
-      prevProps.instances !== nextProps.instances ||
-      prevProps.tsIds !== nextProps.tsIds ||
-      prevProps.mode !== nextProps.mode
+      prevProps.tsIds !== nextProps.tsIds
     ) {
       return false;
     }

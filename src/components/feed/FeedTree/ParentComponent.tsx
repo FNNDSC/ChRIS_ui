@@ -1,8 +1,7 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { useTypedSelector } from "../../../store/hooks";
 import { Spinner } from "@patternfly/react-core";
-import { setFeedTreeProp, switchTreeMode } from "../../../store/feed/actions";
+import { setFeedTreeProp } from "../../../store/feed/actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import FeedTree from "./FeedTree";
 import { getFeedTree, TreeNodeDatum, getTsNodes } from "./data";
@@ -13,6 +12,7 @@ interface ParentComponentProps {
   isSidePanelExpanded: boolean;
   isBottomPanelExpanded: boolean;
   onExpand: (panel: string) => void;
+  instances?:PluginInstance[]
 }
 
 export type TSID = {
@@ -26,18 +26,13 @@ const ParentComponent = (props: ParentComponentProps) => {
     isSidePanelExpanded,
     isBottomPanelExpanded,
     onExpand,
+    instances
   } = props;
-
-  const pluginInstances = useTypedSelector(
-    (state) => state.feed.pluginInstances
-  );
-  const feedTreeProp = useTypedSelector((state) => state.feed.feedTreeProp);
-  const mode = useTypedSelector((state) => state.feed.treeMode);
-  const { data: instances } = pluginInstances;
+  
   const [data, setData] = React.useState<TreeNodeDatum[]>([]);
   const [tsIds, setTsIds] = React.useState<TSID>();
   const dispatch = useDispatch();
-  console.log("ParentComponent");
+
   React.useEffect(() => {
     if (instances && instances.length > 0) {
       const data = getFeedTree(instances);
@@ -52,22 +47,16 @@ const ParentComponent = (props: ParentComponentProps) => {
     dispatch(setFeedTreeProp(orientation));
   };
 
-  const changeMode = (mode: boolean) => {
-    dispatch(switchTreeMode(mode));
-  };
+  
 
   return data && data.length > 0 ? (
     <FeedTree
       onNodeClickTs={onNodeClickTs}
-      mode={mode}
       data={data}
       tsIds={tsIds}
       onNodeClick={onNodeClick}
-      changeMode={changeMode}
-      zoom={1}
-      nodeSize={{ x: 85, y: 60 }}
       separation={
-        instances && instances.length > 30
+        instances && instances.length > 15
           ? {
               siblings: 0.5,
               nonSiblings: 0.5,
@@ -77,8 +66,6 @@ const ParentComponent = (props: ParentComponentProps) => {
               nonSiblings: 2.0,
             }
       }
-      feedTreeProp={feedTreeProp}
-      instances={instances}
       changeOrientation={changeOrientation}
       isSidePanelExpanded={isSidePanelExpanded}
       isBottomPanelExpanded={isBottomPanelExpanded}
