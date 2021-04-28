@@ -27,6 +27,7 @@ import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
 import PluginLog from "./PluginLog";
 import Status from "./Status";
+import GraphNode from "../AddTsNode/ParentContainer";
 import StatusTitle from "./StatusTitle";
 import { setFeedLayout } from "../../../store/feed/actions";
 import { useTypedSelector } from "../../../store/hooks";
@@ -56,7 +57,8 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
 
   const dispatch = useDispatch();
   const { plugin, instanceParameters, pluginParameters } = nodeState;
-  const [isVisible, setIsVisible] = React.useState(false);
+  const [isTerminalVisible, setIsTerminalVisible] = React.useState(false);
+  const [isGraphNodeVisible, setIsGraphNodeVisible] = React.useState(false);
   const [isExpanded, setIsExpanded] = React.useState(false);
 
   React.useEffect(() => {
@@ -110,6 +112,11 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
       </>
     );
   }, [selectedPlugin]);
+
+
+  const handleVisibleChange = (visible: boolean) => {
+    setIsGraphNodeVisible(visible);
+  };
 
   if (!selectedPlugin) {
     return (
@@ -190,6 +197,20 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             <AddNode />
           )}
 
+          <Popover
+            content={<GraphNode 
+            visible={isGraphNodeVisible}  
+            onVisibleChange={handleVisibleChange} />}
+            placement="bottom"
+            visible={isGraphNodeVisible}
+            onVisibleChange={handleVisibleChange}
+            trigger="click"
+          >
+            <Button type="button" icon={<BezierCurveIcon />}>
+              Add a Graph Node
+            </Button>
+          </Popover>
+
           {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
           <Button
             icon={<BezierCurveIcon />}
@@ -205,10 +226,10 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           <Popover
             content={<PluginLog text={text} />}
             placement="bottom"
-            visible={isVisible}
+            visible={isTerminalVisible}
             trigger="click"
             onVisibleChange={(visible: boolean) => {
-              setIsVisible(visible);
+              setIsTerminalVisible(visible);
             }}
           >
             <Button

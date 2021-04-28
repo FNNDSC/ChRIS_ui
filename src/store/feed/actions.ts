@@ -4,6 +4,7 @@ import {
   AddNodePayload,
   PluginInstanceObj,
   DestroyData,
+  SplitNodesPayload,
 } from "./types";
 
 import { Feed, PluginInstance } from "@fnndsc/chrisapi";
@@ -27,6 +28,7 @@ export const getFeedError = (error: any) =>
 
 export const getSelectedPlugin = (item: PluginInstance) =>
   action(FeedActionTypes.GET_SELECTED_PLUGIN, item);
+
 export const getPluginInstancesRequest = (feed: Feed) =>
   action(FeedActionTypes.GET_PLUGIN_INSTANCES_REQUEST, feed);
 export const getPluginInstancesSuccess = (items: PluginInstanceObj) =>
@@ -48,7 +50,7 @@ export const getPluginFilesSuccess = (filesPayload: {
   files: any[];
 }) => action(FeedActionTypes.GET_PLUGIN_FILES_SUCCESS, filesPayload);
 export const getPluginFilesError = (payload: { id: number; error: any }) =>
-  action(FeedActionTypes.GET_PLUGIN_FILES_ERROR, payload); 
+  action(FeedActionTypes.GET_PLUGIN_FILES_ERROR, payload);
 
 export const addFeed = (feed: Feed) => action(FeedActionTypes.ADD_FEED, feed);
 export const addNodeRequest = (item: AddNodePayload) =>
@@ -62,14 +64,12 @@ export const deleteNode = (instance: PluginInstance) => {
 export const deleteNodeSuccess = (id: number) =>
   action(FeedActionTypes.DELETE_NODE_SUCCESS, id);
 
-
-
-export const destroyPluginState = (data: DestroyData) =>
-  action(FeedActionTypes.RESET_PLUGIN_STATE, data);
-
 export const setFeedTreeProp = (orientation: string) =>
   action(FeedActionTypes.GET_FEED_TREE_PROP, orientation);
 export const setFeedLayout = () => action(FeedActionTypes.SET_LAYOUT);
+
+export const switchTreeMode = (mode: boolean) =>
+  action(FeedActionTypes.SWITCH_TREE_MODE, mode);
 
 export const getPluginInstanceStatusRequest = (items: PluginInstanceObj) =>
   action(FeedActionTypes.GET_PLUGIN_STATUS_REQUEST, items);
@@ -79,3 +79,15 @@ export const getPluginInstanceStatusSuccess = (statusPayload: {
 }) => action(FeedActionTypes.GET_PLUGIN_STATUS_SUCCESS, statusPayload);
 export const stopFetchingStatusResources = (id: number) =>
   action(FeedActionTypes.STOP_FETCHING_STATUS_RESOURCES, id);
+
+export const addTSNodes = (node: PluginInstance) =>
+  action(FeedActionTypes.ADD_TS_NODE, node);
+export const deleteTsNode = (node: PluginInstance) =>
+  action(FeedActionTypes.DELETE_TS_NODE, node);
+export const addSplitNodes = (splitNodesPayload: SplitNodesPayload) =>
+  action(FeedActionTypes.ADD_SPLIT_NODES, splitNodesPayload);
+export const addSplitNodesSuccess = (splitNodes: PluginInstance[]) =>
+  action(FeedActionTypes.ADD_SPLIT_NODES_SUCCESS, splitNodes);
+
+export const destroyPluginState = (data: DestroyData) =>
+  action(FeedActionTypes.RESET_PLUGIN_STATE, data);

@@ -6,56 +6,56 @@
 
 @import "../../../assets/scss/helpers/variables";
 
-
-
-
 // Tree Chart Section
 // ------------------------------
 
-.feed-tree {
+.mode_tree {
+  background: inherit;
+}
 
-  width:100%;
-  height:100%;
-  position:relative;
+.mode_graph {
+  background: #000f0f;
+}
+
+.feed-tree {
+  width: 100%;
+  height: 100%;
+  position: relative;
 
   .pf-c-switch {
-    display:flex;
-    row-gap: 0.30rem;
+    display: flex;
+    row-gap: 0.3rem;
     flex-direction: column;
 
     &__label {
-      color:white !important;
+      color: white !important;
       font-size: 0.85rem;
-      padding-left:0;
-      margin-left:-0.25em;
-      padding-top:0.25rem;
+      padding-left: 0;
+      margin-left: -0.25em;
+      padding-top: 0.25rem;
     }
   }
 
-
- 
   &__orientation {
     padding-left: 1rem;
-    padding-top:0.5rem;
+    padding-top: 0.5rem;
 
     &--icon {
       font-size: 1.25rem;
       cursor: pointer;
     }
-
-    
   }
 
   &__container {
-    display:flex;
+    display: flex;
     justify-content: space-between;
 
     &--labels {
-      display:flex;
+      display: flex;
     }
 
     &--panelToggle {
-      padding-right: 1rem ;
+      padding-right: 1rem;
 
       &.node-graph-panel {
         position: absolute;
@@ -69,12 +69,7 @@
       }
     }
   }
-
-  
-
 }
-
-
 
 .grabbable {
   cursor: move; /* fallback if grab cursor is unsupported */
@@ -84,11 +79,10 @@
 }
 
 .grabbable:active {
-    cursor: grabbing;
-    cursor: -moz-grabbing;
-    cursor: -webkit-grabbing;
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
 }
-
 
 .link {
   fill: none;
@@ -98,56 +92,85 @@
   stroke-width: 1px;
 }
 
-.label{
+.label {
   &__title {
-  fill: var(--pf-global--palette--black-400);
-  font-size: 0.75rem;
-  font-weight: 900;
-  font-family: sans-serif;
+    fill: var(--pf-global--palette--black-400);
+    font-size: 0.75rem;
+    font-weight: 900;
+    font-family: sans-serif;
   }
 }
 
- @keyframes active{
-     0%    {fill: #7dc3e8; }
-    50%   { fill: #0088ce ; }
-    100%  { fill: #004080; }
- }
-
- @keyframes error {
-    0%    { fill:#C9190B; }
-    90%   { fill: orange; }
-    100%  { fill:#C9190B }
+@keyframes active {
+  0% {
+    fill: #bee1f4
+  }
+  50% {
+    fill: #0088ce;
+  }
+  100% {
+    fill: #73bcf7
+  }
 }
 
+@keyframes graph {
+  0% {
+    fill: #cbc1ff
+  }
+  50% {
+    fill: #b2a3ff
+  }
+  100% {
+    fill: #8476d1
+  }
+}
+
+@keyframes error {
+  0% {
+    fill: #c9190b;
+  }
+  90% {
+    fill: orange;
+  }
+  100% {
+    fill: #c9190b;
+  }
+}
 
 @keyframes queued {
-    0%    { fill: grey; }
-    50%   { fill: black; }
-    100%  { fill:grey; }
+  0% {
+    fill: grey;
+  }
+  50% {
+    fill: black;
+  }
+  100% {
+    fill: grey;
+  }
 }
-
 
 .node {
   cursor: pointer;
-  fill: 'white';
- 
+  fill: "white";
 
-    &.queued {
+
+
+  &.queued {
     fill: #aaa;
-   
+
     .label {
       fill: #aaa;
     }
   }
 
-    &.success{
-    fill:#004080;
+  &.success {
+    fill: #004080;
     .label {
-      fill:#004080; ;
+      fill: #004080;
     }
-   }
+  }
 
-   &.error{
+  &.error {
     animation-name: error;
     animation-duration: 2s;
     animation-timing-function: ease-in;
@@ -155,29 +178,42 @@
     animation-delay: 1s;
     animation-fill-mode: both;
 
-     .label{
-      fill:#C9190B
-    }
-  }
-  
-  &.active {
-    animation-name:active;
-    animation-duration:3s;
-    animation-timing-function:ease-in;
-    animation-iteration-count:infinite;
-    animation-delay:1s;
-    animation-fill-mode:both;
     .label {
-      fill: #BEE1F4;
+      fill: #c9190b;
     }
   }
 
-  &.selected{
-    stroke:white;
+  &.active {
+    animation-name: active;
+    animation-duration: 3s;
+    animation-timing-function: ease-in;
+    animation-iteration-count: infinite;
+    animation-delay: 1s;
+    animation-fill-mode: both;
+    .label {
+      fill: #bee1f4;
+    }
+  }
+
+  &.selected {
+    stroke: white;
     stroke-width: 3px;
   }
+
+  &.graphSelected {
+    animation-name: graph;
+    animation-duration: 5s;
+    animation-timing-function: ease-in;
+    animation-iteration-count: infinite;
+    animation-delay: 1s;
+    animation-fill-mode: both;
+    stroke: white;
+    stroke-width: 3px;
+    
   }
+}
 
 
-
-
+.pf-c-alert.pf-m-info  {
+  padding: 0.5em;
+}

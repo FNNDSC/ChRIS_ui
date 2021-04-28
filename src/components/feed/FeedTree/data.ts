@@ -30,6 +30,12 @@ export const getFeedTree = (items: PluginInstance[]) => {
 
   items.forEach((item) => {
     const id = item.data.id;
+    //@ts-ignore
+    const type = item.data.plugin_type;
+
+    if (type === "ts") {
+    }
+
     if (!mappedArr.hasOwnProperty(id)) {
       mappedArr[id] = {
         id: id,
@@ -60,5 +66,22 @@ export const getFeedTree = (items: PluginInstance[]) => {
       }
     }
   }
+
   return tree;
+};
+
+export const getTsNodes = async (items: PluginInstance[]) => {
+  const parentIds: {
+    [key: string]: string[];
+  } = {};
+  for (let i = 0; i < items.length; i++) {
+    const instance = items[i];
+    //@ts-ignore
+    if (instance.data.plugin_type === "ts") {
+      const parameterList = await instance.getParameters();
+      const parameters = parameterList.getItems();
+      parentIds[instance.data.id] = parameters[0].data.value.split(",");
+    }
+  }
+  return parentIds;
 };

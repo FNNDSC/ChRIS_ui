@@ -126,7 +126,7 @@ class PluginSelect extends React.Component<
       }
     }
 
-    plugins = plugins.filter((plugin) => plugin.data.type === "ds");
+    plugins = plugins.filter((plugin) => plugin.data.type !== "fs");
 
     if (this._isMounted) this.setState({ allPlugins: plugins });
   }

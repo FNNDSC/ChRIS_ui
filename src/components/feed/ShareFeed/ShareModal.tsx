@@ -16,6 +16,7 @@ class ShareModal extends React.Component<ShareModalProps> {
         title="Share with others"
         isOpen={showOverlay}
         onClose={handleModalClose}
+        disableFocusTrap
       >
         {children}
       </Modal>
