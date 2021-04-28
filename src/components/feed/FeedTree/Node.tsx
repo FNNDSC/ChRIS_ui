@@ -1,12 +1,11 @@
 import React, { Fragment, useRef } from "react";
 import { select } from "d3-selection";
 import { HierarchyPointNode } from "d3-hierarchy";
-import { Datum, TreeNodeDatum, Point, getTsNodes } from "./data";
+import { Datum, TreeNodeDatum, Point } from "./data";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { PluginInstanceStatusPayload } from "../../../store/feed/types";
 import { useTypedSelector } from "../../../store/hooks";
 
-type NodeProps = {
+type NodeWrapperProps = {
   tsNodes?: PluginInstance[];
   data: TreeNodeDatum;
   position: Point;
@@ -16,6 +15,11 @@ type NodeProps = {
   onNodeToggle: (nodeId: string) => void;
   orientation: "horizontal" | "vertical";
   toggleLabel: boolean;
+};
+
+type NodeProps = NodeWrapperProps & {
+  status?: string;
+  currentId: boolean;
 };
 
 const DEFAULT_NODE_CIRCLE_RADIUS = 12;
@@ -40,15 +44,11 @@ const Node = (props: NodeProps) => {
     onNodeClickTs,
     onNodeToggle,
     toggleLabel,
+    status,
+    currentId,
   } = props;
-  console.log("Node",data.item?.data.id)
- 
-  const [hovered, setHovered] = React.useState(false);
-  const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
-  const pluginInstanceStatus = useTypedSelector(
-    (state) =>{ return state.feed.pluginInstanceStatus
-    } 
-  );
+
+
   const tsNodes = useTypedSelector((state) => state.feed.tsNodes);
   const mode = useTypedSelector((state) => state.feed.treeMode);
 
@@ -56,7 +56,7 @@ const Node = (props: NodeProps) => {
     select(nodeRef.current)
       .attr("transform", transform)
       .style("opacity", opacity);
-    select(textRef.current).attr("transform",`translate(-28, 28)` );
+    select(textRef.current).attr("transform", `translate(-28, 28)`);
   };
 
   React.useEffect(() => {
@@ -68,21 +68,9 @@ const Node = (props: NodeProps) => {
     onNodeToggle(data.__rd3t.id);
   };
 
-  let status = "";
   let statusClass = "";
   let tsClass = "";
-  if (
-    data.item &&
-    data.item.data.id &&
-    pluginInstanceStatus &&
-    pluginInstanceStatus[data.item.data.id]
-  ) {
-    status = pluginInstanceStatus[data.item.data.id].status;
-  } else if (data.item) {
-    status = data.item.data.status;
-  }
 
-  const currentId = data.item?.data.id;
   if (
     status &&
     (status === "started" ||
@@ -125,12 +113,6 @@ const Node = (props: NodeProps) => {
       <g
         id={`${data.id}`}
         ref={nodeRef}
-        onMouseOver={() => {
-          setHovered(!hovered);
-        }}
-        onMouseOut={() => {
-          setHovered(!hovered);
-        }}
         onClick={() => {
           if (data.item) {
             handleNodeToggle();
@@ -141,19 +123,39 @@ const Node = (props: NodeProps) => {
             }
           }
         }}
-       
       >
         <circle
           id={`node_${data.id}`}
           className={`node ${statusClass} ${tsClass}
-              ${selectedPlugin?.data.id === currentId && `selected`}
+              ${currentId && `selected`}
               `}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
         ></circle>
-        {toggleLabel ? textLabel : hovered ? textLabel : null}
+        {toggleLabel ? textLabel : null}
       </g>
     </Fragment>
   );
 };
 
-export default React.memo(Node);
+const NodeMemoed = React.memo(Node);
+
+const NodeWrapper = (props: NodeWrapperProps) => {
+  const { data } = props;
+  const status = useTypedSelector((state) => {
+    if (data.id && state.feed.pluginInstanceStatus[data.id]) {
+      return state.feed.pluginInstanceStatus[data.id].status;
+    } else return;
+  });
+  const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
+  const currentId = selectedPlugin?.data.id === data.id;
+
+  return (
+    <NodeMemoed
+      {...props}
+      status={status || data.item?.data.status}
+      currentId={currentId}
+    />
+  );
+};
+
+export default NodeWrapper;
