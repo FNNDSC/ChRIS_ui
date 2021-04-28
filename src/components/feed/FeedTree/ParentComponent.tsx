@@ -37,7 +37,7 @@ const ParentComponent = (props: ParentComponentProps) => {
   const [data, setData] = React.useState<TreeNodeDatum[]>([]);
   const [tsIds, setTsIds] = React.useState<TSID>();
   const dispatch = useDispatch();
-
+  console.log("ParentComponent");
   React.useEffect(() => {
     if (instances && instances.length > 0) {
       const data = getFeedTree(instances);
@@ -56,7 +56,7 @@ const ParentComponent = (props: ParentComponentProps) => {
     dispatch(switchTreeMode(mode));
   };
 
-  return data && data.length > 0 && instances ? (
+  return data && data.length > 0 ? (
     <FeedTree
       onNodeClickTs={onNodeClickTs}
       mode={mode}
@@ -89,4 +89,4 @@ const ParentComponent = (props: ParentComponentProps) => {
   );
 };
 
-export default ParentComponent;
+export default React.memo(ParentComponent);

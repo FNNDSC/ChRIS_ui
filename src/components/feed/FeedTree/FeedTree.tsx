@@ -6,17 +6,18 @@ import {
   HierarchyPointNode,
 } from "d3-hierarchy";
 import { select, event } from "d3-selection";
+import { v4 as uuidv4 } from "uuid";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { FeedTreeProp } from "../../../store/feed/types";
-import "./FeedTree.scss";
-import { Datum, TreeNodeDatum, Point } from "./data";
-
+import { UndoIcon, RedoIcon } from "@patternfly/react-icons";
 import Link from "./Link";
 import Node from "./Node";
+import { FeedTreeProp } from "../../../store/feed/types";
+import { Datum, TreeNodeDatum, Point } from "./data";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
-import { UndoIcon, RedoIcon } from "@patternfly/react-icons";
-import { v4 as uuidv4 } from "uuid";
+import { isEqual } from "lodash";
+
+import "./FeedTree.scss";
 
 import clone from "clone";
 import { Switch, Button, Alert } from "@patternfly/react-core";
@@ -165,6 +166,7 @@ const FeedTree = (props: AllProps) => {
     scaleExtent,
   } = props;
   const { orientation } = feedTreeProp;
+  console.log("FeedTree");
 
   const bindZoomListener = React.useCallback(() => {
     const { translate } = feedTreeProp;
@@ -188,13 +190,11 @@ const FeedTree = (props: AllProps) => {
   }, [zoom, scaleExtent, feedTreeProp]);
 
   React.useEffect(() => {
-    // If zoom-specific props change -> rebind listener with new values.
-    // Or: rebind zoom listeners to new DOM nodes in case legacy transitions were enabled/disabled.
     bindZoomListener();
   }, [bindZoomListener]);
 
   React.useEffect(() => {
-    if (!props.data) {
+    if (props.data) {
       setFeedState((feedState) => {
         return {
           ...feedState,
@@ -438,7 +438,29 @@ const FeedTree = (props: AllProps) => {
   );
 };
 
-export default FeedTree;
+export default React.memo(
+  FeedTree,
+  (prevProps: AllProps, nextProps: AllProps) => {
+    if (
+      !isEqual(
+        prevProps.feedTreeProp.translate,
+        nextProps.feedTreeProp.translate
+      ) ||
+      prevProps.feedTreeProp.orientation !==
+        nextProps.feedTreeProp.orientation ||
+      nextProps.isSidePanelExpanded !== prevProps.isSidePanelExpanded ||
+      nextProps.isBottomPanelExpanded !== prevProps.isBottomPanelExpanded ||
+      !isEqual(prevProps.data, nextProps.data) ||
+      prevProps.zoom !== nextProps.zoom ||
+      prevProps.instances !== nextProps.instances ||
+      prevProps.tsIds !== nextProps.tsIds ||
+      prevProps.mode !== nextProps.mode
+    ) {
+      return false;
+    }
+    return true;
+  }
+);
 
 FeedTree.defaultProps = {
   orientation: "vertical",
