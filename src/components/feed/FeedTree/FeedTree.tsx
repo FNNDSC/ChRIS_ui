@@ -151,11 +151,7 @@ const FeedTree = (props: AllProps) => {
     getInitialState(props, feedTreeProp)
   );
   const { translate, scale } = feedState.d3;
-  const {
-    changeOrientation,
-    zoom,
-    scaleExtent,
-  } = props;
+  const { changeOrientation, zoom, scaleExtent } = props;
   const { orientation } = feedTreeProp;
 
   const bindZoomListener = React.useCallback(() => {

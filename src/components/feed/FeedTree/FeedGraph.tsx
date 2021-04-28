@@ -1,4 +1,4 @@
-import React, { MutableRefObject } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import ForceGraph3D, {
   NodeObject,
@@ -6,11 +6,11 @@ import ForceGraph3D, {
 } from "react-force-graph-3d";
 import { PluginInstancePayload } from "../../../store/feed/types";
 import { ApplicationState } from "../../../store/root/applicationState";
-import useResizeObserver from "@react-hook/resize-observer";
 import TreeModel from "../../../api/models/tree.model";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { ErrorBoundary } from "react-error-boundary";
 import { Text, Button } from "@patternfly/react-core";
+import useSize from './useSize';
 import "./FeedTree.scss";
 
 interface IFeedProps {
@@ -22,17 +22,6 @@ interface IFeedProps {
   onExpand: (panel: string) => void;
 }
 
-const useSize = (target: MutableRefObject<HTMLDivElement | null>) => {
-  const [size, setSize] = React.useState();
-
-  React.useLayoutEffect(() => {
-    //@ts-ignore
-    setSize(target.current?.getBoundingClientRect());
-  }, [target]);
-  //@ts-ignore
-  useResizeObserver(target, (entry) => setSize(entry.contentRect));
-  return size;
-};
 
 const FeedGraph = (props: IFeedProps) => {
   const {

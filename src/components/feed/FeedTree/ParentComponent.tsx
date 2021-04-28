@@ -6,6 +6,7 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 import FeedTree from "./FeedTree";
 import { getFeedTree, TreeNodeDatum, getTsNodes } from "./data";
 
+
 interface ParentComponentProps {
   onNodeClickTs: (node: PluginInstance) => void;
   onNodeClick: (node: PluginInstance) => void;
@@ -33,6 +34,7 @@ const ParentComponent = (props: ParentComponentProps) => {
   const [tsIds, setTsIds] = React.useState<TSID>();
   const dispatch = useDispatch();
 
+
   React.useEffect(() => {
     if (instances && instances.length > 0) {
       const data = getFeedTree(instances);
@@ -46,8 +48,6 @@ const ParentComponent = (props: ParentComponentProps) => {
   const changeOrientation = (orientation: string) => {
     dispatch(setFeedTreeProp(orientation));
   };
-
-  
 
   return data && data.length > 0 ? (
     <FeedTree
