@@ -8,6 +8,8 @@ import {
   TextInput,
   Button,
   ActionGroup,
+  FormAlert,
+  Alert,
   InputGroup,
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
@@ -65,13 +67,15 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     validated: "default",
     invalidText: "",
   });
-
+  
   const [loading, setLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
+  const [isServerDown,setIsServerDown]= React.useState(false);
   const history = useHistory();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsServerDown(false);
     if (!userState.username) {
       setUserState({
         ...userState,
@@ -103,6 +107,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     let token;
 
     if (userURL) {
+     
       try {
         user = await ChrisApiClient.createUser(
           userURL,
@@ -144,6 +149,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
               validated: "error",
             });
           }
+          else if(!has(error,"response.data")){
+            setIsServerDown(true);
+            setLoading(false);
+          }
         } else {
           setLoading(false);
         }
@@ -178,14 +187,25 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   );
 
   return (
-    <Form onSubmit={handleSubmit} noValidate>
+    <Form onSubmit={handleSubmit} noValidate >
+      {
+        isServerDown &&
+      <FormAlert>
+            <Alert
+              variant="danger"
+              title={"There Has Been A problem connecting to the server"}
+              aria-live="polite"
+              isInline
+              />
+          </FormAlert>
+    }
       <FormGroup
-        label="Username"
-        isRequired
-        fieldId="username"
-        helperTextInvalidIcon={<ExclamationCircleIcon />}
-        helperTextInvalid={userState.invalidText}
-        validated={userState.validated}
+      label="Username"
+      isRequired
+      fieldId="username"
+      helperTextInvalidIcon={<ExclamationCircleIcon />}
+      helperTextInvalid={userState.invalidText}
+      validated={userState.validated}
       >
         <TextInput
           validated={userState.validated}

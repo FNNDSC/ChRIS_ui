@@ -1,5 +1,4 @@
-#
-# Docker file for ChRIS ui production server
+# ChRIS_ui production mode server
 #
 # Build with
 #
@@ -12,7 +11,7 @@
 # In the case of a proxy (located at say 10.41.13.4:3128), do:
 #
 #    export PROXY="http://10.41.13.4:3128"
-#    docker build --build-arg http_proxy=${PROXY} --build-arg UID=$UID -t local/chris_ui .
+#    docker build --build-arg http_proxy=${PROXY} -t local/chris_ui .
 #
 # To run the server up, do:
 #
@@ -22,36 +21,33 @@
 #
 #   docker exec -it chris_ui sh
 #
+# Tips:
+# - for access logging, remove "--quiet" from CMD
+# - docker-entrypoint.sh must start as root, and then
+#   it creates an underprivileged user and downgrades itself.
+#   This will not work on OpenShift where the container UID is random.
+#   For high-security platforms, do not use docker-entrypoint.sh.
+
 
 FROM node:14 as builder
 
-WORKDIR /app/
-
+WORKDIR /app
 COPY . .
 
-# Build the app for production
-RUN npm install && npm run build 
+RUN npm install
+RUN npm run build 
 
 
 FROM node:14-alpine
-# Pass a UID on build command line (see above) to set internal UID
-ARG UID=1001
-ENV UID=$UID  VERSION="0.1"
 
-# Install server
-RUN yarn global add serve --network-timeout 100000
+RUN yarn global add sirv-cli
 
-RUN adduser --uid $UID --disabled-password localuser  \
-  && su - localuser -c "mkdir app"
+WORKDIR /app
 
-WORKDIR /home/localuser/app/
+COPY --from=builder /app/build /app
+COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 
-COPY --from=builder --chown=localuser /app/build .
-
-# Start as user localuser
-USER localuser
-
+ENTRYPOINT ["/docker-entrypoint.sh"]
+ENV HOST=0.0.0.0 PORT=3000
+CMD ["sirv", "--quiet", "--etag", "--single"]
 EXPOSE 3000
-
-# Serve the production build
-CMD serve --single -l 3000 .

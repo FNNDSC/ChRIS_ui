@@ -1,13 +1,24 @@
 # ![ChRIS logo](https://github.com/FNNDSC/ChRIS_ultron_backEnd/blob/master/docs/assets/logo_chris.png) ChRIS_ui
 
-This repository contains the reference UI for ChRIS, allowing users to create and interact with dynamic containerized workflows. The ChRIS UI is written primarily in [TypeScript](https://www.typescriptlang.org/) and [React](https://reactjs.org/), and uses the [PatternFly](https://github.com/patternfly/patternfly) React pattern library.
-
-![Homepage](https://github.com/FNNDSC/CHRIS_docs/blob/fb98b793ff785f4ebb24ce30bcf02cf243b64803/images/mpc/Feed-Detail-Screencapture-PACS-selected.png)
-
 ![License][license-badge]
 ![Last Commit][last-commit-badge]
 ![Code Size][code-size]
 
+This repository contains the reference UI for ChRIS, allowing users to create and interact with dynamic containerized workflows. The ChRIS UI is written primarily in [TypeScript](https://www.typescriptlang.org/) and [React](https://reactjs.org/), and uses the [PatternFly](https://github.com/patternfly/patternfly) React pattern library.
+
+![Homepage](https://github.com/FNNDSC/CHRIS_docs/blob/fb98b793ff785f4ebb24ce30bcf02cf243b64803/images/mpc/Feed-Detail-Screencapture-PACS-selected.png)
+
+
+## Quickstart
+
+First, get the [ChRIS backend](https://github.com/FNNDSC/ChRIS_ultron_backEnd)
+running. Assuming the backend is on `http://localhost:8000/api/v1/`:
+
+```shell
+docker run --rm -d --name chris_ui -p 3000:3000 -e REACT_APP_CHRIS_UI_URL=http://localhost:8000/api/v1/ fnndsc/chris_ui:latest
+```
+
+The *ChRIS_ui* is now running on http://localhost:3000/
 
 ## Preconditions
 
@@ -17,7 +28,7 @@ This repository contains the reference UI for ChRIS, allowing users to create an
 - Arch Linux
 - macOS 11.X+ (Big Sur)
 
-### Optionally get the backend services up so you can fully test the UI against actual data
+### Get the backend services up so you can fully test the UI against actual data
 
 * Install latest [``Docker Compose``](https://docs.docker.com/compose/)
 * On a Linux machine make sure to add your computer user to the ``docker`` group
@@ -56,10 +67,7 @@ $ sudo rm -r FS
 $ ./unmake.sh
 ```
 
-
-
 </details>
-
 
 
 ## Start UI development server
