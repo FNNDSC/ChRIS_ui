@@ -67,4 +67,4 @@ const Status = () => {
   } else return null;
 };
 
-export default Status;
+export default React.memo(Status);

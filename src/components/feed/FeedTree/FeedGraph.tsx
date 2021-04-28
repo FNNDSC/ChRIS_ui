@@ -1,15 +1,17 @@
-import React, {MutableRefObject} from "react";
+import React from "react";
 import { connect } from "react-redux";
-import ForceGraph3D, {NodeObject, ForceGraphMethods} from "react-force-graph-3d";
+import ForceGraph3D, {
+  NodeObject,
+  ForceGraphMethods,
+} from "react-force-graph-3d";
 import { PluginInstancePayload } from "../../../store/feed/types";
 import { ApplicationState } from "../../../store/root/applicationState";
-import useResizeObserver from '@react-hook/resize-observer';
-import TreeModel from '../../../api/models/tree.model'
-import {PluginInstance} from '@fnndsc/chrisapi'
-import {ErrorBoundary} from "react-error-boundary";
-import {Text, Button} from '@patternfly/react-core'
-import './FeedTree.scss';
-
+import TreeModel from "../../../api/models/tree.model";
+import { PluginInstance } from "@fnndsc/chrisapi";
+import { ErrorBoundary } from "react-error-boundary";
+import { Text, Button } from "@patternfly/react-core";
+import useSize from './useSize';
+import "./FeedTree.scss";
 
 interface IFeedProps {
   pluginInstances: PluginInstancePayload;
@@ -21,20 +23,15 @@ interface IFeedProps {
 }
 
 
-const useSize=(target:MutableRefObject<HTMLDivElement | null>)=>{
-  const [size, setSize] = React.useState();
-
-  React.useLayoutEffect(() => {
-    //@ts-ignore
-    setSize(target.current?.getBoundingClientRect());
-  }, [target]);
-  //@ts-ignore
-  useResizeObserver(target, (entry) => setSize(entry.contentRect));
-  return size;
-}
-
 const FeedGraph = (props: IFeedProps) => {
-  const { pluginInstances, selectedPlugin, onNodeClick, isSidePanelExpanded, isBottomPanelExpanded, onExpand } = props;
+  const {
+    pluginInstances,
+    selectedPlugin,
+    onNodeClick,
+    isSidePanelExpanded,
+    isBottomPanelExpanded,
+    onExpand,
+  } = props;
   const { data: instances } = pluginInstances;
   const graphRef = React.useRef<HTMLDivElement | null>(null);
   const fgRef = React.useRef<ForceGraphMethods | undefined>();
@@ -67,6 +64,7 @@ const FeedGraph = (props: IFeedProps) => {
   React.useEffect(() => {
     if (instances && instances.length > 0) {
       const tree = new TreeModel(instances);
+
       //@ts-ignore
       setGraphData(tree.treeChart);
     }
@@ -86,10 +84,7 @@ const FeedGraph = (props: IFeedProps) => {
           {!isSidePanelExpanded && (
             <div className="feed-tree__container--panelToggle node-graph-panel">
               <div className="feed-tree__orientation">
-                <Button
-                  type="button"
-                  onClick={() => onExpand("side_panel")}
-                >
+                <Button type="button" onClick={() => onExpand("side_panel")}>
                   Node Panel
                 </Button>
               </div>
@@ -115,17 +110,14 @@ const FeedGraph = (props: IFeedProps) => {
             linkWidth={2}
           />
           {!isBottomPanelExpanded && (
-          <div className="feed-tree__container--panelToggle graph">
-            <div className="feed-tree__orientation">
-              <Button
-                type="button"
-                onClick={() => onExpand("bottom_panel")}
-              >
-                Feed Browser
-              </Button>
+            <div className="feed-tree__container--panelToggle graph">
+              <div className="feed-tree__orientation">
+                <Button type="button" onClick={() => onExpand("bottom_panel")}>
+                  Feed Browser
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
         </ErrorBoundary>
       ) : (
         <Text>Fetching the Graph....</Text>

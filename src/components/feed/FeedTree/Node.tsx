@@ -1,198 +1,161 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useRef } from "react";
 import { select } from "d3-selection";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { Datum, TreeNodeDatum, Point } from "./data";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { connect } from "react-redux";
-import { ApplicationState } from "../../../store/root/applicationState";
-import { PluginInstanceStatusPayload } from "../../../store/feed/types";
+import { useTypedSelector } from "../../../store/hooks";
 
-
-
-const DEFAULT_NODE_CIRCLE_RADIUS = 12;
-
-type NodeProps = {
+type NodeWrapperProps = {
+  tsNodes?: PluginInstance[];
   data: TreeNodeDatum;
   position: Point;
   parent: HierarchyPointNode<Datum> | null;
-  selectedPlugin?: PluginInstance;
   onNodeClick: (node: PluginInstance) => void;
+  onNodeClickTs: (node: PluginInstance) => void;
   onNodeToggle: (nodeId: string) => void;
   orientation: "horizontal" | "vertical";
-  instances: PluginInstance[];
   toggleLabel: boolean;
-  pluginInstanceStatus?: PluginInstanceStatusPayload;
 };
 
-type NodeState = {
-  nodeTransform: string;
-  hovered: boolean;
+type NodeProps = NodeWrapperProps & {
+  status?: string;
+  currentId: boolean;
 };
 
+const DEFAULT_NODE_CIRCLE_RADIUS = 12;
+
+const setNodeTransform = (
+  orientation: "horizontal" | "vertical",
+  position: Point
+) => {
+  return orientation === "horizontal"
+    ? `translate(${position.y},${position.x})`
+    : `translate(${position.x}, ${position.y})`;
+};
+
+const Node = (props: NodeProps) => {
+  const nodeRef = useRef<SVGGElement>(null);
+  const textRef = useRef<SVGTextElement>(null);
+  const {
+    orientation,
+    position,
+    data,
+    onNodeClick,
+    onNodeClickTs,
+    onNodeToggle,
+    toggleLabel,
+    status,
+    currentId,
+  } = props;
 
 
-class Node extends React.Component<NodeProps, NodeState> {
-  nodeRef: SVGElement | null = null;
-  circleRef: SVGCircleElement | null = null;
-  textRef: SVGTextElement | null = null;
-  state = {
-    nodeTransform: this.setNodeTransform(
-      this.props.orientation,
-      this.props.position,
-     
-    ),
-    initialStyle: {
-      opacity: 0,
-    },
-    hovered: false,
+  const tsNodes = useTypedSelector((state) => state.feed.tsNodes);
+  const mode = useTypedSelector((state) => state.feed.treeMode);
+
+  const applyNodeTransform = (transform: string, opacity = 1) => {
+    select(nodeRef.current)
+      .attr("transform", transform)
+      .style("opacity", opacity);
+    select(textRef.current).attr("transform", `translate(-28, 28)`);
   };
-  componentDidMount() {
-    this.commitTransform();
-  }
 
-  componentDidUpdate() {
-    this.commitTransform();
-  }
+  React.useEffect(() => {
+    const nodeTransform = setNodeTransform(orientation, position);
+    applyNodeTransform(nodeTransform);
+  }, [orientation, position]);
 
-  applyNodeTransform(transform: string, opacity = 1) {
-    select(this.nodeRef).attr("transform", transform).style("opacity", opacity);
-    select(this.textRef).attr("transform", `translate(-28, 28)`);
-  }
+  const handleNodeToggle = () => {
+    onNodeToggle(data.__rd3t.id);
+  };
 
-  commitTransform() {
-    const {  position, orientation } = this.props;
-    const nodeTransform = this.setNodeTransform(orientation, position);
-    this.applyNodeTransform(nodeTransform);
-  }
+  let statusClass = "";
+  let tsClass = "";
 
-  shouldComponentUpdate(nextProps: NodeProps, nextState: NodeState) {
-    const prevData = nextProps.pluginInstanceStatus;
-    const thisData = this.props.pluginInstanceStatus;
-    if (
-      prevData !== thisData ||
-      nextProps.selectedPlugin !== this.props.selectedPlugin ||
-      nextProps.data !== this.props.data ||
-      nextProps.position !== this.props.position ||
-      nextState.hovered !== this.state.hovered ||
-      nextProps.instances !== this.props.instances
-    ) {
-      return true;
-    }
-    return false;
-  }
-
-  setNodeTransform(
-    orientation: NodeProps["orientation"],
-    position: NodeProps["position"],
+  if (
+    status &&
+    (status === "started" ||
+      status === "scheduled" ||
+      status === "registeringFiles")
   ) {
-    return orientation === "horizontal"
-      ? `translate(${position.y},${position.x})`
-      : `translate(${position.x},${position.y})`;
+    statusClass = "active";
+  }
+  if (status === "waiting") {
+    statusClass = "queued";
   }
 
-  handleNodeToggle = () => {
-    this.props.onNodeToggle(this.props.data.__rd3t.id);
-  };
+  if (status === "finishedSuccessfully") {
+    statusClass = "success";
+  }
 
-  render() {
-    const {
-      data,
-      selectedPlugin,
-      onNodeClick, 
-      toggleLabel,
-      pluginInstanceStatus
-    } = this.props;
-    const { hovered } = this.state;
-    let status="";
-    let statusClass="";
+  if (status === "finishedWithError" || status === "cancelled") {
+    statusClass = "error";
+  }
 
-    if(data.item && data.item.data.id && pluginInstanceStatus && pluginInstanceStatus[data.item.data.id]){
-      status=pluginInstanceStatus[data.item.data.id].status;
+  if (mode === false && tsNodes && tsNodes.length > 0) {
+    if (data.item?.data.id) {
+      const node = tsNodes.find((node) => node.data.id === data.item?.data.id);
+      if (node) {
+        tsClass = "graphSelected";
+      }
     }
-    else if(data.item) {
-      status=data.item.data.status;
-    }
+  }
 
+  const textLabel = (
+    <g id={`text_${data.id}`}>
+      <text ref={textRef} className="label__title">
+        {data.item?.data.title || data.item?.data.plugin_name}
+      </text>
+    </g>
+  );
 
-    const currentId = data.item?.data.id;
-    if (
-      status &&
-      (status === "started" ||
-        status === "scheduled" ||
-        status === "registeringFiles")
-    ) {
-      statusClass = "active";
-    }
-    if (status === "waiting") {
-      statusClass = "queued";
-    }
-
-    if (status === "finishedSuccessfully") {
-      statusClass = "success";
-    }
-
-    if (status === "finishedWithError" || status === "cancelled") {
-      statusClass = "error";
-    }
-
-    const textLabel = (
-      <g id={`text_${data.id}`}>
-        <text
-          ref={(n) => {
-            this.textRef = n;
-          }}
-          className="label__title"
-        >
-          {data.item?.data.title || data.item?.data.plugin_name}
-        </text>
-      </g>
-    );
-
-    return (
-      <Fragment>
-        <g
-          id={`${data.id}`}
-          ref={(n) => {
-            this.nodeRef = n;
-          }}
-          onMouseOver={() => {
-            this.setState({
-              hovered: !this.state.hovered,
-            });
-          }}
-          onMouseOut={() => {
-            this.setState({
-              hovered: !this.state.hovered,
-            });
-          }}
-          onClick={() => {
-            if (data.item) {
-              this.handleNodeToggle();
+  return (
+    <Fragment>
+      <g
+        id={`${data.id}`}
+        ref={nodeRef}
+        onClick={() => {
+          if (data.item) {
+            handleNodeToggle();
+            if (mode === false) {
+              onNodeClickTs(data.item);
+            } else {
               onNodeClick(data.item);
             }
-          }}
-          transform={this.state.nodeTransform}
-        >
-          <circle
-            id={`node_${data.id}`}
-            className={`node ${statusClass} 
-              ${selectedPlugin?.data.id === currentId && `selected`}
+          }
+        }}
+      >
+        <circle
+          id={`node_${data.id}`}
+          className={`node ${statusClass} ${tsClass}
+              ${currentId && `selected`}
               `}
-            r={DEFAULT_NODE_CIRCLE_RADIUS}
-          ></circle>
-          {toggleLabel ? textLabel : hovered ? textLabel : null}
-        </g>
-      </Fragment>
-    );
-  }
-}
+          r={DEFAULT_NODE_CIRCLE_RADIUS}
+        ></circle>
+        {toggleLabel ? textLabel : null}
+      </g>
+    </Fragment>
+  );
+};
 
-const mapStateToProps = (state: ApplicationState) => ({
-  pluginInstanceStatus: state.feed.pluginInstanceStatus,
-  selectedPlugin: state.feed.selectedPlugin,
-});
+const NodeMemoed = React.memo(Node);
 
+const NodeWrapper = (props: NodeWrapperProps) => {
+  const { data } = props;
+  const status = useTypedSelector((state) => {
+    if (data.id && state.feed.pluginInstanceStatus[data.id]) {
+      return state.feed.pluginInstanceStatus[data.id].status;
+    } else return;
+  });
+  const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
+  const currentId = selectedPlugin?.data.id === data.id;
 
+  return (
+    <NodeMemoed
+      {...props}
+      status={status || data.item?.data.status}
+      currentId={currentId}
+    />
+  );
+};
 
-
-export default connect(mapStateToProps)(Node);
+export default NodeWrapper;

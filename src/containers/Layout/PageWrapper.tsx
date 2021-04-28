@@ -26,8 +26,15 @@ const Wrapper: React.FC<AllProps> = (props: AllProps) => {
     props.setIsNavOpen(!props.isNavOpen);
   };
 
+  const onPageResize = (data: { mobileView: boolean; windowSize: number }) => {
+    if (data.mobileView) {
+      props.setIsNavOpen(false);
+    }
+  };
+
     return (
       <Page
+        onPageResize={onPageResize}
         header={<Header onNavToggle={onNavToggle} user={user} />}
         sidebar={<Sidebar isNavOpen={props.isNavOpen} />}
       >

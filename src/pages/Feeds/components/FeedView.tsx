@@ -14,7 +14,12 @@ import {
 } from "@patternfly/react-core";
 import classNames from 'classnames';
 import { FeedDetails } from "../../../components";
-import {destroyPluginState, getFeedRequest, getSelectedPlugin} from '../../../store/feed/actions'
+import {
+  addTSNodes,
+  destroyPluginState,
+  getFeedRequest,
+  getSelectedPlugin,
+} from "../../../store/feed/actions";
 import {setSidebarActive} from '../../../store/ui/actions'
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { RouteComponentProps } from "react-router-dom";
@@ -74,7 +79,12 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
 
   const onNodeClick = (node: PluginInstance) => {
     dispatch(getSelectedPlugin(node));
+    // dispatch(destroyExplorer());
   };
+
+  const onNodeClickTS  =  (node:  PluginInstance) => {
+    dispatch(addTSNodes(node));
+  };;
 
   const onClick = (panel: string) => {
     if (panel === "side_panel") {
@@ -154,9 +164,11 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
             isBottomPanelExpanded={isBottomPanelExpanded}
             onExpand={onClick}
             onNodeClick={onNodeClick}
+            onNodeClickTs={onNodeClickTS}
+            instances={pluginInstances.data}
           />
         ) : (
-          <FeedGraph 
+          <FeedGraph
             onNodeClick={onNodeClick}
             isSidePanelExpanded={isSidePanelExpanded}
             isBottomPanelExpanded={isBottomPanelExpanded}

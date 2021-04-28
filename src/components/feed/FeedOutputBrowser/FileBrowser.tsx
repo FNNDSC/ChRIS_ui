@@ -55,7 +55,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleFileBrowserToggle,
     handleFileViewerToggle,
     expandDrawer,
-    breadcrumb,
   } = props;
   const [
     fileBrowserState,
@@ -132,7 +131,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         }
         key={index}
       >
-        {value.title}
+        {`${value.title}`}
       </BreadcrumbItem>
     );
   };
@@ -246,13 +245,6 @@ const FileBrowser = (props: FileBrowserProps) => {
             >
               <div className="file-browser__header">
                 <div className="file-browser__header--breadcrumbContainer">
-                <Breadcrumb>
-                    {breadcrumb.map((value: string, index: number) => {
-                      return (
-                        <BreadcrumbItem key={index}>{value}</BreadcrumbItem>
-                      );
-                    })}
-                  </Breadcrumb>
                   <Breadcrumb>{breadcrumbs.map(generateBreadcrumb)}</Breadcrumb>
                 </div>
 
