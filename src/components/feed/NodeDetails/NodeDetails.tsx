@@ -19,7 +19,6 @@ import {
 import {
   BezierCurveIcon,
   TerminalIcon,
-  CalendarAltIcon,
   CalendarDayIcon,
   CloseIcon,
 } from "@patternfly/react-icons";
@@ -113,10 +112,22 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     );
   }, [selectedPlugin]);
 
-
   const handleVisibleChange = (visible: boolean) => {
     setIsGraphNodeVisible(visible);
   };
+
+  const renderGridItem = (title: string, value: React.ReactNode) => {
+    return (
+      <>
+        <GridItem
+        className="title"
+        span={2}
+        >{title}</GridItem>
+        <GridItem className="value" span={10}>{value}</GridItem>
+      </>
+    );
+  };
+  const test=true;
 
   if (!selectedPlugin) {
     return (
@@ -127,6 +138,14 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
       />
     );
   } else {
+    const Time = (
+      <>
+        <CalendarDayIcon />
+        <Moment format="DD MMM YYYY @ HH:mm">
+          {selectedPlugin.data.start_date}
+        </Moment>
+      </>
+    );
     return (
       <div className="node-details">
         <div className="node-details__title">
@@ -144,53 +163,35 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
         </div>
 
         <Grid className="node-details__grid">
-          <GridItem span={2} className="title">
-            Status
-          </GridItem>
-          <GridItem span={10} className="value">
-            <StatusTitle />
-          </GridItem>
-          {/** Status Component */}
-          <Status />
-          <ExpandableSection
-            toggleText={isExpanded ? "Show Less Details" : "Show More Details"}
-            onToggle={() => setIsExpanded(!isExpanded)}
-            isExpanded={isExpanded}
-            className="node-details__expandable"
-          >
-            <Grid className="node-details__grid">
-              <GridItem span={2} className="title">
-                Created
-              </GridItem>
-              <GridItem span={10} className="value">
-                <CalendarDayIcon />
-                <Moment format="DD MMM YYYY @ HH:mm">
-                  {selectedPlugin.data.start_date}
-                </Moment>
-              </GridItem>
+          {renderGridItem("Status", <StatusTitle />)}
+        </Grid>
 
-              <GridItem span={2} className="title status">
-                Node ID
-              </GridItem>
-              <GridItem span={10} className="value">
-                {selectedPlugin.data.id}
-              </GridItem>
-              {runTime && (
-                <Fragment>
-                  <GridItem span={2} className="title">
-                    <CalendarAltIcon />
-                    Total Runtime:
-                  </GridItem>
-                  <GridItem span={10} className="value">
+        <Status />
+        <ExpandableSection
+          toggleText={isExpanded ? "Show Less Details" : "Show More Details"}
+          onToggle={() => setIsExpanded(!isExpanded)}
+          isExpanded={isExpanded}
+          className="node-details__expandable"
+        >
+          <Grid className="node-details__grid">
+            {renderGridItem("Created", Time)}
+            {renderGridItem("Node ID", <span>{selectedPlugin.data.id}</span>)}
+
+            {runTime && (
+              <Fragment>
+                {renderGridItem(
+                  "Total Runtime",
+                  <span>
                     {selectedPlugin &&
                       selectedPlugin.data &&
                       runTime(selectedPlugin)}
-                  </GridItem>
-                </Fragment>
-              )}
-            </Grid>
-          </ExpandableSection>
-        </Grid>
+                  </span>
+                )}
+              </Fragment>
+            )}
+          </Grid>
+        </ExpandableSection>
+
         <div className="node-details__actions">
           {selectedPlugin.data.status === "finishedWithError" ||
           selectedPlugin.data.status === "cancelled" ? null : (
@@ -198,9 +199,12 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           )}
 
           <Popover
-            content={<GraphNode 
-            visible={isGraphNodeVisible}  
-            onVisibleChange={handleVisibleChange} />}
+            content={
+              <GraphNode
+                visible={isGraphNodeVisible}
+                onVisibleChange={handleVisibleChange}
+              />
+            }
             placement="bottom"
             visible={isGraphNodeVisible}
             onVisibleChange={handleVisibleChange}

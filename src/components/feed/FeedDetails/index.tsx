@@ -11,7 +11,6 @@ import {
   CodeBranchIcon,
   CalendarAltIcon,
   FileAltIcon,
- 
 } from "@patternfly/react-icons";
 
 interface INoteState {
