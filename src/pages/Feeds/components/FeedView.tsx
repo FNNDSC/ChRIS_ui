@@ -1,6 +1,6 @@
 import * as React from "react";
-import { useTypedSelector} from '../../../store/hooks';
-import {useDispatch} from 'react-redux';
+import { useTypedSelector } from "../../../store/hooks";
+import { useDispatch } from "react-redux";
 import {
   PageSection,
   PageSectionVariants,
@@ -12,7 +12,7 @@ import {
   DrawerContentBody,
   DrawerPanelContent,
 } from "@patternfly/react-core";
-import classNames from 'classnames';
+import classNames from "classnames";
 import { FeedDetails } from "../../../components";
 import {
   addTSNodes,
@@ -20,7 +20,7 @@ import {
   getFeedRequest,
   getSelectedPlugin,
 } from "../../../store/feed/actions";
-import {setSidebarActive} from '../../../store/ui/actions'
+import { setSidebarActive } from "../../../store/ui/actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { RouteComponentProps } from "react-router-dom";
 import { DestroyData } from "../../../store/feed/types";
@@ -37,12 +37,17 @@ const FeedGraph = React.lazy(
 const FeedOutputBrowser = React.lazy(
   () => import("../../../components/feed/FeedOutputBrowser/FeedOutputBrowser")
 );
-const NodeDetails=React.lazy(()=>import("../../../components/feed/NodeDetails/NodeDetails"))
+const NodeDetails = React.lazy(
+  () => import("../../../components/feed/NodeDetails/NodeDetails")
+);
 
 export type FeedViewProps = RouteComponentProps<{ id: string }>;
 
-
-export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: FeedViewProps) => {
+export const FeedView: React.FC<FeedViewProps> = ({
+  match: {
+    params: { id },
+  },
+}: FeedViewProps) => {
   const [isSidePanelExpanded, setSidePanelExpanded] = React.useState(true);
   const [isBottomPanelExpanded, setBottomPanelExpanded] = React.useState(true);
   const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
@@ -79,12 +84,12 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
 
   const onNodeClick = (node: PluginInstance) => {
     dispatch(getSelectedPlugin(node));
-    // dispatch(destroyExplorer());
+    dispatch(destroyExplorer());
   };
 
-  const onNodeClickTS  =  (node:  PluginInstance) => {
+  const onNodeClickTS = (node: PluginInstance) => {
     dispatch(addTSNodes(node));
-  };;
+  };
 
   const onClick = (panel: string) => {
     if (panel === "side_panel") {
@@ -94,13 +99,50 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
     }
   };
 
+  const feedTree = (
+    <GridItem
+      className="feed-block"
+      sm={12}
+      smRowSpan={12}
+      md={6}
+      mdRowSpan={12}
+      lg={6}
+      lgRowSpan={12}
+      xl={7}
+      xlRowSpan={12}
+      xl2={7}
+      xl2RowSpan={12}
+    >
+      {" "}
+      <React.Suspense fallback={<div>Fetching the Resources in a moment</div>}>
+        {currentLayout ? (
+          <ParentComponent
+            isSidePanelExpanded={isSidePanelExpanded}
+            isBottomPanelExpanded={isBottomPanelExpanded}
+            onExpand={onClick}
+            onNodeClick={onNodeClick}
+            onNodeClickTs={onNodeClickTS}
+            instances={pluginInstances.data}
+          />
+        ) : (
+          <FeedGraph
+            onNodeClick={onNodeClick}
+            isSidePanelExpanded={isSidePanelExpanded}
+            isBottomPanelExpanded={isBottomPanelExpanded}
+            onExpand={onClick}
+          />
+        )}
+      </React.Suspense>
+    </GridItem>
+  );
+
   const nodePanel = (
     <GridItem
       sm={12}
       smRowSpan={12}
-      md={12}
+      md={6}
       mdRowSpan={12}
-      lg={12}
+      lg={6}
       lgRowSpan={12}
       xl={5}
       xlRowSpan={12}
@@ -133,97 +175,52 @@ export const FeedView: React.FC<FeedViewProps> = ({match: { params: { id } } }: 
         />
       }
     >
-      <PageSection className="section-three">
-        <FeedOutputBrowser
-          expandDrawer={onClick}
-          handlePluginSelect={onNodeClick}
-        />
-      </PageSection>
+      <FeedOutputBrowser
+        expandDrawer={onClick}
+        handlePluginSelect={onNodeClick}
+      />
     </React.Suspense>
-  );
-
-  const feedTree = (
-    <GridItem
-      className="feed-block"
-      sm={12}
-      smRowSpan={12}
-      md={12}
-      mdRowSpan={12}
-      lg={12}
-      lgRowSpan={12}
-      xl={7}
-      xlRowSpan={12}
-      xl2={7}
-      xl2RowSpan={12}
-    >
-      {" "}
-      <React.Suspense fallback={<div>Fetching the Resources in a moment</div>}>
-        {currentLayout ? (
-          <ParentComponent
-            isSidePanelExpanded={isSidePanelExpanded}
-            isBottomPanelExpanded={isBottomPanelExpanded}
-            onExpand={onClick}
-            onNodeClick={onNodeClick}
-            onNodeClickTs={onNodeClickTS}
-            instances={pluginInstances.data}
-          />
-        ) : (
-          <FeedGraph
-            onNodeClick={onNodeClick}
-            isSidePanelExpanded={isSidePanelExpanded}
-            isBottomPanelExpanded={isBottomPanelExpanded}
-            onExpand={onClick}
-          />
-        )}
-      </React.Suspense>
-    </GridItem>
   );
 
   return (
     <React.Fragment>
-      <PageSection className="section-one" variant={PageSectionVariants.darker}>
+      <PageSection 
+      variant="darker" type='nav' className="section-one">
         <FeedDetails />
       </PageSection>
-
-      <Drawer isExpanded={isBottomPanelExpanded} isInline position="bottom">
-        <DrawerContent
-          panelContent={
-            <DrawerPanelContent defaultSize="48vh" isResizable>
-              {feedOutputBrowserPanel}
-            </DrawerPanelContent>
-          }
+      <PageSection
+        className={classNames(
+          pf4UtilityStyles.spacingStyles.p_0,
+          "section-two"
+        )}
+      >
+        <Grid
+          style={{
+            height: "100%",
+          }}
         >
-          <PageSection
-            className={classNames(
-              pf4UtilityStyles.spacingStyles.p_0,
-              "section-two"
-            )}
-            variant={PageSectionVariants.darker}
-          >
-            <Grid span={12} className="feed-view">
-              <Drawer isExpanded={isSidePanelExpanded} isInline>
-                <DrawerContent
-                  panelContent={
-                    <DrawerPanelContent
-                      isResizable
-                      defaultSize="50%"
-                      minSize={"15%"}
-                    >
-                      {nodePanel}
-                    </DrawerPanelContent>
-                  }
+          <Drawer isExpanded={isSidePanelExpanded} isInline>
+            <DrawerContent
+              panelContent={
+                <DrawerPanelContent
+                  defaultSize="50%"
+                  minSize={"20%"}
+                  isResizable
                 >
-                  <DrawerContentBody>{feedTree}</DrawerContentBody>
-                </DrawerContent>
-              </Drawer>
-            </Grid>
-          </PageSection>
-        </DrawerContent>
-      </Drawer>
+                  {nodePanel}
+                </DrawerPanelContent>
+              }
+            >
+              <DrawerContentBody> {feedTree}</DrawerContentBody>
+            </DrawerContent>
+          </Drawer>
+        </Grid>
+      </PageSection>
+      <PageSection className="section-three">
+        {feedOutputBrowserPanel}
+      </PageSection>
     </React.Fragment>
   );
 };
-
-
 
 export default FeedView;
