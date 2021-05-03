@@ -60,9 +60,10 @@ class ShareFeed extends React.Component<ShareFeedProps, ShareFeedState> {
           className="share-feed-button"
           variant="primary"
           onClick={this.handleAddClick}
+          icon={<CodeBranchIcon />}
+          type='button'
         >
-          <CodeBranchIcon />
-          <span className="share-feed-icon-text">Share Feed</span>
+          Share Feed
         </Button>
         <ShareModal
           showOverlay={showOverlay}
