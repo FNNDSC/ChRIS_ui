@@ -70,24 +70,15 @@
 }
 
 .section-one {
-  overflow: hidden;
-  padding: 0 1rem !important;
+  padding:0 1em !important;
 
-  @include media-query(768px) {
-    min-height: 5vh;
+  @include media-query($pf-global--breakpoint--lg){
+    height:5
   }
 
-  @include media-query(992px) {
-    min-height: 5vh;
-  }
-
-  @include media-query($pf-global--breakpoint--lg) {
-    height: 5vh;
-  }
-
-  @include media-query(1920px) {
-    min-height: 5vh;
-  }
+  button {
+    padding-bottom:0.25em;
+  };
 }
 
 .section-two {
@@ -104,6 +95,7 @@
   }
 
   @include media-query($pf-global--breakpoint--xl) {
+   height:40vh;
   }
 }
 
@@ -145,7 +137,6 @@
 }
 
 .node-block {
-  height: 100%;
   padding: 0.5em;
 }
 
