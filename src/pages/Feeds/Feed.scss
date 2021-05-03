@@ -6,10 +6,11 @@
 
 @import "../../assets/scss/abstracts/colors";
 @import "../../assets/scss/helpers/mixins";
+@import "../../assets/scss/helpers/pf4-variables";
 
 .feed-header {
   padding-top: 0.5rem !important;
-  padding-bottom:0.5em !important;
+  padding-bottom: 0.5em !important;
 
   &__split {
     display: flex;
@@ -40,12 +41,12 @@
   }
 
   &__count {
-    margin-left:1.25em;
+    margin-left: 1.25em;
     display: block;
   }
 
   .error {
-    background-color:red;
+    background-color: red;
   }
 
   &__split {
@@ -53,7 +54,6 @@
     align-items: center;
     justify-content: space-between;
   }
-
 
   &__name {
     a {
@@ -63,7 +63,6 @@
     outline: none;
   }
 
- 
   td:last-child {
     padding-right: 0;
     padding-left: 0;
@@ -74,16 +73,16 @@
   overflow: hidden;
   padding: 0 1rem !important;
 
-  @include media-query(992px) {
-    min-height: 5vh;
-  }
-
   @include media-query(768px) {
     min-height: 5vh;
   }
 
-  @include media-query(1200px) {
-    min-height:5vh; 
+  @include media-query(992px) {
+    min-height: 5vh;
+  }
+
+  @include media-query($pf-global--breakpoint--lg) {
+    height: 5vh;
   }
 
   @include media-query(1920px) {
@@ -92,36 +91,39 @@
 }
 
 .section-two {
-  height: 45vh;
-
-
-  @include media-query(992px) {
-    min-height: 45vh;
-  }
-  @include media-query(768px) {
-    min-height: 45vh;
+  @include media-query($pf-global--breakpoint--sm) {
+    height: auto;
   }
 
-  @include media-query(1200px) {
-    min-height: 45vh;
+  @include media-query($pf-global--breakpoint--md) {
+    height: 45vh;
+  }
+
+  @include media-query($pf-global--breakpoint--lg) {
+    height: 40vh;
+  }
+
+  @include media-query($pf-global--breakpoint--xl) {
   }
 }
 
 .section-three {
-  height: 45vh;
- 
-  @include media-query(768px){
-    min-height:45vh  
+  @include media-query($pf-global--breakpoint--sm) {
+    height: auto;
   }
- 
-   @include media-query(992px){
-    min-height:45vh;
+
+  @include media-query(768px) {
+    height: 45vh;
   }
-   
- @include media-query(1200px){
-    min-height:45vh;
+
+  @include media-query(992px) {
+    height: 45vh;
   }
-  
+
+  @include media-query(1200px) {
+    height: 45vh;
+  }
+
   background: #d2d2d2 !important;
   padding-right: 0 !important;
   padding-top: 0.5rem !important;
@@ -137,26 +139,17 @@
   }
 }
 
-.feed-view {
-  height: 100%;
-
-
-  .pf-c-drawer__splitter {
-    background-color: #002030 !important;
-  }
-}
-
 .feed-block {
   background: $tree-node-backgound;
   height: 100%;
 }
 
 .node-block {
-  overflow: visible;
   height: 100%;
-  padding:0.5em;
+  padding: 0.5em;
 }
 
 .pf-c-drawer__content {
   overflow: hidden;
 }
+

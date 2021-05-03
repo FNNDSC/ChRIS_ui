@@ -1,24 +1,57 @@
 @import "../../../assets/scss/helpers/variables";
 @import "../../../assets/scss/helpers/mixins";
+@import "../../../assets/scss/helpers/pf4-variables";
 
 .node-block {
   background: $node-block-background;
   padding-top: 2rem;
+  width:fit-content;
   color: white;
   font-size: 1rem;
   button {
     font-size: inherit;
   }
 
-  @include media-query(1200px) {
+
+  @include media-query($pf-global--breakpoint--sm){
+    font-size:0.75rem;
+  }
+  @include media-query($pf-global--breakpoint--lg) {
     font-size: 0.85rem;
+    width:100%;
+  }
+
+  @include media-query($pf-global--breakpoint--xl){
+    width:100%;
   }
 
   .node-details {
-   
     &__title {
       display: flex;
       justify-content: space-between;
+
+      .pf-c-button {
+        --pf-c-button--m-tertiary--BackgroundColor: var(
+          --pf-global--palette--white
+        ) !important;
+        -pf-c-button--m-tertiary--hover--backgroundcolor: var(
+          --pf-global--BackgroundColor--light-300
+        ) !important;
+
+        --pf-c-button--m-tertiary--focus--BackgroundColor: var(
+          --pf-global--BackgroundColor--light-300
+        ) !important;
+      }
+    }
+
+    &__grid {
+      margin-bottom: 0.5em;
+      .value {
+        margin-left: 0.5em;
+        svg {
+          margin-right: 0.4em;
+        }
+      }
     }
 
     &__version {
@@ -32,36 +65,9 @@
       font-weight: 600;
     }
 
-    &__grid > .status,
-    &__expandable {
-      margin-bottom: 1em;
-    }
-
-    .pf-m-primary {
-      background-color: #004080 !important;
-      color: white;
-    }
-
-    .pf-m-primary:hover {
-      background-color: #06c !important;
-    }
-
     .pf-c-expandable-section__toggle {
-      color: white;
-      font-size: 90%;
-
-      &-icon {
-        margin-right: 0.25em;
-      }
-    }
-
-    &__grid > * {
-      margin-top: 1em;
-    }
-
-    .value svg,
-    .title svg {
-      margin-right: 0.5em;
+      color:var(--pf-global--palette--white);
+      margin-bottom: 0.25em;
     }
 
     &__actions {
@@ -84,15 +90,15 @@
       .ant-steps-item {
         overflow: visible !important;
       }
-      
+
       .ant-steps-item-icon {
         display: none;
       }
 
       .ant-steps-item-description {
         color: #b8bbbe !important;
-        max-width: 60px!important;
-        margin-top:0.5em;
+        max-width: 60px !important;
+        margin-top: 0.5em;
         font-size: 12px;
       }
 
@@ -168,11 +174,8 @@ Steps Design Icon
   padding: 0.25rem !important;
 }
 
-
-
 .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
   color: white !important;
-  
 }
 
 .ReactVirtualized__Grid__innerScrollContainer {
