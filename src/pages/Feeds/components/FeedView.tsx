@@ -3,7 +3,6 @@ import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
 import {
   PageSection,
-  PageSectionVariants,
   Grid,
   GridItem,
   Skeleton,
@@ -184,8 +183,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
 
   return (
     <React.Fragment>
-      <PageSection 
-      variant="darker" type='nav' className="section-one">
+      <PageSection hasShadowBottom variant="darker" className="section-one">
         <FeedDetails />
       </PageSection>
       <PageSection

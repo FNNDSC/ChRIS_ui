@@ -1,101 +1,25 @@
 @import "../../../assets/scss/helpers/variables";
 @import "../../../assets/scss/helpers/mixins";
+@import "../../../assets/scss/helpers/pf4-variables";
 
 /* Header */
+
 .feed-details {
-  width: 100% important;
-  
-  &__list {
-    &--first {
-     display:flex;
-     align-items:center;
-     font-size:1.25rem;
-     gap:0.5rem;
-     font-weight: 700;
-    }
-
-    &--container-1 {
-      display: flex;
-      gap:3rem;
-    }
-
-     &--container-2 {
-      align-self: flex-end;
-
-      @include media-query(1200px) {
-        padding-bottom:0.25em; 
-      }
-    }
-    
-    ul{
-
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-  
-
-      li p span {
-        margin-left:0.25em;
-      }
-
-      li p time {
-         margin-left:0.25em;
-      }
-    }
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+ 
+  @include media-query($pf-global--breakpoint--xs) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  @include media-query($pf-global--breakpoint--md) {
+    flex-direction: row;
+    align-items: center;
   }
 
- 
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-  /*
-
- 
-  .feed-info-block {
-    h1 {
-      font-size: 1.2rem;
-      margin: 0.65rem 0;
-    }
-    p {
-      margin-top: 0.3rem;
-    }
+  li {
+    margin-right: 2em;
    
-
-    .pf-c-list.pf-m-inline li:not(:last-child) {
-      margin-right: 2rem;
-    }
-    img {
-      margin-right: 0.5rem;
-      max-width: 70px;
-      width: 90%;
-    }
   }
-  .feed-breadcrumbs {
-    margin-bottom: 20px;
-    
-    li {
-      font-size: 14px;
-      display: inline-block;
-      margin-right: 20px;
-      
-    }
-    li:not(:last-child) a {
-      color: var(--pf-global--primary-color--100) !important;
-      text-decoration: none;
-    }
-  }
-*/
-
 }
