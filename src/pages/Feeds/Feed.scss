@@ -71,9 +71,7 @@
 
 .section-one {
   padding: 0 1em !important;
-  @include media-query($pf-global--breakpoint--xl) {
-    height: 5vh;
-  }
+ 
 
   @include media-query($pf-global--breakpoint--xl2) {
     height: 5vh;
@@ -139,6 +137,4 @@
   padding: 0.5em;
 }
 
-.pf-c-drawer__content {
-  overflow: hidden;
-}
+
