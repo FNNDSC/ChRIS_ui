@@ -11,7 +11,7 @@ const Routes: React.FunctionComponent = () => {
   return (
     <React.Fragment>
       <Switch>
-        <Route exact path="/" component={Dashboard} />
+        <PrivateRoute exact path="/" component={Dashboard} />
         <Route exact path="/login" component={LogIn} />
         <Route exact path="/signup" component={SignUp} />
         <PrivateRoute path="/feeds" component={FeedsPage} />
