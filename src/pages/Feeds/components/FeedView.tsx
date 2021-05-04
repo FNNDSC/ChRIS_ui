@@ -186,37 +186,50 @@ export const FeedView: React.FC<FeedViewProps> = ({
       <PageSection hasShadowBottom variant="darker" className="section-one">
         <FeedDetails />
       </PageSection>
-      <PageSection
-        className={classNames(
-          pf4UtilityStyles.spacingStyles.p_0,
-          "section-two"
-        )}
-      >
-        <Grid
-          style={{
-            height: "100%",
-          }}
-        >
-          <Drawer isExpanded={isSidePanelExpanded} isInline>
-            <DrawerContent
-              panelContent={
-                <DrawerPanelContent
-                  defaultSize="50%"
-                  minSize={"20%"}
-                  isResizable
-                >
-                  {nodePanel}
-                </DrawerPanelContent>
-              }
+
+      <Drawer isExpanded={isBottomPanelExpanded} isInline position="bottom">
+        <DrawerContent
+          panelContent={
+            <DrawerPanelContent
+            defaultSize='45vh'
+            isResizable
             >
-              <DrawerContentBody> {feedTree}</DrawerContentBody>
-            </DrawerContent>
-          </Drawer>
-        </Grid>
-      </PageSection>
-      <PageSection className="section-three">
-        {feedOutputBrowserPanel}
-      </PageSection>
+              <PageSection className="section-three">
+                {feedOutputBrowserPanel}
+              </PageSection>
+            </DrawerPanelContent>
+          }
+        >
+          <PageSection
+            className={classNames(
+              pf4UtilityStyles.spacingStyles.p_0,
+              "section-two"
+            )}
+          >
+            <Grid
+              style={{
+                height: "100%",
+              }}
+            >
+              <Drawer isExpanded={isSidePanelExpanded} isInline>
+                <DrawerContent
+                  panelContent={
+                    <DrawerPanelContent
+                      defaultSize="50%"
+                      minSize={"20%"}
+                      isResizable
+                    >
+                      {nodePanel}
+                    </DrawerPanelContent>
+                  }
+                >
+                  <DrawerContentBody> {feedTree}</DrawerContentBody>
+                </DrawerContent>
+              </Drawer>
+            </Grid>
+          </PageSection>
+        </DrawerContent>
+      </Drawer>
     </React.Fragment>
   );
 };
