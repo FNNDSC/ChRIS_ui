@@ -6,20 +6,36 @@
 
 .feed-details {
   display: flex;
-  align-items: center;
-  padding: 0 10px;
- 
+  margin-top: 10px;
+
   @include media-query($pf-global--breakpoint--xs) {
     flex-direction: column;
-    align-items: flex-start;
+
+    li {
+      margin-top:0.25em;
+    }
   }
-  @include media-query($pf-global--breakpoint--md) {
+
+  @include media-query($pf-global--breakpoint--lg) {
     flex-direction: row;
-    align-items: center;
+    li:first-of-type {
+      align-self: center;
+    }
+
+    li:last-of-type {
+      align-self: center;
+    }
   }
 
   li {
     margin-right: 2em;
-   
+    svg{
+      margin-right: 0.25em;
+    }
+  }
+
+  li:first-of-type{
+    font-weight: bold;
+
   }
 }
