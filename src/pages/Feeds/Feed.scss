@@ -101,17 +101,18 @@
     height: auto;
   }
 
-  @include media-query(768px) {
+  @include media-query($pf-global--breakpoint--md) {
     height: 45vh;
   }
 
-  @include media-query(992px) {
+  @include media-query($pf-global--breakpoint--lg) {
     height: 45vh;
   }
 
-  @include media-query(1200px) {
+  @include media-query($pf-global--breakpoint--xl) {
     height: 45vh;
   }
+
 
   background: #d2d2d2 !important;
   padding-right: 0 !important;

@@ -30,6 +30,9 @@ const Wrapper: React.FC<AllProps> = (props: AllProps) => {
     if (data.mobileView) {
       props.setIsNavOpen(false);
     }
+    if (!data.mobileView) {
+      props.setIsNavOpen(true);
+    }
   };
 
     return (

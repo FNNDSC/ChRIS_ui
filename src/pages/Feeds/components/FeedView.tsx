@@ -190,10 +190,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
       <Drawer isExpanded={isBottomPanelExpanded} isInline position="bottom">
         <DrawerContent
           panelContent={
-            <DrawerPanelContent
-            defaultSize='45vh'
-            isResizable
-            >
+            <DrawerPanelContent defaultSize="46vh" isResizable>
               <PageSection className="section-three">
                 {feedOutputBrowserPanel}
               </PageSection>
