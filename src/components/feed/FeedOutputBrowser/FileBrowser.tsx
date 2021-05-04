@@ -10,10 +10,6 @@ import {
   Grid,
   GridItem,
   Button,
-  Drawer,
-  DrawerPanelContent,
-  DrawerContentBody,
-  DrawerContent,
 } from "@patternfly/react-core";
 import {
   DownloadIcon,

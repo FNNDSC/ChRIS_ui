@@ -41,12 +41,12 @@ const Header: React.FC<IHeaderProps> = ({ onNavToggle, user }: IHeaderProps) => 
       <React.Fragment>
         <Brand src={brandImg} alt="ChRIS Logo" />
         <Badge key={4} style={BadgeStyle}>
-          <span>Version: 1.4.1</span>
+          <span>Version: 1.4.2</span>
         </Badge>
         <Badge key={3} style={BadgeStyle}>
           <span>
             Latest update:{" "}
-            <Moment format="DD MMM YYYY @ HH:mm">{`2021-04-28T16:15:10.297464-04:00`}</Moment>
+            <Moment format="DD MMM YYYY @ HH:mm">{`2021-05-04T16:12:10.297464-04:00`}</Moment>
           </span>
         </Badge>
       </React.Fragment>

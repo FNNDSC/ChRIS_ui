@@ -119,15 +119,15 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   const renderGridItem = (title: string, value: React.ReactNode) => {
     return (
       <>
-        <GridItem
-        className="title"
-        span={2}
-        >{title}</GridItem>
-        <GridItem className="value" span={10}>{value}</GridItem>
+        <GridItem className="title" span={2}>
+          {title}
+        </GridItem>
+        <GridItem className="value" span={10}>
+          {value}
+        </GridItem>
       </>
     );
   };
-  const test=true;
 
   if (!selectedPlugin) {
     return (
