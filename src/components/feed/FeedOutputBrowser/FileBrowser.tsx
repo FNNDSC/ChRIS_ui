@@ -221,63 +221,67 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   return (
     <Grid hasGutter className="file-browser">
-      <Drawer isExpanded={true} isInline>
-        <DrawerContent
-          panelContent={
-            <DrawerPanelContent defaultSize="60.5%" minSize="30%" isResizable>
-              {previewPanel}
-            </DrawerPanelContent>
-          }
-        >
-          <DrawerContentBody>
-            <GridItem
-              xl2={4}
-              xl2RowSpan={12}
-              xl={4}
-              xlRowSpan={12}
-              lg={4}
-              lgRowSpan={12}
-              md={4}
-              mdRowSpan={12}
-              sm={12}
-              smRowSpan={12}
-              className="file-browser__firstGrid"
+      <GridItem
+        xl2={5}
+        xl2RowSpan={12}
+        xl={6}
+        xlRowSpan={12}
+        lg={4}
+        lgRowSpan={12}
+        md={4}
+        mdRowSpan={12}
+        sm={12}
+        smRowSpan={12}
+        className="file-browser__firstGrid"
+      >
+        <div className="file-browser__header">
+          <div className="file-browser__header--breadcrumbContainer">
+            <Breadcrumb>{breadcrumbs.map(generateBreadcrumb)}</Breadcrumb>
+          </div>
+
+          <div className="file-browser__header__info">
+            <span className="files-browser__header--fileCount">
+              {selectedFiles
+                ? `(${selectedFiles.length} files)`
+                : "Empty Directory"}
+            </span>
+            <Button
+              className="file-browser__header--downloadButton"
+              onClick={() => downloadAllClick()}
+              variant="secondary"
             >
-              <div className="file-browser__header">
-                <div className="file-browser__header--breadcrumbContainer">
-                  <Breadcrumb>{breadcrumbs.map(generateBreadcrumb)}</Breadcrumb>
-                </div>
+              Download All
+            </Button>
+          </div>
+        </div>
 
-                <div className="file-browser__header__info">
-                  <span className="files-browser__header--fileCount">
-                    {selectedFiles
-                      ? `(${selectedFiles.length} files)`
-                      : "Empty Directory"}
-                  </span>
-                  <Button
-                    className="file-browser__header--downloadButton"
-                    onClick={() => downloadAllClick()}
-                    variant="secondary"
-                  >
-                    Download All
-                  </Button>
-                </div>
-              </div>
+        <Table
+          className="file-browser__table"
+          aria-label="file-browser-table"
+          variant="compact"
+          cells={cols}
+          rows={rows}
+        >
+          <TableHeader />
+          <TableBody onRowClick={handleFileClick} />
+        </Table>
+      </GridItem>
 
-              <Table
-                className="file-browser__table"
-                aria-label="file-browser-table"
-                variant="compact"
-                cells={cols}
-                rows={rows}
-              >
-                <TableHeader />
-                <TableBody onRowClick={handleFileClick} />
-              </Table>
-            </GridItem>
-          </DrawerContentBody>
-        </DrawerContent>
-      </Drawer>
+      <GridItem
+        xl2={7}
+        xl2RowSpan={12}
+        xl={6}
+        xlRowSpan={12}
+        lg={8}
+        lgRowSpan={12}
+        md={8}
+        mdRowSpan={12}
+        sm={12}
+        smRowSpan={12}
+        className="file-browser__grid2"
+      >
+        {previewPanel}
+      </GridItem>
     </Grid>
   );
 };
