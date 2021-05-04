@@ -5,8 +5,6 @@ import { Store } from "redux";
 import { BrowserRouter } from "react-router-dom";
 import { RootState } from "./store/root/applicationState";
 
-
-
 interface AllProps {
   store: Store<RootState>;
 }

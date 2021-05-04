@@ -71,7 +71,6 @@
 
 .section-one {
   padding: 0 1em !important;
- 
 
   @include media-query($pf-global--breakpoint--xl2) {
     height: 5vh;
@@ -89,6 +88,9 @@
 
   @include media-query($pf-global--breakpoint--lg) {
     height: 40vh;
+    .pf-c-drawer.pf-m-inline > .pf-c-drawer__main > .pf-c-drawer__content {
+      overflow: hidden 
+    }
   }
 
   @include media-query($pf-global--breakpoint--xl) {
@@ -109,10 +111,9 @@
     height: 45vh;
   }
 
-  @include media-query($pf-global--breakpoint--xl) {
+  @include media-query($pf-global--breakpoint--xl2) {
     height: 45vh;
   }
-
 
   background: #d2d2d2 !important;
   padding-right: 0 !important;
@@ -137,5 +138,3 @@
 .node-block {
   padding: 0.5em;
 }
-
-
