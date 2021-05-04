@@ -70,15 +70,14 @@
 }
 
 .section-one {
-  padding:0 1em !important;
-
-  @include media-query($pf-global--breakpoint--lg){
-    height:5
+  padding: 0 1em !important;
+  @include media-query($pf-global--breakpoint--xl) {
+    height: 5vh;
   }
 
-  button {
-    padding-bottom:0.25em;
-  };
+  @include media-query($pf-global--breakpoint--xl2) {
+    height: 5vh;
+  }
 }
 
 .section-two {
@@ -95,7 +94,7 @@
   }
 
   @include media-query($pf-global--breakpoint--xl) {
-   height:40vh;
+    height: 40vh;
   }
 }
 
@@ -143,4 +142,3 @@
 .pf-c-drawer__content {
   overflow: hidden;
 }
-

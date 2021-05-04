@@ -4,34 +4,29 @@
 *  Author:          ChRIS UI
 */
 
-
 // Patternfly variable overrides
 // --------------------------------------------------------------------
 // Grid breakpoints - adjust as needed
-$pf-global--breakpoint--xs:         0;
-$pf-global--breakpoint--sm:         576px;
-$pf-global--breakpoint--md:         768px;
-$pf-global--breakpoint--lg:         992px;
-$pf-global--breakpoint--xl:         1200px;
+$pf-global--breakpoint--xs: 0;
+$pf-global--breakpoint--sm: 576px;
+$pf-global--breakpoint--md: 768px;
+$pf-global--breakpoint--lg: 992px;
+$pf-global--breakpoint--xl: 1200px;
+$pf-global--breakpoint--xl2: 1920px;
 
-
-
-
-$pf-root-directory:                 '~@patternfly/patternfly/';
+$pf-root-directory: "~@patternfly/patternfly/";
 // Fontpath
-$pf-global--font-path:              '~@patternfly/patternfly/assets/fonts';
+$pf-global--font-path: "~@patternfly/patternfly/assets/fonts";
 // Iconpath
-$fa-font-path:                      '~@patternfly/patternfly/assets/fonts/webfonts';
+$fa-font-path: "~@patternfly/patternfly/assets/fonts/webfonts";
 // FontIcon Path
-$pf-global--fonticon-path:          '~@patternfly/patternfly/assets/pficon';
+$pf-global--fonticon-path: "~@patternfly/patternfly/assets/pficon";
 
 // Imagepath
-$pf-global--image-path:             '~@patternfly/patternfly/assets/images';
+$pf-global--image-path: "~@patternfly/patternfly/assets/images";
 
-
-$pf-global--BorderRadius--sm:        0; // Changed to override button radius might need to override actual styles
+$pf-global--BorderRadius--sm: 0; // Changed to override button radius might need to override actual styles
 
 // Color overrides
 // --------------------------------------------------------------------
-$pf-color-black-900:                #282d33;
-
+$pf-color-black-900: #282d33;
