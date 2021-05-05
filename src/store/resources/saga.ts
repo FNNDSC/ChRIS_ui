@@ -14,8 +14,10 @@ import { inflate } from "pako";
 import {
   getPluginInstanceResourceSuccess,
   stopFetchingPluginResources,
+  stopFetchingStatusResources,
   getPluginFilesSuccess,
   getPluginFilesError,
+  getPluginInstanceStatusSuccess,
 } from "./actions";
 
 function* fetchPluginFiles(plugin: PluginInstance) {
@@ -92,7 +94,44 @@ function* handleGetPluginStatus(instance: PluginInstance) {
   }
 }
 
+function* handleGetInstanceStatus(instance: PluginInstance) {
+  while (true) {
+    try {
+      const pluginDetails = yield instance.get();
+      yield put(
+        getPluginInstanceStatusSuccess({
+          selected: instance,
+          status: instance.data.status,
+        })
+      );
+      if (
+        pluginDetails.data.status === "finishedWithError" ||
+        pluginDetails.data.status === "cancelled"
+      ) {
+        yield put(stopFetchingStatusResources(instance.data.id));
+      }
+      if (pluginDetails.data.status === "finishedSuccessfully") {
+        yield put(stopFetchingStatusResources(instance.data.id));
+      } else {
+        yield delay(7000);
+      }
+    } catch (error) {
+      yield put(stopFetchingStatusResources(instance.data.id));
+    }
+  }
+}
+
+type PollTask = {
+  [id: number]: Task;
+};
+
 function cancelPolling(task: Task) {
+  if (task) {
+    task.cancel();
+  }
+}
+
+function cancelStatusPolling(task: Task) {
   if (task) {
     task.cancel();
   }
@@ -104,10 +143,37 @@ function* watchCancelPoll(pollTask: Task) {
   });
 }
 
+function* watchStatusCancelPoll(pollTask: PollTask) {
+  yield takeEvery(
+    ResourceTypes.STOP_FETCHING_STATUS_RESOURCES,
+    function (action: IActionTypeParam) {
+      const id = action.payload;
+      const taskToCancel = pollTask[id];
+      cancelStatusPolling(taskToCancel);
+    }
+  );
+}
+
 function* pollorCancelEndpoints(action: IActionTypeParam) {
   const instance = action.payload;
   const task = yield fork(handleGetPluginStatus, instance);
   yield watchCancelPoll(task);
+}
+
+function* pollInstanceEndpoints(action: IActionTypeParam) {
+  const pluginInstances = action.payload.pluginInstances;
+
+  const pollTask: {
+    [id: number]: Task;
+  } = {};
+
+  for (let i = 0; i < pluginInstances.length; i++) {
+    const instance = pluginInstances[i];
+    const task = yield fork(handleGetInstanceStatus, instance);
+    pollTask[instance.data.id] = task;
+  }
+
+  yield watchStatusCancelPoll(pollTask);
 }
 
 function* watchGetPluginFilesRequest() {
@@ -117,8 +183,18 @@ function* watchGetPluginFilesRequest() {
   );
 }
 
+function* watchGetPluginStatusRequest() {
+  yield takeEvery(
+    ResourceTypes.GET_PLUGIN_STATUS_REQUEST,
+    pollInstanceEndpoints
+  );
+}
+
 export function* resourceSaga() {
-  yield all([fork(watchGetPluginFilesRequest)]);
+  yield all([
+    fork(watchGetPluginFilesRequest),
+    fork(watchGetPluginStatusRequest),
+  ]);
 }
 
 /**

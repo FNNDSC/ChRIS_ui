@@ -5,8 +5,10 @@ import { useTypedSelector } from "../../../store/hooks";
 import { getJoinInput } from "./utils";
 
 const Review = ({ nodeState }: { nodeState: NodeState }) => {
-  const tsNodes = useTypedSelector((state) => state.feed.tsNodes);
-  const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
+  const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
+  const selectedPlugin = useTypedSelector(
+    (state) => state.instance.selectedPlugin
+  );
   const { joinInput, splitInput, selectedConfig } = nodeState;
   let generatedString = "";
 

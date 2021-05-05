@@ -65,15 +65,25 @@ export interface PluginInstanceResourcePayload {
   [id: string]: ResourcePayload;
 }
 
-export interface IResourceState {
-  pluginInstanceStatus: PluginInstanceStatusPayload;
-  pluginInstanceResource: PluginInstanceResourcePayload;
-  pluginFiles: FilesPayload;
-}
+
 
 export interface PluginInstanceObj {
   selected: PluginInstance;
   pluginInstances: PluginInstance[];
+}
+
+export interface NodeDetailsProps {
+  selected?: PluginInstance;
+  pluginInstanceResource?: ResourcePayload;
+  text?: string;
+}
+
+
+
+export interface IResourceState {
+  pluginInstanceStatus: PluginInstanceStatusPayload;
+  pluginInstanceResource: PluginInstanceResourcePayload;
+  pluginFiles: FilesPayload;
 }
 
 export const ResourceTypes = keyMirror({

@@ -146,7 +146,7 @@ const graphClassName = "feed-tree__graph";
 
 const FeedTree = (props: AllProps) => {
   const feedTreeProp = useTypedSelector((state) => state.feed.feedTreeProp);
-  const mode = useTypedSelector((state) => state.feed.treeMode);
+  const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
   const [feedState, setFeedState] = React.useState<FeedTreeState>(
     getInitialState(props, feedTreeProp)
   );

@@ -10,9 +10,12 @@ import { combineReducers } from "redux";
 import { uiReducer } from "../ui/reducer";
 import { messageReducer } from "../message/reducer";
 import { feedsReducer } from "../feed/reducer";
+import { pluginInstanceReducer } from "../pluginInstance/reducer";
+import { resourceReducer } from "../resources/reducer";
 import { userReducer } from "../user/reducer";
 import { pluginReducer } from "../plugin/reducer";
 import { explorerReducer } from "../explorer/reducer";
+import { tsPluginsReducer } from "../tsplugins/reducer";
 
 
 const rootReducer = combineReducers({
@@ -22,6 +25,9 @@ const rootReducer = combineReducers({
   user: userReducer,
   plugin: pluginReducer,
   explorer: explorerReducer,
+  instance: pluginInstanceReducer,
+  resource: resourceReducer,
+  tsPlugins: tsPluginsReducer,
 });
 
 export default rootReducer;

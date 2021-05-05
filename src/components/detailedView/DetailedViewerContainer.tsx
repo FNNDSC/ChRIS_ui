@@ -5,8 +5,11 @@ import { FileBrowserViewer } from "./displays";
 import "./Viewer.scss";
 
 const OutputViewerContainer = () => {
-  const { pluginFiles, selectedPlugin } = useTypedSelector(
-    (state) => state.feed
+ 
+
+  const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles);
+  const selectedPlugin = useTypedSelector(
+    (state) => state.instance.selectedPlugin
   );
 
   const [activeTabKey, setActiveTabKey] = React.useState(0);
