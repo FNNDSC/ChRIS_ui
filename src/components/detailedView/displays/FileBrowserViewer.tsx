@@ -17,7 +17,9 @@ const FileBrowserViewer = () => {
   const { explorer, selectedFile, viewerMode } = useTypedSelector(
     (state) => state.explorer
   );
-  const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
+  const selectedPlugin = useTypedSelector(
+    (state) => state.instance.selectedPlugin
+  );
   const dispatch = useDispatch();
 
   const onSelect = (selectedKeys: Key[], info: any) => {

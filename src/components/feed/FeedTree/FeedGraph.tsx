@@ -4,7 +4,7 @@ import ForceGraph3D, {
   NodeObject,
   ForceGraphMethods,
 } from "react-force-graph-3d";
-import { PluginInstancePayload } from "../../../store/feed/types";
+import { PluginInstancePayload } from "../../../store/pluginInstance/types";
 import { ApplicationState } from "../../../store/root/applicationState";
 import TreeModel from "../../../api/models/tree.model";
 import { PluginInstance } from "@fnndsc/chrisapi";
@@ -127,8 +127,8 @@ const FeedGraph = (props: IFeedProps) => {
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  pluginInstances: state.feed.pluginInstances,
-  selectedPlugin: state.feed.selectedPlugin,
+  pluginInstances: state.instance.pluginInstances,
+  selectedPlugin: state.instance.selectedPlugin,
 });
 
 export default connect(mapStateToProps, {})(FeedGraph);

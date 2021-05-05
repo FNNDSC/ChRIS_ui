@@ -49,8 +49,8 @@ const Node = (props: NodeProps) => {
   } = props;
 
 
-  const tsNodes = useTypedSelector((state) => state.feed.tsNodes);
-  const mode = useTypedSelector((state) => state.feed.treeMode);
+  const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
+  const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
 
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
@@ -142,11 +142,13 @@ const NodeMemoed = React.memo(Node);
 const NodeWrapper = (props: NodeWrapperProps) => {
   const { data } = props;
   const status = useTypedSelector((state) => {
-    if (data.id && state.feed.pluginInstanceStatus[data.id]) {
-      return state.feed.pluginInstanceStatus[data.id].status;
+    if (data.id && state.resource.pluginInstanceStatus[data.id]) {
+      return state.resource.pluginInstanceStatus[data.id].status;
     } else return;
   });
-  const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
+  const selectedPlugin = useTypedSelector(
+    (state) => state.instance.selectedPlugin
+  );
   const currentId = selectedPlugin?.data.id === data.id;
 
   return (

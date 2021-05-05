@@ -10,8 +10,11 @@ import { IUserState } from "../user/types";
 import { IFeedState } from "../feed/types";
 import { IPluginState } from "../plugin/types";
 import { IExplorerState } from "../explorer/types";
-
+import { IPluginInstanceState } from "../pluginInstance/types";
 import rootReducer from "./rootReducer";
+import { IResourceState } from "../resources/types";
+import { ITSPluginState } from "../tsplugins/types";
+
 
 export interface ApplicationState {
   ui: IUiState;
@@ -20,6 +23,9 @@ export interface ApplicationState {
   user: IUserState;
   plugin: IPluginState;
   explorer: IExplorerState;
+  instance: IPluginInstanceState;
+  resource: IResourceState;
+  tsPlugins: ITSPluginState;
 }
 
 export type RootState = ReturnType<typeof rootReducer>;

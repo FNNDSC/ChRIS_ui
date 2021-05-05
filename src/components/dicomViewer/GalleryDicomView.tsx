@@ -55,8 +55,6 @@ cornerstoneNIFTIImageLoader.nifti.configure({
 });
 const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
 
-
-
 function getInitialState() {
   return {
     inPlay: false,
@@ -95,9 +93,10 @@ function getInitialState() {
 }
 
 const GalleryDicomView = () => {
-  const { selectedPlugin, pluginFiles } = useTypedSelector(
-    (state) => state.feed
+  const selectedPlugin = useTypedSelector(
+    (state) => state.instance.selectedPlugin
   );
+  const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles);
   const [
     galleryDicomState,
     setGalleryDicomState,
@@ -133,7 +132,8 @@ const GalleryDicomView = () => {
           };
         });
 
-        if (isNifti(item.data.fname)) {const fileArray = item.data.fname.split("/");
+        if (isNifti(item.data.fname)) {
+          const fileArray = item.data.fname.split("/");
           const fileName = fileArray[fileArray.length - 1];
           const imageIdObject = ImageId.fromURL(`nifti:${item.url}${fileName}`);
           const numberOfSlices = cornerstone.metaData.get(
