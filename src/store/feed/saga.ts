@@ -1,37 +1,13 @@
-import { all, fork, put, takeEvery, call, delay } from "redux-saga/effects";
+import { all, fork, put, takeEvery } from "redux-saga/effects";
 import { FeedActionTypes } from "./types";
 import { IActionTypeParam } from "../../api/models/base.model";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { Feed, PluginInstance, PluginInstanceFileList } from "@fnndsc/chrisapi";
 import {
   getAllFeedsSuccess,
   getAllFeedsError,
   getFeedSuccess,
-  getPluginInstancesRequest,
-  getPluginInstancesSuccess,
-  getPluginInstancesError,
-  getSelectedPlugin,
-  getPluginFilesSuccess,
-  getPluginFilesError,
-  addNodeSuccess,
-  deleteNodeSuccess,
-  getPluginInstanceResourceSuccess,
-  stopFetchingPluginResources,
-  stopFetchingStatusResources,
   getFeedError,
-  getPluginInstanceStatusSuccess,
-  getPluginInstanceStatusRequest,
-  addSplitNodesSuccess,
 } from "./actions";
-import { PluginStatusLabels } from "./types";
-
-import { Task } from "redux-saga";
-import { inflate } from "pako";
-
-// ------------------------------------------------------------------------
-// Description: Get Feeds list and search list by feed name (form input driven)
-// pass it a param and do a search querie
-// ------------------------------------------------------------------------
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
   const { name, limit, offset } = action.payload;
@@ -49,10 +25,6 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
     yield put(getAllFeedsError(error));
   }
 }
-
-// ------------------------------------------------------------------------
-// Description: Get Feed's details
-// ------------------------------------------------------------------------
 
 function* handleGetFeedDetails(action: IActionTypeParam) {
   try {
@@ -73,6 +45,7 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
   }
 }
 
+<<<<<<< HEAD
 // ------------------------------------------------------------------------
 // Description: Get Feed's Plugin Instances
 // ------------------------------------------------------------------------
@@ -336,6 +309,8 @@ function* handlePluginReset(action: IActionTypeParam) {
  * Watchers for actions
  */
 
+=======
+>>>>>>> b9dfcf6... Reorganize redux store for easy usability and testing
 function* watchGetAllFeedsRequest() {
   yield takeEvery(FeedActionTypes.GET_ALL_FEEDS_REQUEST, handleGetAllFeeds);
 }
@@ -344,72 +319,6 @@ function* watchGetFeedRequest() {
   yield takeEvery(FeedActionTypes.GET_FEED_REQUEST, handleGetFeedDetails);
 }
 
-function* watchGetPluginInstanceRequest() {
-  yield takeEvery(
-    FeedActionTypes.GET_PLUGIN_INSTANCES_REQUEST,
-    handleGetPluginInstances
-  );
-}
-
-function* watchGetPluginFilesRequest() {
-  yield takeEvery(
-    FeedActionTypes.GET_PLUGIN_FILES_REQUEST,
-    pollorCancelEndpoints
-  );
-}
-
-function* watchGetPluginStatusRequest() {
-  yield takeEvery(
-    FeedActionTypes.GET_PLUGIN_STATUS_REQUEST,
-    pollInstanceEndpoints
-  );
-}
-
-function* watchAddNode() {
-  yield takeEvery(FeedActionTypes.ADD_NODE_REQUEST, handleAddNode);
-}
-
-function* watchAddSplitNode() {
-  yield takeEvery(FeedActionTypes.ADD_SPLIT_NODES, handleSplitNode);
-}
-
-function* watchDeleteNode() {
-  yield takeEvery(FeedActionTypes.DELETE_NODE, handleDeleteNode);
-}
-
-function* watchResetState() {
-  yield takeEvery(FeedActionTypes.RESET_PLUGIN_STATE, handlePluginReset);
-}
-
-// ------------------------------------------------------------------------
-// We can also use `fork()` here to split our saga into multiple watchers.
-// ------------------------------------------------------------------------
 export function* feedSaga() {
-  yield all([
-    fork(watchGetAllFeedsRequest),
-    fork(watchGetFeedRequest),
-    fork(watchGetPluginInstanceRequest),
-    fork(watchGetPluginFilesRequest),
-    fork(watchAddNode),
-    fork(watchDeleteNode),
-    fork(watchResetState),
-    fork(watchGetPluginStatusRequest),
-    fork(watchAddSplitNode),
-  ]);
-}
-
-/**
- * Utility Functions
- */
-
-function getLog(raw: string) {
-  const strData = atob(raw);
-  const data = inflate(strData);
-
-  let output = "";
-  for (let i = 0; i < data.length; i++) {
-    output += String.fromCharCode(parseInt(data[i]));
-  }
-
-  return JSON.parse(output);
+  yield all([fork(watchGetAllFeedsRequest), fork(watchGetFeedRequest)]);
 }

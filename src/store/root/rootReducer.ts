@@ -9,7 +9,7 @@ import { combineReducers } from "redux";
 // import { ComponentReducer } from '../file-source';
 import { uiReducer } from "../ui/reducer";
 import { messageReducer } from "../message/reducer";
-import { feedReducer } from "../feed/reducer";
+import { feedsReducer } from "../feed/reducer";
 import { userReducer } from "../user/reducer";
 import { pluginReducer } from "../plugin/reducer";
 import { explorerReducer } from "../explorer/reducer";
@@ -18,7 +18,7 @@ import { explorerReducer } from "../explorer/reducer";
 const rootReducer = combineReducers({
   ui: uiReducer,
   message: messageReducer,
-  feed: feedReducer,
+  feed: feedsReducer,
   user: userReducer,
   plugin: pluginReducer,
   explorer: explorerReducer,

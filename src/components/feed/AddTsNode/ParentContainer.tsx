@@ -54,6 +54,7 @@ const GraphNode = (props: GraphNodeProps) => {
   const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
   const tsNodes = useTypedSelector((state) => state.feed.tsNodes);
   const nodes = useTypedSelector((state) => state.feed.pluginInstances);
+  const treeMode = useTypedSelector((state) => state.feed.treeMode);
   const dispatch = useDispatch();
 
   const [nodeState, setNodeState] = React.useState<NodeState>(getNodeState);
@@ -162,6 +163,7 @@ const GraphNode = (props: GraphNodeProps) => {
   const onCancel = () => {
     handleResets();
     onVisibleChange(!visible);
+    dispatch(switchTreeMode(treeMode));
   };
 
   const handleSplitChange = (value: string, name: string) => {
