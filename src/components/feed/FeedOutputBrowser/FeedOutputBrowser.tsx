@@ -56,7 +56,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
   React.useEffect(() => {
     if (!pluginFilesPayload && selected) {
-      safeDispatch(getPluginFilesRequest(selected));
+       safeDispatch(getPluginFilesRequest(selected));
     }
   }, [selected, pluginFilesPayload, safeDispatch]);
   if (!selected || isEmpty(pluginInstances) || loading) {

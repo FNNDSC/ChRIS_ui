@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Spinner } from "@patternfly/react-core";
+import { Skeleton } from "@patternfly/react-core";
 import { setFeedTreeProp } from "../../../store/feed/actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import FeedTree from "./FeedTree";
@@ -72,7 +72,7 @@ const ParentComponent = (props: ParentComponentProps) => {
       onExpand={onExpand}
     />
   ) : (
-    <Spinner size="lg" />
+    <Skeleton height="75%" width="75%" screenreaderText="Loading Feed Tree" />
   );
 };
 
