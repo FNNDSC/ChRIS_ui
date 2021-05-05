@@ -1,4 +1,3 @@
-
 import { PluginStatusLabels } from "./types";
 import {
   InProgressIcon,
@@ -10,7 +9,6 @@ import {
   OutlinedArrowAltCircleRightIcon,
   OutlinedArrowAltCircleLeftIcon,
 } from "@patternfly/react-icons";
-
 
 export function getStatusLabels(
   labels: PluginStatusLabels,
@@ -132,7 +130,12 @@ export function getStatusLabels(
         ? "Cancelled"
         : "Finished Successfully"
     }`,
-    status: pluginStatus==='cancelled' || pluginStatus==='finishedWithError' ? false : statusLabels.indexOf(pluginStatus) > 5 ? true : false,
+    status:
+      pluginStatus === "cancelled" || pluginStatus === "finishedWithError"
+        ? false
+        : statusLabels.indexOf(pluginStatus) > 5
+        ? true
+        : false,
     isCurrentStep:
       pluginStatus === "finishedSuccessfully" ||
       pluginStatus === "cancelled" ||
@@ -158,7 +161,3 @@ export function getStatusLabels(
 
   return status;
 }
-
-
-
-
