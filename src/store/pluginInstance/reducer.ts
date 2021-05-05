@@ -9,6 +9,7 @@ export const initialState: IPluginInstanceState = {
     error: "",
     loading: false,
   },
+  deleteNodeSuccess: false,
 };
 
 const reducer: Reducer<IPluginInstanceState> = (
@@ -96,6 +97,31 @@ const reducer: Reducer<IPluginInstanceState> = (
           },
         };
       } else return state;
+    }
+
+    case PluginInstanceTypes.DELETE_NODE_SUCCESS: {
+      const id = action.payload;
+      const pluginInstances = state.pluginInstances.data
+        ?.map((instance) => {
+          if (instance.data.id === id || instance.data.previous_id === id) {
+            return undefined;
+          } else return instance;
+        })
+        .filter((instance) => instance);
+
+      const selectedPlugin =
+        pluginInstances && pluginInstances[pluginInstances.length - 1];
+
+      return {
+        ...state,
+        pluginInstances: {
+          data: pluginInstances,
+          error: "",
+          loading: false,
+        },
+        selectedPlugin,
+        deleteNodeSuccess: true,
+      };
     }
 
     default:

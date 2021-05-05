@@ -13,16 +13,13 @@ import {
 } from "@patternfly/react-core";
 import classNames from "classnames";
 import { FeedDetails } from "../../../components";
-import {
-  addTSNodes,
-  destroyPluginState,
-  getFeedRequest,
-  getSelectedPlugin,
-} from "../../../store/feed/actions";
+import { getFeedRequest } from "../../../store/feed/actions";
+import { getSelectedPlugin } from "../../../store/pluginInstance/actions";
 import { setSidebarActive } from "../../../store/ui/actions";
+import { addTSNodes } from "../../../store/tsplugins/actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { RouteComponentProps } from "react-router-dom";
-import { DestroyData } from "../../../store/feed/types";
+
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 import { destroyExplorer } from "../../../store/explorer/actions";
 import "antd/dist/antd.css";
@@ -49,12 +46,15 @@ export const FeedView: React.FC<FeedViewProps> = ({
 }: FeedViewProps) => {
   const [isSidePanelExpanded, setSidePanelExpanded] = React.useState(true);
   const [isBottomPanelExpanded, setBottomPanelExpanded] = React.useState(true);
-  const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
+  const selectedPlugin = useTypedSelector(
+    (state) => state.instance.selectedPlugin
+  );
   const currentLayout = useTypedSelector((state) => state.feed.currentLayout);
   const pluginInstances = useTypedSelector(
-    (state) => state.feed.pluginInstances
+    (state) => state.instance.pluginInstances
   );
   const dispatch = useDispatch();
+  /*
   const dataRef = React.useRef<DestroyData>();
   const { data } = pluginInstances;
 
@@ -69,7 +69,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
       dispatch(destroyExplorer());
     };
   }, [dispatch]);
-
+*/
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
     dispatch(

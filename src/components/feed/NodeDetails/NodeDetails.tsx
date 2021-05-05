@@ -52,7 +52,9 @@ function getInitialState() {
 
 const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
-  const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
+  const selectedPlugin = useTypedSelector(
+    (state) => state.instance.selectedPlugin
+  );
 
   const dispatch = useDispatch();
   const { plugin, instanceParameters, pluginParameters } = nodeState;

@@ -7,7 +7,7 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import "./styles/AddNode.scss";
 
 import Review from "./Review";
-import { addNodeRequest } from "../../../store/feed/actions";
+import { addNodeRequest } from "../../../store/pluginInstance/actions";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
 import { PlusCircleIcon } from "@patternfly/react-icons";
@@ -73,7 +73,7 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   const inputChange = (
     id: string,
-    flag:string,
+    flag: string,
     value: string,
     type: string,
     placeholder: string,
@@ -81,7 +81,7 @@ const AddNode: React.FC<AddNodeProps> = ({
   ) => {
     const input: InputIndex = {};
     input["value"] = value;
-    input['flag']=flag;
+    input["flag"] = flag;
     input["type"] = type;
     input["placeholder"] = placeholder;
 
@@ -339,9 +339,8 @@ const AddNode: React.FC<AddNodeProps> = ({
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  selectedPlugin: state.feed.selectedPlugin,
-  pluginInstances: state.feed.pluginInstances,
-  loadingAddNode: state.feed.loadingAddNode,
+  selectedPlugin: state.instance.selectedPlugin,
+  pluginInstances: state.instance.pluginInstances,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

@@ -13,6 +13,14 @@ export const initialState: IFeedState = {
     error: "",
     loading: false,
   },
+  currentLayout: true,
+  feedTreeProp: {
+    orientation: "vertical",
+    translate: {
+      x: 600,
+      y: 50,
+    },
+  },
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -100,6 +108,34 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
             error: "",
             loading: false,
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
+          },
+        };
+      }
+    }
+
+    case FeedActionTypes.SET_LAYOUT: {
+      return {
+        ...state,
+        currentLayout: !state.currentLayout,
+      };
+    }
+
+    case FeedActionTypes.GET_FEED_TREE_PROP: {
+      const currentOrientation = action.payload;
+      if (currentOrientation === "horizontal")
+        return {
+          ...state,
+          feedTreeProp: {
+            ...state.feedTreeProp,
+            orientation: "vertical",
+          },
+        };
+      else {
+        return {
+          ...state,
+          feedTreeProp: {
+            ...state.feedTreeProp,
+            orientation: "horizontal",
           },
         };
       }

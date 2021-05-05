@@ -3,7 +3,7 @@ import { Button, List, Form, Input, Checkbox } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { useDispatch } from "react-redux";
 import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
-import { deleteTsNode, switchTreeMode } from "../../../store/feed/actions";
+import { deleteTsNode, switchTreeMode } from "../../../store/tsplugins/actions";
 import { useSafeDispatch } from "../../../utils";
 import { useTypedSelector } from "../../../store/hooks";
 import { CloseIcon } from "@patternfly/react-icons";
@@ -23,8 +23,8 @@ const ConfigureJoin = ({
   joinInput,
 }: ConfigureJoinProps) => {
   const [tsParams, setTsParams] = React.useState<PluginParameter[]>([]);
-  const tsNodes = useTypedSelector((state) => state.feed.tsNodes);
-  const mode = useTypedSelector((state) => state.feed.treeMode);
+  const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
+  const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
   const dispatch = useDispatch();
   const safeDispatch = useSafeDispatch(dispatch);
 

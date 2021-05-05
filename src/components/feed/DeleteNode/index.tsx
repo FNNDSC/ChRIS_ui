@@ -4,7 +4,7 @@ import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { PluginInstance} from "@fnndsc/chrisapi";
-import { deleteNode } from "../../../store/feed/actions";
+import { deleteNode } from "../../../store/pluginInstance/actions";
 import { TrashIcon } from "@patternfly/react-icons";
 
 interface DeleteNodeProps {
@@ -65,8 +65,8 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  selectedPlugin: state.feed.selectedPlugin,
-  deleteNodeSuccess:state.feed.deleteNodeSuccess
+  selectedPlugin: state.instance.selectedPlugin,
+  deleteNodeSuccess: state.instance.deleteNodeSuccess,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

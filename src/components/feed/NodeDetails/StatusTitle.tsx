@@ -1,6 +1,6 @@
 import React from "react";
 import usePluginInstanceResource from "./usePluginInstanceResource";
-import { PluginStatus } from "../../../store/feed/types";
+import { PluginStatus } from "../../../store/resources/types";
 import { Skeleton } from "@patternfly/react-core";
 
 const StatusTitle = () => {

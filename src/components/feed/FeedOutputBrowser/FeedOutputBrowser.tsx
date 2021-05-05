@@ -19,7 +19,7 @@ import {
   setExplorerRequest,
   toggleViewerMode,
 } from "../../../store/explorer/actions";
-import { getPluginFilesRequest } from "../../../store/feed/actions";
+import { getPluginFilesRequest } from "../../../store/resources/actions";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { createTreeFromFiles, getPluginName } from "./utils";
 import { PluginInstance } from "@fnndsc/chrisapi";
@@ -44,10 +44,10 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const dispatch = useDispatch();
   const safeDispatch = useSafeDispatch(dispatch);
-  const selected = useTypedSelector((state) => state.feed.selectedPlugin);
-  const pluginFiles = useTypedSelector((state) => state.feed.pluginFiles);
+  const selected = useTypedSelector((state) => state.instance.selectedPlugin);
+  const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles);
   const pluginInstances = useTypedSelector(
-    (state) => state.feed.pluginInstances
+    (state) => state.instance.pluginInstances
   );
   const viewerMode = useTypedSelector((state) => state.explorer.viewerMode);
   const currentFeed = useTypedSelector((state) => state.feed.currentFeed.data);

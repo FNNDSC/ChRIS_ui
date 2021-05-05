@@ -40,7 +40,7 @@ const reducer: Reducer<IResourceState> = (state = initialState, action) => {
       };
     }
 
-    case FeedActionTypes.GET_PLUGIN_FILES_SUCCESS: {
+    case ResourceTypes.GET_PLUGIN_FILES_SUCCESS: {
       const { id, files } = action.payload;
 
       return {
@@ -55,7 +55,7 @@ const reducer: Reducer<IResourceState> = (state = initialState, action) => {
       };
     }
 
-    case FeedActionTypes.GET_PLUGIN_FILES_ERROR: {
+    case ResourceTypes.GET_PLUGIN_FILES_ERROR: {
       const { id, error } = action.payload;
       return {
         ...state,
@@ -74,4 +74,4 @@ const reducer: Reducer<IResourceState> = (state = initialState, action) => {
   }
 };
 
-export { reducer as ResourceReducer };
+export { reducer as resourceReducer };

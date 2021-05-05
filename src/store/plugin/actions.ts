@@ -3,11 +3,6 @@ import { PluginActionTypes } from "./types";
 
 import { PluginParameter, Plugin } from "@fnndsc/chrisapi";
 
-
-
-
-
-
 export const getParams = (plugin: Plugin) =>
   action(PluginActionTypes.GET_PARAMS, plugin);
 
@@ -19,7 +14,3 @@ export const getComputeEnv = (plugin: Plugin) =>
 
 export const getComputeEnvSuccess = (computeEnvs: any[]) =>
   action(PluginActionTypes.GET_COMPUTE_ENV_SUCCESS, computeEnvs);
-
-
-
-

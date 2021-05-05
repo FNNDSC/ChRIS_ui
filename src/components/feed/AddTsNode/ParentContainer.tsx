@@ -13,11 +13,12 @@ import { useDispatch } from "react-redux";
 import Client from "../../../api/chrisapiclient";
 
 import "./GraphNode.scss";
+import { switchTreeMode } from "../../../store/tsplugins/actions";
 import {
   addNodeRequest,
   addSplitNodes,
-  switchTreeMode,
-} from "../../../store/feed/actions";
+} from "../../../store/pluginInstance/actions";
+
 
 function getNodeState() {
   return {
@@ -51,10 +52,12 @@ export type GraphNodeProps = {
 const GraphNode = (props: GraphNodeProps) => {
   const { onVisibleChange, visible } = props;
 
-  const selectedPlugin = useTypedSelector((state) => state.feed.selectedPlugin);
-  const tsNodes = useTypedSelector((state) => state.feed.tsNodes);
-  const nodes = useTypedSelector((state) => state.feed.pluginInstances);
-  const treeMode = useTypedSelector((state) => state.feed.treeMode);
+  const selectedPlugin = useTypedSelector(
+    (state) => state.instance.selectedPlugin
+  );
+  const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
+  const nodes = useTypedSelector((state) => state.instance.pluginInstances);
+  const treeMode = useTypedSelector((state) => state.tsPlugins.treeMode);
   const dispatch = useDispatch();
 
   const [nodeState, setNodeState] = React.useState<NodeState>(getNodeState);

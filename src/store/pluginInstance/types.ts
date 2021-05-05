@@ -8,6 +8,11 @@
 import keyMirror from "keymirror";
 import { PluginInstance } from "@fnndsc/chrisapi";
 
+
+
+
+
+
 export interface PluginInstanceObj {
   selected: PluginInstance;
   pluginInstances: PluginInstance[];
@@ -33,6 +38,7 @@ export interface SplitNodesPayload {
 export interface IPluginInstanceState {
   pluginInstances: PluginInstancePayload;
   selectedPlugin?: PluginInstance;
+  deleteNodeSuccess: boolean;
 }
 
 export const PluginInstanceTypes = keyMirror({

@@ -73,7 +73,7 @@ export interface AddNodeProps {
     error: any;
     loading: boolean;
   };
-  loadingAddNode: boolean;
+
   addNode: (item: {
     pluginItem: PluginInstance;
     nodes?: PluginInstance[];

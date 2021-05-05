@@ -13,6 +13,14 @@ export interface FeedPayload {
   loading: boolean;
 }
 
+export interface FeedTreeProp {
+  orientation: "horizontal" | "vertical";
+  translate: {
+    x: number;
+    y: number;
+  };
+}
+
 export interface IFeedState {
   allFeeds: {
     data?: Feed[];
@@ -21,6 +29,8 @@ export interface IFeedState {
     totalFeedsCount: 0;
   };
   currentFeed: FeedPayload;
+  feedTreeProp: FeedTreeProp;
+  currentLayout: boolean;
 }
 
 export const FeedActionTypes = keyMirror({
@@ -31,4 +41,6 @@ export const FeedActionTypes = keyMirror({
   GET_FEED_SUCCESS: null,
   GET_FEED_ERROR: null,
   ADD_FEED: null,
+  SET_LAYOUT: null,
+  GET_FEED_TREE_PROP: null,
 });
