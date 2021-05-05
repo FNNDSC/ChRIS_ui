@@ -82,6 +82,8 @@
     height: auto;
   }
 
+
+
   @include media-query($pf-global--breakpoint--md) {
     height: 45vh;
   }
@@ -138,3 +140,4 @@
 .node-block {
   padding: 0.5em;
 }
+

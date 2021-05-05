@@ -1,7 +1,8 @@
 import React from "react";
 import usePluginInstanceResource from "./usePluginInstanceResource";
 import { PluginStatus } from "../../../store/resources/types";
-import { Skeleton } from "@patternfly/react-core";
+
+import { ErrorCircleOIcon } from "@patternfly/react-icons";
 
 const StatusTitle = () => {
   const pluginInstanceResource = usePluginInstanceResource();
@@ -25,7 +26,15 @@ const StatusTitle = () => {
         <span>{statusTitle.title} </span>{" "}
       </>
     );
-  } else return <Skeleton width="25%"></Skeleton>;
+  } else
+    return (
+      <>
+        <span>
+          <ErrorCircleOIcon />
+        </span>
+        <span>Error in Fetching the Status</span>
+      </>
+    );
 };
 
 export default React.memo(StatusTitle);

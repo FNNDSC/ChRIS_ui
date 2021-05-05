@@ -44,6 +44,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
     params: { id },
   },
 }: FeedViewProps) => {
+
   const [isSidePanelExpanded, setSidePanelExpanded] = React.useState(true);
   const [isBottomPanelExpanded, setBottomPanelExpanded] = React.useState(true);
   const selectedPlugin = useTypedSelector(
@@ -56,6 +57,8 @@ export const FeedView: React.FC<FeedViewProps> = ({
   const dispatch = useDispatch();
   /*
   const dataRef = React.useRef<DestroyData>();
+
+  
   const { data } = pluginInstances;
 
   dataRef.current = {
@@ -69,7 +72,12 @@ export const FeedView: React.FC<FeedViewProps> = ({
       dispatch(destroyExplorer());
     };
   }, [dispatch]);
+<<<<<<< HEAD
 */
+=======
+
+  
+>>>>>>> 40b0a39... General Cleanup
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
     dispatch(
