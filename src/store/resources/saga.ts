@@ -121,6 +121,16 @@ function* handleGetInstanceStatus(instance: PluginInstance) {
   }
 }
 
+
+function* handleResetActiveResources(action: IActionTypeParam) {
+  const pluginInstances = action.payload.data;
+  const selectedPlugin = action.payload.selectedPlugin;
+  yield put(stopFetchingPluginResources(selectedPlugin.data.id));
+  for (let i = 0; i < pluginInstances.length; i++) {
+    yield put(stopFetchingStatusResources(pluginInstances[i].data.id));
+  }
+}
+
 type PollTask = {
   [id: number]: Task;
 };
@@ -190,10 +200,18 @@ function* watchGetPluginStatusRequest() {
   );
 }
 
+function* watchResetActiveResources() {
+  yield takeEvery(
+    ResourceTypes.RESET_ACTIVE_RESOURCES,
+    handleResetActiveResources
+  );
+}
+
 export function* resourceSaga() {
   yield all([
     fork(watchGetPluginFilesRequest),
     fork(watchGetPluginStatusRequest),
+    fork(watchResetActiveResources),
   ]);
 }
 

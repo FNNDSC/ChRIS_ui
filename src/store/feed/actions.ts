@@ -23,3 +23,5 @@ export const getFeedError = (error: any) =>
   export const setFeedTreeProp = (orientation: string) =>
     action(FeedActionTypes.GET_FEED_TREE_PROP, orientation);
   export const setFeedLayout = () => action(FeedActionTypes.SET_LAYOUT);
+
+  export const resetFeed = () => action(FeedActionTypes.RESET_FEED);

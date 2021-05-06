@@ -48,7 +48,6 @@ const Node = (props: NodeProps) => {
     currentId,
   } = props;
 
-
   const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
   const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
 
@@ -160,4 +159,4 @@ const NodeWrapper = (props: NodeWrapperProps) => {
   );
 };
 
-export default NodeWrapper;
+export default React.memo(NodeWrapper);

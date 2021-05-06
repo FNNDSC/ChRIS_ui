@@ -55,4 +55,5 @@ export const PluginInstanceTypes = keyMirror({
   DELETE_TS_NODE: null,
   ADD_SPLIT_NODES: null,
   ADD_SPLIT_NODES_SUCCESS: null,
+  RESET_PLUGIN_INSTANCES: null,
 });

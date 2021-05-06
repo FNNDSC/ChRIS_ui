@@ -10,6 +10,11 @@ import {
   deleteNodeSuccess,
   getSelectedPlugin,
 } from "./actions";
+import {
+  getPluginInstanceStatusRequest,
+  stopFetchingStatusResources,
+  stopFetchingPluginResources,
+} from "../resources/actions";
 
 function* handleGetPluginInstances(action: IActionTypeParam) {
   const feed: Feed = action.payload;
@@ -42,7 +47,7 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
 
     yield all([
       put(getPluginInstancesSuccess(pluginInstanceObj)),
-      //put(getPluginInstanceStatusRequest(pluginInstanceObj)),
+      put(getPluginInstanceStatusRequest(pluginInstanceObj)),
     ]);
   } catch (error) {
     yield put(getPluginInstancesError(error));
@@ -57,7 +62,7 @@ function* handleAddNode(action: IActionTypeParam) {
     yield all([
       put(addNodeSuccess(item)),
       put(getSelectedPlugin(item)),
-      // put(getPluginInstanceStatusRequest({ selected: item, pluginInstances })),
+      put(getPluginInstanceStatusRequest({ selected: item, pluginInstances })),
     ]);
   } catch (err) {
     console.error(err);
@@ -72,10 +77,12 @@ function* handleSplitNode(action: IActionTypeParam) {
   const newList: PluginInstance[] = [...items, ...splitNodes];
   yield all([
     put(addSplitNodesSuccess(splitNodes)),
-    // getPluginInstanceStatusRequest({
-    //  selected,
-    //   pluginInstances: newList,
-    // })
+    put(
+      getPluginInstanceStatusRequest({
+        selected,
+        pluginInstances: newList,
+      })
+    ),
   ]);
 }
 
@@ -88,8 +95,8 @@ function* handleDeleteNode(action: IActionTypeParam) {
   const id = instance.data.id;
 
   yield all([
-    // put(stopFetchingPluginResources(id)),
-    //put(stopFetchingStatusResources(id)),
+    put(stopFetchingPluginResources(id)),
+    put(stopFetchingStatusResources(id)),
   ]);
   yield put(deleteNodeSuccess(id));
   yield instance.delete();
