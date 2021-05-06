@@ -70,7 +70,14 @@ export const FeedView: React.FC<FeedViewProps> = ({
 
   React.useEffect(() => {
     return () => {
-      if (dataRef.current) dispatch(resetActiveResources(dataRef.current));
+      if (
+        dataRef.current &&
+        dataRef.current.selectedPlugin &&
+        dataRef.current.data
+      ) {
+        dispatch(resetActiveResources(dataRef.current));
+      }
+       
       dispatch(destroyExplorer());
       dispatch(resetPluginInstances());
       dispatch(resetTsNodes());

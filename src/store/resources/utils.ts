@@ -107,7 +107,7 @@ export function getStatusLabels(
     id: 6,
     title: "Registering",
     status:
-      statusLabels.indexOf(pluginStatus) > 5 && labels.pullPath.status === true
+      statusLabels.indexOf(pluginStatus) > 5 && labels?.pullPath.status === true
         ? true
         : false,
     isCurrentStep:
