@@ -141,6 +141,12 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       }
     }
 
+    case FeedActionTypes.RESET_FEED: {
+      return {
+        ...initialState,
+      };
+    }
+
     default:
       return state;
   }

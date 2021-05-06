@@ -30,3 +30,7 @@ export const addSplitNodes = (splitNodesPayload: SplitNodesPayload) =>
   action(PluginInstanceTypes.ADD_SPLIT_NODES, splitNodesPayload);
 export const addSplitNodesSuccess = (splitNodes: PluginInstance[]) =>
   action(PluginInstanceTypes.ADD_SPLIT_NODES_SUCCESS, splitNodes);
+
+
+export const resetPluginInstances = () =>
+  action(PluginInstanceTypes.RESET_PLUGIN_INSTANCES);

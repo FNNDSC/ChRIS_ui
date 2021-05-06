@@ -1,5 +1,9 @@
 import { action } from "typesafe-actions";
-import { ResourceTypes, PluginInstanceObj } from "./types";
+import {
+  ResourceTypes,
+  PluginInstanceObj,
+  DestroyActiveResources,
+} from "./types";
 import { PluginInstance } from "@fnndsc/chrisapi";
 
 export const getPluginInstanceResources = (pluginInstances: PluginInstance[]) =>
@@ -26,3 +30,6 @@ export const getPluginFilesSuccess = (filesPayload: {
 }) => action(ResourceTypes.GET_PLUGIN_FILES_SUCCESS, filesPayload);
 export const getPluginFilesError = (payload: { id: number; error: any }) =>
   action(ResourceTypes.GET_PLUGIN_FILES_ERROR, payload);
+
+export const resetActiveResources = (data: DestroyActiveResources) =>
+  action(ResourceTypes.RESET_ACTIVE_RESOURCES, data);

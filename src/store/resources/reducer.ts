@@ -69,6 +69,12 @@ const reducer: Reducer<IResourceState> = (state = initialState, action) => {
       };
     }
 
+    case ResourceTypes.RESET_ACTIVE_RESOURCES: {
+      return {
+        ...initialState,
+      };
+    }
+
     default:
       return state;
   }

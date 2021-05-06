@@ -12,4 +12,5 @@ export const TSPluginTypes = keyMirror({
   ADD_TS_NODE: null,
   DELETE_TS_NODE: null,
   SET_LAYOUT: null,
+  RESET_TS_NODES: null,
 });
