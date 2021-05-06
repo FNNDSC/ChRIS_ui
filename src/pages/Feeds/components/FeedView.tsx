@@ -13,15 +13,20 @@ import {
 } from "@patternfly/react-core";
 import classNames from "classnames";
 import { FeedDetails } from "../../../components";
-import { getFeedRequest } from "../../../store/feed/actions";
-import { getSelectedPlugin } from "../../../store/pluginInstance/actions";
+import { getFeedRequest, resetFeed } from "../../../store/feed/actions";
+import {
+  getSelectedPlugin,
+  resetPluginInstances,
+} from "../../../store/pluginInstance/actions";
 import { setSidebarActive } from "../../../store/ui/actions";
-import { addTSNodes } from "../../../store/tsplugins/actions";
-import { PluginInstance } from "@fnndsc/chrisapi";
-import { RouteComponentProps } from "react-router-dom";
-
-import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
+import { addTSNodes, resetTsNodes } from "../../../store/tsplugins/actions";
 import { destroyExplorer } from "../../../store/explorer/actions";
+import { resetActiveResources } from "../../../store/resources/actions";
+import { RouteComponentProps } from "react-router-dom";
+import { PluginInstance } from "@fnndsc/chrisapi";
+import { DestroyActiveResources } from "../../../store/resources/types";
+import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
+
 import "antd/dist/antd.css";
 
 const ParentComponent = React.lazy(
@@ -44,7 +49,6 @@ export const FeedView: React.FC<FeedViewProps> = ({
     params: { id },
   },
 }: FeedViewProps) => {
-
   const [isSidePanelExpanded, setSidePanelExpanded] = React.useState(true);
   const [isBottomPanelExpanded, setBottomPanelExpanded] = React.useState(true);
   const selectedPlugin = useTypedSelector(
@@ -55,10 +59,8 @@ export const FeedView: React.FC<FeedViewProps> = ({
     (state) => state.instance.pluginInstances
   );
   const dispatch = useDispatch();
-  /*
-  const dataRef = React.useRef<DestroyData>();
 
-  
+  const dataRef = React.useRef<DestroyActiveResources>();
   const { data } = pluginInstances;
 
   dataRef.current = {
@@ -68,11 +70,14 @@ export const FeedView: React.FC<FeedViewProps> = ({
 
   React.useEffect(() => {
     return () => {
-      if (dataRef.current) dispatch(destroyPluginState(dataRef.current));
+      if (dataRef.current) dispatch(resetActiveResources(dataRef.current));
       dispatch(destroyExplorer());
+      dispatch(resetPluginInstances());
+      dispatch(resetTsNodes());
+      dispatch(resetFeed());
     };
   }, [dispatch]);
-*/
+
   React.useEffect(() => {
     document.title = "My Feeds - ChRIS UI site";
     dispatch(

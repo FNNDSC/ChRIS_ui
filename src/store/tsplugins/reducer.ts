@@ -51,6 +51,12 @@ const reducer: Reducer<ITSPluginState> = (state = initialState, action) => {
       };
     }
 
+    case TSPluginTypes.RESET_TS_NODES: {
+      return {
+        ...initialState,
+      };
+    }
+
     default:
       return state;
   }

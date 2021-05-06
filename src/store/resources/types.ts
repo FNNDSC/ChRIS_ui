@@ -7,6 +7,8 @@
 import keyMirror from "keymirror";
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 
+
+
 type Return = {
   l_logs: any[];
   l_status: string[];
@@ -78,6 +80,11 @@ export interface NodeDetailsProps {
   text?: string;
 }
 
+export interface DestroyActiveResources {
+  data?: PluginInstance[];
+  selectedPlugin?: PluginInstance;
+}
+
 
 
 export interface IResourceState {
@@ -96,4 +103,5 @@ export const ResourceTypes = keyMirror({
   GET_PLUGIN_FILES_REQUEST: null,
   GET_PLUGIN_FILES_SUCCESS: null,
   GET_PLUGIN_FILES_ERROR: null,
+  RESET_ACTIVE_RESOURCES: null,
 });

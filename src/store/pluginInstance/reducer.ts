@@ -2,6 +2,7 @@ import { Reducer } from "redux";
 import { IPluginInstanceState, PluginInstanceTypes } from "./types";
 import { PluginInstance } from "@fnndsc/chrisapi";
 
+
 export const initialState: IPluginInstanceState = {
   selectedPlugin: undefined,
   pluginInstances: {
@@ -47,6 +48,16 @@ const reducer: Reducer<IPluginInstanceState> = (
           error: action.payload,
           loading: false,
         },
+      };
+    }
+
+    case PluginInstanceTypes.GET_SELECTED_PLUGIN: {
+      const pluginInstance = state.pluginInstances.data?.find((instance) => {
+        return instance.data.id === action.payload.data.id;
+      });
+      return {
+        ...state,
+        selectedPlugin: pluginInstance,
       };
     }
 
@@ -124,6 +135,11 @@ const reducer: Reducer<IPluginInstanceState> = (
       };
     }
 
+    case PluginInstanceTypes.RESET_PLUGIN_INSTANCES :{
+      return {
+        ...initialState
+      }
+    }
     default:
       return state;
   }
