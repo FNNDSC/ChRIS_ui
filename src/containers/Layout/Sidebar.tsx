@@ -25,12 +25,14 @@ type ReduxProp = {
 type AllProps = IUiState & IUserState & ReduxProp;
 
 const Sidebar: React.FC<AllProps> = ({ isNavOpen, sidebarActiveItem, isLoggedIn }: AllProps) => {
+  console.log("SidebarActiveItem", sidebarActiveItem);
   const onSelect = (selectedItem: {
     groupId: number | string;
     itemId: number | string;
     to: string;
     event: React.FormEvent<HTMLInputElement>;
   }) => {
+    console.log("SelectedItem", selectedItem);
     setSidebarActive({
       activeItem: selectedItem.itemId as string,
       activeGroup: selectedItem.groupId as string,
@@ -42,9 +44,16 @@ const Sidebar: React.FC<AllProps> = ({ isNavOpen, sidebarActiveItem, isLoggedIn 
         <NavItem
           groupId="feeds_grp"
           itemId="my_feeds"
-          isActive={sidebarActiveItem === "my_feeds"}
+          isActive={sidebarActiveItem === "my_feeds" ? true : false}
         >
           <Link to="/feeds">Feeds List</Link>
+        </NavItem>
+        <NavItem
+          groupId="workflows_grp"
+          itemId="my_workflows"
+          isActive={sidebarActiveItem === "my_workflows" ? true : false}
+        >
+          <Link to="/workflows">Workflows</Link>
         </NavItem>
       </React.Fragment>
     );
@@ -52,15 +61,15 @@ const Sidebar: React.FC<AllProps> = ({ isNavOpen, sidebarActiveItem, isLoggedIn 
     const PageNav = (
       <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
         <NavList>
-              <NavItem
-                groupId="feeds_grp"
-                itemId="dashboard"
-                isActive={sidebarActiveItem === "dashboard"}
-              >
-                <Link to={`/`}>Welcome</Link>
-              </NavItem>
-              <NavItemSeparator />
-              {loggedInFeedNav}
+          <NavItem
+            groupId="dashboard_grp"
+            itemId="my_dashboard"
+            isActive={sidebarActiveItem === "mydashboard"}
+          >
+            <Link to={`/`}>Welcome</Link>
+          </NavItem>
+          <NavItemSeparator />
+          {loggedInFeedNav}
         </NavList>
       </Nav>
     );
