@@ -1,8 +1,7 @@
 import React from "react";
+import { Skeleton } from "@patternfly/react-core";
 import usePluginInstanceResource from "./usePluginInstanceResource";
 import { PluginStatus } from "../../../store/resources/types";
-
-import { ErrorCircleOIcon } from "@patternfly/react-icons";
 
 const StatusTitle = () => {
   const pluginInstanceResource = usePluginInstanceResource();
@@ -28,12 +27,10 @@ const StatusTitle = () => {
     );
   } else
     return (
-      <>
-        <span>
-          <ErrorCircleOIcon />
-        </span>
-        <span>Error in Fetching the Status</span>
-      </>
+      <Skeleton
+        width="15%"
+        screenreaderText="Fetching plugin's execution status"
+      />
     );
 };
 
