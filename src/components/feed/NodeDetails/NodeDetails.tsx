@@ -61,7 +61,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   const [isTerminalVisible, setIsTerminalVisible] = React.useState(false);
   const [isGraphNodeVisible, setIsGraphNodeVisible] = React.useState(false);
   const [isExpanded, setIsExpanded] = React.useState(false);
-
+  console.log("SelectedPlugin", selectedPlugin);
   React.useEffect(() => {
     const fetchData = async () => {
       const instanceParameters = await selectedPlugin?.getParameters({

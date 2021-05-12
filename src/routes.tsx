@@ -6,6 +6,7 @@ import FeedsPage from "./pages/Feeds/Feeds";
 import { LogIn } from "./pages/LogIn/Login";
 import { NotFound } from "./pages/NotFound/NotFound";
 import SignUp from "./pages/SignUp/SignUp";
+import WorkflowsPage from "./pages/WorkflowsPage";
 
 const Routes: React.FunctionComponent = () => {
   return (
@@ -15,6 +16,7 @@ const Routes: React.FunctionComponent = () => {
         <Route exact path="/login" component={LogIn} />
         <Route exact path="/signup" component={SignUp} />
         <PrivateRoute path="/feeds" component={FeedsPage} />
+        <PrivateRoute path="/workflows" component={WorkflowsPage} />
         <Route component={NotFound} />
       </Switch>
     </React.Fragment>
