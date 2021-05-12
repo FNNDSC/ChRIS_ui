@@ -75,6 +75,8 @@
     .pf-c-expandable-section__toggle {
       color: var(--pf-global--palette--white);
       margin-bottom: 0.25em;
+      margin-top:0.25em;
+    
 
       &-icon {
         color:var(--pf-global--palette--white);
@@ -99,6 +101,7 @@
     }
 
     &__status-descriptions {
+     
       .ant-steps-item {
         overflow: visible !important;
       }
