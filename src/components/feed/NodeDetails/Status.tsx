@@ -14,7 +14,11 @@ const Status = () => {
   if (pluginStatus && pluginStatus.length > 0) {
     return (
       <>
-        <Steps direction="horizontal" size="small">
+        <Steps
+          className="node-details__status"
+          direction="horizontal"
+          size="small"
+        >
           {pluginStatus.map((label: any) => {
             const showIcon = [
               "Finished Successfully",

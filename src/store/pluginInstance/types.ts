@@ -9,10 +9,6 @@ import keyMirror from "keymirror";
 import { PluginInstance } from "@fnndsc/chrisapi";
 
 
-
-
-
-
 export interface PluginInstanceObj {
   selected: PluginInstance;
   pluginInstances: PluginInstance[];

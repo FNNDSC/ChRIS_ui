@@ -12,6 +12,7 @@ import { feedSaga } from "../feed/saga";
 import { pluginSaga } from "../plugin/saga";
 import { pluginInstanceSaga } from "../pluginInstance/saga";
 import { resourceSaga } from "../resources/saga";
+import { workflowsSaga } from "../workflows/saga";
 
 
 export function* rootSaga() {
@@ -21,5 +22,6 @@ export function* rootSaga() {
     fork(pluginSaga),
     fork(pluginInstanceSaga),
     fork(resourceSaga),
+    fork(workflowsSaga),
   ]);
 }
