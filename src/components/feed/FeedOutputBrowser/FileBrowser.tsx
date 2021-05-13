@@ -33,7 +33,10 @@ import {
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { FileBrowserProps, FileBrowserState } from "./types";
 import { DataNode } from "../../../store/explorer/types";
-import { setSelectedFile } from "../../../store/explorer/actions";
+import {
+  setSelectedFile,
+  setSelectedFolder,
+} from "../../../store/explorer/actions";
 
 function getInitialState(root: DataNode) {
   return {
@@ -78,6 +81,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       });
     } else {
       dispatch(setSelectedFile(file));
+      dispatch(setSelectedFolder(directory.children));
     }
   };
 

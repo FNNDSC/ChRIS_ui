@@ -9,6 +9,9 @@ export const setExplorerRequest = (tree: DataNode[]) =>
 export const setSelectedFile = (selectedFile: DataNode) =>
   action(ExplorerActionTypes.SET_SELECTED_FILE, selectedFile);
 
+export const setSelectedFolder = (selectedFolder: DataNode[]) =>
+  action(ExplorerActionTypes.SET_SELECTED_FOLDER, selectedFolder);
+
 export const toggleViewerMode = (isViewerOpened: boolean) =>
   action(ExplorerActionTypes.TOGGLE_VIEWER_MODE, isViewerOpened);
 

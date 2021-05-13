@@ -74,7 +74,7 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
       const note: Note = yield feed.getNote();
       yield note?.put({
         title: `Description`,
-        content: `Analysis run on ${pacsFile.data.PatientID}`,
+        content: `Analysis run for ${pacsFile.data.PatientName}`,
       });
       yield feed.put({
         name: `Analysis run on ${pacsFile.data.PatientID}`,

@@ -33,6 +33,7 @@ import DicomTag from "./DicomTag";
 import GalleryModel from "../../api/models/gallery.model";
 import { Image, GalleryState, CornerstoneEvent } from "./types";
 import { FeedFile } from "@fnndsc/chrisapi";
+import { DataNode } from "../../store/explorer/types";
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.Hammer = Hammer;
@@ -93,15 +94,9 @@ function getInitialState() {
 }
 
 const GalleryDicomView = () => {
-  const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
-  );
-  const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles);
-  const [
-    galleryDicomState,
-    setGalleryDicomState,
-  ] = React.useState<GalleryState>(getInitialState);
-  const files = selectedPlugin && pluginFiles[selectedPlugin.data.id].files;
+  const files = useTypedSelector((state) => state.explorer.selectedFolder);
+  const [galleryDicomState, setGalleryDicomState] =
+    React.useState<GalleryState>(getInitialState);
 
   const {
     inPlay,
@@ -119,7 +114,7 @@ const GalleryDicomView = () => {
   const currentImage = React.useRef<Image | undefined>(undefined);
 
   const loadImagesIntoCornerstone = React.useCallback(
-    async (dcmArray: FeedFile[]) => {
+    async (dcmArray: DataNode[]) => {
       const imageIds: string[] = [];
       let numberOfFrames = 0;
 
@@ -132,33 +127,39 @@ const GalleryDicomView = () => {
           };
         });
 
-        if (isNifti(item.data.fname)) {
-          const fileArray = item.data.fname.split("/");
-          const fileName = fileArray[fileArray.length - 1];
-          const imageIdObject = ImageId.fromURL(`nifti:${item.url}${fileName}`);
-          const numberOfSlices = cornerstone.metaData.get(
-            "multiFrameModule",
-            imageIdObject.url
-          ).numberOfFrames;
-          imageIds.push(
-            ...Array.from(
-              Array(numberOfSlices),
-              (_, i) =>
-                `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
-            )
-          );
-          numberOfFrames = numberOfSlices;
-        } else {
-          if (isDicom(item.data.fname)) {
-            const file = await item.getFileBlob();
-            imageIds.push(
-              cornerstoneWADOImageLoader.wadouri.fileManager.add(file)
+        if (item.file) {
+          const file = item.file;
+          const fname = item.file.data.fname;
+          if (isNifti(fname)) {
+            const fileArray = fname.split("/");
+            const fileName = fileArray[fileArray.length - 1];
+            const imageIdObject = ImageId.fromURL(
+              `nifti:${file.url}${fileName}`
             );
-            numberOfFrames = imageIds.length;
+            const numberOfSlices = cornerstone.metaData.get(
+              "multiFrameModule",
+              imageIdObject.url
+            ).numberOfFrames;
+            imageIds.push(
+              ...Array.from(
+                Array(numberOfSlices),
+                (_, i) =>
+                  `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
+              )
+            );
+            numberOfFrames = numberOfSlices;
           } else {
-            const file = await item.getFileBlob();
-            imageIds.push(cornerstoneFileImageLoader.fileManager.add(file));
-            numberOfFrames = imageIds.length;
+            if (isDicom(fname)) {
+              const file = await item.file.getFileBlob();
+              imageIds.push(
+                cornerstoneWADOImageLoader.wadouri.fileManager.add(file)
+              );
+              numberOfFrames = imageIds.length;
+            } else {
+              const file = await item.file.getFileBlob();
+              imageIds.push(cornerstoneFileImageLoader.fileManager.add(file));
+              numberOfFrames = imageIds.length;
+            }
           }
         }
       }
@@ -542,9 +543,9 @@ const GalleryDicomView = () => {
  * @returns files
  */
 
-const getUrlArray = (feedFiles: FeedFile[]) => {
-  const dcmFiles = feedFiles.filter((item: FeedFile) => {
-    return GalleryModel.isValidDcmFile(item.data.fname);
+const getUrlArray = (feedFiles: DataNode[]) => {
+  const dcmFiles = feedFiles.filter((item: DataNode) => {
+    if (item.file) return GalleryModel.isValidDcmFile(item.file.data.fname);
   });
 
   return dcmFiles;

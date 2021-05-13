@@ -5,8 +5,6 @@ import { FileBrowserViewer } from "./displays";
 import "./Viewer.scss";
 
 const OutputViewerContainer = () => {
- 
-
   const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles);
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
@@ -15,7 +13,7 @@ const OutputViewerContainer = () => {
   const [activeTabKey, setActiveTabKey] = React.useState(0);
 
   if (!selectedPlugin || !pluginFiles) {
-   return <Alert variant="info" title="Empty Result Set" className="empty" />;
+    return <Alert variant="info" title="Empty Result Set" className="empty" />;
   } else {
     const buildTabs = () => {
       const tabs = [];

@@ -68,7 +68,7 @@ export type CheckInfo = {
 export interface IExplorerState {
   explorer?: DataNode[];
   selectedFile?: DataNode;
-
+  selectedFolder?: DataNode[];
   viewerMode: boolean;
 }
 
