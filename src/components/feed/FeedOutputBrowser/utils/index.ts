@@ -2,7 +2,7 @@
  * Utils to be abstracted out
  */
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
-import _ from "lodash";
+import { each, find } from "lodash";
 import { DataNode } from "../../../../store/explorer/types";
 
 export function createTreeFromFiles(
@@ -59,12 +59,12 @@ const buildTree = (
   cb: (tree: any[]) => void
 ) => {
   const tree: any[] = [];
-  _.each(files, function (fileObj) {
+  each(files, function (fileObj) {
     const pathParts = fileObj.filePath.split("/");
     pathParts.shift();
     let currentLevel = tree;
-    _.each(pathParts, function (part) {
-      const existingPath = _.find(currentLevel, {
+    each(pathParts, function (part) {
+      const existingPath = find(currentLevel, {
         title: part,
       });
       if (existingPath) {

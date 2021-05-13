@@ -1,11 +1,15 @@
 import React from "react";
-import Wrapper from "../../containers/Layout/PageWrapper";
-import ChrisApiClient from "../../api/chrisapiclient";
-import { setSidebarActive } from "../../store/ui/actions";
 import { useDispatch } from "react-redux";
+import Wrapper from "../../containers/Layout/PageWrapper";
+import StudyList from "./StudyList";
+import FileDetails from "./FileDetails";
+import { setSidebarActive } from "../../store/ui/actions";
+import { getPacsFilesRequest } from "../../store/workflows/actions";
+import "./Workflows.scss";
 
 const WorkflowsPage = () => {
   const dispatch = useDispatch();
+
   React.useEffect(() => {
     dispatch(
       setSidebarActive({
@@ -16,23 +20,13 @@ const WorkflowsPage = () => {
   }, [dispatch]);
 
   React.useEffect(() => {
-    async function fetchPacsFiles() {
-      const client = ChrisApiClient.getClient();
-      try {
-        //@ts-ignore
-        const files = await client.getPACSFiles();
-        console.log("Files", files);
-      } catch (error) {
-        console.log("Error", error);
-      }
-    }
-
-    fetchPacsFiles();
-  }, []);
+    dispatch(getPacsFilesRequest());
+  }, [dispatch]);
 
   return (
     <Wrapper>
-      <div>My Workflows</div>
+      <StudyList />
+      <FileDetails />
     </Wrapper>
   );
 };

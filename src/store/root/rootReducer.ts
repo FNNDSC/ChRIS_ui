@@ -16,6 +16,7 @@ import { userReducer } from "../user/reducer";
 import { pluginReducer } from "../plugin/reducer";
 import { explorerReducer } from "../explorer/reducer";
 import { tsPluginsReducer } from "../tsplugins/reducer";
+import { workflowsReducer } from "../workflows/reducer";
 
 
 const rootReducer = combineReducers({
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
   instance: pluginInstanceReducer,
   resource: resourceReducer,
   tsPlugins: tsPluginsReducer,
+  workflows: workflowsReducer,
 });
 
 export default rootReducer;
