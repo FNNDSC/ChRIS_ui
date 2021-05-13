@@ -14,6 +14,7 @@ import { IPluginInstanceState } from "../pluginInstance/types";
 import rootReducer from "./rootReducer";
 import { IResourceState } from "../resources/types";
 import { ITSPluginState } from "../tsplugins/types";
+import { IWorkflowState } from "../workflows/types";
 
 
 export interface ApplicationState {
@@ -26,6 +27,7 @@ export interface ApplicationState {
   instance: IPluginInstanceState;
   resource: IResourceState;
   tsPlugins: ITSPluginState;
+  workflows: IWorkflowState;
 }
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -25,57 +25,56 @@ type ReduxProp = {
 type AllProps = IUiState & IUserState & ReduxProp;
 
 const Sidebar: React.FC<AllProps> = ({ isNavOpen, sidebarActiveItem, isLoggedIn }: AllProps) => {
-  console.log("SidebarActiveItem", sidebarActiveItem);
   const onSelect = (selectedItem: {
     groupId: number | string;
     itemId: number | string;
     to: string;
     event: React.FormEvent<HTMLInputElement>;
   }) => {
-    console.log("SelectedItem", selectedItem);
+    
     setSidebarActive({
       activeItem: selectedItem.itemId as string,
       activeGroup: selectedItem.groupId as string,
     });
   };
 
-    const loggedInFeedNav = isLoggedIn && (
-      <React.Fragment>
-        <NavItem
-          groupId="feeds_grp"
-          itemId="my_feeds"
-          isActive={sidebarActiveItem === "my_feeds" ? true : false}
-        >
-          <Link to="/feeds">Feeds List</Link>
-        </NavItem>
-        <NavItem
-          groupId="workflows_grp"
-          itemId="my_workflows"
-          isActive={sidebarActiveItem === "my_workflows" ? true : false}
-        >
-          <Link to="/workflows">Workflows</Link>
-        </NavItem>
-      </React.Fragment>
-    );
+  const loggedInFeedNav = isLoggedIn && (
+    <React.Fragment>
+      <NavItem
+        groupId="feeds_grp"
+        itemId="my_feeds"
+        isActive={sidebarActiveItem === "my_feeds" ? true : false}
+      >
+        <Link to="/feeds">Feeds List</Link>
+      </NavItem>
+      <NavItem
+        groupId="workflows_grp"
+        itemId="my_workflows"
+        isActive={sidebarActiveItem === "my_workflows" ? true : false}
+      >
+        <Link to="/workflows">Workflows</Link>
+      </NavItem>
+    </React.Fragment>
+  );
 
-    const PageNav = (
-      <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
-        <NavList>
-          <NavItem
-            groupId="dashboard_grp"
-            itemId="my_dashboard"
-            isActive={sidebarActiveItem === "mydashboard"}
-          >
-            <Link to={`/`}>Welcome</Link>
-          </NavItem>
-          <NavItemSeparator />
-          {loggedInFeedNav}
-        </NavList>
-      </Nav>
-    );
+  const PageNav = (
+    <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
+      <NavList>
+        <NavItem
+          groupId="dashboard_grp"
+          itemId="my_dashboard"
+          isActive={sidebarActiveItem === "mydashboard"}
+        >
+          <Link to={`/`}>Welcome</Link>
+        </NavItem>
+        <NavItemSeparator />
+        {loggedInFeedNav}
+      </NavList>
+    </Nav>
+  );
 
-    return <PageSidebar theme="dark" nav={PageNav} isNavOpen={isNavOpen} />;
-  }
+  return <PageSidebar theme="dark" nav={PageNav} isNavOpen={isNavOpen} />;
+}
 
 const mapStateToProps = ({ ui, user }: ApplicationState) => ({
   sidebarActiveItem: ui.sidebarActiveItem,
