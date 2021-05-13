@@ -44,6 +44,7 @@ export interface IWorkflowState {
   };
   currentFile?: PACSFile;
   steps: AnalysisStep[];
+  isAnalysisRunning: boolean;
 }
 
 export const WorkflowTypes = keyMirror({

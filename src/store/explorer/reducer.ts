@@ -7,7 +7,7 @@ const initialState: IExplorerState = {
   explorer: undefined,
   selectedFile: undefined,
   viewerMode: false,
-
+  selectedFolder: undefined,
 };
 
 
@@ -21,10 +21,19 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
     }
     case ExplorerActionTypes.SET_SELECTED_FILE: {
       const selectedFile = action.payload;
-      //const isDicom = GalleryModel.isValidFile(selectedFile.module);
+
       return {
         ...state,
         selectedFile,
+      };
+    }
+
+    case ExplorerActionTypes.SET_SELECTED_FOLDER: {
+      const selectedFolder = action.payload;
+
+      return {
+        ...state,
+        selectedFolder,
       };
     }
 

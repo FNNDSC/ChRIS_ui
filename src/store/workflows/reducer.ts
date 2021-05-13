@@ -41,6 +41,7 @@ export const initialState: IWorkflowState = {
   },
   currentFile: undefined,
   steps: getInitialSteps(),
+  isAnalysisRunning: false,
 };
 
 const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
@@ -72,6 +73,13 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       };
     }
 
+    case WorkflowTypes.SUBMIT_ANALYSIS: {
+      return {
+        ...state,
+        isAnalysisRunning: true,
+      };
+    }
+
     case WorkflowTypes.SET_ANALYSIS_STEP: {
       const cloneSteps = [...state.steps];
       const index = cloneSteps.findIndex(
@@ -79,10 +87,17 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       );
       cloneSteps[index] = action.payload;
 
-      return {
-        ...state,
-        steps: cloneSteps,
-      };
+      if (index == 3) {
+        return {
+          ...state,
+          steps: cloneSteps,
+          isAnalysisRunning: !state.isAnalysisRunning,
+        };
+      } else
+        return {
+          ...state,
+          steps: cloneSteps,
+        };
     }
 
     default:

@@ -17,10 +17,17 @@ import { AnalysisStep } from "../../store/workflows/types";
 const { Step } = Steps;
 
 const FileDetails = () => {
+  const isAnalysisRunning = useTypedSelector(
+    (state) => state.workflows.isAnalysisRunning
+  );
   return (
     <PageSection>
       <Card>
-        <CardTitle>Run an Analysis:</CardTitle>
+        <CardTitle>
+          {isAnalysisRunning === true
+            ? "Runnng an Analysis"
+            : "Run an Analysis"}
+        </CardTitle>
         <CardBody>
           <AnalysisDetails />
           <SubmitAnalysis />
@@ -63,21 +70,25 @@ const AnalysisDetails = () => {
 
 const SubmitAnalysis = () => {
   const dispatch = useDispatch();
-  const [loading, setLoading] = React.useState(false);
+
   const currentFile = useTypedSelector((state) => state.workflows.currentFile);
   const steps = useTypedSelector((state) => state.workflows.steps);
   const handleClick = () => {
-    setLoading(true);
     if (currentFile) dispatch(submitAnalysis(currentFile));
   };
+  const isAnalysisRunning = useTypedSelector(
+    (state) => state.workflows.isAnalysisRunning
+  );
 
   return (
     <Card>
       <CardBody>
-        <Button isDisabled={loading} onClick={handleClick}>
+        <Button
+          isDisabled={isAnalysisRunning ? true : false}
+          onClick={handleClick}
+        >
           Submit An Analysis
         </Button>
-
         <Steps className="workflow-steps" direction="vertical" size="small">
           {steps.map((step: AnalysisStep) => {
             return (
