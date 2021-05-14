@@ -33,21 +33,31 @@
 
   .node-details {
     height: 100%;
+
+
     &__title {
       display: flex;
-      justify-content: space-between;
-
+      margin-bottom: 0.5em;
       .pf-c-button {
         --pf-c-button--m-tertiary--BackgroundColor: var(
           --pf-global--palette--white
         ) !important;
         -pf-c-button--m-tertiary--hover--backgroundcolor: var(
-          --pf-global--BackgroundColor--light-300
+          --pf-global--palette--black-300
         ) !important;
 
         --pf-c-button--m-tertiary--focus--BackgroundColor: var(
-          --pf-global--BackgroundColor--light-300
+          --pf-global--palette--black-300
         ) !important;
+      }
+      &--button {
+        // Tells the element to create as much space as possible to it's left
+        margin-left:auto;
+      }
+
+      &--formInput {
+        --pf-c-form-control--Width:50%;
+        margin-right:1em;
       }
     }
 
@@ -177,7 +187,12 @@
       }
       
     }
+
+   
   }
+
+
+
 
   @include media-query(1200px) {
     .pf-l-grid > .pf-m-2-col {

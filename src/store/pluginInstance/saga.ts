@@ -1,5 +1,5 @@
 import { all, takeEvery, fork, put } from "@redux-saga/core/effects";
-import { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import { Feed, PluginInstance, PluginInstanceList } from "@fnndsc/chrisapi";
 import { PluginInstanceTypes } from "./types";
 import { IActionTypeParam } from "../../api/models/base.model";
 import {
@@ -20,8 +20,10 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
   const feed: Feed = action.payload;
   try {
     const params = { limit: 15, offset: 0 };
-    let pluginInstanceList = yield feed.getPluginInstances(params);
-    let pluginInstances = yield pluginInstanceList.getItems();
+    let pluginInstanceList: PluginInstanceList = yield feed.getPluginInstances(
+      params
+    );
+    let pluginInstances: PluginInstance[] = yield pluginInstanceList.getItems();
 
     while (pluginInstanceList.hasNextPage) {
       try {

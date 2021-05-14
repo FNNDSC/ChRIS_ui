@@ -32,7 +32,6 @@ import DicomLoader from "./DcmLoader";
 import DicomTag from "./DicomTag";
 import GalleryModel from "../../api/models/gallery.model";
 import { Image, GalleryState, CornerstoneEvent } from "./types";
-import { FeedFile } from "@fnndsc/chrisapi";
 import { DataNode } from "../../store/explorer/types";
 
 cornerstoneTools.external.cornerstone = cornerstone;

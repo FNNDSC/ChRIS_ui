@@ -1,6 +1,6 @@
 import { action } from "typesafe-actions";
 import { Feed } from "@fnndsc/chrisapi";
-import { FeedActionTypes } from "./types";
+import { FeedActionTypes, FeedsResponsePayload } from "./types";
 
 export const getAllFeedsRequest = (
   name?: string,
@@ -8,7 +8,7 @@ export const getAllFeedsRequest = (
   offset?: number
 ) => action(FeedActionTypes.GET_ALL_FEEDS_REQUEST, { name, limit, offset });
 
-export const getAllFeedsSuccess = (feeds: Feed[]) =>
+export const getAllFeedsSuccess = (feeds: FeedsResponsePayload) =>
   action(FeedActionTypes.GET_ALL_FEEDS_SUCCESS, feeds);
 export const getAllFeedsError = (error: any) =>
   action(FeedActionTypes.GET_ALL_FEEDS_ERROR, error);
