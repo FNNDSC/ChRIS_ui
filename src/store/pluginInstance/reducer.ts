@@ -2,7 +2,6 @@ import { Reducer } from "redux";
 import { IPluginInstanceState, PluginInstanceTypes } from "./types";
 import { PluginInstance } from "@fnndsc/chrisapi";
 
-
 export const initialState: IPluginInstanceState = {
   selectedPlugin: undefined,
   pluginInstances: {
@@ -59,6 +58,28 @@ const reducer: Reducer<IPluginInstanceState> = (
         ...state,
         selectedPlugin: pluginInstance,
       };
+    }
+
+    case PluginInstanceTypes.SET_PLUGIN_TITLE: {
+
+      let cloneInstances: PluginInstance[] = [];
+      if (state.pluginInstances.data) {
+        const instances = state.pluginInstances.data;
+        const foundIndex = instances.findIndex(
+          (instance) => instance.data.id === action.payload.data.id
+        );
+        cloneInstances = [...instances];
+
+        cloneInstances[foundIndex] = action.payload;
+        return {
+          ...state,
+          pluginInstances: {
+            ...state.pluginInstances,
+            data: cloneInstances,
+          },
+          selectedPlugin: action.payload,
+        };
+      } else return { ...state };
     }
 
     case PluginInstanceTypes.ADD_NODE_REQUEST: {
@@ -135,10 +156,10 @@ const reducer: Reducer<IPluginInstanceState> = (
       };
     }
 
-    case PluginInstanceTypes.RESET_PLUGIN_INSTANCES :{
+    case PluginInstanceTypes.RESET_PLUGIN_INSTANCES: {
       return {
-        ...initialState
-      }
+        ...initialState,
+      };
     }
     default:
       return state;

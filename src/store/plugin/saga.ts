@@ -5,13 +5,14 @@ import {
   takeEvery,
 
 } from "redux-saga/effects";
-import { PluginActionTypes } from "./types";
+import { PluginActionTypes,} from "./types";
 import { IActionTypeParam } from "../../api/models/base.model";
 
 import {
   getParamsSuccess,
   getComputeEnvSuccess,
 } from "./actions";
+import { PluginInstanceFileList } from "@fnndsc/chrisapi";
 
 
 // ------------------------------------------------------------------------
@@ -22,9 +23,14 @@ function* handleGetParams(action: IActionTypeParam) {
   try {
     const plugin = action.payload;
     const paginate = { limit: 20, offset: 0 };
-    let paramList = yield plugin.getPluginParameters(paginate);
+    let paramList: PluginInstanceFileList = yield plugin.getPluginParameters(
+      paginate
+    );
+    //@ts-ignore
     let computeEnvList = yield plugin.getPluginComputeResources(paginate);
+    console.log("Compute env list", computeEnvList);
     let params = paramList.getItems();
+  
     let computeEnvs = computeEnvList.getItems();
     while (paramList.hasNextPage) {
       try {

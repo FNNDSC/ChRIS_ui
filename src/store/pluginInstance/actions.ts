@@ -20,6 +20,9 @@ export const addNodeRequest = (item: AddNodePayload) =>
 export const addNodeSuccess = (pluginItem: PluginInstance) =>
   action(PluginInstanceTypes.ADD_NODE_SUCCESS, pluginItem);
 
+export const setPluginTitle = (pluginItem: PluginInstance) =>
+  action(PluginInstanceTypes.SET_PLUGIN_TITLE, pluginItem);
+
 export const deleteNode = (instance: PluginInstance) => {
   return action(PluginInstanceTypes.DELETE_NODE, instance);
 };
@@ -30,7 +33,6 @@ export const addSplitNodes = (splitNodesPayload: SplitNodesPayload) =>
   action(PluginInstanceTypes.ADD_SPLIT_NODES, splitNodesPayload);
 export const addSplitNodesSuccess = (splitNodes: PluginInstance[]) =>
   action(PluginInstanceTypes.ADD_SPLIT_NODES_SUCCESS, splitNodes);
-
 
 export const resetPluginInstances = () =>
   action(PluginInstanceTypes.RESET_PLUGIN_INSTANCES);

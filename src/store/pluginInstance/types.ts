@@ -46,6 +46,7 @@ export const PluginInstanceTypes = keyMirror({
   ADD_NODE_SUCCESS: null,
   DELETE_NODE: null,
   DELETE_NODE_SUCCESS: null,
+  SET_PLUGIN_TITLE: null,
   SWITCH_TREE_MODE: null,
   ADD_TS_NODE: null,
   DELETE_TS_NODE: null,
