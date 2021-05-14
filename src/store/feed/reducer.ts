@@ -1,5 +1,4 @@
 import { Reducer } from "redux";
-import { createPartiallyEmittedExpression } from "typescript";
 import { IFeedState, FeedActionTypes } from "./types";
 
 export const initialState: IFeedState = {
@@ -37,7 +36,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
-
       return {
         ...state,
         allFeeds: {
