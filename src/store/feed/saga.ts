@@ -9,6 +9,7 @@ import {
   getFeedError,
 } from "./actions";
 import { getPluginInstancesRequest } from "../pluginInstance/actions";
+import { Feed, FeedList } from "@fnndsc/chrisapi";
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
   const { name, limit, offset } = action.payload;
@@ -20,8 +21,14 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
   const client = ChrisAPIClient.getClient();
 
   try {
-    const feedsList = yield client.getFeeds(params);
-    yield put(getAllFeedsSuccess(feedsList));
+    const feedsList: FeedList = yield client.getFeeds(params);
+    const totalCount = feedsList.totalCount;
+    const feeds: Feed[] = feedsList.getItems();
+    const payload = {
+      feeds,
+      totalCount,
+    };
+    yield put(getAllFeedsSuccess(payload));
   } catch (error) {
     yield put(getAllFeedsError(error));
   }
@@ -31,7 +38,7 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
   try {
     const id = Number(action.payload);
     const client = ChrisAPIClient.getClient();
-    const feed = yield client.getFeed(id);
+    const feed: Feed = yield client.getFeed(id);
 
     if (feed) {
       yield all([

@@ -58,6 +58,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
   );
+
   const dispatch = useDispatch();
 
   const dataRef = React.useRef<DestroyActiveResources>();
@@ -77,7 +78,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
       ) {
         dispatch(resetActiveResources(dataRef.current));
       }
-       
+
       dispatch(destroyExplorer());
       dispatch(resetPluginInstances());
       dispatch(resetTsNodes());

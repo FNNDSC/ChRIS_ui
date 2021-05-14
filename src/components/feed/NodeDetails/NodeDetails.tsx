@@ -4,7 +4,6 @@ import {
   Button,
   Grid,
   GridItem,
-  Title,
   Skeleton,
   ExpandableSection,
 } from "@patternfly/react-core";
@@ -28,6 +27,7 @@ import PluginLog from "./PluginLog";
 import Status from "./Status";
 import GraphNode from "../AddTsNode/ParentContainer";
 import StatusTitle from "./StatusTitle";
+import PluginTitle from "./PluginTitle";
 import { setFeedLayout } from "../../../store/feed/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import "./NodeDetails.scss";
@@ -100,20 +100,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
 
   const runTime = React.useCallback(getRuntimeString, [selectedPlugin]);
 
-  const pluginTitle = React.useMemo(() => {
-    const title =
-      selectedPlugin?.data.title || selectedPlugin?.data.plugin_name;
-    const version = `v. ${selectedPlugin?.data.plugin_version}`;
-    return (
-      <>
-        <span>{title}</span>
-        <span className="node-details__version">
-          {!selectedPlugin?.data.title && version}
-        </span>
-      </>
-    );
-  }, [selectedPlugin]);
-
   const handleVisibleChange = (visible: boolean) => {
     setIsGraphNodeVisible(visible);
   };
@@ -151,9 +137,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     return (
       <div className="node-details">
         <div className="node-details__title">
-          <Title headingLevel="h3" size="xl">
-            {pluginTitle}
-          </Title>
+          <PluginTitle />
           <Button
             onClick={() => {
               expandDrawer("side_panel");
@@ -161,6 +145,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             variant="tertiary"
             type="button"
             icon={<CloseIcon />}
+            className="node-details__title--button"
           />
         </div>
 

@@ -93,7 +93,7 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
           inputFile,
           sliceToConvert: 0,
           outputFileStem: `${fileName}.jpg`,
-          previous_id: `${dircopyInstance.data.id}`,
+          previous_id: dircopyInstance.data.id,
         };
         const med2ImgInstance: PluginInstance =
           yield client.createPluginInstance(med2Img.data.id, imgData);
@@ -107,7 +107,7 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
           yield put(setAnalysisStep(payload));
 
           const covidnetData: CovidnetData = {
-            previous_id: `${med2ImgInstance.data.id}`,
+            previous_id: med2ImgInstance.data.id,
             title: pacsFile.data.fname,
             imagefile: `${fileName}.jpg`,
           };

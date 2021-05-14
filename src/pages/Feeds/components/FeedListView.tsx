@@ -25,6 +25,7 @@ import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import LoadingContent from "../../../components/common/loading/LoadingContent";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
+import { Feed } from "@fnndsc/chrisapi";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -52,31 +53,35 @@ const FeedListView: React.FC<AllProps> = ({
     descriptions: {},
   });
 
-  const generateTableRow = (feed: any) => {
+  const generateTableRow = (feed: Feed) => {
     const totalJobsRunning =
-      feed.created_jobs +
-      feed.registering_jobs +
-      feed.scheduled_jobs +
-      feed.started_jobs +
-      feed.waiting_jobs;
+      feed.data.created_jobs +
+      feed.data.registering_jobs +
+      feed.data.scheduled_jobs +
+      feed.data.started_jobs +
+      feed.data.waiting_jobs;
 
     const name = {
       title: (
         <span className="feed-list__name">
           <CodeBranchIcon />
-          <Link to={`/feeds/${feed.id}`}>{feed.name}</Link>
+          <Link to={`/feeds/${feed.data.id}`}>{feed.data.name}</Link>
         </span>
       ),
     };
 
-    const errorCount = feed.errored_jobs + feed.cancelled_jobs;
+    const errorCount = feed.data.errored_jobs + feed.data.cancelled_jobs;
 
     const created = {
-      title: <Moment format="DD MMM YYYY , HH:mm">{feed.creation_date}</Moment>,
+      title: (
+        (
+        <Moment format="DD MMM YYYY , HH:mm">{feed.data.creation_date}</Moment>
+      )
+      ),
     };
 
     const lastCommit = {
-      title: <Moment fromNow>{feed.modification_date}</Moment>,
+      title: <Moment fromNow>{feed.data.modification_date}</Moment>,
     };
 
     const jobsRunning = {
@@ -84,7 +89,11 @@ const FeedListView: React.FC<AllProps> = ({
     };
 
     const jobsDone = {
-      title: <span className="feed-list__count">{feed.finished_jobs}</span>,
+      title: (
+        (
+        <span className="feed-list__count">{feed.data.finished_jobs}</span>
+      )
+      ),
     };
 
     const jobsErrors = {
@@ -93,7 +102,7 @@ const FeedListView: React.FC<AllProps> = ({
 
     const viewDetails = {
       title: (
-        <Link to={`/feeds/${feed.id}`}>
+        <Link to={`/feeds/${feed.data.id}`}>
           <Button icon={<EyeIcon />} variant="link">
             View feed details
           </Button>
@@ -116,6 +125,7 @@ const FeedListView: React.FC<AllProps> = ({
 
   const { page, perPage, filter } = filterState;
   const { data, error, loading, totalFeedsCount } = allFeeds;
+ 
   const cells = [
     "Feed",
     "Created",

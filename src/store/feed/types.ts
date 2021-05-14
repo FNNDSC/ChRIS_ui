@@ -13,6 +13,11 @@ export interface FeedPayload {
   loading: boolean;
 }
 
+export interface FeedsResponsePayload {
+  feeds: Feed[];
+  totalCount: number;
+}
+
 export interface FeedTreeProp {
   orientation: "horizontal" | "vertical";
   translate: {
