@@ -5,7 +5,13 @@ import { useTypedSelector } from "../../store/hooks";
 import { useDispatch } from "react-redux";
 import { setCurrentPacsFile } from "../../store/workflows/actions";
 import { PACSFile } from "../../store/workflows/types";
+import {
+  EmptyStateTable,
+  generateTableLoading,
+} from "../../components/common/emptyTable";
 
+
+ 
 const StudyList = () => {
   const dispatch = useDispatch();
   const pacsPayload = useTypedSelector((state) => state.workflows.pacsPayload);
@@ -45,6 +51,12 @@ const StudyList = () => {
   };
 
   const rows = files ? files.map(generateTableRow) : [];
+
+ if (files.length === 0 || error) {
+   //@ts-ignore
+   return <EmptyStateTable cells={columns} rows={rows} />;
+ }
+
   return (
     <div>
       <PageSection>
@@ -55,7 +67,7 @@ const StudyList = () => {
           variant="compact"
         >
           <TableHeader />
-          <TableBody />
+          {loading ? generateTableLoading() : <TableBody />}
         </Table>
       </PageSection>
     </div>

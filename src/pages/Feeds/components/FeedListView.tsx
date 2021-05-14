@@ -10,22 +10,23 @@ import {
   Title,
   Pagination,
   EmptyState,
-  EmptyStateVariant,
-  EmptyStateIcon,
   EmptyStateBody,
-  Button
+  Button,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
-import { CodeBranchIcon, SearchIcon , EyeIcon} from "@patternfly/react-icons";
+import { CodeBranchIcon, EyeIcon } from "@patternfly/react-icons";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest } from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
-import LoadingContent from "../../../components/common/loading/LoadingContent";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
 import { Feed } from "@fnndsc/chrisapi";
+import {
+  EmptyStateTable,
+  generateTableLoading,
+} from "../../../components/common/emptyTable";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -74,9 +75,7 @@ const FeedListView: React.FC<AllProps> = ({
 
     const created = {
       title: (
-        (
         <Moment format="DD MMM YYYY , HH:mm">{feed.data.creation_date}</Moment>
-      )
       ),
     };
 
@@ -90,9 +89,7 @@ const FeedListView: React.FC<AllProps> = ({
 
     const jobsDone = {
       title: (
-        (
         <span className="feed-list__count">{feed.data.finished_jobs}</span>
-      )
       ),
     };
 
@@ -125,7 +122,7 @@ const FeedListView: React.FC<AllProps> = ({
 
   const { page, perPage, filter } = filterState;
   const { data, error, loading, totalFeedsCount } = allFeeds;
- 
+
   const cells = [
     "Feed",
     "Created",
@@ -172,19 +169,7 @@ const FeedListView: React.FC<AllProps> = ({
     );
   };
 
-  const generateTableLoading = () => {
-    return (
-      <tbody className="feed-list__loading">
-        <tr>
-          <td colSpan={6}>
-            {new Array(6).fill(null).map((_, i) => (
-              <LoadingContent height="45px" width="100%" key={i} />
-            ))}
-          </td>
-        </tr>
-      </tbody>
-    );
-  };
+
 
   React.useEffect(() => {
     document.title = "All Feeds - ChRIS UI ";
@@ -238,22 +223,8 @@ const FeedListView: React.FC<AllProps> = ({
           />
           {generatePagination()}
         </div>
-        {!data && !loading ? (
-          <React.Fragment>
-            <Table caption="Empty Feed List" cells={cells} rows={rows}>
-              <TableHeader />
-              <TableBody />
-            </Table>
-            <EmptyState variant={EmptyStateVariant.small}>
-              <EmptyStateIcon icon={SearchIcon} />
-              <Title headingLevel="h2" size="lg">
-                No Feeds Found
-              </Title>
-              <EmptyStateBody>
-                Create a Feed by clicking on the &apos;Create Feed&apos; button
-              </EmptyStateBody>
-            </EmptyState>
-          </React.Fragment>
+        {(!data && !loading) || (data && data.length === 0) ? (
+          <EmptyStateTable cells={cells} rows={rows} />
         ) : (
           <Table
             variant="compact"

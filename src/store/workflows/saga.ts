@@ -50,11 +50,12 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
     const med2imgList: PluginInstanceList = yield client.getPlugins({
       name_exact: "pl-med2img",
     });
-
     const med2Img = med2imgList.getItems()[0];
+
     const covidnetList: PluginInstanceList = yield client.getPlugins({
       name_exact: "pl-covidnet",
     });
+
     const covidnet = covidnetList.getItems()[0];
     if (dircopy && med2Img && covidnet) {
       const payload: AnalysisStep = {
@@ -70,12 +71,13 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
         data
       );
       const feed: Feed = yield dircopyInstance.getFeed();
-      console.log("Feed", feed);
+
       const note: Note = yield feed.getNote();
       yield note?.put({
         title: `Description`,
         content: `Analysis run for ${pacsFile.data.PatientName}`,
       });
+
       yield feed.put({
         name: `Analysis run on ${pacsFile.data.PatientID}`,
       });
@@ -124,7 +126,23 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
             yield put(setAnalysisStep(payload));
           }
         }
+      } else {
+        const payload: AnalysisStep = {
+          id: 2,
+          title: "Could not create Feed",
+          status: "error",
+          description: ""
+        };
       }
+    } else {
+      const payload: AnalysisStep = {
+        id: 1,
+        title: "Plugin Registration Check Failed",
+        status: "error",
+        description:
+          "Please check if pl-dircopy, pl-med2img, pl-covidnet is registered",
+      };
+      yield put(setAnalysisStep(payload));
     }
   } catch (error) {
     console.error(error);
