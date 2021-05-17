@@ -15,7 +15,6 @@ import {
 import { usePaginate } from "../../components/common/pagination";
 
 
- 
 const StudyList = () => {
   const dispatch = useDispatch();
   const pacsPayload = useTypedSelector((state) => state.workflows.pacsPayload);
@@ -26,6 +25,7 @@ const StudyList = () => {
   const { files, error, loading } = pacsPayload;
   const { filterState, handlePageSet, handlePerPageSet, run } = usePaginate();
   const { page, perPage } = filterState;
+
 
   React.useEffect(() => {
     run(getPacsFilesRequest);
@@ -64,7 +64,7 @@ const StudyList = () => {
 
   const rows = files ? files.map(generateTableRow) : [];
 
- if (files.length === 0 || error) {
+ if ((files.length === 0 || error) && !loading) {
    return (
      <EmptyStateTable
        cells={columns}
