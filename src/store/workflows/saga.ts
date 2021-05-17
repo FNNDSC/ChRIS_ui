@@ -1,5 +1,5 @@
 import { all, fork, takeEvery, put } from "@redux-saga/core/effects";
-import { WorkflowTypes, AnalysisStep } from "./types";
+import { WorkflowTypes, AnalysisStep, PACSFile } from "./types";
 import { getPacsFilesSuccess, setAnalysisStep } from "./actions";
 import ChrisApiClient from "../../api/chrisapiclient";
 import { IActionTypeParam } from "../../api/models/base.model";
@@ -25,13 +25,22 @@ interface CovidnetData extends IPluginCreateData {
   imagefile: string;
 }
 
-function* handleGetPacsFilesRequest() {
+function* handleGetPacsFilesRequest(action: IActionTypeParam) {
   const client = ChrisApiClient.getClient();
+  const { limit, offset } = action.payload;
+
   try {
     //@ts-ignore
-    const fileList = yield client.getPACSFiles();
-    const files = fileList.getItems();
-    yield put(getPacsFilesSuccess(files));
+    const fileList = yield client.getPACSFiles({ limit, offset });
+    const files: PACSFile[] = fileList.getItems();
+    const totalFileCount = fileList.totalCount;
+
+    yield put(
+      getPacsFilesSuccess({
+        files,
+        totalFileCount,
+      })
+    );
   } catch (error) {
     console.error(error);
   }
