@@ -100,6 +100,13 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
 
   const runTime = React.useCallback(getRuntimeString, [selectedPlugin]);
 
+  const cancelled =
+    selectedPlugin?.data.status === "cancelled" ||
+    selectedPlugin?.data.status === "finishedWithError";
+
+  //@ts-ignore
+  const error_code = selectedPlugin?.data.error_code;
+
   const handleVisibleChange = (visible: boolean) => {
     setIsGraphNodeVisible(visible);
   };
@@ -163,7 +170,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           <Grid className="node-details__grid">
             {renderGridItem("Created", Time)}
             {renderGridItem("Node ID", <span>{selectedPlugin.data.id}</span>)}
-
             {runTime && (
               <Fragment>
                 {renderGridItem(
@@ -176,14 +182,18 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
                 )}
               </Fragment>
             )}
+            {cancelled &&
+         
+         
+                      renderGridItem(
+                    "Error Code",
+                    <span>{error_code ? error_code : "None"}</span>
+                  )}
           </Grid>
         </ExpandableSection>
 
         <div className="node-details__actions">
-          {selectedPlugin.data.status === "finishedWithError" ||
-          selectedPlugin.data.status === "cancelled" ? null : (
-            <AddNode />
-          )}
+          {cancelled ? null : <AddNode />}
 
           <Popover
             content={

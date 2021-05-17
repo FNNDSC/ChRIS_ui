@@ -28,9 +28,9 @@ function* handleGetParams(action: IActionTypeParam) {
     );
     //@ts-ignore
     let computeEnvList = yield plugin.getPluginComputeResources(paginate);
-    console.log("Compute env list", computeEnvList);
+
     let params = paramList.getItems();
-  
+
     let computeEnvs = computeEnvList.getItems();
     while (paramList.hasNextPage) {
       try {
