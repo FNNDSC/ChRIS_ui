@@ -56,7 +56,9 @@ function* fetchPluginFiles(plugin: PluginInstance) {
 function* handleGetPluginStatus(instance: PluginInstance) {
   while (true) {
     try {
+      //@ts-ignore
       const pluginDetails = yield instance.get();
+      //@ts-ignore
       const pluginStatus = yield pluginDetails.data.summary;
 
       let parsedStatus: PluginStatusLabels | undefined = undefined;
@@ -97,6 +99,7 @@ function* handleGetPluginStatus(instance: PluginInstance) {
 function* handleGetInstanceStatus(instance: PluginInstance) {
   while (true) {
     try {
+      //@ts-ignore
       const pluginDetails = yield instance.get();
       yield put(
         getPluginInstanceStatusSuccess({
@@ -166,7 +169,7 @@ function* watchStatusCancelPoll(pollTask: PollTask) {
 
 function* pollorCancelEndpoints(action: IActionTypeParam) {
   const instance = action.payload;
-  const task = yield fork(handleGetPluginStatus, instance);
+  const task: Task = yield fork(handleGetPluginStatus, instance);
   yield watchCancelPoll(task);
 }
 
@@ -179,7 +182,7 @@ function* pollInstanceEndpoints(action: IActionTypeParam) {
 
   for (let i = 0; i < pluginInstances.length; i++) {
     const instance = pluginInstances[i];
-    const task = yield fork(handleGetInstanceStatus, instance);
+    const task: Task = yield fork(handleGetInstanceStatus, instance);
     pollTask[instance.data.id] = task;
   }
 
