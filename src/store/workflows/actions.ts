@@ -15,3 +15,7 @@ export const submitAnalysis = (file: PACSFile) =>
 
 export const setAnalysisStep = (step: AnalysisStep) =>
   action(WorkflowTypes.SET_ANALYSIS_STEP, step);
+
+
+export const resetWorkflowState = () =>
+  action(WorkflowTypes.RESET_WORKFLOW_STEP);
