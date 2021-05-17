@@ -4,10 +4,7 @@ import Wrapper from "../../containers/Layout/PageWrapper";
 import StudyList from "./StudyList";
 import FileDetails from "./FileDetails";
 import { setSidebarActive } from "../../store/ui/actions";
-import {
-  getPacsFilesRequest,
-  resetWorkflowState,
-} from "../../store/workflows/actions";
+import { resetWorkflowState } from "../../store/workflows/actions";
 import "./Workflows.scss";
 
 const WorkflowsPage = () => {
@@ -23,7 +20,6 @@ const WorkflowsPage = () => {
   }, [dispatch]);
 
   React.useEffect(() => {
-    dispatch(getPacsFilesRequest());
     return () => {
       dispatch(resetWorkflowState());
     };

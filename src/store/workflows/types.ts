@@ -45,6 +45,12 @@ export interface IWorkflowState {
   currentFile?: PACSFile;
   steps: AnalysisStep[];
   isAnalysisRunning: boolean;
+  totalFileCount: number;
+}
+
+export interface PacsSuccessPayload {
+  files: PACSFile[];
+  totalFileCount: number;
 }
 
 export const WorkflowTypes = keyMirror({
