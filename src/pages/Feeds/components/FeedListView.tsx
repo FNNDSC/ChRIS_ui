@@ -3,7 +3,7 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import Moment from "react-moment";
-import debounce from "lodash/debounce";
+
 import {
   PageSection,
   PageSectionVariants,
@@ -27,17 +27,11 @@ import {
   EmptyStateTable,
   generateTableLoading,
 } from "../../../components/common/emptyTable";
+import { usePaginate } from "../../../components/common/pagination";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
   getAllFeedsRequest: typeof getAllFeedsRequest;
-}
-
-interface FeedListViewState {
-  perPage: number;
-  page: number;
-  filter: string;
-  descriptions: { [feedId: number]: string };
 }
 
 type AllProps = IFeedState & IPropsFromDispatch;
@@ -47,12 +41,32 @@ const FeedListView: React.FC<AllProps> = ({
   allFeeds,
   getAllFeedsRequest,
 }: AllProps) => {
-  const [filterState, setFilterState] = React.useState<FeedListViewState>({
-    perPage: 10,
-    page: 1,
-    filter: "",
-    descriptions: {},
-  });
+  const {
+    filterState,
+    handlePageSet,
+    handlePerPageSet,
+    handleFilterChange,
+    run,
+  } = usePaginate();
+
+  const { page, perPage } = filterState;
+  const { data, error, loading, totalFeedsCount } = allFeeds;
+
+  React.useEffect(() => {
+    document.title = "All Feeds - ChRIS UI ";
+    setSidebarActive({
+      activeGroup: "feeds_grp",
+      activeItem: "my_feeds",
+    });
+  }, [setSidebarActive]);
+
+  const getAllFeeds = React.useCallback(() => {
+    run(getAllFeedsRequest);
+  }, [getAllFeedsRequest, run]);
+
+  React.useEffect(() => {
+    getAllFeeds();
+  }, [getAllFeeds]);
 
   const generateTableRow = (feed: Feed) => {
     const totalJobsRunning =
@@ -120,9 +134,6 @@ const FeedListView: React.FC<AllProps> = ({
     };
   };
 
-  const { page, perPage, filter } = filterState;
-  const { data, error, loading, totalFeedsCount } = allFeeds;
-
   const cells = [
     "Feed",
     "Created",
@@ -134,24 +145,6 @@ const FeedListView: React.FC<AllProps> = ({
   ];
 
   const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
-
-  const handlePageSet = (e: any, page: number) => {
-    setFilterState({
-      ...filterState,
-      page,
-    });
-  };
-
-  const handlePerPageSet = (e: any, perPage: number) => {
-    setFilterState({ ...filterState, perPage });
-  };
-
-  const handleFilterChange = debounce((value: string) => {
-    setFilterState({
-      ...filterState,
-      filter: value,
-    });
-  }, 200);
 
   const generatePagination = () => {
     if (!data || !totalFeedsCount) {
@@ -168,24 +161,6 @@ const FeedListView: React.FC<AllProps> = ({
       />
     );
   };
-
-
-
-  React.useEffect(() => {
-    document.title = "All Feeds - ChRIS UI ";
-    setSidebarActive({
-      activeGroup: "feeds_grp",
-      activeItem: "my_feeds",
-    });
-  }, [setSidebarActive]);
-
-  const getAllFeeds = React.useCallback(() => {
-    getAllFeedsRequest(filter, perPage, perPage * (page - 1));
-  }, [page, perPage, filter, getAllFeedsRequest]);
-
-  React.useEffect(() => {
-    getAllFeeds();
-  }, [getAllFeeds]);
 
   if (error) {
     return (

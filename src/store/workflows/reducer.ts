@@ -42,6 +42,7 @@ export const initialState: IWorkflowState = {
   currentFile: undefined,
   steps: getInitialSteps(),
   isAnalysisRunning: false,
+  totalFileCount: 0,
 };
 
 const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
@@ -61,9 +62,10 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
         ...state,
         pacsPayload: {
           ...state.pacsPayload,
-          files: action.payload,
+          files: action.payload.files,
           loading: false,
         },
+        totalFileCount: action.payload.totalFileCount,
       };
     }
 
