@@ -28,18 +28,12 @@ export function getStatusLabels(
     "cancelled",
   ];
   const pluginStatus = pluginDetails.data.status;
-  
+
   const error =
     pluginDetails.data.status === "finishedWithError" ||
     pluginDetails.data.status === "cancelled"
       ? true
       : false;
-  let errorCode=''
-
-  if(error){
-    errorCode = pluginDetails.data.error_code;
-  }
-
 
   status[0] = {
     id: 1,
@@ -47,7 +41,6 @@ export function getStatusLabels(
     status: statusLabels.indexOf(pluginStatus) > 0 ? true : false,
     isCurrentStep: pluginDetails.data.status === "waiting",
     error,
-    errorCode:errorCode,
     description: "Waiting",
     icon: OutlinedClockIcon,
   };
@@ -58,7 +51,6 @@ export function getStatusLabels(
     status: statusLabels.indexOf(pluginStatus) > 1 ? true : false,
     isCurrentStep: pluginDetails.data.status === "scheduled" ? true : false,
     error,
-    errorCode:errorCode,
     description: "Scheduling",
     icon: InProgressIcon,
   };
@@ -72,7 +64,6 @@ export function getStatusLabels(
         ? true
         : false,
     error,
-    errorCode:errorCode,
     description: "Transmitting",
     icon: OnRunningIcon,
   };
@@ -93,7 +84,6 @@ export function getStatusLabels(
         ? true
         : false,
     error,
-    errorCode:errorCode,
     description: "Computing",
     icon: OutlinedArrowAltCircleRightIcon,
   };
@@ -110,7 +100,6 @@ export function getStatusLabels(
         ? true
         : false,
     error,
-    errorCode:errorCode,
     description: "Receiving",
     icon: OutlinedArrowAltCircleLeftIcon,
   };
@@ -129,7 +118,6 @@ export function getStatusLabels(
         ? true
         : false,
     error,
-    errorCode:errorCode,
     description: "Registering",
     icon: FileArchiveIcon,
   };
@@ -156,7 +144,6 @@ export function getStatusLabels(
         ? true
         : false,
     error,
-    errorCode:errorCode,
     description:
       pluginStatus === "finishedSuccessfully"
         ? "Finished Successfully"
