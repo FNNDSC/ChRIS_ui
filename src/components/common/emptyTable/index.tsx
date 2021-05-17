@@ -13,23 +13,26 @@ import LoadingContent from "../loading/LoadingContent";
 interface ITableProps {
   cells: string[];
   rows: { cells: { title: JSX.Element }[] }[];
+  title:string,
+  description:string
+  caption:string
 }
 
-export const EmptyStateTable = ({ cells, rows }: ITableProps) => {
-  console.log("EmptyState");
+export const EmptyStateTable = ({ cells, rows, title, description, caption }: ITableProps) => {
+ 
   return (
     <React.Fragment>
-      <Table caption="Empty Feed List" cells={cells} rows={rows}>
+      <Table caption={caption} cells={cells} rows={rows}>
         <TableHeader />
         <TableBody />
       </Table>
       <EmptyState variant={EmptyStateVariant.small}>
         <EmptyStateIcon icon={SearchIcon} />
         <Title headingLevel="h2" size="lg">
-          No Feeds Found
+         {title}
         </Title>
         <EmptyStateBody>
-          Create a Feed by clicking on the &apos;Create Feed&apos; button
+        {description}
         </EmptyStateBody>
       </EmptyState>
     </React.Fragment>

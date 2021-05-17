@@ -53,8 +53,17 @@ const StudyList = () => {
   const rows = files ? files.map(generateTableRow) : [];
 
  if (files.length === 0 || error) {
-   //@ts-ignore
-   return <EmptyStateTable cells={columns} rows={rows} />;
+  
+   return (
+     <EmptyStateTable
+       cells={columns}
+        //@ts-ignore
+       rows={rows}
+       caption='Empty File List'
+       title="No files found"
+       description="Push files to to the SERVICES/PACS endpoint"
+     />
+   );
  }
 
   return (

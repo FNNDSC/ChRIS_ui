@@ -84,7 +84,7 @@ const SubmitAnalysis = () => {
     <Card>
       <CardBody>
         <Button
-          isDisabled={isAnalysisRunning ? true : false}
+          isDisabled={isAnalysisRunning || !currentFile ? true : false}
           onClick={handleClick}
         >
           Submit An Analysis
