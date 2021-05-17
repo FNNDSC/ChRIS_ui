@@ -224,7 +224,13 @@ const FeedListView: React.FC<AllProps> = ({
           {generatePagination()}
         </div>
         {(!data && !loading) || (data && data.length === 0) ? (
-          <EmptyStateTable cells={cells} rows={rows} />
+          <EmptyStateTable
+            cells={cells}
+            rows={rows}
+            caption="Empty Feed List"
+            title="No Feeds Found"
+            description="Create a Feed by clicking on the 'Create Feed' button"
+          />
         ) : (
           <Table
             variant="compact"

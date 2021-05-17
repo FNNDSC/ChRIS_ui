@@ -57,31 +57,31 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
     });
 
     const covidnet = covidnetList.getItems()[0];
-    if (dircopy && med2Img && covidnet) {
-      const payload: AnalysisStep = {
-        id: 1,
-        title: "Plugin Registration Check",
-        status: "finish",
-        description: "Check completed",
-      };
-      yield put(setAnalysisStep(payload));
+
+    const payload: AnalysisStep = {
+      id: 1,
+      title: "Plugin Registration Check",
+      status: "finish",
+      description: "Check completed",
+    };
+    yield put(setAnalysisStep(payload));
+
+    try {
       const data: DircopyData = { dir: pacsFile.data.fname };
       const dircopyInstance: PluginInstance = yield client.createPluginInstance(
         dircopy.data.id,
         data
       );
       const feed: Feed = yield dircopyInstance.getFeed();
-
-      const note: Note = yield feed.getNote();
-      yield note?.put({
-        title: `Description`,
-        content: `Analysis run for ${pacsFile.data.PatientName}`,
-      });
-
-      yield feed.put({
-        name: `Analysis run on ${pacsFile.data.PatientID}`,
-      });
       if (feed) {
+        const note: Note = yield feed.getNote();
+        yield note?.put({
+          title: `Description`,
+          content: `Analysis run for ${pacsFile.data.PatientName}`,
+        });
+        yield feed.put({
+          name: `Analysis run on ${pacsFile.data.PatientID}`,
+        });
         const payload: AnalysisStep = {
           id: 2,
           title: "Feed Created",
@@ -89,63 +89,82 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
           description: "Check Completed",
         };
         yield put(setAnalysisStep(payload));
-        const inputFile = pacsFile.data.fname.split("/").pop();
-        const fileName = pacsFile.data.fname.split("/").pop()?.split(".")[0];
-        const imgData: Med2ImgData = {
-          inputFile,
-          sliceToConvert: 0,
-          outputFileStem: `${fileName}.jpg`,
-          previous_id: dircopyInstance.data.id,
-        };
-        const med2ImgInstance: PluginInstance =
-          yield client.createPluginInstance(med2Img.data.id, imgData);
-        if (med2ImgInstance) {
-          const payload: AnalysisStep = {
-            id: 3,
-            title: "Med2Img Created",
-            status: "finish",
-            description: "Check Completed",
-          };
-          yield put(setAnalysisStep(payload));
 
-          const covidnetData: CovidnetData = {
-            previous_id: med2ImgInstance.data.id,
-            title: pacsFile.data.fname,
-            imagefile: `${fileName}.jpg`,
+        try {
+          const inputFile = pacsFile.data.fname.split("/").pop();
+          const fileName = pacsFile.data.fname.split("/").pop()?.split(".")[0];
+          const imgData: Med2ImgData = {
+            inputFile,
+            sliceToConvert: 0,
+            outputFileStem: `${fileName}.jpg`,
+            previous_id: dircopyInstance.data.id,
           };
-          const covidnetInstance: PluginInstance =
-            yield client.createPluginInstance(covidnet.data.id, covidnetData);
-
-          if (covidnetInstance) {
+          const med2ImgInstance: PluginInstance =
+            yield client.createPluginInstance(med2Img.data.id, imgData);
+          if (med2ImgInstance) {
             const payload: AnalysisStep = {
-              id: 4,
-              title: "Covidnet created",
+              id: 3,
+              title: "Med2Img Created",
               status: "finish",
               description: "Check Completed",
             };
             yield put(setAnalysisStep(payload));
           }
+
+          try {
+            const covidnetData: CovidnetData = {
+              previous_id: med2ImgInstance.data.id,
+              title: pacsFile.data.fname,
+              imagefile: `${fileName}.jpg`,
+            };
+            const covidnetInstance: PluginInstance =
+              yield client.createPluginInstance(covidnet.data.id, covidnetData);
+
+            if (covidnetInstance) {
+              const payload: AnalysisStep = {
+                id: 4,
+                title: "Covidnet created",
+                status: "finish",
+                description: "Check Completed",
+              };
+              yield put(setAnalysisStep(payload));
+            }
+          } catch (error) {
+            const payload: AnalysisStep = {
+              id: 4,
+              title: "Covidnet created",
+              status: "error",
+              description: "Please register pl-covidnet for this workflow",
+            };
+            yield put(setAnalysisStep(payload));
+          }
+        } catch (error) {
+          const payload: AnalysisStep = {
+            id: 3,
+            title: "Med2Img Created",
+            status: "error",
+            description: "Please register pl-med2img for this workflow",
+          };
+          yield put(setAnalysisStep(payload));
         }
-      } else {
-        const payload: AnalysisStep = {
-          id: 2,
-          title: "Could not create Feed",
-          status: "error",
-          description: ""
-        };
       }
-    } else {
+    } catch (error) {
       const payload: AnalysisStep = {
-        id: 1,
-        title: "Plugin Registration Check Failed",
+        id: 2,
+        title: "Feed Created",
         status: "error",
-        description:
-          "Please check if pl-dircopy, pl-med2img, pl-covidnet is registered",
+        description: error,
       };
       yield put(setAnalysisStep(payload));
     }
   } catch (error) {
-    console.error(error);
+    const payload: AnalysisStep = {
+      id: 1,
+      title: "Plugin Registration Check",
+      status: "error",
+      description: error,
+    };
+    yield put(setAnalysisStep(payload));
   }
 }
 

@@ -62,6 +62,7 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
         pacsPayload: {
           ...state.pacsPayload,
           files: action.payload,
+          loading: false,
         },
       };
     }
@@ -98,6 +99,12 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
           ...state,
           steps: cloneSteps,
         };
+    }
+
+    case WorkflowTypes.RESET_WORKFLOW_STEP: {
+      return {
+        ...initialState,
+      };
     }
 
     default:

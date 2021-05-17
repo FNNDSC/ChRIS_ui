@@ -54,4 +54,5 @@ export const WorkflowTypes = keyMirror({
   SET_CURRENT_FILE: null,
   SUBMIT_ANALYSIS: null,
   SET_ANALYSIS_STEP: null,
+  RESET_WORKFLOW_STEP: null,
 });
