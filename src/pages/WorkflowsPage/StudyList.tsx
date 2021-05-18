@@ -72,7 +72,7 @@ const StudyList = () => {
        rows={rows}
        caption="Empty File List"
        title="No files found"
-       description="Push files to to the SERVICES/PACS endpoint"
+       description="Push files to the SERVICES/PACS endpoint"
      />
    );
  }
