@@ -7,7 +7,7 @@ function getInitialSteps() {
     id: 1,
     title: "Plugin Registration Check",
     status: "wait",
-    description: "Check if pl-dircopy, pl-med2img, pl-covidnet is registered",
+    description: "Check if pl-dircopy, pl-med2img, pl-covidnet are registered",
   };
 
   steps[1] = {
