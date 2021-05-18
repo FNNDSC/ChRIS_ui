@@ -27,7 +27,6 @@ import {
   TableBody,
   cellWidth,
   truncate,
-  TableText,
 } from "@patternfly/react-table";
 import FileDetailView from "../Preview/FileDetailView";
 import FileViewerModel from "../../../api/models/file-viewer.model";
@@ -159,7 +158,7 @@ const FileBrowser = (props: FileBrowserProps) => {
           isPreviewing && "file-browser__table--isPreviewing"
         )}
       >
-        <TableText wrapModifier="truncate"> {node.title}</TableText>
+        {node.title}
       </div>
     );
 
