@@ -1,9 +1,8 @@
 import React from "react";
 import classNames from "classnames";
-import FileDetailView from "../Preview/FileDetailView";
-import { useTypedSelector } from "../../../store/hooks";
+import Moment from "react-moment";
 import { useDispatch } from "react-redux";
-import { getFileExtension } from "../../../api/models/file-explorer.model";
+import { useTypedSelector } from "../../../store/hooks";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -30,7 +29,9 @@ import {
   truncate,
   TableText,
 } from "@patternfly/react-table";
+import FileDetailView from "../Preview/FileDetailView";
 import FileViewerModel from "../../../api/models/file-viewer.model";
+import { getFileExtension } from "../../../api/models/file-explorer.model";
 import { FileBrowserProps, FileBrowserState } from "./types";
 import { DataNode } from "../../../store/explorer/types";
 import {
@@ -55,10 +56,8 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleFileViewerToggle,
     expandDrawer,
   } = props;
-  const [
-    fileBrowserState,
-    setfileBrowserState,
-  ] = React.useState<FileBrowserState>(getInitialState(root));
+  const [fileBrowserState, setfileBrowserState] =
+    React.useState<FileBrowserState>(getInitialState(root));
   const { directory, breadcrumbs, currentFile } = fileBrowserState;
   const { selectedFile } = useTypedSelector((state) => state.explorer);
   const dispatch = useDispatch();
@@ -163,6 +162,15 @@ const FileBrowser = (props: FileBrowserProps) => {
         <TableText wrapModifier="truncate"> {node.title}</TableText>
       </div>
     );
+
+    const creationDate = (
+      <Moment format="DD MMM YYYY , HH:mm">
+        {
+          //@ts-ignore
+          node.file?.data.creation_date
+        }
+      </Moment>
+    );
     const name = {
       title: fileName,
     };
@@ -180,15 +188,19 @@ const FileBrowser = (props: FileBrowserProps) => {
       ),
     };
 
+    const creation_date = {
+      title: creationDate,
+    };
+
     return {
-      cells: [iconRow, name, type, size, download],
+      cells: [iconRow, name, creation_date, size, download],
     };
   };
 
   const cols = [
     { title: "" },
     { title: "Name", transforms: [cellWidth(40)], cellTransforms: [truncate] },
-    { title: "Type" },
+    { title: "Creation Date" },
     { title: "Size" },
     { title: "" },
   ];
