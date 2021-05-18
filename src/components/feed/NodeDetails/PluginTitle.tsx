@@ -73,4 +73,4 @@ const PluginTitle = () => {
 
 export default PluginTitle;
 
-<PluginTitle />;
+
