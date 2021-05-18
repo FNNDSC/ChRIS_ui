@@ -7,6 +7,7 @@ import {
   Flex,
   FlexItem,
   Button,
+  Alert,
 } from "@patternfly/react-core";
 import { Steps } from "antd";
 import { useTypedSelector } from "../../store/hooks";
@@ -83,6 +84,13 @@ const SubmitAnalysis = () => {
   return (
     <Card>
       <CardBody>
+        {!currentFile && (
+          <Alert
+            aria-label="An alert component to inform the user to select a file from the PACS Table"
+            variant="info"
+            title="Select an image to run the analysis on"
+          />
+        )}
         <Button
           isDisabled={isAnalysisRunning || !currentFile ? true : false}
           onClick={handleClick}
