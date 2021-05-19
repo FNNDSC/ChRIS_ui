@@ -10,11 +10,10 @@ import {
   NavItem,
   NavList,
   NavItemSeparator,
+  NavExpandable,
 } from "@patternfly/react-core";
 import { setSidebarActive } from "../../store/ui/actions";
 import { Dispatch } from "redux";
-
-
 
 type ReduxProp = {
   setSidebarActive: (active: {
@@ -24,14 +23,18 @@ type ReduxProp = {
 };
 type AllProps = IUiState & IUserState & ReduxProp;
 
-const Sidebar: React.FC<AllProps> = ({ isNavOpen, sidebarActiveItem, isLoggedIn }: AllProps) => {
+const Sidebar: React.FC<AllProps> = ({
+  isNavOpen,
+  sidebarActiveItem,
+  sidebarActiveGroup,
+  isLoggedIn,
+}: AllProps) => {
   const onSelect = (selectedItem: {
     groupId: number | string;
     itemId: number | string;
     to: string;
     event: React.FormEvent<HTMLInputElement>;
   }) => {
-    
     setSidebarActive({
       activeItem: selectedItem.itemId as string,
       activeGroup: selectedItem.groupId as string,
@@ -47,13 +50,21 @@ const Sidebar: React.FC<AllProps> = ({ isNavOpen, sidebarActiveItem, isLoggedIn 
       >
         <Link to="/feeds">Feeds List</Link>
       </NavItem>
-      <NavItem
+      <NavItemSeparator />
+      <NavExpandable
+        isExpanded={true}
+        title="Workflows"
         groupId="workflows_grp"
-        itemId="my_workflows"
-        isActive={sidebarActiveItem === "my_workflows" ? true : false}
+        isActive={sidebarActiveGroup === "workflows_grp"}
       >
-        <Link to="/workflows">Workflows</Link>
-      </NavItem>
+        <NavItem
+          groupId="workflows_grp"
+          itemId="my_workflows"
+          isActive={sidebarActiveItem === "my_workflows" ? true : false}
+        >
+          <Link to="/workflows">COVIDnet</Link>
+        </NavItem>
+      </NavExpandable>
     </React.Fragment>
   );
 
@@ -74,10 +85,11 @@ const Sidebar: React.FC<AllProps> = ({ isNavOpen, sidebarActiveItem, isLoggedIn 
   );
 
   return <PageSidebar theme="dark" nav={PageNav} isNavOpen={isNavOpen} />;
-}
+};
 
 const mapStateToProps = ({ ui, user }: ApplicationState) => ({
   sidebarActiveItem: ui.sidebarActiveItem,
+  sidebarActiveGroup: ui.sidebarActiveGroup,
   isLoggedIn: user.isLoggedIn,
 });
 

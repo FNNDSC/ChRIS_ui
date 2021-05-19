@@ -162,7 +162,7 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
         id: 2,
         title: "Feed Created",
         status: "error",
-        description: error,
+        description: "An Error was found in creating the feed",
       };
       yield put(setAnalysisStep(payload));
     }
@@ -171,7 +171,7 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
       id: 1,
       title: "Plugin Registration Check",
       status: "error",
-      description: error,
+      description: "Please register the plugins",
     };
     yield put(setAnalysisStep(payload));
   }
