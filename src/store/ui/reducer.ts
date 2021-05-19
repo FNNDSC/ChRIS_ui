@@ -8,6 +8,7 @@ const initialState: IUiState = {
   progress: 0,
   isDropdownOpen: false,
   sidebarActiveItem: "my_dashboard",
+  sidebarActiveGroup: "dashboard_grp",
   isNavOpen: true,
 };
 
@@ -33,6 +34,7 @@ const reducer: Reducer<IUiState> = (state = initialState, action) => {
         ...state,
         isDropdownOpen: false,
         sidebarActiveItem: "my_dashboard",
+        sidebarActiveGroup: "dashboard_grp",
       };
     }
 
