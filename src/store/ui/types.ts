@@ -14,6 +14,7 @@ export interface IUiState {
   isDropdownOpen?: boolean;
   isNavOpen?: boolean;
   sidebarActiveItem?: string;
+  sidebarActiveGroup?: string;
 }
 
 
