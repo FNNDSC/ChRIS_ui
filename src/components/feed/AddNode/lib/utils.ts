@@ -2,10 +2,10 @@ import { InputType, InputIndex } from "../types";
 import { PluginParameter } from "@fnndsc/chrisapi";
 
 export const unPackForKeyValue = (input: InputIndex) => {
-  const flag = input["flag"];
-  const value = input["value"];
-  const type = input["type"];
-  const placeholder = input["placeholder"];
+  const flag = input ? input["flag"] : "";
+  const value = input ? input["value"] : "";
+  const type = input ? input["type"] : "";
+  const placeholder = input ? input["placeholder"] : "";
   return [flag, value, type, placeholder];
 };
 

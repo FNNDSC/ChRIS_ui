@@ -1,5 +1,11 @@
 import React from "react";
-import { TextArea, ExpandableSection, Title } from "@patternfly/react-core";
+import {
+  TextArea,
+  ExpandableSection,
+  Title,
+  Checkbox,
+  Button,
+} from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { isEmpty } from "lodash";
@@ -13,6 +19,7 @@ import {
   getRequiredParamsWithName,
   unpackParametersIntoString,
 } from "./lib/utils";
+import ReactJSON from "react-json-view";
 
 type ParameterDictionary = {
   [key: string]: {
@@ -28,15 +35,19 @@ const Editor = ({
   requiredInput,
 }: EditorProps) => {
   const [editorState, setEditorState] = React.useState<EditorState>({
-    value: `${plugin.data.name}:`,
-    docsExpanded: true,
+    value: "",
+    docsExpanded: false,
     errors: [],
+    readOnly: true,
+    dictionary: {},
   });
 
-  const { docsExpanded, errors } = editorState;
+  const { docsExpanded, errors, readOnly, dictionary } = editorState;
 
   React.useEffect(() => {
-    let derivedValue = `${plugin.data.name}: `;
+    let derivedValue = "";
+    console.log("RequiredInput, dropdownInput", requiredInput, dropdownInput);
+
     if (requiredInput) {
       derivedValue += unpackParametersIntoString(requiredInput);
     }
@@ -51,26 +62,9 @@ const Editor = ({
         value: derivedValue.trim(),
       };
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const parameterArray = React.useMemo(() => {
-    if (params)
-      return params.map((param) => {
-        return {
-          id: `${param.data.id}`,
-          flag: param.data.flag,
-          type: param.data.type,
-          placeholder: param.data.help,
-        };
-      });
-  }, [params]);
+  }, [dropdownInput, requiredInput]);
 
   const handleInputChange = (value: string) => {
-    setEditorState({
-      ...editorState,
-      value,
-    });
     handleRegex(value);
   };
 
@@ -81,87 +75,74 @@ const Editor = ({
     });
   };
 
+  const handleCheckboxChange = (checked: boolean) => {
+    setEditorState({
+      ...editorState,
+      readOnly: checked,
+    });
+  };
+
   const handleGetTokens = (value: string) => {
-    const userValue = value.trim().split(" ").slice(1);
-    const paramDictionary: ParameterDictionary = {};
+    const userValue = value.trim();
 
-    if (userValue.length > 0) {
-      for (let i = 0; i <= userValue.length; i++) {
-        const flag = userValue[i];
-        const value = userValue[i + 1];
-        const flags = params && params.map((param) => param.data.flag);
+    const lookupTable: {
+      [key: string]: string;
+    } = {};
 
-        parameterArray?.forEach((parameter) => {
-          if (parameter.flag === flag) {
-            if (
-              !value ||
-              ((value.startsWith("--") || value.startsWith("-")) &&
-                flags &&
-                flags.includes(value))
-            ) {
-              paramDictionary[flag] = {
-                id: parameter.id,
-                value: "",
-                placeholder: parameter.placeholder,
-                type: parameter.type,
-              };
-            } else if (parameter.type === "boolean" && value) {
-              paramDictionary[flag] = {
-                id: parameter.id,
-                value: "",
-                placeholder: parameter.placeholder,
-                type: parameter.type,
-              };
-            } else {
-              paramDictionary[flag] = {
-                id: parameter.id,
-                value,
-                placeholder: parameter.placeholder,
-                type: parameter.type,
-              };
-            }
+    const dictionary: {
+      [key: string]: string;
+    } = {};
+
+    let specialCharIndex = undefined;
+
+    const flags = params && params.map((param) => param.data.flag);
+    const values = userValue.split(" ");
+    for (let i = 0; i < values.length; i++) {
+      const currentValue = values[i];
+      if (
+        flags?.includes(currentValue) &&
+        (currentValue.startsWith("--") || currentValue.startsWith("-")) &&
+        !specialCharIndex
+      ) {
+        if (!lookupTable[currentValue]) {
+          lookupTable[i] = currentValue;
+          dictionary[currentValue] = "";
+        }
+      } else {
+        const previousIndex = i > 0 ? i - 1 : i;
+        if (specialCharIndex || specialCharIndex === 0) {
+          const flag = lookupTable[specialCharIndex];
+          if (flag) {
+            dictionary[flag] += ` ${currentValue}`;
           }
-        });
+        }
+
+        // current value doesn't seem to be a flag
+        // Check if previous index was a flag
+        if (currentValue.startsWith("\\'") || currentValue === "\\'") {
+          specialCharIndex = previousIndex;
+        }
+
+        if (currentValue.endsWith("\\'") || currentValue === "\\'") {
+          specialCharIndex = undefined;
+        }
+
+        if (lookupTable[previousIndex]) {
+          const flag = lookupTable[previousIndex];
+          dictionary[flag] += currentValue;
+        }
       }
     }
 
-    return { paramDictionary };
+    setEditorState({
+      ...editorState,
+      value,
+      dictionary,
+    });
   };
 
   const handleRegex = (value: string) => {
-    const { paramDictionary } = handleGetTokens(value);
-
-    const dropdownObject: InputType = {};
-    const requiredObject: InputType = {};
-
-    const requiredParameters = params && getRequiredParams(params);
-    for (const token in paramDictionary) {
-      const editorValue = paramDictionary[token].value;
-
-      const flag = token;
-      const type = paramDictionary[token].type;
-      const placeholder = paramDictionary[token].placeholder;
-      const id = paramDictionary[token].id;
-      if (
-        requiredParameters &&
-        requiredParameters.length > 0 &&
-        requiredParameters.includes(flag)
-      ) {
-        const value =
-          params &&
-          getRequiredParamsWithName(flag, editorValue, type, placeholder);
-
-        if (value) requiredObject[id] = value;
-      } else {
-        const value =
-          params && getAllParamsWithName(flag, editorValue, type, placeholder);
-        if (value) dropdownObject[v4()] = value;
-      }
-    }
-
-    if (!isEmpty(dropdownObject) || !isEmpty(requiredObject)) {
-      inputChangeFromEditor(dropdownObject, requiredObject);
-    }
+    handleGetTokens(value);
   };
 
   return (
@@ -176,6 +157,17 @@ const Editor = ({
             onChange={handleInputChange}
             value={editorState.value}
             spellCheck={false}
+            isReadOnly={readOnly}
+          />
+        </div>
+        <div className="checkbox">
+          <Checkbox
+            id="read-only-toggle"
+            label="Toggle Read Only Mode"
+            aria-label="Toggle read-only mode"
+            description="Deactivate the read-only mode to copy paste your parameters"
+            onChange={handleCheckboxChange}
+            isChecked={readOnly}
           />
         </div>
 
@@ -186,6 +178,22 @@ const Editor = ({
               <span className="error-message">{error}</span>
             </div>
           ))}
+        </div>
+
+        <div className="unpacking-dictionary">
+          {Object.keys(dictionary).length > 0 && (
+            <>
+              <Title headingLevel="h4">Parsed Input:</Title>
+              <ReactJSON
+                name={false}
+                displayDataTypes={false}
+                src={dictionary}
+                displayObjectSize={false}
+                collapsed={false}
+              />
+              <Button onClick={() => console.log("Save input")}>Save</Button>
+            </>
+          )}
         </div>
 
         <ExpandableSection

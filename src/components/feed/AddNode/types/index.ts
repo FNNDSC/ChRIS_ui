@@ -109,6 +109,10 @@ export interface EditorState {
   value: string;
   docsExpanded: boolean;
   errors: string[];
+  readOnly: boolean;
+  dictionary: {
+    [key: string]: string;
+  };
 }
 
 export interface EditorProps extends InputState {
@@ -130,11 +134,7 @@ export interface EditorProps extends InputState {
 }
 
 export interface SimpleDropdownState {
-  paramFlag: string;
   isOpen: boolean;
-  paramValue: string;
-  placeholder: string;
-  type: string;
 }
 
 export interface SimpleDropdownProps {
