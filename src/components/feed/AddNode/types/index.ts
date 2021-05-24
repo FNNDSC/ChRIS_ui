@@ -64,6 +64,7 @@ export interface AddNodeState extends InputState {
   errors: {
     [key: string]: string[];
   };
+  editorValue: string;
 }
 
 export interface AddNodeProps {
@@ -73,7 +74,7 @@ export interface AddNodeProps {
     error: any;
     loading: boolean;
   };
-
+  params?: PluginParameter[];
   addNode: (item: {
     pluginItem: PluginInstance;
     nodes?: PluginInstance[];
@@ -110,27 +111,14 @@ export interface EditorState {
   docsExpanded: boolean;
   errors: string[];
   readOnly: boolean;
-  dictionary: {
-    [key: string]: string;
-  };
+  dictionary: InputIndex;
+  savingValues: boolean;
 }
 
 export interface EditorProps extends InputState {
   plugin: Plugin;
-
   params?: PluginParameter[];
-  inputChange(
-    id: string,
-    flag: string,
-    value: string,
-    type: string,
-    placeholder: string,
-    required: boolean
-  ): void;
-  inputChangeFromEditor(
-    dropdownInput: InputType,
-    requiredInput: InputType
-  ): void;
+  setEditorValue: (value: string) => void;
 }
 
 export interface SimpleDropdownState {
@@ -155,6 +143,7 @@ export interface SimpleDropdownProps {
   deleteComponent(id: string): void;
   deleteInput(id: string): void;
   dropdownInput: InputType;
+
   addParam: () => void;
 }
 
@@ -170,12 +159,12 @@ export interface RequiredParamProp {
     placeholder: string,
     required: boolean
   ): void;
-  id:  string;
+  id: string;
 }
 
 export interface ReviewProps extends InputState {
   parent?: PluginInstance;
-  currentPlugin:  Plugin;
+  currentPlugin: Plugin;
   computeEnvironment: string;
   errors: {
     [key: string]: string[];

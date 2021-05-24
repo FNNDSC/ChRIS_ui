@@ -11,8 +11,7 @@ import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./lib/utils";
 import { PluginParameter } from "@fnndsc/chrisapi";
 import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
-import {css} from '@patternfly/react-styles';
-
+import { css } from "@patternfly/react-styles";
 
 
 function getInitialState() {
@@ -28,13 +27,16 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   handleChange,
   addParam,
   deleteInput,
+
   deleteComponent,
 }: SimpleDropdownProps) => {
-  const [dropdownState, setDropdownState] = React.useState<SimpleDropdownState>(
-    getInitialState
-  );
+  const [dropdownState, setDropdownState] =
+    React.useState<SimpleDropdownState>(getInitialState);
   const { isOpen } = dropdownState;
-  const [paramFlag,value,type,placeholder]= unPackForKeyValue(dropdownInput[id])
+
+  const [paramFlag, value, type, placeholder] = unPackForKeyValue(
+    dropdownInput[id]
+  );
 
   const onToggle = (isOpen: boolean) => {
     setDropdownState({
@@ -55,7 +57,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     const placeholder = param.data.help;
     const type = param.data.type;
 
-    handleChange(id, flag, value , type, placeholder, false);
+    handleChange(id, flag, value, type, placeholder, false);
   };
 
   const triggerChange = (eventType: string) => {
@@ -76,14 +78,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   };
 
   const handleInputChange = (e: any) => {
-    handleChange(
-      id,
-      paramFlag,
-      e.target.value,
-      type,
-      placeholder,
-      false
-    );
+    handleChange(id, paramFlag, e.target.value, type, placeholder, false);
   };
 
   const dropdownItems =
@@ -129,12 +124,12 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
         <input
           type="text"
           aria-label="text"
-          className={css(styles.formControl,`plugin-configuration__input`)}
+          className={css(styles.formControl, `plugin-configuration__input`)}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           value={value}
-          
+          disabled={type==='boolean'}
         />
 
         <div className="close-icon">

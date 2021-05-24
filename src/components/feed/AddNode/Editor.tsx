@@ -4,49 +4,34 @@ import {
   ExpandableSection,
   Title,
   Checkbox,
-  Button,
 } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { isEmpty } from "lodash";
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
-import { v4 } from "uuid";
-import { InputType } from "./types";
 import { EditorState, EditorProps } from "./types";
-import {
-  getRequiredParams,
-  getAllParamsWithName,
-  getRequiredParamsWithName,
-  unpackParametersIntoString,
-} from "./lib/utils";
-import ReactJSON from "react-json-view";
+import { unpackParametersIntoString } from "./lib/utils";
 
-type ParameterDictionary = {
-  [key: string]: {
-    [key: string]: string;
-  };
-};
 
 const Editor = ({
   plugin,
-  inputChangeFromEditor,
   params,
   dropdownInput,
   requiredInput,
+  setEditorValue,
 }: EditorProps) => {
   const [editorState, setEditorState] = React.useState<EditorState>({
     value: "",
-    docsExpanded: false,
+    docsExpanded: true,
     errors: [],
     readOnly: true,
     dictionary: {},
+    savingValues: false,
   });
 
-  const { docsExpanded, errors, readOnly, dictionary } = editorState;
+  const { docsExpanded, errors, readOnly } = editorState;
 
   React.useEffect(() => {
     let derivedValue = "";
-    console.log("RequiredInput, dropdownInput", requiredInput, dropdownInput);
 
     if (requiredInput) {
       derivedValue += unpackParametersIntoString(requiredInput);
@@ -65,7 +50,11 @@ const Editor = ({
   }, [dropdownInput, requiredInput]);
 
   const handleInputChange = (value: string) => {
-    handleRegex(value);
+    setEditorValue(value);
+    setEditorState({
+      ...editorState,
+      value,
+    });
   };
 
   const handleDocsToggle = () => {
@@ -80,69 +69,6 @@ const Editor = ({
       ...editorState,
       readOnly: checked,
     });
-  };
-
-  const handleGetTokens = (value: string) => {
-    const userValue = value.trim();
-
-    const lookupTable: {
-      [key: string]: string;
-    } = {};
-
-    const dictionary: {
-      [key: string]: string;
-    } = {};
-
-    let specialCharIndex = undefined;
-
-    const flags = params && params.map((param) => param.data.flag);
-    const values = userValue.split(" ");
-    for (let i = 0; i < values.length; i++) {
-      const currentValue = values[i];
-      if (
-        flags?.includes(currentValue) &&
-        (currentValue.startsWith("--") || currentValue.startsWith("-")) &&
-        !specialCharIndex
-      ) {
-        if (!lookupTable[currentValue]) {
-          lookupTable[i] = currentValue;
-          dictionary[currentValue] = "";
-        }
-      } else {
-        const previousIndex = i > 0 ? i - 1 : i;
-        if (specialCharIndex || specialCharIndex === 0) {
-          const flag = lookupTable[specialCharIndex];
-          if (flag) {
-            dictionary[flag] += ` ${currentValue}`;
-          }
-        }
-
-        // current value doesn't seem to be a flag
-        // Check if previous index was a flag
-        if (currentValue.startsWith("\\'") || currentValue === "\\'") {
-          specialCharIndex = previousIndex;
-        }
-
-        if (currentValue.endsWith("\\'") || currentValue === "\\'") {
-          specialCharIndex = undefined;
-        }
-
-        if (lookupTable[previousIndex]) {
-          const flag = lookupTable[previousIndex];
-          dictionary[flag] += currentValue;
-        }
-      }
-    }
-
-    setEditorState({
-      ...editorState,
-      value,
-      dictionary,
-    });
-  };
-
-  const handleRegex = (value: string) => {
-    handleGetTokens(value);
   };
 
   return (
@@ -178,22 +104,6 @@ const Editor = ({
               <span className="error-message">{error}</span>
             </div>
           ))}
-        </div>
-
-        <div className="unpacking-dictionary">
-          {Object.keys(dictionary).length > 0 && (
-            <>
-              <Title headingLevel="h4">Parsed Input:</Title>
-              <ReactJSON
-                name={false}
-                displayDataTypes={false}
-                src={dictionary}
-                displayObjectSize={false}
-                collapsed={false}
-              />
-              <Button onClick={() => console.log("Save input")}>Save</Button>
-            </>
-          )}
         </div>
 
         <ExpandableSection

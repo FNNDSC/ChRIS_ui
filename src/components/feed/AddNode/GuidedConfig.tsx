@@ -36,16 +36,11 @@ const GuidedConfig = ({
     docsExpanded: false,
   });
 
-  const {
-    componentList,
-    count,
-    errors,
-    alertVisible,
-    docsExpanded,
-  } = configState;
+  const { componentList, count, errors, alertVisible, docsExpanded } =
+    configState;
 
   const setDropdownDefaults = React.useCallback(() => {
-    if (!isEmpty(dropdownInput)) {
+    if (dropdownInput) {
       const defaultComponentList = Object.entries(dropdownInput).map(
         ([key]) => {
           return key;
