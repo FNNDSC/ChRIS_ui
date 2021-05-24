@@ -4,9 +4,7 @@ import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 
-
-
-let cache:number[]=[]
+let cache: number[] = [];
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
@@ -23,8 +21,7 @@ export const createFeed = async (
   selectedPlugin: Plugin | undefined,
   username: string | null | undefined,
   setProgressCallback: (status: string) => void,
-  setErrorCallback: (error: string) => void,
-  computeEnvironment: string
+  setErrorCallback: (error: string) => void
 ) => {
   const { chrisFiles, localFiles } = data;
 
@@ -48,8 +45,7 @@ export const createFeed = async (
       requiredInput,
       selectedPlugin,
       setProgressCallback,
-      setErrorCallback,
-      computeEnvironment
+      setErrorCallback
     );
   }
   return feed;
@@ -62,41 +58,33 @@ export const createFeedInstanceWithDircopy = async (
   errorCallback: (error: string) => void
 ) => {
   const { chrisFiles, localFiles } = data;
- 
 
   let dirpath: string[] = [];
 
-  if(chrisFiles.length>0 && localFiles.length>0){
-    statusCallback('Compute files from swift storage and local file upload')
+  if (chrisFiles.length > 0 && localFiles.length > 0) {
+    statusCallback("Compute files from swift storage and local file upload");
     dirpath = chrisFiles.map((path: string) => path);
     const local_upload_path = `${username}/uploads/${generatePathForLocalFile(
       data
     )}`;
 
     try {
-      await uploadLocalFiles(
-        localFiles,
-        local_upload_path,
-        statusCallback
-      );
+      await uploadLocalFiles(localFiles, local_upload_path, statusCallback);
     } catch (error) {
       errorCallback(error);
     }
     dirpath.push(local_upload_path);
-
-  }
-  else if (chrisFiles.length > 0 && localFiles.length===0 ) {
-    statusCallback('Compute Paths from swift storage')
-    dirpath = chrisFiles.map((path: string) =>path);
-  }
-  else if (localFiles.length > 0 && chrisFiles.length===0) {
-     statusCallback("Compute Paths from local file upload");
+  } else if (chrisFiles.length > 0 && localFiles.length === 0) {
+    statusCallback("Compute Paths from swift storage");
+    dirpath = chrisFiles.map((path: string) => path);
+  } else if (localFiles.length > 0 && chrisFiles.length === 0) {
+    statusCallback("Compute Paths from local file upload");
     const local_upload_path = `${username}/uploads/${generatePathForLocalFile(
       data
     )}`;
 
-    try {   
-      await uploadLocalFiles(localFiles, local_upload_path , statusCallback);
+    try {
+      await uploadLocalFiles(localFiles, local_upload_path, statusCallback);
     } catch (error) {
       errorCallback(error);
     }
@@ -112,12 +100,12 @@ export const createFeedInstanceWithDircopy = async (
       dir: dirpath.join(","),
     });
     // clear global cache
-    cache=[]
+    cache = [];
     statusCallback("Creating Plugin Instance");
     //when the `post` finishes, the dircopyInstances's internal collection is updated
     const createdInstance = dircopyInstance.getItems()[0];
     statusCallback("Feed Created");
-    
+
     feed = await createdInstance.getFeed();
   } catch (error) {
     errorCallback(error);
@@ -131,8 +119,7 @@ export const createFeedInstanceWithFS = async (
   requiredInput: InputType,
   selectedPlugin: Plugin | undefined,
   statusCallback: (status: string) => void,
-  errorCallback: (error: string) => void,
-  computeEnvironment: string
+  errorCallback: (error: string) => void
 ) => {
   statusCallback("Unpacking parameters");
 
@@ -141,20 +128,21 @@ export const createFeedInstanceWithFS = async (
     const pluginName = selectedPlugin.data.name;
     try {
       const fsPlugin = await getPlugin(pluginName);
-      const inputParameter = await getRequiredObject(
+      const data = await getRequiredObject(
         dropdownInput,
         requiredInput,
         fsPlugin
       );
-      const fsPluginInstance = await fsPlugin.getPluginInstances();
-      statusCallback("Creating Plugin Instance");
-      await fsPluginInstance.post({
-        ...inputParameter,
-        compute_resource_name: computeEnvironment,
-      });
 
-      const createdInstance = fsPluginInstance.getItems()[0];
-      feed = await createdInstance.getFeed();
+      const pluginId = fsPlugin.data.id;
+      statusCallback("Creating Plugin Instance");
+      const client = ChrisAPIClient.getClient();
+      const fsPluginInstance = await client.createPluginInstance(
+        pluginId,
+        data
+      );
+
+      feed = await fsPluginInstance.getFeed();
       statusCallback("Feed Created");
     } catch (error) {
       errorCallback(error);
@@ -175,7 +163,7 @@ export const generatePathForLocalFile = (data: CreateFeedData) => {
 export const uploadLocalFiles = async (
   files: LocalFile[],
   directory: string,
-  statusCallback: (status: string) => void,
+  statusCallback: (status: string) => void
 ) => {
   const uploadedFiles = await ChrisAPIClient.getClient().getUploadedFiles();
   let count = 0;
@@ -190,12 +178,15 @@ export const uploadLocalFiles = async (
           fname: (file as LocalFile).blob,
         }
       );
-      count = uploadedFile ? count + 1 : count; 
-      const percent=Math.round((count/files.length)*20)
+      count = uploadedFile ? count + 1 : count;
+      const percent = Math.round((count / files.length) * 20);
 
-      if(!cache.includes(percent) &&(percent===5 || percent===10 || percent===15 || percent===20)){
-       statusCallback(`Uploading Files To Cube (${count}/${files.length})`);
-       cache.push(percent)
+      if (
+        !cache.includes(percent) &&
+        (percent === 5 || percent === 10 || percent === 15 || percent === 20)
+      ) {
+        statusCallback(`Uploading Files To Cube (${count}/${files.length})`);
+        cache.push(percent);
       }
     })
   );
@@ -204,7 +195,7 @@ export const uploadLocalFiles = async (
 export const getPlugin = async (pluginName: string) => {
   const client = ChrisAPIClient.getClient();
   const pluginList = await client.getPlugins({
-    name: pluginName,
+    name_exact: pluginName,
   });
   const plugin = pluginList.getItems();
   return plugin[0];
@@ -276,7 +267,7 @@ export const getRequiredObject = async (
   if (selected) {
     parameterInput = {
       ...mappedParameter,
-      previous_id: `${selected.data.id}`,
+      previous_id: selected.data.id,
     };
   } else {
     parameterInput = {
@@ -286,5 +277,3 @@ export const getRequiredObject = async (
 
   return parameterInput;
 };
-
-

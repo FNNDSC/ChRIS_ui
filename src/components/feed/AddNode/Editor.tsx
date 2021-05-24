@@ -1,42 +1,38 @@
 import React from "react";
-import { TextArea, ExpandableSection, Title } from "@patternfly/react-core";
+import {
+  TextArea,
+  ExpandableSection,
+  Title,
+  Checkbox,
+} from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { isEmpty } from "lodash";
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
-import { v4 } from "uuid";
-import { InputType } from "./types";
 import { EditorState, EditorProps } from "./types";
-import {
-  getRequiredParams,
-  getAllParamsWithName,
-  getRequiredParamsWithName,
-  unpackParametersIntoString,
-} from "./lib/utils";
+import { unpackParametersIntoString } from "./lib/utils";
 
-type ParameterDictionary = {
-  [key: string]: {
-    [key: string]: string;
-  };
-};
 
 const Editor = ({
   plugin,
-  inputChangeFromEditor,
   params,
   dropdownInput,
   requiredInput,
+  setEditorValue,
 }: EditorProps) => {
   const [editorState, setEditorState] = React.useState<EditorState>({
-    value: `${plugin.data.name}:`,
+    value: "",
     docsExpanded: true,
     errors: [],
+    readOnly: true,
+    dictionary: {},
+    savingValues: false,
   });
 
-  const { docsExpanded, errors } = editorState;
+  const { docsExpanded, errors, readOnly } = editorState;
 
   React.useEffect(() => {
-    let derivedValue = `${plugin.data.name}: `;
+    let derivedValue = "";
+
     if (requiredInput) {
       derivedValue += unpackParametersIntoString(requiredInput);
     }
@@ -51,27 +47,14 @@ const Editor = ({
         value: derivedValue.trim(),
       };
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const parameterArray = React.useMemo(() => {
-    if (params)
-      return params.map((param) => {
-        return {
-          id: `${param.data.id}`,
-          flag: param.data.flag,
-          type: param.data.type,
-          placeholder: param.data.help,
-        };
-      });
-  }, [params]);
+  }, [dropdownInput, requiredInput]);
 
   const handleInputChange = (value: string) => {
+    setEditorValue(value);
     setEditorState({
       ...editorState,
       value,
     });
-    handleRegex(value);
   };
 
   const handleDocsToggle = () => {
@@ -81,87 +64,11 @@ const Editor = ({
     });
   };
 
-  const handleGetTokens = (value: string) => {
-    const userValue = value.trim().split(" ").slice(1);
-    const paramDictionary: ParameterDictionary = {};
-
-    if (userValue.length > 0) {
-      for (let i = 0; i <= userValue.length; i++) {
-        const flag = userValue[i];
-        const value = userValue[i + 1];
-        const flags = params && params.map((param) => param.data.flag);
-
-        parameterArray?.forEach((parameter) => {
-          if (parameter.flag === flag) {
-            if (
-              !value ||
-              ((value.startsWith("--") || value.startsWith("-")) &&
-                flags &&
-                flags.includes(value))
-            ) {
-              paramDictionary[flag] = {
-                id: parameter.id,
-                value: "",
-                placeholder: parameter.placeholder,
-                type: parameter.type,
-              };
-            } else if (parameter.type === "boolean" && value) {
-              paramDictionary[flag] = {
-                id: parameter.id,
-                value: "",
-                placeholder: parameter.placeholder,
-                type: parameter.type,
-              };
-            } else {
-              paramDictionary[flag] = {
-                id: parameter.id,
-                value,
-                placeholder: parameter.placeholder,
-                type: parameter.type,
-              };
-            }
-          }
-        });
-      }
-    }
-
-    return { paramDictionary };
-  };
-
-  const handleRegex = (value: string) => {
-    const { paramDictionary } = handleGetTokens(value);
-
-    const dropdownObject: InputType = {};
-    const requiredObject: InputType = {};
-
-    const requiredParameters = params && getRequiredParams(params);
-    for (const token in paramDictionary) {
-      const editorValue = paramDictionary[token].value;
-
-      const flag = token;
-      const type = paramDictionary[token].type;
-      const placeholder = paramDictionary[token].placeholder;
-      const id = paramDictionary[token].id;
-      if (
-        requiredParameters &&
-        requiredParameters.length > 0 &&
-        requiredParameters.includes(flag)
-      ) {
-        const value =
-          params &&
-          getRequiredParamsWithName(flag, editorValue, type, placeholder);
-
-        if (value) requiredObject[id] = value;
-      } else {
-        const value =
-          params && getAllParamsWithName(flag, editorValue, type, placeholder);
-        if (value) dropdownObject[v4()] = value;
-      }
-    }
-
-    if (!isEmpty(dropdownObject) || !isEmpty(requiredObject)) {
-      inputChangeFromEditor(dropdownObject, requiredObject);
-    }
+  const handleCheckboxChange = (checked: boolean) => {
+    setEditorState({
+      ...editorState,
+      readOnly: checked,
+    });
   };
 
   return (
@@ -176,6 +83,17 @@ const Editor = ({
             onChange={handleInputChange}
             value={editorState.value}
             spellCheck={false}
+            isReadOnly={readOnly}
+          />
+        </div>
+        <div className="checkbox">
+          <Checkbox
+            id="read-only-toggle"
+            label="Toggle Read Only Mode"
+            aria-label="Toggle read-only mode"
+            description="Deactivate the read-only mode to copy paste your parameters"
+            onChange={handleCheckboxChange}
+            isChecked={readOnly}
           />
         </div>
 

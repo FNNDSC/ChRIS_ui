@@ -36,16 +36,11 @@ const GuidedConfig = ({
     docsExpanded: false,
   });
 
-  const {
-    componentList,
-    count,
-    errors,
-    alertVisible,
-    docsExpanded,
-  } = configState;
+  const { componentList, count, errors, alertVisible, docsExpanded } =
+    configState;
 
   const setDropdownDefaults = React.useCallback(() => {
-    if (!isEmpty(dropdownInput)) {
+    if (dropdownInput) {
       const defaultComponentList = Object.entries(dropdownInput).map(
         ([key]) => {
           return key;
@@ -233,14 +228,6 @@ const GuidedConfig = ({
             value={generatedCommand}
           />
         </div>
-
-        <Alert
-          style={{
-            marginTop: "12px",
-          }}
-          variant="info"
-          title="If you prefer a free form input box where you might copy paste all the command line parameters, you can safely hit 'next' here."
-        />
       </div>
     </div>
   );
