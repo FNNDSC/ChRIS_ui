@@ -3,7 +3,6 @@ import {
   Dropdown,
   DropdownToggle,
   DropdownItem,
-  TextInput,
   Banner,
 } from "@patternfly/react-core";
 import { CaretDownIcon } from "@patternfly/react-icons";
@@ -11,15 +10,13 @@ import TrashAltIcon from "@patternfly/react-icons/dist/js/icons/trash-alt-icon";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./lib/utils";
 import { PluginParameter } from "@fnndsc/chrisapi";
+import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
+import { css } from "@patternfly/react-styles";
 
 
 function getInitialState() {
   return {
     isOpen: false,
-    paramFlag: "",
-    paramValue: "",
-    placeholder: "",
-    type: "",
   };
 }
 
@@ -30,29 +27,16 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   handleChange,
   addParam,
   deleteInput,
+
   deleteComponent,
 }: SimpleDropdownProps) => {
-  const [dropdownState, setDropdownState] = React.useState<SimpleDropdownState>(
-    getInitialState
+  const [dropdownState, setDropdownState] =
+    React.useState<SimpleDropdownState>(getInitialState);
+  const { isOpen } = dropdownState;
+
+  const [paramFlag, value, type, placeholder] = unPackForKeyValue(
+    dropdownInput[id]
   );
-  const { isOpen, paramFlag, paramValue, placeholder, type } = dropdownState;
-
-  React.useEffect(() => {
-    if (!dropdownInput || !dropdownInput[id]) return;
-    const [flag, value, type, placeholder] = unPackForKeyValue(
-      dropdownInput[id]
-    );
-
-    setDropdownState((dropdownState) => {
-      return {
-        ...dropdownState,
-        paramFlag: flag,
-        paramValue: value,
-        type,
-        placeholder,
-      };
-    });
-  }, [dropdownInput, id]);
 
   const onToggle = (isOpen: boolean) => {
     setDropdownState({
@@ -73,7 +57,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     const placeholder = param.data.help;
     const type = param.data.type;
 
-    handleChange(id, flag, paramValue, type, placeholder, false);
+    handleChange(id, flag, value, type, placeholder, false);
   };
 
   const triggerChange = (eventType: string) => {
@@ -93,8 +77,8 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     deleteComponent(id);
   };
 
-  const handleInputChange = (value: string) => {
-    handleChange(id, paramFlag, value, type, placeholder, false);
+  const handleInputChange = (e: any) => {
+    handleChange(id, paramFlag, e.target.value, type, placeholder, false);
   };
 
   const dropdownItems =
@@ -137,15 +121,15 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
             dropdownItems && dropdownItems.length > 0 ? dropdownItems : []
           }
         />
-        <TextInput
+        <input
           type="text"
           aria-label="text"
-          className="plugin-configuration__input"
+          className={css(styles.formControl, `plugin-configuration__input`)}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          value={paramValue}
-          isDisabled={type === "boolean"}
+          value={value}
+          disabled={type==='boolean'}
         />
 
         <div className="close-icon">
@@ -162,4 +146,4 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   );
 };
 
-export default SimpleDropdown;
+export default React.memo(SimpleDropdown);

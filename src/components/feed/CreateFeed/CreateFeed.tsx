@@ -24,7 +24,6 @@ import { createFeed, getName } from "./utils/createFeed";
 import { Feed } from "@fnndsc/chrisapi";
 import FinishedStep from "./FinishedStep";
 
-
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
   addFeed,
@@ -94,7 +93,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   ) => {
     const input: InputIndex = {};
     input["id"] = id;
-    input["flag"]   =   flag;
+    input["flag"] = flag;
     input["value"] = value;
     input["type"] = type;
     input["placeholder"] = placeholder;
@@ -145,8 +144,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         selectedPlugin,
         username,
         getCreationStatus,
-        getCreationError,
-        computeEnvironment
+        getCreationError
       );
 
       if (!feed) {
