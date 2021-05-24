@@ -2,10 +2,7 @@ import React from "react";
 import { Dispatch } from "redux";
 import { Wizard, Spinner } from "@patternfly/react-core";
 import { connect } from "react-redux";
-
 import { ApplicationState } from "../../../store/root/applicationState";
-import "./styles/AddNode.scss";
-
 import Review from "./Review";
 import { addNodeRequest } from "../../../store/pluginInstance/actions";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
@@ -16,7 +13,9 @@ import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
 import BasicConfiguration from "./BasicConfiguration";
 import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
+import { handleGetTokens } from "./lib/utils";
 import { getRequiredObject } from "../CreateFeed/utils/createFeed";
+import "./styles/AddNode.scss";
 
 function getInitialState() {
   return {
@@ -28,6 +27,7 @@ function getInitialState() {
     dropdownInput: {},
     selectedComputeEnv: "",
     errors: {},
+    editorValue: "",
   };
 }
 
@@ -36,10 +36,10 @@ const AddNode: React.FC<AddNodeProps> = ({
   pluginInstances,
   getParams,
   addNode,
+  params,
 }: AddNodeProps) => {
-  const [addNodeState, setNodeState] = React.useState<AddNodeState>(
-    getInitialState
-  );
+  const [addNodeState, setNodeState] =
+    React.useState<AddNodeState>(getInitialState);
   const {
     isOpen,
     stepIdReached,
@@ -49,6 +49,7 @@ const AddNode: React.FC<AddNodeProps> = ({
     dropdownInput,
     selectedComputeEnv,
     errors,
+    editorValue,
   } = addNodeState;
 
   const handleFetchedData = React.useCallback(() => {
@@ -106,39 +107,32 @@ const AddNode: React.FC<AddNodeProps> = ({
     }
   };
 
-  const inputChangeFromEditor = (
-    dropdownInput: InputType,
-    requiredInput: InputType
-  ) => {
-    setNodeState((prevState) => ({
-      ...prevState,
-      dropdownInput: dropdownInput,
-      errors: {},
-    }));
-
-    setNodeState((prevState) => ({
-      ...prevState,
-      requiredInput: requiredInput,
-      errors: {},
-    }));
-  };
-
   const toggleOpen = () => {
     resetState();
   };
 
   const onNext = (newStep: { id?: string | number; name: React.ReactNode }) => {
     const { stepIdReached } = addNodeState;
-    const { id } = newStep;
-    id &&
-      setNodeState({
-        ...addNodeState,
-        stepIdReached: stepIdReached < id ? (id as number) : stepIdReached,
-      });
+    const { id, name } = newStep;
+    const { optional, nonOptional } = handleGetTokens(editorValue, params);
+
+    id && id === 4 && name === "Review" && editorValue
+      ? setNodeState({
+          ...addNodeState,
+          dropdownInput: optional,
+          requiredInput: nonOptional,
+          stepIdReached: stepIdReached < id ? (id as number) : stepIdReached,
+        })
+      : id &&
+        setNodeState({
+          ...addNodeState,
+          stepIdReached: stepIdReached < id ? (id as number) : stepIdReached,
+        });
   };
 
   const onBack = (newStep: { id?: string | number; name: React.ReactNode }) => {
-    const { id } = newStep;
+    const { id, name } = newStep;
+    const { optional, nonOptional } = handleGetTokens(editorValue, params);
 
     id && id === 1
       ? setNodeState({
@@ -146,6 +140,14 @@ const AddNode: React.FC<AddNodeProps> = ({
           dropdownInput: {},
           requiredInput: {},
           stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
+        })
+      : id === 2 && name === "Plugin Configuration-Form" && editorValue
+      ? setNodeState({
+          ...addNodeState,
+          dropdownInput: optional,
+          requiredInput: nonOptional,
+          stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
+          editorValue: "",
         })
       : id &&
         setNodeState({
@@ -171,6 +173,13 @@ const AddNode: React.FC<AddNodeProps> = ({
     });
   }, []);
 
+  const setEditorValue = (value: string) => {
+    setNodeState({
+      ...addNodeState,
+      editorValue: value,
+    });
+  };
+
   const deleteInput = (input: string) => {
     const { dropdownInput } = addNodeState;
 
@@ -190,16 +199,14 @@ const AddNode: React.FC<AddNodeProps> = ({
   };
 
   const resetState = () => {
-    setNodeState({
-      isOpen: !isOpen,
-      stepIdReached: 1,
-      nodes: [],
-      data: {},
-      dropdownInput: {},
-      requiredInput: {},
-      errors: {},
-      selectedComputeEnv: "",
-    });
+    if (isOpen === true) {
+      setNodeState(getInitialState());
+    } else {
+      setNodeState({
+        ...addNodeState,
+        isOpen: !isOpen,
+      });
+    }
   };
 
   const handleSave = async () => {
@@ -241,6 +248,7 @@ const AddNode: React.FC<AddNodeProps> = ({
     }
   };
 
+ 
   const basicConfiguration = selectedPlugin && nodes && (
     <BasicConfiguration
       selectedPlugin={addNodeState.data.plugin}
@@ -266,10 +274,9 @@ const AddNode: React.FC<AddNodeProps> = ({
   const editor = data.plugin ? (
     <Editor
       plugin={data.plugin}
-      inputChange={inputChange}
       dropdownInput={dropdownInput}
       requiredInput={requiredInput}
-      inputChangeFromEditor={inputChangeFromEditor}
+      setEditorValue={setEditorValue}
     />
   ) : (
     <Spinner size="xl" />
@@ -341,6 +348,7 @@ const AddNode: React.FC<AddNodeProps> = ({
 const mapStateToProps = (state: ApplicationState) => ({
   selectedPlugin: state.instance.selectedPlugin,
   pluginInstances: state.instance.pluginInstances,
+  params: state.plugin.parameters,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
