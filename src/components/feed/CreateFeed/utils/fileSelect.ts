@@ -2,6 +2,8 @@ import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { EventDataNode } from "rc-tree/lib/interface";
 import { DataBreadcrumb } from "../types";
 import _ from "lodash";
+import { UploadedFile } from "@fnndsc/chrisapi";
+import { PACSFile } from "../../../../store/workflows/types";
 
 export const getNewTreeData = (
   treeData: DataBreadcrumb[],
@@ -40,13 +42,13 @@ const setLeaf = (treeData: DataBreadcrumb[]) => {
 
 export const generateTreeNodes = async (
   treeNode: EventDataNode,
-  username:string,
-  
+  username: string
 ): Promise<DataBreadcrumb[]> => {
   const key = treeNode.key;
   let arr = [];
   let feeds = [];
   const breadcrumb = username;
+
   if (treeNode.title === username) {
     // First level is feeds and uploads
 
@@ -72,8 +74,15 @@ export const generateTreeNodes = async (
     });
   }
 
+  if (treeNode.title && treeNode.title.toString().indexOf("SERVICES") === 0) {
+    arr.push({
+      breadcrumb: `${treeNode.title.toString()}/PACS`,
+      title: "PACS",
+      key: `${treeNode.key}-0`,
+    });
+  }
+
   if (treeNode.title && treeNode.title.toString().indexOf("feed") === 0) {
-    // Second level are the feeds amd uploads
     const newBreadcrumb = `${breadcrumb}/${treeNode.title.toString()}`;
     const id = treeNode.title.toString().split("_")[1];
     const feedFiles = await getFeedFiles(parseInt(id));
@@ -90,7 +99,7 @@ export const generateTreeNodes = async (
 
   if (treeNode.title && treeNode.title.toString().indexOf("uploads") === 0) {
     const newBreadcrumb = `${breadcrumb}/${treeNode.title.toString()}`;
-    const files = await getUploadedFiles();
+    const files: UploadedFile[] = await getFiles("uploaded");
 
     const filePaths = files.map((file) => file.data.fname.split("uploads")[1]);
     if (filePaths.length > 0)
@@ -99,6 +108,20 @@ export const generateTreeNodes = async (
         setLeaf(tree);
         arr = tree;
       });
+  }
+
+  if (treeNode.title && treeNode.title.toString().indexOf("PACS") === 0) {
+    //@ts-ignore
+    const newBreadcrumb = `${treeNode.breadcrumb}`;
+    const files: PACSFile[] = await getFiles("PACS");
+    const filePaths = files.map((file) => file.data.fname.split("PACS")[1]);
+    if (filePaths.length > 0) {
+      buildTree(filePaths, (tree) => {
+        traverse(tree, treeNode.pos, newBreadcrumb);
+        setLeaf(tree);
+        arr = tree;
+      });
+    }
   }
 
   return arr;
@@ -139,7 +162,7 @@ const getFeedFiles = async (id: number) => {
     limit: 100,
     offset: 0,
   };
-  const client = ChrisAPIClient.getClient(); 
+  const client = ChrisAPIClient.getClient();
   let feed;
   try {
     feed = await client.getFeed(id);
@@ -147,53 +170,60 @@ const getFeedFiles = async (id: number) => {
     throw new Error(`Error while fetching feed by it's id, ${error}`);
   }
 
-  if(feed){
-    try{
-       let fileList = await feed.getFiles(params);
-       const feedFiles = fileList.getItems();
+  if (feed) {
+    try {
+      let fileList = await feed.getFiles(params);
+      const feedFiles = fileList.getItems();
 
-       while (fileList.hasNextPage) {
-      try {
-        params.offset += params.limit;
-        fileList = await feed.getFiles(params);
-        feedFiles.push(...fileList.getItems());
-      } catch (e) {
-        console.error(e);
+      while (fileList.hasNextPage) {
+        try {
+          params.offset += params.limit;
+          fileList = await feed.getFiles(params);
+          feedFiles.push(...fileList.getItems());
+        } catch (e) {
+          console.error(e);
+        }
       }
+      return feedFiles;
+    } catch (error) {
+      throw new Error(`Error while fetching feed files ${error}`);
     }
-    return feedFiles;    
-    }
-    catch(error){
-      throw new Error(`Error while fetching feed files ${error}`)
-    }
-  }
-  else return []
+  } else return [];
 };
 
-const getUploadedFiles = async () => {
+const getFiles = async (type: string) => {
   const client = ChrisAPIClient.getClient();
   const params = {
     limit: 100,
     offset: 0,
   };
 
-  try{
-     let fileList = await client.getUploadedFiles(params);
-     const files = fileList.getItems();
+  try {
+    let fileList =
+      type == "uploaded"
+        ? await client.getUploadedFiles(params)
+        : //@ts-ignore
+          await client.getPACSFiles(params);
+    const files = fileList.getItems();
 
-     while (fileList.hasNextPage) {
-       try {
-         params.offset += params.limit;
-         fileList = await client.getUploadedFiles(params);
-         files.push(...fileList.getItems());
-       } catch (error) {
-         throw new Error(`Error caused while paginating uploaded files, ${error}`)
-       }
-     }
-     return files;
-  }
-  catch(error){
-    throw new Error(`Error caused while fetching uploaded files, ${error}`)
+    while (fileList.hasNextPage) {
+      try {
+        params.offset += params.limit;
+        fileList =
+          type === "uploaded"
+            ? await client.getUploadedFiles(params)
+            : //@ts-ignore
+              await client.getPACSFiles(params);
+        files.push(...fileList.getItems());
+      } catch (error) {
+        throw new Error(
+          `Error caused while paginating ${type} files, ${error}`
+        );
+      }
+    }
+    return files;
+  } catch (error) {
+    throw new Error(`Error caused while fetching uploaded files, ${error}`);
   }
 };
 
