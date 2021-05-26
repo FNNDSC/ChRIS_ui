@@ -2,7 +2,7 @@ import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { EventDataNode } from "rc-tree/lib/interface";
 import { DataBreadcrumb } from "../types";
 import _ from "lodash";
-import { UploadedFile } from "@fnndsc/chrisapi";
+import { FeedPluginInstanceList, UploadedFile } from "@fnndsc/chrisapi";
 import { PACSFile } from "../../../../store/workflows/types";
 
 export const getNewTreeData = (
@@ -141,20 +141,21 @@ const traverse = (
 
 const getFeeds = async () => {
   const params = {
-    limit: 10,
+    limit: 20,
     offset: 0,
   };
   const client = ChrisAPIClient.getClient();
-  let feedList = await client.getFeeds(params);
-  let feeds = feedList.getItems();
   try {
-    params.offset += params.limit;
-    feedList = await client.getFeeds(params);
-    feeds = feeds.concat(feedList.getItems());
+    let feedList = await client.getFeeds(params);
+    let feeds = feedList.getItems();
+    while (feedList.hasNextPage) {
+      feedList = await client.getFeeds(params);
+      feeds = feeds.concat(feedList.getItems());
+    }
+    return feeds;
   } catch (error) {
     throw new Error(`Error while fetching feeds, ${error}`);
   }
-  return feeds;
 };
 
 const getFeedFiles = async (id: number) => {
@@ -174,7 +175,6 @@ const getFeedFiles = async (id: number) => {
     try {
       let fileList = await feed.getFiles(params);
       const feedFiles = fileList.getItems();
-
       while (fileList.hasNextPage) {
         try {
           params.offset += params.limit;

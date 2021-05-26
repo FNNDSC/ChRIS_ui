@@ -100,8 +100,10 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
         yield put(setAnalysisStep(payload));
 
         try {
+          console.log("PacsFile, InputFile, FileName", pacsFile);
           const inputFile = pacsFile.data.fname.split("/").pop();
           const fileName = pacsFile.data.fname.split("/").pop()?.split(".")[0];
+           console.log("PacsFile, InputFile, FileName", pacsFile);
           const imgData: Med2ImgData = {
             inputFile,
             sliceToConvert: 0,
