@@ -11,12 +11,11 @@
 # production
 /build
 
-# misc
+# Mac OS Files
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+
+# Individual settings
+.env.*local
 
 npm-debug.log*
 yarn-debug.log*
