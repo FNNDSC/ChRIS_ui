@@ -149,6 +149,7 @@ const getFeeds = async () => {
     let feedList = await client.getFeeds(params);
     let feeds = feedList.getItems();
     while (feedList.hasNextPage) {
+      params.offset += params.limit;
       feedList = await client.getFeeds(params);
       feeds = feeds.concat(feedList.getItems());
     }
