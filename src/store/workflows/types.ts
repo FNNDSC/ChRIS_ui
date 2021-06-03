@@ -58,6 +58,7 @@ export const WorkflowTypes = keyMirror({
   GET_PACS_FILES_SUCCESS: null,
   GET_PACS_FILES_ERROR: null,
   SET_CURRENT_FILE: null,
+  SET_LOCAL_FILE: null,
   SUBMIT_ANALYSIS: null,
   SET_ANALYSIS_STEP: null,
   RESET_WORKFLOW_STEP: null,

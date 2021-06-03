@@ -27,11 +27,15 @@ interface CovidnetData extends IPluginCreateData {
 
 function* handleGetPacsFilesRequest(action: IActionTypeParam) {
   const client = ChrisApiClient.getClient();
-  const { limit, offset } = action.payload;
-
+  const { name, limit, offset } = action.payload;
+ 
   try {
     //@ts-ignore
-    const fileList = yield client.getPACSFiles({ limit, offset });
+    const fileList = yield client.getPACSFiles({
+      PatientID: name,
+      limit,
+      offset,
+    });
     const files: PACSFile[] = fileList.getItems();
     const totalFileCount = fileList.totalCount;
 

@@ -3,17 +3,13 @@ import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import { PageSection, Button, Pagination } from "@patternfly/react-core";
 import { useTypedSelector } from "../../store/hooks";
 import { useDispatch } from "react-redux";
-import {
-  getPacsFilesRequest,
-  setCurrentPacsFile,
-} from "../../store/workflows/actions";
+import { setCurrentPacsFile } from "../../store/workflows/actions";
 import { PACSFile } from "../../store/workflows/types";
 import {
   EmptyStateTable,
   generateTableLoading,
 } from "../../components/common/emptyTable";
 import { usePaginate } from "../../components/common/pagination";
-
 
 const StudyList = () => {
   const dispatch = useDispatch();
@@ -23,13 +19,8 @@ const StudyList = () => {
     (state) => state.workflows.totalFileCount
   );
   const { files, error, loading } = pacsPayload;
-  const { filterState, handlePageSet, handlePerPageSet, run } = usePaginate();
+  const { filterState, handlePageSet, handlePerPageSet } = usePaginate();
   const { page, perPage } = filterState;
-
-
-  React.useEffect(() => {
-    run(getPacsFilesRequest);
-  }, [run]);
 
   const columns = [
     "Patient Name",
@@ -64,32 +55,34 @@ const StudyList = () => {
 
   const rows = files ? files.map(generateTableRow) : [];
 
- if ((files.length === 0 || error) && !loading) {
-   return (
-     <EmptyStateTable
-       cells={columns}
-       //@ts-ignore
-       rows={rows}
-       caption="Empty File List"
-       title="No files found"
-       description="Push files to the SERVICES/PACS endpoint"
-     />
-   );
- }
+  if ((files.length === 0 || error) && !loading) {
+    return (
+      <PageSection>
+        <EmptyStateTable
+          cells={columns}
+          //@ts-ignore
+          rows={rows}
+          caption="Empty File List"
+          title="No files found"
+          description="Push files to the SERVICES/PACS endpoint"
+        />
+      </PageSection>
+    );
+  }
 
- const generatePagination = () => {
-   if (totalFileCount > 0) {
-     return (
-       <Pagination
-         itemCount={totalFileCount}
-         perPage={perPage}
-         page={page}
-         onSetPage={handlePageSet}
-         onPerPageSelect={handlePerPageSet}
-       />
-     );
-   }
- };
+  const generatePagination = () => {
+    if (totalFileCount > 0) {
+      return (
+        <Pagination
+          itemCount={totalFileCount}
+          perPage={perPage}
+          page={page}
+          onSetPage={handlePageSet}
+          onPerPageSelect={handlePerPageSet}
+        />
+      );
+    }
+  };
 
   return (
     <div>

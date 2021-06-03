@@ -2,7 +2,7 @@ import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { EventDataNode } from "rc-tree/lib/interface";
 import { DataBreadcrumb } from "../types";
 import _ from "lodash";
-import { FeedPluginInstanceList, UploadedFile } from "@fnndsc/chrisapi";
+import { UploadedFile } from "@fnndsc/chrisapi";
 import { PACSFile } from "../../../../store/workflows/types";
 
 export const getNewTreeData = (
