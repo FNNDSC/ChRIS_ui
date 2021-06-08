@@ -14,7 +14,9 @@ import { usePaginate } from "../../components/common/pagination";
 const StudyList = () => {
   const dispatch = useDispatch();
   const pacsPayload = useTypedSelector((state) => state.workflows.pacsPayload);
-  const currentFile = useTypedSelector((state) => state.workflows.currentFile);
+  const currentPacsFile = useTypedSelector(
+    (state) => state.workflows.currentPacsFile
+  );
   const totalFileCount = useTypedSelector(
     (state) => state.workflows.totalFileCount
   );
@@ -37,11 +39,13 @@ const StudyList = () => {
     const studyDate = file.data.StudyDate;
     const modality = file.data.Modality;
     const description = file.data.StudyDescription;
-    const isCurrent = currentFile === file;
+    const isCurrent = currentPacsFile.find(
+      (Pacsfile) => Pacsfile.data.id === file.data.id
+    );
     const button = {
       title: (
         <Button
-          isDisabled={isCurrent}
+          isDisabled={isCurrent ? true : false}
           onClick={() => dispatch(setCurrentPacsFile(file))}
         >
           {`Select${isCurrent ? "ed" : ""}`}

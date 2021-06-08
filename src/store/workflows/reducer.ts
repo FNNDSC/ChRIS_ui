@@ -5,30 +5,30 @@ function getInitialSteps() {
   const steps: AnalysisStep[] = [];
   steps[0] = {
     id: 1,
-    title: "Plugin Registration Check",
+    title: "Checking if the plugins are registered to cube",
     status: "wait",
-    description: "Check if pl-dircopy, pl-med2img, pl-covidnet are registered",
+    error: "",
   };
 
   steps[1] = {
     id: 2,
-    title: "Feed Created with Dircopy",
+    title: "Creating a Feed",
     status: "wait",
-    description: "Create a Feed using pl-dircopy",
+    error: "",
   };
 
   steps[2] = {
     id: 3,
-    title: "Running pl-med2img",
+    title: "Scheduling jobs ",
     status: "wait",
-    description: "Add pl-med2img to the feed tree",
+    error: "",
   };
 
   steps[3] = {
     id: 4,
-    title: "Running pl-covidnet",
+    title: "Finishing up",
     status: "wait",
-    description: "Add pl-covidnet to the feed tree",
+    error: "",
   };
   return steps;
 }
@@ -39,10 +39,21 @@ export const initialState: IWorkflowState = {
     error: "",
     loading: false,
   },
-  currentFile: undefined,
+  localfilePayload: {
+    files: [],
+    error: "",
+    loading: false,
+  },
+  currentPacsFile: [],
   steps: getInitialSteps(),
   isAnalysisRunning: false,
   totalFileCount: 0,
+  optionState: {
+    isOpen: false,
+    toggleTemplateText: "Choose a Workflow",
+    selectedOption: "",
+  },
+  checkFeedDetails: undefined,
 };
 
 const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
@@ -69,10 +80,27 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       };
     }
 
+    case WorkflowTypes.SET_LOCAL_FILE: {
+      return {
+        ...state,
+        localfilePayload: {
+          ...state.localfilePayload,
+          files: action.payload,
+        },
+      };
+    }
+
     case WorkflowTypes.SET_CURRENT_FILE: {
       return {
         ...state,
-        currentFile: action.payload,
+        currentPacsFile: [...state.currentPacsFile, action.payload],
+      };
+    }
+
+    case WorkflowTypes.SET_OPTION_STATE: {
+      return {
+        ...state,
+        optionState: action.payload,
       };
     }
 
@@ -90,7 +118,7 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       );
       cloneSteps[index] = action.payload;
 
-      if (index == 3) {
+      if (index == 4) {
         return {
           ...state,
           steps: cloneSteps,
@@ -101,6 +129,13 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
           ...state,
           steps: cloneSteps,
         };
+    }
+
+    case WorkflowTypes.SET_FEED_DETAILS: {
+      return {
+        ...state,
+        checkFeedDetails: action.payload,
+      };
     }
 
     case WorkflowTypes.RESET_WORKFLOW_STEP: {

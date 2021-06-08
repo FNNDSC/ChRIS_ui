@@ -1,21 +1,26 @@
 import React from "react";
+import { useHistory } from "react-router-dom";
 import {
   PageSection,
   Card,
   CardTitle,
   CardBody,
   Button,
-  FileUpload,
   OptionsMenu,
   OptionsMenuItem,
   OptionsMenuToggle,
 } from "@patternfly/react-core";
-import { CheckIcon } from "@patternfly/react-icons";
+import FileUpload from "../../components/common/fileupload";
 import { Steps } from "antd";
 import { useTypedSelector } from "../../store/hooks";
-import { submitAnalysis } from "../../store/workflows/actions";
+import {
+  setLocalFile,
+  submitAnalysis,
+  setOptionState,
+} from "../../store/workflows/actions";
 import { useDispatch } from "react-redux";
 import { AnalysisStep } from "../../store/workflows/types";
+import { LocalFile } from "../../components/feed/CreateFeed/types";
 
 const { Step } = Steps;
 
@@ -42,65 +47,28 @@ const FileDetails = () => {
 };
 
 const FileUploadComponent = () => {
-  const [file, setFile] = React.useState<string | File>();
-  const [filename, setFileName] = React.useState("");
-  const [uploading, setUploading] = React.useState(false);
+  const localFilePayload = useTypedSelector(
+    (state) => state.workflows.localfilePayload
+  );
+  const dispatch = useDispatch();
+  const { files, error, loading } = localFilePayload;
 
-  const handleFileUpload = () => {
-    setUploading(true);
-  };
-
-  const handleFileChange = (value: string | File, filename: any) => {
-    setFile(file);
-    setFileName(filename);
+  const handleDispatch = (files: LocalFile[]) => {
+    dispatch(setLocalFile(files));
   };
 
   return (
     <Card>
       <CardBody>
-        <FileUpload
-          multiple={true}
-          validated={file ? "success" : "default"}
-          id="file-upload"
-          onChange={handleFileChange}
-          isClearButtonDisabled={false}
-          filenamePlaceholder={
-            file
-              ? "Run an analysis with the uploaded file or Choose another file"
-              : "Drag a file here or browse to upload"
-          }
-        >
-          {file && (
-            <div className="pf-u-m-md">
-              <CheckIcon
-                style={{
-                  color: "green",
-                  marginRight: "0.25em",
-                }}
-              />
-              <span>{filename} uploaded successfully</span>
-            </div>
-          )}
-        </FileUpload>
-        <Button
-          style={{
-            marginTop: "2em",
-          }}
-          onClick={handleFileUpload}
-        >
-          Upload to Swift
-        </Button>
+        <FileUpload localFiles={files} dispatchFn={handleDispatch} />
       </CardBody>
     </Card>
   );
 };
 
 const SelectWorkflow = () => {
-  const [optionState, setOptionState] = React.useState({
-    isOpen: false,
-    toggleTemplateText: "Choose a Workflow",
-    selectedOption: "",
-  });
+  const dispatch = useDispatch();
+  const optionState = useTypedSelector((state) => state.workflows.optionState);
   const { selectedOption, isOpen, toggleTemplateText } = optionState;
 
   const handleSelect = (
@@ -111,18 +79,22 @@ const SelectWorkflow = () => {
     const id = event?.currentTarget.id;
 
     if (id)
-      setOptionState({
-        ...optionState,
-        toggleTemplateText: id === "covidnet" ? "CovidNET" : "FreeSurfer",
-        selectedOption: id,
-      });
+      dispatch(
+        setOptionState({
+          ...optionState,
+          toggleTemplateText: id === "covidnet" ? "CovidNET" : "FreeSurfer",
+          selectedOption: id,
+        })
+      );
   };
 
   const onToggle = () => {
-    setOptionState({
-      ...optionState,
-      isOpen: !isOpen,
-    });
+    dispatch(
+      setOptionState({
+        ...optionState,
+        isOpen: !isOpen,
+      })
+    );
   };
 
   const menuItems = [
@@ -167,37 +139,73 @@ const SelectWorkflow = () => {
 
 const SubmitAnalysis = () => {
   const dispatch = useDispatch();
-  const currentFile = useTypedSelector((state) => state.workflows.currentFile);
+  const history = useHistory();
+  const currentPacsFile = useTypedSelector(
+    (state) => state.workflows.currentPacsFile
+  );
+  const localFiles = useTypedSelector(
+    (state) => state.workflows.localfilePayload.files
+  );
+  const workflowType = useTypedSelector(
+    (state) => state.workflows.optionState.selectedOption
+  );
+  const username = useTypedSelector((state) => state.user.username);
 
   const steps = useTypedSelector((state) => state.workflows.steps);
   const handleClick = () => {
-    if (currentFile) dispatch(submitAnalysis(currentFile));
+    if ((currentPacsFile.length > 0 || localFiles.length > 0) && username) {
+      dispatch(
+        submitAnalysis({
+          pacsFile: currentPacsFile,
+          localFiles,
+          workflowType,
+          username,
+        })
+      );
+    }
   };
   const isAnalysisRunning = useTypedSelector(
     (state) => state.workflows.isAnalysisRunning
   );
 
+  const feedId = useTypedSelector((state) => state.workflows.checkFeedDetails);
+
   return (
     <Card>
       <CardBody>
         <Button
-          isDisabled={isAnalysisRunning || !currentFile ? true : false}
+          isDisabled={isAnalysisRunning || !currentPacsFile ? true : false}
           onClick={handleClick}
         >
           Submit An Analysis
         </Button>
-        <Steps className="workflow-steps" direction="horizontal">
+      </CardBody>
+      <CardBody>
+        <Steps>
           {steps.map((step: AnalysisStep) => {
             return (
               <Step
                 key={step.id}
                 status={step.status}
                 title={step.title}
-                description={step.description}
+                description={step.error && step.error}
               />
             );
           })}
         </Steps>
+      </CardBody>
+      <CardBody>
+        <Button
+          onClick={() => {
+            if (feedId) {
+              history.push(`/feeds/${feedId}`);
+            }
+          }}
+          isDisabled={!feedId ? true : false}
+          variant="primary"
+        >
+          Check Feed Details
+        </Button>
       </CardBody>
     </Card>
   );

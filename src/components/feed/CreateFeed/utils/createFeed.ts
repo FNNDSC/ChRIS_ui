@@ -142,7 +142,6 @@ export const createFeedInstanceWithFS = async (
         data
       );
 
-      console.log("FsPluginInstance", fsPluginInstance);
       feed = await fsPluginInstance.getFeed();
       statusCallback("Feed Created");
     } catch (error) {
@@ -166,12 +165,11 @@ export const uploadLocalFiles = async (
   directory: string,
   statusCallback: (status: string) => void
 ) => {
-  const uploadedFiles = await ChrisAPIClient.getClient().getUploadedFiles();
+  const client = ChrisAPIClient.getClient();
   let count = 0;
-
   return Promise.all(
-    files.map(async (file: LocalFile) => {
-      const uploadedFile = await uploadedFiles.post(
+    files.map((file: LocalFile) => {
+      const uploadedFile = client.uploadFile(
         {
           upload_path: `${directory}/${file.name}`,
         },
