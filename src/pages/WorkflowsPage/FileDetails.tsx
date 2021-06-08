@@ -173,10 +173,7 @@ const SubmitAnalysis = () => {
   return (
     <Card>
       <CardBody>
-        <Button
-          isDisabled={isAnalysisRunning || !currentPacsFile ? true : false}
-          onClick={handleClick}
-        >
+        <Button isDisabled={!workflowType ? true : false} onClick={handleClick}>
           Submit An Analysis
         </Button>
       </CardBody>

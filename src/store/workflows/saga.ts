@@ -208,12 +208,10 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
   const client = ChrisAPIClient.getClient();
 
   const { pacsFile, localFiles, workflowType, username } = action.payload;
-  console.log("WorkflowType", workflowType);
 
   const pluginRegistry: RegistrationCheck = yield checkRegistration(
     workflowType
   );
-  console.log("Plugin Registry", pluginRegistry);
 
   if (pluginRegistry.registrationSuccessfull) {
     const pluginList = pluginRegistry.pluginList;
