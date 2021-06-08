@@ -5,9 +5,9 @@ import { IUserState, UserActionTypes } from "./types";
 // Type-safe initialState
 const initialState: IUserState = {
   username: window.sessionStorage.getItem("USERNAME"),
-  token: window.sessionStorage.getItem("AUTH_TOKEN"),
+  token: window.sessionStorage.getItem("CHRIS_TOKEN"),
   isRememberMe: false,
-  isLoggedIn: !!window.sessionStorage.getItem("AUTH_TOKEN"),
+  isLoggedIn: !!window.sessionStorage.getItem("CHRIS_TOKEN"),
 };
 
 // ***** NOTE: Working *****
