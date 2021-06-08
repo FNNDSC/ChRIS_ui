@@ -99,11 +99,11 @@ function* fetchDircopyFiles(instance: PluginInstance, pluginList: PluginList) {
             inputFile,
             sliceToConvert: "m",
           };
-          const previousInstance: PluginInstance =
-            yield client.createPluginInstance(med2img.data.id, imgData);
+
+          yield client.createPluginInstance(med2img.data.id, imgData);
 
           const data: IFSHackData = {
-            previous_id: previousInstance.data.id,
+            previous_id: instance.data.id,
             title: "InfantFS",
             inputFile,
             outputFile: "output",
