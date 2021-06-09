@@ -85,7 +85,7 @@ const SelectWorkflow = () => {
           toggleTemplateText:
             id === "covidnet"
               ? "CovidNET"
-              : id === "infant-fressurfer"
+              : id === "infant-freessurfer"
               ? "Infant FreeSurfer"
               : "Adult FreeSurfer",
           selectedOption: id,
