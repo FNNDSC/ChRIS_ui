@@ -211,7 +211,7 @@ async function uploadLocalFiles(files: LocalFile[], directory: string) {
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    const uploadedFile = await client.uploadFile(
+    await client.uploadFile(
       {
         upload_path: `${directory}/${file.name}`,
       },
@@ -219,7 +219,6 @@ async function uploadLocalFiles(files: LocalFile[], directory: string) {
         fname: (file as LocalFile).blob,
       }
     );
-    console.log("UploadedFile", uploadedFile);
   }
 }
 
@@ -272,7 +271,6 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
         yield uploadLocalFiles(localFiles, directoryName);
         totalFilePaths.push(yield uploadedFilePaths(localFiles, directoryName));
       }
-      console.log("TotalFilePaths", totalFilePaths);
 
       if (totalFilePaths.length > 0) {
         const data: DircopyData = {
