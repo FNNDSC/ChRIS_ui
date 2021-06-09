@@ -89,7 +89,7 @@ export interface CovidnetData extends IPluginCreateData {
 }
 
 export interface IFSHackData extends IPluginCreateData {
-  inputFile: string;
+  inputFile?: string;
   outputFile: string;
   exec: string;
   args: string;

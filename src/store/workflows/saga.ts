@@ -74,10 +74,10 @@ function* fetchDircopyFiles(instance: PluginInstance, pluginList: PluginList) {
     );
     const files: any[] = yield getFiles(instance);
 
-    for (let i = 0; i < files.length; i++) {
-      const inputFile = files[i].data.fname.split("/").pop();
-      if (GalleryModel.isValidDcmFile(inputFile)) {
-        if (workflowPlugin.data.name === "pl-covidnet") {
+    if (workflowPlugin.data.name === "pl-covidnet") {
+      for (let i = 0; i < files.length; i++) {
+        const inputFile = files[i].data.fname.split("/").pop();
+        if (GalleryModel.isValidDcmFile(inputFile)) {
           const imgData: Med2ImgData = {
             inputFile,
             sliceToConvert: 0,
@@ -93,45 +93,38 @@ function* fetchDircopyFiles(instance: PluginInstance, pluginList: PluginList) {
 
           yield client.createPluginInstance(workflowPlugin.data.id, data);
         }
-
-        if (
-          workflowPlugin.data.name === "pl-fshack-infant" ||
-          workflowPlugin.data.name === "pl-fshack"
-        ) {
-          const title =
-            workflowPlugin.data.name === "pl-fshack-infant"
-              ? "InfantFS"
-              : "AdultFS";
-          const imgData: Med2ImgData = {
-            title: "Input image",
-            previous_id: instance.data.id,
-            inputFile,
-            sliceToConvert: "m",
-          };
-
-          yield client.createPluginInstance(med2img.data.id, imgData);
-
-          const data: IFSHackData = {
-            previous_id: instance.data.id,
-            title,
-            inputFile,
-            outputFile: "output",
-            exec: "recon-all",
-            args: "'{ -all }'",
-          };
-          yield client.createPluginInstance(workflowPlugin.data.id, data);
-        }
-
-        yield put(
-          setAnalysisStep({
-            id: 4,
-            title: "Process Complete",
-            status: "finish",
-            error: "",
-          })
-        );
       }
     }
+    console.log("Files", files[0].data.fname);
+
+    if (
+      workflowPlugin.data.name === "pl-fshack-infant" ||
+      workflowPlugin.data.name === "pl-fshack"
+    ) {
+      const title =
+        workflowPlugin.data.name === "pl-fshack-infant"
+          ? "InfantFS"
+          : "AdultFS";
+
+      const data: IFSHackData = {
+        previous_id: instance.data.id,
+        title,
+        inputFile: ".dcm",
+        outputFile: "output",
+        exec: "recon-all",
+        args: "'-all '",
+      };
+      yield client.createPluginInstance(workflowPlugin.data.id, data);
+    }
+
+    yield put(
+      setAnalysisStep({
+        id: 4,
+        title: "Process Complete",
+        status: "finish",
+        error: "",
+      })
+    );
   } catch (error) {
     yield put(
       setAnalysisStep({
