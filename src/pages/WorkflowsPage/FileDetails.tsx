@@ -82,7 +82,12 @@ const SelectWorkflow = () => {
       dispatch(
         setOptionState({
           ...optionState,
-          toggleTemplateText: id === "covidnet" ? "CovidNET" : "FreeSurfer",
+          toggleTemplateText:
+            id === "covidnet"
+              ? "CovidNET"
+              : id === "infant-fressurfer"
+              ? "Infant FreeSurfer"
+              : "Adult FreeSurfer",
           selectedOption: id,
         })
       );
@@ -108,11 +113,19 @@ const SelectWorkflow = () => {
     </OptionsMenuItem>,
     <OptionsMenuItem
       onSelect={handleSelect}
-      id="freesurfer"
+      id="infant-freesurfer"
       key="option 2"
-      isSelected={selectedOption === "freesurfer"}
+      isSelected={selectedOption === "infant-freesurfer"}
     >
-      FreeSurfer
+      Infant Freesurfer
+    </OptionsMenuItem>,
+    <OptionsMenuItem
+      onSelect={handleSelect}
+      id="adult-freesurfer"
+      key="option 3"
+      isSelected={selectedOption === "adult-freesurfer"}
+    >
+      Adult Freesurfer
     </OptionsMenuItem>,
   ];
 

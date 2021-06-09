@@ -94,7 +94,14 @@ function* fetchDircopyFiles(instance: PluginInstance, pluginList: PluginList) {
           yield client.createPluginInstance(workflowPlugin.data.id, data);
         }
 
-        if (workflowPlugin.data.name === "pl-fshack-infant") {
+        if (
+          workflowPlugin.data.name === "pl-fshack-infant" ||
+          workflowPlugin.data.name === "pl-fshack"
+        ) {
+          const title =
+            workflowPlugin.data.name === "pl-fshack-infant"
+              ? "InfantFS"
+              : "AdultFS";
           const imgData: Med2ImgData = {
             title: "Input image",
             previous_id: instance.data.id,
@@ -106,7 +113,7 @@ function* fetchDircopyFiles(instance: PluginInstance, pluginList: PluginList) {
 
           const data: IFSHackData = {
             previous_id: instance.data.id,
-            title: "InfantFS",
+            title,
             inputFile,
             outputFile: "output",
             exec: "recon-all",
@@ -186,11 +193,17 @@ function* checkRegistration(workflowType: string) {
     workflowPlugin = covidnetLookup.getItems()[0];
   }
 
-  if (workflowType === "freesurfer") {
+  if (workflowType === "infant-freesurfer") {
     const plfshackLookup: PluginInstanceList = yield client.getPlugins({
       name_exact: "pl-fshack-infant",
     });
     workflowPlugin = plfshackLookup.getItems()[0];
+  }
+  if (workflowType === "adult-freesurfer") {
+    const plfashckLookup: PluginInstanceList = yield client.getPlugins({
+      name_exact: "pl-fshack",
+    });
+    workflowPlugin = plfashckLookup.getItems()[0];
   }
 
   if (dircopy && med2img && workflowPlugin) {
