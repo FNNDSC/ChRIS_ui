@@ -11,6 +11,7 @@ import {
   NavList,
   NavItemSeparator,
   NavExpandable,
+  NavGroup
 } from "@patternfly/react-core";
 import { setSidebarActive } from "../../store/ui/actions";
 import { Dispatch } from "redux";
@@ -43,14 +44,35 @@ const Sidebar: React.FC<AllProps> = ({
 
   const loggedInFeedNav = isLoggedIn && (
     <React.Fragment>
-      <NavItem
-        groupId="feeds_grp"
-        itemId="my_feeds"
-        isActive={sidebarActiveItem === "my_feeds" ? true : false}
-      >
-        <Link to="/feeds">Feeds List</Link>
-      </NavItem>
+      <NavGroup title="Query">
+        <NavItem
+          groupId="data_grp"
+          itemId="pacs_query"
+          isActive={sidebarActiveItem === "pacs_query"}
+        >
+          <Link to="/pacs">PACS Query</Link>
+        </NavItem>
+      </NavGroup>
+      
+      <NavGroup title="Analysis">
+        <NavItem
+          groupId="feeds_grp"
+          itemId="build_feed"
+          isActive={sidebarActiveItem === "build_feed"}
+        >
+          <Link to="/feeds">Build Feed</Link>
+        </NavItem>
+        <NavItem
+          groupId="feeds_grp"
+          itemId="my_feeds"
+          isActive={sidebarActiveItem === "my_feeds"}
+        >
+          <Link to="/feeds">Feeds List</Link>
+        </NavItem>
+      </NavGroup>
+      
       <NavItemSeparator />
+      
       <NavExpandable
         isExpanded={true}
         title="Workflows"
@@ -60,7 +82,7 @@ const Sidebar: React.FC<AllProps> = ({
         <NavItem
           groupId="workflows_grp"
           itemId="my_workflows"
-          isActive={sidebarActiveItem === "my_workflows" ? true : false}
+          isActive={sidebarActiveItem === "my_workflows"}
         >
           <Link to="/workflows">Type-1</Link>
         </NavItem>
@@ -71,14 +93,14 @@ const Sidebar: React.FC<AllProps> = ({
   const PageNav = (
     <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
       <NavList>
-        <NavItem
+        {/* <NavItem
           groupId="dashboard_grp"
           itemId="my_dashboard"
           isActive={sidebarActiveItem === "mydashboard"}
         >
           <Link to={`/`}>Welcome</Link>
         </NavItem>
-        <NavItemSeparator />
+        <NavItemSeparator /> */}
         {loggedInFeedNav}
       </NavList>
     </Nav>

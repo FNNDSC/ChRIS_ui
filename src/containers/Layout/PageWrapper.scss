@@ -1,5 +1,5 @@
 .pf-c-page__sidebar-body {
-  padding-top: 0 !important;
+  padding: 0.5em !important;
 }
 
 .pf-c-nav__item {
@@ -8,6 +8,11 @@
 
 .pf-c-nav__link {
   min-height: 5vh;
+}
+
+.pf-c-nav__section-title {
+  font-weight: 600;
+  color: gray !important;
 }
 
 .pf-c-page__sidebar {
