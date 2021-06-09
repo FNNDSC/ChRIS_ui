@@ -22,10 +22,12 @@ import {
   PluginInstance,
   Feed,
   PluginInstanceFileList,
+  UploadedFileList,
 } from "@fnndsc/chrisapi";
 import { LocalFile } from "../../components/feed/CreateFeed/types";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import GalleryModel from "../../api/models/gallery.model";
+import { v4 } from "uuid";
 
 function* handleGetPacsFilesRequest(action: IActionTypeParam) {
   const client = ChrisAPIClient.getClient();
@@ -204,6 +206,35 @@ function* checkRegistration(workflowType: string) {
   };
 }
 
+async function uploadLocalFiles(files: LocalFile[], directory: string) {
+  const client = ChrisAPIClient.getClient();
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const uploadedFile = await client.uploadFile(
+      {
+        upload_path: `${directory}/${file.name}`,
+      },
+      {
+        fname: (file as LocalFile).blob,
+      }
+    );
+    console.log("UploadedFile", uploadedFile);
+  }
+}
+
+function* pacsFilePaths(files: PACSFile[]) {
+  return files.map((file: PACSFile) => file.data.fname);
+}
+
+function* uploadedFilePaths(files: LocalFile[], directory: string) {
+  let localFilePath = "";
+  if (files.length > 1) {
+    localFilePath = directory;
+  } else localFilePath = `${directory}/`;
+  return localFilePath;
+}
+
 function* handleSubmitAnalysis(action: IActionTypeParam) {
   const client = ChrisAPIClient.getClient();
 
@@ -226,70 +257,61 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
           error: "",
         })
       );
-      const randomCode = Math.floor(Math.random() * 100);
-      const pacsFilePaths = pacsFile.map((file: PACSFile) => {
-        return file.data.fname;
-      });
-      const localFilePaths = `${username}/uploads/${workflowType}-${randomCode}`;
 
-      if (localFiles.length > 0) {
-        localFiles.map(async (file: LocalFile) => {
-          client.uploadFile(
-            {
-              upload_path: `${localFilePaths}/${file.name}`,
-            },
-            {
-              fname: (file as LocalFile).blob,
-            }
-          );
-        });
-      }
       let totalFilePaths: string[] = [];
-      if (localFiles.length > 0 && pacsFile.length > 0) {
-        totalFilePaths = [localFilePaths, ...pacsFilePaths];
-      } else if (localFiles.length > 0) totalFilePaths = [localFilePaths];
-      else totalFilePaths = [...pacsFilePaths];
 
-      const data: DircopyData = {
-        dir: totalFilePaths.join(","),
-        title: `${workflowType}_analysis`,
-      };
-
-      const dircopyInstance: PluginInstance = yield client.createPluginInstance(
-        dircopy.data.id,
-        data
-      );
-
-      try {
-        const feed: Feed = yield dircopyInstance.getFeed();
-        if (feed) {
-          yield all([
-            put(
-              setAnalysisStep({
-                id: 2,
-                title: "Feed Created Successfully",
-                status: "finish",
-                error: "",
-              })
-            ),
-            put(setFeedDetails(feed.data.id)),
-          ]);
-
-          const result: Result = yield pollingBackend(dircopyInstance);
-          if (result.status === "finishedSuccessfully") {
-            yield call(fetchDircopyFiles, result.plugin, pluginList);
-          }
-        }
-      } catch (error) {
-        yield put(
-          setAnalysisStep({
-            id: 2,
-            title: "Error Found while creating a Feed",
-            status: "error",
-            error: `${error}`,
-          })
-        );
+      if (pacsFile.length > 0 && localFiles.length === 0) {
+        totalFilePaths = yield pacsFilePaths(pacsFile);
+      } else if (localFiles.length > 0 && pacsFile.length === 0) {
+        const directoryName = `${username}/uploads/${workflowType}-${v4()}`;
+        yield uploadLocalFiles(localFiles, directoryName);
+        totalFilePaths.push(yield uploadedFilePaths(localFiles, directoryName));
+      } else if (localFiles.length > 0 && pacsFile.length > 0) {
+        totalFilePaths = yield pacsFilePaths(pacsFile);
+        const directoryName = `${username}/uploads/${workflowType}-${v4()}`;
+        yield uploadLocalFiles(localFiles, directoryName);
+        totalFilePaths.push(yield uploadedFilePaths(localFiles, directoryName));
       }
+      console.log("TotalFilePaths", totalFilePaths);
+
+      if (totalFilePaths.length > 0) {
+        const data: DircopyData = {
+          dir: totalFilePaths.join(","),
+          title: `${workflowType}_analysis`,
+        };
+        const dircopyInstance: PluginInstance =
+          yield client.createPluginInstance(dircopy.data.id, data);
+        try {
+          const feed: Feed = yield dircopyInstance.getFeed();
+          if (feed) {
+            yield all([
+              put(
+                setAnalysisStep({
+                  id: 2,
+                  title: "Feed Created Successfully",
+                  status: "finish",
+                  error: "",
+                })
+              ),
+              put(setFeedDetails(feed.data.id)),
+            ]);
+
+            const result: Result = yield pollingBackend(dircopyInstance);
+            if (result.status === "finishedSuccessfully") {
+              yield call(fetchDircopyFiles, result.plugin, pluginList);
+            }
+          }
+        } catch (error) {
+          yield put(
+            setAnalysisStep({
+              id: 2,
+              title: "Error Found while creating a Feed",
+              status: "error",
+              error: `${error}`,
+            })
+          );
+        }
+      } else throw new Error("Please select a file");
     }
   } else {
     yield put(
