@@ -85,7 +85,9 @@ const SelectWorkflow = () => {
           toggleTemplateText:
             id === "covidnet"
               ? "CovidNET"
-              : id === "infant-freessurfer"
+              : id === "fastsurfer"
+              ? "FastSurfer"
+              : id === "infant-freesurfer"
               ? "Infant FreeSurfer"
               : "Adult FreeSurfer",
           selectedOption: id,
@@ -126,6 +128,14 @@ const SelectWorkflow = () => {
       isSelected={selectedOption === "adult-freesurfer"}
     >
       Adult Freesurfer
+    </OptionsMenuItem>,
+    <OptionsMenuItem
+      onSelect={handleSelect}
+      id="fastsurfer"
+      key="option 4"
+      isSelected={selectedOption === "fastsurfer"}
+    >
+      FastSurfer
     </OptionsMenuItem>,
   ];
 

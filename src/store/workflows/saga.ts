@@ -1,5 +1,10 @@
 import { all, fork, takeEvery, put, call } from "@redux-saga/core/effects";
 import {
+  getPluginFiles,
+  checkRegistration,
+  fastsurferRegistration,
+} from "../utils";
+import {
   WorkflowTypes,
   PACSFile,
   DircopyData,
@@ -17,13 +22,7 @@ import {
   setFeedDetails,
 } from "./actions";
 import { IActionTypeParam } from "../../api/models/base.model";
-import {
-  PluginInstanceList,
-  PluginInstance,
-  Feed,
-  PluginInstanceFileList,
-  UploadedFileList,
-} from "@fnndsc/chrisapi";
+import { PluginInstance, Feed } from "@fnndsc/chrisapi";
 import { LocalFile } from "../../components/feed/CreateFeed/types";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import GalleryModel from "../../api/models/gallery.model";
@@ -54,15 +53,127 @@ function* handleGetPacsFilesRequest(action: IActionTypeParam) {
   }
 }
 
-function* getFiles(instance: PluginInstance) {
-  const fileList: PluginInstanceFileList = yield instance.getFiles();
-  const files = fileList.getItems();
-  return files;
+function* setUpFastsurfer(instance: PluginInstance, pluginList: PluginList) {
+  const client = ChrisAPIClient.getClient();
+  const {
+    plPfdicomTagSub,
+    plPfdicomTagExtract,
+    plFshack,
+    plMultipass,
+    plPfdoRun,
+    plMgz2Report,
+  } = pluginList;
+
+  try {
+    const plPfdicomTagSubArgs = {
+      extension: ".dcm",
+      previous_id: instance.data.id,
+      tagStruct: {
+        PatientName: "%_name|patientID_PatientName",
+        PatientID: "%_md5|7_PatientID",
+        AccessionNumber: "%_md5|8_AccessionNumber",
+        PatientBirthDate: "%_strmsk|******01_PatientBirthDate",
+        "re:.*hysician": "%_md5|4_#tag",
+        "re:.*stitution": "#tag",
+        "re:.*ddress": "#tag",
+      },
+      title: "Sub-tags",
+    };
+
+    const plPfdicomTagSubInstance: PluginInstance =
+      yield client.createPluginInstance(
+        plPfdicomTagSub.data.id,
+        plPfdicomTagSubArgs
+      );
+
+    const plPfdicomTagExtractArgs = {
+      outputFileType: "txt,scv,json,html",
+      outputFileStem: "Post-Sub",
+      title: "Tag-Extract",
+      previous_id: plPfdicomTagSubInstance.data.id,
+    };
+
+    yield client.createPluginInstance(
+      plPfdicomTagExtract.data.id,
+      plPfdicomTagExtractArgs
+    );
+
+    const plFshackArgs = {
+      exec: "recon-all",
+      args: "ARGS: -all -notalairach",
+      title: "All-mgzs",
+      previous_id: plPfdicomTagSubInstance.data.id,
+    };
+    const fsHackInstance: PluginInstance = yield client.createPluginInstance(
+      plFshack.data.id,
+      plFshackArgs
+    );
+
+    const plMultipassArgs = {
+      splitExpr: "++",
+      commonArgs:
+        "\\'--printElapsedTime --verbosity 5 --saveImages --skipAllLabels --outputFileStem sample --outputFileType png\\'",
+      specificArgs:
+        "\\'--inputFile recon-of-SAG-anon-dcm/mri/brainmask.mgz --wholeVolume brainVolume ++ --inputFile recon-of-SAG-anon-dcm/mri/aseg.mgz --wholeVolume segVolume --lookupTable __fs__ \\'",
+      exec: "pfdo_mgz2img",
+      title: "mgz-slices",
+      previous_id: fsHackInstance.data.id,
+    };
+    const plMultipassInstance: PluginInstance =
+      yield client.createPluginInstance(plMultipass.data.id, plMultipassArgs);
+
+    const plPfdoRunArgs = {
+      dirFilter: "label-brainVolume",
+      fileFilter: "png",
+      verbose: 5,
+      exec: "\\'composite -dissolve 90 -gravity Center %inputWorkingDir/%inputWorkingFile %inputWorkingDir/../../aseg.mgz/label-segVolume/%inputWorkingFile -alpha Set %outputWorkingDir/%inputWorkingFile\\'",
+      noJobLogging: "",
+      title: "overlay-png",
+      previous_id: fsHackInstance.data.id,
+    };
+    yield client.createPluginInstance(plPfdoRun.data.id, plPfdoRunArgs);
+
+    const plMgz2LutReportArgs = {
+      fileName: "recon-of-SAG-anon-dcm/mri/aseg.mgz",
+      report_types: "txt,csv,json,html",
+      title: "ASEG-report",
+      previous_id: plMultipassInstance.data.id,
+    };
+    yield client.createPluginInstance(
+      plMgz2Report.data.id,
+      plMgz2LutReportArgs
+    );
+    yield put(
+      setAnalysisStep({
+        id: 3,
+        title: "Finished Scheduling",
+        status: "finish",
+        error: "",
+      })
+    );
+    yield put(
+      setAnalysisStep({
+        id: 4,
+        title: "Process Complete",
+        status: "finish",
+        error: "",
+      })
+    );
+  } catch (error) {
+    yield put(
+      setAnalysisStep({
+        id: 4,
+        title: "Finished With Error",
+        status: "error",
+        error: `${error}`,
+      })
+    );
+  }
 }
 
 function* fetchDircopyFiles(instance: PluginInstance, pluginList: PluginList) {
   const client = ChrisAPIClient.getClient();
-  const { med2img, workflowPlugin } = pluginList;
+  const { med2Img, workflowPlugin } = pluginList;
   try {
     yield put(
       setAnalysisStep({
@@ -77,7 +188,7 @@ function* fetchDircopyFiles(instance: PluginInstance, pluginList: PluginList) {
       workflowPlugin.data.name === "pl-covidnet" ||
       workflowPlugin.data.name === "pl-fshack-infant"
     ) {
-      const files: any[] = yield getFiles(instance);
+      const files: any[] = yield getPluginFiles(instance);
       for (let i = 0; i < files.length; i++) {
         const inputFile = files[i].data.fname.split("/").pop();
         if (GalleryModel.isValidDcmFile(inputFile)) {
@@ -88,7 +199,7 @@ function* fetchDircopyFiles(instance: PluginInstance, pluginList: PluginList) {
               previous_id: instance.data.id,
             };
             const previousInstance: PluginInstance =
-              yield client.createPluginInstance(med2img.data.id, imgData);
+              yield client.createPluginInstance(med2Img.data.id, imgData);
 
             const data: CovidnetData = {
               previous_id: previousInstance.data.id,
@@ -116,7 +227,7 @@ function* fetchDircopyFiles(instance: PluginInstance, pluginList: PluginList) {
         inputFile: ".dcm",
         exec: "recon-all",
         outputFile: "recon-all",
-        args: "' -all '",
+        args: "' -all -notalairach '",
       };
       yield client.createPluginInstance(workflowPlugin.data.id, data);
     }
@@ -167,54 +278,6 @@ function* pollingBackend(pluginInstance: PluginInstance) {
   } else return result;
 }
 
-function* checkRegistration(workflowType: string) {
-  const client = ChrisAPIClient.getClient();
-  let registrationSuccessfull = false;
-
-  const dircopyLookup: PluginInstanceList = yield client.getPlugins({
-    name_exact: "pl-dircopy",
-  });
-  const dircopy: Plugin = yield dircopyLookup.getItems()[0];
-  const med2imgLookup: PluginInstanceList = yield client.getPlugins({
-    name_exact: "pl-med2img",
-  });
-  const med2img: Plugin = med2imgLookup.getItems()[0];
-
-  let workflowPlugin: Plugin | undefined = undefined;
-
-  if (workflowType === "covidnet") {
-    const covidnetLookup: PluginInstanceList = yield client.getPlugins({
-      name_exact: "pl-covidnet",
-    });
-    workflowPlugin = covidnetLookup.getItems()[0];
-  }
-
-  if (workflowType === "infant-freesurfer") {
-    const plfshackLookup: PluginInstanceList = yield client.getPlugins({
-      name_exact: "pl-fshack-infant",
-    });
-    workflowPlugin = plfshackLookup.getItems()[0];
-  }
-  if (workflowType === "adult-freesurfer") {
-    const plfashckLookup: PluginInstanceList = yield client.getPlugins({
-      name_exact: "pl-fshack",
-    });
-    workflowPlugin = plfashckLookup.getItems()[0];
-  }
-
-  if (dircopy && med2img && workflowPlugin) {
-    registrationSuccessfull = true;
-  }
-  return {
-    registrationSuccessfull,
-    pluginList: {
-      dircopy,
-      workflowPlugin,
-      med2img,
-    },
-  };
-}
-
 async function uploadLocalFiles(files: LocalFile[], directory: string) {
   const client = ChrisAPIClient.getClient();
 
@@ -248,91 +311,142 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
 
   const { pacsFile, localFiles, workflowType, username } = action.payload;
 
-  const pluginRegistry: RegistrationCheck = yield checkRegistration(
-    workflowType
-  );
-
-  if (pluginRegistry.registrationSuccessfull) {
-    const pluginList = pluginRegistry.pluginList;
-    if (pluginList) {
-      const { dircopy } = pluginList;
-
+  if (workflowType === "fastsurfer") {
+    const pluginRegistry: RegistrationCheck = yield fastsurferRegistration();
+    if (pluginRegistry.registrationSuccessfull) {
+      const pluginList = pluginRegistry.pluginList;
+      if (pluginList) {
+        yield put(
+          setAnalysisStep({
+            id: 1,
+            title: "Plugins Registeration Check Completed",
+            status: "finish",
+            error: "",
+          })
+        );
+        const { plMriSagAnon } = pluginList;
+        const data = {
+          title: "Input-Dicoms",
+        };
+        const fsPluginInstance: PluginInstance =
+          yield client.createPluginInstance(plMriSagAnon.data.id, data);
+        const feed: Feed = yield fsPluginInstance.getFeed();
+        if (feed) {
+          yield all([
+            put(
+              setAnalysisStep({
+                id: 2,
+                title: "Feed Created Successfully",
+                status: "finish",
+                error: "",
+              })
+            ),
+            put(setFeedDetails(feed.data.id)),
+          ]);
+        }
+        yield setUpFastsurfer(fsPluginInstance, pluginList);
+      }
+    } else {
       yield put(
         setAnalysisStep({
           id: 1,
-          title: "Plugins Registeration Check Completed",
-          status: "finish",
-          error: "",
+          title: "Plugin registration check failed",
+          status: "error",
+          error: "Register all the required plugins for this workflow",
         })
       );
-
-      let totalFilePaths: string[] = [];
-
-      if (pacsFile.length > 0 && localFiles.length === 0) {
-        totalFilePaths = yield pacsFilePaths(pacsFile);
-      } else if (localFiles.length > 0 && pacsFile.length === 0) {
-        const directoryName = `${username}/uploads/${workflowType}-${v4()}`;
-        yield uploadLocalFiles(localFiles, directoryName);
-        totalFilePaths.push(yield uploadedFilePaths(localFiles, directoryName));
-      } else if (localFiles.length > 0 && pacsFile.length > 0) {
-        totalFilePaths = yield pacsFilePaths(pacsFile);
-        const directoryName = `${username}/uploads/${workflowType}-${v4()}`;
-        yield uploadLocalFiles(localFiles, directoryName);
-        totalFilePaths.push(yield uploadedFilePaths(localFiles, directoryName));
-      }
-
-      if (totalFilePaths.length > 0) {
-        const data: DircopyData = {
-          dir: totalFilePaths.join(","),
-          title: `${workflowType}_analysis`,
-        };
-        const dircopyInstance: PluginInstance =
-          yield client.createPluginInstance(dircopy.data.id, data);
-        try {
-          const feed: Feed = yield dircopyInstance.getFeed();
-          if (feed) {
-            yield all([
-              put(
-                setAnalysisStep({
-                  id: 2,
-                  title: "Feed Created Successfully",
-                  status: "finish",
-                  error: "",
-                })
-              ),
-              put(setFeedDetails(feed.data.id)),
-            ]);
-
-            if (workflowType === "adult-freesurfer") {
-              yield call(fetchDircopyFiles, dircopyInstance, pluginList);
-            } else {
-              const result: Result = yield pollingBackend(dircopyInstance);
-              if (result.status === "finishedSuccessfully") {
-                yield call(fetchDircopyFiles, result.plugin, pluginList);
-              }
-            }
-          }
-        } catch (error) {
-          yield put(
-            setAnalysisStep({
-              id: 2,
-              title: "Error Found while creating a Feed",
-              status: "error",
-              error: `${error}`,
-            })
-          );
-        }
-      } else throw new Error("Please select a file");
     }
   } else {
-    yield put(
-      setAnalysisStep({
-        id: 1,
-        title: "Plugin registration check failed",
-        status: "error",
-        error: "Register all the required plugins for this workflow",
-      })
+    const pluginRegistry: RegistrationCheck = yield checkRegistration(
+      workflowType
     );
+    if (pluginRegistry.registrationSuccessfull) {
+      const pluginList = pluginRegistry.pluginList;
+      if (pluginList) {
+        const { dircopy } = pluginList;
+
+        yield put(
+          setAnalysisStep({
+            id: 1,
+            title: "Plugins Registeration Check Completed",
+            status: "finish",
+            error: "",
+          })
+        );
+
+        let totalFilePaths: string[] = [];
+
+        if (pacsFile.length > 0 && localFiles.length === 0) {
+          totalFilePaths = yield pacsFilePaths(pacsFile);
+        } else if (localFiles.length > 0 && pacsFile.length === 0) {
+          const directoryName = `${username}/uploads/${workflowType}-${v4()}`;
+          yield uploadLocalFiles(localFiles, directoryName);
+          totalFilePaths.push(
+            yield uploadedFilePaths(localFiles, directoryName)
+          );
+        } else if (localFiles.length > 0 && pacsFile.length > 0) {
+          totalFilePaths = yield pacsFilePaths(pacsFile);
+          const directoryName = `${username}/uploads/${workflowType}-${v4()}`;
+          yield uploadLocalFiles(localFiles, directoryName);
+          totalFilePaths.push(
+            yield uploadedFilePaths(localFiles, directoryName)
+          );
+        }
+
+        if (totalFilePaths.length > 0) {
+          const data: DircopyData = {
+            dir: totalFilePaths.join(","),
+            title: `${workflowType}_analysis`,
+          };
+          const dircopyInstance: PluginInstance =
+            yield client.createPluginInstance(dircopy.data.id, data);
+          try {
+            const feed: Feed = yield dircopyInstance.getFeed();
+            if (feed) {
+              yield all([
+                put(
+                  setAnalysisStep({
+                    id: 2,
+                    title: "Feed Created Successfully",
+                    status: "finish",
+                    error: "",
+                  })
+                ),
+                put(setFeedDetails(feed.data.id)),
+              ]);
+             
+              if (workflowType === "adult-freesurfer" || workflowType==='infant-freesurfer') {
+                yield call(fetchDircopyFiles, dircopyInstance, pluginList);
+              } else {
+                const result: Result = yield pollingBackend(dircopyInstance);
+                if (result.status === "finishedSuccessfully") {
+                  console.log("Result", result);
+                  yield call(fetchDircopyFiles, result.plugin, pluginList);
+                }
+              }
+            }
+          } catch (error) {
+            yield put(
+              setAnalysisStep({
+                id: 2,
+                title: "Error Found while creating a Feed",
+                status: "error",
+                error: `${error}`,
+              })
+            );
+          }
+        } else throw new Error("Please select a file");
+      }
+    } else {
+      yield put(
+        setAnalysisStep({
+          id: 1,
+          title: "Plugin registration check failed",
+          status: "error",
+          error: "Register all the required plugins for this workflow",
+        })
+      );
+    }
   }
 }
 
