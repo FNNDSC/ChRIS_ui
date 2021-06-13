@@ -5,28 +5,28 @@ function getInitialSteps() {
   const steps: AnalysisStep[] = [];
   steps[0] = {
     id: 1,
-    title: "Checking if the plugins are registered to cube",
+    title: "Check if the plugins are registered",
     status: "wait",
     error: "",
   };
 
   steps[1] = {
     id: 2,
-    title: "Creating a Feed",
+    title: "Create a Feed",
     status: "wait",
     error: "",
   };
 
   steps[2] = {
     id: 3,
-    title: "Scheduling jobs ",
+    title: "Schedule jobs ",
     status: "wait",
     error: "",
   };
 
   steps[3] = {
     id: 4,
-    title: "Finishing up",
+    title: "Setup the Feed Tree",
     status: "wait",
     error: "",
   };

@@ -1,6 +1,11 @@
 import keyMirror from "keymirror";
 import { LocalFile } from "../../components/feed/CreateFeed/types";
-import { IPluginCreateData, Plugin, PluginInstance } from "@fnndsc/chrisapi";
+import {
+  IPluginCreateData,
+  Plugin,
+  PluginInstance,
+  Feed,
+} from "@fnndsc/chrisapi";
 
 export interface PACSData {
   id: number;
@@ -82,6 +87,7 @@ export interface DircopyData extends IPluginCreateData {
 export interface Med2ImgData extends IPluginCreateData {
   inputFile: any;
   sliceToConvert: number | string;
+  outputFileStem?: string;
 }
 
 export interface CovidnetData extends IPluginCreateData {
@@ -116,8 +122,14 @@ export type PluginList = {
 };
 
 export type RegistrationCheck = {
-  registrationSuccessfull: boolean;
-  pluginList: PluginList | undefined;
+  checkPassed: boolean;
+  plugins: PluginList;
+};
+
+export type FeedReturnPayload = {
+  feed?: Feed;
+  error?: "";
+  instance?: PluginInstance;
 };
 
 export const WorkflowTypes = keyMirror({
