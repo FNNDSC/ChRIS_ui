@@ -3,6 +3,7 @@ import { Route, Switch } from "react-router-dom";
 import PrivateRoute from "./components/common/PrivateRoute";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import FeedsPage from "./pages/Feeds/Feeds";
+import Query from "./pages/DataLibrary";
 import { LogIn } from "./pages/LogIn/Login";
 import { NotFound } from "./pages/NotFound/NotFound";
 import SignUp from "./pages/SignUp/SignUp";
