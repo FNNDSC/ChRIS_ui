@@ -160,6 +160,7 @@ export function* createFeed(
   localFiles: LocalFile[],
   username: string
 ) {
+  yield setYieldAnalysis(1, "Plugins Registration Check", "process", "");
   const pluginRegistry: RegistrationCheck = yield checkPluginRegistration(
     pluginList
   );
@@ -231,6 +232,7 @@ export function* setupCovidnet(action: IActionTypeParam) {
     "pl-covidnet",
     "pl-pdfgeneration",
   ];
+  yield setYieldAnalysis(2, "Creating a Feed", "process", "");
   const { feedPayload, plugins } = yield createFeed(
     covidnetPlugins,
     localFiles,
@@ -265,6 +267,7 @@ export function* setupAdultFreesurfer(action: IActionTypeParam) {
     "pl-pfdorun",
     "pl-mgz2lut_report",
   ];
+  yield setYieldAnalysis(2, "Creating a Feed", "process", "");
   const { feedPayload, plugins } = yield createFeed(
     adultFreesurferPlugins,
     localFiles,
@@ -275,6 +278,14 @@ export function* setupAdultFreesurfer(action: IActionTypeParam) {
     yield setYieldAnalysis(2, "Feed Created", "finish", "");
     yield setYieldAnalysis(3, "Scheduling Jobs", "process", "");
     yield runFastSurferWorkflow(instance, plugins);
+  }
+  if (error) {
+    yield setYieldAnalysis(
+      2,
+      "Error While Creating a Feed",
+      "error",
+      `${error}`
+    );
   }
 }
 
