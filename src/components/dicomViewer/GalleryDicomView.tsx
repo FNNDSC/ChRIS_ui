@@ -48,7 +48,7 @@ const scrollToIndex = csTools("util/scrollToIndex");
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     "Content-Type": "application/vnd.collection+json",
-    Authorization: "Token " + window.sessionStorage.getItem("AUTH_TOKEN"),
+    Authorization: "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
   },
   method: "get",
   responseType: "arrayBuffer",
