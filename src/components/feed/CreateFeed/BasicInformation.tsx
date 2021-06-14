@@ -50,7 +50,7 @@ const BasicInformation: React.FC = () => {
         />
       </FormGroup>
 
-      <FormGroup label="Feed Description" fieldId="feed-description">
+      <FormGroup label="Feed Note" fieldId="feed-descripti on">
         <TextArea
           id="feed-description"
           name="feed-description"

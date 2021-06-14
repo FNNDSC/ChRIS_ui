@@ -62,7 +62,7 @@ const Sidebar: React.FC<AllProps> = ({
           itemId="my_workflows"
           isActive={sidebarActiveItem === "my_workflows" ? true : false}
         >
-          <Link to="/workflows">COVIDnet</Link>
+          <Link to="/workflows">Type-1</Link>
         </NavItem>
       </NavExpandable>
     </React.Fragment>

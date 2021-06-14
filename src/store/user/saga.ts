@@ -16,7 +16,7 @@ function* handleResponse(action: any) {
         username: action.payload.username,
       })
     );
-    window.sessionStorage.setItem("AUTH_TOKEN", action.payload.token);
+    window.sessionStorage.setItem("CHRIS_TOKEN", action.payload.token);
     window.sessionStorage.setItem("USERNAME", action.payload.username);
   } catch (error) {
     setAuthError();
@@ -32,7 +32,7 @@ function* watchLoginRequest() {
 // ----------------------------------------------------------------
 
 function handleLogout() {
-  window.sessionStorage.removeItem("AUTH_TOKEN");
+  window.sessionStorage.removeItem("CHRIS_TOKEN");
   window.sessionStorage.removeItem("USERNAME");
 }
 function* watchLogoutRequest() {

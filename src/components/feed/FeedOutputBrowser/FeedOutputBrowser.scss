@@ -6,13 +6,12 @@
   height: 100%;
 
   &__sidebar {
-
-    @include media-query($pf-global--breakpoint--xs){
-      display:none;
+    @include media-query($pf-global--breakpoint--xs) {
+      display: none;
     }
 
-    @include media-query($pf-global--breakpoint--sm){
-      display:block;
+    @include media-query($pf-global--breakpoint--sm) {
+      display: block;
     }
 
     overflow-y: auto;
@@ -134,10 +133,15 @@
     height: 90%;
 
     .viewport-wrapper {
-      height:100% !important;
+      height: 100% !important;
     }
     img {
       height: 100%;
+    }
+
+    .react-json-view {
+      height:100%;
+      overflow: scroll;
     }
   }
 
