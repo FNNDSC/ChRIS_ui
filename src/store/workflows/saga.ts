@@ -1,5 +1,9 @@
 import { all, fork, takeEvery, put } from "@redux-saga/core/effects";
-import { setupCovidnet, setupAdultFreesurfer } from "../utils";
+import {
+  setupCovidnet,
+  setupAdultFreesurfer,
+  setupInfantFreesurfer,
+} from "./setup";
 import { WorkflowTypes, PACSFile, AnalysisStep } from "./types";
 import { getPacsFilesSuccess, setAnalysisStep } from "./actions";
 import { IActionTypeParam } from "../../api/models/base.model";
@@ -38,6 +42,9 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
   }
   if (workflowType === "adult-freesurfer") {
     yield setupAdultFreesurfer(action);
+  }
+  if (workflowType === "infant-freesurfer") {
+    yield setupInfantFreesurfer(action);
   }
 }
 
