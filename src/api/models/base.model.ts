@@ -55,7 +55,7 @@ export interface IActionTypeParam {
 // CHRIS API REQUEST (working)
 export default class ChrisModel {
   static fetchRequest(url: string) {
-    const auth = { token: `${window.sessionStorage.getItem("AUTH_TOKEN")}` };
+    const auth = { token: `${window.sessionStorage.getItem("CHRIS_TOKEN")}` };
     const header = {
       "Content-Type": "application/vnd.collection+json",
       Authorization: "Token " + auth.token,

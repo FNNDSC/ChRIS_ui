@@ -6,7 +6,7 @@ declare let process: {
   };
 };
 
-const AUTH_TOKEN_KEY = "AUTH_TOKEN";
+const AUTH_TOKEN_KEY = "CHRIS_TOKEN";
 
 /**
  * This is a singleton to hold an instantiated, authenticated `Client` object,

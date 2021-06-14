@@ -14,8 +14,7 @@ import {
 import { generateTreeNodes, getNewTreeData } from "./utils/fileSelect";
 import { FileList } from "./helperComponents";
 import { isEmpty } from "lodash";
-import {ErrorMessage} from './lib'
-
+import { ErrorMessage } from "./lib";
 
 const { DirectoryTree } = Tree;
 
@@ -26,9 +25,13 @@ function getEmptyTree(username: string) {
     title: username,
     key: "0-0",
   });
+  node.push({
+    breadcrumb: "SERVICES",
+    title: "SERVICES",
+    key: "0-1",
+  });
   return node;
 }
-
 
 // Needs to be replaced with a better caching solution
 
@@ -46,10 +49,9 @@ function getCacheTree() {
   return cache["tree"];
 }
 
-export function clearCache(){
-  cache['tree']=[]
+export function clearCache() {
+  cache["tree"] = [];
 }
-
 
 const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
   username,
@@ -162,13 +164,6 @@ function getCheckedKeys(checkedKeys: { [key: string]: Key[] }) {
   return checkedKeysArray;
 }
 
-
-function ErrorFallback({error}:any){
-  return(
-    <ErrorMessage
-    error={error}
-    />
-  )
+function ErrorFallback({ error }: any) {
+  return <ErrorMessage error={error} />;
 }
-
-

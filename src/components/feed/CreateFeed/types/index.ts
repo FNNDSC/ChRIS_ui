@@ -108,6 +108,34 @@ export interface LocalFile {
   name: string;
   blob: File;
 }
+export interface PACSData {
+  id: number;
+  creation_date: string;
+  fname: string;
+  PatientID: string;
+  PatientName: string;
+  PatientBirthDate: string;
+  PatientAge: number;
+  PatientSex: string;
+  StudyInstanceUID: string;
+  StudyDescription: string;
+  SeriesInstanceUID: string;
+  SeriesDescription: string;
+  StudyDate: string;
+  Modality: string;
+  pacs_identifier: string;
+  ProtocolName: string;
+}
+
+export interface PACSFile {
+  url: string;
+  auth: {
+    token: string;
+  };
+  contentType: string;
+  collection: Record<string, unknown>;
+  data: PACSData;
+}
 
 export interface CreateFeedData {
   feedName: string;

@@ -19,22 +19,11 @@ import {
   getPluginFilesError,
   getPluginInstanceStatusSuccess,
 } from "./actions";
+import { getPluginFiles } from "../utils";
 
 function* fetchPluginFiles(plugin: PluginInstance) {
   try {
-    const params = { limit: 200, offset: 0 };
-    let fileList: PluginInstanceFileList = yield plugin.getFiles(params);
-    let files = fileList.getItems();
-
-    while (fileList.hasNextPage) {
-      try {
-        params.offset += params.limit;
-        fileList = yield plugin.getFiles(params);
-        files = files.concat(fileList.getItems());
-      } catch (e) {
-        throw new Error("Error while paginating files");
-      }
-    }
+    const files: any[] = yield getPluginFiles(plugin);
 
     const id = plugin.data.id;
     const payload = {
@@ -123,7 +112,6 @@ function* handleGetInstanceStatus(instance: PluginInstance) {
     }
   }
 }
-
 
 function* handleResetActiveResources(action: IActionTypeParam) {
   const pluginInstances = action.payload.data;
