@@ -7,34 +7,7 @@ import {
   Feed,
 } from "@fnndsc/chrisapi";
 
-export interface PACSData {
-  id: number;
-  creation_date: string;
-  fname: string;
-  PatientID: string;
-  PatientName: string;
-  PatientBirthDate: string;
-  PatientAge: number;
-  PatientSex: string;
-  StudyInstanceUID: string;
-  StudyDescription: string;
-  SeriesInstanceUID: string;
-  SeriesDescription: string;
-  StudyDate: string;
-  Modality: string;
-  pacs_identifier: string;
-  ProtocolName: string;
-}
 
-export interface PACSFile {
-  url: string;
-  auth: {
-    token: string;
-  };
-  contentType: string;
-  collection: Record<string, unknown>;
-  data: PACSData;
-}
 
 export interface AnalysisStep {
   id: number;
@@ -44,7 +17,6 @@ export interface AnalysisStep {
 }
 
 export interface AnalysisPayload {
-  pacsFile: PACSFile[];
   localFiles: LocalFile[];
   workflowType: string;
   username: string;
@@ -57,17 +29,12 @@ export interface SelectWorkflowState {
 }
 
 export interface IWorkflowState {
-  pacsPayload: {
-    files: PACSFile[];
-    error: any;
-    loading: boolean;
-  };
   localfilePayload: {
     files: LocalFile[];
     error: any;
     loading: boolean;
   };
-  currentPacsFile: PACSFile[];
+
   steps: AnalysisStep[];
   isAnalysisRunning: boolean;
   totalFileCount: number;
@@ -75,10 +42,6 @@ export interface IWorkflowState {
   checkFeedDetails: number | undefined;
 }
 
-export interface PacsSuccessPayload {
-  files: PACSFile[];
-  totalFileCount: number;
-}
 
 export interface DircopyData extends IPluginCreateData {
   dir: string;

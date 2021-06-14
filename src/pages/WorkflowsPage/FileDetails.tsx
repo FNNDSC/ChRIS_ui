@@ -163,9 +163,7 @@ const SelectWorkflow = () => {
 const SubmitAnalysis = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const currentPacsFile = useTypedSelector(
-    (state) => state.workflows.currentPacsFile
-  );
+
   const localFiles = useTypedSelector(
     (state) => state.workflows.localfilePayload.files
   );
@@ -176,10 +174,9 @@ const SubmitAnalysis = () => {
 
   const steps = useTypedSelector((state) => state.workflows.steps);
   const handleClick = () => {
-    if ((currentPacsFile.length > 0 || localFiles.length > 0) && username) {
+    if (localFiles.length > 0 && username) {
       dispatch(
         submitAnalysis({
-          pacsFile: currentPacsFile,
           localFiles,
           workflowType,
           username,
@@ -187,11 +184,9 @@ const SubmitAnalysis = () => {
       );
     }
   };
-  const isAnalysisRunning = useTypedSelector(
-    (state) => state.workflows.isAnalysisRunning
-  );
 
   const feedId = useTypedSelector((state) => state.workflows.checkFeedDetails);
+  console.log("FEEDID", feedId);
 
   return (
     <Card>

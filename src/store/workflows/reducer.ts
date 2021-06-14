@@ -34,17 +34,12 @@ function getInitialSteps() {
 }
 
 export const initialState: IWorkflowState = {
-  pacsPayload: {
-    files: [],
-    error: "",
-    loading: false,
-  },
   localfilePayload: {
     files: [],
     error: "",
     loading: false,
   },
-  currentPacsFile: [],
+
   steps: getInitialSteps(),
   isAnalysisRunning: false,
   totalFileCount: 0,
@@ -58,28 +53,6 @@ export const initialState: IWorkflowState = {
 
 const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
   switch (action.type) {
-    case WorkflowTypes.GET_PACS_FILES_REQUEST: {
-      return {
-        ...state,
-        pacsPayload: {
-          ...state.pacsPayload,
-          loading: true,
-        },
-      };
-    }
-
-    case WorkflowTypes.GET_PACS_FILES_SUCCESS: {
-      return {
-        ...state,
-        pacsPayload: {
-          ...state.pacsPayload,
-          files: action.payload.files,
-          loading: false,
-        },
-        totalFileCount: action.payload.totalFileCount,
-      };
-    }
-
     case WorkflowTypes.SET_LOCAL_FILE: {
       return {
         ...state,
@@ -87,13 +60,6 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
           ...state.localfilePayload,
           files: action.payload,
         },
-      };
-    }
-
-    case WorkflowTypes.SET_CURRENT_FILE: {
-      return {
-        ...state,
-        currentPacsFile: [...state.currentPacsFile, action.payload],
       };
     }
 
@@ -132,6 +98,7 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
     }
 
     case WorkflowTypes.SET_FEED_DETAILS: {
+      console.log("SET FEED DETAILS", action.payload);
       return {
         ...state,
         checkFeedDetails: action.payload,

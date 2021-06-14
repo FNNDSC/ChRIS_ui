@@ -3,7 +3,7 @@ import { EventDataNode } from "rc-tree/lib/interface";
 import { DataBreadcrumb } from "../types";
 import _ from "lodash";
 import { UploadedFile } from "@fnndsc/chrisapi";
-import { PACSFile } from "../../../../store/workflows/types";
+import { PACSFile } from "../types";
 
 export const getNewTreeData = (
   treeData: DataBreadcrumb[],

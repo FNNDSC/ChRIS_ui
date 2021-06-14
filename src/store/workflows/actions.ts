@@ -1,9 +1,7 @@
 import { action } from "typesafe-actions";
 import {
-  PACSFile,
   WorkflowTypes,
   AnalysisStep,
-  PacsSuccessPayload,
   AnalysisPayload,
   SelectWorkflowState,
 } from "./types";
@@ -14,12 +12,6 @@ export const getPacsFilesRequest = (
   limit?: number,
   offset?: number
 ) => action(WorkflowTypes.GET_PACS_FILES_REQUEST, { name, limit, offset });
-
-export const getPacsFilesSuccess = (files: PacsSuccessPayload) =>
-  action(WorkflowTypes.GET_PACS_FILES_SUCCESS, files);
-
-export const setCurrentPacsFile = (file: PACSFile) =>
-  action(WorkflowTypes.SET_CURRENT_FILE, file);
 
 export const setLocalFile = (files: LocalFile[]) =>
   action(WorkflowTypes.SET_LOCAL_FILE, files);
