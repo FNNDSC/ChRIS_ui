@@ -5,6 +5,14 @@ import Main from "./main";
 import * as serviceWorker from "./serviceWorker";
 import "./assets/scss/main.scss";
 
-ReactDOM.render(<Main store={store} />, document.getElementById("root"));
+ReactDOM.render(
+  <React.StrictMode>
+    <Main store={store} />
+  </React.StrictMode>, 
+  document.getElementById("root")
+);
 
-serviceWorker.unregister();
+if (process.env.NODE_ENV === 'production')
+  serviceWorker.register();
+else
+  serviceWorker.unregister();
