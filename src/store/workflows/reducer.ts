@@ -63,6 +63,18 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       };
     }
 
+    case WorkflowTypes.DELETE_LOCAL_FILE: {
+      const files = state.localfilePayload.files.filter(
+        (file) => file.name !== action.payload
+      );
+      return {
+        ...state,
+        localfilePayload: {
+          ...state.localfilePayload,
+          files,
+        },
+      };
+    }
     case WorkflowTypes.SET_OPTION_STATE: {
       return {
         ...state,

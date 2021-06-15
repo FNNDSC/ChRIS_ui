@@ -16,7 +16,23 @@ const LocalFileUpload: React.FC = () => {
       },
     });
   };
-  return <FileUpload localFiles={localFiles} dispatchFn={handleDispatch} />;
+
+  const handleDeleteDispatch = (file: string) => {
+    dispatch({
+      type: Types.RemoveLocalFile,
+      payload: {
+        filename: file,
+      },
+    });
+  };
+
+  return (
+    <FileUpload
+      handleDeleteDispatch={handleDeleteDispatch}
+      localFiles={localFiles}
+      dispatchFn={handleDispatch}
+    />
+  );
 };
 
 export default LocalFileUpload;

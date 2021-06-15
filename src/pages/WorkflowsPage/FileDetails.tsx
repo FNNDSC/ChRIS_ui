@@ -17,6 +17,8 @@ import {
   setLocalFile,
   submitAnalysis,
   setOptionState,
+  resetWorkflowState,
+  deleteLocalFile,
 } from "../../store/workflows/actions";
 import { useDispatch } from "react-redux";
 import { AnalysisStep } from "../../store/workflows/types";
@@ -51,16 +53,24 @@ const FileUploadComponent = () => {
     (state) => state.workflows.localfilePayload
   );
   const dispatch = useDispatch();
-  const { files, error, loading } = localFilePayload;
+  const { files } = localFilePayload;
 
   const handleDispatch = (files: LocalFile[]) => {
     dispatch(setLocalFile(files));
   };
 
+  const handleDeleteDispatch = (fileName: string) => {
+    dispatch(deleteLocalFile(fileName));
+  };
+
   return (
-    <Card>
+    <Card className="file-upload-card">
       <CardBody>
-        <FileUpload localFiles={files} dispatchFn={handleDispatch} />
+        <FileUpload
+          handleDeleteDispatch={handleDeleteDispatch}
+          localFiles={files}
+          dispatchFn={handleDispatch}
+        />
       </CardBody>
     </Card>
   );
@@ -216,6 +226,9 @@ const SubmitAnalysis = () => {
       </CardBody>
       <CardBody>
         <Button
+          style={{
+            marginRight: "0.5rem",
+          }}
           onClick={() => {
             if (feedId) {
               history.push(`/feeds/${feedId}`);
@@ -225,6 +238,12 @@ const SubmitAnalysis = () => {
           variant="primary"
         >
           Check Feed Details
+        </Button>
+        <Button
+          onClick={() => dispatch(resetWorkflowState())}
+          isDisabled={isAnalysisRunning ? true : false}
+        >
+          Reset
         </Button>
       </CardBody>
     </Card>

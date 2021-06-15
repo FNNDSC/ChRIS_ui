@@ -7,8 +7,6 @@ import {
   Feed,
 } from "@fnndsc/chrisapi";
 
-
-
 export interface AnalysisStep {
   id: number;
   title: string;
@@ -41,7 +39,6 @@ export interface IWorkflowState {
   optionState: SelectWorkflowState;
   checkFeedDetails: number | undefined;
 }
-
 
 export interface DircopyData extends IPluginCreateData {
   dir: string;
@@ -114,4 +111,5 @@ export const WorkflowTypes = keyMirror({
   RESET_WORKFLOW_STEP: null,
   STOP_FETCHING_PLUGIN_RESOURCES: null,
   SET_FEED_DETAILS: null,
+  DELETE_LOCAL_FILE: null,
 });

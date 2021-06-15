@@ -34,5 +34,8 @@ export const stopFetchingPluginResources = () =>
 export const setPluginFiles = (files: any[]) =>
   action(WorkflowTypes.SET_PLUGIN_FILES, files);
 
+export const deleteLocalFile = (fileName: string) =>
+  action(WorkflowTypes.DELETE_LOCAL_FILE, fileName);
+
 export const setFeedDetails = (id: number) =>
   action(WorkflowTypes.SET_FEED_DETAILS, id);

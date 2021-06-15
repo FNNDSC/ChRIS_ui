@@ -6,9 +6,11 @@ import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
 const FileUpload = ({
   localFiles,
   dispatchFn,
+  handleDeleteDispatch,
 }: {
   localFiles: LocalFile[];
   dispatchFn: (files: LocalFile[]) => void;
+  handleDeleteDispatch: (file: string) => void;
 }) => {
   const openLocalFilesPicker = (): Promise<LocalFile[]> => {
     const input = document.createElement("input");
@@ -40,7 +42,11 @@ const FileUpload = ({
     localFiles.length > 0
       ? localFiles.map((file: LocalFile, index: number) => (
           <React.Fragment key={index}>
-            <LocalFileList file={file} index={index} />
+            <LocalFileList
+              handleDeleteDispatch={handleDeleteDispatch}
+              file={file}
+              index={index}
+            />
           </React.Fragment>
         ))
       : null;
