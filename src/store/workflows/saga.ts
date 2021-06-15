@@ -3,6 +3,7 @@ import {
   setupCovidnet,
   setupAdultFreesurfer,
   setupInfantFreesurfer,
+  setupFastsurfer,
 } from "./setup";
 import { WorkflowTypes, AnalysisStep } from "./types";
 import { setAnalysisStep } from "./actions";
@@ -19,6 +20,9 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
   }
   if (workflowType === "infant-freesurfer") {
     yield setupInfantFreesurfer(action);
+  }
+  if (workflowType === "fastsurfer") {
+    yield setupFastsurfer(action);
   }
 }
 

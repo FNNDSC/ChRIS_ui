@@ -98,7 +98,6 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
     }
 
     case WorkflowTypes.SET_FEED_DETAILS: {
-      console.log("SET FEED DETAILS", action.payload);
       return {
         ...state,
         checkFeedDetails: action.payload,

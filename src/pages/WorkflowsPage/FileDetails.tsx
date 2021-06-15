@@ -186,7 +186,6 @@ const SubmitAnalysis = () => {
   };
 
   const feedId = useTypedSelector((state) => state.workflows.checkFeedDetails);
-  console.log("FEEDID", feedId);
 
   return (
     <Card>

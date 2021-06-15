@@ -12,7 +12,11 @@ import { IActionTypeParam } from "../../../api/models/base.model";
 import { PluginInstance, Plugin, Feed } from "@fnndsc/chrisapi";
 import { LocalFile } from "../../../components/feed/CreateFeed/types";
 import { getPlugin, uploadLocalFiles, uploadFilePaths } from "../../utils";
-import { runGenericWorkflow, runFastSurferWorkflow } from "./workflows";
+import {
+  runGenericWorkflow,
+  runAdultFreesurferWorkflow,
+  runFastsurferWorkflow,
+} from "./workflows";
 import { setFeedDetails } from "../actions";
 import { put } from "@redux-saga/core/effects";
 
@@ -135,6 +139,7 @@ export function* setupCovidnet(action: IActionTypeParam) {
     "pl-pdfgeneration",
   ];
   yield setupFeedDetails(action, covidnetPlugins, "covidnet");
+  yield setYieldAnalysis(4, "Finished Setup", "finish", "");
 }
 
 export function* setupInfantFreesurfer(action: IActionTypeParam) {
@@ -154,6 +159,16 @@ export function* setupAdultFreesurfer(action: IActionTypeParam) {
     "pl-mgz2lut_report",
   ];
   yield setupFeedDetails(action, adultFreesurferPlugins, "adult-freesurfer");
+}
+
+export function* setupFastsurfer(action: IActionTypeParam) {
+  const fastsurferPlugins = [
+    "pl-dircopy",
+    "pl-fshack",
+    "pl-fastsurfer_inference",
+    "pl-mgz2lut_report",
+  ];
+  yield setupFeedDetails(action, fastsurferPlugins, "fastsurfer");
 }
 
 export function* setupFeedDetails(
@@ -185,7 +200,11 @@ export function* setupFeedDetails(
     }
     if (workflowType === "adult-freesurfer") {
       yield setYieldAnalysis(3, "Scheduling jobs", "process", "");
-      yield runFastSurferWorkflow(instance, plugins);
+      yield runAdultFreesurferWorkflow(instance, plugins);
+    }
+    if (workflowType === "fastsurfer") {
+      yield setYieldAnalysis(3, "Scheduling jobs", "process", "");
+      yield runFastsurferWorkflow(instance, plugins);
     }
     yield setYieldAnalysis(4, "Finished Scheduling", "finish", "");
   } else {

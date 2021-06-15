@@ -60,7 +60,7 @@ export function* runGenericWorkflow(
   yield setYieldAnalysis(3, "Scheduled Successfully", "finish", "");
 }
 
-export function* runFastSurferWorkflow(
+export function* runAdultFreesurferWorkflow(
   dircopy: PluginInstance,
   pluginList: PluginList
 ) {
@@ -149,6 +149,43 @@ export function* runFastSurferWorkflow(
     previous_id: plFsHackInstance.data.id,
     fileName: "recon-of-SAG-anon-dcm/mri/aseg.mgz",
     report_types: "txt,csv,json,html",
+  };
+  yield client.createPluginInstance(
+    plMgz2LutReport.data.id,
+    plMgz2LutReportArgs
+  );
+  yield setYieldAnalysis(3, "Scheduled Successfully", "finish", "");
+}
+
+export function* runFastsurferWorkflow(
+  dircopy: PluginInstance,
+  pluginList: PluginList
+) {
+  const client = ChrisAPIClient.getClient();
+  const plFshack = pluginList["pl-fshack"];
+  const plFshackArgs = {
+    exec: "recon-all",
+    args: "' ARGS: -autorecon1 '",
+    outputFile: "recon-of-SAG-anon-nii",
+    previous_id: dircopy.data.id,
+  };
+  const plFshackInstance: PluginInstance = yield client.createPluginInstance(
+    plFshack.data.id,
+    plFshackArgs
+  );
+  const plFastsurfer = pluginList["pl-fastsurfer_inference"];
+  const plFastsurferArgs = {
+    search_tag: "recon-of-SAG-anon/mri",
+    previous_id: plFshackInstance.data.id,
+    cleanup: true,
+    in_name: "brainmask.mgz",
+  };
+  const plFastsurferInstance: PluginInstance =
+    yield client.createPluginInstance(plFastsurfer.data.id, plFastsurferArgs);
+
+  const plMgz2LutReport = pluginList["pl-mgz2lut_report"];
+  const plMgz2LutReportArgs = {
+    previous_id: plFastsurferInstance.data.id,
   };
   yield client.createPluginInstance(
     plMgz2LutReport.data.id,
