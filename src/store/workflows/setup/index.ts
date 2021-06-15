@@ -4,12 +4,13 @@ import {
   DircopyData,
   FeedReturnPayload,
   PollStatus,
+  PluginReturnPayload,
 } from "../types";
 import { v4 } from "uuid";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { setYieldAnalysis } from "../saga";
 import { IActionTypeParam } from "../../../api/models/base.model";
-import { PluginInstance, Plugin, Feed } from "@fnndsc/chrisapi";
+import { PluginInstance, Plugin, Feed, Note } from "@fnndsc/chrisapi";
 import { LocalFile } from "../../../components/feed/CreateFeed/types";
 import { getPlugin, uploadLocalFiles, uploadFilePaths } from "../../utils";
 import {
@@ -24,16 +25,22 @@ export function* checkPluginRegistration(pluginList: string[]) {
   const pluginRegistry: RegistrationCheck = {
     checkPassed: true,
     plugins: {},
+    error: "",
   };
   for (let i = 0; i < pluginList.length; i++) {
     const { plugins } = pluginRegistry;
     const pluginNeeded = pluginList[i];
+    const pluginFetchPayload: PluginReturnPayload = yield getPlugin(
+      pluginNeeded
+    );
+    const { error, plugin } = pluginFetchPayload;
 
-    const pluginFetched: Plugin = yield getPlugin(pluginNeeded);
-    if (!pluginFetched) {
+    if (plugin) {
+      plugins[pluginNeeded] = plugin;
+    } else if (error) {
+      pluginRegistry["error"] = error;
       pluginRegistry["checkPassed"] = false;
     }
-    plugins[pluginNeeded] = pluginFetched;
   }
 
   return pluginRegistry;
@@ -70,8 +77,10 @@ export function* pollingBackend(instance: PluginInstance) {
 export function* createFeedWithDircopy(
   pluginList: PluginList,
   localFiles: LocalFile[],
-  username: string
+  username: string,
+  workflowType: string
 ) {
+  yield setYieldAnalysis(2, "Creating a Feed Root Node", "process", "");
   const feedPayload: FeedReturnPayload = {
     feed: undefined,
     error: undefined,
@@ -94,7 +103,21 @@ export function* createFeedWithDircopy(
       data
     );
     const feed: Feed = yield dircopyInstance.getFeed();
-    feedPayload["feed"] = feed;
+    if (feed) {
+      yield put(setFeedDetails(feed.data.id));
+      yield setYieldAnalysis(2, "Created a Feed Root Node", "finish", "");
+      const note: Note = yield feed.getNote();
+      yield note.put({
+        title: `${workflowType} analysis`,
+        content: `Notes for your ${workflowType} analysis.`,
+      });
+      yield feed.put({
+        name: `${workflowType} analysis`,
+      });
+
+      feedPayload["feed"] = feed;
+    }
+
     feedPayload["instance"] = dircopyInstance;
   } catch (error) {
     feedPayload["error"] = error;
@@ -106,28 +129,84 @@ export function* createFeedWithDircopy(
 export function* createFeed(
   pluginList: string[],
   localFiles: LocalFile[],
-  username: string
+  username: string,
+  workflowType: string
 ) {
   yield setYieldAnalysis(1, "Plugins Registration Check", "process", "");
   const pluginRegistry: RegistrationCheck = yield checkPluginRegistration(
     pluginList
   );
-  if (pluginRegistry.checkPassed) {
+
+  const checkPassed = pluginRegistry["checkPassed"];
+  if (checkPassed === true) {
     yield setYieldAnalysis(1, "Registration Check Complete", "finish", "");
     const feedPayload: FeedReturnPayload = yield createFeedWithDircopy(
       pluginRegistry.plugins,
       localFiles,
-      username
+      username,
+      workflowType
     );
     return {
       feedPayload,
       plugins: pluginRegistry.plugins,
     };
   } else {
-    const errorCode = `Here are a list of plugins required ${pluginList.join(
+    const error = pluginRegistry["error"];
+    const errorCode = `${error}. The required plugins for this workflow are ${pluginList.join(
       " , "
     )} `;
-    setYieldAnalysis(1, "Registration Check Failed", "error", errorCode);
+    yield setYieldAnalysis(1, "Registration Check Failed", "error", errorCode);
+  }
+}
+
+type FeedFetch = {
+  feedPayload: FeedReturnPayload;
+  plugins: PluginList;
+};
+
+export function* setupFeedDetails(
+  action: IActionTypeParam,
+  pluginNames: string[],
+  workflowType: string
+) {
+  const { localFiles, username } = action.payload;
+  const feedFetch: FeedFetch = yield createFeed(
+    pluginNames,
+    localFiles,
+    username,
+    workflowType
+  );
+
+  if (feedFetch) {
+    const { feedPayload, plugins } = feedFetch;
+    const { feed, instance, error } = feedPayload;
+    if (feed) {
+      if (workflowType === "covidnet" || workflowType === "infant-freesurfer") {
+        if (instance) {
+          yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
+          const result: string = yield pollingBackend(instance);
+          if (result === "finishedSuccessfully") {
+            yield runGenericWorkflow(instance, plugins, workflowType);
+          }
+        }
+      }
+      if (workflowType === "adult-freesurfer") {
+        yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
+        if (instance) yield runAdultFreesurferWorkflow(instance, plugins);
+      }
+      if (workflowType === "fastsurfer") {
+        yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
+        if (instance) yield runFastsurferWorkflow(instance, plugins);
+      }
+      yield setYieldAnalysis(4, "Success", "finish", "");
+    } else {
+      yield setYieldAnalysis(
+        3,
+        "Cannot create a Feed Tree",
+        "error",
+        `${error}`
+      );
+    }
   }
 }
 
@@ -139,13 +218,13 @@ export function* setupCovidnet(action: IActionTypeParam) {
     "pl-pdfgeneration",
   ];
   yield setupFeedDetails(action, covidnetPlugins, "covidnet");
-  yield setYieldAnalysis(4, "Finished Setup", "finish", "");
+  yield setYieldAnalysis(4, "Success", "finish", "");
 }
 
 export function* setupInfantFreesurfer(action: IActionTypeParam) {
   const infantFreesurferPlugins = ["pl-dircopy", "pl-fshack-infant"];
   yield setupFeedDetails(action, infantFreesurferPlugins, "infant-freesurfer");
-  yield setYieldAnalysis(4, "Finished Setup", "finish", "");
+  yield setYieldAnalysis(4, "Success", "finish", "");
 }
 
 export function* setupAdultFreesurfer(action: IActionTypeParam) {
@@ -159,6 +238,7 @@ export function* setupAdultFreesurfer(action: IActionTypeParam) {
     "pl-mgz2lut_report",
   ];
   yield setupFeedDetails(action, adultFreesurferPlugins, "adult-freesurfer");
+  yield setYieldAnalysis(4, "Success", "finish", "");
 }
 
 export function* setupFastsurfer(action: IActionTypeParam) {
@@ -169,45 +249,5 @@ export function* setupFastsurfer(action: IActionTypeParam) {
     "pl-mgz2lut_report",
   ];
   yield setupFeedDetails(action, fastsurferPlugins, "fastsurfer");
-}
-
-export function* setupFeedDetails(
-  action: IActionTypeParam,
-  pluginNames: string[],
-  workflowType: string
-) {
-  yield setYieldAnalysis(2, "Creating a Feed", "process", "");
-  const { localFiles, username } = action.payload;
-  const { feedPayload, plugins } = yield createFeed(
-    pluginNames,
-    localFiles,
-    username
-  );
-  const { feed, instance, error } = feedPayload;
-
-  if (feed) {
-    yield put(setFeedDetails(feed.data.id));
-    yield setYieldAnalysis(2, "Feed Created", "finish", "");
-
-    if (workflowType === "covidnet" || workflowType === "infant-freesurfer") {
-      if (instance) {
-        yield setYieldAnalysis(3, "Scheduling jobs", "process", "");
-        const result: string = yield pollingBackend(instance);
-        if (result === "finishedSuccessfully") {
-          yield runGenericWorkflow(instance, plugins, workflowType);
-        }
-      }
-    }
-    if (workflowType === "adult-freesurfer") {
-      yield setYieldAnalysis(3, "Scheduling jobs", "process", "");
-      yield runAdultFreesurferWorkflow(instance, plugins);
-    }
-    if (workflowType === "fastsurfer") {
-      yield setYieldAnalysis(3, "Scheduling jobs", "process", "");
-      yield runFastsurferWorkflow(instance, plugins);
-    }
-    yield setYieldAnalysis(4, "Finished Scheduling", "finish", "");
-  } else {
-    yield setYieldAnalysis(2, "Cannot Run the Workflow", "error", `${error}`);
-  }
+  yield setYieldAnalysis(4, "Success", "finish", "");
 }

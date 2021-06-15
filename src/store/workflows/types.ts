@@ -87,12 +87,18 @@ export type PluginList = {
 export type RegistrationCheck = {
   checkPassed: boolean;
   plugins: PluginList;
+  error: string;
 };
 
 export type FeedReturnPayload = {
   feed?: Feed;
   error?: "";
   instance?: PluginInstance;
+};
+
+export type PluginReturnPayload = {
+  plugin?: Plugin;
+  error: string;
 };
 
 export const WorkflowTypes = keyMirror({

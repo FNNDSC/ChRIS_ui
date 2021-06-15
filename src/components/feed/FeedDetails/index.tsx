@@ -1,19 +1,23 @@
 import React from "react";
 import Moment from "react-moment";
-import { Skeleton } from "@patternfly/react-core";
+import { Skeleton, Button } from "@patternfly/react-core";
 import ShareFeed from "../ShareFeed/ShareFeed";
+import { Popover } from "antd";
 
 import {
   UserIcon,
   CodeBranchIcon,
   CalendarAltIcon,
-  FileAltIcon,
+  PencilAltIcon,
 } from "@patternfly/react-icons";
 import { useTypedSelector } from "../../../store/hooks";
 import "./FeedDetails.scss";
+import FeedNote from "./FeedNote";
 
 const FeedDetails = () => {
-  const [feedDescription, setFeedDescription] = React.useState("");
+  const [note, setNote] = React.useState("");
+  const [isNoteVisible, setIsNoteVisible] = React.useState(false);
+  const [savingNote, setSavingNote] = React.useState(false);
   const currentFeedPayload = useTypedSelector(
     (state) => state.feed.currentFeed
   );
@@ -25,11 +29,25 @@ const FeedDetails = () => {
       if (feed) {
         const note = await feed.getNote();
         const { data: noteData } = note;
-        setFeedDescription(noteData.content);
+        setNote(noteData.content);
       }
     }
     fetchNode();
   }, [feed]);
+
+  const handleEditNote = async (editedNote: string) => {
+    setSavingNote(true);
+    const note = await feed?.getNote();
+    await note?.put({
+      title: "",
+      content: editedNote,
+    });
+    setSavingNote(false);
+  };
+
+  const handleClose = () => {
+    setIsNoteVisible(!isNoteVisible);
+  };
 
   if (feed) {
     return (
@@ -54,21 +72,30 @@ const FeedDetails = () => {
             </Moment>
           </p>
         </li>
+        <li>
+          <Popover
+            content={
+              <FeedNote
+                handleClose={handleClose}
+                handleEditNote={handleEditNote}
+                note={note}
+                status={savingNote}
+              />
+            }
+            placement="bottom"
+            visible={isNoteVisible}
+            trigger="click"
+            onVisibleChange={(visible: boolean) => {
+              setIsNoteVisible(visible);
+            }}
+          >
+            <Button type="button" variant="primary" icon={<PencilAltIcon />}>
+              View Feed Note
+            </Button>
+          </Popover>
+        </li>
 
         <li>
-          <small>Feed Description</small>
-          <p>
-            <FileAltIcon />
-            {!feedDescription ? (
-              <span>None Provided</span>
-            ) : (
-              <span>{feedDescription}</span>
-            )}
-          </p>
-        </li>
-        <li
-         
-        >
           <ShareFeed feed={feed} />
         </li>
       </ul>

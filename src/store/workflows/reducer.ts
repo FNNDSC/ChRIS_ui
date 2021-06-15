@@ -5,28 +5,28 @@ function getInitialSteps() {
   const steps: AnalysisStep[] = [];
   steps[0] = {
     id: 1,
-    title: "Check if the plugins are registered",
+    title: "Check if plugins are registered",
     status: "wait",
     error: "",
   };
 
   steps[1] = {
     id: 2,
-    title: "Create a Feed",
+    title: "Create a Feed Root Node",
     status: "wait",
     error: "",
   };
 
   steps[2] = {
     id: 3,
-    title: "Schedule jobs ",
+    title: "Create a Feed Tree",
     status: "wait",
     error: "",
   };
 
   steps[3] = {
     id: 4,
-    title: "Setup the Feed Tree",
+    title: "Success",
     status: "wait",
     error: "",
   };

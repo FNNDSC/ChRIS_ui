@@ -186,11 +186,17 @@ const SubmitAnalysis = () => {
   };
 
   const feedId = useTypedSelector((state) => state.workflows.checkFeedDetails);
+  const isAnalysisRunning = useTypedSelector(
+    (state) => state.workflows.isAnalysisRunning
+  );
 
   return (
     <Card>
       <CardBody>
-        <Button isDisabled={!workflowType ? true : false} onClick={handleClick}>
+        <Button
+          isDisabled={!workflowType || isAnalysisRunning ? true : false}
+          onClick={handleClick}
+        >
           Submit An Analysis
         </Button>
       </CardBody>
