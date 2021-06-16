@@ -73,7 +73,8 @@ export function getStatusLabels(
     title: "Computing",
     status:
       labels?.compute.return.status === true &&
-      labels?.compute.submit.status === true
+      labels?.compute.submit.status === true &&
+      labels?.compute.return.job_status === "finishedSuccessfully"
         ? true
         : false,
     isCurrentStep:

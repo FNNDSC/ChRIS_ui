@@ -7,12 +7,9 @@
 import keyMirror from "keymirror";
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 
-
-
 type Return = {
-  l_logs: any[];
-  l_status: string[];
   status: boolean;
+  job_status: string;
 };
 
 type Submit = {
@@ -67,8 +64,6 @@ export interface PluginInstanceResourcePayload {
   [id: string]: ResourcePayload;
 }
 
-
-
 export interface PluginInstanceObj {
   selected: PluginInstance;
   pluginInstances: PluginInstance[];
@@ -84,8 +79,6 @@ export interface DestroyActiveResources {
   data?: PluginInstance[];
   selectedPlugin?: PluginInstance;
 }
-
-
 
 export interface IResourceState {
   pluginInstanceStatus: PluginInstanceStatusPayload;
