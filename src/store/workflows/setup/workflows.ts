@@ -169,6 +169,7 @@ export function* runFastsurferWorkflow(
     exec: "recon-all",
     args: "' ARGS: -autorecon1 '",
     outputFile: "recon-of-SAG-anon-nii",
+    inputFile: ".dcm",
     previous_id: dircopy.data.id,
   };
   const plFshackInstance: PluginInstance = yield client.createPluginInstance(
@@ -218,6 +219,7 @@ export function* runFetalReconstructionWorkflow(
     pluginList["pl-ants_n4biasfieldcorrection"];
   const plAntsN4BiasFieldCorrectionArgs = {
     previous_id: plFetalBrainMaskInstance.data.id,
+    inputPathFilter: "extracted/0.0/*.nii",
   };
   const plAntsN4BiasFieldCorrectionInstance: PluginInstance =
     yield client.createPluginInstance(
@@ -238,6 +240,8 @@ export function* runFetalReconstructionWorkflow(
   const plIrtkReconstruction = pluginList["pl-irtk-reconstruction"];
   const plIrtkReconstructionArgs = {
     previous_id: plFetailBrainAssessmentInstance.data.id,
+    inputPathFilter: "Best_Images_crop/*.nii",
+    csv: "quality_assessment.csv",
   };
   yield client.createPluginInstance(
     plIrtkReconstruction.data.id,
