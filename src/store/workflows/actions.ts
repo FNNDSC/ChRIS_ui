@@ -39,3 +39,5 @@ export const deleteLocalFile = (fileName: string) =>
 
 export const setFeedDetails = (id: number) =>
   action(WorkflowTypes.SET_FEED_DETAILS, id);
+
+export const stopAnalysis = () => action(WorkflowTypes.STOP_ANALYSIS);

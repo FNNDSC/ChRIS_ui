@@ -106,6 +106,7 @@ export const WorkflowTypes = keyMirror({
   SET_PLUGIN_FILES: null,
   SET_LOCAL_FILE: null,
   SUBMIT_ANALYSIS: null,
+  STOP_ANALYSIS: null,
   SET_ANALYSIS_STEP: null,
   SET_OPTION_STATE: null,
   RESET_WORKFLOW_STEP: null,

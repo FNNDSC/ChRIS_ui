@@ -8,9 +8,10 @@ import {
 } from "../types";
 import { v4 } from "uuid";
 import ChrisAPIClient from "../../../api/chrisapiclient";
+import { stopAnalysis } from "../actions";
 import { setYieldAnalysis } from "../saga";
 import { IActionTypeParam } from "../../../api/models/base.model";
-import { PluginInstance, Plugin, Feed, Note } from "@fnndsc/chrisapi";
+import { PluginInstance, Feed, Note } from "@fnndsc/chrisapi";
 import { LocalFile } from "../../../components/feed/CreateFeed/types";
 import { getPlugin, uploadLocalFiles, uploadFilePaths } from "../../utils";
 import {
@@ -156,6 +157,7 @@ export function* createFeed(
       " , "
     )} `;
     yield setYieldAnalysis(1, "Registration Check Failed", "error", errorCode);
+    yield put(stopAnalysis());
   }
 }
 
@@ -198,8 +200,8 @@ export function* setupFeedDetails(
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         if (instance) yield runFastsurferWorkflow(instance, plugins);
       }
-      yield setYieldAnalysis(4, "Success", "finish", "");
     } else {
+      yield put(stopAnalysis());
       yield setYieldAnalysis(
         3,
         "Cannot create a Feed Tree",
@@ -218,7 +220,6 @@ export function* setupCovidnet(action: IActionTypeParam) {
     "pl-pdfgeneration",
   ];
   yield setupFeedDetails(action, covidnetPlugins, "covidnet");
-  yield setYieldAnalysis(4, "Success", "finish", "");
 }
 
 export function* setupInfantFreesurfer(action: IActionTypeParam) {

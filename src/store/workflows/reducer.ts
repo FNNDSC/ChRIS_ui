@@ -89,6 +89,14 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       };
     }
 
+    case WorkflowTypes.STOP_ANALYSIS: {
+      console.log("Works");
+      return {
+        ...state,
+        isAnalysisRunning: !state.isAnalysisRunning,
+      };
+    }
+
     case WorkflowTypes.SET_ANALYSIS_STEP: {
       const cloneSteps = [...state.steps];
       const index = cloneSteps.findIndex(

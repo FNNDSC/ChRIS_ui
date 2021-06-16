@@ -58,6 +58,7 @@ export function* runGenericWorkflow(
     }
   }
   yield setYieldAnalysis(3, "Created a Feed Tree", "finish", "");
+  yield setYieldAnalysis(4, "Success", "finish", "");
 }
 
 export function* runAdultFreesurferWorkflow(
@@ -155,6 +156,7 @@ export function* runAdultFreesurferWorkflow(
     plMgz2LutReportArgs
   );
   yield setYieldAnalysis(3, "Created a Feed Tree", "finish", "");
+  yield setYieldAnalysis(4, "Success", "finish", "");
 }
 
 export function* runFastsurferWorkflow(
@@ -192,4 +194,5 @@ export function* runFastsurferWorkflow(
     plMgz2LutReportArgs
   );
   yield setYieldAnalysis(3, "Created a Feed Tree", "finish", "");
+  yield setYieldAnalysis(4, "Success", "finish", "");
 }
