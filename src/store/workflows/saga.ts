@@ -4,6 +4,7 @@ import {
   setupAdultFreesurfer,
   setupInfantFreesurfer,
   setupFastsurfer,
+  setupFetalReconstruction,
 } from "./setup";
 import { WorkflowTypes, AnalysisStep } from "./types";
 import { setAnalysisStep } from "./actions";
@@ -23,6 +24,9 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
   }
   if (workflowType === "fastsurfer") {
     yield setupFastsurfer(action);
+  }
+  if (workflowType === "fetal-reconstruction") {
+    yield setupFetalReconstruction(action);
   }
 }
 

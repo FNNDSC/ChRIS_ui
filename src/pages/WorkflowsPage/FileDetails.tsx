@@ -26,6 +26,13 @@ import { LocalFile } from "../../components/feed/CreateFeed/types";
 
 const { Step } = Steps;
 
+const workflows = [
+  "covidnet",
+  "infant-freesurfer",
+  "adult-freesurfer",
+  "fetal-reconstruction",
+];
+
 const FileDetails = () => {
   const isAnalysisRunning = useTypedSelector(
     (state) => state.workflows.isAnalysisRunning
@@ -92,14 +99,7 @@ const SelectWorkflow = () => {
       dispatch(
         setOptionState({
           ...optionState,
-          toggleTemplateText:
-            id === "covidnet"
-              ? "CovidNET"
-              : id === "fastsurfer"
-              ? "FastSurfer"
-              : id === "infant-freesurfer"
-              ? "Infant FreeSurfer"
-              : "Adult FreeSurfer",
+          toggleTemplateText: id,
           selectedOption: id,
         })
       );
@@ -114,40 +114,18 @@ const SelectWorkflow = () => {
     );
   };
 
-  const menuItems = [
-    <OptionsMenuItem
-      onSelect={handleSelect}
-      id="covidnet"
-      key="option 1"
-      isSelected={selectedOption === "covidnet"}
-    >
-      CovidNET
-    </OptionsMenuItem>,
-    <OptionsMenuItem
-      onSelect={handleSelect}
-      id="infant-freesurfer"
-      key="option 2"
-      isSelected={selectedOption === "infant-freesurfer"}
-    >
-      Infant Freesurfer
-    </OptionsMenuItem>,
-    <OptionsMenuItem
-      onSelect={handleSelect}
-      id="adult-freesurfer"
-      key="option 3"
-      isSelected={selectedOption === "adult-freesurfer"}
-    >
-      Adult Freesurfer
-    </OptionsMenuItem>,
-    <OptionsMenuItem
-      onSelect={handleSelect}
-      id="fastsurfer"
-      key="option 4"
-      isSelected={selectedOption === "fastsurfer"}
-    >
-      FastSurfer
-    </OptionsMenuItem>,
-  ];
+  const menuItems = workflows.map((workflow: string, index: number) => {
+    return (
+      <OptionsMenuItem
+        onSelect={handleSelect}
+        id={workflow}
+        key={index}
+        isSelected={selectedOption === workflow}
+      >
+        {workflow}
+      </OptionsMenuItem>
+    );
+  });
 
   const toggle = (
     <OptionsMenuToggle

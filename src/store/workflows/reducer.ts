@@ -90,7 +90,6 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
     }
 
     case WorkflowTypes.STOP_ANALYSIS: {
-      console.log("Works");
       return {
         ...state,
         isAnalysisRunning: !state.isAnalysisRunning,

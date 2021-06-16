@@ -18,6 +18,7 @@ import {
   runGenericWorkflow,
   runAdultFreesurferWorkflow,
   runFastsurferWorkflow,
+  runFetalReconstructionWorkflow,
 } from "./workflows";
 import { setFeedDetails } from "../actions";
 import { put } from "@redux-saga/core/effects";
@@ -200,6 +201,10 @@ export function* setupFeedDetails(
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         if (instance) yield runFastsurferWorkflow(instance, plugins);
       }
+      if (workflowType === "fetal-reconstruction") {
+        yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
+        if (instance) yield runFetalReconstructionWorkflow(instance, plugins);
+      }
     } else {
       yield put(stopAnalysis());
       yield setYieldAnalysis(
@@ -225,7 +230,6 @@ export function* setupCovidnet(action: IActionTypeParam) {
 export function* setupInfantFreesurfer(action: IActionTypeParam) {
   const infantFreesurferPlugins = ["pl-dircopy", "pl-fshack-infant"];
   yield setupFeedDetails(action, infantFreesurferPlugins, "infant-freesurfer");
-  yield setYieldAnalysis(4, "Success", "finish", "");
 }
 
 export function* setupAdultFreesurfer(action: IActionTypeParam) {
@@ -239,7 +243,6 @@ export function* setupAdultFreesurfer(action: IActionTypeParam) {
     "pl-mgz2lut_report",
   ];
   yield setupFeedDetails(action, adultFreesurferPlugins, "adult-freesurfer");
-  yield setYieldAnalysis(4, "Success", "finish", "");
 }
 
 export function* setupFastsurfer(action: IActionTypeParam) {
@@ -250,5 +253,19 @@ export function* setupFastsurfer(action: IActionTypeParam) {
     "pl-mgz2lut_report",
   ];
   yield setupFeedDetails(action, fastsurferPlugins, "fastsurfer");
-  yield setYieldAnalysis(4, "Success", "finish", "");
+}
+
+export function* setupFetalReconstruction(action: IActionTypeParam) {
+  const fetalReconstructionPlugins = [
+    "pl-dircopy",
+    "pl-fetal-brain-mask",
+    "pl-ants_n4biasfieldcorrection",
+    "pl-fetal-brain-assessment",
+    "pl-irtk-reconstruction",
+  ];
+  yield setupFeedDetails(
+    action,
+    fetalReconstructionPlugins,
+    "fetal-reconstruction"
+  );
 }
