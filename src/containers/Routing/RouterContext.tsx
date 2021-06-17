@@ -9,17 +9,17 @@ interface RouterContextProps<S, A = any> {
 type RouterContextType<S, A = any> = React.Context<RouterObjectType<S,A>>
 type RouterObjectType<S, A = any> = { 
   state: S
-  actions?: A
+  actions: A
   route: (path:string) => any 
 }
 
-export function RouterContext<S, A>
+export function RouterContext<S, A = any>
   ({ state, actions }: RouterContextProps<S,A>): [S, RouterContextType<S,A>] {
   return [
     state, 
     React.createContext<RouterObjectType<S,A>>({
       route: (path: string) => path,
-      actions,
+      actions: actions ? actions : {} as A,
       state
     })
   ]

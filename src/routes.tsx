@@ -7,26 +7,28 @@ import { LogIn } from "./pages/LogIn/Login";
 import { NotFound } from "./pages/NotFound/NotFound";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import FeedsPage from "./pages/Feeds/Feeds";
-import Query from "./pages/DataLibrary";
+import Library from "./pages/DataLibrary/Library";
 import SignUp from "./pages/SignUp/SignUp";
 import WorkflowsPage from "./pages/WorkflowsPage";
 
-export const [init, MainRouterContext] = RouterContext({
-  state: {
-    variable: 'init'
+import { DataItem } from "./pages/DataLibrary/DataTypes";
+
+export const [State, MainRouterContext] = RouterContext({
+  state: {},
+  actions: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    createFeedWithData: (d: DataItem[]) => { /**/ }
   }
 });
 
 export const MainRouter: React.FC = () => {
+  const [state, setState] = useState(State)
   const [route, setRoute] = useState<string>()
-  const [state, setState] = useState(init)
 
   const actions = {
-    openNew: (args: string) => {
-      setRoute("/signup")
-      setState({
-        variable: args
-      })
+    createFeedWithData: (selectData: DataItem[]) => {
+      setState({ selectData })
+      setRoute("/feeds")
     }
   }
 
@@ -36,7 +38,7 @@ export const MainRouter: React.FC = () => {
       <Route exact path="/login" component={LogIn} />
       <Route exact path="/signup" component={SignUp} />
       <PrivateRoute path="/feeds" component={FeedsPage} />
-      <PrivateRoute path="/pacs" component={Query} />
+      <PrivateRoute path="/library" component={Library} />
       <PrivateRoute path="/workflows" component={WorkflowsPage} />
       <Route component={NotFound} />
     </RouterProvider>    

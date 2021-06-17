@@ -8,4 +8,10 @@
 
 $fw-light: 300;
 $fw-normal: 400;
-$fw-bold: 900
+$fw-bold: 900;
+
+h1 {
+  font-size: 2em;
+  font-weight: 600;
+  margin: 0.5em auto 1em auto;
+}
