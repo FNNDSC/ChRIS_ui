@@ -15,89 +15,48 @@ import {
 import { setSidebarActive } from "../../store/ui/actions";
 import { Dispatch } from "redux";
 
+type AllProps = IUiState & IUserState & ReduxProp;
 type ReduxProp = {
   setSidebarActive: (active: {
     activeItem: string;
     activeGroup: string;
   }) => void;
 };
-type AllProps = IUiState & IUserState & ReduxProp;
 
-const Sidebar: React.FC<AllProps> = ({
-  isNavOpen,
-  sidebarActiveItem,
-  sidebarActiveGroup,
-  // isLoggedIn,
-}: AllProps) => {
-  const onSelect = (selectedItem: {
-    groupId: number | string;
-    itemId: number | string;
-    to: string;
-    event: React.FormEvent<HTMLInputElement>;
-  }) => {
-    setSidebarActive({
-      activeItem: selectedItem.itemId as string,
-      activeGroup: selectedItem.groupId as string,
-    });
+const Sidebar: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
+  const [active, setActive] = React.useState<string>()
+  const onSelect = (selectedItem: any) => {
+    setActive(String(selectedItem.itemId));
   };
 
   const PageNav = (
     <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
       <NavList>
-        <NavGroup title="Databases">
-          <NavItem
-            groupId="data_grp"
-            itemId="pacs_query"
-            isActive={sidebarActiveItem === "pacs_query"}
-          >
-            <Link to="/">My Library</Link>
+        <NavGroup title="Data Library">
+          <NavItem itemId="lib" isActive={active === "lib"}>
+            <Link to="/library">My Library</Link>
           </NavItem>
 
-          <NavItem
-            groupId="data_grp"
-            itemId="pacs_query"
-            isActive={sidebarActiveItem === "pacs_query"}
-          >
-            <Link to="/">Swift Query</Link>
+          <NavItem itemId="swift" isActive={active === "swift"}>
+            <Link to="/library/swift">Swift Lookup</Link>
           </NavItem>
 
-          <NavItem
-            groupId="data_grp"
-            itemId="pacs_query"
-            isActive={sidebarActiveItem === "pacs_query"}
-          >
-            <Link to="/pacs">PACS Query</Link>
+          <NavItem itemId="pacs" isActive={active === "pacs"}>          
+            <Link to="/library/pacs">PACS Lookup</Link>
           </NavItem>
         </NavGroup>
 
-        <NavGroup title="Analysis">
-          <NavItem
-            groupId="feeds_grp"
-            itemId="build_feed"
-            isActive={sidebarActiveItem === "build_feed"}
-          >
+        <NavGroup title="Analyse">
+          <NavItem itemId="build_feed" isActive={active === "build_feed"}>
             <Link to="/feeds">Build Feed</Link>
           </NavItem>
 
-          <NavItem
-            groupId="feeds_grp"
-            itemId="my_feeds"
-            isActive={sidebarActiveItem === "my_feeds"}
-          >
+          <NavItem itemId="feeds" isActive={active === "feeds"}>
             <Link to="/feeds">Feeds List</Link>
           </NavItem>
         
-          <NavExpandable
-            isExpanded={true}
-            title="Workflows"
-            groupId="workflows_grp"
-            isActive={sidebarActiveGroup === "workflows_grp"}
-          >
-            <NavItem
-              groupId="workflows_grp"
-              itemId="my_workflows"
-              isActive={sidebarActiveItem === "my_workflows"}
-            >
+          <NavExpandable title="Workflows" isExpanded={true}>
+            <NavItem itemId="wf_COVIDnet" isActive={active === "wf_COVIDnet"}>
               <Link to="/workflows">COVIDnet</Link>
             </NavItem>
           </NavExpandable>
@@ -110,8 +69,6 @@ const Sidebar: React.FC<AllProps> = ({
 };
 
 const mapStateToProps = ({ ui, user }: ApplicationState) => ({
-  sidebarActiveItem: ui.sidebarActiveItem,
-  sidebarActiveGroup: ui.sidebarActiveGroup,
   isLoggedIn: user.isLoggedIn,
 });
 

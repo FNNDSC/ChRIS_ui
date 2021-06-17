@@ -1,22 +1,28 @@
-import React, { useCallback, useState } from "react";
-import Wrapper from "../../../containers/Layout/PageWrapper";
+import React, { useCallback, useContext, useState } from "react";
+import Wrapper from "../../../../containers/Layout/PageWrapper";
+
 import { Button, Dropdown, DropdownItem, DropdownToggle, Grid ,GridItem, Split, SplitItem } from "@patternfly/react-core";
 import { Card, CardBody, CardHeader, CardExpandableContent } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 
-export const PACS = () => {
+import { LibraryContext } from "../../Library";
+
+export const PACSDemo = () => {
+  const library = useContext(LibraryContext);
+  
   const [toggle, setToggle] = useState(false)
   const [layout, setLayout] = useState<string>('name')
 
   const [selected, setSelected] = useState<Array<string>>([])
   const select = useCallback((item) => {
+    library.actions.select({ name: "any" })
     if (selected.includes(item)) {
       selected.splice(selected.indexOf(item))
       setSelected(selected)
     }
     else
       setSelected([ ...selected, item ])
-  }, [selected])
+  }, [library.actions, selected])
 
   const [expanded, setExpanded] = useState<Array<string>>([])
   const expand = useCallback((item) => {
@@ -50,7 +56,7 @@ export const PACS = () => {
 
   return (
     <Wrapper>
-      <article style={{ width: "75%", margin: "2em auto" }}>
+      <article>
         <Split>
           <SplitItem>
             <h1>PACS Query</h1>
