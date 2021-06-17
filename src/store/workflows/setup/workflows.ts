@@ -121,9 +121,9 @@ export function* runAdultFreesurferWorkflow(
   const plMultipassArgs = {
     splitExpr: "++",
     commonArgs:
-      "'--printElapsedTime --verbosity 5 --saveImages --skipAllLabels --outputFileStem sample --outputFileType png\\'",
+      "'--printElapsedTime --verbosity 5 --saveImages --skipAllLabels --outputFileStem sample --outputFileType png'",
     specificArgs:
-      "'--inputFile recon-of-SAG-anon-dcm/mri/brainmask.mgz --wholeVolume brainVolume ++ --inputFile recon-of-SAG-anon-dcm/mri/aseg.mgz --wholeVolume segVolume --lookupTable __fs__ '",
+      "'--inputFile recon-of-SAG-anon-dcm/mri/brainmask.mgz --wholeVolume brainVolume ++ --inputFile recon-of-SAG-anon-dcm/mri/aparc.a2009s+aseg.mgz --wholeVolume segVolume --lookupTable __fs__ '",
     exec: "pfdo_mgz2img",
     title: "mgz-slices",
     previous_id: plFsHackInstance.data.id,
