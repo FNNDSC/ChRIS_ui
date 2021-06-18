@@ -105,7 +105,7 @@ export function* runFastsurferWorkflow(
   const plMgz2LutReportArgs = {
     title: "aseg-report",
     previous_id: plFastsurferInstance.data.id,
-    file_name: "'mri/aparc.DKTatlas+aseg.deep.mgz",
+    file_name: "mri/aparc.DKTatlas+aseg.deep.mgz",
     report_types: "txt,csv,json,html",
   };
   yield client.createPluginInstance(
