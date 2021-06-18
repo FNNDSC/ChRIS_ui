@@ -54,7 +54,7 @@ export function* runFastsurferWorkflow(
     title: "dicom-mgz",
     previous_id: pfdicomTagSubInstance.data.id,
     exec: "recon-all",
-    args: "'ARGS: -autorecon1'",
+    args: "'ARGS:-autorecon1'",
     outputFile: "recon-of-SAG-anon-dcm",
     inputFile: ".dcm",
   };

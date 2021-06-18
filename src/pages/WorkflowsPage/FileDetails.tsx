@@ -227,7 +227,7 @@ const SubmitAnalysis = () => {
           onClick={() => dispatch(resetWorkflowState())}
           isDisabled={isAnalysisRunning ? true : false}
         >
-          Reset
+          Start a new workflow
         </Button>
       </CardBody>
     </Card>
