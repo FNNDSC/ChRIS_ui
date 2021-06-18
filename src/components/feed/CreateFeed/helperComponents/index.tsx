@@ -39,9 +39,11 @@ export const FileList = ({ file, index }: { file: string; index: number }) => {
 export const LocalFileList = ({
   file,
   handleDeleteDispatch,
+  showIcon,
 }: {
   file: LocalFile;
   index: number;
+  showIcon: boolean;
   handleDeleteDispatch?: (file: string) => void;
 }) => {
   return (
@@ -50,13 +52,15 @@ export const LocalFileList = ({
         <FileIcon />
       </span>
       <span className="file-name">{file.name}</span>
-      <span className="trash-icon">
-        <OutlinedTrashAltIcon
-          onClick={() => {
-            handleDeleteDispatch && handleDeleteDispatch(file.name);
-          }}
-        />
-      </span>
+      {showIcon && (
+        <span className="trash-icon">
+          <OutlinedTrashAltIcon
+            onClick={() => {
+              handleDeleteDispatch && handleDeleteDispatch(file.name);
+            }}
+          />
+        </span>
+      )}
     </div>
   );
 };
@@ -65,7 +69,7 @@ function generateLocalFileList(localFiles: LocalFile[]) {
   return localFiles.map((file: LocalFile, index: number) => {
     return (
       <React.Fragment key={index}>
-        <LocalFileList file={file} index={index} />
+        <LocalFileList showIcon={false} file={file} index={index} />
       </React.Fragment>
     );
   });

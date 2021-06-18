@@ -30,6 +30,7 @@ const workflows = [
   "covidnet",
   "infant-freesurfer",
   "adult-freesurfer",
+  "fastsurfer",
   "fetal-reconstruction",
 ];
 
@@ -73,6 +74,11 @@ const FileUploadComponent = () => {
   return (
     <Card className="file-upload-card">
       <CardBody>
+        <h1 className="pf-c-title pf-m-2xl">
+          File Selection: Local File Upload
+        </h1>
+        <p>Choose files from your local computer to create a feed</p>
+        <br />
         <FileUpload
           handleDeleteDispatch={handleDeleteDispatch}
           localFiles={files}

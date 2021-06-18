@@ -14,12 +14,10 @@ import { IActionTypeParam } from "../../../api/models/base.model";
 import { PluginInstance, Feed, Note } from "@fnndsc/chrisapi";
 import { LocalFile } from "../../../components/feed/CreateFeed/types";
 import { getPlugin, uploadLocalFiles, uploadFilePaths } from "../../utils";
-import {
-  runGenericWorkflow,
-  runAdultFreesurferWorkflow,
-  runFastsurferWorkflow,
-  runFetalReconstructionWorkflow,
-} from "./workflows";
+import { runCovidnetWorkflow } from "./create workflows/covidnet";
+import { runFastsurferWorkflow } from "./create workflows/fastsurfer";
+import { runFreesurferWorkflow } from "./create workflows/freesurfer";
+import { runFetalReconstructionWorkflow } from "./create workflows/fetalReconstruction";
 import { setFeedDetails } from "../actions";
 import { put } from "@redux-saga/core/effects";
 
@@ -184,18 +182,26 @@ export function* setupFeedDetails(
     const { feedPayload, plugins } = feedFetch;
     const { feed, instance, error } = feedPayload;
     if (feed) {
-      if (workflowType === "covidnet" || workflowType === "infant-freesurfer") {
+      if (workflowType === "covidnet") {
         if (instance) {
           yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
           const result: string = yield pollingBackend(instance);
           if (result === "finishedSuccessfully") {
-            yield runGenericWorkflow(instance, plugins, workflowType);
+            yield runCovidnetWorkflow(instance, plugins);
           }
         }
       }
+
+      if (workflowType === "infant-freesurfer") {
+        yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
+        if (instance)
+          yield runFreesurferWorkflow(instance, plugins, "infant- freesurfer");
+      }
+
       if (workflowType === "adult-freesurfer") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
-        if (instance) yield runAdultFreesurferWorkflow(instance, plugins);
+        if (instance)
+          yield runFreesurferWorkflow(instance, plugins, "adult-freesurfer");
       }
       if (workflowType === "fastsurfer") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
@@ -228,7 +234,15 @@ export function* setupCovidnet(action: IActionTypeParam) {
 }
 
 export function* setupInfantFreesurfer(action: IActionTypeParam) {
-  const infantFreesurferPlugins = ["pl-dircopy", "pl-fshack-infant"];
+  const infantFreesurferPlugins = [
+    "pl-dircopy",
+    "pl-pfdicom_tagsub",
+    "pl-pfdicom_tagextract",
+    "pl-fshack-infant",
+    "pl-multipass",
+    "pl-pfdorun",
+    "pl-mgz2lut_report",
+  ];
   yield setupFeedDetails(action, infantFreesurferPlugins, "infant-freesurfer");
 }
 
@@ -248,8 +262,12 @@ export function* setupAdultFreesurfer(action: IActionTypeParam) {
 export function* setupFastsurfer(action: IActionTypeParam) {
   const fastsurferPlugins = [
     "pl-dircopy",
+    "pl-pfdicom_tagextract",
+    "pl-pfdicom_tagsub",
     "pl-fshack",
     "pl-fastsurfer_inference",
+    "pl-multipass",
+    "pl-pfdorun",
     "pl-mgz2lut_report",
   ];
   yield setupFeedDetails(action, fastsurferPlugins, "fastsurfer");
