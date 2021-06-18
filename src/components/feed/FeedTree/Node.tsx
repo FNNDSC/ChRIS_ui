@@ -86,8 +86,12 @@ const Node = (props: NodeProps) => {
     statusClass = "success";
   }
 
-  if (status === "finishedWithError" || status === "cancelled") {
+  if (status === "finishedWithError") {
     statusClass = "error";
+  }
+
+  if (status === "cancelled") {
+    statusClass = "cancelled";
   }
 
   if (mode === false && tsNodes && tsNodes.length > 0) {

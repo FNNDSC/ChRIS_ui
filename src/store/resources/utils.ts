@@ -38,7 +38,7 @@ export function getStatusLabels(
   status[0] = {
     id: 1,
     title: "Waiting",
-    status: statusLabels.indexOf(pluginStatus) > 0 ? true : false,
+    status: statusLabels.indexOf(pluginStatus) > 0 && labels ? true : false,
     isCurrentStep: pluginDetails.data.status === "waiting",
     error,
     description: "Waiting",
@@ -48,7 +48,7 @@ export function getStatusLabels(
   status[1] = {
     id: 2,
     title: "Scheduling",
-    status: statusLabels.indexOf(pluginStatus) > 1 ? true : false,
+    status: statusLabels.indexOf(pluginStatus) > 1 && labels ? true : false,
     isCurrentStep: pluginDetails.data.status === "scheduled" ? true : false,
     error,
     description: "Scheduling",

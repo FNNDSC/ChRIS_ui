@@ -69,7 +69,7 @@ export function* runFastsurferWorkflow(
     subjectDir: "recon-of-SAG-anon-dcm",
     subject: "mri",
     copyInputFiles: "mgz",
-    in_name: "brainmask.mgz",
+    iname: "brainmask.mgz",
   };
   const plFastsurferInstance: PluginInstance =
     yield client.createPluginInstance(plFastsurfer.data.id, plFastsurferArgs);
@@ -82,7 +82,7 @@ export function* runFastsurferWorkflow(
     commonArgs:
       "'--printElapsedTime --verbosity 5 --saveImages --skipAllLabels --outputFileStem sample --outputFileType png'",
     specificArgs:
-      "'--inputFile mri/brainmask.mgz --wholeVolume brainVolume ++ --inputFile mri/aparc.DKTatlas+aseg.deep.mgz  --wholeVolume segVolume --lookupTable __fs__'",
+      "'--inputFile mri/brainmask.mgz --wholeVolume brainVolume ++ --inputFile mri/aparc.DKTatlas+aseg.deep.mgz --wholeVolume segVolume --lookupTable __fs__'",
     exec: "pfdo_mgz2image",
   };
   const plMultipassInstance: PluginInstance = yield client.createPluginInstance(
