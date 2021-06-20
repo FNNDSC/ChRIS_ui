@@ -183,12 +183,10 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               </Fragment>
             )}
             {cancelled &&
-         
-         
-                      renderGridItem(
-                    "Error Code",
-                    <span>{error_code ? error_code : "None"}</span>
-                  )}
+              renderGridItem(
+                "Error Code",
+                <span>{error_code ? error_code : "None"}</span>
+              )}
           </Grid>
         </ExpandableSection>
 
@@ -225,6 +223,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
 
         <div className="node-details__infoLabel">
           <Popover
+            className="node-details__popover"
             content={<PluginLog text={text} />}
             placement="bottom"
             visible={isTerminalVisible}

@@ -17,12 +17,22 @@ import {
   setLocalFile,
   submitAnalysis,
   setOptionState,
+  resetWorkflowState,
+  deleteLocalFile,
 } from "../../store/workflows/actions";
 import { useDispatch } from "react-redux";
 import { AnalysisStep } from "../../store/workflows/types";
 import { LocalFile } from "../../components/feed/CreateFeed/types";
 
 const { Step } = Steps;
+
+const workflows = [
+  "covidnet",
+  "infant-freesurfer",
+  "adult-freesurfer",
+  "fastsurfer",
+  "fetal-reconstruction",
+];
 
 const FileDetails = () => {
   const isAnalysisRunning = useTypedSelector(
@@ -51,16 +61,29 @@ const FileUploadComponent = () => {
     (state) => state.workflows.localfilePayload
   );
   const dispatch = useDispatch();
-  const { files, error, loading } = localFilePayload;
+  const { files } = localFilePayload;
 
   const handleDispatch = (files: LocalFile[]) => {
     dispatch(setLocalFile(files));
   };
 
+  const handleDeleteDispatch = (fileName: string) => {
+    dispatch(deleteLocalFile(fileName));
+  };
+
   return (
-    <Card>
+    <Card className="file-upload-card">
       <CardBody>
-        <FileUpload localFiles={files} dispatchFn={handleDispatch} />
+        <h1 className="pf-c-title pf-m-2xl">
+          File Selection: Local File Upload
+        </h1>
+        <p>Choose files from your local computer to create a feed</p>
+        <br />
+        <FileUpload
+          handleDeleteDispatch={handleDeleteDispatch}
+          localFiles={files}
+          dispatchFn={handleDispatch}
+        />
       </CardBody>
     </Card>
   );
@@ -82,14 +105,7 @@ const SelectWorkflow = () => {
       dispatch(
         setOptionState({
           ...optionState,
-          toggleTemplateText:
-            id === "covidnet"
-              ? "CovidNET"
-              : id === "fastsurfer"
-              ? "FastSurfer"
-              : id === "infant-freesurfer"
-              ? "Infant FreeSurfer"
-              : "Adult FreeSurfer",
+          toggleTemplateText: id,
           selectedOption: id,
         })
       );
@@ -104,40 +120,18 @@ const SelectWorkflow = () => {
     );
   };
 
-  const menuItems = [
-    <OptionsMenuItem
-      onSelect={handleSelect}
-      id="covidnet"
-      key="option 1"
-      isSelected={selectedOption === "covidnet"}
-    >
-      CovidNET
-    </OptionsMenuItem>,
-    <OptionsMenuItem
-      onSelect={handleSelect}
-      id="infant-freesurfer"
-      key="option 2"
-      isSelected={selectedOption === "infant-freesurfer"}
-    >
-      Infant Freesurfer
-    </OptionsMenuItem>,
-    <OptionsMenuItem
-      onSelect={handleSelect}
-      id="adult-freesurfer"
-      key="option 3"
-      isSelected={selectedOption === "adult-freesurfer"}
-    >
-      Adult Freesurfer
-    </OptionsMenuItem>,
-    <OptionsMenuItem
-      onSelect={handleSelect}
-      id="fastsurfer"
-      key="option 4"
-      isSelected={selectedOption === "fastsurfer"}
-    >
-      FastSurfer
-    </OptionsMenuItem>,
-  ];
+  const menuItems = workflows.map((workflow: string, index: number) => {
+    return (
+      <OptionsMenuItem
+        onSelect={handleSelect}
+        id={workflow}
+        key={index}
+        isSelected={selectedOption === workflow}
+      >
+        {workflow}
+      </OptionsMenuItem>
+    );
+  });
 
   const toggle = (
     <OptionsMenuToggle
@@ -186,12 +180,17 @@ const SubmitAnalysis = () => {
   };
 
   const feedId = useTypedSelector((state) => state.workflows.checkFeedDetails);
-  console.log("FEEDID", feedId);
+  const isAnalysisRunning = useTypedSelector(
+    (state) => state.workflows.isAnalysisRunning
+  );
 
   return (
     <Card>
       <CardBody>
-        <Button isDisabled={!workflowType ? true : false} onClick={handleClick}>
+        <Button
+          isDisabled={!workflowType || isAnalysisRunning ? true : false}
+          onClick={handleClick}
+        >
           Submit An Analysis
         </Button>
       </CardBody>
@@ -211,6 +210,9 @@ const SubmitAnalysis = () => {
       </CardBody>
       <CardBody>
         <Button
+          style={{
+            marginRight: "0.5rem",
+          }}
           onClick={() => {
             if (feedId) {
               history.push(`/feeds/${feedId}`);
@@ -220,6 +222,12 @@ const SubmitAnalysis = () => {
           variant="primary"
         >
           Check Feed Details
+        </Button>
+        <Button
+          onClick={() => dispatch(resetWorkflowState())}
+          isDisabled={isAnalysisRunning ? true : false}
+        >
+          Start a new workflow
         </Button>
       </CardBody>
     </Card>

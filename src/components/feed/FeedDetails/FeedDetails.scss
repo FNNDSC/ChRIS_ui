@@ -4,39 +4,54 @@
 
 /* Header */
 
+.ant-popover-inner-content {
+  width: 25rem !important;
+  padding: 0
+}
+
 .feed-details {
   display: flex;
   margin-top: 10px;
+
+  &__textarea {
+    --pf-c-form-control--BackgroundColor: var(
+      --pf-global--palette--black-700
+    ) !important;
+    color: white !important;
+    font-family: "monospace";
+    font-size: 1.25rem;
+  }
+
+  &__actions {
+    button {
+      margin-right:0.5em;
+    }
+  }
 
   @include media-query($pf-global--breakpoint--xs) {
     flex-direction: column;
 
     li {
-      margin-top:0.25em;
+      margin-top: 0.25em;
     }
   }
 
   @include media-query($pf-global--breakpoint--lg) {
     flex-direction: row;
-    li:first-of-type {
-      align-self: center;
-    }
-
-    li:last-of-type {
+    li {
       align-self: center;
     }
   }
 
   li {
-    margin-top:0;
+    margin-top: 0;
     margin-right: 2em;
-    svg{
+    svg {
       margin-right: 0.25em;
     }
   }
 
-  li:first-of-type{
+  li:first-of-type {
     font-weight: bold;
-
   }
 }

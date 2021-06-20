@@ -6,9 +6,11 @@ import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
 const FileUpload = ({
   localFiles,
   dispatchFn,
+  handleDeleteDispatch,
 }: {
   localFiles: LocalFile[];
   dispatchFn: (files: LocalFile[]) => void;
+  handleDeleteDispatch: (file: string) => void;
 }) => {
   const openLocalFilesPicker = (): Promise<LocalFile[]> => {
     const input = document.createElement("input");
@@ -40,15 +42,17 @@ const FileUpload = ({
     localFiles.length > 0
       ? localFiles.map((file: LocalFile, index: number) => (
           <React.Fragment key={index}>
-            <LocalFileList file={file} index={index} />
+            <LocalFileList
+              handleDeleteDispatch={handleDeleteDispatch}
+              file={file}
+              index={index}
+              showIcon={true}
+            />
           </React.Fragment>
         ))
       : null;
   return (
     <div className="local-file-upload">
-      <h1 className="pf-c-title pf-m-2xl">File Selection: Local File Upload</h1>
-      <p>Choose files from your local computer to create a feed</p>
-      <br />
       <Grid hasGutter={true}>
         <GridItem span={4} rowSpan={4}>
           <p className="section-header">File Upload</p>
