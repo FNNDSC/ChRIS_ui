@@ -112,7 +112,7 @@ export function* runFreesurferWorkflow(
     const plMgz2LutReportArgs = {
       title: "segmentation-report",
       previous_id: plFsHackInstance.data.id,
-      fileName: "recon-of-SAG-anon-dcm/mri/aparc.a2009s+aseg.mgz",
+      file_name: "recon-of-SAG-anon-dcm/mri/aparc.a2009s+aseg.mgz",
       report_types: "txt,csv,json,html",
     };
     yield client.createPluginInstance(

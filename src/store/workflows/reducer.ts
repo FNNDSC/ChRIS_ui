@@ -102,7 +102,6 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
         (step) => step.id === action.payload.id
       );
       cloneSteps[index] = action.payload;
-      console.log("Index", index);
 
       if (index == 3) {
         return {
