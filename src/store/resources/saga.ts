@@ -9,7 +9,7 @@ import {
 import { Task } from "redux-saga";
 import { IActionTypeParam } from "../../api/models/base.model";
 import { ResourceTypes, PluginStatusLabels } from "./types";
-import { PluginInstance, PluginInstanceFileList } from "@fnndsc/chrisapi";
+import { PluginInstance } from "@fnndsc/chrisapi";
 import { inflate } from "pako";
 import {
   getPluginInstanceResourceSuccess,

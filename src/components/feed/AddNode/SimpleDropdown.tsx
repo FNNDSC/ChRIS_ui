@@ -13,7 +13,6 @@ import { PluginParameter } from "@fnndsc/chrisapi";
 import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
 import { css } from "@patternfly/react-styles";
 
-
 function getInitialState() {
   return {
     isOpen: false,
@@ -129,11 +128,11 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           value={value}
-          disabled={type==='boolean'}
+          disabled={type === "boolean"}
         />
 
-        <div className="close-icon">
-          <TrashAltIcon onClick={deleteDropdown} />
+        <div onClick={deleteDropdown} className="close-icon">
+          <TrashAltIcon />
         </div>
       </div>
       {type === "boolean" && (
