@@ -16,7 +16,27 @@ const LocalFileUpload: React.FC = () => {
       },
     });
   };
-  return <FileUpload localFiles={localFiles} dispatchFn={handleDispatch} />;
+
+  const handleDeleteDispatch = (file: string) => {
+    dispatch({
+      type: Types.RemoveLocalFile,
+      payload: {
+        filename: file,
+      },
+    });
+  };
+
+  return (
+    <>
+      <h1 className="pf-c-title pf-m-2xl">File Selection: Local File Upload</h1>
+      <p>Choose files from your local computer to create a feed</p>
+      <FileUpload
+        handleDeleteDispatch={handleDeleteDispatch}
+        localFiles={localFiles}
+        dispatchFn={handleDispatch}
+      />
+    </>
+  );
 };
 
 export default LocalFileUpload;

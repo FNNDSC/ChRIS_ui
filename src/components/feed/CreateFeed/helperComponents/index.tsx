@@ -36,73 +36,77 @@ export const FileList = ({ file, index }: { file: string; index: number }) => {
   );
 };
 
-export const LocalFileList = ({ file }: { file: LocalFile; index: number }) => {
-  const { dispatch } = useContext(CreateFeedContext);
-
+export const LocalFileList = ({
+  file,
+  handleDeleteDispatch,
+  showIcon,
+}: {
+  file: LocalFile;
+  index: number;
+  showIcon: boolean;
+  handleDeleteDispatch?: (file: string) => void;
+}) => {
   return (
     <div className="file-preview" key={file.name}>
       <span className="file-icon">
         <FileIcon />
       </span>
       <span className="file-name">{file.name}</span>
-      <span className="trash-icon">
-        <OutlinedTrashAltIcon
-          onClick={() => {
-            dispatch({
-              type: Types.RemoveLocalFile,
-              payload: {
-                filename: file.name,
-              },
-            });
-          }}
-        />
-      </span>
+      {showIcon && (
+        <span className="trash-icon">
+          <OutlinedTrashAltIcon
+            onClick={() => {
+              handleDeleteDispatch && handleDeleteDispatch(file.name);
+            }}
+          />
+        </span>
+      )}
     </div>
   );
 };
 
- function generateLocalFileList(localFiles: LocalFile[]) {
-   return localFiles.map((file: LocalFile, index: number) => {
-     return (
-       <React.Fragment key={index}>
-         <LocalFileList file={file} index={index} />
-       </React.Fragment>
-     );
-   });
- }
+function generateLocalFileList(localFiles: LocalFile[]) {
+  return localFiles.map((file: LocalFile, index: number) => {
+    return (
+      <React.Fragment key={index}>
+        <LocalFileList showIcon={false} file={file} index={index} />
+      </React.Fragment>
+    );
+  });
+}
 
- function generateChrisFileList(chrisFiles: string[]) {
-   return chrisFiles.map((file: string, index: number) => {
-     return (
-       <React.Fragment key={index}>
-         <FileList file={file} index={index} />
-       </React.Fragment>
-     );
-   });
- }
+function generateChrisFileList(chrisFiles: string[]) {
+  return chrisFiles.map((file: string, index: number) => {
+    return (
+      <React.Fragment key={index}>
+        <FileList file={file} index={index} />
+      </React.Fragment>
+    );
+  });
+}
 
- export const ChrisFileDetails = ({ chrisFiles }: { chrisFiles: string[] }) => {
-   return (
-     <Split>
-       <SplitItem isFilled className="file-list">
-         <p>Existing Files to add to new feed:</p>
-         {generateChrisFileList(chrisFiles)}
-       </SplitItem>
-     </Split>
-   );
- };
+export const ChrisFileDetails = ({ chrisFiles }: { chrisFiles: string[] }) => {
+  return (
+    <Split>
+      <SplitItem isFilled className="file-list">
+        <p>Existing Files to add to new feed:</p>
+        {generateChrisFileList(chrisFiles)}
+      </SplitItem>
+    </Split>
+  );
+};
 
- export const LocalFileDetails = ({
-   localFiles,
- }: {
-   localFiles: LocalFile[];
- }) => {
-   return (
-     <Split>
-       <SplitItem isFilled className="file-list">
-         <p>Local Files to add to new feed:</p>
-         {generateLocalFileList(localFiles)}
-       </SplitItem>
-     </Split>
-   );
- };
+export const LocalFileDetails = ({
+  localFiles,
+}: {
+  localFiles: LocalFile[];
+}) => {
+  return (
+    <Split>
+      <SplitItem isFilled className="file-list">
+        <p>Local Files to add to new feed:</p>
+        {generateLocalFileList(localFiles)}
+      </SplitItem>
+    </Split>
+  );
+};

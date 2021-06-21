@@ -50,12 +50,12 @@
       }
       &--button {
         // Tells the element to create as much space as possible to it's left
-        margin-left:auto;
+        margin-left: auto;
       }
 
       &--formInput {
-        --pf-c-form-control--Width:30%;
-        margin-right:1em;
+        --pf-c-form-control--Width: 30%;
+        margin-right: 1em;
       }
 
       &--formButton {
@@ -87,11 +87,10 @@
     .pf-c-expandable-section__toggle {
       color: var(--pf-global--palette--white);
       margin-bottom: 0.25em;
-      margin-top:0.25em;
-    
+      margin-top: 0.25em;
 
       &-icon {
-        color:var(--pf-global--palette--white);
+        color: var(--pf-global--palette--white);
         margin-right: 0.25em;
       }
     }
@@ -113,7 +112,6 @@
     }
 
     &__status-descriptions {
-     
       .ant-steps-item {
         overflow: visible !important;
       }
@@ -139,7 +137,6 @@
       }
     }
 
-
     &__status {
       .ant-steps-item-icon {
         width: 28px !important;
@@ -151,50 +148,47 @@
         cursor: pointer;
         padding: 5px 7px;
       }
-      
+
       .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item {
         padding-left: 0;
       }
-      
-      .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item-tail {
+
+      .ant-steps-horizontal:not(.ant-steps-label-vertical)
+        .ant-steps-item-tail {
         display: outline !important;
       }
-      
+
       .ant-steps-item-finish
         > .ant-steps-item-container
         > .ant-steps-item-content
         > .ant-steps-item-description {
         color: white !important;
       }
-      
+
       .ant-steps-item-finish .ant-steps-item-icon {
         background-color: #1890ff !important;
       }
-      
+
       .ant-steps-item-error .ant-steps-item-icon {
         background: #c9190b !important;
       }
-      
+
       .ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon,
       .ant-steps-item-error .ant-steps-item-icon > .ant-steps-icon {
         color: #fff !important;
       }
-      
+
       .ant-steps-item-title {
         padding-right: 0;
       }
-      
-      .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
+
+      .ant-steps-item-container
+        > .ant-steps-item-content
+        > .ant-steps-item-title {
         color: white !important;
       }
-      
     }
-
-   
   }
-
-
-
 
   @include media-query(1200px) {
     .pf-l-grid > .pf-m-2-col {
@@ -209,16 +203,10 @@ Steps Design Icon
 
 ******/
 
-
-
 .ant-popover-inner-content {
   width: 45rem !important;
-  padding: 0.25rem !important;
+  padding: 0 !important;
 }
-
-
-
-
 
 .ReactVirtualized__Grid__innerScrollContainer {
   color: #fff;

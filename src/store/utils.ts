@@ -5,8 +5,8 @@ import {
   Plugin,
 } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
+import { PluginReturnPayload } from "./workflows/types";
 import { LocalFile } from "../components/feed/CreateFeed/types";
-
 
 export function* getPluginFiles(plugin: PluginInstance) {
   const params = { limit: 200, offset: 0 };
@@ -25,13 +25,23 @@ export function* getPluginFiles(plugin: PluginInstance) {
   return files;
 }
 
+
+
 export function* getPlugin(pluginName: string) {
+  const pluginPayload: PluginReturnPayload = {
+    plugin: undefined,
+    error: "",
+  };
   const client = ChrisAPIClient.getClient();
   const pluginLookup: PluginInstanceList = yield client.getPlugins({
     name_exact: pluginName,
   });
   const plugin: Plugin = yield pluginLookup.getItems()[0];
-  return plugin;
+  if (!plugin) {
+    pluginPayload["error"] = `${pluginName} is not registed`;
+  } else pluginPayload["plugin"] = plugin;
+
+  return pluginPayload;
 }
 
 export function* uploadLocalFiles(files: LocalFile[], directory: string) {

@@ -5,28 +5,28 @@ function getInitialSteps() {
   const steps: AnalysisStep[] = [];
   steps[0] = {
     id: 1,
-    title: "Check if the plugins are registered",
+    title: "Check if plugins are registered",
     status: "wait",
     error: "",
   };
 
   steps[1] = {
     id: 2,
-    title: "Create a Feed",
+    title: "Create a Feed Root Node",
     status: "wait",
     error: "",
   };
 
   steps[2] = {
     id: 3,
-    title: "Schedule jobs ",
+    title: "Create a Feed Tree",
     status: "wait",
     error: "",
   };
 
   steps[3] = {
     id: 4,
-    title: "Setup the Feed Tree",
+    title: "Success",
     status: "wait",
     error: "",
   };
@@ -63,6 +63,18 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       };
     }
 
+    case WorkflowTypes.DELETE_LOCAL_FILE: {
+      const files = state.localfilePayload.files.filter(
+        (file) => file.name !== action.payload
+      );
+      return {
+        ...state,
+        localfilePayload: {
+          ...state.localfilePayload,
+          files,
+        },
+      };
+    }
     case WorkflowTypes.SET_OPTION_STATE: {
       return {
         ...state,
@@ -77,6 +89,13 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       };
     }
 
+    case WorkflowTypes.STOP_ANALYSIS: {
+      return {
+        ...state,
+        isAnalysisRunning: !state.isAnalysisRunning,
+      };
+    }
+
     case WorkflowTypes.SET_ANALYSIS_STEP: {
       const cloneSteps = [...state.steps];
       const index = cloneSteps.findIndex(
@@ -84,7 +103,7 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       );
       cloneSteps[index] = action.payload;
 
-      if (index == 4) {
+      if (index == 3) {
         return {
           ...state,
           steps: cloneSteps,
@@ -98,7 +117,6 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
     }
 
     case WorkflowTypes.SET_FEED_DETAILS: {
-      console.log("SET FEED DETAILS", action.payload);
       return {
         ...state,
         checkFeedDetails: action.payload,
