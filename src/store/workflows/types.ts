@@ -7,8 +7,6 @@ import {
   Feed,
 } from "@fnndsc/chrisapi";
 
-
-
 export interface AnalysisStep {
   id: number;
   title: string;
@@ -41,7 +39,6 @@ export interface IWorkflowState {
   optionState: SelectWorkflowState;
   checkFeedDetails: number | undefined;
 }
-
 
 export interface DircopyData extends IPluginCreateData {
   dir: string;
@@ -87,12 +84,18 @@ export type PluginList = {
 export type RegistrationCheck = {
   checkPassed: boolean;
   plugins: PluginList;
+  error: string;
 };
 
 export type FeedReturnPayload = {
   feed?: Feed;
   error?: "";
   instance?: PluginInstance;
+};
+
+export type PluginReturnPayload = {
+  plugin?: Plugin;
+  error: string;
 };
 
 export const WorkflowTypes = keyMirror({
@@ -103,9 +106,11 @@ export const WorkflowTypes = keyMirror({
   SET_PLUGIN_FILES: null,
   SET_LOCAL_FILE: null,
   SUBMIT_ANALYSIS: null,
+  STOP_ANALYSIS: null,
   SET_ANALYSIS_STEP: null,
   SET_OPTION_STATE: null,
   RESET_WORKFLOW_STEP: null,
   STOP_FETCHING_PLUGIN_RESOURCES: null,
   SET_FEED_DETAILS: null,
+  DELETE_LOCAL_FILE: null,
 });

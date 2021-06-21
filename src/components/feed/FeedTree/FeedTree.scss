@@ -41,7 +41,7 @@
     padding-top: 0.5rem;
 
     svg {
-      color:white;
+      color: white;
     }
 
     &--icon {
@@ -107,25 +107,25 @@
 
 @keyframes active {
   0% {
-    fill: #bee1f4
+    fill: #bee1f4;
   }
   50% {
     fill: #0088ce;
   }
   100% {
-    fill: #73bcf7
+    fill: #73bcf7;
   }
 }
 
 @keyframes graph {
   0% {
-    fill: #cbc1ff
+    fill: #cbc1ff;
   }
   50% {
-    fill: #b2a3ff
+    fill: #b2a3ff;
   }
   100% {
-    fill: #8476d1
+    fill: #8476d1;
   }
 }
 
@@ -156,8 +156,6 @@
 .node {
   cursor: pointer;
   fill: "white";
-
-
 
   &.queued {
     fill: #aaa;
@@ -199,6 +197,10 @@
     }
   }
 
+  &.cancelled {
+    fill: #4f5255;
+  }
+
   &.selected {
     stroke: white;
     stroke-width: 3px;
@@ -213,11 +215,9 @@
     animation-fill-mode: both;
     stroke: white;
     stroke-width: 3px;
-    
   }
 }
 
-
-.pf-c-alert.pf-m-info  {
+.pf-c-alert.pf-m-info {
   padding: 0.5em;
 }
