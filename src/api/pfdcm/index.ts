@@ -51,7 +51,7 @@ export interface PACSSeries {
   uid: number;
 }
 
-interface PFDCMFilters {
+export interface PFDCMFilters {
   date: string;
 }
 

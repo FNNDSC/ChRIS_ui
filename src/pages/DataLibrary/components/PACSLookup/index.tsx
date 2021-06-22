@@ -1,33 +1,78 @@
 import React, { useCallback, useContext, useState } from "react";
 import Wrapper from "../../../../containers/Layout/PageWrapper";
-import { SearchIcon } from "@patternfly/react-icons";
-import { Button, Text, TextVariants, Split, SplitItem } from "@patternfly/react-core";
+import { Text, TextVariants, Grid, GridItem } from "@patternfly/react-core";
 
+import PFDCMClient, { PACSStudy, PFDCMFilters } from "../../../../api/pfdcm";
 import { LibraryContext } from "../../Library";
 import QueryBuilder from "./QueryBuilder";
+import QueryResults from "./QueryResults";
+
+export enum PFDCMQueryTypes {
+  PATIENT,
+  STUDY,
+}
+
+export interface PFDCMQuery {
+  type: PFDCMQueryTypes
+  value: any
+  filters: PFDCMFilters | null
+}
 
 export const PACS = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const library = useContext(LibraryContext);
-  
-  const [query, setQuery] = useState()
+  // const Client = new PFDCMClient()
+
+  const [loading, setLoading] = useState(false)
+  const [results, setResults] = useState<PACSStudy[]>()
+
+  const StartPACSQuery = useCallback(
+    ({ type, value, filters }: PFDCMQuery) => {
+      setLoading(true);
+
+      let query;
+      switch (type) {
+        // case PFDCMQueryTypes.MRN:
+        //   query = PFDCMClient.queryByMrn(value, filters as PFDCMFilters);
+        //   break;
+
+        case PFDCMQueryTypes.PATIENT:
+          query = PFDCMClient.queryByPatientName(value, filters as PFDCMFilters);
+          break;
+          
+        case PFDCMQueryTypes.STUDY:
+          query = PFDCMClient.queryByStudy(value, filters as PFDCMFilters);
+          break;
+
+        default:
+          throw Error()
+      }
+
+      query.then((result) => {
+        setResults(result);
+        setLoading(false);
+      })
+    },
+  [])
 
   return (
     <Wrapper>
       <article>
-        <Text component={TextVariants.h1}>PACS Lookup System</Text>
+        <Grid hasGutter>
+          <GridItem><Text component={TextVariants.h1}>PACS Lookup System</Text></GridItem>
 
-        <QueryBuilder onChange={setQuery} />
+          <GridItem>
+            <QueryBuilder onFinalize={StartPACSQuery} />
+          </GridItem>
 
-        <Split>
-          <SplitItem isFilled />
-          <SplitItem>
-            <Button isLarge variant="primary">
-              <SearchIcon/> Search
-            </Button>
-          </SplitItem>
-        </Split>
-
-        <a href="/library/pacsdemo">Demo</a>
+          {
+            !loading && results && (
+              <GridItem>
+                <QueryResults results={results} />
+              </GridItem>
+            )
+          }
+        </Grid>
       </article>
     </Wrapper>
   )
