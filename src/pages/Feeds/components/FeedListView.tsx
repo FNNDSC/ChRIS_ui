@@ -22,6 +22,7 @@ import { IFeedState } from "../../../store/feed/types";
 import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
+import CreatePipeline from "../../../components/feed/CreatePipeline/CreatePipeline";
 import { Feed } from "@fnndsc/chrisapi";
 import {
   EmptyStateTable,
@@ -185,6 +186,8 @@ const FeedListView: React.FC<AllProps> = ({
               <span className="feed-header__count">({totalFeedsCount})</span>
             ) : null}
           </Title>
+          {/* Pipeline export btn*/}
+          <CreatePipeline/>
           <CreateFeedProvider>
             <CreateFeed />
           </CreateFeedProvider>
