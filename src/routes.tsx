@@ -10,14 +10,13 @@ import FeedsPage from "./pages/Feeds/Feeds";
 import Library from "./pages/DataLibrary/Library";
 import SignUp from "./pages/SignUp/SignUp";
 import WorkflowsPage from "./pages/WorkflowsPage";
-
-import { DataItem } from "./pages/DataLibrary/DataTypes";
+import { PACSStudy } from "./api/pfdcm";
 
 export const [State, MainRouterContext] = RouterContext({
   state: {},
   actions: {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    createFeedWithData: (d: DataItem[]) => { /**/ }
+    createFeedWithData: (d: PACSStudy[]) => { /**/ }
   }
 });
 
@@ -26,7 +25,7 @@ export const MainRouter: React.FC = () => {
   const [route, setRoute] = useState<string>()
 
   const actions = {
-    createFeedWithData: (selectData: DataItem[]) => {
+    createFeedWithData: (selectData: PACSStudy[]) => {
       setState({ selectData })
       setRoute("/feeds")
     }

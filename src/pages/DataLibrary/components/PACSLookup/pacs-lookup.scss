@@ -1,0 +1,49 @@
+#pacs-query-results {
+  .pf-l-split {
+    width: 100%;
+  }
+
+  .result-expanded {
+    padding: 1em 3em;
+
+    .expanded-tabs {
+      min-width: 20%;
+    }
+
+    .expanded-content {
+      .patient-details {
+        padding: 0 1em;
+        height: 100%;
+
+        .pf-c-card {
+          height: 100%;
+          
+          .pf-c-card__body {
+            display: flex;
+            flex-flow: row;
+            flex-wrap: wrap;
+            
+            .details-name-col {
+              margin-right: 2em;
+            }
+          }
+        }
+      }
+      
+      .patient-studies {
+        padding: 2em;
+        max-height: 50vh;
+        overflow: scroll;
+        
+        .pf-c-card {
+          padding: 0.75em 1.75em;
+
+          .pf-c-card__body {
+            padding: 0;
+            font-size: small;
+          }
+        }
+      }
+    }
+  }
+}
