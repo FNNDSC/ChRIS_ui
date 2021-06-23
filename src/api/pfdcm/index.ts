@@ -51,18 +51,61 @@ export interface PACSSeries {
   uid: number;
 }
 
+export interface PACSPatient {
+  ID: string;
+  name: string;
+  sex: string;
+  birthDate: Date;
+  studies: PACSStudy[];
+}
+
 export interface PFDCMFilters {
   date: string;
+  modality: Modality;
+  stationAETitle: string;
 }
 
 class PFDCMClient {
 
-  static async queryByMrn(mrn: string, filters: PFDCMFilters) {
-    return parseRawDcmData(mockData);
+  private static sortStudiesByPatient(studies: PACSStudy[]): PACSPatient[] {
+    const patientsStudiesMap : { [id: string]: PACSStudy[] } = {}; // map of patient ID : studies
+    const patientsDataMap: { [id: string]: PACSPatient } = {}; // map of patient ID: patient data
+
+    // sort studies by patient ID
+    for (const study of studies) {
+      const processedPatientStudies = patientsStudiesMap[study.patientID] || [];
+      patientsStudiesMap[study.patientID] = [...processedPatientStudies, study];
+      
+      if (!patientsDataMap[study.patientID]) {
+        patientsDataMap[study.patientID] = {
+          ID: study.patientID,
+          name: study.patientName,
+          sex: study.patientSex,
+          birthDate: study.patientBirthDate,
+          studies: []
+        }
+      }
+    }
+
+    // combine sorted studies and patient data
+    for (const patientId of Object.keys(patientsStudiesMap)) {
+      patientsDataMap[patientId] = {
+        ...patientsDataMap[patientId],
+        studies: patientsStudiesMap[patientId]
+      }
+    }
+
+    return Object.values(patientsDataMap);
   }
 
-  static async queryByPatientName(name: string, filters: PFDCMFilters) {
-    return parseRawDcmData(mockData);
+  static async queryByMrn(mrn: string, filters: PFDCMFilters): Promise<PACSPatient[]> {
+    const studies = parseRawDcmData(mockData);
+    return this.sortStudiesByPatient(studies);
+  }
+
+  static async queryByPatientName(name: string, filters: PFDCMFilters): Promise<PACSPatient[]> {
+    const studies = parseRawDcmData(mockData);
+    return this.sortStudiesByPatient(studies);
   }
 
   static async queryByStudy(study: string, filters: PFDCMFilters) {
