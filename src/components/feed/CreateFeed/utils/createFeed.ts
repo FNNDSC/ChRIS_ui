@@ -92,7 +92,7 @@ export const createFeedInstanceWithDircopy = async (
       errorCallback(error);
     }
     const filePaths = uploadFilePaths(localFiles, local_upload_path);
-    console.log("FilePaths", filePaths, local_upload_path);
+
     dirpath.push(filePaths);
   }
 

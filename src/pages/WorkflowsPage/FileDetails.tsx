@@ -40,17 +40,9 @@ const workflows = [
 ];
 
 const FileDetails = () => {
-  const isAnalysisRunning = useTypedSelector(
-    (state) => state.workflows.isAnalysisRunning
-  );
   return (
     <PageSection>
       <Card>
-        <CardTitle>
-          {isAnalysisRunning === true
-            ? "Runnng an Analysis"
-            : "Run an Analysis"}
-        </CardTitle>
         <CardBody>
           <FileUploadComponent />
           <SelectWorkflow />

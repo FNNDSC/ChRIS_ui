@@ -52,9 +52,13 @@ export function* setYieldAnalysis(
   );
 }
 
+
+
+
 function* watchSubmitAnalysis() {
   yield takeEvery(WorkflowTypes.SUBMIT_ANALYSIS, handleSubmitAnalysis);
 }
+
 
 export function* workflowsSaga() {
   yield all([fork(watchSubmitAnalysis)]);
