@@ -4,9 +4,9 @@ import {
   PluginInstanceList,
   Plugin,
 } from "@fnndsc/chrisapi";
-import ChrisAPIClient from "../api/chrisapiclient";
-import { PluginReturnPayload } from "./workflows/types";
-import { LocalFile } from "../components/feed/CreateFeed/types";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import { PluginReturnPayload } from "./types";
+import { LocalFile } from "../../components/feed/CreateFeed/types";
 
 export function* getPluginFiles(plugin: PluginInstance) {
   const params = { limit: 200, offset: 0 };
@@ -24,8 +24,6 @@ export function* getPluginFiles(plugin: PluginInstance) {
   }
   return files;
 }
-
-
 
 export function* getPlugin(pluginName: string) {
   const pluginPayload: PluginReturnPayload = {

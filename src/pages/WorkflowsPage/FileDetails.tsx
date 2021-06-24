@@ -9,6 +9,9 @@ import {
   OptionsMenu,
   OptionsMenuItem,
   OptionsMenuToggle,
+  Form,
+  TextInput,
+  Alert,
 } from "@patternfly/react-core";
 import FileUpload from "../../components/common/fileupload";
 import { Steps } from "antd";
@@ -17,6 +20,7 @@ import {
   setLocalFile,
   submitAnalysis,
   setOptionState,
+  setInfantAge,
   resetWorkflowState,
   deleteLocalFile,
 } from "../../store/workflows/actions";
@@ -29,23 +33,16 @@ const { Step } = Steps;
 const workflows = [
   "covidnet",
   "infant-freesurfer",
+  "infant-freesurfer-age",
   "adult-freesurfer",
   "fastsurfer",
   "fetal-reconstruction",
 ];
 
 const FileDetails = () => {
-  const isAnalysisRunning = useTypedSelector(
-    (state) => state.workflows.isAnalysisRunning
-  );
   return (
     <PageSection>
       <Card>
-        <CardTitle>
-          {isAnalysisRunning === true
-            ? "Runnng an Analysis"
-            : "Run an Analysis"}
-        </CardTitle>
         <CardBody>
           <FileUploadComponent />
           <SelectWorkflow />
@@ -92,6 +89,7 @@ const FileUploadComponent = () => {
 const SelectWorkflow = () => {
   const dispatch = useDispatch();
   const optionState = useTypedSelector((state) => state.workflows.optionState);
+
   const { selectedOption, isOpen, toggleTemplateText } = optionState;
 
   const handleSelect = (
@@ -107,6 +105,7 @@ const SelectWorkflow = () => {
           ...optionState,
           toggleTemplateText: id,
           selectedOption: id,
+          isOpen: !isOpen,
         })
       );
   };
@@ -140,6 +139,10 @@ const SelectWorkflow = () => {
     />
   );
 
+  const handleInputChange = (value: string) => {
+    dispatch(setInfantAge(value));
+  };
+
   return (
     <Card>
       <CardBody>
@@ -149,6 +152,20 @@ const SelectWorkflow = () => {
           menuItems={menuItems}
           toggle={toggle}
         />
+        {selectedOption === "infant-freesurfer-age" && (
+          <div className="workflow-form">
+            <Form isHorizontal>
+              <TextInput
+                isRequired
+                type="text"
+                id="infant-age"
+                name="infant-age"
+                onChange={handleInputChange}
+                placeholder="Enter an Infant's age"
+              />
+            </Form>
+          </div>
+        )}
       </CardBody>
     </Card>
   );
@@ -157,6 +174,7 @@ const SelectWorkflow = () => {
 const SubmitAnalysis = () => {
   const dispatch = useDispatch();
   const history = useHistory();
+  const [error, setError] = React.useState("");
 
   const localFiles = useTypedSelector(
     (state) => state.workflows.localfilePayload.files
@@ -165,18 +183,42 @@ const SubmitAnalysis = () => {
     (state) => state.workflows.optionState.selectedOption
   );
   const username = useTypedSelector((state) => state.user.username);
+  const infantAge = useTypedSelector((state) => state.workflows.infantAge);
+
+  React.useEffect(() => {
+    if (infantAge) setError("");
+    if (localFiles.length < 15) setError("");
+  }, [infantAge, localFiles]);
 
   const steps = useTypedSelector((state) => state.workflows.steps);
-  const handleClick = () => {
+
+  const dispatchAction = () => {
     if (localFiles.length > 0 && username) {
       dispatch(
         submitAnalysis({
           localFiles,
-          workflowType,
           username,
+          workflowType,
+          infantAge,
         })
       );
     }
+  };
+
+  const handleClick = () => {
+    if (workflowType === "infant-freesurfer-age") {
+      if (!infantAge) {
+        setError("Please enter an age for the infant");
+      } else {
+        dispatchAction();
+      }
+    } else if (workflowType === "covidnet") {
+      if (localFiles.length > 15) {
+        setError("The covidnet workflow can only run on 15 files or less");
+      } else {
+        dispatchAction();
+      }
+    } else dispatchAction();
   };
 
   const feedId = useTypedSelector((state) => state.workflows.checkFeedDetails);
@@ -187,6 +229,7 @@ const SubmitAnalysis = () => {
   return (
     <Card>
       <CardBody>
+        {error && <Alert title={error} />}
         <Button
           isDisabled={!workflowType || isAnalysisRunning ? true : false}
           onClick={handleClick}
@@ -227,7 +270,7 @@ const SubmitAnalysis = () => {
           onClick={() => dispatch(resetWorkflowState())}
           isDisabled={isAnalysisRunning ? true : false}
         >
-          Start a new workflow
+          Reset
         </Button>
       </CardBody>
     </Card>

@@ -1,5 +1,5 @@
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { IFSHackData, PluginList } from "../../types";
+import { AFSHackData, PluginList } from "../../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { setYieldAnalysis } from "../../saga";
 
@@ -53,7 +53,7 @@ export function* runFreesurferWorkflow(
   let plFsHackInstance: PluginInstance | undefined = undefined;
 
   if (workflowType === "adult-freesurfer") {
-    const plFsHackArgs: IFSHackData = {
+    const plFsHackArgs: AFSHackData = {
       title: "adult-fs",
       previous_id: pfdicomTagSubInstance.data.id,
       inputFile: ".dcm",
@@ -66,8 +66,8 @@ export function* runFreesurferWorkflow(
       plFsHack.data.id,
       plFsHackArgs
     );
-  } else {
-    const data: IFSHackData = {
+  } else if (workflowType === "infant-freesurfer") {
+    const data: AFSHackData = {
       title: "infant-fs",
       previous_id: pfdicomTagSubInstance.data.id,
       inputFile: ".dcm",

@@ -3,6 +3,7 @@ import {
   setupCovidnet,
   setupAdultFreesurfer,
   setupInfantFreesurfer,
+  setupInfantFreesurferAge,
   setupFastsurfer,
   setupFetalReconstruction,
 } from "./setup";
@@ -22,6 +23,11 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
   if (workflowType === "infant-freesurfer") {
     yield setupInfantFreesurfer(action);
   }
+
+  if (workflowType === "infant-freesurfer-age") {
+    yield setupInfantFreesurferAge(action);
+  }
+
   if (workflowType === "fastsurfer") {
     yield setupFastsurfer(action);
   }
@@ -47,9 +53,12 @@ export function* setYieldAnalysis(
 }
 
 
+
+
 function* watchSubmitAnalysis() {
   yield takeEvery(WorkflowTypes.SUBMIT_ANALYSIS, handleSubmitAnalysis);
 }
+
 
 export function* workflowsSaga() {
   yield all([fork(watchSubmitAnalysis)]);

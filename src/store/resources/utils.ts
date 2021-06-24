@@ -28,6 +28,8 @@ export function getStatusLabels(
     "cancelled",
   ];
   const pluginStatus = pluginDetails.data.status;
+  const computeError =
+    labels?.compute.return.job_status === "finishedWithError";
 
   const error =
     pluginDetails.data.status === "finishedWithError" ||

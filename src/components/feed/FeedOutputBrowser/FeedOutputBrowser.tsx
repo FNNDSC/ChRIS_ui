@@ -52,11 +52,12 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   const viewerMode = useTypedSelector((state) => state.explorer.viewerMode);
   const currentFeed = useTypedSelector((state) => state.feed.currentFeed.data);
   const { data: plugins, loading } = pluginInstances;
+
   const pluginFilesPayload = selected && pluginFiles[selected.data.id];
 
   React.useEffect(() => {
     if (!pluginFilesPayload && selected) {
-       safeDispatch(getPluginFilesRequest(selected));
+      safeDispatch(getPluginFilesRequest(selected));
     }
   }, [selected, pluginFilesPayload, safeDispatch]);
   if (!selected || isEmpty(pluginInstances) || loading) {

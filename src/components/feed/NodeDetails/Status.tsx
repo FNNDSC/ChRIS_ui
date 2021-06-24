@@ -11,6 +11,7 @@ const Status = () => {
   const pluginInstanceResource = usePluginInstanceResource();
   const pluginStatus =
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
+
   if (pluginStatus && pluginStatus.length > 0) {
     return (
       <>

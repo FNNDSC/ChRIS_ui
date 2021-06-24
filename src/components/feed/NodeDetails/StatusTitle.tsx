@@ -5,6 +5,7 @@ import { PluginStatus } from "../../../store/resources/types";
 
 const StatusTitle = () => {
   const pluginInstanceResource = usePluginInstanceResource();
+
   let statusTitle:
     | {
         title: string;
