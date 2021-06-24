@@ -22,17 +22,34 @@ export const Library: React.FC = () => {
 	const router = useContext(MainRouterContext)
 
 	const actions = {
-		select: (item: PACSStudy) => setState({ selectData: [ ...state.selectData, item ] }),
-		clear: (itemid?: string) => {
+		select: (item: PACSStudy | PACSStudy[]) => {
+			if (Array.isArray(item))
+				setState({ selectData: [ ...state.selectData, ...item ] })
+			else
+				setState({ selectData: [ ...state.selectData, item ] })
+		},
+		
+		clear: (itemid?: string | Array<string>) => {
 			if (!itemid)
 				setState({ selectData: [] });
 			else {
-				for (let i=0; i < state.selectData.length; i++) {
-					if (state.selectData[i].studyInstanceUID === itemid) {
-						const selection = state.selectData.slice(0, i).concat(state.selectData.slice(i+1))
-						setState({ selectData: selection })
+				const fselection = (arr: PACSStudy[], find: string) => {
+					for (let i=0; i < arr.length; i++) {
+						if (arr[i].studyInstanceUID === find) {
+							return arr.slice(0, i).concat(arr.slice(i+1))
+						}
 					}
+					return arr
 				}
+
+				if (Array.isArray(itemid)) {
+					let selection = state.selectData;
+					for (const id of itemid)
+						selection = fselection(selection, id)
+					setState({ selectData: selection })
+				}
+				else 
+					setState({ selectData: fselection(state.selectData, itemid) })
 			}
 		},
 

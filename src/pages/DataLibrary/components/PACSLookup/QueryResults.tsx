@@ -14,30 +14,20 @@ import {
 } from "@patternfly/react-core";
 
 import "./pacs-lookup.scss";
-import { PACSStudy } from "../../../../api/pfdcm";
+import { PACSPatient, PACSStudy } from "../../../../api/pfdcm";
 import { LibraryContext } from "../../Library";
 
-interface QueryResultsProps {
-  results: PACSStudy[]
+export enum QueryResultLayouts {
+  PATIENT,
+  STUDY
 }
 
-export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResultsProps) => {
-  const patients: string[] = [];
-  const accumulator = [];
-  for (const res of results) {
-    if (patients.includes(res.patientID)) 
-      accumulator[patients.indexOf(res.patientID)].studies.push(res)
-    else {
-      patients.push(res.patientID);
-      accumulator.push({
-        ...res,
-        studies: [ res ],
-        detailsRef: React.createRef<HTMLElement>(),
-        studiesRef: React.createRef<HTMLElement>(),
-      });
-    }
-  }
+interface QueryResultsProps {
+  results: PACSPatient[] | PACSStudy[]
+  layout: QueryResultLayouts
+}
 
+export const QueryResults: React.FC<QueryResultsProps> = ({ results, layout }: QueryResultsProps) => {
   const library = useContext(LibraryContext);
 
   type PatientTabs = "details" | "studies";
@@ -52,115 +42,219 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
       setExpanded(undefined)
   }
 
-  const select = (item: PACSStudy) => {
-    if (library.state.selectData.includes(item))
-      library.actions.clear(item.studyInstanceUID)
-    else
-      library.actions.select(item)
+  const studyIsSelected = (s: PACSStudy) => library.state.selectData.includes(s)
+
+  const select = (item: PACSStudy | PACSStudy[]) => {
+    if (Array.isArray(item)) {
+      if (item.every((s) => !studyIsSelected(s)))
+        library.actions.select(item)
+      else {
+        library.actions.clear(item.map(s => s.studyInstanceUID))
+      }
+    }
+    else {
+      if (library.state.selectData.includes(item))
+        library.actions.clear(item.studyInstanceUID)
+      else
+        library.actions.select(item)
+    }
   }
 
-  return (
-    <Grid hasGutter id="pacs-query-results">
-      <GridItem>
-        <h2><b>Results</b></h2>
-        <p>{accumulator.length} patients matched your query.</p><br />
-      </GridItem>
+  const PatientLayout = () => {
+    results = results as PACSPatient[];
+    const tabrefs: any = [];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const _ of results) {
+      tabrefs.push({
+        detailsRef: React.createRef<HTMLElement>(),
+        studiesRef: React.createRef<HTMLElement>(),
+      })
+    }
 
-      {
-        accumulator.map(({ patientID, patientName, studies, ...patient }) => (
-          <GridItem key={patientID}>
-            <Card 
-              isExpanded={(expanded === patientID)} 
-              onClick={expand.bind(QueryResults, patientID)}
-            >
-              <CardHeader onExpand={expand.bind(QueryResults, patientID)}>
-                <Split>
-                  <SplitItem><b>{patientName}</b>, MRN {patientID}</SplitItem>
-                  <SplitItem isFilled />
-                  <SplitItem><p>{studies.length} studies</p></SplitItem>
-                </Split>
-              </CardHeader>
-            </Card>
-
-            { (expanded === patientID) &&
-              <Split className="result-expanded">
-                <SplitItem className="expanded-tabs">
-                  <Tabs 
-                    isVertical 
-                    isSecondary
-                    unmountOnExit
-                    activeKey={patientTab} 
-                    onSelect={(_, tab) => setPatientTab(tab as PatientTabs)}
-                  >
-                    <Tab eventKey="details" title="Details" tabContentRef={patient.detailsRef} />
-                    <Tab eventKey="studies" title="Studies" tabContentRef={patient.studiesRef} />
-                  </Tabs>
-                </SplitItem>
-
-                <SplitItem isFilled className="expanded-content">
-                  <TabContent 
-                    eventKey="details" 
-                    id={`${patientID}-details`} 
-                    ref={patient.detailsRef} 
-                    className="patient-details"
-                  >
-                    <PatientDetailsTab patient={{patientID, patientName, ...patient}} />
-                  </TabContent>
-
-                  <TabContent hidden 
-                    eventKey="studies" 
-                    id={`${patientID}-studies`} 
-                    ref={patient.studiesRef} 
-                    className="no-scrollbar patient-studies"
-                  >
-                    <Grid hasGutter>
-                      {
-                        studies.map(({ studyDate, studyDescription, ...study }, studyindex) => (
-                          <GridItem key={study.studyInstanceUID}>
-                            <Card 
-                              isSelectable 
-                              isSelected={library.state.selectData.includes(studies[studyindex])}
-                              onClick={select.bind(QueryResults, studies[studyindex])}
-                            >
-                              <CardBody>
-                                <Split>
-                                  <SplitItem style={{ minWidth: "50%" }}>
-                                    <p><b>{study.modalitiesInStudy}</b>, {studyDescription}</p>
-                                    <p style={{ color: "gray" }}>
-                                      On {studyDate.toDateString()}, at {study.performedStationAETitle}
-                                    </p>
-                                  </SplitItem>
-                                  <SplitItem>
-                                    <p>Accession Number</p>
-                                    <p>{study.accessionNumber}</p>
-                                  </SplitItem>
-                                  <SplitItem isFilled/>
-                                  <SplitItem style={{ color: "gray", margin: "0 2em",  textAlign: "right" }}>
-                                    <p>{study.numberOfStudyRelatedSeries} series</p>
-                                    <p>{study.numberOfStudyRelatedInstances} files</p>
-                                  </SplitItem>
-                                  <SplitItem>
-                                    <Button variant="link" style={{ padding: "0" }}>Browse</Button>
-                                  </SplitItem>
-                                </Split>
-                              </CardBody>
-                            </Card>
-                          </GridItem>
-                        ))
-                      }
-                    </Grid>
-                  </TabContent>
-                </SplitItem>
-              </Split>
-            }
-          </GridItem>
-        ))
+    const LatestDate = (dates: Date[]) => {
+      let latestStudy = dates[0];
+      for (const date of dates) {
+        if (latestStudy.getTime() < date.getTime())
+          latestStudy = date;
       }
-    </Grid>
-  )
+      return latestStudy
+    }
+
+    return results.map((patient, index) => (
+      <GridItem key={patient.ID}>
+        <Card 
+          isSelectable
+          isSelected={patient.studies.every(studyIsSelected)}
+          isExpanded={(expanded === patient.ID)} 
+          onClick={expand.bind(QueryResults, patient.ID)}
+        >
+          <CardHeader onExpand={expand.bind(QueryResults, patient.ID)}>
+            <Grid hasGutter style={{ width: "100%" }}>
+              <GridItem lg={6}>
+                <p><b>{patient.name}</b></p>
+                <p>Patient MRN #{patient.ID}</p>
+              </GridItem>
+              
+              <GridItem lg={3} style={{ color: "gray" }}>
+                <p><b>Latest Study</b></p>
+                <p>On {LatestDate(patient.studies.map(s => s.studyDate)).toDateString()}</p>
+              </GridItem>
+
+              <GridItem lg={3} style={{ textAlign: "right" }}>
+                <Split>
+                  <SplitItem isFilled style={{ marginRight: "1em" }}>
+                    <p>{patient.studies.length} studies</p>
+                  </SplitItem>
+                  <SplitItem>
+                    <Button variant="secondary" onClick={select.bind(QueryResults, patient.studies)}>
+                      { patient.studies.every((s) => !studyIsSelected(s)) ? "Select" : "Deselect" } All
+                    </Button>
+                  </SplitItem>
+                </Split>
+              </GridItem>
+            </Grid>
+          </CardHeader>
+        </Card>
+
+        { (expanded === patient.ID) &&
+          <Split className="result-expanded">
+            <SplitItem className="expanded-tabs">
+              <Tabs 
+                isVertical 
+                isSecondary
+                unmountOnExit
+                activeKey={patientTab} 
+                onSelect={(_, tab) => setPatientTab(tab as PatientTabs)}
+              >
+                <Tab eventKey="details" title="Details" tabContentRef={tabrefs[index].detailsRef} />
+                <Tab eventKey="studies" title="Studies" tabContentRef={tabrefs[index].studiesRef} />
+              </Tabs>
+            </SplitItem>
+
+            <SplitItem isFilled className="expanded-content">
+              <TabContent 
+                eventKey="details" 
+                id={`${patient.ID}-details`} 
+                ref={tabrefs[index].detailsRef} 
+                className="patient-details"
+              >
+                <PatientDetailsTab patient={patient} />
+              </TabContent>
+
+              <TabContent hidden 
+                eventKey="studies" 
+                id={`${patient.ID}-studies`} 
+                ref={tabrefs[index].studiesRef} 
+                className="no-scrollbar patient-studies"
+              >
+                <Grid hasGutter>
+                  {
+                    patient.studies.map((study) => (
+                      <GridItem key={study.studyInstanceUID}>
+                        <Card 
+                          isSelectable 
+                          isSelected={studyIsSelected(study)}
+                          onClick={select.bind(QueryResults, study)}
+                        >
+                          <CardBody>
+                            <Split>
+                              <SplitItem style={{ minWidth: "50%" }}>
+                                <p><b>{study.modalitiesInStudy}</b>, {study.studyDescription}</p>
+                                <p style={{ color: "gray" }}>
+                                  On {study.studyDate.toDateString()}, at {study.performedStationAETitle}
+                                </p>
+                              </SplitItem>
+                              <SplitItem>
+                                <p>Accession Number</p>
+                                <p>{study.accessionNumber}</p>
+                              </SplitItem>
+                              <SplitItem isFilled/>
+                              <SplitItem style={{ color: "gray", margin: "0 2em",  textAlign: "right" }}>
+                                <p>{study.numberOfStudyRelatedSeries} series</p>
+                                <p>{study.numberOfStudyRelatedInstances} files</p>
+                              </SplitItem>
+                              <SplitItem>
+                                <Button variant="link" style={{ padding: "0" }}>Browse</Button>
+                              </SplitItem>
+                            </Split>
+                          </CardBody>
+                        </Card>
+                      </GridItem>
+                    ))
+                  }
+                </Grid>
+              </TabContent>
+            </SplitItem>
+          </Split>
+        }
+      </GridItem>
+    ))
+  }
+  
+  const StudyLayout = () => {
+    results = results as PACSStudy[];
+    return results.map((study) => (
+      <GridItem key={study.studyInstanceUID}>
+        <Card 
+          isSelectable 
+          isSelected={studyIsSelected(study)}
+          onClick={select.bind(QueryResults, study)}
+        >
+          <CardBody>
+            <Grid>
+              <GridItem lg={6}>
+                <p><b>{study.modalitiesInStudy}</b>, {study.studyDescription}</p>
+                <p style={{ color: "gray" }}>
+                  On {study.studyDate.toDateString()}, at {study.performedStationAETitle}
+                </p>
+              </GridItem>
+
+              <GridItem lg={2}>
+                <p><b>{study.patientName}</b></p>
+                <p>{study.patientID}</p>
+              </GridItem>
+
+              <GridItem lg={2}>
+                <p>Accession Number</p>
+                <p>{study.accessionNumber}</p>
+              </GridItem>
+
+              <GridItem lg={2} style={{ color: "gray", textAlign: "right" }}>
+                <Split>
+                  <SplitItem isFilled style={{ marginRight: "1em" }}>
+                    <p>{study.numberOfStudyRelatedSeries} series</p>
+                    <p>{study.numberOfStudyRelatedInstances} files</p>
+                  </SplitItem>
+                  <SplitItem>
+                    <Button variant="secondary">Browse</Button>
+                  </SplitItem>
+                </Split>
+              </GridItem>
+            </Grid>
+          </CardBody>
+        </Card>
+      </GridItem>
+    ))
+  }
+
+  switch (layout) {
+    case QueryResultLayouts.PATIENT:
+      return (
+        <Grid hasGutter id="pacs-query-results">
+          { PatientLayout() }
+        </Grid>
+      );
+
+    case QueryResultLayouts.STUDY:
+      return (
+        <Grid hasGutter id="pacs-query-results">
+          { StudyLayout() }
+        </Grid>
+      )
+  }
 }
 
-const PatientDetailsTab = (props:{ patient: PACSStudy }) => {
+const PatientDetailsTab = (props: { patient:PACSPatient }) => {
   const { patient } = props;
   return (
     <Card>
@@ -174,8 +268,8 @@ const PatientDetailsTab = (props:{ patient: PACSStudy }) => {
             <p>DOB</p>
           </SplitItem>
           <SplitItem isFilled>
-            <p>{ patient.patientSex }</p>
-            <p>{ patient.patientBirthDate.toDateString() }</p>
+            <p>{ patient.sex }</p>
+            <p>{ patient.birthDate.toDateString() }</p>
           </SplitItem>
         </Split>
       </CardBody>
