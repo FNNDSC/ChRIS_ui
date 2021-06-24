@@ -33,10 +33,11 @@ export function* runCovidnetWorkflow(
       const covidnet = pluginList["pl-covidnet"];
       const covidnetInstance: PluginInstance =
         yield client.createPluginInstance(covidnet.data.id, covidnetData);
-      const pdfGeneration = pluginList["pl-pdfgeneration"];
+      const pdfGeneration = pluginList["pl-covidnet-pdfgeneration"];
       const pdfGenerationData = {
         previous_id: covidnetInstance.data.id,
         imagefile: `${filename}.jpg`,
+        patientId: 123456,
       };
       yield client.createPluginInstance(
         pdfGeneration.data.id,
