@@ -49,6 +49,7 @@ export const initialState: IWorkflowState = {
     selectedOption: "",
   },
   checkFeedDetails: undefined,
+  infantAge: "",
 };
 
 const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
@@ -120,6 +121,13 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       return {
         ...state,
         checkFeedDetails: action.payload,
+      };
+    }
+
+    case WorkflowTypes.SET_INFANT_AGE: {
+      return {
+        ...state,
+        infantAge: action.payload,
       };
     }
 

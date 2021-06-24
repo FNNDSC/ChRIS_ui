@@ -7,6 +7,7 @@ const usePluginInstanceResource = () => {
   const pluginInstancePayload = useTypedSelector(
     (state) => state.resource.pluginInstanceResource
   );
+
   const id = selectedPlugin?.data.id;
   const pluginInstanceResource =
     pluginInstancePayload && id && pluginInstancePayload[id];
