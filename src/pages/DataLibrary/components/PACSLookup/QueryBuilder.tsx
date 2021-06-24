@@ -9,8 +9,6 @@ import {
   Split,
   SplitItem,
   TextInput,
-  Tabs,
-  Tab,
   Button,
   DatePicker,
 } from "@patternfly/react-core";
@@ -38,51 +36,28 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
       } as PFDCMQuery)
     }, [query])
 
-  const handleStudyInput = useCallback((value: string) => {
-    setQuery({ ...query, value } as PFDCMQuery)
-  }, [query])
-
   const finalize = () => {
     if (query)
       onFinalize(query)
   }
 
-
   const PatInputProps = {
     type: "text" as const,
     onChange: handlePatientInput
-  }
-
-  const StudyInputProps = {
-    type: "text" as const,
-    onChange: handleStudyInput
   }
   
   return (
     <Grid hasGutter>
       <GridItem>
-        <Tabs isBox activeKey={query?.type} onSelect={(_, type) => setQuery({ type } as PFDCMQuery)}>
-          <Tab eventKey={PFDCMQueryTypes.PATIENT} title="Find a Patient">
-            <Card>
-              <CardHeader><b>Patient Lookup</b></CardHeader>
-              <CardBody>
-                <Grid hasGutter>
-                  <GridItem><TextInput {...PatInputProps} placeholder="Patient MRN" id="mrn" /></GridItem>
-                  <GridItem><TextInput {...PatInputProps} placeholder="Patient Name" id="name" /></GridItem>
-                </Grid>
-              </CardBody>
-            </Card>
-          </Tab>
-
-          <Tab eventKey={PFDCMQueryTypes.STUDY} title="Find a Study">
-            <Card>
-              <CardHeader><b>Study Lookup</b></CardHeader>
-              <CardBody>
-                <TextInput {...StudyInputProps} placeholder="Study Name" id="study" />
-              </CardBody>
-            </Card>
-          </Tab>
-        </Tabs>
+        <Card>
+          <CardHeader><b>Patient Lookup</b></CardHeader>
+          <CardBody>
+            <Grid hasGutter>
+              <GridItem><TextInput {...PatInputProps} placeholder="Patient MRN" id="mrn" /></GridItem>
+              <GridItem><TextInput {...PatInputProps} placeholder="Patient Name" id="name" /></GridItem>
+            </Grid>
+          </CardBody>
+        </Card>
       </GridItem>
 
       <GridItem>
@@ -96,17 +71,14 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
             <CardBody>
               <Grid hasGutter>
                 <GridItem lg={4} sm={12}>
-                  Study Date <br />
-                  <DatePicker/>
-                </GridItem>
-
-                <GridItem lg={4} sm={12}>
                   Modality <br />
                   <TextInput type="text" placeholder="Eg: AR, AU, BDUS" id="modality" />
                 </GridItem>
-                
-                <GridItem lg={4} sm={12} />
-                <GridItem lg={4} sm={12} />
+
+                <GridItem lg={8} sm={12}>
+                  Study Date <br />
+                  <DatePicker/>
+                </GridItem>
 
                 <GridItem lg={4} sm={12}>
                   Station AE Title <br />

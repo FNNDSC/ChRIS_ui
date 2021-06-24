@@ -4,11 +4,10 @@ import { Text, TextVariants, Grid, GridItem } from "@patternfly/react-core";
 
 import PFDCMClient, { PACSPatient, PACSStudy, PFDCMFilters } from "../../../../api/pfdcm";
 import QueryBuilder from "./QueryBuilder";
-import QueryResults, { QueryResultLayouts } from "./QueryResults";
+import QueryResults from "./QueryResults";
 
 export enum PFDCMQueryTypes {
   PATIENT,
-  STUDY,
   MRN,
 }
 
@@ -23,7 +22,6 @@ export const PACS = () => {
 
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<PACSPatient[] | PACSStudy[]>();
-  const [layout, setLayout] = useState(QueryResultLayouts.PATIENT);
 
   const StartPACSQuery = useCallback(
     async ({ type, value, filters }: PFDCMQuery) => {
@@ -33,17 +31,10 @@ export const PACS = () => {
       switch (type) {
         case PFDCMQueryTypes.MRN:
           response = await PFDCMClient.queryByMrn(value, filters as PFDCMFilters);
-          setLayout(QueryResultLayouts.PATIENT);
           break;
           
         case PFDCMQueryTypes.PATIENT:
           response = await PFDCMClient.queryByPatientName(value, filters as PFDCMFilters);
-          setLayout(QueryResultLayouts.PATIENT);
-          break;
-          
-        case PFDCMQueryTypes.STUDY:
-          response = await PFDCMClient.queryByStudy(value, filters as PFDCMFilters);
-          setLayout(QueryResultLayouts.STUDY);
           break;
 
         default:
@@ -54,18 +45,6 @@ export const PACS = () => {
       setLoading(false);
     },
   [])
-
-  function resultsCountText() {
-    let str = `${results?.length} `;
-    switch (layout) {
-      case QueryResultLayouts.PATIENT:
-        str += "patients"; break;
-      case QueryResultLayouts.STUDY:
-        str += "studies"; break;
-    }
-    str += ' matched your query';
-    return str
-  }
 
   return (
     <Wrapper>
@@ -82,11 +61,11 @@ export const PACS = () => {
               <>
               <GridItem>
                 <h2><b>Results</b></h2>
-                <p>{resultsCountText()}</p>
+                <p>{results?.length} patients matched your search.</p>
               </GridItem>
 
               <GridItem>
-                <QueryResults layout={layout} results={results} />
+                <QueryResults results={results} />
               </GridItem>
               </>
             )
