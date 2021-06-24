@@ -45,7 +45,6 @@ export function getStatusLabels(
     error,
     description: "Waiting",
     icon: OutlinedClockIcon,
-    process: !labels ? true : false,
   };
 
   status[1] = {
@@ -56,7 +55,6 @@ export function getStatusLabels(
     error,
     description: "Scheduling",
     icon: InProgressIcon,
-    process: !labels ? true : false,
   };
 
   status[2] = {
@@ -70,7 +68,6 @@ export function getStatusLabels(
     error,
     description: "Transmitting",
     icon: OnRunningIcon,
-    process: !labels ? true : false,
   };
 
   status[3] = {
@@ -92,7 +89,6 @@ export function getStatusLabels(
     error,
     description: "Computing",
     icon: OutlinedArrowAltCircleRightIcon,
-    process: computeError || !labels ? true : false,
   };
 
   status[4] = {
@@ -109,7 +105,6 @@ export function getStatusLabels(
     error,
     description: "Receiving",
     icon: OutlinedArrowAltCircleLeftIcon,
-    process: computeError || !labels ? true : false,
   };
 
   status[5] = {
@@ -128,7 +123,6 @@ export function getStatusLabels(
     error,
     description: "Registering",
     icon: FileArchiveIcon,
-    process: computeError || !labels ? true : false,
   };
 
   status[6] = {
@@ -167,7 +161,6 @@ export function getStatusLabels(
         : pluginStatus === "cancelled" || pluginStatus === "finishedWithError"
         ? ErrorCircleOIcon
         : null,
-    process: computeError || !labels ? true : false,
   };
 
   return status;

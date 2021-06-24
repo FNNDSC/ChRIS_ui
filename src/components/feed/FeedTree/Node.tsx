@@ -50,6 +50,9 @@ const Node = (props: NodeProps) => {
 
   const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
   const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
+  const pluginInstances = useTypedSelector(
+    (state) => state.instance.pluginInstances.data
+  );
 
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
@@ -96,6 +99,21 @@ const Node = (props: NodeProps) => {
       if (node) {
         tsClass = "graphSelected";
       }
+    }
+  }
+
+  const previous_id = data.item?.data.previous_id;
+  if (previous_id) {
+    const parentNode = pluginInstances?.find(
+      (node) => node.data.id === previous_id
+    );
+
+    if (
+      parentNode &&
+      (parentNode.data.status === "cancelled" ||
+        parentNode.data.status === "finishedWithError")
+    ) {
+      statusClass = "notExecuted";
     }
   }
 
