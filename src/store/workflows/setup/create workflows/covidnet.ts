@@ -2,7 +2,7 @@ import GalleryModel from "../../../../api/models/gallery.model";
 import { Med2ImgData, CovidnetData, PluginList } from "../../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { getPluginFiles } from "../../../utils";
+import { getPluginFiles } from "../../utils";
 import { setYieldAnalysis } from "../../saga";
 
 export function* runCovidnetWorkflow(

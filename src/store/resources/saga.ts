@@ -19,7 +19,7 @@ import {
   getPluginFilesError,
   getPluginInstanceStatusSuccess,
 } from "./actions";
-import { getPluginFiles } from "../utils";
+import { getPluginFiles } from "../workflows/utils";
 
 function* fetchPluginFiles(plugin: PluginInstance) {
   try {

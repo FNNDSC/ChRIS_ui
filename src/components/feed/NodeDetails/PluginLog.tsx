@@ -1,5 +1,4 @@
 import React from "react";
-
 import { NodeDetailsProps } from "../../../store/resources/types";
 import LogTerminal from "./LogTerminal";
 import { isEmpty } from "lodash";
@@ -15,7 +14,6 @@ const PluginLog = ({ text }: NodeDetailsProps) => {
     log && !isEmpty(log) ? log.compute.logs : "Fetching logs ......";
 
   return <LogTerminal text={terminalOutput} />;
- 
 };
 
 export default React.memo(PluginLog);

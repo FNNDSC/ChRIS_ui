@@ -13,13 +13,14 @@ import { setYieldAnalysis } from "../saga";
 import { IActionTypeParam } from "../../../api/models/base.model";
 import { PluginInstance, Feed, Note } from "@fnndsc/chrisapi";
 import { LocalFile } from "../../../components/feed/CreateFeed/types";
-import { getPlugin, uploadLocalFiles, uploadFilePaths } from "../../utils";
+import { getPlugin, uploadLocalFiles, uploadFilePaths } from "../utils";
 import { runCovidnetWorkflow } from "./create workflows/covidnet";
 import { runFastsurferWorkflow } from "./create workflows/fastsurfer";
 import { runFreesurferWorkflow } from "./create workflows/freesurfer";
 import { runFetalReconstructionWorkflow } from "./create workflows/fetalReconstruction";
 import { setFeedDetails } from "../actions";
 import { put } from "@redux-saga/core/effects";
+import { runInfantFreesurferWorkflow } from "./create workflows/infantFreesurfer";
 
 export function* checkPluginRegistration(pluginList: string[]) {
   const pluginRegistry: RegistrationCheck = {
@@ -88,9 +89,12 @@ export function* createFeedWithDircopy(
   };
   const client = ChrisAPIClient.getClient();
   const directoryName = `${username}/uploads/${v4()}`;
+
   yield uploadLocalFiles(localFiles, directoryName);
   const totalFilePaths: string[] = [];
   const filePaths = uploadFilePaths(localFiles, directoryName);
+
+
   totalFilePaths.push(filePaths);
 
   const data: DircopyData = {
@@ -195,7 +199,7 @@ export function* setupFeedDetails(
       if (workflowType === "infant-freesurfer") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         if (instance)
-          yield runFreesurferWorkflow(instance, plugins, "infant- freesurfer");
+          yield runFreesurferWorkflow(instance, plugins, "infant-freesurfer");
       }
 
       if (workflowType === "adult-freesurfer") {
@@ -206,6 +210,12 @@ export function* setupFeedDetails(
       if (workflowType === "fastsurfer") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         if (instance) yield runFastsurferWorkflow(instance, plugins);
+      }
+      if (workflowType === "infant-freesurfer-age") {
+        yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
+        const { infantAge } = action.payload;
+        if (instance)
+          yield runInfantFreesurferWorkflow(instance, plugins, infantAge);
       }
       if (workflowType === "fetal-reconstruction") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
@@ -285,5 +295,14 @@ export function* setupFetalReconstruction(action: IActionTypeParam) {
     action,
     fetalReconstructionPlugins,
     "fetal-reconstruction"
+  );
+}
+
+export function* setupInfantFreesurferAge(action: IActionTypeParam) {
+  const infantFreesurferAgePlugins = ["pl-dircopy", "pl-infantfs:7.1.1.1"];
+  yield setupFeedDetails(
+    action,
+    infantFreesurferAgePlugins,
+    "infant-freesurfer-age"
   );
 }

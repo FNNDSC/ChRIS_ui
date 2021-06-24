@@ -18,6 +18,7 @@ export interface AnalysisPayload {
   localFiles: LocalFile[];
   workflowType: string;
   username: string;
+  infantAge?: string;
 }
 
 export interface SelectWorkflowState {
@@ -32,12 +33,12 @@ export interface IWorkflowState {
     error: any;
     loading: boolean;
   };
-
   steps: AnalysisStep[];
   isAnalysisRunning: boolean;
   totalFileCount: number;
   optionState: SelectWorkflowState;
   checkFeedDetails: number | undefined;
+  infantAge: string;
 }
 
 export interface DircopyData extends IPluginCreateData {
@@ -54,11 +55,17 @@ export interface CovidnetData extends IPluginCreateData {
   imagefile: any;
 }
 
-export interface IFSHackData extends IPluginCreateData {
+export interface AFSHackData extends IPluginCreateData {
   inputFile?: string;
   outputFile: string;
   exec: string;
   args: string;
+
+}
+
+export interface IFSHackData extends IPluginCreateData {
+  age:number
+
 }
 
 export enum PollStatus {
@@ -109,6 +116,7 @@ export const WorkflowTypes = keyMirror({
   STOP_ANALYSIS: null,
   SET_ANALYSIS_STEP: null,
   SET_OPTION_STATE: null,
+  SET_INFANT_AGE: null,
   RESET_WORKFLOW_STEP: null,
   STOP_FETCHING_PLUGIN_RESOURCES: null,
   SET_FEED_DETAILS: null,
