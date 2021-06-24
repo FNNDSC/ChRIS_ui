@@ -7,11 +7,11 @@ import { Alert, AlertActionLink, AlertGroup, Chip, ChipGroup } from "@patternfly
 import UserLibrary from "./components/UserLibrary";
 import PACSLookup from "./components/PACSLookup";
 import { PACSDemo } from "./components/PACSLookup/demo";
-import { PACSStudy } from "../../api/pfdcm";
+import { PACSSeries } from "../../api/pfdcm";
 
 export const [State, LibraryContext] = RouterContext({
 	state: {
-		selectData: [] as PACSStudy[]
+		selectData: [] as PACSSeries[]
 	}
 })
 
@@ -22,7 +22,7 @@ export const Library: React.FC = () => {
 	const router = useContext(MainRouterContext)
 
 	const actions = {
-		select: (item: PACSStudy | PACSStudy[]) => {
+		select: (item: PACSSeries | PACSSeries[]) => {
 			if (Array.isArray(item))
 				setState({ selectData: [ ...state.selectData, ...item ] })
 			else
@@ -33,9 +33,9 @@ export const Library: React.FC = () => {
 			if (!itemid)
 				setState({ selectData: [] });
 			else {
-				const fselection = (arr: PACSStudy[], find: string) => {
+				const fselection = (arr: PACSSeries[], find: string) => {
 					for (let i=0; i < arr.length; i++) {
-						if (arr[i].studyInstanceUID === find) {
+						if (arr[i].seriesInstanceUID === find) {
 							return arr.slice(0, i).concat(arr.slice(i+1))
 						}
 					}
@@ -70,13 +70,11 @@ export const Library: React.FC = () => {
 			<AlertGroup isToast>
 				<Alert
 					variant="info"
-					title={
-						`Selected ${state.selectData.length} ${state.selectData.length > 1 ? 'studies' : 'study'}. ` + 
-						'Start an analysis with selected studies.'
-					}
+					title={`Selected ${state.selectData.length} series.`}
 					style={{ width: "100%", marginTop: "3em" }}
 					actionLinks={
 						<React.Fragment>
+							<AlertActionLink onClick={actions.clear.bind(Library, undefined)}>Pull Series</AlertActionLink>
 							<AlertActionLink onClick={actions.createFeedWithSelected}>Create Feed</AlertActionLink>
 							<AlertActionLink onClick={actions.clear.bind(Library, undefined)}>Clear</AlertActionLink>
 						</React.Fragment>
@@ -84,9 +82,9 @@ export const Library: React.FC = () => {
 				>
 					<ChipGroup>
 						{
-							state.selectData.map(({ studyInstanceUID, patientName, modalitiesInStudy }) => (
-								<Chip key={studyInstanceUID} onClick={actions.clear.bind(Library, studyInstanceUID)}>
-									{ patientName }, { modalitiesInStudy }
+							state.selectData.map(({ seriesInstanceUID, seriesDescription, patientName, modality }) => (
+								<Chip key={seriesInstanceUID} onClick={actions.clear.bind(Library, seriesInstanceUID)}>
+									{ patientName }, { modality }, {seriesDescription}
 								</Chip>
 							))
 						}
