@@ -25,6 +25,9 @@ export const submitAnalysis = (analysisPayload: AnalysisPayload) =>
 export const setAnalysisStep = (step: AnalysisStep) =>
   action(WorkflowTypes.SET_ANALYSIS_STEP, step);
 
+export const setInfantAge = (value: string) =>
+  action(WorkflowTypes.SET_INFANT_AGE, value);
+
 export const resetWorkflowState = () =>
   action(WorkflowTypes.RESET_WORKFLOW_STEP);
 

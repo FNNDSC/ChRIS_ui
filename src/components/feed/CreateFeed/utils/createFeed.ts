@@ -3,6 +3,8 @@ import { CreateFeedData, LocalFile } from "../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
+import { uploadFilePaths } from "../../../../store/workflows/utils";
+
 
 let cache: number[] = [];
 
@@ -73,7 +75,8 @@ export const createFeedInstanceWithDircopy = async (
     } catch (error) {
       errorCallback(error);
     }
-    dirpath.push(local_upload_path);
+    const filePaths = uploadFilePaths(localFiles, local_upload_path);
+    dirpath.push(filePaths);
   } else if (chrisFiles.length > 0 && localFiles.length === 0) {
     statusCallback("Compute Paths from swift storage");
     dirpath = chrisFiles.map((path: string) => path);
@@ -88,7 +91,9 @@ export const createFeedInstanceWithDircopy = async (
     } catch (error) {
       errorCallback(error);
     }
-    dirpath.push(local_upload_path);
+    const filePaths = uploadFilePaths(localFiles, local_upload_path);
+
+    dirpath.push(filePaths);
   }
 
   let feed;
@@ -167,28 +172,27 @@ export const uploadLocalFiles = async (
 ) => {
   const client = ChrisAPIClient.getClient();
   let count = 0;
-  return Promise.all(
-    files.map((file: LocalFile) => {
-      const uploadedFile = client.uploadFile(
-        {
-          upload_path: `${directory}/${file.name}`,
-        },
-        {
-          fname: (file as LocalFile).blob,
-        }
-      );
-      count = uploadedFile ? count + 1 : count;
-      const percent = Math.round((count / files.length) * 20);
-
-      if (
-        !cache.includes(percent) &&
-        (percent === 5 || percent === 10 || percent === 15 || percent === 20)
-      ) {
-        statusCallback(`Uploading Files To Cube (${count}/${files.length})`);
-        cache.push(percent);
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const uploadedFile = await client.uploadFile(
+      {
+        upload_path: `${directory}/${file.name}`,
+      },
+      {
+        fname: (file as LocalFile).blob,
       }
-    })
-  );
+    );
+    count = uploadedFile ? count + 1 : count;
+    const percent = Math.round((count / files.length) * 20);
+
+    if (
+      !cache.includes(percent) &&
+      (percent === 5 || percent === 10 || percent === 15 || percent === 20)
+    ) {
+      statusCallback(`Uploading Files To Cube (${count}/${files.length})`);
+      cache.push(percent);
+    }
+  }
 };
 
 export const getPlugin = async (pluginName: string) => {
