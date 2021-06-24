@@ -72,6 +72,7 @@ export function* pollingBackend(instance: PluginInstance) {
       instanceDetails.data.status
     )
   ) {
+    return result;
   } else return result;
 }
 
@@ -93,7 +94,6 @@ export function* createFeedWithDircopy(
   yield uploadLocalFiles(localFiles, directoryName);
   const totalFilePaths: string[] = [];
   const filePaths = uploadFilePaths(localFiles, directoryName);
-
 
   totalFilePaths.push(filePaths);
 
@@ -238,7 +238,7 @@ export function* setupCovidnet(action: IActionTypeParam) {
     "pl-dircopy",
     "pl-med2img",
     "pl-covidnet",
-    "pl-pdfgeneration",
+    "pl-covidnet-pdfgeneration",
   ];
   yield setupFeedDetails(action, covidnetPlugins, "covidnet");
 }
