@@ -1,15 +1,15 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Wrapper from "../../../../containers/Layout/PageWrapper";
 import { Text, TextVariants, Grid, GridItem } from "@patternfly/react-core";
 
-import PFDCMClient, { PACSStudy, PFDCMFilters } from "../../../../api/pfdcm";
-import { LibraryContext } from "../../Library";
+import PFDCMClient, { PACSPatient, PACSStudy, PFDCMFilters } from "../../../../api/pfdcm";
 import QueryBuilder from "./QueryBuilder";
-import QueryResults from "./QueryResults";
+import QueryResults, { QueryResultLayouts } from "./QueryResults";
 
 export enum PFDCMQueryTypes {
   PATIENT,
   STUDY,
+  MRN,
 }
 
 export interface PFDCMQuery {
@@ -19,41 +19,53 @@ export interface PFDCMQuery {
 }
 
 export const PACS = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const library = useContext(LibraryContext);
   // const Client = new PFDCMClient()
 
-  const [loading, setLoading] = useState(false)
-  const [results, setResults] = useState<PACSStudy[]>()
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<PACSPatient[] | PACSStudy[]>();
+  const [layout, setLayout] = useState(QueryResultLayouts.PATIENT);
 
   const StartPACSQuery = useCallback(
-    ({ type, value, filters }: PFDCMQuery) => {
+    async ({ type, value, filters }: PFDCMQuery) => {
       setLoading(true);
 
-      let query;
+      let response;
       switch (type) {
-        // case PFDCMQueryTypes.MRN:
-        //   query = PFDCMClient.queryByMrn(value, filters as PFDCMFilters);
-        //   break;
-
+        case PFDCMQueryTypes.MRN:
+          response = await PFDCMClient.queryByMrn(value, filters as PFDCMFilters);
+          setLayout(QueryResultLayouts.PATIENT);
+          break;
+          
         case PFDCMQueryTypes.PATIENT:
-          query = PFDCMClient.queryByPatientName(value, filters as PFDCMFilters);
+          response = await PFDCMClient.queryByPatientName(value, filters as PFDCMFilters);
+          setLayout(QueryResultLayouts.PATIENT);
           break;
           
         case PFDCMQueryTypes.STUDY:
-          query = PFDCMClient.queryByStudy(value, filters as PFDCMFilters);
+          response = await PFDCMClient.queryByStudy(value, filters as PFDCMFilters);
+          setLayout(QueryResultLayouts.STUDY);
           break;
 
         default:
           throw Error()
       }
 
-      query.then((result) => {
-        setResults(result);
-        setLoading(false);
-      })
+      setResults(response);
+      setLoading(false);
     },
   [])
+
+  function resultsCountText() {
+    let str = `${results?.length} `;
+    switch (layout) {
+      case QueryResultLayouts.PATIENT:
+        str += "patients"; break;
+      case QueryResultLayouts.STUDY:
+        str += "studies"; break;
+    }
+    str += ' matched your query';
+    return str
+  }
 
   return (
     <Wrapper>
@@ -67,9 +79,16 @@ export const PACS = () => {
 
           {
             !loading && results && (
+              <>
               <GridItem>
-                <QueryResults results={results} />
+                <h2><b>Results</b></h2>
+                <p>{resultsCountText()}</p>
               </GridItem>
+
+              <GridItem>
+                <QueryResults layout={layout} results={results} />
+              </GridItem>
+              </>
             )
           }
         </Grid>
