@@ -38,9 +38,11 @@ const Status = () => {
                 status={
                   label.status === true
                     ? "finish"
+                    : label.processError === true
+                    ? "wait"
                     : label.error === true
                     ? "error"
-                    : undefined
+                    : "process"
                 }
               />
             );
