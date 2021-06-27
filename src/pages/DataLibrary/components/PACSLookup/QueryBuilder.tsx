@@ -11,10 +11,15 @@ import {
   TextInput,
   Button,
   DatePicker,
+  Dropdown,
+  DropdownToggle,
+  DropdownItem,
 } from "@patternfly/react-core";
 
-import { PFDCMQuery, PFDCMQueryTypes } from '.';
 import { SearchIcon } from '@patternfly/react-icons';
+import { PFDCMQuery, PFDCMQueryTypes } from '.';
+
+import "./pacs-lookup.scss"
 
 interface QueryBuilderProps {
   onFinalize: (q:PFDCMQuery) => void
@@ -22,6 +27,12 @@ interface QueryBuilderProps {
 
 export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryBuilderProps) => {
   const [query, setQuery] = useState({ type: PFDCMQueryTypes.PATIENT } as PFDCMQuery);
+  const setQueryType = (type: PFDCMQueryTypes) => {
+    setQuery({ type } as PFDCMQuery);
+  }
+
+  const [toggleType, setToggleType] = useState(false);
+  const onToggleType = () => setToggleType(!toggleType);
 
   const [toggleAdvanced, setToggleAdvanced] = useState(false);
   const onToggleAdvanced = () => setToggleAdvanced(!toggleAdvanced);
@@ -36,69 +47,106 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
       } as PFDCMQuery)
     }, [query])
 
+  const handleFilterInput = () => {
+    return
+  }
+
   const finalize = () => {
     if (query)
       onFinalize(query)
   }
-
-  const PatInputProps = {
-    type: "text" as const,
-    onChange: handlePatientInput
-  }
   
   return (
-    <Grid hasGutter>
+    <Grid hasGutter id="pacs-query-builder">
       <GridItem>
-        <Card>
-          <CardHeader><b>Patient Lookup</b></CardHeader>
-          <CardBody>
-            <Grid hasGutter>
-              <GridItem><TextInput {...PatInputProps} placeholder="Patient MRN" id="mrn" /></GridItem>
-              <GridItem><TextInput {...PatInputProps} placeholder="Patient Name" id="name" /></GridItem>
-            </Grid>
-          </CardBody>
-        </Card>
+        <Grid hasGutter>
+          <GridItem lg={10} sm={12}>
+            <Card style={{ height: "100%" }}>
+            <Split id="search">
+              <SplitItem>
+                <Dropdown id="search-type"
+                  isOpen={toggleType}
+                  onSelect={onToggleType}
+                  toggle={
+                    <DropdownToggle onToggle={onToggleType}>
+                      Search By
+                    </DropdownToggle>
+                  }
+                  dropdownItems={[
+                    <DropdownItem key="name" onClick={() => setQueryType(PFDCMQueryTypes.PATIENT)}>By Name</DropdownItem>,
+                    <DropdownItem key="pmrn" onClick={() => setQueryType(PFDCMQueryTypes.MRN)}>By ID or MRN</DropdownItem>,
+                    <DropdownItem key="date" onClick={() => setQueryType(PFDCMQueryTypes.DATE)}>By Date</DropdownItem>
+                  ]}
+                />
+              </SplitItem>
+
+              <SplitItem isFilled>
+                {
+                  function () {
+                    switch (query.type) {
+                      case PFDCMQueryTypes.DATE:
+                        return <DatePicker id="search-value" placeholder="Study Date (yyyy-MM-dd)" />
+
+                      case PFDCMQueryTypes.PATIENT:
+                        return <TextInput type="text" id="search-value" 
+                          placeholder="Patient Name" 
+                          onChange={handlePatientInput} 
+                        />
+
+                      case PFDCMQueryTypes.MRN:
+                        return <TextInput type="text" id="search-value" 
+                          placeholder="Patient ID or MRN" 
+                          onChange={handlePatientInput} 
+                        />
+                    }
+                  }()
+                }
+              </SplitItem>
+            </Split>
+            </Card>
+          </GridItem>
+
+          <GridItem lg={2} sm={12}>
+            <Button isLarge variant="primary" id="finalize" onClick={finalize}>
+              <SearchIcon/> Search
+            </Button>
+          </GridItem>
+        </Grid>
       </GridItem>
 
-      <GridItem>
+      <GridItem id="filters">
         <ExpandableSection
           toggleText="Filters and Constraints"
           onToggle={onToggleAdvanced}
           isExpanded={toggleAdvanced}
         >
           <Card>
-            <CardHeader><b>Filters and Constraints</b></CardHeader>
+            <CardHeader>
+              <Split>
+                <SplitItem isFilled><b>Basic Filters</b></SplitItem>
+                <SplitItem>
+                  <Button variant="link" onClick={finalize}>Clear</Button>
+                </SplitItem>
+                <SplitItem>
+                  <Button variant="secondary" onClick={finalize}>Apply</Button>
+                </SplitItem>
+              </Split>
+            </CardHeader>
             <CardBody>
               <Grid hasGutter>
                 <GridItem lg={4} sm={12}>
                   Modality <br />
-                  <TextInput type="text" placeholder="Eg: AR, AU, BDUS" id="modality" />
-                </GridItem>
-
-                <GridItem lg={8} sm={12}>
-                  Study Date <br />
-                  <DatePicker/>
+                  <TextInput type="text" onChange={handleFilterInput} placeholder="Eg: AR, AU, BDUS" id="modality" />
                 </GridItem>
 
                 <GridItem lg={4} sm={12}>
                   Station AE Title <br />
-                  <TextInput type="text" placeholder="MRI No. 2" id="station" />
+                  <TextInput type="text" onChange={handleFilterInput} placeholder="Eg: LILA" id="station" />
                 </GridItem>
               </Grid>
             </CardBody>
           </Card>
         </ExpandableSection>
-      </GridItem>
-
-      <GridItem>
-        <Split>
-          <SplitItem isFilled />
-          <SplitItem>
-            <Button isLarge variant="primary" onClick={finalize}>
-              <SearchIcon/> Search
-            </Button>
-          </SplitItem>
-        </Split>
       </GridItem>
     </Grid>
   )

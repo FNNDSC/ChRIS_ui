@@ -96,8 +96,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
           <CardHeader onExpand={expand.bind(QueryResults, patient.ID)}>
             <Grid hasGutter style={{ width: "100%" }}>
               <GridItem lg={9}>
-                <p><b>{patient.name.split('^').reverse().join(" ")}</b> ({patient.sex})</p>
-                <p>Patient MRN <Badge>{patient.ID}</Badge></p>
+                <p><b>{patient.name.split('^').reverse().join(" ")}</b> <Badge isRead>{patient.sex}</Badge></p>
+                <p style={{ color: "gray" }}><b>MRN</b> {patient.ID}</p>
               </GridItem>
 
               <GridItem lg={3} style={{ textAlign: "right", color: "gray" }}>
@@ -153,7 +153,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
                           <CardBody>
                             <Split>
                               <SplitItem style={{ minWidth: "50%" }}>
-                                <p><b>{study.studyDescription}</b> <Badge>{study.modalitiesInStudy}</Badge></p>
+                                <p><b>{study.studyDescription}</b> {study.modalitiesInStudy.split('\\').map(m => (
+                                  <Badge style={{ margin: "auto 0.125em" }} key={m}>{m}</Badge>
+                                ))}</p>
                                 <p style={{ color: "gray" }}>
                                   On {study.studyDate.toDateString()}, at {study.performedStationAETitle}
                                 </p>
@@ -189,8 +191,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
                     ref={ref}
                   >
                     <p className="no-scrollbar patient-series">
-                      To view files or series, you must pull them into ChRIS from your PACS server. 
-                      The series which exist in your storage will be immediately viewable. <b>Select series by clicking to pull them.</b>
+                      Series in the selected study are listed here. The series which exist in your ChRIS Storage will be immediately viewable.  <b>
+                        Select a series or click Pull to download them to your ChRIS Storage.</b>
                     </p>
                     <Grid hasGutter className="no-scrollbar patient-series">
                       {
