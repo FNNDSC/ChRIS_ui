@@ -1,3 +1,25 @@
+#pacs-query-builder {
+  #search {
+    height: 100%;
+    #search-value, #search-value *, #search-type, #search-type > button {
+      height: 100%;
+    }
+    #search-value {
+      width: 100%;
+    }
+  }
+
+  #finalize {
+    width: 100%;
+  }
+
+  #filters {
+    .pf-l-split {
+      width: 100%;
+    }
+  }
+}
+
 #pacs-query-results {
   .pf-l-split {
     width: 100%;
