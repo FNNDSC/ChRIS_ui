@@ -30,18 +30,18 @@ export function getStatusLabels(
   const pluginStatus = pluginDetails.data.status;
 
   const error =
-    pluginDetails.data.status === "finishedWithError" ||
-    pluginDetails.data.status === "cancelled"
+    pluginStatus === "finishedWithError" || pluginStatus === "cancelled"
       ? true
       : false;
 
   const currentLabel = statusLabels.indexOf(pluginStatus);
+ 
 
   status[0] = {
     id: 1,
     title: "Waiting",
-    status: currentLabel > 0 && labels ? true : false,
-    isCurrentStep: pluginDetails.data.status === "waiting",
+    status: currentLabel > 0 ? true : false,
+    isCurrentStep: pluginStatus === "waiting" ? true : false,
     error,
     description: "Waiting",
     icon: OutlinedClockIcon,
@@ -51,15 +51,12 @@ export function getStatusLabels(
   status[1] = {
     id: 2,
     title: "Scheduling",
-    status: currentLabel > 1 && labels ? true : false,
-    isCurrentStep: pluginDetails.data.status === "scheduled" ? true : false,
+    status: currentLabel > 1  ? true : false,
+    isCurrentStep: pluginStatus === "scheduled" ? true : false,
     error,
     description: "Scheduling",
     icon: InProgressIcon,
-    processError:
-      status[0].status !== true && !labels && error 
-        ? true
-        : false,
+    processError: status[0].status !== true && !labels && error ? true : false,
   };
 
   status[2] = {
@@ -67,14 +64,13 @@ export function getStatusLabels(
     title: "Transmitting",
     status: labels?.pushPath.status === true ? true : false,
     isCurrenStep:
-      pluginDetails.data.status === "started" && labels.pushPath.status !== true
+      pluginStatus === "started" && labels?.pushPath.status !== true
         ? true
         : false,
     error,
     description: "Transmitting",
     icon: OnRunningIcon,
-    processError:
-      status[1].status !== true && !labels && error ? true : false,
+    processError: status[1].status !== true && !labels && error ? true : false,
   };
 
   status[3] = {
