@@ -9,7 +9,7 @@ export function* runInfantFreesurferWorkflow(
   infantAge: string
 ) {
   const client = ChrisAPIClient.getClient();
-  const plInfantFs = pluginList["pl-infantfs:7.1.1.1"];
+  const plInfantFs = pluginList["pl-infantfs"];
   const plInfantFsArgs: IFSHackData = {
     title: "infant-fs",
     previous_id: dircopy.data.id,
