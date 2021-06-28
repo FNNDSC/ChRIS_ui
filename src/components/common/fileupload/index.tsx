@@ -3,15 +3,19 @@ import { Grid, GridItem, Button } from "@patternfly/react-core";
 import { LocalFile } from "../../feed/CreateFeed/types";
 import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
 
+type FileUploadProps = {
+  localFiles: LocalFile[];
+  dispatchFn: (files: LocalFile[]) => void;
+  handleDeleteDispatch: (file: string) => void;
+  className: string;
+};
+
 const FileUpload = ({
   localFiles,
   dispatchFn,
   handleDeleteDispatch,
-}: {
-  localFiles: LocalFile[];
-  dispatchFn: (files: LocalFile[]) => void;
-  handleDeleteDispatch: (file: string) => void;
-}) => {
+  className,
+}: FileUploadProps) => {
   const openLocalFilesPicker = (): Promise<LocalFile[]> => {
     const input = document.createElement("input");
     input.type = "file";
@@ -52,10 +56,9 @@ const FileUpload = ({
         ))
       : null;
   return (
-    <div className="local-file-upload">
+    <div className={className}>
       <Grid hasGutter={true}>
         <GridItem span={4} rowSpan={4}>
-          <p className="section-header">File Upload</p>
           <Button
             style={{
               width: "100%",
@@ -65,7 +68,7 @@ const FileUpload = ({
             Choose Files...
           </Button>
         </GridItem>
-        <GridItem span={8} rowSpan={12}>
+        <GridItem className={`${className}-grid`} span={8} rowSpan={12}>
           <p className="section-header">Local files to add to new feed:</p>
           <div className="file-list">{fileList}</div>
         </GridItem>

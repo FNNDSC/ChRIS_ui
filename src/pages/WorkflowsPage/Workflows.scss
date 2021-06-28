@@ -17,15 +17,17 @@
     &__body {
       height: 45em;
 
-      .local-file-upload {
-        background: var(--pf-global--palette--black-100);
+      .workflow-file-upload {
         height: 100%;
-        overflow-y: scroll;
+
+        &-grid {
+          height: 40em;
+          overflow-y: scroll;
+        }
       }
     }
   }
 }
-
 
 .workflow-form {
   margin-top: 1em;
