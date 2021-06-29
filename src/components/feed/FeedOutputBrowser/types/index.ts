@@ -10,7 +10,6 @@ export interface FileBrowserProps {
   handleFileViewerToggle: () => void;
   downloadAllClick: () => void;
   expandDrawer: (panel: string) => void;
-  breadcrumb: string[];
 }
 
 export interface FileBrowserState {

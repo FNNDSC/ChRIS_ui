@@ -299,7 +299,7 @@ export function* setupFetalReconstruction(action: IActionTypeParam) {
 }
 
 export function* setupInfantFreesurferAge(action: IActionTypeParam) {
-  const infantFreesurferAgePlugins = ["pl-dircopy", "pl-infantfs:7.1.1.1"];
+  const infantFreesurferAgePlugins = ["pl-dircopy", "pl-infantfs"];
   yield setupFeedDetails(
     action,
     infantFreesurferAgePlugins,

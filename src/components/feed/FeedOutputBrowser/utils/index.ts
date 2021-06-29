@@ -18,6 +18,7 @@ export function createTreeFromFiles(
       ),
       file.data.fname.length
     );
+
     //@ts-ignore
     const fileSize = bytesToSize(file.data.fsize);
     return {
