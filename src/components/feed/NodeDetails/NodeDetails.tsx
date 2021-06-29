@@ -109,6 +109,8 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   //@ts-ignore
   const compute_env = selectedPlugin?.data.compute_resource_name;
 
+  const previousId = selectedPlugin?.data.previous_id;
+
   const handleVisibleChange = (visible: boolean) => {
     setIsGraphNodeVisible(visible);
   };
@@ -173,6 +175,10 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             {renderGridItem("Created", Time)}
             {renderGridItem("Node ID", <span>{selectedPlugin.data.id}</span>)}
             {renderGridItem("Compute Environment", <span>{compute_env}</span>)}
+            {renderGridItem(
+              "Parent Node ID",
+              <span>{previousId ? previousId : "None"}</span>
+            )}
             {runTime && (
               <Fragment>
                 {renderGridItem(
