@@ -7,6 +7,7 @@ import { Alert, AlertActionLink, AlertGroup, Chip, ChipGroup } from "@patternfly
 import { PACSSeries } from "../../api/pfdcm";
 import UserLibrary from "./components/UserLibrary";
 import PACSLookup from "./components/PACSLookup";
+import SwiftLookup from "./components/SwiftLookup";
 
 export const [State, LibraryContext] = RouterContext({
 	state: {
@@ -62,7 +63,7 @@ export const Library: React.FC = () => {
 		<>
 		<RouterProvider {...{actions, state, route, setRoute}} context={LibraryContext}>
 			<Route exact path="/library" component={UserLibrary} />
-			<Route path="/library/swift" component={PACSLookup} />
+			<Route path="/library/swift" component={SwiftLookup} />
 			<Route path="/library/pacs" component={PACSLookup} />
 		</RouterProvider>
 
