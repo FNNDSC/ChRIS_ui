@@ -50,7 +50,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     (state) => state.instance.pluginInstances
   );
   const viewerMode = useTypedSelector((state) => state.explorer.viewerMode);
-  const currentFeed = useTypedSelector((state) => state.feed.currentFeed.data);
+
   const { data: plugins, loading } = pluginInstances;
 
   const pluginFilesPayload = selected && pluginFiles[selected.data.id];
@@ -100,12 +100,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     if (plugins && plugins.length > 0) {
       pluginSidebarTree = getFeedTree(plugins);
     }
-
-    const splitPath =
-      currentFeed &&
-      //@ts-ignore
-      selected.data.output_path.split(`feed_${currentFeed.data.id}/`)[1];
-    const breadcrumb = splitPath.split("/data")[0];
 
     return (
       <>
@@ -172,7 +166,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                   handleFileViewerToggle={handleFileViewerOpen}
                   downloadAllClick={downloadAllClick}
                   expandDrawer={expandDrawer}
-                  breadcrumb={[...breadcrumb.split("/"), ""]}
                 />
               </React.Suspense>
             ) : selected.data.status === "cancelled" ||
@@ -194,14 +187,11 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
 export default React.memo(FeedOutputBrowser);
 
-
-
 /**
  *
  * Utility Components
- * 
+ *
  */
-
 
 const LoadingFeedBrowser = () => {
   return (
