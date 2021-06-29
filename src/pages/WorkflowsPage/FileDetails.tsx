@@ -1,7 +1,6 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 import {
-  PageSection,
   Card,
   CardBody,
   Button,
@@ -257,7 +256,7 @@ const SubmitAnalysis = () => {
           onClick={() => dispatch(resetWorkflowState())}
           isDisabled={isAnalysisRunning ? true : false}
         >
-          Reset
+          Reset Page
         </Button>
       </CardBody>
     </Card>
