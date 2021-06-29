@@ -172,13 +172,16 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           className="node-details__expandable"
         >
           <Grid className="node-details__grid">
-            {renderGridItem("Created", Time)}
-            {renderGridItem("Node ID", <span>{selectedPlugin.data.id}</span>)}
-            {renderGridItem("Compute Environment", <span>{compute_env}</span>)}
             {renderGridItem(
               "Parent Node ID",
               <span>{previousId ? previousId : "None"}</span>
             )}
+            {renderGridItem(
+              "Selected Node ID",
+              <span>{selectedPlugin.data.id}</span>
+            )}
+            {renderGridItem("Created", Time)}
+            {renderGridItem("Compute Environment", <span>{compute_env}</span>)}
             {runTime && (
               <Fragment>
                 {renderGridItem(
@@ -200,6 +203,20 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
         </ExpandableSection>
 
         <div className="node-details__actions">
+          <Popover
+            className="node-details__popover"
+            content={<PluginLog text={text} />}
+            placement="bottom"
+            visible={isTerminalVisible}
+            trigger="click"
+            onVisibleChange={(visible: boolean) => {
+              setIsTerminalVisible(visible);
+            }}
+          >
+            <Button icon={<TerminalIcon />} type="button">
+              View Terminal
+            </Button>
+          </Popover>
           {cancelled ? null : <AddNode />}
 
           <Popover
@@ -230,26 +247,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           </Button>
         </div>
 
-        <div className="node-details__infoLabel">
-          <Popover
-            className="node-details__popover"
-            content={<PluginLog text={text} />}
-            placement="bottom"
-            visible={isTerminalVisible}
-            trigger="click"
-            onVisibleChange={(visible: boolean) => {
-              setIsTerminalVisible(visible);
-            }}
-          >
-            <Button
-              className="node-details__popover-button"
-              icon={<TerminalIcon />}
-              type="button"
-            >
-              View Terminal
-            </Button>
-          </Popover>
-        </div>
+        <div className="node-details__infoLabel"></div>
       </div>
     );
   }
