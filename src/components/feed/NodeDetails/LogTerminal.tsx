@@ -12,7 +12,14 @@ const LogTerminal = ({ text }: LogTerminalProps) => {
         height: "40vh",
       }}
     >
-      <LazyLog extraLines={1} enableSearch text={text} caseInsensitive />;
+      <LazyLog
+        selectableLines={true}
+        extraLines={1}
+        enableSearch
+        text={text}
+        caseInsensitive
+      />
+      ;
     </div>
   );
 };
