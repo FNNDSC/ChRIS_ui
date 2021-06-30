@@ -26,7 +26,7 @@ interface QueryBuilderProps {
 }
 
 export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryBuilderProps) => {
-  const [query, setQuery] = useState({ type: PFDCMQueryTypes.PATIENT } as PFDCMQuery);
+  const [query, setQuery] = useState({ type: PFDCMQueryTypes.MRN } as PFDCMQuery);
   const setQueryType = (type: PFDCMQueryTypes) => {
     setQuery({ type } as PFDCMQuery);
   }
@@ -73,9 +73,9 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
                     </DropdownToggle>
                   }
                   dropdownItems={[
-                    <DropdownItem key="name" onClick={() => setQueryType(PFDCMQueryTypes.PATIENT)}>By Name</DropdownItem>,
-                    <DropdownItem key="pmrn" onClick={() => setQueryType(PFDCMQueryTypes.MRN)}>By ID or MRN</DropdownItem>,
-                    <DropdownItem key="date" onClick={() => setQueryType(PFDCMQueryTypes.DATE)}>By Date</DropdownItem>
+                    <DropdownItem key="pmrn" onClick={() => setQueryType(PFDCMQueryTypes.MRN)}>By Patient ID or MRN</DropdownItem>,
+                    <DropdownItem key="name" onClick={() => setQueryType(PFDCMQueryTypes.PATIENT)}>By Patient Name</DropdownItem>,
+                    <DropdownItem key="date" onClick={() => setQueryType(PFDCMQueryTypes.DATE)}>By Study Date</DropdownItem>
                   ]}
                 />
               </SplitItem>
@@ -116,7 +116,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
 
       <GridItem id="filters">
         <ExpandableSection
-          toggleText="Filters and Constraints"
+          toggleText="Filters and More Options"
           onToggle={onToggleAdvanced}
           isExpanded={toggleAdvanced}
         >
@@ -140,7 +140,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
                 </GridItem>
 
                 <GridItem lg={4} sm={12}>
-                  Station AE Title <br />
+                  Station <br />
                   <TextInput type="text" onChange={handleFilterInput} placeholder="Eg: LILA" id="station" />
                 </GridItem>
               </Grid>
