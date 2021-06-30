@@ -1,10 +1,11 @@
 import React, { useContext } from "react";
 import { CreateFeedContext } from "./context";
-import { Grid, GridItem } from "@patternfly/react-core";
+import { Grid, GridItem, List, ListItem } from "@patternfly/react-core";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
 import "./createfeed.scss";
 import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
 import { ChrisFileDetails, LocalFileDetails } from "./helperComponents";
+import { MainRouterContext } from "../../../routes";
 
 
 const Review: React.FunctionComponent = () => {
@@ -16,6 +17,7 @@ const Review: React.FunctionComponent = () => {
     tags,
     chrisFiles,
     localFiles,
+    pacsSeries
   } = state.data;
   const {
     dropdownInput,
@@ -99,6 +101,26 @@ const Review: React.FunctionComponent = () => {
       </Grid>
       <br />
       {getReviewDetails()}
+      {
+        pacsSeries && (
+          <>
+            <GridItem span={12}>
+              PACS Series to add to new feed:
+            </GridItem>
+            <GridItem span={11} >
+              <List>
+                {
+                  pacsSeries.map(series => (
+                    <ListItem key={series.seriesInstanceUID}>
+                      {series.patientName}, {series.modality}, {series.seriesDescription}
+                    </ListItem>
+                  ))
+                }
+              </List>
+            </GridItem>
+          </>
+        )
+      }
       <br />
     </div>
   );

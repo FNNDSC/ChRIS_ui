@@ -8,30 +8,42 @@ const ChooseConfig: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { selectedConfig } = state;
 
+  const fromPacsQuery = !!state.data.pacsSeries.length;
+
   return (
     <div className="local-file-upload">
+
       <h1 className="pf-c-title pf-m-2xl">Feed Type Selection</h1>
       <br />
       <p className="data-configuration__subtitle">
-        You may create the feed in one of the following ways:
+        {
+          fromPacsQuery
+            ? 'Creating feed from PACS files. You may add more files in one of the following ways:'
+            : 'You may create the feed in one of the following ways:'
+        }
       </p>
       <br />
-      <Radio
-        value="fs_plugin"
-        isChecked={selectedConfig === "fs_plugin"}
-        onChange={(_, event) => {
-          dispatch({
-            type: Types.SelectedConfig,
-            payload: {
-              selectedConfig: event.currentTarget.value,
-            },
-          });
-        }}
-        label="Generate files from running an FS plugin from this ChRIS server"
-        name="fs_plugin"
-        id="fs_plugin"
-        data-testid="fs_plugin"
-      />{" "}
+      {
+        !fromPacsQuery && (
+          <Radio
+            value="fs_plugin"
+            isChecked={selectedConfig === "fs_plugin"}
+            onChange={(_, event) => {
+              dispatch({
+                type: Types.SelectedConfig,
+                payload: {
+                  selectedConfig: event.currentTarget.value,
+                },
+              });
+            }}
+            label="Generate files from running an FS plugin from this ChRIS server"
+            name="fs_plugin"
+            id="fs_plugin"
+            data-testid="fs_plugin"
+          />
+        )
+      }
+      {" "}
       <Radio
         value="swift_storage"
         isChecked={selectedConfig === "swift_storage"}
