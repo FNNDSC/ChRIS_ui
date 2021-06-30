@@ -23,12 +23,14 @@ import { addFeed } from "../../../store/feed/actions";
 import { createFeed, getName } from "./utils/createFeed";
 import { Feed } from "@fnndsc/chrisapi";
 import FinishedStep from "./FinishedStep";
+import { MainRouterContext } from "../../../routes";
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
   addFeed,
 }: CreateFeedReduxProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
+  const routerContext = useContext(MainRouterContext);
   const {
     wizardOpen,
     step,
@@ -362,6 +364,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
               dispatch({
                 type: Types.ResetState,
               });
+              // clear global feed base data, so wizard will be blank on next open
+              routerContext.actions.clearFeedData();
             }
             dispatch({
               type: Types.ToggleWizzard,
