@@ -53,7 +53,7 @@ export function* pollingBackend(instance: PluginInstance) {
   const timeout = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   };
-  yield timeout(1000);
+
   const shouldWait = () => {
     const returnValue = ![
       PollStatus.CANCELLED,
@@ -65,6 +65,13 @@ export function* pollingBackend(instance: PluginInstance) {
   while (shouldWait()) {
     yield timeout(6000);
     yield instance.get();
+    yield setYieldAnalysis(
+      3,
+      "Creating a Feed Tree",
+      "process",
+      `Waiting on plugin instance id ${instance.data.id} to finish....`
+    );
+
   }
   const result = instanceDetails.data.status;
   if (
@@ -82,7 +89,12 @@ export function* createFeedWithDircopy(
   username: string,
   workflowType: string
 ) {
-  yield setYieldAnalysis(2, "Creating a Feed Root Node", "process", "");
+  yield setYieldAnalysis(
+    2,
+    "Creating a Feed Root Node",
+    "process",
+    `Uploading ${localFiles.length} files. Please wait as the files are being uploaded...`
+  );
   const feedPayload: FeedReturnPayload = {
     feed: undefined,
     error: undefined,
