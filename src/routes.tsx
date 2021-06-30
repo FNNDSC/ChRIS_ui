@@ -12,13 +12,26 @@ import SignUp from "./pages/SignUp/SignUp";
 import WorkflowsPage from "./pages/WorkflowsPage";
 import { PACSSeries } from "./api/pfdcm";
 
-export const [State, MainRouterContext] = RouterContext({
-  state: {},
-  actions: {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    createFeedWithData: (d: PACSSeries[]) => { /**/ }
-  }
-});
+export interface MainRouterContextState {
+  selectData?: PACSSeries[];
+}
+
+interface MainRouterContextActions {
+  createFeedWithData: (data: PACSSeries[]) => void;
+  clearFeedData: () => void;
+}
+
+export const [State, MainRouterContext] = RouterContext<
+  MainRouterContextState, 
+  MainRouterContextActions
+>({
+    state: {},
+    actions: {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      createFeedWithData: (d: PACSSeries[]) => { /**/ },
+      clearFeedData: () => { /**/ }
+    }
+  });
 
 export const MainRouter: React.FC = () => {
   const [state, setState] = useState(State)
@@ -28,11 +41,14 @@ export const MainRouter: React.FC = () => {
     createFeedWithData: (selectData: PACSSeries[]) => {
       setState({ selectData })
       setRoute("/feeds")
+    },
+    clearFeedData: () => {
+      setState({ selectData: undefined });
     }
   }
 
   return (
-    <RouterProvider {...{actions, state, route, setRoute}} context={MainRouterContext}>
+    <RouterProvider {...{ actions, state, route, setRoute }} context={MainRouterContext}>
       <PrivateRoute exact path="/" component={Dashboard} />
       <Route exact path="/login" component={LogIn} />
       <Route exact path="/signup" component={SignUp} />
@@ -40,8 +56,9 @@ export const MainRouter: React.FC = () => {
       <PrivateRoute path="/library" component={Library} />
       <PrivateRoute path="/workflows" component={WorkflowsPage} />
       <Route component={NotFound} />
-    </RouterProvider>    
+    </RouterProvider>
   );
 }
 
 export default MainRouter;
+
