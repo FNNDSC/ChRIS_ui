@@ -12,7 +12,10 @@ import {
   Tab,
   TabContent,
   Tabs,
+  Tooltip,
 } from "@patternfly/react-core";
+import { CloseIcon } from "@patternfly/react-icons";
+import Moment from "react-moment";
 
 import "./pacs-lookup.scss";
 import { PACSPatient, PACSSeries, PACSStudy } from "../../../../api/pfdcm";
@@ -32,7 +35,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
     study: PACSStudy
   }>>([]);
 
-  const browseStudy = (study: PACSStudy) => {
+  const addToBrowse = (study: PACSStudy) => {
     setPatientTab(study.studyInstanceUID);
     if (!browserTabs.map((t) => t.study).includes(study))
       setBrowsableTabs([ ...browserTabs,
@@ -41,6 +44,11 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
           study,
         }
       ]);
+  }
+
+  const removeFromBrowse = (index: number) => {
+    setPatientTab("studies");
+    browserTabs.splice(index, 1);
   }
 
   const [expanded, setExpanded] = useState<string>()
@@ -95,9 +103,17 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
         <Card isExpanded={(expanded === patient.ID)}>
           <CardHeader onExpand={expand.bind(QueryResults, patient.ID)}>
             <Grid hasGutter style={{ width: "100%" }}>
-              <GridItem lg={9}>
-                <p><b>{patient.name.split('^').reverse().join(" ")}</b> <Badge isRead>{patient.sex}</Badge></p>
-                <p style={{ color: "gray" }}><b>MRN</b> {patient.ID}</p>
+              <GridItem lg={2}>
+                <p><b>{patient.name.split('^').reverse().join(" ")}</b></p>
+                <p>MRN {patient.ID}</p>
+              </GridItem>
+              <GridItem lg={1}>
+                <p><b>Sex</b></p>
+                <p>({patient.sex})</p>
+              </GridItem>
+              <GridItem lg={6}>
+                <p><b>DoB</b></p>
+                <p><Moment format="MMMM Do YYYY">{patient.birthDate.getTime()}</Moment></p>
               </GridItem>
 
               <GridItem lg={3} style={{ textAlign: "right", color: "gray" }}>
@@ -138,11 +154,10 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
                 id={`${patient.ID}-studies`} 
                 ref={tabrefs[index]}
               >
-                <p className="no-scrollbar patient-studies">
-                  Studies performed on the patient are listed here. This does not include manually uploaded studies, 
-                  only those in your PACS server. <b>Click <em>Browse</em> to view the series under a study.</b>
+                <p className="patient-studies">
+                  Studies performed on the patient are listed here. <b>Click <em>Browse</em> to view the series under a study.</b>
                 </p>
-                <Grid hasGutter className="no-scrollbar patient-studies">
+                <Grid hasGutter className="patient-studies">
                   {
                     patient.studies.map((study) => (
                       <GridItem key={study.studyInstanceUID}>
@@ -153,26 +168,37 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
                           <CardBody>
                             <Split>
                               <SplitItem style={{ minWidth: "50%" }}>
-                                <p><b>{study.studyDescription}</b> {study.modalitiesInStudy.split('\\').map(m => (
-                                  <Badge style={{ margin: "auto 0.125em" }} key={m}>{m}</Badge>
-                                ))}</p>
-                                <p style={{ color: "gray" }}>
-                                  On {study.studyDate.toDateString()}, at {study.performedStationAETitle}
+                                <p>
+                                  <b>{study.studyDescription}</b> {
+                                    study.studyDate.getTime() >= Date.now() - (30 * 24*60*60*1000) ? (
+                                      <Badge>NEW</Badge>
+                                    ) : null
+                                  }
+                                </p>
+                                <p>
+                                  {study.numberOfStudyRelatedSeries} series, on {study.studyDate.toDateString()}
                                 </p>
                               </SplitItem>
                               <SplitItem>
-                                <p>Accession Number</p>
-                                <p>{study.accessionNumber}</p>
+                                <p>Modalities</p>
+                                <p>
+                                  { study.modalitiesInStudy.split('\\').map(m => (
+                                    <Badge style={{ margin: "auto 0.125em", backgroundColor: "darkgrey" }} key={m}>{m}</Badge>
+                                  ))}
+                                </p>
                               </SplitItem>
                               <SplitItem isFilled/>
-                              <SplitItem style={{ color: "gray", margin: "0 2em",  textAlign: "right" }}>
-                                <p>{study.numberOfStudyRelatedSeries} series</p>
-                                <p>{study.numberOfStudyRelatedInstances} files</p>
+                              <SplitItem style={{ textAlign: "right" }}>
+                                <p>Performed at</p>
+                                <p>
+                                  { study.performedStationAETitle.startsWith("no value") ? '' : study.performedStationAETitle }
+                                </p>
                               </SplitItem>
-                              <SplitItem>
-                                <Button variant="link" style={{ padding: "0" }} onClick={() => browseStudy(study)}>
+                              <SplitItem style={{ color: "gray", margin: "0 0 0 2em",  textAlign: "right" }}>
+                                <Button variant="link" style={{ padding: "0" }} onClick={() => addToBrowse(study)}>
                                   Browse
                                 </Button>
+                                <p>{(study.numberOfStudyRelatedInstances * 0.2).toFixed(2)} MB</p>
                               </SplitItem>
                             </Split>
                           </CardBody>
@@ -184,17 +210,35 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
               </TabContent>
 
               {
-                browserTabs.map(({ ref, study }) => (
+                browserTabs.map(({ ref, study }, browserindex) => (
                   <TabContent key={study.studyInstanceUID} hidden={study.studyInstanceUID !== patientTab}
                     eventKey={study.studyInstanceUID} 
                     id={study.studyInstanceUID} 
                     ref={ref}
                   >
-                    <p className="no-scrollbar patient-series">
-                      Series in the selected study are listed here. The series which exist in your ChRIS Storage will be immediately viewable.  <b>
-                        Select a series or click Pull to download them to your ChRIS Storage.</b>
+                    <p className="patient-series">
+                      <Button variant="link" style={{ padding: "0", margin: "0 0 0.5em 0" }}
+                        onClick={() => setPatientTab("studies")}>
+                        Back to Studies
+                      </Button>
+                      <Split>
+                        <SplitItem isFilled>
+                          <p><b>{study.studyDescription}</b></p>
+                          <p>
+                            {study.series.length} series, on {study.studyDate.toDateString()} { 
+                              study.modalitiesInStudy.split('\\').map(m => (
+                                <Badge style={{ margin: "auto 0.125em", backgroundColor: "darkgrey" }} key={m}>{m}</Badge>
+                              ))}
+                          </p>
+                        </SplitItem>
+                        <SplitItem>
+                          <Tooltip content="Close">
+                            <Button variant="link" onClick={() => removeFromBrowse(browserindex)}><CloseIcon/></Button>
+                          </Tooltip>
+                        </SplitItem>
+                      </Split>
                     </p>
-                    <Grid hasGutter className="no-scrollbar patient-series">
+                    <Grid hasGutter className="patient-series">
                       {
                         study.series.map((series: PACSSeries) => (
                           <GridItem key={series.seriesInstanceUID}>
@@ -206,16 +250,21 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
                               <CardBody>
                                 <Split>
                                   <SplitItem style={{ minWidth: "50%" }}>
-                                    <Badge>{series.modality}</Badge> <span style={{ fontSize: "small" }}>
+                                    <Badge style={{ margin: "0 1em 0 0" }}>{series.modality}</Badge> <span style={{ fontSize: "small" }}>
                                       { series.seriesDescription }
                                     </span>
                                   </SplitItem>
                                   <SplitItem>
-                                    <Badge isRead>{series.status}</Badge>
+                                    {
+                                      !series.status.toLowerCase().includes("success") ? (
+                                        <Badge isRead>{series.status}</Badge>
+                                      ) : null
+                                    }
                                   </SplitItem>
                                   <SplitItem isFilled/>
                                   <SplitItem style={{ color: "gray", margin: "0 2em",  textAlign: "right" }}>
-                                    {series.numberOfSeriesRelatedInstances} files
+                                    {(series.numberOfSeriesRelatedInstances * 0.2).toFixed(2)} MB
+                                    {/* {series.numberOfSeriesRelatedInstances} files */}
                                   </SplitItem>
                                   <SplitItem>
                                     <Button variant="link" style={{ padding: "0" }}>Pull</Button>
