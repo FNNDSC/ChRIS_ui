@@ -1,5 +1,5 @@
-import React from "react";
 import { Button } from "@patternfly/react-core";
+import React from "react";
 import { useHistory } from "react-router-dom";
 
 const CreatePipeline = () => {

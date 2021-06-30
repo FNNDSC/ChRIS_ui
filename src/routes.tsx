@@ -7,7 +7,8 @@ import { LogIn } from "./pages/LogIn/Login";
 import { NotFound } from "./pages/NotFound/NotFound";
 import SignUp from "./pages/SignUp/SignUp";
 import WorkflowsPage from "./pages/WorkflowsPage";
-import PipelinesFeed from "./pages/PipelinesPage";
+import PipelinesPage from "./pages/PipelinesPage/PipelinesPage";
+import Pipeline from "./pages/PipelinesPage/components/Pipeline";
 
 const Routes: React.FunctionComponent = () => {
   return (
@@ -17,7 +18,8 @@ const Routes: React.FunctionComponent = () => {
         <Route exact path="/login" component={LogIn} />
         <Route exact path="/signup" component={SignUp} />
         <PrivateRoute path="/feeds" component={FeedsPage} />
-        <PrivateRoute path="/pipelines" component={PipelinesFeed}/>
+        <PrivateRoute exact path="/pipelines" component={PipelinesPage}/>
+        <PrivateRoute path="/pipelines/:id" component={Pipeline}/>
         <PrivateRoute path="/workflows" component={WorkflowsPage} />
         <Route component={NotFound} />
       </Switch>

@@ -64,6 +64,13 @@ const Sidebar: React.FC<AllProps> = ({
         >
           <Link to="/workflows">Type-1</Link>
         </NavItem>
+        <NavItem
+          groupId="workflows_grp"
+          itemId="pipelines"
+          isActive={sidebarActiveItem === "pipelines" ? true : false}
+        >
+          <Link to="/pipelines">Pipelines</Link>
+        </NavItem>
       </NavExpandable>
     </React.Fragment>
   );
