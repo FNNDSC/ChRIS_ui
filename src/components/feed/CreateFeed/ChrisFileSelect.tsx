@@ -98,17 +98,13 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
         resolve();
         return;
       }
-
-      setTimeout(() => {
-        generateTreeNodes(treeNode, username).then((nodes) => {
-          const treeData = [...tree];
-          if (nodes.length > 0) getNewTreeData(treeData, treeNode.pos, nodes);
-          setTree(treeData);
-          setCacheTree(treeData);
-        });
-
+      generateTreeNodes(treeNode, username).then((nodes) => {
+        const treeData = [...tree];
+        if (nodes.length > 0) getNewTreeData(treeData, treeNode.pos, nodes);
+        setTree(treeData);
+        setCacheTree(treeData);
         resolve();
-      }, 1000);
+      });
     });
   };
 
