@@ -7,7 +7,7 @@ const CreatePipeline = () => {
 
   return (
     <div>
-      <Button variant="primary" onClick={() => history.push("/pipelines")}>
+      <Button isLarge style={{ borderRadius: "4px"}} variant="primary" onClick={() => history.push("/pipelines")}>
         Create New Pipeline
       </Button>
     </div>

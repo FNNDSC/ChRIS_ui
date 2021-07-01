@@ -15,10 +15,13 @@ const PipelineCard = ({ Name, Description, ...props }: any) => {
   return (
     <div {...props}>
       <Card id="second-card" isHoverable>
-        <CardTitle>{Name}</CardTitle>
+        <CardTitle style={{ color: "#042c53", fontSize: "1.5rem" }}>
+          {Name}
+        </CardTitle>
         <CardBody>{Description}</CardBody>
         <CardFooter>
           <Button
+            style={{ backgroundColor: "#042c53" }}
             icon={<EyeIcon />}
             iconPosition="left"
             onClick={() => history.push("/pipelines/1")}

@@ -9,8 +9,8 @@ import {
 import {
   CalendarDayIcon,
   CodeBranchIcon,
-  PersonBoothIcon,
   AngleRightIcon,
+  UserAltIcon
 } from "@patternfly/react-icons";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -78,11 +78,9 @@ const Pipeline = () => {
     <Wrapper>
       <PageSection className="pipeline_main">
         <Link to="/pipelines" style={{ color: "#0275d8", marginRight: "8px" }}>
-          {" "}
-          Pipelines{" "}
+          Pipelines
         </Link>
         <Link to="/pipelines/1" style={{ color: "#ffffff" }}>
-          {" "}
           <AngleRightIcon /> 1
         </Link>
         <h1>
@@ -94,7 +92,7 @@ const Pipeline = () => {
               <p>
                 Creator
                 <br />
-                <PersonBoothIcon /> Jane Doe
+                <UserAltIcon /> Jane Doe
               </p>
             </div>
             <div>
@@ -107,10 +105,10 @@ const Pipeline = () => {
           </div>
           <div className="pipeline_main_top_right">
             <div>
-              <Button>View in ChRIS Store</Button>
+              <Button href="https://chrisstore.co/">View in ChRIS Store</Button>
             </div>
             <div>
-              <Button>Create new feed</Button>
+              <Button href="/feeds">Create new feed</Button>
             </div>
           </div>
         </div>

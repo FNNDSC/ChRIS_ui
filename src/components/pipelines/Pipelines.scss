@@ -1,18 +1,34 @@
+@import "../../assets/scss/helpers/variables";
+@import "../../assets/scss/helpers/mixins";
+@import "../../assets/scss/helpers/pf4-variables";
+
+// Collection of all Pipeline cards page
+// File: PipelinesFeed.tsx
 .pipelines {
   display: grid;
   grid-template-columns: auto auto auto auto;
   gap: 1.5rem;
-  padding: 2rem;
+  padding: 1.5rem;
+
   div {
     article {
       height: 50vh;
+      border-radius: 5px;
     }
   }
 }
 
+.pipelines > div > article:hover {
+  border-top: 5px solid #042c53;
+}
+
+// View of each Pipeline page
+// File: Pipeline.tsx
 .pipeline_main {
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
     url("../../assets/images/chris_ui_background_768@2x.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
 
   color: white;
   h1 {
@@ -43,6 +59,9 @@
   width: 40%;
   div {
     flex: 1;
+    button {
+      border-radius: 5px;
+    }
   }
 }
 
@@ -65,4 +84,30 @@
 
 #code-content {
   background-color: #0a1417;
+}
+
+// tablet
+@media only screen and (max-width: $pf-global--breakpoint--md) {
+  .pipelines {
+    grid-template-columns: auto auto;
+  }
+  .pipeline_main_top_right {
+    flex-direction: column;
+  }
+  .pipeline_main_bottom {
+    flex-direction: column;
+    justify-content: center;
+    div{
+      width: 90%;
+      flex: 1;
+      height: max-content;
+    }
+  
+  }
+}
+// small phones
+@media only screen and (max-width: $pf-global--breakpoint--sm) {
+  .pipelines {
+    grid-template-columns: auto;
+  }
 }

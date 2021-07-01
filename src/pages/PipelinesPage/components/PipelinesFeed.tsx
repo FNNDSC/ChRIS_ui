@@ -1,7 +1,7 @@
 import { PageSection } from "@patternfly/react-core";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import PipelineCard from "./PipelineCard";
+import PipelineCard from "../../../components/pipelines/PipelineCard";
 
 // get request to chris api for pipeline with params: {plugin instance}
 const PipelinesFeed = () => {
