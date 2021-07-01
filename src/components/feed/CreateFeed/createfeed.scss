@@ -80,6 +80,17 @@
   .file-remove {
     cursor: pointer;
   }
+
+  .loading-error-alert {
+    width: 100%;
+    .error-details {
+      padding: 10px;
+      margin: 10px 0px;
+      font-weight: normal;
+      border-left: 1px solid var(--pf-global--danger-color--100);
+    }
+  }
+
 }
 
 /* ChRIS File Select and Local File Upload */
