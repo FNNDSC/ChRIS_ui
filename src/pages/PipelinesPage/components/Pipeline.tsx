@@ -20,17 +20,17 @@ const Pipeline = () => {
   const [copied, setCopied] = useState(false);
   const [timer, setTimer] = useState<any>(null);
 
-  const clipboardCopyFunc = (event: any, text: any) => {
+  const clipboardCopyFunc = (event: React.SyntheticEvent, text: string) => {
     const clipboard = event.currentTarget.parentElement;
     const el = document.createElement("textarea");
     el.value = text.toString();
-    clipboard.appendChild(el);
+    clipboard?.appendChild(el);
     el.select();
     document.execCommand("copy");
-    clipboard.removeChild(el);
+    clipboard?.removeChild(el);
   };
 
-  const onClick = (event: any, text: any) => {
+  const onClick = (event: React.SyntheticEvent, text: string) => {
     if (timer) {
       window.clearTimeout(timer);
       setCopied(false);

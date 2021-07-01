@@ -16,7 +16,7 @@ const PipelinesFeed = () => {
         },
       })
       .then((response: any) => {
-        console.log(" Response from API", response.data.template.data);
+        // console.log(" Response from API", response.data.template.data);
         return setPipelines(response?.data.template.data);
       });
   }, []);

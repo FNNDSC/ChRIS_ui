@@ -9,7 +9,13 @@ import { EyeIcon } from "@patternfly/react-icons";
 import React from "react";
 import { useHistory } from "react-router";
 
-const PipelineCard = ({ Name, Description, ...props }: any) => {
+type PipelineCardProps={
+  Name: string,
+  Description: string,
+  props?: any
+}
+
+const PipelineCard = ({ Name, Description, ...props }: PipelineCardProps ) => {
   const history = useHistory();
 
   return (
