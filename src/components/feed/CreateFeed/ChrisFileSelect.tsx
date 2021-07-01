@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { CreateFeedContext } from "./context";
-import { Grid, GridItem } from "@patternfly/react-core";
+import { Alert, AlertActionCloseButton, AlertActionLink, Grid, GridItem } from "@patternfly/react-core";
 import { EventDataNode, Key } from "rc-tree/lib/interface";
 import { Tree } from "antd";
 import { ErrorBoundary } from "react-error-boundary";
@@ -58,9 +58,11 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
 }: ChrisFileSelectProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { chrisFiles, checkedKeys } = state.data;
+
   const [tree, setTree] = useState<DataBreadcrumb[]>(
     (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username)
   );
+  const [loadingError, setLoadingError] = useState<Error>();
 
   const fetchKeysFromDict: Key[] = React.useMemo(
     () => getCheckedKeys(checkedKeys),
@@ -98,13 +100,18 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
         resolve();
         return;
       }
-      generateTreeNodes(treeNode, username).then((nodes) => {
-        const treeData = [...tree];
-        if (nodes.length > 0) getNewTreeData(treeData, treeNode.pos, nodes);
-        setTree(treeData);
-        setCacheTree(treeData);
-        resolve();
-      });
+      generateTreeNodes(treeNode, username)
+        .then((nodes) => {
+          const treeData = [...tree];
+          if (nodes.length > 0) getNewTreeData(treeData, treeNode.pos, nodes);
+          setTree(treeData);
+          setCacheTree(treeData);
+          resolve();
+        }).catch(err => {
+          setLoadingError(err);
+          resolve();
+        });
+        
     });
   };
 
@@ -144,6 +151,13 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
           <div className="file-list">{fileList}</div>
         </GridItem>
       </Grid>
+      {
+        loadingError && 
+        <LoadingErrorAlert 
+          error={loadingError} 
+          handleClose={() => setLoadingError(undefined)}
+        />
+      }
     </div>
   );
 };
@@ -162,4 +176,44 @@ function getCheckedKeys(checkedKeys: { [key: string]: Key[] }) {
 
 function ErrorFallback({ error }: any) {
   return <ErrorMessage error={error} />;
+}
+
+interface LoadingErrorAlertProps {
+  error: Error;
+  handleClose: () => void;
+}
+
+const LoadingErrorAlert: React.FC<LoadingErrorAlertProps> = (props: LoadingErrorAlertProps) => {
+  const { error, handleClose } = props;
+  const [showDetails, setShowDetails] = useState(false);
+
+  const closeButton = (
+    <AlertActionCloseButton 
+      onClose={() => handleClose()} 
+    />
+  );
+  const detailsMessage = `${showDetails ? 'Hide' : 'Show'} details`;
+  const detailsButton = (
+    <AlertActionLink onClick={() => setShowDetails(!showDetails)}>
+      { detailsMessage }
+    </AlertActionLink>
+  );
+
+  const title = (
+    <div>
+      <span>There was a problem loading your files.</span>
+      { showDetails && <div className="error-details">{ error.message }</div> } 
+    </div>
+  )
+
+  return (
+    <Alert
+      className="loading-error-alert"
+      variant="danger" 
+      isInline
+      actionClose={closeButton}
+      actionLinks={detailsButton}
+      title={title}
+    />
+  )
 }
