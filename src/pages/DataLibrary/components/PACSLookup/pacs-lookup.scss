@@ -30,6 +30,10 @@
 
     .expanded-tabs {
       min-width: 20%;
+
+      .pf-c-tabs__list .pf-c-tabs__item:first-of-type {
+        // background-color: var(--pf-global--palette--black-100);
+      }
     }
 
     .expanded-content {
