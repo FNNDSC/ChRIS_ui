@@ -169,9 +169,13 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
                             <Split>
                               <SplitItem style={{ minWidth: "50%" }}>
                                 <p>
-                                  <b>{study.studyDescription}</b> {
+                                  <b style={{ marginRight: "0.5em" }}>
+                                    {study.studyDescription}
+                                  </b> {
                                     study.studyDate.getTime() >= Date.now() - (30 * 24*60*60*1000) ? (
-                                      <Badge>NEW</Badge>
+                                      <Tooltip content="Study was performed in the last 30 days.">
+                                        <Badge>NEW</Badge>
+                                      </Tooltip>
                                     ) : null
                                   }
                                 </p>

@@ -116,7 +116,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
 
       <GridItem id="filters">
         <ExpandableSection
-          toggleText="Filters and More Options"
+          toggleText="More Lookup Options"
           onToggle={onToggleAdvanced}
           isExpanded={toggleAdvanced}
         >
