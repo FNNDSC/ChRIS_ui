@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import Moment from "react-moment";
 import {
   PageSection,
-  PageSectionVariants,
   Title,
   Pagination,
   EmptyState,
@@ -205,7 +204,7 @@ const FeedListView: React.FC<AllProps> = ({
     );
   }
   return (
-    <article style={{ maxWidth: "1400px" }}>
+    <article style={{ maxWidth: "100%" }}>
       <Grid>
         <GridItem>
           <PageSection className="feed-header">

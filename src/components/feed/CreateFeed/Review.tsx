@@ -5,7 +5,6 @@ import { unpackParametersIntoString } from "../AddNode/lib/utils";
 import "./createfeed.scss";
 import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
 import { ChrisFileDetails, LocalFileDetails } from "./helperComponents";
-import { MainRouterContext } from "../../../routes";
 
 
 const Review: React.FunctionComponent = () => {

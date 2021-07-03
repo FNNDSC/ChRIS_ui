@@ -98,16 +98,19 @@ class PFDCMClient {
     return Object.values(patientsDataMap);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static async queryByMrn(mrn: string, filters: PFDCMFilters): Promise<PACSPatient[]> {
     const studies = parseRawDcmData(mockData);
     return this.sortStudiesByPatient(studies);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static async queryByPatientName(name: string, filters: PFDCMFilters): Promise<PACSPatient[]> {
     const studies = parseRawDcmData(mockData);
     return this.sortStudiesByPatient(studies);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static async queryByStudy(study: string, filters: PFDCMFilters) {
     return parseRawDcmData(mockData);
   }
