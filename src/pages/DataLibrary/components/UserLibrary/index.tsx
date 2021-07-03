@@ -53,7 +53,7 @@ export const UserLibrary = () => {
     } catch (error) {
       
     }
-  }, [])
+  }, [client])
 
   const getPACSFiles = useCallback(async () => {
     const params = {
@@ -82,7 +82,7 @@ export const UserLibrary = () => {
     } catch (error) {
       
     }
-  }, [])
+  }, [client])
 
   useEffect(() => {
     getUploadedFiles().then(files => setUploaded(files));
@@ -112,7 +112,9 @@ export const UserLibrary = () => {
               uploaded.map((file) => (
                 <GridItem key="">
                   <Card>
-                    <CardHeader>F</CardHeader>
+                    <CardHeader>
+                      {`${file}`}
+                    </CardHeader>
                   </Card>
                 </GridItem>
               ))
@@ -145,7 +147,9 @@ export const UserLibrary = () => {
               services.map((file) => (
                 <GridItem key="">
                   <Card>
-                    <CardHeader>F</CardHeader>
+                    <CardHeader>
+                      {`${file}`}
+                    </CardHeader>
                   </Card>
                 </GridItem>
               ))

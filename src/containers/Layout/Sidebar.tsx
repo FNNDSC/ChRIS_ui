@@ -68,7 +68,7 @@ const Sidebar: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
   return <PageSidebar theme="dark" nav={PageNav} isNavOpen={isNavOpen} />;
 };
 
-const mapStateToProps = ({ ui, user }: ApplicationState) => ({
+const mapStateToProps = ({ user }: ApplicationState) => ({
   isLoggedIn: user.isLoggedIn,
 });
 
