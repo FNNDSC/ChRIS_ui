@@ -5,14 +5,10 @@
 // Collection of all Pipeline cards page
 // File: PipelinesFeed.tsx
 .pipelines {
-  display: grid;
-  grid-template-columns: auto auto auto auto;
-  gap: 1.5rem;
   padding: 1.5rem;
-
   div {
     article {
-      height: 50vh;
+      margin-bottom: 1rem;
       border-radius: 5px;
     }
   }
@@ -20,6 +16,7 @@
 
 .pipelines > div > article:hover {
   border-top: 5px solid #042c53;
+  cursor: pointer;
 }
 
 // View of each Pipeline page
@@ -33,7 +30,7 @@
   color: white;
   h1 {
     color: white;
-    font-size: 50px;
+    font-size: 2.5rem;
     font-weight: bold;
   }
 }
@@ -42,6 +39,7 @@
   display: flex;
   justify-content: space-between;
   margin-left: 6%;
+  margin-top: 1%;
   .pipeline_main_top_right,
   .pipeline_main_top_left {
     display: flex;
@@ -88,9 +86,6 @@
 
 // tablet
 @media only screen and (max-width: $pf-global--breakpoint--md) {
-  .pipelines {
-    grid-template-columns: auto auto;
-  }
   .pipeline_main_top_right {
     flex-direction: column;
   }
@@ -102,12 +97,5 @@
       flex: 1;
       height: max-content;
     }
-  
-  }
-}
-// small phones
-@media only screen and (max-width: $pf-global--breakpoint--sm) {
-  .pipelines {
-    grid-template-columns: auto;
   }
 }

@@ -84,7 +84,7 @@ const Pipeline = () => {
           <AngleRightIcon /> 1
         </Link>
         <h1>
-          <CodeBranchIcon /> Pipeline Name
+          <CodeBranchIcon /> Fetal Brain MRI Reconstruction pipeline
         </h1>
         <div className="pipeline_main_top">
           <div className="pipeline_main_top_left">
@@ -108,7 +108,7 @@ const Pipeline = () => {
               <Button href="https://chrisstore.co/">View in ChRIS Store</Button>
             </div>
             <div>
-              <Button href="/feeds">Create new feed</Button>
+              <Button href="/feeds">Download Pipeline</Button>
             </div>
           </div>
         </div>

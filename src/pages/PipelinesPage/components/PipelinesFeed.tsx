@@ -23,49 +23,48 @@ const PipelinesFeed = () => {
 
   return (
     <PageSection>
-      <h1>Pipelines in here</h1>
       {/* {Pipelines.map((pipeline: any) => {
           <p>{Object.values(pipeline)}</p>;
           console.log("pipelines output", Object.values(pipeline)[0]);
         })} */}
       <div className="pipelines">
         <PipelineCard
-          Name="PipelineCard name"
+          Name="Fetal Brain MRI Reconstruction pipeline"
           Description="This is a selectable card. Click me to select me. Click again to
           deselect me."
         />
         <PipelineCard
-          Name="PipelineCard name"
+          Name="Fetal Brain MRI Reconstruction pipeline"
           Description="This is a selectable card. Click me to select me. Click again to
           deselect me."
         />
         <PipelineCard
-          Name="PipelineCard name"
+          Name="Fetal Brain MRI Reconstruction pipeline"
           Description="This is a selectable card. Click me to select me. Click again to
           deselect me."
         />
         <PipelineCard
-          Name="PipelineCard name"
+          Name="Fetal Brain MRI Reconstruction pipeline"
           Description="This is a selectable card. Click me to select me. Click again to
           deselect me."
         />
         <PipelineCard
-          Name="PipelineCard name"
+          Name="Fetal Brain MRI Reconstruction pipeline"
           Description="This is a selectable card. Click me to select me. Click again to
           deselect me."
         />
         <PipelineCard
-          Name="PipelineCard name"
+          Name="Fetal Brain MRI Reconstruction pipeline"
           Description="This is a selectable card. Click me to select me. Click again to
           deselect me."
         />
         <PipelineCard
-          Name="PipelineCard name"
+          Name="Fetal Brain MRI Reconstruction pipeline"
           Description="This is a selectable card. Click me to select me. Click again to
           deselect me."
         />
         <PipelineCard
-          Name="PipelineCard name"
+          Name="Fetal Brain MRI Reconstruction pipeline"
           Description="This is a selectable card. Click me to select me. Click again to
           deselect me."
         />
