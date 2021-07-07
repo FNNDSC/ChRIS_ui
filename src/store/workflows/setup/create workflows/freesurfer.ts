@@ -12,7 +12,7 @@ export function* runFreesurferWorkflow(
   const client = ChrisAPIClient.getClient();
 
   const pfdicomTagExtractArgsRoot = {
-    title: "tag-extract",
+    title: "pre-tag-extract",
     previous_id: dircopy.data.id,
     ouputFileType: "txt,scv,json,html",
     outputFileStem: "Pre-Sub",
@@ -40,12 +40,13 @@ export function* runFreesurferWorkflow(
     yield client.createPluginInstance(pfdicomTagSub.data.id, pfdicomTagSubArgs);
 
   const pfdicomTagExtractArgsTwo = {
-    title: "anonymized-tag-extract",
+    title: "post-tag-extract",
     previous_id: pfdicomTagSubInstance.data.id,
     ouputFileType: "txt,scv,json,html",
     outputFileStem: "Post-Sub",
     imageFile: "'m:%_nospc|-_ProtocolName.jpg'",
     imageScale: "3:none",
+    extension: ".dcm",
   };
   yield client.createPluginInstance(
     pfdicomTagExtract.data.id,
