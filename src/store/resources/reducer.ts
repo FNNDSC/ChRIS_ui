@@ -25,8 +25,13 @@ const reducer: Reducer<IResourceState> = (state = initialState, action) => {
     }
 
     case ResourceTypes.GET_PLUGIN_INSTANCE_RESOURCE_SUCCESS: {
-      const { id, pluginStatus, pluginLog, pluginDetails } = action.payload;
-      const pluginStatusLabels = getStatusLabels(pluginStatus, pluginDetails);
+      const { id, pluginStatus, pluginLog, pluginDetails, previousStatus } =
+        action.payload;
+      const pluginStatusLabels = getStatusLabels(
+        pluginStatus,
+        pluginDetails,
+        previousStatus
+      );
 
       return {
         ...state,
