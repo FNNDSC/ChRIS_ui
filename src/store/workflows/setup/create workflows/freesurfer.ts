@@ -16,8 +16,9 @@ export function* runFreesurferWorkflow(
     previous_id: dircopy.data.id,
     ouputFileType: "txt,scv,json,html",
     outputFileStem: "Pre-Sub",
-    imageFile: "m:%_nospc|-_ProtocolName.jpg",
+    imageFile: "'m:%_nospc|-_ProtocolName.jpg'",
     imageScale: "3:none",
+    extension: ".dcm",
   };
   const pfdicomTagExtract = pluginList["pl-pfdicom_tagExtract"];
 
