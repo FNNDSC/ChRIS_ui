@@ -18,7 +18,7 @@ export function* runFreesurferWorkflow(
     imageFile: "m:%_nospc|-_ProtocolName.jpg",
     imageScale: "3:none",
   };
-  const pfdicomTagExtract = pluginList["pl-pfdicom_tagextract"];
+  const pfdicomTagExtract = pluginList["pl-pfdicom_tagExtract"];
 
   yield client.createPluginInstance(
     pfdicomTagExtract.data.id,
@@ -33,7 +33,7 @@ export function* runFreesurferWorkflow(
     tagInfo:
       "'PatientName:%_name|patientID_PatientName ++ PatientID:%_md5|7_PatientID ++ PatientID:%_md5|7_PatientID ++ AccessionNumber:%_md5|8_AccessionNumber ++ PatientBirthDate:%_strmsk|******01_PatientBirthDate ++ re:.*hysician:%_md5|4_#tag ++ re:.*stitution:#tag ++ re:.*stitution:#tag'",
   };
-  const pfdicomTagSub = pluginList["pl-pfdicom_tagsub"];
+  const pfdicomTagSub = pluginList["pl-pfdicom_tagSub"];
   const pfdicomTagSubInstance: PluginInstance =
     yield client.createPluginInstance(pfdicomTagSub.data.id, pfdicomTagSubArgs);
 
@@ -108,7 +108,7 @@ export function* runFreesurferWorkflow(
     };
     yield client.createPluginInstance(plPfdoRun.data.id, plPfdoRunArgs);
 
-    const plMgz2LutReport = pluginList["pl-mgz2lut_report"];
+    const plMgz2LutReport = pluginList["pl-mgz2LUT_report"];
     const plMgz2LutReportArgs = {
       title: "segmentation-report",
       previous_id: plFsHackInstance.data.id,
