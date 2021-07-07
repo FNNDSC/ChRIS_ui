@@ -41,7 +41,7 @@ const Header: React.FC<IHeaderProps> = ({ onNavToggle, user }: IHeaderProps) => 
       <React.Fragment>
         <Brand src={brandImg} alt="ChRIS Logo" />
         <Badge key={4} style={BadgeStyle}>
-          <span>Version: 1.4.6</span>
+          <span>Version: 1.4.7</span>
         </Badge>
         <Badge key={3} style={BadgeStyle}>
           <span>
