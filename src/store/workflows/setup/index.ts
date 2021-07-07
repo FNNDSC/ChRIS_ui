@@ -246,12 +246,12 @@ export function* setupCovidnet(action: IActionTypeParam) {
 export function* setupInfantFreesurfer(action: IActionTypeParam) {
   const infantFreesurferPlugins = [
     "pl-dircopy",
-    "pl-pfdicom_tagsub",
-    "pl-pfdicom_tagextract",
+    "pl-pfdicom_tagSub",
+    "pl-pfdicom_tagExtract",
     "pl-fshack-infant",
     "pl-multipass",
     "pl-pfdorun",
-    "pl-mgz2lut_report",
+    "pl-mgz2LUT_report",
   ];
   yield setupFeedDetails(action, infantFreesurferPlugins, "infant-freesurfer");
 }
@@ -259,12 +259,12 @@ export function* setupInfantFreesurfer(action: IActionTypeParam) {
 export function* setupAdultFreesurfer(action: IActionTypeParam) {
   const adultFreesurferPlugins: string[] = [
     "pl-dircopy",
-    "pl-pfdicom_tagsub",
-    "pl-pfdicom_tagextract",
+    "pl-pfdicom_tagSub",
+    "pl-pfdicom_tagExtract",
     "pl-fshack",
     "pl-multipass",
     "pl-pfdorun",
-    "pl-mgz2lut_report",
+    "pl-mgz2LUT_report",
   ];
   yield setupFeedDetails(action, adultFreesurferPlugins, "adult-freesurfer");
 }
@@ -272,13 +272,13 @@ export function* setupAdultFreesurfer(action: IActionTypeParam) {
 export function* setupFastsurfer(action: IActionTypeParam) {
   const fastsurferPlugins = [
     "pl-dircopy",
-    "pl-pfdicom_tagextract",
-    "pl-pfdicom_tagsub",
+    "pl-pfdicom_tagExtract",
+    "pl-pfdicom_tagSub",
     "pl-fshack",
     "pl-fastsurfer_inference",
     "pl-multipass",
     "pl-pfdorun",
-    "pl-mgz2lut_report",
+    "pl-mgz2LUT_report",
   ];
   yield setupFeedDetails(action, fastsurferPlugins, "fastsurfer");
 }
@@ -287,7 +287,7 @@ export function* setupFetalReconstruction(action: IActionTypeParam) {
   const fetalReconstructionPlugins = [
     "pl-dircopy",
     "pl-fetal-brain-mask",
-    "pl-ants_n4biasfieldcorrection",
+    "pl-ANTs_N4BiasFieldCorrection",
     "pl-fetal-brain-assessment",
     "pl-irtk-reconstruction",
   ];
