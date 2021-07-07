@@ -93,6 +93,11 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
     case WorkflowTypes.STOP_ANALYSIS: {
       return {
         ...state,
+        optionState: {
+          isOpen: false,
+          toggleTemplateText: "Choose a Workflow",
+          selectedOption: "",
+        },
         isAnalysisRunning: !state.isAnalysisRunning,
       };
     }

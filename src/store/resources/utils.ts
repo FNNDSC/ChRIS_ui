@@ -35,7 +35,6 @@ export function getStatusLabels(
       : false;
 
   const currentLabel = statusLabels.indexOf(pluginStatus);
- 
 
   status[0] = {
     id: 1,
@@ -51,7 +50,7 @@ export function getStatusLabels(
   status[1] = {
     id: 2,
     title: "Scheduling",
-    status: currentLabel > 1  ? true : false,
+    status: currentLabel > 1 ? true : false,
     isCurrentStep: pluginStatus === "scheduled" ? true : false,
     error,
     description: "Scheduling",

@@ -10,6 +10,8 @@ import {
   Form,
   TextInput,
   Alert,
+  Label,
+  LabelProps,
 } from "@patternfly/react-core";
 import FileUpload from "../../components/common/fileupload";
 import { Steps } from "antd";
@@ -51,6 +53,9 @@ const FileUploadComponent = () => {
   const localFilePayload = useTypedSelector(
     (state) => state.workflows.localfilePayload
   );
+  const selectedOption = useTypedSelector(
+    (state) => state.workflows.optionState.selectedOption
+  );
   const dispatch = useDispatch();
   const { files } = localFilePayload;
 
@@ -65,11 +70,12 @@ const FileUploadComponent = () => {
   return (
     <Card className="file-upload-card">
       <CardBody>
-        <h1 className="pf-c-title pf-m-lg">
-          File Selection: Local File Upload
-        </h1>
-        <p>Choose files from your local computer to run a workflow</p>
-        <br />
+        <WorkflowTitle
+          color={files.length > 0 && !selectedOption ? "blue" : "grey"}
+          stepNumber={1}
+          heading={"Local File Upload"}
+        />
+
         <FileUpload
           className="workflow-file-upload"
           handleDeleteDispatch={handleDeleteDispatch}
@@ -84,6 +90,10 @@ const FileUploadComponent = () => {
 const SelectWorkflow = () => {
   const [error, setError] = React.useState("");
   const dispatch = useDispatch();
+
+  const isAnalysisRunning = useTypedSelector(
+    (state) => state.workflows.isAnalysisRunning
+  );
   const optionState = useTypedSelector((state) => state.workflows.optionState);
   const username = useTypedSelector((state) => state.user.username);
   const localFiles = useTypedSelector(
@@ -146,7 +156,7 @@ const SelectWorkflow = () => {
         dispatchAction();
       }
     } else if (selectedOption === "covidnet") {
-      if (localFiles.length > 15) {
+      if (localFiles.length > 30) {
         setError("The covidnet workflow can only run on 15 files or less");
       } else {
         dispatchAction();
@@ -181,15 +191,20 @@ const SelectWorkflow = () => {
   return (
     <Card>
       <CardBody>
+        <WorkflowTitle
+          color={selectedOption && !isAnalysisRunning ? "blue" : "grey"}
+          stepNumber={2}
+          heading={"Run a workflow"}
+        />
         <OptionsMenu
           id="option menu"
           isOpen={isOpen}
           menuItems={menuItems}
           toggle={toggle}
         />
-        <Button 
-        className='workflow-button'
-        onClick={handleClick}>Submit An Analysis</Button>
+        <Button className="workflow-button" onClick={handleClick}>
+          Submit An Analysis
+        </Button>
         {selectedOption === "infant-freesurfer-age" && (
           <div className="workflow-form">
             <Form isHorizontal>
@@ -199,7 +214,7 @@ const SelectWorkflow = () => {
                 id="infant-age"
                 name="infant-age"
                 onChange={handleInputChange}
-                placeholder="Enter an Infant's age"
+                placeholder="Enter an Infant's age in months"
               />
             </Form>
           </div>
@@ -213,9 +228,13 @@ const SelectWorkflow = () => {
 const SubmitAnalysis = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-
+  const localFiles = useTypedSelector(
+    (state) => state.workflows.localfilePayload.files
+  );
+  const selectedOption = useTypedSelector(
+    (state) => state.workflows.optionState.selectedOption
+  );
   const steps = useTypedSelector((state) => state.workflows.steps);
-
   const feedId = useTypedSelector((state) => state.workflows.checkFeedDetails);
   const isAnalysisRunning = useTypedSelector(
     (state) => state.workflows.isAnalysisRunning
@@ -224,18 +243,25 @@ const SubmitAnalysis = () => {
   return (
     <Card>
       <CardBody>
-        <Steps>
-          {steps.map((step: AnalysisStep) => {
-            return (
-              <Step
-                key={step.id}
-                status={step.status}
-                title={step.title}
-                description={step.error && step.error}
-              />
-            );
-          })}
-        </Steps>
+        <WorkflowTitle
+          color={isAnalysisRunning && selectedOption ? "blue" : "grey"}
+          stepNumber={3}
+          heading={"Execution Status"}
+        />
+        <div className="workflow-steps">
+          <Steps>
+            {steps.map((step: AnalysisStep) => {
+              return (
+                <Step
+                  key={step.id}
+                  status={step.status}
+                  title={step.title}
+                  description={step.error && step.error}
+                />
+              );
+            })}
+          </Steps>
+        </div>
       </CardBody>
       <CardBody>
         <Button
@@ -254,13 +280,37 @@ const SubmitAnalysis = () => {
         </Button>
         <Button
           onClick={() => dispatch(resetWorkflowState())}
-          isDisabled={isAnalysisRunning ? true : false}
+          isDisabled={!feedId && !isAnalysisRunning && localFiles.length === 0}
         >
           Reset Page
         </Button>
       </CardBody>
+      {!isAnalysisRunning && localFiles.length > 0 && !feedId && (
+        <CardBody>
+          <Alert title=" Click on Reset Page if you run into an error or if you want to run a new workflow"></Alert>
+        </CardBody>
+      )}
     </Card>
   );
 };
 
 export default FileDetails;
+
+const WorkflowTitle = ({
+  stepNumber,
+  color,
+  heading,
+}: {
+  stepNumber: number;
+  color: LabelProps["color"];
+  heading: string;
+}) => {
+  return (
+    <>
+      <div className="workflow-title">
+        <Label color={color}>{stepNumber}</Label>
+        <h1 className="pf-c-title pf-m-lg">{heading}</h1>
+      </div>
+    </>
+  );
+};
