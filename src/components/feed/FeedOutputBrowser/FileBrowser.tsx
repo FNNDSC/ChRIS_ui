@@ -182,7 +182,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       title: (
         <DownloadIcon
           className="download-file-icon"
-          onClick={(e) => handleDownloadClick(e, node)}
+          onClick={(e: any) => handleDownloadClick(e, node)}
         />
       ),
     };
