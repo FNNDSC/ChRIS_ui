@@ -16,6 +16,7 @@ export function* runFastsurferWorkflow(
     outputFileStem: "Pre-Sub",
     imageFile: "'m:%_nospc|-_ProtocolName.jpg'",
     imageScale: "3:none",
+    extension: ".dcm",
   };
   const pfdicomTagExtract = pluginList["pl-pfdicom_tagExtract"];
 
