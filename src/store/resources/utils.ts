@@ -12,7 +12,8 @@ import {
 
 export function getStatusLabels(
   labels: PluginStatusLabels,
-  pluginDetails: any
+  pluginDetails: any,
+  previousStatus: string
 ) {
   const status = [];
 
@@ -35,11 +36,21 @@ export function getStatusLabels(
       : false;
 
   const currentLabel = statusLabels.indexOf(pluginStatus);
+  let waitingStatus = false;
+
+  if (pluginDetails.data.plugin_type === "fs") {
+    waitingStatus = currentLabel > 0 ? true : false;
+  } else {
+    waitingStatus =
+      currentLabel > 0 && previousStatus === "finishedSuccessfully"
+        ? true
+        : false;
+  }
 
   status[0] = {
     id: 1,
     title: "Waiting",
-    status: currentLabel > 0 ? true : false,
+    status: waitingStatus,
     isCurrentStep: pluginStatus === "waiting" ? true : false,
     error,
     description: "Waiting",
@@ -50,7 +61,7 @@ export function getStatusLabels(
   status[1] = {
     id: 2,
     title: "Scheduling",
-    status: currentLabel > 1 ? true : false,
+    status: currentLabel > 1 && status[0].status === true ? true : false,
     isCurrentStep: pluginStatus === "scheduled" ? true : false,
     error,
     description: "Scheduling",

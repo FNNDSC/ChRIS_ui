@@ -6,6 +6,7 @@ declare module "*.scss";
 
 declare module "@patternfly/react-styles";
 declare module "@patternfly/react-table";
+declare module "@patternfly/react-icons";
 declare module "patternfly-react";
 declare module "d3v4";
 declare module "enzyme-adapter-react-16";
@@ -22,3 +23,4 @@ declare module "react-cornerstone-viewport";
 declare module "react-lazylog";
 declare module "clone";
 declare module "dequal/lite";
+declare module "typesafe-actions";
