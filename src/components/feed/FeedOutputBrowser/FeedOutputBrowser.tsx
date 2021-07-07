@@ -232,7 +232,7 @@ const EmptyStateLoader = () => {
 
 const FetchFilesLoader = () => {
   return (
-    <Spin tip="Loading....">
+    <Spin tip="Processing....">
       <Alert message="Retrieving Plugin's Files" type="info" />
     </Spin>
   );

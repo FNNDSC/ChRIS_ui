@@ -31,7 +31,7 @@ const FeedNote = ({
       />
       <div className="feed-details__actions">
         <Button onClick={() => handleEditNote(value)} type="button">
-          {status ? "Edting" : "Edit"}
+          {status ? "Saving" : "Save"}
         </Button>
         <Button onClick={handleClose} type="button">
           Cancel
