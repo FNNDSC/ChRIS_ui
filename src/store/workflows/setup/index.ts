@@ -20,7 +20,7 @@ import { runFreesurferWorkflow } from "./create workflows/freesurfer";
 import { runFetalReconstructionWorkflow } from "./create workflows/fetalReconstruction";
 import { setFeedDetails } from "../actions";
 import { put } from "@redux-saga/core/effects";
-import { runInfantFreesurferWorkflow } from "./create workflows/infantFreesurfer";
+
 
 export function* checkPluginRegistration(pluginList: string[]) {
   const pluginRegistry: RegistrationCheck = {
@@ -227,7 +227,12 @@ export function* setupFeedDetails(
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         const { infantAge } = action.payload;
         if (instance)
-          yield runInfantFreesurferWorkflow(instance, plugins, infantAge);
+          yield runFreesurferWorkflow(
+            instance,
+            plugins,
+            "infant-freesurfer-age",
+            infantAge
+          );
       }
       if (workflowType === "fetal-reconstruction") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
@@ -311,7 +316,15 @@ export function* setupFetalReconstruction(action: IActionTypeParam) {
 }
 
 export function* setupInfantFreesurferAge(action: IActionTypeParam) {
-  const infantFreesurferAgePlugins = ["pl-dircopy", "pl-infantfs"];
+  const infantFreesurferAgePlugins = [
+    "pl-dircopy",
+    "pl-infantfs",
+    "pl-pfdicom_tagsub",
+    "pl-pfdicom_tagextract",
+    "pl-multipass",
+    "pl-pfdorun",
+    "pl-mgz2lut_report",
+  ];
   yield setupFeedDetails(
     action,
     infantFreesurferAgePlugins,

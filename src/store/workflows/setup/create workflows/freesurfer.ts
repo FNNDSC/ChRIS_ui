@@ -1,12 +1,13 @@
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { AFSHackData, PluginList } from "../../types";
+import { AFSHackData, IFSHackData, PluginList } from "../../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { setYieldAnalysis } from "../../saga";
 
 export function* runFreesurferWorkflow(
   dircopy: PluginInstance,
   pluginList: PluginList,
-  workflowType: string
+  workflowType: string,
+  infantAge?: string
 ) {
   const client = ChrisAPIClient.getClient();
 
@@ -26,19 +27,20 @@ export function* runFreesurferWorkflow(
   );
 
   const pfdicomTagSubArgs = {
-    title: "substituted-dicoms",
+    title: "anonymized-dicoms",
     previous_id: dircopy.data.id,
     extension: ".dcm",
     splitToken: "++",
+    splitKeyValue: ",",
     tagInfo:
-      "'PatientName:%_name|patientID_PatientName ++ PatientID:%_md5|7_PatientID ++ PatientID:%_md5|7_PatientID ++ AccessionNumber:%_md5|8_AccessionNumber ++ PatientBirthDate:%_strmsk|******01_PatientBirthDate ++ re:.*hysician:%_md5|4_#tag ++ re:.*stitution:#tag ++ re:.*stitution:#tag'",
+      "'PatientName,%_name|patientID_PatientName ++ PatientID,%_md5|7_PatientID ++ AccessionNumber,%_md5|8_AccessionNumber ++ PatientBirthDate,%_strmsk|******01_PatientBirthDate ++ re:.*hysician,%_md5|4_#tag ++ re:.*stitution,#tag ++ re:.*ddress,#tag'",
   };
   const pfdicomTagSub = pluginList["pl-pfdicom_tagsub"];
   const pfdicomTagSubInstance: PluginInstance =
     yield client.createPluginInstance(pfdicomTagSub.data.id, pfdicomTagSubArgs);
 
   const pfdicomTagExtractArgsTwo = {
-    title: "substituted-tags",
+    title: "anonymized-tag-extract",
     previous_id: pfdicomTagSubInstance.data.id,
     ouputFileType: "txt,scv,json,html",
     outputFileStem: "Post-Sub",
@@ -76,6 +78,17 @@ export function* runFreesurferWorkflow(
       args: "'{ -all}'",
     };
     const plFshackInfant = pluginList["pl-fshack-infant"];
+    plFsHackInstance = yield client.createPluginInstance(
+      plFshackInfant.data.id,
+      data
+    );
+  } else if (workflowType === "infant-freesurfer-age" && infantAge) {
+    const data: IFSHackData = {
+      title: "infant-fs",
+      previous_id: pfdicomTagSubInstance.data.id,
+      age: +infantAge,
+    };
+    const plFshackInfant = pluginList["pl-infantfs"];
     plFsHackInstance = yield client.createPluginInstance(
       plFshackInfant.data.id,
       data
