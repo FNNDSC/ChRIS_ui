@@ -1,7 +1,16 @@
-.workflow-steps {
-  margin-top: 3rem;
-  .ant-steps-item-title {
-    color: var(--pf-global--palette--black-1000) !important ;
+
+
+.workflow-title {
+  display: flex;
+  margin-bottom: 1.5em;
+
+  .pf-c-label {
+    margin-right: 0.5em;
+  }
+
+  .pf-m-blue {
+    padding: 0.25em 0.75em;
+    --pf-c-label--BackgroundColor: var(--pf-global--palette--blue-200) !important;
   }
 }
 
@@ -31,4 +40,8 @@
 
 .workflow-form {
   margin-top: 1em;
+}
+
+.workflow-button {
+  margin-left:1.5em !important;
 }

@@ -5,8 +5,7 @@
 /* Header */
 
 .ant-popover-inner-content {
-  width: 25rem !important;
-  padding: 0
+  padding: 0 !important;
 }
 
 .feed-details {
@@ -15,16 +14,19 @@
 
   &__textarea {
     --pf-c-form-control--BackgroundColor: var(
-      --pf-global--palette--black-700
+      --pf-global--palette--black-1000
     ) !important;
     color: white !important;
     font-family: "monospace";
     font-size: 1.25rem;
+    height: 20em !important;
+   
   }
 
   &__actions {
+    background: var(--pf-global--palette--black-1000);
     button {
-      margin-right:0.5em;
+      margin-right: 0.5em;
     }
   }
 

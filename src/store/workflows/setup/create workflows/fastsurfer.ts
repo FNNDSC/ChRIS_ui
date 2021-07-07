@@ -25,12 +25,13 @@ export function* runFastsurferWorkflow(
   );
 
   const pfdicomTagSubArgs = {
-    title: "sub-tags",
+    title: "anonymized-dicoms",
     previous_id: dircopy.data.id,
     extension: ".dcm",
     splitToken: "++",
+    splitKeyValue: ",",
     tagInfo:
-      "'PatientName:%_name|patientID_PatientName ++ PatientID:%_md5|7_PatientID ++ PatientID:%_md5|7_PatientID ++ AccessionNumber:%_md5|8_AccessionNumber ++ PatientBirthDate:%_strmsk|******01_PatientBirthDate ++ re:.*hysician:%_md5|4_#tag ++ re:.*stitution:#tag ++ re:.*stitution:#tag'",
+      "'PatientName,%_name|patientID_PatientName ++ PatientID,%_md5|7_PatientID ++ AccessionNumber,%_md5|8_AccessionNumber ++ PatientBirthDate,%_strmsk|******01_PatientBirthDate ++ re:.*hysician,%_md5|4_#tag ++ re:.*stitution,#tag ++ re:.*ddress,#tag'",
   };
   const pfdicomTagSub = pluginList["pl-pfdicom_tagSub"];
   const pfdicomTagSubInstance: PluginInstance =
@@ -43,6 +44,7 @@ export function* runFastsurferWorkflow(
     outputFileStem: "Post-Sub",
     imageFile: "'m:%_nospc|-_ProtocolName.jpg'",
     imageScale: "3:none",
+    extension: ".dcm",
   };
   yield client.createPluginInstance(
     pfdicomTagExtract.data.id,

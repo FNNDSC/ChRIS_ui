@@ -20,7 +20,7 @@ import { runFreesurferWorkflow } from "./create workflows/freesurfer";
 import { runFetalReconstructionWorkflow } from "./create workflows/fetalReconstruction";
 import { setFeedDetails } from "../actions";
 import { put } from "@redux-saga/core/effects";
-import { runInfantFreesurferWorkflow } from "./create workflows/infantFreesurfer";
+
 
 export function* checkPluginRegistration(pluginList: string[]) {
   const pluginRegistry: RegistrationCheck = {
@@ -53,7 +53,7 @@ export function* pollingBackend(instance: PluginInstance) {
   const timeout = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   };
-  yield timeout(1000);
+
   const shouldWait = () => {
     const returnValue = ![
       PollStatus.CANCELLED,
@@ -65,6 +65,13 @@ export function* pollingBackend(instance: PluginInstance) {
   while (shouldWait()) {
     yield timeout(6000);
     yield instance.get();
+    yield setYieldAnalysis(
+      3,
+      "Creating a Feed Tree",
+      "process",
+      `Waiting on plugin instance id ${instance.data.id} to finish....`
+    );
+
   }
   const result = instanceDetails.data.status;
   if (
@@ -82,7 +89,12 @@ export function* createFeedWithDircopy(
   username: string,
   workflowType: string
 ) {
-  yield setYieldAnalysis(2, "Creating a Feed Root Node", "process", "");
+  yield setYieldAnalysis(
+    2,
+    "Creating a Feed Root Node",
+    "process",
+    `Uploading ${localFiles.length} files. Please wait as the files are being uploaded...`
+  );
   const feedPayload: FeedReturnPayload = {
     feed: undefined,
     error: undefined,
@@ -215,7 +227,12 @@ export function* setupFeedDetails(
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         const { infantAge } = action.payload;
         if (instance)
-          yield runInfantFreesurferWorkflow(instance, plugins, infantAge);
+          yield runFreesurferWorkflow(
+            instance,
+            plugins,
+            "infant-freesurfer-age",
+            infantAge
+          );
       }
       if (workflowType === "fetal-reconstruction") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
@@ -299,7 +316,15 @@ export function* setupFetalReconstruction(action: IActionTypeParam) {
 }
 
 export function* setupInfantFreesurferAge(action: IActionTypeParam) {
-  const infantFreesurferAgePlugins = ["pl-dircopy", "pl-infantfs"];
+  const infantFreesurferAgePlugins = [
+    "pl-dircopy",
+    "pl-infantfs",
+    "pl-pfdicom_tagSub",
+    "pl-pfdicom_tagExtract",
+    "pl-multipass",
+    "pl-pfdorun",
+    "pl-mgz2LUT_report",
+  ];
   yield setupFeedDetails(
     action,
     infantFreesurferAgePlugins,
