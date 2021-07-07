@@ -319,11 +319,11 @@ export function* setupInfantFreesurferAge(action: IActionTypeParam) {
   const infantFreesurferAgePlugins = [
     "pl-dircopy",
     "pl-infantfs",
-    "pl-pfdicom_tagsub",
-    "pl-pfdicom_tagextract",
+    "pl-pfdicom_tagSub",
+    "pl-pfdicom_tagExtract",
     "pl-multipass",
     "pl-pfdorun",
-    "pl-mgz2lut_report",
+    "pl-mgz2LUT_report",
   ];
   yield setupFeedDetails(
     action,
