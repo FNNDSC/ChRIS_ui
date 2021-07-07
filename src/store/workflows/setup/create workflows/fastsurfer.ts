@@ -25,7 +25,7 @@ export function* runFastsurferWorkflow(
   );
 
   const pfdicomTagSubArgs = {
-    title: "sub-tags",
+    title: "anonymized-dicoms",
     previous_id: dircopy.data.id,
     extension: ".dcm",
     splitToken: "++",
@@ -44,6 +44,7 @@ export function* runFastsurferWorkflow(
     outputFileStem: "Post-Sub",
     imageFile: "'m:%_nospc|-_ProtocolName.jpg'",
     imageScale: "3:none",
+    extension: ".dcm",
   };
   yield client.createPluginInstance(
     pfdicomTagExtract.data.id,
