@@ -37,23 +37,19 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
   const [toggleAdvanced, setToggleAdvanced] = useState(false);
   const onToggleAdvanced = () => setToggleAdvanced(!toggleAdvanced);
 
-  const handlePatientInput = useCallback(
-    (value: string, event: React.FormEvent<HTMLInputElement>) => {
-      setQuery({
-        ...query,
-        value: {
-          [event.currentTarget.id]: value
-        }
-      } as PFDCMQuery)
-    }, [query])
+  const handleInput = (value: string) => {
+    setQuery({ ...query, value } as PFDCMQuery);
+  }
 
-  const handleFilterInput = () => {
-    return
+  const handleFilter = (filters: any) => {
+    setQuery({ ...query, filters } as PFDCMQuery);
   }
 
   const finalize = () => {
-    if (query)
+    if (query.value && query.value !== "")
       onFinalize(query)
+    else
+      return Error()
   }
   
   return (
@@ -90,13 +86,13 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
                       case PFDCMQueryTypes.PATIENT:
                         return <TextInput type="text" id="search-value" 
                           placeholder="Patient Name" 
-                          onChange={handlePatientInput} 
+                          onChange={handleInput} 
                         />
 
                       case PFDCMQueryTypes.MRN:
                         return <TextInput type="text" id="search-value" 
                           placeholder="Patient ID or MRN" 
-                          onChange={handlePatientInput} 
+                          onChange={handleInput} 
                         />
                     }
                   }()
@@ -136,12 +132,12 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
               <Grid hasGutter>
                 <GridItem lg={4} sm={12}>
                   Modality <br />
-                  <TextInput type="text" onChange={handleFilterInput} placeholder="Eg: AR, AU, BDUS" id="modality" />
+                  <TextInput type="text" onChange={handleFilter} placeholder="Eg: AR, AU, BDUS" id="modality" />
                 </GridItem>
 
                 <GridItem lg={4} sm={12}>
                   Station <br />
-                  <TextInput type="text" onChange={handleFilterInput} placeholder="Eg: LILA" id="station" />
+                  <TextInput type="text" onChange={handleFilter} placeholder="Eg: LILA" id="station" />
                 </GridItem>
               </Grid>
             </CardBody>
