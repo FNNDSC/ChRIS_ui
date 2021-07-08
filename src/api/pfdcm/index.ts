@@ -175,8 +175,6 @@ class PFDCMClient {
       StudyDate: dateString
     }, filters);
   }
-  }
-  
 }
 
 export default PFDCMClient;

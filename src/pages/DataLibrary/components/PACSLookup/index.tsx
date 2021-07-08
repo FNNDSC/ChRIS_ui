@@ -40,19 +40,20 @@ export const PACS = () => {
   const StartPACSQuery = useCallback(
     async ({ type, value, filters }: PFDCMQuery) => {
       setLoading(true);
+      filters = filters ? filters as PFDCMFilters : {};
 
       let response: PACSPatient[];
       switch (type) {
         case PFDCMQueryTypes.PATIENT:
-          response = await PFDCMClient.queryByPatientName(value, filters as PFDCMFilters);
+          response = await PFDCMClient.queryByPatientName(value, filters);
           break;
 
         case PFDCMQueryTypes.DATE:
-          // response = await PFDCMClient.queryByPatientName(value, filters as PFDCMFilters);
+          response = await PFDCMClient.queryByStudyDate(value, filters);
           break;
 
         case PFDCMQueryTypes.MRN:
-          response = await PFDCMClient.queryByMrn(value, filters as PFDCMFilters);
+          response = await PFDCMClient.queryByMrn(value, filters);
           break;
 
         default:
