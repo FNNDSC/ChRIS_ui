@@ -31,6 +31,7 @@ import PluginTitle from "./PluginTitle";
 import { setFeedLayout } from "../../../store/feed/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import "./NodeDetails.scss";
+import { getErrorCodeMessage } from "./utils";
 
 interface INodeProps {
   expandDrawer: (panel: string) => void;
@@ -61,6 +62,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   const [isTerminalVisible, setIsTerminalVisible] = React.useState(false);
   const [isGraphNodeVisible, setIsGraphNodeVisible] = React.useState(false);
   const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isErrorExpanded, setisErrorExpanded] = React.useState(false);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -197,7 +199,27 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             {cancelled &&
               renderGridItem(
                 "Error Code",
-                <span>{error_code ? error_code : "None"}</span>
+                <span>
+                  {error_code ?
+                    <span>
+                      {error_code}&nbsp;
+                      {isErrorExpanded &&
+                        <span className="node-details__error-message">
+                          {getErrorCodeMessage(error_code)}&nbsp;
+                        </span>
+                        }
+                        <Button 
+                          variant="link" 
+                          isInline 
+                          className="node-details__error-show-more"
+                          onClick={() => setisErrorExpanded(!isErrorExpanded)}
+                        >
+                          (show {isErrorExpanded ? 'less' : 'more'})
+                        </Button>
+                      </span>
+                      : "None"
+                    }
+                </span>
               )}
           </Grid>
         </ExpandableSection>
