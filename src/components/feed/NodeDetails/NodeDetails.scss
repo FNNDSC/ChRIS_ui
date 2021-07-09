@@ -216,6 +216,14 @@
     }
   }
 
+  .node-details__error-message {
+    font-style: italic;
+  }
+
+  .node-details__error-show-more {
+    color: var(--pf-global--link--Color--light) !important;
+  }
+
   @include media-query(1200px) {
     .pf-l-grid > .pf-m-2-col {
       margin-bottom: 1em;
