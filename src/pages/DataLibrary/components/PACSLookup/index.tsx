@@ -60,10 +60,8 @@ export const PACS = () => {
           throw Error()
       }
 
-      setTimeout(() => {
-        setResults(response);
-        setLoading(false);
-      }, 2000)
+      setResults(response);
+      setLoading(false);
     },
   [])
 

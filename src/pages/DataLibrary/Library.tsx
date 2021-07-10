@@ -4,10 +4,10 @@ import { RouterContext, RouterProvider } from "../../containers/Routing/RouterCo
 import { MainRouterContext } from "../../routes";
 import { Alert, AlertActionLink, AlertGroup, Chip, ChipGroup } from "@patternfly/react-core";
 
-import { PACSSeries } from "../../api/pfdcm";
+import { PACSSeries, PACSStudy } from "../../api/pfdcm";
 import UserLibrary from "./components/UserLibrary";
 import PACSLookup from "./components/PACSLookup";
-import SwiftLookup from "./components/SwiftLookup";
+import ChrisLookup from "./components/ChrisLookup";
 
 export const [State, LibraryContext] = RouterContext({
 	state: {
@@ -55,6 +55,10 @@ export const Library: React.FC = () => {
 			}
 		},
 
+		saveToHistory: (item: PACSStudy) => {
+			const history = localStorage.getItem("browse-history") || ([]);			
+		},
+
 		createFeedWithSelected: router.actions.createFeedWithData
 			.bind(Library, state.selectData)
 	}
@@ -63,7 +67,7 @@ export const Library: React.FC = () => {
 		<>
 		<RouterProvider {...{actions, state, route, setRoute}} context={LibraryContext}>
 			<Route exact path="/library" component={UserLibrary} />
-			<Route path="/library/swift" component={SwiftLookup} />
+			<Route path="/library/chris" component={ChrisLookup} />
 			<Route path="/library/pacs" component={PACSLookup} />
 		</RouterProvider>
 

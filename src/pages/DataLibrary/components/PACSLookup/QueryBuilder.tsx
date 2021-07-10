@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 import {
   Card,
   CardBody,
@@ -45,12 +45,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
     setQuery({ ...query, filters } as PFDCMQuery);
   }
 
-  const finalize = () => {
-    if (query.value && query.value !== "")
-      onFinalize(query)
-    else
-      return Error()
-  }
+  const finalize = () => onFinalize(query)
   
   return (
     <Grid hasGutter id="pacs-query-builder">
@@ -112,14 +107,14 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
 
       <GridItem id="filters">
         <ExpandableSection
-          toggleText="More Lookup Options"
+          toggleText="More Options"
           onToggle={onToggleAdvanced}
           isExpanded={toggleAdvanced}
         >
           <Card>
             <CardHeader>
               <Split>
-                <SplitItem isFilled><b>Basic Filters</b></SplitItem>
+                <SplitItem isFilled><b>Filters</b></SplitItem>
                 <SplitItem>
                   <Button variant="link" onClick={finalize}>Clear</Button>
                 </SplitItem>
@@ -138,6 +133,11 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
                 <GridItem lg={4} sm={12}>
                   Station <br />
                   <TextInput type="text" onChange={handleFilter} placeholder="Eg: LILA" id="station" />
+                </GridItem>
+
+                <GridItem lg={4} sm={12}>
+                  Accession Number <br />
+                  <TextInput type="text" onChange={handleFilter} placeholder="Eg: 201200923" id="accnum" />
                 </GridItem>
               </Grid>
             </CardBody>

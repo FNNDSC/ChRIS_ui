@@ -8,7 +8,7 @@ export const Swift = () => {
     <Wrapper>
       <article>
         <Grid hasGutter>
-          <GridItem><Text component={TextVariants.h1}>Search ChRIS</Text></GridItem>
+          <GridItem><Text component={TextVariants.h1}>ChRIS Storage</Text></GridItem>
         </Grid>
       </article>
     </Wrapper>
