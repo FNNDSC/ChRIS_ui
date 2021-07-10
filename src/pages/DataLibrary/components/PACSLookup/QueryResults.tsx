@@ -5,6 +5,9 @@ import {
   Card,
   CardBody,
   CardHeader,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateIcon,
   Grid,
   GridItem,
   Split,
@@ -12,9 +15,10 @@ import {
   Tab,
   TabContent,
   Tabs,
+  Title,
   Tooltip,
 } from "@patternfly/react-core";
-import { CloseIcon } from "@patternfly/react-icons";
+import { CloseIcon, CubesIcon } from "@patternfly/react-icons";
 import Moment from "react-moment";
 
 import "./pacs-lookup.scss";
@@ -96,6 +100,20 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
           latestStudy = date;
       }
       return latestStudy
+    }
+
+    if (!results.length) {
+      return (
+        <EmptyState>
+          <EmptyStateIcon variant="container" component={CubesIcon} />
+          <Title size="lg" headingLevel="h4">
+            No Results
+          </Title>
+          <EmptyStateBody>
+            No patients matched your search.
+          </EmptyStateBody>
+        </EmptyState>
+      )
     }
 
     return results.map((patient, index) => (

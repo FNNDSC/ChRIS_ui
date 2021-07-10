@@ -37,8 +37,8 @@ const Sidebar: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
             <Link to="/library">My Library</Link>
           </NavItem>
 
-          <NavItem itemId="swift" isActive={active === "swift"}>
-            <Link to="/library/swift">Swift Lookup</Link>
+          <NavItem itemId="chris" isActive={active === "chris"}>
+            <Link to="/library/chris">ChRIS Storage</Link>
           </NavItem>
 
           <NavItem itemId="pacs" isActive={active === "pacs"}>          

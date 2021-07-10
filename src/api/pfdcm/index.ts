@@ -142,14 +142,13 @@ class PFDCMClient {
       query.PerformedStationAETitle = filters.station;
     }
 
-    const response = await this.sendPypxRequest({
-      ...query,
-      then: '',
-    })
-    const rawDcmData = response.data.pypx;
-    
-    const studies = parseRawDcmData(rawDcmData);
-    return this.sortStudiesByPatient(studies);
+    try {    
+      const rawDcmData = (await this.sendPypxRequest({ ...query, then: '' })).data.pypx
+      const studies = parseRawDcmData(rawDcmData);
+      return this.sortStudiesByPatient(studies);
+    } catch (error) {
+      return []; 
+    }
   }
 
   static queryByMrn(mrn: string, filters: PFDCMFilters = {}): Promise<PACSPatient[]> {

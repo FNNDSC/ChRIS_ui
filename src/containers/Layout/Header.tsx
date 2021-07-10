@@ -39,7 +39,7 @@ const Header: React.FC<IHeaderProps> = ({ onNavToggle, user }: IHeaderProps) => 
 
     const brand = (
       <React.Fragment>
-        <Link to="/"><Brand src={brandImg} alt="ChRIS Logo" /></Link>
+        <Brand src={brandImg} alt="ChRIS Logo" />
         <Badge key={4} style={BadgeStyle}>
           <span>Version: 1.4.8</span>
         </Badge>
