@@ -3,6 +3,7 @@ import { CubesIcon, UploadIcon } from "@patternfly/react-icons";
 import {
   Button,
   Card,
+  CardBody,
   CardHeader,
   EmptyState,
   EmptyStateBody,
@@ -27,14 +28,11 @@ export const UserLibrary = () => {
 
   const client = ChrisAPIClient.getClient();
 
-  const [loading, setLoading] = useState(true);
-
   const [uploaded, setUploaded] = useState<UploadedFileList>();
   const [collections, setCollections] = useState<UploadedFileList>();
 
   const getUploadedFiles = useCallback(async () => {
-    // return [];
-    const params = { limit: 8 };
+    const params = { limit: 1 };
     if (uploaded && uploaded.hasNextPage)
       params.limit += params.limit;
 
@@ -44,24 +42,41 @@ export const UserLibrary = () => {
     } catch (error) {
       console.error(error);
     }
-    
-    setLoading(false);
-  }, [client, uploaded])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client])
+
+  // const getCollections = useCallback(async () => {
+  //   if (collections && collections.hasNextPage)
+  //     params.limit += params.limit;
+
+  //   try {
+  //     const collect = await client.getCollections(params);
+  //     setCollections(collect);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [client])
 
   useEffect(() => {
     getUploadedFiles();
+    // getCollections();
   }, [getUploadedFiles])
 
 
   const UploadedFiles = () => {
     if (uploaded) {
       const files = <>
-        { uploaded.getItems().map((file) => (
-          <GridItem key="" sm={12} lg={3}>
+        { uploaded.getItems().map(({ data: file, url }) => (
+          <GridItem key={file.fname} sm={12} lg={3}>
             <Card>
               <CardHeader>
-                {`${file}`}
+                <a href={url}><b>{file.fname.replace(/chris\/uploads\//g, "")}</b></a>
+                
               </CardHeader>
+              <CardBody>
+                {(new Date(file.creation_date)).toDateString()}
+              </CardBody>
             </Card>
           </GridItem>
         ))}
@@ -142,52 +157,56 @@ export const UserLibrary = () => {
   return (
     <Wrapper>
       <article>
-        <Text component={TextVariants.h1}>My Library</Text>
+        <h1>My Library</h1>
 
-        <Text component={TextVariants.h2}>Recent</Text>
-        <Grid hasGutter>
-          <GridItem></GridItem>
-        </Grid>
+        {/* <section>
+          <Text component={TextVariants.h2}>Recent</Text>
+          <Grid hasGutter>
+            <GridItem></GridItem>
+          </Grid>
+        </section> */}
 
-        <Split>
-          <SplitItem isFilled>
-            <Text component={TextVariants.h2}>Uploaded</Text>
-          </SplitItem>
-          <SplitItem>
-            <Button isLarge><UploadIcon/> Upload</Button>
-          </SplitItem>
-        </Split>
-        <Grid hasGutter>
-          {/* { UploadedFiles() } */}
-          <UploadedFiles/>
+        <section>
+          <Split>
+            <SplitItem><h3>Uploaded</h3></SplitItem>
+            <SplitItem style={{ margin: 'auto 1em' }} isFilled><hr /></SplitItem>
+            <SplitItem>
+              <Button><UploadIcon/> Upload</Button>
+            </SplitItem>
+          </Split>
 
-          { uploaded?.hasNextPage &&
-            <GridItem>
-              <Split>
-                <SplitItem isFilled/>
-                <SplitItem>
-                  <Button variant="link" onClick={getUploadedFiles}>Older</Button>
-                </SplitItem>
-              </Split>
-            </GridItem>
-          }
-        </Grid>
+          <Grid hasGutter>
+            <UploadedFiles/>
 
-        <Text component={TextVariants.h2}>Collections</Text>
-        <Grid hasGutter>
-          <Collections/>
+            { uploaded?.hasNextPage &&
+              <GridItem>
+                <Button style={{ padding: 0 }} variant="link" onClick={getUploadedFiles}>Load Older</Button>
+              </GridItem>
+            }
+          </Grid>
+        </section>
 
-          {/* { collections?.hasNextPage &&
-            <GridItem>
-              <Split>
-                <SplitItem isFilled/>
-                <SplitItem>
-                  <Button variant="link" onClick={getUploadedFiles}>Older</Button>
-                </SplitItem>
-              </Split>
-            </GridItem>
-          } */}
-        </Grid>
+        <section>
+          <Split>
+            <SplitItem><h3>Collections</h3></SplitItem>
+            <SplitItem style={{ margin: 'auto 1em' }} isFilled><hr /></SplitItem>
+          </Split>
+          
+          <Grid hasGutter>
+            <Collections/>
+
+            {/* { collections?.hasNextPage &&
+              <GridItem>
+                <Split>
+                  <SplitItem isFilled/>
+                  <SplitItem>
+                    <Button variant="link" onClick={getUploadedFiles}>Older</Button>
+                  </SplitItem>
+                </Split>
+              </GridItem>
+            } */}
+          </Grid>
+        </section>
       </article>
     </Wrapper>
   )
