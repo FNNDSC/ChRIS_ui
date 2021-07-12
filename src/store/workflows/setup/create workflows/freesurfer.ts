@@ -85,9 +85,23 @@ export function* runFreesurferWorkflow(
       data
     );
   } else if (workflowType === "infant-freesurfer-age" && infantAge) {
+    const infantData = {
+      title: "infant-fshack",
+      previous_id: pfdicomTagSubInstance.data.id,
+      inputFile: ".dcm",
+      outputFile: "image.nii.gz",
+      exec: "mri_convert",
+    };
+
+    const fsHackInfant = pluginList["pl-fshack-infant"];
+    const fsHackInstance: PluginInstance = yield client.createPluginInstance(
+      fsHackInfant.data.id,
+      infantData
+    );
+
     const data: IFSHackData = {
       title: "infant-fs",
-      previous_id: pfdicomTagSubInstance.data.id,
+      previous_id: fsHackInstance.data.id,
       age: +infantAge,
     };
     const plFshackInfant = pluginList["pl-infantfs"];
@@ -123,11 +137,22 @@ export function* runFreesurferWorkflow(
     };
     yield client.createPluginInstance(plPfdoRun.data.id, plPfdoRunArgs);
 
+    let fileName = "";
+
+    if (
+      workflowType === "adult-freesurfer" ||
+      workflowType === "infant-freesurfer"
+    ) {
+      fileName = "recon-of-SAG-anon-dcm/mri/aparc.a2009s+aseg.mgz";
+    } else if (workflowType === "infant-freesurfer-age") {
+      fileName = "mri/aparc+aseg.mgz";
+    }
+
     const plMgz2LutReport = pluginList["pl-mgz2LUT_report"];
     const plMgz2LutReportArgs = {
       title: "segmentation-report",
       previous_id: plFsHackInstance.data.id,
-      file_name: "recon-of-SAG-anon-dcm/mri/aparc.a2009s+aseg.mgz",
+      file_name: fileName,
       report_types: "txt,csv,json,html",
     };
     yield client.createPluginInstance(

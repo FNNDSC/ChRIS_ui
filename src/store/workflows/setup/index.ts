@@ -21,7 +21,6 @@ import { runFetalReconstructionWorkflow } from "./create workflows/fetalReconstr
 import { setFeedDetails } from "../actions";
 import { put } from "@redux-saga/core/effects";
 
-
 export function* checkPluginRegistration(pluginList: string[]) {
   const pluginRegistry: RegistrationCheck = {
     checkPassed: true,
@@ -71,7 +70,6 @@ export function* pollingBackend(instance: PluginInstance) {
       "process",
       `Waiting on plugin instance id ${instance.data.id} to finish....`
     );
-
   }
   const result = instanceDetails.data.status;
   if (
@@ -318,6 +316,7 @@ export function* setupFetalReconstruction(action: IActionTypeParam) {
 export function* setupInfantFreesurferAge(action: IActionTypeParam) {
   const infantFreesurferAgePlugins = [
     "pl-dircopy",
+    "pl-fshack-infant",
     "pl-infantfs",
     "pl-pfdicom_tagSub",
     "pl-pfdicom_tagExtract",

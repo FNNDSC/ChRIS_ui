@@ -1,9 +1,8 @@
 import * as React from "react";
 import { Dispatch } from "redux";
-import { connect } from "react-redux";
+import { useDispatch, connect } from "react-redux";
 import { Link } from "react-router-dom";
 import Moment from "react-moment";
-
 import {
   PageSection,
   PageSectionVariants,
@@ -11,13 +10,14 @@ import {
   Pagination,
   EmptyState,
   EmptyStateBody,
+  Popover,
   Button,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
-import { CodeBranchIcon, EyeIcon } from "@patternfly/react-icons";
+import { CodeBranchIcon, TrashAltIcon } from "@patternfly/react-icons";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import { getAllFeedsRequest } from "../../../store/feed/actions";
+import { getAllFeedsRequest, deleteFeed } from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
@@ -48,7 +48,7 @@ const FeedListView: React.FC<AllProps> = ({
     handleFilterChange,
     run,
   } = usePaginate();
-
+  const [currentId, setCurrentId] = React.useState<string | number>("none");
   const { page, perPage } = filterState;
   const { data, error, loading, totalFeedsCount } = allFeeds;
 
@@ -59,6 +59,10 @@ const FeedListView: React.FC<AllProps> = ({
       activeItem: "my_feeds",
     });
   }, [setSidebarActive]);
+
+  const handleToggle = (currentId: number | string) => {
+    setCurrentId(currentId);
+  };
 
   const getAllFeeds = React.useCallback(() => {
     run(getAllFeedsRequest);
@@ -111,13 +115,36 @@ const FeedListView: React.FC<AllProps> = ({
       title: <span className="feed-list__count">{errorCount}</span>,
     };
 
-    const viewDetails = {
+    const removeFeed = {
       title: (
-        <Link to={`/feeds/${feed.data.id}`}>
-          <Button icon={<EyeIcon />} variant="link">
-            View feed details
-          </Button>
-        </Link>
+        <Popover
+          key={feed.data.id}
+          isVisible={feed.data.id === currentId}
+          aria-label="delete-feed"
+          bodyContent={
+            <DeleteFeed
+              key={feed.data.id}
+              feed={feed}
+              onTogglePopover={handleToggle}
+            />
+          }
+          position="bottom"
+          shouldClose={() => setCurrentId("none")}
+        >
+          <Button
+            style={{
+              background: "inherit",
+            }}
+            onClick={() => setCurrentId(feed.data.id)}
+            icon={
+              <TrashAltIcon
+                style={{
+                  color: "#c9190b",
+                }}
+              />
+            }
+          />
+        </Popover>
       ),
     };
 
@@ -129,7 +156,7 @@ const FeedListView: React.FC<AllProps> = ({
         jobsRunning,
         jobsDone,
         jobsErrors,
-        viewDetails,
+        removeFeed,
       ],
     };
   };
@@ -235,3 +262,29 @@ const mapStateToProps = ({ feed }: ApplicationState) => ({
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedListView);
+
+function DeleteFeed({
+  feed,
+  onTogglePopover,
+}: {
+  feed: Feed;
+  onTogglePopover: (currentId: number | string) => void;
+}) {
+  const dispatch = useDispatch();
+  return (
+    <>
+      <p>Are you sure you want to delete this feed?</p>
+      <Button
+        style={{
+          marginRight: "0.5em",
+        }}
+        onClick={() => {
+          dispatch(deleteFeed(feed));
+        }}
+      >
+        Yes
+      </Button>
+      <Button onClick={() => onTogglePopover("none")}>No</Button>
+    </>
+  );
+}
