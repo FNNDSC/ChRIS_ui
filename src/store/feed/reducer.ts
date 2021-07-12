@@ -113,6 +113,21 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       }
     }
 
+    case FeedActionTypes.DELETE_FEED: {
+      const feedData = state.allFeeds.data?.filter(
+        (feed) => feed.data.id !== action.payload.data.id
+      );
+      action.payload.delete();
+      return {
+        ...state,
+        allFeeds: {
+          ...state.allFeeds,
+          data: feedData,
+          totalFeedsCount: state.allFeeds.totalFeedsCount - 1,
+        },
+      };
+    }
+
     case FeedActionTypes.SET_LAYOUT: {
       return {
         ...state,
