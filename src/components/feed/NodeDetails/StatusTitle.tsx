@@ -15,6 +15,8 @@ const StatusTitle = () => {
   const pluginStatus =
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
 
+  console.log("PluginStatus", pluginStatus);
+
   if (pluginStatus) {
     statusTitle = getCurrentTitleFromStatus(pluginStatus);
   }
