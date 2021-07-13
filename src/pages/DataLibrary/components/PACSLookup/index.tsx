@@ -1,8 +1,6 @@
 import React, { useCallback, useState } from "react";
 import Wrapper from "../../../../containers/Layout/PageWrapper";
 import {
-  Text,
-  TextVariants,
   Grid,
   GridItem,
   EmptyState,
@@ -69,7 +67,7 @@ export const PACS = () => {
     <Wrapper>
       <article>
         <Grid hasGutter>
-          <GridItem><Text component={TextVariants.h1}>PACS Lookup System</Text></GridItem>
+          <GridItem><h1>PACS Lookup System</h1></GridItem>
 
           <GridItem>
             <QueryBuilder onFinalize={StartPACSQuery} />

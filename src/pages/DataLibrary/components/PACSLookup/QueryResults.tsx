@@ -122,21 +122,21 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
           <CardHeader onExpand={expand.bind(QueryResults, patient.ID)}>
             <Grid hasGutter style={{ width: "100%" }}>
               <GridItem lg={2}>
-                <p><b>{patient.name.split('^').reverse().join(" ")}</b></p>
-                <p>MRN {patient.ID}</p>
+                <div><b>{patient.name.split('^').reverse().join(" ")}</b></div>
+                <div>MRN {patient.ID}</div>
               </GridItem>
               <GridItem lg={1}>
-                <p><b>Sex</b></p>
-                <p>({patient.sex})</p>
+                <div><b>Sex</b></div>
+                <div>({patient.sex})</div>
               </GridItem>
               <GridItem lg={6}>
-                <p><b>DoB</b></p>
-                <p><Moment format="MMMM Do YYYY">{patient.birthDate.getTime()}</Moment></p>
+                <div><b>DoB</b></div>
+                <div><Moment format="MMMM Do YYYY">{patient.birthDate.getTime()}</Moment></div>
               </GridItem>
 
               <GridItem lg={3} style={{ textAlign: "right", color: "gray" }}>
-                <p><b>{patient.studies.length} studies</b></p>
-                <p>Latest on {LatestDate(patient.studies.map(s => s.studyDate)).toDateString()}</p>
+                <div><b>{patient.studies.length} studies</b></div>
+                <div>Latest on {LatestDate(patient.studies.map(s => s.studyDate)).toDateString()}</div>
               </GridItem>
             </Grid>
           </CardHeader>
@@ -167,15 +167,15 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
             </SplitItem>
 
             <SplitItem isFilled className="expanded-content">
-              <TabContent hidden={patientTab !== "studies"} 
+              <TabContent hidden={patientTab !== "studies"} className="patient-studies"
                 eventKey="studies" 
                 id={`${patient.ID}-studies`} 
                 ref={tabrefs[index]}
               >
-                <p className="patient-studies">
+                <p>
                   Studies performed on the patient are listed here. <b>Click <em>Browse</em> to view the series under a study.</b>
                 </p>
-                <Grid hasGutter className="patient-studies">
+                <Grid hasGutter>
                   {
                     patient.studies.map((study) => (
                       <GridItem key={study.studyInstanceUID}>
@@ -186,7 +186,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
                           <CardBody>
                             <Split>
                               <SplitItem style={{ minWidth: "50%" }}>
-                                <p>
+                                <div>
                                   <b style={{ marginRight: "0.5em" }}>
                                     {study.studyDescription}
                                   </b> {
@@ -196,31 +196,31 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
                                       </Tooltip>
                                     ) : null
                                   }
-                                </p>
-                                <p>
+                                </div>
+                                <div>
                                   {study.numberOfStudyRelatedSeries} series, on {study.studyDate.toDateString()}
-                                </p>
+                                </div>
                               </SplitItem>
                               <SplitItem>
-                                <p>Modalities</p>
-                                <p>
+                                <div>Modalities</div>
+                                <div>
                                   { study.modalitiesInStudy.split('\\').map(m => (
                                     <Badge style={{ margin: "auto 0.125em", backgroundColor: "darkgrey" }} key={m}>{m}</Badge>
                                   ))}
-                                </p>
+                                </div>
                               </SplitItem>
                               <SplitItem isFilled/>
                               <SplitItem style={{ textAlign: "right" }}>
-                                <p>Performed at</p>
-                                <p>
+                                <div>Performed at</div>
+                                <div>
                                   { study.performedStationAETitle.startsWith("no value") ? '' : study.performedStationAETitle }
-                                </p>
+                                </div>
                               </SplitItem>
                               <SplitItem style={{ color: "gray", margin: "0 0 0 2em",  textAlign: "right" }}>
                                 <Button variant="link" style={{ padding: "0" }} onClick={() => addToBrowse(study)}>
                                   Browse
                                 </Button>
-                                <p>{(study.numberOfStudyRelatedInstances * 0.2).toFixed(2)} MB</p>
+                                <div>{(study.numberOfStudyRelatedInstances * 0.2).toFixed(2)} MB</div>
                               </SplitItem>
                             </Split>
                           </CardBody>
@@ -234,24 +234,24 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
               {
                 browserTabs.map(({ ref, study }, browserindex) => (
                   <TabContent key={study.studyInstanceUID} hidden={study.studyInstanceUID !== patientTab}
-                    eventKey={study.studyInstanceUID} 
+                    eventKey={study.studyInstanceUID} className="patient-series"
                     id={study.studyInstanceUID} 
                     ref={ref}
                   >
-                    <p className="patient-series">
+                    <p>
                       <Button variant="link" style={{ padding: "0", margin: "0 0 0.5em 0" }}
                         onClick={() => setPatientTab("studies")}>
                         Back to Studies
                       </Button>
                       <Split>
                         <SplitItem isFilled>
-                          <p><b>{study.studyDescription}</b></p>
-                          <p>
+                          <div><b>{study.studyDescription}</b></div>
+                          <div>
                             {study.series.length} series, on {study.studyDate.toDateString()} { 
                               study.modalitiesInStudy.split('\\').map(m => (
                                 <Badge style={{ margin: "auto 0.125em", backgroundColor: "darkgrey" }} key={m}>{m}</Badge>
                               ))}
-                          </p>
+                          </div>
                         </SplitItem>
                         <SplitItem>
                           <Tooltip content="Close">
@@ -260,7 +260,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
                         </SplitItem>
                       </Split>
                     </p>
-                    <Grid hasGutter className="patient-series">
+                    <Grid hasGutter>
                       {
                         study.series.map((series: PACSSeries) => (
                           <GridItem key={series.seriesInstanceUID}>
