@@ -81,7 +81,7 @@ export const PACS = () => {
                   <>
                     <GridItem>
                       <h2><b>Results</b></h2>
-                      <p>{results.length} patients matched your search.</p>
+                      <div>{results.length} patients matched your search.</div>
                     </GridItem>
 
                     <GridItem>
@@ -106,7 +106,7 @@ export const PACS = () => {
                 <EmptyState>
                   <EmptyStateIcon variant="container" component={Spinner} />
                   <Title size="lg" headingLevel="h4">
-                    Loading
+                    Searching
                   </Title>
                 </EmptyState>
               )
