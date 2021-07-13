@@ -10,13 +10,9 @@
     article {
       margin-bottom: 1rem;
       border-radius: 5px;
+      border-top: 5px solid #042c53;
     }
   }
-}
-
-.pipelines > div > article:hover {
-  border-top: 5px solid #042c53;
-  cursor: pointer;
 }
 
 // View of each Pipeline page
@@ -57,10 +53,19 @@
   width: 40%;
   div {
     flex: 1;
-    button {
-      border-radius: 5px;
-    }
   }
+}
+
+.save_button {
+  text-decoration: none;
+  background-color: #0066cc;
+  color: #ffffff;
+  padding: 6px 16px;
+}
+
+.save_button :hover{
+  background-color: #004080;
+  color: #ffffff;
 }
 
 .pipeline_main_bottom {
@@ -82,6 +87,27 @@
 
 #code-content {
   background-color: #0a1417;
+}
+
+.docs_content{
+  margin: 2em auto;
+}
+
+.code_content{
+  color: white;
+  background-color: #0a1417;
+}
+
+.docs_title{
+ font-weight: 700;
+ font-size: 2rem;
+}
+
+  .code_title{
+  color: #0066cc;
+  line-height: 7px;
+  font-size: 1.4rem;
+  padding: 1px;
 }
 
 // tablet

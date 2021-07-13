@@ -47,7 +47,7 @@ const PipelineCard = ({
         </CardBody>
         <CardFooter>
           <Button
-            style={{ backgroundColor: "#042c53", cursor: "pointer" }}
+            style={{ backgroundColor: "#042c53", cursor: "pointer", marginRight:"2px" }}
             icon={<EyeIcon />}
             iconPosition="left"
             onClick={() => history.push(`/pipelines/${Pipeline_id}`)}

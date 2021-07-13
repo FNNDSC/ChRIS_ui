@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Tabs, Tab, TabTitleText } from "@patternfly/react-core";
-import PipelineDocs from "./PipelineDocs";
-import PipelinesFeed from "./PipelinesFeed";
+import PipelineDocs from "../../../components/pipelines/PipelineDocs";
+import PipelinesFeed from "../../../components/pipelines/PipelinesFeed";
 
 const PipelineNav = () => {
-  const [activeTabKey, setActiveTabKey] = useState<React.ReactText>(1);
+  const [activeTabKey, setActiveTabKey] = useState<React.ReactText>(0);
 
   const handleTabClick = (
     event: React.MouseEvent<HTMLElement, MouseEvent>,

@@ -10,15 +10,38 @@ import {
   CalendarDayIcon,
   CodeBranchIcon,
   AngleRightIcon,
-  UserAltIcon
+  UserAltIcon,
 } from "@patternfly/react-icons";
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Wrapper from "../../../containers/Layout/PageWrapper";
+import axios from "axios";
 
 const Pipeline = () => {
+  const { id }: any = useParams();
   const [copied, setCopied] = useState(false);
   const [timer, setTimer] = useState<any>(null);
+  const [pipeline, setPipeline] = useState<any>({});
+
+  const blob = new Blob([JSON.stringify(pipeline)], {
+    type: "application/json",
+  });
+
+  useEffect(() => {
+    axios
+      .get(`https://store.outreachy.chrisproject.org/api/v1/pipelines/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      })
+      .then((response) => {
+        return setPipeline(response);
+      })
+      .catch((errors) => {
+        console.error(errors);
+      });
+  }, []);
 
   const clipboardCopyFunc = (event: React.SyntheticEvent, text: string) => {
     const clipboard = event.currentTarget.parentElement;
@@ -48,13 +71,12 @@ const Pipeline = () => {
     setTimer(null);
   }, [copied]);
 
-  const code = `apiVersion: helm.openshift.io/v1beta1/
-                kind: HelmChartRepository
-                metadata:
-                name: azure-sample-repo
-                spec:
-                connectionConfig:
-                url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docs`;
+  const code = `# specify source as a plugin instance ID
+  $ caw pipeline --target 3 '${pipeline.name}'
+  
+  # specify source by URL
+  $ caw pipeline --target https://cube.chrisproject.org/api/v1/plugins/instances/3/ 'Automatic Fetal Brain Reconstruction Pipeline'
+  `;
 
   const actions = (
     <>
@@ -80,11 +102,11 @@ const Pipeline = () => {
         <Link to="/pipelines" style={{ color: "#0275d8", marginRight: "8px" }}>
           Pipelines
         </Link>
-        <Link to="/pipelines/1" style={{ color: "#ffffff" }}>
-          <AngleRightIcon /> 1
+        <Link to={`/pipelines/${id}`} style={{ color: "#ffffff" }}>
+          <AngleRightIcon /> {id}
         </Link>
         <h1>
-          <CodeBranchIcon /> Fetal Brain MRI Reconstruction pipeline
+          <CodeBranchIcon /> {pipeline.name}
         </h1>
         <div className="pipeline_main_top">
           <div className="pipeline_main_top_left">
@@ -92,29 +114,36 @@ const Pipeline = () => {
               <p>
                 Creator
                 <br />
-                <UserAltIcon /> Jane Doe
+                <UserAltIcon /> {pipeline.authors}
               </p>
             </div>
             <div>
               <p>
                 Created
                 <br />
-                <CalendarDayIcon /> 2 Jan 2018 @14:32ET
+                <CalendarDayIcon /> {pipeline.creation_date}
               </p>
             </div>
           </div>
           <div className="pipeline_main_top_right">
             <div>
-              <Button href="https://chrisstore.co/">View in ChRIS Store</Button>
-            </div>
-            <div>
-              <Button href="/feeds">Download Pipeline</Button>
+              <a
+                href={URL.createObjectURL(blob)}
+                download={
+                  `${pipeline.name}_${pipeline.id}.json` ||
+                  `Pipeline_${id}.json`
+                }
+                className="save_button"
+              >
+                Save as Pipeline
+              </a>
             </div>
           </div>
         </div>
         <div className="pipeline_main_bottom">
           <div className="pipeline_main_bottom_left">
             <p>Pipeline Graph</p>
+            <div>{pipeline.plugin_pipings}</div>
           </div>
           <div className="pipeline_main_bottom_right">
             <p>
@@ -124,7 +153,7 @@ const Pipeline = () => {
             </p>
             <br />
             <p>
-              Created <b>2 Jan 2018 @14:32ET</b>
+              Modification Date <b>{pipeline.modification_date}</b>
             </p>
             <br />
             <p>
