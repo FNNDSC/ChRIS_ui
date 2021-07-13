@@ -134,7 +134,6 @@ class PFDCMClient {
   }
 
   private static async queryPacs(query: any, filters: PFDCMFilters) {
-    // apply filters
     if (filters.modality) {
       query.ModalitiesInStudy = filters.modality;
     }
@@ -143,8 +142,8 @@ class PFDCMClient {
     }
 
     try {    
-      const rawDcmData = (await this.sendPypxRequest({ ...query, then: '' })).data.pypx
-      const studies = parseRawDcmData(rawDcmData);
+      const raw = (await this.sendPypxRequest({ ...query, then: '' })).data.pypx
+      const studies = parseRawDcmData(raw);
       return this.sortStudiesByPatient(studies);
     } catch (error) {
       return []; 
