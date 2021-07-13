@@ -56,8 +56,8 @@ const Sidebar: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
           </NavItem>
         
           <NavExpandable title="Workflows" isExpanded={true}>
-            <NavItem itemId="wf_COVIDnet" isActive={active === "wf_COVIDnet"}>
-              <Link to="/workflows">COVIDnet</Link>
+            <NavItem itemId="wf_Type-1" isActive={active === "wf_Type-1"}>
+              <Link to="/workflows">Type-1</Link>
             </NavItem>
           </NavExpandable>
         </NavGroup>
