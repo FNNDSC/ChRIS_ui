@@ -167,6 +167,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
     (state) => state.instance.selectedPlugin
   );
   const currentId = selectedPlugin?.data.id === data.id;
+  console.log("Node Wrapper for the selectedNode");
 
   return (
     <NodeMemoed

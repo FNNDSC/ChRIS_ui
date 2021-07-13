@@ -23,6 +23,7 @@ export interface TreeNodeDatum extends Datum {
 }
 
 export const getFeedTree = (items: PluginInstance[]) => {
+  console.log("Fetching Feed Tree", items);
   const tree = [],
     mappedArr: {
       [key: string]: TreeNodeDatum;
@@ -30,11 +31,6 @@ export const getFeedTree = (items: PluginInstance[]) => {
 
   items.forEach((item) => {
     const id = item.data.id;
-    //@ts-ignore
-    const type = item.data.plugin_type;
-
-    if (type === "ts") {
-    }
 
     if (!mappedArr.hasOwnProperty(id)) {
       mappedArr[id] = {
