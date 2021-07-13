@@ -1,12 +1,12 @@
 import React from "react";
 import Wrapper from "../../containers/Layout/PageWrapper";
-import PipelinesFeed from "./components/PipelinesFeed";
-import "../../components/pipelines/Pipelines.scss"
+import "../../components/pipelines/Pipelines.scss";
+import PipelineNav from "./components/PipelineNav";
 
 const PipelinesPage = () => {
   return (
     <Wrapper>
-      <PipelinesFeed />
+      <PipelineNav />
     </Wrapper>
   );
 };

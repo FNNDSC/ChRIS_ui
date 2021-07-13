@@ -9,29 +9,48 @@ import { EyeIcon } from "@patternfly/react-icons";
 import React from "react";
 import { useHistory } from "react-router";
 
-type PipelineCardProps={
-  Name: string,
-  Description: string,
-  props?: any
-}
+type PipelineCardProps = {
+  Pipeline_name: string;
+  Description: string;
+  Author: string;
+  Date_created: any;
+  Pipeline_id: number;
+  props?: any;
+};
 
-const PipelineCard = ({ Name, Description, ...props }: PipelineCardProps ) => {
+const PipelineCard = ({
+  Pipeline_name,
+  Description,
+  Author,
+  Date_created,
+  Pipeline_id,
+  ...props
+}: PipelineCardProps) => {
   const history = useHistory();
 
   return (
     <div {...props}>
-      <Card id="second-card" isHoverable onClick={() => history.push("/pipelines/1")} >
+      <Card
+        id={Pipeline_id.toString()}
+        isHoverable
+        // onClick={() => history.push(`/pipelines/${Pipeline_id}`)}
+      >
         <CardTitle style={{ color: "#042c53", fontSize: "1.2rem" }}>
-          {Name}
+          {Pipeline_name}
         </CardTitle>
-        <CardBody>{Description}<br/>
-        <p style={{color: "#042c53"}}>Jane Doe <b>3 days ago</b></p></CardBody>
+        <CardBody>
+          {Description}
+          <br />
+          <p style={{ color: "#042c53" }}>
+            {Author} <b>{Date_created}</b>
+          </p>
+        </CardBody>
         <CardFooter>
           <Button
-            style={{ backgroundColor: "#042c53" }}
+            style={{ backgroundColor: "#042c53", cursor: "pointer" }}
             icon={<EyeIcon />}
             iconPosition="left"
-            onClick={() => history.push("/pipelines/1")}
+            onClick={() => history.push(`/pipelines/${Pipeline_id}`)}
           >
             View Pipeline
           </Button>
