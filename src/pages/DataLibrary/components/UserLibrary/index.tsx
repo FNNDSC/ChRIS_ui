@@ -14,8 +14,6 @@ import {
   Spinner,
   Split,
   SplitItem,
-  Text,
-  TextVariants,
   Title,
 } from "@patternfly/react-core";
 
@@ -23,16 +21,16 @@ import { UploadedFileList } from "@fnndsc/chrisapi";
 import Wrapper from "../../../../containers/Layout/PageWrapper";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 
+const client = ChrisAPIClient.getClient();
+
 export const UserLibrary = () => {
 	document.title = 'My Library';
-
-  const client = ChrisAPIClient.getClient();
 
   const [uploaded, setUploaded] = useState<UploadedFileList>();
   const [collections, setCollections] = useState<UploadedFileList>();
 
   const getUploadedFiles = useCallback(async () => {
-    const params = { limit: 1 };
+    const params = { limit: 6 };
     if (uploaded && uploaded.hasNextPage)
       params.limit += params.limit;
 
@@ -43,39 +41,36 @@ export const UserLibrary = () => {
       console.error(error);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [client])
+  }, [])
 
-  // const getCollections = useCallback(async () => {
-  //   if (collections && collections.hasNextPage)
-  //     params.limit += params.limit;
+  const getCollections = useCallback(async () => {
+    const params = { limit: 6 };
+    if (collections && collections.hasNextPage)
+      params.limit += params.limit;
 
-  //   try {
-  //     const collect = await client.getCollections(params);
-  //     setCollections(collect);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [client])
+    try {
+      const collect = undefined; //await client.getCollections(params);
+      setCollections(collect);
+    } catch (error) {
+      console.error(error);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     getUploadedFiles();
-    // getCollections();
-  }, [getUploadedFiles])
-
+    getCollections();
+  }, [getCollections, getUploadedFiles]);
 
   const UploadedFiles = () => {
     if (uploaded) {
       const files = <>
         { uploaded.getItems().map(({ data: file, url }) => (
-          <GridItem key={file.fname} sm={12} lg={3}>
+          <GridItem key={file.fname} sm={12} lg={4}>
             <Card>
-              <CardHeader>
-                <a href={url}><b>{file.fname.replace(/chris\/uploads\//g, "")}</b></a>
-                
-              </CardHeader>
               <CardBody>
-                {(new Date(file.creation_date)).toDateString()}
+                <div><a href={url}>{file.fname.replace(/chris\/uploads\/.*?\//g, "")}</a></div>
+                <div>{(file.fsize/(1024)).toFixed(2)} KB, {(new Date(file.creation_date)).toDateString()}</div>
               </CardBody>
             </Card>
           </GridItem>
@@ -104,9 +99,6 @@ export const UserLibrary = () => {
       return (
         <EmptyState>
           <EmptyStateIcon variant="container" component={Spinner} />
-          <Title size="lg" headingLevel="h4">
-            Loading
-          </Title>
         </EmptyState>
       )
     }
@@ -159,13 +151,6 @@ export const UserLibrary = () => {
       <article>
         <h1>My Library</h1>
 
-        {/* <section>
-          <Text component={TextVariants.h2}>Recent</Text>
-          <Grid hasGutter>
-            <GridItem></GridItem>
-          </Grid>
-        </section> */}
-
         <section>
           <Split>
             <SplitItem><h3>Uploaded</h3></SplitItem>
@@ -176,6 +161,7 @@ export const UserLibrary = () => {
           </Split>
 
           <Grid hasGutter>
+            <GridItem/>
             <UploadedFiles/>
 
             { uploaded?.hasNextPage &&
