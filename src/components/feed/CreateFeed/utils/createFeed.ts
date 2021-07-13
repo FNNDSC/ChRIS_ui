@@ -5,7 +5,6 @@ import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { uploadFilePaths } from "../../../../store/workflows/utils";
 
-
 let cache: number[] = [];
 
 export function getName(selectedConfig: string) {
@@ -85,7 +84,6 @@ export const createFeedInstanceWithDircopy = async (
     const local_upload_path = `${username}/uploads/${generatePathForLocalFile(
       data
     )}`;
-
     try {
       await uploadLocalFiles(localFiles, local_upload_path, statusCallback);
     } catch (error) {
