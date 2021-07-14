@@ -35,7 +35,7 @@
     height: 100%;
     &__title {
       display: flex;
-      margin-bottom: 0.5em;
+      margin: 0.5em 1em;
       .pf-c-button {
         --pf-c-button--m-tertiary--BackgroundColor: var(
           --pf-global--palette--white
