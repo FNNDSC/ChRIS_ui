@@ -36,7 +36,7 @@
     margin: 0.5em 1em auto;
     &__title {
       display: flex;
-      margin: 0.5em 1em;
+      margin: 0.5em auto;
       .pf-c-button {
         --pf-c-button--m-tertiary--BackgroundColor: var(
           --pf-global--palette--white
