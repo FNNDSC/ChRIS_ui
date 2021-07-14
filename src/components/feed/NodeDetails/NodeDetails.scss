@@ -52,6 +52,10 @@
       &--button {
         // Tells the element to create as much space as possible to it's left
         margin-left: auto;
+        
+       .pf-m-start {
+	  margin-right: 0px;
+	}
       }
 
       &--formInput {
