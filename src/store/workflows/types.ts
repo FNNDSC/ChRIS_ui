@@ -34,8 +34,7 @@ export interface IWorkflowState {
     loading: boolean;
   };
   steps: AnalysisStep[];
-  isAnalysisRunning: boolean;
-  totalFileCount: number;
+  currentStep: number;
   optionState: SelectWorkflowState;
   checkFeedDetails: number | undefined;
   infantAge: string;
@@ -60,12 +59,10 @@ export interface AFSHackData extends IPluginCreateData {
   outputFile: string;
   exec: string;
   args: string;
-
 }
 
 export interface IFSHackData extends IPluginCreateData {
-  age:number
-
+  age: number;
 }
 
 export enum PollStatus {
@@ -120,5 +117,7 @@ export const WorkflowTypes = keyMirror({
   RESET_WORKFLOW_STEP: null,
   STOP_FETCHING_PLUGIN_RESOURCES: null,
   SET_FEED_DETAILS: null,
+  SET_CURRENT_STEP: null,
   DELETE_LOCAL_FILE: null,
+  CLEAR_FILE_SELECTION: null,
 });

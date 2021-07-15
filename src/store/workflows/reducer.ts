@@ -41,8 +41,7 @@ export const initialState: IWorkflowState = {
   },
 
   steps: getInitialSteps(),
-  isAnalysisRunning: false,
-  totalFileCount: 0,
+  currentStep: 0,
   optionState: {
     isOpen: false,
     toggleTemplateText: "Choose a Workflow",
@@ -90,6 +89,14 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       };
     }
 
+    case WorkflowTypes.SET_CURRENT_STEP: {
+      console.log("Action.payload", action.payload);
+      return {
+        ...state,
+        currentStep: action.payload,
+      };
+    }
+
     case WorkflowTypes.STOP_ANALYSIS: {
       return {
         ...state,
@@ -98,7 +105,6 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
           toggleTemplateText: "Choose a Workflow",
           selectedOption: "",
         },
-        isAnalysisRunning: !state.isAnalysisRunning,
       };
     }
 
@@ -109,11 +115,11 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       );
       cloneSteps[index] = action.payload;
 
-      if (index == 3) {
+      if (index === 3) {
         return {
           ...state,
           steps: cloneSteps,
-          isAnalysisRunning: !state.isAnalysisRunning,
+          currentStep: state.currentStep + 1,
         };
       } else
         return {
@@ -139,6 +145,18 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
     case WorkflowTypes.RESET_WORKFLOW_STEP: {
       return {
         ...initialState,
+      };
+    }
+
+    case WorkflowTypes.CLEAR_FILE_SELECTION: {
+      return {
+        ...state,
+        localfilePayload: {
+          ...state.localfilePayload,
+          files: [],
+          error: "",
+          loading: false,
+        },
       };
     }
 

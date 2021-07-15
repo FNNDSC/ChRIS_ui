@@ -73,12 +73,6 @@
       }
     }
 
-    &__version {
-      font-size: 0.7em;
-      font-weight: 500;
-      margin-left: 0.25em;
-    }
-
     .pf-c-title {
       color: inherit;
       font-weight: 600;
@@ -146,11 +140,9 @@
         line-height: 20px !important;
         margin: 0 2px 0 2px !important;
         cursor: pointer;
-        padding-top:3px;
-        padding-right:0.25px;
+        padding-top: 3px;
+        padding-right: 0.25px;
       }
-
-    
 
       .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item {
         padding-left: 0;
