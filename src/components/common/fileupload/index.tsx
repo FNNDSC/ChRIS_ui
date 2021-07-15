@@ -69,7 +69,6 @@ const FileUpload = ({
           </Button>
         </GridItem>
         <GridItem className={`${className}-grid`} span={8} rowSpan={12}>
-          <p className="section-header">Local files to add to new feed:</p>
           <div className="file-list">{fileList}</div>
         </GridItem>
       </Grid>
