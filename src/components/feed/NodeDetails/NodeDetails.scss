@@ -2,6 +2,10 @@
 @import "../../../assets/scss/helpers/mixins";
 @import "../../../assets/scss/helpers/pf4-variables";
 
+.pf-c-drawer__panel-main {
+  background-color: rgb(0, 32, 38) !important;
+}
+
 .node-block {
   background: $node-block-background;
   padding-top: 2rem;
@@ -33,9 +37,10 @@
 
   .node-details {
     height: 100%;
+    margin: 0.5em 1em auto;
     &__title {
       display: flex;
-      margin-bottom: 0.5em;
+      margin: 0.5em auto;
       .pf-c-button {
         --pf-c-button--m-tertiary--BackgroundColor: var(
           --pf-global--palette--white
@@ -51,6 +56,10 @@
       &--button {
         // Tells the element to create as much space as possible to it's left
         margin-left: auto;
+        
+       .pf-m-start {
+	  margin-right: 0px;
+	}
       }
 
       &--formInput {
@@ -99,7 +108,7 @@
       display: flex;
       justify-content: flex-start;
       gap: 2em;
-      margin-top: 1em;
+      margin: 1em auto;
     }
 
     .pf-c-form-control {
