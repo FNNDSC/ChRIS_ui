@@ -20,7 +20,6 @@ export type TSID = {
 };
 
 const ParentComponent = (props: ParentComponentProps) => {
-  console.log("ParentComponet renders:");
   const {
     onNodeClick,
     onNodeClickTs,
@@ -75,4 +74,16 @@ const ParentComponent = (props: ParentComponentProps) => {
   );
 };
 
-export default React.memo(ParentComponent);
+export default React.memo(
+  ParentComponent,
+  (prevProps: ParentComponentProps, nextProps: ParentComponentProps) => {
+    if (
+      prevProps.isBottomPanelExpanded !== nextProps.isBottomPanelExpanded ||
+      prevProps.isSidePanelExpanded !== nextProps.isSidePanelExpanded ||
+      prevProps.instances !== nextProps.instances
+    ) {
+      return false;
+    }
+    return true;
+  }
+);
