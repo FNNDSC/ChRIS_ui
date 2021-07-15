@@ -135,7 +135,7 @@ const Pipeline = () => {
                 }
                 className="save_button"
               >
-                Save as Pipeline
+                Export Pipeline
               </a>
             </div>
           </div>

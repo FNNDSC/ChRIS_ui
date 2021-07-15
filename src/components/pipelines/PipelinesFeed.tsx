@@ -1,10 +1,12 @@
-import { PageSection, Spinner } from "@patternfly/react-core";
+import { PageSection, Spinner, Form, FormGroup, TextInput } from "@patternfly/react-core";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import PipelineCard from "./PipelineCard";
+import {SearchIcon} from "@patternfly/react-icons"
 
 const PipelinesFeed = () => {
   const [Pipelines, setPipelines] = useState([]);
+  const [Search_query, setSearch_query] = useState("")
 
   useEffect(() => {
     axios
@@ -22,8 +24,22 @@ const PipelinesFeed = () => {
       });
   }, []);
 
+
   return (
     <PageSection>
+      <Form style={{maxWidth: "250px", marginLeft:"5%"}}>
+       <FormGroup fieldId="search_query">
+          <TextInput
+          iconVariant="search"
+          placeholder="Search Pipeline"
+            type="text"
+            id="search_query"
+            name="search_query"
+            value={Search_query}
+            onChange={(val)=> setSearch_query(val)}
+          />
+        </FormGroup>
+        </Form>
       <div className="pipelines">
         {/* {console.log("Pipelines state", Pipelines)}
         {Pipelines.length > 0 ? (
