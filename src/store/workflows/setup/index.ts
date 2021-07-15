@@ -287,13 +287,13 @@ export function* setupAdultFreesurfer(action: IActionTypeParam) {
 export function* setupFastsurfer(action: IActionTypeParam) {
   const fastsurferPlugins = [
     "pl-dircopy",
-    "pl-pfdicom_tagextract",
-    "pl-pfdicom_tagsub",
+    "pl-pfdicom_tagExtract",
+    "pl-pfdicom_tagSub",
     "pl-fshack",
     "pl-fastsurfer_inference",
     "pl-multipass",
     "pl-pfdorun",
-    "pl-mgz2lut_report",
+    "pl-mgz2LUT_report",
   ];
   yield setupFeedDetails(action, fastsurferPlugins, "fastsurfer");
 }
