@@ -163,11 +163,10 @@ const NodeWrapper = (props: NodeWrapperProps) => {
       return state.resource.pluginInstanceStatus[data.id].status;
     } else return;
   });
-  const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
-  );
-  const currentId = selectedPlugin?.data.id === data.id;
-  console.log("Node Wrapper for the selectedNode");
+  const currentId = useTypedSelector((state) => {
+    if (state.instance.selectedPlugin?.data.id === data.id) return true;
+    else return false;
+  });
 
   return (
     <NodeMemoed
@@ -178,4 +177,18 @@ const NodeWrapper = (props: NodeWrapperProps) => {
   );
 };
 
-export default React.memo(NodeWrapper);
+export default React.memo(
+  NodeWrapper,
+  (prevProps: NodeWrapperProps, nextProps: NodeWrapperProps) => {
+    if (
+      prevProps.data !== nextProps.data ||
+      prevProps.position !== nextProps.position ||
+      prevProps.parent !== nextProps.parent ||
+      prevProps.toggleLabel !== nextProps.toggleLabel ||
+      prevProps.orientation !== nextProps.orientation
+    ) {
+      return false;
+    }
+    return true;
+  }
+);

@@ -23,7 +23,6 @@ export interface TreeNodeDatum extends Datum {
 }
 
 export const getFeedTree = (items: PluginInstance[]) => {
-  console.log("Fetching Feed Tree", items);
   const tree = [],
     mappedArr: {
       [key: string]: TreeNodeDatum;
