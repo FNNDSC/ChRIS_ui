@@ -9,7 +9,7 @@ import { select, event } from "d3-selection";
 import { v4 as uuidv4 } from "uuid";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { UndoIcon, RedoIcon } from "@patternfly/react-icons";
+import { AiOutlineRotateLeft, AiOutlineRotateRight } from "react-icons/ai";
 import Link from "./Link";
 import NodeWrapper from "./Node";
 import { Datum, TreeNodeDatum, Point } from "./data";
@@ -314,9 +314,9 @@ const FeedTree = (props: AllProps) => {
             className="feed-tree__orientation"
           >
             {orientation === "vertical" ? (
-              <RedoIcon className="feed-tree__orientation--icon" />
+              <AiOutlineRotateLeft className="feed-tree__orientation--icon" />
             ) : (
-              <UndoIcon className="feed-tree__orientation--icon" />
+              <AiOutlineRotateRight className="feed-tree__orientation--icon" />
             )}
           </div>
           <div className="feed-tree__orientation">
