@@ -36,7 +36,7 @@ export function* getPlugin(pluginName: string) {
   });
   const plugin: Plugin = yield pluginLookup.getItems()[0];
   if (!plugin) {
-    pluginPayload["error"] = `${pluginName} is not registed`;
+    pluginPayload["error"] = `${pluginName} is not registered`;
   } else pluginPayload["plugin"] = plugin;
 
   return pluginPayload;

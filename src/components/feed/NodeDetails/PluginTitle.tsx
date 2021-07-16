@@ -57,7 +57,6 @@ const PluginTitle = () => {
             className="node-details__title--formInput"
           />
           <Button
-           
             onClick={handleSubmit}
             className="node-details__title--formButton"
           >
@@ -75,9 +74,6 @@ const PluginTitle = () => {
         <>
           <Title headingLevel="h3" size="xl">
             <span>{title}</span>
-            <span className="node-details__version">
-              {selectedPlugin?.data.plugin_version}
-            </span>
           </Title>
           <EditIcon
             onClick={() => {

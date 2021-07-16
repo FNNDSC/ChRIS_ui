@@ -6,14 +6,13 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 import FeedTree from "./FeedTree";
 import { getFeedTree, TreeNodeDatum, getTsNodes } from "./data";
 
-
 interface ParentComponentProps {
   onNodeClickTs: (node: PluginInstance) => void;
   onNodeClick: (node: PluginInstance) => void;
   isSidePanelExpanded: boolean;
   isBottomPanelExpanded: boolean;
   onExpand: (panel: string) => void;
-  instances?:PluginInstance[]
+  instances?: PluginInstance[];
 }
 
 export type TSID = {
@@ -27,13 +26,12 @@ const ParentComponent = (props: ParentComponentProps) => {
     isSidePanelExpanded,
     isBottomPanelExpanded,
     onExpand,
-    instances
+    instances,
   } = props;
-  
+
   const [data, setData] = React.useState<TreeNodeDatum[]>([]);
   const [tsIds, setTsIds] = React.useState<TSID>();
   const dispatch = useDispatch();
-
 
   React.useEffect(() => {
     if (instances && instances.length > 0) {
@@ -76,4 +74,16 @@ const ParentComponent = (props: ParentComponentProps) => {
   );
 };
 
-export default React.memo(ParentComponent);
+export default React.memo(
+  ParentComponent,
+  (prevProps: ParentComponentProps, nextProps: ParentComponentProps) => {
+    if (
+      prevProps.isBottomPanelExpanded !== nextProps.isBottomPanelExpanded ||
+      prevProps.isSidePanelExpanded !== nextProps.isSidePanelExpanded ||
+      prevProps.instances !== nextProps.instances
+    ) {
+      return false;
+    }
+    return true;
+  }
+);

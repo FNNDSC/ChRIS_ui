@@ -30,11 +30,6 @@ export const getFeedTree = (items: PluginInstance[]) => {
 
   items.forEach((item) => {
     const id = item.data.id;
-    //@ts-ignore
-    const type = item.data.plugin_type;
-
-    if (type === "ts") {
-    }
 
     if (!mappedArr.hasOwnProperty(id)) {
       mappedArr[id] = {

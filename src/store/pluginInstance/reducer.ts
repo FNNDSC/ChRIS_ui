@@ -51,17 +51,13 @@ const reducer: Reducer<IPluginInstanceState> = (
     }
 
     case PluginInstanceTypes.GET_SELECTED_PLUGIN: {
-      const pluginInstance = state.pluginInstances.data?.find((instance) => {
-        return instance.data.id === action.payload.data.id;
-      });
       return {
         ...state,
-        selectedPlugin: pluginInstance,
+        selectedPlugin: action.payload,
       };
     }
 
     case PluginInstanceTypes.SET_PLUGIN_TITLE: {
-
       let cloneInstances: PluginInstance[] = [];
       if (state.pluginInstances.data) {
         const instances = state.pluginInstances.data;

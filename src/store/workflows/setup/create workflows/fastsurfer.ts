@@ -109,7 +109,7 @@ export function* runFastsurferWorkflow(
     title: "aseg-report",
     previous_id: plFastsurferInstance.data.id,
     file_name: "mri/aparc.DKTatlas+aseg.deep.mgz",
-    report_types: "txt,csv,json,html",
+    report_types: "txt,csv,json,html,pdf",
   };
   yield client.createPluginInstance(
     plMgz2LutReport.data.id,
