@@ -12,6 +12,7 @@ import {
   EmptyStateBody,
   Popover,
   Button,
+  Tooltip
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import { CodeBranchIcon, TrashAltIcon } from "@patternfly/react-icons";
@@ -137,11 +138,16 @@ const FeedListView: React.FC<AllProps> = ({
             }}
             onClick={() => setCurrentId(feed.data.id)}
             icon={
-              <TrashAltIcon
-                style={{
-                  color: "#c9190b",
-                }}
-              />
+              <Tooltip
+                content={<div>Delete the Feed</div>}
+              >
+                <TrashAltIcon
+                  style={{
+                    color: "#004080 ",
+                  }}
+                />
+              </Tooltip>
+
             }
           />
         </Popover>
