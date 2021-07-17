@@ -37,35 +37,37 @@
     }
 
     .expanded-content {
-      .patient-studies {
-        padding: 1em 2em;
-        max-height: 50vh;
-        overflow-y: scroll;
-        overflow-x: hidden;
-        
-        .pf-c-card {
-          padding: 0.75em 1.75em;
+      
+    }
+  }
 
-          .pf-c-card__body {
-            padding: 0;
-            font-size: small;
-          }
-        }
+  .patient-studies {
+    padding: 2em 4em;
+    // max-height: 50vh;
+    // overflow-y: scroll;
+    // overflow-x: hidden;
+    
+    .pf-c-card {
+      padding: 0.75em 1.75em;
+
+      .pf-c-card__header {
+        padding: 0;
+        font-size: small;
       }
+    }
+  }
 
-      .patient-series {
-        padding: 1em 2em;
-        max-height: 50vh;
-        overflow-y: scroll;
-        overflow-x: hidden;
-        
-        .pf-c-card {
-          padding: 0.75em 1.75em;
+  .patient-series {
+    padding: 2em 4em;
+    // max-height: 50vh;
+    // overflow-y: scroll;
+    // overflow-x: hidden;
+    
+    .pf-c-card {
+      padding: 0.75em 1.75em;
 
-          .pf-c-card__body {
-            padding: 0;
-          }
-        }
+      .pf-c-card__body {
+        padding: 0;
       }
     }
   }

@@ -3,7 +3,7 @@ import { Button, Card, CardBody, EmptyState, EmptyStateBody, EmptyStateIcon, Emp
 
 import Wrapper from "../../../../containers/Layout/PageWrapper";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
-import { FeedFileList } from "@fnndsc/chrisapi"
+import { FeedFileList, FeedList } from "@fnndsc/chrisapi"
 import { CubesIcon, SearchIcon } from '@patternfly/react-icons';
 
 import "./chris-lookup.scss";
@@ -11,13 +11,14 @@ import "./chris-lookup.scss";
 const client = ChrisAPIClient.getClient();
 
 export const Swift = () => {
-  const [feedFiles, setFeedFiles] = useState<FeedFileList>();
+  const [feedFiles, setFeedFiles] = useState<FeedList>();
   const [pacsfiles, setPACSFiles] = useState<FeedFileList>();
   const [srvsfiles, setSrvsFiles] = useState<FeedFileList>();
 
   const getFeedFiles = useCallback(async ()=>{
     //@ts-ignore
     const get = await client.getFiles();
+    // console.log((await client.getFeeds()).getItems())
     setFeedFiles(get);
   }, [])
 
@@ -49,10 +50,10 @@ export const Swift = () => {
         <>
         { feedFiles.getItems().map(({data: file, url}) => (
           <GridItem key={file.id} sm={12} lg={6}>
-            <Card>
+            <Card isSelectable>
               <CardBody>
-                <div><a href={url}>{file.fname.replace(/chris\//g, "")}</a></div>
-                <div>{(file.fsize/(1024)).toFixed(2)} KB, {(new Date(file.creation_date)).toDateString()}</div>
+                <div><a href={url}>{file.fname}</a></div>
+                {/* <div>{(file.fsize/(1024)).toFixed(2)} KB, {(new Date(file.creation_date)).toDateString()}</div> */}
               </CardBody>
             </Card>
           </GridItem>
@@ -163,7 +164,7 @@ export const Swift = () => {
         <h1>ChRIS Storage</h1>
 
         <Grid hasGutter>
-          <GridItem>
+          {/* <GridItem>
             <Grid hasGutter id="recents">
               <GridItem><h3>Recently Opened</h3></GridItem>
               { feedFiles?.getItems().slice(0,4).map(({data: file, url}) => (
@@ -177,7 +178,7 @@ export const Swift = () => {
                 </GridItem>
               ))}
             </Grid>
-          </GridItem>
+          </GridItem> */}
 
           <GridItem/>
           <GridItem/>

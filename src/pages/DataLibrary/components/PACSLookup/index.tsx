@@ -67,7 +67,10 @@ export const PACS = () => {
     <Wrapper>
       <article>
         <Grid hasGutter>
-          <GridItem><h1>PACS Lookup System</h1></GridItem>
+          <GridItem>
+            <h1>PACS Lookup System</h1>
+            <p></p>
+          </GridItem>
 
           <GridItem>
             <QueryBuilder onFinalize={StartPACSQuery} />
