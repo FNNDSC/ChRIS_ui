@@ -3,13 +3,15 @@ type PathList = Array<{
   [x: string]: any
 }>;
 
-type Tree = Array<{
+type Branch = {
   name: string, 
   item: any,
   prefix: string,
   hasChildren: boolean,
   children: Tree
-}>;
+};
+
+type Tree = Array<Branch>;
 
 class DirectoryTree {
   dir: Tree = [];
@@ -65,7 +67,7 @@ class DirectoryTree {
   }
 
   /**
-   * Primitive intersection search.
+   * Intersection search.
    * @param query Search term
    * @returns Tree
    */
@@ -75,8 +77,36 @@ class DirectoryTree {
     for (const token of query.split(" ")) {
       space = space.filter(({ fname }) => fname.includes(token))
     }
+    // return DirectoryTree.fromPathList(space)
 
-    return DirectoryTree.fromPathList(space)
+    this.traversal = [];
+    
+    const dir = this.findChildren(
+      query.split(" ")[0], 
+      DirectoryTree.fromPathList(space).dir
+    )
+
+    return new DirectoryTree(dir)
+  }
+
+  private traversal: Tree = [];
+
+  private findChildren(query: string, dir?: Tree): Tree {
+    dir = dir || this.dir;
+
+    for (const _dir of dir) {
+      if (!_dir.hasChildren)
+        return []
+
+      console.log(_dir.name)
+
+      if (_dir.children.filter(({ name }) => name.includes(query)).length)
+        this.traversal.push(_dir)
+      else
+        this.findChildren(query, _dir.children)
+    }
+
+    return this.traversal
   }
 }
 
