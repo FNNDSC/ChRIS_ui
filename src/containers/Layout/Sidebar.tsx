@@ -37,13 +37,15 @@ const Sidebar: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
             <Link to="/library">My Library</Link>
           </NavItem>
 
-          <NavItem itemId="chris" isActive={active === "chris"}>
+          {/* <NavItem itemId="chris" isActive={active === "chris"}>
             <Link to="/library/chris">ChRIS Storage</Link>
-          </NavItem>
+          </NavItem> */}
 
-          <NavItem itemId="pacs" isActive={active === "pacs"}>          
-            <Link to="/library/pacs">PACS Lookup</Link>
-          </NavItem>
+          <NavExpandable title="Services" isExpanded={true}>
+            <NavItem itemId="services_pacs" isActive={active === "services_pacs"}>          
+              <Link to="/library/pacs">PACS Lookup</Link>
+            </NavItem>
+          </NavExpandable>
         </NavGroup>
 
         <NavGroup title="Analyse">

@@ -1,25 +1,44 @@
-export type Tree = Array<{
+type PathList = Array<{ 
+  fname: string,
+  [x: string]: any
+}>;
+
+type Tree = Array<{
   name: string, 
   item: any,
+  prefix: string,
   hasChildren: boolean,
   children: Tree
 }>;
 
-export class Directory {
-  static buildDirectoryTree(list:Array<any>): Tree {
-    const tree: Tree = [];
+class DirectoryTree {
+  dir: Tree = [];
+  list: PathList = [];
 
-    const level = { tree };
+  constructor(dir: Tree) {
+    this.dir = dir;
+  }
+
+  /**
+   * Build a directory tree from file paths.
+   * @param list List of files paths
+   * @returns Tree
+   */
+  static fromPathList(list: PathList) {
+    const dir: Tree = [];
+    const level = { dir };
+
     list.forEach((item) => {
       const paths = item.fname.split('/')
       paths.reduce((branch:any, name:string, index:number) => {
         if(!branch[name]) {
-          branch[name] = { tree: [] }
-          branch.tree.push({ 
+          branch[name] = { dir: [] }
+          branch.dir.push({ 
             name, 
+            prefix: paths.slice(0, index).join('/'),
             item: index === paths.length - 1 ? item : null, 
             hasChildren: index < paths.length - 1,
-            children: branch[name].tree 
+            children: branch[name].dir 
           });
         }
 
@@ -27,14 +46,38 @@ export class Directory {
       }, level)
     });
 
-    return tree;
+    const tree = new DirectoryTree(dir);
+    tree.list = list;
+    return tree
   }
 
-  static findChildDirectory(dir:Tree, name:string): Tree {
-    for (const child of dir) {
+  /**
+   * Get immediate child.
+   * @param name child name
+   * @returns Tree
+   */
+  child(name: string): DirectoryTree {
+    for (const child of this.dir) {
       if (child.name === name)
-        return child.children;
+        return new DirectoryTree(child.children);
     }
-    return [];
+    return new DirectoryTree([]);
+  }
+
+  /**
+   * Primitive intersection search.
+   * @param query Search term
+   * @returns Tree
+   */
+  searchTree(query: string): DirectoryTree {
+    let space = this.list;
+
+    for (const token of query.split(" ")) {
+      space = space.filter(({ fname }) => fname.includes(token))
+    }
+
+    return DirectoryTree.fromPathList(space)
   }
 }
+
+export default DirectoryTree
