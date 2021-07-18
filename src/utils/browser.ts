@@ -77,36 +77,26 @@ class DirectoryTree {
     for (const token of query.split(" ")) {
       space = space.filter(({ fname }) => fname.includes(token))
     }
-    // return DirectoryTree.fromPathList(space)
 
-    this.traversal = [];
-    
-    const dir = this.findChildren(
-      query.split(" ")[0], 
-      DirectoryTree.fromPathList(space).dir
-    )
+    const dir = DirectoryTree
+      .fromPathList(space)
+      .findChildren(query.split(" ")[0])
 
     return new DirectoryTree(dir)
   }
 
-  private traversal: Tree = [];
-
-  private findChildren(query: string, dir?: Tree): Tree {
-    dir = dir || this.dir;
-
+  private findChildren(query: string, dir = this.dir, found: Tree = []): Tree {
     for (const _dir of dir) {
       if (!_dir.hasChildren)
         return []
 
-      console.log(_dir.name)
-
       if (_dir.children.filter(({ name }) => name.includes(query)).length)
-        this.traversal.push(_dir)
+        found.push(_dir)
       else
-        this.findChildren(query, _dir.children)
+        this.findChildren(query, _dir.children, found)
     }
 
-    return this.traversal
+    return found
   }
 }
 
