@@ -206,9 +206,9 @@ export const UserLibrary = () => {
 
   const SearchResults = () => {
     const _query = search.get("q") || ''
-    const searchResults = DirectoryTree.fromPathList([
-      ...(uploaded?.searchTree(_query).list || []),
-      ...(services?.searchTree(_query).list || []),
+    const searchResults = new DirectoryTree([
+      ...(uploaded?.searchTree(_query).dir || []),
+      ...(services?.searchTree(_query).dir || []),
     ])
 
     if (!searchResults) 
@@ -221,29 +221,30 @@ export const UserLibrary = () => {
 
     return <>
     { searchResults.dir
-      .map(({ name: rname }) => searchResults
-        .child(rname).dir
-        .map(({ name, children, hasChildren, item, prefix }) => {
-          if (hasChildren)
-            return <Browser
-              key={name}
-              name={name}
-              tree={new DirectoryTree(children)}
-              path={`/library/${prefix}/${name}`}
-            />
-          else return (
-            <GridItem key={name} sm={12} lg={2}>
-              <Card isSelectable>
-                <CardBody>
-                  <div><FileIcon/></div>
-                  <div><a href={item}>{name}</a></div>
-                  <div>{ (item.fsize/(1024*1024)).toFixed(3) } MB</div>
-                </CardBody>
-              </Card>
-            </GridItem>
-          )
-        })
-      )
+      .map(({ name, children, hasChildren, item, prefix }) => {
+        if (hasChildren)
+          return <Browser
+            key={name}
+            name={name}
+            tree={new DirectoryTree(children)}
+            path={`/library/${prefix}/${name}`}
+          />
+        else return (
+          <GridItem key={name} sm={12} lg={2}>
+            <Card isSelectable>
+              <CardBody>
+                <div><FileIcon/></div>
+                <div><a href={item}>{name}</a></div>
+                <div>{ (item.fsize/(1024*1024)).toFixed(3) } MB</div>
+              </CardBody>
+            </Card>
+          </GridItem>
+        )
+      })
+      // .map(({ name: rname }) => searchResults
+      //   .child(rname).dir
+        
+      // )
     }
     </>
   }

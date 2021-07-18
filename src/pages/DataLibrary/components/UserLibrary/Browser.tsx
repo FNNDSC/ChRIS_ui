@@ -90,7 +90,7 @@ export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserPro
 
               <SplitItem>
                 <Card>
-                  <TextInput placeholder="Filter by Name" onChange={(value) => setFilter(value || undefined)} />
+                  <TextInput placeholder="Filter by Name" id="filter" onChange={(value) => setFilter(value || undefined)} />
                 </Card>
               </SplitItem>
             </Split>
