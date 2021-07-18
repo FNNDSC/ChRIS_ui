@@ -142,8 +142,8 @@ class PFDCMClient {
     }
 
     try {    
-      // const raw = (await this.sendPypxRequest({ ...query, then: '' })).data.pypx
-      const studies = parseRawDcmData(mockData);
+      const raw = (await this.sendPypxRequest({ ...query, then: '' })).data.pypx
+      const studies = parseRawDcmData(raw);
       return this.sortStudiesByPatient(studies);
     } catch (error) {
       return []; 
