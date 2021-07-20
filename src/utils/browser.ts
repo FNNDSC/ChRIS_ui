@@ -1,7 +1,7 @@
-type PathList = Array<{ 
-  fname: string,
-  [x: string]: any
-}>;
+import { UploadedFile } from "@fnndsc/chrisapi";
+
+type PathList = UploadedFile[] | any;
+type PathItem = UploadedFile | any;
 
 type Branch = {
   name: string, 
@@ -11,7 +11,7 @@ type Branch = {
   children: Tree
 };
 
-type Tree = Array<Branch>;
+export type Tree = Branch[];
 
 class DirectoryTree {
   dir: Tree = [];
@@ -30,8 +30,9 @@ class DirectoryTree {
     const dir: Tree = [];
     const level = { dir };
 
-    list.forEach((item) => {
-      const paths = item.fname.split('/')
+    list.forEach((item: PathItem) => {
+      console.log(item)
+      const paths = item.data.fname.split('/')
       paths.reduce((branch:any, name:string, index:number) => {
         if(!branch[name]) {
           branch[name] = { dir: [] }
@@ -75,7 +76,7 @@ class DirectoryTree {
     let space = this.list;
 
     for (const token of query.split(" ")) {
-      space = space.filter(({ fname }) => fname.includes(token))
+      space = space.filter((item: PathItem) => item.data.fname.includes(token))
     }
 
     const dir = DirectoryTree
@@ -85,6 +86,13 @@ class DirectoryTree {
     return new DirectoryTree(dir)
   }
 
+  /**
+   * Recursively find a child which contains a query
+   * @param query find what
+   * @param dir 
+   * @param found 
+   * @returns 
+   */
   private findChildren(query: string, dir = this.dir, found: Tree = []): Tree {
     for (const _dir of dir) {
       if (!_dir.hasChildren)
