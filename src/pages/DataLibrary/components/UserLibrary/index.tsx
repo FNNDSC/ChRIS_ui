@@ -42,12 +42,7 @@ export const UserLibrary = () => {
   const fetchUploaded = useCallback(async () => {
     try {
       const uploads = await client.getUploadedFiles({ limit: 10e6 });
-      setUploaded(
-        DirectoryTree.fromPathList(uploads.getItems().map(({ data }) => {
-          data.fname = data.fname.replace(/chris\//g, "");
-          return data
-        }))
-      );
+      setUploaded(DirectoryTree.fromPathList(uploads.getItems()));
     } catch (error) {
       console.error(error);
     }
@@ -55,42 +50,37 @@ export const UserLibrary = () => {
 
   const fetchServices = useCallback(async () => {
     try {
-      //@ts-ignore
-      const pacs = await client.getPACSFiles({ limit: 10e6 });
-      //@ts-ignore
-      const service = await client.getServiceFiles({ limit: 10e6 });
+      // //@ts-ignore
+      // const pacs = await client.getPACSFiles({ limit: 10e6 });
+      // //@ts-ignore
+      // const service = await client.getServiceFiles({ limit: 10e6 });
 
       setServices(
-        DirectoryTree.fromPathList(
-        [
-          { data: {fname: "SERVICES/PACS/Patient-1234567/study/series/file_1.jpg"}},
-          { data: {fname: "SERVICES/PACS/Patient-1234567/study/series/file_2.jpg"}},
-          { data: {fname: "SERVICES/PACS/Patient-1234567/study/series/file_3.jpg"}},
-          { data: {fname: "SERVICES/PACS/Patient-2345678/study/series/file_4.jpg"}},
-          { data: {fname: "SERVICES/PACS/Patient-2345678/study/series/file_5.jpg"}},
-          { data: {fname: "SERVICES/PACS/Patient-2345678/study/series/file_6.jpg"}},
-          { data: {fname: "SERVICES/PACS/Patient-2345678/study/series/file_7.jpg"}},
-          { data: {fname: "SERVICES/PACS/Patient-3456789/study/series/file_8.jpg"}},
-          { data: {fname: "SERVICES/PACS/Patient-3456789/study/series/file_9.jpg"}},
-          { data: {fname: "SERVICES/PACS/Patient-3456789/study/series/file_X.jpg"}},
-          { data: {fname: "SERVICES/Orthanc/Patient-1234567/study/series/file_1.jpg"}},
-          { data: {fname: "SERVICES/Orthanc/Patient-1234567/study/series/file_2.txt"}},
-          { data: {fname: "SERVICES/Orthanc/Patient-1234567/study/series/file_3.txt"}},
-          { data: {fname: "SERVICES/Orthanc/Patient-2345678/study/series/file_4.txt"}},
-          { data: {fname: "SERVICES/Orthanc/Patient-2345678/study/series/file_5.txt"}},
-          { data: {fname: "SERVICES/Orthanc/Patient-2345678/study/series/file_6.txt"}},
-          { data: {fname: "SERVICES/Orthanc/Patient-2345678/study/series/file_7.txt"}},
-          { data: {fname: "SERVICES/Orthanc/Patient-3456789/study/series/file_8.txt"}},
-          { data: {fname: "SERVICES/Orthanc/Patient-4567890/study/series/file_8.txt"}},
-          { data: {fname: "SERVICES/Another/Patient-3456789/study/series/file_9.txt"}},
-          { data: {fname: "SERVICES/Another/Patient-3456789/study/file_X.txt"}},
-          { data: {fname: "SERVICES/Another/Patient-3456789/study/file_Y.txt"}},
-        ]
-        // [
-        //   ...pacs.getItems(), ...service.getItems()
-        // ]
-        .map(({ data }) => data)
-        )
+        DirectoryTree.fromPathList([
+          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-1234567/study/series/file_1.jpg"}},
+          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-1234567/study/series/file_2.jpg"}},
+          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-1234567/study/series/file_3.jpg"}},
+          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_4.jpg"}},
+          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_5.jpg"}},
+          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_6.jpg"}},
+          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_7.jpg"}},
+          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-3456789/study/series/file_8.jpg"}},
+          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-3456789/study/series/file_9.jpg"}},
+          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-3456789/study/series/file_X.jpg"}},
+          { data: {fname: "SERVICES/PACS/Orthanc/Patient-1234567/study/series/file_1.jpg"}},
+          { data: {fname: "SERVICES/PACS/Orthanc/Patient-1234567/study/series/file_2.txt"}},
+          { data: {fname: "SERVICES/PACS/Orthanc/Patient-1234567/study/series/file_3.txt"}},
+          { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_4.txt"}},
+          { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_5.txt"}},
+          { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_6.txt"}},
+          { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_7.txt"}},
+          { data: {fname: "SERVICES/PACS/Orthanc/Patient-3456789/study/series/file_8.txt"}},
+          { data: {fname: "SERVICES/PACS/Orthanc/Patient-4567890/study/series/file_8.txt"}},
+          { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/series/file_9.txt"}},
+          { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/file_X.txt"}},
+          { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/file_Y.txt"}},
+          // ...pacs.getItems(), ...service.getItems()
+        ])
       );
     } catch (error) {
       console.error(error);
@@ -106,17 +96,17 @@ export const UserLibrary = () => {
   const UploadedFiles = () => {
     if (uploaded) {
       const files = <>
-        { uploaded.child('uploads').dir
+        { uploaded.child('chris').child('uploads').dir
           .filter(({ hasChildren })=> hasChildren)
           .slice(0,6)
-          .map(({ name, children }) => (
-            <GridItem key={name} sm={12} lg={4}>
+          .map(({ name, children, prefix }) => (
+            <GridItem key={prefix + name} sm={12} lg={4}>
               <Card isSelectable>
                 <CardBody>
-                  <Split>
+                  <Split style={{ overflow: "hidden" }}>
                     <SplitItem style={{ marginRight: "1em" }}><FolderIcon/></SplitItem>
-                    <SplitItem isFilled style={{ overflow: "hidden" }}>
-                      <Link to={`/library/uploads/${name}`}>{name}</Link>
+                    <SplitItem isFilled>
+                      <Link to={`/library/${prefix}/${name}`}>{name}</Link>
                     </SplitItem>
                     <SplitItem><div>{children.length} {pluralize('item', children.length)}</div></SplitItem>
                   </Split>
@@ -161,12 +151,14 @@ export const UserLibrary = () => {
       const items = <>
         { services.child('SERVICES').dir
           .filter(({ hasChildren }) => hasChildren)
-          .map(({ name, children }) => (
-            <GridItem key={name} sm={12} lg={2}>
+          .map(({ name, children, prefix }) => (
+            <GridItem key={prefix + name} sm={12} lg={2}>
               <Card isSelectable>
                 <CardBody style={{ margin: "1em 0" }}>
                   <div><CubesIcon style={{ height: "50%" }} /></div>
-                  <div><Link to={`/library/SERVICES/${name}`}>{name}</Link></div>
+                  <div style={{ overflow: "hidden" }}>
+                    <Link to={`/library/SERVICES/${name}`}>{name}</Link>
+                  </div>
                   <div>{children.length} {pluralize('item', children.length)}</div>
                 </CardBody>
               </Card>
@@ -205,13 +197,18 @@ export const UserLibrary = () => {
   const search = new URLSearchParams(useLocation().search);
 
   const SearchResults = () => {
-    const _query = search.get("q") || ''
-    const searchResults = new DirectoryTree([
-      ...(uploaded?.searchTree(_query).dir || []),
-      ...(services?.searchTree(_query).dir || []),
-    ])
+    const searchSpace = [uploaded, services]
 
-    if (!searchResults) 
+    const _query = search.get("q") || ''
+    const searchResults = new DirectoryTree([])
+    for (const dir of searchSpace) {
+      searchResults.dir = [ 
+        ...searchResults.dir, 
+        ...(dir?.searchTree(_query).dir || [])
+      ]
+    }
+
+    if (!searchSpace.filter(item => !!item).length) 
       return <EmptyState>
         <EmptyStateIcon variant="container" component={Spinner} />
         <Title size="lg" headingLevel="h4">
@@ -219,34 +216,52 @@ export const UserLibrary = () => {
         </Title>
       </EmptyState>;
 
-    return <>
-    { searchResults.dir
-      .map(({ name, children, hasChildren, item, prefix }) => {
-        if (hasChildren)
-          return <Browser
-            key={name}
-            name={name}
-            tree={new DirectoryTree(children)}
-            path={`/library/${prefix}/${name}`}
-          />
-        else return (
-          <GridItem key={name} sm={12} lg={2}>
-            <Card isSelectable>
-              <CardBody>
-                <div><FileIcon/></div>
-                <div><a href={item}>{name}</a></div>
-                <div>{ (item.fsize/(1024*1024)).toFixed(3) } MB</div>
-              </CardBody>
-            </Card>
-          </GridItem>
-        )
-      })
-      // .map(({ name: rname }) => searchResults
-      //   .child(rname).dir
-        
-      // )
-    }
-    </>
+    if (!searchResults.dir.length)
+      return <EmptyState>
+        <EmptyStateIcon variant="container" component={CubesIcon} />
+        <Title size="lg" headingLevel="h4">
+          No Results
+        </Title>
+        <EmptyStateBody>
+          Couldn&apos;t find any results for &quot;{_query}&quot;. <br />
+        </EmptyStateBody>
+        <EmptyStatePrimary>
+          <Button variant="link" 
+            onClick={() => { 
+              setQuery(undefined);
+              route('/library');
+            }}
+          >
+            Clear
+          </Button>
+        </EmptyStatePrimary>
+      </EmptyState>
+    else 
+      return <>
+      { searchResults
+        .dir
+        .map(({ name, children, hasChildren, item, prefix }) => {
+          if (hasChildren)
+            return <Browser
+              key={prefix + name}
+              name={name}
+              tree={new DirectoryTree(children)}
+              path={`/library/${prefix ? prefix + '/' : ''}${name}`}
+            />
+          else return (
+            <GridItem key={name} sm={12} lg={2}>
+              <Card isSelectable>
+                <CardBody>
+                  <div><FileIcon/></div>
+                  <div style={{ maxWidth: "100%" }}><a href={name}>{name}</a></div>
+                  <div>{ (item.data.fsize/(1024*1024)).toFixed(3) } MB</div>
+                </CardBody>
+              </Card>
+            </GridItem>
+          )
+        })
+      }
+      </>
   }
 
   return (
@@ -259,15 +274,18 @@ export const UserLibrary = () => {
           <Grid hasGutter id="search">
             <GridItem lg={10} sm={12}>
               <Card style={{ height: "100%" }}>
-                <TextInput type="text" id="search-value" 
+                <TextInput type="text" 
+                  id="search-value" 
                   placeholder="Search Library" 
+                  value={query || ""}
                   onChange={(value) => setQuery(value)} 
                 />
               </Card>
             </GridItem>
 
             <GridItem lg={2} sm={12}>
-              <Button isLarge 
+              <Button 
+                isLarge 
                 id="finalize" 
                 variant="primary" 
                 onClick={() => query ? route(`/library/search?q=${query}`) : undefined}
@@ -311,10 +329,11 @@ export const UserLibrary = () => {
                   name={folder}
                   path={`/library/${folder}`} 
                   tree={(
-                    folder === 'uploads' ? uploaded.child(folder) : (
-                      folder === 'SERVICES' ? services.child(folder) : 
-                        new DirectoryTree([])
-                    )
+                    folder === 'SERVICES' ? services.child(folder) : uploaded.child(folder)
+                    // folder === 'uploads' ? uploaded.child(folder) : (
+                    //   folder === 'SERVICES' ? services.child(folder) : 
+                    //     new DirectoryTree([])
+                    // )
                   )} 
                 />
             }} 
@@ -347,7 +366,7 @@ export const UserLibrary = () => {
                 <GridItem>
                   <Split>
                     <SplitItem isFilled/>
-                    <SplitItem><Link to="/library/uploads">Show More</Link></SplitItem>
+                    <SplitItem><Link to="/library/chris/uploads">Show More</Link></SplitItem>
                   </Split>
                 </GridItem>
               </Grid>

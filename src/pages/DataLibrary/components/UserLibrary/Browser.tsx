@@ -11,11 +11,14 @@ import {
   BreadcrumbItem,
   Button,
   TextInput,
+  Modal,
 } from "@patternfly/react-core";
 import { FolderIcon, FileIcon } from '@patternfly/react-icons';
 import DirectoryTree from "../../../../utils/browser";
 import pluralize from 'pluralize';
 import { useState } from 'react';
+import { EyeIcon } from '@patternfly/react-icons';
+import GalleryDicomView from '../../../../components/dicomViewer/GalleryDicomView';
 
 interface BrowserProps {
   tree: DirectoryTree
@@ -43,8 +46,14 @@ export const BrowserBreadcrumbs = ({ path }: { path: string }) => {
   )
 }
 
+function elipses(str:string, len: number) {
+  if (str.length <= len) return str
+  return str.slice(0, len) + "...";
+}
+
 export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserProps) => {
   const [filter, setFilter] = useState<string>();
+  const [viewfiles, setViewFiles] = useState<Array<any>>();
 
   const folders = tree.dir
     .filter(({ hasChildren }) => hasChildren)
@@ -90,23 +99,34 @@ export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserPro
 
               <SplitItem>
                 <Card>
-                  <TextInput placeholder="Filter by Name" id="filter" onChange={(value) => setFilter(value || undefined)} />
+                  <TextInput id={`${path}-filter`}
+                    placeholder="Filter by Name"
+                    onChange={(value) => setFilter(value || undefined)} 
+                  />
                 </Card>
               </SplitItem>
             </Split>
           </section>
 
           <Grid hasGutter>
-            { folders.map(({ name, children }) => (
+            { folders.map(({ name, children, hasChildren }) => (
               <GridItem key={name} sm={12} lg={4}>
                 <Card isSelectable>
                   <CardBody>
-                    <Split>
+                    <Split style={{ overflow: "hidden" }}>
                       <SplitItem style={{ marginRight: "1em" }}><FolderIcon/></SplitItem>
-                      <SplitItem isFilled><Link to={`${path}/${name}`}>{name}</Link></SplitItem>
+                      <SplitItem isFilled><Link to={`${path}/${name}`}>{elipses(name,28)}</Link></SplitItem>
                       <SplitItem>
                         <div>{children.length} {pluralize('item', children.length)}</div>
                       </SplitItem>                          
+                      {
+                        hasChildren && children.map(({ item }) => item).length ? (
+                          <SplitItem>
+                            <EyeIcon style={{ margin: 'auto 0 auto 0.5em' }}
+                              onClick={() => setViewFiles(children.map(({ item }) => ({ file: item })))} />
+                          </SplitItem>
+                        ) : null
+                      }
                     </Split>
                   </CardBody>
                 </Card>
@@ -120,17 +140,21 @@ export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserPro
                 <Card isSelectable>
                   <CardBody>
                     <div><FileIcon/></div>
-                    <div>
-                      <Button variant="link" style={{ padding: "0" }}>
-                        {name}
+                    <div style={{ overflow: "hidden" }}>
+                      <Button variant="link" style={{ padding: "0" }} onClick={() => setViewFiles([{ file: item }])}>
+                        {elipses(name,20)}
                       </Button>
                     </div>
-                    <div>{ (item.fsize/(1024*1024)).toFixed(3) } MB</div>
+                    <div>{ (item.data.fsize/(1024*1024)).toFixed(3) } MB</div>
                   </CardBody>
                 </Card>
               </GridItem>
             ))}
           </Grid>
+
+          <Modal aria-label="viewer" isOpen={!!viewfiles} onClose={() => setViewFiles(undefined)}>
+            <GalleryDicomView files={viewfiles} />
+          </Modal>
         </article>
       </Route>
     </Switch>
