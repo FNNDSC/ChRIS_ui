@@ -118,12 +118,17 @@ export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserPro
                       <SplitItem isFilled><Link to={`${path}/${name}`}>{elipses(name,28)}</Link></SplitItem>
                       <SplitItem>
                         <div>{children.length} {pluralize('item', children.length)}</div>
-                      </SplitItem>                          
+                      </SplitItem>
                       {
-                        hasChildren && children.map(({ item }) => item).length ? (
+                        hasChildren && children.filter(({ item }) => !!item).length ? (
                           <SplitItem>
                             <EyeIcon style={{ margin: 'auto 0 auto 0.5em' }}
-                              onClick={() => setViewFiles(children.map(({ item }) => ({ file: item })))} />
+                              onClick={() => setViewFiles(
+                                children
+                                .filter(({ item }) => !!item)
+                                .map(({ item }) => ({ file: item }))
+                              )} 
+                            />
                           </SplitItem>
                         ) : null
                       }
