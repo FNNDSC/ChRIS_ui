@@ -51,6 +51,14 @@ const Sidebar: React.FC<AllProps> = ({
         <Link to="/feeds">Feeds List</Link>
       </NavItem>
       <NavItemSeparator />
+      <NavItem
+        groupId="workflows_grp"
+        itemId="pipelines"
+        isActive={sidebarActiveItem === "pipelines" ? true : false}
+      >
+        <Link to="/pipelines">Pipelines</Link>
+      </NavItem>
+      <NavItemSeparator />
       <NavExpandable
         isExpanded={true}
         title="Workflows"

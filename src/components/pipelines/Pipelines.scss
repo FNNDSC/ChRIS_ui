@@ -1,0 +1,127 @@
+@import "../../assets/scss/helpers/variables";
+@import "../../assets/scss/helpers/mixins";
+@import "../../assets/scss/helpers/pf4-variables";
+
+// Collection of all Pipeline cards page
+// File: PipelinesFeed.tsx
+.pipelines {
+  padding: 1.5rem;
+  div {
+    article {
+      margin-bottom: 1rem;
+      border-radius: 5px;
+      border-top: 5px solid #042c53;
+    }
+  }
+}
+
+// View of each Pipeline page
+// File: Pipeline.tsx
+.pipeline_main {
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url("../../assets/images/chris_ui_background_768@2x.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+
+  color: white;
+  h1 {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+}
+
+.pipeline_main_top {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 6%;
+  margin-top: 1%;
+  .pipeline_main_top_right,
+  .pipeline_main_top_left {
+    display: flex;
+  }
+}
+
+.pipeline_main_top_left {
+  width: 60%;
+  div {
+    flex: 1;
+  }
+}
+
+.pipeline_main_top_right {
+  width: 40%;
+  div {
+    flex: 1;
+  }
+}
+
+.save_button {
+  text-decoration: none;
+  background-color: #0066cc;
+  color: #ffffff;
+  padding: 6px 16px;
+}
+
+.save_button :hover{
+  background-color: #004080;
+  color: #ffffff;
+}
+
+.pipeline_main_bottom {
+  margin-top: 2rem;
+  display: flex;
+}
+
+.pipeline_main_bottom_left {
+  width: 60%;
+  background-color: #0a1417;
+  padding: 1.5rem;
+}
+
+.pipeline_main_bottom_right {
+  width: 40%;
+  padding: 1.5rem;
+  background-color: #042c53;
+}
+
+#code-content {
+  background-color: #0a1417;
+}
+
+.docs_content{
+  margin: 2em auto;
+}
+
+.code_content{
+  color: white;
+  background-color: #0a1417;
+}
+
+.docs_title{
+ font-weight: 700;
+ font-size: 2rem;
+}
+
+  .code_title{
+  color: #0066cc;
+  line-height: 7px;
+  font-size: 1.4rem;
+  padding: 1px;
+}
+
+// tablet
+@media only screen and (max-width: $pf-global--breakpoint--md) {
+  .pipeline_main_top_right {
+    flex-direction: column;
+  }
+  .pipeline_main_bottom {
+    flex-direction: column;
+    justify-content: center;
+    div{
+      width: 90%;
+      flex: 1;
+      height: max-content;
+    }
+  }
+}
