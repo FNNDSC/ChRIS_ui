@@ -19,6 +19,7 @@ type NodeWrapperProps = {
 
 type NodeProps = NodeWrapperProps & {
   status?: string;
+  scale: number;
   currentId: boolean;
 };
 
@@ -26,11 +27,13 @@ const DEFAULT_NODE_CIRCLE_RADIUS = 12;
 
 const setNodeTransform = (
   orientation: "horizontal" | "vertical",
-  position: Point
+  position: Point,
+  scale: number
 ) => {
-  return orientation === "horizontal"
+  const translate = orientation === "horizontal"
     ? `translate(${position.y},${position.x})`
     : `translate(${position.x}, ${position.y})`;
+  return `${translate} ${scale ? `scale(${scale})` : ''}`
 };
 
 const Node = (props: NodeProps) => {
@@ -46,6 +49,7 @@ const Node = (props: NodeProps) => {
     toggleLabel,
     status,
     currentId,
+    scale
   } = props;
 
   const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
@@ -57,12 +61,12 @@ const Node = (props: NodeProps) => {
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
       .attr("transform", transform)
-      .style("opacity", opacity);
+      .style("opacity", opacity)
     select(textRef.current).attr("transform", `translate(-28, 28)`);
   };
 
   React.useEffect(() => {
-    const nodeTransform = setNodeTransform(orientation, position);
+    const nodeTransform = setNodeTransform(orientation, position, scale);
     applyNodeTransform(nodeTransform);
   }, [orientation, position]);
 
@@ -163,6 +167,13 @@ const NodeWrapper = (props: NodeWrapperProps) => {
       return state.resource.pluginInstanceStatus[data.id].status;
     } else return;
   });
+  const instanceData = props.data.item?.data;
+  let runtime = 0;
+  if (instanceData) {
+    const start = new Date(instanceData?.start_date);
+    const end = new Date(instanceData?.end_date);
+    runtime = end.getTime() - start.getTime();
+  }
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
@@ -172,6 +183,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
     <NodeMemoed
       {...props}
       status={status || data.item?.data.status}
+      scale={Math.log10(runtime)}
       currentId={currentId}
     />
   );
