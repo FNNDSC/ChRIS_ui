@@ -8,4 +8,54 @@
 
 $fw-light: 300;
 $fw-normal: 400;
-$fw-bold: 900
+$fw-bold: 900;
+
+// Typography
+h1, h2, h3 {
+  font-size: 2em;
+  font-weight: 600;
+
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+
+  &[class~="regular"] {
+    font-weight: 400;
+  }
+}
+
+h2 {
+  font-size: 1.5em;
+  font-weight: 400;
+}
+h1 + h2 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+
+h3 {
+  font-size: 1.25em;
+  font-weight: 400;
+}
+
+p {
+  margin-top: 1em;
+  margin-bottom: 1.5em;
+
+  & + p {
+    margin-top: 0em;
+    margin-bottom: 1.5em;
+  }
+}
+
+a {
+  text-decoration: none;
+  font-weight: bolder;
+
+  // Remove blue highlight in mobile
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

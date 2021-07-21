@@ -1,0 +1,23 @@
+#user-library {
+  #search {
+    height: 100%;
+    padding: 1em 0 2em 0;
+
+    #search-value, #search-value *, #search-type, #search-type > button {
+      height: 100%;
+    }
+    #search-value {
+      width: 100%;
+    }
+  }
+
+  #finalize {
+    width: 100%;
+  }
+
+  #filters {
+    .pf-l-split {
+      width: 100%;
+    }
+  }
+}

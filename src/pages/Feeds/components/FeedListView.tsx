@@ -5,13 +5,14 @@ import { Link } from "react-router-dom";
 import Moment from "react-moment";
 import {
   PageSection,
-  PageSectionVariants,
   Title,
   Pagination,
   EmptyState,
   EmptyStateBody,
   Popover,
   Button,
+  Grid,
+  GridItem,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import { CodeBranchIcon, TrashAltIcon } from "@patternfly/react-icons";
@@ -203,50 +204,55 @@ const FeedListView: React.FC<AllProps> = ({
     );
   }
   return (
-    <React.Fragment>
-      <PageSection variant={PageSectionVariants.light} className="feed-header">
-        <div className="feed-header__split">
-          <Title headingLevel="h1" size="3xl">
-            My Feeds
-            {totalFeedsCount > 0 ? (
-              <span className="feed-header__count">({totalFeedsCount})</span>
-            ) : null}
-          </Title>
-          <CreateFeedProvider>
-            <CreateFeed />
-          </CreateFeedProvider>
-        </div>
-      </PageSection>
-      <PageSection className="feed-list">
-        <div className="feed-list__split">
-          <DataTableToolbar
-            onSearch={handleFilterChange}
-            label="filter by name"
-          />
-          {generatePagination()}
-        </div>
-        {(!data && !loading) || (data && data.length === 0) ? (
-          <EmptyStateTable
-            cells={cells}
-            rows={rows}
-            caption="Empty Feed List"
-            title="No Feeds Found"
-            description="Create a Feed by clicking on the 'Create Feed' button"
-          />
-        ) : (
-          <Table
-            variant="compact"
-            aria-label="Data table"
-            cells={cells}
-            rows={rows}
-          >
-            <TableHeader />
-            {loading ? generateTableLoading() : <TableBody />}
-          </Table>
-        )}
-      </PageSection>
-      )
-    </React.Fragment>
+    <article style={{ maxWidth: "100%" }}>
+      <Grid>
+        <GridItem>
+          <PageSection className="feed-header">
+            <div className="feed-header__split">
+              <Title headingLevel="h1" size="3xl">
+                My Feeds
+                {totalFeedsCount > 0 ? (
+                  <span className="feed-header__count">({totalFeedsCount})</span>
+                ) : null}
+              </Title>
+              <CreateFeedProvider>
+                <CreateFeed />
+              </CreateFeedProvider>
+            </div>
+          </PageSection>
+        </GridItem>
+        <GridItem>
+          <PageSection className="feed-list">
+            <div className="feed-list__split">
+              <DataTableToolbar
+                onSearch={handleFilterChange}
+                label="filter by name"
+              />
+              {generatePagination()}
+            </div>
+            {(!data && !loading) || (data && data.length === 0) ? (
+              <EmptyStateTable
+                cells={cells}
+                rows={rows}
+                caption="Empty Feed List"
+                title="No Feeds Found"
+                description="Create a Feed by clicking on the 'Create Feed' button"
+              />
+            ) : (
+              <Table
+                variant="compact"
+                aria-label="Data table"
+                cells={cells}
+                rows={rows}
+              >
+                <TableHeader />
+                {loading ? generateTableLoading() : <TableBody />}
+              </Table>
+            )}
+          </PageSection>
+        </GridItem>
+      </Grid>
+    </article>
   );
 };
 

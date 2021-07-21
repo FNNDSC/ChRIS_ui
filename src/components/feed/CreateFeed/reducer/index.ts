@@ -6,11 +6,13 @@ import {
 } from "../types";
 import { Key } from "rc-tree/lib/interface";
 import { clearCache } from "../ChrisFileSelect";
+import { MainRouterContextState } from '../../../../routes';
 
 
 import { InputType } from "../../AddNode/types";
+import { PACSSeries } from "../../../../api/pfdcm";
 
-function getDefaultCreateFeedData(): CreateFeedData {
+function getDefaultCreateFeedData(selectedPacsData?: PACSSeries[]): CreateFeedData {
   return {
     feedName: "",
     feedDescription: "",
@@ -18,22 +20,31 @@ function getDefaultCreateFeedData(): CreateFeedData {
     chrisFiles: [],
     localFiles: [],
     checkedKeys:{},
+    pacsSeries: selectedPacsData || [],
   };
 }
 
-export const initialState = {
-  wizardOpen: false,
-  step: 1,
-  data: getDefaultCreateFeedData(),
-  selectedPlugin: undefined,
-  selectedConfig: "",
-  requiredInput: {},
-  dropdownInput: {},
-  feedProgress: "",
-  feedError: "",
-  value: 0,
-  computeEnvironment: " ",
-};
+export function getInitialState(routerContextState?: MainRouterContextState) {
+  const selectedPacsData = routerContextState?.selectData;
+  const pacsDataSelected = !!selectedPacsData?.length;
+
+  return {
+    // if pacsdata is selected, the user is navigated directly 
+    // from pacs lookup to create feed wizard
+    wizardOpen: pacsDataSelected,
+
+    step: 1,
+    data: getDefaultCreateFeedData(selectedPacsData),
+    selectedPlugin: undefined,
+    selectedConfig: "",
+    requiredInput: {},
+    dropdownInput: {},
+    feedProgress: "",
+    feedError: "",
+    value: 0,
+    computeEnvironment: " ",
+  };
+}
 
 export const createFeedReducer = (
   state: CreateFeedState,

@@ -23,12 +23,15 @@ import { addFeed } from "../../../store/feed/actions";
 import { createFeed, getName } from "./utils/createFeed";
 import { Feed } from "@fnndsc/chrisapi";
 import FinishedStep from "./FinishedStep";
+import addPacsAlert from "./PacsAlert";
+import { MainRouterContext } from "../../../routes";
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
   addFeed,
 }: CreateFeedReduxProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
+  const routerContext = useContext(MainRouterContext);
   const {
     wizardOpen,
     step,
@@ -208,14 +211,15 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         {
           id: 3,
           name: "Select an FS Plugin",
-          component: packs,
+          // addPacsAlert is required for all pages, to adjust padding
+          component: addPacsAlert(packs, false),
           enableNext: selectedPlugin !== undefined,
           canJumpTo: step > 3,
         },
         {
           id: 4,
           name: "Parameter Configuration",
-          component: guidedConfig,
+          component: addPacsAlert(guidedConfig),
           canJumpTo: step > 4,
         },
       ];
@@ -224,13 +228,13 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         {
           id: 3,
           name: "ChRIS File Select",
-          component: chrisFileSelect,
+          component: addPacsAlert(chrisFileSelect),
           canJumpTo: step > 3,
         },
         {
           id: 4,
           name: "Local File Upload",
-          component: localFileUpload,
+          component: addPacsAlert(localFileUpload),
           canJumpTo: step > 4,
         },
       ];
@@ -259,14 +263,14 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     {
       id: 1,
       name: "Basic Information",
-      component: basicInformation,
+      component: addPacsAlert(basicInformation),
       enableNext: !!data.feedName,
       canJumpTo: step > 1,
     },
     {
       id: 2,
       name: "Feed Type Selection",
-      component: chooseConfig,
+      component: addPacsAlert(chooseConfig),
       enableNext: selectedConfig.length > 0,
       canJumpTo: step > 2,
     },
@@ -278,7 +282,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     {
       id: 5,
       name: "Review",
-      component: review,
+      component: addPacsAlert(review, false),
       enableNext: enableSave,
       nextButtonText: "Save",
       canJumpTo: step > 5,
@@ -286,7 +290,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     {
       id: 6,
       name: "Finish",
-      component: finishedStep,
+      component: addPacsAlert(finishedStep, false),
       canJumpTo: step > 6,
     },
   ];
@@ -362,14 +366,15 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
               dispatch({
                 type: Types.ResetState,
               });
+              // clear global feed base data, so wizard will be blank on next open
+              routerContext.actions.clearFeedData();
             }
             dispatch({
               type: Types.ToggleWizzard,
             });
           }}
           title="Create a New Feed"
-          description="This wizard allows you to create a new Feed
-          and add an internal dataset to it"
+          description="This wizard allows you to create a new Feed and add an internal dataset to it"
           className={`feed-create-wizard ${getStepName()}-wrap`}
           steps={steps}
           startAtStep={step}

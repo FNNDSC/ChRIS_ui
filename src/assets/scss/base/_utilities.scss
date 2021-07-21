@@ -90,7 +90,6 @@ div:fullscreen {
 
 ::-webkit-scrollbar-track {
   background:#d2d2d2;
-  
 }
 
 ::-webkit-scrollbar-thumb {
@@ -99,7 +98,6 @@ div:fullscreen {
 
 ::-webkit-scrollbar-thumb {
   background-color: #73BCF7;
-  border-radius: 8px;
   border: 1px solid transparent;
   background-clip: content-box;
 }
@@ -108,4 +106,11 @@ div:fullscreen {
   background-color:#2b9af3; ;
 }
 
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 
+  &::-webkit-scrollbar {
+    display: none !important;
+  }
+}

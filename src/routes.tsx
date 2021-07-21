@@ -1,26 +1,64 @@
-import React from "react";
-import { Route, Switch } from "react-router-dom";
+import React, { useState } from "react";
+import { Route } from "react-router-dom";
 import PrivateRoute from "./components/common/PrivateRoute";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import FeedsPage from "./pages/Feeds/Feeds";
+import { RouterContext, RouterProvider } from "./containers/Routing/RouterContext";
+
 import { LogIn } from "./pages/LogIn/Login";
 import { NotFound } from "./pages/NotFound/NotFound";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import FeedsPage from "./pages/Feeds/Feeds";
+import Library from "./pages/DataLibrary/Library";
 import SignUp from "./pages/SignUp/SignUp";
 import WorkflowsPage from "./pages/WorkflowsPage";
+import { PACSSeries } from "./api/pfdcm";
 
-const Routes: React.FunctionComponent = () => {
+export interface MainRouterContextState {
+  selectData?: PACSSeries[];
+}
+
+interface MainRouterContextActions {
+  createFeedWithData: (data: PACSSeries[]) => void;
+  clearFeedData: () => void;
+}
+
+export const [State, MainRouterContext] = RouterContext<
+  MainRouterContextState, 
+  MainRouterContextActions
+>({
+    state: {},
+    actions: {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      createFeedWithData: (d: PACSSeries[]) => { /**/ },
+      clearFeedData: () => { /**/ }
+    }
+  });
+
+export const MainRouter: React.FC = () => {
+  const [state, setState] = useState(State)
+  const [route, setRoute] = useState<string>()
+
+  const actions = {
+    createFeedWithData: (selectData: PACSSeries[]) => {
+      setState({ selectData })
+      setRoute("/feeds")
+    },
+    clearFeedData: () => {
+      setState({ selectData: undefined });
+    }
+  }
+
   return (
-    <React.Fragment>
-      <Switch>
-        <PrivateRoute exact path="/" component={Dashboard} />
-        <Route exact path="/login" component={LogIn} />
-        <Route exact path="/signup" component={SignUp} />
-        <PrivateRoute path="/feeds" component={FeedsPage} />
-        <PrivateRoute path="/workflows" component={WorkflowsPage} />
-        <Route component={NotFound} />
-      </Switch>
-    </React.Fragment>
+    <RouterProvider {...{ actions, state, route, setRoute }} context={MainRouterContext}>
+      <PrivateRoute exact path="/" component={Dashboard} />
+      <Route exact path="/login" component={LogIn} />
+      <Route exact path="/signup" component={SignUp} />
+      <PrivateRoute path="/feeds" component={FeedsPage} />
+      <PrivateRoute path="/library" component={Library} />
+      <PrivateRoute path="/workflows" component={WorkflowsPage} />
+      <Route component={NotFound} />
+    </RouterProvider>
   );
-};
+}
 
-export default Routes;
+export default MainRouter;
+

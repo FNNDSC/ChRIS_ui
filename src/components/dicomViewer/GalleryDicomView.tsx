@@ -92,8 +92,9 @@ function getInitialState() {
   };
 }
 
-const GalleryDicomView = () => {
-  const files = useTypedSelector((state) => state.explorer.selectedFolder);
+const GalleryDicomView = (props: { files?: DataNode[] }) => {
+  const _rfiles = useTypedSelector((state) => state.explorer.selectedFolder);
+  const files = props.files || _rfiles;
   const [galleryDicomState, setGalleryDicomState] =
     React.useState<GalleryState>(getInitialState);
 
