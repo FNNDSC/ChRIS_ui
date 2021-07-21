@@ -1,7 +1,7 @@
 import { UploadedFile } from "@fnndsc/chrisapi";
 
-type PathList = UploadedFile[] | any;
 type PathItem = UploadedFile | any;
+type PathList = PathItem[];
 
 type Branch = {
   name: string, 
@@ -30,8 +30,7 @@ class DirectoryTree {
     const dir: Tree = [];
     const level = { dir };
 
-    list.forEach((item: PathItem) => {
-      console.log(item)
+    for (const item of list) {
       const paths = item.data.fname.split('/')
       paths.reduce((branch:any, name:string, index:number) => {
         if(!branch[name]) {
@@ -47,7 +46,7 @@ class DirectoryTree {
 
         return branch[name];
       }, level)
-    });
+    }
 
     const tree = new DirectoryTree(dir);
     tree.list = list;
@@ -79,8 +78,7 @@ class DirectoryTree {
       space = space.filter((item: PathItem) => item.data.fname.includes(token))
     }
 
-    const dir = DirectoryTree
-      .fromPathList(space)
+    const dir = DirectoryTree.fromPathList(space)
       .findChildren(query.split(" ")[0])
 
     return new DirectoryTree(dir)

@@ -26,6 +26,7 @@ import { Browser } from "./Browser";
 
 import "./user-library.scss";
 import DirectoryTree from "../../../../utils/browser";
+// import { UploadedFile } from "@fnndsc/chrisapi";
 
 const client = ChrisAPIClient.getClient();
 
@@ -41,8 +42,16 @@ export const UserLibrary = () => {
 
   const fetchUploaded = useCallback(async () => {
     try {
-      const uploads = await client.getUploadedFiles({ limit: 10e6 });
-      setUploaded(DirectoryTree.fromPathList(uploads.getItems()));
+      let params = { limit: 100, offset: 0 };
+      let uploads = await client.getUploadedFiles(params);
+      let items = uploads.getItems();
+
+      while (uploads.hasNextPage) {
+        params = { ...params, offset: params.offset += params.limit }
+        uploads = await client.getUploadedFiles(params)
+        items = [ ...items, ...uploads.getItems() ]
+        setUploaded(DirectoryTree.fromPathList(items));
+      }
     } catch (error) {
       console.error(error);
     }
@@ -50,36 +59,37 @@ export const UserLibrary = () => {
 
   const fetchServices = useCallback(async () => {
     try {
-      // //@ts-ignore
-      // const pacs = await client.getPACSFiles({ limit: 10e6 });
-      // //@ts-ignore
-      // const service = await client.getServiceFiles({ limit: 10e6 });
+      //@ts-ignore
+      const pacs = await client.getPACSFiles({ limit: 10e6 });
+      //@ts-ignore
+      const service = await client.getServiceFiles({ limit: 10e6 });
 
       setServices(
         DirectoryTree.fromPathList([
-          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-1234567/study/series/file_1.jpg"}},
-          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-1234567/study/series/file_2.jpg"}},
-          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-1234567/study/series/file_3.jpg"}},
-          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_4.jpg"}},
-          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_5.jpg"}},
-          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_6.jpg"}},
-          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_7.jpg"}},
-          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-3456789/study/series/file_8.jpg"}},
-          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-3456789/study/series/file_9.jpg"}},
-          { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-3456789/study/series/file_X.jpg"}},
-          { data: {fname: "SERVICES/PACS/Orthanc/Patient-1234567/study/series/file_1.jpg"}},
-          { data: {fname: "SERVICES/PACS/Orthanc/Patient-1234567/study/series/file_2.txt"}},
-          { data: {fname: "SERVICES/PACS/Orthanc/Patient-1234567/study/series/file_3.txt"}},
-          { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_4.txt"}},
-          { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_5.txt"}},
-          { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_6.txt"}},
-          { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_7.txt"}},
-          { data: {fname: "SERVICES/PACS/Orthanc/Patient-3456789/study/series/file_8.txt"}},
-          { data: {fname: "SERVICES/PACS/Orthanc/Patient-4567890/study/series/file_8.txt"}},
-          { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/series/file_9.txt"}},
-          { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/file_X.txt"}},
-          { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/file_Y.txt"}},
-          // ...pacs.getItems(), ...service.getItems()
+          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-1234567/study/series/file_1.jpg"}},
+          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-1234567/study/series/file_2.jpg"}},
+          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-1234567/study/series/file_3.jpg"}},
+          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_4.jpg"}},
+          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_5.jpg"}},
+          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_6.jpg"}},
+          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_7.jpg"}},
+          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-3456789/study/series/file_8.jpg"}},
+          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-3456789/study/series/file_9.jpg"}},
+          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-3456789/study/series/file_X.jpg"}},
+          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-1234567/study/series/file_1.jpg"}},
+          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-1234567/study/series/file_2.txt"}},
+          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-1234567/study/series/file_3.txt"}},
+          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_4.txt"}},
+          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_5.txt"}},
+          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_6.txt"}},
+          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_7.txt"}},
+          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-3456789/study/series/file_8.txt"}},
+          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-4567890/study/series/file_8.txt"}},
+          // { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/series/file_9.txt"}},
+          // { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/file_X.txt"}},
+          // { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/file_Y.txt"}},
+          ...pacs.getItems(), 
+          ...service.getItems(),
         ])
       );
     } catch (error) {
@@ -89,8 +99,8 @@ export const UserLibrary = () => {
 
 
   useEffect(() => {
-    fetchUploaded();
-    fetchServices();
+    fetchUploaded()
+      .then(fetchServices);
   }, [fetchUploaded, fetchServices]);
 
   const UploadedFiles = () => {
@@ -194,12 +204,32 @@ export const UserLibrary = () => {
   }
 
   const route = useHistory().push;
-  const search = new URLSearchParams(useLocation().search);
+  const params = new URLSearchParams(useLocation().search);
+
+  // const [searchResults, setSearchResults] = useState<DirectoryTree>()
+
+  // const search = useCallback(async (query?: string) => {
+  //   const searchSpace = [uploaded, services]
+  //   const _query = params.get("q") || query || ''
+  //   console.log(_query)
+  //   const results = new DirectoryTree([])
+    
+  //   for (const dir of searchSpace) {
+  //     if (dir)
+  //       results.dir = [ 
+  //         ...results.dir, 
+  //         ...((await dir?.searchTree(_query)).dir || [])
+  //       ]
+  //   }
+
+  //   setSearchResults(results);
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [services, uploaded]);
 
   const SearchResults = () => {
     const searchSpace = [uploaded, services]
+    const _query = params.get("q") || ''
 
-    const _query = search.get("q") || ''
     const searchResults = new DirectoryTree([])
     for (const dir of searchSpace) {
       searchResults.dir = [ 
@@ -216,7 +246,7 @@ export const UserLibrary = () => {
         </Title>
       </EmptyState>;
 
-    if (!searchResults.dir.length)
+    if (!searchResults?.dir.length)
       return <EmptyState>
         <EmptyStateIcon variant="container" component={CubesIcon} />
         <Title size="lg" headingLevel="h4">
@@ -288,7 +318,9 @@ export const UserLibrary = () => {
                 isLarge 
                 id="finalize" 
                 variant="primary" 
-                onClick={() => query ? route(`/library/search?q=${query}`) : undefined}
+                onClick={() => {
+                  if (query) route(`/library/search?q=${query}`)
+                }}
               >
                 <SearchIcon/> Search
               </Button>
