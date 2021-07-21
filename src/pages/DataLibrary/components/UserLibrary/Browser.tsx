@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Switch, Route, Link } from 'react-router-dom';
 import {
   Grid,
@@ -13,12 +13,11 @@ import {
   TextInput,
   Modal,
 } from "@patternfly/react-core";
-import { FolderIcon, FileIcon } from '@patternfly/react-icons';
-import DirectoryTree from "../../../../utils/browser";
+import { FolderIcon } from '@patternfly/react-icons';
 import pluralize from 'pluralize';
-import { useState } from 'react';
-import { EyeIcon } from '@patternfly/react-icons';
-import GalleryDicomView from '../../../../components/dicomViewer/GalleryDicomView';
+
+import DirectoryTree from "../../../../utils/browser";
+import FileDetailView from '../../../../components/feed/Preview/FileDetailView';
 
 interface BrowserProps {
   tree: DirectoryTree
@@ -53,7 +52,7 @@ function elipses(str:string, len: number) {
 
 export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserProps) => {
   const [filter, setFilter] = useState<string>();
-  const [viewfiles, setViewFiles] = useState<Array<any>>();
+  const [viewfile, setViewFile] = useState<any>();
 
   const folders = tree.dir
     .filter(({ hasChildren }) => hasChildren)
@@ -109,7 +108,7 @@ export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserPro
           </section>
 
           <Grid hasGutter>
-            { folders.map(({ name, children, hasChildren }) => (
+            { folders.map(({ name, children }) => (
               <GridItem key={name} sm={12} lg={4}>
                 <Card isSelectable>
                   <CardBody>
@@ -119,19 +118,6 @@ export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserPro
                       <SplitItem>
                         <div>{children.length} {pluralize('item', children.length)}</div>
                       </SplitItem>
-                      {
-                        hasChildren && children.filter(({ item }) => !!item).length ? (
-                          <SplitItem>
-                            <EyeIcon style={{ margin: 'auto 0 auto 0.5em' }}
-                              onClick={() => setViewFiles(
-                                children
-                                .filter(({ item }) => !!item)
-                                .map(({ item }) => ({ file: item }))
-                              )} 
-                            />
-                          </SplitItem>
-                        ) : null
-                      }
                     </Split>
                   </CardBody>
                 </Card>
@@ -142,11 +128,13 @@ export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserPro
 
             { files.map(({ name, item }) => (
               <GridItem key={name} sm={12} lg={2}>
-                <Card isSelectable>
+                <Card isSelectable onClick={() => setViewFile(item)}>
                   <CardBody>
-                    <div><FileIcon/></div>
+                    <div style={{ margin: "-1.5em -1.5em 1em -1.5em", maxHeight: "10em", overflow: "hidden" }}>
+                      <FileDetailView selectedFile={item} preview="small" />
+                    </div>
                     <div style={{ overflow: "hidden" }}>
-                      <Button variant="link" style={{ padding: "0" }} onClick={() => setViewFiles([{ file: item }])}>
+                      <Button variant="link" style={{ padding: "0" }}>
                         {elipses(name,20)}
                       </Button>
                     </div>
@@ -157,8 +145,14 @@ export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserPro
             ))}
           </Grid>
 
-          <Modal aria-label="viewer" isOpen={!!viewfiles} onClose={() => setViewFiles(undefined)}>
-            <GalleryDicomView files={viewfiles} />
+          <Modal 
+            title="Preview"
+            aria-label="viewer" 
+            width={'50%'}
+            isOpen={!!viewfile} 
+            onClose={() => setViewFile(undefined)}
+          >
+            <FileDetailView selectedFile={viewfile} preview="large" />
           </Modal>
         </article>
       </Route>
