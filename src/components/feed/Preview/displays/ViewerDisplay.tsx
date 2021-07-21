@@ -8,6 +8,7 @@ import {
   DcmDisplay,
   PdfDisplay,
   NiftiDisplay,
+  XtkDisplay,
 } from "./index";
 
 const components = {
@@ -18,6 +19,7 @@ const components = {
   CatchallDisplay,
   PdfDisplay,
   NiftiDisplay,
+  XtkDisplay,
 };
 
 interface ViewerDisplayProps {
