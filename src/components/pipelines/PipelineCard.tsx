@@ -13,8 +13,8 @@ type PipelineCardProps = {
   Pipeline_name: string;
   Description: string;
   Author: string;
-  Date_created: any;
-  Pipeline_id: number;
+  Date_created: string;
+  Pipeline_id: string;
   props?: any;
 };
 
@@ -31,9 +31,8 @@ const PipelineCard = ({
   return (
     <div {...props}>
       <Card
-        id={Pipeline_id.toString()}
+        key={Pipeline_id}
         isHoverable
-        // onClick={() => history.push(`/pipelines/${Pipeline_id}`)}
       >
         <CardTitle style={{ color: "#042c53", fontSize: "1.2rem" }}>
           {Pipeline_name}
