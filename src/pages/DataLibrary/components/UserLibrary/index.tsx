@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { Link, Route, Switch, useLocation, useHistory } from "react-router-dom";
-import { CubesIcon, UploadIcon, SearchIcon, FolderIcon, FileIcon } from "@patternfly/react-icons";
+import { CubesIcon, UploadIcon, SearchIcon, FileIcon } from "@patternfly/react-icons";
 import {
   Button,
   Card,
@@ -18,15 +18,14 @@ import {
   TextInput,
   Title,
 } from "@patternfly/react-core";
-import pluralize from "pluralize";
+import { UploadedFile } from "@fnndsc/chrisapi";
 
 import Wrapper from "../../../../containers/Layout/PageWrapper";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
-import { Browser } from "./Browser";
+import { Browser, FolderCard } from "./Browser";
 
 import "./user-library.scss";
 import DirectoryTree from "../../../../utils/browser";
-// import { UploadedFile } from "@fnndsc/chrisapi";
 
 const client = ChrisAPIClient.getClient();
 
@@ -42,16 +41,29 @@ export const UserLibrary = () => {
 
   const fetchUploaded = useCallback(async () => {
     try {
-      let params = { limit: 100, offset: 0 };
-      let uploads = await client.getUploadedFiles(params);
-      let items = uploads.getItems();
+      let uploads;
+      let params = { limit: 10e6, offset: 0 };
+      let items: UploadedFile[] = [];
 
-      while (uploads.hasNextPage) {
-        params = { ...params, offset: params.offset += params.limit }
+      do {
         uploads = await client.getUploadedFiles(params)
+        params = { ...params, offset: params.offset += params.limit }
         items = [ ...items, ...uploads.getItems() ]
-        setUploaded(DirectoryTree.fromPathList(items));
-      }
+      } while (uploads.hasNextPage);
+
+      setUploaded(DirectoryTree.fromPathList(items));
+
+      // let params = { limit: 250, offset: 0 };
+      // let uploads = await client.getUploadedFiles(params);
+      // let items = uploads.getItems();
+
+      // while (uploads.hasNextPage) {
+      //   params = { ...params, offset: params.offset += params.limit }
+      //   uploads = await client.getUploadedFiles(params)
+      //   items = [ ...items, ...uploads.getItems() ]
+        
+      //   setUploaded(DirectoryTree.fromPathList(items));
+      // }
     } catch (error) {
       console.error(error);
     }
@@ -97,10 +109,9 @@ export const UserLibrary = () => {
     }
   }, [])
 
-
   useEffect(() => {
-    fetchUploaded()
-      .then(fetchServices);
+    fetchUploaded();//.then(fetchServices);
+    fetchServices();
   }, [fetchUploaded, fetchServices]);
 
   const UploadedFiles = () => {
@@ -109,19 +120,9 @@ export const UserLibrary = () => {
         { uploaded.child('chris').child('uploads').dir
           .filter(({ hasChildren })=> hasChildren)
           .slice(0,6)
-          .map(({ name, children, prefix }) => (
-            <GridItem key={prefix + name} sm={12} lg={4}>
-              <Card isSelectable>
-                <CardBody>
-                  <Split style={{ overflow: "hidden" }}>
-                    <SplitItem style={{ marginRight: "1em" }}><FolderIcon/></SplitItem>
-                    <SplitItem isFilled>
-                      <Link to={`/library/${prefix}/${name}`}>{name}</Link>
-                    </SplitItem>
-                    <SplitItem><div>{children.length} {pluralize('item', children.length)}</div></SplitItem>
-                  </Split>
-                </CardBody>
-              </Card>
+          .map((folder) => (
+            <GridItem key={folder.prefix + folder.name} sm={12} lg={4}>
+              <FolderCard item={folder} />
             </GridItem>
         ))}
       </>
@@ -161,17 +162,9 @@ export const UserLibrary = () => {
       const items = <>
         { services.child('SERVICES').dir
           .filter(({ hasChildren }) => hasChildren)
-          .map(({ name, children, prefix }) => (
-            <GridItem key={prefix + name} sm={12} lg={2}>
-              <Card isSelectable>
-                <CardBody style={{ margin: "1em 0" }}>
-                  <div><CubesIcon style={{ height: "50%" }} /></div>
-                  <div style={{ overflow: "hidden" }}>
-                    <Link to={`/library/SERVICES/${name}`}>{name}</Link>
-                  </div>
-                  <div>{children.length} {pluralize('item', children.length)}</div>
-                </CardBody>
-              </Card>
+          .map((folder) => (
+            <GridItem key={folder.prefix + folder.name} sm={12} lg={4}>
+              <FolderCard item={folder} />
             </GridItem>
         ))}
       </>
@@ -205,26 +198,6 @@ export const UserLibrary = () => {
 
   const route = useHistory().push;
   const params = new URLSearchParams(useLocation().search);
-
-  // const [searchResults, setSearchResults] = useState<DirectoryTree>()
-
-  // const search = useCallback(async (query?: string) => {
-  //   const searchSpace = [uploaded, services]
-  //   const _query = params.get("q") || query || ''
-  //   console.log(_query)
-  //   const results = new DirectoryTree([])
-    
-  //   for (const dir of searchSpace) {
-  //     if (dir)
-  //       results.dir = [ 
-  //         ...results.dir, 
-  //         ...((await dir?.searchTree(_query)).dir || [])
-  //       ]
-  //   }
-
-  //   setSearchResults(results);
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [services, uploaded]);
 
   const SearchResults = () => {
     const searchSpace = [uploaded, services]
@@ -267,6 +240,11 @@ export const UserLibrary = () => {
         </EmptyStatePrimary>
       </EmptyState>
     else 
+      return <Browser
+        tree={searchResults}
+        name="Search"
+        path="/library/search"
+      />
       return <>
       { searchResults
         .dir

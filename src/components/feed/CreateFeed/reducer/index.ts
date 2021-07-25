@@ -6,8 +6,7 @@ import {
 } from "../types";
 import { Key } from "rc-tree/lib/interface";
 import { clearCache } from "../ChrisFileSelect";
-import { MainRouterContextState } from '../../../../routes';
-
+import { State as MainRouterContextState } from '../../../../routes';
 
 import { InputType } from "../../AddNode/types";
 import { PACSSeries } from "../../../../api/pfdcm";
@@ -24,7 +23,7 @@ function getDefaultCreateFeedData(selectedPacsData?: PACSSeries[]): CreateFeedDa
   };
 }
 
-export function getInitialState(routerContextState?: MainRouterContextState) {
+export function getInitialState(routerContextState?: typeof MainRouterContextState) {
   const selectedPacsData = routerContextState?.selectData;
   const pacsDataSelected = !!selectedPacsData?.length;
 
