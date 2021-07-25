@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@fnndsc/chrisapi": "^1.5.0",
+    "@fnndsc/chrisapi": "^1.5.2",
     "@patternfly/patternfly": "^4.87.3",
     "@patternfly/react-core": "^4.115.2",
     "@patternfly/react-icons": "^4.9.10",
