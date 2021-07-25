@@ -12,36 +12,31 @@ import SignUp from "./pages/SignUp/SignUp";
 import WorkflowsPage from "./pages/WorkflowsPage";
 import { PACSSeries } from "./api/pfdcm";
 
-export interface MainRouterContextState {
+interface IState {
   selectData?: PACSSeries[];
 }
 
-interface MainRouterContextActions {
+interface IActions {
   createFeedWithData: (data: PACSSeries[]) => void;
   clearFeedData: () => void;
 }
 
-export const [State, MainRouterContext] = RouterContext<
-  MainRouterContextState, 
-  MainRouterContextActions
->({
-    state: {},
-    actions: {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      createFeedWithData: (d: PACSSeries[]) => { /**/ },
-      clearFeedData: () => { /**/ }
-    }
-  });
+export const [State, MainRouterContext] = RouterContext<IState, IActions>({ 
+  state: {
+    selectData: [] as PACSSeries[]
+  } 
+});
 
 export const MainRouter: React.FC = () => {
   const [state, setState] = useState(State)
   const [route, setRoute] = useState<string>()
 
-  const actions = {
+  const actions: IActions = {
     createFeedWithData: (selectData: PACSSeries[]) => {
       setState({ selectData })
       setRoute("/feeds")
     },
+
     clearFeedData: () => {
       setState({ selectData: undefined });
     }

@@ -3,12 +3,13 @@ import { UploadedFile } from "@fnndsc/chrisapi";
 type PathItem = UploadedFile | any;
 type PathList = PathItem[];
 
-type Branch = {
+export type Branch = {
   name: string, 
   item: any,
   prefix: string,
   hasChildren: boolean,
-  children: Tree
+  children: Tree,
+  creation_date: Date
 };
 
 export type Tree = Branch[];
@@ -40,7 +41,8 @@ class DirectoryTree {
             prefix: paths.slice(0, index).join('/'),
             item: index === paths.length - 1 ? item : null, 
             hasChildren: index < paths.length - 1,
-            children: branch[name].dir 
+            children: branch[name].dir,
+            creation_date: item.data.creation_date
           });
         }
 

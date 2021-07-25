@@ -12,17 +12,23 @@ import {
   Button,
   TextInput,
   Modal,
+  Badge,
+  KebabToggle,
+  CardActions,
+  CardHeader,
+  Dropdown,
+  DropdownItem,
 } from "@patternfly/react-core";
 import { FolderIcon } from '@patternfly/react-icons';
 import pluralize from 'pluralize';
 
-import DirectoryTree from "../../../../utils/browser";
+import DirectoryTree, { Branch } from "../../../../utils/browser";
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView';
 
 interface BrowserProps {
   tree: DirectoryTree
-  path: string
-  name: string
+  path?: string
+  name?: string
 }
 
 export const BrowserBreadcrumbs = ({ path }: { path: string }) => {
@@ -32,13 +38,15 @@ export const BrowserBreadcrumbs = ({ path }: { path: string }) => {
       { pathtokens.map(( token, index ) => {
         if (!token) return null;
 
+        if (index === 1)
+          return <BreadcrumbItem key="library" render={() => <Link to="/library">Library</Link>}/>
+
         if (index === pathtokens.length - 1)
           return <BreadcrumbItem key={token} to="#" isActive><b>{token}</b></BreadcrumbItem>
 
+        const tokenpath = pathtokens.slice(0, index + 1).join('/')
         return (
-          <BreadcrumbItem key={token} to={ pathtokens.slice(0, index + 1).join('/') }>
-            { token }
-          </BreadcrumbItem>
+          <BreadcrumbItem key={token} render={() => <Link to={tokenpath}>{ token }</Link>}/>
         )
       })}
     </Breadcrumb>
@@ -47,7 +55,7 @@ export const BrowserBreadcrumbs = ({ path }: { path: string }) => {
 
 function elipses(str:string, len: number) {
   if (str.length <= len) return str
-  return str.slice(0, len) + "...";
+  return str.slice(0, len - 3) + "...";
 }
 
 export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserProps) => {
@@ -70,6 +78,8 @@ export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserPro
       return true;
     });
 
+  path = path || '/library'
+
   return (
     <Switch>
       <Route path={`${path}/:subfolder`} render={({ match }) => {
@@ -85,15 +95,22 @@ export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserPro
           <section>
             {
               path &&
-              <div style={{ margin: "1em 0" }}>
+              <div style={{ margin: "0 0 1em 0" }}>
                 <BrowserBreadcrumbs path={path} />
               </div>
             }
 
             <Split>
               <SplitItem isFilled>
-                <h2><FolderIcon/> { name }</h2>
-                <h3>{ tree.dir.length } {pluralize('item', tree.dir.length)}</h3>
+                <h2><FolderIcon/> { name }</h2> 
+                <Switch>
+                  <Route exact path="/library/search">
+                    <h3>{ tree.dir.length } {pluralize('match', tree.dir.length)}</h3>
+                  </Route>
+                  <Route>
+                    <h3>{ tree.dir.length } {pluralize('item', tree.dir.length)}</h3>
+                  </Route>
+                </Switch>
               </SplitItem>
 
               <SplitItem>
@@ -108,26 +125,18 @@ export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserPro
           </section>
 
           <Grid hasGutter>
-            { folders.map(({ name, children }) => (
-              <GridItem key={name} sm={12} lg={4}>
-                <Card isSelectable>
-                  <CardBody>
-                    <Split style={{ overflow: "hidden" }}>
-                      <SplitItem style={{ marginRight: "1em" }}><FolderIcon/></SplitItem>
-                      <SplitItem isFilled><Link to={`${path}/${name}`}>{elipses(name,28)}</Link></SplitItem>
-                      <SplitItem>
-                        <div>{children.length} {pluralize('item', children.length)}</div>
-                      </SplitItem>
-                    </Split>
-                  </CardBody>
-                </Card>
+            { folders.map((folder) => (
+              <GridItem key={folder.name} sm={12} lg={4}>
+                <FolderCard item={folder} onSelect={() => {
+                  console.log()
+                }}/>
               </GridItem>
             ))}
 
             { files && <GridItem/> }
 
-            { files.map(({ name, item }) => (
-              <GridItem key={name} sm={12} lg={2}>
+            { files.map(({ name: fname, item }) => (
+              <GridItem key={fname} sm={12} lg={2}>
                 <Card isSelectable onClick={() => setViewFile(item)}>
                   <CardBody>
                     <div style={{ margin: "-1.5em -1.5em 1em -1.5em", maxHeight: "10em", overflow: "hidden" }}>
@@ -135,7 +144,7 @@ export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserPro
                     </div>
                     <div style={{ overflow: "hidden" }}>
                       <Button variant="link" style={{ padding: "0" }}>
-                        {elipses(name,20)}
+                        {elipses(fname,20)}
                       </Button>
                     </div>
                     <div>{ (item.data.fsize/(1024*1024)).toFixed(3) } MB</div>
@@ -159,3 +168,68 @@ export const Browser: React.FC<BrowserProps> = ({ name, tree, path }: BrowserPro
     </Switch>
   )
 }
+
+interface FolderCardProps {
+  item: Branch;
+  onSelect?: () => void;
+}
+
+export const FolderCard = ({ item, onSelect }: FolderCardProps) => {
+  const [dropdown, setDropdown] = useState(false);
+  
+  const toggle = (
+    <KebabToggle 
+      style={{ padding: "0" }} onToggle={setDropdown.bind(FolderCard, !dropdown)} 
+    />
+  )
+
+  const { name, children, prefix, creation_date } = item;
+  return (
+    <Card isSelectable onSelect={onSelect}>
+      <CardHeader>
+        <CardActions>
+          <Dropdown
+            onSelect={() => { /** */ }}
+            toggle={toggle}
+            isOpen={dropdown}
+            isPlain
+            position="right"
+            dropdownItems={[
+              <DropdownItem key="link">
+                <Link to={`/library/${prefix}/${name}`}>View</Link>
+              </DropdownItem>,
+              <DropdownItem key="action" component="button">
+                Create Feed
+              </DropdownItem>,
+              <DropdownItem key="action" component="button">
+                Delete
+              </DropdownItem>
+            ]}
+          />
+        </CardActions>
+
+        <Split style={{ overflow: "hidden" }}>
+          <SplitItem style={{ marginRight: "1em" }}><FolderIcon/></SplitItem>
+          
+          <SplitItem isFilled>
+            <div>
+              <Link to={`/library/${prefix}/${name}`}>{elipses(name,25)}</Link>
+              <Route exact path="/library/search">
+                <Badge style={{ margin: "0 0.5em" }}>
+                  { children.length } {pluralize('match', children.length)}
+                </Badge>
+              </Route>
+            </div>
+
+            <div style={{ fontSize: "0.85em" }}>
+              {children.length} {pluralize('item', children.length)}, {(new Date(creation_date)).toDateString()}
+            </div>
+          </SplitItem>
+        </Split>
+      </CardHeader>
+    </Card>
+  )
+}
+
+
+export default Browser

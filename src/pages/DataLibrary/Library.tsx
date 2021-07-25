@@ -7,7 +7,7 @@ import { Alert, AlertActionLink, AlertGroup, Chip, ChipGroup } from "@patternfly
 import { PACSSeries } from "../../api/pfdcm";
 import UserLibrary from "./components/UserLibrary";
 import PACSLookup from "./components/PACSLookup";
-import ChrisLookup from "./components/ChrisLookup";
+// import ChrisLookup from "./components/ChrisLookup";
 
 export const [State, LibraryContext] = RouterContext({
 	state: {
