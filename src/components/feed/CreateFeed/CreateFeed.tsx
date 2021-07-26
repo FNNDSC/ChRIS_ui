@@ -23,7 +23,7 @@ import { addFeed } from "../../../store/feed/actions";
 import { createFeed, getName } from "./utils/createFeed";
 import { Feed } from "@fnndsc/chrisapi";
 import FinishedStep from "./FinishedStep";
-import addPacsAlert from "./PacsAlert";
+import withSelectionAlert from "./SelectionAlert";
 import { MainRouterContext } from "../../../routes";
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
@@ -211,15 +211,14 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         {
           id: 3,
           name: "Select an FS Plugin",
-          // addPacsAlert is required for all pages, to adjust padding
-          component: addPacsAlert(packs, false),
+          component: withSelectionAlert(packs, false),
           enableNext: selectedPlugin !== undefined,
           canJumpTo: step > 3,
         },
         {
           id: 4,
           name: "Parameter Configuration",
-          component: addPacsAlert(guidedConfig),
+          component: withSelectionAlert(guidedConfig),
           canJumpTo: step > 4,
         },
       ];
@@ -228,13 +227,13 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         {
           id: 3,
           name: "ChRIS File Select",
-          component: addPacsAlert(chrisFileSelect),
+          component: withSelectionAlert(chrisFileSelect),
           canJumpTo: step > 3,
         },
         {
           id: 4,
           name: "Local File Upload",
-          component: addPacsAlert(localFileUpload),
+          component: withSelectionAlert(localFileUpload),
           canJumpTo: step > 4,
         },
       ];
@@ -263,14 +262,14 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     {
       id: 1,
       name: "Basic Information",
-      component: addPacsAlert(basicInformation),
+      component: withSelectionAlert(basicInformation),
       enableNext: !!data.feedName,
       canJumpTo: step > 1,
     },
     {
       id: 2,
       name: "Feed Type Selection",
-      component: addPacsAlert(chooseConfig),
+      component: withSelectionAlert(chooseConfig),
       enableNext: selectedConfig.length > 0,
       canJumpTo: step > 2,
     },
@@ -282,7 +281,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     {
       id: 5,
       name: "Review",
-      component: addPacsAlert(review, false),
+      component: withSelectionAlert(review, false),
       enableNext: enableSave,
       nextButtonText: "Save",
       canJumpTo: step > 5,
@@ -290,7 +289,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     {
       id: 6,
       name: "Finish",
-      component: addPacsAlert(finishedStep, false),
+      component: withSelectionAlert(finishedStep, false),
       canJumpTo: step > 6,
     },
   ];
