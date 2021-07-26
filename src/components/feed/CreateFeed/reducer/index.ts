@@ -11,7 +11,7 @@ import { State as MainRouterContextState } from '../../../../routes';
 import { InputType } from "../../AddNode/types";
 import { PACSSeries } from "../../../../api/pfdcm";
 
-function getDefaultCreateFeedData(selectedPacsData?: PACSSeries[]): CreateFeedData {
+function getDefaultCreateFeedData(selectedData?: PACSSeries[]): CreateFeedData {
   return {
     feedName: "",
     feedDescription: "",
@@ -19,21 +19,19 @@ function getDefaultCreateFeedData(selectedPacsData?: PACSSeries[]): CreateFeedDa
     chrisFiles: [],
     localFiles: [],
     checkedKeys:{},
-    pacsSeries: selectedPacsData || [],
+    pacsSeries: selectedData || [],
   };
 }
 
 export function getInitialState(routerContextState?: typeof MainRouterContextState) {
-  const selectedPacsData = routerContextState?.selectData;
-  const pacsDataSelected = !!selectedPacsData?.length;
+  const selectedData = routerContextState?.selectData;
 
   return {
-    // if pacsdata is selected, the user is navigated directly 
-    // from pacs lookup to create feed wizard
-    wizardOpen: pacsDataSelected,
+    // if data is selected, the user is navigated directly to create feed wizard
+    wizardOpen: !!selectedData?.length,
 
     step: 1,
-    data: getDefaultCreateFeedData(selectedPacsData),
+    data: getDefaultCreateFeedData(selectedData),
     selectedPlugin: undefined,
     selectedConfig: "",
     requiredInput: {},
