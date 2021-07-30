@@ -29,6 +29,8 @@ export interface PFDCMQuery {
   filters: PFDCMFilters | null
 }
 
+const client = new PFDCMClient;
+
 export const PACS = () => {
 	document.title = 'PACS Lookup';
 
@@ -43,15 +45,15 @@ export const PACS = () => {
       let response: PACSPatient[];
       switch (type) {
         case PFDCMQueryTypes.PATIENT:
-          response = await PFDCMClient.queryByPatientName(value, filters);
+          response = await client.queryByPatientName(value, filters);
           break;
 
         case PFDCMQueryTypes.DATE:
-          response = await PFDCMClient.queryByStudyDate(value, filters);
+          response = await client.queryByStudyDate(value, filters);
           break;
 
         case PFDCMQueryTypes.MRN:
-          response = await PFDCMClient.queryByMrn(value, filters);
+          response = await client.queryByMrn(value, filters);
           break;
 
         default:
@@ -78,7 +80,7 @@ export const PACS = () => {
           
           <GridItem/>
 
-          { loading !== undefined ?(
+          { loading !== undefined ? (
               !loading ? (
                 results ? (
                   <>
