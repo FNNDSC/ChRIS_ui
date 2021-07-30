@@ -7,7 +7,11 @@ import { Alert, AlertActionLink, AlertGroup, Chip, ChipGroup } from "@patternfly
 import { PACSSeries } from "../../api/pfdcm";
 import UserLibrary from "./components/UserLibrary";
 import PACSLookup from "./components/PACSLookup";
-// import ChrisLookup from "./components/ChrisLookup";
+import pluralize from "pluralize";
+import { FeedFile, UploadedFile } from "@fnndsc/chrisapi";
+
+export type File = UploadedFile | FeedFile;
+export type Series = File[];
 
 export const [State, LibraryContext] = RouterContext({
 	state: {
@@ -24,6 +28,7 @@ export const Library: React.FC = () => {
 	const router = useContext(MainRouterContext)
 
 	const actions = {
+		isSeriesSelected: (s: PACSSeries) => state.selectData.includes(s),
 		select: (item: PACSSeries | PACSSeries[]) => {
 			if (Array.isArray(item))
 				setState({ selectData: [ ...state.selectData, ...item ] })
@@ -71,11 +76,10 @@ export const Library: React.FC = () => {
 			<AlertGroup isToast>
 				<Alert
 					variant="info"
-					title={`Selected ${state.selectData.length} series.`}
+					title={`Selected ${state.selectData.length} ${pluralize('folder', state.selectData.length)}.`}
 					style={{ width: "100%", marginTop: "3em" }}
 					actionLinks={
 						<React.Fragment>
-							<AlertActionLink onClick={actions.clear.bind(Library, undefined)}>Pull Series</AlertActionLink>
 							<AlertActionLink onClick={actions.createFeedWithSelected}>Create Feed</AlertActionLink>
 							<AlertActionLink onClick={actions.clear.bind(Library, undefined)}>Clear</AlertActionLink>
 						</React.Fragment>

@@ -1,14 +1,7 @@
 import { parseRawDcmData } from "./pfdcm-utils";
-import mockData from "./mock_data";
 import axios, { AxiosRequestConfig } from "axios";
+// import mockData from "./mock_data";
 
-declare const process: {
-  env: {
-    REACT_APP_PFDCM_URL: string;
-  }
-}
-
-type Modality = 'AR' | 'AU' | 'BDUS' | 'BI' | 'BMD' | 'CR' | 'CT' | 'DG' | 'DOC' | 'DX' | 'ECG' | 'EPS' | 'ES' | 'FID' | 'GM' | 'HC' | 'HD' | 'IO' | 'IOL' | 'IVOCT' | 'IVUS' | 'KER' | 'KO' | 'LEN' | 'LS' | 'MG' | 'MR' | 'NM' | 'OAM' | 'OCT' | 'OP' | 'OPM' | 'OPT' | 'OPV' | 'OT' | 'PLAN' | 'PR' | 'PT' | 'PX' | 'REG' | 'RESP' | 'RF' | 'RG' | 'RTDOSE' | 'RTIMAGE' | 'RTPLAN' | 'RTRECORD' | 'RTSTRUCT' | 'SEG' | 'SM' | 'SMR' | 'SR' | 'SRF' | 'TG' | 'US' | 'VA' | 'XA' | 'XC';
 type PatientSex = 'M' | 'F' | 'O';
 type QueryRetrieveLevel = 'STUDY' | 'SERIES' | 'IMG';
 
@@ -16,7 +9,7 @@ export interface PACSStudy {
   accessionNumber: string;
   instanceNumber: string;
   modalitiesInStudy: string;
-  modality: Modality;
+  modality: string;
   numberOfStudyRelatedInstances: number;
   numberOfStudyRelatedSeries: number;
   patientBirthDate: Date;
@@ -38,7 +31,7 @@ export interface PACSSeries {
   accessionNumber: string;
   instanceNumber: string;
   modalitiesInStudy: string;
-  modality: Modality;
+  modality: string;
   numberOfSeriesRelatedInstances: number;
   numberOfStudyRelatedInstances: number;
   numberOfStudyRelatedSeries: number;
@@ -59,60 +52,55 @@ export interface PACSSeries {
 }
 
 export interface PACSPatient {
-  ID: string;
-  name: string;
-  sex: string;
-  birthDate: Date;
+  patientID: string;
+  patientName: string;
+  patientSex: PatientSex;
+  patientBirthDate: Date;
   studies: PACSStudy[];
 }
 
 export interface PFDCMFilters {
-  modality?: Modality;
-  station?: string;
+  accessionNumber?: string;
+  instanceNumber?: string;
+  modality?: string;
+  patientBirthDate?: Date;
+  patientID?: string;
+  patientName?: string;
+  patientSex?: PatientSex;
+  retrieveAETitle?: string;
+  seriesDescription?: string;
+  seriesInstanceUID?: string;
+  studyDate?: Date;
+  studyInstanceUID?: string;
+  uid?: number;
 }
 
+/**
+ * Client API to interact with `pfdcm`
+ */
 class PFDCMClient {
+  readonly url: string;
 
-  private static sortStudiesByPatient(studies: PACSStudy[]): PACSPatient[] {
-    const patientsStudiesMap : { [id: string]: PACSStudy[] } = {}; // map of patient ID : studies
-    const patientsDataMap: { [id: string]: PACSPatient } = {}; // map of patient ID: patient data
-
-    // sort studies by patient ID
-    for (const study of studies) {
-      const processedPatientStudies = patientsStudiesMap[study.patientID] || [];
-      patientsStudiesMap[study.patientID] = [...processedPatientStudies, study];
-      
-      if (!patientsDataMap[study.patientID]) {
-        patientsDataMap[study.patientID] = {
-          ID: study.patientID,
-          name: study.patientName,
-          sex: study.patientSex,
-          birthDate: study.patientBirthDate,
-          studies: []
-        }
-      }
-    }
-
-    // combine sorted studies and patient data
-    for (const patientId of Object.keys(patientsStudiesMap)) {
-      patientsDataMap[patientId] = {
-        ...patientsDataMap[patientId],
-        studies: patientsStudiesMap[patientId]
-      }
-    }
-
-    return Object.values(patientsDataMap);
+  constructor() {
+    this.url = process.env.REACT_APP_PFDCM_URL || String();
   }
 
-  // send request to the /pypx endpoint, used for query and retrieve
-  private static sendPypxRequest(pypxFind: any) {
-    const pfdcmUrl = process.env.REACT_APP_PFDCM_URL;
-    const config: AxiosRequestConfig = {
-      url: `${pfdcmUrl}api/v1/PACS/pypx/`,
-      method: 'POST',
+  /**
+   * Send request to the `/pypx` endpoint, used for query and retrieve
+   * @param query Query Object
+   * @param filters Filters on the Query Obeject
+   * @returns PACS Patient array
+   */
+  private async query(query: any, filters: PFDCMFilters = {}) {
+    // Apply filters
+    query = { ...query, ...filters };
+
+    const RequestConfig: AxiosRequestConfig = {
+      url: `${this.url}api/v1/PACS/pypx/`,
+      method: "POST",
       headers: {
-        accept: 'application/json',
-        'Content-Type': 'application/json'
+        accept: "application/json",
+        contentType: "application/json"
       },
       data: {
         PACSservice: {
@@ -122,7 +110,7 @@ class PFDCMClient {
           "value": "default"
         },
         pypx_find: {
-          ...pypxFind,
+          ...query,
           withFeedBack: false,
           dblogbasepath: "/home/dicom/log",
           json_response: true
@@ -130,19 +118,9 @@ class PFDCMClient {
 
       }
     }
-    return axios(config);
-  }
 
-  private static async queryPacs(query: any, filters: PFDCMFilters) {
-    if (filters.modality) {
-      query.ModalitiesInStudy = filters.modality;
-    }
-    if (filters.station) {
-      query.PerformedStationAETitle = filters.station;
-    }
-
-    try {    
-      const raw = (await this.sendPypxRequest({ ...query, then: '' })).data.pypx
+    try {
+      const raw = (await axios(RequestConfig)).data.pypx
       const studies = parseRawDcmData(raw);
       return this.sortStudiesByPatient(studies);
     } catch (error) {
@@ -150,28 +128,58 @@ class PFDCMClient {
     }
   }
 
-  static queryByMrn(mrn: string, filters: PFDCMFilters = {}): Promise<PACSPatient[]> {
-    return this.queryPacs({ 
-      PatientId: mrn 
-    }, filters);
+  async queryByMrn(PatientId: string, filters: PFDCMFilters = {}) {
+    return this.query({ PatientId }, filters);
   }
 
-  static queryByPatientName(name: string, filters: PFDCMFilters = {}): Promise<PACSPatient[]> {
-    return this.queryPacs({
-      PatientName: name,
-    }, filters);
+  async queryByPatientName(PatientName: string, filters: PFDCMFilters = {}) {
+    return this.query({ PatientName }, filters);
   }
 
-  static async queryByStudyDate(date: Date, filters: PFDCMFilters = {}) {
+  async queryByStudyDate(StudyDate: Date, filters: PFDCMFilters = {}) {
     // date string format: yyyyMMddd (no spaces or dashes)
-    const dateString = date
+    const dateString = StudyDate
       .toISOString()
       .split('T')[0]
       .replace(/-/g, '');
 
-    return this.queryPacs({
-      StudyDate: dateString
-    }, filters);
+    return this.query({ StudyDate: dateString }, filters);
+  }
+
+  /**
+   * Sort PACS Studies into PACS Patients.
+   * @param studies PACS Study array to turn into patient array
+   * @returns PACS Patient array
+   */
+  private sortStudiesByPatient(studies: PACSStudy[]): PACSPatient[] {
+    const patientsStudies : { [id: string]: PACSStudy[] } = {}; // map of patient ID : studies
+    const patients: { [id: string]: PACSPatient } = {}; // map of patient ID: patient data
+
+    // sort studies by patient ID
+    for (const study of studies) {
+      const processedStudies = patientsStudies[study.patientID] || [];
+      patientsStudies[study.patientID] = [ ...processedStudies, study ];
+      
+      if (!patients[study.patientID]) {
+        patients[study.patientID] = {
+          patientID: study.patientID,
+          patientName: study.patientName,
+          patientSex: study.patientSex,
+          patientBirthDate: study.patientBirthDate,
+          studies: []
+        }
+      }
+    }
+
+    // combine sorted studies and patient data
+    for (const patientId of Object.keys(patientsStudies)) {
+      patients[patientId] = {
+        ...patients[patientId],
+        studies: patientsStudies[patientId]
+      }
+    }
+
+    return Object.values(patients);
   }
 }
 
