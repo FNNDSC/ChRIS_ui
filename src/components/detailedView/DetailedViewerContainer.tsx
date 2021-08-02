@@ -3,6 +3,9 @@ import { useTypedSelector } from "../../store/hooks";
 import { Tabs, Tab, Alert } from "@patternfly/react-core";
 import { FileBrowserViewer } from "./displays";
 import "./Viewer.scss";
+import { ExplorerMode } from "../../store/explorer/types";
+import GalleryDicomView from "../dicomViewer/GalleryDicomView";
+import XtkViewer from "./displays/XtkViewer/XtkViewer";
 
 const OutputViewerContainer = () => {
   const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles);
@@ -10,19 +13,33 @@ const OutputViewerContainer = () => {
     (state) => state.instance.selectedPlugin
   );
 
+  const { mode } = useTypedSelector(state => state.explorer)
+
   const [activeTabKey, setActiveTabKey] = React.useState(0);
 
   if (!selectedPlugin || !pluginFiles) {
     return <Alert variant="info" title="Empty Result Set" className="empty" />;
   } else {
     const buildTabs = () => {
-      const tabs = [];
-      tabs.push(
-        <Tab title="Swift Browser" eventKey={0} key={0}>
-          <FileBrowserViewer />
-        </Tab>
-      );
-      return tabs;
+      const explorerModeMap = {
+        [ExplorerMode.SwiftFileBrowser]: (
+          <Tab title="Swift Browser" eventKey={0} key={0}>
+            <FileBrowserViewer />
+          </Tab>
+        ),
+        [ExplorerMode.DicomViewer]: (
+          <Tab title="Image Viewer" eventKey={0} key={0}>
+            <GalleryDicomView />
+          </Tab>
+        ),
+        [ExplorerMode.XtkViewer]: (
+          <Tab title="XTK Viewer" eventKey={0} key={0}>
+            <XtkViewer />
+          </Tab>
+        )
+      }
+      
+      return [explorerModeMap[mode]];
     };
 
     const tabs = buildTabs();
@@ -34,11 +51,13 @@ const OutputViewerContainer = () => {
     };
     return (
       <div className="output-viewer">
-        {
-          <Tabs activeKey={activeTabKey} onSelect={handleTabClick}>
-            {tabs}
-          </Tabs>
-        }
+        <div className="pf-u-px-lg">
+          {
+            <Tabs activeKey={activeTabKey} onSelect={handleTabClick}>
+              {tabs}
+            </Tabs>
+          }
+        </div>
       </div>
     );
   }
