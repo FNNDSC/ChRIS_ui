@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import classNames from "classnames";
 import Moment from "react-moment";
 import { useDispatch } from "react-redux";
@@ -9,6 +9,9 @@ import {
   Grid,
   GridItem,
   Button,
+  DropdownItem,
+  Dropdown,
+  DropdownToggle,
 } from "@patternfly/react-core";
 import {
   DownloadIcon,
@@ -37,6 +40,8 @@ import {
   setSelectedFile,
   setSelectedFolder,
 } from "../../../store/explorer/actions";
+import { PficonDragdropIcon } from "@patternfly/react-icons";
+import { CaretDownIcon } from "@patternfly/react-icons";
 
 function getInitialState(root: DataNode) {
   return {
@@ -52,7 +57,8 @@ const FileBrowser = (props: FileBrowserProps) => {
     selectedFiles,
     downloadAllClick,
     handleFileBrowserToggle,
-    handleFileViewerToggle,
+    handleDicomViewerOpen,
+    handleXtkViewerOpen,
     expandDrawer,
   } = props;
   const [fileBrowserState, setfileBrowserState] =
@@ -217,12 +223,13 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const previewPanel = (
     <>
-      {renderHeaderPanel(
-        handleFileViewerToggle,
-        handleFileBrowserToggle,
-        expandDrawer,
-        fileType
-      )}
+      <HeaderPanel
+        handleFileBrowserOpen={handleFileBrowserToggle}
+        handleDicomViewerOpen={handleDicomViewerOpen}
+        handleXtkViewerOpen={handleXtkViewerOpen}
+        expandDrawer={expandDrawer}
+        fileType={fileType}
+      />
 
       {selectedFile && selectedFile.file && (
         <FileDetailView selectedFile={selectedFile.file} preview="small" />
@@ -323,32 +330,66 @@ const getIcon = (type: string) => {
   }
 };
 
-const renderHeaderPanel = (
-  toggleFileViewer: () => void,
-  toggleFileBrowser: () => void,
+interface HeaderPanelProps {
+  handleDicomViewerOpen: () => void,
+  handleXtkViewerOpen: () => void,
+  handleFileBrowserOpen: () => void,
   expandDrawer: (panel: string) => void,
   fileType?: string
-) => {
+}
+
+const HeaderPanel = (props: HeaderPanelProps) => {
+
+  const { 
+    handleDicomViewerOpen, handleXtkViewerOpen, handleFileBrowserOpen, expandDrawer, fileType 
+  } = props;
+
+  const [showOpenWith, setShowOpenWith] = useState(false);
+  
+  const imageFileTypes = ['dcm', 'png', 'jpg', 'nii', 'gz', 'jpeg'];
+  const xtkFileTypes = ['mgz', 'fsm', 'crv'];
+
   return (
     <div className="header-panel__buttons">
       <div className="header-panel__buttons--toggleViewer">
         <Button
           variant="link"
-          onClick={toggleFileBrowser}
+          onClick={handleFileBrowserOpen}
           icon={<ExpandIcon />}
         >
           Maximize
         </Button>
-        {(fileType === "dcm" ||
-          fileType === "png" ||
-          fileType === "jpg" ||
-          fileType === "nii" ||
-          fileType === "gz" ||
-          fileType === "jpeg") && (
-          <Button variant="link" onClick={toggleFileViewer} icon={<FilmIcon />}>
+        {fileType && imageFileTypes.includes(fileType) && (
+          <Button variant="link" onClick={handleDicomViewerOpen} icon={<FilmIcon />}>
             Open Image Viewer
           </Button>
         )}
+        {fileType && xtkFileTypes.includes(fileType) && (
+          <Button variant="link" onClick={handleXtkViewerOpen} icon={<PficonDragdropIcon />}>
+            Open XKT Viewer
+          </Button>
+        )}
+        <Dropdown 
+          toggle={
+            <DropdownToggle 
+              className="open-with-dropdown"
+              onToggle={open => setShowOpenWith(open)} 
+              toggleIndicator={CaretDownIcon}
+            >
+              Open With
+            </DropdownToggle>
+          }
+          onSelect={() => setShowOpenWith(!showOpenWith)}
+          isOpen={showOpenWith}
+          dropdownItems={[
+            <DropdownItem onClick={handleDicomViewerOpen} key="image">
+              Open with Image Viewer
+            </DropdownItem>,
+            <DropdownItem onClick={handleXtkViewerOpen} key="image">
+              Open with XTK Viewer
+            </DropdownItem>
+          ]}
+        />
       </div>
       <div className="header-panel__buttons--togglePanel">
         <Button
