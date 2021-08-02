@@ -1,10 +1,9 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { Link, Route, Switch, useLocation, useHistory } from "react-router-dom";
-import { CubesIcon, UploadIcon, SearchIcon, FileIcon } from "@patternfly/react-icons";
+import { CubesIcon, UploadIcon, SearchIcon } from "@patternfly/react-icons";
 import {
   Button,
   Card,
-  CardBody,
   EmptyState,
   EmptyStateBody,
   EmptyStateIcon,
@@ -18,7 +17,6 @@ import {
   TextInput,
   Title,
 } from "@patternfly/react-core";
-import { UploadedFile } from "@fnndsc/chrisapi";
 
 import Wrapper from "../../../../containers/Layout/PageWrapper";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
@@ -41,29 +39,22 @@ export const UserLibrary = () => {
 
   const fetchUploaded = useCallback(async () => {
     try {
-      let uploads;
-      let params = { limit: 10e6, offset: 0 };
-      let items: UploadedFile[] = [];
-
-      do {
-        uploads = await client.getUploadedFiles(params)
-        params = { ...params, offset: params.offset += params.limit }
-        items = [ ...items, ...uploads.getItems() ]
-      } while (uploads.hasNextPage);
-
-      setUploaded(DirectoryTree.fromPathList(items));
-
-      // let params = { limit: 250, offset: 0 };
-      // let uploads = await client.getUploadedFiles(params);
+      // const params = { limit: 250, fname_nslashes: "3u" };
+      // const uploads = await client.getUploadedFiles(params);
       // let items = uploads.getItems();
+      // setUploaded(DirectoryTree.fromPathList(uploads.getItems()));
 
-      // while (uploads.hasNextPage) {
-      //   params = { ...params, offset: params.offset += params.limit }
-      //   uploads = await client.getUploadedFiles(params)
-      //   items = [ ...items, ...uploads.getItems() ]
+      let params = { limit: 250, offset: 0, fname_nslashes: "3u" };
+      let uploads = await client.getUploadedFiles(params);
+      let items = uploads.getItems();
+
+      while (uploads.hasNextPage) {
+        params = { ...params, offset: params.offset += params.limit }
+        uploads = await client.getUploadedFiles(params)
+        items = [ ...items, ...uploads.getItems() ]
         
-      //   setUploaded(DirectoryTree.fromPathList(items));
-      // }
+        setUploaded(DirectoryTree.fromPathList(items));
+      }
     } catch (error) {
       console.error(error);
     }
@@ -79,27 +70,34 @@ export const UserLibrary = () => {
       setServices(
         DirectoryTree.fromPathList([
           // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-1234567/study/series/file_1.jpg"}},
-          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-1234567/study/series/file_2.jpg"}},
-          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-1234567/study/series/file_3.jpg"}},
           // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_4.jpg"}},
-          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_5.jpg"}},
-          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_6.jpg"}},
-          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_7.jpg"}},
           // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-3456789/study/series/file_8.jpg"}},
-          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-3456789/study/series/file_9.jpg"}},
-          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-3456789/study/series/file_X.jpg"}},
           // { data: {fname: "SERVICES/PACS/Orthanc/Patient-1234567/study/series/file_1.jpg"}},
-          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-1234567/study/series/file_2.txt"}},
-          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-1234567/study/series/file_3.txt"}},
           // { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_4.txt"}},
-          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_5.txt"}},
-          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_6.txt"}},
-          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_7.txt"}},
           // { data: {fname: "SERVICES/PACS/Orthanc/Patient-3456789/study/series/file_8.txt"}},
           // { data: {fname: "SERVICES/PACS/Orthanc/Patient-4567890/study/series/file_8.txt"}},
           // { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/series/file_9.txt"}},
           // { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/file_X.txt"}},
-          // { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/file_Y.txt"}},
+          ...pacs.getItems(), 
+          ...service.getItems(),
+        ])
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }, [])
+
+  const fetchSearch = useCallback(async (query: string) => {
+    try {
+      // const uploads = await client.getUploadedFiles({ limit: 10e6, fname: query });
+      //@ts-ignore
+      const pacs = await client.getPACSFiles({ limit: 10e6, fname: query });
+      //@ts-ignore
+      const service = await client.getServiceFiles({ limit: 10e6, fname: query });
+
+      // setUploaded(DirectoryTree.fromPathList(uploads.getItems()));
+      setServices(
+        DirectoryTree.fromPathList([
           ...pacs.getItems(), 
           ...service.getItems(),
         ])
@@ -110,7 +108,7 @@ export const UserLibrary = () => {
   }, [])
 
   useEffect(() => {
-    fetchUploaded();//.then(fetchServices);
+    fetchUploaded();
     fetchServices();
   }, [fetchUploaded, fetchServices]);
 
@@ -202,6 +200,7 @@ export const UserLibrary = () => {
   const SearchResults = () => {
     const searchSpace = [uploaded, services]
     const _query = params.get("q") || ''
+    // fetchSearch(_query)
 
     const searchResults = new DirectoryTree([])
     for (const dir of searchSpace) {
@@ -239,37 +238,41 @@ export const UserLibrary = () => {
           </Button>
         </EmptyStatePrimary>
       </EmptyState>
-    else 
-      return <Browser
-        tree={searchResults}
-        name="Search"
-        path="/library/search"
-      />
-      return <>
-      { searchResults
-        .dir
-        .map(({ name, children, hasChildren, item, prefix }) => {
-          if (hasChildren)
-            return <Browser
-              key={prefix + name}
-              name={name}
-              tree={new DirectoryTree(children)}
-              path={`/library/${prefix ? prefix + '/' : ''}${name}`}
-            />
-          else return (
-            <GridItem key={name} sm={12} lg={2}>
-              <Card isSelectable>
-                <CardBody>
-                  <div><FileIcon/></div>
-                  <div style={{ maxWidth: "100%" }}><a href={name}>{name}</a></div>
-                  <div>{ (item.data.fsize/(1024*1024)).toFixed(3) } MB</div>
-                </CardBody>
-              </Card>
-            </GridItem>
-          )
-        })
-      }
-      </>
+     
+    return <Browser
+      tree={searchResults}
+      name="Search"
+      path="/library/search"
+      fetchFiles={async (prefix: string) => {
+        const files = await client.getUploadedFiles({ limit: 10e6, fname: prefix });
+        return DirectoryTree.fileList(files.getItems(), prefix);
+      }}
+    />
+    // return <>
+    // { searchResults
+    //   .dir
+    //   .map(({ name, children, hasChildren, item, prefix }) => {
+    //     if (hasChildren)
+    //       return <Browser
+    //         key={prefix + name}
+    //         name={name}
+    //         tree={new DirectoryTree(children)}
+    //         path={`/library/${prefix ? prefix + '/' : ''}${name}`}
+    //       />
+    //     else return (
+    //       <GridItem key={name} sm={12} lg={2}>
+    //         <Card isSelectable>
+    //           <CardBody>
+    //             <div><FileIcon/></div>
+    //             <div style={{ maxWidth: "100%" }}><a href={name}>{name}</a></div>
+    //             <div>{ (item.data.fsize/(1024*1024)).toFixed(3) } MB</div>
+    //           </CardBody>
+    //         </Card>
+    //       </GridItem>
+    //     )
+    //   })
+    // }
+    // </>
   }
 
   return (
@@ -325,9 +328,37 @@ export const UserLibrary = () => {
             }}
           />
 
+          <Route path="/library/SERVICES" 
+            render={() => {
+              if (!services)
+                return <article>
+                  <EmptyState>
+                    <EmptyStateIcon variant="container" component={Spinner} />
+                  </EmptyState>
+                </article>
+                
+                return <Browser 
+                  name="SERVICES"
+                  path="/library/SERVICES"
+                  tree={services.child('SERVICES')}
+                  fetchFiles={async (prefix: string) => {
+                    //@ts-ignore
+                    const pacs = await client.getPACSFiles({ limit: 10e6, fname: prefix });
+                    //@ts-ignore
+                    const service = await client.getServiceFiles({ limit: 10e6, fname: prefix });
+
+                    return DirectoryTree.fileList([
+                      ...pacs.getItems(), 
+                      ...service.getItems(),
+                    ], prefix);
+                  }}
+                />
+            }} 
+          />
+
           <Route path="/library/:folder" 
             render={({ match }) => {
-              if (!uploaded || !services)
+              if (!uploaded)
                 return <article>
                   <EmptyState>
                     <EmptyStateIcon variant="container" component={Spinner} />
@@ -338,13 +369,11 @@ export const UserLibrary = () => {
                 return <Browser 
                   name={folder}
                   path={`/library/${folder}`} 
-                  tree={(
-                    folder === 'SERVICES' ? services.child(folder) : uploaded.child(folder)
-                    // folder === 'uploads' ? uploaded.child(folder) : (
-                    //   folder === 'SERVICES' ? services.child(folder) : 
-                    //     new DirectoryTree([])
-                    // )
-                  )} 
+                  tree={uploaded.child(folder)}
+                  fetchFiles={async (prefix: string) => {
+                    const files = await client.getUploadedFiles({ limit: 10e6, fname: prefix });
+                    return DirectoryTree.fileList(files.getItems(), prefix);
+                  }}
                 />
             }} 
           />
