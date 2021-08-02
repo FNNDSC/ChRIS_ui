@@ -1,12 +1,12 @@
 import { Reducer } from "redux";
-import { ExplorerActionTypes, IExplorerState } from "./types";
+import { ExplorerActionTypes, ExplorerMode, IExplorerState } from "./types";
 
 
 // Type-safe initialState
 const initialState: IExplorerState = {
   explorer: undefined,
   selectedFile: undefined,
-  viewerMode: false,
+  mode: ExplorerMode.SwiftFileBrowser,
   selectedFolder: undefined,
 };
 
@@ -37,8 +37,8 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
       };
     }
 
-    case ExplorerActionTypes.TOGGLE_VIEWER_MODE: {
-      return { ...state, viewerMode: action.payload };
+    case ExplorerActionTypes.SET_EXPLORER_MODE: {
+      return { ...state, mode: action.payload };
     }
     case ExplorerActionTypes.DESTROY_EXPLORER: {
       return { ...state, ...initialState };
