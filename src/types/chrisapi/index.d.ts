@@ -1813,6 +1813,7 @@ declare module "@fnndsc/chrisapi" {
     color?: string,
   }
   export interface IUploadedFilesSearchParams extends IParams {
+    fname?: string,
     upload_path?: string,
     owner_username?: string
   }

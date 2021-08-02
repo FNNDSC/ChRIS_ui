@@ -8,6 +8,7 @@ export type Branch = {
   item: any,
   prefix: string,
   hasChildren: boolean,
+  isLast: boolean,
   children: Tree,
   creation_date: Date
 };
@@ -15,11 +16,12 @@ export type Branch = {
 export type Tree = Branch[];
 
 class DirectoryTree {
-  dir: Tree = [];
-  list: PathList = [];
+  dir: Tree;
+  list: PathList;
 
-  constructor(dir: Tree) {
+  constructor(dir: Tree, list?: PathList) {
     this.dir = dir;
+    this.list = list || [];
   }
 
   /**
@@ -41,6 +43,7 @@ class DirectoryTree {
             prefix: paths.slice(0, index).join('/'),
             item: index === paths.length - 1 ? item : null, 
             hasChildren: index < paths.length - 1,
+            isLast: index === paths.length - 2,
             children: branch[name].dir,
             creation_date: item.data.creation_date
           });
@@ -50,9 +53,24 @@ class DirectoryTree {
       }, level)
     }
 
-    const tree = new DirectoryTree(dir);
-    tree.list = list;
-    return tree
+    return new DirectoryTree(dir, list);
+  }
+
+  static fileList(list: PathList, prefix: string) {
+    return new DirectoryTree(
+      list.map(item => {
+        const fname = item.data.fname.split('/');
+        return {
+          name: fname[fname.length - 1], 
+          item,
+          prefix,
+          children: [],
+          isLast: true,
+          hasChildren: false,
+          creation_date: item.data.creation_date
+        }
+      })
+    )
   }
 
   /**
@@ -62,8 +80,10 @@ class DirectoryTree {
    */
   child(name: string): DirectoryTree {
     for (const child of this.dir) {
-      if (child.name === name)
-        return new DirectoryTree(child.children);
+      if (child.name === name) {
+        const list = this.list.filter(({ data }) => data.fname.includes(child.prefix))
+        return new DirectoryTree(child.children, list);
+      }
     }
     return new DirectoryTree([]);
   }
@@ -83,7 +103,7 @@ class DirectoryTree {
     const dir = DirectoryTree.fromPathList(space)
       .findChildren(query.split(" ")[0])
 
-    return new DirectoryTree(dir)
+    return new DirectoryTree(dir, space)
   }
 
   /**
@@ -91,9 +111,9 @@ class DirectoryTree {
    * @param query find what
    * @param dir 
    * @param found 
-   * @returns 
+   * @returns Tree
    */
-  private findChildren(query: string, dir = this.dir, found: Tree = []): Tree {
+  findChildren(query: string, dir = this.dir, found: Tree = []): Tree {
     for (const _dir of dir) {
       if (!_dir.hasChildren)
         return []
