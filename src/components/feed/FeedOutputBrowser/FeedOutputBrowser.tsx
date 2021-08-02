@@ -16,8 +16,8 @@ import { CubeIcon } from "@patternfly/react-icons";
 import { Spin, Alert, Tree } from "antd";
 import PluginViewerModal from "../../detailedView/PluginViewerModal";
 import {
+  setExplorerMode,
   setExplorerRequest,
-  toggleViewerMode,
 } from "../../../store/explorer/actions";
 import { getPluginFilesRequest } from "../../../store/resources/actions";
 import FileViewerModel from "../../../api/models/file-viewer.model";
@@ -25,7 +25,7 @@ import { createTreeFromFiles, getPluginName } from "./utils";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { isEmpty } from "lodash";
 import { getFeedTree } from "./data";
-import { DataNode } from "../../../store/explorer/types";
+import { DataNode, ExplorerMode } from "../../../store/explorer/types";
 import { useSafeDispatch } from "../../../utils";
 import "./FeedOutputBrowser.scss";
 
@@ -49,7 +49,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
   );
-  const viewerMode = useTypedSelector((state) => state.explorer.viewerMode);
+  const explorerMode = useTypedSelector((state) => state.explorer.mode);
 
   const { data: plugins, loading } = pluginInstances;
 
@@ -86,14 +86,19 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       setPluginModalOpen(!pluginModalOpen);
     };
 
-    const handleFileViewerOpen = () => {
+    const handleDicomViewerOpen = () => {
       setPluginModalOpen(!pluginModalOpen);
-      dispatch(toggleViewerMode(!viewerMode));
+      dispatch(setExplorerMode(ExplorerMode.DicomViewer));
     };
+
+    const handleXtkViewerOpen = () => {
+      setPluginModalOpen(!pluginModalOpen);
+      dispatch(setExplorerMode(ExplorerMode.XtkViewer));
+    }
 
     const handlePluginModalClose = () => {
       setPluginModalOpen(!pluginModalOpen);
-      dispatch(toggleViewerMode(false));
+      dispatch(setExplorerMode(ExplorerMode.SwiftFileBrowser))
     };
 
     let pluginSidebarTree;
@@ -163,7 +168,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                   root={tree[0]}
                   key={selected.data.id}
                   handleFileBrowserToggle={handleFileBrowserOpen}
-                  handleFileViewerToggle={handleFileViewerOpen}
+                  handleDicomViewerOpen={handleDicomViewerOpen}
+                  handleXtkViewerOpen={handleXtkViewerOpen}
                   downloadAllClick={downloadAllClick}
                   expandDrawer={expandDrawer}
                 />
