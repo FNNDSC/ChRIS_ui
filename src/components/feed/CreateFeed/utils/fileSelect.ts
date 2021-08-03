@@ -2,8 +2,14 @@ import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { EventDataNode } from "rc-tree/lib/interface";
 import { DataBreadcrumb } from "../types";
 import _ from "lodash";
-import { UploadedFile } from "@fnndsc/chrisapi";
+import {
+  FeedFile,
+  UploadedFile,
+  UploadedFileList,
+  Feed,
+} from "@fnndsc/chrisapi";
 import { PACSFile } from "../types";
+import { fetchResource } from "../../../../utils";
 
 export const getNewTreeData = (
   treeData: DataBreadcrumb[],
@@ -99,8 +105,9 @@ export const generateTreeNodes = async (
 
   if (treeNode.title && treeNode.title.toString().indexOf("uploads") === 0) {
     const newBreadcrumb = `${breadcrumb}/${treeNode.title.toString()}`;
-    const files: UploadedFile[] = await getFiles("uploaded");
-
+    const files: UploadedFile[] = (await getFiles(
+      "uploaded"
+    )) as UploadedFile[];
     const filePaths = files.map((file) => file.data.fname.split("uploads")[1]);
     if (filePaths.length > 0)
       buildTree(filePaths, (tree) => {
@@ -113,7 +120,7 @@ export const generateTreeNodes = async (
   if (treeNode.title && treeNode.title.toString().indexOf("PACS") === 0) {
     //@ts-ignore
     const newBreadcrumb = `${treeNode.breadcrumb}`;
-    const files: PACSFile[] = await getFiles("PACS");
+    const files: PACSFile[] = (await getFiles("PACS")) as PACSFile[];
     const filePaths = files.map((file) => file.data.fname.split("PACS")[1]);
     if (filePaths.length > 0) {
       buildTree(filePaths, (tree) => {
@@ -146,13 +153,7 @@ const getFeeds = async () => {
   };
   const client = ChrisAPIClient.getClient();
   try {
-    let feedList = await client.getFeeds(params);
-    let feeds = feedList.getItems();
-    while (feedList.hasNextPage) {
-      params.offset += params.limit;
-      feedList = await client.getFeeds(params);
-      feeds = feeds.concat(feedList.getItems());
-    }
+    const feeds = await fetchResource<Feed>(params, client.getFeeds);
     return feeds;
   } catch (error) {
     throw new Error(`Error while fetching feeds, ${error}`);
@@ -174,17 +175,10 @@ const getFeedFiles = async (id: number) => {
 
   if (feed) {
     try {
-      let fileList = await feed.getFiles(params);
-      const feedFiles = fileList.getItems();
-      while (fileList.hasNextPage) {
-        try {
-          params.offset += params.limit;
-          fileList = await feed.getFiles(params);
-          feedFiles.push(...fileList.getItems());
-        } catch (e) {
-          console.error(e);
-        }
-      }
+      const feedFiles: FeedFile[] = await fetchResource<FeedFile>(
+        params,
+        feed.getFiles
+      );
       return feedFiles;
     } catch (error) {
       throw new Error(`Error while fetching feed files ${error}`);
@@ -203,9 +197,16 @@ const getFiles = async (type: string) => {
     let fileList =
       type == "uploaded"
         ? await client.getUploadedFiles(params)
-        : //@ts-ignore
-          await client.getPACSFiles(params);
-    const files = fileList.getItems();
+        : await client.getPACSFiles(params);
+
+    let files: UploadedFile[] | PACSFile[] = [];
+    if (fileList.getItems()) {
+      if (fileList instanceof UploadedFileList) {
+        files = fileList.getItems() as UploadedFile[];
+      } else {
+        files = fileList.getItems() as PACSFile[];
+      }
+    }
 
     while (fileList.hasNextPage) {
       try {
@@ -213,9 +214,14 @@ const getFiles = async (type: string) => {
         fileList =
           type === "uploaded"
             ? await client.getUploadedFiles(params)
-            : //@ts-ignore
-              await client.getPACSFiles(params);
-        files.push(...fileList.getItems());
+            : await client.getPACSFiles(params);
+        if (fileList.getItems()) {
+          if (fileList instanceof UploadedFileList) {
+            files = fileList.getItems() as UploadedFile[];
+          } else {
+            files = fileList.getItems() as PACSFile[];
+          }
+        }
       } catch (error) {
         throw new Error(
           `Error caused while paginating ${type} files, ${error}`

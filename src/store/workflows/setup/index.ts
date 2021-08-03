@@ -114,6 +114,7 @@ export function* createFeedWithDircopy(
   try {
     const dircopyInstance: PluginInstance = yield client.createPluginInstance(
       dircopy.data.id,
+      //@ts-ignore
       data
     );
     const feed: Feed = yield dircopyInstance.getFeed();

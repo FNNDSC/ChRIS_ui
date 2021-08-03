@@ -1,4 +1,5 @@
-import { PluginInstance } from "@fnndsc/chrisapi";
+import { PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
+import { fetchResource } from "../../../utils";
 
 export interface Datum {
   id?: number;
@@ -69,12 +70,15 @@ export const getTsNodes = async (items: PluginInstance[]) => {
   const parentIds: {
     [key: string]: string[];
   } = {};
+  const params = {
+    limit: 20,
+    offset: 0,
+  };
   for (let i = 0; i < items.length; i++) {
     const instance = items[i];
-    //@ts-ignore
     if (instance.data.plugin_type === "ts") {
-      const parameterList = await instance.getParameters();
-      const parameters = parameterList.getItems();
+      const parameters: PluginParameter[] =
+        await fetchResource<PluginParameter>(params, instance.getParameters);
       parentIds[instance.data.id] = parameters[0].data.value.split(",");
     }
   }

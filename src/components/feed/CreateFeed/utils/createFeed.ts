@@ -2,8 +2,9 @@ import { unpackParametersIntoObject } from "../../AddNode/lib/utils";
 import { CreateFeedData, LocalFile } from "../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
-import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
+import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
 import { uploadFilePaths } from "../../../../store/workflows/utils";
+import { fetchResource } from "../../../../utils";
 
 let cache: number[] = [];
 
@@ -98,18 +99,27 @@ export const createFeedInstanceWithDircopy = async (
 
   try {
     const dircopy = await getPlugin("pl-dircopy");
-    const dircopyInstance = await dircopy.getPluginInstances();
-    await dircopyInstance.post({
-      dir: dirpath.join(","),
-    });
-    // clear global cache
-    cache = [];
-    statusCallback("Creating Plugin Instance");
-    //when the `post` finishes, the dircopyInstances's internal collection is updated
-    const createdInstance = dircopyInstance.getItems()[0];
-    statusCallback("Feed Created");
+    if (dircopy instanceof Plugin) {
+      const dircopyInstance = await dircopy.getPluginInstances();
+      await dircopyInstance.post({
+        dir: dirpath.join(","),
+      });
+      // clear global cache
+      cache = [];
+      statusCallback("Creating Plugin Instance");
+      //when the `post` finishes, the dircopyInstances's internal collection is updated
+      let createdInstance: PluginInstance = {} as PluginInstance;
 
-    feed = await createdInstance.getFeed();
+      if (dircopyInstance.getItems()) {
+        const pluginInstanceList =
+          dircopyInstance.getItems() as PluginInstance[];
+        createdInstance = pluginInstanceList[0];
+      }
+
+      statusCallback("Feed Created");
+
+      feed = await createdInstance.getFeed();
+    }
   } catch (error) {
     errorCallback(error);
   }
@@ -131,22 +141,25 @@ export const createFeedInstanceWithFS = async (
     const pluginName = selectedPlugin.data.name;
     try {
       const fsPlugin = await getPlugin(pluginName);
-      const data = await getRequiredObject(
-        dropdownInput,
-        requiredInput,
-        fsPlugin
-      );
+      if (fsPlugin instanceof Plugin) {
+        const data = await getRequiredObject(
+          dropdownInput,
+          requiredInput,
+          fsPlugin
+        );
 
-      const pluginId = fsPlugin.data.id;
-      statusCallback("Creating Plugin Instance");
-      const client = ChrisAPIClient.getClient();
-      const fsPluginInstance = await client.createPluginInstance(
-        pluginId,
-        data
-      );
+        const pluginId = fsPlugin.data.id;
+        statusCallback("Creating Plugin Instance");
+        const client = ChrisAPIClient.getClient();
+        const fsPluginInstance = await client.createPluginInstance(
+          pluginId,
+          //@ts-ignore
+          data
+        );
 
-      feed = await fsPluginInstance.getFeed();
-      statusCallback("Feed Created");
+        feed = await fsPluginInstance.getFeed();
+        statusCallback("Feed Created");
+      }
     } catch (error) {
       errorCallback(error);
     }
@@ -198,8 +211,11 @@ export const getPlugin = async (pluginName: string) => {
   const pluginList = await client.getPlugins({
     name_exact: pluginName,
   });
-  const plugin = pluginList.getItems();
-  return plugin[0];
+  let plugin: Plugin[] = [];
+  if (pluginList.getItems()) {
+    plugin = pluginList.getItems() as Plugin[];
+    return plugin[0];
+  } else return [];
 };
 
 export const getRequiredObject = async (
@@ -230,19 +246,11 @@ export const getRequiredObject = async (
     ...dropdownUnpacked,
     ...requiredUnpacked,
   };
-
   const paginate = { limit: 30, offset: 0 };
-  let paramList = await plugin.getPluginParameters(paginate);
-  let params = paramList.getItems();
-  while (paramList.hasNextPage) {
-    try {
-      paginate.offset += paginate.limit;
-      paramList = await plugin.getPluginParameters(paginate);
-      params = params.concat(paramList.getItems());
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  const params: PluginParameter[] = await fetchResource<PluginParameter>(
+    paginate,
+    plugin.getPluginParameters
+  );
 
   for (let i = 0; i < params.length; i++) {
     const flag = params[i].data.flag;
@@ -268,7 +276,7 @@ export const getRequiredObject = async (
   if (selected) {
     parameterInput = {
       ...mappedParameter,
-      previous_id: selected.data.id,
+      previous_id: selected.data.id as number,
     };
   } else {
     parameterInput = {
