@@ -128,8 +128,8 @@ class PFDCMClient {
     }
   }
 
-  async queryByMrn(PatientId: string, filters: PFDCMFilters = {}) {
-    return this.query({ PatientId }, filters);
+  async queryByMrn(PatientID: string, filters: PFDCMFilters = {}) {
+    return this.query({ PatientID }, filters);
   }
 
   async queryByPatientName(PatientName: string, filters: PFDCMFilters = {}) {
