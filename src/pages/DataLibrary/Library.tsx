@@ -67,7 +67,6 @@ export const Library: React.FC = () => {
 	return (
 		<>
 		<RouterProvider {...{actions, state, route, setRoute}} context={LibraryContext}>
-			{/* <Route path="/library/chris" component={ChrisLookup} /> */}
 			<Route path="/library/pacs" component={PACSLookup} />
 			<Route path="/library" component={UserLibrary} />
 		</RouterProvider>
