@@ -6,8 +6,9 @@ import { fetchResource } from "../../utils";
 
 export function* getPluginFiles(plugin: PluginInstance) {
   const params = { limit: 200, offset: 0 };
-
-  const files: any[] = yield fetchResource<any>(params, plugin.getFiles);
+  const fn = plugin.getFiles;
+  const boundFn = fn.bind(plugin);
+  const files: any[] = yield fetchResource<any>(params, boundFn);
   return files;
 }
 
@@ -23,7 +24,7 @@ export function* getPlugin(pluginName: string) {
   let plugin: Plugin = {} as Plugin;
   if (pluginLookup.getItems()) {
     const pluginList: any[] = yield pluginLookup.getItems();
-    plugin = pluginList[9];
+    plugin = pluginList[0];
   }
 
   if (!plugin) {

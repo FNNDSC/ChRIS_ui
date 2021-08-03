@@ -7,6 +7,8 @@ export const fetchTagList = async () => {
     limit: 30,
     offset: 0,
   };
-  const resource: Tag[] = await fetchResource<Tag>(params, client.getTags);
+  const fn = client.getTags;
+  const boundFn = fn.bind(client);
+  const resource: Tag[] = await fetchResource<Tag>(params, boundFn);
   return resource;
 };

@@ -247,9 +247,11 @@ export const getRequiredObject = async (
     ...requiredUnpacked,
   };
   const paginate = { limit: 30, offset: 0 };
+  const fn = plugin.getPluginParameters;
+  const boundFn = fn.bind(plugin);
   const params: PluginParameter[] = await fetchResource<PluginParameter>(
     paginate,
-    plugin.getPluginParameters
+    boundFn
   );
 
   for (let i = 0; i < params.length; i++) {
