@@ -14,8 +14,7 @@ const AUTH_TOKEN_KEY = "CHRIS_TOKEN";
  * passed the token, declare process.env variables, etc.
  */
 
-
- class ChrisAPIClient {
+class ChrisAPIClient {
 
   private static client: Client;
   private static isTokenAuthorized: boolean;

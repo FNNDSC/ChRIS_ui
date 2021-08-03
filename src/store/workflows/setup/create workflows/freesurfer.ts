@@ -105,8 +105,10 @@ export function* runFreesurferWorkflow(
       age: +infantAge,
     };
     const plFshackInfant = pluginList["pl-infantfs"];
+   
     plFsHackInstance = yield client.createPluginInstance(
       plFshackInfant.data.id,
+      //@ts-ignore
       data
     );
   }
