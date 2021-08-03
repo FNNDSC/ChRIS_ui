@@ -25,7 +25,7 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
   const boundFn = fn.bind(client);
 
   try {
-    const feeds: Feed[] = yield fetchResource<Feed[]>(params, boundFn);
+    const feeds: Feed[] = yield fetchResource<Feed>(params, boundFn);
     const totalCount = feeds.length;
     const payload = {
       feeds,
