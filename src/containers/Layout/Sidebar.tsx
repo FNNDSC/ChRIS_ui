@@ -49,9 +49,9 @@ const Sidebar: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
         </NavGroup>
 
         <NavGroup title="Analyse">
-          <NavItem itemId="build_feed" isActive={active === "build_feed"}>
+          {/* <NavItem itemId="build_feed" isActive={active === "build_feed"}>
             <Link to="/feeds">Build Feed</Link>
-          </NavItem>
+          </NavItem> */}
 
           <NavItem itemId="feeds" isActive={active === "feeds"}>
             <Link to="/feeds">Feeds List</Link>

@@ -18,18 +18,20 @@ import {
   Title,
 } from "@patternfly/react-core";
 
-import Wrapper from "../../../../containers/Layout/PageWrapper";
+import { UploadedFile, UploadedFileList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
-import { Browser, FolderCard } from "./Browser";
+import { useTypedSelector } from "../../../../store/hooks";
+import Wrapper from "../../../../containers/Layout/PageWrapper";
 
 import "./user-library.scss";
+import { Browser, FolderCard } from "./Browser";
 import DirectoryTree from "../../../../utils/browser";
-import { UploadedFile, UploadedFileList } from "@fnndsc/chrisapi";
 
 const client = ChrisAPIClient.getClient();
 
 export const UserLibrary = () => {
 	document.title = 'My Library';
+  const username = useTypedSelector(state => state.user.username) as string;
 
   const [openUploader, setOpenUploader] = useState(false);
 
@@ -113,37 +115,7 @@ export const UserLibrary = () => {
   }, [fetchUploaded, fetchServices]);
 
   const UploadedFiles = () => {
-    if (uploaded) {
-      const files = <>
-        { uploaded.child('chris').child('uploads').dir
-          .filter(({ hasChildren })=> hasChildren)
-          .slice(0,6)
-          .map((folder) => (
-            <GridItem key={folder.prefix + folder.name} sm={12} lg={4}>
-              <FolderCard item={folder} />
-            </GridItem>
-        ))}
-      </>
-
-      if (uploaded.dir.length)
-        return files
-      else 
-        return (
-          <EmptyState>
-            <EmptyStateIcon variant="container" component={CubesIcon} />
-            <Title size="lg" headingLevel="h4">
-              No Uploaded Studies
-            </Title>
-            <EmptyStateBody>
-              You haven&apos;t uploaded any files yet.
-            </EmptyStateBody>
-            <EmptyStatePrimary>
-              <Button variant="link">Upload</Button>
-            </EmptyStatePrimary>
-          </EmptyState>
-        )
-    }
-    else {
+    if (!uploaded)
       return (
         <EmptyState>
           <EmptyStateIcon variant="container" component={Spinner} />
@@ -152,37 +124,37 @@ export const UserLibrary = () => {
           </Title>
         </EmptyState>
       )
-    }
+
+    if (!uploaded.dir.length)
+      return (
+        <EmptyState>
+          <EmptyStateIcon variant="container" component={CubesIcon} />
+          <Title size="lg" headingLevel="h4">
+            No Uploaded Studies
+          </Title>
+          <EmptyStateBody>
+            You haven&apos;t uploaded any files yet.
+          </EmptyStateBody>
+          <EmptyStatePrimary>
+            <Button variant="link">Upload</Button>
+          </EmptyStatePrimary>
+        </EmptyState>
+      )
+
+    return <>
+      { uploaded.child(username).child('uploads').dir
+        .filter(({ hasChildren })=> hasChildren)
+        .slice(0,6)
+        .map((folder) => (
+          <GridItem key={folder.prefix + folder.name} sm={12} lg={4}>
+            <FolderCard item={folder} />
+          </GridItem>
+      ))}
+    </>
   }
 
   const Services = () => {
-    if (services) {
-      const items = <>
-        { services.child('SERVICES').dir
-          .filter(({ hasChildren }) => hasChildren)
-          .map((folder) => (
-            <GridItem key={folder.prefix + folder.name} sm={12} lg={4}>
-              <FolderCard item={folder} />
-            </GridItem>
-        ))}
-      </>
-
-      if (services.dir.length)
-        return items
-      else 
-        return (
-          <EmptyState>
-            <EmptyStateIcon variant="container" component={CubesIcon} />
-            <Title size="lg" headingLevel="h4">
-              No Services
-            </Title>
-            <EmptyStateBody>
-              You haven&apos;t pulled any series from any services yet. <br />
-            </EmptyStateBody>
-          </EmptyState>
-        )
-    }
-    else {
+    if (!services)
       return (
         <EmptyState>
           <EmptyStateIcon variant="container" component={Spinner} />
@@ -191,7 +163,29 @@ export const UserLibrary = () => {
           </Title>
         </EmptyState>
       )
-    }
+
+    if (!services.dir.length)
+      return (
+        <EmptyState>
+          <EmptyStateIcon variant="container" component={CubesIcon} />
+          <Title size="lg" headingLevel="h4">
+            No Services
+          </Title>
+          <EmptyStateBody>
+            You haven&apos;t pulled any series from any services yet. <br />
+          </EmptyStateBody>
+        </EmptyState>
+      )
+
+    return <>
+      { services.child('SERVICES').dir
+        .filter(({ hasChildren }) => hasChildren)
+        .map((folder) => (
+          <GridItem key={folder.prefix + folder.name} sm={12} lg={4}>
+            <FolderCard item={folder} />
+          </GridItem>
+      ))}
+    </>
   }
 
   const route = useHistory().push;
@@ -401,7 +395,7 @@ export const UserLibrary = () => {
                 <GridItem>
                   <Split>
                     <SplitItem isFilled/>
-                    <SplitItem><Link to="/library/chris/uploads">Show More</Link></SplitItem>
+                    <SplitItem><Link to={`/library/${username}/uploads`}>Show More</Link></SplitItem>
                   </Split>
                 </GridItem>
               </Grid>
