@@ -35,8 +35,8 @@ const ConfigureJoin = ({
           limit: 20,
         });
 
-        const parameters: PluginParameter[] = parametersList.getItems();
-        if (parametersList) setTsParams(parameters);
+        const parameters = parametersList.getItems();
+        if (parameters) setTsParams(parameters as PluginParameter[]);
       }
     }
     fetchTsParameters();

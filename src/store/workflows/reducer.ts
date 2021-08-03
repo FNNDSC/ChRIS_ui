@@ -90,7 +90,6 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
     }
 
     case WorkflowTypes.SET_CURRENT_STEP: {
-      console.log("Action.payload", action.payload);
       return {
         ...state,
         currentStep: action.payload,

@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Form, FormGroup, TextInput, TextArea } from "@patternfly/react-core";
-import { Tag } from "@fnndsc/chrisapi";
 import { Typeahead } from "react-bootstrap-typeahead";
 import { CreateFeedContext } from "./context";
+import { Tag } from "@fnndsc/chrisapi";
 import { Types } from "./types";
 import { fetchTagList } from "./utils/basicInformation";
 
 const BasicInformation: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { feedName, feedDescription, tags } = state.data;
-  const [availableTagsLoaded, setAvailableTagsLoaded] = useState<boolean>(
-    false
-  );
+  const [availableTagsLoaded, setAvailableTagsLoaded] =
+    useState<boolean>(false);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
 
   useEffect(() => {
