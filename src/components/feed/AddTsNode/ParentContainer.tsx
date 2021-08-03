@@ -123,7 +123,7 @@ const GraphNode = (props: GraphNodeProps) => {
       } else {
         try {
           const client = Client.getClient();
-          //@ts-ignore
+
           const node = await client.createPluginInstanceSplit(
             selectedPlugin.data.id,
             splitInput["filter"] as string,
