@@ -141,6 +141,7 @@ export const createFeedInstanceWithFS = async (
     const pluginName = selectedPlugin.data.name;
     try {
       const fsPlugin = await getPlugin(pluginName);
+     
       if (fsPlugin instanceof Plugin) {
         const data = await getRequiredObject(
           dropdownInput,
@@ -151,14 +152,17 @@ export const createFeedInstanceWithFS = async (
         const pluginId = fsPlugin.data.id;
         statusCallback("Creating Plugin Instance");
         const client = ChrisAPIClient.getClient();
-        const fsPluginInstance = await client.createPluginInstance(
-          pluginId,
-          //@ts-ignore
-          data
-        );
-
-        feed = await fsPluginInstance.getFeed();
-        statusCallback("Feed Created");
+        try {
+          const fsPluginInstance = await client.createPluginInstance(
+            pluginId,
+            //@ts-ignore
+            data
+          );
+          feed = await fsPluginInstance.getFeed();
+          statusCallback("Feed Created");
+        } catch (error) {
+          errorCallback(error);
+        }
       }
     } catch (error) {
       errorCallback(error);
