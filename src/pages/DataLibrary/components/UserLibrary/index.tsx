@@ -24,6 +24,7 @@ import { Browser, FolderCard } from "./Browser";
 
 import "./user-library.scss";
 import DirectoryTree from "../../../../utils/browser";
+import { UploadedFile, UploadedFileList } from "@fnndsc/chrisapi";
 
 const client = ChrisAPIClient.getClient();
 
@@ -38,23 +39,19 @@ export const UserLibrary = () => {
   const [query, setQuery] = useState<string>();
 
   const fetchUploaded = useCallback(async () => {
+    const params = { limit: 100, offset: 0, fname_nslashes: "3u" };
+
     try {
-      // const params = { limit: 250, fname_nslashes: "3u" };
-      // const uploads = await client.getUploadedFiles(params);
-      // let items = uploads.getItems();
-      // setUploaded(DirectoryTree.fromPathList(uploads.getItems()));
+      let uploads = new UploadedFileList('', { token: '' });
+      let items: UploadedFile[] = [];
 
-      let params = { limit: 250, offset: 0, fname_nslashes: "3u" };
-      let uploads = await client.getUploadedFiles(params);
-      let items = uploads.getItems();
+      do {
+        uploads = await client.getUploadedFiles(params);
+        items = [ ...items, ...uploads.getItems() ];
+        params.offset = params.offset += params.limit;
 
-      while (uploads.hasNextPage) {
-        params = { ...params, offset: params.offset += params.limit }
-        uploads = await client.getUploadedFiles(params)
-        items = [ ...items, ...uploads.getItems() ]
-        
         setUploaded(DirectoryTree.fromPathList(items));
-      }
+      } while (uploads.hasNextPage);
     } catch (error) {
       console.error(error);
     }
@@ -88,20 +85,23 @@ export const UserLibrary = () => {
   }, [])
 
   const fetchSearch = useCallback(async (query: string) => {
-    try {
-      // const uploads = await client.getUploadedFiles({ limit: 10e6, fname: query });
-      //@ts-ignore
-      const pacs = await client.getPACSFiles({ limit: 10e6, fname: query });
-      //@ts-ignore
-      const service = await client.getServiceFiles({ limit: 10e6, fname: query });
+    const searchParams = { limit: 10e6, fname_icontains: query };
 
-      // setUploaded(DirectoryTree.fromPathList(uploads.getItems()));
-      setServices(
-        DirectoryTree.fromPathList([
-          ...pacs.getItems(), 
-          ...service.getItems(),
-        ])
-      );
+    try {
+      //@ts-ignore
+      const uploads = await client.getUploadedFiles(searchParams);
+      //@ts-ignore
+      const pacs = await client.getPACSFiles(searchParams);
+      //@ts-ignore
+      const services = await client.getServiceFiles(searchParams);
+
+      const results = DirectoryTree.fromPathList([
+        ...uploads.getItems(),
+        ...pacs.getItems(),
+        ...services.getItems(),
+      ]).searchTree(query);
+
+      setSearchResults(results);
     } catch (error) {
       console.error(error);
     }
@@ -197,20 +197,13 @@ export const UserLibrary = () => {
   const route = useHistory().push;
   const params = new URLSearchParams(useLocation().search);
 
+  const [searchResults, setSearchResults] = useState<DirectoryTree>()
+
   const SearchResults = () => {
-    const searchSpace = [uploaded, services]
     const _query = params.get("q") || ''
-    // fetchSearch(_query)
+    fetchSearch(_query)
 
-    const searchResults = new DirectoryTree([])
-    for (const dir of searchSpace) {
-      searchResults.dir = [ 
-        ...searchResults.dir, 
-        ...(dir?.searchTree(_query).dir || [])
-      ]
-    }
-
-    if (!searchSpace.filter(item => !!item).length) 
+    if (!searchResults) 
       return <EmptyState>
         <EmptyStateIcon variant="container" component={Spinner} />
         <Title size="lg" headingLevel="h4">
@@ -218,7 +211,7 @@ export const UserLibrary = () => {
         </Title>
       </EmptyState>;
 
-    if (!searchResults?.dir.length)
+    if (!searchResults.dir.length)
       return <EmptyState>
         <EmptyStateIcon variant="container" component={CubesIcon} />
         <Title size="lg" headingLevel="h4">
@@ -288,7 +281,7 @@ export const UserLibrary = () => {
                 <TextInput type="text" 
                   id="search-value" 
                   placeholder="Search Library" 
-                  value={query || ""}
+                  defaultValue={query || ""}
                   onChange={(value) => setQuery(value)} 
                 />
               </Card>
@@ -300,7 +293,10 @@ export const UserLibrary = () => {
                 id="finalize" 
                 variant="primary" 
                 onClick={() => {
-                  if (query) route(`/library/search?q=${query}`)
+                  if (query) {
+                    setSearchResults(undefined)
+                    route(`/library/search?q=${query}`)
+                  }
                 }}
               >
                 <SearchIcon/> Search
@@ -341,16 +337,16 @@ export const UserLibrary = () => {
                   name="SERVICES"
                   path="/library/SERVICES"
                   tree={services.child('SERVICES')}
-                  fetchFiles={async (prefix: string) => {
+                  fetchFiles={async (fname: string) => {
                     //@ts-ignore
-                    const pacs = await client.getPACSFiles({ limit: 10e6, fname: prefix });
+                    const pacs = await client.getPACSFiles({ limit: 10e6, fname });
                     //@ts-ignore
-                    const service = await client.getServiceFiles({ limit: 10e6, fname: prefix });
+                    const service = await client.getServiceFiles({ limit: 10e6, fname });
 
                     return DirectoryTree.fileList([
                       ...pacs.getItems(), 
                       ...service.getItems(),
-                    ], prefix);
+                    ], fname);
                   }}
                 />
             }} 
@@ -370,9 +366,9 @@ export const UserLibrary = () => {
                   name={folder}
                   path={`/library/${folder}`} 
                   tree={uploaded.child(folder)}
-                  fetchFiles={async (prefix: string) => {
-                    const files = await client.getUploadedFiles({ limit: 10e6, fname: prefix });
-                    return DirectoryTree.fileList(files.getItems(), prefix);
+                  fetchFiles={async (fname: string) => {
+                    const files = await client.getUploadedFiles({ limit: 10e6, fname });
+                    return DirectoryTree.fileList(files.getItems(), fname);
                   }}
                 />
             }} 
