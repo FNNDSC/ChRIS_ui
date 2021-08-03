@@ -52,14 +52,13 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
 
   const [existingStudyFiles, setExistingStudyFiles] = useState<any[]>();
   const getPACSFilesForThisStudy = async (studyUID:string) => {
-    //@ts-ignore
-    const pacs = await client.getPACSFiles({
+    const pacs = (await client.getPACSFiles({
       StudyInstanceUID: studyUID,
-      PatientID: expandedPatient,
+      PatientID: expandedPatient as string,
       limit: 10e6
-    })
+    })).getItems()
 
-    setExistingStudyFiles(pacs.getItems().map(({ data }: any) => data))
+    setExistingStudyFiles(pacs?.map(({ data }: any) => data))
   }
 
   const select = (item: PACSSeries) => {

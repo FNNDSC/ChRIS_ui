@@ -49,7 +49,7 @@ export const UserLibrary = () => {
 
       do {
         uploads = await client.getUploadedFiles(params);
-        items = [ ...items, ...uploads.getItems() ];
+        items = [ ...items, ...(uploads.getItems() || []) ];
         params.offset = params.offset += params.limit;
 
         setUploaded(DirectoryTree.fromPathList(items));
@@ -77,8 +77,8 @@ export const UserLibrary = () => {
           // { data: {fname: "SERVICES/PACS/Orthanc/Patient-4567890/study/series/file_8.txt"}},
           // { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/series/file_9.txt"}},
           // { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/file_X.txt"}},
-          ...pacs.getItems(), 
-          ...service.getItems(),
+          ...(pacs.getItems() || []), 
+          ...(service.getItems() || []),
         ])
       );
     } catch (error) {
@@ -98,9 +98,9 @@ export const UserLibrary = () => {
       const services = await client.getServiceFiles(searchParams);
 
       const results = DirectoryTree.fromPathList([
-        ...uploads.getItems(),
-        ...pacs.getItems(),
-        ...services.getItems(),
+        ...(uploads.getItems() || []),
+        ...(pacs.getItems() || []),
+        ...(services.getItems() || []),
       ]).searchTree(query);
 
       setSearchResults(results);
@@ -232,7 +232,7 @@ export const UserLibrary = () => {
       path="/library/search"
       fetchFiles={async (prefix: string) => {
         const files = await client.getUploadedFiles({ limit: 10e6, fname: prefix });
-        return DirectoryTree.fileList(files.getItems(), prefix);
+        return DirectoryTree.fileList(files.getItems() || [], prefix);
       }}
     />
     // return <>
@@ -338,8 +338,8 @@ export const UserLibrary = () => {
                     const service = await client.getServiceFiles({ limit: 10e6, fname });
 
                     return DirectoryTree.fileList([
-                      ...pacs.getItems(), 
-                      ...service.getItems(),
+                      ...(pacs.getItems() || []),
+                      ...(service.getItems() || []),
                     ], fname);
                   }}
                 />
@@ -362,7 +362,7 @@ export const UserLibrary = () => {
                   tree={uploaded.child(folder)}
                   fetchFiles={async (fname: string) => {
                     const files = await client.getUploadedFiles({ limit: 10e6, fname });
-                    return DirectoryTree.fileList(files.getItems(), fname);
+                    return DirectoryTree.fileList(files.getItems() || [], fname);
                   }}
                 />
             }} 
