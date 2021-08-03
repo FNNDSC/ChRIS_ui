@@ -10,6 +10,7 @@ import {
 } from "./actions";
 import { getPluginInstancesRequest } from "../pluginInstance/actions";
 import { Feed } from "@fnndsc/chrisapi";
+
 import { fetchResource } from "../../utils";
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
@@ -20,9 +21,11 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
     offset,
   };
   const client = ChrisAPIClient.getClient();
+  const fn = client.getFeeds;
+  const boundFn = fn.bind(client);
 
   try {
-    const feeds: Feed[] = yield fetchResource<Feed[]>(params, client.getFeeds);
+    const feeds: Feed[] = yield fetchResource<Feed[]>(params, boundFn);
     const totalCount = feeds.length;
     const payload = {
       feeds,

@@ -152,8 +152,10 @@ const getFeeds = async () => {
     offset: 0,
   };
   const client = ChrisAPIClient.getClient();
+  const fn = client.getFeeds;
+  const boundFn = fn.bind(client);
   try {
-    const feeds = await fetchResource<Feed>(params, client.getFeeds);
+    const feeds = await fetchResource<Feed>(params, boundFn);
     return feeds;
   } catch (error) {
     throw new Error(`Error while fetching feeds, ${error}`);
@@ -175,9 +177,11 @@ const getFeedFiles = async (id: number) => {
 
   if (feed) {
     try {
+      const fn = feed.getFiles;
+      const boundFn = fn.bind(feed);
       const feedFiles: FeedFile[] = await fetchResource<FeedFile>(
         params,
-        feed.getFiles
+        boundFn
       );
       return feedFiles;
     } catch (error) {

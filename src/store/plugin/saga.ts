@@ -14,13 +14,17 @@ function* handleGetParams(action: IActionTypeParam) {
   try {
     const plugin = action.payload;
     const paginate = { limit: 20, offset: 0 };
+    const fn = plugin.getPluginParameters;
+    const boundFn = fn.bind(plugin);
     const params: PluginParameter[] = yield fetchResource<PluginParameter[]>(
       paginate,
-      plugin.getPluginParameters
+      boundFn
     );
+    const computeFn = plugin.getPluginComputeResources;
+    const boundComputeFn = computeFn.bind(plugin);
     const computeEnvs: any[] = yield fetchResource<any>(
       paginate,
-      plugin.getPluginComputeResources
+      boundComputeFn
     );
 
     yield all([

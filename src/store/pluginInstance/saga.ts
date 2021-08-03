@@ -21,8 +21,10 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
   const feed: Feed = action.payload;
   try {
     const params = { limit: 15, offset: 0 };
+    const fn = feed.getPluginInstances;
+    const boundFn = fn.bind(feed);
     const pluginInstances: PluginInstance[] =
-      yield fetchResource<PluginInstance>(params, feed.getPluginInstances);
+      yield fetchResource<PluginInstance>(params, boundFn);
     const selected = pluginInstances[pluginInstances.length - 1];
     const pluginInstanceObj = {
       selected,
