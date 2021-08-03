@@ -1,17 +1,16 @@
 import React from "react";
 import { Dispatch } from "redux";
-import { Wizard, Spinner } from "@patternfly/react-core";
 import { connect } from "react-redux";
-import { ApplicationState } from "../../../store/root/applicationState";
-import Review from "./Review";
-import { addNodeRequest } from "../../../store/pluginInstance/actions";
-import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
-import { Button } from "@patternfly/react-core";
+import { Wizard, Spinner, Button } from "@patternfly/react-core";
 import { PlusCircleIcon } from "@patternfly/react-icons";
-import { getParams } from "../../../store/plugin/actions";
 import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
+import Review from "./Review";
 import BasicConfiguration from "./BasicConfiguration";
+import { addNodeRequest } from "../../../store/pluginInstance/actions";
+import { getParams } from "../../../store/plugin/actions";
+import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
+import { ApplicationState } from "../../../store/root/applicationState";
 import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
 import { handleGetTokens } from "./lib/utils";
 import { getRequiredObject } from "../CreateFeed/utils/createFeed";
@@ -234,12 +233,14 @@ const AddNode: React.FC<AddNodeProps> = ({
 
     try {
       await pluginInstance.post(parameterInput);
-      const node = pluginInstance.getItems()[0];
-      addNode({
-        pluginItem: node,
-        nodes,
-      });
-      resetState();
+      const nodeList = pluginInstance.getItems();
+      if (nodeList) {
+        addNode({
+          pluginItem: nodeList[0],
+          nodes,
+        });
+        resetState();
+      }
     } catch (error) {
       setNodeState({
         ...addNodeState,
@@ -248,7 +249,6 @@ const AddNode: React.FC<AddNodeProps> = ({
     }
   };
 
- 
   const basicConfiguration = selectedPlugin && nodes && (
     <BasicConfiguration
       selectedPlugin={addNodeState.data.plugin}

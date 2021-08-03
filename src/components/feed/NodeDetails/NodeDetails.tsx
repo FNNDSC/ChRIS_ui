@@ -320,8 +320,14 @@ function getCommand(
     value?: string;
   }[] = [];
 
-  const instanceParameters = params.getItems();
-  const pluginParameters = parameters.getItems();
+  let instanceParameters = [];
+  let pluginParameters = [];
+  if (params.getItems()) {
+    instanceParameters = params.getItems() as any[];
+  }
+  if (parameters.getItems()) {
+    pluginParameters = parameters.getItems() as any[];
+  }
 
   for (let i = 0; i < instanceParameters.length; i++) {
     for (let j = 0; j < pluginParameters.length; j++) {
