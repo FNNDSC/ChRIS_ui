@@ -1,6 +1,6 @@
-import { UploadedFile } from "@fnndsc/chrisapi";
+import { FeedFile, PACSFile, ServiceFile, UploadedFile } from "@fnndsc/chrisapi";
 
-type PathItem = UploadedFile | any;
+type PathItem = FeedFile | UploadedFile | ServiceFile | PACSFile;
 type PathList = PathItem[];
 
 export type Branch = {

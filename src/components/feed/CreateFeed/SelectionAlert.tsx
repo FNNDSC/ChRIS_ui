@@ -17,19 +17,20 @@ const SelectionAlertWrap: React.FC<SelectionAlertWrapProps> = ({
 
   const { state } = useContext(CreateFeedContext);
 
-  const { pacsSeries: selected } = state.data;
+  const { selected } = state.data;
 
   const Alert = () => {
     if (showAlert && selected.length > 0)
       return (
         <div className="pacs-alert">
-          Creating feed from {selected.length} PACS series&nbsp;
+          Creating feed from {selected.length} files&nbsp;
           <ChipGroup numChips={2}>
             {
-              selected.map(study => {
+              selected.map(({ data }) => {
                 return (
-                  <Chip isReadOnly key={study.patientID}>
-                    {study.patientName}, {study.modality}, {study.seriesDescription}
+                  <Chip isReadOnly key={data.id}>
+                    {data.fname}
+                    {/* {study.patientName}, {study.modality}, {study.seriesDescription} */}
                   </Chip>
                 )
               })

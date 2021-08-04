@@ -17,10 +17,11 @@ import {
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import Moment from "react-moment";
+import { PACSFile } from "@fnndsc/chrisapi";
 
 import "./pacs-lookup.scss";
 import { PACSPatient, PACSSeries, PACSStudy } from "../../../../api/pfdcm";
-import { LibraryContext } from "../../Library";
+import { LibraryContext, Series } from "../../Library";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 
 interface QueryResultsProps {
@@ -50,22 +51,24 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
     }
   }
 
-  const [existingStudyFiles, setExistingStudyFiles] = useState<any[]>();
+  const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFile[]>();
   const getPACSFilesForThisStudy = async (studyUID:string) => {
-    const pacs = (await client.getPACSFiles({
-      StudyInstanceUID: studyUID,
-      PatientID: expandedPatient as string,
-      limit: 10e6
-    })).getItems()
-
-    setExistingStudyFiles(pacs?.map(({ data }: any) => data))
+    setExistingStudyFiles(
+      (
+        await client.getPACSFiles({
+          StudyInstanceUID: studyUID,
+          PatientID: expandedPatient as string,
+          limit: 10e6,
+        })
+      ).getItems() || []
+    );
   }
 
-  const select = (item: PACSSeries) => {
-    if (!library.state.selectData.includes(item))
-      library.actions.select(item)
+  const select = (items: Series) => {
+    if (!library.actions.isSeriesSelected(items))
+      library.actions.select(items)
     else
-      library.actions.clear(item.seriesInstanceUID)
+      library.actions.clear(items.map(({ data }) => data.fname))
   }
 
   const LatestDate = (dates: Date[]) => {
@@ -153,17 +156,21 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
     const chrisHasSeries = (
       series.numberOfSeriesRelatedInstances === existingStudyFiles?.reduce(
         (count, file) => {
-          if (file.seriesInstanceUID === series.seriesInstanceUID)
+          if (file.data.seriesInstanceUID === series.seriesInstanceUID)
             count++;
           return count;
         }, 
       0)
     );
 
+    const ChrisSeries = existingStudyFiles?.filter(
+      (file) => file.data.seriesInstanceUID === series.seriesInstanceUID
+    ) || [];
+
     return <Card 
       isSelectable={chrisHasSeries}
       isSelected={library.actions.isSeriesSelected(series)}
-      onClick={chrisHasSeries ? select.bind(QueryResults, series) : undefined}
+      onClick={chrisHasSeries ? select.bind(QueryResults, ChrisSeries) : undefined}
     >
       <CardHeader>
         <Split style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
