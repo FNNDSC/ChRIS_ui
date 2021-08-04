@@ -18,7 +18,6 @@ import {
   Title,
 } from "@patternfly/react-core";
 
-import { UploadedFile, UploadedFileList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { useTypedSelector } from "../../../../store/hooks";
 import Wrapper from "../../../../containers/Layout/PageWrapper";
@@ -44,15 +43,17 @@ export const UserLibrary = () => {
     const params = { limit: 100, offset: 0, fname_nslashes: "3u" };
 
     try {
-      let uploads = new UploadedFileList('', { token: '' });
-      let items: UploadedFile[] = [];
+      let uploads = await client.getUploadedFiles(params);
+      let items = uploads.getItems() || [];
 
       do {
-        uploads = await client.getUploadedFiles(params);
-        items = [ ...items, ...(uploads.getItems() || []) ];
+        setUploaded(DirectoryTree.fromPathList(items));
         params.offset = params.offset += params.limit;
 
-        setUploaded(DirectoryTree.fromPathList(items));
+        if (uploads.hasNextPage) {
+          uploads = await client.getUploadedFiles(params);
+          items = [ ...items, ...(uploads.getItems() || []) ];
+        }
       } while (uploads.hasNextPage);
     } catch (error) {
       console.error(error);
@@ -60,27 +61,29 @@ export const UserLibrary = () => {
   }, [])
 
   const fetchServices = useCallback(async () => {
-    try {
-      //@ts-ignore
-      const pacs = await client.getPACSFiles({ limit: 10e6 });
-      //@ts-ignore
-      const service = await client.getServiceFiles({ limit: 10e6 });
+    const params = { limit: 100, offset: 0, fname_nslashes: "5u" };
 
-      setServices(
-        DirectoryTree.fromPathList([
-          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-1234567/study/series/file_1.jpg"}},
-          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-2345678/study/series/file_4.jpg"}},
-          // { data: {fname: "SERVICES/PACS/FNNDSC Fuji/Patient-3456789/study/series/file_8.jpg"}},
-          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-1234567/study/series/file_1.jpg"}},
-          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-2345678/study/series/file_4.txt"}},
-          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-3456789/study/series/file_8.txt"}},
-          // { data: {fname: "SERVICES/PACS/Orthanc/Patient-4567890/study/series/file_8.txt"}},
-          // { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/series/file_9.txt"}},
-          // { data: {fname: "SERVICES/Genomics/Database/Patient-3456789/study/file_X.txt"}},
-          ...(pacs.getItems() || []), 
-          ...(service.getItems() || []),
-        ])
-      );
+    try {
+      let service = await client.getServiceFiles(params);
+      let pacs = await client.getPACSFiles(params);
+      let items = [
+        ...(pacs.getItems() || []), 
+        ...(service.getItems() || []),
+      ];
+
+      do {
+        setServices(DirectoryTree.fromPathList(items));
+        params.offset = params.offset += params.limit;
+
+        if (service.hasNextPage) {
+          service = await client.getServiceFiles(params);
+          items = [ ...items, ...(service.getItems() || []) ];
+        }
+        if (pacs.hasNextPage) {
+          pacs = await client.getPACSFiles(params);
+          items = [ ...items, ...(pacs.getItems() || []) ];
+        }
+      } while (service.hasNextPage || pacs.hasNextPage);
     } catch (error) {
       console.error(error);
     }
@@ -90,11 +93,8 @@ export const UserLibrary = () => {
     const searchParams = { limit: 10e6, fname_icontains: query };
 
     try {
-      //@ts-ignore
       const uploads = await client.getUploadedFiles(searchParams);
-      //@ts-ignore
       const pacs = await client.getPACSFiles(searchParams);
-      //@ts-ignore
       const services = await client.getServiceFiles(searchParams);
 
       const results = DirectoryTree.fromPathList([
@@ -153,7 +153,7 @@ export const UserLibrary = () => {
     </>
   }
 
-  const Services = () => {
+  const ServiceFiles = () => {
     if (!services)
       return (
         <EmptyState>
@@ -189,12 +189,12 @@ export const UserLibrary = () => {
   }
 
   const route = useHistory().push;
-  const params = new URLSearchParams(useLocation().search);
+  const sparams = new URLSearchParams(useLocation().search);
 
   const [searchResults, setSearchResults] = useState<DirectoryTree>()
 
   const SearchResults = () => {
-    const _query = params.get("q") || ''
+    const _query = sparams.get("q") || ''
     fetchSearch(_query)
 
     if (!searchResults) 
@@ -332,9 +332,7 @@ export const UserLibrary = () => {
                   path="/library/SERVICES"
                   tree={services.child('SERVICES')}
                   fetchFiles={async (fname: string) => {
-                    //@ts-ignore
                     const pacs = await client.getPACSFiles({ limit: 10e6, fname });
-                    //@ts-ignore
                     const service = await client.getServiceFiles({ limit: 10e6, fname });
 
                     return DirectoryTree.fileList([
@@ -409,7 +407,7 @@ export const UserLibrary = () => {
               
               <Grid hasGutter>
                 <GridItem/>
-                <Services/>
+                <ServiceFiles/>
               </Grid>
               </section>
           </Route>
