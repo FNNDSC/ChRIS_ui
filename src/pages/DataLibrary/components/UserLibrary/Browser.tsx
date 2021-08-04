@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Switch, Route, Link } from "react-router-dom";
 import {
   Grid,
@@ -34,6 +34,7 @@ import pluralize from "pluralize";
 
 import DirectoryTree, { Branch, Tree } from "../../../../utils/browser";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
+import { LibraryContext, Series, File } from "../../Library";
 
 interface BrowserProps {
   tree: DirectoryTree;
@@ -99,6 +100,24 @@ export const Browser: React.FC<BrowserProps> = ({
     });
 
   path = path || "/library";
+
+  const library = useContext(LibraryContext);
+
+  const select = (items: Series | File) => {
+    if (Array.isArray(items)) {
+      console.log(items.length)
+      if (!library.actions.isSeriesSelected(items))
+        library.actions.select(items)
+      else
+        library.actions.clear(items.map(({ data }) => data.fname))
+    }
+    else {
+      if (!library.actions.isSelected(items))
+        library.actions.select(items)
+      else
+        library.actions.clear(items.data.fname)
+    }
+  }
 
   return (
     <Switch>
@@ -195,12 +214,7 @@ export const Browser: React.FC<BrowserProps> = ({
               <Grid hasGutter>
                 {folders.map((folder) => (
                   <GridItem key={folder.name} sm={12} lg={4}>
-                    <FolderCard
-                      item={folder}
-                      onSelect={() => {
-                        console.log();
-                      }}
-                    />
+                    <FolderCard item={folder} />
                   </GridItem>
                 ))}
 
@@ -212,7 +226,11 @@ export const Browser: React.FC<BrowserProps> = ({
                   })
                   .map(({ name: fname, item }) => (
                     <GridItem key={fname} sm={12} lg={2}>
-                      <Card isSelectable onClick={() => setViewFile(item)}>
+                      <Card
+                        isSelectable
+                        isSelected={library.actions.isSelected(item)}
+                        onClick={select.bind(Browser, item)}
+                      >
                         <CardBody>
                           <div
                             style={{
@@ -227,7 +245,11 @@ export const Browser: React.FC<BrowserProps> = ({
                             />
                           </div>
                           <div style={{ overflow: "hidden" }}>
-                            <Button variant="link" style={{ padding: "0" }}>
+                            <Button
+                              variant="link"
+                              style={{ padding: "0" }}
+                              onClick={() => setViewFile(item)}
+                            >
                               {elipses(fname, 20)}
                             </Button>
                           </div>
@@ -259,10 +281,11 @@ export const Browser: React.FC<BrowserProps> = ({
 
 interface FolderCardProps {
   item: Branch;
+  isSelected?: boolean;
   onSelect?: () => void;
 }
 
-export const FolderCard = ({ item, onSelect }: FolderCardProps) => {
+export const FolderCard = ({ item, onSelect, isSelected }: FolderCardProps) => {
   const [dropdown, setDropdown] = useState(false);
 
   const toggle = (
@@ -274,7 +297,7 @@ export const FolderCard = ({ item, onSelect }: FolderCardProps) => {
 
   const { name, children, prefix, creation_date, isLast } = item;
   return (
-    <Card isSelectable onSelect={onSelect}>
+    <Card isSelectable={!!onSelect} isSelected={isSelected} onClick={onSelect}>
       <CardHeader>
         {isLast && (
           <CardActions>

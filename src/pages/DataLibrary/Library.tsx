@@ -4,18 +4,17 @@ import { RouterContext, RouterProvider } from "../../containers/Routing/RouterCo
 import { MainRouterContext } from "../../routes";
 import { Alert, AlertActionLink, AlertGroup, Chip, ChipGroup } from "@patternfly/react-core";
 
-import { PACSSeries } from "../../api/pfdcm";
 import UserLibrary from "./components/UserLibrary";
 import PACSLookup from "./components/PACSLookup";
 import pluralize from "pluralize";
-import { FeedFile, UploadedFile } from "@fnndsc/chrisapi";
+import { FeedFile, UploadedFile, ServiceFile, PACSFile } from "@fnndsc/chrisapi";
 
-export type File = UploadedFile | FeedFile;
+export type File = FeedFile | UploadedFile | ServiceFile | PACSFile;
 export type Series = File[];
 
 export const [State, LibraryContext] = RouterContext({
 	state: {
-		selectData: [] as PACSSeries[]
+		selectData: [] as Series
 	}
 })
 
@@ -28,8 +27,9 @@ export const Library: React.FC = () => {
 	const router = useContext(MainRouterContext)
 
 	const actions = {
-		isSeriesSelected: (s: PACSSeries) => state.selectData.includes(s),
-		select: (item: PACSSeries | PACSSeries[]) => {
+		isSelected: (s: File) => state.selectData.includes(s),
+		isSeriesSelected: (s: Series) => s.every(f => state.selectData.includes(f)),
+		select: (item: File | Series) => {
 			if (Array.isArray(item))
 				setState({ selectData: [ ...state.selectData, ...item ] })
 			else
@@ -40,9 +40,9 @@ export const Library: React.FC = () => {
 			if (!itemid)
 				setState({ selectData: [] });
 			else {
-				const fselection = (arr: PACSSeries[], find: string) => {
+				const fselection = (arr: Series, find: string) => {
 					for (let i=0; i < arr.length; i++) {
-						if (arr[i].seriesInstanceUID === find) {
+						if (arr[i].data.fname === find) {
 							return arr.slice(0, i).concat(arr.slice(i+1))
 						}
 					}
@@ -75,7 +75,7 @@ export const Library: React.FC = () => {
 			<AlertGroup isToast>
 				<Alert
 					variant="info"
-					title={`Selected ${state.selectData.length} ${pluralize('folder', state.selectData.length)}.`}
+					title={`Selected ${state.selectData.length} ${pluralize('file', state.selectData.length)}.`}
 					style={{ width: "100%", marginTop: "3em" }}
 					actionLinks={
 						<React.Fragment>
@@ -86,9 +86,10 @@ export const Library: React.FC = () => {
 				>
 					<ChipGroup>
 						{
-							state.selectData.map(({ seriesInstanceUID, seriesDescription, patientName, modality }) => (
-								<Chip key={seriesInstanceUID} onClick={actions.clear.bind(Library, seriesInstanceUID)}>
-									{ patientName } [{ modality }] {seriesDescription}
+							state.selectData.map(({ data }) => (
+								<Chip key={data.id} onClick={actions.clear.bind(Library, data.fname)}>
+									{ data.fname.split('/').reverse().shift() }
+									{/* { patientName } [{ modality }] {seriesDescription} */}
 								</Chip>
 							))
 						}

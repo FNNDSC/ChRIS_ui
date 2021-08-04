@@ -8,7 +8,7 @@ const ChooseConfig: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { selectedConfig } = state;
 
-  const fromPacsQuery = !!state.data.pacsSeries.length;
+  const fromSelected = !!state.data.selected.length;
 
   return (
     <div className="local-file-upload">
@@ -17,14 +17,14 @@ const ChooseConfig: React.FC = () => {
       <br />
       <p className="data-configuration__subtitle">
         {
-          fromPacsQuery
-            ? 'Creating feed from PACS files. You may add more files in one of the following ways:'
+          fromSelected
+            ? 'Creating feed from selected files. You may add more files in one of the following ways:'
             : 'You may create the feed in one of the following ways:'
         }
       </p>
       <br />
       {
-        !fromPacsQuery && (
+        !fromSelected && (
           <Radio
             value="fs_plugin"
             isChecked={selectedConfig === "fs_plugin"}

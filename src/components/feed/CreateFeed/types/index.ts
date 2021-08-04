@@ -3,7 +3,7 @@ import { InputState, InputIndex } from "../../AddNode/types";
 import { IUserState } from "../../../../store/user/types";
 import { Feed } from "@fnndsc/chrisapi";
 import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
-import { PACSSeries } from "../../../../api/pfdcm";
+import { Series } from "../../../../pages/DataLibrary/Library";
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -147,7 +147,7 @@ export interface CreateFeedData {
     [key: string]: Key[];
   };
   localFiles: LocalFile[];
-  pacsSeries: PACSSeries[];
+  selected: Series;
 }
 
 export interface CreateFeedState extends InputState {

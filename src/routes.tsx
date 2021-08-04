@@ -7,23 +7,22 @@ import { LogIn } from "./pages/LogIn/Login";
 import { NotFound } from "./pages/NotFound/NotFound";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import FeedsPage from "./pages/Feeds/Feeds";
-import Library from "./pages/DataLibrary/Library";
+import Library, { Series } from "./pages/DataLibrary/Library";
 import SignUp from "./pages/SignUp/SignUp";
 import WorkflowsPage from "./pages/WorkflowsPage";
-import { PACSSeries } from "./api/pfdcm";
 
 interface IState {
-  selectData?: PACSSeries[];
+  selectData?: Series;
 }
 
 interface IActions {
-  createFeedWithData: (data: PACSSeries[]) => void;
+  createFeedWithData: (data: Series) => void;
   clearFeedData: () => void;
 }
 
 export const [State, MainRouterContext] = RouterContext<IState, IActions>({ 
   state: {
-    selectData: [] as PACSSeries[]
+    selectData: [] as Series
   } 
 });
 
@@ -32,7 +31,7 @@ export const MainRouter: React.FC = () => {
   const [route, setRoute] = useState<string>()
 
   const actions: IActions = {
-    createFeedWithData: (selectData: PACSSeries[]) => {
+    createFeedWithData: (selectData: Series) => {
       setState({ selectData })
       setRoute("/feeds")
     },

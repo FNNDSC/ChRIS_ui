@@ -9,9 +9,9 @@ import { clearCache } from "../ChrisFileSelect";
 import { State as MainRouterContextState } from '../../../../routes';
 
 import { InputType } from "../../AddNode/types";
-import { PACSSeries } from "../../../../api/pfdcm";
+import { Series } from "../../../../pages/DataLibrary/Library";
 
-function getDefaultCreateFeedData(selectedData?: PACSSeries[]): CreateFeedData {
+function getDefaultCreateFeedData(selectedData?: Series): CreateFeedData {
   return {
     feedName: "",
     feedDescription: "",
@@ -19,7 +19,7 @@ function getDefaultCreateFeedData(selectedData?: PACSSeries[]): CreateFeedData {
     chrisFiles: [],
     localFiles: [],
     checkedKeys:{},
-    pacsSeries: selectedData || [],
+    selected: selectedData || [],
   };
 }
 
