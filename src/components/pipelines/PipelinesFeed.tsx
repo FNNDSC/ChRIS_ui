@@ -15,18 +15,30 @@ const PipelinesFeed = () => {
 
   useEffect(() => {
     axios
-      .get(`https://store.outreachy.chrisproject.org/api/v1/pipelines/`, {
+      .get(`https://store.outreachy.chrisproject.org/api/v1/pipelines/search`, {
         headers: {
           "Content-Type": "application/vnd.collection+json",
         },
+        params: { name: Search_query },
       })
       .then((response: any) => {
-        return setPipelines(response?.data.results);
+        setPipelines(response?.data.results);
+        console.log("Filtered Pipelines", response.data.count);
+        console.log("query Searched", Search_query);
       })
       .catch((errors) => {
-        console.error(errors);
+        console.error(errors.message);
+        console.log("💩💩💩");
       });
-  }, []);
+  }, [Search_query]);
+
+  const NotFound = () => {
+    return (
+      <p style={{ textAlign: "center" }}>
+        We can&apos;t seem to find your pipeline!!
+      </p>
+    );
+  };
 
   return (
     <PageSection>
@@ -39,12 +51,11 @@ const PipelinesFeed = () => {
             id="search_query"
             name="search_query"
             value={Search_query}
-            onChange={(val) => setSearch_query(val)}
+            onChange={(searchTerm) => setSearch_query(searchTerm)}
           />
         </FormGroup>
       </Form>
       <div className="pipelines">
-        {console.log("Pipelines state", Pipelines)}
         {Pipelines.length > 0 ? (
           Pipelines.map((pipeline: any) => {
             return (
@@ -58,6 +69,8 @@ const PipelinesFeed = () => {
               />
             );
           })
+        ) : Search_query != "" ? (
+          <NotFound />
         ) : (
           <Spinner isSVG />
         )}
