@@ -42,6 +42,7 @@ import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { LibraryContext, Series, File } from "../../Library";
 import { MainRouterContext } from "../../../../routes";
 import { CheckIcon } from "@patternfly/react-icons";
+import GalleryDicomView from "../../../../components/dicomViewer/GalleryDicomView";
 
 interface BrowserProps {
   tree: DirectoryTree;
@@ -99,6 +100,7 @@ export const Browser: React.FC<BrowserProps> = ({
 }: BrowserProps) => {
   const [filter, setFilter] = useState<string>();
   const [viewfile, setViewFile] = useState<any>();
+  const [viewfolder, setViewFolder] = useState<any[]>();
 
   const [files, setFiles] = useState<Tree>();
   const [fpath, setFilesPath] = useState<string>();
@@ -146,6 +148,11 @@ export const Browser: React.FC<BrowserProps> = ({
         break;
         
       case "view":
+        setViewFolder(
+          items.map(({ item }) => ({
+            file: item
+          }))
+        );
         break;
 
       case "select":
@@ -329,6 +336,16 @@ export const Browser: React.FC<BrowserProps> = ({
               >
                 <FileDetailView selectedFile={viewfile} preview="large" />
               </Modal>
+
+              <Modal
+                title="View"
+                aria-label="viewer"
+                width={"50%"}
+                isOpen={!!viewfolder}
+                onClose={() => setViewFolder(undefined)}
+              >
+                <GalleryDicomView files={viewfolder} />
+              </Modal>
             </article>
           );
         }}
@@ -367,6 +384,7 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected }: FolderCard
   }
 
   const { name, children, prefix, creation_date, isLast } = item;
+  const pad = <span style={{ padding: "0 0.25em" }} />;
   return (
     <Card isRounded isHoverable isSelectable isSelected={!!isSelected}>
       <CardHeader>
@@ -380,25 +398,25 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected }: FolderCard
               position="right"
               dropdownItems={[
                 <DropdownItem key="select" onClick={dispatch.bind(FolderCard, "select")}>
-                  <CheckIcon /> Select
+                  <CheckIcon />{ pad } <b>Select</b>
                 </DropdownItem>,
 
                 <DropdownItem key="browse" style={{ color: "var(--pf-global--link--Color)" }}
                   onClick={() => route(`/library/${prefix}/${name}`)}>
-                  <FolderOpenIcon /> <b>Browse</b>
+                  <FolderOpenIcon />{ pad } <b>Browse</b>
                 </DropdownItem>,
 
                 <DropdownItem key="view" component="button" onClick={dispatch.bind(FolderCard, "view")}>
-                  <EyeIcon /> View
+                  <EyeIcon />{ pad } View
                 </DropdownItem>,
 
                 <DropdownItem key="feed" component="button" onClick={dispatch.bind(FolderCard, "feed")}>
-                  <CodeBranchIcon /> Create Feed
+                  <CodeBranchIcon />{ pad } Create Feed
                 </DropdownItem>,
 
                 <DropdownSeparator key="separator" />,
                 <DropdownItem key="delete" component="button">
-                  <TrashIcon/> Delete
+                  <TrashIcon/>{ pad } Delete
                 </DropdownItem>,
               ]}
             />

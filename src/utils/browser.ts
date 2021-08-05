@@ -1,11 +1,11 @@
 import { FeedFile, PACSFile, ServiceFile, UploadedFile } from "@fnndsc/chrisapi";
 
-type PathItem = FeedFile | UploadedFile | ServiceFile | PACSFile;
+type PathItem = FeedFile | UploadedFile | ServiceFile | PACSFile | any;
 type PathList = PathItem[];
 
 export type Branch = {
   name: string; 
-  item: any;
+  item: PathItem;
   path: string;
   prefix: string;
   hasChildren: boolean;
