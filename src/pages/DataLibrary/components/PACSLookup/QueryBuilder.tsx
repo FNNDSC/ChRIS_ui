@@ -37,7 +37,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
   const [toggleAdvanced, setToggleAdvanced] = useState(false);
   const onToggleAdvanced = () => setToggleAdvanced(!toggleAdvanced);
 
-  const handleInput = (value: string) => {
+  const handleInput = (value: any) => {
     setQuery({ ...query, value } as PFDCMQuery);
   }
 
@@ -76,12 +76,15 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
                   function () {
                     switch (query.type) {
                       case PFDCMQueryTypes.DATE:
-                        return <DatePicker id="search-value" placeholder="Study Date (yyyy-MM-dd)" />
+                        return <DatePicker id="search-value" placeholder="Study Date (yyyy-MM-dd)"
+                          dateFormat={(date) => date.toDateString()}
+                          onChange={(_, date) => handleInput(date)}
+                        />
 
                       case PFDCMQueryTypes.PATIENT:
                         return <TextInput type="text" id="search-value" 
                           placeholder="Patient Name" 
-                          onChange={handleInput} 
+                          onChange={(value) => handleInput(value.split(' ').reverse().join('^'))} 
                         />
 
                       case PFDCMQueryTypes.MRN:
