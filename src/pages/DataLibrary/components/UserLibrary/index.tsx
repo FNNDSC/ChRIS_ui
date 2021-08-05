@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState } from "react";
-import { Link, Route, Switch, useLocation, useHistory } from "react-router-dom";
+import { Link, Route, Switch, useHistory } from "react-router-dom";
 import { CubesIcon, UploadIcon, SearchIcon } from "@patternfly/react-icons";
 import {
   Button,
@@ -23,7 +23,7 @@ import { useTypedSelector } from "../../../../store/hooks";
 import Wrapper from "../../../../containers/Layout/PageWrapper";
 
 import "./user-library.scss";
-import { Browser, FolderCard } from "./Browser";
+import Browser from "./Browser";
 import DirectoryTree from "../../../../utils/browser";
 
 const client = ChrisAPIClient.getClient();
@@ -129,9 +129,7 @@ export const UserLibrary = () => {
       return (
         <EmptyState>
           <EmptyStateIcon variant="container" component={CubesIcon} />
-          <Title size="lg" headingLevel="h4">
-            No Uploaded Studies
-          </Title>
+          <Title size="lg" headingLevel="h4">No Uploads</Title>
           <EmptyStateBody>
             You haven&apos;t uploaded any files yet.
           </EmptyStateBody>
@@ -141,16 +139,18 @@ export const UserLibrary = () => {
         </EmptyState>
       )
 
-    return <>
-      { uploaded.child(username).child('uploads').dir
+    return <Browser
+      name="uploads"
+      tree={new DirectoryTree(
+        uploaded.child(username).child('uploads').dir
         .filter(({ hasChildren })=> hasChildren)
         .slice(0,6)
-        .map((folder) => (
-          <GridItem key={folder.prefix + folder.name} sm={12} lg={4}>
-            <FolderCard item={folder} />
-          </GridItem>
-      ))}
-    </>
+      )}
+      fetchFiles={async (prefix: string) => {
+        const files = await client.getUploadedFiles({ limit: 10e6, fname: prefix });
+        return DirectoryTree.fileList(files.getItems() || [], prefix);
+      }}
+    />
   }
 
   const ServiceFiles = () => {
@@ -168,49 +168,58 @@ export const UserLibrary = () => {
       return (
         <EmptyState>
           <EmptyStateIcon variant="container" component={CubesIcon} />
-          <Title size="lg" headingLevel="h4">
-            No Services
-          </Title>
+          <Title size="lg" headingLevel="h4">No Services</Title>
           <EmptyStateBody>
-            You haven&apos;t pulled any series from any services yet. <br />
+            You haven&apos;t pulled from any services yet. <br />
           </EmptyStateBody>
         </EmptyState>
       )
 
-    return <>
-      { services.child('SERVICES').dir
-        .filter(({ hasChildren }) => hasChildren)
-        .map((folder) => (
-          <GridItem key={folder.prefix + folder.name} sm={12} lg={4}>
-            <FolderCard item={folder} />
-          </GridItem>
-      ))}
-    </>
+    return <Browser
+      name="SERVICES"
+      tree={new DirectoryTree(
+        services.child('SERVICES').dir
+        .filter(({ hasChildren })=> hasChildren)
+        .slice(0,6)
+      )}
+      fetchFiles={async (fname: string) => {
+        const pacs = await client.getPACSFiles({ limit: 10e6, fname });
+        const service = await client.getServiceFiles({ limit: 10e6, fname });
+
+        return DirectoryTree.fileList([
+          ...(pacs.getItems() || []),
+          ...(service.getItems() || []),
+        ], fname);
+      }}
+    />
   }
 
-  const route = useHistory().push;
-  const sparams = new URLSearchParams(useLocation().search);
+  const history = useHistory();
+  const route = (path: string) => {
+    if (history.location.pathname !== path)
+      history.push(path)
+  }
+
+  const sparams = new URLSearchParams(history.location.search);
 
   const [searchResults, setSearchResults] = useState<DirectoryTree>()
 
   const SearchResults = () => {
     const _query = sparams.get("q") || ''
-    fetchSearch(_query)
-
-    if (!searchResults) 
+    if (!searchResults) {
+      fetchSearch(_query);
       return <EmptyState>
         <EmptyStateIcon variant="container" component={Spinner} />
         <Title size="lg" headingLevel="h4">
           Searching
         </Title>
       </EmptyState>;
+    }
 
     if (!searchResults.dir.length)
       return <EmptyState>
         <EmptyStateIcon variant="container" component={CubesIcon} />
-        <Title size="lg" headingLevel="h4">
-          No Results
-        </Title>
+        <Title size="lg" headingLevel="h4">No Results</Title>
         <EmptyStateBody>
           Couldn&apos;t find any results for &quot;{_query}&quot;. <br />
         </EmptyStateBody>
@@ -230,10 +239,6 @@ export const UserLibrary = () => {
       tree={searchResults}
       name="Search"
       path="/library/search"
-      fetchFiles={async (prefix: string) => {
-        const files = await client.getUploadedFiles({ limit: 10e6, fname: prefix });
-        return DirectoryTree.fileList(files.getItems() || [], prefix);
-      }}
     />
     // return <>
     // { searchResults
@@ -328,6 +333,7 @@ export const UserLibrary = () => {
                 </article>
                 
                 return <Browser 
+                  withHeader
                   name="SERVICES"
                   path="/library/SERVICES"
                   tree={services.child('SERVICES')}
@@ -355,6 +361,7 @@ export const UserLibrary = () => {
                 
                 const { folder } = match.params;
                 return <Browser 
+                  withHeader
                   name={folder}
                   path={`/library/${folder}`} 
                   tree={uploaded.child(folder)}
@@ -390,12 +397,15 @@ export const UserLibrary = () => {
                 <GridItem/>
                 <UploadedFiles/>
 
-                <GridItem>
-                  <Split>
-                    <SplitItem isFilled/>
-                    <SplitItem><Link to={`/library/${username}/uploads`}>Show More</Link></SplitItem>
-                  </Split>
-                </GridItem>
+                {
+                  (uploaded && uploaded.child(username).child('uploads').dir.length > 6) &&
+                  <GridItem>
+                    <Split>
+                      <SplitItem isFilled/>
+                      <SplitItem><Link to={`/library/${username}/uploads`}>Show More</Link></SplitItem>
+                    </Split>
+                  </GridItem>
+                }
               </Grid>
             </section>
 
@@ -408,6 +418,16 @@ export const UserLibrary = () => {
               <Grid hasGutter>
                 <GridItem/>
                 <ServiceFiles/>
+
+                {
+                  (services && services.child('SERVICES').dir.length > 6) &&
+                  <GridItem>
+                    <Split>
+                      <SplitItem isFilled/>
+                      <SplitItem><Link to="/library/SERVICES">Show More</Link></SplitItem>
+                    </Split>
+                  </GridItem>
+                }
               </Grid>
               </section>
           </Route>

@@ -4,13 +4,14 @@ type PathItem = FeedFile | UploadedFile | ServiceFile | PACSFile;
 type PathList = PathItem[];
 
 export type Branch = {
-  name: string, 
-  item: any,
-  prefix: string,
-  hasChildren: boolean,
-  isLast: boolean,
-  children: Tree,
-  creation_date: Date
+  name: string; 
+  item: any;
+  path: string;
+  prefix: string;
+  hasChildren: boolean;
+  isLast: boolean;
+  children: Tree;
+  creation_date: Date;
 };
 
 export type Tree = Branch[];
@@ -40,6 +41,7 @@ class DirectoryTree {
           branch[name] = { dir: [] }
           branch.dir.push({ 
             name, 
+            path: [...paths.slice(0, index), name].join('/'),
             prefix: paths.slice(0, index).join('/'),
             item: index === paths.length - 1 ? item : null, 
             hasChildren: index < paths.length - 1,
@@ -63,6 +65,7 @@ class DirectoryTree {
         return {
           name: fname[fname.length - 1], 
           item,
+          path: prefix + '/' + fname[fname.length - 1],
           prefix,
           children: [],
           isLast: true,
