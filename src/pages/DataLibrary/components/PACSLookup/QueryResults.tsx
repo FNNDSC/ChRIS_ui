@@ -169,7 +169,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
 
     return <Card 
       isSelectable={chrisHasSeries}
-      isSelected={library.actions.isSeriesSelected(series)}
+      isSelected={library.actions.isSeriesSelected(ChrisSeries)}
       onClick={chrisHasSeries ? select.bind(QueryResults, ChrisSeries) : undefined}
     >
       <CardHeader>

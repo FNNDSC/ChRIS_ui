@@ -136,13 +136,9 @@ class PFDCMClient {
     return this.query({ PatientName }, filters);
   }
 
-  async queryByStudyDate(StudyDate: Date, filters: PFDCMFilters = {}) {
+  async queryByStudyDate(date: Date, filters: PFDCMFilters = {}) {
     // date string format: yyyyMMddd (no spaces or dashes)
-    const dateString = StudyDate
-      .toISOString()
-      .split('T')[0]
-      .replace(/-/g, '');
-
+    const dateString = `${date.getFullYear()}${date.getMonth()}${date.getDate()}`;
     return this.query({ StudyDate: dateString }, filters);
   }
 

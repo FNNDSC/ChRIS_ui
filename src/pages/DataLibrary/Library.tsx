@@ -89,7 +89,6 @@ export const Library: React.FC = () => {
 							state.selectData.map(({ data }) => (
 								<Chip key={data.id} onClick={actions.clear.bind(Library, data.fname)}>
 									{ data.fname.split('/').reverse().shift() }
-									{/* { patientName } [{ modality }] {seriesDescription} */}
 								</Chip>
 							))
 						}
