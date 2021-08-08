@@ -336,7 +336,7 @@ export const Browser: React.FC<BrowserProps> = ({
           { !!viewfolder && <Modal
             title="View"
             aria-label="viewer"
-            width={"50%"}
+            width={"75%"}
             isOpen={!!viewfolder}
             onClose={() => setViewFolder(undefined)}
           >
@@ -368,7 +368,7 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected }: FolderCard
   const toggle = (
     <KebabToggle
       style={{ padding: "0" }}
-      onToggle={setDropdown.bind(FolderCard, !dropdown)}
+      onToggle={() => setDropdown(!dropdown)}
     />
   );
 
@@ -431,10 +431,7 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected }: FolderCard
 
           <SplitItem isFilled>
             <div>
-              { isLast 
-                ? <b style={{ color: "var(--pf-global--link--Color)" }}>{elipses(name, 25)}</b>
-                : <Link to={`/library/${prefix}/${name}`}>{elipses(name, 25)}</Link>
-              }
+            <Link to={`/library/${prefix}/${name}`}>{elipses(name, 25)}</Link>
               <Route exact path="/library/search">
                 <Badge style={{ margin: "0 0.5em" }}>
                   {children.length} {pluralize("match", children.length)}

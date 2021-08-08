@@ -37,7 +37,7 @@ export const MainRouter: React.FC = () => {
     },
 
     clearFeedData: () => {
-      setState({ selectData: undefined });
+      setState({ selectData: [] });
     }
   }
 

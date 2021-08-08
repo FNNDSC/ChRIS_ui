@@ -1,6 +1,6 @@
 import { Chip, ChipGroup } from '@patternfly/react-core';
 import React, { useContext } from 'react';
-import { CreateFeedContext } from './context';
+import { MainRouterContext } from '../../../routes';
 
 /** Wraps step component to add an alert to the top */
 
@@ -14,19 +14,16 @@ interface SelectionAlertWrapProps {
 const SelectionAlertWrap: React.FC<SelectionAlertWrapProps> = ({ 
   showAlert, stepComponent 
 }: SelectionAlertWrapProps) => {
-
-  const { state } = useContext(CreateFeedContext);
-
-  const { selected } = state.data;
+  const { selectData } = useContext(MainRouterContext).state; 
 
   const Alert = () => {
-    if (showAlert && selected.length > 0)
+    if (showAlert && selectData && selectData.length > 0)
       return (
         <div className="pacs-alert">
-          Creating feed from {selected.length} files&nbsp;
+          Creating feed from {selectData.length} files&nbsp;
           <ChipGroup numChips={2}>
             {
-              selected.map(({ data }) => {
+              selectData.map(({ data }) => {
                 return (
                   <Chip isReadOnly key={data.id}>
                     {data.fname}
