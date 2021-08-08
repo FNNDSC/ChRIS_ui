@@ -65,7 +65,7 @@ export const UserLibrary = () => {
 
     try {
       let service = await client.getServiceFiles(params);
-      let pacs = await client.getPACSFiles(params);
+      let pacs = await client.getPACSFiles({ ...params, fname_nslashes: "6u" });
       let items = [
         ...(pacs.getItems() || []), 
         ...(service.getItems() || []),
