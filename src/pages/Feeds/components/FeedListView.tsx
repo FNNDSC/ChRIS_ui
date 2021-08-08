@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import Moment from "react-moment";
 import {
   PageSection,
-  Title,
   Pagination,
   EmptyState,
   EmptyStateBody,
@@ -13,10 +12,23 @@ import {
   Button,
   Grid,
   GridItem,
-  Tooltip
+  Tooltip,
+  Card,
+  CardBody,
+  Split,
+  SplitItem,
+  Badge,
+  Spinner,
+  EmptyStateIcon,
+  Title,
 } from "@patternfly/react-core";
-import { Table, TableHeader, TableBody } from "@patternfly/react-table";
-import { CodeBranchIcon, TrashAltIcon } from "@patternfly/react-icons";
+import {
+  CodeBranchIcon,
+  TrashAltIcon,
+  ExclamationCircleIcon,
+  CubesIcon,
+} from "@patternfly/react-icons";
+import { Feed } from "@fnndsc/chrisapi";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest, deleteFeed } from "../../../store/feed/actions";
@@ -24,11 +36,6 @@ import { IFeedState } from "../../../store/feed/types";
 import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
-import { Feed } from "@fnndsc/chrisapi";
-import {
-  EmptyStateTable,
-  generateTableLoading,
-} from "../../../components/common/emptyTable";
 import { usePaginate } from "../../../components/common/pagination";
 
 interface IPropsFromDispatch {
@@ -74,112 +81,6 @@ const FeedListView: React.FC<AllProps> = ({
     getAllFeeds();
   }, [getAllFeeds]);
 
-  const generateTableRow = (feed: Feed) => {
-    const totalJobsRunning =
-      feed.data.created_jobs +
-      feed.data.registering_jobs +
-      feed.data.scheduled_jobs +
-      feed.data.started_jobs +
-      feed.data.waiting_jobs;
-
-    const name = {
-      title: (
-        <span className="feed-list__name">
-          <CodeBranchIcon />
-          <Link to={`/feeds/${feed.data.id}`}>{feed.data.name}</Link>
-        </span>
-      ),
-    };
-
-    const errorCount = feed.data.errored_jobs + feed.data.cancelled_jobs;
-
-    const created = {
-      title: (
-        <Moment format="DD MMM YYYY , HH:mm">{feed.data.creation_date}</Moment>
-      ),
-    };
-
-    const lastCommit = {
-      title: <Moment fromNow>{feed.data.modification_date}</Moment>,
-    };
-
-    const jobsRunning = {
-      title: <span className="feed-list__count">{totalJobsRunning}</span>,
-    };
-
-    const jobsDone = {
-      title: (
-        <span className="feed-list__count">{feed.data.finished_jobs}</span>
-      ),
-    };
-
-    const jobsErrors = {
-      title: <span className="feed-list__count">{errorCount}</span>,
-    };
-
-    const removeFeed = {
-      title: (
-        <Popover
-          key={feed.data.id}
-          isVisible={feed.data.id === currentId}
-          aria-label="delete-feed"
-          bodyContent={
-            <DeleteFeed
-              key={feed.data.id}
-              feed={feed}
-              onTogglePopover={handleToggle}
-            />
-          }
-          position="bottom"
-          shouldClose={() => setCurrentId("none")}
-        >
-          <Button
-            style={{
-              background: "inherit",
-            }}
-            onClick={() => setCurrentId(feed.data.id)}
-            icon={
-              <Tooltip
-                content={<div>Delete the Feed</div>}
-              >
-                <TrashAltIcon
-                  style={{
-                    color: "#004080 ",
-                  }}
-                />
-              </Tooltip>
-
-            }
-          />
-        </Popover>
-      ),
-    };
-
-    return {
-      cells: [
-        name,
-        created,
-        lastCommit,
-        jobsRunning,
-        jobsDone,
-        jobsErrors,
-        removeFeed,
-      ],
-    };
-  };
-
-  const cells = [
-    "Feed",
-    "Created",
-    "Last Commit",
-    "Jobs Running",
-    "Jobs Done",
-    "Errors",
-    "",
-  ];
-
-  const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
-
   const generatePagination = () => {
     if (!data || !totalFeedsCount) {
       return null;
@@ -210,21 +111,18 @@ const FeedListView: React.FC<AllProps> = ({
     );
   }
   return (
-    <article style={{ maxWidth: "100%" }}>
+    <article>
       <Grid>
         <GridItem>
           <PageSection className="feed-header">
-            <div className="feed-header__split">
-              <Title headingLevel="h1" size="3xl">
-                My Feeds
-                {totalFeedsCount > 0 ? (
-                  <span className="feed-header__count">({totalFeedsCount})</span>
-                ) : null}
-              </Title>
-              <CreateFeedProvider>
-                <CreateFeed />
-              </CreateFeedProvider>
-            </div>
+            <Split>
+              <SplitItem isFilled><h1>My Feeds</h1></SplitItem>
+              <SplitItem>
+                <CreateFeedProvider>
+                  <CreateFeed />
+                </CreateFeedProvider>
+              </SplitItem>
+            </Split>
           </PageSection>
         </GridItem>
         <GridItem>
@@ -236,25 +134,122 @@ const FeedListView: React.FC<AllProps> = ({
               />
               {generatePagination()}
             </div>
-            {(!data && !loading) || (data && data.length === 0) ? (
-              <EmptyStateTable
-                cells={cells}
-                rows={rows}
-                caption="Empty Feed List"
-                title="No Feeds Found"
-                description="Create a Feed by clicking on the 'Create Feed' button"
-              />
-            ) : (
-              <Table
-                variant="compact"
-                aria-label="Data table"
-                cells={cells}
-                rows={rows}
-              >
-                <TableHeader />
-                {loading ? generateTableLoading() : <TableBody />}
-              </Table>
-            )}
+
+            <Grid hasGutter>
+            {
+              (data && !loading) ? (
+                data.map((feed)=> {
+                  const { id, name, modification_date, creation_date, finished_jobs } = feed.data;
+                  const { created_jobs, registering_jobs, scheduled_jobs, started_jobs, waiting_jobs } = feed.data;
+                  const { errored_jobs, cancelled_jobs } = feed.data;
+
+                  const runningJobsCount =
+                    created_jobs +
+                    registering_jobs +
+                    scheduled_jobs +
+                    started_jobs +
+                    waiting_jobs;
+
+                  const errorCount = errored_jobs + cancelled_jobs;
+
+                  return <GridItem key={name}>
+                    <Card isRounded isHoverable>
+                      <CardBody>
+                        <Split>
+                          <SplitItem style={{ marginRight: "0.5em" }}><CodeBranchIcon /></SplitItem>
+                          <SplitItem style={{ minWidth: "25%" }}>
+                            <div>
+                              <Link to={`/feeds/${id}`}>{name}</Link> {
+                                runningJobsCount > 0 &&
+                                <Badge>Running</Badge>
+                              }
+                            </div>
+                            <div style={{ fontSize: "small" }}>
+                              Last commit <Moment fromNow>{modification_date}</Moment>
+                            </div>
+                          </SplitItem>
+
+                          <SplitItem style={{ minWidth: "15%" }}>
+                            <div style={{ color: "grey" }}>
+                              { 
+                                runningJobsCount > 0 
+                                ? <b>{ runningJobsCount } jobs running</b>
+                                : <b>Jobs Completed</b>
+                              }
+                            </div>
+
+                            <div style={{ fontSize: "small" }}>
+                              { finished_jobs } finished of { runningJobsCount + finished_jobs } jobs
+                            </div>
+                          </SplitItem>
+
+                          { errorCount > 0 &&
+                            <SplitItem style={{ margin: "0 1em" }}>
+                              <Tooltip content={`${errored_jobs} errors, ${cancelled_jobs} cancelled`}>
+                                <div style={{ color: "firebrick" }}>
+                                  <ExclamationCircleIcon /> <b>{ errorCount }</b>
+                                </div>
+                              </Tooltip>
+                            </SplitItem>
+                          }
+
+                          <SplitItem isFilled/>
+
+                          <SplitItem style={{ textAlign: "right", fontSize: "small", color: "grey" }}>
+                            <div><b>Created on</b></div>
+                            <div><Moment format="DD MMM, HH:mm">{creation_date}</Moment></div>
+                          </SplitItem>
+
+                          <SplitItem>
+                            <Popover
+                              key={feed.data.id}
+                              isVisible={feed.data.id === currentId}
+                              aria-label="delete-feed"
+                              position="bottom"
+                              shouldClose={() => setCurrentId("none")}
+                              bodyContent={
+                                <DeleteFeed
+                                  key={feed.data.id}
+                                  feed={feed}
+                                  onTogglePopover={handleToggle}
+                                />
+                              }
+                            >
+                              <Button variant="link"
+                                style={{ display: "flex", height: "100%" }}
+                                onClick={() => setCurrentId(feed.data.id)}
+                              >
+                                <Tooltip content="Delete this feed">
+                                  <TrashAltIcon style={{ margin: "auto" }} />
+                                </Tooltip>
+                              </Button>
+                            </Popover>
+                          </SplitItem>
+                        </Split>
+                      </CardBody>
+                    </Card>
+                  </GridItem>
+                })
+              ) :
+              loading ? (
+                <EmptyState>
+                  <EmptyStateIcon variant="container" component={Spinner} />
+                  <Title size="lg" headingLevel="h4">Loading</Title>
+                  <EmptyStateBody>
+                    Fetching your Feeds
+                  </EmptyStateBody>
+                </EmptyState>
+              ) : (
+                <EmptyState>
+                  <EmptyStateIcon variant="container" component={CubesIcon} />
+                  <Title size="lg" headingLevel="h4">No Feeds Found</Title>
+                  <EmptyStateBody>
+                    Create a Feed by clicking on the &apos;Create Feed&apos; button
+                  </EmptyStateBody>
+                </EmptyState>
+              )
+            }
+            </Grid>
           </PageSection>
         </GridItem>
       </Grid>
@@ -296,7 +291,7 @@ function DeleteFeed({
       >
         Yes
       </Button>
-      <Button onClick={() => onTogglePopover("none")}>No</Button>
+      <Button variant="secondary" onClick={() => onTogglePopover("none")}>No</Button>
     </>
   );
 }
