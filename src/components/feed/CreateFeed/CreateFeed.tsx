@@ -360,6 +360,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       <Button
         className="create-feed-button"
         variant="primary"
+        isLarge
         onClick={() => {
           dispatch({
             type: Types.ToggleWizzard,
