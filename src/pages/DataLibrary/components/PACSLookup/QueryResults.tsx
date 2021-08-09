@@ -68,7 +68,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
     if (!library.actions.isSeriesSelected(items))
       library.actions.select(items)
     else
-      library.actions.clear(items.map(({ data }) => data.fname))
+      library.actions.clear(items)
   }
 
   const LatestDate = (dates: Date[]) => {
@@ -163,9 +163,11 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
       0)
     );
 
-    const ChrisSeries = existingStudyFiles?.filter(
-      (file) => file.data.seriesInstanceUID === series.seriesInstanceUID
-    ) || [];
+    const ChrisSeries = (
+      existingStudyFiles?.filter(
+        (file) => file.data.seriesInstanceUID === series.seriesInstanceUID
+      ) || []
+    ).map((file) => file.data.fname);
 
     return <Card 
       isSelectable={chrisHasSeries}

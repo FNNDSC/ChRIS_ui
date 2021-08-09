@@ -7,9 +7,10 @@ import { Alert, AlertActionLink, AlertGroup, Chip, ChipGroup } from "@patternfly
 import UserLibrary from "./components/UserLibrary";
 import PACSLookup from "./components/PACSLookup";
 import pluralize from "pluralize";
-import { FeedFile, UploadedFile, ServiceFile, PACSFile } from "@fnndsc/chrisapi";
+// import { FeedFile, UploadedFile, ServiceFile, PACSFile } from "@fnndsc/chrisapi";
 
-export type File = FeedFile | UploadedFile | ServiceFile | PACSFile;
+// export type File = FeedFile | UploadedFile | ServiceFile | PACSFile;
+export type File = string;
 export type Series = File[];
 
 export const [State, LibraryContext] = RouterContext({
@@ -36,13 +37,13 @@ export const Library: React.FC = () => {
 				setState({ selectData: [ ...state.selectData, item ] })
 		},
 		
-		clear: (itemid?: string | Array<string>) => {
+		clear: (itemid?: File | Series) => {
 			if (!itemid)
 				setState({ selectData: [] });
 			else {
 				const fselection = (arr: Series, find: string) => {
 					for (let i=0; i < arr.length; i++) {
-						if (arr[i].data.fname === find) {
+						if (arr[i] === find) {
 							return arr.slice(0, i).concat(arr.slice(i+1))
 						}
 					}
@@ -86,9 +87,9 @@ export const Library: React.FC = () => {
 				>
 					<ChipGroup>
 						{
-							state.selectData.map(({ data }) => (
-								<Chip key={data.id} onClick={actions.clear.bind(Library, data.fname)}>
-									{ data.fname.split('/').reverse().shift() }
+							state.selectData.map((fname) => (
+								<Chip key={fname} onClick={actions.clear.bind(Library, fname)}>
+									{ fname.split('/').reverse().shift() }
 								</Chip>
 							))
 						}

@@ -122,29 +122,29 @@ export const Browser: React.FC<BrowserProps> = ({
       if (!library.actions.isSeriesSelected(items))
         library.actions.select(items)
       else
-        library.actions.clear(items.map(({ data }) => data.fname))
+        library.actions.clear(items)
     }
     else {
       if (!library.actions.isSelected(items))
         library.actions.select(items)
       else
-        library.actions.clear(items.data.fname)
+        library.actions.clear(items)
     }
   }
 
-  const fetchFolderItems = async (action: FolderActions, item: Branch): Promise<void> => {
+  const fetchFolderItems = async (then: FolderActions, folder: Branch): Promise<void> => {
     if (!fetchFiles) return
 
-    setFilesPath(item.path);
+    setFilesPath(folder.path);
     setFiles(undefined);
 
-    const _files = (await fetchFiles(item.path)).dir
+    const _files = (await fetchFiles(folder.path)).dir
     const items = _files?.filter(({ item }) => !!item) || [];
     setFiles(_files);
 
-    switch (action) {
+    switch (then) {
       case "feed":
-        router.actions.createFeedWithData(items.map(({ item }) => item));
+        router.actions.createFeedWithData([ folder.path ]);
         break;
         
       case "view":

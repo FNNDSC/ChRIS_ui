@@ -23,7 +23,7 @@ function getDefaultCreateFeedData(selectedData?: Series): CreateFeedData {
   };
 
   if (selectedData && !!selectedData.length) {
-    initData.chrisFiles = selectedData.map(({ data }) => data.fname);
+    initData.chrisFiles = selectedData; //.map(({ data }) => data.fname);
     initData.isDataSelected = true;
   }
 
