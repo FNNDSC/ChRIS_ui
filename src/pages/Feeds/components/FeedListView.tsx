@@ -153,7 +153,7 @@ const FeedListView: React.FC<AllProps> = ({
                   const errorCount = errored_jobs + cancelled_jobs;
 
                   return <GridItem key={name}>
-                    <Card isRounded isHoverable>
+                    <Card isRounded isHoverable isCompact>
                       <CardBody>
                         <Split>
                           <SplitItem style={{ marginRight: "0.5em" }}><CodeBranchIcon /></SplitItem>
