@@ -16,12 +16,18 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import Wrapper from "../../../containers/Layout/PageWrapper";
 import axios from "axios";
+import ForceGraph3D, {
+  NodeObject,
+  ForceGraphMethods,
+} from "react-force-graph-3d";
 
 const Pipeline = () => {
   const { id }: any = useParams();
   const [copied, setCopied] = useState(false);
   const [timer, setTimer] = useState<any>(null);
   const [pipeline, setPipeline] = useState<any>({});
+  const [pipings, setPipings] = useState<any>([]);
+  const [selectedNode, setselectedNode] = useState(0);
 
   const blob = new Blob([JSON.stringify(pipeline)], {
     type: "application/json",
@@ -29,14 +35,31 @@ const Pipeline = () => {
 
   useEffect(() => {
     axios
-      .get(`https://store.outreachy.chrisproject.org/api/v1/pipelines/${id}`, {
+      .get(`https://store.outreachy.chrisproject.org/api/v1/pipelines/${id}/`, {
         headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
+          "Content-Type": "application/vnd.collection+json",
         },
       })
-      .then((response) => {
-        return setPipeline(response);
+      .then((response: any) => {
+        setPipeline(response.data);
+      })
+      .catch((errors) => {
+        console.error(errors);
+      });
+  }, [id]);
+
+  useEffect(() => {
+    axios
+      .get(
+        `https://store.outreachy.chrisproject.org/api/v1/pipelines/1/pipings/`,
+        {
+          headers: {
+            "Content-Type": "application/vnd.collection+json",
+          },
+        }
+      )
+      .then((response: any) => {
+        setPipings(response.data.results);
       })
       .catch((errors) => {
         console.error(errors);
@@ -75,7 +98,7 @@ const Pipeline = () => {
   $ caw pipeline --target 3 '${pipeline.name}'
   
   # specify source by URL
-  $ caw pipeline --target https://cube.chrisproject.org/api/v1/plugins/instances/3/ 'Automatic Fetal Brain Reconstruction Pipeline'
+  $ caw pipeline --target ${pipeline.url} '${pipeline.name}'
   `;
 
   const actions = (
@@ -102,11 +125,12 @@ const Pipeline = () => {
         <Link to="/pipelines" style={{ color: "#0275d8", marginRight: "8px" }}>
           Pipelines
         </Link>
-        <Link to={`/pipelines/${id}`} style={{ color: "#ffffff" }}>
-          <AngleRightIcon /> {id}
+        <Link to={`/pipelines/${id}/`} style={{ color: "#ffffff" }}>
+          <AngleRightIcon /> {pipeline.id}
         </Link>
         <h1>
-          <CodeBranchIcon /> {pipeline.name}
+          <CodeBranchIcon />
+          {pipeline.name}
         </h1>
         <div className="pipeline_main_top">
           <div className="pipeline_main_top_left">
@@ -114,14 +138,16 @@ const Pipeline = () => {
               <p>
                 Creator
                 <br />
-                <UserAltIcon /> {pipeline.authors}
+                <UserAltIcon />
+                {pipeline.authors}
               </p>
             </div>
             <div>
               <p>
                 Created
                 <br />
-                <CalendarDayIcon /> {pipeline.creation_date}
+                <CalendarDayIcon />
+                {pipeline.creation_date}
               </p>
             </div>
           </div>
@@ -143,21 +169,35 @@ const Pipeline = () => {
         <div className="pipeline_main_bottom">
           <div className="pipeline_main_bottom_left">
             <p>Pipeline Graph</p>
+            {/* <ForceGraph3D graphData={} />, */}
             <div>{pipeline.plugin_pipings}</div>
+            {pipings.map((piping: any, index: number) => {
+              return (
+                <>
+                  <a
+                    onClick={() => setselectedNode(index)}
+                    key={piping.id}
+                  >
+                    {piping.plugin_name}
+                  </a>
+                  <br />
+                </>
+              );
+            })}
           </div>
           <div className="pipeline_main_bottom_right">
             <p>
-              Selected Node
+              Selected Node:
               <br />
-              <b>pl-Freesurfer_PP</b>
+              <b>{pipings[selectedNode]?.plugin_name}</b>
             </p>
             <br />
             <p>
-              Modification Date <b>{pipeline.modification_date}</b>
+              Plugin Version: <b>{pipings[selectedNode]?.plugin_version}</b>
             </p>
             <br />
             <p>
-              Node ID <b>123e34354</b>
+              Node ID: <b>{pipings[selectedNode]?.plugin_id}</b>
             </p>
             <br />
             <b>Command</b>

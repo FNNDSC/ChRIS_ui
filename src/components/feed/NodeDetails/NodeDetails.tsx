@@ -28,6 +28,7 @@ import Status from "./Status";
 import GraphNode from "../AddTsNode/ParentContainer";
 import StatusTitle from "./StatusTitle";
 import PluginTitle from "./PluginTitle";
+import CreateBtn from "../../pipelines/CreateBtn";
 import { setFeedLayout } from "../../../store/feed/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import "./NodeDetails.scss";
@@ -220,8 +221,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             Switch Layout
           </Button>
         </div>
-
-        <div className="node-details__infoLabel">
+        <div className="node-details__actions" >
           <Popover
             className="node-details__popover"
             content={<PluginLog text={text} />}
@@ -240,8 +240,9 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               View Terminal
             </Button>
           </Popover>
+          <CreateBtn />
         </div>
-      </div>
+          </div>
     );
   }
 };

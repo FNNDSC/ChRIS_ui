@@ -23,12 +23,9 @@ const PipelinesFeed = () => {
       })
       .then((response: any) => {
         setPipelines(response?.data.results);
-        console.log("Filtered Pipelines", response.data.count);
-        console.log("query Searched", Search_query);
       })
       .catch((errors) => {
         console.error(errors.message);
-        console.log("💩💩💩");
       });
   }, [Search_query]);
 
