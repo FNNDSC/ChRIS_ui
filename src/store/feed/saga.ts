@@ -9,7 +9,9 @@ import {
   getFeedError,
 } from "./actions";
 import { getPluginInstancesRequest } from "../pluginInstance/actions";
-import { Feed, FeedList } from "@fnndsc/chrisapi";
+import { Feed } from "@fnndsc/chrisapi";
+
+import { fetchResource } from "../../utils";
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
   const { name, limit, offset } = action.payload;
@@ -19,11 +21,12 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
     offset,
   };
   const client = ChrisAPIClient.getClient();
+  const fn = client.getFeeds;
+  const boundFn = fn.bind(client);
 
   try {
-    const feedsList: FeedList = yield client.getFeeds(params);
-    const totalCount = feedsList.totalCount;
-    const feeds: Feed[] = feedsList.getItems();
+    const feeds: Feed[] = yield fetchResource<Feed>(params, boundFn);
+    const totalCount = feeds.length;
     const payload = {
       feeds,
       totalCount,

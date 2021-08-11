@@ -25,7 +25,6 @@ const FileBrowserViewer = () => {
     dispatch(setSelectedFile(info.node));
   };
 
-  //@ts-ignore
   const splitPath = selectedPlugin?.data.output_path.split("/");
   const breadcrumbItems = splitPath.slice(0, splitPath.length - 1);
 

@@ -1,11 +1,6 @@
 import keyMirror from "keymirror";
 import { LocalFile } from "../../components/feed/CreateFeed/types";
-import {
-  IPluginCreateData,
-  Plugin,
-  PluginInstance,
-  Feed,
-} from "@fnndsc/chrisapi";
+import { Plugin, PluginInstance, Feed } from "@fnndsc/chrisapi";
 
 export interface AnalysisStep {
   id: number;
@@ -34,38 +29,41 @@ export interface IWorkflowState {
     loading: boolean;
   };
   steps: AnalysisStep[];
-  isAnalysisRunning: boolean;
-  totalFileCount: number;
+  currentStep: number;
   optionState: SelectWorkflowState;
   checkFeedDetails: number | undefined;
   infantAge: string;
 }
 
-export interface DircopyData extends IPluginCreateData {
+export interface DircopyData {
   dir: string;
 }
 
-export interface Med2ImgData extends IPluginCreateData {
+export interface Med2ImgData {
   inputFile: any;
   sliceToConvert: number | string;
   outputFileStem?: string;
+  previous_id: number;
 }
 
-export interface CovidnetData extends IPluginCreateData {
+export interface CovidnetData {
   imagefile: any;
+  previous_id: number;
 }
 
-export interface AFSHackData extends IPluginCreateData {
+export interface AFSHackData {
+  title?: string;
+  previous_id: number;
   inputFile?: string;
   outputFile: string;
   exec: string;
   args: string;
-
 }
 
-export interface IFSHackData extends IPluginCreateData {
-  age:number
-
+export interface IFSHackData {
+  title?: string;
+  previous_id: number;
+  age: number;
 }
 
 export enum PollStatus {
@@ -120,5 +118,7 @@ export const WorkflowTypes = keyMirror({
   RESET_WORKFLOW_STEP: null,
   STOP_FETCHING_PLUGIN_RESOURCES: null,
   SET_FEED_DETAILS: null,
+  SET_CURRENT_STEP: null,
   DELETE_LOCAL_FILE: null,
+  CLEAR_FILE_SELECTION: null,
 });
