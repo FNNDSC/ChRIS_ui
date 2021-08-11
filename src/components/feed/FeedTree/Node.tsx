@@ -178,10 +178,10 @@ const NodeWrapper = (props: NodeWrapperProps) => {
     } else return;
   });  
 
-  const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
-  );
-  const currentId = selectedPlugin?.data.id === data.id;
+  const currentId = useTypedSelector((state) => {
+    if (state.instance.selectedPlugin?.data.id === data.id) return true;
+    else return false;
+  });
 
   let scale; // undefined scale is treated as no indvidual scaling
   if (overlayScale === 'time') {
@@ -205,4 +205,18 @@ const NodeWrapper = (props: NodeWrapperProps) => {
   );
 };
 
-export default React.memo(NodeWrapper);
+export default React.memo(
+  NodeWrapper,
+  (prevProps: NodeWrapperProps, nextProps: NodeWrapperProps) => {
+    if (
+      prevProps.data !== nextProps.data ||
+      prevProps.position !== nextProps.position ||
+      prevProps.parent !== nextProps.parent ||
+      prevProps.toggleLabel !== nextProps.toggleLabel ||
+      prevProps.orientation !== nextProps.orientation
+    ) {
+      return false;
+    }
+    return true;
+  }
+);
