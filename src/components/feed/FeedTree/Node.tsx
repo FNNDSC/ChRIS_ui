@@ -4,6 +4,7 @@ import { HierarchyPointNode } from "d3-hierarchy";
 import { Datum, TreeNodeDatum, Point } from "./data";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { useTypedSelector } from "../../../store/hooks";
+import { FeedTreeScaleType } from "./Controls";
 
 type NodeWrapperProps = {
   tsNodes?: PluginInstance[];
@@ -14,12 +15,13 @@ type NodeWrapperProps = {
   onNodeClickTs: (node: PluginInstance) => void;
   onNodeToggle: (nodeId: string) => void;
   orientation: "horizontal" | "vertical";
+  overlayScale?: FeedTreeScaleType;
   toggleLabel: boolean;
 };
 
 type NodeProps = NodeWrapperProps & {
   status?: string;
-  scale: number;
+  overlaySize?: number;
   currentId: boolean;
 };
 
@@ -27,13 +29,11 @@ const DEFAULT_NODE_CIRCLE_RADIUS = 12;
 
 const setNodeTransform = (
   orientation: "horizontal" | "vertical",
-  position: Point,
-  scale: number
+  position: Point
 ) => {
-  const translate = orientation === "horizontal"
+  return orientation === "horizontal"
     ? `translate(${position.y},${position.x})`
     : `translate(${position.x}, ${position.y})`;
-  return `${translate} ${scale ? `scale(${scale})` : ''}`
 };
 
 const Node = (props: NodeProps) => {
@@ -49,7 +49,7 @@ const Node = (props: NodeProps) => {
     toggleLabel,
     status,
     currentId,
-    scale
+    overlaySize
   } = props;
 
   const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
@@ -66,7 +66,7 @@ const Node = (props: NodeProps) => {
   };
 
   React.useEffect(() => {
-    const nodeTransform = setNodeTransform(orientation, position, scale);
+    const nodeTransform = setNodeTransform(orientation, position);
     applyNodeTransform(nodeTransform);
   }, [orientation, position]);
 
@@ -152,6 +152,16 @@ const Node = (props: NodeProps) => {
               `}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
         ></circle>
+        {
+          overlaySize && (
+            <circle
+              id={`node_overlay_${data.id}`}
+              className='node node-overlay'
+              opacity={0.3}
+              r={DEFAULT_NODE_CIRCLE_RADIUS * overlaySize}
+            />
+          )
+        }
         {toggleLabel ? textLabel : null}
       </g>
     </Fragment>
@@ -161,29 +171,35 @@ const Node = (props: NodeProps) => {
 const NodeMemoed = React.memo(Node);
 
 const NodeWrapper = (props: NodeWrapperProps) => {
-  const { data } = props;
+  const { data, overlayScale } = props;
   const status = useTypedSelector((state) => {
     if (data.id && state.resource.pluginInstanceStatus[data.id]) {
       return state.resource.pluginInstanceStatus[data.id].status;
     } else return;
-  });
-  const instanceData = props.data.item?.data;
-  let runtime = 0;
-  if (instanceData) {
-    const start = new Date(instanceData?.start_date);
-    const end = new Date(instanceData?.end_date);
-    runtime = end.getTime() - start.getTime();
-  }
+  });  
+
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
   const currentId = selectedPlugin?.data.id === data.id;
 
+  let scale; // undefined scale is treated as no indvidual scaling
+  if (overlayScale === 'time') {
+    const instanceData = props.data.item?.data;
+    if (instanceData) {
+      const start = new Date(instanceData?.start_date);
+      const end = new Date(instanceData?.end_date);
+      scale = Math.log10(end.getTime() - start.getTime()) / 2
+    }
+  } else if (overlayScale === 'size') {
+    // props.data.item?.
+  }
+
   return (
     <NodeMemoed
       {...props}
       status={status || data.item?.data.status}
-      scale={Math.log10(runtime)}
+      overlaySize={scale}
       currentId={currentId}
     />
   );
