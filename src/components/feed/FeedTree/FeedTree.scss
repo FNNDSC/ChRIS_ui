@@ -36,7 +36,7 @@
     }
   }
 
-  &__orientation {
+  &__orientation, &__control {
     padding-left: 1rem;
     padding-top: 0.5rem;
 
@@ -47,6 +47,22 @@
     &--icon {
       font-size: 1.25rem;
       cursor: pointer;
+    }
+  }
+
+  &__individual-scale {
+    display: flex;
+
+    select {
+      height: 50%;
+    }
+
+    svg {
+      color: black;
+    }
+
+    .dropdown-wrap {
+      margin-left: 5px;
     }
   }
 
@@ -72,6 +88,10 @@
         bottom: 30px;
       }
     }
+  }
+
+  .feed-graph__container--labels {
+    background: #000011;
   }
 }
 
@@ -216,6 +236,10 @@
     stroke: white;
     stroke-width: 3px;
   }
+}
+
+.node-overlay {
+  fill: var(--pf-global--primary-color--100);
 }
 
 .pf-c-alert.pf-m-info {
