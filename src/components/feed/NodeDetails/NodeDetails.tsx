@@ -182,6 +182,13 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               "Selected Node ID",
               <span>{selectedPlugin.data.id}</span>
             )}
+            {renderGridItem(
+              "Plugin",
+              <span style={{ fontFamily: "monospace" }}>
+                {selectedPlugin.data.plugin_name}, ver{" "}
+                {selectedPlugin.data.plugin_version}
+              </span>
+            )}
             {renderGridItem("Created", Time)}
             {renderGridItem("Compute Environment", <span>{compute_env}</span>)}
             {runTime && (
@@ -200,25 +207,26 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               renderGridItem(
                 "Error Code",
                 <span>
-                  {error_code ?
+                  {error_code ? (
                     <span>
                       {error_code}&nbsp;
-                      {isErrorExpanded &&
+                      {isErrorExpanded && (
                         <span className="node-details__error-message">
                           {getErrorCodeMessage(error_code)}&nbsp;
                         </span>
-                        }
-                        <Button 
-                          variant="link" 
-                          isInline 
-                          className="node-details__error-show-more"
-                          onClick={() => setisErrorExpanded(!isErrorExpanded)}
-                        >
-                          (show {isErrorExpanded ? 'less' : 'more'})
-                        </Button>
-                      </span>
-                      : "None"
-                    }
+                      )}
+                      <Button
+                        variant="link"
+                        isInline
+                        className="node-details__error-show-more"
+                        onClick={() => setisErrorExpanded(!isErrorExpanded)}
+                      >
+                        (show {isErrorExpanded ? "less" : "more"})
+                      </Button>
+                    </span>
+                  ) : (
+                    "None"
+                  )}
                 </span>
               )}
           </Grid>
@@ -312,8 +320,14 @@ function getCommand(
     value?: string;
   }[] = [];
 
-  const instanceParameters = params.getItems();
-  const pluginParameters = parameters.getItems();
+  let instanceParameters = [];
+  let pluginParameters = [];
+  if (params.getItems()) {
+    instanceParameters = params.getItems() as any[];
+  }
+  if (parameters.getItems()) {
+    pluginParameters = parameters.getItems() as any[];
+  }
 
   for (let i = 0; i < instanceParameters.length; i++) {
     for (let j = 0; j < pluginParameters.length; j++) {

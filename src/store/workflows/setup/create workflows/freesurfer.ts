@@ -105,8 +105,10 @@ export function* runFreesurferWorkflow(
       age: +infantAge,
     };
     const plFshackInfant = pluginList["pl-infantfs"];
+   
     plFsHackInstance = yield client.createPluginInstance(
       plFshackInfant.data.id,
+      //@ts-ignore
       data
     );
   }
@@ -153,7 +155,7 @@ export function* runFreesurferWorkflow(
       title: "segmentation-report",
       previous_id: plFsHackInstance.data.id,
       file_name: fileName,
-      report_types: "txt,csv,json,html",
+      report_types: "txt,csv,json,html,pdf",
     };
     yield client.createPluginInstance(
       plMgz2LutReport.data.id,

@@ -56,11 +56,13 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
   useEffect(() => {
     getPlugins(filter, perPage, perPage * (currentPage - 1), "fs").then(
       (pluginDetails) => {
-        setfsPlugins(pluginDetails.plugins);
-        setFilterState((filterState) => ({
-          ...filterState,
-          itemCount: pluginDetails.totalCount,
-        }));
+        if (pluginDetails.plugins) {
+          setfsPlugins(pluginDetails.plugins);
+          setFilterState((filterState) => ({
+            ...filterState,
+            itemCount: pluginDetails.totalCount,
+          }));
+        }
       }
     );
   }, [filter, perPage, currentPage, selectedPlugin]);
@@ -124,7 +126,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
 
       <DataList aria-label="FS Plugins">
         {fsPlugins.map((plugin, index) => {
-         const name = plugin.data.name;
+          const name = plugin.data.name;
           return (
             <DataListItem key={index} aria-labelledby="plugin-checkbox">
               <DataListItemRow>

@@ -1,27 +1,14 @@
-import {
-  PluginInstance,
-  PluginInstanceFileList,
-  PluginInstanceList,
-  Plugin,
-} from "@fnndsc/chrisapi";
+import { PluginInstance, PluginInstanceList, Plugin } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { PluginReturnPayload } from "./types";
 import { LocalFile } from "../../components/feed/CreateFeed/types";
+import { fetchResource } from "../../utils";
 
 export function* getPluginFiles(plugin: PluginInstance) {
   const params = { limit: 200, offset: 0 };
-  let fileList: PluginInstanceFileList = yield plugin.getFiles(params);
-  let files = fileList.getItems();
-
-  while (fileList.hasNextPage) {
-    try {
-      params.offset += params.limit;
-      fileList = yield plugin.getFiles(params);
-      files = files.concat(fileList.getItems());
-    } catch (e) {
-      throw new Error("Error while paginating files");
-    }
-  }
+  const fn = plugin.getFiles;
+  const boundFn = fn.bind(plugin);
+  const files: any[] = yield fetchResource<any>(params, boundFn);
   return files;
 }
 
@@ -34,9 +21,14 @@ export function* getPlugin(pluginName: string) {
   const pluginLookup: PluginInstanceList = yield client.getPlugins({
     name_exact: pluginName,
   });
-  const plugin: Plugin = yield pluginLookup.getItems()[0];
+  let plugin: Plugin = {} as Plugin;
+  if (pluginLookup.getItems()) {
+    const pluginList: any[] = yield pluginLookup.getItems();
+    plugin = pluginList[0];
+  }
+
   if (!plugin) {
-    pluginPayload["error"] = `${pluginName} is not registed`;
+    pluginPayload["error"] = `${pluginName} is not registered`;
   } else pluginPayload["plugin"] = plugin;
 
   return pluginPayload;

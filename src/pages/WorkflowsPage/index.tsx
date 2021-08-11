@@ -1,12 +1,12 @@
 import React from "react";
 import { useDispatch } from "react-redux";
+import { Backdrop, Bullseye, Spinner } from '@patternfly/react-core'
 import Wrapper from "../../containers/Layout/PageWrapper";
-
-import FileDetails from "./FileDetails";
-
 import { setSidebarActive } from "../../store/ui/actions";
 import { resetWorkflowState } from "../../store/workflows/actions";
 import "./Workflows.scss";
+
+const FileDetails = React.lazy(() => import('./FileDetails'))
 
 const WorkflowsPage = () => {
   const dispatch = useDispatch();
@@ -28,7 +28,14 @@ const WorkflowsPage = () => {
 
   return (
     <Wrapper>
-      <FileDetails />
+      <React.Suspense fallback={<Backdrop>
+        <Bullseye>
+          <Spinner />
+        </Bullseye>
+      </Backdrop>}>
+        <FileDetails />
+      </React.Suspense>
+
     </Wrapper>
   );
 };
