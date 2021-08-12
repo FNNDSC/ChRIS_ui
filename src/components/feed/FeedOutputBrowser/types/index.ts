@@ -7,7 +7,8 @@ export interface FileBrowserProps {
   root: DataNode;
   pluginName?: string;
   handleFileBrowserToggle: () => void;
-  handleFileViewerToggle: () => void;
+  handleDicomViewerOpen: () => void;
+  handleXtkViewerOpen: () => void;
   downloadAllClick: () => void;
   expandDrawer: (panel: string) => void;
 }
