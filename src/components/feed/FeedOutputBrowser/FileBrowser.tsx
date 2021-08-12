@@ -42,6 +42,7 @@ import {
 } from "../../../store/explorer/actions";
 import { PficonDragdropIcon } from "@patternfly/react-icons";
 import { CaretDownIcon } from "@patternfly/react-icons";
+import { getXtkFileMode } from "../../detailedView/displays/XtkViewer/XtkViewer";
 
 function getInitialState(root: DataNode) {
   return {
@@ -347,7 +348,6 @@ const HeaderPanel = (props: HeaderPanelProps) => {
   const [showOpenWith, setShowOpenWith] = useState(false);
   
   const imageFileTypes = ['dcm', 'png', 'jpg', 'nii', 'gz', 'jpeg'];
-  const xtkFileTypes = ['mgz', 'fsm', 'crv'];
 
   return (
     <div className="header-panel__buttons">
@@ -364,7 +364,7 @@ const HeaderPanel = (props: HeaderPanelProps) => {
             Open Image Viewer
           </Button>
         )}
-        {fileType && xtkFileTypes.includes(fileType) && (
+        {fileType && getXtkFileMode(fileType) && (
           <Button variant="link" onClick={handleXtkViewerOpen} icon={<PficonDragdropIcon />}>
             Open XTK Viewer
           </Button>
