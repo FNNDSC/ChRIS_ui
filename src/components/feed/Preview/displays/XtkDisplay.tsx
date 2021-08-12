@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { IFileBlob } from "../../../../api/models/file-viewer.model";
+import { getXtkFileMode } from "../../../detailedView/displays/XtkViewer/XtkViewer";
 
 type AllProps = {
   fileItem: IFileBlob;
@@ -9,23 +10,23 @@ type AllProps = {
 declare const X: any;
 
 const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
+  const mode = getXtkFileMode(fileItem.fileType);
 
   useEffect(() => {
     let r: any;
     async function renderFileData() {
       const fileData = await fileItem.blob?.arrayBuffer();
-
       const fileName = fileItem.file?.data.fname;
       let object;
 
-      if (fileItem.fileType === 'mgz') {
+      if (mode === 'volume') {
         r = new X.renderer2D();
         r.orientation = 'x';
         object = new X.volume();
         // X requires file name to know which file type to render
         object.file = fileName;
         object.filedata = fileData;
-      } else if (fileItem.fileType === 'fsm') {
+      } else if (mode === 'mesh') {
         r = new X.renderer3D();
         object = new X.mesh();
         object.file = fileName;
@@ -42,14 +43,22 @@ const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
     }
 
     renderFileData();
-  }, [fileItem])
+
+    return () => {
+      try {
+        r.destroy();
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }, [fileItem, mode])
 
   const renderContainerRef = useRef(null);
 
   return (
     <div style={{ height: '100%' }}>
       {
-        fileItem.fileType === 'crv'
+        mode === 'other'
           ? <div style={{ 
             height: '100%', 
             display: 'flex', 
