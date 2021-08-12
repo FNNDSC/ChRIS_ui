@@ -38,5 +38,6 @@ export const fileViewerMap: any = {
   nii: "NiftiDisplay",
   gz: "NiftiDisplay",
   mgz: "XtkDisplay",
+  fsm: "XtkDisplay",
   crv: "XtkDisplay"
 };

@@ -366,7 +366,7 @@ const HeaderPanel = (props: HeaderPanelProps) => {
         )}
         {fileType && xtkFileTypes.includes(fileType) && (
           <Button variant="link" onClick={handleXtkViewerOpen} icon={<PficonDragdropIcon />}>
-            Open XKT Viewer
+            Open XTK Viewer
           </Button>
         )}
         <Dropdown 
