@@ -16,6 +16,7 @@ type ViewerMode = 'volume' | 'mesh';
 type VolumeMode = '3D' | '2D';
 
 const getFileType = (file?: DataNode) => file?.title.split('.').slice(-1)[0];
+const getFileData = async (file: DataNode) => (await file.file?.getFileBlob())?.arrayBuffer();
 
 function getPrimaryFileMode(file: DataNode): ViewerMode | undefined {
   const volumeExtensions = ['mgz'];
@@ -57,13 +58,14 @@ const XtkViewer = () => {
     let r: any;
     let gui: any;
     let object: any;
+    let secondaryObject: any;
     
     async function renderFileData() {
       if (!primaryFile || !viewerMode) {
         return;
       }
 
-      const fileData = await (await primaryFile.file?.getFileBlob())?.arrayBuffer();
+      const fileData = await getFileData(primaryFile);
 
       if (!fileData) {
         return;
@@ -88,16 +90,26 @@ const XtkViewer = () => {
         object.file = primaryFile.title;
         object.filedata = fileData;
         if (crvFile) {
-          object.scalars.file = 'test.crv';//fileItem.file?.data.fname;fsm
-          object.scalars.filedata = await (await crvFile.file?.getFileBlob())?.arrayBuffer();;
+          object.scalars.file = 'crv_file.crv';
+          object.scalars.filedata = await getFileData(crvFile);
+        }
+
+        if (secondaryFile) {
+          secondaryObject = new X.mesh();
+          secondaryObject.file = secondaryFile.title;
+          const secondaryFileData = await getFileData(secondaryFile);
+          secondaryObject.filedata = secondaryFileData;
         }
       }
 
       r.container = renderContainerRef.current;
-      r.init();
-      r.add(object);
       r.camera.position = [0, 400, 0];
+      r.init();
 
+      r.add(object);
+      if (secondaryObject) {
+        r.add(secondaryObject);
+      }
 
       r.onShowtime = function() {
         gui = new dat.GUI();
@@ -143,7 +155,7 @@ const XtkViewer = () => {
       console.log(e);
     }
     }
-  }, [viewerMode, volumeMode, primaryFile, crvFile, orientation])
+  }, [viewerMode, volumeMode, primaryFile, crvFile, orientation, secondaryFile])
 
   const handleFullscreenToggle = () => {
     if (!fullscreen) {
