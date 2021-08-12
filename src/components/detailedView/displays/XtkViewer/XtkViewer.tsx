@@ -12,23 +12,30 @@ import CrvFileSelect from "./CrvFileSelect";
 declare const X: any;
 declare const dat: any;
 
-type ViewerMode = 'volume' | 'mesh';
+export type ViewerMode = 'volume' | 'mesh' | 'other';
 type VolumeMode = '3D' | '2D';
 
 const getFileType = (file?: DataNode) => file?.title.split('.').slice(-1)[0];
 const getFileData = async (file: DataNode) => (await file.file?.getFileBlob())?.arrayBuffer();
 
-function getPrimaryFileMode(file: DataNode): ViewerMode | undefined {
+export function getXtkFileMode(fileType?: string): ViewerMode | undefined {
   const volumeExtensions = ['mgz'];
-  const meshExtensions = ['fsm'];
-  const fileType = getFileType(file);
+  const meshExtensions = ['fsm', 'smoothwm', 'pial'];
+  const otherExtensions = ['crv'];
   if (!fileType) {
     return;
   } else if (volumeExtensions.includes(fileType)) {
     return 'volume';
   } else if (meshExtensions.includes(fileType)) {
     return 'mesh';
+  } else if (otherExtensions.includes(fileType)) {
+    return 'other';
   }
+}
+
+function getPrimaryFileMode(file: DataNode): ViewerMode | undefined {
+  const fileType = getFileType(file);
+  return getXtkFileMode(fileType);
 }
 
 const XtkViewer = () => {
@@ -103,8 +110,8 @@ const XtkViewer = () => {
       }
 
       r.container = renderContainerRef.current;
-      r.camera.position = [0, 400, 0];
       r.init();
+      r.camera.position = [0, 400, 0];
 
       r.add(object);
       if (secondaryObject) {
