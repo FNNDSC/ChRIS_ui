@@ -9,7 +9,7 @@ import { select, event } from "d3-selection";
 import { v4 as uuidv4 } from "uuid";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { AiOutlineRotateLeft, AiOutlineRotateRight,  } from "@patternfly/react-icons";
+import { AiOutlineRotateLeft, AiOutlineRotateRight } from "react-icons/ai";
 import Link from "./Link";
 import NodeWrapper from "./Node";
 import { Datum, TreeNodeDatum, Point } from "./data";

@@ -140,7 +140,7 @@ const XtkViewer = () => {
       r.destroy();
       gui.destroy();
     } catch (e) {
-      console.log();
+      console.log(e);
     }
     }
   }, [viewerMode, volumeMode, primaryFile, crvFile, orientation])
