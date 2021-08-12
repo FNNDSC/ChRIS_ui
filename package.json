@@ -38,6 +38,7 @@
     "react-dom": "^16.14.0",
     "react-error-boundary": "^3.1.0",
     "react-force-graph-3d": "^1.18.9",
+    "react-icons": "^4.2.0",
     "react-json-view": "^1.20.2",
     "react-lazylog": "^4.5.3",
     "react-moment": "^0.8.4",
