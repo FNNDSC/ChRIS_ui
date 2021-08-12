@@ -11,6 +11,7 @@ interface NodeScaleDropdownProps {
 export const NodeScaleDropdown = ({ selected, onChange }: NodeScaleDropdownProps) => {
   const [open, setOpen] = useState(false);
 
+  // TODO: enable output size
   const labels: Map<FeedTreeScaleType, string> = new Map([
     ['time', 'Compute Time'],
     ['size', 'Output Size']
@@ -39,6 +40,7 @@ export const NodeScaleDropdown = ({ selected, onChange }: NodeScaleDropdownProps
       <SelectOption
         key="size"
         value={labels.get('size')}
+        disabled
       />
     </Select>
   )
