@@ -282,6 +282,12 @@ export const UserLibrary = () => {
                   placeholder="Search Library" 
                   defaultValue={query || ""}
                   onChange={(value) => setQuery(value)} 
+                  onKeyDown={({ key }) => {
+                    if (query && key.toLowerCase() === "enter") {
+                      setSearchResults(undefined)
+                      route(`/library/search?q=${query}`)
+                    }
+                  }}
                 />
               </Card>
             </GridItem>

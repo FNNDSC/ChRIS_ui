@@ -79,18 +79,30 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ onFinalize }: QueryB
                         return <DatePicker id="search-value" placeholder="Study Date (yyyy-MM-dd)"
                           dateFormat={(date) => date.toDateString()}
                           onChange={(_, date) => handleInput(date)}
+                          onKeyDown={({ key }) => {
+                            if (key.toLowerCase()==="enter")
+                              finalize()
+                          }}
                         />
 
                       case PFDCMQueryTypes.PATIENT:
                         return <TextInput type="text" id="search-value" 
                           placeholder="Patient Name" 
                           onChange={(value) => handleInput(value.split(' ').reverse().join('^'))} 
+                          onKeyDown={({ key }) => {
+                            if (key.toLowerCase()==="enter")
+                              finalize()
+                          }}
                         />
 
                       case PFDCMQueryTypes.MRN:
                         return <TextInput type="text" id="search-value" 
                           placeholder="Patient ID or MRN" 
                           onChange={handleInput} 
+                          onKeyDown={({ key }) => {
+                            if (key.toLowerCase()==="enter")
+                              finalize()
+                          }}
                         />
                     }
                   }()
