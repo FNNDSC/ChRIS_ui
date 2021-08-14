@@ -37,6 +37,8 @@ import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
 import { usePaginate } from "../../../components/common/pagination";
+import pluralize from "pluralize";
+import { ArchiveIcon } from "@patternfly/react-icons";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -152,6 +154,10 @@ const FeedListView: React.FC<AllProps> = ({
 
                   const errorCount = errored_jobs + cancelled_jobs;
 
+                  const jobsCountText = runningJobsCount > 0 
+                  ? <b>{ runningJobsCount } {pluralize('job', runningJobsCount)} running</b>
+                  : <b>Completed { finished_jobs } {pluralize('jobs', finished_jobs)}</b>
+
                   return <GridItem key={name}>
                     <Card isRounded isHoverable isCompact>
                       <CardBody>
@@ -164,22 +170,8 @@ const FeedListView: React.FC<AllProps> = ({
                                 <Badge>Running</Badge>
                               }
                             </div>
-                            <div style={{ fontSize: "small" }}>
-                              Last commit <Moment fromNow>{modification_date}</Moment>
-                            </div>
-                          </SplitItem>
-
-                          <SplitItem style={{ minWidth: "15%" }}>
-                            <div style={{ color: "grey" }}>
-                              { 
-                                runningJobsCount > 0 
-                                ? <b>{ runningJobsCount } jobs running</b>
-                                : <b>Jobs Completed</b>
-                              }
-                            </div>
-
-                            <div style={{ fontSize: "small" }}>
-                              { finished_jobs } finished of { runningJobsCount + finished_jobs } jobs
+                            <div style={{ fontSize: "small", color: "grey" }}>
+                              { jobsCountText }
                             </div>
                           </SplitItem>
 
@@ -187,7 +179,7 @@ const FeedListView: React.FC<AllProps> = ({
                             <SplitItem style={{ margin: "0 1em" }}>
                               <Tooltip content={`${errored_jobs} errors, ${cancelled_jobs} cancelled`}>
                                 <div style={{ color: "firebrick" }}>
-                                  <ExclamationCircleIcon /> <b>{ errorCount }</b>
+                                  <ExclamationCircleIcon /> <b>{ errorCount } {pluralize('error', errorCount)}</b>
                                 </div>
                               </Tooltip>
                             </SplitItem>
@@ -195,9 +187,27 @@ const FeedListView: React.FC<AllProps> = ({
 
                           <SplitItem isFilled/>
 
-                          <SplitItem style={{ textAlign: "right", fontSize: "small", color: "grey" }}>
+                          <SplitItem style={{ textAlign: "right", color: "grey", margin: "0 1em" }}>
+                            <div><b>Last Commit</b></div>
+                            <div>
+                              <Moment fromNow>{modification_date}</Moment>
+                            </div>
+                          </SplitItem>
+
+                          <SplitItem style={{ textAlign: "right", color: "grey", margin: "0 1em" }}>
                             <div><b>Created on</b></div>
                             <div><Moment format="DD MMM, HH:mm">{creation_date}</Moment></div>
+                          </SplitItem>
+
+                          <SplitItem>
+                            <Button variant="link"
+                                style={{ display: "flex", height: "100%" }}
+                                // onClick={() => setCurrentId(feed.data.id)}
+                              >
+                              <Tooltip content="Archive">
+                                <ArchiveIcon style={{ margin: "auto" }} />
+                              </Tooltip>
+                            </Button>
                           </SplitItem>
 
                           <SplitItem>
@@ -219,7 +229,7 @@ const FeedListView: React.FC<AllProps> = ({
                                 style={{ display: "flex", height: "100%" }}
                                 onClick={() => setCurrentId(feed.data.id)}
                               >
-                                <Tooltip content="Delete this feed">
+                                <Tooltip content="Delete">
                                   <TrashAltIcon style={{ margin: "auto" }} />
                                 </Tooltip>
                               </Button>
