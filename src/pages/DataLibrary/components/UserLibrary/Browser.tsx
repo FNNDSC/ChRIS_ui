@@ -222,127 +222,125 @@ export const Browser: React.FC<BrowserProps> = ({
       />
 
       <Route path={path}>
-        <article>
-          {!!withHeader && (
-            <section>
-              {path && (
-                <div style={{ margin: "0 0 1em 0" }}>
-                  <BrowserBreadcrumbs path={path} />
-                </div>
-              )}
+        {!!withHeader && (
+          <section>
+            {path && (
+              <div style={{ margin: "0 0 1em 0" }}>
+                <BrowserBreadcrumbs path={path} />
+              </div>
+            )}
 
-              <Split>
-                <SplitItem isFilled>
-                  <h2>
-                    <FolderOpenIcon /> {name}
-                  </h2>
-                  <Switch>
-                    <Route exact path="/library/search">
-                      <h3>
-                        {tree.dir.length} {pluralize("match", tree.dir.length)}
-                      </h3>
-                    </Route>
-                    <Route>
-                      <h3>
-                        {tree.dir.length} {pluralize("item", tree.dir.length)}
-                      </h3>
-                    </Route>
-                  </Switch>
-                </SplitItem>
+            <Split>
+              <SplitItem isFilled>
+                <h2>
+                  <FolderOpenIcon /> {name}
+                </h2>
+                <Switch>
+                  <Route exact path="/library/search">
+                    <h3>
+                      {tree.dir.length} {pluralize("match", tree.dir.length)}
+                    </h3>
+                  </Route>
+                  <Route>
+                    <h3>
+                      {tree.dir.length} {pluralize("item", tree.dir.length)}
+                    </h3>
+                  </Route>
+                </Switch>
+              </SplitItem>
 
-                <SplitItem>
-                  <Card>
-                    <TextInput
-                      id={`${path}-filter`}
-                      placeholder="Filter by Name"
-                      onChange={(value) => setFilter(value || undefined)}
-                    />
-                  </Card>
-                </SplitItem>
-              </Split>
-            </section>
-          )}
-
-          <Grid hasGutter>
-            {folders.map((folder) => (
-              <GridItem key={folder.name} sm={12} lg={4}>
-                {!folder.isLast ? (
-                  <FolderCard item={folder} />
-                ) : (
-                  <FolderCard
-                    item={folder}
-                    onSelect={fetchFolderItems}
-                    isLoading={folder.path === fpath && !files}
+              <SplitItem>
+                <Card>
+                  <TextInput
+                    id={`${path}-filter`}
+                    placeholder="Filter by Name"
+                    onChange={(value) => setFilter(value || undefined)}
                   />
-                )}
+                </Card>
+              </SplitItem>
+            </Split>
+          </section>
+        )}
+
+        <Grid hasGutter>
+          {folders.map((folder) => (
+            <GridItem key={folder.name} sm={12} lg={4}>
+              {!folder.isLast ? (
+                <FolderCard item={folder} />
+              ) : (
+                <FolderCard
+                  item={folder}
+                  onSelect={fetchFolderItems}
+                  isLoading={folder.path === fpath && !files}
+                />
+              )}
+            </GridItem>
+          ))}
+
+          {tree.dir
+            .filter(({ hasChildren }) => !hasChildren)
+            .filter(({ name }) => {
+              if (filter) return name.includes(filter);
+              return true;
+            })
+            // FileCard
+            .map(({ name: fname, item }) => (
+              <GridItem key={fname} sm={12} lg={2}>
+                <Card
+                  isRounded
+                  isCompact
+                  isSelectable
+                  isSelected={library.actions.isSelected(item)}
+                  onClick={select.bind(Browser, item)}
+                  style={{ overflow: "hidden" }}
+                >
+                  <CardBody>
+                    <div
+                      style={{
+                        margin: "-1.15em -1.15em 1em -1.15em",
+                        maxHeight: "10em",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <FileDetailView selectedFile={item} preview="small" />
+                    </div>
+                    <div style={{ overflow: "hidden" }}>
+                      <Button
+                        variant="link"
+                        style={{ padding: "0" }}
+                        onClick={() => setViewFile(item)}
+                      >
+                        <b>{elipses(fname, 20)}</b>
+                      </Button>
+                    </div>
+                    <div>
+                      {(item.data.fsize / (1024 * 1024)).toFixed(3)} MB
+                    </div>
+                  </CardBody>
+                </Card>
               </GridItem>
             ))}
+        </Grid>
 
-            {tree.dir
-              .filter(({ hasChildren }) => !hasChildren)
-              .filter(({ name }) => {
-                if (filter) return name.includes(filter);
-                return true;
-              })
-              // FileCard
-              .map(({ name: fname, item }) => (
-                <GridItem key={fname} sm={12} lg={2}>
-                  <Card
-                    isRounded
-                    isCompact
-                    isSelectable
-                    isSelected={library.actions.isSelected(item)}
-                    onClick={select.bind(Browser, item)}
-                    style={{ overflow: "hidden" }}
-                  >
-                    <CardBody>
-                      <div
-                        style={{
-                          margin: "-1.15em -1.15em 1em -1.15em",
-                          maxHeight: "10em",
-                          overflow: "hidden",
-                        }}
-                      >
-                        <FileDetailView selectedFile={item} preview="small" />
-                      </div>
-                      <div style={{ overflow: "hidden" }}>
-                        <Button
-                          variant="link"
-                          style={{ padding: "0" }}
-                          onClick={() => setViewFile(item)}
-                        >
-                          <b>{elipses(fname, 20)}</b>
-                        </Button>
-                      </div>
-                      <div>
-                        {(item.data.fsize / (1024 * 1024)).toFixed(3)} MB
-                      </div>
-                    </CardBody>
-                  </Card>
-                </GridItem>
-              ))}
-          </Grid>
+        { !!viewfile && <Modal
+          title="Preview"
+          aria-label="viewer"
+          width={"50%"}
+          isOpen={!!viewfile}
+          onClose={() => setViewFile(undefined)}
+        >
+          <FileDetailView selectedFile={viewfile} preview="large" />
+        </Modal>}
 
-          { !!viewfile && <Modal
-            title="Preview"
-            aria-label="viewer"
-            width={"50%"}
-            isOpen={!!viewfile}
-            onClose={() => setViewFile(undefined)}
-          >
-            <FileDetailView selectedFile={viewfile} preview="large" />
-          </Modal>}
-
-          { !!viewfolder && <Modal
-            title="View"
-            aria-label="viewer"
-            width={"75%"}
-            isOpen={!!viewfolder}
-            onClose={() => setViewFolder(undefined)}
-          >
-            <GalleryDicomView files={viewfolder} />
-          </Modal>}
-        </article>
+        { !!viewfolder && <Modal
+          title="View"
+          aria-label="viewer"
+          width={"75%"}
+          isOpen={!!viewfolder}
+          onClose={() => setViewFolder(undefined)}
+        >
+          <GalleryDicomView files={viewfolder} />
+        </Modal>}
       </Route>
     </Switch>
   );

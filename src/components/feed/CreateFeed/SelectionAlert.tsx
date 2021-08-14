@@ -23,15 +23,11 @@ const SelectionAlertWrap: React.FC<SelectionAlertWrapProps> = ({
           Creating feed from {selectData.length} files&nbsp;
           <ChipGroup numChips={2}>
             {
-              selectData.map((fname) => {
+              selectData.map((path) => {
                 return (
-                  <Chip isReadOnly key={fname}>
-                    { fname.split('/').reverse().shift() }
+                  <Chip isReadOnly key={path}>
+                    { path.split('/').reverse().shift() }
                   </Chip>
-                  // <Chip isReadOnly key={data.id}>
-                  //   {data.fname}
-                  //   {/* {study.patientName}, {study.modality}, {study.seriesDescription} */}
-                  // </Chip>
                 )
               })
             }
