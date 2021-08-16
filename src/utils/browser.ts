@@ -47,7 +47,7 @@ class DirectoryTree {
             hasChildren: index < paths.length - 1,
             isLast: index === paths.length - 2,
             children: branch[name].dir,
-            creation_date: item.data.creation_date
+            creation_date: new Date(item.data.creation_date)
           });
         }
 

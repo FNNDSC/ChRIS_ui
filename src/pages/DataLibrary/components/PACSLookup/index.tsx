@@ -16,6 +16,7 @@ import PFDCMClient, { PACSPatient, PFDCMFilters } from "../../../../api/pfdcm";
 import QueryBuilder from "./QueryBuilder";
 import QueryResults from "./QueryResults";
 import { CubesIcon } from "@patternfly/react-icons";
+import pluralize from "pluralize";
 
 export enum PFDCMQueryTypes {
   PATIENT,
@@ -86,7 +87,7 @@ export const PACS = () => {
                   <>
                     <GridItem>
                       <h2><b>Results</b></h2>
-                      <div>{results.length} patients matched your search.</div>
+                      <div>{results.length} {pluralize('patient', results.length)} matched your search.</div>
                     </GridItem>
 
                     <GridItem>

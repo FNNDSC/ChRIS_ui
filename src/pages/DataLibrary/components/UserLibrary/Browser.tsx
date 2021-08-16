@@ -156,7 +156,7 @@ export const Browser: React.FC<BrowserProps> = ({
         break;
 
       case "select":
-        select(items.map(({ item }) => item));
+        select(items.map(({ item }) => item.data.fname));
         break;
     
       default: break;
@@ -263,19 +263,23 @@ export const Browser: React.FC<BrowserProps> = ({
         )}
 
         <Grid hasGutter>
-          {folders.map((folder) => (
-            <GridItem key={folder.name} sm={12} lg={4}>
-              {!folder.isLast ? (
-                <FolderCard item={folder} />
-              ) : (
-                <FolderCard
-                  item={folder}
-                  onSelect={fetchFolderItems}
-                  isLoading={folder.path === fpath && !files}
-                />
-              )}
-            </GridItem>
-          ))}
+          {folders
+            .sort(
+              ({ creation_date: a }, { creation_date: b }) => b.getTime() - a.getTime()
+            )
+            .map((folder) => (
+              <GridItem key={folder.name} sm={12} lg={4}>
+                {!folder.isLast ? (
+                  <FolderCard item={folder} />
+                ) : (
+                  <FolderCard
+                    item={folder}
+                    onSelect={fetchFolderItems}
+                    isLoading={folder.path === fpath && !files}
+                  />
+                )}
+              </GridItem>
+            ))}
 
           {tree.dir
             .filter(({ hasChildren }) => !hasChildren)
@@ -291,11 +295,11 @@ export const Browser: React.FC<BrowserProps> = ({
                   isCompact
                   isSelectable
                   isSelected={library.actions.isSelected(item)}
-                  onClick={select.bind(Browser, item)}
                   style={{ overflow: "hidden" }}
                 >
                   <CardBody>
                     <div
+                      onClick={select.bind(Browser, item)}
                       style={{
                         margin: "-1.15em -1.15em 1em -1.15em",
                         maxHeight: "10em",
@@ -313,34 +317,36 @@ export const Browser: React.FC<BrowserProps> = ({
                         <b>{elipses(fname, 20)}</b>
                       </Button>
                     </div>
-                    <div>
-                      {(item.data.fsize / (1024 * 1024)).toFixed(3)} MB
-                    </div>
+                    <div>{(item.data.fsize / (1024 * 1024)).toFixed(3)} MB</div>
                   </CardBody>
                 </Card>
               </GridItem>
             ))}
         </Grid>
 
-        { !!viewfile && <Modal
-          title="Preview"
-          aria-label="viewer"
-          width={"50%"}
-          isOpen={!!viewfile}
-          onClose={() => setViewFile(undefined)}
-        >
-          <FileDetailView selectedFile={viewfile} preview="large" />
-        </Modal>}
+        {!!viewfile && (
+          <Modal
+            title="Preview"
+            aria-label="viewer"
+            width={"50%"}
+            isOpen={!!viewfile}
+            onClose={() => setViewFile(undefined)}
+          >
+            <FileDetailView selectedFile={viewfile} preview="large" />
+          </Modal>
+        )}
 
-        { !!viewfolder && <Modal
-          title="View"
-          aria-label="viewer"
-          width={"75%"}
-          isOpen={!!viewfolder}
-          onClose={() => setViewFolder(undefined)}
-        >
-          <GalleryDicomView files={viewfolder} />
-        </Modal>}
+        {!!viewfolder && (
+          <Modal
+            title="View"
+            aria-label="viewer"
+            width={"75%"}
+            isOpen={!!viewfolder}
+            onClose={() => setViewFolder(undefined)}
+          >
+            <GalleryDicomView files={viewfolder} />
+          </Modal>
+        )}
       </Route>
     </Switch>
   );
