@@ -11,7 +11,7 @@ interface CrvFileSelectProps {
 
 const CrvFileSelect = (props: CrvFileSelectProps) => {
 
-  const { files, selectedFile, title, handleSelect } = props;
+  const { files, title, handleSelect } = props;
 
   const [open, setOpen] = useState(false);
 
