@@ -4,6 +4,7 @@ import { HierarchyPointNode } from "d3-hierarchy";
 import { Datum, TreeNodeDatum, Point } from "./data";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { useTypedSelector } from "../../../store/hooks";
+import { FeedTreeScaleType } from "./Controls";
 
 type NodeWrapperProps = {
   tsNodes?: PluginInstance[];
@@ -14,11 +15,13 @@ type NodeWrapperProps = {
   onNodeClickTs: (node: PluginInstance) => void;
   onNodeToggle: (nodeId: string) => void;
   orientation: "horizontal" | "vertical";
+  overlayScale?: FeedTreeScaleType;
   toggleLabel: boolean;
 };
 
 type NodeProps = NodeWrapperProps & {
   status?: string;
+  overlaySize?: number;
   currentId: boolean;
 };
 
@@ -46,6 +49,7 @@ const Node = (props: NodeProps) => {
     toggleLabel,
     status,
     currentId,
+    overlaySize
   } = props;
 
   const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
@@ -57,7 +61,7 @@ const Node = (props: NodeProps) => {
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
       .attr("transform", transform)
-      .style("opacity", opacity);
+      .style("opacity", opacity)
     select(textRef.current).attr("transform", `translate(-28, 28)`);
   };
 
@@ -148,6 +152,16 @@ const Node = (props: NodeProps) => {
               `}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
         ></circle>
+        {
+          overlaySize && (
+            <circle
+              id={`node_overlay_${data.id}`}
+              className='node node-overlay'
+              opacity={0.3}
+              r={DEFAULT_NODE_CIRCLE_RADIUS * overlaySize}
+            />
+          )
+        }
         {toggleLabel ? textLabel : null}
       </g>
     </Fragment>
@@ -157,21 +171,35 @@ const Node = (props: NodeProps) => {
 const NodeMemoed = React.memo(Node);
 
 const NodeWrapper = (props: NodeWrapperProps) => {
-  const { data } = props;
+  const { data, overlayScale } = props;
   const status = useTypedSelector((state) => {
     if (data.id && state.resource.pluginInstanceStatus[data.id]) {
       return state.resource.pluginInstanceStatus[data.id].status;
     } else return;
-  });
+  });  
+
   const currentId = useTypedSelector((state) => {
     if (state.instance.selectedPlugin?.data.id === data.id) return true;
     else return false;
   });
 
+  let scale; // undefined scale is treated as no indvidual scaling
+  if (overlayScale === 'time') {
+    const instanceData = props.data.item?.data;
+    if (instanceData) {
+      const start = new Date(instanceData?.start_date);
+      const end = new Date(instanceData?.end_date);
+      scale = Math.log10(end.getTime() - start.getTime()) / 2
+    }
+  } else if (overlayScale === 'size') {
+    // props.data.item?.
+  }
+
   return (
     <NodeMemoed
       {...props}
       status={status || data.item?.data.status}
+      overlaySize={scale}
       currentId={currentId}
     />
   );

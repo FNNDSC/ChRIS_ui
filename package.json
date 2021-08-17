@@ -51,7 +51,8 @@
     "sass": "^1.35.1",
     "typesafe-actions": "^3.2.1",
     "typescript": "^3.9.9",
-    "uuid": "^8.3.0"
+    "uuid": "^8.3.0",
+    "xtk": "^10.0.0"
   },
   "scripts": {
     "start": "react-scripts start",

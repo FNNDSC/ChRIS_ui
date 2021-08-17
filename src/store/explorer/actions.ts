@@ -1,5 +1,5 @@
 import { action } from "typesafe-actions";
-import { ExplorerActionTypes } from "./types";
+import { ExplorerActionTypes, ExplorerMode } from "./types";
 
 import { DataNode } from "./types";
 
@@ -12,8 +12,8 @@ export const setSelectedFile = (selectedFile: DataNode) =>
 export const setSelectedFolder = (selectedFolder: DataNode[]) =>
   action(ExplorerActionTypes.SET_SELECTED_FOLDER, selectedFolder);
 
-export const toggleViewerMode = (isViewerOpened: boolean) =>
-  action(ExplorerActionTypes.TOGGLE_VIEWER_MODE, isViewerOpened);
+export const setExplorerMode = (mode: ExplorerMode) =>
+  action(ExplorerActionTypes.SET_EXPLORER_MODE, mode);
 
 export const destroyExplorer = () =>
   action(ExplorerActionTypes.DESTROY_EXPLORER);
