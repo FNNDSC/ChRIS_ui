@@ -37,4 +37,9 @@ export const fileViewerMap: any = {
   default: "CatchallDisplay",
   nii: "NiftiDisplay",
   gz: "NiftiDisplay",
+  mgz: "XtkDisplay",
+  fsm: "XtkDisplay",
+  crv: "XtkDisplay",
+  smoothwm: "XtkDisplay",
+  pial: "XtkDisplay"
 };

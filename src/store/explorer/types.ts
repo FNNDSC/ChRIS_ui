@@ -64,18 +64,24 @@ export type CheckInfo = {
   halfCheckedKeys?: Key[];
 };
 
+export enum ExplorerMode {
+  SwiftFileBrowser,
+  DicomViewer,
+  XtkViewer
+}
+
 // Description state for main user items[] and item
 export interface IExplorerState {
   explorer?: DataNode[];
   selectedFile?: DataNode;
   selectedFolder?: DataNode[];
-  viewerMode: boolean;
+  mode: ExplorerMode;
 }
 
 export const ExplorerActionTypes = keyMirror({
   SET_EXPLORER_REQUEST: null,
   SET_SELECTED_FILE: null,
   SET_SELECTED_FOLDER: null,
-  TOGGLE_VIEWER_MODE: null,
+  SET_EXPLORER_MODE: null,
   DESTROY_EXPLORER: null,
 });
