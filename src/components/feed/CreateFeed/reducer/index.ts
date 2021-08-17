@@ -6,11 +6,12 @@ import {
 } from "../types";
 import { Key } from "rc-tree/lib/interface";
 import { clearCache } from "../ChrisFileSelect";
-
+import { State as MainRouterContextState } from '../../../../routes';
 
 import { InputType } from "../../AddNode/types";
+import { Series } from "../../../../pages/DataLibrary/Library";
 
-function getDefaultCreateFeedData(): CreateFeedData {
+function getDefaultCreateFeedData(selectedData?: Series): CreateFeedData {
   return {
     feedName: "",
     feedDescription: "",
@@ -18,22 +19,29 @@ function getDefaultCreateFeedData(): CreateFeedData {
     chrisFiles: [],
     localFiles: [],
     checkedKeys:{},
+    selected: selectedData || [],
   };
 }
 
-export const initialState = {
-  wizardOpen: false,
-  step: 1,
-  data: getDefaultCreateFeedData(),
-  selectedPlugin: undefined,
-  selectedConfig: "",
-  requiredInput: {},
-  dropdownInput: {},
-  feedProgress: "",
-  feedError: "",
-  value: 0,
-  computeEnvironment: " ",
-};
+export function getInitialState(routerContextState?: typeof MainRouterContextState) {
+  const selectedData = routerContextState?.selectData;
+
+  return {
+    // if data is selected, the user is navigated directly to create feed wizard
+    wizardOpen: !!selectedData?.length,
+
+    step: 1,
+    data: getDefaultCreateFeedData(selectedData),
+    selectedPlugin: undefined,
+    selectedConfig: "",
+    requiredInput: {},
+    dropdownInput: {},
+    feedProgress: "",
+    feedError: "",
+    value: 0,
+    computeEnvironment: " ",
+  };
+}
 
 export const createFeedReducer = (
   state: CreateFeedState,

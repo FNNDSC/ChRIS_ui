@@ -4,23 +4,30 @@ import { useDispatch, connect } from "react-redux";
 import { Link } from "react-router-dom";
 import Moment from "react-moment";
 import {
+  InputGroup,
+  InputGroupText,
+  TextInput,
   PageSection,
-  PageSectionVariants,
   Title,
   Pagination,
   EmptyState,
   EmptyStateBody,
   Popover,
   Button,
-  Tooltip
+  Grid,
+  GridItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
-import { CodeBranchIcon, TrashAltIcon } from "@patternfly/react-icons";
+import {
+  CodeBranchIcon,
+  TrashAltIcon,
+  SearchIcon,
+} from "@patternfly/react-icons";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest, deleteFeed } from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
-import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
 import { Feed } from "@fnndsc/chrisapi";
@@ -46,7 +53,7 @@ const FeedListView: React.FC<AllProps> = ({
     filterState,
     handlePageSet,
     handlePerPageSet,
-    handleFilterChange,
+    debouncedFilterUpdate,
     run,
   } = usePaginate();
   const [currentId, setCurrentId] = React.useState<string | number>("none");
@@ -138,16 +145,13 @@ const FeedListView: React.FC<AllProps> = ({
             }}
             onClick={() => setCurrentId(feed.data.id)}
             icon={
-              <Tooltip
-                content={<div>Delete the Feed</div>}
-              >
+              <Tooltip content={<div>Delete the Feed</div>}>
                 <TrashAltIcon
                   style={{
                     color: "#004080 ",
                   }}
                 />
               </Tooltip>
-
             }
           />
         </Popover>
@@ -209,50 +213,72 @@ const FeedListView: React.FC<AllProps> = ({
     );
   }
   return (
-    <React.Fragment>
-      <PageSection variant={PageSectionVariants.light} className="feed-header">
-        <div className="feed-header__split">
-          <Title headingLevel="h1" size="3xl">
-            My Feeds
-            {totalFeedsCount > 0 ? (
-              <span className="feed-header__count">({totalFeedsCount})</span>
-            ) : null}
-          </Title>
-          <CreateFeedProvider>
-            <CreateFeed />
-          </CreateFeedProvider>
-        </div>
-      </PageSection>
-      <PageSection className="feed-list">
-        <div className="feed-list__split">
-          <DataTableToolbar
-            onSearch={handleFilterChange}
-            label="filter by name"
-          />
-          {generatePagination()}
-        </div>
-        {(!data && !loading) || (data && data.length === 0) ? (
-          <EmptyStateTable
-            cells={cells}
-            rows={rows}
-            caption="Empty Feed List"
-            title="No Feeds Found"
-            description="Create a Feed by clicking on the 'Create Feed' button"
-          />
-        ) : (
-          <Table
-            variant="compact"
-            aria-label="Data table"
-            cells={cells}
-            rows={rows}
-          >
-            <TableHeader />
-            {loading ? generateTableLoading() : <TableBody />}
-          </Table>
-        )}
-      </PageSection>
-      )
-    </React.Fragment>
+    <article style={{ maxWidth: "100%" }}>
+      <Grid>
+        <GridItem>
+          <PageSection className="feed-header">
+            <div className="feed-header__split">
+              <Title headingLevel="h1" size="3xl">
+                My Feeds
+                {totalFeedsCount > 0 ? (
+                  <span className="feed-header__count">
+                    ({totalFeedsCount})
+                  </span>
+                ) : null}
+              </Title>
+              <CreateFeedProvider>
+                <CreateFeed />
+              </CreateFeedProvider>
+            </div>
+          </PageSection>
+        </GridItem>
+        <GridItem>
+          <PageSection className="feed-list">
+            <div className="feed-list__split">
+              <div
+                style={{
+                  width: "20vw",
+                }}
+              >
+                <InputGroup>
+                  <InputGroupText>
+                    <SearchIcon />
+                  </InputGroupText>
+                  <TextInput
+                    id="textInput5"
+                    type="text"
+                    placeholder="Search by Feed Name..."
+                    aria-label="Filter Feeds"
+                    onChange={debouncedFilterUpdate}
+                  />
+                </InputGroup>
+              </div>
+
+              {generatePagination()}
+            </div>
+            {(!data && !loading) || (data && data.length === 0) ? (
+              <EmptyStateTable
+                cells={cells}
+                rows={rows}
+                caption="Empty Feed List"
+                title="No Feeds Found"
+                description="Create a Feed by clicking on the 'Create Feed' button"
+              />
+            ) : (
+              <Table
+                variant="compact"
+                aria-label="Data table"
+                cells={cells}
+                rows={rows}
+              >
+                <TableHeader />
+                {loading ? generateTableLoading() : <TableBody />}
+              </Table>
+            )}
+          </PageSection>
+        </GridItem>
+      </Grid>
+    </article>
   );
 };
 
