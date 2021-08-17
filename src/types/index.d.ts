@@ -13,6 +13,7 @@ declare module "enzyme-adapter-react-16";
 declare module "pako";
 declare module "cornerstone-core";
 declare module "cornerstone-tools";
+declare module "xtk";
 declare module "cornerstone-math";
 declare module "cornerstone-file-image-loader";
 declare module "cornerstone-web-image-loader";
