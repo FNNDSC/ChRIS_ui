@@ -22,7 +22,7 @@ import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import {
   CodeBranchIcon,
   TrashAltIcon,
-  FilterIcon,
+  SearchIcon,
 } from "@patternfly/react-icons";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
@@ -242,12 +242,12 @@ const FeedListView: React.FC<AllProps> = ({
               >
                 <InputGroup>
                   <InputGroupText>
-                    <FilterIcon />
+                    <SearchIcon />
                   </InputGroupText>
                   <TextInput
                     id="textInput5"
                     type="text"
-                    placeholder="Search by Feed Name"
+                    placeholder="Search by Feed Name..."
                     aria-label="Filter Feeds"
                     onChange={debouncedFilterUpdate}
                   />
