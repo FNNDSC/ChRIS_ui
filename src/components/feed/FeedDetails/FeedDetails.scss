@@ -10,8 +10,6 @@
 
 .feed-details {
   display: flex;
-  margin-top: 10px;
-  margin-bottom: 12px;
 
   &__textarea {
     --pf-c-form-control--BackgroundColor: var(
@@ -21,7 +19,6 @@
     font-family: "monospace";
     font-size: 1.25rem;
     height: 20em !important;
-   
   }
 
   &__actions {
@@ -33,10 +30,6 @@
 
   @include media-query($pf-global--breakpoint--xs) {
     flex-direction: column;
-
-    li {
-      margin-top: 0.25em;
-    }
   }
 
   @include media-query($pf-global--breakpoint--lg) {
@@ -47,7 +40,6 @@
   }
 
   li {
-    margin-top: 0;
     margin-right: 2em;
     svg {
       margin-right: 0.25em;

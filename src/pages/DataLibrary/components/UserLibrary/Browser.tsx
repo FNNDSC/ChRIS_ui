@@ -168,7 +168,6 @@ export const Browser: React.FC<BrowserProps> = ({
       <Route
         path={`${path}/:subfolder`}
         render={({ match }) => {
-          console.log("subfolder");
           for (const child of tree.dir) {
             if (child.name === match.params.subfolder) {
               if (child.isLast) {
