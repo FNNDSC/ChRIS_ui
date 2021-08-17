@@ -3,10 +3,15 @@ import { Feed } from "@fnndsc/chrisapi";
 import { FeedActionTypes, FeedsResponsePayload } from "./types";
 
 export const getAllFeedsRequest = (
-  name?: string,
+  name_startswith?: string,
   limit?: number,
   offset?: number
-) => action(FeedActionTypes.GET_ALL_FEEDS_REQUEST, { name, limit, offset });
+) =>
+  action(FeedActionTypes.GET_ALL_FEEDS_REQUEST, {
+    name_startswith,
+    limit,
+    offset,
+  });
 
 export const getAllFeedsSuccess = (feeds: FeedsResponsePayload) =>
   action(FeedActionTypes.GET_ALL_FEEDS_SUCCESS, feeds);
