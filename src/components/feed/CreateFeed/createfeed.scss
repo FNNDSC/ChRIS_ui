@@ -32,6 +32,26 @@
   .pf-c-wizard__nav .pf-m-current {
     color: var(--pf-c-wizard__nav-link--m-current--before--BackgroundColor);
   }
+
+  .pf-c-wizard__main-body {
+    // padding is moved to pacs-alert-wrap, to make pacs alert flush with border
+    padding: 0;
+  }
+}
+
+.pacs-alert-wrap {
+  .pacs-alert-step-wrap {
+    padding: var(--pf-c-wizard__main-body--PaddingTop)
+      var(--pf-c-wizard__main-body--PaddingRight)
+      var(--pf-c-wizard__main-body--PaddingBottom)
+      var(--pf-c-wizard__main-body--PaddingLeft);
+  }
+
+  .pacs-alert {
+    background: var(--pf-global--palette--blue-50);
+    padding: 11px 11px;
+    color: black;
+  }
 }
 
 /* Basic Information */

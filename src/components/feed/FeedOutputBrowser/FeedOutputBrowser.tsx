@@ -49,7 +49,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
   );
-  const explorerMode = useTypedSelector((state) => state.explorer.mode);
 
   const { data: plugins, loading } = pluginInstances;
 
@@ -94,11 +93,11 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     const handleXtkViewerOpen = () => {
       setPluginModalOpen(!pluginModalOpen);
       dispatch(setExplorerMode(ExplorerMode.XtkViewer));
-    }
+    };
 
     const handlePluginModalClose = () => {
       setPluginModalOpen(!pluginModalOpen);
-      dispatch(setExplorerMode(ExplorerMode.SwiftFileBrowser))
+      dispatch(setExplorerMode(ExplorerMode.SwiftFileBrowser));
     };
 
     let pluginSidebarTree;

@@ -31,7 +31,7 @@ import DicomHeader from "./DcmHeader/DcmHeader";
 import DicomLoader from "./DcmLoader";
 import DicomTag from "./DicomTag";
 import GalleryModel from "../../api/models/gallery.model";
-import { Image, GalleryState, CornerstoneEvent } from "./types";
+import { Image, GalleryState } from "./types";
 import { DataNode } from "../../store/explorer/types";
 
 cornerstoneTools.external.cornerstone = cornerstone;
@@ -92,8 +92,9 @@ function getInitialState() {
   };
 }
 
-const GalleryDicomView = () => {
-  const files = useTypedSelector((state) => state.explorer.selectedFolder);
+const GalleryDicomView = (props: { files?: DataNode[] }) => {
+  const _rfiles = useTypedSelector((state) => state.explorer.selectedFolder);
+  const files = props.files || _rfiles;
   const [galleryDicomState, setGalleryDicomState] =
     React.useState<GalleryState>(getInitialState);
 
