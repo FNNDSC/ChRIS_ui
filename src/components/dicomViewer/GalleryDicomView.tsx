@@ -463,70 +463,11 @@ const GalleryDicomView = (props: { files?: DataNode[] }) => {
                           activeTool={activeTool}
                           tools={tools}
                           imageIds={imageIds}
-                          onElementEnabled={(
-                            elementEnabledEvt: CornerstoneEvent
-                          ) => {
-                            if (elementEnabledEvt.detail) {
-                              const cornerstoneElement =
-                                elementEnabledEvt.detail.element;
-                              element.current = cornerstoneElement;
-                              if (cornerstoneElement) {
-                                cornerstoneElement.addEventListener(
-                                  "cornerstoneimagerendered",
-                                  (eventData: CornerstoneEvent) => {
-                                    if (eventData.detail) {
-                                      const image = eventData.detail.image;
-                                      currentImage.current = image;
-
-                                      const viewport =
-                                        eventData.detail.viewport;
-                                      if (viewport) {
-                                        const newViewport: any = {};
-                                        newViewport.voi = viewport.voi || {};
-                                        newViewport.voi.windowWidth =
-                                          image && image.windowWidth;
-                                        newViewport.voi.windowCenter =
-                                          image && image.windowCenter;
-                                        if (!viewport.displayedArea) {
-                                          newViewport.displayedArea = {
-                                            // Top Left Hand Corner
-                                            tlhc: {
-                                              x: 0,
-                                              y: 0,
-                                            },
-                                            // Bottom Right Hand Corner
-                                            brhc: {
-                                              x: 256,
-                                              y: 256,
-                                            },
-                                            rowPixelSpacing: 1,
-                                            columnPixelSpacing: 1,
-                                            presentationSizeMode:
-                                              "SCALE TO FIT",
-                                          };
-                                        }
-                                        const setViewport = Object.assign(
-                                          {},
-                                          viewport,
-                                          newViewport
-                                        );
-
-                                        cornerstone.setViewport(
-                                          cornerstoneElement,
-                                          setViewport
-                                        );
-                                      }
-                                    }
-                                  }
-                                );
-                              }
-                            }
-                          }}
                         />
                       </div>
                     </DrawerContentBody>
                   </DrawerContent>
-                </Drawer>
+                        </Drawer>
               </div>
             </ErrorBoundary>
           </React.Fragment>
