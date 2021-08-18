@@ -46,8 +46,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   const [toggleType, setToggleType] = useState(false);
   const onToggleType = () => setToggleType(!toggleType);
 
-  const [togglePACS, setTogglePACS] = useState(false);
-  const onTogglePACS = () => setTogglePACS(!togglePACS);
+  const [togglePACSList, setTogglePACSList] = useState(false);
+  const onTogglePACSList = () => setTogglePACSList(!togglePACSList);
 
   const [toggleAdvanced, setToggleAdvanced] = useState(false);
   const onToggleAdvanced = () => setToggleAdvanced(!toggleAdvanced);
@@ -157,10 +157,10 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <SplitItem>
                     <Dropdown
                       id="pacs-service"
-                      isOpen={togglePACS}
-                      onSelect={onTogglePACS}
+                      isOpen={togglePACSList}
+                      onSelect={onTogglePACSList}
                       toggle={
-                        <DropdownToggle onToggle={onTogglePACS}>
+                        <DropdownToggle onToggle={onTogglePACSList}>
                           { selectedPACS || 'PACS Service' }
                         </DropdownToggle>
                       }

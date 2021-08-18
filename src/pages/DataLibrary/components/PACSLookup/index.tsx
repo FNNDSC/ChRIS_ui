@@ -37,7 +37,6 @@ export const PACS = () => {
 
   const [loading, setLoading] = useState<boolean>();
   const [results, setResults] = useState<PACSPatient[]>();
-  const [_query, setLastQuery] = useState<PFDCMQuery>();
   const [PACS, setPACS] = useState<string[]>();
 
   useEffect(() => {
@@ -52,7 +51,6 @@ export const PACS = () => {
 
   const StartPACSQuery = useCallback(
     async (query: PFDCMQuery) => {
-      setLastQuery(query);
       setLoading(true);
 
       const { type, value, filters } = query;
@@ -82,9 +80,66 @@ export const PACS = () => {
   const onPACSSelect = (key: string) => {
     client.service = key;
   }
+
+  enum PACSPullStages {
+    RETRIEVE, PUSH, REGISTER, COMPLETED
+  }
+
+  const [pacsPullStage, setPacsPullStage] = useState<PACSPullStages>();
   
-  const onPACSPull = () => {
-    _query
+  const onPACSPull = async (query: PFDCMFilters) => {
+    setPacsPullStage(PACSPullStages.RETRIEVE);
+    await client.findRetrieve(query);
+
+    const { RETRIEVE, PUSH, REGISTER, COMPLETED } = PACSPullStages;
+    const stageText = (stage:PACSPullStages) => {
+      switch (stage) {
+        case RETRIEVE:  return "Retrieving";
+        case PUSH:      return "Pushing";
+        case REGISTER:  return "Registering";
+        case COMPLETED: return "Completed";
+      }
+    }
+    const __stageText = (text:string) => {
+      switch (text) {
+        case "Retrieving":  return RETRIEVE;
+        case "Pushing":     return PUSH;
+        case "Registering": return REGISTER;
+        case "Completed":   return COMPLETED;
+      }
+    }
+
+    return async function poll(prevStage: string) {
+      const { then } = (await client.find(query));
+      let stage = pacsPullStage || 0;
+      prevStage = prevStage || stageText(0);
+
+      if (then.status)
+        stage++;
+
+      if (__stageText(prevStage) !== stage) {
+        switch (stage) {
+          case PUSH:
+            client.findPushSwift(query);
+            break;
+          
+          case REGISTER:
+            client.findRegisterCube(query);
+            break;
+
+          case COMPLETED:
+            return {
+              status: "Completed",
+              progress: 1
+            }
+        }
+      }
+      
+      return {
+        status: stageText(stage),
+        // progress: 0.5
+      }
+    }
   }
 
   return (
@@ -97,7 +152,11 @@ export const PACS = () => {
           </GridItem>
 
           <GridItem>
-            <QueryBuilder PACS={PACS} onSelectPACS={onPACSSelect} onFinalize={StartPACSQuery} />
+            <QueryBuilder 
+              PACS={PACS} 
+              onSelectPACS={onPACSSelect} 
+              onFinalize={StartPACSQuery} 
+            />
           </GridItem>
           
           <GridItem/>

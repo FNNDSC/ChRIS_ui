@@ -32,15 +32,15 @@ function parseRawDcmValue(label: string, item: RawDcmItem) {
 
   // treat as dates (typescript forbids fallthrough switches)
   const dateLabels = [
-    'studyDate',
-    'patientBirthDate'
+    'StudyDate',
+    'PatientBirthDate'
   ]
 
   // treat as numbers
   const numberLabels = [
-    'numberOfStudyRelatedInstances', 
-    'numberOfStudyRelatedSeries',
-    'numberOfSeriesRelatedInstances',
+    'NumberOfStudyRelatedInstances', 
+    'NumberOfStudyRelatedSeries',
+    'NumberOfSeriesRelatedInstances',
   ];
 
   if (typeof value === 'string') {
@@ -68,11 +68,12 @@ export function flattenDcmArray(dcmArray: RawDcmObject[]) {
     for (const label of labels) {
       const item = dcmObject[label];
 
+      // @NOTE: This causes more problems than its worth
       // DCM labels are in PascalCase; converts to camelCase for typescript convention
-      const camelCaseLabel = `${label[0].toLowerCase()}${label.slice(1)}`;
+      // const camelCaseLabel = `${label[0].toLowerCase()}${label.slice(1)}`;
 
       if (isRawDcmItem(item)) {
-        flatObject[camelCaseLabel] = parseRawDcmValue(camelCaseLabel, item);
+        flatObject[label] = parseRawDcmValue(label, item);
       } else {
         flatObject[label] = flattenDcmArray(item);
       }
@@ -98,15 +99,15 @@ export function sortStudiesByPatient(studies: PACSStudy[]): PACSPatient[] {
 
   // sort studies by patient ID
   for (const study of studies) {
-    const processedStudies = patientsStudies[study.patientID] || [];
-    patientsStudies[study.patientID] = [ ...processedStudies, study ];
+    const processedStudies = patientsStudies[study.PatientID] || [];
+    patientsStudies[study.PatientID] = [ ...processedStudies, study ];
     
-    if (!patients[study.patientID]) {
-      patients[study.patientID] = {
-        patientID: study.patientID,
-        patientName: study.patientName,
-        patientSex: study.patientSex,
-        patientBirthDate: study.patientBirthDate,
+    if (!patients[study.PatientID]) {
+      patients[study.PatientID] = {
+        PatientID: study.PatientID,
+        PatientName: study.PatientName,
+        PatientSex: study.PatientSex,
+        PatientBirthDate: study.PatientBirthDate,
         studies: []
       }
     }
