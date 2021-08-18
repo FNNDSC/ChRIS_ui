@@ -92,7 +92,7 @@ class PFDCMClient {
    * @param filters Filters on the Query Obeject
    * @returns PACS Patient array
    */
-  private async query(query: any, filters: PFDCMFilters = {}) {
+  async find(query: PFDCMFilters = {}) {
     while (this.isLoadingPACSserviceList) {}
     if (!this.PACSservice.value)
       throw Error('Set the PACS service first, before querying.');
@@ -103,27 +103,23 @@ class PFDCMClient {
       headers: this.headers,
       data: {
         PACSservice: this.PACSservice,
-        listenerService: {
-          value: "default"
-        },
+        listenerService: { value: "default" },
         pypx_find: {
-          ...query, ...filters
+          ...query,
+          then: "status"
         }
-
       }
     }
 
     try {
-      const raw = (await axios(RequestConfig)).data.pypx
-      const studies = parseRawDcmData(raw);
-      return sortStudiesByPatient(studies);
+      return (await axios(RequestConfig)).data.pypx
     } catch (error) {
       console.error(error);
-      return []; 
+      return null; 
     }
   }
 
-  private async retrieve(query: any = {}) {
+  async findRetrieve(query: PFDCMFilters = {}) {
     if (!this.PACSservice.value)
       throw Error('Set the PACS service first.');
 
@@ -133,9 +129,7 @@ class PFDCMClient {
       headers: this.headers,
       data: {
         PACSservice: this.PACSservice,
-        listenerService: {
-          value: "default"
-        },
+        listenerService: { value: "default" },
         pypx_find: {
           ...query,
           then: "retrieve"
@@ -151,7 +145,7 @@ class PFDCMClient {
     }
   }
 
-  private async pushswift(query: any = {}) {
+  async findPushSwift(query: PFDCMFilters = {}) {
     if (!this.PACSservice.value)
       throw Error('Set the PACS service first.');
 
@@ -161,9 +155,7 @@ class PFDCMClient {
       headers: this.headers,
       data: {
         PACSservice: this.PACSservice,
-        listenerService: {
-          value: "default"
-        },
+        listenerService: { value: "default" },
         pypx_find: {
           ...query,
           then: "push",
@@ -174,7 +166,6 @@ class PFDCMClient {
             swiftPackEachDICOM: true
           })
         }
-
       }
     }
 
@@ -186,7 +177,7 @@ class PFDCMClient {
     }
   }
 
-  private async registercube(query: any = {}) {
+  async findRegisterCube(query: PFDCMFilters = {}) {
     if (!this.PACSservice.value)
       throw Error('Set the PACS service first.');
 
@@ -196,9 +187,7 @@ class PFDCMClient {
       headers: this.headers,
       data: {
         PACSservice: this.PACSservice,
-        listenerService: {
-          value: "default"
-        },
+        listenerService: { value: "default" },
         pypx_find: {
           ...query,           
           then: "register",
@@ -209,7 +198,6 @@ class PFDCMClient {
             parseAllFilesWithSubStr: "dcm"
           })
         }
-
       }
     }
 
@@ -222,17 +210,35 @@ class PFDCMClient {
   }
 
   async queryByPatientID(PatientID: string, filters: PFDCMFilters = {}) {
-    return this.query({ PatientID }, filters);
+    const raw = await this.find({ PatientID, ...filters });
+    if (raw) {
+      const studies = parseRawDcmData(raw);
+      return sortStudiesByPatient(studies);
+    } 
+    else 
+      return [];
   }
 
   async queryByPatientName(PatientName: string, filters: PFDCMFilters = {}) {
-    return this.query({ PatientName }, filters);
+    const raw = await this.find({ PatientName, ...filters });
+    if (raw) {
+      const studies = parseRawDcmData(raw);
+      return sortStudiesByPatient(studies);
+    } 
+    else 
+      return [];
   }
 
   async queryByStudyDate(date: Date, filters: PFDCMFilters = {}) {
     // date string format: yyyyMMddd (no spaces or dashes)
     const dateString = `${date.getFullYear()}${date.getMonth()}${date.getDate()}`;
-    return this.query({ StudyDate: dateString }, filters);
+    const raw = await this.find({ StudyDate: dateString, ...filters });
+    if (raw) {
+      const studies = parseRawDcmData(raw);
+      return sortStudiesByPatient(studies);
+    } 
+    else 
+      return [];
   }
 }
 
@@ -242,45 +248,45 @@ type PatientSex = 'M' | 'F' | 'O';
 type QueryRetrieveLevel = 'STUDY' | 'SERIES' | 'IMG';
 
 export interface PACSStudy {
-  accessionNumber: string;
-  instanceNumber: string;
-  modalitiesInStudy: string;
-  modality: string;
-  numberOfStudyRelatedInstances: number;
-  numberOfStudyRelatedSeries: number;
-  patientBirthDate: Date;
-  patientID: string;
-  patientName: string;
-  patientSex: PatientSex;
-  performedStationAETitle: string;
-  queryRetrieveLevel: QueryRetrieveLevel;
-  retrieveAETitle: string;
+  AccessionNumber: string;
+  InstanceNumber: string;
+  ModalitiesInStudy: string;
+  Modality: string;
+  NumberOfStudyRelatedInstances: number;
+  NumberOfStudyRelatedSeries: number;
+  PatientBirthDate: Date;
+  PatientID: string;
+  PatientName: string;
+  PatientSex: PatientSex;
+  PerformedStationAETitle: string;
+  QueryRetrieveLevel: QueryRetrieveLevel;
+  RetrieveAETitle: string;
+  StudyDate: Date;
+  StudyDescription: string;
+  StudyInstanceUID: string;
+  SeriesInstanceUID: string;
   series: PACSSeries[];
-  seriesInstanceUID: string;
-  studyDate: Date;
-  studyDescription: string;
-  studyInstanceUID: string;
   uid: number;
 }
 
 export interface PACSSeries {
-  accessionNumber: string;
-  instanceNumber: string;
-  modalitiesInStudy: string;
-  modality: string;
-  numberOfSeriesRelatedInstances: number;
-  numberOfStudyRelatedInstances: number;
-  numberOfStudyRelatedSeries: number;
-  patientBirthDate: Date;
-  patientID: string;
-  patientName: string;
-  patientSex: PatientSex;
-  queryRetrieveLevel: QueryRetrieveLevel;
-  retrieveAETitle: string;
-  seriesDescription: string;
-  seriesInstanceUID: string;
-  studyDate: Date;
-  studyInstanceUID: string;
+  AccessionNumber: string;
+  InstanceNumber: string;
+  ModalitiesInStudy: string;
+  Modality: string;
+  NumberOfSeriesRelatedInstances: number;
+  NumberOfStudyRelatedInstances: number;
+  NumberOfStudyRelatedSeries: number;
+  PatientBirthDate: Date;
+  PatientID: string;
+  PatientName: string;
+  PatientSex: PatientSex;
+  QueryRetrieveLevel: QueryRetrieveLevel;
+  RetrieveAETitle: string;
+  SeriesDescription: string;
+  SeriesInstanceUID: string;
+  StudyDate: Date;
+  StudyInstanceUID: string;
   command: string;
   label: string;
   status: string;
@@ -288,25 +294,23 @@ export interface PACSSeries {
 }
 
 export interface PACSPatient {
-  patientID: string;
-  patientName: string;
-  patientSex: PatientSex;
-  patientBirthDate: Date;
+  PatientID: string;
+  PatientName: string;
+  PatientSex: PatientSex;
+  PatientBirthDate: Date;
   studies: PACSStudy[];
 }
 
 export interface PFDCMFilters {
-  accessionNumber?: string;
-  instanceNumber?: string;
-  modality?: string;
-  patientBirthDate?: Date;
-  patientID?: string;
-  patientName?: string;
-  patientSex?: PatientSex;
-  retrieveAETitle?: string;
-  seriesDescription?: string;
-  seriesInstanceUID?: string;
-  studyDate?: Date;
-  studyInstanceUID?: string;
-  uid?: number;
+  AccessionNumber?: string;
+  Modality?: string;
+  PatientBirthDate?: Date;
+  PatientID?: string;
+  PatientName?: string;
+  PatientSex?: PatientSex;
+  RetrieveAETitle?: string;
+  // SeriesDescription?: string;
+  SeriesInstanceUID?: string;
+  StudyDate?: string;
+  StudyInstanceUID?: string;
 }

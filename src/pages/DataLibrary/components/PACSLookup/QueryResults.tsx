@@ -20,14 +20,15 @@ import Moment from "react-moment";
 import { PACSFile } from "@fnndsc/chrisapi";
 
 import "./pacs-lookup.scss";
-import { PACSPatient, PACSSeries, PACSStudy } from "../../../../api/pfdcm";
+import { PACSPatient, PACSSeries, PACSStudy, PFDCMFilters } from "../../../../api/pfdcm";
 import { LibraryContext, Series } from "../../Library";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import pluralize from "pluralize";
+import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[]
-  onPull?: () => void
+  onPull?: (filter: PFDCMFilters) => Promise<(stage: string) => Promise<any>>
 }
 
 export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: QueryResultsProps) => {
@@ -98,32 +99,42 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
   }
 
   const PatientCard = ({ patient }: { patient: PACSPatient }) => {
-    return <Card isExpanded={(expandedPatient === patient.patientID)}>
-      <CardHeader onExpand={expandPatient.bind(QueryResults, patient.patientID)}>
+    const { PatientID, PatientBirthDate, PatientName, PatientSex } = patient;
+
+    return <Card isHoverable isExpanded={(expandedPatient === PatientID)}>
+      <CardHeader onExpand={expandPatient.bind(QueryResults, PatientID)}>
         <Grid hasGutter style={{ width: "100%" }}>
           <GridItem lg={4}>
-            <div><b>{patient.patientName.split('^').reverse().join(" ")}</b></div>
-            <div>MRN {patient.patientID}</div>
+            <div><b>{PatientName.split('^').reverse().join(" ")}</b></div>
+            <div>MRN {PatientID}</div>
           </GridItem>
           <GridItem lg={4}>
-            <div><b>Sex</b> ({patient.patientSex})</div>
-            <div><b>DoB</b> <Moment format="MMMM Do YYYY">{patient.patientBirthDate.getTime()}</Moment></div>
+            <div><b>Sex</b> ({PatientSex})</div>
+            <div><b>DoB</b> <Moment format="MMMM Do YYYY">{PatientBirthDate.getTime()}</Moment></div>
           </GridItem>
 
           <GridItem lg={4} style={{ textAlign: "right", color: "gray" }}>
             <div><b>{patient.studies.length} {pluralize('studies', patient.studies.length)}</b></div>
-            <div>Latest on {LatestDate(patient.studies.map(s => s.studyDate)).toDateString()}</div>
+            <div>Latest on {LatestDate(patient.studies.map(s => s.StudyDate)).toDateString()}</div>
           </GridItem>
         </Grid>
       </CardHeader>
     </Card>
   }
 
+
+  const [isPulling, setIsPulling] = useState(false);
+  const [pullStatus, setPullStatus] = useState({
+    status: "Fetching"
+  });
+
   const StudyCard = ({ study }: { study: PACSStudy }) => {
+    const { StudyInstanceUID } = study;
+
     const chrisHasStudy: boolean = (
-      study.numberOfStudyRelatedInstances === existingPatientFiles?.reduce(
+      study.NumberOfStudyRelatedInstances === existingPatientFiles?.reduce(
         (count, file) => {
-          if (file.data.studyInstanceUID === study.seriesInstanceUID)
+          if (file.data.studyInstanceUID === StudyInstanceUID)
             count++;
           return count;
         },
@@ -134,25 +145,50 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
       if (existingPatientFiles) {
         const chrisStudySize = existingPatientFiles.reduce(
           (size, file) => {
-            if (file.data.studyInstanceUID === study.studyInstanceUID)
+            if (file.data.StudyInstanceUID === StudyInstanceUID)
               size += file.data.fsize;
             return size;
           }, 
         0);
 
-        if (chrisHasStudy)
+        if (chrisHasStudy || ( !!pullStatus && pullStatus.status === "Completed" ))
           return <div style={{ color: "gray" }}>
             <b style={{ color: "darkgreen" }}>Downloaded</b>
-            <div>{(chrisStudySize / (1024 * 1024)).toFixed(3)} MB</div>
+            { (chrisStudySize !== 0) && <div>{(chrisStudySize / (1024 * 1024)).toFixed(3)} MB</div> }
           </div>
 
-        if (onPull)
+        if (onPull) {
+          const onPullStudy = async () => {
+            setIsPulling(true);
+
+            if (onPull) {
+              const poll = await onPull({ StudyInstanceUID });
+
+              while (pullStatus.status !== "Completed") {
+                const _status = await poll(pullStatus.status);
+                setPullStatus(_status);
+              }
+
+              setIsPulling(false);
+            }
+          }
+          
           return <div>
-            <Button variant="link" style={{ padding: "0" }} onClick={() => onPull()}>
-              <b>Pull Study</b>
-            </Button>
-            <div style={{ color: "gray" }}>{study.numberOfStudyRelatedInstances} files</div>
+            {
+              isPulling ? (
+                <b>{ pullStatus.status }</b>
+              ) : (
+                <Button variant="link" style={{ padding: "0" }} 
+                  isDisabled={isPulling}
+                  onClick={onPullStudy}
+                >
+                  <b>Pull Study</b>
+                </Button>
+              )
+            }
+            <div style={{ color: "gray" }}>{study.NumberOfStudyRelatedInstances} files</div>
           </div>
+        }
         
         return null
       }
@@ -160,15 +196,15 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
       return <Spinner size="lg" />
     }
 
-    return <Card isExpanded={expandedStudy === study.studyInstanceUID}>
-      <CardHeader onExpand={expandStudy.bind(QueryResults, study.studyInstanceUID)}>
+    return <Card isHoverable isExpanded={expandedStudy === StudyInstanceUID}>
+      <CardHeader onExpand={expandStudy.bind(QueryResults, StudyInstanceUID)}>
         <Split>
           <SplitItem style={{ minWidth: "30%", margin: "0 1em 0 0" }}>
             <div>
               <b style={{ marginRight: "0.5em" }}>
-                {study.studyDescription}
+                {study.StudyDescription}
               </b> {
-                study.studyDate.getTime() >= Date.now() - (30 * 24*60*60*1000) ? (
+                study.StudyDate.getTime() >= Date.now() - (30 * 24*60*60*1000) ? (
                   <Tooltip content="Study was performed in the last 30 days.">
                     <Badge>NEW</Badge>
                   </Tooltip>
@@ -176,13 +212,13 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
               }
             </div>
             <div>
-              {study.numberOfStudyRelatedSeries} series, on {study.studyDate.toDateString()}
+              {study.NumberOfStudyRelatedSeries} series, on {study.StudyDate.toDateString()}
             </div>
           </SplitItem>
           <SplitItem>
             <div>Modalities in Study</div>
             <div>
-              { study.modalitiesInStudy.split('\\').map(m => (
+              { study.ModalitiesInStudy.split('\\').map(m => (
                 <Badge style={{ margin: "auto 0.125em", backgroundColor: "darkgrey" }} key={m}>{m}</Badge>
               ))}
             </div>
@@ -190,11 +226,11 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
           <SplitItem isFilled/>
 
           { 
-            !study.performedStationAETitle.startsWith("no value") && 
+            !study.PerformedStationAETitle.startsWith("no value") && 
             <SplitItem style={{ textAlign: "right" }}>
               <div>Performed at</div>
               <div>
-                { study.performedStationAETitle }
+                { study.PerformedStationAETitle }
               </div>
             </SplitItem>
           }
@@ -208,10 +244,11 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
   }
 
   const SeriesCard = ({ series }: { series: PACSSeries }) => {
+    const { SeriesInstanceUID } = series;
     const chrisHasSeries: boolean = (
-      series.numberOfSeriesRelatedInstances === existingStudyFiles?.reduce(
+      series.NumberOfSeriesRelatedInstances === existingStudyFiles?.reduce(
           (count, file) => {
-            if (file.data.seriesInstanceUID === series.seriesInstanceUID)
+            if (file.data.SeriesInstanceUID === SeriesInstanceUID)
               count++;
             return count;
           }, 
@@ -220,17 +257,25 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
 
     const ChrisSeries = (
       existingStudyFiles?.filter(
-        (file) => file.data.seriesInstanceUID === series.seriesInstanceUID
+        (file) => file.data.seriesInstanceUID === SeriesInstanceUID
       ) || []
     ).map((file) => file.data.fname);
 
     const SeriesActions = () => {
       if (existingStudyFiles) {
         if (chrisHasSeries)
-          return <Button variant="link" style={{ padding: "0" }}>Select</Button>
+          return <Button 
+            variant="link" 
+            style={{ padding: "0" }}
+            onClick={select.bind(QueryResults, ChrisSeries)}
+            >
+              Select
+            </Button>
         
         if (onPull)
-          return <Button variant="link" style={{ padding: "0" }}>Pull</Button>
+          return <Tooltip content="Pull this study to use this series">
+            <ExclamationTriangleIcon/>
+          </Tooltip>
 
         return null
       }
@@ -239,18 +284,18 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
     }
 
     return <Card 
+      isHoverable
       isSelectable={chrisHasSeries}
       isSelected={library.actions.isSeriesSelected(ChrisSeries)}
-      onClick={chrisHasSeries ? select.bind(QueryResults, ChrisSeries) : undefined}
     >
       <CardHeader>
         <Split style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
           <SplitItem style={{ minWidth: "50%" }} isFilled>
-            <Badge style={{ margin: "0 1em 0 0" }}>{series.modality}</Badge> 
-            <span>{ series.seriesDescription }</span>
+            <Badge style={{ margin: "0 1em 0 0" }}>{series.Modality}</Badge> 
+            <span>{ series.SeriesDescription }</span>
           </SplitItem>
           <SplitItem style={{ color: "gray", margin: "0 2em", textAlign: "right" }}>
-            {series.numberOfSeriesRelatedInstances} files
+            {series.NumberOfSeriesRelatedInstances} files
           </SplitItem>
           <SplitItem>
             <SeriesActions/>       
@@ -281,21 +326,21 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
   return (
     <Grid hasGutter id="pacs-query-results">
     { results.map((patient) => (
-      <GridItem key={patient.patientID}>
+      <GridItem key={patient.PatientID}>
         <PatientCard patient={patient} />
 
         { 
-          (expandedPatient === patient.patientID) &&
+          (expandedPatient === patient.PatientID) &&
           <Grid hasGutter className="patient-studies">
           { patient.studies.map((study) => (
-            <GridItem key={study.studyInstanceUID}>
+            <GridItem key={study.StudyInstanceUID}>
               <StudyCard study={study} />
 
               { 
-                expandedStudy === study.studyInstanceUID &&
+                expandedStudy === study.StudyInstanceUID &&
                 <Grid hasGutter className="patient-series">
                 { study.series.map((series) => (
-                  <GridItem key={series.seriesInstanceUID}>
+                  <GridItem key={series.SeriesInstanceUID}>
                     <SeriesCard series={series} />
                   </GridItem>
                 ))}
