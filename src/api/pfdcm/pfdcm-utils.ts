@@ -1,4 +1,4 @@
-import { PACSStudy } from ".";
+import { PACSPatient, PACSStudy } from ".";
 
 /**
  * Parse Raw DCM Data
@@ -85,4 +85,40 @@ export function flattenDcmArray(dcmArray: RawDcmObject[]) {
 // Parses raw DCM object returned by PFDCM, transforms to more usable `PACSStudy[]` structure
 export function parseRawDcmData(rawData: RawDcmData): PACSStudy[] {
   return flattenDcmArray(rawData.data);
+}
+
+/**
+ * Sort PACS Studies into PACS Patients.
+ * @param studies PACS Study array to turn into patient array
+ * @returns PACS Patient array
+ */
+export function sortStudiesByPatient(studies: PACSStudy[]): PACSPatient[] {
+  const patientsStudies : { [id: string]: PACSStudy[] } = {}; // map of patient ID : studies
+  const patients: { [id: string]: PACSPatient } = {}; // map of patient ID: patient data
+
+  // sort studies by patient ID
+  for (const study of studies) {
+    const processedStudies = patientsStudies[study.patientID] || [];
+    patientsStudies[study.patientID] = [ ...processedStudies, study ];
+    
+    if (!patients[study.patientID]) {
+      patients[study.patientID] = {
+        patientID: study.patientID,
+        patientName: study.patientName,
+        patientSex: study.patientSex,
+        patientBirthDate: study.patientBirthDate,
+        studies: []
+      }
+    }
+  }
+
+  // combine sorted studies and patient data
+  for (const patientId of Object.keys(patientsStudies)) {
+    patients[patientId] = {
+      ...patients[patientId],
+      studies: patientsStudies[patientId]
+    }
+  }
+
+  return Object.values(patients);
 }

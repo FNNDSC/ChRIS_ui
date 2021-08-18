@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Wrapper from "../../../../containers/Layout/PageWrapper";
 import {
   Grid,
@@ -27,7 +27,7 @@ export enum PFDCMQueryTypes {
 export interface PFDCMQuery {
   type: PFDCMQueryTypes
   value: any
-  filters: PFDCMFilters | null
+  filters: PFDCMFilters
 }
 
 const client = new PFDCMClient;
@@ -37,12 +37,25 @@ export const PACS = () => {
 
   const [loading, setLoading] = useState<boolean>();
   const [results, setResults] = useState<PACSPatient[]>();
+  const [_query, setLastQuery] = useState<PFDCMQuery>();
+  const [PACS, setPACS] = useState<string[]>();
+
+  useEffect(() => {
+    client.getPACSservices().then((list) => {
+      setPACS(list);
+      if (list.length === 1)
+        client.service = list.shift() as string
+      else if (list.length > 1)
+        client.service = list[1];
+    })
+  }, [])
 
   const StartPACSQuery = useCallback(
-    async ({ type, value, filters }: PFDCMQuery) => {
+    async (query: PFDCMQuery) => {
+      setLastQuery(query);
       setLoading(true);
-      filters = filters ? filters as PFDCMFilters : {};
 
+      const { type, value, filters } = query;
       let response: PACSPatient[];
       switch (type) {
         case PFDCMQueryTypes.PATIENT:
@@ -54,17 +67,25 @@ export const PACS = () => {
           break;
 
         case PFDCMQueryTypes.MRN:
-          response = await client.queryByMrn(value, filters);
+          response = await client.queryByPatientID(value, filters);
           break;
 
         default:
-          throw Error()
+          throw TypeError('Unsupported PFDCM Query Type');
       }
 
       setResults(response);
       setLoading(false);
     },
   [])
+
+  const onPACSSelect = (key: string) => {
+    client.service = key;
+  }
+  
+  const onPACSPull = () => {
+    _query
+  }
 
   return (
     <Wrapper>
@@ -76,7 +97,7 @@ export const PACS = () => {
           </GridItem>
 
           <GridItem>
-            <QueryBuilder onFinalize={StartPACSQuery} />
+            <QueryBuilder PACS={PACS} onSelectPACS={onPACSSelect} onFinalize={StartPACSQuery} />
           </GridItem>
           
           <GridItem/>
@@ -91,7 +112,10 @@ export const PACS = () => {
                     </GridItem>
 
                     <GridItem>
-                      <QueryResults results={results} />
+                      <QueryResults 
+                        results={results} 
+                        onPull={onPACSPull} 
+                      />
                     </GridItem>
                   </>
                 ) : (

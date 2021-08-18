@@ -23,21 +23,33 @@ import "./pacs-lookup.scss";
 import { PACSPatient, PACSSeries, PACSStudy } from "../../../../api/pfdcm";
 import { LibraryContext, Series } from "../../Library";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
+import pluralize from "pluralize";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[]
+  onPull?: () => void
 }
 
-export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResultsProps) => {
+export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: QueryResultsProps) => {
   const library = useContext(LibraryContext);
   const client = ChrisAPIClient.getClient();
+
+  const select = (items: Series) => {
+    if (!library.actions.isSeriesSelected(items))
+      library.actions.select(items)
+    else
+      library.actions.clear(items)
+  }
 
   const [expandedPatient, setExpandedPatient] = useState<string>()
   const expandPatient = (patientID:string) => {
     if (expandedPatient && expandedPatient === patientID)
       setExpandedPatient(undefined);
-    else
+    else {
       setExpandedPatient(patientID);
+      setExistingPatientFiles(undefined);
+      getPACSFilesForThisPatient(patientID);
+    }
   }
 
   const [expandedStudy, setExpandedStudy] = useState<string>()
@@ -47,8 +59,20 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
     else {
       setExpandedStudy(studyUID);
       setExistingStudyFiles(undefined);
-      getPACSFilesForThisStudy(studyUID);      
+      getPACSFilesForThisStudy(studyUID);
     }
+  }
+
+  const [existingPatientFiles, setExistingPatientFiles] = useState<PACSFile[]>();
+  const getPACSFilesForThisPatient = async (PatientID:string) => {
+    setExistingPatientFiles(
+      (
+        await client.getPACSFiles({
+          PatientID,
+          limit: 10e6,
+        })
+      ).getItems() || []
+    );
   }
 
   const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFile[]>();
@@ -64,13 +88,6 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
     );
   }
 
-  const select = (items: Series) => {
-    if (!library.actions.isSeriesSelected(items))
-      library.actions.select(items)
-    else
-      library.actions.clear(items)
-  }
-
   const LatestDate = (dates: Date[]) => {
     let latestStudy = dates[0];
     for (const date of dates) {
@@ -84,21 +101,17 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
     return <Card isExpanded={(expandedPatient === patient.patientID)}>
       <CardHeader onExpand={expandPatient.bind(QueryResults, patient.patientID)}>
         <Grid hasGutter style={{ width: "100%" }}>
-          <GridItem lg={2}>
+          <GridItem lg={4}>
             <div><b>{patient.patientName.split('^').reverse().join(" ")}</b></div>
             <div>MRN {patient.patientID}</div>
           </GridItem>
-          <GridItem lg={1}>
-            <div><b>Sex</b></div>
-            <div>({patient.patientSex})</div>
-          </GridItem>
-          <GridItem lg={6}>
-            <div><b>DoB</b></div>
-            <div><Moment format="MMMM Do YYYY">{patient.patientBirthDate.getTime()}</Moment></div>
+          <GridItem lg={4}>
+            <div><b>Sex</b> ({patient.patientSex})</div>
+            <div><b>DoB</b> <Moment format="MMMM Do YYYY">{patient.patientBirthDate.getTime()}</Moment></div>
           </GridItem>
 
-          <GridItem lg={3} style={{ textAlign: "right", color: "gray" }}>
-            <div><b>{patient.studies.length} studies</b></div>
+          <GridItem lg={4} style={{ textAlign: "right", color: "gray" }}>
+            <div><b>{patient.studies.length} {pluralize('studies', patient.studies.length)}</b></div>
             <div>Latest on {LatestDate(patient.studies.map(s => s.studyDate)).toDateString()}</div>
           </GridItem>
         </Grid>
@@ -107,6 +120,46 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
   }
 
   const StudyCard = ({ study }: { study: PACSStudy }) => {
+    const chrisHasStudy: boolean = (
+      study.numberOfStudyRelatedInstances === existingPatientFiles?.reduce(
+        (count, file) => {
+          if (file.data.studyInstanceUID === study.seriesInstanceUID)
+            count++;
+          return count;
+        },
+      0)
+    );
+
+    const StudyActions = () => {
+      if (existingPatientFiles) {
+        const chrisStudySize = existingPatientFiles.reduce(
+          (size, file) => {
+            if (file.data.studyInstanceUID === study.studyInstanceUID)
+              size += file.data.fsize;
+            return size;
+          }, 
+        0);
+
+        if (chrisHasStudy)
+          return <div style={{ color: "gray" }}>
+            <b style={{ color: "darkgreen" }}>Downloaded</b>
+            <div>{(chrisStudySize / (1024 * 1024)).toFixed(3)} MB</div>
+          </div>
+
+        if (onPull)
+          return <div>
+            <Button variant="link" style={{ padding: "0" }} onClick={() => onPull()}>
+              <b>Pull Study</b>
+            </Button>
+            <div style={{ color: "gray" }}>{study.numberOfStudyRelatedInstances} files</div>
+          </div>
+        
+        return null
+      }
+      
+      return <Spinner size="lg" />
+    }
+
     return <Card isExpanded={expandedStudy === study.studyInstanceUID}>
       <CardHeader onExpand={expandStudy.bind(QueryResults, study.studyInstanceUID)}>
         <Split>
@@ -135,17 +188,19 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
             </div>
           </SplitItem>
           <SplitItem isFilled/>
-          <SplitItem style={{ textAlign: "right" }}>
-            <div>Performed at</div>
-            <div>
-              { study.performedStationAETitle.startsWith("no value") ? 'unknown' : study.performedStationAETitle }
-            </div>
-          </SplitItem>
-          <SplitItem style={{ color: "gray", margin: "0 0 0 2em",  textAlign: "right" }}>
-            <Button variant="link" style={{ padding: "0" }} onClick={() => expandStudy(study.studyInstanceUID)}>
-              Browse
-            </Button>
-            <div>{study.numberOfStudyRelatedInstances} files</div>
+
+          { 
+            !study.performedStationAETitle.startsWith("no value") && 
+            <SplitItem style={{ textAlign: "right" }}>
+              <div>Performed at</div>
+              <div>
+                { study.performedStationAETitle }
+              </div>
+            </SplitItem>
+          }
+
+          <SplitItem style={{ margin: "auto 0 auto 2em", textAlign: "right", fontSize: "small" }}>
+            <StudyActions/>
           </SplitItem>
         </Split>
       </CardHeader>
@@ -153,14 +208,14 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
   }
 
   const SeriesCard = ({ series }: { series: PACSSeries }) => {
-    const chrisHasSeries = (
+    const chrisHasSeries: boolean = (
       series.numberOfSeriesRelatedInstances === existingStudyFiles?.reduce(
-        (count, file) => {
-          if (file.data.seriesInstanceUID === series.seriesInstanceUID)
-            count++;
-          return count;
-        }, 
-      0)
+          (count, file) => {
+            if (file.data.seriesInstanceUID === series.seriesInstanceUID)
+              count++;
+            return count;
+          }, 
+        0)
     );
 
     const ChrisSeries = (
@@ -168,6 +223,20 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
         (file) => file.data.seriesInstanceUID === series.seriesInstanceUID
       ) || []
     ).map((file) => file.data.fname);
+
+    const SeriesActions = () => {
+      if (existingStudyFiles) {
+        if (chrisHasSeries)
+          return <Button variant="link" style={{ padding: "0" }}>Select</Button>
+        
+        if (onPull)
+          return <Button variant="link" style={{ padding: "0" }}>Pull</Button>
+
+        return null
+      }
+      
+      return <Spinner size="md" />
+    }
 
     return <Card 
       isSelectable={chrisHasSeries}
@@ -184,13 +253,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
             {series.numberOfSeriesRelatedInstances} files
           </SplitItem>
           <SplitItem>
-            {
-              existingStudyFiles ?
-                !chrisHasSeries ? 
-                  <Button variant="link" style={{ padding: "0" }}>Pull</Button>
-                : <Button variant="link" style={{ padding: "0" }}>Use</Button>
-              : <Spinner size="md" />
-            }            
+            <SeriesActions/>       
           </SplitItem>
         </Split>
       </CardHeader>

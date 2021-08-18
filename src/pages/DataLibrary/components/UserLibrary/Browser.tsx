@@ -138,15 +138,14 @@ export const Browser: React.FC<BrowserProps> = ({
     setFilesPath(folder.path);
     setFiles(undefined);
 
+    if (then === "feed")
+      return router.actions.createFeedWithData([ folder.path ]);
+
     const _files = (await fetchFiles(folder.path)).dir
     const items = _files?.filter(({ item }) => !!item) || [];
     setFiles(_files);
 
-    switch (then) {
-      case "feed":
-        router.actions.createFeedWithData([ folder.path ]);
-        break;
-        
+    switch (then) {        
       case "view":
         setViewFolder(
           items.map(({ item }) => ({
@@ -221,7 +220,7 @@ export const Browser: React.FC<BrowserProps> = ({
         }}
       />
 
-      <Route path={path}>
+      <Route exact path={path}>
         {!!withHeader && (
           <section>
             {path && (
@@ -294,12 +293,12 @@ export const Browser: React.FC<BrowserProps> = ({
                   isRounded
                   isCompact
                   isSelectable
-                  isSelected={library.actions.isSelected(item)}
+                  isSelected={library.actions.isSelected(item.data.fname)}
                   style={{ overflow: "hidden" }}
                 >
                   <CardBody>
                     <div
-                      onClick={select.bind(Browser, item)}
+                      onClick={() => setViewFile(item)}
                       style={{
                         margin: "-1.15em -1.15em 1em -1.15em",
                         maxHeight: "10em",
@@ -312,9 +311,9 @@ export const Browser: React.FC<BrowserProps> = ({
                       <Button
                         variant="link"
                         style={{ padding: "0" }}
-                        onClick={() => setViewFile(item)}
+                        onClick={select.bind(Browser, item.data.fname)}
                       >
-                        <b>{elipses(fname, 20)}</b>
+                        <b>{elipses(fname, 22)}</b>
                       </Button>
                     </div>
                     <div>{(item.data.fsize / (1024 * 1024)).toFixed(3)} MB</div>
@@ -435,7 +434,7 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected }: FolderCard
 
           <SplitItem isFilled>
             <div>
-            <Link to={`/library/${prefix}/${name}`}>{elipses(name, 25)}</Link>
+              <Link to={`/library/${prefix}/${name}`}>{elipses(name, 28)}</Link>
               <Route exact path="/library/search">
                 <Badge style={{ margin: "0 0.5em" }}>
                   {children.length} {pluralize("match", children.length)}
