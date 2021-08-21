@@ -36,45 +36,62 @@ class PFDCMClient {
     this.url = process.env.REACT_APP_PFDCM_URL as string
     this.cube = process.env.REACT_APP_PFDCM_CUBEKEY as string
     this.swift = process.env.REACT_APP_PFDCM_SWIFTKEY as string
+    
+    const _service = localStorage.getItem("PFDCM_SET_SERVICE");
+    if (_service)
+      this.PACSservice = {
+        value: _service
+      }
   }
 
   /**
-   * Get the registered PACS service to use for pfdcm
+   * Get the registered PACS service to use for pfdcm.
    */
   get service() {
-    while (this.isLoadingPACSserviceList) {}
     return this.PACSservice.value
   }
 
   /**
-   * Set a registered PACS service key to use for pfdcm
+   * Set a registered PACS service key to use for pfdcm.
    */
   set service(key: string) {
     if (!this.PACSserviceList.includes(key))
       throw Error(`'${key}' is not a registered PACS service.`)
 
+    localStorage.setItem("PFDCM_SET_SERVICE", key);
     this.PACSservice = {
       value: key
     }
   }
 
   /**
-   * Get a list of registered PACS services from pfdcm
+   * Get list of registered PACS services.
+   */
+   get serviceList() {
+    while (this.isLoadingPACSserviceList) {}
+    return this.PACSserviceList
+  }
+
+  /**
+   * Get a list of registered PACS services from pfdcm.
    * @returns PACSservice key list
    */
   async getPACSservices(): Promise<string[]> {
+    this.isLoadingPACSserviceList = true;
     try {
       const list = await axios.get(`${this.url}api/v1/PACSservice/list/`)
       this.PACSserviceList = list.data;
+      this.isLoadingPACSserviceList = false;
       return list.data;
     } catch (error) {
       console.error(error)
+      this.isLoadingPACSserviceList = false;
       return [];
     }
   }
 
   /**
-   * Get properties of a registered PACS service from pfdcm
+   * Get properties of a registered PACS service from pfdcm.
    * @returns PACSservice
    */
   async getServiceData(key: string) {
@@ -87,7 +104,7 @@ class PFDCMClient {
   }
 
   /**
-   * Send request to the `/pypx` endpoint, used for query and retrieve
+   * Send request to the `/pypx` endpoint, used for query and retrieve.
    * @param query Query Object
    * @param filters Filters on the Query Obeject
    * @returns PACS Patient array
