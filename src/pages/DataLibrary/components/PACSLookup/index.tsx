@@ -30,6 +30,10 @@ export interface PFDCMQuery {
   filters: PFDCMFilters
 }
 
+enum PACSPullStages {
+  ERROR, RETRIEVE, PUSH, REGISTER, COMPLETED
+}
+
 const client = new PFDCMClient;
 
 export const PACS = () => {
@@ -37,15 +41,21 @@ export const PACS = () => {
 
   const [loading, setLoading] = useState<boolean>();
   const [results, setResults] = useState<PACSPatient[]>();
-  const [PACS, setPACS] = useState<string[]>();
+  const [selectedPACS, setSelectedPACS] = useState<string>();
+  const [PACSservices, setPACSservices] = useState<string[]>();
 
   useEffect(() => {
     client.getPACSservices().then((list) => {
-      setPACS(list);
-      if (list.length === 1)
-        client.service = list.shift() as string
-      else if (list.length > 1)
-        client.service = list[1];
+      setPACSservices(list);
+
+      if (!client.service) {
+        if (list.length === 1)
+          client.service = list.shift() as string
+        else if (list.length > 1)
+          client.service = list[1];
+      }
+
+      setSelectedPACS(client.service)
     })
   }, [])
 
@@ -79,68 +89,168 @@ export const PACS = () => {
 
   const onPACSSelect = (key: string) => {
     client.service = key;
+    setSelectedPACS(client.service)
   }
 
-  enum PACSPullStages {
-    RETRIEVE, PUSH, REGISTER, COMPLETED
+  const [pacsPullStage, setPacsPullStage] = useState(PACSPullStages.RETRIEVE);
+  const __stageText = (stage:PACSPullStages) => {
+    switch (stage) {
+      case PACSPullStages.ERROR:     return "Error";
+      case PACSPullStages.RETRIEVE:  return "Retrieving";
+      case PACSPullStages.PUSH:      return "Pushing";
+      case PACSPullStages.REGISTER:  return "Registering";
+      case PACSPullStages.COMPLETED: return "Completed";
+    }
   }
-
-  const [pacsPullStage, setPacsPullStage] = useState<PACSPullStages>();
   
-  const onPACSPull = async (query: PFDCMFilters) => {
-    setPacsPullStage(PACSPullStages.RETRIEVE);
-    await client.findRetrieve(query);
+  // const __stageText = (text:string) => {
+  //   switch (text) {
+  //     case "Fetching":    return PACSPullStages.INIT;
+  //     case "Retrieving":  return PACSPullStages.RETRIEVE;
+  //     case "Pushing":     return PACSPullStages.PUSH;
+  //     case "Registering": return PACSPullStages.REGISTER;
+  //     case "Completed":   return PACSPullStages.COMPLETED;
+  //   }
+  // }
 
-    const { RETRIEVE, PUSH, REGISTER, COMPLETED } = PACSPullStages;
-    const stageText = (stage:PACSPullStages) => {
-      switch (stage) {
-        case RETRIEVE:  return "Retrieving";
-        case PUSH:      return "Pushing";
-        case REGISTER:  return "Registering";
-        case COMPLETED: return "Completed";
-      }
-    }
-    const __stageText = (text:string) => {
-      switch (text) {
-        case "Retrieving":  return RETRIEVE;
-        case "Pushing":     return PUSH;
-        case "Registering": return REGISTER;
-        case "Completed":   return COMPLETED;
-      }
-    }
+  // const onPACSPull = useCallback(
+  //   async (query: PFDCMFilters) => {
+  //     let then;
+  //     let condition = true;
 
-    return async function poll(prevStage: string) {
-      const { then } = (await client.find(query));
-      let stage = pacsPullStage || 0;
-      prevStage = prevStage || stageText(0);
+  //     while (pacsPullStage !== PACSPullStages.COMPLETED && condition) {
+  //       try {
+  //         switch (pacsPullStage) {
+  //           case PACSPullStages.RETRIEVE:
+  //             ({ then } = (await client.findRetrieve(query)));
+  //             condition = !then.status;
+  //             break;
+  
+  //           case PACSPullStages.PUSH:
+  //             ({ then } = (await client.findPushSwift(query)));
+  //             condition = then["00-push"].study.every((study:any) => {
+  //               for (const studyUID in study) {
+  //                 if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
+  //                   return study[studyUID].every((series:any) => series.status)               
+  //                 }
+  //               }
+  //             })
+  //             break;
+  
+  //           case PACSPullStages.REGISTER:
+  //             ({ then } = (await client.findRegisterCube(query)));
+  //             condition = then["00-register"].study.every((study:any) => {
+  //               for (const studyUID in study) {
+  //                 if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
+  //                   return study[studyUID].every((series:any) => series.status)               
+  //                 }
+  //               }
+  //             })
+  //             break;
+  //         }
 
-      if (then.status)
-        stage++;
+  //         if (condition)
+  //           setPacsPullStage(pacsPullStage + 1);
+  //       } catch (error) {
+  //         console.error(error);
+  //         condition = false;
+  //         return;
+  //       }
+  //     }
+  //   },
+  //   [pacsPullStage]
+  // )
 
-      if (__stageText(prevStage) !== stage) {
-        switch (stage) {
-          case PUSH:
-            client.findPushSwift(query);
-            break;
-          
-          case REGISTER:
-            client.findRegisterCube(query);
-            break;
+  // const onPACSPull = useCallback(
+  //   async (query: PFDCMFilters) => {
+  //     let then;
+  //     let condition = true;
 
-          case COMPLETED:
-            return {
-              status: "Completed",
-              progress: 1
-            }
-        }
-      }
-      
-      return {
-        status: stageText(stage),
-        // progress: 0.5
-      }
-    }
-  }
+  //     try {
+  //       ({ then } = (await client.findRetrieve(query)));
+  //       condition = !then.status;
+  //       // for (let i = 1000000; i < 0; i--) {}
+  //       if (condition) setPacsPullStage(pacsPullStage + 1);
+
+  //       ({ then } = (await client.findPushSwift(query)));
+  //       condition = then["00-push"].study.every((study:any) => {
+  //         for (const studyUID in study) {
+  //           if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
+  //             return study[studyUID].every((series:any) => series.status)               
+  //           }
+  //         }
+  //       })
+  //       // for (let i = 1000000; i < 0; i--) {}
+  //       if (condition) setPacsPullStage(pacsPullStage + 1);
+
+  //       ({ then } = (await client.findRegisterCube(query)));
+  //       condition = then["00-register"].study.every((study:any) => {
+  //         for (const studyUID in study) {
+  //           if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
+  //             return study[studyUID].every((series:any) => series.status)               
+  //           }
+  //         }
+  //       })
+  //       // for (let i = 1000000; i < 0; i--) {}
+  //       if (condition) setPacsPullStage(pacsPullStage + 1);
+  //     } catch (error) {
+  //       console.error(error);
+  //       condition = false;
+  //       setPacsPullStage(PACSPullStages.ERROR);
+  //       return;
+  //     }
+  //   },
+  //   [pacsPullStage]
+  // )
+
+  const onPACSPull = useCallback(
+    (query: PFDCMFilters) => {
+      let condition = true;
+
+      client.findRetrieve(query).then(
+        ({ then }) => setTimeout(() => {
+          condition = !then.status;
+          if (condition) setPacsPullStage(pacsPullStage + 1);
+
+          client.findPushSwift(query).then(
+            ({ then }) => setTimeout(() => {
+              condition = then["00-push"].study.every((study:any) => {
+                for (const studyUID in study) {
+                  if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
+                    return study[studyUID].every((series:any) => series.status)               
+                  }
+                }
+              })
+              if (condition) setPacsPullStage(pacsPullStage + 1);
+
+              client.findRegisterCube(query).then(
+                ({ then }) => setTimeout(() => {
+                  condition = then["00-register"].study.every((study:any) => {
+                    for (const studyUID in study) {
+                      if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
+                        return study[studyUID].every((series:any) => series.status)               
+                      }
+                    }
+                  })
+                  if (condition) setPacsPullStage(pacsPullStage + 1);
+                }, 2000)
+              ).catch((error)=>{
+                console.error(error);
+                setPacsPullStage(PACSPullStages.ERROR);
+              })
+            }, 2000)
+          ).catch((error)=>{
+            console.error(error);
+            setPacsPullStage(PACSPullStages.ERROR);
+          })
+        }, 2000)
+      ).catch((error)=>{
+        console.error(error);
+        setPacsPullStage(PACSPullStages.ERROR);
+      })
+    },
+    [pacsPullStage]
+  )
 
   return (
     <Wrapper>
@@ -153,7 +263,8 @@ export const PACS = () => {
 
           <GridItem>
             <QueryBuilder 
-              PACS={PACS} 
+              PACS={selectedPACS} 
+              PACSservices={PACSservices} 
               onSelectPACS={onPACSSelect} 
               onFinalize={StartPACSQuery} 
             />
@@ -173,7 +284,8 @@ export const PACS = () => {
                     <GridItem>
                       <QueryResults 
                         results={results} 
-                        onPull={onPACSPull} 
+                        onPull={onPACSPull}
+                        pullStatus={__stageText(pacsPullStage)}
                       />
                     </GridItem>
                   </>

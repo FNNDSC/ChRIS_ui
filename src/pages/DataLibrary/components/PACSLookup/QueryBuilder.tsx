@@ -22,13 +22,15 @@ import { PFDCMQuery, PFDCMQueryTypes } from '.';
 import "./pacs-lookup.scss"
 
 interface QueryBuilderProps {
-  PACS?: string[]
+  PACS?: string
+  PACSservices?: string[]
   onSelectPACS?: (key:string) => void
   onFinalize: (q:PFDCMQuery) => void
 }
 
 export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   PACS,
+  PACSservices,
   onSelectPACS,
   onFinalize,
 }: QueryBuilderProps) => {
@@ -40,8 +42,6 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   const setQueryType = (type: PFDCMQueryTypes) => {
     setQuery({ type } as PFDCMQuery);
   };
-
-  const [selectedPACS, setSelectedPACS] = useState<string>();
 
   const [toggleType, setToggleType] = useState(false);
   const onToggleType = () => setToggleType(!toggleType);
@@ -70,7 +70,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
       <GridItem>
         <Grid hasGutter>
           <GridItem lg={10} sm={12}>
-            <Card style={{ height: "100%" }}>
+            <Card isHoverable isRounded style={{ height: "100%" }}>
               <Split id="search">
                 <SplitItem>
                   <Dropdown
@@ -153,7 +153,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 </SplitItem>
 
                 {
-                  (PACS && onSelectPACS) &&
+                  (PACSservices && onSelectPACS) &&
                   <SplitItem>
                     <Dropdown
                       id="pacs-service"
@@ -161,17 +161,21 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       onSelect={onTogglePACSList}
                       toggle={
                         <DropdownToggle onToggle={onTogglePACSList}>
-                          { selectedPACS || 'PACS Service' }
+                          {
+                            PACS ? (
+                              <div style={{ textAlign: "left", padding: "auto 1em" }}>
+                                <div style={{ fontSize: "smaller", color: "gray" }}>PACS Service</div>
+                                <div style={{ fontWeight: 600 }}>{ PACS }</div>
+                              </div>
+                            ) : 'PACS Service'
+                          }
                         </DropdownToggle>
                       }
                       dropdownItems={
-                        PACS.map((service) => (
+                        PACSservices.map((service) => (
                           <DropdownItem
                             key={`pacs-${service}`}
-                            onClick={() => {
-                              setSelectedPACS(service)
-                              onSelectPACS(service)
-                            }}
+                            onClick={onSelectPACS.bind(QueryBuilder, service)}
                           >
                             { service }
                           </DropdownItem>
