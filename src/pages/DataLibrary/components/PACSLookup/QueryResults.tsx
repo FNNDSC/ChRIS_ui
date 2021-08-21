@@ -28,10 +28,11 @@ import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[]
-  onPull?: (filter: PFDCMFilters) => Promise<(stage: string) => Promise<any>>
+  onPull?: (filter: PFDCMFilters) => any
+  pullStatus?: string
 }
 
-export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: QueryResultsProps) => {
+export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull, pullStatus }: QueryResultsProps) => {
   const library = useContext(LibraryContext);
   const client = ChrisAPIClient.getClient();
 
@@ -114,7 +115,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
           </GridItem>
 
           <GridItem lg={4} style={{ textAlign: "right", color: "gray" }}>
-            <div><b>{patient.studies.length} {pluralize('studies', patient.studies.length)}</b></div>
+            <div><b>{patient.studies.length} {pluralize('study', patient.studies.length)}</b></div>
             <div>Latest on {LatestDate(patient.studies.map(s => s.StudyDate)).toDateString()}</div>
           </GridItem>
         </Grid>
@@ -122,11 +123,10 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
     </Card>
   }
 
-
   const [isPulling, setIsPulling] = useState(false);
-  const [pullStatus, setPullStatus] = useState({
-    status: "Fetching"
-  });
+
+  if (pullStatus === "completed")
+    setIsPulling(false);
 
   const StudyCard = ({ study }: { study: PACSStudy }) => {
     const { StudyInstanceUID } = study;
@@ -134,7 +134,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
     const chrisHasStudy: boolean = (
       study.NumberOfStudyRelatedInstances === existingPatientFiles?.reduce(
         (count, file) => {
-          if (file.data.studyInstanceUID === StudyInstanceUID)
+          if (file.data.StudyInstanceUID === StudyInstanceUID)
             count++;
           return count;
         },
@@ -151,7 +151,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
           }, 
         0);
 
-        if (chrisHasStudy || ( !!pullStatus && pullStatus.status === "Completed" ))
+        if (chrisHasStudy || ( !!pullStatus && pullStatus === "Completed" ))
           return <div style={{ color: "gray" }}>
             <b style={{ color: "darkgreen" }}>Downloaded</b>
             { (chrisStudySize !== 0) && <div>{(chrisStudySize / (1024 * 1024)).toFixed(3)} MB</div> }
@@ -159,24 +159,16 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
 
         if (onPull) {
           const onPullStudy = async () => {
-            setIsPulling(true);
-
             if (onPull) {
-              const poll = await onPull({ StudyInstanceUID });
-
-              while (pullStatus.status !== "Completed") {
-                const _status = await poll(pullStatus.status);
-                setPullStatus(_status);
-              }
-
-              setIsPulling(false);
+              setIsPulling(true);
+              onPull({ StudyInstanceUID });
             }
           }
           
           return <div>
             {
               isPulling ? (
-                <b>{ pullStatus.status }</b>
+                <b>{ pullStatus }</b>
               ) : (
                 <Button variant="link" style={{ padding: "0" }} 
                   isDisabled={isPulling}
@@ -257,7 +249,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull }: Q
 
     const ChrisSeries = (
       existingStudyFiles?.filter(
-        (file) => file.data.seriesInstanceUID === SeriesInstanceUID
+        (file) => file.data.SeriesInstanceUID === SeriesInstanceUID
       ) || []
     ).map((file) => file.data.fname);
 
