@@ -7,9 +7,7 @@ import { Alert, AlertActionLink, AlertGroup, Chip, ChipGroup } from "@patternfly
 import UserLibrary from "./components/UserLibrary";
 import PACSLookup from "./components/PACSLookup";
 import pluralize from "pluralize";
-// import { FeedFile, UploadedFile, ServiceFile, PACSFile } from "@fnndsc/chrisapi";
 
-// export type File = FeedFile | UploadedFile | ServiceFile | PACSFile;
 export type File = string;
 export type Series = File[];
 
