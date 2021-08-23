@@ -138,3 +138,11 @@
   padding: 0.5em;
 }
 
+#feed-list {
+  .pf-l-split__item {
+    display: flex;
+    span, div {
+      margin: auto 0;
+    }
+  }
+}
