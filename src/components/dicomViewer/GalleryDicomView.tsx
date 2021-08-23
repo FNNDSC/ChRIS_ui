@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import * as cornerstone from "cornerstone-core";
+import * as cornerstoneTools from "cornerstone-tools";
 import * as cornerstoneMath from "cornerstone-math";
 import * as dicomParser from "dicom-parser";
 import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
@@ -7,18 +8,33 @@ import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import * as cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import Hammer from "hammerjs";
-import { Progress, ProgressSize } from "@patternfly/react-core";
-
+import { Progress, ProgressSize, Button } from "@patternfly/react-core";
+import {
+  AngleDoubleLeftIcon,
+  AngleDoubleRightIcon,
+  StepForwardIcon,
+  StepBackwardIcon,
+  CompressIcon,
+  PauseIcon,
+  PlayIcon,
+} from "@patternfly/react-icons";
+import DcmHeader from "./DcmHeader/DcmHeader";
 import GalleryModel from "../../api/models/gallery.model";
 import { DataNode } from "../../store/explorer/types";
 import { useTypedSelector } from "../../store/hooks";
 import { isDicom, isNifti } from "./utils";
 
+cornerstoneTools.external.cornerstone = cornerstone;
+cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
 cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
 cornerstoneFileImageLoader.external.cornerstone = cornerstone;
 cornerstoneWebImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+cornerstoneTools.external.Hammer = Hammer;
+cornerstoneTools.init({
+  globalToolSyncEnabled: true,
+});
 const { Image } = cornerstone;
 
 type ImageItem = {
@@ -42,16 +58,46 @@ const GalleryDicomView = (props: { files?: DataNode[] }) => {
     (state) => state.explorer.selectedFolder
   );
   const [progress, setProgress] = useState(0);
-  const [items, setItems] = useState<ImageItem[]>([]);
+
+  const enableTool = () => {
+    const WwwcTool = cornerstoneTools.WwwcTool;
+    const LengthTool = cornerstoneTools["LengthTool"];
+    const PanTool = cornerstoneTools.PanTool;
+    const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
+    const ZoomTool = cornerstoneTools.ZoomTool;
+    const ProbeTool = cornerstoneTools.ProbeTool;
+    const EllipticalRoiTool = cornerstoneTools.EllipticalRoiTool;
+    const RectangleRoiTool = cornerstoneTools.RectangleRoiTool;
+    const FreehandRoiTool = cornerstoneTools.FreehandRoiTool;
+    const AngleTool = cornerstoneTools.AngleTool;
+    const MagnifyTool = cornerstoneTools.MagnifyTool;
+    const StackScrollMouseWheelTool =
+      cornerstoneTools.StackScrollMouseWheelTool;
+
+    cornerstoneTools.addTool(MagnifyTool);
+    cornerstoneTools.addTool(AngleTool);
+    cornerstoneTools.addTool(WwwcTool);
+    cornerstoneTools.addTool(LengthTool);
+    cornerstoneTools.addTool(PanTool);
+    cornerstoneTools.addTool(ZoomTouchPinchTool);
+    cornerstoneTools.addTool(ZoomTool);
+    cornerstoneTools.addTool(ProbeTool);
+    cornerstoneTools.addTool(EllipticalRoiTool);
+    cornerstoneTools.addTool(RectangleRoiTool);
+    cornerstoneTools.addTool(FreehandRoiTool);
+    cornerstoneTools.addTool(StackScrollMouseWheelTool);
+  };
+
+  const handleToolbarAction = (action: string) => {
+    console.log("Action", action);
+  };
 
   const displayImageFromFiles = useCallback((items: ImageItem[]) => {
-    console.log("Items", items);
     const image = items[0].image;
-    const imageId = items[0].imageId;
     const element = dicomImageRef.current;
-    console.log("Element", element);
     cornerstone.enable(element);
     cornerstone.displayImage(element, image);
+    enableTool();
   }, []);
 
   const loadImagesIntoCornerstone = useCallback(async () => {
@@ -69,7 +115,6 @@ const GalleryDicomView = (props: { files?: DataNode[] }) => {
           const fname = selectedFile.data.fname;
 
           if (GalleryModel.isValidDcmFile(fname)) {
-            console.log("Fname", fname);
             if (isNifti(fname)) {
               const fileArray = fname.split("/");
               const fileName = fileArray[fileArray.length - 1];
@@ -116,7 +161,6 @@ const GalleryDicomView = (props: { files?: DataNode[] }) => {
             setProgress(progress);
           }
           if (count === imageIds.length) {
-            //setItems(items);
             displayImageFromFiles(items);
           }
         });
@@ -124,33 +168,83 @@ const GalleryDicomView = (props: { files?: DataNode[] }) => {
     }
   }, [selectedFiles, displayImageFromFiles]);
 
-  console.log("State", progress, items);
-
   useEffect(() => {
     loadImagesIntoCornerstone();
   }, [loadImagesIntoCornerstone]);
 
-  const styleDicomImage = {
-    width: "100%",
-    height: "100%",
-  };
-
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        position: "relative",
-        color: "#fff",
-        fontSize: "1rem",
-        textShadow: "1px 1px #000000",
-      }}
-      className="cornerstone-enabled-image"
-    >
-      <Progress value={progress} size={ProgressSize.sm} />
-      <div style={styleDicomImage} ref={dicomImageRef}></div>
-    </div>
+    <>
+      <DcmHeader handleToolbarAction={handleToolbarAction} />
+      <div
+        className="container"
+        style={{
+          height: "calc(100vh-100px)",
+        }}
+      >
+        <div
+          style={{
+            width: "96.15%",
+            height: "100%",
+            color: "#fff",
+            position: "absolute",
+            fontSize: "1rem",
+            textShadow: "1px 1px #000000",
+          }}
+          className="cornerstone-enabled-image"
+        >
+          <div
+            style={{ width: "100%", height: "100%", position: "relative" }}
+            ref={dicomImageRef}
+          ></div>
+        </div>
+      </div>
+      <GalleryToolbar
+        handleToolbarAction={handleToolbarAction}
+        isPlaying={true}
+        isFullscreen={true}
+      />
+    </>
   );
 };
 
 export default GalleryDicomView;
+
+function GalleryToolbar({
+  handleToolbarAction,
+  isPlaying,
+  isFullscreen,
+}: {
+  handleToolbarAction: (action: string) => void;
+  isPlaying: boolean;
+  isFullscreen: boolean;
+}) {
+  return (
+    <div className="gallery-toolbar">
+      <div>
+        <div>
+          <Button variant="link" onClick={() => handleToolbarAction("")}>
+            <AngleDoubleLeftIcon />
+          </Button>
+          <Button variant="link" onClick={() => handleToolbarAction("")}>
+            <StepBackwardIcon />
+          </Button>
+          <Button variant="link" onClick={() => handleToolbarAction("")}>
+            {isPlaying ? <PauseIcon size="md" /> : <PlayIcon size="md" />}
+          </Button>
+          <Button variant="link" onClick={() => handleToolbarAction("")}>
+            <StepForwardIcon />
+          </Button>
+          <Button variant="link" onClick={() => handleToolbarAction("")}>
+            <AngleDoubleRightIcon />
+          </Button>
+        </div>
+      </div>
+
+      <div className="gallary-toolbar__expand-icon">
+        <Button variant="link" onClick={() => handleToolbarAction("")}>
+          {isFullscreen ? <CompressIcon size="md" /> : <ExpandIcon />}
+        </Button>
+      </div>
+    </div>
+  );
+}
