@@ -304,7 +304,7 @@ export function* setupAdultFreesurferMoc(action: IActionTypeParam) {
     "pl-fshack_ghcr:1.0.0",
     "pl-multipass_ghcr",
     "pl-pfdorun_ghcr",
-    "pl-mgz2LUT-report_ghcr_m3",
+    "pl-mgz2lut_report_ghcr_m3",
   ];
   yield setupFeedDetails(
     action,

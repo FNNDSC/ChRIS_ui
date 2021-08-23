@@ -86,7 +86,7 @@ export function* runFreesurferMocWorkflow(
   };
   yield client.createPluginInstance(plPfdoRun.data.id, plPfdoRunArgs);
 
-  const plMgz2LutReport = pluginList["pl-mgz2LUT_report_ghcr_m3"];
+  const plMgz2LutReport = pluginList["pl-mgz2lut_report_ghcr_m3"];
   const plMgz2LutReportArgs = {
     title: "segmentation-report",
     previous_id: plFsHackInstance.data.id,
