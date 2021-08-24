@@ -9,7 +9,8 @@ export type Branch = {
   path: string;
   prefix: string;
   hasChildren: boolean;
-  isLast: boolean;
+  isLastParent: boolean;
+  isLeaf: boolean;
   children: Tree;
   creation_date: Date;
 };
@@ -45,7 +46,8 @@ class DirectoryTree {
             prefix: paths.slice(0, index).join('/'),
             item: index === paths.length - 1 ? item : null, 
             hasChildren: index < paths.length - 1,
-            isLast: index === paths.length - 2,
+            isLastParent: index === paths.length - 2,
+            isLeaf: index >= paths.length - 1,
             children: branch[name].dir,
             creation_date: new Date(item.data.creation_date)
           });
@@ -68,8 +70,9 @@ class DirectoryTree {
           path: prefix + '/' + fname[fname.length - 1],
           prefix,
           children: [],
-          isLast: true,
+          isLastParent: true,
           hasChildren: false,
+          isLeaf: true,
           creation_date: item.data.creation_date
         }
       })
@@ -79,16 +82,40 @@ class DirectoryTree {
   /**
    * Get immediate child.
    * @param name child name
-   * @returns Tree
+   * @returns Tree or undefined
    */
-  child(name: string): DirectoryTree {
+  private __child(name: string): DirectoryTree | undefined {
     for (const child of this.dir) {
       if (child.name === name) {
         const list = this.list.filter(({ data }) => data.fname.includes(child.prefix))
         return new DirectoryTree(child.children, list);
       }
     }
+  }
+
+  /**
+   * Get immediate child.
+   * @param name child name
+   * @returns Tree
+   */
+  child(name: string): DirectoryTree {
+    const child = this.__child(name);
+    if (child)
+      return child;
     return new DirectoryTree([]);
+  }
+
+  /**
+   * Get immediate child.
+   * @param name child name
+   * @returns Tree or undefined
+   */
+  branch(name: string): Branch | undefined {
+    for (const branch of this.dir) {
+      if (branch.name === name) {
+        return branch;
+      }
+    }
   }
 
   /**

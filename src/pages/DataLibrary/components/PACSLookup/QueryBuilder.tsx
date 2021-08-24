@@ -25,7 +25,7 @@ interface QueryBuilderProps {
   PACS?: string
   PACSservices?: string[]
   onSelectPACS?: (key:string) => void
-  onFinalize: (q:PFDCMQuery) => void
+  onFinalize: (q:PFDCMQuery[]) => void
 }
 
 export const QueryBuilder: React.FC<QueryBuilderProps> = ({
@@ -63,7 +63,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
     } as PFDCMQuery);
   };
 
-  const finalize = () => onFinalize(query);
+  const finalize = () => onFinalize([query]);
 
   return (
     <Grid hasGutter id="pacs-query-builder">
