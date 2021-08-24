@@ -47,7 +47,7 @@ export const UserLibrary = () => {
       let items = uploads.getItems() || [];
 
       do {
-        setUploaded(DirectoryTree.fromPathList(items));
+        setUploaded(DirectoryTree.fromPathList(items).child(username));
         params.offset = params.offset += params.limit;
 
         if (uploads.hasNextPage) {
@@ -58,7 +58,7 @@ export const UserLibrary = () => {
     } catch (error) {
       console.error(error);
     }
-  }, [])
+  }, [username])
 
   const fetchFiles = useCallback(async () => {
     let nslashes = 4;
@@ -79,7 +79,7 @@ export const UserLibrary = () => {
         }
 
         do {
-          setFeedFiles(DirectoryTree.fromPathList(items));
+          setFeedFiles(DirectoryTree.fromPathList(items).child(username));
           params.offset = params.offset += params.limit;
 
           if (files.hasNextPage) {
@@ -91,7 +91,7 @@ export const UserLibrary = () => {
     } catch (error) {
       console.error(error);
     }
-  }, [])
+  }, [username])
 
   const fetchSearch = useCallback(async (query: string) => {
     const searchParams = { limit: 10e6, fname_icontains: query };
@@ -148,7 +148,7 @@ export const UserLibrary = () => {
     return <Browser
       name="uploads"
       tree={new DirectoryTree(
-        uploaded.child(username).child('uploads').dir
+        uploaded.child('uploads').dir
         .filter(({ hasChildren })=> hasChildren)
         .slice(0,6)
       )}
@@ -184,9 +184,9 @@ export const UserLibrary = () => {
     return <Browser
       name="feeds"
       tree={new DirectoryTree(
-        feedfiles.child(username).dir
-        .filter(({ hasChildren })=> hasChildren)
-        // .slice(0,6)
+        feedfiles.dir
+          .filter(({ hasChildren })=> hasChildren)
+          .slice(0,9)
       )}
       fetchFiles={async (prefix: string) => {
         const files = await client.getFiles({ limit: 10e6, fname: prefix });
@@ -201,11 +201,10 @@ export const UserLibrary = () => {
       history.push(path)
   }
 
-  const sparams = new URLSearchParams(history.location.search);
-
   const [searchResults, setSearchResults] = useState<DirectoryTree>()
 
   const SearchResults = () => {
+    const sparams = new URLSearchParams(history.location.search);
     const _query = sparams.get("q") || ''
     if (!searchResults) {
       fetchSearch(_query);
@@ -255,11 +254,11 @@ export const UserLibrary = () => {
     //     else return (
     //       <GridItem key={name} sm={12} lg={2}>
     //         <Card isSelectable>
-    //           <CardBody>
+    //           {/* <CardBody>
     //             <div><FileIcon/></div>
     //             <div style={{ maxWidth: "100%" }}><a href={name}>{name}</a></div>
     //             <div>{ (item.data.fsize/(1024*1024)).toFixed(3) } MB</div>
-    //           </CardBody>
+    //           </CardBody> */}
     //         </Card>
     //       </GridItem>
     //     )
@@ -330,7 +329,7 @@ export const UserLibrary = () => {
             }}
           />
 
-          {/* <Route path="/library/feeds" 
+          <Route path="/library/feeds" 
             render={() => {
               if (!feedfiles)
                 return <article>
@@ -339,18 +338,18 @@ export const UserLibrary = () => {
                   </EmptyState>
                 </article>
                 
-                return <Browser 
-                  withHeader
-                  name="feeds"
-                  path="/library/feeds"
-                  tree={feedfiles.child(username)}
-                  fetchFiles={async (fname: string) => {
-                    const files = await client.getFiles({ limit: 10e6, fname });
-                    return DirectoryTree.fileList(files.getItems() || [], fname);
-                  }}
-                />
+              return <Browser 
+                withHeader
+                name="feeds"
+                path="/library/feeds"
+                tree={feedfiles}
+                fetchFiles={async (fname: string) => {
+                  const files = await client.getFiles({ limit: 10e6, fname });
+                  return DirectoryTree.fileList(files.getItems() || [], fname);
+                }}
+              />
             }} 
-          /> */}
+          />
 
           <Route path="/library/uploads" 
             render={() => {
@@ -365,7 +364,7 @@ export const UserLibrary = () => {
                 withHeader
                 name="uploads"
                 path="/library/uploads"
-                tree={uploaded.child(username).child('uploads')}
+                tree={uploaded.child('uploads')}
                 fetchFiles={async (fname: string) => {
                   const files = await client.getUploadedFiles({ limit: 10e6, fname });
                   return DirectoryTree.fileList(files.getItems() || [], fname);
@@ -389,7 +388,7 @@ export const UserLibrary = () => {
                   withHeader
                   name="uploads"
                   path={`/library/${username}/uploads`}
-                  tree={uploaded.child(username).child('uploads')}
+                  tree={uploaded.child('uploads')}
                   fetchFiles={async (fname: string) => {
                     const files = await client.getUploadedFiles({ limit: 10e6, fname });
                     return DirectoryTree.fileList(files.getItems() || [], fname);
@@ -408,7 +407,7 @@ export const UserLibrary = () => {
                   withHeader
                   name={folder}
                   path={`/library/${username}/${folder}`} 
-                  tree={feedfiles.child(username).child(folder)}
+                  tree={feedfiles.child(folder)}
                   fetchFiles={async (fname: string) => {
                     const files = await client.getFiles({ limit: 10e6, fname });
                     return DirectoryTree.fileList(files.getItems() || [], fname);
@@ -443,7 +442,7 @@ export const UserLibrary = () => {
                 <UploadedFiles/>
 
                 {
-                  (uploaded && uploaded.child(username).child('uploads').dir.length > 6) &&
+                  (uploaded && uploaded.child('uploads').dir.length > 6) &&
                   <GridItem>
                     <Split>
                       <SplitItem isFilled/>
@@ -464,15 +463,15 @@ export const UserLibrary = () => {
                 <GridItem/>
                 <FeedsFiles/>
 
-                {/* {
-                  (feedfiles && feedfiles.child(username).dir.length > 6) &&
+                {
+                  (feedfiles && feedfiles.dir.length > 6) &&
                   <GridItem>
                     <Split>
                       <SplitItem isFilled/>
                       <SplitItem><Link to="/library/feeds">Show More</Link></SplitItem>
                     </Split>
                   </GridItem>
-                } */}
+                }
               </Grid>
               </section>
           </Route>

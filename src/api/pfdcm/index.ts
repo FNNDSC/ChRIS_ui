@@ -136,6 +136,47 @@ class PFDCMClient {
     }
   }
 
+  async pull(query: PFDCMFilters = {}) {
+    if (!this.PACSservice.value)
+      throw Error('Set the PACS service first.');
+
+    const RequestConfig: AxiosRequestConfig = {
+      url: `${this.url}api/v1/PACS/pypx/`,
+      method: "POST",
+      headers: this.headers,
+      data: {
+        PACSservice: this.PACSservice,
+        listenerService: { value: "default" },
+        pypx_find: {
+          ...query,
+          then: ["retrieve", "push", "register"].join(","),
+          thenArgs: [
+            JSON.stringify({}),
+            JSON.stringify({
+              db: "/home/dicom/log", 
+              swift: this.swift, 
+              swiftServicesPACS: this.service,
+              swiftPackEachDICOM: true
+            }),
+            JSON.stringify({
+              db: "/home/dicom/log", 
+              CUBE: this.cube,
+              swiftServicesPACS: this.service,
+              parseAllFilesWithSubStr: "dcm"
+            })
+          ].join(",")
+        }
+      }
+    }
+
+    try {
+      return (await axios(RequestConfig)).data.pypx;
+    } catch (error) {
+      console.error(error);
+      return null; 
+    }
+  }
+
   async findRetrieve(query: PFDCMFilters = {}) {
     if (!this.PACSservice.value)
       throw Error('Set the PACS service first.');

@@ -34,6 +34,24 @@ enum PACSPullStages {
   ERROR, RETRIEVE, PUSH, REGISTER, COMPLETED
 }
 
+interface PACSPull {
+  query: PFDCMFilters
+  stage: PACSPullStages
+  status: string
+  progress: number
+}
+
+export const __stageText = (stage:PACSPullStages) => {
+  switch (stage) {
+    case PACSPullStages.ERROR:     return "Error";
+    case PACSPullStages.RETRIEVE:  return "Retrieving";
+    case PACSPullStages.PUSH:      return "Pushing";
+    case PACSPullStages.REGISTER:  return "Registering";
+    case PACSPullStages.COMPLETED: return "Completed";
+  }
+}
+
+
 const client = new PFDCMClient;
 
 export const PACS = () => {
@@ -60,26 +78,28 @@ export const PACS = () => {
   }, [])
 
   const StartPACSQuery = useCallback(
-    async (query: PFDCMQuery) => {
+    async (query: PFDCMQuery[]) => {
       setLoading(true);
+      const response: PACSPatient[] = [];
 
-      const { type, value, filters } = query;
-      let response: PACSPatient[];
-      switch (type) {
-        case PFDCMQueryTypes.PATIENT:
-          response = await client.queryByPatientName(value, filters);
-          break;
+      for (const q of query) {
+        const { type, value, filters } = q;
+        switch (type) {
+          case PFDCMQueryTypes.PATIENT:
+            response.push(...(await client.queryByPatientName(value, filters)));
+            break;
 
-        case PFDCMQueryTypes.DATE:
-          response = await client.queryByStudyDate(value, filters);
-          break;
+          case PFDCMQueryTypes.DATE:
+            response.push(...(await client.queryByStudyDate(value, filters)));
+            break;
 
-        case PFDCMQueryTypes.MRN:
-          response = await client.queryByPatientID(value, filters);
-          break;
+          case PFDCMQueryTypes.MRN:
+            response.push(...(await client.queryByPatientID(value, filters)));
+            break;
 
-        default:
-          throw TypeError('Unsupported PFDCM Query Type');
+          default:
+            throw TypeError('Unsupported PFDCM Query Type');
+        }
       }
 
       setResults(response);
@@ -92,74 +112,62 @@ export const PACS = () => {
     setSelectedPACS(client.service)
   }
 
+  const [pacspulls, setPACSPulls] = useState<PACSPull[]>();
   const [pacsPullStage, setPacsPullStage] = useState(PACSPullStages.RETRIEVE);
-  const __stageText = (stage:PACSPullStages) => {
-    switch (stage) {
-      case PACSPullStages.ERROR:     return "Error";
-      case PACSPullStages.RETRIEVE:  return "Retrieving";
-      case PACSPullStages.PUSH:      return "Pushing";
-      case PACSPullStages.REGISTER:  return "Registering";
-      case PACSPullStages.COMPLETED: return "Completed";
-    }
+
+  const onPACSStatus = async (query: PFDCMFilters) => {
+    // 
+    // const status = await client.find(query);
+    // setTimeout(onPACSStatus.bind(PACS, query), 5000);
+    
   }
-  
-  // const __stageText = (text:string) => {
-  //   switch (text) {
-  //     case "Fetching":    return PACSPullStages.INIT;
-  //     case "Retrieving":  return PACSPullStages.RETRIEVE;
-  //     case "Pushing":     return PACSPullStages.PUSH;
-  //     case "Registering": return PACSPullStages.REGISTER;
-  //     case "Completed":   return PACSPullStages.COMPLETED;
-  //   }
-  // }
 
-  // const onPACSPull = useCallback(
-  //   async (query: PFDCMFilters) => {
-  //     let then;
-  //     let condition = true;
+  const onPACSPull = useCallback(
+    async (query: PFDCMFilters) => {
+      let then;
+      let condition = true;
 
-  //     while (pacsPullStage !== PACSPullStages.COMPLETED && condition) {
-  //       try {
-  //         switch (pacsPullStage) {
-  //           case PACSPullStages.RETRIEVE:
-  //             ({ then } = (await client.findRetrieve(query)));
-  //             condition = !then.status;
-  //             break;
-  
-  //           case PACSPullStages.PUSH:
-  //             ({ then } = (await client.findPushSwift(query)));
-  //             condition = then["00-push"].study.every((study:any) => {
-  //               for (const studyUID in study) {
-  //                 if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
-  //                   return study[studyUID].every((series:any) => series.status)               
-  //                 }
-  //               }
-  //             })
-  //             break;
-  
-  //           case PACSPullStages.REGISTER:
-  //             ({ then } = (await client.findRegisterCube(query)));
-  //             condition = then["00-register"].study.every((study:any) => {
-  //               for (const studyUID in study) {
-  //                 if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
-  //                   return study[studyUID].every((series:any) => series.status)               
-  //                 }
-  //               }
-  //             })
-  //             break;
-  //         }
+      // while (pacsPullStage !== PACSPullStages.COMPLETED && condition)
+      try {
+        switch (pacsPullStage) {
+          case PACSPullStages.RETRIEVE:
+            ({ then } = (await client.findRetrieve(query)));
+            condition = !then.status;
+            break;
 
-  //         if (condition)
-  //           setPacsPullStage(pacsPullStage + 1);
-  //       } catch (error) {
-  //         console.error(error);
-  //         condition = false;
-  //         return;
-  //       }
-  //     }
-  //   },
-  //   [pacsPullStage]
-  // )
+          case PACSPullStages.PUSH:
+            ({ then } = (await client.findPushSwift(query)));
+            condition = then["00-push"].study.every((study:any) => {
+              for (const studyUID in study) {
+                if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
+                  return study[studyUID].every((series:any) => series.status)               
+                }
+              }
+            })
+            break;
+
+          case PACSPullStages.REGISTER:
+            ({ then } = (await client.findRegisterCube(query)));
+            condition = then["00-register"].study.every((study:any) => {
+              for (const studyUID in study) {
+                if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
+                  return study[studyUID].every((series:any) => series.status)               
+                }
+              }
+            })
+            break;
+        }
+
+        if (condition)
+          setPacsPullStage(pacsPullStage + 1);
+      } catch (error) {
+        console.error(error);
+        condition = false;
+        return;
+      }
+    },
+    [pacsPullStage]
+  )
 
   // const onPACSPull = useCallback(
   //   async (query: PFDCMFilters) => {
@@ -203,54 +211,54 @@ export const PACS = () => {
   //   [pacsPullStage]
   // )
 
-  const onPACSPull = useCallback(
-    (query: PFDCMFilters) => {
-      let condition = true;
+  // const onPACSPull = useCallback(
+  //   (query: PFDCMFilters) => {
+  //     let condition = true;
 
-      client.findRetrieve(query).then(
-        ({ then }) => setTimeout(() => {
-          condition = !then.status;
-          if (condition) setPacsPullStage(pacsPullStage + 1);
+  //     client.findRetrieve(query).then(
+  //       ({ then }) => setTimeout(() => {
+  //         condition = !then.status;
+  //         if (condition) setPacsPullStage(pacsPullStage + 1);
 
-          client.findPushSwift(query).then(
-            ({ then }) => setTimeout(() => {
-              condition = then["00-push"].study.every((study:any) => {
-                for (const studyUID in study) {
-                  if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
-                    return study[studyUID].every((series:any) => series.status)               
-                  }
-                }
-              })
-              if (condition) setPacsPullStage(pacsPullStage + 1);
+  //         client.findPushSwift(query).then(
+  //           ({ then }) => setTimeout(() => {
+  //             condition = then["00-push"].study.every((study:any) => {
+  //               for (const studyUID in study) {
+  //                 if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
+  //                   return study[studyUID].every((series:any) => series.status)               
+  //                 }
+  //               }
+  //             })
+  //             if (condition) setPacsPullStage(pacsPullStage + 1);
 
-              client.findRegisterCube(query).then(
-                ({ then }) => setTimeout(() => {
-                  condition = then["00-register"].study.every((study:any) => {
-                    for (const studyUID in study) {
-                      if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
-                        return study[studyUID].every((series:any) => series.status)               
-                      }
-                    }
-                  })
-                  if (condition) setPacsPullStage(pacsPullStage + 1);
-                }, 2000)
-              ).catch((error)=>{
-                console.error(error);
-                setPacsPullStage(PACSPullStages.ERROR);
-              })
-            }, 2000)
-          ).catch((error)=>{
-            console.error(error);
-            setPacsPullStage(PACSPullStages.ERROR);
-          })
-        }, 2000)
-      ).catch((error)=>{
-        console.error(error);
-        setPacsPullStage(PACSPullStages.ERROR);
-      })
-    },
-    [pacsPullStage]
-  )
+  //             client.findRegisterCube(query).then(
+  //               ({ then }) => setTimeout(() => {
+  //                 condition = then["00-register"].study.every((study:any) => {
+  //                   for (const studyUID in study) {
+  //                     if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
+  //                       return study[studyUID].every((series:any) => series.status)               
+  //                     }
+  //                   }
+  //                 })
+  //                 if (condition) setPacsPullStage(pacsPullStage + 1);
+  //               }, 2000)
+  //             ).catch((error)=>{
+  //               console.error(error);
+  //               setPacsPullStage(PACSPullStages.ERROR);
+  //             })
+  //           }, 2000)
+  //         ).catch((error)=>{
+  //           console.error(error);
+  //           setPacsPullStage(PACSPullStages.ERROR);
+  //         })
+  //       }, 2000)
+  //     ).catch((error)=>{
+  //       console.error(error);
+  //       setPacsPullStage(PACSPullStages.ERROR);
+  //     })
+  //   },
+  //   [pacsPullStage]
+  // )
 
   return (
     <Wrapper>
