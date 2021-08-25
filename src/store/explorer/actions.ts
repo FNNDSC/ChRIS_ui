@@ -15,5 +15,7 @@ export const setSelectedFolder = (selectedFolder: DataNode[]) =>
 export const setExplorerMode = (mode: ExplorerMode) =>
   action(ExplorerActionTypes.SET_EXPLORER_MODE, mode);
 
+
+
 export const destroyExplorer = () =>
   action(ExplorerActionTypes.DESTROY_EXPLORER);
