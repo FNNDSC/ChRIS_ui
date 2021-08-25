@@ -25,9 +25,8 @@ const DcmHeader = ({
     <div className="dicom-header">
       <div className="dicom-logo">
         <span className="dicom-logo__text">Image Viewer</span>
-       
       </div>
-    <div className="dicom-header__center-tools">
+      <div className="dicom-header__center-tools">
         <span className="dicom-header__tools-text">Tools</span>
         <Tooltip
           position={TooltipPosition.bottom}
@@ -93,19 +92,6 @@ const DcmHeader = ({
           </Button>
         </Tooltip>
 
-        <Tooltip
-          position={TooltipPosition.bottom}
-          content={<div>Stack Scroll</div>}
-        >
-          <Button
-            variant="link"
-            onClick={() => {
-              handleToolbarAction("stackScroll");
-            }}
-            icon={<BarsIcon size="md" />}
-          ></Button>
-        </Tooltip>
-
         <Tooltip position={TooltipPosition.bottom} content={<div>Invert</div>}>
           <Button
             variant="link"
@@ -141,7 +127,6 @@ const DcmHeader = ({
           />
         </Tooltip>
       </div>
-
     </div>
   );
 };
