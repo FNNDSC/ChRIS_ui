@@ -110,18 +110,17 @@ class PFDCMClient {
    * @returns PACS Patient array
    */
   async find(query: PFDCMFilters = {}) {
-    while (this.isLoadingPACSserviceList) {}
-    if (!this.PACSservice.value)
+    if (!this.service)
       throw Error('Set the PACS service first, before querying.');
 
     const RequestConfig: AxiosRequestConfig = {
-      url: `${this.url}api/v1/PACS/pypx/`,
+      url: `${this.url}api/v1/PACS/sync/pypx/`,
       method: "POST",
       headers: this.headers,
       data: {
         PACSservice: this.PACSservice,
         listenerService: { value: "default" },
-        pypx_find: {
+        PACSdirective: {
           ...query,
           then: "status"
         }
@@ -136,59 +135,59 @@ class PFDCMClient {
     }
   }
 
-  async pull(query: PFDCMFilters = {}) {
-    if (!this.PACSservice.value)
-      throw Error('Set the PACS service first.');
+  // async pull(query: PFDCMFilters = {}) {
+  //   if (!this.PACSservice.value)
+  //     throw Error('Set the PACS service first.');
 
-    const RequestConfig: AxiosRequestConfig = {
-      url: `${this.url}api/v1/PACS/pypx/`,
-      method: "POST",
-      headers: this.headers,
-      data: {
-        PACSservice: this.PACSservice,
-        listenerService: { value: "default" },
-        pypx_find: {
-          ...query,
-          then: ["retrieve", "push", "register"].join(","),
-          thenArgs: [
-            JSON.stringify({}),
-            JSON.stringify({
-              db: "/home/dicom/log", 
-              swift: this.swift, 
-              swiftServicesPACS: this.service,
-              swiftPackEachDICOM: true
-            }),
-            JSON.stringify({
-              db: "/home/dicom/log", 
-              CUBE: this.cube,
-              swiftServicesPACS: this.service,
-              parseAllFilesWithSubStr: "dcm"
-            })
-          ].join(",")
-        }
-      }
-    }
+  //   const RequestConfig: AxiosRequestConfig = {
+  //     url: `${this.url}api/v1/PACS/pypx/`,
+  //     method: "POST",
+  //     headers: this.headers,
+  //     data: {
+  //       PACSservice: this.PACSservice,
+  //       listenerService: { value: "default" },
+  //       PACSdirective: {
+  //         ...query,
+  //         then: ["retrieve", "push", "register"].join(","),
+  //         thenArgs: [
+  //           JSON.stringify({}),
+  //           JSON.stringify({
+  //             db: "/home/dicom/log", 
+  //             swift: this.swift, 
+  //             swiftServicesPACS: this.service,
+  //             swiftPackEachDICOM: true
+  //           }),
+  //           JSON.stringify({
+  //             db: "/home/dicom/log", 
+  //             CUBE: this.cube,
+  //             swiftServicesPACS: this.service,
+  //             parseAllFilesWithSubStr: "dcm"
+  //           })
+  //         ].join(",")
+  //       }
+  //     }
+  //   }
 
-    try {
-      return (await axios(RequestConfig)).data.pypx;
-    } catch (error) {
-      console.error(error);
-      return null; 
-    }
-  }
+  //   try {
+  //     return (await axios(RequestConfig)).data.pypx;
+  //   } catch (error) {
+  //     console.error(error);
+  //     return null; 
+  //   }
+  // }
 
   async findRetrieve(query: PFDCMFilters = {}) {
-    if (!this.PACSservice.value)
+    if (!this.service)
       throw Error('Set the PACS service first.');
 
     const RequestConfig: AxiosRequestConfig = {
-      url: `${this.url}api/v1/PACS/pypx/`,
+      url: `${this.url}api/v1/PACS/thread/pypx/`,
       method: "POST",
       headers: this.headers,
       data: {
         PACSservice: this.PACSservice,
         listenerService: { value: "default" },
-        pypx_find: {
+        PACSdirective: {
           ...query,
           then: "retrieve"
         }
@@ -204,23 +203,23 @@ class PFDCMClient {
   }
 
   async findPushSwift(query: PFDCMFilters = {}) {
-    if (!this.PACSservice.value)
+    if (!this.service)
       throw Error('Set the PACS service first.');
 
     const RequestConfig: AxiosRequestConfig = {
-      url: `${this.url}api/v1/PACS/pypx/`,
+      url: `${this.url}api/v1/PACS/thread/pypx/`,
       method: "POST",
       headers: this.headers,
       data: {
         PACSservice: this.PACSservice,
         listenerService: { value: "default" },
-        pypx_find: {
+        PACSdirective: {
           ...query,
           then: "push",
           thenArgs: JSON.stringify({
             db: "/home/dicom/log", 
             swift: this.swift, 
-            swiftServicesPACS: this.PACSservice.value,
+            swiftServicesPACS: this.service,
             swiftPackEachDICOM: true
           })
         }
@@ -236,23 +235,23 @@ class PFDCMClient {
   }
 
   async findRegisterCube(query: PFDCMFilters = {}) {
-    if (!this.PACSservice.value)
+    if (!this.service)
       throw Error('Set the PACS service first.');
 
     const RequestConfig: AxiosRequestConfig = {
-      url: `${this.url}api/v1/PACS/pypx/`,
+      url: `${this.url}api/v1/PACS/thread/pypx/`,
       method: "POST",
       headers: this.headers,
       data: {
         PACSservice: this.PACSservice,
         listenerService: { value: "default" },
-        pypx_find: {
+        PACSdirective: {
           ...query,           
           then: "register",
           thenArgs: JSON.stringify({
             db: "/home/dicom/log", 
             CUBE: this.cube,
-            swiftServicesPACS: this.PACSservice.value,
+            swiftServicesPACS: this.service,
             parseAllFilesWithSubStr: "dcm"
           })
         }
@@ -367,7 +366,6 @@ export interface PFDCMFilters {
   PatientName?: string;
   PatientSex?: PatientSex;
   RetrieveAETitle?: string;
-  // SeriesDescription?: string;
   SeriesInstanceUID?: string;
   StudyDate?: string;
   StudyInstanceUID?: string;

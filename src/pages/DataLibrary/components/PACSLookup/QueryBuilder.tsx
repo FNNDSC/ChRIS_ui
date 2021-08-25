@@ -63,7 +63,25 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
     } as PFDCMQuery);
   };
 
-  const finalize = () => onFinalize([query]);
+  const finalize = () => {
+    if (!query.value) return;
+    
+    if (query.type === PFDCMQueryTypes.DATE)
+      return onFinalize([query]);
+
+    const csv = (query.value as string).split(',');
+    const queries: PFDCMQuery[] = [];
+    
+    for (const value of csv) {
+      queries.push({
+        value: value.trim(),
+        type: query.type,
+        filters: query.filters
+      })  
+    }
+
+    onFinalize(queries)
+  };
 
   return (
     <Grid hasGutter id="pacs-query-builder">
@@ -227,7 +245,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <TextInput
                     type="text"
                     onChange={(value) => handleFilter({ Modality: value })}
-                    placeholder="Eg: AR, AU, BDUS"
+                    placeholder="Eg: MR"
                     id="modality"
                   />
                 </GridItem>
