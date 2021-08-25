@@ -1,7 +1,6 @@
 import { Reducer } from "redux";
 import { ExplorerActionTypes, ExplorerMode, IExplorerState } from "./types";
 
-
 // Type-safe initialState
 const initialState: IExplorerState = {
   explorer: undefined,
@@ -9,7 +8,6 @@ const initialState: IExplorerState = {
   mode: ExplorerMode.SwiftFileBrowser,
   selectedFolder: undefined,
 };
-
 
 const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
   switch (action.type) {
