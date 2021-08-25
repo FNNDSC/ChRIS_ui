@@ -30,16 +30,18 @@ export interface PFDCMQuery {
   filters: PFDCMFilters
 }
 
-enum PACSPullStages {
+export enum PACSPullStages {
   ERROR, RETRIEVE, PUSH, REGISTER, COMPLETED
 }
 
-interface PACSPull {
-  query: PFDCMFilters
-  stage: PACSPullStages
-  status: string
-  progress: number
-}
+export type PACSPulls = Map<
+  PFDCMFilters, {
+    query: PFDCMFilters
+    stage: PACSPullStages
+    status: string
+    progress: number
+  }
+>
 
 export const __stageText = (stage:PACSPullStages) => {
   switch (stage) {
@@ -51,13 +53,14 @@ export const __stageText = (stage:PACSPullStages) => {
   }
 }
 
-
 const client = new PFDCMClient;
 
 export const PACS = () => {
 	document.title = 'PACS Lookup';
 
   const [loading, setLoading] = useState<boolean>();
+  const [progress, setProgress] = useState<[number, number]>([0,0]);
+
   const [results, setResults] = useState<PACSPatient[]>();
   const [selectedPACS, setSelectedPACS] = useState<string>();
   const [PACSservices, setPACSservices] = useState<string[]>();
@@ -78,12 +81,14 @@ export const PACS = () => {
   }, [])
 
   const StartPACSQuery = useCallback(
-    async (query: PFDCMQuery[]) => {
+    async (queries: PFDCMQuery[]) => {
       setLoading(true);
       const response: PACSPatient[] = [];
+      setProgress([0, queries.length]);
 
-      for (const q of query) {
-        const { type, value, filters } = q;
+      for (let q = 0; q < queries.length; q++) {
+        const { type, value, filters } = queries[q];
+
         switch (type) {
           case PFDCMQueryTypes.PATIENT:
             response.push(...(await client.queryByPatientName(value, filters)));
@@ -100,6 +105,8 @@ export const PACS = () => {
           default:
             throw TypeError('Unsupported PFDCM Query Type');
         }
+
+        setProgress([q + 1, queries.length]);
       }
 
       setResults(response);
@@ -107,22 +114,29 @@ export const PACS = () => {
     },
   [])
 
-  const onPACSSelect = (key: string) => {
+  const handlePACSSelect = (key: string) => {
     client.service = key;
     setSelectedPACS(client.service)
   }
 
-  const [pacspulls, setPACSPulls] = useState<PACSPull[]>();
+  const [pacspulls, setPACSPulls] = useState<PACSPulls>(new Map());
   const [pacsPullStage, setPacsPullStage] = useState(PACSPullStages.RETRIEVE);
 
-  const onPACSStatus = async (query: PFDCMFilters) => {
-    // 
+  const handlePACSStatus = async (query: PFDCMFilters) => {
+    /**
+     * Find then status of query
+     * if status ~= nothing done, do nothing
+     * if status ~= images recieved, add query to pacspulls
+     *              advance push stage, start polling
+     * if status ~= images pushed, add query to pacspulls
+     *              advance register stage, start polling
+     */
+
     // const status = await client.find(query);
     // setTimeout(onPACSStatus.bind(PACS, query), 5000);
-    
   }
 
-  const onPACSPull = useCallback(
+  const handlePACSPull = useCallback(
     async (query: PFDCMFilters) => {
       let then;
       let condition = true;
@@ -273,7 +287,7 @@ export const PACS = () => {
             <QueryBuilder 
               PACS={selectedPACS} 
               PACSservices={PACSservices} 
-              onSelectPACS={onPACSSelect} 
+              onSelectPACS={handlePACSSelect} 
               onFinalize={StartPACSQuery} 
             />
           </GridItem>
@@ -292,8 +306,9 @@ export const PACS = () => {
                     <GridItem>
                       <QueryResults 
                         results={results} 
-                        onPull={onPACSPull}
-                        pullStatus={__stageText(pacsPullStage)}
+                        pulls={pacspulls}
+                        onRequestPull={handlePACSPull}
+                        onRequestStatus={handlePACSStatus}
                       />
                     </GridItem>
                   </>
@@ -317,6 +332,9 @@ export const PACS = () => {
                   <Title size="lg" headingLevel="h4">
                     Searching
                   </Title>
+                  <EmptyStateBody>
+                    Completed { progress[0] } of { progress[1] } searches.
+                  </EmptyStateBody>
                 </EmptyState>
               )
             ) : null

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   Badge,
   Button,
@@ -17,22 +17,23 @@ import {
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import Moment from "react-moment";
+import pluralize from "pluralize";
 import { PACSFile } from "@fnndsc/chrisapi";
 
 import "./pacs-lookup.scss";
+import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { PACSPatient, PACSSeries, PACSStudy, PFDCMFilters } from "../../../../api/pfdcm";
 import { LibraryContext, Series } from "../../Library";
-import ChrisAPIClient from "../../../../api/chrisapiclient";
-import pluralize from "pluralize";
-import { ExclamationTriangleIcon } from "@patternfly/react-icons";
+import { PACSPulls } from ".";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[]
-  onPull?: (filter: PFDCMFilters) => any
-  pullStatus?: string
+  pulls?: PACSPulls
+  onRequestPull: (filter: PFDCMFilters) => any
+  onRequestStatus: (filter: PFDCMFilters) => any
 }
 
-export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull, pullStatus }: QueryResultsProps) => {
+export const QueryResults: React.FC<QueryResultsProps> = ({ results, pulls, onRequestPull, onRequestStatus }: QueryResultsProps) => {
   const library = useContext(LibraryContext);
   const client = ChrisAPIClient.getClient();
 
@@ -43,67 +44,23 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull, pul
       library.actions.clear(items)
   }
 
-  const [expandedPatient, setExpandedPatient] = useState<string>()
-  const expandPatient = (patientID:string) => {
-    if (expandedPatient && expandedPatient === patientID)
-      setExpandedPatient(undefined);
-    else {
-      setExpandedPatient(patientID);
-      setExistingPatientFiles(undefined);
-      getPACSFilesForThisPatient(patientID);
-    }
-  }
-
-  const [expandedStudy, setExpandedStudy] = useState<string>()
-  const expandStudy = (studyUID:string) => {
-    if (expandedStudy && expandedStudy === studyUID)
-      setExpandedStudy(undefined);
-    else {
-      setExpandedStudy(studyUID);
-      setExistingStudyFiles(undefined);
-      getPACSFilesForThisStudy(studyUID);
-    }
-  }
-
-  const [existingPatientFiles, setExistingPatientFiles] = useState<PACSFile[]>();
-  const getPACSFilesForThisPatient = async (PatientID:string) => {
-    setExistingPatientFiles(
-      (
-        await client.getPACSFiles({
-          PatientID,
-          limit: 10e6,
-        })
-      ).getItems() || []
-    );
-  }
-
-  const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFile[]>();
-  const getPACSFilesForThisStudy = async (studyUID:string) => {
-    setExistingStudyFiles(
-      (
-        await client.getPACSFiles({
-          StudyInstanceUID: studyUID,
-          PatientID: expandedPatient as string,
-          limit: 10e6,
-        })
-      ).getItems() || []
-    );
-  }
-
-  const LatestDate = (dates: Date[]) => {
-    let latestStudy = dates[0];
-    for (const date of dates) {
-      if (latestStudy.getTime() < date.getTime())
-        latestStudy = date;
-    }
-    return latestStudy
-  }
-
   const PatientCard = ({ patient }: { patient: PACSPatient }) => {
     const { PatientID, PatientBirthDate, PatientName, PatientSex } = patient;
 
-    return <Card isHoverable isExpanded={(expandedPatient === PatientID)}>
-      <CardHeader onExpand={expandPatient.bind(QueryResults, PatientID)}>
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    const LatestDate = (dates: Date[]) => {
+      let latestStudy = dates[0];
+      for (const date of dates) {
+        if (latestStudy.getTime() < date.getTime())
+          latestStudy = date;
+      }
+      return latestStudy
+    }
+
+    return <>
+    <Card isHoverable isExpanded={isExpanded}>
+      <CardHeader onExpand={setIsExpanded.bind(PatientCard, !isExpanded)}>
         <Grid hasGutter style={{ width: "100%" }}>
           <GridItem lg={4}>
             <div><b>{PatientName.split('^').reverse().join(" ")}</b></div>
@@ -121,75 +78,81 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull, pul
         </Grid>
       </CardHeader>
     </Card>
+
+    { 
+      isExpanded &&
+      <Grid hasGutter className="patient-studies">
+      { patient.studies.map((study) => (
+        <GridItem key={study.StudyInstanceUID}>
+          <StudyCard study={study} />
+        </GridItem>
+      ))}
+      </Grid>
+    }
+    </>
   }
 
-  const [isPulling, setIsPulling] = useState(false);
-
-  if (pullStatus === "completed")
-    setIsPulling(false);
-
   const StudyCard = ({ study }: { study: PACSStudy }) => {
-    const { StudyInstanceUID } = study;
+    const { StudyInstanceUID, PatientID } = study;
+    
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFile[]>();
+    const pullQuery = useMemo(() => ({ StudyInstanceUID, PatientID }), [StudyInstanceUID, PatientID]);
 
-    const chrisHasStudy: boolean = (
-      study.NumberOfStudyRelatedInstances === existingPatientFiles?.reduce(
-        (count, file) => {
-          if (file.data.StudyInstanceUID === StudyInstanceUID)
-            count++;
-          return count;
-        },
-      0)
+    useEffect(() => {
+      onRequestStatus(pullQuery);
+      client.getPACSFiles({
+        StudyInstanceUID,
+        PatientID,
+        limit: 10e6,
+      }).then((value) => {
+        setExistingStudyFiles(
+          value.getItems() || []
+        )
+      });
+    }, [PatientID, StudyInstanceUID, pullQuery])
+
+    const cubeHasStudy = (
+      study.NumberOfStudyRelatedInstances === existingStudyFiles?.length
     );
 
     const StudyActions = () => {
-      if (existingPatientFiles) {
-        const chrisStudySize = existingPatientFiles.reduce(
-          (size, file) => {
-            if (file.data.StudyInstanceUID === StudyInstanceUID)
-              size += file.data.fsize;
-            return size;
-          }, 
-        0);
+      if (!existingStudyFiles || !pulls)
+        return <Spinner size="lg" />
 
-        if (chrisHasStudy || ( !!pullStatus && pullStatus === "Completed" ))
-          return <div style={{ color: "gray" }}>
-            <b style={{ color: "darkgreen" }}>Downloaded</b>
-            { (chrisStudySize !== 0) && <div>{(chrisStudySize / (1024 * 1024)).toFixed(3)} MB</div> }
-          </div>
+      const chrisStudySize = existingStudyFiles.reduce(
+        (size, file) => {
+          if (file.data.StudyInstanceUID === StudyInstanceUID)
+            size += file.data.fsize;
+          return size;
+        }, 
+      0);
 
-        if (onPull) {
-          const onPullStudy = async () => {
-            if (onPull) {
-              setIsPulling(true);
-              onPull({ StudyInstanceUID });
-            }
-          }
-          
-          return <div>
-            {
-              isPulling ? (
-                <b>{ pullStatus }</b>
-              ) : (
-                <Button variant="link" style={{ padding: "0" }} 
-                  isDisabled={isPulling}
-                  onClick={onPullStudy}
-                >
-                  <b>Pull Study</b>
-                </Button>
-              )
-            }
-            <div style={{ color: "gray" }}>{study.NumberOfStudyRelatedInstances} files</div>
-          </div>
-        }
-        
-        return null
+      if (cubeHasStudy)
+        return <div style={{ color: "gray" }}>
+          <b style={{ color: "darkgreen" }}>Downloaded</b>
+          { (chrisStudySize !== 0) && <div>{(chrisStudySize / (1024 * 1024)).toFixed(3)} MB</div> }
+        </div>
+
+      if (!pulls.has(pullQuery)) {
+        return <Button variant="secondary" 
+          style={{ fontSize: "small" }} 
+          onClick={onRequestPull.bind(StudyCard, pullQuery)}
+        >
+          <b>Pull Study</b>
+        </Button>
       }
-      
-      return <Spinner size="lg" />
+
+      const _pull = pulls.get(pullQuery)
+      return <div>
+        <b>{ _pull?.status } ({ ((_pull?.progress || 0) * 100).toFixed(0) }%)</b>
+        <div style={{ color: "gray" }}>{study.NumberOfStudyRelatedInstances} files</div>
+      </div>      
     }
 
-    return <Card isHoverable isExpanded={expandedStudy === StudyInstanceUID}>
-      <CardHeader onExpand={expandStudy.bind(QueryResults, StudyInstanceUID)}>
+    return <>
+    <Card isHoverable isExpanded={isExpanded}>
+      <CardHeader onExpand={setIsExpanded.bind(QueryResults, !isExpanded)}>
         <Split>
           <SplitItem style={{ minWidth: "30%", margin: "0 1em 0 0" }}>
             <div>
@@ -233,52 +196,83 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull, pul
         </Split>
       </CardHeader>
     </Card>
+    
+    { 
+      isExpanded &&
+      <Grid hasGutter className="patient-series">
+      { study.series.map((series) => (
+        <GridItem key={series.SeriesInstanceUID}>
+          <SeriesCard series={series} />
+        </GridItem>
+      ))}
+      </Grid>
+    }
+    </>
   }
 
   const SeriesCard = ({ series }: { series: PACSSeries }) => {
-    const { SeriesInstanceUID } = series;
-    const chrisHasSeries: boolean = (
-      series.NumberOfSeriesRelatedInstances === existingStudyFiles?.reduce(
-          (count, file) => {
-            if (file.data.SeriesInstanceUID === SeriesInstanceUID)
-              count++;
-            return count;
-          }, 
-        0)
+    const { SeriesInstanceUID, StudyInstanceUID, PatientID } = series;
+
+    const [existingSeriesFiles, setExistingSeriesFiles] = useState<PACSFile[]>();
+    const pullQuery = useMemo(
+      () => ({ SeriesInstanceUID, StudyInstanceUID, PatientID }),
+      [PatientID, SeriesInstanceUID, StudyInstanceUID]
     );
 
-    const ChrisSeries = (
-      existingStudyFiles?.filter(
-        (file) => file.data.SeriesInstanceUID === SeriesInstanceUID
-      ) || []
-    ).map((file) => file.data.fname);
+    useEffect(() => {
+      onRequestStatus(pullQuery);
+      client.getPACSFiles({
+        SeriesInstanceUID,
+        StudyInstanceUID,
+        PatientID,
+        limit: 10e6,
+      }).then((value) => {
+        setExistingSeriesFiles(
+          value.getItems() || []
+        )
+      });
+    }, [PatientID, SeriesInstanceUID, StudyInstanceUID, pullQuery])
+
+    const cubeHasSeries: boolean = (
+      series.NumberOfSeriesRelatedInstances === existingSeriesFiles?.length
+    );
+
+    const CUBESeries = 
+      existingSeriesFiles?.map((file) => file.data.fname) || [];
 
     const SeriesActions = () => {
-      if (existingStudyFiles) {
-        if (chrisHasSeries)
-          return <Button 
-            variant="link" 
-            style={{ padding: "0" }}
-            onClick={select.bind(QueryResults, ChrisSeries)}
-            >
-              Select
-            </Button>
-        
-        if (onPull)
-          return <Tooltip content="Pull this study to use this series">
-            <ExclamationTriangleIcon/>
-          </Tooltip>
+      if (!existingSeriesFiles || !pulls)
+        return <Spinner size="md" />
 
-        return null
+      if (cubeHasSeries)
+        return <Button 
+          variant="link" 
+          style={{ padding: "0" }}
+          onClick={select.bind(QueryResults, CUBESeries)}
+          >
+            Select
+          </Button>
+
+      if (!pulls.has(pullQuery)) {
+        return <Button variant="link" 
+          style={{ padding: 0, fontSize: "small" }} 
+          onClick={onRequestPull.bind(SeriesCard, pullQuery)}
+        >
+          <b>Pull Series</b>
+        </Button>
       }
-      
-      return <Spinner size="md" />
+
+      const _pull = pulls.get(pullQuery)
+      return <div>
+        <b>{ _pull?.status } ({ ((_pull?.progress || 0) * 100).toFixed(0) }%)</b>
+        <div style={{ color: "gray" }}>{series.NumberOfSeriesRelatedInstances} files</div>
+      </div>
     }
 
     return <Card 
       isHoverable
-      isSelectable={chrisHasSeries}
-      isSelected={library.actions.isSeriesSelected(ChrisSeries)}
+      isSelectable={cubeHasSeries}
+      isSelected={library.actions.isSeriesSelected(CUBESeries)}
     >
       <CardHeader>
         <Split style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
@@ -320,28 +314,6 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results, onPull, pul
     { results.map((patient) => (
       <GridItem key={patient.PatientID}>
         <PatientCard patient={patient} />
-
-        { 
-          (expandedPatient === patient.PatientID) &&
-          <Grid hasGutter className="patient-studies">
-          { patient.studies.map((study) => (
-            <GridItem key={study.StudyInstanceUID}>
-              <StudyCard study={study} />
-
-              { 
-                expandedStudy === study.StudyInstanceUID &&
-                <Grid hasGutter className="patient-series">
-                { study.series.map((series) => (
-                  <GridItem key={series.SeriesInstanceUID}>
-                    <SeriesCard series={series} />
-                  </GridItem>
-                ))}
-                </Grid>
-              }
-            </GridItem>
-          ))}
-          </Grid>
-        }
       </GridItem>
     ))}
     </Grid>
