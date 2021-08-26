@@ -1,5 +1,6 @@
 import { parseRawDcmData, sortStudiesByPatient } from "./pfdcm-utils";
 import axios, { AxiosRequestConfig } from "axios";
+import { PACSPull, PACSPullStages } from "../../pages/DataLibrary/components/PACSLookup";
 
 interface PFDCMClientOptions {
   setDefaultPACS: boolean
@@ -7,6 +8,16 @@ interface PFDCMClientOptions {
 
 const PFDCMDefaultOptions: PFDCMClientOptions = { 
   setDefaultPACS: true 
+}
+
+const __stageText = (stage:PACSPullStages) => {
+  switch (stage) {
+    case PACSPullStages.NONE:      return "Requesting";
+    case PACSPullStages.RETRIEVE:  return "Retrieving";
+    case PACSPullStages.PUSH:      return "Pushing";
+    case PACSPullStages.REGISTER:  return "Registering";
+    case PACSPullStages.COMPLETED: return "Completed";
+  }
 }
 
 /**
@@ -120,10 +131,7 @@ class PFDCMClient {
       data: {
         PACSservice: this.PACSservice,
         listenerService: { value: "default" },
-        PACSdirective: {
-          ...query,
-          then: "status"
-        }
+        PACSdirective: query
       }
     }
 
@@ -135,46 +143,103 @@ class PFDCMClient {
     }
   }
 
-  // async pull(query: PFDCMFilters = {}) {
-  //   if (!this.PACSservice.value)
-  //     throw Error('Set the PACS service first.');
+  /**
+   * Send request to the `/pypx` endpoint, used for query and retrieve.
+   * @param query Query Object
+   * @param filters Filters on the Query Obeject
+   * @returns PACS Patient array
+   */
+  async status(query: PFDCMFilters = {}): Promise<PACSPull> {
+    const pullstatus: PACSPull = {
+      progress: 0,
+      stage: 0,
+      status: "Requesting"
+    }
 
-  //   const RequestConfig: AxiosRequestConfig = {
-  //     url: `${this.url}api/v1/PACS/pypx/`,
-  //     method: "POST",
-  //     headers: this.headers,
-  //     data: {
-  //       PACSservice: this.PACSservice,
-  //       listenerService: { value: "default" },
-  //       PACSdirective: {
-  //         ...query,
-  //         then: ["retrieve", "push", "register"].join(","),
-  //         thenArgs: [
-  //           JSON.stringify({}),
-  //           JSON.stringify({
-  //             db: "/home/dicom/log", 
-  //             swift: this.swift, 
-  //             swiftServicesPACS: this.service,
-  //             swiftPackEachDICOM: true
-  //           }),
-  //           JSON.stringify({
-  //             db: "/home/dicom/log", 
-  //             CUBE: this.cube,
-  //             swiftServicesPACS: this.service,
-  //             parseAllFilesWithSubStr: "dcm"
-  //           })
-  //         ].join(",")
-  //       }
-  //     }
-  //   }
+    if (!this.service)
+      throw Error('Set the PACS service first, before querying.');
 
-  //   try {
-  //     return (await axios(RequestConfig)).data.pypx;
-  //   } catch (error) {
-  //     console.error(error);
-  //     return null; 
-  //   }
-  // }
+    const RequestConfig: AxiosRequestConfig = {
+      url: `${this.url}api/v1/PACS/sync/pypx/`,
+      method: "POST",
+      headers: this.headers,
+      data: {
+        PACSservice: this.PACSservice,
+        listenerService: { value: "default" },
+        PACSdirective: {
+          ...query,
+          then: "status"
+        }
+      }
+    }
+
+    try {
+      const status = (await axios(RequestConfig)).data;
+      if (!status.status) return pullstatus;
+
+      const { then } = status.pypx;
+      const studies: any[] = then["00-status"].study;
+
+      const images =      { requested: 0,     received: 0,     pushed: 0,     registered: 0 }
+      const imagestatus = { requested: false, received: false, pushed: false, registered: false }
+
+      for (const study of studies) {
+        for (const key in study) {
+        if (Object.prototype.hasOwnProperty.call(study, key)) {
+          const serieslist: any[] = study[key];
+
+          for (const series of serieslist) {
+            if (series.images.requested.count === -1) break;
+            images.requested += series.images.requested.count;
+            imagestatus.requested = series.images.requested.status;
+            
+            if (series.images.received.count === -1) break;
+            images.received += series.images.received.count;
+            imagestatus.received = series.images.received.status;
+            
+            if (series.images.pushed.count === -1) break;
+            images.pushed += series.images.pushed.count;
+            imagestatus.pushed = series.images.pushed.status;
+            
+            if (series.images.registered.count === -1) break;
+            images.registered += series.images.registered.count;
+            imagestatus.registered = series.images.registered.status;
+          }
+        }}
+      }
+
+      if (imagestatus.requested) {
+        if (imagestatus.received) {
+          pullstatus.progress = images.received/images.requested;
+          pullstatus.stage = PACSPullStages.RETRIEVE;
+          pullstatus.status = `${__stageText(PACSPullStages.RETRIEVE)} (${images.received}/${images.requested})`;
+          
+          if (images.pushed) {
+            pullstatus.progress = images.pushed/images.requested;
+            pullstatus.stage = PACSPullStages.PUSH;
+            pullstatus.status = `${__stageText(PACSPullStages.PUSH)} (${images.pushed}/${images.requested})`;
+            
+            if (images.registered) {
+              if (images.registered === images.requested) {
+                pullstatus.progress = 1;
+                pullstatus.stage = PACSPullStages.COMPLETED;
+                pullstatus.status = `${__stageText(PACSPullStages.COMPLETED)}`;
+              } else {
+                pullstatus.progress = images.registered/images.requested;
+                pullstatus.stage = PACSPullStages.REGISTER;
+                pullstatus.status = `${__stageText(PACSPullStages.REGISTER)} (${images.registered}/${images.requested})`;
+              }
+            }
+          }
+        }
+      }
+
+      return pullstatus      
+    } catch (error) {
+      console.error(error);
+      return pullstatus; 
+    }
+  }
 
   async findRetrieve(query: PFDCMFilters = {}) {
     if (!this.service)
@@ -195,14 +260,13 @@ class PFDCMClient {
     }
 
     try {
-      return (await axios(RequestConfig)).data.pypx;
+      await axios(RequestConfig);
     } catch (error) {
       console.error(error);
-      return null; 
     }
   }
 
-  async findPushSwift(query: PFDCMFilters = {}) {
+  async findPush(query: PFDCMFilters = {}) {
     if (!this.service)
       throw Error('Set the PACS service first.');
 
@@ -227,14 +291,13 @@ class PFDCMClient {
     }
 
     try {
-      return (await axios(RequestConfig)).data.pypx;
+      await axios(RequestConfig);
     } catch (error) {
       console.error(error);
-      return null; 
     }
   }
 
-  async findRegisterCube(query: PFDCMFilters = {}) {
+  async findRegister(query: PFDCMFilters = {}) {
     if (!this.service)
       throw Error('Set the PACS service first.');
 
@@ -259,10 +322,9 @@ class PFDCMClient {
     }
 
     try {
-      return (await axios(RequestConfig)).data.pypx;
+      await axios(RequestConfig);
     } catch (error) {
       console.error(error);
-      return null; 
     }
   }
 
