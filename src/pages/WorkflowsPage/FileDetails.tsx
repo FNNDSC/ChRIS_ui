@@ -146,7 +146,7 @@ const ContentWrapper = ({
           marginTop: "1rem",
           paddingTop: "1rem",
           paddingLeft: "1rem",
-          height: `${id === 1 ? "350px" : id === 2 ? "220px" : "300px"}`,
+          height: `${id === 1 ? "350px" : id === 2 ? "300px" : "300px"}`,
         }}
       >
         {children}
@@ -231,7 +231,9 @@ const workflows = [
   "infant-freesurfer",
   "infant-freesurfer-age",
   "adult-freesurfer",
+  "adult-freesurfer:moc",
   "fastsurfer",
+  "fastsurfer:moc",
   "fetal-reconstruction",
 ];
 

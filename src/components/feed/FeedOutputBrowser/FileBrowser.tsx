@@ -332,22 +332,25 @@ const getIcon = (type: string) => {
 };
 
 interface HeaderPanelProps {
-  handleDicomViewerOpen: () => void,
-  handleXtkViewerOpen: () => void,
-  handleFileBrowserOpen: () => void,
-  expandDrawer: (panel: string) => void,
-  fileType?: string
+  handleDicomViewerOpen: () => void;
+  handleXtkViewerOpen: () => void;
+  handleFileBrowserOpen: () => void;
+  expandDrawer: (panel: string) => void;
+  fileType?: string;
 }
 
 const HeaderPanel = (props: HeaderPanelProps) => {
-
-  const { 
-    handleDicomViewerOpen, handleXtkViewerOpen, handleFileBrowserOpen, expandDrawer, fileType 
+  const {
+    handleDicomViewerOpen,
+    handleXtkViewerOpen,
+    handleFileBrowserOpen,
+    expandDrawer,
+    fileType,
   } = props;
 
   const [showOpenWith, setShowOpenWith] = useState(false);
-  
-  const imageFileTypes = ['dcm', 'png', 'jpg', 'nii', 'gz', 'jpeg'];
+
+  const imageFileTypes = ["dcm", "png", "jpg", "nii", "gz", "jpeg"];
 
   return (
     <div className="header-panel__buttons">
@@ -360,20 +363,28 @@ const HeaderPanel = (props: HeaderPanelProps) => {
           Maximize
         </Button>
         {fileType && imageFileTypes.includes(fileType) && (
-          <Button variant="link" onClick={handleDicomViewerOpen} icon={<FilmIcon />}>
+          <Button
+            variant="link"
+            onClick={handleDicomViewerOpen}
+            icon={<FilmIcon />}
+          >
             Open Image Viewer
           </Button>
         )}
         {fileType && getXtkFileMode(fileType) && (
-          <Button variant="link" onClick={handleXtkViewerOpen} icon={<PficonDragdropIcon />}>
+          <Button
+            variant="link"
+            onClick={handleXtkViewerOpen}
+            icon={<PficonDragdropIcon />}
+          >
             Open XTK Viewer
           </Button>
         )}
-        <Dropdown 
+        <Dropdown
           toggle={
-            <DropdownToggle 
+            <DropdownToggle
               className="open-with-dropdown"
-              onToggle={open => setShowOpenWith(open)} 
+              onToggle={(open) => setShowOpenWith(open)}
               toggleIndicator={CaretDownIcon}
             >
               Open With
@@ -382,12 +393,12 @@ const HeaderPanel = (props: HeaderPanelProps) => {
           onSelect={() => setShowOpenWith(!showOpenWith)}
           isOpen={showOpenWith}
           dropdownItems={[
-            <DropdownItem onClick={handleDicomViewerOpen} key="image">
+            <DropdownItem onClick={handleDicomViewerOpen} key="image-viewer">
               Open with Image Viewer
             </DropdownItem>,
-            <DropdownItem onClick={handleXtkViewerOpen} key="image">
+            <DropdownItem onClick={handleXtkViewerOpen} key="xtk-viewer">
               Open with XTK Viewer
-            </DropdownItem>
+            </DropdownItem>,
           ]}
         />
       </div>
