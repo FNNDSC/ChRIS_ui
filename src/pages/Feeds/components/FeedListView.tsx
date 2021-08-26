@@ -16,7 +16,6 @@ import {
   CardBody,
   Split,
   SplitItem,
-  Badge,
   Spinner,
   EmptyStateIcon,
   Title,
@@ -26,8 +25,10 @@ import {
   TrashAltIcon,
   ExclamationCircleIcon,
   CubesIcon,
+  CircleIcon,
 } from "@patternfly/react-icons";
 import { Feed } from "@fnndsc/chrisapi";
+import pluralize from "pluralize";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest, deleteFeed } from "../../../store/feed/actions";
@@ -36,7 +37,6 @@ import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
 import { usePaginate } from "../../../components/common/pagination";
-import pluralize from "pluralize";
 // import { ArchiveIcon } from "@patternfly/react-icons";
 
 interface IPropsFromDispatch {
@@ -151,9 +151,11 @@ const FeedListView: React.FC<AllProps> = ({
                 const errorCount = errored_jobs + cancelled_jobs;
 
                 const jobsCountText = runningJobsCount > 0 
-                ? <b>{ runningJobsCount } {pluralize('job', runningJobsCount)} running</b>
+                ? <>
+                    <CircleIcon style={{ color: "var(--pf-global--palette--blue-400)", margin: "auto 0.25em" }}/>
+                    <b>Running { runningJobsCount } {pluralize('job', runningJobsCount)}</b>
+                  </>
                 : <b>Completed { finished_jobs } {pluralize('job', finished_jobs)}</b>
-                // : null
 
                 return <GridItem key={name}>
                   <Card isRounded isHoverable isCompact>
@@ -169,19 +171,17 @@ const FeedListView: React.FC<AllProps> = ({
                         </SplitItem>
 
                         <SplitItem style={{ margin: "0 1em" }}>
-                          { 
+                          {
                             errorCount > 0 
                             ? <Tooltip content={`${errored_jobs} errors, ${cancelled_jobs} cancelled`}>
-                                <Badge style={{ background: "firebrick" }}>
-                                  <ExclamationCircleIcon style={{ margin: "0.25em 0.25em auto auto" }} />
+                                <span style={{ color: "firebrick", fontSize: "small" }}>
+                                  <ExclamationCircleIcon style={{ margin: "auto 0.25em" }} />
                                   <b>{ errorCount } {pluralize('Error', errorCount)}</b>
-                                </Badge>
-                              </Tooltip>
-                            : runningJobsCount > 0
-                              ? <Badge><b>Running</b></Badge>
-                              : <span style={{ fontSize: "small", color: "grey" }}>
-                                  { jobsCountText }
                                 </span>
+                              </Tooltip>
+                            : <span style={{ fontSize: "small", color: "grey" }}>
+                                { jobsCountText }
+                              </span>
                           }
                         </SplitItem>
 
@@ -236,25 +236,25 @@ const FeedListView: React.FC<AllProps> = ({
                   </Card>
                 </GridItem>
               })
-            ) :
-            loading ? (
-              <EmptyState>
-                <EmptyStateIcon variant="container" component={Spinner} />
-                <Title size="lg" headingLevel="h4">Loading</Title>
-                <EmptyStateBody>
-                  Fetching your Feeds
-                </EmptyStateBody>
-              </EmptyState>
             ) : (
-              <EmptyState>
-                <EmptyStateIcon variant="container" component={CubesIcon} />
-                <Title size="lg" headingLevel="h4">No Feeds Found</Title>
-                <EmptyStateBody>
-                  Create a Feed by clicking on the &apos;Create Feed&apos; button
-                </EmptyStateBody>
-              </EmptyState>
-            )
-          }
+              loading ? (
+                <EmptyState>
+                  <EmptyStateIcon variant="container" component={Spinner} />
+                  <Title size="lg" headingLevel="h4">Loading</Title>
+                  <EmptyStateBody>
+                    Fetching your Feeds
+                  </EmptyStateBody>
+                </EmptyState>
+              ) : (
+                <EmptyState>
+                  <EmptyStateIcon variant="container" component={CubesIcon} />
+                  <Title size="lg" headingLevel="h4">No Feeds Found</Title>
+                  <EmptyStateBody>
+                    Create a Feed by clicking on the &apos;Create Feed&apos; button
+                  </EmptyStateBody>
+                </EmptyState>
+              )
+          )}
           </Grid>
         </GridItem>
       </Grid>
