@@ -1,6 +1,7 @@
 import React from "react";
 import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
 import JSZip from "jszip";
 import {
   Grid,
@@ -43,6 +44,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 }) => {
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
   const dispatch = useDispatch();
+  const history = useHistory();
   const safeDispatch = useSafeDispatch(dispatch);
   const selected = useTypedSelector((state) => state.instance.selectedPlugin);
   const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles);
@@ -86,13 +88,18 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     };
 
     const handleDicomViewerOpen = () => {
+      history.push("/gallery");
+      /*
       setPluginModalOpen(!pluginModalOpen);
       dispatch(setExplorerMode(ExplorerMode.DicomViewer));
+      */
     };
 
     const handleXtkViewerOpen = () => {
+      /*
       setPluginModalOpen(!pluginModalOpen);
       dispatch(setExplorerMode(ExplorerMode.XtkViewer));
+      */
     };
 
     const handlePluginModalClose = () => {

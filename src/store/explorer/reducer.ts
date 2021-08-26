@@ -7,6 +7,7 @@ const initialState: IExplorerState = {
   selectedFile: undefined,
   mode: ExplorerMode.SwiftFileBrowser,
   selectedFolder: undefined,
+  enableDcmTool: false,
 };
 
 const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
@@ -40,6 +41,10 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
     }
     case ExplorerActionTypes.DESTROY_EXPLORER: {
       return { ...state, ...initialState };
+    }
+
+    case ExplorerActionTypes.ENABLE_DCM_TOOL: {
+      return { ...state, enableDcmTool: action.payload };
     }
 
     default: {
