@@ -9,6 +9,8 @@ const ChooseConfig: React.FC = () => {
   const { selectedConfig } = state;
   const { isDataSelected } = state.data;
 
+  const fromSelected = !!state.data.selected.length;
+
   return (
     <div className="local-file-upload">
 

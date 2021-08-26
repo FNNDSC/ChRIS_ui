@@ -55,7 +55,7 @@ const FeedListView: React.FC<AllProps> = ({
     filterState,
     handlePageSet,
     handlePerPageSet,
-    handleFilterChange,
+    debouncedFilterUpdate,
     run,
   } = usePaginate();
   const [currentId, setCurrentId] = React.useState<string | number>("none");
@@ -127,7 +127,7 @@ const FeedListView: React.FC<AllProps> = ({
         <GridItem>
           <div className="feed-list__split">
             <DataTableToolbar
-              onSearch={handleFilterChange}
+              onSearch={debouncedFilterUpdate}
               label="filter by name"
             />
             {generatePagination()}

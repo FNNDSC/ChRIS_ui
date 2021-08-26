@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   tree,
   hierarchy,
@@ -59,7 +59,8 @@ type FeedTreeState = {
     translate: Point;
     scale: number;
   };
-  overlayScale: { // overlay of individual nodes based on time or size
+  overlayScale: {
+    // overlay of individual nodes based on time or size
     enabled: boolean;
     type: FeedTreeScaleType;
   };
@@ -137,13 +138,16 @@ function expandNode(nodeDatum: TreeNodeDatum) {
   nodeDatum.__rd3t.collapsed = false;
 }
 
-function getInitialState(props: AllProps, feedTreeProp: FeedTreeProp): FeedTreeState {
+function getInitialState(
+  props: AllProps,
+  feedTreeProp: FeedTreeProp
+): FeedTreeState {
   return {
     data: assignInternalProperties(clone(props.data)),
     d3: calculateD3Geometry(props, feedTreeProp),
     overlayScale: {
       enabled: false,
-      type: 'time'
+      type: "time",
     },
     collapsible: false,
     toggleLabel: false,
@@ -154,7 +158,6 @@ const svgClassName = "feed-tree__svg";
 const graphClassName = "feed-tree__graph";
 
 const FeedTree = (props: AllProps) => {
- 
   const feedTreeProp = useTypedSelector((state) => state.feed.feedTreeProp);
   const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
   const [feedState, setFeedState] = React.useState<FeedTreeState>(
@@ -220,8 +223,8 @@ const FeedTree = (props: AllProps) => {
         ...feedState,
         overlayScale: {
           ...feedState.overlayScale,
-          enabled: !feedState.overlayScale.enabled
-        }
+          enabled: !feedState.overlayScale.enabled,
+        },
       });
     }
 
@@ -230,9 +233,9 @@ const FeedTree = (props: AllProps) => {
         ...feedState,
         overlayScale: {
           ...feedState.overlayScale,
-          type: data
-        }
-      })
+          type: data,
+        },
+      });
     }
   };
 
@@ -378,20 +381,19 @@ const FeedTree = (props: AllProps) => {
               labelOff="Scale Nodes Off "
               isChecked={feedState.overlayScale.enabled}
               onChange={() => {
-                handleChange('scale_enabled');
+                handleChange("scale_enabled");
               }}
             />
-            {
-              feedState.overlayScale.enabled &&
+            {feedState.overlayScale.enabled && (
               <div className="dropdown-wrap">
                 <NodeScaleDropdown
                   selected={feedState.overlayScale.type}
-                  onChange={type => {
-                    handleChange('scale_type', type)
+                  onChange={(type) => {
+                    handleChange("scale_type", type);
                   }}
                 />
               </div>
-            }
+            )}
           </div>
           {mode === false && (
             <div className="feed-tree__orientation">
@@ -445,8 +447,8 @@ const FeedTree = (props: AllProps) => {
                 orientation={orientation}
                 toggleLabel={feedState.toggleLabel}
                 overlayScale={
-                  feedState.overlayScale.enabled 
-                    ? feedState.overlayScale.type 
+                  feedState.overlayScale.enabled
+                    ? feedState.overlayScale.type
                     : undefined
                 }
               />
