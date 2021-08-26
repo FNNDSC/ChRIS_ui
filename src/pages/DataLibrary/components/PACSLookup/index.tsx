@@ -35,6 +35,7 @@ export enum PACSPullStages {
 }
 
 export type PACSPull = {
+  query: PFDCMFilters
   stage: PACSPullStages
   status: string
   progress: number
@@ -155,14 +156,6 @@ export const PACS = () => {
 
       const pulls = pacspulls;
       console.log(pulls)
-
-      const addPACSPull = (query: string, pull: PACSPull) => {
-        pulls.set(JSON.stringify(query), pull);
-      }
-
-      const removePACSPull = (query: string) => {
-        pulls.delete(JSON.stringify(query));
-      }
   
       if (query) {  
         const pull = await client.status(query);
@@ -173,21 +166,21 @@ export const PACS = () => {
           pull.stage !== PACSPullStages.COMPLETED &&
           !pulls.has(JSON.stringify(query))
         ) 
-          addPACSPull(JSON.stringify(query), pull);
+          pulls.set(JSON.stringify(query), pull);
       }
   
       pulls.forEach(async (_pull, _query) => {
         console.log("##  Poll Trying")
-        const pull = await client.status(Object(JSON.parse(_query)));
+        const pull = await client.status(_pull.query);
   
         if (pull.stage === PACSPullStages.COMPLETED)
-          return removePACSPull(_query);
+          return pulls.delete(_query);;
   
         if (pull != _pull)
-          addPACSPull(_query, pull);
+          pulls.set(_query, pull);
 
         if (pull.progress === 1)
-          executePACSStage(Object(JSON.parse(_query)), pull.stage + 1);
+          executePACSStage(_pull.query, pull.stage + 1);
       })
   
       if (pulls.size)
@@ -203,6 +196,7 @@ export const PACS = () => {
       console.log("##  Handler")
       const pulls = pacspulls;
       pulls.set(JSON.stringify(query), {
+        query,
         progress: 0,
         stage: 1,
         status: "Requesting"

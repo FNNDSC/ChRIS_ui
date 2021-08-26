@@ -151,6 +151,7 @@ class PFDCMClient {
    */
   async status(query: PFDCMFilters = {}): Promise<PACSPull> {
     const pullstatus: PACSPull = {
+      query,
       progress: 0,
       stage: 0,
       status: "Requesting"
