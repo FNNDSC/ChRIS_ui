@@ -37,7 +37,7 @@ import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
 import { usePaginate } from "../../../components/common/pagination";
 import pluralize from "pluralize";
-import { ArchiveIcon } from "@patternfly/react-icons";
+// import { ArchiveIcon } from "@patternfly/react-icons";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -164,38 +164,38 @@ const FeedListView: React.FC<AllProps> = ({
                         </SplitItem>
                         <SplitItem style={{ minWidth: "25%" }}>
                           <span>
-                            <Link to={`/feeds/${id}`}>{name}</Link> {
-                              runningJobsCount > 0 &&
-                              <Badge>Running</Badge>
-                            }
+                            <Link to={`/feeds/${id}`}>{name}</Link>
                           </span>
                         </SplitItem>
 
                         <SplitItem style={{ margin: "0 1em" }}>
                           { 
-                            errorCount > 0
+                            errorCount > 0 
                             ? <Tooltip content={`${errored_jobs} errors, ${cancelled_jobs} cancelled`}>
-                                <span style={{ color: "firebrick" }}>
-                                  <ExclamationCircleIcon /> <b>{ errorCount } {pluralize('error', errorCount)}</b>
-                                </span>
+                                <Badge style={{ background: "firebrick" }}>
+                                  <ExclamationCircleIcon style={{ margin: "0.25em 0.25em auto auto" }} />
+                                  <b>{ errorCount } {pluralize('Error', errorCount)}</b>
+                                </Badge>
                               </Tooltip>
-                            : <span style={{ fontSize: "small", color: "grey" }}>
-                                { jobsCountText }
-                              </span>
+                            : runningJobsCount > 0
+                              ? <Badge><b>Running</b></Badge>
+                              : <span style={{ fontSize: "small", color: "grey" }}>
+                                  { jobsCountText }
+                                </span>
                           }
                         </SplitItem>
 
                         <SplitItem isFilled/>
 
                         <SplitItem style={{ textAlign: "right", color: "grey", margin: "0 1em" }}>
-                          <span><b>Last Commit</b> <Moment fromNow>{modification_date}</Moment></span>
+                          <span><b>Last Commit <Moment fromNow>{modification_date}</Moment></b></span>
                         </SplitItem>
 
                         <SplitItem style={{ textAlign: "right", color: "grey", margin: "0 1em" }}>
-                          <span><b>Created on</b> <Moment format="DD MMM, HH:mm">{creation_date}</Moment></span>
+                          <span>Created on <Moment format="DD MMM, HH:mm">{creation_date}</Moment></span>
                         </SplitItem>
 
-                        <SplitItem>
+                        {/* <SplitItem>
                           <Button variant="link"
                               style={{ display: "flex", height: "100%" }}
                               // onClick={() => setCurrentId(feed.data.id)}
@@ -204,7 +204,7 @@ const FeedListView: React.FC<AllProps> = ({
                               <ArchiveIcon style={{ margin: "auto" }} />
                             </Tooltip>
                           </Button>
-                        </SplitItem>
+                        </SplitItem> */}
 
                         <SplitItem>
                           <Popover
