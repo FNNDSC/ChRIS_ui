@@ -114,55 +114,32 @@ export const PACS = () => {
   }
 
   const [pacspulls, setPACSPulls] = useState<PACSPulls>(new Map());
-  
-  const addPACSPull = useCallback(
-    (query: PFDCMFilters, pull: PACSPull) => {
-      const pulls = pacspulls;
-      if (!pulls.has(JSON.stringify(query))){
-        pulls.set(JSON.stringify(query), pull);
-        setPACSPulls(pulls);
-      }
-    },
-    [pacspulls],
-  )
 
-  const removePACSPull = useCallback(
-    (query: PFDCMFilters) => {
-      const pulls = pacspulls;
-      pulls.delete(JSON.stringify(query));
-      setPACSPulls(pulls);
-    },
-    [pacspulls],
-  )
-
-  const advancePACSStage = useCallback(
-    (query: PFDCMFilters) => {
+  const executePACSStage = useCallback(
+    (query: PFDCMFilters, stage: PACSPullStages) => {
       console.log("##  Advance")
-      const pull = pacspulls.get(JSON.stringify(query));
   
       try {
-        console.log("##  Advance Trying", "STAGE", pull?.stage)
-        switch (pull?.stage) {
-          case PACSPullStages.NONE:
+        console.log("##  Advance Trying", "STAGE", stage)
+        switch (stage) {
+          case PACSPullStages.RETRIEVE:
             return client.findRetrieve(query);
   
-          case PACSPullStages.RETRIEVE:
+          case PACSPullStages.PUSH:
             return client.findPush(query);
   
-          case PACSPullStages.PUSH:
+          case PACSPullStages.REGISTER:
             return client.findRegister(query);
           
-          case PACSPullStages.REGISTER:
-            return;
-            
+          // case PACSPullStages.REGISTER:
           case PACSPullStages.COMPLETED:
-            removePACSPull(query);
+            return;
         }
       } catch (error) {
         console.error(error);
       }
     },
-    [pacspulls, removePACSPull],
+    [],
   )
   
   const handlePACSStatus = useCallback(
@@ -175,34 +152,50 @@ export const PACS = () => {
        * if status ~= images pushed, add query to pacspulls
        *              advance register stage, start polling
        */
+
+      const pulls = pacspulls;
+      console.log(pulls)
+
+      const addPACSPull = (query: string, pull: PACSPull) => {
+        pulls.set(JSON.stringify(query), pull);
+      }
+
+      const removePACSPull = (query: string) => {
+        pulls.delete(JSON.stringify(query));
+      }
   
       if (query) {  
         const pull = await client.status(query);
-        if (pull.stage === PACSPullStages.NONE || pull.stage === PACSPullStages.COMPLETED) 
-          return;
+        console.log(pull)
 
-        if (!pacspulls.has(JSON.stringify(query))) 
-          return addPACSPull(query, pull);
+        if (
+          pull.stage !== PACSPullStages.NONE && 
+          pull.stage !== PACSPullStages.COMPLETED &&
+          !pulls.has(JSON.stringify(query))
+        ) 
+          addPACSPull(JSON.stringify(query), pull);
       }
   
-      pacspulls.forEach(async (_pull, _query) => {
+      pulls.forEach(async (_pull, _query) => {
         console.log("##  Poll Trying")
-        const pull = await client.status(JSON.parse(_query));
+        const pull = await client.status(Object(JSON.parse(_query)));
   
         if (pull.stage === PACSPullStages.COMPLETED)
-          return removePACSPull(JSON.parse(_query));
+          return removePACSPull(_query);
   
-        if (pull !== _pull)
-          addPACSPull(JSON.parse(_query), pull);
-  
+        if (pull != _pull)
+          addPACSPull(_query, pull);
+
         if (pull.progress === 1)
-          advancePACSStage(JSON.parse(_query));
+          executePACSStage(Object(JSON.parse(_query)), pull.stage + 1);
       })
   
-      if (pacspulls.size)
-        setTimeout(handlePACSStatus.bind(PACS), 10000);
+      if (pulls.size)
+        setTimeout(handlePACSStatus.bind(PACS), 5000);
+
+      setPACSPulls(pulls);
     },
-    [addPACSPull, advancePACSStage, pacspulls, removePACSPull],
+    [executePACSStage, pacspulls],
   )
 
   const handlePACSPull = useCallback(
@@ -211,15 +204,15 @@ export const PACS = () => {
       const pulls = pacspulls;
       pulls.set(JSON.stringify(query), {
         progress: 0,
-        stage: 0,
+        stage: 1,
         status: "Requesting"
       });
   
       setPACSPulls(pulls);
-      advancePACSStage(query);
-      handlePACSStatus(query);
+      executePACSStage(query, 1);
+      handlePACSStatus();
     },
-    [advancePACSStage, handlePACSStatus, pacspulls],
+    [executePACSStage, handlePACSStatus, pacspulls],
   )
   
   return (
