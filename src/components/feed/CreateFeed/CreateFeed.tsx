@@ -268,13 +268,13 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       enableNext: !!data.feedName,
       canJumpTo: step > 1,
     },
-    // {
-    //   id: 2,
-    //   name: "Feed Type Selection",
-    //   component: withSelectionAlert(chooseConfig),
-    //   enableNext: selectedConfig.length > 0,
-    //   canJumpTo: step > 2,
-    // },
+    {
+      id: 2,
+      name: "Feed Type Selection",
+      component: withSelectionAlert(chooseConfig),
+      enableNext: selectedConfig.length > 0,
+      canJumpTo: step > 2,
+    },
     {
       id: 5,
       name: "Review",

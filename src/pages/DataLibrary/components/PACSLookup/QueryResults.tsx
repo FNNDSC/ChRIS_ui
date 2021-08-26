@@ -49,10 +49,20 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       library.actions.clear(items);
   };
 
+  const [expanded, setExpanded] = useState<string[]>([]);
+  const isExpanded = (uid: string) => expanded.includes(uid);
+  const expand = (uid: string) => {
+    let _expanded = expanded;
+    if (expanded.includes(uid)) {
+      _expanded = _expanded.filter((_uid) => _uid !== uid);
+      setExpanded(_expanded);
+    } else {
+      setExpanded([ ..._expanded, uid ]);
+    }
+  }
+
   const PatientCard = ({ patient, pacspulls }: { patient: PACSPatient, pacspulls: PACSPulls }) => {
     const { PatientID, PatientBirthDate, PatientName, PatientSex } = patient;
-
-    const [isExpanded, setIsExpanded] = useState(false);
 
     const LatestDate = (dates: Date[]) => {
       let latestStudy = dates[0];
@@ -64,8 +74,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
     return (
       <>
-        <Card isHoverable isExpanded={isExpanded}>
-          <CardHeader onExpand={setIsExpanded.bind(PatientCard, !isExpanded)}>
+        <Card isHoverable isExpanded={isExpanded(PatientID)}>
+          <CardHeader onExpand={expand.bind(PatientCard, PatientID)}>
             <Grid hasGutter style={{ width: "100%" }}>
               <GridItem lg={4}>
                 <div>
@@ -103,7 +113,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           </CardHeader>
         </Card>
 
-        {isExpanded && (
+        {isExpanded(PatientID) && (
           <Grid hasGutter className="patient-studies">
             {patient.studies.map((study) => (
               <GridItem key={study.StudyInstanceUID}>
@@ -119,7 +129,6 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   const StudyCard = ({ study, pacspulls }: { study: PACSStudy, pacspulls: PACSPulls }) => {
     const { StudyInstanceUID, PatientID } = study;
 
-    const [isExpanded, setIsExpanded] = useState(false);
     const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFile[]>();
 
     const pullQuery = { StudyInstanceUID, PatientID };
@@ -151,7 +160,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       if (cubeHasStudy)
         return (
           <div style={{ color: "gray" }}>
-            <b style={{ color: "darkgreen" }}>Downloaded</b>
+            <Button variant="link" style={{ padding: 0 }}><b>Available</b></Button>
             <div>{(chrisStudySize / (1024 * 1024)).toFixed(3)} MB</div>
           </div>
         );
@@ -164,7 +173,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
         return (
           <div>
-            <b>{_pull.status}</b>
+            <Button variant="link" style={{ padding: 0, color: "black" }}>
+              <b>{_pull.status}</b>
+            </Button>
             <div style={{ color: "gray" }}>
               ({((_pull.progress || 0) * 100).toFixed(0)}%)
             </div>
@@ -185,8 +196,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
     return (
       <>
-        <Card isHoverable isExpanded={isExpanded}>
-          <CardHeader onExpand={setIsExpanded.bind(QueryResults, !isExpanded)}>
+        <Card isHoverable isExpanded={isExpanded(StudyInstanceUID)}>
+          <CardHeader onExpand={expand.bind(QueryResults, StudyInstanceUID)}>
             <Split>
               <SplitItem style={{ minWidth: "30%", margin: "0 1em 0 0" }}>
                 <div>
@@ -243,7 +254,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           </CardHeader>
         </Card>
 
-        {isExpanded && (
+        {isExpanded(StudyInstanceUID) && (
           <Grid hasGutter className="patient-series">
             {study.series.map((series) => (
               <GridItem key={series.SeriesInstanceUID}>
@@ -276,7 +287,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         });
     }, [PatientID, SeriesInstanceUID, StudyInstanceUID]);
 
-    const cubeHasSeries: boolean =
+    const cubeHasSeries =
       series.NumberOfSeriesRelatedInstances === existingSeriesFiles?.length;
 
     const CUBESeries =
@@ -304,7 +315,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
         return (
           <div>
-            <b>{_pull.status}</b>
+            <Button variant="link" style={{ padding: 0, color: "black" }}>
+              <b>{_pull.status}</b>
+            </Button>
             <div style={{ color: "gray" }}>({((_pull.progress || 0) * 100).toFixed(0)}%)</div>
           </div>
         );
