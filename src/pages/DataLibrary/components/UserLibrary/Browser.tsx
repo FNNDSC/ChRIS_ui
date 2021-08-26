@@ -101,9 +101,17 @@ export const Browser: React.FC<BrowserProps> = ({
   const [filter, setFilter] = useState<string>();
   const [viewfile, setViewFile] = useState<any>();
   const [viewfolder, setViewFolder] = useState<any[]>();
+  const [selectedFolder, setSelectedFolder] = useState<string>();
 
   const [files, setFiles] = useState<Tree>();
   const [fpath, setFilesPath] = useState<string>();
+  
+  const { push, location } = useHistory();
+
+  const route = (path: string) => {
+    if (location.pathname !== path)
+      push(path)
+  }
 
   const folders = tree.dir
     .filter(({ hasChildren }) => hasChildren)
@@ -122,31 +130,32 @@ export const Browser: React.FC<BrowserProps> = ({
       if (!library.actions.isSeriesSelected(items))
         library.actions.select(items)
       else
-        library.actions.clear(items.map(({ data }) => data.fname))
+        library.actions.clear(items)
     }
     else {
       if (!library.actions.isSelected(items))
         library.actions.select(items)
       else
-        library.actions.clear(items.data.fname)
+        library.actions.clear(items)
     }
   }
 
-  const fetchFolderItems = async (action: FolderActions, item: Branch): Promise<void> => {
+  const onFolderSelectAction = async (then: FolderActions, folder: Branch): Promise<void> => {
     if (!fetchFiles) return
 
-    setFilesPath(item.path);
+    setFilesPath(folder.path);
     setFiles(undefined);
 
-    const _files = (await fetchFiles(item.path)).dir
+    if (then === "feed")
+      return router.actions.createFeedWithData([ folder.path ]);
+    if (then === "browse")
+      return route(`/library/${folder.path}`)
+
+    const _files = (await fetchFiles(folder.path)).dir
     const items = _files?.filter(({ item }) => !!item) || [];
     setFiles(_files);
 
-    switch (action) {
-      case "feed":
-        router.actions.createFeedWithData(items.map(({ item }) => item));
-        break;
-        
+    switch (then) {        
       case "view":
         setViewFolder(
           items.map(({ item }) => ({
@@ -156,7 +165,7 @@ export const Browser: React.FC<BrowserProps> = ({
         break;
 
       case "select":
-        select(items.map(({ item }) => item));
+        select(items.map(({ item }) => item.data.fname));
         break;
     
       default: break;
@@ -168,161 +177,138 @@ export const Browser: React.FC<BrowserProps> = ({
       <Route
         path={`${path}/:subfolder`}
         render={({ match }) => {
-          for (const child of tree.dir) {
-            if (child.name === match.params.subfolder) {
-              if (child.isLast) {
-                if (files && fpath === child.path)
-                  return (
-                    <Browser
-                      withHeader={withHeader}
-                      name={match.params.subfolder}
-                      path={`${path}/${match.params.subfolder}`}
-                      tree={new DirectoryTree(files)}
-                    />
-                  );
+          const child = tree.branch(match.params.subfolder);
+          if (!child)
+            return (
+              <EmptyState>
+                <EmptyStateIcon variant="container" component={CubesIcon} />
+                <Title size="lg" headingLevel="h4">
+                  Not Found
+                </Title>
+                <EmptyStateBody>Check the URL of this folder.</EmptyStateBody>
+                <EmptyStatePrimary>
+                  <Link to="/library">Back to Library</Link>
+                </EmptyStatePrimary>
+              </EmptyState>
+            );
 
-                if (!fetchFiles) break;
-
-                setFilesPath(child.path);
-                fetchFiles(child.path).then((files) => setFiles(files.dir));
-                return (
-                  <EmptyState>
-                    <EmptyStateIcon variant="container" component={Spinner} />
-                    <EmptyStateBody>Fetching Files</EmptyStateBody>
-                  </EmptyState>
-                );
-              }
-
+          if (child.isLastParent) {
+            if (files && fpath === child.path)
               return (
                 <Browser
                   withHeader={withHeader}
                   name={match.params.subfolder}
                   path={`${path}/${match.params.subfolder}`}
-                  tree={tree.child(match.params.subfolder)}
-                  fetchFiles={fetchFiles}
+                  tree={new DirectoryTree(files)}
                 />
               );
-            }
+
+            if (!fetchFiles) return;
+
+            setFilesPath(child.path);
+            fetchFiles(child.path).then((files) => setFiles(files.dir));
+            return (
+              <EmptyState>
+                <EmptyStateIcon variant="container" component={Spinner} />
+                <EmptyStateBody>Fetching Files</EmptyStateBody>
+              </EmptyState>
+            );
           }
 
           return (
-            <EmptyState>
-              <EmptyStateIcon variant="container" component={CubesIcon} />
-              <Title size="lg" headingLevel="h4">
-                Not Found
-              </Title>
-              <EmptyStateBody>Check the URL of this folder.</EmptyStateBody>
-              <EmptyStatePrimary>
-                <Link to="/library">Back to Library</Link>
-              </EmptyStatePrimary>
-            </EmptyState>
+            <Browser
+              withHeader={withHeader}
+              name={match.params.subfolder}
+              path={`${path}/${match.params.subfolder}`}
+              tree={tree.child(match.params.subfolder)}
+              fetchFiles={fetchFiles}
+            />
           );
         }}
       />
 
-      <Route path={path}>
-        <article>
-          {!!withHeader && (
-            <section>
-              {path && (
-                <div style={{ margin: "0 0 1em 0" }}>
-                  <BrowserBreadcrumbs path={path} />
-                </div>
-              )}
+      <Route exact path={path}>
+        {!!withHeader && (
+          <section>
+            {path && (
+              <div style={{ margin: "0 0 1em 0" }}>
+                <BrowserBreadcrumbs path={path} />
+              </div>
+            )}
 
-              <Split>
-                <SplitItem isFilled>
-                  <h2>
-                    <FolderOpenIcon /> {name}
-                  </h2>
-                  <Switch>
-                    <Route exact path="/library/search">
-                      <h3>
-                        {tree.dir.length} {pluralize("match", tree.dir.length)}
-                      </h3>
-                    </Route>
-                    <Route>
-                      <h3>
-                        {tree.dir.length} {pluralize("item", tree.dir.length)}
-                      </h3>
-                    </Route>
-                  </Switch>
-                </SplitItem>
+            <Split>
+              <SplitItem isFilled>
+                <h2>
+                  <FolderOpenIcon /> {name}
+                </h2>
+                <Switch>
+                  <Route exact path="/library/search">
+                    <h3>
+                      {tree.dir.length} {pluralize("match", tree.dir.length)}
+                    </h3>
+                  </Route>
+                  <Route>
+                    <h3>
+                      {tree.dir.length} {pluralize("item", tree.dir.length)}
+                    </h3>
+                  </Route>
+                </Switch>
+              </SplitItem>
 
-                <SplitItem>
-                  <Card>
-                    <TextInput
-                      id={`${path}-filter`}
-                      placeholder="Filter by Name"
-                      onChange={(value) => setFilter(value || undefined)}
-                    />
-                  </Card>
-                </SplitItem>
-              </Split>
-            </section>
-          )}
-
-          <Grid hasGutter>
-            {folders.map((folder) => (
-              <GridItem key={folder.name} sm={12} lg={4}>
-                {!folder.isLast ? (
-                  <FolderCard item={folder} />
-                ) : (
-                  <FolderCard
-                    item={folder}
-                    onSelect={fetchFolderItems}
-                    isLoading={folder.path === fpath && !files}
+              <SplitItem>
+                <Card>
+                  <TextInput
+                    id={`${path}-filter`}
+                    placeholder="Filter by Name"
+                    onChange={(value) => setFilter(value || undefined)}
                   />
-                )}
-              </GridItem>
-            ))}
+                </Card>
+              </SplitItem>
+            </Split>
+          </section>
+        )}
 
-            {tree.dir
-              .filter(({ hasChildren }) => !hasChildren)
-              .filter(({ name }) => {
-                if (filter) return name.includes(filter);
-                return true;
-              })
-              // FileCard
-              .map(({ name: fname, item }) => (
-                <GridItem key={fname} sm={12} lg={2}>
-                  <Card
-                    isRounded
-                    isCompact
-                    isSelectable
-                    isSelected={library.actions.isSelected(item)}
-                    onClick={select.bind(Browser, item)}
-                    style={{ overflow: "hidden" }}
-                  >
-                    <CardBody>
-                      <div
-                        style={{
-                          margin: "-1.15em -1.15em 1em -1.15em",
-                          maxHeight: "10em",
-                          overflow: "hidden",
-                        }}
-                      >
-                        <FileDetailView selectedFile={item} preview="small" />
-                      </div>
-                      <div style={{ overflow: "hidden" }}>
-                        <Button
-                          variant="link"
-                          style={{ padding: "0" }}
-                          onClick={() => setViewFile(item)}
-                        >
-                          <b>{elipses(fname, 20)}</b>
-                        </Button>
-                      </div>
-                      <div>
-                        {(item.data.fsize / (1024 * 1024)).toFixed(3)} MB
-                      </div>
-                    </CardBody>
-                  </Card>
-                </GridItem>
-              ))}
-          </Grid>
+        <Grid hasGutter>
+          { folders
+            .sort(
+              ({ creation_date: a }, { creation_date: b }) => b.getTime() - a.getTime()
+            )
+            .map((folder) => (
+            <GridItem key={folder.name} sm={12} lg={4}>
+              {!folder.isLastParent ? (
+                <FolderCard item={folder} />
+              ) : (
+                <FolderCard
+                  item={folder}
+                  onSelect={onFolderSelectAction}
+                  isSelected={library.actions.isSeriesSelected(
+                    folder.children.map(({ item }) => item.data.fname)
+                  )}
+                  isLoading={folder.path === fpath && !files}
+                />
+              )}
+            </GridItem>
+          ))}
 
-          { !!viewfile && <Modal
+          { tree.dir
+            .filter(({ isLeaf }) => isLeaf)
+            .filter(({ name }) => {
+              if (filter) return name.includes(filter);
+              return true;
+            })
+            .map((file) => (
+            <GridItem key={file.name} sm={12} lg={2}>
+              <FileCard file={file}
+                isSelected={library.actions.isSelected(file.item.data.fname)}
+                onSelect={select.bind(Browser, file.item.data.fname)}
+                onOpen={({ item }) => setViewFile(item)}
+              />
+            </GridItem>
+          ))}
+        </Grid>
+
+        {!!viewfile && (
+          <Modal
             title="Preview"
             aria-label="viewer"
             width={"50%"}
@@ -330,44 +316,41 @@ export const Browser: React.FC<BrowserProps> = ({
             onClose={() => setViewFile(undefined)}
           >
             <FileDetailView selectedFile={viewfile} preview="large" />
-          </Modal>}
+          </Modal>
+        )}
 
-          { !!viewfolder && <Modal
+        {!!viewfolder && (
+          <Modal
             title="View"
             aria-label="viewer"
-            width={"50%"}
+            width={"75%"}
             isOpen={!!viewfolder}
             onClose={() => setViewFolder(undefined)}
           >
             <GalleryDicomView files={viewfolder} />
-          </Modal>}
-        </article>
+          </Modal>
+        )}
       </Route>
     </Switch>
   );
 };
 
-type FolderActions = "view" | "feed" | "select";
+type FolderActions = "view" | "browse" | "feed" | "select" | "delete";
 interface FolderCardProps {
   item: Branch;
   isSelected?: boolean;
   isLoading?: boolean;
   onSelect?: (action: FolderActions, item: Branch) => any;
+  subtitle?: string | React.ReactElement;
 }
 
-export const FolderCard = ({ item, onSelect, isLoading, isSelected }: FolderCardProps) => {
+export const FolderCard = ({ item, onSelect, isLoading, isSelected, subtitle }: FolderCardProps) => {
   const [dropdown, setDropdown] = useState(false);
-  const { push, location } = useHistory();
-
-  const route = (path: string) => {
-    if (location.pathname !== path)
-      push(path)
-  }
 
   const toggle = (
     <KebabToggle
       style={{ padding: "0" }}
-      onToggle={setDropdown.bind(FolderCard, !dropdown)}
+      onToggle={() => setDropdown(!dropdown)}
     />
   );
 
@@ -376,12 +359,12 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected }: FolderCard
       onSelect(action, item);
   }
 
-  const { name, children, prefix, creation_date, isLast } = item;
+  const { name, children, path, creation_date, isLastParent } = item;
   const pad = <span style={{ padding: "0 0.25em" }} />;
   return (
     <Card isRounded isHoverable isSelectable isSelected={!!isSelected}>
       <CardHeader>
-        { (isLast && !!onSelect) && (
+        { (isLastParent && !!onSelect) && (
           <CardActions>
             <Dropdown
               onSelect={() => setDropdown(false)}
@@ -394,11 +377,6 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected }: FolderCard
                   <CheckIcon />{ pad } <b>Select</b>
                 </DropdownItem>,
 
-                <DropdownItem key="browse" style={{ color: "var(--pf-global--link--Color)" }}
-                  onClick={() => route(`/library/${prefix}/${name}`)}>
-                  <FolderOpenIcon />{ pad } <b>Browse</b>
-                </DropdownItem>,
-
                 <DropdownItem key="view" component="button" onClick={dispatch.bind(FolderCard, "view")}>
                   <EyeIcon />{ pad } View
                 </DropdownItem>,
@@ -408,7 +386,7 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected }: FolderCard
                 </DropdownItem>,
 
                 <DropdownSeparator key="separator" />,
-                <DropdownItem key="delete" component="button">
+                <DropdownItem key="delete" component="button" isDisabled>
                   <TrashIcon/>{ pad } Delete
                 </DropdownItem>,
               ]}
@@ -421,7 +399,7 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected }: FolderCard
             {
               (() => {
                 if (isLoading) return <Spinner size="md" />
-                if (isLast) return <CubeIcon />
+                if (isLastParent) return <CubeIcon />
 
                 return <FolderIcon />
               })()
@@ -430,16 +408,18 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected }: FolderCard
 
           <SplitItem isFilled>
             <div>
-              { isLast 
-                ? <b style={{ color: "var(--pf-global--link--Color)" }}>{elipses(name, 25)}</b>
-                : <Link to={`/library/${prefix}/${name}`}>{elipses(name, 25)}</Link>
-              }
+              <Link to={`/library/${path}`}>{elipses(name, 36)}</Link>
+              {/* <Button variant="link" style={{ padding: 0 }} onClick={dispatch.bind(FolderCard, "browse")}>
+                <b>{elipses(name, 36)}</b>
+              </Button> */}
               <Route exact path="/library/search">
                 <Badge style={{ margin: "0 0.5em" }}>
                   {children.length} {pluralize("match", children.length)}
                 </Badge>
               </Route>
             </div>
+
+            { subtitle && <div>{subtitle}</div> }
 
             <div style={{ fontSize: "0.85em" }}>
               {new Date(creation_date).toDateString()}
@@ -450,5 +430,47 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected }: FolderCard
     </Card>
   );
 };
+
+interface FileCardProps {
+  file: Branch;
+  isSelected?: boolean;
+  onSelect?: (fname: string) => void;
+  onOpen?: (file: Branch) => void;
+}
+
+export const FileCard = ({ file, isSelected, onSelect, onOpen }: FileCardProps) => {
+  return (
+    <Card
+      isRounded
+      isCompact
+      isSelectable
+      isSelected={isSelected}
+      style={{ overflow: "hidden" }}
+    >
+      <CardBody>
+        <div
+          onClick={onOpen?.bind(FileCard, file)}
+          style={{
+            margin: "-1.15em -1.15em 1em -1.15em",
+            maxHeight: "10em",
+            overflow: "hidden",
+          }}
+        >
+          <FileDetailView selectedFile={file.item} preview="small" />
+        </div>
+        <div style={{ overflow: "hidden" }}>
+          <Button
+            variant="link"
+            style={{ padding: "0" }}
+            onClick={onSelect?.bind(FileCard, file.item.data.fname)}
+          >
+            <b>{elipses(file.name, 22)}</b>
+          </Button>
+        </div>
+        <div>{(file.item.data.fsize / (1024 * 1024)).toFixed(3)} MB</div>
+      </CardBody>
+    </Card>
+  );
+}
 
 export default Browser;
