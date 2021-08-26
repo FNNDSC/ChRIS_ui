@@ -7,46 +7,42 @@ import { Types } from "./types";
 const ChooseConfig: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { selectedConfig } = state;
-
-  const fromSelected = !!state.data.selected.length;
+  const { isDataSelected } = state.data;
 
   return (
     <div className="local-file-upload">
 
       <h1 className="pf-c-title pf-m-2xl">Feed Type Selection</h1>
       <br />
-      <p className="data-configuration__subtitle">
+      <p>
         {
-          fromSelected
-            ? 'Creating feed from selected files. You may add more files in one of the following ways:'
+          isDataSelected
+            ? 'Creating feed from selected files.'
             : 'You may create the feed in one of the following ways:'
         }
       </p>
       <br />
-      {
-        !fromSelected && (
-          <Radio
-            value="fs_plugin"
-            isChecked={selectedConfig === "fs_plugin"}
-            onChange={(_, event) => {
-              dispatch({
-                type: Types.SelectedConfig,
-                payload: {
-                  selectedConfig: event.currentTarget.value,
-                },
-              });
-            }}
-            label="Generate files from running an FS plugin from this ChRIS server"
-            name="fs_plugin"
-            id="fs_plugin"
-            data-testid="fs_plugin"
-          />
-        )
-      }
-      {" "}
+      <Radio
+        value="fs_plugin"
+        isChecked={selectedConfig === "fs_plugin"}
+        isDisabled={isDataSelected}
+        onChange={(_, event) => {
+          dispatch({
+            type: Types.SelectedConfig,
+            payload: {
+              selectedConfig: event.currentTarget.value,
+            },
+          });
+        }}
+        label="Generate files from running an FS plugin from this ChRIS server"
+        name="fs_plugin"
+        id="fs_plugin"
+        data-testid="fs_plugin"
+      />
       <Radio
         value="swift_storage"
         isChecked={selectedConfig === "swift_storage"}
+        isDisabled={isDataSelected}
         onChange={(_, event) => {
           dispatch({
             type: Types.SelectedConfig,
@@ -62,6 +58,7 @@ const ChooseConfig: React.FC = () => {
       <Radio
         value="local_select"
         isChecked={selectedConfig === "local_select"}
+        isDisabled={isDataSelected}
         onChange={(_, event) => {
           dispatch({
             type: Types.SelectedConfig,
@@ -77,6 +74,7 @@ const ChooseConfig: React.FC = () => {
       <Radio
         value="multiple_select"
         isChecked={selectedConfig === "multiple_select"}
+        isDisabled={isDataSelected}
         onChange={(_, event) => {
           dispatch({
             type: Types.SelectedConfig,

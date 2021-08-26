@@ -15,8 +15,7 @@ const Review: React.FunctionComponent = () => {
     feedDescription,
     tags,
     chrisFiles,
-    localFiles,
-    selected
+    localFiles
   } = state.data;
   const {
     dropdownInput,
@@ -100,27 +99,6 @@ const Review: React.FunctionComponent = () => {
       </Grid>
       <br />
       {getReviewDetails()}
-      {
-        selected && (
-          <>
-            <GridItem span={12}>
-              PACS Series to add to new feed:
-            </GridItem>
-            <GridItem span={11} >
-              <List>
-                {
-                  selected.map(({ data }) => (
-                    <ListItem key={data.id}>
-                      { data.fname }
-                      {/* {series.patientName}, {series.modality}, {series.seriesDescription} */}
-                    </ListItem>
-                  ))
-                }
-              </List>
-            </GridItem>
-          </>
-        )
-      }
       <br />
     </div>
   );
