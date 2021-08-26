@@ -118,7 +118,7 @@ const GraphNode = (props: GraphNodeProps) => {
           handleResets();
           onVisibleChange(!visible);
         } catch (error) {
-          console.log("ERROR", error);
+          console.warn("ERROR", error);
         }
       } else {
         try {
@@ -144,7 +144,7 @@ const GraphNode = (props: GraphNodeProps) => {
           handleResets();
           onVisibleChange(!visible);
         } catch (error) {
-          console.log("ERROR", error);
+          console.warn("ERROR", error);
         }
       }
     }

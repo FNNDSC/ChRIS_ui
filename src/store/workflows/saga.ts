@@ -2,10 +2,12 @@ import { all, fork, takeEvery, put } from "@redux-saga/core/effects";
 import {
   setupCovidnet,
   setupAdultFreesurfer,
+  setupAdultFreesurferMoc,
   setupInfantFreesurfer,
   setupInfantFreesurferAge,
   setupFastsurfer,
   setupFetalReconstruction,
+  setupFastsurferMoc,
 } from "./setup";
 import { WorkflowTypes, AnalysisStep } from "./types";
 import { setAnalysisStep } from "./actions";
@@ -33,6 +35,13 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
   }
   if (workflowType === "fetal-reconstruction") {
     yield setupFetalReconstruction(action);
+  }
+  if (workflowType === "adult-freesurfer:moc") {
+    yield setupAdultFreesurferMoc(action);
+  }
+
+  if (workflowType === "fastsurfer:moc") {
+    yield setupFastsurferMoc(action);
   }
 }
 

@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
+import { debounce } from "lodash";
 
 interface FilterState {
   perPage: number;
@@ -34,6 +35,11 @@ export const usePaginate = () => {
     });
   };
 
+  const debouncedFilterUpdate = debounce(
+    (filter: string) => handleFilterChange(filter),
+    500
+  );
+
   const run = useCallback(
     (action) => {
       dispatch(action(filter, perPage, perPage * (page - 1)));
@@ -46,6 +52,6 @@ export const usePaginate = () => {
     handlePageSet,
     handlePerPageSet,
     run,
-    handleFilterChange,
+    debouncedFilterUpdate,
   };
 };

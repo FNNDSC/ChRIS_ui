@@ -312,7 +312,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     {
       id: 5,
       name: "Review",
-      component: review,
+      component: withSelectionAlert(review, false),
       enableNext: enableSave,
       nextButtonText: "Create Feed",
       canJumpTo: step > 5,
@@ -320,7 +320,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     {
       id: 6,
       name: "Finish",
-      component: finishedStep,
+      component: withSelectionAlert(finishedStep, false),
       canJumpTo: step > 6,
     },
   ];
@@ -378,7 +378,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
               dispatch({
                 type: Types.ResetState,
               });
-
             dispatch({
               type: Types.ToggleWizzard,
             });

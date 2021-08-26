@@ -4,6 +4,9 @@ import { useDispatch, connect } from "react-redux";
 import { Link } from "react-router-dom";
 import Moment from "react-moment";
 import {
+  InputGroup,
+  InputGroupText,
+  TextInput,
   PageSection,
   Title,
   Pagination,
@@ -16,12 +19,15 @@ import {
   Tooltip
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
-import { CodeBranchIcon, TrashAltIcon } from "@patternfly/react-icons";
+import {
+  CodeBranchIcon,
+  TrashAltIcon,
+  SearchIcon,
+} from "@patternfly/react-icons";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { getAllFeedsRequest, deleteFeed } from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
-import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
 import { Feed } from "@fnndsc/chrisapi";
@@ -47,7 +53,7 @@ const FeedListView: React.FC<AllProps> = ({
     filterState,
     handlePageSet,
     handlePerPageSet,
-    handleFilterChange,
+    debouncedFilterUpdate,
     run,
   } = usePaginate();
   const [currentId, setCurrentId] = React.useState<string | number>("none");
@@ -139,16 +145,13 @@ const FeedListView: React.FC<AllProps> = ({
             }}
             onClick={() => setCurrentId(feed.data.id)}
             icon={
-              <Tooltip
-                content={<div>Delete the Feed</div>}
-              >
+              <Tooltip content={<div>Delete the Feed</div>}>
                 <TrashAltIcon
                   style={{
                     color: "#004080 ",
                   }}
                 />
               </Tooltip>
-
             }
           />
         </Popover>
