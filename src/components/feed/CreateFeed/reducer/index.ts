@@ -12,28 +12,36 @@ import { InputType } from "../../AddNode/types";
 import { Series } from "../../../../pages/DataLibrary/Library";
 
 function getDefaultCreateFeedData(selectedData?: Series): CreateFeedData {
-  return {
+  const initData = {
     feedName: "",
     feedDescription: "",
     tags: [],
-    chrisFiles: [],
+    chrisFiles: [] as string[],
     localFiles: [],
     checkedKeys:{},
-    selected: selectedData || [],
+    isDataSelected: false,
   };
+
+  if (selectedData && !!selectedData.length) {
+    initData.chrisFiles = selectedData; //.map(({ data }) => data.fname);
+    initData.isDataSelected = true;
+  }
+
+  return initData;
 }
 
-export function getInitialState(routerContextState?: typeof MainRouterContextState) {
+export function getInitialState(routerContextState?: typeof MainRouterContextState): CreateFeedState {
   const selectedData = routerContextState?.selectData;
+  const isInitDataSelected = !!selectedData?.length;
 
   return {
     // if data is selected, the user is navigated directly to create feed wizard
-    wizardOpen: !!selectedData?.length,
+    wizardOpen: isInitDataSelected,
 
     step: 1,
     data: getDefaultCreateFeedData(selectedData),
     selectedPlugin: undefined,
-    selectedConfig: "",
+    selectedConfig: isInitDataSelected ? "swift_storage" : "",
     requiredInput: {},
     dropdownInput: {},
     feedProgress: "",

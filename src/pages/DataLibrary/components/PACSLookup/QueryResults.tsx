@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Badge,
   Button,
@@ -17,186 +17,358 @@ import {
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import Moment from "react-moment";
+import pluralize from "pluralize";
 import { PACSFile } from "@fnndsc/chrisapi";
 
 import "./pacs-lookup.scss";
-import { PACSPatient, PACSSeries, PACSStudy } from "../../../../api/pfdcm";
-import { LibraryContext, Series } from "../../Library";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
+import { PACSPatient, PACSSeries, PACSStudy, PFDCMFilters } from "../../../../api/pfdcm";
+import { LibraryContext, Series } from "../../Library";
+import { PACSPulls } from ".";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[]
+  pulls: PACSPulls
+  onRequestPull: (filter: PFDCMFilters) => any
+  onRequestStatus: (filter: PFDCMFilters) => any
 }
 
-export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResultsProps) => {
+export const QueryResults: React.FC<QueryResultsProps> = ({
+  results,
+  pulls,
+  onRequestPull,
+  onRequestStatus,
+}: QueryResultsProps) => {
   const library = useContext(LibraryContext);
   const client = ChrisAPIClient.getClient();
 
-  const [expandedPatient, setExpandedPatient] = useState<string>()
-  const expandPatient = (patientID:string) => {
-    if (expandedPatient && expandedPatient === patientID)
-      setExpandedPatient(undefined);
-    else
-      setExpandedPatient(patientID);
-  }
+  const select = (items: Series) => {
+    if (!library.actions.isSeriesSelected(items)) 
+      library.actions.select(items);
+    else 
+      library.actions.clear(items);
+  };
 
-  const [expandedStudy, setExpandedStudy] = useState<string>()
-  const expandStudy = (studyUID:string) => {
-    if (expandedStudy && expandedStudy === studyUID)
-      setExpandedStudy(undefined);
-    else {
-      setExpandedStudy(studyUID);
-      setExistingStudyFiles(undefined);
-      getPACSFilesForThisStudy(studyUID);      
+  const [expanded, setExpanded] = useState<string[]>([]);
+  const isExpanded = (uid: string) => expanded.includes(uid);
+  const expand = (uid: string) => {
+    let _expanded = expanded;
+    if (expanded.includes(uid)) {
+      _expanded = _expanded.filter((_uid) => _uid !== uid);
+      setExpanded(_expanded);
+    } else {
+      setExpanded([ ..._expanded, uid ]);
     }
   }
 
-  const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFile[]>();
-  const getPACSFilesForThisStudy = async (studyUID:string) => {
-    setExistingStudyFiles(
-      (
-        await client.getPACSFiles({
-          StudyInstanceUID: studyUID,
-          PatientID: expandedPatient as string,
+  const PatientCard = ({ patient, pacspulls }: { patient: PACSPatient, pacspulls: PACSPulls }) => {
+    const { PatientID, PatientBirthDate, PatientName, PatientSex } = patient;
+
+    const LatestDate = (dates: Date[]) => {
+      let latestStudy = dates[0];
+      for (const date of dates) {
+        if (latestStudy.getTime() < date.getTime()) latestStudy = date;
+      }
+      return latestStudy;
+    };
+
+    return (
+      <>
+        <Card isHoverable isExpanded={isExpanded(PatientID)}>
+          <CardHeader onExpand={expand.bind(PatientCard, PatientID)}>
+            <Grid hasGutter style={{ width: "100%" }}>
+              <GridItem lg={4}>
+                <div>
+                  <b>{PatientName.split("^").reverse().join(" ")}</b>
+                </div>
+                <div>MRN {PatientID}</div>
+              </GridItem>
+              <GridItem lg={4}>
+                <div>
+                  <b>Sex</b> ({PatientSex})
+                </div>
+                <div>
+                  <b>DoB</b>{" "}
+                  <Moment format="MMMM Do YYYY">
+                    {PatientBirthDate.getTime()}
+                  </Moment>
+                </div>
+              </GridItem>
+
+              <GridItem lg={4} style={{ textAlign: "right", color: "gray" }}>
+                <div>
+                  <b>
+                    {patient.studies.length}{" "}
+                    {pluralize("study", patient.studies.length)}
+                  </b>
+                </div>
+                <div>
+                  Latest on{" "}
+                  {LatestDate(
+                    patient.studies.map((s) => s.StudyDate)
+                  ).toDateString()}
+                </div>
+              </GridItem>
+            </Grid>
+          </CardHeader>
+        </Card>
+
+        {isExpanded(PatientID) && (
+          <Grid hasGutter className="patient-studies">
+            {patient.studies.map((study) => (
+              <GridItem key={study.StudyInstanceUID}>
+                <StudyCard study={study} pacspulls={pacspulls} />
+              </GridItem>
+            ))}
+          </Grid>
+        )}
+      </>
+    );
+  };
+
+  const StudyCard = ({ study, pacspulls }: { study: PACSStudy, pacspulls: PACSPulls }) => {
+    const { StudyInstanceUID, PatientID } = study;
+
+    const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFile[]>();
+
+    const pullQuery = { StudyInstanceUID, PatientID };
+
+    useEffect(() => {
+      client
+        .getPACSFiles({
+          StudyInstanceUID,
+          PatientID,
           limit: 10e6,
         })
-      ).getItems() || []
-    );
-  }
+        .then((value) => {
+          setExistingStudyFiles(value.getItems() || []);
+        });
+    }, [PatientID, StudyInstanceUID]);
 
-  const select = (items: Series) => {
-    if (!library.actions.isSeriesSelected(items))
-      library.actions.select(items)
-    else
-      library.actions.clear(items.map(({ data }) => data.fname))
-  }
+    const cubeHasStudy =
+      study.NumberOfStudyRelatedInstances === existingStudyFiles?.length;
 
-  const LatestDate = (dates: Date[]) => {
-    let latestStudy = dates[0];
-    for (const date of dates) {
-      if (latestStudy.getTime() < date.getTime())
-        latestStudy = date;
-    }
-    return latestStudy
-  }
+    const StudyActions = () => {
+      if (!existingStudyFiles || !pulls) return <Spinner size="lg" />;
 
-  const PatientCard = ({ patient }: { patient: PACSPatient }) => {
-    return <Card isExpanded={(expandedPatient === patient.patientID)}>
-      <CardHeader onExpand={expandPatient.bind(QueryResults, patient.patientID)}>
-        <Grid hasGutter style={{ width: "100%" }}>
-          <GridItem lg={2}>
-            <div><b>{patient.patientName.split('^').reverse().join(" ")}</b></div>
-            <div>MRN {patient.patientID}</div>
-          </GridItem>
-          <GridItem lg={1}>
-            <div><b>Sex</b></div>
-            <div>({patient.patientSex})</div>
-          </GridItem>
-          <GridItem lg={6}>
-            <div><b>DoB</b></div>
-            <div><Moment format="MMMM Do YYYY">{patient.patientBirthDate.getTime()}</Moment></div>
-          </GridItem>
+      const chrisStudySize = existingStudyFiles.reduce((size, file) => {
+        if (file.data.StudyInstanceUID === StudyInstanceUID)
+          size += file.data.fsize;
+        return size;
+      }, 0);
 
-          <GridItem lg={3} style={{ textAlign: "right", color: "gray" }}>
-            <div><b>{patient.studies.length} studies</b></div>
-            <div>Latest on {LatestDate(patient.studies.map(s => s.studyDate)).toDateString()}</div>
-          </GridItem>
-        </Grid>
-      </CardHeader>
-    </Card>
-  }
+      if (cubeHasStudy)
+        return (
+          <div style={{ color: "gray" }}>
+            <Button variant="link" style={{ padding: 0 }}><b>Available</b></Button>
+            <div>{(chrisStudySize / (1024 * 1024)).toFixed(3)} MB</div>
+          </div>
+        );
 
-  const StudyCard = ({ study }: { study: PACSStudy }) => {
-    return <Card isExpanded={expandedStudy === study.studyInstanceUID}>
-      <CardHeader onExpand={expandStudy.bind(QueryResults, study.studyInstanceUID)}>
-        <Split>
-          <SplitItem style={{ minWidth: "30%", margin: "0 1em 0 0" }}>
-            <div>
-              <b style={{ marginRight: "0.5em" }}>
-                {study.studyDescription}
-              </b> {
-                study.studyDate.getTime() >= Date.now() - (30 * 24*60*60*1000) ? (
-                  <Tooltip content="Study was performed in the last 30 days.">
-                    <Badge>NEW</Badge>
-                  </Tooltip>
-                ) : null
-              }
-            </div>
-            <div>
-              {study.numberOfStudyRelatedSeries} series, on {study.studyDate.toDateString()}
-            </div>
-          </SplitItem>
-          <SplitItem>
-            <div>Modalities in Study</div>
-            <div>
-              { study.modalitiesInStudy.split('\\').map(m => (
-                <Badge style={{ margin: "auto 0.125em", backgroundColor: "darkgrey" }} key={m}>{m}</Badge>
-              ))}
-            </div>
-          </SplitItem>
-          <SplitItem isFilled/>
-          <SplitItem style={{ textAlign: "right" }}>
-            <div>Performed at</div>
-            <div>
-              { study.performedStationAETitle.startsWith("no value") ? 'unknown' : study.performedStationAETitle }
-            </div>
-          </SplitItem>
-          <SplitItem style={{ color: "gray", margin: "0 0 0 2em",  textAlign: "right" }}>
-            <Button variant="link" style={{ padding: "0" }} onClick={() => expandStudy(study.studyInstanceUID)}>
-              Browse
+      onRequestStatus(pullQuery);
+
+      if (pacspulls.has(JSON.stringify(pullQuery))) {
+        const _pull = pacspulls.get(JSON.stringify(pullQuery));
+        if (!_pull) return <Spinner size="lg" />;
+
+        return (
+          <div>
+            <Button variant="link" style={{ padding: 0, color: "black" }}>
+              <b>{_pull.status}</b>
             </Button>
-            <div>{study.numberOfStudyRelatedInstances} files</div>
-          </SplitItem>
-        </Split>
-      </CardHeader>
-    </Card>
-  }
+            <div style={{ color: "gray" }}>
+              ({((_pull.progress || 0) * 100).toFixed(0)}%)
+            </div>
+          </div>
+        );
+      }
 
-  const SeriesCard = ({ series }: { series: PACSSeries }) => {
-    const chrisHasSeries = (
-      series.numberOfSeriesRelatedInstances === existingStudyFiles?.reduce(
-        (count, file) => {
-          if (file.data.seriesInstanceUID === series.seriesInstanceUID)
-            count++;
-          return count;
-        }, 
-      0)
+      return (
+        <Button
+          variant="secondary"
+          style={{ fontSize: "small" }}
+          onClick={onRequestPull.bind(StudyCard, pullQuery)}
+        >
+          <b>Pull Study</b>
+        </Button>
+      );
+    };
+
+    return (
+      <>
+        <Card isHoverable isExpanded={isExpanded(StudyInstanceUID)}>
+          <CardHeader onExpand={expand.bind(QueryResults, StudyInstanceUID)}>
+            <Split>
+              <SplitItem style={{ minWidth: "30%", margin: "0 1em 0 0" }}>
+                <div>
+                  <b style={{ marginRight: "0.5em" }}>
+                    {study.StudyDescription}
+                  </b>{" "}
+                  {study.StudyDate.getTime() >=
+                  Date.now() - 30 * 24 * 60 * 60 * 1000 ? (
+                    <Tooltip content="Study was performed in the last 30 days.">
+                      <Badge>NEW</Badge>
+                    </Tooltip>
+                  ) : null}
+                </div>
+                <div>
+                  {study.NumberOfStudyRelatedSeries} series, on{" "}
+                  {study.StudyDate.toDateString()}
+                </div>
+              </SplitItem>
+              <SplitItem>
+                <div>Modalities in Study</div>
+                <div>
+                  {study.ModalitiesInStudy.split("\\").map((m) => (
+                    <Badge
+                      style={{
+                        margin: "auto 0.125em",
+                        backgroundColor: "darkgrey",
+                      }}
+                      key={m}
+                    >
+                      {m}
+                    </Badge>
+                  ))}
+                </div>
+              </SplitItem>
+              <SplitItem isFilled />
+
+              {!study.PerformedStationAETitle.startsWith("no value") && (
+                <SplitItem style={{ textAlign: "right" }}>
+                  <div>Performed at</div>
+                  <div>{study.PerformedStationAETitle}</div>
+                </SplitItem>
+              )}
+
+              <SplitItem
+                style={{
+                  margin: "auto 0 auto 2em",
+                  textAlign: "right",
+                  fontSize: "small",
+                }}
+              >
+                <StudyActions />
+              </SplitItem>
+            </Split>
+          </CardHeader>
+        </Card>
+
+        {isExpanded(StudyInstanceUID) && (
+          <Grid hasGutter className="patient-series">
+            {study.series.map((series) => (
+              <GridItem key={series.SeriesInstanceUID}>
+                <SeriesCard series={series} pacspulls={pacspulls} />
+              </GridItem>
+            ))}
+          </Grid>
+        )}
+      </>
     );
+  };
 
-    const ChrisSeries = existingStudyFiles?.filter(
-      (file) => file.data.seriesInstanceUID === series.seriesInstanceUID
-    ) || [];
+  const SeriesCard = ({ series, pacspulls }: { series: PACSSeries, pacspulls: PACSPulls }) => {
+    const { SeriesInstanceUID, StudyInstanceUID, PatientID } = series;
 
-    return <Card 
-      isSelectable={chrisHasSeries}
-      isSelected={library.actions.isSeriesSelected(ChrisSeries)}
-      onClick={chrisHasSeries ? select.bind(QueryResults, ChrisSeries) : undefined}
-    >
-      <CardHeader>
-        <Split style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-          <SplitItem style={{ minWidth: "50%" }} isFilled>
-            <Badge style={{ margin: "0 1em 0 0" }}>{series.modality}</Badge> 
-            <span>{ series.seriesDescription }</span>
-          </SplitItem>
-          <SplitItem style={{ color: "gray", margin: "0 2em", textAlign: "right" }}>
-            {series.numberOfSeriesRelatedInstances} files
-          </SplitItem>
-          <SplitItem>
-            {
-              existingStudyFiles ?
-                !chrisHasSeries ? 
-                  <Button variant="link" style={{ padding: "0" }}>Pull</Button>
-                : <Button variant="link" style={{ padding: "0" }}>Use</Button>
-              : <Spinner size="md" />
-            }            
-          </SplitItem>
-        </Split>
-      </CardHeader>
-    </Card>
-  }
+    const [existingSeriesFiles, setExistingSeriesFiles] = useState<PACSFile[]>();
+
+    const pullQuery = { SeriesInstanceUID, StudyInstanceUID, PatientID };
+
+    useEffect(() => {
+      client
+        .getPACSFiles({
+          SeriesInstanceUID,
+          StudyInstanceUID,
+          PatientID,
+          limit: 10e6,
+        })
+        .then((value) => {
+          setExistingSeriesFiles(value.getItems() || []);
+        });
+    }, [PatientID, SeriesInstanceUID, StudyInstanceUID]);
+
+    const cubeHasSeries =
+      series.NumberOfSeriesRelatedInstances === existingSeriesFiles?.length;
+
+    const CUBESeries =
+      existingSeriesFiles?.map((file) => file.data.fname) || [];
+
+    const SeriesActions = () => {
+      if (!existingSeriesFiles || !pulls) return <Spinner size="md" />;
+
+      if (cubeHasSeries)
+        return (
+          <Button
+            variant="link"
+            style={{ padding: "0" }}
+            onClick={select.bind(QueryResults, CUBESeries)}
+          >
+            Select
+          </Button>
+        );
+
+      onRequestStatus(pullQuery);
+
+      if (pacspulls.has(JSON.stringify(pullQuery))) {
+        const _pull = pacspulls.get(JSON.stringify(pullQuery));
+        if (!_pull) return <Spinner size="md" />;
+
+        return (
+          <div>
+            <Button variant="link" style={{ padding: 0, color: "black" }}>
+              <b>{_pull.status}</b>
+            </Button>
+            <div style={{ color: "gray" }}>({((_pull.progress || 0) * 100).toFixed(0)}%)</div>
+          </div>
+        );
+      }
+
+      return (
+        <Button
+          variant="link"
+          style={{ padding: 0, fontSize: "small" }}
+          onClick={onRequestPull.bind(SeriesCard, pullQuery)}
+        >
+          <b>Pull Series</b>
+        </Button>
+      );
+    };
+
+    return (
+      <Card
+        isHoverable
+        isSelectable={cubeHasSeries}
+        isSelected={library.actions.isSeriesSelected(CUBESeries)}
+      >
+        <CardHeader>
+          <Split
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <SplitItem style={{ minWidth: "50%" }} isFilled>
+              <Badge style={{ margin: "0 1em 0 0" }}>{series.Modality}</Badge>
+              <span>{series.SeriesDescription}</span>
+            </SplitItem>
+            <SplitItem
+              style={{ color: "gray", margin: "0 2em", textAlign: "right" }}
+            >
+              {series.NumberOfSeriesRelatedInstances} {
+                pluralize('file', series.NumberOfSeriesRelatedInstances)}
+            </SplitItem>
+            <SplitItem>
+              <SeriesActions />
+            </SplitItem>
+          </Split>
+        </CardHeader>
+      </Card>
+    );
+  };
 
   results = results as PACSPatient[];
-  
+
   if (!results.length) {
     return (
       <EmptyState>
@@ -204,46 +376,22 @@ export const QueryResults: React.FC<QueryResultsProps> = ({ results }: QueryResu
         <Title size="lg" headingLevel="h4">
           No Results
         </Title>
-        <EmptyStateBody>
-          No patients matched your search.
-        </EmptyStateBody>
+        <EmptyStateBody>No patients matched your search.</EmptyStateBody>
       </EmptyState>
-    )
+    );
   }
 
   /* eslint-disable react/prop-types */
 
   return (
     <Grid hasGutter id="pacs-query-results">
-    { results.map((patient) => (
-      <GridItem key={patient.patientID}>
-        <PatientCard patient={patient} />
-
-        { 
-          (expandedPatient === patient.patientID) &&
-          <Grid hasGutter className="patient-studies">
-          { patient.studies.map((study) => (
-            <GridItem key={study.studyInstanceUID}>
-              <StudyCard study={study} />
-
-              { 
-                expandedStudy === study.studyInstanceUID &&
-                <Grid hasGutter className="patient-series">
-                { study.series.map((series) => (
-                  <GridItem key={series.seriesInstanceUID}>
-                    <SeriesCard series={series} />
-                  </GridItem>
-                ))}
-                </Grid>
-              }
-            </GridItem>
-          ))}
-          </Grid>
-        }
-      </GridItem>
-    ))}
+      {results.map((patient) => (
+        <GridItem key={patient.PatientID}>
+          <PatientCard patient={patient} pacspulls={pulls} />
+        </GridItem>
+      ))}
     </Grid>
   );
-}
+};
 
 export default QueryResults
