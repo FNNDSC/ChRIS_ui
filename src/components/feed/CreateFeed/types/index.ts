@@ -147,7 +147,7 @@ export interface CreateFeedData {
     [key: string]: Key[];
   };
   localFiles: LocalFile[];
-  selected: Series;
+  isDataSelected: boolean;
 }
 
 export interface CreateFeedState extends InputState {

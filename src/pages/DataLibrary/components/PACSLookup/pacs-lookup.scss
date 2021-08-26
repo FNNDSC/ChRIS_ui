@@ -7,6 +7,14 @@
     #search-value {
       width: 100%;
     }
+
+    #search-type, #search-type > button {
+      height: 100%;
+    }
+
+    #pacs-service, #pacs-service > button {
+      height: 100%;
+    }
   }
 
   #finalize {
@@ -30,19 +38,14 @@
 
     .expanded-tabs {
       min-width: 20%;
-
-      .pf-c-tabs__list .pf-c-tabs__item:first-of-type {
-        // background-color: var(--pf-global--palette--black-100);
-      }
-    }
-
-    .expanded-content {
-      
     }
   }
 
   .patient-studies {
-    padding: 2em 4em;
+    margin: 1em;
+    padding: 1em 2em;
+    border-right: 2px dashed lightgray;
+    border-left: 2px dashed lightgray;
     // max-height: 50vh;
     // overflow-y: scroll;
     // overflow-x: hidden;
@@ -58,7 +61,10 @@
   }
 
   .patient-series {
-    padding: 2em 4em;
+    margin: 1em;
+    padding: 1em 2em;
+    border-right: 2px dashed lightgray;
+    border-left: 2px dashed lightgray;
     // max-height: 50vh;
     // overflow-y: scroll;
     // overflow-x: hidden;
