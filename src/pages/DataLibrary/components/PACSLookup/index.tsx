@@ -31,27 +31,16 @@ export interface PFDCMQuery {
 }
 
 export enum PACSPullStages {
-  ERROR, RETRIEVE, PUSH, REGISTER, COMPLETED
+  NONE, RETRIEVE, PUSH, REGISTER, COMPLETED
 }
 
-export type PACSPulls = Map<
-  PFDCMFilters, {
-    query: PFDCMFilters
-    stage: PACSPullStages
-    status: string
-    progress: number
-  }
->
-
-export const __stageText = (stage:PACSPullStages) => {
-  switch (stage) {
-    case PACSPullStages.ERROR:     return "Error";
-    case PACSPullStages.RETRIEVE:  return "Retrieving";
-    case PACSPullStages.PUSH:      return "Pushing";
-    case PACSPullStages.REGISTER:  return "Registering";
-    case PACSPullStages.COMPLETED: return "Completed";
-  }
+export type PACSPull = {
+  stage: PACSPullStages
+  status: string
+  progress: number
 }
+
+export type PACSPulls = Map<string, PACSPull>
 
 const client = new PFDCMClient;
 
@@ -85,195 +74,154 @@ export const PACS = () => {
       setLoading(true);
       const response: PACSPatient[] = [];
       setProgress([0, queries.length]);
-
+  
       for (let q = 0; q < queries.length; q++) {
         const { type, value, filters } = queries[q];
-
+  
         switch (type) {
           case PFDCMQueryTypes.PATIENT:
             response.push(...(await client.queryByPatientName(value, filters)));
             break;
-
+  
           case PFDCMQueryTypes.DATE:
             response.push(...(await client.queryByStudyDate(value, filters)));
             break;
-
+  
           case PFDCMQueryTypes.MRN:
             response.push(...(await client.queryByPatientID(value, filters)));
             break;
-
+  
           default:
             throw TypeError('Unsupported PFDCM Query Type');
         }
-
+  
         setProgress([q + 1, queries.length]);
       }
-
+  
       setResults(response);
       setLoading(false);
     },
-  [])
+    [],
+  )
 
   const handlePACSSelect = (key: string) => {
+    /**
+     * Client handles validation of PACS 
+     * service key internally.
+     */
     client.service = key;
     setSelectedPACS(client.service)
   }
 
   const [pacspulls, setPACSPulls] = useState<PACSPulls>(new Map());
-  const [pacsPullStage, setPacsPullStage] = useState(PACSPullStages.RETRIEVE);
-
-  const handlePACSStatus = async (query: PFDCMFilters) => {
-    /**
-     * Find then status of query
-     * if status ~= nothing done, do nothing
-     * if status ~= images recieved, add query to pacspulls
-     *              advance push stage, start polling
-     * if status ~= images pushed, add query to pacspulls
-     *              advance register stage, start polling
-     */
-
-    // const status = await client.find(query);
-    // setTimeout(onPACSStatus.bind(PACS, query), 5000);
-  }
-
-  const handlePACSPull = useCallback(
-    async (query: PFDCMFilters) => {
-      let then;
-      let condition = true;
-
-      // while (pacsPullStage !== PACSPullStages.COMPLETED && condition)
-      try {
-        switch (pacsPullStage) {
-          case PACSPullStages.RETRIEVE:
-            ({ then } = (await client.findRetrieve(query)));
-            condition = !then.status;
-            break;
-
-          case PACSPullStages.PUSH:
-            ({ then } = (await client.findPushSwift(query)));
-            condition = then["00-push"].study.every((study:any) => {
-              for (const studyUID in study) {
-                if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
-                  return study[studyUID].every((series:any) => series.status)               
-                }
-              }
-            })
-            break;
-
-          case PACSPullStages.REGISTER:
-            ({ then } = (await client.findRegisterCube(query)));
-            condition = then["00-register"].study.every((study:any) => {
-              for (const studyUID in study) {
-                if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
-                  return study[studyUID].every((series:any) => series.status)               
-                }
-              }
-            })
-            break;
-        }
-
-        if (condition)
-          setPacsPullStage(pacsPullStage + 1);
-      } catch (error) {
-        console.error(error);
-        condition = false;
-        return;
+  
+  const addPACSPull = useCallback(
+    (query: PFDCMFilters, pull: PACSPull) => {
+      const pulls = pacspulls;
+      if (!pulls.has(JSON.stringify(query))){
+        pulls.set(JSON.stringify(query), pull);
+        setPACSPulls(pulls);
       }
     },
-    [pacsPullStage]
+    [pacspulls],
   )
 
-  // const onPACSPull = useCallback(
-  //   async (query: PFDCMFilters) => {
-  //     let then;
-  //     let condition = true;
+  const removePACSPull = useCallback(
+    (query: PFDCMFilters) => {
+      const pulls = pacspulls;
+      pulls.delete(JSON.stringify(query));
+      setPACSPulls(pulls);
+    },
+    [pacspulls],
+  )
 
-  //     try {
-  //       ({ then } = (await client.findRetrieve(query)));
-  //       condition = !then.status;
-  //       // for (let i = 1000000; i < 0; i--) {}
-  //       if (condition) setPacsPullStage(pacsPullStage + 1);
+  const advancePACSStage = useCallback(
+    (query: PFDCMFilters) => {
+      console.log("##  Advance")
+      const pull = pacspulls.get(JSON.stringify(query));
+  
+      try {
+        console.log("##  Advance Trying", "STAGE", pull?.stage)
+        switch (pull?.stage) {
+          case PACSPullStages.NONE:
+            return client.findRetrieve(query);
+  
+          case PACSPullStages.RETRIEVE:
+            return client.findPush(query);
+  
+          case PACSPullStages.PUSH:
+            return client.findRegister(query);
+          
+          case PACSPullStages.REGISTER:
+            return;
+            
+          case PACSPullStages.COMPLETED:
+            removePACSPull(query);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [pacspulls, removePACSPull],
+  )
+  
+  const handlePACSStatus = useCallback(
+    async (query?: PFDCMFilters) => {
+      /**
+       * Find then status of query
+       * if status ~= nothing done, do nothing
+       * if status ~= images recieved, add query to pacspulls
+       *              advance push stage, start polling
+       * if status ~= images pushed, add query to pacspulls
+       *              advance register stage, start polling
+       */
+  
+      if (query) {  
+        const pull = await client.status(query);
+        if (pull.stage === PACSPullStages.NONE || pull.stage === PACSPullStages.COMPLETED) 
+          return;
 
-  //       ({ then } = (await client.findPushSwift(query)));
-  //       condition = then["00-push"].study.every((study:any) => {
-  //         for (const studyUID in study) {
-  //           if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
-  //             return study[studyUID].every((series:any) => series.status)               
-  //           }
-  //         }
-  //       })
-  //       // for (let i = 1000000; i < 0; i--) {}
-  //       if (condition) setPacsPullStage(pacsPullStage + 1);
+        if (!pacspulls.has(JSON.stringify(query))) 
+          return addPACSPull(query, pull);
+      }
+  
+      pacspulls.forEach(async (_pull, _query) => {
+        console.log("##  Poll Trying")
+        const pull = await client.status(JSON.parse(_query));
+  
+        if (pull.stage === PACSPullStages.COMPLETED)
+          return removePACSPull(JSON.parse(_query));
+  
+        if (pull !== _pull)
+          addPACSPull(JSON.parse(_query), pull);
+  
+        if (pull.progress === 1)
+          advancePACSStage(JSON.parse(_query));
+      })
+  
+      if (pacspulls.size)
+        setTimeout(handlePACSStatus.bind(PACS), 10000);
+    },
+    [addPACSPull, advancePACSStage, pacspulls, removePACSPull],
+  )
 
-  //       ({ then } = (await client.findRegisterCube(query)));
-  //       condition = then["00-register"].study.every((study:any) => {
-  //         for (const studyUID in study) {
-  //           if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
-  //             return study[studyUID].every((series:any) => series.status)               
-  //           }
-  //         }
-  //       })
-  //       // for (let i = 1000000; i < 0; i--) {}
-  //       if (condition) setPacsPullStage(pacsPullStage + 1);
-  //     } catch (error) {
-  //       console.error(error);
-  //       condition = false;
-  //       setPacsPullStage(PACSPullStages.ERROR);
-  //       return;
-  //     }
-  //   },
-  //   [pacsPullStage]
-  // )
-
-  // const onPACSPull = useCallback(
-  //   (query: PFDCMFilters) => {
-  //     let condition = true;
-
-  //     client.findRetrieve(query).then(
-  //       ({ then }) => setTimeout(() => {
-  //         condition = !then.status;
-  //         if (condition) setPacsPullStage(pacsPullStage + 1);
-
-  //         client.findPushSwift(query).then(
-  //           ({ then }) => setTimeout(() => {
-  //             condition = then["00-push"].study.every((study:any) => {
-  //               for (const studyUID in study) {
-  //                 if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
-  //                   return study[studyUID].every((series:any) => series.status)               
-  //                 }
-  //               }
-  //             })
-  //             if (condition) setPacsPullStage(pacsPullStage + 1);
-
-  //             client.findRegisterCube(query).then(
-  //               ({ then }) => setTimeout(() => {
-  //                 condition = then["00-register"].study.every((study:any) => {
-  //                   for (const studyUID in study) {
-  //                     if (Object.prototype.hasOwnProperty.call(study, studyUID)) {
-  //                       return study[studyUID].every((series:any) => series.status)               
-  //                     }
-  //                   }
-  //                 })
-  //                 if (condition) setPacsPullStage(pacsPullStage + 1);
-  //               }, 2000)
-  //             ).catch((error)=>{
-  //               console.error(error);
-  //               setPacsPullStage(PACSPullStages.ERROR);
-  //             })
-  //           }, 2000)
-  //         ).catch((error)=>{
-  //           console.error(error);
-  //           setPacsPullStage(PACSPullStages.ERROR);
-  //         })
-  //       }, 2000)
-  //     ).catch((error)=>{
-  //       console.error(error);
-  //       setPacsPullStage(PACSPullStages.ERROR);
-  //     })
-  //   },
-  //   [pacsPullStage]
-  // )
-
+  const handlePACSPull = useCallback(
+    (query: PFDCMFilters) => {
+      console.log("##  Handler")
+      const pulls = pacspulls;
+      pulls.set(JSON.stringify(query), {
+        progress: 0,
+        stage: 0,
+        status: "Requesting"
+      });
+  
+      setPACSPulls(pulls);
+      advancePACSStage(query);
+      handlePACSStatus(query);
+    },
+    [advancePACSStage, handlePACSStatus, pacspulls],
+  )
+  
   return (
     <Wrapper>
       <article>
