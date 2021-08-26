@@ -157,14 +157,13 @@ export const PACS = () => {
       const pulls = pacspulls;
       console.log(pulls)
   
-      if (query) {  
+      if (query && !pulls.has(JSON.stringify(query))) {  
         const pull = await client.status(query);
         console.log(pull)
 
         if (
           pull.stage !== PACSPullStages.NONE && 
-          pull.stage !== PACSPullStages.COMPLETED &&
-          !pulls.has(JSON.stringify(query))
+          pull.stage !== PACSPullStages.COMPLETED
         ) 
           pulls.set(JSON.stringify(query), pull);
       }
