@@ -49,7 +49,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       library.actions.clear(items);
   };
 
-  const PatientCard = ({ patient }: { patient: PACSPatient }) => {
+  const PatientCard = ({ patient, pacspulls }: { patient: PACSPatient, pacspulls: PACSPulls }) => {
     const { PatientID, PatientBirthDate, PatientName, PatientSex } = patient;
 
     const [isExpanded, setIsExpanded] = useState(false);
@@ -107,7 +107,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           <Grid hasGutter className="patient-studies">
             {patient.studies.map((study) => (
               <GridItem key={study.StudyInstanceUID}>
-                <StudyCard study={study} />
+                <StudyCard study={study} pacspulls={pacspulls} />
               </GridItem>
             ))}
           </Grid>
@@ -116,7 +116,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     );
   };
 
-  const StudyCard = ({ study }: { study: PACSStudy }) => {
+  const StudyCard = ({ study, pacspulls }: { study: PACSStudy, pacspulls: PACSPulls }) => {
     const { StudyInstanceUID, PatientID } = study;
 
     const [isExpanded, setIsExpanded] = useState(false);
@@ -158,11 +158,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
       onRequestStatus(pullQuery);
 
-      console.log("StudyCard", pulls);
-      console.log("has pull?", pulls.has(JSON.stringify(pullQuery)));
-
-      if (pulls.has(JSON.stringify(pullQuery))) {
-        const _pull = pulls.get(JSON.stringify(pullQuery));
+      if (pacspulls.has(JSON.stringify(pullQuery))) {
+        const _pull = pacspulls.get(JSON.stringify(pullQuery));
         if (!_pull) return <Spinner size="lg" />;
 
         return (
@@ -250,7 +247,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           <Grid hasGutter className="patient-series">
             {study.series.map((series) => (
               <GridItem key={series.SeriesInstanceUID}>
-                <SeriesCard series={series} />
+                <SeriesCard series={series} pacspulls={pacspulls} />
               </GridItem>
             ))}
           </Grid>
@@ -259,7 +256,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     );
   };
 
-  const SeriesCard = ({ series }: { series: PACSSeries }) => {
+  const SeriesCard = ({ series, pacspulls }: { series: PACSSeries, pacspulls: PACSPulls }) => {
     const { SeriesInstanceUID, StudyInstanceUID, PatientID } = series;
 
     const [existingSeriesFiles, setExistingSeriesFiles] = useState<PACSFile[]>();
@@ -301,14 +298,14 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
       onRequestStatus(pullQuery);
 
-      if (pulls.has(JSON.stringify(pullQuery))) {
-        const _pull = pulls.get(JSON.stringify(pullQuery));
+      if (pacspulls.has(JSON.stringify(pullQuery))) {
+        const _pull = pacspulls.get(JSON.stringify(pullQuery));
         if (!_pull) return <Spinner size="md" />;
 
         return (
           <div>
-            <b>{_pull?.status}</b>
-            <div style={{ color: "gray" }}>({((_pull?.progress || 0) * 100).toFixed(0)}%)</div>
+            <b>{_pull.status}</b>
+            <div style={{ color: "gray" }}>({((_pull.progress || 0) * 100).toFixed(0)}%)</div>
           </div>
         );
       }
@@ -377,7 +374,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     <Grid hasGutter id="pacs-query-results">
       {results.map((patient) => (
         <GridItem key={patient.PatientID}>
-          <PatientCard patient={patient} />
+          <PatientCard patient={patient} pacspulls={pulls} />
         </GridItem>
       ))}
     </Grid>
