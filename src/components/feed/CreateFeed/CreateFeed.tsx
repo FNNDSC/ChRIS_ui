@@ -268,13 +268,13 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       enableNext: !!data.feedName,
       canJumpTo: step > 1,
     },
-    {
-      id: 2,
-      name: "Feed Type Selection",
-      component: withSelectionAlert(chooseConfig),
-      enableNext: selectedConfig.length > 0,
-      canJumpTo: step > 2,
-    },
+    // {
+    //   id: 2,
+    //   name: "Feed Type Selection",
+    //   component: withSelectionAlert(chooseConfig),
+    //   enableNext: selectedConfig.length > 0,
+    //   canJumpTo: step > 2,
+    // },
     {
       id: 5,
       name: "Review",
@@ -312,7 +312,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     {
       id: 5,
       name: "Review",
-      component: review,
+      component: withSelectionAlert(review, false),
       enableNext: enableSave,
       nextButtonText: "Create Feed",
       canJumpTo: step > 5,
@@ -320,7 +320,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     {
       id: 6,
       name: "Finish",
-      component: finishedStep,
+      component: withSelectionAlert(finishedStep, false),
       canJumpTo: step > 6,
     },
   ];
@@ -374,11 +374,13 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           onClose={() => {
             // clear global feed base data, so wizard will be blank on next open
             routerContext.actions.clearFeedData();
-            if (wizardOpen)
+            if (wizardOpen) {
               dispatch({
                 type: Types.ResetState,
               });
-
+              // clear global feed base data, so wizard will be blank on next open
+              routerContext.actions.clearFeedData();
+            }
             dispatch({
               type: Types.ToggleWizzard,
             });

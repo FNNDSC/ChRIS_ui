@@ -28,16 +28,16 @@ const OutputViewerContainer = () => {
           </Tab>
         ),
         [ExplorerMode.DicomViewer]: (
-          <Tab title="Image Viewer" eventKey={0} key={0}>
+          <Tab title="Image Viewer" eventKey={0} key={1}>
             <GalleryDicomView />
           </Tab>
         ),
         [ExplorerMode.XtkViewer]: (
-          <Tab title="XTK Viewer" eventKey={0} key={0}>
+          <Tab title="XTK Viewer" eventKey={0} key={2}>
             <XtkViewer />
           </Tab>
-        )
-      }
+        ),
+      };
       
       return [explorerModeMap[mode]];
     };
