@@ -75,6 +75,7 @@ export interface IExplorerState {
   selectedFile?: DataNode;
   selectedFolder?: DataNode[];
   mode: ExplorerMode;
+  enableDcmTool: boolean;
 }
 
 export const ExplorerActionTypes = keyMirror({
