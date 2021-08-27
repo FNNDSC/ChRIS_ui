@@ -193,12 +193,12 @@ export const PACS = () => {
   )
 
   const handlePACSPull = useCallback(
-    (query: PFDCMFilters) => {
+    (query: PFDCMFilters, stage = PACSPullStages.RETRIEVE) => {
       const pulls = pacspulls;
-      pulls.set(JSON.stringify(query), new PFDCMPull(PACSPullStages.RETRIEVE));
+      pulls.set(JSON.stringify(query), new PFDCMPull(stage));
   
       setPACSPulls(pulls);
-      executePACSStage(query, 1);
+      executePACSStage(query, stage);
       handlePACSStatus();
     },
     [executePACSStage, handlePACSStatus, pacspulls],
