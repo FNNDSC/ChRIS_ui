@@ -73,56 +73,44 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     };
 
     return (
-      <>
-        <Card isHoverable isExpanded={isExpanded(PatientID)}>
-          <CardHeader onExpand={expand.bind(PatientCard, PatientID)}>
-            <Grid hasGutter style={{ width: "100%" }}>
-              <GridItem lg={4}>
-                <div>
-                  <b>{PatientName.split("^").reverse().join(" ")}</b>
-                </div>
-                <div>MRN {PatientID}</div>
-              </GridItem>
-              <GridItem lg={4}>
-                <div>
-                  <b>Sex</b> ({PatientSex})
-                </div>
-                <div>
-                  <b>DoB</b>{" "}
-                  <Moment format="MMMM Do YYYY">
-                    {PatientBirthDate.getTime()}
-                  </Moment>
-                </div>
-              </GridItem>
+      <Card isHoverable isExpanded={isExpanded(PatientID)}>
+        <CardHeader onExpand={expand.bind(PatientCard, PatientID)}>
+          <Grid hasGutter style={{ width: "100%" }}>
+            <GridItem lg={4}>
+              <div>
+                <b>{PatientName.split("^").reverse().join(" ")}</b>
+              </div>
+              <div>MRN {PatientID}</div>
+            </GridItem>
+            <GridItem lg={4}>
+              <div>
+                <b>Sex</b> ({PatientSex})
+              </div>
+              <div>
+                <b>DoB</b>{" "}
+                <Moment format="MMMM Do YYYY">
+                  {PatientBirthDate.getTime()}
+                </Moment>
+              </div>
+            </GridItem>
 
-              <GridItem lg={4} style={{ textAlign: "right", color: "gray" }}>
-                <div>
-                  <b>
-                    {patient.studies.length}{" "}
-                    {pluralize("study", patient.studies.length)}
-                  </b>
-                </div>
-                <div>
-                  Latest on{" "}
-                  {LatestDate(
-                    patient.studies.map((s) => s.StudyDate)
-                  ).toDateString()}
-                </div>
-              </GridItem>
-            </Grid>
-          </CardHeader>
-        </Card>
-
-        {/* {isExpanded(PatientID) && (
-          <Grid hasGutter className="patient-studies">
-            {patient.studies.map((study) => (
-              <GridItem key={study.StudyInstanceUID}>
-                <StudyCard study={study} pacspulls={pacspulls} />
-              </GridItem>
-            ))}
+            <GridItem lg={4} style={{ textAlign: "right", color: "gray" }}>
+              <div>
+                <b>
+                  {patient.studies.length}{" "}
+                  {pluralize("study", patient.studies.length)}
+                </b>
+              </div>
+              <div>
+                Latest on{" "}
+                {LatestDate(
+                  patient.studies.map((s) => s.StudyDate)
+                ).toDateString()}
+              </div>
+            </GridItem>
           </Grid>
-        )} */}
-      </>
+        </CardHeader>
+      </Card>
     );
   };
 
@@ -173,10 +161,14 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
         return (
           <div>
-            <b>{_pull.status}</b>
-            <div style={{ color: "gray" }}>
-              ({((_pull.progress || 0) * 100).toFixed(0)}%)
-            </div>
+            <b>{_pull.statusText}</b>
+            {
+              _pull.errors.length 
+              ? <span style={{ color: "firebrick" }}>{_pull.errors[0]}</span>
+              : <div style={{ color: "gray" }}>
+                  ({((_pull.progress || 0) * 100).toFixed(0)}%)
+                </div>
+            }
           </div>
         );
       }
@@ -193,75 +185,63 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     };
 
     return (
-      <>
-        <Card isHoverable isExpanded={isExpanded(StudyInstanceUID)}>
-          <CardHeader onExpand={expand.bind(QueryResults, StudyInstanceUID)}>
-            <Split>
-              <SplitItem style={{ minWidth: "30%", margin: "0 1em 0 0" }}>
-                <div>
-                  <b style={{ marginRight: "0.5em" }}>
-                    {study.StudyDescription}
-                  </b>{" "}
-                  {study.StudyDate.getTime() >=
-                  Date.now() - 30 * 24 * 60 * 60 * 1000 ? (
-                    <Tooltip content="Study was performed in the last 30 days.">
-                      <Badge>NEW</Badge>
-                    </Tooltip>
-                  ) : null}
-                </div>
-                <div>
-                  {study.NumberOfStudyRelatedSeries} series, on{" "}
-                  {study.StudyDate.toDateString()}
-                </div>
-              </SplitItem>
-              <SplitItem>
-                <div>Modalities in Study</div>
-                <div>
-                  {study.ModalitiesInStudy.split("\\").map((m) => (
-                    <Badge
-                      style={{
-                        margin: "auto 0.125em",
-                        backgroundColor: "darkgrey",
-                      }}
-                      key={m}
-                    >
-                      {m}
-                    </Badge>
-                  ))}
-                </div>
-              </SplitItem>
-              <SplitItem isFilled />
+      <Card isHoverable isExpanded={isExpanded(StudyInstanceUID)}>
+        <CardHeader onExpand={expand.bind(QueryResults, StudyInstanceUID)}>
+          <Split>
+            <SplitItem style={{ minWidth: "30%", margin: "0 1em 0 0" }}>
+              <div>
+                <b style={{ marginRight: "0.5em" }}>
+                  {study.StudyDescription}
+                </b>{" "}
+                {study.StudyDate.getTime() >=
+                Date.now() - 30 * 24 * 60 * 60 * 1000 ? (
+                  <Tooltip content="Study was performed in the last 30 days.">
+                    <Badge>NEW</Badge>
+                  </Tooltip>
+                ) : null}
+              </div>
+              <div>
+                {study.NumberOfStudyRelatedSeries} series, on{" "}
+                {study.StudyDate.toDateString()}
+              </div>
+            </SplitItem>
+            <SplitItem>
+              <div>Modalities in Study</div>
+              <div>
+                {study.ModalitiesInStudy.split("\\").map((m) => (
+                  <Badge
+                    style={{
+                      margin: "auto 0.125em",
+                      backgroundColor: "darkgrey",
+                    }}
+                    key={m}
+                  >
+                    {m}
+                  </Badge>
+                ))}
+              </div>
+            </SplitItem>
+            <SplitItem isFilled />
 
-              {!study.PerformedStationAETitle.startsWith("no value") && (
-                <SplitItem style={{ textAlign: "right" }}>
-                  <div>Performed at</div>
-                  <div>{study.PerformedStationAETitle}</div>
-                </SplitItem>
-              )}
-
-              <SplitItem
-                style={{
-                  margin: "auto 0 auto 2em",
-                  textAlign: "right",
-                  fontSize: "small",
-                }}
-              >
-                <StudyActions />
+            {!study.PerformedStationAETitle.startsWith("no value") && (
+              <SplitItem style={{ textAlign: "right" }}>
+                <div>Performed at</div>
+                <div>{study.PerformedStationAETitle}</div>
               </SplitItem>
-            </Split>
-          </CardHeader>
-        </Card>
+            )}
 
-        {/* {isExpanded(StudyInstanceUID) && (
-          <Grid hasGutter className="patient-series">
-            {study.series.map((series) => (
-              <GridItem key={series.SeriesInstanceUID}>
-                <SeriesCard series={series} pacspulls={pacspulls} />
-              </GridItem>
-            ))}
-          </Grid>
-        )} */}
-      </>
+            <SplitItem
+              style={{
+                margin: "auto 0 auto 2em",
+                textAlign: "right",
+                fontSize: "small",
+              }}
+            >
+              <StudyActions />
+            </SplitItem>
+          </Split>
+        </CardHeader>
+      </Card>
     );
   };
 
@@ -313,7 +293,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
         return (
           <div>
-            <b>{_pull.status}</b>
+            <b>{_pull.statusText}</b>
             <div style={{ color: "gray" }}>({((_pull.progress || 0) * 100).toFixed(0)}%)</div>
           </div>
         );
