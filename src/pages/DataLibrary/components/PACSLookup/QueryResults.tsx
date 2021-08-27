@@ -61,7 +61,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     }
   }
 
-  const PatientCard = ({ patient, pacspulls }: { patient: PACSPatient, pacspulls: PACSPulls }) => {
+  const PatientCard = ({ patient }: { patient: PACSPatient, pacspulls: PACSPulls }) => {
     const { PatientID, PatientBirthDate, PatientName, PatientSex } = patient;
 
     const LatestDate = (dates: Date[]) => {
@@ -113,7 +113,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           </CardHeader>
         </Card>
 
-        {isExpanded(PatientID) && (
+        {/* {isExpanded(PatientID) && (
           <Grid hasGutter className="patient-studies">
             {patient.studies.map((study) => (
               <GridItem key={study.StudyInstanceUID}>
@@ -121,12 +121,12 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
               </GridItem>
             ))}
           </Grid>
-        )}
+        )} */}
       </>
     );
   };
 
-  const StudyCard = ({ study, pacspulls }: { study: PACSStudy, pacspulls: PACSPulls }) => {
+  const StudyCard = ({ study }: { study: PACSStudy, pacspulls: PACSPulls }) => {
     const { StudyInstanceUID, PatientID } = study;
 
     const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFile[]>();
@@ -167,15 +167,13 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
       onRequestStatus(pullQuery);
 
-      if (pacspulls.has(JSON.stringify(pullQuery))) {
-        const _pull = pacspulls.get(JSON.stringify(pullQuery));
+      if (pulls.has(JSON.stringify(pullQuery))) {
+        const _pull = pulls.get(JSON.stringify(pullQuery));
         if (!_pull) return <Spinner size="lg" />;
 
         return (
           <div>
-            <Button variant="link" style={{ padding: 0, color: "black" }}>
-              <b>{_pull.status}</b>
-            </Button>
+            <b>{_pull.status}</b>
             <div style={{ color: "gray" }}>
               ({((_pull.progress || 0) * 100).toFixed(0)}%)
             </div>
@@ -254,7 +252,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           </CardHeader>
         </Card>
 
-        {isExpanded(StudyInstanceUID) && (
+        {/* {isExpanded(StudyInstanceUID) && (
           <Grid hasGutter className="patient-series">
             {study.series.map((series) => (
               <GridItem key={series.SeriesInstanceUID}>
@@ -262,12 +260,12 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
               </GridItem>
             ))}
           </Grid>
-        )}
+        )} */}
       </>
     );
   };
 
-  const SeriesCard = ({ series, pacspulls }: { series: PACSSeries, pacspulls: PACSPulls }) => {
+  const SeriesCard = ({ series }: { series: PACSSeries, pacspulls: PACSPulls }) => {
     const { SeriesInstanceUID, StudyInstanceUID, PatientID } = series;
 
     const [existingSeriesFiles, setExistingSeriesFiles] = useState<PACSFile[]>();
@@ -309,15 +307,13 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
       onRequestStatus(pullQuery);
 
-      if (pacspulls.has(JSON.stringify(pullQuery))) {
-        const _pull = pacspulls.get(JSON.stringify(pullQuery));
+      if (pulls.has(JSON.stringify(pullQuery))) {
+        const _pull = pulls.get(JSON.stringify(pullQuery));
         if (!_pull) return <Spinner size="md" />;
 
         return (
           <div>
-            <Button variant="link" style={{ padding: 0, color: "black" }}>
-              <b>{_pull.status}</b>
-            </Button>
+            <b>{_pull.status}</b>
             <div style={{ color: "gray" }}>({((_pull.progress || 0) * 100).toFixed(0)}%)</div>
           </div>
         );
@@ -388,6 +384,26 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       {results.map((patient) => (
         <GridItem key={patient.PatientID}>
           <PatientCard patient={patient} pacspulls={pulls} />
+
+          {isExpanded(patient.PatientID) && (
+            <Grid hasGutter className="patient-studies">
+              {patient.studies.map((study) => (
+                <GridItem key={study.StudyInstanceUID}>
+                  <StudyCard study={study} pacspulls={pulls} />
+
+                  {isExpanded(study.StudyInstanceUID) && (
+                    <Grid hasGutter className="patient-series">
+                      {study.series.map((series) => (
+                        <GridItem key={series.SeriesInstanceUID}>
+                          <SeriesCard series={series} pacspulls={pulls} />
+                        </GridItem>
+                      ))}
+                    </Grid>
+                  )}
+                </GridItem>
+              ))}
+            </Grid>
+          )}
         </GridItem>
       ))}
     </Grid>

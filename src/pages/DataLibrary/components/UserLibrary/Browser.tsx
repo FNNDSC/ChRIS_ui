@@ -101,17 +101,15 @@ export const Browser: React.FC<BrowserProps> = ({
   const [filter, setFilter] = useState<string>();
   const [viewfile, setViewFile] = useState<any>();
   const [viewfolder, setViewFolder] = useState<any[]>();
-  const [selectedFolder, setSelectedFolder] = useState<string>();
 
   const [files, setFiles] = useState<Tree>();
   const [fpath, setFilesPath] = useState<string>();
-  
+
   const { push, location } = useHistory();
 
   const route = (path: string) => {
-    if (location.pathname !== path)
-      push(path)
-  }
+    if (location.pathname !== path) push(path);
+  };
 
   const folders = tree.dir
     .filter(({ hasChildren }) => hasChildren)
@@ -128,38 +126,36 @@ export const Browser: React.FC<BrowserProps> = ({
   const select = (items: Series | File) => {
     if (Array.isArray(items)) {
       if (!library.actions.isSeriesSelected(items))
-        library.actions.select(items)
-      else
-        library.actions.clear(items)
+        library.actions.select(items);
+      else library.actions.clear(items);
+    } else {
+      if (!library.actions.isSelected(items)) library.actions.select(items);
+      else library.actions.clear(items);
     }
-    else {
-      if (!library.actions.isSelected(items))
-        library.actions.select(items)
-      else
-        library.actions.clear(items)
-    }
-  }
+  };
 
-  const onFolderSelectAction = async (then: FolderActions, folder: Branch): Promise<void> => {
-    if (!fetchFiles) return
+  const onFolderSelectAction = async (
+    then: FolderActions,
+    folder: Branch
+  ): Promise<void> => {
+    if (!fetchFiles) return;
 
     setFilesPath(folder.path);
     setFiles(undefined);
 
     if (then === "feed")
-      return router.actions.createFeedWithData([ folder.path ]);
-    if (then === "browse")
-      return route(`/library/${folder.path}`)
+      return router.actions.createFeedWithData([folder.path]);
+    if (then === "browse") return route(`/library/${folder.path}`);
 
-    const _files = (await fetchFiles(folder.path)).dir
+    const _files = (await fetchFiles(folder.path)).dir;
     const items = _files?.filter(({ item }) => !!item) || [];
     setFiles(_files);
 
-    switch (then) {        
+    switch (then) {
       case "view":
         setViewFolder(
           items.map(({ item }) => ({
-            file: item
+            file: item,
           }))
         );
         break;
@@ -167,10 +163,11 @@ export const Browser: React.FC<BrowserProps> = ({
       case "select":
         select(items.map(({ item }) => item.data.fname));
         break;
-    
-      default: break;
+
+      default:
+        break;
     }
-  }
+  };
 
   return (
     <Switch>
@@ -269,42 +266,44 @@ export const Browser: React.FC<BrowserProps> = ({
         )}
 
         <Grid hasGutter>
-          { folders
+          {folders
             .sort(
-              ({ creation_date: a }, { creation_date: b }) => b.getTime() - a.getTime()
+              ({ creation_date: a }, { creation_date: b }) =>
+                b.getTime() - a.getTime()
             )
             .map((folder) => (
-            <GridItem key={folder.name} sm={12} lg={4}>
-              {!folder.isLastParent ? (
-                <FolderCard item={folder} />
-              ) : (
-                <FolderCard
-                  item={folder}
-                  onSelect={onFolderSelectAction}
-                  isSelected={library.actions.isSeriesSelected(
-                    folder.children.map(({ item }) => item.data.fname)
-                  )}
-                  isLoading={folder.path === fpath && !files}
-                />
-              )}
-            </GridItem>
-          ))}
+              <GridItem key={folder.name} sm={12} lg={4}>
+                {!folder.isLastParent ? (
+                  <FolderCard item={folder} />
+                ) : (
+                  <FolderCard
+                    item={folder}
+                    onSelect={onFolderSelectAction}
+                    isSelected={library.actions.isSeriesSelected(
+                      folder.children.map(({ item }) => item.data.fname)
+                    )}
+                    isLoading={folder.path === fpath && !files}
+                  />
+                )}
+              </GridItem>
+            ))}
 
-          { tree.dir
+          {tree.dir
             .filter(({ isLeaf }) => isLeaf)
             .filter(({ name }) => {
               if (filter) return name.includes(filter);
               return true;
             })
             .map((file) => (
-            <GridItem key={file.name} sm={12} lg={2}>
-              <FileCard file={file}
-                isSelected={library.actions.isSelected(file.item.data.fname)}
-                onSelect={select.bind(Browser, file.item.data.fname)}
-                onOpen={({ item }) => setViewFile(item)}
-              />
-            </GridItem>
-          ))}
+              <GridItem key={file.name} sm={12} lg={2}>
+                <FileCard
+                  file={file}
+                  isSelected={library.actions.isSelected(file.item.data.fname)}
+                  onSelect={select.bind(Browser, file.item.data.fname)}
+                  onOpen={({ item }) => setViewFile(item)}
+                />
+              </GridItem>
+            ))}
         </Grid>
 
         {!!viewfile && (
