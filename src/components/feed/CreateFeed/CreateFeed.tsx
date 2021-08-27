@@ -360,6 +360,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       <Button
         className="create-feed-button"
         variant="primary"
+        isLarge
         onClick={() => {
           dispatch({
             type: Types.ToggleWizzard,
@@ -374,13 +375,10 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           onClose={() => {
             // clear global feed base data, so wizard will be blank on next open
             routerContext.actions.clearFeedData();
-            if (wizardOpen) {
+            if (wizardOpen)
               dispatch({
                 type: Types.ResetState,
               });
-              // clear global feed base data, so wizard will be blank on next open
-              routerContext.actions.clearFeedData();
-            }
             dispatch({
               type: Types.ToggleWizzard,
             });
