@@ -23,7 +23,7 @@ import { PACSFileList } from "@fnndsc/chrisapi";
 import "./pacs-lookup.scss";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { PACSPatient, PACSSeries, PACSStudy, PFDCMFilters } from "../../../../api/pfdcm";
-import { LibraryContext, Series } from "../../Library";
+import { LibraryContext, File } from "../../Library";
 import { PACSPulls } from ".";
 
 interface QueryResultsProps {
@@ -42,12 +42,19 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   const library = useContext(LibraryContext);
   const client = ChrisAPIClient.getClient();
 
-  const select = (items: Series) => {
-    if (!library.actions.isSeriesSelected(items)) 
-      library.actions.select(items);
+  const selectPath = (path: File) => {
+    if (!library.actions.isSelected(path)) 
+      library.actions.select(path);
     else 
-      library.actions.clear(items);
+      library.actions.clear(path);
   };
+
+  // const select = (items: File) => {
+  //   if (!library.actions.isSeriesSelected(items)) 
+  //     library.actions.select(items);
+  //   else 
+  //     library.actions.clear(items);
+  // };
 
   const [expanded, setExpanded] = useState<string[]>([]);
   const isExpanded = (uid: string) => expanded.includes(uid);
@@ -122,6 +129,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
     useEffect(() => {
       client.getPACSFiles(pullQuery).then(setExistingStudyFiles);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const cubeStudySize = existingStudyFiles?.totalCount;
@@ -141,8 +149,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
       onRequestStatus(pullQuery);
 
-      if (pacspulls.has(JSON.stringify(pullQuery))) {
-        const _pull = pacspulls.get(JSON.stringify(pullQuery));
+      if (pacspulls.hasPull(pullQuery)) {
+        const _pull = pacspulls.getPull(pullQuery);
         if (!_pull) return <Spinner size="lg" />;
 
         return (
@@ -239,32 +247,36 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
     useEffect(() => {
       client.getPACSFiles(pullQuery).then(setExistingSeriesFiles);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const cubeSeriesSize = existingSeriesFiles?.totalCount;
     const cubeHasSeries = series.NumberOfSeriesRelatedInstances === cubeSeriesSize;
 
-    // const CUBESeries =
-    //   existingSeriesFiles?.getItems() || [];
+    const seriesFiles = (existingSeriesFiles?.getItems() || []);
+    const cubeSeriesPath = seriesFiles.length 
+      ? seriesFiles[0].data.fname.slice(0, seriesFiles[0].data.fname.lastIndexOf('/'))
+      : [];
 
     const SeriesActions = () => {
       if (!existingSeriesFiles || !pacspulls) return <Spinner size="md" />;
 
-      if (cubeHasSeries)
+      if (cubeHasSeries) {
         return (
           <Button
             variant="link"
             style={{ padding: "0" }}
-            // onClick={select.bind(QueryResults, CUBESeries)}
+            onClick={selectPath.bind(QueryResults, cubeSeriesPath)}
           >
             Select
           </Button>
         );
+      }
 
       onRequestStatus(pullQuery);
 
-      if (pacspulls.has(JSON.stringify(pullQuery))) {
-        const _pull = pacspulls.get(JSON.stringify(pullQuery));
+      if (pacspulls.hasPull(pullQuery)) {
+        const _pull = pacspulls.getPull(pullQuery);
         if (!_pull) return <Spinner size="md" />;
 
         return (
@@ -290,7 +302,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       <Card
         isHoverable
         isSelectable={cubeHasSeries}
-        // isSelected={library.actions.isSeriesSelected(CUBESeries)}
+        isSelected={library.actions.isSelected(cubeSeriesPath)}
       >
         <CardHeader>
           <Split

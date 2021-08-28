@@ -36,14 +36,26 @@ export interface PFDCMQuery {
  * because Map.has() works with object references and 
  * not values so it always returned `false`.
  */
-export type PACSPulls = Map<string, PFDCMPull>
-export class XPACSPulls extends Map<PFDCMFilters, PFDCMPull> {
-  has(key: PFDCMFilters): boolean {
+export class PACSPulls extends Map<string, PFDCMPull> {
+  hasPull(key: PFDCMFilters): boolean {
+    let _has = false;
     this.forEach((_, _key) => {
-      if (_key == key)
-        return true;
+      if (_key === JSON.stringify(key))
+        _has = true;
     })
-    return false;
+
+    return _has;
+  }
+
+  getPull(key: PFDCMFilters): PFDCMPull | undefined {
+    if (this.hasPull(key))
+      return this.get(JSON.stringify(key));
+      
+    return undefined;
+  }
+
+  setPull(key: PFDCMFilters, value: PFDCMPull) {
+    this.set(JSON.stringify(key), value)
   }
 }
 
@@ -118,7 +130,7 @@ export const PACS = () => {
     setSelectedPACS(client.service)
   }
 
-  const [pacspulls, setPACSPulls] = useState<PACSPulls>(new Map());
+  const [pacspulls, setPACSPulls] = useState<PACSPulls>(new PACSPulls);
 
   const executePACSStage = useCallback(
     (query: PFDCMFilters, stage: PACSPullStages) => {  
@@ -158,7 +170,7 @@ export const PACS = () => {
       const pulls = pacspulls;
       console.log(pulls)
   
-      if (query && !pulls.has(JSON.stringify(query))) {  
+      if (query && !pulls.hasPull(query)) {  
         const pull = await client.status(query);
         console.log(pull)
 
@@ -166,7 +178,7 @@ export const PACS = () => {
           pull.stage !== PACSPullStages.NONE && 
           pull.stage !== PACSPullStages.COMPLETED
         ) 
-          pulls.set(JSON.stringify(query), pull);
+          pulls.setPull(query, pull);
       }
   
       pulls.forEach(async (_pull, _query) => {
@@ -204,7 +216,7 @@ export const PACS = () => {
   const handlePACSPull = useCallback(
     (query: PFDCMFilters, stage = PACSPullStages.RETRIEVE) => {
       const pulls = pacspulls;
-      pulls.set(JSON.stringify(query), new PFDCMPull(stage, query));
+      pulls.setPull(query, new PFDCMPull(stage, query));
   
       setPACSPulls(pulls);
       executePACSStage(query, stage);
@@ -214,49 +226,49 @@ export const PACS = () => {
   )
 
   const Results = () => {
-    if (loading !== undefined)
-      if (!loading)
-        if (results)
-          return <>
-            <GridItem>
-              <h2><b>Results</b></h2>
-              <div>{results.length} {pluralize('patient', results.length)} matched your search.</div>
-            </GridItem>
+    if (loading === undefined)
+      return null
 
-            <GridItem>
-              <QueryResults 
-                results={results} 
-                pulls={pacspulls}
-                onRequestPull={handlePACSPull}
-                onRequestStatus={handlePACSStatus}
-              />
-            </GridItem>
-          </>
-        else
-          return <EmptyState>
-            <EmptyStateIcon variant="container" component={CubesIcon} />
-            <Title size="lg" headingLevel="h4">
-              No results found
-            </Title>
-            <EmptyStateBody>
-              No results match the filter criteria. Clear all filters to show results.
-            </EmptyStateBody>
-            <EmptyStatePrimary>
-              <Button variant="link">Clear all filters</Button>
-            </EmptyStatePrimary>
-          </EmptyState>
-      else
-        return <EmptyState>
-          <EmptyStateIcon variant="container" component={Spinner} />
-          <Title size="lg" headingLevel="h4">
-            Searching
-          </Title>
-          <EmptyStateBody>
-            Completed { progress[0] } of { progress[1] } searches.
-          </EmptyStateBody>
-        </EmptyState>
-        
-    return null
+    if (loading)
+      return <EmptyState>
+        <EmptyStateIcon variant="container" component={Spinner} />
+        <Title size="lg" headingLevel="h4">
+          Searching
+        </Title>
+        <EmptyStateBody>
+          Completed { progress[0] } of { progress[1] } searches.
+        </EmptyStateBody>
+      </EmptyState>
+
+    if (results)
+      return <>
+        <GridItem>
+          <h2><b>Results</b></h2>
+          <div>{results.length} {pluralize('patient', results.length)} matched your search.</div>
+        </GridItem>
+
+        <GridItem>
+          <QueryResults 
+            results={results} 
+            pulls={pacspulls}
+            onRequestPull={handlePACSPull}
+            onRequestStatus={handlePACSStatus}
+          />
+        </GridItem>
+      </>
+    else
+      return <EmptyState>
+        <EmptyStateIcon variant="container" component={CubesIcon} />
+        <Title size="lg" headingLevel="h4">
+          No results found
+        </Title>
+        <EmptyStateBody>
+          No results match the filter criteria. Clear all filters to show results.
+        </EmptyStateBody>
+        <EmptyStatePrimary>
+          <Button variant="link">Clear all filters</Button>
+        </EmptyStatePrimary>
+      </EmptyState>
   }
   
   return (
