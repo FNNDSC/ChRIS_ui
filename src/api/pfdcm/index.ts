@@ -149,6 +149,7 @@ class PFDCMClient {
    */
   async status(query: PFDCMFilters = {}): Promise<PFDCMPull> {
     const pullstatus = new PFDCMPull;
+    pullstatus.query = query;
 
     if (!this.service)
       throw Error('Set the PACS service first, before querying.');
@@ -447,7 +448,7 @@ export class PFDCMPull {
   constructor(stage: PACSPullStages = PACSPullStages.NONE, query: PFDCMFilters = {}) {
     this.query = query;
     this.stage = stage;
-    this.progress = 0;
+    this.progress = stage === PACSPullStages.NONE ? 1 : 0;
     this.statusText = __stageText(stage);
     this.attempts = DEFAULT_STAGE_ATTEMPTS;
     this.errors = [];

@@ -37,6 +37,15 @@ export interface PFDCMQuery {
  * not values so it always returned `false`.
  */
 export type PACSPulls = Map<string, PFDCMPull>
+export class XPACSPulls extends Map<PFDCMFilters, PFDCMPull> {
+  has(key: PFDCMFilters): boolean {
+    this.forEach((_, _key) => {
+      if (_key == key)
+        return true;
+    })
+    return false;
+  }
+}
 
 const client = new PFDCMClient;
 
@@ -195,7 +204,7 @@ export const PACS = () => {
   const handlePACSPull = useCallback(
     (query: PFDCMFilters, stage = PACSPullStages.RETRIEVE) => {
       const pulls = pacspulls;
-      pulls.set(JSON.stringify(query), new PFDCMPull(stage));
+      pulls.set(JSON.stringify(query), new PFDCMPull(stage, query));
   
       setPACSPulls(pulls);
       executePACSStage(query, stage);

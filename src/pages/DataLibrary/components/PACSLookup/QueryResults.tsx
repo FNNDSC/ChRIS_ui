@@ -18,7 +18,7 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 import Moment from "react-moment";
 import pluralize from "pluralize";
-import { PACSFile } from "@fnndsc/chrisapi";
+import { PACSFileList } from "@fnndsc/chrisapi";
 
 import "./pacs-lookup.scss";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
@@ -114,49 +114,35 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     );
   };
 
-  const StudyCard = ({ study }: { study: PACSStudy, pacspulls: PACSPulls }) => {
+  const StudyCard = ({ study, pacspulls }: { study: PACSStudy, pacspulls: PACSPulls }) => {
     const { StudyInstanceUID, PatientID } = study;
-
-    const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFile[]>();
-
     const pullQuery = { StudyInstanceUID, PatientID };
 
-    useEffect(() => {
-      client
-        .getPACSFiles({
-          StudyInstanceUID,
-          PatientID,
-          limit: 10e6,
-        })
-        .then((value) => {
-          setExistingStudyFiles(value.getItems() || []);
-        });
-    }, [PatientID, StudyInstanceUID]);
+    const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFileList>();
 
-    const cubeHasStudy =
-      study.NumberOfStudyRelatedInstances === existingStudyFiles?.length;
+    useEffect(() => {
+      client.getPACSFiles(pullQuery).then(setExistingStudyFiles);
+    }, []);
+
+    const cubeStudySize = existingStudyFiles?.totalCount;
+    const cubeHasStudy = study.NumberOfStudyRelatedInstances === cubeStudySize;
 
     const StudyActions = () => {
-      if (!existingStudyFiles || !pulls) return <Spinner size="lg" />;
-
-      const chrisStudySize = existingStudyFiles.reduce((size, file) => {
-        if (file.data.StudyInstanceUID === StudyInstanceUID)
-          size += file.data.fsize;
-        return size;
-      }, 0);
+      if (!existingStudyFiles || !pacspulls) return <Spinner size="lg" />;
 
       if (cubeHasStudy)
         return (
           <div style={{ color: "gray" }}>
             <Button variant="link" style={{ padding: 0 }}><b>Available</b></Button>
-            <div>{(chrisStudySize / (1024 * 1024)).toFixed(3)} MB</div>
+            {/* <div>{(cubeStudySize / (1024 * 1024)).toFixed(3)} MB</div> */}
+            <div>{ cubeStudySize } {pluralize('file', cubeStudySize)}</div>
           </div>
         );
 
       onRequestStatus(pullQuery);
 
-      if (pulls.has(JSON.stringify(pullQuery))) {
-        const _pull = pulls.get(JSON.stringify(pullQuery));
+      if (pacspulls.has(JSON.stringify(pullQuery))) {
+        const _pull = pacspulls.get(JSON.stringify(pullQuery));
         if (!_pull) return <Spinner size="lg" />;
 
         return (
@@ -245,41 +231,31 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     );
   };
 
-  const SeriesCard = ({ series }: { series: PACSSeries, pacspulls: PACSPulls }) => {
+  const SeriesCard = ({ series, pacspulls }: { series: PACSSeries, pacspulls: PACSPulls }) => {
     const { SeriesInstanceUID, StudyInstanceUID, PatientID } = series;
-
-    const [existingSeriesFiles, setExistingSeriesFiles] = useState<PACSFile[]>();
-
     const pullQuery = { SeriesInstanceUID, StudyInstanceUID, PatientID };
 
+    const [existingSeriesFiles, setExistingSeriesFiles] = useState<PACSFileList>();
+
     useEffect(() => {
-      client
-        .getPACSFiles({
-          SeriesInstanceUID,
-          StudyInstanceUID,
-          PatientID,
-          limit: 10e6,
-        })
-        .then((value) => {
-          setExistingSeriesFiles(value.getItems() || []);
-        });
-    }, [PatientID, SeriesInstanceUID, StudyInstanceUID]);
+      client.getPACSFiles(pullQuery).then(setExistingSeriesFiles);
+    }, []);
 
-    const cubeHasSeries =
-      series.NumberOfSeriesRelatedInstances === existingSeriesFiles?.length;
+    const cubeSeriesSize = existingSeriesFiles?.totalCount;
+    const cubeHasSeries = series.NumberOfSeriesRelatedInstances === cubeSeriesSize;
 
-    const CUBESeries =
-      existingSeriesFiles?.map((file) => file.data.fname) || [];
+    // const CUBESeries =
+    //   existingSeriesFiles?.getItems() || [];
 
     const SeriesActions = () => {
-      if (!existingSeriesFiles || !pulls) return <Spinner size="md" />;
+      if (!existingSeriesFiles || !pacspulls) return <Spinner size="md" />;
 
       if (cubeHasSeries)
         return (
           <Button
             variant="link"
             style={{ padding: "0" }}
-            onClick={select.bind(QueryResults, CUBESeries)}
+            // onClick={select.bind(QueryResults, CUBESeries)}
           >
             Select
           </Button>
@@ -287,8 +263,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
       onRequestStatus(pullQuery);
 
-      if (pulls.has(JSON.stringify(pullQuery))) {
-        const _pull = pulls.get(JSON.stringify(pullQuery));
+      if (pacspulls.has(JSON.stringify(pullQuery))) {
+        const _pull = pacspulls.get(JSON.stringify(pullQuery));
         if (!_pull) return <Spinner size="md" />;
 
         return (
@@ -314,7 +290,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       <Card
         isHoverable
         isSelectable={cubeHasSeries}
-        isSelected={library.actions.isSeriesSelected(CUBESeries)}
+        // isSelected={library.actions.isSeriesSelected(CUBESeries)}
       >
         <CardHeader>
           <Split
