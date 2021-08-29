@@ -48,10 +48,7 @@ export class PACSPulls extends Map<string, PFDCMPull> {
   }
 
   getPull(key: PFDCMFilters): PFDCMPull | undefined {
-    if (this.hasPull(key))
-      return this.get(JSON.stringify(key));
-      
-    return undefined;
+    return this.get(JSON.stringify(key));
   }
 
   setPull(key: PFDCMFilters, value: PFDCMPull) {

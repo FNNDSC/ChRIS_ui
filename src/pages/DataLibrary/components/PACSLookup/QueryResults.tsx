@@ -22,15 +22,20 @@ import { PACSFileList } from "@fnndsc/chrisapi";
 
 import "./pacs-lookup.scss";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
-import { PACSPatient, PACSSeries, PACSStudy, PFDCMFilters } from "../../../../api/pfdcm";
+import {
+  PACSPatient,
+  PACSSeries,
+  PACSStudy,
+  PFDCMFilters,
+} from "../../../../api/pfdcm";
 import { LibraryContext, File } from "../../Library";
 import { PACSPulls } from ".";
 
 interface QueryResultsProps {
-  results: PACSPatient[] | PACSStudy[]
-  pulls: PACSPulls
-  onRequestPull: (filter: PFDCMFilters) => any
-  onRequestStatus: (filter: PFDCMFilters) => any
+  results: PACSPatient[] | PACSStudy[];
+  pulls: PACSPulls;
+  onRequestPull: (filter: PFDCMFilters) => any;
+  onRequestStatus: (filter: PFDCMFilters) => any;
 }
 
 export const QueryResults: React.FC<QueryResultsProps> = ({
@@ -43,16 +48,14 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   const client = ChrisAPIClient.getClient();
 
   const selectPath = (path: File) => {
-    if (!library.actions.isSelected(path)) 
-      library.actions.select(path);
-    else 
-      library.actions.clear(path);
+    if (!library.actions.isSelected(path)) library.actions.select(path);
+    else library.actions.clear(path);
   };
 
   // const select = (items: File) => {
-  //   if (!library.actions.isSeriesSelected(items)) 
+  //   if (!library.actions.isSeriesSelected(items))
   //     library.actions.select(items);
-  //   else 
+  //   else
   //     library.actions.clear(items);
   // };
 
@@ -64,11 +67,16 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       _expanded = _expanded.filter((_uid) => _uid !== uid);
       setExpanded(_expanded);
     } else {
-      setExpanded([ ..._expanded, uid ]);
+      setExpanded([..._expanded, uid]);
     }
-  }
+  };
 
-  const PatientCard = ({ patient }: { patient: PACSPatient, pacspulls: PACSPulls }) => {
+  const PatientCard = ({
+    patient,
+  }: {
+    patient: PACSPatient;
+    pacspulls: PACSPulls;
+  }) => {
     const { PatientID, PatientBirthDate, PatientName, PatientSex } = patient;
 
     const LatestDate = (dates: Date[]) => {
@@ -121,15 +129,22 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     );
   };
 
-  const StudyCard = ({ study, pacspulls }: { study: PACSStudy, pacspulls: PACSPulls }) => {
+  const StudyCard = ({
+    study,
+    pacspulls,
+  }: {
+    study: PACSStudy;
+    pacspulls: PACSPulls;
+  }) => {
     const { StudyInstanceUID, PatientID } = study;
     const pullQuery = { StudyInstanceUID, PatientID };
 
-    const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFileList>();
+    const [existingStudyFiles, setExistingStudyFiles] =
+      useState<PACSFileList>();
 
     useEffect(() => {
       client.getPACSFiles(pullQuery).then(setExistingStudyFiles);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const cubeStudySize = existingStudyFiles?.totalCount;
@@ -141,9 +156,13 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       if (cubeHasStudy)
         return (
           <div style={{ color: "gray" }}>
-            <Button variant="link" style={{ padding: 0 }}><b>Available</b></Button>
+            <Button variant="link" style={{ padding: 0 }}>
+              <b>Available</b>
+            </Button>
             {/* <div>{(cubeStudySize / (1024 * 1024)).toFixed(3)} MB</div> */}
-            <div>{ cubeStudySize } {pluralize('file', cubeStudySize)}</div>
+            <div>
+              {cubeStudySize} {pluralize("file", cubeStudySize)}
+            </div>
           </div>
         );
 
@@ -156,13 +175,13 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         return (
           <div>
             <b>{_pull.statusText}</b>
-            {
-              _pull.errors.length 
-              ? <span style={{ color: "firebrick" }}>{_pull.errors[0]}</span>
-              : <div style={{ color: "gray" }}>
-                  ({((_pull.progress || 0) * 100).toFixed(0)}%)
-                </div>
-            }
+            {_pull.errors.length ? (
+              <span style={{ color: "firebrick" }}>{_pull.errors[0]}</span>
+            ) : (
+              <div style={{ color: "gray" }}>
+                ({((_pull.progress || 0) * 100).toFixed(0)}%)
+              </div>
+            )}
           </div>
         );
       }
@@ -184,9 +203,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           <Split>
             <SplitItem style={{ minWidth: "30%", margin: "0 1em 0 0" }}>
               <div>
-                <b style={{ marginRight: "0.5em" }}>
-                  {study.StudyDescription}
-                </b>{" "}
+                <b style={{ marginRight: "0.5em" }}>{study.StudyDescription}</b>{" "}
                 {study.StudyDate.getTime() >=
                 Date.now() - 30 * 24 * 60 * 60 * 1000 ? (
                   <Tooltip content="Study was performed in the last 30 days.">
@@ -239,23 +256,34 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     );
   };
 
-  const SeriesCard = ({ series, pacspulls }: { series: PACSSeries, pacspulls: PACSPulls }) => {
+  const SeriesCard = ({
+    series,
+    pacspulls,
+  }: {
+    series: PACSSeries;
+    pacspulls: PACSPulls;
+  }) => {
     const { SeriesInstanceUID, StudyInstanceUID, PatientID } = series;
     const pullQuery = { SeriesInstanceUID, StudyInstanceUID, PatientID };
 
-    const [existingSeriesFiles, setExistingSeriesFiles] = useState<PACSFileList>();
+    const [existingSeriesFiles, setExistingSeriesFiles] =
+      useState<PACSFileList>();
 
     useEffect(() => {
       client.getPACSFiles(pullQuery).then(setExistingSeriesFiles);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const cubeSeriesSize = existingSeriesFiles?.totalCount;
-    const cubeHasSeries = series.NumberOfSeriesRelatedInstances === cubeSeriesSize;
+    const cubeHasSeries =
+      series.NumberOfSeriesRelatedInstances === cubeSeriesSize;
 
-    const seriesFiles = (existingSeriesFiles?.getItems() || []);
-    const cubeSeriesPath = seriesFiles.length 
-      ? seriesFiles[0].data.fname.slice(0, seriesFiles[0].data.fname.lastIndexOf('/'))
+    const seriesFiles = existingSeriesFiles?.getItems() || [];
+    const cubeSeriesPath = seriesFiles.length
+      ? seriesFiles[0].data.fname.slice(
+          0,
+          seriesFiles[0].data.fname.lastIndexOf("/")
+        )
       : [];
 
     const SeriesActions = () => {
@@ -282,7 +310,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         return (
           <div>
             <b>{_pull.statusText}</b>
-            <div style={{ color: "gray" }}>({((_pull.progress || 0) * 100).toFixed(0)}%)</div>
+            <div style={{ color: "gray" }}>
+              ({((_pull.progress || 0) * 100).toFixed(0)}%)
+            </div>
           </div>
         );
       }
@@ -319,8 +349,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
             <SplitItem
               style={{ color: "gray", margin: "0 2em", textAlign: "right" }}
             >
-              {series.NumberOfSeriesRelatedInstances} {
-                pluralize('file', series.NumberOfSeriesRelatedInstances)}
+              {series.NumberOfSeriesRelatedInstances}{" "}
+              {pluralize("file", series.NumberOfSeriesRelatedInstances)}
             </SplitItem>
             <SplitItem>
               <SeriesActions />
@@ -378,4 +408,4 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   );
 };
 
-export default QueryResults
+export default QueryResults;
