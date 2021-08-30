@@ -50,6 +50,7 @@ interface BrowserProps {
   path?: string;
   withHeader?: boolean;
   fetchFiles?: (prefix: string) => Promise<DirectoryTree>;
+  onFolderSelect?: (then: FolderActions, folder: Branch) => any;
 }
 
 export const BrowserBreadcrumbs = ({ path }: { path: string }) => {
@@ -97,6 +98,7 @@ export const Browser: React.FC<BrowserProps> = ({
   path,
   withHeader,
   fetchFiles,
+  onFolderSelect,
 }: BrowserProps) => {
   const [filter, setFilter] = useState<string>();
   const [viewfile, setViewFile] = useState<any>();
@@ -138,6 +140,8 @@ export const Browser: React.FC<BrowserProps> = ({
     then: FolderActions,
     folder: Branch
   ): Promise<void> => {
+    if (onFolderSelect) return onFolderSelect(then, folder);
+
     if (!fetchFiles) return;
 
     setFilesPath(folder.path);
@@ -363,7 +367,7 @@ export const FolderCard = ({
     if (onSelect) onSelect(action, item);
   };
 
-  const { name, children, path, creation_date, isLastParent } = item;
+  const { name, children, creation_date, isLastParent } = item;
   const pad = <span style={{ padding: "0 0.25em" }} />;
   return (
     <Card isRounded isHoverable isSelectable isSelected={!!isSelected}>
@@ -425,10 +429,13 @@ export const FolderCard = ({
 
           <SplitItem isFilled>
             <div>
-              <Link to={`/library/${path}`}>{elipses(name, 36)}</Link>
-              {/* <Button variant="link" style={{ padding: 0 }} onClick={dispatch.bind(FolderCard, "browse")}>
+              <Button
+                variant="link"
+                style={{ padding: 0 }}
+                onClick={dispatch.bind(FolderCard, "browse")}
+              >
                 <b>{elipses(name, 36)}</b>
-              </Button> */}
+              </Button>
               <Route exact path="/library/search">
                 <Badge style={{ margin: "0 0.5em" }}>
                   {children.length} {pluralize("match", children.length)}
