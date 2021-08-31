@@ -319,7 +319,7 @@ export function* setupFastsurferMoc(action: IActionTypeParam) {
     "pl-pfdicom_tagextract_ghcr",
     "pl-pfdicom_tagsub_ghcr",
     "pl-fshack_ghcr:1.0.0",
-    "pl-fastsurfer_inference_cpu_30",
+    "pl-fastsurfer_inference_gpu",
     "pl-multipass_ghcr",
     "pl-pfdorun_ghcr",
     "pl-mgz2lut_report_ghcr_m3",
