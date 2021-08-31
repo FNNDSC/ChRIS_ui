@@ -9,7 +9,7 @@ import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import * as cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import Hammer from "hammerjs";
-import { Button, Progress, Slider } from "@patternfly/react-core";
+import { Button, Slider } from "@patternfly/react-core";
 import {
   AngleDoubleLeftIcon,
   AngleDoubleRightIcon,
@@ -151,7 +151,7 @@ const GalleryDicomView = (props: { files?: DataNode[] }) => {
         }
       }
     },
-    []
+    [imageIdsState]
   );
 
   const loadImagesIntoCornerstone = useCallback(
