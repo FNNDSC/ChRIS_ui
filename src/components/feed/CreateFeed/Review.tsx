@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { CreateFeedContext } from "./context";
-import { Grid, GridItem } from "@patternfly/react-core";
+import { Grid, GridItem, List, ListItem } from "@patternfly/react-core";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
 import "./createfeed.scss";
 import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
@@ -15,7 +15,7 @@ const Review: React.FunctionComponent = () => {
     feedDescription,
     tags,
     chrisFiles,
-    localFiles,
+    localFiles
   } = state.data;
   const {
     dropdownInput,

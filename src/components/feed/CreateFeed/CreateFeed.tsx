@@ -23,12 +23,15 @@ import { addFeed } from "../../../store/feed/actions";
 import { createFeed, getName } from "./utils/createFeed";
 import { Feed } from "@fnndsc/chrisapi";
 import FinishedStep from "./FinishedStep";
+import withSelectionAlert from "./SelectionAlert";
+import { MainRouterContext } from "../../../routes";
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
   addFeed,
 }: CreateFeedReduxProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
+  const routerContext = useContext(MainRouterContext);
   const {
     wizardOpen,
     step,
@@ -148,6 +151,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       );
 
       if (!feed) {
+        console.error(state.feedError)
         throw new Error("New feed is undefined. Giving up.");
       }
 
@@ -172,6 +176,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     } catch (error) {
       throw new Error(`${error}`);
     } finally {
+      routerContext.actions.clearFeedData();
       dispatch({
         type: Types.SetProgress,
         payload: {
@@ -208,14 +213,14 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         {
           id: 3,
           name: "Select an FS Plugin",
-          component: packs,
+          component: withSelectionAlert(packs, false),
           enableNext: selectedPlugin !== undefined,
           canJumpTo: step > 3,
         },
         {
           id: 4,
           name: "Parameter Configuration",
-          component: guidedConfig,
+          component: withSelectionAlert(guidedConfig),
           canJumpTo: step > 4,
         },
       ];
@@ -224,13 +229,13 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         {
           id: 3,
           name: "ChRIS File Select",
-          component: chrisFileSelect,
+          component: withSelectionAlert(chrisFileSelect),
           canJumpTo: step > 3,
         },
         {
           id: 4,
           name: "Local File Upload",
-          component: localFileUpload,
+          component: withSelectionAlert(localFileUpload),
           canJumpTo: step > 4,
         },
       ];
@@ -255,18 +260,47 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     }
   };
 
-  const steps = [
+  const steps = data.isDataSelected ? [
     {
       id: 1,
       name: "Basic Information",
-      component: basicInformation,
+      component: withSelectionAlert(basicInformation),
       enableNext: !!data.feedName,
       canJumpTo: step > 1,
     },
     {
       id: 2,
       name: "Feed Type Selection",
-      component: chooseConfig,
+      component: withSelectionAlert(chooseConfig),
+      enableNext: selectedConfig.length > 0,
+      canJumpTo: step > 2,
+    },
+    {
+      id: 5,
+      name: "Review",
+      component: review,
+      enableNext: enableSave,
+      nextButtonText: "Create Feed",
+      canJumpTo: step > 5,
+    },
+    {
+      id: 6,
+      name: "Finish",
+      component: finishedStep,
+      canJumpTo: step > 6,
+    },
+  ] : [
+    {
+      id: 1,
+      name: "Basic Information",
+      component: withSelectionAlert(basicInformation),
+      enableNext: !!data.feedName,
+      canJumpTo: step > 1,
+    },
+    {
+      id: 2,
+      name: "Feed Type Selection",
+      component: withSelectionAlert(chooseConfig),
       enableNext: selectedConfig.length > 0,
       canJumpTo: step > 2,
     },
@@ -278,15 +312,15 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     {
       id: 5,
       name: "Review",
-      component: review,
+      component: withSelectionAlert(review, false),
       enableNext: enableSave,
-      nextButtonText: "Save",
+      nextButtonText: "Create Feed",
       canJumpTo: step > 5,
     },
     {
       id: 6,
       name: "Finish",
-      component: finishedStep,
+      component: withSelectionAlert(finishedStep, false),
       canJumpTo: step > 6,
     },
   ];
@@ -298,40 +332,20 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           if (activeStep.name !== "Finish") {
             return (
               <>
-                <Button
+                <Button style={{ margin: "0.5em", padding: "0.5em 2em" }}
                   variant="primary"
                   type="submit"
                   onClick={onNext}
                   isDisabled={activeStep.enableNext === false ? true : false}
                 >
-                  Next
+                  { activeStep.nextButtonText ? activeStep.nextButtonText : 'Next' }
                 </Button>
-                {activeStep.name !== "Basic Information" && (
-                  <Button
-                    variant="secondary"
-                    onClick={onBack}
-                    className={
-                      activeStep.name === "Step 1" ? "pf-m-disabled" : ""
-                    }
-                  >
-                    Back
-                  </Button>
-                )}
-
-                <Button
-                  variant="link"
-                  onClick={() => {
-                    if (wizardOpen === true) {
-                      dispatch({
-                        type: Types.ResetState,
-                      });
-                    }
-                    dispatch({
-                      type: Types.ToggleWizzard,
-                    });
-                  }}
+                <Button style={{ margin: "0.5em", padding: "0.5em 2em" }}
+                  variant="secondary"
+                  isDisabled={activeStep.id === 1}
+                  onClick={onBack}
                 >
-                  Cancel
+                  Back
                 </Button>
               </>
             );
@@ -346,6 +360,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       <Button
         className="create-feed-button"
         variant="primary"
+        isLarge
         onClick={() => {
           dispatch({
             type: Types.ToggleWizzard,
@@ -358,18 +373,18 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         <Wizard
           isOpen={wizardOpen}
           onClose={() => {
-            if (wizardOpen === true) {
+            // clear global feed base data, so wizard will be blank on next open
+            routerContext.actions.clearFeedData();
+            if (wizardOpen)
               dispatch({
                 type: Types.ResetState,
               });
-            }
             dispatch({
               type: Types.ToggleWizzard,
             });
           }}
           title="Create a New Feed"
-          description="This wizard allows you to create a new Feed
-          and add an internal dataset to it"
+          description="This wizard allows you to create a new Feed and add an internal dataset to it"
           className={`feed-create-wizard ${getStepName()}-wrap`}
           steps={steps}
           startAtStep={step}

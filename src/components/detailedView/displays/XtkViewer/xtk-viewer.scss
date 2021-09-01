@@ -1,0 +1,137 @@
+.xtk-viewer-wrap {
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  .xtk-header {
+    padding: 13px;
+    background: black;
+    color: var(--pf-global--palette--blue-200);
+  }
+
+  .xtk-title {
+    font-weight: 900;
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+    color: inherit;
+  }
+
+  .xtk-info {
+    padding-top: 0;
+  }
+
+  .xtk-render {
+    width: 100%;
+    height: 500px;
+    text-align: center;
+    background: black;
+    color: white;
+    flex-grow: 1;
+  }
+
+  .xtk-controls {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: black;
+
+    .additional-files {
+      display: flex;
+
+      button {
+        margin-right: 10px;
+      }
+    }
+  }
+
+  .xtk-viewer-mode {
+    padding-top: 40px;
+    background: black;
+    color: white;
+    text-align: center;
+
+    .instructions {
+      padding-bottom: 20px;
+    }
+
+    button:first-of-type {
+      margin-right: 20px;
+    }
+  }
+
+  // expand icon
+  .fullscreen-toggle {
+    margin-top: 15px;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .crv-select-wrap {
+    color: white;
+    display: flex;
+  }
+
+  .crv-file-list {
+    border-top: 1px solid gray;
+    margin-top: 5px;
+    padding-top: 5px;
+  }
+
+  .fsm-select-wrap {
+    // background-color: black;
+    padding-top: 50px;
+    padding-bottom: 50px;
+  }
+  
+  .fsm-select-inner {
+    padding: 20px;
+    background-color: white;
+    background-color: lightgray;
+    width: 30%;
+    margin: 0 auto;
+  }
+
+  .fsm-file-list {
+    border-top: 1px solid gray;
+    margin-top: 5px;
+    padding-top: 5px;
+    color: white !important;
+  }
+
+  .error {
+
+  }
+
+  .volume-mode {
+    display: flex;
+  }
+
+  .volume-mode button:not(.active) {
+    background: gray;
+  }
+
+  .volume-mode .orientation {
+    margin-left: 10px;
+    
+    .orientation-button-wrap {
+      padding-left: 10px;
+      border-left: 1px solid white;
+    }
+  }
+
+  .xtk-controls .caption {
+    color: white;
+    font-size: 14px;
+    margin-left: 10px;
+  }
+
+  // dat.gui wrap
+  .dg.ac {
+    position: absolute;
+    z-index: 1;
+    top: 10px;
+  }
+}

@@ -40,9 +40,10 @@ function useAsync(initialState?: any) {
     (error) => safeSetState({ error, status: "rejected" }),
     [safeSetState]
   );
-  const reset = React.useCallback(() => safeSetState(initialStateRef.current), [
-    safeSetState,
-  ]);
+  const reset = React.useCallback(
+    () => safeSetState(initialStateRef.current),
+    [safeSetState]
+  );
 
   const run = React.useCallback(
     (promise) => {
@@ -82,5 +83,27 @@ function useAsync(initialState?: any) {
   };
 }
 
-export { useAsync };
+async function fetchResource<T>(
+  params: { limit: number; offset: number },
+  fn: any
+) {
+  let resourceList = await fn(params);
+  let resource: T[] = [];
+  if (resourceList.getItems()) {
+    resource = resourceList.getItems() as T[];
+  }
+  while (resourceList.hasNextPage) {
+    try {
+      params.offset += params.limit;
+      resourceList = await fn(params);
+      if (resourceList.getItems()) {
+        resource.push(...(resourceList.getItems() as T[]));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  return resource;
+}
 
+export { useAsync, fetchResource };

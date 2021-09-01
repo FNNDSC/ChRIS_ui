@@ -1,5 +1,5 @@
 import { all, takeEvery, fork, put } from "@redux-saga/core/effects";
-import { Feed, PluginInstance, PluginInstanceList } from "@fnndsc/chrisapi";
+import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import { PluginInstanceTypes } from "./types";
 import { IActionTypeParam } from "../../api/models/base.model";
 import {
@@ -15,32 +15,16 @@ import {
   stopFetchingStatusResources,
   stopFetchingPluginResources,
 } from "../resources/actions";
+import { fetchResource } from "../../utils";
 
 function* handleGetPluginInstances(action: IActionTypeParam) {
   const feed: Feed = action.payload;
   try {
     const params = { limit: 15, offset: 0 };
-    let pluginInstanceList: PluginInstanceList = yield feed.getPluginInstances(
-      params
-    );
-    let pluginInstances: PluginInstance[] = yield pluginInstanceList.getItems();
-
-    while (pluginInstanceList.hasNextPage) {
-      try {
-        params.offset += params.limit;
-        pluginInstanceList = yield feed.getPluginInstances(params);
-
-        pluginInstances = [
-          ...pluginInstances,
-          ...pluginInstanceList.getItems(),
-        ];
-      } catch (e) {
-        throw new Error(
-          "Error while fetching a paginated list of plugin Instances"
-        );
-      }
-    }
-
+    const fn = feed.getPluginInstances;
+    const boundFn = fn.bind(feed);
+    const pluginInstances: PluginInstance[] =
+      yield fetchResource<PluginInstance>(params, boundFn);
     const selected = pluginInstances[pluginInstances.length - 1];
     const pluginInstanceObj = {
       selected,

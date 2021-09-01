@@ -25,10 +25,10 @@ const PluginTitle = () => {
     setValue(value);
   };
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     const title = getDefaultTitle(selectedPlugin);
     setValue(title);
-  },[selectedPlugin])
+  }, [selectedPlugin]);
 
   const handleSubmit = async () => {
     try {
@@ -37,7 +37,10 @@ const PluginTitle = () => {
       const pluginItem = await selectedPlugin?.put({
         title: value,
       });
-      dispatch(setPluginTitle(pluginItem));
+      if (pluginItem) {
+        dispatch(setPluginTitle(pluginItem));
+      }
+
       setLoading(false);
       setShowInput(false);
     } catch (error) {
@@ -88,5 +91,3 @@ const PluginTitle = () => {
 };
 
 export default PluginTitle;
-
-

@@ -1,0 +1,80 @@
+#pacs-query-builder {
+  #search {
+    height: 100%;
+    #search-value, #search-value *, #search-type, #search-type > button {
+      height: 100%;
+    }
+    #search-value {
+      width: 100%;
+    }
+
+    #search-type, #search-type > button {
+      height: 100%;
+    }
+
+    #pacs-service, #pacs-service > button {
+      height: 100%;
+    }
+  }
+
+  #finalize {
+    width: 100%;
+  }
+
+  #filters {
+    .pf-l-split {
+      width: 100%;
+    }
+  }
+}
+
+#pacs-query-results {
+  .pf-l-split {
+    width: 100%;
+  }
+
+  .result-expanded {
+    padding: 1em 3em;
+
+    .expanded-tabs {
+      min-width: 20%;
+    }
+  }
+
+  .patient-studies {
+    margin: 1em;
+    padding: 1em 2em;
+    border-right: 2px dashed lightgray;
+    border-left: 2px dashed lightgray;
+    // max-height: 50vh;
+    // overflow-y: scroll;
+    // overflow-x: hidden;
+    
+    .pf-c-card {
+      padding: 0.75em 1.75em;
+
+      .pf-c-card__header {
+        padding: 0;
+        font-size: small;
+      }
+    }
+  }
+
+  .patient-series {
+    margin: 1em;
+    padding: 1em 2em;
+    border-right: 2px dashed lightgray;
+    border-left: 2px dashed lightgray;
+    // max-height: 50vh;
+    // overflow-y: scroll;
+    // overflow-x: hidden;
+    
+    .pf-c-card {
+      padding: 0.75em 1.75em;
+
+      .pf-c-card__body {
+        padding: 0;
+      }
+    }
+  }
+}

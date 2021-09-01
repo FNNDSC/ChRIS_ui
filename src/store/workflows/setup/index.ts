@@ -18,6 +18,8 @@ import { runCovidnetWorkflow } from "./create workflows/covidnet";
 import { runFastsurferWorkflow } from "./create workflows/fastsurfer";
 import { runFreesurferWorkflow } from "./create workflows/freesurfer";
 import { runFetalReconstructionWorkflow } from "./create workflows/fetalReconstruction";
+import { runFreesurferMocWorkflow } from "./create workflows/freesurfer_moc";
+import { runFastsurferMocWorkflow } from "./create workflows/fastsurfer_moc";
 import { setFeedDetails } from "../actions";
 import { put } from "@redux-saga/core/effects";
 
@@ -114,6 +116,7 @@ export function* createFeedWithDircopy(
   try {
     const dircopyInstance: PluginInstance = yield client.createPluginInstance(
       dircopy.data.id,
+      //@ts-ignore
       data
     );
     const feed: Feed = yield dircopyInstance.getFeed();
@@ -217,9 +220,18 @@ export function* setupFeedDetails(
         if (instance)
           yield runFreesurferWorkflow(instance, plugins, "adult-freesurfer");
       }
+      if (workflowType === "adult-freesurfer-moc") {
+        yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
+        if (instance) yield runFreesurferMocWorkflow(instance, plugins);
+      }
+
       if (workflowType === "fastsurfer") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         if (instance) yield runFastsurferWorkflow(instance, plugins);
+      }
+      if (workflowType === "fastsurfer-moc") {
+        yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
+        if (instance) yield runFastsurferMocWorkflow(instance, plugins);
       }
       if (workflowType === "infant-freesurfer-age") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
@@ -282,6 +294,37 @@ export function* setupAdultFreesurfer(action: IActionTypeParam) {
     "pl-mgz2LUT_report",
   ];
   yield setupFeedDetails(action, adultFreesurferPlugins, "adult-freesurfer");
+}
+
+export function* setupAdultFreesurferMoc(action: IActionTypeParam) {
+  const adultFreesurferMocPlugins: string[] = [
+    "pl-dircopy",
+    "pl-pfdicom_tagextract_ghcr",
+    "pl-pfdicom_tagsub_ghcr",
+    "pl-fshack_ghcr:1.0.0",
+    "pl-multipass_ghcr",
+    "pl-pfdorun_ghcr",
+    "pl-mgz2lut_report_ghcr_m3",
+  ];
+  yield setupFeedDetails(
+    action,
+    adultFreesurferMocPlugins,
+    "adult-freesurfer-moc"
+  );
+}
+
+export function* setupFastsurferMoc(action: IActionTypeParam) {
+  const fastsurferMocPlugins: string[] = [
+    "pl-dircopy",
+    "pl-pfdicom_tagextract_ghcr",
+    "pl-pfdicom_tagsub_ghcr",
+    "pl-fshack_ghcr:1.0.0",
+    "pl-fastsurfer_inference_cpu_30",
+    "pl-multipass_ghcr",
+    "pl-pfdorun_ghcr",
+    "pl-mgz2lut_report_ghcr_m3",
+  ];
+  yield setupFeedDetails(action, fastsurferMocPlugins, "fastsurfer-moc");
 }
 
 export function* setupFastsurfer(action: IActionTypeParam) {

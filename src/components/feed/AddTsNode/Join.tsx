@@ -17,11 +17,15 @@ const Join = ({ handlePluginSelect, selectedTsPlugin }: JoinProps) => {
       const pluginList = await client.getPlugins({
         limit: 50,
       });
-      const tsPlugins: Plugin[] = pluginList.getItems().filter((item) => {
-        if (item.data.type === "ts") return item;
-      });
-      setTsPluginList(tsPlugins);
+      const pluginListItems = pluginList.getItems();
+      if (pluginListItems) {
+        const tsPlugins: Plugin[] = pluginListItems.filter((item) => {
+          if (item.data.type === "ts") return item;
+        });
+        setTsPluginList(tsPlugins);
+      }
     }
+
     fetchTsPlugins();
   }, []);
 

@@ -1,11 +1,6 @@
 import keyMirror from "keymirror";
 import { LocalFile } from "../../components/feed/CreateFeed/types";
-import {
-  IPluginCreateData,
-  Plugin,
-  PluginInstance,
-  Feed,
-} from "@fnndsc/chrisapi";
+import { Plugin, PluginInstance, Feed } from "@fnndsc/chrisapi";
 
 export interface AnalysisStep {
   id: number;
@@ -40,28 +35,34 @@ export interface IWorkflowState {
   infantAge: string;
 }
 
-export interface DircopyData extends IPluginCreateData {
+export interface DircopyData {
   dir: string;
 }
 
-export interface Med2ImgData extends IPluginCreateData {
+export interface Med2ImgData {
   inputFile: any;
   sliceToConvert: number | string;
   outputFileStem?: string;
+  previous_id: number;
 }
 
-export interface CovidnetData extends IPluginCreateData {
+export interface CovidnetData {
   imagefile: any;
+  previous_id: number;
 }
 
-export interface AFSHackData extends IPluginCreateData {
+export interface AFSHackData {
+  title?: string;
+  previous_id: number;
   inputFile?: string;
   outputFile: string;
   exec: string;
   args: string;
 }
 
-export interface IFSHackData extends IPluginCreateData {
+export interface IFSHackData {
+  title?: string;
+  previous_id: number;
   age: number;
 }
 

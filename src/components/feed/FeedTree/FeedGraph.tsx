@@ -9,9 +9,10 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import TreeModel from "../../../api/models/tree.model";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { ErrorBoundary } from "react-error-boundary";
-import { Text, Button } from "@patternfly/react-core";
-import useSize from './useSize';
+import { Text, Button, Switch } from "@patternfly/react-core";
+import useSize from "./useSize";
 import "./FeedTree.scss";
+import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 
 interface IFeedProps {
   pluginInstances: PluginInstancePayload;
@@ -21,7 +22,6 @@ interface IFeedProps {
   isBottomPanelExpanded: boolean;
   onExpand: (panel: string) => void;
 }
-
 
 const FeedGraph = (props: IFeedProps) => {
   const {
@@ -35,6 +35,11 @@ const FeedGraph = (props: IFeedProps) => {
   const { data: instances } = pluginInstances;
   const graphRef = React.useRef<HTMLDivElement | null>(null);
   const fgRef = React.useRef<ForceGraphMethods | undefined>();
+
+  const [nodeScale, setNodeScale] = React.useState<{
+    enabled: boolean;
+    type: FeedTreeScaleType;
+  }>({ enabled: false, type: "time" });
 
   const size = useSize(graphRef);
 
@@ -90,6 +95,27 @@ const FeedGraph = (props: IFeedProps) => {
               </div>
             </div>
           )}
+          <div className="feed-tree__container--labels feed-graph__container--labels">
+            <div className="feed-tree__control feed-tree__individual-scale">
+              <Switch
+                id="individual-scale"
+                label="Scale Nodes On"
+                labelOff="Scale Nodes Off"
+                isChecked={nodeScale.enabled}
+                onChange={() =>
+                  setNodeScale({ ...nodeScale, enabled: !nodeScale.enabled })
+                }
+              />
+              {nodeScale.enabled && (
+                <div className="dropdown-wrap">
+                  <NodeScaleDropdown
+                    selected={nodeScale.type}
+                    onChange={(type) => setNodeScale({ ...nodeScale, type })}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
           <ForceGraph3D
             ref={fgRef}
             //@ts-ignore
@@ -103,6 +129,19 @@ const FeedGraph = (props: IFeedProps) => {
               }
               return d.group;
             }}
+            nodeVal={
+              nodeScale.enabled
+                ? (node: any) => {
+                    if (nodeScale.type === "time") {
+                      const instanceData = (node.item as PluginInstance).data;
+                      const start = new Date(instanceData?.start_date);
+                      const end = new Date(instanceData?.end_date);
+                      return Math.log10(end.getTime() - start.getTime()) * 10;
+                    }
+                    return 1;
+                  }
+                : undefined
+            }
             onNodeClick={handleNodeClick}
             nodeLabel={(d: any) => {
               return `${d.item.data.title || d.item.data.plugin_name}`;

@@ -5,3 +5,6 @@
 *  Author:          ChRIS UI
 */
 
+input:focus, textarea:focus, select:focus{
+  outline: none !important;
+}
