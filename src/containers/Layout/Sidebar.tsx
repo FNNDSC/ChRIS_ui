@@ -59,11 +59,8 @@ const Sidebar: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
           <NavItem itemId="feeds" isActive={active === "feeds"}>
             <Link to="/feeds">Feeds List</Link>
           </NavItem>
-          
-          <NavItem
-            itemId="my_pipelines"
-            isActive={active === "my_pipelines"}
-          >
+
+          <NavItem itemId="my_pipelines" isActive={active === "my_pipelines"}>
             <Link to="/pipelines">Pipelines</Link>
           </NavItem>
           <NavExpandable title="Workflows" isExpanded={true}>
