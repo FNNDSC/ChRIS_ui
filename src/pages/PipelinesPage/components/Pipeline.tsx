@@ -1,25 +1,21 @@
 import {
-  Button,
-  PageSection,
+  ClipboardCopyButton,
   CodeBlock,
   CodeBlockAction,
   CodeBlockCode,
-  ClipboardCopyButton,
+  PageSection,
 } from "@patternfly/react-core";
 import {
+  AngleRightIcon,
   CalendarDayIcon,
   CodeBranchIcon,
-  AngleRightIcon,
   UserAltIcon,
 } from "@patternfly/react-icons";
-import React, { useState, useEffect } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Wrapper from "../../../containers/Layout/PageWrapper";
-import axios from "axios";
-import ForceGraph3D, {
-  NodeObject,
-  ForceGraphMethods,
-} from "react-force-graph-3d";
+import PipelineTree from "../../../components/pipelines/PipelineTree";
 
 const Pipeline = () => {
   const { id }: any = useParams();
@@ -29,15 +25,20 @@ const Pipeline = () => {
   const [pipings, setPipings] = useState<any>([]);
   const [selectedNode, setselectedNode] = useState(0);
 
+  
+const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
+
   const blob = new Blob([JSON.stringify(pipeline)], {
     type: "application/json",
   });
 
   useEffect(() => {
     axios
-      .get(`https://store.outreachy.chrisproject.org/api/v1/pipelines/${id}/`, {
+      .get(`${chrisURL}pipelines/${id}/`, {
         headers: {
           "Content-Type": "application/vnd.collection+json",
+          Authorization:
+          "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
         },
       })
       .then((response: any) => {
@@ -51,10 +52,12 @@ const Pipeline = () => {
   useEffect(() => {
     axios
       .get(
-        `https://store.outreachy.chrisproject.org/api/v1/pipelines/1/pipings/`,
+        `${chrisURL}pipelines/${id}/pipings/`,
         {
           headers: {
             "Content-Type": "application/vnd.collection+json",
+            Authorization:
+            "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
           },
         }
       )
@@ -64,7 +67,7 @@ const Pipeline = () => {
       .catch((errors) => {
         console.error(errors);
       });
-  }, []);
+  }, [id, chrisURL]);
 
   const clipboardCopyFunc = (event: React.SyntheticEvent, text: string) => {
     const clipboard = event.currentTarget.parentElement;
@@ -169,21 +172,40 @@ const Pipeline = () => {
         <div className="pipeline_main_bottom">
           <div className="pipeline_main_bottom_left">
             <p>Pipeline Graph</p>
-            {/* <ForceGraph3D graphData={} />, */}
-            <div>{pipeline.plugin_pipings}</div>
+            <PipelineTree pluginData={pipings}/>
+            {console.log("Plugin Data from pipeline", pipings)}
+            {/* id: 1
+                pipeline: "https://store.outreachy.chrisproject.org/api/v1/pipelines/1/"
+                pipeline_id: 1
+                plugin: "https://store.outreachy.chrisproject.org/api/v1/plugins/26/"
+                plugin_id: 26
+                plugin_name: "pl-fetal-brain-mask"
+                plugin_version: "1.2.1"
+                previous: null
+                url: "https://store.outreachy.chrisproject.org/api/v1/pipelines/pipings/1/" 
+                
+                id: 4
+                pipeline: "https://store.outreachy.chrisproject.org/api/v1/pipelines/1/"
+                pipeline_id: 1
+                plugin: "https://store.outreachy.chrisproject.org/api/v1/plugins/28/"
+                plugin_id: 28
+                plugin_name: "pl-irtk-reconstruction"
+                plugin_version: "1.0.3"
+                previous: "https://store.outreachy.chrisproject.org/api/v1/pipelines/pipings/3/"
+                previous_id: 3
+                url: "https://store.outreachy.chrisproject.org/api/v1/pipelines/pipings/4/"*/}
+
+            {/* <div>{pipeline.plugin_pipings}</div>
             {pipings.map((piping: any, index: number) => {
               return (
                 <>
-                  <a
-                    onClick={() => setselectedNode(index)}
-                    key={piping.id}
-                  >
+                  <a onClick={() => setselectedNode(index)} key={piping.id}>
                     {piping.plugin_name}
                   </a>
                   <br />
                 </>
               );
-            })}
+            })} */}
           </div>
           <div className="pipeline_main_bottom_right">
             <p>

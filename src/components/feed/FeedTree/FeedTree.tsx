@@ -147,6 +147,9 @@ const graphClassName = "feed-tree__graph";
 const FeedTree = (props: AllProps) => {
   const feedTreeProp = useTypedSelector((state) => state.feed.feedTreeProp);
   const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
+  const selectedPlugin = useTypedSelector(
+    (state) => state.instance.selectedPlugin
+  );
   const [feedState, setFeedState] = React.useState<FeedTreeState>(
     getInitialState(props, feedTreeProp)
   );
@@ -379,8 +382,25 @@ const FeedTree = (props: AllProps) => {
               />
             );
           })}
+          
+        {/* {  console.log("NODE LIST: ", nodes)} */}
+            
 
           {nodes?.map(({ data, x, y, parent }, i) => {
+            // {
+            //   console.log("selectedPlugin", selectedPlugin?.data?.id);
+            // }
+            // {
+            //   console.log("data parent: ", parent?.data?.parentId);
+            // }
+            // {
+            //   console.log("data node parent: ", parent);
+            // }
+            const OnHover =
+              selectedPlugin &&
+              parent?.data?.parentId !== undefined &&
+              (selectedPlugin?.data?.id > parent?.data?.parentId);
+
             return (
               <NodeWrapper
                 key={`node + ${i}`}
@@ -392,6 +412,7 @@ const FeedTree = (props: AllProps) => {
                 onNodeToggle={handleNodeToggle}
                 orientation={orientation}
                 toggleLabel={feedState.toggleLabel}
+                hover={OnHover}
               />
             );
           })}

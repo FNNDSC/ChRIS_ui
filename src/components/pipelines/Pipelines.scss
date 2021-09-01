@@ -79,6 +79,20 @@
   padding: 1.5rem;
 }
 
+.node__root > circle {
+  fill: red;
+}
+
+.node__branch > circle {
+  fill: yellow;
+}
+
+.node__leaf > circle {
+  fill: red;
+  /* Let's also make the radius of leaf nodes larger */
+  // r: 40;
+}
+
 .pipeline_main_bottom_right {
   width: 40%;
   padding: 1.5rem;

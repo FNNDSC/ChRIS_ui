@@ -34,7 +34,6 @@ const ParentComponent = (props: ParentComponentProps) => {
   const [tsIds, setTsIds] = React.useState<TSID>();
   const dispatch = useDispatch();
 
-
   React.useEffect(() => {
     if (instances && instances.length > 0) {
       const data = getFeedTree(instances);
@@ -42,6 +41,8 @@ const ParentComponent = (props: ParentComponentProps) => {
         setTsIds(nodes);
       });
       setData(data);
+      console.log("DATA", data);
+      console.log("DATA INSTANCES", instances);
     }
   }, [instances]);
 

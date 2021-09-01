@@ -15,6 +15,7 @@ type NodeWrapperProps = {
   onNodeToggle: (nodeId: string) => void;
   orientation: "horizontal" | "vertical";
   toggleLabel: boolean;
+  hover?: boolean;
 };
 
 type NodeProps = NodeWrapperProps & {
@@ -50,7 +51,9 @@ const Node = (props: NodeProps) => {
 
   const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
   const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
-
+  const selectedPlugin = useTypedSelector(
+    (state) => state.instance.selectedPlugin
+  );
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
       .attr("transform", transform)
@@ -123,10 +126,15 @@ const Node = (props: NodeProps) => {
           }
         }}
       >
+        {/* {console.log("selectedPlugin", selectedPlugin?.data?.id)} */}
+
         <circle
           id={`node_${data.id}`}
-          className={`node ${statusClass} ${tsClass}
-              ${currentId && `selected`}
+          className={`node ${statusClass} ${tsClass}  
+          ${
+            props.hover && `pipeline`
+          }
+              ${currentId && `selected` }
               `}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
         ></circle>
