@@ -52,9 +52,9 @@ const Sidebar: React.FC<AllProps> = ({
       </NavItem>
       <NavItemSeparator />
       <NavItem
-        groupId="workflows_grp"
-        itemId="pipelines"
-        isActive={sidebarActiveItem === "pipelines" ? true : false}
+        groupId="pipelines_grp"
+        itemId="my_pipelines"
+        isActive={sidebarActiveItem === "my_pipelines" ? true : false}
       >
         <Link to="/pipelines">Pipelines</Link>
       </NavItem>
@@ -82,7 +82,7 @@ const Sidebar: React.FC<AllProps> = ({
         <NavItem
           groupId="dashboard_grp"
           itemId="my_dashboard"
-          isActive={sidebarActiveItem === "mydashboard"}
+          isActive={sidebarActiveItem === "my_dashboard"}
         >
           <Link to={`/`}>Welcome</Link>
         </NavItem>

@@ -9,15 +9,19 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import PipelineCard from "./PipelineCard";
 
+const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
+
 const PipelinesFeed = () => {
   const [Pipelines, setPipelines] = useState([]);
   const [Search_query, setSearch_query] = useState("");
 
   useEffect(() => {
     axios
-      .get(`https://store.outreachy.chrisproject.org/api/v1/pipelines/search`, {
+      .get(`${chrisURL}pipelines/search`, {
         headers: {
           "Content-Type": "application/vnd.collection+json",
+          Authorization:
+          "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
         },
         params: { name: Search_query },
       })

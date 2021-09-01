@@ -28,7 +28,7 @@ import Status from "./Status";
 import GraphNode from "../AddTsNode/ParentContainer";
 import StatusTitle from "./StatusTitle";
 import PluginTitle from "./PluginTitle";
-import CreateBtn from "../../pipelines/CreateBtn";
+import CreateBtn from "../../pipelines/SavePipeline";
 import { setFeedLayout } from "../../../store/feed/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import "./NodeDetails.scss";
