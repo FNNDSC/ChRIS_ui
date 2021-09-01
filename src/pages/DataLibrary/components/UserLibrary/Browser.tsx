@@ -322,25 +322,29 @@ export const Browser: React.FC<BrowserProps> = ({
               ))}
           </Grid>
 
-          { !!viewfile && <Modal
-            title="Preview"
-            aria-label="viewer"
-            width={"50%"}
-            isOpen={!!viewfile}
-            onClose={() => setViewFile(undefined)}
-          >
-            <FileDetailView selectedFile={viewfile} preview="large" />
-          </Modal>}
+          {!!viewfile && (
+            <Modal
+              title="Preview"
+              aria-label="viewer"
+              width={"50%"}
+              isOpen={!!viewfile}
+              onClose={() => setViewFile(undefined)}
+            >
+              <FileDetailView selectedFile={viewfile} preview="large" />
+            </Modal>
+          )}
 
-          { !!viewfolder && <Modal
-            title="View"
-            aria-label="viewer"
-            width={"50%"}
-            isOpen={!!viewfolder}
-            onClose={() => setViewFolder(undefined)}
-          >
-            <GalleryDicomView files={viewfolder} />
-          </Modal>}
+          {!!viewfolder && (
+            <Modal
+              title="View"
+              aria-label="viewer"
+              width={"50%"}
+              isOpen={!!viewfolder}
+              onClose={() => setViewFolder(undefined)}
+            >
+              Hey
+            </Modal>
+          )}
         </article>
       </Route>
     </Switch>
