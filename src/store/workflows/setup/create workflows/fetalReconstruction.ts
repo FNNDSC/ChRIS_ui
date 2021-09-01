@@ -21,7 +21,7 @@ export function* runFetalReconstructionWorkflow(
     );
 
   const plAntsN4BiasFieldCorrection =
-    pluginList["pl-ants_n4biasfieldcorrection"];
+    pluginList["pl-ANTs_N4BiasFieldCorrection"];
   const plAntsN4BiasFieldCorrectionArgs = {
     previous_id: plFetalBrainMaskInstance.data.id,
     inputPathFilter: "extracted/0.0/*.nii",

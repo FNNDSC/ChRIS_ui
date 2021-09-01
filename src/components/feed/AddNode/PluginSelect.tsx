@@ -1,6 +1,5 @@
 import React from "react";
 import classNames from "classnames";
-
 import {
   Accordion,
   AccordionItem,
@@ -120,15 +119,18 @@ class PluginSelect extends React.Component<
       try {
         params.offset += params.limit;
         pluginList = await client.getPlugins(params);
-        plugins.push(...pluginList.getItems());
+        const itemsList = pluginList.getItems();
+        if (itemsList && plugins) {
+          plugins.push(...itemsList);
+        }
       } catch (e) {
         console.error(e);
       }
     }
 
-    plugins = plugins.filter((plugin) => plugin.data.type !== "fs");
+    plugins = plugins && plugins.filter((plugin) => plugin.data.type !== "fs");
 
-    if (this._isMounted) this.setState({ allPlugins: plugins });
+    if (this._isMounted && plugins) this.setState({ allPlugins: plugins });
   }
 
   // fetch last 5 used plugins
@@ -144,10 +146,10 @@ class PluginSelect extends React.Component<
     while (pluginIds.length < amount && pluginInstanceList.hasNextPage) {
       // plugin instance list is ordered by most recently instantiated
       pluginInstanceList = await client.getPluginInstances(params);
+      const instanceItems = pluginInstanceList.getItems();
 
-      const pluginsInstances = pluginInstanceList
-        .getItems()
-        .filter(
+      if (instanceItems) {
+        const pluginsInstances = instanceItems.filter(
           (pluginInst: PluginInstance, i, instances: PluginInstance[]) => {
             // dedeuplicate plugins
             const { plugin_id } = pluginInst.data;
@@ -162,13 +164,12 @@ class PluginSelect extends React.Component<
             );
           }
         );
-
-      const ids = pluginsInstances.map(
-        (pluginInst: PluginInstance) => pluginInst.data.plugin_id
-      );
-
-      pluginIds.push(...ids);
-      params.offset += params.limit;
+        const ids = pluginsInstances.map(
+          (pluginInst: PluginInstance) => pluginInst.data.plugin_id
+        );
+        pluginIds.push(...ids);
+        params.offset += params.limit;
+      }
     }
 
     const plugins = await Promise.all(

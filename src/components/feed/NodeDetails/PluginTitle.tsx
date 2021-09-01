@@ -25,10 +25,10 @@ const PluginTitle = () => {
     setValue(value);
   };
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     const title = getDefaultTitle(selectedPlugin);
     setValue(title);
-  },[selectedPlugin])
+  }, [selectedPlugin]);
 
   const handleSubmit = async () => {
     try {
@@ -37,7 +37,10 @@ const PluginTitle = () => {
       const pluginItem = await selectedPlugin?.put({
         title: value,
       });
-      dispatch(setPluginTitle(pluginItem));
+      if (pluginItem) {
+        dispatch(setPluginTitle(pluginItem));
+      }
+
       setLoading(false);
       setShowInput(false);
     } catch (error) {
@@ -57,7 +60,6 @@ const PluginTitle = () => {
             className="node-details__title--formInput"
           />
           <Button
-           
             onClick={handleSubmit}
             className="node-details__title--formButton"
           >
@@ -75,9 +77,6 @@ const PluginTitle = () => {
         <>
           <Title headingLevel="h3" size="xl">
             <span>{title}</span>
-            <span className="node-details__version">
-              {selectedPlugin?.data.plugin_version}
-            </span>
           </Title>
           <EditIcon
             onClick={() => {
@@ -92,5 +91,3 @@ const PluginTitle = () => {
 };
 
 export default PluginTitle;
-
-

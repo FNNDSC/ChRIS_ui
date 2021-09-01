@@ -16,8 +16,8 @@ import { CubeIcon } from "@patternfly/react-icons";
 import { Spin, Alert, Tree } from "antd";
 import PluginViewerModal from "../../detailedView/PluginViewerModal";
 import {
+  setExplorerMode,
   setExplorerRequest,
-  toggleViewerMode,
 } from "../../../store/explorer/actions";
 import { getPluginFilesRequest } from "../../../store/resources/actions";
 import FileViewerModel from "../../../api/models/file-viewer.model";
@@ -25,7 +25,7 @@ import { createTreeFromFiles, getPluginName } from "./utils";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { isEmpty } from "lodash";
 import { getFeedTree } from "./data";
-import { DataNode } from "../../../store/explorer/types";
+import { DataNode, ExplorerMode } from "../../../store/explorer/types";
 import { useSafeDispatch } from "../../../utils";
 import "./FeedOutputBrowser.scss";
 
@@ -49,14 +49,14 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
   );
-  const viewerMode = useTypedSelector((state) => state.explorer.viewerMode);
-  const currentFeed = useTypedSelector((state) => state.feed.currentFeed.data);
+
   const { data: plugins, loading } = pluginInstances;
+
   const pluginFilesPayload = selected && pluginFiles[selected.data.id];
 
   React.useEffect(() => {
     if (!pluginFilesPayload && selected) {
-       safeDispatch(getPluginFilesRequest(selected));
+      safeDispatch(getPluginFilesRequest(selected));
     }
   }, [selected, pluginFilesPayload, safeDispatch]);
   if (!selected || isEmpty(pluginInstances) || loading) {
@@ -85,26 +85,25 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       setPluginModalOpen(!pluginModalOpen);
     };
 
-    const handleFileViewerOpen = () => {
+    const handleDicomViewerOpen = () => {
       setPluginModalOpen(!pluginModalOpen);
-      dispatch(toggleViewerMode(!viewerMode));
+      dispatch(setExplorerMode(ExplorerMode.DicomViewer));
+    };
+
+    const handleXtkViewerOpen = () => {
+      setPluginModalOpen(!pluginModalOpen);
+      dispatch(setExplorerMode(ExplorerMode.XtkViewer));
     };
 
     const handlePluginModalClose = () => {
       setPluginModalOpen(!pluginModalOpen);
-      dispatch(toggleViewerMode(false));
+      dispatch(setExplorerMode(ExplorerMode.SwiftFileBrowser));
     };
 
     let pluginSidebarTree;
     if (plugins && plugins.length > 0) {
       pluginSidebarTree = getFeedTree(plugins);
     }
-
-    const splitPath =
-      currentFeed &&
-      //@ts-ignore
-      selected.data.output_path.split(`feed_${currentFeed.data.id}/`)[1];
-    const breadcrumb = splitPath.split("/data")[0];
 
     return (
       <>
@@ -168,10 +167,10 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                   root={tree[0]}
                   key={selected.data.id}
                   handleFileBrowserToggle={handleFileBrowserOpen}
-                  handleFileViewerToggle={handleFileViewerOpen}
+                  handleDicomViewerOpen={handleDicomViewerOpen}
+                  handleXtkViewerOpen={handleXtkViewerOpen}
                   downloadAllClick={downloadAllClick}
                   expandDrawer={expandDrawer}
-                  breadcrumb={[...breadcrumb.split("/"), ""]}
                 />
               </React.Suspense>
             ) : selected.data.status === "cancelled" ||
@@ -193,14 +192,11 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
 export default React.memo(FeedOutputBrowser);
 
-
-
 /**
  *
  * Utility Components
- * 
+ *
  */
-
 
 const LoadingFeedBrowser = () => {
   return (
@@ -241,7 +237,7 @@ const EmptyStateLoader = () => {
 
 const FetchFilesLoader = () => {
   return (
-    <Spin tip="Loading....">
+    <Spin tip="Processing....">
       <Alert message="Retrieving Plugin's Files" type="info" />
     </Spin>
   );

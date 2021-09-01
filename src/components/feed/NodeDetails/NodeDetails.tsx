@@ -32,6 +32,7 @@ import CreateBtn from "../../pipelines/SavePipeline";
 import { setFeedLayout } from "../../../store/feed/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import "./NodeDetails.scss";
+import { getErrorCodeMessage } from "./utils";
 
 interface INodeProps {
   expandDrawer: (panel: string) => void;
@@ -62,6 +63,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   const [isTerminalVisible, setIsTerminalVisible] = React.useState(false);
   const [isGraphNodeVisible, setIsGraphNodeVisible] = React.useState(false);
   const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isErrorExpanded, setisErrorExpanded] = React.useState(false);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -107,6 +109,10 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
 
   //@ts-ignore
   const error_code = selectedPlugin?.data.error_code;
+  //@ts-ignore
+  const compute_env = selectedPlugin?.data.compute_resource_name;
+
+  const previousId = selectedPlugin?.data.previous_id;
 
   const handleVisibleChange = (visible: boolean) => {
     setIsGraphNodeVisible(visible);
@@ -169,8 +175,23 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           className="node-details__expandable"
         >
           <Grid className="node-details__grid">
+            {renderGridItem(
+              "Parent Node ID",
+              <span>{previousId ? previousId : "None"}</span>
+            )}
+            {renderGridItem(
+              "Selected Node ID",
+              <span>{selectedPlugin.data.id}</span>
+            )}
+            {renderGridItem(
+              "Plugin",
+              <span style={{ fontFamily: "monospace" }}>
+                {selectedPlugin.data.plugin_name}, ver{" "}
+                {selectedPlugin.data.plugin_version}
+              </span>
+            )}
             {renderGridItem("Created", Time)}
-            {renderGridItem("Node ID", <span>{selectedPlugin.data.id}</span>)}
+            {renderGridItem("Compute Environment", <span>{compute_env}</span>)}
             {runTime && (
               <Fragment>
                 {renderGridItem(
@@ -186,12 +207,47 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             {cancelled &&
               renderGridItem(
                 "Error Code",
-                <span>{error_code ? error_code : "None"}</span>
+                <span>
+                  {error_code ? (
+                    <span>
+                      {error_code}&nbsp;
+                      {isErrorExpanded && (
+                        <span className="node-details__error-message">
+                          {getErrorCodeMessage(error_code)}&nbsp;
+                        </span>
+                      )}
+                      <Button
+                        variant="link"
+                        isInline
+                        className="node-details__error-show-more"
+                        onClick={() => setisErrorExpanded(!isErrorExpanded)}
+                      >
+                        (show {isErrorExpanded ? "less" : "more"})
+                      </Button>
+                    </span>
+                  ) : (
+                    "None"
+                  )}
+                </span>
               )}
           </Grid>
         </ExpandableSection>
 
         <div className="node-details__actions">
+          <Popover
+            className="node-details__popover"
+            content={<PluginLog text={text} />}
+            placement="bottom"
+            visible={isTerminalVisible}
+            trigger="click"
+            onVisibleChange={(visible: boolean) => {
+              setIsTerminalVisible(visible);
+            }}
+          >
+            <Button icon={<TerminalIcon />} type="button">
+              View Terminal
+            </Button>
+          </Popover>
           {cancelled ? null : <AddNode />}
 
           <Popover
@@ -284,8 +340,14 @@ function getCommand(
     value?: string;
   }[] = [];
 
-  const instanceParameters = params.getItems();
-  const pluginParameters = parameters.getItems();
+  let instanceParameters = [];
+  let pluginParameters = [];
+  if (params.getItems()) {
+    instanceParameters = params.getItems() as any[];
+  }
+  if (parameters.getItems()) {
+    pluginParameters = parameters.getItems() as any[];
+  }
 
   for (let i = 0; i < instanceParameters.length; i++) {
     for (let j = 0; j < pluginParameters.length; j++) {

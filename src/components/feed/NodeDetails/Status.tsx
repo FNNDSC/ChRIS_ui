@@ -1,8 +1,7 @@
 import React from "react";
 
-import { Steps } from "antd";
+import { Steps, Spin } from "antd";
 
-import { Spinner } from "@patternfly/react-core";
 import usePluginInstanceResource from "./usePluginInstanceResource";
 
 const { Step } = Steps;
@@ -11,6 +10,7 @@ const Status = () => {
   const pluginInstanceResource = usePluginInstanceResource();
   const pluginStatus =
     pluginInstanceResource && pluginInstanceResource.pluginStatus;
+
   if (pluginStatus && pluginStatus.length > 0) {
     return (
       <>
@@ -33,13 +33,15 @@ const Status = () => {
             return (
               <Step
                 key={label.id}
-                icon={showIcon && <Spinner size="lg" />}
+                icon={showIcon && <Spin />}
                 status={
-                  label.status === true
+                  label.processError === true
+                    ? "wait"
+                    : label.status === true
                     ? "finish"
                     : label.error === true
                     ? "error"
-                    : undefined
+                    : "process"
                 }
               />
             );

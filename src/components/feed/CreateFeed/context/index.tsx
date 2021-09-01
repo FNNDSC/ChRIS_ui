@@ -1,12 +1,13 @@
-import React, { createContext, useReducer } from "react";
-import { initialState, createFeedReducer } from "../reducer";
+import React, { createContext, useContext, useReducer } from "react";
+import { MainRouterContext } from "../../../../routes";
+import { createFeedReducer, getInitialState } from "../reducer";
 import { CreateFeedState } from "../types";
 
 const CreateFeedContext = createContext<{
   state: CreateFeedState;
   dispatch: React.Dispatch<any>;
 }>({
-  state: initialState,
+  state: getInitialState(),
   dispatch: () => null,
 });
 
@@ -17,7 +18,10 @@ interface CreateFeedProviderProps {
 const CreateFeedProvider: React.FC<CreateFeedProviderProps> = ({
   children,
 }: CreateFeedProviderProps) => {
+  const { state: routerState } = useContext(MainRouterContext);
+  const initialState = getInitialState(routerState);
   const [state, dispatch] = useReducer(createFeedReducer, initialState);
+
   return (
     <CreateFeedContext.Provider value={{ state, dispatch }}>
       {children}

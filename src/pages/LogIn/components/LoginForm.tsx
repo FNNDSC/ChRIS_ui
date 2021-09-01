@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { setAuthToken } from "../../../store/user/actions";
 import { withRouter } from "react-router-dom";
-import { RouteComponentProps } from "react-router";
+import { RouteComponentProps, useLocation } from "react-router";
 import { useHistory } from "react-router-dom";
 import { LoginForm } from "@patternfly/react-core";
 import ChrisApiClient from "@fnndsc/chrisapi";
@@ -25,6 +25,8 @@ const LoginFormComponent : React.FC<AllProps>=({
   const [isValidPassword,setIsValidPassword]=React.useState<boolean>(true);
   const [errorMessage,setErrorMessage]=React.useState<string>("");
   const history = useHistory();
+  const location = useLocation();
+
   async function handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     event.preventDefault();
     const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
@@ -62,7 +64,11 @@ const LoginFormComponent : React.FC<AllProps>=({
         username: usernameValue,
       });
 
-      history.push("/");
+      const then = (new URLSearchParams(location.search)).get("then")
+      if (then)
+        history.push(then);
+      else
+        history.push("/");
     }
   }
   }

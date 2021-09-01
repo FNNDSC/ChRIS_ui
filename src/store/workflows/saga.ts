@@ -2,9 +2,12 @@ import { all, fork, takeEvery, put } from "@redux-saga/core/effects";
 import {
   setupCovidnet,
   setupAdultFreesurfer,
+  setupAdultFreesurferMoc,
   setupInfantFreesurfer,
+  setupInfantFreesurferAge,
   setupFastsurfer,
   setupFetalReconstruction,
+  setupFastsurferMoc,
 } from "./setup";
 import { WorkflowTypes, AnalysisStep } from "./types";
 import { setAnalysisStep } from "./actions";
@@ -22,11 +25,23 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
   if (workflowType === "infant-freesurfer") {
     yield setupInfantFreesurfer(action);
   }
+
+  if (workflowType === "infant-freesurfer-age") {
+    yield setupInfantFreesurferAge(action);
+  }
+
   if (workflowType === "fastsurfer") {
     yield setupFastsurfer(action);
   }
   if (workflowType === "fetal-reconstruction") {
     yield setupFetalReconstruction(action);
+  }
+  if (workflowType === "adult-freesurfer:moc") {
+    yield setupAdultFreesurferMoc(action);
+  }
+
+  if (workflowType === "fastsurfer:moc") {
+    yield setupFastsurferMoc(action);
   }
 }
 
@@ -45,7 +60,6 @@ export function* setYieldAnalysis(
     })
   );
 }
-
 
 function* watchSubmitAnalysis() {
   yield takeEvery(WorkflowTypes.SUBMIT_ANALYSIS, handleSubmitAnalysis);

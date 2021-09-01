@@ -6,34 +6,50 @@ import {
 } from "../types";
 import { Key } from "rc-tree/lib/interface";
 import { clearCache } from "../ChrisFileSelect";
-
+import { State as MainRouterContextState } from '../../../../routes';
 
 import { InputType } from "../../AddNode/types";
+import { Series } from "../../../../pages/DataLibrary/Library";
 
-function getDefaultCreateFeedData(): CreateFeedData {
-  return {
+function getDefaultCreateFeedData(selectedData?: Series): CreateFeedData {
+  const initData = {
     feedName: "",
     feedDescription: "",
     tags: [],
-    chrisFiles: [],
+    chrisFiles: [] as string[],
     localFiles: [],
     checkedKeys:{},
+    isDataSelected: false,
   };
+
+  if (selectedData && !!selectedData.length) {
+    initData.chrisFiles = selectedData; //.map(({ data }) => data.fname);
+    initData.isDataSelected = true;
+  }
+
+  return initData;
 }
 
-export const initialState = {
-  wizardOpen: false,
-  step: 1,
-  data: getDefaultCreateFeedData(),
-  selectedPlugin: undefined,
-  selectedConfig: "",
-  requiredInput: {},
-  dropdownInput: {},
-  feedProgress: "",
-  feedError: "",
-  value: 0,
-  computeEnvironment: " ",
-};
+export function getInitialState(routerContextState?: typeof MainRouterContextState): CreateFeedState {
+  const selectedData = routerContextState?.selectData;
+  const isInitDataSelected = !!selectedData?.length;
+
+  return {
+    // if data is selected, the user is navigated directly to create feed wizard
+    wizardOpen: isInitDataSelected,
+
+    step: 1,
+    data: getDefaultCreateFeedData(selectedData),
+    selectedPlugin: undefined,
+    selectedConfig: isInitDataSelected ? "swift_storage" : "",
+    requiredInput: {},
+    dropdownInput: {},
+    feedProgress: "",
+    feedError: "",
+    value: 0,
+    computeEnvironment: " ",
+  };
+}
 
 export const createFeedReducer = (
   state: CreateFeedState,

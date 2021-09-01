@@ -13,11 +13,13 @@ import { setYieldAnalysis } from "../saga";
 import { IActionTypeParam } from "../../../api/models/base.model";
 import { PluginInstance, Feed, Note } from "@fnndsc/chrisapi";
 import { LocalFile } from "../../../components/feed/CreateFeed/types";
-import { getPlugin, uploadLocalFiles, uploadFilePaths } from "../../utils";
+import { getPlugin, uploadLocalFiles, uploadFilePaths } from "../utils";
 import { runCovidnetWorkflow } from "./create workflows/covidnet";
 import { runFastsurferWorkflow } from "./create workflows/fastsurfer";
 import { runFreesurferWorkflow } from "./create workflows/freesurfer";
 import { runFetalReconstructionWorkflow } from "./create workflows/fetalReconstruction";
+import { runFreesurferMocWorkflow } from "./create workflows/freesurfer_moc";
+import { runFastsurferMocWorkflow } from "./create workflows/fastsurfer_moc";
 import { setFeedDetails } from "../actions";
 import { put } from "@redux-saga/core/effects";
 
@@ -52,7 +54,7 @@ export function* pollingBackend(instance: PluginInstance) {
   const timeout = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   };
-  yield timeout(1000);
+
   const shouldWait = () => {
     const returnValue = ![
       PollStatus.CANCELLED,
@@ -64,6 +66,12 @@ export function* pollingBackend(instance: PluginInstance) {
   while (shouldWait()) {
     yield timeout(6000);
     yield instance.get();
+    yield setYieldAnalysis(
+      3,
+      "Creating a Feed Tree",
+      "process",
+      `Waiting on plugin instance id ${instance.data.id} to finish....`
+    );
   }
   const result = instanceDetails.data.status;
   if (
@@ -71,6 +79,7 @@ export function* pollingBackend(instance: PluginInstance) {
       instanceDetails.data.status
     )
   ) {
+    return result;
   } else return result;
 }
 
@@ -80,7 +89,12 @@ export function* createFeedWithDircopy(
   username: string,
   workflowType: string
 ) {
-  yield setYieldAnalysis(2, "Creating a Feed Root Node", "process", "");
+  yield setYieldAnalysis(
+    2,
+    "Creating a Feed Root Node",
+    "process",
+    `Uploading ${localFiles.length} files. Please wait as the files are being uploaded...`
+  );
   const feedPayload: FeedReturnPayload = {
     feed: undefined,
     error: undefined,
@@ -88,9 +102,11 @@ export function* createFeedWithDircopy(
   };
   const client = ChrisAPIClient.getClient();
   const directoryName = `${username}/uploads/${v4()}`;
+
   yield uploadLocalFiles(localFiles, directoryName);
   const totalFilePaths: string[] = [];
   const filePaths = uploadFilePaths(localFiles, directoryName);
+
   totalFilePaths.push(filePaths);
 
   const data: DircopyData = {
@@ -100,6 +116,7 @@ export function* createFeedWithDircopy(
   try {
     const dircopyInstance: PluginInstance = yield client.createPluginInstance(
       dircopy.data.id,
+      //@ts-ignore
       data
     );
     const feed: Feed = yield dircopyInstance.getFeed();
@@ -195,7 +212,7 @@ export function* setupFeedDetails(
       if (workflowType === "infant-freesurfer") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         if (instance)
-          yield runFreesurferWorkflow(instance, plugins, "infant- freesurfer");
+          yield runFreesurferWorkflow(instance, plugins, "infant-freesurfer");
       }
 
       if (workflowType === "adult-freesurfer") {
@@ -203,9 +220,29 @@ export function* setupFeedDetails(
         if (instance)
           yield runFreesurferWorkflow(instance, plugins, "adult-freesurfer");
       }
+      if (workflowType === "adult-freesurfer-moc") {
+        yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
+        if (instance) yield runFreesurferMocWorkflow(instance, plugins);
+      }
+
       if (workflowType === "fastsurfer") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         if (instance) yield runFastsurferWorkflow(instance, plugins);
+      }
+      if (workflowType === "fastsurfer-moc") {
+        yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
+        if (instance) yield runFastsurferMocWorkflow(instance, plugins);
+      }
+      if (workflowType === "infant-freesurfer-age") {
+        yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
+        const { infantAge } = action.payload;
+        if (instance)
+          yield runFreesurferWorkflow(
+            instance,
+            plugins,
+            "infant-freesurfer-age",
+            infantAge
+          );
       }
       if (workflowType === "fetal-reconstruction") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
@@ -228,7 +265,7 @@ export function* setupCovidnet(action: IActionTypeParam) {
     "pl-dircopy",
     "pl-med2img",
     "pl-covidnet",
-    "pl-pdfgeneration",
+    "pl-covidnet-pdfgeneration",
   ];
   yield setupFeedDetails(action, covidnetPlugins, "covidnet");
 }
@@ -236,12 +273,12 @@ export function* setupCovidnet(action: IActionTypeParam) {
 export function* setupInfantFreesurfer(action: IActionTypeParam) {
   const infantFreesurferPlugins = [
     "pl-dircopy",
-    "pl-pfdicom_tagsub",
-    "pl-pfdicom_tagextract",
+    "pl-pfdicom_tagSub",
+    "pl-pfdicom_tagExtract",
     "pl-fshack-infant",
     "pl-multipass",
     "pl-pfdorun",
-    "pl-mgz2lut_report",
+    "pl-mgz2LUT_report",
   ];
   yield setupFeedDetails(action, infantFreesurferPlugins, "infant-freesurfer");
 }
@@ -249,26 +286,57 @@ export function* setupInfantFreesurfer(action: IActionTypeParam) {
 export function* setupAdultFreesurfer(action: IActionTypeParam) {
   const adultFreesurferPlugins: string[] = [
     "pl-dircopy",
-    "pl-pfdicom_tagsub",
-    "pl-pfdicom_tagextract",
+    "pl-pfdicom_tagSub",
+    "pl-pfdicom_tagExtract",
     "pl-fshack",
     "pl-multipass",
     "pl-pfdorun",
-    "pl-mgz2lut_report",
+    "pl-mgz2LUT_report",
   ];
   yield setupFeedDetails(action, adultFreesurferPlugins, "adult-freesurfer");
+}
+
+export function* setupAdultFreesurferMoc(action: IActionTypeParam) {
+  const adultFreesurferMocPlugins: string[] = [
+    "pl-dircopy",
+    "pl-pfdicom_tagextract_ghcr",
+    "pl-pfdicom_tagsub_ghcr",
+    "pl-fshack_ghcr:1.0.0",
+    "pl-multipass_ghcr",
+    "pl-pfdorun_ghcr",
+    "pl-mgz2lut_report_ghcr_m3",
+  ];
+  yield setupFeedDetails(
+    action,
+    adultFreesurferMocPlugins,
+    "adult-freesurfer-moc"
+  );
+}
+
+export function* setupFastsurferMoc(action: IActionTypeParam) {
+  const fastsurferMocPlugins: string[] = [
+    "pl-dircopy",
+    "pl-pfdicom_tagextract_ghcr",
+    "pl-pfdicom_tagsub_ghcr",
+    "pl-fshack_ghcr:1.0.0",
+    "pl-fastsurfer_inference_cpu_30",
+    "pl-multipass_ghcr",
+    "pl-pfdorun_ghcr",
+    "pl-mgz2lut_report_ghcr_m3",
+  ];
+  yield setupFeedDetails(action, fastsurferMocPlugins, "fastsurfer-moc");
 }
 
 export function* setupFastsurfer(action: IActionTypeParam) {
   const fastsurferPlugins = [
     "pl-dircopy",
-    "pl-pfdicom_tagextract",
-    "pl-pfdicom_tagsub",
+    "pl-pfdicom_tagExtract",
+    "pl-pfdicom_tagSub",
     "pl-fshack",
     "pl-fastsurfer_inference",
     "pl-multipass",
     "pl-pfdorun",
-    "pl-mgz2lut_report",
+    "pl-mgz2LUT_report",
   ];
   yield setupFeedDetails(action, fastsurferPlugins, "fastsurfer");
 }
@@ -277,7 +345,7 @@ export function* setupFetalReconstruction(action: IActionTypeParam) {
   const fetalReconstructionPlugins = [
     "pl-dircopy",
     "pl-fetal-brain-mask",
-    "pl-ants_n4biasfieldcorrection",
+    "pl-ANTs_N4BiasFieldCorrection",
     "pl-fetal-brain-assessment",
     "pl-irtk-reconstruction",
   ];
@@ -285,5 +353,23 @@ export function* setupFetalReconstruction(action: IActionTypeParam) {
     action,
     fetalReconstructionPlugins,
     "fetal-reconstruction"
+  );
+}
+
+export function* setupInfantFreesurferAge(action: IActionTypeParam) {
+  const infantFreesurferAgePlugins = [
+    "pl-dircopy",
+    "pl-fshack-infant",
+    "pl-infantfs",
+    "pl-pfdicom_tagSub",
+    "pl-pfdicom_tagExtract",
+    "pl-multipass",
+    "pl-pfdorun",
+    "pl-mgz2LUT_report",
+  ];
+  yield setupFeedDetails(
+    action,
+    infantFreesurferAgePlugins,
+    "infant-freesurfer-age"
   );
 }

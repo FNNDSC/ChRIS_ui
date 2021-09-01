@@ -25,6 +25,9 @@ export const submitAnalysis = (analysisPayload: AnalysisPayload) =>
 export const setAnalysisStep = (step: AnalysisStep) =>
   action(WorkflowTypes.SET_ANALYSIS_STEP, step);
 
+export const setInfantAge = (value: string) =>
+  action(WorkflowTypes.SET_INFANT_AGE, value);
+
 export const resetWorkflowState = () =>
   action(WorkflowTypes.RESET_WORKFLOW_STEP);
 
@@ -41,3 +44,9 @@ export const setFeedDetails = (id: number) =>
   action(WorkflowTypes.SET_FEED_DETAILS, id);
 
 export const stopAnalysis = () => action(WorkflowTypes.STOP_ANALYSIS);
+
+export const setCurrentStep = (id: number) =>
+  action(WorkflowTypes.SET_CURRENT_STEP, id);
+
+export const clearFileSelection = () =>
+  action(WorkflowTypes.CLEAR_FILE_SELECTION);

@@ -31,7 +31,7 @@ export interface IFeedState {
     data?: Feed[];
     error: any;
     loading: boolean;
-    totalFeedsCount: 0;
+    totalFeedsCount: number;
   };
   currentFeed: FeedPayload;
   feedTreeProp: FeedTreeProp;
@@ -46,6 +46,7 @@ export const FeedActionTypes = keyMirror({
   GET_FEED_SUCCESS: null,
   GET_FEED_ERROR: null,
   ADD_FEED: null,
+  DELETE_FEED: null,
   SET_LAYOUT: null,
   GET_FEED_TREE_PROP: null,
   RESET_FEED: null,

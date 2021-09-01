@@ -19,7 +19,8 @@ import {
   getPluginFilesError,
   getPluginInstanceStatusSuccess,
 } from "./actions";
-import { getPluginFiles } from "../utils";
+import { getPluginFiles } from "../workflows/utils";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
 function* fetchPluginFiles(plugin: PluginInstance) {
   try {
@@ -50,6 +51,17 @@ function* handleGetPluginStatus(instance: PluginInstance) {
       //@ts-ignore
       const pluginStatus = yield pluginDetails.data.summary;
 
+      const previousInstanceId = instance.data.previous_id;
+      let previousStatus = "";
+
+      if (previousInstanceId) {
+        const previousInstance: PluginInstance =
+          yield ChrisAPIClient.getClient().getPluginInstance(
+            previousInstanceId
+          );
+        previousStatus = previousInstance.data.status;
+      }
+
       let parsedStatus: PluginStatusLabels | undefined = undefined;
       if (pluginStatus) {
         parsedStatus = JSON.parse(pluginStatus);
@@ -65,6 +77,7 @@ function* handleGetPluginStatus(instance: PluginInstance) {
         pluginStatus: parsedStatus,
         pluginLog: output,
         pluginDetails: pluginDetails,
+        previousStatus,
       };
       yield put(getPluginInstanceResourceSuccess(payload));
       if (

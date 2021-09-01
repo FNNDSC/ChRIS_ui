@@ -1,114 +1,262 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
+import { message, Steps } from "antd";
+import { useHistory } from "react-router";
 import {
-  PageSection,
   Card,
-  CardTitle,
   CardBody,
   Button,
   OptionsMenu,
   OptionsMenuItem,
   OptionsMenuToggle,
+  Form,
+  TextInput,
 } from "@patternfly/react-core";
+import { useDispatch } from "react-redux";
 import FileUpload from "../../components/common/fileupload";
-import { Steps } from "antd";
 import { useTypedSelector } from "../../store/hooks";
+import { LocalFile } from "../../components/feed/CreateFeed/types";
+import { AnalysisStep } from "../../store/workflows/types";
 import {
   setLocalFile,
-  submitAnalysis,
-  setOptionState,
-  resetWorkflowState,
   deleteLocalFile,
+  setOptionState,
+  setInfantAge,
+  setCurrentStep,
+  submitAnalysis,
+  resetWorkflowState,
+  clearFileSelection,
 } from "../../store/workflows/actions";
-import { useDispatch } from "react-redux";
-import { AnalysisStep } from "../../store/workflows/types";
-import { LocalFile } from "../../components/feed/CreateFeed/types";
 
 const { Step } = Steps;
 
-const workflows = [
-  "covidnet",
-  "infant-freesurfer",
-  "adult-freesurfer",
-  "fastsurfer",
-  "fetal-reconstruction",
-];
-
 const FileDetails = () => {
-  const isAnalysisRunning = useTypedSelector(
-    (state) => state.workflows.isAnalysisRunning
-  );
-  return (
-    <PageSection>
-      <Card>
-        <CardTitle>
-          {isAnalysisRunning === true
-            ? "Runnng an Analysis"
-            : "Run an Analysis"}
-        </CardTitle>
-        <CardBody>
-          <FileUploadComponent />
-          <SelectWorkflow />
-          <SubmitAnalysis />
-        </CardBody>
-      </Card>
-    </PageSection>
-  );
+  return <StepsComponent />;
 };
 
-const FileUploadComponent = () => {
-  const localFilePayload = useTypedSelector(
-    (state) => state.workflows.localfilePayload
-  );
-  const dispatch = useDispatch();
-  const { files } = localFilePayload;
+const StepsComponent = () => {
+  const currentStep = useTypedSelector((state) => state.workflows.currentStep);
 
-  const handleDispatch = (files: LocalFile[]) => {
-    dispatch(setLocalFile(files));
-  };
-
-  const handleDeleteDispatch = (fileName: string) => {
-    dispatch(deleteLocalFile(fileName));
-  };
+  React.useEffect(() => {
+    if (currentStep === 3) {
+      message.success("Processing Complete");
+    }
+  }, [currentStep]);
+  const steps = [
+    {
+      id: 0,
+      title: "Local File Upload",
+      content: (
+        <ContentWrapper id={1}>
+          <FileUploadWrapper />
+        </ContentWrapper>
+      ),
+    },
+    {
+      id: 1,
+      title: "Choose a Workflow",
+      content: (
+        <ContentWrapper id={2}>
+          <SelectWorkflow />
+        </ContentWrapper>
+      ),
+    },
+    {
+      id: 2,
+      title: "Execution Status",
+      content: (
+        <ContentWrapper id={3}>
+          <StatusComponent />
+        </ContentWrapper>
+      ),
+    },
+  ];
 
   return (
-    <Card className="file-upload-card">
+    <Card>
       <CardBody>
-        <h1 className="pf-c-title pf-m-2xl">
-          File Selection: Local File Upload
-        </h1>
-        <p>Choose files from your local computer to create a feed</p>
-        <br />
-        <FileUpload
-          handleDeleteDispatch={handleDeleteDispatch}
-          localFiles={files}
-          dispatchFn={handleDispatch}
-        />
+        <Steps current={currentStep} direction="vertical">
+          {steps.map((step) => {
+            const showContent =
+              currentStep === step.id || currentStep > step.id;
+            return (
+              <Step
+                key={step.title}
+                title={step.title}
+                description={showContent && step.content}
+              />
+            );
+          })}
+        </Steps>
       </CardBody>
     </Card>
   );
 };
 
+const StatusComponent = () => {
+  const steps = useTypedSelector((state) => state.workflows.steps);
+  return (
+    <Steps size="small" direction="horizontal">
+      {steps.map((step: AnalysisStep) => {
+        return (
+          <Step
+            key={step.id}
+            status={step.status}
+            title={step.title}
+            description={step.error && step.error}
+          />
+        );
+      })}
+    </Steps>
+  );
+};
+
+const ContentWrapper = ({
+  children,
+  id,
+}: {
+  children: React.ReactNode;
+  id?: number;
+}) => {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const {
+    currentStep,
+    optionState,
+    localfilePayload,
+    infantAge,
+    checkFeedDetails,
+  } = useTypedSelector((state) => state.workflows);
+  const username = useTypedSelector((state) => state.user.username);
+
+  const localFiles = localfilePayload.files;
+
+  const stepLength = 2;
+  const isDisabled =
+    id === 1 && localFiles.length === 0
+      ? true
+      : id === 2 && !optionState.selectedOption
+      ? true
+      : false;
+
+  return (
+    <div className="steps-content">
+      <div
+        style={{
+          marginBottom: "1rem",
+          marginTop: "1rem",
+          paddingTop: "1rem",
+          paddingLeft: "1rem",
+          height: `${id === 1 ? "350px" : id === 2 ? "300px" : "300px"}`,
+        }}
+      >
+        {children}
+      </div>
+      <div className="steps-action">
+        {currentStep < stepLength && id != 3 && (
+          <Button
+            isDisabled={isDisabled}
+            onClick={() => {
+              if (id === 2 && localFiles.length > 0 && username) {
+                dispatch(
+                  submitAnalysis({
+                    localFiles,
+                    username,
+                    workflowType: optionState.selectedOption,
+                    infantAge,
+                  })
+                );
+              }
+              dispatch(setCurrentStep(currentStep + 1));
+            }}
+          >
+            Continue
+          </Button>
+        )}
+        {localFiles.length > 0 && id === 1 && (
+          <Button onClick={() => dispatch(clearFileSelection())}>
+            Clear File Selection
+          </Button>
+        )}
+        {currentStep === 3 && id === 3 && (
+          <Button
+            onClick={() => {
+              if (checkFeedDetails) {
+                history.push(`/feeds/${checkFeedDetails}`);
+              }
+            }}
+          >
+            Check Feed Details
+          </Button>
+        )}
+        {currentStep > 0 && id !== 1 && (
+          <Button
+            onClick={() => {
+              if (currentStep === 3) {
+                dispatch(resetWorkflowState());
+              } else dispatch(setCurrentStep(currentStep - 1));
+            }}
+          >
+            {currentStep === 3 ? "Clear" : "Previous"}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const FileUploadWrapper = () => {
+  const dispatch = useDispatch();
+  const localFilesPayload = useTypedSelector(
+    (state) => state.workflows.localfilePayload
+  );
+  const handleDispatch = (files: LocalFile[]) => {
+    dispatch(setLocalFile(files));
+  };
+  const handleDeleteDispatch = (fileName: string) => {
+    dispatch(deleteLocalFile(fileName));
+  };
+  const { files } = localFilesPayload;
+  return (
+    <FileUpload
+      className="workflow-file-upload"
+      handleDeleteDispatch={handleDeleteDispatch}
+      localFiles={files}
+      dispatchFn={handleDispatch}
+    />
+  );
+};
+
+const workflows = [
+  "covidnet",
+  "infant-freesurfer",
+  "infant-freesurfer-age",
+  "adult-freesurfer",
+  "adult-freesurfer:moc",
+  "fastsurfer",
+  "fastsurfer:moc",
+  "fetal-reconstruction",
+];
+
 const SelectWorkflow = () => {
   const dispatch = useDispatch();
   const optionState = useTypedSelector((state) => state.workflows.optionState);
   const { selectedOption, isOpen, toggleTemplateText } = optionState;
-
   const handleSelect = (
     event?:
       | React.MouseEvent<HTMLAnchorElement, MouseEvent>
       | React.KeyboardEvent<Element>
   ) => {
     const id = event?.currentTarget.id;
-
-    if (id)
+    if (id) {
       dispatch(
         setOptionState({
           ...optionState,
           toggleTemplateText: id,
           selectedOption: id,
+          isOpen: !isOpen,
         })
       );
+    }
   };
 
   const onToggle = () => {
@@ -118,6 +266,10 @@ const SelectWorkflow = () => {
         isOpen: !isOpen,
       })
     );
+  };
+
+  const handleInputChange = (value: string) => {
+    dispatch(setInfantAge(value));
   };
 
   const menuItems = workflows.map((workflow: string, index: number) => {
@@ -139,98 +291,29 @@ const SelectWorkflow = () => {
       toggleTemplate={toggleTemplateText}
     />
   );
-
   return (
-    <Card>
-      <CardBody>
-        <OptionsMenu
-          id="option menu"
-          isOpen={isOpen}
-          menuItems={menuItems}
-          toggle={toggle}
-        />
-      </CardBody>
-    </Card>
-  );
-};
-
-const SubmitAnalysis = () => {
-  const dispatch = useDispatch();
-  const history = useHistory();
-
-  const localFiles = useTypedSelector(
-    (state) => state.workflows.localfilePayload.files
-  );
-  const workflowType = useTypedSelector(
-    (state) => state.workflows.optionState.selectedOption
-  );
-  const username = useTypedSelector((state) => state.user.username);
-
-  const steps = useTypedSelector((state) => state.workflows.steps);
-  const handleClick = () => {
-    if (localFiles.length > 0 && username) {
-      dispatch(
-        submitAnalysis({
-          localFiles,
-          workflowType,
-          username,
-        })
-      );
-    }
-  };
-
-  const feedId = useTypedSelector((state) => state.workflows.checkFeedDetails);
-  const isAnalysisRunning = useTypedSelector(
-    (state) => state.workflows.isAnalysisRunning
-  );
-
-  return (
-    <Card>
-      <CardBody>
-        <Button
-          isDisabled={!workflowType || isAnalysisRunning ? true : false}
-          onClick={handleClick}
-        >
-          Submit An Analysis
-        </Button>
-      </CardBody>
-      <CardBody>
-        <Steps>
-          {steps.map((step: AnalysisStep) => {
-            return (
-              <Step
-                key={step.id}
-                status={step.status}
-                title={step.title}
-                description={step.error && step.error}
-              />
-            );
-          })}
-        </Steps>
-      </CardBody>
-      <CardBody>
-        <Button
-          style={{
-            marginRight: "0.5rem",
-          }}
-          onClick={() => {
-            if (feedId) {
-              history.push(`/feeds/${feedId}`);
-            }
-          }}
-          isDisabled={!feedId ? true : false}
-          variant="primary"
-        >
-          Check Feed Details
-        </Button>
-        <Button
-          onClick={() => dispatch(resetWorkflowState())}
-          isDisabled={isAnalysisRunning ? true : false}
-        >
-          Start a new workflow
-        </Button>
-      </CardBody>
-    </Card>
+    <>
+      <OptionsMenu
+        id="option-menu"
+        isOpen={isOpen}
+        menuItems={menuItems}
+        toggle={toggle}
+      />
+      {selectedOption === "infant-freesurfer-age" && (
+        <div className="workflow-form">
+          <Form isHorizontal>
+            <TextInput
+              isRequired
+              type="text"
+              id="infant-age"
+              name="infant-age"
+              onChange={handleInputChange}
+              placeholder="Enter an Infant's age in months"
+            />
+          </Form>
+        </div>
+      )}
+    </>
   );
 };
 

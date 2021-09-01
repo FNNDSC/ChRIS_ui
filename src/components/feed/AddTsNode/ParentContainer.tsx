@@ -19,7 +19,6 @@ import {
   addSplitNodes,
 } from "../../../store/pluginInstance/actions";
 
-
 function getNodeState() {
   return {
     selectedConfig: "join-node",
@@ -109,18 +108,22 @@ const GraphNode = (props: GraphNodeProps) => {
         const pluginInstance = await selectedTsPlugin?.getPluginInstances();
         try {
           await pluginInstance?.post(finalParameterList);
-          const node = pluginInstance?.getItems()[0];
-          dispatch(addNodeRequest({ pluginItem: node, nodes: nodes.data }));
+
+          const pluginInstanceItems = pluginInstance?.getItems();
+          if (pluginInstanceItems) {
+            const node = pluginInstanceItems[0];
+            dispatch(addNodeRequest({ pluginItem: node, nodes: nodes.data }));
+          }
           dispatch(switchTreeMode(false));
           handleResets();
           onVisibleChange(!visible);
         } catch (error) {
-          console.log("ERROR", error);
+          console.warn("ERROR", error);
         }
       } else {
         try {
           const client = Client.getClient();
-          //@ts-ignore
+
           const node = await client.createPluginInstanceSplit(
             selectedPlugin.data.id,
             splitInput["filter"] as string,
@@ -141,7 +144,7 @@ const GraphNode = (props: GraphNodeProps) => {
           handleResets();
           onVisibleChange(!visible);
         } catch (error) {
-          console.log("ERROR", error);
+          console.warn("ERROR", error);
         }
       }
     }
