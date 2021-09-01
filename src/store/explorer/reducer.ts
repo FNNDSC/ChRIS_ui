@@ -8,6 +8,7 @@ const initialState: IExplorerState = {
   mode: ExplorerMode.SwiftFileBrowser,
   selectedFolder: undefined,
   enableDcmTool: false,
+  files: [],
 };
 
 const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
@@ -45,6 +46,14 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
 
     case ExplorerActionTypes.ENABLE_DCM_TOOL: {
       return { ...state, enableDcmTool: action.payload };
+    }
+
+    case ExplorerActionTypes.SET_GALLERY_FILES: {
+      console.log("Action.payload", action.payload);
+      return {
+        ...state,
+        files: [...state.files, ...action.payload],
+      };
     }
 
     default: {

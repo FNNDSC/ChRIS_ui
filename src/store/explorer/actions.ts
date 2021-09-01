@@ -20,3 +20,6 @@ export const destroyExplorer = () =>
 
 export const setToolStore = (value: boolean) =>
   action(ExplorerActionTypes.ENABLE_DCM_TOOL, value);
+
+export const setFilesForGallery = (items: any[]) =>
+  action(ExplorerActionTypes.SET_GALLERY_FILES, items);
