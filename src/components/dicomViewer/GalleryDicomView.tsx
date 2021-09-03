@@ -14,7 +14,10 @@ import * as cornerstoneTools from "cornerstone-tools";
 import * as cornerstoneMath from "cornerstone-math";
 import Hammer from "hammerjs";
 import { useTypedSelector } from "../../store/hooks";
-import { setToolStore } from "../../store/explorer/actions";
+import {
+  clearFilesForGallery,
+  setToolStore,
+} from "../../store/explorer/actions";
 import DcmHeader from "./DcmHeader/DcmHeader";
 
 cornerstoneTools.external.cornerstone = cornerstone;
@@ -86,7 +89,7 @@ const GalleryDicomView = () => {
       const element = dicomImageRef.current;
       cornerstone.enable(element);
       const image = files[index].image;
-      const sliceMax = files.length;
+      const sliceMax = files[index].sliceMax;
       try {
         cornerstoneTools.clearToolState(element, "stack");
         cornerstoneTools.addStackStateManager(element, [
@@ -112,8 +115,18 @@ const GalleryDicomView = () => {
   );
 
   React.useEffect(() => {
-    displayImageFromFiles();
+    return () => {
+      dispatch(clearFilesForGallery());
+      disableAllTools();
+    };
+  }, [dispatch, disableAllTools]);
+
+  React.useEffect(() => {
     enableToolStore();
+  }, [enableToolStore]);
+
+  React.useEffect(() => {
+    displayImageFromFiles();
   }, [displayImageFromFiles, enableToolStore]);
 
   const listOpenFilesFirstFrame = () => {
@@ -148,6 +161,7 @@ const GalleryDicomView = () => {
   const listOpenFilesScrolling = () => {
     setPlaying(!playing);
     if (!playing) {
+      cornerstone.reset(dicomImageRef.current);
       cornerstoneTools.playClip(dicomImageRef.current, 1000);
     } else cornerstoneTools.stopClip(dicomImageRef.current);
   };
