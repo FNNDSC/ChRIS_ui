@@ -4,7 +4,7 @@ import { Tabs, Tab, Alert } from "@patternfly/react-core";
 import { FileBrowserViewer } from "./displays";
 import "./Viewer.scss";
 import { ExplorerMode } from "../../store/explorer/types";
-import GalleryDicomView from "../dicomViewer/GalleryDicomView";
+import DicomViewerContainer from "./displays/DicomViewer";
 import XtkViewer from "./displays/XtkViewer/XtkViewer";
 
 const OutputViewerContainer = () => {
@@ -13,7 +13,7 @@ const OutputViewerContainer = () => {
     (state) => state.instance.selectedPlugin
   );
 
-  const { mode } = useTypedSelector(state => state.explorer)
+  const { mode } = useTypedSelector((state) => state.explorer);
 
   const [activeTabKey, setActiveTabKey] = React.useState(0);
 
@@ -29,7 +29,7 @@ const OutputViewerContainer = () => {
         ),
         [ExplorerMode.DicomViewer]: (
           <Tab title="Image Viewer" eventKey={0} key={1}>
-            <GalleryDicomView />
+            <DicomViewerContainer />
           </Tab>
         ),
         [ExplorerMode.XtkViewer]: (
@@ -38,7 +38,7 @@ const OutputViewerContainer = () => {
           </Tab>
         ),
       };
-      
+
       return [explorerModeMap[mode]];
     };
 

@@ -87,4 +87,5 @@ export const ExplorerActionTypes = keyMirror({
   SET_EXPLORER_MODE: null,
   ENABLE_DCM_TOOL: null,
   DESTROY_EXPLORER: null,
+  CLEAR_GALLERY_FILES: null,
 });
