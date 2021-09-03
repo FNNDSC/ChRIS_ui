@@ -88,18 +88,13 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     };
 
     const handleDicomViewerOpen = () => {
-      history.push("/gallery");
-      /*
       setPluginModalOpen(!pluginModalOpen);
       dispatch(setExplorerMode(ExplorerMode.DicomViewer));
-      */
     };
 
     const handleXtkViewerOpen = () => {
-      /*
       setPluginModalOpen(!pluginModalOpen);
       dispatch(setExplorerMode(ExplorerMode.XtkViewer));
-      */
     };
 
     const handlePluginModalClose = () => {

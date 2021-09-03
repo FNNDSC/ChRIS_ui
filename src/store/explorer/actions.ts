@@ -23,3 +23,6 @@ export const setToolStore = (value: boolean) =>
 
 export const setFilesForGallery = (items: any[]) =>
   action(ExplorerActionTypes.SET_GALLERY_FILES, items);
+
+export const clearFilesForGallery = () =>
+  action(ExplorerActionTypes.CLEAR_GALLERY_FILES);
