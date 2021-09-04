@@ -106,7 +106,6 @@ const GalleryDicomView = () => {
         cornerstone.displayImage(element, image);
         setSliceMax(sliceMax);
         setSliceIndex(index);
-        // cornerstoneTools.stackPrefetch.enable(element);
       } catch (e) {
         console.warn(e);
       }
@@ -266,7 +265,13 @@ const GalleryDicomView = () => {
           style={{ width: "100%", height: "90%", position: "relative" }}
           ref={dicomImageRef}
         ></div>
-        <div style={{ background: "red" }} className="gallery-toolbar">
+        <div
+          style={{
+            background: "black",
+            margin: "0 auto",
+          }}
+          className="gallery-toolbar"
+        >
           <Button variant="link" onClick={listOpenFilesFirstFrame}>
             <AngleDoubleLeftIcon />
           </Button>

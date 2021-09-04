@@ -13,6 +13,7 @@ import {
   MdFullscreen,
 } from "react-icons/md";
 import "./DcmHeader.scss";
+import { useHistory } from "react-router";
 
 interface DicomHeaderProps {
   handleToolbarAction: (action: string) => void;
@@ -25,10 +26,21 @@ const DcmHeader = ({
   switchFullScreen,
   isFullScreen,
 }: DicomHeaderProps): React.ReactElement => {
+  const history = useHistory();
   return (
     <div className="dicom-header">
       <div className="dicom-logo">
         <span className="dicom-logo__text">Image Viewer</span>
+        <a
+          onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+            history.push("/");
+            e.preventDefault();
+          }}
+          href="/#"
+        >
+          <i className="fas fa-angle-left"></i>
+          Back to Dashboard
+        </a>
       </div>
       <div className="dicom-header__center-tools">
         <span className="dicom-header__tools-text">Tools</span>
