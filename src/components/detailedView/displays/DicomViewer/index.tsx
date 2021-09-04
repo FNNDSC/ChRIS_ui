@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
 import * as dicomParser from "dicom-parser";
 import * as cornerstone from "cornerstone-core";
