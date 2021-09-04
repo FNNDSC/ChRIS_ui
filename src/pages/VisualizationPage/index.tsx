@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useMemo } from "react";
 import { useHistory } from "react-router";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import { Button } from "antd";
@@ -36,6 +36,7 @@ import {
 } from "../../components/dicomViewer/utils";
 import { useDispatch } from "react-redux";
 import { setFilesForGallery } from "../../store/explorer/actions";
+import { useDropzone } from "react-dropzone";
 
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
@@ -53,11 +54,61 @@ cornerstoneWebImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 
+const baseStyle: React.CSSProperties = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "20px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#eeeeee",
+  borderStyle: "dashed",
+  backgroundColor: "#fafafa",
+  color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out",
+};
+
+const activeStyle = {
+  borderColor: "#2196f3",
+};
+
+const acceptStyle = {
+  borderColor: "#00e676",
+};
+
+const rejectStyle = {
+  borderColor: "#ff1744",
+};
+
 const VisualizationPage = () => {
   const fileOpen = useRef<HTMLInputElement>(null);
   const folderOpen = useRef<HTMLInputElement>(null);
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone();
   const [visibleModal, setVisibleModal] = React.useState(false);
   const [files, setFiles] = React.useState<any[]>();
+  const style = useMemo(
+    () => ({
+      ...baseStyle,
+      ...(isDragActive ? activeStyle : {}),
+      ...(isDragAccept ? acceptStyle : {}),
+      ...(isDragReject ? rejectStyle : {}),
+    }),
+    [isDragActive, isDragReject, isDragAccept]
+  );
+
+  React.useEffect(() => {
+    if (acceptedFiles.length > 0) setFiles(acceptedFiles);
+  }, [acceptedFiles]);
+
   const handleOpenFolder = (files: any) => {
     setVisibleModal(true);
     setFiles(files);
@@ -107,7 +158,6 @@ const VisualizationPage = () => {
           multiple
           onChange={(e) => handleOpenLocalFs(e.target.files)}
         />
-
         <input
           type="file"
           id="file_folder"
@@ -120,6 +170,15 @@ const VisualizationPage = () => {
           directory=""
           ref={folderOpen}
         />
+
+        <section className="container">
+          <div {...getRootProps({ style })}>
+            <input {...getInputProps()} />
+            <p>
+              Drag &apos;n&apos; drop some files here or click to select files
+            </p>
+          </div>
+        </section>
       </div>
     </Wrapper>
   );
@@ -141,9 +200,8 @@ export const DicomModal = ({
   const [progress, setProgress] = React.useState<number>(0);
 
   const close = React.useCallback(() => {
-    handleModalClose();
     history.push("/gallery");
-  }, [handleModalClose, history]);
+  }, [history]);
 
   const loadImagesIntoCornerstone = React.useCallback(() => {
     if (files) {
