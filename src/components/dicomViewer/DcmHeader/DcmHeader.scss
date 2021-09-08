@@ -21,8 +21,12 @@ $iconfont-size-lg:1.2rem;
     position: absolute;
     left: 0;
     top: 0;
-    padding: 0.8rem;
     margin-right: 4rem;
+    line-height: 1.1;
+    margin-left:1rem;
+    a {
+      color:#fff;
+    }
     
     &__text{
       @include media-query(1200px){

@@ -6,7 +6,7 @@ import CornerstoneViewport from "react-cornerstone-viewport";
 import Hammer from "hammerjs";
 import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
 import { IFileBlob } from "../../../../api/models/file-viewer.model";
-import "../../../dicomViewer/amiViewer.scss";
+
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.Hammer = Hammer;
