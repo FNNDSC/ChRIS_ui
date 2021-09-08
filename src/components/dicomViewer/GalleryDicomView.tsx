@@ -14,11 +14,9 @@ import * as cornerstoneTools from "cornerstone-tools";
 import * as cornerstoneMath from "cornerstone-math";
 import Hammer from "hammerjs";
 import { useTypedSelector } from "../../store/hooks";
-import {
-  clearFilesForGallery,
-  setToolStore,
-} from "../../store/explorer/actions";
+import { clearFilesForGallery } from "../../store/explorer/actions";
 import DcmHeader from "./DcmHeader/DcmHeader";
+import "./GalleryDicomView.scss";
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
@@ -34,14 +32,10 @@ const GalleryDicomView = () => {
   const [sliceIndex, setSliceIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const enableDcmTool = useTypedSelector(
-    (state) => state.explorer.enableDcmTool
-  );
 
   const dicomImageRef = useRef(null);
 
   const disableAllTools = useCallback(() => {
-    dispatch(setToolStore(false));
     cornerstoneTools.setToolEnabled("Length");
     cornerstoneTools.setToolEnabled("Pan");
     cornerstoneTools.setToolEnabled("Magnify");
@@ -52,37 +46,34 @@ const GalleryDicomView = () => {
     cornerstoneTools.setToolEnabled("Probe");
     cornerstoneTools.setToolEnabled("EllipticalRoi");
     cornerstoneTools.setToolEnabled("FreehandRoi");
-  }, [dispatch]);
+  }, []);
 
   const enableToolStore = useCallback(() => {
-    if (enableDcmTool) return;
-    else {
-      const WwwcTool = cornerstoneTools.WwwcTool;
-      const LengthTool = cornerstoneTools["LengthTool"];
-      const PanTool = cornerstoneTools.PanTool;
-      const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
-      const ZoomTool = cornerstoneTools.ZoomTool;
-      const ProbeTool = cornerstoneTools.ProbeTool;
-      const EllipticalRoiTool = cornerstoneTools.EllipticalRoiTool;
-      const RectangleRoiTool = cornerstoneTools.RectangleRoiTool;
-      const FreehandRoiTool = cornerstoneTools.FreehandRoiTool;
-      const AngleTool = cornerstoneTools.AngleTool;
-      const MagnifyTool = cornerstoneTools.MagnifyTool;
+    console.log("Enabling Tool Store");
+    const WwwcTool = cornerstoneTools.WwwcTool;
+    const LengthTool = cornerstoneTools["LengthTool"];
+    const PanTool = cornerstoneTools.PanTool;
+    const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
+    const ZoomTool = cornerstoneTools.ZoomTool;
+    const ProbeTool = cornerstoneTools.ProbeTool;
+    const EllipticalRoiTool = cornerstoneTools.EllipticalRoiTool;
+    const RectangleRoiTool = cornerstoneTools.RectangleRoiTool;
+    const FreehandRoiTool = cornerstoneTools.FreehandRoiTool;
+    const AngleTool = cornerstoneTools.AngleTool;
+    const MagnifyTool = cornerstoneTools.MagnifyTool;
 
-      cornerstoneTools.addTool(MagnifyTool);
-      cornerstoneTools.addTool(AngleTool);
-      cornerstoneTools.addTool(WwwcTool);
-      cornerstoneTools.addTool(LengthTool);
-      cornerstoneTools.addTool(PanTool);
-      cornerstoneTools.addTool(ZoomTouchPinchTool);
-      cornerstoneTools.addTool(ZoomTool);
-      cornerstoneTools.addTool(ProbeTool);
-      cornerstoneTools.addTool(EllipticalRoiTool);
-      cornerstoneTools.addTool(RectangleRoiTool);
-      cornerstoneTools.addTool(FreehandRoiTool);
-      dispatch(setToolStore(true));
-    }
-  }, [dispatch, enableDcmTool]);
+    cornerstoneTools.addTool(MagnifyTool);
+    cornerstoneTools.addTool(AngleTool);
+    cornerstoneTools.addTool(WwwcTool);
+    cornerstoneTools.addTool(LengthTool);
+    cornerstoneTools.addTool(PanTool);
+    cornerstoneTools.addTool(ZoomTouchPinchTool);
+    cornerstoneTools.addTool(ZoomTool);
+    cornerstoneTools.addTool(ProbeTool);
+    cornerstoneTools.addTool(EllipticalRoiTool);
+    cornerstoneTools.addTool(RectangleRoiTool);
+    cornerstoneTools.addTool(FreehandRoiTool);
+  }, []);
 
   const displayImageFromFiles = useCallback(
     (index = 0) => {
@@ -104,8 +95,8 @@ const GalleryDicomView = () => {
         });
 
         cornerstone.displayImage(element, image);
-        setSliceMax(sliceMax);
         setSliceIndex(index);
+        setSliceMax(sliceMax);
       } catch (e) {
         console.warn(e);
       }
@@ -121,6 +112,7 @@ const GalleryDicomView = () => {
   }, [dispatch, disableAllTools]);
 
   React.useEffect(() => {
+    console.log("Enabling tool store");
     enableToolStore();
   }, [enableToolStore]);
 
@@ -130,15 +122,14 @@ const GalleryDicomView = () => {
 
   const listOpenFilesFirstFrame = () => {
     const frame = 1;
-    setSliceIndex(frame);
+
     displayImageFromFiles(frame);
   };
 
   const listOpenFilesPreviousFrame = () => {
     if (sliceIndex > 1) {
       const previousFrame = sliceIndex - 1;
-      setSliceIndex(previousFrame);
-      setSliceIndex(sliceIndex);
+
       displayImageFromFiles(previousFrame);
     }
   };
@@ -146,14 +137,14 @@ const GalleryDicomView = () => {
   const listOpenFilesNextFrame = () => {
     if (sliceIndex < sliceMax) {
       const nextFrame = sliceIndex + 1;
-      setSliceIndex(nextFrame);
+
       displayImageFromFiles(nextFrame);
     }
   };
 
   const listOpenFilesLastFrame = () => {
     const frame = sliceMax - 1;
-    setSliceIndex(frame);
+
     displayImageFromFiles(frame);
   };
 
@@ -243,7 +234,7 @@ const GalleryDicomView = () => {
   };
 
   return (
-    <>
+    <div className="gallery-dicom">
       <DcmHeader
         handleToolbarAction={handleToolbarAction}
         switchFullScreen={switchFullScreen}
@@ -265,35 +256,30 @@ const GalleryDicomView = () => {
           style={{ width: "100%", height: "90%", position: "relative" }}
           ref={dicomImageRef}
         ></div>
-        <div
-          style={{
-            background: "black",
-            margin: "0 auto",
-          }}
-          className="gallery-toolbar"
-        >
-          <Button variant="link" onClick={listOpenFilesFirstFrame}>
-            <AngleDoubleLeftIcon />
-          </Button>
-          <Button variant="link" onClick={listOpenFilesPreviousFrame}>
-            <StepBackwardIcon />
-          </Button>
-          <Button variant="link" onClick={listOpenFilesScrolling}>
-            {playing === true ? (
-              <PauseIcon size="md" />
-            ) : (
-              <PlayIcon size="md" />
-            )}
-          </Button>
-          <Button variant="link" onClick={listOpenFilesNextFrame}>
-            <StepForwardIcon />
-          </Button>
-          <Button variant="link" onClick={listOpenFilesLastFrame}>
-            <AngleDoubleRightIcon />
-          </Button>
-        </div>
       </div>
-    </>
+      <div
+        style={{
+          margin: "0 auto",
+        }}
+        className="gallery-toolbar"
+      >
+        <Button variant="link" onClick={listOpenFilesFirstFrame}>
+          <AngleDoubleLeftIcon />
+        </Button>
+        <Button variant="link" onClick={listOpenFilesPreviousFrame}>
+          <StepBackwardIcon />
+        </Button>
+        <Button variant="link" onClick={listOpenFilesScrolling}>
+          {playing === true ? <PauseIcon size="md" /> : <PlayIcon size="md" />}
+        </Button>
+        <Button variant="link" onClick={listOpenFilesNextFrame}>
+          <StepForwardIcon />
+        </Button>
+        <Button variant="link" onClick={listOpenFilesLastFrame}>
+          <AngleDoubleRightIcon />
+        </Button>
+      </div>
+    </div>
   );
 };
 

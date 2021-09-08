@@ -1,0 +1,67 @@
+.gallery-dicom {
+  height: 100vh;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: black;
+  overflow: hidden;
+}
+
+
+@import "../../assets/scss/helpers/mixins.scss";
+
+// $iconfont-size: 0.7rem;
+$iconfont-size-md: 0.6rem;
+$iconfont-size-lg: 0.8rem;
+
+.gallery-toolbar {
+ bottom:0.5rem;
+  color: #fff;
+  left: 0;
+  display: flex;
+  flex-flow: row nowrap;
+  position: absolute;
+  width: 100%;
+  z-index: 9999;
+  justify-content: center;
+
+  .pf-l-grid__item {
+    text-align: right;
+  }
+
+  .gallary-toolbar__expand-icon {
+    position: absolute;
+    bottom: 0;
+    right: 1rem;
+  }
+
+  button {
+    vertical-align: middle;
+    svg {
+      color: #fff;
+
+      @include media-query(1200px) {
+        font-size: $iconfont-size-md;
+      }
+
+      @include media-query(1920px) {
+        font-size: $iconfont-size-lg;
+      }
+    }
+  }
+
+  span,
+  em {
+    color: #fff;
+    font-size: 0.875rem;
+  }
+  .indicator {
+    display: inline-block;
+    min-width: 70px;
+  }
+}
+
+.pf-c-slider {
+  width: 30% !important;
+  margin-left:1rem;
+  margin-top:0.25em;
+}
