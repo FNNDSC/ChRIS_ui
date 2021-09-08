@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   Card,
   CardBody,
@@ -16,16 +16,16 @@ import {
   DropdownItem,
 } from "@patternfly/react-core";
 
-import { SearchIcon } from '@patternfly/react-icons';
-import { PFDCMQuery, PFDCMQueryTypes } from '.';
+import { SearchIcon } from "@patternfly/react-icons";
+import { PFDCMQuery, PFDCMQueryTypes } from ".";
 
-import "./pacs-lookup.scss"
+import "./pacs-lookup.scss";
 
 interface QueryBuilderProps {
-  PACS?: string
-  PACSservices?: string[]
-  onSelectPACS?: (key:string) => void
-  onFinalize: (q:PFDCMQuery[]) => void
+  PACS?: string;
+  PACSservices?: string[];
+  onSelectPACS?: (key: string) => void;
+  onFinalize: (q: PFDCMQuery[]) => void;
 }
 
 export const QueryBuilder: React.FC<QueryBuilderProps> = ({
@@ -34,7 +34,6 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   onSelectPACS,
   onFinalize,
 }: QueryBuilderProps) => {
-
   const [query, setQuery] = useState({
     type: PFDCMQueryTypes.MRN,
   } as PFDCMQuery);
@@ -65,22 +64,21 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
 
   const finalize = () => {
     if (!query.value) return;
-    
-    if (query.type === PFDCMQueryTypes.DATE)
-      return onFinalize([query]);
 
-    const csv = (query.value as string).split(',');
+    if (query.type === PFDCMQueryTypes.DATE) return onFinalize([query]);
+
+    const csv = (query.value as string).split(",");
     const queries: PFDCMQuery[] = [];
-    
+
     for (const value of csv) {
       queries.push({
         value: value.trim(),
         type: query.type,
-        filters: query.filters
-      })  
+        filters: query.filters,
+      });
     }
 
-    onFinalize(queries)
+    onFinalize(queries);
   };
 
   return (
@@ -170,8 +168,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   })()}
                 </SplitItem>
 
-                {
-                  (PACSservices && onSelectPACS) &&
+                {PACSservices && onSelectPACS && (
                   <SplitItem>
                     <Dropdown
                       id="pacs-service"
@@ -179,29 +176,33 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       onSelect={onTogglePACSList}
                       toggle={
                         <DropdownToggle onToggle={onTogglePACSList}>
-                          {
-                            PACS ? (
-                              <div style={{ textAlign: "left", padding: "auto 1em" }}>
-                                <div style={{ fontSize: "smaller", color: "gray" }}>PACS Service</div>
-                                <div style={{ fontWeight: 600 }}>{ PACS }</div>
+                          {PACS ? (
+                            <div
+                              style={{ textAlign: "left", padding: "auto 1em" }}
+                            >
+                              <div
+                                style={{ fontSize: "smaller", color: "gray" }}
+                              >
+                                PACS Service
                               </div>
-                            ) : 'PACS Service'
-                          }
+                              <div style={{ fontWeight: 600 }}>{PACS}</div>
+                            </div>
+                          ) : (
+                            "PACS Service"
+                          )}
                         </DropdownToggle>
                       }
-                      dropdownItems={
-                        PACSservices.map((service) => (
-                          <DropdownItem
-                            key={`pacs-${service}`}
-                            onClick={onSelectPACS.bind(QueryBuilder, service)}
-                          >
-                            { service }
-                          </DropdownItem>
-                        ))
-                      }
+                      dropdownItems={PACSservices.map((service) => (
+                        <DropdownItem
+                          key={`pacs-${service}`}
+                          onClick={onSelectPACS.bind(QueryBuilder, service)}
+                        >
+                          {service}
+                        </DropdownItem>
+                      ))}
                     />
                   </SplitItem>
-                }
+                )}
               </Split>
             </Card>
           </GridItem>
@@ -251,10 +252,13 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 </GridItem>
 
                 <GridItem lg={4} sm={12}>
-                  Station Title<br />
+                  Station Title
+                  <br />
                   <TextInput
                     type="text"
-                    onChange={(value) => handleFilter({ PerformedStationAETitle: value })}
+                    onChange={(value) =>
+                      handleFilter({ PerformedStationAETitle: value })
+                    }
                     placeholder="Eg: LILA"
                     id="station"
                   />
@@ -264,7 +268,9 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   Accession Number <br />
                   <TextInput
                     type="text"
-                    onChange={(value) => handleFilter({ AccessionNumber: value })}
+                    onChange={(value) =>
+                      handleFilter({ AccessionNumber: value })
+                    }
                     placeholder="Eg: 201200923"
                     id="accnum"
                   />
@@ -278,4 +284,4 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   );
 };
 
-export default QueryBuilder
+export default QueryBuilder;
