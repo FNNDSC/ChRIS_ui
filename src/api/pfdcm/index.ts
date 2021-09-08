@@ -1,6 +1,5 @@
 import { parseRawDcmData, sortStudiesByPatient } from "./pfdcm-utils";
 import axios, { AxiosRequestConfig } from "axios";
-import { PACSPull, PACSPullStages } from "../../pages/DataLibrary/components/PACSLookup";
 
 interface PFDCMClientOptions {
   setDefaultPACS: boolean
@@ -144,18 +143,13 @@ class PFDCMClient {
   }
 
   /**
-   * Send request to the `/pypx` endpoint, used for query and retrieve.
-   * @param query Query Object
-   * @param filters Filters on the Query Obeject
-   * @returns PACS Patient array
+   * Find status of a running pull from PFDCM.
+   * @param query PFDCM Query to find studies
+   * @returns PFDCM Pull status
    */
-  async status(query: PFDCMFilters = {}): Promise<PACSPull> {
-    const pullstatus: PACSPull = {
-      query,
-      progress: 0,
-      stage: 0,
-      status: "Requesting"
-    }
+  async status(query: PFDCMFilters = {}): Promise<PFDCMPull> {
+    const pullstatus = new PFDCMPull;
+    pullstatus.query = query;
 
     if (!this.service)
       throw Error('Set the PACS service first, before querying.');
@@ -209,35 +203,37 @@ class PFDCMClient {
         }}
       }
 
+      if (images.requested !== 0)
+        pullstatus.attempts = DEFAULT_STAGE_ATTEMPTS_MUL(images.requested);
+
       if (imagestatus.requested) {
         if (imagestatus.received) {
           pullstatus.progress = images.received/images.requested;
           pullstatus.stage = PACSPullStages.RETRIEVE;
-          pullstatus.status = `${__stageText(PACSPullStages.RETRIEVE)} (${images.received}/${images.requested})`;
+          pullstatus.statusText = `${__stageText(PACSPullStages.RETRIEVE)} (${images.received}/${images.requested})`;
           
           if (images.pushed) {
             pullstatus.progress = images.pushed/images.requested;
             pullstatus.stage = PACSPullStages.PUSH;
-            pullstatus.status = `${__stageText(PACSPullStages.PUSH)} (${images.pushed}/${images.requested})`;
+            pullstatus.statusText = `${__stageText(PACSPullStages.PUSH)} (${images.pushed}/${images.requested})`;
             
             if (images.registered) {
               if (images.registered === images.requested) {
                 pullstatus.progress = 1;
                 pullstatus.stage = PACSPullStages.COMPLETED;
-                pullstatus.status = `${__stageText(PACSPullStages.COMPLETED)}`;
+                pullstatus.statusText = `${__stageText(PACSPullStages.COMPLETED)}`;
               } else {
                 pullstatus.progress = images.registered/images.requested;
                 pullstatus.stage = PACSPullStages.REGISTER;
-                pullstatus.status = `${__stageText(PACSPullStages.REGISTER)} (${images.registered}/${images.requested})`;
+                pullstatus.statusText = `${__stageText(PACSPullStages.REGISTER)} (${images.registered}/${images.requested})`;
               }
             }
           }
         }
       }
-
-      return pullstatus      
     } catch (error) {
       console.error(error);
+    } finally {
       return pullstatus; 
     }
   }
@@ -432,4 +428,52 @@ export interface PFDCMFilters {
   SeriesInstanceUID?: string;
   StudyDate?: string;
   StudyInstanceUID?: string;
+}
+
+export enum PACSPullStages {
+  NONE, RETRIEVE, PUSH, REGISTER, COMPLETED
+}
+
+const DEFAULT_STAGE_ATTEMPTS = 10;
+const DEFAULT_STAGE_ATTEMPTS_MUL = (files: number) => 2 * files;
+
+export class PFDCMPull {
+  query: PFDCMFilters
+  stage: PACSPullStages
+  progress: number
+  statusText: string
+  attempts: number
+  errors: string[]
+
+  constructor(stage: PACSPullStages = PACSPullStages.NONE, query: PFDCMFilters = {}) {
+    this.query = query;
+    this.stage = stage;
+    this.progress = stage === PACSPullStages.NONE ? 1 : 0;
+    this.statusText = __stageText(stage);
+    this.attempts = DEFAULT_STAGE_ATTEMPTS;
+    this.errors = [];
+  }
+
+  equals(pull: PFDCMPull): boolean {
+    if (
+      pull.query == this.query &&
+      pull.stage === this.stage &&
+      pull.progress === this.progress
+    )
+      return true;
+
+    return false;
+  }
+
+  get isStageCompleted() {
+    return this.progress === 1;
+  }
+
+  get isPullCompleted() {
+    return this.stage === PACSPullStages.COMPLETED;
+  }
+
+  get nextStage() {
+    return this.stage + 1;
+  }
 }
