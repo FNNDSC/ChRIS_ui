@@ -140,9 +140,8 @@ export const Browser: React.FC<BrowserProps> = ({
     then: FolderActions,
     folder: Branch
   ): Promise<void> => {
-    // if (onFolderSelect) return onFolderSelect(then, folder);
+    if (onFolderSelect) return onFolderSelect(then, folder);
 
-    console.log(then, folder.path)
     setFilesPath(folder.path);
     setFiles(undefined);
 
