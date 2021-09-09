@@ -202,10 +202,9 @@ export const PACS = () => {
           executePACSStage(_pull.query, pull.nextStage);
       })
   
+      setPACSPulls(pulls);
       if (pulls.size)
         setTimeout(handlePACSStatus.bind(PACS), 5000);
-
-      setPACSPulls(pulls);
     },
     [executePACSStage, pacspulls],
   )
