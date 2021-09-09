@@ -140,10 +140,9 @@ export const Browser: React.FC<BrowserProps> = ({
     then: FolderActions,
     folder: Branch
   ): Promise<void> => {
-    if (onFolderSelect) return onFolderSelect(then, folder);
+    // if (onFolderSelect) return onFolderSelect(then, folder);
 
-    if (!fetchFiles) return;
-
+    console.log(then, folder.path)
     setFilesPath(folder.path);
     setFiles(undefined);
 
@@ -151,6 +150,7 @@ export const Browser: React.FC<BrowserProps> = ({
       return router.actions.createFeedWithData([folder.path]);
     if (then === "browse") return route(`/library/${folder.path}`);
 
+    if (!fetchFiles) return;
     const _files = (await fetchFiles(folder.path)).dir;
     const items = _files?.filter(({ item }) => !!item) || [];
     setFiles(_files);
@@ -222,6 +222,7 @@ export const Browser: React.FC<BrowserProps> = ({
               name={match.params.subfolder}
               path={`${path}/${match.params.subfolder}`}
               tree={tree.child(match.params.subfolder)}
+              onFolderSelect={onFolderSelect}
               fetchFiles={fetchFiles}
             />
           );
@@ -277,18 +278,17 @@ export const Browser: React.FC<BrowserProps> = ({
             )
             .map((folder) => (
               <GridItem key={folder.name} sm={12} lg={4}>
-                {!folder.isLastParent ? (
-                  <FolderCard item={folder} />
-                ) : (
-                  <FolderCard
-                    item={folder}
-                    onSelect={onFolderSelectAction}
-                    isSelected={library.actions.isSeriesSelected(
+                <FolderCard
+                  item={folder}
+                  onSelect={onFolderSelectAction}
+                  isSelected={
+                    folder.isLastParent &&
+                    library.actions.isSeriesSelected(
                       folder.children.map(({ item }) => item.data.fname)
-                    )}
-                    isLoading={folder.path === fpath && !files}
-                  />
-                )}
+                    )
+                  }
+                  isLoading={folder.path === fpath && !files}
+                />
               </GridItem>
             ))}
 
@@ -364,6 +364,7 @@ export const FolderCard = ({
   );
 
   const dispatch = (action: FolderActions) => {
+    console.log(onSelect)
     if (onSelect) onSelect(action, item);
   };
 
