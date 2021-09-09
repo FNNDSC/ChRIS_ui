@@ -58,6 +58,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
   );
+  console.log("plugin instances froom feed", pluginInstances)
 
   const dispatch = useDispatch();
 

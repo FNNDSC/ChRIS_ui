@@ -292,6 +292,9 @@ const FeedTree = (props: AllProps) => {
       const rootNode = d3Tree(
         hierarchy(data[0], (d) => (d.__rd3t.collapsed ? null : d.children))
       );
+      {console.log("hierrchy data: ", data)}
+
+
       nodes = rootNode.descendants();
       links = rootNode.links();
 
@@ -435,10 +438,7 @@ const FeedTree = (props: AllProps) => {
                 linkData={linkData}
               />
             );
-          })}
-          
-        {/* {  console.log("NODE LIST: ", nodes)} */}
-            
+          })}  
 
           {nodes?.map(({ data, x, y, parent }, i) => {
             // {

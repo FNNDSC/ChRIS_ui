@@ -268,37 +268,20 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           </Popover>
 
           {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
+        </div>
+        <div className="node-details__actions">
           <Button
             icon={<BezierCurveIcon />}
             type="button"
             onClick={() => dispatch(setFeedLayout())}
             variant="primary"
+            style={{ marginTop: "1rem" }}
           >
             Switch Layout
           </Button>
-        </div>
-        <div className="node-details__actions" >
-          <Popover
-            className="node-details__popover"
-            content={<PluginLog text={text} />}
-            placement="bottom"
-            visible={isTerminalVisible}
-            trigger="click"
-            onVisibleChange={(visible: boolean) => {
-              setIsTerminalVisible(visible);
-            }}
-          >
-            <Button
-              className="node-details__popover-button"
-              icon={<TerminalIcon />}
-              type="button"
-            >
-              View Terminal
-            </Button>
-          </Popover>
           <CreateBtn />
         </div>
-          </div>
+      </div>
     );
   }
 };

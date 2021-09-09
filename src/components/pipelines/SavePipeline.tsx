@@ -15,6 +15,7 @@ import {
   ModalVariant,
   Spinner,
   TextArea,
+  FormAlert,
 } from "@patternfly/react-core";
 import { PenFancyIcon } from "@patternfly/react-icons";
 import axios from "axios";
@@ -23,9 +24,9 @@ import { useHistory } from "react-router-dom";
 import { useTypedSelector } from "../../store/hooks";
 
 const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
-const UserName =  window.sessionStorage.getItem('USERNAME');
+const UserName = window.sessionStorage.getItem("USERNAME");
 
-const CreateBtn = () => {
+const SavePipelineBtn = () => {
   const history = useHistory();
 
   const selectedPlugin = useTypedSelector(
@@ -34,50 +35,71 @@ const CreateBtn = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [RequestSuccess, setRequestSuccess] = useState(true);
   const [stepIdReached, setStepIdReached] = useState(1);
-  // const [saved, setSaved] = useState(false);
-  // const [darker, setDarker] = useState("pipeline");
   const [PipelineName, setPipelineName] = useState("");
-  const [Category, setCategory] = useState("MRI");
-  const [Description, setDescription] = useState(
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-  );
+  const [Category, setCategory] = useState("");
+  const [Description, setDescription] = useState("");
   const [Locked, setLocked] = useState("false");
   const [PluginTree, setPluginTree] = useState<any[]>([]);
+  const [ErrorMsg, setErrorMsg] = useState(
+    "Please select plugins before proceeding."
+  );
 
   const handleClick = () => {
+    const CheckRootNode = selectedPlugin?.collection.items[0].data;
     setIsModalOpen(!isModalOpen);
-    axios
-      .get(
-        `${chrisURL}plugins/instances/${selectedPlugin?.data.id}/descendants/`,
-        {
-          headers: {
-            "Content-Type": "application/vnd.collection+json",
-            Authorization:
-              "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
-          },
-        }
+
+    if (
+      CheckRootNode.some(
+        (node: any) =>
+          node.name === "previous_id" && node.value === "finishedSuccessfully"
       )
-      .then((response: any) => {
-        response.data.results.map((result: any, pluginIndex: number) => {
-          const tempPluginTree = {
-            plugin_name: `${result.plugin_name}`,
-            plugin_version: `${result.plugin_version}`,
-            previous_index: pluginIndex === 0 ? null : pluginIndex - 1,
-          };
-          return setPluginTree((prevtree: any) => [
-            ...prevtree,
-            tempPluginTree,
-          ]);
+    ) {
+      axios
+        .get(
+          `${chrisURL}plugins/instances/${selectedPlugin?.data.id}/descendants/`,
+          {
+            headers: {
+              "Content-Type": "application/vnd.collection+json",
+              Authorization:
+                "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
+            },
+          }
+        )
+        .then((response: any) => {
+          const tempList: any[] = [];
+          response.data.results.map((result: any, pluginIndex: number) => {
+            const tempPluginTree = {
+              plugin_name: `${result.plugin_name}`,
+              plugin_version: `${result.plugin_version}`,
+              previous_index: pluginIndex === 0 ? null : pluginIndex - 1,
+            };
+            return tempList.push(tempPluginTree);
+          });
+          setPluginTree(() => tempList);
+        })
+        .catch((errors: Error) => {
+          console.error(errors.message);
         });
-      })
-      .catch((errors: Error) => {
-        console.error(errors.message);
-      });
+    }
+    //define and handle errors
+    else {
+      if (
+        CheckRootNode.some(
+          (node: any) => node.value === "finishedSuccessfully"
+        ) === false
+      ) {
+        setErrorMsg(
+          "You cannot create a pipeline from a node that has not finished successfully."
+        );
+      } else {
+        setErrorMsg("You cannot create a pipeline from your feed root node.");
+      }
+    }
   };
 
   const handleHover = () => {
     console.log("Mouse over!");
-    // higlight pipeline nodes
+    // highlight pipeline nodes
   };
 
   const onSave = () => {
@@ -108,14 +130,14 @@ const CreateBtn = () => {
         ) : (
           <Alert
             variant="danger"
-            title="Pipeline Creation Failed! 😞"
+            title="Pipeline Creation Failed"
             actionClose={
               <AlertActionCloseButton
                 onClose={() => setIsModalOpen(!isModalOpen)}
               />
             }
           >
-            <p>Pipeline creation failed, please try again!</p>
+            <p>{ErrorMsg}</p>
           </Alert>
         )}
       </div>
@@ -159,29 +181,9 @@ const CreateBtn = () => {
         })
         .catch((errors) => {
           console.error(errors.message);
+          setErrorMsg(errors.message)
           setRequestSuccess(false);
           console.log("Failed! 💩💩💩");
-          console.log(
-            `${chrisURL}pipelines/`,
-            `${JSON.stringify({
-              template: {
-                data: [
-                  { name: "name", value: PipelineName },
-                  { name: "authors", value: UserName },
-                  { name: "Category", value: Category },
-                  {
-                    name: "description",
-                    value: Description,
-                  },
-                  { name: "locked", value: Locked },
-                  {
-                    name: "plugin_tree",
-                    value: JSON.stringify(PluginTree),
-                  },
-                ],
-              },
-            })}`
-          );
         });
     }
 
@@ -202,6 +204,12 @@ const CreateBtn = () => {
     console.log(
       `current id: ${id}, current name: ${name}, previous id: ${prevId}, previous name: ${prevName}`
     );
+  };
+
+  const handleClose = () => {
+    setIsModalOpen(!isModalOpen);
+    setPluginTree([]);
+    setErrorMsg("");
   };
 
   const BasicInfoForm = () => {
@@ -259,10 +267,9 @@ const CreateBtn = () => {
           label="Locked"
           isRequired
           fieldId="locked"
-          helperText="State whether true or false"
+          helperText="Would you like to make the pipeline editable?"
         >
           <TextInput
-            isRequired
             type="text"
             id="locked"
             name="locked"
@@ -286,12 +293,20 @@ const CreateBtn = () => {
           Pipeline Preview
         </Title>
         <br />
-        <p>Pipeline Name : {PipelineName}</p>
-        <br />
-        <p>Category : {Category}</p>
-        <br />
-        <p>Locked : {Locked}</p>
-        <br />
+        <ul>
+          <li>
+            <b>Pipeline Name :</b> {PipelineName}
+          </li>
+          <li>
+            <b>Category : </b>
+            {Category}
+          </li>
+          <li>
+            <b>Locked : </b>
+            {Locked}
+          </li>
+          <br />
+        </ul>
         <b>Pipeline Nodes:</b>
         <List isBordered>
           {PluginTree.map((plugin: any, index: number) => {
@@ -307,7 +322,7 @@ const CreateBtn = () => {
       id: 1,
       name: "Basic Information",
       component: <>{BasicInfoForm()}</>,
-      enableNext: true,
+      enableNext: PipelineName != "" && Category != "" && Description != "",
     },
     {
       id: 2,
@@ -316,10 +331,7 @@ const CreateBtn = () => {
         PluginTree.length > 0 ? (
           <>{PipelineCreation()}</>
         ) : (
-          <Alert
-            variant="warning"
-            title="Please select plugins before proceeding."
-          />
+          <Alert variant="warning" title={ErrorMsg} />
         ),
       enableNext: PluginTree.length > 0,
       canJumpTo: stepIdReached >= 2,
@@ -353,7 +365,7 @@ const CreateBtn = () => {
         isOpen={isModalOpen}
         variant={ModalVariant.large}
         showClose={false}
-        onClose={() => setIsModalOpen(!isModalOpen)}
+        onClose={() => handleClose()}
         hasNoBodyWrapper
         aria-describedby="save_pipeline"
         aria-labelledby="save_pipeline_description"
@@ -365,7 +377,7 @@ const CreateBtn = () => {
           description="Save a new pipeline and with the selected list of plugins"
           navAriaLabel={`${title} steps`}
           mainAriaLabel={`${title} content`}
-          onClose={() => setIsModalOpen(!isModalOpen)}
+          onClose={() => handleClose()}
           onSave={() => onSave()}
           steps={steps}
           onNext={(step, prevstep) => onNext(step, prevstep)}
@@ -378,4 +390,4 @@ const CreateBtn = () => {
   );
 };
 
-export default CreateBtn;
+export default SavePipelineBtn;

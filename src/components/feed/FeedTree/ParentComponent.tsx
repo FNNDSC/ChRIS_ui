@@ -41,7 +41,7 @@ const ParentComponent = (props: ParentComponentProps) => {
       });
       setData(data);
       console.log("DATA", data);
-      console.log("DATA INSTANCES", instances);
+      console.log("DATA TsNodes", tsIds);
     }
   }, [instances]);
 
