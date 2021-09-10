@@ -238,6 +238,46 @@ class PFDCMClient {
     }
   }
 
+  async pull(query: PFDCMFilters = {}) {
+    if (!this.service)
+      throw Error('Set the PACS service first.');
+
+    const RequestConfig: AxiosRequestConfig = {
+      url: `${this.url}api/v1/PACS/thread/pypx/`,
+      method: "POST",
+      headers: this.headers,
+      data: {
+        PACSservice: this.PACSservice,
+        listenerService: { value: "default" },
+        PACSdirective: {
+          ...query,
+          then: "retrieve,push,register",
+          thenArgs: [
+            JSON.stringify({}),
+            JSON.stringify({
+              db: "/home/dicom/log", 
+              swift: this.swift, 
+              swiftServicesPACS: this.service,
+              swiftPackEachDICOM: true
+            }),
+            JSON.stringify({
+              db: "/home/dicom/log", 
+              CUBE: this.cube,
+              swiftServicesPACS: this.service,
+              parseAllFilesWithSubStr: "dcm"
+            })
+          ].join(",")
+        }
+      }
+    }
+
+    try {
+      await axios(RequestConfig);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async findRetrieve(query: PFDCMFilters = {}) {
     if (!this.service)
       throw Error('Set the PACS service first.');
@@ -251,6 +291,7 @@ class PFDCMClient {
         listenerService: { value: "default" },
         PACSdirective: {
           ...query,
+          withFeedBack: true,
           then: "retrieve"
         }
       }
@@ -277,6 +318,7 @@ class PFDCMClient {
         PACSdirective: {
           ...query,
           then: "push",
+          withFeedBack: true,
           thenArgs: JSON.stringify({
             db: "/home/dicom/log", 
             swift: this.swift, 
@@ -308,6 +350,7 @@ class PFDCMClient {
         PACSdirective: {
           ...query,           
           then: "register",
+          withFeedBack: true,
           thenArgs: JSON.stringify({
             db: "/home/dicom/log", 
             CUBE: this.cube,
@@ -445,7 +488,7 @@ export class PFDCMPull {
   attempts: number
   errors: string[]
 
-  constructor(stage: PACSPullStages = PACSPullStages.NONE, query: PFDCMFilters = {}) {
+  constructor(query: PFDCMFilters = {}, stage: PACSPullStages = PACSPullStages.NONE) {
     this.query = query;
     this.stage = stage;
     this.progress = stage === PACSPullStages.NONE ? 1 : 0;
@@ -474,6 +517,8 @@ export class PFDCMPull {
   }
 
   get nextStage() {
-    return this.stage + 1;
+    if (this.stage === PACSPullStages.COMPLETED)
+      return this.stage;
+    return (this.stage + 1) as PACSPullStages;
   }
 }

@@ -58,7 +58,7 @@ export class PACSPulls extends Map<string, PFDCMPull> {
 
 const client = new PFDCMClient;
 
-export const PACS = () => {
+export const PACSLookup = () => {
 	document.title = 'PACS Lookup';
 
   const [loading, setLoading] = useState<boolean>();
@@ -127,8 +127,6 @@ export const PACS = () => {
     setSelectedPACS(client.service)
   }
 
-  const [pacspulls, setPACSPulls] = useState<PACSPulls>(new PACSPulls);
-
   const executePACSStage = useCallback(
     (query: PFDCMFilters, stage: PACSPullStages) => {  
       try {
@@ -154,72 +152,11 @@ export const PACS = () => {
   )
   
   const handlePACSStatus = useCallback(
-    async (query?: PFDCMFilters) => {
-      /**
-       * Find then status of query
-       * if status ~= nothing done, do nothing
-       * if status ~= images recieved, add query to pacspulls
-       *              advance push stage, start polling
-       * if status ~= images pushed, add query to pacspulls
-       *              advance register stage, start polling
-       */
-
-      const pulls = pacspulls;
-      console.log(pulls)
-  
-      if (query && !pulls.hasPull(query)) {  
-        const pull = await client.status(query);
-        console.log(pull)
-
-        if (
-          pull.stage !== PACSPullStages.NONE && 
-          pull.stage !== PACSPullStages.COMPLETED
-        ) 
-          pulls.setPull(query, pull);
-      }
-  
-      pulls.forEach(async (_pull, _query) => {
-        console.log("##  Poll Trying")
-        const pull = await client.status(_pull.query);
-  
-        if (pull.isPullCompleted)
-          return pulls.delete(_query);
-  
-        pull.attempts = _pull.attempts;
-        pull.errors = _pull.errors;
-
-        /** If no change, this attempt failed */
-        if (pull.equals(_pull))
-          pull.attempts--;
-
-        /** If we're out of attempts, show error */
-        if (!pull.attempts)
-          pull.errors.push(`Error while ${pull.statusText}`)
-
-        pulls.set(_query, pull);
-
-        if (pull.isStageCompleted)
-          executePACSStage(_pull.query, pull.nextStage);
-      })
-  
-      setPACSPulls(pulls);
-      if (pulls.size)
-        setTimeout(handlePACSStatus.bind(PACS), 5000);
-    },
-    [executePACSStage, pacspulls],
-  )
-
-  const handlePACSPull = useCallback(
-    (query: PFDCMFilters, stage = PACSPullStages.RETRIEVE) => {
-      const pulls = pacspulls;
-      pulls.setPull(query, new PFDCMPull(stage, query));
-  
-      setPACSPulls(pulls);
-      executePACSStage(query, stage);
-      handlePACSStatus();
-    },
-    [executePACSStage, handlePACSStatus, pacspulls],
-  )
+    async (query: PFDCMFilters) => {
+      return client.status(query);
+    }, 
+    []
+  );
 
   const Results = () => {
     if (loading === undefined)
@@ -246,9 +183,8 @@ export const PACS = () => {
         <GridItem>
           <QueryResults 
             results={results} 
-            pulls={pacspulls}
-            onRequestPull={handlePACSPull}
             onRequestStatus={handlePACSStatus}
+            onExecutePACSStage={executePACSStage}
           />
         </GridItem>
       </>
@@ -293,4 +229,4 @@ export const PACS = () => {
   )
 }
 
-export default PACS
+export default PACSLookup
