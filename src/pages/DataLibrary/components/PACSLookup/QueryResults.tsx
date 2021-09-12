@@ -152,30 +152,28 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         if (
           cubeHasStudy ||
           !pullStatus ||
-          pullStatus.stage === PACSPullStages.NONE ||
-          pullStatus.isPullCompleted
+          !pullStatus.isRunning
         )
-          return () => clearInterval(poll);
-        
-        setPoll(
-          setInterval(async () => {
-            const _status = await onRequestStatus(pullQuery);
-            setPullStatus(_status);
-            if (_status.isStageCompleted) {
-              await onExecutePACSStage(pullQuery, _status.nextStage);
-              setPullStatus(new PFDCMPull(pullQuery, _status.nextStage));
-            }
-          }, 2000)
-        )
+          return () => clearTimeout(poll);
 
-        return () => clearInterval(poll);
+        const _poll = async (): Promise<PFDCMPull> => {
+          const _status = await onRequestStatus(pullQuery);
+          if (_status.isStageCompleted) {
+            await onExecutePACSStage(pullQuery, _status.nextStage);
+            return new PFDCMPull(pullQuery, _status.nextStage);
+          }
+          return _status;
+        }
+
+        if (pullStatus.isRunning)
+          setPoll(
+            setTimeout(() => _poll().then(setPullStatus), 2000)
+          )
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [pullStatus]);
+      }, [cubeHasStudy, pullStatus]);
 
-      if (!existingStudyFiles || !pullStatus) return <Spinner size="lg" />;
-
-      if (pullStatus.isPullCompleted || cubeHasStudy)
-        clearInterval(poll)
+      if (!existingStudyFiles || !pullStatus) 
+        return <Spinner size="lg" />;
 
       if (cubeHasStudy)
         return (
@@ -326,30 +324,28 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         if (
           cubeHasSeries ||
           !pullStatus ||
-          pullStatus.stage === PACSPullStages.NONE ||
-          pullStatus.isPullCompleted
+          !pullStatus.isRunning
         )
           return () => clearInterval(poll);
         
-        setPoll(
-          setInterval(async () => {
-            const _status = await onRequestStatus(pullQuery);
-            setPullStatus(_status);
-            if (_status.isStageCompleted) {
-              await onExecutePACSStage(pullQuery, _status.nextStage);
-              setPullStatus(new PFDCMPull(pullQuery, _status.nextStage));
-            }
-          }, 2000)
-        )
+        const _poll = async (): Promise<PFDCMPull> => {
+          const _status = await onRequestStatus(pullQuery);
+          if (_status.isStageCompleted) {
+            await onExecutePACSStage(pullQuery, _status.nextStage);
+            return new PFDCMPull(pullQuery, _status.nextStage);
+          }
+          return _status;
+        }
 
-        return () => clearInterval(poll);
+        if (pullStatus.isRunning)
+          setPoll(
+            setTimeout(() => _poll().then(setPullStatus), 2000)
+          )
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [pullStatus]);
+      }, [cubeHasSeries, pullStatus]);
 
-      if (!existingSeriesFiles || !pullStatus) return <Spinner size="lg" />;
-
-      if (pullStatus.isPullCompleted || cubeHasSeries)
-        clearInterval(poll)
+      if (!existingSeriesFiles || !pullStatus)
+        return <Spinner size="lg" />;
 
       if (cubeHasSeries) {
         return (

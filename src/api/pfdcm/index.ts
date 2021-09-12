@@ -522,6 +522,13 @@ export class PFDCMPull {
     return this.stage === PACSPullStages.COMPLETED;
   }
 
+  get isRunning() {
+    return (
+      this.stage !== PACSPullStages.COMPLETED &&
+      this.stage !== PACSPullStages.NONE
+    );
+  }
+
   get nextStage() {
     if (this.stage === PACSPullStages.COMPLETED)
       return this.stage;
