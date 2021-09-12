@@ -209,23 +209,27 @@ class PFDCMClient {
       if (imagestatus.requested) {
         if (imagestatus.received) {
           pullstatus.progress = images.received/images.requested;
+          pullstatus.progressText = `${images.received} of ${images.requested}`;
           pullstatus.stage = PACSPullStages.RETRIEVE;
-          pullstatus.statusText = `${__stageText(PACSPullStages.RETRIEVE)} (${images.received}/${images.requested})`;
+          pullstatus.stageText = __stageText(PACSPullStages.RETRIEVE);
           
           if (images.pushed) {
             pullstatus.progress = images.pushed/images.requested;
+            pullstatus.progressText = `${images.pushed} of ${images.requested}`;
             pullstatus.stage = PACSPullStages.PUSH;
-            pullstatus.statusText = `${__stageText(PACSPullStages.PUSH)} (${images.pushed}/${images.requested})`;
+            pullstatus.stageText = __stageText(PACSPullStages.PUSH);
             
             if (images.registered) {
               if (images.registered === images.requested) {
                 pullstatus.progress = 1;
+                pullstatus.progressText = `Done`;
                 pullstatus.stage = PACSPullStages.COMPLETED;
-                pullstatus.statusText = `${__stageText(PACSPullStages.COMPLETED)}`;
+                pullstatus.stageText = __stageText(PACSPullStages.COMPLETED);
               } else {
                 pullstatus.progress = images.registered/images.requested;
+                pullstatus.progressText = `${images.registered} of ${images.requested}`;
                 pullstatus.stage = PACSPullStages.REGISTER;
-                pullstatus.statusText = `${__stageText(PACSPullStages.REGISTER)} (${images.registered}/${images.requested})`;
+                pullstatus.stageText = __stageText(PACSPullStages.REGISTER);
               }
             }
           }
@@ -483,16 +487,18 @@ const DEFAULT_STAGE_ATTEMPTS_MUL = (files: number) => 2 * files;
 export class PFDCMPull {
   query: PFDCMFilters
   stage: PACSPullStages
+  stageText: string
   progress: number
-  statusText: string
+  progressText: string
   attempts: number
   errors: string[]
 
   constructor(query: PFDCMFilters = {}, stage: PACSPullStages = PACSPullStages.NONE) {
     this.query = query;
     this.stage = stage;
+    this.stageText = __stageText(stage);
     this.progress = stage === PACSPullStages.NONE ? 1 : 0;
-    this.statusText = __stageText(stage);
+    this.progressText = String()
     this.attempts = DEFAULT_STAGE_ATTEMPTS;
     this.errors = [];
   }

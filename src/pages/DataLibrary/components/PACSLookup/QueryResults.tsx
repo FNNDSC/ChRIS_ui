@@ -9,6 +9,9 @@ import {
   EmptyStateIcon,
   Grid,
   GridItem,
+  Progress,
+  ProgressMeasureLocation,
+  ProgressSize,
   Spinner,
   Split,
   SplitItem,
@@ -159,7 +162,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
             const _status = await onRequestStatus(pullQuery);
             setPullStatus(_status);
             if (_status.isStageCompleted) {
-              onExecutePACSStage(pullQuery, _status.nextStage);
+              await onExecutePACSStage(pullQuery, _status.nextStage);
               setPullStatus(new PFDCMPull(pullQuery, _status.nextStage));
             }
           }, 2000)
@@ -185,16 +188,25 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       if (pullStatus.stage !== PACSPullStages.NONE)
         return (
           <div>
-            <b>{pullStatus.statusText}</b>
-            {pullStatus.errors.map((err) => (
+            {/* {pullStatus.errors.map((err) => (
               <span key={err} style={{ color: "firebrick" }}>
                 {err}
               </span>
-            ))}
+            ))} */}
 
-            {!pullStatus.isPullCompleted && (
-              <div style={{ color: "gray" }}>
-                ({((pullStatus.progress || 0) * 100).toFixed(0)}%)
+            {!pullStatus.isPullCompleted ? (
+              <Progress
+                value={pullStatus.progress * 100}
+                style={{ gap: "0.5em", textAlign: "left" }}
+                title={pullStatus.stageText}
+                size={ProgressSize.sm}
+                measureLocation={ProgressMeasureLocation.top}
+                label={pullStatus.progressText}
+                valueText={pullStatus.progressText}
+              />
+            ) : (
+              <div>
+                <b>{pullStatus.stageText}</b>
               </div>
             )}
           </div>
@@ -264,6 +276,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
             <SplitItem
               style={{
                 margin: "auto 0 auto 2em",
+                minWidth: "12em",
                 textAlign: "right",
                 fontSize: "small",
               }}
@@ -323,7 +336,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
             const _status = await onRequestStatus(pullQuery);
             setPullStatus(_status);
             if (_status.isStageCompleted) {
-              onExecutePACSStage(pullQuery, _status.nextStage);
+              await onExecutePACSStage(pullQuery, _status.nextStage);
               setPullStatus(new PFDCMPull(pullQuery, _status.nextStage));
             }
           }, 2000)
@@ -356,7 +369,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
             <b>
               { !!pullStatus.errors.length &&
                 <span style={{ color: "firebrick" }}><ExclamationCircleIcon/> { pullStatus.errors.length }</span>
-              } {pullStatus.statusText}
+              } {pullStatus.stageText}
             </b>
           </div>
         );
