@@ -61,10 +61,19 @@ export function* setYieldAnalysis(
   );
 }
 
+function* handleGeneratePipeline(action: IActionTypeParam) {
+  const { localFiles } = action.payload;
+  console.log("LocalFiles", localFiles);
+}
+
 function* watchSubmitAnalysis() {
   yield takeEvery(WorkflowTypes.SUBMIT_ANALYSIS, handleSubmitAnalysis);
 }
 
+function* watchGeneratePipeline() {
+  yield takeEvery(WorkflowTypes.SET_OPTION_STATE, handleGeneratePipeline);
+}
+
 export function* workflowsSaga() {
-  yield all([fork(watchSubmitAnalysis)]);
+  yield all([fork(watchSubmitAnalysis), fork(watchGeneratePipeline)]);
 }

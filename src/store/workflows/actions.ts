@@ -16,8 +16,9 @@ export const getPacsFilesRequest = (
 export const setLocalFile = (files: LocalFile[]) =>
   action(WorkflowTypes.SET_LOCAL_FILE, files);
 
-export const setOptionState = (optionState: SelectWorkflowState) =>
-  action(WorkflowTypes.SET_OPTION_STATE, optionState);
+export const setOptionState = (
+  optionState: SelectWorkflowState & { localFiles: LocalFile[] }
+) => action(WorkflowTypes.SET_OPTION_STATE, optionState);
 
 export const submitAnalysis = (analysisPayload: AnalysisPayload) =>
   action(WorkflowTypes.SUBMIT_ANALYSIS, analysisPayload);
@@ -50,3 +51,6 @@ export const setCurrentStep = (id: number) =>
 
 export const clearFileSelection = () =>
   action(WorkflowTypes.CLEAR_FILE_SELECTION);
+
+export const generatePipeline = (data: any) =>
+  action(WorkflowTypes.GENERATE_PIPELINE, data);
