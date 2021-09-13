@@ -123,4 +123,5 @@ export const WorkflowTypes = keyMirror({
   SET_CURRENT_STEP: null,
   DELETE_LOCAL_FILE: null,
   CLEAR_FILE_SELECTION: null,
+  GENERATE_PIPELINE: null,
 });

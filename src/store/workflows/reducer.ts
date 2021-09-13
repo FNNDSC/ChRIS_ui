@@ -77,7 +77,6 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       };
     }
     case WorkflowTypes.SET_OPTION_STATE: {
-      console.log("Action", action.payload);
       return {
         ...state,
         optionState: action.payload,

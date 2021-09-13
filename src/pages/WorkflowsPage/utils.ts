@@ -1,3 +1,5 @@
+import { TreeNode, TreeType } from "./types";
+
 export const fastsurferJson = () => {
   return [
     {
@@ -93,19 +95,6 @@ export const freesurferJson = () => {
   ];
 };
 
-export interface TreeNode {
-  children: TreeNode[];
-  id: number;
-  name: string;
-  parentId: number | null;
-}
-
-export interface TreeType {
-  id: number;
-  name: string;
-  previous_id: number | null;
-}
-
 export const getFeedTree = (items: TreeType[]) => {
   const tree = [],
     mappedArr: {
@@ -137,4 +126,68 @@ export const getFeedTree = (items: TreeType[]) => {
     }
   }
   return tree;
+};
+
+interface PipelineData {
+  name: string;
+  authors?: string;
+  category?: string;
+  description?: string;
+  locked?: boolean;
+  plugin_tree?: string;
+  plugin_inst_id?: number;
+}
+
+export const fastsurferPipeline = (): { data: PipelineData } => {
+  return {
+    data: {
+      name: "fastsurfer",
+      authors: "Gideon Pinto",
+      category: "MRI",
+      description: "Fastsurfer Workflow",
+      locked: false,
+      plugin_tree: JSON.stringify([
+        {
+          plugin_name: "pl-pfdicom_tagextract",
+          plugin_version: "3.1.2",
+          previous_index: 0,
+        },
+        {
+          plugin_name: "pl-pfdicom_tagsub",
+          plugin_version: "3.2.3",
+          previous_index: 0,
+        },
+        {
+          plugin_name: "pl-pfdicom_tagextract",
+          plugin_version: "3.1.2",
+          previous_index: 1,
+        },
+        {
+          plugin_name: "pl-fshack",
+          plugin_version: "1.2.0",
+          previous_index: 2,
+        },
+        {
+          plugin_name: "pl-fastsurfer_inference",
+          plugin_version: "1.0.15",
+          previous_index: 3,
+        },
+        {
+          plugin_name: "pl-multipass",
+          plugin_version: "1.2.12",
+          previous_index: 4,
+        },
+        {
+          plugin_name: "pl-pfdorun",
+          plugin_version: "2.2.6",
+          previous_index: 5,
+        },
+        {
+          plugin_name: "pl-mgz2lut_report",
+          plugin_version: "1.3.1",
+          previous_index: 4,
+        },
+      ]),
+    },
+  };
 };
