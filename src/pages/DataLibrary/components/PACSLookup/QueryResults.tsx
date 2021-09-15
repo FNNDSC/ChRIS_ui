@@ -157,17 +157,16 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           return () => clearTimeout(poll);
 
         const _poll = async (): Promise<PFDCMPull> => {
-          const _status = await onRequestStatus(pullQuery);
-          if (_status.isStageCompleted) {
-            await onExecutePACSStage(pullQuery, _status.nextStage);
-            return new PFDCMPull(pullQuery, _status.nextStage);
+          if (pullStatus.isStageCompleted) {
+            await onExecutePACSStage(pullQuery, pullStatus.nextStage);
+            return new PFDCMPull(pullQuery, pullStatus.nextStage);
           }
-          return _status;
+          return onRequestStatus(pullQuery);
         }
 
         if (pullStatus.isRunning)
           setPoll(
-            setTimeout(() => _poll().then(setPullStatus), 2000)
+            setTimeout(() => _poll().then(setPullStatus), 3000)
           )
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [cubeHasStudy, pullStatus]);
@@ -329,17 +328,16 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           return () => clearInterval(poll);
         
         const _poll = async (): Promise<PFDCMPull> => {
-          const _status = await onRequestStatus(pullQuery);
-          if (_status.isStageCompleted) {
-            await onExecutePACSStage(pullQuery, _status.nextStage);
-            return new PFDCMPull(pullQuery, _status.nextStage);
+          if (pullStatus.isStageCompleted) {
+            await onExecutePACSStage(pullQuery, pullStatus.nextStage);
+            return new PFDCMPull(pullQuery, pullStatus.nextStage);
           }
-          return _status;
+          return onRequestStatus(pullQuery);
         }
 
         if (pullStatus.isRunning)
           setPoll(
-            setTimeout(() => _poll().then(setPullStatus), 2000)
+            setTimeout(() => _poll().then(setPullStatus), 3000)
           )
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [cubeHasSeries, pullStatus]);
