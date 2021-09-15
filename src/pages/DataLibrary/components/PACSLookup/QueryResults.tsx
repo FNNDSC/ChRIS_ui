@@ -166,7 +166,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
         if (pullStatus.isRunning)
           setPoll(
-            setTimeout(() => _poll().then(setPullStatus), 3000)
+            setTimeout(() => _poll().then(setPullStatus), 1000)
           )
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [cubeHasStudy, pullStatus]);
@@ -203,7 +203,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
               />
             ) : (
               <div>
-                <b>{pullStatus.stageText}</b>
+                <div><b>{pullStatus.stageText}</b></div>
+                <div>{pullStatus.progressText}</div>
               </div>
             )}
           </div>
@@ -337,7 +338,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
         if (pullStatus.isRunning)
           setPoll(
-            setTimeout(() => _poll().then(setPullStatus), 3000)
+            setTimeout(() => _poll().then(setPullStatus), 1000)
           )
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [cubeHasSeries, pullStatus]);
