@@ -38,7 +38,7 @@ import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[];
-  onRequestStatus: (query: PFDCMFilters) => any;
+  onRequestStatus: (query: PFDCMFilters) => Promise<PFDCMPull>;
   onExecutePACSStage: (query: PFDCMFilters, stage: PACSPullStages) => any;
 }
 
@@ -161,7 +161,12 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
             await onExecutePACSStage(pullQuery, pullStatus.nextStage);
             return new PFDCMPull(pullQuery, pullStatus.nextStage);
           }
-          return onRequestStatus(pullQuery);
+
+          const _status = await onRequestStatus(pullQuery);
+          if (_status.stage >= pullStatus.stage)
+            return _status;
+          
+          return pullStatus;
         }
 
         if (pullStatus.isRunning)
@@ -333,7 +338,12 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
             await onExecutePACSStage(pullQuery, pullStatus.nextStage);
             return new PFDCMPull(pullQuery, pullStatus.nextStage);
           }
-          return onRequestStatus(pullQuery);
+
+          const _status = await onRequestStatus(pullQuery);
+          if (_status.stage >= pullStatus.stage)
+            return _status;
+          
+          return pullStatus;
         }
 
         if (pullStatus.isRunning)
