@@ -166,7 +166,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           if (_status.stage >= pullStatus.stage)
             return _status;
           
-          return pullStatus;
+          return new PFDCMPull(pullStatus.query, pullStatus.stage);
         }
 
         if (pullStatus.isRunning)
@@ -343,7 +343,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           if (_status.stage >= pullStatus.stage)
             return _status;
           
-          return pullStatus;
+          return new PFDCMPull(pullStatus.query, pullStatus.stage);
         }
 
         if (pullStatus.isRunning)
