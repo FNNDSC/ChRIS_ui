@@ -363,7 +363,6 @@ export const FolderCard = ({
   );
 
   const dispatch = (action: FolderActions) => {
-    console.log(onSelect)
     if (onSelect) onSelect(action, item);
   };
 

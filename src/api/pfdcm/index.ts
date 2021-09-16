@@ -39,6 +39,8 @@ class PFDCMClient {
   private PACSserviceList: string[] = [];
   private isLoadingPACSserviceList = false;
 
+  private withFeedBack = false;
+
   constructor({ }: PFDCMClientOptions = PFDCMDefaultOptions) {
     if (!process.env.REACT_APP_PFDCM_URL)
       throw Error('PFDCM URL is undefined.');
@@ -47,6 +49,8 @@ class PFDCMClient {
     this.cube = process.env.REACT_APP_PFDCM_CUBEKEY as string
     this.swift = process.env.REACT_APP_PFDCM_SWIFTKEY as string
     
+    this.withFeedBack = process.env.NODE_ENV !== "production";
+
     const _service = localStorage.getItem("PFDCM_SET_SERVICE");
     if (_service)
       this.PACSservice = {
@@ -148,8 +152,7 @@ class PFDCMClient {
    * @returns PFDCM Pull status
    */
   async status(query: PFDCMFilters = {}): Promise<PFDCMPull> {
-    const pullstatus = new PFDCMPull;
-    pullstatus.query = query;
+    const pullstatus = new PFDCMPull(query);
 
     if (!this.service)
       throw Error('Set the PACS service first, before querying.');
@@ -175,8 +178,8 @@ class PFDCMClient {
       const { then } = status.pypx;
       const studies: any[] = then["00-status"].study;
 
-      const images =      { requested: 0,     received: 0,     pushed: 0,     registered: 0 }
-      const imagestatus = { requested: false, received: false, pushed: false, registered: false }
+      const images =      { requested: 0,     packed: 0,     pushed: 0,     registered: 0 }
+      const imagestatus = { requested: false, packed: false, pushed: false, registered: false }
 
       for (const study of studies) {
         for (const key in study) {
@@ -189,8 +192,8 @@ class PFDCMClient {
             imagestatus.requested = series.images.requested.status;
             
             if (series.images.received.count === -1) break;
-            images.received += series.images.received.count;
-            imagestatus.received = series.images.received.status;
+            images.packed += series.images.packed.count;
+            imagestatus.packed = series.images.packed.status;
             
             if (series.images.pushed.count === -1) break;
             images.pushed += series.images.pushed.count;
@@ -207,25 +210,29 @@ class PFDCMClient {
         pullstatus.attempts = DEFAULT_STAGE_ATTEMPTS_MUL(images.requested);
 
       if (imagestatus.requested) {
-        if (imagestatus.received) {
-          pullstatus.progress = images.received/images.requested;
+        if (imagestatus.packed) {
+          pullstatus.progress = images.packed/images.requested;
+          pullstatus.progressText = `${images.packed} of ${images.requested}`;
           pullstatus.stage = PACSPullStages.RETRIEVE;
-          pullstatus.statusText = `${__stageText(PACSPullStages.RETRIEVE)} (${images.received}/${images.requested})`;
+          pullstatus.stageText = __stageText(PACSPullStages.RETRIEVE);
           
           if (images.pushed) {
             pullstatus.progress = images.pushed/images.requested;
+            pullstatus.progressText = `${images.pushed} of ${images.requested}`;
             pullstatus.stage = PACSPullStages.PUSH;
-            pullstatus.statusText = `${__stageText(PACSPullStages.PUSH)} (${images.pushed}/${images.requested})`;
+            pullstatus.stageText = __stageText(PACSPullStages.PUSH);
             
             if (images.registered) {
               if (images.registered === images.requested) {
                 pullstatus.progress = 1;
+                pullstatus.progressText = `Files will be available in ChRIS`;
                 pullstatus.stage = PACSPullStages.COMPLETED;
-                pullstatus.statusText = `${__stageText(PACSPullStages.COMPLETED)}`;
+                pullstatus.stageText = __stageText(PACSPullStages.COMPLETED);
               } else {
                 pullstatus.progress = images.registered/images.requested;
+                pullstatus.progressText = `${images.registered} of ${images.requested}`;
                 pullstatus.stage = PACSPullStages.REGISTER;
-                pullstatus.statusText = `${__stageText(PACSPullStages.REGISTER)} (${images.registered}/${images.requested})`;
+                pullstatus.stageText = __stageText(PACSPullStages.REGISTER);
               }
             }
           }
@@ -235,6 +242,46 @@ class PFDCMClient {
       console.error(error);
     } finally {
       return pullstatus; 
+    }
+  }
+
+  async pull(query: PFDCMFilters = {}) {
+    if (!this.service)
+      throw Error('Set the PACS service first.');
+
+    const RequestConfig: AxiosRequestConfig = {
+      url: `${this.url}api/v1/PACS/thread/pypx/`,
+      method: "POST",
+      headers: this.headers,
+      data: {
+        PACSservice: this.PACSservice,
+        listenerService: { value: "default" },
+        PACSdirective: {
+          ...query,
+          then: "retrieve,push,register",
+          thenArgs: [
+            JSON.stringify({}),
+            JSON.stringify({
+              db: "/home/dicom/log", 
+              swift: this.swift, 
+              swiftServicesPACS: this.service,
+              swiftPackEachDICOM: true
+            }),
+            JSON.stringify({
+              db: "/home/dicom/log", 
+              CUBE: this.cube,
+              swiftServicesPACS: this.service,
+              parseAllFilesWithSubStr: "dcm"
+            })
+          ].join(",")
+        }
+      }
+    }
+
+    try {
+      await axios(RequestConfig);
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -251,6 +298,7 @@ class PFDCMClient {
         listenerService: { value: "default" },
         PACSdirective: {
           ...query,
+          withFeedBack: this.withFeedBack,
           then: "retrieve"
         }
       }
@@ -277,6 +325,7 @@ class PFDCMClient {
         PACSdirective: {
           ...query,
           then: "push",
+          withFeedBack: this.withFeedBack,
           thenArgs: JSON.stringify({
             db: "/home/dicom/log", 
             swift: this.swift, 
@@ -308,6 +357,7 @@ class PFDCMClient {
         PACSdirective: {
           ...query,           
           then: "register",
+          withFeedBack: this.withFeedBack,
           thenArgs: JSON.stringify({
             db: "/home/dicom/log", 
             CUBE: this.cube,
@@ -440,16 +490,18 @@ const DEFAULT_STAGE_ATTEMPTS_MUL = (files: number) => 2 * files;
 export class PFDCMPull {
   query: PFDCMFilters
   stage: PACSPullStages
+  stageText: string
   progress: number
-  statusText: string
+  progressText: string
   attempts: number
   errors: string[]
 
-  constructor(stage: PACSPullStages = PACSPullStages.NONE, query: PFDCMFilters = {}) {
+  constructor(query: PFDCMFilters = {}, stage: PACSPullStages = PACSPullStages.NONE) {
     this.query = query;
     this.stage = stage;
+    this.stageText = __stageText(stage);
     this.progress = stage === PACSPullStages.NONE ? 1 : 0;
-    this.statusText = __stageText(stage);
+    this.progressText = "Waiting"
     this.attempts = DEFAULT_STAGE_ATTEMPTS;
     this.errors = [];
   }
@@ -473,7 +525,16 @@ export class PFDCMPull {
     return this.stage === PACSPullStages.COMPLETED;
   }
 
+  get isRunning() {
+    return (
+      this.stage !== PACSPullStages.COMPLETED &&
+      this.stage !== PACSPullStages.NONE
+    );
+  }
+
   get nextStage() {
-    return this.stage + 1;
+    if (this.stage === PACSPullStages.COMPLETED)
+      return this.stage;
+    return (this.stage + 1) as PACSPullStages;
   }
 }

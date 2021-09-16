@@ -9,6 +9,9 @@ import {
   EmptyStateIcon,
   Grid,
   GridItem,
+  Progress,
+  ProgressMeasureLocation,
+  ProgressSize,
   Spinner,
   Split,
   SplitItem,
@@ -24,25 +27,25 @@ import "./pacs-lookup.scss";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import {
   PACSPatient,
+  PACSPullStages,
   PACSSeries,
   PACSStudy,
   PFDCMFilters,
+  PFDCMPull,
 } from "../../../../api/pfdcm";
 import { LibraryContext, File } from "../../Library";
-import { PACSPulls } from ".";
+import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[];
-  pulls: PACSPulls;
-  onRequestPull: (filter: PFDCMFilters) => any;
-  onRequestStatus: (filter: PFDCMFilters) => any;
+  onRequestStatus: (query: PFDCMFilters) => Promise<PFDCMPull>;
+  onExecutePACSStage: (query: PFDCMFilters, stage: PACSPullStages) => any;
 }
 
 export const QueryResults: React.FC<QueryResultsProps> = ({
   results,
-  pulls,
-  onRequestPull,
   onRequestStatus,
+  onExecutePACSStage,
 }: QueryResultsProps) => {
   const library = useContext(LibraryContext);
   const client = ChrisAPIClient.getClient();
@@ -51,13 +54,6 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     if (!library.actions.isSelected(path)) library.actions.select(path);
     else library.actions.clear(path);
   };
-
-  // const select = (items: File) => {
-  //   if (!library.actions.isSeriesSelected(items))
-  //     library.actions.select(items);
-  //   else
-  //     library.actions.clear(items);
-  // };
 
   const [expanded, setExpanded] = useState<string[]>([]);
   const isExpanded = (uid: string) => expanded.includes(uid);
@@ -72,10 +68,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   };
 
   const PatientCard = ({
-    patient,
+    patient
   }: {
-    patient: PACSPatient;
-    pacspulls: PACSPulls;
+    patient: PACSPatient
   }) => {
     const { PatientID, PatientBirthDate, PatientName, PatientSex } = patient;
 
@@ -130,67 +125,107 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   };
 
   const StudyCard = ({
-    study,
-    pacspulls,
+    study
   }: {
-    study: PACSStudy;
-    pacspulls: PACSPulls;
+    study: PACSStudy
   }) => {
     const { StudyInstanceUID, PatientID } = study;
     const pullQuery = { StudyInstanceUID, PatientID };
 
-    const [existingStudyFiles, setExistingStudyFiles] =
-      useState<PACSFileList>();
-
-    useEffect(() => {
-      client.getPACSFiles(pullQuery).then(setExistingStudyFiles);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const cubeStudySize = existingStudyFiles?.totalCount;
-    const cubeHasStudy = study.NumberOfStudyRelatedInstances === cubeStudySize;
-
     const StudyActions = () => {
-      if (!existingStudyFiles || !pacspulls) return <Spinner size="lg" />;
+      const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFileList>();
+      const [pullStatus, setPullStatus] = useState<PFDCMPull>();
+      const [poll, setPoll] = useState<any>();
+
+      const cubeStudySize = existingStudyFiles?.totalCount;
+      const cubeHasStudy = study.NumberOfStudyRelatedInstances === cubeStudySize;
+
+      useEffect(() => {
+        client.getPACSFiles(pullQuery).then(async (files) => {  
+          setExistingStudyFiles(files);
+          setPullStatus(await onRequestStatus(pullQuery));
+        });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [])
+      
+      useEffect(() => {
+        if (
+          cubeHasStudy ||
+          !pullStatus ||
+          !pullStatus.isRunning
+        )
+          return () => clearTimeout(poll);
+
+        const _poll = async (): Promise<PFDCMPull> => {
+          if (pullStatus.isStageCompleted) {
+            await onExecutePACSStage(pullQuery, pullStatus.nextStage);
+            return new PFDCMPull(pullQuery, pullStatus.nextStage);
+          }
+
+          const _status = await onRequestStatus(pullQuery);
+          if (_status.stage >= pullStatus.stage)
+            return _status;
+          
+          return new PFDCMPull(pullStatus.query, pullStatus.stage);
+        }
+
+        if (pullStatus.isRunning)
+          setPoll(
+            setTimeout(() => _poll().then(setPullStatus), 1000)
+          )
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [cubeHasStudy, pullStatus]);
+
+      if (!existingStudyFiles || !pullStatus) 
+        return <Spinner size="lg" />;
 
       if (cubeHasStudy)
         return (
           <div style={{ color: "gray" }}>
-            <Button variant="link" style={{ padding: 0 }}>
-              <b>Available</b>
-            </Button>
-            {/* <div>{(cubeStudySize / (1024 * 1024)).toFixed(3)} MB</div> */}
-            <div>
-              {cubeStudySize} {pluralize("file", cubeStudySize)}
-            </div>
+            <Button variant="link" style={{ padding: 0 }}><b>Available</b></Button>
+            <div>{cubeStudySize} {pluralize("file", cubeStudySize)}</div>
           </div>
         );
 
-      onRequestStatus(pullQuery);
-
-      if (pacspulls.hasPull(pullQuery)) {
-        const _pull = pacspulls.getPull(pullQuery);
-        if (!_pull) return <Spinner size="lg" />;
-
+      if (pullStatus.stage !== PACSPullStages.NONE)
         return (
           <div>
-            <b>{_pull.statusText}</b>
-            {_pull.errors.length ? (
-              <span style={{ color: "firebrick" }}>{_pull.errors[0]}</span>
+            {/* {pullStatus.errors.map((err) => (
+              <span key={err} style={{ color: "firebrick" }}>
+                {err}
+              </span>
+            ))} */}
+
+            {!pullStatus.isPullCompleted ? (
+              <Progress
+                value={pullStatus.progress * 100}
+                style={{ gap: "0.5em", textAlign: "left" }}
+                title={pullStatus.stageText}
+                size={ProgressSize.sm}
+                measureLocation={ProgressMeasureLocation.top}
+                label={pullStatus.progressText}
+                valueText={pullStatus.progressText}
+              />
             ) : (
-              <div style={{ color: "gray" }}>
-                ({((_pull.progress || 0) * 100).toFixed(0)}%)
+              <div>
+                <div><b>{pullStatus.stageText}</b></div>
+                <div>{pullStatus.progressText}</div>
               </div>
             )}
           </div>
         );
+
+      const startPull = (query: PFDCMFilters) => {
+        const _p = new PFDCMPull(query, PACSPullStages.RETRIEVE);
+        onExecutePACSStage(query, _p.stage);
+        setPullStatus(_p);
       }
 
       return (
         <Button
           variant="secondary"
           style={{ fontSize: "small" }}
-          onClick={onRequestPull.bind(StudyCard, pullQuery)}
+          onClick={startPull.bind(StudyCard, pullQuery)}
         >
           <b>Pull Study</b>
         </Button>
@@ -244,6 +279,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
             <SplitItem
               style={{
                 margin: "auto 0 auto 2em",
+                minWidth: "12em",
                 textAlign: "right",
                 fontSize: "small",
               }}
@@ -257,37 +293,68 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   };
 
   const SeriesCard = ({
-    series,
-    pacspulls,
+    series
   }: {
-    series: PACSSeries;
-    pacspulls: PACSPulls;
+    series: PACSSeries
   }) => {
     const { SeriesInstanceUID, StudyInstanceUID, PatientID } = series;
     const pullQuery = { SeriesInstanceUID, StudyInstanceUID, PatientID };
 
-    const [existingSeriesFiles, setExistingSeriesFiles] =
-      useState<PACSFileList>();
-
-    useEffect(() => {
-      client.getPACSFiles(pullQuery).then(setExistingSeriesFiles);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const cubeSeriesSize = existingSeriesFiles?.totalCount;
-    const cubeHasSeries =
-      series.NumberOfSeriesRelatedInstances === cubeSeriesSize;
-
-    const seriesFiles = existingSeriesFiles?.getItems() || [];
-    const cubeSeriesPath = seriesFiles.length
-      ? seriesFiles[0].data.fname.slice(
-          0,
-          seriesFiles[0].data.fname.lastIndexOf("/")
-        )
-      : [];
-
     const SeriesActions = () => {
-      if (!existingSeriesFiles || !pacspulls) return <Spinner size="md" />;
+      const [existingSeriesFiles, setExistingSeriesFiles] = useState<PACSFileList>();
+      const [pullStatus, setPullStatus] = useState<PFDCMPull>();
+      const [poll, setPoll] = useState<any>();
+
+      const cubeSeriesSize = existingSeriesFiles?.totalCount;
+      const cubeHasSeries =
+        series.NumberOfSeriesRelatedInstances === cubeSeriesSize;
+  
+      const seriesFiles = existingSeriesFiles?.getItems() || [];
+      const cubeSeriesPath = seriesFiles.length
+        ? seriesFiles[0].data.fname.slice(
+            0,
+            seriesFiles[0].data.fname.lastIndexOf("/")
+          )
+        : [];
+
+      useEffect(() => {
+        client.getPACSFiles(pullQuery).then(async (files) => {  
+          setExistingSeriesFiles(files);
+          setPullStatus(await onRequestStatus(pullQuery));
+        });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [])
+      
+      useEffect(() => {
+        if (
+          cubeHasSeries ||
+          !pullStatus ||
+          !pullStatus.isRunning
+        )
+          return () => clearInterval(poll);
+        
+        const _poll = async (): Promise<PFDCMPull> => {
+          if (pullStatus.isStageCompleted) {
+            await onExecutePACSStage(pullQuery, pullStatus.nextStage);
+            return new PFDCMPull(pullQuery, pullStatus.nextStage);
+          }
+
+          const _status = await onRequestStatus(pullQuery);
+          if (_status.stage >= pullStatus.stage)
+            return _status;
+          
+          return new PFDCMPull(pullStatus.query, pullStatus.stage);
+        }
+
+        if (pullStatus.isRunning)
+          setPoll(
+            setTimeout(() => _poll().then(setPullStatus), 1000)
+          )
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [cubeHasSeries, pullStatus]);
+
+      if (!existingSeriesFiles || !pullStatus)
+        return <Spinner size="lg" />;
 
       if (cubeHasSeries) {
         return (
@@ -301,27 +368,28 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         );
       }
 
-      onRequestStatus(pullQuery);
-
-      if (pacspulls.hasPull(pullQuery)) {
-        const _pull = pacspulls.getPull(pullQuery);
-        if (!_pull) return <Spinner size="md" />;
-
+      if (pullStatus.stage !== PACSPullStages.NONE)
         return (
           <div>
-            <b>{_pull.statusText}</b>
-            <div style={{ color: "gray" }}>
-              ({((_pull.progress || 0) * 100).toFixed(0)}%)
-            </div>
+            <b>
+              { !!pullStatus.errors.length &&
+                <span style={{ color: "firebrick" }}><ExclamationCircleIcon/> { pullStatus.errors.length }</span>
+              } {pullStatus.stageText}
+            </b>
           </div>
         );
+
+      const startPull = (query: PFDCMFilters) => {
+        const _p = new PFDCMPull(query, PACSPullStages.RETRIEVE);
+        onExecutePACSStage(query, _p.stage);
+        setPullStatus(_p);
       }
 
       return (
         <Button
           variant="link"
           style={{ padding: 0, fontSize: "small" }}
-          onClick={onRequestPull.bind(SeriesCard, pullQuery)}
+          onClick={startPull.bind(SeriesCard, pullQuery)}
         >
           <b>Pull Series</b>
         </Button>
@@ -331,8 +399,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     return (
       <Card
         isHoverable
-        isSelectable={cubeHasSeries}
-        isSelected={library.actions.isSelected(cubeSeriesPath)}
+        // isSelectable={cubeHasSeries}
+        // isSelected={library.actions.isSelected(cubeSeriesPath)}
       >
         <CardHeader>
           <Split
@@ -381,19 +449,19 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     <Grid hasGutter id="pacs-query-results">
       {results.map((patient) => (
         <GridItem key={patient.PatientID}>
-          <PatientCard patient={patient} pacspulls={pulls} />
+          <PatientCard patient={patient} />
 
           {isExpanded(patient.PatientID) && (
             <Grid hasGutter className="patient-studies">
               {patient.studies.map((study) => (
                 <GridItem key={study.StudyInstanceUID}>
-                  <StudyCard study={study} pacspulls={pulls} />
+                  <StudyCard study={study} />
 
                   {isExpanded(study.StudyInstanceUID) && (
                     <Grid hasGutter className="patient-series">
                       {study.series.map((series) => (
                         <GridItem key={series.SeriesInstanceUID}>
-                          <SeriesCard series={series} pacspulls={pulls} />
+                          <SeriesCard series={series} />
                         </GridItem>
                       ))}
                     </Grid>
