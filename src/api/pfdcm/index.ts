@@ -187,11 +187,16 @@ class PFDCMClient {
           const serieslist: any[] = study[key];
 
           for (const series of serieslist) {
-            if (series.images.requested.count === -1) break;
+            if (series.images.requested.count === -1) {
+              images.requested = 0;
+              imagestatus.requested = false;
+              break;
+            }
+
             images.requested += series.images.requested.count;
             imagestatus.requested = series.images.requested.status;
             
-            if (series.images.received.count === -1) break;
+            if (series.images.packed.count === -1) break;
             images.packed += series.images.packed.count;
             imagestatus.packed = series.images.packed.status;
             
