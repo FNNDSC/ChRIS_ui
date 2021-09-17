@@ -3,6 +3,7 @@ import {
   Badge,
   Button,
   Card,
+  CardBody,
   CardHeader,
   EmptyState,
   EmptyStateBody,
@@ -35,6 +36,7 @@ import {
 } from "../../../../api/pfdcm";
 import { LibraryContext, File } from "../../Library";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
+import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[];
@@ -182,20 +184,14 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       if (cubeHasStudy)
         return (
           <div style={{ color: "gray" }}>
-            <Button variant="link" style={{ padding: 0 }}><b>Available</b></Button>
-            <div>{cubeStudySize} {pluralize("file", cubeStudySize)}</div>
+            <Button variant="link" style={{ padding: 0 }}><b>Open</b></Button>
+            <div>Files are available in ChRIS</div>
           </div>
         );
 
       if (pullStatus.stage !== PACSPullStages.NONE)
         return (
           <div>
-            {/* {pullStatus.errors.map((err) => (
-              <span key={err} style={{ color: "firebrick" }}>
-                {err}
-              </span>
-            ))} */}
-
             {!pullStatus.isPullCompleted ? (
               <Progress
                 value={pullStatus.progress * 100}
@@ -300,6 +296,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     const { SeriesInstanceUID, StudyInstanceUID, PatientID } = series;
     const pullQuery = { SeriesInstanceUID, StudyInstanceUID, PatientID };
 
+    // const [seriesPreview, setSeriesPreview] = useState<any>();
+
     const SeriesActions = () => {
       const [existingSeriesFiles, setExistingSeriesFiles] = useState<PACSFileList>();
       const [pullStatus, setPullStatus] = useState<PFDCMPull>();
@@ -354,28 +352,54 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       }, [cubeHasSeries, pullStatus]);
 
       if (!existingSeriesFiles || !pullStatus)
-        return <Spinner size="lg" />;
+        return (
+          <div style={{ display: "flex", height: "100%" }}>
+            <Spinner size="lg" style={{ margin: "auto" }} />
+          </div>
+        );
 
       if (cubeHasSeries) {
         return (
-          <Button
-            variant="link"
-            style={{ padding: "0" }}
-            onClick={selectPath.bind(QueryResults, cubeSeriesPath)}
-          >
-            Select
-          </Button>
+          <>
+            {
+              seriesFiles.length &&
+              <FileDetailView selectedFile={seriesFiles[0]} preview="small" />
+            }
+            
+            <div className="action-button-container hover" style={{ display: "flex" }}>
+              <Button
+                variant="primary"
+                style={{ fontSize: "small", margin: "auto" }}
+                // onClick={()=>{  }}
+                >
+                <b>Open</b>
+              </Button>
+            </div>
+          </>
         );
       }
 
       if (pullStatus.stage !== PACSPullStages.NONE)
         return (
-          <div>
-            <b>
-              { !!pullStatus.errors.length &&
-                <span style={{ color: "firebrick" }}><ExclamationCircleIcon/> { pullStatus.errors.length }</span>
-              } {pullStatus.stageText}
-            </b>
+          <div className="action-button-container" style={{ display: "flex" }}>
+            <div style={{ margin: "auto", textAlign: "center" }}>
+              {!pullStatus.isPullCompleted ? (
+                <Progress
+                  value={pullStatus.progress * 100}
+                  style={{ gap: "0.5em", textAlign: "left", width: "10em" }}
+                  title={pullStatus.stageText}
+                  size={ProgressSize.sm}
+                  measureLocation={ProgressMeasureLocation.top}
+                  label={pullStatus.progressText}
+                  valueText={pullStatus.progressText}
+                />
+              ) : (
+                <>
+                  <div><b>{pullStatus.stageText}</b></div>
+                  <div>{pullStatus.progressText}</div>
+                </>
+              )}
+            </div>
           </div>
         );
 
@@ -386,45 +410,49 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       }
 
       return (
-        <Button
-          variant="link"
-          style={{ padding: 0, fontSize: "small" }}
-          onClick={startPull.bind(SeriesCard, pullQuery)}
-        >
-          <b>Pull Series</b>
-        </Button>
+        <div className="action-button-container" style={{ display: "flex" }}>
+          <Tooltip content="Pull this series to use it in ChRIS">
+            <Button
+              variant="secondary"
+              style={{ fontSize: "small", margin: "auto" }}
+              onClick={startPull.bind(SeriesCard, pullQuery)}
+              >
+              <b>Pull Series</b>
+            </Button>
+          </Tooltip>
+        </div>
       );
     };
 
     return (
-      <Card
-        isHoverable
-        // isSelectable={cubeHasSeries}
-        // isSelected={library.actions.isSelected(cubeSeriesPath)}
-      >
-        <CardHeader>
-          <Split
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            <SplitItem style={{ minWidth: "50%" }} isFilled>
-              <Badge style={{ margin: "0 1em 0 0" }}>{series.Modality}</Badge>
-              <span>{series.SeriesDescription}</span>
-            </SplitItem>
-            <SplitItem
-              style={{ color: "gray", margin: "0 2em", textAlign: "right" }}
+      <Card isHoverable>
+        <CardBody>
+          <div className="series-actions">
+            <SeriesActions />
+            {/* <Badge
+              style={{
+                margin: "0 0.5em 0 0",
+                position: "absolute",
+                top: "0.75em",
+                left: "1.75em",
+                zIndex: 100,
+              }}
             >
+              {series.Modality}
+            </Badge> */}
+          </div>
+
+          <div style={{ fontSize: "small" }}>
+            <b>{series.SeriesDescription}</b>
+            <div>
               {series.NumberOfSeriesRelatedInstances}{" "}
               {pluralize("file", series.NumberOfSeriesRelatedInstances)}
-            </SplitItem>
-            <SplitItem>
-              <SeriesActions />
-            </SplitItem>
-          </Split>
-        </CardHeader>
+              <Badge style={{ margin: "0 0 0 0.5em" }}>
+                {series.Modality}
+              </Badge>
+            </div>
+          </div>
+        </CardBody>
       </Card>
     );
   };
@@ -460,7 +488,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
                   {isExpanded(study.StudyInstanceUID) && (
                     <Grid hasGutter className="patient-series">
                       {study.series.map((series) => (
-                        <GridItem key={series.SeriesInstanceUID}>
+                        <GridItem sm={12} md={3} key={series.SeriesInstanceUID}>
                           <SeriesCard series={series} />
                         </GridItem>
                       ))}

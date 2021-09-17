@@ -42,10 +42,10 @@
   }
 
   .patient-studies {
-    margin: 1em;
+    margin-top: 1em;
     padding: 1em 2em;
-    border-right: 2px dashed lightgray;
-    border-left: 2px dashed lightgray;
+    border-right: 2px solid lightgray;
+    border-left: 2px solid lightgray;
     // max-height: 50vh;
     // overflow-y: scroll;
     // overflow-x: hidden;
@@ -61,10 +61,10 @@
   }
 
   .patient-series {
-    margin: 1em;
+    margin-top: 1em;
     padding: 1em 2em;
-    border-right: 2px dashed lightgray;
-    border-left: 2px dashed lightgray;
+    border-right: 1px solid lightgray;
+    border-left: 1px solid lightgray;
     // max-height: 50vh;
     // overflow-y: scroll;
     // overflow-x: hidden;
@@ -74,6 +74,33 @@
 
       .pf-c-card__body {
         padding: 0;
+
+        .series-actions {
+          background-color: #ddd;
+          margin: -0.75em -1.75em 1em -1.75em;
+          height: 6em;
+          overflow: hidden;
+          position: relative;
+
+          .action-button-container {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+
+            padding: 0.75em 1.75em;
+            text-align: center;
+          }
+
+          .action-button-container[class~="hover"] {
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            &:hover {
+              opacity: 1;
+              background-color: #dddddd80;
+            }
+          }
+        }
       }
     }
   }
