@@ -35,8 +35,8 @@ import {
   PFDCMPull,
 } from "../../../../api/pfdcm";
 import { LibraryContext, File } from "../../Library";
-import { ExclamationCircleIcon } from "@patternfly/react-icons";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
+import { useHistory } from "react-router";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[];
@@ -142,11 +142,17 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       const cubeStudySize = existingStudyFiles?.totalCount;
       const cubeHasStudy = study.NumberOfStudyRelatedInstances === cubeStudySize;
 
+      const studyFiles = existingStudyFiles?.getItems() || [];
+      const cubeStudyPath = studyFiles.length
+        ? studyFiles[0].data.fname.split('/').slice(0, -2).join('/')
+        : "#";
+
       useEffect(() => {
-        client.getPACSFiles(pullQuery).then(async (files) => {  
-          setExistingStudyFiles(files);
-          setPullStatus(await onRequestStatus(pullQuery));
-        });
+        if (expanded.slice(-1)[0] === PatientID)
+          client.getPACSFiles(pullQuery).then(async (files) => {
+            setExistingStudyFiles(files);
+            setPullStatus(await onRequestStatus(pullQuery));
+          });
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [])
       
@@ -178,13 +184,21 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [cubeHasStudy, pullStatus]);
 
+      const route = useHistory().push;
+
       if (!existingStudyFiles || !pullStatus) 
         return <Spinner size="lg" />;
 
       if (cubeHasStudy)
         return (
           <div style={{ color: "gray" }}>
-            <Button variant="link" style={{ padding: 0 }}><b>Open</b></Button>
+            <Button
+              variant="link"
+              style={{ padding: 0 }}
+              onClick={() => route(cubeStudyPath)}
+            >
+              <b>Browse</b>
+            </Button>
             <div>Files are available in ChRIS</div>
           </div>
         );
@@ -296,8 +310,6 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     const { SeriesInstanceUID, StudyInstanceUID, PatientID } = series;
     const pullQuery = { SeriesInstanceUID, StudyInstanceUID, PatientID };
 
-    // const [seriesPreview, setSeriesPreview] = useState<any>();
-
     const SeriesActions = () => {
       const [existingSeriesFiles, setExistingSeriesFiles] = useState<PACSFileList>();
       const [pullStatus, setPullStatus] = useState<PFDCMPull>();
@@ -309,17 +321,15 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   
       const seriesFiles = existingSeriesFiles?.getItems() || [];
       const cubeSeriesPath = seriesFiles.length
-        ? seriesFiles[0].data.fname.slice(
-            0,
-            seriesFiles[0].data.fname.lastIndexOf("/")
-          )
-        : [];
+        ? seriesFiles[0].data.fname.split('/').slice(0, -1).join('/')
+        : "#";
 
       useEffect(() => {
-        client.getPACSFiles(pullQuery).then(async (files) => {  
-          setExistingSeriesFiles(files);
-          setPullStatus(await onRequestStatus(pullQuery));
-        });
+        if (expanded.slice(-1)[0] === StudyInstanceUID)
+          client.getPACSFiles(pullQuery).then(async (files) => {  
+            setExistingSeriesFiles(files);
+            setPullStatus(await onRequestStatus(pullQuery));
+          });
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [])
       
@@ -343,6 +353,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           
           return new PFDCMPull(pullStatus.query, pullStatus.stage);
         }
+        
 
         if (pullStatus.isRunning)
           setPoll(
@@ -350,6 +361,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           )
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [cubeHasSeries, pullStatus]);
+
+      const route = useHistory().push;
 
       if (!existingSeriesFiles || !pullStatus)
         return (
@@ -370,9 +383,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
               <Button
                 variant="primary"
                 style={{ fontSize: "small", margin: "auto" }}
-                // onClick={()=>{  }}
+                onClick={() => route(cubeSeriesPath)}
                 >
-                <b>Open</b>
+                <b>Browse</b>
               </Button>
             </div>
           </>
