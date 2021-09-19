@@ -71,13 +71,10 @@ export const PACSLookup = () => {
   useEffect(() => {
     client.getPACSservices().then((list) => {
       setPACSservices(list);
-
-      if (!client.service) {
-        if (list.length === 1)
-          client.service = list.shift() as string
-        else if (list.length > 1)
-          client.service = list[1];
-      }
+      if (!client.service)
+        client.service = list.length > 1
+          ? list[1]
+          : (list.slice(list.length - 1).shift() as string);
 
       setSelectedPACS(client.service)
     })
@@ -88,7 +85,7 @@ export const PACSLookup = () => {
       setLoading(true);
       const response: PACSPatient[] = [];
       setProgress([0, queries.length]);
-  
+
       for (let q = 0; q < queries.length; q++) {
         const { type, value, filters } = queries[q];
   

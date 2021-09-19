@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardBody,
@@ -20,6 +20,7 @@ import { SearchIcon } from "@patternfly/react-icons";
 import { PFDCMQuery, PFDCMQueryTypes } from ".";
 
 import "./pacs-lookup.scss";
+import { useHistory } from "react-router";
 
 interface QueryBuilderProps {
   PACS?: string;
@@ -62,22 +63,33 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
     } as PFDCMQuery);
   };
 
-  const finalize = () => {
-    if (!query.value) return;
+  const { push:route, location } = useHistory();
 
-    if (query.type === PFDCMQueryTypes.DATE) return onFinalize([query]);
+  useEffect(() => {
+    const q = (new URLSearchParams(location.search)).get('q');
+    if (q)
+      finalize(JSON.parse(atob(q)) as PFDCMQuery)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-    const csv = (query.value as string).split(",");
+  const finalize = (_query = query) => {
+    if (!_query.value) return;
+
+    if (_query.type === PFDCMQueryTypes.DATE) return onFinalize([_query]);
+
+    const csv = (_query.value as string).split(",");
     const queries: PFDCMQuery[] = [];
 
     for (const value of csv) {
       queries.push({
         value: value.trim(),
-        type: query.type,
-        filters: query.filters,
+        type: _query.type,
+        filters: _query.filters,
       });
     }
 
+    if (_query === query)
+      route(`${location.pathname}?q=${btoa(JSON.stringify(_query))}`)
     onFinalize(queries);
   };
 
@@ -208,7 +220,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
           </GridItem>
 
           <GridItem lg={2} sm={12}>
-            <Button isLarge variant="primary" id="finalize" onClick={finalize}>
+            <Button isLarge variant="primary" id="finalize" onClick={() => finalize()}>
               <SearchIcon /> Search
             </Button>
           </GridItem>
@@ -228,12 +240,12 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <b>Filters</b>
                 </SplitItem>
                 <SplitItem>
-                  <Button variant="link" onClick={finalize}>
+                  <Button variant="link" onClick={() => finalize()}>
                     Clear
                   </Button>
                 </SplitItem>
                 <SplitItem>
-                  <Button variant="secondary" onClick={finalize}>
+                  <Button variant="secondary" onClick={() => finalize()}>
                     Apply
                   </Button>
                 </SplitItem>

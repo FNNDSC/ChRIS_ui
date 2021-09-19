@@ -57,17 +57,17 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     else library.actions.clear(path);
   };
 
-  const [expanded, setExpanded] = useState<string[]>([]);
-  const isExpanded = (uid: string) => expanded.includes(uid);
-  const expand = (uid: string) => {
-    let _expanded = expanded;
-    if (expanded.includes(uid)) {
-      _expanded = _expanded.filter((_uid) => _uid !== uid);
-      setExpanded(_expanded);
-    } else {
-      setExpanded([..._expanded, uid]);
-    }
-  };
+  // const [expanded, setExpanded] = useState<string[]>([]);
+  // const isExpanded = (uid: string) => expanded.includes(uid);
+  // const expand = (uid: string) => {
+  //   let _expanded = expanded;
+  //   if (expanded.includes(uid)) {
+  //     _expanded = _expanded.filter((_uid) => _uid !== uid);
+  //     setExpanded(_expanded);
+  //   } else {
+  //     setExpanded([..._expanded, uid]);
+  //   }
+  // };
 
   const PatientCard = ({
     patient
@@ -75,6 +75,11 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     patient: PACSPatient
   }) => {
     const { PatientID, PatientBirthDate, PatientName, PatientSex } = patient;
+    
+    const [isPatientExpanded, setIsPatientExpanded] = useState(false);
+    const expandPatient = () => {
+      setIsPatientExpanded(!isPatientExpanded)
+    }
 
     const LatestDate = (dates: Date[]) => {
       let latestStudy = dates[0];
@@ -85,8 +90,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     };
 
     return (
-      <Card isHoverable isExpanded={isExpanded(PatientID)}>
-        <CardHeader onExpand={expand.bind(PatientCard, PatientID)}>
+      <>
+      <Card isHoverable isExpanded={isPatientExpanded}>
+        <CardHeader onExpand={expandPatient.bind(PatientCard)}>
           <Grid hasGutter style={{ width: "100%" }}>
             <GridItem lg={4}>
               <div>
@@ -123,6 +129,18 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           </Grid>
         </CardHeader>
       </Card>
+
+      {
+        isPatientExpanded &&
+        <Grid hasGutter className="patient-studies">
+        {patient.studies.map((study) => (
+          <GridItem key={study.StudyInstanceUID}>
+            <StudyCard study={study} />
+          </GridItem>
+        ))}
+        </Grid>
+      }
+      </>
     );
   };
 
@@ -133,6 +151,11 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   }) => {
     const { StudyInstanceUID, PatientID } = study;
     const pullQuery = { StudyInstanceUID, PatientID };
+
+    const [isStudyExpanded, setIsStudyExpanded] = useState(false);
+    const expandStudy = () => {
+      setIsStudyExpanded(!isStudyExpanded)
+    }
 
     const StudyActions = () => {
       const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFileList>();
@@ -148,11 +171,10 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         : "#";
 
       useEffect(() => {
-        if (expanded.slice(-1)[0] === PatientID)
-          client.getPACSFiles(pullQuery).then(async (files) => {
-            setExistingStudyFiles(files);
-            setPullStatus(await onRequestStatus(pullQuery));
-          });
+        client.getPACSFiles(pullQuery).then(async (files) => {
+          setExistingStudyFiles(files);
+          setPullStatus(await onRequestStatus(pullQuery));
+        });
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [])
       
@@ -243,8 +265,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     };
 
     return (
-      <Card isHoverable isExpanded={isExpanded(StudyInstanceUID)}>
-        <CardHeader onExpand={expand.bind(QueryResults, StudyInstanceUID)}>
+      <>
+      <Card isHoverable isExpanded={isStudyExpanded}>
+        <CardHeader onExpand={expandStudy.bind(QueryResults, StudyInstanceUID)}>
           <Split>
             <SplitItem style={{ minWidth: "30%", margin: "0 1em 0 0" }}>
               <div>
@@ -299,6 +322,18 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           </Split>
         </CardHeader>
       </Card>
+
+      {
+        isStudyExpanded &&
+        <Grid hasGutter className="patient-series">
+          {study.series.map((series) => (
+            <GridItem sm={12} md={3} key={series.SeriesInstanceUID}>
+              <SeriesCard series={series} />
+            </GridItem>
+          ))}
+        </Grid>
+      }
+      </>
     );
   };
 
@@ -325,11 +360,10 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         : "#";
 
       useEffect(() => {
-        if (expanded.slice(-1)[0] === StudyInstanceUID)
-          client.getPACSFiles(pullQuery).then(async (files) => {  
-            setExistingSeriesFiles(files);
-            setPullStatus(await onRequestStatus(pullQuery));
-          });
+        client.getPACSFiles(pullQuery).then(async (files) => {  
+          setExistingSeriesFiles(files);
+          setPullStatus(await onRequestStatus(pullQuery));
+        });
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [])
       
@@ -492,7 +526,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         <GridItem key={patient.PatientID}>
           <PatientCard patient={patient} />
 
-          {isExpanded(patient.PatientID) && (
+          {/* {isExpanded(patient.PatientID) && (
             <Grid hasGutter className="patient-studies">
               {patient.studies.map((study) => (
                 <GridItem key={study.StudyInstanceUID}>
@@ -510,7 +544,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
                 </GridItem>
               ))}
             </Grid>
-          )}
+          )} */}
         </GridItem>
       ))}
     </Grid>
