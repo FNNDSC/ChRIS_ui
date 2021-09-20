@@ -19,6 +19,7 @@ import {
   Title,
   Tooltip,
 } from "@patternfly/react-core";
+import { useHistory } from "react-router";
 import { CubesIcon } from "@patternfly/react-icons";
 import Moment from "react-moment";
 import pluralize from "pluralize";
@@ -34,9 +35,9 @@ import {
   PFDCMFilters,
   PFDCMPull,
 } from "../../../../api/pfdcm";
-import { LibraryContext, File } from "../../Library";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
-import { useHistory } from "react-router";
+import { MainRouterContext } from "../../../../routes";
+import { CodeBranchIcon } from "@patternfly/react-icons";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[];
@@ -49,25 +50,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   onRequestStatus,
   onExecutePACSStage,
 }: QueryResultsProps) => {
-  const library = useContext(LibraryContext);
+  const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
   const client = ChrisAPIClient.getClient();
-
-  const selectPath = (path: File) => {
-    if (!library.actions.isSelected(path)) library.actions.select(path);
-    else library.actions.clear(path);
-  };
-
-  // const [expanded, setExpanded] = useState<string[]>([]);
-  // const isExpanded = (uid: string) => expanded.includes(uid);
-  // const expand = (uid: string) => {
-  //   let _expanded = expanded;
-  //   if (expanded.includes(uid)) {
-  //     _expanded = _expanded.filter((_uid) => _uid !== uid);
-  //     setExpanded(_expanded);
-  //   } else {
-  //     setExpanded([..._expanded, uid]);
-  //   }
-  // };
 
   const PatientCard = ({
     patient
@@ -162,9 +146,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       const [pullStatus, setPullStatus] = useState<PFDCMPull>();
       const [poll, setPoll] = useState<any>();
 
-      const cubeStudySize = existingStudyFiles?.totalCount;
-      const cubeHasStudy = study.NumberOfStudyRelatedInstances === cubeStudySize;
-
+      const cubeHasStudy = existingStudyFiles?.totalCount !== 0;
       const studyFiles = existingStudyFiles?.getItems() || [];
       const cubeStudyPath = studyFiles.length
         ? studyFiles[0].data.fname.split('/').slice(0, -2).join('/')
@@ -221,7 +203,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
             >
               <b>Browse</b>
             </Button>
-            <div>Files are available in ChRIS</div>
+            <div>Files available in ChRIS</div>
           </div>
         );
 
@@ -240,7 +222,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
               />
             ) : (
               <div>
-                <div><b>{pullStatus.stageText}</b></div>
+                <div><b>Finishing Up</b></div>
                 <div>{pullStatus.progressText}</div>
               </div>
             )}
@@ -288,15 +270,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
               <div>Modalities in Study</div>
               <div>
                 {study.ModalitiesInStudy.split("\\").map((m) => (
-                  <Badge
-                    style={{
-                      margin: "auto 0.125em",
-                      backgroundColor: "darkgrey",
-                    }}
-                    key={m}
-                  >
-                    {m}
-                  </Badge>
+                  <Badge style={{ margin: "auto 0.125em" }} key={m}>{m}</Badge>
                 ))}
               </div>
             </SplitItem>
@@ -359,19 +333,24 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         ? seriesFiles[0].data.fname.split('/').slice(0, -1).join('/')
         : "#";
 
-      useEffect(() => {
-        client.getPACSFiles(pullQuery).then(async (files) => {  
-          setExistingSeriesFiles(files);
-          setPullStatus(await onRequestStatus(pullQuery));
+      const fetchCUBESeries = async () => {
+        const files = await client.getPACSFiles({
+          ...pullQuery,
+          limit: series.NumberOfSeriesRelatedInstances,
         });
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+
+        setExistingSeriesFiles(files);
+        setPullStatus(await onRequestStatus(pullQuery));
+      };
+
+      useEffect(() => {
+        fetchCUBESeries();
       }, [])
       
       useEffect(() => {
         if (
           cubeHasSeries ||
-          !pullStatus ||
-          !pullStatus.isRunning
+          !pullStatus
         )
           return () => clearInterval(poll);
         
@@ -387,16 +366,14 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           
           return new PFDCMPull(pullStatus.query, pullStatus.stage);
         }
-        
 
-        if (pullStatus.isRunning)
-          setPoll(
-            setTimeout(() => _poll().then(setPullStatus), 1000)
-          )
+        if (pullStatus.isPullCompleted)
+          return setPoll(setTimeout(fetchCUBESeries, 5000));
+        
+        if (pullStatus.isRunning) 
+          return setPoll(setTimeout(() => _poll().then(setPullStatus), 1000))
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [cubeHasSeries, pullStatus]);
-
-      const route = useHistory().push;
 
       if (!existingSeriesFiles || !pullStatus)
         return (
@@ -408,19 +385,30 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       if (cubeHasSeries) {
         return (
           <>
-            {
-              seriesFiles.length &&
-              <FileDetailView selectedFile={seriesFiles[0]} preview="small" />
-            }
-            
-            <div className="action-button-container hover" style={{ display: "flex" }}>
-              <Button
-                variant="primary"
-                style={{ fontSize: "small", margin: "auto" }}
-                onClick={() => route(cubeSeriesPath)}
+            {seriesFiles.length && (
+              <FileDetailView
+                preview="small"
+                selectedFile={
+                  seriesFiles[
+                    Math.floor(series.NumberOfSeriesRelatedInstances / 2)
+                  ]
+                }
+              />
+            )}
+
+            <div
+              className="action-button-container hover"
+              style={{ display: "flex" }}
+            >
+              <Tooltip content="Click to create a new feed with this series">
+                <Button
+                  variant="primary"
+                  style={{ fontSize: "small", margin: "auto" }}
+                  onClick={() => createFeed([cubeSeriesPath])}
                 >
-                <b>Browse</b>
-              </Button>
+                  <CodeBranchIcon/>{" "}<b>Create Feed</b>
+                </Button>
+              </Tooltip>
             </div>
           </>
         );
@@ -442,8 +430,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
                 />
               ) : (
                 <>
-                  <div><b>{pullStatus.stageText}</b></div>
-                  <div>{pullStatus.progressText}</div>
+                  <div><Spinner size="md" />{" "}<b>Finishing Up</b></div>
+                  <div style={{ fontSize: "small" }}>{pullStatus.progressText}</div>
                 </>
               )}
             </div>
@@ -472,31 +460,18 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     };
 
     return (
-      <Card isHoverable>
+      <Card isHoverable style={{ height: "100%" }}>
         <CardBody>
           <div className="series-actions">
             <SeriesActions />
-            {/* <Badge
-              style={{
-                margin: "0 0.5em 0 0",
-                position: "absolute",
-                top: "0.75em",
-                left: "1.75em",
-                zIndex: 100,
-              }}
-            >
-              {series.Modality}
-            </Badge> */}
           </div>
 
           <div style={{ fontSize: "small" }}>
             <b>{series.SeriesDescription}</b>
             <div>
               {series.NumberOfSeriesRelatedInstances}{" "}
-              {pluralize("file", series.NumberOfSeriesRelatedInstances)}
-              <Badge style={{ margin: "0 0 0 0.5em" }}>
-                {series.Modality}
-              </Badge>
+              {pluralize("file", series.NumberOfSeriesRelatedInstances)},{" "}
+              on {series.SeriesDate.toDateString()}
             </div>
           </div>
         </CardBody>

@@ -230,7 +230,7 @@ class PFDCMClient {
             if (images.registered) {
               if (images.registered === images.requested) {
                 pullstatus.progress = 1;
-                pullstatus.progressText = `Files will be available in ChRIS`;
+                pullstatus.progressText = `Files will shortly be available in ChRIS`;
                 pullstatus.stage = PACSPullStages.COMPLETED;
                 pullstatus.stageText = __stageText(PACSPullStages.COMPLETED);
               } else {
@@ -457,6 +457,7 @@ export interface PACSSeries {
   SeriesDescription: string;
   SeriesInstanceUID: string;
   StudyDate: Date;
+  SeriesDate: Date;
   StudyInstanceUID: string;
   command: string;
   label: string;
@@ -528,6 +529,10 @@ export class PFDCMPull {
 
   get isPullCompleted() {
     return this.stage === PACSPullStages.COMPLETED;
+  }
+
+  get isStarted() {
+    return this.stage !== PACSPullStages.NONE;
   }
 
   get isRunning() {

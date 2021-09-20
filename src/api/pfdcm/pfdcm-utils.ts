@@ -33,6 +33,7 @@ function parseRawDcmValue(label: string, item: RawDcmItem) {
   // treat as dates (typescript forbids fallthrough switches)
   const dateLabels = [
     'StudyDate',
+    'SeriesDate',
     'PatientBirthDate'
   ]
 
