@@ -36,7 +36,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   onFinalize,
 }: QueryBuilderProps) => {
   const [query, setQuery] = useState({
-    type: PFDCMQueryTypes.MRN,
+    type: PFDCMQueryTypes.IMRN,
   } as PFDCMQuery);
 
   const setQueryType = (type: PFDCMQueryTypes) => {
@@ -73,9 +73,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   }, [])
 
   const finalize = (_query = query) => {
-    if (!_query.value) return;
-
-    if (_query.type === PFDCMQueryTypes.DATE) return onFinalize([_query]);
+    if (!_query.value && _query.filters === {}) return;
 
     const csv = (_query.value as string).split(",");
     const queries: PFDCMQuery[] = [];
@@ -113,21 +111,21 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                     dropdownItems={[
                       <DropdownItem
                         key="pmrn"
-                        onClick={() => setQueryType(PFDCMQueryTypes.MRN)}
+                        onClick={() => setQueryType(PFDCMQueryTypes.IMRN)}
                       >
                         By Patient ID or MRN
                       </DropdownItem>,
                       <DropdownItem
                         key="name"
-                        onClick={() => setQueryType(PFDCMQueryTypes.PATIENT)}
+                        onClick={() => setQueryType(PFDCMQueryTypes.NAME)}
                       >
                         By Patient Name
                       </DropdownItem>,
                       <DropdownItem
                         key="date"
-                        onClick={() => setQueryType(PFDCMQueryTypes.DATE)}
+                        onClick={() => setQueryType(PFDCMQueryTypes.ACCN)}
                       >
-                        By Study Date
+                        By Accession Number
                       </DropdownItem>,
                     ]}
                   />
@@ -136,20 +134,20 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <SplitItem isFilled>
                   {(function () {
                     switch (query.type) {
-                      case PFDCMQueryTypes.DATE:
+                      case PFDCMQueryTypes.IMRN:
                         return (
-                          <DatePicker
+                          <TextInput
+                            type="text"
                             id="search-value"
-                            placeholder="Study Date (yyyy-MM-dd)"
-                            dateFormat={(date) => date.toDateString()}
-                            onChange={(_, date) => handleInput(date)}
+                            placeholder="Patient ID or MRN"
+                            onChange={handleInput}
                             onKeyDown={({ key }) => {
                               if (key.toLowerCase() === "enter") finalize();
                             }}
                           />
                         );
 
-                      case PFDCMQueryTypes.PATIENT:
+                      case PFDCMQueryTypes.NAME:
                         return (
                           <TextInput
                             type="text"
@@ -164,12 +162,12 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                           />
                         );
 
-                      case PFDCMQueryTypes.MRN:
+                      case PFDCMQueryTypes.ACCN:
                         return (
                           <TextInput
                             type="text"
                             id="search-value"
-                            placeholder="Patient ID or MRN"
+                            placeholder="Accession Number"
                             onChange={handleInput}
                             onKeyDown={({ key }) => {
                               if (key.toLowerCase() === "enter") finalize();
@@ -220,7 +218,12 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
           </GridItem>
 
           <GridItem lg={2} sm={12}>
-            <Button isLarge variant="primary" id="finalize" onClick={() => finalize()}>
+            <Button
+              isLarge
+              variant="primary"
+              id="finalize"
+              onClick={() => finalize()}
+            >
               <SearchIcon /> Search
             </Button>
           </GridItem>
@@ -254,6 +257,23 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
             <CardBody>
               <Grid hasGutter>
                 <GridItem lg={4} sm={12}>
+                  Study Date
+                  <br />
+                  <DatePicker
+                    placeholder="Study Date (yyyy-MM-dd)"
+                    dateFormat={(date) => date.toDateString()}
+                    onChange={(_, date) =>
+                      handleFilter({
+                        StudyDate: `${date?.getFullYear()}${date?.getMonth()}${date?.getDate()}`,
+                      })
+                    }
+                    onKeyDown={({ key }) => {
+                      if (key.toLowerCase() === "enter") finalize();
+                    }}
+                  />
+                </GridItem>
+
+                <GridItem lg={4} sm={12}>
                   Modality <br />
                   <TextInput
                     type="text"
@@ -273,18 +293,6 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                     }
                     placeholder="Eg: LILA"
                     id="station"
-                  />
-                </GridItem>
-
-                <GridItem lg={4} sm={12}>
-                  Accession Number <br />
-                  <TextInput
-                    type="text"
-                    onChange={(value) =>
-                      handleFilter({ AccessionNumber: value })
-                    }
-                    placeholder="Eg: 201200923"
-                    id="accnum"
                   />
                 </GridItem>
               </Grid>

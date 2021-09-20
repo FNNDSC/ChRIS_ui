@@ -123,7 +123,7 @@ class PFDCMClient {
    * @param filters Filters on the Query Obeject
    * @returns PACS Patient array
    */
-  async find(query: PFDCMFilters = {}) {
+  private async __find(query: PFDCMFilters = {}) {
     if (!this.service)
       throw Error('Set the PACS service first, before querying.');
 
@@ -380,36 +380,14 @@ class PFDCMClient {
     }
   }
 
-  async queryByPatientID(PatientID: string, filters: PFDCMFilters = {}) {
-    const raw = await this.find({ PatientID, ...filters });
+  async find(query: PFDCMFilters = {}) {
+    const raw = await this.__find(query);
     if (raw) {
       const studies = parseRawDcmData(raw);
       return sortStudiesByPatient(studies);
     } 
     else 
-      return [];
-  }
-
-  async queryByPatientName(PatientName: string, filters: PFDCMFilters = {}) {
-    const raw = await this.find({ PatientName, ...filters });
-    if (raw) {
-      const studies = parseRawDcmData(raw);
-      return sortStudiesByPatient(studies);
-    } 
-    else 
-      return [];
-  }
-
-  async queryByStudyDate(date: Date, filters: PFDCMFilters = {}) {
-    // date string format: yyyyMMddd (no spaces or dashes)
-    const dateString = `${date.getFullYear()}${date.getMonth()}${date.getDate()}`;
-    const raw = await this.find({ StudyDate: dateString, ...filters });
-    if (raw) {
-      const studies = parseRawDcmData(raw);
-      return sortStudiesByPatient(studies);
-    } 
-    else 
-      return [];
+      return [] as PACSPatient[];
   }
 }
 

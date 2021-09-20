@@ -56,6 +56,11 @@
       .pf-c-card__header {
         padding: 0;
         font-size: small;
+
+        .study-detail-title {
+          color: gray;
+          font-weight: 600;
+        }
       }
     }
   }

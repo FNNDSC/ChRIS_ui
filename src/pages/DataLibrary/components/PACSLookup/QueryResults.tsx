@@ -14,13 +14,15 @@ import {
   ProgressMeasureLocation,
   ProgressSize,
   Spinner,
-  Split,
-  SplitItem,
   Title,
   Tooltip,
 } from "@patternfly/react-core";
 import { useHistory } from "react-router";
-import { CubesIcon } from "@patternfly/react-icons";
+import {
+  CubesIcon,
+  CodeBranchIcon,
+  QuestionCircleIcon,
+} from "@patternfly/react-icons";
 import Moment from "react-moment";
 import pluralize from "pluralize";
 import { PACSFileList } from "@fnndsc/chrisapi";
@@ -37,7 +39,6 @@ import {
 } from "../../../../api/pfdcm";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { MainRouterContext } from "../../../../routes";
-import { CodeBranchIcon } from "@patternfly/react-icons";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[];
@@ -248,65 +249,78 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
     return (
       <>
-      <Card isHoverable isExpanded={isStudyExpanded}>
-        <CardHeader onExpand={expandStudy.bind(QueryResults, StudyInstanceUID)}>
-          <Split>
-            <SplitItem style={{ minWidth: "30%", margin: "0 1em 0 0" }}>
-              <div>
-                <b style={{ marginRight: "0.5em" }}>{study.StudyDescription}</b>{" "}
-                {study.StudyDate.getTime() >=
-                Date.now() - 30 * 24 * 60 * 60 * 1000 ? (
-                  <Tooltip content="Study was performed in the last 30 days.">
-                    <Badge>NEW</Badge>
-                  </Tooltip>
-                ) : null}
-              </div>
-              <div>
-                {study.NumberOfStudyRelatedSeries} series, on{" "}
-                {study.StudyDate.toDateString()}
-              </div>
-            </SplitItem>
-            <SplitItem>
-              <div>Modalities in Study</div>
-              <div>
-                {study.ModalitiesInStudy.split("\\").map((m) => (
-                  <Badge style={{ margin: "auto 0.125em" }} key={m}>{m}</Badge>
-                ))}
-              </div>
-            </SplitItem>
-            <SplitItem isFilled />
+        <Card isHoverable isExpanded={isStudyExpanded}>
+          <CardHeader
+            onExpand={expandStudy.bind(QueryResults, StudyInstanceUID)}
+          >
+            <Grid hasGutter>
+              <GridItem span={4}>
+                <div>
+                  <b style={{ marginRight: "0.5em" }}>
+                    {study.StudyDescription}
+                  </b>{" "}
+                  {study.StudyDate.getTime() >=
+                  Date.now() - 30 * 24 * 60 * 60 * 1000 ? (
+                    <Tooltip content="Study was performed in the last 30 days.">
+                      <Badge>NEW</Badge>
+                    </Tooltip>
+                  ) : null}
+                </div>
+                <div>
+                  {study.NumberOfStudyRelatedSeries} series, on{" "}
+                  {study.StudyDate.toDateString()}
+                </div>
+              </GridItem>
+              <GridItem span={2}>
+                <div className="study-detail-title">Modalities in Study</div>
+                <div>
+                  {study.ModalitiesInStudy.split("\\").map((m) => (
+                    <Badge style={{ margin: "auto 0.125em" }} key={m}>{m}</Badge>
+                  ))}
+                </div>
+              </GridItem>
+              <GridItem span={2}>
+                <div className="study-detail-title">Accession Number</div>
+                {study.AccessionNumber. startsWith("no value") ? (
+                  <Tooltip content={study.AccessionNumber}><QuestionCircleIcon /></Tooltip>
+                ) : (
+                  <div>{study.AccessionNumber}</div>
+                )}
+              </GridItem>
 
-            {!study.PerformedStationAETitle.startsWith("no value") && (
-              <SplitItem style={{ textAlign: "right" }}>
-                <div>Performed at</div>
-                <div>{study.PerformedStationAETitle}</div>
-              </SplitItem>
-            )}
+              <GridItem span={2}>
+                <div className="study-detail-title">Station</div>
+                {study.PerformedStationAETitle.startsWith("no value") ? (
+                  <Tooltip content={study.PerformedStationAETitle}><QuestionCircleIcon /></Tooltip>
+                ) : (
+                  <div>{study.PerformedStationAETitle}</div>
+                )}
+              </GridItem>
 
-            <SplitItem
-              style={{
-                margin: "auto 0 auto 2em",
-                minWidth: "12em",
-                textAlign: "right",
-                fontSize: "small",
-              }}
-            >
-              <StudyActions />
-            </SplitItem>
-          </Split>
-        </CardHeader>
-      </Card>
+              <GridItem
+                span={2}
+                style={{
+                  margin: "auto 0 auto 2em",
+                  minWidth: "12em",
+                  textAlign: "right",
+                  fontSize: "small",
+                }}
+              >
+                <StudyActions />
+              </GridItem>
+            </Grid>
+          </CardHeader>
+        </Card>
 
-      {
-        isStudyExpanded &&
-        <Grid hasGutter className="patient-series">
-          {study.series.map((series) => (
-            <GridItem sm={12} md={3} key={series.SeriesInstanceUID}>
-              <SeriesCard series={series} />
-            </GridItem>
-          ))}
-        </Grid>
-      }
+        {isStudyExpanded && (
+          <Grid hasGutter className="patient-series">
+            {study.series.map((series) => (
+              <GridItem sm={12} md={3} key={series.SeriesInstanceUID}>
+                <SeriesCard series={series} />
+              </GridItem>
+            ))}
+          </Grid>
+        )}
       </>
     );
   };
