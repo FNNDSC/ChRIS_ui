@@ -1,4 +1,3 @@
-import { PluginInstanceDescendantList } from "@fnndsc/chrisapi";
 import {
   Alert,
   AlertActionCloseButton,
@@ -8,22 +7,21 @@ import {
   FormGroup,
   List,
   ListItem,
+  Modal,
+  ModalVariant,
+  Popover,
+  TextArea,
   TextInput,
   Title,
   TitleSizes,
-  Modal,
   Wizard,
-  ModalVariant,
-  Spinner,
-  TextArea,
-  FormAlert,
-  Popover,
 } from "@patternfly/react-core";
 import { PenFancyIcon } from "@patternfly/react-icons";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useTypedSelector } from "../../store/hooks";
+import { pluginTree } from "./pipelinetypes";
 
 const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
 const UserName = window.sessionStorage.getItem("USERNAME");
@@ -36,12 +34,12 @@ const SavePipelineBtn = () => {
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [RequestSuccess, setRequestSuccess] = useState(true);
-  const [stepIdReached, setStepIdReached] = useState(1);
+  const [stepIdReached, setStepIdReached] = useState<any>(1);
   const [PipelineName, setPipelineName] = useState("");
   const [Category, setCategory] = useState("");
   const [Description, setDescription] = useState("");
   const [Locked, setLocked] = useState("false");
-  const [PluginTree, setPluginTree] = useState<any[]>([]);
+  const [PluginTree, setPluginTree] = useState<pluginTree[]>([]);
   const [ErrorMsg, setErrorMsg] = useState(
     "Please select plugins before proceeding."
   );
@@ -77,38 +75,6 @@ const SavePipelineBtn = () => {
     setTimeout(() => setShowPopover(false), 3000);
   }, [showPopover === true, isModalOpen === false]);
 
-  // const CheckPrevIndex = (
-  //   { prev_id, prev_parentId, prev_index }: any,
-  //   { current_id, current_parentId, current_index }: any
-  // ) => {
-  //   if (current_id === 0) {
-  //     console.log("Root", null);
-  //     prev_id = current_id;
-  //     prev_parentId = null;
-  //     prev_index = 0;
-  //   } else {
-  //     if (current_parentId === prev_parentId) {
-  //       console.log("first node", prev_parentId);
-  //       prev_id = current_id;
-  //       prev_index = current_index;
-  //     } else {
-  //       console.log("second node", current_parentId);
-  //     }
-  //   }
-  // if (pluginIndex === 0) {
-  // } else {
-  //   if (
-  //     resArray[pluginIndex].previous_id ===
-  //     resArray[pluginIndex - 1].previous_id
-  //   ) {
-  //     // console.log("first node", tempList[pluginIndex - 1]?.previous_index);
-  //     console.log("first node", tempList[pluginIndex - 1]);
-  //   } else {
-  //     console.log("second node", pluginIndex - 1);
-  //   }
-  // }
-  // };
-
   const handleClick = () => {
     if (ErrorMsg === "") {
       setIsModalOpen(true);
@@ -125,7 +91,7 @@ const SavePipelineBtn = () => {
         )
         .then((response) => {
           console.log("Response", response.data.results);
-          const tempList: any = [];
+          const tempList: pluginTree[] = [];
           const result = response.data.results;
           for (let i = 0; i < result.length; i++) {
             const tempPluginTree = {
@@ -142,7 +108,7 @@ const SavePipelineBtn = () => {
             };
             tempList.push(tempPluginTree);
           }
-         
+
           setPluginTree(() => tempList);
         })
         .catch((errors: Error) => {
@@ -194,7 +160,7 @@ const SavePipelineBtn = () => {
   };
 
   const NewPipeline = () => {
-    if (stepIdReached >= 3 && isModalOpen) {
+    if (stepIdReached && stepIdReached >= 3 && isModalOpen) {
       axios
         .post(
           `${chrisURL}pipelines/`,
@@ -260,19 +226,15 @@ const SavePipelineBtn = () => {
     return onSave();
   };
 
-  const onNext = ({ id, name }: any, { prevId, prevName }: any) => {
-    setStepIdReached(stepIdReached < id ? id : stepIdReached);
-  };
-
-  const onBack = ({ id, name }: any, { prevId, prevName }: any) => {
-    console.log(
-      `current id: ${id}, current name: ${name}, previous id: ${prevId}, previous name: ${prevName}`
-    );
-  };
-
-  const onGoToStep = ({ id, name }: any, { prevId, prevName }: any) => {
-    console.log(
-      `current id: ${id}, current name: ${name}, previous id: ${prevId}, previous name: ${prevName}`
+  const onNext = (
+    { id, name }: { id?: string | null | number; name: React.ReactNode },
+    {
+      prevId,
+      prevName,
+    }: { prevId?: string | number; prevName: React.ReactNode }
+  ) => {
+    setStepIdReached(
+      stepIdReached && id && stepIdReached < id ? id : stepIdReached
     );
   };
 
@@ -379,7 +341,7 @@ const SavePipelineBtn = () => {
         </ul>
         <b>Pipeline Nodes:</b>
         <List isBordered>
-          {PluginTree.map((plugin: any, index: number) => {
+          {PluginTree.map((plugin: pluginTree, index: number) => {
             return <ListItem key={index}>{plugin.plugin_name}</ListItem>;
           })}
         </List>
@@ -404,7 +366,7 @@ const SavePipelineBtn = () => {
           <Alert variant="warning" title={ErrorMsg} />
         ),
       enableNext: PluginTree.length > 0,
-      canJumpTo: stepIdReached >= 2,
+      canJumpTo: stepIdReached && stepIdReached >= 2,
       nextButtonText: "Save Pipeline",
     },
     {
@@ -412,7 +374,7 @@ const SavePipelineBtn = () => {
       name: "Finish",
       component: <>{NewPipeline()}</>,
       nextButtonText: "Done",
-      canJumpTo: stepIdReached >= 3,
+      canJumpTo: stepIdReached && stepIdReached >= 3,
     },
   ];
 
@@ -459,8 +421,6 @@ const SavePipelineBtn = () => {
           onSave={() => onSave()}
           steps={steps}
           onNext={(step, prevstep) => onNext(step, prevstep)}
-          onBack={(step, prevstep) => onBack(step, prevstep)}
-          onGoToStep={(step, prevstep) => onGoToStep(step, prevstep)}
           height={400}
         />
       </Modal>

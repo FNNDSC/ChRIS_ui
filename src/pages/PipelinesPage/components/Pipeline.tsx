@@ -17,16 +17,60 @@ import { Link, useParams } from "react-router-dom";
 import Wrapper from "../../../containers/Layout/PageWrapper";
 import PipelineTree from "../../../components/pipelines/PipelineTree";
 
+interface Pipeline {
+  authors: string;
+  category: string;
+  creation_date: string;
+  default_parameters: string;
+  description: string;
+  id: number | null;
+  instances: string;
+  locked: boolean | null;
+  modification_date: string;
+  name: string;
+  owner_username: string;
+  plugin_pipings: string;
+  plugins: string;
+  template: { data: [] };
+  url: string;
+}
+
+interface Pipings {
+  id: number;
+  pipeline: string;
+  pipeline_id: number;
+  plugin: string;
+  plugin_id: number;
+  previous: string | null;
+  previous_id?: number;
+  url: string;
+}
+
 const Pipeline = () => {
-  const { id }: any = useParams();
+  const { id } = useParams<{ id: string }>();
   const [copied, setCopied] = useState(false);
-  const [timer, setTimer] = useState<any>(null);
-  const [pipeline, setPipeline] = useState<any>({});
-  const [pipings, setPipings] = useState<any>([]);
+  const [timer, setTimer] = useState<number | null>(null);
+  const [pipeline, setPipeline] = useState<Pipeline>({
+    authors: "",
+    category: "",
+    creation_date: "",
+    default_parameters: "",
+    description: "",
+    id: null,
+    instances: "",
+    locked: null,
+    modification_date: "",
+    name: "",
+    owner_username: "",
+    plugin_pipings: "",
+    plugins: "",
+    template: { data: [] },
+    url: "",
+  });
+  const [pipings, setPipings] = useState<Pipings[]>([]);
   const [selectedNode, setselectedNode] = useState(0);
 
-  
-const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
+  const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
 
   const blob = new Blob([JSON.stringify(pipeline)], {
     type: "application/vnd.collection+json",
@@ -38,12 +82,12 @@ const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
         headers: {
           "Content-Type": "application/vnd.collection+json",
           Authorization:
-          "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
+            "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
         },
       })
-      .then((response: any) => {
+      .then((response) => {
         setPipeline(response.data);
-        console.log("response",response.data)
+        console.log("response", typeof response.data);
       })
       .catch((errors) => {
         console.error(errors);
@@ -52,18 +96,16 @@ const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
 
   useEffect(() => {
     axios
-      .get(
-        `${chrisURL}pipelines/${id}/pipings/`,
-        {
-          headers: {
-            "Content-Type": "application/vnd.collection+json",
-            Authorization:
+      .get(`${chrisURL}pipelines/${id}/pipings/`, {
+        headers: {
+          "Content-Type": "application/vnd.collection+json",
+          Authorization:
             "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
-          },
-        }
-      )
-      .then((response: any) => {
+        },
+      })
+      .then((response) => {
         setPipings(response.data.results);
+        console.log("pipings data", response.data.results);
       })
       .catch((errors) => {
         console.error(errors);
@@ -123,10 +165,10 @@ const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
     </>
   );
 
-  const onNodeClick = (node: any, event: React.SyntheticEvent) =>{
-    console.log("Selected Plugin", node)
-     }
-   
+  const onNodeClick = (node: any, event: React.SyntheticEvent) => {
+    console.log("Selected Plugin", node);
+  };
+
   return (
     <Wrapper>
       <PageSection className="pipeline_main">
@@ -177,7 +219,12 @@ const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
         <div className="pipeline_main_bottom">
           <div className="pipeline_main_bottom_left">
             <p>Pipeline Graph</p>
-            <PipelineTree pluginData={pipings} onNodeClick={(node:any, event: React.SyntheticEvent)=>onNodeClick(node, event)}/>
+            <PipelineTree
+              pluginData={pipings}
+              onNodeClick={(node: any, event: React.SyntheticEvent) =>
+                onNodeClick(node, event)
+              }
+            />
             {console.log("Plugin Data from pipeline", pipings)}
             {/* id: 1
                 pipeline: "https://store.outreachy.chrisproject.org/api/v1/pipelines/1/"
@@ -205,11 +252,11 @@ const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
             <p>
               Selected Node:
               <br />
-              <b>{pipings[selectedNode]?.plugin_name}</b>
+              {/* <b>{pipings[selectedNode]?.plugin_name}</b> */}
             </p>
             <br />
             <p>
-              Plugin Version: <b>{pipings[selectedNode]?.plugin_version}</b>
+              {/* Plugin Version: <b>{pipings[selectedNode]?.plugin_version}</b> */}
             </p>
             <br />
             <p>
@@ -220,8 +267,8 @@ const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
             <br />
             <p>This plugin will run under the following command:</p>
             <br />
-            <CodeBlock actions={actions} id="code-content" >
-              <CodeBlockCode >{code}</CodeBlockCode>
+            <CodeBlock actions={actions} id="code-content">
+              <CodeBlockCode>{code}</CodeBlockCode>b
             </CodeBlock>
           </div>
         </div>

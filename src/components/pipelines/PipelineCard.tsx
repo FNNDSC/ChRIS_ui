@@ -8,15 +8,7 @@ import {
 import { EyeIcon } from "@patternfly/react-icons";
 import React from "react";
 import { useHistory } from "react-router";
-
-type PipelineCardProps = {
-  Pipeline_name: string;
-  Description: string;
-  Author: string;
-  Date_created: string;
-  Pipeline_id: string;
-  props?: any;
-};
+import { PipelineCardProps } from "./pipelinetypes";
 
 const PipelineCard = ({
   Pipeline_name,
@@ -24,16 +16,12 @@ const PipelineCard = ({
   Author,
   Date_created,
   Pipeline_id,
-  ...props
 }: PipelineCardProps) => {
   const history = useHistory();
 
   return (
-    <div {...props}>
-      <Card
-        key={Pipeline_id}
-        isHoverable
-      >
+    <div>
+      <Card key={Pipeline_id} isHoverable>
         <CardTitle style={{ color: "#042c53", fontSize: "1.2rem" }}>
           {Pipeline_name}
         </CardTitle>
@@ -46,7 +34,11 @@ const PipelineCard = ({
         </CardBody>
         <CardFooter>
           <Button
-            style={{ backgroundColor: "#042c53", cursor: "pointer", marginRight:"2px" }}
+            style={{
+              backgroundColor: "#042c53",
+              cursor: "pointer",
+              marginRight: "2px",
+            }}
             icon={<EyeIcon />}
             iconPosition="left"
             onClick={() => history.push(`/pipelines/${Pipeline_id}`)}

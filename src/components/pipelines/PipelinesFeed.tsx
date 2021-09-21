@@ -1,13 +1,12 @@
 import {
-  PageSection,
-  Spinner,
   Form,
-  FormGroup,
-  TextInput,
+  FormGroup, PageSection,
+  Spinner, TextInput
 } from "@patternfly/react-core";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import PipelineCard from "./PipelineCard";
+import { PipelineSearchResponse } from "./pipelinetypes";
 
 const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
 
@@ -21,11 +20,11 @@ const PipelinesFeed = () => {
         headers: {
           "Content-Type": "application/vnd.collection+json",
           Authorization:
-          "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
+            "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
         },
         params: { name: Search_query },
       })
-      .then((response: any) => {
+      .then((response) => {
         setPipelines(response?.data.results);
       })
       .catch((errors) => {
@@ -58,7 +57,7 @@ const PipelinesFeed = () => {
       </Form>
       <div className="pipelines">
         {Pipelines.length > 0 ? (
-          Pipelines.map((pipeline: any) => {
+          Pipelines.map((pipeline: PipelineSearchResponse) => {
             return (
               <PipelineCard
                 key={pipeline.id}
