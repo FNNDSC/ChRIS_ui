@@ -80,17 +80,11 @@
 }
 
 .node__root > circle {
-  fill: red;
+  fill: #004080;
 }
 
 .node__branch > circle {
-  fill: yellow;
-}
-
-.node__leaf > circle {
-  fill: red;
-  /* Let's also make the radius of leaf nodes larger */
-  // r: 40;
+  fill: #004080;
 }
 
 .pipeline_main_bottom_right {
@@ -105,11 +99,6 @@
 
 .docs_content{
   margin: 2em auto;
-}
-
-.code_content{
-  color: white;
-  background-color: #0a1417;
 }
 
 .docs_title{

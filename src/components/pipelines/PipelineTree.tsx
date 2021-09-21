@@ -1,64 +1,37 @@
 import { GridItem } from "@patternfly/react-core";
-import React, { useEffect, useState } from "react";
+import React, { SyntheticEvent, useEffect, useState } from "react";
 import Tree from "react-d3-tree";
 import { useTypedSelector } from "../../store/hooks";
 import ParentComponent from "../feed/FeedTree/ParentComponent";
-import { Datum, Point, TreeNodeDatum } from "../feed/FeedTree/data";
+import { Datum, Point } from "../feed/FeedTree/data";
 import { PluginInstance } from "@fnndsc/chrisapi";
-
-// interface PluginData {
-//   pluginData: any[];
-// }
-
+import { ReactNode } from "hoist-non-react-statics/node_modules/@types/react";
+import axios from "axios";
 interface RawNodeDatum {
+  // id:number;
   name: string;
-  attributes?: Record<string, string | number | boolean>;
-  children?: RawNodeDatum[];
-  parent: string;
-  __rd3t?: { collapsed: boolean; depth: number; id: string };
+  // attributes?: Record<string, string | number | boolean>;
+  children: RawNodeDatum[];
+  parent: number;
+  __rd3t?: {
+    id: string;
+    depth: number;
+    collapsed: boolean;
+  };
 }
 
-// const orgChart: RawNodeDatum = {
-//   name: "Top Level",
-//   parent: "null",
-//   children: [
-//     {
-//       name: "Level 2: A",
-//       parent: "Top Level",
-//       children: [
-//         {
-//           name: "Son of A",
-//           parent: "Level 2: A",
-//         },
-//         {
-//           name: "Daughter of A",
-//           parent: "Level 2: A",
-//         },
-//       ],
-//     },
-//     {
-//       name: "Level 2: B",
-//       parent: "Top Level",
-//     },
-//   ],
-// };
+const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
 
-const PipelineTree = ({ pluginData }: any) => {
-  const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
-  );
-  const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances
-  );
-
-  console.log("Plugin Instances from pipeline", pluginInstances);
-
-  // console.log("Plugin iNstances for pipeline 🤞", pluginInstances)
-  // const data = getFeedTree(instances);
-  // const pluginInstances = useTypedSelector(
-  //   (state) => state.instance.pluginInstances
-  // );
-  
+const PipelineTree = ({ pluginData, onNodeClick }: any) => {
+  console.log("Plugin Instances from pipeline", pluginData);
+  // id: 35
+  // pipeline: "https://cube.outreachy.chrisproject.org/api/v1/pipelines/14/"
+  // pipeline_id: 14
+  // plugin: "https://cube.outreachy.chrisproject.org/api/v1/plugins/3/"
+  // plugin_id: 3
+  // previous: "https://cube.outreachy.chrisproject.org/api/v1/pipelines/pipings/34/"
+  // previous_id: 34
+  // url: "https://cube.outreachy.chrisproject.org/api/v1/pipelines/pipings/35/"
 
   const getPipelineTree = (items: any[]) => {
     const tree = [],
@@ -70,15 +43,20 @@ const PipelineTree = ({ pluginData }: any) => {
       const id = item.id;
 
       if (!mappedArr.hasOwnProperty(id)) {
+        console.log("NAME", item.plugin_name);
+        console.log("PARENT", item.previous_id);
+
         mappedArr[id] = {
-          name: item.plugin_name,
+          // id: id,
+          // name: item.plugin_id,
+          name:"",
           parent: item.previous_id,
           children: [],
-          // __rd3t: {
-          //   id: "",
-          //   depth: 0,
-          //   collapsed: false,
-          // },
+          __rd3t: {
+            id: "",
+            depth: 0,
+            collapsed: false,
+          },
         };
       }
     });
@@ -88,67 +66,37 @@ const PipelineTree = ({ pluginData }: any) => {
       if (mappedArr.hasOwnProperty(id)) {
         mappedElem = mappedArr[id];
 
-        // if (mappedElem.parent) {
-        //   const parentId = mappedElem.parent;
-        //   if (parentId && mappedArr[parentId] && mappedArr[parentId].children)
-        //     mappedArr[parentId].children.push(mappedElem);
-        // } else {
-        //   tree.push(mappedElem);
-        // }
+        if (mappedElem.parent) {
+          const parentId = mappedElem.parent;
+          if (parentId && mappedArr[parentId] && mappedArr[parentId].children)
+            mappedArr[parentId].children.push(mappedElem);
+        } else {
+          tree.push(mappedElem);
+        }
       }
     }
 
-    // return tree;
+    return tree;
   };
 
-  const TreePipeline = getPipelineTree(pluginData);
-  console.log("Tree", TreePipeline);
-
-    const [pipelineTree, setpipelineTree] = useState<RawNodeDatum>({
-      name: "Root",
-      children: [],
-      parent: "null",
-    });
-
-  useEffect(() => {
-      setpipelineTree({
-        name: pluginData[0]?.plugin_name,
-        parent: pluginData[0]?.previous,
-        children: [
-          {
-            name: pluginData[1]?.plugin_name,
-            parent: pluginData[1]?.previous,
-          },
-          {
-            name: pluginData[2]?.plugin_name,
-            parent: pluginData[2]?.previous,
-          },
-        ],
-      });
-    }, [pluginData]);
-
-  //   console.log("Props", pluginData);
+  const pipelineTree = getPipelineTree(pluginData);
+  console.log("TREE", pipelineTree);
 
   return (
     <div id="treeWrapper" style={{ width: "50em", height: "30em" }}>
-      {/* <ParentComponent
-        isSidePanelExpanded={false}
-        isBottomPanelExpanded={false}
-        onExpand={onClick}
-        onNodeClick={onNodeClick}
-        onNodeClickTs={onNodeClickTS}
-        instances={TreePipeline}
-      /> */}
-
-      <Tree
-        data={pipelineTree}
-        orientation="vertical"
-        rootNodeClassName="node__root"
-        branchNodeClassName="node__branch"
-        leafNodeClassName="node__leaf"
-        pathFunc="straight"
-        collapsible={false}
-      />
+      {pluginData.length > 0 ? (
+        <Tree
+          data={pipelineTree}
+          orientation="vertical"
+          rootNodeClassName="node__root"
+          branchNodeClassName="node__branch"
+          pathFunc="straight"
+          collapsible={false}
+          onNodeClick={(node, event) => onNodeClick(node, event)}
+        />
+      ) : (
+        <p>Loading pipeline tree...</p>
+      )}
     </div>
   );
 };

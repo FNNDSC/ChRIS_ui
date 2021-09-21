@@ -17,7 +17,6 @@ type NodeWrapperProps = {
   orientation: "horizontal" | "vertical";
   overlayScale?: FeedTreeScaleType;
   toggleLabel: boolean;
-  hover?: boolean;
 };
 
 type NodeProps = NodeWrapperProps & {
@@ -154,9 +153,6 @@ const Node = (props: NodeProps) => {
         <circle
           id={`node_${data.id}`}
           className={`node ${statusClass} ${tsClass}  
-          ${
-            props.hover && `pipeline`
-          }
               ${currentId && `selected` }
               `}
           r={DEFAULT_NODE_CIRCLE_RADIUS}

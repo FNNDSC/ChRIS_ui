@@ -441,20 +441,9 @@ const FeedTree = (props: AllProps) => {
           })}  
 
           {nodes?.map(({ data, x, y, parent }, i) => {
-            // {
-            //   console.log("selectedPlugin", selectedPlugin?.data?.id);
-            // }
-            // {
-            //   console.log("data parent: ", parent?.data?.parentId);
-            // }
-            // {
-            //   console.log("data node parent: ", parent);
-            // }
-            const OnHover =
-              selectedPlugin &&
-              parent?.data?.parentId !== undefined &&
-              (selectedPlugin?.data?.id > parent?.data?.parentId);
-
+            {
+              console.log("selectedPlugin", selectedPlugin?.data);
+            }
             return (
               <NodeWrapper
                 key={`node + ${i}`}
@@ -466,7 +455,6 @@ const FeedTree = (props: AllProps) => {
                 onNodeToggle={handleNodeToggle}
                 orientation={orientation}
                 toggleLabel={feedState.toggleLabel}
-                // hover={OnHover}
                 overlayScale={
                   feedState.overlayScale.enabled
                     ? feedState.overlayScale.type

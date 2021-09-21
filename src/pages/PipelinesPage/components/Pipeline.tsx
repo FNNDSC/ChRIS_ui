@@ -29,7 +29,7 @@ const Pipeline = () => {
 const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
 
   const blob = new Blob([JSON.stringify(pipeline)], {
-    type: "application/json",
+    type: "application/vnd.collection+json",
   });
 
   useEffect(() => {
@@ -43,6 +43,7 @@ const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
       })
       .then((response: any) => {
         setPipeline(response.data);
+        console.log("response",response.data)
       })
       .catch((errors) => {
         console.error(errors);
@@ -122,6 +123,10 @@ const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
     </>
   );
 
+  const onNodeClick = (node: any, event: React.SyntheticEvent) =>{
+    console.log("Selected Plugin", node)
+     }
+   
   return (
     <Wrapper>
       <PageSection className="pipeline_main">
@@ -172,7 +177,7 @@ const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
         <div className="pipeline_main_bottom">
           <div className="pipeline_main_bottom_left">
             <p>Pipeline Graph</p>
-            <PipelineTree pluginData={pipings}/>
+            <PipelineTree pluginData={pipings} onNodeClick={(node:any, event: React.SyntheticEvent)=>onNodeClick(node, event)}/>
             {console.log("Plugin Data from pipeline", pipings)}
             {/* id: 1
                 pipeline: "https://store.outreachy.chrisproject.org/api/v1/pipelines/1/"
@@ -182,18 +187,7 @@ const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
                 plugin_name: "pl-fetal-brain-mask"
                 plugin_version: "1.2.1"
                 previous: null
-                url: "https://store.outreachy.chrisproject.org/api/v1/pipelines/pipings/1/" 
-                
-                id: 4
-                pipeline: "https://store.outreachy.chrisproject.org/api/v1/pipelines/1/"
-                pipeline_id: 1
-                plugin: "https://store.outreachy.chrisproject.org/api/v1/plugins/28/"
-                plugin_id: 28
-                plugin_name: "pl-irtk-reconstruction"
-                plugin_version: "1.0.3"
-                previous: "https://store.outreachy.chrisproject.org/api/v1/pipelines/pipings/3/"
-                previous_id: 3
-                url: "https://store.outreachy.chrisproject.org/api/v1/pipelines/pipings/4/"*/}
+            url: "https://store.outreachy.chrisproject.org/api/v1/pipelines/pipings/1/" */}
 
             {/* <div>{pipeline.plugin_pipings}</div>
             {pipings.map((piping: any, index: number) => {
@@ -226,8 +220,8 @@ const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
             <br />
             <p>This plugin will run under the following command:</p>
             <br />
-            <CodeBlock actions={actions}>
-              <CodeBlockCode id="code-content">{code}</CodeBlockCode>
+            <CodeBlock actions={actions} id="code-content" >
+              <CodeBlockCode >{code}</CodeBlockCode>
             </CodeBlock>
           </div>
         </div>

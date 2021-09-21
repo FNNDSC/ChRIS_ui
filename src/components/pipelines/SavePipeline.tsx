@@ -1,3 +1,4 @@
+import { PluginInstanceDescendantList } from "@fnndsc/chrisapi";
 import {
   Alert,
   AlertActionCloseButton,
@@ -16,10 +17,11 @@ import {
   Spinner,
   TextArea,
   FormAlert,
+  Popover,
 } from "@patternfly/react-core";
 import { PenFancyIcon } from "@patternfly/react-icons";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useTypedSelector } from "../../store/hooks";
 
@@ -43,17 +45,73 @@ const SavePipelineBtn = () => {
   const [ErrorMsg, setErrorMsg] = useState(
     "Please select plugins before proceeding."
   );
+  const [btndisabled, setBtndisabled] = useState(false);
+  const [showPopover, setShowPopover] = useState(false);
+  const CheckRootNode = selectedPlugin?.collection.items[0].data;
+
+  const validatePipeline = () => {
+    if (
+      !CheckRootNode.some(
+        (node: any) => node.value === "finishedSuccessfully"
+      ) ||
+      !CheckRootNode.some((node: any) => node.name === "previous_id")
+    ) {
+      setBtndisabled(true);
+      setShowPopover(true);
+      !CheckRootNode.some((node: any) => node.value === "finishedSuccessfully")
+        ? setErrorMsg(
+            "You cannot create a pipeline from a node that has not finished successfully."
+          )
+        : setErrorMsg("You cannot create a pipeline from your feed root node.");
+    } else {
+      setBtndisabled(false);
+      setErrorMsg("");
+    }
+  };
+
+  useEffect(() => {
+    validatePipeline();
+  }, [CheckRootNode]);
+
+  useEffect(() => {
+    setTimeout(() => setShowPopover(false), 3000);
+  }, [showPopover === true, isModalOpen === false]);
+
+  // const CheckPrevIndex = (
+  //   { prev_id, prev_parentId, prev_index }: any,
+  //   { current_id, current_parentId, current_index }: any
+  // ) => {
+  //   if (current_id === 0) {
+  //     console.log("Root", null);
+  //     prev_id = current_id;
+  //     prev_parentId = null;
+  //     prev_index = 0;
+  //   } else {
+  //     if (current_parentId === prev_parentId) {
+  //       console.log("first node", prev_parentId);
+  //       prev_id = current_id;
+  //       prev_index = current_index;
+  //     } else {
+  //       console.log("second node", current_parentId);
+  //     }
+  //   }
+  // if (pluginIndex === 0) {
+  // } else {
+  //   if (
+  //     resArray[pluginIndex].previous_id ===
+  //     resArray[pluginIndex - 1].previous_id
+  //   ) {
+  //     // console.log("first node", tempList[pluginIndex - 1]?.previous_index);
+  //     console.log("first node", tempList[pluginIndex - 1]);
+  //   } else {
+  //     console.log("second node", pluginIndex - 1);
+  //   }
+  // }
+  // };
 
   const handleClick = () => {
-    const CheckRootNode = selectedPlugin?.collection.items[0].data;
-    setIsModalOpen(!isModalOpen);
-
-    if (
-      CheckRootNode.some(
-        (node: any) =>
-          node.name === "previous_id" && node.value === "finishedSuccessfully"
-      )
-    ) {
+    if (ErrorMsg === "") {
+      setIsModalOpen(true);
       axios
         .get(
           `${chrisURL}plugins/instances/${selectedPlugin?.data.id}/descendants/`,
@@ -65,41 +123,32 @@ const SavePipelineBtn = () => {
             },
           }
         )
-        .then((response: any) => {
-          const tempList: any[] = [];
-          response.data.results.map((result: any, pluginIndex: number) => {
+        .then((response) => {
+          console.log("Response", response.data.results);
+          const tempList: any = [];
+          const result = response.data.results;
+          for (let i = 0; i < result.length; i++) {
             const tempPluginTree = {
-              plugin_name: `${result.plugin_name}`,
-              plugin_version: `${result.plugin_version}`,
-              previous_index: pluginIndex === 0 ? null : pluginIndex - 1,
+              plugin_name: `${result[i].plugin_name}`,
+              plugin_version: `${result[i].plugin_version}`,
+              previous_index:
+                i === 0
+                  ? null
+                  : i === 1
+                  ? 0
+                  : result[i].previous_id === result[i - 1].previous_id
+                  ? tempList[i - 1].previous_index
+                  : tempList[i - 1].previous_index + 1,
             };
-            return tempList.push(tempPluginTree);
-          });
+            tempList.push(tempPluginTree);
+          }
+         
           setPluginTree(() => tempList);
         })
         .catch((errors: Error) => {
           console.error(errors.message);
         });
-    }
-    //define and handle errors
-    else {
-      if (
-        CheckRootNode.some(
-          (node: any) => node.value === "finishedSuccessfully"
-        ) === false
-      ) {
-        setErrorMsg(
-          "You cannot create a pipeline from a node that has not finished successfully."
-        );
-      } else {
-        setErrorMsg("You cannot create a pipeline from your feed root node.");
-      }
-    }
-  };
-
-  const handleHover = () => {
-    console.log("Mouse over!");
-    // highlight pipeline nodes
+    } else setShowPopover(true);
   };
 
   const onSave = () => {
@@ -176,14 +225,35 @@ const SavePipelineBtn = () => {
           }
         )
         .then((res) => {
-          console.log("Success 🎉🎉🎉", res);
           setRequestSuccess(true);
+          console.log("Success 🎉🎉🎉", res);
         })
         .catch((errors) => {
           console.error(errors.message);
-          setErrorMsg(errors.message)
+          setErrorMsg(errors.message);
           setRequestSuccess(false);
           console.log("Failed! 💩💩💩");
+          console.log(
+            `${chrisURL}pipelines/`,
+            `${JSON.stringify({
+              template: {
+                data: [
+                  { name: "name", value: PipelineName },
+                  { name: "authors", value: UserName },
+                  { name: "Category", value: Category },
+                  {
+                    name: "description",
+                    value: Description,
+                  },
+                  { name: "locked", value: Locked },
+                  {
+                    name: "plugin_tree",
+                    value: JSON.stringify(PluginTree),
+                  },
+                ],
+              },
+            })}`
+          );
         });
     }
 
@@ -349,17 +419,25 @@ const SavePipelineBtn = () => {
   const title = "Save Pipeline";
 
   return (
-    <div>
-      <Button
-        type="button"
-        variant="primary"
-        icon={<PenFancyIcon />}
-        onClick={() => handleClick()}
-        onMouseOver={() => handleHover()}
-        style={{ marginTop: "1rem" }}
+    <div onClick={() => handleClick()}>
+      <Popover
+        aria-label="pipeline warning"
+        headerContent={<div>Warning ⚠</div>}
+        bodyContent={<div>{ErrorMsg}</div>}
+        isVisible={showPopover}
+        showClose={false}
       >
-        Save Pipeline
-      </Button>
+        <Button
+          type="button"
+          variant="primary"
+          icon={<PenFancyIcon />}
+          onClick={() => handleClick()}
+          style={{ marginTop: "1rem" }}
+          isDisabled={btndisabled}
+        >
+          Save Pipeline
+        </Button>
+      </Popover>
 
       <Modal
         isOpen={isModalOpen}
