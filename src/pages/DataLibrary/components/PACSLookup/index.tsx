@@ -19,14 +19,14 @@ import QueryBuilder from "./QueryBuilder";
 import QueryResults from "./QueryResults";
 
 export enum PFDCMQueryTypes {
-  PATIENT,
-  DATE,
-  MRN,
+  IMRN,
+  NAME,
+  ACCN,
 }
 
 export interface PFDCMQuery {
+  value: string
   type: PFDCMQueryTypes
-  value: any
   filters: PFDCMFilters
 }
 
@@ -71,13 +71,10 @@ export const PACSLookup = () => {
   useEffect(() => {
     client.getPACSservices().then((list) => {
       setPACSservices(list);
-
-      if (!client.service) {
-        if (list.length === 1)
-          client.service = list.shift() as string
-        else if (list.length > 1)
-          client.service = list[1];
-      }
+      if (!client.service)
+        client.service = list.length > 1
+          ? list[1]
+          : (list.slice(list.length - 1).shift() as string);
 
       setSelectedPACS(client.service)
     })
@@ -88,30 +85,36 @@ export const PACSLookup = () => {
       setLoading(true);
       const response: PACSPatient[] = [];
       setProgress([0, queries.length]);
-  
+
       for (let q = 0; q < queries.length; q++) {
         const { type, value, filters } = queries[q];
   
         switch (type) {
-          case PFDCMQueryTypes.PATIENT:
-            response.push(...(await client.queryByPatientName(value, filters)));
+          case PFDCMQueryTypes.IMRN:
+            response.push(
+              ...(await client.find({ PatientID: value, ...filters }))
+            );
             break;
-  
-          case PFDCMQueryTypes.DATE:
-            response.push(...(await client.queryByStudyDate(value, filters)));
+
+          case PFDCMQueryTypes.NAME:
+            response.push(
+              ...(await client.find({ PatientName: value, ...filters }))
+            );
             break;
-  
-          case PFDCMQueryTypes.MRN:
-            response.push(...(await client.queryByPatientID(value, filters)));
+
+          case PFDCMQueryTypes.ACCN:
+            response.push(
+              ...(await client.find({ AccessionNumber: value, ...filters }))
+            );
             break;
-  
+
           default:
-            throw TypeError('Unsupported PFDCM Query Type');
+            throw TypeError("Unsupported PFDCM Query Type");
         }
   
         setProgress([q + 1, queries.length]);
       }
-  
+
       setResults(response);
       setLoading(false);
     },
