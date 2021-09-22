@@ -3,6 +3,7 @@ import {
   Badge,
   Button,
   Card,
+  CardBody,
   CardHeader,
   EmptyState,
   EmptyStateBody,
@@ -13,12 +14,15 @@ import {
   ProgressMeasureLocation,
   ProgressSize,
   Spinner,
-  Split,
-  SplitItem,
   Title,
   Tooltip,
 } from "@patternfly/react-core";
-import { CubesIcon } from "@patternfly/react-icons";
+import { useHistory } from "react-router";
+import {
+  CubesIcon,
+  CodeBranchIcon,
+  QuestionCircleIcon,
+} from "@patternfly/react-icons";
 import Moment from "react-moment";
 import pluralize from "pluralize";
 import { PACSFileList } from "@fnndsc/chrisapi";
@@ -33,8 +37,8 @@ import {
   PFDCMFilters,
   PFDCMPull,
 } from "../../../../api/pfdcm";
-import { LibraryContext, File } from "../../Library";
-import { ExclamationCircleIcon } from "@patternfly/react-icons";
+import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
+import { MainRouterContext } from "../../../../routes";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[];
@@ -47,25 +51,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   onRequestStatus,
   onExecutePACSStage,
 }: QueryResultsProps) => {
-  const library = useContext(LibraryContext);
+  const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
   const client = ChrisAPIClient.getClient();
-
-  const selectPath = (path: File) => {
-    if (!library.actions.isSelected(path)) library.actions.select(path);
-    else library.actions.clear(path);
-  };
-
-  const [expanded, setExpanded] = useState<string[]>([]);
-  const isExpanded = (uid: string) => expanded.includes(uid);
-  const expand = (uid: string) => {
-    let _expanded = expanded;
-    if (expanded.includes(uid)) {
-      _expanded = _expanded.filter((_uid) => _uid !== uid);
-      setExpanded(_expanded);
-    } else {
-      setExpanded([..._expanded, uid]);
-    }
-  };
 
   const PatientCard = ({
     patient
@@ -73,6 +60,11 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     patient: PACSPatient
   }) => {
     const { PatientID, PatientBirthDate, PatientName, PatientSex } = patient;
+    
+    const [isPatientExpanded, setIsPatientExpanded] = useState(false);
+    const expandPatient = () => {
+      setIsPatientExpanded(!isPatientExpanded)
+    }
 
     const LatestDate = (dates: Date[]) => {
       let latestStudy = dates[0];
@@ -83,8 +75,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     };
 
     return (
-      <Card isHoverable isExpanded={isExpanded(PatientID)}>
-        <CardHeader onExpand={expand.bind(PatientCard, PatientID)}>
+      <>
+      <Card isHoverable isExpanded={isPatientExpanded}>
+        <CardHeader onExpand={expandPatient.bind(PatientCard)}>
           <Grid hasGutter style={{ width: "100%" }}>
             <GridItem lg={4}>
               <div>
@@ -121,6 +114,18 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           </Grid>
         </CardHeader>
       </Card>
+
+      {
+        isPatientExpanded &&
+        <Grid hasGutter className="patient-studies">
+        {patient.studies.map((study) => (
+          <GridItem key={study.StudyInstanceUID}>
+            <StudyCard study={study} />
+          </GridItem>
+        ))}
+        </Grid>
+      }
+      </>
     );
   };
 
@@ -132,16 +137,24 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     const { StudyInstanceUID, PatientID } = study;
     const pullQuery = { StudyInstanceUID, PatientID };
 
+    const [isStudyExpanded, setIsStudyExpanded] = useState(false);
+    const expandStudy = () => {
+      setIsStudyExpanded(!isStudyExpanded)
+    }
+
     const StudyActions = () => {
       const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFileList>();
       const [pullStatus, setPullStatus] = useState<PFDCMPull>();
       const [poll, setPoll] = useState<any>();
 
-      const cubeStudySize = existingStudyFiles?.totalCount;
-      const cubeHasStudy = study.NumberOfStudyRelatedInstances === cubeStudySize;
+      const cubeHasStudy = existingStudyFiles?.totalCount !== 0;
+      const studyFiles = existingStudyFiles?.getItems() || [];
+      const cubeStudyPath = studyFiles.length
+        ? studyFiles[0].data.fname.split('/').slice(0, -2).join('/')
+        : "#";
 
       useEffect(() => {
-        client.getPACSFiles(pullQuery).then(async (files) => {  
+        client.getPACSFiles(pullQuery).then(async (files) => {
           setExistingStudyFiles(files);
           setPullStatus(await onRequestStatus(pullQuery));
         });
@@ -176,26 +189,28 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [cubeHasStudy, pullStatus]);
 
+      const route = useHistory().push;
+
       if (!existingStudyFiles || !pullStatus) 
         return <Spinner size="lg" />;
 
       if (cubeHasStudy)
         return (
           <div style={{ color: "gray" }}>
-            <Button variant="link" style={{ padding: 0 }}><b>Available</b></Button>
-            <div>{cubeStudySize} {pluralize("file", cubeStudySize)}</div>
+            <Button
+              variant="link"
+              style={{ padding: 0 }}
+              onClick={() => route(cubeStudyPath)}
+            >
+              <b>Browse</b>
+            </Button>
+            <div>Files available in ChRIS</div>
           </div>
         );
 
       if (pullStatus.stage !== PACSPullStages.NONE)
         return (
           <div>
-            {/* {pullStatus.errors.map((err) => (
-              <span key={err} style={{ color: "firebrick" }}>
-                {err}
-              </span>
-            ))} */}
-
             {!pullStatus.isPullCompleted ? (
               <Progress
                 value={pullStatus.progress * 100}
@@ -208,7 +223,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
               />
             ) : (
               <div>
-                <div><b>{pullStatus.stageText}</b></div>
+                <div><b>Finishing Up</b></div>
                 <div>{pullStatus.progressText}</div>
               </div>
             )}
@@ -233,62 +248,80 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     };
 
     return (
-      <Card isHoverable isExpanded={isExpanded(StudyInstanceUID)}>
-        <CardHeader onExpand={expand.bind(QueryResults, StudyInstanceUID)}>
-          <Split>
-            <SplitItem style={{ minWidth: "30%", margin: "0 1em 0 0" }}>
-              <div>
-                <b style={{ marginRight: "0.5em" }}>{study.StudyDescription}</b>{" "}
-                {study.StudyDate.getTime() >=
-                Date.now() - 30 * 24 * 60 * 60 * 1000 ? (
-                  <Tooltip content="Study was performed in the last 30 days.">
-                    <Badge>NEW</Badge>
-                  </Tooltip>
-                ) : null}
-              </div>
-              <div>
-                {study.NumberOfStudyRelatedSeries} series, on{" "}
-                {study.StudyDate.toDateString()}
-              </div>
-            </SplitItem>
-            <SplitItem>
-              <div>Modalities in Study</div>
-              <div>
-                {study.ModalitiesInStudy.split("\\").map((m) => (
-                  <Badge
-                    style={{
-                      margin: "auto 0.125em",
-                      backgroundColor: "darkgrey",
-                    }}
-                    key={m}
-                  >
-                    {m}
-                  </Badge>
-                ))}
-              </div>
-            </SplitItem>
-            <SplitItem isFilled />
+      <>
+        <Card isHoverable isExpanded={isStudyExpanded}>
+          <CardHeader
+            onExpand={expandStudy.bind(QueryResults, StudyInstanceUID)}
+          >
+            <Grid hasGutter>
+              <GridItem span={4}>
+                <div>
+                  <b style={{ marginRight: "0.5em" }}>
+                    {study.StudyDescription}
+                  </b>{" "}
+                  {study.StudyDate.getTime() >=
+                  Date.now() - 30 * 24 * 60 * 60 * 1000 ? (
+                    <Tooltip content="Study was performed in the last 30 days.">
+                      <Badge>NEW</Badge>
+                    </Tooltip>
+                  ) : null}
+                </div>
+                <div>
+                  {study.NumberOfStudyRelatedSeries} series, on{" "}
+                  {study.StudyDate.toDateString()}
+                </div>
+              </GridItem>
+              <GridItem span={2}>
+                <div className="study-detail-title">Modalities in Study</div>
+                <div>
+                  {study.ModalitiesInStudy.split("\\").map((m) => (
+                    <Badge style={{ margin: "auto 0.125em" }} key={m}>{m}</Badge>
+                  ))}
+                </div>
+              </GridItem>
+              <GridItem span={2}>
+                <div className="study-detail-title">Accession Number</div>
+                {study.AccessionNumber. startsWith("no value") ? (
+                  <Tooltip content={study.AccessionNumber}><QuestionCircleIcon /></Tooltip>
+                ) : (
+                  <div>{study.AccessionNumber}</div>
+                )}
+              </GridItem>
 
-            {!study.PerformedStationAETitle.startsWith("no value") && (
-              <SplitItem style={{ textAlign: "right" }}>
-                <div>Performed at</div>
-                <div>{study.PerformedStationAETitle}</div>
-              </SplitItem>
-            )}
+              <GridItem span={2}>
+                <div className="study-detail-title">Station</div>
+                {study.PerformedStationAETitle.startsWith("no value") ? (
+                  <Tooltip content={study.PerformedStationAETitle}><QuestionCircleIcon /></Tooltip>
+                ) : (
+                  <div>{study.PerformedStationAETitle}</div>
+                )}
+              </GridItem>
 
-            <SplitItem
-              style={{
-                margin: "auto 0 auto 2em",
-                minWidth: "12em",
-                textAlign: "right",
-                fontSize: "small",
-              }}
-            >
-              <StudyActions />
-            </SplitItem>
-          </Split>
-        </CardHeader>
-      </Card>
+              <GridItem
+                span={2}
+                style={{
+                  margin: "auto 0 auto 2em",
+                  minWidth: "12em",
+                  textAlign: "right",
+                  fontSize: "small",
+                }}
+              >
+                <StudyActions />
+              </GridItem>
+            </Grid>
+          </CardHeader>
+        </Card>
+
+        {isStudyExpanded && (
+          <Grid hasGutter className="patient-series">
+            {study.series.map((series) => (
+              <GridItem sm={12} md={3} key={series.SeriesInstanceUID}>
+                <SeriesCard series={series} />
+              </GridItem>
+            ))}
+          </Grid>
+        )}
+      </>
     );
   };
 
@@ -311,25 +344,27 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   
       const seriesFiles = existingSeriesFiles?.getItems() || [];
       const cubeSeriesPath = seriesFiles.length
-        ? seriesFiles[0].data.fname.slice(
-            0,
-            seriesFiles[0].data.fname.lastIndexOf("/")
-          )
-        : [];
+        ? seriesFiles[0].data.fname.split('/').slice(0, -1).join('/')
+        : "#";
+
+      const fetchCUBESeries = async () => {
+        const files = await client.getPACSFiles({
+          ...pullQuery,
+          limit: series.NumberOfSeriesRelatedInstances,
+        });
+
+        setExistingSeriesFiles(files);
+        setPullStatus(await onRequestStatus(pullQuery));
+      };
 
       useEffect(() => {
-        client.getPACSFiles(pullQuery).then(async (files) => {  
-          setExistingSeriesFiles(files);
-          setPullStatus(await onRequestStatus(pullQuery));
-        });
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+        fetchCUBESeries();
       }, [])
       
       useEffect(() => {
         if (
           cubeHasSeries ||
-          !pullStatus ||
-          !pullStatus.isRunning
+          !pullStatus
         )
           return () => clearInterval(poll);
         
@@ -346,36 +381,74 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           return new PFDCMPull(pullStatus.query, pullStatus.stage);
         }
 
-        if (pullStatus.isRunning)
-          setPoll(
-            setTimeout(() => _poll().then(setPullStatus), 1000)
-          )
+        if (pullStatus.isPullCompleted)
+          return setPoll(setTimeout(fetchCUBESeries, 5000));
+        
+        if (pullStatus.isRunning) 
+          return setPoll(setTimeout(() => _poll().then(setPullStatus), 1000))
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [cubeHasSeries, pullStatus]);
 
       if (!existingSeriesFiles || !pullStatus)
-        return <Spinner size="lg" />;
+        return (
+          <div style={{ display: "flex", height: "100%" }}>
+            <Spinner size="lg" style={{ margin: "auto" }} />
+          </div>
+        );
 
       if (cubeHasSeries) {
         return (
-          <Button
-            variant="link"
-            style={{ padding: "0" }}
-            onClick={selectPath.bind(QueryResults, cubeSeriesPath)}
-          >
-            Select
-          </Button>
+          <>
+            {seriesFiles.length && (
+              <FileDetailView
+                preview="small"
+                selectedFile={
+                  seriesFiles[
+                    Math.floor(series.NumberOfSeriesRelatedInstances / 2)
+                  ]
+                }
+              />
+            )}
+
+            <div
+              className="action-button-container hover"
+              style={{ display: "flex" }}
+            >
+              <Tooltip content="Click to create a new feed with this series">
+                <Button
+                  variant="primary"
+                  style={{ fontSize: "small", margin: "auto" }}
+                  onClick={() => createFeed([cubeSeriesPath])}
+                >
+                  <CodeBranchIcon/>{" "}<b>Create Feed</b>
+                </Button>
+              </Tooltip>
+            </div>
+          </>
         );
       }
 
       if (pullStatus.stage !== PACSPullStages.NONE)
         return (
-          <div>
-            <b>
-              { !!pullStatus.errors.length &&
-                <span style={{ color: "firebrick" }}><ExclamationCircleIcon/> { pullStatus.errors.length }</span>
-              } {pullStatus.stageText}
-            </b>
+          <div className="action-button-container" style={{ display: "flex" }}>
+            <div style={{ margin: "auto", textAlign: "center" }}>
+              {!pullStatus.isPullCompleted ? (
+                <Progress
+                  value={pullStatus.progress * 100}
+                  style={{ gap: "0.5em", textAlign: "left", width: "10em" }}
+                  title={pullStatus.stageText}
+                  size={ProgressSize.sm}
+                  measureLocation={ProgressMeasureLocation.top}
+                  label={pullStatus.progressText}
+                  valueText={pullStatus.progressText}
+                />
+              ) : (
+                <>
+                  <div><Spinner size="md" />{" "}<b>Finishing Up</b></div>
+                  <div style={{ fontSize: "small" }}>{pullStatus.progressText}</div>
+                </>
+              )}
+            </div>
           </div>
         );
 
@@ -386,45 +459,36 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       }
 
       return (
-        <Button
-          variant="link"
-          style={{ padding: 0, fontSize: "small" }}
-          onClick={startPull.bind(SeriesCard, pullQuery)}
-        >
-          <b>Pull Series</b>
-        </Button>
+        <div className="action-button-container" style={{ display: "flex" }}>
+          <Tooltip content="Pull this series to use it in ChRIS">
+            <Button
+              variant="secondary"
+              style={{ fontSize: "small", margin: "auto" }}
+              onClick={startPull.bind(SeriesCard, pullQuery)}
+              >
+              <b>Pull Series</b>
+            </Button>
+          </Tooltip>
+        </div>
       );
     };
 
     return (
-      <Card
-        isHoverable
-        // isSelectable={cubeHasSeries}
-        // isSelected={library.actions.isSelected(cubeSeriesPath)}
-      >
-        <CardHeader>
-          <Split
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            <SplitItem style={{ minWidth: "50%" }} isFilled>
-              <Badge style={{ margin: "0 1em 0 0" }}>{series.Modality}</Badge>
-              <span>{series.SeriesDescription}</span>
-            </SplitItem>
-            <SplitItem
-              style={{ color: "gray", margin: "0 2em", textAlign: "right" }}
-            >
+      <Card isHoverable style={{ height: "100%" }}>
+        <CardBody>
+          <div className="series-actions">
+            <SeriesActions />
+          </div>
+
+          <div style={{ fontSize: "small" }}>
+            <b>{series.SeriesDescription}</b>
+            <div>
               {series.NumberOfSeriesRelatedInstances}{" "}
-              {pluralize("file", series.NumberOfSeriesRelatedInstances)}
-            </SplitItem>
-            <SplitItem>
-              <SeriesActions />
-            </SplitItem>
-          </Split>
-        </CardHeader>
+              {pluralize("file", series.NumberOfSeriesRelatedInstances)},{" "}
+              on {series.SeriesDate.toDateString()}
+            </div>
+          </div>
+        </CardBody>
       </Card>
     );
   };
@@ -451,7 +515,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         <GridItem key={patient.PatientID}>
           <PatientCard patient={patient} />
 
-          {isExpanded(patient.PatientID) && (
+          {/* {isExpanded(patient.PatientID) && (
             <Grid hasGutter className="patient-studies">
               {patient.studies.map((study) => (
                 <GridItem key={study.StudyInstanceUID}>
@@ -460,7 +524,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
                   {isExpanded(study.StudyInstanceUID) && (
                     <Grid hasGutter className="patient-series">
                       {study.series.map((series) => (
-                        <GridItem key={series.SeriesInstanceUID}>
+                        <GridItem sm={12} md={3} key={series.SeriesInstanceUID}>
                           <SeriesCard series={series} />
                         </GridItem>
                       ))}
@@ -469,7 +533,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
                 </GridItem>
               ))}
             </Grid>
-          )}
+          )} */}
         </GridItem>
       ))}
     </Grid>

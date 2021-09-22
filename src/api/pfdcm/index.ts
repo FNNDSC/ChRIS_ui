@@ -123,7 +123,7 @@ class PFDCMClient {
    * @param filters Filters on the Query Obeject
    * @returns PACS Patient array
    */
-  async find(query: PFDCMFilters = {}) {
+  private async __find(query: PFDCMFilters = {}) {
     if (!this.service)
       throw Error('Set the PACS service first, before querying.');
 
@@ -187,11 +187,16 @@ class PFDCMClient {
           const serieslist: any[] = study[key];
 
           for (const series of serieslist) {
-            if (series.images.requested.count === -1) break;
+            if (series.images.requested.count === -1) {
+              images.requested = 0;
+              imagestatus.requested = false;
+              break;
+            }
+
             images.requested += series.images.requested.count;
             imagestatus.requested = series.images.requested.status;
             
-            if (series.images.received.count === -1) break;
+            if (series.images.packed.count === -1) break;
             images.packed += series.images.packed.count;
             imagestatus.packed = series.images.packed.status;
             
@@ -225,7 +230,7 @@ class PFDCMClient {
             if (images.registered) {
               if (images.registered === images.requested) {
                 pullstatus.progress = 1;
-                pullstatus.progressText = `Files will be available in ChRIS`;
+                pullstatus.progressText = `Files will shortly be available in ChRIS`;
                 pullstatus.stage = PACSPullStages.COMPLETED;
                 pullstatus.stageText = __stageText(PACSPullStages.COMPLETED);
               } else {
@@ -375,36 +380,14 @@ class PFDCMClient {
     }
   }
 
-  async queryByPatientID(PatientID: string, filters: PFDCMFilters = {}) {
-    const raw = await this.find({ PatientID, ...filters });
+  async find(query: PFDCMFilters = {}) {
+    const raw = await this.__find(query);
     if (raw) {
       const studies = parseRawDcmData(raw);
       return sortStudiesByPatient(studies);
     } 
     else 
-      return [];
-  }
-
-  async queryByPatientName(PatientName: string, filters: PFDCMFilters = {}) {
-    const raw = await this.find({ PatientName, ...filters });
-    if (raw) {
-      const studies = parseRawDcmData(raw);
-      return sortStudiesByPatient(studies);
-    } 
-    else 
-      return [];
-  }
-
-  async queryByStudyDate(date: Date, filters: PFDCMFilters = {}) {
-    // date string format: yyyyMMddd (no spaces or dashes)
-    const dateString = `${date.getFullYear()}${date.getMonth()}${date.getDate()}`;
-    const raw = await this.find({ StudyDate: dateString, ...filters });
-    if (raw) {
-      const studies = parseRawDcmData(raw);
-      return sortStudiesByPatient(studies);
-    } 
-    else 
-      return [];
+      return [] as PACSPatient[];
   }
 }
 
@@ -452,6 +435,7 @@ export interface PACSSeries {
   SeriesDescription: string;
   SeriesInstanceUID: string;
   StudyDate: Date;
+  SeriesDate: Date;
   StudyInstanceUID: string;
   command: string;
   label: string;
@@ -523,6 +507,10 @@ export class PFDCMPull {
 
   get isPullCompleted() {
     return this.stage === PACSPullStages.COMPLETED;
+  }
+
+  get isStarted() {
+    return this.stage !== PACSPullStages.NONE;
   }
 
   get isRunning() {
