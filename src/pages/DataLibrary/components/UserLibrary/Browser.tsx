@@ -140,11 +140,7 @@ export const Browser: React.FC<BrowserProps> = ({
     then: FolderActions,
     folder: Branch
   ): Promise<void> => {
-<<<<<<< HEAD
-    if (!fetchFiles) return;
-=======
     if (onFolderSelect) return onFolderSelect(then, folder);
->>>>>>> f94b51009632f49352af084714647eab028494dc
 
     setFilesPath(folder.path);
     setFiles(undefined);
@@ -153,10 +149,7 @@ export const Browser: React.FC<BrowserProps> = ({
       return router.actions.createFeedWithData([folder.path]);
     if (then === "browse") return route(`/library/${folder.path}`);
 
-<<<<<<< HEAD
-=======
     if (!fetchFiles) return;
->>>>>>> f94b51009632f49352af084714647eab028494dc
     const _files = (await fetchFiles(folder.path)).dir;
     const items = _files?.filter(({ item }) => !!item) || [];
     setFiles(_files);
@@ -284,20 +277,6 @@ export const Browser: React.FC<BrowserProps> = ({
             )
             .map((folder) => (
               <GridItem key={folder.name} sm={12} lg={4}>
-<<<<<<< HEAD
-                {!folder.isLastParent ? (
-                  <FolderCard item={folder} />
-                ) : (
-                  <FolderCard
-                    item={folder}
-                    onSelect={onFolderSelectAction}
-                    isSelected={library.actions.isSeriesSelected(
-                      folder.children.map(({ item }) => item.data.fname)
-                    )}
-                    isLoading={folder.path === fpath && !files}
-                  />
-                )}
-=======
                 <FolderCard
                   item={folder}
                   onSelect={onFolderSelectAction}
@@ -309,7 +288,6 @@ export const Browser: React.FC<BrowserProps> = ({
                   }
                   isLoading={folder.path === fpath && !files}
                 />
->>>>>>> f94b51009632f49352af084714647eab028494dc
               </GridItem>
             ))}
 
