@@ -10,6 +10,7 @@ import {
   Modal,
   ModalVariant,
   Popover,
+  Radio,
   TextArea,
   TextInput,
   Title,
@@ -38,7 +39,7 @@ const SavePipelineBtn = () => {
   const [PipelineName, setPipelineName] = useState("");
   const [Category, setCategory] = useState("");
   const [Description, setDescription] = useState("");
-  const [Locked, setLocked] = useState("false");
+  const [Locked, setLocked] = useState(false);
   const [PluginTree, setPluginTree] = useState<pluginTree[]>([]);
   const [ErrorMsg, setErrorMsg] = useState(
     "Please select plugins before proceeding."
@@ -174,7 +175,7 @@ const SavePipelineBtn = () => {
                   name: "description",
                   value: Description,
                 },
-                { name: "locked", value: Locked },
+                { name: "locked", value: Locked.toString() },
                 {
                   name: "plugin_tree",
                   value: JSON.stringify(PluginTree),
@@ -211,7 +212,7 @@ const SavePipelineBtn = () => {
                     name: "description",
                     value: Description,
                   },
-                  { name: "locked", value: Locked },
+                  { name: "locked", value: Locked.toString() },
                   {
                     name: "plugin_tree",
                     value: JSON.stringify(PluginTree),
@@ -296,18 +297,26 @@ const SavePipelineBtn = () => {
           />
         </FormGroup>
         <FormGroup
+          isInline
           label="Locked"
-          isRequired
           fieldId="locked"
           helperText="Would you like to make the pipeline editable?"
         >
-          <TextInput
-            type="text"
-            id="locked"
+          <Radio
+            isChecked={Locked}
             name="locked"
-            aria-describedby="locked"
-            value={Locked}
             onChange={(val) => setLocked(val)}
+            label="Yes"
+            id="locked_yes"
+            value="true"
+          />
+          <Radio
+            isChecked={!Locked}
+            name="locked"
+            onChange={(val) => setLocked(!val)}
+            label="No"
+            id="locked_no"
+            value="false"
           />
         </FormGroup>
       </Form>
@@ -335,7 +344,7 @@ const SavePipelineBtn = () => {
           </li>
           <li>
             <b>Locked : </b>
-            {Locked}
+            {Locked.toString()}
           </li>
           <br />
         </ul>
