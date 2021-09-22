@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardBody,
@@ -16,16 +16,17 @@ import {
   DropdownItem,
 } from "@patternfly/react-core";
 
-import { SearchIcon } from '@patternfly/react-icons';
-import { PFDCMQuery, PFDCMQueryTypes } from '.';
+import { SearchIcon } from "@patternfly/react-icons";
+import { PFDCMQuery, PFDCMQueryTypes } from ".";
 
-import "./pacs-lookup.scss"
+import "./pacs-lookup.scss";
+import { useHistory } from "react-router";
 
 interface QueryBuilderProps {
-  PACS?: string
-  PACSservices?: string[]
-  onSelectPACS?: (key:string) => void
-  onFinalize: (q:PFDCMQuery[]) => void
+  PACS?: string;
+  PACSservices?: string[];
+  onSelectPACS?: (key: string) => void;
+  onFinalize: (q: PFDCMQuery[]) => void;
 }
 
 export const QueryBuilder: React.FC<QueryBuilderProps> = ({
@@ -34,9 +35,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   onSelectPACS,
   onFinalize,
 }: QueryBuilderProps) => {
-
   const [query, setQuery] = useState({
-    type: PFDCMQueryTypes.MRN,
+    type: PFDCMQueryTypes.IMRN,
   } as PFDCMQuery);
 
   const setQueryType = (type: PFDCMQueryTypes) => {
@@ -63,24 +63,32 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
     } as PFDCMQuery);
   };
 
-  const finalize = () => {
-    if (!query.value) return;
-    
-    if (query.type === PFDCMQueryTypes.DATE)
-      return onFinalize([query]);
+  const { push:route, location } = useHistory();
 
-    const csv = (query.value as string).split(',');
+  useEffect(() => {
+    const q = (new URLSearchParams(location.search)).get('q');
+    if (q)
+      finalize(JSON.parse(atob(q)) as PFDCMQuery)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const finalize = (_query = query) => {
+    if (!_query.value && _query.filters === {}) return;
+
+    const csv = (_query.value as string).split(",");
     const queries: PFDCMQuery[] = [];
-    
+
     for (const value of csv) {
       queries.push({
         value: value.trim(),
-        type: query.type,
-        filters: query.filters
-      })  
+        type: _query.type,
+        filters: _query.filters,
+      });
     }
 
-    onFinalize(queries)
+    if (_query === query)
+      route(`${location.pathname}?q=${btoa(JSON.stringify(_query))}`)
+    onFinalize(queries);
   };
 
   return (
@@ -103,21 +111,21 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                     dropdownItems={[
                       <DropdownItem
                         key="pmrn"
-                        onClick={() => setQueryType(PFDCMQueryTypes.MRN)}
+                        onClick={() => setQueryType(PFDCMQueryTypes.IMRN)}
                       >
                         By Patient ID or MRN
                       </DropdownItem>,
                       <DropdownItem
                         key="name"
-                        onClick={() => setQueryType(PFDCMQueryTypes.PATIENT)}
+                        onClick={() => setQueryType(PFDCMQueryTypes.NAME)}
                       >
                         By Patient Name
                       </DropdownItem>,
                       <DropdownItem
                         key="date"
-                        onClick={() => setQueryType(PFDCMQueryTypes.DATE)}
+                        onClick={() => setQueryType(PFDCMQueryTypes.ACCN)}
                       >
-                        By Study Date
+                        By Accession Number
                       </DropdownItem>,
                     ]}
                   />
@@ -126,20 +134,20 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <SplitItem isFilled>
                   {(function () {
                     switch (query.type) {
-                      case PFDCMQueryTypes.DATE:
+                      case PFDCMQueryTypes.IMRN:
                         return (
-                          <DatePicker
+                          <TextInput
+                            type="text"
                             id="search-value"
-                            placeholder="Study Date (yyyy-MM-dd)"
-                            dateFormat={(date) => date.toDateString()}
-                            onChange={(_, date) => handleInput(date)}
+                            placeholder="Patient ID or MRN"
+                            onChange={handleInput}
                             onKeyDown={({ key }) => {
                               if (key.toLowerCase() === "enter") finalize();
                             }}
                           />
                         );
 
-                      case PFDCMQueryTypes.PATIENT:
+                      case PFDCMQueryTypes.NAME:
                         return (
                           <TextInput
                             type="text"
@@ -154,12 +162,12 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                           />
                         );
 
-                      case PFDCMQueryTypes.MRN:
+                      case PFDCMQueryTypes.ACCN:
                         return (
                           <TextInput
                             type="text"
                             id="search-value"
-                            placeholder="Patient ID or MRN"
+                            placeholder="Accession Number"
                             onChange={handleInput}
                             onKeyDown={({ key }) => {
                               if (key.toLowerCase() === "enter") finalize();
@@ -170,8 +178,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   })()}
                 </SplitItem>
 
-                {
-                  (PACSservices && onSelectPACS) &&
+                {PACSservices && onSelectPACS && (
                   <SplitItem>
                     <Dropdown
                       id="pacs-service"
@@ -179,35 +186,44 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       onSelect={onTogglePACSList}
                       toggle={
                         <DropdownToggle onToggle={onTogglePACSList}>
-                          {
-                            PACS ? (
-                              <div style={{ textAlign: "left", padding: "auto 1em" }}>
-                                <div style={{ fontSize: "smaller", color: "gray" }}>PACS Service</div>
-                                <div style={{ fontWeight: 600 }}>{ PACS }</div>
+                          {PACS ? (
+                            <div
+                              style={{ textAlign: "left", padding: "auto 1em" }}
+                            >
+                              <div
+                                style={{ fontSize: "smaller", color: "gray" }}
+                              >
+                                PACS Service
                               </div>
-                            ) : 'PACS Service'
-                          }
+                              <div style={{ fontWeight: 600 }}>{PACS}</div>
+                            </div>
+                          ) : (
+                            "PACS Service"
+                          )}
                         </DropdownToggle>
                       }
-                      dropdownItems={
-                        PACSservices.map((service) => (
-                          <DropdownItem
-                            key={`pacs-${service}`}
-                            onClick={onSelectPACS.bind(QueryBuilder, service)}
-                          >
-                            { service }
-                          </DropdownItem>
-                        ))
-                      }
+                      dropdownItems={PACSservices.map((service) => (
+                        <DropdownItem
+                          key={`pacs-${service}`}
+                          onClick={onSelectPACS.bind(QueryBuilder, service)}
+                        >
+                          {service}
+                        </DropdownItem>
+                      ))}
                     />
                   </SplitItem>
-                }
+                )}
               </Split>
             </Card>
           </GridItem>
 
           <GridItem lg={2} sm={12}>
-            <Button isLarge variant="primary" id="finalize" onClick={finalize}>
+            <Button
+              isLarge
+              variant="primary"
+              id="finalize"
+              onClick={() => finalize()}
+            >
               <SearchIcon /> Search
             </Button>
           </GridItem>
@@ -227,12 +243,12 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <b>Filters</b>
                 </SplitItem>
                 <SplitItem>
-                  <Button variant="link" onClick={finalize}>
+                  <Button variant="link" onClick={() => finalize()}>
                     Clear
                   </Button>
                 </SplitItem>
                 <SplitItem>
-                  <Button variant="secondary" onClick={finalize}>
+                  <Button variant="secondary" onClick={() => finalize()}>
                     Apply
                   </Button>
                 </SplitItem>
@@ -240,6 +256,23 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
             </CardHeader>
             <CardBody>
               <Grid hasGutter>
+                <GridItem lg={4} sm={12}>
+                  Study Date
+                  <br />
+                  <DatePicker
+                    placeholder="Study Date (yyyy-MM-dd)"
+                    dateFormat={(date) => date.toDateString()}
+                    onChange={(_, date) =>
+                      handleFilter({
+                        StudyDate: `${date?.getFullYear()}${date?.getMonth()}${date?.getDate()}`,
+                      })
+                    }
+                    onKeyDown={({ key }) => {
+                      if (key.toLowerCase() === "enter") finalize();
+                    }}
+                  />
+                </GridItem>
+
                 <GridItem lg={4} sm={12}>
                   Modality <br />
                   <TextInput
@@ -251,22 +284,15 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 </GridItem>
 
                 <GridItem lg={4} sm={12}>
-                  Station Title<br />
+                  Station Title
+                  <br />
                   <TextInput
                     type="text"
-                    onChange={(value) => handleFilter({ PerformedStationAETitle: value })}
+                    onChange={(value) =>
+                      handleFilter({ PerformedStationAETitle: value })
+                    }
                     placeholder="Eg: LILA"
                     id="station"
-                  />
-                </GridItem>
-
-                <GridItem lg={4} sm={12}>
-                  Accession Number <br />
-                  <TextInput
-                    type="text"
-                    onChange={(value) => handleFilter({ AccessionNumber: value })}
-                    placeholder="Eg: 201200923"
-                    id="accnum"
                   />
                 </GridItem>
               </Grid>
@@ -278,4 +304,4 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   );
 };
 
-export default QueryBuilder
+export default QueryBuilder;

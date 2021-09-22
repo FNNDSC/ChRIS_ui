@@ -20,94 +20,99 @@ docker run --rm -d --name chris_ui -p 3000:3000 -e REACT_APP_CHRIS_UI_URL=http:/
 
 The *ChRIS_ui* is now running on http://localhost:3000/
 
-## Preconditions
+## Development
 
-### Install latest Docker. Currently tested platforms:
+### [0] Preconditions
 
-- Ubuntu 18.04+ (typically 20.04+, and Pop!_OS)
-- Arch Linux
-- macOS 11.X+ (Big Sur)
+1. **Install latest Docker for your platform.**
+    
+    Currently tested platforms
+    - Ubuntu 18.04+ (typically 20.04+, and Pop!_OS)
+    - Fedora 32+
+    - Arch Linux
+    - macOS 11.X+ (Big Sur)
 
-### Get the backend services up so you can fully test the UI against actual data
+2. **Get the backend services up so you can fully test the UI against actual data.**
+    * Install latest [``Docker Compose``](https://docs.docker.com/compose/)
+    * On a Linux machine make sure to add your computer user to the ``docker`` group
 
-* Install latest [``Docker Compose``](https://docs.docker.com/compose/)
-* On a Linux machine make sure to add your computer user to the ``docker`` group
+3. **Open a terminal and start the backend services.**
+    ```bash
+    git clone https://github.com/FNNDSC/miniChRIS.git
+    cd miniChRIS
+    ./minichris.sh
+    ```
 
-Then open a terminal and fire the backend services up by following these steps:
+    <details>
+      <summary>
+        <strong>
+          Alternatively, start the backend in development mode:
+        </strong>
+      </summary>
 
-```bash
-git clone https://github.com/FNNDSC/miniChRIS.git
-cd miniChRIS
-./minichris.sh
-```
+      ### Get the backend running from ChRIS_ultron_backEnd
+
+      ```bash
+      $ git clone https://github.com/FNNDSC/ChRIS_ultron_backEnd.git
+      $ cd ChRIS_ultron_backEnd
+      $ ./make.sh -U -I -i
+      ```
+
+      ### Tearing down the ChRIS backend
+
+      You can later remove all the backend containers and release storage volumes with:
+      ```bash
+      $ cd ChRIS_ultron_backEnd
+      $ sudo rm -r FS
+      $ ./unmake.sh
+      ```
+    </details>
 
 See [FNNDSC/miniChRIS](https://github.com/FNNDSC/miniChRIS) for details.
 
-<details>
-<summary>
-<strong>
-Alternatively, start the backend in development mode:
-</strong>
-</summary>
+### [1] Configuring the backend URL
 
-### Get the backend running from ChRIS_ultron_backEnd
+For development, it is recommended that you create either a `.env.local`
+or `.env.development.local` environment variables file in the root of the project.
+Copy the existing `.env` file to this new file. Changes to these files will be ignored by git.
 
-```bash
-$ git clone https://github.com/FNNDSC/ChRIS_ultron_backEnd.git
-$ cd ChRIS_ultron_backEnd
-$ ./make.sh -U -I -i
-```
+**There are four (4) major environment variables that need to be set.**
 
-### Tearing down the ChRIS backend
+- Point `REACT_APP_CHRIS_UI_URL` to your local backend instance. By default (or if you copied the `.env` file) this is set to `http://localhost:8000/api/v1/`.
 
-You can later remove all the backend containers and release storage volumes with:
-```bash
-$ cd ChRIS_ultron_backEnd
-$ sudo rm -r FS
-$ ./unmake.sh
-```
+- Point `REACT_APP_PFDCM_URL` to the URL of a running PFDCM instance. By default this is set to `http://localhost:4005/`.
 
-</details>
+- Set `REACT_APP_PFDCM_CUBEKEY` and `REACT_APP_PFDCM_SWIFTKEY` to the aliases (or keys) given to CUBE and Swift while setting up PFDCM. By default these are both `local`. If you're unsure what to use, you can list CUBE and Swift keys using the PFDCM API, or ask for these keys.
 
+For details on how to set up PFDCM, refer to the [PFDCM readme](https://github.com/FNNDSC/pfdcm).
 
-## Start UI development server
+### [2] Start UI development server
+You can follow any of these steps to start UI development server
 
-You can follow any of those steps to start UI development server
+* #### Using ``node`` and ``yarn`` package manager directly on the metal
 
-### Using ``node`` and ``yarn`` package manager directly on the metal
+    Open a new terminal on your system and follow these steps:
+    ```bash
+    $ git clone https://github.com/FNNDSC/ChRIS_ui.git
+    $ cd ChRIS_ui
+    $ npm i
+    $ npm start
+    ```
 
-Open a new terminal on your system and follow these steps:
-```bash
-$ git clone https://github.com/FNNDSC/ChRIS_ui.git
-$ cd ChRIS_ui
-$ npm i
-$ npm start
-```
+    More details can be found in the
+    [wiki](https://github.com/FNNDSC/ChRIS_ui/wiki/Development-and-deployment-directly-on-the-metal).
 
-More details can be found on the
-[wiki](https://github.com/FNNDSC/ChRIS_ui/wiki/Development-and-deployment-directly-on-the-metal).
+* #### Using ``docker``
 
-### Using ``docker``
+    Open a new terminal on your system and follow these steps:
+    ```bash
+    $ git clone https://github.com/FNNDSC/ChRIS_ui.git
+    $ cd ChRIS_ui
+    $ docker build -t fnndsc/chris_ui:dev -f Dockerfile_dev .
+    $ docker run --rm -it -v $PWD:/home/localuser -p 3000:3000 -u $(id -u):$(id -g) --userns=host --name chris_ui fnndsc/chris_ui:dev
+    ```
+    Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-Open a new terminal on your system and follow these steps:
-```bash
-$ git clone https://github.com/FNNDSC/ChRIS_ui.git
-$ cd ChRIS_ui
-$ docker build -t fnndsc/chris_ui:dev -f Dockerfile_dev .
-$ docker run --rm -it -v $PWD:/home/localuser -p 3000:3000 -u $(id -u):$(id -g) --userns=host --name chris_ui fnndsc/chris_ui:dev
-```
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-### Configuring the backend URL
-
-If your backend is running somewhere other than `http://localhost:8000/api/v1/`, then copy the `.env` file to one of the locations below:
-
-- `.env.local`
-- `.env.development.local`
-- `.env.test.local`
-- `.env.production.local`
-
-Point `REACT_APP_CHRIS_UI_URL` to your local backend instance.
 
 ## Build the ChRIS UI app for production
 
