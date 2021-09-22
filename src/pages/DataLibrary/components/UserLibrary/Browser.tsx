@@ -33,7 +33,7 @@ import {
   FolderOpenIcon,
   CodeBranchIcon,
   CubeIcon,
-  TrashIcon
+  TrashIcon,
 } from "@patternfly/react-icons";
 import pluralize from "pluralize";
 
@@ -50,6 +50,7 @@ interface BrowserProps {
   path?: string;
   withHeader?: boolean;
   fetchFiles?: (prefix: string) => Promise<DirectoryTree>;
+  onFolderSelect?: (then: FolderActions, folder: Branch) => any;
 }
 
 export const BrowserBreadcrumbs = ({ path }: { path: string }) => {
@@ -97,6 +98,7 @@ export const Browser: React.FC<BrowserProps> = ({
   path,
   withHeader,
   fetchFiles,
+  onFolderSelect,
 }: BrowserProps) => {
   const [filter, setFilter] = useState<string>();
   const [viewfile, setViewFile] = useState<any>();
@@ -138,7 +140,11 @@ export const Browser: React.FC<BrowserProps> = ({
     then: FolderActions,
     folder: Branch
   ): Promise<void> => {
+<<<<<<< HEAD
     if (!fetchFiles) return;
+=======
+    if (onFolderSelect) return onFolderSelect(then, folder);
+>>>>>>> f94b51009632f49352af084714647eab028494dc
 
     setFilesPath(folder.path);
     setFiles(undefined);
@@ -147,6 +153,10 @@ export const Browser: React.FC<BrowserProps> = ({
       return router.actions.createFeedWithData([folder.path]);
     if (then === "browse") return route(`/library/${folder.path}`);
 
+<<<<<<< HEAD
+=======
+    if (!fetchFiles) return;
+>>>>>>> f94b51009632f49352af084714647eab028494dc
     const _files = (await fetchFiles(folder.path)).dir;
     const items = _files?.filter(({ item }) => !!item) || [];
     setFiles(_files);
@@ -218,6 +228,7 @@ export const Browser: React.FC<BrowserProps> = ({
               name={match.params.subfolder}
               path={`${path}/${match.params.subfolder}`}
               tree={tree.child(match.params.subfolder)}
+              onFolderSelect={onFolderSelect}
               fetchFiles={fetchFiles}
             />
           );
@@ -273,6 +284,7 @@ export const Browser: React.FC<BrowserProps> = ({
             )
             .map((folder) => (
               <GridItem key={folder.name} sm={12} lg={4}>
+<<<<<<< HEAD
                 {!folder.isLastParent ? (
                   <FolderCard item={folder} />
                 ) : (
@@ -285,6 +297,19 @@ export const Browser: React.FC<BrowserProps> = ({
                     isLoading={folder.path === fpath && !files}
                   />
                 )}
+=======
+                <FolderCard
+                  item={folder}
+                  onSelect={onFolderSelectAction}
+                  isSelected={
+                    folder.isLastParent &&
+                    library.actions.isSeriesSelected(
+                      folder.children.map(({ item }) => item.data.fname)
+                    )
+                  }
+                  isLoading={folder.path === fpath && !files}
+                />
+>>>>>>> f94b51009632f49352af084714647eab028494dc
               </GridItem>
             ))}
 
@@ -343,7 +368,13 @@ interface FolderCardProps {
   subtitle?: string | React.ReactElement;
 }
 
-export const FolderCard = ({ item, onSelect, isLoading, isSelected, subtitle }: FolderCardProps) => {
+export const FolderCard = ({
+  item,
+  onSelect,
+  isLoading,
+  isSelected,
+  subtitle,
+}: FolderCardProps) => {
   const [dropdown, setDropdown] = useState(false);
 
   const toggle = (
@@ -354,39 +385,53 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected, subtitle }: 
   );
 
   const dispatch = (action: FolderActions) => {
-    if (onSelect)
-      onSelect(action, item);
-  }
+    if (onSelect) onSelect(action, item);
+  };
 
-  const { name, children, path, creation_date, isLastParent } = item;
+  const { name, children, creation_date, isLastParent } = item;
   const pad = <span style={{ padding: "0 0.25em" }} />;
   return (
     <Card isRounded isHoverable isSelectable isSelected={!!isSelected}>
       <CardHeader>
-        { (isLastParent && !!onSelect) && (
+        {isLastParent && !!onSelect && (
           <CardActions>
             <Dropdown
               onSelect={() => setDropdown(false)}
               toggle={toggle}
               isOpen={dropdown}
-              isPlain 
+              isPlain
               position="right"
               dropdownItems={[
-                <DropdownItem key="select" onClick={dispatch.bind(FolderCard, "select")}>
-                  <CheckIcon />{ pad } <b>Select</b>
+                <DropdownItem
+                  key="select"
+                  onClick={dispatch.bind(FolderCard, "select")}
+                >
+                  <CheckIcon />
+                  {pad} <b>Select</b>
                 </DropdownItem>,
 
-                <DropdownItem key="view" component="button" onClick={dispatch.bind(FolderCard, "view")}>
-                  <EyeIcon />{ pad } View
+                <DropdownItem
+                  key="view"
+                  component="button"
+                  onClick={dispatch.bind(FolderCard, "view")}
+                >
+                  <EyeIcon />
+                  {pad} View
                 </DropdownItem>,
 
-                <DropdownItem key="feed" component="button" onClick={dispatch.bind(FolderCard, "feed")}>
-                  <CodeBranchIcon />{ pad } Create Feed
+                <DropdownItem
+                  key="feed"
+                  component="button"
+                  onClick={dispatch.bind(FolderCard, "feed")}
+                >
+                  <CodeBranchIcon />
+                  {pad} Create Feed
                 </DropdownItem>,
 
                 <DropdownSeparator key="separator" />,
                 <DropdownItem key="delete" component="button" isDisabled>
-                  <TrashIcon/>{ pad } Delete
+                  <TrashIcon />
+                  {pad} Delete
                 </DropdownItem>,
               ]}
             />
@@ -395,22 +440,23 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected, subtitle }: 
 
         <Split style={{ overflow: "hidden" }}>
           <SplitItem style={{ marginRight: "1em" }}>
-            {
-              (() => {
-                if (isLoading) return <Spinner size="md" />
-                if (isLastParent) return <CubeIcon />
+            {(() => {
+              if (isLoading) return <Spinner size="md" />;
+              if (isLastParent) return <CubeIcon />;
 
-                return <FolderIcon />
-              })()
-            }
+              return <FolderIcon />;
+            })()}
           </SplitItem>
 
           <SplitItem isFilled>
             <div>
-              <Link to={`/library/${path}`}>{elipses(name, 36)}</Link>
-              {/* <Button variant="link" style={{ padding: 0 }} onClick={dispatch.bind(FolderCard, "browse")}>
+              <Button
+                variant="link"
+                style={{ padding: 0 }}
+                onClick={dispatch.bind(FolderCard, "browse")}
+              >
                 <b>{elipses(name, 36)}</b>
-              </Button> */}
+              </Button>
               <Route exact path="/library/search">
                 <Badge style={{ margin: "0 0.5em" }}>
                   {children.length} {pluralize("match", children.length)}
@@ -418,7 +464,7 @@ export const FolderCard = ({ item, onSelect, isLoading, isSelected, subtitle }: 
               </Route>
             </div>
 
-            { subtitle && <div>{subtitle}</div> }
+            {subtitle && <div>{subtitle}</div>}
 
             <div style={{ fontSize: "0.85em" }}>
               {new Date(creation_date).toDateString()}
@@ -437,7 +483,12 @@ interface FileCardProps {
   onOpen?: (file: Branch) => void;
 }
 
-export const FileCard = ({ file, isSelected, onSelect, onOpen }: FileCardProps) => {
+export const FileCard = ({
+  file,
+  isSelected,
+  onSelect,
+  onOpen,
+}: FileCardProps) => {
   return (
     <Card
       isRounded
@@ -470,6 +521,6 @@ export const FileCard = ({ file, isSelected, onSelect, onOpen }: FileCardProps) 
       </CardBody>
     </Card>
   );
-}
+};
 
 export default Browser;

@@ -30,6 +30,11 @@ const client = ChrisAPIClient.getClient();
 export const UserLibrary = () => {
   document.title = "My Library";
   const username = useTypedSelector((state) => state.user.username) as string;
+<<<<<<< HEAD
+=======
+
+  const [openUploader, setOpenUploader] = useState(false);
+>>>>>>> f94b51009632f49352af084714647eab028494dc
 
   const [uploaded, setUploaded] = useState<DirectoryTree>();
   const [services, setServices] = useState<DirectoryTree>();
@@ -663,4 +668,4 @@ export const UserLibrary = () => {
   );
 };
 
-export default UserLibrary
+export default UserLibrary;
