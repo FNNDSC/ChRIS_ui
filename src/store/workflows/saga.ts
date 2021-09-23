@@ -120,6 +120,7 @@ function* fetchResources(pipelineInstance: Pipeline) {
     params,
     boundParameterFn
   );
+  console.log("PluginPipings", pluginPipings);
   yield put(setPluginParametersSuccess(parameters));
   if (pluginPipings) {
     yield put(setPluginPipingsSuccess(pluginPipings));
