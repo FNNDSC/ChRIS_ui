@@ -14,7 +14,7 @@ const nodeSize = { x: 150, y: 40 };
 const svgClassName = "feed-tree__svg";
 const graphClassName = "feed-tree__graph";
 const translate = {
-  x: 100,
+  x: 170,
   y: 25,
 };
 const scale = 1;
@@ -53,7 +53,7 @@ const Tree = (props: {
   return (
     <div
       style={{
-        width: "55%",
+        width: "65%",
       }}
     >
       <svg className={`${svgClassName}`} width="100%" height="100%">

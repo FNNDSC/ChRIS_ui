@@ -47,16 +47,44 @@ interface PipelineData {
 
 export const fastsurferPipeline = () => {
   const data: PipelineData = {
-    name: `fastsurfer`,
+    name: `testing_fastsurfer_7`,
     authors: "gideonpinto123@gmail.com",
     description: "test",
     category: "mri",
     locked: false,
     plugin_tree: JSON.stringify([
       {
+        plugin_name: "pl-simpledsapp",
+        plugin_version: "2.0.2",
+        previous_index: null,
+      },
+      {
+        plugin_name: "pl-pfdicom_tagextract",
+        plugin_version: "3.1.2",
+        previous_index: 0,
+        plugin_parameter_defaults: [
+          {
+            name: "extension",
+            default: ".dcm",
+          },
+          {
+            name: "outputFileType",
+            default: "txt,scv,json,html",
+          },
+          {
+            name: "outputFileStem",
+            default: "Pre-Sub",
+          },
+          {
+            name: "imageScale",
+            default: "3:none",
+          },
+        ],
+      },
+      {
         plugin_name: "pl-pfdicom_tagsub",
         plugin_version: "3.2.3",
-        previous_index: null,
+        previous_index: 0,
         plugin_parameter_defaults: [
           {
             name: "extension",
@@ -78,9 +106,32 @@ export const fastsurferPipeline = () => {
         ],
       },
       {
+        plugin_name: "pl-fshack",
+        plugin_version: "1.2.0",
+        previous_index: 2,
+        plugin_parameter_default: [
+          {
+            name: "exec",
+            default: "recon-all",
+          },
+          {
+            name: "args",
+            default: "'ARGS:-autorecon1'",
+          },
+          {
+            name: "outputFile",
+            default: "recon-of-SAG-anon-dcm",
+          },
+          {
+            name: "inputFile",
+            default: ".dcm",
+          },
+        ],
+      },
+      {
         plugin_name: "pl-pfdicom_tagextract",
         plugin_version: "3.1.2",
-        previous_index: 0,
+        previous_index: 2,
         plugin_parameter_default: [
           {
             name: "outputFileType",
@@ -105,32 +156,9 @@ export const fastsurferPipeline = () => {
         ],
       },
       {
-        plugin_name: "pl-fshack",
-        plugin_version: "1.2.0",
-        previous_index: 1,
-        plugin_parameter_default: [
-          {
-            name: "exec",
-            default: "recon-all",
-          },
-          {
-            name: "args",
-            default: "'ARGS:-autorecon1'",
-          },
-          {
-            name: "outputFile",
-            default: "recon-of-SAG-anon-dcm",
-          },
-          {
-            name: "inputFile",
-            default: ".dcm",
-          },
-        ],
-      },
-      {
         plugin_name: "pl-fastsurfer_inference",
         plugin_version: "1.0.15",
-        previous_index: 2,
+        previous_index: 3,
         plugin_parameter_default: [
           {
             name: "subjectDir",
@@ -153,7 +181,7 @@ export const fastsurferPipeline = () => {
       {
         plugin_name: "pl-multipass",
         plugin_version: "1.2.12",
-        previous_index: 3,
+        previous_index: 5,
         plugin_parameter_default: [
           {
             name: "splitExpr",
@@ -178,7 +206,7 @@ export const fastsurferPipeline = () => {
       {
         plugin_name: "pl-pfdorun",
         plugin_version: "2.2.6",
-        previous_index: 4,
+        previous_index: 6,
         plugin_parameter_default: [
           {
             name: "dirFilter",
@@ -202,7 +230,7 @@ export const fastsurferPipeline = () => {
       {
         plugin_name: "pl-mgz2lut_report",
         plugin_version: "1.3.1",
-        previous_index: 3,
+        previous_index: 5,
         plugin_parameter_default: [
           {
             name: "file_name",
