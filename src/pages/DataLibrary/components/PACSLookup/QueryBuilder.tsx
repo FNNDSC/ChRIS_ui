@@ -14,6 +14,7 @@ import {
   Dropdown,
   DropdownToggle,
   DropdownItem,
+  Tooltip,
 } from "@patternfly/react-core";
 
 import { SearchIcon } from "@patternfly/react-icons";
@@ -35,12 +36,13 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   onSelectPACS,
   onFinalize,
 }: QueryBuilderProps) => {
-  const [query, setQuery] = useState({
-    type: PFDCMQueryTypes.IMRN,
+
+  const [query, setQuery] = useState<PFDCMQuery>({ 
+    type: PFDCMQueryTypes.PMRN
   } as PFDCMQuery);
 
   const setQueryType = (type: PFDCMQueryTypes) => {
-    setQuery({ type } as PFDCMQuery);
+    setQuery({ ...query, type } as PFDCMQuery);
   };
 
   const [toggleType, setToggleType] = useState(false);
@@ -73,7 +75,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   }, [])
 
   const finalize = (_query = query) => {
-    if (!_query.value && _query.filters === {}) return;
+    if (!_query.value) return;
 
     const csv = (_query.value as string).split(",");
     const queries: PFDCMQuery[] = [];
@@ -91,6 +93,14 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
     onFinalize(queries);
   };
 
+  const __queryType = (type: PFDCMQueryTypes) => {
+    switch (type) {
+      case PFDCMQueryTypes.PMRN: return "Patient MRN";
+      case PFDCMQueryTypes.NAME: return "Patient Name";
+      case PFDCMQueryTypes.ACCN: return "Accession Number";
+    }
+  }
+
   return (
     <Grid hasGutter id="pacs-query-builder">
       <GridItem>
@@ -105,13 +115,18 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                     onSelect={onToggleType}
                     toggle={
                       <DropdownToggle onToggle={onToggleType}>
-                        Search By
+                        <div style={{ textAlign: "left", padding: "0 0.5em" }}>
+                          <div style={{ fontSize: "smaller", color: "gray" }}>
+                            Search By
+                          </div>
+                          <div style={{ fontWeight: 600 }}>{__queryType(query.type)}</div>
+                        </div>
                       </DropdownToggle>
                     }
                     dropdownItems={[
                       <DropdownItem
                         key="pmrn"
-                        onClick={() => setQueryType(PFDCMQueryTypes.IMRN)}
+                        onClick={() => setQueryType(PFDCMQueryTypes.PMRN)}
                       >
                         By Patient ID or MRN
                       </DropdownItem>,
@@ -122,7 +137,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                         By Patient Name
                       </DropdownItem>,
                       <DropdownItem
-                        key="date"
+                        key="accn"
                         onClick={() => setQueryType(PFDCMQueryTypes.ACCN)}
                       >
                         By Accession Number
@@ -134,7 +149,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <SplitItem isFilled>
                   {(function () {
                     switch (query.type) {
-                      case PFDCMQueryTypes.IMRN:
+                      case PFDCMQueryTypes.PMRN:
                         return (
                           <TextInput
                             type="text"
@@ -187,12 +202,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       toggle={
                         <DropdownToggle onToggle={onTogglePACSList}>
                           {PACS ? (
-                            <div
-                              style={{ textAlign: "left", padding: "auto 1em" }}
-                            >
-                              <div
-                                style={{ fontSize: "smaller", color: "gray" }}
-                              >
+                            <div style={{ textAlign: "left", padding: "0 0.5em" }}>
+                              <div style={{ fontSize: "smaller", color: "gray" }}>
                                 PACS Service
                               </div>
                               <div style={{ fontWeight: 600 }}>{PACS}</div>
@@ -218,14 +229,22 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
           </GridItem>
 
           <GridItem lg={2} sm={12}>
-            <Button
-              isLarge
-              variant="primary"
-              id="finalize"
-              onClick={() => finalize()}
-            >
-              <SearchIcon /> Search
-            </Button>
+            {query.value ? (
+              <Button
+                isLarge
+                variant="primary"
+                id="finalize"
+                onClick={() => finalize()}
+              >
+                <SearchIcon /> Search
+              </Button>
+            ) : (
+              <Tooltip content="Please enter a search term">
+                <Button isLarge variant="primary" id="finalize">
+                  <SearchIcon /> Search
+                </Button>
+              </Tooltip>
+            )}
           </GridItem>
         </Grid>
       </GridItem>

@@ -1,4 +1,5 @@
 import { Chip, ChipGroup } from '@patternfly/react-core';
+import pluralize from 'pluralize';
 import React, { useContext } from 'react';
 import { MainRouterContext } from '../../../routes';
 
@@ -20,7 +21,7 @@ const SelectionAlertWrap: React.FC<SelectionAlertWrapProps> = ({
     if (showAlert && selectData && selectData.length > 0)
       return (
         <div className="pacs-alert">
-          Creating feed from {selectData.length} files&nbsp;
+          Creating feed from {selectData.length} {pluralize("item", selectData.length)}&nbsp;
           <ChipGroup numChips={2}>
             {
               selectData.map((path) => {
