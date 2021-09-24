@@ -19,7 +19,7 @@ import QueryBuilder from "./QueryBuilder";
 import QueryResults from "./QueryResults";
 
 export enum PFDCMQueryTypes {
-  IMRN,
+  PMRN,
   NAME,
   ACCN,
 }
@@ -90,7 +90,7 @@ export const PACSLookup = () => {
         const { type, value, filters } = queries[q];
   
         switch (type) {
-          case PFDCMQueryTypes.IMRN:
+          case PFDCMQueryTypes.PMRN:
             response.push(
               ...(await client.find({ PatientID: value, ...filters }))
             );
