@@ -485,7 +485,7 @@ export class PFDCMPull {
     this.stage = stage;
     this.stageText = __stageText(stage);
     this.progress = stage === PACSPullStages.NONE ? 1 : 0;
-    this.progressText = "Waiting"
+    this.progressText = " "
     this.attempts = DEFAULT_STAGE_ATTEMPTS;
     this.errors = [];
   }
