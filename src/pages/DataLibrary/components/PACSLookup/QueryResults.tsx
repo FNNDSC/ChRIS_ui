@@ -147,7 +147,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       const [pullStatus, setPullStatus] = useState<PFDCMPull>();
       const [poll, setPoll] = useState<any>();
 
-      const cubeHasStudy = existingStudyFiles?.totalCount !== 0;
+      const cubeHasStudy = !!existingStudyFiles && (existingStudyFiles.totalCount > 0);
       const studyFiles = existingStudyFiles?.getItems() || [];
       const cubeStudyPath = studyFiles.length
         ? studyFiles[0].data.fname.split('/').slice(0, -2).join('/')
@@ -400,14 +400,16 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         return (
           <>
             {seriesFiles.length && (
-              <FileDetailView
-                preview="small"
-                selectedFile={
-                  seriesFiles[
-                    Math.floor(series.NumberOfSeriesRelatedInstances / 2)
-                  ]
-                }
-              />
+              <div style={{ marginTop: "-1em" }}>
+                <FileDetailView
+                  preview="small"
+                  selectedFile={
+                    seriesFiles[
+                      Math.floor(series.NumberOfSeriesRelatedInstances / 2)
+                    ]
+                  }
+                />
+              </div>
             )}
 
             <div
@@ -459,16 +461,22 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       }
 
       return (
-        <div className="action-button-container" style={{ display: "flex" }}>
-          <Tooltip content="Pull this series to use it in ChRIS">
-            <Button
-              variant="secondary"
-              style={{ fontSize: "small", margin: "auto" }}
-              onClick={startPull.bind(SeriesCard, pullQuery)}
-              >
-              <b>Pull Series</b>
-            </Button>
-          </Tooltip>
+        <div className="action-button-container" style={{ display: "flex", flexDirection: "column" }}>
+          <div style={{ margin: "auto" }}>
+            <Tooltip content="Pull this series to use it in ChRIS">
+              <Button
+                variant="secondary"
+                style={{ marginBottom: "0.5em", fontSize: "small" }}
+                onClick={startPull.bind(SeriesCard, pullQuery)}
+                >
+                <b>Pull Series</b>
+              </Button>
+            </Tooltip>
+            <div style={{ fontSize: "smaller", color: "gray" }}>
+              {series.NumberOfSeriesRelatedInstances}{" "}
+              {pluralize("file", series.NumberOfSeriesRelatedInstances)}
+            </div>
+          </div>
         </div>
       );
     };
@@ -482,11 +490,6 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
           <div style={{ fontSize: "small" }}>
             <b>{series.SeriesDescription}</b>
-            <div>
-              {series.NumberOfSeriesRelatedInstances}{" "}
-              {pluralize("file", series.NumberOfSeriesRelatedInstances)},{" "}
-              on {series.SeriesDate.toDateString()}
-            </div>
           </div>
         </CardBody>
       </Card>
