@@ -4,12 +4,10 @@ import {
   AnalysisStep,
   AnalysisPayload,
   SelectWorkflowState,
+  TreeNode,
 } from "./types";
 import { LocalFile } from "../../components/feed/CreateFeed/types";
-import {
-  ComputeResourceList,
-  PipelinePipingDefaultParameterList,
-} from "@fnndsc/chrisapi";
+import { PipelinePipingDefaultParameterList } from "@fnndsc/chrisapi";
 
 export const getPacsFilesRequest = (
   name?: string,
@@ -66,9 +64,8 @@ export const generatePipeline = (data: any) =>
 export const setPluginPipingsSuccess = (pluginPipings: any) =>
   action(WorkflowTypes.SET_PLUGIN_PIPINGS_LIST, pluginPipings);
 
-export const setComputeEnvs = (computeEnvs: {
-  [key: string]: ComputeResourceList;
-}) => action(WorkflowTypes.SET_COMPUTE_ENVS, computeEnvs);
+export const setComputeEnvs = (computeEnvs: { [key: string]: any[] }) =>
+  action(WorkflowTypes.SET_COMPUTE_ENVS, computeEnvs);
 
 export const setUploadedSpec = (pipeline: any) =>
   action(WorkflowTypes.SET_UPLOADED_SPEC, pipeline);
@@ -82,3 +79,6 @@ export const setPluginParametersSuccess = (
 
 export const setPipelinePluginsSuccess = (pipelineInstances: any[]) =>
   action(WorkflowTypes.SET_PIPELINE_PLUGINS, pipelineInstances);
+
+export const setCurrentNode = (node: { data: TreeNode; pluginName: string }) =>
+  action(WorkflowTypes.SET_CURRENT_NODE, node);

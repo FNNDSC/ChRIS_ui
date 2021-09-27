@@ -28,6 +28,7 @@ import {
   clearFileSelection,
   generatePipeline,
   setUploadedSpec,
+  setCurrentNode,
 } from "../../store/workflows/actions";
 import { Tree, ConfigurationPage } from "./components/Tree";
 import {
@@ -35,7 +36,7 @@ import {
   freesurferPipeline,
   fetalReconstructionPipeline,
 } from "./utils";
-import { TreeNode } from "./types";
+import { TreeNode } from "../../store/workflows/types";
 
 import { AiOutlineUpload } from "react-icons/ai";
 
@@ -107,7 +108,7 @@ const StepsComponent = () => {
 const StatusComponent = () => {
   const steps = useTypedSelector((state) => state.workflows.steps);
   return (
-    <Steps size="small" direction="horizontal">
+    <Steps direction="horizontal">
       {steps.map((step: AnalysisStep) => {
         return (
           <Step
@@ -304,8 +305,7 @@ const SelectWorkflow = () => {
   );
 
   const { selectedOption, isOpen, toggleTemplateText } = optionState;
-  const [node, setNode] =
-    React.useState<{ data: TreeNode; pluginName: string }>();
+
   const handleSelect = (
     event?:
       | React.MouseEvent<HTMLAnchorElement, MouseEvent>
@@ -339,7 +339,7 @@ const SelectWorkflow = () => {
       );
   };
   const handleNodeClick = (node: { data: TreeNode; pluginName: string }) => {
-    setNode(node);
+    dispatch(setCurrentNode(node));
   };
 
   const handleInputChange = (value: string) => {
@@ -394,7 +394,7 @@ const SelectWorkflow = () => {
         }}
       >
         <Tree handleNodeClick={handleNodeClick} />
-        {node && <ConfigurationPage node={node} />}
+        {<ConfigurationPage />}
         {selectedOption === "infantFreesurferAge" && (
           <div className="workflow-form">
             <Form isHorizontal>

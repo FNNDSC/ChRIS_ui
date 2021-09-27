@@ -1,13 +1,16 @@
 import React, { Fragment, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { TreeNode } from "../types";
+import { TreeNode } from "../../../store/workflows/types";
 import { tree, hierarchy, HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import TransitionGroupWrapper from "../../../components/feed/FeedTree/TransitionGroupWrapper";
 import { useTypedSelector } from "../../../store/hooks";
 import { getFeedTree } from "../utils";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { setComputeEnvs } from "../../../store/workflows/actions";
+import {
+  setComputeEnvs,
+  setCurrentNode,
+} from "../../../store/workflows/actions";
 import { List, Avatar } from "antd";
 
 const nodeSize = { x: 150, y: 40 };
@@ -19,12 +22,20 @@ const translate = {
 };
 const scale = 1;
 
+const colorPalette = {
+  host: "#5998C5",
+  moc: "#704478",
+  titan: "#1B9D92",
+  "bu-21-9": "#ADF17F",
+};
+
 const Tree = (props: {
   handleNodeClick: (nodeName: { data: TreeNode; pluginName: string }) => void;
 }) => {
   const pluginPipings = useTypedSelector(
     (state) => state.workflows.pluginPipings
   );
+
   const { handleNodeClick } = props;
 
   const [data, setData] = React.useState<TreeNode[]>();
@@ -188,17 +199,51 @@ const setNodeTransform = (orientation: string, position: Point) => {
 };
 const DEFAULT_NODE_CIRCLE_RADIUS = 10;
 const NodeData = (props: NodeProps) => {
+  const dispatch = useDispatch();
   const nodeRef = useRef<SVGGElement>(null);
   const textRef = useRef<SVGTextElement>(null);
   const { data, position, orientation, handleNodeClick } = props;
   const [pluginName, setPluginName] = React.useState("");
+
   const computeEnvs = useTypedSelector((state) => state.workflows.computeEnvs);
+  if (pluginName) {
+    const currentComputeEnv = computeEnvs && computeEnvs[pluginName];
+    console.log(`Current compute env for ${pluginName} is`);
+  }
 
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
       .attr("transform", transform)
       .style("opacity", opacity);
   };
+
+  React.useEffect(() => {
+    async function fetchComputeEnvironments() {
+      const client = ChrisAPIClient.getClient();
+      const computeEnvs = await client.getComputeResources({
+        plugin_id: `${data.plugin_id}`,
+      });
+
+      if (computeEnvs.getItems()) {
+        if (pluginName) {
+          const computeEnvData = {
+            [pluginName]: computeEnvs.data,
+          };
+          dispatch(setComputeEnvs(computeEnvData));
+        }
+      }
+    }
+    fetchComputeEnvironments();
+  }, [data, dispatch, pluginName]);
+
+  React.useEffect(() => {
+    dispatch(
+      setCurrentNode({
+        data,
+        pluginName,
+      })
+    );
+  }, [data, dispatch, pluginName]);
 
   React.useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);
@@ -239,45 +284,32 @@ const NodeData = (props: NodeProps) => {
           handleNodeClick(payload);
         }}
       >
-        <circle id={`node_${data.id}`} r={DEFAULT_NODE_CIRCLE_RADIUS}></circle>
+        <circle
+          style={{
+            fill: "red",
+          }}
+          id={`node_${data.id}`}
+          r={DEFAULT_NODE_CIRCLE_RADIUS}
+        ></circle>
         {textLabel}
       </g>
     </Fragment>
   );
 };
 
-const ConfigurationPage = (props: {
-  node: { data: TreeNode; pluginName: string };
-}) => {
-  const { node } = props;
-  const { data, pluginName } = node;
+const ConfigurationPage = () => {
+  const node = useTypedSelector((state) => state.workflows.currentNode);
 
   const computeEnvs = useTypedSelector((state) => state.workflows.computeEnvs);
   let currentComputeEnv;
-  if (computeEnvs) {
+  if (computeEnvs && node) {
+    const { pluginName } = node;
     if (computeEnvs[pluginName])
-      currentComputeEnv = computeEnvs[pluginName].data;
+      //@ts-ignore
+      currentComputeEnv = computeEnvs[pluginName];
   } else {
     currentComputeEnv = [];
   }
-
-  const dispatch = useDispatch();
-
-  React.useEffect(() => {
-    async function fetchComputeEnvironments() {
-      const client = ChrisAPIClient.getClient();
-      const computeEnvs = await client.getComputeResources({
-        plugin_id: `${data.plugin_id}`,
-      });
-      if (computeEnvs.getItems()) {
-        const computeEnvData = {
-          [pluginName]: computeEnvs,
-        };
-        dispatch(setComputeEnvs(computeEnvData));
-      }
-    }
-    fetchComputeEnvironments();
-  }, [data, dispatch, pluginName]);
 
   return (
     <>
@@ -290,7 +322,7 @@ const ConfigurationPage = (props: {
         <List
           itemLayout="horizontal"
           dataSource={currentComputeEnv}
-          renderItem={(item) => (
+          renderItem={(item: { name: string; description: string }) => (
             <List.Item>
               <List.Item.Meta
                 avatar={<Avatar />}
