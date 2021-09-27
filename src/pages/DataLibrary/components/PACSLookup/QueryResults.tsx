@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   Badge,
   Button,
@@ -10,6 +10,7 @@ import {
   EmptyStateIcon,
   Grid,
   GridItem,
+  Modal,
   Progress,
   ProgressMeasureLocation,
   ProgressSize,
@@ -22,6 +23,7 @@ import {
   CubesIcon,
   CodeBranchIcon,
   QuestionCircleIcon,
+  RedoIcon,
 } from "@patternfly/react-icons";
 import Moment from "react-moment";
 import pluralize from "pluralize";
@@ -39,6 +41,7 @@ import {
 } from "../../../../api/pfdcm";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { MainRouterContext } from "../../../../routes";
+import { EyeIcon } from "@patternfly/react-icons";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[];
@@ -179,7 +182,13 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           if (_status.stage >= pullStatus.stage)
             return _status;
           
-          return new PFDCMPull(pullStatus.query, pullStatus.stage);
+          /**
+           * @todo Retry if status is not changing
+           * If pfdcm get stuck for more than 10 attempts
+           */
+
+          --pullStatus.attempts;
+          return pullStatus;
         }
 
         if (pullStatus.isRunning)
@@ -338,6 +347,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       const [pullStatus, setPullStatus] = useState<PFDCMPull>();
       const [poll, setPoll] = useState<any>();
 
+      const [cubePollAttempts, setCubePollAttempts] = useState(2);
+      const [cubePollError, setCubePollError] = useState(false);
+
       const cubeSeriesSize = existingSeriesFiles?.totalCount;
       const cubeHasSeries =
         series.NumberOfSeriesRelatedInstances === cubeSeriesSize;
@@ -346,6 +358,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       const cubeSeriesPath = seriesFiles.length
         ? seriesFiles[0].data.fname.split('/').slice(0, -1).join('/')
         : "#";
+
+      const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
 
       const fetchCUBESeries = async () => {
         const files = await client.getPACSFiles({
@@ -366,7 +380,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           cubeHasSeries ||
           !pullStatus
         )
-          return () => clearInterval(poll);
+          return () => clearTimeout(poll);
         
         const _poll = async (): Promise<PFDCMPull> => {
           if (pullStatus.isStageCompleted) {
@@ -378,16 +392,47 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           if (_status.stage >= pullStatus.stage)
             return _status;
           
+          /**
+           * @todo Retry if status is not changing
+           * If pfdcm get stuck for more than 10 attempts
+           */
+
+          // --pullStatus.attempts;
           return new PFDCMPull(pullStatus.query, pullStatus.stage);
         }
 
-        if (pullStatus.isPullCompleted)
-          return setPoll(setTimeout(fetchCUBESeries, 5000));
+        if (pullStatus.isPullCompleted) {
+          if (cubePollAttempts > 0) {
+            setCubePollAttempts(cubePollAttempts - 1);
+            return setPoll(setTimeout(fetchCUBESeries, 5000));
+          } else {
+            setCubePollError(true);
+            return () => clearTimeout(poll);
+          }
+        }
         
         if (pullStatus.isRunning) 
           return setPoll(setTimeout(() => _poll().then(setPullStatus), 1000))
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [cubeHasSeries, pullStatus]);
+
+      const retryRegister = useCallback(
+        () => {
+          if (!pullStatus)
+            return;
+
+          /**
+           * @note this can be changed to onExecutePACSStage(pullStatus.query, pullStatus.stage - 1);
+           * to enable reusing this callback for any stage
+           */
+          onExecutePACSStage(pullStatus.query, PACSPullStages.REGISTER);
+          
+          setPullStatus(new PFDCMPull(pullStatus.query, PACSPullStages.REGISTER));
+          setCubePollError(false);
+          setCubePollAttempts(2);
+        },
+        [pullStatus]
+      )
 
       if (!existingSeriesFiles || !pullStatus)
         return (
@@ -409,12 +454,31 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
                     ]
                   }
                 />
+
+                {openSeriesPreview && (
+                  <Modal
+                    title="Preview"
+                    aria-label="viewer"
+                    width={"50%"}
+                    isOpen={!!openSeriesPreview}
+                    onClose={() => setOpenSeriesPreview(false)}
+                  >
+                    <FileDetailView
+                      selectedFile={
+                        seriesFiles[
+                          Math.floor(series.NumberOfSeriesRelatedInstances / 2)
+                        ]
+                      }
+                      preview="large"
+                    />
+                  </Modal>
+                )}
               </div>
             )}
 
             <div
               className="action-button-container hover"
-              style={{ display: "flex" }}
+              style={{ display: "flex", flexFlow: "row", flexWrap: "wrap" }}
             >
               <Tooltip content="Click to create a new feed with this series">
                 <Button
@@ -422,34 +486,63 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
                   style={{ fontSize: "small", margin: "auto" }}
                   onClick={() => createFeed([cubeSeriesPath])}
                 >
-                  <CodeBranchIcon/>{" "}<b>Create Feed</b>
+                  <CodeBranchIcon /> <b>Create Feed</b>
                 </Button>
               </Tooltip>
+              <Button
+                variant="secondary"
+                style={{ fontSize: "small", margin: "auto" }}
+                onClick={() => setOpenSeriesPreview(true)}
+              >
+                <EyeIcon /> <b>Preview</b>
+              </Button>
             </div>
           </>
         );
+      }
+
+      const PullProgress = () => {
+        return <Progress
+          value={pullStatus.progress * 100}
+          style={{ gap: "0.5em", textAlign: "left", width: "10em" }}
+          title={pullStatus.stageText}
+          size={ProgressSize.sm}
+          measureLocation={ProgressMeasureLocation.top}
+          label={pullStatus.progressText}
+          valueText={pullStatus.progressText}
+        />
+      }
+
+      const FinishingUp = () => {
+        if(cubePollError) 
+          return (
+            <div style={{ fontSize: "small" }}>
+              <p>Something went wrong</p>
+              <Tooltip content="Click to retry registering this series.">
+                <Button
+                  variant="danger"
+                  style={{ fontSize: "small", margin: "auto" }}
+                  onClick={retryRegister}
+                >
+                  <RedoIcon/>{" "}<b>Retry</b>
+                </Button>
+              </Tooltip>
+            </div>
+          )
+
+        return (
+          <div>
+            <div><Spinner size="md" />{" "}<b>Finishing Up</b></div>
+            <div style={{ fontSize: "small" }}>{pullStatus.progressText}</div>
+          </div>
+        )
       }
 
       if (pullStatus.stage !== PACSPullStages.NONE)
         return (
           <div className="action-button-container" style={{ display: "flex" }}>
             <div style={{ margin: "auto", textAlign: "center" }}>
-              {!pullStatus.isPullCompleted ? (
-                <Progress
-                  value={pullStatus.progress * 100}
-                  style={{ gap: "0.5em", textAlign: "left", width: "10em" }}
-                  title={pullStatus.stageText}
-                  size={ProgressSize.sm}
-                  measureLocation={ProgressMeasureLocation.top}
-                  label={pullStatus.progressText}
-                  valueText={pullStatus.progressText}
-                />
-              ) : (
-                <>
-                  <div><Spinner size="md" />{" "}<b>Finishing Up</b></div>
-                  <div style={{ fontSize: "small" }}>{pullStatus.progressText}</div>
-                </>
-              )}
+              {!pullStatus.isPullCompleted ? <PullProgress/>  : <FinishingUp/>}
             </div>
           </div>
         );
