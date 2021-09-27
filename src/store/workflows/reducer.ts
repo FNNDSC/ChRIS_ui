@@ -46,6 +46,7 @@ export const initialState: IWorkflowState = {
   pipelinePlugins: undefined,
   computeEnvs: undefined,
   uploadedWorkflow: "",
+  currentNode: undefined,
 };
 
 const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
@@ -97,6 +98,13 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       return {
         ...state,
         currentStep: action.payload,
+      };
+    }
+
+    case WorkflowTypes.SET_CURRENT_NODE: {
+      return {
+        ...state,
+        currentNode: action.payload,
       };
     }
 

@@ -1,4 +1,4 @@
-import { TreeNode } from "./types";
+import { TreeNode } from "../../store/workflows/types";
 
 export const getFeedTree = (items: any[]) => {
   console.log("Items", items);

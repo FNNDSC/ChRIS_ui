@@ -8,6 +8,21 @@ import {
   PipelinePipingDefaultParameterList,
 } from "@fnndsc/chrisapi";
 
+export interface TreeNode {
+  children: TreeType[];
+  id: number;
+  plugin_id: number;
+  pipeline_id: number;
+  previous_id: number | null;
+}
+
+export interface TreeType {
+  id: number;
+  plugin_id: number;
+  pipeline_id: number;
+  previous_id: number | null;
+}
+
 export interface AnalysisStep {
   id: number;
   title: string;
@@ -28,7 +43,7 @@ export interface SelectWorkflowState {
 }
 
 export interface ComputeEnvData {
-  [key: string]: ComputeResourceList;
+  [key: string]: any[];
 }
 
 export interface IWorkflowState {
@@ -46,6 +61,7 @@ export interface IWorkflowState {
   pipelinePlugins?: any[];
   computeEnvs?: ComputeEnvData;
   uploadedWorkflow: string;
+  currentNode?: { data: TreeNode; pluginName: string };
 }
 
 export interface DircopyData {
@@ -141,4 +157,5 @@ export const WorkflowTypes = keyMirror({
   SET_UPLOADED_SPEC_SUCCESS: null,
   SET_PLUGIN_PARAMETERS: null,
   SET_PIPELINE_PLUGINS: null,
+  SET_CURRENT_NODE: null,
 });
