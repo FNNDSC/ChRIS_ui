@@ -26,8 +26,18 @@ import {
   submitAnalysis,
   resetWorkflowState,
   clearFileSelection,
+  generatePipeline,
+  setUploadedSpec,
 } from "../../store/workflows/actions";
 import { Tree, ConfigurationPage } from "./components/Tree";
+import {
+  fastsurferPipeline,
+  freesurferPipeline,
+  fetalReconstructionPipeline,
+} from "./utils";
+import { TreeNode } from "./types";
+
+import { AiOutlineUpload } from "react-icons/ai";
 
 const { Step } = Steps;
 
@@ -120,25 +130,25 @@ const ContentWrapper = ({
   id?: number;
 }) => {
   const dispatch = useDispatch();
+  const uploadedWorkflow = useTypedSelector(
+    (state) => state.workflows.uploadedWorkflow
+  );
   const history = useHistory();
   const {
     currentStep,
     optionState,
     localfilePayload,
-    infantAge,
     checkFeedDetails,
+    pipelinePlugins,
+    pluginPipings,
+    pluginParameters,
   } = useTypedSelector((state) => state.workflows);
   const username = useTypedSelector((state) => state.user.username);
 
   const localFiles = localfilePayload.files;
 
   const stepLength = 2;
-  const isDisabled =
-    id === 1 && localFiles.length === 0
-      ? true
-      : id === 2 && !optionState.selectedOption
-      ? true
-      : false;
+  const isDisabled = id === 1 && localFiles.length === 0 ? true : false;
 
   return (
     <div className="steps-content">
@@ -163,9 +173,11 @@ const ContentWrapper = ({
                   submitAnalysis({
                     localFiles,
                     username,
-                    workflowType: optionState.selectedOption,
-                    infantAge,
-                    plugins: optionState.plugins,
+                    workflowType:
+                      optionState.selectedOption || uploadedWorkflow,
+                    pipelinePlugins,
+                    pluginPipings,
+                    pluginParameters,
                   })
                 );
               }
@@ -240,80 +252,6 @@ const workflows = [
   "fetalReconstruction",
 ];
 
-const workflowPlugins: {
-  [key: string]: string[];
-} = {
-  covidnet: [
-    "pl-dircopy",
-    "pl-med2img",
-    "pl-covidnet",
-    "pl-covidnet-pdfgeneration",
-  ],
-  infantFreesurfer: [
-    "pl-dircopy",
-    "pl-pfdicom_tagSub",
-    "pl-pfdicom_tagExtract",
-    "pl-fshack-infant",
-    "pl-multipass",
-    "pl-pfdorun",
-    "pl-mgz2LUT_report",
-  ],
-  infantFreesurferAge: [
-    "pl-dircopy",
-    "pl-pfdicom_tagSub",
-    "pl-pfdicom_tagExtract",
-    "pl-fshack-infant",
-    "pl-multipass",
-    "pl-pfdorun",
-    "pl-mgz2LUT_report",
-  ],
-  adultFreesurfer: [
-    "pl-dircopy",
-    "pl-pfdicom_tagSub",
-    "pl-pfdicom_tagExtract",
-    "pl-fshack",
-    "pl-multipass",
-    "pl-pfdorun",
-    "pl-mgz2LUT_report",
-  ],
-  fastsurfer: [
-    "pl-dircopy",
-    "pl-pfdicom_tagExtract",
-    "pl-pfdicom_tagSub",
-    "pl-fshack",
-    "pl-fastsurfer_inference",
-    "pl-multipass",
-    "pl-pfdorun",
-    "pl-mgz2LUT_report",
-  ],
-  adultFreesurfermoc: [
-    "pl-dircopy",
-    "pl-pfdicom_tagextract_ghcr",
-    "pl-pfdicom_tagsub_ghcr",
-    "pl-fshack_ghcr:1.0.0",
-    "pl-multipass_ghcr",
-    "pl-pfdorun_ghcr",
-    "pl-mgz2lut_report_ghcr_m3",
-  ],
-  fastsurfermoc: [
-    "pl-dircopy",
-    "pl-pfdicom_tagextract_ghcr",
-    "pl-pfdicom_tagsub_ghcr",
-    "pl-fshack_ghcr:1.0.0",
-    "pl-fastsurfer_inference_cpu_30",
-    "pl-multipass_ghcr",
-    "pl-pfdorun_ghcr",
-    "pl-mgz2lut_report_ghcr_m3",
-  ],
-  fetalReconstruction: [
-    "pl-dircopy",
-    "pl-fetal-brain-mask",
-    "pl-ANTs_N4BiasFieldCorrection",
-    "pl-fetal-brain-assessment",
-    "pl-irtk-reconstruction",
-  ],
-};
-
 const workflowTitle: {
   [key: string]: {
     title: string;
@@ -345,14 +283,29 @@ const workflowTitle: {
   },
 };
 
+const getPipelineData = (workflow: string) => {
+  if (workflow === "fastsurfer") {
+    return fastsurferPipeline();
+  }
+  if (workflow === "fetalReconstruction") {
+    return fetalReconstructionPipeline();
+  }
+
+  if (workflow === "adultFreesurfer") {
+    return freesurferPipeline();
+  }
+};
+
 const SelectWorkflow = () => {
   const dispatch = useDispatch();
-  const optionState = useTypedSelector((state) => state.workflows.optionState);
-  const localFiles = useTypedSelector(
-    (state) => state.workflows.localfilePayload.files
+  const username = useTypedSelector((state) => state.user.username);
+  const { uploadedWorkflow, optionState } = useTypedSelector(
+    (state) => state.workflows
   );
+
   const { selectedOption, isOpen, toggleTemplateText } = optionState;
-  const [nodeName, setNodeName] = React.useState("");
+  const [node, setNode] =
+    React.useState<{ data: TreeNode; pluginName: string }>();
   const handleSelect = (
     event?:
       | React.MouseEvent<HTMLAnchorElement, MouseEvent>
@@ -367,26 +320,26 @@ const SelectWorkflow = () => {
         setOptionState({
           ...optionState,
           toggleTemplateText: name,
-          selectedOption: id,
+          selectedOption: id || uploadedWorkflow,
           isOpen: !isOpen,
-          plugins: workflowPlugins[id],
-          localFiles,
         })
       );
+      const data = getPipelineData(id);
+      dispatch(generatePipeline(data));
     }
   };
 
   const onToggle = () => {
-    dispatch(
-      setOptionState({
-        ...optionState,
-        isOpen: !isOpen,
-        localFiles,
-      })
-    );
+    if (username)
+      dispatch(
+        setOptionState({
+          ...optionState,
+          isOpen: !isOpen,
+        })
+      );
   };
-  const handleNodeClick = (nodeName: string) => {
-    setNodeName(nodeName);
+  const handleNodeClick = (node: { data: TreeNode; pluginName: string }) => {
+    setNode(node);
   };
 
   const handleInputChange = (value: string) => {
@@ -395,7 +348,7 @@ const SelectWorkflow = () => {
 
   const menuItems = workflows.map((workflow: string) => {
     return (
-      <>
+      <React.Fragment key={workflow}>
         <OptionsMenuItem
           onSelect={handleSelect}
           id={workflow}
@@ -405,7 +358,7 @@ const SelectWorkflow = () => {
         >
           {workflowTitle[workflow].title}
         </OptionsMenuItem>
-      </>
+      </React.Fragment>
     );
   });
 
@@ -418,12 +371,22 @@ const SelectWorkflow = () => {
 
   return (
     <>
-      <OptionsMenu
-        id="option-menu"
-        isOpen={isOpen}
-        menuItems={menuItems}
-        toggle={toggle}
-      />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <OptionsMenu
+          id="option-menu"
+          isOpen={isOpen}
+          menuItems={menuItems}
+          toggle={toggle}
+        />
+        <UploadJson />
+      </div>
+
       <div
         style={{
           display: "flex",
@@ -431,7 +394,7 @@ const SelectWorkflow = () => {
         }}
       >
         <Tree handleNodeClick={handleNodeClick} />
-        {nodeName && <ConfigurationPage nodeName={nodeName} />}
+        {node && <ConfigurationPage node={node} />}
         {selectedOption === "infantFreesurferAge" && (
           <div className="workflow-form">
             <Form isHorizontal>
@@ -452,3 +415,57 @@ const SelectWorkflow = () => {
 };
 
 export default FileDetails;
+
+const UploadJson = () => {
+  const dispatch = useDispatch();
+  const fileOpen = React.useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = React.useState("");
+
+  const showOpenFile = () => {
+    if (fileOpen.current) {
+      fileOpen.current.click();
+    }
+  };
+
+  const readFile = (file: any) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      try {
+        if (reader.result) {
+          const result = JSON.parse(reader.result as string);
+          dispatch(setUploadedSpec(result));
+          setFileName(result.name);
+        }
+      } catch (error) {
+        console.log("NOT a valid json file");
+      }
+    };
+    if (file) {
+      reader.readAsText(file);
+    }
+  };
+
+  const handleUpload = (event: any) => {
+    const file = event.target.files && event.target.files[0];
+    readFile(file);
+  };
+  return (
+    <>
+      <div>
+        <span style={{ marginRight: "0.5rem", fontWeight: 700 }}>
+          {fileName}
+        </span>
+        <Button onClick={showOpenFile} icon={<AiOutlineUpload />}>
+          Upload a JSON spec{" "}
+        </Button>
+      </div>
+
+      <input
+        ref={fileOpen}
+        style={{ display: "none" }}
+        type="file"
+        onChange={handleUpload}
+      />
+    </>
+  );
+};

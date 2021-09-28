@@ -1,11 +1,14 @@
 import React, { Fragment, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { useTypedSelector } from "../../../store/hooks";
 import { TreeNode } from "../types";
 import { tree, hierarchy, HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import TransitionGroupWrapper from "../../../components/feed/FeedTree/TransitionGroupWrapper";
-import { generatePipeline } from "../../../store/workflows/actions";
+import { useTypedSelector } from "../../../store/hooks";
+import { getFeedTree } from "../utils";
+import ChrisAPIClient from "../../../api/chrisapiclient";
+import { setComputeEnvs } from "../../../store/workflows/actions";
+import { List, Avatar } from "antd";
 
 const nodeSize = { x: 150, y: 40 };
 const svgClassName = "feed-tree__svg";
@@ -16,14 +19,22 @@ const translate = {
 };
 const scale = 1;
 
-const Tree = (props: { handleNodeClick: (nodeName: string) => void }) => {
-  const dispatch = useDispatch();
-  const { handleNodeClick } = props;
-  const optionState = useTypedSelector((state) => state.workflows.optionState);
-  const localFiles = useTypedSelector(
-    (state) => state.workflows.localfilePayload.files
+const Tree = (props: {
+  handleNodeClick: (nodeName: { data: TreeNode; pluginName: string }) => void;
+}) => {
+  const pluginPipings = useTypedSelector(
+    (state) => state.workflows.pluginPipings
   );
+  const { handleNodeClick } = props;
+
   const [data, setData] = React.useState<TreeNode[]>();
+
+  React.useEffect(() => {
+    if (pluginPipings) {
+      const tree = getFeedTree(pluginPipings);
+      setData(tree);
+    }
+  }, [pluginPipings]);
 
   const generateTree = () => {
     const d3Tree = tree<TreeNode>().nodeSize([nodeSize.x, nodeSize.y]);
@@ -42,7 +53,7 @@ const Tree = (props: { handleNodeClick: (nodeName: string) => void }) => {
   return (
     <div
       style={{
-        width: "65%",
+        width: "55%",
       }}
     >
       <svg className={`${svgClassName}`} width="100%" height="100%">
@@ -167,7 +178,7 @@ type NodeProps = {
   parent: HierarchyPointNode<TreeNode> | null;
   position: Point;
   orientation: string;
-  handleNodeClick: (nodeName: string) => void;
+  handleNodeClick: (nodeName: { data: TreeNode; pluginName: string }) => void;
 };
 
 const setNodeTransform = (orientation: string, position: Point) => {
@@ -180,6 +191,8 @@ const NodeData = (props: NodeProps) => {
   const nodeRef = useRef<SVGGElement>(null);
   const textRef = useRef<SVGTextElement>(null);
   const { data, position, orientation, handleNodeClick } = props;
+  const [pluginName, setPluginName] = React.useState("");
+  const computeEnvs = useTypedSelector((state) => state.workflows.computeEnvs);
 
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
@@ -190,23 +203,40 @@ const NodeData = (props: NodeProps) => {
   React.useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);
     applyNodeTransform(nodeTransform);
-  }, [orientation, position]);
+
+    async function fetchPluginName() {
+      const plugin_id = data.plugin_id;
+      const client = ChrisAPIClient.getClient();
+      const plugin = await client.getPlugin(plugin_id);
+      setPluginName(plugin.data.name);
+    }
+
+    fetchPluginName();
+  }, [orientation, position, data]);
 
   const textLabel = (
     <g id={`text_${data.id}`}>
       <text ref={textRef} className="label__title">
-        {data.name}
+        {pluginName}
       </text>
     </g>
   );
 
+  const payload = {
+    data,
+    pluginName,
+  };
+
   return (
     <Fragment>
       <g
+        style={{
+          cursor: "pointer",
+        }}
         id={`${data.id}`}
         ref={nodeRef}
         onClick={() => {
-          handleNodeClick(data.name);
+          handleNodeClick(payload);
         }}
       >
         <circle id={`node_${data.id}`} r={DEFAULT_NODE_CIRCLE_RADIUS}></circle>
@@ -216,9 +246,63 @@ const NodeData = (props: NodeProps) => {
   );
 };
 
-const ConfigurationPage = (props: { nodeName: string }) => {
-  const { nodeName } = props;
-  return <div>{`Configuring ${nodeName}`}</div>;
+const ConfigurationPage = (props: {
+  node: { data: TreeNode; pluginName: string };
+}) => {
+  const { node } = props;
+  const { data, pluginName } = node;
+
+  const computeEnvs = useTypedSelector((state) => state.workflows.computeEnvs);
+  let currentComputeEnv;
+  if (computeEnvs) {
+    if (computeEnvs[pluginName])
+      currentComputeEnv = computeEnvs[pluginName].data;
+  } else {
+    currentComputeEnv = [];
+  }
+
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    async function fetchComputeEnvironments() {
+      const client = ChrisAPIClient.getClient();
+      const computeEnvs = await client.getComputeResources({
+        plugin_id: `${data.plugin_id}`,
+      });
+      if (computeEnvs.getItems()) {
+        const computeEnvData = {
+          [pluginName]: computeEnvs,
+        };
+        dispatch(setComputeEnvs(computeEnvData));
+      }
+    }
+    fetchComputeEnvironments();
+  }, [data, dispatch, pluginName]);
+
+  return (
+    <>
+      <div
+        style={{
+          width: "45%",
+        }}
+      >
+        <h3>Configuring Compute Environments</h3>
+        <List
+          itemLayout="horizontal"
+          dataSource={currentComputeEnv}
+          renderItem={(item) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<Avatar />}
+                title={item.name}
+                description={item.description}
+              />
+            </List.Item>
+          )}
+        />
+      </div>
+    </>
+  );
 };
 
 export { Tree, ConfigurationPage };

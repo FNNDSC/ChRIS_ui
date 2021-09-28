@@ -5,27 +5,20 @@ function getInitialSteps() {
   const steps: AnalysisStep[] = [];
   steps[0] = {
     id: 1,
-    title: "Check if plugins are registered",
+    title: "Create a Feed Root Node",
     status: "wait",
     error: "",
   };
 
   steps[1] = {
     id: 2,
-    title: "Create a Feed Root Node",
+    title: "Create a Feed Tree",
     status: "wait",
     error: "",
   };
 
   steps[2] = {
     id: 3,
-    title: "Create a Feed Tree",
-    status: "wait",
-    error: "",
-  };
-
-  steps[3] = {
-    id: 4,
     title: "Success",
     status: "wait",
     error: "",
@@ -46,10 +39,13 @@ export const initialState: IWorkflowState = {
     isOpen: false,
     toggleTemplateText: "Choose a Workflow",
     selectedOption: "",
-    plugins: [],
   },
   checkFeedDetails: undefined,
-  infantAge: "",
+  pluginParameters: undefined,
+  pluginPipings: undefined,
+  pipelinePlugins: undefined,
+  computeEnvs: undefined,
+  uploadedWorkflow: "",
 };
 
 const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
@@ -80,6 +76,13 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       return {
         ...state,
         optionState: action.payload,
+      };
+    }
+
+    case WorkflowTypes.SET_UPLOADED_SPEC_SUCCESS: {
+      return {
+        ...state,
+        uploadedWorkflow: action.payload,
       };
     }
 
@@ -129,6 +132,30 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
         };
     }
 
+    case WorkflowTypes.SET_PLUGIN_PARAMETERS: {
+      return {
+        ...state,
+        pluginParameters: action.payload,
+      };
+    }
+
+    case WorkflowTypes.SET_COMPUTE_ENVS: {
+      return {
+        ...state,
+        computeEnvs: {
+          ...state.computeEnvs,
+          ...action.payload,
+        },
+      };
+    }
+
+    case WorkflowTypes.SET_PIPELINE_PLUGINS: {
+      return {
+        ...state,
+        pipelinePlugins: action.payload,
+      };
+    }
+
     case WorkflowTypes.SET_FEED_DETAILS: {
       return {
         ...state,
@@ -146,6 +173,13 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
     case WorkflowTypes.RESET_WORKFLOW_STEP: {
       return {
         ...initialState,
+      };
+    }
+
+    case WorkflowTypes.SET_PLUGIN_PIPINGS_LIST: {
+      return {
+        ...state,
+        pluginPipings: action.payload,
       };
     }
 
