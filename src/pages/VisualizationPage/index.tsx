@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { useHistory } from "react-router";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import { Button } from "antd";
 import { AiOutlineUpload } from "react-icons/ai";
@@ -10,6 +11,10 @@ import {
 } from "@patternfly/react-core";
 import * as cornerstone from "cornerstone-core";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import * as cornerstoneWebImageLoader from "cornerstone-web-image-loader";
+import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
+import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
+import * as dicomParser from "dicom-parser";
 import {
   getDicomPatientName,
   getDicomStudyDate,
@@ -26,7 +31,27 @@ import {
   getDicomColumns,
   getDicomRows,
   dicomDateTimeToLocale,
+  isNifti,
+  isDicom,
 } from "../../components/dicomViewer/utils";
+import { useDispatch } from "react-redux";
+import { setFilesForGallery } from "../../store/explorer/actions";
+
+cornerstoneNIFTIImageLoader.nifti.configure({
+  headers: {
+    "Content-Type": "application/vnd.collection+json",
+    Authorization: "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
+  },
+  method: "get",
+  responseType: "arrayBuffer",
+});
+const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
+
+cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
+cornerstoneFileImageLoader.external.cornerstone = cornerstone;
+cornerstoneWebImageLoader.external.cornerstone = cornerstone;
+cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 
 const VisualizationPage = () => {
   const fileOpen = useRef<HTMLInputElement>(null);
@@ -57,8 +82,6 @@ const VisualizationPage = () => {
   const handleModalClose = () => {
     setVisibleModal(false);
   };
-
-  console.log("Files", files);
 
   return (
     <Wrapper>
@@ -113,12 +136,14 @@ export const DicomModal = ({
   handleModalClose: () => void;
   files?: any[];
 }) => {
-  const [modifiedFiles, setModifiedFiles] = React.useState<any[]>();
+  const dispatch = useDispatch();
+  const history = useHistory();
   const [progress, setProgress] = React.useState<number>(0);
 
   const close = React.useCallback(() => {
     handleModalClose();
-  }, [handleModalClose]);
+    history.push("/gallery");
+  }, [handleModalClose, history]);
 
   const loadImagesIntoCornerstone = React.useCallback(() => {
     if (files) {
@@ -130,7 +155,26 @@ export const DicomModal = ({
       const imageIds: string[] = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        imageIds.push(cornerstoneWADOImageLoader.wadouri.fileManager.add(file));
+        if (isNifti(file.name)) {
+          const imageIdObject = ImageId.fromURL(`nifti:${file.name}`);
+          const numberOfSlices = cornerstone.metaData.get(
+            "multiFrameModule",
+            imageIdObject.url
+          ).numberOfFrames;
+          imageIds.push(
+            ...Array.from(
+              Array(numberOfSlices),
+              (_, i) =>
+                `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
+            )
+          );
+        } else if (isDicom(file.name)) {
+          imageIds.push(
+            cornerstoneWADOImageLoader.wadouri.fileManager.add(file)
+          );
+        } else {
+          imageIds.push(cornerstoneFileImageLoader.fileManager.add(file));
+        }
       }
 
       const items: any[] = [];
@@ -193,7 +237,7 @@ export const DicomModal = ({
               setProgress(progress);
             }
             if (count === files.length) {
-              console.log("Close called");
+              dispatch(setFilesForGallery(items));
               close();
             }
           },
@@ -203,10 +247,8 @@ export const DicomModal = ({
           }
         );
       }
-      console.log("Items", items);
-      setModifiedFiles(items);
     }
-  }, [files, close]);
+  }, [files, close, dispatch]);
 
   React.useEffect(() => {
     loadImagesIntoCornerstone();
