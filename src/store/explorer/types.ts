@@ -76,11 +76,13 @@ export interface IExplorerState {
   selectedFolder?: DataNode[];
   mode: ExplorerMode;
   enableDcmTool: boolean;
+  files: any[];
 }
 
 export const ExplorerActionTypes = keyMirror({
   SET_EXPLORER_REQUEST: null,
   SET_SELECTED_FILE: null,
+  SET_GALLERY_FILES: null,
   SET_SELECTED_FOLDER: null,
   SET_EXPLORER_MODE: null,
   ENABLE_DCM_TOOL: null,
