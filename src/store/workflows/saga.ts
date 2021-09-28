@@ -16,7 +16,7 @@ import {
 import { IActionTypeParam } from "../../api/models/base.model";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../utils";
-import { createFeed } from "./setup";
+import { createFeed, createFeedTree } from "./setup";
 
 function* handleSubmitAnalysis(action: IActionTypeParam) {
   const { pipelinePlugins, pluginParameters, pluginPipings } = action.payload;
