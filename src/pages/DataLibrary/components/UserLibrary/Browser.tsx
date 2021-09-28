@@ -291,6 +291,7 @@ export const Browser: React.FC<BrowserProps> = ({
               </GridItem>
             ))}
 
+<<<<<<< HEAD
           {tree.dir
             .filter(({ isLeaf }) => isLeaf)
             .filter(({ name }) => {
@@ -332,6 +333,77 @@ export const Browser: React.FC<BrowserProps> = ({
             <GalleryDicomView />
           </Modal>
         )}
+=======
+            {tree.dir
+              .filter(({ hasChildren }) => !hasChildren)
+              .filter(({ name }) => {
+                if (filter) return name.includes(filter);
+                return true;
+              })
+              // FileCard
+              .map(({ name: fname, item }) => (
+                <GridItem key={fname} sm={12} lg={2}>
+                  <Card
+                    isRounded
+                    isCompact
+                    isSelectable
+                    isSelected={library.actions.isSelected(item)}
+                    onClick={select.bind(Browser, item)}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <CardBody>
+                      <div
+                        style={{
+                          margin: "-1.15em -1.15em 1em -1.15em",
+                          maxHeight: "10em",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <FileDetailView selectedFile={item} preview="small" />
+                      </div>
+                      <div style={{ overflow: "hidden" }}>
+                        <Button
+                          variant="link"
+                          style={{ padding: "0" }}
+                          onClick={() => setViewFile(item)}
+                        >
+                          <b>{elipses(fname, 20)}</b>
+                        </Button>
+                      </div>
+                      <div>
+                        {(item.data.fsize / (1024 * 1024)).toFixed(3)} MB
+                      </div>
+                    </CardBody>
+                  </Card>
+                </GridItem>
+              ))}
+          </Grid>
+
+          {!!viewfile && (
+            <Modal
+              title="Preview"
+              aria-label="viewer"
+              width={"50%"}
+              isOpen={!!viewfile}
+              onClose={() => setViewFile(undefined)}
+            >
+              <FileDetailView selectedFile={viewfile} preview="large" />
+            </Modal>
+          )}
+
+          {!!viewfolder && (
+            <Modal
+              title="View"
+              aria-label="viewer"
+              width={"50%"}
+              isOpen={!!viewfolder}
+              onClose={() => setViewFolder(undefined)}
+            >
+              Hey
+            </Modal>
+          )}
+        </article>
+>>>>>>> 037934b78a7f0a1ae83a0de0a7a7a803543fc27a
       </Route>
     </Switch>
   );
