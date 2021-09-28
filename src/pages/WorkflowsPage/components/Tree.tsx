@@ -22,7 +22,10 @@ const translate = {
 };
 const scale = 1;
 
-const colorPalette = {
+const colorPalette: {
+  [key: string]: string;
+} = {
+  default: "",
   host: "#5998C5",
   moc: "#704478",
   titan: "#1B9D92",
@@ -206,9 +209,9 @@ const NodeData = (props: NodeProps) => {
   const [pluginName, setPluginName] = React.useState("");
 
   const computeEnvs = useTypedSelector((state) => state.workflows.computeEnvs);
-  if (pluginName) {
-    const currentComputeEnv = computeEnvs && computeEnvs[pluginName];
-    console.log(`Current compute env for ${pluginName} is`);
+  let currentComputeEnv = "";
+  if (pluginName && computeEnvs && computeEnvs[pluginName]) {
+    currentComputeEnv = computeEnvs[pluginName].currentlySelected.name;
   }
 
   const applyNodeTransform = (transform: string, opacity = 1) => {
@@ -220,6 +223,7 @@ const NodeData = (props: NodeProps) => {
   React.useEffect(() => {
     async function fetchComputeEnvironments() {
       const client = ChrisAPIClient.getClient();
+
       const computeEnvs = await client.getComputeResources({
         plugin_id: `${data.plugin_id}`,
       });
@@ -227,8 +231,12 @@ const NodeData = (props: NodeProps) => {
       if (computeEnvs.getItems()) {
         if (pluginName) {
           const computeEnvData = {
-            [pluginName]: computeEnvs.data,
+            [pluginName]: {
+              computeEnvs: computeEnvs.data,
+              currentlySelected: computeEnvs.data[0],
+            },
           };
+
           dispatch(setComputeEnvs(computeEnvData));
         }
       }
@@ -286,7 +294,11 @@ const NodeData = (props: NodeProps) => {
       >
         <circle
           style={{
-            fill: "red",
+            fill: `${
+              colorPalette[currentComputeEnv]
+                ? colorPalette[currentComputeEnv]
+                : colorPalette["default"]
+            }`,
           }}
           id={`node_${data.id}`}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
@@ -299,16 +311,18 @@ const NodeData = (props: NodeProps) => {
 
 const ConfigurationPage = () => {
   const node = useTypedSelector((state) => state.workflows.currentNode);
-
   const computeEnvs = useTypedSelector((state) => state.workflows.computeEnvs);
   let currentComputeEnv;
+  let computeEnvList;
   if (computeEnvs && node) {
     const { pluginName } = node;
-    if (computeEnvs[pluginName])
-      //@ts-ignore
-      currentComputeEnv = computeEnvs[pluginName];
+
+    if (computeEnvs[pluginName]) {
+      computeEnvList = computeEnvs[pluginName].computeEnvs;
+      currentComputeEnv = computeEnvs[pluginName].currentlySelected;
+    }
   } else {
-    currentComputeEnv = [];
+    computeEnvList = [];
   }
 
   return (
@@ -319,9 +333,10 @@ const ConfigurationPage = () => {
         }}
       >
         <h3>Configuring Compute Environments</h3>
+
         <List
           itemLayout="horizontal"
-          dataSource={currentComputeEnv}
+          dataSource={computeEnvList}
           renderItem={(item: { name: string; description: string }) => (
             <List.Item>
               <List.Item.Meta

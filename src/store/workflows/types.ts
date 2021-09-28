@@ -4,7 +4,6 @@ import {
   Plugin,
   PluginInstance,
   Feed,
-  ComputeResourceList,
   PipelinePipingDefaultParameterList,
 } from "@fnndsc/chrisapi";
 
@@ -43,7 +42,7 @@ export interface SelectWorkflowState {
 }
 
 export interface ComputeEnvData {
-  [key: string]: any[];
+  [key: string]: { computeEnvs: any[]; currentlySelected: any };
 }
 
 export interface IWorkflowState {
