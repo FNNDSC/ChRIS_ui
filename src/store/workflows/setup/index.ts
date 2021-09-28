@@ -129,7 +129,6 @@ export function* createFeedTree(
       previous_id = pluginDict[previousPlugin.data.plugin_id];
     }
 
-<<<<<<< HEAD
 export function* setupFastsurferMoc(action: IActionTypeParam) {
   const fastsurferMocPlugins: string[] = [
     "pl-dircopy",
@@ -143,12 +142,6 @@ export function* setupFastsurferMoc(action: IActionTypeParam) {
   ];
   yield setupFeedDetails(action, fastsurferMocPlugins, "fastsurfer-moc");
 }
-=======
-    const finalData = {
-      ...data,
-      previous_id,
-    };
->>>>>>> 9cacc0f (pipelines_mvp)
 
     const pluginInstance: PluginInstance = yield client.createPluginInstance(
       pluginFound.data.id,
