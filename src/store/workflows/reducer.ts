@@ -1,5 +1,6 @@
 import { Reducer } from "redux";
 import { IWorkflowState, WorkflowTypes, AnalysisStep } from "./types";
+import { merge } from "lodash";
 
 function getInitialSteps() {
   const steps: AnalysisStep[] = [];
@@ -148,13 +149,17 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
     }
 
     case WorkflowTypes.SET_COMPUTE_ENVS: {
-      return {
-        ...state,
-        computeEnvs: {
-          ...state.computeEnvs,
-          ...action.payload,
-        },
-      };
+      console.log("Action.payload", action.payload, state.computeEnvs);
+      if (state.computeEnvs) {
+        return {
+          ...state,
+          computeEnvs: merge(state.computeEnvs, action.payload),
+        };
+      } else
+        return {
+          ...state,
+          computeEnvs: action.payload,
+        };
     }
 
     case WorkflowTypes.SET_PIPELINE_PLUGINS: {

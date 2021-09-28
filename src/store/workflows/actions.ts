@@ -64,8 +64,12 @@ export const generatePipeline = (data: any) =>
 export const setPluginPipingsSuccess = (pluginPipings: any) =>
   action(WorkflowTypes.SET_PLUGIN_PIPINGS_LIST, pluginPipings);
 
-export const setComputeEnvs = (computeEnvs: { [key: string]: any[] }) =>
-  action(WorkflowTypes.SET_COMPUTE_ENVS, computeEnvs);
+export const setComputeEnvs = (computeEnvs: {
+  [key: string]: {
+    computeEnvs: any[];
+    currentlySelected: any;
+  };
+}) => action(WorkflowTypes.SET_COMPUTE_ENVS, computeEnvs);
 
 export const setUploadedSpec = (pipeline: any) =>
   action(WorkflowTypes.SET_UPLOADED_SPEC, pipeline);
