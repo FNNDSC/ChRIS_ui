@@ -1,25 +1,29 @@
 import React from "react";
 import { Tooltip, TooltipPosition, Button } from "@patternfly/react-core";
 import {
-  SearchPlusIcon,
-  SearchIcon,
-  HandPaperIcon,
-  AdjustIcon,
-  BurnIcon,
-  RedoIcon,
-  BarsIcon,
-  EditIcon,
-  InfoCircleIcon,
-} from "@patternfly/react-icons";
-
+  MdPanTool,
+  MdZoomIn,
+  MdSearch,
+  MdBrightnessMedium,
+  MdInvertColors,
+  MdRotateRight,
+  MdInfoOutline,
+  MdReplay,
+  MdFullscreenExit,
+  MdFullscreen,
+} from "react-icons/md";
 import "./DcmHeader.scss";
 
 interface DicomHeaderProps {
   handleToolbarAction: (action: string) => void;
+  switchFullScreen: () => void;
+  isFullScreen: boolean;
 }
 
 const DcmHeader = ({
   handleToolbarAction,
+  switchFullScreen,
+  isFullScreen,
 }: DicomHeaderProps): React.ReactElement => {
   return (
     <div className="dicom-header">
@@ -36,9 +40,22 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
+              handleToolbarAction("pan");
+            }}
+            icon={<MdPanTool />}
+          />
+        </Tooltip>
+        <Tooltip
+          position={TooltipPosition.bottom}
+          isContentLeftAligned
+          content={<span>LMB + Drag</span>}
+        >
+          <Button
+            variant="link"
+            onClick={() => {
               handleToolbarAction("zoom");
             }}
-            icon={<SearchPlusIcon size="md" />}
+            icon={<MdZoomIn />}
           />
         </Tooltip>
         <Tooltip
@@ -51,22 +68,10 @@ const DcmHeader = ({
             onClick={() => {
               handleToolbarAction("magnify");
             }}
-            icon={<SearchIcon size="md" />}
+            icon={<MdSearch />}
           />
         </Tooltip>
-        <Tooltip
-          position={TooltipPosition.bottom}
-          isContentLeftAligned
-          content={<span>LMB + Drag</span>}
-        >
-          <Button
-            variant="link"
-            onClick={() => {
-              handleToolbarAction("pan");
-            }}
-            icon={<HandPaperIcon size="md" />}
-          />
-        </Tooltip>
+
         <Tooltip
           position={TooltipPosition.bottom}
           isContentLeftAligned
@@ -77,7 +82,7 @@ const DcmHeader = ({
             onClick={() => {
               handleToolbarAction("wwwc");
             }}
-            icon={<AdjustIcon size="md" />}
+            icon={<MdBrightnessMedium />}
           />
         </Tooltip>
 
@@ -87,9 +92,8 @@ const DcmHeader = ({
             onClick={() => {
               handleToolbarAction("rotate");
             }}
-          >
-            <RedoIcon size="md" />
-          </Button>
+            icon={<MdRotateRight />}
+          ></Button>
         </Tooltip>
 
         <Tooltip position={TooltipPosition.bottom} content={<div>Invert</div>}>
@@ -98,7 +102,7 @@ const DcmHeader = ({
             onClick={() => {
               handleToolbarAction("invert");
             }}
-            icon={<BurnIcon size="md" />}
+            icon={<MdInvertColors />}
           />
         </Tooltip>
 
@@ -111,7 +115,7 @@ const DcmHeader = ({
             onClick={() => {
               handleToolbarAction("dicomHeader");
             }}
-            icon={<InfoCircleIcon size="md" />}
+            icon={<MdInfoOutline />}
           />
         </Tooltip>
         <Tooltip
@@ -123,9 +127,15 @@ const DcmHeader = ({
             onClick={() => {
               handleToolbarAction("reset");
             }}
-            icon={<EditIcon size="md" />}
+            icon={<MdReplay />}
           />
         </Tooltip>
+
+        <Button
+          variant="link"
+          icon={isFullScreen ? <MdFullscreenExit /> : <MdFullscreen />}
+          onClick={() => switchFullScreen()}
+        />
       </div>
     </div>
   );
