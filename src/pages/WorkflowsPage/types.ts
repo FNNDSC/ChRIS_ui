@@ -1,12 +1,14 @@
 export interface TreeNode {
-  children: TreeNode[];
+  children: TreeType[];
   id: number;
-  name: string;
-  parentId: number | null;
+  plugin_id: number;
+  pipeline_id: number;
+  previous_id: number | null;
 }
 
 export interface TreeType {
   id: number;
-  name: string;
+  plugin_id: number;
+  pipeline_id: number;
   previous_id: number | null;
 }

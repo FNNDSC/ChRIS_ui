@@ -112,7 +112,6 @@ const GalleryDicomView = () => {
   }, [dispatch, disableAllTools]);
 
   React.useEffect(() => {
-    console.log("Enabling tool store");
     enableToolStore();
   }, [enableToolStore]);
 
@@ -129,7 +128,6 @@ const GalleryDicomView = () => {
   const listOpenFilesPreviousFrame = () => {
     if (sliceIndex > 1) {
       const previousFrame = sliceIndex - 1;
-
       displayImageFromFiles(previousFrame);
     }
   };
@@ -137,14 +135,12 @@ const GalleryDicomView = () => {
   const listOpenFilesNextFrame = () => {
     if (sliceIndex < sliceMax) {
       const nextFrame = sliceIndex + 1;
-
       displayImageFromFiles(nextFrame);
     }
   };
 
   const listOpenFilesLastFrame = () => {
     const frame = sliceMax - 1;
-
     displayImageFromFiles(frame);
   };
 

@@ -1,6 +1,12 @@
 import keyMirror from "keymirror";
 import { LocalFile } from "../../components/feed/CreateFeed/types";
-import { Plugin, PluginInstance, Feed } from "@fnndsc/chrisapi";
+import {
+  Plugin,
+  PluginInstance,
+  Feed,
+  ComputeResourceList,
+  PipelinePipingDefaultParameterList,
+} from "@fnndsc/chrisapi";
 
 export interface AnalysisStep {
   id: number;
@@ -13,15 +19,16 @@ export interface AnalysisPayload {
   localFiles: LocalFile[];
   workflowType: string;
   username: string;
-  infantAge?: string;
-  plugins: string[];
 }
 
 export interface SelectWorkflowState {
   isOpen: boolean;
   toggleTemplateText: string;
   selectedOption: string;
-  plugins: string[];
+}
+
+export interface ComputeEnvData {
+  [key: string]: ComputeResourceList;
 }
 
 export interface IWorkflowState {
@@ -34,7 +41,11 @@ export interface IWorkflowState {
   currentStep: number;
   optionState: SelectWorkflowState;
   checkFeedDetails: number | undefined;
-  infantAge: string;
+  pluginPipings?: any[];
+  pluginParameters?: PipelinePipingDefaultParameterList;
+  pipelinePlugins?: any[];
+  computeEnvs?: ComputeEnvData;
+  uploadedWorkflow: string;
 }
 
 export interface DircopyData {
@@ -112,6 +123,7 @@ export const WorkflowTypes = keyMirror({
   SET_CURRENT_FILE: null,
   SET_PLUGIN_FILES: null,
   SET_LOCAL_FILE: null,
+  SET_COMPUTE_ENVS: null,
   SUBMIT_ANALYSIS: null,
   STOP_ANALYSIS: null,
   SET_ANALYSIS_STEP: null,
@@ -124,4 +136,9 @@ export const WorkflowTypes = keyMirror({
   DELETE_LOCAL_FILE: null,
   CLEAR_FILE_SELECTION: null,
   GENERATE_PIPELINE: null,
+  SET_PLUGIN_PIPINGS_LIST: null,
+  SET_UPLOADED_SPEC: null,
+  SET_UPLOADED_SPEC_SUCCESS: null,
+  SET_PLUGIN_PARAMETERS: null,
+  SET_PIPELINE_PLUGINS: null,
 });

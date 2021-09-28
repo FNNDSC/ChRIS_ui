@@ -159,6 +159,7 @@ const FeedListView: React.FC<AllProps> = ({
           <Grid hasGutter>
             {data && !loading ? (
               data.map((feed) => {
+                console.log("Feed", feed);
                 const {
                   id,
                   name,
@@ -206,7 +207,7 @@ const FeedListView: React.FC<AllProps> = ({
                   );
 
                 return (
-                  <GridItem key={name}>
+                  <GridItem key={feed.data.id}>
                     <Card isRounded isHoverable isCompact>
                       <CardBody>
                         <Split>
