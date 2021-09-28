@@ -46,6 +46,7 @@ export const initialState: IWorkflowState = {
     isOpen: false,
     toggleTemplateText: "Choose a Workflow",
     selectedOption: "",
+    plugins: [],
   },
   checkFeedDetails: undefined,
   infantAge: "",
@@ -76,6 +77,7 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       };
     }
     case WorkflowTypes.SET_OPTION_STATE: {
+      console.log("Action", action.payload);
       return {
         ...state,
         optionState: action.payload,
@@ -103,6 +105,7 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
           isOpen: false,
           toggleTemplateText: "Choose a Workflow",
           selectedOption: "",
+          plugins: [],
         },
       };
     }

@@ -137,6 +137,7 @@ export function* createFeedWithDircopy(
 
     feedPayload["instance"] = dircopyInstance;
   } catch (error) {
+    //@ts-ignore
     feedPayload["error"] = error;
   }
 
@@ -184,12 +185,11 @@ type FeedFetch = {
 
 export function* setupFeedDetails(
   action: IActionTypeParam,
-  pluginNames: string[],
   workflowType: string
 ) {
-  const { localFiles, username } = action.payload;
+  const { localFiles, username, plugins } = action.payload;
   const feedFetch: FeedFetch = yield createFeed(
-    pluginNames,
+    plugins,
     localFiles,
     username,
     workflowType
@@ -209,18 +209,18 @@ export function* setupFeedDetails(
         }
       }
 
-      if (workflowType === "infant-freesurfer") {
+      if (workflowType === "infantFreesurfer") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         if (instance)
           yield runFreesurferWorkflow(instance, plugins, "infant-freesurfer");
       }
 
-      if (workflowType === "adult-freesurfer") {
+      if (workflowType === "adultFreesurfer") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         if (instance)
           yield runFreesurferWorkflow(instance, plugins, "adult-freesurfer");
       }
-      if (workflowType === "adult-freesurfer-moc") {
+      if (workflowType === "adultFreesurfermoc") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         if (instance) yield runFreesurferMocWorkflow(instance, plugins);
       }
@@ -229,22 +229,22 @@ export function* setupFeedDetails(
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         if (instance) yield runFastsurferWorkflow(instance, plugins);
       }
-      if (workflowType === "fastsurfer-moc") {
+      if (workflowType === "fastsurfermoc") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         if (instance) yield runFastsurferMocWorkflow(instance, plugins);
       }
-      if (workflowType === "infant-freesurfer-age") {
+      if (workflowType === "infantFreesurferAge") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         const { infantAge } = action.payload;
         if (instance)
           yield runFreesurferWorkflow(
             instance,
             plugins,
-            "infant-freesurfer-age",
+            "infantFreesurferAge",
             infantAge
           );
       }
-      if (workflowType === "fetal-reconstruction") {
+      if (workflowType === "fetalReconstruction") {
         yield setYieldAnalysis(3, "Creating a Feed Tree", "process", "");
         if (instance) yield runFetalReconstructionWorkflow(instance, plugins);
       }
@@ -261,56 +261,19 @@ export function* setupFeedDetails(
 }
 
 export function* setupCovidnet(action: IActionTypeParam) {
-  const covidnetPlugins: string[] = [
-    "pl-dircopy",
-    "pl-med2img",
-    "pl-covidnet",
-    "pl-covidnet-pdfgeneration",
-  ];
-  yield setupFeedDetails(action, covidnetPlugins, "covidnet");
+  yield setupFeedDetails(action, "covidnet");
 }
 
 export function* setupInfantFreesurfer(action: IActionTypeParam) {
-  const infantFreesurferPlugins = [
-    "pl-dircopy",
-    "pl-pfdicom_tagSub",
-    "pl-pfdicom_tagExtract",
-    "pl-fshack-infant",
-    "pl-multipass",
-    "pl-pfdorun",
-    "pl-mgz2LUT_report",
-  ];
-  yield setupFeedDetails(action, infantFreesurferPlugins, "infant-freesurfer");
+  yield setupFeedDetails(action, "infantFreesurfer");
 }
 
 export function* setupAdultFreesurfer(action: IActionTypeParam) {
-  const adultFreesurferPlugins: string[] = [
-    "pl-dircopy",
-    "pl-pfdicom_tagSub",
-    "pl-pfdicom_tagExtract",
-    "pl-fshack",
-    "pl-multipass",
-    "pl-pfdorun",
-    "pl-mgz2LUT_report",
-  ];
-  yield setupFeedDetails(action, adultFreesurferPlugins, "adult-freesurfer");
+  yield setupFeedDetails(action, "adultFreesurfer");
 }
 
 export function* setupAdultFreesurferMoc(action: IActionTypeParam) {
-  const adultFreesurferMocPlugins: string[] = [
-    "pl-dircopy",
-    "pl-pfdicom_tagextract_ghcr",
-    "pl-pfdicom_tagsub_ghcr",
-    "pl-fshack_ghcr:1.0.0",
-    "pl-multipass_ghcr",
-    "pl-pfdorun_ghcr",
-    "pl-mgz2lut_report_ghcr_m3",
-  ];
-  yield setupFeedDetails(
-    action,
-    adultFreesurferMocPlugins,
-    "adult-freesurfer-moc"
-  );
+  yield setupFeedDetails(action, "adultFreesurfermoc");
 }
 
 export function* setupFastsurferMoc(action: IActionTypeParam) {
@@ -328,48 +291,13 @@ export function* setupFastsurferMoc(action: IActionTypeParam) {
 }
 
 export function* setupFastsurfer(action: IActionTypeParam) {
-  const fastsurferPlugins = [
-    "pl-dircopy",
-    "pl-pfdicom_tagExtract",
-    "pl-pfdicom_tagSub",
-    "pl-fshack",
-    "pl-fastsurfer_inference",
-    "pl-multipass",
-    "pl-pfdorun",
-    "pl-mgz2LUT_report",
-  ];
-  yield setupFeedDetails(action, fastsurferPlugins, "fastsurfer");
+  yield setupFeedDetails(action, "fastsurfer");
 }
 
 export function* setupFetalReconstruction(action: IActionTypeParam) {
-  const fetalReconstructionPlugins = [
-    "pl-dircopy",
-    "pl-fetal-brain-mask",
-    "pl-ANTs_N4BiasFieldCorrection",
-    "pl-fetal-brain-assessment",
-    "pl-irtk-reconstruction",
-  ];
-  yield setupFeedDetails(
-    action,
-    fetalReconstructionPlugins,
-    "fetal-reconstruction"
-  );
+  yield setupFeedDetails(action, "fetalReconstruction");
 }
 
 export function* setupInfantFreesurferAge(action: IActionTypeParam) {
-  const infantFreesurferAgePlugins = [
-    "pl-dircopy",
-    "pl-fshack-infant",
-    "pl-infantfs",
-    "pl-pfdicom_tagSub",
-    "pl-pfdicom_tagExtract",
-    "pl-multipass",
-    "pl-pfdorun",
-    "pl-mgz2LUT_report",
-  ];
-  yield setupFeedDetails(
-    action,
-    infantFreesurferAgePlugins,
-    "infant-freesurfer-age"
-  );
+  yield setupFeedDetails(action, "infantFreesurferage");
 }

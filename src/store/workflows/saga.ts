@@ -19,28 +19,28 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
   if (workflowType === "covidnet") {
     yield setupCovidnet(action);
   }
-  if (workflowType === "adult-freesurfer") {
+  if (workflowType === "adultFreesurfer") {
     yield setupAdultFreesurfer(action);
   }
-  if (workflowType === "infant-freesurfer") {
+  if (workflowType === "infantFreesurfer") {
     yield setupInfantFreesurfer(action);
   }
 
-  if (workflowType === "infant-freesurfer-age") {
+  if (workflowType === "infantFreesurferAge") {
     yield setupInfantFreesurferAge(action);
   }
 
   if (workflowType === "fastsurfer") {
     yield setupFastsurfer(action);
   }
-  if (workflowType === "fetal-reconstruction") {
+  if (workflowType === "fetalReconstruction") {
     yield setupFetalReconstruction(action);
   }
-  if (workflowType === "adult-freesurfer:moc") {
+  if (workflowType === "adultFreesurfermoc") {
     yield setupAdultFreesurferMoc(action);
   }
 
-  if (workflowType === "fastsurfer:moc") {
+  if (workflowType === "fastsurfermoc") {
     yield setupFastsurferMoc(action);
   }
 }
