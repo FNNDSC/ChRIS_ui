@@ -4,55 +4,62 @@
 *  Author:          ChRIS UI
 */
 @import "../../../assets/scss/helpers/variables";
-@import '../../../assets/scss/helpers/mixins.scss';
+@import "../../../assets/scss/helpers/mixins.scss";
 
 // $iconfont-size: 0.7rem;
 $iconfont-size-md: 0.6rem;
-$iconfont-size-lg:0.8rem;
+$iconfont-size-lg: 0.8rem;
 
-.gallery-toolbar{
-    bottom: $gallery-toolbar-bottom;
-    color: #fff;
-    left: 0;
-    display: flex;
-    flex-flow: row nowrap;
-    padding: 0 1rem;
+.gallery-toolbar {
+  bottom: $gallery-toolbar-bottom;
+  color: #fff;
+  left: 0;
+  display: flex;
+  flex-flow: row nowrap;
+  padding: 0 1rem;
+  position: absolute;
+  width: 100%;
+  z-index: 9999;
+  justify-content: center;
+
+  .pf-l-grid__item {
+    text-align: right;
+  }
+
+  .gallary-toolbar__expand-icon {
     position: absolute;
-    width: 100%;
-    z-index: 9999;
-    justify-content: center;
+    bottom: 0;
+    right: 1rem;
+  }
 
-    .pf-l-grid__item{
-      text-align: right;
-    }
+  button {
+    vertical-align: middle;
+    svg {
+      color: #fff;
 
-    .gallary-toolbar__expand-icon{
-      position: absolute;
-      bottom: 0;
-      right: 1rem;
-    }
+      @include media-query(1200px) {
+        font-size: $iconfont-size-md;
+      }
 
-    button {
-      vertical-align: middle;
-      svg {
-        color: #fff;
-       
-        @include media-query(1200px){
-          font-size: $iconfont-size-md;
-        }
-  
-        @include media-query(1920px){      
-         font-size:$iconfont-size-lg;
-        }
+      @include media-query(1920px) {
+        font-size: $iconfont-size-lg;
       }
     }
+  }
 
-    span, em{
-      color: #fff;
-      font-size: 0.875rem;
-    }
-    .indicator{
-      display: inline-block;
-      min-width:70px;
-    }
+  span,
+  em {
+    color: #fff;
+    font-size: 0.875rem;
+  }
+  .indicator {
+    display: inline-block;
+    min-width: 70px;
+  }
+}
+
+.pf-c-slider {
+  width: 30% !important;
+  margin-left:1rem;
+  margin-top:0.25em;
 }
