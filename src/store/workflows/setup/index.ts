@@ -144,12 +144,8 @@ export function* createFeedWithDircopy(
   return feedPayload;
 }
 
-export function* createFeed(
-  pluginList: string[],
-  localFiles: LocalFile[],
-  username: string,
-  workflowType: string
-) {
+export function* createFeed() {
+  /*
   yield setYieldAnalysis(1, "Plugins Registration Check", "process", "");
   const pluginRegistry: RegistrationCheck = yield checkPluginRegistration(
     pluginList
@@ -176,6 +172,7 @@ export function* createFeed(
     yield setYieldAnalysis(1, "Registration Check Failed", "error", errorCode);
     yield put(stopAnalysis());
   }
+  */
 }
 
 type FeedFetch = {
