@@ -14,12 +14,14 @@ export interface AnalysisPayload {
   workflowType: string;
   username: string;
   infantAge?: string;
+  plugins: string[];
 }
 
 export interface SelectWorkflowState {
   isOpen: boolean;
   toggleTemplateText: string;
   selectedOption: string;
+  plugins: string[];
 }
 
 export interface IWorkflowState {
