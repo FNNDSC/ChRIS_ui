@@ -103,6 +103,10 @@ export const Browser: React.FC<BrowserProps> = ({
   const [filter, setFilter] = useState<string>();
   const [viewfile, setViewFile] = useState<any>();
   const [viewfolder, setViewFolder] = useState<any[]>();
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1febee4 (merge)
 
   const [files, setFiles] = useState<Tree>();
   const [fpath, setFilesPath] = useState<string>();
@@ -140,7 +144,11 @@ export const Browser: React.FC<BrowserProps> = ({
     then: FolderActions,
     folder: Branch
   ): Promise<void> => {
+<<<<<<< HEAD
     if (onFolderSelect) return onFolderSelect(then, folder);
+=======
+    if (!fetchFiles) return;
+>>>>>>> 1febee4 (merge)
 
     setFilesPath(folder.path);
     setFiles(undefined);
@@ -149,7 +157,10 @@ export const Browser: React.FC<BrowserProps> = ({
       return router.actions.createFeedWithData([folder.path]);
     if (then === "browse") return route(`/library/${folder.path}`);
 
+<<<<<<< HEAD
     if (!fetchFiles) return;
+=======
+>>>>>>> 1febee4 (merge)
     const _files = (await fetchFiles(folder.path)).dir;
     const items = _files?.filter(({ item }) => !!item) || [];
     setFiles(_files);
@@ -277,6 +288,7 @@ export const Browser: React.FC<BrowserProps> = ({
             )
             .map((folder) => (
               <GridItem key={folder.name} sm={12} lg={4}>
+<<<<<<< HEAD
                 <FolderCard
                   item={folder}
                   onSelect={onFolderSelectAction}
@@ -292,6 +304,23 @@ export const Browser: React.FC<BrowserProps> = ({
             ))}
 
 <<<<<<< HEAD
+=======
+                {!folder.isLastParent ? (
+                  <FolderCard item={folder} />
+                ) : (
+                  <FolderCard
+                    item={folder}
+                    onSelect={onFolderSelectAction}
+                    isSelected={library.actions.isSeriesSelected(
+                      folder.children.map(({ item }) => item.data.fname)
+                    )}
+                    isLoading={folder.path === fpath && !files}
+                  />
+                )}
+              </GridItem>
+            ))}
+
+>>>>>>> 1febee4 (merge)
           {tree.dir
             .filter(({ isLeaf }) => isLeaf)
             .filter(({ name }) => {
@@ -333,6 +362,7 @@ export const Browser: React.FC<BrowserProps> = ({
             <GalleryDicomView files={viewfolder} />
           </Modal>
         )}
+<<<<<<< HEAD
 =======
             {tree.dir
               .filter(({ hasChildren }) => !hasChildren)
@@ -404,6 +434,8 @@ export const Browser: React.FC<BrowserProps> = ({
           )}
         </article>
 >>>>>>> acaa7cf (general purpose cornerstone viewer)
+=======
+>>>>>>> 1febee4 (merge)
       </Route>
     </Switch>
   );
