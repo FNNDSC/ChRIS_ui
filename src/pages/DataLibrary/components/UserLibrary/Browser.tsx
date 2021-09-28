@@ -103,10 +103,6 @@ export const Browser: React.FC<BrowserProps> = ({
   const [filter, setFilter] = useState<string>();
   const [viewfile, setViewFile] = useState<any>();
   const [viewfolder, setViewFolder] = useState<any[]>();
-<<<<<<< HEAD
-=======
-
->>>>>>> 1febee4 (merge)
 
   const [files, setFiles] = useState<Tree>();
   const [fpath, setFilesPath] = useState<string>();
@@ -144,11 +140,7 @@ export const Browser: React.FC<BrowserProps> = ({
     then: FolderActions,
     folder: Branch
   ): Promise<void> => {
-<<<<<<< HEAD
     if (onFolderSelect) return onFolderSelect(then, folder);
-=======
-    if (!fetchFiles) return;
->>>>>>> 1febee4 (merge)
 
     setFilesPath(folder.path);
     setFiles(undefined);
@@ -157,10 +149,7 @@ export const Browser: React.FC<BrowserProps> = ({
       return router.actions.createFeedWithData([folder.path]);
     if (then === "browse") return route(`/library/${folder.path}`);
 
-<<<<<<< HEAD
     if (!fetchFiles) return;
-=======
->>>>>>> 1febee4 (merge)
     const _files = (await fetchFiles(folder.path)).dir;
     const items = _files?.filter(({ item }) => !!item) || [];
     setFiles(_files);
@@ -288,7 +277,6 @@ export const Browser: React.FC<BrowserProps> = ({
             )
             .map((folder) => (
               <GridItem key={folder.name} sm={12} lg={4}>
-<<<<<<< HEAD
                 <FolderCard
                   item={folder}
                   onSelect={onFolderSelectAction}
@@ -303,24 +291,6 @@ export const Browser: React.FC<BrowserProps> = ({
               </GridItem>
             ))}
 
-<<<<<<< HEAD
-=======
-                {!folder.isLastParent ? (
-                  <FolderCard item={folder} />
-                ) : (
-                  <FolderCard
-                    item={folder}
-                    onSelect={onFolderSelectAction}
-                    isSelected={library.actions.isSeriesSelected(
-                      folder.children.map(({ item }) => item.data.fname)
-                    )}
-                    isLoading={folder.path === fpath && !files}
-                  />
-                )}
-              </GridItem>
-            ))}
-
->>>>>>> 1febee4 (merge)
           {tree.dir
             .filter(({ isLeaf }) => isLeaf)
             .filter(({ name }) => {
@@ -362,80 +332,6 @@ export const Browser: React.FC<BrowserProps> = ({
             <GalleryDicomView files={viewfolder} />
           </Modal>
         )}
-<<<<<<< HEAD
-=======
-            {tree.dir
-              .filter(({ hasChildren }) => !hasChildren)
-              .filter(({ name }) => {
-                if (filter) return name.includes(filter);
-                return true;
-              })
-              // FileCard
-              .map(({ name: fname, item }) => (
-                <GridItem key={fname} sm={12} lg={2}>
-                  <Card
-                    isRounded
-                    isCompact
-                    isSelectable
-                    isSelected={library.actions.isSelected(item)}
-                    onClick={select.bind(Browser, item)}
-                    style={{ overflow: "hidden" }}
-                  >
-                    <CardBody>
-                      <div
-                        style={{
-                          margin: "-1.15em -1.15em 1em -1.15em",
-                          maxHeight: "10em",
-                          overflow: "hidden",
-                        }}
-                      >
-                        <FileDetailView selectedFile={item} preview="small" />
-                      </div>
-                      <div style={{ overflow: "hidden" }}>
-                        <Button
-                          variant="link"
-                          style={{ padding: "0" }}
-                          onClick={() => setViewFile(item)}
-                        >
-                          <b>{elipses(fname, 20)}</b>
-                        </Button>
-                      </div>
-                      <div>
-                        {(item.data.fsize / (1024 * 1024)).toFixed(3)} MB
-                      </div>
-                    </CardBody>
-                  </Card>
-                </GridItem>
-              ))}
-          </Grid>
-
-          {!!viewfile && (
-            <Modal
-              title="Preview"
-              aria-label="viewer"
-              width={"50%"}
-              isOpen={!!viewfile}
-              onClose={() => setViewFile(undefined)}
-            >
-              <FileDetailView selectedFile={viewfile} preview="large" />
-            </Modal>
-          )}
-
-          {!!viewfolder && (
-            <Modal
-              title="View"
-              aria-label="viewer"
-              width={"50%"}
-              isOpen={!!viewfolder}
-              onClose={() => setViewFolder(undefined)}
-            >
-              Hey
-            </Modal>
-          )}
-        </article>
->>>>>>> acaa7cf (general purpose cornerstone viewer)
-=======
->>>>>>> 1febee4 (merge)
       </Route>
     </Switch>
   );
