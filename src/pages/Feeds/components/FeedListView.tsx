@@ -159,7 +159,6 @@ const FeedListView: React.FC<AllProps> = ({
           <Grid hasGutter>
             {data && !loading ? (
               data.map((feed) => {
-                console.log("Feed", feed);
                 const {
                   id,
                   name,
@@ -282,17 +281,6 @@ const FeedListView: React.FC<AllProps> = ({
                               </Moment>
                             </span>
                           </SplitItem>
-
-                          {/* <SplitItem>
-                          <Button variant="link"
-                              style={{ display: "flex", height: "100%" }}
-                              // onClick={() => setCurrentId(feed.data.id)}
-                            >
-                            <Tooltip content="Archive">
-                              <ArchiveIcon style={{ margin: "auto" }} />
-                            </Tooltip>
-                          </Button>
-                        </SplitItem> */}
 
                           <SplitItem>
                             <Popover

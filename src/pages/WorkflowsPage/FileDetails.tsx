@@ -143,6 +143,7 @@ const ContentWrapper = ({
     pipelinePlugins,
     pluginPipings,
     pluginParameters,
+    computeEnvs,
   } = useTypedSelector((state) => state.workflows);
   const username = useTypedSelector((state) => state.user.username);
 
@@ -179,6 +180,7 @@ const ContentWrapper = ({
                     pipelinePlugins,
                     pluginPipings,
                     pluginParameters,
+                    computeEnvs,
                   })
                 );
               }
@@ -299,7 +301,7 @@ const getPipelineData = (workflow: string) => {
 
 const SelectWorkflow = () => {
   const dispatch = useDispatch();
-  const username = useTypedSelector((state) => state.user.username);
+
   const { uploadedWorkflow, optionState } = useTypedSelector(
     (state) => state.workflows
   );
@@ -330,15 +332,18 @@ const SelectWorkflow = () => {
   };
 
   const onToggle = () => {
-    if (username)
-      dispatch(
-        setOptionState({
-          ...optionState,
-          isOpen: !isOpen,
-        })
-      );
+    dispatch(
+      setOptionState({
+        ...optionState,
+        isOpen: !isOpen,
+      })
+    );
   };
-  const handleNodeClick = (node: { data: TreeNode; pluginName: string }) => {
+  const handleNodeClick = (node: {
+    data: TreeNode;
+    pluginName: string;
+    currentComputeEnv: string;
+  }) => {
     dispatch(setCurrentNode(node));
   };
 
@@ -348,17 +353,15 @@ const SelectWorkflow = () => {
 
   const menuItems = workflows.map((workflow: string) => {
     return (
-      <React.Fragment key={workflow}>
-        <OptionsMenuItem
-          onSelect={handleSelect}
-          id={workflow}
-          key={workflow}
-          name={workflowTitle[workflow].title}
-          isSelected={selectedOption === workflow}
-        >
-          {workflowTitle[workflow].title}
-        </OptionsMenuItem>
-      </React.Fragment>
+      <OptionsMenuItem
+        onSelect={handleSelect}
+        id={workflow}
+        key={workflow}
+        name={workflowTitle[workflow].title}
+        isSelected={selectedOption === workflow}
+      >
+        {workflowTitle[workflow].title}
+      </OptionsMenuItem>
     );
   });
 
@@ -374,7 +377,6 @@ const SelectWorkflow = () => {
       <div
         style={{
           display: "flex",
-          flexDirection: "row",
           justifyContent: "space-between",
         }}
       >
@@ -394,7 +396,7 @@ const SelectWorkflow = () => {
         }}
       >
         <Tree handleNodeClick={handleNodeClick} />
-        {<ConfigurationPage />}
+        <ConfigurationPage />
         {selectedOption === "infantFreesurferAge" && (
           <div className="workflow-form">
             <Form isHorizontal>
@@ -416,7 +418,7 @@ const SelectWorkflow = () => {
 
 export default FileDetails;
 
-const UploadJson = () => {
+export const UploadJson = () => {
   const dispatch = useDispatch();
   const fileOpen = React.useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = React.useState("");

@@ -1,7 +1,6 @@
 import { TreeNode } from "../../store/workflows/types";
 
 export const getFeedTree = (items: any[]) => {
-  console.log("Items", items);
   const tree = [],
     mappedArr: {
       [key: string]: TreeNode;
@@ -47,7 +46,7 @@ interface PipelineData {
 
 export const fastsurferPipeline = () => {
   const data: PipelineData = {
-    name: `testing_fastsurfer_7`,
+    name: `fastsurfer`,
     authors: "gideonpinto123@gmail.com",
     description: "test",
     category: "mri",

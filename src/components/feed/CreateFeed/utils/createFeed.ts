@@ -1,5 +1,5 @@
 import { unpackParametersIntoObject } from "../../AddNode/lib/utils";
-import { CreateFeedData, LocalFile } from "../types";
+import { CreateFeedData, LocalFile, PipelineData } from "../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
@@ -22,6 +22,7 @@ export const createFeed = async (
   requiredInput: InputType,
   selectedPlugin: Plugin | undefined,
   username: string | null | undefined,
+  pipelineData: PipelineData,
   setProgressCallback: (status: string) => void,
   setErrorCallback: (error: string) => void
 ) => {
@@ -38,6 +39,7 @@ export const createFeed = async (
     feed = await createFeedInstanceWithDircopy(
       data,
       username,
+      pipelineData,
       setProgressCallback,
       setErrorCallback
     );
@@ -56,6 +58,7 @@ export const createFeed = async (
 export const createFeedInstanceWithDircopy = async (
   data: CreateFeedData,
   username: string | null | undefined,
+  pipelineData: PipelineData,
   statusCallback: (status: string) => void,
   errorCallback: (error: string) => void
 ) => {
@@ -73,7 +76,7 @@ export const createFeedInstanceWithDircopy = async (
     try {
       await uploadLocalFiles(localFiles, local_upload_path, statusCallback);
     } catch (error) {
-      errorCallback(error);
+      errorCallback(error as string);
     }
     const filePaths = uploadFilePaths(localFiles, local_upload_path);
     dirpath.push(filePaths);
@@ -88,7 +91,7 @@ export const createFeedInstanceWithDircopy = async (
     try {
       await uploadLocalFiles(localFiles, local_upload_path, statusCallback);
     } catch (error) {
-      errorCallback(error);
+      errorCallback(error as string);
     }
     const filePaths = uploadFilePaths(localFiles, local_upload_path);
 
@@ -114,6 +117,89 @@ export const createFeedInstanceWithDircopy = async (
         const pluginInstanceList =
           dircopyInstance.getItems() as PluginInstance[];
         createdInstance = pluginInstanceList[0];
+        if (
+          pipelineData.pluginPipings &&
+          pipelineData.pluginParameters &&
+          pipelineData.pipelinePlugins &&
+          pipelineData.computeEnvs &&
+          pipelineData.pluginPipings.length > 0
+        ) {
+          const client = ChrisAPIClient.getClient();
+          const {
+            pluginPipings,
+            pluginParameters,
+            pipelinePlugins,
+            computeEnvs,
+          } = pipelineData;
+          const pluginDict: {
+            [id: number]: number;
+          } = {};
+
+          for (let i = 0; i < pluginPipings.length; i++) {
+            const currentPlugin = pluginPipings[i];
+
+            const currentPluginParameter = pluginParameters.filter(
+              (param: any) => {
+                if (currentPlugin.data.plugin_id === param.data.plugin_id) {
+                  return param;
+                }
+              }
+            );
+
+            const pluginFound = pipelinePlugins.find(
+              (plugin) => currentPlugin.data.plugin_id === plugin.data.id
+            );
+
+            const data = currentPluginParameter.reduce(
+              (
+                paramDict: {
+                  [key: string]: string | boolean | number;
+                },
+                param: any
+              ) => {
+                let value;
+
+                if (!param.data.value && param.data.type === "string") {
+                  value = "";
+                } else {
+                  value = param.data.value;
+                }
+                paramDict[param.data.param_name] = value;
+
+                return paramDict;
+              },
+              {}
+            );
+
+            let previous_id;
+            if (i === 0) {
+              previous_id = createdInstance.data.id;
+            } else {
+              const previousPlugin = pluginPipings.find(
+                (plugin) => currentPlugin.data.previous_id === plugin.data.id
+              );
+              previous_id = pluginDict[previousPlugin.data.plugin_id];
+            }
+
+            const computeEnv =
+              computeEnvs[pluginFound.data.name].currentlySelected.name;
+
+            const finalData = {
+              previous_id,
+              compute_resource_name: computeEnv,
+              ...data,
+            };
+
+            const pluginInstance: PluginInstance =
+              await client.createPluginInstance(
+                pluginFound.data.id,
+                //@ts-ignore
+                finalData
+              );
+
+            pluginDict[pluginInstance.data.plugin_id] = pluginInstance.data.id;
+          }
+        }
       }
 
       statusCallback("Feed Created");
@@ -121,7 +207,7 @@ export const createFeedInstanceWithDircopy = async (
       feed = await createdInstance.getFeed();
     }
   } catch (error) {
-    errorCallback(error);
+    errorCallback(error as string);
   }
 
   return feed;
@@ -141,7 +227,7 @@ export const createFeedInstanceWithFS = async (
     const pluginName = selectedPlugin.data.name;
     try {
       const fsPlugin = await getPlugin(pluginName);
-     
+
       if (fsPlugin instanceof Plugin) {
         const data = await getRequiredObject(
           dropdownInput,
@@ -161,11 +247,11 @@ export const createFeedInstanceWithFS = async (
           feed = await fsPluginInstance.getFeed();
           statusCallback("Feed Created");
         } catch (error) {
-          errorCallback(error);
+          errorCallback(error as string);
         }
       }
     } catch (error) {
-      errorCallback(error);
+      errorCallback(error as string);
     }
   }
   return feed;

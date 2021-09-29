@@ -1,9 +1,18 @@
-import { Tag, Plugin, PluginInstance } from "@fnndsc/chrisapi";
+import {
+  Tag,
+  Plugin,
+  PluginInstance,
+  PipelinePipingDefaultParameterList,
+} from "@fnndsc/chrisapi";
 import { InputState, InputIndex } from "../../AddNode/types";
 import { IUserState } from "../../../../store/user/types";
 import { Feed } from "@fnndsc/chrisapi";
 import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
-
+import {
+  ComputeEnvData,
+  SelectWorkflowState,
+  TreeNode,
+} from "../../../../store/workflows/types";
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -37,6 +46,10 @@ export enum Types {
   ResetProgress = "RESET_PROGRESS",
   SetProgressPercent = "SET_PROGRESS_PERCENT",
   SetComputeEnvironment = "SET_COMPUTE_ENVIRONMENT",
+  SetOptionState = "SET_OPTION_STATE",
+  SetPipelineResources = "SET_PIPELINE_RESOURCES",
+  SetPipelineEnvironments = "SET_PIPELINE_ENVIRONMENTS",
+  SetCurrentNode = "SET_CURRENT_NODE",
 }
 
 type CreateFeedPayload = {
@@ -99,11 +112,32 @@ type CreateFeedPayload = {
     computeEnvironment: string;
   };
   [Types.ResetProgress]: boolean;
+
+  [Types.SetOptionState]: {
+    isOpen: boolean;
+    toggleTemplateText: string;
+    selectedOption: string;
+  };
+  [Types.SetPipelineResources]: {
+    parameters: any[];
+    pluginPipings: any[];
+    pipelinePlugins: any[];
+  };
+  [Types.SetPipelineEnvironments]: {
+    computeEnvData: {
+      [key: string]: {
+        computeEnvs: any[];
+        currentlySelected: any;
+      };
+    };
+  };
+  [Types.SetCurrentNode]: {
+    currentNode: string;
+  };
 };
 
-export type CreateFeedActions = ActionMap<CreateFeedPayload>[keyof ActionMap<
-  CreateFeedPayload
->];
+export type CreateFeedActions =
+  ActionMap<CreateFeedPayload>[keyof ActionMap<CreateFeedPayload>];
 
 export interface LocalFile {
   name: string;
@@ -150,6 +184,16 @@ export interface CreateFeedData {
   isDataSelected: boolean;
 }
 
+export interface PipelineData {
+  optionState: SelectWorkflowState;
+  pluginParameters?: any[];
+  pluginPipings?: any[];
+  pipelinePlugins?: any[];
+  computeEnvs?: ComputeEnvData;
+  currentNode?: string;
+  uploadedWorkflow: string;
+}
+
 export interface CreateFeedState extends InputState {
   wizardOpen: boolean;
   step: number;
@@ -160,6 +204,7 @@ export interface CreateFeedState extends InputState {
   feedError: string;
   value: number;
   computeEnvironment: string;
+  pipelineData: PipelineData;
 }
 
 export interface CreateFeedReduxProp {

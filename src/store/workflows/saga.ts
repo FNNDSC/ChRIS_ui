@@ -1,7 +1,7 @@
 import { all, fork, takeEvery, put } from "@redux-saga/core/effects";
 import {
   Pipeline,
-  AllPipelineInstanceList,
+  PipelineList,
   PipelinePipingDefaultParameterList,
 } from "@fnndsc/chrisapi";
 
@@ -19,13 +19,15 @@ import { fetchResource } from "../../utils";
 import { createFeed, createFeedTree } from "./setup";
 
 function* handleSubmitAnalysis(action: IActionTypeParam) {
-  const { pipelinePlugins, pluginParameters, pluginPipings } = action.payload;
+  const { pipelinePlugins, pluginParameters, pluginPipings, computeEnvs } =
+    action.payload;
   const { dircopyInstance } = yield createFeed(action.payload);
   yield createFeedTree(
     dircopyInstance,
     pluginPipings,
     pipelinePlugins,
-    pluginParameters
+    pluginParameters,
+    computeEnvs
   );
 }
 
@@ -83,10 +85,9 @@ function* createPipeline(data: any) {
 
   const pipelineName = data.name;
 
-  const pipelineInstanceList: AllPipelineInstanceList =
-    yield client.getPipelines({
-      name: pipelineName,
-    });
+  const pipelineInstanceList: PipelineList = yield client.getPipelines({
+    name: pipelineName,
+  });
   if (pipelineInstanceList.data) {
     const pipelineInstanceId = pipelineInstanceList.data[0].id;
     const pipelineInstance: Pipeline = yield client.getPipeline(
@@ -120,7 +121,7 @@ function* fetchResources(pipelineInstance: Pipeline) {
     params,
     boundParameterFn
   );
-  console.log("PluginPipings", pluginPipings);
+
   yield put(setPluginParametersSuccess(parameters));
   if (pluginPipings) {
     yield put(setPluginPipingsSuccess(pluginPipings));

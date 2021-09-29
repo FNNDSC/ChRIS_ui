@@ -55,7 +55,6 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
     }
 
     case ExplorerActionTypes.SET_GALLERY_FILES: {
-      console.log("Action.payload", action.payload);
       return {
         ...state,
         files: [...state.files, ...action.payload],

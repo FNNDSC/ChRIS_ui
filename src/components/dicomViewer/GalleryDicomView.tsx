@@ -49,7 +49,6 @@ const GalleryDicomView = () => {
   }, []);
 
   const enableToolStore = useCallback(() => {
-    console.log("Enabling Tool Store");
     const WwwcTool = cornerstoneTools.WwwcTool;
     const LengthTool = cornerstoneTools["LengthTool"];
     const PanTool = cornerstoneTools.PanTool;
