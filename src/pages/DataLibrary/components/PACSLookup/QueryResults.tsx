@@ -79,7 +79,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
     return (
       <>
-      <Card isHoverable isExpanded={isPatientExpanded}>
+      <Card isRounded isHoverable isExpanded={isPatientExpanded}>
         <CardHeader onExpand={expandPatient.bind(PatientCard)}>
           <Grid hasGutter style={{ width: "100%" }}>
             <GridItem lg={4}>
@@ -258,7 +258,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
     return (
       <>
-        <Card isHoverable isExpanded={isStudyExpanded}>
+        <Card isRounded isHoverable isExpanded={isStudyExpanded}>
           <CardHeader
             onExpand={expandStudy.bind(QueryResults, StudyInstanceUID)}
           >
@@ -575,7 +575,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     };
 
     return (
-      <Card isHoverable style={{ height: "100%" }}>
+      <Card isRounded isHoverable style={{ height: "100%" }}>
         <CardBody>
           <div className="series-actions">
             <SeriesActions />
