@@ -9,7 +9,7 @@ import {
   PluginInstance,
   PluginInstanceList,
 } from "@fnndsc/chrisapi";
-import { DircopyData } from "../types";
+import { ComputeEnvData, DircopyData } from "../types";
 import { put } from "@redux-saga/core/effects";
 import { pluginInstanceSaga } from "../../pluginInstance/saga";
 
@@ -78,7 +78,8 @@ export function* createFeedTree(
   parentNode: PluginInstance,
   pluginPipings: any[],
   pipelinePlugins: any[],
-  pluginParameters: any[]
+  pluginParameters: any[],
+  computeEnvs: ComputeEnvData
 ) {
   const client = ChrisAPIClient.getClient();
   yield setYieldAnalysis(2, "Creating a Pipeline", "process", "");
@@ -108,12 +109,14 @@ export function* createFeedTree(
         param: any
       ) => {
         let value;
+
         if (!param.data.value && param.data.type === "string") {
           value = "";
         } else {
           value = param.data.value;
         }
         paramDict[param.data.param_name] = value;
+
         return paramDict;
       },
       {}
@@ -129,9 +132,13 @@ export function* createFeedTree(
       previous_id = pluginDict[previousPlugin.data.plugin_id];
     }
 
+    const computeEnv =
+      computeEnvs[pluginFound.data.name].currentlySelected.name;
+
     const finalData = {
       previous_id,
-      data,
+      compute_resource_name: computeEnv,
+      ...data,
     };
 
     const pluginInstance: PluginInstance = yield client.createPluginInstance(

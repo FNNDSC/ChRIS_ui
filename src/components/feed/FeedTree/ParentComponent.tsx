@@ -35,7 +35,6 @@ const ParentComponent = (props: ParentComponentProps) => {
 
   React.useEffect(() => {
     if (instances && instances.length > 0) {
-      console.log("Instances", instances);
       const data = getFeedTree(instances);
       getTsNodes(instances).then((nodes) => {
         setTsIds(nodes);

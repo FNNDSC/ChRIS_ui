@@ -25,7 +25,7 @@ const scale = 1;
 const colorPalette: {
   [key: string]: string;
 } = {
-  default: "",
+  default: "#5998C5",
   host: "#5998C5",
   moc: "#704478",
   titan: "#1B9D92",
@@ -33,7 +33,11 @@ const colorPalette: {
 };
 
 const Tree = (props: {
-  handleNodeClick: (nodeName: { data: TreeNode; pluginName: string }) => void;
+  handleNodeClick: (nodeName: {
+    data: TreeNode;
+    pluginName: string;
+    currentComputeEnv: string;
+  }) => void;
 }) => {
   const pluginPipings = useTypedSelector(
     (state) => state.workflows.pluginPipings
@@ -192,7 +196,11 @@ type NodeProps = {
   parent: HierarchyPointNode<TreeNode> | null;
   position: Point;
   orientation: string;
-  handleNodeClick: (nodeName: { data: TreeNode; pluginName: string }) => void;
+  handleNodeClick: (nodeName: {
+    data: TreeNode;
+    pluginName: string;
+    currentComputeEnv: string;
+  }) => void;
 };
 
 const setNodeTransform = (orientation: string, position: Point) => {
@@ -249,9 +257,10 @@ const NodeData = (props: NodeProps) => {
       setCurrentNode({
         data,
         pluginName,
+        currentComputeEnv: "",
       })
     );
-  }, [data, dispatch, pluginName]);
+  }, [data, dispatch, pluginName, currentComputeEnv]);
 
   React.useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);
@@ -278,6 +287,7 @@ const NodeData = (props: NodeProps) => {
   const payload = {
     data,
     pluginName,
+    currentComputeEnv,
   };
 
   return (
@@ -312,14 +322,12 @@ const NodeData = (props: NodeProps) => {
 const ConfigurationPage = () => {
   const node = useTypedSelector((state) => state.workflows.currentNode);
   const computeEnvs = useTypedSelector((state) => state.workflows.computeEnvs);
-  let currentComputeEnv;
   let computeEnvList;
   if (computeEnvs && node) {
     const { pluginName } = node;
 
     if (computeEnvs[pluginName]) {
       computeEnvList = computeEnvs[pluginName].computeEnvs;
-      currentComputeEnv = computeEnvs[pluginName].currentlySelected;
     }
   } else {
     computeEnvList = [];
@@ -332,7 +340,9 @@ const ConfigurationPage = () => {
           width: "45%",
         }}
       >
-        <h3>Configuring Compute Environments</h3>
+        <h4>{`Configuring Compute Environments for ${
+          node ? node.pluginName : ""
+        }`}</h4>
 
         <List
           itemLayout="horizontal"
@@ -340,7 +350,17 @@ const ConfigurationPage = () => {
           renderItem={(item: { name: string; description: string }) => (
             <List.Item>
               <List.Item.Meta
-                avatar={<Avatar />}
+                avatar={
+                  <Avatar
+                    style={{
+                      background: `${
+                        colorPalette[item.name]
+                          ? colorPalette[item.name]
+                          : colorPalette["default"]
+                      }`,
+                    }}
+                  />
+                }
                 title={item.name}
                 description={item.description}
               />

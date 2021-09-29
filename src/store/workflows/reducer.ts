@@ -103,6 +103,34 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
     }
 
     case WorkflowTypes.SET_CURRENT_NODE: {
+      if (state.computeEnvs && action.payload.currentComputeEnv) {
+        const computeEnvsOptions =
+          state.computeEnvs[action.payload.pluginName].computeEnvs;
+        const findIndex = computeEnvsOptions?.findIndex((option) => {
+          if (option.name === action.payload.currentComputeEnv) return option;
+          else return 0;
+        });
+
+        let currentlySelected;
+        if (computeEnvsOptions) {
+          if (findIndex === computeEnvsOptions.length - 1) {
+            currentlySelected = computeEnvsOptions[0];
+          } else if (typeof findIndex === "number") {
+            currentlySelected = computeEnvsOptions[findIndex + 1];
+          }
+        }
+
+        if (currentlySelected) {
+          const duplicateObject = state.computeEnvs;
+          duplicateObject[action.payload.pluginName].currentlySelected =
+            currentlySelected;
+          return {
+            ...state,
+            currentNode: action.payload,
+            computeEnvs: duplicateObject,
+          };
+        }
+      }
       return {
         ...state,
         currentNode: action.payload,
@@ -149,7 +177,6 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
     }
 
     case WorkflowTypes.SET_COMPUTE_ENVS: {
-      console.log("Action.payload", action.payload, state.computeEnvs);
       if (state.computeEnvs) {
         return {
           ...state,
