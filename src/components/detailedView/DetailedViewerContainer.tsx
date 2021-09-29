@@ -12,11 +12,8 @@ const OutputViewerContainer = () => {
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
-
   const { mode } = useTypedSelector((state) => state.explorer);
-
   const [activeTabKey, setActiveTabKey] = React.useState(0);
-
   if (!selectedPlugin || !pluginFiles) {
     return <Alert variant="info" title="Empty Result Set" className="empty" />;
   } else {

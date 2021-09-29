@@ -34,7 +34,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
 }: CreateFeedReduxProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const routerContext = useContext(MainRouterContext);
-  console.log("PipelinesData", state.pipelineData);
+
   const {
     wizardOpen,
     step,

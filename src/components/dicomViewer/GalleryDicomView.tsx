@@ -147,8 +147,12 @@ const GalleryDicomView = () => {
     setPlaying(!playing);
     if (!playing) {
       cornerstone.reset(dicomImageRef.current);
-      cornerstoneTools.playClip(dicomImageRef.current, 1000);
-    } else cornerstoneTools.stopClip(dicomImageRef.current);
+      cornerstoneTools.playClip(dicomImageRef.current);
+    } else {
+      cornerstone.reset(dicomImageRef.current);
+      cornerstoneTools.stopClip(dicomImageRef.current);
+    }
+    
   };
 
   const handleToolbarAction = (action: string) => {

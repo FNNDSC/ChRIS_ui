@@ -322,6 +322,7 @@ export const createFeedReducer = (
     }
 
     case Types.SetPipelineEnvironments: {
+      
       if (state.pipelineData.computeEnvs) {
         return {
           ...state,
@@ -345,8 +346,6 @@ export const createFeedReducer = (
     }
 
     case Types.SetCurrentNode: {
-      console.log("Setting Current Node", action.payload);
-
       const { computeEnvs } = state.pipelineData;
       const pluginName = action.payload.currentNode;
 
