@@ -539,11 +539,7 @@ const ConfigurationPage = () => {
 
   return (
     <>
-      <div
-        style={{
-          width: "45%",
-        }}
-      >
+      <div>
         <h4>{`Configuring compute environment for ${
           currentNode ? currentNode : ""
         }`}</h4>

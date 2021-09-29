@@ -74,10 +74,12 @@ const DicomViewerContainer = () => {
             const imageIdObject = ImageId.fromURL(
               `nifti:${selectedFile.url}${fileName}`
             );
+
             niftiSlices = cornerstone.metaData.get(
               "multiFrameModule",
               imageIdObject.url
             ).numberOfFrames;
+
             imageIds.push(
               ...Array.from(
                 Array(niftiSlices),
@@ -100,7 +102,6 @@ const DicomViewerContainer = () => {
       const items: any[] = [];
 
       let item = {};
-      console.log("ImageIds", imageIds.length);
 
       if (nifti) {
         for (let i = 0; i < imageIds.length; i++) {
@@ -118,7 +119,7 @@ const DicomViewerContainer = () => {
               if (progress > nextProgress) {
                 setProgress(progress);
               }
-              console.log("Count", count, imageIds.length);
+
               if (count === imageIds.length) {
                 dispatch(setFilesForGallery(items));
                 close();
@@ -135,7 +136,6 @@ const DicomViewerContainer = () => {
           );
         }
       } else {
-        console.log("in the else");
         for (let i = 0; i < files.length; i++) {
           const selectedFile = files[i].file;
           cornerstone.loadImage(imageIds[i]).then(

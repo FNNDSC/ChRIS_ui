@@ -214,11 +214,14 @@ export const DicomModal = ({
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         if (isNifti(file.name)) {
-          const imageIdObject = ImageId.fromURL(`nifti:${file.name}`);
+          const url = URL.createObjectURL(file).split("blob:")[1];
+          const imageIdObject = ImageId.fromURL(`nifti:${url}${file.name}`);
+
           const numberOfSlices = cornerstone.metaData.get(
             "multiFrameModule",
             imageIdObject.url
           ).numberOfFrames;
+
           imageIds.push(
             ...Array.from(
               Array(numberOfSlices),
