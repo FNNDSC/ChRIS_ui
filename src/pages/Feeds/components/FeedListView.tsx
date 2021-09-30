@@ -139,9 +139,7 @@ const FeedListView: React.FC<AllProps> = ({
         >
           <span style={{ color: "firebrick", fontSize: "small" }}>
             <ExclamationCircleIcon style={{ margin: "auto 0.25em" }} />
-            <b>
-              {error} {pluralize("Error", error)}
-            </b>
+            {error} {pluralize("Error", error)}
           </span>
         </Tooltip>
       ) : (

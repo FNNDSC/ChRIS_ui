@@ -46,7 +46,7 @@ interface PipelineData {
 
 export const fastsurferPipeline = () => {
   const data: PipelineData = {
-    name: `fastsurfer`,
+    name: `fastsurfer_production`,
     authors: "gideonpinto123@gmail.com",
     description: "test",
     category: "mri",
@@ -58,8 +58,8 @@ export const fastsurferPipeline = () => {
         previous_index: null,
       },
       {
-        plugin_name: "pl-pfdicom_tagextract",
-        plugin_version: "3.1.2",
+        plugin_name: "pl-pfdicom_tagExtract",
+        plugin_version: "3.0.0",
         previous_index: 0,
         plugin_parameter_defaults: [
           {
@@ -81,7 +81,7 @@ export const fastsurferPipeline = () => {
         ],
       },
       {
-        plugin_name: "pl-pfdicom_tagsub",
+        plugin_name: "pl-pfdicom_tagSub",
         plugin_version: "3.2.3",
         previous_index: 0,
         plugin_parameter_defaults: [
@@ -101,6 +101,33 @@ export const fastsurferPipeline = () => {
           {
             name: "splitKeyValue",
             default: ",",
+          },
+        ],
+      },
+      {
+        plugin_name: "pl-pfdicom_tagExtract",
+        plugin_version: "3.0.0",
+        previous_index: 2,
+        plugin_parameter_default: [
+          {
+            name: "outputFileType",
+            default: "txt,scv,json,html",
+          },
+          {
+            name: "outputFileStem",
+            default: "Post-Sub",
+          },
+          {
+            name: "imageFile",
+            default: "'m:%_nospc|-_ProtocolName.jpg'",
+          },
+          {
+            name: "imageScale",
+            default: "3:none",
+          },
+          {
+            name: "extension",
+            default: ".dcm",
           },
         ],
       },
@@ -127,37 +154,11 @@ export const fastsurferPipeline = () => {
           },
         ],
       },
-      {
-        plugin_name: "pl-pfdicom_tagextract",
-        plugin_version: "3.1.2",
-        previous_index: 2,
-        plugin_parameter_default: [
-          {
-            name: "outputFileType",
-            default: "txt,scv,json,html",
-          },
-          {
-            name: "outputFileStem",
-            default: "Post-Sub",
-          },
-          {
-            name: "imageFile",
-            default: "'m:%_nospc|-_ProtocolName.jpg'",
-          },
-          {
-            name: "imageScale",
-            default: "3:none",
-          },
-          {
-            name: "extension",
-            default: ".dcm",
-          },
-        ],
-      },
+      ,
       {
         plugin_name: "pl-fastsurfer_inference",
         plugin_version: "1.0.15",
-        previous_index: 3,
+        previous_index: 4,
         plugin_parameter_default: [
           {
             name: "subjectDir",
@@ -227,7 +228,7 @@ export const fastsurferPipeline = () => {
         ],
       },
       {
-        plugin_name: "pl-mgz2lut_report",
+        plugin_name: "pl-mgz2LUT_report",
         plugin_version: "1.3.1",
         previous_index: 5,
         plugin_parameter_default: [
@@ -260,7 +261,7 @@ export const fetalReconstructionPipeline = () => {
         previous_index: null,
       },
       {
-        plugin_name: "pl-ants_n4biasfieldcorrection",
+        plugin_name: "pl-ANTs_N4BiasFieldCorrection",
         plugin_version: "0.2.7.1",
         previous_index: 0,
         compute_env: "titan",
@@ -298,16 +299,49 @@ export const fetalReconstructionPipeline = () => {
 
 export const freesurferPipeline = () => {
   const data = {
-    name: `adultfreesurfer`,
+    name: `adultfreesurfer_production`,
     authors: "gideonpinto123@gmail.com",
     description: "test",
     category: "mri",
     locked: false,
     plugin_tree: JSON.stringify([
       {
-        plugin_name: "pl-pfdicom_tagsub",
-        plugin_version: "3.2.3",
+        plugin_name: "pl-simpledsapp",
+        plugin_version: "2.0.2",
         previous_index: null,
+      },
+
+      {
+        plugin_name: "pl-pfdicom_tagExtract",
+        plugin_version: "3.0.0",
+        previous_index: 0,
+        plugin_parameter_defaults: [
+          {
+            name: "extension",
+            default: ".dcm",
+          },
+          {
+            name: "outputFileType",
+            default: "txt,scv,json,html",
+          },
+          {
+            name: "outputFileStem",
+            default: "Pre-Sub",
+          },
+          {
+            name: "imageScale",
+            default: "3:none",
+          },
+          {
+            name: "imageFile",
+            default: "'m:%_nospc|-_ProtocolName.jpg'",
+          },
+        ],
+      },
+      {
+        plugin_name: "pl-pfdicom_tagSub",
+        plugin_version: "3.2.3",
+        previous_index: 0,
         plugin_parameter_defaults: [
           {
             name: "extension",
@@ -329,9 +363,9 @@ export const freesurferPipeline = () => {
         ],
       },
       {
-        plugin_name: "pl-pfdicom_tagextract",
-        plugin_version: "3.1.2",
-        previous_index: 0,
+        plugin_name: "pl-pfdicom_tagExtract",
+        plugin_version: "3.0.0",
+        previous_index: 2,
         plugin_parameter_default: [
           {
             name: "outputFileType",
@@ -358,7 +392,7 @@ export const freesurferPipeline = () => {
       {
         plugin_name: "pl-fshack",
         plugin_version: "1.2.0",
-        previous_index: 1,
+        previous_index: 2,
         plugin_parameter_default: [
           {
             name: "inputFile",
@@ -381,7 +415,7 @@ export const freesurferPipeline = () => {
       {
         plugin_name: "pl-multipass",
         plugin_version: "1.2.12",
-        previous_index: 2,
+        previous_index: 4,
         plugin_parameter_default: [
           {
             name: "splitExpr",
@@ -406,7 +440,7 @@ export const freesurferPipeline = () => {
       {
         plugin_name: "pl-pfdorun",
         plugin_version: "2.2.6",
-        previous_index: 3,
+        previous_index: 5,
         plugin_parameter_default: [
           {
             name: "dirFilter",
@@ -428,9 +462,9 @@ export const freesurferPipeline = () => {
         ],
       },
       {
-        plugin_name: "pl-mgz2lut_report",
+        plugin_name: "pl-mgz2LUT_report",
         plugin_version: "1.3.1",
-        previous_index: 2,
+        previous_index: 4,
         plugin_parameter_default: [
           {
             name: "file_name",

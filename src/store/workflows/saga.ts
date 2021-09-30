@@ -56,6 +56,7 @@ function* handleUploadedSpec(action: IActionTypeParam) {
   uploadedPipeline["plugin_tree"] = JSON.stringify(
     uploadedPipeline["plugin_tree"]
   );
+
   yield put(setUploadedSpecSuccess(uploadedPipeline.name));
   yield createPipeline(uploadedPipeline);
 }

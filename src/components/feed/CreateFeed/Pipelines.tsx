@@ -190,12 +190,23 @@ export const UploadJson = () => {
 
   const readFile = (file: any) => {
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       try {
         if (reader.result) {
           const result = JSON.parse(reader.result as string);
-          //  dispatch(setUploadedSpec(result));
+          result["plugin_tree"] = JSON.stringify(result["plugin_tree"]);
           setFileName(result.name);
+          const { parameters, pluginPipings, pipelinePlugins } =
+            await generatePipeline(result);
+
+          dispatch({
+            type: Types.SetPipelineResources,
+            payload: {
+              parameters,
+              pluginPipings,
+              pipelinePlugins,
+            },
+          });
         }
       } catch (error) {
         console.log("NOT a valid json file");
@@ -255,6 +266,7 @@ const colorPalette: {
 const Tree = (props: { handleNodeClick: (nodeName: string) => void }) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { pluginPipings, pipelinePlugins } = state.pipelineData;
+  const [loading, setLoading] = React.useState(false);
 
   const { handleNodeClick } = props;
 
@@ -262,6 +274,7 @@ const Tree = (props: { handleNodeClick: (nodeName: string) => void }) => {
 
   React.useEffect(() => {
     if (pluginPipings) {
+      setLoading(true);
       const tree = getFeedTree(pluginPipings);
       setData(tree);
     }
@@ -274,6 +287,7 @@ const Tree = (props: { handleNodeClick: (nodeName: string) => void }) => {
         },
       });
     }
+    setLoading(false);
   }, [pluginPipings, dispatch, pipelinePlugins]);
 
   const generateTree = () => {
@@ -297,35 +311,39 @@ const Tree = (props: { handleNodeClick: (nodeName: string) => void }) => {
         height: "400px",
       }}
     >
-      <svg className={`${svgClassName}`} width="100%" height="100%">
-        <TransitionGroupWrapper
-          component="g"
-          className={graphClassName}
-          transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
-        >
-          {links?.map((linkData, i) => {
-            return (
-              <LinkData
-                orientation="vertical"
-                key={"link" + i}
-                linkData={linkData}
-              />
-            );
-          })}
-          {nodes?.map(({ data, x, y, parent }, i) => {
-            return (
-              <NodeData
-                key={`node + ${i}`}
-                data={data}
-                position={{ x, y }}
-                parent={parent}
-                orientation="vertical"
-                handleNodeClick={handleNodeClick}
-              />
-            );
-          })}
-        </TransitionGroupWrapper>
-      </svg>
+      {loading ? (
+        <span style={{ color: "black" }}>Fetching Pipeline.....</span>
+      ) : (
+        <svg className={`${svgClassName}`} width="100%" height="100%">
+          <TransitionGroupWrapper
+            component="g"
+            className={graphClassName}
+            transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
+          >
+            {links?.map((linkData, i) => {
+              return (
+                <LinkData
+                  orientation="vertical"
+                  key={"link" + i}
+                  linkData={linkData}
+                />
+              );
+            })}
+            {nodes?.map(({ data, x, y, parent }, i) => {
+              return (
+                <NodeData
+                  key={`node + ${i}`}
+                  data={data}
+                  position={{ x, y }}
+                  parent={parent}
+                  orientation="vertical"
+                  handleNodeClick={handleNodeClick}
+                />
+              );
+            })}
+          </TransitionGroupWrapper>
+        </svg>
+      )}
     </div>
   );
 };

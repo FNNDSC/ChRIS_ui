@@ -52,7 +52,7 @@ export function getInitialState(
     pipelineData: {
       optionState: {
         isOpen: false,
-        toggleTemplateText: "Choose a Workflow",
+        toggleTemplateText: "Choose a Pipeline",
         selectedOption: "",
       },
       pluginParameters: undefined,
@@ -364,13 +364,6 @@ export const createFeedReducer = (
             currentlySelected = computeEnvArray[findIndex + 1];
           }
         }
-        console.log(
-          "currentlySelected",
-          computeEnvArray,
-          computeEnvs,
-          currentlySelected,
-          findIndex
-        );
 
         if (currentlySelected) {
           const duplicateObject = computeEnvs;

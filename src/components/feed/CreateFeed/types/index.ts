@@ -1,9 +1,4 @@
-import {
-  Tag,
-  Plugin,
-  PluginInstance,
-  PipelinePipingDefaultParameterList,
-} from "@fnndsc/chrisapi";
+import { Tag, Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { InputState, InputIndex } from "../../AddNode/types";
 import { IUserState } from "../../../../store/user/types";
 import { Feed } from "@fnndsc/chrisapi";
@@ -11,7 +6,6 @@ import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
 import {
   ComputeEnvData,
   SelectWorkflowState,
-  TreeNode,
 } from "../../../../store/workflows/types";
 
 type ActionMap<M extends { [index: string]: any }> = {
