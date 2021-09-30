@@ -38,7 +38,7 @@ export const initialState: IWorkflowState = {
   currentStep: 0,
   optionState: {
     isOpen: false,
-    toggleTemplateText: "Choose a Workflow",
+    toggleTemplateText: "Choose a Pipeline",
     selectedOption: "",
   },
   checkFeedDetails: undefined,
