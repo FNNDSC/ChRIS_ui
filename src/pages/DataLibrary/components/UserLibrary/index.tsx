@@ -31,8 +31,6 @@ export const UserLibrary = () => {
   document.title = "My Library";
   const username = useTypedSelector((state) => state.user.username) as string;
 
-  const [openUploader, setOpenUploader] = useState(false);
-
   const [uploaded, setUploaded] = useState<DirectoryTree>();
   const [services, setServices] = useState<DirectoryTree>();
   const [feedfiles, setFeedFiles] = useState<DirectoryTree>();

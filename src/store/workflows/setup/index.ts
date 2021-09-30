@@ -11,7 +11,7 @@ import {
 } from "@fnndsc/chrisapi";
 import { ComputeEnvData, DircopyData } from "../types";
 import { put } from "@redux-saga/core/effects";
-import { pluginInstanceSaga } from "../../pluginInstance/saga";
+
 
 export function* createFeed(payload: any) {
   const { localFiles, username, workflowType } = payload;
