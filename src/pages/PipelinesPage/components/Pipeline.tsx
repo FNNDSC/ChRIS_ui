@@ -87,7 +87,6 @@ const Pipeline = () => {
       })
       .then((response) => {
         setPipeline(response.data);
-        console.log("response", typeof response.data);
       })
       .catch((errors) => {
         console.error(errors);
@@ -105,7 +104,6 @@ const Pipeline = () => {
       })
       .then((response) => {
         setPipings(response.data.results);
-        console.log("pipings data", response.data.results);
       })
       .catch((errors) => {
         console.error(errors);

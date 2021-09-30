@@ -3,7 +3,7 @@ import Tree from "react-d3-tree";
 import { PipelinePluginInstance, RawNodeDatum } from "./pipelinetypes";
 
 const PipelineTree = ({ pluginData, onNodeClick }: {pluginData: PipelinePluginInstance[]; onNodeClick: any}) => {
-  console.log("Plugin Instances from pipeline", pluginData);
+  // console.log("Plugin Instances from pipeline", pluginData);
 
   const getPipelineTree = (items: PipelinePluginInstance[]) => {
     const tree = [],
@@ -47,7 +47,7 @@ const PipelineTree = ({ pluginData, onNodeClick }: {pluginData: PipelinePluginIn
   };
 
   const pipelineTree = getPipelineTree(pluginData);
-  console.log("TREE", pipelineTree);
+  // console.log("TREE", pipelineTree);
 
   return (
     <div id="treeWrapper" style={{ width: "50em", height: "30em" }}>

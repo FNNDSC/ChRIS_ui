@@ -1,8 +1,14 @@
 import {
-  Form,
-  FormGroup, PageSection,
-  Spinner, TextInput
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateIcon, Form,
+  FormGroup,
+  PageSection,
+  Spinner,
+  TextInput,
+  Title
 } from "@patternfly/react-core";
+import { SearchIcon } from "@patternfly/react-icons";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import PipelineCard from "./PipelineCard";
@@ -34,9 +40,13 @@ const PipelinesFeed = () => {
 
   const NotFound = () => {
     return (
-      <p style={{ textAlign: "center" }}>
-        We can&apos;t seem to find your pipeline!!
-      </p>
+      <EmptyState>
+        <EmptyStateIcon icon={SearchIcon} />
+        <Title size="lg" headingLevel="h4">
+          No results found
+        </Title>
+        <EmptyStateBody>No results match your search.</EmptyStateBody>
+      </EmptyState>
     );
   };
 
@@ -72,7 +82,13 @@ const PipelinesFeed = () => {
         ) : Search_query != "" ? (
           <NotFound />
         ) : (
-          <Spinner isSVG />
+          <EmptyState>
+            <EmptyStateIcon variant="container" component={Spinner} />
+            <Title size="lg" headingLevel="h4">
+              Loading...
+            </Title>
+            <EmptyStateBody>Fetching your Pipelines</EmptyStateBody>
+          </EmptyState>
         )}
       </div>
     </PageSection>

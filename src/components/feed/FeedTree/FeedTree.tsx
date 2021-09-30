@@ -441,9 +441,9 @@ const FeedTree = (props: AllProps) => {
           })}  
 
           {nodes?.map(({ data, x, y, parent }, i) => {
-            {
-              console.log("selectedPlugin", selectedPlugin?.data);
-            }
+            // {
+            //   console.log("selectedPlugin", selectedPlugin?.data);
+            // }
             return (
               <NodeWrapper
                 key={`node + ${i}`}

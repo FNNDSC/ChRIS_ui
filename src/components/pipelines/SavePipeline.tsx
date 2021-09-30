@@ -91,7 +91,6 @@ const SavePipelineBtn = () => {
           }
         )
         .then((response) => {
-          console.log("Response", response.data.results);
           const tempList: pluginTree[] = [];
           const result = response.data.results;
           for (let i = 0; i < result.length; i++) {
@@ -200,27 +199,6 @@ const SavePipelineBtn = () => {
           setErrorMsg(errors.message);
           setRequestSuccess(false);
           console.log("Failed! 💩💩💩");
-          console.log(
-            `${chrisURL}pipelines/`,
-            `${JSON.stringify({
-              template: {
-                data: [
-                  { name: "name", value: PipelineName },
-                  { name: "authors", value: UserName },
-                  { name: "Category", value: Category },
-                  {
-                    name: "description",
-                    value: Description,
-                  },
-                  { name: "locked", value: Locked.toString() },
-                  {
-                    name: "plugin_tree",
-                    value: JSON.stringify(PluginTree),
-                  },
-                ],
-              },
-            })}`
-          );
         });
     }
 
@@ -410,29 +388,20 @@ const SavePipelineBtn = () => {
         </Button>
       </Popover>
 
-      <Modal
+      <Wizard
+        titleId="save_pipeline"
+        descriptionId="save_pipeline_description"
+        title={`${title}`}
+        description="Save a new pipeline and with the selected list of plugins"
         isOpen={isModalOpen}
-        variant={ModalVariant.large}
-        showClose={false}
+        navAriaLabel={`${title} steps`}
+        mainAriaLabel={`${title} content`}
         onClose={() => handleClose()}
-        hasNoBodyWrapper
-        aria-describedby="save_pipeline"
-        aria-labelledby="save_pipeline_description"
-      >
-        <Wizard
-          titleId="save_pipeline"
-          descriptionId="save_pipeline_description"
-          title={`${title}`}
-          description="Save a new pipeline and with the selected list of plugins"
-          navAriaLabel={`${title} steps`}
-          mainAriaLabel={`${title} content`}
-          onClose={() => handleClose()}
-          onSave={() => onSave()}
-          steps={steps}
-          onNext={(step, prevstep) => onNext(step, prevstep)}
-          height={400}
-        />
-      </Modal>
+        onSave={() => onSave()}
+        steps={steps}
+        onNext={(step, prevstep) => onNext(step, prevstep)}
+        height={400}
+      />
     </div>
   );
 };
