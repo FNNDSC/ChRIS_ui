@@ -51,6 +51,7 @@ export const usePaginate = () => {
     filterState,
     handlePageSet,
     handlePerPageSet,
+    handleFilterChange,
     run,
     debouncedFilterUpdate,
   };

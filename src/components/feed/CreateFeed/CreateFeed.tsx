@@ -14,6 +14,9 @@ import ChooseConfig from "./ChooseConfig";
 import DataPacks from "./DataPacks";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import Review from "./Review";
+import Pipelines from "./Pipelines";
+import FinishedStep from "./FinishedStep";
+import withSelectionAlert from "./SelectionAlert";
 import { InputIndex } from "../AddNode/types";
 import "./createfeed.scss";
 import { Dispatch } from "redux";
@@ -22,8 +25,7 @@ import { connect } from "react-redux";
 import { addFeed } from "../../../store/feed/actions";
 import { createFeed, getName } from "./utils/createFeed";
 import { Feed } from "@fnndsc/chrisapi";
-import FinishedStep from "./FinishedStep";
-import withSelectionAlert from "./SelectionAlert";
+
 import { MainRouterContext } from "../../../routes";
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
@@ -32,6 +34,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
 }: CreateFeedReduxProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const routerContext = useContext(MainRouterContext);
+
   const {
     wizardOpen,
     step,
@@ -41,6 +44,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     dropdownInput,
     requiredInput,
     computeEnvironment,
+    pipelineData,
   } = state;
 
   const enableSave =
@@ -146,12 +150,13 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         requiredInput,
         selectedPlugin,
         username,
+        pipelineData,
         getCreationStatus,
         getCreationError
       );
 
       if (!feed) {
-        console.error(state.feedError)
+        console.error(state.feedError);
         throw new Error("New feed is undefined. Giving up.");
       }
 
@@ -204,7 +209,9 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       setComputeEnviroment={setComputeEnvironment}
     />
   );
+  const pipelines = <Pipelines />;
   const review = <Review />;
+
   const finishedStep = <FinishedStep createFeed={handleSave} />;
 
   const getFeedSynthesisStep = () => {
@@ -260,70 +267,86 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     }
   };
 
-  const steps = data.isDataSelected ? [
-    {
-      id: 1,
-      name: "Basic Information",
-      component: withSelectionAlert(basicInformation),
-      enableNext: !!data.feedName,
-      canJumpTo: step > 1,
-    },
-    {
-      id: 2,
-      name: "Feed Type Selection",
-      component: withSelectionAlert(chooseConfig),
-      enableNext: selectedConfig.length > 0,
-      canJumpTo: step > 2,
-    },
-    {
-      id: 5,
-      name: "Review",
-      component: review,
-      enableNext: enableSave,
-      nextButtonText: "Create Feed",
-      canJumpTo: step > 5,
-    },
-    {
-      id: 6,
-      name: "Finish",
-      component: finishedStep,
-      canJumpTo: step > 6,
-    },
-  ] : [
-    {
-      id: 1,
-      name: "Basic Information",
-      component: withSelectionAlert(basicInformation),
-      enableNext: !!data.feedName,
-      canJumpTo: step > 1,
-    },
-    {
-      id: 2,
-      name: "Feed Type Selection",
-      component: withSelectionAlert(chooseConfig),
-      enableNext: selectedConfig.length > 0,
-      canJumpTo: step > 2,
-    },
-    {
-      name: getName(selectedConfig),
-      steps: getFeedSynthesisStep(),
-      canJumpTo: step > 3,
-    },
-    {
-      id: 5,
-      name: "Review",
-      component: withSelectionAlert(review, false),
-      enableNext: enableSave,
-      nextButtonText: "Create Feed",
-      canJumpTo: step > 5,
-    },
-    {
-      id: 6,
-      name: "Finish",
-      component: withSelectionAlert(finishedStep, false),
-      canJumpTo: step > 6,
-    },
-  ];
+  const steps = data.isDataSelected
+    ? [
+        {
+          id: 1,
+          name: "Basic Information",
+          component: withSelectionAlert(basicInformation),
+          enableNext: !!data.feedName,
+          canJumpTo: step > 1,
+        },
+        {
+          id: 2,
+          name: "Feed Type Selection",
+          component: withSelectionAlert(chooseConfig),
+          enableNext: selectedConfig.length > 0,
+          canJumpTo: step > 2,
+        },
+        {
+          id: 5,
+          name: "Pipelines",
+          component: pipelines,
+          canJumpTp: step > 5,
+        },
+        {
+          id: 6,
+          name: "Review",
+          component: review,
+          enableNext: enableSave,
+          nextButtonText: "Create Feed",
+          canJumpTo: step > 6,
+        },
+        {
+          id: 7,
+          name: "Finish",
+          component: finishedStep,
+          canJumpTo: step > 7,
+        },
+      ]
+    : [
+        {
+          id: 1,
+          name: "Basic Information",
+          component: withSelectionAlert(basicInformation),
+          enableNext: !!data.feedName,
+          canJumpTo: step > 1,
+        },
+        {
+          id: 2,
+          name: "Feed Type Selection",
+          component: withSelectionAlert(chooseConfig),
+          enableNext: selectedConfig.length > 0,
+          canJumpTo: step > 2,
+        },
+        {
+          name: getName(selectedConfig),
+          steps: getFeedSynthesisStep(),
+          canJumpTo: step > 3,
+        },
+        {
+          id: 5,
+          name: "Pipelines",
+          enableNext: true,
+          component: pipelines,
+          nextButtonText: "Review",
+          canJumpTo: step > 5,
+        },
+        {
+          id: 6,
+          name: "Review",
+          component: withSelectionAlert(review, false),
+          enableNext: enableSave,
+          nextButtonText: "Create Feed",
+          canJumpTo: step > 6,
+        },
+        {
+          id: 7,
+          name: "Finish",
+          component: withSelectionAlert(finishedStep, false),
+          canJumpTo: step > 7,
+        },
+      ];
 
   const CustomFooter = (
     <WizardFooter>
@@ -332,15 +355,19 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           if (activeStep.name !== "Finish") {
             return (
               <>
-                <Button style={{ margin: "0.5em", padding: "0.5em 2em" }}
+                <Button
+                  style={{ margin: "0.5em", padding: "0.5em 2em" }}
                   variant="primary"
                   type="submit"
                   onClick={onNext}
                   isDisabled={activeStep.enableNext === false ? true : false}
                 >
-                  { activeStep.nextButtonText ? activeStep.nextButtonText : 'Next' }
+                  {activeStep.nextButtonText
+                    ? activeStep.nextButtonText
+                    : "Next"}
                 </Button>
-                <Button style={{ margin: "0.5em", padding: "0.5em 2em" }}
+                <Button
+                  style={{ margin: "0.5em", padding: "0.5em 2em" }}
                   variant="secondary"
                   isDisabled={activeStep.id === 1}
                   onClick={onBack}

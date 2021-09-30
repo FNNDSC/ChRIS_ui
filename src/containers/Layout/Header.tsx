@@ -11,7 +11,6 @@ import {
 } from "@patternfly/react-core";
 import Moment from "react-moment";
 
-
 interface IHeaderProps {
   user: IUserState;
   onNavToggle: () => void;
@@ -25,44 +24,45 @@ const BadgeStyle = {
   color: "#8b8d8f",
 };
 
+const Header: React.FC<IHeaderProps> = ({
+  onNavToggle,
+  user,
+}: IHeaderProps) => {
+  const pageToolbar = !!user.token ? (
+    <PageHeaderTools>
+      <ToolbarComponent />
+    </PageHeaderTools>
+  ) : (
+    <PageHeaderTools>
+      <Link to="/login">Log In</Link>
+    </PageHeaderTools>
+  );
 
-const Header: React.FC<IHeaderProps> = ({ onNavToggle, user }: IHeaderProps) => {
-    const pageToolbar = !!user.token ? (
-      <PageHeaderTools>
-        <ToolbarComponent />
-      </PageHeaderTools>
-    ) : (
-      <PageHeaderTools>
-        <Link to="/login">Log In</Link>
-      </PageHeaderTools>
-    );
+  const brand = (
+    <React.Fragment>
+      <Brand src={brandImg} alt="ChRIS Logo" />
+      <Badge key={4} style={BadgeStyle}>
+        <span>Version: 3.0.1</span>
+      </Badge>
+      <Badge key={3} style={BadgeStyle}>
+        <span>
+          Latest update:{" "}
+          <Moment format="DD MMM YYYY @ HH:mm">{`2021-09-30T14:33:10.297464-04:00`}</Moment>
+        </span>
+      </Badge>
+    </React.Fragment>
+  );
 
-    const brand = (
-      <React.Fragment>
-        <Brand src={brandImg} alt="ChRIS Logo" />
-        <Badge key={4} style={BadgeStyle}>
-          <span>Version: 1.5.1</span>
-        </Badge>
-        <Badge key={3} style={BadgeStyle}>
-          <span>
-            Latest update:{" "}
-            <Moment format="DD MMM YYYY @ HH:mm">{`2021-08-23T16:30:10.297464-04:00`}</Moment>
-          </span>
-        </Badge>
-      </React.Fragment>
-    );
-
-    return (
-      <PageHeader
-        className="header"
-        aria-label="Page Header"
-        logo={brand}
-        headerTools={pageToolbar}
-        showNavToggle
-        onNavToggle={onNavToggle}
-      />
-    );
-  }
-
+  return (
+    <PageHeader
+      className="header"
+      aria-label="Page Header"
+      logo={brand}
+      headerTools={pageToolbar}
+      showNavToggle
+      onNavToggle={onNavToggle}
+    />
+  );
+};
 
 export default Header;

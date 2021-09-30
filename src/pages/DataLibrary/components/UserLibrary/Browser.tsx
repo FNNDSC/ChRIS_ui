@@ -329,7 +329,7 @@ export const Browser: React.FC<BrowserProps> = ({
             isOpen={!!viewfolder}
             onClose={() => setViewFolder(undefined)}
           >
-            <GalleryDicomView files={viewfolder} />
+            <GalleryDicomView />
           </Modal>
         )}
       </Route>

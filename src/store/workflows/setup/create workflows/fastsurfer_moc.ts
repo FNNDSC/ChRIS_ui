@@ -59,7 +59,7 @@ export function* runFastsurferMocWorkflow(
     plFshack.data.id,
     plFshackArgs
   );
-  const plFastsurfer = pluginList["pl-fastsurfer_inference_cpu_30"];
+  const plFastsurfer = pluginList["pl-fastsurfer_inference_gpu"];
   const plFastsurferArgs = {
     title: "cnn",
     previous_id: plFshackInstance.data.id,

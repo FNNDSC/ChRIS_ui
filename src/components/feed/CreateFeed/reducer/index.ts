@@ -6,10 +6,10 @@ import {
 } from "../types";
 import { Key } from "rc-tree/lib/interface";
 import { clearCache } from "../ChrisFileSelect";
-import { State as MainRouterContextState } from '../../../../routes';
-
+import { State as MainRouterContextState } from "../../../../routes";
 import { InputType } from "../../AddNode/types";
 import { Series } from "../../../../pages/DataLibrary/Library";
+import { merge } from "lodash";
 
 function getDefaultCreateFeedData(selectedData?: Series): CreateFeedData {
   const initData = {
@@ -18,7 +18,7 @@ function getDefaultCreateFeedData(selectedData?: Series): CreateFeedData {
     tags: [],
     chrisFiles: [] as string[],
     localFiles: [],
-    checkedKeys:{},
+    checkedKeys: {},
     isDataSelected: false,
   };
 
@@ -30,14 +30,15 @@ function getDefaultCreateFeedData(selectedData?: Series): CreateFeedData {
   return initData;
 }
 
-export function getInitialState(routerContextState?: typeof MainRouterContextState): CreateFeedState {
+export function getInitialState(
+  routerContextState?: typeof MainRouterContextState
+): CreateFeedState {
   const selectedData = routerContextState?.selectData;
   const isInitDataSelected = !!selectedData?.length;
 
   return {
     // if data is selected, the user is navigated directly to create feed wizard
     wizardOpen: isInitDataSelected,
-
     step: 1,
     data: getDefaultCreateFeedData(selectedData),
     selectedPlugin: undefined,
@@ -48,6 +49,19 @@ export function getInitialState(routerContextState?: typeof MainRouterContextSta
     feedError: "",
     value: 0,
     computeEnvironment: " ",
+    pipelineData: {
+      optionState: {
+        isOpen: false,
+        toggleTemplateText: "Choose a Pipeline",
+        selectedOption: "",
+      },
+      pluginParameters: undefined,
+      pluginPipings: undefined,
+      pipelinePlugins: undefined,
+      computeEnvs: undefined,
+      currentNode: "",
+      uploadedWorkflow: "",
+    },
   };
 }
 
@@ -85,21 +99,20 @@ export const createFeedReducer = (
         },
       };
     case Types.SelectedConfig:
-      clearCache()
+      clearCache();
       return {
         ...state,
         data: {
           ...state.data,
           chrisFiles: [],
           localFiles: [],
-          checkedKeys:{}          
+          checkedKeys: {},
         },
         requiredInput: {},
         dropdownInput: {},
         selectedPlugin: undefined,
-        
+
         selectedConfig: action.payload.selectedConfig,
-      
       };
     case Types.AddChrisFile:
       const file = action.payload.file;
@@ -107,30 +120,32 @@ export const createFeedReducer = (
         [key: string]: Key[];
       } = { ...state.data.checkedKeys };
 
-      if(!state.data.checkedKeys[file]){
-        checkedKeysDict[file]=action.payload.checkedKeys
+      if (!state.data.checkedKeys[file]) {
+        checkedKeysDict[file] = action.payload.checkedKeys;
       }
-      
+
       return {
         ...state,
         data: {
           ...state.data,
           chrisFiles: [...state.data.chrisFiles, action.payload.file],
-          checkedKeys: checkedKeysDict
+          checkedKeys: checkedKeysDict,
         },
-    }
+      };
     case Types.RemoveChrisFile: {
       let checkedKeysDict: {
-        [key:string]:Key[]
-      }={}
+        [key: string]: Key[];
+      } = {};
 
-      checkedKeysDict=Object.keys(state.data.checkedKeys).reduce(
-        (object:{[key:string]:Key[]}, key)=>{
-          if(key!==action.payload.file){
-            object[key]=state.data.checkedKeys[key]
+      checkedKeysDict = Object.keys(state.data.checkedKeys).reduce(
+        (object: { [key: string]: Key[] }, key) => {
+          if (key !== action.payload.file) {
+            object[key] = state.data.checkedKeys[key];
           }
           return object;
-        },{})
+        },
+        {}
+      );
 
       return {
         ...state,
@@ -139,10 +154,9 @@ export const createFeedReducer = (
           chrisFiles: state.data.chrisFiles.filter(
             (path) => path !== action.payload.file
           ),
-          checkedKeys:checkedKeysDict
+          checkedKeys: checkedKeysDict,
         },
       };
-      
     }
 
     case Types.AddLocalFile:
@@ -229,30 +243,43 @@ export const createFeedReducer = (
         requiredInput: {},
         dropdownInput: {},
         computeEnvironment: "",
+        pipelineData: {
+          optionState: {
+            isOpen: false,
+            toggleTemplateText: "Choose a Pipeline",
+            selectedOption: "",
+          },
+          pluginParameters: undefined,
+          pluginPipings: undefined,
+          pipelinePlugins: undefined,
+          computeEnvs: undefined,
+          currentNode: "",
+          uploadedWorkflow: "",
+        },
       };
     }
 
     case Types.SetProgress: {
-       if (state.feedProgress.includes("Uploading Files To Cube")) {
+      if (state.feedProgress.includes("Uploading Files To Cube")) {
         return {
-           ...state,
-           feedProgress: action.payload.feedProgress,
-           value:state.value+5
-         };
-       } else {
-         return {
-           ...state,
-           feedProgress: action.payload.feedProgress,
-           value: state.value + 20,
-         };
-       }    
+          ...state,
+          feedProgress: action.payload.feedProgress,
+          value: state.value + 5,
+        };
+      } else {
+        return {
+          ...state,
+          feedProgress: action.payload.feedProgress,
+          value: state.value + 20,
+        };
+      }
     }
 
-    case Types.SetComputeEnvironment:{
+    case Types.SetComputeEnvironment: {
       return {
         ...state,
-        computeEnvironment:action.payload.computeEnvironment
-      }
+        computeEnvironment: action.payload.computeEnvironment,
+      };
     }
 
     case Types.SetError: {
@@ -267,6 +294,96 @@ export const createFeedReducer = (
         feedProgress: "",
         value: 0,
         feedError: "",
+      };
+    }
+
+    case Types.SetOptionState: {
+      return {
+        ...state,
+        pipelineData: {
+          ...state.pipelineData,
+          optionState: action.payload,
+        },
+      };
+    }
+
+    case Types.SetPipelineResources: {
+      return {
+        ...state,
+        pipelineData: {
+          ...state.pipelineData,
+          pluginPipings: action.payload.pluginPipings,
+          pluginParameters: action.payload.parameters,
+          pipelinePlugins: action.payload.pipelinePlugins,
+          currentNode: undefined,
+          computeEnvs: undefined,
+        },
+      };
+    }
+
+    case Types.SetPipelineEnvironments: {
+      
+      if (state.pipelineData.computeEnvs) {
+        return {
+          ...state,
+          pipelineData: {
+            ...state.pipelineData,
+            computeEnvs: merge(
+              state.pipelineData.computeEnvs,
+              action.payload.computeEnvData
+            ),
+          },
+        };
+      } else {
+        return {
+          ...state,
+          pipelineData: {
+            ...state.pipelineData,
+            computeEnvs: action.payload.computeEnvData,
+          },
+        };
+      }
+    }
+
+    case Types.SetCurrentNode: {
+      const { computeEnvs } = state.pipelineData;
+      const pluginName = action.payload.currentNode;
+
+      if (computeEnvs) {
+        const computeEnvArray = computeEnvs[pluginName].computeEnvs;
+        const currentComputeEnv = computeEnvs[pluginName].currentlySelected;
+        const findIndex = computeEnvArray?.findIndex((option: any) => {
+          if (option.name === currentComputeEnv.name) return option;
+          else return 0;
+        });
+        let currentlySelected;
+        if (computeEnvArray) {
+          if (findIndex === computeEnvArray.length - 1) {
+            currentlySelected = computeEnvArray[0];
+          } else if (typeof findIndex === "number") {
+            currentlySelected = computeEnvArray[findIndex + 1];
+          }
+        }
+
+        if (currentlySelected) {
+          const duplicateObject = computeEnvs;
+          duplicateObject[pluginName].currentlySelected = currentlySelected;
+          return {
+            ...state,
+            pipelineData: {
+              ...state.pipelineData,
+              currentNode: pluginName,
+              computeEnvs: duplicateObject,
+            },
+          };
+        }
+      }
+      return {
+        ...state,
+        pipelineData: {
+          ...state.pipelineData,
+          currentNode: pluginName,
+        },
       };
     }
 

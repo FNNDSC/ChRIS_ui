@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { Link, Route, Switch, useHistory } from "react-router-dom";
-import { CubesIcon, UploadIcon, SearchIcon } from "@patternfly/react-icons";
+import { CubesIcon, SearchIcon } from "@patternfly/react-icons";
 import {
   Button,
   Card,
@@ -10,7 +10,6 @@ import {
   EmptyStatePrimary,
   Grid,
   GridItem,
-  Modal,
   Spinner,
   Split,
   SplitItem,
@@ -31,8 +30,6 @@ const client = ChrisAPIClient.getClient();
 export const UserLibrary = () => {
   document.title = "My Library";
   const username = useTypedSelector((state) => state.user.username) as string;
-
-  const [openUploader, setOpenUploader] = useState(false);
 
   const [uploaded, setUploaded] = useState<DirectoryTree>();
   const [services, setServices] = useState<DirectoryTree>();
