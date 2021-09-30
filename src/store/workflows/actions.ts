@@ -4,8 +4,11 @@ import {
   AnalysisStep,
   AnalysisPayload,
   SelectWorkflowState,
+  TreeNode,
+  ComputeEnvData,
 } from "./types";
 import { LocalFile } from "../../components/feed/CreateFeed/types";
+import { PipelinePipingDefaultParameterList } from "@fnndsc/chrisapi";
 
 export const getPacsFilesRequest = (
   name?: string,
@@ -19,8 +22,14 @@ export const setLocalFile = (files: LocalFile[]) =>
 export const setOptionState = (optionState: SelectWorkflowState) =>
   action(WorkflowTypes.SET_OPTION_STATE, optionState);
 
-export const submitAnalysis = (analysisPayload: AnalysisPayload) =>
-  action(WorkflowTypes.SUBMIT_ANALYSIS, analysisPayload);
+export const submitAnalysis = (
+  analysisPayload: AnalysisPayload & {
+    pipelinePlugins?: any[];
+    pluginParameters?: PipelinePipingDefaultParameterList;
+    pluginPipings?: any[];
+    computeEnvs?: ComputeEnvData;
+  }
+) => action(WorkflowTypes.SUBMIT_ANALYSIS, analysisPayload);
 
 export const setAnalysisStep = (step: AnalysisStep) =>
   action(WorkflowTypes.SET_ANALYSIS_STEP, step);
@@ -50,3 +59,35 @@ export const setCurrentStep = (id: number) =>
 
 export const clearFileSelection = () =>
   action(WorkflowTypes.CLEAR_FILE_SELECTION);
+
+export const generatePipeline = (data: any) =>
+  action(WorkflowTypes.GENERATE_PIPELINE, data);
+
+export const setPluginPipingsSuccess = (pluginPipings: any) =>
+  action(WorkflowTypes.SET_PLUGIN_PIPINGS_LIST, pluginPipings);
+
+export const setComputeEnvs = (computeEnvs: {
+  [key: string]: {
+    computeEnvs: any[];
+    currentlySelected: any;
+  };
+}) => action(WorkflowTypes.SET_COMPUTE_ENVS, computeEnvs);
+
+export const setUploadedSpec = (pipeline: any) =>
+  action(WorkflowTypes.SET_UPLOADED_SPEC, pipeline);
+
+export const setUploadedSpecSuccess = (workflowType: string) =>
+  action(WorkflowTypes.SET_UPLOADED_SPEC_SUCCESS, workflowType);
+
+export const setPluginParametersSuccess = (
+  parameters: PipelinePipingDefaultParameterList
+) => action(WorkflowTypes.SET_PLUGIN_PARAMETERS, parameters);
+
+export const setPipelinePluginsSuccess = (pipelineInstances: any[]) =>
+  action(WorkflowTypes.SET_PIPELINE_PLUGINS, pipelineInstances);
+
+export const setCurrentNode = (node: {
+  data: TreeNode;
+  pluginName: string;
+  currentComputeEnv: string;
+}) => action(WorkflowTypes.SET_CURRENT_NODE, node);

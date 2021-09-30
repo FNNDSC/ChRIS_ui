@@ -10,7 +10,7 @@ import {
   NavItem,
   NavList,
   NavExpandable,
-  NavGroup
+  NavGroup,
 } from "@patternfly/react-core";
 import { setSidebarActive } from "../../store/ui/actions";
 import { Dispatch } from "redux";
@@ -24,7 +24,7 @@ type ReduxProp = {
 };
 
 const Sidebar: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
-  const [active, setActive] = React.useState<string>()
+  const [active, setActive] = React.useState<string>();
   const onSelect = (selectedItem: any) => {
     setActive(String(selectedItem.itemId));
   };
@@ -37,12 +37,11 @@ const Sidebar: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
             <Link to="/library">My Library</Link>
           </NavItem>
 
-          {/* <NavItem itemId="chris" isActive={active === "chris"}>
-            <Link to="/library/chris">ChRIS Storage</Link>
-          </NavItem> */}
-
           <NavExpandable title="Services" isExpanded={true}>
-            <NavItem itemId="services_pacs" isActive={active === "services_pacs"}>          
+            <NavItem
+              itemId="services_pacs"
+              isActive={active === "services_pacs"}
+            >
               <Link to="/library/pacs">PACS Lookup</Link>
             </NavItem>
           </NavExpandable>
@@ -56,7 +55,11 @@ const Sidebar: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
           <NavItem itemId="feeds" isActive={active === "feeds"}>
             <Link to="/feeds">Feeds List</Link>
           </NavItem>
-        
+
+          <NavItem itemId="visualization" isActive={active === "visualization"}>
+            <Link to="/visualization">Visualizations</Link>
+          </NavItem>
+
           <NavExpandable title="Workflows" isExpanded={true}>
             <NavItem itemId="wf_Type-1" isActive={active === "wf_Type-1"}>
               <Link to="/workflows">Type-1</Link>

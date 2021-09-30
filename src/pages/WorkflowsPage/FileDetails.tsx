@@ -1,6 +1,7 @@
 import React from "react";
 import { message, Steps } from "antd";
 import { useHistory } from "react-router";
+
 import {
   Card,
   CardBody,
@@ -25,7 +26,19 @@ import {
   submitAnalysis,
   resetWorkflowState,
   clearFileSelection,
+  generatePipeline,
+  setUploadedSpec,
+  setCurrentNode,
 } from "../../store/workflows/actions";
+import { Tree, ConfigurationPage } from "./components/Tree";
+import {
+  fastsurferPipeline,
+  freesurferPipeline,
+  fetalReconstructionPipeline,
+} from "./utils";
+import { TreeNode } from "../../store/workflows/types";
+
+import { AiOutlineUpload } from "react-icons/ai";
 
 const { Step } = Steps;
 
@@ -95,7 +108,7 @@ const StepsComponent = () => {
 const StatusComponent = () => {
   const steps = useTypedSelector((state) => state.workflows.steps);
   return (
-    <Steps size="small" direction="horizontal">
+    <Steps direction="horizontal">
       {steps.map((step: AnalysisStep) => {
         return (
           <Step
@@ -118,25 +131,26 @@ const ContentWrapper = ({
   id?: number;
 }) => {
   const dispatch = useDispatch();
+  const uploadedWorkflow = useTypedSelector(
+    (state) => state.workflows.uploadedWorkflow
+  );
   const history = useHistory();
   const {
     currentStep,
     optionState,
     localfilePayload,
-    infantAge,
     checkFeedDetails,
+    pipelinePlugins,
+    pluginPipings,
+    pluginParameters,
+    computeEnvs,
   } = useTypedSelector((state) => state.workflows);
   const username = useTypedSelector((state) => state.user.username);
 
   const localFiles = localfilePayload.files;
 
   const stepLength = 2;
-  const isDisabled =
-    id === 1 && localFiles.length === 0
-      ? true
-      : id === 2 && !optionState.selectedOption
-      ? true
-      : false;
+  const isDisabled = id === 1 && localFiles.length === 0 ? true : false;
 
   return (
     <div className="steps-content">
@@ -146,7 +160,7 @@ const ContentWrapper = ({
           marginTop: "1rem",
           paddingTop: "1rem",
           paddingLeft: "1rem",
-          height: `${id === 1 ? "350px" : id === 2 ? "300px" : "300px"}`,
+          height: `${id === 1 ? "350px" : id === 2 ? "350px" : "300px"}`,
         }}
       >
         {children}
@@ -161,8 +175,12 @@ const ContentWrapper = ({
                   submitAnalysis({
                     localFiles,
                     username,
-                    workflowType: optionState.selectedOption,
-                    infantAge,
+                    workflowType:
+                      optionState.selectedOption || uploadedWorkflow,
+                    pipelinePlugins,
+                    pluginPipings,
+                    pluginParameters,
+                    computeEnvs,
                   })
                 );
               }
@@ -228,34 +246,88 @@ const FileUploadWrapper = () => {
 
 const workflows = [
   "covidnet",
-  "infant-freesurfer",
-  "infant-freesurfer-age",
-  "adult-freesurfer",
-  "adult-freesurfer:moc",
+  "infantFreesurfer",
+  "infantFreesurferAge",
+  "adultFreesurfer",
+  "adultFreesurfermoc",
   "fastsurfer",
-  "fastsurfer:moc",
-  "fetal-reconstruction",
+  "fastsurfermoc",
+  "fetalReconstruction",
 ];
+
+const workflowTitle: {
+  [key: string]: {
+    title: string;
+  };
+} = {
+  covidnet: {
+    title: "Covidnet",
+  },
+  infantFreesurfer: {
+    title: "Infant Freesurfer",
+  },
+  infantFreesurferAge: {
+    title: "Infant Freesurfer Age",
+  },
+  adultFreesurfer: {
+    title: "Adult Freesurfer",
+  },
+  fastsurfer: {
+    title: "Fastsurfer",
+  },
+  adultFreesurfermoc: {
+    title: "Adult Freesurfer Moc",
+  },
+  fastsurfermoc: {
+    title: "Fastsurfer Moc",
+  },
+  fetalReconstruction: {
+    title: "Fetal Reconstruction",
+  },
+};
+
+const getPipelineData = (workflow: string) => {
+  if (workflow === "fastsurfer") {
+    return fastsurferPipeline();
+  }
+  if (workflow === "fetalReconstruction") {
+    return fetalReconstructionPipeline();
+  }
+
+  if (workflow === "adultFreesurfer") {
+    return freesurferPipeline();
+  }
+};
 
 const SelectWorkflow = () => {
   const dispatch = useDispatch();
-  const optionState = useTypedSelector((state) => state.workflows.optionState);
+
+  const { uploadedWorkflow, optionState } = useTypedSelector(
+    (state) => state.workflows
+  );
+
   const { selectedOption, isOpen, toggleTemplateText } = optionState;
+
   const handleSelect = (
     event?:
       | React.MouseEvent<HTMLAnchorElement, MouseEvent>
       | React.KeyboardEvent<Element>
   ) => {
     const id = event?.currentTarget.id;
+    //@ts-ignore
+    const name = event?.target.name;
+
     if (id) {
       dispatch(
         setOptionState({
           ...optionState,
-          toggleTemplateText: id,
-          selectedOption: id,
+          toggleTemplateText: name,
+          selectedOption: id || uploadedWorkflow,
           isOpen: !isOpen,
         })
       );
+      const data = getPipelineData(id);
+      dispatch(generatePipeline(data));
     }
   };
 
@@ -267,20 +339,28 @@ const SelectWorkflow = () => {
       })
     );
   };
+  const handleNodeClick = (node: {
+    data: TreeNode;
+    pluginName: string;
+    currentComputeEnv: string;
+  }) => {
+    dispatch(setCurrentNode(node));
+  };
 
   const handleInputChange = (value: string) => {
     dispatch(setInfantAge(value));
   };
 
-  const menuItems = workflows.map((workflow: string, index: number) => {
+  const menuItems = workflows.map((workflow: string) => {
     return (
       <OptionsMenuItem
         onSelect={handleSelect}
         id={workflow}
-        key={index}
+        key={workflow}
+        name={workflowTitle[workflow].title}
         isSelected={selectedOption === workflow}
       >
-        {workflow}
+        {workflowTitle[workflow].title}
       </OptionsMenuItem>
     );
   });
@@ -291,30 +371,103 @@ const SelectWorkflow = () => {
       toggleTemplate={toggleTemplateText}
     />
   );
+
   return (
     <>
-      <OptionsMenu
-        id="option-menu"
-        isOpen={isOpen}
-        menuItems={menuItems}
-        toggle={toggle}
-      />
-      {selectedOption === "infant-freesurfer-age" && (
-        <div className="workflow-form">
-          <Form isHorizontal>
-            <TextInput
-              isRequired
-              type="text"
-              id="infant-age"
-              name="infant-age"
-              onChange={handleInputChange}
-              placeholder="Enter an Infant's age in months"
-            />
-          </Form>
-        </div>
-      )}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <OptionsMenu
+          id="option-menu"
+          isOpen={isOpen}
+          menuItems={menuItems}
+          toggle={toggle}
+        />
+        <UploadJson />
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          height: "100%",
+        }}
+      >
+        <Tree handleNodeClick={handleNodeClick} />
+        <ConfigurationPage />
+        {selectedOption === "infantFreesurferAge" && (
+          <div className="workflow-form">
+            <Form isHorizontal>
+              <TextInput
+                isRequired
+                type="text"
+                id="infant-age"
+                name="infant-age"
+                onChange={handleInputChange}
+                placeholder="Enter an Infant's age in months"
+              />
+            </Form>
+          </div>
+        )}
+      </div>
     </>
   );
 };
 
 export default FileDetails;
+
+export const UploadJson = () => {
+  const dispatch = useDispatch();
+  const fileOpen = React.useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = React.useState("");
+
+  const showOpenFile = () => {
+    if (fileOpen.current) {
+      fileOpen.current.click();
+    }
+  };
+
+  const readFile = (file: any) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      try {
+        if (reader.result) {
+          const result = JSON.parse(reader.result as string);
+          dispatch(setUploadedSpec(result));
+          setFileName(result.name);
+        }
+      } catch (error) {
+        console.log("NOT a valid json file");
+      }
+    };
+    if (file) {
+      reader.readAsText(file);
+    }
+  };
+
+  const handleUpload = (event: any) => {
+    const file = event.target.files && event.target.files[0];
+    readFile(file);
+  };
+  return (
+    <>
+      <div>
+        <span style={{ marginRight: "0.5rem", fontWeight: 700 }}>
+          {fileName}
+        </span>
+        <Button onClick={showOpenFile} icon={<AiOutlineUpload />}>
+          Upload a JSON spec{" "}
+        </Button>
+      </div>
+
+      <input
+        ref={fileOpen}
+        style={{ display: "none" }}
+        type="file"
+        onChange={handleUpload}
+      />
+    </>
+  );
+};

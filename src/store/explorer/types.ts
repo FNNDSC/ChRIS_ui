@@ -7,7 +7,6 @@
 import { FeedFile } from "@fnndsc/chrisapi";
 import keyMirror from "keymirror";
 
-
 export type Key = string | number;
 
 type FileInfo = {
@@ -67,7 +66,7 @@ export type CheckInfo = {
 export enum ExplorerMode {
   SwiftFileBrowser,
   DicomViewer,
-  XtkViewer
+  XtkViewer,
 }
 
 // Description state for main user items[] and item
@@ -76,12 +75,17 @@ export interface IExplorerState {
   selectedFile?: DataNode;
   selectedFolder?: DataNode[];
   mode: ExplorerMode;
+  enableDcmTool: boolean;
+  files: any[];
 }
 
 export const ExplorerActionTypes = keyMirror({
   SET_EXPLORER_REQUEST: null,
   SET_SELECTED_FILE: null,
+  SET_GALLERY_FILES: null,
   SET_SELECTED_FOLDER: null,
   SET_EXPLORER_MODE: null,
+  ENABLE_DCM_TOOL: null,
   DESTROY_EXPLORER: null,
+  CLEAR_GALLERY_FILES: null,
 });

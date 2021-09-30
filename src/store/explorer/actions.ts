@@ -17,3 +17,12 @@ export const setExplorerMode = (mode: ExplorerMode) =>
 
 export const destroyExplorer = () =>
   action(ExplorerActionTypes.DESTROY_EXPLORER);
+
+export const setToolStore = (value: boolean) =>
+  action(ExplorerActionTypes.ENABLE_DCM_TOOL, value);
+
+export const setFilesForGallery = (items: any[]) =>
+  action(ExplorerActionTypes.SET_GALLERY_FILES, items);
+
+export const clearFilesForGallery = () =>
+  action(ExplorerActionTypes.CLEAR_GALLERY_FILES);

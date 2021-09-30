@@ -1,22 +1,24 @@
-/*
-*  File:            GalleryToolbar.scss
-*  Description:     This files holds styles specific for the file explorer Gallery Toolbar
-*  Author:          ChRIS UI
-*/
-@import "../../../assets/scss/helpers/variables";
-@import "../../../assets/scss/helpers/mixins.scss";
+.gallery-dicom {
+  height: 100vh;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: black;
+  overflow: hidden;
+}
+
+
+@import "../../assets/scss/helpers/mixins.scss";
 
 // $iconfont-size: 0.7rem;
 $iconfont-size-md: 0.6rem;
 $iconfont-size-lg: 0.8rem;
 
 .gallery-toolbar {
-  bottom: $gallery-toolbar-bottom;
+ bottom:0.5rem;
   color: #fff;
   left: 0;
   display: flex;
   flex-flow: row nowrap;
-  padding: 0 1rem;
   position: absolute;
   width: 100%;
   z-index: 9999;

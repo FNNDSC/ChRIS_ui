@@ -1,15 +1,15 @@
 import { Reducer } from "redux";
 import { ExplorerActionTypes, ExplorerMode, IExplorerState } from "./types";
 
-
 // Type-safe initialState
 const initialState: IExplorerState = {
   explorer: undefined,
   selectedFile: undefined,
   mode: ExplorerMode.SwiftFileBrowser,
   selectedFolder: undefined,
+  enableDcmTool: false,
+  files: [],
 };
-
 
 const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
   switch (action.type) {
@@ -30,7 +30,6 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
 
     case ExplorerActionTypes.SET_SELECTED_FOLDER: {
       const selectedFolder = action.payload;
-
       return {
         ...state,
         selectedFolder,
@@ -41,7 +40,32 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
       return { ...state, mode: action.payload };
     }
     case ExplorerActionTypes.DESTROY_EXPLORER: {
-      return { ...state, ...initialState };
+      return {
+        ...state,
+        explorer: undefined,
+        selectedFile: undefined,
+        mode: ExplorerMode.SwiftFileBrowser,
+        selectedFolder: undefined,
+        enableDcmTool: false,
+      };
+    }
+
+    case ExplorerActionTypes.ENABLE_DCM_TOOL: {
+      return { ...state, enableDcmTool: action.payload };
+    }
+
+    case ExplorerActionTypes.SET_GALLERY_FILES: {
+      return {
+        ...state,
+        files: [...state.files, ...action.payload],
+      };
+    }
+
+    case ExplorerActionTypes.CLEAR_GALLERY_FILES: {
+      return {
+        ...state,
+        files: [],
+      };
     }
 
     default: {

@@ -5,8 +5,8 @@ $textColor: white;
 $GreyTextColor: #868686;
 $opacityLevel: 0.75;
 $headerBlue: #73bcf7;
-$iconfont-size-md: 0.6rem;
-$iconfont-size-lg:0.8rem;
+$iconfont-size-md: 1rem;
+$iconfont-size-lg:1.2rem;
 
 .dicom-header {
   z-index: 2;
@@ -21,8 +21,12 @@ $iconfont-size-lg:0.8rem;
     position: absolute;
     left: 0;
     top: 0;
-    padding: 0.8rem;
     margin-right: 4rem;
+    line-height: 1.1;
+    margin-left:1rem;
+    a {
+      color:#fff;
+    }
     
     &__text{
       @include media-query(1200px){
@@ -43,6 +47,7 @@ $iconfont-size-lg:0.8rem;
     margin: 0.4rem -4px;
     svg {
       color: #fff;
+      font-size: 1.5rem !important;
 
       @include media-query(1200px){
         font-size: $iconfont-size-md;

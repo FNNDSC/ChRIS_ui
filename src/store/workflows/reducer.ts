@@ -1,31 +1,25 @@
 import { Reducer } from "redux";
 import { IWorkflowState, WorkflowTypes, AnalysisStep } from "./types";
+import { merge } from "lodash";
 
 function getInitialSteps() {
   const steps: AnalysisStep[] = [];
   steps[0] = {
     id: 1,
-    title: "Check if plugins are registered",
+    title: "Create a Feed Root Node",
     status: "wait",
     error: "",
   };
 
   steps[1] = {
     id: 2,
-    title: "Create a Feed Root Node",
+    title: "Create a Feed Tree",
     status: "wait",
     error: "",
   };
 
   steps[2] = {
     id: 3,
-    title: "Create a Feed Tree",
-    status: "wait",
-    error: "",
-  };
-
-  steps[3] = {
-    id: 4,
     title: "Success",
     status: "wait",
     error: "",
@@ -44,11 +38,16 @@ export const initialState: IWorkflowState = {
   currentStep: 0,
   optionState: {
     isOpen: false,
-    toggleTemplateText: "Choose a Workflow",
+    toggleTemplateText: "Choose a Pipeline",
     selectedOption: "",
   },
   checkFeedDetails: undefined,
-  infantAge: "",
+  pluginParameters: undefined,
+  pluginPipings: undefined,
+  pipelinePlugins: undefined,
+  computeEnvs: undefined,
+  uploadedWorkflow: "",
+  currentNode: undefined,
 };
 
 const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
@@ -82,6 +81,13 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       };
     }
 
+    case WorkflowTypes.SET_UPLOADED_SPEC_SUCCESS: {
+      return {
+        ...state,
+        uploadedWorkflow: action.payload,
+      };
+    }
+
     case WorkflowTypes.SUBMIT_ANALYSIS: {
       return {
         ...state,
@@ -96,6 +102,41 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       };
     }
 
+    case WorkflowTypes.SET_CURRENT_NODE: {
+      if (state.computeEnvs && action.payload.currentComputeEnv) {
+        const computeEnvsOptions =
+          state.computeEnvs[action.payload.pluginName].computeEnvs;
+        const findIndex = computeEnvsOptions?.findIndex((option) => {
+          if (option.name === action.payload.currentComputeEnv) return option;
+          else return 0;
+        });
+
+        let currentlySelected;
+        if (computeEnvsOptions) {
+          if (findIndex === computeEnvsOptions.length - 1) {
+            currentlySelected = computeEnvsOptions[0];
+          } else if (typeof findIndex === "number") {
+            currentlySelected = computeEnvsOptions[findIndex + 1];
+          }
+        }
+
+        if (currentlySelected) {
+          const duplicateObject = state.computeEnvs;
+          duplicateObject[action.payload.pluginName].currentlySelected =
+            currentlySelected;
+          return {
+            ...state,
+            currentNode: action.payload,
+            computeEnvs: duplicateObject,
+          };
+        }
+      }
+      return {
+        ...state,
+        currentNode: action.payload,
+      };
+    }
+
     case WorkflowTypes.STOP_ANALYSIS: {
       return {
         ...state,
@@ -103,6 +144,7 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
           isOpen: false,
           toggleTemplateText: "Choose a Workflow",
           selectedOption: "",
+          plugins: [],
         },
       };
     }
@@ -127,6 +169,33 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
         };
     }
 
+    case WorkflowTypes.SET_PLUGIN_PARAMETERS: {
+      return {
+        ...state,
+        pluginParameters: action.payload,
+      };
+    }
+
+    case WorkflowTypes.SET_COMPUTE_ENVS: {
+      if (state.computeEnvs) {
+        return {
+          ...state,
+          computeEnvs: merge(state.computeEnvs, action.payload),
+        };
+      } else
+        return {
+          ...state,
+          computeEnvs: action.payload,
+        };
+    }
+
+    case WorkflowTypes.SET_PIPELINE_PLUGINS: {
+      return {
+        ...state,
+        pipelinePlugins: action.payload,
+      };
+    }
+
     case WorkflowTypes.SET_FEED_DETAILS: {
       return {
         ...state,
@@ -144,6 +213,13 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
     case WorkflowTypes.RESET_WORKFLOW_STEP: {
       return {
         ...initialState,
+      };
+    }
+
+    case WorkflowTypes.SET_PLUGIN_PIPINGS_LIST: {
+      return {
+        ...state,
+        pluginPipings: action.payload,
       };
     }
 
