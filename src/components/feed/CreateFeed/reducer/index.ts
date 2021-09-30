@@ -246,7 +246,7 @@ export const createFeedReducer = (
         pipelineData: {
           optionState: {
             isOpen: false,
-            toggleTemplateText: "Choose a Workflow",
+            toggleTemplateText: "Choose a Pipeline",
             selectedOption: "",
           },
           pluginParameters: undefined,
