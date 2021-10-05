@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link, Route, Switch, useHistory } from "react-router-dom";
 import { CubesIcon, SearchIcon } from "@patternfly/react-icons";
 import {
@@ -24,12 +25,21 @@ import Wrapper from "../../../../containers/Layout/PageWrapper";
 import "./user-library.scss";
 import Browser from "./Browser";
 import DirectoryTree from "../../../../utils/browser";
+import { setSidebarActive } from "../../../../store/ui/actions";
 
 const client = ChrisAPIClient.getClient();
 
 export const UserLibrary = () => {
   document.title = "My Library";
   const username = useTypedSelector((state) => state.user.username) as string;
+  const dispatch = useDispatch();
+  React.useEffect(() => {
+    dispatch(
+      setSidebarActive({
+        activeItem: "lib",
+      })
+    );
+  }, [dispatch]);
 
   const [uploaded, setUploaded] = useState<DirectoryTree>();
   const [services, setServices] = useState<DirectoryTree>();

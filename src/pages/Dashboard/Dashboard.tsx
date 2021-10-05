@@ -1,5 +1,6 @@
-import React, { CSSProperties } from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
+import { useHistory } from "react-router";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import {
   Title,
@@ -38,13 +39,13 @@ const style = {
 
 const DashboardPage = (props: DashboardProps) => {
   const dispatch = useDispatch();
+
   const { children } = props;
 
   React.useEffect(() => {
     dispatch(
       setSidebarActive({
-        activeItem: "my_dashboard",
-        activeGroup: "dashboard_grp",
+        activeItem: "overview",
       })
     );
   }, [dispatch]);
@@ -78,6 +79,7 @@ const DashboardPage = (props: DashboardProps) => {
               title="You've got data!"
               body='Visit "My Library" in the main navigation to review your data collection'
               buttonText="Go to My Library"
+              buttonLink="/library"
             />
           </GridItem>
           <GridItem lg={6}>
@@ -93,6 +95,7 @@ const DashboardPage = (props: DashboardProps) => {
               title="You've got analyses!"
               body='Visit "My Analyses" in the main navigation to review your data analyses'
               buttonText="Go to My Analyses"
+              buttonLink="/feeds"
             />
           </GridItem>
 
@@ -102,6 +105,7 @@ const DashboardPage = (props: DashboardProps) => {
               title="Discover and collect new data"
               body='Visit "PACS" in the main navigation to look up data and save it your library'
               buttonText="Query PACS"
+              buttonLink="/library/pacs"
             />
           </GridItem>
           <GridItem lg={6}>
@@ -110,6 +114,7 @@ const DashboardPage = (props: DashboardProps) => {
               title="Analyze your data"
               body="You can analyze data using an analysis template or creating a new custom analysis"
               buttonText="Create New Analysis"
+              buttonLink="/workflows"
             />
           </GridItem>
         </Grid>
@@ -125,12 +130,15 @@ const CardDisplay = ({
   title,
   body,
   buttonText,
+  buttonLink,
 }: {
   component: React.ReactElement;
   title: string;
   body: string;
   buttonText: string;
+  buttonLink: string;
 }) => {
+  const history = useHistory();
   return (
     <Card style={{ overflow: "hidden", width: "70%" }}>
       <CardHeader
@@ -139,10 +147,18 @@ const CardDisplay = ({
         <CardHeaderMain>{component}</CardHeaderMain>
       </CardHeader>
       <div style={{ margin: "0 auto", textAlign: "center" }}>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>
+          <Title headingLevel="h2"> {title}</Title>
+        </CardTitle>
         <CardBody>{body}</CardBody>
         <CardFooter>
-          <Button>{buttonText}</Button>
+          <Button
+            onClick={() => {
+              history.push(buttonLink);
+            }}
+          >
+            {buttonText}
+          </Button>
         </CardFooter>
       </div>
     </Card>
