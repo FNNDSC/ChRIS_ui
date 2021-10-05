@@ -145,7 +145,6 @@ export const PACSLookup = () => {
   const executePACSStage = useCallback(
     (query: PFDCMFilters, stage: PACSPullStages) => {
       try {
-        console.log("##  Advance Trying", "STAGE", stage);
         switch (stage) {
           case PACSPullStages.RETRIEVE:
             return client.findRetrieve(query);

@@ -24,7 +24,6 @@ const Sidebar: React.FC<AllProps> = ({
   isNavOpen,
   sidebarActiveItem,
 }: AllProps) => {
-  console.log("SidebarActiveItem", sidebarActiveItem);
   const onSelect = (selectedItem: any) => {
     const { itemId } = selectedItem;
     setSidebarActive({
