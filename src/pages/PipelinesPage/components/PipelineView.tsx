@@ -15,7 +15,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Wrapper from "../../../containers/Layout/PageWrapper";
-import PipelineTree from "../../../components/pipelines/PipelineTree";
+// import PipelineTree from "../../../components/pipelines/PipelineTree";
 
 interface Pipeline {
   authors: string;
@@ -68,7 +68,7 @@ const Pipeline = () => {
     url: "",
   });
   const [pipings, setPipings] = useState<Pipings[]>([]);
-  const [selectedNode, setselectedNode] = useState(0);
+  // const [selectedNode, setselectedNode] = useState(0);
 
   const chrisURL = process.env.REACT_APP_CHRIS_UI_URL;
 
@@ -163,9 +163,9 @@ const Pipeline = () => {
     </>
   );
 
-  const onNodeClick = (node: any, event: React.SyntheticEvent) => {
-    console.log("Selected Plugin", node);
-  };
+  // const onNodeClick = (node: any, event: React.SyntheticEvent) => {
+  //   console.log("Selected Plugin", node);
+  // };
 
   return (
     <Wrapper>
@@ -216,35 +216,12 @@ const Pipeline = () => {
         </div>
         <div className="pipeline_main_bottom">
           <div className="pipeline_main_bottom_left">
-            <p>Pipeline Graph</p>
-            <PipelineTree
+            {/* <PipelineTree
               pluginData={pipings}
               onNodeClick={(node: any, event: React.SyntheticEvent) =>
                 onNodeClick(node, event)
               }
-            />
-            {console.log("Plugin Data from pipeline", pipings)}
-            {/* id: 1
-                pipeline: "https://store.outreachy.chrisproject.org/api/v1/pipelines/1/"
-                pipeline_id: 1
-                plugin: "https://store.outreachy.chrisproject.org/api/v1/plugins/26/"
-                plugin_id: 26
-                plugin_name: "pl-fetal-brain-mask"
-                plugin_version: "1.2.1"
-                previous: null
-            url: "https://store.outreachy.chrisproject.org/api/v1/pipelines/pipings/1/" */}
-
-            {/* <div>{pipeline.plugin_pipings}</div>
-            {pipings.map((piping: any, index: number) => {
-              return (
-                <>
-                  <a onClick={() => setselectedNode(index)} key={piping.id}>
-                    {piping.plugin_name}
-                  </a>
-                  <br />
-                </>
-              );
-            })} */}
+            /> */}
           </div>
           <div className="pipeline_main_bottom_right">
             <p>
@@ -254,11 +231,13 @@ const Pipeline = () => {
             </p>
             <br />
             <p>
-              {/* Plugin Version: <b>{pipings[selectedNode]?.plugin_version}</b> */}
+              Plugin Version: 
+              {/* <b>{pipings[selectedNode]?.plugin_version}</b> */}
             </p>
             <br />
             <p>
-              Node ID: <b>{pipings[selectedNode]?.plugin_id}</b>
+              Node ID:
+               {/* <b>{pipings[selectedNode]?.plugin_id}</b> */}
             </p>
             <br />
             <b>Command</b>
@@ -266,7 +245,7 @@ const Pipeline = () => {
             <p>This plugin will run under the following command:</p>
             <br />
             <CodeBlock actions={actions} id="code-content">
-              <CodeBlockCode>{code}</CodeBlockCode>b
+              <CodeBlockCode>{code}</CodeBlockCode>
             </CodeBlock>
           </div>
         </div>

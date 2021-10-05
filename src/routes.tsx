@@ -11,7 +11,7 @@ import Library, { Series } from "./pages/DataLibrary/Library";
 import SignUp from "./pages/SignUp/SignUp";
 import WorkflowsPage from "./pages/WorkflowsPage";
 import PipelinesPage from "./pages/PipelinesPage/PipelinesPage";
-import Pipeline from "./pages/PipelinesPage/components/Pipeline";
+import PipelineView from "./pages/PipelinesPage/components/PipelineView";
 
 interface IState {
   selectData?: Series;
@@ -51,7 +51,7 @@ export const MainRouter: React.FC = () => {
       <PrivateRoute path="/feeds" component={FeedsPage} />
       <PrivateRoute path="/library" component={Library} />
       <PrivateRoute exact path="/pipelines" component={PipelinesPage}/>
-      <PrivateRoute path="/pipelines/:id" component={Pipeline}/>
+      <PrivateRoute path="/pipelines/:id" component={PipelineView}/>
       <PrivateRoute path="/workflows" component={WorkflowsPage} />
       <Route component={NotFound} />
     </RouterProvider>

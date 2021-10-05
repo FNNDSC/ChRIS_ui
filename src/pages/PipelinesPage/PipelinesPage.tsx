@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import "../../components/pipelines/Pipelines.scss";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import { setSidebarActive } from "../../store/ui/actions";
-import PipelineNav from "./components/PipelineNav";
+import PipelinesFeed from "../../components/pipelines/PipelinesFeed";
 
 const PipelinesPage = () => {
   const dispatch = useDispatch();
@@ -17,7 +17,7 @@ const PipelinesPage = () => {
   }, [dispatch]);
   return (
     <Wrapper>
-      <PipelineNav />
+      <PipelinesFeed />
     </Wrapper>
   );
 };
