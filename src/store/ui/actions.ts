@@ -11,7 +11,5 @@ export const onSidebarToggle = (isOpened: boolean) => action(UiActionTypes.TOGGL
 
 // Set active sidebar item and group
 export const setIsNavOpen= (isOpened:boolean) => action(UiActionTypes.TOGGLE_NAV,isOpened);
-export const setSidebarActive = (active: {
-  activeItem: string;
-  activeGroup: string;
-}) => action(UiActionTypes.SET_SIDEBAR_ACTIVE_ITEM, active);
+export const setSidebarActive = (active: { activeItem: string }) =>
+  action(UiActionTypes.SET_SIDEBAR_ACTIVE_ITEM, active);

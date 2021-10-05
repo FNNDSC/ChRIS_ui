@@ -62,8 +62,7 @@ const FeedListView: React.FC<AllProps> = ({
   React.useEffect(() => {
     document.title = "All Feeds - ChRIS UI ";
     setSidebarActive({
-      activeGroup: "feeds_grp",
-      activeItem: "my_feeds",
+      activeItem: "analyses",
     });
   }, [setSidebarActive]);
 
@@ -289,7 +288,7 @@ const FeedListView: React.FC<AllProps> = ({
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
+  setSidebarActive: (active: { activeItem: string }) =>
     dispatch(setSidebarActive(active)),
   getAllFeedsRequest: (name?: string, limit?: number, offset?: number) =>
     dispatch(getAllFeedsRequest(name, limit, offset)),

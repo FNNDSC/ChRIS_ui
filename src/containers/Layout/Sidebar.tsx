@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
+
 import { ApplicationState } from "../../store/root/applicationState";
 import { IUiState } from "../../store/ui/types";
 import { IUserState } from "../../store/user/types";
@@ -9,7 +10,6 @@ import {
   Nav,
   NavItem,
   NavList,
-  NavExpandable,
   NavGroup,
 } from "@patternfly/react-core";
 import { setSidebarActive } from "../../store/ui/actions";
@@ -17,54 +17,67 @@ import { Dispatch } from "redux";
 
 type AllProps = IUiState & IUserState & ReduxProp;
 type ReduxProp = {
-  setSidebarActive: (active: {
-    activeItem: string;
-    activeGroup: string;
-  }) => void;
+  setSidebarActive: (active: { activeItem: string }) => void;
 };
 
-const Sidebar: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
-  const [active, setActive] = React.useState<string>();
+const Sidebar: React.FC<AllProps> = ({
+  isNavOpen,
+  sidebarActiveItem,
+}: AllProps) => {
+  console.log("SidebarActiveItem", sidebarActiveItem);
   const onSelect = (selectedItem: any) => {
-    setActive(String(selectedItem.itemId));
+    const { itemId } = selectedItem;
+    setSidebarActive({
+      activeItem: itemId,
+    });
   };
 
   const PageNav = (
     <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
       <NavList>
-        <NavGroup title="Data Library">
-          <NavItem itemId="lib" isActive={active === "lib"}>
+        <NavItem itemId="overview" isActive={sidebarActiveItem === "overview"}>
+          <Link to="/">Overview</Link>
+        </NavItem>
+
+        <NavGroup title="Data">
+          <NavItem itemId="lib" isActive={sidebarActiveItem === "lib"}>
             <Link to="/library">My Library</Link>
           </NavItem>
-
-          <NavExpandable title="Services" isExpanded={true}>
-            <NavItem
-              itemId="services_pacs"
-              isActive={active === "services_pacs"}
-            >
-              <Link to="/library/pacs">PACS Lookup</Link>
-            </NavItem>
-          </NavExpandable>
+          <NavItem itemId="pacs" isActive={sidebarActiveItem === "pacs"}>
+            <Link to="/library/pacs">PACS</Link>
+          </NavItem>
         </NavGroup>
 
-        <NavGroup title="Analyse">
-          {/* <NavItem itemId="build_feed" isActive={active === "build_feed"}>
-            <Link to="/feeds">Build Feed</Link>
-          </NavItem> */}
-
-          <NavItem itemId="feeds" isActive={active === "feeds"}>
-            <Link to="/feeds">Feeds List</Link>
+        <NavGroup title="Analysis">
+          <NavItem
+            itemId="analyses"
+            isActive={sidebarActiveItem === "analyses"}
+          >
+            <Link to="/feeds">My Analyses</Link>
           </NavItem>
-
-          <NavItem itemId="visualization" isActive={active === "visualization"}>
-            <Link to="/visualization">Visualizations</Link>
+          <NavItem
+            itemId="workflows"
+            isActive={sidebarActiveItem === "workflows"}
+          >
+            <Link to="/workflows">Create New Analysis</Link>
           </NavItem>
+        </NavGroup>
+        <NavGroup title="Visualize">
+          <NavItem
+            itemId="visualizations"
+            isActive={sidebarActiveItem === "visualizations"}
+          >
+            <Link to="/visualization">DICOM Viewer</Link>
+          </NavItem>
+        </NavGroup>
 
-          <NavExpandable title="Workflows" isExpanded={true}>
-            <NavItem itemId="wf_Type-1" isActive={active === "wf_Type-1"}>
-              <Link to="/workflows">Type-1</Link>
-            </NavItem>
-          </NavExpandable>
+        <NavGroup title="Apps">
+          <NavItem
+            itemId="covidnet"
+            isActive={sidebarActiveItem === "covidnet"}
+          >
+            <Link to="/covidnet">COVID-Net</Link>
+          </NavItem>
         </NavGroup>
       </NavList>
     </Nav>
@@ -73,12 +86,13 @@ const Sidebar: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
   return <PageSidebar theme="dark" nav={PageNav} isNavOpen={isNavOpen} />;
 };
 
-const mapStateToProps = ({ user }: ApplicationState) => ({
+const mapStateToProps = ({ user, ui }: ApplicationState) => ({
   isLoggedIn: user.isLoggedIn,
+  sidebarActiveItem: ui.sidebarActiveItem,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
+  setSidebarActive: (active: { activeItem: string }) =>
     dispatch(setSidebarActive(active)),
 });
 
