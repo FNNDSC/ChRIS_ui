@@ -168,7 +168,7 @@ const CardDisplay = ({
 const styleImg = { marginRight: "1em" };
 
 const ImageComponent = ({ img }: { img: string }) => {
-  return <img style={styleImg} src={img} />;
+  return <img style={styleImg} src={img} alt="Image for analyses and Data" />;
 };
 
 const LogoComponent = ({ logo }: { logo: JSX.Element }) => {
