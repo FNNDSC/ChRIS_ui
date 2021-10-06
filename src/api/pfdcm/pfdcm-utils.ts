@@ -27,39 +27,44 @@ const isRawDcmItem = (item: RawDcmItem | RawDcmObject[]): item is RawDcmItem => 
   (item as RawDcmObject[]).length === undefined
 );
 
+export function toPACSDate(date: Date) {
+  const year = `${date?.getFullYear()}`;
+  const month = `0${date?.getMonth()}`.split('').reverse().splice(0,2).reverse().join('');
+  const day = `0${date?.getDate()}`.split('').reverse().splice(0,2).reverse().join('');
+
+  return year + month + day;
+}
+
+export function fromPACSDate(value: string) {
+  const date = new Date();
+  date.setFullYear(parseInt(value.slice(0, 4)));
+  date.setMonth(parseInt(value.slice(4, 6)));
+  date.setDate(parseInt(value.slice(6)));
+  return date;
+}
+
 function parseRawDcmValue(label: string, item: RawDcmItem) {
   const { value } = item;
 
-  // treat as dates (typescript forbids fallthrough switches)
-  const dateLabels = [
-    'StudyDate',
-    'SeriesDate',
-    'PatientBirthDate'
-  ]
-
-  // treat as numbers
-  const numberLabels = [
-    'NumberOfStudyRelatedInstances', 
-    'NumberOfStudyRelatedSeries',
-    'NumberOfSeriesRelatedInstances',
-  ];
-
   if (typeof value === 'string') {
-    if (dateLabels.includes(label)) {
-      const date = new Date();
-      date.setFullYear(parseInt(value.slice(0, 4)));
-      date.setMonth(parseInt(value.slice(4, 6)));
-      date.setDate(parseInt(value.slice(6)));
-      return date;
-    }
-    if (numberLabels.includes(label)) {
-      return parseInt(value);
+    switch (label) {
+      // treat as dates (typescript forbids fallthrough switches)
+      case 'StudyDate':
+      case 'SeriesDate':
+      case 'PatientBirthDate':
+        return fromPACSDate(value);
+
+      // treat as numbers
+      case 'NumberOfStudyRelatedInstances':
+      case 'NumberOfStudyRelatedSeries':
+      case 'NumberOfSeriesRelatedInstances':
+        return parseInt(value);
+      
+      default:
+        return value;
     }
   }
-
-  return value;
 }
-
 
 export function flattenDcmArray(dcmArray: RawDcmObject[]) {
   return dcmArray.map((dcmObject) => {
