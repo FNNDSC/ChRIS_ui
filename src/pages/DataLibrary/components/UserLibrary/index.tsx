@@ -29,9 +29,9 @@ import { setSidebarActive } from "../../../../store/ui/actions";
 
 
 export const UserLibrary = () => {
+  const client = ChrisAPIClient.getClient();
   document.title = "My Library";
   const username = useTypedSelector((state) => state.user.username) as string;
-<<<<<<< HEAD
   const dispatch = useDispatch();
   React.useEffect(() => {
     dispatch(
@@ -40,9 +40,6 @@ export const UserLibrary = () => {
       })
     );
   }, [dispatch]);
-=======
-  const client = ChrisAPIClient.getClient();
->>>>>>> master
 
   const [uploaded, setUploaded] = useState<DirectoryTree>();
   const [services, setServices] = useState<DirectoryTree>();
