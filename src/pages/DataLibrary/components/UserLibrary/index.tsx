@@ -25,11 +25,11 @@ import "./user-library.scss";
 import Browser from "./Browser";
 import DirectoryTree from "../../../../utils/browser";
 
-const client = ChrisAPIClient.getClient();
 
 export const UserLibrary = () => {
   document.title = "My Library";
   const username = useTypedSelector((state) => state.user.username) as string;
+  const client = ChrisAPIClient.getClient();
 
   const [uploaded, setUploaded] = useState<DirectoryTree>();
   const [services, setServices] = useState<DirectoryTree>();
@@ -58,7 +58,7 @@ export const UserLibrary = () => {
     } catch (error) {
       console.error(error);
     }
-  }, [username]);
+  }, [client, username]);
 
   const fetchServices = useCallback(async () => {
     const params = { limit: 100, offset: 0, fname_nslashes: "5u" };
@@ -84,7 +84,7 @@ export const UserLibrary = () => {
     } catch (error) {
       console.error(error);
     }
-  }, []);
+  }, [client]);
 
   const fetchFiles = useCallback(async () => {
     let nslashes = 4;
@@ -117,7 +117,7 @@ export const UserLibrary = () => {
     } catch (error) {
       console.error(error);
     }
-  }, [username]);
+  }, [client, username]);
 
   const fetchSearch = useCallback(async (query: string) => {
     const searchParams = { limit: 10e6, fname_icontains: query };
@@ -137,7 +137,7 @@ export const UserLibrary = () => {
     } catch (error) {
       console.error(error);
     }
-  }, []);
+  }, [client]);
 
   useEffect(() => {
     fetchUploaded();
