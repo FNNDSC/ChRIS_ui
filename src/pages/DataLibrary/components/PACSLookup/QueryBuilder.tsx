@@ -22,6 +22,7 @@ import { PFDCMQuery, PFDCMQueryTypes } from ".";
 
 import "./pacs-lookup.scss";
 import { useHistory } from "react-router";
+import { toPACSDate } from "../../../../api/pfdcm/pfdcm-utils";
 
 interface QueryBuilderProps {
   PACS?: string;
@@ -61,7 +62,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   const handleFilter = (filters: any) => {
     setQuery({
       ...query,
-      filters: { ...query.filters, filters },
+      filters: { ...query.filters, ...filters },
     } as PFDCMQuery);
   };
 
@@ -75,7 +76,17 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   }, [])
 
   const finalize = (_query = query) => {
-    if (!_query.value) return;
+    if (_query === query)
+      route(`${location.pathname}?q=${btoa(JSON.stringify(_query))}`)
+
+    if (!_query.value)
+      if (_query.filters)
+        return onFinalize([{
+          ..._query, value: String(), filters: _query.filters
+        }])
+      else
+        return;
+      
 
     const csv = (_query.value as string).split(",");
     const queries: PFDCMQuery[] = [];
@@ -87,9 +98,6 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
         filters: _query.filters,
       });
     }
-
-    if (_query === query)
-      route(`${location.pathname}?q=${btoa(JSON.stringify(_query))}`)
     onFinalize(queries);
   };
 
@@ -262,9 +270,9 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <b>Filters</b>
                 </SplitItem>
                 <SplitItem>
-                  <Button variant="link" onClick={() => finalize()}>
+                  {/* <Button variant="link" onClick={() => setQuery({ ...query, filters: {} })}>
                     Clear
-                  </Button>
+                  </Button> */}
                 </SplitItem>
                 <SplitItem>
                   <Button variant="secondary" onClick={() => finalize()}>
@@ -282,14 +290,14 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                     placeholder="Study Date (yyyy-MM-dd)"
                     dateFormat={(date) => date.toDateString()}
                     onChange={(_, date) =>
-                      handleFilter({
-                        StudyDate: `${date?.getFullYear()}${date?.getMonth()}${date?.getDate()}`,
+                      handleFilter(date && {
+                        StudyDate: toPACSDate(date),
                       })
                     }
                     onKeyDown={({ key }) => {
                       if (key.toLowerCase() === "enter") finalize();
                     }}
-                  />
+                    />
                 </GridItem>
 
                 <GridItem lg={4} sm={12}>
@@ -312,6 +320,23 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                     }
                     placeholder="Eg: LILA"
                     id="station"
+                  />
+                </GridItem>
+
+                <GridItem lg={4} sm={12}>
+                  Patient Birth Date
+                  <br />
+                  <DatePicker
+                    placeholder="Birth Date (yyyy-MM-dd)"
+                    dateFormat={(date) => date.toDateString()}
+                    onChange={(_, date) =>
+                      handleFilter(date && {
+                        PatientBirthDate: toPACSDate(date),
+                      })
+                    }
+                    onKeyDown={({ key }) => {
+                      if (key.toLowerCase() === "enter") finalize();
+                    }}
                   />
                 </GridItem>
               </Grid>
