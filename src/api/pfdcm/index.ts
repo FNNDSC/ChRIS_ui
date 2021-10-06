@@ -139,7 +139,11 @@ class PFDCMClient {
     }
 
     try {
-      return (await axios(RequestConfig)).data.pypx
+      const { pypx, status, message } = (await axios(RequestConfig)).data;
+      if (status)
+        return pypx;
+      else
+        throw message;
     } catch (error) {
       console.error(error);
       return null; 

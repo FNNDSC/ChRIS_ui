@@ -55,7 +55,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   onExecutePACSStage,
 }: QueryResultsProps) => {
   const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
-  const client = ChrisAPIClient.getClient();
+  const cubeClient = ChrisAPIClient.getClient();
 
   const PatientCard = ({
     patient
@@ -79,7 +79,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
     return (
       <>
-      <Card isHoverable isExpanded={isPatientExpanded}>
+      <Card isRounded isHoverable isExpanded={isPatientExpanded}>
         <CardHeader onExpand={expandPatient.bind(PatientCard)}>
           <Grid hasGutter style={{ width: "100%" }}>
             <GridItem lg={4}>
@@ -157,7 +157,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         : "#";
 
       useEffect(() => {
-        client.getPACSFiles(pullQuery).then(async (files) => {
+        cubeClient.getPACSFiles(pullQuery).then(async (files) => {
           setExistingStudyFiles(files);
           setPullStatus(await onRequestStatus(pullQuery));
         });
@@ -258,7 +258,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
     return (
       <>
-        <Card isHoverable isExpanded={isStudyExpanded}>
+        <Card isRounded isHoverable isExpanded={isStudyExpanded}>
           <CardHeader
             onExpand={expandStudy.bind(QueryResults, StudyInstanceUID)}
           >
@@ -362,7 +362,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
 
       const fetchCUBESeries = async () => {
-        const files = await client.getPACSFiles({
+        const files = await cubeClient.getPACSFiles({
           ...pullQuery,
           limit: series.NumberOfSeriesRelatedInstances,
         });
@@ -575,7 +575,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     };
 
     return (
-      <Card isHoverable style={{ height: "100%" }}>
+      <Card isRounded isHoverable style={{ height: "100%" }}>
         <CardBody>
           <div className="series-actions">
             <SeriesActions />
