@@ -55,7 +55,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   onExecutePACSStage,
 }: QueryResultsProps) => {
   const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
-  const client = ChrisAPIClient.getClient();
+  const cubeClient = ChrisAPIClient.getClient();
 
   const PatientCard = ({
     patient
@@ -157,7 +157,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         : "#";
 
       useEffect(() => {
-        client.getPACSFiles(pullQuery).then(async (files) => {
+        cubeClient.getPACSFiles(pullQuery).then(async (files) => {
           setExistingStudyFiles(files);
           setPullStatus(await onRequestStatus(pullQuery));
         });
@@ -362,7 +362,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
 
       const fetchCUBESeries = async () => {
-        const files = await client.getPACSFiles({
+        const files = await cubeClient.getPACSFiles({
           ...pullQuery,
           limit: series.NumberOfSeriesRelatedInstances,
         });
