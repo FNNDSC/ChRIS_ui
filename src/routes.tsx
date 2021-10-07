@@ -15,6 +15,7 @@ import VisualizationPage from "./pages/VisualizationPage";
 import Library, { Series } from "./pages/DataLibrary/Library";
 import SignUp from "./pages/SignUp/SignUp";
 import WorkflowsPage from "./pages/WorkflowsPage";
+import CatalogPage from "./pages/CatalogPage";
 
 interface IState {
   selectData?: Series;
@@ -52,6 +53,7 @@ export const MainRouter: React.FC = () => {
       context={MainRouterContext}
     >
       <PrivateRoute exact path="/" component={Dashboard} />
+      <PrivateRoute exact path="/catalog" component={CatalogPage} />
       <Route exact path="/login" component={LogIn} />
       <Route exact path="/signup" component={SignUp} />
       <PrivateRoute path="/feeds" component={FeedsPage} />
@@ -59,6 +61,7 @@ export const MainRouter: React.FC = () => {
       <PrivateRoute path="/gallery" component={GalleryPage} />
       <PrivateRoute path="/workflows" component={WorkflowsPage} />
       <PrivateRoute path="/visualization" component={VisualizationPage} />
+
       <Route component={NotFound} />
     </RouterProvider>
   );

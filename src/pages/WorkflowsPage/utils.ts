@@ -46,7 +46,7 @@ interface PipelineData {
 
 export const fastsurferPipeline = () => {
   const data: PipelineData = {
-    name: `fastsurfer_production`,
+    name: "fastsurfer_dev",
     authors: "gideonpinto123@gmail.com",
     description: "test",
     category: "mri",
@@ -58,21 +58,21 @@ export const fastsurferPipeline = () => {
         previous_index: null,
       },
       {
-        plugin_name: "pl-pfdicom_tagExtract",
-        plugin_version: "3.0.0",
+        plugin_name: "pl-pfdicom_tagextract",
+        plugin_version: "3.1.2",
         previous_index: 0,
         plugin_parameter_defaults: [
-          {
-            name: "extension",
-            default: ".dcm",
-          },
           {
             name: "outputFileType",
             default: "txt,scv,json,html",
           },
           {
             name: "outputFileStem",
-            default: "Pre-Sub",
+            default: "Post-Sub",
+          },
+          {
+            name: "imageFile",
+            default: "'m:%_nospc|-_ProtocolName.jpg'",
           },
           {
             name: "imageScale",
@@ -81,7 +81,7 @@ export const fastsurferPipeline = () => {
         ],
       },
       {
-        plugin_name: "pl-pfdicom_tagSub",
+        plugin_name: "pl-pfdicom_tagsub",
         plugin_version: "3.2.3",
         previous_index: 0,
         plugin_parameter_defaults: [
@@ -94,19 +94,19 @@ export const fastsurferPipeline = () => {
             default: "++",
           },
           {
+            name: "splitKeyValue",
+            default: ",",
+          },
+          {
             name: "tagInfo",
             default:
               "'PatientName,%_name|patientID_PatientName ++ PatientID,%_md5|7_PatientID ++ AccessionNumber,%_md5|8_AccessionNumber ++ PatientBirthDate,%_strmsk|******01_PatientBirthDate ++ re:.*hysician,%_md5|4_#tag ++ re:.*stitution,#tag ++ re:.*ddress,#tag'",
           },
-          {
-            name: "splitKeyValue",
-            default: ",",
-          },
         ],
       },
       {
-        plugin_name: "pl-pfdicom_tagExtract",
-        plugin_version: "3.0.0",
+        plugin_name: "pl-pfdicom_tagextract",
+        plugin_version: "3.1.2",
         previous_index: 2,
         plugin_parameter_default: [
           {
@@ -154,7 +154,6 @@ export const fastsurferPipeline = () => {
           },
         ],
       },
-      ,
       {
         plugin_name: "pl-fastsurfer_inference",
         plugin_version: "1.0.15",
@@ -228,7 +227,7 @@ export const fastsurferPipeline = () => {
         ],
       },
       {
-        plugin_name: "pl-mgz2LUT_report",
+        plugin_name: "pl-mgz2lut_report",
         plugin_version: "1.3.1",
         previous_index: 5,
         plugin_parameter_default: [
@@ -244,6 +243,7 @@ export const fastsurferPipeline = () => {
       },
     ]),
   };
+
   return data;
 };
 
@@ -299,7 +299,7 @@ export const fetalReconstructionPipeline = () => {
 
 export const freesurferPipeline = () => {
   const data = {
-    name: `adultfreesurfer_production`,
+    name: `adultfreesurfer`,
     authors: "gideonpinto123@gmail.com",
     description: "test",
     category: "mri",
@@ -312,8 +312,8 @@ export const freesurferPipeline = () => {
       },
 
       {
-        plugin_name: "pl-pfdicom_tagExtract",
-        plugin_version: "3.0.0",
+        plugin_name: "pl-pfdicom_tagextract",
+        plugin_version: "3.1.2",
         previous_index: 0,
         plugin_parameter_defaults: [
           {
@@ -339,7 +339,7 @@ export const freesurferPipeline = () => {
         ],
       },
       {
-        plugin_name: "pl-pfdicom_tagSub",
+        plugin_name: "pl-pfdicom_tagsub",
         plugin_version: "3.2.3",
         previous_index: 0,
         plugin_parameter_defaults: [
@@ -363,8 +363,8 @@ export const freesurferPipeline = () => {
         ],
       },
       {
-        plugin_name: "pl-pfdicom_tagExtract",
-        plugin_version: "3.0.0",
+        plugin_name: "pl-pfdicom_tagextract",
+        plugin_version: "3.1.2",
         previous_index: 2,
         plugin_parameter_default: [
           {
@@ -462,7 +462,7 @@ export const freesurferPipeline = () => {
         ],
       },
       {
-        plugin_name: "pl-mgz2LUT_report",
+        plugin_name: "pl-mgz2lut_report",
         plugin_version: "1.3.1",
         previous_index: 4,
         plugin_parameter_default: [

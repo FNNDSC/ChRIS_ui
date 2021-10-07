@@ -3,10 +3,7 @@ import { InputState, InputIndex } from "../../AddNode/types";
 import { IUserState } from "../../../../store/user/types";
 import { Feed } from "@fnndsc/chrisapi";
 import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
-import {
-  ComputeEnvData,
-  SelectWorkflowState,
-} from "../../../../store/workflows/types";
+import { ComputeEnvData } from "../../../../store/workflows/types";
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -40,10 +37,11 @@ export enum Types {
   ResetProgress = "RESET_PROGRESS",
   SetProgressPercent = "SET_PROGRESS_PERCENT",
   SetComputeEnvironment = "SET_COMPUTE_ENVIRONMENT",
-  SetOptionState = "SET_OPTION_STATE",
+  SetCurrentPipeline = "SET_CURRENT_PIPELINE",
   SetPipelineResources = "SET_PIPELINE_RESOURCES",
   SetPipelineEnvironments = "SET_PIPELINE_ENVIRONMENTS",
   SetCurrentNode = "SET_CURRENT_NODE",
+  SetExpandedPipelines = "SET_EXPANDED_PIPELINES",
 }
 
 type CreateFeedPayload = {
@@ -107,17 +105,14 @@ type CreateFeedPayload = {
   };
   [Types.ResetProgress]: boolean;
 
-  [Types.SetOptionState]: {
-    isOpen: boolean;
-    toggleTemplateText: string;
-    selectedOption: string;
-  };
   [Types.SetPipelineResources]: {
+    pipelineId: number;
     parameters: any[];
     pluginPipings: any[];
     pipelinePlugins: any[];
   };
   [Types.SetPipelineEnvironments]: {
+    pipelineId: number;
     computeEnvData: {
       [key: string]: {
         computeEnvs: any[];
@@ -126,7 +121,15 @@ type CreateFeedPayload = {
     };
   };
   [Types.SetCurrentNode]: {
-    currentNode: string;
+    pipelineId: number;
+    currentNode: number;
+  };
+  [Types.SetExpandedPipelines]: {
+    pipelineId: number;
+  };
+
+  [Types.SetCurrentPipeline]: {
+    pipelineId: number;
   };
 };
 
@@ -179,13 +182,13 @@ export interface CreateFeedData {
 }
 
 export interface PipelineData {
-  optionState: SelectWorkflowState;
-  pluginParameters?: any[];
-  pluginPipings?: any[];
-  pipelinePlugins?: any[];
-  computeEnvs?: ComputeEnvData;
-  currentNode?: string;
-  uploadedWorkflow: string;
+  [key: string]: {
+    pluginParameters?: any[];
+    pluginPipings?: any[];
+    pipelinePlugins?: any[];
+    computeEnvs?: ComputeEnvData;
+    currentNode?: number;
+  };
 }
 
 export interface CreateFeedState extends InputState {
@@ -199,6 +202,7 @@ export interface CreateFeedState extends InputState {
   value: number;
   computeEnvironment: string;
   pipelineData: PipelineData;
+  selectedPipeline?: number;
 }
 
 export interface CreateFeedReduxProp {
