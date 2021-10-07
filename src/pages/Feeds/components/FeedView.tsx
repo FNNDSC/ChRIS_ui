@@ -87,7 +87,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
   }, [dispatch]);
 
   React.useEffect(() => {
-    document.title = "My Feeds - ChRIS UI site";
+    document.title = "My Analyses - ChRIS UI site";
     dispatch(
       setSidebarActive({
         activeItem: "analyses",
