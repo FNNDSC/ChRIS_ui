@@ -39,9 +39,11 @@ export enum Types {
   SetComputeEnvironment = "SET_COMPUTE_ENVIRONMENT",
   SetCurrentPipeline = "SET_CURRENT_PIPELINE",
   SetPipelineResources = "SET_PIPELINE_RESOURCES",
+  SetPipelines = "SET_PIPELINES",
   SetPipelineEnvironments = "SET_PIPELINE_ENVIRONMENTS",
   SetCurrentNode = "SET_CURRENT_NODE",
   SetExpandedPipelines = "SET_EXPANDED_PIPELINES",
+  AddPipeline = "ADD_PIPELINE",
 }
 
 type CreateFeedPayload = {
@@ -131,6 +133,13 @@ type CreateFeedPayload = {
   [Types.SetCurrentPipeline]: {
     pipelineId: number;
   };
+  [Types.SetPipelines]: {
+    pipelines: any[];
+  };
+
+  [Types.AddPipeline]: {
+    pipeline: any;
+  };
 };
 
 export type CreateFeedActions =
@@ -203,6 +212,7 @@ export interface CreateFeedState extends InputState {
   computeEnvironment: string;
   pipelineData: PipelineData;
   selectedPipeline?: number;
+  pipelines: any[];
 }
 
 export interface CreateFeedReduxProp {
