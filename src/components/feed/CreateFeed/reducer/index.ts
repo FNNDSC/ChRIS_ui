@@ -51,6 +51,7 @@ export function getInitialState(
     computeEnvironment: " ",
     pipelineData: {},
     selectedPipeline: undefined,
+    pipelines: [],
   };
 }
 
@@ -252,10 +253,24 @@ export const createFeedReducer = (
       }
     }
 
+    case Types.SetPipelines: {
+      return {
+        ...state,
+        pipelines: action.payload.pipelines,
+      };
+    }
+
     case Types.SetComputeEnvironment: {
       return {
         ...state,
         computeEnvironment: action.payload.computeEnvironment,
+      };
+    }
+
+    case Types.AddPipeline: {
+      return {
+        ...state,
+        pipelines: [...state.pipelines, action.payload.pipeline],
       };
     }
 

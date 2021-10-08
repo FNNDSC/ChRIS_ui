@@ -27,7 +27,7 @@ import { getFeedTree } from "../../../pages/WorkflowsPage/utils";
 
 const Pipelines = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { pipelineData, selectedPipeline } = state;
+  const { pipelineData, selectedPipeline, pipelines } = state;
 
   const [pageState, setPageState] = React.useState({
     page: 1,
@@ -36,9 +36,6 @@ const Pipelines = () => {
     itemCount: 0,
   });
 
-  console.log("CurrentlySelectedPipeline", selectedPipeline);
-
-  const [pipelines, setPipelines] = React.useState<any[]>([]);
   const [expanded, setExpanded] = React.useState<number[]>([]);
   const { page, perPage } = pageState;
 
@@ -55,7 +52,12 @@ const Pipelines = () => {
       const registeredPipelinesList = await client.getPipelines(params);
       const registeredPipelines = registeredPipelinesList.getItems();
       if (registeredPipelines) {
-        setPipelines(registeredPipelines);
+        dispatch({
+          type: Types.SetPipelines,
+          payload: {
+            pipelines: registeredPipelines,
+          },
+        });
         setPageState((pageState) => {
           return {
             ...pageState,
@@ -66,7 +68,7 @@ const Pipelines = () => {
     }
 
     fetchPipelines(perPage, page);
-  }, [perPage, page]);
+  }, [perPage, page, dispatch]);
 
   const handleNodeClick = async (nodeName: number, pipelineId: number) => {
     const { computeEnvs } = pipelineData[pipelineId];
@@ -130,7 +132,7 @@ const Pipelines = () => {
                     <DataListToggle
                       onClick={async () => {
                         if (!expanded.includes(pipeline.data.id)) {
-                          const { parameters, pluginPipings, pipelinePlugins } =
+                          const { resources, pipelineInstance } =
                             await generatePipeline(pipeline.data.name);
                           dispatch({
                             type: Types.SetExpandedPipelines,
@@ -138,6 +140,9 @@ const Pipelines = () => {
                               pipelineId: pipeline.data.id,
                             },
                           });
+
+                          const { parameters, pluginPipings, pipelinePlugins } =
+                            resources;
 
                           dispatch({
                             type: Types.SetPipelineResources,
@@ -203,11 +208,13 @@ const Pipelines = () => {
                             });
                           }
                           if (!pipelineData[pipeline.data.id]) {
+                            const { resources, pipelineInstance } =
+                              await generatePipeline(pipeline.data.name);
                             const {
                               parameters,
                               pluginPipings,
                               pipelinePlugins,
-                            } = await generatePipeline(pipeline.data.name);
+                            } = resources;
                             dispatch({
                               type: Types.SetPipelineResources,
                               payload: {
@@ -277,8 +284,18 @@ export const UploadJson = () => {
           const result = JSON.parse(reader.result as string);
           result["plugin_tree"] = JSON.stringify(result["plugin_tree"]);
           setFileName(result.name);
-          const { parameters, pluginPipings, pipelinePlugins } =
-            await generatePipeline(result.name, result);
+          const { resources, pipelineInstance } = await generatePipeline(
+            result.name,
+            result
+          );
+          const { parameters, pluginPipings, pipelinePlugins } = resources;
+
+          dispatch({
+            type: Types.AddPipeline,
+            payload: {
+              pipeline: pipelineInstance,
+            },
+          });
 
           dispatch({
             type: Types.SetPipelineResources,
@@ -687,11 +704,17 @@ const generatePipeline = async (pipelineName: string, data?: any) => {
       pipelineInstanceId
     );
     const resources = await fetchResources(pipelineInstance);
-    return resources;
+    return {
+      resources,
+      pipelineInstance,
+    };
   } else {
     const pipelineInstance: Pipeline = await client.createPipeline(data);
     const resources = await fetchResources(pipelineInstance);
-    return resources;
+    return {
+      resources,
+      pipelineInstance,
+    };
   }
 };
 
