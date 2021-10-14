@@ -17,7 +17,6 @@ import {
 } from "@patternfly/react-core";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { CreateFeedContext } from "./context";
-
 import { AiOutlineUpload } from "react-icons/ai";
 import { Pipeline, PipelineList } from "@fnndsc/chrisapi";
 import { Types } from "./types";
@@ -132,8 +131,9 @@ const Pipelines = () => {
                     <DataListToggle
                       onClick={async () => {
                         if (!expanded.includes(pipeline.data.id)) {
-                          const { resources, pipelineInstance } =
-                            await generatePipeline(pipeline.data.name);
+                          const { resources } = await generatePipeline(
+                            pipeline.data.name
+                          );
                           dispatch({
                             type: Types.SetExpandedPipelines,
                             payload: {
@@ -208,8 +208,9 @@ const Pipelines = () => {
                             });
                           }
                           if (!pipelineData[pipeline.data.id]) {
-                            const { resources, pipelineInstance } =
-                              await generatePipeline(pipeline.data.name);
+                            const { resources } = await generatePipeline(
+                              pipeline.data.name
+                            );
                             const {
                               parameters,
                               pluginPipings,

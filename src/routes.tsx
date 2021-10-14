@@ -5,7 +5,6 @@ import {
   RouterContext,
   RouterProvider,
 } from "./containers/Routing/RouterContext";
-
 import { LogIn } from "./pages/LogIn/Login";
 import { NotFound } from "./pages/NotFound/NotFound";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -16,6 +15,8 @@ import Library, { Series } from "./pages/DataLibrary/Library";
 import SignUp from "./pages/SignUp/SignUp";
 import WorkflowsPage from "./pages/WorkflowsPage";
 import CatalogPage from "./pages/CatalogPage";
+import SliceDropPage from "./pages/VisualizationPage/SliceDropPage";
+import MedviewPage from "./pages/VisualizationPage/MedviewPage";
 
 interface IState {
   selectData?: Series;
@@ -61,6 +62,8 @@ export const MainRouter: React.FC = () => {
       <PrivateRoute path="/gallery" component={GalleryPage} />
       <PrivateRoute path="/workflows" component={WorkflowsPage} />
       <PrivateRoute path="/visualization" component={VisualizationPage} />
+      <PrivateRoute path="/slicedrop" component={SliceDropPage} />
+      <PrivateRoute path="/medview" component={MedviewPage} />
 
       <Route component={NotFound} />
     </RouterProvider>
