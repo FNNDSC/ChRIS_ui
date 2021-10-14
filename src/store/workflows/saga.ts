@@ -29,6 +29,7 @@ function* handleSubmitAnalysis(action: IActionTypeParam) {
     pluginParameters,
     computeEnvs
   );
+  yield setYieldAnalysis(3, "Success", "finish", "");
 }
 
 export function* setYieldAnalysis(
@@ -61,6 +62,13 @@ function* handleUploadedSpec(action: IActionTypeParam) {
   yield createPipeline(uploadedPipeline);
 }
 
+function* handleSetCurrentPipeline(action: IActionTypeParam) {
+  const { pipeline } = action.payload;
+  yield createPipeline({
+    name: pipeline,
+  });
+}
+
 function* watchSubmitAnalysis() {
   yield takeEvery(WorkflowTypes.SUBMIT_ANALYSIS, handleSubmitAnalysis);
 }
@@ -73,11 +81,16 @@ function* watchSetUploadedSpec() {
   yield takeEvery(WorkflowTypes.SET_UPLOADED_SPEC, handleUploadedSpec);
 }
 
+function* watchSetCurrentPipeline() {
+  yield takeEvery(WorkflowTypes.SET_CURRENT_PIPELINE, handleSetCurrentPipeline);
+}
+
 export function* workflowsSaga() {
   yield all([
     fork(watchSubmitAnalysis),
     fork(watchGeneratePipeline),
     fork(watchSetUploadedSpec),
+    fork(watchSetCurrentPipeline),
   ]);
 }
 

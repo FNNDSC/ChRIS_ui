@@ -71,14 +71,14 @@ const Sidebar: React.FC<AllProps> = ({
           >
             <Link to="/visualization">DICOM Viewer</Link>
           </NavItem>
-        </NavGroup>
-
-        <NavGroup title="Apps">
           <NavItem
-            itemId="covidnet"
-            isActive={sidebarActiveItem === "covidnet"}
+            itemId="sliceDrop"
+            isActive={sidebarActiveItem === "sliceDrop"}
           >
-            <Link to="/covidnet">COVID-Net</Link>
+            <Link to="/slicedrop">SliceDrop</Link>
+          </NavItem>
+          <NavItem itemId="medview" isActive={sidebarActiveItem === "medview"}>
+            <Link to="/medview">Medview</Link>
           </NavItem>
         </NavGroup>
       </NavList>
