@@ -1,7 +1,9 @@
 import React from "react";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import { PageSection, Title } from "@patternfly/react-core";
-import PluginCatalog from "../../components/PluginCatalog";
+import PluginCatalog from "../../components/catalog/PluginCatalog";
+import PipelineCatalog from "../../components/catalog/PipelineCatalog";
+import ComputeCatalog from "../../components/catalog/ComputeCatalog";
 import "./CatalogPage.scss";
 
 const CatalogPage = () => {
@@ -15,6 +17,12 @@ const CatalogPage = () => {
       </PageSection>
       <PageSection>
         <PluginCatalog />
+      </PageSection>
+      <PageSection>
+        <PipelineCatalog />
+      </PageSection>
+      <PageSection>
+        <ComputeCatalog />
       </PageSection>
     </Wrapper>
   );
