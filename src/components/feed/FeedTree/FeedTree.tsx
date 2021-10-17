@@ -22,6 +22,9 @@ import { useTypedSelector } from "../../../store/hooks";
 import "./FeedTree.scss";
 import { FeedTreeProp } from "../../../store/feed/types";
 import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
+import { BezierCurveIcon } from "@patternfly/react-icons";
+import { useDispatch } from "react-redux";
+import { setFeedLayout } from "../../../store/feed/actions";
 
 interface Separation {
   siblings: number;
@@ -158,6 +161,7 @@ const svgClassName = "feed-tree__svg";
 const graphClassName = "feed-tree__graph";
 
 const FeedTree = (props: AllProps) => {
+  const dispatch = useDispatch();    // new line of code added
   const feedTreeProp = useTypedSelector((state) => state.feed.feedTreeProp);
   const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
   const [feedState, setFeedState] = React.useState<FeedTreeState>(
@@ -339,6 +343,17 @@ const FeedTree = (props: AllProps) => {
       className={`feed-tree grabbable mode_${mode === false ? "graph" : ""}`}
     >
       <div className="feed-tree__container">
+        <div className="feed-tree__container">
+          <Button
+              className= "feed-tree__container--switchbBtn"
+              icon={<BezierCurveIcon />}
+              type="button"
+              onClick={() => dispatch(setFeedLayout())}
+              variant="primary"
+            >
+              Switch Layout
+          </Button>
+        </div>
         <div className="feed-tree__container--labels">
           <div
             onClick={() => {

@@ -7,7 +7,6 @@ import {
   Skeleton,
   ExpandableSection,
 } from "@patternfly/react-core";
-import { useDispatch } from "react-redux";
 import { Popover } from "antd";
 import {
   Plugin,
@@ -28,7 +27,7 @@ import Status from "./Status";
 import GraphNode from "../AddTsNode/ParentContainer";
 import StatusTitle from "./StatusTitle";
 import PluginTitle from "./PluginTitle";
-import { setFeedLayout } from "../../../store/feed/actions";
+// import { setFeedLayout } from "../../../store/feed/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import "./NodeDetails.scss";
 import { getErrorCodeMessage } from "./utils";
@@ -57,7 +56,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     (state) => state.instance.selectedPlugin
   );
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isTerminalVisible, setIsTerminalVisible] = React.useState(false);
   const [isGraphNodeVisible, setIsGraphNodeVisible] = React.useState(false);
@@ -267,14 +266,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           </Popover>
 
           {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
-          <Button
-            icon={<BezierCurveIcon />}
-            type="button"
-            onClick={() => dispatch(setFeedLayout())}
-            variant="primary"
-          >
-            Switch Layout
-          </Button>
         </div>
 
         <div className="node-details__infoLabel"></div>

@@ -24,7 +24,8 @@
 
   .pf-c-switch {
     display: flex;
-    row-gap: 0.3rem;
+    row-gap: 0.2rem;
+    margin-left: 10px;
     flex-direction: column;
 
     &__label {
@@ -37,8 +38,7 @@
   }
 
   &__orientation, &__control {
-    padding-left: 1rem;
-    padding-top: 0.5rem;
+    padding: 1rem 0 0 1rem ;
 
     svg {
       color: white;
@@ -52,6 +52,8 @@
 
   &__individual-scale {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     select {
       height: 50%;
@@ -70,6 +72,7 @@
     display: flex;
     justify-content: space-between;
 
+    padding: 10px;
     &--labels {
       display: flex;
     }

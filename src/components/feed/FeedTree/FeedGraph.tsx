@@ -1,5 +1,5 @@
 import React from "react";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import ForceGraph3D, {
   NodeObject,
   ForceGraphMethods,
@@ -13,6 +13,8 @@ import { Text, Button, Switch } from "@patternfly/react-core";
 import useSize from "./useSize";
 import "./FeedTree.scss";
 import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
+import { BezierCurveIcon } from "@patternfly/react-icons";
+import { setFeedLayout } from "../../../store/feed/actions";
 
 interface IFeedProps {
   pluginInstances: PluginInstancePayload;
@@ -35,6 +37,7 @@ const FeedGraph = (props: IFeedProps) => {
   const { data: instances } = pluginInstances;
   const graphRef = React.useRef<HTMLDivElement | null>(null);
   const fgRef = React.useRef<ForceGraphMethods | undefined>();
+  const dispatch = useDispatch();
 
   const [nodeScale, setNodeScale] = React.useState<{
     enabled: boolean;
@@ -97,6 +100,17 @@ const FeedGraph = (props: IFeedProps) => {
           )}
           <div className="feed-tree__container--labels feed-graph__container--labels">
             <div className="feed-tree__control feed-tree__individual-scale">
+              <div className="feed-tree__container">
+                <Button
+                    className= "feed-tree__container--switchbBtn"
+                    icon={<BezierCurveIcon />}
+                    type="button"
+                    onClick={() => dispatch(setFeedLayout())}
+                    variant="primary"
+                  >
+                    Switch Layout
+                </Button>
+              </div>
               <Switch
                 id="individual-scale"
                 label="Scale Nodes On"
