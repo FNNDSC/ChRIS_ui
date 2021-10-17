@@ -192,7 +192,10 @@ const NodeWrapper = (props: NodeWrapperProps) => {
       scale = Math.log10(end.getTime() - start.getTime()) / 2
     }
   } else if (overlayScale === 'size') {
-    // props.data.item?.
+    const instanceData = props.data.item?.data;
+    if (instanceData) {
+      scale = parseInt(instanceData?.number_of_workers) *2
+    }
   }
 
   return (

@@ -40,7 +40,6 @@ export const NodeScaleDropdown = ({ selected, onChange }: NodeScaleDropdownProps
       <SelectOption
         key="size"
         value={labels.get('size')}
-        disabled
       />
     </Select>
   )
