@@ -10,6 +10,9 @@
 
 .feed-details {
   display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap:wrap;
 
   &__textarea {
     --pf-c-form-control--BackgroundColor: var(
@@ -28,25 +31,30 @@
     }
   }
 
-  @include media-query($pf-global--breakpoint--xs) {
-    flex-direction: column;
+  .button-group{
+    display: flex;
   }
-
-  @include media-query($pf-global--breakpoint--lg) {
-    flex-direction: row;
-    li {
-      align-self: center;
+  
+  .share-feed-button,.feed-note-button,.detail-text{
+    padding-right:10px;
+    margin:10px;
+    @include media-query($pf-global--breakpoint--xs) {
+      font-size:smaller;
+    }
+    @include media-query($pf-global--breakpoint--lg) {
+      font-size:normal;
     }
   }
-
-  li {
-    margin-right: 2em;
-    svg {
-      margin-right: 0.25em;
+  .share-feed-button,.feed-note-button{
+    @include media-query($pf-global--breakpoint--xs) {
+      display:hidden;
     }
-  }
-
-  li:first-of-type {
-    font-weight: bold;
+    @include media-query($pf-global--breakpoint--lg) {
+      font-size:normal;
+    }
   }
 }
+
+
+
+
