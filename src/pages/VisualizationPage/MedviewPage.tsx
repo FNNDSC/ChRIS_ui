@@ -26,7 +26,7 @@ const MedviewPage = () => {
             width: "100%",
           }}
           allowFullScreen
-          src="http://fnndsc.github.io/medview/"
+          src="https://fnndsc.github.io/medview/"
           title="Medview"
         ></iframe>
       </div>

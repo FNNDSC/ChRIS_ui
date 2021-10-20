@@ -292,6 +292,7 @@ export const uploadLocalFiles = async (
   let count = 0;
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
+    console.log("Directory", directory);
     const uploadedFile = await client.uploadFile(
       {
         upload_path: `${directory}/${file.name}`,

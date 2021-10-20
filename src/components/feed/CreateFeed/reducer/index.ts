@@ -338,9 +338,11 @@ export const createFeedReducer = (
     }
 
     case Types.SetCurrentNode: {
-      const { pipelineId } = action.payload;
+      const { pipelineId, currentNode: pluginName } = action.payload;
       const { computeEnvs } = state.pipelineData[pipelineId];
-      const pluginName = action.payload.currentNode;
+
+      console.log("PluginName", pluginName);
+
 
       if (computeEnvs) {
         const computeEnvArray = computeEnvs[pluginName].computeEnvs;
