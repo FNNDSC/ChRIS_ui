@@ -1,0 +1,19 @@
+@import "../../../assets/scss/helpers/variables";
+@import "../../../assets/scss/helpers/mixins";
+@import "../../../assets/scss/helpers/pf4-variables";
+.feed-view-desktop{
+    @include media-query($pf-global--breakpoint--xs) {
+        display:none;
+      }
+      @include media-query($pf-global--breakpoint--lg) {
+       display:block;
+      }
+}
+.feed-view-mobile{
+    @include media-query($pf-global--breakpoint--xs) {
+        display:block;
+      }
+      @include media-query($pf-global--breakpoint--lg) {
+       display:none;
+      }
+}
