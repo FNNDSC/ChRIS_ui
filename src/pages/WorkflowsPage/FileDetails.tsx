@@ -1,5 +1,5 @@
 import React from "react";
-import { message, Steps } from "antd";
+import { Steps } from "antd";
 import { useHistory } from "react-router";
 import {
   Card,
@@ -24,7 +24,6 @@ import {
   setUploadedSpec,
   setPipelinesList,
   setCurrentPipeline,
-  setCurrentNode,
   setCurrentComputeEnv,
 } from "../../store/workflows/actions";
 

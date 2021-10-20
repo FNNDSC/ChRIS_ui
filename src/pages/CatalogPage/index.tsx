@@ -1,12 +1,22 @@
 import React from "react";
+import { useDispatch } from "react-redux";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import { PageSection, Title } from "@patternfly/react-core";
 import PluginCatalog from "../../components/catalog/PluginCatalog";
 import PipelineCatalog from "../../components/catalog/PipelineCatalog";
 import ComputeCatalog from "../../components/catalog/ComputeCatalog";
 import "./CatalogPage.scss";
+import { setSidebarActive } from "../../store/ui/actions";
 
 const CatalogPage = () => {
+  const dispatch = useDispatch();
+  React.useEffect(() => {
+    dispatch(
+      setSidebarActive({
+        activeItem: "catalog",
+      })
+    );
+  });
   return (
     <Wrapper>
       <PageSection variant="light">
