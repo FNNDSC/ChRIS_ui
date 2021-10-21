@@ -49,19 +49,9 @@ export function getInitialState(
     feedError: "",
     value: 0,
     computeEnvironment: " ",
-    pipelineData: {
-      optionState: {
-        isOpen: false,
-        toggleTemplateText: "Choose a Pipeline",
-        selectedOption: "",
-      },
-      pluginParameters: undefined,
-      pluginPipings: undefined,
-      pipelinePlugins: undefined,
-      computeEnvs: undefined,
-      currentNode: "",
-      uploadedWorkflow: "",
-    },
+    pipelineData: {},
+    selectedPipeline: undefined,
+    pipelines: [],
   };
 }
 
@@ -243,19 +233,7 @@ export const createFeedReducer = (
         requiredInput: {},
         dropdownInput: {},
         computeEnvironment: "",
-        pipelineData: {
-          optionState: {
-            isOpen: false,
-            toggleTemplateText: "Choose a Pipeline",
-            selectedOption: "",
-          },
-          pluginParameters: undefined,
-          pluginPipings: undefined,
-          pipelinePlugins: undefined,
-          computeEnvs: undefined,
-          currentNode: "",
-          uploadedWorkflow: "",
-        },
+        pipelineData: {},
       };
     }
 
@@ -275,10 +253,24 @@ export const createFeedReducer = (
       }
     }
 
+    case Types.SetPipelines: {
+      return {
+        ...state,
+        pipelines: action.payload.pipelines,
+      };
+    }
+
     case Types.SetComputeEnvironment: {
       return {
         ...state,
         computeEnvironment: action.payload.computeEnvironment,
+      };
+    }
+
+    case Types.AddPipeline: {
+      return {
+        ...state,
+        pipelines: [...state.pipelines, action.payload.pipeline],
       };
     }
 
@@ -297,41 +289,38 @@ export const createFeedReducer = (
       };
     }
 
-    case Types.SetOptionState: {
-      return {
-        ...state,
-        pipelineData: {
-          ...state.pipelineData,
-          optionState: action.payload,
-        },
-      };
-    }
-
     case Types.SetPipelineResources: {
+      const { pipelineId, pluginPipings, parameters, pipelinePlugins } =
+        action.payload;
       return {
         ...state,
         pipelineData: {
           ...state.pipelineData,
-          pluginPipings: action.payload.pluginPipings,
-          pluginParameters: action.payload.parameters,
-          pipelinePlugins: action.payload.pipelinePlugins,
-          currentNode: undefined,
-          computeEnvs: undefined,
+          [pipelineId]: {
+            pluginPipings,
+            pluginParameters: parameters,
+            pipelinePlugins,
+            currentNode: undefined,
+            computeEnvs: undefined,
+          },
         },
       };
     }
 
     case Types.SetPipelineEnvironments: {
-      
-      if (state.pipelineData.computeEnvs) {
+      const { computeEnvData, pipelineId } = action.payload;
+      if (state.pipelineData[pipelineId].computeEnvs) {
         return {
           ...state,
           pipelineData: {
             ...state.pipelineData,
-            computeEnvs: merge(
-              state.pipelineData.computeEnvs,
-              action.payload.computeEnvData
-            ),
+            [pipelineId]: {
+              ...state.pipelineData[pipelineId],
+              computeEnvs: merge(
+                state.pipelineData[pipelineId].computeEnvs,
+                computeEnvData
+              ),
+            },
           },
         };
       } else {
@@ -339,24 +328,30 @@ export const createFeedReducer = (
           ...state,
           pipelineData: {
             ...state.pipelineData,
-            computeEnvs: action.payload.computeEnvData,
+            [pipelineId]: {
+              ...state.pipelineData[pipelineId],
+              computeEnvs: computeEnvData,
+            },
           },
         };
       }
     }
 
     case Types.SetCurrentNode: {
-      const { computeEnvs } = state.pipelineData;
-      const pluginName = action.payload.currentNode;
+      const { pipelineId, currentNode: pluginName } = action.payload;
+      const { computeEnvs } = state.pipelineData[pipelineId];
+
+      console.log("PluginName", pluginName);
+
 
       if (computeEnvs) {
         const computeEnvArray = computeEnvs[pluginName].computeEnvs;
         const currentComputeEnv = computeEnvs[pluginName].currentlySelected;
-        const findIndex = computeEnvArray?.findIndex((option: any) => {
-          if (option.name === currentComputeEnv.name) return option;
-          else return 0;
-        });
+        const findIndex = computeEnvArray?.findIndex(
+          (env) => env.name === currentComputeEnv
+        );
         let currentlySelected;
+
         if (computeEnvArray) {
           if (findIndex === computeEnvArray.length - 1) {
             currentlySelected = computeEnvArray[0];
@@ -367,23 +362,54 @@ export const createFeedReducer = (
 
         if (currentlySelected) {
           const duplicateObject = computeEnvs;
-          duplicateObject[pluginName].currentlySelected = currentlySelected;
+          duplicateObject[pluginName].currentlySelected =
+            currentlySelected.name;
+
           return {
             ...state,
             pipelineData: {
               ...state.pipelineData,
-              currentNode: pluginName,
-              computeEnvs: duplicateObject,
+              [pipelineId]: {
+                ...state.pipelineData[pipelineId],
+                currentNode: pluginName,
+                computeEnvs: duplicateObject,
+              },
             },
           };
         }
       }
+
       return {
         ...state,
         pipelineData: {
           ...state.pipelineData,
-          currentNode: pluginName,
+          [pipelineId]: {
+            ...state.pipelineData[pipelineId],
+            currentNode: action.payload.currentNode,
+          },
         },
+      };
+    }
+
+    case Types.SetExpandedPipelines: {
+      const { pipelineId } = action.payload;
+
+      return {
+        ...state,
+        pipelineData: {
+          ...state.pipelineData,
+          [pipelineId]: {
+            pipelineId,
+          },
+        },
+      };
+    }
+
+    case Types.SetCurrentPipeline: {
+      const { pipelineId } = action.payload;
+      return {
+        ...state,
+        selectedPipeline: pipelineId,
       };
     }
 

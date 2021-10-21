@@ -25,7 +25,6 @@
 
 @mixin opacity($opacity: 0.5) {
     $opacityMultiplied: ($opacity * 100);
-
     filter:         alpha(opacity=$opacityMultiplied);
     -ms-filter:     "progid:DXImageTransform.Microsoft.Alpha(Opacity=" + $opacityMultiplied + ")";
     @include css3-prefix('opacity', $opacity);
