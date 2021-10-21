@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link, Route, Switch, useHistory } from "react-router-dom";
-import { CubesIcon, SearchIcon } from "@patternfly/react-icons";
+import { CubesIcon, SearchIcon, UploadIcon } from "@patternfly/react-icons";
 import {
   Button,
   Card,
@@ -15,21 +16,37 @@ import {
   SplitItem,
   TextInput,
   Title,
+  Modal,
+  ModalVariant,
 } from "@patternfly/react-core";
+import { v4 } from "uuid";
 
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { useTypedSelector } from "../../../../store/hooks";
 import Wrapper from "../../../../containers/Layout/PageWrapper";
+import FileUpload from "../../../../components/common/fileupload";
 
 import "./user-library.scss";
 import Browser from "./Browser";
 import DirectoryTree from "../../../../utils/browser";
-
+import { setSidebarActive } from "../../../../store/ui/actions";
+import { LocalFile } from "../../../../components/feed/CreateFeed/types";
 
 export const UserLibrary = () => {
-  document.title = "My Library";
-  const username = useTypedSelector((state) => state.user.username) as string;
   const client = ChrisAPIClient.getClient();
+  document.title = "My Library";
+  const [uploadedFileModal, setUploadFileModal] = React.useState(false);
+  const [uploadedFiles, setUploadedFiles] = React.useState(false);
+  const [directoryName, setDirectoryName] = React.useState("");
+  const username = useTypedSelector((state) => state.user.username) as string;
+  const dispatch = useDispatch();
+  React.useEffect(() => {
+    dispatch(
+      setSidebarActive({
+        activeItem: "lib",
+      })
+    );
+  }, [dispatch]);
 
   const [uploaded, setUploaded] = useState<DirectoryTree>();
   const [services, setServices] = useState<DirectoryTree>();
@@ -119,25 +136,28 @@ export const UserLibrary = () => {
     }
   }, [client, username]);
 
-  const fetchSearch = useCallback(async (query: string) => {
-    const searchParams = { limit: 10e6, fname_icontains: query };
+  const fetchSearch = useCallback(
+    async (query: string) => {
+      const searchParams = { limit: 10e6, fname_icontains: query };
 
-    try {
-      const uploads = await client.getUploadedFiles(searchParams);
-      const pacs = await client.getPACSFiles(searchParams);
-      const services = await client.getServiceFiles(searchParams);
+      try {
+        const uploads = await client.getUploadedFiles(searchParams);
+        const pacs = await client.getPACSFiles(searchParams);
+        const services = await client.getServiceFiles(searchParams);
 
-      const results = DirectoryTree.fromPathList([
-        ...(uploads.getItems() || []),
-        ...(pacs.getItems() || []),
-        ...(services.getItems() || []),
-      ]).searchTree(query);
+        const results = DirectoryTree.fromPathList([
+          ...(uploads.getItems() || []),
+          ...(pacs.getItems() || []),
+          ...(services.getItems() || []),
+        ]).searchTree(query);
 
-      setSearchResults(results);
-    } catch (error) {
-      console.error(error);
-    }
-  }, [client]);
+        setSearchResults(results);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [client]
+  );
 
   useEffect(() => {
     fetchUploaded();
@@ -571,20 +591,65 @@ export const UserLibrary = () => {
                 <SplitItem style={{ margin: "auto 1em" }} isFilled>
                   <hr />
                 </SplitItem>
-                {/* <SplitItem>
-                  <Button onClick={setOpenUploader.bind(UserLibrary, true)}>
-                    <UploadIcon/> Upload
-                  </Button>
-
-                  <Modal 
-                    isOpen={openUploader} 
-                    onClose={setOpenUploader.bind(UserLibrary, false)}
-                    title="Upload a Series"
-                  >
-                    <h3>Local File Upload</h3>
-                  </Modal>
-                </SplitItem> */}
+                {
+                  <SplitItem>
+                    <Button
+                      onClick={() => {
+                        setUploadFileModal(true);
+                      }}
+                    >
+                      <UploadIcon /> Upload
+                    </Button>
+                  </SplitItem>
+                }
               </Split>
+              <Modal
+                variant={ModalVariant.small}
+                onClose={() => {
+                  setUploadFileModal(false);
+                }}
+                title="Upload your files"
+                isOpen={uploadedFileModal}
+              >
+                <FileUpload
+                  className=""
+                  handleDeleteDispatch={() => {
+                    console.log("test");
+                  }}
+                  localFiles={[]}
+                  dispatchFn={async (files) => {
+                    const directory = `${username}/uploads/test-upload-${v4().substr(
+                      0,
+                      4
+                    )}`;
+                    const client = ChrisAPIClient.getClient();
+                    for (let i = 0; i < files.length; i++) {
+                      setUploadedFiles(true);
+                      const file = files[i];
+
+                      if (i == 0) {
+                        setDirectoryName(directory);
+                      }
+
+                      await client.uploadFile(
+                        {
+                          upload_path: `${directory}/${file.name}`,
+                        },
+                        {
+                          fname: (file as LocalFile).blob,
+                        }
+                      );
+                    }
+                    setUploadedFiles(false);
+                    setUploadFileModal(false);
+                  }}
+                />
+                {uploadedFiles && (
+                  <div>
+                    Files are being uploaded at {directoryName}. Please wait....
+                  </div>
+                )}
+              </Modal>
 
               <Grid hasGutter>
                 <GridItem />

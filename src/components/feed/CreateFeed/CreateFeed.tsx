@@ -44,6 +44,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     dropdownInput,
     requiredInput,
     computeEnvironment,
+    selectedPipeline,
     pipelineData,
   } = state;
 
@@ -152,7 +153,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         username,
         pipelineData,
         getCreationStatus,
-        getCreationError
+        getCreationError,
+        selectedPipeline
       );
 
       if (!feed) {
@@ -394,7 +396,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           });
         }}
       >
-        Create New Feed
+        Create New Analysis
       </Button>
       {wizardOpen && (
         <Wizard
@@ -410,7 +412,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
               type: Types.ToggleWizzard,
             });
           }}
-          title="Create a New Feed"
+          title="Create a New Analysis"
           description="This wizard allows you to create a new Feed and add an internal dataset to it"
           className={`feed-create-wizard ${getStepName()}-wrap`}
           steps={steps}
