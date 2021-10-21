@@ -80,6 +80,12 @@ const Sidebar: React.FC<AllProps> = ({
           <NavItem itemId="medview" isActive={sidebarActiveItem === "medview"}>
             <Link to="/medview">Medview</Link>
           </NavItem>
+          <NavItem
+            itemId="fetalmri"
+            isActive={sidebarActiveItem === "fetalmri"}
+          >
+            <Link to="/fetalmri">Fetal MRI</Link>
+          </NavItem>
         </NavGroup>
       </NavList>
     </Nav>

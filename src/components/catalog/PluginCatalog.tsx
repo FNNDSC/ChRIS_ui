@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
-
 import ChrisAPIClient from "../../api/chrisapiclient";
 import DisplayPage from "./DisplayPage";
-import DataTableToolbar from "../common/dataTableToolbar/DataTableToolbar";
 
 const PluginCatalog = () => {
   const [plugins, setPlugins] = React.useState<any[]>();

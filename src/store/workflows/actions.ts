@@ -4,7 +4,6 @@ import {
   AnalysisStep,
   AnalysisPayload,
   SelectWorkflowState,
-  TreeNode,
   ComputeEnvData,
 } from "./types";
 import { LocalFile } from "../../components/feed/CreateFeed/types";

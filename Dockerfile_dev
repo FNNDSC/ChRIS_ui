@@ -23,7 +23,7 @@
 #   docker exec -it chris_ui sh
 #
 
-FROM node:14 as builder
+FROM node:16 as builder
 MAINTAINER fnndsc "dev@babymri.org"
 
 # Pass a UID on build command line (see above) to set internal UID

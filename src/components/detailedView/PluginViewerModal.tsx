@@ -2,6 +2,7 @@ import * as React from "react";
 import { Modal, Skeleton } from "@patternfly/react-core";
 import Gotop from "../common/gotop/Gotop";
 
+
 const OutputViewerContainer = React.lazy(
   () => import("./DetailedViewerContainer")
 );
