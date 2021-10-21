@@ -58,8 +58,8 @@ const DashboardPage = (props: DashboardProps) => {
       <PageSection hasShadowBottom variant="light">
         <Title headingLevel="h1">Welcome to ChRIS</Title>
         <p>
-          Retrieve, analyze, and visualize image data using a powerful cloud
-          computing platform: ChRIS.
+          Retrieve, analyze, and visualize <i>any data </i> using a powerful
+          cloud computing platform: ChRIS.
           <b> Let&apos;s get started</b>
         </p>
         {children}

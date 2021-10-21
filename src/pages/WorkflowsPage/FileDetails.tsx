@@ -228,7 +228,7 @@ const SelectWorkflow = () => {
   const dispatch = useDispatch();
   const { pipelinesList } = useTypedSelector((state) => state.workflows);
   const [pipelinesCount, setPipelinesCount] = React.useState<number>(0);
-  const { filterState, handlePageSet, handlePerPageSet, run } = usePaginate();
+  const { filterState, handlePageSet, handlePerPageSet } = usePaginate();
   const [selectedPipeline, setSelectedPipeline] = React.useState();
   const { page, perPage } = filterState;
 

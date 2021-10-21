@@ -17,6 +17,7 @@ import {
   TextInput,
   Title,
   Modal,
+  ModalVariant,
 } from "@patternfly/react-core";
 import { v4 } from "uuid";
 
@@ -603,6 +604,7 @@ export const UserLibrary = () => {
                 }
               </Split>
               <Modal
+                variant={ModalVariant.small}
                 onClose={() => {
                   setUploadFileModal(false);
                 }}
@@ -616,7 +618,7 @@ export const UserLibrary = () => {
                   }}
                   localFiles={[]}
                   dispatchFn={async (files) => {
-                    const directory = `${username}/uploads/${username}-${v4().substr(
+                    const directory = `${username}/uploads/test-upload-${v4().substr(
                       0,
                       4
                     )}`;
@@ -625,7 +627,6 @@ export const UserLibrary = () => {
                       setUploadedFiles(true);
                       const file = files[i];
 
-                      console.log("Directory", directory);
                       if (i == 0) {
                         setDirectoryName(directory);
                       }

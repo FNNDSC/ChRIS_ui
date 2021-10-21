@@ -14,7 +14,7 @@ import { put } from "@redux-saga/core/effects";
 
 
 export function* createFeed(payload: any) {
-  const { localFiles, username, workflowType } = payload;
+  const { localFiles, username } = payload;
   yield setYieldAnalysis(
     1,
     "Creating a Feed Root Node",
