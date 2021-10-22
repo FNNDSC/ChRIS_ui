@@ -15,6 +15,7 @@ import VisualizationPage from "./pages/VisualizationPage";
 import Library, { Series } from "./pages/DataLibrary/Library";
 import SignUp from "./pages/SignUp/SignUp";
 import WorkflowsPage from "./pages/WorkflowsPage";
+import PublicRoute from "./components/common/PublicRoute";
 
 interface IState {
   selectData?: Series;
@@ -52,8 +53,8 @@ export const MainRouter: React.FC = () => {
       context={MainRouterContext}
     >
       <PrivateRoute exact path="/" component={Dashboard} />
-      <Route exact path="/login" component={LogIn} />
-      <Route exact path="/signup" component={SignUp} />
+      <PublicRoute exact path="/login" component={LogIn} />
+      <PublicRoute exact path="/signup" component={SignUp} />
       <PrivateRoute path="/feeds" component={FeedsPage} />
       <PrivateRoute path="/library" component={Library} />
       <PrivateRoute path="/gallery" component={GalleryPage} />
