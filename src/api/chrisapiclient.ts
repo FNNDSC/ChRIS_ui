@@ -1,4 +1,5 @@
 import Client from "@fnndsc/chrisapi";
+import { getWithExpiry } from "../utils";
 
 declare let process: {
   env: {
@@ -20,7 +21,7 @@ class ChrisAPIClient {
 
   static getClient(): Client {
     if (!this.client || !this.isTokenAuthorized) {
-      const token: string = window.localStorage.getItem(AUTH_TOKEN_KEY) || "";
+      const token: string = getWithExpiry(AUTH_TOKEN_KEY) || "";
       if (token) {
         this.isTokenAuthorized = true;
       } else {

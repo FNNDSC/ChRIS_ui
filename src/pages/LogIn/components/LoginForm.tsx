@@ -62,6 +62,7 @@ const LoginFormComponent : React.FC<AllProps>=({
       setAuthToken({
         token,
         username: usernameValue,
+        isRememberMe:isRememberMeChecked
       });
 
       const then = (new URLSearchParams(location.search)).get("then")
@@ -119,7 +120,7 @@ const LoginFormComponent : React.FC<AllProps>=({
 
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setAuthToken: (auth: { token: string; username: string }) =>
+  setAuthToken: (auth: { token: string; username: string; isRememberMe:boolean}) =>
     dispatch(setAuthToken(auth)),
 });
 

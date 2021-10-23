@@ -1,12 +1,13 @@
 import { Reducer } from "redux";
+import { getWithExpiry } from "../../utils";
 import { IUserState, UserActionTypes } from "./types";
 
 // Type-safe initialState
 const initialState: IUserState = {
-  username: window.localStorage.getItem("USERNAME"),
-  token: window.localStorage.getItem("CHRIS_TOKEN"),
-  isRememberMe: false,
-  isLoggedIn: !!window.localStorage.getItem("CHRIS_TOKEN"),
+  username: getWithExpiry("USERNAME"),
+  token: getWithExpiry("CHRIS_TOKEN"),
+  isRememberMe: true,
+  isLoggedIn: !!getWithExpiry("CHRIS_TOKEN"),
 };
 
 // ***** NOTE: Working *****
@@ -15,6 +16,7 @@ const reducer: Reducer<IUserState> = (state = initialState, action) => {
     case UserActionTypes.SET_TOKEN_SUCCESS: {
       return {
         ...state,
+        isRememberMe:action.payload.isRememberMe,
         username: action.payload.username,
         token: action.payload.token,
         isLoggedIn: true,

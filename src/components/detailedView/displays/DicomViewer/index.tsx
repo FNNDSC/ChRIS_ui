@@ -29,6 +29,7 @@ import {
 } from "../../../dicomViewer/utils";
 import { setFilesForGallery } from "../../../../store/explorer/actions";
 import { useHistory } from "react-router";
+import { getWithExpiry } from "../../../../utils";
 
 cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
 cornerstoneFileImageLoader.external.cornerstone = cornerstone;
@@ -38,7 +39,7 @@ cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     "Content-Type": "application/vnd.collection+json",
-    Authorization: "Token " + window.localStorage.getItem("CHRIS_TOKEN"),
+    Authorization: "Token " + getWithExpiry("CHRIS_TOKEN"),
   },
   method: "get",
   responseType: "arrayBuffer",
