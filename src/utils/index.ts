@@ -9,7 +9,7 @@ export function setWithExpiry(key:string, value:any, ttl:number) {
 		value: value,
 		expiry: now.getTime() + ttl,
 	}
-	window.localStorage.setItem(key, JSON.stringify(item))
+	window.localStorage.setItem(key, btoa(JSON.stringify(item)))
 }
 
 export function getWithExpiry(key:string) {
@@ -19,7 +19,7 @@ export function getWithExpiry(key:string) {
 		return null
 	}
   try{
-    const item = JSON.parse(itemStr)
+    const item = JSON.parse(atob(itemStr))
     const now = new Date()
     // compare the expiry time of the item with the current time
     if (now.getTime() > item.expiry) {
@@ -30,7 +30,9 @@ export function getWithExpiry(key:string) {
     }
     return item.value
   }catch(err){
-    window.localStorage.clear()
+    //This is just for acting as safety net if the user have old version of localStorage value
+    window.localStorage.removeItem("CHRIS_TOKEN")
+    window.localStorage.removeItem("PFDCM_SET_SERVICE")
   }
   return null
 	
