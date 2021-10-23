@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
+import { getWithExpiry } from "../../utils";
 // import { Request, Collection } from "@fnndsc/chrisapi";
 // Chris API base id type
 export type chrisId = number | string;
@@ -55,7 +56,7 @@ export interface IActionTypeParam {
 // CHRIS API REQUEST (working)
 export default class ChrisModel {
   static fetchRequest(url: string) {
-    const auth = { token: `${window.sessionStorage.getItem("CHRIS_TOKEN")}` };
+    const auth = { token: `${getWithExpiry("CHRIS_TOKEN")}` };
     const header = {
       "Content-Type": "application/vnd.collection+json",
       Authorization: "Token " + auth.token,

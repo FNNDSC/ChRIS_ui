@@ -37,11 +37,12 @@ import {
 import { useDispatch } from "react-redux";
 import { setFilesForGallery } from "../../store/explorer/actions";
 import { useDropzone } from "react-dropzone";
+import { getWithExpiry } from "../../utils";
 
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     "Content-Type": "application/vnd.collection+json",
-    Authorization: "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
+    Authorization: "Token " + getWithExpiry("CHRIS_TOKEN"),
   },
   method: "get",
   responseType: "arrayBuffer",
