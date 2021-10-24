@@ -43,7 +43,7 @@ const PluginTitle = () => {
 
       setLoading(false);
       setShowInput(false);
-    } catch (error: any) {
+    } catch (error) {
       setError(error);
     }
   };

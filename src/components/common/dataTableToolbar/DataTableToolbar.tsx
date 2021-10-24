@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { InputGroup, InputGroupText, TextInput } from "@patternfly/react-core";
-import { AiOutlineSearch } from "react-icons/ai";
 import "./dataTableToolbar.scss";
 
 type AllProps = {
@@ -23,11 +22,6 @@ const DataTableToolbar: React.FunctionComponent<AllProps> = (
     <div className="datatable-toolbar">
       <InputGroup>
         <InputGroupText id="brainStructureLabel" className="toolbar-label">
-          <AiOutlineSearch
-            style={{
-              marginRight: "1em",
-            }}
-          />
           {label}
         </InputGroupText>
         <TextInput

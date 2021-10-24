@@ -4,6 +4,7 @@ import {
   AnalysisStep,
   AnalysisPayload,
   SelectWorkflowState,
+  TreeNode,
   ComputeEnvData,
 } from "./types";
 import { LocalFile } from "../../components/feed/CreateFeed/types";
@@ -32,6 +33,9 @@ export const submitAnalysis = (
 
 export const setAnalysisStep = (step: AnalysisStep) =>
   action(WorkflowTypes.SET_ANALYSIS_STEP, step);
+
+export const setInfantAge = (value: string) =>
+  action(WorkflowTypes.SET_INFANT_AGE, value);
 
 export const resetWorkflowState = () =>
   action(WorkflowTypes.RESET_WORKFLOW_STEP);
@@ -82,16 +86,8 @@ export const setPluginParametersSuccess = (
 export const setPipelinePluginsSuccess = (pipelineInstances: any[]) =>
   action(WorkflowTypes.SET_PIPELINE_PLUGINS, pipelineInstances);
 
-export const setCurrentNode = (pluginName: string) =>
-  action(WorkflowTypes.SET_CURRENT_NODE, pluginName);
-
-export const setPipelinesList = (pipelines: any[]) =>
-  action(WorkflowTypes.SET_PIPELINES_LIST, pipelines);
-
-export const setCurrentPipeline = (pipeline: string) =>
-  action(WorkflowTypes.SET_CURRENT_PIPELINE, pipeline);
-
-export const setCurrentComputeEnv = (node: {
+export const setCurrentNode = (node: {
+  data: TreeNode;
   pluginName: string;
   currentComputeEnv: string;
-}) => action(WorkflowTypes.SET_CURRENT_COMPUTE_ENV, node);
+}) => action(WorkflowTypes.SET_CURRENT_NODE, node);

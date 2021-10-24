@@ -14,7 +14,8 @@ const WorkflowsPage = () => {
   React.useEffect(() => {
     dispatch(
       setSidebarActive({
-        activeItem: "workflows",
+        activeGroup: "workflows_grp",
+        activeItem: "my_workflows",
       })
     );
   }, [dispatch]);

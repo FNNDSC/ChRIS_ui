@@ -14,7 +14,7 @@ import { put } from "@redux-saga/core/effects";
 
 
 export function* createFeed(payload: any) {
-  const { localFiles, username } = payload;
+  const { localFiles, username, workflowType } = payload;
   yield setYieldAnalysis(
     1,
     "Creating a Feed Root Node",
@@ -61,14 +61,14 @@ export function* createFeed(payload: any) {
     if (feed) {
       yield put(setFeedDetails(feed.data.id));
       yield feed.put({
-        name: `pipeline to workflow analysis`,
+        name: `${workflowType} analysis`,
       });
       const note: Note = yield feed.getNote();
       yield note.put({
-        title: `pipeline to workflow analysis`,
-        content: `Notes for your analysis`,
+        title: `${workflowType} analysis`,
+        content: `Notes for your ${workflowType} analysis`,
       });
-      yield setYieldAnalysis(1, "Created a Feed Root Node", "finish", "");
+      yield setYieldAnalysis(0, "Created a Feed Root Node", "finish", "");
       return { dircopyInstance, feed };
     }
   }
@@ -82,7 +82,7 @@ export function* createFeedTree(
   computeEnvs: ComputeEnvData
 ) {
   const client = ChrisAPIClient.getClient();
-  yield setYieldAnalysis(2, "Creating a Workflow", "process", "");
+  yield setYieldAnalysis(2, "Creating a Pipeline", "process", "");
 
   const pluginDict: {
     [id: number]: number;
@@ -132,7 +132,8 @@ export function* createFeedTree(
       previous_id = pluginDict[previousPlugin.data.plugin_id];
     }
 
-    const computeEnv = computeEnvs[pluginFound.data.name].currentlySelected;
+    const computeEnv =
+      computeEnvs[pluginFound.data.name].currentlySelected.name;
 
     const finalData = {
       previous_id,
@@ -149,5 +150,5 @@ export function* createFeedTree(
     pluginDict[pluginInstance.data.plugin_id] = pluginInstance.data.id;
   }
 
-  yield setYieldAnalysis(2, "Created a Workflow", "finish", "");
+  yield setYieldAnalysis(2, "Created a Pipeline", "finish", "");
 }

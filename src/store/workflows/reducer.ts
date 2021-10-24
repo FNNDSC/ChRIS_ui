@@ -13,7 +13,7 @@ function getInitialSteps() {
 
   steps[1] = {
     id: 2,
-    title: "Create a workflow",
+    title: "Create a Feed Tree",
     status: "wait",
     error: "",
   };
@@ -24,7 +24,6 @@ function getInitialSteps() {
     status: "wait",
     error: "",
   };
-
   return steps;
 }
 
@@ -34,16 +33,21 @@ export const initialState: IWorkflowState = {
     error: "",
     loading: false,
   },
+
   steps: getInitialSteps(),
   currentStep: 0,
+  optionState: {
+    isOpen: false,
+    toggleTemplateText: "Choose a Pipeline",
+    selectedOption: "",
+  },
   checkFeedDetails: undefined,
   pluginParameters: undefined,
   pluginPipings: undefined,
   pipelinePlugins: undefined,
   computeEnvs: undefined,
-  pipelinesList: undefined,
-  currentPipeline: undefined,
-  currentNode: "",
+  uploadedWorkflow: "",
+  currentNode: undefined,
 };
 
 const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
@@ -70,6 +74,12 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
         },
       };
     }
+    case WorkflowTypes.SET_OPTION_STATE: {
+      return {
+        ...state,
+        optionState: action.payload,
+      };
+    }
 
     case WorkflowTypes.SET_UPLOADED_SPEC_SUCCESS: {
       return {
@@ -92,44 +102,50 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       };
     }
 
-    case WorkflowTypes.SET_CURRENT_COMPUTE_ENV: {
-      const currentNode = action.payload.pluginName;
-      if (state.computeEnvs) {
-        const duplicateObject = state.computeEnvs;
-        const computeEnvList = duplicateObject[currentNode].computeEnvs;
-        const findIndex = computeEnvList.findIndex(
-          (list) => list.name === action.payload.currentComputeEnv
-        );
+    case WorkflowTypes.SET_CURRENT_NODE: {
+      if (state.computeEnvs && action.payload.currentComputeEnv) {
+        const computeEnvsOptions =
+          state.computeEnvs[action.payload.pluginName].computeEnvs;
+        const findIndex = computeEnvsOptions?.findIndex((option) => {
+          if (option.name === action.payload.currentComputeEnv) return option;
+          else return 0;
+        });
 
-        if (findIndex >= 0) {
-          let currentlySelected = "";
-
-          if (findIndex === computeEnvList.length - 1) {
-            currentlySelected = computeEnvList[0].name;
-          } else {
-            currentlySelected = computeEnvList[findIndex + 1].name;
+        let currentlySelected;
+        if (computeEnvsOptions) {
+          if (findIndex === computeEnvsOptions.length - 1) {
+            currentlySelected = computeEnvsOptions[0];
+          } else if (typeof findIndex === "number") {
+            currentlySelected = computeEnvsOptions[findIndex + 1];
           }
+        }
 
-          duplicateObject[currentNode].currentlySelected = currentlySelected;
-
+        if (currentlySelected) {
+          const duplicateObject = state.computeEnvs;
+          duplicateObject[action.payload.pluginName].currentlySelected =
+            currentlySelected;
           return {
             ...state,
-            computeEnvs: {
-              ...state.computeEnvs,
-              ...duplicateObject,
-            },
+            currentNode: action.payload,
+            computeEnvs: duplicateObject,
           };
         }
       }
       return {
         ...state,
+        currentNode: action.payload,
       };
     }
 
-    case WorkflowTypes.SET_CURRENT_NODE: {
+    case WorkflowTypes.STOP_ANALYSIS: {
       return {
         ...state,
-        currentNode: action.payload,
+        optionState: {
+          isOpen: false,
+          toggleTemplateText: "Choose a Workflow",
+          selectedOption: "",
+          plugins: [],
+        },
       };
     }
 
@@ -187,6 +203,13 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       };
     }
 
+    case WorkflowTypes.SET_INFANT_AGE: {
+      return {
+        ...state,
+        infantAge: action.payload,
+      };
+    }
+
     case WorkflowTypes.RESET_WORKFLOW_STEP: {
       return {
         ...initialState,
@@ -209,13 +232,6 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
           error: "",
           loading: false,
         },
-      };
-    }
-
-    case WorkflowTypes.SET_PIPELINES_LIST: {
-      return {
-        ...state,
-        pipelinesList: action.payload,
       };
     }
 

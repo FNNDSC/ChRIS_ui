@@ -31,6 +31,7 @@ export interface AnalysisStep {
 
 export interface AnalysisPayload {
   localFiles: LocalFile[];
+  workflowType: string;
   username: string;
 }
 
@@ -52,14 +53,14 @@ export interface IWorkflowState {
   };
   steps: AnalysisStep[];
   currentStep: number;
+  optionState: SelectWorkflowState;
   checkFeedDetails: number | undefined;
   pluginPipings?: any[];
   pluginParameters?: PipelinePipingDefaultParameterList;
   pipelinePlugins?: any[];
   computeEnvs?: ComputeEnvData;
-  pipelinesList?: any[];
-  currentPipeline?: string;
-  currentNode: "";
+  uploadedWorkflow: string;
+  currentNode?: { data: TreeNode; pluginName: string };
 }
 
 export interface DircopyData {
@@ -147,7 +148,6 @@ export const WorkflowTypes = keyMirror({
   STOP_FETCHING_PLUGIN_RESOURCES: null,
   SET_FEED_DETAILS: null,
   SET_CURRENT_STEP: null,
-  SET_CURRENT_COMPUTE_ENV: null,
   DELETE_LOCAL_FILE: null,
   CLEAR_FILE_SELECTION: null,
   GENERATE_PIPELINE: null,
@@ -157,6 +157,4 @@ export const WorkflowTypes = keyMirror({
   SET_PLUGIN_PARAMETERS: null,
   SET_PIPELINE_PLUGINS: null,
   SET_CURRENT_NODE: null,
-  SET_PIPELINES_LIST: null,
-  SET_CURRENT_PIPELINE: null,
 });

@@ -24,8 +24,7 @@ export const createFeed = async (
   username: string | null | undefined,
   pipelineData: PipelineData,
   setProgressCallback: (status: string) => void,
-  setErrorCallback: (error: string) => void,
-  selectedPipeline?: number
+  setErrorCallback: (error: string) => void
 ) => {
   const { chrisFiles, localFiles } = data;
 
@@ -42,8 +41,7 @@ export const createFeed = async (
       username,
       pipelineData,
       setProgressCallback,
-      setErrorCallback,
-      selectedPipeline
+      setErrorCallback
     );
   } else if (dropdownInput || requiredInput) {
     feed = await createFeedInstanceWithFS(
@@ -62,8 +60,7 @@ export const createFeedInstanceWithDircopy = async (
   username: string | null | undefined,
   pipelineData: PipelineData,
   statusCallback: (status: string) => void,
-  errorCallback: (error: string) => void,
-  selectedPipeline?: number
+  errorCallback: (error: string) => void
 ) => {
   const { chrisFiles, localFiles } = data;
 
@@ -120,101 +117,87 @@ export const createFeedInstanceWithDircopy = async (
         const pluginInstanceList =
           dircopyInstance.getItems() as PluginInstance[];
         createdInstance = pluginInstanceList[0];
+        if (
+          pipelineData.pluginPipings &&
+          pipelineData.pluginParameters &&
+          pipelineData.pipelinePlugins &&
+          pipelineData.computeEnvs &&
+          pipelineData.pluginPipings.length > 0
+        ) {
+          const client = ChrisAPIClient.getClient();
+          const {
+            pluginPipings,
+            pluginParameters,
+            pipelinePlugins,
+            computeEnvs,
+          } = pipelineData;
+          const pluginDict: {
+            [id: number]: number;
+          } = {};
 
-        if (selectedPipeline) {
-          const pipeline = pipelineData[selectedPipeline];
-          if (
-            pipeline.pluginPipings &&
-            pipeline.pluginParameters &&
-            pipeline.pipelinePlugins &&
-            pipeline.pluginPipings.length > 0
-          ) {
-            const client = ChrisAPIClient.getClient();
-            const {
-              pluginPipings,
-              pluginParameters,
-              pipelinePlugins,
-              computeEnvs,
-            } = pipeline;
-            const pluginDict: {
-              [id: number]: number;
-            } = {};
+          for (let i = 0; i < pluginPipings.length; i++) {
+            const currentPlugin = pluginPipings[i];
 
-            for (let i = 0; i < pluginPipings.length; i++) {
-              const currentPlugin = pluginPipings[i];
-
-              const currentPluginParameter = pluginParameters.filter(
-                (param: any) => {
-                  if (currentPlugin.data.plugin_id === param.data.plugin_id) {
-                    return param;
-                  }
+            const currentPluginParameter = pluginParameters.filter(
+              (param: any) => {
+                if (currentPlugin.data.plugin_id === param.data.plugin_id) {
+                  return param;
                 }
-              );
+              }
+            );
 
-              const pluginFound = pipelinePlugins.find(
-                (plugin) => currentPlugin.data.plugin_id === plugin.data.id
-              );
+            const pluginFound = pipelinePlugins.find(
+              (plugin) => currentPlugin.data.plugin_id === plugin.data.id
+            );
 
-              const data = currentPluginParameter.reduce(
-                (
-                  paramDict: {
-                    [key: string]: string | boolean | number;
-                  },
-                  param: any
-                ) => {
-                  let value;
-
-                  if (!param.data.value && param.data.type === "string") {
-                    value = "";
-                  } else {
-                    value = param.data.value;
-                  }
-                  paramDict[param.data.param_name] = value;
-
-                  return paramDict;
+            const data = currentPluginParameter.reduce(
+              (
+                paramDict: {
+                  [key: string]: string | boolean | number;
                 },
-                {}
+                param: any
+              ) => {
+                let value;
+
+                if (!param.data.value && param.data.type === "string") {
+                  value = "";
+                } else {
+                  value = param.data.value;
+                }
+                paramDict[param.data.param_name] = value;
+
+                return paramDict;
+              },
+              {}
+            );
+
+            let previous_id;
+            if (i === 0) {
+              previous_id = createdInstance.data.id;
+            } else {
+              const previousPlugin = pluginPipings.find(
+                (plugin) => currentPlugin.data.previous_id === plugin.data.id
+              );
+              previous_id = pluginDict[previousPlugin.data.plugin_id];
+            }
+
+            const computeEnv =
+              computeEnvs[pluginFound.data.name].currentlySelected.name;
+
+            const finalData = {
+              previous_id,
+              compute_resource_name: computeEnv,
+              ...data,
+            };
+
+            const pluginInstance: PluginInstance =
+              await client.createPluginInstance(
+                pluginFound.data.id,
+                //@ts-ignore
+                finalData
               );
 
-              let previous_id;
-              if (i === 0) {
-                previous_id = createdInstance.data.id;
-              } else {
-                const previousPlugin = pluginPipings.find(
-                  (plugin) => currentPlugin.data.previous_id === plugin.data.id
-                );
-                previous_id = pluginDict[previousPlugin.data.plugin_id];
-              }
-
-              const computeEnv =
-                computeEnvs &&
-                computeEnvs[pluginFound.data.id] &&
-                computeEnvs[pluginFound.data.id].currentlySelected;
-
-              let finalData = {};
-              if (computeEnv) {
-                finalData = {
-                  previous_id,
-                  ...data,
-                  compute_resource_name: computeEnv,
-                };
-              } else {
-                finalData = {
-                  previous_id,
-                  ...data,
-                };
-              }
-
-              const pluginInstance: PluginInstance =
-                await client.createPluginInstance(
-                  pluginFound.data.id,
-                  //@ts-ignore
-                  finalData
-                );
-
-              pluginDict[pluginInstance.data.plugin_id] =
-                pluginInstance.data.id;
-            }
+            pluginDict[pluginInstance.data.plugin_id] = pluginInstance.data.id;
           }
         }
       }
@@ -292,7 +275,6 @@ export const uploadLocalFiles = async (
   let count = 0;
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    console.log("Directory", directory);
     const uploadedFile = await client.uploadFile(
       {
         upload_path: `${directory}/${file.name}`,

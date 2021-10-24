@@ -36,13 +36,13 @@ import {
 } from "../../components/dicomViewer/utils";
 import { useDispatch } from "react-redux";
 import { setFilesForGallery } from "../../store/explorer/actions";
-import { setSidebarActive } from "../../store/ui/actions";
 import { useDropzone } from "react-dropzone";
+import { getWithExpiry } from "../../utils";
 
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     "Content-Type": "application/vnd.collection+json",
-    Authorization: "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
+    Authorization: "Token " + getWithExpiry("CHRIS_TOKEN"),
   },
   method: "get",
   responseType: "arrayBuffer",
@@ -105,19 +105,10 @@ const VisualizationPage = () => {
     }),
     [isDragActive, isDragReject, isDragAccept]
   );
-  const dispatch = useDispatch();
 
   React.useEffect(() => {
     if (acceptedFiles.length > 0) setFiles(acceptedFiles);
   }, [acceptedFiles]);
-
-  React.useEffect(() => {
-    dispatch(
-      setSidebarActive({
-        activeItem: "visualizations",
-      })
-    );
-  }, [dispatch]);
 
   const handleOpenFolder = (files: any) => {
     setVisibleModal(true);

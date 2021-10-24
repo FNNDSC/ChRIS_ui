@@ -1,36 +1,44 @@
 import React from "react";
-import { Steps } from "antd";
+import { message, Steps } from "antd";
 import { useHistory } from "react-router";
+
 import {
   Card,
   CardBody,
   Button,
-  SimpleList,
-  SimpleListItem,
-  Pagination,
+  OptionsMenu,
+  OptionsMenuItem,
+  OptionsMenuToggle,
+  Form,
+  TextInput,
 } from "@patternfly/react-core";
 import { useDispatch } from "react-redux";
 import FileUpload from "../../components/common/fileupload";
 import { useTypedSelector } from "../../store/hooks";
 import { LocalFile } from "../../components/feed/CreateFeed/types";
-import { AnalysisStep, TreeNode } from "../../store/workflows/types";
+import { AnalysisStep } from "../../store/workflows/types";
 import {
   setLocalFile,
   deleteLocalFile,
+  setOptionState,
+  setInfantAge,
   setCurrentStep,
   submitAnalysis,
   resetWorkflowState,
   clearFileSelection,
+  generatePipeline,
   setUploadedSpec,
-  setPipelinesList,
-  setCurrentPipeline,
-  setCurrentComputeEnv,
+  setCurrentNode,
 } from "../../store/workflows/actions";
+import { Tree, ConfigurationPage } from "./components/Tree";
+import {
+  fastsurferPipeline,
+  freesurferPipeline,
+  fetalReconstructionPipeline,
+} from "./utils";
+import { TreeNode } from "../../store/workflows/types";
 
 import { AiOutlineUpload } from "react-icons/ai";
-import { usePaginate } from "../../components/common/pagination";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { Tree, ConfigurationPage } from "./components/Tree";
 
 const { Step } = Steps;
 
@@ -43,9 +51,7 @@ const StepsComponent = () => {
 
   React.useEffect(() => {
     if (currentStep === 3) {
-      /*
       message.success("Processing Complete");
-      */
     }
   }, [currentStep]);
   const steps = [
@@ -53,7 +59,7 @@ const StepsComponent = () => {
       id: 0,
       title: "Local File Upload",
       content: (
-        <ContentWrapper id={0}>
+        <ContentWrapper id={1}>
           <FileUploadWrapper />
         </ContentWrapper>
       ),
@@ -62,22 +68,13 @@ const StepsComponent = () => {
       id: 1,
       title: "Choose a Workflow",
       content: (
-        <ContentWrapper id={1}>
+        <ContentWrapper id={2}>
           <SelectWorkflow />
         </ContentWrapper>
       ),
     },
     {
       id: 2,
-      title: "Configure the pipeline",
-      content: (
-        <ContentWrapper id={2}>
-          <ConfigurePipeline />
-        </ContentWrapper>
-      ),
-    },
-    {
-      id: 3,
       title: "Execution Status",
       content: (
         <ContentWrapper id={3}>
@@ -108,6 +105,24 @@ const StepsComponent = () => {
   );
 };
 
+const StatusComponent = () => {
+  const steps = useTypedSelector((state) => state.workflows.steps);
+  return (
+    <Steps direction="horizontal">
+      {steps.map((step: AnalysisStep) => {
+        return (
+          <Step
+            key={step.id}
+            status={step.status}
+            title={step.title}
+            description={step.error && step.error}
+          />
+        );
+      })}
+    </Steps>
+  );
+};
+
 const ContentWrapper = ({
   children,
   id,
@@ -116,10 +131,13 @@ const ContentWrapper = ({
   id?: number;
 }) => {
   const dispatch = useDispatch();
-
+  const uploadedWorkflow = useTypedSelector(
+    (state) => state.workflows.uploadedWorkflow
+  );
   const history = useHistory();
   const {
     currentStep,
+    optionState,
     localfilePayload,
     checkFeedDetails,
     pipelinePlugins,
@@ -131,7 +149,7 @@ const ContentWrapper = ({
 
   const localFiles = localfilePayload.files;
 
-  const stepLength = 4;
+  const stepLength = 2;
   const isDisabled = id === 1 && localFiles.length === 0 ? true : false;
 
   return (
@@ -142,13 +160,13 @@ const ContentWrapper = ({
           marginTop: "1rem",
           paddingTop: "1rem",
           paddingLeft: "1rem",
-          height: `${id === 1 ? "350px" : id === 2 ? "300px" : "300px"}`,
+          height: `${id === 1 ? "350px" : id === 2 ? "350px" : "300px"}`,
         }}
       >
         {children}
       </div>
       <div className="steps-action">
-        {currentStep < stepLength && (
+        {currentStep < stepLength && id != 3 && (
           <Button
             isDisabled={isDisabled}
             onClick={() => {
@@ -157,6 +175,8 @@ const ContentWrapper = ({
                   submitAnalysis({
                     localFiles,
                     username,
+                    workflowType:
+                      optionState.selectedOption || uploadedWorkflow,
                     pipelinePlugins,
                     pluginPipings,
                     pluginParameters,
@@ -170,12 +190,12 @@ const ContentWrapper = ({
             Continue
           </Button>
         )}
-        {localFiles.length > 0 && id === 0 && (
+        {localFiles.length > 0 && id === 1 && (
           <Button onClick={() => dispatch(clearFileSelection())}>
             Clear File Selection
           </Button>
         )}
-        {currentStep === 4 && id === 4 && (
+        {currentStep === 3 && id === 3 && (
           <Button
             onClick={() => {
               if (checkFeedDetails) {
@@ -186,7 +206,7 @@ const ContentWrapper = ({
             Check Feed Details
           </Button>
         )}
-        {currentStep > 0 && id !== 0 && (
+        {currentStep > 0 && id !== 1 && (
           <Button
             onClick={() => {
               if (currentStep === 3) {
@@ -224,102 +244,175 @@ const FileUploadWrapper = () => {
   );
 };
 
-const SelectWorkflow = () => {
-  const dispatch = useDispatch();
-  const { pipelinesList } = useTypedSelector((state) => state.workflows);
-  const [pipelinesCount, setPipelinesCount] = React.useState<number>(0);
-  const { filterState, handlePageSet, handlePerPageSet } = usePaginate();
-  const [selectedPipeline, setSelectedPipeline] = React.useState();
-  const { page, perPage } = filterState;
+const workflows = [
+  "covidnet",
+  "infantFreesurfer",
+  "infantFreesurferAge",
+  "adultFreesurfer",
+  "adultFreesurfermoc",
+  "fastsurfer",
+  "fastsurfermoc",
+  "fetalReconstruction",
+];
 
-  React.useEffect(() => {
-    async function fetchPipelines() {
-      const offset = perPage * (page - 1);
-      const client = ChrisAPIClient.getClient();
-      const params = {
-        limit: perPage,
-        offset: offset,
-      };
-      const registeredPipelinesList = await client.getPipelines(params);
-      const registeredPipelines = registeredPipelinesList.getItems();
-      if (registeredPipelines) {
-        dispatch(setPipelinesList(registeredPipelines));
-        setPipelinesCount(registeredPipelinesList.totalCount);
-      }
-    }
-
-    fetchPipelines();
-  }, [page, perPage, dispatch]);
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-      }}
-    >
-      <div>
-        <Pagination
-          itemCount={pipelinesCount}
-          perPage={perPage}
-          page={page}
-          onSetPage={handlePageSet}
-          onPerPageSelect={handlePerPageSet}
-        />
-        <SimpleList
-          style={{
-            marginTop: "2em",
-          }}
-        >
-          {pipelinesList &&
-            pipelinesList.map((pipeline) => {
-              return (
-                <SimpleListItem
-                  isActive={selectedPipeline === pipeline.data.name}
-                  onClick={() => {
-                    dispatch(setCurrentPipeline(pipeline.data.name));
-                    setSelectedPipeline(pipeline.data.name);
-                  }}
-                  key={pipeline.data.id}
-                >
-                  {pipeline.data.name}{" "}
-                </SimpleListItem>
-              );
-            })}
-        </SimpleList>
-      </div>
-      <UploadJson />
-    </div>
-  );
+const workflowTitle: {
+  [key: string]: {
+    title: string;
+  };
+} = {
+  covidnet: {
+    title: "Covidnet",
+  },
+  infantFreesurfer: {
+    title: "Infant Freesurfer",
+  },
+  infantFreesurferAge: {
+    title: "Infant Freesurfer Age",
+  },
+  adultFreesurfer: {
+    title: "Adult Freesurfer",
+  },
+  fastsurfer: {
+    title: "Fastsurfer",
+  },
+  adultFreesurfermoc: {
+    title: "Adult Freesurfer Moc",
+  },
+  fastsurfermoc: {
+    title: "Fastsurfer Moc",
+  },
+  fetalReconstruction: {
+    title: "Fetal Reconstruction",
+  },
 };
 
-export const ConfigurePipeline = () => {
+const getPipelineData = (workflow: string) => {
+  if (workflow === "fastsurfer") {
+    return fastsurferPipeline();
+  }
+  if (workflow === "fetalReconstruction") {
+    return fetalReconstructionPipeline();
+  }
+
+  if (workflow === "adultFreesurfer") {
+    return freesurferPipeline();
+  }
+};
+
+const SelectWorkflow = () => {
   const dispatch = useDispatch();
 
+  const { uploadedWorkflow, optionState } = useTypedSelector(
+    (state) => state.workflows
+  );
+
+  const { selectedOption, isOpen, toggleTemplateText } = optionState;
+
+  const handleSelect = (
+    event?:
+      | React.MouseEvent<HTMLAnchorElement, MouseEvent>
+      | React.KeyboardEvent<Element>
+  ) => {
+    const id = event?.currentTarget.id;
+    //@ts-ignore
+    const name = event?.target.name;
+
+    if (id) {
+      dispatch(
+        setOptionState({
+          ...optionState,
+          toggleTemplateText: name,
+          selectedOption: id || uploadedWorkflow,
+          isOpen: !isOpen,
+        })
+      );
+      const data = getPipelineData(id);
+      dispatch(generatePipeline(data));
+    }
+  };
+
+  const onToggle = () => {
+    dispatch(
+      setOptionState({
+        ...optionState,
+        isOpen: !isOpen,
+      })
+    );
+  };
   const handleNodeClick = (node: {
     data: TreeNode;
     pluginName: string;
-    currentComputeEnv?: string;
+    currentComputeEnv: string;
   }) => {
-    const { pluginName, currentComputeEnv } = node;
-
-    if (currentComputeEnv)
-      dispatch(
-        setCurrentComputeEnv({
-          pluginName,
-          currentComputeEnv,
-        })
-      );
+    dispatch(setCurrentNode(node));
   };
+
+  const handleInputChange = (value: string) => {
+    dispatch(setInfantAge(value));
+  };
+
+  const menuItems = workflows.map((workflow: string) => {
+    return (
+      <OptionsMenuItem
+        onSelect={handleSelect}
+        id={workflow}
+        key={workflow}
+        name={workflowTitle[workflow].title}
+        isSelected={selectedOption === workflow}
+      >
+        {workflowTitle[workflow].title}
+      </OptionsMenuItem>
+    );
+  });
+
+  const toggle = (
+    <OptionsMenuToggle
+      onToggle={onToggle}
+      toggleTemplate={toggleTemplateText}
+    />
+  );
+
   return (
-    <div
-      style={{
-        display: "flex",
-      }}
-    >
-      <Tree handleNodeClick={handleNodeClick} />
-      <ConfigurationPage />
-    </div>
+    <>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <OptionsMenu
+          id="option-menu"
+          isOpen={isOpen}
+          menuItems={menuItems}
+          toggle={toggle}
+        />
+        <UploadJson />
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          height: "100%",
+        }}
+      >
+        <Tree handleNodeClick={handleNodeClick} />
+        <ConfigurationPage />
+        {selectedOption === "infantFreesurferAge" && (
+          <div className="workflow-form">
+            <Form isHorizontal>
+              <TextInput
+                isRequired
+                type="text"
+                id="infant-age"
+                name="infant-age"
+                onChange={handleInputChange}
+                placeholder="Enter an Infant's age in months"
+              />
+            </Form>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
@@ -376,23 +469,5 @@ export const UploadJson = () => {
         onChange={handleUpload}
       />
     </>
-  );
-};
-
-const StatusComponent = () => {
-  const steps = useTypedSelector((state) => state.workflows.steps);
-  return (
-    <Steps direction="horizontal">
-      {steps.map((step: AnalysisStep) => {
-        return (
-          <Step
-            key={step.id}
-            status={step.status}
-            title={step.title}
-            description={step.error && step.error}
-          />
-        );
-      })}
-    </Steps>
   );
 };

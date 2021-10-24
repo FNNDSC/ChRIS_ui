@@ -60,9 +60,10 @@ const FeedListView: React.FC<AllProps> = ({
   const { data, error, loading, totalFeedsCount } = allFeeds;
 
   React.useEffect(() => {
-    document.title = "All Analyses - ChRIS UI ";
+    document.title = "All Feeds - ChRIS UI ";
     setSidebarActive({
-      activeItem: "analyses",
+      activeGroup: "feeds_grp",
+      activeItem: "my_feeds",
     });
   }, [setSidebarActive]);
 
@@ -207,7 +208,7 @@ const FeedListView: React.FC<AllProps> = ({
     };
   };
 
-  const cells = ["Analysis", "Error Count", "Last Commit", "Created", ""];
+  const cells = ["Feed", "Error Count", "Last Commit", "Created", ""];
 
   const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
 
@@ -245,7 +246,7 @@ const FeedListView: React.FC<AllProps> = ({
       <PageSection variant={PageSectionVariants.light} className="feed-header">
         <div className="feed-header__split">
           <Title headingLevel="h1" size="3xl">
-            My Analyses
+            My Feeds
             {totalFeedsCount > 0 ? (
               <span className="feed-header__count">({totalFeedsCount})</span>
             ) : null}
@@ -288,7 +289,7 @@ const FeedListView: React.FC<AllProps> = ({
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setSidebarActive: (active: { activeItem: string }) =>
+  setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
   getAllFeedsRequest: (name?: string, limit?: number, offset?: number) =>
     dispatch(getAllFeedsRequest(name, limit, offset)),

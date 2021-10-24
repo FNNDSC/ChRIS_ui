@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-
 import { ApplicationState } from "../../store/root/applicationState";
 import { IUiState } from "../../store/ui/types";
 import { IUserState } from "../../store/user/types";
@@ -10,6 +9,7 @@ import {
   Nav,
   NavItem,
   NavList,
+  NavExpandable,
   NavGroup,
 } from "@patternfly/react-core";
 import { setSidebarActive } from "../../store/ui/actions";
@@ -17,75 +17,51 @@ import { Dispatch } from "redux";
 
 type AllProps = IUiState & IUserState & ReduxProp;
 type ReduxProp = {
-  setSidebarActive: (active: { activeItem: string }) => void;
+  setSidebarActive: (active: {
+    activeItem: string;
+    activeGroup: string;
+  }) => void;
 };
 
-const Sidebar: React.FC<AllProps> = ({
-  isNavOpen,
-  sidebarActiveItem,
-}: AllProps) => {
+const Sidebar: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
+  const [active, setActive] = React.useState<string>();
   const onSelect = (selectedItem: any) => {
-    const { itemId } = selectedItem;
-    setSidebarActive({
-      activeItem: itemId,
-    });
+    setActive(String(selectedItem.itemId));
   };
 
   const PageNav = (
     <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
       <NavList>
-        <NavItem itemId="overview" isActive={sidebarActiveItem === "overview"}>
-          <Link to="/">Overview</Link>
-        </NavItem>
-
-        <NavGroup title="Data">
-          <NavItem itemId="lib" isActive={sidebarActiveItem === "lib"}>
+        <NavGroup title="Data Library">
+          <NavItem itemId="lib" isActive={active === "lib"}>
             <Link to="/library">My Library</Link>
           </NavItem>
-          <NavItem itemId="pacs" isActive={sidebarActiveItem === "pacs"}>
-            <Link to="/library/pacs">PACS</Link>
-          </NavItem>
+
+          <NavExpandable title="Services" isExpanded={true}>
+            <NavItem itemId="services_pacs" isActive={active === "services_pacs"}>          
+              <Link to="/library/pacs">PACS</Link>
+            </NavItem>
+          </NavExpandable>
         </NavGroup>
 
-        <NavGroup title="Analysis">
-          <NavItem
-            itemId="analyses"
-            isActive={sidebarActiveItem === "analyses"}
-          >
-            <Link to="/feeds">My Analyses</Link>
+        <NavGroup title="Analyse">
+          {/* <NavItem itemId="build_feed" isActive={active === "build_feed"}>
+            <Link to="/feeds">Build Feed</Link>
+          </NavItem> */}
+
+          <NavItem itemId="feeds" isActive={active === "feeds"}>
+            <Link to="/feeds">Feeds List</Link>
           </NavItem>
-          <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
-            <Link to="/catalog">Analysis Catalog</Link>
+
+          <NavItem itemId="visualization" isActive={active === "visualization"}>
+            <Link to="/visualization">Visualizations</Link>
           </NavItem>
-          <NavItem
-            itemId="workflows"
-            isActive={sidebarActiveItem === "workflows"}
-          >
-            <Link to="/workflows">Create New Analysis</Link>
-          </NavItem>
-        </NavGroup>
-        <NavGroup title="Visualize">
-          <NavItem
-            itemId="visualizations"
-            isActive={sidebarActiveItem === "visualizations"}
-          >
-            <Link to="/visualization">DICOM Viewer</Link>
-          </NavItem>
-          <NavItem
-            itemId="sliceDrop"
-            isActive={sidebarActiveItem === "sliceDrop"}
-          >
-            <Link to="/slicedrop">SliceDrop</Link>
-          </NavItem>
-          <NavItem itemId="medview" isActive={sidebarActiveItem === "medview"}>
-            <Link to="/medview">Medview</Link>
-          </NavItem>
-          <NavItem
-            itemId="fetalmri"
-            isActive={sidebarActiveItem === "fetalmri"}
-          >
-            <Link to="/fetalmri">Fetal MRI</Link>
-          </NavItem>
+
+          <NavExpandable title="Workflows" isExpanded={true}>
+            <NavItem itemId="wf_Type-1" isActive={active === "wf_Type-1"}>
+              <Link to="/workflows">Type-1</Link>
+            </NavItem>
+          </NavExpandable>
         </NavGroup>
       </NavList>
     </Nav>
@@ -94,13 +70,12 @@ const Sidebar: React.FC<AllProps> = ({
   return <PageSidebar theme="dark" nav={PageNav} isNavOpen={isNavOpen} />;
 };
 
-const mapStateToProps = ({ user, ui }: ApplicationState) => ({
+const mapStateToProps = ({ user }: ApplicationState) => ({
   isLoggedIn: user.isLoggedIn,
-  sidebarActiveItem: ui.sidebarActiveItem,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setSidebarActive: (active: { activeItem: string }) =>
+  setSidebarActive: (active: { activeItem: string; activeGroup: string }) =>
     dispatch(setSidebarActive(active)),
 });
 
