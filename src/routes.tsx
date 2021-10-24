@@ -72,4 +72,3 @@ export const MainRouter: React.FC = () => {
 };
 
 export default MainRouter;
-

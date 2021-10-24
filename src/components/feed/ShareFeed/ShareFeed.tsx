@@ -1,69 +1,70 @@
-import React from "react";
-import ShareModal from "./ShareModal";
-import { Button } from "@patternfly/react-core";
+import React from 'react'
+import ShareModal from './ShareModal'
+import { Button } from '@patternfly/react-core'
 
-import "./sharefeed.scss";
-import { Feed } from "@fnndsc/chrisapi";
+import './sharefeed.scss'
+import { Feed } from '@fnndsc/chrisapi'
 
-import { CodeBranchIcon } from "@patternfly/react-icons";
-
-import InputUser from "./InputUser";
+import InputUser from './InputUser'
+import { ShareIcon } from '@patternfly/react-icons'
 
 interface ShareFeedState {
-  showOverlay: boolean;
+  showOverlay: boolean
 }
 
 interface ShareFeedProps {
-  feed?: Feed;
+  feed?: Feed
+  label?: string
 }
 
 class ShareFeed extends React.Component<ShareFeedProps, ShareFeedState> {
   constructor(props: ShareFeedProps) {
-    super(props);
+    super(props)
     this.state = {
       showOverlay: false,
-    };
-    this.handleAddClick = this.handleAddClick.bind(this);
-    this.handleModalClose = this.handleModalClose.bind(this);
-    this.handleCreate = this.handleCreate.bind(this);
+    }
+    this.handleAddClick = this.handleAddClick.bind(this)
+    this.handleModalClose = this.handleModalClose.bind(this)
+    this.handleCreate = this.handleCreate.bind(this)
   }
 
   handleAddClick() {
     this.setState((prevState) => ({
       showOverlay: !prevState.showOverlay,
-    }));
+    }))
   }
 
   async handleCreate(username: string) {
-    const { feed } = this.props;
+    const { feed } = this.props
     if (!feed) {
-      return;
+      return
     }
     await feed.put({
       owner: username,
-    });
+    })
 
-    this.handleModalClose();
+    this.handleModalClose()
   }
 
   handleModalClose() {
     this.setState((prevState) => ({
       showOverlay: !prevState.showOverlay,
-    }));
+    }))
   }
 
   render() {
-    const { showOverlay } = this.state;
+    const { showOverlay } = this.state
+    const { label } = this.props
     return (
       <>
         <Button
           className="share-feed-button"
           variant="primary"
           onClick={this.handleAddClick}
-          icon={<CodeBranchIcon />}
-          type='button'
+          icon={<ShareIcon />}
+          type="button"
         >
-          Share Feed
+          {label}
         </Button>
         <ShareModal
           showOverlay={showOverlay}
@@ -75,8 +76,8 @@ class ShareFeed extends React.Component<ShareFeedProps, ShareFeedState> {
           />
         </ShareModal>
       </>
-    );
+    )
   }
 }
 
-export default ShareFeed;
+export default ShareFeed

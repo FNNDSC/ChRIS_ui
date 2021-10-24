@@ -1,6 +1,7 @@
 import { all, fork, put, takeEvery } from "redux-saga/effects";
 import { UserActionTypes } from "./types";
 import { setAuthError, setAuthTokenSuccess } from "./actions";
+import { setWithExpiry } from "../../utils";
 
 
 
@@ -14,10 +15,17 @@ function* handleResponse(action: any) {
       setAuthTokenSuccess({
         token: action.payload.token,
         username: action.payload.username,
+        isRememberMe: action.payload.isRememberMe
       })
     );
-    window.sessionStorage.setItem("CHRIS_TOKEN", action.payload.token);
-    window.sessionStorage.setItem("USERNAME", action.payload.username);
+    if(action.payload.isRememberMe){
+      setWithExpiry("CHRIS_TOKEN", action.payload.token, 43200 * 60 * 1000); //miliseconds for 30 days
+      setWithExpiry("USERNAME", action.payload.username, 43200 * 60 * 1000);
+    }else{
+      setWithExpiry("CHRIS_TOKEN", action.payload.token, 1440 * 60 * 1000); //miliseconds for 24hr
+      setWithExpiry("USERNAME", action.payload.username, 1440 * 60 * 1000);
+    }
+
   } catch (error) {
     setAuthError();
   }
@@ -32,8 +40,8 @@ function* watchLoginRequest() {
 // ----------------------------------------------------------------
 
 function handleLogout() {
-  window.sessionStorage.removeItem("CHRIS_TOKEN");
-  window.sessionStorage.removeItem("USERNAME");
+  window.localStorage.removeItem("CHRIS_TOKEN");
+  window.localStorage.removeItem("USERNAME");
 }
 function* watchLogoutRequest() {
   yield takeEvery(UserActionTypes.LOGOUT_USER, handleLogout);

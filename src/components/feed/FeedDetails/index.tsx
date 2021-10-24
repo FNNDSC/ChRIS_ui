@@ -1,78 +1,74 @@
-import React from "react";
-import Moment from "react-moment";
-import { Skeleton, Button } from "@patternfly/react-core";
-import ShareFeed from "../ShareFeed/ShareFeed";
-import { Popover } from "antd";
+import React from 'react'
+import Moment from 'react-moment'
+import { Skeleton, Button } from '@patternfly/react-core'
+import ShareFeed from '../ShareFeed/ShareFeed'
+import { Popover } from 'antd'
 
 import {
   UserIcon,
   CodeBranchIcon,
   CalendarAltIcon,
   PencilAltIcon,
-} from "@patternfly/react-icons";
-import { useTypedSelector } from "../../../store/hooks";
-import "./FeedDetails.scss";
-import FeedNote from "./FeedNote";
+} from '@patternfly/react-icons'
+import { useTypedSelector } from '../../../store/hooks'
+import './FeedDetails.scss'
+import FeedNote from './FeedNote'
 
 const FeedDetails = () => {
-  const [note, setNote] = React.useState("");
-  const [isNoteVisible, setIsNoteVisible] = React.useState(false);
-  const [savingNote, setSavingNote] = React.useState(false);
-  const currentFeedPayload = useTypedSelector(
-    (state) => state.feed.currentFeed
-  );
+  const [note, setNote] = React.useState('')
+  const [isNoteVisible, setIsNoteVisible] = React.useState(false)
+  const [savingNote, setSavingNote] = React.useState(false)
+  const currentFeedPayload = useTypedSelector((state) => state.feed.currentFeed)
 
-  const { data: feed, error, loading } = currentFeedPayload;
+  const { data: feed, error, loading } = currentFeedPayload
 
   React.useEffect(() => {
     async function fetchNode() {
       if (feed) {
-        const note = await feed.getNote();
-        const { data: noteData } = note;
-        setNote(noteData.content);
+        const note = await feed.getNote()
+        const { data: noteData } = note
+        setNote(noteData.content)
       }
     }
-    fetchNode();
-  }, [feed]);
+    fetchNode()
+  }, [feed])
 
   const handleEditNote = async (editedNote: string) => {
-    setSavingNote(true);
-    const note = await feed?.getNote();
+    setSavingNote(true)
+    const note = await feed?.getNote()
     await note?.put({
-      title: "",
+      title: '',
       content: editedNote,
-    });
-    setSavingNote(false);
-  };
+    })
+    setSavingNote(false)
+  }
 
   const handleClose = () => {
-    setIsNoteVisible(!isNoteVisible);
-  };
+    setIsNoteVisible(!isNoteVisible)
+  }
 
   if (feed) {
     return (
-      <ul className="feed-details">
-        <li>
-          <CodeBranchIcon />
-          {feed && <span> {feed.data.name} </span>}
-        </li>
-        <li>
-          <small>Creator</small>
-          <p>
-            <UserIcon size="sm" />{" "}
+      <div className="feed-details">
+        <div>
+          <span className="detail-text">
+            <CodeBranchIcon />
+            {feed && <span> {feed.data.name} </span>}
+          </span>
+
+          <span className="detail-text">
+            <UserIcon size="sm" />{' '}
             {feed && <span> {feed.data.creator_username} </span>}
-          </p>
-        </li>
-        <li>
-          <small>Created</small>
-          <p>
+          </span>
+
+          <span className="detail-text">
             <CalendarAltIcon size="sm" />
             <Moment format="DD MMM YYYY @ HH:mm">
               {feed && feed.data.creation_date}
             </Moment>
-          </p>
-        </li>
-        <li>
+          </span>
+        </div>
+        <div className="buttons-group">
           <Popover
             content={
               <FeedNote
@@ -86,25 +82,27 @@ const FeedDetails = () => {
             visible={isNoteVisible}
             trigger="click"
             onVisibleChange={(visible: boolean) => {
-              setIsNoteVisible(visible);
+              setIsNoteVisible(visible)
             }}
           >
-            <Button type="button" variant="primary" icon={<PencilAltIcon />}>
+            <Button
+              className="feed-note-button-lg feed-note-button"
+              type="button"
+              variant="primary"
+              icon={<PencilAltIcon />}
+            >
               View Feed Note
             </Button>
           </Popover>
-        </li>
-
-        <li>
-          <ShareFeed feed={feed} />
-        </li>
-      </ul>
-    );
+          <ShareFeed feed={feed} label="Share Feed" />
+        </div>
+      </div>
+    )
   } else if (loading) {
-    return <Skeleton />;
+    return <Skeleton />
   } else if (error) {
-    return <div>Error Found</div>;
-  } else return null;
-};
+    return <div>Error Found</div>
+  } else return null
+}
 
-export default FeedDetails;
+export default FeedDetails
