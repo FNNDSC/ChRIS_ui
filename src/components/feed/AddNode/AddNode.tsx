@@ -241,7 +241,7 @@ const AddNode: React.FC<AddNodeProps> = ({
         });
         resetState();
       }
-    } catch (error) {
+    } catch (error: any) {
       setNodeState({
         ...addNodeState,
         errors: error.response.data,

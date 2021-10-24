@@ -5,7 +5,6 @@ import {
   RouterContext,
   RouterProvider,
 } from "./containers/Routing/RouterContext";
-
 import { LogIn } from "./pages/LogIn/Login";
 import { NotFound } from "./pages/NotFound/NotFound";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -15,7 +14,10 @@ import VisualizationPage from "./pages/VisualizationPage";
 import Library, { Series } from "./pages/DataLibrary/Library";
 import SignUp from "./pages/SignUp/SignUp";
 import WorkflowsPage from "./pages/WorkflowsPage";
-import PublicRoute from "./components/common/PublicRoute";
+import CatalogPage from "./pages/CatalogPage";
+import SliceDropPage from "./pages/VisualizationPage/SliceDropPage";
+import MedviewPage from "./pages/VisualizationPage/MedviewPage";
+import FetalMri from "./pages/VisualizationPage/FetalMri";
 
 interface IState {
   selectData?: Series;
@@ -53,16 +55,21 @@ export const MainRouter: React.FC = () => {
       context={MainRouterContext}
     >
       <PrivateRoute exact path="/" component={Dashboard} />
-      <PublicRoute exact path="/login" component={LogIn} />
-      <PublicRoute exact path="/signup" component={SignUp} />
+      <PrivateRoute exact path="/catalog" component={CatalogPage} />
+      <Route exact path="/login" component={LogIn} />
+      <Route exact path="/signup" component={SignUp} />
       <PrivateRoute path="/feeds" component={FeedsPage} />
       <PrivateRoute path="/library" component={Library} />
       <PrivateRoute path="/gallery" component={GalleryPage} />
       <PrivateRoute path="/workflows" component={WorkflowsPage} />
       <PrivateRoute path="/visualization" component={VisualizationPage} />
+      <PrivateRoute path="/slicedrop" component={SliceDropPage} />
+      <PrivateRoute path="/medview" component={MedviewPage} />
+      <PrivateRoute path="/fetalmri" component={FetalMri} />
       <Route component={NotFound} />
     </RouterProvider>
   );
 };
 
 export default MainRouter;
+

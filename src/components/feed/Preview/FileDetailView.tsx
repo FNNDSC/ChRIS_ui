@@ -8,6 +8,7 @@ import {
   IFileBlob,
   fileViewerMap,
 } from "../../../api/models/file-viewer.model";
+import "../../../components/dicomViewer/amiViewer.scss";
 
 const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 

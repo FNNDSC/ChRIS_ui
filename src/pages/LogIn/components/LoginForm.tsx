@@ -44,19 +44,19 @@ const LoginFormComponent : React.FC<AllProps>=({
 
       try {
         token = await ChrisApiClient.getAuthToken(
-        authURL,
-        usernameValue,
-        passwordValue
-      );
-    } catch (error) {
-      setErrorMessage(
-        (()=>error.response?'Invalid Credentials'
-          :
-        'There was a problem connecting to the server!')()
-      );
-      setShowHelperText(true);
-
-    }
+          authURL,
+          usernameValue,
+          passwordValue
+        );
+      } catch (error: any) {
+        setErrorMessage(
+          (() =>
+            error.response
+              ? "Invalid Credentials"
+              : "There was a problem connecting to the server!")()
+        );
+        setShowHelperText(true);
+      }
 
     if (token && usernameValue) {
       setAuthToken({
