@@ -5,22 +5,19 @@
 *  Author:          ChRIS UI
 */
 
-
 $fw-light: 300;
 $fw-normal: 400;
 $fw-bold: 900;
 
 // Typography
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-size: 2em;
   font-weight: 600;
 
   margin-top: 0.25em;
   margin-bottom: 0.25em;
-
-  &[class~="regular"] {
-    font-weight: 400;
-  }
 }
 
 h2 {

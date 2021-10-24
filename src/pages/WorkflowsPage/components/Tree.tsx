@@ -13,6 +13,7 @@ import {
 } from "../../../store/workflows/actions";
 import { List, Avatar } from "antd";
 
+
 const nodeSize = { x: 150, y: 40 };
 const svgClassName = "feed-tree__svg";
 const graphClassName = "feed-tree__graph";
@@ -36,7 +37,7 @@ const Tree = (props: {
   handleNodeClick: (nodeName: {
     data: TreeNode;
     pluginName: string;
-    currentComputeEnv: string;
+    currentComputeEnv?: string;
   }) => void;
 }) => {
   const pluginPipings = useTypedSelector(
@@ -199,7 +200,7 @@ type NodeProps = {
   handleNodeClick: (nodeName: {
     data: TreeNode;
     pluginName: string;
-    currentComputeEnv: string;
+    currentComputeEnv?: string;
   }) => void;
 };
 
@@ -214,12 +215,12 @@ const NodeData = (props: NodeProps) => {
   const nodeRef = useRef<SVGGElement>(null);
   const textRef = useRef<SVGTextElement>(null);
   const { data, position, orientation, handleNodeClick } = props;
+  const computeEnvs = useTypedSelector((state) => state.workflows.computeEnvs);
   const [pluginName, setPluginName] = React.useState("");
 
-  const computeEnvs = useTypedSelector((state) => state.workflows.computeEnvs);
-  let currentComputeEnv = "";
-  if (pluginName && computeEnvs && computeEnvs[pluginName]) {
-    currentComputeEnv = computeEnvs[pluginName].currentlySelected.name;
+  let current = undefined;
+  if (computeEnvs && pluginName && computeEnvs[pluginName]) {
+    current = computeEnvs[pluginName].currentlySelected;
   }
 
   const applyNodeTransform = (transform: string, opacity = 1) => {
@@ -241,7 +242,7 @@ const NodeData = (props: NodeProps) => {
           const computeEnvData = {
             [pluginName]: {
               computeEnvs: computeEnvs.data,
-              currentlySelected: computeEnvs.data[0],
+              currentlySelected: computeEnvs.data[0].name,
             },
           };
 
@@ -253,27 +254,24 @@ const NodeData = (props: NodeProps) => {
   }, [data, dispatch, pluginName]);
 
   React.useEffect(() => {
-    dispatch(
-      setCurrentNode({
-        data,
-        pluginName,
-        currentComputeEnv: "",
-      })
-    );
-  }, [data, dispatch, pluginName, currentComputeEnv]);
+    async function setDefaultResource() {
+      const plugin = await ChrisAPIClient.getClient().getPlugin(data.plugin_id);
+
+      if (plugin) {
+        setPluginName(plugin.data.name);
+
+        if (!data.previous_id) {
+          dispatch(setCurrentNode(plugin.data.name));
+        }
+      }
+    }
+
+    setDefaultResource();
+  }, [data, dispatch]);
 
   React.useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);
     applyNodeTransform(nodeTransform);
-
-    async function fetchPluginName() {
-      const plugin_id = data.plugin_id;
-      const client = ChrisAPIClient.getClient();
-      const plugin = await client.getPlugin(plugin_id);
-      setPluginName(plugin.data.name);
-    }
-
-    fetchPluginName();
   }, [orientation, position, data]);
 
   const textLabel = (
@@ -284,12 +282,6 @@ const NodeData = (props: NodeProps) => {
     </g>
   );
 
-  const payload = {
-    data,
-    pluginName,
-    currentComputeEnv,
-  };
-
   return (
     <Fragment>
       <g
@@ -299,15 +291,21 @@ const NodeData = (props: NodeProps) => {
         id={`${data.id}`}
         ref={nodeRef}
         onClick={() => {
-          handleNodeClick(payload);
+          dispatch(setCurrentNode(pluginName));
+          if (computeEnvs) {
+            const current = computeEnvs[pluginName].currentlySelected;
+            handleNodeClick({
+              data,
+              pluginName,
+              currentComputeEnv: current,
+            });
+          }
         }}
       >
         <circle
           style={{
             fill: `${
-              colorPalette[currentComputeEnv]
-                ? colorPalette[currentComputeEnv]
-                : colorPalette["default"]
+              current ? colorPalette[current] : colorPalette["default"]
             }`,
           }}
           id={`node_${data.id}`}
@@ -320,17 +318,12 @@ const NodeData = (props: NodeProps) => {
 };
 
 const ConfigurationPage = () => {
-  const node = useTypedSelector((state) => state.workflows.currentNode);
-  const computeEnvs = useTypedSelector((state) => state.workflows.computeEnvs);
-  let computeEnvList;
-  if (computeEnvs && node) {
-    const { pluginName } = node;
-
-    if (computeEnvs[pluginName]) {
-      computeEnvList = computeEnvs[pluginName].computeEnvs;
-    }
-  } else {
-    computeEnvList = [];
+  const { computeEnvs, currentNode } = useTypedSelector(
+    (state) => state.workflows
+  );
+  let computeEnvList = [];
+  if (computeEnvs && currentNode && computeEnvs[currentNode]) {
+    computeEnvList = computeEnvs[currentNode].computeEnvs;
   }
 
   return (
@@ -340,10 +333,6 @@ const ConfigurationPage = () => {
           width: "45%",
         }}
       >
-        <h4>{`Configuring Compute Environments for ${
-          node ? node.pluginName : ""
-        }`}</h4>
-
         <List
           itemLayout="horizontal"
           dataSource={computeEnvList}

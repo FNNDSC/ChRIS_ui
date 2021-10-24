@@ -87,11 +87,10 @@ export const FeedView: React.FC<FeedViewProps> = ({
   }, [dispatch]);
 
   React.useEffect(() => {
-    document.title = "My Feeds - ChRIS UI site";
+    document.title = "My Analyses - ChRIS UI site";
     dispatch(
       setSidebarActive({
-        activeGroup: "feeds_grp",
-        activeItem: "my_feeds",
+        activeItem: "analyses",
       })
     );
     dispatch(getFeedRequest(id));
