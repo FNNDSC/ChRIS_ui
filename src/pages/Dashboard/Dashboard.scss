@@ -1,0 +1,12 @@
+@import "../../assets/scss/helpers/pf4-variables";
+
+@media screen and (min-width: 576px) and (max-width: 768px) {
+  .dashboard-carddisplay img:nth-last-of-type(-n + 2) {
+    display: none;
+  }
+}
+@media screen and (min-width: 0px) and (max-width: 575px) {
+  .dashboard-carddisplay img:nth-last-of-type(-n + 3) {
+    display: none;
+  }
+}
