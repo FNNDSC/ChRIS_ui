@@ -37,9 +37,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   onSelectPACS,
   onFinalize,
 }: QueryBuilderProps) => {
-
-  const [query, setQuery] = useState<PFDCMQuery>({ 
-    type: PFDCMQueryTypes.PMRN
+  const [query, setQuery] = useState<PFDCMQuery>({
+    type: PFDCMQueryTypes.PMRN,
   } as PFDCMQuery);
 
   const setQueryType = (type: PFDCMQueryTypes) => {
@@ -66,27 +65,28 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
     } as PFDCMQuery);
   };
 
-  const { push:route, location } = useHistory();
+  const { push: route, location } = useHistory();
 
   useEffect(() => {
-    const q = (new URLSearchParams(location.search)).get('q');
-    if (q)
-      finalize(JSON.parse(atob(q)) as PFDCMQuery)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    const q = new URLSearchParams(location.search).get("q");
+    if (q) finalize(JSON.parse(atob(q)) as PFDCMQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const finalize = (_query = query) => {
     if (_query === query)
-      route(`${location.pathname}?q=${btoa(JSON.stringify(_query))}`)
+      route(`${location.pathname}?q=${btoa(JSON.stringify(_query))}`);
 
     if (!_query.value)
       if (_query.filters)
-        return onFinalize([{
-          ..._query, value: String(), filters: _query.filters
-        }])
-      else
-        return;
-      
+        return onFinalize([
+          {
+            ..._query,
+            value: String(),
+            filters: _query.filters,
+          },
+        ]);
+      else return;
 
     const csv = (_query.value as string).split(",");
     const queries: PFDCMQuery[] = [];
@@ -103,11 +103,14 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
 
   const __queryType = (type: PFDCMQueryTypes) => {
     switch (type) {
-      case PFDCMQueryTypes.PMRN: return "Patient MRN";
-      case PFDCMQueryTypes.NAME: return "Patient Name";
-      case PFDCMQueryTypes.ACCN: return "Accession Number";
+      case PFDCMQueryTypes.PMRN:
+        return "Patient MRN";
+      case PFDCMQueryTypes.NAME:
+        return "Patient Name";
+      case PFDCMQueryTypes.ACCN:
+        return "Accession Number";
     }
-  }
+  };
 
   return (
     <Grid hasGutter id="pacs-query-builder">
@@ -127,7 +130,9 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                           <div style={{ fontSize: "smaller", color: "gray" }}>
                             Search By
                           </div>
-                          <div style={{ fontWeight: 600 }}>{__queryType(query.type)}</div>
+                          <div style={{ fontWeight: 600 }}>
+                            {__queryType(query.type)}
+                          </div>
                         </div>
                       </DropdownToggle>
                     }
@@ -164,7 +169,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                             id="search-value"
                             placeholder="Patient ID or MRN"
                             onChange={handleInput}
-                            onKeyDown={({ key }) => {
+                            onKeyDown={({ key }: { key: any }) => {
                               if (key.toLowerCase() === "enter") finalize();
                             }}
                           />
@@ -176,10 +181,10 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                             type="text"
                             id="search-value"
                             placeholder="Patient Name"
-                            onChange={(value) =>
+                            onChange={(value: string) =>
                               handleInput(value.split(" ").reverse().join("^"))
                             }
-                            onKeyDown={({ key }) => {
+                            onKeyDown={({ key }: { key: any }) => {
                               if (key.toLowerCase() === "enter") finalize();
                             }}
                           />
@@ -192,7 +197,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                             id="search-value"
                             placeholder="Accession Number"
                             onChange={handleInput}
-                            onKeyDown={({ key }) => {
+                            onKeyDown={({ key }: { key: any }) => {
                               if (key.toLowerCase() === "enter") finalize();
                             }}
                           />
@@ -210,8 +215,12 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       toggle={
                         <DropdownToggle onToggle={onTogglePACSList}>
                           {PACS ? (
-                            <div style={{ textAlign: "left", padding: "0 0.5em" }}>
-                              <div style={{ fontSize: "smaller", color: "gray" }}>
+                            <div
+                              style={{ textAlign: "left", padding: "0 0.5em" }}
+                            >
+                              <div
+                                style={{ fontSize: "smaller", color: "gray" }}
+                              >
                                 PACS Service
                               </div>
                               <div style={{ fontWeight: 600 }}>{PACS}</div>
@@ -288,23 +297,27 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <br />
                   <DatePicker
                     placeholder="Study Date (yyyy-MM-dd)"
-                    dateFormat={(date) => date.toDateString()}
-                    onChange={(_, date) =>
-                      handleFilter(date && {
-                        StudyDate: toPACSDate(date),
-                      })
+                    dateFormat={(date: any) => date.toDateString()}
+                    onChange={(_: any, date: any) =>
+                      handleFilter(
+                        date && {
+                          StudyDate: toPACSDate(date),
+                        }
+                      )
                     }
-                    onKeyDown={({ key }) => {
+                    onKeyDown={({ key }: { key: any }) => {
                       if (key.toLowerCase() === "enter") finalize();
                     }}
-                    />
+                  />
                 </GridItem>
 
                 <GridItem lg={4} sm={12}>
                   Modality <br />
                   <TextInput
                     type="text"
-                    onChange={(value) => handleFilter({ Modality: value })}
+                    onChange={(value: string) =>
+                      handleFilter({ Modality: value })
+                    }
                     placeholder="Eg: MR"
                     id="modality"
                   />
@@ -315,7 +328,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <br />
                   <TextInput
                     type="text"
-                    onChange={(value) =>
+                    onChange={(value: string) =>
                       handleFilter({ PerformedStationAETitle: value })
                     }
                     placeholder="Eg: LILA"
@@ -328,13 +341,15 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <br />
                   <DatePicker
                     placeholder="Birth Date (yyyy-MM-dd)"
-                    dateFormat={(date) => date.toDateString()}
-                    onChange={(_, date) =>
-                      handleFilter(date && {
-                        PatientBirthDate: toPACSDate(date),
-                      })
+                    dateFormat={(date: Date) => date.toDateString()}
+                    onChange={(_: any, date?: Date) =>
+                      handleFilter(
+                        date && {
+                          PatientBirthDate: toPACSDate(date),
+                        }
+                      )
                     }
-                    onKeyDown={({ key }) => {
+                    onKeyDown={({ key }: { key: any }) => {
                       if (key.toLowerCase() === "enter") finalize();
                     }}
                   />

@@ -1,8 +1,8 @@
-@import './helpers/pf4-variables';
+@import './helpers/_pf4-variables';
 @import './helpers/variables';
 
 //Vendors
-@import "vendors/patternfly/patternfly";
+@import "./vendors/patternfly/patternfly";
 
 // Base
 @import "./base/utilities";
@@ -15,4 +15,3 @@
 
 // Custom Layout styles
 @import './layout/layout';
-

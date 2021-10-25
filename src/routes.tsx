@@ -18,6 +18,7 @@ import CatalogPage from "./pages/CatalogPage";
 import SliceDropPage from "./pages/VisualizationPage/SliceDropPage";
 import MedviewPage from "./pages/VisualizationPage/MedviewPage";
 import FetalMri from "./pages/VisualizationPage/FetalMri";
+import Collab from "./pages/VisualizationPage/Collab";
 
 interface IState {
   selectData?: Series;
@@ -66,6 +67,7 @@ export const MainRouter: React.FC = () => {
       <PrivateRoute path="/slicedrop" component={SliceDropPage} />
       <PrivateRoute path="/medview" component={MedviewPage} />
       <PrivateRoute path="/fetalmri" component={FetalMri} />
+      <PrivateRoute path="/collab" component={Collab} />
       <Route component={NotFound} />
     </RouterProvider>
   );
