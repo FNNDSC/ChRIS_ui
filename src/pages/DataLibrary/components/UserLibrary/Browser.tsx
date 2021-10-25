@@ -261,7 +261,7 @@ export const Browser: React.FC<BrowserProps> = ({
                   <TextInput
                     id={`${path}-filter`}
                     placeholder="Filter by Name"
-                    onChange={(value) => setFilter(value || undefined)}
+                    onChange={(value: any) => setFilter(value || undefined)}
                   />
                 </Card>
               </SplitItem>

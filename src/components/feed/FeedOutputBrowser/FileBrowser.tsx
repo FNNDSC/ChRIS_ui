@@ -384,7 +384,7 @@ const HeaderPanel = (props: HeaderPanelProps) => {
           toggle={
             <DropdownToggle
               className="open-with-dropdown"
-              onToggle={(open) => setShowOpenWith(open)}
+              onToggle={(open: any) => setShowOpenWith(open)}
               toggleIndicator={CaretDownIcon}
             >
               Open With

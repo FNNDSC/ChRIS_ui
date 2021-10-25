@@ -19,7 +19,7 @@ import {
   Modal,
   ModalVariant,
 } from "@patternfly/react-core";
-import { v4 } from "uuid";
+import { FormGroup, Form } from "@patternfly/react-core";
 
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { useTypedSelector } from "../../../../store/hooks";
@@ -30,7 +30,6 @@ import "./user-library.scss";
 import Browser from "./Browser";
 import DirectoryTree from "../../../../utils/browser";
 import { setSidebarActive } from "../../../../store/ui/actions";
-import { LocalFile } from "../../../../components/feed/CreateFeed/types";
 
 export const UserLibrary = () => {
   const client = ChrisAPIClient.getClient();
@@ -38,6 +37,7 @@ export const UserLibrary = () => {
   const [uploadedFileModal, setUploadFileModal] = React.useState(false);
   const [uploadedFiles, setUploadedFiles] = React.useState(false);
   const [directoryName, setDirectoryName] = React.useState("");
+  const [value, setValue] = React.useState("");
   const username = useTypedSelector((state) => state.user.username) as string;
   const dispatch = useDispatch();
   React.useEffect(() => {
@@ -76,6 +76,10 @@ export const UserLibrary = () => {
       console.error(error);
     }
   }, [client, username]);
+
+  const handleChange = (value: string) => {
+    setValue(value);
+  };
 
   const fetchServices = useCallback(async () => {
     const params = { limit: 100, offset: 0, fname_nslashes: "5u" };
@@ -408,8 +412,8 @@ export const UserLibrary = () => {
                   id="search-value"
                   placeholder="Search Library"
                   defaultValue={query || ""}
-                  onChange={(value) => setQuery(value)}
-                  onKeyDown={({ key }) => {
+                  onChange={(value: any) => setQuery(value)}
+                  onKeyDown={({ key }: { key: any }) => {
                     if (query && key.toLowerCase() === "enter") {
                       setSearchResults(undefined);
                       route(`/library/search?q=${query}`);
@@ -618,6 +622,8 @@ export const UserLibrary = () => {
                   }}
                   localFiles={[]}
                   dispatchFn={async (files) => {
+                    console.log("Files", files);
+                    /*
                     const directory = `${username}/uploads/test-upload-${v4().substr(
                       0,
                       4
@@ -642,8 +648,10 @@ export const UserLibrary = () => {
                     }
                     setUploadedFiles(false);
                     setUploadFileModal(false);
+                    */
                   }}
                 />
+                <UploadComponent value={value} handleChange={handleChange} />
                 {uploadedFiles && (
                   <div>
                     Files are being uploaded at {directoryName}. Please wait....
@@ -729,3 +737,31 @@ export const UserLibrary = () => {
 };
 
 export default UserLibrary;
+
+const UploadComponent = ({
+  value,
+  handleChange,
+}: {
+  value: string;
+  handleChange: (value: string) => void;
+}) => {
+  return (
+    <Form isHorizontal>
+      <FormGroup
+        fieldId="directory name"
+        label="Directory Name"
+        helperText="Set a directory name"
+      >
+        <TextInput
+          id="horizontal form name"
+          value={value}
+          type="text"
+          name="horizontal-form-name"
+          onChange={(value) => {
+            handleChange(value);
+          }}
+        />
+      </FormGroup>
+    </Form>
+  );
+};

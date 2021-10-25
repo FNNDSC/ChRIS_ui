@@ -86,6 +86,9 @@ const Sidebar: React.FC<AllProps> = ({
           >
             <Link to="/fetalmri">Fetal MRI</Link>
           </NavItem>
+          <NavItem itemId="collab" isActive={sidebarActiveItem === "collab"}>
+            <Link to="/collab">Collab CHRIS</Link>
+          </NavItem>
         </NavGroup>
       </NavList>
     </Nav>
