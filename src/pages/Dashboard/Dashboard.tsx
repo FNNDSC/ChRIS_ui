@@ -27,6 +27,7 @@ import TreeOne from "../../assets/images/tree_1.png";
 import TreeTwo from "../../assets/images/tree_2.png";
 import TreeThree from "../../assets/images/tree_3.png";
 import TreeFour from "../../assets/images/tree_4.png";
+import "./Dashboard.scss";
 
 interface DashboardProps extends RouteComponentProps {
   children: React.ReactNode;
@@ -80,6 +81,7 @@ const DashboardPage = (props: DashboardProps) => {
               body='Visit "My Library" in the main navigation to review your data collection'
               buttonText="Go to My Library"
               buttonLink="/library"
+              className="dashboard-carddisplay"
             />
           </GridItem>
           <GridItem lg={6}>
@@ -96,9 +98,9 @@ const DashboardPage = (props: DashboardProps) => {
               body='Visit "My Analyses" in the main navigation to review your data analyses'
               buttonText="Go to My Analyses"
               buttonLink="/feeds"
+              className="dashboard-carddisplay"
             />
           </GridItem>
-
           <GridItem lg={6}>
             <CardDisplay
               component={<LogoComponent logo={outlineSearch} />}
@@ -131,18 +133,21 @@ const CardDisplay = ({
   body,
   buttonText,
   buttonLink,
+  className,
 }: {
   component: React.ReactElement;
   title: string;
   body: string;
   buttonText: string;
   buttonLink: string;
+  className?: string;
 }) => {
   const history = useHistory();
   return (
-    <Card style={{ overflow: "hidden", width: "70%" }}>
+    <Card style={{ overflow: "hidden" }}>
       <CardHeader
         style={{ margin: "0 2rem", display: "flex", justifyContent: "center" }}
+        className={className}
       >
         <CardHeaderMain>{component}</CardHeaderMain>
       </CardHeader>
