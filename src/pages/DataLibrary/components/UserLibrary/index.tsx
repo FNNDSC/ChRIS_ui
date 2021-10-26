@@ -11,33 +11,35 @@ import {
   EmptyStatePrimary,
   Grid,
   GridItem,
-  Spinner,
   Split,
   SplitItem,
   TextInput,
   Title,
   Modal,
   ModalVariant,
+  FormGroup,
+  Form,
+  Spinner
 } from "@patternfly/react-core";
-import { FormGroup, Form } from "@patternfly/react-core";
-
+import { LocalFile } from "../../../../components/feed/CreateFeed/types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { useTypedSelector } from "../../../../store/hooks";
 import Wrapper from "../../../../containers/Layout/PageWrapper";
 import FileUpload from "../../../../components/common/fileupload";
-
 import "./user-library.scss";
 import Browser from "./Browser";
 import DirectoryTree from "../../../../utils/browser";
 import { setSidebarActive } from "../../../../store/ui/actions";
+import { v4 } from "uuid";
 
 export const UserLibrary = () => {
   const client = ChrisAPIClient.getClient();
   document.title = "My Library";
   const [uploadedFileModal, setUploadFileModal] = React.useState(false);
-  const [uploadedFiles, setUploadedFiles] = React.useState(false);
   const [directoryName, setDirectoryName] = React.useState("");
+  const [localFiles, setLocalFiles] = React.useState<LocalFile[]>();
   const [value, setValue] = React.useState("");
+  const [uploading, setUploading] = React.useState(false);
   const username = useTypedSelector((state) => state.user.username) as string;
   const dispatch = useDispatch();
   React.useEffect(() => {
@@ -397,6 +399,37 @@ export const UserLibrary = () => {
     return DirectoryTree.fileList(files.getItems() || [], fname);
   };
 
+  const handleSubmit = async () => {
+    if (!uploading) {
+      setUploading(true);
+      const directory = !value
+        ? `${username}/uploads/test-upload=${v4().substr(0, 4)}`
+        : `${username}/uploads/${value}`;
+      if (localFiles && localFiles.length > 0 && value) {
+        const client = ChrisAPIClient.getClient();
+        for (let i = 0; i < localFiles.length; i++) {
+          const file = localFiles[i];
+          if (i === 0) {
+            setDirectoryName(directory);
+          }
+          console.log("Directory", directory);
+          await client.uploadFile(
+            {
+              upload_path: `${directory}/${file.name}`,
+            },
+            {
+              fname: (file as LocalFile).blob,
+            }
+          );
+        }
+        setUploadFileModal(false);
+        setUploading(false);
+      } else {
+        return;
+      }
+    }
+  };
+
   return (
     <Wrapper>
       <article id="user-library">
@@ -614,6 +647,16 @@ export const UserLibrary = () => {
                 }}
                 title="Upload your files"
                 isOpen={uploadedFileModal}
+                actions={[
+                  <Button
+                    key="confirm"
+                    variant="primary"
+                    onClick={handleSubmit}
+                    isDisabled={uploading}
+                  >
+                    Confirm
+                  </Button>,
+                ]}
               >
                 <FileUpload
                   className=""
@@ -622,40 +665,21 @@ export const UserLibrary = () => {
                   }}
                   localFiles={[]}
                   dispatchFn={async (files) => {
-                    console.log("Files", files);
-                    /*
-                    const directory = `${username}/uploads/test-upload-${v4().substr(
-                      0,
-                      4
-                    )}`;
-                    const client = ChrisAPIClient.getClient();
-                    for (let i = 0; i < files.length; i++) {
-                      setUploadedFiles(true);
-                      const file = files[i];
-
-                      if (i == 0) {
-                        setDirectoryName(directory);
-                      }
-
-                      await client.uploadFile(
-                        {
-                          upload_path: `${directory}/${file.name}`,
-                        },
-                        {
-                          fname: (file as LocalFile).blob,
-                        }
-                      );
-                    }
-                    setUploadedFiles(false);
-                    setUploadFileModal(false);
-                    */
+                    setLocalFiles(files);
                   }}
                 />
-                <UploadComponent value={value} handleChange={handleChange} />
-                {uploadedFiles && (
+                {localFiles && (
                   <div>
-                    Files are being uploaded at {directoryName}. Please wait....
+                    Total number of files to upload: {localFiles.length}
                   </div>
+                )}
+
+                <UploadComponent value={value} handleChange={handleChange} />
+                {uploading && (
+                  <>
+                    <p>Uploading....</p>
+                    <Spinner size="md" />
+                  </>
                 )}
               </Modal>
 
