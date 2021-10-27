@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import {
   Alert,
@@ -6,13 +6,11 @@ import {
   PageSectionVariants
 } from "@patternfly/react-core";
 import "./not-found.scss";
-import { useEffect } from "hoist-non-react-statics/node_modules/@types/react";
 
-const NotFoundPage: React.FunctionComponent = () => {
+export const NotFoundPage: React.FC = () => {
   useEffect(() => {
     document.title = "Page Not Found";
   }, []);
-
   return (
     <Wrapper>
       <PageSection variant={PageSectionVariants.default}>
@@ -27,5 +25,3 @@ const NotFoundPage: React.FunctionComponent = () => {
     </Wrapper>
   );
 };
-
-export { NotFoundPage as NotFound };
