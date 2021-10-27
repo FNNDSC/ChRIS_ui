@@ -140,7 +140,7 @@ type LinkState = {
 
 const LinkData: React.FC<LinkProps> = ({ linkData, orientation }) => {
   const linkRef = useRef<SVGPathElement | null>(null);
-  const [initialStyle, setInitialStyle] = useState<LinkState["initialStyle"]>();
+  const [initialStyle] = useState<LinkState["initialStyle"]>({ opacity: 1 });
   const nodeRadius = 12;
 
   useEffect(() => {

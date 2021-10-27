@@ -87,6 +87,7 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
     setMounted(true);
     fetchAllPlugins();
     fetchRecentPlugins();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAccordionToggle = (_expanded: string) => {
