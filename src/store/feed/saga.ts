@@ -12,9 +12,9 @@ import { getPluginInstancesRequest } from "../pluginInstance/actions";
 import { Feed, FeedList } from "@fnndsc/chrisapi";
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
-  const { name_startswith, limit, offset } = action.payload;
+  const { name, limit, offset } = action.payload;
   const params = {
-    name_startswith,
+    name,
     limit,
     offset,
   };
