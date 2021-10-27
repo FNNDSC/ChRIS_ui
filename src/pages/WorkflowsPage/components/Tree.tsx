@@ -1,4 +1,4 @@
-import React, { Fragment, useRef } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { TreeNode } from "../../../store/workflows/types";
 import { tree, hierarchy, HierarchyPointNode } from "d3-hierarchy";
@@ -9,17 +9,16 @@ import { getFeedTree } from "../utils";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import {
   setComputeEnvs,
-  setCurrentNode,
+  setCurrentNode
 } from "../../../store/workflows/actions";
 import { List, Avatar } from "antd";
-
 
 const nodeSize = { x: 150, y: 40 };
 const svgClassName = "feed-tree__svg";
 const graphClassName = "feed-tree__graph";
 const translate = {
   x: 170,
-  y: 25,
+  y: 25
 };
 const scale = 1;
 
@@ -30,7 +29,7 @@ const colorPalette: {
   host: "#5998C5",
   moc: "#704478",
   titan: "#1B9D92",
-  "bu-21-9": "#ADF17F",
+  "bu-21-9": "#ADF17F"
 };
 
 const Tree = (props: {
@@ -72,7 +71,7 @@ const Tree = (props: {
   return (
     <div
       style={{
-        width: "65%",
+        width: "65%"
       }}
     >
       <svg className={`${svgClassName}`} width="100%" height="100%">
@@ -113,41 +112,28 @@ interface LinkProps {
   orientation: "vertical";
 }
 
-type LinkState = {
-  initialStyle: {
-    opacity: number;
-  };
-};
+const LinkData: React.FC<LinkProps> = ({ linkData, orientation }) => {
+  const linkRef = useRef<SVGPathElement | null>(null);
+  const [initialStyle] = useState({ opacity: 0 });
 
-class LinkData extends React.Component<LinkProps, LinkState> {
-  private linkRef: SVGPathElement | null = null;
-  state = {
-    initialStyle: {
-      opacity: 0,
-    },
-  };
-  componentDidMount() {
-    this.applyOpacity(1, 0);
-  }
-  componentWillLeave(done: () => null) {
-    this.applyOpacity(1, 0, done);
-  }
+  useEffect(() => {
+    applyOpacity(1, 0);
 
-  applyOpacity(
+    return () => applyOpacity(1, 0);
+  }, []);
+
+  const applyOpacity = (
     opacity: number,
     transitionDuration: number,
     done = () => {
       return null;
     }
-  ) {
-    select(this.linkRef).style("opacity", opacity).on("end", done);
-  }
+  ) => {
+    select(linkRef.current).style("opacity", opacity).on("end", done);
+  };
+  const nodeRadius = 12;
 
-  nodeRadius = 12;
-
-  drawPath = () => {
-    const { linkData, orientation } = this.props;
-
+  const drawPath = () => {
     const { source, target } = linkData;
 
     const deltaX = target.x - source.x,
@@ -155,8 +141,8 @@ class LinkData extends React.Component<LinkProps, LinkState> {
       dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
       normX = deltaX / dist,
       normY = deltaY / dist,
-      sourcePadding = this.nodeRadius,
-      targetPadding = this.nodeRadius + 4,
+      sourcePadding = nodeRadius,
+      targetPadding = nodeRadius + 4,
       sourceX = source.x + sourcePadding * normX,
       sourceY = source.y + sourcePadding * normY,
       targetX = target.x - targetPadding * normX,
@@ -168,25 +154,20 @@ class LinkData extends React.Component<LinkProps, LinkState> {
       ? `M ${sourceY} ${sourceX} L ${targetY} ${targetX}`
       : `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
   };
-  render() {
-    const { linkData } = this.props;
-    return (
-      <Fragment>
-        <path
-          ref={(l) => {
-            this.linkRef = l;
-          }}
-          className="link"
-          d={this.drawPath()}
-          style={{ ...this.state.initialStyle }}
-          data-source-id={linkData.source.id}
-          data-target-id={linkData.target.id}
-        />
-      </Fragment>
-    );
-  }
-}
 
+  return (
+    <Fragment>
+      <path
+        ref={linkData}
+        className="link"
+        d={drawPath()}
+        style={{ ...initialStyle }}
+        data-source-id={linkData.source.id}
+        data-target-id={linkData.target.id}
+      />
+    </Fragment>
+  );
+};
 export interface Point {
   x: number;
   y: number;
@@ -234,7 +215,7 @@ const NodeData = (props: NodeProps) => {
       const client = ChrisAPIClient.getClient();
 
       const computeEnvs = await client.getComputeResources({
-        plugin_id: `${data.plugin_id}`,
+        plugin_id: `${data.plugin_id}`
       });
 
       if (computeEnvs.getItems()) {
@@ -242,8 +223,8 @@ const NodeData = (props: NodeProps) => {
           const computeEnvData = {
             [pluginName]: {
               computeEnvs: computeEnvs.data,
-              currentlySelected: computeEnvs.data[0].name,
-            },
+              currentlySelected: computeEnvs.data[0].name
+            }
           };
 
           dispatch(setComputeEnvs(computeEnvData));
@@ -286,7 +267,7 @@ const NodeData = (props: NodeProps) => {
     <Fragment>
       <g
         style={{
-          cursor: "pointer",
+          cursor: "pointer"
         }}
         id={`${data.id}`}
         ref={nodeRef}
@@ -297,16 +278,14 @@ const NodeData = (props: NodeProps) => {
             handleNodeClick({
               data,
               pluginName,
-              currentComputeEnv: current,
+              currentComputeEnv: current
             });
           }
         }}
       >
         <circle
           style={{
-            fill: `${
-              current ? colorPalette[current] : colorPalette["default"]
-            }`,
+            fill: `${current ? colorPalette[current] : colorPalette["default"]}`
           }}
           id={`node_${data.id}`}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
@@ -330,7 +309,7 @@ const ConfigurationPage = () => {
     <>
       <div
         style={{
-          width: "45%",
+          width: "45%"
         }}
       >
         <List
@@ -346,7 +325,7 @@ const ConfigurationPage = () => {
                         colorPalette[item.name]
                           ? colorPalette[item.name]
                           : colorPalette["default"]
-                      }`,
+                      }`
                     }}
                   />
                 }
