@@ -21,7 +21,8 @@ class ChrisAPIClient {
 
   static getClient(): Client {
     if (!this.client || !this.isTokenAuthorized) {
-      const token: string = window.sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
+      // const token: string = window.sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
+      const token: string = window.localStorage.getItem(AUTH_TOKEN_KEY) || '';
       if (token) {
         this.isTokenAuthorized = true;
       } else {

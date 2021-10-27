@@ -7,7 +7,6 @@ import Hammer from "hammerjs";
 import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
 import { IFileBlob } from "../../../../api/models/file-viewer.model";
 
-
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.Hammer = Hammer;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
@@ -17,10 +16,10 @@ cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     "Content-Type": "application/vnd.collection+json",
-    Authorization: "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
+    Authorization: "Token " + window.localStorage.getItem("CHRIS_TOKEN")
   },
   method: "get",
-  responseType: "arrayBuffer",
+  responseType: "arrayBuffer"
 });
 const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
 
@@ -72,8 +71,8 @@ const NiftiDisplay = (props: AllProps) => {
           tools={[
             {
               name: "StackScrollMouseWheel",
-              mode: "active",
-            },
+              mode: "active"
+            }
           ]}
         />
       ) : (

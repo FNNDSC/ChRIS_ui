@@ -1,6 +1,6 @@
-import React from 'react'
-import {connect} from 'react-redux'
-import {Dispatch} from 'redux'
+import React from "react";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
 import { useHistory } from "react-router-dom";
 import {
   Form,
@@ -10,16 +10,15 @@ import {
   ActionGroup,
   FormAlert,
   Alert,
-  InputGroup,
+  InputGroup
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 import ChrisApiClient from "@fnndsc/chrisapi";
 import { Link } from "react-router-dom";
 import { has } from "lodash";
 import { validate } from "email-validator";
-import {setAuthToken} from '../../../store/user/actions';
-import {EyeIcon, EyeSlashIcon} from '@patternfly/react-icons';
-
+import { setAuthToken } from "../../../store/user/actions";
+import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
 
 type Validated = {
   error: undefined | "error" | "default" | "success" | "warning";
@@ -30,15 +29,13 @@ interface SignUpFormProps {
   isShowPasswordEnabled?: boolean;
   showPasswordAriaLabel?: string;
   hidePasswordAriaLabel?: string;
-};
-
-
+}
 
 const SignUpForm: React.FC<SignUpFormProps> = ({
   setAuthToken,
   isShowPasswordEnabled = true,
-  hidePasswordAriaLabel = 'Hide password',
-  showPasswordAriaLabel = 'Show password',
+  hidePasswordAriaLabel = "Hide password",
+  showPasswordAriaLabel = "Show password"
 }: SignUpFormProps) => {
   const [userState, setUserState] = React.useState<{
     username: string;
@@ -47,7 +44,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   }>({
     username: "",
     validated: "default",
-    invalidText: "",
+    invalidText: ""
   });
   const [emailState, setEmailState] = React.useState<{
     email: string;
@@ -56,7 +53,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   }>({
     email: "",
     validated: "default",
-    invalidText: "",
+    invalidText: ""
   });
   const [passwordState, setPasswordState] = React.useState<{
     password: string;
@@ -65,12 +62,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   }>({
     password: "",
     validated: "default",
-    invalidText: "",
+    invalidText: ""
   });
-  
+
   const [loading, setLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
-  const [isServerDown,setIsServerDown]= React.useState(false);
+  const [isServerDown, setIsServerDown] = React.useState(false);
   const history = useHistory();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -80,7 +77,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
       setUserState({
         ...userState,
         validated: "error",
-        invalidText: "Username is required",
+        invalidText: "Username is required"
       });
     }
 
@@ -88,7 +85,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
       setEmailState({
         ...emailState,
         validated: "error",
-        invalidText: "Email is Required",
+        invalidText: "Email is Required"
       });
     }
 
@@ -96,7 +93,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
       setPasswordState({
         ...passwordState,
         validated: "error",
-        invalidText: "Password is Required",
+        invalidText: "Password is Required"
       });
     }
 
@@ -107,7 +104,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     let token;
 
     if (userURL) {
-     
       try {
         user = await ChrisApiClient.createUser(
           userURL,
@@ -128,7 +124,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             setUserState({
               ...userState,
               invalidText: "This username is already registered",
-              validated: "error",
+              validated: "error"
             });
           }
 
@@ -137,7 +133,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             setEmailState({
               ...emailState,
               invalidText: "This email address already exists",
-              validated: "error",
+              validated: "error"
             });
           }
 
@@ -146,10 +142,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             setPasswordState({
               ...passwordState,
               invalidText: "Password should be at least 8 characters",
-              validated: "error",
+              validated: "error"
             });
-          }
-          else if(!has(error,"response.data")){
+          } else if (!has(error, "response.data")) {
             setIsServerDown(true);
             setLoading(false);
           }
@@ -160,52 +155,53 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     }
 
     if (user && token) {
-      setAuthToken({
+      const tokenObject = {
         token,
-        username: user.data.username,
-      });
+        username: user.data.username
+      };
+      setAuthToken(tokenObject);
+      window.localStorage.setItem("CHRIS_TOKEN", token);
       history.push("/");
     }
   };
 
   const passwordInput = (
     <TextInput
-          validated={passwordState.validated}
-          value={passwordState.password}
-          isRequired
-          type={showPassword ? "text" : "password"}
-          id="chris-password"
-          name="password"
-          onChange={(value: string) =>
-            setPasswordState({
-              invalidText: "",
-              validated: "default",
-              password: value,
-            })
-          }
-        />
+      validated={passwordState.validated}
+      value={passwordState.password}
+      isRequired
+      type={showPassword ? "text" : "password"}
+      id="chris-password"
+      name="password"
+      onChange={(value: string) =>
+        setPasswordState({
+          invalidText: "",
+          validated: "default",
+          password: value
+        })
+      }
+    />
   );
 
   return (
-    <Form onSubmit={handleSubmit} noValidate >
-      {
-        isServerDown &&
-      <FormAlert>
-            <Alert
-              variant="danger"
-              title={"There Has Been A problem connecting to the server"}
-              aria-live="polite"
-              isInline
-              />
-          </FormAlert>
-    }
+    <Form onSubmit={handleSubmit} noValidate>
+      {isServerDown && (
+        <FormAlert>
+          <Alert
+            variant="danger"
+            title={"There Has Been A problem connecting to the server"}
+            aria-live="polite"
+            isInline
+          />
+        </FormAlert>
+      )}
       <FormGroup
-      label="Username"
-      isRequired
-      fieldId="username"
-      helperTextInvalidIcon={<ExclamationCircleIcon />}
-      helperTextInvalid={userState.invalidText}
-      validated={userState.validated}
+        label="Username"
+        isRequired
+        fieldId="username"
+        helperTextInvalidIcon={<ExclamationCircleIcon />}
+        helperTextInvalid={userState.invalidText}
+        validated={userState.validated}
       >
         <TextInput
           validated={userState.validated}
@@ -219,7 +215,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             setUserState({
               invalidText: "",
               validated: "default",
-              username: value,
+              username: value
             })
           }
         ></TextInput>
@@ -245,7 +241,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             setEmailState({
               invalidText: "",
               validated: "default",
-              email: value,
+              email: value
             })
           }
         />
@@ -266,14 +262,15 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             <Button
               variant="control"
               onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword? showPasswordAriaLabel : hidePasswordAriaLabel}
+              aria-label={
+                showPassword ? showPasswordAriaLabel : hidePasswordAriaLabel
+              }
             >
               {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
             </Button>
           </InputGroup>
-        )}       
+        )}
       </FormGroup>
-      
 
       <ActionGroup>
         <Button variant="primary" type="submit">
@@ -287,8 +284,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setAuthToken: (auth: { token: string; username: string }) =>
-    dispatch(setAuthToken(auth)),
+    dispatch(setAuthToken(auth))
 });
-
 
 export default connect(null, mapDispatchToProps)(SignUpForm);

@@ -25,7 +25,7 @@ import {
   getDicomRows,
   dicomDateTimeToLocale,
   isNifti,
-  isDicom,
+  isDicom
 } from "../../../dicomViewer/utils";
 import { setFilesForGallery } from "../../../../store/explorer/actions";
 import { useHistory } from "react-router";
@@ -38,10 +38,10 @@ cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     "Content-Type": "application/vnd.collection+json",
-    Authorization: "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
+    Authorization: "Token " + window.localStorage.getItem("CHRIS_TOKEN")
   },
   method: "get",
-  responseType: "arrayBuffer",
+  responseType: "arrayBuffer"
 });
 const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
 const DicomViewerContainer = () => {
@@ -111,7 +111,7 @@ const DicomViewerContainer = () => {
                 image: image,
                 imageId: imageIds[i],
                 nifti: nifti,
-                sliceMax: niftiSlices,
+                sliceMax: niftiSlices
               };
               items.push(item);
               count++;
@@ -172,22 +172,22 @@ const DicomViewerContainer = () => {
                   sliceDistance: sliceDistance,
                   sliceLocation: sliceLocation,
                   patient: {
-                    patientName: patientName,
+                    patientName: patientName
                   },
                   study: {
                     studyDate: studyDate,
                     studyTime: studyTime,
                     studyDateTime: studyDateTime,
-                    studyDescription: studyDescription,
+                    studyDescription: studyDescription
                   },
                   series: {
                     seriesDate: seriesDate,
                     seriesTime: seriesTime,
                     seriesDescription: seriesDescription,
                     seriesNumber: seriesNumber,
-                    echoNumber: echoNumber,
+                    echoNumber: echoNumber
                   },
-                  sliceMax: imageIds.length,
+                  sliceMax: imageIds.length
                 };
               }
 

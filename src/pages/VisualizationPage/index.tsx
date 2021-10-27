@@ -7,7 +7,7 @@ import {
   ModalVariant,
   Modal,
   ProgressSize,
-  Progress,
+  Progress
 } from "@patternfly/react-core";
 import * as cornerstone from "cornerstone-core";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
@@ -32,7 +32,7 @@ import {
   getDicomRows,
   dicomDateTimeToLocale,
   isNifti,
-  isDicom,
+  isDicom
 } from "../../components/dicomViewer/utils";
 import { useDispatch } from "react-redux";
 import { setFilesForGallery } from "../../store/explorer/actions";
@@ -42,10 +42,10 @@ import { useDropzone } from "react-dropzone";
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     "Content-Type": "application/vnd.collection+json",
-    Authorization: "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
+    Authorization: "Token " + window.localStorage.getItem("CHRIS_TOKEN")
   },
   method: "get",
-  responseType: "arrayBuffer",
+  responseType: "arrayBuffer"
 });
 const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
 
@@ -68,19 +68,19 @@ const baseStyle: React.CSSProperties = {
   backgroundColor: "#fafafa",
   color: "#bdbdbd",
   outline: "none",
-  transition: "border .24s ease-in-out",
+  transition: "border .24s ease-in-out"
 };
 
 const activeStyle = {
-  borderColor: "#2196f3",
+  borderColor: "#2196f3"
 };
 
 const acceptStyle = {
-  borderColor: "#00e676",
+  borderColor: "#00e676"
 };
 
 const rejectStyle = {
-  borderColor: "#ff1744",
+  borderColor: "#ff1744"
 };
 
 const VisualizationPage = () => {
@@ -92,7 +92,7 @@ const VisualizationPage = () => {
     getInputProps,
     isDragActive,
     isDragAccept,
-    isDragReject,
+    isDragReject
   } = useDropzone();
   const [visibleModal, setVisibleModal] = React.useState(false);
   const [files, setFiles] = React.useState<any[]>();
@@ -101,7 +101,7 @@ const VisualizationPage = () => {
       ...baseStyle,
       ...(isDragActive ? activeStyle : {}),
       ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
+      ...(isDragReject ? rejectStyle : {})
     }),
     [isDragActive, isDragReject, isDragAccept]
   );
@@ -114,7 +114,7 @@ const VisualizationPage = () => {
   React.useEffect(() => {
     dispatch(
       setSidebarActive({
-        activeItem: "visualizations",
+        activeItem: "visualizations"
       })
     );
   }, [dispatch]);
@@ -199,7 +199,7 @@ export default VisualizationPage;
 export const DicomModal = ({
   files,
   visibleModal,
-  handleModalClose,
+  handleModalClose
 }: {
   visibleModal: boolean;
   handleModalClose: () => void;
@@ -285,21 +285,21 @@ export const DicomModal = ({
               sliceDistance: sliceDistance,
               sliceLocation: sliceLocation,
               patient: {
-                patientName: patientName,
+                patientName: patientName
               },
               study: {
                 studyDate: studyDate,
                 studyTime: studyTime,
                 studyDateTime: studyDateTime,
-                studyDescription: studyDescription,
+                studyDescription: studyDescription
               },
               series: {
                 seriesDate: seriesDate,
                 seriesTime: seriesTime,
                 seriesDescription: seriesDescription,
                 seriesNumber: seriesNumber,
-                echoNumber: echoNumber,
-              },
+                echoNumber: echoNumber
+              }
             };
             items.push(item);
             count++;

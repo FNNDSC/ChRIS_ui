@@ -14,31 +14,31 @@ interface IPropsFromDispatch {
 }
 
 type AllProps = IPropsFromDispatch & RouteComponentProps;
-const LoginFormComponent : React.FC<AllProps>=({
-  setAuthToken,
-}: AllProps)=>{
-  const [usernameValue,setUsernameValue]=React.useState<string>("");
-  const [passwordValue,setPasswordValue]=React.useState<string>("");
-  const [isRememberMeChecked,setIsRememberMeChecked]=React.useState<boolean>(true);
-  const [showHelperText,setShowHelperText]=React.useState<boolean>(false);
-  const [isValidUsername,setIsValidUsername]=React.useState<boolean>(true);
-  const [isValidPassword,setIsValidPassword]=React.useState<boolean>(true);
-  const [errorMessage,setErrorMessage]=React.useState<string>("");
+const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
+  const [usernameValue, setUsernameValue] = React.useState<string>("");
+  const [passwordValue, setPasswordValue] = React.useState<string>("");
+  const [isRememberMeChecked, setIsRememberMeChecked] =
+    React.useState<boolean>(true);
+  const [showHelperText, setShowHelperText] = React.useState<boolean>(false);
+  const [isValidUsername, setIsValidUsername] = React.useState<boolean>(true);
+  const [isValidPassword, setIsValidPassword] = React.useState<boolean>(true);
+  const [errorMessage, setErrorMessage] = React.useState<string>("");
   const history = useHistory();
   const location = useLocation();
 
-  async function handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+  async function handleSubmit(
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) {
     event.preventDefault();
     const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
     let token;
 
-    if(!usernameValue){
+    if (!usernameValue) {
       setIsValidUsername(false);
     }
-    if(!passwordValue){
+    if (!passwordValue) {
       setIsValidPassword(false);
-    }
-    else{
+    } else {
       setIsValidUsername(true);
       setIsValidPassword(true);
 
@@ -58,21 +58,21 @@ const LoginFormComponent : React.FC<AllProps>=({
         setShowHelperText(true);
       }
 
-    if (token && usernameValue) {
-      setAuthToken({
-        token,
-        username: usernameValue,
-      });
+      if (token && usernameValue) {
+        const tokenObject = {
+          token,
+          username: usernameValue
+        };
+        setAuthToken(tokenObject);
+        window.localStorage.setItem("CHRIS_TOKEN", token);
 
-      const then = (new URLSearchParams(location.search)).get("then")
-      if (then)
-        history.push(then);
-      else
-        history.push("/");
+        const then = new URLSearchParams(location.search).get("then");
+        if (then) history.push(then);
+        else history.push("/");
+      }
     }
   }
-  }
-  const handleUsernameChange  = (value: string) => { 
+  const handleUsernameChange = (value: string) => {
     setUsernameValue(value);
     setShowHelperText(false);
   };
@@ -81,20 +81,20 @@ const LoginFormComponent : React.FC<AllProps>=({
     setShowHelperText(false);
   };
   const onRememberMeClick = () => {
-
-    setIsRememberMeChecked((prevIsRememberMeChecked)=>!prevIsRememberMeChecked);
+    setIsRememberMeChecked(
+      (prevIsRememberMeChecked) => !prevIsRememberMeChecked
+    );
   };
 
-  
   let helperText;
-    if (showHelperText) {
-      helperText = (
-        <>
-          <ExclamationCircleIcon />
-          <span> {errorMessage}</span>
-        </>
-      );
-    }
+  if (showHelperText) {
+    helperText = (
+      <>
+        <ExclamationCircleIcon />
+        <span> {errorMessage}</span>
+      </>
+    );
+  }
 
   return (
     <LoginForm
@@ -114,13 +114,11 @@ const LoginFormComponent : React.FC<AllProps>=({
       onLoginButtonClick={handleSubmit}
     />
   );
-
-}
-
+};
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setAuthToken: (auth: { token: string; username: string }) =>
-    dispatch(setAuthToken(auth)),
+    dispatch(setAuthToken(auth))
 });
 
 export default withRouter(
