@@ -22,7 +22,6 @@ import {
   EmptyStateIcon,
   Spinner,
   EmptyStateBody,
-  DropdownSeparator,
   EmptyStatePrimary,
   Title,
 } from "@patternfly/react-core";
@@ -33,9 +32,9 @@ import {
   FolderOpenIcon,
   CodeBranchIcon,
   CubeIcon,
-  TrashIcon,
 } from "@patternfly/react-icons";
 import pluralize from "pluralize";
+import JSZip from "jszip";
 
 import DirectoryTree, { Branch, Tree } from "../../../../utils/browser";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
@@ -44,6 +43,7 @@ import { MainRouterContext } from "../../../../routes";
 import { CheckIcon } from "@patternfly/react-icons";
 import GalleryDicomView from "../../../../components/dicomViewer/GalleryDicomView";
 import { DownloadIcon } from "@patternfly/react-icons";
+import FileViewerModel from "../../../../api/models/file-viewer.model";
 
 interface BrowserProps {
   tree: DirectoryTree;
@@ -155,8 +155,6 @@ export const Browser: React.FC<BrowserProps> = ({
     const items = _files?.filter(({ item }) => !!item) || [];
     setFiles(_files);
 
-    console.log("Then, Folder", then, folder);
-
     switch (then) {
       case "view":
         setViewFolder(
@@ -267,6 +265,30 @@ export const Browser: React.FC<BrowserProps> = ({
                     onChange={(value: any) => setFilter(value || undefined)}
                   />
                 </Card>
+              </SplitItem>
+              <SplitItem>
+                <Button
+                  icon={<DownloadIcon />}
+                  onClick={async () => {
+                    const zip = new JSZip();
+
+                    tree.dir
+                      .filter(({ isLeaf }) => isLeaf)
+                      .filter(({ name }) => {
+                        if (filter) return name.includes(filter);
+                        return true;
+                      })
+                      .map(async (file) => {
+                        const fileBlob = await file.item.getFileBlob();
+                        console.log("FileBlob", fileBlob);
+                        zip.file(file.name, fileBlob);
+                      });
+
+                    const blob = await zip.generateAsync({ type: "blob" });
+                    const filename = "library";
+                    FileViewerModel.downloadFile(blob, filename);
+                  }}
+                />
               </SplitItem>
             </Split>
           </section>

@@ -3,8 +3,8 @@
 *  Description:     This file holds patternfly base and components from the patternfly 4 library
 *                   It will be modified to refine the components needed in the site
 */
-@import "node_modules/@patternfly/patternfly/patternfly.scss";
-@import "node_modules/@patternfly/patternfly/patternfly-addons.scss";
+@import "~@patternfly/patternfly/patternfly.scss";
+@import "~@patternfly/patternfly/patternfly-addons.scss";
 // @import "~@patternfly/patternfly/patternfly-base.scss";
 // @import "~@patternfly/patternfly/components/AboutModalBox/about-modal-box.scss";
 // @import "~@patternfly/patternfly/components/Alert/alert.scss";
