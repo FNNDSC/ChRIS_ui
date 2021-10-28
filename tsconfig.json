@@ -18,9 +18,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
-    "noFallthroughCasesInSwitch": true,
-    
+    "jsx": "react",
+    "noFallthroughCasesInSwitch": true
+
   },
   "typeRoots": [
     "./types"
