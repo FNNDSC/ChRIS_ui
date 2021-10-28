@@ -43,6 +43,7 @@ import { LibraryContext, Series, File } from "../../Library";
 import { MainRouterContext } from "../../../../routes";
 import { CheckIcon } from "@patternfly/react-icons";
 import GalleryDicomView from "../../../../components/dicomViewer/GalleryDicomView";
+import { DownloadIcon } from "@patternfly/react-icons";
 
 interface BrowserProps {
   tree: DirectoryTree;
@@ -153,6 +154,8 @@ export const Browser: React.FC<BrowserProps> = ({
     const _files = (await fetchFiles(folder.path)).dir;
     const items = _files?.filter(({ item }) => !!item) || [];
     setFiles(_files);
+
+    console.log("Then, Folder", then, folder);
 
     switch (then) {
       case "view":
@@ -337,7 +340,13 @@ export const Browser: React.FC<BrowserProps> = ({
   );
 };
 
-type FolderActions = "view" | "browse" | "feed" | "select" | "delete";
+type FolderActions =
+  | "view"
+  | "browse"
+  | "feed"
+  | "select"
+  | "delete"
+  | "download";
 interface FolderCardProps {
   item: Branch;
   isSelected?: boolean;
@@ -405,11 +414,13 @@ export const FolderCard = ({
                   <CodeBranchIcon />
                   {pad} Create Feed
                 </DropdownItem>,
-
-                <DropdownSeparator key="separator" />,
-                <DropdownItem key="delete" component="button" isDisabled>
-                  <TrashIcon />
-                  {pad} Delete
+                <DropdownItem
+                  key="download"
+                  component="button"
+                  onClick={dispatch.bind(FolderCard, "download")}
+                >
+                  <DownloadIcon />
+                  {pad} Download
                 </DropdownItem>,
               ]}
             />
