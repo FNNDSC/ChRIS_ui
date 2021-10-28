@@ -19,18 +19,19 @@ import {
   ModalVariant,
   FormGroup,
   Form,
-  Spinner
+  Spinner,
+  Alert,
 } from "@patternfly/react-core";
 import { LocalFile } from "../../../../components/feed/CreateFeed/types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { useTypedSelector } from "../../../../store/hooks";
 import Wrapper from "../../../../containers/Layout/PageWrapper";
 import FileUpload from "../../../../components/common/fileupload";
-import "./user-library.scss";
 import Browser from "./Browser";
 import DirectoryTree from "../../../../utils/browser";
 import { setSidebarActive } from "../../../../store/ui/actions";
 import { v4 } from "uuid";
+import "./user-library.scss";
 
 export const UserLibrary = () => {
   const client = ChrisAPIClient.getClient();
@@ -412,7 +413,7 @@ export const UserLibrary = () => {
           if (i === 0) {
             setDirectoryName(directory);
           }
-          console.log("Directory", directory);
+
           await client.uploadFile(
             {
               upload_path: `${directory}/${file.name}`,
@@ -432,9 +433,25 @@ export const UserLibrary = () => {
 
   return (
     <Wrapper>
+      <div className="notification top-right">
+        <Alert
+          isInline
+          style={{
+            width: "100%",
+            height: "100%",
+          }}
+          variant="info"
+          title="info"
+        >
+          This page is under active development, please be patient as we sort
+          out bugs.
+        </Alert>
+      </div>
+
       <article id="user-library">
-        <h1>My Library</h1>
-        <p></p>
+        <div>
+          <h1>My Library</h1>
+        </div>
 
         <section>
           <Grid hasGutter id="search">

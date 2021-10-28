@@ -1,7 +1,9 @@
 @import './helpers/pf4-variables';
 @import './helpers/variables';
 
-@import "./vendors/patternfly/patternfly";// Base
+//@import "./vendors/patternfly/patternfly";
+@import "~@patternfly/patternfly/patternfly.scss";
+@import "~@patternfly/patternfly/patternfly-addons.scss";
 @import "./base/utilities";
 @import "./base/overrides";
 @import "./base/typography";
