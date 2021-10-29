@@ -17,7 +17,7 @@ import {
   TextInput,
   Title,
   Modal,
-  ModalVariant,
+  ModalVariant
 } from "@patternfly/react-core";
 import { v4 } from "uuid";
 
@@ -43,7 +43,7 @@ export const UserLibrary = () => {
   React.useEffect(() => {
     dispatch(
       setSidebarActive({
-        activeItem: "lib",
+        activeItem: "lib"
       })
     );
   }, [dispatch]);
@@ -148,7 +148,7 @@ export const UserLibrary = () => {
         const results = DirectoryTree.fromPathList([
           ...(uploads.getItems() || []),
           ...(pacs.getItems() || []),
-          ...(services.getItems() || []),
+          ...(services.getItems() || [])
         ]).searchTree(query);
 
         setSearchResults(results);
@@ -203,7 +203,7 @@ export const UserLibrary = () => {
         fetchFiles={async (prefix: string) => {
           const files = await client.getUploadedFiles({
             limit: 10e6,
-            fname: prefix,
+            fname: prefix
           });
           return DirectoryTree.fileList(files.getItems() || [], prefix);
         }}
@@ -633,10 +633,10 @@ export const UserLibrary = () => {
 
                       await client.uploadFile(
                         {
-                          upload_path: `${directory}/${file.name}`,
+                          upload_path: `${directory}/${file.name}`
                         },
                         {
-                          fname: (file as LocalFile).blob,
+                          fname: (file as LocalFile).blob
                         }
                       );
                     }

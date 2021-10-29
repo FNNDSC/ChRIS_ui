@@ -13,7 +13,7 @@ import {
   CardHeaderMain,
   Grid,
   GridItem,
-  Button,
+  Button
 } from "@patternfly/react-core";
 import { MdOutlineImageSearch } from "react-icons/md";
 import { FaMagic } from "react-icons/fa";
@@ -35,7 +35,7 @@ interface DashboardProps extends RouteComponentProps {
 
 const style = {
   height: "5em",
-  width: "5em",
+  width: "5em"
 };
 
 const DashboardPage = (props: DashboardProps) => {
@@ -46,7 +46,7 @@ const DashboardPage = (props: DashboardProps) => {
   React.useEffect(() => {
     dispatch(
       setSidebarActive({
-        activeItem: "overview",
+        activeItem: "overview"
       })
     );
   }, [dispatch]);
@@ -81,7 +81,6 @@ const DashboardPage = (props: DashboardProps) => {
               body='Visit "My Library" in the main navigation to review your data collection'
               buttonText="Go to My Library"
               buttonLink="/library"
-              className="dashboard-carddisplay"
             />
           </GridItem>
           <GridItem lg={6}>
@@ -98,7 +97,6 @@ const DashboardPage = (props: DashboardProps) => {
               body='Visit "My Analyses" in the main navigation to review your data analyses'
               buttonText="Go to My Analyses"
               buttonLink="/feeds"
-              className="dashboard-carddisplay"
             />
           </GridItem>
           <GridItem lg={6}>
@@ -133,7 +131,7 @@ const CardDisplay = ({
   body,
   buttonText,
   buttonLink,
-  className,
+  className
 }: {
   component: React.ReactElement;
   title: string;
