@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   TextInput,
   Form,
@@ -12,37 +12,52 @@ interface InputUserProps {
   handleCreate: (username: string) => void;
 }
 
-const InputUser: React.FC<InputUserProps> = ({
-  handleCreate,
-  handleModalClose
-}) => {
-  const [value, setValue] = useState("");
+interface InputUserState {
+  value: string;
+}
 
-  const handleChange = (value: string) => setValue(value);
-  const handleSubmit = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
+class InputUser extends React.Component<InputUserProps, InputUserState> {
+  constructor(props: InputUserProps) {
+    super(props);
+
+    this.state = {
+      value: ""
+    };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleChange(value: string) {
+    this.setState({ value });
+  }
+  handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     event.preventDefault();
-    handleCreate(value);
-  };
+    const { value } = this.state;
 
-  return (
-    <div>
-      <Form>
-        <Label className="share-feed-label">People</Label>
-        <TextInput
-          value={value}
-          type="text"
-          onChange={handleChange}
-          aria-label="text input example"
-        />
-        <ActionGroup>
-          <Button onClick={handleSubmit}>Save</Button>
-          <Button onClick={() => handleModalClose()}>Cancel</Button>
-        </ActionGroup>
-      </Form>
-    </div>
-  );
-};
+    this.props.handleCreate(value);
+  }
 
+  render() {
+    const { value } = this.state;
+    const { handleModalClose } = this.props;
+    return (
+      <div>
+        <Form>
+          <Label className="share-feed-label">People</Label>
+          <TextInput
+            value={value}
+            type="text"
+            onChange={this.handleChange}
+            aria-label="text input example"
+          />
+          <ActionGroup>
+            <Button onClick={this.handleSubmit}>Save</Button>
+            <Button onClick={() => handleModalClose()}>Cancel</Button>
+          </ActionGroup>
+        </Form>
+      </div>
+    );
+  }
+}
 export default InputUser;

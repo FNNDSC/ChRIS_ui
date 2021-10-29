@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import ShareModal from "./ShareModal";
-import { Button } from "@patternfly/react-core";
+import React from 'react'
+import ShareModal from './ShareModal'
+import { Button } from '@patternfly/react-core'
 
 import './sharefeed.scss'
 import { Feed } from '@fnndsc/chrisapi'
@@ -8,48 +8,76 @@ import { Feed } from '@fnndsc/chrisapi'
 import InputUser from './InputUser'
 import { ShareIcon } from '@patternfly/react-icons'
 
+interface ShareFeedState {
+  showOverlay: boolean
+}
+
 interface ShareFeedProps {
   feed?: Feed
   label?: string
 }
 
-const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
-  const [showOverlay, setShowOverlay] = useState(false);
+class ShareFeed extends React.Component<ShareFeedProps, ShareFeedState> {
+  constructor(props: ShareFeedProps) {
+    super(props)
+    this.state = {
+      showOverlay: false,
+    }
+    this.handleAddClick = this.handleAddClick.bind(this)
+    this.handleModalClose = this.handleModalClose.bind(this)
+    this.handleCreate = this.handleCreate.bind(this)
+  }
 
-  const handleAddClick = () => setShowOverlay((prev) => !prev);
-  const handleCreate = async (username: string) => {
+  handleAddClick() {
+    this.setState((prevState) => ({
+      showOverlay: !prevState.showOverlay,
+    }))
+  }
+
+  async handleCreate(username: string) {
+    const { feed } = this.props
     if (!feed) {
       return
     }
     await feed.put({
-      owner: username
-    });
+      owner: username,
+    })
 
-    handleModalClose();
-  };
-  const handleModalClose = () => {
-    setShowOverlay((prevState) => !prevState);
-  };
+    this.handleModalClose()
+  }
 
-  return (
-    <>
-      <Button
-        className="share-feed-button"
-        variant="primary"
-        onClick={handleAddClick}
-        icon={<CodeBranchIcon />}
-        type="button"
-      >
-        Share Feed
-      </Button>
-      <ShareModal showOverlay={showOverlay} handleModalClose={handleModalClose}>
-        <InputUser
-          handleModalClose={handleModalClose}
-          handleCreate={handleCreate}
-        />
-      </ShareModal>
-    </>
-  );
-};
+  handleModalClose() {
+    this.setState((prevState) => ({
+      showOverlay: !prevState.showOverlay,
+    }))
+  }
+
+  render() {
+    const { showOverlay } = this.state
+    const { label } = this.props
+    return (
+      <>
+        <Button
+          className="share-feed-button"
+          variant="primary"
+          onClick={this.handleAddClick}
+          icon={<ShareIcon />}
+          type="button"
+        >
+          {label}
+        </Button>
+        <ShareModal
+          showOverlay={showOverlay}
+          handleModalClose={this.handleModalClose}
+        >
+          <InputUser
+            handleModalClose={this.handleModalClose}
+            handleCreate={this.handleCreate}
+          />
+        </ShareModal>
+      </>
+    )
+  }
+}
 
 export default ShareFeed

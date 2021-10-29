@@ -1,104 +1,115 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import classNames from "classnames";
 import {
   Accordion,
   AccordionItem,
   AccordionContent,
   AccordionToggle,
-  TextInput
+  TextInput,
 } from "@patternfly/react-core";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import LoadingContent from "../../common/loading/LoadingContent";
-import { PluginListProps, PluginSelectProps, PluginSelectState } from "./types";
+import {
+  PluginListState,
+  PluginListProps,
+  PluginSelectProps,
+  PluginSelectState,
+} from "./types";
 
-const PluginList: React.FC<PluginListProps> = ({
-  plugins,
-  selected,
-  handlePluginSelect
-}) => {
-  const [filter, setFilter] = useState("");
+class PluginList extends React.Component<PluginListProps, PluginListState> {
+  constructor(props: PluginListProps) {
+    super(props);
+    this.state = {
+      filter: "",
+    };
 
-  const handleFilterChange = (filter: string) => setFilter(filter);
-  const matchesFilter = useCallback(
-    (plugin: Plugin) =>
-      plugin.data.name
-        .toLowerCase()
-        .trim()
-        .includes(filter.toLowerCase().trim()),
-    [filter]
-  );
-  const loading = new Array(3)
-    .fill(null)
-    .map((_, i) => (
-      <LoadingContent width="100%" height="35px" bottom="4px" key={i} />
-    ));
+    this.handleFilterChange = this.handleFilterChange.bind(this);
+    this.matchesFilter = this.matchesFilter.bind(this);
+  }
 
-  return (
-    <ul className="plugin-list">
-      <TextInput
-        className="plugin-list-filter"
-        value={filter}
-        onChange={handleFilterChange}
-        aria-label="Filter plugins by name"
-        placeholder="Filter by Name"
-      />
-      {plugins
-        ? plugins
-            .sort((a, b) => a.data.name.localeCompare(b.data.name))
-            .filter(matchesFilter)
-            .map((plugin) => {
-              const { id, name, version, description } = plugin.data;
-              const isSelected = selected && id === selected.data.id;
-              return (
-                <li
-                  key={id}
-                  className={classNames(isSelected && "selected")}
-                  onClick={() => handlePluginSelect(plugin)}
-                >
-                  <span> {name}</span>
-                  <span className="version">Version: {version}</span>
-                  <span className="description">
-                    Description: {description}
-                  </span>
-                </li>
-              );
-            })
-        : loading}
-    </ul>
-  );
-};
+  handleFilterChange(filter: string) {
+    this.setState({ filter });
+  }
 
-const PluginSelect: React.FC<PluginSelectProps> = ({
-  selected,
-  handlePluginSelect
-}) => {
-  const [isMounted, setMounted] = useState(false);
-  const [allPlugins, setAllPlugins] = useState<PluginSelectState["allPlugins"]>(
-    []
-  );
-  const [recentPlugins, setRecentPlugins] = useState<
-    PluginSelectState["recentPlugins"]
-  >([]);
-  const [expanded, setExpanded] =
-    useState<PluginSelectState["expanded"]>("all-toggle");
+  matchesFilter(plugin: Plugin) {
+    return plugin.data.name
+      .toLowerCase()
+      .trim()
+      .includes(this.state.filter.toLowerCase().trim());
+  }
 
-  useEffect(() => {
-    setMounted(true);
-    fetchAllPlugins();
-    fetchRecentPlugins();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  render() {
+    const { plugins, selected, handlePluginSelect } = this.props;
+    const { filter } = this.state;
 
-  const handleAccordionToggle = (_expanded: string) => {
-    if (_expanded === expanded) {
-      setExpanded("");
-    } else {
-      setExpanded(_expanded);
-    }
-  };
+    const loading = new Array(3)
+      .fill(null)
+      .map((_, i) => (
+        <LoadingContent width="100%" height="35px" bottom="4px" key={i} />
+      ));
 
-  const fetchAllPlugins = async () => {
+    return (
+      <ul className="plugin-list">
+        <TextInput
+          className="plugin-list-filter"
+          value={filter}
+          onChange={this.handleFilterChange}
+          aria-label="Filter plugins by name"
+          placeholder="Filter by Name"
+        />
+        {plugins
+          ? plugins
+              .sort((a, b) => a.data.name.localeCompare(b.data.name))
+              .filter(this.matchesFilter)
+              .map((plugin) => {
+                const { id, name, version, description } = plugin.data;
+                const isSelected = selected && id === selected.data.id;
+                return (
+                  <li
+                    key={id}
+                    className={classNames(isSelected && "selected")}
+                    onClick={() => handlePluginSelect(plugin)}
+                  >
+                    <span> {name}</span>
+                    <span className="version">Version: {version}</span>
+                    <span className="description">
+                      Description: {description}
+                    </span>
+                  </li>
+                );
+              })
+          : loading}
+      </ul>
+    );
+  }
+}
+
+class PluginSelect extends React.Component<
+  PluginSelectProps,
+  PluginSelectState
+> {
+  _isMounted = false;
+  constructor(props: PluginSelectProps) {
+    super(props);
+    this.state = {
+      expanded: "all-toggle",
+    };
+
+    this.handleAccordionToggle = this.handleAccordionToggle.bind(this);
+  }
+
+  componentDidMount() {
+    this._isMounted = true;
+    this.fetchAllPlugins();
+    this.fetchRecentPlugins();
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
+  async fetchAllPlugins() {
     const client = ChrisAPIClient.getClient();
     const params = { limit: 25, offset: 0 };
     let pluginList = await client.getPlugins(params);
@@ -119,10 +130,11 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
 
     plugins = plugins && plugins.filter((plugin) => plugin.data.type !== "fs");
 
-    if (isMounted && plugins) setAllPlugins(plugins);
-  };
+    if (this._isMounted && plugins) this.setState({ allPlugins: plugins });
+  }
 
-  const fetchRecentPlugins = async () => {
+  // fetch last 5 used plugins
+  async fetchRecentPlugins() {
     const amount = 5;
 
     const client = ChrisAPIClient.getClient();
@@ -165,48 +177,66 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
         return client.getPlugin(id);
       })
     );
-    if (isMounted) setRecentPlugins(plugins);
-  };
+    if (this._isMounted) this.setState({ recentPlugins: plugins });
+  }
 
-  return (
-    <Accordion className="plugin-select">
-      <AccordionItem>
-        <AccordionToggle
-          onClick={() => handleAccordionToggle("recent-toggle")}
-          isExpanded={expanded === "recent-toggle"}
-          id="recent-toggle"
-        >
-          Recently Used Plugins
-        </AccordionToggle>
-        <AccordionContent
-          id="recent-content"
-          isHidden={expanded !== "recent-toggle"}
-        >
-          <PluginList
-            plugins={recentPlugins}
-            selected={selected}
-            handlePluginSelect={handlePluginSelect}
-          />
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem>
-        <AccordionToggle
-          onClick={() => handleAccordionToggle("all-toggle")}
-          isExpanded={expanded === "all-toggle"}
-          id="all-toggle"
-        >
-          All Plugins
-        </AccordionToggle>
-        <AccordionContent id="all-content" isHidden={expanded !== "all-toggle"}>
-          <PluginList
-            plugins={allPlugins}
-            selected={selected}
-            handlePluginSelect={handlePluginSelect}
-          />
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
-  );
-};
+  handleAccordionToggle(expanded: string) {
+    if (expanded === this.state.expanded) {
+      this.setState({
+        expanded: "",
+      });
+    } else {
+      this.setState({ expanded });
+    }
+  }
+
+  render() {
+    const { selected, handlePluginSelect } = this.props;
+    const { allPlugins, recentPlugins } = this.state;
+
+    return (
+      <Accordion className="plugin-select">
+        <AccordionItem>
+          <AccordionToggle
+            onClick={() => this.handleAccordionToggle("recent-toggle")}
+            isExpanded={this.state.expanded === "recent-toggle"}
+            id="recent-toggle"
+          >
+            Recently Used Plugins
+          </AccordionToggle>
+          <AccordionContent
+            id="recent-content"
+            isHidden={this.state.expanded !== "recent-toggle"}
+          >
+            <PluginList
+              plugins={recentPlugins}
+              selected={selected}
+              handlePluginSelect={handlePluginSelect}
+            />
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem>
+          <AccordionToggle
+            onClick={() => this.handleAccordionToggle("all-toggle")}
+            isExpanded={this.state.expanded === "all-toggle"}
+            id="all-toggle"
+          >
+            All Plugins
+          </AccordionToggle>
+          <AccordionContent
+            id="all-content"
+            isHidden={this.state.expanded !== "all-toggle"}
+          >
+            <PluginList
+              plugins={allPlugins}
+              selected={selected}
+              handlePluginSelect={handlePluginSelect}
+            />
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    );
+  }
+}
 
 export default PluginSelect;

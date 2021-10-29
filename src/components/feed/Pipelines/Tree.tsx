@@ -1,10 +1,4 @@
-import React, {
-  Fragment,
-  useContext,
-  useEffect,
-  useRef,
-  useState
-} from "react";
+import React, { Fragment, useContext } from "react";
 import { tree, hierarchy } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { Types } from "../CreateFeed/types";
@@ -19,7 +13,7 @@ const svgClassName = "feed-tree__svg";
 const graphClassName = "feed-tree__graph";
 const translate = {
   x: 150,
-  y: 50
+  y: 50,
 };
 const scale = 1;
 
@@ -60,8 +54,8 @@ const Tree = (props: {
           type: Types.SetCurrentNode,
           payload: {
             pipelineId: currentPipelineId,
-            currentNode: defaultPluginId[0].data.id
-          }
+            currentNode: defaultPluginId[0].data.id,
+          },
         });
       }
     }
@@ -86,7 +80,7 @@ const Tree = (props: {
     <div
       style={{
         width: "65%",
-        height: "400px"
+        height: "400px",
       }}
     >
       {loading ? (
@@ -138,26 +132,35 @@ type LinkState = {
   };
 };
 
-const LinkData: React.FC<LinkProps> = ({ linkData, orientation }) => {
-  const linkRef = useRef<SVGPathElement | null>(null);
-  const [initialStyle] = useState<LinkState["initialStyle"]>({ opacity: 1 });
-  const nodeRadius = 12;
+class LinkData extends React.Component<LinkProps, LinkState> {
+  private linkRef: SVGPathElement | null = null;
+  state = {
+    initialStyle: {
+      opacity: 0,
+    },
+  };
+  componentDidMount() {
+    this.applyOpacity(1, 0);
+  }
+  componentWillLeave(done: () => null) {
+    this.applyOpacity(1, 0, done);
+  }
 
-  useEffect(() => {
-    applyOpacity(1, 0);
-  }, []);
-
-  const applyOpacity = (
+  applyOpacity(
     opacity: number,
     transitionDuration: number,
     done = () => {
       return null;
     }
-  ) => {
-    select(linkRef.current).style("opacity", opacity).on("end", done);
-  };
+  ) {
+    select(this.linkRef).style("opacity", opacity).on("end", done);
+  }
 
-  const drawPath = () => {
+  nodeRadius = 12;
+
+  drawPath = () => {
+    const { linkData, orientation } = this.props;
+
     const { source, target } = linkData;
 
     const deltaX = target.x - source.x,
@@ -165,8 +168,8 @@ const LinkData: React.FC<LinkProps> = ({ linkData, orientation }) => {
       dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
       normX = deltaX / dist,
       normY = deltaY / dist,
-      sourcePadding = nodeRadius,
-      targetPadding = nodeRadius + 4,
+      sourcePadding = this.nodeRadius,
+      targetPadding = this.nodeRadius + 4,
       sourceX = source.x + sourcePadding * normX,
       sourceY = source.y + sourcePadding * normY,
       targetX = target.x - targetPadding * normX,
@@ -178,19 +181,23 @@ const LinkData: React.FC<LinkProps> = ({ linkData, orientation }) => {
       ? `M ${sourceY} ${sourceX} L ${targetY} ${targetX}`
       : `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
   };
-
-  return (
-    <Fragment>
-      <path
-        ref={linkRef}
-        className="link"
-        d={drawPath()}
-        style={{ ...initialStyle }}
-        data-source-id={linkData.source.id}
-        data-target-id={linkData.target.id}
-      />
-    </Fragment>
-  );
-};
+  render() {
+    const { linkData } = this.props;
+    return (
+      <Fragment>
+        <path
+          ref={(l) => {
+            this.linkRef = l;
+          }}
+          className="link"
+          d={this.drawPath()}
+          style={{ ...this.state.initialStyle }}
+          data-source-id={linkData.source.id}
+          data-target-id={linkData.target.id}
+        />
+      </Fragment>
+    );
+  }
+}
 
 export default Tree;

@@ -1,8 +1,13 @@
-import React, { useEffect, useState } from "react";
+import * as React from "react";
 
 import { galleryActions } from "../../api/models/gallery.model";
 import { GalleryToolbar } from ".";
 import "./GalleryWrapper.scss";
+
+type IGalleryToolbarState = {
+  isFullscreen: boolean;
+};
+
 
 type AllProps = {
   children: any;
@@ -12,48 +17,49 @@ type AllProps = {
   handleOnToolbarAction: (action: string) => void;
 };
 
-const GalleryWrapper: React.FC<AllProps> = ({
-  handleOnToolbarAction,
-  total,
-  listOpenFilesScrolling,
-  children
-}) => {
-  const [isMounted, setMounted] = useState(false);
-  const [fullScreen, setFullScreen] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
+class GalleryWrapper extends React.Component<AllProps, IGalleryToolbarState> {
+  _isMounted = false;
+  componentDidMount() {
+    this._isMounted = true;
     document.addEventListener(
       "fullscreenchange",
-      handleFullScreenChange,
+      this.handleFullScreenChange,
       false
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Set flag for full screen changes
-  const handleFullScreenChange = () => {
-    isMounted && setFullScreen(isFullScreen());
+  }
+  state = {
+    isFullscreen: false,
   };
 
-  // --------------------------------------------------------
-  // Description: handle full screen open and close
-  const isFullScreen = () => {
-    const elem = document as any;
-    return !(
-      !elem.webkitIsFullScreen &&
-      !elem.mozFullScreen &&
-      !elem.msFullscreenElement
+  render() {
+    const { children, total, listOpenFilesScrolling } = this.props;
+
+    return (
+      !!children && (
+        <div id="gallery" className="gallery-wrapper">
+          {children}
+          {total > 0 && (
+            <GalleryToolbar
+              isPlaying={listOpenFilesScrolling}
+              total={total}
+              onToolbarClick={(action: string) => {
+                (this.handleGalleryActions as any)[action].call();
+              }}
+              {...this.state}
+            />
+          )}
+        </div>
+      )
     );
-  };
+  }
 
   // Description: triggers toolbar functionality - Group gallery actions
-  const handleGalleryActions = {
+  handleGalleryActions = {
     play: () => {
-      handleOnToolbarAction(galleryActions.play);
+      this.props.handleOnToolbarAction(galleryActions.play);
     },
     pause: () => {
-      handleOnToolbarAction(galleryActions.pause);
+      this.props.handleOnToolbarAction(galleryActions.pause);
     },
     // Description: will make the view full screen
     fullscreen: () => {
@@ -61,36 +67,46 @@ const GalleryWrapper: React.FC<AllProps> = ({
       !!elem && (isFullScreen() ? closeFullScreen() : openFullScreen(elem));
     },
     next: () => {
-      handleOnToolbarAction(galleryActions.next);
+      this.props.handleOnToolbarAction(galleryActions.next);
     },
     previous: () => {
-      handleOnToolbarAction(galleryActions.previous);
+      this.props.handleOnToolbarAction(galleryActions.previous);
     },
     first: () => {
-      handleOnToolbarAction(galleryActions.first);
+      this.props.handleOnToolbarAction(galleryActions.first);
     },
     last: () => {
-      handleOnToolbarAction(galleryActions.last);
-    }
+      this.props.handleOnToolbarAction(galleryActions.last);
+    },
   };
 
-  return !!children ? (
-    <div id="gallery" className="gallery-wrapper">
-      {children}
-      {total > 0 && (
-        <GalleryToolbar
-          isPlaying={listOpenFilesScrolling}
-          total={total}
-          onToolbarClick={(action: string) => {
-            (handleGalleryActions as any)[action].call();
-          }}
-          isFullscreen={fullScreen}
-        />
-      )}
-    </div>
-  ) : null;
-};
+  // Set flag for full screen changes
+  handleFullScreenChange = () => {
+    this._isMounted &&
+      this.setState({
+        isFullscreen: isFullScreen(),
+      });
+  };
 
+  componentWillUnmount() {
+    document.removeEventListener(
+      "fullscreenchange",
+      this.handleFullScreenChange
+    );
+    this._isMounted = false;
+  }
+}
+
+// --------------------------------------------------------
+// Description: handle full screen open and close
+const isFullScreen = () => {
+  const elem = document as any;
+  return !(
+    !elem.webkitIsFullScreen &&
+    !elem.mozFullScreen &&
+    !elem.msFullscreenElement
+  );
+};
 const openFullScreen = (elem: any) => {
   if (elem.requestFullscreen) {
     elem.requestFullscreen();
