@@ -2,15 +2,15 @@ import React, { useState } from "react";
 import ShareModal from "./ShareModal";
 import { Button } from "@patternfly/react-core";
 
-import "./sharefeed.scss";
-import { Feed } from "@fnndsc/chrisapi";
+import './sharefeed.scss'
+import { Feed } from '@fnndsc/chrisapi'
 
-import { CodeBranchIcon } from "@patternfly/react-icons";
-
-import InputUser from "./InputUser";
+import InputUser from './InputUser'
+import { ShareIcon } from '@patternfly/react-icons'
 
 interface ShareFeedProps {
-  feed?: Feed;
+  feed?: Feed
+  label?: string
 }
 
 const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
@@ -19,7 +19,7 @@ const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
   const handleAddClick = () => setShowOverlay((prev) => !prev);
   const handleCreate = async (username: string) => {
     if (!feed) {
-      return;
+      return
     }
     await feed.put({
       owner: username
@@ -52,4 +52,4 @@ const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
   );
 };
 
-export default ShareFeed;
+export default ShareFeed

@@ -1,5 +1,6 @@
 import { parseRawDcmData, sortStudiesByPatient } from "./pfdcm-utils";
 import axios, { AxiosRequestConfig } from "axios";
+import { getWithExpiry, setWithExpiry } from "../../utils";
 
 interface PFDCMClientOptions {
   setDefaultPACS: boolean
@@ -51,7 +52,7 @@ class PFDCMClient {
     
     this.withFeedBack = process.env.NODE_ENV !== "production";
 
-    const _service = localStorage.getItem("PFDCM_SET_SERVICE");
+    const _service = getWithExpiry("PFDCM_SET_SERVICE");
     if (_service)
       this.PACSservice = {
         value: _service
@@ -71,8 +72,7 @@ class PFDCMClient {
   set service(key: string) {
     if (!this.PACSserviceList.includes(key))
       throw Error(`'${key}' is not a registered PACS service.`)
-
-    localStorage.setItem("PFDCM_SET_SERVICE", key);
+      setWithExpiry("PFDCM_SET_SERVICE", key, 43200 * 60 * 1000);
     this.PACSservice = {
       value: key
     }

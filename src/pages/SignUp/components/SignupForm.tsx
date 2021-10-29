@@ -26,7 +26,7 @@ type Validated = {
 };
 
 interface SignUpFormProps {
-  setAuthToken: (auth: { token: string; username: string }) => void;
+  setAuthToken: (auth: { token: string; username: string, isRememberMe:boolean }) => void;
   isShowPasswordEnabled?: boolean;
   showPasswordAriaLabel?: string;
   hidePasswordAriaLabel?: string;
@@ -163,6 +163,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
       setAuthToken({
         token,
         username: user.data.username,
+        isRememberMe:false
       });
       history.push("/");
     }
@@ -286,7 +287,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setAuthToken: (auth: { token: string; username: string }) =>
+  setAuthToken: (auth: { token: string; username: string; isRememberMe:boolean; }) =>
     dispatch(setAuthToken(auth)),
 });
 

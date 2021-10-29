@@ -1,4 +1,5 @@
 import Client from "@fnndsc/chrisapi";
+import { getWithExpiry } from "../utils";
 
 declare let process: {
   env: {
@@ -15,20 +16,19 @@ const AUTH_TOKEN_KEY = "CHRIS_TOKEN";
  */
 
 class ChrisAPIClient {
-
   private static client: Client;
   private static isTokenAuthorized: boolean;
 
   static getClient(): Client {
     if (!this.client || !this.isTokenAuthorized) {
-      const token: string = window.sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
+      const token: string = getWithExpiry(AUTH_TOKEN_KEY) || "";
       if (token) {
         this.isTokenAuthorized = true;
       } else {
         this.isTokenAuthorized = false;
       }
       this.client = new Client(process.env.REACT_APP_CHRIS_UI_URL, {
-        token
+        token,
       });
     }
     return this.client;
@@ -37,6 +37,5 @@ class ChrisAPIClient {
   static setIsTokenAuthorized(value: boolean) {
     this.isTokenAuthorized = value;
   }
-
 }
 export default ChrisAPIClient;

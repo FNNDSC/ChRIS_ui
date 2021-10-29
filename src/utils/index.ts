@@ -1,5 +1,43 @@
 import * as React from "react";
 
+export function setWithExpiry(key:string, value:any, ttl:number) {
+	const now = new Date()
+
+	// `item` is an object which contains the original value
+	// as well as the time when it's supposed to expire
+	const item = {
+		value: value,
+		expiry: now.getTime() + ttl,
+	}
+	window.localStorage.setItem(key, btoa(JSON.stringify(item)))
+}
+
+export function getWithExpiry(key:string) {
+	const itemStr = window.localStorage.getItem(key)
+	// if the item doesn't exist, return null
+	if (!itemStr) {
+		return null
+	}
+  try{
+    const item = JSON.parse(atob(itemStr))
+    const now = new Date()
+    // compare the expiry time of the item with the current time
+    if (now.getTime() > item.expiry) {
+      // If the item is expired, delete the item from storage
+      // and return null
+      window.localStorage.removeItem(key)
+      return null
+    }
+    return item.value
+  }catch(err){
+    //This is just for acting as safety net if the user have old version of localStorage value
+    window.localStorage.removeItem("CHRIS_TOKEN")
+    window.localStorage.removeItem("PFDCM_SET_SERVICE")
+  }
+  return null
+	
+} 
+
 export function useSafeDispatch(dispatch: any) {
   const mounted = React.useRef(false);
   React.useLayoutEffect(() => {
