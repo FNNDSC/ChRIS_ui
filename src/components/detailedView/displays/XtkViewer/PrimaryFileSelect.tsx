@@ -13,26 +13,21 @@ const FsmFileSelect = (props: FsmFileSelectProps) => {
 
   const fileList = (
     <SimpleList
-      onSelect={(_, listItemProps) => {
+      onSelect={(_: any, listItemProps: any) => {
         // data passing between item and handler is done through props
-        const file = (listItemProps as any)['x-file'] as DataNode;
+        const file = (listItemProps as any)["x-file"] as DataNode;
         handleSelect(file);
       }}
       className="fsm-file-list"
     >
-      {
-        files.map(file => {
-          const id = file.file?.data.id;
-          return (
-            <SimpleListItem
-              key={id}
-              x-file={file}
-            >
-              {file.title}
-            </SimpleListItem>
-          );
-        })
-      }
+      {files.map((file) => {
+        const id = file.file?.data.id;
+        return (
+          <SimpleListItem key={id} x-file={file}>
+            {file.title}
+          </SimpleListItem>
+        );
+      })}
     </SimpleList>
   );
 

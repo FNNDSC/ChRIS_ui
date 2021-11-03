@@ -11,33 +11,36 @@ import {
   EmptyStatePrimary,
   Grid,
   GridItem,
-  Spinner,
   Split,
   SplitItem,
   TextInput,
   Title,
   Modal,
   ModalVariant,
+  FormGroup,
+  Form,
+  Spinner,
+  Alert,
 } from "@patternfly/react-core";
-import { v4 } from "uuid";
-
+import { LocalFile } from "../../../../components/feed/CreateFeed/types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { useTypedSelector } from "../../../../store/hooks";
 import Wrapper from "../../../../containers/Layout/PageWrapper";
 import FileUpload from "../../../../components/common/fileupload";
-
-import "./user-library.scss";
 import Browser from "./Browser";
 import DirectoryTree from "../../../../utils/browser";
 import { setSidebarActive } from "../../../../store/ui/actions";
-import { LocalFile } from "../../../../components/feed/CreateFeed/types";
+import { v4 } from "uuid";
+import "./user-library.scss";
 
 export const UserLibrary = () => {
   const client = ChrisAPIClient.getClient();
   document.title = "My Library";
   const [uploadedFileModal, setUploadFileModal] = React.useState(false);
-  const [uploadedFiles, setUploadedFiles] = React.useState(false);
   const [directoryName, setDirectoryName] = React.useState("");
+  const [localFiles, setLocalFiles] = React.useState<LocalFile[]>();
+  const [value, setValue] = React.useState("");
+  const [uploading, setUploading] = React.useState(false);
   const username = useTypedSelector((state) => state.user.username) as string;
   const dispatch = useDispatch();
   React.useEffect(() => {
@@ -47,6 +50,8 @@ export const UserLibrary = () => {
       })
     );
   }, [dispatch]);
+
+  console.log("DirectoryName", directoryName);
 
   const [uploaded, setUploaded] = useState<DirectoryTree>();
   const [services, setServices] = useState<DirectoryTree>();
@@ -76,6 +81,10 @@ export const UserLibrary = () => {
       console.error(error);
     }
   }, [client, username]);
+
+  const handleChange = (value: string) => {
+    setValue(value);
+  };
 
   const fetchServices = useCallback(async () => {
     const params = { limit: 100, offset: 0, fname_nslashes: "5u" };
@@ -393,11 +402,58 @@ export const UserLibrary = () => {
     return DirectoryTree.fileList(files.getItems() || [], fname);
   };
 
+  const handleSubmit = async () => {
+    if (!uploading) {
+      setUploading(true);
+      const directory = !value
+        ? `${username}/uploads/test-upload=${v4().substr(0, 4)}`
+        : `${username}/uploads/${value}`;
+      if (localFiles && localFiles.length > 0 && value) {
+        const client = ChrisAPIClient.getClient();
+        for (let i = 0; i < localFiles.length; i++) {
+          const file = localFiles[i];
+          if (i === 0) {
+            setDirectoryName(directory);
+          }
+
+          await client.uploadFile(
+            {
+              upload_path: `${directory}/${file.name}`,
+            },
+            {
+              fname: (file as LocalFile).blob,
+            }
+          );
+        }
+        setUploadFileModal(false);
+        setUploading(false);
+      } else {
+        return;
+      }
+    }
+  };
+
   return (
     <Wrapper>
+      <div className="notification top-right">
+        <Alert
+          isInline
+          style={{
+            width: "100%",
+            height: "100%",
+          }}
+          variant="info"
+          title="info"
+        >
+          This page is under active development, please be patient as we sort
+          out bugs.
+        </Alert>
+      </div>
+
       <article id="user-library">
-        <h1>My Library</h1>
-        <p></p>
+        <div>
+          <h1>My Library</h1>
+        </div>
 
         <section>
           <Grid hasGutter id="search">
@@ -408,8 +464,8 @@ export const UserLibrary = () => {
                   id="search-value"
                   placeholder="Search Library"
                   defaultValue={query || ""}
-                  onChange={(value) => setQuery(value)}
-                  onKeyDown={({ key }) => {
+                  onChange={(value: any) => setQuery(value)}
+                  onKeyDown={({ key }: { key: any }) => {
                     if (query && key.toLowerCase() === "enter") {
                       setSearchResults(undefined);
                       route(`/library/search?q=${query}`);
@@ -610,6 +666,16 @@ export const UserLibrary = () => {
                 }}
                 title="Upload your files"
                 isOpen={uploadedFileModal}
+                actions={[
+                  <Button
+                    key="confirm"
+                    variant="primary"
+                    onClick={handleSubmit}
+                    isDisabled={uploading}
+                  >
+                    Confirm
+                  </Button>,
+                ]}
               >
                 <FileUpload
                   className=""
@@ -618,36 +684,21 @@ export const UserLibrary = () => {
                   }}
                   localFiles={[]}
                   dispatchFn={async (files) => {
-                    const directory = `${username}/uploads/test-upload-${v4().substr(
-                      0,
-                      4
-                    )}`;
-                    const client = ChrisAPIClient.getClient();
-                    for (let i = 0; i < files.length; i++) {
-                      setUploadedFiles(true);
-                      const file = files[i];
-
-                      if (i == 0) {
-                        setDirectoryName(directory);
-                      }
-
-                      await client.uploadFile(
-                        {
-                          upload_path: `${directory}/${file.name}`,
-                        },
-                        {
-                          fname: (file as LocalFile).blob,
-                        }
-                      );
-                    }
-                    setUploadedFiles(false);
-                    setUploadFileModal(false);
+                    setLocalFiles(files);
                   }}
                 />
-                {uploadedFiles && (
+                {localFiles && (
                   <div>
-                    Files are being uploaded at {directoryName}. Please wait....
+                    Total number of files to upload: {localFiles.length}
                   </div>
+                )}
+
+                <UploadComponent value={value} handleChange={handleChange} />
+                {uploading && (
+                  <>
+                    <p>Uploading....</p>
+                    <Spinner size="md" />
+                  </>
                 )}
               </Modal>
 
@@ -729,3 +780,31 @@ export const UserLibrary = () => {
 };
 
 export default UserLibrary;
+
+const UploadComponent = ({
+  value,
+  handleChange,
+}: {
+  value: string;
+  handleChange: (value: string) => void;
+}) => {
+  return (
+    <Form isHorizontal>
+      <FormGroup
+        fieldId="directory name"
+        label="Directory Name"
+        helperText="Set a directory name"
+      >
+        <TextInput
+          id="horizontal form name"
+          value={value}
+          type="text"
+          name="horizontal-form-name"
+          onChange={(value) => {
+            handleChange(value);
+          }}
+        />
+      </FormGroup>
+    </Form>
+  );
+};
