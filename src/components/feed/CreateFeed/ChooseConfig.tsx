@@ -11,22 +11,19 @@ const ChooseConfig: React.FC = () => {
 
   return (
     <div className="local-file-upload">
-
       <h1 className="pf-c-title pf-m-2xl">Feed Type Selection</h1>
       <br />
       <p>
-        {
-          isDataSelected
-            ? 'Creating feed from selected files.'
-            : 'You may create the feed in one of the following ways:'
-        }
+        {isDataSelected
+          ? "Creating feed from selected files."
+          : "You may create the feed in one of the following ways:"}
       </p>
       <br />
       <Radio
         value="fs_plugin"
         isChecked={selectedConfig === "fs_plugin"}
         isDisabled={isDataSelected}
-        onChange={(_, event) => {
+        onChange={(_: any, event: any) => {
           dispatch({
             type: Types.SelectedConfig,
             payload: {
@@ -43,7 +40,7 @@ const ChooseConfig: React.FC = () => {
         value="swift_storage"
         isChecked={selectedConfig === "swift_storage"}
         isDisabled={isDataSelected}
-        onChange={(_, event) => {
+        onChange={(_: any, event: any) => {
           dispatch({
             type: Types.SelectedConfig,
             payload: {
@@ -59,7 +56,7 @@ const ChooseConfig: React.FC = () => {
         value="local_select"
         isChecked={selectedConfig === "local_select"}
         isDisabled={isDataSelected}
-        onChange={(_, event) => {
+        onChange={(_: any, event: any) => {
           dispatch({
             type: Types.SelectedConfig,
             payload: {
@@ -75,7 +72,7 @@ const ChooseConfig: React.FC = () => {
         value="multiple_select"
         isChecked={selectedConfig === "multiple_select"}
         isDisabled={isDataSelected}
-        onChange={(_, event) => {
+        onChange={(_: any, event: any) => {
           dispatch({
             type: Types.SelectedConfig,
             payload: {

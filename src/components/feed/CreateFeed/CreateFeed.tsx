@@ -353,7 +353,15 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   const CustomFooter = (
     <WizardFooter>
       <WizardContextConsumer>
-        {({ activeStep, onNext, onBack }) => {
+        {({
+          activeStep,
+          onNext,
+          onBack,
+        }: {
+          activeStep: any;
+          onNext: any;
+          onBack: any;
+        }) => {
           if (activeStep.name !== "Finish") {
             return (
               <>

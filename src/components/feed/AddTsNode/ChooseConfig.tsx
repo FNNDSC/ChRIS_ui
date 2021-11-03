@@ -13,7 +13,7 @@ const ChooseConfig: React.FC<ChooseConfig> = ({
   return (
     <div className="list-container">
       <Radio
-        onChange={(_, event) => {
+        onChange={(_: any, event: any) => {
           handleConfig(event.currentTarget.value);
         }}
         isChecked={selectedConfig === "join-node"}
@@ -24,7 +24,7 @@ const ChooseConfig: React.FC<ChooseConfig> = ({
         description="The allows you to join nodes"
       />
       <Radio
-        onChange={(_, event) => {
+        onChange={(_: any, event: any) => {
           handleConfig(event.currentTarget.value);
         }}
         isChecked={selectedConfig === "split-node"}
