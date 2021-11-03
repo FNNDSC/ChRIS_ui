@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Switch, Route, Link, useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import {
   Grid,
   GridItem,
@@ -24,18 +25,18 @@ import {
   EmptyStateBody,
   EmptyStatePrimary,
   Title,
+  HelperText,
+  HelperTextItem,
 } from "@patternfly/react-core";
 import {
   FolderIcon,
   CubesIcon,
-  EyeIcon,
   FolderOpenIcon,
   CodeBranchIcon,
   CubeIcon,
 } from "@patternfly/react-icons";
 import pluralize from "pluralize";
 import JSZip from "jszip";
-
 import DirectoryTree, { Branch, Tree } from "../../../../utils/browser";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { LibraryContext, Series, File } from "../../Library";
@@ -45,6 +46,32 @@ import GalleryDicomView from "../../../../components/dicomViewer/GalleryDicomVie
 import { DownloadIcon } from "@patternfly/react-icons";
 import FileViewerModel from "../../../../api/models/file-viewer.model";
 
+import {
+  isNifti,
+  isDicom,
+  getDicomPatientName,
+  getDicomStudyDate,
+  getDicomStudyTime,
+  getDicomStudyDescription,
+  getDicomSeriesDate,
+  getDicomSeriesTime,
+  getDicomSeriesDescription,
+  getDicomSeriesNumber,
+  getDicomInstanceNumber,
+  getDicomSliceDistance,
+  getDicomEchoNumber,
+  getDicomSliceLocation,
+  getDicomColumns,
+  getDicomRows,
+  dicomDateTimeToLocale,
+} from "../../../../components/dicomViewer/utils";
+import { setFilesForGallery } from "../../../../store/explorer/actions";
+import * as cornerstone from "cornerstone-core";
+import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
+import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
+const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
+
 interface BrowserProps {
   tree: DirectoryTree;
   name: string;
@@ -52,6 +79,7 @@ interface BrowserProps {
   withHeader?: boolean;
   fetchFiles?: (prefix: string) => Promise<DirectoryTree>;
   onFolderSelect?: (then: FolderActions, folder: Branch) => any;
+  handleDelete?: () => void;
 }
 
 export const BrowserBreadcrumbs = ({ path }: { path: string }) => {
@@ -100,10 +128,13 @@ export const Browser: React.FC<BrowserProps> = ({
   withHeader,
   fetchFiles,
   onFolderSelect,
+  handleDelete,
 }: BrowserProps) => {
+  const dispatch = useDispatch();
   const [filter, setFilter] = useState<string>();
   const [viewfile, setViewFile] = useState<any>();
-  const [viewfolder, setViewFolder] = useState<any[]>();
+  const [viewfolder, setViewFolder] = useState(false);
+  const [showDownloadText, setDownloadText] = useState(false);
 
   const [files, setFiles] = useState<Tree>();
   const [fpath, setFilesPath] = useState<string>();
@@ -142,10 +173,8 @@ export const Browser: React.FC<BrowserProps> = ({
     folder: Branch
   ): Promise<void> => {
     if (onFolderSelect) return onFolderSelect(then, folder);
-
     setFilesPath(folder.path);
     setFiles(undefined);
-
     if (then === "feed")
       return router.actions.createFeedWithData([folder.path]);
     if (then === "browse") return route(`/library/${folder.path}`);
@@ -157,16 +186,169 @@ export const Browser: React.FC<BrowserProps> = ({
 
     switch (then) {
       case "view":
-        setViewFolder(
-          items.map(({ item }) => ({
-            file: item,
-          }))
-        );
+        const imageIds: string[] = [];
+        let niftiSlices = 0;
+        let step = 0;
+        step = items.length / 50;
+        const nextProgress = step;
+        let count = 0;
+        let nifti = false;
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i].item;
+          if (isNifti(item.data.fname)) {
+            nifti = true;
+            const fileArray = item.data.fname.split("/");
+            const fileName = fileArray[fileArray.length - 1];
+            const imageIdObject = ImageId.fromURL(
+              `nifti:${item.url}${fileName}`
+            );
+
+            niftiSlices = cornerstone.metaData.get(
+              "multiFrameModule",
+              imageIdObject.url
+            ).numberOfFrames;
+
+            imageIds.push(
+              ...Array.from(
+                Array(niftiSlices),
+                (_, i) =>
+                  `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
+              )
+            );
+          } else if (isDicom(item.data.fname)) {
+            const file = await item.getFileBlob();
+            imageIds.push(
+              cornerstoneWADOImageLoader.wadouri.fileManager.add(file)
+            );
+          } else {
+            const file = await item.getFileBlob();
+            imageIds.push(cornerstoneFileImageLoader.fileManager.add(file));
+          }
+        }
+        const dispatchFiles: any[] = [];
+
+        let item = {};
+
+        if (nifti) {
+          for (let i = 0; i < imageIds.length; i++) {
+            cornerstone.loadImage(imageIds[i]).then(
+              (image: any) => {
+                item = {
+                  image: image,
+                  imageId: imageIds[i],
+                  nifti: nifti,
+                  sliceMax: niftiSlices,
+                };
+                dispatchFiles.push(item);
+                count++;
+                const progress = Math.floor(count * (100 / imageIds.length));
+                if (progress > nextProgress) {
+                  console.log("Progress");
+                }
+
+                if (count === imageIds.length) {
+                  dispatch(setFilesForGallery(dispatchFiles));
+                  close();
+                }
+              },
+              (e: any) => {
+                console.log("Error in reading multiple files", e);
+                count++;
+                if (count === imageIds.length) {
+                  dispatch(setFilesForGallery(dispatchFiles));
+                  close();
+                }
+              }
+            );
+          }
+        } else {
+          for (let i = 0; i < items.length; i++) {
+            const selectedFile = items[i].item;
+            cornerstone.loadImage(imageIds[i]).then(
+              (image: any) => {
+                if (image.data) {
+                  const patientName = getDicomPatientName(image);
+                  const studyDate = getDicomStudyDate(image);
+                  const studyTime = getDicomStudyTime(image);
+                  const studyDescription = getDicomStudyDescription(image);
+
+                  const seriesDate = getDicomSeriesDate(image);
+                  const seriesTime = getDicomSeriesTime(image);
+                  const seriesDescription = getDicomSeriesDescription(image);
+                  const seriesNumber = getDicomSeriesNumber(image);
+
+                  const instanceNumber = getDicomInstanceNumber(image);
+                  const sliceDistance = getDicomSliceDistance(image);
+                  const echoNumber = getDicomEchoNumber(image);
+                  const sliceLocation = getDicomSliceLocation(image);
+                  const columns = getDicomColumns(image);
+                  const rows = getDicomRows(image);
+                  const studyDateTime =
+                    studyDate === undefined
+                      ? undefined
+                      : dicomDateTimeToLocale(`${studyDate}.${studyTime}`);
+
+                  item = {
+                    imageId: imageIds[i],
+                    instanceNumber: instanceNumber,
+                    name: selectedFile?.data.fname,
+                    image: image,
+                    rows: rows,
+                    columns: columns,
+                    sliceDistance: sliceDistance,
+                    sliceLocation: sliceLocation,
+                    patient: {
+                      patientName: patientName,
+                    },
+                    study: {
+                      studyDate: studyDate,
+                      studyTime: studyTime,
+                      studyDateTime: studyDateTime,
+                      studyDescription: studyDescription,
+                    },
+                    series: {
+                      seriesDate: seriesDate,
+                      seriesTime: seriesTime,
+                      seriesDescription: seriesDescription,
+                      seriesNumber: seriesNumber,
+                      echoNumber: echoNumber,
+                    },
+                    sliceMax: imageIds.length,
+                  };
+                }
+
+                dispatchFiles.push(item);
+                count++;
+                const progress = Math.floor(count * (100 / items.length));
+                if (progress > nextProgress) {
+                  console.log("Progress");
+                }
+                if (count === items.length) {
+                  dispatch(setFilesForGallery(dispatchFiles));
+                  close();
+                }
+              },
+              (e: any) => {
+                console.log("Error in reading multiple files", e);
+                count++;
+              }
+            );
+          }
+        }
+        setViewFolder(true);
+
         break;
 
       case "select":
         select(items.map(({ item }) => item.data.fname));
         break;
+
+      case "delete": {
+        _files?.map(async (file) => {
+          await file.item.delete();
+        });
+        break;
+      }
 
       default:
         break;
@@ -201,6 +383,7 @@ export const Browser: React.FC<BrowserProps> = ({
                   name={match.params.subfolder}
                   path={`${path}/${match.params.subfolder}`}
                   tree={new DirectoryTree(files)}
+                  handleDelete={handleDelete}
                 />
               );
 
@@ -224,6 +407,7 @@ export const Browser: React.FC<BrowserProps> = ({
               tree={tree.child(match.params.subfolder)}
               onFolderSelect={onFolderSelect}
               fetchFiles={fetchFiles}
+              handleDelete={handleDelete}
             />
           );
         }}
@@ -266,31 +450,46 @@ export const Browser: React.FC<BrowserProps> = ({
                   />
                 </Card>
               </SplitItem>
-              <SplitItem>
+              <SplitItem
+                style={{
+                  marginLeft: "1rem",
+                }}
+              >
                 <Button
                   icon={<DownloadIcon />}
                   onClick={async () => {
+                    setDownloadText(true);
                     const zip = new JSZip();
-
-                    tree.dir
+                    const files = tree.dir
                       .filter(({ isLeaf }) => isLeaf)
                       .filter(({ name }) => {
                         if (filter) return name.includes(filter);
                         return true;
-                      })
-                      .map(async (file) => {
-                        const fileBlob = await file.item.getFileBlob();
-                        console.log("FileBlob", fileBlob);
-                        zip.file(file.name, fileBlob);
                       });
 
-                    const blob = await zip.generateAsync({ type: "blob" });
-                    const filename = "library";
-                    FileViewerModel.downloadFile(blob, filename);
+                    for (const file of files) {
+                      const fileBlob = await file.item.getFileBlob();
+                      zip.file(file.name, fileBlob);
+                    }
+                    const blob = await zip.generateAsync({
+                      type: "blob",
+                    });
+
+                    FileViewerModel.downloadFile(blob, "Library.zip");
+                    setDownloadText(false);
                   }}
                 />
               </SplitItem>
             </Split>
+            <SplitItem>
+              {showDownloadText && (
+                <HelperText>
+                  <HelperTextItem variant="success" hasIcon>
+                    Please wait as the files are being zipped
+                  </HelperTextItem>
+                </HelperText>
+              )}
+            </SplitItem>
           </section>
         )}
 
@@ -346,13 +545,13 @@ export const Browser: React.FC<BrowserProps> = ({
           </Modal>
         )}
 
-        {!!viewfolder && (
+        {viewfolder && (
           <Modal
             title="View"
             aria-label="viewer"
             width={"75%"}
             isOpen={!!viewfolder}
-            onClose={() => setViewFolder(undefined)}
+            onClose={() => setViewFolder(false)}
           >
             <GalleryDicomView />
           </Modal>
@@ -420,29 +619,12 @@ export const FolderCard = ({
                 </DropdownItem>,
 
                 <DropdownItem
-                  key="view"
-                  component="button"
-                  onClick={dispatch.bind(FolderCard, "view")}
-                >
-                  <EyeIcon />
-                  {pad} View
-                </DropdownItem>,
-
-                <DropdownItem
                   key="feed"
                   component="button"
                   onClick={dispatch.bind(FolderCard, "feed")}
                 >
                   <CodeBranchIcon />
                   {pad} Create Feed
-                </DropdownItem>,
-                <DropdownItem
-                  key="download"
-                  component="button"
-                  onClick={dispatch.bind(FolderCard, "download")}
-                >
-                  <DownloadIcon />
-                  {pad} Download
                 </DropdownItem>,
               ]}
             />

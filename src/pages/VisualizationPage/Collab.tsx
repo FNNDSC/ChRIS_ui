@@ -42,6 +42,8 @@ const Collab = () => {
     setIsOpen(!isOpen);
   };
 
+  console.log("Error", error);
+
   return (
     <Wrapper>
       <Modal

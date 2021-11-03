@@ -51,6 +51,8 @@ export const UserLibrary = () => {
     );
   }, [dispatch]);
 
+  console.log("DirectoryName", directoryName);
+
   const [uploaded, setUploaded] = useState<DirectoryTree>();
   const [services, setServices] = useState<DirectoryTree>();
   const [feedfiles, setFeedFiles] = useState<DirectoryTree>();
