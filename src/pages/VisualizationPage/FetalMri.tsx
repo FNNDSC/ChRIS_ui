@@ -27,7 +27,7 @@ const FetalMri = () => {
             width: "100%",
           }}
           allowFullScreen
-          src="http://fetalmri.org/"
+          src="http://fetalmri.org"
           title="FetalMri"
         ></iframe>
       </div>

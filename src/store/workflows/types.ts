@@ -59,7 +59,8 @@ export interface IWorkflowState {
   computeEnvs?: ComputeEnvData;
   pipelinesList?: any[];
   currentPipeline?: string;
-  currentNode: "";
+  currentNode: string;
+  url: string;
 }
 
 export interface DircopyData {
@@ -159,4 +160,5 @@ export const WorkflowTypes = keyMirror({
   SET_CURRENT_NODE: null,
   SET_PIPELINES_LIST: null,
   SET_CURRENT_PIPELINE: null,
+  SET_CURRENT_URL: null,
 });

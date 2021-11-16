@@ -26,6 +26,7 @@ const SliceDropPage = () => {
             height: "100%",
             width: "100%",
           }}
+          allowFullScreen
           src="https://slicedrop.com/"
           title="Slice Drop"
         ></iframe>

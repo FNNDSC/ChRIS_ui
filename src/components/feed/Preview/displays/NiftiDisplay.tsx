@@ -56,6 +56,8 @@ const NiftiDisplay = (props: AllProps) => {
     }
   }, []);
 
+  console.log("ImageIds", imageIds);
+
   React.useEffect(() => {
     if (!!fileItem) {
       initAmi(fileItem);
