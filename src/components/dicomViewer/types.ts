@@ -153,10 +153,4 @@ export type GalleryState = {
   imageIds: string[];
   activeTool: string;
   tools: any;
-  frameRate: number;
-  visibleHeader: boolean;
-  totalFiles: number;
-  filesParsed: number;
-  frame: number;
-  numberOfFrames: number;
 };

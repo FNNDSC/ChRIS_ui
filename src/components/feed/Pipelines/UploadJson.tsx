@@ -23,7 +23,7 @@ export const UploadJson = () => {
       try {
         if (reader.result) {
           const result = JSON.parse(reader.result as string);
-          console.log("Result", result);
+
           result["plugin_tree"] = JSON.stringify(result["plugin_tree"]);
           setFileName(result.name);
           const { resources, pipelineInstance } = await generatePipeline(
@@ -53,7 +53,6 @@ export const UploadJson = () => {
       }
     };
     if (file) {
-      console.log("File", file);
       reader.readAsText(file);
     }
   };

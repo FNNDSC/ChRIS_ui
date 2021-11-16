@@ -95,3 +95,6 @@ export const setCurrentComputeEnv = (node: {
   pluginName: string;
   currentComputeEnv: string;
 }) => action(WorkflowTypes.SET_CURRENT_COMPUTE_ENV, node);
+
+export const setCurrentUrl = (url: string) =>
+  action(WorkflowTypes.SET_CURRENT_URL, url);
