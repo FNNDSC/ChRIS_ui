@@ -79,6 +79,11 @@ const Sidebar: React.FC<AllProps> = ({
             <Link to="/covidnet">COVID-Net</Link>
           </NavItem>
         </NavGroup>
+        <NavGroup title="Collab">
+          <NavItem itemId="collab" isActive={sidebarActiveItem === "collab"}>
+            <Link to="/collab">Partner</Link>
+          </NavItem>
+        </NavGroup>
       </NavList>
     </Nav>
   );

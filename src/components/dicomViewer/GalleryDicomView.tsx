@@ -32,6 +32,7 @@ const GalleryDicomView = () => {
   const [sliceIndex, setSliceIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
+ 
 
   const dicomImageRef = useRef(null);
 
@@ -120,7 +121,6 @@ const GalleryDicomView = () => {
 
   const listOpenFilesFirstFrame = () => {
     const frame = 1;
-
     displayImageFromFiles(frame);
   };
 
@@ -152,7 +152,6 @@ const GalleryDicomView = () => {
       cornerstone.reset(dicomImageRef.current);
       cornerstoneTools.stopClip(dicomImageRef.current);
     }
-    
   };
 
   const handleToolbarAction = (action: string) => {

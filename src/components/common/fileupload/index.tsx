@@ -7,12 +7,14 @@ type FileUploadProps = {
   localFiles: LocalFile[];
   dispatchFn: (files: LocalFile[]) => void;
   handleDeleteDispatch: (file: string) => void;
+  uploadName?: JSX.Element;
   className: string;
 };
 
 const FileUpload = ({
   localFiles,
   dispatchFn,
+  uploadName,
   handleDeleteDispatch,
   className,
 }: FileUploadProps) => {
@@ -67,6 +69,7 @@ const FileUpload = ({
           >
             Choose Files...
           </Button>
+          {uploadName && uploadName}
         </GridItem>
         <GridItem className={`${className}-grid`} span={8} rowSpan={12}>
           <div className="file-list">{fileList}</div>
