@@ -205,6 +205,7 @@ export const UserLibrary = () => {
             limit: 10e6,
             fname: prefix
           });
+          console.log({ files, prefix })
           return DirectoryTree.fileList(files.getItems() || [], prefix);
         }}
       />
