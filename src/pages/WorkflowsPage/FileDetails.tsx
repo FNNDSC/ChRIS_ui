@@ -256,6 +256,8 @@ const SelectWorkflow = () => {
       style={{
         display: "flex",
         justifyContent: "space-between",
+        height: '100%',
+        overflow: 'auto'
       }}
     >
       <div>

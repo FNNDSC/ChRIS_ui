@@ -3,5 +3,7 @@
     margin: 0;
     font-size: 0.85rem;
     color: var(--pf-global--palette--black-500);
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 }
