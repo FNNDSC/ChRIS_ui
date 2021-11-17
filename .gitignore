@@ -15,7 +15,6 @@
 .DS_Store
 
 # Individual settings
-.env
 .env.*local
 npm-debug.log*
 yarn-debug.log*
