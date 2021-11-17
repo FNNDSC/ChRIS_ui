@@ -344,11 +344,12 @@ export const UploadJson = () => {
       try {
         if (reader.result) {
           const result = JSON.parse(reader.result as string);
+          console.log("Result", result);
           dispatch(setUploadedSpec(result));
           setFileName(result.name);
         }
       } catch (error) {
-        console.log("NOT a valid json file");
+        console.log(error);
       }
     };
     if (file) {

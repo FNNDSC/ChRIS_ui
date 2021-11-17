@@ -52,7 +52,6 @@ const PluginViewerModal = (props: AllProps) => {
         >
           <OutputViewerContainer />
         </React.Suspense>
-
         <Gotop isActive={gotopActive} scrollable={scrollDivId} />
       </Modal>
     </React.Fragment>

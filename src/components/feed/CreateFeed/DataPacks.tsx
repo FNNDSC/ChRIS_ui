@@ -133,7 +133,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                 <DataListCheck
                   aria-labelledby="plugin-checkbox"
                   name={`${name} v.${plugin.data.version}`}
-                  onChange={(checked) => {
+                  onChange={(checked: any) => {
                     checked === true && props.getParams(plugin);
                     dispatch({
                       type: Types.SelectPlugin,
