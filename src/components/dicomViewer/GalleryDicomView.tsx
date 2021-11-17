@@ -78,8 +78,8 @@ const GalleryDicomView = () => {
     (index = 0) => {
       const element = dicomImageRef.current;
       cornerstone.enable(element);
-      const image = files[index].image;
-      const sliceMax = files[index].sliceMax;
+      const image = files[index]?.image;
+      const sliceMax = files[index]?.sliceMax;
       try {
         cornerstoneTools.clearToolState(element, "stack");
         cornerstoneTools.addStackStateManager(element, [
