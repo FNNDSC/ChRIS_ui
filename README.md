@@ -15,7 +15,7 @@ First, get the [ChRIS backend](https://github.com/FNNDSC/ChRIS_ultron_backEnd)
 running. Assuming the backend is on `http://localhost:8000/api/v1/`:
 
 ```shell
-docker run --rm -d --name chris_ui -p 3000:3000 -e REACT_APP_CHRIS_UI_URL=http://localhost:8000/api/v1/ fnndsc/chris_ui:latest
+docker run --rm -d --name chris_ui -p 3000:3000 -e REACT_APP_CHRIS_UI_URL=http://localhost:8000/api/v1/ ghcr.io/fnndsc/chris_ui:latest
 ```
 
 The *ChRIS_ui* is now running on http://localhost:3000/
