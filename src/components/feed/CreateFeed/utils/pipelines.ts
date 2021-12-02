@@ -62,7 +62,7 @@ export async function fetchComputeInfo(
     plugin_id: `${plugin_id}`,
   });
 
-  console.log("Compute Envs", computeEnvs);
+
 
   if (computeEnvs.getItems()) {
     const computeEnvData = {

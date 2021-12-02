@@ -38,7 +38,8 @@ export function toPACSDate(date: Date) {
 export function fromPACSDate(value: string) {
   const date = new Date();
   date.setFullYear(parseInt(value.slice(0, 4)));
-  date.setMonth(parseInt(value.slice(4, 6)));
+  const monthValue = parseInt(value.slice(4, 6)) - 1;
+  date.setMonth(monthValue);
   date.setDate(parseInt(value.slice(6)));
   return date;
 }

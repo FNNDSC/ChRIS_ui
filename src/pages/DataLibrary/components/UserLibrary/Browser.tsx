@@ -41,9 +41,13 @@ import DirectoryTree, { Branch, Tree } from "../../../../utils/browser";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { LibraryContext, Series, File } from "../../Library";
 import { MainRouterContext } from "../../../../routes";
-import { CheckIcon } from "@patternfly/react-icons";
+import {
+  CheckIcon,
+  DownloadIcon,
+  TrashIcon,
+  EyeIcon,
+} from "@patternfly/react-icons";
 import GalleryDicomView from "../../../../components/dicomViewer/GalleryDicomView";
-import { DownloadIcon } from "@patternfly/react-icons";
 import FileViewerModel from "../../../../api/models/file-viewer.model";
 
 import {
@@ -133,6 +137,7 @@ export const Browser: React.FC<BrowserProps> = ({
   const dispatch = useDispatch();
   const [filter, setFilter] = useState<string>();
   const [viewfile, setViewFile] = useState<any>();
+  const [dispatchFiles, setDispatchFiles] = useState<any[]>();
   const [viewfolder, setViewFolder] = useState(false);
   const [showDownloadText, setDownloadText] = useState(false);
 
@@ -247,7 +252,7 @@ export const Browser: React.FC<BrowserProps> = ({
                 }
 
                 if (count === imageIds.length) {
-                  dispatch(setFilesForGallery(dispatchFiles));
+                  //dispatch(setFilesForGallery(dispatchFiles));
                   close();
                 }
               },
@@ -324,8 +329,7 @@ export const Browser: React.FC<BrowserProps> = ({
                   console.log("Progress");
                 }
                 if (count === items.length) {
-                  dispatch(setFilesForGallery(dispatchFiles));
-                  close();
+                  setDispatchFiles(dispatchFiles);
                 }
               },
               (e: any) => {
@@ -344,7 +348,8 @@ export const Browser: React.FC<BrowserProps> = ({
         break;
 
       case "delete": {
-        _files?.map(async (file) => {
+        console.log("Items", items);
+        items.map(async (file) => {
           await file.item.delete();
         });
         break;
@@ -545,7 +550,7 @@ export const Browser: React.FC<BrowserProps> = ({
           </Modal>
         )}
 
-        {viewfolder && (
+        {viewfolder && dispatchFiles && dispatchFiles.length > 0 && (
           <Modal
             title="View"
             aria-label="viewer"
@@ -553,7 +558,7 @@ export const Browser: React.FC<BrowserProps> = ({
             isOpen={!!viewfolder}
             onClose={() => setViewFolder(false)}
           >
-            <GalleryDicomView />
+            {<GalleryDicomView />}
           </Modal>
         )}
       </Route>
@@ -625,6 +630,23 @@ export const FolderCard = ({
                 >
                   <CodeBranchIcon />
                   {pad} Create Feed
+                </DropdownItem>,
+
+                <DropdownItem
+                  key="view"
+                  component="button"
+                  onClick={dispatch.bind(FolderCard, "view")}
+                >
+                  <EyeIcon />
+                  {pad} View
+                </DropdownItem>,
+                <DropdownItem
+                  key="delete"
+                  component="button"
+                  onClick={dispatch.bind(FolderCard, "delete")}
+                >
+                  <TrashIcon />
+                  {pad} Delete
                 </DropdownItem>,
               ]}
             />

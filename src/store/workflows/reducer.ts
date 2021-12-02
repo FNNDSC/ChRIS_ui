@@ -44,6 +44,7 @@ export const initialState: IWorkflowState = {
   pipelinesList: undefined,
   currentPipeline: undefined,
   currentNode: "",
+  url: "",
 };
 
 const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
@@ -130,6 +131,13 @@ const reducer: Reducer<IWorkflowState> = (state = initialState, action) => {
       return {
         ...state,
         currentNode: action.payload,
+      };
+    }
+
+    case WorkflowTypes.SET_CURRENT_URL: {
+      return {
+        ...state,
+        url: action.payload,
       };
     }
 
