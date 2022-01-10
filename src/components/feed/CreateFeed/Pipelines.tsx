@@ -103,6 +103,9 @@ const Pipelines = () => {
       perPage,
     });
   };
+
+  console.log("Pipelines", pipelines);
+
   return (
     <div>
       <h1 className="pf-c-title pf-m-2xl"> Registered Pipelines</h1>
