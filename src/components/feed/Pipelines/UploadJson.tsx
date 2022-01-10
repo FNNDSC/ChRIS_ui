@@ -1,14 +1,16 @@
 import React, { useContext } from "react";
 import { AiOutlineUpload } from "react-icons/ai";
+import ReactJSON from "react-json-view";
 import { Types } from "../CreateFeed/types";
 import { CreateFeedContext } from "../CreateFeed/context";
-import { Button } from "@patternfly/react-core";
+import { Button, Alert } from "@patternfly/react-core";
 import { generatePipeline } from "../CreateFeed/utils/pipelines";
 
 export const UploadJson = () => {
   const { dispatch } = useContext(CreateFeedContext);
   const fileOpen = React.useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = React.useState("");
+  const [error, setError] = React.useState({});
 
   const showOpenFile = () => {
     if (fileOpen.current) {
@@ -48,8 +50,10 @@ export const UploadJson = () => {
             },
           });
         }
-      } catch (error) {
-        console.log("NOT a valid json file", error);
+      } catch (error: any) {
+        console.log("Error", error)
+        const errorMessage = error.response.data;
+        setError(errorMessage);
       }
     };
     if (file) {
@@ -61,6 +65,9 @@ export const UploadJson = () => {
     const file = event.target.files && event.target.files[0];
     readFile(file);
   };
+
+  const keys = Object.keys(error).length;
+
   return (
     <>
       <div
@@ -74,6 +81,21 @@ export const UploadJson = () => {
         <Button onClick={showOpenFile} icon={<AiOutlineUpload />}>
           Upload a JSON spec{" "}
         </Button>
+      </div>
+      <div
+        style={{
+          height: "200px",
+        }}
+      >
+        {keys > 0 && (
+          <ReactJSON
+            name={false}
+            displayDataTypes={false}
+            src={error}
+            displayObjectSize={false}
+            collapsed={false}
+          />
+        )}
       </div>
 
       <input
