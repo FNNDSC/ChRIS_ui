@@ -3,16 +3,20 @@ import { AiOutlineUpload } from "react-icons/ai";
 import ReactJSON from "react-json-view";
 import { Types } from "../CreateFeed/types";
 import { CreateFeedContext } from "../CreateFeed/context";
-import { Button, Alert } from "@patternfly/react-core";
-import { generatePipeline } from "../CreateFeed/utils/pipelines";
+import { Alert, Button } from "@patternfly/react-core";
+import { PipelineList } from "@fnndsc/chrisapi";
+import { generatePipelineWithData } from "../CreateFeed/utils/pipelines";
+import ChrisAPIClient from "../../../api/chrisapiclient";
 
 export const UploadJson = () => {
   const { dispatch } = useContext(CreateFeedContext);
   const fileOpen = React.useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = React.useState("");
   const [error, setError] = React.useState({});
+  const [pipelineWarning, setPipelineWarning] = React.useState("");
 
   const showOpenFile = () => {
+    setPipelineWarning("");
     if (fileOpen.current) {
       fileOpen.current.click();
     }
@@ -24,34 +28,41 @@ export const UploadJson = () => {
     reader.onloadend = async () => {
       try {
         if (reader.result) {
+          const client = ChrisAPIClient.getClient();
           const result = JSON.parse(reader.result as string);
-
           result["plugin_tree"] = JSON.stringify(result["plugin_tree"]);
           setFileName(result.name);
-          const { resources, pipelineInstance } = await generatePipeline(
-            result.name,
-            result
-          );
-          const { parameters, pluginPipings, pipelinePlugins } = resources;
-
-          dispatch({
-            type: Types.AddPipeline,
-            payload: {
-              pipeline: pipelineInstance,
-            },
+          const pipelineInstanceList: PipelineList = await client.getPipelines({
+            name: result.name,
           });
+          if (!pipelineInstanceList.data) {
+            const { resources, pipelineInstance } =
+              await generatePipelineWithData(result);
+            const { parameters, pluginPipings, pipelinePlugins } = resources;
 
-          dispatch({
-            type: Types.SetPipelineResources,
-            payload: {
-              parameters,
-              pluginPipings,
-              pipelinePlugins,
-            },
-          });
+            dispatch({
+              type: Types.AddPipeline,
+              payload: {
+                pipeline: pipelineInstance,
+              },
+            });
+
+            dispatch({
+              type: Types.SetPipelineResources,
+              payload: {
+                parameters,
+                pluginPipings,
+                pipelinePlugins,
+              },
+            });
+          } else {
+            setPipelineWarning(
+              `pipeline with the name ${result.name} already exists`
+            );
+          }
         }
       } catch (error: any) {
-        console.log("Error", error)
+        console.log("Error", error);
         const errorMessage = error.response.data;
         setError(errorMessage);
       }
@@ -82,12 +93,13 @@ export const UploadJson = () => {
           Upload a JSON spec{" "}
         </Button>
       </div>
-      <div
-        style={{
-          height: "200px",
-        }}
-      >
-        {keys > 0 && (
+      {pipelineWarning && <Alert variant="danger" title={pipelineWarning} />}
+      {keys > 0 && (
+        <div
+          style={{
+            height: "100px",
+          }}
+        >
           <ReactJSON
             name={false}
             displayDataTypes={false}
@@ -95,8 +107,8 @@ export const UploadJson = () => {
             displayObjectSize={false}
             collapsed={false}
           />
-        )}
-      </div>
+        </div>
+      )}
 
       <input
         ref={fileOpen}

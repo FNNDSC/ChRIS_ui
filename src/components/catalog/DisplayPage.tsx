@@ -17,10 +17,12 @@ import {
   DrawerCloseButton,
   Title,
   Divider,
+  Button,
 } from "@patternfly/react-core";
 import { ImTree } from "react-icons/im";
 import { GrCloudComputer } from "react-icons/gr";
 import { FaCode } from "react-icons/fa";
+import { readFile } from "fs";
 
 interface PageState {
   perPage: number;
@@ -37,6 +39,7 @@ const DisplayPage = ({
   onSetPage,
   setSelectedResource,
   title,
+  showPipelineButton,
 }: {
   resources?: any[];
   pageState: PageState;
@@ -46,7 +49,9 @@ const DisplayPage = ({
   selectedResource: any;
   setSelectedResource: (resource: any) => void;
   title: string;
+  showPipelineButton?: boolean;
 }) => {
+  const fileOpen = React.useRef<HTMLInputElement>(null);
   const { perPage, page, itemCount } = pageState;
   const [isExpanded, setIsExpanded] = React.useState(false);
   const iconStyle = {
@@ -61,17 +66,68 @@ const DisplayPage = ({
     height: "1.25em",
     width: "1.25em",
   };
+
+  const showOpenFile = () => {
+    console.log("Clicked");
+    if (fileOpen.current) {
+      fileOpen.current.click();
+    }
+  };
+
+  const readFile = (file: any) => {
+    console.log("Test");
+    const reader = new FileReader();
+    reader.onLoadend= async()=>{
+      try {
+        if(reader.result){
+
+        }
+      }
+    }
+  };
+
+  const handleUpload = (event: any) => {
+    const file = event.target.files && event.target.files[0];
+    readFile(file);
+  };
+
   const drawerContent = (
     <Grid hasGutter={true}>
-      <Title
+      <div
         style={{
-          marginLeft: "1em",
-          marginTop: "0.5em",
+          display: "flex",
+          justifyContent: "space-between",
         }}
-        headingLevel="h2"
       >
-        {title}
-      </Title>
+        <Title
+          style={{
+            marginLeft: "1em",
+            marginTop: "0.5em",
+          }}
+          headingLevel="h2"
+        >
+          {title}
+        </Title>
+        {showPipelineButton && (
+          <>
+            <Button
+              style={{
+                margin: "0.5em",
+              }}
+              onClick={showOpenFile}
+            >
+              Upload a Pipeline
+            </Button>
+            <input
+              ref={fileOpen}
+              style={{ display: "none" }}
+              type="file"
+              onChange={handleUpload}
+            />
+          </>
+        )}
+      </div>
+
       {resources &&
         resources.length > 0 &&
         resources.map((resource) => {

@@ -74,6 +74,7 @@ const PipelineCatalog = () => {
           setSelectedPipeline(pipeline);
         }}
         title="Pipelines"
+        showPipelineButton={true}
       />
     </>
   );
