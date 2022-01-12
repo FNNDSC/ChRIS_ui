@@ -15,7 +15,7 @@ import ChrisAPIClient from "../../../api/chrisapiclient";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types";
 import { Tree, ConfigurationPage, UploadJson } from "../Pipelines/";
-import { fetchComputeInfo, generatePipeline } from "./utils/pipelines";
+import { fetchComputeInfo, generatePipelineWithName } from "./utils/pipelines";
 
 const Pipelines = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -131,7 +131,7 @@ const Pipelines = () => {
                     <DataListToggle
                       onClick={async () => {
                         if (!expanded.includes(pipeline.data.id)) {
-                          const { resources } = await generatePipeline(
+                          const { resources } = await generatePipelineWithName(
                             pipeline.data.name
                           );
                           dispatch({
@@ -208,9 +208,10 @@ const Pipelines = () => {
                             });
                           }
                           if (!pipelineData[pipeline.data.id]) {
-                            const { resources } = await generatePipeline(
-                              pipeline.data.name
-                            );
+                            const { resources } =
+                              await generatePipelineWithName(
+                                pipeline.data.name
+                              );
                             const {
                               parameters,
                               pluginPipings,

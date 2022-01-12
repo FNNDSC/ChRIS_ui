@@ -28,29 +28,30 @@ async function fetchResources(pipelineInstance: Pipeline) {
   };
 }
 
-export const generatePipeline = async (pipelineName: string, data?: any) => {
+export const generatePipelineWithName = async (pipelineName: string) => {
   const client = ChrisAPIClient.getClient();
   const pipelineInstanceList: PipelineList = await client.getPipelines({
     name: pipelineName,
   });
-  if (pipelineInstanceList.data) {
-    const pipelineInstanceId = pipelineInstanceList.data[0].id;
-    const pipelineInstance: Pipeline = await client.getPipeline(
-      pipelineInstanceId
-    );
-    const resources = await fetchResources(pipelineInstance);
-    return {
-      resources,
-      pipelineInstance,
-    };
-  } else {
-    const pipelineInstance: Pipeline = await client.createPipeline(data);
-    const resources = await fetchResources(pipelineInstance);
-    return {
-      resources,
-      pipelineInstance,
-    };
-  }
+  const pipelineInstanceId = pipelineInstanceList.data[0].id;
+  const pipelineInstance: Pipeline = await client.getPipeline(
+    pipelineInstanceId
+  );
+  const resources = await fetchResources(pipelineInstance);
+  return {
+    resources,
+    pipelineInstance,
+  };
+};
+
+export const generatePipelineWithData = async (data: any) => {
+  const client = ChrisAPIClient.getClient();
+  const pipelineInstance: Pipeline = await client.createPipeline(data);
+  const resources = await fetchResources(pipelineInstance);
+  return {
+    resources,
+    pipelineInstance,
+  };
 };
 
 export async function fetchComputeInfo(
@@ -61,8 +62,6 @@ export async function fetchComputeInfo(
   const computeEnvs = await client.getComputeResources({
     plugin_id: `${plugin_id}`,
   });
-
-
 
   if (computeEnvs.getItems()) {
     const computeEnvData = {
