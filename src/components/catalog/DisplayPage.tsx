@@ -94,7 +94,7 @@ const DisplayPage = ({
               `pipeline with the name ${result.name} already exists`
             );
           } else {
-
+               
           }
         }
       } catch (error: any) {
