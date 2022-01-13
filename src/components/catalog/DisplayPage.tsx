@@ -22,7 +22,8 @@ import {
 import { ImTree } from "react-icons/im";
 import { GrCloudComputer } from "react-icons/gr";
 import { FaCode } from "react-icons/fa";
-import { readFile } from "fs";
+import { PipelineList } from "@fnndsc/chrisapi";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
 interface PageState {
   perPage: number;
@@ -52,6 +53,8 @@ const DisplayPage = ({
   showPipelineButton?: boolean;
 }) => {
   const fileOpen = React.useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = React.useState("");
+  const [warningMessage, setWarningMessage] = React.useState("");
   const { perPage, page, itemCount } = pageState;
   const [isExpanded, setIsExpanded] = React.useState(false);
   const iconStyle = {
@@ -77,12 +80,29 @@ const DisplayPage = ({
   const readFile = (file: any) => {
     console.log("Test");
     const reader = new FileReader();
-    reader.onLoadend= async()=>{
+    reader.onloadend = async () => {
       try {
-        if(reader.result){
+        if (reader.result) {
+          const client = ChrisAPIClient.getClient();
+          const result = JSON.parse(reader.result as string);
+          setFileName(result.name);
+          const pipelineInstanceList: PipelineList = await client.getPipelines({
+            name: result.name,
+          });
+          if (pipelineInstanceList.data) {
+            setWarningMessage(
+              `pipeline with the name ${result.name} already exists`
+            );
+          } else {
 
+          }
         }
+      } catch (error: any) {
+        console.log("Error", error.response.data);
       }
+    };
+    if (file) {
+      reader.readAsText(file);
     }
   };
 
