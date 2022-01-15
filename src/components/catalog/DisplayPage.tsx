@@ -18,13 +18,16 @@ import {
   Title,
   Divider,
   Button,
+  TextArea,
+  Alert,
 } from "@patternfly/react-core";
 import { ImTree } from "react-icons/im";
 import { GrCloudComputer } from "react-icons/gr";
 import { FaCode } from "react-icons/fa";
+import Tree from "./Tree";
 import { PipelineList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
-
+import { generatePipelineWithData } from "../feed/CreateFeed/utils/pipelines";
 interface PageState {
   perPage: number;
   page: number;
@@ -53,7 +56,8 @@ const DisplayPage = ({
   showPipelineButton?: boolean;
 }) => {
   const fileOpen = React.useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = React.useState("");
+  const [error, setError] = React.useState({});
+
   const [warningMessage, setWarningMessage] = React.useState("");
   const { perPage, page, itemCount } = pageState;
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -71,43 +75,46 @@ const DisplayPage = ({
   };
 
   const showOpenFile = () => {
-    console.log("Clicked");
     if (fileOpen.current) {
       fileOpen.current.click();
     }
   };
 
   const readFile = (file: any) => {
-    console.log("Test");
     const reader = new FileReader();
     reader.onloadend = async () => {
       try {
         if (reader.result) {
           const client = ChrisAPIClient.getClient();
           const result = JSON.parse(reader.result as string);
-          setFileName(result.name);
           const pipelineInstanceList: PipelineList = await client.getPipelines({
             name: result.name,
           });
+
           if (pipelineInstanceList.data) {
             setWarningMessage(
               `pipeline with the name ${result.name} already exists`
             );
           } else {
-               
+            await generatePipelineWithData(result);
           }
         }
       } catch (error: any) {
-        console.log("Error", error.response.data);
+        console.log("Error", error);
+        setError(error.response.data);
       }
     };
-    if (file) {
+    if (file && file.type === "application/json") {
       reader.readAsText(file);
+    } else {
+      setWarningMessage("The Pipeline upload requires a json file");
     }
   };
 
   const handleUpload = (event: any) => {
     const file = event.target.files && event.target.files[0];
+    setError("");
+    setWarningMessage("");
     readFile(file);
   };
 
@@ -129,7 +136,7 @@ const DisplayPage = ({
           {title}
         </Title>
         {showPipelineButton && (
-          <>
+          <div>
             <Button
               style={{
                 margin: "0.5em",
@@ -138,15 +145,38 @@ const DisplayPage = ({
             >
               Upload a Pipeline
             </Button>
+
             <input
               ref={fileOpen}
               style={{ display: "none" }}
               type="file"
               onChange={handleUpload}
             />
-          </>
+          </div>
         )}
       </div>
+      {warningMessage && <Alert variant="danger" title={warningMessage} />}
+      {Object.keys(error).length > 0 && (
+        <div
+          style={{
+            textAlign: "right",
+            marginRight: "0.5em",
+            marginTop: "0",
+          }}
+        >
+          <TextArea
+            style={{
+              width: "50em",
+              height: "10em",
+            }}
+            resizeOrientation="vertical"
+            aria-label="text"
+            value={JSON.stringify(error)}
+            isReadOnly
+            validated="error"
+          />
+        </div>
+      )}
 
       {resources &&
         resources.length > 0 &&
@@ -192,6 +222,8 @@ const DisplayPage = ({
                   <p className="pluginList__description">
                     {resource.data.description}
                   </p>
+
+                  <p></p>
                 </CardBody>
               </Card>
             </GridItem>
@@ -221,7 +253,10 @@ const DisplayPage = ({
                 paddingTop: "2em",
               }}
             />
-            <p>{selectedResource.data.description}</p>
+            <p>Pipleine Description: {selectedResource.data.description}</p>
+            {showPipelineButton && (
+              <Tree pipelineName={selectedResource.data.name} />
+            )}
           </>
         )}
       </DrawerHead>
