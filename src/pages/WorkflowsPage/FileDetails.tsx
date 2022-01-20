@@ -27,10 +27,11 @@ import {
   setCurrentComputeEnv,
 } from "../../store/workflows/actions";
 
-import { AiOutlineUpload } from "react-icons/ai";
+
 import { usePaginate } from "../../components/common/pagination";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { Tree, ConfigurationPage } from "./components/Tree";
+import { UploadJson } from "../../components/feed/Pipelines";
 
 const { Step } = Steps;
 
@@ -43,9 +44,6 @@ const StepsComponent = () => {
 
   React.useEffect(() => {
     if (currentStep === 3) {
-      /*
-      message.success("Processing Complete");
-      */
     }
   }, [currentStep]);
   const steps = [
@@ -128,9 +126,7 @@ const ContentWrapper = ({
     computeEnvs,
   } = useTypedSelector((state) => state.workflows);
   const username = useTypedSelector((state) => state.user.username);
-
   const localFiles = localfilePayload.files;
-
   const stepLength = 4;
   const isDisabled = id === 1 && localFiles.length === 0 ? true : false;
 
@@ -288,7 +284,7 @@ const SelectWorkflow = () => {
             })}
         </SimpleList>
       </div>
-      <UploadJson />
+      <UploadJsonWrapper />
     </div>
   );
 };
@@ -325,57 +321,16 @@ export const ConfigurePipeline = () => {
 
 export default FileDetails;
 
-export const UploadJson = () => {
+export const UploadJsonWrapper = () => {
   const dispatch = useDispatch();
-  const fileOpen = React.useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = React.useState("");
 
-  const showOpenFile = () => {
-    if (fileOpen.current) {
-      fileOpen.current.click();
-    }
+  const handleDispatch = (result: any) => {
+    dispatch(setUploadedSpec(result));
   };
 
-  const readFile = (file: any) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      try {
-        if (reader.result) {
-          const result = JSON.parse(reader.result as string);
-
-          dispatch(setUploadedSpec(result));
-          setFileName(result.name);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    if (file) {
-      reader.readAsText(file);
-    }
-  };
-
-  const handleUpload = (event: any) => {
-    const file = event.target.files && event.target.files[0];
-    readFile(file);
-  };
   return (
     <>
-      <div>
-        <span style={{ marginRight: "0.5rem", fontWeight: 700 }}>
-          {fileName}
-        </span>
-        <Button onClick={showOpenFile} icon={<AiOutlineUpload />}>
-          Upload a JSON spec{" "}
-        </Button>
-      </div>
-
-      <input
-        ref={fileOpen}
-        style={{ display: "none" }}
-        type="file"
-        onChange={handleUpload}
-      />
+      <UploadJson handleDispatch={handleDispatch} />
     </>
   );
 };

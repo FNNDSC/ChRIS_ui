@@ -1,15 +1,24 @@
-import React, { useContext } from "react";
+import React from "react";
 import { AiOutlineUpload } from "react-icons/ai";
 import ReactJSON from "react-json-view";
-import { Types } from "../CreateFeed/types";
-import { CreateFeedContext } from "../CreateFeed/context";
+
 import { Alert, Button } from "@patternfly/react-core";
-import { PipelineList } from "@fnndsc/chrisapi";
+import { PipelineList, Pipeline } from "@fnndsc/chrisapi";
 import { generatePipelineWithData } from "../CreateFeed/utils/pipelines";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 
-export const UploadJson = () => {
-  const { dispatch } = useContext(CreateFeedContext);
+interface UploadJsonProps {
+  parameters: any[];
+  pluginPipings: any[];
+  pipelinePlugins: any[];
+  pipelineInstance: Pipeline;
+}
+
+export const UploadJson = ({
+  handleDispatch,
+}: {
+  handleDispatch: (result: UploadJsonProps) => void;
+}) => {
   const fileOpen = React.useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = React.useState("");
   const [error, setError] = React.useState({});
@@ -39,21 +48,11 @@ export const UploadJson = () => {
             const { resources, pipelineInstance } =
               await generatePipelineWithData(result);
             const { parameters, pluginPipings, pipelinePlugins } = resources;
-
-            dispatch({
-              type: Types.AddPipeline,
-              payload: {
-                pipeline: pipelineInstance,
-              },
-            });
-
-            dispatch({
-              type: Types.SetPipelineResources,
-              payload: {
-                parameters,
-                pluginPipings,
-                pipelinePlugins,
-              },
+            handleDispatch({
+              parameters,
+              pluginPipings,
+              pipelinePlugins,
+              pipelineInstance,
             });
           } else {
             setPipelineWarning(
@@ -62,7 +61,6 @@ export const UploadJson = () => {
           }
         }
       } catch (error: any) {
-        console.log("Error", error);
         const errorMessage = error.response.data;
         setError(errorMessage);
       }
