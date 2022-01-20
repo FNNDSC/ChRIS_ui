@@ -28,6 +28,21 @@ async function fetchResources(pipelineInstance: Pipeline) {
   };
 }
 
+export const fetchPipelines = async (perPage: number, page: number) => {
+  const offset = perPage * (page - 1);
+  const client = ChrisAPIClient.getClient();
+  const params = {
+    limit: perPage,
+    offset: offset,
+  };
+  const registeredPipelinesList = await client.getPipelines(params);
+  const registeredPipelines = registeredPipelinesList.getItems();
+  return {
+    registeredPipelines,
+    registeredPipelinesList,
+  };
+};
+
 export const generatePipelineWithName = async (pipelineName: string) => {
   const client = ChrisAPIClient.getClient();
   const pipelineInstanceList: PipelineList = await client.getPipelines({

@@ -96,9 +96,7 @@ export function* workflowsSaga() {
 
 function* createPipeline(data: any) {
   const client = ChrisAPIClient.getClient();
-
   const pipelineName = data.name;
-
   const pipelineInstanceList: PipelineList = yield client.getPipelines({
     name: pipelineName,
   });

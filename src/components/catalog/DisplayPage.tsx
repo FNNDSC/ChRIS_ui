@@ -222,8 +222,6 @@ const DisplayPage = ({
                   <p className="pluginList__description">
                     {resource.data.description}
                   </p>
-
-                  <p></p>
                 </CardBody>
               </Card>
             </GridItem>
