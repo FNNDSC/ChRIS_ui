@@ -3,10 +3,10 @@ import { Route } from "react-router-dom";
 import PrivateRoute from "./components/common/PrivateRoute";
 import {
   RouterContext,
-  RouterProvider,
+  RouterProvider
 } from "./containers/Routing/RouterContext";
 import { LogIn } from "./pages/LogIn/Login";
-import { NotFound } from "./pages/NotFound/NotFound";
+import { NotFoundPage as NotFound } from "./pages/NotFound/NotFound";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import FeedsPage from "./pages/Feeds/Feeds";
 import GalleryPage from "./pages/ViewImage/ViewImage";
@@ -31,8 +31,8 @@ interface IActions {
 
 export const [State, MainRouterContext] = RouterContext<IState, IActions>({
   state: {
-    selectData: [] as Series,
-  },
+    selectData: [] as Series
+  }
 });
 
 export const MainRouter: React.FC = () => {
@@ -47,7 +47,7 @@ export const MainRouter: React.FC = () => {
 
     clearFeedData: () => {
       setState({ selectData: [] });
-    },
+    }
   };
 
   return (
@@ -74,4 +74,3 @@ export const MainRouter: React.FC = () => {
 };
 
 export default MainRouter;
-
