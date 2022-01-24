@@ -1,4 +1,4 @@
-import React, { useRef, useContext, Fragment } from "react";
+import React, { useRef, Fragment } from "react";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { TreeNode } from "../../store/workflows/types";

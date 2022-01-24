@@ -51,7 +51,7 @@ export const UserLibrary = () => {
     );
   }, [dispatch]);
 
-  console.log("DirectoryName", directoryName);
+
 
   const [uploaded, setUploaded] = useState<DirectoryTree>();
   const [services, setServices] = useState<DirectoryTree>();
@@ -157,7 +157,7 @@ export const UserLibrary = () => {
         const results = DirectoryTree.fromPathList([
           ...(uploads.getItems() || []),
           ...(pacs.getItems() || []),
-          ...(services.getItems() || [])
+          ...(services.getItems() || []),
         ]).searchTree(query);
 
         setSearchResults(results);
@@ -212,9 +212,9 @@ export const UserLibrary = () => {
         fetchFiles={async (prefix: string) => {
           const files = await client.getUploadedFiles({
             limit: 10e6,
-            fname: prefix
+            fname: prefix,
           });
-          console.log({ files, prefix })
+          console.log({ files, prefix });
           return DirectoryTree.fileList(files.getItems() || [], prefix);
         }}
       />
@@ -691,7 +691,6 @@ export const UserLibrary = () => {
                     )}`;
                     const client = ChrisAPIClient.getClient();
                     for (let i = 0; i < files.length; i++) {
-                      setUploadedFiles(true);
                       const file = files[i];
 
                       if (i == 0) {
@@ -700,16 +699,16 @@ export const UserLibrary = () => {
 
                       await client.uploadFile(
                         {
-                          upload_path: `${directory}/${file.name}`
+                          upload_path: `${directory}/${file.name}`,
                         },
                         {
-                          fname: (file as LocalFile).blob
+                          fname: (file as LocalFile).blob,
                         }
                       );
                     }
-                    setUploadedFiles(false);
+
                     setUploadFileModal(false);
-                                        
+
                     setLocalFiles(files);
                   }}
                 />
