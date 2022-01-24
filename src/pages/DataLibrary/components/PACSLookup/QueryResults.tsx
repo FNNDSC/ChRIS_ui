@@ -57,17 +57,13 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
   const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
   const cubeClient = ChrisAPIClient.getClient();
 
-  const PatientCard = ({
-    patient
-  }: {
-    patient: PACSPatient
-  }) => {
+  const PatientCard = ({ patient }: { patient: PACSPatient }) => {
     const { PatientID, PatientBirthDate, PatientName, PatientSex } = patient;
-    
+
     const [isPatientExpanded, setIsPatientExpanded] = useState(false);
     const expandPatient = () => {
-      setIsPatientExpanded(!isPatientExpanded)
-    }
+      setIsPatientExpanded(!isPatientExpanded);
+    };
 
     const LatestDate = (dates: Date[]) => {
       let latestStudy = dates[0];
@@ -79,81 +75,76 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
     return (
       <>
-      <Card isRounded isHoverable isExpanded={isPatientExpanded}>
-        <CardHeader onExpand={expandPatient.bind(PatientCard)}>
-          <Grid hasGutter style={{ width: "100%" }}>
-            <GridItem lg={4}>
-              <div>
-                <b>{PatientName.split("^").reverse().join(" ")}</b>
-              </div>
-              <div>MRN {PatientID}</div>
-            </GridItem>
-            <GridItem lg={4}>
-              <div>
-                <b>Sex</b> ({PatientSex})
-              </div>
-              <div>
-                <b>DoB</b>{" "}
-                <Moment format="MMMM Do YYYY">
-                  {PatientBirthDate.getTime()}
-                </Moment>
-              </div>
-            </GridItem>
+        <Card isRounded isHoverable isExpanded={isPatientExpanded}>
+          <CardHeader onExpand={expandPatient.bind(PatientCard)}>
+            <Grid hasGutter style={{ width: "100%" }}>
+              <GridItem lg={4}>
+                <div>
+                  <b>{PatientName.split("^").reverse().join(" ")}</b>
+                </div>
+                <div>MRN {PatientID}</div>
+              </GridItem>
+              <GridItem lg={4}>
+                <div>
+                  <b>Sex</b> ({PatientSex})
+                </div>
+                <div>
+                  <b>DoB</b>{" "}
+                  <Moment format="MMMM Do YYYY">{`${PatientBirthDate}`}</Moment>
+                </div>
+              </GridItem>
 
-            <GridItem lg={4} style={{ textAlign: "right", color: "gray" }}>
-              <div>
-                <b>
-                  {patient.studies.length}{" "}
-                  {pluralize("study", patient.studies.length)}
-                </b>
-              </div>
-              <div>
-                Latest on{" "}
-                {LatestDate(
-                  patient.studies.map((s) => s.StudyDate)
-                ).toDateString()}
-              </div>
-            </GridItem>
+              <GridItem lg={4} style={{ textAlign: "right", color: "gray" }}>
+                <div>
+                  <b>
+                    {patient.studies.length}{" "}
+                    {pluralize("study", patient.studies.length)}
+                  </b>
+                </div>
+                <div>
+                  Latest on{" "}
+                  {LatestDate(
+                    patient.studies.map((s) => s.StudyDate)
+                  ).toDateString()}
+                </div>
+              </GridItem>
+            </Grid>
+          </CardHeader>
+        </Card>
+
+        {isPatientExpanded && (
+          <Grid hasGutter className="patient-studies">
+            {patient.studies.map((study) => (
+              <GridItem key={study.StudyInstanceUID}>
+                <StudyCard study={study} />
+              </GridItem>
+            ))}
           </Grid>
-        </CardHeader>
-      </Card>
-
-      {
-        isPatientExpanded &&
-        <Grid hasGutter className="patient-studies">
-        {patient.studies.map((study) => (
-          <GridItem key={study.StudyInstanceUID}>
-            <StudyCard study={study} />
-          </GridItem>
-        ))}
-        </Grid>
-      }
+        )}
       </>
     );
   };
 
-  const StudyCard = ({
-    study
-  }: {
-    study: PACSStudy
-  }) => {
+  const StudyCard = ({ study }: { study: PACSStudy }) => {
     const { StudyInstanceUID, PatientID } = study;
     const pullQuery = { StudyInstanceUID, PatientID };
 
     const [isStudyExpanded, setIsStudyExpanded] = useState(false);
     const expandStudy = () => {
-      setIsStudyExpanded(!isStudyExpanded)
-    }
+      setIsStudyExpanded(!isStudyExpanded);
+    };
 
     const StudyActions = () => {
-      const [existingStudyFiles, setExistingStudyFiles] = useState<PACSFileList>();
+      const [existingStudyFiles, setExistingStudyFiles] =
+        useState<PACSFileList>();
       const [pullStatus, setPullStatus] = useState<PFDCMPull>();
       const [poll, setPoll] = useState<any>();
 
-      const cubeHasStudy = !!existingStudyFiles && (existingStudyFiles.totalCount > 0);
+      const cubeHasStudy =
+        !!existingStudyFiles && existingStudyFiles.totalCount > 0;
       const studyFiles = existingStudyFiles?.getItems() || [];
       const cubeStudyPath = studyFiles.length
-        ? studyFiles[0].data.fname.split('/').slice(0, -2).join('/')
+        ? studyFiles[0].data.fname.split("/").slice(0, -2).join("/")
         : "#";
 
       useEffect(() => {
@@ -161,15 +152,11 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           setExistingStudyFiles(files);
           setPullStatus(await onRequestStatus(pullQuery));
         });
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [])
-      
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
       useEffect(() => {
-        if (
-          cubeHasStudy ||
-          !pullStatus ||
-          !pullStatus.isRunning
-        )
+        if (cubeHasStudy || !pullStatus || !pullStatus.isRunning)
           return () => clearTimeout(poll);
 
         const _poll = async (): Promise<PFDCMPull> => {
@@ -179,9 +166,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           }
 
           const _status = await onRequestStatus(pullQuery);
-          if (_status.stage >= pullStatus.stage)
-            return _status;
-          
+          if (_status.stage >= pullStatus.stage) return _status;
+
           /**
            * @todo Retry if status is not changing
            * If pfdcm get stuck for more than 10 attempts
@@ -189,19 +175,16 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
           --pullStatus.attempts;
           return pullStatus;
-        }
+        };
 
         if (pullStatus.isRunning)
-          setPoll(
-            setTimeout(() => _poll().then(setPullStatus), 1000)
-          )
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+          setPoll(setTimeout(() => _poll().then(setPullStatus), 1000));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [cubeHasStudy, pullStatus]);
 
       const route = useHistory().push;
 
-      if (!existingStudyFiles || !pullStatus) 
-        return <Spinner size="lg" />;
+      if (!existingStudyFiles || !pullStatus) return <Spinner size="lg" />;
 
       if (cubeHasStudy)
         return (
@@ -232,7 +215,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
               />
             ) : (
               <div>
-                <div><b>Finishing Up</b></div>
+                <div>
+                  <b>Finishing Up</b>
+                </div>
                 <div>{pullStatus.progressText}</div>
               </div>
             )}
@@ -243,7 +228,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         const _p = new PFDCMPull(query, PACSPullStages.RETRIEVE);
         onExecutePACSStage(query, _p.stage);
         setPullStatus(_p);
-      }
+      };
 
       return (
         <Button
@@ -277,21 +262,25 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
                 </div>
                 <div>
                   {study.NumberOfStudyRelatedSeries} series, on{" "}
-                  {study.StudyDate.toDateString()}
+                  <Moment format="MMMM Do YYYY">{`${study.StudyDate}`}</Moment>
                 </div>
               </GridItem>
               <GridItem span={2}>
                 <div className="study-detail-title">Modalities in Study</div>
                 <div>
                   {study.ModalitiesInStudy.split("\\").map((m) => (
-                    <Badge style={{ margin: "auto 0.125em" }} key={m}>{m}</Badge>
+                    <Badge style={{ margin: "auto 0.125em" }} key={m}>
+                      {m}
+                    </Badge>
                   ))}
                 </div>
               </GridItem>
               <GridItem span={2}>
                 <div className="study-detail-title">Accession Number</div>
-                {study.AccessionNumber. startsWith("no value") ? (
-                  <Tooltip content={study.AccessionNumber}><QuestionCircleIcon /></Tooltip>
+                {study.AccessionNumber.startsWith("no value") ? (
+                  <Tooltip content={study.AccessionNumber}>
+                    <QuestionCircleIcon />
+                  </Tooltip>
                 ) : (
                   <div>{study.AccessionNumber}</div>
                 )}
@@ -300,7 +289,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
               <GridItem span={2}>
                 <div className="study-detail-title">Station</div>
                 {study.PerformedStationAETitle.startsWith("no value") ? (
-                  <Tooltip content={study.PerformedStationAETitle}><QuestionCircleIcon /></Tooltip>
+                  <Tooltip content={study.PerformedStationAETitle}>
+                    <QuestionCircleIcon />
+                  </Tooltip>
                 ) : (
                   <div>{study.PerformedStationAETitle}</div>
                 )}

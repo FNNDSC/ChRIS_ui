@@ -60,11 +60,6 @@ export const UploadsBrowser: React.FC<UploadsBrowserProps> = ({
     }
   }, [PAGE_LENGTH, currentPage, pages, username]);
 
-  const handleDelete = () => {
-    console.log("Handle Delete", handleDelete);
-    // fetchCurrentPage();
-  };
-
   const nextPage = () => {
     setUploaded(undefined);
     fetchCurrentPage();
@@ -99,7 +94,6 @@ export const UploadsBrowser: React.FC<UploadsBrowserProps> = ({
         path="/library/uploads"
         tree={uploaded}
         fetchFiles={fetchUploadedDir}
-        handleDelete={handleDelete}
       />
     </section>
   );

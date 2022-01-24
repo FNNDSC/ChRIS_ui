@@ -344,7 +344,7 @@ export const UploadJson = () => {
       try {
         if (reader.result) {
           const result = JSON.parse(reader.result as string);
-          console.log("Result", result);
+
           dispatch(setUploadedSpec(result));
           setFileName(result.name);
         }

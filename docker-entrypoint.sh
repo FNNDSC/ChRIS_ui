@@ -36,14 +36,17 @@ fi
 
 # change to a (random) underprivileged user
 
-PUID=${PUID:=$((RANDOM%50000+10000))}
-PGID=${PGID-nil}
+if ! id chris &> /dev/null; then
+  PUID=${PUID:=$((RANDOM%50000+10000))}
+  PGID=${PGID-nil}
 
-if [ "$PGID" = 'nil' ]; then
-  adduser -D -u $PUID chris
-else
-  addgroup -g $PGID chris
-  adduser -D -u $PUID -G chris chris
+  if [ "$PGID" = 'nil' ]; then
+    adduser -D -u $PUID chris
+  else
+    addgroup -g $PGID chris
+    adduser -D -u $PUID -G chris chris
+  fi
 fi
 
 exec su chris -c "$(echo $@)"
+

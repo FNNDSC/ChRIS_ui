@@ -44,6 +44,7 @@ cornerstoneNIFTIImageLoader.nifti.configure({
   responseType: "arrayBuffer",
 });
 const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
+
 const DicomViewerContainer = () => {
   const history = useHistory();
   const files = useTypedSelector((state) => state.explorer.selectedFolder);
@@ -116,22 +117,16 @@ const DicomViewerContainer = () => {
               items.push(item);
               count++;
               const progress = Math.floor(count * (100 / imageIds.length));
-              if (progress > nextProgress) {
-                setProgress(progress);
-              }
-
+              setProgress(progress);
               if (count === imageIds.length) {
+                console.log("Test", count, progress);
                 dispatch(setFilesForGallery(items));
                 close();
               }
             },
             (e: any) => {
-              console.log("Error in reading multiple files", e);
               count++;
-              if (count === imageIds.length) {
-                dispatch(setFilesForGallery(items));
-                close();
-              }
+              console.log("Error in reading multiple files", e);
             }
           );
         }
