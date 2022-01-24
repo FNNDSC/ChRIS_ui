@@ -10,7 +10,7 @@ import {
   Nav,
   NavItem,
   NavList,
-  NavGroup
+  NavGroup,
 } from "@patternfly/react-core";
 import { setSidebarActive } from "../../store/ui/actions";
 import { Dispatch } from "redux";
@@ -22,13 +22,12 @@ type ReduxProp = {
 
 const Sidebar: React.FC<AllProps> = ({
   isNavOpen,
-  sidebarActiveItem
+  sidebarActiveItem,
 }: AllProps) => {
-  console.log("SidebarActiveItem", sidebarActiveItem);
   const onSelect = (selectedItem: any) => {
     const { itemId } = selectedItem;
     setSidebarActive({
-      activeItem: itemId
+      activeItem: itemId,
     });
   };
 
@@ -55,6 +54,9 @@ const Sidebar: React.FC<AllProps> = ({
           >
             <Link to="/feeds">My Analyses</Link>
           </NavItem>
+          <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
+            <Link to="/catalog">Catalog</Link>
+          </NavItem>
           <NavItem
             itemId="workflows"
             isActive={sidebarActiveItem === "workflows"}
@@ -69,14 +71,20 @@ const Sidebar: React.FC<AllProps> = ({
           >
             <Link to="/visualization">DICOM Viewer</Link>
           </NavItem>
-        </NavGroup>
-
-        <NavGroup title="Apps">
           <NavItem
-            itemId="covidnet"
-            isActive={sidebarActiveItem === "covidnet"}
+            itemId="sliceDrop"
+            isActive={sidebarActiveItem === "sliceDrop"}
           >
-            <Link to="/covidnet">COVID-Net</Link>
+            <Link to="/slicedrop">SliceDrop</Link>
+          </NavItem>
+          <NavItem itemId="medview" isActive={sidebarActiveItem === "medview"}>
+            <Link to="/medview">Medview</Link>
+          </NavItem>
+          <NavItem
+            itemId="fetalmri"
+            isActive={sidebarActiveItem === "fetalmri"}
+          >
+            <Link to="/fetalmri">Fetal MRI</Link>
           </NavItem>
         </NavGroup>
         <NavGroup title="Collab">
@@ -93,12 +101,12 @@ const Sidebar: React.FC<AllProps> = ({
 
 const mapStateToProps = ({ user, ui }: ApplicationState) => ({
   isLoggedIn: user.isLoggedIn,
-  sidebarActiveItem: ui.sidebarActiveItem
+  sidebarActiveItem: ui.sidebarActiveItem,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSidebarActive: (active: { activeItem: string }) =>
-    dispatch(setSidebarActive(active))
+    dispatch(setSidebarActive(active)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);

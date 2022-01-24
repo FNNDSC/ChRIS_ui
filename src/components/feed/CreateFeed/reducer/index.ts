@@ -52,6 +52,7 @@ export function getInitialState(
     pipelineData: {},
     selectedPipeline: undefined,
     pipelines: [],
+    currentlyConfiguredNode: "",
   };
 }
 

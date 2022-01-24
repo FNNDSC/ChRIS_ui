@@ -213,6 +213,7 @@ export interface CreateFeedState extends InputState {
   pipelineData: PipelineData;
   selectedPipeline?: number;
   pipelines: any[];
+  currentlyConfiguredNode: string;
 }
 
 export interface CreateFeedReduxProp {
