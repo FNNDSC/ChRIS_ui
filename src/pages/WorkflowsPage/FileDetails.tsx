@@ -256,6 +256,8 @@ const SelectWorkflow = () => {
       style={{
         display: "flex",
         justifyContent: "space-between",
+        height: '100%',
+        overflow: 'auto'
       }}
     >
       <div>
@@ -271,7 +273,7 @@ const SelectWorkflow = () => {
             marginTop: "2em",
           }}
         >
-          {pipelinesList &&
+          {pipelinesList?.length ?
             pipelinesList.map((pipeline) => {
               return (
                 <SimpleListItem
@@ -285,7 +287,7 @@ const SelectWorkflow = () => {
                   {pipeline.data.name}{" "}
                 </SimpleListItem>
               );
-            })}
+            }) : null}
         </SimpleList>
       </div>
       <UploadJson />
