@@ -56,9 +56,6 @@ const NodeData = (props: NodeProps) => {
         }}
         id={`${data.id}`}
         ref={nodeRef}
-        onClick={() => {
-          console.log("Test");
-        }}
       >
         <circle
           style={{
