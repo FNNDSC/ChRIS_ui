@@ -341,9 +341,6 @@ export const createFeedReducer = (
       const { pipelineId, currentNode: pluginName } = action.payload;
       const { computeEnvs } = state.pipelineData[pipelineId];
 
-      console.log("PluginName", pluginName);
-
-
       if (computeEnvs) {
         const computeEnvArray = computeEnvs[pluginName].computeEnvs;
         const currentComputeEnv = computeEnvs[pluginName].currentlySelected;
