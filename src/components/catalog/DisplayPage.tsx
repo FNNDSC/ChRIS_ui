@@ -17,27 +17,22 @@ import {
   DrawerCloseButton,
   Title,
   Divider,
+  Button,
+  TextArea,
+  Alert,
 } from "@patternfly/react-core";
 import { ImTree } from "react-icons/im";
 import { GrCloudComputer } from "react-icons/gr";
 import { FaCode } from "react-icons/fa";
-
+import Tree from "./Tree";
+import { PipelineList } from "@fnndsc/chrisapi";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import { generatePipelineWithData } from "../feed/CreateFeed/utils/pipelines";
 interface PageState {
   perPage: number;
   page: number;
   search: string;
   itemCount: number;
-}
-
-interface PageProps {
-  resources?: any[];
-  pageState: PageState;
-  onPerPageSelect: (_event: any, perPage: number) => void;
-  handleFilterChange: (value: string) => void;
-  onSetPage: (_event: any, page: number) => void;
-  selectedResource: any;
-  setSelectedResource: (resource: any) => void;
-  title: string;
 }
 
 const DisplayPage = ({
@@ -48,8 +43,23 @@ const DisplayPage = ({
   onSetPage,
   setSelectedResource,
   title,
-}: PageProps) => {
+  showPipelineButton,
+}: {
+  resources?: any[];
+  pageState: PageState;
+  onPerPageSelect: (_event: any, perPage: number) => void;
+  handleFilterChange: (value: string) => void;
+  onSetPage: (_event: any, page: number) => void;
+  selectedResource: any;
+  setSelectedResource: (resource: any) => void;
+  title: string;
+  showPipelineButton?: boolean;
+}) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const fileOpen = React.useRef<HTMLInputElement>(null);
+  const [error, setError] = React.useState({});
+
+  const [warningMessage, setWarningMessage] = React.useState("");
   const { perPage, page, itemCount } = pageState;
   const [isExpanded, setIsExpanded] = React.useState(false);
   useEffect(() => {
@@ -69,17 +79,111 @@ const DisplayPage = ({
     height: "1.25em",
     width: "1.25em",
   };
+
+  const showOpenFile = () => {
+    if (fileOpen.current) {
+      fileOpen.current.click();
+    }
+  };
+
+  const readFile = (file: any) => {
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      try {
+        if (reader.result) {
+          const client = ChrisAPIClient.getClient();
+          const result = JSON.parse(reader.result as string);
+          const pipelineInstanceList: PipelineList = await client.getPipelines({
+            name: result.name,
+          });
+
+          if (pipelineInstanceList.data) {
+            setWarningMessage(
+              `pipeline with the name ${result.name} already exists`
+            );
+          } else {
+            await generatePipelineWithData(result);
+          }
+        }
+      } catch (error: any) {
+        console.log("Error", error);
+        setError(error.response.data);
+      }
+    };
+    if (file && file.type === "application/json") {
+      reader.readAsText(file);
+    } else {
+      setWarningMessage("The Pipeline upload requires a json file");
+    }
+  };
+
+  const handleUpload = (event: any) => {
+    const file = event.target.files && event.target.files[0];
+    setError("");
+    setWarningMessage("");
+    readFile(file);
+  };
+
   const drawerContent = (
     <Grid hasGutter={true}>
-      <Title
+      <div
         style={{
-          marginLeft: "1em",
-          marginTop: "0.5em",
+          display: "flex",
+          justifyContent: "space-between",
         }}
-        headingLevel="h2"
       >
-        {title}
-      </Title>
+        <Title
+          style={{
+            marginLeft: "1em",
+            marginTop: "0.5em",
+          }}
+          headingLevel="h2"
+        >
+          {title}
+        </Title>
+        {showPipelineButton && (
+          <div>
+            <Button
+              style={{
+                margin: "0.5em",
+              }}
+              onClick={showOpenFile}
+            >
+              Upload a Pipeline
+            </Button>
+
+            <input
+              ref={fileOpen}
+              style={{ display: "none" }}
+              type="file"
+              onChange={handleUpload}
+            />
+          </div>
+        )}
+      </div>
+      {warningMessage && <Alert variant="danger" title={warningMessage} />}
+      {Object.keys(error).length > 0 && (
+        <div
+          style={{
+            textAlign: "right",
+            marginRight: "0.5em",
+            marginTop: "0",
+          }}
+        >
+          <TextArea
+            style={{
+              width: "50em",
+              height: "10em",
+            }}
+            resizeOrientation="vertical"
+            aria-label="text"
+            value={JSON.stringify(error)}
+            isReadOnly
+            validated="error"
+          />
+        </div>
+      )}
+
       {resources &&
         resources.length > 0 &&
         resources.map((resource) => {
@@ -153,7 +257,10 @@ const DisplayPage = ({
                 paddingTop: "2em",
               }}
             />
-            <p>{selectedResource.data.description}</p>
+            <p>Pipleine Description: {selectedResource.data.description}</p>
+            {showPipelineButton && (
+              <Tree pipelineName={selectedResource.data.name} />
+            )}
           </>
         )}
       </DrawerHead>
