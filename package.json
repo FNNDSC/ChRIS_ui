@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@fnndsc/chrisapi": "^1.5.7",
+    "@fnndsc/chrisapi": "^1.6.1",
     "@patternfly/patternfly": "^4.135.2",
     "@patternfly/react-core": "^4.157.3",
     "@patternfly/react-icons": "^4.11.17",
@@ -74,7 +74,6 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "react-scripts": "^4.0.3",
     "@testing-library/jest-dom": "^5.11.0",
     "@testing-library/react": "^10.4.4",
     "@types/d3-hierarchy": "^1.1.7",
@@ -104,6 +103,7 @@
     "jest-enzyme": "^7.1.2",
     "keymirror": "^0.1.1",
     "prettier": "^2.2.1",
+    "react-scripts": "^4.0.3",
     "redux-devtools-extension": "^2.13.9",
     "redux-logger": "^3.0.6",
     "redux-mock-store": "^1.5.4"

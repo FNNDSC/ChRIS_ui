@@ -11,11 +11,15 @@ import {
   Pagination,
   DataListAction,
 } from "@patternfly/react-core";
-import ChrisAPIClient from "../../../api/chrisapiclient";
+
 import { CreateFeedContext } from "./context";
 import { Types } from "./types";
 import { Tree, ConfigurationPage, UploadJson } from "../Pipelines/";
-import { fetchComputeInfo, generatePipeline } from "./utils/pipelines";
+import {
+  fetchComputeInfo,
+  generatePipelineWithName,
+  fetchPipelines,
+} from "./utils/pipelines";
 
 const Pipelines = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -32,17 +36,8 @@ const Pipelines = () => {
   const { page, perPage } = pageState;
 
   React.useEffect(() => {
-    async function fetchPipelines(perPage: number, page: number) {
-      const offset = perPage * (page - 1);
-      const client = ChrisAPIClient.getClient();
-
-      const params = {
-        limit: perPage,
-        offset: offset,
-      };
-
-      const registeredPipelinesList = await client.getPipelines(params);
-      const registeredPipelines = registeredPipelinesList.getItems();
+    fetchPipelines(perPage, page).then((result: any) => {
+      const { registeredPipelines, registeredPipelinesList } = result;
       if (registeredPipelines) {
         dispatch({
           type: Types.SetPipelines,
@@ -57,9 +52,7 @@ const Pipelines = () => {
           };
         });
       }
-    }
-
-    fetchPipelines(perPage, page);
+    });
   }, [perPage, page, dispatch]);
 
   const handleNodeClick = async (
@@ -103,11 +96,32 @@ const Pipelines = () => {
       perPage,
     });
   };
+
+  const handleDispatch = (result: any) => {
+    const { pipelineInstance, parameters, pluginPipings, pipelinePlugins } =
+      result;
+    dispatch({
+      type: Types.AddPipeline,
+      payload: {
+        pipeline: pipelineInstance,
+      },
+    });
+
+    dispatch({
+      type: Types.SetPipelineResources,
+      payload: {
+        parameters,
+        pluginPipings,
+        pipelinePlugins,
+      },
+    });
+  };
+
   return (
     <div>
       <h1 className="pf-c-title pf-m-2xl"> Registered Pipelines</h1>
       <div>
-        <UploadJson />
+        <UploadJson handleDispatch={handleDispatch} />
         <Pagination
           itemCount={pageState.itemCount}
           perPage={pageState.perPage}
@@ -128,7 +142,7 @@ const Pipelines = () => {
                     <DataListToggle
                       onClick={async () => {
                         if (!expanded.includes(pipeline.data.id)) {
-                          const { resources } = await generatePipeline(
+                          const { resources } = await generatePipelineWithName(
                             pipeline.data.name
                           );
                           dispatch({
@@ -205,9 +219,10 @@ const Pipelines = () => {
                             });
                           }
                           if (!pipelineData[pipeline.data.id]) {
-                            const { resources } = await generatePipeline(
-                              pipeline.data.name
-                            );
+                            const { resources } =
+                              await generatePipelineWithName(
+                                pipeline.data.name
+                              );
                             const {
                               parameters,
                               pluginPipings,
