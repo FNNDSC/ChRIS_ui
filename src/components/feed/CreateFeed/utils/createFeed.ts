@@ -140,6 +140,13 @@ export const createFeedInstanceWithDircopy = async (
               [id: number]: number;
             } = {};
 
+            console.log(
+              "ComputeEnvs, plugin pipings ",
+              computeEnvs,
+              pluginPipings,
+              pipelinePlugins
+            );
+
             for (let i = 0; i < pluginPipings.length; i++) {
               const currentPlugin = pluginPipings[i];
 
@@ -188,8 +195,10 @@ export const createFeedInstanceWithDircopy = async (
 
               const computeEnv =
                 computeEnvs &&
-                computeEnvs[pluginFound.data.id] &&
-                computeEnvs[pluginFound.data.id].currentlySelected;
+                computeEnvs[currentPlugin.data.id] &&
+                computeEnvs[currentPlugin.data.id].currentlySelected;
+
+              console.log("ComputeEnv", computeEnv, pluginFound);
 
               let finalData = {};
               if (computeEnv) {

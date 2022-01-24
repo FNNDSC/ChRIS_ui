@@ -63,18 +63,15 @@ const NodeData = (props: NodeProps) => {
 
   React.useEffect(() => {
     async function fetchComputeEnvironments() {
-      if (!data.previous_id) {
-        const computeEnvData = await fetchComputeInfo(data.plugin_id, data.id);
-
-        if (computeEnvData) {
-          dispatch({
-            type: Types.SetPipelineEnvironments,
-            payload: {
-              pipelineId: currentPipelineId,
-              computeEnvData,
-            },
-          });
-        }
+      const computeEnvData = await fetchComputeInfo(data.plugin_id, data.id);
+      if (computeEnvData) {
+        dispatch({
+          type: Types.SetPipelineEnvironments,
+          payload: {
+            pipelineId: currentPipelineId,
+            computeEnvData,
+          },
+        });
       }
     }
 
