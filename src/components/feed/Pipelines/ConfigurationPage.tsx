@@ -14,17 +14,10 @@ const ConfigurationPage = (props: { currentPipelineId: number }) => {
   const { currentPipelineId } = props;
   const { state } = useContext(CreateFeedContext);
   const { currentNode, computeEnvs } = state.pipelineData[currentPipelineId];
-
-
-
-
   const computeEnvList =
     computeEnvs && currentNode && computeEnvs[currentNode]
       ? computeEnvs[currentNode].computeEnvs
       : [];
-  console.log("ComputeEnvs", computeEnvs);
-
-  console.log("CurrentNode", currentNode);
 
   return (
     <>
