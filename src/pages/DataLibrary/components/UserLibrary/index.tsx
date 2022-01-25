@@ -46,12 +46,12 @@ export const UserLibrary = () => {
   React.useEffect(() => {
     dispatch(
       setSidebarActive({
-        activeItem: "lib",
+        activeItem: "lib"
       })
     );
   }, [dispatch]);
 
-  console.log("DirectoryName", directoryName);
+
 
   const [uploaded, setUploaded] = useState<DirectoryTree>();
   const [services, setServices] = useState<DirectoryTree>();
@@ -214,6 +214,7 @@ export const UserLibrary = () => {
             limit: 10e6,
             fname: prefix,
           });
+          console.log({ files, prefix });
           return DirectoryTree.fileList(files.getItems() || [], prefix);
         }}
       />
@@ -684,6 +685,30 @@ export const UserLibrary = () => {
                   }}
                   localFiles={[]}
                   dispatchFn={async (files) => {
+                    const directory = `${username}/uploads/test-upload-${v4().substr(
+                      0,
+                      4
+                    )}`;
+                    const client = ChrisAPIClient.getClient();
+                    for (let i = 0; i < files.length; i++) {
+                      const file = files[i];
+
+                      if (i == 0) {
+                        setDirectoryName(directory);
+                      }
+
+                      await client.uploadFile(
+                        {
+                          upload_path: `${directory}/${file.name}`,
+                        },
+                        {
+                          fname: (file as LocalFile).blob,
+                        }
+                      );
+                    }
+
+                    setUploadFileModal(false);
+
                     setLocalFiles(files);
                   }}
                 />
