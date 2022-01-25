@@ -10,7 +10,7 @@ import {
   Title,
   Button,
   EmptyStateBody,
-  EmptyStatePrimary,
+  EmptyStatePrimary
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import pluralize from "pluralize";
@@ -18,7 +18,7 @@ import PFDCMClient, {
   PACSPatient,
   PACSPullStages,
   PFDCMFilters,
-  PFDCMPull,
+  PFDCMPull
 } from "../../../../api/pfdcm";
 import { setSidebarActive } from "../../../../store/ui/actions";
 
@@ -28,7 +28,7 @@ import QueryResults from "./QueryResults";
 export enum PFDCMQueryTypes {
   PMRN,
   NAME,
-  ACCN,
+  ACCN
 }
 
 export interface PFDCMQuery {
@@ -90,7 +90,7 @@ export const PACSLookup = () => {
   useEffect(() => {
     dispatch(
       setSidebarActive({
-        activeItem: "pacs",
+        activeItem: "pacs"
       })
     );
   }, [dispatch]);
@@ -251,4 +251,4 @@ export const PACSLookup = () => {
   );
 };
 
-export default PACSLookup
+export default PACSLookup;

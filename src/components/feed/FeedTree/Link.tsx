@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { linkHorizontal, linkVertical } from "d3-shape";
 import { Datum } from "./data";
 import { HierarchyPointNode } from "d3-hierarchy";
@@ -15,40 +15,26 @@ interface LinkProps {
   orientation: "horizontal" | "vertical";
 }
 
-type LinkState = {
-  initialStyle: { opacity: number };
-};
+const Link: React.FC<LinkProps> = ({ linkData, orientation }) => {
+  const linkRef = useRef<SVGPathElement | null>(null);
+  const [initialStyle] = useState({ opacity: 0 });
+  const nodeRadius = 12;
 
-class Link extends React.Component<LinkProps, LinkState> {
-  private linkRef: SVGPathElement | null = null;
-  state = {
-    initialStyle: {
-      opacity: 0,
-    },
-  };
+  useEffect(() => {
+    applyOpacity(1, 0);
+  }, []);
 
-  componentDidMount() {
-    this.applyOpacity(1, 0);
-  }
-
-  componentWillLeave(done: () => null) {
-    this.applyOpacity(1, 0, done);
-  }
-
-  applyOpacity(
+  const applyOpacity = (
     opacity: number,
     transitionDuration: number,
     done = () => {
       return null;
     }
-  ) {
-    select(this.linkRef).style("opacity", opacity).on("end", done);
-  }
+  ) => {
+    select(linkRef.current).style("opacity", opacity).on("end", done);
+  };
 
-  nodeRadius = 12;
-  drawPath = () => {
-    const { linkData, orientation } = this.props;
-
+  const drawPath = () => {
     const { source, target } = linkData;
 
     const deltaX = target.x - source.x,
@@ -56,8 +42,8 @@ class Link extends React.Component<LinkProps, LinkState> {
       dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
       normX = deltaX / dist,
       normY = deltaY / dist,
-      sourcePadding = this.nodeRadius,
-      targetPadding = this.nodeRadius + 4,
+      sourcePadding = nodeRadius,
+      targetPadding = nodeRadius + 4,
       sourceX = source.x + sourcePadding * normX,
       sourceY = source.y + sourcePadding * normY,
       targetX = target.x - targetPadding * normX,
@@ -71,11 +57,11 @@ class Link extends React.Component<LinkProps, LinkState> {
         return orientation === "horizontal"
           ? linkHorizontal()({
               source: [sourceY, sourceX],
-              target: [targetY, targetX],
+              target: [targetY, targetX]
             })
           : linkVertical()({
               source: [sourceX, sourceY],
-              target: [targetX, targetY],
+              target: [targetX, targetY]
             });
       }
     } else {
@@ -85,24 +71,19 @@ class Link extends React.Component<LinkProps, LinkState> {
     }
   };
 
-  render() {
-    const { linkData } = this.props;
-    return (
-      <Fragment>
-        <path
-          ref={(l) => {
-            this.linkRef = l;
-          }}
-          className="link"
-          //@ts-ignore
-          d={this.drawPath()}
-          style={{ ...this.state.initialStyle }}
-          data-source-id={linkData.source.id}
-          data-target-id={linkData.target.id}
-        />
-      </Fragment>
-    );
-  }
-}
+  return (
+    <Fragment>
+      <path
+        ref={linkRef}
+        className="link"
+        //@ts-ignore
+        d={() => drawPath()}
+        style={{ ...initialStyle }}
+        data-source-id={linkData.source.id}
+        data-target-id={linkData.target.id}
+      />
+    </Fragment>
+  );
+};
 
 export default React.memo(Link);

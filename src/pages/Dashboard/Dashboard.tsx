@@ -13,7 +13,7 @@ import {
   CardHeaderMain,
   Grid,
   GridItem,
-  Button,
+  Button
 } from "@patternfly/react-core";
 import { MdOutlineImageSearch } from "react-icons/md";
 import { FaMagic } from "react-icons/fa";
@@ -27,6 +27,7 @@ import TreeOne from "../../assets/images/tree_1.png";
 import TreeTwo from "../../assets/images/tree_2.png";
 import TreeThree from "../../assets/images/tree_3.png";
 import TreeFour from "../../assets/images/tree_4.png";
+import "./Dashboard.scss";
 
 interface DashboardProps extends RouteComponentProps {
   children: React.ReactNode;
@@ -34,7 +35,7 @@ interface DashboardProps extends RouteComponentProps {
 
 const style = {
   height: "5em",
-  width: "5em",
+  width: "5em"
 };
 
 const DashboardPage = (props: DashboardProps) => {
@@ -45,7 +46,7 @@ const DashboardPage = (props: DashboardProps) => {
   React.useEffect(() => {
     dispatch(
       setSidebarActive({
-        activeItem: "overview",
+        activeItem: "overview"
       })
     );
   }, [dispatch]);
@@ -98,7 +99,6 @@ const DashboardPage = (props: DashboardProps) => {
               buttonLink="/feeds"
             />
           </GridItem>
-
           <GridItem lg={6}>
             <CardDisplay
               component={<LogoComponent logo={outlineSearch} />}
@@ -131,18 +131,21 @@ const CardDisplay = ({
   body,
   buttonText,
   buttonLink,
+  className
 }: {
   component: React.ReactElement;
   title: string;
   body: string;
   buttonText: string;
   buttonLink: string;
+  className?: string;
 }) => {
   const history = useHistory();
   return (
-    <Card style={{ overflow: "hidden", width: "70%" }}>
+    <Card style={{ overflow: "hidden" }}>
       <CardHeader
         style={{ margin: "0 2rem", display: "flex", justifyContent: "center" }}
+        className={className}
       >
         <CardHeaderMain>{component}</CardHeaderMain>
       </CardHeader>

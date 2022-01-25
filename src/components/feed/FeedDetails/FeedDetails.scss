@@ -10,6 +10,12 @@
 
 .feed-details {
   display: flex;
+  justify-content: space-between;
+
+  ul {
+    display: flex;
+    align-items: flex-start;
+  }
 
   &__textarea {
     --pf-c-form-control--BackgroundColor: var(

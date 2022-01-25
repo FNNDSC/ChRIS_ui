@@ -51,27 +51,30 @@ const FeedDetails = () => {
 
   if (feed) {
     return (
-      <ul className="feed-details">
-        <li>
-          <CodeBranchIcon />
-          {feed && <span> {feed.data.name} </span>}
-        </li>
-        <li>
-          <small>Creator</small>
-          <p>
-            <UserIcon size="sm" />{" "}
-            {feed && <span> {feed.data.creator_username} </span>}
-          </p>
-        </li>
-        <li>
-          <small>Created</small>
-          <p>
-            <CalendarAltIcon size="sm" />
-            <Moment format="DD MMM YYYY @ HH:mm">
-              {feed && feed.data.creation_date}
-            </Moment>
-          </p>
-        </li>
+      <div className="feed-details">
+        <ul>
+          <li style={{ alignSelf: 'flex-start'}}>
+            <CodeBranchIcon />
+            {feed && <span> {feed.data.name} </span>}
+          </li>
+          <li>
+            <small>Creator</small>
+            <p>
+              <UserIcon size="sm" />{" "}
+              {feed && <span> {feed.data.creator_username} </span>}
+            </p>
+          </li>
+          <li>
+            <small>Created</small>
+            <p>
+              <CalendarAltIcon size="sm" />
+              <Moment format="DD MMM YYYY @ HH:mm">
+                {feed && feed.data.creation_date}
+              </Moment>
+            </p>
+          </li>
+        </ul>
+        <ul>
         <li>
           <Popover
             content={
@@ -98,7 +101,8 @@ const FeedDetails = () => {
         <li>
           <ShareFeed feed={feed} />
         </li>
-      </ul>
+        </ul>
+      </div>
     );
   } else if (loading) {
     return <Skeleton />;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Pagination,
   Card,
@@ -55,12 +55,18 @@ const DisplayPage = ({
   title: string;
   showPipelineButton?: boolean;
 }) => {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   const fileOpen = React.useRef<HTMLInputElement>(null);
   const [error, setError] = React.useState({});
 
   const [warningMessage, setWarningMessage] = React.useState("");
   const { perPage, page, itemCount } = pageState;
   const [isExpanded, setIsExpanded] = React.useState(false);
+  useEffect(() => {
+    if (isExpanded) {
+      scrollRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [isExpanded])
   const iconStyle = {
     fill:
       title === "Plugins"
@@ -182,7 +188,7 @@ const DisplayPage = ({
         resources.length > 0 &&
         resources.map((resource) => {
           return (
-            <GridItem lg={2} md={4} sm={2} key={resource.data.id}>
+            <GridItem sm={6} md={4} lg={4} key={resource.data.id}>
               <Card
                 isSelectable
                 isSelected={
@@ -231,7 +237,7 @@ const DisplayPage = ({
   );
 
   const panelContent = (
-    <DrawerPanelContent>
+      <DrawerPanelContent>
       <DrawerHead>
         <DrawerActions>
           <DrawerCloseButton
@@ -270,11 +276,13 @@ const DisplayPage = ({
         onSetPage={onSetPage}
         onPerPageSelect={onPerPageSelect}
       />
+      <div ref={scrollRef}>
       <Drawer isExpanded={isExpanded}>
         <DrawerContent panelContent={panelContent}>
           <DrawerContentBody>{drawerContent}</DrawerContentBody>
         </DrawerContent>
       </Drawer>
+      </div>
     </>
   );
 };
