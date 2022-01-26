@@ -50,7 +50,7 @@ export function getInitialState(
     value: 0,
     computeEnvironment: " ",
     pipelineData: {},
-    selectedPipeline: undefined,
+    pipelineName: "",
     pipelines: [],
     currentlyConfiguredNode: "",
   };
@@ -147,6 +147,13 @@ export const createFeedReducer = (
           ),
           checkedKeys: checkedKeysDict,
         },
+      };
+    }
+
+    case Types.SetPipelineName: {
+      return {
+        ...state,
+        pipelineName: action.payload.pipelineName,
       };
     }
 

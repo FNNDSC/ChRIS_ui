@@ -44,6 +44,7 @@ export enum Types {
   SetCurrentNode = "SET_CURRENT_NODE",
   SetExpandedPipelines = "SET_EXPANDED_PIPELINES",
   AddPipeline = "ADD_PIPELINE",
+  SetPipelineName = "SET_PIPELINE_NAME",
 }
 
 type CreateFeedPayload = {
@@ -140,6 +141,10 @@ type CreateFeedPayload = {
   [Types.AddPipeline]: {
     pipeline: any;
   };
+
+  [Types.SetPipelineName]: {
+    pipelineName: string;
+  };
 };
 
 export type CreateFeedActions =
@@ -211,6 +216,7 @@ export interface CreateFeedState extends InputState {
   value: number;
   computeEnvironment: string;
   pipelineData: PipelineData;
+  pipelineName: string;
   selectedPipeline?: number;
   pipelines: any[];
   currentlyConfiguredNode: string;

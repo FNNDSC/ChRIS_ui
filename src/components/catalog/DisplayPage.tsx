@@ -18,9 +18,9 @@ import {
   Title,
   Divider,
   Button,
-  TextArea,
   Alert,
 } from "@patternfly/react-core";
+import ReactJSON from "react-json-view";
 import { ImTree } from "react-icons/im";
 import { GrCloudComputer } from "react-icons/gr";
 import { FaCode } from "react-icons/fa";
@@ -28,6 +28,7 @@ import Tree from "./Tree";
 import { PipelineList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { generatePipelineWithData } from "../feed/CreateFeed/utils/pipelines";
+
 interface PageState {
   perPage: number;
   page: number;
@@ -44,6 +45,7 @@ const DisplayPage = ({
   setSelectedResource,
   title,
   showPipelineButton,
+  fetch,
 }: {
   resources?: any[];
   pageState: PageState;
@@ -54,6 +56,7 @@ const DisplayPage = ({
   setSelectedResource: (resource: any) => void;
   title: string;
   showPipelineButton?: boolean;
+  fetch?: () => void;
 }) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const fileOpen = React.useRef<HTMLInputElement>(null);
@@ -64,9 +67,9 @@ const DisplayPage = ({
   const [isExpanded, setIsExpanded] = React.useState(false);
   useEffect(() => {
     if (isExpanded) {
-      scrollRef.current?.scrollIntoView({ behavior: "smooth" })
+      scrollRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [isExpanded])
+  }, [isExpanded]);
   const iconStyle = {
     fill:
       title === "Plugins"
@@ -93,6 +96,7 @@ const DisplayPage = ({
         if (reader.result) {
           const client = ChrisAPIClient.getClient();
           const result = JSON.parse(reader.result as string);
+          result["plugin_tree"] = JSON.stringify(result["plugin_tree"]);
           const pipelineInstanceList: PipelineList = await client.getPipelines({
             name: result.name,
           });
@@ -103,17 +107,20 @@ const DisplayPage = ({
             );
           } else {
             await generatePipelineWithData(result);
+            fetch && fetch();
           }
         }
       } catch (error: any) {
-        console.log("Error", error);
+        console.log("Error", error.response.data);
         setError(error.response.data);
       }
     };
     if (file && file.type === "application/json") {
-      reader.readAsText(file);
-    } else {
-      setWarningMessage("The Pipeline upload requires a json file");
+      try {
+        reader.readAsText(file);
+      } catch (error) {
+        setWarningMessage("The Pipeline upload requires a json file");
+      }
     }
   };
 
@@ -163,25 +170,13 @@ const DisplayPage = ({
       </div>
       {warningMessage && <Alert variant="danger" title={warningMessage} />}
       {Object.keys(error).length > 0 && (
-        <div
-          style={{
-            textAlign: "right",
-            marginRight: "0.5em",
-            marginTop: "0",
-          }}
-        >
-          <TextArea
-            style={{
-              width: "50em",
-              height: "10em",
-            }}
-            resizeOrientation="vertical"
-            aria-label="text"
-            value={JSON.stringify(error)}
-            isReadOnly
-            validated="error"
-          />
-        </div>
+        <ReactJSON
+          name={false}
+          displayDataTypes={false}
+          src={error}
+          displayObjectSize={false}
+          collapsed={false}
+        />
       )}
 
       {resources &&
@@ -237,7 +232,7 @@ const DisplayPage = ({
   );
 
   const panelContent = (
-      <DrawerPanelContent>
+    <DrawerPanelContent>
       <DrawerHead>
         <DrawerActions>
           <DrawerCloseButton
@@ -277,11 +272,11 @@ const DisplayPage = ({
         onPerPageSelect={onPerPageSelect}
       />
       <div ref={scrollRef}>
-      <Drawer isExpanded={isExpanded}>
-        <DrawerContent panelContent={panelContent}>
-          <DrawerContentBody>{drawerContent}</DrawerContentBody>
-        </DrawerContent>
-      </Drawer>
+        <Drawer isExpanded={isExpanded}>
+          <DrawerContent panelContent={panelContent}>
+            <DrawerContentBody>{drawerContent}</DrawerContentBody>
+          </DrawerContent>
+        </Drawer>
       </div>
     </>
   );
