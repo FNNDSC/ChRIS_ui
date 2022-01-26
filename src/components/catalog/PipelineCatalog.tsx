@@ -4,6 +4,7 @@ import DisplayPage from "./DisplayPage";
 
 const PipelineCatalog = () => {
   const [pipelines, setPipelines] = React.useState<any[]>();
+  const [fetch, setFetch] = React.useState(false);
   const [pageState, setPageState] = React.useState({
     page: 1,
     perPage: 5,
@@ -60,7 +61,11 @@ const PipelineCatalog = () => {
     }
 
     fetchPipelines(perPage, page, search);
-  }, [perPage, page, search]);
+  }, [perPage, page, search, fetch]);
+
+  const handleFetch = () => {
+    setFetch(true);
+  };
   return (
     <>
       <DisplayPage
@@ -75,6 +80,7 @@ const PipelineCatalog = () => {
         }}
         title="Pipelines"
         showPipelineButton={true}
+        fetch={handleFetch}
       />
     </>
   );

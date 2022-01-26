@@ -23,6 +23,7 @@ export const UploadJson = ({
   const [fileName, setFileName] = React.useState("");
   const [error, setError] = React.useState({});
   const [pipelineWarning, setPipelineWarning] = React.useState("");
+  const [showSuccessIcon, setShowSuccessIcon] = React.useState(false);
 
   const showOpenFile = () => {
     setPipelineWarning("");
@@ -54,6 +55,7 @@ export const UploadJson = ({
               pipelinePlugins,
               pipelineInstance,
             });
+            setShowSuccessIcon(true);
           } else {
             setPipelineWarning(
               `pipeline with the name ${result.name} already exists`
@@ -62,6 +64,7 @@ export const UploadJson = ({
         }
       } catch (error: any) {
         const errorMessage = error.response.data;
+        console.log("Error", error.response.data);
         setError(errorMessage);
       }
     };
@@ -72,6 +75,7 @@ export const UploadJson = ({
 
   const handleUpload = (event: any) => {
     const file = event.target.files && event.target.files[0];
+    setError({});
     readFile(file);
   };
 
@@ -90,6 +94,12 @@ export const UploadJson = ({
         <Button onClick={showOpenFile} icon={<AiOutlineUpload />}>
           Upload a JSON spec{" "}
         </Button>
+        {showSuccessIcon && (
+          <Alert
+            variant="success"
+            title="Pipeline Spec uploaded successfully"
+          />
+        )}
       </div>
       {pipelineWarning && <Alert variant="danger" title={pipelineWarning} />}
       {keys > 0 && (
