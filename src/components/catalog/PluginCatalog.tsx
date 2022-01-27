@@ -58,6 +58,13 @@ const PluginCatalog = () => {
     fetchPlugins(perPage, page, search);
   }, [perPage, page, search]);
 
+  const handleSearch = (search: string) => {
+    setPageState({
+      ...pageState,
+      search,
+    });
+  };
+
   return (
     <>
       <DisplayPage
@@ -71,6 +78,9 @@ const PluginCatalog = () => {
           setSelectedPlugin(plugin);
         }}
         title="Plugins"
+        isPlugin={true}
+        handlePluginSearch={handleSearch}
+        search={pageState.search}
       />
     </>
   );

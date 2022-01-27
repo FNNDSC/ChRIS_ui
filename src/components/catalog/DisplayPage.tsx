@@ -19,6 +19,7 @@ import {
   Divider,
   Button,
   Alert,
+  TextInput,
 } from "@patternfly/react-core";
 import ReactJSON from "react-json-view";
 import { ImTree } from "react-icons/im";
@@ -46,6 +47,11 @@ const DisplayPage = ({
   title,
   showPipelineButton,
   fetch,
+  isPlugin,
+  handlePipelineSearch,
+  handleComputeSearch,
+  handlePluginSearch,
+  search,
 }: {
   resources?: any[];
   pageState: PageState;
@@ -57,6 +63,11 @@ const DisplayPage = ({
   title: string;
   showPipelineButton?: boolean;
   fetch?: () => void;
+  isPlugin?: boolean;
+  handlePluginSearch?: (search: string) => void;
+  handlePipelineSearch?: (search: string) => void;
+  handleComputeSearch?: (search: string) => void;
+  search: string;
 }) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const fileOpen = React.useRef<HTMLInputElement>(null);
@@ -76,7 +87,7 @@ const DisplayPage = ({
         ? "#0066CC"
         : title === "Pipelines"
         ? "#1F0066"
-        : title === "Compute Environments "
+        : title === "Compute"
         ? "red"
         : "",
     height: "1.25em",
@@ -141,32 +152,54 @@ const DisplayPage = ({
       >
         <Title
           style={{
-            marginLeft: "1em",
-            marginTop: "0.5em",
+            margin: "0.5em 0 0 1em",
           }}
           headingLevel="h2"
         >
           {title}
         </Title>
-        {showPipelineButton && (
-          <div>
-            <Button
-              style={{
-                margin: "0.5em",
-              }}
-              onClick={showOpenFile}
-            >
-              Upload a Pipeline
-            </Button>
 
-            <input
-              ref={fileOpen}
-              style={{ display: "none" }}
-              type="file"
-              onChange={handleUpload}
-            />
-          </div>
-        )}
+        <div
+          style={{
+            display: "flex",
+          }}
+        >
+          {showPipelineButton && (
+            <div>
+              <Button
+                style={{
+                  margin: "0.5em",
+                }}
+                onClick={showOpenFile}
+              >
+                Upload a Pipeline
+              </Button>
+
+              <input
+                ref={fileOpen}
+                style={{ display: "none" }}
+                type="file"
+                onChange={handleUpload}
+              />
+            </div>
+          )}
+          <TextInput
+            value={search}
+            type="text"
+            placeholder="Search"
+            onChange={(value: string) => {
+              if (title === "Plugins") {
+                handlePluginSearch && handlePluginSearch(value);
+              }
+              if (title === "Pipelines") {
+                handlePipelineSearch && handlePipelineSearch(value);
+              }
+              if (title === "Compute") {
+                handleComputeSearch && handleComputeSearch(value);
+              }
+            }}
+          />
+        </div>
       </div>
       {warningMessage && <Alert variant="danger" title={warningMessage} />}
       {Object.keys(error).length > 0 && (
@@ -215,7 +248,12 @@ const DisplayPage = ({
                   </CardHeaderMain>
                 </CardHeader>
                 <CardTitle>
-                  <p className="pluginList__name">{resource.data.name}</p>
+                  <p className="pluginList__name">
+                    {`${resource.data.name} ${
+                      isPlugin && `version: ${resource.data.version}`
+                    }`}
+                  </p>
+                  {}
                   <p className="pluginList__authors">{resource.data.authors}</p>
                 </CardTitle>
 
@@ -252,7 +290,7 @@ const DisplayPage = ({
                 paddingTop: "2em",
               }}
             />
-            <p>Pipleine Description: {selectedResource.data.description}</p>
+            <p>Pipeline Description: {selectedResource.data.description}</p>
             {showPipelineButton && (
               <Tree pipelineName={selectedResource.data.name} />
             )}
