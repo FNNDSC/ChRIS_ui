@@ -61,6 +61,13 @@ const ComputeCatalog = () => {
 
     fetchPipelines(perPage, page, search);
   }, [perPage, page, search]);
+
+  const handleSearch = (search: string) => {
+    setPageState({
+      ...pageState,
+      search,
+    });
+  };
   return (
     <>
       <DisplayPage
@@ -73,7 +80,9 @@ const ComputeCatalog = () => {
         setSelectedResource={(compute: any) => {
           setSelectedCompute(compute);
         }}
-        title="Compute Environments"
+        title="Compute"
+        handleComputeSearch={handleSearch}
+        search={pageState.search}
       />
     </>
   );

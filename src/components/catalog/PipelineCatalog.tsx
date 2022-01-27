@@ -66,6 +66,14 @@ const PipelineCatalog = () => {
   const handleFetch = () => {
     setFetch(true);
   };
+
+  const handleSearch = (search: string) => {
+    console.log("Search", search);
+    setPageState({
+      ...pageState,
+      search,
+    });
+  };
   return (
     <>
       <DisplayPage
@@ -81,6 +89,8 @@ const PipelineCatalog = () => {
         title="Pipelines"
         showPipelineButton={true}
         fetch={handleFetch}
+        handlePipelineSearch={handleSearch}
+        search={pageState.search}
       />
     </>
   );
