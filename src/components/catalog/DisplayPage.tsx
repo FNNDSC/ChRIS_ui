@@ -30,6 +30,7 @@ import { PipelineList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { generatePipelineWithData } from "../feed/CreateFeed/utils/pipelines";
 
+
 interface PageState {
   perPage: number;
   page: number;
@@ -187,6 +188,7 @@ const DisplayPage = ({
             value={search}
             type="text"
             placeholder="Search"
+            iconVariant="search"
             onChange={(value: string) => {
               if (title === "Plugins") {
                 handlePluginSearch && handlePluginSearch(value);
