@@ -18,9 +18,10 @@ import {
   Title,
   Divider,
   Button,
-  TextArea,
   Alert,
+  TextInput,
 } from "@patternfly/react-core";
+import ReactJSON from "react-json-view";
 import { ImTree } from "react-icons/im";
 import { GrCloudComputer } from "react-icons/gr";
 import { FaCode } from "react-icons/fa";
@@ -28,6 +29,7 @@ import Tree from "./Tree";
 import { PipelineList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { generatePipelineWithData } from "../feed/CreateFeed/utils/pipelines";
+
 interface PageState {
   perPage: number;
   page: number;
@@ -44,6 +46,12 @@ const DisplayPage = ({
   setSelectedResource,
   title,
   showPipelineButton,
+  fetch,
+  isPlugin,
+  handlePipelineSearch,
+  handleComputeSearch,
+  handlePluginSearch,
+  search,
 }: {
   resources?: any[];
   pageState: PageState;
@@ -54,6 +62,12 @@ const DisplayPage = ({
   setSelectedResource: (resource: any) => void;
   title: string;
   showPipelineButton?: boolean;
+  fetch?: () => void;
+  isPlugin?: boolean;
+  handlePluginSearch?: (search: string) => void;
+  handlePipelineSearch?: (search: string) => void;
+  handleComputeSearch?: (search: string) => void;
+  search: string;
 }) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const fileOpen = React.useRef<HTMLInputElement>(null);
@@ -64,16 +78,16 @@ const DisplayPage = ({
   const [isExpanded, setIsExpanded] = React.useState(false);
   useEffect(() => {
     if (isExpanded) {
-      scrollRef.current?.scrollIntoView({ behavior: "smooth" })
+      scrollRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [isExpanded])
+  }, [isExpanded]);
   const iconStyle = {
     fill:
       title === "Plugins"
         ? "#0066CC"
         : title === "Pipelines"
         ? "#1F0066"
-        : title === "Compute Environments "
+        : title === "Compute"
         ? "red"
         : "",
     height: "1.25em",
@@ -93,6 +107,7 @@ const DisplayPage = ({
         if (reader.result) {
           const client = ChrisAPIClient.getClient();
           const result = JSON.parse(reader.result as string);
+          result["plugin_tree"] = JSON.stringify(result["plugin_tree"]);
           const pipelineInstanceList: PipelineList = await client.getPipelines({
             name: result.name,
           });
@@ -103,17 +118,20 @@ const DisplayPage = ({
             );
           } else {
             await generatePipelineWithData(result);
+            fetch && fetch();
           }
         }
       } catch (error: any) {
-        console.log("Error", error);
+        console.log("Error", error.response.data);
         setError(error.response.data);
       }
     };
     if (file && file.type === "application/json") {
-      reader.readAsText(file);
-    } else {
-      setWarningMessage("The Pipeline upload requires a json file");
+      try {
+        reader.readAsText(file);
+      } catch (error) {
+        setWarningMessage("The Pipeline upload requires a json file");
+      }
     }
   };
 
@@ -134,54 +152,65 @@ const DisplayPage = ({
       >
         <Title
           style={{
-            marginLeft: "1em",
-            marginTop: "0.5em",
+            margin: "0.5em 0 0 1em",
           }}
           headingLevel="h2"
         >
           {title}
         </Title>
-        {showPipelineButton && (
-          <div>
-            <Button
-              style={{
-                margin: "0.5em",
-              }}
-              onClick={showOpenFile}
-            >
-              Upload a Pipeline
-            </Button>
 
-            <input
-              ref={fileOpen}
-              style={{ display: "none" }}
-              type="file"
-              onChange={handleUpload}
-            />
-          </div>
-        )}
+        <div
+          style={{
+            display: "flex",
+          }}
+        >
+          {showPipelineButton && (
+            <div>
+              <Button
+                style={{
+                  margin: "0.5em",
+                }}
+                onClick={showOpenFile}
+              >
+                Upload a Pipeline
+              </Button>
+
+              <input
+                ref={fileOpen}
+                style={{ display: "none" }}
+                type="file"
+                onChange={handleUpload}
+              />
+            </div>
+          )}
+          <TextInput
+            value={search}
+            type="text"
+            placeholder="Search"
+            iconVariant="search"
+            onChange={(value: string) => {
+              if (title === "Plugins") {
+                handlePluginSearch && handlePluginSearch(value);
+              }
+              if (title === "Pipelines") {
+                handlePipelineSearch && handlePipelineSearch(value);
+              }
+              if (title === "Compute") {
+                handleComputeSearch && handleComputeSearch(value);
+              }
+            }}
+          />
+        </div>
       </div>
       {warningMessage && <Alert variant="danger" title={warningMessage} />}
       {Object.keys(error).length > 0 && (
-        <div
-          style={{
-            textAlign: "right",
-            marginRight: "0.5em",
-            marginTop: "0",
-          }}
-        >
-          <TextArea
-            style={{
-              width: "50em",
-              height: "10em",
-            }}
-            resizeOrientation="vertical"
-            aria-label="text"
-            value={JSON.stringify(error)}
-            isReadOnly
-            validated="error"
-          />
-        </div>
+        <ReactJSON
+          name={false}
+          displayDataTypes={false}
+          src={error}
+          displayObjectSize={false}
+          collapsed={false}
+        />
       )}
 
       {resources &&
@@ -220,7 +249,11 @@ const DisplayPage = ({
                   </CardHeaderMain>
                 </CardHeader>
                 <CardTitle>
-                  <p className="pluginList__name">{resource.data.name}</p>
+                  <p className="pluginList__name">
+                    {`${resource.data.name} ${
+                      isPlugin && `version: ${resource.data.version}`
+                    }`}
+                  </p>
                   <p className="pluginList__authors">{resource.data.authors}</p>
                 </CardTitle>
 
@@ -237,7 +270,7 @@ const DisplayPage = ({
   );
 
   const panelContent = (
-      <DrawerPanelContent>
+    <DrawerPanelContent>
       <DrawerHead>
         <DrawerActions>
           <DrawerCloseButton
@@ -257,7 +290,7 @@ const DisplayPage = ({
                 paddingTop: "2em",
               }}
             />
-            <p>Pipleine Description: {selectedResource.data.description}</p>
+            <p>Pipeline Description: {selectedResource.data.description}</p>
             {showPipelineButton && (
               <Tree pipelineName={selectedResource.data.name} />
             )}
@@ -277,11 +310,11 @@ const DisplayPage = ({
         onPerPageSelect={onPerPageSelect}
       />
       <div ref={scrollRef}>
-      <Drawer isExpanded={isExpanded}>
-        <DrawerContent panelContent={panelContent}>
-          <DrawerContentBody>{drawerContent}</DrawerContentBody>
-        </DrawerContent>
-      </Drawer>
+        <Drawer isExpanded={isExpanded}>
+          <DrawerContent panelContent={panelContent}>
+            <DrawerContentBody>{drawerContent}</DrawerContentBody>
+          </DrawerContent>
+        </Drawer>
       </div>
     </>
   );

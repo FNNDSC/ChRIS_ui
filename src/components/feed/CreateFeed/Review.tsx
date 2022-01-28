@@ -23,6 +23,7 @@ const Review: React.FunctionComponent = () => {
     selectedConfig,
     selectedPlugin,
     computeEnvironment,
+    pipelineName,
   } = state;
 
   // the installed version of @patternfly/react-core doesn't support read-only chips
@@ -71,7 +72,6 @@ const Review: React.FunctionComponent = () => {
       <h1 className="pf-c-title pf-m-2xl">Review</h1>
       <p>
         Review the information below and click &apos;Finish&apos; to create your
-       
         new feed.
       </p>
       <p>Use the &apos;Back&apos; button to make changes.</p>
@@ -95,6 +95,14 @@ const Review: React.FunctionComponent = () => {
         </GridItem>
         <GridItem span={10}>
           <span className="review__value">{tagList}</span>
+        </GridItem>
+        <GridItem span={2}>
+          <span className="review__title">Selected Pipeline</span>
+        </GridItem>
+        <GridItem span={10}>
+          <span className="review__value">
+            {pipelineName ? pipelineName : "None Selected"}
+          </span>
         </GridItem>
       </Grid>
       <br />

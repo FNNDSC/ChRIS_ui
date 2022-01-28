@@ -217,6 +217,13 @@ const Pipelines = () => {
                                 pipelineId: pipeline.data.id,
                               },
                             });
+
+                            dispatch({
+                              type: Types.SetPipelineName,
+                              payload: {
+                                pipelineName: pipeline.data.name,
+                              },
+                            });
                           }
                           if (!pipelineData[pipeline.data.id]) {
                             const { resources } =
