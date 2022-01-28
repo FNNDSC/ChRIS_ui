@@ -30,7 +30,6 @@ import { PipelineList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { generatePipelineWithData } from "../feed/CreateFeed/utils/pipelines";
 
-
 interface PageState {
   perPage: number;
   page: number;
@@ -255,7 +254,6 @@ const DisplayPage = ({
                       isPlugin && `version: ${resource.data.version}`
                     }`}
                   </p>
-                  {}
                   <p className="pluginList__authors">{resource.data.authors}</p>
                 </CardTitle>
 
