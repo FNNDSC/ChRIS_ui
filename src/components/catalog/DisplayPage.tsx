@@ -168,7 +168,7 @@ const DisplayPage = ({
             <div>
               <Button
                 style={{
-                  margin: "0.5em",
+                  margin: "0.5em 0.5em 0 0",
                 }}
                 onClick={showOpenFile}
               >
@@ -184,6 +184,9 @@ const DisplayPage = ({
             </div>
           )}
           <TextInput
+            style={{
+              margin: "0.5em 0.5em 0 0",
+            }}
             value={search}
             type="text"
             placeholder="Search"

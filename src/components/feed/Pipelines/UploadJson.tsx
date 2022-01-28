@@ -1,7 +1,6 @@
 import React from "react";
 import { AiOutlineUpload } from "react-icons/ai";
 import ReactJSON from "react-json-view";
-
 import { Alert, Button } from "@patternfly/react-core";
 import { PipelineList, Pipeline } from "@fnndsc/chrisapi";
 import { generatePipelineWithData } from "../CreateFeed/utils/pipelines";
