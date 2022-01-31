@@ -26,8 +26,6 @@ import {
   setCurrentPipeline,
   setCurrentComputeEnv,
 } from "../../store/workflows/actions";
-
-
 import { usePaginate } from "../../components/common/pagination";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { Tree, ConfigurationPage } from "./components/Tree";
@@ -252,8 +250,8 @@ const SelectWorkflow = () => {
       style={{
         display: "flex",
         justifyContent: "space-between",
-        height: '100%',
-        overflow: 'auto'
+        height: "100%",
+        overflow: "auto",
       }}
     >
       <div>
@@ -269,21 +267,22 @@ const SelectWorkflow = () => {
             marginTop: "2em",
           }}
         >
-          {pipelinesList?.length ?
-            pipelinesList.map((pipeline) => {
-              return (
-                <SimpleListItem
-                  isActive={selectedPipeline === pipeline.data.name}
-                  onClick={() => {
-                    dispatch(setCurrentPipeline(pipeline.data.name));
-                    setSelectedPipeline(pipeline.data.name);
-                  }}
-                  key={pipeline.data.id}
-                >
-                  {pipeline.data.name}{" "}
-                </SimpleListItem>
-              );
-            }) : null}
+          {pipelinesList?.length
+            ? pipelinesList.map((pipeline) => {
+                return (
+                  <SimpleListItem
+                    isActive={selectedPipeline === pipeline.data.name}
+                    onClick={() => {
+                      dispatch(setCurrentPipeline(pipeline.data.name));
+                      setSelectedPipeline(pipeline.data.name);
+                    }}
+                    key={pipeline.data.id}
+                  >
+                    {pipeline.data.name}{" "}
+                  </SimpleListItem>
+                );
+              })
+            : null}
         </SimpleList>
       </div>
       <UploadJsonWrapper />
