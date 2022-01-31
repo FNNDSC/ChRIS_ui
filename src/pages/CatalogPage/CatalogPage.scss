@@ -1,9 +1,21 @@
 .pluginList {
-  &__authors {
-    margin: 0;
+  &__authors,
+  &__version {
     font-size: 0.85rem;
     color: var(--pf-global--palette--black-500);
     text-overflow: ellipsis;
     overflow: hidden;
+  }
+
+  &__authors {
+    margin-bottom: 0.25em;
+  }
+  &__version {
+    margin: 0;
+  }
+
+  .pf-c-card__title {
+    display: flex;
+    align-items: center;
   }
 }
