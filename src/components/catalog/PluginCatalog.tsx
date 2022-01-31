@@ -78,7 +78,6 @@ const PluginCatalog = () => {
           setSelectedPlugin(plugin);
         }}
         title="Plugins"
-        isPlugin={true}
         handlePluginSearch={handleSearch}
         search={pageState.search}
       />

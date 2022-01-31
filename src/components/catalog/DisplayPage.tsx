@@ -47,7 +47,6 @@ const DisplayPage = ({
   title,
   showPipelineButton,
   fetch,
-  isPlugin,
   handlePipelineSearch,
   handleComputeSearch,
   handlePluginSearch,
@@ -63,7 +62,6 @@ const DisplayPage = ({
   title: string;
   showPipelineButton?: boolean;
   fetch?: () => void;
-  isPlugin?: boolean;
   handlePluginSearch?: (search: string) => void;
   handlePipelineSearch?: (search: string) => void;
   handleComputeSearch?: (search: string) => void;
@@ -81,17 +79,23 @@ const DisplayPage = ({
       scrollRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [isExpanded]);
+
+  const isPlugin = title === "Plugins" ? true : false;
+  const isPipeline = title === "Pipelines" ? true : false;
+  const isCompute = title === "Compute" ? true : false;
+
   const iconStyle = {
-    fill:
-      title === "Plugins"
-        ? "#0066CC"
-        : title === "Pipelines"
-        ? "#1F0066"
-        : title === "Compute"
-        ? "red"
-        : "",
-    height: "1.25em",
+    fill: isPlugin
+      ? "#0066CC"
+      : isPipeline
+      ? "#1F0066"
+      : isCompute
+      ? "red"
+      : "",
+    height: "1.5em",
     width: "1.25em",
+    marginRight: "0.5em",
+    marginTop: "0.25em",
   };
 
   const showOpenFile = () => {
@@ -122,7 +126,6 @@ const DisplayPage = ({
           }
         }
       } catch (error: any) {
-        console.log("Error", error.response.data);
         setError(error.response.data);
       }
     };
@@ -191,14 +194,15 @@ const DisplayPage = ({
             type="text"
             placeholder="Search"
             iconVariant="search"
+            aria-label="search"
             onChange={(value: string) => {
-              if (title === "Plugins") {
+              if (isPlugin) {
                 handlePluginSearch && handlePluginSearch(value);
               }
-              if (title === "Pipelines") {
+              if (isPipeline) {
                 handlePipelineSearch && handlePipelineSearch(value);
               }
-              if (title === "Compute") {
+              if (isCompute) {
                 handleComputeSearch && handleComputeSearch(value);
               }
             }}
@@ -241,26 +245,30 @@ const DisplayPage = ({
                 key={resource.data.id}
               >
                 <CardHeader>
-                  <CardHeaderMain>
-                    {title === "Pipelines" ? (
-                      <ImTree style={iconStyle} />
-                    ) : title === "Compute Environments" ? (
-                      <GrCloudComputer style={iconStyle} />
-                    ) : (
-                      <FaCode style={iconStyle} />
-                    )}
-                  </CardHeaderMain>
+                  <CardHeaderMain></CardHeaderMain>
                 </CardHeader>
                 <CardTitle>
-                  <p className="pluginList__name">
-                    {`${resource.data.name} ${
-                      isPlugin && `version: ${resource.data.version}`
-                    }`}
-                  </p>
-                  <p className="pluginList__authors">{resource.data.authors}</p>
+                  {isPipeline ? (
+                    <ImTree style={iconStyle} />
+                  ) : isCompute ? (
+                    <GrCloudComputer style={iconStyle} />
+                  ) : (
+                    <FaCode style={iconStyle} />
+                  )}
+                  {resource.data.name}
                 </CardTitle>
 
                 <CardBody>
+                  {isPlugin && (
+                    <>
+                      <p className="pluginList__version">
+                        version: {resource.data.version}
+                      </p>
+                      <p className="pluginList__authors">
+                        {resource.data.authors}
+                      </p>
+                    </>
+                  )}
                   <p className="pluginList__description">
                     {resource.data.description}
                   </p>
@@ -288,12 +296,24 @@ const DisplayPage = ({
             <p className="pluginList__authors">
               {selectedResource.data.authors}
             </p>
+            {isPlugin && (
+              <p className="pluginList__version">
+                Public Repo:{" "}
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href={selectedResource.data.documentation}
+                >
+                  {selectedResource.data.documentation}
+                </a>
+              </p>
+            )}
             <Divider
               style={{
                 paddingTop: "2em",
               }}
             />
-            <p>Pipeline Description: {selectedResource.data.description}</p>
+            <p>{selectedResource.data.description}</p>
             {showPipelineButton && (
               <Tree pipelineName={selectedResource.data.name} />
             )}
