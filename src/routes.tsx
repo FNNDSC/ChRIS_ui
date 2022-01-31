@@ -5,21 +5,21 @@ import {
   RouterContext,
   RouterProvider
 } from "./containers/Routing/RouterContext";
-import { LogIn } from "./pages/LogIn/Login";
-import { NotFoundPage as NotFound } from "./pages/NotFound/NotFound";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import FeedsPage from "./pages/Feeds/Feeds";
-import GalleryPage from "./pages/ViewImage/ViewImage";
-import VisualizationPage from "./pages/VisualizationPage";
-import Library, { Series } from "./pages/DataLibrary/Library";
-import SignUp from "./pages/SignUp/SignUp";
-import WorkflowsPage from "./pages/WorkflowsPage";
-import CatalogPage from "./pages/CatalogPage";
-import SliceDropPage from "./pages/VisualizationPage/SliceDropPage";
-import MedviewPage from "./pages/VisualizationPage/MedviewPage";
-import FetalMri from "./pages/VisualizationPage/FetalMri";
-import Collab from "./pages/VisualizationPage/Collab";
-import BrainBrowser from "./pages/VisualizationPage/BrainBrowser";
+import { LogIn } from "./containers/LogIn/Login";
+import { NotFoundPage as NotFound } from "./containers/NotFound/NotFound";
+import Dashboard from "./containers/Dashboard/Dashboard";
+import FeedsPage from "./containers/Feeds/Feeds";
+import GalleryPage from "./containers/ViewImage/ViewImage";
+import VisualizationPage from "./containers/VisualizationPage";
+import Library, { Series } from "./containers/DataLibrary/Library";
+import SignUp from "./containers/SignUp/SignUp";
+import WorkflowsPage from "./containers/WorkflowsPage";
+import CatalogPage from "./containers/CatalogPage";
+import SliceDropPage from "./containers/VisualizationPage/SliceDropPage";
+import MedviewPage from "./containers/VisualizationPage/MedviewPage";
+import FetalMri from "./containers/VisualizationPage/FetalMri";
+import Collab from "./containers/VisualizationPage/Collab";
+import BrainBrowser from "./containers/VisualizationPage/BrainBrowser";
 
 interface IState {
   selectData?: Series;

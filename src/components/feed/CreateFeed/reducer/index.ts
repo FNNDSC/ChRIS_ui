@@ -8,7 +8,7 @@ import { Key } from "rc-tree/lib/interface";
 import { clearCache } from "../ChrisFileSelect";
 import { State as MainRouterContextState } from "../../../../routes";
 import { InputType } from "../../AddNode/types";
-import { Series } from "../../../../pages/DataLibrary/Library";
+import { Series } from "../../../../containers/DataLibrary/Library";
 import { merge } from "lodash";
 
 function getDefaultCreateFeedData(selectedData?: Series): CreateFeedData {
