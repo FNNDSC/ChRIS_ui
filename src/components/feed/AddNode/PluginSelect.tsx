@@ -5,7 +5,7 @@ import {
   AccordionItem,
   AccordionContent,
   AccordionToggle,
-  TextInput
+  TextInput,
 } from "@patternfly/react-core";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../api/chrisapiclient";
@@ -15,7 +15,7 @@ import { PluginListProps, PluginSelectProps, PluginSelectState } from "./types";
 const PluginList: React.FC<PluginListProps> = ({
   plugins,
   selected,
-  handlePluginSelect
+  handlePluginSelect,
 }) => {
   const [filter, setFilter] = useState("");
 
@@ -71,7 +71,7 @@ const PluginList: React.FC<PluginListProps> = ({
 
 const PluginSelect: React.FC<PluginSelectProps> = ({
   selected,
-  handlePluginSelect
+  handlePluginSelect,
 }) => {
   const [isMounted, setMounted] = useState(false);
   const [allPlugins, setAllPlugins] = useState<PluginSelectState["allPlugins"]>(
@@ -83,22 +83,7 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
   const [expanded, setExpanded] =
     useState<PluginSelectState["expanded"]>("all-toggle");
 
-  useEffect(() => {
-    setMounted(true);
-    fetchAllPlugins();
-    fetchRecentPlugins();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleAccordionToggle = (_expanded: string) => {
-    if (_expanded === expanded) {
-      setExpanded("");
-    } else {
-      setExpanded(_expanded);
-    }
-  };
-
-  const fetchAllPlugins = async () => {
+  const fetchAllPlugins = React.useCallback(async () => {
     const client = ChrisAPIClient.getClient();
     const params = { limit: 25, offset: 0 };
     let pluginList = await client.getPlugins(params);
@@ -120,9 +105,9 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
     plugins = plugins && plugins.filter((plugin) => plugin.data.type !== "fs");
 
     if (isMounted && plugins) setAllPlugins(plugins);
-  };
+  }, [isMounted]);
 
-  const fetchRecentPlugins = async () => {
+  const fetchRecentPlugins = React.useCallback(async () => {
     const amount = 5;
 
     const client = ChrisAPIClient.getClient();
@@ -166,6 +151,20 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
       })
     );
     if (isMounted) setRecentPlugins(plugins);
+  }, [isMounted]);
+
+  useEffect(() => {
+    setMounted(true);
+    fetchAllPlugins();
+    fetchRecentPlugins();
+  }, [fetchAllPlugins, fetchRecentPlugins]);
+
+  const handleAccordionToggle = (_expanded: string) => {
+    if (_expanded === expanded) {
+      setExpanded("");
+    } else {
+      setExpanded(_expanded);
+    }
   };
 
   return (
