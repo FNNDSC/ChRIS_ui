@@ -2,6 +2,7 @@ import React, { useRef, Fragment } from "react";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { TreeNode } from "../../store/workflows/types";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
 export interface Point {
   x: number;
@@ -31,6 +32,7 @@ const NodeData = (props: NodeProps) => {
   const nodeRef = useRef<SVGGElement>(null);
   const textRef = useRef<SVGTextElement>(null);
   const { data, position, orientation } = props;
+  const [pluginName, setPluginName] = React.useState("");
 
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
@@ -42,9 +44,32 @@ const NodeData = (props: NodeProps) => {
     const nodeTransform = setNodeTransform(orientation, position);
     applyNodeTransform(nodeTransform);
   }, [orientation, position]);
+
+  React.useEffect(() => {
+    const nodeTransform = setNodeTransform(orientation, position);
+    applyNodeTransform(nodeTransform);
+
+    async function fetchPluginName() {
+      const plugin_id = data.plugin_id;
+      const client = ChrisAPIClient.getClient();
+      const plugin = await client.getPlugin(plugin_id);
+      setPluginName(plugin.data.name);
+    }
+
+    fetchPluginName();
+  }, [orientation, position, data]);
+
   const textLabel = (
     <g id={`text_${data.id}`}>
-      <text ref={textRef} className="label__title"></text>
+      <text
+        style={{
+          fill: "#030303",
+        }}
+        ref={textRef}
+        className="label__title"
+      >
+        {pluginName}
+      </text>
     </g>
   );
 
