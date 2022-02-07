@@ -136,26 +136,28 @@ export const createFeedInstanceWithDircopy = async (
               pipelinePlugins,
               computeEnvs,
             } = pipeline;
+
+            
             const pluginDict: {
               [id: number]: number;
             } = {};
-
-            console.log(
-              "ComputeEnvs, plugin pipings ",
-              computeEnvs,
-              pluginPipings,
-              pipelinePlugins
-            );
 
             for (let i = 0; i < pluginPipings.length; i++) {
               const currentPlugin = pluginPipings[i];
 
               const currentPluginParameter = pluginParameters.filter(
                 (param: any) => {
-                  if (currentPlugin.data.plugin_id === param.data.plugin_id) {
+                  if (currentPlugin.data.id === param.data.plugin_piping_id) {
                     return param;
                   }
                 }
+              );
+
+              console.log(
+                "PluginParameters",
+                pluginParameters,
+                currentPlugin.data.id,
+                currentPluginParameter
               );
 
               const pluginFound = pipelinePlugins.find(
@@ -177,11 +179,12 @@ export const createFeedInstanceWithDircopy = async (
                     value = param.data.value;
                   }
                   paramDict[param.data.param_name] = value;
-
                   return paramDict;
                 },
                 {}
               );
+
+              console.log("Data", data);
 
               let previous_id;
               if (i === 0) {
@@ -197,8 +200,6 @@ export const createFeedInstanceWithDircopy = async (
                 computeEnvs &&
                 computeEnvs[currentPlugin.data.id] &&
                 computeEnvs[currentPlugin.data.id].currentlySelected;
-
-              console.log("ComputeEnv", computeEnv, pluginFound);
 
               let finalData = {};
               if (computeEnv) {

@@ -32,6 +32,7 @@ import { setFeedLayout } from "../../../store/feed/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import "./NodeDetails.scss";
 import { getErrorCodeMessage } from "./utils";
+import AddPipeline from "../AddPipeline/AddPipeline";
 
 interface INodeProps {
   expandDrawer: (panel: string) => void;
@@ -248,7 +249,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             </Button>
           </Popover>
           {cancelled ? null : <AddNode />}
-
+          <AddPipeline />
           <Popover
             content={
               <GraphNode
@@ -276,8 +277,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             Switch Layout
           </Button>
         </div>
-
-        <div className="node-details__infoLabel"></div>
       </div>
     );
   }
