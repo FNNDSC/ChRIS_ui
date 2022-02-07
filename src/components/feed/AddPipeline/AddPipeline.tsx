@@ -1,12 +1,14 @@
 import React from "react";
+import { useDispatch } from "react-redux";
 import { Button, Modal, List, ListItem } from "@patternfly/react-core";
 import { PlusCircleIcon } from "@patternfly/react-icons";
 import { useTypedSelector } from "../../../store/hooks";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-
+import { addNodeRequest } from "../../../store/pluginInstance/actions";
 const AddPipeline = () => {
-  const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
+  const dispatch = useDispatch();
+  const { selectedPlugin, pluginInstances } = useTypedSelector(
+    (state) => state.instance
   );
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectedPipeline, setSelectedPipeline] = React.useState<any>();
@@ -24,7 +26,20 @@ const AddPipeline = () => {
           previous_plugin_inst_id: selectedPlugin.data.id,
         }
       );
-      console.log("PipelineInstance", pipelineInstance.getPluginInstances());
+
+      const plugins = await pipelineInstance.getPluginInstances();
+      const pluginList = plugins.getItems();
+      if (pluginList) {
+        for (let i = 0; i < pluginList.length; i++) {
+          const pluginItem = pluginList[i];
+          dispatch(
+            addNodeRequest({
+              pluginItem,
+              nodes: pluginInstances.data,
+            })
+          );
+        }
+      }
     }
   };
 
