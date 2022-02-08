@@ -119,7 +119,6 @@ const DicomViewerContainer = () => {
               const progress = Math.floor(count * (100 / imageIds.length));
               setProgress(progress);
               if (count === imageIds.length) {
-                console.log("Test", count, progress);
                 dispatch(setFilesForGallery(items));
                 close();
               }
