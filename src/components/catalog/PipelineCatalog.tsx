@@ -68,7 +68,6 @@ const PipelineCatalog = () => {
   };
 
   const handleSearch = (search: string) => {
-    console.log("Search", search);
     setPageState({
       ...pageState,
       search,
