@@ -19,7 +19,7 @@ const AddPipeline = () => {
 
   const addPipeline = async () => {
     const client = ChrisAPIClient.getClient();
-    if (selectedPlugin) {
+    if (selectedPlugin && selectedPipeline) {
       const pipelineInstance = await client.createPipelineInstance(
         selectedPipeline.data.id,
         {
@@ -41,6 +41,7 @@ const AddPipeline = () => {
         }
       }
     }
+    setIsModalOpen(!isModalOpen);
   };
 
   const handleSelectPipeline = (pipeline: any) => {
