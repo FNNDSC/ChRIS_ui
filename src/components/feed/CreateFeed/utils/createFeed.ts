@@ -137,7 +137,6 @@ export const createFeedInstanceWithDircopy = async (
               computeEnvs,
             } = pipeline;
 
-            
             const pluginDict: {
               [id: number]: number;
             } = {};
@@ -151,13 +150,6 @@ export const createFeedInstanceWithDircopy = async (
                     return param;
                   }
                 }
-              );
-
-              console.log(
-                "PluginParameters",
-                pluginParameters,
-                currentPlugin.data.id,
-                currentPluginParameter
               );
 
               const pluginFound = pipelinePlugins.find(
@@ -183,8 +175,6 @@ export const createFeedInstanceWithDircopy = async (
                 },
                 {}
               );
-
-              console.log("Data", data);
 
               let previous_id;
               if (i === 0) {
@@ -302,7 +292,7 @@ export const uploadLocalFiles = async (
   let count = 0;
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    console.log("Directory", directory);
+
     const uploadedFile = await client.uploadFile(
       {
         upload_path: `${directory}/${file.name}`,

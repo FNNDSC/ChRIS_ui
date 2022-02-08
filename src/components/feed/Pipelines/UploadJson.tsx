@@ -63,7 +63,7 @@ export const UploadJson = ({
         }
       } catch (error: any) {
         const errorMessage = error.response.data;
-        console.log("Error", error.response.data);
+
         setError(errorMessage);
       }
     };

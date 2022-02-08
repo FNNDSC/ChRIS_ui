@@ -47,11 +47,14 @@ export function getStatusLabels(
         : false;
   }
 
+
+
   status[0] = {
     id: 1,
-    title: "Waiting",
+    title: `${pluginStatus === "created" ? "Created" : "Waiting"}`,
     status: waitingStatus,
-    isCurrentStep: pluginStatus === "waiting" ? true : false,
+    isCurrentStep:
+      pluginStatus === "waiting" || pluginStatus === "created" ? true : false,
     error,
     description: "Waiting",
     icon: OutlinedClockIcon,
