@@ -241,7 +241,11 @@ export const createFeedReducer = (
         requiredInput: {},
         dropdownInput: {},
         computeEnvironment: "",
+        value: 0,
         pipelineData: {},
+        pipelineName: "",
+        pipelines: [],
+        currentlyConfiguredNode: "",
       };
     }
 
