@@ -348,7 +348,6 @@ export const Browser: React.FC<BrowserProps> = ({
         break;
 
       case "delete": {
-        console.log("Items", items);
         items.map(async (file) => {
           await file.item.delete();
         });
