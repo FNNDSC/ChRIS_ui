@@ -231,7 +231,6 @@ const AddNode: React.FC<AddNodeProps> = ({
 
     const pluginInstance = await plugin.getPluginInstances();
 
-
     try {
       await pluginInstance.post(parameterInput);
       const nodeList = pluginInstance.getItems();
