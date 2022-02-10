@@ -49,7 +49,7 @@ const Node = (props: NodeProps) => {
     toggleLabel,
     status,
     currentId,
-    overlaySize
+    overlaySize,
   } = props;
 
   const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
@@ -61,7 +61,7 @@ const Node = (props: NodeProps) => {
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
       .attr("transform", transform)
-      .style("opacity", opacity)
+      .style("opacity", opacity);
     select(textRef.current).attr("transform", `translate(-28, 28)`);
   };
 
@@ -81,7 +81,8 @@ const Node = (props: NodeProps) => {
     status &&
     (status === "started" ||
       status === "scheduled" ||
-      status === "registeringFiles")
+      status === "registeringFiles" ||
+      status === "created")
   ) {
     statusClass = "active";
   }
@@ -152,16 +153,14 @@ const Node = (props: NodeProps) => {
               `}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
         ></circle>
-        {
-          overlaySize && (
-            <circle
-              id={`node_overlay_${data.id}`}
-              className='node node-overlay'
-              opacity={0.3}
-              r={DEFAULT_NODE_CIRCLE_RADIUS * overlaySize}
-            />
-          )
-        }
+        {overlaySize && (
+          <circle
+            id={`node_overlay_${data.id}`}
+            className="node node-overlay"
+            opacity={0.3}
+            r={DEFAULT_NODE_CIRCLE_RADIUS * overlaySize}
+          />
+        )}
         {toggleLabel ? textLabel : null}
       </g>
     </Fragment>
@@ -176,7 +175,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
     if (data.id && state.resource.pluginInstanceStatus[data.id]) {
       return state.resource.pluginInstanceStatus[data.id].status;
     } else return;
-  });  
+  });
 
   const currentId = useTypedSelector((state) => {
     if (state.instance.selectedPlugin?.data.id === data.id) return true;
@@ -184,14 +183,14 @@ const NodeWrapper = (props: NodeWrapperProps) => {
   });
 
   let scale; // undefined scale is treated as no indvidual scaling
-  if (overlayScale === 'time') {
+  if (overlayScale === "time") {
     const instanceData = props.data.item?.data;
     if (instanceData) {
       const start = new Date(instanceData?.start_date);
       const end = new Date(instanceData?.end_date);
-      scale = Math.log10(end.getTime() - start.getTime()) / 2
+      scale = Math.log10(end.getTime() - start.getTime()) / 2;
     }
-  } else if (overlayScale === 'size') {
+  } else if (overlayScale === "size") {
     // props.data.item?.
   }
 

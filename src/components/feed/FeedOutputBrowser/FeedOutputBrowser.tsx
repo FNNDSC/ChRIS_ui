@@ -59,6 +59,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       safeDispatch(getPluginFilesRequest(selected));
     }
   }, [selected, pluginFilesPayload, safeDispatch]);
+
   if (!selected || isEmpty(pluginInstances) || loading) {
     return <LoadingFeedBrowser />;
   } else {
