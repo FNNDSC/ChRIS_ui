@@ -29,6 +29,7 @@ import Tree from "./Tree";
 import { PipelineList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { generatePipelineWithData } from "../feed/CreateFeed/utils/pipelines";
+import { select } from "redux-saga/effects";
 
 interface PageState {
   perPage: number;
@@ -61,7 +62,7 @@ const DisplayPage = ({
   setSelectedResource: (resource: any) => void;
   title: string;
   showPipelineButton?: boolean;
-  fetch?: () => void;
+  fetch?: (id?: number) => void;
   handlePluginSearch?: (search: string) => void;
   handlePipelineSearch?: (search: string) => void;
   handleComputeSearch?: (search: string) => void;
@@ -70,6 +71,7 @@ const DisplayPage = ({
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const fileOpen = React.useRef<HTMLInputElement>(null);
   const [error, setError] = React.useState({});
+  const [deleteError, setDeleteError] = React.useState("");
 
   const [warningMessage, setWarningMessage] = React.useState("");
   const { perPage, page, itemCount } = pageState;
@@ -280,6 +282,10 @@ const DisplayPage = ({
     </Grid>
   );
 
+  const handleUpdate = (id: number) => {
+    fetch && fetch(id);
+  };
+
   const panelContent = (
     <DrawerPanelContent>
       <DrawerHead>
@@ -308,6 +314,48 @@ const DisplayPage = ({
                 </a>
               </p>
             )}
+            {deleteError && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                }}
+              >
+                <Alert variant="danger" title={deleteError} />
+                <Button
+                  onClick={async () => {
+                    selectedResource.put({
+                      locked: true,
+                    });
+                    setDeleteError("");
+                  }}
+                  variant="link"
+                >
+                  lock it?
+                </Button>
+              </div>
+            )}
+            {showPipelineButton && (
+              <Button
+                style={{
+                  width: "45%",
+                }}
+                onClick={async () => {
+                  if (selectedResource.data.locked === true) {
+                    handleUpdate(selectedResource.data.id);
+                    selectedResource.delete();
+                    setIsExpanded(false);
+                  } else {
+                    setDeleteError(
+                      "Pipeline cannot be deleted as it is not locked"
+                    );
+                  }
+                }}
+              >
+                Delete a Pipeline
+              </Button>
+            )}
+
             <Divider
               style={{
                 paddingTop: "2em",

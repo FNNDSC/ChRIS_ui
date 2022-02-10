@@ -5,6 +5,7 @@ import DisplayPage from "./DisplayPage";
 const PipelineCatalog = () => {
   const [pipelines, setPipelines] = React.useState<any[]>();
   const [fetch, setFetch] = React.useState(false);
+  const [filteredId, setFilteredId] = React.useState<number>();
   const [pageState, setPageState] = React.useState({
     page: 1,
     perPage: 5,
@@ -48,9 +49,15 @@ const PipelineCatalog = () => {
         name: search,
       };
       const pipelinesList = await client.getPipelines(params);
-      const plugins = pipelinesList.getItems();
-      if (plugins) {
-        setPipelines(plugins);
+
+      let pipelines = pipelinesList.getItems();
+      if (filteredId && pipelines) {
+        pipelines = pipelines?.filter(
+          (pipeline) => pipeline.data.id !== filteredId
+        );
+      }
+      if (pipelines) {
+        setPipelines(pipelines);
         setPageState((pageState) => {
           return {
             ...pageState,
@@ -63,12 +70,12 @@ const PipelineCatalog = () => {
     fetchPipelines(perPage, page, search);
   }, [perPage, page, search, fetch]);
 
-  const handleFetch = () => {
-    setFetch(true);
+  const handleFetch = (id?: number) => {
+    id && setFilteredId(id);
+    setFetch(!fetch);
   };
 
   const handleSearch = (search: string) => {
-    console.log("Search", search);
     setPageState({
       ...pageState,
       search,
