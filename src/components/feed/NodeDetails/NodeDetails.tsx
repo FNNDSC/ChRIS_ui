@@ -16,11 +16,11 @@ import {
   PluginParameterList,
 } from "@fnndsc/chrisapi";
 import {
-  BezierCurveIcon,
-  TerminalIcon,
-  CalendarDayIcon,
-  CloseIcon,
-} from "@patternfly/react-icons";
+  FaBezierCurve,
+  FaTerminal,
+  FaCalendarAlt,
+  FaWindowClose,
+} from "react-icons/fa";
 import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
 import PluginLog from "./PluginLog";
@@ -142,7 +142,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   } else {
     const Time = (
       <>
-        <CalendarDayIcon />
+        <FaCalendarAlt />
         <Moment format="DD MMM YYYY @ HH:mm">
           {selectedPlugin.data.start_date}
         </Moment>
@@ -158,7 +158,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             }}
             variant="tertiary"
             type="button"
-            icon={<CloseIcon />}
+            icon={<FaWindowClose />}
             className="node-details__title--button"
           />
         </div>
@@ -244,7 +244,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               setIsTerminalVisible(visible);
             }}
           >
-            <Button icon={<TerminalIcon />} type="button">
+            <Button icon={<FaTerminal />} type="button">
               View Terminal
             </Button>
           </Popover>
@@ -262,14 +262,14 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             onVisibleChange={handleVisibleChange}
             trigger="click"
           >
-            <Button type="button" icon={<BezierCurveIcon />}>
+            <Button type="button" icon={<FaBezierCurve />}>
               Add a Graph Node
             </Button>
           </Popover>
 
           {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
           <Button
-            icon={<BezierCurveIcon />}
+            icon={<FaBezierCurve />}
             type="button"
             onClick={() => dispatch(setFeedLayout())}
             variant="primary"

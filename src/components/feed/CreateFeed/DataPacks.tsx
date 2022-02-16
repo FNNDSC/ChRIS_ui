@@ -20,7 +20,7 @@ import {
   InputGroup,
   TextInput,
 } from "@patternfly/react-core";
-import { SearchIcon } from "@patternfly/react-icons";
+import { FaSearch } from "react-icons/fa";
 import debounce from "lodash/debounce";
 
 import { getParams } from "../../../store/plugin/actions";
@@ -109,7 +109,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
               variant={ButtonVariant.control}
               aria-label="search button for the plugin"
             >
-              <SearchIcon />
+              <FaSearch />
             </Button>
           </InputGroup>
         </ToolbarItem>

@@ -5,7 +5,7 @@ import { TreeNode } from "../../store/workflows/types";
 import TransitionGroupWrapper from "../feed/FeedTree/TransitionGroupWrapper";
 import NodeData from "./NodeData";
 import { generatePipelineWithName } from "../feed/CreateFeed/utils/pipelines";
-import { getFeedTree } from "../../containers/WorkflowsPage/utils";
+import { getFeedTree } from "../../pages/WorkflowsPage/utils";
 
 const nodeSize = { x: 150, y: 50 };
 const svgClassName = "feed-tree__svg";

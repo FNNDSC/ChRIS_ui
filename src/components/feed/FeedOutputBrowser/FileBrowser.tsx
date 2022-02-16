@@ -13,17 +13,17 @@ import {
   Dropdown,
   DropdownToggle,
 } from "@patternfly/react-core";
+
+import { MdFileDownload } from "react-icons/md";
 import {
-  DownloadIcon,
-  FileImageIcon,
-  FileCodeIcon,
-  FileAltIcon,
-  FileIcon,
-  FolderCloseIcon,
-  ExpandIcon,
-  FilmIcon,
-  CloseIcon,
-} from "@patternfly/react-icons";
+  AiFillFileImage,
+  AiFillFileText,
+  AiFillFile,
+  AiFillFolder,
+  AiOutlineExpandAlt,
+  AiFillCloseCircle,
+} from "react-icons/ai";
+import { FaFileCode, FaFilm } from "react-icons/fa";
 import {
   Table,
   TableHeader,
@@ -40,8 +40,8 @@ import {
   setSelectedFile,
   setSelectedFolder,
 } from "../../../store/explorer/actions";
-import { PficonDragdropIcon } from "@patternfly/react-icons";
-import { CaretDownIcon } from "@patternfly/react-icons";
+import { BiHorizontalCenter } from "react-icons/bi";
+import { FaCaretDown } from "react-icons/fa";
 import { getXtkFileMode } from "../../detailedView/displays/XtkViewer/XtkViewer";
 
 function getInitialState(root: DataNode) {
@@ -187,7 +187,7 @@ const FileBrowser = (props: FileBrowserProps) => {
 
     const download = {
       title: (
-        <DownloadIcon
+        <MdFileDownload
           className="download-file-icon"
           onClick={(e: any) => handleDownloadClick(e, node)}
         />
@@ -316,18 +316,18 @@ export default FileBrowser;
 const getIcon = (type: string) => {
   switch (type.toLowerCase()) {
     case "dir":
-      return <FolderCloseIcon />;
+      return <AiFillFolder />;
     case "dcm":
     case "jpg":
     case "png":
-      return <FileImageIcon />;
+      return <AiFillFileImage />;
     case "html":
     case "json":
-      return <FileCodeIcon />;
+      return <FaFileCode />;
     case "txt":
-      return <FileAltIcon />;
+      return <AiFillFileText />;
     default:
-      return <FileIcon />;
+      return <AiFillFile />;
   }
 };
 
@@ -358,7 +358,7 @@ const HeaderPanel = (props: HeaderPanelProps) => {
         <Button
           variant="link"
           onClick={handleFileBrowserOpen}
-          icon={<ExpandIcon />}
+          icon={<AiOutlineExpandAlt />}
         >
           Maximize
         </Button>
@@ -366,7 +366,7 @@ const HeaderPanel = (props: HeaderPanelProps) => {
           <Button
             variant="link"
             onClick={handleDicomViewerOpen}
-            icon={<FilmIcon />}
+            icon={<FaFilm />}
           >
             Open Image Viewer
           </Button>
@@ -375,7 +375,7 @@ const HeaderPanel = (props: HeaderPanelProps) => {
           <Button
             variant="link"
             onClick={handleXtkViewerOpen}
-            icon={<PficonDragdropIcon />}
+            icon={<BiHorizontalCenter />}
           >
             Open XTK Viewer
           </Button>
@@ -385,7 +385,7 @@ const HeaderPanel = (props: HeaderPanelProps) => {
             <DropdownToggle
               className="open-with-dropdown"
               onToggle={(open: any) => setShowOpenWith(open)}
-              toggleIndicator={CaretDownIcon}
+              toggleIndicator={FaCaretDown}
             >
               Open With
             </DropdownToggle>
@@ -407,7 +407,7 @@ const HeaderPanel = (props: HeaderPanelProps) => {
           onClick={() => expandDrawer("bottom_panel")}
           variant="tertiary"
           type="button"
-          icon={<CloseIcon />}
+          icon={<AiFillCloseCircle />}
         />
       </div>
     </div>

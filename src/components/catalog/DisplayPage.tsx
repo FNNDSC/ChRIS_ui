@@ -29,7 +29,7 @@ import Tree from "./Tree";
 import { PipelineList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { generatePipelineWithData } from "../feed/CreateFeed/utils/pipelines";
-import { select } from "redux-saga/effects";
+
 
 interface PageState {
   perPage: number;

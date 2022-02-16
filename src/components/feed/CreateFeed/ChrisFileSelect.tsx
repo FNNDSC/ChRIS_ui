@@ -12,9 +12,9 @@ import {
   CheckedKeys,
 } from "./types";
 import { generateTreeNodes, getNewTreeData } from "./utils/fileSelect";
-import { FileList } from "./helperComponents";
+import { FileList, ErrorMessage } from "./helperComponents";
 import { isEmpty } from "lodash";
-import { ErrorMessage } from "./lib";
+
 
 const { DirectoryTree } = Tree;
 

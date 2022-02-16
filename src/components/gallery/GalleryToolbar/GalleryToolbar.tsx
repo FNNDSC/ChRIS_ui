@@ -1,14 +1,15 @@
 import * as React from "react";
+
 import {
-  PlayIcon,
-  PauseIcon,
-  StepForwardIcon,
-  StepBackwardIcon,
-  ExpandIcon,
-  CompressIcon,
-  AngleDoubleLeftIcon,
-  AngleDoubleRightIcon,
-} from "@patternfly/react-icons";
+  FaPlay,
+  FaPause,
+  FaExpandAlt,
+  FaCompressAlt,
+  FaAngleDoubleLeft,
+  FaAngleDoubleRight,
+  FaStepForward,
+  FaStepBackward,
+} from "react-icons/fa";
 import { Button } from "@patternfly/react-core";
 
 import { galleryActions } from "../../../api/models/gallery.model";
@@ -28,19 +29,19 @@ type AllProps = {
 const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
   return (
     <div className="gallery-toolbar">
-      <div >
+      <div>
         <div>
           <Button
             variant="link"
             onClick={() => props.onToolbarClick(galleryActions.first)}
           >
-            <AngleDoubleLeftIcon />
+            <FaAngleDoubleLeft />
           </Button>
           <Button
             variant="link"
             onClick={() => props.onToolbarClick(galleryActions.previous)}
           >
-            <StepBackwardIcon />
+            <FaStepBackward />
           </Button>
           <Button
             variant="link"
@@ -50,19 +51,19 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
               )
             }
           >
-            {props.isPlaying ? <PauseIcon size="md" /> : <PlayIcon size="md" />}
+            {props.isPlaying ? <FaPause size="md" /> : <FaPlay size="md" />}
           </Button>
           <Button
             variant="link"
             onClick={() => props.onToolbarClick(galleryActions.next)}
           >
-            <StepForwardIcon />
+            <FaStepForward />
           </Button>
           <Button
             variant="link"
             onClick={() => props.onToolbarClick(galleryActions.last)}
           >
-            <AngleDoubleRightIcon />
+            <FaAngleDoubleRight />
           </Button>
         </div>
       </div>
@@ -72,7 +73,7 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
           variant="link"
           onClick={() => props.onToolbarClick(galleryActions.fullscreen)}
         >
-          {props.isFullscreen ? <CompressIcon size="md" /> : <ExpandIcon />}
+          {props.isFullscreen ? <FaCompressAlt size="md" /> : <FaExpandAlt />}
         </Button>
       </div>
     </div>
