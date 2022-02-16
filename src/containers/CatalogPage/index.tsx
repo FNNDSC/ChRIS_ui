@@ -11,6 +11,7 @@ import { setSidebarActive } from "../../store/ui/actions";
 const CatalogPage = () => {
   const dispatch = useDispatch();
   React.useEffect(() => {
+    document.title = "Analysis Catalog";
     dispatch(
       setSidebarActive({
         activeItem: "catalog",

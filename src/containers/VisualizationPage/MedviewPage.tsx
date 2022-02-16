@@ -9,6 +9,7 @@ const MedviewPage = () => {
   const [modalVariant, setModalVariant] = React.useState(true);
 
   React.useEffect(() => {
+    document.title = "Medview";
     dispatch(
       setSidebarActive({
         activeItem: "medview",

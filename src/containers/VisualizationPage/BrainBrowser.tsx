@@ -7,6 +7,7 @@ const BrainBrowser = () => {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
+    document.title = "Brain Browser";
     dispatch(
       setSidebarActive({
         activeItem: "brainbrowser",
