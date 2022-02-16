@@ -7,10 +7,9 @@ import {
 } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { ExclamationTriangleIcon } from "@patternfly/react-icons";
+import { MdError } from "react-icons/md";
 import { EditorState, EditorProps } from "./types";
 import { unpackParametersIntoString } from "./lib/utils";
-
 
 const Editor = ({
   plugin,
@@ -100,7 +99,7 @@ const Editor = ({
         <div className="errors">
           {errors.map((error, i) => (
             <div key={i}>
-              <ExclamationTriangleIcon />
+              <MdError />
               <span className="error-message">{error}</span>
             </div>
           ))}

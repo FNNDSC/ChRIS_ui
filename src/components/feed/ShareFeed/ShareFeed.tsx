@@ -1,13 +1,10 @@
 import React, { useState } from "react";
-import ShareModal from "./ShareModal";
-import { Button } from "@patternfly/react-core";
-
-import "./sharefeed.scss";
 import { Feed } from "@fnndsc/chrisapi";
-
-import { CodeBranchIcon } from "@patternfly/react-icons";
-
+import { Button } from "@patternfly/react-core";
+import { FaCodeBranch } from "react-icons/fa";
 import InputUser from "./InputUser";
+import ShareModal from "./ShareModal";
+import "./sharefeed.scss";
 
 interface ShareFeedProps {
   feed?: Feed;
@@ -22,7 +19,7 @@ const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
       return;
     }
     await feed.put({
-      owner: username
+      owner: username,
     });
 
     handleModalClose();
@@ -37,7 +34,7 @@ const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
         className="share-feed-button"
         variant="primary"
         onClick={handleAddClick}
-        icon={<CodeBranchIcon />}
+        icon={<FaCodeBranch />}
         type="button"
       >
         Share Feed

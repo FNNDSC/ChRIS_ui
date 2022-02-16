@@ -9,7 +9,7 @@ import {
 } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { Types} from "./types";
-import { CogsIcon } from "@patternfly/react-icons";
+import { FaCogs } from "react-icons/fa";
 import { useAsync } from "../../../utils";
 
 interface FinishedStepProp {
@@ -37,7 +37,7 @@ const FinishedStep: React.FC<FinishedStepProp> = ({
     <Stack>
       <StackItem>
         <div className="finished-step">
-          <CogsIcon className="finished-step__icon" />
+          <FaCogs className="finished-step__icon" />
           <p className="finished-step__header pf-c-title pf-m-lg">
             {isLoading
               ? "Your feed is being created. Give it a moment"

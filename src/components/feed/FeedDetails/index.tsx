@@ -3,13 +3,8 @@ import Moment from "react-moment";
 import { Skeleton, Button } from "@patternfly/react-core";
 import ShareFeed from "../ShareFeed/ShareFeed";
 import { Popover } from "antd";
+import { FaEdit, FaUserAlt, FaCodeBranch, FaCalendar } from "react-icons/fa";
 
-import {
-  UserIcon,
-  CodeBranchIcon,
-  CalendarAltIcon,
-  PencilAltIcon,
-} from "@patternfly/react-icons";
 import { useTypedSelector } from "../../../store/hooks";
 import "./FeedDetails.scss";
 import FeedNote from "./FeedNote";
@@ -53,21 +48,21 @@ const FeedDetails = () => {
     return (
       <div className="feed-details">
         <ul>
-          <li style={{ alignSelf: 'flex-start'}}>
-            <CodeBranchIcon />
+          <li style={{ alignSelf: "flex-start" }}>
+            <FaCodeBranch />
             {feed && <span> {feed.data.name} </span>}
           </li>
           <li>
             <small>Creator</small>
             <p>
-              <UserIcon size="sm" />{" "}
+              <FaUserAlt />{" "}
               {feed && <span> {feed.data.creator_username} </span>}
             </p>
           </li>
           <li>
             <small>Created</small>
             <p>
-              <CalendarAltIcon size="sm" />
+              <FaCalendar />
               <Moment format="DD MMM YYYY @ HH:mm">
                 {feed && feed.data.creation_date}
               </Moment>
@@ -75,32 +70,32 @@ const FeedDetails = () => {
           </li>
         </ul>
         <ul>
-        <li>
-          <Popover
-            content={
-              <FeedNote
-                handleClose={handleClose}
-                handleEditNote={handleEditNote}
-                note={note}
-                status={savingNote}
-              />
-            }
-            placement="bottom"
-            visible={isNoteVisible}
-            trigger="click"
-            onVisibleChange={(visible: boolean) => {
-              setIsNoteVisible(visible);
-            }}
-          >
-            <Button type="button" variant="primary" icon={<PencilAltIcon />}>
-              View Feed Note
-            </Button>
-          </Popover>
-        </li>
+          <li>
+            <Popover
+              content={
+                <FeedNote
+                  handleClose={handleClose}
+                  handleEditNote={handleEditNote}
+                  note={note}
+                  status={savingNote}
+                />
+              }
+              placement="bottom"
+              visible={isNoteVisible}
+              trigger="click"
+              onVisibleChange={(visible: boolean) => {
+                setIsNoteVisible(visible);
+              }}
+            >
+              <Button type="button" variant="primary" icon={<FaEdit />}>
+                View Feed Note
+              </Button>
+            </Popover>
+          </li>
 
-        <li>
-          <ShareFeed feed={feed} />
-        </li>
+          <li>
+            <ShareFeed feed={feed} />
+          </li>
         </ul>
       </div>
     );

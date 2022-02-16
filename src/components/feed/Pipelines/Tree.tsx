@@ -9,7 +9,7 @@ import { tree, hierarchy } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { Types } from "../CreateFeed/types";
 import { CreateFeedContext } from "../CreateFeed/context";
-import { getFeedTree } from "../../../containers/WorkflowsPage/utils";
+import { getFeedTree } from "../../../pages/WorkflowsPage/utils";
 import TransitionGroupWrapper from "../FeedTree/TransitionGroupWrapper";
 import NodeData from "./NodeData";
 import { TreeNode } from "../../../store/workflows/types";

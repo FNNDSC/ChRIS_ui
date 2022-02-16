@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { TextInput, Button, Title, Alert } from "@patternfly/react-core";
 import { useTypedSelector } from "../../../store/hooks";
-import { EditIcon } from "@patternfly/react-icons";
+import { AiFillEdit } from "react-icons/ai";
 import { setPluginTitle } from "../../../store/pluginInstance/actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 
@@ -78,7 +78,7 @@ const PluginTitle = () => {
           <Title headingLevel="h3" size="xl">
             <span>{title}</span>
           </Title>
-          <EditIcon
+          <AiFillEdit
             onClick={() => {
               setShowInput(!showInput);
             }}

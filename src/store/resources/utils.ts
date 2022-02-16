@@ -1,14 +1,13 @@
 import { PluginStatusLabels } from "./types";
+import { GrInProgress } from "react-icons/gr";
 import {
-  InProgressIcon,
-  OutlinedClockIcon,
-  FileArchiveIcon,
-  CheckIcon,
-  OnRunningIcon,
-  ErrorCircleOIcon,
-  OutlinedArrowAltCircleRightIcon,
-  OutlinedArrowAltCircleLeftIcon,
-} from "@patternfly/react-icons";
+  AiFillRightCircle,
+  AiFillLeftCircle,
+  AiFillClockCircle,
+  AiFillCheckCircle,
+} from "react-icons/ai";
+import { FaFileArchive } from "react-icons/fa";
+import { MdError, MdOutlineDownloading } from "react-icons/md";
 
 export function getStatusLabels(
   labels: PluginStatusLabels,
@@ -47,8 +46,6 @@ export function getStatusLabels(
         : false;
   }
 
-
-
   status[0] = {
     id: 1,
     title: `${pluginStatus === "created" ? "Created" : "Waiting"}`,
@@ -57,7 +54,7 @@ export function getStatusLabels(
       pluginStatus === "waiting" || pluginStatus === "created" ? true : false,
     error,
     description: "Waiting",
-    icon: OutlinedClockIcon,
+    icon: AiFillClockCircle,
     processError: false,
   };
 
@@ -68,7 +65,7 @@ export function getStatusLabels(
     isCurrentStep: pluginStatus === "scheduled" ? true : false,
     error,
     description: "Scheduling",
-    icon: InProgressIcon,
+    icon: GrInProgress,
     processError: status[0].status !== true && !labels && error ? true : false,
   };
 
@@ -82,7 +79,7 @@ export function getStatusLabels(
         : false,
     error,
     description: "Transmitting",
-    icon: OnRunningIcon,
+    icon: MdOutlineDownloading,
     processError: status[1].status !== true && !labels && error ? true : false,
   };
 
@@ -104,7 +101,7 @@ export function getStatusLabels(
         : false,
     error,
     description: "Computing",
-    icon: OutlinedArrowAltCircleRightIcon,
+    icon: AiFillRightCircle,
     processError: status[2].status !== true && error ? true : false,
   };
 
@@ -121,7 +118,7 @@ export function getStatusLabels(
         : false,
     error,
     description: "Receiving",
-    icon: OutlinedArrowAltCircleLeftIcon,
+    icon: AiFillLeftCircle,
     processError: status[3].status !== true && error ? true : false,
   };
 
@@ -140,7 +137,7 @@ export function getStatusLabels(
         : false,
     error,
     description: "Registering",
-    icon: FileArchiveIcon,
+    icon: FaFileArchive,
     processError: status[4].status !== true && error ? true : false,
   };
 
@@ -176,9 +173,9 @@ export function getStatusLabels(
         : "Waiting to Finish",
     icon:
       pluginStatus === "finishedSuccessfully"
-        ? CheckIcon
+        ? AiFillCheckCircle
         : pluginStatus === "cancelled" || pluginStatus === "finishedWithError"
-        ? ErrorCircleOIcon
+        ? MdError
         : null,
     processError: false,
   };

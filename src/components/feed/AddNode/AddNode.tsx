@@ -2,7 +2,7 @@ import React from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import { Wizard, Spinner, Button } from "@patternfly/react-core";
-import { PlusCircleIcon } from "@patternfly/react-icons";
+import { MdOutlineAddCircle } from "react-icons/md";
 import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
 import Review from "./Review";
@@ -326,7 +326,7 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   return (
     <React.Fragment>
-      <Button icon={<PlusCircleIcon />} type="button" onClick={toggleOpen}>
+      <Button icon={<MdOutlineAddCircle />} type="button" onClick={toggleOpen}>
         Add a Child Node
       </Button>
       {isOpen && (

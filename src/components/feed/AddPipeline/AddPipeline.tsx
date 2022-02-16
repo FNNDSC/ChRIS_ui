@@ -11,7 +11,7 @@ import {
   Alert,
   Divider,
 } from "@patternfly/react-core";
-import { PlusCircleIcon } from "@patternfly/react-icons";
+import { MdOutlineAddCircle } from "react-icons/md";
 import { useTypedSelector } from "../../../store/hooks";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { addNodeRequest } from "../../../store/pluginInstance/actions";
@@ -68,7 +68,11 @@ const AddPipeline = () => {
 
   return (
     <React.Fragment>
-      <Button icon={<PlusCircleIcon />} onClick={handleToggle} type="button">
+      <Button
+        icon={<MdOutlineAddCircle />}
+        onClick={handleToggle}
+        type="button"
+      >
         Add a Pipeline
       </Button>
       <Modal

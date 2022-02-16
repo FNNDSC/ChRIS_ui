@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DownloadIcon } from "@patternfly/react-icons";
+import { FaDownload } from "react-icons/fa";
 import { Alert, Button } from "@patternfly/react-core";
 import FileViewerModel, {
   IFileBlob,
@@ -33,7 +33,7 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
             )
           }
         >
-          <DownloadIcon /> Download
+          <FaDownload /> Download
         </Button>
       </React.Fragment>
     );

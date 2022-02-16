@@ -7,7 +7,6 @@ import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
 import { fetchResource } from "../../../../utils";
 import { ComputeEnvData } from "../../../../store/workflows/types";
 
-let cache: number[] = [];
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
@@ -99,7 +98,7 @@ export const createFeedInstanceWithDircopy = async (
       );
 
       // clear global cache
-      cache = [];
+
       statusCallback("Creating Plugin Instance");
       //when the `post` finishes, the dircopyInstances's internal collection is updated
 

@@ -7,19 +7,24 @@ import {
   EmptyStateBody,
   EmptyStateIcon,
 } from "@patternfly/react-core";
-import { SearchIcon } from "@patternfly/react-icons";
+import { FaSearch } from "react-icons/fa";
 import LoadingContent from "../loading/LoadingContent";
 
 interface ITableProps {
   cells: string[];
   rows: { cells: { title: JSX.Element }[] }[];
-  title:string,
-  description:string
-  caption:string
+  title: string;
+  description: string;
+  caption: string;
 }
 
-export const EmptyStateTable = ({ cells, rows, title, description, caption }: ITableProps) => {
- 
+export const EmptyStateTable = ({
+  cells,
+  rows,
+  title,
+  description,
+  caption,
+}: ITableProps) => {
   return (
     <React.Fragment>
       <Table caption={caption} cells={cells} rows={rows}>
@@ -27,13 +32,11 @@ export const EmptyStateTable = ({ cells, rows, title, description, caption }: IT
         <TableBody />
       </Table>
       <EmptyState variant={EmptyStateVariant.small}>
-        <EmptyStateIcon icon={SearchIcon} />
+        <EmptyStateIcon icon={FaSearch} />
         <Title headingLevel="h2" size="lg">
-         {title}
+          {title}
         </Title>
-        <EmptyStateBody>
-        {description}
-        </EmptyStateBody>
+        <EmptyStateBody>{description}</EmptyStateBody>
       </EmptyState>
     </React.Fragment>
   );
