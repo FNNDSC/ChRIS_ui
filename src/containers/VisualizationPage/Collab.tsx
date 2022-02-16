@@ -26,6 +26,7 @@ const Collab = () => {
 
   const dispatch = useDispatch();
   React.useEffect(() => {
+    document.title = "Collab";
     if (!url) {
       setIsOpen(true);
     }

@@ -68,22 +68,6 @@ const ChooseConfig: React.FC = () => {
         name="local_select"
         id="local_select"
       />
-      <Radio
-        value="multiple_select"
-        isChecked={selectedConfig === "multiple_select"}
-        isDisabled={isDataSelected}
-        onChange={(_: any, event: any) => {
-          dispatch({
-            type: Types.SelectedConfig,
-            payload: {
-              selectedConfig: event.currentTarget.value,
-            },
-          });
-        }}
-        label="Choose existing files AND upload new ones"
-        name="multiple_select"
-        id="multiple_select"
-      />
     </div>
   );
 };

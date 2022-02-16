@@ -55,6 +55,7 @@ const PipelineCatalog = () => {
         pipelines = pipelines?.filter(
           (pipeline) => pipeline.data.id !== filteredId
         );
+        setSelectedPipeline(undefined);
       }
       if (pipelines) {
         setPipelines(pipelines);

@@ -233,22 +233,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           canJumpTo: step > 4,
         },
       ];
-    else if (selectedConfig === "multiple_select") {
-      return [
-        {
-          id: 3,
-          name: "ChRIS File Select",
-          component: withSelectionAlert(chrisFileSelect),
-          canJumpTo: step > 3,
-        },
-        {
-          id: 4,
-          name: "Local File Upload",
-          component: withSelectionAlert(localFileUpload),
-          canJumpTo: step > 4,
-        },
-      ];
-    } else if (selectedConfig === "swift_storage") {
+    else if (selectedConfig === "swift_storage") {
       return [
         {
           id: 3,

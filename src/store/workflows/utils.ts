@@ -49,10 +49,4 @@ export function* uploadLocalFiles(files: LocalFile[], directory: string) {
   }
 }
 
-export function uploadFilePaths(files: LocalFile[], directory: string) {
-  let localFilePath = "";
-  if (files.length > 1) {
-    localFilePath = directory;
-  } else localFilePath = `${directory}/`;
-  return localFilePath;
-}
+

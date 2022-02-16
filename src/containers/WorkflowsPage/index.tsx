@@ -12,6 +12,7 @@ const WorkflowsPage = () => {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
+    document.title = "Create a New Analysis";
     dispatch(
       setSidebarActive({
         activeItem: "workflows",

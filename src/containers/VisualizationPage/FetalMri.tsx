@@ -7,6 +7,7 @@ const FetalMri = () => {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
+    document.title = "FetalMri";
     dispatch(
       setSidebarActive({
         activeItem: "fetalmri",

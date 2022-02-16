@@ -7,6 +7,7 @@ const SliceDropPage = () => {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
+    document.title = "Slice Drop";
     dispatch(
       setSidebarActive({
         activeItem: "sliceDrop",
