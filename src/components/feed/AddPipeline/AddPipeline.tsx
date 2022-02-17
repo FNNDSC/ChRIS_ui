@@ -1,10 +1,22 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Button, Modal, List, ListItem } from "@patternfly/react-core";
-import { PlusCircleIcon } from "@patternfly/react-icons";
+import {
+  Button,
+  Modal,
+  List,
+  ListItem,
+  TextVariants,
+  TextContent,
+  Text,
+  Alert,
+  Divider,
+} from "@patternfly/react-core";
+import { MdOutlineAddCircle } from "react-icons/md";
 import { useTypedSelector } from "../../../store/hooks";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { addNodeRequest } from "../../../store/pluginInstance/actions";
+import { runPipelineSequence } from "../CreateFeed/utils/createFeed";
+import { fetchResources } from "../CreateFeed/utils/pipelines";
 const AddPipeline = () => {
   const dispatch = useDispatch();
   const { selectedPlugin, pluginInstances } = useTypedSelector(
@@ -12,29 +24,33 @@ const AddPipeline = () => {
   );
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectedPipeline, setSelectedPipeline] = React.useState<any>();
+  const [creatingPipeline, setCreatingPipeline] = React.useState(false);
 
   const handleToggle = () => {
     setIsModalOpen(!isModalOpen);
   };
 
   const addPipeline = async () => {
-    const client = ChrisAPIClient.getClient();
+    setCreatingPipeline(true);
     if (selectedPlugin && selectedPipeline) {
-      const pipelineInstance = await client.createPipelineInstance(
-        selectedPipeline.data.id,
-        {
-          previous_plugin_inst_id: selectedPlugin.data.id,
-        }
-      );
+      const resources = await fetchResources(selectedPipeline);
+      const {
+        pluginPipings,
+        parameters: pluginParameters,
+        pipelinePlugins,
+      } = resources;
 
-      const plugins = await pipelineInstance.getPluginInstances();
-      const pluginList = plugins.getItems();
-      if (pluginList) {
-        for (let i = 0; i < pluginList.length; i++) {
-          const pluginItem = pluginList[i];
+      if (pluginPipings && pluginParameters && pipelinePlugins) {
+        const pluginInstanceList = await runPipelineSequence(
+          pluginPipings,
+          pluginParameters,
+          pipelinePlugins,
+          selectedPlugin
+        );
+        for (let i = 0; i < pluginInstanceList.length; i++) {
           dispatch(
             addNodeRequest({
-              pluginItem,
+              pluginItem: pluginInstanceList[i],
               nodes: pluginInstances.data,
             })
           );
@@ -42,6 +58,8 @@ const AddPipeline = () => {
       }
     }
     setIsModalOpen(!isModalOpen);
+    setSelectedPipeline(undefined);
+    setCreatingPipeline(false);
   };
 
   const handleSelectPipeline = (pipeline: any) => {
@@ -50,12 +68,17 @@ const AddPipeline = () => {
 
   return (
     <React.Fragment>
-      <Button icon={<PlusCircleIcon />} onClick={handleToggle} type="button">
+      <Button
+        icon={<MdOutlineAddCircle />}
+        onClick={handleToggle}
+        type="button"
+      >
         Add a Pipeline
       </Button>
       <Modal
         aria-label="My Pipeline Modal"
         isOpen={isModalOpen}
+        onClose={handleToggle}
         description="Add a Pipeline to the plugin instance"
         actions={[
           <Button key="confirm" variant="primary" onClick={addPipeline}>
@@ -71,6 +94,16 @@ const AddPipeline = () => {
           handleSelectPipeline={handleSelectPipeline}
           addPipeline={addPipeline}
         />
+        {creatingPipeline && (
+          <React.Fragment>
+            <Alert
+              variant="info"
+              isInline
+              isPlain
+              title="Adding the pipeline to the selected Node"
+            />
+          </React.Fragment>
+        )}
       </Modal>
     </React.Fragment>
   );
@@ -85,7 +118,6 @@ interface PipelineListProps {
 }
 
 const PipelineList = ({
-  addPipeline,
   selectedPipeline,
   handleSelectPipeline,
 }: PipelineListProps) => {
@@ -112,28 +144,37 @@ const PipelineList = ({
   };
 
   return (
-    <List isPlain>
-      {pipelines.map((pipeline) => (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginTop: "1.25em",
-          }}
-          key={pipeline.data.id}
-        >
-          <ListItem>{pipeline.data.name}</ListItem>
-          <Button
-            onClick={() => handleClick(pipeline)}
-            variant="primary"
-            isDisabled={
-              selectedPipeline && selectedPipeline.data.id === pipeline.data.id
-            }
-          >
-            Select
-          </Button>
-        </div>
-      ))}
-    </List>
+    <>
+      <TextContent>
+        <Text component={TextVariants.h1}>Select a Pipeline</Text>
+      </TextContent>
+      <List isPlain>
+        {pipelines.map((pipeline) => (
+          <React.Fragment key={pipeline.data.id}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "1.25em",
+              }}
+              key={pipeline.data.id}
+            >
+              <ListItem>{pipeline.data.name}</ListItem>
+              <Button
+                onClick={() => handleClick(pipeline)}
+                variant="primary"
+                isDisabled={
+                  selectedPipeline &&
+                  selectedPipeline.data.id === pipeline.data.id
+                }
+              >
+                Select
+              </Button>
+            </div>
+            <Divider component="li" />
+          </React.Fragment>
+        ))}
+      </List>
+    </>
   );
 };

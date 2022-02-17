@@ -3,10 +3,10 @@ import { CreateFeedData, LocalFile, PipelineData } from "../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
-import { uploadFilePaths } from "../../../../store/workflows/utils";
-import { fetchResource } from "../../../../utils";
 
-let cache: number[] = [];
+import { fetchResource } from "../../../../utils";
+import { ComputeEnvData } from "../../../../store/workflows/types";
+
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
@@ -69,58 +69,40 @@ export const createFeedInstanceWithDircopy = async (
 
   let dirpath: string[] = [];
 
-  if (chrisFiles.length > 0 && localFiles.length > 0) {
-    statusCallback("Compute files from swift storage and local file upload");
-    dirpath = chrisFiles.map((path: string) => path);
-    const local_upload_path = `${username}/uploads/${generatePathForLocalFile(
-      data
-    )}`;
-
-    try {
-      await uploadLocalFiles(localFiles, local_upload_path, statusCallback);
-    } catch (error) {
-      errorCallback(error as string);
-    }
-    const filePaths = uploadFilePaths(localFiles, local_upload_path);
-    dirpath.push(filePaths);
-  } else if (chrisFiles.length > 0 && localFiles.length === 0) {
+  if (chrisFiles.length > 0 && localFiles.length === 0) {
     statusCallback("Compute Paths from swift storage");
     dirpath = chrisFiles.map((path: string) => path);
   } else if (localFiles.length > 0 && chrisFiles.length === 0) {
     statusCallback("Compute Paths from local file upload");
-    const local_upload_path = `${username}/uploads/${generatePathForLocalFile(
-      data
-    )}`;
+    const local_upload_path = `${username}/uploads/${Date.now()}/`;
     try {
-      await uploadLocalFiles(localFiles, local_upload_path, statusCallback);
+      uploadLocalFiles(localFiles, local_upload_path, statusCallback);
     } catch (error) {
       errorCallback(error as string);
     }
-    const filePaths = uploadFilePaths(localFiles, local_upload_path);
-
-    dirpath.push(filePaths);
+    dirpath.push(local_upload_path);
   }
 
   let feed;
 
   try {
+    const client = ChrisAPIClient.getClient();
     const dircopy = await getPlugin("pl-dircopy");
     if (dircopy instanceof Plugin) {
-      const dircopyInstance = await dircopy.getPluginInstances();
-      await dircopyInstance.post({
-        dir: dirpath.join(","),
-      });
+      const createdInstance = await client.createPluginInstance(
+        dircopy.data.id,
+        {
+          //@ts-ignore
+          dir: dirpath.join(","),
+        }
+      );
+
       // clear global cache
-      cache = [];
+
       statusCallback("Creating Plugin Instance");
       //when the `post` finishes, the dircopyInstances's internal collection is updated
-      let createdInstance: PluginInstance = {} as PluginInstance;
 
-      if (dircopyInstance.getItems()) {
-        const pluginInstanceList =
-          dircopyInstance.getItems() as PluginInstance[];
-        createdInstance = pluginInstanceList[0];
-
+      if (createdInstance) {
         if (selectedPipeline) {
           const pipeline = pipelineData[selectedPipeline];
           if (
@@ -129,99 +111,24 @@ export const createFeedInstanceWithDircopy = async (
             pipeline.pipelinePlugins &&
             pipeline.pluginPipings.length > 0
           ) {
-            const client = ChrisAPIClient.getClient();
             const {
               pluginPipings,
               pluginParameters,
               pipelinePlugins,
               computeEnvs,
             } = pipeline;
-
-            const pluginDict: {
-              [id: number]: number;
-            } = {};
-
-            for (let i = 0; i < pluginPipings.length; i++) {
-              const currentPlugin = pluginPipings[i];
-
-              const currentPluginParameter = pluginParameters.filter(
-                (param: any) => {
-                  if (currentPlugin.data.id === param.data.plugin_piping_id) {
-                    return param;
-                  }
-                }
-              );
-
-              const pluginFound = pipelinePlugins.find(
-                (plugin) => currentPlugin.data.plugin_id === plugin.data.id
-              );
-
-              const data = currentPluginParameter.reduce(
-                (
-                  paramDict: {
-                    [key: string]: string | boolean | number;
-                  },
-                  param: any
-                ) => {
-                  let value;
-
-                  if (!param.data.value && param.data.type === "string") {
-                    value = "";
-                  } else {
-                    value = param.data.value;
-                  }
-                  paramDict[param.data.param_name] = value;
-                  return paramDict;
-                },
-                {}
-              );
-
-              let previous_id;
-              if (i === 0) {
-                previous_id = createdInstance.data.id;
-              } else {
-                const previousPlugin = pluginPipings.find(
-                  (plugin) => currentPlugin.data.previous_id === plugin.data.id
-                );
-                previous_id = pluginDict[previousPlugin.data.plugin_id];
-              }
-
-              const computeEnv =
-                computeEnvs &&
-                computeEnvs[currentPlugin.data.id] &&
-                computeEnvs[currentPlugin.data.id].currentlySelected;
-
-              let finalData = {};
-              if (computeEnv) {
-                finalData = {
-                  previous_id,
-                  ...data,
-                  compute_resource_name: computeEnv,
-                };
-              } else {
-                finalData = {
-                  previous_id,
-                  ...data,
-                };
-              }
-
-              const pluginInstance: PluginInstance =
-                await client.createPluginInstance(
-                  pluginFound.data.id,
-                  //@ts-ignore
-                  finalData
-                );
-
-              pluginDict[pluginInstance.data.plugin_id] =
-                pluginInstance.data.id;
-            }
+            runPipelineSequence(
+              pluginPipings,
+              pluginParameters,
+              pipelinePlugins,
+              createdInstance,
+              computeEnvs
+            );
           }
         }
+        statusCallback("Feed Created");
+        feed = await createdInstance.getFeed();
       }
-
-      statusCallback("Feed Created");
-
-      feed = await createdInstance.getFeed();
     }
   } catch (error) {
     errorCallback(error as string);
@@ -274,26 +181,16 @@ export const createFeedInstanceWithFS = async (
   return feed;
 };
 
-export const generatePathForLocalFile = (data: CreateFeedData) => {
-  const randomCode = Math.floor(Math.random() * 100); // random 4-digit code, to minimize risk of folder already existing
-  const normalizedFeedName = data.feedName
-    .toLowerCase()
-    .replace(/ /g, "-")
-    .replace(/\//g, "");
-  return `${normalizedFeedName}-upload-${randomCode}`;
-};
-
 export const uploadLocalFiles = async (
   files: LocalFile[],
   directory: string,
   statusCallback: (status: string) => void
 ) => {
   const client = ChrisAPIClient.getClient();
-  let count = 0;
+
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-
-    const uploadedFile = await client.uploadFile(
+    await client.uploadFile(
       {
         upload_path: `${directory}/${file.name}`,
       },
@@ -301,16 +198,7 @@ export const uploadLocalFiles = async (
         fname: (file as LocalFile).blob,
       }
     );
-    count = uploadedFile ? count + 1 : count;
-    const percent = Math.round((count / files.length) * 20);
-
-    if (
-      !cache.includes(percent) &&
-      (percent === 5 || percent === 10 || percent === 15 || percent === 20)
-    ) {
-      statusCallback(`Uploading Files To Cube (${count}/${files.length})`);
-      cache.push(percent);
-    }
+    statusCallback(`Uploading Files To Cube`);
   }
 };
 
@@ -396,3 +284,90 @@ export const getRequiredObject = async (
 
   return parameterInput;
 };
+
+export async function runPipelineSequence(
+  pluginPipings: any[],
+  pluginParameters: any[],
+  pipelinePlugins: any[],
+  createdInstance: PluginInstance,
+  computeEnvs?: ComputeEnvData
+) {
+  const pluginDict: {
+    [id: number]: number;
+  } = {};
+
+  const client = ChrisAPIClient.getClient();
+  const pluginInstanceList = [];
+
+  for (let i = 0; i < pluginPipings.length; i++) {
+    const currentPlugin = pluginPipings[i];
+
+    const currentPluginParameter = pluginParameters.filter((param: any) => {
+      if (currentPlugin.data.id === param.data.plugin_piping_id) {
+        return param;
+      }
+    });
+
+    const pluginFound = pipelinePlugins.find(
+      (plugin) => currentPlugin.data.plugin_id === plugin.data.id
+    );
+
+    const data = currentPluginParameter.reduce(
+      (
+        paramDict: {
+          [key: string]: string | boolean | number;
+        },
+        param: any
+      ) => {
+        let value;
+
+        if (!param.data.value && param.data.type === "string") {
+          value = "";
+        } else {
+          value = param.data.value;
+        }
+        paramDict[param.data.param_name] = value;
+        return paramDict;
+      },
+      {}
+    );
+
+    let previous_id;
+    if (i === 0) {
+      previous_id = createdInstance.data.id;
+    } else {
+      const previousPlugin = pluginPipings.find(
+        (plugin) => currentPlugin.data.previous_id === plugin.data.id
+      );
+      previous_id = pluginDict[previousPlugin.data.plugin_id];
+    }
+
+    const computeEnv =
+      computeEnvs &&
+      computeEnvs[currentPlugin.data.id] &&
+      computeEnvs[currentPlugin.data.id].currentlySelected;
+
+    let finalData = {};
+    if (computeEnv) {
+      finalData = {
+        previous_id,
+        ...data,
+        compute_resource_name: computeEnv,
+      };
+    } else {
+      finalData = {
+        previous_id,
+        ...data,
+      };
+    }
+
+    const pluginInstance: PluginInstance = await client.createPluginInstance(
+      pluginFound.data.id,
+      //@ts-ignore
+      finalData
+    );
+    pluginInstanceList.push(pluginInstance);
+    pluginDict[pluginInstance.data.plugin_id] = pluginInstance.data.id;
+  }
+  return pluginInstanceList;
+}

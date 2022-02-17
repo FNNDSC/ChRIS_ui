@@ -6,7 +6,7 @@ declare module "*.scss";
 
 declare module "@patternfly/react-styles";
 declare module "@patternfly/react-table";
-declare module "@patternfly/react-icons";
+
 
 declare module "patternfly-react";
 declare module "d3v4";

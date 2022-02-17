@@ -5,12 +5,12 @@ import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { PluginInstance} from "@fnndsc/chrisapi";
 import { deleteNode } from "../../../store/pluginInstance/actions";
-import { TrashIcon } from "@patternfly/react-icons";
+import { FaTrash } from "react-icons/fa";
 
 interface DeleteNodeProps {
   selectedPlugin?: PluginInstance;
   deleteNode: (instance: PluginInstance) => void;
-  deleteNodeSuccess:boolean;
+  deleteNodeSuccess: boolean;
 }
 
 const DeleteNode: React.FC<DeleteNodeProps> = ({
@@ -36,7 +36,7 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
       <Button
         disabled={!selectedPlugin}
         onClick={handleModalToggle}
-        icon={<TrashIcon />}
+        icon={<FaTrash />}
         type="button"
       >
         Delete Node
@@ -57,8 +57,8 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
           </React.Fragment>,
         ]}
       >
-        Deleting a node will delete all it&apos;s descendants as well. Please confirm
-        if you are sure
+        Deleting a node will delete all it&apos;s descendants as well. Please
+        confirm if you are sure
       </Modal>
     </React.Fragment>
   );

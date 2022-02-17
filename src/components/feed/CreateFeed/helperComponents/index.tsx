@@ -5,7 +5,7 @@ import {
   Split,
   SplitItem,
 } from "@patternfly/react-core";
-import { OutlinedTrashAltIcon, FileIcon } from "@patternfly/react-icons";
+import { FaTrash, FaFile } from "react-icons/fa";
 import { CreateFeedContext } from "../context";
 import { Types, LocalFile } from "../types";
 
@@ -20,7 +20,7 @@ export const FileList = ({ file, index }: { file: string; index: number }) => {
         })}
       </Breadcrumb>
       <span className="trash-icon">
-        <OutlinedTrashAltIcon
+        <FaTrash
           onClick={() => {
             dispatch({
               type: Types.RemoveChrisFile,
@@ -49,12 +49,12 @@ export const LocalFileList = ({
   return (
     <div className="file-preview" key={file.name}>
       <span className="file-icon">
-        <FileIcon />
+        <FaFile />
       </span>
       <span className="file-name">{file.name}</span>
       {showIcon && (
         <span className="trash-icon">
-          <OutlinedTrashAltIcon
+          <FaTrash
             onClick={() => {
               handleDeleteDispatch && handleDeleteDispatch(file.name);
             }}
@@ -110,3 +110,26 @@ export const LocalFileDetails = ({
     </Split>
   );
 };
+
+export function ErrorMessage({ error }: any) {
+  return (
+    <div
+      role="alert"
+      style={{
+        color: "red",
+      }}
+    >
+      <span>There was an error:</span>
+      <pre
+        style={{
+          whiteSpace: "break-spaces",
+          margin: "0",
+          marginBottom: -5,
+        }}
+      >
+        {error.message && error.message}
+      </pre>
+    </div>
+  );
+}
+

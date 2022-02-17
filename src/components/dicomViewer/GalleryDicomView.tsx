@@ -1,13 +1,13 @@
 import React from "react";
 import { Button } from "@patternfly/react-core";
 import {
-  AngleDoubleLeftIcon,
-  AngleDoubleRightIcon,
-  StepForwardIcon,
-  StepBackwardIcon,
-  PauseIcon,
-  PlayIcon,
-} from "@patternfly/react-icons";
+  AiFillCaretLeft,
+  AiFillCaretRight,
+  AiFillStepForward,
+  AiFillStepBackward,
+  AiFillPauseCircle,
+  AiFillPlayCircle,
+} from "react-icons/ai";
 import CornerstoneViewport from "react-cornerstone-viewport";
 import * as dicomParser from "dicom-parser";
 import * as cornerstone from "cornerstone-core";
@@ -401,19 +401,19 @@ const GalleryDicomView = ({ dispatchFiles }: GalleryDicomProps) => {
         className="gallery-toolbar"
       >
         <Button variant="link" onClick={listOpenFilesFirstFrame}>
-          <AngleDoubleLeftIcon />
+          <AiFillCaretLeft />
         </Button>
         <Button variant="link" onClick={listOpenFilesPreviousFrame}>
-          <StepBackwardIcon />
+          <AiFillStepBackward />
         </Button>
         <Button variant="link" onClick={listOpenFilesScrolling}>
-          {inPlay === true ? <PauseIcon size="md" /> : <PlayIcon size="md" />}
+          {inPlay === true ? <AiFillPauseCircle /> : <AiFillPlayCircle />}
         </Button>
         <Button variant="link" onClick={listOpenFilesNextFrame}>
-          <StepForwardIcon />
+          <AiFillStepForward />
         </Button>
         <Button variant="link" onClick={listOpenFilesLastFrame}>
-          <AngleDoubleRightIcon />
+          <AiFillCaretRight />
         </Button>
       </div>
     </>
