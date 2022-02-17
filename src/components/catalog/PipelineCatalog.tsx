@@ -55,6 +55,7 @@ const PipelineCatalog = () => {
         pipelines = pipelines?.filter(
           (pipeline) => pipeline.data.id !== filteredId
         );
+        setSelectedPipeline(undefined);
       }
       if (pipelines) {
         setPipelines(pipelines);
@@ -68,7 +69,7 @@ const PipelineCatalog = () => {
     }
 
     fetchPipelines(perPage, page, search);
-  }, [perPage, page, search, fetch]);
+  }, [perPage, page, search, fetch, filteredId]);
 
   const handleFetch = (id?: number) => {
     id && setFilteredId(id);

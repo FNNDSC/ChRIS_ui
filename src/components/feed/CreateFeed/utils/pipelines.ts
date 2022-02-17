@@ -2,9 +2,9 @@ import { Pipeline, PipelineList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { fetchResource } from "../../../../utils/index";
 
-async function fetchResources(pipelineInstance: Pipeline) {
+export async function fetchResources(pipelineInstance: Pipeline) {
   const params = {
-    limit: 20,
+    limit: 100,
     offset: 0,
   };
 

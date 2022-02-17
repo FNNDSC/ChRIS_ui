@@ -6,7 +6,7 @@ import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import { deleteTsNode, switchTreeMode } from "../../../store/tsplugins/actions";
 import { useSafeDispatch } from "../../../utils";
 import { useTypedSelector } from "../../../store/hooks";
-import { CloseIcon } from "@patternfly/react-icons";
+import { AiFillCloseCircle } from "react-icons/ai";
 import { InputType } from "./ParentContainer";
 
 type ConfigureJoinProps = {
@@ -65,7 +65,7 @@ const ConfigureJoin = ({
                   onClick={() => {
                     safeDispatch(deleteTsNode(item));
                   }}
-                  icon={<CloseIcon />}
+                  icon={<AiFillCloseCircle />}
                 />
               </List.Item>
             </>

@@ -5,8 +5,8 @@ import {
   DropdownItem,
   Banner,
 } from "@patternfly/react-core";
-import { CaretDownIcon } from "@patternfly/react-icons";
-import TrashAltIcon from "@patternfly/react-icons/dist/js/icons/trash-alt-icon";
+import { AiFillCaretDown } from "react-icons/ai";
+import { FaTrashAlt } from "react-icons/fa";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./lib/utils";
 import { PluginParameter } from "@fnndsc/chrisapi";
@@ -109,7 +109,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
             <DropdownToggle
               id="toggle-id"
               onToggle={onToggle}
-              toggleIndicator={CaretDownIcon}
+              toggleIndicator={AiFillCaretDown}
             >
               {paramFlag ? `${paramFlag}` : "Choose a Parameter"}
             </DropdownToggle>
@@ -132,7 +132,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
         />
 
         <div onClick={deleteDropdown} className="close-icon">
-          <TrashAltIcon />
+          <FaTrashAlt />
         </div>
       </div>
       {type === "boolean" && (

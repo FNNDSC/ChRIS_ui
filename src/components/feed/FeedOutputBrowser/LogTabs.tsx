@@ -1,6 +1,7 @@
 import React from "react";
 import { Tabs, Tab, TabTitleText, TabTitleIcon } from "@patternfly/react-core";
-import { TerminalIcon, AtomIcon } from "@patternfly/react-icons";
+import { VscJson } from "react-icons/vsc";
+import { FaTerminal } from "react-icons/fa";
 
 type LogTabsProps = {
   className: string;
@@ -29,7 +30,7 @@ const LogTabs = (props: LogTabsProps) => {
           title={
             <>
               <TabTitleIcon>
-                <AtomIcon />
+                <VscJson />
               </TabTitleIcon>
               <TabTitleText>JSON Viewer</TabTitleText>
             </>
@@ -40,7 +41,7 @@ const LogTabs = (props: LogTabsProps) => {
           title={
             <>
               <TabTitleIcon>
-                <TerminalIcon />
+                <FaTerminal />
               </TabTitleIcon>
               <TabTitleText>Terminal</TabTitleText>
             </>

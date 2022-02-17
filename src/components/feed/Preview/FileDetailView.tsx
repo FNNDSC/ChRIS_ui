@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 import { Label, Text, Skeleton } from "@patternfly/react-core";
 import { ErrorBoundary } from "react-error-boundary";
 import { FeedFile } from "@fnndsc/chrisapi";
-import { InfoCircleIcon } from "@patternfly/react-icons";
+import { AiFillInfoCircle } from "react-icons/ai";
 import { getFileExtension } from "../../../api/models/file-explorer.model";
 import {
   IFileBlob,
@@ -71,7 +71,7 @@ const FileDetailView = (props: AllProps) => {
         <ErrorBoundary
           fallback={
             <span>
-              <Label icon={<InfoCircleIcon />} color="red" href="#filled">
+              <Label icon={<AiFillInfoCircle />} color="red" href="#filled">
                 <Text component="p">
                   Oh snap ! Looks like there was an error. Please refresh the
                   browser or try again.

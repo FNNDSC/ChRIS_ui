@@ -7,12 +7,12 @@ import {
   GridItem,
   Skeleton,
   EmptyState,
-  EmptyStateBody,
   Title,
+  EmptyStateBody,
   EmptyStateIcon,
   EmptyStateVariant,
 } from "@patternfly/react-core";
-import { CubeIcon } from "@patternfly/react-icons";
+
 import { Spin, Alert, Tree } from "antd";
 import PluginViewerModal from "../../detailedView/PluginViewerModal";
 import {
@@ -227,7 +227,7 @@ const LoadingFeedBrowser = () => {
 const EmptyStateLoader = () => {
   return (
     <EmptyState variant={EmptyStateVariant.large}>
-      <EmptyStateIcon icon={CubeIcon} />
+      <EmptyStateIcon />
       <Title headingLevel="h4" size="lg" />
       <EmptyStateBody>
         The plugin execution was either cancelled or it finished with error.
