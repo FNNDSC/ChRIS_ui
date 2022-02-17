@@ -12,7 +12,6 @@ import {
   Alert,
   InputGroup,
 } from "@patternfly/react-core";
-
 import ChrisApiClient from "@fnndsc/chrisapi";
 import { Link } from "react-router-dom";
 import { has } from "lodash";

@@ -16,7 +16,6 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { Table, TableBody } from "@patternfly/react-table";
-
 import {
   FaCodeBranch,
   FaTrashAlt,
