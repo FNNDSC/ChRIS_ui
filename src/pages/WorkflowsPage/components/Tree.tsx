@@ -1,24 +1,25 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { TreeNode } from "../../../store/workflows/types";
+import { List, Avatar } from "antd";
 import { tree, hierarchy, HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
+import { TreeNode } from "../../../store/workflows/types";
+import { useDispatch } from "react-redux";
+
 import TransitionGroupWrapper from "../../../components/feed/FeedTree/TransitionGroupWrapper";
 import { useTypedSelector } from "../../../store/hooks";
 import { getFeedTree } from "../utils";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import {
   setComputeEnvs,
-  setCurrentNode
+  setCurrentNode,
 } from "../../../store/workflows/actions";
-import { List, Avatar } from "antd";
 
 const nodeSize = { x: 150, y: 40 };
 const svgClassName = "feed-tree__svg";
 const graphClassName = "feed-tree__graph";
 const translate = {
   x: 170,
-  y: 25
+  y: 25,
 };
 const scale = 1;
 
@@ -29,7 +30,7 @@ const colorPalette: {
   host: "#5998C5",
   moc: "#704478",
   titan: "#1B9D92",
-  "bu-21-9": "#ADF17F"
+  "bu-21-9": "#ADF17F",
 };
 
 const Tree = (props: {
@@ -71,7 +72,7 @@ const Tree = (props: {
   return (
     <div
       style={{
-        width: "65%"
+        width: "65%",
       }}
     >
       <svg className={`${svgClassName}`} width="100%" height="100%">
@@ -215,7 +216,7 @@ const NodeData = (props: NodeProps) => {
       const client = ChrisAPIClient.getClient();
 
       const computeEnvs = await client.getComputeResources({
-        plugin_id: `${data.plugin_id}`
+        plugin_id: `${data.plugin_id}`,
       });
 
       if (computeEnvs.getItems()) {
@@ -223,8 +224,8 @@ const NodeData = (props: NodeProps) => {
           const computeEnvData = {
             [pluginName]: {
               computeEnvs: computeEnvs.data,
-              currentlySelected: computeEnvs.data[0].name
-            }
+              currentlySelected: computeEnvs.data[0].name,
+            },
           };
 
           dispatch(setComputeEnvs(computeEnvData));
@@ -267,7 +268,7 @@ const NodeData = (props: NodeProps) => {
     <Fragment>
       <g
         style={{
-          cursor: "pointer"
+          cursor: "pointer",
         }}
         id={`${data.id}`}
         ref={nodeRef}
@@ -278,14 +279,16 @@ const NodeData = (props: NodeProps) => {
             handleNodeClick({
               data,
               pluginName,
-              currentComputeEnv: current
+              currentComputeEnv: current,
             });
           }
         }}
       >
         <circle
           style={{
-            fill: `${current ? colorPalette[current] : colorPalette["default"]}`
+            fill: `${
+              current ? colorPalette[current] : colorPalette["default"]
+            }`,
           }}
           id={`node_${data.id}`}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
@@ -309,7 +312,7 @@ const ConfigurationPage = () => {
     <>
       <div
         style={{
-          width: "45%"
+          width: "45%",
         }}
       >
         <List
@@ -325,7 +328,7 @@ const ConfigurationPage = () => {
                         colorPalette[item.name]
                           ? colorPalette[item.name]
                           : colorPalette["default"]
-                      }`
+                      }`,
                     }}
                   />
                 }

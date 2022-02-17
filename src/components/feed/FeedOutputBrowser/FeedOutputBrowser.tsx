@@ -12,7 +12,7 @@ import {
   EmptyStateIcon,
   EmptyStateVariant,
 } from "@patternfly/react-core";
-import { FaCube } from "react-icons/fa";
+
 import { Spin, Alert, Tree } from "antd";
 import PluginViewerModal from "../../detailedView/PluginViewerModal";
 import {
