@@ -10,8 +10,9 @@ import {
   Pagination,
 } from "@patternfly/react-core";
 import { useDispatch } from "react-redux";
-import FileUpload from "../../components/common/fileupload";
+import { usePaginate } from "../../components/common/pagination";
 import { useTypedSelector } from "../../store/hooks";
+import FileUpload from "../../components/common/fileupload";
 import { LocalFile } from "../../components/feed/CreateFeed/types";
 import { AnalysisStep, TreeNode } from "../../store/workflows/types";
 import {
@@ -26,7 +27,6 @@ import {
   setCurrentPipeline,
   setCurrentComputeEnv,
 } from "../../store/workflows/actions";
-import { usePaginate } from "../../components/common/pagination";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { Tree, ConfigurationPage } from "./components/Tree";
 import { UploadJson } from "../../components/feed/Pipelines";

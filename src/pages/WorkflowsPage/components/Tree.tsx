@@ -4,7 +4,6 @@ import { tree, hierarchy, HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { TreeNode } from "../../../store/workflows/types";
 import { useDispatch } from "react-redux";
-
 import TransitionGroupWrapper from "../../../components/feed/FeedTree/TransitionGroupWrapper";
 import { useTypedSelector } from "../../../store/hooks";
 import { getFeedTree } from "../utils";
