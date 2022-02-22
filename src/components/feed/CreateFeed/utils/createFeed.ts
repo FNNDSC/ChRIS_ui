@@ -7,7 +7,6 @@ import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
 import { fetchResource } from "../../../../utils";
 import { ComputeEnvData } from "../../../../store/workflows/types";
 
-
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
     return "Feed Creation using an FS Plugin";
@@ -74,13 +73,15 @@ export const createFeedInstanceWithDircopy = async (
     dirpath = chrisFiles.map((path: string) => path);
   } else if (localFiles.length > 0 && chrisFiles.length === 0) {
     statusCallback("Compute Paths from local file upload");
-    const local_upload_path = `${username}/uploads/${Date.now()}/`;
+    const path = `${username}/uploads/${data.feedName}/${Date.now()}`;
+
+    const local_upload_path = localFiles.length > 1 ? `${path}/` : path;
+    dirpath.push(local_upload_path);
     try {
       uploadLocalFiles(localFiles, local_upload_path, statusCallback);
     } catch (error) {
       errorCallback(error as string);
     }
-    dirpath.push(local_upload_path);
   }
 
   let feed;
