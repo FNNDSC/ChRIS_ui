@@ -73,9 +73,9 @@ export const createFeedInstanceWithDircopy = async (
     dirpath = chrisFiles.map((path: string) => path);
   } else if (localFiles.length > 0 && chrisFiles.length === 0) {
     statusCallback("Compute Paths from local file upload");
-    const path = `${username}/uploads/${data.feedName}/${Date.now()}`;
-
-    const local_upload_path = localFiles.length > 1 ? `${path}/` : path;
+    const local_upload_path = `${username}/uploads/${
+      data.feedName
+    }/${Date.now()}`;
     dirpath.push(local_upload_path);
     try {
       uploadLocalFiles(localFiles, local_upload_path, statusCallback);
@@ -191,9 +191,10 @@ export const uploadLocalFiles = async (
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
+    const upload_path = `${directory}/${file.name}`;
     await client.uploadFile(
       {
-        upload_path: `${directory}/${file.name}`,
+        upload_path,
       },
       {
         fname: (file as LocalFile).blob,
