@@ -34,7 +34,7 @@ jobs:
 
           registries = ['docker.io', 'ghcr.io']
           repo = os.environ['GITHUB_REPOSITORY'].lower()
-          short_sha = sp.check_output(['git', 'rev-parse', '--short', 'HEAD'], text=True)
+          short_sha = sp.check_output(['git', 'rev-parse', '--short', 'HEAD'], text=True).strip()
           today = datetime.date.today().strftime(r'%Y%m%d')
           tags = ['latest', short_sha, today] + git_refs
 
