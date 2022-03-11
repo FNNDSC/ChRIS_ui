@@ -1,7 +1,219 @@
-import React from "react";
+import React, { useState } from "react";
+import {
+  Grid,
+  GridItem,
+  Card,
+  CardHeader,
+  CardActions,
+  CardBody,
+  Split,
+  SplitItem,
+  Button,
+  Dropdown,
+  KebabToggle,
+  DropdownItem,
+} from "@patternfly/react-core";
+import { FaFile, FaFolder, FaEye, FaTrashAlt } from "react-icons/fa";
+import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
+import { Paginated } from ".";
 
-const Browser = () => {
-  return <div>Browser</div>;
-};
+export function Browser({
+  initialPath,
+  handleFolderClick,
+  folders,
+  files,
+  paginated,
+  handlePagination,
+}: {
+  initialPath: string;
+  handleFolderClick: (path: string) => void;
+  folders: string[];
+  files: any[];
+  paginated: Paginated;
+  handlePagination: (path: string) => void;
+}) {
+  return (
+    <Grid hasGutter>
+      {files.length > 0
+        ? files.map((file) => {
+            return (
+              <GridItem key={file.data.fname} sm={12} lg={4}>
+                <FileCard file={file} />
+              </GridItem>
+            );
+          })
+        : folders.map((folder, index) => {
+            return (
+              <GridItem key={`${folder}_${index}`} sm={12} lg={4}>
+                <FolderCard
+                  initialPath={initialPath}
+                  handleFolderClick={handleFolderClick}
+                  key={index}
+                  folder={folder}
+                />
+              </GridItem>
+            );
+          })}
 
-export default Browser;
+      {files.length > 0 && paginated.hasNext == true ? (
+        <GridItem>
+          <Split>
+            <SplitItem isFilled>
+              <Button
+                onClick={() => {
+                  handlePagination(initialPath);
+                }}
+                variant="link"
+              >
+                Read more files
+              </Button>
+            </SplitItem>
+          </Split>
+        </GridItem>
+      ) : folders.length > 0 && paginated.hasNext ? (
+        <GridItem>
+          <Split>
+            <SplitItem isFilled>
+              <Button
+                onClick={() => {
+                  handlePagination(initialPath);
+                }}
+                variant="link"
+              >
+                Read more folders
+              </Button>
+            </SplitItem>
+          </Split>
+        </GridItem>
+      ) : (
+        <div></div>
+      )}
+    </Grid>
+  );
+}
+
+function FileCard({ file }: { file: any }) {
+  const fileNameArray = file.data.fname.split("/");
+  const fileName = fileNameArray[fileNameArray.length - 1];
+  const [previewFile, setPreviewFile] = React.useState(false);
+  return (
+    <>
+      <Card key={file.data.fname} isRounded isHoverable isSelectable>
+        <CardBody>
+          {previewFile && (
+            <div
+              style={{
+                margin: "-1.15em -1.15em 1em -1.15em",
+                maxHeight: "10em",
+                overflow: "hidden",
+              }}
+            >
+              <FileDetailView selectedFile={file} preview="small" />
+            </div>
+          )}
+
+          <div
+            style={{
+              overflow: "hidden",
+            }}
+          >
+            <Button icon={<FaFile />} variant="link" style={{ padding: "0" }}>
+              <b>{elipses(fileName, 20)}</b>
+            </Button>
+          </div>
+          <div>
+            <Button
+              onClick={() => {
+                setPreviewFile(!previewFile);
+              }}
+              variant="link"
+              icon={<FaEye />}
+            >
+              Preview
+            </Button>
+            <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
+          </div>
+        </CardBody>
+      </Card>
+    </>
+  );
+}
+
+function FolderCard({
+  initialPath,
+  folder,
+  handleFolderClick,
+}: {
+  initialPath: string;
+  folder: string;
+  handleFolderClick: (path: string) => void;
+}) {
+  const [dropdown, setDropdown] = useState(false);
+  const toggle = (
+    <KebabToggle
+      onToggle={() => setDropdown(!dropdown)}
+      style={{ padding: "0" }}
+    />
+  );
+  const pad = <span style={{ padding: "0 0.25em" }} />;
+  return (
+    <Card isHoverable isSelectable isRounded>
+      <CardHeader>
+        <CardActions>
+          <Dropdown
+            isPlain
+            toggle={toggle}
+            isOpen={dropdown}
+            position="right"
+            onSelect={() => {
+              setDropdown(false);
+            }}
+            dropdownItems={[
+              <DropdownItem
+                key="view"
+                component="button"
+                onClick={() => {
+                  console.log("Test");
+                }}
+              >
+                <FaEye />
+                {pad} View
+              </DropdownItem>,
+              <DropdownItem
+                key="delete"
+                component="button"
+                onClick={() => {
+                  console.log("Test");
+                }}
+              >
+                <FaTrashAlt />
+                {pad} Delete
+              </DropdownItem>,
+            ]}
+          ></Dropdown>
+        </CardActions>
+        <Split style={{ overflow: "hidden" }}>
+          <SplitItem style={{ marginRight: "1em" }}>
+            <FaFolder />
+          </SplitItem>
+          <SplitItem isFilled>
+            <Button
+              style={{ padding: 0 }}
+              variant="link"
+              onClick={() => {
+                handleFolderClick(`${initialPath}/${folder}`);
+              }}
+            >
+              <b>{elipses(folder, 36)}</b>
+            </Button>
+          </SplitItem>
+        </Split>
+      </CardHeader>
+    </Card>
+  );
+}
+
+function elipses(str: string, len: number) {
+  if (str.length <= len) return str;
+  return str.slice(0, len - 3) + "...";
+}
