@@ -11,8 +11,12 @@ export const Library: React.FC = () => {
   return (
     <div>
       <Wrapper>
-        <h1>Library</h1>
-        <DataLibrary />
+        <article id="user-library">
+          <div>
+            <h1>My Library</h1>
+          </div>
+          <DataLibrary />
+        </article>
       </Wrapper>
     </div>
   );
