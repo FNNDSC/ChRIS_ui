@@ -19,6 +19,7 @@ const UploadsBrowser = () => {
     folderDetails,
     files,
     folders,
+    resetPaginated,
   } = useFetchResources("uploads");
 
   const initialPathSplit = initialPath.split("/");
@@ -31,6 +32,7 @@ const UploadsBrowser = () => {
             <BreadcrumbItem
               to={index !== 0 ? "#" : undefined}
               onClick={() => {
+                resetPaginated(path);
                 if (index === initialPathSplit.length - 1) {
                   return;
                 }
@@ -71,6 +73,7 @@ const UploadsBrowser = () => {
         handleFolderClick={handleFolderClick}
         paginated={paginated}
         handlePagination={handlePagination}
+        resetPaginated={resetPaginated}
       />
     </React.Fragment>
   );

@@ -18,6 +18,7 @@ const FeedsBrowser = () => {
     folderDetails,
     files,
     folders,
+    resetPaginated,
   } = useFetchResources("feed");
 
   const initialPathSplit = initialPath.split("/");
@@ -34,6 +35,7 @@ const FeedsBrowser = () => {
                   return;
                 }
                 if (index === 0) {
+                  resetPaginated(path);
                   handleFolderClick(`${path}`, {
                     hasNext: false,
                     limit: 50,
@@ -41,6 +43,7 @@ const FeedsBrowser = () => {
                   });
                 } else {
                   const newPath = initialPath.split(`/${path}`);
+                  resetPaginated(newPath[0]);
                   handleFolderClick(`${newPath[0]}/${path}`, {
                     hasNext: false,
                     limit: 50,
@@ -74,6 +77,7 @@ const FeedsBrowser = () => {
         handleFolderClick={handleFolderClick}
         paginated={paginated}
         handlePagination={handlePagination}
+        resetPaginated={resetPaginated}
       />
     </React.Fragment>
   );

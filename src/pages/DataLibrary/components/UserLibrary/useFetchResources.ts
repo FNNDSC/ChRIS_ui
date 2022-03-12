@@ -14,11 +14,9 @@ const useFetchResources = (browserType: string) => {
     currentFolder: "",
     totalCount: 0,
   });
-  const [paginated, setPaginated] = React.useState<Paginated>({
-    hasNext: false,
-    limit: 50,
-    offset: 0,
-  });
+  const [paginated, setPaginated] = React.useState<{
+    [key: string]: Paginated;
+  }>({});
   const [initialPath, setInitialPath] = React.useState("");
 
   React.useEffect(() => {
@@ -26,16 +24,19 @@ const useFetchResources = (browserType: string) => {
       if (username) {
         const client = ChrisAPIClient.getClient();
         let uploads;
+        let path;
         if (browserType === "feed") {
+          path = `${username}`;
           uploads = await client.getFileBrowserPaths({
-            path: `${username}`,
+            path,
           });
-          setInitialPath(`${username}`);
+          setInitialPath(`${path}`);
         } else {
+          path = `${username}/uploads`;
           uploads = await client.getFileBrowserPaths({
-            path: `${username}/uploads`,
+            path,
           });
-          setInitialPath(`${username}/uploads`);
+          setInitialPath(`${path}`);
         }
 
         if (
@@ -46,8 +47,13 @@ const useFetchResources = (browserType: string) => {
           const folders = uploads.data[0].subfolders.split(",");
           setPaginated({
             ...paginated,
-            hasNext: uploads.hasNextPage,
+            [path]: {
+              hasNext: uploads.hasNextPage,
+              limit: 50,
+              offset: 0,
+            },
           });
+
           if (browserType === "feed") {
             const feedFolders = folders.filter(
               (folder: any) => folder !== "uploads"
@@ -65,7 +71,16 @@ const useFetchResources = (browserType: string) => {
 
   const handleFolderClick = async (path: string, breadcrumb?: any) => {
     const client = ChrisAPIClient.getClient();
-    const pagination = breadcrumb ? breadcrumb : paginated;
+    const pagination = breadcrumb
+      ? breadcrumb
+      : paginated[path]
+      ? paginated[path]
+      : {
+          hasNext: false,
+          limit: 50,
+          offset: 0,
+        };
+
     const uploads = await client.getFileBrowserPaths({
       path: path,
       ...pagination,
@@ -88,19 +103,29 @@ const useFetchResources = (browserType: string) => {
       setFiles([]);
       setPaginated({
         ...paginated,
-        hasNext: uploads.hasNextPage,
+        [path]: {
+          ...paginated[path],
+          limit: pagination.limit,
+          offset: pagination.offset,
+          hasNext: uploads.hasNextPage,
+        },
       });
       setInitialPath(path);
     } else {
       const pathList = await client.getFileBrowserPath(path);
       const fileList = await pathList.getFiles({
-        limit: paginated.limit,
-        offset: paginated.offset,
+        limit: pagination.limit,
+        offset: pagination.offset,
       });
 
       setPaginated({
         ...paginated,
-        hasNext: fileList.hasNextPage,
+        [path]: {
+          ...paginated[path],
+          limit: pagination.limit,
+          offset: pagination.offset,
+          hasNext: fileList.hasNextPage,
+        },
       });
 
       if (fileList) {
@@ -124,14 +149,27 @@ const useFetchResources = (browserType: string) => {
   };
 
   const handlePagination = (path: string) => {
-    const offset = (paginated.offset += paginated.limit);
+    const offset = (paginated[path].offset += paginated[path].limit);
     setPaginated({
       ...paginated,
-      offset,
+      [path]: {
+        ...paginated[path],
+        offset,
+      },
     });
     handleFolderClick(path);
   };
 
+  const resetPaginated = (path: string) => {
+    setPaginated({
+      ...paginated,
+      [path]: {
+        hasNext: false,
+        limit: 50,
+        offset: 0,
+      },
+    });
+  };
   return {
     initialPath,
     files,
@@ -140,6 +178,7 @@ const useFetchResources = (browserType: string) => {
     handlePagination,
     handleFolderClick,
     folderDetails,
+    resetPaginated,
   };
 };
 
