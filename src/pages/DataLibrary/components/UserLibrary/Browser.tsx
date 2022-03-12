@@ -17,6 +17,7 @@ import { FaFile, FaFolder, FaEye, FaTrashAlt } from "react-icons/fa";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { Paginated } from ".";
 
+
 export function Browser({
   initialPath,
   handleFolderClick,
@@ -24,13 +25,17 @@ export function Browser({
   files,
   paginated,
   handlePagination,
+  resetPaginated,
 }: {
   initialPath: string;
   handleFolderClick: (path: string) => void;
   folders: string[];
   files: any[];
-  paginated: Paginated;
+  paginated: {
+    [key: string]: Paginated;
+  };
   handlePagination: (path: string) => void;
+  resetPaginated: (path: string) => void;
 }) {
   return (
     <Grid hasGutter>
@@ -55,7 +60,7 @@ export function Browser({
             );
           })}
 
-      {files.length > 0 && paginated.hasNext == true ? (
+      {files.length > 0 && paginated[initialPath].hasNext == true ? (
         <GridItem>
           <Split>
             <SplitItem isFilled>
@@ -70,7 +75,7 @@ export function Browser({
             </SplitItem>
           </Split>
         </GridItem>
-      ) : folders.length > 0 && paginated.hasNext ? (
+      ) : folders.length > 0 && paginated[initialPath].hasNext ? (
         <GridItem>
           <Split>
             <SplitItem isFilled>
