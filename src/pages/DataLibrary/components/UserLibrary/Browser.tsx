@@ -137,7 +137,15 @@ function FileCard({ file, previewAll }: { file: any; previewAll: boolean }) {
             <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
             <Button
               onClick={() => {
-                console.log("File", file);
+                const url = file.url;
+                const nameSplit = file.data.fname.split("/");
+                const name = nameSplit[nameSplit.length - 1];
+                const link = document.createElement("a");
+                link.href = `${url}/${name}`;
+                link.setAttribute("download", fileName);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
               }}
               variant="link"
               icon={<FaDownload />}
