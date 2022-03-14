@@ -18,6 +18,7 @@ const useFetchResources = (browserType: string) => {
     [key: string]: Paginated;
   }>({});
   const [initialPath, setInitialPath] = React.useState("");
+  const [previewAll, setPreviewAll] = React.useState(false);
 
   React.useEffect(() => {
     async function fetchUploads() {
@@ -68,6 +69,10 @@ const useFetchResources = (browserType: string) => {
 
     fetchUploads();
   }, []);
+
+  const togglePreview = () => {
+    setPreviewAll(!previewAll);
+  };
 
   const handleFolderClick = async (path: string, breadcrumb?: any) => {
     const client = ChrisAPIClient.getClient();
@@ -179,6 +184,8 @@ const useFetchResources = (browserType: string) => {
     handleFolderClick,
     folderDetails,
     resetPaginated,
+    togglePreview,
+    previewAll,
   };
 };
 

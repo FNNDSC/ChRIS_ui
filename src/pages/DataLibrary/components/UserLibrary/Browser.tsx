@@ -31,6 +31,7 @@ export function Browser({
   paginated,
   handlePagination,
   resetPaginated,
+  previewAll,
 }: {
   initialPath: string;
   handleFolderClick: (path: string) => void;
@@ -41,6 +42,7 @@ export function Browser({
   };
   handlePagination: (path: string) => void;
   resetPaginated: (path: string) => void;
+  previewAll: boolean;
 }) {
   return (
     <Grid hasGutter>
@@ -48,7 +50,7 @@ export function Browser({
         ? files.map((file) => {
             return (
               <GridItem key={file.data.fname} sm={12} lg={4}>
-                <FileCard file={file} />
+                <FileCard previewAll={previewAll} file={file} />
               </GridItem>
             );
           })
@@ -102,15 +104,15 @@ export function Browser({
   );
 }
 
-function FileCard({ file }: { file: any }) {
+function FileCard({ file, previewAll }: { file: any; previewAll: boolean }) {
   const fileNameArray = file.data.fname.split("/");
   const fileName = fileNameArray[fileNameArray.length - 1];
-  const [previewFile, setPreviewFile] = React.useState(false);
+
   return (
     <>
       <Card key={file.data.fname} isRounded isHoverable isSelectable>
         <CardBody>
-          {previewFile && (
+          {previewAll && (
             <div
               style={{
                 margin: "-1.15em -1.15em 1em -1.15em",
@@ -132,15 +134,6 @@ function FileCard({ file }: { file: any }) {
             </Button>
           </div>
           <div>
-            <Button
-              onClick={() => {
-                setPreviewFile(!previewFile);
-              }}
-              variant="link"
-              icon={<FaEye />}
-            >
-              Preview
-            </Button>
             <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
             <Button
               onClick={() => {

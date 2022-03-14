@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  Split,
-  SplitItem,
-} from "@patternfly/react-core";
-import { FaFolderOpen } from "react-icons/fa";
+import BreadcrumbContainer from "./BreadcrumbContainer";
 import { Browser } from "./Browser";
 import useFetchResources from "./useFetchResources";
 
@@ -19,56 +13,21 @@ const FeedsBrowser = () => {
     files,
     folders,
     resetPaginated,
+    previewAll,
+    togglePreview,
   } = useFetchResources("feed");
-
-  const initialPathSplit = initialPath.split("/");
 
   return (
     <React.Fragment>
-      <Breadcrumb>
-        {initialPathSplit.map((path: string, index: number) => {
-          return (
-            <BreadcrumbItem
-              to="#"
-              onClick={() => {
-                if (index === initialPathSplit.length - 1) {
-                  return;
-                }
-                if (index === 0) {
-                  resetPaginated(path);
-                  handleFolderClick(`${path}`, {
-                    hasNext: false,
-                    limit: 50,
-                    offset: 0,
-                  });
-                } else {
-                  const newPath = initialPath.split(`/${path}`);
-                  resetPaginated(newPath[0]);
-                  handleFolderClick(`${newPath[0]}/${path}`, {
-                    hasNext: false,
-                    limit: 50,
-                    offset: 0,
-                  });
-                }
-              }}
-              key={path}
-            >
-              {path}
-            </BreadcrumbItem>
-          );
-        })}
-      </Breadcrumb>
-      {files.length > 0 && (
-        <Split>
-          <SplitItem>
-            <h2>
-              <FaFolderOpen />
-              {folderDetails.currentFolder}
-            </h2>
-            <h3>{folderDetails.totalCount} items</h3>
-          </SplitItem>
-        </Split>
-      )}
+      <BreadcrumbContainer
+        initialPath={initialPath}
+        resetPaginated={resetPaginated}
+        handleFolderClick={handleFolderClick}
+        files={files}
+        folderDetails={folderDetails}
+        browserType="feeds"
+        togglePreview={togglePreview}
+      />
 
       <Browser
         initialPath={initialPath}
@@ -78,6 +37,7 @@ const FeedsBrowser = () => {
         paginated={paginated}
         handlePagination={handlePagination}
         resetPaginated={resetPaginated}
+        previewAll={previewAll}
       />
     </React.Fragment>
   );
