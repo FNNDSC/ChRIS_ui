@@ -13,10 +13,15 @@ import {
   KebabToggle,
   DropdownItem,
 } from "@patternfly/react-core";
-import { FaFile, FaFolder, FaEye, FaTrashAlt } from "react-icons/fa";
+import {
+  FaFile,
+  FaFolder,
+  FaEye,
+  FaTrashAlt,
+  FaDownload,
+} from "react-icons/fa";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { Paginated } from ".";
-
 
 export function Browser({
   initialPath,
@@ -137,6 +142,13 @@ function FileCard({ file }: { file: any }) {
               Preview
             </Button>
             <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
+            <Button
+              onClick={() => {
+                console.log("File", file);
+              }}
+              variant="link"
+              icon={<FaDownload />}
+            />
           </div>
         </CardBody>
       </Card>
