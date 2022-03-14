@@ -4,11 +4,13 @@ import {
   BreadcrumbItem,
   Split,
   SplitItem,
+  Button,
 } from "@patternfly/react-core";
 import { FaFolderOpen } from "react-icons/fa";
 import { Browser } from "./Browser";
 
 import useFetchResources from "./useFetchResources";
+import BreadcrumbContainer from "./BreadcrumbContainer";
 
 const UploadsBrowser = () => {
   const {
@@ -20,52 +22,21 @@ const UploadsBrowser = () => {
     files,
     folders,
     resetPaginated,
+    previewAll,
+    togglePreview,
   } = useFetchResources("uploads");
-
-  const initialPathSplit = initialPath.split("/");
 
   return (
     <React.Fragment>
-      <Breadcrumb>
-        {initialPathSplit.map((path: string, index) => {
-          return (
-            <BreadcrumbItem
-              to={index !== 0 ? "#" : undefined}
-              onClick={() => {
-                resetPaginated(path);
-                if (index === initialPathSplit.length - 1) {
-                  return;
-                }
-                if (index === 0) {
-                  return;
-                } else {
-                  const newPath = initialPath.split(`/${path}`);
-                  handleFolderClick(`${newPath[0]}/${path}`, {
-                    hasNext: false,
-                    limit: 50,
-                    offset: 0,
-                  });
-                }
-              }}
-              key={path}
-            >
-              {path}
-            </BreadcrumbItem>
-          );
-        })}
-      </Breadcrumb>
-      {files.length > 0 && (
-        <Split>
-          <SplitItem>
-            <h2>
-              <FaFolderOpen />
-
-              {folderDetails.currentFolder}
-            </h2>
-            <h3>{folderDetails.totalCount} items</h3>
-          </SplitItem>
-        </Split>
-      )}
+      <BreadcrumbContainer
+        initialPath={initialPath}
+        resetPaginated={resetPaginated}
+        handleFolderClick={handleFolderClick}
+        files={files}
+        folderDetails={folderDetails}
+        browserType="uploads"
+        togglePreview={togglePreview}
+      />
       <Browser
         initialPath={initialPath}
         files={files}
@@ -74,6 +45,7 @@ const UploadsBrowser = () => {
         paginated={paginated}
         handlePagination={handlePagination}
         resetPaginated={resetPaginated}
+        previewAll={previewAll}
       />
     </React.Fragment>
   );
