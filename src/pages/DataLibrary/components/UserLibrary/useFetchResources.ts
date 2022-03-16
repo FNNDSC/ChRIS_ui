@@ -19,6 +19,7 @@ const useFetchResources = (browserType: string) => {
   }>({});
   const [initialPath, setInitialPath] = React.useState("");
   const [previewAll, setPreviewAll] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     async function fetchUploads() {
@@ -26,6 +27,7 @@ const useFetchResources = (browserType: string) => {
         const client = ChrisAPIClient.getClient();
         let uploads;
         let path;
+        setLoading(true);
         if (browserType === "feed") {
           path = `${username}`;
           uploads = await client.getFileBrowserPaths({
@@ -64,6 +66,7 @@ const useFetchResources = (browserType: string) => {
             setSubFolders(folders);
           }
         }
+        setLoading(false);
       }
     }
 
@@ -85,6 +88,7 @@ const useFetchResources = (browserType: string) => {
           limit: 50,
           offset: 0,
         };
+    setLoading(true);
 
     const uploads = await client.getFileBrowserPaths({
       path: path,
@@ -151,6 +155,7 @@ const useFetchResources = (browserType: string) => {
         });
       }
     }
+    setLoading(false);
   };
 
   const handlePagination = (path: string) => {
@@ -163,6 +168,28 @@ const useFetchResources = (browserType: string) => {
       },
     });
     handleFolderClick(path);
+  };
+
+  const handleAddFolder = (folderName: string) => {
+    const newFolders = [...folders, folderName];
+    setSubFolders(newFolders);
+  };
+
+  const handleDelete = async (path: string, folderName: string) => {
+    const client = ChrisAPIClient.getClient();
+    const paths = await client.getFileBrowserPath(path);
+    const fileList = await paths.getFiles({
+      limit: 1000,
+      offset: 0,
+    });
+    const files = fileList.getItems();
+    if (files) {
+      files.map(async (file: any) => {
+        await file._delete();
+      });
+    }
+    const newFolders = folders.filter((folder) => folder !== folderName);
+    setSubFolders(newFolders);
   };
 
   const resetPaginated = (path: string) => {
@@ -181,11 +208,14 @@ const useFetchResources = (browserType: string) => {
     folders,
     paginated,
     handlePagination,
+    loading,
     handleFolderClick,
     folderDetails,
     resetPaginated,
     togglePreview,
     previewAll,
+    handleDelete,
+    handleAddFolder,
   };
 };
 

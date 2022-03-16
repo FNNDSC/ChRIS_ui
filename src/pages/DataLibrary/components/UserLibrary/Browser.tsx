@@ -23,16 +23,7 @@ import {
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { Paginated } from ".";
 
-export function Browser({
-  initialPath,
-  handleFolderClick,
-  folders,
-  files,
-  paginated,
-  handlePagination,
-  resetPaginated,
-  previewAll,
-}: {
+interface BrowserInterface {
   initialPath: string;
   handleFolderClick: (path: string) => void;
   folders: string[];
@@ -43,7 +34,20 @@ export function Browser({
   handlePagination: (path: string) => void;
   resetPaginated: (path: string) => void;
   previewAll: boolean;
-}) {
+  handleDelete: (path: string, folder: string) => void;
+}
+
+export function Browser({
+  initialPath,
+  handleFolderClick,
+  folders,
+  files,
+  paginated,
+  handlePagination,
+  resetPaginated,
+  previewAll,
+  handleDelete,
+}: BrowserInterface) {
   return (
     <Grid hasGutter>
       {files.length > 0
@@ -60,6 +64,7 @@ export function Browser({
                 <FolderCard
                   initialPath={initialPath}
                   handleFolderClick={handleFolderClick}
+                  handleDelete={handleDelete}
                   key={index}
                   folder={folder}
                 />
@@ -157,15 +162,19 @@ function FileCard({ file, previewAll }: { file: any; previewAll: boolean }) {
   );
 }
 
+interface FolderCardInterface {
+  initialPath: string;
+  folder: string;
+  handleFolderClick: (path: string) => void;
+  handleDelete: (path: string, folder: string) => void;
+}
+
 function FolderCard({
   initialPath,
   folder,
   handleFolderClick,
-}: {
-  initialPath: string;
-  folder: string;
-  handleFolderClick: (path: string) => void;
-}) {
+  handleDelete,
+}: FolderCardInterface) {
   const [dropdown, setDropdown] = useState(false);
   const toggle = (
     <KebabToggle
@@ -188,20 +197,10 @@ function FolderCard({
             }}
             dropdownItems={[
               <DropdownItem
-                key="view"
-                component="button"
-                onClick={() => {
-                  console.log("Test");
-                }}
-              >
-                <FaEye />
-                {pad} View
-              </DropdownItem>,
-              <DropdownItem
                 key="delete"
                 component="button"
                 onClick={() => {
-                  console.log("Test");
+                  handleDelete(`${initialPath}/${folder}`, folder);
                 }}
               >
                 <FaTrashAlt />

@@ -1,6 +1,7 @@
 import React from "react";
 import BreadcrumbContainer from "./BreadcrumbContainer";
 import { Browser } from "./Browser";
+import SpinAlert from "./Spin";
 import useFetchResources from "./useFetchResources";
 
 const FeedsBrowser = () => {
@@ -15,6 +16,8 @@ const FeedsBrowser = () => {
     resetPaginated,
     previewAll,
     togglePreview,
+    loading,
+    handleDelete,
   } = useFetchResources("feed");
 
   return (
@@ -27,20 +30,26 @@ const FeedsBrowser = () => {
         folderDetails={folderDetails}
         browserType="feeds"
         togglePreview={togglePreview}
-      />
-
-      <Browser
-        initialPath={initialPath}
-        files={files}
-        folders={folders}
-        handleFolderClick={handleFolderClick}
-        paginated={paginated}
-        handlePagination={handlePagination}
-        resetPaginated={resetPaginated}
         previewAll={previewAll}
       />
+
+      {loading ? (
+        <SpinAlert browserType="feeds" />
+      ) : (
+        <Browser
+          initialPath={initialPath}
+          files={files}
+          folders={folders}
+          handleFolderClick={handleFolderClick}
+          paginated={paginated}
+          handlePagination={handlePagination}
+          resetPaginated={resetPaginated}
+          previewAll={previewAll}
+          handleDelete={handleDelete}
+        />
+      )}
     </React.Fragment>
   );
 };
 
-export default React.memo(FeedsBrowser);
+export default FeedsBrowser;

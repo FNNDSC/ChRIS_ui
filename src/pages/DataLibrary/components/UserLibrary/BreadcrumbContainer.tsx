@@ -16,6 +16,7 @@ const BreadcrumbContainer = ({
   folderDetails,
   browserType,
   togglePreview,
+  previewAll,
 }: {
   initialPath: string;
   resetPaginated: (path: string) => void;
@@ -27,6 +28,7 @@ const BreadcrumbContainer = ({
   };
   browserType: string;
   togglePreview: () => void;
+  previewAll: boolean;
 }) => {
   const initialPathSplit = initialPath.split("/");
   return (
@@ -94,7 +96,7 @@ const BreadcrumbContainer = ({
                 togglePreview();
               }}
             >
-              Preview All
+              {previewAll ? "Hide All Previews" : "Preview All"}
             </Button>
           </SplitItem>
         </Split>
