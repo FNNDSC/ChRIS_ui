@@ -13,15 +13,11 @@ import {
   KebabToggle,
   DropdownItem,
 } from "@patternfly/react-core";
-import {
-  FaFile,
-  FaFolder,
-  FaEye,
-  FaTrashAlt,
-  FaDownload,
-} from "react-icons/fa";
+import { FaFile, FaFolder, FaTrashAlt, FaDownload } from "react-icons/fa";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { Paginated } from ".";
+import ChrisAPIClient from "../../../../api/chrisapiclient";
+import FileViewerModel from "../../../../api/models/file-viewer.model";
 
 interface BrowserInterface {
   initialPath: string;
@@ -44,7 +40,7 @@ export function Browser({
   files,
   paginated,
   handlePagination,
-  resetPaginated,
+
   previewAll,
   handleDelete,
 }: BrowserInterface) {
@@ -141,16 +137,11 @@ function FileCard({ file, previewAll }: { file: any; previewAll: boolean }) {
           <div>
             <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
             <Button
-              onClick={() => {
-                const url = file.url;
-                const nameSplit = file.data.fname.split("/");
-                const name = nameSplit[nameSplit.length - 1];
-                const link = document.createElement("a");
-                link.href = `${url}/${name}`;
-                link.setAttribute("download", fileName);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+              onClick={async () => {
+                const blob = await file.getFileBlob();
+                const fileNameList = file.data.fname.split("/");
+                const fileName = fileNameList[fileNameList.length - 1];
+                FileViewerModel.downloadFile(blob, fileName);
               }}
               variant="link"
               icon={<FaDownload />}

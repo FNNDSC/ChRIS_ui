@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTypedSelector } from "../../../../store/hooks";
 import { Paginated } from ".";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
@@ -25,22 +25,28 @@ const useFetchResources = (browserType: string) => {
     async function fetchUploads() {
       if (username) {
         const client = ChrisAPIClient.getClient();
-        let uploads;
-        let path;
+        let uploads: any;
+        let path: string;
         setLoading(true);
         if (browserType === "feed") {
           path = `${username}`;
           uploads = await client.getFileBrowserPaths({
             path,
+            limit: 50,
+            offset: 0,
           });
           setInitialPath(`${path}`);
         } else {
           path = `${username}/uploads`;
           uploads = await client.getFileBrowserPaths({
             path,
+            limit: 50,
+            offset: 0,
           });
           setInitialPath(`${path}`);
         }
+
+        console.log("Uploads", uploads);
 
         if (
           uploads.data &&
@@ -48,13 +54,16 @@ const useFetchResources = (browserType: string) => {
           uploads.data[0].subfolders.length > 0
         ) {
           const folders = uploads.data[0].subfolders.split(",");
-          setPaginated({
-            ...paginated,
-            [path]: {
-              hasNext: uploads.hasNextPage,
-              limit: 50,
-              offset: 0,
-            },
+
+          setPaginated((p) => {
+            return {
+              ...p,
+              [path]: {
+                hasNext: uploads.hasNextPage,
+                limit: 50,
+                offset: 0,
+              },
+            };
           });
 
           if (browserType === "feed") {
@@ -71,7 +80,7 @@ const useFetchResources = (browserType: string) => {
     }
 
     fetchUploads();
-  }, []);
+  }, [browserType, username]);
 
   const togglePreview = () => {
     setPreviewAll(!previewAll);

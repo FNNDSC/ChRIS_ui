@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setSidebarActive } from "../../store/ui/actions";
 
@@ -19,7 +19,7 @@ export const Library: React.FC = () => {
         activeItem: "lib",
       })
     );
-  }, []);
+  }, [dispatch]);
 
   return (
     <div>
