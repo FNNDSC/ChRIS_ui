@@ -4,6 +4,7 @@ import { setSidebarActive } from "../../store/ui/actions";
 
 import Wrapper from "../Layout/PageWrapper";
 import DataLibrary from "./components/UserLibrary/";
+import { LibraryProvider } from "./components/UserLibrary/context";
 
 export type File = string;
 export type Series = File[];
@@ -28,7 +29,9 @@ export const Library: React.FC = () => {
           <div>
             <h1>My Library</h1>
           </div>
-          <DataLibrary />
+          <LibraryProvider>
+            <DataLibrary />
+          </LibraryProvider>
         </article>
       </Wrapper>
     </div>

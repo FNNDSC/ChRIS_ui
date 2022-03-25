@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Grid,
   GridItem,
@@ -12,11 +12,17 @@ import {
   Dropdown,
   KebabToggle,
   DropdownItem,
+  Modal,
 } from "@patternfly/react-core";
-import { FaFile, FaFolder, FaTrashAlt, FaDownload } from "react-icons/fa";
+import {
+  FaFile,
+  FaFolder,
+  FaTrashAlt,
+  FaDownload,
+  FaExpand,
+} from "react-icons/fa";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
-import { Paginated } from ".";
-import ChrisAPIClient from "../../../../api/chrisapiclient";
+import { Paginated } from "./context";
 import FileViewerModel from "../../../../api/models/file-viewer.model";
 
 interface BrowserInterface {
@@ -28,9 +34,11 @@ interface BrowserInterface {
     [key: string]: Paginated;
   };
   handlePagination: (path: string) => void;
-  resetPaginated: (path: string) => void;
+
   previewAll: boolean;
-  handleDelete: (path: string, folder: string) => void;
+  handleDelete?: (path: string, folder: string) => void;
+  handleDownload?: (path: string, folder: string) => void;
+  browserType: string;
 }
 
 export function Browser({
@@ -40,13 +48,14 @@ export function Browser({
   files,
   paginated,
   handlePagination,
-
   previewAll,
   handleDelete,
+  handleDownload,
+  browserType,
 }: BrowserInterface) {
   return (
     <Grid hasGutter>
-      {files.length > 0
+      {files && files.length > 0
         ? files.map((file) => {
             return (
               <GridItem key={file.data.fname} sm={12} lg={4}>
@@ -54,13 +63,17 @@ export function Browser({
               </GridItem>
             );
           })
-        : folders.map((folder, index) => {
+        : folders &&
+          folders.length > 0 &&
+          folders.map((folder, index) => {
             return (
               <GridItem key={`${folder}_${index}`} sm={12} lg={4}>
                 <FolderCard
+                  browserType={browserType}
                   initialPath={initialPath}
                   handleFolderClick={handleFolderClick}
                   handleDelete={handleDelete}
+                  handleDownload={handleDownload}
                   key={index}
                   folder={folder}
                 />
@@ -68,39 +81,27 @@ export function Browser({
             );
           })}
 
-      {files.length > 0 && paginated[initialPath].hasNext == true ? (
-        <GridItem>
-          <Split>
-            <SplitItem isFilled>
-              <Button
-                onClick={() => {
-                  handlePagination(initialPath);
-                }}
-                variant="link"
-              >
-                Read more files
-              </Button>
-            </SplitItem>
-          </Split>
-        </GridItem>
-      ) : folders.length > 0 && paginated[initialPath].hasNext ? (
-        <GridItem>
-          <Split>
-            <SplitItem isFilled>
-              <Button
-                onClick={() => {
-                  handlePagination(initialPath);
-                }}
-                variant="link"
-              >
-                Read more folders
-              </Button>
-            </SplitItem>
-          </Split>
-        </GridItem>
-      ) : (
-        <div></div>
-      )}
+      {files &&
+        files.length > 0 &&
+        Object.keys(paginated).length > 0 &&
+        initialPath &&
+        paginated[initialPath] &&
+        paginated[initialPath].hasNext && (
+          <GridItem>
+            <Split>
+              <SplitItem isFilled>
+                <Button
+                  onClick={() => {
+                    handlePagination(initialPath);
+                  }}
+                  variant="link"
+                >
+                  Read more files
+                </Button>
+              </SplitItem>
+            </Split>
+          </GridItem>
+        )}
     </Grid>
   );
 }
@@ -108,6 +109,7 @@ export function Browser({
 function FileCard({ file, previewAll }: { file: any; previewAll: boolean }) {
   const fileNameArray = file.data.fname.split("/");
   const fileName = fileNameArray[fileNameArray.length - 1];
+  const [largePreview, setLargePreview] = React.useState(false);
 
   return (
     <>
@@ -146,26 +148,50 @@ function FileCard({ file, previewAll }: { file: any; previewAll: boolean }) {
               variant="link"
               icon={<FaDownload />}
             />
+
+            <Button
+              variant="link"
+              onClick={() => {
+                setLargePreview(true);
+              }}
+              icon={<FaExpand />}
+            ></Button>
           </div>
         </CardBody>
+        {largePreview && (
+          <Modal
+            title="Preview"
+            aria-label="viewer"
+            width={"50%"}
+            isOpen={largePreview}
+            onClose={() => setLargePreview(false)}
+          >
+            <FileDetailView selectedFile={file} preview="large" />
+          </Modal>
+        )}
       </Card>
     </>
   );
 }
 
 interface FolderCardInterface {
+  browserType: string;
   initialPath: string;
   folder: string;
   handleFolderClick: (path: string) => void;
-  handleDelete: (path: string, folder: string) => void;
+  handleDelete?: (path: string, folder: string) => void;
+  handleDownload?: (path: string, folder: string) => void;
 }
 
 function FolderCard({
+  browserType,
   initialPath,
   folder,
   handleFolderClick,
   handleDelete,
+  handleDownload,
 }: FolderCardInterface) {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   const [dropdown, setDropdown] = useState(false);
   const toggle = (
     <KebabToggle
@@ -173,51 +199,79 @@ function FolderCard({
       style={{ padding: "0" }}
     />
   );
+
+  React.useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
   const pad = <span style={{ padding: "0 0.25em" }} />;
+
+  const downloadDropdown = (
+    <DropdownItem
+      key="download folder"
+      component="button"
+      onClick={() => {
+        //handleDownload()
+        handleDownload && handleDownload(`${initialPath}/${folder}`, folder);
+      }}
+    >
+      <FaDownload />
+      {pad} Download
+    </DropdownItem>
+  );
+
+  const deleteDropdown = (
+    <DropdownItem
+      key="delete"
+      component="button"
+      onClick={() => {
+        handleDelete && handleDelete(`${initialPath}/${folder}`, folder);
+      }}
+    >
+      <FaTrashAlt />
+      {pad} Delete
+    </DropdownItem>
+  );
+
   return (
-    <Card isHoverable isSelectable isRounded>
-      <CardHeader>
-        <CardActions>
-          <Dropdown
-            isPlain
-            toggle={toggle}
-            isOpen={dropdown}
-            position="right"
-            onSelect={() => {
-              setDropdown(false);
-            }}
-            dropdownItems={[
-              <DropdownItem
-                key="delete"
-                component="button"
+    <div ref={scrollRef}>
+      <Card isHoverable isSelectable isRounded>
+        <CardHeader>
+          <CardActions>
+            <Dropdown
+              isPlain
+              toggle={toggle}
+              isOpen={dropdown}
+              position="right"
+              onSelect={() => {
+                setDropdown(false);
+              }}
+              dropdownItems={
+                browserType == "uploads"
+                  ? [deleteDropdown, downloadDropdown]
+                  : [downloadDropdown]
+              }
+            ></Dropdown>
+          </CardActions>
+          <Split style={{ overflow: "hidden" }}>
+            <SplitItem style={{ marginRight: "1em" }}>
+              <FaFolder />
+            </SplitItem>
+            <SplitItem isFilled>
+              <Button
+                style={{ padding: 0 }}
+                variant="link"
                 onClick={() => {
-                  handleDelete(`${initialPath}/${folder}`, folder);
+                  handleFolderClick(`${initialPath}/${folder}`);
                 }}
               >
-                <FaTrashAlt />
-                {pad} Delete
-              </DropdownItem>,
-            ]}
-          ></Dropdown>
-        </CardActions>
-        <Split style={{ overflow: "hidden" }}>
-          <SplitItem style={{ marginRight: "1em" }}>
-            <FaFolder />
-          </SplitItem>
-          <SplitItem isFilled>
-            <Button
-              style={{ padding: 0 }}
-              variant="link"
-              onClick={() => {
-                handleFolderClick(`${initialPath}/${folder}`);
-              }}
-            >
-              <b>{elipses(folder, 36)}</b>
-            </Button>
-          </SplitItem>
-        </Split>
-      </CardHeader>
-    </Card>
+                <b>{elipses(folder, 36)}</b>
+              </Button>
+            </SplitItem>
+          </Split>
+        </CardHeader>
+      </Card>
+    </div>
   );
 }
 

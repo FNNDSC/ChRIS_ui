@@ -1,12 +1,12 @@
 import React, { useContext } from "react";
-import { Browser } from "./Browser";
 import BreadcrumbContainer from "./BreadcrumbContainer";
+import { Browser } from "./Browser";
 import SpinAlert from "./Spin";
-import { useTypedSelector } from "../../../../store/hooks";
-import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { LibraryContext, Types } from "./context";
+import ChrisAPIClient from "../../../../api/chrisapiclient";
+import { useTypedSelector } from "../../../../store/hooks";
 
-const UploadsBrowser = () => {
+const ServicesBrowser = () => {
   const { state, dispatch } = useContext(LibraryContext);
   const {
     filesState,
@@ -18,16 +18,15 @@ const UploadsBrowser = () => {
     paginated,
   } = state;
   const username = useTypedSelector((state) => state.user.username);
-
-  const files = filesState["uploads"];
-  const folders = foldersState["uploads"];
-  const computedPath = initialPath["uploads"];
+  const files = filesState["services"];
+  const folders = foldersState["services"];
+  const computedPath = initialPath["services"];
 
   React.useEffect(() => {
     async function fetchUploads() {
       if (username) {
         const client = ChrisAPIClient.getClient();
-        const path = `${username}/uploads`;
+        const path = `SERVICES`;
         const uploads = await client.getFileBrowserPaths({
           path,
         });
@@ -35,7 +34,7 @@ const UploadsBrowser = () => {
           type: Types.SET_INITIAL_PATH,
           payload: {
             path,
-            type: "uploads",
+            type: "services",
           },
         });
         dispatch({
@@ -44,17 +43,19 @@ const UploadsBrowser = () => {
             loading: true,
           },
         });
+
         if (
           uploads.data &&
           uploads.data[0].subfolders &&
           uploads.data[0].subfolders.length > 0
         ) {
           const folders = uploads.data[0].subfolders.split(",");
+
           dispatch({
             type: Types.SET_FOLDERS,
             payload: {
               folders,
-              type: "uploads",
+              type: "services",
             },
           });
           dispatch({
@@ -109,28 +110,28 @@ const UploadsBrowser = () => {
       uploads.data[0].subfolders.length > 0
     ) {
       const folders = uploads.data[0].subfolders.split(",");
+      const feedFolders = folders.filter((feed: string) => feed !== "uploads");
       dispatch({
         type: Types.SET_FOLDERS,
         payload: {
-          folders,
-          type: "uploads",
+          folders: feedFolders,
+          type: "services",
         },
       });
       dispatch({
         type: Types.SET_FILES,
         payload: {
           files: [],
-          type: "uploads",
+          type: "services",
         },
       });
       dispatch({
         type: Types.SET_INITIAL_PATH,
         payload: {
           path,
-          type: "uploads",
+          type: "services",
         },
       });
-
       dispatch({
         type: Types.SET_LOADING,
         payload: {
@@ -163,7 +164,7 @@ const UploadsBrowser = () => {
             type: Types.SET_FILES,
             payload: {
               files: sumFiles,
-              type: "uploads",
+              type: "services",
             },
           });
         } else {
@@ -171,7 +172,7 @@ const UploadsBrowser = () => {
             type: Types.SET_FILES,
             payload: {
               files: newFiles,
-              type: "uploads",
+              type: "services",
             },
           });
         }
@@ -179,7 +180,7 @@ const UploadsBrowser = () => {
           type: Types.SET_INITIAL_PATH,
           payload: {
             path,
-            type: "uploads",
+            type: "services",
           },
         });
 
@@ -187,7 +188,7 @@ const UploadsBrowser = () => {
           type: Types.SET_FOLDERS,
           payload: {
             folders: [],
-            type: "uploads",
+            type: "services",
           },
         });
 
@@ -197,8 +198,8 @@ const UploadsBrowser = () => {
         dispatch({
           type: Types.SET_FOLDER_DETAILS,
           payload: {
-            currentFolder,
             totalCount,
+            currentFolder,
           },
         });
       }
@@ -234,64 +235,6 @@ const UploadsBrowser = () => {
     handleFolderClick(path);
   };
 
-  const handleDelete = async (path: string, folderName: string) => {
-    const client = ChrisAPIClient.getClient();
-    const paths = await client.getFileBrowserPath(path);
-    const fileList = await paths.getFiles({
-      limit: 1000,
-      offset: 0,
-    });
-    const files = fileList.getItems();
-    if (files) {
-      files.map(async (file: any) => {
-        await file._delete();
-      });
-    }
-    const newFolders = folders.filter((folder) => folder !== folderName);
-    dispatch({
-      type: Types.SET_FOLDERS,
-      payload: {
-        folders: newFolders,
-        type: "uploads",
-      },
-    });
-  };
-
-  const handleDownload = async (path: string, folderName: string) => {
-    const client = ChrisAPIClient.getClient();
-    const paths = await client.getFileBrowserPath(path);
-    const fileList = await paths.getFiles({
-      limit: 1000,
-      offset: 0,
-    });
-    const files = fileList.getItems();
-    //@ts-ignore
-    const existingDirectoryHandle = await window.showDirectoryPicker();
-    const newDirectoryHandle = await existingDirectoryHandle.getDirectoryHandle(
-      folderName,
-      {
-        create: true,
-      }
-    );
-
-    if (files) {
-      let writable;
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const blob = await file.getFileBlob();
-        const paths = file.data.fname.split("/");
-        const fileName = paths[paths.length - 1];
-        const newFileHandle = await newDirectoryHandle.getFileHandle(fileName, {
-          create: true,
-        });
-        writable = await newFileHandle.createWritable();
-        await writable.write(blob);
-        await writable.close();
-        // Close the file and write the contents to disk.
-      }
-    }
-  };
-
   return (
     <React.Fragment>
       {
@@ -300,14 +243,14 @@ const UploadsBrowser = () => {
           handleFolderClick={handleFolderClick}
           files={files}
           folderDetails={folderDetails}
-          browserType="uploads"
+          browserType="feeds"
           togglePreview={togglePreview}
           previewAll={previewAll}
         />
       }
 
       {loading ? (
-        <SpinAlert browserType="uploads" />
+        <SpinAlert browserType="services" />
       ) : (
         <Browser
           initialPath={computedPath}
@@ -317,13 +260,11 @@ const UploadsBrowser = () => {
           paginated={paginated}
           handlePagination={handlePagination}
           previewAll={previewAll}
-          handleDelete={handleDelete}
-          handleDownload={handleDownload}
-          browserType="uploads"
+          browserType="services"
         />
       )}
     </React.Fragment>
   );
 };
 
-export default UploadsBrowser;
+export default ServicesBrowser;

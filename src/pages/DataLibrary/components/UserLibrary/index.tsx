@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   Split,
   SplitItem,
@@ -14,23 +14,20 @@ import {
 } from "@patternfly/react-core";
 import FeedsBrowser from "./FeedsBrowser";
 import UploadsBrowser from "./UploadsBrowser";
+import ServicesBrowser from "./ServicesBrowser";
 import { FaUpload } from "react-icons/fa";
 import FileUpload from "../../../../components/common/fileupload";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { LocalFile } from "../../../../components/feed/CreateFeed/types";
 import { useTypedSelector } from "../../../../store/hooks";
-import useFetchResources from "./useFetchResources";
-
-export interface Paginated {
-  hasNext: boolean;
-  limit: number;
-  offset: number;
-}
+import { LibraryContext, Types } from "./context";
 
 const DataLibrary = () => {
+  const { state } = useContext(LibraryContext);
   const [uploadFileModal, setUploadFileModal] = React.useState(false);
-  const [files, setLocalFiles] = React.useState<LocalFile[]>([]);
+  const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([]);
   const [directoryName, setDirectoryName] = React.useState("");
+  const { filesState } = state;
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal);
@@ -50,43 +47,64 @@ const DataLibrary = () => {
     <>
       <section>
         <Split>
-          <SplitItem>
-            <h3>Recent Uploads</h3>
-          </SplitItem>
-
           <UploadComponent
             handleFileModal={handleFileModal}
             handleLocalFiles={handleLocalFiles}
             uploadFileModal={uploadFileModal}
             handleDirectoryName={handleDirectoryName}
             directoryName={directoryName}
-            localFiles={files}
+            localFiles={localFiles}
           />
 
-          <SplitItem style={{ margin: "auto 1em" }} isFilled>
-            <hr />
-          </SplitItem>
           <SplitItem>
             <Button icon={<FaUpload />} onClick={handleFileModal}>
-              Upload
+              Upload a folder
             </Button>
           </SplitItem>
         </Split>
-
-        <UploadsBrowser />
       </section>
 
-      <section>
-        <Split>
-          <SplitItem>
-            <h3>Feed Files</h3>
-          </SplitItem>
-          <SplitItem style={{ margin: "auto 1em" }} isFilled>
-            <hr />
-          </SplitItem>
-        </Split>
-        <FeedsBrowser />
-      </section>
+      {filesState && !filesState["feed"] && !filesState["services"] && (
+        <section>
+          <Split>
+            <SplitItem>
+              <h3>Uploaded Files</h3>
+            </SplitItem>
+            <SplitItem style={{ margin: "auto 1em" }} isFilled>
+              <hr />
+            </SplitItem>
+          </Split>
+          <UploadsBrowser />
+        </section>
+      )}
+
+      {filesState && !filesState["uploads"] && !filesState["services"] && (
+        <section>
+          <Split>
+            <SplitItem>
+              <h3>Feed Files</h3>
+            </SplitItem>
+            <SplitItem style={{ margin: "auto 1em" }} isFilled>
+              <hr />
+            </SplitItem>
+          </Split>
+          <FeedsBrowser />
+        </section>
+      )}
+
+      {filesState && !filesState["feed"] && !filesState["uploads"] && (
+        <section>
+          <Split>
+            <SplitItem>
+              <h3>Services Files</h3>
+            </SplitItem>
+            <SplitItem style={{ margin: "auto 1em" }} isFilled>
+              <hr />
+            </SplitItem>
+          </Split>
+          <ServicesBrowser />
+        </section>
+      )}
     </>
   );
 };
@@ -108,11 +126,19 @@ const UploadComponent = ({
   directoryName: string;
   handleDirectoryName: (path: string) => void;
 }) => {
-  const { handleAddFolder } = useFetchResources("uploads");
+  const { dispatch } = useContext(LibraryContext);
   const [warning, setWarning] = React.useState("");
   const username = useTypedSelector((state) => state.user.username);
   const [count, setCount] = React.useState(0);
 
+  const handleAddFolder = (directoryName: string) => {
+    dispatch({
+      type: Types.SET_ADD_FOLDER,
+      payload: {
+        folder: directoryName,
+      },
+    });
+  };
   return (
     <Modal
       title="Upload Files"
