@@ -10,7 +10,7 @@ import { FaFolderOpen } from "react-icons/fa";
 
 const BreadcrumbContainer = ({
   initialPath,
-  resetPaginated,
+
   handleFolderClick,
   files,
   folderDetails,
@@ -19,7 +19,7 @@ const BreadcrumbContainer = ({
   previewAll,
 }: {
   initialPath: string;
-  resetPaginated: (path: string) => void;
+
   handleFolderClick: (path: string, breadcrumb?: any) => void;
   files: any[];
   folderDetails: {
@@ -30,7 +30,7 @@ const BreadcrumbContainer = ({
   togglePreview: () => void;
   previewAll: boolean;
 }) => {
-  const initialPathSplit = initialPath.split("/");
+  const initialPathSplit = initialPath ? initialPath.split("/") : [];
   return (
     <>
       <Breadcrumb>
@@ -39,7 +39,6 @@ const BreadcrumbContainer = ({
             <BreadcrumbItem
               to={index !== 0 || browserType !== "uploads" ? "#" : undefined}
               onClick={() => {
-                resetPaginated(path);
                 if (index === initialPathSplit.length - 1) {
                   return;
                 }
@@ -48,7 +47,6 @@ const BreadcrumbContainer = ({
                 }
 
                 if (index === 0 && browserType === "feeds") {
-                  resetPaginated(path);
                   handleFolderClick(`${path}`, {
                     hasNext: false,
                     limit: 50,
@@ -56,7 +54,7 @@ const BreadcrumbContainer = ({
                   });
                 } else {
                   const newPath = initialPath.split(`/${path}`);
-                  resetPaginated(newPath[0]);
+
                   handleFolderClick(`${newPath[0]}/${path}`, {
                     hasNext: false,
                     limit: 50,
@@ -71,7 +69,7 @@ const BreadcrumbContainer = ({
           );
         })}
       </Breadcrumb>
-      {files.length > 0 && (
+      {files && files.length > 0 && (
         <Split
           style={{
             display: "flex",
