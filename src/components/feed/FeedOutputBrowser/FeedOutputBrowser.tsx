@@ -9,9 +9,9 @@ import {
   EmptyState,
   Title,
   EmptyStateBody,
-  EmptyStateIcon,
   EmptyStateVariant,
 } from "@patternfly/react-core";
+
 
 import { Spin, Alert, Tree } from "antd";
 import PluginViewerModal from "../../detailedView/PluginViewerModal";
@@ -227,7 +227,6 @@ const LoadingFeedBrowser = () => {
 const EmptyStateLoader = () => {
   return (
     <EmptyState variant={EmptyStateVariant.large}>
-      <EmptyStateIcon />
       <Title headingLevel="h4" size="lg" />
       <EmptyStateBody>
         The plugin execution was either cancelled or it finished with error.
