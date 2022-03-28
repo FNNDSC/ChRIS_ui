@@ -79,7 +79,7 @@ const ServicesBrowser = () => {
     }
 
     fetchUploads();
-  }, []);
+  }, [dispatch, username]);
 
   const handleFolderClick = async (path: string, breadcrumb?: any) => {
     const client = ChrisAPIClient.getClient();
