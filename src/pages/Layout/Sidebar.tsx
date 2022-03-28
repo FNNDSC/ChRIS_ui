@@ -43,7 +43,7 @@ const Sidebar: React.FC<AllProps> = ({
             <Link to="/library">My Library</Link>
           </NavItem>
           <NavItem itemId="pacs" isActive={sidebarActiveItem === "pacs"}>
-            <Link to="/library/pacs">PACS</Link>
+            <Link to="/pacs">PACS</Link>
           </NavItem>
         </NavGroup>
 

@@ -1,127 +1,270 @@
-import React, { useCallback, useState } from "react";
-import {
-  EmptyState,
-  EmptyStateIcon,
-  Spinner,
-  Title,
-  EmptyStateBody,
-} from "@patternfly/react-core";
-import { GiCubes } from "react-icons/gi";
+import React, { useContext } from "react";
+import BreadcrumbContainer from "./BreadcrumbContainer";
+import { Browser } from "./Browser";
+import SpinAlert from "./Spin";
+import { LibraryContext, Types } from "./context";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
-import DirectoryTree from "../../../../utils/browser";
-import Browser from "./Browser";
+import { useTypedSelector } from "../../../../store/hooks";
 
-interface ServicesBrowserProps {
-  small?: boolean;
-  showPagination?: boolean;
-  pageLength?: number;
-}
+const ServicesBrowser = () => {
+  const { state, dispatch } = useContext(LibraryContext);
+  const {
+    filesState,
+    foldersState,
+    initialPath,
+    folderDetails,
+    previewAll,
+    loading,
+    paginated,
+  } = state;
+  const username = useTypedSelector((state) => state.user.username);
+  const files = filesState["services"];
+  const folders = foldersState["services"];
+  const computedPath = initialPath["services"];
 
-const client = ChrisAPIClient.getClient();
-
-export const ServicesBrowser: React.FC<ServicesBrowserProps> = ({
-  pageLength,
-}: ServicesBrowserProps) => {
-  document.title = "Services | My Library";
-  const PAGE_LENGTH = pageLength || 15;
-
-  const [services, setServices] = useState<DirectoryTree>();
-
-  const [pages, setPages] = useState<number[]>([0]);
-  const [currentPage, setCurrentPage] = useState<number>(0);
-
-  const fetchCurrentPage = useCallback(async () => {
-    const current = pages[currentPage];
-    const params = { limit: 100, offset: current, fname_nslashes: "5u" };
-
-    try {
-      let items: any[] = [];
-      let repeat = false;
-
-      // Keep fetching files with an increasing offset
-      // until the DirectoryTree to show currently has enough children.
-      do {
-        const services = await client.getServiceFiles(params);
-        const pacs = await client.getPACSFiles({
-          ...params,
-          fname_nslashes: "6u",
+  React.useEffect(() => {
+    async function fetchUploads() {
+      if (username) {
+        const client = ChrisAPIClient.getClient();
+        const path = `SERVICES`;
+        const uploads = await client.getFileBrowserPaths({
+          path,
         });
-        items = [...(pacs.getItems() || []), ...(services.getItems() || [])];
+        dispatch({
+          type: Types.SET_INITIAL_PATH,
+          payload: {
+            path,
+            type: "services",
+          },
+        });
+        dispatch({
+          type: Types.SET_LOADING,
+          payload: {
+            loading: true,
+          },
+        });
 
-        const directory = DirectoryTree.fromPathList(items).child("SERVICES");
+        if (
+          uploads.data &&
+          uploads.data[0].subfolders &&
+          uploads.data[0].subfolders.length > 0
+        ) {
+          const folders = uploads.data[0].subfolders.split(",");
 
-        // decide whether to repeat if there exist more files and we dont
-        // have enough children to show yet.
-        repeat =
-          (services.hasNextPage || pacs.hasNextPage) &&
-          directory.dir.length < PAGE_LENGTH;
-        params.offset += params.limit;
+          dispatch({
+            type: Types.SET_FOLDERS,
+            payload: {
+              folders,
+              type: "services",
+            },
+          });
+          dispatch({
+            type: Types.SET_PAGINATION,
+            payload: {
+              path,
+              hasNext: uploads.hasNextPage,
+              limit: 50,
+              offset: 0,
+            },
+          });
 
-        setServices(directory);
-      } while (repeat);
-
-      // Before leaving, set the end offset for next time for pagination.
-      setPages([...pages, params.offset]);
-      setCurrentPage(currentPage + 1);
-    } catch (error) {
-      console.error(error);
+          dispatch({
+            type: Types.SET_LOADING,
+            payload: {
+              loading: false,
+            },
+          });
+        }
+      }
     }
-  }, [PAGE_LENGTH, currentPage, pages]);
 
-  const nextPage = () => {
-    setServices(undefined);
-    fetchCurrentPage();
+    fetchUploads();
+  }, [dispatch, username]);
+
+  const handleFolderClick = async (path: string, breadcrumb?: any) => {
+    const client = ChrisAPIClient.getClient();
+    const pagination = breadcrumb
+      ? breadcrumb
+      : paginated[path]
+      ? paginated[path]
+      : {
+          hasNext: false,
+          limit: 50,
+          offset: 0,
+        };
+    dispatch({
+      type: Types.SET_LOADING,
+      payload: {
+        loading: true,
+      },
+    });
+
+    const uploads = await client.getFileBrowserPaths({
+      path,
+      ...pagination,
+    });
+
+    if (
+      uploads.data &&
+      uploads.data[0].subfolders &&
+      uploads.data[0].subfolders.length > 0
+    ) {
+      const folders = uploads.data[0].subfolders.split(",");
+      const feedFolders = folders.filter((feed: string) => feed !== "uploads");
+      dispatch({
+        type: Types.SET_FOLDERS,
+        payload: {
+          folders: feedFolders,
+          type: "services",
+        },
+      });
+      dispatch({
+        type: Types.SET_FILES,
+        payload: {
+          files: [],
+          type: "services",
+        },
+      });
+      dispatch({
+        type: Types.SET_INITIAL_PATH,
+        payload: {
+          path,
+          type: "services",
+        },
+      });
+      dispatch({
+        type: Types.SET_LOADING,
+        payload: {
+          loading: false,
+        },
+      });
+    } else {
+      const pathList = await client.getFileBrowserPath(path);
+      const fileList = await pathList.getFiles({
+        limit: pagination.limit,
+        offset: pagination.offset,
+      });
+
+      dispatch({
+        type: Types.SET_PAGINATION,
+        payload: {
+          path,
+          limit: pagination.limit,
+          offset: pagination.offset,
+          hasNext: fileList.hasNextPage,
+        },
+      });
+
+      if (fileList) {
+        const newFiles = fileList.getItems();
+
+        if (files && files.length > 0 && newFiles) {
+          const sumFiles = [...files, ...newFiles];
+          dispatch({
+            type: Types.SET_FILES,
+            payload: {
+              files: sumFiles,
+              type: "services",
+            },
+          });
+        } else {
+          dispatch({
+            type: Types.SET_FILES,
+            payload: {
+              files: newFiles,
+              type: "services",
+            },
+          });
+        }
+        dispatch({
+          type: Types.SET_INITIAL_PATH,
+          payload: {
+            path,
+            type: "services",
+          },
+        });
+
+        dispatch({
+          type: Types.SET_FOLDERS,
+          payload: {
+            folders: [],
+            type: "services",
+          },
+        });
+
+        const currentFolderSplit = path.split("/");
+        const currentFolder = currentFolderSplit[currentFolderSplit.length - 1];
+        const totalCount = fileList.totalCount;
+        dispatch({
+          type: Types.SET_FOLDER_DETAILS,
+          payload: {
+            totalCount,
+            currentFolder,
+          },
+        });
+      }
+      dispatch({
+        type: Types.SET_LOADING,
+        payload: {
+          loading: false,
+        },
+      });
+    }
   };
 
-  const prevPage = () => {
-    if (currentPage > 0) setCurrentPage(currentPage - 1);
-
-    nextPage();
+  const togglePreview = () => {
+    dispatch({
+      type: Types.SET_PREVIEW_ALL,
+      payload: {
+        previewAll: !previewAll,
+      },
+    });
   };
 
-  if (!services)
-    return (
-      <EmptyState>
-        <EmptyStateIcon variant="container" component={Spinner} />
-        <Title size="lg" headingLevel="h4">
-          Loading
-        </Title>
-      </EmptyState>
-    );
-
-  if (!services.dir.length)
-    return (
-      <EmptyState>
-        <EmptyStateIcon variant="container" component={GiCubes} />
-        <Title size="lg" headingLevel="h4">
-          No Services
-        </Title>
-        <EmptyStateBody>
-          You haven&apos;t pulled from any services yet. <br />
-        </EmptyStateBody>
-      </EmptyState>
-    );
-
-  const fetchServicesDir = async (fname: string) => {
-    const pacs = await client.getPACSFiles({ limit: 10e6, fname });
-    const service = await client.getServiceFiles({ limit: 10e6, fname });
-
-    return DirectoryTree.fileList(
-      [...(pacs.getItems() || []), ...(service.getItems() || [])],
-      fname
-    );
+  const handlePagination = (path: string) => {
+    const offset = (paginated[path].offset += paginated[path].limit);
+    dispatch({
+      type: Types.SET_PAGINATION,
+      payload: {
+        path,
+        offset,
+        hasNext: paginated[path].hasNext,
+        limit: paginated[path].limit,
+      },
+    });
+    handleFolderClick(path);
   };
 
   return (
-    <section>
-      {/* Pagination Controls */}
-      <Browser
-        withHeader
-        name="SERVICES"
-        path="/library/SERVICES"
-        tree={services}
-        fetchFiles={fetchServicesDir}
-      />
-    </section>
+    <React.Fragment>
+      {
+        <BreadcrumbContainer
+          initialPath={computedPath}
+          handleFolderClick={handleFolderClick}
+          files={files}
+          folderDetails={folderDetails}
+          browserType="feeds"
+          togglePreview={togglePreview}
+          previewAll={previewAll}
+        />
+      }
+
+      {loading ? (
+        <SpinAlert browserType="services" />
+      ) : (
+        <Browser
+          initialPath={computedPath}
+          files={files}
+          folders={folders}
+          handleFolderClick={handleFolderClick}
+          paginated={paginated}
+          handlePagination={handlePagination}
+          previewAll={previewAll}
+          browserType="services"
+        />
+      )}
+    </React.Fragment>
   );
 };
+
+export default ServicesBrowser;
