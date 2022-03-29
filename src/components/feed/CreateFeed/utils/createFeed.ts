@@ -72,15 +72,9 @@ export const createFeedInstanceWithDircopy = async (
     dirpath = chrisFiles.map((path: string) => path);
   } else if (localFiles.length > 0 && chrisFiles.length === 0) {
     statusCallback("Compute Paths from local file upload");
-<<<<<<< HEAD
-    const local_upload_path = `${username}/uploads/${
-      data.feedName
-    }/${Date.now()}`;
-=======
     const generateUnique = generatePathForLocalFile(data);
     const path = `${username}/uploads/${generateUnique}`;
     const local_upload_path = localFiles.length > 1 ? `${path}/` : path;
->>>>>>> 536b0ac6a0f1727f581763acabe11c66f29e8e9e
     dirpath.push(local_upload_path);
 
     try {

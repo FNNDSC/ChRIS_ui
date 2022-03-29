@@ -2,7 +2,7 @@ import React from "react";
 import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
 import JSZip from "jszip";
-import { FaCubes } from "react-icons/fa";
+
 import {
   Grid,
   GridItem,
@@ -12,11 +12,7 @@ import {
   EmptyStateBody,
   EmptyStateVariant,
 } from "@patternfly/react-core";
-<<<<<<< HEAD
-=======
 
-
->>>>>>> 536b0ac6a0f1727f581763acabe11c66f29e8e9e
 import { Spin, Alert, Tree } from "antd";
 import PluginViewerModal from "../../detailedView/PluginViewerModal";
 import {
@@ -231,10 +227,6 @@ const LoadingFeedBrowser = () => {
 const EmptyStateLoader = () => {
   return (
     <EmptyState variant={EmptyStateVariant.large}>
-<<<<<<< HEAD
-      <EmptyStateIcon icon={FaCubes} />
-=======
->>>>>>> 536b0ac6a0f1727f581763acabe11c66f29e8e9e
       <Title headingLevel="h4" size="lg" />
       <EmptyStateBody>
         The plugin execution was either cancelled or it finished with error.
