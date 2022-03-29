@@ -17,6 +17,7 @@ import MedviewPage from "./pages/VisualizationPage/MedviewPage";
 import FetalMri from "./pages/VisualizationPage/FetalMri";
 import Collab from "./pages/VisualizationPage/Collab";
 import BrainBrowser from "./pages/VisualizationPage/BrainBrowser";
+import PACSLookup from "./pages/DataLibrary/components/PACSLookup";
 
 interface IState {
   selectData?: Series;
@@ -29,8 +30,8 @@ interface IActions {
 
 export const [State, MainRouterContext] = RouterContext<IState, IActions>({
   state: {
-    selectData: [] as Series
-  }
+    selectData: [] as Series,
+  },
 });
 
 export const MainRouter: React.FC = () => {
@@ -45,7 +46,7 @@ export const MainRouter: React.FC = () => {
 
     clearFeedData: () => {
       setState({ selectData: [] });
-    }
+    },
   };
 
   return (
@@ -67,6 +68,7 @@ export const MainRouter: React.FC = () => {
       <PrivateRoute path="/fetalmri" component={FetalMri} />
       <PrivateRoute path="/brainbrowser" component={BrainBrowser} />
       <PrivateRoute path="/collab" component={Collab} />
+      <PrivateRoute path="/pacs" component={PACSLookup} />
       <Route component={NotFound} />
     </RouterProvider>
   );

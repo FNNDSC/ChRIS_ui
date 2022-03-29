@@ -27,7 +27,6 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 import { DestroyActiveResources } from "../../../store/resources/types";
 import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
 
-import "antd/dist/antd.css";
 
 const ParentComponent = React.lazy(
   () => import("../../../components/feed/FeedTree/ParentComponent")
