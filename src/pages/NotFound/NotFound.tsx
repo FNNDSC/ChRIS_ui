@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import Wrapper from "../Layout/PageWrapper";
+// import Wrapper from "../Layout/PageWrapper";
 import {
   Alert,
   PageSection,
