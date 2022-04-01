@@ -4,9 +4,24 @@ import { Browser } from "./Browser";
 import SpinAlert from "./Spin";
 import { LibraryContext, Types } from "./context";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
-import { useTypedSelector } from "../../../../store/hooks";
+import {
+  setInitialPath,
+  setLoading,
+  setFolders,
+  setFiles,
+  setPagination,
+  setRoot,
+} from "./context/actions";
 
-const FeedsBrowser = () => {
+const BrowserContainer = ({
+  type,
+  path,
+  username,
+}: {
+  type: string;
+  path: string;
+  username?: string | null;
+}) => {
   const { state, dispatch } = useContext(LibraryContext);
   const {
     filesState,
@@ -17,71 +32,49 @@ const FeedsBrowser = () => {
     loading,
     paginated,
   } = state;
-  const username = useTypedSelector((state) => state.user.username);
 
-  const files = filesState["feed"];
-  const folders = foldersState["feed"];
-  const computedPath = initialPath["feed"];
+  const files = filesState[type];
+  const folders = foldersState[type];
+  const computedPath = initialPath[type];
 
   React.useEffect(() => {
     async function fetchUploads() {
-      if (username) {
-        const client = ChrisAPIClient.getClient();
-        const path = `${username}`;
-        const uploads = await client.getFileBrowserPaths({
-          path,
-        });
-        dispatch({
-          type: Types.SET_INITIAL_PATH,
-          payload: {
-            path,
-            type: "feed",
-          },
-        });
-        dispatch({
-          type: Types.SET_LOADING,
-          payload: {
-            loading: true,
-          },
-        });
-        if (
-          uploads.data &&
-          uploads.data[0].subfolders &&
-          uploads.data[0].subfolders.length > 0
-        ) {
-          const folders = uploads.data[0].subfolders.split(",");
-          const feedFolders = folders.filter(
-            (feed: string) => feed !== "uploads"
-          );
-          dispatch({
-            type: Types.SET_FOLDERS,
-            payload: {
-              folders: feedFolders,
-              type: "feed",
-            },
-          });
-          dispatch({
-            type: Types.SET_PAGINATION,
-            payload: {
-              path,
-              hasNext: uploads.hasNextPage,
-              limit: 50,
-              offset: 0,
-            },
-          });
+      const client = ChrisAPIClient.getClient();
+      const uploads = await client.getFileBrowserPaths({
+        path,
+      });
+      dispatch(setInitialPath(path, type));
+      dispatch(setLoading(true));
 
-          dispatch({
-            type: Types.SET_LOADING,
-            payload: {
-              loading: false,
-            },
-          });
+      if (
+        uploads.data &&
+        uploads.data[0].subfolders &&
+        uploads.data[0].subfolders.length > 0
+      ) {
+        let folders;
+        const folderSplit = uploads.data[0].subfolders.split(",");
+
+        if (type === "feed") {
+          folders = folderSplit.filter((feed: string) => feed !== "uploads");
+        } else {
+          folders = folderSplit;
         }
+
+        dispatch(setFolders(folders, type));
+        dispatch(
+          setPagination(path, {
+            hasNext: uploads.hasNextPage,
+            limit: 50,
+            offset: 0,
+          })
+        );
+
+        dispatch(setLoading(false));
       }
     }
 
     fetchUploads();
-  }, [dispatch, username]);
+  }, [dispatch]);
 
   const handleFolderClick = async (path: string, breadcrumb?: any) => {
     const client = ChrisAPIClient.getClient();
@@ -94,12 +87,7 @@ const FeedsBrowser = () => {
           limit: 50,
           offset: 0,
         };
-    dispatch({
-      type: Types.SET_LOADING,
-      payload: {
-        loading: true,
-      },
-    });
+    dispatch(setLoading(true));
 
     const uploads = await client.getFileBrowserPaths({
       path,
@@ -111,35 +99,24 @@ const FeedsBrowser = () => {
       uploads.data[0].subfolders &&
       uploads.data[0].subfolders.length > 0
     ) {
-      const folders = uploads.data[0].subfolders.split(",");
-      const feedFolders = folders.filter((feed: string) => feed !== "uploads");
-      dispatch({
-        type: Types.SET_FOLDERS,
-        payload: {
-          folders: feedFolders,
-          type: "feed",
-        },
-      });
-      dispatch({
-        type: Types.SET_FILES,
-        payload: {
-          files: [],
-          type: "feed",
-        },
-      });
-      dispatch({
-        type: Types.SET_INITIAL_PATH,
-        payload: {
-          path,
-          type: "feed",
-        },
-      });
-      dispatch({
-        type: Types.SET_LOADING,
-        payload: {
-          loading: false,
-        },
-      });
+      let folders;
+      const folderSplit = uploads.data[0].subfolders.split(",");
+
+      if (type === "feed") {
+        folders = folderSplit.filter((feed: string) => feed !== "uploads");
+      } else {
+        folders = folderSplit;
+      }
+      dispatch(setFolders(folders, type));
+      dispatch(setFiles([], type));
+      dispatch(setInitialPath(path, type));
+      dispatch(setLoading(false));
+
+      if (path === username) {
+        dispatch(setRoot(true, type));
+      } else {
+        dispatch(setRoot(false, type));
+      }
     } else {
       const pathList = await client.getFileBrowserPath(path);
       const fileList = await pathList.getFiles({
@@ -162,37 +139,13 @@ const FeedsBrowser = () => {
 
         if (files && files.length > 0 && newFiles) {
           const sumFiles = [...files, ...newFiles];
-          dispatch({
-            type: Types.SET_FILES,
-            payload: {
-              files: sumFiles,
-              type: "feed",
-            },
-          });
-        } else {
-          dispatch({
-            type: Types.SET_FILES,
-            payload: {
-              files: newFiles,
-              type: "feed",
-            },
-          });
+          dispatch(setFiles(sumFiles, type));
+        } else if (newFiles) {
+          dispatch(setFiles(newFiles, type));
         }
-        dispatch({
-          type: Types.SET_INITIAL_PATH,
-          payload: {
-            path,
-            type: "feed",
-          },
-        });
+        dispatch(setInitialPath(path, type));
 
-        dispatch({
-          type: Types.SET_FOLDERS,
-          payload: {
-            folders: [],
-            type: "feed",
-          },
-        });
+        dispatch(setRoot(false, type));
 
         const currentFolderSplit = path.split("/");
         const currentFolder = currentFolderSplit[currentFolderSplit.length - 1];
@@ -205,26 +158,19 @@ const FeedsBrowser = () => {
           },
         });
       }
-      dispatch({
-        type: Types.SET_LOADING,
-        payload: {
-          loading: false,
-        },
-      });
+      dispatch(setLoading(false));
     }
   };
 
   const handlePagination = (path: string) => {
     const offset = (paginated[path].offset += paginated[path].limit);
-    dispatch({
-      type: Types.SET_PAGINATION,
-      payload: {
-        path,
+    dispatch(
+      setPagination(path, {
         offset,
         hasNext: paginated[path].hasNext,
         limit: paginated[path].limit,
-      },
-    });
+      })
+    );
     handleFolderClick(path);
   };
 
@@ -306,4 +252,4 @@ const FeedsBrowser = () => {
   );
 };
 
-export default FeedsBrowser;
+export default React.memo(BrowserContainer);
