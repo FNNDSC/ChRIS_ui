@@ -25,10 +25,15 @@ interface LibraryState {
   };
   previewAll: boolean;
   loading: boolean;
+  isRoot: {
+    [key: string]: boolean;
+  };
+  initialLoad: boolean;
 }
 
 function getInitialState(): LibraryState {
   return {
+    isRoot: {},
     initialPath: {},
     filesState: {},
     foldersState: {},
@@ -39,6 +44,7 @@ function getInitialState(): LibraryState {
     paginated: {},
     previewAll: false,
     loading: false,
+    initialLoad: false,
   };
 }
 
@@ -62,6 +68,7 @@ export enum Types {
   SET_FOLDER_DETAILS = "SET_FOLDER_DETAILS",
   SET_PREVIEW_ALL = "SET_PREVIEW_ALL",
   SET_ADD_FOLDER = "SET_ADD_FOLDER",
+  SET_ROOT = "SET_ROOT",
 }
 
 type LibraryPayload = {
@@ -97,6 +104,10 @@ type LibraryPayload = {
 
   [Types.SET_ADD_FOLDER]: {
     folder: string;
+  };
+  [Types.SET_ROOT]: {
+    isRoot: boolean;
+    type: string;
   };
 };
 
@@ -199,6 +210,16 @@ export const libraryReducer = (
         foldersState: {
           ...state.foldersState,
           [path]: [...state.foldersState[path], action.payload.folder],
+        },
+      };
+    }
+
+    case Types.SET_ROOT: {
+      return {
+        ...state,
+        isRoot: {
+          ...state.isRoot,
+          [action.payload.type]: action.payload.isRoot,
         },
       };
     }

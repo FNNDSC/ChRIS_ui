@@ -12,9 +12,7 @@ import {
   ProgressMeasureLocation,
   ProgressVariant,
 } from "@patternfly/react-core";
-import FeedsBrowser from "./FeedsBrowser";
-import UploadsBrowser from "./UploadsBrowser";
-import ServicesBrowser from "./ServicesBrowser";
+import BrowserContainer from "./BrowserContainer";
 import { FaUpload } from "react-icons/fa";
 import FileUpload from "../../../../components/common/fileupload";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
@@ -23,11 +21,16 @@ import { useTypedSelector } from "../../../../store/hooks";
 import { LibraryContext, Types } from "./context";
 
 const DataLibrary = () => {
+  const username = useTypedSelector((state) => state.user.username);
   const { state } = useContext(LibraryContext);
   const [uploadFileModal, setUploadFileModal] = React.useState(false);
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([]);
   const [directoryName, setDirectoryName] = React.useState("");
-  const { filesState } = state;
+  const { filesState, isRoot } = state;
+  console.log("State", state);
+
+  const showFeedBrowser =
+    isRoot["uploads"] && isRoot["services"] && !isRoot["feed"];
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal);
@@ -42,6 +45,52 @@ const DataLibrary = () => {
   const handleDirectoryName = (directoryName: string) => {
     setDirectoryName(directoryName);
   };
+
+  const uploadedFiles = (
+    <section>
+      <Split>
+        <SplitItem>
+          <h3>Uploaded Files</h3>
+        </SplitItem>
+        <SplitItem style={{ margin: "auto 1em" }} isFilled>
+          <hr />
+        </SplitItem>
+      </Split>
+      <BrowserContainer
+        type="uploads"
+        path={`${username}/uploads`}
+        username={username}
+      />
+    </section>
+  );
+
+  const feedFiles = (
+    <section>
+      <Split>
+        <SplitItem>
+          <h3>Feed Files</h3>
+        </SplitItem>
+        <SplitItem style={{ margin: "auto 1em" }} isFilled>
+          <hr />
+        </SplitItem>
+      </Split>
+      <BrowserContainer type="feed" path={`${username}`} username={username} />
+    </section>
+  );
+
+  const servicesFiles = (
+    <section>
+      <Split>
+        <SplitItem>
+          <h3>Services Files</h3>
+        </SplitItem>
+        <SplitItem style={{ margin: "auto 1em" }} isFilled>
+          <hr />
+        </SplitItem>
+      </Split>
+      <BrowserContainer type="services" path={`SERVICES`} username={username} />
+    </section>
+  );
 
   return (
     <>
@@ -64,47 +113,9 @@ const DataLibrary = () => {
         </Split>
       </section>
 
-      {filesState && !filesState["feed"] && !filesState["services"] && (
-        <section>
-          <Split>
-            <SplitItem>
-              <h3>Uploaded Files</h3>
-            </SplitItem>
-            <SplitItem style={{ margin: "auto 1em" }} isFilled>
-              <hr />
-            </SplitItem>
-          </Split>
-          <UploadsBrowser />
-        </section>
-      )}
-
-      {filesState && !filesState["uploads"] && !filesState["services"] && (
-        <section>
-          <Split>
-            <SplitItem>
-              <h3>Feed Files</h3>
-            </SplitItem>
-            <SplitItem style={{ margin: "auto 1em" }} isFilled>
-              <hr />
-            </SplitItem>
-          </Split>
-          <FeedsBrowser />
-        </section>
-      )}
-
-      {filesState && !filesState["feed"] && !filesState["uploads"] && (
-        <section>
-          <Split>
-            <SplitItem>
-              <h3>Services Files</h3>
-            </SplitItem>
-            <SplitItem style={{ margin: "auto 1em" }} isFilled>
-              <hr />
-            </SplitItem>
-          </Split>
-          <ServicesBrowser />
-        </section>
-      )}
+      {uploadedFiles}
+      {feedFiles}
+      {servicesFiles}
     </>
   );
 };

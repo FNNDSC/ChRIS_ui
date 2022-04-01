@@ -191,7 +191,7 @@ function FolderCard({
   handleDelete,
   handleDownload,
 }: FolderCardInterface) {
-  const scrollRef = useRef<HTMLDivElement | null>(null);
+
   const [dropdown, setDropdown] = useState(false);
   const toggle = (
     <KebabToggle
@@ -199,10 +199,6 @@ function FolderCard({
       style={{ padding: "0" }}
     />
   );
-
-  React.useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
 
   const pad = <span style={{ padding: "0 0.25em" }} />;
 
@@ -234,44 +230,42 @@ function FolderCard({
   );
 
   return (
-    <div ref={scrollRef}>
-      <Card isHoverable isSelectable isRounded>
-        <CardHeader>
-          <CardActions>
-            <Dropdown
-              isPlain
-              toggle={toggle}
-              isOpen={dropdown}
-              position="right"
-              onSelect={() => {
-                setDropdown(false);
+    <Card isHoverable isSelectable isRounded>
+      <CardHeader>
+        <CardActions>
+          <Dropdown
+            isPlain
+            toggle={toggle}
+            isOpen={dropdown}
+            position="right"
+            onSelect={() => {
+              setDropdown(false);
+            }}
+            dropdownItems={
+              browserType == "uploads"
+                ? [deleteDropdown, downloadDropdown]
+                : [downloadDropdown]
+            }
+          ></Dropdown>
+        </CardActions>
+        <Split style={{ overflow: "hidden" }}>
+          <SplitItem style={{ marginRight: "1em" }}>
+            <FaFolder />
+          </SplitItem>
+          <SplitItem isFilled>
+            <Button
+              style={{ padding: 0 }}
+              variant="link"
+              onClick={() => {
+                handleFolderClick(`${initialPath}/${folder}`);
               }}
-              dropdownItems={
-                browserType == "uploads"
-                  ? [deleteDropdown, downloadDropdown]
-                  : [downloadDropdown]
-              }
-            ></Dropdown>
-          </CardActions>
-          <Split style={{ overflow: "hidden" }}>
-            <SplitItem style={{ marginRight: "1em" }}>
-              <FaFolder />
-            </SplitItem>
-            <SplitItem isFilled>
-              <Button
-                style={{ padding: 0 }}
-                variant="link"
-                onClick={() => {
-                  handleFolderClick(`${initialPath}/${folder}`);
-                }}
-              >
-                <b>{elipses(folder, 36)}</b>
-              </Button>
-            </SplitItem>
-          </Split>
-        </CardHeader>
-      </Card>
-    </div>
+            >
+              <b>{elipses(folder, 36)}</b>
+            </Button>
+          </SplitItem>
+        </Split>
+      </CardHeader>
+    </Card>
   );
 }
 
