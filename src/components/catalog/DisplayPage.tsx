@@ -158,7 +158,11 @@ const DisplayPage = ({
 
         }}
       >
-        <Title headingLevel="h2">
+        <Title headingLevel="h2"
+          style={{
+            minWidth:"5em",
+          }}
+        >
           {title}
         </Title>
 
