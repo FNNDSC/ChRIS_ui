@@ -26,11 +26,11 @@ const DataLibrary = () => {
   const [uploadFileModal, setUploadFileModal] = React.useState(false);
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([]);
   const [directoryName, setDirectoryName] = React.useState("");
-  const { filesState, isRoot } = state;
-  console.log("State", state);
+  const { isRoot } = state;
 
-  const showFeedBrowser =
-    isRoot["uploads"] && isRoot["services"] && !isRoot["feed"];
+  const rootCheck = Object.keys(isRoot).length > 0;
+
+  console.log("State", state);
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal);
@@ -113,9 +113,17 @@ const DataLibrary = () => {
         </Split>
       </section>
 
-      {uploadedFiles}
-      {feedFiles}
-      {servicesFiles}
+      {!rootCheck
+        ? uploadedFiles
+        : isRoot["uploads"]
+        ? uploadedFiles
+        : undefined}
+      {!rootCheck ? feedFiles : isRoot["feed"] ? feedFiles : undefined}
+      {!rootCheck
+        ? servicesFiles
+        : isRoot["services"]
+        ? servicesFiles
+        : undefined}
     </>
   );
 };

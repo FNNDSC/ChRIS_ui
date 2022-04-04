@@ -24,6 +24,8 @@ import {
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { Paginated } from "./context";
 import FileViewerModel from "../../../../api/models/file-viewer.model";
+import ChrisAPIClient from "../../../../api/chrisapiclient";
+import { Spin } from "antd";
 
 interface BrowserInterface {
   initialPath: string;
@@ -34,11 +36,11 @@ interface BrowserInterface {
     [key: string]: Paginated;
   };
   handlePagination: (path: string) => void;
-
   previewAll: boolean;
   handleDelete?: (path: string, folder: string) => void;
   handleDownload?: (path: string, folder: string) => void;
   browserType: string;
+  username?: string | null;
 }
 
 export function Browser({
@@ -52,6 +54,7 @@ export function Browser({
   handleDelete,
   handleDownload,
   browserType,
+  username,
 }: BrowserInterface) {
   return (
     <Grid hasGutter>
@@ -76,10 +79,33 @@ export function Browser({
                   handleDownload={handleDownload}
                   key={index}
                   folder={folder}
+                  username={username}
                 />
               </GridItem>
             );
           })}
+
+      {folders &&
+        folders.length > 0 &&
+        Object.keys(paginated).length > 0 &&
+        initialPath &&
+        paginated[initialPath] &&
+        paginated[initialPath].hasNext && (
+          <GridItem>
+            <Split>
+              <SplitItem isFilled>
+                <Button
+                  onClick={() => {
+                    handlePagination(initialPath);
+                  }}
+                  variant="link"
+                >
+                  Read more Folders
+                </Button>
+              </SplitItem>
+            </Split>
+          </GridItem>
+        )}
 
       {files &&
         files.length > 0 &&
@@ -181,6 +207,7 @@ interface FolderCardInterface {
   handleFolderClick: (path: string) => void;
   handleDelete?: (path: string, folder: string) => void;
   handleDownload?: (path: string, folder: string) => void;
+  username?: string | null;
 }
 
 function FolderCard({
@@ -190,15 +217,28 @@ function FolderCard({
   handleFolderClick,
   handleDelete,
   handleDownload,
+  username,
 }: FolderCardInterface) {
-
   const [dropdown, setDropdown] = useState(false);
+  const [feedName, setFeedName] = useState("");
   const toggle = (
     <KebabToggle
       onToggle={() => setDropdown(!dropdown)}
       style={{ padding: "0" }}
     />
   );
+
+  React.useEffect(() => {
+    async function fetchFeedName() {
+      if (browserType === "feed" && initialPath === username) {
+        const client = ChrisAPIClient.getClient();
+        const id = folder.split("_")[1];
+        const feed = await client.getFeed(parseInt(id));
+        setFeedName(feed.data.name);
+      }
+    }
+    fetchFeedName();
+  }, []);
 
   const pad = <span style={{ padding: "0 0.25em" }} />;
 
@@ -260,7 +300,17 @@ function FolderCard({
                 handleFolderClick(`${initialPath}/${folder}`);
               }}
             >
-              <b>{elipses(folder, 36)}</b>
+              <b>
+                {browserType === "feed" && initialPath === username ? (
+                  !feedName ? (
+                    <Spin />
+                  ) : (
+                    elipses(feedName, 36)
+                  )
+                ) : (
+                  elipses(folder, 36)
+                )}
+              </b>
             </Button>
           </SplitItem>
         </Split>

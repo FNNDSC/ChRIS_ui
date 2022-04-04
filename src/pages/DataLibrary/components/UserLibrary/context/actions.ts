@@ -28,6 +28,16 @@ export const setFolders = (folders: any[], type: string) => {
     },
   };
 };
+ 
+export const setPaginatedFolders = (folders: any[], path: string) => {
+  return {
+    type: Types.SET_PAGINATED_FOLDERS,
+    payload: {
+      folders,
+      path,
+    },
+  };
+};
 
 export const setFiles = (files: any[], type: string) => {
   return {
@@ -51,7 +61,9 @@ export const setPagination = (
     type: Types.SET_PAGINATION,
     payload: {
       path,
-      pagination,
+      hasNext: pagination.hasNext,
+      limit: pagination.limit,
+      offset: pagination.offset,
     },
   };
 };
