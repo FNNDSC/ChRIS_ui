@@ -40,9 +40,7 @@ const BrowserContainer = ({
   const computedPath = initialPath[type];
   const folders = paginatedFolders[computedPath] || foldersState[computedPath];
 
-  function folderHelp() {
-    console.log("Folders");
-  }
+
 
   React.useEffect(() => {
     async function fetchUploads() {
@@ -52,6 +50,7 @@ const BrowserContainer = ({
       });
       dispatch(setInitialPath(rootPath, type));
       dispatch(setLoading(true));
+      const limit = 30;
 
       if (
         uploads.data &&
@@ -67,8 +66,6 @@ const BrowserContainer = ({
           folders = folderSplit;
         }
 
-        const limit = 30;
-
         dispatch(setFolders(folders, rootPath));
         if (folders.length > 30) {
           const limit = 30;
@@ -82,6 +79,7 @@ const BrowserContainer = ({
             hasNext: folders.length > 30,
             limit,
             offset: 0,
+            totalCount: folders.length,
           })
         );
 
@@ -90,7 +88,7 @@ const BrowserContainer = ({
     }
 
     fetchUploads();
-  }, [dispatch]);
+  }, [dispatch, rootPath, type]);
 
   const handleFolderClick = async (path: string, breadcrumb?: any) => {
     const client = ChrisAPIClient.getClient();
@@ -102,6 +100,7 @@ const BrowserContainer = ({
           hasNext: false,
           limit: 30,
           offset: 0,
+          totalCount: 0,
         };
     dispatch(setLoading(true));
 
@@ -163,15 +162,14 @@ const BrowserContainer = ({
           offset: pagination.offset,
         });
 
-        dispatch({
-          type: Types.SET_PAGINATION,
-          payload: {
-            path,
+        dispatch(
+          setPagination(path, {
             limit: pagination.limit,
             offset: pagination.offset,
             hasNext: fileList.hasNextPage,
-          },
-        });
+            totalCount: fileList.totalCount,
+          })
+        );
 
         if (fileList) {
           const newFiles = fileList.getItems();
@@ -208,6 +206,7 @@ const BrowserContainer = ({
         offset,
         hasNext: paginated[path].hasNext,
         limit: paginated[path].limit,
+        totalCount: paginated[path].totalCount,
       })
     );
     handleFolderClick(path);

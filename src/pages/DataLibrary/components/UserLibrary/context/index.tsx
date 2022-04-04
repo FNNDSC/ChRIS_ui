@@ -4,6 +4,7 @@ export interface Paginated {
   hasNext: boolean;
   limit: number;
   offset: number;
+  totalCount: number;
 }
 
 interface LibraryState {
@@ -93,6 +94,7 @@ type LibraryPayload = {
     hasNext: boolean;
     limit: number;
     offset: number;
+    totalCount: number;
   };
   [Types.SET_PAGINATED_FOLDERS]: {
     folders: string[];
@@ -145,16 +147,17 @@ export const libraryReducer = (
     }
 
     case Types.SET_PAGINATION: {
-      const path = action.payload.path;
+      const { path, hasNext, limit, offset, totalCount } = action.payload;
 
       return {
         ...state,
         paginated: {
           ...state.paginated,
           [path]: {
-            hasNext: action.payload.hasNext,
-            limit: action.payload.limit,
-            offset: action.payload.offset,
+            hasNext,
+            limit,
+            offset,
+            totalCount,
           },
         },
       };

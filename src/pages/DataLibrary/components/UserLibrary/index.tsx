@@ -30,7 +30,7 @@ const DataLibrary = () => {
 
   const rootCheck = Object.keys(isRoot).length > 0;
 
-  console.log("State", state);
+
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal);

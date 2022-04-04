@@ -55,6 +55,7 @@ export const setPagination = (
     hasNext: boolean;
     limit: number;
     offset: number;
+    totalCount: number;
   }
 ) => {
   return {
@@ -64,6 +65,7 @@ export const setPagination = (
       hasNext: pagination.hasNext,
       limit: pagination.limit,
       offset: pagination.offset,
+      totalCount: pagination.totalCount,
     },
   };
 };

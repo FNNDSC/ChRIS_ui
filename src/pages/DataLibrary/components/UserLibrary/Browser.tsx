@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   Grid,
   GridItem,
@@ -238,7 +238,7 @@ function FolderCard({
       }
     }
     fetchFeedName();
-  }, []);
+  }, [browserType, folder, username, initialPath]);
 
   const pad = <span style={{ padding: "0 0.25em" }} />;
 
