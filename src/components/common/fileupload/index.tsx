@@ -60,7 +60,9 @@ const FileUpload = ({
   return (
     <div className={className}>
       <Grid hasGutter={true}>
-        <GridItem span={4} rowSpan={4}>
+        <GridItem span={4} rowSpan={4}
+        style={{minWidth: '9rem',}}
+        >
           <Button
             style={{
               width: "100%",
@@ -71,7 +73,8 @@ const FileUpload = ({
           </Button>
           {uploadName && uploadName}
         </GridItem>
-        <GridItem className={`${className}-grid`} span={8} rowSpan={12}>
+        <GridItem className={`${className}-grid`} span={8} rowSpan={12}
+        style={{marginLeft: '1rem',}}>
           <div className="file-list">{fileList}</div>
         </GridItem>
       </Grid>

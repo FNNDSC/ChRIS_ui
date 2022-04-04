@@ -81,6 +81,7 @@ const DashboardPage = (props: DashboardProps) => {
               body='Visit "My Library" in the main navigation to review your data collection'
               buttonText="Go to My Library"
               buttonLink="/library"
+              className="dashboard-carddisplay"
             />
           </GridItem>
           <GridItem lg={6}>
@@ -97,6 +98,7 @@ const DashboardPage = (props: DashboardProps) => {
               body='Visit "My Analyses" in the main navigation to review your data analyses'
               buttonText="Go to My Analyses"
               buttonLink="/feeds"
+              className="dashboard-carddisplay"
             />
           </GridItem>
           <GridItem lg={6}>

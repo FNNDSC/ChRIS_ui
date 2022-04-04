@@ -282,7 +282,7 @@ const FeedListView: React.FC<AllProps> = ({
           </Table>
         )}
       </PageSection>
-      )
+      
     </React.Fragment>
   );
 };
