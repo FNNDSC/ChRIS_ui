@@ -153,13 +153,15 @@ const DisplayPage = ({
         style={{
           display: "flex",
           justifyContent: "space-between",
+          alignItems: "center",
+          padding: "0.8rem 1rem",
+
         }}
       >
-        <Title
+        <Title headingLevel="h2"
           style={{
-            margin: "0.5em 0 0 1em",
+            minWidth:"5em",
           }}
-          headingLevel="h2"
         >
           {title}
         </Title>
@@ -167,14 +169,12 @@ const DisplayPage = ({
         <div
           style={{
             display: "flex",
+            gap:"1rem",
           }}
         >
           {showPipelineButton && (
             <div>
               <Button
-                style={{
-                  margin: "0.5em 0.5em 0 0",
-                }}
                 onClick={showOpenFile}
               >
                 Upload a Pipeline
@@ -189,9 +189,6 @@ const DisplayPage = ({
             </div>
           )}
           <TextInput
-            style={{
-              margin: "0.5em 0.5em 0 0",
-            }}
             value={search}
             type="text"
             placeholder="Search"
