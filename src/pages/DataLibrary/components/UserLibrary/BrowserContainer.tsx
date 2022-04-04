@@ -10,12 +10,13 @@ import {
   setFolders,
   setFiles,
   setPagination,
+  setPaginatedFolders,
   setRoot,
 } from "./context/actions";
 
 const BrowserContainer = ({
   type,
-  path,
+  path: rootPath,
   username,
 }: {
   type: string;
@@ -31,19 +32,25 @@ const BrowserContainer = ({
     previewAll,
     loading,
     paginated,
+    paginatedFolders,
   } = state;
 
   const files = filesState[type];
-  const folders = foldersState[type];
+
   const computedPath = initialPath[type];
+  const folders = paginatedFolders[computedPath] || foldersState[computedPath];
+
+  function folderHelp() {
+    console.log("Folders");
+  }
 
   React.useEffect(() => {
     async function fetchUploads() {
       const client = ChrisAPIClient.getClient();
       const uploads = await client.getFileBrowserPaths({
-        path,
+        path: rootPath,
       });
-      dispatch(setInitialPath(path, type));
+      dispatch(setInitialPath(rootPath, type));
       dispatch(setLoading(true));
 
       if (
@@ -60,11 +67,20 @@ const BrowserContainer = ({
           folders = folderSplit;
         }
 
-        dispatch(setFolders(folders, type));
+        const limit = 30;
+
+        dispatch(setFolders(folders, rootPath));
+        if (folders.length > 30) {
+          const limit = 30;
+          const folderPaginate = folders.slice(0, limit);
+          dispatch(setPaginatedFolders(folderPaginate, rootPath));
+        } else {
+          dispatch(setPaginatedFolders(folders, rootPath));
+        }
         dispatch(
-          setPagination(path, {
-            hasNext: uploads.hasNextPage,
-            limit: 50,
+          setPagination(rootPath, {
+            hasNext: folders.length > 30,
+            limit,
             offset: 0,
           })
         );
@@ -84,81 +100,104 @@ const BrowserContainer = ({
       ? paginated[path]
       : {
           hasNext: false,
-          limit: 50,
+          limit: 30,
           offset: 0,
         };
     dispatch(setLoading(true));
 
-    const uploads = await client.getFileBrowserPaths({
-      path,
-      ...pagination,
-    });
-
-    if (
-      uploads.data &&
-      uploads.data[0].subfolders &&
-      uploads.data[0].subfolders.length > 0
-    ) {
-      let folders;
-      const folderSplit = uploads.data[0].subfolders.split(",");
-
-      if (type === "feed") {
-        folders = folderSplit.filter((feed: string) => feed !== "uploads");
-      } else {
-        folders = folderSplit;
-      }
-      dispatch(setFolders(folders, type));
+    if (paginatedFolders[path] && foldersState[path].length > 30) {
+      const folders = foldersState[path];
+      const newFolders = folders.slice(
+        pagination.offset,
+        pagination.limit + pagination.offset
+      );
+      const totalFolders = [...newFolders, ...paginatedFolders[path]];
+      dispatch(setPaginatedFolders(totalFolders, path));
+      dispatch(setLoading(false));
       dispatch(setFiles([], type));
       dispatch(setInitialPath(path, type));
-      dispatch(setLoading(false));
-
-      if (path === username) {
+      if (path !== rootPath) {
         dispatch(setRoot(true, type));
       } else {
         dispatch(setRoot(false, type));
       }
     } else {
-      const pathList = await client.getFileBrowserPath(path);
-      const fileList = await pathList.getFiles({
-        limit: pagination.limit,
-        offset: pagination.offset,
+      const uploads = await client.getFileBrowserPaths({
+        path,
+        ...pagination,
       });
 
-      dispatch({
-        type: Types.SET_PAGINATION,
-        payload: {
-          path,
+      if (
+        uploads.data &&
+        uploads.data[0].subfolders &&
+        uploads.data[0].subfolders.length > 0
+      ) {
+        let folders;
+        const folderSplit = uploads.data[0].subfolders.split(",");
+        if (type === "feed") {
+          folders = folderSplit.filter((feed: string) => feed !== "uploads");
+        } else {
+          folders = folderSplit;
+        }
+        dispatch(setFolders(folders, path));
+        if (folders.length > 30) {
+          const limit = 30;
+          const folderPaginate = folders.slice(0, limit);
+          dispatch(setPaginatedFolders(folderPaginate, path));
+        } else {
+          dispatch(setPaginatedFolders(folders, path));
+        }
+        dispatch(setFiles([], type));
+        dispatch(setInitialPath(path, type));
+        dispatch(setLoading(false));
+
+        if (path !== rootPath) {
+          dispatch(setRoot(true, type));
+        } else {
+          dispatch(setRoot(false, type));
+        }
+      } else {
+        const pathList = await client.getFileBrowserPath(path);
+        const fileList = await pathList.getFiles({
           limit: pagination.limit,
           offset: pagination.offset,
-          hasNext: fileList.hasNextPage,
-        },
-      });
+        });
 
-      if (fileList) {
-        const newFiles = fileList.getItems();
-
-        if (files && files.length > 0 && newFiles) {
-          const sumFiles = [...files, ...newFiles];
-          dispatch(setFiles(sumFiles, type));
-        } else if (newFiles) {
-          dispatch(setFiles(newFiles, type));
-        }
-        dispatch(setInitialPath(path, type));
-
-        dispatch(setRoot(false, type));
-
-        const currentFolderSplit = path.split("/");
-        const currentFolder = currentFolderSplit[currentFolderSplit.length - 1];
-        const totalCount = fileList.totalCount;
         dispatch({
-          type: Types.SET_FOLDER_DETAILS,
+          type: Types.SET_PAGINATION,
           payload: {
-            totalCount,
-            currentFolder,
+            path,
+            limit: pagination.limit,
+            offset: pagination.offset,
+            hasNext: fileList.hasNextPage,
           },
         });
+
+        if (fileList) {
+          const newFiles = fileList.getItems();
+
+          if (files && files.length > 0 && newFiles) {
+            const sumFiles = [...files, ...newFiles];
+            dispatch(setFiles(sumFiles, type));
+          } else if (newFiles) {
+            dispatch(setFiles(newFiles, type));
+          }
+          dispatch(setInitialPath(path, type));
+          dispatch(setRoot(true, type));
+          const currentFolderSplit = path.split("/");
+          const currentFolder =
+            currentFolderSplit[currentFolderSplit.length - 1];
+          const totalCount = fileList.totalCount;
+          dispatch({
+            type: Types.SET_FOLDER_DETAILS,
+            payload: {
+              totalCount,
+              currentFolder,
+            },
+          });
+        }
+        dispatch(setLoading(false));
       }
-      dispatch(setLoading(false));
     }
   };
 
@@ -227,7 +266,7 @@ const BrowserContainer = ({
           handleFolderClick={handleFolderClick}
           files={files}
           folderDetails={folderDetails}
-          browserType="feeds"
+          browserType={type}
           togglePreview={togglePreview}
           previewAll={previewAll}
         />
@@ -244,8 +283,9 @@ const BrowserContainer = ({
           paginated={paginated}
           handlePagination={handlePagination}
           previewAll={previewAll}
-          browserType="feeds"
+          browserType={type}
           handleDownload={handleDownload}
+          username={username}
         />
       )}
     </React.Fragment>

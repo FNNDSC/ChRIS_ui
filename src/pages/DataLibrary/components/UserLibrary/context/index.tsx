@@ -28,7 +28,9 @@ interface LibraryState {
   isRoot: {
     [key: string]: boolean;
   };
-  initialLoad: boolean;
+  paginatedFolders: {
+    [key: string]: string[];
+  };
 }
 
 function getInitialState(): LibraryState {
@@ -44,7 +46,7 @@ function getInitialState(): LibraryState {
     paginated: {},
     previewAll: false,
     loading: false,
-    initialLoad: false,
+    paginatedFolders: {},
   };
 }
 
@@ -62,6 +64,7 @@ type ActionMap<M extends { [index: string]: any }> = {
 export enum Types {
   SET_FILES = "SET_FILES",
   SET_FOLDERS = "SET_FOLDERS",
+  SET_PAGINATED_FOLDERS = "SET_PAGINATED_FOLDERS",
   SET_INITIAL_PATH = "SET_INITIAL_PATH",
   SET_PAGINATION = "SET_PAGINATION",
   SET_LOADING = "SET_LOADING",
@@ -90,6 +93,10 @@ type LibraryPayload = {
     hasNext: boolean;
     limit: number;
     offset: number;
+  };
+  [Types.SET_PAGINATED_FOLDERS]: {
+    folders: string[];
+    path: string;
   };
   [Types.SET_LOADING]: {
     loading: false;
@@ -143,6 +150,7 @@ export const libraryReducer = (
       return {
         ...state,
         paginated: {
+          ...state.paginated,
           [path]: {
             hasNext: action.payload.hasNext,
             limit: action.payload.limit,
@@ -186,6 +194,16 @@ export const libraryReducer = (
       };
     }
 
+    case Types.SET_PAGINATED_FOLDERS: {
+      return {
+        ...state,
+        paginatedFolders: {
+          ...state.paginatedFolders,
+          [action.payload.path]: action.payload.folders,
+        },
+      };
+    }
+
     case Types.SET_FOLDER_DETAILS: {
       return {
         ...state,
@@ -215,6 +233,12 @@ export const libraryReducer = (
     }
 
     case Types.SET_ROOT: {
+      if (action.payload.isRoot === false) {
+        return {
+          ...state,
+          isRoot: {},
+        };
+      }
       return {
         ...state,
         isRoot: {
