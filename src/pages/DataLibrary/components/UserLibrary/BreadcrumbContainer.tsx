@@ -46,7 +46,10 @@ const BreadcrumbContainer = ({
                   return;
                 }
 
-                if (index === 0 && browserType === "feeds") {
+                if (
+                  (index === 0 && browserType === "feed") ||
+                  (index === 0 && browserType === "services")
+                ) {
                   handleFolderClick(`${path}`, {
                     hasNext: false,
                     limit: 50,
