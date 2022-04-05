@@ -53,6 +53,10 @@ const FeedDetails = () => {
             {feed && <span> {feed.data.name} </span>}
           </li>
           <li>
+            <small>Feed ID</small>
+            <p>{feed && <span>{feed.data.id}</span>}</p>
+          </li>
+          <li>
             <small>Creator</small>
             <p>
               <FaUserAlt />{" "}
@@ -107,3 +111,4 @@ const FeedDetails = () => {
 };
 
 export default FeedDetails;
+
