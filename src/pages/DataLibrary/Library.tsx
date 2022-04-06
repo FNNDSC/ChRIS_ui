@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setSidebarActive } from "../../store/ui/actions";
-
 import Wrapper from "../Layout/PageWrapper";
 import DataLibrary from "./components/UserLibrary/";
 import { LibraryProvider } from "./components/UserLibrary/context";
@@ -23,18 +22,16 @@ export const Library: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <div>
-      <Wrapper>
-        <article id="user-library">
-          <div>
-            <h1>My Library</h1>
-          </div>
-          <LibraryProvider>
-            <DataLibrary />
-          </LibraryProvider>
-        </article>
-      </Wrapper>
-    </div>
+    <Wrapper>
+      <article id="user-library">
+        <div>
+          <h1>My Library</h1>
+        </div>
+        <LibraryProvider>
+          <DataLibrary />
+        </LibraryProvider>
+      </article>
+    </Wrapper>
   );
 };
 
