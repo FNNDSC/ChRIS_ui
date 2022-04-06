@@ -43,7 +43,7 @@ const Sidebar: React.FC<AllProps> = ({
             <Link to="/library">My Library</Link>
           </NavItem>
           <NavItem itemId="pacs" isActive={sidebarActiveItem === "pacs"}>
-            <Link to="/pacs">PACS</Link>
+            <Link to="/pacs">PACS Query/Retrieve</Link>
           </NavItem>
         </NavGroup>
 
@@ -52,19 +52,19 @@ const Sidebar: React.FC<AllProps> = ({
             itemId="analyses"
             isActive={sidebarActiveItem === "analyses"}
           >
-            <Link to="/feeds">My Analyses</Link>
+            <Link to="/feeds">New and Existing Analyses</Link>
           </NavItem>
           <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
-            <Link to="/catalog">Analysis Catalog</Link>
+            <Link to="/catalog">Plugins and Workflows</Link>
           </NavItem>
           <NavItem
             itemId="workflows"
             isActive={sidebarActiveItem === "workflows"}
           >
-            <Link to="/workflows">Create New Analysis</Link>
+            <Link to="/workflows">Run a Quick Workflow</Link>
           </NavItem>
         </NavGroup>
-        <NavGroup title="Visualize">
+        <NavGroup title="External Visualizers">
           <NavItem
             itemId="visualizations"
             isActive={sidebarActiveItem === "visualizations"}

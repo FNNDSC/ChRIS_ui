@@ -245,11 +245,14 @@ const FeedListView: React.FC<AllProps> = ({
       <PageSection variant={PageSectionVariants.light} className="feed-header">
         <div className="feed-header__split">
           <Title headingLevel="h1" size="3xl">
-            My Analyses
+            New and Existing Analyses
             {totalFeedsCount > 0 ? (
               <span className="feed-header__count">({totalFeedsCount})</span>
             ) : null}
           </Title>
+          <p>
+              All <b>Analyses</b> that you have completed are recorded here. You can easily return to a completed analysis and add more analysis components, or you can create a brand new analysis from scratch.
+          </p>
           <CreateFeedProvider>
             <CreateFeed />
           </CreateFeedProvider>
