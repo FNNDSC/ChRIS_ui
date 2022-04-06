@@ -38,6 +38,7 @@ import { useDispatch } from "react-redux";
 import { setFilesForGallery } from "../../store/explorer/actions";
 import { setSidebarActive } from "../../store/ui/actions";
 import { useDropzone } from "react-dropzone";
+import "./index.scss";
 
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
@@ -146,7 +147,7 @@ const VisualizationPage = () => {
 
   return (
     <Wrapper>
-      <div>
+      <div className="upload-link">
         <Button onClick={showOpenFolder} icon={<AiOutlineUpload />}>
           Upload a Directory
         </Button>
