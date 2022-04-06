@@ -24,6 +24,21 @@ const BadgeStyle = {
   color: "#8b8d8f",
 };
 
+const BadgeStyleLeft = {
+  ...BadgeStyle,
+  marginRight: "0px",
+  marginLeft:"-1rem",
+  minWidth:"30px",
+
+}
+
+const BadgeStyleRight = {
+  ...BadgeStyle,
+  marginRight: "-1rem",
+  marginLeft: "1.50rem",
+  minWidth:"50px",
+}
+
 const Header: React.FC<IHeaderProps> = ({
   onNavToggle,
   user,
