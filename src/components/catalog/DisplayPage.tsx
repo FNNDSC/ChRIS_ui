@@ -335,8 +335,8 @@ const DisplayPage = ({
             {showPipelineButton && (
               <Button
                 style={{
-                  width: "55%",
-                  minWidth: "45%",
+                  width: "fit-content",
+
                 }}
                 onClick={async () => {
                   if (selectedResource.data.locked === true) {
