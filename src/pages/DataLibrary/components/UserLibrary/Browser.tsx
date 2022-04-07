@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   Grid,
   GridItem,
@@ -24,6 +24,8 @@ import {
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { Paginated } from "./context";
 import FileViewerModel from "../../../../api/models/file-viewer.model";
+import ChrisAPIClient from "../../../../api/chrisapiclient";
+import { Spin } from "antd";
 
 interface BrowserInterface {
   initialPath: string;
@@ -34,11 +36,11 @@ interface BrowserInterface {
     [key: string]: Paginated;
   };
   handlePagination: (path: string) => void;
-
   previewAll: boolean;
   handleDelete?: (path: string, folder: string) => void;
   handleDownload?: (path: string, folder: string) => void;
   browserType: string;
+  username?: string | null;
 }
 
 export function Browser({
@@ -52,6 +54,7 @@ export function Browser({
   handleDelete,
   handleDownload,
   browserType,
+  username,
 }: BrowserInterface) {
   return (
     <Grid hasGutter>
@@ -76,10 +79,33 @@ export function Browser({
                   handleDownload={handleDownload}
                   key={index}
                   folder={folder}
+                  username={username}
                 />
               </GridItem>
             );
           })}
+
+      {folders &&
+        folders.length > 0 &&
+        Object.keys(paginated).length > 0 &&
+        initialPath &&
+        paginated[initialPath] &&
+        paginated[initialPath].hasNext && (
+          <GridItem>
+            <Split>
+              <SplitItem isFilled>
+                <Button
+                  onClick={() => {
+                    handlePagination(initialPath);
+                  }}
+                  variant="link"
+                >
+                  Read more Folders
+                </Button>
+              </SplitItem>
+            </Split>
+          </GridItem>
+        )}
 
       {files &&
         files.length > 0 &&
@@ -181,6 +207,7 @@ interface FolderCardInterface {
   handleFolderClick: (path: string) => void;
   handleDelete?: (path: string, folder: string) => void;
   handleDownload?: (path: string, folder: string) => void;
+  username?: string | null;
 }
 
 function FolderCard({
@@ -190,9 +217,10 @@ function FolderCard({
   handleFolderClick,
   handleDelete,
   handleDownload,
+  username,
 }: FolderCardInterface) {
-  const scrollRef = useRef<HTMLDivElement | null>(null);
   const [dropdown, setDropdown] = useState(false);
+  const [feedName, setFeedName] = useState("");
   const toggle = (
     <KebabToggle
       onToggle={() => setDropdown(!dropdown)}
@@ -201,8 +229,16 @@ function FolderCard({
   );
 
   React.useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+    async function fetchFeedName() {
+      if (browserType === "feed" && initialPath === username) {
+        const client = ChrisAPIClient.getClient();
+        const id = folder.split("_")[1];
+        const feed = await client.getFeed(parseInt(id));
+        setFeedName(feed.data.name);
+      }
+    }
+    fetchFeedName();
+  }, [browserType, folder, username, initialPath]);
 
   const pad = <span style={{ padding: "0 0.25em" }} />;
 
@@ -234,44 +270,52 @@ function FolderCard({
   );
 
   return (
-    <div ref={scrollRef}>
-      <Card isHoverable isSelectable isRounded>
-        <CardHeader>
-          <CardActions>
-            <Dropdown
-              isPlain
-              toggle={toggle}
-              isOpen={dropdown}
-              position="right"
-              onSelect={() => {
-                setDropdown(false);
+    <Card isHoverable isSelectable isRounded>
+      <CardHeader>
+        <CardActions>
+          <Dropdown
+            isPlain
+            toggle={toggle}
+            isOpen={dropdown}
+            position="right"
+            onSelect={() => {
+              setDropdown(false);
+            }}
+            dropdownItems={
+              browserType == "uploads"
+                ? [deleteDropdown, downloadDropdown]
+                : [downloadDropdown]
+            }
+          ></Dropdown>
+        </CardActions>
+        <Split style={{ overflow: "hidden" }}>
+          <SplitItem style={{ marginRight: "1em" }}>
+            <FaFolder />
+          </SplitItem>
+          <SplitItem isFilled>
+            <Button
+              style={{ padding: 0 }}
+              variant="link"
+              onClick={() => {
+                handleFolderClick(`${initialPath}/${folder}`);
               }}
-              dropdownItems={
-                browserType == "uploads"
-                  ? [deleteDropdown, downloadDropdown]
-                  : [downloadDropdown]
-              }
-            ></Dropdown>
-          </CardActions>
-          <Split style={{ overflow: "hidden" }}>
-            <SplitItem style={{ marginRight: "1em" }}>
-              <FaFolder />
-            </SplitItem>
-            <SplitItem isFilled>
-              <Button
-                style={{ padding: 0 }}
-                variant="link"
-                onClick={() => {
-                  handleFolderClick(`${initialPath}/${folder}`);
-                }}
-              >
-                <b>{elipses(folder, 36)}</b>
-              </Button>
-            </SplitItem>
-          </Split>
-        </CardHeader>
-      </Card>
-    </div>
+            >
+              <b>
+                {browserType === "feed" && initialPath === username ? (
+                  !feedName ? (
+                    <Spin />
+                  ) : (
+                    elipses(feedName, 36)
+                  )
+                ) : (
+                  elipses(folder, 36)
+                )}
+              </b>
+            </Button>
+          </SplitItem>
+        </Split>
+      </CardHeader>
+    </Card>
   );
 }
 

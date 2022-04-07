@@ -4,6 +4,7 @@ export interface Paginated {
   hasNext: boolean;
   limit: number;
   offset: number;
+  totalCount: number;
 }
 
 interface LibraryState {
@@ -25,10 +26,17 @@ interface LibraryState {
   };
   previewAll: boolean;
   loading: boolean;
+  isRoot: {
+    [key: string]: boolean;
+  };
+  paginatedFolders: {
+    [key: string]: string[];
+  };
 }
 
 function getInitialState(): LibraryState {
   return {
+    isRoot: {},
     initialPath: {},
     filesState: {},
     foldersState: {},
@@ -39,6 +47,7 @@ function getInitialState(): LibraryState {
     paginated: {},
     previewAll: false,
     loading: false,
+    paginatedFolders: {},
   };
 }
 
@@ -56,12 +65,14 @@ type ActionMap<M extends { [index: string]: any }> = {
 export enum Types {
   SET_FILES = "SET_FILES",
   SET_FOLDERS = "SET_FOLDERS",
+  SET_PAGINATED_FOLDERS = "SET_PAGINATED_FOLDERS",
   SET_INITIAL_PATH = "SET_INITIAL_PATH",
   SET_PAGINATION = "SET_PAGINATION",
   SET_LOADING = "SET_LOADING",
   SET_FOLDER_DETAILS = "SET_FOLDER_DETAILS",
   SET_PREVIEW_ALL = "SET_PREVIEW_ALL",
   SET_ADD_FOLDER = "SET_ADD_FOLDER",
+  SET_ROOT = "SET_ROOT",
 }
 
 type LibraryPayload = {
@@ -83,6 +94,11 @@ type LibraryPayload = {
     hasNext: boolean;
     limit: number;
     offset: number;
+    totalCount: number;
+  };
+  [Types.SET_PAGINATED_FOLDERS]: {
+    folders: string[];
+    path: string;
   };
   [Types.SET_LOADING]: {
     loading: false;
@@ -97,6 +113,10 @@ type LibraryPayload = {
 
   [Types.SET_ADD_FOLDER]: {
     folder: string;
+  };
+  [Types.SET_ROOT]: {
+    isRoot: boolean;
+    type: string;
   };
 };
 
@@ -127,15 +147,17 @@ export const libraryReducer = (
     }
 
     case Types.SET_PAGINATION: {
-      const path = action.payload.path;
+      const { path, hasNext, limit, offset, totalCount } = action.payload;
 
       return {
         ...state,
         paginated: {
+          ...state.paginated,
           [path]: {
-            hasNext: action.payload.hasNext,
-            limit: action.payload.limit,
-            offset: action.payload.offset,
+            hasNext,
+            limit,
+            offset,
+            totalCount,
           },
         },
       };
@@ -175,6 +197,16 @@ export const libraryReducer = (
       };
     }
 
+    case Types.SET_PAGINATED_FOLDERS: {
+      return {
+        ...state,
+        paginatedFolders: {
+          ...state.paginatedFolders,
+          [action.payload.path]: action.payload.folders,
+        },
+      };
+    }
+
     case Types.SET_FOLDER_DETAILS: {
       return {
         ...state,
@@ -199,6 +231,22 @@ export const libraryReducer = (
         foldersState: {
           ...state.foldersState,
           [path]: [...state.foldersState[path], action.payload.folder],
+        },
+      };
+    }
+
+    case Types.SET_ROOT: {
+      if (action.payload.isRoot === false) {
+        return {
+          ...state,
+          isRoot: {},
+        };
+      }
+      return {
+        ...state,
+        isRoot: {
+          ...state.isRoot,
+          [action.payload.type]: action.payload.isRoot,
         },
       };
     }
