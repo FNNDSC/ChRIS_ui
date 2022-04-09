@@ -28,7 +28,6 @@ import TreeTwo from "../../assets/images/tree_2.png";
 import TreeThree from "../../assets/images/tree_3.png";
 import TreeFour from "../../assets/images/tree_4.png";
 import "./Dashboard.scss";
-
 interface DashboardProps extends RouteComponentProps {
   children: React.ReactNode;
 }
@@ -71,11 +70,24 @@ const DashboardPage = (props: DashboardProps) => {
             <CardDisplay
               component={
                 <div style={{ display: "flex" }}>
-                  <ImageComponent img={FirstPng} />
+                  {/* <ImageComponent img={FirstPng} />
                   <ImageComponent img={SecondPng} />
                   <ImageComponent img={ThirdPng} />
-                  <ImageComponent img={FourthPng} />
-                </div>
+                  <ImageComponent img={FourthPng} /> */}
+        <div className="slider">
+          <div className="slides">
+            <div  id="slide-1">
+                       <img src={FirstPng} width={"65%"}/>
+            </div>
+            <div id="slide-2">
+                 <img src={SecondPng} width={"65%"}/>
+            </div>
+            <div id="slide-3">   <img src={ThirdPng} width={"65%"}/></div>
+            <div id="slide-4">   <img src={FourthPng} width={"65%"}/></div>
+          </div>
+        </div>
+      </div>
+    
               }
               title="You've got data!"
               body='Visit "My Library" in the main navigation to review your data collection'
@@ -88,11 +100,23 @@ const DashboardPage = (props: DashboardProps) => {
             <CardDisplay
               component={
                 <div style={{ display: "flex" }}>
-                  <ImageComponent img={TreeOne} />
+                  {/* <ImageComponent img={TreeOne} />
                   <ImageComponent img={TreeTwo} />
                   <ImageComponent img={TreeThree} />
-                  <ImageComponent img={TreeFour} />
-                </div>
+                  <ImageComponent img={TreeFour} /> */}
+                  <div className="slider">
+          <div className="slides">
+            <div  id="slide-1">
+                       <img src={TreeOne} width={"300px"}/>
+            </div>
+            <div id="slide-2">
+                 <img src={TreeThree} width={"300px"}/>
+            </div>
+            <div id="slide-3">   <img src={TreeTwo} width={"300px"}/></div>
+            <div id="slide-4">   <img src={TreeFour} width={"300px"}/></div>
+          </div>
+        </div>
+      </div>
               }
               title="You've got analyses!"
               body='Visit "My Analyses" in the main navigation to review your data analyses'

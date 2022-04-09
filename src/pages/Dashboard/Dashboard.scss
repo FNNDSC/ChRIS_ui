@@ -10,3 +10,118 @@
     display: none;
   }
 }
+$background-color_1: rgb(235, 235, 235);
+$background-color_2: #33CC99;
+
+/* CSS for Carousel */
+/* * {
+  box-sizing: border-box;
+}
+
+p {
+  font-size: 40px;
+} */
+/* .author-info {
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 0.75rem;
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  margin: 0;
+}
+.author-info a {
+  color: white;
+} */
+/* img {
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+} */
+/* Don't need button navigation */
+::-webkit-scrollbar {
+  width: .3rem;
+  background-color: $background-color_1;
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: $background-color_2;
+  border-radius: 0;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.slider {
+  width: 100%;
+  text-align: center;
+  overflow: hidden;
+
+  >a {
+    display: inline-flex;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: white;
+    text-decoration: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 0 0.5rem 0;
+    position: relative;
+
+    &:active {
+      top: 1px;
+    }
+
+    &:focus {
+      background: #000;
+    }
+  }
+}
+
+.slides {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: black;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  >div {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    width: 100%;
+    height: 300px;
+    margin-right: 50px;
+    border-radius: 10px;
+    background: #eee;
+    transform-origin: center center;
+    transform: scale(1);
+    transition: transform 0.5s;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 100px;
+  }
+}
