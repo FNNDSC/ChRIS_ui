@@ -42,7 +42,7 @@ const Header: React.FC<IHeaderProps> = ({
     <React.Fragment>
       <Brand src={brandImg} alt="ChRIS Logo" />
       <Badge key={4} style={BadgeStyle}>
-        <span>Version: 3.1.4</span>
+        <span>Version: {process.env.REACT_APP_CHRIS_UI_VERSION} </span>
       </Badge>
       <Badge key={3} style={BadgeStyle}>
         <span>
