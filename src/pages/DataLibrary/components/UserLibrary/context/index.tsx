@@ -113,6 +113,7 @@ type LibraryPayload = {
 
   [Types.SET_ADD_FOLDER]: {
     folder: string;
+    username: string | null | undefined;
   };
   [Types.SET_ROOT]: {
     isRoot: boolean;
@@ -225,11 +226,15 @@ export const libraryReducer = (
     }
 
     case Types.SET_ADD_FOLDER: {
-      const path = "uploads";
+      const path = `${action.payload.username}/uploads`;
       return {
         ...state,
         foldersState: {
           ...state.foldersState,
+          [path]: [...state.foldersState[path], action.payload.folder],
+        },
+        paginatedFolders: {
+          ...state.paginatedFolders,
           [path]: [...state.foldersState[path], action.payload.folder],
         },
       };

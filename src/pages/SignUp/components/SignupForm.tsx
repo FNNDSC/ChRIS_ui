@@ -277,7 +277,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         <Button variant="primary" type="submit">
           {loading ? "Loading...." : "Create Account"}
         </Button>
-        <Link to="/login">Already have an account?</Link>
+            <Button variant="secondary">
+                <Link to="/login">Already have an account?</Link>
+            </Button>
       </ActionGroup>
     </Form>
   );
