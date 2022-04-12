@@ -28,9 +28,9 @@ const DataLibrary = () => {
   const [directoryName, setDirectoryName] = React.useState("");
   const { isRoot } = state;
 
+  console.log("STATE", state);
+
   const rootCheck = Object.keys(isRoot).length > 0;
-
-
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal);
@@ -145,9 +145,9 @@ const UploadComponent = ({
   directoryName: string;
   handleDirectoryName: (path: string) => void;
 }) => {
+  const username = useTypedSelector((state) => state.user.username);
   const { dispatch } = useContext(LibraryContext);
   const [warning, setWarning] = React.useState("");
-  const username = useTypedSelector((state) => state.user.username);
   const [count, setCount] = React.useState(0);
 
   const handleAddFolder = (directoryName: string) => {
@@ -155,6 +155,7 @@ const UploadComponent = ({
       type: Types.SET_ADD_FOLDER,
       payload: {
         folder: directoryName,
+        username,
       },
     });
   };
