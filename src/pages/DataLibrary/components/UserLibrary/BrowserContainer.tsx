@@ -34,12 +34,10 @@ const BrowserContainer = ({
     paginated,
     paginatedFolders,
   } = state;
-
+  
   const files = filesState[type];
-
   const computedPath = initialPath[type];
   const folders = paginatedFolders[computedPath] || foldersState[computedPath];
-
 
 
   React.useEffect(() => {

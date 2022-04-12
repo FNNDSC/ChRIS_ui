@@ -56,8 +56,15 @@ const Header: React.FC<IHeaderProps> = ({
   const brand = (
     <React.Fragment>
       <Brand src={brandImg} alt="ChRIS Logo" />
-       <Badge key={4} style={BadgeStyleLeft}>
-        <span>Version: 3.1.3</span>
+
+      <Badge key={4} style={BadgeStyle}>
+        <span>Version: {process.env.REACT_APP_CHRIS_UI_VERSION} </span>
+      </Badge>
+      <Badge key={3} style={BadgeStyle}>
+        <span>
+          Latest update:{" "}
+          <Moment format="DD MMM YYYY @ HH:mm">{`2022-04-04T13:00:10.297464-04:00`}</Moment>
+        </span>
       </Badge>
     </React.Fragment>
   );
