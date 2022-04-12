@@ -23,7 +23,7 @@ const FooterLinks = (
   <React.Fragment>
     <ListItem>
       <LoginFooterItem href="https://www.fnndsc.org/">
-        Copyright © 2021 Boston Children&apos;s Hospital Fetal-Neonatal
+        Copyright © {new Date().getFullYear()} Boston Children&apos;s Hospital Fetal-Neonatal
         Neuroimaging and Developmental Science Center
       </LoginFooterItem>
     </ListItem>
