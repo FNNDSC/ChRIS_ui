@@ -5,7 +5,7 @@ import { setAuthToken } from "../../../store/user/actions";
 import { withRouter } from "react-router-dom";
 import { RouteComponentProps, useLocation } from "react-router";
 import { useHistory } from "react-router-dom";
-import { LoginForm } from "@patternfly/react-core";
+import { Alert, FormAlert, LoginForm } from "@patternfly/react-core";
 import ChrisApiClient from "@fnndsc/chrisapi";
 import { AiFillExclamationCircle } from "react-icons/ai";
 
@@ -88,8 +88,14 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
   if (showHelperText) {
     helperText = (
       <>
-        <AiFillExclamationCircle />
-        <span> {errorMessage}</span>
+        <FormAlert>
+          <Alert
+            variant="danger"
+            title={errorMessage}
+            aria-live="polite"
+            isInline
+          />
+        </FormAlert>
       </>
     );
   }
