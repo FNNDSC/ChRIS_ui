@@ -52,6 +52,9 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
       <DropdownItem key="dd5" component="a" onClick={onLogout}>
         Sign out
       </DropdownItem>,
+      <DropdownItem key="dd6" component="a" onClick={() => {navigator.clipboard.writeText('chrs --address https://cube.chrisproject.org/api/v1/ login')}}>
+        Copy login command 📝
+      </DropdownItem>,
     ];
     return (
       <Toolbar>

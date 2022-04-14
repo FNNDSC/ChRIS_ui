@@ -29,10 +29,7 @@ import TreeTwo from "../../assets/images/tree_2.png";
 import TreeThree from "../../assets/images/tree_3.png";
 import TreeFour from "../../assets/images/tree_4.png";
 import "./Dashboard.scss";
-<<<<<<< HEAD
-=======
 import Moment from "react-moment";
->>>>>>> 44d887a74e79bb4fe73e5a43e2fc4e5452e57747
 interface DashboardProps extends RouteComponentProps {
   children: React.ReactNode;
 }
