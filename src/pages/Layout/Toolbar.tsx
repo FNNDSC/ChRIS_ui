@@ -18,6 +18,7 @@ import {
 } from "@patternfly/react-core";
 import { pf4UtilityStyles } from "../../lib/pf4-styleguides";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { MdContentCopy } from "react-icons/md";
 
 interface IPropsFromDispatch {
   onDropdownSelect: typeof onDropdownSelect;
@@ -53,7 +54,7 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
         Sign out
       </DropdownItem>,
       <DropdownItem key="dd6" component="a" onClick={() => {navigator.clipboard.writeText('chrs --address https://cube.chrisproject.org/api/v1/ login')}}>
-        Copy login command 📝
+        Copy login command <MdContentCopy />
       </DropdownItem>,
     ];
     return (
