@@ -24,3 +24,19 @@ html, body {
 
     }
 }
+
+@media only screen and (max-width: $breakpoint-mobile){
+    .pf-c-page__header-brand{
+        padding-left:0px;
+        padding: 0.3rem;
+    }
+
+    .pf-c-page__header-brand-toggle{
+    margin: 0 !important;
+    }
+
+    .pf-c-button.pf-m-plain{
+        margin: 0;
+        padding: 0;
+    }
+}
