@@ -72,6 +72,11 @@ const GuidedConfig = ({
       return key !== id;
     });
 
+    const buttonStyle = {
+        display: 'flex',
+        justifyContent: 'center'
+    }
+
     setConfigState({
       ...configState,
       componentList: filteredList,
@@ -197,6 +202,8 @@ const GuidedConfig = ({
             className="configuration__button"
             onClick={addParam}
             variant="primary"
+            style={{display: 'flex',
+            justifyContent: 'center'}}
           >
             Add more parameters
           </Button>
