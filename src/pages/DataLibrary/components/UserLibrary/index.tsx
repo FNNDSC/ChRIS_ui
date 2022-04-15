@@ -11,14 +11,17 @@ import {
   Progress,
   ProgressMeasureLocation,
   ProgressVariant,
+  Accordion, AccordionItem, AccordionContent, AccordionToggle,
 } from "@patternfly/react-core";
 import BrowserContainer from "./BrowserContainer";
 import { FaUpload } from "react-icons/fa";
+import { DiCodeBadge } from "react-icons/di";
 import FileUpload from "../../../../components/common/fileupload";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { LocalFile } from "../../../../components/feed/CreateFeed/types";
 import { useTypedSelector } from "../../../../store/hooks";
 import { LibraryContext, Types } from "./context";
+import { MdContentCopy } from "react-icons/md";
 
 const DataLibrary = () => {
   const username = useTypedSelector((state) => state.user.username);
@@ -30,12 +33,21 @@ const DataLibrary = () => {
 
   const rootCheck = Object.keys(isRoot).length > 0;
 
-
-
+  
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal);
     setLocalFiles([]);
     setDirectoryName("");
+  };
+
+  const [expanded, setExpanded] = React.useState('ex-toggle2');
+
+  const onToggle = (id: string) => {
+    if (id === expanded) {
+      setExpanded('');
+    } else {
+      setExpanded(id);
+    }
   };
 
   const handleLocalFiles = (files: LocalFile[]) => {
@@ -63,7 +75,7 @@ const DataLibrary = () => {
       />
     </section>
   );
-
+    
   const feedFiles = (
     <section>
       <Split>
@@ -106,13 +118,48 @@ const DataLibrary = () => {
           />
 
           <SplitItem>
-            <Button icon={<FaUpload />} onClick={handleFileModal}>
+            <Button icon={<FaUpload />} style ={{margin:"5px"}} onClick={handleFileModal}>
               Upload a folder
             </Button>
+        <Accordion asDefinitionList>
+          <AccordionItem>
+            <AccordionToggle
+              onClick={() => {
+                onToggle('ex-toggle1');
+              }}
+              isExpanded={expanded === 'ex-toggle1'}
+              id="ex-toggle1"
+            >
+              <DiCodeBadge /> Commands
+            </AccordionToggle>
+            <AccordionContent id="ex-expand1" isHidden={expanded !== 'ex-toggle1'}>
+              <p>
+                  # upload some files
+                <h3>chrs upload one_file.txt another_file.txt</h3>
+                  <button 
+              onClick={() =>  navigator.clipboard.writeText('chrs upload one_file.txt another_file.txt')}
+            >
+              < MdContentCopy /> Copy
+            </button>
+              </p>
+              <p>
+                  # upload all files in a directory
+                <h3>chrs upload my_data/</h3>
+                <button 
+              onClick={() =>  navigator.clipboard.writeText('chrs upload my_data/')}
+            >
+            < MdContentCopy /> Copy
+            </button>
+              </p>
+              
+            </AccordionContent>
+          </AccordionItem>
+      </Accordion>
           </SplitItem>
         </Split>
+        
       </section>
-
+      
       {!rootCheck
         ? uploadedFiles
         : isRoot["uploads"]
@@ -129,6 +176,8 @@ const DataLibrary = () => {
 };
 
 export default DataLibrary;
+
+
 
 const UploadComponent = ({
   handleFileModal,
@@ -158,6 +207,8 @@ const UploadComponent = ({
       },
     });
   };
+
+    
   return (
     <Modal
       title="Upload Files"
