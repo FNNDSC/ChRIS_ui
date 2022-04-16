@@ -104,6 +104,7 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
       isValidUsername={isValidUsername}
       passwordLabel="Password"
       passwordValue={passwordValue}
+      isShowPasswordEnabled
       onChangePassword={handlePasswordChange}
       isValidPassword={isValidPassword}
       rememberMeLabel="Keep me logged in for 30 days."
