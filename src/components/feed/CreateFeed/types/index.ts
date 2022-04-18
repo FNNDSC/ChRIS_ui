@@ -249,7 +249,7 @@ export type Info = {
   node: EventNode;
   checked: boolean;
   nativeEvent: MouseEvent;
-  checkedNodes: DataNode[];
+  checkedNodes: DataBreadcrumb[];
   checkedNodesPositions?: {
     node: DataNode;
     pos: string;
