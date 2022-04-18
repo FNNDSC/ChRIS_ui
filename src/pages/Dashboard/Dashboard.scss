@@ -10,3 +10,8 @@
     display: none;
   }
 }
+.image-card{
+  display: "flex";
+  flexdirection:"row";
+  flexwrap:"wrap";
+}

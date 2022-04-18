@@ -70,7 +70,7 @@ const DashboardPage = (props: DashboardProps) => {
           <GridItem style={{ marginBottom: "1rem" }} lg={6}>
             <CardDisplay
               component={
-                <div style={{ display: "flex" }}>
+                <div className="image-card">
                   <ImageComponent img={FirstPng} />
                   <ImageComponent img={SecondPng} />
                   <ImageComponent img={ThirdPng} />
@@ -87,7 +87,7 @@ const DashboardPage = (props: DashboardProps) => {
           <GridItem lg={6}>
             <CardDisplay
               component={
-                <div style={{ display: "flex" }}>
+                <div style={{ display: "flex",flexWrap:"wrap",flexDirection:"row"}}>
                   <ImageComponent img={TreeOne} />
                   <ImageComponent img={TreeTwo} />
                   <ImageComponent img={TreeThree} />
@@ -144,9 +144,9 @@ const CardDisplay = ({
 }) => {
   const history = useHistory();
   return (
-    <Card style={{ overflow: "hidden" }}>
+    <Card style={{ }}>
       <CardHeader
-        style={{ margin: "0 2rem", display: "flex", justifyContent: "center" }}
+        style={{display: "flex" }}
         className={className}
       >
         <CardHeaderMain>{component}</CardHeaderMain>
@@ -170,7 +170,7 @@ const CardDisplay = ({
   );
 };
 
-const styleImg = { marginRight: "1em" };
+const styleImg = { margin: "1em",width:"8rem" };
 
 const ImageComponent = ({ img }: { img: string }) => {
   return <img style={styleImg} src={img} alt="Image for analyses and Data" />;
