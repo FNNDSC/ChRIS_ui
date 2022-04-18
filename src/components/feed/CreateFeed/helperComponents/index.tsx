@@ -25,7 +25,7 @@ export const FileList = ({ file, index }: { file: string; index: number }) => {
             dispatch({
               type: Types.RemoveChrisFile,
               payload: {
-                file: file,
+                file,
                 checkedKeys: [],
               },
             });
