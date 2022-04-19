@@ -33,12 +33,12 @@ const BrowserContainer = ({
     loading,
     paginated,
     paginatedFolders,
+    multipleFileSelect,
   } = state;
-  
+
   const files = filesState[type];
   const computedPath = initialPath[type];
   const folders = paginatedFolders[computedPath] || foldersState[computedPath];
-
 
   React.useEffect(() => {
     async function fetchUploads() {
@@ -283,6 +283,7 @@ const BrowserContainer = ({
           browserType={type}
           handleDownload={handleDownload}
           username={username}
+          multipleFileSelect={multipleFileSelect}
         />
       )}
     </React.Fragment>

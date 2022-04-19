@@ -32,6 +32,8 @@ interface LibraryState {
   paginatedFolders: {
     [key: string]: string[];
   };
+  multipleFileSelect: boolean;
+  fileSelect: string[];
 }
 
 function getInitialState(): LibraryState {
@@ -48,6 +50,8 @@ function getInitialState(): LibraryState {
     previewAll: false,
     loading: false,
     paginatedFolders: {},
+    multipleFileSelect: false,
+    fileSelect: [],
   };
 }
 
@@ -73,6 +77,10 @@ export enum Types {
   SET_PREVIEW_ALL = "SET_PREVIEW_ALL",
   SET_ADD_FOLDER = "SET_ADD_FOLDER",
   SET_ROOT = "SET_ROOT",
+  SET_MULTIPLE_FILE_SELECT = "SET_MULTIPLE_FILE_SELECT",
+  SET_ADD_FILE_SELECT = "SET_ADD_FILE_SELECT",
+  SET_REMOVE_FILE_SELECT = "SET_REMOVE_FILE_SELECT",
+  SET_CLEAR_FILE_SELECT = "SET_CLEAR_FILE_SELECT",
 }
 
 type LibraryPayload = {
@@ -119,6 +127,20 @@ type LibraryPayload = {
     isRoot: boolean;
     type: string;
   };
+  [Types.SET_MULTIPLE_FILE_SELECT]: {
+    active: boolean;
+  };
+
+  [Types.SET_ADD_FILE_SELECT]: {
+    path: string;
+  };
+  [Types.SET_REMOVE_FILE_SELECT]: {
+    path: string;
+  };
+
+  [Types.SET_CLEAR_FILE_SELECT]: {
+    clear: boolean;
+  };
 };
 
 export type LibraryActions =
@@ -144,6 +166,37 @@ export const libraryReducer = (
           ...state.initialPath,
           [action.payload.type]: action.payload.path,
         },
+      };
+    }
+
+    case Types.SET_CLEAR_FILE_SELECT: {
+      return {
+        ...state,
+        fileSelect: [],
+      };
+    }
+
+    case Types.SET_MULTIPLE_FILE_SELECT: {
+      return {
+        ...state,
+        multipleFileSelect: action.payload.active,
+      };
+    }
+
+    case Types.SET_ADD_FILE_SELECT: {
+      return {
+        ...state,
+        fileSelect: [...state.fileSelect, action.payload.path],
+      };
+    }
+
+    case Types.SET_REMOVE_FILE_SELECT: {
+      const newFileSelect = state.fileSelect.filter(
+        (file) => file !== action.payload.path
+      );
+      return {
+        ...state,
+        fileSelect: newFileSelect,
       };
     }
 
