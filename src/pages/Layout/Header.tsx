@@ -58,6 +58,7 @@ const Header: React.FC<IHeaderProps> = ({
   const brand = (
     <React.Fragment>
       <Brand src={brandImg} alt="ChRIS Logo" />
+
       <Badge key={4} style={BadgeStyle}>
         <span>Version: 3.1.6 </span>
       </Badge>
