@@ -9,7 +9,6 @@ import {
   Brand,
   Badge,
 } from "@patternfly/react-core";
-import Moment from "react-moment";
 
 interface IHeaderProps {
   user: IUserState;
@@ -30,13 +29,6 @@ const BadgeStyleLeft = {
   marginLeft:"-1rem",
   minWidth:"30px",
 
-}
-
-const BadgeStyleRight = {
-  ...BadgeStyle,
-  marginRight: "-1rem",
-  marginLeft: "1.50rem",
-  minWidth:"50px",
 }
 
 const Header: React.FC<IHeaderProps> = ({
