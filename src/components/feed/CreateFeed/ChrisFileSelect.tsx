@@ -66,18 +66,24 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
 
   const fetchKeysFromDict: Key[] = React.useMemo(
     () => getCheckedKeys(checkedKeys),
-    [checkedKeys]
+    [checkedKeys, chrisFiles]
   );
 
   const onCheck = (checkedKeys: CheckedKeys, info: Info) => {
     if (info.node.breadcrumb) {
       const path = `${info.node.breadcrumb}`;
+    const { checkedNodes } = info;
+    const newCheckedKeys = checkedNodes.reduce(
+      (acc: Array<string | number>, { breadcrumb, key }) =>
+        breadcrumb?.includes(path) ? acc.concat(key) : acc,
+        []
+      )
       if (info.checked === true)
         dispatch({
           type: Types.AddChrisFile,
           payload: {
             file: path,
-            checkedKeys,
+            checkedKeys: newCheckedKeys,
           },
         });
       else {
@@ -111,17 +117,17 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
           setLoadingError(err);
           resolve();
         });
-        
+
     });
   };
 
   const fileList =
     chrisFiles.length > 0
       ? chrisFiles.map((file: string, index: number) => (
-          <React.Fragment key={index}>
-            <FileList file={file} index={index} />
-          </React.Fragment>
-        ))
+        <React.Fragment key={index}>
+          <FileList file={file} index={index} />
+        </React.Fragment>
+      ))
       : null;
 
   return (
@@ -152,9 +158,9 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
         </GridItem>
       </Grid>
       {
-        loadingError && 
-        <LoadingErrorAlert 
-          error={loadingError} 
+        loadingError &&
+        <LoadingErrorAlert
+          error={loadingError}
           handleClose={() => setLoadingError(undefined)}
         />
       }
@@ -188,8 +194,8 @@ const LoadingErrorAlert: React.FC<LoadingErrorAlertProps> = (props: LoadingError
   const [showDetails, setShowDetails] = useState(false);
 
   const closeButton = (
-    <AlertActionCloseButton 
-      onClose={() => handleClose()} 
+    <AlertActionCloseButton
+      onClose={() => handleClose()}
     />
   );
   const detailsMessage = `${showDetails ? 'Hide' : 'Show'} details`;
@@ -202,14 +208,14 @@ const LoadingErrorAlert: React.FC<LoadingErrorAlertProps> = (props: LoadingError
   const title = (
     <div>
       <span>There was a problem loading your files.</span>
-      { showDetails && <div className="error-details">{ error.message }</div> } 
+      { showDetails && <div className="error-details">{ error.message }</div> }
     </div>
   )
 
   return (
     <Alert
       className="loading-error-alert"
-      variant="danger" 
+      variant="danger"
       isInline
       actionClose={closeButton}
       actionLinks={detailsButton}
