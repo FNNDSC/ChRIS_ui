@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   Grid,
   GridItem,
@@ -22,10 +22,13 @@ import {
   FaExpand,
 } from "react-icons/fa";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
-import { Paginated } from "./context";
+import { LibraryContext, Paginated } from "./context";
 import FileViewerModel from "../../../../api/models/file-viewer.model";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { Spin } from "antd";
+import Checkbox from "antd/lib/checkbox/Checkbox";
+import { Types } from "./context";
+import { initial } from "lodash";
 
 interface BrowserInterface {
   initialPath: string;
@@ -41,6 +44,7 @@ interface BrowserInterface {
   handleDownload?: (path: string, folder: string) => void;
   browserType: string;
   username?: string | null;
+  multipleFileSelect: boolean;
 }
 
 export function Browser({
@@ -55,6 +59,7 @@ export function Browser({
   handleDownload,
   browserType,
   username,
+  multipleFileSelect,
 }: BrowserInterface) {
   return (
     <Grid hasGutter>
@@ -62,7 +67,12 @@ export function Browser({
         ? files.map((file) => {
             return (
               <GridItem key={file.data.fname} sm={12} lg={4}>
-                <FileCard previewAll={previewAll} file={file} />
+                <FileCard
+                  previewAll={previewAll}
+                  file={file}
+                  multipleFileSelect={multipleFileSelect}
+                  initialPath={initialPath}
+                />
               </GridItem>
             );
           })
@@ -80,6 +90,7 @@ export function Browser({
                   key={index}
                   folder={folder}
                   username={username}
+                  multipleFileSelect={multipleFileSelect}
                 />
               </GridItem>
             );
@@ -132,10 +143,23 @@ export function Browser({
   );
 }
 
-function FileCard({ file, previewAll }: { file: any; previewAll: boolean }) {
+function FileCard({
+  file,
+  previewAll,
+  multipleFileSelect,
+  initialPath,
+}: {
+  file: any;
+  previewAll: boolean;
+  multipleFileSelect: boolean;
+  initialPath: string;
+}) {
+  const { dispatch, state } = useContext(LibraryContext);
+  const { fileSelect } = state;
   const fileNameArray = file.data.fname.split("/");
   const fileName = fileNameArray[fileNameArray.length - 1];
   const [largePreview, setLargePreview] = React.useState(false);
+  const path = `${initialPath}/${fileName}`;
 
   return (
     <>
@@ -158,6 +182,24 @@ function FileCard({ file, previewAll }: { file: any; previewAll: boolean }) {
               overflow: "hidden",
             }}
           >
+            {multipleFileSelect && (
+              <Checkbox
+                checked={fileSelect.includes(path)}
+                name={path}
+                onChange={() => {
+                  dispatch({
+                    type: Types.SET_ADD_FILE_SELECT,
+                    payload: {
+                      path,
+                    },
+                  });
+                }}
+                style={{
+                  marginRight: "0.5em",
+                  padding: "0",
+                }}
+              />
+            )}
             <Button icon={<FaFile />} variant="link" style={{ padding: "0" }}>
               <b>{elipses(fileName, 20)}</b>
             </Button>
@@ -167,8 +209,6 @@ function FileCard({ file, previewAll }: { file: any; previewAll: boolean }) {
             <Button
               onClick={async () => {
                 const blob = await file.getFileBlob();
-                const fileNameList = file.data.fname.split("/");
-                const fileName = fileNameList[fileNameList.length - 1];
                 FileViewerModel.downloadFile(blob, fileName);
               }}
               variant="link"
@@ -208,6 +248,7 @@ interface FolderCardInterface {
   handleDelete?: (path: string, folder: string) => void;
   handleDownload?: (path: string, folder: string) => void;
   username?: string | null;
+  multipleFileSelect: boolean;
 }
 
 function FolderCard({
@@ -218,7 +259,10 @@ function FolderCard({
   handleDelete,
   handleDownload,
   username,
+  multipleFileSelect,
 }: FolderCardInterface) {
+  const { dispatch, state } = useContext(LibraryContext);
+  const { fileSelect } = state;
   const [dropdown, setDropdown] = useState(false);
   const [feedName, setFeedName] = useState("");
   const toggle = (
@@ -269,6 +313,7 @@ function FolderCard({
     </DropdownItem>
   );
 
+  const path = `${initialPath}/${folder}`;
   return (
     <Card isHoverable isSelectable isRounded>
       <CardHeader>
@@ -290,6 +335,24 @@ function FolderCard({
         </CardActions>
         <Split style={{ overflow: "hidden" }}>
           <SplitItem style={{ marginRight: "1em" }}>
+            {multipleFileSelect && (
+              <Checkbox
+                checked={fileSelect.includes(path)}
+                name={path}
+                onChange={() => {
+                  dispatch({
+                    type: Types.SET_ADD_FILE_SELECT,
+                    payload: {
+                      path,
+                    },
+                  });
+                }}
+                style={{
+                  marginRight: "0.5em",
+                  padding: "0",
+                }}
+              />
+            )}
             <FaFolder />
           </SplitItem>
           <SplitItem isFilled>
