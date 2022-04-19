@@ -36,10 +36,6 @@ cornerstoneWebImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 
-type GalleryDicomProps = {
-  dispatchFiles?: any[];
-};
-
 const getInitialState = () => {
   return {
     inPlay: false,
@@ -72,7 +68,7 @@ const getInitialState = () => {
   };
 };
 
-const GalleryDicomView = ({ dispatchFiles }: GalleryDicomProps) => {
+const GalleryDicomView = () => {
   const files = useTypedSelector((state) => state.explorer.files);
   const [galleryState, setGalleryState] =
     React.useState<GalleryState>(getInitialState);
