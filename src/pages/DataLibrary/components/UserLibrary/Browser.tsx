@@ -343,36 +343,6 @@ function FolderCard({
           ></Dropdown>
         </CardActions>
         <Split style={{ overflow: "hidden" }}>
-          <SplitItem style={{ marginRight: "0.2em" }}>
-            {multipleFileSelect && (
-              <Checkbox
-                id={path}
-                isChecked={fileSelect.includes(path)}
-                name={path}
-                onChange={(checked: boolean) => {
-                  if (checked) {
-                    dispatch({
-                      type: Types.SET_ADD_FILE_SELECT,
-                      payload: {
-                        path,
-                      },
-                    });
-                  } else {
-                    dispatch({
-                      type: Types.SET_REMOVE_FILE_SELECT,
-                      payload: {
-                        path,
-                      },
-                    });
-                  }
-                }}
-                style={{
-                  marginRight: "0.5em",
-                  padding: "0",
-                }}
-              />
-            )}
-          </SplitItem>
           <SplitItem style={{ marginRight: "1em" }}>
             {multipleFileSelect && (
               <Checkbox
