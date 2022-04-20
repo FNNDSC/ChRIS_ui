@@ -181,6 +181,21 @@ const DataLibrary = () => {
                 multipleFileSelect === true ? " On" : " Off"
               }`}
             </Button>
+            <Button
+              onClick={() => {
+                dispatch({
+                  type: Types.SET_MULTIPLE_FILE_SELECT,
+                  payload: {
+                    active: !multipleFileSelect,
+                  },
+                });
+              }}
+              style={{ marginLeft: "1em" }}
+            >
+              {`Multiple File Select:${
+                multipleFileSelect === true ? " On" : " Off"
+              }`}
+            </Button>
           </SplitItem>
         </Split>
       </section>
