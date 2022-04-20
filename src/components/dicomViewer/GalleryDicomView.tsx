@@ -19,9 +19,7 @@ import * as cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import Hammer from "hammerjs";
 import { useTypedSelector } from "../../store/hooks";
-import { GalleryState, CornerstoneEvent, Image } from "./types";
-import { clearFilesForGallery } from "../../store/explorer/actions";
-import DcmHeader from "./DcmHeader/DcmHeader";
+import { GalleryState, CornerstoneEvent } from "./types";
 import "./GalleryDicomView.scss";
 
 cornerstoneTools.external.cornerstone = cornerstone;
@@ -35,10 +33,6 @@ cornerstoneFileImageLoader.external.cornerstone = cornerstone;
 cornerstoneWebImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
-
-type GalleryDicomProps = {
-  dispatchFiles?: any[];
-};
 
 const getInitialState = () => {
   return {
@@ -72,14 +66,13 @@ const getInitialState = () => {
   };
 };
 
-const GalleryDicomView = ({ dispatchFiles }: GalleryDicomProps) => {
+const GalleryDicomView = () => {
   const files = useTypedSelector((state) => state.explorer.files);
   const [galleryState, setGalleryState] =
     React.useState<GalleryState>(getInitialState);
   const { activeTool, imageIds, tools, inPlay } = galleryState;
 
   const element = React.useRef<HTMLElement | undefined>(undefined);
-  const currentImage = React.useRef<Image | undefined>(undefined);
 
   React.useEffect(() => {
     if (files.length > 0) {

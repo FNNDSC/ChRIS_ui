@@ -9,7 +9,6 @@ import {
   Brand,
   Badge,
 } from "@patternfly/react-core";
-import Moment from "react-moment";
 
 interface IHeaderProps {
   user: IUserState;
@@ -32,12 +31,6 @@ const BadgeStyleLeft = {
 
 }
 
-const BadgeStyleRight = {
-  ...BadgeStyle,
-  marginRight: "-1rem",
-  marginLeft: "1.50rem",
-  minWidth:"50px",
-}
 
 const Header: React.FC<IHeaderProps> = ({
   onNavToggle,
@@ -57,7 +50,9 @@ const Header: React.FC<IHeaderProps> = ({
     <React.Fragment>
       <Brand src={brandImg} alt="ChRIS Logo" />
 
-      <Badge key={4} style={BadgeStyleLeft}>
+
+      <Badge key={4} style={BadgeStyle}>
+
         <span>Version: {process.env.REACT_APP_CHRIS_UI_VERSION} </span>
       </Badge>
       <Badge key={3} style={BadgeStyleRight}>
