@@ -65,11 +65,7 @@ const Header: React.FC<IHeaderProps> = ({
       <Badge key={3} style={BadgeStyle}>
         <span>
           Latest update:{" "}
-<<<<<<< HEAD
           <Moment format="DD MMM YYYY @ HH:mm">{`2022-04-20T10:00:10.297464-04:00`}</Moment>
-=======
-          <Moment format="DD MMM YYYY @ HH:mm">{`2022-04-19T15:00:10.297464-04:00`}</Moment>
->>>>>>> 887e2d7b99537f56f8c4840ba5b2bad7749ab29f
         </span>
       </Badge>
     </React.Fragment>
