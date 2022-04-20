@@ -27,6 +27,9 @@ export const addFeed = (feed: Feed) => action(FeedActionTypes.ADD_FEED, feed);
 
 export const deleteFeed = (feed: Feed) =>
   action(FeedActionTypes.DELETE_FEED, feed);
+  
+export const downloadFeed = (feed: Feed) =>
+  action(FeedActionTypes.DOWNLOAD_FEED, feed);
 
 export const setFeedTreeProp = (orientation: string) =>
   action(FeedActionTypes.GET_FEED_TREE_PROP, orientation);

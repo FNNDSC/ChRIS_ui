@@ -23,7 +23,10 @@ export const initialState: IFeedState = {
   },
 };
 
+
+
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
+
   switch (action.type) {
     case FeedActionTypes.GET_ALL_FEEDS_REQUEST: {
       return {
@@ -39,10 +42,12 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         allFeeds: {
+          cu:action.payload.cu,
           data: action.payload.feeds,
           error: "",
           loading: false,
           totalFeedsCount: action.payload.totalCount,
+
         },
       };
     }
@@ -124,6 +129,24 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state.allFeeds,
           data: feedData,
           totalFeedsCount: state.allFeeds.totalFeedsCount - 1,
+        },
+      };
+    }
+    
+    case FeedActionTypes.DOWNLOAD_FEED: {
+      const feedData = state.allFeeds.data?.filter(
+        (feed) => feed.data.id !== action.payload.data.id
+      );
+      const downloader= state.allFeeds.cu;
+      downloader.downloadFeed(action.payload.data.id)
+  
+
+      return {
+        ...state,
+        allFeeds: {
+          ...state.allFeeds,
+          data: feedData,
+          totalFeedsCount: state.allFeeds.totalFeedsCount,
         },
       };
     }
