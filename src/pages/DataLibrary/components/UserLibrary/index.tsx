@@ -68,7 +68,7 @@ const DataLibrary = () => {
     <section>
       <Split>
         <SplitItem>
-          <h3>Uploaded Files</h3>
+          <h3>Uploads</h3>
         </SplitItem>
         <SplitItem style={{ margin: "auto 1em" }} isFilled>
           <hr />
@@ -86,7 +86,7 @@ const DataLibrary = () => {
     <section>
       <Split>
         <SplitItem>
-          <h3>Feed Files</h3>
+          <h3>Completed Analyses</h3>
         </SplitItem>
         <SplitItem style={{ margin: "auto 1em" }} isFilled>
           <hr />
@@ -100,7 +100,7 @@ const DataLibrary = () => {
     <section>
       <Split>
         <SplitItem>
-          <h3>Services Files</h3>
+          <h3>External Services</h3>
         </SplitItem>
         <SplitItem style={{ margin: "auto 1em" }} isFilled>
           <hr />
@@ -115,7 +115,11 @@ const DataLibrary = () => {
       {multipleFileSelect && (
         <AlertGroup isToast>
           <Alert
-            title="Multiple File Select"
+            title={`${
+              fileSelect.length > 0
+                ? `Selected:  ${fileSelect.length}`
+                : "No Elements Selected"
+            } `}
             variant="info"
             style={{ width: "100%", marginTop: "3em" }}
             actionLinks={

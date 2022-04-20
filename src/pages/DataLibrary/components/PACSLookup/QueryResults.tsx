@@ -460,7 +460,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
               className="action-button-container hover"
               style={{ display: "flex", flexFlow: "row", flexWrap: "wrap" }}
             >
-              <Tooltip content="Click to create a new feed with this series">
+              <Tooltip content="Click to create a new analysis with this series">
                 <Button
                   variant="primary"
                   style={{ fontSize: "small", margin: "auto" }}

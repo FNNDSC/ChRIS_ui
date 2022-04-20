@@ -12,6 +12,7 @@ import {
   EmptyStateBody,
   EmptyStatePrimary,
 } from "@patternfly/react-core";
+import { Typography } from "antd";
 import { FaCubes } from "react-icons/fa";
 import pluralize from "pluralize";
 import PFDCMClient, {
@@ -24,6 +25,8 @@ import { setSidebarActive } from "../../../../store/ui/actions";
 
 import QueryBuilder from "./QueryBuilder";
 import QueryResults from "./QueryResults";
+
+const { Title: AntTitle, Paragraph } = Typography;
 
 export enum PFDCMQueryTypes {
   PMRN,
@@ -225,13 +228,34 @@ export const PACSLookup = () => {
       );
   };
 
+  const pStyle = {
+    fontSize: "1.15em",
+  };
+
   return (
     <Wrapper>
       <article>
         <Grid hasGutter>
           <GridItem>
-            <h1>PACS Lookup System</h1>
-            <p></p>
+            <AntTitle>PACS Query/Retrieve</AntTitle>
+            <Paragraph style={pStyle}>
+              Medical images are typically stored in a Picture Archive and
+              Communications System (PACS) database. If this CUBE has been
+              configured to communicate with such a PACS, this PACS should be
+              available in the <b>PACS Service</b> drop down. You can Query this
+              PACS to find images of interest by searching on various Patient
+              data fields (such as Patient Name, Medical Record Number, Study
+              Date, etc).
+            </Paragraph>
+            <Paragraph style={pStyle}>
+              {" "}
+              After a Query, ChRIS will structure results by
+              Patient/Study/Series - allowing for easy navigation. Images that
+              have been retrieved previously will appear as thumbnails, while
+              images that have not will simply offer the option to{" "}
+              <b>Pull Series</b>. Any Series that is known to ChRIS can be
+              selected and an analysis started directly from this page.
+            </Paragraph>
           </GridItem>
 
           <GridItem>

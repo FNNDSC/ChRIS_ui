@@ -19,7 +19,6 @@ const BreadcrumbContainer = ({
   previewAll,
 }: {
   initialPath: string;
-
   handleFolderClick: (path: string, breadcrumb?: any) => void;
   files: any[];
   folderDetails: {
@@ -33,10 +32,13 @@ const BreadcrumbContainer = ({
   const initialPathSplit = initialPath ? initialPath.split("/") : [];
   return (
     <>
-      <Breadcrumb>
+      <Breadcrumb style={{ margin: "0.75em 0 0.75em 0" }}>
         {initialPathSplit.map((path: string, index) => {
           return (
             <BreadcrumbItem
+              style={{
+                fontSize: "1.1em",
+              }}
               to={index !== 0 || browserType !== "uploads" ? "#" : undefined}
               onClick={() => {
                 if (index === initialPathSplit.length - 1) {
