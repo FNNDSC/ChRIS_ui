@@ -13,6 +13,7 @@ import {
   KebabToggle,
   DropdownItem,
   Modal,
+  Checkbox,
 } from "@patternfly/react-core";
 import {
   FaFile,
@@ -26,9 +27,7 @@ import { LibraryContext, Paginated } from "./context";
 import FileViewerModel from "../../../../api/models/file-viewer.model";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { Spin } from "antd";
-import Checkbox from "antd/lib/checkbox/Checkbox";
 import { Types } from "./context";
-import { initial } from "lodash";
 
 interface BrowserInterface {
   initialPath: string;
@@ -184,15 +183,25 @@ function FileCard({
           >
             {multipleFileSelect && (
               <Checkbox
-                checked={fileSelect.includes(path)}
+                id={path}
+                isChecked={fileSelect.includes(path)}
                 name={path}
-                onChange={() => {
-                  dispatch({
-                    type: Types.SET_ADD_FILE_SELECT,
-                    payload: {
-                      path,
-                    },
-                  });
+                onChange={(checked: boolean) => {
+                  if (checked) {
+                    dispatch({
+                      type: Types.SET_ADD_FILE_SELECT,
+                      payload: {
+                        path,
+                      },
+                    });
+                  } else {
+                    dispatch({
+                      type: Types.SET_REMOVE_FILE_SELECT,
+                      payload: {
+                        path,
+                      },
+                    });
+                  }
                 }}
                 style={{
                   marginRight: "0.5em",
@@ -337,15 +346,25 @@ function FolderCard({
           <SplitItem style={{ marginRight: "1em" }}>
             {multipleFileSelect && (
               <Checkbox
-                checked={fileSelect.includes(path)}
+                id={path}
+                isChecked={fileSelect.includes(path)}
                 name={path}
-                onChange={() => {
-                  dispatch({
-                    type: Types.SET_ADD_FILE_SELECT,
-                    payload: {
-                      path,
-                    },
-                  });
+                onChange={(checked: boolean) => {
+                  if (checked) {
+                    dispatch({
+                      type: Types.SET_ADD_FILE_SELECT,
+                      payload: {
+                        path,
+                      },
+                    });
+                  } else {
+                    dispatch({
+                      type: Types.SET_REMOVE_FILE_SELECT,
+                      payload: {
+                        path,
+                      },
+                    });
+                  }
                 }}
                 style={{
                   marginRight: "0.5em",
