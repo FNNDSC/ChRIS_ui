@@ -63,13 +63,17 @@ const DashboardPage = (props: DashboardProps) => {
           Retrieve, analyze, and visualize <i>any data </i> using a powerful
           cloud computing platform: ChRIS.
           <b> Let&apos;s get started.</b>
-          <br/>
-        <span>Version: 3.1.3{"   "}</span>
-        <span>
-          Latest update:{" "}
-          <Moment format="DD MMM YYYY @ HH:mm">{`2022-03-28T10:00:10.297464-04:00`}</Moment>
-        </span>
-  
+          <br />
+          <span>
+            Version: <b>{process.env.REACT_APP_CHRIS_UI_VERSION}</b>{" "}
+          </span>
+          <br />
+          <span>
+            Latest update:{" "}
+            <b>
+              <Moment format="DD MMM YYYY @ HH:mm">{`2022-04-20T10:00:11.007464-04:00`}</Moment>
+            </b>
+          </span>
         </p>
         {children}
       </PageSection>

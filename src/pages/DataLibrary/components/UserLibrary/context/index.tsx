@@ -280,17 +280,34 @@ export const libraryReducer = (
 
     case Types.SET_ADD_FOLDER: {
       const path = `${action.payload.username}/uploads`;
-      return {
-        ...state,
-        foldersState: {
-          ...state.foldersState,
-          [path]: [...state.foldersState[path], action.payload.folder],
-        },
-        paginatedFolders: {
-          ...state.paginatedFolders,
-          [path]: [...state.foldersState[path], action.payload.folder],
-        },
-      };
+
+      if (state.foldersState[path]) {
+        return {
+          ...state,
+          foldersState: {
+            ...state.foldersState,
+            [path]: [...state.foldersState[path], action.payload.folder],
+          },
+          paginatedFolders: {
+            ...state.paginatedFolders,
+            [path]: [...state.foldersState[path], action.payload.folder],
+          },
+        };
+      } else {
+        return {
+          ...state,
+          foldersState: {
+            ...state.foldersState,
+            [path]: [action.payload.folder],
+          },
+          paginatedFolders: {
+            ...state.paginatedFolders,
+            [path]: [action.payload.folder],
+          },
+        };
+      }
+        
+      
     }
 
     case Types.SET_ROOT: {
