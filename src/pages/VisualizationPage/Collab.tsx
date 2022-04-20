@@ -55,6 +55,7 @@ const Collab = () => {
         isOpen={isOpen}
         onClose={handleModalToggle}
       >
+        {error && <p>{error}</p>}
         <Form isHorizontal>
           <FormGroup fieldId="url" label="Enter the URL" isRequired>
             <TextInput
