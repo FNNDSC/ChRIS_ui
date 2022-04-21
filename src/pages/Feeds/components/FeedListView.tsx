@@ -35,6 +35,7 @@ import {
   generateTableLoading,
 } from "../../../components/common/emptyTable";
 import { usePaginate } from "../../../components/common/pagination";
+import { MdFileDownload } from "react-icons/md";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -346,16 +347,21 @@ function DownloadFeed({
   const dispatch = useDispatch();
   return (
   <>
-  <Button
-    onClick={()=>dispatch(downloadFeed(feed))}
-    icon={
-              <Tooltip content={<div>Download the Feed</div>}>
-              <b>⤓</b>
-              </Tooltip>
-            }
-    >
 
-    </Button>
+              
+{
+          <Tooltip content={<div>Download the Feed</div>}>
+          <MdFileDownload
+          className="download-file-icon"
+          
+          onClick={()=>dispatch(downloadFeed(feed))}
+          />
+          </Tooltip>
+          }
+          
+          
+
+
   </>
   );
 

@@ -7,6 +7,7 @@ export const initialState: IFeedState = {
     error: "",
     loading: false,
     totalFeedsCount: 0,
+    cu: undefined,
   },
   currentFeed: {
     data: undefined,
@@ -34,6 +35,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         allFeeds: {
           ...state.allFeeds,
           loading: true,
+          cu: action.payload.cu,
         },
       };
     }
@@ -42,11 +44,12 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         allFeeds: {
-          cu:action.payload.cu,
+
           data: action.payload.feeds,
           error: "",
           loading: false,
           totalFeedsCount: action.payload.totalCount,
+          cu: action.payload.cu,
 
         },
       };
@@ -58,6 +61,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         allFeeds: {
           ...state.allFeeds,
           error: action.payload,
+          cu: action.payload.cu,
         },
       };
     }
@@ -68,6 +72,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         currentFeed: {
           ...state.currentFeed,
           loading: true,
+          cu: action.payload.cu,
         },
       };
     }
@@ -79,6 +84,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           data: action.payload,
           error: "",
           loading: false,
+          cu: action.payload.cu,
         },
       };
     }
@@ -90,6 +96,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state.currentFeed,
           error: action.payload,
           loading: false,
+          cu: action.payload.cu,
         },
       };
     }
@@ -103,6 +110,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
             error: "",
             loading: false,
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
+            cu: action.payload.cu,
           },
         };
       } else {
@@ -113,6 +121,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
             error: "",
             loading: false,
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
+            cu: action.payload.cu,
           },
         };
       }
@@ -129,6 +138,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state.allFeeds,
           data: feedData,
           totalFeedsCount: state.allFeeds.totalFeedsCount - 1,
+          cu: action.payload.cu,
         },
       };
     }
@@ -146,7 +156,8 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         allFeeds: {
           ...state.allFeeds,
           data: feedData,
-          totalFeedsCount: state.allFeeds.totalFeedsCount,
+          totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
+          cu: action.payload.cu,
         },
       };
     }

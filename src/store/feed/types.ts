@@ -32,6 +32,7 @@ export interface IFeedState {
     error: any;
     loading: boolean;
     totalFeedsCount: number;
+    cu: any;
   };
   currentFeed: FeedPayload;
   feedTreeProp: FeedTreeProp;
