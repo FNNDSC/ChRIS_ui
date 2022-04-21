@@ -47,6 +47,7 @@ export const FeedActionTypes = keyMirror({
   GET_FEED_ERROR: null,
   ADD_FEED: null,
   DELETE_FEED: null,
+  DOWNLOAD_FEED: null,
   SET_LAYOUT: null,
   GET_FEED_TREE_PROP: null,
   RESET_FEED: null,

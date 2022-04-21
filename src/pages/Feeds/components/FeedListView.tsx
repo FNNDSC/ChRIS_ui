@@ -14,8 +14,6 @@ import {
   Popover,
   Button,
   Tooltip,
-  Hint,
-  HintBody,
 } from "@patternfly/react-core";
 import { Table, TableBody } from "@patternfly/react-table";
 import {
@@ -26,7 +24,7 @@ import {
 } from "react-icons/fa";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import { getAllFeedsRequest, deleteFeed } from "../../../store/feed/actions";
+import { getAllFeedsRequest, deleteFeed, downloadFeed } from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
@@ -168,6 +166,18 @@ const FeedListView: React.FC<AllProps> = ({
         </span>
       ),
     };
+    const downloadFeed = {
+      title: (
+
+            <DownloadFeed
+              key={feed.data.id}
+              feed={feed}
+            />
+
+  
+         ),
+
+    };
 
     const removeFeed = {
       title: (
@@ -205,11 +215,11 @@ const FeedListView: React.FC<AllProps> = ({
     };
 
     return {
-      cells: [name, errorCount, lastCommit, created, removeFeed],
+      cells: [name, errorCount, lastCommit, created, removeFeed, downloadFeed], 
     };
   };
 
-  const cells = ["Analysis", "Error Count", "Last Commit", "Created", ""];
+  const cells = ["Analysis", "Error Count", "Last Commit", "Created", "", ""];
 
   const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
 
@@ -247,29 +257,15 @@ const FeedListView: React.FC<AllProps> = ({
       <PageSection variant={PageSectionVariants.light} className="feed-header">
         <div className="feed-header__split">
           <Title headingLevel="h1" size="3xl">
-            New and Existing Analyses
+            My Analyses
             {totalFeedsCount > 0 ? (
               <span className="feed-header__count">({totalFeedsCount})</span>
             ) : null}
           </Title>
-
           <CreateFeedProvider>
             <CreateFeed />
           </CreateFeedProvider>
         </div>
-        <Hint
-          //@ts-ignore
-          style={{
-            width: "50%",
-            paddingBottom: "0",
-          }}
-        >
-          <HintBody>
-            All Analyses that you have completed are recorded here. You can
-            easily return to a completed analysis and add more analysis
-            components, or you can create a brand new analysis from scratch.
-          </HintBody>
-        </Hint>
       </PageSection>
       <PageSection className="feed-list">
         <div className="feed-list__split">
@@ -298,6 +294,7 @@ const FeedListView: React.FC<AllProps> = ({
           </Table>
         )}
       </PageSection>
+      
     </React.Fragment>
   );
 };
@@ -340,3 +337,28 @@ function DeleteFeed({
     </>
   );
 }
+
+function DownloadFeed({
+  feed,
+}: {
+  feed: Feed;
+}) {
+  const dispatch = useDispatch();
+  return (
+  <>
+  <Button
+    onClick={()=>dispatch(downloadFeed(feed))}
+    icon={
+              <Tooltip content={<div>Download the Feed</div>}>
+              <b>⤓</b>
+              </Tooltip>
+            }
+    >
+
+    </Button>
+  </>
+  );
+
+}
+
+
