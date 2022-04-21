@@ -119,40 +119,6 @@ const DataLibrary = () => {
             <Button icon={<FaUpload />} style ={{margin:"5px"}} onClick={handleFileModal}>
               Upload a folder
             </Button>
-        <Accordion asDefinitionList>
-          <AccordionItem>
-            <AccordionToggle
-              onClick={() => {
-                onToggle('ex-toggle1');
-              }}
-              isExpanded={expanded === 'ex-toggle1'}
-              id="ex-toggle1"
-            >
-              <DiCodeBadge /> Commands
-            </AccordionToggle>
-            <AccordionContent id="ex-expand1" isHidden={expanded !== 'ex-toggle1'}>
-              <p>
-                  # upload some files
-                <h3>chrs upload one_file.txt another_file.txt</h3>
-                  <button 
-              onClick={() =>  navigator.clipboard.writeText('chrs upload one_file.txt another_file.txt')}
-            >
-              < MdContentCopy /> Copy
-            </button>
-              </p>
-              <p>
-                  # upload all files in a directory
-                <h3>chrs upload my_data/</h3>
-                <button 
-              onClick={() =>  navigator.clipboard.writeText('chrs upload my_data/')}
-            >
-            < MdContentCopy /> Copy
-            </button>
-              </p>
-              
-            </AccordionContent>
-          </AccordionItem>
-      </Accordion>
           </SplitItem>
         </Split>
         
