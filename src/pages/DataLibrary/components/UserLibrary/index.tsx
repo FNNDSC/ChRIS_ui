@@ -19,6 +19,7 @@ import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { LocalFile } from "../../../../components/feed/CreateFeed/types";
 import { useTypedSelector } from "../../../../store/hooks";
 import { LibraryContext, Types } from "./context";
+import { useHistory } from "react-router";
 
 const DataLibrary = () => {
   const username = useTypedSelector((state) => state.user.username);
@@ -26,11 +27,12 @@ const DataLibrary = () => {
   const [uploadFileModal, setUploadFileModal] = React.useState(false);
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([]);
   const [directoryName, setDirectoryName] = React.useState("");
-  const { isRoot } = state;
 
   console.log("STATE", state);
 
-  const rootCheck = Object.keys(isRoot).length > 0;
+  const history = useHistory();
+  const rootCheck = history.location.pathname === "/library";
+  const queryParam = new URLSearchParams(history.location.search);
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal);
@@ -113,15 +115,19 @@ const DataLibrary = () => {
         </Split>
       </section>
 
-      {!rootCheck
+      {rootCheck
         ? uploadedFiles
-        : isRoot["uploads"]
+        : queryParam.get("type") === "uploads"
         ? uploadedFiles
         : undefined}
-      {!rootCheck ? feedFiles : isRoot["feed"] ? feedFiles : undefined}
-      {!rootCheck
+      {rootCheck
+        ? feedFiles
+        : queryParam.get("type") === "feed"
+        ? feedFiles
+        : undefined}
+      {rootCheck
         ? servicesFiles
-        : isRoot["services"]
+        : queryParam.get("type") === "services"
         ? servicesFiles
         : undefined}
     </>

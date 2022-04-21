@@ -26,10 +26,10 @@ import { Paginated } from "./context";
 import FileViewerModel from "../../../../api/models/file-viewer.model";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { Spin } from "antd";
+import { Link } from "react-router-dom";
 
 interface BrowserInterface {
   initialPath: string;
-  handleFolderClick: (path: string) => void;
   folders: string[];
   files: any[];
   paginated: {
@@ -45,7 +45,6 @@ interface BrowserInterface {
 
 export function Browser({
   initialPath,
-  handleFolderClick,
   folders,
   files,
   paginated,
@@ -74,7 +73,6 @@ export function Browser({
                 <FolderCard
                   browserType={browserType}
                   initialPath={initialPath}
-                  handleFolderClick={handleFolderClick}
                   handleDelete={handleDelete}
                   handleDownload={handleDownload}
                   key={index}
@@ -204,7 +202,6 @@ interface FolderCardInterface {
   browserType: string;
   initialPath: string;
   folder: string;
-  handleFolderClick: (path: string) => void;
   handleDelete?: (path: string, folder: string) => void;
   handleDownload?: (path: string, folder: string) => void;
   username?: string | null;
@@ -214,7 +211,6 @@ function FolderCard({
   browserType,
   initialPath,
   folder,
-  handleFolderClick,
   handleDelete,
   handleDownload,
   username,
@@ -293,25 +289,21 @@ function FolderCard({
             <FaFolder />
           </SplitItem>
           <SplitItem isFilled>
-            <Button
-              style={{ padding: 0 }}
-              variant="link"
-              onClick={() => {
-                handleFolderClick(`${initialPath}/${folder}`);
-              }}
-            >
-              <b>
-                {browserType === "feed" && initialPath === username ? (
-                  !feedName ? (
-                    <Spin />
+            <Link to={`/library/${initialPath}/${folder}?type=${browserType}`}>
+              <Button style={{ padding: 0 }} variant="link">
+                <b>
+                  {browserType === "feed" && initialPath === username ? (
+                    !feedName ? (
+                      <Spin />
+                    ) : (
+                      elipses(feedName, 36)
+                    )
                   ) : (
-                    elipses(feedName, 36)
-                  )
-                ) : (
-                  elipses(folder, 36)
-                )}
-              </b>
-            </Button>
+                    elipses(folder, 36)
+                  )}
+                </b>
+              </Button>
+            </Link>
           </SplitItem>
         </Split>
       </CardHeader>

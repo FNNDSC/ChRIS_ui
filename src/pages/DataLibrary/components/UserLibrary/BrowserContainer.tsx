@@ -13,10 +13,11 @@ import {
   setPaginatedFolders,
   setRoot,
 } from "./context/actions";
+import { useHistory } from "react-router-dom";
 
 const BrowserContainer = ({
-  type,
-  path: rootPath,
+  type: typeProp,
+  path: rootPathProp,
   username,
 }: {
   type: string;
@@ -34,11 +35,49 @@ const BrowserContainer = ({
     paginated,
     paginatedFolders,
   } = state;
-  
+
+  const history = useHistory();
+  const rootCheck = history.location.pathname === "/library";
+  const queryParam = new URLSearchParams(history.location.search);
+  const typeQuery = queryParam.get("type");
+
+  const [type, setType] = React.useState(
+    rootCheck && typeQuery ? typeQuery : typeProp
+  );
+  const [rootPath, setPath] = React.useState(rootCheck ? rootPathProp : "");
+
   const files = filesState[type];
   const computedPath = initialPath[type];
   const folders = paginatedFolders[computedPath] || foldersState[computedPath];
 
+  React.useEffect(() => {
+    if (rootCheck) {
+      setPath(rootPathProp);
+      setType(typeProp);
+
+      fetchFolderItems(rootPath, {
+        hasNext: false,
+        limit: 50,
+        offset: 0,
+      });
+    } else {
+      if (typeQuery === "" || typeQuery === null) {
+        history.push("/library");
+      } else dispatch(setRoot(true, typeQuery));
+
+      if (queryParam.get("type") === "uploads") {
+        setPath(`${username}/uploads`);
+      } else if (queryParam.get("type") === "feeds") {
+        setPath(`${username}`);
+      } else if (queryParam.get("type") === "services") {
+        setPath(`SERVICES`);
+      }
+
+      const newPath = history.location.pathname.split("/").splice(2).join("/");
+      fetchFolderItems(newPath);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [history.location.pathname]);
 
   React.useEffect(() => {
     async function fetchUploads() {
@@ -88,7 +127,7 @@ const BrowserContainer = ({
     fetchUploads();
   }, [dispatch, rootPath, type]);
 
-  const handleFolderClick = async (path: string, breadcrumb?: any) => {
+  const fetchFolderItems = async (path: string, breadcrumb?: any) => {
     const client = ChrisAPIClient.getClient();
     const pagination = breadcrumb
       ? breadcrumb
@@ -207,7 +246,7 @@ const BrowserContainer = ({
         totalCount: paginated[path].totalCount,
       })
     );
-    handleFolderClick(path);
+    fetchFolderItems(path);
   };
 
   const togglePreview = () => {
@@ -260,7 +299,6 @@ const BrowserContainer = ({
       {
         <BreadcrumbContainer
           initialPath={computedPath}
-          handleFolderClick={handleFolderClick}
           files={files}
           folderDetails={folderDetails}
           browserType={type}
@@ -276,7 +314,6 @@ const BrowserContainer = ({
           initialPath={computedPath}
           files={files}
           folders={folders}
-          handleFolderClick={handleFolderClick}
           paginated={paginated}
           handlePagination={handlePagination}
           previewAll={previewAll}

@@ -7,11 +7,10 @@ import {
   Button,
 } from "@patternfly/react-core";
 import { FaFolderOpen } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const BreadcrumbContainer = ({
   initialPath,
-
-  handleFolderClick,
   files,
   folderDetails,
   browserType,
@@ -19,8 +18,6 @@ const BreadcrumbContainer = ({
   previewAll,
 }: {
   initialPath: string;
-
-  handleFolderClick: (path: string, breadcrumb?: any) => void;
   files: any[];
   folderDetails: {
     currentFolder: string;
@@ -31,43 +28,22 @@ const BreadcrumbContainer = ({
   previewAll: boolean;
 }) => {
   const initialPathSplit = initialPath ? initialPath.split("/") : [];
+  console.log(initialPathSplit);
   return (
     <>
       <Breadcrumb>
         {initialPathSplit.map((path: string, index) => {
+          const link =
+            index !== 0 || browserType !== "uploads"
+              ? "/library/" +
+                initialPathSplit.slice(0, index + 1).join("/") +
+                "?type=" +
+                browserType
+              : "";
+          console.log(link);
           return (
-            <BreadcrumbItem
-              to={index !== 0 || browserType !== "uploads" ? "#" : undefined}
-              onClick={() => {
-                if (index === initialPathSplit.length - 1) {
-                  return;
-                }
-                if (index === 0 && browserType === "uploads") {
-                  return;
-                }
-
-                if (
-                  (index === 0 && browserType === "feed") ||
-                  (index === 0 && browserType === "services")
-                ) {
-                  handleFolderClick(`${path}`, {
-                    hasNext: false,
-                    limit: 50,
-                    offset: 0,
-                  });
-                } else {
-                  const newPath = initialPath.split(`/${path}`);
-
-                  handleFolderClick(`${newPath[0]}/${path}`, {
-                    hasNext: false,
-                    limit: 50,
-                    offset: 0,
-                  });
-                }
-              }}
-              key={path}
-            >
-              {path}
+            <BreadcrumbItem key={path}>
+              <Link to={index === 0 ? "/library" : link}>{path}</Link>
             </BreadcrumbItem>
           );
         })}
