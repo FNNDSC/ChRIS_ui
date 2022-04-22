@@ -164,7 +164,7 @@ const DataLibrary = () => {
 
           <SplitItem>
             <Button icon={<FaUpload />} onClick={handleFileModal}>
-              Upload Files
+              Upload a folder
             </Button>
             <Button
               onClick={() => {
