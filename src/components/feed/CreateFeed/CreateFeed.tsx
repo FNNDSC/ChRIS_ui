@@ -381,6 +381,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       <Button
         className="create-feed-button"
         variant="primary"
+        style={{margin: "0.5rem"}}
         isLarge
         onClick={() => {
           dispatch({

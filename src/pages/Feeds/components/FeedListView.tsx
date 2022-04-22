@@ -244,7 +244,7 @@ const FeedListView: React.FC<AllProps> = ({
     <React.Fragment>
       <PageSection variant={PageSectionVariants.light} className="feed-header">
         <div className="feed-header__split">
-          <Title headingLevel="h1" size="3xl">
+          <Title headingLevel="h1" size="3xl" style={{margin: "0.5rem"}}>
             My Analyses
             {totalFeedsCount > 0 ? (
               <span className="feed-header__count">({totalFeedsCount})</span>
