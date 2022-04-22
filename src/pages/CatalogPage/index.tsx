@@ -23,7 +23,7 @@ const CatalogPage = () => {
       <PageSection variant="light">
         <Title headingLevel="h1">Analysis Catalog</Title>
         <p>
-          This is a list of all analysis types available on the ChRIS deployment
+        All the analysis types available on ChRIS deployment are listed here:
         </p>
       </PageSection>
       <PageSection>
