@@ -28,7 +28,6 @@ const BreadcrumbContainer = ({
   previewAll: boolean;
 }) => {
   const initialPathSplit = initialPath ? initialPath.split("/") : [];
-  console.log(initialPathSplit);
   return (
     <>
       <Breadcrumb>
@@ -40,7 +39,6 @@ const BreadcrumbContainer = ({
                 "?type=" +
                 browserType
               : "";
-          console.log(link);
           return (
             <BreadcrumbItem key={path}>
               <Link to={index === 0 ? "/library" : link}>{path}</Link>
