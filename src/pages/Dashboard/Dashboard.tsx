@@ -14,6 +14,7 @@ import {
   Grid,
   GridItem,
   Button,
+  Badge,
 } from "@patternfly/react-core";
 import { MdOutlineImageSearch } from "react-icons/md";
 import { FaMagic } from "react-icons/fa";

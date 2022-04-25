@@ -31,6 +31,15 @@ const BadgeStyleLeft = {
 
 }
 
+
+const BadgeStyleRight = {
+  ...BadgeStyle,
+  marginRight: "-1rem",
+  marginLeft: "1.50rem",
+  minWidth:"50px",
+}
+
+
 const Header: React.FC<IHeaderProps> = ({
   onNavToggle,
   user,
