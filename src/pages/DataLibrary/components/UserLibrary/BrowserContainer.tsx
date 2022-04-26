@@ -38,13 +38,17 @@ const BrowserContainer = ({
 
   const files = filesState[type];
   const computedPath = initialPath[type];
-  const folders = paginatedFolders[computedPath] || foldersState[computedPath];
+  const pagedFolders = paginatedFolders[computedPath];
+  const folders =
+    pagedFolders && pagedFolders.length > 0
+      ? pagedFolders
+      : foldersState[computedPath];
 
-  React.useEffect(() => {
-    async function fetchUploads() {
+  const resourcesFetch = React.useCallback(
+    async (path: string) => {
       const client = ChrisAPIClient.getClient();
       const uploads = await client.getFileBrowserPaths({
-        path: rootPath,
+        path,
       });
       dispatch(setInitialPath(rootPath, type));
       dispatch(setLoading(true));
@@ -65,13 +69,61 @@ const BrowserContainer = ({
         }
 
         dispatch(setFolders(folders, rootPath));
-        if (folders.length > 30) {
-          const limit = 30;
+        if (folders.length > limit) {
           const folderPaginate = folders.slice(0, limit);
           dispatch(setPaginatedFolders(folderPaginate, rootPath));
-        } else {
-          dispatch(setPaginatedFolders(folders, rootPath));
+          dispatch(
+            setPagination(rootPath, {
+              hasNext: folders.length > 30,
+              limit,
+              offset: 0,
+              totalCount: folders.length,
+            })
+          );
         }
+
+        dispatch(setLoading(false));
+      }
+    },
+    [dispatch, type]
+  );
+
+  React.useEffect(() => {
+    async function fetchUploads() {
+      resourcesFetch(rootPath);
+    }
+
+    fetchUploads();
+  }, [rootPath, resourcesFetch]);
+
+  const handleFolderClick = async (path: string, prevPath?: string) => {
+    const client = ChrisAPIClient.getClient();
+    const uploads = await client.getFileBrowserPaths({
+      path,
+    });
+
+    const pagination = {
+      limit: 30,
+      offset: 0,
+      totalCount: 0,
+    };
+    if (
+      uploads.data &&
+      uploads.data[0].subfolders &&
+      uploads.data[0].subfolders.length > 0
+    ) {
+      let folders;
+      const folderSplit = uploads.data[0].subfolders.split(",");
+
+      if (type === "feed") {
+        folders = folderSplit.filter((feed: string) => feed !== "uploads");
+      } else {
+        folders = folderSplit;
+      }
+      const limit = 30;
+      if (folders.length > limit) {
+        const folderPaginate = folders.slice(0, limit);
+        dispatch(setPaginatedFolders(folderPaginate, rootPath));
         dispatch(
           setPagination(rootPath, {
             hasNext: folders.length > 30,
@@ -80,37 +132,9 @@ const BrowserContainer = ({
             totalCount: folders.length,
           })
         );
-
-        dispatch(setLoading(false));
       }
-    }
 
-    fetchUploads();
-  }, [dispatch, rootPath, type]);
-
-  const handleFolderClick = async (path: string, breadcrumb?: any) => {
-    const client = ChrisAPIClient.getClient();
-    const pagination = breadcrumb
-      ? breadcrumb
-      : paginated[path]
-      ? paginated[path]
-      : {
-          hasNext: false,
-          limit: 30,
-          offset: 0,
-          totalCount: 0,
-        };
-    dispatch(setLoading(true));
-
-    if (paginatedFolders[path] && foldersState[path].length > 30) {
-      const folders = foldersState[path];
-      const newFolders = folders.slice(
-        pagination.offset,
-        pagination.limit + pagination.offset
-      );
-      const totalFolders = [...newFolders, ...paginatedFolders[path]];
-      dispatch(setPaginatedFolders(totalFolders, path));
-      dispatch(setLoading(false));
+      dispatch(setFolders(folders, path));
       dispatch(setFiles([], type));
       dispatch(setInitialPath(path, type));
       if (path !== rootPath) {
@@ -119,95 +143,83 @@ const BrowserContainer = ({
         dispatch(setRoot(false, type));
       }
     } else {
-      const uploads = await client.getFileBrowserPaths({
-        path,
-        ...pagination,
+      const pathList = await client.getFileBrowserPath(path);
+      const fileList = await pathList.getFiles({
+        limit: pagination.limit,
+        offset: pagination.offset,
       });
 
-      if (
-        uploads.data &&
-        uploads.data[0].subfolders &&
-        uploads.data[0].subfolders.length > 0
-      ) {
-        let folders;
-        const folderSplit = uploads.data[0].subfolders.split(",");
-        if (type === "feed") {
-          folders = folderSplit.filter((feed: string) => feed !== "uploads");
-        } else {
-          folders = folderSplit;
+      if (fileList) {
+        if (fileList.hasNextPage) {
+          dispatch(
+            setPagination(path, {
+              limit: pagination.limit,
+              offset: pagination.offset,
+              hasNext: fileList.hasNextPage,
+              totalCount: fileList.totalCount,
+            })
+          );
         }
-        dispatch(setFolders(folders, path));
-        if (folders.length > 30) {
-          const limit = 30;
-          const folderPaginate = folders.slice(0, limit);
-          dispatch(setPaginatedFolders(folderPaginate, path));
-        } else {
-          dispatch(setPaginatedFolders(folders, path));
-        }
-        dispatch(setFiles([], type));
+        const files = fileList.getItems();
+        if (files) dispatch(setFiles(files, type));
         dispatch(setInitialPath(path, type));
-        dispatch(setLoading(false));
-
-        if (path !== rootPath) {
-          dispatch(setRoot(true, type));
-        } else {
-          dispatch(setRoot(false, type));
-        }
-      } else {
-        const pathList = await client.getFileBrowserPath(path);
-        const fileList = await pathList.getFiles({
-          limit: pagination.limit,
-          offset: pagination.offset,
+        dispatch(setRoot(true, type));
+        const currentFolderSplit = path.split("/");
+        const currentFolder = currentFolderSplit[currentFolderSplit.length - 1];
+        const totalCount = fileList.totalCount;
+        dispatch({
+          type: Types.SET_FOLDER_DETAILS,
+          payload: {
+            totalCount,
+            currentFolder,
+          },
         });
-
-        dispatch(
-          setPagination(path, {
-            limit: pagination.limit,
-            offset: pagination.offset,
-            hasNext: fileList.hasNextPage,
-            totalCount: fileList.totalCount,
-          })
-        );
-
-        if (fileList) {
-          const newFiles = fileList.getItems();
-
-          if (files && files.length > 0 && newFiles) {
-            const sumFiles = [...files, ...newFiles];
-            dispatch(setFiles(sumFiles, type));
-          } else if (newFiles) {
-            dispatch(setFiles(newFiles, type));
-          }
-          dispatch(setInitialPath(path, type));
-          dispatch(setRoot(true, type));
-          const currentFolderSplit = path.split("/");
-          const currentFolder =
-            currentFolderSplit[currentFolderSplit.length - 1];
-          const totalCount = fileList.totalCount;
-          dispatch({
-            type: Types.SET_FOLDER_DETAILS,
-            payload: {
-              totalCount,
-              currentFolder,
-            },
-          });
-        }
-        dispatch(setLoading(false));
       }
     }
   };
 
-  const handlePagination = (path: string) => {
+  const handlePagination = async (path: string, paginatedType: string) => {
     const offset = (paginated[path].offset += paginated[path].limit);
-    dispatch(
-      setPagination(path, {
-        offset,
-        hasNext: paginated[path].hasNext,
-        limit: paginated[path].limit,
-        totalCount: paginated[path].totalCount,
-      })
-    );
-    handleFolderClick(path);
+    const limit = paginated[path].limit;
+    const totalCount = paginated[path].totalCount;
+    let hasNext = paginated[path].hasNext;
+
+    if (offset < totalCount) {
+      if (paginatedType === "folder") {
+        if (paginatedFolders[path]) {
+          const newFoldersOffset = foldersState[path].slice(offset);
+          const newFolders = [...paginatedFolders[path], ...newFoldersOffset];
+          dispatch(setPaginatedFolders(newFolders, path));
+          hasNext = newFolders.length < totalCount;
+        }
+      }
+
+      if (paginatedType === "file") {
+        if (paginated[path]) {
+          const client = ChrisAPIClient.getClient();
+          const pathList = await client.getFileBrowserPath(path);
+          const fileList = await pathList.getFiles({
+            limit: limit,
+            offset: offset,
+          });
+          const fetchedFiles = fileList.getItems();
+          if (files && fetchedFiles) {
+            const sumFiles = [...files, ...fetchedFiles];
+            dispatch(setFiles(sumFiles, type));
+            hasNext = sumFiles.length < totalCount;
+          }
+        }
+      }
+
+      dispatch(
+        setPagination(path, {
+          offset,
+          hasNext,
+          limit: paginated[path].limit,
+          totalCount: paginated[path].totalCount,
+        })
+      );
+    }
   };
 
   const togglePreview = () => {

@@ -10,7 +10,6 @@ import { FaFolderOpen } from "react-icons/fa";
 
 const BreadcrumbContainer = ({
   initialPath,
-
   handleFolderClick,
   files,
   folderDetails,
@@ -19,7 +18,6 @@ const BreadcrumbContainer = ({
   previewAll,
 }: {
   initialPath: string;
-
   handleFolderClick: (path: string, breadcrumb?: any) => void;
   files: any[];
   folderDetails: {
@@ -31,6 +29,7 @@ const BreadcrumbContainer = ({
   previewAll: boolean;
 }) => {
   const initialPathSplit = initialPath ? initialPath.split("/") : [];
+
   return (
     <>
       <Breadcrumb>
@@ -39,7 +38,10 @@ const BreadcrumbContainer = ({
             <BreadcrumbItem
               to={index !== 0 || browserType !== "uploads" ? "#" : undefined}
               onClick={() => {
-                if (index === initialPathSplit.length - 1) {
+                if (
+                  initialPathSplit.length > 1 &&
+                  index === initialPathSplit.length - 1
+                ) {
                   return;
                 }
                 if (index === 0 && browserType === "uploads") {
@@ -50,19 +52,10 @@ const BreadcrumbContainer = ({
                   (index === 0 && browserType === "feed") ||
                   (index === 0 && browserType === "services")
                 ) {
-                  handleFolderClick(`${path}`, {
-                    hasNext: false,
-                    limit: 50,
-                    offset: 0,
-                  });
+                  handleFolderClick(`${path}`);
                 } else {
                   const newPath = initialPath.split(`/${path}`);
-
-                  handleFolderClick(`${newPath[0]}/${path}`, {
-                    hasNext: false,
-                    limit: 50,
-                    offset: 0,
-                  });
+                  handleFolderClick(`${newPath[0]}/${path}`);
                 }
               }}
               key={path}

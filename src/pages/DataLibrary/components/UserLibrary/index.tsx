@@ -36,6 +36,7 @@ const DataLibrary = () => {
   const { isRoot, multipleFileSelect, fileSelect } = state;
 
   const rootCheck = Object.keys(isRoot).length > 0;
+  console.log("STATE:", state);
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal);

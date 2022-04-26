@@ -37,7 +37,7 @@ interface BrowserInterface {
   paginated: {
     [key: string]: Paginated;
   };
-  handlePagination: (path: string) => void;
+  handlePagination: (path: string, type: string) => void;
   previewAll: boolean;
   handleDelete?: (path: string, folder: string) => void;
   handleDownload?: (path: string, folder: string) => void;
@@ -106,7 +106,7 @@ export function Browser({
               <SplitItem isFilled>
                 <Button
                   onClick={() => {
-                    handlePagination(initialPath);
+                    handlePagination(initialPath, "folder");
                   }}
                   variant="link"
                 >
@@ -128,7 +128,7 @@ export function Browser({
               <SplitItem isFilled>
                 <Button
                   onClick={() => {
-                    handlePagination(initialPath);
+                    handlePagination(initialPath, "file");
                   }}
                   variant="link"
                 >
@@ -253,7 +253,7 @@ interface FolderCardInterface {
   browserType: string;
   initialPath: string;
   folder: string;
-  handleFolderClick: (path: string) => void;
+  handleFolderClick: (path: string, prevPath: string) => void;
   handleDelete?: (path: string, folder: string) => void;
   handleDownload?: (path: string, folder: string) => void;
   username?: string | null;
@@ -280,18 +280,6 @@ function FolderCard({
       style={{ padding: "0" }}
     />
   );
-
-  React.useEffect(() => {
-    async function fetchFeedName() {
-      if (browserType === "feed" && initialPath === username) {
-        const client = ChrisAPIClient.getClient();
-        const id = folder.split("_")[1];
-        const feed = await client.getFeed(parseInt(id));
-        setFeedName(feed.data.name);
-      }
-    }
-    fetchFeedName();
-  }, [browserType, folder, username, initialPath]);
 
   const pad = <span style={{ padding: "0 0.25em" }} />;
 
@@ -379,20 +367,10 @@ function FolderCard({
               style={{ padding: 0 }}
               variant="link"
               onClick={() => {
-                handleFolderClick(`${initialPath}/${folder}`);
+                handleFolderClick(`${initialPath}/${folder}`, initialPath);
               }}
             >
-              <b>
-                {browserType === "feed" && initialPath === username ? (
-                  !feedName ? (
-                    <Spin />
-                  ) : (
-                    elipses(feedName, 36)
-                  )
-                ) : (
-                  elipses(folder, 36)
-                )}
-              </b>
+              <b>{elipses(folder, 36)}</b>
             </Button>
           </SplitItem>
         </Split>
