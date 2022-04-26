@@ -32,10 +32,13 @@ const BreadcrumbContainer = ({
 
   return (
     <>
-      <Breadcrumb>
+      <Breadcrumb style={{ margin: "0.75em 0 0.75em 0" }}>
         {initialPathSplit.map((path: string, index) => {
           return (
             <BreadcrumbItem
+              style={{
+                fontSize: "1.1em",
+              }}
               to={index !== 0 || browserType !== "uploads" ? "#" : undefined}
               onClick={() => {
                 if (
