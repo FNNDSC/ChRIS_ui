@@ -31,6 +31,14 @@ const BadgeStyleLeft = {
 
 }
 
+const BadgeStyleRight = {
+  ...BadgeStyle,
+  marginRight: "-1rem",
+  marginLeft: "1.50rem",
+  minWidth:"50px",
+}
+
+
 
 const Header: React.FC<IHeaderProps> = ({
   onNavToggle,
@@ -51,7 +59,7 @@ const Header: React.FC<IHeaderProps> = ({
       <Brand src={brandImg} alt="ChRIS Logo" />
 
 
-      <Badge key={4} style={BadgeStyle}>
+      <Badge key={4} style={BadgeStyleLeft}>
 
         <span>Version: {process.env.REACT_APP_CHRIS_UI_VERSION} </span>
       </Badge>
