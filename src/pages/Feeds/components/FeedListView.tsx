@@ -4,6 +4,12 @@ import { useDispatch, connect } from "react-redux";
 import { Link } from "react-router-dom";
 import Moment from "react-moment";
 import pluralize from "pluralize";
+import ReactDOM from 'react-dom';
+import "@patternfly/react-core/dist/styles/base.css";
+import ChrisAPIClient from "../../../api/chrisapiclient";
+import cujs from "chris-upload";
+import {Request} from '@fnndsc/chrisapi';
+
 import {
   PageSection,
   PageSectionVariants,
@@ -16,6 +22,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { Table, TableBody } from "@patternfly/react-table";
+import { ChartDonutUtilization } from '@patternfly/react-charts';
 import {
   FaCodeBranch,
   FaTrashAlt,
@@ -167,6 +174,7 @@ const FeedListView: React.FC<AllProps> = ({
         </span>
       ),
     };
+    
     const downloadFeed = {
       title: (
 
@@ -174,11 +182,51 @@ const FeedListView: React.FC<AllProps> = ({
               key={feed.data.id}
               feed={feed}
             />
-
-  
          ),
-
     };
+    
+    const getProgress = function(feed:Feed){
+    
+        if(error) return 404;
+        let progress = 0;
+        
+        console.log(finished_jobs + ":" + runningJobsCount)
+        if(runningJobsCount==0){
+          progress = 100;
+        }
+        else{
+          progress = (finished_jobs/(runningJobsCount+finished_jobs))*100;
+        }
+        
+        return Math.round(progress);
+    }
+    
+   
+
+    const progress = getProgress(feed)
+    const percentage = progress + "%";
+    
+    
+   
+    
+    
+    const circularProgress = {
+    
+      title: (
+        <div style={{ height: '40px', width: '40px' ,display: 'block'}}>
+          <ChartDonutUtilization
+            ariaTitle="Feed Progress"
+            data={{ x: 'Storage capacity', y: progress }}
+            height={125}
+            title={percentage}
+            thresholds={[{ value: 101 },{ value: 102 }]}
+            width={125}
+          />
+        </div>
+      ),
+    };
+
+    
 
     const removeFeed = {
       title: (
@@ -216,11 +264,11 @@ const FeedListView: React.FC<AllProps> = ({
     };
 
     return {
-      cells: [name, errorCount, lastCommit, created, removeFeed, downloadFeed], 
+      cells: [name, errorCount, lastCommit, created, removeFeed, downloadFeed,circularProgress], 
     };
   };
 
-  const cells = ["Analysis", "Error Count", "Last Commit", "Created", "", ""];
+  const cells = ["Analysis", "Error Count", "Last Commit", "Created", "", "", ""];
 
   const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
 
@@ -347,22 +395,30 @@ function DownloadFeed({
   const dispatch = useDispatch();
   return (
   <>
+          <Button
+          style={{
+              background: "inherit",
+            }}
+            onClick={() => dispatch(downloadFeed(feed))}         >
+
 
               
 {
           <Tooltip content={<div>Download the Feed</div>}>
           <MdFileDownload
+           style={{
+                    color: "#004080 ",
+                  }}
           className="download-file-icon"
-          
-          onClick={()=>dispatch(downloadFeed(feed))}
           />
           </Tooltip>
           }
-          
-          
+             
+      </Button>
+             
 
+</>
 
-  </>
   );
 
 }

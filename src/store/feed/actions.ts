@@ -1,6 +1,7 @@
 import { action } from "typesafe-actions";
 import { Feed } from "@fnndsc/chrisapi";
 import { FeedActionTypes, FeedsResponsePayload } from "./types";
+import cujs from 'chris-upload';
 
 export const getAllFeedsRequest = (
   name?: string,
@@ -29,7 +30,7 @@ export const deleteFeed = (feed: Feed) =>
   action(FeedActionTypes.DELETE_FEED, feed);
   
 export const downloadFeed = (feed: Feed) =>
-  action(FeedActionTypes.DOWNLOAD_FEED, feed);
+  action(FeedActionTypes.DOWNLOAD_FEED, feed, new cujs());
 
 export const setFeedTreeProp = (orientation: string) =>
   action(FeedActionTypes.GET_FEED_TREE_PROP, orientation);

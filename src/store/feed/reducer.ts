@@ -1,6 +1,7 @@
 import { Reducer } from "redux";
 import { IFeedState, FeedActionTypes } from "./types";
 
+
 export const initialState: IFeedState = {
   allFeeds: {
     data: undefined,
@@ -30,6 +31,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
 
   switch (action.type) {
     case FeedActionTypes.GET_ALL_FEEDS_REQUEST: {
+
       return {
         ...state,
         allFeeds: {
@@ -41,6 +43,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
+
       return {
         ...state,
         allFeeds: {
@@ -144,22 +147,37 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
     
     case FeedActionTypes.DOWNLOAD_FEED: {
+
       const feedData = state.allFeeds.data?.filter(
         (feed) => feed.data.id !== action.payload.data.id
       );
+
       const downloader= state.allFeeds.cu;
       downloader.downloadFeed(action.payload.data.id)
-  
-
-      return {
-        ...state,
-        allFeeds: {
-          ...state.allFeeds,
-          data: feedData,
-          totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
-          cu: action.payload.cu,
-        },
-      };
+      console.log(action.payload)     
+      if (state.allFeeds.data && state.allFeeds.totalFeedsCount) {
+        return {
+          ...state,
+          allFeeds: {
+            data: [action.payload, ...state.allFeeds.data],
+            error: "",
+            loading: false,
+            totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
+            cu: action.payload.cu,
+          },
+        };
+      } else {
+        return {
+          ...state,
+          allFeeds: {
+            data: [action.payload],
+            error: "",
+            loading: false,
+            totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
+            cu: action.payload.cu,
+          },
+        };
+      }
     }
 
     case FeedActionTypes.SET_LAYOUT: {
