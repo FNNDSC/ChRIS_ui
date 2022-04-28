@@ -41,12 +41,7 @@ const BreadcrumbContainer = ({
               }}
               to={index !== 0 || browserType !== "uploads" ? "#" : undefined}
               onClick={() => {
-                if (
-                  initialPathSplit.length > 1 &&
-                  index === initialPathSplit.length - 1
-                ) {
-                  return;
-                }
+               
                 if (index === 0 && browserType === "uploads") {
                   return;
                 }
@@ -55,10 +50,10 @@ const BreadcrumbContainer = ({
                   (index === 0 && browserType === "feed") ||
                   (index === 0 && browserType === "services")
                 ) {
-                  handleFolderClick(`${path}`);
+                  handleFolderClick(`${path}`, initialPath);
                 } else {
                   const newPath = initialPath.split(`/${path}`);
-                  handleFolderClick(`${newPath[0]}/${path}`);
+                  handleFolderClick(`${newPath[0]}/${path}`, initialPath);
                 }
               }}
               key={path}

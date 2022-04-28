@@ -12,6 +12,7 @@ import {
   setPagination,
   setPaginatedFolders,
   setRoot,
+  clearFolderState,
 } from "./context/actions";
 
 const BrowserContainer = ({
@@ -96,7 +97,8 @@ const BrowserContainer = ({
     fetchUploads();
   }, [rootPath, resourcesFetch]);
 
-  const handleFolderClick = async (path: string, prevPath?: string) => {
+  const handleFolderClick = async (path: string, prevPath: string) => {
+    dispatch(clearFolderState(prevPath, type));
     const client = ChrisAPIClient.getClient();
     const uploads = await client.getFileBrowserPaths({
       path,

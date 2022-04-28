@@ -31,7 +31,7 @@ import { Types } from "./context";
 
 interface BrowserInterface {
   initialPath: string;
-  handleFolderClick: (path: string) => void;
+  handleFolderClick: (path: string, prevPath: string) => void;
   folders: string[];
   files: any[];
   paginated: {

@@ -12,7 +12,7 @@ import {
 } from "./context/actions";
 
 const Search = () => {
-  const { state, dispatch } = useContext(LibraryContext);
+  const { dispatch } = useContext(LibraryContext);
   const [value, setValue] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
@@ -24,6 +24,7 @@ const Search = () => {
       fname_icontains: value,
     };
     const client = ChrisAPIClient.getClient();
+
     const uploadFn = client.getUploadedFiles;
     const feedfn = client.getFiles;
     const servicesfn = client.getServiceFiles;
@@ -34,71 +35,22 @@ const Search = () => {
     const feedFiles = await fetchResource(paginate, boundFeedFn);
     const servicesFiles = await fetchResource(paginate, boundServicesFn);
 
-    if (uploadedFiles && uploadedFiles.length > 0) {
+    const setResources = (path: string, folder: string, type: string) => {
       const uniqArr: {
         [key: string]: string[];
       } = {};
-      console.log("UploadedFiles", uploadedFiles);
-      uploadedFiles.forEach((file: any) => {
-        const names = file.data.fname.split("/");
-        const index = names.findIndex((name: any, index: number) => {
-          if (name === value) {
-            return index;
-          }
-        });
-        console.log("index", index);
-        if (index) {
-          const path = `${names[0]}/${names[1]}`;
-          const folder = names[index - 1];
+      if (uniqArr[path]) {
+        if (!uniqArr[path].includes(folder)) {
+          uniqArr[path].push(folder);
+        }
+      } else {
+        uniqArr[path] = [folder];
+      }
 
-          if (uniqArr[path]) {
-            if (!uniqArr[path].includes(folder)) {
-              uniqArr[path].push(folder);
-            }
-          } else {
-            uniqArr[path] = [folder];
-          }
-          const type = "uploads";
-          console.log("index", index);
-          if (path && uniqArr[path]) {
-            const folders = uniqArr[path];
-            console.log("Folders", folders);
-            dispatch(setFolders(folders, path));
-            dispatch(setInitialPath(path, type));
-            dispatch(setPaginatedFolders([], path));
-            dispatch(
-              setPagination(path, {
-                hasNext: false,
-                limit: 30,
-                offset: 0,
-                totalCount: 0,
-              })
-            );
-            dispatch(setRoot(true, type));
-          }
-        }
-      });
-    }
-    if (feedFiles && feedFiles.length > 0) {
-      const uniqArr: {
-        [key: string]: string[];
-      } = {};
-      let path;
-      feedFiles.forEach((file: any) => {
-        const names = file.data.fname.split(`/`);
-        path = names[0];
-        const folder = names[1];
-        if (uniqArr[path]) {
-          if (!uniqArr[path].includes(folder)) {
-            uniqArr[path].push(folder);
-          }
-        } else {
-          uniqArr[path] = [folder];
-        }
-      });
-      const type = "feed";
       if (path && uniqArr[path]) {
+        // Debug this
         const folders = uniqArr[path];
+
         dispatch(setFolders(folders, path));
         dispatch(setInitialPath(path, type));
         dispatch(setPaginatedFolders([], path));
@@ -112,8 +64,36 @@ const Search = () => {
         );
         dispatch(setRoot(true, type));
       }
+    };
+
+    if (uploadedFiles && uploadedFiles.length > 0) {
+      console.log("UPLOADEDFILES:", uploadedFiles);
+      uploadedFiles.forEach((file: any) => {
+        const names = file.data.fname.split("/");
+        const index = names.findIndex((name: any, index: number) => {
+          if (name === value) {
+            return index;
+          }
+        });
+
+        if (index) {
+          const path = `${names[0]}/${names[1]}`;
+          const folder = names[index - 1]; // Gideon or Test_upload
+          setResources(path, folder, "uploads");
+        }
+      });
+    }
+    if (feedFiles && feedFiles.length > 0) {
+      let path;
+      feedFiles.forEach((file: any) => {
+        const names = file.data.fname.split(`/`);
+        path = names[0];
+        const folder = names[1];
+        setResources(path, folder, "feed");
+      });
     }
     if (servicesFiles && servicesFiles.length > 0) {
+      // Code yet to be written
     }
     setLoading(false);
     setValue("");
