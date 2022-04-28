@@ -81,6 +81,7 @@ export enum Types {
   SET_ADD_FILE_SELECT = "SET_ADD_FILE_SELECT",
   SET_REMOVE_FILE_SELECT = "SET_REMOVE_FILE_SELECT",
   SET_CLEAR_FILE_SELECT = "SET_CLEAR_FILE_SELECT",
+  CLEAR_FOLDER_STATE = "CLEAR_FOLDER_STATE",
 }
 
 type LibraryPayload = {
@@ -141,6 +142,11 @@ type LibraryPayload = {
   [Types.SET_CLEAR_FILE_SELECT]: {
     clear: boolean;
   };
+
+  [Types.CLEAR_FOLDER_STATE]: {
+    path: string;
+    type: string;
+  };
 };
 
 export type LibraryActions =
@@ -167,6 +173,21 @@ export const libraryReducer = (
           [action.payload.type]: action.payload.path,
         },
       };
+    }
+
+    case Types.CLEAR_FOLDER_STATE: {
+      const copy = { ...state.foldersState };
+      const path = action.payload.path;
+      if (path) {
+        delete copy[path];
+        return {
+          ...state,
+          foldersState: copy,
+        };
+      } else
+        return {
+          ...state,
+        };
     }
 
     case Types.SET_CLEAR_FILE_SELECT: {
@@ -306,8 +327,6 @@ export const libraryReducer = (
           },
         };
       }
-        
-      
     }
 
     case Types.SET_ROOT: {
