@@ -137,9 +137,10 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       const feedData = state.allFeeds.data?.filter(
         (feed) => feed.data.id !== action.payload.data.id
       );
-      const downloader= state.allFeeds.cu;
-      downloader.downloadFeed(action.payload.data.id)
-  
+
+      //@ts-ignore
+      const downloader = state.allFeeds.cu;
+      downloader.downloadFeed(action.payload.data.id);
 
       return {
         ...state,
