@@ -16,8 +16,8 @@ function* handleResponse(action: any) {
         username: action.payload.username,
       })
     );
-    window.sessionStorage.setItem("CHRIS_TOKEN", action.payload.token);
-    window.sessionStorage.setItem("USERNAME", action.payload.username);
+    window.localStorage.setItem("CHRIS_TOKEN", action.payload.token);
+    window.localStorage.setItem("USERNAME", action.payload.username);
   } catch (error) {
     setAuthError();
   }
@@ -32,8 +32,8 @@ function* watchLoginRequest() {
 // ----------------------------------------------------------------
 
 function handleLogout() {
-  window.sessionStorage.removeItem("CHRIS_TOKEN");
-  window.sessionStorage.removeItem("USERNAME");
+  window.localStorage.removeItem("CHRIS_TOKEN");
+  window.localStorage.removeItem("USERNAME");
 }
 function* watchLogoutRequest() {
   yield takeEvery(UserActionTypes.LOGOUT_USER, handleLogout);

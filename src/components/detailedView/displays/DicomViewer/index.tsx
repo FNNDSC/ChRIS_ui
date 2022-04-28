@@ -38,7 +38,7 @@ cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     "Content-Type": "application/vnd.collection+json",
-    Authorization: "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
+    Authorization: "Token " + window.localStorage.getItem("CHRIS_TOKEN"),
   },
   method: "get",
   responseType: "arrayBuffer",
