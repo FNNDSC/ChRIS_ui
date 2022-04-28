@@ -153,8 +153,9 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       );
 
       const downloader= state.allFeeds.cu;
-      downloader.downloadFeed(action.payload.data.id)
-      console.log(action.payload)     
+      const feedName = "Download of "+ action.payload.data.name;
+      downloader.downloadFeed(action.payload.data.id,feedName)
+     
       if (state.allFeeds.data && state.allFeeds.totalFeedsCount) {
         return {
           ...state,

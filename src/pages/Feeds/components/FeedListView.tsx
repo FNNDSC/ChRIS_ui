@@ -105,7 +105,6 @@ const FeedListView: React.FC<AllProps> = ({
     const name = {
       title: (
         <span className="feed-list__name">
-          <FaCodeBranch />
           <Link to={`/feeds/${id}`}>{feedName}</Link>
         </span>
       ),
@@ -170,7 +169,7 @@ const FeedListView: React.FC<AllProps> = ({
     const created = {
       title: (
         <span>
-          Created on <Moment format="DD MMM , HH:mm">{creation_date}</Moment>{" "}
+           <Moment format="DD MMM , HH:mm">{creation_date}</Moment>{" "}
         </span>
       ),
     };
@@ -182,6 +181,20 @@ const FeedListView: React.FC<AllProps> = ({
               key={feed.data.id}
               feed={feed}
             />
+         ),
+    };
+    
+    const feedSize = {
+      title: (
+
+            <p>Feed Size(MB)</p>
+         ),
+    };
+    
+    const runTime = {
+      title: (
+
+            <p>Feed Run Time</p>
          ),
     };
     
@@ -215,7 +228,7 @@ const FeedListView: React.FC<AllProps> = ({
       title: (
         <div style={{ height: '40px', width: '40px' ,display: 'block'}}>
           <ChartDonutUtilization
-            ariaTitle="Feed Progress"
+            ariaTitle='"displayErrorCount"'
             data={{ x: 'Storage capacity', y: progress }}
             height={125}
             title={percentage}
@@ -264,11 +277,11 @@ const FeedListView: React.FC<AllProps> = ({
     };
 
     return {
-      cells: [name, errorCount, lastCommit, created, removeFeed, downloadFeed,circularProgress], 
+      cells: [name, created, feedSize, runTime, circularProgress, downloadFeed, removeFeed], 
     };
   };
 
-  const cells = ["Analysis", "Error Count", "Last Commit", "Created", "", "", ""];
+  const cells = ["Analysis", "Created", "Feed Size","Run Time", "", "", ""];
 
   const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
 
