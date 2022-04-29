@@ -31,7 +31,6 @@ export const setLoading = (loading: boolean) => {
 };
 
 export const setFolders = (folders: any[], type: string) => {
-  console.log("FOLDERS", folders);
   return {
     type: Types.SET_FOLDERS,
     payload: {
