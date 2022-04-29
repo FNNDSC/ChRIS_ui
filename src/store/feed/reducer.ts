@@ -1,5 +1,6 @@
 import { Reducer } from "redux";
 import { IFeedState, FeedActionTypes } from "./types";
+import { Feed } from "@fnndsc/chrisapi"
 
 
 export const initialState: IFeedState = {
@@ -29,7 +30,7 @@ export const initialState: IFeedState = {
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
 
-  switch (action.type) {
+  switch  (action.type) {
     case FeedActionTypes.GET_ALL_FEEDS_REQUEST: {
 
       return {
@@ -154,9 +155,12 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
 
       const downloader= state.allFeeds.cu;
       const feedName = "Download of "+ action.payload.data.name;
-      downloader.downloadFeed(action.payload.data.id,feedName)
+      const pluginInstance = downloader.downloadFeed(action.payload.data.id,feedName);
+      
+      action.payload.data.name = feedName;
      
       if (state.allFeeds.data && state.allFeeds.totalFeedsCount) {
+        
         return {
           ...state,
           allFeeds: {

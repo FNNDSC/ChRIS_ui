@@ -203,7 +203,6 @@ const FeedListView: React.FC<AllProps> = ({
         if(error) return 404;
         let progress = 0;
         
-        console.log(finished_jobs + ":" + runningJobsCount)
         if(runningJobsCount==0){
           progress = 100;
         }
