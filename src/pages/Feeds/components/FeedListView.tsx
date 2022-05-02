@@ -200,7 +200,7 @@ const FeedListView: React.FC<AllProps> = ({
     
     const getProgress = function(feed:Feed){
     
-        if(error) return 404;
+
         let progress = 0;
         
         if(runningJobsCount==0){
@@ -214,12 +214,15 @@ const FeedListView: React.FC<AllProps> = ({
     }
     
    
+    let feedProgressText = finished_jobs+"/"+(runningJobsCount+finished_jobs) +" jobs completed";
+    let progress = getProgress(feed)
+    let percentage = progress + "%";
+    if(error){
+      progress = 103;
+      percentage = "X";
+      feedProgressText = error+"/"+(finished_jobs+error) +" jobs failed";
+    }
 
-    const progress = getProgress(feed)
-    const percentage = progress + "%";
-    
-    
-   
     
     
     const circularProgress = {
@@ -227,8 +230,8 @@ const FeedListView: React.FC<AllProps> = ({
       title: (
         <div style={{ height: '40px', width: '40px' ,display: 'block'}}>
           <ChartDonutUtilization
-            ariaTitle='"displayErrorCount"'
-            data={{ x: 'Storage capacity', y: progress }}
+            ariaTitle={feedProgressText}
+            data={{ x: 'Feed Progress', y: progress }}
             height={125}
             title={percentage}
             thresholds={[{ value: 101 },{ value: 102 }]}

@@ -21,7 +21,7 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
   };
   const client = ChrisAPIClient.getClient();
   const cu = new cujs();
-  
+
   cu.setClient(client);
 
   try {
