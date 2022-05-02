@@ -144,7 +144,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state,
           allFeeds: {
             ...state.allFeeds,
-            data: [...state.allFeeds.data, action.payload],
+            data: [action.payload, ...state.allFeeds.data],
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
           },
         };
