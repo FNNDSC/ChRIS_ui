@@ -182,8 +182,9 @@ const FeedListView: React.FC<AllProps> = ({
       title: <p>Feed Run Time</p>,
     };
 
+  
+
     const getProgress = function (feed: Feed) {
-      if (error) return 404;
       let progress = 0;
 
       if (runningJobsCount == 0) {
@@ -195,8 +196,32 @@ const FeedListView: React.FC<AllProps> = ({
       return Math.round(progress);
     };
 
+    let feedProgressText =
+      finished_jobs +
+      "/" +
+      (runningJobsCount + finished_jobs) +
+      " jobs completed";
+    let progress = getProgress(feed);
+    let percentage = progress + "%";
+    if (error) {
+      progress = 103;
+      percentage = "X";
+      feedProgressText = error + "/" + (finished_jobs + error) + " jobs failed";
+    }
+
     const circularProgress = {
-      title: <div>{downloadStatus}</div>,
+      title: (
+        <div style={{ height: "40px", width: "40px", display: "block" }}>
+          <ChartDonutUtilization
+            ariaTitle={feedProgressText}
+            data={{ x: "Feed Progress", y: progress }}
+            height={125}
+            title={percentage}
+            thresholds={[{ value: 101 }, { value: 102 }]}
+            width={125}
+          />
+        </div>
+      ),
     };
 
     const removeFeed = {

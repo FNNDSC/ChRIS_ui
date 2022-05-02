@@ -9,7 +9,7 @@ import {
 import { FeedActionTypes } from "./types";
 import { IActionTypeParam } from "../../api/models/base.model";
 import ChrisAPIClient from "../../api/chrisapiclient";
-
+import cujs from 'chris-upload'
 import {
   getAllFeedsSuccess,
   getAllFeedsError,
@@ -32,6 +32,9 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
     offset,
   };
   const client = ChrisAPIClient.getClient();
+  const cu = new cujs();
+
+  cu.setClient(client);
 
   try {
     const feedsList: FeedList = yield client.getFeeds(params);

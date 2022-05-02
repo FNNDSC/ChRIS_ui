@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@fnndsc/chrisapi": "^1.6.1",
+    "chris-upload":"^1.7.5",
     "@patternfly/patternfly": "^4.164.2",
     "@patternfly/react-core": "^4.198.19",
     "@patternfly/react-styles": "^4.31.1",
@@ -12,7 +13,7 @@
     "@react-hook/resize-observer": "^1.2.5",
     "antd": "^4.19.3",
     "axios": "^0.21.4",
-    "chris-upload": "^1.7.1",
+   
     "classnames": "^2.3.1",
     "clone": "^2.1.2",
     "cornerstone-core": "^2.6.1",
