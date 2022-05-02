@@ -36,6 +36,8 @@ export interface IFeedState {
   currentFeed: FeedPayload;
   feedTreeProp: FeedTreeProp;
   currentLayout: boolean;
+  downloadError: string;
+  downloadStatus: "";
 }
 
 export const FeedActionTypes = keyMirror({
@@ -47,8 +49,14 @@ export const FeedActionTypes = keyMirror({
   GET_FEED_ERROR: null,
   ADD_FEED: null,
   DELETE_FEED: null,
-  DOWNLOAD_FEED: null,
+  DOWNLOAD_FEED_REQUEST: null,
+  DOWNLOAD_FEED_SUCCESS: null,
+  DOWNLOAD_FEED_ERROR: null,
   SET_LAYOUT: null,
   GET_FEED_TREE_PROP: null,
   RESET_FEED: null,
+  POLL_DOWNLOAD: null,
+  POLL_DOWNLOAD_SUCCESS: null,
+  STOP_FETCH_FEED_RESOURCES: null,
+  DOWNLOAD_STATUS: null,
 });

@@ -21,12 +21,11 @@ export const initialState: IFeedState = {
       y: 50,
     },
   },
+  downloadError: "",
+  downloadStatus:""
 };
 
-
-
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
-
   switch (action.type) {
     case FeedActionTypes.GET_ALL_FEEDS_REQUEST: {
       return {
@@ -34,6 +33,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         allFeeds: {
           ...state.allFeeds,
           loading: true,
+          cu: action.payload.cu,
         },
       };
     }
@@ -42,12 +42,11 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         allFeeds: {
-          cu:action.payload.cu,
           data: action.payload.feeds,
           error: "",
           loading: false,
           totalFeedsCount: action.payload.totalCount,
-
+          cu: action.payload.cu,
         },
       };
     }
@@ -58,6 +57,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         allFeeds: {
           ...state.allFeeds,
           error: action.payload,
+          cu: action.payload.cu,
         },
       };
     }
@@ -68,6 +68,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         currentFeed: {
           ...state.currentFeed,
           loading: true,
+          cu: action.payload.cu,
         },
       };
     }
@@ -79,6 +80,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           data: action.payload,
           error: "",
           loading: false,
+          cu: action.payload.cu,
         },
       };
     }
@@ -90,6 +92,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state.currentFeed,
           error: action.payload,
           loading: false,
+          cu: action.payload.cu,
         },
       };
     }
@@ -103,6 +106,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
             error: "",
             loading: false,
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
+            cu: action.payload.cu,
           },
         };
       } else {
@@ -113,6 +117,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
             error: "",
             loading: false,
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
+            cu: action.payload.cu,
           },
         };
       }
@@ -132,23 +137,28 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         },
       };
     }
-    
-    case FeedActionTypes.DOWNLOAD_FEED: {
-      const feedData = state.allFeeds.data?.filter(
-        (feed) => feed.data.id !== action.payload.data.id
-      );
 
-      //@ts-ignore
-      const downloader = state.allFeeds.cu;
-      downloader.downloadFeed(action.payload.data.id);
+    case FeedActionTypes.DOWNLOAD_FEED_SUCCESS: {
+      if (state.allFeeds.data) {
+        return {
+          ...state,
+          allFeeds: {
+            ...state.allFeeds,
+            data: [...state.allFeeds.data, action.payload],
+            totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
+          },
+        };
+      } else {
+        return {
+          ...state,
+        };
+      }
+    }
 
+    case FeedActionTypes.DOWNLOAD_FEED_ERROR: {
       return {
         ...state,
-        allFeeds: {
-          ...state.allFeeds,
-          data: feedData,
-          totalFeedsCount: state.allFeeds.totalFeedsCount,
-        },
+        downloadError: action.payload,
       };
     }
 

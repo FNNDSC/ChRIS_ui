@@ -4,6 +4,8 @@ import { useDispatch, connect } from "react-redux";
 import { Link } from "react-router-dom";
 import Moment from "react-moment";
 import pluralize from "pluralize";
+import "@patternfly/react-core/dist/styles/base.css";
+
 import {
   PageSection,
   PageSectionVariants,
@@ -16,25 +18,26 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { Table, TableBody } from "@patternfly/react-table";
-import {
-  FaCodeBranch,
-  FaTrashAlt,
-  FaExclamationCircle,
-  FaCircle,
-} from "react-icons/fa";
+import { ChartDonutUtilization } from "@patternfly/react-charts";
+import { FaTrashAlt, FaExclamationCircle, FaCircle } from "react-icons/fa";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { setSidebarActive } from "../../../store/ui/actions";
-import { getAllFeedsRequest, deleteFeed, downloadFeed } from "../../../store/feed/actions";
+import {
+  getAllFeedsRequest,
+  deleteFeed,
+  downloadFeedRequest,
+} from "../../../store/feed/actions";
 import { IFeedState } from "../../../store/feed/types";
 import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
-import { Feed } from "@fnndsc/chrisapi";
 import {
   EmptyStateTable,
   generateTableLoading,
 } from "../../../components/common/emptyTable";
 import { usePaginate } from "../../../components/common/pagination";
+import { MdFileDownload } from "react-icons/md";
+import { Feed } from "@fnndsc/chrisapi";
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive;
@@ -47,6 +50,7 @@ const FeedListView: React.FC<AllProps> = ({
   setSidebarActive,
   allFeeds,
   getAllFeedsRequest,
+  downloadStatus,
 }: AllProps) => {
   const {
     filterState,
@@ -97,7 +101,6 @@ const FeedListView: React.FC<AllProps> = ({
     const name = {
       title: (
         <span className="feed-list__name">
-          <FaCodeBranch />
           <Link to={`/feeds/${id}`}>{feedName}</Link>
         </span>
       ),
@@ -162,21 +165,38 @@ const FeedListView: React.FC<AllProps> = ({
     const created = {
       title: (
         <span>
-          Created on <Moment format="DD MMM , HH:mm">{creation_date}</Moment>{" "}
+          <Moment format="DD MMM , HH:mm">{creation_date}</Moment>{" "}
         </span>
       ),
     };
+
     const downloadFeed = {
-      title: (
+      title: <DownloadFeed key={feed.data.id} feed={feed} />,
+    };
 
-            <DownloadFeed
-              key={feed.data.id}
-              feed={feed}
-            />
+    const feedSize = {
+      title: <p>Feed Size(MB)</p>,
+    };
 
-  
-         ),
+    const runTime = {
+      title: <p>Feed Run Time</p>,
+    };
 
+    const getProgress = function (feed: Feed) {
+      if (error) return 404;
+      let progress = 0;
+
+      if (runningJobsCount == 0) {
+        progress = 100;
+      } else {
+        progress = (finished_jobs / (runningJobsCount + finished_jobs)) * 100;
+      }
+
+      return Math.round(progress);
+    };
+
+    const circularProgress = {
+      title: <div>{downloadStatus}</div>,
     };
 
     const removeFeed = {
@@ -215,11 +235,19 @@ const FeedListView: React.FC<AllProps> = ({
     };
 
     return {
-      cells: [name, errorCount, lastCommit, created, removeFeed, downloadFeed], 
+      cells: [
+        name,
+        created,
+        feedSize,
+        runTime,
+        circularProgress,
+        downloadFeed,
+        removeFeed,
+      ],
     };
   };
 
-  const cells = ["Analysis", "Error Count", "Last Commit", "Created", "", ""];
+  const cells = ["Analysis", "Created", "Feed Size", "Run Time", "", "", ""];
 
   const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
 
@@ -294,7 +322,6 @@ const FeedListView: React.FC<AllProps> = ({
           </Table>
         )}
       </PageSection>
-      
     </React.Fragment>
   );
 };
@@ -308,6 +335,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 const mapStateToProps = ({ feed }: ApplicationState) => ({
   allFeeds: feed.allFeeds,
+  downloadStatus: feed.downloadStatus,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedListView);
@@ -338,27 +366,27 @@ function DeleteFeed({
   );
 }
 
-function DownloadFeed({
-  feed,
-}: {
-  feed: Feed;
-}) {
+function DownloadFeed({ feed }: { feed: Feed }) {
   const dispatch = useDispatch();
   return (
-  <>
-  <Button
-    onClick={()=>dispatch(downloadFeed(feed))}
-    icon={
-              <Tooltip content={<div>Download the Feed</div>}>
-              <b>⤓</b>
-              </Tooltip>
-            }
-    >
-
-    </Button>
-  </>
+    <>
+      <Button
+        style={{
+          background: "inherit",
+        }}
+        onClick={() => dispatch(downloadFeedRequest(feed))}
+      >
+        {
+          <Tooltip content={<div>Download the Feed</div>}>
+            <MdFileDownload
+              style={{
+                color: "#004080 ",
+              }}
+              className="download-file-icon"
+            />
+          </Tooltip>
+        }
+      </Button>
+    </>
   );
-
 }
-
-
