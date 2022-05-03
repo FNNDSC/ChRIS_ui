@@ -34,40 +34,31 @@ const Search = () => {
     const uploadedFiles = await fetchResource(paginate, boundUploadFn);
     const feedFiles = await fetchResource(paginate, boundFeedFn);
     const servicesFiles = await fetchResource(paginate, boundServicesFn);
+ 
 
     const setResources = (path: string, folder: string, type: string) => {
-      const uniqArr: {
-        [key: string]: string[];
-      } = {};
-      if (uniqArr[path]) {
-        if (!uniqArr[path].includes(folder)) {
-          uniqArr[path].push(folder);
-        }
-      } else {
-        uniqArr[path] = [folder];
-      }
-
-      if (path && uniqArr[path]) {
-        // Debug this
-        const folders = uniqArr[path];
-
-        dispatch(setFolders(folders, path));
-        dispatch(setInitialPath(path, type));
-        dispatch(setPaginatedFolders([], path));
-        dispatch(
-          setPagination(path, {
-            hasNext: false,
-            limit: 30,
-            offset: 0,
-            totalCount: 0,
-          })
-        );
-        dispatch(setRoot(true, type));
-      }
+      dispatch(setFolders([folder], path));
+      dispatch(setInitialPath(path, type));
+      dispatch(setPaginatedFolders([], path));
+      dispatch(
+        setPagination(path, {
+          hasNext: false,
+          limit: 30,
+          offset: 0,
+          totalCount: 0,
+        })
+      );
+      dispatch(setRoot(true, type));
     };
 
+    console.log(
+      "UploadedFiles, ServicesFiles, feedFiles",
+      uploadedFiles,
+      servicesFiles,
+      feedFiles
+    );
+
     if (uploadedFiles && uploadedFiles.length > 0) {
-      console.log("UPLOADEDFILES:", uploadedFiles);
       uploadedFiles.forEach((file: any) => {
         const names = file.data.fname.split("/");
         const index = names.findIndex((name: any, index: number) => {
