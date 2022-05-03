@@ -22,7 +22,7 @@ export const initialState: IFeedState = {
     },
   },
   downloadError: "",
-  downloadStatus:""
+  downloadStatus: "",
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -33,7 +33,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         allFeeds: {
           ...state.allFeeds,
           loading: true,
-          cu: action.payload.cu,
         },
       };
     }
@@ -46,7 +45,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           error: "",
           loading: false,
           totalFeedsCount: action.payload.totalCount,
-          cu: action.payload.cu,
         },
       };
     }
@@ -57,7 +55,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         allFeeds: {
           ...state.allFeeds,
           error: action.payload,
-          cu: action.payload.cu,
         },
       };
     }
@@ -68,7 +65,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         currentFeed: {
           ...state.currentFeed,
           loading: true,
-          cu: action.payload.cu,
         },
       };
     }
@@ -80,7 +76,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           data: action.payload,
           error: "",
           loading: false,
-          cu: action.payload.cu,
         },
       };
     }
@@ -92,7 +87,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state.currentFeed,
           error: action.payload,
           loading: false,
-          cu: action.payload.cu,
         },
       };
     }
@@ -106,7 +100,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
             error: "",
             loading: false,
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
-            cu: action.payload.cu,
           },
         };
       } else {
@@ -117,7 +110,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
             error: "",
             loading: false,
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
-            cu: action.payload.cu,
           },
         };
       }

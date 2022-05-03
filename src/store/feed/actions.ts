@@ -1,5 +1,5 @@
 import { action } from "typesafe-actions";
-import { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import { Feed } from "@fnndsc/chrisapi";
 import { FeedActionTypes, FeedsResponsePayload } from "./types";
 
 export const getAllFeedsRequest = (
@@ -39,11 +39,5 @@ export const setFeedLayout = () => action(FeedActionTypes.SET_LAYOUT);
 
 export const resetFeed = () => action(FeedActionTypes.RESET_FEED);
 
-export const stopFeedFeedResources = () =>
-  action(FeedActionTypes.STOP_FETCH_FEED_RESOURCES);
 
-export const pollDownload = (instance: PluginInstance) =>
-  action(FeedActionTypes.POLL_DOWNLOAD, instance);
 
-export const fetchStatus = (status: string) =>
-  action(FeedActionTypes.DOWNLOAD_STATUS, status);

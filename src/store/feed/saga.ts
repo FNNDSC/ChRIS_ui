@@ -1,15 +1,9 @@
-import { all, fork, put, takeEvery, delay, cancel } from "redux-saga/effects";
-import {
-  Feed,
-  FeedFile,
-  FeedList,
-  Plugin,
-  PluginInstance,
-} from "@fnndsc/chrisapi";
+import { all, fork, put, takeEvery } from "redux-saga/effects";
+import { Feed, FeedList, Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { FeedActionTypes } from "./types";
 import { IActionTypeParam } from "../../api/models/base.model";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import cujs from 'chris-upload'
+
 import {
   getAllFeedsSuccess,
   getAllFeedsError,
@@ -17,12 +11,11 @@ import {
   getFeedError,
   downloadFeedError,
   downloadFeedSuccess,
-  pollDownload,
-  fetchStatus,
 } from "./actions";
 import { getPluginInstancesRequest } from "../pluginInstance/actions";
 import { getPlugin } from "../../components/feed/CreateFeed/utils/createFeed";
-import { getPluginFiles } from "../workflows/utils";
+
+import cujs from "chris-upload";
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
   const { name, limit, offset } = action.payload;
@@ -32,10 +25,6 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
     offset,
   };
   const client = ChrisAPIClient.getClient();
-  const cu = new cujs();
-
-  cu.setClient(client);
-
   try {
     const feedsList: FeedList = yield client.getFeeds(params);
     const totalCount = feedsList.totalCount;
@@ -75,6 +64,8 @@ function* handleDowloadFeed(action: IActionTypeParam) {
 
   const path = `${data.creator_username}/feed_${data.id}/`;
   const client = ChrisAPIClient.getClient();
+  const cu = new cujs();
+  cu.setClient(client);
   //@ts-ignore
   const dircopy: Plugin = yield getPlugin("pl-dircopy");
 
@@ -85,48 +76,22 @@ function* handleDowloadFeed(action: IActionTypeParam) {
         {
           //@ts-ignore
           dir: path,
-          title: `Downloading feed_${data.id}`,
+          title: `Downloading ${data.name}`,
         }
       );
       const feed: Feed = yield createdInstance.getFeed();
       yield put(downloadFeedSuccess(feed));
-      const plpfdoArgs = {
-        title: "zip_files",
-        previous_id: createdInstance.data.id,
-        inputFile: "input.meta.json",
-        noJobLogging: true,
-        exec: "'zip -r %outputDir/parent.zip %inputDir'",
-      };
+
       try {
-        const plpfdo: Plugin = yield getPlugin("pl-pfdorun");
-        const plpfdoInstance: PluginInstance =
-          yield client.createPluginInstance(plpfdo.data.id, plpfdoArgs);
-        yield put(pollDownload(plpfdoInstance));
+        yield getPlugin("pl-pfdorun");
+        cu.zipFiles(createdInstance.data.id);
       } catch (error) {
         throw new Error("Please upload and register pl-pfdorun");
       }
     } catch (error: any) {
-      const errorParsed = error.response.data;
+      const errorParsed = error.response.data.value[0];
       yield put(downloadFeedError(errorParsed));
     }
-  }
-
-  // const feed = createFeedInstanceWithDircopy();
-}
-
-function* pollFeedEndpoints(action: IActionTypeParam) {
-  const instance = action.payload;
-
-  do {
-    yield delay(5000);
-
-    yield instance.get();
-    yield put(fetchStatus(status));
-    //@ts-ignore
-  } while (status !== "finishedSuccessfully" && status !== "cancelled");
-  if (status === "finishedSuccessfully") {
-    const files: any[] = yield getPluginFiles(instance);
-    console.log("FILES DOWNLOAD:", files);
   }
 }
 
@@ -142,15 +107,10 @@ function* watchDownloadRequest() {
   yield takeEvery(FeedActionTypes.DOWNLOAD_FEED_REQUEST, handleDowloadFeed);
 }
 
-function* watchPollDownloadRequest() {
-  yield takeEvery(FeedActionTypes.POLL_DOWNLOAD, pollFeedEndpoints);
-}
-
 export function* feedSaga() {
   yield all([
     fork(watchGetAllFeedsRequest),
     fork(watchGetFeedRequest),
     fork(watchDownloadRequest),
-    fork(watchPollDownloadRequest),
   ]);
 }
