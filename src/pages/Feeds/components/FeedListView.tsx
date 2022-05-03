@@ -17,7 +17,7 @@ import {
   Button,
   Tooltip,
 } from "@patternfly/react-core";
-import { Table, TableBody } from "@patternfly/react-table";
+import { Table, TableBody, Thead, Tr, Th } from "@patternfly/react-table";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
 import { FaTrashAlt, FaExclamationCircle, FaCircle } from "react-icons/fa";
 import { ApplicationState } from "../../../store/root/applicationState";
@@ -182,8 +182,6 @@ const FeedListView: React.FC<AllProps> = ({
       title: <p>Feed Run Time</p>,
     };
 
-  
-
     const getProgress = function (feed: Feed) {
       let progress = 0;
 
@@ -343,6 +341,19 @@ const FeedListView: React.FC<AllProps> = ({
             cells={cells}
             rows={rows}
           >
+            {
+              <Thead>
+                <Tr>
+                  <Th>Feed Name</Th>
+                  <Th>Created Date</Th>
+                  <Th>Feed Size</Th>
+                  <Th>Total Runtime</Th>
+                  <Th>Download Progress</Th>
+                  <Th>Download Feed</Th>
+                </Tr>
+              </Thead>
+            }
+
             {loading ? generateTableLoading() : <TableBody />}
           </Table>
         )}
