@@ -345,11 +345,11 @@ const FeedListView: React.FC<AllProps> = ({
               <Thead>
                 <Tr>
                   <Th>Feed Name</Th>
-                  <Th>Created Date</Th>
-                  <Th>Feed Size</Th>
+                  <Th>Created</Th>
+                  <Th>Size</Th>
                   <Th>Total Runtime</Th>
-                  <Th>Download Progress</Th>
-                  <Th>Download Feed</Th>
+                  <Th>Progress</Th>
+                  <Th>Download</Th>
                 </Tr>
               </Thead>
             }
