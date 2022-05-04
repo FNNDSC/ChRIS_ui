@@ -12,9 +12,10 @@ import {
 } from "./context/actions";
 
 const Search = () => {
-  const { dispatch } = useContext(LibraryContext);
+  const { dispatch, state } = useContext(LibraryContext);
   const [value, setValue] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  console.log("STATE", state);
 
   const handleSearch = async () => {
     setLoading(true);
@@ -34,31 +35,11 @@ const Search = () => {
     const uploadedFiles = await fetchResource(paginate, boundUploadFn);
     const feedFiles = await fetchResource(paginate, boundFeedFn);
     const servicesFiles = await fetchResource(paginate, boundServicesFn);
- 
-
-    const setResources = (path: string, folder: string, type: string) => {
-      dispatch(setFolders([folder], path));
-      dispatch(setInitialPath(path, type));
-      dispatch(setPaginatedFolders([], path));
-      dispatch(
-        setPagination(path, {
-          hasNext: false,
-          limit: 30,
-          offset: 0,
-          totalCount: 0,
-        })
-      );
-      dispatch(setRoot(true, type));
-    };
-
-    console.log(
-      "UploadedFiles, ServicesFiles, feedFiles",
-      uploadedFiles,
-      servicesFiles,
-      feedFiles
-    );
 
     if (uploadedFiles && uploadedFiles.length > 0) {
+      const uploadedFolders: string[] = [];
+      let path = "";
+
       uploadedFiles.forEach((file: any) => {
         const names = file.data.fname.split("/");
         const index = names.findIndex((name: any, index: number) => {
@@ -68,21 +49,27 @@ const Search = () => {
         });
 
         if (index) {
-          const path = `${names[0]}/${names[1]}`;
-          const folder = names[index - 1]; // Gideon or Test_upload
-          setResources(path, folder, "uploads");
+          path = `${names[0]}/${names[1]}`;
+          const folder = index === 2 ? names[index] : names[index - 1];
+          uploadedFolders.push(folder);
         }
       });
+      dispatch(setFolders(uploadedFolders, path));
+      dispatch(setInitialPath(path, "uploads"));
     }
     if (feedFiles && feedFiles.length > 0) {
-      let path;
+      let path = "";
+      const feedFolders: string[] = [];
       feedFiles.forEach((file: any) => {
         const names = file.data.fname.split(`/`);
         path = names[0];
         const folder = names[1];
-        setResources(path, folder, "feed");
+        feedFolders.push(folder);
       });
+      dispatch(setFolders(feedFolders, path));
+      dispatch(setInitialPath(path, "feed"));
     }
+
     if (servicesFiles && servicesFiles.length > 0) {
       // Code yet to be written
     }
