@@ -15,6 +15,7 @@ const Search = () => {
   const { dispatch, state } = useContext(LibraryContext);
   const [value, setValue] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const [emptySet, setEmptySet] = React.useState("");
   console.log("STATE", state);
 
   const handleSearch = async () => {
@@ -24,6 +25,7 @@ const Search = () => {
       offset: 0,
       fname_icontains: value,
     };
+
     const client = ChrisAPIClient.getClient();
 
     const uploadFn = client.getUploadedFiles;
@@ -35,6 +37,8 @@ const Search = () => {
     const uploadedFiles = await fetchResource(paginate, boundUploadFn);
     const feedFiles = await fetchResource(paginate, boundFeedFn);
     const servicesFiles = await fetchResource(paginate, boundServicesFn);
+
+    console.log("FILES", uploadedFiles, feedFiles);
 
     if (uploadedFiles && uploadedFiles.length > 0) {
       const uploadedFolders: string[] = [];
@@ -73,6 +77,14 @@ const Search = () => {
     if (servicesFiles && servicesFiles.length > 0) {
       // Code yet to be written
     }
+
+    if (
+      feedFiles.length === 0 &&
+      uploadedFiles.length === 0 &&
+      servicesFiles.length === 0
+    ) {
+      setEmptySet("No dataset found");
+    }
     setLoading(false);
     setValue("");
   };
@@ -103,6 +115,7 @@ const Search = () => {
           <span>Fetching Search Results....</span>
         </>
       )}
+      {emptySet && <div>No Dataset Found</div>}
     </div>
   );
 };
