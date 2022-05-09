@@ -98,11 +98,13 @@ const BrowserContainer = ({
   }, [rootPath, resourcesFetch]);
 
   const handleFolderClick = async (path: string, prevPath: string) => {
+   
     dispatch(clearFolderState(prevPath, type));
     const client = ChrisAPIClient.getClient();
     const uploads = await client.getFileBrowserPaths({
       path,
     });
+    console.log("PATH", path, uploads);
 
     const pagination = {
       limit: 30,
