@@ -270,7 +270,7 @@ const FeedListView: React.FC<AllProps> = ({
     };
   };
 
-  const cells = ["Analysis", "Created", "Feed Size", "Run Time", "", "", ""];
+  const cells = ["Analysis", "Created", "Size", "Run Time", "Progress", "Download", ""];
 
   const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
 
@@ -344,12 +344,13 @@ const FeedListView: React.FC<AllProps> = ({
             {
               <Thead>
                 <Tr>
-                  <Th>Feed Name</Th>
-                  <Th>Created Date</Th>
-                  <Th>Feed Size</Th>
-                  <Th>Total Runtime</Th>
-                  <Th>Download Progress</Th>
-                  <Th>Download Feed</Th>
+                  <Th>Analysis</Th>
+                  <Th>Created</Th>
+                  <Th>Size</Th>
+                  <Th>Run Time</Th>
+                  <Th>Progress</Th>
+                  <Th>Download</Th>
+                  <Th></Th>
                 </Tr>
               </Thead>
             }

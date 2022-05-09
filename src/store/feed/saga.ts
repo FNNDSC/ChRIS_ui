@@ -74,7 +74,7 @@ function* handleDowloadFeed(action: IActionTypeParam) {
         {
           //@ts-ignore
           dir: path,
-          title: `Downloading ${data.name}`,
+          title: `Download of ${data.name}`,
         }
       );
       const feed: Feed = yield createdInstance.getFeed();
