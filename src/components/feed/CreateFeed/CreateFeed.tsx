@@ -407,7 +407,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
             });
           }}
           title="Create a New Analysis"
-          description="This wizard allows you to create a new Feed and add an internal dataset to it"
+          description="This wizard allows you to create a new Analysis and choose some data to process"
           className={`feed-create-wizard ${getStepName()}-wrap`}
           steps={steps}
           startAtStep={step}

@@ -1,12 +1,12 @@
-import React from "react";
+import React from 'react'
 import {
   Breadcrumb,
   BreadcrumbItem,
   Split,
   SplitItem,
   Button,
-} from "@patternfly/react-core";
-import { FaFolderOpen } from "react-icons/fa";
+} from '@patternfly/react-core'
+import { FaFolderOpen } from 'react-icons/fa'
 
 const BreadcrumbContainer = ({
   initialPath,
@@ -17,62 +17,64 @@ const BreadcrumbContainer = ({
   togglePreview,
   previewAll,
 }: {
-  initialPath: string;
+  initialPath: string
 
-  handleFolderClick: (path: string, breadcrumb?: any) => void;
-  files: any[];
+  handleFolderClick: (path: string, breadcrumb?: any) => void
+  files: any[]
   folderDetails: {
-    currentFolder: string;
-    totalCount: number;
-  };
-  browserType: string;
-  togglePreview: () => void;
-  previewAll: boolean;
+    currentFolder: string
+    totalCount: number
+  }
+  browserType: string
+  togglePreview: () => void
+  previewAll: boolean
 }) => {
-  const initialPathSplit = initialPath ? initialPath.split("/") : [];
+  const initialPathSplit = initialPath ? initialPath.split('/') : []
 
   return (
     <>
-      <Breadcrumb>
+      <Breadcrumb style={{ margin: '0.75em 0 0.75em 0' }}>
         {initialPathSplit.map((path: string, index) => {
           return (
             <BreadcrumbItem
-              to={index !== 0 || browserType !== "uploads" ? "#" : undefined}
+              style={{
+                fontSize: '1.1em',
+              }}
+              to={index !== 0 || browserType !== 'uploads' ? '#' : undefined}
               onClick={() => {
-               
-                if (index === 0 && browserType === "uploads") {
-                  return;
+                if (index === 0 && browserType === 'uploads') {
+                  return
                 }
 
                 if (
-                  (index === 0 && browserType === "feed") ||
-                  (index === 0 && browserType === "services")
+                  (index === 0 && browserType === 'feed') ||
+                  (index === 0 && browserType === 'services')
                 ) {
-                  handleFolderClick(`${path}`, initialPath);
+                  handleFolderClick(`${path}`, initialPath)
                 } else {
-                  const newPath = initialPath.split(`/${path}`);
-                  handleFolderClick(`${newPath[0]}/${path}`, initialPath);
+                  const newPath = initialPath.split(`/${path}`)
+                  handleFolderClick(`${newPath[0]}/${path}`, initialPath)
                 }
               }}
               key={path}
             >
               {path}
             </BreadcrumbItem>
-          );
+          )
         })}
       </Breadcrumb>
       {files && files.length > 0 && (
         <Split
           style={{
-            display: "flex",
-            justifyContent: "space-between",
+            display: 'flex',
+            justifyContent: 'space-between',
           }}
         >
           <SplitItem>
             <h2>
               <FaFolderOpen
                 style={{
-                  marginRight: "0.5em",
+                  marginRight: '0.5em',
                 }}
               />
 
@@ -83,16 +85,16 @@ const BreadcrumbContainer = ({
           <SplitItem>
             <Button
               onClick={() => {
-                togglePreview();
+                togglePreview()
               }}
             >
-              {previewAll ? "Hide All Previews" : "Preview All"}
+              {previewAll ? 'Hide All Previews' : 'Preview All'}
             </Button>
           </SplitItem>
         </Split>
       )}
     </>
-  );
-};
+  )
+}
 
-export default BreadcrumbContainer;
+export default BreadcrumbContainer

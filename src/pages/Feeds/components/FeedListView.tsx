@@ -16,6 +16,8 @@ import {
   Popover,
   Button,
   Tooltip,
+  Hint,
+  HintBody
 } from "@patternfly/react-core";
 import { Table, TableBody, Thead, Tr, Th } from "@patternfly/react-table";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
@@ -308,7 +310,7 @@ const FeedListView: React.FC<AllProps> = ({
       <PageSection variant={PageSectionVariants.light} className="feed-header">
         <div className="feed-header__split">
           <Title headingLevel="h1" size="3xl">
-            My Analyses
+            New and Existing Analyses
             {totalFeedsCount > 0 ? (
               <span className="feed-header__count">({totalFeedsCount})</span>
             ) : null}
@@ -317,6 +319,19 @@ const FeedListView: React.FC<AllProps> = ({
             <CreateFeed />
           </CreateFeedProvider>
         </div>
+        <Hint
+          //@ts-ignore
+          style={{
+            width: "50%",
+            paddingBottom: "0",
+          }}
+        >
+          <HintBody>
+            All Analyses that you have completed are recorded here. You can
+            easily return to a completed analysis and add more analysis
+            components, or you can create a brand new analysis from scratch.
+          </HintBody>
+        </Hint>
       </PageSection>
       <PageSection className="feed-list">
         <div className="feed-list__split">
