@@ -68,7 +68,7 @@ const DataLibrary = () => {
     <section>
       <Split>
         <SplitItem>
-          <h3>Uploaded Files</h3>
+          <h3>Uploads</h3>
         </SplitItem>
         <SplitItem style={{ margin: "auto 1em" }} isFilled>
           <hr />
@@ -86,7 +86,7 @@ const DataLibrary = () => {
     <section>
       <Split>
         <SplitItem>
-          <h3>Feed Files</h3>
+          <h3>Completed Analyses</h3>
         </SplitItem>
         <SplitItem style={{ margin: "auto 1em" }} isFilled>
           <hr />
@@ -100,7 +100,7 @@ const DataLibrary = () => {
     <section>
       <Split>
         <SplitItem>
-          <h3>Services Files</h3>
+          <h3>External Services</h3>
         </SplitItem>
         <SplitItem style={{ margin: "auto 1em" }} isFilled>
           <hr />

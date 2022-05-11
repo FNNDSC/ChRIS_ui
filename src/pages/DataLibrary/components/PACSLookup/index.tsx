@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import Wrapper from "../../../Layout/PageWrapper";
+import React, { useCallback, useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
+import Wrapper from '../../../Layout/PageWrapper'
+import { Typography } from 'antd'
 import {
   Grid,
   GridItem,
@@ -11,19 +12,21 @@ import {
   Button,
   EmptyStateBody,
   EmptyStatePrimary,
-} from "@patternfly/react-core";
-import { FaCubes } from "react-icons/fa";
-import pluralize from "pluralize";
+} from '@patternfly/react-core'
+import { FaCubes } from 'react-icons/fa'
+import pluralize from 'pluralize'
 import PFDCMClient, {
   PACSPatient,
   PACSPullStages,
   PFDCMFilters,
   PFDCMPull,
-} from "../../../../api/pfdcm";
-import { setSidebarActive } from "../../../../store/ui/actions";
+} from '../../../../api/pfdcm'
+import { setSidebarActive } from '../../../../store/ui/actions'
 
-import QueryBuilder from "./QueryBuilder";
-import QueryResults from "./QueryResults";
+const { Title: AntTitle, Paragraph } = Typography
+
+import QueryBuilder from './QueryBuilder'
+import QueryResults from './QueryResults'
 
 export enum PFDCMQueryTypes {
   PMRN,
@@ -32,9 +35,9 @@ export enum PFDCMQueryTypes {
 }
 
 export interface PFDCMQuery {
-  value: string;
-  type: PFDCMQueryTypes;
-  filters: PFDCMFilters;
+  value: string
+  type: PFDCMQueryTypes
+  filters: PFDCMFilters
 }
 
 /**
@@ -45,132 +48,136 @@ export interface PFDCMQuery {
  */
 export class PACSPulls extends Map<string, PFDCMPull> {
   hasPull(key: PFDCMFilters): boolean {
-    let _has = false;
+    let _has = false
     this.forEach((_, _key) => {
-      if (_key === JSON.stringify(key)) _has = true;
-    });
+      if (_key === JSON.stringify(key)) _has = true
+    })
 
-    return _has;
+    return _has
   }
 
   getPull(key: PFDCMFilters): PFDCMPull | undefined {
-    return this.get(JSON.stringify(key));
+    return this.get(JSON.stringify(key))
   }
 
   setPull(key: PFDCMFilters, value: PFDCMPull) {
-    this.set(JSON.stringify(key), value);
+    this.set(JSON.stringify(key), value)
   }
 }
 
-const client = new PFDCMClient();
+const pStyle = {
+  fontSize: '1.15em',
+}
+
+const client = new PFDCMClient()
 
 export const PACSLookup = () => {
-  document.title = "PACS Lookup";
-  const dispatch = useDispatch();
-  const [loading, setLoading] = useState<boolean>();
-  const [progress, setProgress] = useState<[number, number]>([0, 0]);
+  document.title = 'PACS Lookup'
+  const dispatch = useDispatch()
+  const [loading, setLoading] = useState<boolean>()
+  const [progress, setProgress] = useState<[number, number]>([0, 0])
 
-  const [results, setResults] = useState<PACSPatient[]>();
-  const [selectedPACS, setSelectedPACS] = useState<string>();
-  const [PACSservices, setPACSservices] = useState<string[]>();
+  const [results, setResults] = useState<PACSPatient[]>()
+  const [selectedPACS, setSelectedPACS] = useState<string>()
+  const [PACSservices, setPACSservices] = useState<string[]>()
 
   useEffect(() => {
     client.getPACSservices().then((list) => {
-      setPACSservices(list);
+      setPACSservices(list)
       if (!client.service)
         client.service =
           list.length > 1
             ? list[1]
-            : (list.slice(list.length - 1).shift() as string);
+            : (list.slice(list.length - 1).shift() as string)
 
-      setSelectedPACS(client.service);
-    });
-  }, []);
+      setSelectedPACS(client.service)
+    })
+  }, [])
 
   useEffect(() => {
     dispatch(
       setSidebarActive({
-        activeItem: "pacs",
-      })
-    );
-  }, [dispatch]);
+        activeItem: 'pacs',
+      }),
+    )
+  }, [dispatch])
 
   const StartPACSQuery = useCallback(async (queries: PFDCMQuery[]) => {
-    setLoading(true);
-    const response: PACSPatient[] = [];
-    setProgress([0, queries.length]);
+    setLoading(true)
+    const response: PACSPatient[] = []
+    setProgress([0, queries.length])
 
     for (let q = 0; q < queries.length; q++) {
-      const { type, value, filters } = queries[q];
+      const { type, value, filters } = queries[q]
 
       switch (type) {
         case PFDCMQueryTypes.PMRN:
           response.push(
-            ...(await client.find({ PatientID: value, ...filters }))
-          );
-          break;
+            ...(await client.find({ PatientID: value, ...filters })),
+          )
+          break
 
         case PFDCMQueryTypes.NAME:
           response.push(
-            ...(await client.find({ PatientName: value, ...filters }))
-          );
-          break;
+            ...(await client.find({ PatientName: value, ...filters })),
+          )
+          break
 
         case PFDCMQueryTypes.ACCN:
           response.push(
-            ...(await client.find({ AccessionNumber: value, ...filters }))
-          );
-          break;
+            ...(await client.find({ AccessionNumber: value, ...filters })),
+          )
+          break
 
         default:
-          throw TypeError("Unsupported PFDCM Query Type");
+          throw TypeError('Unsupported PFDCM Query Type')
       }
 
-      setProgress([q + 1, queries.length]);
+      setProgress([q + 1, queries.length])
     }
 
-    setResults(response);
-    setLoading(false);
-  }, []);
+    setResults(response)
+    setLoading(false)
+  }, [])
 
   const handlePACSSelect = (key: string) => {
     /**
      * Client handles validation of PACS
      * service key internally.
      */
-    client.service = key;
-    setSelectedPACS(client.service);
-  };
+    client.service = key
+    setSelectedPACS(client.service)
+  }
 
   const executePACSStage = useCallback(
     (query: PFDCMFilters, stage: PACSPullStages) => {
       try {
         switch (stage) {
           case PACSPullStages.RETRIEVE:
-            return client.findRetrieve(query);
+            return client.findRetrieve(query)
 
           case PACSPullStages.PUSH:
-            return client.findPush(query);
+            return client.findPush(query)
 
           case PACSPullStages.REGISTER:
-            return client.findRegister(query);
+            return client.findRegister(query)
 
           case PACSPullStages.COMPLETED:
-            return;
+            return
         }
       } catch (error) {
-        console.error(error);
+        console.error(error)
       }
     },
-    []
-  );
+    [],
+  )
 
   const handlePACSStatus = useCallback(async (query: PFDCMFilters) => {
-    return client.status(query);
-  }, []);
+    return client.status(query)
+  }, [])
 
   const Results = () => {
-    if (loading === undefined) return null;
+    if (loading === undefined) return null
 
     if (loading)
       return (
@@ -183,7 +190,7 @@ export const PACSLookup = () => {
             Completed {progress[0]} of {progress[1]} searches.
           </EmptyStateBody>
         </EmptyState>
-      );
+      )
 
     if (results)
       return (
@@ -193,7 +200,7 @@ export const PACSLookup = () => {
               <b>Results</b>
             </h2>
             <div>
-              {results.length} {pluralize("patient", results.length)} matched
+              {results.length} {pluralize('patient', results.length)} matched
               your search.
             </div>
           </GridItem>
@@ -206,7 +213,7 @@ export const PACSLookup = () => {
             />
           </GridItem>
         </>
-      );
+      )
     else
       return (
         <EmptyState>
@@ -222,16 +229,33 @@ export const PACSLookup = () => {
             <Button variant="link">Clear all filters</Button>
           </EmptyStatePrimary>
         </EmptyState>
-      );
-  };
+      )
+  }
 
   return (
     <Wrapper>
       <article>
         <Grid hasGutter>
           <GridItem>
-            <h1>PACS Lookup System</h1>
-            <p></p>
+            <AntTitle>PACS Query/Retrieve</AntTitle>
+            <Paragraph style={pStyle}>
+              Medical images are typically stored in a Picture Archive and
+              Communications System (PACS) database. If this CUBE has been
+              configured to communicate with such a PACS, this PACS should be
+              available in the <b>PACS Service</b> drop down. You can Query this
+              PACS to find images of interest by searching on various Patient
+              data fields (such as Patient Name, Medical Record Number, Study
+              Date, etc).
+            </Paragraph>
+            <Paragraph style={pStyle}>
+              {' '}
+              After a Query, ChRIS will structure results by
+              Patient/Study/Series - allowing for easy navigation. Images that
+              have been retrieved previously will appear as thumbnails, while
+              images that have not will simply offer the option to{' '}
+              <b>Pull Series</b>. Any Series that is known to ChRIS can be
+              selected and an analysis started directly from this page.
+            </Paragraph>
           </GridItem>
 
           <GridItem>
@@ -248,7 +272,7 @@ export const PACSLookup = () => {
         </Grid>
       </article>
     </Wrapper>
-  );
-};
+  )
+}
 
-export default PACSLookup;
+export default PACSLookup

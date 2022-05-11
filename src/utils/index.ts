@@ -84,7 +84,7 @@ function useAsync(initialState?: any) {
 }
 
 async function fetchResource<T>(
-  params: { limit: number; offset: number },
+  params: { limit: number; offset: number; fname_icontains?: string },
   fn: any
 ) {
   let resourceList = await fn(params);

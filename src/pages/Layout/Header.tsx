@@ -24,20 +24,6 @@ const BadgeStyle = {
   color: "#8b8d8f",
 };
 
-const BadgeStyleLeft = {
-  ...BadgeStyle,
-  marginRight: "0px",
-  marginLeft:"-1rem",
-  minWidth:"30px",
-
-}
-
-const BadgeStyleRight = {
-  ...BadgeStyle,
-  marginRight: "-1rem",
-  marginLeft: "1.50rem",
-  minWidth:"50px",
-}
 
 const Header: React.FC<IHeaderProps> = ({
   onNavToggle,
@@ -59,13 +45,14 @@ const Header: React.FC<IHeaderProps> = ({
     <React.Fragment>
       <Brand src={brandImg} alt="ChRIS Logo" />
 
-      <Badge key={4} style={BadgeStyleLeft}>
-        <span>Version: 3.1.6 </span>
+
+      <Badge key={4} style={BadgeStyle}>
+        <span>Version: {process.env.REACT_APP_CHRIS_UI_VERSION} </span>
       </Badge>
       <Badge key={3} style={BadgeStyleRight}>
         <span>
           Latest update:{" "}
-          <Moment format="DD MMM YYYY @ HH:mm">{`2022-04-20T10:00:10.297464-04:00`}</Moment>
+          <Moment format="DD MMM YYYY @ HH:mm">{`2022-05-11T15:00:10.297464-04:00`}</Moment>
         </span>
       </Badge>
     </React.Fragment>
