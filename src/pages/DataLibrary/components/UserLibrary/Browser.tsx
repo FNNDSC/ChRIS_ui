@@ -65,7 +65,7 @@ export function Browser({
       {files && files.length > 0
         ? files.map((file) => {
             return (
-              <GridItem key={file.data.fname} sm={12} lg={4}>
+              <GridItem key={file.data.fname} sm={12} lg={2}>
                 <FileCard
                   previewAll={previewAll}
                   file={file}
@@ -79,7 +79,7 @@ export function Browser({
           folders.length > 0 &&
           folders.map((folder, index) => {
             return (
-              <GridItem key={`${folder}_${index}`} sm={12} lg={4}>
+              <GridItem key={`${folder}_${index}`} sm={12} lg={2}>
                 <FolderCard
                   browserType={browserType}
                   initialPath={initialPath}
@@ -273,6 +273,7 @@ function FolderCard({
   const { dispatch, state } = useContext(LibraryContext)
   const { fileSelect } = state
   const [dropdown, setDropdown] = useState(false)
+  const [feedName, setFeedName] = useState('')
 
   const toggle = (
     <KebabToggle
@@ -280,6 +281,18 @@ function FolderCard({
       style={{ padding: '0' }}
     />
   )
+
+  React.useEffect(() => {
+    async function fetchFeedName() {
+      if (browserType === 'feed' && initialPath === username) {
+        const client = ChrisAPIClient.getClient()
+        const id = folder.split('_')[1]
+        const feed = await client.getFeed(parseInt(id))
+        setFeedName(feed.data.name)
+      }
+    }
+    fetchFeedName()
+  }, [])
 
   const pad = <span style={{ padding: '0 0.25em' }} />
 
@@ -370,7 +383,17 @@ function FolderCard({
                 handleFolderClick(`${initialPath}/${folder}`, initialPath)
               }}
             >
-              <b>{elipses(folder, 36)}</b>
+              <b>
+                {browserType === 'feed' && initialPath === username ? (
+                  !feedName ? (
+                    <Spin />
+                  ) : (
+                    elipses(feedName, 36)
+                  )
+                ) : (
+                  elipses(folder, 36)
+                )}
+              </b>
             </Button>
           </SplitItem>
         </Split>

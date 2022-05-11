@@ -121,8 +121,6 @@ const Search = () => {
       }
     }
 
-    console.log('PACSFILES', pacsFiles)
-
     if (pacsFiles && pacsFiles.length > 0) {
       const pacsFolders: string[] = []
       const pacsDict: {

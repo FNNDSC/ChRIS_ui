@@ -28,7 +28,11 @@ const CatalogPage = () => {
       <PageSection variant="light">
         <AntTitle>Plugins and Workflows</AntTitle>
       </PageSection>
-      <PageSection>
+      <PageSection
+        style={{
+          marginBottom: '0',
+        }}
+      >
         <Paragraph style={style}>
           This page consistes of three main sections, listing availalbe{' '}
           <b>Plugins</b>, <b>Pipelines</b>, and <b>Compute</b>.
@@ -68,15 +72,12 @@ const CatalogPage = () => {
           typically enabled by using the separate ChRIS admin interface.
         </Paragraph>
       </PageSection>
-      <PageSection>
-        <PluginCatalog />
-      </PageSection>
-      <PageSection>
-        <PipelineCatalog />
-      </PageSection>
-      <PageSection>
-        <ComputeCatalog />
-      </PageSection>
+
+      <PluginCatalog />
+
+      <PipelineCatalog />
+
+      <ComputeCatalog />
     </Wrapper>
   )
 }
