@@ -25,11 +25,22 @@ export const getFeedError = (error: any) =>
   action(FeedActionTypes.GET_FEED_ERROR, error);
 export const addFeed = (feed: Feed) => action(FeedActionTypes.ADD_FEED, feed);
 
-export const deleteFeed = (feed: Feed) =>
-  action(FeedActionTypes.DELETE_FEED, feed);
-
 export const setFeedTreeProp = (orientation: string) =>
   action(FeedActionTypes.GET_FEED_TREE_PROP, orientation);
+
+export const deleteFeed = (feed: Feed[]) =>
+  action(FeedActionTypes.DELETE_FEED, feed);
+export const downloadFeedRequest = (feed: Feed[]) =>
+  action(FeedActionTypes.DOWNLOAD_FEED_REQUEST, feed);
+export const downloadFeedError = (error: string) =>
+  action(FeedActionTypes.DOWNLOAD_FEED_ERROR);
+export const downloadFeedSuccess = (feed: Feed[]) =>
+  action(FeedActionTypes.DOWNLOAD_FEED_SUCCESS, feed);
 export const setFeedLayout = () => action(FeedActionTypes.SET_LAYOUT);
 
 export const resetFeed = () => action(FeedActionTypes.RESET_FEED);
+export const setBulkSelect = (feed: Feed) =>
+  action(FeedActionTypes.BULK_SELECT, feed);
+
+export const removeBulkSelect = (feed: Feed) =>
+  action(FeedActionTypes.REMOVE_BULK_SELECT, feed);
