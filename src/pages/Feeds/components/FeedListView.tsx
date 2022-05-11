@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Dispatch } from 'redux'
-import { useDispatch, connect } from 'react-redux'
+import {  connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import Moment from 'react-moment'
 import '@patternfly/react-core/dist/styles/base.css'
@@ -122,13 +122,13 @@ const FeedListView: React.FC<AllProps> = ({
     }
 
     const feedSize = {
-      title: <p>Feed Size(MB)</p>,
-    }
+      title: <p>coming soon</p>,
+    };
 
     const runTime = {
-      title: <p>Feed Run Time</p>,
-    }
-
+      title: <p>coming soon</p>,
+    };
+      
     const getProgress = function (feed: Feed) {
       let progress = 0
 
@@ -149,9 +149,9 @@ const FeedListView: React.FC<AllProps> = ({
     let progress = getProgress(feed)
     let percentage = progress + '%'
     if (error) {
-      progress = 103
-      percentage = 'X'
-      feedProgressText = error + '/' + (finished_jobs + error) + ' jobs failed'
+      progress += 100;
+      percentage = "X";
+      feedProgressText = error + "/" + (finished_jobs + error) + " jobs failed";
     }
 
     const circularProgress = {
@@ -296,7 +296,6 @@ const FeedListView: React.FC<AllProps> = ({
                   <Th>Created</Th>
                   <Th>Size</Th>
                   <Th>Run Time</Th>
-
                   <Th></Th>
                 </Tr>
               </Thead>
