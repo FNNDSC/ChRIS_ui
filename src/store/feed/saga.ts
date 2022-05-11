@@ -58,9 +58,7 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
 }
 
 function* handleDowloadFeed(action: IActionTypeParam) {
-  const { data } = action.payload;
-
-  const path = `${data.creator_username}/feed_${data.id}/`;
+  const feedList = action.payload;
   const client = ChrisAPIClient.getClient();
   const cu = new cujs();
   cu.setClient(client);
@@ -68,28 +66,31 @@ function* handleDowloadFeed(action: IActionTypeParam) {
   const dircopy: Plugin = yield getPlugin("pl-dircopy");
 
   if (dircopy instanceof Plugin) {
-    try {
-      const createdInstance: PluginInstance = yield client.createPluginInstance(
-        dircopy.data.id,
-        {
-          //@ts-ignore
-          dir: path,
-          title: `Download of ${data.name}`,
-        }
-      );
-      const feed: Feed = yield createdInstance.getFeed();
-      yield put(downloadFeedSuccess(feed));
-
+    const newFeeds = [];
+    for (let i = 0; i < feedList.length; i++) {
       try {
-        yield getPlugin("pl-pfdorun");
-        cu.zipFiles(createdInstance.data.id);
-      } catch (error) {
-        throw new Error("Please upload and register pl-pfdorun");
+        const data = feedList[i].data;
+        const path = `${data.creator_username}/feed_${data.id}/`;
+        const createdInstance: PluginInstance =
+          yield client.createPluginInstance(dircopy.data.id, {
+            //@ts-ignore
+            dir: path,
+            title: `Download of ${data.name}`,
+          });
+        const feed: Feed = yield createdInstance.getFeed();
+        newFeeds.push(feed);
+        try {
+          yield getPlugin("pl-pfdorun");
+          cu.zipFiles(createdInstance.data.id);
+        } catch (error) {
+          throw new Error("Please upload and register pl-pfdorun");
+        }
+      } catch (error: any) {
+        const errorParsed = error.response.data.value[0];
+        yield put(downloadFeedError(errorParsed));
       }
-    } catch (error: any) {
-      const errorParsed = error.response.data.value[0];
-      yield put(downloadFeedError(errorParsed));
     }
+    yield put(downloadFeedSuccess(newFeeds));
   }
 }
 

@@ -3,7 +3,13 @@ import { Card, TextInput, Button, Spinner } from '@patternfly/react-core'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { fetchResource } from '../../../../utils'
 import { LibraryContext } from './context'
-import { setFolders, setInitialPath } from './context/actions'
+import {
+  setFolders,
+  setInitialPath,
+  setPaginatedFolders,
+  setPagination,
+  setRoot,
+} from './context/actions'
 
 const Search = () => {
   const { dispatch, state } = useContext(LibraryContext)
@@ -15,7 +21,7 @@ const Search = () => {
   const handleSearch = async () => {
     setLoading(true)
     const paginate = {
-      limit: 10,
+      limit: 100,
       offset: 0,
       fname_icontains: value,
     }
@@ -35,17 +41,21 @@ const Search = () => {
     const feedFiles = await fetchResource(paginate, boundFeedFn)
     const servicesFiles = await fetchResource(paginate, boundServicesFn)
     const pacsFiles = await fetchResource(paginate, boundPacsFn)
-    console.log(
-      'FILES',
-      'UPLOADED:',
-      uploadedFiles,
-      'FEED:',
-      feedFiles,
-      'SERVICES:',
-      servicesFiles,
-      'PACS:',
-      pacsFiles,
-    )
+
+    const isUploadedRoot =
+      uploadedFiles.length > 0 &&
+      feedFiles.length === 0 &&
+      pacsFiles.length === 0
+
+    const isFeedRoot =
+      feedFiles.length > 0 &&
+      uploadedFiles.length === 0 &&
+      pacsFiles.length === 0
+
+    const isPacsRoot =
+      pacsFiles.length > 0 &&
+      uploadedFiles.length === 0 &&
+      feedFiles.length === 0
 
     if (uploadedFiles && uploadedFiles.length > 0) {
       const uploadedFolders: string[] = []
@@ -53,20 +63,36 @@ const Search = () => {
 
       uploadedFiles.forEach((file: any) => {
         const names = file.data.fname.split('/')
+
         const index = names.findIndex((name: any, index: number) => {
-          if (name === value) {
+          if (name.toLowerCase() === value.toLowerCase()) {
             return index
           }
         })
 
-        if (index) {
+        if (index !== -1) {
           path = `${names[0]}/${names[1]}`
           const folder = index === 2 ? names[index] : names[index - 1]
           if (!uploadedFolders.includes(folder)) uploadedFolders.push(folder)
         }
       })
-      dispatch(setFolders(uploadedFolders, path))
-      dispatch(setInitialPath(path, 'uploads'))
+
+      if (uploadedFolders.length > 0) {
+        dispatch(setFolders(uploadedFolders, path))
+        dispatch(setInitialPath(path, 'uploads'))
+        dispatch(setPaginatedFolders([], path))
+        dispatch(
+          setPagination(path, {
+            hasNext: false,
+            limit: 30,
+            offset: 0,
+            totalCount: 0,
+          }),
+        )
+        if (isUploadedRoot) {
+          dispatch(setRoot(true, 'uploads'))
+        }
+      }
     }
     if (feedFiles && feedFiles.length > 0) {
       const path = 'chris'
@@ -77,9 +103,25 @@ const Search = () => {
         if (!feedFolders.includes(folder)) feedFolders.push(folder)
       })
 
-      dispatch(setFolders(feedFolders, path))
-      dispatch(setInitialPath(path, 'feed'))
+      if (feedFolders.length > 0) {
+        dispatch(setFolders(feedFolders, path))
+        dispatch(setInitialPath(path, 'feed'))
+        dispatch(setPaginatedFolders([], path))
+        dispatch(
+          setPagination(path, {
+            hasNext: false,
+            limit: 30,
+            offset: 0,
+            totalCount: 0,
+          }),
+        )
+        if (isFeedRoot) {
+          dispatch(setRoot(true, 'feed'))
+        }
+      }
     }
+
+    console.log('PACSFILES', pacsFiles)
 
     if (pacsFiles && pacsFiles.length > 0) {
       const pacsFolders: string[] = []
@@ -101,10 +143,20 @@ const Search = () => {
         dispatch(setInitialPath(i, 'services'))
       }
 
-      /*
-      dispatch(setFolders(pacsFolders, 'SERVICES/PACS'))
-      dispatch(setInitialPath('SERVICES/PACS', 'services'))
-      */
+      if (pacsFolders.length > 0) {
+        dispatch(setPaginatedFolders([], 'SERVICES'))
+        dispatch(
+          setPagination('SERVICES', {
+            hasNext: false,
+            limit: 30,
+            offset: 0,
+            totalCount: 0,
+          }),
+        )
+        if (isPacsRoot) {
+          dispatch(setRoot(true, 'services'))
+        }
+      }
     }
 
     if (

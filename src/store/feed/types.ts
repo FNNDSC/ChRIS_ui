@@ -38,6 +38,7 @@ export interface IFeedState {
   currentLayout: boolean;
   downloadError: string;
   downloadStatus: "";
+  bulkSelect: Feed[];
 }
 
 export const FeedActionTypes = keyMirror({
@@ -59,4 +60,6 @@ export const FeedActionTypes = keyMirror({
   POLL_DOWNLOAD_SUCCESS: null,
   STOP_FETCH_FEED_RESOURCES: null,
   DOWNLOAD_STATUS: null,
+  BULK_SELECT: null,
+  REMOVE_BULK_SELECT: null,
 });
