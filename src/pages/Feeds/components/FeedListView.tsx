@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Dispatch } from 'redux'
-import { useDispatch, connect } from 'react-redux'
+import {  connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import Moment from 'react-moment'
 import '@patternfly/react-core/dist/styles/base.css'
