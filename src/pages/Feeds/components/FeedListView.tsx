@@ -177,11 +177,11 @@ const FeedListView: React.FC<AllProps> = ({
     };
 
     const feedSize = {
-      title: <p>Feed Size(MB)</p>,
+      title: <p>coming soon</p>,
     };
 
     const runTime = {
-      title: <p>Feed Run Time</p>,
+      title: <p>coming soon</p>,
     };
 
     const getProgress = function (feed: Feed) {
@@ -204,7 +204,7 @@ const FeedListView: React.FC<AllProps> = ({
     let progress = getProgress(feed);
     let percentage = progress + "%";
     if (error) {
-      progress = 103;
+      progress += 100;
       percentage = "X";
       feedProgressText = error + "/" + (finished_jobs + error) + " jobs failed";
     }
@@ -272,7 +272,7 @@ const FeedListView: React.FC<AllProps> = ({
     };
   };
 
-  const cells = ["Analysis", "Created", "Size", "Run Time", "Progress", "Download", ""];
+  const cells = ["Analysis", "Created", "Size", "Run Time", "", "", ""];
 
   const rows = data && data.length > 0 ? data.map(generateTableRow) : [];
 
@@ -363,8 +363,8 @@ const FeedListView: React.FC<AllProps> = ({
                   <Th>Created</Th>
                   <Th>Size</Th>
                   <Th>Run Time</Th>
-                  <Th>Progress</Th>
-                  <Th>Download</Th>
+                  <Th></Th>
+                  <Th></Th>
                   <Th></Th>
                 </Tr>
               </Thead>

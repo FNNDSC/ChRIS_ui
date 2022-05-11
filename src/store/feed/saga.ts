@@ -82,7 +82,7 @@ function* handleDowloadFeed(action: IActionTypeParam) {
 
       try {
         yield getPlugin("pl-pfdorun");
-        cu.zipFiles(createdInstance.data.id);
+        cu.zipFiles(createdInstance.data.id, data.name);
       } catch (error) {
         throw new Error("Please upload and register pl-pfdorun");
       }
