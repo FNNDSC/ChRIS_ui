@@ -1,5 +1,6 @@
 import { Reducer } from "redux";
 import { IFeedState, FeedActionTypes } from "./types";
+import { Feed } from "@fnndsc/chrisapi";
 
 export const initialState: IFeedState = {
   allFeeds: {
@@ -23,6 +24,7 @@ export const initialState: IFeedState = {
   },
   downloadError: "",
   downloadStatus: "",
+  bulkSelect: [],
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -116,17 +118,24 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.DELETE_FEED: {
+      const feedIds = action.payload.map((feed: Feed) => feed.data.id);
       const feedData = state.allFeeds.data?.filter(
-        (feed) => feed.data.id !== action.payload.data.id
+        (feed) => !feedIds.includes(feed.data.id)
       );
-      action.payload.delete();
+
+      action.payload.forEach(async (feed: Feed) => {
+        await feed.delete();
+      });
+
       return {
         ...state,
         allFeeds: {
           ...state.allFeeds,
           data: feedData,
-          totalFeedsCount: state.allFeeds.totalFeedsCount - 1,
+          totalFeedsCount:
+            state.allFeeds.totalFeedsCount - action.payload.length,
         },
+        bulkSelect: [],
       };
     }
 
@@ -136,9 +145,11 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state,
           allFeeds: {
             ...state.allFeeds,
-            data: [action.payload, ...state.allFeeds.data],
-            totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
+            data: [...action.payload, ...state.allFeeds.data],
+            totalFeedsCount:
+              state.allFeeds.totalFeedsCount + action.payload.length,
           },
+          bulkSelect: [],
         };
       } else {
         return {
@@ -180,6 +191,24 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           },
         };
       }
+    }
+
+    case FeedActionTypes.BULK_SELECT: {
+      return {
+        ...state,
+        bulkSelect: [...state.bulkSelect, action.payload],
+      };
+    }
+
+    case FeedActionTypes.REMOVE_BULK_SELECT: {
+      const filteredBulkSelect = state.bulkSelect.filter((feed) => {
+        return feed.data.id !== action.payload.data.id;
+      });
+
+      return {
+        ...state,
+        bulkSelect: filteredBulkSelect,
+      };
     }
 
     case FeedActionTypes.RESET_FEED: {
