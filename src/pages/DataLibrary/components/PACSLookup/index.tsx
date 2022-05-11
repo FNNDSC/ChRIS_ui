@@ -242,9 +242,9 @@ export const PACSLookup = () => {
               Medical images are typically stored in a Picture Archive and
               Communications System (PACS) database. ChRIS can be optionally
               configured to communicate with such a PACS by an administrator.
-              If this ChRIS has been configure in this manner, you should see
+              If this ChRIS has been configured in this manner, you should see
               something available in the <b>PACS Service</b> drop down. You can Query this
-              PACS to find images of interest by searching on various Patient
+              {' '}<b>PACS Service</b> to find images of interest by searching on various Patient
               data fields (such as Patient Name, Medical Record Number, Study
               Date, etc).
             </Paragraph>
