@@ -43,14 +43,15 @@ export const Library: React.FC = () => {
           </Paragraph>
           <Paragraph style={pStyle}>
             Data is organized broadly in three areas. The{' '}
-            <Text strong>My Uploads </Text>
+            <Text strong>Uploads </Text>
             shows all the data (organized by folder) that you might have
             uploaded. The <Text strong>Completed Analyses</Text> allows easy
             navigation down all the Analyses you have run. The{' '}
             <Text strong>External Services</Text> allows you to browse data
             associated with some external service, such as a PACS database. You
             can select multiple or single cards from any place in this Library
-            and start new Analyses.
+            and start new Analyses on that selection. The resultant Analysis will
+            start in its root node with a folder for each card you have selected.
           </Paragraph>
         </div>
       </PageSection>
