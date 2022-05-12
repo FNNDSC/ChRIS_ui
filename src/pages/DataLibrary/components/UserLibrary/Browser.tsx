@@ -292,7 +292,7 @@ function FolderCard({
       }
     }
     fetchFeedName()
-  }, [])
+  }, [browserType, folder, initialPath, username])
 
   const pad = <span style={{ padding: '0 0.25em' }} />
 

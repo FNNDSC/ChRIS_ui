@@ -86,7 +86,7 @@ const BrowserContainer = ({
         dispatch(setLoading(false));
       }
     },
-    [dispatch, type]
+    [dispatch, type, rootPath]
   );
 
   React.useEffect(() => {
