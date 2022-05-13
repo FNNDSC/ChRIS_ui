@@ -1,31 +1,32 @@
-import { Reducer } from "redux";
-import { IFeedState, FeedActionTypes } from "./types";
-import { Feed } from "@fnndsc/chrisapi";
+import { Reducer } from 'redux'
+import { IFeedState, FeedActionTypes } from './types'
+import { Feed } from '@fnndsc/chrisapi'
 
 export const initialState: IFeedState = {
   allFeeds: {
     data: undefined,
-    error: "",
+    error: '',
     loading: false,
     totalFeedsCount: 0,
   },
   currentFeed: {
     data: undefined,
-    error: "",
+    error: '',
     loading: false,
   },
   currentLayout: true,
   feedTreeProp: {
-    orientation: "vertical",
+    orientation: 'vertical',
     translate: {
       x: 600,
       y: 50,
     },
   },
-  downloadError: "",
-  downloadStatus: "",
+  downloadError: '',
+  downloadStatus: '',
   bulkSelect: [],
-};
+  feedResources: {},
+}
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
   switch (action.type) {
@@ -36,7 +37,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state.allFeeds,
           loading: true,
         },
-      };
+      }
     }
 
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
@@ -44,11 +45,11 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         ...state,
         allFeeds: {
           data: action.payload.feeds,
-          error: "",
+          error: '',
           loading: false,
           totalFeedsCount: action.payload.totalCount,
         },
-      };
+      }
     }
 
     case FeedActionTypes.GET_ALL_FEEDS_ERROR: {
@@ -58,7 +59,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state.allFeeds,
           error: action.payload,
         },
-      };
+      }
     }
 
     case FeedActionTypes.GET_FEED_REQUEST: {
@@ -68,7 +69,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state.currentFeed,
           loading: true,
         },
-      };
+      }
     }
 
     case FeedActionTypes.GET_FEED_SUCCESS: {
@@ -76,10 +77,10 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         ...state,
         currentFeed: {
           data: action.payload,
-          error: "",
+          error: '',
           loading: false,
         },
-      };
+      }
     }
 
     case FeedActionTypes.GET_FEED_ERROR: {
@@ -90,7 +91,20 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           error: action.payload,
           loading: false,
         },
-      };
+      }
+    }
+
+    case FeedActionTypes.GET_FEED_RESOURCES_SUCCESS: {
+      return {
+        ...state,
+        feedResources: {
+          ...state.feedResources,
+          [action.payload.id]: {
+            size: action.payload.size,
+            runtime: action.payload.runtime,
+          },
+        },
+      }
     }
 
     case FeedActionTypes.ADD_FEED: {
@@ -99,33 +113,33 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state,
           allFeeds: {
             data: [action.payload, ...state.allFeeds.data],
-            error: "",
+            error: '',
             loading: false,
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
           },
-        };
+        }
       } else {
         return {
           ...state,
           allFeeds: {
             data: [action.payload],
-            error: "",
+            error: '',
             loading: false,
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
           },
-        };
+        }
       }
     }
 
     case FeedActionTypes.DELETE_FEED: {
-      const feedIds = action.payload.map((feed: Feed) => feed.data.id);
+      const feedIds = action.payload.map((feed: Feed) => feed.data.id)
       const feedData = state.allFeeds.data?.filter(
-        (feed) => !feedIds.includes(feed.data.id)
-      );
+        (feed) => !feedIds.includes(feed.data.id),
+      )
 
       action.payload.forEach(async (feed: Feed) => {
-        await feed.delete();
-      });
+        await feed.delete()
+      })
 
       return {
         ...state,
@@ -136,7 +150,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
             state.allFeeds.totalFeedsCount - action.payload.length,
         },
         bulkSelect: [],
-      };
+      }
     }
 
     case FeedActionTypes.DOWNLOAD_FEED_SUCCESS: {
@@ -150,11 +164,11 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
               state.allFeeds.totalFeedsCount + action.payload.length,
           },
           bulkSelect: [],
-        };
+        }
       } else {
         return {
           ...state,
-        };
+        }
       }
     }
 
@@ -162,34 +176,34 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         downloadError: action.payload,
-      };
+      }
     }
 
     case FeedActionTypes.SET_LAYOUT: {
       return {
         ...state,
         currentLayout: !state.currentLayout,
-      };
+      }
     }
 
     case FeedActionTypes.GET_FEED_TREE_PROP: {
-      const currentOrientation = action.payload;
-      if (currentOrientation === "horizontal")
+      const currentOrientation = action.payload
+      if (currentOrientation === 'horizontal')
         return {
           ...state,
           feedTreeProp: {
             ...state.feedTreeProp,
-            orientation: "vertical",
+            orientation: 'vertical',
           },
-        };
+        }
       else {
         return {
           ...state,
           feedTreeProp: {
             ...state.feedTreeProp,
-            orientation: "horizontal",
+            orientation: 'horizontal',
           },
-        };
+        }
       }
     }
 
@@ -197,29 +211,29 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         bulkSelect: [...state.bulkSelect, action.payload],
-      };
+      }
     }
 
     case FeedActionTypes.REMOVE_BULK_SELECT: {
       const filteredBulkSelect = state.bulkSelect.filter((feed) => {
-        return feed.data.id !== action.payload.data.id;
-      });
+        return feed.data.id !== action.payload.data.id
+      })
 
       return {
         ...state,
         bulkSelect: filteredBulkSelect,
-      };
+      }
     }
 
     case FeedActionTypes.RESET_FEED: {
       return {
         ...initialState,
-      };
+      }
     }
 
     default:
-      return state;
+      return state
   }
-};
+}
 
-export { reducer as feedsReducer };
+export { reducer as feedsReducer }

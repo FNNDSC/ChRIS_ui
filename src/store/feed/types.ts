@@ -4,41 +4,46 @@
  *  Author:          ChRIS UI
  *  Notes:           Work in progres ...
  */
-import keyMirror from "keymirror";
-import { Feed } from "@fnndsc/chrisapi";
+import keyMirror from 'keymirror'
+import { Feed } from '@fnndsc/chrisapi'
 
 export interface FeedPayload {
-  data?: Feed;
-  error: any;
-  loading: boolean;
+  data?: Feed
+  error: any
+  loading: boolean
 }
 
 export interface FeedsResponsePayload {
-  feeds: Feed[];
-  totalCount: number;
+  feeds: Feed[]
+  totalCount: number
 }
 
 export interface FeedTreeProp {
-  orientation: "horizontal" | "vertical";
+  orientation: 'horizontal' | 'vertical'
   translate: {
-    x: number;
-    y: number;
-  };
+    x: number
+    y: number
+  }
+}
+
+export interface FeedResource {
+  [id: string]: { size: string; runtime: string }
 }
 
 export interface IFeedState {
   allFeeds: {
-    data?: Feed[];
-    error: any;
-    loading: boolean;
-    totalFeedsCount: number;
-  };
-  currentFeed: FeedPayload;
-  feedTreeProp: FeedTreeProp;
-  currentLayout: boolean;
-  downloadError: string;
-  downloadStatus: "";
-  bulkSelect: Feed[];
+    data?: Feed[]
+    error: any
+    loading: boolean
+    totalFeedsCount: number
+  }
+  currentFeed: FeedPayload
+  feedTreeProp: FeedTreeProp
+  currentLayout: boolean
+  downloadError: string
+  downloadStatus: ''
+  bulkSelect: Feed[]
+  feedResources: FeedResource
 }
 
 export const FeedActionTypes = keyMirror({
@@ -48,6 +53,8 @@ export const FeedActionTypes = keyMirror({
   GET_FEED_REQUEST: null,
   GET_FEED_SUCCESS: null,
   GET_FEED_ERROR: null,
+  GET_FEED_RESOURCES_REQUEST: null,
+  GET_FEED_RESOURCES_SUCCESS: null,
   ADD_FEED: null,
   DELETE_FEED: null,
   DOWNLOAD_FEED_REQUEST: null,
@@ -62,4 +69,4 @@ export const FeedActionTypes = keyMirror({
   DOWNLOAD_STATUS: null,
   BULK_SELECT: null,
   REMOVE_BULK_SELECT: null,
-});
+})
