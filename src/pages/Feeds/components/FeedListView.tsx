@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Dispatch } from 'redux'
-import {  connect } from 'react-redux'
+import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import Moment from 'react-moment'
 import '@patternfly/react-core/dist/styles/base.css'
@@ -24,6 +24,7 @@ import {
   getAllFeedsRequest,
   setBulkSelect,
   removeBulkSelect,
+  getFeedResourcesRequest,
 } from '../../../store/feed/actions'
 import { IFeedState } from '../../../store/feed/types'
 import { DataTableToolbar } from '../../../components/index'
@@ -53,6 +54,7 @@ const FeedListView: React.FC<AllProps> = ({
   getAllFeedsRequest,
   setBulkSelect,
   removeBulkSelect,
+  feedResources,
 }: AllProps) => {
   const {
     filterState,
@@ -60,6 +62,7 @@ const FeedListView: React.FC<AllProps> = ({
     handlePerPageSet,
     handleFilterChange,
     run,
+    dispatch,
   } = usePaginate()
 
   const { page, perPage } = filterState
@@ -76,18 +79,24 @@ const FeedListView: React.FC<AllProps> = ({
     run(getAllFeedsRequest)
   }, [getAllFeedsRequest, run])
 
+  const getFeedResources = React.useCallback((feed) => {
+    dispatch(getFeedResourcesRequest(feed))
+  }, [dispatch])
+
   React.useEffect(() => {
     getAllFeeds()
   }, [getAllFeeds])
 
-  const generateTableRow = (feed: Feed) => {
-    const {
-      id,
-      name: feedName,
+  React.useEffect(() => {
+    if (allFeeds.data && allFeeds.data.length > 0) {
+      allFeeds.data.map((feed) => {
+        getFeedResources(feed)
+      })
+    }
+  }, [allFeeds.data, getFeedResources])
 
-      creation_date,
-      finished_jobs,
-    } = feed.data
+  const generateTableRow = (feed: Feed) => {
+    const { id, name: feedName, creation_date, finished_jobs } = feed.data
     const {
       created_jobs,
       registering_jobs,
@@ -96,6 +105,11 @@ const FeedListView: React.FC<AllProps> = ({
       waiting_jobs,
     } = feed.data
     const { errored_jobs, cancelled_jobs } = feed.data
+
+    const size = feedResources[feed.data.id] && feedResources[feed.data.id].size
+    const runtime =
+      feedResources[feed.data.id] && feedResources[feed.data.id].runtime
+
     const name = {
       title: (
         <span className="feed-list__name">
@@ -122,14 +136,14 @@ const FeedListView: React.FC<AllProps> = ({
     }
 
     const feedSize = {
-      title: <p>coming soon</p>,
-    };
+      title: <p>{size ? `${size} bytes` : 'Fetching size....'}</p>,
+    }
 
     const runTime = {
-      title: <p>coming soon</p>,
-    };
-      
-    const getProgress = function (feed: Feed) {
+      title: <p>{runtime ? `${runtime} ms ` : 'Fetching runtime'}</p>,
+    }
+
+    const getProgress = function () {
       let progress = 0
 
       if (runningJobsCount == 0) {
@@ -146,16 +160,16 @@ const FeedListView: React.FC<AllProps> = ({
       '/' +
       (runningJobsCount + finished_jobs) +
       ' jobs completed'
-    let progress = getProgress(feed)
-    let threshold = Infinity;
-    
+    let progress = getProgress()
+    let threshold = Infinity
+
     // If error in a feed => reflect in progress
     if (error) {
-      progress = Math.round((finished_jobs/(finished_jobs + error))*100);
-      feedProgressText = error + "/" + (finished_jobs + error) + " jobs failed";
-      threshold = progress;
+      progress = Math.round((finished_jobs / (finished_jobs + error)) * 100)
+      feedProgressText = error + '/' + (finished_jobs + error) + ' jobs failed'
+      threshold = progress
     }
-    const percentage = progress + '%';
+    const percentage = progress + '%'
 
     const circularProgress = {
       title: (
@@ -165,7 +179,7 @@ const FeedListView: React.FC<AllProps> = ({
             data={{ x: 'Feed Progress', y: progress }}
             height={125}
             title={percentage}
-            thresholds={[{ value: threshold, color :'#C9190B' }]}
+            thresholds={[{ value: threshold, color: '#C9190B' }]}
             width={125}
           />
         </div>
@@ -325,6 +339,8 @@ const mapStateToProps = ({ feed }: ApplicationState) => ({
   bulkSelect: feed.bulkSelect,
   allFeeds: feed.allFeeds,
   downloadStatus: feed.downloadStatus,
+  feedResources: feed.feedResources,
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedListView)
+
