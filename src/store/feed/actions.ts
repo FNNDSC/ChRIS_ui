@@ -29,8 +29,7 @@ export const getFeedResourcesRequest = (feed: Feed) =>
 
 export const getFeedResourcesSucess = (payload: {
   id: number
-  size: string
-  runtime: string
+  details:any
 }) => action(FeedActionTypes.GET_FEED_RESOURCES_SUCCESS, payload)
 
 export const addFeed = (feed: Feed) => action(FeedActionTypes.ADD_FEED, feed)

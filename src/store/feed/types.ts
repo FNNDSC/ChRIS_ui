@@ -27,7 +27,7 @@ export interface FeedTreeProp {
 }
 
 export interface FeedResource {
-  [id: string]: { size: string; runtime: string }
+  [id: string]: { details: any }
 }
 
 export interface IFeedState {

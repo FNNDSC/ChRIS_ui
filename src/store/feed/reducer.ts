@@ -100,8 +100,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         feedResources: {
           ...state.feedResources,
           [action.payload.id]: {
-            size: action.payload.size,
-            runtime: action.payload.runtime,
+            details: action.payload.details,
           },
         },
       }
