@@ -106,9 +106,9 @@ const FeedListView: React.FC<AllProps> = ({
     } = feed.data
     const { errored_jobs, cancelled_jobs } = feed.data
 
-    const size = feedResources[feed.data.id] && feedResources[feed.data.id].size
+    const size = feedResources[feed.data.id] && feedResources[feed.data.id].details.size;
     const runtime =
-      feedResources[feed.data.id] && feedResources[feed.data.id].runtime
+      feedResources[feed.data.id] && feedResources[feed.data.id].details.time;
 
     const name = {
       title: (
@@ -136,11 +136,11 @@ const FeedListView: React.FC<AllProps> = ({
     }
 
     const feedSize = {
-      title: <p>{size ? `${size} bytes` : 'Fetching size....'}</p>,
+      title: <p>{size ? `${size}` : 'Fetching size....'}</p>,
     }
 
     const runTime = {
-      title: <p>{runtime ? `${runtime} ms ` : 'Fetching runtime'}</p>,
+      title: <p>{runtime ? `${runtime}` : 'Fetching runtime'}</p>,
     }
 
     const getProgress = function () {
