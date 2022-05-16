@@ -82,6 +82,7 @@ function* handleDowloadFeed(action: IActionTypeParam) {
             title: `Download of ${data.name}`,
           },
         )
+
         const feed: Feed = yield createdInstance.getFeed()
         newFeeds.push(feed)
         try {
