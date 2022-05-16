@@ -169,7 +169,10 @@ const FeedListView: React.FC<AllProps> = ({
       feedProgressText = error + '/' + (finished_jobs + error) + ' jobs failed'
       threshold = progress
     }
-    const percentage = progress + '%'
+    let title = progress + '%';
+    if(progress==0 && error){
+      title="X";
+    }
 
     const circularProgress = {
       title: (
@@ -178,7 +181,7 @@ const FeedListView: React.FC<AllProps> = ({
             ariaTitle={feedProgressText}
             data={{ x: 'Feed Progress', y: progress }}
             height={125}
-            title={percentage}
+            title={title}
             thresholds={[{ value: threshold, color: '#C9190B' }]}
             width={125}
           />
