@@ -82,6 +82,7 @@ function* handleDowloadFeed(action: IActionTypeParam) {
             title: `Download of ${data.name}`,
           },
         )
+
         const feed: Feed = yield createdInstance.getFeed()
         newFeeds.push(feed)
         try {
@@ -104,11 +105,10 @@ function* handleFeedResources(action: IActionTypeParam) {
   const cu = new cujs()
   cu.setClient(client)
   try {
-    const size: string = yield cu.getSize(action.payload)
-    const runtime: string = yield cu.getRunTime(action.payload)
+    const details: Record<string, unknown> = yield cu.getPluginInstanceDetails(action.payload)
+   
     const payload = {
-      size,
-      runtime,
+      details,
       id: action.payload.data.id,
     }
     yield put(getFeedResourcesSucess(payload))
