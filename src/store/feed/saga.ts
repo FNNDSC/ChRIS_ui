@@ -79,7 +79,7 @@ function* handleDowloadFeed(action: IActionTypeParam) {
           {
             //@ts-ignore
             dir: path,
-            title: `Download of ${data.name}`,
+            title: `Archive of ${data.name}`,
           },
         )
 
