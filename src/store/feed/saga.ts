@@ -67,7 +67,22 @@ function* handleDowloadFeed(action: IActionTypeParam) {
   cu.setClient(client)
   //@ts-ignore
   const dircopy: Plugin = yield getPlugin('pl-dircopy')
-
+  const feedIdList = [];
+  const newFeeds = [];
+  for (let i = 0; i < feedList.length; i++) {
+    const data = feedList[i].data
+    feedIdList.push(data.id);
+  }
+  try {
+    const createdFeed: Feed = yield cu.createMergeFeed(feedIdList,"Archive of Feeds");
+    newFeeds.push(createdFeed)
+  }  catch(error:any) {
+     const errorParsed = error.response.data.value[0]
+     yield put(downloadFeedError(errorParsed))
+  }
+  
+  yield put(downloadFeedSuccess(newFeeds));
+  /*
   if (dircopy instanceof Plugin) {
     const newFeeds = []
     for (let i = 0; i < feedList.length; i++) {
@@ -98,6 +113,7 @@ function* handleDowloadFeed(action: IActionTypeParam) {
     }
     yield put(downloadFeedSuccess(newFeeds))
   }
+  */
 }
 
 function* handleFeedResources(action: IActionTypeParam) {
