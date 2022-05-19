@@ -171,7 +171,7 @@ const FeedListView: React.FC<AllProps> = ({
     }
     let title = progress + '%';
     if(progress==0 && error){
-      title="X";
+      title="❌";
     }
 
     const circularProgress = {
