@@ -47,12 +47,12 @@ const Header: React.FC<IHeaderProps> = ({
       </Badge>
       <Badge key={3}>
         <span>
-          Latest update:{' '}
-          <Moment format="DD MMM YYYY @ HH:mm">{`2022-05-12T12:00:10.297464-04:00`}</Moment>
+          Latest update:{" "}
+          <Moment format="DD MMM YYYY @ HH:mm">{`2022-05-19T16:30:10.297464-04:00`}</Moment>
         </span>
       </Badge>
     </React.Fragment>
-  )
+  );
 
   return (
     <PageHeader
