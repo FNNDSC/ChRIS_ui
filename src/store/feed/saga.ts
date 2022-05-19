@@ -69,12 +69,17 @@ function* handleDowloadFeed(action: IActionTypeParam) {
   const dircopy: Plugin = yield getPlugin('pl-dircopy')
   const feedIdList = [];
   const newFeeds = [];
+  const feedNames = [];
   for (let i = 0; i < feedList.length; i++) {
     const data = feedList[i].data
     feedIdList.push(data.id);
+    feedNames.push(data.name);
   }
   try {
-    const createdFeed: Feed = yield cu.createMergeFeed(feedIdList,"Archive of Feeds");
+    let newFeedName = feedNames.toString().replace(/[, ]+/g,'_');
+    newFeedName = newFeedName.substring(0,90);
+    console.log(newFeedName)
+    const createdFeed: Feed = yield cu.createMergeFeed(feedIdList,`Merge of ${newFeedName}`);
     newFeeds.push(createdFeed)
   }  catch(error:any) {
      const errorParsed = error.response.data.value[0]
