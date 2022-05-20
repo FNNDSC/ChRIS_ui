@@ -13,6 +13,7 @@ import {
   setPaginatedFolders,
   setRoot,
   clearFolderState,
+  clearFilesState,
 } from "./context/actions";
 
 const BrowserContainer = ({
@@ -37,9 +38,9 @@ const BrowserContainer = ({
     multipleFileSelect,
   } = state;
 
-  const files = filesState[type];
   const computedPath = initialPath[type];
   const pagedFolders = paginatedFolders[computedPath];
+  const files = filesState[computedPath];
   const folders =
     pagedFolders && pagedFolders.length > 0
       ? pagedFolders
@@ -98,24 +99,25 @@ const BrowserContainer = ({
   }, [rootPath, resourcesFetch]);
 
   const handleFolderClick = async (path: string, prevPath: string) => {
-   
     dispatch(clearFolderState(prevPath, type));
+    dispatch(clearFilesState(prevPath, type));
+
     const client = ChrisAPIClient.getClient();
     const uploads = await client.getFileBrowserPaths({
       path,
     });
-    console.log("PATH", path, uploads);
-
     const pagination = {
       limit: 30,
       offset: 0,
       totalCount: 0,
     };
-    if (
+
+    const checkFolders =
       uploads.data &&
       uploads.data[0].subfolders &&
-      uploads.data[0].subfolders.length > 0
-    ) {
+      uploads.data[0].subfolders.length > 0;
+
+    if (checkFolders) {
       let folders;
       const folderSplit = uploads.data[0].subfolders.split(",");
 
@@ -139,46 +141,52 @@ const BrowserContainer = ({
       }
 
       dispatch(setFolders(folders, path));
-      dispatch(setFiles([], type));
       dispatch(setInitialPath(path, type));
+
+      // SETTING ROOT
       if (path !== rootPath) {
         dispatch(setRoot(true, type));
       } else {
         dispatch(setRoot(false, type));
       }
-    } else {
-      const pathList = await client.getFileBrowserPath(path);
-      const fileList = await pathList.getFiles({
-        limit: pagination.limit,
-        offset: pagination.offset,
-      });
+    }
+    const pathList = await client.getFileBrowserPath(path);
+    const fileList = await pathList.getFiles({
+      limit: pagination.limit,
+      offset: pagination.offset,
+    });
 
-      if (fileList) {
-        if (fileList.hasNextPage) {
-          dispatch(
-            setPagination(path, {
-              limit: pagination.limit,
-              offset: pagination.offset,
-              hasNext: fileList.hasNextPage,
-              totalCount: fileList.totalCount,
-            })
-          );
-        }
-        const files = fileList.getItems();
-        if (files) dispatch(setFiles(files, type));
-        dispatch(setInitialPath(path, type));
-        dispatch(setRoot(true, type));
-        const currentFolderSplit = path.split("/");
-        const currentFolder = currentFolderSplit[currentFolderSplit.length - 1];
-        const totalCount = fileList.totalCount;
-        dispatch({
-          type: Types.SET_FOLDER_DETAILS,
-          payload: {
-            totalCount,
-            currentFolder,
-          },
-        });
+    if (fileList) {
+      const files = fileList.getItems();
+      if (files) dispatch(setFiles(files, path));
+      dispatch(setInitialPath(path, type));
+
+      if (fileList.hasNextPage) {
+        dispatch(
+          setPagination(path, {
+            limit: pagination.limit,
+            offset: pagination.offset,
+            hasNext: fileList.hasNextPage,
+            totalCount: fileList.totalCount,
+          })
+        );
       }
+
+      dispatch(setInitialPath(path, type));
+      if (!checkFolders && path !== rootPath && type === "uploads") {
+        dispatch(setRoot(true, type));
+      }
+
+      const currentFolderSplit = path.split("/");
+      const currentFolder = currentFolderSplit[currentFolderSplit.length - 1];
+      const totalCount = fileList.totalCount;
+      dispatch({
+        type: Types.SET_FOLDER_DETAILS,
+        payload: {
+          totalCount,
+          currentFolder,
+        },
+      });
     }
   };
 
@@ -209,7 +217,7 @@ const BrowserContainer = ({
           const fetchedFiles = fileList.getItems();
           if (files && fetchedFiles) {
             const sumFiles = [...files, ...fetchedFiles];
-            dispatch(setFiles(sumFiles, type));
+            dispatch(setFiles(sumFiles, path));
             hasNext = sumFiles.length < totalCount;
           }
         }
