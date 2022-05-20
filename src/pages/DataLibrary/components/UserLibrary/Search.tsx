@@ -11,6 +11,33 @@ import {
   setRoot,
 } from "./context/actions";
 
+type Paginate = {
+  limit: number;
+  offset: number;
+  fname_icontains: string;
+};
+const searchFeedFiles = async (fn: () => void, paginate: Paginate) => {
+  const feedFiles = await fetchResource(
+    {
+      ...paginate,
+      fname_nslashes: "5",
+    },
+    fn
+  );
+  return feedFiles;
+};
+
+const searchPacsFiles = async (fn: () => void, paginate: Paginate) => {
+  const pacsFiles = await fetchResource(
+    {
+      ...paginate,
+      fname_nslashes: "6",
+    },
+    fn
+  );
+  return pacsFiles;
+};
+
 const Search = () => {
   const { dispatch } = useContext(LibraryContext);
   const [value, setValue] = React.useState("");
@@ -18,13 +45,12 @@ const Search = () => {
   const [emptySet, setEmptySet] = React.useState("");
 
   const handleSearch = async () => {
-    setLoading(true);
-    const paginate = {
+    //const results = await createTree("", 4, value);
+    const paginate: Paginate = {
       limit: 100,
       offset: 0,
       fname_icontains: value,
     };
-
     const client = ChrisAPIClient.getClient();
     const uploadFn = client.getUploadedFiles;
     const feedfn = client.getFiles;
@@ -36,10 +62,18 @@ const Search = () => {
     const boundServicesFn = servicesfn.bind(client);
     const boundPacsFn = pacsFn.bind(client);
 
-    const uploadedFiles = await fetchResource(paginate, boundUploadFn);
-    const feedFiles = await fetchResource(paginate, boundFeedFn);
-    const servicesFiles = await fetchResource(paginate, boundServicesFn);
-    const pacsFiles = await fetchResource(paginate, boundPacsFn);
+    const uploadedFiles = await fetchResource(
+      { ...paginate, fname_nslashes: "3" },
+      boundUploadFn
+    );
+
+    const feedFiles = await searchFeedFiles(boundFeedFn, paginate);
+    const pacsFiles = await searchPacsFiles(boundPacsFn, paginate);
+
+    const servicesFiles = await fetchResource(
+      { ...paginate, fname_nslashes: "4" },
+      boundServicesFn
+    );
 
     const isUploadedRoot =
       uploadedFiles.length > 0 &&
@@ -93,6 +127,7 @@ const Search = () => {
         }
       }
     }
+
     if (feedFiles && feedFiles.length > 0) {
       const path = "chris";
 

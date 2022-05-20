@@ -62,38 +62,61 @@ export function Browser({
 }: BrowserInterface) {
   return (
     <Grid hasGutter>
-      {files && files.length > 0
-        ? files.map((file) => {
-            return (
-              <GridItem key={file.data.fname} sm={12} lg={2}>
-                <FileCard
-                  previewAll={previewAll}
-                  file={file}
-                  multipleFileSelect={multipleFileSelect}
-                  initialPath={initialPath}
-                />
-              </GridItem>
-            );
-          })
-        : folders &&
-          folders.length > 0 &&
-          folders.map((folder, index) => {
-            return (
-              <GridItem key={`${folder}_${index}`} sm={12} lg={2}>
-                <FolderCard
-                  browserType={browserType}
-                  initialPath={initialPath}
-                  handleFolderClick={handleFolderClick}
-                  handleDelete={handleDelete}
-                  handleDownload={handleDownload}
-                  key={index}
-                  folder={folder}
-                  username={username}
-                  multipleFileSelect={multipleFileSelect}
-                />
-              </GridItem>
-            );
-          })}
+      {files &&
+        files.length > 0 &&
+        files.map((file) => {
+          return (
+            <GridItem key={file.data.fname} sm={12} lg={2}>
+              <FileCard
+                previewAll={previewAll}
+                file={file}
+                multipleFileSelect={multipleFileSelect}
+                initialPath={initialPath}
+              />
+            </GridItem>
+          );
+        })}
+      {files &&
+        files.length > 0 &&
+        Object.keys(paginated).length > 0 &&
+        initialPath &&
+        paginated[initialPath] &&
+        paginated[initialPath].hasNext && (
+          <GridItem>
+            <Split>
+              <SplitItem isFilled>
+                <Button
+                  onClick={() => {
+                    handlePagination(initialPath, "file");
+                  }}
+                  variant="link"
+                >
+                  Read more files
+                </Button>
+              </SplitItem>
+            </Split>
+          </GridItem>
+        )}
+
+      {folders &&
+        folders.length > 0 &&
+        folders.map((folder, index) => {
+          return (
+            <GridItem key={`${folder}_${index}`} sm={12} lg={2}>
+              <FolderCard
+                browserType={browserType}
+                initialPath={initialPath}
+                handleFolderClick={handleFolderClick}
+                handleDelete={handleDelete}
+                handleDownload={handleDownload}
+                key={index}
+                folder={folder}
+                username={username}
+                multipleFileSelect={multipleFileSelect}
+              />
+            </GridItem>
+          );
+        })}
 
       {folders &&
         folders.length > 0 &&
@@ -111,28 +134,6 @@ export function Browser({
                   variant="link"
                 >
                   Read more Folders
-                </Button>
-              </SplitItem>
-            </Split>
-          </GridItem>
-        )}
-
-      {files &&
-        files.length > 0 &&
-        Object.keys(paginated).length > 0 &&
-        initialPath &&
-        paginated[initialPath] &&
-        paginated[initialPath].hasNext && (
-          <GridItem>
-            <Split>
-              <SplitItem isFilled>
-                <Button
-                  onClick={() => {
-                    handlePagination(initialPath, "file");
-                  }}
-                  variant="link"
-                >
-                  Read more files
                 </Button>
               </SplitItem>
             </Split>
@@ -329,7 +330,8 @@ function FolderCard({
   return (
     <Card
       onClick={() => {
-        handleFolderClick(`${initialPath}/${folder}`, initialPath);
+        if (!state.multipleFileSelect)
+          handleFolderClick(`${initialPath}/${folder}`, initialPath);
       }}
       isHoverable
       isSelectable
