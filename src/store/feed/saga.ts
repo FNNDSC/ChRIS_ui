@@ -76,10 +76,18 @@ function* handleDowloadFeed(action: IActionTypeParam) {
     feedNames.push(data.name);
   }
   try {
+    
+    // truncate name of the merged feed(limit=100)
     let newFeedName = feedNames.toString().replace(/[, ]+/g,'_');
     newFeedName = newFeedName.substring(0,90);
-    console.log(newFeedName)
-    const createdFeed: Feed = yield cu.createMergeFeed(feedIdList,`Merge of ${newFeedName}`);
+    if(feedList.length>1){
+      newFeedName = `Merge of ${newFeedName}`;
+    }
+    else{
+      newFeedName = `Archive of ${newFeedName}`;
+    }
+
+    const createdFeed: Feed = yield cu.createMergeFeed(feedIdList,newFeedName);
     newFeeds.push(createdFeed)
   }  catch(error:any) {
      const errorParsed = error.response.data.value[0]
@@ -126,13 +134,21 @@ function* handleFeedResources(action: IActionTypeParam) {
   const cu = new cujs()
   cu.setClient(client)
   try {
-    const details: Record<string, unknown> = yield cu.getPluginInstanceDetails(action.payload)
-   
-    const payload = {
-      details,
-      id: action.payload.data.id,
+    
+    const delay = (ms:number) => new Promise(res => setTimeout(res, ms));
+    let details: Record<string, unknown> = {};
+    details.progress = 0;
+    do {
+      details = yield cu.getPluginInstanceDetails(action.payload);
+      const payload = {
+        details,
+        id: action.payload.data.id,
+      }
+      yield delay(500);
+      yield put(getFeedResourcesSucess(payload))
     }
-    yield put(getFeedResourcesSucess(payload))
+    while (details.progress !== 100 && !details.error)
+    
   } catch (error) {}
 }
 
