@@ -1,6 +1,6 @@
 import React from 'react'
-import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core'
-import { FaTrash, FaDownload } from 'react-icons/fa'
+import { ToggleGroup, ToggleGroupItem, Tooltip, } from '@patternfly/react-core'
+import { FaTrash, FaDownload, FaCodeBranch } from 'react-icons/fa'
 import { useDispatch } from 'react-redux'
 import { downloadFeedRequest, deleteFeed } from '../../../store/feed/actions'
 import { useTypedSelector } from '../../../store/hooks'
@@ -13,18 +13,34 @@ const IconContainer = () => {
   return (
     <ToggleGroup aria-label="Feed Action Bar">
       <ToggleGroupItem
-        aria-label="feed-action"
-        icon={<FaTrash />}
-        onChange={() => {
-          dispatch(deleteFeed(bulkSelect))
-        }}
-      />
-      <ToggleGroupItem
-        icon={<FaDownload />}
+        icon={ <Tooltip content={<div>Download selected feeds</div>}>
+                 <FaDownload />
+               </Tooltip>
+             }
         onChange={() => {
           dispatch(downloadFeedRequest(bulkSelect))
         }}
       />
+      <ToggleGroupItem
+        icon={ <Tooltip content={<div>Merge selected feeds</div>}>
+                 <FaCodeBranch />
+               </Tooltip>
+             }
+        onChange={() => {
+          dispatch(downloadFeedRequest(bulkSelect))
+        }}
+      />
+      <ToggleGroupItem
+        aria-label="feed-action"
+        icon={ <Tooltip content={<div>Delete selected feeds</div>}>
+                 <FaTrash />
+               </Tooltip>
+             }
+        onChange={() => {
+          dispatch(deleteFeed(bulkSelect))
+        }}
+      />
+      
     </ToggleGroup>
   )
 }

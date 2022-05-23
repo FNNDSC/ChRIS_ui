@@ -10,6 +10,8 @@ import {
   getFeedError,
   downloadFeedError,
   downloadFeedSuccess,
+  mergeFeedError,
+  mergeFeedSuccess,
   getFeedResourcesSucess,
 } from './actions'
 import { getPluginInstancesRequest } from '../pluginInstance/actions'
@@ -80,12 +82,9 @@ function* handleDowloadFeed(action: IActionTypeParam) {
     // truncate name of the merged feed(limit=100)
     let newFeedName = feedNames.toString().replace(/[, ]+/g,'_');
     newFeedName = newFeedName.substring(0,90);
-    if(feedList.length>1){
-      newFeedName = `Merge of ${newFeedName}`;
-    }
-    else{
-      newFeedName = `Archive of ${newFeedName}`;
-    }
+
+    newFeedName = `Archive of ${newFeedName}`;
+
 
     const createdFeed: Feed = yield cu.createMergeFeed(feedIdList,newFeedName);
     newFeeds.push(createdFeed)
@@ -129,6 +128,41 @@ function* handleDowloadFeed(action: IActionTypeParam) {
   */
 }
 
+
+function* handleMergeFeed(action: IActionTypeParam) {
+  const feedList = action.payload
+  const client = ChrisAPIClient.getClient()
+  const cu = new cujs()
+  cu.setClient(client)
+  //@ts-ignore
+  const dircopy: Plugin = yield getPlugin('pl-dircopy')
+  const feedIdList = [];
+  const newFeeds = [];
+  const feedNames = [];
+  for (let i = 0; i < feedList.length; i++) {
+    const data = feedList[i].data
+    feedIdList.push(data.id);
+    feedNames.push(data.name);
+  }
+  try {
+    
+    // truncate name of the merged feed(limit=100)
+    let newFeedName = feedNames.toString().replace(/[, ]+/g,'_');
+    newFeedName = newFeedName.substring(0,90);
+
+    newFeedName = `Merge of ${newFeedName}`;
+
+
+    const createdFeed: Feed = yield cu.createMergeFeed(feedIdList,newFeedName);
+    newFeeds.push(createdFeed)
+  }  catch(error:any) {
+     const errorParsed = error.response.data.value[0]
+     yield put(mergeFeedError(errorParsed))
+  }
+  
+  yield put(mergeFeedSuccess(newFeeds));
+}
+
 function* handleFeedResources(action: IActionTypeParam) {
   const client = ChrisAPIClient.getClient()
   const cu = new cujs()
@@ -164,6 +198,10 @@ function* watchDownloadRequest() {
   yield takeEvery(FeedActionTypes.DOWNLOAD_FEED_REQUEST, handleDowloadFeed)
 }
 
+function* watchMergeRequest() {
+  yield takeEvery(FeedActionTypes.MERGE_FEED_REQUEST, handleMergeFeed)
+}
+
 function* watchGetFeedResources() {
   yield takeEvery(
     FeedActionTypes.GET_FEED_RESOURCES_REQUEST,
@@ -176,6 +214,7 @@ export function* feedSaga() {
     fork(watchGetAllFeedsRequest),
     fork(watchGetFeedRequest),
     fork(watchDownloadRequest),
+    fork(watchMergeRequest),
     fork(watchGetFeedResources),
   ])
 }
