@@ -1,8 +1,12 @@
 import React from 'react'
-import { ToggleGroup, ToggleGroupItem, Tooltip, } from '@patternfly/react-core'
+import { ToggleGroup, ToggleGroupItem, Tooltip } from '@patternfly/react-core'
 import { FaTrash, FaDownload, FaCodeBranch } from 'react-icons/fa'
 import { useDispatch } from 'react-redux'
-import { downloadFeedRequest, deleteFeed, mergeFeedRequest } from '../../../store/feed/actions'
+import {
+  downloadFeedRequest,
+  deleteFeed,
+  mergeFeedRequest,
+} from '../../../store/feed/actions'
 import { useTypedSelector } from '../../../store/hooks'
 
 const IconContainer = () => {
@@ -13,47 +17,47 @@ const IconContainer = () => {
   return (
     <ToggleGroup aria-label="Feed Action Bar">
       <ToggleGroupItem
-        icon={ <Tooltip content={<div>Download selected feeds</div>}>
-                 <FaDownload />
-               </Tooltip>
-             }
+        aria-label="feed-action"
+        icon={
+          <Tooltip content={<div>Download selected feeds</div>}>
+            <FaDownload />
+          </Tooltip>
+        }
         onChange={() => {
           dispatch(downloadFeedRequest(bulkSelect))
         }}
       />
       <ToggleGroupItem
-        icon={ <Tooltip content={<div>Merge selected feeds</div>}>
-                 <FaCodeBranch />
-               </Tooltip>
-             }
+        aria-label="feed-action"
+        icon={
+          <Tooltip content={<div>Merge selected feeds</div>}>
+            <FaCodeBranch />
+          </Tooltip>
+        }
         onChange={() => {
           dispatch(mergeFeedRequest(bulkSelect))
         }}
       />
       <ToggleGroupItem
         aria-label="feed-action"
-        icon={ <Tooltip content={<div>Delete selected feeds</div>}>
-                 <FaTrash />
-               </Tooltip>
-             }
+        icon={
+          <Tooltip content={<div>Delete selected feeds</div>}>
+            <FaTrash />
+          </Tooltip>
+        }
         onChange={() => {
           dispatch(deleteFeed(bulkSelect))
-        aria-label="feed-action"
-        icon={<FaTrash aria-label="feed-action-icon" />}
-        onChange={() => {
-          dispatch(deleteFeed(bulkSelect));
         }}
       />
       <ToggleGroupItem
         aria-label="feed-action"
         icon={<FaDownload aria-label="feed-action-icon" />}
         onChange={() => {
-          dispatch(downloadFeedRequest(bulkSelect));
+          dispatch(downloadFeedRequest(bulkSelect))
         }}
       />
-      
     </ToggleGroup>
-  );
+  )
 }
 
 export default IconContainer
