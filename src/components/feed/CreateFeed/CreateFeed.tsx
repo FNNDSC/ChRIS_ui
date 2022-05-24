@@ -177,9 +177,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         title: "Description",
         content: state.data.feedDescription,
       });
-      
 
-      console.log("FEED INSTANCE BEFORE ADDING:", feed);
       addFeed && addFeed(feed);
     } catch (error) {
       throw new Error(`${error}`);

@@ -14,19 +14,20 @@ const IconContainer = () => {
     <ToggleGroup aria-label="Feed Action Bar">
       <ToggleGroupItem
         aria-label="feed-action"
-        icon={<FaTrash />}
+        icon={<FaTrash aria-label="feed-action-icon" />}
         onChange={() => {
-          dispatch(deleteFeed(bulkSelect))
+          dispatch(deleteFeed(bulkSelect));
         }}
       />
       <ToggleGroupItem
-        icon={<FaDownload />}
+        aria-label="feed-action"
+        icon={<FaDownload aria-label="feed-action-icon" />}
         onChange={() => {
-          dispatch(downloadFeedRequest(bulkSelect))
+          dispatch(downloadFeedRequest(bulkSelect));
         }}
       />
     </ToggleGroup>
-  )
+  );
 }
 
 export default IconContainer
