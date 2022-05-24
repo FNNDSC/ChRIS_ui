@@ -82,6 +82,7 @@ export enum Types {
   SET_REMOVE_FILE_SELECT = "SET_REMOVE_FILE_SELECT",
   SET_CLEAR_FILE_SELECT = "SET_CLEAR_FILE_SELECT",
   CLEAR_FOLDER_STATE = "CLEAR_FOLDER_STATE",
+  CLEAR_FILES_STATE = "CLEAR_FILES_STATE",
 }
 
 type LibraryPayload = {
@@ -147,6 +148,10 @@ type LibraryPayload = {
     path: string;
     type: string;
   };
+
+  [Types.CLEAR_FILES_STATE]: {
+    path: string;
+  };
 };
 
 export type LibraryActions =
@@ -175,14 +180,41 @@ export const libraryReducer = (
       };
     }
 
-    case Types.CLEAR_FOLDER_STATE: {
-      const copy = { ...state.foldersState };
+    case Types.CLEAR_FILES_STATE: {
+      const copy = { ...state.filesState };
+      const copyPaginated = { ...state.paginated };
+
       const path = action.payload.path;
       if (path) {
         delete copy[path];
+        delete copyPaginated[path];
+        return {
+          ...state,
+          filesState: copy,
+          paginated: copyPaginated,
+        };
+      } else
+        return {
+          ...state,
+        };
+    }
+
+    case Types.CLEAR_FOLDER_STATE: {
+      const copy = { ...state.foldersState };
+      const copyPaginatedFolders = { ...state.paginatedFolders };
+      const copyPaginated = { ...state.paginated };
+
+      const path = action.payload.path;
+      if (path) {
+        delete copy[path];
+        delete copyPaginatedFolders[path];
+        delete copyPaginated[path];
+
         return {
           ...state,
           foldersState: copy,
+          paginatedFolders: copyPaginatedFolders,
+          paginated: copyPaginated,
         };
       } else
         return {

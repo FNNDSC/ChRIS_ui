@@ -64,13 +64,13 @@ const DashboardPage = (props: DashboardProps) => {
           <b> Let&apos;s get started.</b>
           <br />
           <span>
-            Version: <b>{process.env.REACT_APP_CHRIS_UI_VERSION}</b>{' '}
+            Version: <b>{process.env.REACT_APP_CHRIS_UI_VERSION}</b>{" "}
           </span>
           <br />
           <span>
-            Latest update:{' '}
+            Latest update:{" "}
             <b>
-              <Moment format="DD MMM YYYY @ HH:mm">{`2022-05-12T12:00:11.007464-04:00`}</Moment>
+              <Moment format="DD MMM YYYY @ HH:mm">{`2022-05-24T18:00:11.007464-04:00`}</Moment>
             </b>
           </span>
         </p>
@@ -78,10 +78,10 @@ const DashboardPage = (props: DashboardProps) => {
       </PageSection>
       <PageSection>
         <Grid hasGutter>
-          <GridItem style={{ marginBottom: '1rem' }} lg={6}>
+          <GridItem style={{ marginBottom: "1rem" }} lg={6}>
             <CardDisplay
               component={
-                <div style={{ display: 'flex' }}>
+                <div style={{ display: "flex" }}>
                   <ImageComponent img={FirstPng} />
                   <ImageComponent img={SecondPng} />
                   <ImageComponent img={ThirdPng} />
@@ -98,7 +98,7 @@ const DashboardPage = (props: DashboardProps) => {
           <GridItem lg={6}>
             <CardDisplay
               component={
-                <div style={{ display: 'flex' }}>
+                <div style={{ display: "flex" }}>
                   <ImageComponent img={TreeOne} />
                   <ImageComponent img={TreeTwo} />
                   <ImageComponent img={TreeThree} />
@@ -133,7 +133,7 @@ const DashboardPage = (props: DashboardProps) => {
         </Grid>
       </PageSection>
     </Wrapper>
-  )
+  );
 }
 
 export default DashboardPage
