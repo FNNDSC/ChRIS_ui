@@ -20,7 +20,7 @@ const searchFeedFiles = async (fn: () => void, paginate: Paginate) => {
   const feedFiles = await fetchResource(
     {
       ...paginate,
-      fname_nslashes: "5",
+      //fname_nslashes: "5",
     },
     fn
   );
@@ -31,7 +31,7 @@ const searchPacsFiles = async (fn: () => void, paginate: Paginate) => {
   const pacsFiles = await fetchResource(
     {
       ...paginate,
-      fname_nslashes: "6",
+     fname_nslashes: "6",
     },
     fn
   );
@@ -74,6 +74,8 @@ const Search = () => {
       { ...paginate, fname_nslashes: "4" },
       boundServicesFn
     );
+
+    console.log("FILES", servicesFiles, feedFiles, pacsFiles)
 
     const isUploadedRoot =
       uploadedFiles.length > 0 &&
