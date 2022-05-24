@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext } from 'react'
 import {
   Split,
   SplitItem,
@@ -16,46 +16,44 @@ import {
   AlertActionLink,
   ChipGroup,
   Chip,
-} from "@patternfly/react-core";
-import BrowserContainer from "./BrowserContainer";
-import { FaUpload } from "react-icons/fa";
-import FileUpload from "../../../../components/common/fileupload";
-import ChrisAPIClient from "../../../../api/chrisapiclient";
-import { LocalFile } from "../../../../components/feed/CreateFeed/types";
-import { useTypedSelector } from "../../../../store/hooks";
-import { LibraryContext, Types } from "./context";
-import { MainRouterContext } from "../../../../routes";
+} from '@patternfly/react-core'
+import BrowserContainer from './BrowserContainer'
+import { FaUpload } from 'react-icons/fa'
+import FileUpload from '../../../../components/common/fileupload'
+import ChrisAPIClient from '../../../../api/chrisapiclient'
+import { LocalFile } from '../../../../components/feed/CreateFeed/types'
+import { useTypedSelector } from '../../../../store/hooks'
+import { LibraryContext, Types } from './context'
+import { MainRouterContext } from '../../../../routes'
 
 const DataLibrary = () => {
-  const username = useTypedSelector((state) => state.user.username);
-  const { state, dispatch } = useContext(LibraryContext);
-  const router = useContext(MainRouterContext);
-  const [uploadFileModal, setUploadFileModal] = React.useState(false);
-  const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([]);
-  const [directoryName, setDirectoryName] = React.useState("");
-  const { isRoot, multipleFileSelect, fileSelect } = state;
+  const username = useTypedSelector((state) => state.user.username)
+  const { state, dispatch } = useContext(LibraryContext)
+  const router = useContext(MainRouterContext)
+  const [uploadFileModal, setUploadFileModal] = React.useState(false)
+  const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
+  const [directoryName, setDirectoryName] = React.useState('')
+  const { isRoot, multipleFileSelect, fileSelect } = state
 
-  console.log("STATE", state);
-
-  const rootCheck = Object.keys(isRoot).length > 0;
+  const rootCheck = Object.keys(isRoot).length > 0
 
   const handleFileModal = () => {
-    setUploadFileModal(!uploadFileModal);
-    setLocalFiles([]);
-    setDirectoryName("");
-  };
+    setUploadFileModal(!uploadFileModal)
+    setLocalFiles([])
+    setDirectoryName('')
+  }
 
   const handleLocalFiles = (files: LocalFile[]) => {
-    setLocalFiles(files);
-  };
+    setLocalFiles(files)
+  }
 
   const handleDirectoryName = (directoryName: string) => {
-    setDirectoryName(directoryName);
-  };
+    setDirectoryName(directoryName)
+  }
 
   const createFeed = () => {
-    router.actions.createFeedWithData(fileSelect);
-  };
+    router.actions.createFeedWithData(fileSelect)
+  }
 
   const clearFeed = () => {
     dispatch({
@@ -63,8 +61,8 @@ const DataLibrary = () => {
       payload: {
         clear: true,
       },
-    });
-  };
+    })
+  }
 
   const uploadedFiles = (
     <section>
@@ -72,7 +70,7 @@ const DataLibrary = () => {
         <SplitItem>
           <h3>Uploads</h3>
         </SplitItem>
-        <SplitItem style={{ margin: "auto 1em" }} isFilled>
+        <SplitItem style={{ margin: 'auto 1em' }} isFilled>
           <hr />
         </SplitItem>
       </Split>
@@ -82,7 +80,7 @@ const DataLibrary = () => {
         username={username}
       />
     </section>
-  );
+  )
 
   const feedFiles = (
     <section>
@@ -90,13 +88,13 @@ const DataLibrary = () => {
         <SplitItem>
           <h3>Completed Analyses</h3>
         </SplitItem>
-        <SplitItem style={{ margin: "auto 1em" }} isFilled>
+        <SplitItem style={{ margin: 'auto 1em' }} isFilled>
           <hr />
         </SplitItem>
       </Split>
       <BrowserContainer type="feed" path={`${username}`} username={username} />
     </section>
-  );
+  )
 
   const servicesFiles = (
     <section>
@@ -104,13 +102,13 @@ const DataLibrary = () => {
         <SplitItem>
           <h3>External Services</h3>
         </SplitItem>
-        <SplitItem style={{ margin: "auto 1em" }} isFilled>
+        <SplitItem style={{ margin: 'auto 1em' }} isFilled>
           <hr />
         </SplitItem>
       </Split>
       <BrowserContainer type="services" path={`SERVICES`} username={username} />
     </section>
-  );
+  )
 
   return (
     <>
@@ -119,7 +117,7 @@ const DataLibrary = () => {
           <Alert
             title="Multiple File Select"
             variant="info"
-            style={{ width: "100%", marginTop: "3em" }}
+            style={{ width: '100%', marginTop: '3em' }}
             actionLinks={
               <>
                 <AlertActionLink onClick={createFeed}>
@@ -140,13 +138,13 @@ const DataLibrary = () => {
                           payload: {
                             path: file,
                           },
-                        });
+                        })
                       }}
                       key={index}
                     >
                       {file}
                     </Chip>
-                  );
+                  )
                 })}
             </ChipGroup>
           </Alert>
@@ -175,12 +173,12 @@ const DataLibrary = () => {
                   payload: {
                     active: !multipleFileSelect,
                   },
-                });
+                })
               }}
-              style={{ marginLeft: "1em" }}
+              style={{ marginLeft: '1em' }}
             >
               {`Multiple Element Select:${
-                multipleFileSelect === true ? " On" : " Off"
+                multipleFileSelect === true ? ' On' : ' Off'
               }`}
             </Button>
           </SplitItem>
@@ -189,20 +187,20 @@ const DataLibrary = () => {
 
       {!rootCheck
         ? uploadedFiles
-        : isRoot["uploads"]
+        : isRoot['uploads']
         ? uploadedFiles
         : undefined}
-      {!rootCheck ? feedFiles : isRoot["feed"] ? feedFiles : undefined}
+      {!rootCheck ? feedFiles : isRoot['feed'] ? feedFiles : undefined}
       {!rootCheck
         ? servicesFiles
-        : isRoot["services"]
+        : isRoot['services']
         ? servicesFiles
         : undefined}
     </>
-  );
-};
+  )
+}
 
-export default DataLibrary;
+export default DataLibrary
 
 const UploadComponent = ({
   handleFileModal,
@@ -212,17 +210,17 @@ const UploadComponent = ({
   directoryName,
   handleDirectoryName,
 }: {
-  handleFileModal: () => void;
-  handleLocalFiles: (files: LocalFile[]) => void;
-  uploadFileModal: boolean;
-  localFiles: LocalFile[];
-  directoryName: string;
-  handleDirectoryName: (path: string) => void;
+  handleFileModal: () => void
+  handleLocalFiles: (files: LocalFile[]) => void
+  uploadFileModal: boolean
+  localFiles: LocalFile[]
+  directoryName: string
+  handleDirectoryName: (path: string) => void
 }) => {
-  const username = useTypedSelector((state) => state.user.username);
-  const { dispatch } = useContext(LibraryContext);
-  const [warning, setWarning] = React.useState("");
-  const [count, setCount] = React.useState(0);
+  const username = useTypedSelector((state) => state.user.username)
+  const { dispatch } = useContext(LibraryContext)
+  const [warning, setWarning] = React.useState('')
+  const [count, setCount] = React.useState(0)
 
   const handleAddFolder = (directoryName: string) => {
     dispatch({
@@ -231,13 +229,13 @@ const UploadComponent = ({
         folder: directoryName,
         username,
       },
-    });
-  };
+    })
+  }
   return (
     <Modal
       title="Upload Files"
       onClose={() => {
-        handleFileModal();
+        handleFileModal()
       }}
       isOpen={uploadFileModal}
       variant={ModalVariant.small}
@@ -255,8 +253,8 @@ const UploadComponent = ({
             type="text"
             name="horizontal-form-name"
             onChange={(value) => {
-              setWarning("");
-              handleDirectoryName(value);
+              setWarning('')
+              handleDirectoryName(value)
             }}
           />
         </FormGroup>
@@ -264,7 +262,7 @@ const UploadComponent = ({
       {localFiles.length > 0 && (
         <div
           style={{
-            margin: "1em 0 0.5em 0",
+            margin: '1em 0 0.5em 0',
           }}
         >
           <b>Total Number of Files to Upload: {localFiles.length}</b>
@@ -273,8 +271,8 @@ const UploadComponent = ({
       {warning && (
         <div
           style={{
-            margin: "1em 0 1em, 0",
-            color: "red",
+            margin: '1em 0 1em, 0',
+            color: 'red',
           }}
         >
           {warning}
@@ -283,7 +281,7 @@ const UploadComponent = ({
       {localFiles.length > 0 && directoryName && (
         <Progress
           style={{
-            margin: "1em 0 1em 0",
+            margin: '1em 0 1em 0',
           }}
           title="File Upload Tracker"
           value={count}
@@ -300,34 +298,34 @@ const UploadComponent = ({
       <FileUpload
         className=""
         handleDeleteDispatch={() => {
-          console.log("Test");
+          console.log('Test')
         }}
         localFiles={[]}
         dispatchFn={async (files) => {
-          handleLocalFiles(files);
+          handleLocalFiles(files)
           if (!directoryName) {
-            setWarning("Please add a directory name");
+            setWarning('Please add a directory name')
           } else {
             if (directoryName) {
-              handleAddFolder(directoryName);
+              handleAddFolder(directoryName)
             }
-            const client = ChrisAPIClient.getClient();
-            const path = `${username}/uploads/${directoryName}`;
+            const client = ChrisAPIClient.getClient()
+            const path = `${username}/uploads/${directoryName}`
             for (let i = 0; i < files.length; i++) {
-              const file = files[i];
+              const file = files[i]
               await client.uploadFile(
                 {
                   upload_path: `${path}/${file.name}`,
                 },
                 {
                   fname: (file as LocalFile).blob,
-                }
-              );
-              setCount(i + 1);
+                },
+              )
+              setCount(i + 1)
             }
           }
         }}
       />
     </Modal>
-  );
-};
+  )
+}
