@@ -107,8 +107,11 @@ const FeedListView: React.FC<AllProps> = ({
     const { errored_jobs, cancelled_jobs } = feed.data
 
     const size = feedResources[feed.data.id] && feedResources[feed.data.id].details.size;
+    const feedError = feedResources[feed.data.id] && feedResources[feed.data.id].details.error;
     const runtime =
       feedResources[feed.data.id] && feedResources[feed.data.id].details.time;
+    const progress =
+      feedResources[feed.data.id] && feedResources[feed.data.id].details.progress;
 
     const name = {
       title: (
@@ -136,11 +139,11 @@ const FeedListView: React.FC<AllProps> = ({
     }
 
     const feedSize = {
-      title: <p>{size ? `${size}` : 'Fetching size....'}</p>,
+      title: <p>{size ? `${size}` : '---'}</p>,
     }
 
     const runTime = {
-      title: <p>{runtime ? `${runtime}` : 'Fetching runtime'}</p>,
+      title: <p>{runtime ? `${runtime}` : '---'}</p>,
     }
 
     const getProgress = function () {
@@ -160,16 +163,16 @@ const FeedListView: React.FC<AllProps> = ({
       '/' +
       (runningJobsCount + finished_jobs) +
       ' jobs completed'
-    let progress = getProgress()
+    // let progress = getProgress()
     let threshold = Infinity
 
     // If error in a feed => reflect in progress
-    if (error) {
-      progress = Math.round((finished_jobs / (finished_jobs + error)) * 100)
+    if (feedError) {
+      //progress = Math.round((finished_jobs / (finished_jobs + error)) * 100)
       feedProgressText = error + '/' + (finished_jobs + error) + ' jobs failed'
       threshold = progress
     }
-    let title = progress + '%';
+    let title = (progress ? progress : 0) + '%';
     if(progress==0 && error){
       title="❌";
     }

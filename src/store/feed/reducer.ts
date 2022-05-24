@@ -177,6 +177,32 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         downloadError: action.payload,
       }
     }
+    
+    case FeedActionTypes.MERGE_FEED_SUCCESS: {
+      if (state.allFeeds.data) {
+        return {
+          ...state,
+          allFeeds: {
+            ...state.allFeeds,
+            data: [...action.payload, ...state.allFeeds.data],
+            totalFeedsCount:
+              state.allFeeds.totalFeedsCount + action.payload.length,
+          },
+          bulkSelect: [],
+        }
+      } else {
+        return {
+          ...state,
+        }
+      }
+    }
+
+    case FeedActionTypes.MERGE_FEED_ERROR: {
+      return {
+        ...state,
+        downloadError: action.payload,
+      }
+    }
 
     case FeedActionTypes.SET_LAYOUT: {
       return {

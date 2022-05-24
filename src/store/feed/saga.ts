@@ -10,6 +10,8 @@ import {
   getFeedError,
   downloadFeedError,
   downloadFeedSuccess,
+  mergeFeedError,
+  mergeFeedSuccess,
   getFeedResourcesSucess,
 } from './actions'
 import { getPluginInstancesRequest } from '../pluginInstance/actions'
@@ -67,7 +69,31 @@ function* handleDowloadFeed(action: IActionTypeParam) {
   cu.setClient(client)
   //@ts-ignore
   const dircopy: Plugin = yield getPlugin('pl-dircopy')
+  const feedIdList = [];
+  const newFeeds = [];
+  const feedNames = [];
+  for (let i = 0; i < feedList.length; i++) {
+    const data = feedList[i].data
+    feedIdList.push(data.id);
+    feedNames.push(data.name);
+  }
+  try {
+    
+    // truncate name of the merged feed(limit=100)
+    let newFeedName = feedNames.toString().replace(/[, ]+/g,'_');
+    newFeedName = `Archive of ${newFeedName}`;
+    newFeedName = newFeedName.substring(0,100);
 
+
+    const createdFeed: Feed = yield cu.downloadMultipleFeeds(feedIdList,newFeedName);
+    newFeeds.push(createdFeed)
+  }  catch(error:any) {
+     const errorParsed = error.response.data.value[0]
+     yield put(downloadFeedError(errorParsed))
+  }
+  
+  yield put(downloadFeedSuccess(newFeeds));
+  /*
   if (dircopy instanceof Plugin) {
     const newFeeds = []
     for (let i = 0; i < feedList.length; i++) {
@@ -98,6 +124,40 @@ function* handleDowloadFeed(action: IActionTypeParam) {
     }
     yield put(downloadFeedSuccess(newFeeds))
   }
+  */
+}
+
+
+function* handleMergeFeed(action: IActionTypeParam) {
+  const feedList = action.payload
+  const client = ChrisAPIClient.getClient()
+  const cu = new cujs()
+  cu.setClient(client)
+  //@ts-ignore
+  const dircopy: Plugin = yield getPlugin('pl-dircopy')
+  const feedIdList = [];
+  const newFeeds = [];
+  const feedNames = [];
+  for (let i = 0; i < feedList.length; i++) {
+    const data = feedList[i].data
+    feedIdList.push(data.id);
+    feedNames.push(data.name);
+  }
+  try {
+    
+    // truncate name of the merged feed(limit=100)
+    let newFeedName = feedNames.toString().replace(/[, ]+/g,'_');
+    newFeedName = `Merge of ${newFeedName}`;
+    newFeedName = newFeedName.substring(0,100);
+
+    const createdFeed: Feed = yield cu.mergeMultipleFeeds(feedIdList,newFeedName);
+    newFeeds.push(createdFeed)
+  }  catch(error:any) {
+     const errorParsed = error.response.data.value[0]
+     yield put(mergeFeedError(errorParsed))
+  }
+  
+  yield put(mergeFeedSuccess(newFeeds));
 }
 
 function* handleFeedResources(action: IActionTypeParam) {
@@ -105,13 +165,21 @@ function* handleFeedResources(action: IActionTypeParam) {
   const cu = new cujs()
   cu.setClient(client)
   try {
-    const details: Record<string, unknown> = yield cu.getPluginInstanceDetails(action.payload)
-   
-    const payload = {
-      details,
-      id: action.payload.data.id,
+    
+    const delay = (ms:number) => new Promise(res => setTimeout(res, ms));
+    let details: Record<string, unknown> = {};
+    details.progress = 0;
+    do {
+      details = yield cu.getPluginInstanceDetails(action.payload);
+      const payload = {
+        details,
+        id: action.payload.data.id,
+      }
+      yield delay(500);
+      yield put(getFeedResourcesSucess(payload))
     }
-    yield put(getFeedResourcesSucess(payload))
+    while (details.progress !== 100 && !details.error)
+    
   } catch (error) {}
 }
 
@@ -127,6 +195,10 @@ function* watchDownloadRequest() {
   yield takeEvery(FeedActionTypes.DOWNLOAD_FEED_REQUEST, handleDowloadFeed)
 }
 
+function* watchMergeRequest() {
+  yield takeEvery(FeedActionTypes.MERGE_FEED_REQUEST, handleMergeFeed)
+}
+
 function* watchGetFeedResources() {
   yield takeEvery(
     FeedActionTypes.GET_FEED_RESOURCES_REQUEST,
@@ -139,6 +211,7 @@ export function* feedSaga() {
     fork(watchGetAllFeedsRequest),
     fork(watchGetFeedRequest),
     fork(watchDownloadRequest),
+    fork(watchMergeRequest),
     fork(watchGetFeedResources),
   ])
 }
