@@ -81,12 +81,11 @@ function* handleDowloadFeed(action: IActionTypeParam) {
     
     // truncate name of the merged feed(limit=100)
     let newFeedName = feedNames.toString().replace(/[, ]+/g,'_');
-    newFeedName = newFeedName.substring(0,90);
-
     newFeedName = `Archive of ${newFeedName}`;
+    newFeedName = newFeedName.substring(0,100);
 
 
-    const createdFeed: Feed = yield cu.createMergeFeed(feedIdList,newFeedName);
+    const createdFeed: Feed = yield cu.downloadMultipleFeeds(feedIdList,newFeedName);
     newFeeds.push(createdFeed)
   }  catch(error:any) {
      const errorParsed = error.response.data.value[0]
@@ -148,12 +147,10 @@ function* handleMergeFeed(action: IActionTypeParam) {
     
     // truncate name of the merged feed(limit=100)
     let newFeedName = feedNames.toString().replace(/[, ]+/g,'_');
-    newFeedName = newFeedName.substring(0,90);
-
     newFeedName = `Merge of ${newFeedName}`;
+    newFeedName = newFeedName.substring(0,100);
 
-
-    const createdFeed: Feed = yield cu.createMergeFeed(feedIdList,newFeedName);
+    const createdFeed: Feed = yield cu.mergeMultipleFeeds(feedIdList,newFeedName);
     newFeeds.push(createdFeed)
   }  catch(error:any) {
      const errorParsed = error.response.data.value[0]

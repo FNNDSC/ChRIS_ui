@@ -2,7 +2,7 @@ import React from 'react'
 import { ToggleGroup, ToggleGroupItem, Tooltip, } from '@patternfly/react-core'
 import { FaTrash, FaDownload, FaCodeBranch } from 'react-icons/fa'
 import { useDispatch } from 'react-redux'
-import { downloadFeedRequest, deleteFeed } from '../../../store/feed/actions'
+import { downloadFeedRequest, deleteFeed, mergeFeedRequest } from '../../../store/feed/actions'
 import { useTypedSelector } from '../../../store/hooks'
 
 const IconContainer = () => {
@@ -27,7 +27,7 @@ const IconContainer = () => {
                </Tooltip>
              }
         onChange={() => {
-          dispatch(downloadFeedRequest(bulkSelect))
+          dispatch(mergeFeedRequest(bulkSelect))
         }}
       />
       <ToggleGroupItem

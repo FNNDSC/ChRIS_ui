@@ -110,7 +110,7 @@ const FeedListView: React.FC<AllProps> = ({
     const feedError = feedResources[feed.data.id] && feedResources[feed.data.id].details.error;
     const runtime =
       feedResources[feed.data.id] && feedResources[feed.data.id].details.time;
-    let progress =
+    const progress =
       feedResources[feed.data.id] && feedResources[feed.data.id].details.progress;
 
     const name = {
@@ -139,11 +139,11 @@ const FeedListView: React.FC<AllProps> = ({
     }
 
     const feedSize = {
-      title: <p>{size ? `${size}` : 'Fetching size....'}</p>,
+      title: <p>{size ? `${size}` : '---'}</p>,
     }
 
     const runTime = {
-      title: <p>{runtime ? `${runtime}` : 'Fetching runtime'}</p>,
+      title: <p>{runtime ? `${runtime}` : '---'}</p>,
     }
 
     const getProgress = function () {
@@ -168,7 +168,7 @@ const FeedListView: React.FC<AllProps> = ({
 
     // If error in a feed => reflect in progress
     if (feedError) {
-      progress = Math.round((finished_jobs / (finished_jobs + error)) * 100)
+      //progress = Math.round((finished_jobs / (finished_jobs + error)) * 100)
       feedProgressText = error + '/' + (finished_jobs + error) + ' jobs failed'
       threshold = progress
     }

@@ -29,7 +29,7 @@
 #   For high-security platforms, do not use docker-entrypoint.sh.
 
 
-FROM node:16 as builder
+FROM node:18 as builder
 
 WORKDIR /app
 COPY . .
