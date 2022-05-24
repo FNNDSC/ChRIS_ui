@@ -35,6 +35,8 @@ const DataLibrary = () => {
   const [directoryName, setDirectoryName] = React.useState("");
   const { isRoot, multipleFileSelect, fileSelect } = state;
 
+  console.log("STATE", state);
+
   const rootCheck = Object.keys(isRoot).length > 0;
 
   const handleFileModal = () => {
