@@ -21,6 +21,16 @@ export const clearFolderState = (path: string, type: string) => {
   };
 };
 
+export const clearFilesState = (path: string, type: string) => {
+  return {
+    type: Types.CLEAR_FILES_STATE,
+    payload: {
+      path,
+      type,
+    },
+  };
+};
+
 export const setLoading = (loading: boolean) => {
   return {
     type: Types.SET_LOADING,
