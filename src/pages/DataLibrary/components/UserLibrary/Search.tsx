@@ -28,7 +28,7 @@ const lookDeeper = async (
   const results: string[] = []
   if (maxDepth < 0) return []
   const subpaths = await client.getFileBrowserPath(path)
-  console.log('Subpaths', subpaths)
+
   if (
     subpaths &&
     subpaths.data &&

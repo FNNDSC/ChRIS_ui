@@ -1,11 +1,13 @@
 import React from 'react'
 import { ToggleGroup, ToggleGroupItem, Tooltip } from '@patternfly/react-core'
-import { FaTrash, FaDownload, FaCodeBranch } from 'react-icons/fa'
+import { FaTrash, FaDownload, } from 'react-icons/fa'
+import { VscMerge } from 'react-icons/vsc'
 import { useDispatch } from 'react-redux'
 import {
   downloadFeedRequest,
   deleteFeed,
   mergeFeedRequest,
+  toggleSelectAll
 } from '../../../store/feed/actions'
 import { useTypedSelector } from '../../../store/hooks'
 
@@ -14,6 +16,13 @@ const IconContainer = () => {
     return state.feed.bulkSelect
   })
   const dispatch = useDispatch()
+
+  const handleChange = (type: string) => {
+    type === 'download' && dispatch(downloadFeedRequest(bulkSelect))
+    type === 'merge' && dispatch(mergeFeedRequest(bulkSelect))
+    type === 'delete' && dispatch(deleteFeed(bulkSelect))
+    dispatch(toggleSelectAll());
+  }
   return (
     <ToggleGroup aria-label="Feed Action Bar">
       <ToggleGroupItem
@@ -23,20 +32,19 @@ const IconContainer = () => {
             <FaDownload />
           </Tooltip>
         }
-        onChange={() => {
-          dispatch(downloadFeedRequest(bulkSelect))
-        }}
+        onChange={() => handleChange('download')}
       />
       <ToggleGroupItem
         aria-label="feed-action"
         icon={
           <Tooltip content={<div>Merge selected feeds</div>}>
-            <FaCodeBranch />
+            <VscMerge style={{
+              height: '1.25em',
+              width: '1.25em'
+            }} />
           </Tooltip>
         }
-        onChange={() => {
-          dispatch(mergeFeedRequest(bulkSelect))
-        }}
+        onChange={() => handleChange('merge')}
       />
       <ToggleGroupItem
         aria-label="feed-action"
@@ -45,9 +53,7 @@ const IconContainer = () => {
             <FaTrash />
           </Tooltip>
         }
-        onChange={() => {
-          dispatch(deleteFeed(bulkSelect))
-        }}
+        onChange={() => handleChange('delete')}
       />
 
     </ToggleGroup>
