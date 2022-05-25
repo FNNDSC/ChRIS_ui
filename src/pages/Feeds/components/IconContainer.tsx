@@ -49,13 +49,7 @@ const IconContainer = () => {
           dispatch(deleteFeed(bulkSelect))
         }}
       />
-      <ToggleGroupItem
-        aria-label="feed-action"
-        icon={<FaDownload aria-label="feed-action-icon" />}
-        onChange={() => {
-          dispatch(downloadFeedRequest(bulkSelect))
-        }}
-      />
+
     </ToggleGroup>
   )
 }
