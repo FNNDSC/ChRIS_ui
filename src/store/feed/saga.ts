@@ -60,8 +60,6 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
   }
 }
 
-
-
 function* handleDowloadFeed(action: IActionTypeParam) {
   const feedList = action.payload
   const client = ChrisAPIClient.getClient()
@@ -69,64 +67,32 @@ function* handleDowloadFeed(action: IActionTypeParam) {
   cu.setClient(client)
   //@ts-ignore
   const dircopy: Plugin = yield getPlugin('pl-dircopy')
-  const feedIdList = [];
-  const newFeeds = [];
-  const feedNames = [];
+  const feedIdList = []
+  const newFeeds = []
+  const feedNames = []
   for (let i = 0; i < feedList.length; i++) {
     const data = feedList[i].data
-    feedIdList.push(data.id);
-    feedNames.push(data.name);
+    feedIdList.push(data.id)
+    feedNames.push(data.name)
   }
   try {
-    
     // truncate name of the merged feed(limit=100)
-    let newFeedName = feedNames.toString().replace(/[, ]+/g,'_');
-    newFeedName = `Archive of ${newFeedName}`;
-    newFeedName = newFeedName.substring(0,100);
+    let newFeedName = feedNames.toString().replace(/[, ]+/g, '_')
+    newFeedName = `Archive of ${newFeedName}`
+    newFeedName = newFeedName.substring(0, 100)
 
-
-    const createdFeed: Feed = yield cu.downloadMultipleFeeds(feedIdList,newFeedName);
+    const createdFeed: Feed = yield cu.downloadMultipleFeeds(
+      feedIdList,
+      newFeedName,
+    )
     newFeeds.push(createdFeed)
-  }  catch(error:any) {
-     const errorParsed = error.response.data.value[0]
-     yield put(downloadFeedError(errorParsed))
+  } catch (error:any) {
+    const errorParsed = error.response.data.value[0]
+    yield put(downloadFeedError(errorParsed))
   }
-  
-  yield put(downloadFeedSuccess(newFeeds));
-  /*
-  if (dircopy instanceof Plugin) {
-    const newFeeds = []
-    for (let i = 0; i < feedList.length; i++) {
-      try {
-        const data = feedList[i].data
-        const path = `${data.creator_username}/feed_${data.id}/`
-        const createdInstance: PluginInstance = yield client.createPluginInstance(
-          dircopy.data.id,
-          {
-            //@ts-ignore
-            dir: path,
-            title: `Archive of ${data.name}`,
-          },
-        )
 
-        const feed: Feed = yield createdInstance.getFeed()
-        newFeeds.push(feed)
-        try {
-          yield getPlugin('pl-pfdorun')
-          cu.zipFiles(createdInstance.data.id, data.name)
-        } catch (error) {
-          throw new Error('Please upload and register pl-pfdorun')
-        }
-      } catch (error:any) {
-        const errorParsed = error.response.data.value[0]
-        yield put(downloadFeedError(errorParsed))
-      }
-    }
-    yield put(downloadFeedSuccess(newFeeds))
-  }
-  */
+  yield put(downloadFeedSuccess(newFeeds))
 }
-
 
 function* handleMergeFeed(action: IActionTypeParam) {
   const feedList = action.payload
@@ -135,29 +101,31 @@ function* handleMergeFeed(action: IActionTypeParam) {
   cu.setClient(client)
   //@ts-ignore
   const dircopy: Plugin = yield getPlugin('pl-dircopy')
-  const feedIdList = [];
-  const newFeeds = [];
-  const feedNames = [];
+  const feedIdList = []
+  const newFeeds = []
+  const feedNames = []
   for (let i = 0; i < feedList.length; i++) {
     const data = feedList[i].data
-    feedIdList.push(data.id);
-    feedNames.push(data.name);
+    feedIdList.push(data.id)
+    feedNames.push(data.name)
   }
   try {
-    
     // truncate name of the merged feed(limit=100)
-    let newFeedName = feedNames.toString().replace(/[, ]+/g,'_');
-    newFeedName = `Merge of ${newFeedName}`;
-    newFeedName = newFeedName.substring(0,100);
+    let newFeedName = feedNames.toString().replace(/[, ]+/g, '_')
+    newFeedName = `Merge of ${newFeedName}`
+    newFeedName = newFeedName.substring(0, 100)
 
-    const createdFeed: Feed = yield cu.mergeMultipleFeeds(feedIdList,newFeedName);
+    const createdFeed: Feed = yield cu.mergeMultipleFeeds(
+      feedIdList,
+      newFeedName,
+    )
     newFeeds.push(createdFeed)
-  }  catch(error:any) {
-     const errorParsed = error.response.data.value[0]
-     yield put(mergeFeedError(errorParsed))
+  } catch (error:any) {
+    const errorParsed = error.response.data.value[0]
+    yield put(mergeFeedError(errorParsed))
   }
-  
-  yield put(mergeFeedSuccess(newFeeds));
+
+  yield put(mergeFeedSuccess(newFeeds))
 }
 
 function* handleFeedResources(action: IActionTypeParam) {
@@ -165,21 +133,18 @@ function* handleFeedResources(action: IActionTypeParam) {
   const cu = new cujs()
   cu.setClient(client)
   try {
-    
-    const delay = (ms:number) => new Promise(res => setTimeout(res, ms));
-    let details: Record<string, unknown> = {};
-    details.progress = 0;
+    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms))
+    let details: Record<string, unknown> = {}
+    details.progress = 0
     do {
-      details = yield cu.getPluginInstanceDetails(action.payload);
+      details = yield cu.getPluginInstanceDetails(action.payload)
       const payload = {
         details,
         id: action.payload.data.id,
       }
-      yield delay(500);
+      yield delay(500)
       yield put(getFeedResourcesSucess(payload))
-    }
-    while (details.progress !== 100 && !details.error)
-    
+    } while (details.progress !== 100 && !details.error)
   } catch (error) {}
 }
 
