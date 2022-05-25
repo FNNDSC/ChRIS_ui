@@ -61,5 +61,14 @@ export const resetFeed = () => action(FeedActionTypes.RESET_FEED)
 export const setBulkSelect = (feed: Feed) =>
   action(FeedActionTypes.BULK_SELECT, feed)
 
+
+export const toggleSelectAll = () => action(FeedActionTypes.TOGGLE_SELECT_ALL);
+
+export const setAllSelect = (feeds: Feed[]) =>
+  action(FeedActionTypes.SET_ALL_SELECT, feeds);
+
+export const removeAllSelect = (feeds: Feed[]) =>
+  action(FeedActionTypes.REMOVE_ALL_SELECT, feeds);
+
 export const removeBulkSelect = (feed: Feed) =>
   action(FeedActionTypes.REMOVE_BULK_SELECT, feed)

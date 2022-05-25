@@ -25,6 +25,9 @@ import {
   setBulkSelect,
   removeBulkSelect,
   getFeedResourcesRequest,
+  removeAllSelect,
+  setAllSelect,
+  toggleSelectAll
 } from '../../../store/feed/actions'
 import { IFeedState } from '../../../store/feed/types'
 import { DataTableToolbar } from '../../../components/index'
@@ -42,19 +45,26 @@ interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive
   getAllFeedsRequest: typeof getAllFeedsRequest
   setBulkSelect: typeof setBulkSelect
-  removeBulkSelect: typeof removeBulkSelect
+  removeBulkSelect: typeof removeBulkSelect,
+  setAllSelect: typeof setAllSelect,
+  removeAllSelect: typeof removeAllSelect,
+  toggleSelectAll: typeof toggleSelectAll
 }
 
 type AllProps = IFeedState & IPropsFromDispatch
 
 const FeedListView: React.FC<AllProps> = ({
   setSidebarActive,
+  selectAllToggle,
   allFeeds,
   bulkSelect,
   getAllFeedsRequest,
   setBulkSelect,
   removeBulkSelect,
   feedResources,
+  setAllSelect,
+  removeAllSelect,
+  toggleSelectAll
 }: AllProps) => {
   const {
     filterState,
@@ -92,8 +102,11 @@ const FeedListView: React.FC<AllProps> = ({
       allFeeds.data.map((feed) => {
         getFeedResources(feed)
       })
+      if (selectAllToggle) {
+        setAllSelect(allFeeds.data)
+      }
     }
-  }, [allFeeds.data, getFeedResources])
+  }, [allFeeds.data, getFeedResources, selectAllToggle, setAllSelect])
 
   const generateTableRow = (feed: Feed) => {
     const { id, name: feedName, creation_date, finished_jobs } = feed.data
@@ -139,23 +152,11 @@ const FeedListView: React.FC<AllProps> = ({
     }
 
     const feedSize = {
-      title: <p>{size ? `${size}` : '---'}</p>,
+      title: <p >{size ? `${size}` : '---'}</p>,
     }
 
     const runTime = {
       title: <p>{runtime ? `${runtime}` : '---'}</p>,
-    }
-
-    const getProgress = function () {
-      let progress = 0
-
-      if (runningJobsCount == 0) {
-        progress = 100
-      } else {
-        progress = (finished_jobs / (runningJobsCount + finished_jobs)) * 100
-      }
-
-      return Math.round(progress)
     }
 
     let feedProgressText =
@@ -173,13 +174,13 @@ const FeedListView: React.FC<AllProps> = ({
       threshold = progress
     }
     let title = (progress ? progress : 0) + '%';
-    if(progress==0 && error){
-      title="❌";
+    if (progress == 0 && error) {
+      title = "❌";
     }
 
     const circularProgress = {
       title: (
-        <div style={{ height: '40px', width: '40px', display: 'block' }}>
+        <div style={{ textAlign: 'right', height: '40px', width: '40px', display: 'block' }}>
           <ChartDonutUtilization
             ariaTitle={feedProgressText}
             data={{ x: 'Feed Progress', y: progress }}
@@ -210,7 +211,7 @@ const FeedListView: React.FC<AllProps> = ({
     }
 
     return {
-      cells: [bulkChecbox, name, created, feedSize, runTime, circularProgress],
+      cells: [bulkChecbox, name, created, runTime, feedSize, circularProgress],
     }
   }
 
@@ -218,8 +219,8 @@ const FeedListView: React.FC<AllProps> = ({
     '',
     'Analysis',
     'Created',
-    'Size',
     'Run Time',
+    'Size',
     'Progress',
     'Download',
     '',
@@ -314,12 +315,25 @@ const FeedListView: React.FC<AllProps> = ({
             {
               <Thead>
                 <Tr>
-                  <Th></Th>
+                    <Th><Checkbox id='test'
+                      isChecked={selectAllToggle}
+                      onChange={() => {
+                        if (!selectAllToggle) {
+                          if (allFeeds.data)
+                            setAllSelect(allFeeds.data)
+                        }
+                        else {
+                          if (allFeeds.data)
+                            removeAllSelect(allFeeds.data);
+                        }
+                        toggleSelectAll()
+                      }}
+                    /></Th>
                   <Th>Analysis</Th>
-                  <Th>Created</Th>
-                  <Th>Size</Th>
+                    <Th>Created</Th>
                   <Th>Run Time</Th>
-                  <Th></Th>
+                    <Th >Size</Th>
+                    <Th ></Th>
                 </Tr>
               </Thead>
             }
@@ -339,6 +353,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(getAllFeedsRequest(name, limit, offset)),
   setBulkSelect: (feed: Feed) => dispatch(setBulkSelect(feed)),
   removeBulkSelect: (feed: Feed) => dispatch(removeBulkSelect(feed)),
+  setAllSelect: (feeds: Feed[]) => dispatch(setAllSelect(feeds)),
+  removeAllSelect: (feeds: Feed[]) => dispatch(removeAllSelect(feeds)),
+  toggleSelectAll: () => dispatch(toggleSelectAll()),
 })
 
 const mapStateToProps = ({ feed }: ApplicationState) => ({
@@ -346,6 +363,7 @@ const mapStateToProps = ({ feed }: ApplicationState) => ({
   allFeeds: feed.allFeeds,
   downloadStatus: feed.downloadStatus,
   feedResources: feed.feedResources,
+  selectAllToggle: feed.selectAllToggle
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedListView)
