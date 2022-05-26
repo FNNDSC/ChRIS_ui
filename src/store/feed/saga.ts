@@ -116,6 +116,7 @@ function* handleMergeFeed(action: IActionTypeParam) {
     newFeedName = `Merge of ${newFeedName}`;
     newFeedName = newFeedName.substring(0, 100);
 
+   
     const createdFeed: Feed = yield cu.mergeMultipleFeeds(
       feedIdList,
       newFeedName
@@ -143,8 +144,9 @@ function* handleFeedResources(action: IActionTypeParam) {
         details,
         id: action.payload.data.id,
       };
-      yield delay(2000);
+
       yield put(getFeedResourcesSucess(payload));
+      yield delay(7000);
     } while (details.progress !== 100 && !details.error);
   } catch (error) {}
 }

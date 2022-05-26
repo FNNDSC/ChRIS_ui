@@ -27,7 +27,7 @@ import {
   getFeedResourcesRequest,
   removeAllSelect,
   setAllSelect,
-  toggleSelectAll
+  toggleSelectAll,
 } from '../../../store/feed/actions'
 import { IFeedState } from '../../../store/feed/types'
 import { DataTableToolbar } from '../../../components/index'
@@ -45,9 +45,9 @@ interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive
   getAllFeedsRequest: typeof getAllFeedsRequest
   setBulkSelect: typeof setBulkSelect
-  removeBulkSelect: typeof removeBulkSelect,
-  setAllSelect: typeof setAllSelect,
-  removeAllSelect: typeof removeAllSelect,
+  removeBulkSelect: typeof removeBulkSelect
+  setAllSelect: typeof setAllSelect
+  removeAllSelect: typeof removeAllSelect
   toggleSelectAll: typeof toggleSelectAll
 }
 
@@ -64,7 +64,7 @@ const FeedListView: React.FC<AllProps> = ({
   feedResources,
   setAllSelect,
   removeAllSelect,
-  toggleSelectAll
+  toggleSelectAll,
 }: AllProps) => {
   const {
     filterState,
@@ -89,9 +89,12 @@ const FeedListView: React.FC<AllProps> = ({
     run(getAllFeedsRequest)
   }, [getAllFeedsRequest, run])
 
-  const getFeedResources = React.useCallback((feed) => {
-    dispatch(getFeedResourcesRequest(feed))
-  }, [dispatch])
+  const getFeedResources = React.useCallback(
+    (feed) => {
+      dispatch(getFeedResourcesRequest(feed))
+    },
+    [dispatch],
+  )
 
   React.useEffect(() => {
     getAllFeeds()
@@ -102,11 +105,14 @@ const FeedListView: React.FC<AllProps> = ({
       allFeeds.data.map((feed) => {
         getFeedResources(feed)
       })
-      if (selectAllToggle) {
-        setAllSelect(allFeeds.data)
-      }
     }
-  }, [allFeeds.data, getFeedResources, selectAllToggle, setAllSelect])
+  }, [allFeeds.data, getFeedResources])
+
+  React.useEffect(() => {
+    if (selectAllToggle && allFeeds.data && allFeeds.data.length > 0) {
+      setAllSelect(allFeeds.data)
+    }
+  }, [allFeeds.data, setAllSelect, selectAllToggle])
 
   const generateTableRow = (feed: Feed) => {
     const { id, name: feedName, creation_date, finished_jobs } = feed.data
@@ -119,12 +125,19 @@ const FeedListView: React.FC<AllProps> = ({
     } = feed.data
     const { errored_jobs, cancelled_jobs } = feed.data
 
-    const size = feedResources[feed.data.id] && feedResources[feed.data.id].details.size;
-    const feedError = feedResources[feed.data.id] && feedResources[feed.data.id].details.error;
+    const fontFamily = {
+      fontFamily: 'monospace',
+    }
+
+    const size =
+      feedResources[feed.data.id] && feedResources[feed.data.id].details.size
+    const feedError =
+      feedResources[feed.data.id] && feedResources[feed.data.id].details.error
     const runtime =
-      feedResources[feed.data.id] && feedResources[feed.data.id].details.time;
+      feedResources[feed.data.id] && feedResources[feed.data.id].details.time
     const progress =
-      feedResources[feed.data.id] && feedResources[feed.data.id].details.progress;
+      feedResources[feed.data.id] &&
+      feedResources[feed.data.id].details.progress
 
     const name = {
       title: (
@@ -145,18 +158,20 @@ const FeedListView: React.FC<AllProps> = ({
 
     const created = {
       title: (
-        <span>
+        <span style={fontFamily}>
           <Moment format="DD MMM , HH:mm">{creation_date}</Moment>{' '}
         </span>
       ),
     }
 
     const feedSize = {
-      title: <p >{size ? `${size}` : '---'}</p>,
+      title: (
+        <p style={fontFamily}>{size ? `${size.padStart(10, '')}` : '---'}</p>
+      ),
     }
 
     const runTime = {
-      title: <p>{runtime ? `${runtime}` : '---'}</p>,
+      title: <p style={fontFamily}>{runtime ? `${runtime}` : '---'}</p>,
     }
 
     let feedProgressText =
@@ -173,14 +188,21 @@ const FeedListView: React.FC<AllProps> = ({
       feedProgressText = error + '/' + (finished_jobs + error) + ' jobs failed'
       threshold = progress
     }
-    let title = (progress ? progress : 0) + '%';
+    let title = (progress ? progress : 0) + '%'
     if (progress == 0 && error) {
-      title = "❌";
+      title = '❌'
     }
 
     const circularProgress = {
       title: (
-        <div style={{ textAlign: 'right', height: '40px', width: '40px', display: 'block' }}>
+        <div
+          style={{
+            textAlign: 'right',
+            height: '40px',
+            width: '40px',
+            display: 'block',
+          }}
+        >
           <ChartDonutUtilization
             ariaTitle={feedProgressText}
             data={{ x: 'Feed Progress', y: progress }}
@@ -315,25 +337,26 @@ const FeedListView: React.FC<AllProps> = ({
             {
               <Thead>
                 <Tr>
-                    <Th><Checkbox id='test'
+                  <Th>
+                    <Checkbox
+                      id="test"
                       isChecked={selectAllToggle}
                       onChange={() => {
                         if (!selectAllToggle) {
-                          if (allFeeds.data)
-                            setAllSelect(allFeeds.data)
+                          if (allFeeds.data) setAllSelect(allFeeds.data)
+                          toggleSelectAll(true)
+                        } else {
+                          if (allFeeds.data) removeAllSelect(allFeeds.data)
+                          toggleSelectAll(false)
                         }
-                        else {
-                          if (allFeeds.data)
-                            removeAllSelect(allFeeds.data);
-                        }
-                        toggleSelectAll()
                       }}
-                    /></Th>
+                    />
+                  </Th>
                   <Th>Analysis</Th>
-                    <Th>Created</Th>
+                  <Th>Created</Th>
                   <Th>Run Time</Th>
-                    <Th >Size</Th>
-                    <Th ></Th>
+                  <Th>Size</Th>
+                  <Th></Th>
                 </Tr>
               </Thead>
             }
@@ -355,7 +378,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   removeBulkSelect: (feed: Feed) => dispatch(removeBulkSelect(feed)),
   setAllSelect: (feeds: Feed[]) => dispatch(setAllSelect(feeds)),
   removeAllSelect: (feeds: Feed[]) => dispatch(removeAllSelect(feeds)),
-  toggleSelectAll: () => dispatch(toggleSelectAll()),
+  toggleSelectAll: (flag: boolean) => dispatch(toggleSelectAll(flag)),
 })
 
 const mapStateToProps = ({ feed }: ApplicationState) => ({
@@ -363,8 +386,7 @@ const mapStateToProps = ({ feed }: ApplicationState) => ({
   allFeeds: feed.allFeeds,
   downloadStatus: feed.downloadStatus,
   feedResources: feed.feedResources,
-  selectAllToggle: feed.selectAllToggle
+  selectAllToggle: feed.selectAllToggle,
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedListView)
-
