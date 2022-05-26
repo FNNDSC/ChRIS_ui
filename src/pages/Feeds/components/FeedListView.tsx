@@ -125,6 +125,10 @@ const FeedListView: React.FC<AllProps> = ({
     } = feed.data
     const { errored_jobs, cancelled_jobs } = feed.data
 
+    const fontFamily = {
+      fontFamily: 'monospace',
+    }
+
     const size =
       feedResources[feed.data.id] && feedResources[feed.data.id].details.size
     const feedError =
@@ -154,18 +158,20 @@ const FeedListView: React.FC<AllProps> = ({
 
     const created = {
       title: (
-        <span>
+        <span style={fontFamily}>
           <Moment format="DD MMM , HH:mm">{creation_date}</Moment>{' '}
         </span>
       ),
     }
 
     const feedSize = {
-      title: <p>{size ? `${size}` : '---'}</p>,
+      title: (
+        <p style={fontFamily}>{size ? `${size.padStart(10, '')}` : '---'}</p>
+      ),
     }
 
     const runTime = {
-      title: <p>{runtime ? `${runtime}` : '---'}</p>,
+      title: <p style={fontFamily}>{runtime ? `${runtime}` : '---'}</p>,
     }
 
     let feedProgressText =
