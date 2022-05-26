@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { Card, TextInput, Button, Spinner } from '@patternfly/react-core'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
-import { fetchResource } from '../../../../utils'
+
 import { LibraryContext } from './context'
 import {
   setFolders,
@@ -12,11 +12,6 @@ import {
 } from './context/actions'
 import { useTypedSelector } from '../../../../store/hooks'
 
-type Paginate = {
-  limit: number
-  offset: number
-  fname_icontains: string
-}
 
 const lookDeeper = async (
   path: string,
@@ -104,7 +99,7 @@ const Search = () => {
     if (value && username) {
       setLoading(true)
 
-      const client = ChrisAPIClient.getClient()
+
       const uploadedFiles = await searchUploadedFiles(
         value,
         `${username}/uploads`,
@@ -113,20 +108,13 @@ const Search = () => {
       const pacsFiles = await searchPacsFiles(value, '')
 
       const isUploadedRoot =
-        uploadedFiles.length > 0 &&
-        feedFiles.length === 0 &&
-        pacsFiles.length === 0
+        uploadedFiles.length > 0 
 
       const isFeedRoot =
-        feedFiles.length > 0 &&
-        uploadedFiles.length === 0 &&
-        pacsFiles.length === 0
+        feedFiles.length > 0 
 
       const isPacsRoot =
-        pacsFiles.length > 0 &&
-        uploadedFiles.length === 0 &&
-        feedFiles.length === 0
-
+        pacsFiles.length > 0 
       if (uploadedFiles && uploadedFiles.length > 0) {
         const uploadedFolders: string[] = []
         let path = ''

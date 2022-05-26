@@ -1,5 +1,5 @@
 import { all, fork, put, takeEvery } from 'redux-saga/effects'
-import { Feed, FeedList, Plugin, PluginInstance } from '@fnndsc/chrisapi'
+import { Feed, FeedList } from "@fnndsc/chrisapi";
 import { FeedActionTypes } from './types'
 import { IActionTypeParam } from '../../api/models/base.model'
 import ChrisAPIClient from '../../api/chrisapiclient'
@@ -15,7 +15,7 @@ import {
   getFeedResourcesSucess,
 } from './actions'
 import { getPluginInstancesRequest } from '../pluginInstance/actions'
-import { getPlugin } from '../../components/feed/CreateFeed/utils/createFeed'
+
 import cujs from 'chris-upload'
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
