@@ -21,7 +21,7 @@ const IconContainer = () => {
     type === 'download' && dispatch(downloadFeedRequest(bulkSelect))
     type === 'merge' && dispatch(mergeFeedRequest(bulkSelect))
     type === 'delete' && dispatch(deleteFeed(bulkSelect))
-    dispatch(toggleSelectAll());
+    dispatch(toggleSelectAll(false));
   }
   return (
     <ToggleGroup aria-label="Feed Action Bar">
