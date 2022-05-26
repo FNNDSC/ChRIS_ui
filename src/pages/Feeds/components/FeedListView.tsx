@@ -179,12 +179,12 @@ const FeedListView: React.FC<AllProps> = ({
       '/' +
       (runningJobsCount + finished_jobs) +
       ' jobs completed'
-    // let progress = getProgress()
+
     let threshold = Infinity
 
     // If error in a feed => reflect in progress
     if (feedError) {
-      //progress = Math.round((finished_jobs / (finished_jobs + error)) * 100)
+
       feedProgressText = error + '/' + (finished_jobs + error) + ' jobs failed'
       threshold = progress
     }
