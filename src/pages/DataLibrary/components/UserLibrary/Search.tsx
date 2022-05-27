@@ -88,6 +88,110 @@ const searchUploadedFiles = async (value: string, path: string) => {
   return results
 }
 
+const handleUploadedFiles = (uploadedFiles: any[], dispatch: React.Dispatch<any>, isUploadedRoot: boolean, value: string) => {
+  const uploadedFolders: string[] = []
+  let path = ''
+
+  uploadedFiles.forEach((file: any) => {
+    const names = file.split('/')
+
+    const index = names.findIndex((name: any, index: number) => {
+      if (name.toLowerCase() === value.toLowerCase()) {
+        return index
+      }
+    })
+
+    if (index !== -1) {
+      path = `${names[0]}/${names[1]}`
+      const folder = index === 2 ? names[index] : names[index - 1]
+      if (!uploadedFolders.includes(folder)) uploadedFolders.push(folder)
+    }
+  })
+
+  if (uploadedFolders.length > 0) {
+    dispatch(setFolders(uploadedFolders, path))
+    dispatch(setInitialPath(path, 'uploads'))
+    dispatch(setPaginatedFolders([], path))
+    dispatch(
+      setPagination(path, {
+        hasNext: false,
+        limit: 30,
+        offset: 0,
+        totalCount: 0,
+      }),
+    )
+    if (isUploadedRoot) {
+      dispatch(setRoot(true, 'uploads'))
+    }
+  }
+}
+
+
+const handleFeedFiles = (feedFiles: any[], dispatch: React.Dispatch<any>, isFeedRoot: boolean, username: string) => {
+  const path = username
+  const feedFolders: string[] = []
+  feedFiles.forEach((file: any) => {
+    const folder = file.split('/')[1]
+    if (!feedFolders.includes(folder)) feedFolders.push(folder)
+  })
+  if (feedFolders.length > 0) {
+    dispatch(setFolders(feedFolders, path))
+    dispatch(setInitialPath(path, 'feed'))
+    dispatch(setPaginatedFolders([], path))
+    dispatch(
+      setPagination(path, {
+        hasNext: false,
+        limit: 30,
+        offset: 0,
+        totalCount: 0,
+      }),
+    )
+    if (isFeedRoot) {
+      dispatch(setRoot(true, 'feed'))
+    }
+  }
+}
+
+
+const handlePacsFiles = (pacsFiles: any[], dispatch: React.Dispatch<any>, isPacsRoot: boolean) => {
+  const pacsFolders: string[] = []
+  const pacsDict: {
+    [key: string]: string[]
+  } = {}
+
+  pacsFiles.forEach((file: any) => {
+    const fileName = file.split('/')
+    const folder = fileName[3]
+    const path = `${fileName[0]}/${fileName[1]}/${fileName[2]}`
+    if (!pacsFolders.includes(folder)) {
+      pacsFolders.push(folder)
+      pacsDict[path] = folder
+    }
+  })
+
+  console.log("PACS FOLDERS", pacsFolders, pacsDict);
+
+  for (const i in pacsDict) {
+    dispatch(setFolders([pacsDict[i]], i))
+    dispatch(setInitialPath(i, 'services'))
+  }
+
+  if (pacsFolders.length > 0) {
+    dispatch(setPaginatedFolders([], 'SERVICES'))
+    dispatch(
+      setPagination('SERVICES', {
+        hasNext: false,
+        limit: 30,
+        offset: 0,
+        totalCount: 0,
+      }),
+    )
+    if (isPacsRoot) {
+      dispatch(setRoot(true, 'services'))
+    }
+  }
+}
+
 const Search = () => {
   const { dispatch } = useContext(LibraryContext)
   const username = useTypedSelector((state) => state.user.username)
@@ -108,111 +212,23 @@ const Search = () => {
       const pacsFiles = await searchPacsFiles(value, '')
 
       const isUploadedRoot =
-        uploadedFiles.length > 0 
+        uploadedFiles.length > 0
 
       const isFeedRoot =
-        feedFiles.length > 0 
+        feedFiles.length > 0
 
       const isPacsRoot =
-        pacsFiles.length > 0 
+        pacsFiles.length > 0
       if (uploadedFiles && uploadedFiles.length > 0) {
-        const uploadedFolders: string[] = []
-        let path = ''
-
-        uploadedFiles.forEach((file: any) => {
-          const names = file.split('/')
-
-          const index = names.findIndex((name: any, index: number) => {
-            if (name.toLowerCase() === value.toLowerCase()) {
-              return index
-            }
-          })
-
-          if (index !== -1) {
-            path = `${names[0]}/${names[1]}`
-            const folder = index === 2 ? names[index] : names[index - 1]
-            if (!uploadedFolders.includes(folder)) uploadedFolders.push(folder)
-          }
-        })
-
-        if (uploadedFolders.length > 0) {
-          dispatch(setFolders(uploadedFolders, path))
-          dispatch(setInitialPath(path, 'uploads'))
-          dispatch(setPaginatedFolders([], path))
-          dispatch(
-            setPagination(path, {
-              hasNext: false,
-              limit: 30,
-              offset: 0,
-              totalCount: 0,
-            }),
-          )
-          if (isUploadedRoot) {
-            dispatch(setRoot(true, 'uploads'))
-          }
-        }
+        handleUploadedFiles(uploadedFiles, dispatch, isUploadedRoot, value)
       }
 
       if (feedFiles && feedFiles.length > 0) {
-        const path = username
-        const feedFolders: string[] = []
-        feedFiles.forEach((file: any) => {
-          const folder = file.split('/')[1]
-          if (!feedFolders.includes(folder)) feedFolders.push(folder)
-        })
-        if (feedFolders.length > 0) {
-          dispatch(setFolders(feedFolders, path))
-          dispatch(setInitialPath(path, 'feed'))
-          dispatch(setPaginatedFolders([], path))
-          dispatch(
-            setPagination(path, {
-              hasNext: false,
-              limit: 30,
-              offset: 0,
-              totalCount: 0,
-            }),
-          )
-          if (isFeedRoot) {
-            dispatch(setRoot(true, 'feed'))
-          }
-        }
+        handleFeedFiles(feedFiles, dispatch, isFeedRoot, username)
       }
 
       if (pacsFiles && pacsFiles.length > 0) {
-        const pacsFolders: string[] = []
-        const pacsDict: {
-          [key: string]: string[]
-        } = {}
-
-        pacsFiles.forEach((file: any) => {
-          const fileName = file.split('/')
-          const folder = fileName[3]
-          const path = `${fileName[0]}/${fileName[1]}/${fileName[2]}`
-          if (!pacsFolders.includes(folder)) {
-            pacsFolders.push(folder)
-            pacsDict[path] = folder
-          }
-        })
-
-        for (const i in pacsDict) {
-          dispatch(setFolders([pacsDict[i]], i))
-          dispatch(setInitialPath(i, 'services'))
-        }
-
-        if (pacsFolders.length > 0) {
-          dispatch(setPaginatedFolders([], 'SERVICES'))
-          dispatch(
-            setPagination('SERVICES', {
-              hasNext: false,
-              limit: 30,
-              offset: 0,
-              totalCount: 0,
-            }),
-          )
-          if (isPacsRoot) {
-            dispatch(setRoot(true, 'services'))
-          }
-        }
+        handlePacsFiles(pacsFiles, dispatch, isPacsRoot,)
       }
 
       if (
