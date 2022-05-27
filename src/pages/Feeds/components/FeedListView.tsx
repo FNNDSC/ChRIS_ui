@@ -149,7 +149,7 @@ const FeedListView: React.FC<AllProps> = ({
     const created = {
       title: (
         <span style={fontFamily}>
-          <Moment format="DD MMM , HH:mm">{creation_date}</Moment>{' '}
+          <Moment format="DD MMM YYYY, HH:mm">{creation_date}</Moment>{' '}
         </span>
       ),
     }
