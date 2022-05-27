@@ -92,6 +92,7 @@ const BrowserContainer = ({
 
   React.useEffect(() => {
     async function fetchUploads() {
+      console.log("FETCHING");
       resourcesFetch(rootPath)
     }
 

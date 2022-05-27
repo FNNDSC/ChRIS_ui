@@ -171,6 +171,7 @@ export const libraryReducer = (
 ): LibraryState => {
   switch (action.type) {
     case Types.SET_INITIAL_PATH: {
+      console.log("ACTION.PAYLOAD", action.payload)
       return {
         ...state,
         initialPath: {

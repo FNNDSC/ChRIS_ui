@@ -166,7 +166,11 @@ const FeedListView: React.FC<AllProps> = ({
 
     const feedSize = {
       title: (
-        <p style={fontFamily}>{size ? `${size.padStart(10, '')}` : '---'}</p>
+        <p style={{
+          ...fontFamily,
+          textAlign: 'center',
+          margin: '0 auto'
+        }}>{size ? `${size.padStart(10, '')}` : '---'}</p>
       ),
     }
 
@@ -355,7 +359,10 @@ const FeedListView: React.FC<AllProps> = ({
                   <Th>Analysis</Th>
                   <Th>Created</Th>
                   <Th>Run Time</Th>
-                  <Th>Size</Th>
+                    <Th style={{
+                      textAlign: 'center',
+                      margin: '0 auto'
+                    }}>Size</Th>
                   <Th></Th>
                 </Tr>
               </Thead>
