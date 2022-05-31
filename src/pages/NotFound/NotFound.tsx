@@ -14,7 +14,7 @@ export const NotFoundPage: React.FC = () => {
 
   return (
     <Wrapper>
-      <PageSection variant={PageSectionVariants.default}>
+         <PageSection variant={PageSectionVariants.default}>
         <Alert
           aria-label="Page Not Found"
           variant="danger"
@@ -23,7 +23,6 @@ export const NotFoundPage: React.FC = () => {
           Page Not Found! Go <a href="/" target="_PARENT">Home</a>
         </Alert>
       </PageSection>
-    </Wrapper>
-
+     </Wrapper>
   );
 };
