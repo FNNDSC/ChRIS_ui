@@ -87,7 +87,8 @@ const BrowserContainer = ({
         dispatch(setLoading(false))
       }
     },
-    [dispatch, type, rootPath],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, rootPath],
   )
 
   React.useEffect(() => {

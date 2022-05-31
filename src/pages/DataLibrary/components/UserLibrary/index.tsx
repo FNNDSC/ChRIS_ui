@@ -18,6 +18,7 @@ import {
   Chip,
 } from '@patternfly/react-core'
 import BrowserContainer from './BrowserContainer'
+import LocalSearch from './LocalSearch'
 import { FaUpload } from 'react-icons/fa'
 import FileUpload from '../../../../components/common/fileupload'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
@@ -74,6 +75,7 @@ const DataLibrary = () => {
           <hr />
         </SplitItem>
       </Split>
+      <LocalSearch type='uploads' username={username} />
       <BrowserContainer
         type="uploads"
         path={`${username}/uploads`}
@@ -92,6 +94,7 @@ const DataLibrary = () => {
           <hr />
         </SplitItem>
       </Split>
+      <LocalSearch type='feed' username={username} />
       <BrowserContainer type="feed" path={`${username}`} username={username} />
     </section>
   )
@@ -105,7 +108,9 @@ const DataLibrary = () => {
         <SplitItem style={{ margin: 'auto 1em' }} isFilled>
           <hr />
         </SplitItem>
+
       </Split>
+      <LocalSearch type='services' username={username} />
       <BrowserContainer type="services" path={`SERVICES`} username={username} />
     </section>
   )
@@ -177,9 +182,8 @@ const DataLibrary = () => {
               }}
               style={{ marginLeft: '1em' }}
             >
-              {`Multiple Element Select:${
-                multipleFileSelect === true ? ' On' : ' Off'
-              }`}
+              {`Multiple Element Select:${multipleFileSelect === true ? ' On' : ' Off'
+                }`}
             </Button>
           </SplitItem>
         </Split>
@@ -188,14 +192,14 @@ const DataLibrary = () => {
       {!rootCheck
         ? uploadedFiles
         : isRoot['uploads']
-        ? uploadedFiles
-        : undefined}
+          ? uploadedFiles
+          : undefined}
       {!rootCheck ? feedFiles : isRoot['feed'] ? feedFiles : undefined}
       {!rootCheck
         ? servicesFiles
         : isRoot['services']
-        ? servicesFiles
-        : undefined}
+          ? servicesFiles
+          : undefined}
     </>
   )
 }
