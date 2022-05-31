@@ -38,8 +38,6 @@ const DataLibrary = () => {
 
   const rootCheck = Object.keys(isRoot).length > 0
 
-  console.log("STATE", state);
-
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal)
     setLocalFiles([])
@@ -77,7 +75,7 @@ const DataLibrary = () => {
           <hr />
         </SplitItem>
       </Split>
-      <LocalSearch />
+      <LocalSearch type='uploads' username={username} />
       <BrowserContainer
         type="uploads"
         path={`${username}/uploads`}
@@ -96,7 +94,7 @@ const DataLibrary = () => {
           <hr />
         </SplitItem>
       </Split>
-      <LocalSearch />
+      <LocalSearch type='feed' username={username} />
       <BrowserContainer type="feed" path={`${username}`} username={username} />
     </section>
   )
@@ -112,7 +110,7 @@ const DataLibrary = () => {
         </SplitItem>
 
       </Split>
-      <LocalSearch />
+      <LocalSearch type='services' username={username} />
       <BrowserContainer type="services" path={`SERVICES`} username={username} />
     </section>
   )
