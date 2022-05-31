@@ -135,7 +135,7 @@ const FeedListView: React.FC<AllProps> = ({
       feedResources[feed.data.id] &&
       feedResources[feed.data.id].details.feedProgressText
       
-    console.log(feedProgressText)
+
 
     const name = {
       title: (
