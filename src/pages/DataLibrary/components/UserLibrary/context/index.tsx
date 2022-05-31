@@ -57,13 +57,13 @@ function getInitialState(): LibraryState {
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
-    ? {
-        type: Key;
-      }
-    : {
-        type: Key;
-        payload: M[Key];
-      };
+  ? {
+    type: Key;
+  }
+  : {
+    type: Key;
+    payload: M[Key];
+  };
 };
 
 export enum Types {
@@ -171,7 +171,6 @@ export const libraryReducer = (
 ): LibraryState => {
   switch (action.type) {
     case Types.SET_INITIAL_PATH: {
-      console.log("ACTION.PAYLOAD", action.payload)
       return {
         ...state,
         initialPath: {
