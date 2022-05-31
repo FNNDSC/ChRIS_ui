@@ -115,15 +115,8 @@ const FeedListView: React.FC<AllProps> = ({
   }, [allFeeds.data, setAllSelect, selectAllToggle])
 
   const generateTableRow = (feed: Feed) => {
-    const { id, name: feedName, creation_date, finished_jobs } = feed.data
-    const {
-      created_jobs,
-      registering_jobs,
-      scheduled_jobs,
-      started_jobs,
-      waiting_jobs,
-    } = feed.data
-    const { errored_jobs, cancelled_jobs } = feed.data
+    const { id, name: feedName, creation_date } = feed.data
+
 
     const fontFamily = {
       fontFamily: 'monospace',
@@ -138,6 +131,11 @@ const FeedListView: React.FC<AllProps> = ({
     const progress =
       feedResources[feed.data.id] &&
       feedResources[feed.data.id].details.progress
+    const feedProgressText =
+      feedResources[feed.data.id] &&
+      feedResources[feed.data.id].details.feedProgressText
+      
+    console.log(feedProgressText)
 
     const name = {
       title: (
@@ -147,19 +145,11 @@ const FeedListView: React.FC<AllProps> = ({
       ),
     }
 
-    const runningJobsCount =
-      created_jobs +
-      registering_jobs +
-      scheduled_jobs +
-      started_jobs +
-      waiting_jobs
-
-    const error = errored_jobs + cancelled_jobs
 
     const created = {
       title: (
         <span style={fontFamily}>
-          <Moment format="DD MMM , HH:mm">{creation_date}</Moment>{' '}
+          <Moment format="DD MMM YYYY, HH:mm">{creation_date}</Moment>{' '}
         </span>
       ),
     }
@@ -174,22 +164,17 @@ const FeedListView: React.FC<AllProps> = ({
       title: <p style={fontFamily}>{runtime ? `${runtime}` : '---'}</p>,
     }
 
-    let feedProgressText =
-      finished_jobs +
-      '/' +
-      (runningJobsCount + finished_jobs) +
-      ' jobs completed'
-    // let progress = getProgress()
+
     let threshold = Infinity
 
     // If error in a feed => reflect in progress
     if (feedError) {
-      //progress = Math.round((finished_jobs / (finished_jobs + error)) * 100)
-      feedProgressText = error + '/' + (finished_jobs + error) + ' jobs failed'
       threshold = progress
     }
     let title = (progress ? progress : 0) + '%'
-    if (progress == 0 && error) {
+    
+    // If initial node in a feed fails
+    if (progress == 0 && feedError) {
       title = '❌'
     }
 
