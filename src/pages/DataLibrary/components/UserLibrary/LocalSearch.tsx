@@ -25,8 +25,7 @@ const LocalSearch = ({
                     value,
                     `${username}/uploads`,
                 )
-                const isUploadedRoot =
-                    uploadedFiles.length > 0
+                const isUploadedRoot = false
                 if (uploadedFiles && uploadedFiles.length > 0) {
                     handleUploadedFiles(uploadedFiles, dispatch, isUploadedRoot, value)
                 }
@@ -35,8 +34,7 @@ const LocalSearch = ({
             if (type === 'feed') {
                 setLoading(true)
                 const feedFiles = await searchFeedFiles(value, username)
-                const isFeedRoot =
-                    feedFiles.length > 0
+                const isFeedRoot = false
                 if (feedFiles && feedFiles.length > 0) {
                     handleFeedFiles(feedFiles, dispatch, isFeedRoot, username)
                 }
@@ -45,8 +43,7 @@ const LocalSearch = ({
             if (type === 'services') {
                 setLoading(true)
                 const pacsFiles = await searchPacsFiles(value, '')
-                const isPacsRoot =
-                    pacsFiles.length > 0
+                const isPacsRoot = false
 
                 if (pacsFiles && pacsFiles.length > 0) {
                     handlePacsFiles(pacsFiles, dispatch, isPacsRoot,)
