@@ -12,8 +12,6 @@ export const NotFoundPage: React.FC = () => {
     document.title = "Page Not Found";    
   }, []);
 
-
-
   return (
     <Wrapper>
          <PageSection variant={PageSectionVariants.default}>
@@ -26,6 +24,5 @@ export const NotFoundPage: React.FC = () => {
         </Alert>
       </PageSection>
      </Wrapper>
-   
   );
 };
