@@ -170,9 +170,11 @@ const FeedListView: React.FC<AllProps> = ({
 
 
     let threshold = Infinity
+    let color = "#0000ff"
 
     // If error in a feed => reflect in progress
     if (feedError) {
+      color = "#ff0000"
       threshold = progress
     }
     let title = (progress ? progress : 0) + '%'
@@ -180,6 +182,12 @@ const FeedListView: React.FC<AllProps> = ({
     // If initial node in a feed fails
     if (progress == 0 && feedError) {
       title = '❌'
+    }
+    
+    // If progress less than 100%, display green
+    if(progress < 100 && !feedError){
+      color =  "#00ff00"
+      threshold = progress
     }
 
     const circularProgress = {
@@ -197,7 +205,7 @@ const FeedListView: React.FC<AllProps> = ({
             data={{ x: 'Feed Progress', y: progress }}
             height={125}
             title={title}
-            thresholds={[{ value: threshold, color: '#C9190B' }]}
+            thresholds={[{ value: threshold, color: color }]}
             width={125}
           />
         </div>
