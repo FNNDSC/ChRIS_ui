@@ -11,7 +11,7 @@ import {
   setFiles,
   setPagination,
   setPaginatedFolders,
-  setRoot,
+
   clearFolderState,
   clearFilesState,
 } from './context/actions'
@@ -92,8 +92,8 @@ const BrowserContainer = ({
         dispatch(setLoading(false))
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, rootPath],
+
+    [dispatch, rootPath, type],
   )
 
   React.useEffect(() => {
@@ -149,12 +149,7 @@ const BrowserContainer = ({
       dispatch(setFolders(folders, path))
       dispatch(setInitialPath(path, type))
 
-      // SETTING ROOT
-      if (path !== rootPath) {
-        dispatch(setRoot(true, type))
-      } else {
-        dispatch(setRoot(false, type))
-      }
+
     }
     const pathList = await client.getFileBrowserPath(path)
     const fileList = await pathList.getFiles({
@@ -179,9 +174,7 @@ const BrowserContainer = ({
       }
 
       dispatch(setInitialPath(path, type))
-      if (!checkFolders && path !== rootPath && type === 'uploads') {
-        dispatch(setRoot(true, type))
-      }
+
 
       const currentFolderSplit = path.split('/')
       const currentFolder = currentFolderSplit[currentFolderSplit.length - 1]

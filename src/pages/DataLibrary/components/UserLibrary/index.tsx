@@ -11,15 +11,17 @@ import {
   Progress,
   ProgressMeasureLocation,
   ProgressVariant,
-  Alert,
+
   AlertGroup,
-  AlertActionLink,
+
   ChipGroup,
   Chip,
   Tabs,
   Tab,
   TabTitleText,
 } from '@patternfly/react-core'
+
+import { Alert } from 'antd'
 import BrowserContainer from './BrowserContainer'
 import LocalSearch from './LocalSearch'
 import { FaUpload } from 'react-icons/fa'
@@ -37,11 +39,9 @@ const DataLibrary = () => {
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
   const [directoryName, setDirectoryName] = React.useState('')
-  const { isRoot, multipleFileSelect, fileSelect } = state
+  const { multipleFileSelect, fileSelect } = state
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0);
 
-
-  const rootCheck = Object.keys(isRoot).length > 0
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal)
@@ -101,24 +101,15 @@ const DataLibrary = () => {
 
   return (
     <>
-      {multipleFileSelect && (
+      {multipleFileSelect && fileSelect.length > 0 && (
         <AlertGroup isToast>
           <Alert
-            title="Multiple File Select"
-            variant="info"
-            style={{ width: '100%', marginTop: '3em' }}
-            actionLinks={
-              <>
-                <AlertActionLink onClick={createFeed}>
-                  Create Feed
-                </AlertActionLink>
-                <AlertActionLink onClick={clearFeed}>Clear</AlertActionLink>
-              </>
-            }
-          >
-            <ChipGroup>
-              {fileSelect.length > 0 &&
-                fileSelect.map((file: string, index) => {
+            type='success'
+            description={
+              <ChipGroup
+
+              >
+                {fileSelect.map((file: string, index) => {
                   return (
                     <Chip
                       onClick={() => {
@@ -135,8 +126,17 @@ const DataLibrary = () => {
                     </Chip>
                   )
                 })}
-            </ChipGroup>
+              </ChipGroup>
+            }
+            style={{ width: '100%', marginTop: '3em', padding: '2em' }}
+          >
+
           </Alert>
+          <div style={{ display: 'flex' }}>
+            <Button onClick={createFeed} variant='link'>Create Feed</Button>
+            <Button onClick={clearFeed} variant='link'>Clear Feed</Button>
+          </div>
+
         </AlertGroup>
       )}
 
@@ -172,35 +172,21 @@ const DataLibrary = () => {
           </SplitItem>
         </Split>
       </section>
-      {
-        <Tabs
-          activeKey={activeTabKey}
-          onSelect={handleTabClick}
-          aria-label='Tabs in the default example'>
-          <Tab eventKey={0} title={<TabTitleText>Uploads</TabTitleText>}>
-            {uploadedFiles}
-          </Tab>
-          <Tab eventKey={1} title={<TabTitleText>Feeds</TabTitleText>}>
-            {feedFiles}
-          </Tab>
-          <Tab eventKey={2} title={<TabTitleText>Services</TabTitleText>}>
-            {servicesFiles}
-          </Tab>
-        </Tabs>
-        /*
-        !rootCheck
-          ? uploadedFiles
-          : isRoot['uploads']
-            ? uploadedFiles
-            : undefined}
-        {!rootCheck ? feedFiles : isRoot['feed'] ? feedFiles : undefined}
-        {!rootCheck
-          ? servicesFiles
-          : isRoot['services']
-            ? servicesFiles
-            : undefined
-          */
-      }
+
+      <Tabs
+        activeKey={activeTabKey}
+        onSelect={handleTabClick}
+        aria-label='Tabs in the default example'>
+        <Tab eventKey={0} title={<TabTitleText>Uploads</TabTitleText>}>
+          {uploadedFiles}
+        </Tab>
+        <Tab eventKey={1} title={<TabTitleText>Feeds</TabTitleText>}>
+          {feedFiles}
+        </Tab>
+        <Tab eventKey={2} title={<TabTitleText>Services</TabTitleText>}>
+          {servicesFiles}
+        </Tab>
+      </Tabs>
     </>
   )
 }

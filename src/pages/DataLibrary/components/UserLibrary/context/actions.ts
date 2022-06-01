@@ -91,12 +91,4 @@ export const setPagination = (
   };
 };
 
-export const setRoot = (isRoot: boolean, type: string) => {
-  return {
-    type: Types.SET_ROOT,
-    payload: {
-      isRoot,
-      type,
-    },
-  };
-};
+

@@ -22,24 +22,17 @@ const Search = () => {
       const feedFiles = await searchFeedFiles(value, username)
       const pacsFiles = await searchPacsFiles(value, '')
 
-      const isUploadedRoot =
-        uploadedFiles.length > 0
 
-      const isFeedRoot =
-        feedFiles.length > 0
-
-      const isPacsRoot =
-        pacsFiles.length > 0
       if (uploadedFiles && uploadedFiles.length > 0) {
-        handleUploadedFiles(uploadedFiles, dispatch, isUploadedRoot, value)
+        handleUploadedFiles(uploadedFiles, dispatch, value)
       }
 
       if (feedFiles && feedFiles.length > 0) {
-        handleFeedFiles(feedFiles, dispatch, isFeedRoot, username)
+        handleFeedFiles(feedFiles, dispatch, username)
       }
 
       if (pacsFiles && pacsFiles.length > 0) {
-        handlePacsFiles(pacsFiles, dispatch, isPacsRoot,)
+        handlePacsFiles(pacsFiles, dispatch,)
       }
 
       if (

@@ -3,7 +3,6 @@ import {
   setInitialPath,
   setPaginatedFolders,
   setPagination,
-  setRoot,
 } from "./context/actions";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 
@@ -85,7 +84,7 @@ export const searchUploadedFiles = async (value: string, path: string) => {
 export const handleUploadedFiles = (
   uploadedFiles: any[],
   dispatch: React.Dispatch<any>,
-  isUploadedRoot: boolean,
+
   value: string
 ) => {
   const uploadedFolders: string[] = [];
@@ -119,16 +118,12 @@ export const handleUploadedFiles = (
         totalCount: 0,
       })
     );
-    if (isUploadedRoot) {
-      dispatch(setRoot(true, "uploads"));
-    }
   }
 };
 
 export const handleFeedFiles = (
   feedFiles: any[],
   dispatch: React.Dispatch<any>,
-  isFeedRoot: boolean,
   username: string
 ) => {
   const path = username;
@@ -149,16 +144,12 @@ export const handleFeedFiles = (
         totalCount: 0,
       })
     );
-    if (isFeedRoot) {
-      dispatch(setRoot(true, "feed"));
-    }
   }
 };
 
 export const handlePacsFiles = (
   pacsFiles: any[],
-  dispatch: React.Dispatch<any>,
-  isPacsRoot: boolean
+  dispatch: React.Dispatch<any>
 ) => {
   const pacsFolders: string[] = [];
   const pacsDict: {
@@ -190,8 +181,5 @@ export const handlePacsFiles = (
         totalCount: 0,
       })
     );
-    if (isPacsRoot) {
-      dispatch(setRoot(true, "services"));
-    }
   }
 };
