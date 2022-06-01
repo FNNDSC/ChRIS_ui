@@ -16,6 +16,9 @@ import {
   AlertActionLink,
   ChipGroup,
   Chip,
+  Tabs,
+  Tab,
+  TabTitleText,
 } from '@patternfly/react-core'
 import BrowserContainer from './BrowserContainer'
 import LocalSearch from './LocalSearch'
@@ -35,6 +38,8 @@ const DataLibrary = () => {
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
   const [directoryName, setDirectoryName] = React.useState('')
   const { isRoot, multipleFileSelect, fileSelect } = state
+  const [activeTabKey, setActiveTabKey] = React.useState<number>(0);
+
 
   const rootCheck = Object.keys(isRoot).length > 0
 
@@ -65,16 +70,12 @@ const DataLibrary = () => {
     })
   }
 
+  const handleTabClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, eventKey: number | string) => {
+    setActiveTabKey(eventKey as number);
+  }
+
   const uploadedFiles = (
     <section>
-      <Split>
-        <SplitItem>
-          <h3>Uploads</h3>
-        </SplitItem>
-        <SplitItem style={{ margin: 'auto 1em' }} isFilled>
-          <hr />
-        </SplitItem>
-      </Split>
       <LocalSearch type='uploads' username={username} />
       <BrowserContainer
         type="uploads"
@@ -86,14 +87,6 @@ const DataLibrary = () => {
 
   const feedFiles = (
     <section>
-      <Split>
-        <SplitItem>
-          <h3>Completed Analyses</h3>
-        </SplitItem>
-        <SplitItem style={{ margin: 'auto 1em' }} isFilled>
-          <hr />
-        </SplitItem>
-      </Split>
       <LocalSearch type='feed' username={username} />
       <BrowserContainer type="feed" path={`${username}`} username={username} />
     </section>
@@ -101,15 +94,6 @@ const DataLibrary = () => {
 
   const servicesFiles = (
     <section>
-      <Split>
-        <SplitItem>
-          <h3>External Services</h3>
-        </SplitItem>
-        <SplitItem style={{ margin: 'auto 1em' }} isFilled>
-          <hr />
-        </SplitItem>
-
-      </Split>
       <LocalSearch type='services' username={username} />
       <BrowserContainer type="services" path={`SERVICES`} username={username} />
     </section>
@@ -188,18 +172,35 @@ const DataLibrary = () => {
           </SplitItem>
         </Split>
       </section>
-
-      {!rootCheck
-        ? uploadedFiles
-        : isRoot['uploads']
+      {
+        <Tabs
+          activeKey={activeTabKey}
+          onSelect={handleTabClick}
+          aria-label='Tabs in the default example'>
+          <Tab eventKey={0} title={<TabTitleText>Uploads</TabTitleText>}>
+            {uploadedFiles}
+          </Tab>
+          <Tab eventKey={1} title={<TabTitleText>Feeds</TabTitleText>}>
+            {feedFiles}
+          </Tab>
+          <Tab eventKey={2} title={<TabTitleText>Services</TabTitleText>}>
+            {servicesFiles}
+          </Tab>
+        </Tabs>
+        /*
+        !rootCheck
           ? uploadedFiles
-          : undefined}
-      {!rootCheck ? feedFiles : isRoot['feed'] ? feedFiles : undefined}
-      {!rootCheck
-        ? servicesFiles
-        : isRoot['services']
+          : isRoot['uploads']
+            ? uploadedFiles
+            : undefined}
+        {!rootCheck ? feedFiles : isRoot['feed'] ? feedFiles : undefined}
+        {!rootCheck
           ? servicesFiles
-          : undefined}
+          : isRoot['services']
+            ? servicesFiles
+            : undefined
+          */
+      }
     </>
   )
 }
