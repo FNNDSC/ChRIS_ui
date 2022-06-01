@@ -17,8 +17,7 @@ const BreadcrumbContainer = ({
   togglePreview,
   previewAll,
 }: {
-  initialPath: string
-
+    initialPath: string
   handleFolderClick: (path: string, breadcrumb?: any) => void
   files: any[]
   folderDetails: {
