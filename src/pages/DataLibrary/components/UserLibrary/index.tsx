@@ -39,7 +39,7 @@ const DataLibrary = () => {
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
   const [directoryName, setDirectoryName] = React.useState('')
-  const { multipleFileSelect, fileSelect } = state
+  const { fileSelect } = state
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0);
 
 
@@ -101,10 +101,10 @@ const DataLibrary = () => {
 
   return (
     <>
-      {multipleFileSelect && fileSelect.length > 0 && (
+      {fileSelect.length > 0 && (
         <AlertGroup isToast>
           <Alert
-            type='success'
+            type='info'
             description={
               <ChipGroup
 
@@ -155,20 +155,7 @@ const DataLibrary = () => {
             <Button icon={<FaUpload />} onClick={handleFileModal}>
               Upload Files
             </Button>
-            <Button
-              onClick={() => {
-                dispatch({
-                  type: Types.SET_MULTIPLE_FILE_SELECT,
-                  payload: {
-                    active: !multipleFileSelect,
-                  },
-                })
-              }}
-              style={{ marginLeft: '1em' }}
-            >
-              {`Multiple Element Select:${multipleFileSelect === true ? ' On' : ' Off'
-                }`}
-            </Button>
+            
           </SplitItem>
         </Split>
       </section>
