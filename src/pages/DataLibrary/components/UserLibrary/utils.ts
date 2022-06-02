@@ -37,7 +37,8 @@ const lookDeeper = async (
 
     if (folders.length > 0) {
       for (let i = 0; i < folders.length; i++) {
-        if (folders[i] === value || folders[i].includes(value)) {
+        const lowerCaseValue= folders[i].toLowerCase();
+        if (lowerCaseValue === value || lowerCaseValue.includes(value)) {
           if (type === "feed") results.push(`${path}/${folders[i]}`);
           if (type === "pacs") results.push(`${path}/${folders[i]}`);
           if (type === "uploads") results.push(`${path}/${folders[i]}`);

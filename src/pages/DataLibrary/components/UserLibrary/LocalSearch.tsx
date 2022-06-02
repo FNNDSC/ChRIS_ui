@@ -22,18 +22,18 @@ const LocalSearch = ({
             if (type === 'uploads') {
                 setLoading(true)
                 const uploadedFiles = await searchUploadedFiles(
-                    value,
+                    value.toLowerCase(),
                     `${username}/uploads`,
                 )
 
                 if (uploadedFiles && uploadedFiles.length > 0) {
-                    handleUploadedFiles(uploadedFiles, dispatch, value)
+                    handleUploadedFiles(uploadedFiles, dispatch, value.toLowerCase())
                 }
                 setLoading(false)
             }
             if (type === 'feed') {
                 setLoading(true)
-                const feedFiles = await searchFeedFiles(value, username)
+                const feedFiles = await searchFeedFiles(value.toLowerCase(), username)
 
                 if (feedFiles && feedFiles.length > 0) {
                     handleFeedFiles(feedFiles, dispatch, username)
@@ -42,7 +42,7 @@ const LocalSearch = ({
             }
             if (type === 'services') {
                 setLoading(true)
-                const pacsFiles = await searchPacsFiles(value, '')
+                const pacsFiles = await searchPacsFiles(value.toLowerCase(), '')
 
 
                 if (pacsFiles && pacsFiles.length > 0) {
