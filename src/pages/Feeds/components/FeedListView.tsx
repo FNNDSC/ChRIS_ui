@@ -15,6 +15,7 @@ import {
   Hint,
   HintBody,
   Checkbox,
+  Spinner
 } from '@patternfly/react-core'
 import { Table, TableBody, Thead, Tr, Th } from '@patternfly/react-table'
 import { ChartDonutUtilization } from '@patternfly/react-charts'
@@ -186,8 +187,14 @@ const FeedListView: React.FC<AllProps> = ({
     
     // If progress less than 100%, display green
     if(progress < 100 && !feedError){
+
       color =  "#00ff00"
+
       threshold = progress
+    }
+    if(progress == 100)
+    {
+      title='✔️'
     }
 
     const circularProgress = {
@@ -211,6 +218,13 @@ const FeedListView: React.FC<AllProps> = ({
         </div>
       ),
     }
+    
+    const CustomSize = {
+    title :(
+   <Spinner isSVG size="lg" aria-label="Contents of the custom size example"/>
+   ),
+   }
+
 
     const bulkChecbox = {
       title: (
