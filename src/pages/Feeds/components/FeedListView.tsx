@@ -14,8 +14,7 @@ import {
   EmptyStateBody,
   Hint,
   HintBody,
-  Checkbox,
-  Spinner
+  Checkbox
 } from '@patternfly/react-core'
 import { Table, TableBody, Thead, Tr, Th } from '@patternfly/react-table'
 import { ChartDonutUtilization } from '@patternfly/react-charts'
@@ -41,6 +40,7 @@ import {
 import { usePaginate } from '../../../components/common/pagination'
 import { Feed } from '@fnndsc/chrisapi'
 import IconContainer from './IconContainer'
+import { FcHighPriority } from 'react-icons/fc'
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive
@@ -137,15 +137,14 @@ const FeedListView: React.FC<AllProps> = ({
       feedResources[feed.data.id].details.feedProgressText
       
 
-
     const name = {
       title: (
         <span className="feed-list__name">
           <Link to={`/feeds/${id}`}>{feedName}</Link>
+         
         </span>
       ),
     }
-
 
     const created = {
       title: (
@@ -161,7 +160,8 @@ const FeedListView: React.FC<AllProps> = ({
           ...fontFamily,
           textAlign: 'center',
           margin: '0 auto'
-        }}>{size ? `${size.padStart(10, '')}` : '---'}</p>
+        }}>
+         <Link to={`/library/`}>{size ? `${size.padStart(10, '')}` : '---'}</Link></p>
       ),
     }
 
@@ -219,12 +219,6 @@ const FeedListView: React.FC<AllProps> = ({
       ),
     }
     
-    const CustomSize = {
-    title :(
-   <Spinner isSVG size="lg" aria-label="Contents of the custom size example"/>
-   ),
-   }
-
 
     const bulkChecbox = {
       title: (
@@ -344,6 +338,7 @@ const FeedListView: React.FC<AllProps> = ({
             aria-label="Data table"
             cells={cells}
             rows={rows}
+            isStickyHeader
           >
             {
               <Thead>
