@@ -6,6 +6,7 @@ export default function useLongPress() {
   const { dispatch, state } = useContext(LibraryContext)
   const timerRef = useRef<ReturnType<typeof window.setTimeout>>()
   const isLongPress = useRef<boolean>()
+  const { fileSelect } = state
 
   function startPressTimer() {
     isLongPress.current = false
@@ -25,12 +26,13 @@ export default function useLongPress() {
   ) {
     if (isLongPress.current) {
       console.log('Is long press - not continuing.')
-      dispatch({
-        type: Types.SET_ADD_FILE_SELECT,
-        payload: {
-          path,
-        },
-      })
+      if (!fileSelect.includes(path))
+        dispatch({
+          type: Types.SET_ADD_FILE_SELECT,
+          payload: {
+            path,
+          },
+        })
     }
 
     if (e.detail === 1) {

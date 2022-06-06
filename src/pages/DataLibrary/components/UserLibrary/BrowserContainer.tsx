@@ -35,7 +35,7 @@ const BrowserContainer = ({
     loading,
     paginated,
     paginatedFolders,
-  
+    multipleFileSelect,
   } = state
 
   const computedPath = initialPath[type]
@@ -129,6 +129,11 @@ const BrowserContainer = ({
 
       if (type === 'feed') {
         folders = folderSplit.filter((feed: string) => feed !== 'uploads')
+        folders.sort((a: string, b: string) => {
+          const aId = parseInt(a.split('_')[1]);
+          const bId = parseInt(b.split("_")[1]);
+          return bId - aId;
+        })
       } else {
         folders = folderSplit
       }
