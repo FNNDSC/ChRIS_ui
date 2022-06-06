@@ -14,7 +14,8 @@ import {
   EmptyStateBody,
   Hint,
   HintBody,
-  Checkbox
+  Checkbox,
+  Tooltip
 } from '@patternfly/react-core'
 import { Table, TableBody, Thead, Tr, Th } from '@patternfly/react-table'
 import { ChartDonutUtilization } from '@patternfly/react-charts'
@@ -140,8 +141,9 @@ const FeedListView: React.FC<AllProps> = ({
     const name = {
       title: (
         <span className="feed-list__name">
+        <Tooltip content={<div>View feed details</div>}>
           <Link to={`/feeds/${id}`}>{feedName}</Link>
-         
+        </Tooltip>
         </span>
       ),
     }
@@ -156,12 +158,16 @@ const FeedListView: React.FC<AllProps> = ({
 
     const feedSize = {
       title: (
+      
         <p style={{
           ...fontFamily,
           textAlign: 'center',
           margin: '0 auto'
         }}>
-         <Link to={`/library/`}>{size ? `${size.padStart(10, '')}` : '---'}</Link></p>
+        <Tooltip content={<div>View files in library</div>}>
+         <Link to={`/library/`}>{size ? `${size.padStart(10, '')}` : '---'}</Link>
+        </Tooltip></p> 
+
       ),
     }
 
