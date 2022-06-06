@@ -245,7 +245,7 @@ export const libraryReducer = (
     }
 
     case Types.SET_ADD_FILE_SELECT: {
-      console.log("FileSelect", action.payload);
+    
       return {
         ...state,
         fileSelect: [...state.fileSelect, action.payload.path],

@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useContext } from 'react'
+import { LibraryContext, Types } from './context'
 
 export default function useLongPress() {
   const [action, setAction] = useState<string>()
-
+  const { dispatch, state } = useContext(LibraryContext)
   const timerRef = useRef<ReturnType<typeof window.setTimeout>>()
   const isLongPress = useRef<boolean>()
 
@@ -15,34 +16,54 @@ export default function useLongPress() {
     }, 500)
   }
 
-  function handleOnClick(e: any) {
-    console.log('handleOnClick')
+  function handleOnClick(
+    e: any,
+    path: string,
+    folder: string,
+    initialPath: string,
+    cb?: (path: string, prevPath: string) => void,
+  ) {
     if (isLongPress.current) {
       console.log('Is long press - not continuing.')
-      return
+      dispatch({
+        type: Types.SET_ADD_FILE_SELECT,
+        payload: {
+          path,
+        },
+      })
+    }
+
+    if (e.detail === 1) {
+      dispatch({
+        type: Types.SET_SELECTED_FOLDER,
+        payload: {
+          folder,
+        },
+      })
+    }
+
+    if (e.detail === 2) {
+      cb && cb(`${initialPath}/${folder}`, initialPath)
     }
     setAction('click')
   }
 
   function handleOnMouseDown() {
-    console.log('handleOnMouseDown')
     startPressTimer()
   }
 
   function handleOnMouseUp() {
-    console.log('handleOnMouseUp')
     //@ts-ignore
     clearTimeout(timerRef.current)
   }
 
   function handleOnTouchStart() {
-    console.log('handleOnTouchStart')
     startPressTimer()
   }
 
   function handleOnTouchEnd() {
     if (action === 'longpress') return
-    console.log('handleOnTouchEnd')
+
     //@ts-ignore
     clearTimeout(timerRef.current)
   }
@@ -50,8 +71,8 @@ export default function useLongPress() {
   return {
     action,
     handlers: {
-      onClick: handleOnClick,
-      onMouseDown: handleOnMouseDown,
+      handleOnClick,
+      handleOnMouseDown,
       onMouseUp: handleOnMouseUp,
       onTouchStart: handleOnTouchStart,
       onTouchEnd: handleOnTouchEnd,

@@ -28,7 +28,7 @@ import { LibraryContext, Paginated } from './context'
 import FileViewerModel from '../../../../api/models/file-viewer.model'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { Spin } from 'antd'
-import { Types } from './context'
+
 import useLongPress from './useLongPress'
 
 interface BrowserInterface {
@@ -45,7 +45,6 @@ interface BrowserInterface {
   handleDownload?: (path: string, folder: string) => void
   browserType: string
   username?: string | null
-  multipleFileSelect: boolean
 }
 
 export function Browser({
@@ -60,7 +59,6 @@ export function Browser({
   handleDownload,
   browserType,
   username,
-  multipleFileSelect,
 }: BrowserInterface) {
   return (
     <Grid hasGutter>
@@ -72,7 +70,6 @@ export function Browser({
               <FileCard
                 previewAll={previewAll}
                 file={file}
-                multipleFileSelect={multipleFileSelect}
                 initialPath={initialPath}
               />
             </GridItem>
@@ -114,7 +111,6 @@ export function Browser({
                 key={index}
                 folder={folder}
                 username={username}
-                multipleFileSelect={multipleFileSelect}
               />
             </GridItem>
           )
@@ -148,16 +144,15 @@ export function Browser({
 function FileCard({
   file,
   previewAll,
-  multipleFileSelect,
   initialPath,
 }: {
   file: any
   previewAll: boolean
-  multipleFileSelect: boolean
+
   initialPath: string
 }) {
-  const { dispatch, state } = useContext(LibraryContext)
-  const { fileSelect } = state
+  const { handlers } = useLongPress()
+  const { handleOnClick, handleOnMouseDown } = handlers
   const fileNameArray = file.data.fname.split('/')
   const fileName = fileNameArray[fileNameArray.length - 1]
   const [largePreview, setLargePreview] = React.useState(false)
@@ -165,7 +160,16 @@ function FileCard({
 
   return (
     <>
-      <Card key={file.data.fname} isRounded isHoverable isSelectable>
+      <Card
+        onClick={(e) => {
+          handleOnClick(e, path, file, initialPath)
+        }}
+        onMouseDown={handleOnMouseDown}
+        key={file.data.fname}
+        isRounded
+        isHoverable
+        isSelectable
+      >
         <CardBody>
           {previewAll && (
             <div
@@ -184,34 +188,6 @@ function FileCard({
               overflow: 'hidden',
             }}
           >
-            {multipleFileSelect && (
-              <Checkbox
-                id={path}
-                isChecked={fileSelect.includes(path)}
-                name={path}
-                onChange={(checked: boolean) => {
-                  if (checked) {
-                    dispatch({
-                      type: Types.SET_ADD_FILE_SELECT,
-                      payload: {
-                        path,
-                      },
-                    })
-                  } else {
-                    dispatch({
-                      type: Types.SET_REMOVE_FILE_SELECT,
-                      payload: {
-                        path,
-                      },
-                    })
-                  }
-                }}
-                style={{
-                  marginRight: '0.5em',
-                  padding: '0',
-                }}
-              />
-            )}
             <Button icon={<FaFile />} variant="link" style={{ padding: '0' }}>
               <b>{elipses(fileName, 20)}</b>
             </Button>
@@ -260,7 +236,6 @@ interface FolderCardInterface {
   handleDelete?: (path: string, folder: string) => void
   handleDownload?: (path: string, folder: string) => void
   username?: string | null
-  multipleFileSelect: boolean
 }
 
 function FolderCard({
@@ -272,14 +247,16 @@ function FolderCard({
   handleDownload,
   username,
 }: FolderCardInterface) {
-  const { action, handlers } = useLongPress()
-  const { dispatch, state } = useContext(LibraryContext)
+  const { handlers } = useLongPress()
+  const { state } = useContext(LibraryContext)
   const { selectedFolder } = state
   const [dropdown, setDropdown] = useState(false)
   const [feedName, setFeedName] = useState('')
   const [commitDate, setCommitDate] = useState('')
   const path = `${initialPath}/${folder}`
   const background = selectedFolder.includes(folder)
+
+  const { handleOnClick, handleOnMouseDown } = handlers
 
   const toggle = (
     <KebabToggle
@@ -316,33 +293,12 @@ function FolderCard({
     </DropdownItem>
   )
 
-  const addToCart = (
-    <DropdownItem
-      key="create feed"
-      component="button"
-      {...handlers}
-      /*
-      onClick={() => {
-        dispatch({
-          type: Types.SET_ADD_FILE_SELECT,
-          payload: {
-            path,
-          },
-        })
-      }}
-      */
-    >
-      <FaCodeBranch />
-      Create Feed
-    </DropdownItem>
-  )
-
   const deleteDropdown = (
     <DropdownItem
       key="delete"
       component="button"
       onClick={() => {
-        handleDelete && handleDelete(`${initialPath}/${folder}`, folder)
+        handleDelete && handleDelete(`${path}`, folder)
       }}
     >
       <FaTrashAlt />
@@ -350,25 +306,12 @@ function FolderCard({
     </DropdownItem>
   )
 
-  const handleClick = (event: any) => {
-    if (event.detail === 1) {
-      dispatch({
-        type: Types.SET_SELECTED_FOLDER,
-        payload: {
-          folder,
-        },
-      })
-    }
-
-    if (event.detail === 2) {
-      handleFolderClick(`${initialPath}/${folder}`, initialPath)
-    }
-  }
-
   return (
     <Card
-      {...handlers}
-      // onClick={handleClick}
+      onClick={(e) => {
+        handleOnClick(e, path, folder, initialPath, handleFolderClick)
+      }}
+      onMouseDown={handleOnMouseDown}
       isHoverable
       isSelectable
       isRounded
@@ -388,8 +331,8 @@ function FolderCard({
             }}
             dropdownItems={
               browserType == 'uploads'
-                ? [deleteDropdown, downloadDropdown, addToCart]
-                : [downloadDropdown, addToCart]
+                ? [deleteDropdown, downloadDropdown]
+                : [downloadDropdown]
             }
           ></Dropdown>
         </CardActions>
