@@ -35,7 +35,7 @@ const BrowserContainer = ({
     loading,
     paginated,
     paginatedFolders,
-    multipleFileSelect,
+  
   } = state
 
   const computedPath = initialPath[type]
@@ -309,7 +309,7 @@ const BrowserContainer = ({
           browserType={type}
           handleDownload={handleDownload}
           username={username}
-          multipleFileSelect={multipleFileSelect}
+          
         />
       )}
     </React.Fragment>
