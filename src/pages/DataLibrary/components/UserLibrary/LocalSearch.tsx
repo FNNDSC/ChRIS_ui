@@ -22,31 +22,31 @@ const LocalSearch = ({
             if (type === 'uploads') {
                 setLoading(true)
                 const uploadedFiles = await searchUploadedFiles(
-                    value,
+                    value.toLowerCase(),
                     `${username}/uploads`,
                 )
-                const isUploadedRoot = false
+
                 if (uploadedFiles && uploadedFiles.length > 0) {
-                    handleUploadedFiles(uploadedFiles, dispatch, isUploadedRoot, value)
+                    handleUploadedFiles(uploadedFiles, dispatch, value.toLowerCase())
                 }
                 setLoading(false)
             }
             if (type === 'feed') {
                 setLoading(true)
-                const feedFiles = await searchFeedFiles(value, username)
-                const isFeedRoot = false
+                const feedFiles = await searchFeedFiles(value.toLowerCase(), username)
+
                 if (feedFiles && feedFiles.length > 0) {
-                    handleFeedFiles(feedFiles, dispatch, isFeedRoot, username)
+                    handleFeedFiles(feedFiles, dispatch, username)
                 }
                 setLoading(false)
             }
             if (type === 'services') {
                 setLoading(true)
-                const pacsFiles = await searchPacsFiles(value, '')
-                const isPacsRoot = false
+                const pacsFiles = await searchPacsFiles(value.toLowerCase(), '')
+
 
                 if (pacsFiles && pacsFiles.length > 0) {
-                    handlePacsFiles(pacsFiles, dispatch, isPacsRoot,)
+                    handlePacsFiles(pacsFiles, dispatch,)
                 }
                 setLoading(false)
             }
