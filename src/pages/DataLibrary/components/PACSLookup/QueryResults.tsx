@@ -425,7 +425,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         return (
           <>
             {seriesFiles.length && (
-              <div style={{ marginTop: "-1em" }}>
+              <div style={{ marginTop: "-1em", wordWrap : "break-word"}}>
                 <FileDetailView
                   preview="small"
                   selectedFile={
