@@ -26,19 +26,24 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
     offset,
   }
   const client = ChrisAPIClient.getClient()
-  try {
-    const feedsList: FeedList = yield client.getFeeds(params)
-    const totalCount = feedsList.totalCount
-    const feeds: Feed[] = feedsList.getItems() || []
-    const payload = {
-      feeds,
-      totalCount,
-    }
+  const flag = true
+  const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+  do{
+    try {
+      const feedsList: FeedList = yield client.getFeeds(params)
+      const totalCount = feedsList.totalCount
+      const feeds: Feed[] = feedsList.getItems() || []
+      const payload = {
+        feeds,
+        totalCount,
+      }
 
-    yield put(getAllFeedsSuccess(payload))
-  } catch (error) {
-    yield put(getAllFeedsError(error))
-  }
+      yield put(getAllFeedsSuccess(payload))
+    } catch (error) {
+      yield put(getAllFeedsError(error))
+    }
+    yield delay(7000)
+  }  while(flag)
 }
 
 function* handleGetFeedDetails(action: IActionTypeParam) {
@@ -135,19 +140,14 @@ function* handleFeedResources(action: IActionTypeParam) {
   const cu = new cujs();
   cu.setClient(client);
   try {
-    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
     let details: Record<string, unknown> = {};
-    details.progress = 0;
-    do {
-      details = yield cu.getPluginInstanceDetails(action.payload);
-      const payload = {
+    details = yield cu.getPluginInstanceDetails(action.payload);
+    const payload = {
         details,
         id: action.payload.data.id,
-      };
+    };
+    yield put(getFeedResourcesSucess(payload));
 
-      yield put(getFeedResourcesSucess(payload));
-      yield delay(7000);
-    } while (details.progress !== 100 && !details.error);
   } catch (error) {}
 }
 

@@ -14,7 +14,7 @@ import {
   EmptyStateBody,
   Hint,
   HintBody,
-  Checkbox,
+  Checkbox
 } from '@patternfly/react-core'
 import { Table, TableBody, Thead, Tr, Th } from '@patternfly/react-table'
 import { ChartDonutUtilization } from '@patternfly/react-charts'
@@ -40,6 +40,7 @@ import {
 import { usePaginate } from '../../../components/common/pagination'
 import { Feed } from '@fnndsc/chrisapi'
 import IconContainer from './IconContainer'
+import { FcHighPriority } from 'react-icons/fc'
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive
@@ -136,15 +137,14 @@ const FeedListView: React.FC<AllProps> = ({
       feedResources[feed.data.id].details.feedProgressText
       
 
-
     const name = {
       title: (
         <span className="feed-list__name">
           <Link to={`/feeds/${id}`}>{feedName}</Link>
+         
         </span>
       ),
     }
-
 
     const created = {
       title: (
@@ -160,7 +160,8 @@ const FeedListView: React.FC<AllProps> = ({
           ...fontFamily,
           textAlign: 'center',
           margin: '0 auto'
-        }}>{size ? `${size.padStart(10, '')}` : '---'}</p>
+        }}>
+         <Link to={`/library/`}>{size ? `${size.padStart(10, '')}` : '---'}</Link></p>
       ),
     }
 
@@ -170,9 +171,11 @@ const FeedListView: React.FC<AllProps> = ({
 
 
     let threshold = Infinity
+    let color = "#0000ff"
 
     // If error in a feed => reflect in progress
     if (feedError) {
+      color = "#ff0000"
       threshold = progress
     }
     let title = (progress ? progress : 0) + '%'
@@ -180,6 +183,18 @@ const FeedListView: React.FC<AllProps> = ({
     // If initial node in a feed fails
     if (progress == 0 && feedError) {
       title = '❌'
+    }
+    
+    // If progress less than 100%, display green
+    if(progress < 100 && !feedError){
+
+      color =  "#00ff00"
+
+      threshold = progress
+    }
+    if(progress == 100)
+    {
+      title='✔️'
     }
 
     const circularProgress = {
@@ -197,12 +212,13 @@ const FeedListView: React.FC<AllProps> = ({
             data={{ x: 'Feed Progress', y: progress }}
             height={125}
             title={title}
-            thresholds={[{ value: threshold, color: '#C9190B' }]}
+            thresholds={[{ value: threshold, color: color }]}
             width={125}
           />
         </div>
       ),
     }
+    
 
     const bulkChecbox = {
       title: (
@@ -322,6 +338,7 @@ const FeedListView: React.FC<AllProps> = ({
             aria-label="Data table"
             cells={cells}
             rows={rows}
+            isStickyHeader
           >
             {
               <Thead>
