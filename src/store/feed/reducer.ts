@@ -42,6 +42,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
+
       return {
         ...state,
         allFeeds: {
