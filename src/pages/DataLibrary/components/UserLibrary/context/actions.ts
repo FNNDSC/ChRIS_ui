@@ -1,4 +1,4 @@
-import { Types } from "./index";
+import { FileSelect, Types } from './index'
 
 export const setInitialPath = (path: string, type: string) => {
   return {
@@ -7,9 +7,8 @@ export const setInitialPath = (path: string, type: string) => {
       path,
       type,
     },
-  };
-};
-
+  }
+}
 
 export const clearFolderState = (path: string, type: string) => {
   return {
@@ -18,8 +17,8 @@ export const clearFolderState = (path: string, type: string) => {
       path,
       type,
     },
-  };
-};
+  }
+}
 
 export const clearFilesState = (path: string, type: string) => {
   return {
@@ -28,8 +27,8 @@ export const clearFilesState = (path: string, type: string) => {
       path,
       type,
     },
-  };
-};
+  }
+}
 
 export const setLoading = (loading: boolean) => {
   return {
@@ -37,8 +36,8 @@ export const setLoading = (loading: boolean) => {
     payload: {
       loading,
     },
-  };
-};
+  }
+}
 
 export const setFolders = (folders: any[], type: string) => {
   return {
@@ -47,9 +46,9 @@ export const setFolders = (folders: any[], type: string) => {
       folders,
       type,
     },
-  };
-};
- 
+  }
+}
+
 export const setPaginatedFolders = (folders: any[], path: string) => {
   return {
     type: Types.SET_PAGINATED_FOLDERS,
@@ -57,8 +56,8 @@ export const setPaginatedFolders = (folders: any[], path: string) => {
       folders,
       path,
     },
-  };
-};
+  }
+}
 
 export const setFiles = (files: any[], type: string) => {
   return {
@@ -67,17 +66,17 @@ export const setFiles = (files: any[], type: string) => {
       files,
       type,
     },
-  };
-};
+  }
+}
 
 export const setPagination = (
   path: string,
   pagination: {
-    hasNext: boolean;
-    limit: number;
-    offset: number;
-    totalCount: number;
-  }
+    hasNext: boolean
+    limit: number
+    offset: number
+    totalCount: number
+  },
 ) => {
   return {
     type: Types.SET_PAGINATION,
@@ -88,7 +87,32 @@ export const setPagination = (
       offset: pagination.offset,
       totalCount: pagination.totalCount,
     },
-  };
-};
+  }
+}
 
+export const addFileSelect = (file: FileSelect) => {
+  return {
+    type: Types.SET_ADD_FILE_SELECT,
+    payload: {
+      ...file,
+    },
+  }
+}
 
+export const removeFileSelect = (file: FileSelect) => {
+  return {
+    type: Types.SET_REMOVE_FILE_SELECT,
+    payload: {
+      ...file,
+    },
+  }
+}
+
+export const setSelectFolder = (folder: string) => {
+  return {
+    type: Types.SET_SELECTED_FOLDER,
+    payload: {
+      folder,
+    },
+  }
+}

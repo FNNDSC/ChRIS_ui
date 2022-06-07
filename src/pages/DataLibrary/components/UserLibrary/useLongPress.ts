@@ -1,5 +1,7 @@
 import { useState, useRef, useContext } from 'react'
+
 import { LibraryContext, Types } from './context'
+import { setSelectFolder } from './context/actions'
 
 export default function useLongPress() {
   const [action, setAction] = useState<string>()
@@ -22,26 +24,26 @@ export default function useLongPress() {
     path: string,
     folder: string,
     initialPath: string,
+    browserType: string,
     cb?: (path: string, prevPath: string) => void,
   ) {
     if (isLongPress.current) {
       console.log('Is long press - not continuing.')
-      if (!fileSelect.includes(path))
+      const payload = {
+        exactPath: path,
+        path: initialPath,
+        folder,
+        type: browserType,
+      }
+      if (!fileSelect.includes(payload))
         dispatch({
           type: Types.SET_ADD_FILE_SELECT,
-          payload: {
-            path,
-          },
+          payload,
         })
     }
 
     if (e.detail === 1) {
-      dispatch({
-        type: Types.SET_SELECTED_FOLDER,
-        payload: {
-          folder,
-        },
-      })
+      dispatch(setSelectFolder(folder))
     }
 
     if (e.detail === 2) {
