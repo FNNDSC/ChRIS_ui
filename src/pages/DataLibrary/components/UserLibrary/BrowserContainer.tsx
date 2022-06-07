@@ -11,7 +11,6 @@ import {
   setFiles,
   setPagination,
   setPaginatedFolders,
-
   clearFolderState,
   clearFilesState,
 } from './context/actions'
@@ -35,7 +34,6 @@ const BrowserContainer = ({
     loading,
     paginated,
     paginatedFolders,
-    multipleFileSelect,
   } = state
 
   const computedPath = initialPath[type]
@@ -67,9 +65,9 @@ const BrowserContainer = ({
         if (type === 'feed') {
           folders = folderSplit.filter((feed: string) => feed !== 'uploads')
           folders.sort((a: string, b: string) => {
-            const aId = parseInt(a.split('_')[1]);
-            const bId = parseInt(b.split("_")[1]);
-            return bId - aId;
+            const aId = parseInt(a.split('_')[1])
+            const bId = parseInt(b.split('_')[1])
+            return bId - aId
           })
         } else {
           folders = folderSplit
@@ -130,9 +128,9 @@ const BrowserContainer = ({
       if (type === 'feed') {
         folders = folderSplit.filter((feed: string) => feed !== 'uploads')
         folders.sort((a: string, b: string) => {
-          const aId = parseInt(a.split('_')[1]);
-          const bId = parseInt(b.split("_")[1]);
-          return bId - aId;
+          const aId = parseInt(a.split('_')[1])
+          const bId = parseInt(b.split('_')[1])
+          return bId - aId
         })
       } else {
         folders = folderSplit
@@ -153,8 +151,6 @@ const BrowserContainer = ({
 
       dispatch(setFolders(folders, path))
       dispatch(setInitialPath(path, type))
-
-
     }
     const pathList = await client.getFileBrowserPath(path)
     const fileList = await pathList.getFiles({
@@ -179,7 +175,6 @@ const BrowserContainer = ({
       }
 
       dispatch(setInitialPath(path, type))
-
 
       const currentFolderSplit = path.split('/')
       const currentFolder = currentFolderSplit[currentFolderSplit.length - 1]
@@ -250,42 +245,6 @@ const BrowserContainer = ({
     })
   }
 
-  const handleDownload = async (path: string, folderName: string) => {
-    const client = ChrisAPIClient.getClient()
-    const paths = await client.getFileBrowserPath(path)
-
-    const fileList = await paths.getFiles({
-      limit: 1000,
-      offset: 0,
-    })
-    const files = fileList.getItems()
-    //@ts-ignore
-    const existingDirectoryHandle = await window.showDirectoryPicker()
-    const newDirectoryHandle = await existingDirectoryHandle.getDirectoryHandle(
-      folderName,
-      {
-        create: true,
-      },
-    )
-
-    if (files) {
-      let writable
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        const blob = await file.getFileBlob()
-        const paths = file.data.fname.split('/')
-        const fileName = paths[paths.length - 1]
-        const newFileHandle = await newDirectoryHandle.getFileHandle(fileName, {
-          create: true,
-        })
-        writable = await newFileHandle.createWritable()
-        await writable.write(blob)
-        await writable.close()
-        // Close the file and write the contents to disk.
-      }
-    }
-  }
-
   return (
     <React.Fragment>
       {
@@ -312,9 +271,7 @@ const BrowserContainer = ({
           handlePagination={handlePagination}
           previewAll={previewAll}
           browserType={type}
-          handleDownload={handleDownload}
           username={username}
-          
         />
       )}
     </React.Fragment>

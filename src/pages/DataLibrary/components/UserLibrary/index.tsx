@@ -11,9 +11,7 @@ import {
   Progress,
   ProgressMeasureLocation,
   ProgressVariant,
-
   AlertGroup,
-
   ChipGroup,
   Chip,
   Tabs,
@@ -29,8 +27,14 @@ import FileUpload from '../../../../components/common/fileupload'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { LocalFile } from '../../../../components/feed/CreateFeed/types'
 import { useTypedSelector } from '../../../../store/hooks'
-import { LibraryContext, Types } from './context'
+import { FileSelect, LibraryContext, Types } from './context'
 import { MainRouterContext } from '../../../../routes'
+import {
+  removeFileSelect,
+  setFolders,
+  setPaginatedFolders,
+  setSelectFolder,
+} from './context/actions'
 
 const DataLibrary = () => {
   const username = useTypedSelector((state) => state.user.username)
@@ -39,9 +43,9 @@ const DataLibrary = () => {
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
   const [directoryName, setDirectoryName] = React.useState('')
-  const { fileSelect } = state
-  const [activeTabKey, setActiveTabKey] = React.useState<number>(0);
-
+  const { fileSelect, foldersState } = state
+  const [activeTabKey, setActiveTabKey] = React.useState<number>(0)
+  console.log('STATE', state)
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal)
@@ -58,7 +62,8 @@ const DataLibrary = () => {
   }
 
   const createFeed = () => {
-    router.actions.createFeedWithData(fileSelect)
+    const pathList = fileSelect.map((file) => file.exactPath)
+    router.actions.createFeedWithData(pathList)
   }
 
   const clearFeed = () => {
@@ -70,13 +75,88 @@ const DataLibrary = () => {
     })
   }
 
-  const handleTabClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, eventKey: number | string) => {
-    setActiveTabKey(eventKey as number);
+  const handleTabClick = (
+    event: React.MouseEvent<HTMLElement, MouseEvent>,
+    eventKey: number | string,
+  ) => {
+    setActiveTabKey(eventKey as number)
+  }
+
+  const handleDownload = async () => {
+    fileSelect.map(async (file: FileSelect) => {
+      const client = ChrisAPIClient.getClient()
+      const paths = await client.getFileBrowserPath(file.exactPath)
+      const folderName = 'Library Download'
+
+      const fileList = await paths.getFiles({
+        limit: 1000,
+        offset: 0,
+      })
+      const files = fileList.getItems()
+      //@ts-ignore
+      const existingDirectoryHandle = await window.showDirectoryPicker()
+      const newDirectoryHandle = await existingDirectoryHandle.getDirectoryHandle(
+        folderName,
+        {
+          create: true,
+        },
+      )
+      console.log('FILES', files)
+
+      if (files) {
+        let writable
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i]
+          const blob = await file.getFileBlob()
+          const paths = file.data.fname.split('/')
+          const fileName = paths[paths.length - 1]
+          const newFileHandle = await newDirectoryHandle.getFileHandle(
+            fileName,
+            {
+              create: true,
+            },
+          )
+          writable = await newFileHandle.createWritable()
+          await writable.write(blob)
+          await writable.close()
+          // Close the file and write the contents to disk.
+        }
+      }
+    })
+  }
+
+  const handleDelete = () => {
+    fileSelect.map(async (file: FileSelect) => {
+      const client = ChrisAPIClient.getClient()
+      if (file.type === 'uploads') {
+        const paths = await client.getFileBrowserPath(file.exactPath)
+        const fileList = await paths.getFiles({
+          limit: 1000,
+          offset: 0,
+        })
+        const files = fileList.getItems()
+        if (files) {
+          files.map(async (file: any) => {
+            await file._delete()
+          })
+        }
+        if (foldersState[file.path]) {
+          const newFolders = foldersState[file.path].filter(
+            (folder) => folder !== file.folder,
+          )
+          dispatch(setFolders(newFolders, file.path))
+          dispatch(setPaginatedFolders(newFolders, file.path))
+          dispatch(removeFileSelect(file))
+          dispatch(setSelectFolder(''))
+        }
+      }
+    })
   }
 
   const uploadedFiles = (
     <section>
-      <LocalSearch type='uploads' username={username} />
+      <LocalSearch type="uploads" username={username} />
+
       <BrowserContainer
         type="uploads"
         path={`${username}/uploads`}
@@ -87,14 +167,14 @@ const DataLibrary = () => {
 
   const feedFiles = (
     <section>
-      <LocalSearch type='feed' username={username} />
+      <LocalSearch type="feed" username={username} />
       <BrowserContainer type="feed" path={`${username}`} username={username} />
     </section>
   )
 
   const servicesFiles = (
     <section>
-      <LocalSearch type='services' username={username} />
+      <LocalSearch type="services" username={username} />
       <BrowserContainer type="services" path={`SERVICES`} username={username} />
     </section>
   )
@@ -104,73 +184,101 @@ const DataLibrary = () => {
       {fileSelect.length > 0 && (
         <AlertGroup isToast>
           <Alert
-            type='info'
+            type="info"
             description={
-              <ChipGroup
-
-              >
-                {fileSelect.map((file: string, index) => {
-                  return (
-                    <Chip
-                      onClick={() => {
-                        dispatch({
-                          type: Types.SET_REMOVE_FILE_SELECT,
-                          payload: {
-                            path: file,
-                          },
-                        })
-                      }}
-                      key={index}
-                    >
-                      {file}
-                    </Chip>
-                  )
-                })}
-              </ChipGroup>
+              <>
+                <ChipGroup>
+                  {fileSelect.map((file: FileSelect, index) => {
+                    return (
+                      <Chip
+                        onClick={() => {
+                          dispatch({
+                            type: Types.SET_REMOVE_FILE_SELECT,
+                            payload: {
+                              ...file,
+                            },
+                          })
+                        }}
+                        key={index}
+                      >
+                        {file.exactPath}
+                      </Chip>
+                    )
+                  })}
+                </ChipGroup>
+              </>
             }
             style={{ width: '100%', marginTop: '3em', padding: '2em' }}
+          ></Alert>
+          <div
+            style={{
+              display: 'flex',
+              background: '#e6f7ff',
+            }}
           >
-
-          </Alert>
-          <div style={{ display: 'flex' }}>
-            <Button onClick={createFeed} variant='link'>Create Feed</Button>
-            <Button onClick={clearFeed} variant='link'>Clear Feed</Button>
+            <Button onClick={createFeed} variant="link">
+              Create Feed
+            </Button>
+            <Button onClick={clearFeed} variant="link">
+              Clear
+            </Button>
+            <Button onClick={handleDownload} variant="link">
+              Download
+            </Button>
+            <Button onClick={handleDelete} variant="link">
+              Delete
+            </Button>
           </div>
-
         </AlertGroup>
       )}
 
-      <section>
-        <Split>
-          <UploadComponent
-            handleFileModal={handleFileModal}
-            handleLocalFiles={handleLocalFiles}
-            uploadFileModal={uploadFileModal}
-            handleDirectoryName={handleDirectoryName}
-            directoryName={directoryName}
-            localFiles={localFiles}
-          />
+      <UploadComponent
+        handleFileModal={handleFileModal}
+        handleLocalFiles={handleLocalFiles}
+        uploadFileModal={uploadFileModal}
+        handleDirectoryName={handleDirectoryName}
+        directoryName={directoryName}
+        localFiles={localFiles}
+      />
 
-          <SplitItem>
-            <Button icon={<FaUpload />} onClick={handleFileModal}>
-              Upload Files
-            </Button>
-            
-          </SplitItem>
-        </Split>
-      </section>
+      <div
+        style={{
+          display: 'flex',
+        }}
+      >
+        <Button
+          style={{
+            marginLeft: 'auto',
+          }}
+          variant="link"
+          icon={<FaUpload />}
+          onClick={handleFileModal}
+        >
+          Upload Files
+        </Button>
+      </div>
 
       <Tabs
+        style={{
+          width: '50%',
+        }}
         activeKey={activeTabKey}
         onSelect={handleTabClick}
-        aria-label='Tabs in the default example'>
+        aria-label="Tabs in the default example"
+      >
         <Tab eventKey={0} title={<TabTitleText>Uploads</TabTitleText>}>
           {uploadedFiles}
         </Tab>
-        <Tab eventKey={1} title={<TabTitleText>Feeds</TabTitleText>}>
+        <Tab
+          eventKey={1}
+          title={<TabTitleText>Completed Analyses</TabTitleText>}
+        >
           {feedFiles}
         </Tab>
-        <Tab eventKey={2} title={<TabTitleText>Services</TabTitleText>}>
+        <Tab
+          eventKey={2}
+          title={<TabTitleText>Services / PACS DATA</TabTitleText>}
+        >
           {servicesFiles}
         </Tab>
       </Tabs>

@@ -13,7 +13,6 @@ import {
   KebabToggle,
   DropdownItem,
   Modal,
-  Checkbox,
 } from '@patternfly/react-core'
 import {
   FaFile,
@@ -21,13 +20,12 @@ import {
   FaTrashAlt,
   FaDownload,
   FaExpand,
-  FaCodeBranch,
 } from 'react-icons/fa'
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
 import { LibraryContext, Paginated } from './context'
 import FileViewerModel from '../../../../api/models/file-viewer.model'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
-import { Spin } from 'antd'
+import { Spin, Tooltip } from 'antd'
 
 import useLongPress from './useLongPress'
 
@@ -41,8 +39,7 @@ interface BrowserInterface {
   }
   handlePagination: (path: string, type: string) => void
   previewAll: boolean
-  handleDelete?: (path: string, folder: string) => void
-  handleDownload?: (path: string, folder: string) => void
+
   browserType: string
   username?: string | null
 }
@@ -55,13 +52,17 @@ export function Browser({
   paginated,
   handlePagination,
   previewAll,
-  handleDelete,
-  handleDownload,
+
   browserType,
   username,
 }: BrowserInterface) {
   return (
-    <Grid hasGutter>
+    <Grid
+      style={{
+        marginLeft: '0.5em',
+      }}
+      hasGutter
+    >
       {files &&
         files.length > 0 &&
         files.map((file) => {
@@ -71,6 +72,7 @@ export function Browser({
                 previewAll={previewAll}
                 file={file}
                 initialPath={initialPath}
+                browserType={browserType}
               />
             </GridItem>
           )
@@ -106,8 +108,6 @@ export function Browser({
                 browserType={browserType}
                 initialPath={initialPath}
                 handleFolderClick={handleFolderClick}
-                handleDelete={handleDelete}
-                handleDownload={handleDownload}
                 key={index}
                 folder={folder}
                 username={username}
@@ -145,10 +145,11 @@ function FileCard({
   file,
   previewAll,
   initialPath,
+  browserType
 }: {
   file: any
   previewAll: boolean
-
+  browserType:string
   initialPath: string
 }) {
   const { handlers } = useLongPress()
@@ -160,70 +161,72 @@ function FileCard({
 
   return (
     <>
-      <Card
-        onClick={(e) => {
-          handleOnClick(e, path, file, initialPath)
-        }}
-        onMouseDown={handleOnMouseDown}
-        key={file.data.fname}
-        isRounded
-        isHoverable
-        isSelectable
-      >
-        <CardBody>
-          {previewAll && (
+      <Tooltip title="Hold then release to select">
+        <Card
+          onClick={(e) => {
+            handleOnClick(e, path, file, initialPath, browserType)
+          }}
+          onMouseDown={handleOnMouseDown}
+          key={file.data.fname}
+          isRounded
+          isHoverable
+          isSelectable
+        >
+          <CardBody>
+            {previewAll && (
+              <div
+                style={{
+                  margin: '-1.15em -1.15em 1em -1.15em',
+                  maxHeight: '10em',
+                  overflow: 'hidden',
+                }}
+              >
+                <FileDetailView selectedFile={file} preview="small" />
+              </div>
+            )}
+
             <div
               style={{
-                margin: '-1.15em -1.15em 1em -1.15em',
-                maxHeight: '10em',
                 overflow: 'hidden',
               }}
             >
-              <FileDetailView selectedFile={file} preview="small" />
+              <Button icon={<FaFile />} variant="link" style={{ padding: '0' }}>
+                <b>{elipses(fileName, 20)}</b>
+              </Button>
             </div>
+            <div>
+              <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
+              <Button
+                onClick={async () => {
+                  const blob = await file.getFileBlob()
+                  FileViewerModel.downloadFile(blob, fileName)
+                }}
+                variant="link"
+                icon={<FaDownload />}
+              />
+
+              <Button
+                variant="link"
+                onClick={() => {
+                  setLargePreview(true)
+                }}
+                icon={<FaExpand />}
+              />
+            </div>
+          </CardBody>
+          {largePreview && (
+            <Modal
+              title="Preview"
+              aria-label="viewer"
+              width={'50%'}
+              isOpen={largePreview}
+              onClose={() => setLargePreview(false)}
+            >
+              <FileDetailView selectedFile={file} preview="large" />
+            </Modal>
           )}
-
-          <div
-            style={{
-              overflow: 'hidden',
-            }}
-          >
-            <Button icon={<FaFile />} variant="link" style={{ padding: '0' }}>
-              <b>{elipses(fileName, 20)}</b>
-            </Button>
-          </div>
-          <div>
-            <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
-            <Button
-              onClick={async () => {
-                const blob = await file.getFileBlob()
-                FileViewerModel.downloadFile(blob, fileName)
-              }}
-              variant="link"
-              icon={<FaDownload />}
-            />
-
-            <Button
-              variant="link"
-              onClick={() => {
-                setLargePreview(true)
-              }}
-              icon={<FaExpand />}
-            />
-          </div>
-        </CardBody>
-        {largePreview && (
-          <Modal
-            title="Preview"
-            aria-label="viewer"
-            width={'50%'}
-            isOpen={largePreview}
-            onClose={() => setLargePreview(false)}
-          >
-            <FileDetailView selectedFile={file} preview="large" />
-          </Modal>
-        )}
-      </Card>
+        </Card>
+      </Tooltip>
     </>
   )
 }
@@ -233,8 +236,6 @@ interface FolderCardInterface {
   initialPath: string
   folder: string
   handleFolderClick: (path: string, prevPath: string) => void
-  handleDelete?: (path: string, folder: string) => void
-  handleDownload?: (path: string, folder: string) => void
   username?: string | null
 }
 
@@ -243,27 +244,17 @@ function FolderCard({
   initialPath,
   folder,
   handleFolderClick,
-  handleDelete,
-  handleDownload,
   username,
 }: FolderCardInterface) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
   const { selectedFolder } = state
-  const [dropdown, setDropdown] = useState(false)
   const [feedName, setFeedName] = useState('')
   const [commitDate, setCommitDate] = useState('')
   const path = `${initialPath}/${folder}`
   const background = selectedFolder.includes(folder)
 
   const { handleOnClick, handleOnMouseDown } = handlers
-
-  const toggle = (
-    <KebabToggle
-      onToggle={() => setDropdown(!dropdown)}
-      style={{ padding: '0' }}
-    />
-  )
 
   React.useEffect(() => {
     async function fetchFeedName() {
@@ -278,87 +269,45 @@ function FolderCard({
     fetchFeedName()
   }, [browserType, folder, initialPath, username])
 
-  const pad = <span style={{ padding: '0 0.25em' }} />
-
-  const downloadDropdown = (
-    <DropdownItem
-      key="download folder"
-      component="button"
-      onClick={() => {
-        handleDownload && handleDownload(`${initialPath}/${folder}`, folder)
-      }}
-    >
-      <FaDownload />
-      {pad} Download
-    </DropdownItem>
-  )
-
-  const deleteDropdown = (
-    <DropdownItem
-      key="delete"
-      component="button"
-      onClick={() => {
-        handleDelete && handleDelete(`${path}`, folder)
-      }}
-    >
-      <FaTrashAlt />
-      {pad} Delete
-    </DropdownItem>
-  )
-
   return (
-    <Card
-      onClick={(e) => {
-        handleOnClick(e, path, folder, initialPath, handleFolderClick)
-      }}
-      onMouseDown={handleOnMouseDown}
-      isHoverable
-      isSelectable
-      isRounded
-      style={{
-        background: `${background ? '#e7f1fa' : 'white'}`,
-      }}
-    >
-      <CardHeader>
-        <CardActions>
-          <Dropdown
-            isPlain
-            toggle={toggle}
-            isOpen={dropdown}
-            position="right"
-            onSelect={() => {
-              setDropdown(false)
-            }}
-            dropdownItems={
-              browserType == 'uploads'
-                ? [deleteDropdown, downloadDropdown]
-                : [downloadDropdown]
-            }
-          ></Dropdown>
-        </CardActions>
-        <Split style={{ overflow: 'hidden' }}>
-          <SplitItem style={{ marginRight: '1em' }}>
-            <FaFolder />
-          </SplitItem>
-          <SplitItem isFilled>
-            <Button style={{ padding: 0 }} variant="link">
-              <b>
-                {browserType === 'feed' && initialPath === username ? (
-                  !feedName ? (
-                    <Spin />
+    <Tooltip title="Hold then release to select">
+      <Card
+        onClick={(e) => {
+          handleOnClick(e, path, folder, initialPath, browserType, handleFolderClick)
+        }}
+        onMouseDown={handleOnMouseDown}
+        isHoverable
+        isSelectable
+        isRounded
+        style={{
+          background: `${background ? '#e7f1fa' : 'white'}`,
+        }}
+      >
+        <CardHeader>
+          <Split style={{ overflow: 'hidden' }}>
+            <SplitItem style={{ marginRight: '1em' }}>
+              <FaFolder />
+            </SplitItem>
+            <SplitItem isFilled>
+              <Button style={{ padding: 0 }} variant="link">
+                <b>
+                  {browserType === 'feed' && initialPath === username ? (
+                    !feedName ? (
+                      <Spin />
+                    ) : (
+                      elipses(feedName, 36)
+                    )
                   ) : (
-                    elipses(feedName, 36)
-                  )
-                ) : (
-                  elipses(folder, 36)
-                )}
-              </b>
-            </Button>
-            <div>{commitDate ? new Date(commitDate).toDateString() : ''}</div>
-          </SplitItem>
-        </Split>
-      </CardHeader>
-    </Card>
+                    elipses(folder, 36)
+                  )}
+                </b>
+              </Button>
+              <div>{commitDate ? new Date(commitDate).toDateString() : ''}</div>
+            </SplitItem>
+          </Split>
+        </CardHeader>
+      </Card>
+    </Tooltip>
   )
 }
 
