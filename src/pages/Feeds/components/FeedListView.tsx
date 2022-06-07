@@ -137,15 +137,25 @@ const FeedListView: React.FC<AllProps> = ({
       feedResources[feed.data.id] &&
       feedResources[feed.data.id].details.feedProgressText
       
-
+    const d1 = new Date(creation_date)
+    const d2 = new Date()
+    const smallD2 = new Date(d2.setMinutes(d2.getMinutes() - 2))
+    const largeD2 = new Date(d2.setMinutes(d2.getMinutes() + 2))
+    
     const name = {
       title: (
         <span className="feed-list__name">
+         
         <Tooltip content={<div>View feed details</div>}>
+         
           <Link to={`/feeds/${id}`}>{feedName}</Link>
         </Tooltip>
         </span>
       ),
+    }
+    
+    const feedId = {
+      title: <p style={fontFamily}>{(d1 >= smallD2 && d1 <=largeD2 ? <FcHighPriority id="hideMe" />: '') }{feed.data.id }</p>,
     }
 
     const created = {
@@ -244,12 +254,13 @@ const FeedListView: React.FC<AllProps> = ({
     }
 
     return {
-      cells: [bulkChecbox, name, created, runTime, feedSize, circularProgress],
+      cells: [bulkChecbox, feedId, name, created, runTime, feedSize, circularProgress],
     }
   }
 
   const cells = [
     '',
+    'Id',
     'Analysis',
     'Created',
     'Run Time',
@@ -364,6 +375,7 @@ const FeedListView: React.FC<AllProps> = ({
                       }}
                     />
                   </Th>
+                  <Th>Id</Th>
                   <Th>Analysis</Th>
                   <Th>Created</Th>
                   <Th>Run Time</Th>
