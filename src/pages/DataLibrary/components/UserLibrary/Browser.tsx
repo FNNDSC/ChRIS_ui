@@ -4,23 +4,13 @@ import {
   GridItem,
   Card,
   CardHeader,
-  CardActions,
   CardBody,
   Split,
   SplitItem,
   Button,
-  Dropdown,
-  KebabToggle,
-  DropdownItem,
   Modal,
 } from '@patternfly/react-core'
-import {
-  FaFile,
-  FaFolder,
-  FaTrashAlt,
-  FaDownload,
-  FaExpand,
-} from 'react-icons/fa'
+import { FaFile, FaFolder, FaDownload, FaExpand } from 'react-icons/fa'
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
 import { LibraryContext, Paginated } from './context'
 import FileViewerModel from '../../../../api/models/file-viewer.model'
@@ -141,15 +131,19 @@ export function Browser({
   )
 }
 
+const TooltipParent = ({ children }: { children: React.ReactElement }) => {
+  return <Tooltip title="Hold then release to select">{children}</Tooltip>
+}
+
 function FileCard({
   file,
   previewAll,
   initialPath,
-  browserType
+  browserType,
 }: {
   file: any
   previewAll: boolean
-  browserType:string
+  browserType: string
   initialPath: string
 }) {
   const { handlers } = useLongPress()
@@ -161,7 +155,7 @@ function FileCard({
 
   return (
     <>
-      <Tooltip title="Hold then release to select">
+      <TooltipParent>
         <Card
           onClick={(e) => {
             handleOnClick(e, path, file, initialPath, browserType)
@@ -226,7 +220,7 @@ function FileCard({
             </Modal>
           )}
         </Card>
-      </Tooltip>
+      </TooltipParent>
     </>
   )
 }
@@ -270,10 +264,17 @@ function FolderCard({
   }, [browserType, folder, initialPath, username])
 
   return (
-    <Tooltip title="Hold then release to select">
+    <TooltipParent>
       <Card
         onClick={(e) => {
-          handleOnClick(e, path, folder, initialPath, browserType, handleFolderClick)
+          handleOnClick(
+            e,
+            path,
+            folder,
+            initialPath,
+            browserType,
+            handleFolderClick,
+          )
         }}
         onMouseDown={handleOnMouseDown}
         isHoverable
@@ -307,7 +308,7 @@ function FolderCard({
           </Split>
         </CardHeader>
       </Card>
-    </Tooltip>
+    </TooltipParent>
   )
 }
 
