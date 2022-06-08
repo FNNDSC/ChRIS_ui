@@ -349,20 +349,12 @@ export const libraryReducer = (
             ...state.foldersState,
             [path]: [...state.foldersState[path], action.payload.folder],
           },
-          paginatedFolders: {
-            ...state.paginatedFolders,
-            [path]: [...state.foldersState[path], action.payload.folder],
-          },
         }
       } else {
         return {
           ...state,
           foldersState: {
             ...state.foldersState,
-            [path]: [action.payload.folder],
-          },
-          paginatedFolders: {
-            ...state.paginatedFolders,
             [path]: [action.payload.folder],
           },
         }

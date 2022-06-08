@@ -28,14 +28,18 @@ export default function useLongPress() {
     cb?: (path: string, prevPath: string) => void,
   ) {
     if (isLongPress.current) {
-      console.log('Is long press - not continuing.')
       const payload = {
         exactPath: path,
         path: initialPath,
         folder,
         type: browserType,
       }
-      if (!fileSelect.includes(payload))
+
+      const isFound = fileSelect.some((file) => {
+        if (file.exactPath === payload.exactPath) return true
+        return false
+      })
+      if (!isFound)
         dispatch({
           type: Types.SET_ADD_FILE_SELECT,
           payload,

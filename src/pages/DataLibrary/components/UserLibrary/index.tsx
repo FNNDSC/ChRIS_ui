@@ -1,7 +1,5 @@
 import React, { useContext } from 'react'
 import {
-  Split,
-  SplitItem,
   Button,
   Modal,
   ModalVariant,
@@ -18,6 +16,7 @@ import {
   Tab,
   TabTitleText,
 } from '@patternfly/react-core'
+import { Feed } from '@fnndsc/chrisapi'
 
 import { Alert } from 'antd'
 import BrowserContainer from './BrowserContainer'
@@ -32,20 +31,29 @@ import { MainRouterContext } from '../../../../routes'
 import {
   removeFileSelect,
   setFolders,
-  setPaginatedFolders,
   setSelectFolder,
 } from './context/actions'
+import { deleteFeed } from '../../../../store/feed/actions'
+import { useDispatch } from 'react-redux'
+import { fetchResource } from '../../../../utils'
+import { handlePaginatedFolders } from './utils'
 
 const DataLibrary = () => {
+  const dispatch = useDispatch()
   const username = useTypedSelector((state) => state.user.username)
-  const { state, dispatch } = useContext(LibraryContext)
+  const { state, dispatch: dispatchLibrary } = useContext(LibraryContext)
   const router = useContext(MainRouterContext)
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
   const [directoryName, setDirectoryName] = React.useState('')
   const { fileSelect, foldersState } = state
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0)
-  console.log('STATE', state)
+  const [error, setError] = React.useState<{ type: string; warning: string }[]>(
+    [],
+  )
+  const [feedFilesToDelete, setFeedFilestoDelete] = React.useState<
+    FileSelect[]
+  >([])
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal)
@@ -67,7 +75,7 @@ const DataLibrary = () => {
   }
 
   const clearFeed = () => {
-    dispatch({
+    dispatchLibrary({
       type: Types.SET_CLEAR_FILE_SELECT,
       payload: {
         clear: true,
@@ -84,48 +92,64 @@ const DataLibrary = () => {
 
   const handleDownload = async () => {
     fileSelect.map(async (file: FileSelect) => {
-      const client = ChrisAPIClient.getClient()
-      const paths = await client.getFileBrowserPath(file.exactPath)
-      const folderName = 'Library Download'
-
-      const fileList = await paths.getFiles({
-        limit: 1000,
+      const params = {
+        limit: 100,
         offset: 0,
-      })
-      const files = fileList.getItems()
-      //@ts-ignore
-      const existingDirectoryHandle = await window.showDirectoryPicker()
-      const newDirectoryHandle = await existingDirectoryHandle.getDirectoryHandle(
-        folderName,
-        {
-          create: true,
-        },
-      )
-      console.log('FILES', files)
+        fname: file.exactPath,
+        fname_incontains: file.exactPath,
+      }
+      const client = ChrisAPIClient.getClient()
+      if (file.type === 'feed') {
+        const feedFn = client.getFiles
+        const bindFn = feedFn.bind(client)
+        const files = await fetchResource(params, bindFn)
+        downloadUtil(files, file.type)
+      }
 
-      if (files) {
-        let writable
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i]
-          const blob = await file.getFileBlob()
-          const paths = file.data.fname.split('/')
-          const fileName = paths[paths.length - 1]
-          const newFileHandle = await newDirectoryHandle.getFileHandle(
-            fileName,
-            {
-              create: true,
-            },
-          )
-          writable = await newFileHandle.createWritable()
-          await writable.write(blob)
-          await writable.close()
-          // Close the file and write the contents to disk.
-        }
+      if (file.type === 'uploads') {
+        const uploadsFn = client.getUploadedFiles
+        const uploadBound = uploadsFn.bind(client)
+        const files = await fetchResource(params, uploadBound)
+        downloadUtil(files, file.type)
+      }
+      if (file.type === 'services') {
+        const pacsFn = client.getPACSFiles
+        const pacsBound = pacsFn.bind(client)
+        const files = await fetchResource(params, pacsBound)
+        downloadUtil(files, file.type)
       }
     })
   }
 
+  const downloadUtil = async (filesItems: any[], type: string) => {
+    let writable
+    const folderName = `Library Download_${type}`
+    //@ts-ignore
+    const existingDirectoryHandle = await window.showDirectoryPicker()
+    const newDirectoryHandle = await existingDirectoryHandle.getDirectoryHandle(
+      folderName,
+      {
+        create: true,
+      },
+    )
+    for (let i = 0; i < filesItems.length; i++) {
+      const file = filesItems[i]
+
+      const blob = await file.getFileBlob()
+      const paths = file.data.fname.split('/')
+      const fileName = paths[paths.length - 1]
+      const newFileHandle = await newDirectoryHandle.getFileHandle(fileName, {
+        create: true,
+      })
+      writable = await newFileHandle.createWritable()
+      await writable.write(blob)
+      await writable.close()
+      // Close the file and write the contents to disk.
+    }
+  }
+
   const handleDelete = () => {
+    const errorWarnings: any[] = []
     fileSelect.map(async (file: FileSelect) => {
       const client = ChrisAPIClient.getClient()
       if (file.type === 'uploads') {
@@ -139,24 +163,67 @@ const DataLibrary = () => {
           files.map(async (file: any) => {
             await file._delete()
           })
-        }
-        if (foldersState[file.path]) {
-          const newFolders = foldersState[file.path].filter(
-            (folder) => folder !== file.folder,
-          )
-          dispatch(setFolders(newFolders, file.path))
-          dispatch(setPaginatedFolders(newFolders, file.path))
-          dispatch(removeFileSelect(file))
-          dispatch(setSelectFolder(''))
+          if (foldersState[file.path]) {
+            deleteUtil(file)
+          }
         }
       }
+
+      if (file.type === 'feed') {
+        errorWarnings.push({
+          type: 'feed',
+          warning: 'Deleting a feed file deletes a feed',
+        })
+        setFeedFilestoDelete([...feedFilesToDelete, file])
+      }
+
+      if (file.type === 'services') {
+        errorWarnings.push({
+          type: 'services',
+          warning: 'Cannot delete a pacs file currently',
+        })
+      }
     })
+
+    setError(errorWarnings)
+  }
+
+  const deleteUtil = (file: FileSelect) => {
+    const newFolders = foldersState[file.path].filter(
+      (folder) => folder !== file.folder,
+    )
+    handlePaginatedFolders(newFolders, file.path, dispatchLibrary)
+    dispatchLibrary(setFolders(newFolders, file.path))
+    dispatchLibrary(removeFileSelect(file))
+    dispatchLibrary(setSelectFolder(''))
+  }
+
+  const handleDeleteFeed = async () => {
+    const result = Promise.all(
+      feedFilesToDelete.map(async (file) => {
+        const feedId = file.exactPath
+          .split('/')
+          .find((feedString) => feedString.includes('feed'))
+
+        if (feedId) {
+          const id = feedId.split('_')[1]
+
+          const client = ChrisAPIClient.getClient()
+          const feed = await client.getFeed(parseInt(id))
+
+          if (foldersState[file.path]) {
+            deleteUtil(file)
+          }
+          return feed
+        }
+      }),
+    )
+    result.then((data) => dispatch(deleteFeed(data as Feed[])))
   }
 
   const uploadedFiles = (
     <section>
       <LocalSearch type="uploads" username={username} />
-
       <BrowserContainer
         type="uploads"
         path={`${username}/uploads`}
@@ -192,7 +259,7 @@ const DataLibrary = () => {
                     return (
                       <Chip
                         onClick={() => {
-                          dispatch({
+                          dispatchLibrary({
                             type: Types.SET_REMOVE_FILE_SELECT,
                             payload: {
                               ...file,
@@ -229,6 +296,46 @@ const DataLibrary = () => {
               Delete
             </Button>
           </div>
+
+          {error.length > 0 &&
+            error.map((errorString, index) => {
+              const errorUtil = () => {
+                const newError = error.filter(
+                  (errorWarn) => errorWarn.type !== errorString.type,
+                )
+                setError(newError)
+              }
+              return (
+                <Alert
+                  key={index}
+                  message={
+                    <>
+                      <div>{errorString.warning}</div>
+                      {errorString.type === 'feed' && (
+                        <>
+                          {' '}
+                          <Button
+                            variant="link"
+                            onClick={() => {
+                              errorUtil()
+                              handleDeleteFeed()
+                            }}
+                          >
+                            Confirm
+                          </Button>
+                          <Button onClick={errorUtil} variant="link">
+                            Cancel
+                          </Button>
+                        </>
+                      )}
+                    </>
+                  }
+                  type="warning"
+                  closable
+                  onClose={errorUtil}
+                ></Alert>
+              )
+            })}
         </AlertGroup>
       )}
 
