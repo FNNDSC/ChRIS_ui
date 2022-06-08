@@ -41,7 +41,7 @@ import {
 import { usePaginate } from '../../../components/common/pagination'
 import { Feed } from '@fnndsc/chrisapi'
 import IconContainer from './IconContainer'
-import { FcHighPriority } from 'react-icons/fc'
+import { FcMediumPriority } from 'react-icons/fc'
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive
@@ -140,7 +140,6 @@ const FeedListView: React.FC<AllProps> = ({
     const d1 = new Date(creation_date)
     const d2 = new Date()
     const smallD2 = new Date(d2.setMinutes(d2.getMinutes() - 2))
-    const largeD2 = new Date(d2.setMinutes(d2.getMinutes() + 2))
     
     const name = {
       title: (
@@ -155,7 +154,7 @@ const FeedListView: React.FC<AllProps> = ({
     }
     
     const feedId = {
-      title: <p style={fontFamily}>{(d1 >= smallD2 && d1 <=largeD2 ? <FcHighPriority id="hideMe" />: '') }{feed.data.id }</p>,
+      title: <p style={fontFamily}>{(d1 >= smallD2 ? <FcMediumPriority id="hideMe" />: '') }{feed.data.id }</p>,
     }
 
     const created = {
