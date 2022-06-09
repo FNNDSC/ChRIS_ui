@@ -11,12 +11,17 @@ import {
   Progress,
   ProgressMeasureLocation,
   ProgressVariant,
-  Alert,
+
   AlertGroup,
-  AlertActionLink,
+
   ChipGroup,
   Chip,
+  Tabs,
+  Tab,
+  TabTitleText,
 } from '@patternfly/react-core'
+
+import { Alert } from 'antd'
 import BrowserContainer from './BrowserContainer'
 import LocalSearch from './LocalSearch'
 import { FaUpload } from 'react-icons/fa'
@@ -34,9 +39,9 @@ const DataLibrary = () => {
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
   const [directoryName, setDirectoryName] = React.useState('')
-  const { isRoot, multipleFileSelect, fileSelect } = state
+  const { fileSelect } = state
+  const [activeTabKey, setActiveTabKey] = React.useState<number>(0);
 
-  const rootCheck = Object.keys(isRoot).length > 0
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal)
@@ -65,16 +70,12 @@ const DataLibrary = () => {
     })
   }
 
+  const handleTabClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, eventKey: number | string) => {
+    setActiveTabKey(eventKey as number);
+  }
+
   const uploadedFiles = (
     <section>
-      <Split>
-        <SplitItem>
-          <h3>Uploads</h3>
-        </SplitItem>
-        <SplitItem style={{ margin: 'auto 1em' }} isFilled>
-          <hr />
-        </SplitItem>
-      </Split>
       <LocalSearch type='uploads' username={username} />
       <BrowserContainer
         type="uploads"
@@ -86,14 +87,6 @@ const DataLibrary = () => {
 
   const feedFiles = (
     <section>
-      <Split>
-        <SplitItem>
-          <h3>Completed Analyses</h3>
-        </SplitItem>
-        <SplitItem style={{ margin: 'auto 1em' }} isFilled>
-          <hr />
-        </SplitItem>
-      </Split>
       <LocalSearch type='feed' username={username} />
       <BrowserContainer type="feed" path={`${username}`} username={username} />
     </section>
@@ -101,15 +94,6 @@ const DataLibrary = () => {
 
   const servicesFiles = (
     <section>
-      <Split>
-        <SplitItem>
-          <h3>External Services</h3>
-        </SplitItem>
-        <SplitItem style={{ margin: 'auto 1em' }} isFilled>
-          <hr />
-        </SplitItem>
-
-      </Split>
       <LocalSearch type='services' username={username} />
       <BrowserContainer type="services" path={`SERVICES`} username={username} />
     </section>
@@ -117,24 +101,15 @@ const DataLibrary = () => {
 
   return (
     <>
-      {multipleFileSelect && (
+      {fileSelect.length > 0 && (
         <AlertGroup isToast>
           <Alert
-            title="Multiple File Select"
-            variant="info"
-            style={{ width: '100%', marginTop: '3em' }}
-            actionLinks={
-              <>
-                <AlertActionLink onClick={createFeed}>
-                  Create Feed
-                </AlertActionLink>
-                <AlertActionLink onClick={clearFeed}>Clear</AlertActionLink>
-              </>
-            }
-          >
-            <ChipGroup>
-              {fileSelect.length > 0 &&
-                fileSelect.map((file: string, index) => {
+            type='info'
+            description={
+              <ChipGroup
+
+              >
+                {fileSelect.map((file: string, index) => {
                   return (
                     <Chip
                       onClick={() => {
@@ -151,8 +126,17 @@ const DataLibrary = () => {
                     </Chip>
                   )
                 })}
-            </ChipGroup>
+              </ChipGroup>
+            }
+            style={{ width: '100%', marginTop: '3em', padding: '2em' }}
+          >
+
           </Alert>
+          <div style={{ display: 'flex' }}>
+            <Button onClick={createFeed} variant='link'>Create Feed</Button>
+            <Button onClick={clearFeed} variant='link'>Clear Feed</Button>
+          </div>
+
         </AlertGroup>
       )}
 
@@ -171,35 +155,25 @@ const DataLibrary = () => {
             <Button icon={<FaUpload />} onClick={handleFileModal}>
               Upload Files
             </Button>
-            <Button
-              onClick={() => {
-                dispatch({
-                  type: Types.SET_MULTIPLE_FILE_SELECT,
-                  payload: {
-                    active: !multipleFileSelect,
-                  },
-                })
-              }}
-              style={{ marginLeft: '1em' }}
-            >
-              {`Multiple Element Select:${multipleFileSelect === true ? ' On' : ' Off'
-                }`}
-            </Button>
+            
           </SplitItem>
         </Split>
       </section>
 
-      {!rootCheck
-        ? uploadedFiles
-        : isRoot['uploads']
-          ? uploadedFiles
-          : undefined}
-      {!rootCheck ? feedFiles : isRoot['feed'] ? feedFiles : undefined}
-      {!rootCheck
-        ? servicesFiles
-        : isRoot['services']
-          ? servicesFiles
-          : undefined}
+      <Tabs
+        activeKey={activeTabKey}
+        onSelect={handleTabClick}
+        aria-label='Tabs in the default example'>
+        <Tab eventKey={0} title={<TabTitleText>Uploads</TabTitleText>}>
+          {uploadedFiles}
+        </Tab>
+        <Tab eventKey={1} title={<TabTitleText>Feeds</TabTitleText>}>
+          {feedFiles}
+        </Tab>
+        <Tab eventKey={2} title={<TabTitleText>Services</TabTitleText>}>
+          {servicesFiles}
+        </Tab>
+      </Tabs>
     </>
   )
 }
