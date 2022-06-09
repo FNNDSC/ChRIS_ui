@@ -14,7 +14,8 @@ import {
   EmptyStateBody,
   Hint,
   HintBody,
-  Checkbox
+  Checkbox,
+  Tooltip
 } from '@patternfly/react-core'
 import { Table, TableBody, Thead, Tr, Th } from '@patternfly/react-table'
 import { ChartDonutUtilization } from '@patternfly/react-charts'
@@ -40,7 +41,7 @@ import {
 import { usePaginate } from '../../../components/common/pagination'
 import { Feed } from '@fnndsc/chrisapi'
 import IconContainer from './IconContainer'
-
+import { FcMediumPriority } from 'react-icons/fc'
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive
@@ -136,14 +137,24 @@ const FeedListView: React.FC<AllProps> = ({
       feedResources[feed.data.id] &&
       feedResources[feed.data.id].details.feedProgressText
       
-
+    const d1 = new Date(creation_date)
+    const d2 = new Date()
+    const smallD2 = new Date(d2.setMinutes(d2.getMinutes() - 2))
+    
     const name = {
       title: (
         <span className="feed-list__name">
-          <Link to={`/feeds/${id}`}>{feedName}</Link>
          
+        <Tooltip content={<div>View feed details</div>}>
+         
+          <Link to={`/feeds/${id}`}>{feedName}</Link>
+        </Tooltip>
         </span>
       ),
+    }
+    
+    const feedId = {
+      title: <p style={fontFamily}>{(d1 >= smallD2 ? <FcMediumPriority id="hideMe" />: '') }{feed.data.id }</p>,
     }
 
     const created = {
@@ -156,12 +167,16 @@ const FeedListView: React.FC<AllProps> = ({
 
     const feedSize = {
       title: (
+      
         <p style={{
           ...fontFamily,
           textAlign: 'center',
           margin: '0 auto'
         }}>
-         <Link to={`/library/`}>{size ? `${size.padStart(10, '')}` : '---'}</Link></p>
+        <Tooltip content={<div>View files in library</div>}>
+         <Link to={`/library/`}>{size ? `${size.padStart(10, '')}` : '---'}</Link>
+        </Tooltip></p> 
+
       ),
     }
 
@@ -238,12 +253,13 @@ const FeedListView: React.FC<AllProps> = ({
     }
 
     return {
-      cells: [bulkChecbox, name, created, runTime, feedSize, circularProgress],
+      cells: [bulkChecbox, feedId, name, created, runTime, feedSize, circularProgress],
     }
   }
 
   const cells = [
     '',
+    'Id',
     'Analysis',
     'Created',
     'Run Time',
@@ -358,6 +374,7 @@ const FeedListView: React.FC<AllProps> = ({
                       }}
                     />
                   </Th>
+                  <Th>Id</Th>
                   <Th>Analysis</Th>
                   <Th>Created</Th>
                   <Th>Run Time</Th>
