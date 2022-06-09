@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react'
 import { Typography } from 'antd'
-import { PageSection } from '@patternfly/react-core'
+import { PageSection, PageSectionVariants } from '@patternfly/react-core'
 import { useDispatch } from 'react-redux'
 import { setSidebarActive } from '../../store/ui/actions'
 import Wrapper from '../Layout/PageWrapper'
 import DataLibrary from './components/UserLibrary/'
-import Search from './components/UserLibrary/Search'
 import InfoIcon from '../../components/common/info/InfoIcon'
 import { LibraryProvider } from './components/UserLibrary/context'
 
@@ -31,7 +30,7 @@ export const Library: React.FC = () => {
 
   return (
     <Wrapper>
-      <PageSection>
+      <PageSection isFilled={false} variant={PageSectionVariants.light}>
         <div>
           <InfoIcon
             title="Library"
@@ -65,8 +64,7 @@ export const Library: React.FC = () => {
       </PageSection>
 
       <LibraryProvider>
-        <PageSection>
-          <Search />
+        <PageSection isFilled>
           <DataLibrary />
         </PageSection>
       </LibraryProvider>
