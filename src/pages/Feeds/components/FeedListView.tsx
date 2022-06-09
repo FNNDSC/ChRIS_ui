@@ -169,7 +169,6 @@ const FeedListView: React.FC<AllProps> = ({
       title: (
       
         <p style={{
-          ...fontFamily,
           textAlign: 'center',
           margin: '0 auto'
         }}>
