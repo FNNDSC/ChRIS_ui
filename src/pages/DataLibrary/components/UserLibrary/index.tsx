@@ -51,6 +51,7 @@ const DataLibrary = () => {
   const [error, setError] = React.useState<{ type: string; warning: string }[]>(
     [],
   )
+  const [fetchingFiles, setFetchingFiles] = React.useState(false)
   const [feedFilesToDelete, setFeedFilestoDelete] = React.useState<
     FileSelect[]
   >([])
@@ -100,51 +101,61 @@ const DataLibrary = () => {
       }
       const client = ChrisAPIClient.getClient()
       if (file.type === 'feed') {
+        setFetchingFiles(!fetchingFiles)
         const feedFn = client.getFiles
         const bindFn = feedFn.bind(client)
         const files = await fetchResource(params, bindFn)
+        setFetchingFiles(!fetchingFiles)
         downloadUtil(files, file.type)
       }
 
       if (file.type === 'uploads') {
+        setFetchingFiles(!fetchingFiles)
         const uploadsFn = client.getUploadedFiles
         const uploadBound = uploadsFn.bind(client)
         const files = await fetchResource(params, uploadBound)
+        setFetchingFiles(!fetchingFiles)
         downloadUtil(files, file.type)
       }
       if (file.type === 'services') {
+        setFetchingFiles(!fetchingFiles)
         const pacsFn = client.getPACSFiles
         const pacsBound = pacsFn.bind(client)
         const files = await fetchResource(params, pacsBound)
+        setFetchingFiles(!fetchingFiles)
         downloadUtil(files, file.type)
       }
     })
   }
 
   const downloadUtil = async (filesItems: any[], type: string) => {
-    let writable
-    const folderName = `Library Download_${type}`
-    //@ts-ignore
-    const existingDirectoryHandle = await window.showDirectoryPicker()
-    const newDirectoryHandle = await existingDirectoryHandle.getDirectoryHandle(
-      folderName,
-      {
-        create: true,
-      },
-    )
-    for (let i = 0; i < filesItems.length; i++) {
-      const file = filesItems[i]
+    try {
+      let writable
+      const folderName = `Library Download_${type}`
+      //@ts-ignore
+      const existingDirectoryHandle = await window.showDirectoryPicker()
+      const newDirectoryHandle = await existingDirectoryHandle.getDirectoryHandle(
+        folderName,
+        {
+          create: true,
+        },
+      )
+      for (let i = 0; i < filesItems.length; i++) {
+        const file = filesItems[i]
 
-      const blob = await file.getFileBlob()
-      const paths = file.data.fname.split('/')
-      const fileName = paths[paths.length - 1]
-      const newFileHandle = await newDirectoryHandle.getFileHandle(fileName, {
-        create: true,
-      })
-      writable = await newFileHandle.createWritable()
-      await writable.write(blob)
-      await writable.close()
-      // Close the file and write the contents to disk.
+        const blob = await file.getFileBlob()
+        const paths = file.data.fname.split('/')
+        const fileName = paths[paths.length - 1]
+        const newFileHandle = await newDirectoryHandle.getFileHandle(fileName, {
+          create: true,
+        })
+        writable = await newFileHandle.createWritable()
+        await writable.write(blob)
+        await writable.close()
+        // Close the file and write the contents to disk.
+      }
+    } catch (error) {
+      setFetchingFiles(false)
     }
   }
 
@@ -246,6 +257,8 @@ const DataLibrary = () => {
     </section>
   )
 
+  console.log('FETCHING FILES', fetchingFiles)
+
   return (
     <>
       {fileSelect.length > 0 && (
@@ -289,13 +302,22 @@ const DataLibrary = () => {
             <Button onClick={clearFeed} variant="link">
               Clear
             </Button>
-            <Button onClick={handleDownload} variant="link">
+            <Button
+              onClick={() => {
+                handleDownload()
+              }}
+              variant="link"
+            >
               Download
             </Button>
             <Button onClick={handleDelete} variant="link">
               Delete
             </Button>
           </div>
+
+          {fetchingFiles && (
+            <Alert type="info" closable message="Fetching Files to Download" />
+          )}
 
           {error.length > 0 &&
             error.map((errorString, index) => {
