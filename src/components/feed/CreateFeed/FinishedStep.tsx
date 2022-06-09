@@ -1,37 +1,37 @@
-
-import React, { useContext } from "react";
+import React, { useContext } from 'react'
 import {
   Progress,
   ProgressVariant,
   Button,
   Stack,
   StackItem,
-} from "@patternfly/react-core";
-import { CreateFeedContext } from "./context";
-import { Types} from "./types";
-import { FaCogs } from "react-icons/fa";
-import { useAsync } from "../../../utils";
+} from '@patternfly/react-core'
+import { CreateFeedContext } from './context'
+import { Types } from './types'
+import { FaCogs } from 'react-icons/fa'
+import { useAsync } from '../../../utils'
 
 interface FinishedStepProp {
-  createFeed: () => void;
+  createFeed: () => void
 }
 
 const FinishedStep: React.FC<FinishedStepProp> = ({
   createFeed,
 }: FinishedStepProp) => {
-  const { state, dispatch } = useContext(CreateFeedContext);
-  const { feedProgress, value } = state;
-  const { run, isLoading, isError, isSuccess } = useAsync(state);
+  const { state, dispatch } = useContext(CreateFeedContext)
+  const { feedProgress, value } = state
+  const { run, isLoading, isError, isSuccess } = useAsync(state)
+  
 
   React.useEffect(() => {
-    run(createFeed());
+    run(createFeed())
     return () => {
       dispatch({
         type: Types.ResetProgress,
-      });
-    };
+      })
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [run]);
+  }, [run])
 
   return (
     <Stack>
@@ -40,11 +40,11 @@ const FinishedStep: React.FC<FinishedStepProp> = ({
           <FaCogs className="finished-step__icon" />
           <p className="finished-step__header pf-c-title pf-m-lg">
             {isLoading
-              ? "Your feed is being created. Give it a moment"
+              ? 'Your feed is being created. Give it a moment'
               : isError
-              ? "Oops ! There seems to be an error, Please try again"
+              ? 'Oops ! There seems to be an error, Please try again'
               : isSuccess
-              ? "You can now safely close the wizard"
+              ? 'You can now safely close the wizard'
               : null}
           </p>
         </div>
@@ -70,25 +70,24 @@ const FinishedStep: React.FC<FinishedStepProp> = ({
             onClick={() => {
               dispatch({
                 type: Types.ResetState,
-              });
+              })
               dispatch({
                 type: Types.ToggleWizzard,
-              });
+              })
             }}
           >
             {isLoading
-              ? "Creating Feed"
+              ? 'Creating Feed'
               : isError
-              ? "Please try again"
+              ? 'Please try again'
               : isSuccess
-              ? "Close"
-              : "Cancel"}
+              ? 'Close'
+              : 'Cancel'}
           </Button>
         </div>
       </StackItem>
     </Stack>
-  );
-};
+  )
+}
 
-export default FinishedStep;
-
+export default FinishedStep

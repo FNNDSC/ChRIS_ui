@@ -40,7 +40,7 @@ import {
 import { usePaginate } from '../../../components/common/pagination'
 import { Feed } from '@fnndsc/chrisapi'
 import IconContainer from './IconContainer'
-import { FcHighPriority } from 'react-icons/fc'
+
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive
