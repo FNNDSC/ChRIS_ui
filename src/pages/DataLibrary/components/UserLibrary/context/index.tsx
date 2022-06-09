@@ -253,7 +253,7 @@ export const libraryReducer = (
 
     case Types.SET_REMOVE_FILE_SELECT: {
       const newFileSelect = state.fileSelect.filter(
-        (file) => file.path !== action.payload.path,
+        (file) => file.exactPath !== action.payload.exactPath,
       )
       return {
         ...state,
