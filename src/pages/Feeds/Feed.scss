@@ -154,14 +154,14 @@
     }
   }
 }
-#hideMe {
-    -moz-animation: cssAnimation 0s ease-in 5s forwards;
+.hideMe {
+    -moz-animation: cssAnimation 0s ease-in 30s forwards;
     /* Firefox */
-    -webkit-animation: cssAnimation 0s ease-in 5s forwards;
+    -webkit-animation: cssAnimation 0s ease-in 30s forwards;
     /* Safari and Chrome */
-    -o-animation: cssAnimation 0s ease-in 5s forwards;
+    -o-animation: cssAnimation 0s ease-in 30s forwards;
     /* Opera */
-    animation: cssAnimation 0s ease-in 5s forwards;
+    animation: cssAnimation 0s ease-in 30s forwards;
     -webkit-animation-fill-mode: forwards;
     animation-fill-mode: forwards;
 }

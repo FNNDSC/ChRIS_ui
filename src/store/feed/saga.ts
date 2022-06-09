@@ -30,6 +30,7 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
   const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
   do{
     try {
+
       const feedsList: FeedList = yield client.getFeeds(params)
       const totalCount = feedsList.totalCount
       const feeds: Feed[] = feedsList.getItems() || []
@@ -42,6 +43,7 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
     } catch (error) {
       yield put(getAllFeedsError(error))
     }
+
     yield delay(7000)
   }  while(flag)
 }
