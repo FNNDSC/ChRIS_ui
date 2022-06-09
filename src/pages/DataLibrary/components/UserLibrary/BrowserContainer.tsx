@@ -6,15 +6,14 @@ import { LibraryContext, Types } from './context'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import {
   setInitialPath,
-  setLoading,
   setFolders,
   setFiles,
   setPagination,
   setPaginatedFolders,
-
   clearFolderState,
   clearFilesState,
 } from './context/actions'
+import { handlePaginatedFolders } from './utils'
 
 const BrowserContainer = ({
   type,
@@ -35,7 +34,6 @@ const BrowserContainer = ({
     loading,
     paginated,
     paginatedFolders,
-  
   } = state
 
   const computedPath = initialPath[type]
@@ -52,8 +50,8 @@ const BrowserContainer = ({
       const uploads = await client.getFileBrowserPaths({
         path,
       })
-      dispatch(setInitialPath(rootPath, type))
-      dispatch(setLoading(true))
+      dispatch(setInitialPath(path, type))
+
       const limit = 30
 
       if (
@@ -67,20 +65,19 @@ const BrowserContainer = ({
         if (type === 'feed') {
           folders = folderSplit.filter((feed: string) => feed !== 'uploads')
           folders.sort((a: string, b: string) => {
-            const aId = parseInt(a.split('_')[1]);
-            const bId = parseInt(b.split("_")[1]);
-            return bId - aId;
+            const aId = parseInt(a.split('_')[1])
+            const bId = parseInt(b.split('_')[1])
+            return bId - aId
           })
         } else {
           folders = folderSplit
         }
 
-        dispatch(setFolders(folders, rootPath))
+        dispatch(setFolders(folders, path))
         if (folders.length > limit) {
-          const folderPaginate = folders.slice(0, limit)
-          dispatch(setPaginatedFolders(folderPaginate, rootPath))
+          handlePaginatedFolders(folders, path, dispatch)
           dispatch(
-            setPagination(rootPath, {
+            setPagination(path, {
               hasNext: folders.length > 30,
               limit,
               offset: 0,
@@ -88,12 +85,9 @@ const BrowserContainer = ({
             }),
           )
         }
-
-        dispatch(setLoading(false))
       }
     },
-
-    [dispatch, rootPath, type],
+    [dispatch, type],
   )
 
   React.useEffect(() => {
@@ -102,55 +96,20 @@ const BrowserContainer = ({
     }
 
     fetchUploads()
-  }, [rootPath, resourcesFetch])
+  }, [rootPath, dispatch, resourcesFetch])
 
   const handleFolderClick = async (path: string, prevPath: string) => {
     dispatch(clearFolderState(prevPath, type))
     dispatch(clearFilesState(prevPath, type))
 
     const client = ChrisAPIClient.getClient()
-    const uploads = await client.getFileBrowserPaths({
-      path,
-    })
+
     const pagination = {
       limit: 30,
       offset: 0,
       totalCount: 0,
     }
-
-    const checkFolders =
-      uploads.data &&
-      uploads.data[0].subfolders &&
-      uploads.data[0].subfolders.length > 0
-
-    if (checkFolders) {
-      let folders
-      const folderSplit = uploads.data[0].subfolders.split(',')
-
-      if (type === 'feed') {
-        folders = folderSplit.filter((feed: string) => feed !== 'uploads')
-      } else {
-        folders = folderSplit
-      }
-      const limit = 30
-      if (folders.length > limit) {
-        const folderPaginate = folders.slice(0, limit)
-        dispatch(setPaginatedFolders(folderPaginate, rootPath))
-        dispatch(
-          setPagination(rootPath, {
-            hasNext: folders.length > 30,
-            limit,
-            offset: 0,
-            totalCount: folders.length,
-          }),
-        )
-      }
-
-      dispatch(setFolders(folders, path))
-      dispatch(setInitialPath(path, type))
-
-
-    }
+    resourcesFetch(path)
     const pathList = await client.getFileBrowserPath(path)
     const fileList = await pathList.getFiles({
       limit: pagination.limit,
@@ -174,7 +133,6 @@ const BrowserContainer = ({
       }
 
       dispatch(setInitialPath(path, type))
-
 
       const currentFolderSplit = path.split('/')
       const currentFolder = currentFolderSplit[currentFolderSplit.length - 1]
@@ -245,42 +203,6 @@ const BrowserContainer = ({
     })
   }
 
-  const handleDownload = async (path: string, folderName: string) => {
-    const client = ChrisAPIClient.getClient()
-    const paths = await client.getFileBrowserPath(path)
-
-    const fileList = await paths.getFiles({
-      limit: 1000,
-      offset: 0,
-    })
-    const files = fileList.getItems()
-    //@ts-ignore
-    const existingDirectoryHandle = await window.showDirectoryPicker()
-    const newDirectoryHandle = await existingDirectoryHandle.getDirectoryHandle(
-      folderName,
-      {
-        create: true,
-      },
-    )
-
-    if (files) {
-      let writable
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        const blob = await file.getFileBlob()
-        const paths = file.data.fname.split('/')
-        const fileName = paths[paths.length - 1]
-        const newFileHandle = await newDirectoryHandle.getFileHandle(fileName, {
-          create: true,
-        })
-        writable = await newFileHandle.createWritable()
-        await writable.write(blob)
-        await writable.close()
-        // Close the file and write the contents to disk.
-      }
-    }
-  }
-
   return (
     <React.Fragment>
       {
@@ -307,9 +229,7 @@ const BrowserContainer = ({
           handlePagination={handlePagination}
           previewAll={previewAll}
           browserType={type}
-          handleDownload={handleDownload}
           username={username}
-          
         />
       )}
     </React.Fragment>
