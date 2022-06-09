@@ -257,8 +257,6 @@ const DataLibrary = () => {
     </section>
   )
 
-  console.log('FETCHING FILES', fetchingFiles)
-
   return (
     <>
       {fileSelect.length > 0 && (
