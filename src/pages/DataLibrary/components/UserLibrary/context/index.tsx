@@ -7,6 +7,13 @@ export interface Paginated {
   totalCount: number
 }
 
+export interface FileSelect {
+  exactPath: string
+  path: string
+  folder: string
+  type: string
+}
+
 interface LibraryState {
   initialPath: {
     [key: string]: string
@@ -30,8 +37,8 @@ interface LibraryState {
   paginatedFolders: {
     [key: string]: string[]
   }
-  multipleFileSelect: boolean
-  fileSelect: string[]
+
+  fileSelect: FileSelect[]
   selectedFolder: string[]
 }
 
@@ -49,7 +56,6 @@ function getInitialState(): LibraryState {
     previewAll: false,
     loading: false,
     paginatedFolders: {},
-    multipleFileSelect: false,
     fileSelect: [],
   }
 }
@@ -125,14 +131,15 @@ type LibraryPayload = {
     username: string | null | undefined
   }
 
-  [Types.SET_MULTIPLE_FILE_SELECT]: {
-    active: boolean
-  }
-
   [Types.SET_ADD_FILE_SELECT]: {
+    exactPath: string
+    type: string
+    folder: string
     path: string
   }
   [Types.SET_REMOVE_FILE_SELECT]: {
+    exactPath: string
+    type: string
     path: string
   }
 
@@ -237,24 +244,16 @@ export const libraryReducer = (
       }
     }
 
-    case Types.SET_MULTIPLE_FILE_SELECT: {
-      return {
-        ...state,
-        multipleFileSelect: action.payload.active,
-      }
-    }
-
     case Types.SET_ADD_FILE_SELECT: {
-    
       return {
         ...state,
-        fileSelect: [...state.fileSelect, action.payload.path],
+        fileSelect: [...state.fileSelect, action.payload],
       }
     }
 
     case Types.SET_REMOVE_FILE_SELECT: {
       const newFileSelect = state.fileSelect.filter(
-        (file) => file !== action.payload.path,
+        (file) => file.path !== action.payload.path,
       )
       return {
         ...state,
@@ -350,20 +349,12 @@ export const libraryReducer = (
             ...state.foldersState,
             [path]: [...state.foldersState[path], action.payload.folder],
           },
-          paginatedFolders: {
-            ...state.paginatedFolders,
-            [path]: [...state.foldersState[path], action.payload.folder],
-          },
         }
       } else {
         return {
           ...state,
           foldersState: {
             ...state.foldersState,
-            [path]: [action.payload.folder],
-          },
-          paginatedFolders: {
-            ...state.paginatedFolders,
             [path]: [action.payload.folder],
           },
         }
