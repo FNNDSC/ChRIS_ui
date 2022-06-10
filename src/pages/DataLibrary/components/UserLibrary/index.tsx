@@ -183,7 +183,7 @@ const DataLibrary = () => {
       if (file.type === 'feed') {
         errorWarnings.push({
           type: 'feed',
-          warning: 'Deleting a feed file deletes a feed',
+          warning: 'Deleting a feed selection deletes a feed',
         })
         setFeedFilestoDelete([...feedFilesToDelete, file])
       }
@@ -191,7 +191,7 @@ const DataLibrary = () => {
       if (file.type === 'services') {
         errorWarnings.push({
           type: 'services',
-          warning: 'Cannot delete a pacs file currently',
+          warning: 'Cannot delete a pacs selection currently',
         })
       }
     })
@@ -297,9 +297,7 @@ const DataLibrary = () => {
             <Button onClick={createFeed} variant="link">
               Create Feed
             </Button>
-            <Button onClick={clearFeed} variant="link">
-              Clear
-            </Button>
+
             <Button
               onClick={() => {
                 handleDownload()
@@ -310,6 +308,9 @@ const DataLibrary = () => {
             </Button>
             <Button onClick={handleDelete} variant="link">
               Delete
+            </Button>
+            <Button onClick={clearFeed} variant="link">
+              Clear
             </Button>
           </div>
 
