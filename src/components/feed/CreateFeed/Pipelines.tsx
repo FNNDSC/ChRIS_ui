@@ -32,8 +32,6 @@ const Pipelines = () => {
     itemCount: 0,
   })
 
-  console.log('PIPELINE STATE', state)
-
   const [expanded, setExpanded] = React.useState<number[]>([])
   const { page, perPage } = pageState
 
@@ -124,9 +122,9 @@ const Pipelines = () => {
   }
 
   return (
-    <div>
-      <h1 className="pf-c-title pf-m-2xl"> Registered Pipelines</h1>
-      <div>
+    <div className="pacs-alert-wrap">
+      <div className="pacs-alert-step-wrap">
+        <h1 className="pf-c-title pf-m-2xl"> Registered Pipelines</h1>
         <UploadJson handleDispatch={handleDispatch} />
         <Pagination
           itemCount={pageState.itemCount}
