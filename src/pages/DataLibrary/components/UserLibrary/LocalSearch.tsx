@@ -30,7 +30,7 @@ const LocalSearch = ({
     type === 'uploads'
       ? 'Search uploaded data here'
       : type === 'feed'
-      ? 'Search feed data here'
+      ? 'Search analyses data here'
       : 'Search services/pacs data here'
 
   const handleSubmit = async () => {
