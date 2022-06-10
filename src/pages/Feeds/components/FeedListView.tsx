@@ -233,15 +233,22 @@ const FeedListView: React.FC<AllProps> = ({
       ),
     }
     
-
+    const isSelected= (bulkSelect:any,feed:Feed) =>{
+      for(const selectedFeed of bulkSelect){
+        if(selectedFeed.data.id == feed.data.id){
+          return true;
+        }
+      }
+      return false;
+    }
     const bulkChecbox = {
       title: (
         <Checkbox
-          isChecked={bulkSelect.includes(feed)}
+          isChecked={isSelected(bulkSelect,feed)}//{bulkSelect.includes(feed)}
           id="check"
           aria-label="toggle icon bar"
           onChange={() => {
-            if (!bulkSelect.includes(feed)) {
+            if (!isSelected(bulkSelect,feed)) {
               setBulkSelect(feed)
             } else {
               removeBulkSelect(feed)
