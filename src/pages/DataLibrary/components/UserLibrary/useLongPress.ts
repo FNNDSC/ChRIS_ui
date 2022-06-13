@@ -1,22 +1,21 @@
-import { useState, useRef, useContext } from 'react'
+import { useState, useRef, useContext } from "react";
 
-import { LibraryContext, Types } from './context'
-import { setSelectFolder } from './context/actions'
+import { LibraryContext, Types } from "./context";
+import { addFileSelect, setSelectFolder } from "./context/actions";
 
 export default function useLongPress() {
-  const [action, setAction] = useState<string>()
-  const { dispatch, state } = useContext(LibraryContext)
-  const timerRef = useRef<ReturnType<typeof window.setTimeout>>()
-  const isLongPress = useRef<boolean>()
-  const { fileSelect } = state
+  const [action, setAction] = useState<string>();
+  const { dispatch, state } = useContext(LibraryContext);
+  const timerRef = useRef<ReturnType<typeof window.setTimeout>>();
+  const isLongPress = useRef<boolean>();
 
   function startPressTimer() {
-    isLongPress.current = false
+    isLongPress.current = false;
     //@ts-ignore
     timerRef.current = window.setTimeout(() => {
-      isLongPress.current = true
-      setAction('longpress')
-    }, 500)
+      isLongPress.current = true;
+      setAction("longpress");
+    }, 500);
   }
 
   function handleOnClick(
@@ -25,55 +24,61 @@ export default function useLongPress() {
     folder: string,
     initialPath: string,
     browserType: string,
-    cb?: (path: string, prevPath: string) => void,
+    addFile: boolean,
+    cb?: (path: string, prevPath: string) => void
   ) {
-    if (isLongPress.current) {
-      const payload = {
-        exactPath: path,
-        path: initialPath,
-        folder,
-        type: browserType,
+    setAction("click");
+    const payload = {
+      exactPath: path,
+      path: initialPath,
+      folder,
+      type: browserType,
+      event: "",
+    };
+    if (e.detail === 2) {
+      console.log("CLICKED");
+      cb && cb(`${initialPath}/${folder}`, initialPath);
+    }
+    if (!addFile) {
+      if (isLongPress.current) {
+        if (state.fileSelect.length === 0) {
+          dispatch(addFileSelect(payload));
+          return;
+        } else dispatch(addFileSelect(payload));
       }
 
-      const isFound = fileSelect.some((file) => {
-        if (file.exactPath === payload.exactPath) return true
-        return false
-      })
-      if (!isFound)
-        dispatch({
-          type: Types.SET_ADD_FILE_SELECT,
-          payload,
-        })
-    }
+      if (e.ctrlKey || e.shiftKey) {
+        payload["event"] = "ctrl/shift";
+        dispatch(setSelectFolder(payload));
+        return;
+      }
 
-    if (e.detail === 1) {
-      dispatch(setSelectFolder(folder))
+      if (!(e.ctrlKey || e.shiftKey) || e.detail === 1) {
+        payload["event"] = "click";
+        dispatch(setSelectFolder(payload));
+        return;
+      }
     }
-
-    if (e.detail === 2) {
-      cb && cb(`${initialPath}/${folder}`, initialPath)
-    }
-    setAction('click')
   }
 
   function handleOnMouseDown() {
-    startPressTimer()
+    startPressTimer();
   }
 
   function handleOnMouseUp() {
     //@ts-ignore
-    clearTimeout(timerRef.current)
+    clearTimeout(timerRef.current);
   }
 
   function handleOnTouchStart() {
-    startPressTimer()
+    startPressTimer();
   }
 
   function handleOnTouchEnd() {
-    if (action === 'longpress') return
+    if (action === "longpress") return;
 
     //@ts-ignore
-    clearTimeout(timerRef.current)
+    clearTimeout(timerRef.current);
   }
 
   return {
@@ -85,5 +90,5 @@ export default function useLongPress() {
       onTouchStart: handleOnTouchStart,
       onTouchEnd: handleOnTouchEnd,
     },
-  }
+  };
 }
