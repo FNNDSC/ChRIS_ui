@@ -12,6 +12,7 @@ export interface FileSelect {
   path: string
   folder: string
   type: string
+  event?: string
 }
 
 interface LibraryState {
@@ -39,12 +40,12 @@ interface LibraryState {
   }
 
   fileSelect: FileSelect[]
-  selectedFolder: string[]
+  selectedFolder: FileSelect[],
+  bulkAdd: boolean
 }
 
 function getInitialState(): LibraryState {
   return {
-    selectedFolder: [],
     initialPath: {},
     filesState: {},
     foldersState: {},
@@ -57,18 +58,20 @@ function getInitialState(): LibraryState {
     loading: false,
     paginatedFolders: {},
     fileSelect: [],
+    selectedFolder: [],
+    bulkAdd: false
   }
 }
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
-    ? {
-        type: Key
-      }
-    : {
-        type: Key
-        payload: M[Key]
-      }
+  ? {
+    type: Key
+  }
+  : {
+    type: Key
+    payload: M[Key]
+  }
 }
 
 export enum Types {
@@ -88,6 +91,8 @@ export enum Types {
   SET_CLEAR_FILE_SELECT = 'SET_CLEAR_FILE_SELECT',
   CLEAR_FOLDER_STATE = 'CLEAR_FOLDER_STATE',
   CLEAR_FILES_STATE = 'CLEAR_FILES_STATE',
+  SET_BULK_ADD = 'SET_BULK_ADD',
+  SET_BULK_FILE_SELECT = 'SET_BULK_FILE_SELECT'
 }
 
 type LibraryPayload = {
@@ -132,19 +137,21 @@ type LibraryPayload = {
   }
 
   [Types.SET_ADD_FILE_SELECT]: {
-    exactPath: string
-    type: string
-    folder: string
-    path: string
+    addFolder: FileSelect
   }
   [Types.SET_REMOVE_FILE_SELECT]: {
-    exactPath: string
-    type: string
-    path: string
+    removeFolder: FileSelect
+  }
+  [Types.SET_BULK_FILE_SELECT]: {
+    addFolders: FileSelect[]
   }
 
   [Types.SET_CLEAR_FILE_SELECT]: {
     clear: boolean
+  }
+
+  [Types.SET_SELECTED_FOLDER]: {
+    selectFolder: FileSelect
   }
 
   [Types.CLEAR_FOLDER_STATE]: {
@@ -156,9 +163,8 @@ type LibraryPayload = {
     path: string
   }
 
-  [Types.SET_SELECTED_FOLDER]: {
-    folder: string
-  }
+
+
 }
 
 export type LibraryActions = ActionMap<LibraryPayload>[keyof ActionMap<
@@ -188,12 +194,7 @@ export const libraryReducer = (
       }
     }
 
-    case Types.SET_SELECTED_FOLDER: {
-      return {
-        ...state,
-        selectedFolder: [action.payload.folder],
-      }
-    }
+
 
     case Types.CLEAR_FILES_STATE: {
       const copy = { ...state.filesState }
@@ -241,25 +242,67 @@ export const libraryReducer = (
       return {
         ...state,
         fileSelect: [],
+        selectedFolder: [],
+        bulkAdd: false
       }
     }
 
     case Types.SET_ADD_FILE_SELECT: {
       return {
         ...state,
-        fileSelect: [...state.fileSelect, action.payload],
+        bulkAdd: true,
+        fileSelect: [...state.fileSelect, action.payload.addFolder],
       }
     }
 
     case Types.SET_REMOVE_FILE_SELECT: {
+
       const newFileSelect = state.fileSelect.filter(
-        (file) => file.exactPath !== action.payload.exactPath,
+        (file) => file.exactPath !== action.payload.removeFolder.exactPath,
       )
+
       return {
         ...state,
         fileSelect: newFileSelect,
+        selectedFolder: newFileSelect
       }
     }
+
+    case Types.SET_BULK_FILE_SELECT: {
+      return {
+        ...state,
+        fileSelect: action.payload.addFolders
+      }
+    }
+
+
+    case Types.SET_SELECTED_FOLDER: {
+      let newFolder: FileSelect[] = []
+      let fileSelectCopy = state.fileSelect
+      const { event, folder, exactPath, path, type } = action.payload.selectFolder;
+      const folderPayload = {
+        exactPath,
+        path,
+        type,
+        folder
+      }
+      if (event === 'click') {
+        newFolder = [folderPayload]
+        if (state.bulkAdd) {
+          fileSelectCopy = [...state.fileSelect, folderPayload]
+        }
+      }
+      if (event === 'ctrl/shift') {
+        newFolder = [...state.selectedFolder, folderPayload]
+        fileSelectCopy = [...state.fileSelect, folderPayload]
+      }
+      return {
+        ...state,
+        selectedFolder: newFolder,
+        fileSelect: fileSelectCopy
+      }
+    }
+
 
     case Types.SET_PAGINATION: {
       const { path, hasNext, limit, offset, totalCount } = action.payload

@@ -206,7 +206,7 @@ const DataLibrary = () => {
     handlePaginatedFolders(newFolders, file.path, dispatchLibrary)
     dispatchLibrary(setFolders(newFolders, file.path))
     dispatchLibrary(removeFileSelect(file))
-    dispatchLibrary(setSelectFolder(''))
+    //dispatchLibrary(setSelectFolder(''))
   }
 
   const handleDeleteFeed = async () => {
@@ -270,12 +270,7 @@ const DataLibrary = () => {
                     return (
                       <Chip
                         onClick={() => {
-                          dispatchLibrary({
-                            type: Types.SET_REMOVE_FILE_SELECT,
-                            payload: {
-                              ...file,
-                            },
-                          })
+                          dispatchLibrary(removeFileSelect(file))
                         }}
                         key={index}
                       >

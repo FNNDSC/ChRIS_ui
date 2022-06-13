@@ -42,6 +42,7 @@ export const usePaginate = () => {
 
   const run = useCallback(
     (action) => {
+      console.log("RUN BEING CALLED",)
       dispatch(action(filter, perPage, perPage * (page - 1)));
     },
     [page, perPage, filter, dispatch]

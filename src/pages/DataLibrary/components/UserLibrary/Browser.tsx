@@ -12,7 +12,7 @@ import {
 } from '@patternfly/react-core'
 import { FaFile, FaFolder, FaDownload, FaExpand } from 'react-icons/fa'
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
-import { LibraryContext, Paginated } from './context'
+import { LibraryContext, Paginated, FileSelect } from './context'
 import FileViewerModel from '../../../../api/models/file-viewer.model'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { Spin, Tooltip } from 'antd'
@@ -140,13 +140,16 @@ function FileCard({
   previewAll,
   initialPath,
   browserType,
+
 }: {
   file: any
   previewAll: boolean
   browserType: string
-  initialPath: string
+    initialPath: string,
+
 }) {
   const { handlers } = useLongPress()
+
   const { handleOnClick, handleOnMouseDown } = handlers
   const fileNameArray = file.data.fname.split('/')
   const fileName = fileNameArray[fileNameArray.length - 1]
@@ -158,7 +161,7 @@ function FileCard({
       <TooltipParent>
         <Card
           onClick={(e) => {
-            handleOnClick(e, path, file, initialPath, browserType)
+            handleOnClick(e, path, file, initialPath, browserType, false)
           }}
           onMouseDown={handleOnMouseDown}
           key={file.data.fname}
@@ -242,11 +245,16 @@ function FolderCard({
 }: FolderCardInterface) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder } = state
+  const { fileSelect, selectedFolder } = state
+
   const [feedName, setFeedName] = useState('')
   const [commitDate, setCommitDate] = useState('')
   const path = `${initialPath}/${folder}`
-  const background = selectedFolder.includes(folder)
+  const background = fileSelect.length > 0 ? fileSelect.some((file: FileSelect) => {
+    return file.folder === folder
+  }) : selectedFolder.some((file: FileSelect) => {
+    return file.folder === folder
+  })
 
   const { handleOnClick, handleOnMouseDown } = handlers
 
@@ -263,17 +271,22 @@ function FolderCard({
     fetchFeedName()
   }, [browserType, folder, initialPath, username])
 
+
+
   return (
     <TooltipParent>
       <Card
         onClick={(e) => {
+
           handleOnClick(
             e,
             path,
             folder,
             initialPath,
             browserType,
+            background,
             handleFolderClick,
+
           )
         }}
         onMouseDown={handleOnMouseDown}
