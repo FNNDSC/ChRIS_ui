@@ -37,6 +37,7 @@ import { deleteFeed } from '../../../../store/feed/actions'
 import { useDispatch } from 'react-redux'
 import { fetchResource } from '../../../../utils'
 import { handlePaginatedFolders } from './utils'
+import { flattenDepth } from 'lodash'
 
 const DataLibrary = () => {
   const dispatch = useDispatch()
@@ -92,46 +93,51 @@ const DataLibrary = () => {
   }
 
   const handleDownload = async () => {
-    fileSelect.map(async (file: FileSelect) => {
-      const params = {
-        limit: 100,
-        offset: 0,
-        fname: file.exactPath,
-        fname_incontains: file.exactPath,
-      }
-      const client = ChrisAPIClient.getClient()
-      if (file.type === 'feed') {
-        setFetchingFiles(!fetchingFiles)
-        const feedFn = client.getFiles
-        const bindFn = feedFn.bind(client)
-        const files = await fetchResource(params, bindFn)
-        setFetchingFiles(!fetchingFiles)
-        downloadUtil(files, file.type)
-      }
+    setFetchingFiles(!fetchingFiles)
 
-      if (file.type === 'uploads') {
-        setFetchingFiles(!fetchingFiles)
-        const uploadsFn = client.getUploadedFiles
-        const uploadBound = uploadsFn.bind(client)
-        const files = await fetchResource(params, uploadBound)
-        setFetchingFiles(!fetchingFiles)
-        downloadUtil(files, file.type)
-      }
-      if (file.type === 'services') {
-        setFetchingFiles(!fetchingFiles)
-        const pacsFn = client.getPACSFiles
-        const pacsBound = pacsFn.bind(client)
-        const files = await fetchResource(params, pacsBound)
-        setFetchingFiles(!fetchingFiles)
-        downloadUtil(files, file.type)
-      }
+    Promise.all(
+      fileSelect.map(async (file: FileSelect) => {
+        const filesToPush: any[] = []
+        const params = {
+          limit: 100,
+          offset: 0,
+          fname: file.exactPath,
+          fname_incontains: file.exactPath,
+        }
+        const client = ChrisAPIClient.getClient()
+        if (file.type === 'feed') {
+          const feedFn = client.getFiles
+          const bindFn = feedFn.bind(client)
+          const fileItems = await fetchResource(params, bindFn)
+          fileItems && fileItems.length > 0 && filesToPush.push(...fileItems)
+        }
+
+        if (file.type === 'uploads') {
+          const uploadsFn = client.getUploadedFiles
+          const uploadBound = uploadsFn.bind(client)
+          const fileItems = await fetchResource(params, uploadBound)
+
+          fileItems && fileItems.length > 0 && filesToPush.push(...fileItems)
+        }
+        if (file.type === 'services') {
+          const pacsFn = client.getPACSFiles
+          const pacsBound = pacsFn.bind(client)
+          const fileItems = await fetchResource(params, pacsBound)
+          fileItems && fileItems.length > 0 && filesToPush.push(...fileItems)
+        }
+        return filesToPush
+      }),
+    ).then((files) => {
+      const filesToPush = flattenDepth(files)
+      setFetchingFiles(false)
+      downloadUtil(filesToPush)
     })
   }
 
-  const downloadUtil = async (filesItems: any[], type: string) => {
+  const downloadUtil = async (filesItems: any[]) => {
     try {
       let writable
-      const folderName = `Library Download_${type}`
+      const folderName = `Library Download`
       //@ts-ignore
       const existingDirectoryHandle = await window.showDirectoryPicker()
       const newDirectoryHandle = await existingDirectoryHandle.getDirectoryHandle(
@@ -161,6 +167,7 @@ const DataLibrary = () => {
 
   const handleDelete = () => {
     const errorWarnings: any[] = []
+
     fileSelect.map(async (file: FileSelect) => {
       const client = ChrisAPIClient.getClient()
       if (file.type === 'uploads') {
@@ -206,7 +213,6 @@ const DataLibrary = () => {
     handlePaginatedFolders(newFolders, file.path, dispatchLibrary)
     dispatchLibrary(setFolders(newFolders, file.path))
     dispatchLibrary(removeFileSelect(file))
-    //dispatchLibrary(setSelectFolder(''))
   }
 
   const handleDeleteFeed = async () => {

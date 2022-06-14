@@ -12,11 +12,11 @@ import {
 } from '@patternfly/react-core'
 import { FaFile, FaFolder, FaDownload, FaExpand } from 'react-icons/fa'
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
-import { LibraryContext, Paginated, FileSelect } from './context'
+import { LibraryContext, Paginated, FileSelect, Types } from './context'
 import FileViewerModel from '../../../../api/models/file-viewer.model'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { Spin, Tooltip } from 'antd'
-
+import { MdClose } from 'react-icons/md'
 import useLongPress from './useLongPress'
 
 interface BrowserInterface {
@@ -132,7 +132,31 @@ export function Browser({
 }
 
 const TooltipParent = ({ children }: { children: React.ReactElement }) => {
-  return <Tooltip title="Hold then release to select">{children}</Tooltip>
+  const { state, dispatch } = useContext(LibraryContext)
+
+  const hideToolTip = () => {
+    dispatch({
+      type: Types.SET_TOOLTIP,
+      payload: {
+        tooltip: true,
+      },
+    })
+  }
+
+  const title = (
+    <div>
+      Double Click: enter; Long Press: select; Dismiss Tooltip:{' '}
+      <span onClick={hideToolTip} style={{ textAlign: 'center' }}>
+        <MdClose />
+      </span>
+    </div>
+  )
+
+  return (
+    <Tooltip visible={state.tooltip ? false : undefined} title={title}>
+      {children}
+    </Tooltip>
+  )
 }
 
 function FileCard({
@@ -140,28 +164,34 @@ function FileCard({
   previewAll,
   initialPath,
   browserType,
-
 }: {
   file: any
   previewAll: boolean
   browserType: string
-    initialPath: string,
-
+  initialPath: string
 }) {
   const { handlers } = useLongPress()
+  const { state } = useContext(LibraryContext)
+  const { selectedFolder } = state
 
   const { handleOnClick, handleOnMouseDown } = handlers
   const fileNameArray = file.data.fname.split('/')
   const fileName = fileNameArray[fileNameArray.length - 1]
   const [largePreview, setLargePreview] = React.useState(false)
   const path = `${initialPath}/${fileName}`
+  const background = selectedFolder.some((fileSelect) => {
+    return fileSelect.folder === file
+  })
 
   return (
     <>
       <TooltipParent>
         <Card
+          style={{
+            background: `${background ? '#e7f1fa' : 'white'}`,
+          }}
           onClick={(e) => {
-            handleOnClick(e, path, file, initialPath, browserType, false)
+            handleOnClick(e, path, file, initialPath, browserType)
           }}
           onMouseDown={handleOnMouseDown}
           key={file.data.fname}
@@ -245,16 +275,11 @@ function FolderCard({
 }: FolderCardInterface) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { fileSelect, selectedFolder } = state
+  const { selectedFolder } = state
 
   const [feedName, setFeedName] = useState('')
   const [commitDate, setCommitDate] = useState('')
   const path = `${initialPath}/${folder}`
-  const background = fileSelect.length > 0 ? fileSelect.some((file: FileSelect) => {
-    return file.folder === folder
-  }) : selectedFolder.some((file: FileSelect) => {
-    return file.folder === folder
-  })
 
   const { handleOnClick, handleOnMouseDown } = handlers
 
@@ -271,22 +296,21 @@ function FolderCard({
     fetchFeedName()
   }, [browserType, folder, initialPath, username])
 
-
+  const background = selectedFolder.some((file) => {
+    return file.folder === folder
+  })
 
   return (
     <TooltipParent>
       <Card
         onClick={(e) => {
-
           handleOnClick(
             e,
             path,
             folder,
             initialPath,
             browserType,
-            background,
             handleFolderClick,
-
           )
         }}
         onMouseDown={handleOnMouseDown}

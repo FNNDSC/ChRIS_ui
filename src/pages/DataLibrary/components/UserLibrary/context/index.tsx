@@ -38,10 +38,9 @@ interface LibraryState {
   paginatedFolders: {
     [key: string]: string[]
   }
-
   fileSelect: FileSelect[]
-  selectedFolder: FileSelect[],
-  bulkAdd: boolean
+  selectedFolder: FileSelect[]
+  tooltip: boolean
 }
 
 function getInitialState(): LibraryState {
@@ -59,19 +58,19 @@ function getInitialState(): LibraryState {
     paginatedFolders: {},
     fileSelect: [],
     selectedFolder: [],
-    bulkAdd: false
+    tooltip: false,
   }
 }
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
-  ? {
-    type: Key
-  }
-  : {
-    type: Key
-    payload: M[Key]
-  }
+    ? {
+        type: Key
+      }
+    : {
+        type: Key
+        payload: M[Key]
+      }
 }
 
 export enum Types {
@@ -85,14 +84,12 @@ export enum Types {
   SET_PREVIEW_ALL = 'SET_PREVIEW_ALL',
   SET_ADD_FOLDER = 'SET_ADD_FOLDER',
   SET_SELECTED_FOLDER = 'SET_SELECTED_FOLDER',
-  SET_MULTIPLE_FILE_SELECT = 'SET_MULTIPLE_FILE_SELECT',
   SET_ADD_FILE_SELECT = 'SET_ADD_FILE_SELECT',
   SET_REMOVE_FILE_SELECT = 'SET_REMOVE_FILE_SELECT',
   SET_CLEAR_FILE_SELECT = 'SET_CLEAR_FILE_SELECT',
   CLEAR_FOLDER_STATE = 'CLEAR_FOLDER_STATE',
   CLEAR_FILES_STATE = 'CLEAR_FILES_STATE',
-  SET_BULK_ADD = 'SET_BULK_ADD',
-  SET_BULK_FILE_SELECT = 'SET_BULK_FILE_SELECT'
+  SET_TOOLTIP = 'SET_TOOLTIP',
 }
 
 type LibraryPayload = {
@@ -137,13 +134,10 @@ type LibraryPayload = {
   }
 
   [Types.SET_ADD_FILE_SELECT]: {
-    addFolder: FileSelect
+    addFolder: FileSelect[]
   }
   [Types.SET_REMOVE_FILE_SELECT]: {
     removeFolder: FileSelect
-  }
-  [Types.SET_BULK_FILE_SELECT]: {
-    addFolders: FileSelect[]
   }
 
   [Types.SET_CLEAR_FILE_SELECT]: {
@@ -162,9 +156,9 @@ type LibraryPayload = {
   [Types.CLEAR_FILES_STATE]: {
     path: string
   }
-
-
-
+  [Types.SET_TOOLTIP]: {
+    tooltip: boolean
+  }
 }
 
 export type LibraryActions = ActionMap<LibraryPayload>[keyof ActionMap<
@@ -193,8 +187,6 @@ export const libraryReducer = (
         },
       }
     }
-
-
 
     case Types.CLEAR_FILES_STATE: {
       const copy = { ...state.filesState }
@@ -238,25 +230,23 @@ export const libraryReducer = (
         }
     }
 
+    /******************************************************************* */
+
     case Types.SET_CLEAR_FILE_SELECT: {
       return {
         ...state,
         fileSelect: [],
-        selectedFolder: [],
-        bulkAdd: false
       }
     }
 
     case Types.SET_ADD_FILE_SELECT: {
       return {
         ...state,
-        bulkAdd: true,
-        fileSelect: [...state.fileSelect, action.payload.addFolder],
+        fileSelect: [...state.fileSelect, ...action.payload.addFolder],
       }
     }
 
     case Types.SET_REMOVE_FILE_SELECT: {
-
       const newFileSelect = state.fileSelect.filter(
         (file) => file.exactPath !== action.payload.removeFolder.exactPath,
       )
@@ -264,45 +254,37 @@ export const libraryReducer = (
       return {
         ...state,
         fileSelect: newFileSelect,
-        selectedFolder: newFileSelect
       }
     }
-
-    case Types.SET_BULK_FILE_SELECT: {
-      return {
-        ...state,
-        fileSelect: action.payload.addFolders
-      }
-    }
-
 
     case Types.SET_SELECTED_FOLDER: {
+      const {
+        event,
+        folder,
+        exactPath,
+        path,
+        type,
+      } = action.payload.selectFolder
       let newFolder: FileSelect[] = []
-      let fileSelectCopy = state.fileSelect
-      const { event, folder, exactPath, path, type } = action.payload.selectFolder;
       const folderPayload = {
         exactPath,
         path,
         type,
-        folder
+        folder,
       }
       if (event === 'click') {
         newFolder = [folderPayload]
-        if (state.bulkAdd) {
-          fileSelectCopy = [...state.fileSelect, folderPayload]
-        }
       }
       if (event === 'ctrl/shift') {
         newFolder = [...state.selectedFolder, folderPayload]
-        fileSelectCopy = [...state.fileSelect, folderPayload]
       }
       return {
         ...state,
         selectedFolder: newFolder,
-        fileSelect: fileSelectCopy
       }
     }
 
+    /******************************************************************************* */
 
     case Types.SET_PAGINATION: {
       const { path, hasNext, limit, offset, totalCount } = action.payload
@@ -401,6 +383,13 @@ export const libraryReducer = (
             [path]: [action.payload.folder],
           },
         }
+      }
+    }
+
+    case Types.SET_TOOLTIP: {
+      return {
+        ...state,
+        tooltip: action.payload.tooltip,
       }
     }
 
