@@ -17,7 +17,6 @@ import {
   TabTitleText,
 } from '@patternfly/react-core'
 import { Feed } from '@fnndsc/chrisapi'
-
 import { Alert } from 'antd'
 import BrowserContainer from './BrowserContainer'
 import LocalSearch from './LocalSearch'
@@ -28,16 +27,11 @@ import { LocalFile } from '../../../../components/feed/CreateFeed/types'
 import { useTypedSelector } from '../../../../store/hooks'
 import { FileSelect, LibraryContext, Types } from './context'
 import { MainRouterContext } from '../../../../routes'
-import {
-  removeFileSelect,
-  setFolders,
-  setSelectFolder,
-} from './context/actions'
+import { removeFileSelect, setFolders } from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'
 import { useDispatch } from 'react-redux'
 import { fetchResource } from '../../../../utils'
 import { handlePaginatedFolders } from './utils'
-import { flattenDepth } from 'lodash'
 
 const DataLibrary = () => {
   const dispatch = useDispatch()
@@ -97,68 +91,94 @@ const DataLibrary = () => {
 
     Promise.all(
       fileSelect.map(async (file: FileSelect) => {
-        const filesToPush: any[] = []
+        const { exactPath } = file
+        const filesToPush: {
+          [key: string]: any[]
+        } = {}
         const params = {
           limit: 100,
           offset: 0,
-          fname: file.exactPath,
-          fname_incontains: file.exactPath,
+          fname: exactPath,
+          fname_incontains: exactPath,
         }
         const client = ChrisAPIClient.getClient()
         if (file.type === 'feed') {
           const feedFn = client.getFiles
           const bindFn = feedFn.bind(client)
           const fileItems = await fetchResource(params, bindFn)
-          fileItems && fileItems.length > 0 && filesToPush.push(...fileItems)
+          filesToPush[exactPath] = fileItems
         }
 
         if (file.type === 'uploads') {
           const uploadsFn = client.getUploadedFiles
           const uploadBound = uploadsFn.bind(client)
           const fileItems = await fetchResource(params, uploadBound)
-
-          fileItems && fileItems.length > 0 && filesToPush.push(...fileItems)
+          filesToPush[exactPath] = fileItems
         }
         if (file.type === 'services') {
           const pacsFn = client.getPACSFiles
           const pacsBound = pacsFn.bind(client)
           const fileItems = await fetchResource(params, pacsBound)
-          fileItems && fileItems.length > 0 && filesToPush.push(...fileItems)
+          filesToPush[exactPath] = fileItems
         }
         return filesToPush
       }),
     ).then((files) => {
-      const filesToPush = flattenDepth(files)
       setFetchingFiles(false)
-      downloadUtil(filesToPush)
+      downloadUtil(files)
     })
   }
 
   const downloadUtil = async (filesItems: any[]) => {
     try {
       let writable
-      const folderName = `Library Download`
       //@ts-ignore
       const existingDirectoryHandle = await window.showDirectoryPicker()
-      const newDirectoryHandle = await existingDirectoryHandle.getDirectoryHandle(
-        folderName,
-        {
-          create: true,
-        },
-      )
       for (let i = 0; i < filesItems.length; i++) {
-        const file = filesItems[i]
+        const fileObject = filesItems[i]
 
-        const blob = await file.getFileBlob()
-        const paths = file.data.fname.split('/')
-        const fileName = paths[paths.length - 1]
-        const newFileHandle = await newDirectoryHandle.getFileHandle(fileName, {
-          create: true,
-        })
-        writable = await newFileHandle.createWritable()
-        await writable.write(blob)
-        await writable.close()
-        // Close the file and write the contents to disk.
+        for (const i in fileObject) {
+          const folderName = i
+          const files = fileObject[i]
+          const foldersSplit = folderName.split('/')
+          const newDirectoryHandle: { [key: string]: any } = {}
+          for (let i = 0; i < foldersSplit.length; i++) {
+            if (i === 0) {
+              newDirectoryHandle[
+                i
+              ] = await existingDirectoryHandle.getDirectoryHandle(
+                foldersSplit[i],
+                {
+                  create: true,
+                },
+              )
+            } else {
+              const existingHandle = newDirectoryHandle[i - 1]
+              if (existingHandle) {
+                newDirectoryHandle[i] = await existingHandle.getDirectoryHandle(
+                  foldersSplit[i],
+                  {
+                    create: true,
+                  },
+                )
+              }
+            }
+          }
+
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i]
+            const blob = await file.getFileBlob()
+            const paths = file.data.fname.split('/')
+            const fileName = paths[paths.length - 1]
+            const handle = await newDirectoryHandle[foldersSplit.length - 1]
+            const newFileHandle = await handle.getFileHandle(fileName, {
+              create: true,
+            })
+            writable = await newFileHandle.createWritable()
+            await writable.write(blob)
+            await writable.close()
+          }
+        }
       }
     } catch (error) {
       setFetchingFiles(false)

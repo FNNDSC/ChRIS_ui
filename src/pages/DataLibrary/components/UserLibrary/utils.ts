@@ -161,8 +161,9 @@ export const handlePacsFiles = (
     const fileName = file.split('/')
     const folder = fileName[3]
     const path = `${fileName[0]}/${fileName[1]}/${fileName[2]}`
-    if (pacsDict[path]) pacsDict[path].push(folder)
-    else pacsDict[path] = [folder]
+    if (pacsDict[path]) {
+      if (pacsDict[path].length === 0) pacsDict[path].push(folder)
+    } else pacsDict[path] = [folder]
   })
 
   for (const i in pacsDict) {
