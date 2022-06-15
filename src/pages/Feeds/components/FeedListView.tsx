@@ -156,7 +156,10 @@ const FeedListView: React.FC<AllProps> = ({
     }
     
     const feedId = {
-      title: <p style={fontFamily}>{(d1 >= smallD2 ? <FcMediumPriority id="hideMe" />: '') }{feed.data.id }</p>,
+      title: <p style={fontFamily}>{(d1 >= smallD2 ? 
+      <Tooltip content={<div>Created recently</div>}>
+        <FcMediumPriority id="hideMe" />
+      </Tooltip>: '') }{feed.data.id }</p>,
     }
 
     const created = {
