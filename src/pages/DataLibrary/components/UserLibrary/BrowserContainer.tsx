@@ -101,15 +101,13 @@ const BrowserContainer = ({
   const handleFolderClick = async (path: string, prevPath: string) => {
     dispatch(clearFolderState(prevPath, type))
     dispatch(clearFilesState(prevPath, type))
-
     const client = ChrisAPIClient.getClient()
-
     const pagination = {
       limit: 30,
       offset: 0,
       totalCount: 0,
     }
-    resourcesFetch(path)
+    resourcesFetch(path);
     const pathList = await client.getFileBrowserPath(path)
     const fileList = await pathList.getFiles({
       limit: pagination.limit,
@@ -133,7 +131,6 @@ const BrowserContainer = ({
       }
 
       dispatch(setInitialPath(path, type))
-
       const currentFolderSplit = path.split('/')
       const currentFolder = currentFolderSplit[currentFolderSplit.length - 1]
       const totalCount = fileList.totalCount
