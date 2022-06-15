@@ -161,14 +161,15 @@ export const handlePacsFiles = (
     const fileName = file.split('/')
     const folder = fileName[3]
     const path = `${fileName[0]}/${fileName[1]}/${fileName[2]}`
-    if (!pacsFolders.includes(folder)) {
-      pacsFolders.push(folder)
-      pacsDict[path] = folder
-    }
+    if (pacsDict[path]) {
+      if (pacsDict[path].length === 0) pacsDict[path].push(folder)
+    } else pacsDict[path] = [folder]
   })
 
   for (const i in pacsDict) {
-    dispatch(setFolders([pacsDict[i]], i))
+    dispatch(
+      setFolders(pacsDict['SERVICES/PACS/orthanc'], 'SERVICES/PACS/orthanc'),
+    )
     dispatch(setInitialPath(i, 'services'))
   }
 
