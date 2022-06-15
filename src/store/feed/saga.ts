@@ -18,13 +18,17 @@ import { getPluginInstancesRequest } from '../pluginInstance/actions'
 
 import cujs from 'chris-upload'
 
+const params: {
+  limit: number;
+  offset: number;
+  name: string;
+} = { limit: 0, offset: 0, name: "" };
+
 function* handleGetAllFeeds(action: IActionTypeParam) {
   const { name, limit, offset } = action.payload
-  const params = {
-    name,
-    limit,
-    offset,
-  }
+  params["name"] = name
+  params["limit"] = limit
+  params["offset"] = offset
   const client = ChrisAPIClient.getClient()
   const flag = true
   const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
