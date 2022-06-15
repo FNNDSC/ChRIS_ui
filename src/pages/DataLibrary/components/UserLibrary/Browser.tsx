@@ -12,7 +12,7 @@ import {
 } from '@patternfly/react-core'
 import { FaFile, FaFolder, FaDownload, FaExpand } from 'react-icons/fa'
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
-import { LibraryContext, Paginated, FileSelect, Types } from './context'
+import { LibraryContext, Paginated, Types } from './context'
 import FileViewerModel from '../../../../api/models/file-viewer.model'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { Spin, Tooltip } from 'antd'
@@ -29,7 +29,6 @@ interface BrowserInterface {
   }
   handlePagination: (path: string, type: string) => void
   previewAll: boolean
-
   browserType: string
   username?: string | null
 }
@@ -42,7 +41,6 @@ export function Browser({
   paginated,
   handlePagination,
   previewAll,
-
   browserType,
   username,
 }: BrowserInterface) {
@@ -172,7 +170,7 @@ function FileCard({
 }) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder } = state
+  const { selectedFolder, fileSelect } = state
 
   const { handleOnClick, handleOnMouseDown } = handlers
   const fileNameArray = file.data.fname.split('/')
@@ -191,7 +189,7 @@ function FileCard({
             background: `${background ? '#e7f1fa' : 'white'}`,
           }}
           onClick={(e) => {
-            handleOnClick(e, path, file, initialPath, browserType)
+            handleOnClick(e, path, file, initialPath, browserType, fileSelect)
           }}
           onMouseDown={handleOnMouseDown}
           key={file.data.fname}
@@ -275,7 +273,7 @@ function FolderCard({
 }: FolderCardInterface) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder } = state
+  const { selectedFolder, fileSelect } = state
 
   const [feedName, setFeedName] = useState('')
   const [commitDate, setCommitDate] = useState('')
@@ -310,6 +308,7 @@ function FolderCard({
             folder,
             initialPath,
             browserType,
+            fileSelect,
             handleFolderClick,
           )
         }}

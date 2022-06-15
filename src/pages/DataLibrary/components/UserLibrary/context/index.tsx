@@ -41,6 +41,7 @@ interface LibraryState {
   fileSelect: FileSelect[]
   selectedFolder: FileSelect[]
   tooltip: boolean
+  multipleSelect: boolean
 }
 
 function getInitialState(): LibraryState {
@@ -59,6 +60,7 @@ function getInitialState(): LibraryState {
     fileSelect: [],
     selectedFolder: [],
     tooltip: false,
+    multipleSelect: false,
   }
 }
 
@@ -90,6 +92,7 @@ export enum Types {
   CLEAR_FOLDER_STATE = 'CLEAR_FOLDER_STATE',
   CLEAR_FILES_STATE = 'CLEAR_FILES_STATE',
   SET_TOOLTIP = 'SET_TOOLTIP',
+  SET_MULTIPLE_SELECT = 'SET_MULTIPLE_SELECT',
 }
 
 type LibraryPayload = {
@@ -236,6 +239,8 @@ export const libraryReducer = (
       return {
         ...state,
         fileSelect: [],
+        selectedFolder: [],
+        multipleSelect: false,
       }
     }
 
@@ -272,15 +277,19 @@ export const libraryReducer = (
         type,
         folder,
       }
+      let multipleSelect = state.multipleSelect
       if (event === 'click') {
         newFolder = [folderPayload]
+        multipleSelect = false
       }
       if (event === 'ctrl/shift') {
         newFolder = [...state.selectedFolder, folderPayload]
+        multipleSelect = true
       }
       return {
         ...state,
         selectedFolder: newFolder,
+        multipleSelect,
       }
     }
 

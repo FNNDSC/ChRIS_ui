@@ -1,6 +1,5 @@
 import { useState, useRef, useContext } from 'react'
-
-import { LibraryContext } from './context'
+import { LibraryContext, FileSelect } from './context'
 import { addFileSelect, setSelectFolder } from './context/actions'
 
 export default function useLongPress() {
@@ -8,7 +7,7 @@ export default function useLongPress() {
   const { dispatch, state } = useContext(LibraryContext)
   const timerRef = useRef<ReturnType<typeof window.setTimeout>>()
   const isLongPress = useRef<boolean>()
-  const { selectedFolder } = state
+  const { selectedFolder, multipleSelect } = state
 
   function startPressTimer() {
     isLongPress.current = false
@@ -25,7 +24,7 @@ export default function useLongPress() {
     folder: string,
     initialPath: string,
     browserType: string,
-
+    fileSelect: FileSelect[],
     cb?: (path: string, prevPath: string) => void,
   ) {
     setAction('click')
@@ -52,11 +51,14 @@ export default function useLongPress() {
     }
 
     if (isLongPress.current) {
-      const newFilteredFolders = selectedFolder.filter(
-        (fileSelect) => fileSelect.exactPath !== payload.exactPath,
-      )
-      console.log(newFilteredFolders)
-      dispatch(addFileSelect(selectedFolder))
+      if (multipleSelect) {
+        dispatch(addFileSelect(selectedFolder))
+      } else {
+        const isFound = fileSelect.some(
+          (fileSelect) => fileSelect.exactPath === payload.exactPath,
+        )
+        if (!isFound) dispatch(addFileSelect([payload]))
+      }
     }
   }
 
