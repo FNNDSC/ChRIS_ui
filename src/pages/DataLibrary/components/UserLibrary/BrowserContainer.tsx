@@ -14,16 +14,19 @@ import {
   clearFilesState,
 } from './context/actions'
 import { handlePaginatedFolders } from './utils'
+import { EmptyState, Title, EmptyStateBody } from '@patternfly/react-core'
+
+interface BrowserContainerInterface {
+  type: string
+  path: string
+  username?: string | null
+}
 
 const BrowserContainer = ({
   type,
   path: rootPath,
   username,
-}: {
-  type: string
-  path: string
-  username?: string | null
-}) => {
+}: BrowserContainerInterface) => {
   const { state, dispatch } = useContext(LibraryContext)
   const {
     filesState,
@@ -43,6 +46,7 @@ const BrowserContainer = ({
     pagedFolders && pagedFolders.length > 0
       ? pagedFolders
       : foldersState[computedPath]
+  console.log('Folders', folders, files)
 
   const resourcesFetch = React.useCallback(
     async (path: string) => {
@@ -107,7 +111,7 @@ const BrowserContainer = ({
       offset: 0,
       totalCount: 0,
     }
-    resourcesFetch(path);
+    resourcesFetch(path)
     const pathList = await client.getFileBrowserPath(path)
     const fileList = await pathList.getFiles({
       limit: pagination.limit,
@@ -214,7 +218,15 @@ const BrowserContainer = ({
         />
       }
 
-      {loading ? (
+      {(!folders && !files) ? (
+        <EmptyState>
+          <Title headingLevel="h4">No Folders or Files Found</Title>{' '}
+          <EmptyStateBody>
+            Upload a file, Create a Feed or Pull Files from the PACS server to
+            see some files here.
+          </EmptyStateBody>
+        </EmptyState>
+      ) : loading ? (
         <SpinAlert browserType="feeds" />
       ) : (
         <Browser

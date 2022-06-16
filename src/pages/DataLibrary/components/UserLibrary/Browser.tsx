@@ -142,11 +142,16 @@ const TooltipParent = ({ children }: { children: React.ReactElement }) => {
   }
 
   const title = (
-    <div>
-      Double Click: enter; Long Press: select; Dismiss Tooltip:{' '}
-      <span onClick={hideToolTip} style={{ textAlign: 'center' }}>
-        <MdClose />
-      </span>
+    <div >
+      <h3 style={{color:'white', fontSize:'1em', marginBottom:'0.25em'}}>Double Click: enter; Long Press and Release: select;</h3>
+      <Button
+        style={{ padding: 0, color:'inherit', fontSize:'1em', textAlign:'center' }}
+        variant="link"
+        icon={<MdClose />}
+        onClick={hideToolTip}
+      >
+        Dismiss Tooltip:{' '}
+      </Button>
     </div>
   )
 
