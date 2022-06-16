@@ -1,14 +1,13 @@
 import { useState, useRef, useContext } from 'react'
-
-import { LibraryContext, Types } from './context'
-import { setSelectFolder } from './context/actions'
+import { LibraryContext, FileSelect } from './context'
+import { addFileSelect, setSelectFolder } from './context/actions'
 
 export default function useLongPress() {
   const [action, setAction] = useState<string>()
   const { dispatch, state } = useContext(LibraryContext)
   const timerRef = useRef<ReturnType<typeof window.setTimeout>>()
   const isLongPress = useRef<boolean>()
-  const { fileSelect } = state
+  const { selectedFolder, multipleSelect } = state
 
   function startPressTimer() {
     isLongPress.current = false
@@ -25,35 +24,42 @@ export default function useLongPress() {
     folder: string,
     initialPath: string,
     browserType: string,
+    fileSelect: FileSelect[],
     cb?: (path: string, prevPath: string) => void,
   ) {
-    if (isLongPress.current) {
-      const payload = {
-        exactPath: path,
-        path: initialPath,
-        folder,
-        type: browserType,
-      }
-
-      const isFound = fileSelect.some((file) => {
-        if (file.exactPath === payload.exactPath) return true
-        return false
-      })
-      if (!isFound)
-        dispatch({
-          type: Types.SET_ADD_FILE_SELECT,
-          payload,
-        })
+    setAction('click')
+    const payload = {
+      exactPath: path,
+      path: initialPath,
+      folder,
+      type: browserType,
+      event: '',
     }
-
-    if (e.detail === 1) {
-      dispatch(setSelectFolder(folder))
-    }
-
     if (e.detail === 2) {
       cb && cb(`${initialPath}/${folder}`, initialPath)
     }
-    setAction('click')
+
+    if (e.ctrlKey || e.shiftKey) {
+      payload['event'] = 'ctrl/shift'
+      dispatch(setSelectFolder(payload))
+      return
+    }
+
+    if (!(e.ctrlKey || e.shiftKey) || e.detail === 1) {
+      payload['event'] = 'click'
+      dispatch(setSelectFolder(payload))
+    }
+
+    if (isLongPress.current) {
+      if (multipleSelect) {
+        dispatch(addFileSelect(selectedFolder))
+      } else {
+        const isFound = fileSelect.some(
+          (fileSelect) => fileSelect.exactPath === payload.exactPath,
+        )
+        if (!isFound) dispatch(addFileSelect([payload]))
+      }
+    }
   }
 
   function handleOnMouseDown() {

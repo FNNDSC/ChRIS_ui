@@ -80,6 +80,8 @@ const FeedListView: React.FC<AllProps> = ({
   const { page, perPage } = filterState
   const { data, error, loading, totalFeedsCount } = allFeeds
 
+
+
   React.useEffect(() => {
     document.title = 'All Analyses - ChRIS UI '
     setSidebarActive({

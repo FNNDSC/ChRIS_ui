@@ -90,11 +90,11 @@ export const setPagination = (
   }
 }
 
-export const addFileSelect = (file: FileSelect) => {
+export const addFileSelect = (payload: FileSelect[]) => {
   return {
     type: Types.SET_ADD_FILE_SELECT,
     payload: {
-      ...file,
+      addFolder: payload,
     },
   }
 }
@@ -103,16 +103,20 @@ export const removeFileSelect = (file: FileSelect) => {
   return {
     type: Types.SET_REMOVE_FILE_SELECT,
     payload: {
-      ...file,
+      removeFolder: file,
     },
   }
 }
 
-export const setSelectFolder = (folder: string) => {
+export const setSelectFolder = (
+  payload: FileSelect & {
+    event: string
+  },
+) => {
   return {
     type: Types.SET_SELECTED_FOLDER,
     payload: {
-      folder,
+      selectFolder: payload,
     },
   }
 }
