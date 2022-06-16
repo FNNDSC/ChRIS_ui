@@ -244,10 +244,8 @@ const DataLibrary = () => {
 
         if (feedId) {
           const id = feedId.split('_')[1]
-
           const client = ChrisAPIClient.getClient()
           const feed = await client.getFeed(parseInt(id))
-
           if (foldersState[file.path]) {
             deleteUtil(file)
           }
