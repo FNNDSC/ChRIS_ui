@@ -22,7 +22,6 @@
     "cornerstone-tools": "^6.0.6",
     "cornerstone-wado-image-loader": "^4.1.1",
     "cornerstone-web-image-loader": "^2.1.1",
-    "cujs": "^0.2.2",
     "d3-hierarchy": "^1.1.9",
     "d3-selection": "^1.4.2",
     "d3-shape": "^2.1.0",

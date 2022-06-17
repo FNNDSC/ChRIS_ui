@@ -46,7 +46,6 @@ const BrowserContainer = ({
     pagedFolders && pagedFolders.length > 0
       ? pagedFolders
       : foldersState[computedPath]
-  console.log('Folders', folders, files)
 
   const resourcesFetch = React.useCallback(
     async (path: string) => {
@@ -218,7 +217,7 @@ const BrowserContainer = ({
         />
       }
 
-      {(!folders && !files) ? (
+      {!folders && !files ? (
         <EmptyState>
           <Title headingLevel="h4">No Folders or Files Found</Title>{' '}
           <EmptyStateBody>

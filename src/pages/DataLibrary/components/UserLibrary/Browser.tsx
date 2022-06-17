@@ -141,17 +141,29 @@ const TooltipParent = ({ children }: { children: React.ReactElement }) => {
     })
   }
 
+  const h3Style = {
+    color: 'white',
+    fontSize: '1em',
+  }
+
   const title = (
-    <div >
-      <h3 style={{color:'white', fontSize:'1em', marginBottom:'0.25em'}}>Double Click: enter; Long Press and Release: select;</h3>
-      <Button
-        style={{ padding: 0, color:'inherit', fontSize:'1em', textAlign:'center' }}
-        variant="link"
-        icon={<MdClose />}
-        onClick={hideToolTip}
-      >
-        Dismiss Tooltip:{' '}
-      </Button>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <h3 style={h3Style}>Enter card: Double Click</h3>
+      <h3 style={{ ...h3Style, paddingBottom: '0' }}>
+        Select card: long press and release
+      </h3>
+      <h3 style={h3Style}>
+        Dismiss toolip:{' '}
+        <Button
+          style={{
+            padding: 0,
+            ...h3Style,
+          }}
+          variant="link"
+          icon={<MdClose style={{ textAlign: 'center' }} />}
+          onClick={hideToolTip}
+        />
+      </h3>
     </div>
   )
 
