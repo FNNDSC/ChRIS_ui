@@ -1,6 +1,11 @@
 import { useState, useRef, useContext } from 'react'
+
 import { LibraryContext, FileSelect } from './context'
-import { addFileSelect, setSelectFolder } from './context/actions'
+import {
+  addFileSelect,
+  clearSelectFolder,
+  setSelectFolder,
+} from './context/actions'
 
 export default function useLongPress() {
   const [action, setAction] = useState<string>()
@@ -35,24 +40,38 @@ export default function useLongPress() {
       type: browserType,
       event: '',
     }
+
+    const isExist = selectedFolder.findIndex(
+      (folder) => folder.exactPath === path,
+    )
+
     if (e.detail === 2) {
       cb && cb(`${initialPath}/${folder}`, initialPath)
     }
 
     if (e.ctrlKey || e.shiftKey) {
       payload['event'] = 'ctrl/shift'
-      dispatch(setSelectFolder(payload))
+      if (isExist === -1) {
+        dispatch(setSelectFolder(payload))
+      } else {
+        dispatch(clearSelectFolder(payload))
+      }
+
       return
     }
 
     if (!(e.ctrlKey || e.shiftKey) || e.detail === 1) {
       payload['event'] = 'click'
-      dispatch(setSelectFolder(payload))
+      if (isExist === -1) {
+        dispatch(setSelectFolder(payload))
+      } else {
+        dispatch(clearSelectFolder(payload))
+      }
     }
 
     if (isLongPress.current) {
       if (multipleSelect) {
-        dispatch(addFileSelect(selectedFolder))
+        return
       } else {
         const isFound = fileSelect.some(
           (fileSelect) => fileSelect.exactPath === payload.exactPath,

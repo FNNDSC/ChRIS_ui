@@ -17,7 +17,7 @@ import {
   TabTitleText,
 } from '@patternfly/react-core'
 import { Feed } from '@fnndsc/chrisapi'
-import { Alert } from 'antd'
+import { Alert, notification, Space } from 'antd'
 import BrowserContainer from './BrowserContainer'
 import LocalSearch from './LocalSearch'
 import { FaUpload } from 'react-icons/fa'
@@ -27,7 +27,7 @@ import { LocalFile } from '../../../../components/feed/CreateFeed/types'
 import { useTypedSelector } from '../../../../store/hooks'
 import { FileSelect, LibraryContext, Types } from './context'
 import { MainRouterContext } from '../../../../routes'
-import { removeFileSelect, setFolders } from './context/actions'
+import { addFileSelect, removeFileSelect, setFolders } from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'
 import { useDispatch } from 'react-redux'
 import { fetchResource } from '../../../../utils'
@@ -41,7 +41,7 @@ const DataLibrary = () => {
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
   const [directoryName, setDirectoryName] = React.useState('')
-  const { fileSelect, foldersState } = state
+  const { fileSelect, foldersState, selectedFolder, multipleSelect } = state
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0)
   const [error, setError] = React.useState<{ type: string; warning: string }[]>(
     [],
@@ -281,57 +281,103 @@ const DataLibrary = () => {
     </section>
   )
 
+  const cartButtonStyle = {
+    fontWeight: '900',
+    textDecoration: 'underline',
+  }
+
   return (
     <>
-      {fileSelect.length > 0 && (
+      {(fileSelect.length > 0 || multipleSelect) && (
         <AlertGroup isToast>
           <Alert
             type="info"
             description={
               <>
-                <ChipGroup>
-                  {fileSelect.map((file: FileSelect, index) => {
-                    return (
-                      <Chip
-                        onClick={() => {
-                          dispatchLibrary(removeFileSelect(file))
-                        }}
-                        key={index}
-                      >
-                        {file.exactPath}
-                      </Chip>
-                    )
-                  })}
-                </ChipGroup>
+                {fileSelect.length > 0 && (
+                  <>
+                    <ChipGroup style={{ marginBottom: '1em' }} categoryName="">
+                      {fileSelect.map((file: FileSelect, index) => {
+                        return (
+                          <Chip
+                            onClick={() => {
+                              dispatchLibrary(removeFileSelect(file))
+                            }}
+                            key={index}
+                          >
+                            {file.exactPath}
+                          </Chip>
+                        )
+                      })}
+                    </ChipGroup>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <div>
+                        <Button
+                          style={{ marginRight: '1em' }}
+                          onClick={createFeed}
+                          variant="primary"
+                        >
+                          Create Analysis
+                        </Button>
+
+                        <Button
+                          onClick={() => {
+                            handleDownload()
+                          }}
+                          variant="secondary"
+                        >
+                          Download Data
+                        </Button>
+                      </div>
+
+                      <Button variant="secondary" onClick={handleDelete}>
+                        Delete Data
+                      </Button>
+                    </div>
+                  </>
+                )}
               </>
             }
             style={{ width: '100%', marginTop: '3em', padding: '2em' }}
           ></Alert>
-          <div
-            style={{
-              display: 'flex',
-              background: '#e6f7ff',
-            }}
-          >
-            <Button onClick={createFeed} variant="link">
-              Create Feed
-            </Button>
 
-            <Button
-              onClick={() => {
-                handleDownload()
-              }}
-              variant="link"
-            >
-              Download
-            </Button>
-            <Button onClick={handleDelete} variant="link">
-              Delete
-            </Button>
-            <Button onClick={clearFeed} variant="link">
-              Clear
-            </Button>
-          </div>
+          {selectedFolder.length > 1 && multipleSelect && (
+            <span>
+              You have {selectedFolder.length} items selected below.
+              <Button
+                onClick={() => {
+                  const newFolder = selectedFolder.filter((selectedFolder) => {
+                    const find = fileSelect.findIndex(
+                      (fileFolder) =>
+                        selectedFolder.exactPath === fileFolder.exactPath,
+                    )
+
+                    if (find === -1) {
+                      return selectedFolder
+                    }
+                  })
+
+                  dispatchLibrary(addFileSelect(newFolder))
+                }}
+                style={cartButtonStyle}
+                variant="link"
+              >
+                Add To Cart
+              </Button>
+              <Button
+                style={cartButtonStyle}
+                variant="link"
+                onClick={clearFeed}
+              >
+                Clear Selection
+              </Button>
+            </span>
+          )}
 
           {fetchingFiles && (
             <Alert type="info" closable message="Fetching Files to Download" />
