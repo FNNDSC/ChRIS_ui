@@ -108,6 +108,15 @@ export const removeFileSelect = (file: FileSelect) => {
   }
 }
 
+export const clearSelectFolder = (file: FileSelect) => {
+  return {
+    type: Types.CLEAR_SELECTED_FOLDER,
+    payload: {
+      selectFolder: file,
+    },
+  }
+}
+
 export const setSelectFolder = (
   payload: FileSelect & {
     event: string

@@ -90,6 +90,7 @@ export enum Types {
   SET_REMOVE_FILE_SELECT = 'SET_REMOVE_FILE_SELECT',
   SET_CLEAR_FILE_SELECT = 'SET_CLEAR_FILE_SELECT',
   CLEAR_FOLDER_STATE = 'CLEAR_FOLDER_STATE',
+  CLEAR_SELECTED_FOLDER = 'CLEAR_SELECTED_FOLDER',
   CLEAR_FILES_STATE = 'CLEAR_FILES_STATE',
   SET_TOOLTIP = 'SET_TOOLTIP',
   SET_MULTIPLE_SELECT = 'SET_MULTIPLE_SELECT',
@@ -148,6 +149,10 @@ type LibraryPayload = {
   }
 
   [Types.SET_SELECTED_FOLDER]: {
+    selectFolder: FileSelect
+  }
+
+  [Types.CLEAR_SELECTED_FOLDER]: {
     selectFolder: FileSelect
   }
 
@@ -290,6 +295,16 @@ export const libraryReducer = (
         ...state,
         selectedFolder: newFolder,
         multipleSelect,
+      }
+    }
+
+    case Types.CLEAR_SELECTED_FOLDER: {
+      const newFileSelect = state.selectedFolder.filter(
+        (file) => file.exactPath !== action.payload.selectFolder.exactPath,
+      )
+      return {
+        ...state,
+        selectedFolder: newFileSelect,
       }
     }
 
