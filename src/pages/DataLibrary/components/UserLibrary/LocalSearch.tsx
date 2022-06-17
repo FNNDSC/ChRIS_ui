@@ -10,7 +10,6 @@ import {
 } from './utils'
 import { LibraryContext } from './context'
 
-
 const LocalSearch = ({
   type,
   username,
@@ -85,21 +84,26 @@ const LocalSearch = ({
         />
         <Button onClick={handleSubmit}>Search</Button>
       </div>
-      {loading && (
-        <div
-          style={{
-            marginTop: '1em',
-          }}
-        >
-          <Spinner
-            style={{
-              marginRight: '1em',
-            }}
-            size="md"
-          />
-          <span>Fetching Search Results....</span>
-        </div>
-      )}
+
+      <div
+        style={{
+          marginTop: '1em',
+          height: '1em',
+        }}
+      >
+        {loading && (
+          <>
+            {' '}
+            <Spinner
+              style={{
+                marginRight: '1em',
+              }}
+              size="md"
+            />
+            <span>Performing Search....Please wait</span>
+          </>
+        )}
+      </div>
     </>
   )
 }
