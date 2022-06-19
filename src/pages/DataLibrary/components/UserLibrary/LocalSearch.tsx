@@ -27,7 +27,7 @@ const LocalSearch = ({
 
   const placeholder =
     type === 'uploads'
-      ? 'Search over all Uploads'
+      ? 'Search over Uploads'
       : type === 'feed'
       ? 'Search over Completed Analyses'
       : 'Search over SERVICES/PACS'

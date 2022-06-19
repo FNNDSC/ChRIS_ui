@@ -150,7 +150,7 @@ const TooltipParent = ({ children }: { children: React.ReactElement }) => {
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <h3 style={h3Style}>Explore Card: {'   '}<i>double click</i></h3>
       <h3 style={{ ...h3Style, paddingBottom: '0' }}>
-        Select Card: <i>hold then release</i>
+        Select Card: {'  '} <i>hold then release</i>
       </h3>
       <h3 style={h3Style}>
         Cancel Tips:{'    '}
