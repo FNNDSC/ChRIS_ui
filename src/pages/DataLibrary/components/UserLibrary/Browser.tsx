@@ -148,12 +148,12 @@ const TooltipParent = ({ children }: { children: React.ReactElement }) => {
 
   const title = (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <h3 style={h3Style}>Enter card: Double Click</h3>
+      <h3 style={h3Style}>Explore Card: {'   '}<i>double click</i></h3>
       <h3 style={{ ...h3Style, paddingBottom: '0' }}>
-        Select card: long press and release
+        Select Card: <i>hold then release</i>
       </h3>
       <h3 style={h3Style}>
-        Dismiss toolip:{' '}
+        Cancel Tips:{'    '}
         <Button
           style={{
             padding: 0,
