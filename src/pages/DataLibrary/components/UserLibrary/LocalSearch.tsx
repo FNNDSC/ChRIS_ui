@@ -27,10 +27,10 @@ const LocalSearch = ({
 
   const placeholder =
     type === 'uploads'
-      ? 'Search uploaded data here'
+      ? 'Search over all Uploads'
       : type === 'feed'
-      ? 'Search analyses data here'
-      : 'Search services/pacs data here'
+      ? 'Search over Completed Analyses'
+      : 'Search over SERVICES/PACS'
 
   const handleSubmit = async () => {
     if (value && username) {
@@ -100,7 +100,7 @@ const LocalSearch = ({
               }}
               size="md"
             />
-            <span>Performing Search....Please wait</span>
+            <span>Performing Search... <i>please wait</i></span>
           </>
         )}
       </div>

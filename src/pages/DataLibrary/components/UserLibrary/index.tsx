@@ -470,7 +470,7 @@ const DataLibrary = () => {
         </Tab>
         <Tab
           eventKey={2}
-          title={<TabTitleText>Services / PACS DATA</TabTitleText>}
+          title={<TabTitleText>Services / PACS</TabTitleText>}
         >
           {servicesFiles}
         </Tab>
