@@ -7,16 +7,9 @@ import {
   Button,
 } from '@patternfly/react-core'
 import { FaFolder, FaFolderOpen, FaUser } from 'react-icons/fa'
+import { FcServices } from 'react-icons/fc'
 
-const BreadcrumbContainer = ({
-  initialPath,
-  handleFolderClick,
-  files,
-  folderDetails,
-  browserType,
-  togglePreview,
-  previewAll,
-}: {
+export interface Breadcrumb {
   initialPath: string
   handleFolderClick: (path: string, breadcrumb?: any) => void
   files: any[]
@@ -27,7 +20,17 @@ const BreadcrumbContainer = ({
   browserType: string
   togglePreview: () => void
   previewAll: boolean
-}) => {
+}
+
+const BreadcrumbContainer = ({
+  initialPath,
+  handleFolderClick,
+  files,
+  folderDetails,
+  browserType,
+  togglePreview,
+  previewAll,
+}: Breadcrumb) => {
   const initialPathSplit = initialPath ? initialPath.split('/') : []
 
   return (
@@ -41,13 +44,17 @@ const BreadcrumbContainer = ({
             index === 0
           ) {
             icon = <FaUser style={style} />
-          }
-          if (index !== 0 && index !== initialPathSplit.length - 1) {
+          } else if (index === 0 && browserType === 'services') {
+            icon = <FcServices style={style} />
+          } else if (
+            index === initialPathSplit.length - 1 &&
+            initialPathSplit.length > 1
+          ) {
+            icon = <FaFolderOpen style={style} />
+          } else {
             icon = <FaFolder style={style} />
           }
-          if (index === initialPathSplit.length - 1) {
-            icon = <FaFolderOpen style={style} />
-          }
+
           return (
             <BreadcrumbItem
               style={{

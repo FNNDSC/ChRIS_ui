@@ -141,12 +141,32 @@ const TooltipParent = ({ children }: { children: React.ReactElement }) => {
     })
   }
 
+  const h3Style = {
+    color: 'white',
+    fontSize: '1em',
+  }
+
   const title = (
-    <div>
-      Double Click: enter; Long Press: select; Dismiss Tooltip:{' '}
-      <span onClick={hideToolTip} style={{ textAlign: 'center' }}>
-        <MdClose />
-      </span>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <h3 style={h3Style}>
+        Explore Card: {'   '}
+        <i>double click</i>
+      </h3>
+      <h3 style={{ ...h3Style, paddingBottom: '0' }}>
+        Select Card: {'  '} <i>single click</i>
+      </h3>
+      <h3 style={h3Style}>
+        Cancel Tips:{'    '}
+        <Button
+          style={{
+            padding: 0,
+            ...h3Style,
+          }}
+          variant="link"
+          icon={<MdClose style={{ textAlign: 'center' }} />}
+          onClick={hideToolTip}
+        />
+      </h3>
     </div>
   )
 
@@ -170,7 +190,7 @@ function FileCard({
 }) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder, fileSelect } = state
+  const { selectedFolder, } = state
 
   const { handleOnClick, handleOnMouseDown } = handlers
   const fileNameArray = file.data.fname.split('/')
@@ -189,7 +209,7 @@ function FileCard({
             background: `${background ? '#e7f1fa' : 'white'}`,
           }}
           onClick={(e) => {
-            handleOnClick(e, path, file, initialPath, browserType, fileSelect)
+            handleOnClick(e, path, file, initialPath, browserType)
           }}
           onMouseDown={handleOnMouseDown}
           key={file.data.fname}
@@ -273,7 +293,7 @@ function FolderCard({
 }: FolderCardInterface) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder, fileSelect } = state
+  const { selectedFolder,  } = state
 
   const [feedName, setFeedName] = useState('')
   const [commitDate, setCommitDate] = useState('')
@@ -308,7 +328,7 @@ function FolderCard({
             folder,
             initialPath,
             browserType,
-            fileSelect,
+
             handleFolderClick,
           )
         }}

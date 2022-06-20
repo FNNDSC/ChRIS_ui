@@ -27,7 +27,11 @@ import { LocalFile } from '../../../../components/feed/CreateFeed/types'
 import { useTypedSelector } from '../../../../store/hooks'
 import { FileSelect, LibraryContext, Types } from './context'
 import { MainRouterContext } from '../../../../routes'
-import { removeFileSelect, setFolders } from './context/actions'
+import {
+  clearSelectFolder,
+  removeFileSelect,
+  setFolders,
+} from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'
 import { useDispatch } from 'react-redux'
 import { fetchResource } from '../../../../utils'
@@ -41,7 +45,7 @@ const DataLibrary = () => {
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
   const [directoryName, setDirectoryName] = React.useState('')
-  const { fileSelect, foldersState } = state
+  const { fileSelect, foldersState, selectedFolder } = state
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0)
   const [error, setError] = React.useState<{ type: string; warning: string }[]>(
     [],
@@ -66,7 +70,7 @@ const DataLibrary = () => {
   }
 
   const createFeed = () => {
-    const pathList = fileSelect.map((file) => file.exactPath)
+    const pathList = selectedFolder.map((file) => file.exactPath)
     router.actions.createFeedWithData(pathList)
   }
 
@@ -90,7 +94,7 @@ const DataLibrary = () => {
     setFetchingFiles(!fetchingFiles)
 
     Promise.all(
-      fileSelect.map(async (file: FileSelect) => {
+      selectedFolder.map(async (file: FileSelect) => {
         const { exactPath } = file
         const filesToPush: {
           [key: string]: any[]
@@ -188,7 +192,7 @@ const DataLibrary = () => {
   const handleDelete = () => {
     const errorWarnings: any[] = []
 
-    fileSelect.map(async (file: FileSelect) => {
+    selectedFolder.map(async (file: FileSelect) => {
       const client = ChrisAPIClient.getClient()
       if (file.type === 'uploads') {
         const paths = await client.getFileBrowserPath(file.exactPath)
@@ -232,7 +236,7 @@ const DataLibrary = () => {
     )
     handlePaginatedFolders(newFolders, file.path, dispatchLibrary)
     dispatchLibrary(setFolders(newFolders, file.path))
-    dispatchLibrary(removeFileSelect(file))
+    dispatchLibrary(clearSelectFolder(file))
   }
 
   const handleDeleteFeed = async () => {
@@ -244,10 +248,8 @@ const DataLibrary = () => {
 
         if (feedId) {
           const id = feedId.split('_')[1]
-
           const client = ChrisAPIClient.getClient()
           const feed = await client.getFeed(parseInt(id))
-
           if (foldersState[file.path]) {
             deleteUtil(file)
           }
@@ -285,55 +287,67 @@ const DataLibrary = () => {
 
   return (
     <>
-      {fileSelect.length > 0 && (
+      {selectedFolder.length > 0 && (
         <AlertGroup isToast>
           <Alert
             type="info"
             description={
               <>
-                <ChipGroup>
-                  {fileSelect.map((file: FileSelect, index) => {
-                    return (
-                      <Chip
-                        onClick={() => {
-                          dispatchLibrary(removeFileSelect(file))
-                        }}
-                        key={index}
-                      >
-                        {file.exactPath}
-                      </Chip>
-                    )
-                  })}
-                </ChipGroup>
+                {selectedFolder.length > 0 && (
+                  <>
+                    <ChipGroup style={{ marginBottom: '1em' }} categoryName="">
+                      {selectedFolder.map((file: FileSelect, index) => {
+                        return (
+                          <Chip
+                            onClick={() => {
+                              dispatchLibrary(clearSelectFolder(file))
+                            }}
+                            key={index}
+                          >
+                            {file.exactPath}
+                          </Chip>
+                        )
+                      })}
+                    </ChipGroup>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <div>
+                        <Button
+                          style={{ marginRight: '0.25em' }}
+                          onClick={createFeed}
+                          variant="primary"
+                        >
+                          Create Analysis
+                        </Button>
+
+                        <Button
+                          style={{ marginRight: '0.25em' }}
+                          onClick={() => {
+                            handleDownload()
+                          }}
+                          variant="secondary"
+                        >
+                          Download Data
+                        </Button>
+                        <Button variant="secondary" onClick={handleDelete}>
+                          Delete Data
+                        </Button>
+                      </div>
+
+                      <Button variant="secondary" onClick={clearFeed}>
+                        Empty Cart
+                      </Button>
+                    </div>
+                  </>
+                )}
               </>
             }
             style={{ width: '100%', marginTop: '3em', padding: '2em' }}
           ></Alert>
-          <div
-            style={{
-              display: 'flex',
-              background: '#e6f7ff',
-            }}
-          >
-            <Button onClick={createFeed} variant="link">
-              Create Feed
-            </Button>
-
-            <Button
-              onClick={() => {
-                handleDownload()
-              }}
-              variant="link"
-            >
-              Download
-            </Button>
-            <Button onClick={handleDelete} variant="link">
-              Delete
-            </Button>
-            <Button onClick={clearFeed} variant="link">
-              Clear
-            </Button>
-          </div>
 
           {fetchingFiles && (
             <Alert type="info" closable message="Fetching Files to Download" />
@@ -424,10 +438,7 @@ const DataLibrary = () => {
         >
           {feedFiles}
         </Tab>
-        <Tab
-          eventKey={2}
-          title={<TabTitleText>Services / PACS DATA</TabTitleText>}
-        >
+        <Tab eventKey={2} title={<TabTitleText>Services / PACS</TabTitleText>}>
           {servicesFiles}
         </Tab>
       </Tabs>
@@ -437,6 +448,15 @@ const DataLibrary = () => {
 
 export default DataLibrary
 
+interface UploadComponent {
+  handleFileModal: () => void
+  handleLocalFiles: (files: LocalFile[]) => void
+  uploadFileModal: boolean
+  localFiles: LocalFile[]
+  directoryName: string
+  handleDirectoryName: (path: string) => void
+}
+
 const UploadComponent = ({
   handleFileModal,
   handleLocalFiles,
@@ -444,14 +464,7 @@ const UploadComponent = ({
   localFiles,
   directoryName,
   handleDirectoryName,
-}: {
-  handleFileModal: () => void
-  handleLocalFiles: (files: LocalFile[]) => void
-  uploadFileModal: boolean
-  localFiles: LocalFile[]
-  directoryName: string
-  handleDirectoryName: (path: string) => void
-}) => {
+}: UploadComponent) => {
   const username = useTypedSelector((state) => state.user.username)
   const { dispatch } = useContext(LibraryContext)
   const [warning, setWarning] = React.useState('')
@@ -558,6 +571,12 @@ const UploadComponent = ({
               )
               setCount(i + 1)
             }
+
+            /** Temporary Timer */
+
+            setTimeout(() => {
+              handleFileModal()
+            }, 500)
           }
         }}
       />
