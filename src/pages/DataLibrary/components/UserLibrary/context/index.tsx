@@ -90,6 +90,7 @@ export enum Types {
   SET_REMOVE_FILE_SELECT = 'SET_REMOVE_FILE_SELECT',
   SET_CLEAR_FILE_SELECT = 'SET_CLEAR_FILE_SELECT',
   CLEAR_FOLDER_STATE = 'CLEAR_FOLDER_STATE',
+  CLEAR_SELECTED_FOLDER = 'CLEAR_SELECTED_FOLDER',
   CLEAR_FILES_STATE = 'CLEAR_FILES_STATE',
   SET_TOOLTIP = 'SET_TOOLTIP',
   SET_MULTIPLE_SELECT = 'SET_MULTIPLE_SELECT',
@@ -148,6 +149,10 @@ type LibraryPayload = {
   }
 
   [Types.SET_SELECTED_FOLDER]: {
+    selectFolder: FileSelect
+  }
+
+  [Types.CLEAR_SELECTED_FOLDER]: {
     selectFolder: FileSelect
   }
 
@@ -238,58 +243,30 @@ export const libraryReducer = (
     case Types.SET_CLEAR_FILE_SELECT: {
       return {
         ...state,
-        fileSelect: [],
         selectedFolder: [],
-        multipleSelect: false,
       }
     }
-
-    case Types.SET_ADD_FILE_SELECT: {
-      return {
-        ...state,
-        fileSelect: [...state.fileSelect, ...action.payload.addFolder],
-      }
-    }
-
-    case Types.SET_REMOVE_FILE_SELECT: {
-      const newFileSelect = state.fileSelect.filter(
-        (file) => file.exactPath !== action.payload.removeFolder.exactPath,
-      )
-
-      return {
-        ...state,
-        fileSelect: newFileSelect,
-      }
-    }
-
     case Types.SET_SELECTED_FOLDER: {
-      const {
-        event,
-        folder,
-        exactPath,
-        path,
-        type,
-      } = action.payload.selectFolder
-      let newFolder: FileSelect[] = []
+      const { folder, exactPath, path, type } = action.payload.selectFolder
       const folderPayload = {
         exactPath,
         path,
         type,
         folder,
       }
-      let multipleSelect = state.multipleSelect
-      if (event === 'click') {
-        newFolder = [folderPayload]
-        multipleSelect = false
-      }
-      if (event === 'ctrl/shift') {
-        newFolder = [...state.selectedFolder, folderPayload]
-        multipleSelect = true
-      }
       return {
         ...state,
-        selectedFolder: newFolder,
-        multipleSelect,
+        selectedFolder: [...state.selectedFolder, folderPayload],
+      }
+    }
+
+    case Types.CLEAR_SELECTED_FOLDER: {
+      const newFileSelect = state.selectedFolder.filter(
+        (file) => file.exactPath !== action.payload.selectFolder.exactPath,
+      )
+      return {
+        ...state,
+        selectedFolder: newFileSelect,
       }
     }
 
@@ -381,7 +358,7 @@ export const libraryReducer = (
           ...state,
           foldersState: {
             ...state.foldersState,
-            [path]: [...state.foldersState[path], action.payload.folder],
+            [path]: [action.payload.folder, ...state.foldersState[path]],
           },
         }
       } else {

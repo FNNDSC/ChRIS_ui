@@ -37,6 +37,7 @@ const CatalogPage = () => {
           }
           p2={
             <Paragraph style={style}>
+              <p>
               ChRIS is a platform that runs <b>Plugins</b>. A plugin is a single
               application (similar to <i>apps</i> on a mobile device). Examples
               of ChRIS <b>Plugins</b> are applications that analyze images (like{' '}
@@ -47,8 +48,9 @@ const CatalogPage = () => {
               converting medical images from DICOM to jpg, etc. On this page you
               can browse <b>Plugins</b> available for you to use. For more
               options, consult the{' '}
-              <a href="https://next.chrisstore.co">ChRIS store</a>. Often times
-              it is useful to combine many <b>Plugin</b> apps into one{' '}
+              <a href="https://next.chrisstore.co">ChRIS store</a>.
+              </p>
+              <p>Often times it might be useful to combine many <b>Plugin</b> apps into one{' '}
               <b>Pipeline</b> (or <b>Workflow</b>) to automate and group common
               operations together. For example a <b>Pipeline</b> might automate{' '}
               <i>Anonymizing</i> medical DICOM images, <i>Converting</i> these
@@ -61,8 +63,9 @@ const CatalogPage = () => {
                 here
               </a>{' '}
               for some examples). <b>Pipelines</b> are also available in the
-              separate <a href="https://next.chrisstore.co">ChRIS store</a>. The
-              final section on this page presents the available <b>Compute</b>{' '}
+              separate <a href="https://next.chrisstore.co">ChRIS store</a>.
+              </p>
+              <p>The final section on this page presents the available <b>Compute</b>{' '}
               environments that are known to ChRIS. These denote computers and
               clusters/clouds that can be selected to run various <b>plugins</b>{' '}
               and <b>pipelines</b>. The special <b>host</b> environment is
@@ -70,6 +73,7 @@ const CatalogPage = () => {
               It is generally not recommended to run intensive computation on
               the <b>host</b> environment. Adding new <b>Compute</b> to ChRIS is
               typically enabled by using the separate ChRIS admin interface.
+              </p>
             </Paragraph>
           }
         />

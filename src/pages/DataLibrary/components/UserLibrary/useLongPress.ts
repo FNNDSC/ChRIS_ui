@@ -1,13 +1,14 @@
 import { useState, useRef, useContext } from 'react'
-import { LibraryContext, FileSelect } from './context'
-import { addFileSelect, setSelectFolder } from './context/actions'
+
+import { LibraryContext } from './context'
+import { clearSelectFolder, setSelectFolder } from './context/actions'
 
 export default function useLongPress() {
   const [action, setAction] = useState<string>()
   const { dispatch, state } = useContext(LibraryContext)
   const timerRef = useRef<ReturnType<typeof window.setTimeout>>()
   const isLongPress = useRef<boolean>()
-  const { selectedFolder, multipleSelect } = state
+  const { selectedFolder } = state
 
   function startPressTimer() {
     isLongPress.current = false
@@ -24,7 +25,6 @@ export default function useLongPress() {
     folder: string,
     initialPath: string,
     browserType: string,
-    fileSelect: FileSelect[],
     cb?: (path: string, prevPath: string) => void,
   ) {
     setAction('click')
@@ -35,29 +35,33 @@ export default function useLongPress() {
       type: browserType,
       event: '',
     }
+
+    const isExist = selectedFolder.findIndex(
+      (folder) => folder.exactPath === path,
+    )
+
     if (e.detail === 2) {
       cb && cb(`${initialPath}/${folder}`, initialPath)
+      return
     }
 
     if (e.ctrlKey || e.shiftKey) {
       payload['event'] = 'ctrl/shift'
-      dispatch(setSelectFolder(payload))
+      if (isExist === -1) {
+        dispatch(setSelectFolder(payload))
+      } else {
+        dispatch(clearSelectFolder(payload))
+      }
+
       return
     }
 
     if (!(e.ctrlKey || e.shiftKey) || e.detail === 1) {
       payload['event'] = 'click'
-      dispatch(setSelectFolder(payload))
-    }
-
-    if (isLongPress.current) {
-      if (multipleSelect) {
-        dispatch(addFileSelect(selectedFolder))
+      if (isExist === -1) {
+        dispatch(setSelectFolder(payload))
       } else {
-        const isFound = fileSelect.some(
-          (fileSelect) => fileSelect.exactPath === payload.exactPath,
-        )
-        if (!isFound) dispatch(addFileSelect([payload]))
+        dispatch(clearSelectFolder(payload))
       }
     }
   }
