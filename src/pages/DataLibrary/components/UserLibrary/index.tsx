@@ -17,7 +17,7 @@ import {
   TabTitleText,
 } from '@patternfly/react-core'
 import { Feed } from '@fnndsc/chrisapi'
-import { Alert, notification, Space } from 'antd'
+import { Alert } from 'antd'
 import BrowserContainer from './BrowserContainer'
 import LocalSearch from './LocalSearch'
 import { FaUpload } from 'react-icons/fa'
@@ -318,7 +318,7 @@ const DataLibrary = () => {
                     >
                       <div>
                         <Button
-                          style={{ marginRight: '1em' }}
+                          style={{ marginRight: '0.25em' }}
                           onClick={createFeed}
                           variant="primary"
                         >
@@ -326,6 +326,7 @@ const DataLibrary = () => {
                         </Button>
 
                         <Button
+                          style={{ marginRight: '0.25em' }}
                           onClick={() => {
                             handleDownload()
                           }}
@@ -333,10 +334,13 @@ const DataLibrary = () => {
                         >
                           Download Data
                         </Button>
+                        <Button variant="secondary" onClick={handleDelete}>
+                          Delete Data
+                        </Button>
                       </div>
 
-                      <Button variant="secondary" onClick={handleDelete}>
-                        Delete Data
+                      <Button variant="secondary" onClick={clearFeed}>
+                        Empty Cart
                       </Button>
                     </div>
                   </>
@@ -368,13 +372,6 @@ const DataLibrary = () => {
                 variant="link"
               >
                 Add To Cart
-              </Button>
-              <Button
-                style={cartButtonStyle}
-                variant="link"
-                onClick={clearFeed}
-              >
-                Clear Selection
               </Button>
             </span>
           )}
@@ -468,10 +465,7 @@ const DataLibrary = () => {
         >
           {feedFiles}
         </Tab>
-        <Tab
-          eventKey={2}
-          title={<TabTitleText>Services / PACS</TabTitleText>}
-        >
+        <Tab eventKey={2} title={<TabTitleText>Services / PACS</TabTitleText>}>
           {servicesFiles}
         </Tab>
       </Tabs>
@@ -481,6 +475,15 @@ const DataLibrary = () => {
 
 export default DataLibrary
 
+interface UploadComponent {
+  handleFileModal: () => void
+  handleLocalFiles: (files: LocalFile[]) => void
+  uploadFileModal: boolean
+  localFiles: LocalFile[]
+  directoryName: string
+  handleDirectoryName: (path: string) => void
+}
+
 const UploadComponent = ({
   handleFileModal,
   handleLocalFiles,
@@ -488,14 +491,7 @@ const UploadComponent = ({
   localFiles,
   directoryName,
   handleDirectoryName,
-}: {
-  handleFileModal: () => void
-  handleLocalFiles: (files: LocalFile[]) => void
-  uploadFileModal: boolean
-  localFiles: LocalFile[]
-  directoryName: string
-  handleDirectoryName: (path: string) => void
-}) => {
+}: UploadComponent) => {
   const username = useTypedSelector((state) => state.user.username)
   const { dispatch } = useContext(LibraryContext)
   const [warning, setWarning] = React.useState('')
@@ -602,6 +598,12 @@ const UploadComponent = ({
               )
               setCount(i + 1)
             }
+
+            /** Temporary Timer */
+
+            setTimeout(() => {
+              handleFileModal()
+            }, 500)
           }
         }}
       />
