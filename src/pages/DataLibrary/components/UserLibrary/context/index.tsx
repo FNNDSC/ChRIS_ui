@@ -243,58 +243,20 @@ export const libraryReducer = (
     case Types.SET_CLEAR_FILE_SELECT: {
       return {
         ...state,
-        fileSelect: [],
         selectedFolder: [],
-        multipleSelect: false,
       }
     }
-
-    case Types.SET_ADD_FILE_SELECT: {
-      return {
-        ...state,
-        fileSelect: [...state.fileSelect, ...action.payload.addFolder],
-      }
-    }
-
-    case Types.SET_REMOVE_FILE_SELECT: {
-      const newFileSelect = state.fileSelect.filter(
-        (file) => file.exactPath !== action.payload.removeFolder.exactPath,
-      )
-
-      return {
-        ...state,
-        fileSelect: newFileSelect,
-      }
-    }
-
     case Types.SET_SELECTED_FOLDER: {
-      const {
-        event,
-        folder,
-        exactPath,
-        path,
-        type,
-      } = action.payload.selectFolder
-      let newFolder: FileSelect[] = []
+      const { folder, exactPath, path, type } = action.payload.selectFolder
       const folderPayload = {
         exactPath,
         path,
         type,
         folder,
       }
-      let multipleSelect = state.multipleSelect
-      if (event === 'click') {
-        newFolder = [folderPayload]
-        multipleSelect = false
-      }
-      if (event === 'ctrl/shift') {
-        newFolder = [...state.selectedFolder, folderPayload]
-        multipleSelect = true
-      }
       return {
         ...state,
-        selectedFolder: newFolder,
-        multipleSelect,
+        selectedFolder: [...state.selectedFolder, folderPayload],
       }
     }
 
