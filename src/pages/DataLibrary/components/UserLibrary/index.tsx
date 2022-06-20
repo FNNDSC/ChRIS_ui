@@ -27,7 +27,11 @@ import { LocalFile } from '../../../../components/feed/CreateFeed/types'
 import { useTypedSelector } from '../../../../store/hooks'
 import { FileSelect, LibraryContext, Types } from './context'
 import { MainRouterContext } from '../../../../routes'
-import { addFileSelect, removeFileSelect, setFolders } from './context/actions'
+import {
+  clearSelectFolder,
+  removeFileSelect,
+  setFolders,
+} from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'
 import { useDispatch } from 'react-redux'
 import { fetchResource } from '../../../../utils'
@@ -41,7 +45,7 @@ const DataLibrary = () => {
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
   const [directoryName, setDirectoryName] = React.useState('')
-  const { fileSelect, foldersState, selectedFolder, multipleSelect } = state
+  const { fileSelect, foldersState, selectedFolder } = state
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0)
   const [error, setError] = React.useState<{ type: string; warning: string }[]>(
     [],
@@ -66,7 +70,7 @@ const DataLibrary = () => {
   }
 
   const createFeed = () => {
-    const pathList = fileSelect.map((file) => file.exactPath)
+    const pathList = selectedFolder.map((file) => file.exactPath)
     router.actions.createFeedWithData(pathList)
   }
 
@@ -281,27 +285,22 @@ const DataLibrary = () => {
     </section>
   )
 
-  const cartButtonStyle = {
-    fontWeight: '900',
-    textDecoration: 'underline',
-  }
-
   return (
     <>
-      {(fileSelect.length > 0 || multipleSelect) && (
+      {selectedFolder.length > 0 && (
         <AlertGroup isToast>
           <Alert
             type="info"
             description={
               <>
-                {fileSelect.length > 0 && (
+                {selectedFolder.length > 0 && (
                   <>
                     <ChipGroup style={{ marginBottom: '1em' }} categoryName="">
-                      {fileSelect.map((file: FileSelect, index) => {
+                      {selectedFolder.map((file: FileSelect, index) => {
                         return (
                           <Chip
                             onClick={() => {
-                              dispatchLibrary(removeFileSelect(file))
+                              dispatchLibrary(clearSelectFolder(file))
                             }}
                             key={index}
                           >
@@ -349,32 +348,6 @@ const DataLibrary = () => {
             }
             style={{ width: '100%', marginTop: '3em', padding: '2em' }}
           ></Alert>
-
-          {selectedFolder.length > 1 && multipleSelect && (
-            <span>
-              You have {selectedFolder.length} items selected below.
-              <Button
-                onClick={() => {
-                  const newFolder = selectedFolder.filter((selectedFolder) => {
-                    const find = fileSelect.findIndex(
-                      (fileFolder) =>
-                        selectedFolder.exactPath === fileFolder.exactPath,
-                    )
-
-                    if (find === -1) {
-                      return selectedFolder
-                    }
-                  })
-
-                  dispatchLibrary(addFileSelect(newFolder))
-                }}
-                style={cartButtonStyle}
-                variant="link"
-              >
-                Add To Cart
-              </Button>
-            </span>
-          )}
 
           {fetchingFiles && (
             <Alert type="info" closable message="Fetching Files to Download" />
