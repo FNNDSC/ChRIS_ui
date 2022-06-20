@@ -396,7 +396,7 @@ export const libraryReducer = (
           ...state,
           foldersState: {
             ...state.foldersState,
-            [path]: [...state.foldersState[path], action.payload.folder],
+            [path]: [action.payload.folder, ...state.foldersState[path]],
           },
         }
       } else {
