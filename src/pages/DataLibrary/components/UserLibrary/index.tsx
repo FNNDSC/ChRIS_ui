@@ -94,7 +94,7 @@ const DataLibrary = () => {
     setFetchingFiles(!fetchingFiles)
 
     Promise.all(
-      fileSelect.map(async (file: FileSelect) => {
+      selectedFolder.map(async (file: FileSelect) => {
         const { exactPath } = file
         const filesToPush: {
           [key: string]: any[]
@@ -192,7 +192,7 @@ const DataLibrary = () => {
   const handleDelete = () => {
     const errorWarnings: any[] = []
 
-    fileSelect.map(async (file: FileSelect) => {
+    selectedFolder.map(async (file: FileSelect) => {
       const client = ChrisAPIClient.getClient()
       if (file.type === 'uploads') {
         const paths = await client.getFileBrowserPath(file.exactPath)
@@ -236,7 +236,7 @@ const DataLibrary = () => {
     )
     handlePaginatedFolders(newFolders, file.path, dispatchLibrary)
     dispatchLibrary(setFolders(newFolders, file.path))
-    dispatchLibrary(removeFileSelect(file))
+    dispatchLibrary(clearSelectFolder(file))
   }
 
   const handleDeleteFeed = async () => {
