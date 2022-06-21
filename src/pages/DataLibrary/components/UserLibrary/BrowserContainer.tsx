@@ -14,7 +14,7 @@ import {
   clearFilesState,
 } from './context/actions'
 import { handlePaginatedFolders } from './utils'
-import { EmptyState, Title, EmptyStateBody } from '@patternfly/react-core'
+import { Spin } from 'antd'
 
 interface BrowserContainerInterface {
   type: string
@@ -218,13 +218,7 @@ const BrowserContainer = ({
       }
 
       {!folders && !files ? (
-        <EmptyState>
-          <Title headingLevel="h4">No Folders or Files Found</Title>{' '}
-          <EmptyStateBody>
-            Upload a file, Create a Feed or Pull Files from the PACS server to
-            see some files here.
-          </EmptyStateBody>
-        </EmptyState>
+        <Spin>Fetching Files</Spin>
       ) : loading ? (
         <SpinAlert browserType="feeds" />
       ) : (
