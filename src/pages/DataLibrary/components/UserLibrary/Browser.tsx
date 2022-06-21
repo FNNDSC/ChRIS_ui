@@ -359,7 +359,7 @@ function FolderCard({
         isHoverable
         isRounded
         style={{
-          background: `${background ? '#bee1f4' : 'white'}`,
+          background: `${background ? '#e7f1fa' : 'white'}`,
         }}
       >
         <CardHeader>
