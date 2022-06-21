@@ -13,17 +13,16 @@ import { fetchResource } from "../../utils";
 function* handleGetParams(action: IActionTypeParam) {
   try {
     const plugin = action.payload;
-    const paginate = { limit: 20, offset: 0 };
     const fn = plugin.getPluginParameters;
     const boundFn = fn.bind(plugin);
     const params: PluginParameter[] = yield fetchResource<PluginParameter[]>(
-      paginate,
+      { limit: 20, offset: 0 },
       boundFn
     );
     const computeFn = plugin.getPluginComputeResources;
     const boundComputeFn = computeFn.bind(plugin);
     const computeEnvs: any[] = yield fetchResource<any>(
-      paginate,
+      { limit: 20, offset: 0 },
       boundComputeFn
     );
 
