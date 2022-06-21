@@ -1,11 +1,7 @@
 import { useState, useRef, useContext } from 'react'
 
-import { LibraryContext, FileSelect } from './context'
-import {
-  addFileSelect,
-  clearSelectFolder,
-  setSelectFolder,
-} from './context/actions'
+import { LibraryContext } from './context'
+import { clearSelectFolder, setSelectFolder } from './context/actions'
 
 //@ts-ignore
 let timer: NodeJS.Timeout = 0
@@ -17,7 +13,7 @@ export default function useLongPress() {
   const { dispatch, state } = useContext(LibraryContext)
   const timerRef = useRef<ReturnType<typeof window.setTimeout>>()
   const isLongPress = useRef<boolean>()
-  const { selectedFolder, multipleSelect } = state
+  const { selectedFolder } = state
 
   function startPressTimer() {
     isLongPress.current = false

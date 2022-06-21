@@ -9,21 +9,15 @@
 }
 
 .feed-details {
-  display: flex;
-  justify-content: space-between;
-
-  ul {
-    display: flex;
-    align-items: flex-start;
-  }
-
+  height: 100%;
+  width: 100%;
+  --pf-c-toolbar--BackgroundColor: "inherit" !important;
   &__textarea {
     --pf-c-form-control--BackgroundColor: var(
       --pf-global--palette--black-1000
     ) !important;
     color: white !important;
     font-family: "monospace";
-    font-size: 1.25rem;
     height: 20em !important;
   }
 
@@ -32,27 +26,5 @@
     button {
       margin-right: 0.5em;
     }
-  }
-
-  @include media-query($pf-global--breakpoint--xs) {
-    flex-direction: column;
-  }
-
-  @include media-query($pf-global--breakpoint--lg) {
-    flex-direction: row;
-    li {
-      align-self: center;
-    }
-  }
-
-  li {
-    margin-right: 2em;
-    svg {
-      margin-right: 0.25em;
-    }
-  }
-
-  li:first-of-type {
-    font-weight: bold;
   }
 }
