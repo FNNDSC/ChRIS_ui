@@ -5,10 +5,13 @@ import {
   Card,
   CardHeader,
   CardBody,
+  CardTitle,
   Split,
   SplitItem,
   Button,
   Modal,
+  CardActions,
+  Checkbox,
 } from '@patternfly/react-core'
 import { FaFile, FaFolder, FaDownload, FaExpand } from 'react-icons/fa'
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
@@ -129,7 +132,13 @@ export function Browser({
   )
 }
 
-const TooltipParent = ({ children }: { children: React.ReactElement }) => {
+const TooltipParent = ({
+  children,
+  type,
+}: {
+  children: React.ReactElement
+  type: string
+}) => {
   const { state, dispatch } = useContext(LibraryContext)
 
   const hideToolTip = () => {
@@ -153,7 +162,8 @@ const TooltipParent = ({ children }: { children: React.ReactElement }) => {
         <i>double click</i>
       </h3>
       <h3 style={{ ...h3Style, paddingBottom: '0' }}>
-        Select Card: {'  '} <i>single click</i>
+        Select Card: {'  '}{' '}
+        <i>{type === 'folder' ? `single click` : 'click the checkbox'}</i>
       </h3>
       <h3 style={h3Style}>
         Cancel Tips:{'    '}
@@ -190,7 +200,7 @@ function FileCard({
 }) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder, } = state
+  const { selectedFolder } = state
 
   const { handleOnClick, handleOnMouseDown } = handlers
   const fileNameArray = file.data.fname.split('/')
@@ -203,20 +213,36 @@ function FileCard({
 
   return (
     <>
-      <TooltipParent>
+      <TooltipParent type="file">
         <Card
           style={{
             background: `${background ? '#e7f1fa' : 'white'}`,
           }}
-          onClick={(e) => {
-            handleOnClick(e, path, file, initialPath, browserType)
-          }}
+          isSelectableRaised
+          isSelected={background}
           onMouseDown={handleOnMouseDown}
           key={file.data.fname}
           isRounded
           isHoverable
           isSelectable
         >
+          <CardHeader>
+            <CardTitle>
+              <Button icon={<FaFile />} variant="link" style={{ padding: '0' }}>
+                <b>{elipses(fileName, 20)}</b>
+              </Button>
+            </CardTitle>
+
+            <CardActions>
+              <Checkbox
+                id="check2"
+                isChecked={background}
+                onChange={(e) => {
+                  handleOnClick(e, path, file, initialPath, browserType)
+                }}
+              />
+            </CardActions>
+          </CardHeader>
           <CardBody>
             {previewAll && (
               <div
@@ -234,11 +260,7 @@ function FileCard({
               style={{
                 overflow: 'hidden',
               }}
-            >
-              <Button icon={<FaFile />} variant="link" style={{ padding: '0' }}>
-                <b>{elipses(fileName, 20)}</b>
-              </Button>
-            </div>
+            ></div>
             <div>
               <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
               <Button
@@ -293,7 +315,7 @@ function FolderCard({
 }: FolderCardInterface) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder,  } = state
+  const { selectedFolder } = state
 
   const [feedName, setFeedName] = useState('')
   const [commitDate, setCommitDate] = useState('')
@@ -319,7 +341,7 @@ function FolderCard({
   })
 
   return (
-    <TooltipParent>
+    <TooltipParent type="folder">
       <Card
         onClick={(e) => {
           handleOnClick(
@@ -328,16 +350,16 @@ function FolderCard({
             folder,
             initialPath,
             browserType,
-
             handleFolderClick,
           )
         }}
+        isSelectableRaised
+        isSelected={background}
         onMouseDown={handleOnMouseDown}
         isHoverable
-        isSelectable
         isRounded
         style={{
-          background: `${background ? '#e7f1fa' : 'white'}`,
+          background: `${background ? '#bee1f4' : 'white'}`,
         }}
       >
         <CardHeader>

@@ -45,7 +45,7 @@ const DataLibrary = () => {
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
   const [directoryName, setDirectoryName] = React.useState('')
-  const { fileSelect, foldersState, selectedFolder } = state
+  const { foldersState, selectedFolder } = state
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0)
   const [error, setError] = React.useState<{ type: string; warning: string }[]>(
     [],
@@ -288,7 +288,12 @@ const DataLibrary = () => {
   return (
     <>
       {selectedFolder.length > 0 && (
-        <AlertGroup isToast>
+        <AlertGroup
+          style={{
+            zIndex: '999',
+          }}
+          isToast
+        >
           <Alert
             type="info"
             description={
