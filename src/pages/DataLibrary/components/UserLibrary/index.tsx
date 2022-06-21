@@ -27,11 +27,7 @@ import { LocalFile } from '../../../../components/feed/CreateFeed/types'
 import { useTypedSelector } from '../../../../store/hooks'
 import { FileSelect, LibraryContext, Types } from './context'
 import { MainRouterContext } from '../../../../routes'
-import {
-  clearSelectFolder,
-  removeFileSelect,
-  setFolders,
-} from './context/actions'
+import { clearSelectFolder, setFolders } from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'
 import { useDispatch } from 'react-redux'
 import { fetchResource } from '../../../../utils'
