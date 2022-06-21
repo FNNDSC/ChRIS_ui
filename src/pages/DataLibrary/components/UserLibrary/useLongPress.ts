@@ -3,6 +3,11 @@ import { useState, useRef, useContext } from 'react'
 import { LibraryContext } from './context'
 import { clearSelectFolder, setSelectFolder } from './context/actions'
 
+//@ts-ignore
+let timer: NodeJS.Timeout = 0
+const delay = 400
+let prevent = false
+
 export default function useLongPress() {
   const [action, setAction] = useState<string>()
   const { dispatch, state } = useContext(LibraryContext)
@@ -40,11 +45,6 @@ export default function useLongPress() {
       (folder) => folder.exactPath === path,
     )
 
-    if (e.detail === 2) {
-      cb && cb(`${initialPath}/${folder}`, initialPath)
-      return
-    }
-
     if (e.ctrlKey || e.shiftKey) {
       payload['event'] = 'ctrl/shift'
       if (isExist === -1) {
@@ -52,17 +52,26 @@ export default function useLongPress() {
       } else {
         dispatch(clearSelectFolder(payload))
       }
-
       return
     }
 
     if (!(e.ctrlKey || e.shiftKey) || e.detail === 1) {
-      payload['event'] = 'click'
-      if (isExist === -1) {
-        dispatch(setSelectFolder(payload))
-      } else {
-        dispatch(clearSelectFolder(payload))
-      }
+      timer = setTimeout(function () {
+        if (!prevent) {
+          if (isExist === -1) {
+            dispatch(setSelectFolder(payload))
+          } else {
+            dispatch(clearSelectFolder(payload))
+          }
+        }
+        prevent = false
+      }, delay)
+    }
+
+    if (e.detail === 2) {
+      clearTimeout(timer)
+      prevent = true
+      cb && cb(`${initialPath}/${folder}`, initialPath)
     }
   }
 
