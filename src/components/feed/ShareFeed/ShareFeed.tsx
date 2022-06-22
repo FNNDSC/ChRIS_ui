@@ -32,7 +32,7 @@ const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
     <>
       <Button
         className="share-feed-button"
-        variant="primary"
+        variant="tertiary"
         onClick={handleAddClick}
         icon={<FaCodeBranch />}
         type="button"
