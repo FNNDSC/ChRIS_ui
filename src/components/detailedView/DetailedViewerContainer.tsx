@@ -1,21 +1,22 @@
-import React from "react";
-import { useTypedSelector } from "../../store/hooks";
-import { Tabs, Tab, Alert } from "@patternfly/react-core";
-import { FileBrowserViewer } from "./displays";
-import "./Viewer.scss";
-import { ExplorerMode } from "../../store/explorer/types";
-import DicomViewerContainer from "./displays/DicomViewer";
-import XtkViewer from "./displays/XtkViewer/XtkViewer";
+import React from 'react'
+import { useTypedSelector } from '../../store/hooks'
+import { Tabs, Tab, Alert } from '@patternfly/react-core'
+import { FileBrowserViewer } from './displays'
+import './Viewer.scss'
+import { ExplorerMode } from '../../store/explorer/types'
+import XtkViewer from './displays/XtkViewer/XtkViewer'
+import GalleryDicomView from '../dicomViewer/GalleryDicomView'
+import DicomViewer from './displays/DicomViewer'
 
 const OutputViewerContainer = () => {
-  const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles);
+  const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles)
   const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
-  );
-  const { mode } = useTypedSelector((state) => state.explorer);
-  const [activeTabKey, setActiveTabKey] = React.useState(0);
+    (state) => state.instance.selectedPlugin,
+  )
+  const { mode } = useTypedSelector((state) => state.explorer)
+  const [activeTabKey, setActiveTabKey] = React.useState(0)
   if (!selectedPlugin || !pluginFiles) {
-    return <Alert variant="info" title="Empty Result Set" className="empty" />;
+    return <Alert variant="info" title="Empty Result Set" className="empty" />
   } else {
     const buildTabs = () => {
       const explorerModeMap = {
@@ -26,7 +27,7 @@ const OutputViewerContainer = () => {
         ),
         [ExplorerMode.DicomViewer]: (
           <Tab title="Image Viewer" eventKey={0} key={1}>
-            <DicomViewerContainer />
+            <DicomViewer />
           </Tab>
         ),
         [ExplorerMode.XtkViewer]: (
@@ -34,18 +35,18 @@ const OutputViewerContainer = () => {
             <XtkViewer />
           </Tab>
         ),
-      };
+      }
 
-      return [explorerModeMap[mode]];
-    };
+      return [explorerModeMap[mode]]
+    }
 
-    const tabs = buildTabs();
+    const tabs = buildTabs()
     const handleTabClick = (
       event: React.MouseEvent<HTMLElement, MouseEvent>,
-      tabIndex: React.ReactText
+      tabIndex: React.ReactText,
     ) => {
-      setActiveTabKey(tabIndex as number);
-    };
+      setActiveTabKey(tabIndex as number)
+    }
     return (
       <div className="output-viewer">
         <div className="pf-u-px-lg">
@@ -56,8 +57,8 @@ const OutputViewerContainer = () => {
           }
         </div>
       </div>
-    );
+    )
   }
-};
+}
 
-export default OutputViewerContainer;
+export default OutputViewerContainer

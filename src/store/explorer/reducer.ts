@@ -1,5 +1,5 @@
-import { Reducer } from "redux";
-import { ExplorerActionTypes, ExplorerMode, IExplorerState } from "./types";
+import { Reducer } from 'redux'
+import { ExplorerActionTypes, ExplorerMode, IExplorerState } from './types'
 
 // Type-safe initialState
 const initialState: IExplorerState = {
@@ -9,7 +9,7 @@ const initialState: IExplorerState = {
   selectedFolder: undefined,
   enableDcmTool: false,
   files: [],
-};
+}
 
 const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
   switch (action.type) {
@@ -17,27 +17,27 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
       return {
         ...state,
         explorer: action.payload,
-      };
+      }
     }
     case ExplorerActionTypes.SET_SELECTED_FILE: {
-      const selectedFile = action.payload;
+      const selectedFile = action.payload
 
       return {
         ...state,
         selectedFile,
-      };
+      }
     }
 
     case ExplorerActionTypes.SET_SELECTED_FOLDER: {
-      const selectedFolder = action.payload;
+      const selectedFolder = action.payload
       return {
         ...state,
         selectedFolder,
-      };
+      }
     }
 
     case ExplorerActionTypes.SET_EXPLORER_MODE: {
-      return { ...state, mode: action.payload };
+      return { ...state, mode: action.payload }
     }
     case ExplorerActionTypes.DESTROY_EXPLORER: {
       return {
@@ -47,31 +47,31 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
         mode: ExplorerMode.SwiftFileBrowser,
         selectedFolder: undefined,
         enableDcmTool: false,
-      };
+      }
     }
 
     case ExplorerActionTypes.ENABLE_DCM_TOOL: {
-      return { ...state, enableDcmTool: action.payload };
+      return { ...state, enableDcmTool: action.payload }
     }
 
     case ExplorerActionTypes.SET_GALLERY_FILES: {
       return {
         ...state,
-        files: [...state.files, ...action.payload],
-      };
+        files: [...action.payload],
+      }
     }
 
     case ExplorerActionTypes.CLEAR_GALLERY_FILES: {
       return {
         ...state,
         files: [],
-      };
+      }
     }
 
     default: {
-      return state;
+      return state
     }
   }
-};
+}
 
-export { reducer as explorerReducer };
+export { reducer as explorerReducer }
