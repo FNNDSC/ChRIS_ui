@@ -15,7 +15,7 @@ import {
   Hint,
   HintBody,
   Checkbox,
-  Tooltip
+  Tooltip  
 } from '@patternfly/react-core'
 import { Table, TableBody, Thead, Tr, Th } from '@patternfly/react-table'
 import { ChartDonutUtilization } from '@patternfly/react-charts'
@@ -154,7 +154,7 @@ const FeedListView: React.FC<AllProps> = ({
         </span>
       ),
     }
-    
+
     const feedId = {
       title: <p style={fontFamily}>{feed.data.id }{(d1 >= smallD2 ? 
       <Tooltip content={<div>Created recently</div>}>
@@ -249,7 +249,7 @@ const FeedListView: React.FC<AllProps> = ({
     const bulkChecbox = {
       title: (
         <Checkbox
-          isChecked={isSelected(bulkSelect,feed)}//{bulkSelect.includes(feed)}
+          isChecked={isSelected(bulkSelect,feed)}
           id="check"
           aria-label="toggle icon bar"
           onChange={() => {

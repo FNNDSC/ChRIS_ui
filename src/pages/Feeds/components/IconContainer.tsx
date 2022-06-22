@@ -1,5 +1,15 @@
 import React from 'react'
-import { ToggleGroup, ToggleGroupItem, Tooltip } from '@patternfly/react-core'
+import { 
+  ToggleGroup,
+  ToggleGroupItem,
+  Tooltip,
+  Modal,
+  ModalVariant,
+  Form,
+  FormGroup,
+  Popover,
+  TextInput,
+  Button } from '@patternfly/react-core'
 import { FaTrash, FaDownload, } from 'react-icons/fa'
 import { VscMerge } from 'react-icons/vsc'
 import { useDispatch } from 'react-redux'
@@ -16,10 +26,11 @@ const IconContainer = () => {
     return state.feed.bulkSelect
   })
   const dispatch = useDispatch()
+  
 
-  const handleChange = (type: string) => {
-    type === 'download' && dispatch(downloadFeedRequest(bulkSelect))
-    type === 'merge' && dispatch(mergeFeedRequest(bulkSelect))
+  const handleChange = (type: string,name:any) => {
+    type === 'download' && dispatch(downloadFeedRequest(bulkSelect,name))
+    type === 'merge' && dispatch(mergeFeedRequest(bulkSelect,name))
     type === 'delete' && dispatch(deleteFeed(bulkSelect))
     dispatch(toggleSelectAll(false));
   }
@@ -32,7 +43,7 @@ const IconContainer = () => {
             <FaDownload />
           </Tooltip>
         }
-        onChange={() => handleChange('download')}
+        onChange={() => {const response = prompt("Enter feed name");handleChange('download',response);}}
       />
       <ToggleGroupItem
         aria-label="feed-action"
@@ -44,7 +55,7 @@ const IconContainer = () => {
             }} />
           </Tooltip>
         }
-        onChange={() => handleChange('merge')}
+        onChange={() => {const response = prompt("Enter feed name");handleChange('merge',response);}}
       />
       <ToggleGroupItem
         aria-label="feed-action"
@@ -53,7 +64,7 @@ const IconContainer = () => {
             <FaTrash />
           </Tooltip>
         }
-        onChange={() => handleChange('delete')}
+        onChange={() => handleChange('delete',"")}
       />
 
     </ToggleGroup>
