@@ -1,13 +1,7 @@
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
 import {
   Pagination,
-  Card,
-  CardTitle,
-  CardHeader,
-  CardHeaderMain,
-  CardBody,
   Grid,
-  GridItem,
   Drawer,
   DrawerPanelContent,
   DrawerContent,
@@ -21,6 +15,7 @@ import {
   Alert,
   TextInput,
 } from '@patternfly/react-core'
+import { Card, Col, Row } from 'antd'
 import ReactJSON from 'react-json-view'
 import { ImTree } from 'react-icons/im'
 import { GrCloudComputer } from 'react-icons/gr'
@@ -37,21 +32,7 @@ interface PageState {
   itemCount: number
 }
 
-const DisplayPage = ({
-  resources,
-  selectedResource,
-  pageState,
-  onPerPageSelect,
-  onSetPage,
-  setSelectedResource,
-  title,
-  showPipelineButton,
-  fetch,
-  handlePipelineSearch,
-  handleComputeSearch,
-  handlePluginSearch,
-  search,
-}: {
+interface DisplayPageInterface {
   resources?: any[]
   pageState: PageState
   onPerPageSelect: (_event: any, perPage: number) => void
@@ -66,8 +47,23 @@ const DisplayPage = ({
   handlePipelineSearch?: (search: string) => void
   handleComputeSearch?: (search: string) => void
   search: string
-}) => {
-  const scrollRef = useRef<HTMLDivElement | null>(null)
+}
+
+const DisplayPage = ({
+  resources,
+  selectedResource,
+  pageState,
+  onPerPageSelect,
+  onSetPage,
+  setSelectedResource,
+  title,
+  showPipelineButton,
+  fetch,
+  handlePipelineSearch,
+  handleComputeSearch,
+  handlePluginSearch,
+  search,
+}: DisplayPageInterface) => {
   const fileOpen = React.useRef<HTMLInputElement>(null)
   const [error, setError] = React.useState({})
   const [deleteError, setDeleteError] = React.useState('')
@@ -75,11 +71,6 @@ const DisplayPage = ({
   const [warningMessage, setWarningMessage] = React.useState('')
   const { perPage, page, itemCount } = pageState
   const [isExpanded, setIsExpanded] = React.useState(false)
-  useEffect(() => {
-    if (isExpanded) {
-      scrollRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }
-  }, [isExpanded])
 
   const isPlugin = title === 'Plugins' ? true : false
   const isPipeline = title === 'Pipelines' ? true : false
@@ -112,6 +103,13 @@ const DisplayPage = ({
     }
   }
 
+  const icon = isPipeline ? (
+    <ImTree style={iconStyle} />
+  ) : isCompute ? (
+    <GrCloudComputer style={iconStyle} />
+  ) : (
+    <FaCode style={iconStyle} />
+  )
   const readFile = (file: any, event: any) => {
     const reader = new FileReader()
     reader.onloadend = async () => {
@@ -222,64 +220,57 @@ const DisplayPage = ({
           collapsed={false}
         />
       )}
-
-      {resources &&
-        resources.length > 0 &&
-        resources.map((resource) => {
-          return (
-            <GridItem sm={6} md={4} lg={4} key={resource.data.id}>
-              <Card
-                isSelectable
-                isSelected={
-                  selectedResource &&
-                  selectedResource.data.id === resource.data.id
-                }
-                onClick={() => {
-                  setSelectedResource(resource)
-                  setIsExpanded(true)
-                }}
-                onKeyDown={(event: any) => {
-                  if ([13, 32].includes(event.keyCode)) {
-                    setSelectedResource(resource)
-                    setIsExpanded(true)
-                  }
-                }}
-                className="pluginList"
-                key={resource.data.id}
-              >
-                <CardHeader>
-                  <CardHeaderMain></CardHeaderMain>
-                </CardHeader>
-                <CardTitle>
-                  {isPipeline ? (
-                    <ImTree style={iconStyle} />
-                  ) : isCompute ? (
-                    <GrCloudComputer style={iconStyle} />
-                  ) : (
-                    <FaCode style={iconStyle} />
-                  )}
-                  {resource.data.name}
-                </CardTitle>
-
-                <CardBody>
-                  {isPlugin && (
-                    <>
-                      <p className="pluginList__version">
-                        version: {resource.data.version}
-                      </p>
-                      <p className="pluginList__authors">
-                        {resource.data.authors}
-                      </p>
-                    </>
-                  )}
-                  <p className="pluginList__description">
-                    {resource.data.description}
-                  </p>
-                </CardBody>
-              </Card>
-            </GridItem>
-          )
-        })}
+      <div className="site-card-wrapper">
+        <Row gutter={16}>
+          {resources &&
+            resources.length > 0 &&
+            resources.map((resource) => {
+              return (
+                <Col key={resource.data.id} span={8}>
+                  <Card
+                    hoverable
+                    style={{
+                      marginBottom: '1em',
+                    }}
+                    size="small"
+                    onClick={() => {
+                      setSelectedResource(resource)
+                      setIsExpanded(true)
+                    }}
+                    onKeyDown={(event: any) => {
+                      if ([13, 32].includes(event.keyCode)) {
+                        setSelectedResource(resource)
+                        setIsExpanded(true)
+                      }
+                    }}
+                    className="pluginList"
+                    title={
+                      <>
+                        {icon}
+                        {resource.data.name}
+                      </>
+                    }
+                    bordered={true}
+                  >
+                    {isPlugin && (
+                      <>
+                        <p className="pluginList__version">
+                          version: {resource.data.version}
+                        </p>
+                        <p className="pluginList__authors">
+                          {resource.data.authors}
+                        </p>
+                      </>
+                    )}
+                    <p className="pluginList__description">
+                      {resource.data.description}
+                    </p>
+                  </Card>
+                </Col>
+              )
+            })}
+        </Row>
+      </div>
     </Grid>
   )
 
@@ -381,7 +372,7 @@ const DisplayPage = ({
         onSetPage={onSetPage}
         onPerPageSelect={onPerPageSelect}
       />
-      <div ref={scrollRef}>
+      <div>
         <Drawer isExpanded={isExpanded}>
           <DrawerContent panelContent={panelContent}>
             <DrawerContentBody>{drawerContent}</DrawerContentBody>
