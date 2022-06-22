@@ -146,3 +146,7 @@ To learn React, check out the
 [last-commit-badge]: https://img.shields.io/github/last-commit/fnndsc/chris_ui.svg
 [repo-link]: https://github.com/FNNDSC/ChRIS_ui
 [code-size]: https://img.shields.io/github/languages/code-size/FNNDSC/ChRIS_ui
+
+
+## E2E TESTS ARE RAN USING CYPRESS
+npm cypress:open
