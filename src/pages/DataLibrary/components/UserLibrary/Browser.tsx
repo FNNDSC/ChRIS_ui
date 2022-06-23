@@ -201,7 +201,6 @@ function FileCard({
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
   const { selectedFolder } = state
-
   const { handleOnClick, handleOnMouseDown } = handlers
   const fileNameArray = file.data.fname.split('/')
   const fileName = fileNameArray[fileNameArray.length - 1]
@@ -316,7 +315,6 @@ function FolderCard({
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
   const { selectedFolder } = state
-
   const [feedName, setFeedName] = useState('')
   const [commitDate, setCommitDate] = useState('')
   const path = `${initialPath}/${folder}`
