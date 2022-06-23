@@ -1,423 +1,476 @@
-import React from "react";
-import { Button } from "@patternfly/react-core";
+import React from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
+import * as cornerstone from 'cornerstone-core'
+import * as cornerstoneMath from 'cornerstone-math'
+import * as cornerstoneNIFTIImageLoader from 'cornerstone-nifti-image-loader'
+import * as cornerstoneFileImageLoader from 'cornerstone-file-image-loader'
+import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader'
+import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
+import * as cornerstoneTools from 'cornerstone-tools'
+import { import as csTools } from 'cornerstone-tools'
+import Hammer from 'hammerjs'
+import CornerstoneViewport from 'react-cornerstone-viewport'
 import {
-  AiFillCaretLeft,
-  AiFillCaretRight,
-  AiFillStepForward,
-  AiFillStepBackward,
-  AiFillPauseCircle,
-  AiFillPlayCircle,
-} from "react-icons/ai";
-import CornerstoneViewport from "react-cornerstone-viewport";
-import * as dicomParser from "dicom-parser";
-import * as cornerstone from "cornerstone-core";
-import * as cornerstoneTools from "cornerstone-tools";
-import * as cornerstoneMath from "cornerstone-math";
-import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
-import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
-import * as cornerstoneWebImageLoader from "cornerstone-web-image-loader";
-import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import Hammer from "hammerjs";
-import { useTypedSelector } from "../../store/hooks";
-import { GalleryState, CornerstoneEvent, Image } from "./types";
-import { clearFilesForGallery } from "../../store/explorer/actions";
-import DcmHeader from "./DcmHeader/DcmHeader";
-import "./GalleryDicomView.scss";
+  Backdrop,
+  Bullseye,
+  Spinner,
+  Drawer,
+  DrawerPanelContent,
+  DrawerContent,
+  DrawerContentBody,
+  DrawerPanelBody,
+  DrawerHead,
+  DrawerActions,
+  DrawerCloseButton,
+} from '@patternfly/react-core'
+import { useTypedSelector } from '../../store/hooks'
+import GalleryWrapper from '../gallery/GalleryWrapper'
+import * as dicomParser from 'dicom-parser'
+import DicomHeader from './DcmHeader/DcmHeader'
+import DicomLoader from './DcmLoader'
+import DicomTag from './DicomTag'
 
-cornerstoneTools.external.cornerstone = cornerstone;
-cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
-cornerstoneTools.external.Hammer = Hammer;
-cornerstoneTools.init({
-  globalToolSyncEnabled: true,
-});
-cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
-cornerstoneFileImageLoader.external.cornerstone = cornerstone;
-cornerstoneWebImageLoader.external.cornerstone = cornerstone;
-cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+import { Image, GalleryState, CornerstoneEvent } from './types'
 
-type GalleryDicomProps = {
-  dispatchFiles?: any[];
-};
+cornerstoneTools.external.cornerstone = cornerstone
+cornerstoneTools.external.Hammer = Hammer
+cornerstoneTools.external.cornerstoneMath = cornerstoneMath
+cornerstoneTools.init()
+cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
+cornerstoneFileImageLoader.external.cornerstone = cornerstone
+cornerstoneWebImageLoader.external.cornerstone = cornerstone
+cornerstoneWADOImageLoader.external.cornerstone = cornerstone
+cornerstoneWADOImageLoader.external.dicomParser = dicomParser
 
-const getInitialState = () => {
+const scrollToIndex = csTools('util/scrollToIndex')
+cornerstoneNIFTIImageLoader.nifti.configure({
+  headers: {
+    'Content-Type': 'application/vnd.collection+json',
+    Authorization: 'Token ' + window.sessionStorage.getItem('CHRIS_TOKEN'),
+  },
+  method: 'get',
+  responseType: 'arrayBuffer',
+})
+
+function getInitialState() {
   return {
     inPlay: false,
-    imageIds: [] as any[],
-    activeTool: "Zoom",
+    imageIds: [],
+    activeTool: 'Zoom',
+    totalFiles: 0,
+    filesParsed: 0,
     numberOfFrames: 1,
     tools: [
       {
-        name: "Zoom",
-        mode: "active",
+        name: 'Zoom',
+        mode: 'active',
         modeOptions: { mouseButtonMask: 2 },
       },
 
       {
-        name: "Pan",
-        mode: "active",
+        name: 'Pan',
+        mode: 'active',
         modeOptions: { mouseButtonMask: 1 },
       },
       {
-        name: "Wwwc",
-        mode: "active",
+        name: 'Wwwc',
+        mode: 'active',
         modeOptions: { mouseButtonMask: 1 },
       },
       {
-        name: "StackScrollMouseWheel",
-        mode: "active",
+        name: 'StackScrollMouseWheel',
+        mode: 'active',
       },
-      { name: "Magnify", mode: "active" },
+      { name: 'Magnify', mode: 'active' },
     ],
-  };
-};
+    frameRate: 10,
+    frame: 1,
+    visibleHeader: false,
+  }
+}
 
-const GalleryDicomView = ({ dispatchFiles }: GalleryDicomProps) => {
-  const files = useTypedSelector((state) => state.explorer.files);
-  const [galleryState, setGalleryState] =
-    React.useState<GalleryState>(getInitialState);
-  const { activeTool, imageIds, tools, inPlay } = galleryState;
+const GalleryDicomView = () => {
+  const imageIds = useTypedSelector((state) => state.explorer.files)
+  const [galleryDicomState, setGalleryDicomState] = React.useState<
+    GalleryState
+  >(getInitialState)
 
-  const element = React.useRef<HTMLElement | undefined>(undefined);
-  const currentImage = React.useRef<Image | undefined>(undefined);
+  const {
+    inPlay,
+    totalFiles,
+    filesParsed,
+    visibleHeader,
+    frameRate,
+    frame,
+    tools,
+    activeTool,
+
+    numberOfFrames,
+  } = galleryDicomState
+  const element = React.useRef<HTMLElement | undefined>(undefined)
+  const currentImage = React.useRef<Image | undefined>(undefined)
 
   React.useEffect(() => {
-    if (files.length > 0) {
-      const filteredIds = files.map((file) => file.imageId);
-      setGalleryState((galleryState) => {
-        return {
-          ...galleryState,
-          imageIds: filteredIds,
-          numberOfFrames: filteredIds.length,
-        };
-      });
-    }
-  }, [files]);
-
-  /*
-  const dispatch = useDispatch();
-  const files = useTypedSelector((state) => state.explorer.files);
-  const [sliceMax, setSliceMax] = useState(0);
-  const [sliceIndex, setSliceIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [isFullScreen, setIsFullScreen] = useState(false);
-
-  const galleryFiles = dispatchFiles ? dispatchFiles : files;
-
-  const dicomImageRef = useRef(null);
-
-  const disableAllTools = useCallback(() => {
-    cornerstoneTools.setToolEnabled("Length");
-    cornerstoneTools.setToolEnabled("Pan");
-    cornerstoneTools.setToolEnabled("Magnify");
-    cornerstoneTools.setToolEnabled("Angle");
-    cornerstoneTools.setToolEnabled("RectangleRoi");
-    cornerstoneTools.setToolEnabled("Wwwc");
-    cornerstoneTools.setToolEnabled("ZoomTouchPinch");
-    cornerstoneTools.setToolEnabled("Probe");
-    cornerstoneTools.setToolEnabled("EllipticalRoi");
-    cornerstoneTools.setToolEnabled("FreehandRoi");
-  }, []);
-
-  const enableToolStore = useCallback(() => {
-    const WwwcTool = cornerstoneTools.WwwcTool;
-    const LengthTool = cornerstoneTools["LengthTool"];
-    const PanTool = cornerstoneTools.PanTool;
-    const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
-    const ZoomTool = cornerstoneTools.ZoomTool;
-    const ProbeTool = cornerstoneTools.ProbeTool;
-    const EllipticalRoiTool = cornerstoneTools.EllipticalRoiTool;
-    const RectangleRoiTool = cornerstoneTools.RectangleRoiTool;
-    const FreehandRoiTool = cornerstoneTools.FreehandRoiTool;
-    const AngleTool = cornerstoneTools.AngleTool;
-    const MagnifyTool = cornerstoneTools.MagnifyTool;
-
-    cornerstoneTools.addTool(MagnifyTool);
-    cornerstoneTools.addTool(AngleTool);
-    cornerstoneTools.addTool(WwwcTool);
-    cornerstoneTools.addTool(LengthTool);
-    cornerstoneTools.addTool(PanTool);
-    cornerstoneTools.addTool(ZoomTouchPinchTool);
-    cornerstoneTools.addTool(ZoomTool);
-    cornerstoneTools.addTool(ProbeTool);
-    cornerstoneTools.addTool(EllipticalRoiTool);
-    cornerstoneTools.addTool(RectangleRoiTool);
-    cornerstoneTools.addTool(FreehandRoiTool);
-  }, []);
-
-  const displayImageFromFiles = useCallback(
-    (index = 0) => {
-      const element = dicomImageRef.current;
-      cornerstone.enable(element);
-
-      const image = files[index]?.image;
-      const sliceMax = files[index]?.sliceMax;
-
-      try {
-        cornerstoneTools.clearToolState(element, "stack");
-        cornerstoneTools.addStackStateManager(element, [
-          "stack",
-          "playClip",
-          "referenceLines",
-        ]);
-        const imageIds = galleryFiles.map((file) => file.imageId);
-        cornerstoneTools.addToolState(element, "stack", {
-          imageIds: [...imageIds],
-          currentImageIdIndex: 0,
-        });
-
-        cornerstone.displayImage(element, image);
-        setSliceIndex(index);
-        setSliceMax(sliceMax);
-      } catch (e) {
-        console.warn(e);
+    setGalleryDicomState((state) => {
+      return {
+        ...state,
+        numberOfFrames: imageIds.length,
       }
+    })
+  }, [imageIds])
+
+  const toolExecute = (tool: string) => {
+    runTool(tool)
+  }
+
+  const handleOpenImage = (cmdName: string) => {
+    runTool('openImage', cmdName)
+  }
+
+  const setPlayer = (status: boolean) => {
+    setGalleryDicomState({
+      ...galleryDicomState,
+      inPlay: status,
+    })
+  }
+
+  const handleGalleryActions = {
+    next: () => {
+      handleOpenImage('next')
     },
-    [galleryFiles]
-  );
+    previous: () => {
+      handleOpenImage('previous')
+    },
+    play: () => {
+      setGalleryDicomState({
+        ...galleryDicomState,
+        inPlay: !inPlay,
+      })
+      handleOpenImage('play')
+    },
+    pause: () => {
+      setGalleryDicomState({
+        ...galleryDicomState,
+        inPlay: !inPlay,
+      })
 
-  React.useEffect(() => {
-    return () => {
-      dispatch(clearFilesForGallery());
-      disableAllTools();
-    };
-  }, [dispatch, disableAllTools]);
+      handleOpenImage('pause')
+    },
+    first: () => {
+      handleOpenImage('first')
+    },
+    last: () => {
+      handleOpenImage('last')
+    },
 
-  React.useEffect(() => {
-    enableToolStore();
-  }, [enableToolStore]);
+    zoom: () => {
+      toolExecute('Zoom')
+    },
 
-  React.useEffect(() => {
-    displayImageFromFiles();
-  }, [displayImageFromFiles, enableToolStore]);
+    pan: () => {
+      toolExecute('Pan')
+    },
 
-  const listOpenFilesFirstFrame = () => {
-    const frame = 1;
-    displayImageFromFiles(frame);
-  };
+    wwwc: () => {
+      toolExecute('Wwwc')
+    },
+    invert: () => {
+      toolExecute('Invert')
+    },
 
-  const listOpenFilesPreviousFrame = () => {
-    if (sliceIndex > 1) {
-      const previousFrame = sliceIndex - 1;
-      displayImageFromFiles(previousFrame);
+    magnify: () => {
+      toolExecute('Magnify')
+    },
+    rotate: () => {
+      toolExecute('Rotate')
+    },
+    stackScroll: () => {
+      toolExecute('StackScroll')
+    },
+    reset: () => {
+      toolExecute('Reset')
+    },
+
+    dicomHeader: () => {
+      toolExecute('DicomHeader')
+    },
+  }
+
+  const runCinePlayer = (cmdName: string) => {
+    switch (cmdName) {
+      case 'play': {
+        setPlayer(true)
+        break
+      }
+
+      case 'pause': {
+        setPlayer(false)
+        break
+      }
+
+      case 'next': {
+        if (frame < numberOfFrames) {
+          const nextFrame = frame + 1
+
+          setGalleryDicomState({
+            ...galleryDicomState,
+            frame: nextFrame,
+          })
+          scrollToIndex(element.current, frame + 1)
+        }
+
+        break
+      }
+      case 'previous': {
+        if (frame > 1) {
+          const previousFrame = frame - 1
+          setGalleryDicomState({
+            ...galleryDicomState,
+            frame: previousFrame,
+          })
+          scrollToIndex(element.current, frame - 1)
+        }
+        break
+      }
+
+      case 'first': {
+        const frame = 1
+        setGalleryDicomState({
+          ...galleryDicomState,
+          frame,
+        })
+
+        scrollToIndex(element.current, 0)
+
+        break
+      }
+
+      case 'last': {
+        const frame = numberOfFrames
+        setGalleryDicomState({
+          ...galleryDicomState,
+          frame: frame,
+        })
+        scrollToIndex(element.current, frame - 1)
+        break
+      }
     }
-  };
+  }
 
-  const listOpenFilesNextFrame = () => {
-    if (sliceIndex < sliceMax) {
-      const nextFrame = sliceIndex + 1;
-      displayImageFromFiles(nextFrame);
+  const runTool = (toolName: string, opt?: any) => {
+    switch (toolName) {
+      case 'openImage': {
+        runCinePlayer(opt)
+        break
+      }
+      case 'Wwwc': {
+        if (activeTool === 'Wwwc') return
+
+        setGalleryDicomState({
+          ...galleryDicomState,
+          activeTool: 'Wwwc',
+        })
+        break
+      }
+      case 'Pan': {
+        if (activeTool === 'Pan') return
+
+        setGalleryDicomState({
+          ...galleryDicomState,
+          activeTool: 'Pan',
+        })
+        break
+      }
+      case 'Zoom': {
+        if (activeTool === 'Zoom') return
+
+        setGalleryDicomState({
+          ...galleryDicomState,
+          activeTool: 'Zoom',
+        })
+        break
+      }
+      case 'Invert': {
+        const viewport = cornerstone.getViewport(element.current)
+        viewport.invert = !viewport.invert
+        cornerstone.setViewport(element.current, viewport)
+        break
+      }
+
+      case 'Magnify': {
+        if (activeTool === 'Magnify') return
+
+        setGalleryDicomState({
+          ...galleryDicomState,
+          activeTool: 'Magnify',
+        })
+        break
+      }
+      case 'Rotate': {
+        const viewport = cornerstone.getViewport(element.current)
+        viewport.rotation += 90
+        cornerstone.setViewport(element.current, viewport)
+        break
+      }
+
+      case 'StackScroll': {
+        if (activeTool === 'StackScrollMouseWheel') return
+
+        setGalleryDicomState({
+          ...galleryDicomState,
+          activeTool: 'StackScrollMouseWheel',
+        })
+        break
+      }
+
+      case 'DicomHeader': {
+        setGalleryDicomState({
+          ...galleryDicomState,
+          visibleHeader: !visibleHeader,
+        })
+        break
+      }
+
+      case 'Reset': {
+        cornerstone.reset(element.current)
+        break
+      }
     }
-  };
+  }
 
-  const listOpenFilesLastFrame = () => {
-    const frame = sliceMax - 1;
-    displayImageFromFiles(frame);
-  };
+  const toggleHeader = () => {
+    setGalleryDicomState({
+      ...galleryDicomState,
+      visibleHeader: !visibleHeader,
+    })
+  }
 
-  const listOpenFilesScrolling = () => {
-    setPlaying(!playing);
-    if (!playing) {
-      cornerstone.reset(dicomImageRef.current);
-      cornerstoneTools.playClip(dicomImageRef.current);
-    } else {
-      cornerstone.reset(dicomImageRef.current);
-      cornerstoneTools.stopClip(dicomImageRef.current);
-    }
-  };
-
-  const handleToolbarAction = (action: string) => {
-    const element = dicomImageRef.current;
-    switch (action) {
-      case "zoom": {
-        cornerstoneTools.setToolActiveForElement(element, "Zoom", {
-          mouseButtonMask: 1,
-        });
-        break;
-      }
-
-      case "pan": {
-        cornerstoneTools.setToolActiveForElement(element, "Pan", {
-          mouseButtonMask: 1,
-        });
-        break;
-      }
-
-      case "magnify": {
-        cornerstoneTools.setToolActiveForElement(element, "Magnify", {
-          mouseButtonMask: 1,
-        });
-        break;
-      }
-
-      case "invert": {
-        const element = dicomImageRef.current;
-        const viewport = cornerstone.getViewport(elementhttps://github.com/FNNDSC/ChRIS_ultron_backEnd.git);
-        viewport.invert = !viewport.invert;
-        cornerstone.setViewport(element, viewport);
-        cornerstoneTools.setToolActive;
-        break;
-      }
-
-      case "rotate": {
-        const viewport = cornerstone.getViewport(dicomImageRef.current);
-        viewport.rotation += 90;
-        cornerstone.setViewport(dicomImageRef.current, viewport);
-        break;
-      }
-
-      case "wwwc": {
-        cornerstoneTools.setToolActive("Wwwc", {
-          mouseButtonMask: 1,
-        });
-        break;
-      }
-
-      case "reset": {
-        cornerstone.reset(dicomImageRef.current);
-        break;
-      }
-      default:
-        break;
-    }
-  };
-
-  const switchFullScreen = () => {
-    const element: any = dicomImageRef.current;
-    if (!isFullScreen && element) {
-      if (element.requestFullscreen) {
-        element.requestFullscreen();
-      } else if (element.mozRequestFullScreen) {
-        /* Firefox 
-        element.mozRequestFullScreen();
-      } else if (element.webkitRequestFullscreen) {
-        /* Chrome, Safari & Opera 
-        element?.webkitRequestFullscreen();
-      } else if (element.msRequestFullscreen) {
-        /* IE/Edge 
-        element.msRequestFullscreen();
-      }
-    } else {
-      document.exitFullscreen();
-    }
-    setIsFullScreen(!isFullScreen);
-  };
-
-  console.log("Slice index, slice max", sliceIndex, sliceMax);
+  const panelContent = (
+    <DrawerPanelContent
+      style={{
+        backgroundColor: '#f0f0f0',
+      }}
+    >
+      <DrawerHead>
+        <DrawerActions>
+          <DrawerCloseButton onClick={toggleHeader} />
+        </DrawerActions>
+      </DrawerHead>
+      <DrawerPanelBody>
+        <DicomTag image={currentImage.current} />
+      </DrawerPanelBody>
+    </DrawerPanelContent>
+  )
 
   return (
-    <div className="gallery-dicom">
-  
-      <DcmHeader
-        handleToolbarAction={handleToolbarAction}
-        switchFullScreen={switchFullScreen}
-        isFullScreen={isFullScreen}
-      />
+    <GalleryWrapper
+      handleOnToolbarAction={(action: string) => {
+        ;(handleGalleryActions as any)[action].call()
+      }}
+      listOpenFilesScrolling={inPlay}
+    >
+      <React.Suspense fallback={<FallBackComponent />}>
+        {imageIds.length === 0 ? (
+          <DicomLoader totalFiles={totalFiles} filesParsed={filesParsed} />
+        ) : (
+          <React.Fragment>
+            <DicomHeader
+              handleToolbarAction={(action: string) => {
+                ;(handleGalleryActions as any)[action].call()
+              }}
+            />
+            <ErrorBoundary FallbackComponent={FallBackComponent}>
+              <div className="ami-viewer">
+                <Drawer isExpanded={visibleHeader}>
+                  <DrawerContent panelContent={panelContent}>
+                    <DrawerContentBody>
+                      <div id="container">
+                        <CornerstoneViewport
+                          isPlaying={inPlay}
+                          frameRate={frameRate}
+                          activeTool={activeTool}
+                          tools={tools}
+                          imageIds={imageIds}
+                          onElementEnabled={(
+                            elementEnabledEvt: CornerstoneEvent,
+                          ) => {
+                            if (elementEnabledEvt.detail) {
+                              const cornerstoneElement =
+                                elementEnabledEvt.detail.element
+                              element.current = cornerstoneElement
+                              if (cornerstoneElement) {
+                                cornerstoneElement.addEventListener(
+                                  'cornerstoneimagerendered',
+                                  (eventData: CornerstoneEvent) => {
+                                    if (eventData.detail) {
+                                      const image = eventData.detail.image
+                                      currentImage.current = image
 
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          color: "#fff",
-          position: "relative",
-          fontSize: "1rem",
-          textShadow: "1px 1px #000000",
-        }}
-        className="cornerstone-enabled-image"
-      >
-        <div
-          style={{ width: "100%", height: "90%", position: "relative" }}
-          ref={dicomImageRef}
-        ></div>
-      </div>
-      <div
-        style={{
-          margin: "0 auto",
-        }}
-        className="gallery-toolbar"
-      >
-        <Button variant="link" onClick={listOpenFilesFirstFrame}>
-          <AngleDoubleLeftIcon />
-        </Button>
-        <Button variant="link" onClick={listOpenFilesPreviousFrame}>
-          <StepBackwardIcon />
-        </Button>
-        <Button variant="link" onClick={listOpenFilesScrolling}>
-          {playing === true ? <PauseIcon size="md" /> : <PlayIcon size="md" />}
-        </Button>
-        <Button variant="link" onClick={listOpenFilesNextFrame}>
-          <StepForwardIcon />
-        </Button>
-        <Button variant="link" onClick={listOpenFilesLastFrame}>
-          <AngleDoubleRightIcon />
-        </Button>
-      </div>galleryState
-  );
-  */
+                                      const viewport = eventData.detail.viewport
+                                      if (viewport) {
+                                        const newViewport: any = {}
+                                        newViewport.voi = viewport.voi || {}
+                                        newViewport.voi.windowWidth =
+                                          image && image.windowWidth
+                                        newViewport.voi.windowCenter =
+                                          image && image.windowCenter
+                                        if (!viewport.displayedArea) {
+                                          newViewport.displayedArea = {
+                                            // Top Left Hand Corner
+                                            tlhc: {
+                                              x: 0,
+                                              y: 0,
+                                            },
+                                            // Bottom Right Hand Corner
+                                            brhc: {
+                                              x: 256,
+                                              y: 256,
+                                            },
+                                            rowPixelSpacing: 1,
+                                            columnPixelSpacing: 1,
+                                            presentationSizeMode:
+                                              'SCALE TO FIT',
+                                          }
+                                        }
+                                        const setViewport = Object.assign(
+                                          {},
+                                          viewport,
+                                          newViewport,
+                                        )
 
-  const listOpenFilesFirstFrame = () => {
-    console.log("Test");
-  };
-  const listOpenFilesPreviousFrame = () => {
-    console.log("Test");
-  };
-  const listOpenFilesScrolling = () => {
-    setGalleryState({
-      ...galleryState,
-      inPlay: !inPlay,
-    });
-  };
-  const listOpenFilesNextFrame = () => {
-    console.log("Test");
-  };
-  const listOpenFilesLastFrame = () => {
-    console.log("Test");
-  };
+                                        cornerstone.setViewport(
+                                          cornerstoneElement,
+                                          setViewport,
+                                        )
+                                      }
+                                    }
+                                  },
+                                )
+                              }
+                            }
+                          }}
+                        />
+                      </div>
+                    </DrawerContentBody>
+                  </DrawerContent>
+                </Drawer>
+              </div>
+            </ErrorBoundary>
+          </React.Fragment>
+        )}
+      </React.Suspense>
+    </GalleryWrapper>
+  )
+}
 
+export default GalleryDicomView
+
+const FallBackComponent = () => {
   return (
-    <>
-      <CornerstoneViewport
-        style={{
-          height: "100vh",
-          width: "100%",
-        }}
-        isPlaying={inPlay}
-        activeTool={activeTool}
-        imageIds={imageIds}
-        frameRate={30}
-        tools={tools}
-        onElementEnabled={(elementEnabledEvt: CornerstoneEvent) => {
-          if (elementEnabledEvt.detail) {
-            const cornerstoneElement = elementEnabledEvt.detail.element;
-            element.current = cornerstoneElement;
-          }
-        }}
-      />
-
-      <div
-        style={{
-          margin: "0 auto",
-        }}
-        className="gallery-toolbar"
-      >
-        <Button variant="link" onClick={listOpenFilesFirstFrame}>
-          <AiFillCaretLeft />
-        </Button>
-        <Button variant="link" onClick={listOpenFilesPreviousFrame}>
-          <AiFillStepBackward />
-        </Button>
-        <Button variant="link" onClick={listOpenFilesScrolling}>
-          {inPlay === true ? <AiFillPauseCircle /> : <AiFillPlayCircle />}
-        </Button>
-        <Button variant="link" onClick={listOpenFilesNextFrame}>
-          <AiFillStepForward />
-        </Button>
-        <Button variant="link" onClick={listOpenFilesLastFrame}>
-          <AiFillCaretRight />
-        </Button>
-      </div>
-    </>
-  );
-};
-
-export default GalleryDicomView;
+    <Backdrop>
+      <Bullseye>
+        <Spinner />
+      </Bullseye>
+    </Backdrop>
+  )
+}
