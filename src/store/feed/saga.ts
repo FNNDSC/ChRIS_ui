@@ -74,6 +74,7 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
 
 
 function* handleDowloadFeed(action: IActionTypeParam) {
+  
   const feedList = action.payload;
   const client = ChrisAPIClient.getClient();
   const cu = new cujs();
@@ -93,7 +94,9 @@ function* handleDowloadFeed(action: IActionTypeParam) {
     let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
     newFeedName = `Archive of ${newFeedName}`;
     newFeedName = newFeedName.substring(0, 100);
-
+    
+    newFeedName = (action.meta==""? newFeedName:action.meta)
+    
     const createdFeed: Feed = yield cu.downloadMultipleFeeds(
       feedIdList,
       newFeedName
@@ -126,6 +129,8 @@ function* handleMergeFeed(action: IActionTypeParam) {
     let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
     newFeedName = `Merge of ${newFeedName}`;
     newFeedName = newFeedName.substring(0, 100);
+    
+    newFeedName = (action.meta==""? newFeedName:action.meta)
 
    
     const createdFeed: Feed = yield cu.mergeMultipleFeeds(
