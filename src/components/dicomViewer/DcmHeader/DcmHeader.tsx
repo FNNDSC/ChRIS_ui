@@ -1,5 +1,5 @@
-import React from "react";
-import { Tooltip, TooltipPosition, Button } from "@patternfly/react-core";
+import React from 'react'
+import { Tooltip, TooltipPosition, Button } from '@patternfly/react-core'
 import {
   MdPanTool,
   MdZoomIn,
@@ -11,30 +11,26 @@ import {
   MdReplay,
   MdFullscreenExit,
   MdFullscreen,
-} from "react-icons/md";
-import "./DcmHeader.scss";
-import { useHistory } from "react-router";
+} from 'react-icons/md'
+import './DcmHeader.scss'
+import { useHistory } from 'react-router'
 
 interface DicomHeaderProps {
-  handleToolbarAction: (action: string) => void;
-  switchFullScreen: () => void;
-  isFullScreen: boolean;
+  handleToolbarAction: (action: string) => void
 }
 
 const DcmHeader = ({
   handleToolbarAction,
-  switchFullScreen,
-  isFullScreen,
 }: DicomHeaderProps): React.ReactElement => {
-  const history = useHistory();
+  const history = useHistory()
   return (
     <div className="dicom-header">
       <div className="dicom-logo">
         <span className="dicom-logo__text">Image Viewer</span>
         <a
           onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-            history.push("/");
-            e.preventDefault();
+            history.push('/')
+            e.preventDefault()
           }}
           href="/#"
         >
@@ -52,7 +48,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction("pan");
+              handleToolbarAction('pan')
             }}
             icon={<MdPanTool />}
           />
@@ -65,7 +61,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction("zoom");
+              handleToolbarAction('zoom')
             }}
             icon={<MdZoomIn />}
           />
@@ -78,7 +74,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction("magnify");
+              handleToolbarAction('magnify')
             }}
             icon={<MdSearch />}
           />
@@ -92,7 +88,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction("wwwc");
+              handleToolbarAction('wwwc')
             }}
             icon={<MdBrightnessMedium />}
           />
@@ -102,7 +98,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction("rotate");
+              handleToolbarAction('rotate')
             }}
             icon={<MdRotateRight />}
           ></Button>
@@ -112,7 +108,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction("invert");
+              handleToolbarAction('invert')
             }}
             icon={<MdInvertColors />}
           />
@@ -125,7 +121,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction("dicomHeader");
+              handleToolbarAction('dicomHeader')
             }}
             icon={<MdInfoOutline />}
           />
@@ -137,20 +133,14 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction("reset");
+              handleToolbarAction('reset')
             }}
             icon={<MdReplay />}
           />
         </Tooltip>
-
-        <Button
-          variant="link"
-          icon={isFullScreen ? <MdFullscreenExit /> : <MdFullscreen />}
-          onClick={() => switchFullScreen()}
-        />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DcmHeader;
+export default DcmHeader
