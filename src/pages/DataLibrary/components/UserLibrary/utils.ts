@@ -157,7 +157,8 @@ export const handlePacsFiles = (
   pacsFiles.forEach((file: any) => {
     const fileName = file.split('/')
     const folder = fileName[3]
-    if (!pacsPatients.includes(folder)) {
+    const folderPath = `${fileName[0]}/${fileName[1]}/${fileName[2]}`
+    if (!pacsPatients.includes(folder) && folderPath === path) {
       pacsPatients.push(folder)
     }
 
