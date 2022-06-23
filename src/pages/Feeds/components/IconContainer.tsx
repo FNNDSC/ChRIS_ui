@@ -26,6 +26,25 @@ const IconContainer = () => {
     return state.feed.bulkSelect
   })
   const dispatch = useDispatch()
+  const [uploadFileModal, setUploadFileModal] = React.useState(false)
+  const handleFileModal = () => {
+    setUploadFileModal(!uploadFileModal)
+  }
+  const modal = (name:string) =>{
+
+    <Modal
+      title="Enter feed name"
+      onClose={() => {
+        handleFileModal()
+      }}
+      isOpen={true}
+      variant={ModalVariant.small}
+      arial-labelledby="file-upload"
+    >
+    </Modal>
+
+};
+  
   
 
   const handleChange = (type: string,name:any) => {
@@ -43,7 +62,7 @@ const IconContainer = () => {
             <FaDownload />
           </Tooltip>
         }
-        onChange={() => {const response = prompt("Enter feed name");handleChange('download',response);}}
+        onChange={() => {console.log(modal("here"));const response = prompt("Enter feed name");handleChange('download',response);}}
       />
       <ToggleGroupItem
         aria-label="feed-action"

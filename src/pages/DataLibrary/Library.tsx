@@ -18,7 +18,6 @@ export const Library: React.FC = () => {
   const pStyle = {
     fontSize: '1.15em',
   }
-
   useEffect(() => {
     document.title = 'My Library'
     dispatch(
