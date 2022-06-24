@@ -27,7 +27,6 @@ import { useTypedSelector } from '../../store/hooks'
 import GalleryWrapper from '../gallery/GalleryWrapper'
 import * as dicomParser from 'dicom-parser'
 import DicomHeader from './DcmHeader/DcmHeader'
-import DicomLoader from './DcmLoader'
 import DicomTag from './DicomTag'
 
 import { Image, GalleryState, CornerstoneEvent } from './types'
@@ -57,9 +56,7 @@ function getInitialState() {
     inPlay: false,
     imageIds: [],
     activeTool: 'Zoom',
-    totalFiles: 0,
-    filesParsed: 0,
-    numberOfFrames: 1,
+    numberOfFrames: 0,
     tools: [
       {
         name: 'Zoom',
@@ -89,22 +86,19 @@ function getInitialState() {
   }
 }
 
-const GalleryDicomView = () => {
+const GalleryDicomView = ({ type }: { type: string }) => {
   const imageIds = useTypedSelector((state) => state.explorer.files)
   const [galleryDicomState, setGalleryDicomState] = React.useState<
     GalleryState
-  >(getInitialState)
+  >(getInitialState())
 
   const {
     inPlay,
-    totalFiles,
-    filesParsed,
     visibleHeader,
     frameRate,
     frame,
     tools,
     activeTool,
-
     numberOfFrames,
   } = galleryDicomState
   const element = React.useRef<HTMLElement | undefined>(undefined)
@@ -370,20 +364,19 @@ const GalleryDicomView = () => {
       listOpenFilesScrolling={inPlay}
     >
       <React.Suspense fallback={<FallBackComponent />}>
-        {imageIds.length === 0 ? (
-          <DicomLoader totalFiles={totalFiles} filesParsed={filesParsed} />
-        ) : (
-          <React.Fragment>
-            <DicomHeader
-              handleToolbarAction={(action: string) => {
-                ;(handleGalleryActions as any)[action].call()
-              }}
-            />
-            <ErrorBoundary FallbackComponent={FallBackComponent}>
-              <div className="ami-viewer">
-                <Drawer isExpanded={visibleHeader}>
-                  <DrawerContent panelContent={panelContent}>
-                    <DrawerContentBody>
+        <React.Fragment>
+          <DicomHeader
+            type={type}
+            handleToolbarAction={(action: string) => {
+              ;(handleGalleryActions as any)[action].call()
+            }}
+          />
+          <ErrorBoundary FallbackComponent={FallBackComponent}>
+            <div className="ami-viewer">
+              <Drawer isExpanded={visibleHeader}>
+                <DrawerContent panelContent={panelContent}>
+                  <DrawerContentBody>
+                    {imageIds.length > 0 ? (
                       <div id="container">
                         <CornerstoneViewport
                           isPlaying={inPlay}
@@ -404,6 +397,7 @@ const GalleryDicomView = () => {
                                   (eventData: CornerstoneEvent) => {
                                     if (eventData.detail) {
                                       const image = eventData.detail.image
+
                                       currentImage.current = image
 
                                       const viewport = eventData.detail.viewport
@@ -451,13 +445,15 @@ const GalleryDicomView = () => {
                           }}
                         />
                       </div>
-                    </DrawerContentBody>
-                  </DrawerContent>
-                </Drawer>
-              </div>
-            </ErrorBoundary>
-          </React.Fragment>
-        )}
+                    ) : (
+                      <Spinner size="xl" />
+                    )}
+                  </DrawerContentBody>
+                </DrawerContent>
+              </Drawer>
+            </div>
+          </ErrorBoundary>
+        </React.Fragment>
       </React.Suspense>
     </GalleryWrapper>
   )
