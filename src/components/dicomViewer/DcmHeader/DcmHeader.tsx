@@ -9,34 +9,41 @@ import {
   MdRotateRight,
   MdInfoOutline,
   MdReplay,
-  MdFullscreenExit,
-  MdFullscreen,
 } from 'react-icons/md'
 import './DcmHeader.scss'
 import { useHistory } from 'react-router'
+import { useDispatch } from 'react-redux'
+import { destroyExplorer } from '../../../store/explorer/actions'
 
 interface DicomHeaderProps {
   handleToolbarAction: (action: string) => void
+  type: string
 }
 
 const DcmHeader = ({
+  type,
   handleToolbarAction,
 }: DicomHeaderProps): React.ReactElement => {
   const history = useHistory()
+  const dispatch = useDispatch()
   return (
     <div className="dicom-header">
       <div className="dicom-logo">
         <span className="dicom-logo__text">Image Viewer</span>
-        <a
-          onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-            history.push('/')
-            e.preventDefault()
-          }}
-          href="/#"
-        >
-          <i className="fas fa-angle-left"></i>
-          Back to Dashboard
-        </a>
+        {type !== 'feedbrowser' && (
+          <a
+            onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+              e.preventDefault();
+              dispatch(destroyExplorer())
+              history.push('/visualization')
+           
+            }}
+            href="/#"
+          >
+            <i className="fas fa-angle-left"></i>
+            Back to Dashboard
+          </a>
+        )}
       </div>
       <div className="dicom-header__center-tools">
         <span className="dicom-header__tools-text">Tools</span>

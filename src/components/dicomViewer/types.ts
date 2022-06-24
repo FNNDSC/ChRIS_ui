@@ -155,8 +155,7 @@ export type GalleryState = {
   tools: any;
   frameRate: number;
   visibleHeader: boolean;
-  totalFiles: number;
-  filesParsed: number;
+ 
   frame: number;
   numberOfFrames: number;
 };
