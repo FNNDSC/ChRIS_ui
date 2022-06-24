@@ -3,35 +3,11 @@ import { useHistory } from 'react-router'
 import Wrapper from '../Layout/PageWrapper'
 import { Button } from 'antd'
 import { AiOutlineUpload } from 'react-icons/ai'
-
-import * as cornerstone from 'cornerstone-core'
-import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
-import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader'
-import * as cornerstoneNIFTIImageLoader from 'cornerstone-nifti-image-loader'
-import * as cornerstoneFileImageLoader from 'cornerstone-file-image-loader'
-import * as dicomParser from 'dicom-parser'
-import { isNifti, isDicom } from '../../components/dicomViewer/utils'
 import { useDispatch } from 'react-redux'
-import { setFilesForGallery } from '../../store/explorer/actions'
 import { setSidebarActive } from '../../store/ui/actions'
 import { useDropzone } from 'react-dropzone'
 import './index.scss'
-
-cornerstoneNIFTIImageLoader.nifti.configure({
-  headers: {
-    'Content-Type': 'application/vnd.collection+json',
-    Authorization: 'Token ' + window.sessionStorage.getItem('CHRIS_TOKEN'),
-  },
-  method: 'get',
-  responseType: 'arrayBuffer',
-})
-const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId
-
-cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
-cornerstoneFileImageLoader.external.cornerstone = cornerstone
-cornerstoneWebImageLoader.external.cornerstone = cornerstone
-cornerstoneWADOImageLoader.external.cornerstone = cornerstone
-cornerstoneWADOImageLoader.external.dicomParser = dicomParser
+import { setExternalFiles } from '../../store/explorer/actions'
 
 const baseStyle: React.CSSProperties = {
   flex: 1,
@@ -83,15 +59,15 @@ const VisualizationPage = () => {
     [isDragActive, isDragReject, isDragAccept],
   )
   const dispatch = useDispatch()
-  const history=useHistory();
+  const history = useHistory()
 
   React.useEffect(() => {
-    if (acceptedFiles.length > 0) loadImagesIntoCornerstone(acceptedFiles)
+    if (acceptedFiles.length > 0) dispatch(setExternalFiles(acceptedFiles))
   }, [acceptedFiles])
 
   const close = React.useCallback(() => {
-    history.push("/gallery");
-  }, [history]);
+    history.push('/gallery')
+  }, [history])
 
   React.useEffect(() => {
     dispatch(
@@ -101,46 +77,13 @@ const VisualizationPage = () => {
     )
   }, [dispatch])
 
-  const loadImagesIntoCornerstone = (files: any) => {
-    if (files) {
-      const imageIds: string[] = []
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        if (isNifti(file.name)) {
-          const url = URL.createObjectURL(file).split('blob:')[1]
-          const imageIdObject = ImageId.fromURL(`nifti:${url}${file.name}`)
-
-          const numberOfSlices = cornerstone.metaData.get(
-            'multiFrameModule',
-            imageIdObject.url,
-          ).numberOfFrames
-
-          imageIds.push(
-            ...Array.from(
-              Array(numberOfSlices),
-              (_, i) =>
-                `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`,
-            ),
-          )
-        } else if (isDicom(file.name)) {
-          imageIds.push(
-            cornerstoneWADOImageLoader.wadouri.fileManager.add(file),
-          )
-        } else {
-          imageIds.push(cornerstoneFileImageLoader.fileManager.add(file))
-        }
-      }
-
-      dispatch(setFilesForGallery(imageIds))
-      close();
-    }
-  }
-
   const handleOpenFolder = (files: any) => {
-    loadImagesIntoCornerstone(files)
+    dispatch(setExternalFiles(files))
+    close()
   }
   const handleOpenLocalFs = (files: any) => {
-    loadImagesIntoCornerstone(files)
+    dispatch(setExternalFiles(files))
+    close()
   }
 
   const showOpenFolder = () => {
