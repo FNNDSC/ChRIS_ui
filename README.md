@@ -148,5 +148,8 @@ To learn React, check out the
 [code-size]: https://img.shields.io/github/languages/code-size/FNNDSC/ChRIS_ui
 
 
-## E2E TESTS ARE RAN USING CYPRESS
-npm cypress:open
+### E2E TESTS ARE RAN USING CYPRESS
+```
+To run: 
+$ npm cypress:open
+```
