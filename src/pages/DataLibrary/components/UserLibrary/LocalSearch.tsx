@@ -9,6 +9,7 @@ import {
   handlePacsFiles,
 } from './utils'
 import { LibraryContext } from './context'
+import { debounce } from 'lodash'
 
 const LocalSearch = ({
   type,
@@ -64,6 +65,10 @@ const LocalSearch = ({
       }
     }
   }
+
+  const debouncedHandleSubmit = debounce(() => {
+    handleSubmit()
+  }, 500)
   return (
     <>
       <div
@@ -81,6 +86,11 @@ const LocalSearch = ({
           placeholder={placeholder}
           value={value}
           onChange={handleChange}
+          onKeyUp={(e) => {
+            if (e.key === 'Enter') {
+              debouncedHandleSubmit()
+            }
+          }}
         />
         <Button onClick={handleSubmit}>Search</Button>
       </div>
@@ -100,7 +110,9 @@ const LocalSearch = ({
               }}
               size="md"
             />
-            <span>Performing Search... <i>please wait</i></span>
+            <span>
+              Performing Search... <i>please wait</i>
+            </span>
           </>
         )}
       </div>
