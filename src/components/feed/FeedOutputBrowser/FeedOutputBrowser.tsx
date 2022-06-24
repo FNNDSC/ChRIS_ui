@@ -127,7 +127,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             {pluginSidebarTree && (
               <DirectoryTree
                 defaultExpandAll
-                defaultExpandedKeys={[selected.data.id]}
                 treeData={pluginSidebarTree}
                 selectedKeys={[selected.data.id]}
                 onSelect={(node, selectedNode) => {
