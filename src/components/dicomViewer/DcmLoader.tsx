@@ -6,7 +6,7 @@ interface DcmLoaderProps {
   filesParsed: number;
 }
 
-const DcmLoader: React.FunctionComponent<DcmLoaderProps> = ({
+const DicomLoader: React.FunctionComponent<DcmLoaderProps> = ({
   totalFiles,
   filesParsed,
 }: DcmLoaderProps) => {
@@ -18,4 +18,4 @@ const DcmLoader: React.FunctionComponent<DcmLoaderProps> = ({
   );
 };
 
-export default DcmLoader;
+export default DicomLoader;

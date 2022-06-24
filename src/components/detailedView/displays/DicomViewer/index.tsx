@@ -6,7 +6,7 @@ import * as cornerstoneNIFTIImageLoader from 'cornerstone-nifti-image-loader'
 import * as cornerstoneFileImageLoader from 'cornerstone-file-image-loader'
 import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader'
 import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
-import { Progress, ProgressSize } from '@patternfly/react-core'
+
 import { useTypedSelector } from '../../../../store/hooks'
 import {
   getDicomPatientName,
@@ -30,6 +30,7 @@ import {
 import { setFilesForGallery } from '../../../../store/explorer/actions'
 import { useHistory } from 'react-router'
 import GalleryDicomView from '../../../dicomViewer/GalleryDicomView'
+import DicomLoader from '../../../dicomViewer/DcmLoader'
 
 cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
 cornerstoneFileImageLoader.external.cornerstone = cornerstone
@@ -48,8 +49,12 @@ const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId
 
 const DicomViewerContainer = () => {
   const history = useHistory()
-  const files = useTypedSelector((state) => state.explorer.selectedFolder)
   const dispatch = useDispatch()
+  const files = useTypedSelector((state) => state.explorer.selectedFolder)
+  const [loader, setLoader] = React.useState({
+    totalFiles: 0,
+    filesParsed: 0,
+  })
 
   const close = React.useCallback(() => {
     history.push('/gallery')
@@ -63,6 +68,7 @@ const DicomViewerContainer = () => {
       let niftiSlices = 0
       for (let i = 0; i < files.length; i++) {
         const selectedFile = files[i].file
+
         if (selectedFile) {
           if (isNifti(selectedFile.data.fname)) {
             nifti = true
@@ -94,6 +100,11 @@ const DicomViewerContainer = () => {
             imageIds.push(cornerstoneFileImageLoader.fileManager.add(file))
           }
         }
+        setLoader({
+          ...loader,
+          filesParsed: i + 1,
+          totalFiles: files.length,
+        })
       }
       dispatch(setFilesForGallery(imageIds))
     }
@@ -103,7 +114,18 @@ const DicomViewerContainer = () => {
     loadImagesIntoCornerstone()
   }, [loadImagesIntoCornerstone])
 
-  return <GalleryDicomView />
+  return (
+    <>
+      {loader.filesParsed === loader.totalFiles ? (
+        <GalleryDicomView type="feedbrowser" />
+      ) : (
+        <DicomLoader
+          totalFiles={loader.totalFiles}
+          filesParsed={loader.filesParsed}
+        />
+      )}
+    </>
+  )
 }
 
 export default DicomViewerContainer

@@ -9,6 +9,7 @@ const initialState: IExplorerState = {
   selectedFolder: undefined,
   enableDcmTool: false,
   files: [],
+  externalFiles: [],
 }
 
 const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
@@ -47,6 +48,8 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
         mode: ExplorerMode.SwiftFileBrowser,
         selectedFolder: undefined,
         enableDcmTool: false,
+        files: [],
+        externalFiles: [],
       }
     }
 
@@ -65,6 +68,13 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
       return {
         ...state,
         files: [],
+      }
+    }
+
+    case ExplorerActionTypes.EXTERNAL_FILES: {
+      return {
+        ...state,
+        externalFiles: action.payload,
       }
     }
 
