@@ -151,5 +151,5 @@ To learn React, check out the
 ### E2E TESTS ARE RAN USING CYPRESS
 ```
 To run: 
-$ npm cypress:open
+$ npm run cypress:open
 ```
