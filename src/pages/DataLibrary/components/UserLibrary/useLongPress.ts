@@ -5,7 +5,7 @@ import { clearSelectFolder, setSelectFolder } from './context/actions'
 
 //@ts-ignore
 let timer: NodeJS.Timeout = 0
-const delay = 400
+const delay = 500
 let prevent = false
 
 export default function useLongPress() {
@@ -47,22 +47,14 @@ export default function useLongPress() {
 
     if (e.ctrlKey || e.shiftKey) {
       payload['event'] = 'ctrl/shift'
-      if (isExist === -1) {
-        dispatch(setSelectFolder(payload))
-      } else {
-        dispatch(clearSelectFolder(payload))
-      }
+      cb && cb(`${initialPath}/${folder}`, initialPath)
       return
     }
 
     if (!(e.ctrlKey || e.shiftKey) || e.detail === 1) {
       timer = setTimeout(function () {
         if (!prevent) {
-          if (isExist === -1) {
-            dispatch(setSelectFolder(payload))
-          } else {
-            dispatch(clearSelectFolder(payload))
-          }
+          cb && cb(`${initialPath}/${folder}`, initialPath)
         }
         prevent = false
       }, delay)
@@ -71,7 +63,11 @@ export default function useLongPress() {
     if (e.detail === 2) {
       clearTimeout(timer)
       prevent = true
-      cb && cb(`${initialPath}/${folder}`, initialPath)
+      if (isExist === -1) {
+        dispatch(setSelectFolder(payload))
+      } else {
+        dispatch(clearSelectFolder(payload))
+      }
     }
   }
 
