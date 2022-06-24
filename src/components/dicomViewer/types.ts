@@ -153,4 +153,9 @@ export type GalleryState = {
   imageIds: string[];
   activeTool: string;
   tools: any;
+  frameRate: number;
+  visibleHeader: boolean;
+ 
+  frame: number;
+  numberOfFrames: number;
 };
