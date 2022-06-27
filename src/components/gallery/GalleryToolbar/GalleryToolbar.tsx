@@ -3,8 +3,6 @@ import * as React from 'react'
 import {
   FaPlay,
   FaPause,
-  FaExpandAlt,
-  FaCompressAlt,
   FaAngleDoubleLeft,
   FaAngleDoubleRight,
   FaStepForward,

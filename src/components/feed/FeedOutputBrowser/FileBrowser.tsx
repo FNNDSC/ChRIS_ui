@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import classNames from 'classnames'
 import Moment from 'react-moment'
 import { useDispatch } from 'react-redux'
@@ -9,9 +9,6 @@ import {
   Grid,
   GridItem,
   Button,
-  DropdownItem,
-  Dropdown,
-  DropdownToggle,
 } from '@patternfly/react-core'
 
 import { MdFileDownload } from 'react-icons/md'
@@ -41,7 +38,6 @@ import {
   setSelectedFolder,
 } from '../../../store/explorer/actions'
 import { BiHorizontalCenter } from 'react-icons/bi'
-import { FaCaretDown } from 'react-icons/fa'
 import { getXtkFileMode } from '../../detailedView/displays/XtkViewer/XtkViewer'
 import { Alert } from 'antd'
 
@@ -351,8 +347,6 @@ const HeaderPanel = (props: HeaderPanelProps) => {
   } = props
 
   console.log('FileType', fileType)
-
-  const [showOpenWith, setShowOpenWith] = useState(false)
 
   const imageFileTypes = ['dcm', 'png', 'jpg', 'nii', 'gz', 'jpeg']
 
