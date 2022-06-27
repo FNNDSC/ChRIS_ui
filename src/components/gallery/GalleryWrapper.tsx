@@ -78,7 +78,7 @@ const GalleryWrapper: React.FC<AllProps> = ({
         onToolbarClick={(action: string) => {
           ;(handleGalleryActions as any)[action].call()
         }}
-        isFullscreen={true}
+        isFullscreen={fullScreen}
       />
     </div>
   ) : null

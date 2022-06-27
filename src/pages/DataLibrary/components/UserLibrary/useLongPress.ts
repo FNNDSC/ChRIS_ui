@@ -3,11 +3,6 @@ import { useState, useRef, useContext } from 'react'
 import { LibraryContext } from './context'
 import { clearSelectFolder, setSelectFolder } from './context/actions'
 
-//@ts-ignore
-let timer: NodeJS.Timeout = 0
-const delay = 500
-let prevent = false
-
 export default function useLongPress() {
   const [action, setAction] = useState<string>()
   const { dispatch, state } = useContext(LibraryContext)
@@ -21,7 +16,7 @@ export default function useLongPress() {
     timerRef.current = window.setTimeout(() => {
       isLongPress.current = true
       setAction('longpress')
-    }, 500)
+    }, 600)
   }
 
   function handleOnClick(
@@ -30,7 +25,7 @@ export default function useLongPress() {
     folder: string,
     initialPath: string,
     browserType: string,
-    cb?: (path: string, prevPath: string) => void,
+    cbFolder?: (path: string, prevPath: string) => void,
   ) {
     setAction('click')
     const payload = {
@@ -45,29 +40,27 @@ export default function useLongPress() {
       (folder) => folder.exactPath === path,
     )
 
-    if (e.ctrlKey || e.shiftKey) {
-      payload['event'] = 'ctrl/shift'
-      cb && cb(`${initialPath}/${folder}`, initialPath)
-      return
-    }
-
-    if (!(e.ctrlKey || e.shiftKey) || e.detail === 1) {
-      timer = setTimeout(function () {
-        if (!prevent) {
-          cb && cb(`${initialPath}/${folder}`, initialPath)
-        }
-        prevent = false
-      }, delay)
-    }
-
-    if (e.detail === 2) {
-      clearTimeout(timer)
-      prevent = true
+    if (isLongPress.current) {
       if (isExist === -1) {
         dispatch(setSelectFolder(payload))
       } else {
         dispatch(clearSelectFolder(payload))
       }
+      return
+    }
+
+    if (e.ctrlKey || e.shiftKey) {
+      payload['event'] = 'ctrl/shift'
+      if (isExist === -1) {
+        dispatch(setSelectFolder(payload))
+      } else {
+        dispatch(clearSelectFolder(payload))
+      }
+      return
+    }
+
+    if (!(e.ctrlKey || e.shiftKey || e.detail === 2) && e.detail === 1) {
+      cbFolder && cbFolder(`${initialPath}/${folder}`, initialPath)
     }
   }
 
