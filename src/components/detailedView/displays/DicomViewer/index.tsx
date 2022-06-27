@@ -6,29 +6,9 @@ import * as cornerstoneNIFTIImageLoader from 'cornerstone-nifti-image-loader'
 import * as cornerstoneFileImageLoader from 'cornerstone-file-image-loader'
 import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader'
 import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
-
 import { useTypedSelector } from '../../../../store/hooks'
-import {
-  getDicomPatientName,
-  getDicomStudyDate,
-  getDicomStudyTime,
-  getDicomStudyDescription,
-  getDicomSeriesDate,
-  getDicomSeriesTime,
-  getDicomSeriesDescription,
-  getDicomSeriesNumber,
-  getDicomInstanceNumber,
-  getDicomSliceDistance,
-  getDicomEchoNumber,
-  getDicomSliceLocation,
-  getDicomColumns,
-  getDicomRows,
-  dicomDateTimeToLocale,
-  isNifti,
-  isDicom,
-} from '../../../dicomViewer/utils'
+import { isNifti, isDicom } from '../../../dicomViewer/utils'
 import { setFilesForGallery } from '../../../../store/explorer/actions'
-import { useHistory } from 'react-router'
 import GalleryDicomView from '../../../dicomViewer/GalleryDicomView'
 import DicomLoader from '../../../dicomViewer/DcmLoader'
 
@@ -48,7 +28,6 @@ cornerstoneNIFTIImageLoader.nifti.configure({
 const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId
 
 const DicomViewerContainer = () => {
-  const history = useHistory()
   const dispatch = useDispatch()
   const files = useTypedSelector((state) => state.explorer.selectedFolder)
   const [loader, setLoader] = React.useState({
@@ -56,14 +35,8 @@ const DicomViewerContainer = () => {
     filesParsed: 0,
   })
 
-  const close = React.useCallback(() => {
-    history.push('/gallery')
-  }, [history])
-
   const loadImagesIntoCornerstone = React.useCallback(async () => {
     if (files) {
-      let nifti = false
-
       const imageIds: string[] = []
       let niftiSlices = 0
       for (let i = 0; i < files.length; i++) {
@@ -71,7 +44,6 @@ const DicomViewerContainer = () => {
 
         if (selectedFile) {
           if (isNifti(selectedFile.data.fname)) {
-            nifti = true
             const fileArray = selectedFile.data.fname.split('/')
             const fileName = fileArray[fileArray.length - 1]
             const imageIdObject = ImageId.fromURL(
@@ -100,15 +72,18 @@ const DicomViewerContainer = () => {
             imageIds.push(cornerstoneFileImageLoader.fileManager.add(file))
           }
         }
-        setLoader({
-          ...loader,
-          filesParsed: i + 1,
-          totalFiles: files.length,
+
+        setLoader((state) => {
+          return {
+            ...state,
+            filesParsed: i + 1,
+            totalFiles: files.length,
+          }
         })
       }
       dispatch(setFilesForGallery(imageIds))
     }
-  }, [files, dispatch, close])
+  }, [files, dispatch])
 
   React.useEffect(() => {
     loadImagesIntoCornerstone()
