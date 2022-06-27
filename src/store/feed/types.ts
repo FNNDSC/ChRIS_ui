@@ -45,6 +45,7 @@ export interface IFeedState {
   bulkSelect: Feed[];
   feedResources: FeedResource;
   selectAllToggle: boolean;
+  polling: boolean;
 }
 
 export const FeedActionTypes = keyMirror({
@@ -76,4 +77,7 @@ export const FeedActionTypes = keyMirror({
   SET_ALL_SELECT: null,
   REMOVE_ALL_SELECT: null,
   TOGGLE_SELECT_ALL: null,
+  STOP_POLLING_TABLE: null,
+  RESET_POLLING_REQUEST: null,
+  GET_POLLING_STATUS: null,
 });
