@@ -29,6 +29,7 @@ import {
   removeAllSelect,
   setAllSelect,
   toggleSelectAll,
+  stopPollingTable,
 } from '../../../store/feed/actions'
 import { IFeedState } from '../../../store/feed/types'
 import { DataTableToolbar } from '../../../components/index'
@@ -80,7 +81,12 @@ const FeedListView: React.FC<AllProps> = ({
   const { page, perPage } = filterState
   const { data, error, loading, totalFeedsCount } = allFeeds
 
+  React.useEffect(() => {
+    return () => {
 
+        dispatch(stopPollingTable(false))
+      }
+  }, [dispatch])
 
   React.useEffect(() => {
     document.title = 'All Analyses - ChRIS UI '
@@ -409,8 +415,8 @@ const FeedListView: React.FC<AllProps> = ({
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSidebarActive: (active: { activeItem: string }) =>
     dispatch(setSidebarActive(active)),
-  getAllFeedsRequest: (name?: string, limit?: number, offset?: number) =>
-    dispatch(getAllFeedsRequest(name, limit, offset)),
+  getAllFeedsRequest: (name?: string, limit?: number, offset?: number, polling?: boolean) =>
+    dispatch(getAllFeedsRequest(name, limit, offset, true)),
   setBulkSelect: (feed: Feed) => dispatch(setBulkSelect(feed)),
   removeBulkSelect: (feed: Feed) => dispatch(removeBulkSelect(feed)),
   setAllSelect: (feeds: Feed[]) => dispatch(setAllSelect(feeds)),

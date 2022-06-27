@@ -6,11 +6,13 @@ export const getAllFeedsRequest = (
   name?: string,
   limit?: number,
   offset?: number,
+  polling?: boolean,
 ) =>
   action(FeedActionTypes.GET_ALL_FEEDS_REQUEST, {
     name,
     limit,
     offset,
+    polling,
   })
 
 export const getAllFeedsSuccess = (feeds: FeedsResponsePayload) =>
@@ -70,3 +72,12 @@ export const removeAllSelect = (feeds: Feed[]) =>
 
 export const removeBulkSelect = (feed: Feed) =>
   action(FeedActionTypes.REMOVE_BULK_SELECT, feed)
+  
+export const stopPollingTable = (param: any) =>
+  action(FeedActionTypes.STOP_POLLING_TABLE, param);
+  
+export const resetPollingRequest = (param: any) =>
+  action(FeedActionTypes.RESET_POLLING_REQUEST, param);
+
+export const getPollingStatus = (param:any) =>
+  action(FeedActionTypes.GET_POLLING_STATUS,param);
