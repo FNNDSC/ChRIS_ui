@@ -346,7 +346,7 @@ const HeaderPanel = (props: HeaderPanelProps) => {
     fileType,
   } = props
 
-  console.log('FileType', fileType)
+ 
 
   const imageFileTypes = ['dcm', 'png', 'jpg', 'nii', 'gz', 'jpeg']
 
