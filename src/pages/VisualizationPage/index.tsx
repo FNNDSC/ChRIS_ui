@@ -63,7 +63,7 @@ const VisualizationPage = () => {
 
   React.useEffect(() => {
     if (acceptedFiles.length > 0) dispatch(setExternalFiles(acceptedFiles))
-  }, [acceptedFiles])
+  }, [acceptedFiles, dispatch])
 
   const close = React.useCallback(() => {
     history.push('/gallery')
