@@ -34,6 +34,7 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
   params["limit"] = limit
   params["offset"] = offset
   const client = ChrisAPIClient.getClient()
+  let currentClient;
   const flag = true
   const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
   do{
@@ -53,8 +54,9 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
 
     yield delay(7000)
     polling = yield call(getPollingStatus,"stop")
+    currentClient = ChrisAPIClient.getClient()
 
-  }  while(polling)
+  }  while(polling && (currentClient == client))
 }
 
 function* handleGetFeedDetails(action: IActionTypeParam) {
