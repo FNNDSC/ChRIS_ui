@@ -126,7 +126,7 @@ const FeedListView: React.FC<AllProps> = ({
   }, [allFeeds.data, setAllSelect, selectAllToggle])
 
   const generateTableRow = (feed: Feed) => {
-    console.log('FEED', feed)
+
     const { id, name: feedName, creation_date, creator_username } = feed.data
 
     const fontFamily = {
