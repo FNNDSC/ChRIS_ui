@@ -101,6 +101,7 @@ const DataLibrary = () => {
           fname: exactPath,
           fname_incontains: exactPath,
         }
+        console.log('FILE', file)
         const client = ChrisAPIClient.getClient()
         if (file.type === 'feed') {
           const feedFn = client.getFiles
@@ -294,6 +295,33 @@ const DataLibrary = () => {
             type="info"
             description={
               <>
+                <div
+                  style={{
+                    marginBottom: '1em',
+                    display: 'flex',
+                  }}
+                >
+                  <Button
+                    style={{ marginRight: '0.5em' }}
+                    onClick={createFeed}
+                    variant="primary"
+                  >
+                    Create Analysis
+                  </Button>
+
+                  <Button
+                    style={{ marginRight: '0.5em' }}
+                    onClick={() => {
+                      handleDownload()
+                    }}
+                    variant="secondary"
+                  >
+                    Download Data
+                  </Button>
+                  <Button variant="secondary" onClick={handleDelete}>
+                    Delete Data
+                  </Button>
+                </div>
                 {selectedFolder.length > 0 && (
                   <>
                     <ChipGroup style={{ marginBottom: '1em' }} categoryName="">
@@ -316,30 +344,7 @@ const DataLibrary = () => {
                         justifyContent: 'space-between',
                       }}
                     >
-                      <div>
-                        <Button
-                          style={{ marginRight: '0.25em' }}
-                          onClick={createFeed}
-                          variant="primary"
-                        >
-                          Create Analysis
-                        </Button>
-
-                        <Button
-                          style={{ marginRight: '0.25em' }}
-                          onClick={() => {
-                            handleDownload()
-                          }}
-                          variant="secondary"
-                        >
-                          Download Data
-                        </Button>
-                        <Button variant="secondary" onClick={handleDelete}>
-                          Delete Data
-                        </Button>
-                      </div>
-
-                      <Button variant="secondary" onClick={clearFeed}>
+                      <Button variant="tertiary" onClick={clearFeed}>
                         Empty Cart
                       </Button>
                     </div>

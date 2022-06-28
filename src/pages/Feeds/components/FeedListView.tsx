@@ -15,7 +15,7 @@ import {
   Hint,
   HintBody,
   Checkbox,
-  Tooltip  
+  Tooltip,
 } from '@patternfly/react-core'
 import { Table, TableBody, Thead, Tr, Th } from '@patternfly/react-table'
 import { ChartDonutUtilization } from '@patternfly/react-charts'
@@ -88,6 +88,7 @@ const FeedListView: React.FC<AllProps> = ({
       }
   }, [dispatch])
 
+
   React.useEffect(() => {
     document.title = 'All Analyses - ChRIS UI '
     setSidebarActive({
@@ -125,8 +126,8 @@ const FeedListView: React.FC<AllProps> = ({
   }, [allFeeds.data, setAllSelect, selectAllToggle])
 
   const generateTableRow = (feed: Feed) => {
-    const { id, name: feedName, creation_date } = feed.data
-
+    console.log('FEED', feed)
+    const { id, name: feedName, creation_date, creator_username } = feed.data
 
     const fontFamily = {
       fontFamily: 'monospace',
@@ -144,28 +145,34 @@ const FeedListView: React.FC<AllProps> = ({
     const feedProgressText =
       feedResources[feed.data.id] &&
       feedResources[feed.data.id].details.feedProgressText
-      
+
     const d1 = new Date(creation_date)
     const d2 = new Date()
     const smallD2 = new Date(d2.setMinutes(d2.getMinutes() - 2))
-    
+
     const name = {
       title: (
         <span className="feed-list__name">
-         
-        <Tooltip content={<div>View feed details</div>}>
-         
-          <Link to={`/feeds/${id}`}>{feedName}</Link>
-        </Tooltip>
+          <Tooltip content={<div>View feed details</div>}>
+            <Link to={`/feeds/${id}`}>{feedName}</Link>
+          </Tooltip>
         </span>
       ),
     }
 
     const feedId = {
-      title: <p style={fontFamily}>{feed.data.id }{(d1 >= smallD2 ? 
-      <Tooltip content={<div>Created recently</div>}>
-        <FcMediumPriority id="hideMe" />
-      </Tooltip>: '') }</p>,
+      title: (
+        <p style={fontFamily}>
+          {feed.data.id}
+          {d1 >= smallD2 ? (
+            <Tooltip content={<div>Created recently</div>}>
+              <FcMediumPriority id="hideMe" />
+            </Tooltip>
+          ) : (
+            ''
+          )}
+        </p>
+      ),
     }
 
     const created = {
@@ -178,15 +185,18 @@ const FeedListView: React.FC<AllProps> = ({
 
     const feedSize = {
       title: (
-      
-        <p style={{
-          textAlign: 'center',
-          margin: '0 auto'
-        }}>
-        <Tooltip content={<div>View files in library</div>}>
-         <Link to={`/library/`}>{size ? `${size.padStart(10, '')}` : '---'}</Link>
-        </Tooltip></p> 
-
+        <p
+          style={{
+            textAlign: 'center',
+            margin: '0 auto',
+          }}
+        >
+          <Tooltip content={<div>View files in library</div>}>
+            <Link to={`/library/`}>
+              {size ? `${size.padStart(10, '')}` : '---'}
+            </Link>
+          </Tooltip>
+        </p>
       ),
     }
 
@@ -194,32 +204,33 @@ const FeedListView: React.FC<AllProps> = ({
       title: <p style={fontFamily}>{runtime ? `${runtime}` : '---'}</p>,
     }
 
+    const creator = {
+      title: <p>{creator_username}</p>,
+    }
 
     let threshold = Infinity
-    let color = "#0000ff"
+    let color = '#0000ff'
 
     // If error in a feed => reflect in progress
     if (feedError) {
-      color = "#ff0000"
+      color = '#ff0000'
       threshold = progress
     }
     let title = (progress ? progress : 0) + '%'
-    
+
     // If initial node in a feed fails
     if (progress == 0 && feedError) {
       title = '❌'
     }
-    
-    // If progress less than 100%, display green
-    if(progress < 100 && !feedError){
 
-      color =  "#00ff00"
+    // If progress less than 100%, display green
+    if (progress < 100 && !feedError) {
+      color = '#00ff00'
 
       threshold = progress
     }
-    if(progress == 100)
-    {
-      title='✔️'
+    if (progress == 100) {
+      title = '✔️'
     }
 
     const circularProgress = {
@@ -243,23 +254,23 @@ const FeedListView: React.FC<AllProps> = ({
         </div>
       ),
     }
-    
-    const isSelected= (bulkSelect:any,feed:Feed) =>{
-      for(const selectedFeed of bulkSelect){
-        if(selectedFeed.data.id == feed.data.id){
-          return true;
+
+    const isSelected = (bulkSelect: any, feed: Feed) => {
+      for (const selectedFeed of bulkSelect) {
+        if (selectedFeed.data.id == feed.data.id) {
+          return true
         }
       }
-      return false;
+      return false
     }
     const bulkChecbox = {
       title: (
         <Checkbox
-          isChecked={isSelected(bulkSelect,feed)}
+          isChecked={isSelected(bulkSelect, feed)}
           id="check"
           aria-label="toggle icon bar"
           onChange={() => {
-            if (!isSelected(bulkSelect,feed)) {
+            if (!isSelected(bulkSelect, feed)) {
               setBulkSelect(feed)
             } else {
               removeBulkSelect(feed)
@@ -270,7 +281,16 @@ const FeedListView: React.FC<AllProps> = ({
     }
 
     return {
-      cells: [bulkChecbox, feedId, name, created, runTime, feedSize, circularProgress],
+      cells: [
+        bulkChecbox,
+        feedId,
+        name,
+        created,
+        creator,
+        runTime,
+        feedSize,
+        circularProgress,
+      ],
     }
   }
 
@@ -279,6 +299,7 @@ const FeedListView: React.FC<AllProps> = ({
     'Id',
     'Analysis',
     'Created',
+    'Creator',
     'Run Time',
     'Size',
     'Progress',
@@ -394,11 +415,16 @@ const FeedListView: React.FC<AllProps> = ({
                   <Th>Id</Th>
                   <Th>Analysis</Th>
                   <Th>Created</Th>
+                  <Th>Creator</Th>
                   <Th>Run Time</Th>
-                    <Th style={{
+                  <Th
+                    style={{
                       textAlign: 'center',
-                      margin: '0 auto'
-                    }}>Size</Th>
+                      margin: '0 auto',
+                    }}
+                  >
+                    Size
+                  </Th>
                   <Th></Th>
                 </Tr>
               </Thead>
