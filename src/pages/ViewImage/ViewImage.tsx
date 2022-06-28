@@ -65,10 +65,13 @@ const GalleryPage = () => {
         } else {
           imageIds.push(cornerstoneFileImageLoader.fileManager.add(file))
         }
-        setLoader({
-          ...loader,
-          filesParsed: i + 1,
-          totalFiles: files.length,
+
+        setLoader((state) => {
+          return {
+            ...state,
+            filesParsed: i + 1,
+            totalFiles: files.length,
+          }
         })
       }
 

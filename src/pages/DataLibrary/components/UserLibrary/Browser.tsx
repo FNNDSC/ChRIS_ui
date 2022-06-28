@@ -159,11 +159,10 @@ const TooltipParent = ({
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <h3 style={h3Style}>
         Explore Card: {'   '}
-        <i>double click</i>
+        <i>single click</i>
       </h3>
       <h3 style={{ ...h3Style, paddingBottom: '0' }}>
-        Select Card: {'  '}{' '}
-        <i>{type === 'folder' ? `single click` : 'click the checkbox'}</i>
+        Select Card: {'  '} <i>long press and release</i>
       </h3>
       <h3 style={h3Style}>
         Cancel Tips:{'    '}
@@ -210,6 +209,10 @@ function FileCard({
     return fileSelect.folder === file
   })
 
+  const handlePreview = () => {
+    setLargePreview(!largePreview)
+  }
+
   return (
     <>
       <TooltipParent type="file">
@@ -220,6 +223,16 @@ function FileCard({
           isSelectableRaised
           isSelected={background}
           onMouseDown={handleOnMouseDown}
+          onClick={(e) => {
+            handleOnClick(
+              e,
+              path,
+              file,
+              initialPath,
+              browserType,
+              handlePreview,
+            )
+          }}
           key={file.data.fname}
           isRounded
           isHoverable
@@ -231,16 +244,6 @@ function FileCard({
                 <b>{elipses(fileName, 20)}</b>
               </Button>
             </CardTitle>
-
-            <CardActions>
-              <Checkbox
-                id="check2"
-                isChecked={background}
-                onChange={(e) => {
-                  handleOnClick(e, path, file, initialPath, browserType)
-                }}
-              />
-            </CardActions>
           </CardHeader>
           <CardBody>
             {previewAll && (
@@ -255,11 +258,6 @@ function FileCard({
               </div>
             )}
 
-            <div
-              style={{
-                overflow: 'hidden',
-              }}
-            ></div>
             <div>
               <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
               <Button
@@ -269,14 +267,6 @@ function FileCard({
                 }}
                 variant="link"
                 icon={<FaDownload />}
-              />
-
-              <Button
-                variant="link"
-                onClick={() => {
-                  setLargePreview(true)
-                }}
-                icon={<FaExpand />}
               />
             </div>
           </CardBody>
