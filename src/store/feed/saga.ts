@@ -1,4 +1,4 @@
-import { all, fork, put, takeEvery } from 'redux-saga/effects'
+import { all, fork, put,call, takeEvery } from 'redux-saga/effects'
 import { Feed, FeedList } from "@fnndsc/chrisapi";
 import { FeedActionTypes } from './types'
 import { IActionTypeParam } from '../../api/models/base.model'
@@ -13,6 +13,8 @@ import {
   mergeFeedError,
   mergeFeedSuccess,
   getFeedResourcesSucess,
+  stopPollingTable,
+  getPollingStatus,
 } from './actions'
 import { getPluginInstancesRequest } from '../pluginInstance/actions'
 
@@ -25,7 +27,9 @@ const params: {
 } = { limit: 0, offset: 0, name: "" };
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
-  const { name, limit, offset } = action.payload
+
+  const { name, limit, offset} = action.payload
+  let polling=false;
   params["name"] = name
   params["limit"] = limit
   params["offset"] = offset
@@ -34,7 +38,6 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
   const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
   do{
     try {
-
       const feedsList: FeedList = yield client.getFeeds(params)
       const totalCount = feedsList.totalCount
       const feeds: Feed[] = feedsList.getItems() || []
@@ -49,7 +52,9 @@ function* handleGetAllFeeds(action: IActionTypeParam) {
     }
 
     yield delay(7000)
-  }  while(flag)
+    polling = yield call(getPollingStatus,"stop")
+
+  }  while(polling)
 }
 
 function* handleGetFeedDetails(action: IActionTypeParam) {
@@ -185,6 +190,16 @@ function* watchGetFeedResources() {
   )
 }
 
+function* handleResetPage(action: IActionTypeParam) {
+  const param = action.payload.data;
+  yield put(stopPollingTable(param));
+}
+
+function* watchResetPage() {
+  yield takeEvery(FeedActionTypes.RESET_POLLING_REQUEST,handleResetPage)
+}
+
+
 export function* feedSaga() {
   yield all([
     fork(watchGetAllFeedsRequest),
@@ -192,5 +207,6 @@ export function* feedSaga() {
     fork(watchDownloadRequest),
     fork(watchMergeRequest),
     fork(watchGetFeedResources),
+    fork(watchResetPage),
   ])
 }
