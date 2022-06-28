@@ -32,6 +32,7 @@ const IconContainer = () => {
   const handleModalToggle = (action:string) => {
     setModalOpen(!isModalOpen);
     setActionValue(action);
+    console.log(bulkSelect)
   };
 
   const handleNameInputChange = (value:any) => {
@@ -48,7 +49,8 @@ const IconContainer = () => {
       (nameInputRef.current as HTMLInputElement).focus();
     }
   }, [isModalOpen]);
-
+  
+  
   const handleChange = (type: string,name:any) => {
     type === 'download' && dispatch(downloadFeedRequest(bulkSelect,name))
     type === 'merge' && dispatch(mergeFeedRequest(bulkSelect,name))
@@ -105,13 +107,12 @@ const IconContainer = () => {
           </Button>
         ]}
       >
-        <Form id="modal-with-form-form">
+        <Form id="modal-with-form-form" onSubmit={handleSubmit}>
           <FormGroup
             label="Feed Name"
             fieldId="modal-with-form-form-name"
           >
             <TextInput
-              isRequired
               type="email"
               id="modal-with-form-form-name"
               name="modal-with-form-form-name"
