@@ -35,7 +35,7 @@ const BreadcrumbContainer = ({
 
   return (
     <>
-      <Breadcrumb style={{ margin: '1.5em 0 1em 0' }}>
+      <Breadcrumb style={{ margin: '0 0 1em 0' }}>
         {initialPathSplit.map((path: string, index) => {
           let icon
           const style = { width: '2em', height: '0.85em' }
