@@ -1,5 +1,5 @@
 import { all, fork, put, takeEvery } from 'redux-saga/effects'
-import { Feed, FeedList } from "@fnndsc/chrisapi";
+import { Feed, FeedList } from '@fnndsc/chrisapi'
 import { FeedActionTypes } from './types'
 import { IActionTypeParam } from '../../api/models/base.model'
 import ChrisAPIClient from '../../api/chrisapiclient'
@@ -19,37 +19,30 @@ import { getPluginInstancesRequest } from '../pluginInstance/actions'
 import cujs from 'chris-upload'
 
 const params: {
-  limit: number;
-  offset: number;
-  name: string;
-} = { limit: 0, offset: 0, name: "" };
+  limit: number
+  offset: number
+  name: string
+} = { limit: 0, offset: 0, name: '' }
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
   const { name, limit, offset } = action.payload
-  params["name"] = name
-  params["limit"] = limit
-  params["offset"] = offset
+  params['name'] = name
+  params['limit'] = limit
+  params['offset'] = offset
   const client = ChrisAPIClient.getClient()
-  const flag = true
-  const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-  do{
-    try {
 
-      const feedsList: FeedList = yield client.getFeeds(params)
-      const totalCount = feedsList.totalCount
-      const feeds: Feed[] = feedsList.getItems() || []
-      const payload = {
-        feeds,
-        totalCount,
-      }
-
-      yield put(getAllFeedsSuccess(payload))
-    } catch (error) {
-      yield put(getAllFeedsError(error))
+  try {
+    const feedsList: FeedList = yield client.getFeeds(params)
+    const totalCount = feedsList.totalCount
+    const feeds: Feed[] = feedsList.getItems() || []
+    const payload = {
+      feeds,
+      totalCount,
     }
-
-    yield delay(7000)
-  }  while(flag)
+    yield put(getAllFeedsSuccess(payload))
+  } catch (error) {
+    yield put(getAllFeedsError(error))
+  }
 }
 
 function* handleGetFeedDetails(action: IActionTypeParam) {
@@ -71,95 +64,92 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
   }
 }
 
-
-
 function* handleDowloadFeed(action: IActionTypeParam) {
-  
-  const feedList = action.payload;
-  const client = ChrisAPIClient.getClient();
-  const cu = new cujs();
-  cu.setClient(client);
+  const feedList = action.payload
+  const client = ChrisAPIClient.getClient()
+  const cu = new cujs()
+  cu.setClient(client)
   //@ts-ignore
 
-  const feedIdList = [];
-  const newFeeds = [];
-  const feedNames = [];
+  const feedIdList = []
+  const newFeeds = []
+  const feedNames = []
   for (let i = 0; i < feedList.length; i++) {
-    const data = feedList[i].data;
-    feedIdList.push(data.id);
-    feedNames.push(data.name);
+    const data = feedList[i].data
+    feedIdList.push(data.id)
+    feedNames.push(data.name)
   }
   try {
     // truncate name of the merged feed(limit=100)
-    let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
-    newFeedName = `Archive of ${newFeedName}`;
-    newFeedName = newFeedName.substring(0, 100);
-    
-    newFeedName = (action.meta==""? newFeedName:action.meta)
-    
+    let newFeedName = feedNames.toString().replace(/[, ]+/g, '_')
+    newFeedName = `Archive of ${newFeedName}`
+    newFeedName = newFeedName.substring(0, 100)
+
+    newFeedName = action.meta == '' ? newFeedName : action.meta
+
     const createdFeed: Feed = yield cu.downloadMultipleFeeds(
       feedIdList,
-      newFeedName
-    );
-    newFeeds.push(createdFeed);
-  } catch (error: any) {
-    const errorParsed = error.response.data.value[0];
-    yield put(downloadFeedError(errorParsed));
+      newFeedName,
+    )
+    newFeeds.push(createdFeed)
+  } catch (error) {
+    const errorParsed = error.response.data.value[0]
+    yield put(downloadFeedError(errorParsed))
   }
 
-  yield put(downloadFeedSuccess(newFeeds));
+  yield put(downloadFeedSuccess(newFeeds))
 }
 
 function* handleMergeFeed(action: IActionTypeParam) {
-  const feedList = action.payload;
-  const client = ChrisAPIClient.getClient();
-  const cu = new cujs();
-  cu.setClient(client);
+  const feedList = action.payload
+  const client = ChrisAPIClient.getClient()
+  const cu = new cujs()
+  cu.setClient(client)
 
-  const feedIdList = [];
-  const newFeeds = [];
-  const feedNames = [];
+  const feedIdList = []
+  const newFeeds = []
+  const feedNames = []
   for (let i = 0; i < feedList.length; i++) {
-    const data = feedList[i].data;
-    feedIdList.push(data.id);
-    feedNames.push(data.name);
+    const data = feedList[i].data
+    feedIdList.push(data.id)
+    feedNames.push(data.name)
   }
   try {
     // truncate name of the merged feed(limit=100)
-    let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
-    newFeedName = `Merge of ${newFeedName}`;
-    newFeedName = newFeedName.substring(0, 100);
-    
-    newFeedName = (action.meta==""? newFeedName:action.meta)
+    let newFeedName = feedNames.toString().replace(/[, ]+/g, '_')
+    newFeedName = `Merge of ${newFeedName}`
+    newFeedName = newFeedName.substring(0, 100)
 
-   
+    newFeedName = action.meta == '' ? newFeedName : action.meta
+
     const createdFeed: Feed = yield cu.mergeMultipleFeeds(
       feedIdList,
-      newFeedName
-    );
-    newFeeds.push(createdFeed);
-  } catch (error: any) {
-    const errorParsed = error.response.data.value[0];
-    yield put(mergeFeedError(errorParsed));
+      newFeedName,
+    )
+    newFeeds.push(createdFeed)
+  } catch (error) {
+    const errorParsed = error.response.data.value[0]
+    yield put(mergeFeedError(errorParsed))
   }
 
-  yield put(mergeFeedSuccess(newFeeds));
+  yield put(mergeFeedSuccess(newFeeds))
 }
 
 function* handleFeedResources(action: IActionTypeParam) {
-  const client = ChrisAPIClient.getClient();
-  const cu = new cujs();
-  cu.setClient(client);
+  const client = ChrisAPIClient.getClient()
+  const cu = new cujs()
+  cu.setClient(client)
   try {
-    let details: Record<string, unknown> = {};
-    details = yield cu.getPluginInstanceDetails(action.payload);
+    let details: Record<string, unknown> = {}
+    details = yield cu.getPluginInstanceDetails(action.payload)
     const payload = {
-        details,
-        id: action.payload.data.id,
-    };
-    yield put(getFeedResourcesSucess(payload));
-
-  } catch (error) {}
+      details,
+      id: action.payload.data.id,
+    }
+    yield put(getFeedResourcesSucess(payload))
+  } catch (error) {
+    console.log("ERROR", error);
+  }
 }
 
 function* watchGetAllFeedsRequest() {
