@@ -64,10 +64,6 @@ const DashboardPage = (props: DashboardProps) => {
           <b> Let&apos;s get started.</b>
           <br />
           <span>
-            Version: <b>{process.env.REACT_APP_CHRIS_UI_VERSION}</b>{" "}
-          </span>
-          <br />
-          <span>
             Latest update:{" "}
             <b>
               <Moment format="DD MMM YYYY @ HH:mm">{`2022-06-27T12:40:11.007464-04:00`}</Moment>
