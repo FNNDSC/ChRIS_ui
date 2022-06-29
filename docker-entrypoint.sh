@@ -5,17 +5,15 @@
 #             to be http://localhost:8000/api/v1/
 # Purpose:    Overwrite the URL of CUBE using a user-specified value.
 #             `sed` is used to patch the `build/` directory.
-#             Next, we downgrade to an underprivileged user
-#             before starting the static web server.
 
 target='http://localhost:8000/api/v1/'
 cube_url="${REACT_APP_CHRIS_UI_URL-nil}"
 
 if [ "$(id -u)" != "0" ]; then
   if [ "$cube_url" != 'nil' ]; then
-    echo "WARNING: custom value REACT_APP_CHRIS_UI_URL=$cube_url"
+    echo "ERROR: custom value REACT_APP_CHRIS_UI_URL=$cube_url"
     echo "is set, but container user is not root."
-    echo "This ChRIS_ui will still point to: $target"
+    exit 1
   fi
   exec "$@"
 fi
@@ -34,19 +32,5 @@ if [ "$cube_url"  != 'nil' ]; then
   done
 fi
 
-# change to a (random) underprivileged user
 
-if ! id chris &> /dev/null; then
-  PUID=${PUID:=$((RANDOM%50000+10000))}
-  PGID=${PGID-nil}
-
-  if [ "$PGID" = 'nil' ]; then
-    adduser -D -u $PUID chris
-  else
-    addgroup -g $PGID chris
-    adduser -D -u $PUID -G chris chris
-  fi
-fi
-
-exec su chris -c "$(echo $@)"
-
+exec "$@"
