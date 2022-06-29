@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import Moment from 'react-moment'
 import '@patternfly/react-core/dist/styles/base.css'
@@ -19,7 +18,6 @@ import {
 } from '@patternfly/react-core'
 import { Table, TableBody, Thead, Tr, Th } from '@patternfly/react-table'
 import { ChartDonutUtilization } from '@patternfly/react-charts'
-import { ApplicationState } from '../../../store/root/applicationState'
 import { setSidebarActive } from '../../../store/ui/actions'
 import {
   getAllFeedsRequest,
@@ -30,7 +28,7 @@ import {
   setAllSelect,
   toggleSelectAll,
 } from '../../../store/feed/actions'
-import { IFeedState } from '../../../store/feed/types'
+
 import { DataTableToolbar } from '../../../components/index'
 import { CreateFeed } from '../../../components/feed/CreateFeed/CreateFeed'
 import { CreateFeedProvider } from '../../../components/feed/CreateFeed/context'
@@ -42,32 +40,9 @@ import { usePaginate } from '../../../components/common/pagination'
 import { Feed } from '@fnndsc/chrisapi'
 import IconContainer from './IconContainer'
 import { FcMediumPriority } from 'react-icons/fc'
+import { useTypedSelector } from '../../../store/hooks'
 
-interface IPropsFromDispatch {
-  setSidebarActive: typeof setSidebarActive
-  getAllFeedsRequest: typeof getAllFeedsRequest
-  setBulkSelect: typeof setBulkSelect
-  removeBulkSelect: typeof removeBulkSelect
-  setAllSelect: typeof setAllSelect
-  removeAllSelect: typeof removeAllSelect
-  toggleSelectAll: typeof toggleSelectAll
-}
-
-type AllProps = IFeedState & IPropsFromDispatch
-
-const FeedListView: React.FC<AllProps> = ({
-  setSidebarActive,
-  selectAllToggle,
-  allFeeds,
-  bulkSelect,
-  getAllFeedsRequest,
-  setBulkSelect,
-  removeBulkSelect,
-  feedResources,
-  setAllSelect,
-  removeAllSelect,
-  toggleSelectAll,
-}: AllProps) => {
+const FeedListView: React.FC = () => {
   const {
     filterState,
     handlePageSet,
@@ -76,7 +51,12 @@ const FeedListView: React.FC<AllProps> = ({
     run,
     dispatch,
   } = usePaginate()
-
+  const {
+    allFeeds,
+    selectAllToggle,
+    feedResources,
+    bulkSelect,
+  } = useTypedSelector((state) => state.feed)
   const { page, perPage } = filterState
   const { data, error, loading, totalFeedsCount } = allFeeds
 
@@ -112,12 +92,11 @@ const FeedListView: React.FC<AllProps> = ({
 
   React.useEffect(() => {
     if (selectAllToggle && allFeeds.data && allFeeds.data.length > 0) {
-      setAllSelect(allFeeds.data)
+      dispatch(setAllSelect(allFeeds.data))
     }
   }, [allFeeds.data, setAllSelect, selectAllToggle])
 
   const generateTableRow = (feed: Feed) => {
-    console.log('FEED', feed)
     const { id, name: feedName, creation_date, creator_username } = feed.data
 
     const fontFamily = {
@@ -262,9 +241,9 @@ const FeedListView: React.FC<AllProps> = ({
           aria-label="toggle icon bar"
           onChange={() => {
             if (!isSelected(bulkSelect, feed)) {
-              setBulkSelect(feed)
+              dispatch(setBulkSelect(feed))
             } else {
-              removeBulkSelect(feed)
+              dispatch(removeBulkSelect(feed))
             }
           }}
         />
@@ -299,6 +278,15 @@ const FeedListView: React.FC<AllProps> = ({
   ]
 
   const rows = data && data.length > 0 ? data.map(generateTableRow) : []
+
+  const customRowWrapper = (row: any) => {
+    const { children } = row
+
+    let backgroundStyle = {
+      backgroundColor: '#F9E0A2',
+    }
+    return <Tr style={backgroundStyle}>{children}</Tr>
+  }
 
   const generatePagination = () => {
     if (!data || !totalFeedsCount) {
@@ -384,6 +372,7 @@ const FeedListView: React.FC<AllProps> = ({
             cells={cells}
             rows={rows}
             isStickyHeader
+            rowWrapper={customRowWrapper}
           >
             {
               <Thead>
@@ -394,11 +383,16 @@ const FeedListView: React.FC<AllProps> = ({
                       isChecked={selectAllToggle}
                       onChange={() => {
                         if (!selectAllToggle) {
-                          if (allFeeds.data) setAllSelect(allFeeds.data)
-                          toggleSelectAll(true)
+                          if (allFeeds.data) {
+                            dispatch(setAllSelect(allFeeds.data))
+                          }
+
+                          dispatch(toggleSelectAll(true))
                         } else {
-                          if (allFeeds.data) removeAllSelect(allFeeds.data)
-                          toggleSelectAll(false)
+                          if (allFeeds.data) {
+                            dispatch(removeAllSelect(allFeeds.data))
+                          }
+                          dispatch(toggleSelectAll(false))
                         }
                       }}
                     />
@@ -429,24 +423,4 @@ const FeedListView: React.FC<AllProps> = ({
   )
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setSidebarActive: (active: { activeItem: string }) =>
-    dispatch(setSidebarActive(active)),
-  getAllFeedsRequest: (name?: string, limit?: number, offset?: number) =>
-    dispatch(getAllFeedsRequest(name, limit, offset)),
-  setBulkSelect: (feed: Feed) => dispatch(setBulkSelect(feed)),
-  removeBulkSelect: (feed: Feed) => dispatch(removeBulkSelect(feed)),
-  setAllSelect: (feeds: Feed[]) => dispatch(setAllSelect(feeds)),
-  removeAllSelect: (feeds: Feed[]) => dispatch(removeAllSelect(feeds)),
-  toggleSelectAll: (flag: boolean) => dispatch(toggleSelectAll(flag)),
-})
-
-const mapStateToProps = ({ feed }: ApplicationState) => ({
-  bulkSelect: feed.bulkSelect,
-  allFeeds: feed.allFeeds,
-  downloadStatus: feed.downloadStatus,
-  feedResources: feed.feedResources,
-  selectAllToggle: feed.selectAllToggle,
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(FeedListView)
+export default FeedListView
