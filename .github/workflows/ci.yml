@@ -77,6 +77,8 @@ jobs:
           push: true
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
+          build-args: |
+            REACT_APP_CHRIS_UI_BUILD_COMMIT=${{ github.sha }}
 
       - name: Update DockerHub description
         uses: peter-evans/dockerhub-description@v2
