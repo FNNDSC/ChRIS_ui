@@ -62,7 +62,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix"
+    "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
+    "print-version": "./print_version.sh"
   },
   "resolutions": {
     "react-scripts/postcss-preset-env/postcss-custom-properties": "^10.0.0"
