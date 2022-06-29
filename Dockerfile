@@ -29,7 +29,7 @@
 #   For high-security platforms, do not use docker-entrypoint.sh.
 
 
-FROM node:18 as builder
+FROM node:16 as builder
 
 WORKDIR /app
 COPY . .
@@ -38,7 +38,7 @@ RUN npm install
 RUN npm run build 
 
 
-FROM node:18-alpine
+FROM node:16-alpine
 
 RUN yarn global add sirv-cli
 
@@ -48,6 +48,5 @@ COPY --from=builder /app/build /app
 COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-ENV HOST=0.0.0.0 PORT=3000
-CMD ["sirv", "--quiet", "--etag", "--single"]
-EXPOSE 3000
+CMD ["npm", "start"]
+EXPOSE 8080

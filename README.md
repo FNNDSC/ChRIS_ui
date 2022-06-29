@@ -96,7 +96,7 @@ You can follow any of these steps to start UI development server
     $ git clone https://github.com/FNNDSC/ChRIS_ui.git
     $ cd ChRIS_ui
     $ npm i
-    $ npm start
+    $ npm run dev
     ```
 
     More details can be found in the
@@ -116,19 +116,11 @@ You can follow any of these steps to start UI development server
 
 ## Build the ChRIS UI app for production
 
-```bash
-$ cd ChRIS_ui
-$ docker build -t local/chris_ui .
-```
-It correctly bundles React in production mode and optimizes the build for the best performance.
-The build is minified and the filenames include the hashes.
+[Source-to-image](https://github.com/openshift/source-to-image#readme)
+can be used to build this project.
 
-Your app is ready to be deployed!
-
-## Deploy and serve the ChRIS UI app
-
-```bash
-$ docker run --name chris_ui -p <desired port>:3000 -d local/chris_ui
+```shell
+s2i build https://github.com/FNNDSC/ChRIS_ui quay.io/fedora/nodejs-16 s2ichrisui
 ```
 
 ## Learn More

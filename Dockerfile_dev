@@ -25,7 +25,7 @@
 
 
 
-FROM node:18 as builder
+FROM node:16 as builder
 MAINTAINER fnndsc "dev@babymri.org"
 
 # Pass a UID on build command line (see above) to set internal UID
@@ -41,4 +41,4 @@ USER localuser
 WORKDIR $HOME
 EXPOSE 3000
 
-CMD npm install && npm start
+CMD npm install && npm run dev
