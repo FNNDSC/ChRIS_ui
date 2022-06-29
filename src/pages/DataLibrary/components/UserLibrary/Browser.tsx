@@ -1,49 +1,39 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext } from 'react'
 import {
   Grid,
   GridItem,
   Card,
   CardHeader,
-  CardActions,
   CardBody,
+  CardTitle,
   Split,
   SplitItem,
   Button,
-  Dropdown,
-  KebabToggle,
-  DropdownItem,
   Modal,
+  CardActions,
   Checkbox,
-} from "@patternfly/react-core";
-import {
-  FaFile,
-  FaFolder,
-  FaTrashAlt,
-  FaDownload,
-  FaExpand,
-} from "react-icons/fa";
-import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
-import { LibraryContext, Paginated } from "./context";
-import FileViewerModel from "../../../../api/models/file-viewer.model";
-import ChrisAPIClient from "../../../../api/chrisapiclient";
-import { Spin } from "antd";
-import { Types } from "./context";
+} from '@patternfly/react-core'
+import { FaFile, FaFolder, FaDownload, FaExpand } from 'react-icons/fa'
+import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
+import { LibraryContext, Paginated, Types } from './context'
+import FileViewerModel from '../../../../api/models/file-viewer.model'
+import ChrisAPIClient from '../../../../api/chrisapiclient'
+import { Spin, Tooltip } from 'antd'
+import { MdClose } from 'react-icons/md'
+import useLongPress from './useLongPress'
 
 interface BrowserInterface {
-  initialPath: string;
-  handleFolderClick: (path: string, prevPath: string) => void;
-  folders: string[];
-  files: any[];
+  initialPath: string
+  handleFolderClick: (path: string, prevPath: string) => void
+  folders: string[]
+  files: any[]
   paginated: {
-    [key: string]: Paginated;
-  };
-  handlePagination: (path: string, type: string) => void;
-  previewAll: boolean;
-  handleDelete?: (path: string, folder: string) => void;
-  handleDownload?: (path: string, folder: string) => void;
-  browserType: string;
-  username?: string | null;
-  multipleFileSelect: boolean;
+    [key: string]: Paginated
+  }
+  handlePagination: (path: string, type: string) => void
+  previewAll: boolean
+  browserType: string
+  username?: string | null
 }
 
 export function Browser({
@@ -54,14 +44,16 @@ export function Browser({
   paginated,
   handlePagination,
   previewAll,
-  handleDelete,
-  handleDownload,
   browserType,
   username,
-  multipleFileSelect,
 }: BrowserInterface) {
   return (
-    <Grid hasGutter>
+    <Grid
+      style={{
+        marginLeft: '0.5em',
+      }}
+      hasGutter
+    >
       {files &&
         files.length > 0 &&
         files.map((file) => {
@@ -70,11 +62,11 @@ export function Browser({
               <FileCard
                 previewAll={previewAll}
                 file={file}
-                multipleFileSelect={multipleFileSelect}
                 initialPath={initialPath}
+                browserType={browserType}
               />
             </GridItem>
-          );
+          )
         })}
       {files &&
         files.length > 0 &&
@@ -87,7 +79,7 @@ export function Browser({
               <SplitItem isFilled>
                 <Button
                   onClick={() => {
-                    handlePagination(initialPath, "file");
+                    handlePagination(initialPath, 'file')
                   }}
                   variant="link"
                 >
@@ -107,15 +99,12 @@ export function Browser({
                 browserType={browserType}
                 initialPath={initialPath}
                 handleFolderClick={handleFolderClick}
-                handleDelete={handleDelete}
-                handleDownload={handleDownload}
                 key={index}
                 folder={folder}
                 username={username}
-                multipleFileSelect={multipleFileSelect}
               />
             </GridItem>
-          );
+          )
         })}
 
       {folders &&
@@ -129,7 +118,7 @@ export function Browser({
               <SplitItem isFilled>
                 <Button
                   onClick={() => {
-                    handlePagination(initialPath, "folder");
+                    handlePagination(initialPath, 'folder')
                   }}
                   variant="link"
                 >
@@ -140,125 +129,170 @@ export function Browser({
           </GridItem>
         )}
     </Grid>
-  );
+  )
+}
+
+const TooltipParent = ({
+  children,
+  type,
+}: {
+  children: React.ReactElement
+  type: string
+}) => {
+  const { state, dispatch } = useContext(LibraryContext)
+
+  const hideToolTip = () => {
+    dispatch({
+      type: Types.SET_TOOLTIP,
+      payload: {
+        tooltip: true,
+      },
+    })
+  }
+
+  const h3Style = {
+    color: 'white',
+    fontSize: '1em',
+  }
+
+  const title = (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <h3 style={h3Style}>
+        Explore Card: {'   '}
+        <i>single click</i>
+      </h3>
+      <h3 style={{ ...h3Style, paddingBottom: '0' }}>
+        Select Card: {'  '} <i>long press and release</i>
+      </h3>
+      <h3 style={h3Style}>
+        Cancel Tips:{'    '}
+        <Button
+          style={{
+            padding: 0,
+            ...h3Style,
+          }}
+          variant="link"
+          icon={<MdClose style={{ textAlign: 'center' }} />}
+          onClick={hideToolTip}
+        />
+      </h3>
+    </div>
+  )
+
+  return (
+    <Tooltip visible={state.tooltip ? false : undefined} title={title}>
+      {children}
+    </Tooltip>
+  )
 }
 
 function FileCard({
   file,
   previewAll,
-  multipleFileSelect,
   initialPath,
+  browserType,
 }: {
-  file: any;
-  previewAll: boolean;
-  multipleFileSelect: boolean;
-  initialPath: string;
+  file: any
+  previewAll: boolean
+  browserType: string
+  initialPath: string
 }) {
-  const { dispatch, state } = useContext(LibraryContext);
-  const { fileSelect } = state;
-  const fileNameArray = file.data.fname.split("/");
-  const fileName = fileNameArray[fileNameArray.length - 1];
-  const [largePreview, setLargePreview] = React.useState(false);
-  const path = `${initialPath}/${fileName}`;
+  const { handlers } = useLongPress()
+  const { state } = useContext(LibraryContext)
+  const { selectedFolder } = state
+  const { handleOnClick, handleOnMouseDown } = handlers
+  const fileNameArray = file.data.fname.split('/')
+  const fileName = fileNameArray[fileNameArray.length - 1]
+  const [largePreview, setLargePreview] = React.useState(false)
+  const path = `${initialPath}/${fileName}`
+  const background = selectedFolder.some((fileSelect) => {
+    return fileSelect.folder === file
+  })
+
+  const handlePreview = () => {
+    setLargePreview(!largePreview)
+  }
 
   return (
     <>
-      <Card key={file.data.fname} isRounded isHoverable isSelectable>
-        <CardBody>
-          {previewAll && (
-            <div
-              style={{
-                margin: "-1.15em -1.15em 1em -1.15em",
-                maxHeight: "10em",
-                overflow: "hidden",
-              }}
-            >
-              <FileDetailView selectedFile={file} preview="small" />
-            </div>
-          )}
-
-          <div
-            style={{
-              overflow: "hidden",
-            }}
-          >
-            {multipleFileSelect && (
-              <Checkbox
-                id={path}
-                isChecked={fileSelect.includes(path)}
-                name={path}
-                onChange={(checked: boolean) => {
-                  if (checked) {
-                    dispatch({
-                      type: Types.SET_ADD_FILE_SELECT,
-                      payload: {
-                        path,
-                      },
-                    });
-                  } else {
-                    dispatch({
-                      type: Types.SET_REMOVE_FILE_SELECT,
-                      payload: {
-                        path,
-                      },
-                    });
-                  }
-                }}
+      <TooltipParent type="file">
+        <Card
+          style={{
+            background: `${background ? '#e7f1fa' : 'white'}`,
+          }}
+          isSelectableRaised
+          isSelected={background}
+          onMouseDown={handleOnMouseDown}
+          onClick={(e) => {
+            handleOnClick(
+              e,
+              path,
+              file,
+              initialPath,
+              browserType,
+              handlePreview,
+            )
+          }}
+          key={file.data.fname}
+          isRounded
+          isHoverable
+          isSelectable
+        >
+          <CardHeader>
+            <CardTitle>
+              <Button icon={<FaFile />} variant="link" style={{ padding: '0' }}>
+                <b>{elipses(fileName, 20)}</b>
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardBody>
+            {previewAll && (
+              <div
                 style={{
-                  marginRight: "0.5em",
-                  padding: "0",
+                  margin: '-1.15em -1.15em 1em -1.15em',
+                  maxHeight: '10em',
+                  overflow: 'hidden',
                 }}
-              />
+              >
+                <FileDetailView selectedFile={file} preview="small" />
+              </div>
             )}
-            <Button icon={<FaFile />} variant="link" style={{ padding: "0" }}>
-              <b>{elipses(fileName, 20)}</b>
-            </Button>
-          </div>
-          <div>
-            <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
-            <Button
-              onClick={async () => {
-                const blob = await file.getFileBlob();
-                FileViewerModel.downloadFile(blob, fileName);
-              }}
-              variant="link"
-              icon={<FaDownload />}
-            />
 
-            <Button
-              variant="link"
-              onClick={() => {
-                setLargePreview(true);
-              }}
-              icon={<FaExpand />}
-            />
-          </div>
-        </CardBody>
-        {largePreview && (
-          <Modal
-            title="Preview"
-            aria-label="viewer"
-            width={"50%"}
-            isOpen={largePreview}
-            onClose={() => setLargePreview(false)}
-          >
-            <FileDetailView selectedFile={file} preview="large" />
-          </Modal>
-        )}
-      </Card>
+            <div>
+              <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
+              <Button
+                onClick={async () => {
+                  const blob = await file.getFileBlob()
+                  FileViewerModel.downloadFile(blob, fileName)
+                }}
+                variant="link"
+                icon={<FaDownload />}
+              />
+            </div>
+          </CardBody>
+          {largePreview && (
+            <Modal
+              title="Preview"
+              aria-label="viewer"
+              width={'50%'}
+              isOpen={largePreview}
+              onClose={() => setLargePreview(false)}
+            >
+              <FileDetailView selectedFile={file} preview="large" />
+            </Modal>
+          )}
+        </Card>
+      </TooltipParent>
     </>
-  );
+  )
 }
 
 interface FolderCardInterface {
-  browserType: string;
-  initialPath: string;
-  folder: string;
-  handleFolderClick: (path: string, prevPath: string) => void;
-  handleDelete?: (path: string, folder: string) => void;
-  handleDownload?: (path: string, folder: string) => void;
-  username?: string | null;
-  multipleFileSelect: boolean;
+  browserType: string
+  initialPath: string
+  folder: string
+  handleFolderClick: (path: string, prevPath: string) => void
+  username?: string | null
 }
 
 function FolderCard({
@@ -266,155 +300,85 @@ function FolderCard({
   initialPath,
   folder,
   handleFolderClick,
-  handleDelete,
-  handleDownload,
   username,
-  multipleFileSelect,
 }: FolderCardInterface) {
-  const { dispatch, state } = useContext(LibraryContext);
-  const { fileSelect } = state;
-  const [dropdown, setDropdown] = useState(false);
-  const [feedName, setFeedName] = useState("");
-  const [commitDate, setCommitDate] = useState("");
+  const { handlers } = useLongPress()
+  const { state } = useContext(LibraryContext)
+  const { selectedFolder } = state
+  const [feedName, setFeedName] = useState('')
+  const [commitDate, setCommitDate] = useState('')
+  const path = `${initialPath}/${folder}`
 
-  const toggle = (
-    <KebabToggle
-      onToggle={() => setDropdown(!dropdown)}
-      style={{ padding: "0" }}
-    />
-  );
+  const { handleOnClick, handleOnMouseDown } = handlers
 
   React.useEffect(() => {
     async function fetchFeedName() {
-      if (browserType === "feed" && initialPath === username) {
-        const client = ChrisAPIClient.getClient();
-        const id = folder.split("_")[1];
-        const feed = await client.getFeed(parseInt(id));
-        setFeedName(feed.data.name);
-        setCommitDate(feed.data.creation_date);
+      if (browserType === 'feed' && initialPath === username) {
+        const client = ChrisAPIClient.getClient()
+        const id = folder.split('_')[1]
+        const feed = await client.getFeed(parseInt(id))
+        setFeedName(feed.data.name)
+        setCommitDate(feed.data.creation_date)
       }
     }
-    fetchFeedName();
-  }, [browserType, folder, initialPath, username]);
+    fetchFeedName()
+  }, [browserType, folder, initialPath, username])
 
-  const pad = <span style={{ padding: "0 0.25em" }} />;
+  const background = selectedFolder.some((file) => {
+    return file.folder === folder
+  })
 
-  const downloadDropdown = (
-    <DropdownItem
-      key="download folder"
-      component="button"
-      onClick={() => {
-        //handleDownload()
-        handleDownload && handleDownload(`${initialPath}/${folder}`, folder);
-      }}
-    >
-      <FaDownload />
-      {pad} Download
-    </DropdownItem>
-  );
-
-  const deleteDropdown = (
-    <DropdownItem
-      key="delete"
-      component="button"
-      onClick={() => {
-        handleDelete && handleDelete(`${initialPath}/${folder}`, folder);
-      }}
-    >
-      <FaTrashAlt />
-      {pad} Delete
-    </DropdownItem>
-  );
-
-  const path = `${initialPath}/${folder}`;
   return (
-    <Card
-      onClick={() => {
-        if (!state.multipleFileSelect)
-          handleFolderClick(`${initialPath}/${folder}`, initialPath);
-      }}
-      isHoverable
-      isSelectable
-      isRounded
-    >
-      <CardHeader>
-        <CardActions>
-          <Dropdown
-            isPlain
-            toggle={toggle}
-            isOpen={dropdown}
-            position="right"
-            onSelect={() => {
-              setDropdown(false);
-            }}
-            dropdownItems={
-              browserType == "uploads"
-                ? [deleteDropdown, downloadDropdown]
-                : [downloadDropdown]
-            }
-          ></Dropdown>
-        </CardActions>
-        <Split style={{ overflow: "hidden" }}>
-          <SplitItem style={{ marginRight: "1em" }}>
-            {multipleFileSelect && (
-              <Checkbox
-                id={path}
-                isChecked={fileSelect.includes(path)}
-                name={path}
-                onChange={(checked: boolean) => {
-                  if (checked) {
-                    dispatch({
-                      type: Types.SET_ADD_FILE_SELECT,
-                      payload: {
-                        path,
-                      },
-                    });
-                  } else {
-                    dispatch({
-                      type: Types.SET_REMOVE_FILE_SELECT,
-                      payload: {
-                        path,
-                      },
-                    });
-                  }
-                }}
-                style={{
-                  marginRight: "0.5em",
-                  padding: "0",
-                }}
-              />
-            )}
-            <FaFolder />
-          </SplitItem>
-          <SplitItem isFilled>
-            <Button
-              style={{ padding: 0 }}
-              variant="link"
-              onClick={() => {
-                handleFolderClick(`${initialPath}/${folder}`, initialPath);
-              }}
-            >
-              <b>
-                {browserType === "feed" && initialPath === username ? (
-                  !feedName ? (
-                    <Spin />
+    <TooltipParent type="folder">
+      <Card
+        onClick={(e) => {
+          handleOnClick(
+            e,
+            path,
+            folder,
+            initialPath,
+            browserType,
+            handleFolderClick,
+          )
+        }}
+        isSelectableRaised
+        isSelected={background}
+        onMouseDown={handleOnMouseDown}
+        isHoverable
+        isRounded
+        style={{
+          background: `${background ? '#e7f1fa' : 'white'}`,
+        }}
+      >
+        <CardHeader>
+          <Split style={{ overflow: 'hidden' }}>
+            <SplitItem style={{ marginRight: '1em' }}>
+              <FaFolder />
+            </SplitItem>
+            <SplitItem isFilled>
+              <Button style={{ padding: 0 }} variant="link">
+                <b>
+                  {browserType === 'feed' && initialPath === username ? (
+                    !feedName ? (
+                      <Spin />
+                    ) : (
+                      elipses(feedName, 36)
+                    )
                   ) : (
-                    elipses(feedName, 36)
-                  )
-                ) : (
-                  elipses(folder, 36)
-                )}
-              </b>
-            </Button>
-            <div>{commitDate ? new Date(commitDate).toDateString() : ""}</div>
-          </SplitItem>
-        </Split>
-      </CardHeader>
-    </Card>
-  );
+                    elipses(folder, 36)
+                  )}
+                </b>
+              </Button>
+              <div>{commitDate ? new Date(commitDate).toDateString() : ''}</div>
+            </SplitItem>
+          </Split>
+        </CardHeader>
+      </Card>
+    </TooltipParent>
+  )
 }
 
 function elipses(str: string, len: number) {
-  if (str.length <= len) return str;
-  return str.slice(0, len - 3) + "...";
+  if (str.length <= len) return str
+  return str.slice(0, len - 3) + '...'
 }

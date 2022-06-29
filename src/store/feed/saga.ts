@@ -1,4 +1,4 @@
-import { all, fork, put, takeEvery } from 'redux-saga/effects'
+import { all, fork, put,call, takeEvery } from 'redux-saga/effects'
 import { Feed, FeedList } from "@fnndsc/chrisapi";
 import { FeedActionTypes } from './types'
 import { IActionTypeParam } from '../../api/models/base.model'
@@ -13,32 +13,50 @@ import {
   mergeFeedError,
   mergeFeedSuccess,
   getFeedResourcesSucess,
+  stopPollingTable,
+  getPollingStatus,
 } from './actions'
 import { getPluginInstancesRequest } from '../pluginInstance/actions'
 
 import cujs from 'chris-upload'
 
+const params: {
+  limit: number;
+  offset: number;
+  name: string;
+} = { limit: 0, offset: 0, name: "" };
+
 function* handleGetAllFeeds(action: IActionTypeParam) {
-  const { name, limit, offset } = action.payload
-  const params = {
-    name,
-    limit,
-    offset,
-  }
+
+  const { name, limit, offset} = action.payload
+  let polling=false;
+  params["name"] = name
+  params["limit"] = limit
+  params["offset"] = offset
   const client = ChrisAPIClient.getClient()
-  try {
-    const feedsList: FeedList = yield client.getFeeds(params)
-    const totalCount = feedsList.totalCount
-    const feeds: Feed[] = feedsList.getItems() || []
-    const payload = {
-      feeds,
-      totalCount,
+  let currentClient;
+  const flag = true
+  const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+  do{
+    try {
+      const feedsList: FeedList = yield client.getFeeds(params)
+      const totalCount = feedsList.totalCount
+      const feeds: Feed[] = feedsList.getItems() || []
+      const payload = {
+        feeds,
+        totalCount,
+      }
+
+      yield put(getAllFeedsSuccess(payload))
+    } catch (error) {
+      yield put(getAllFeedsError(error))
     }
 
-    yield put(getAllFeedsSuccess(payload))
-  } catch (error) {
-    yield put(getAllFeedsError(error))
-  }
+    yield delay(7000)
+    polling = yield call(getPollingStatus,"stop")
+    currentClient = ChrisAPIClient.getClient()
+
+  }  while(polling && (currentClient == client))
 }
 
 function* handleGetFeedDetails(action: IActionTypeParam) {
@@ -63,6 +81,7 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
 
 
 function* handleDowloadFeed(action: IActionTypeParam) {
+  
   const feedList = action.payload;
   const client = ChrisAPIClient.getClient();
   const cu = new cujs();
@@ -82,7 +101,9 @@ function* handleDowloadFeed(action: IActionTypeParam) {
     let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
     newFeedName = `Archive of ${newFeedName}`;
     newFeedName = newFeedName.substring(0, 100);
-
+    
+    newFeedName = (action.meta==""? newFeedName:action.meta)
+    
     const createdFeed: Feed = yield cu.downloadMultipleFeeds(
       feedIdList,
       newFeedName
@@ -115,6 +136,8 @@ function* handleMergeFeed(action: IActionTypeParam) {
     let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
     newFeedName = `Merge of ${newFeedName}`;
     newFeedName = newFeedName.substring(0, 100);
+    
+    newFeedName = (action.meta==""? newFeedName:action.meta)
 
    
     const createdFeed: Feed = yield cu.mergeMultipleFeeds(
@@ -135,19 +158,14 @@ function* handleFeedResources(action: IActionTypeParam) {
   const cu = new cujs();
   cu.setClient(client);
   try {
-    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
     let details: Record<string, unknown> = {};
-    details.progress = 0;
-    do {
-      details = yield cu.getPluginInstanceDetails(action.payload);
-      const payload = {
+    details = yield cu.getPluginInstanceDetails(action.payload);
+    const payload = {
         details,
         id: action.payload.data.id,
-      };
+    };
+    yield put(getFeedResourcesSucess(payload));
 
-      yield put(getFeedResourcesSucess(payload));
-      yield delay(7000);
-    } while (details.progress !== 100 && !details.error);
   } catch (error) {}
 }
 
@@ -174,6 +192,16 @@ function* watchGetFeedResources() {
   )
 }
 
+function* handleResetPage(action: IActionTypeParam) {
+  const param = action.payload.data;
+  yield put(stopPollingTable(param));
+}
+
+function* watchResetPage() {
+  yield takeEvery(FeedActionTypes.RESET_POLLING_REQUEST,handleResetPage)
+}
+
+
 export function* feedSaga() {
   yield all([
     fork(watchGetAllFeedsRequest),
@@ -181,5 +209,6 @@ export function* feedSaga() {
     fork(watchDownloadRequest),
     fork(watchMergeRequest),
     fork(watchGetFeedResources),
+    fork(watchResetPage),
   ])
 }

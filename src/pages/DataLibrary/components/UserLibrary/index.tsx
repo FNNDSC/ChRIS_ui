@@ -1,7 +1,5 @@
 import React, { useContext } from 'react'
 import {
-  Split,
-  SplitItem,
   Button,
   Modal,
   ModalVariant,
@@ -11,12 +9,15 @@ import {
   Progress,
   ProgressMeasureLocation,
   ProgressVariant,
-  Alert,
   AlertGroup,
-  AlertActionLink,
   ChipGroup,
   Chip,
+  Tabs,
+  Tab,
+  TabTitleText,
 } from '@patternfly/react-core'
+import { Feed } from '@fnndsc/chrisapi'
+import { Alert } from 'antd'
 import BrowserContainer from './BrowserContainer'
 import LocalSearch from './LocalSearch'
 import { FaUpload } from 'react-icons/fa'
@@ -24,19 +25,31 @@ import FileUpload from '../../../../components/common/fileupload'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { LocalFile } from '../../../../components/feed/CreateFeed/types'
 import { useTypedSelector } from '../../../../store/hooks'
-import { LibraryContext, Types } from './context'
+import { FileSelect, LibraryContext, Types } from './context'
 import { MainRouterContext } from '../../../../routes'
+import { clearSelectFolder, setFolders } from './context/actions'
+import { deleteFeed } from '../../../../store/feed/actions'
+import { useDispatch } from 'react-redux'
+import { fetchResource } from '../../../../utils'
+import { handlePaginatedFolders } from './utils'
 
 const DataLibrary = () => {
+  const dispatch = useDispatch()
   const username = useTypedSelector((state) => state.user.username)
-  const { state, dispatch } = useContext(LibraryContext)
+  const { state, dispatch: dispatchLibrary } = useContext(LibraryContext)
   const router = useContext(MainRouterContext)
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
   const [directoryName, setDirectoryName] = React.useState('')
-  const { isRoot, multipleFileSelect, fileSelect } = state
-
-  const rootCheck = Object.keys(isRoot).length > 0
+  const { foldersState, selectedFolder } = state
+  const [activeTabKey, setActiveTabKey] = React.useState<number>(0)
+  const [error, setError] = React.useState<{ type: string; warning: string }[]>(
+    [],
+  )
+  const [fetchingFiles, setFetchingFiles] = React.useState(false)
+  const [feedFilesToDelete, setFeedFilestoDelete] = React.useState<
+    FileSelect[]
+  >([])
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal)
@@ -53,11 +66,12 @@ const DataLibrary = () => {
   }
 
   const createFeed = () => {
-    router.actions.createFeedWithData(fileSelect)
+    const pathList = selectedFolder.map((file) => file.exactPath)
+    router.actions.createFeedWithData(pathList)
   }
 
   const clearFeed = () => {
-    dispatch({
+    dispatchLibrary({
       type: Types.SET_CLEAR_FILE_SELECT,
       payload: {
         clear: true,
@@ -65,17 +79,187 @@ const DataLibrary = () => {
     })
   }
 
+  const handleTabClick = (
+    event: React.MouseEvent<HTMLElement, MouseEvent>,
+    eventKey: number | string,
+  ) => {
+    setActiveTabKey(eventKey as number)
+  }
+
+  const handleDownload = async () => {
+    setFetchingFiles(!fetchingFiles)
+
+    Promise.all(
+      selectedFolder.map(async (file: FileSelect) => {
+        const { exactPath } = file
+        const filesToPush: {
+          [key: string]: any[]
+        } = {}
+        const params = {
+          limit: 100,
+          offset: 0,
+          fname: exactPath,
+          fname_incontains: exactPath,
+        }
+        console.log('FILE', file)
+        const client = ChrisAPIClient.getClient()
+        if (file.type === 'feed') {
+          const feedFn = client.getFiles
+          const bindFn = feedFn.bind(client)
+          const fileItems = await fetchResource(params, bindFn)
+          filesToPush[exactPath] = fileItems
+        }
+
+        if (file.type === 'uploads') {
+          const uploadsFn = client.getUploadedFiles
+          const uploadBound = uploadsFn.bind(client)
+          const fileItems = await fetchResource(params, uploadBound)
+          filesToPush[exactPath] = fileItems
+        }
+        if (file.type === 'services') {
+          const pacsFn = client.getPACSFiles
+          const pacsBound = pacsFn.bind(client)
+          const fileItems = await fetchResource(params, pacsBound)
+          filesToPush[exactPath] = fileItems
+        }
+        return filesToPush
+      }),
+    ).then((files) => {
+      setFetchingFiles(false)
+      downloadUtil(files)
+    })
+  }
+
+  const downloadUtil = async (filesItems: any[]) => {
+    try {
+      let writable
+      //@ts-ignore
+      const existingDirectoryHandle = await window.showDirectoryPicker()
+      for (let i = 0; i < filesItems.length; i++) {
+        const fileObject = filesItems[i]
+
+        for (const i in fileObject) {
+          const folderName = i
+          const files = fileObject[i]
+          const foldersSplit = folderName.split('/')
+          const newDirectoryHandle: { [key: string]: any } = {}
+          for (let i = 0; i < foldersSplit.length; i++) {
+            if (i === 0) {
+              newDirectoryHandle[
+                i
+              ] = await existingDirectoryHandle.getDirectoryHandle(
+                foldersSplit[i],
+                {
+                  create: true,
+                },
+              )
+            } else {
+              const existingHandle = newDirectoryHandle[i - 1]
+              if (existingHandle) {
+                newDirectoryHandle[i] = await existingHandle.getDirectoryHandle(
+                  foldersSplit[i],
+                  {
+                    create: true,
+                  },
+                )
+              }
+            }
+          }
+
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i]
+            const blob = await file.getFileBlob()
+            const paths = file.data.fname.split('/')
+            const fileName = paths[paths.length - 1]
+            const handle = await newDirectoryHandle[foldersSplit.length - 1]
+            const newFileHandle = await handle.getFileHandle(fileName, {
+              create: true,
+            })
+            writable = await newFileHandle.createWritable()
+            await writable.write(blob)
+            await writable.close()
+          }
+        }
+      }
+    } catch (error) {
+      setFetchingFiles(false)
+    }
+  }
+
+  const handleDelete = () => {
+    const errorWarnings: any[] = []
+
+    selectedFolder.map(async (file: FileSelect) => {
+      const client = ChrisAPIClient.getClient()
+      if (file.type === 'uploads') {
+        const paths = await client.getFileBrowserPath(file.exactPath)
+        const fileList = await paths.getFiles({
+          limit: 1000,
+          offset: 0,
+        })
+        const files = fileList.getItems()
+        if (files) {
+          files.map(async (file: any) => {
+            await file._delete()
+          })
+          if (foldersState[file.path]) {
+            deleteUtil(file)
+          }
+        }
+      }
+
+      if (file.type === 'feed') {
+        errorWarnings.push({
+          type: 'feed',
+          warning: 'Deleting a feed selection deletes a feed',
+        })
+        setFeedFilestoDelete([...feedFilesToDelete, file])
+      }
+
+      if (file.type === 'services') {
+        errorWarnings.push({
+          type: 'services',
+          warning: 'Cannot delete a pacs selection currently',
+        })
+      }
+    })
+
+    setError(errorWarnings)
+  }
+
+  const deleteUtil = (file: FileSelect) => {
+    const newFolders = foldersState[file.path].filter(
+      (folder) => folder !== file.folder,
+    )
+    handlePaginatedFolders(newFolders, file.path, dispatchLibrary)
+    dispatchLibrary(setFolders(newFolders, file.path))
+    dispatchLibrary(clearSelectFolder(file))
+  }
+
+  const handleDeleteFeed = async () => {
+    const result = Promise.all(
+      feedFilesToDelete.map(async (file) => {
+        const feedId = file.exactPath
+          .split('/')
+          .find((feedString) => feedString.includes('feed'))
+
+        if (feedId) {
+          const id = feedId.split('_')[1]
+          const client = ChrisAPIClient.getClient()
+          const feed = await client.getFeed(parseInt(id))
+          if (foldersState[file.path]) {
+            deleteUtil(file)
+          }
+          return feed
+        }
+      }),
+    )
+    result.then((data) => dispatch(deleteFeed(data as Feed[])))
+  }
+
   const uploadedFiles = (
     <section>
-      <Split>
-        <SplitItem>
-          <h3>Uploads</h3>
-        </SplitItem>
-        <SplitItem style={{ margin: 'auto 1em' }} isFilled>
-          <hr />
-        </SplitItem>
-      </Split>
-      <LocalSearch type='uploads' username={username} />
+      <LocalSearch type="uploads" username={username} />
       <BrowserContainer
         type="uploads"
         path={`${username}/uploads`}
@@ -86,125 +270,198 @@ const DataLibrary = () => {
 
   const feedFiles = (
     <section>
-      <Split>
-        <SplitItem>
-          <h3>Completed Analyses</h3>
-        </SplitItem>
-        <SplitItem style={{ margin: 'auto 1em' }} isFilled>
-          <hr />
-        </SplitItem>
-      </Split>
-      <LocalSearch type='feed' username={username} />
+      <LocalSearch type="feed" username={username} />
       <BrowserContainer type="feed" path={`${username}`} username={username} />
     </section>
   )
 
   const servicesFiles = (
     <section>
-      <Split>
-        <SplitItem>
-          <h3>External Services</h3>
-        </SplitItem>
-        <SplitItem style={{ margin: 'auto 1em' }} isFilled>
-          <hr />
-        </SplitItem>
-
-      </Split>
-      <LocalSearch type='services' username={username} />
+      <LocalSearch type="services" username={username} />
       <BrowserContainer type="services" path={`SERVICES`} username={username} />
     </section>
   )
 
   return (
     <>
-      {multipleFileSelect && (
-        <AlertGroup isToast>
+      {selectedFolder.length > 0 && (
+        <AlertGroup
+          style={{
+            zIndex: '999',
+          }}
+          isToast
+        >
           <Alert
-            title="Multiple File Select"
-            variant="info"
-            style={{ width: '100%', marginTop: '3em' }}
-            actionLinks={
+            type="info"
+            description={
               <>
-                <AlertActionLink onClick={createFeed}>
-                  Create Feed
-                </AlertActionLink>
-                <AlertActionLink onClick={clearFeed}>Clear</AlertActionLink>
+                <div
+                  style={{
+                    marginBottom: '1em',
+                    display: 'flex',
+                  }}
+                >
+                  <Button
+                    style={{ marginRight: '0.5em' }}
+                    onClick={createFeed}
+                    variant="primary"
+                  >
+                    Create Analysis
+                  </Button>
+
+                  <Button
+                    style={{ marginRight: '0.5em' }}
+                    onClick={() => {
+                      handleDownload()
+                    }}
+                    variant="secondary"
+                  >
+                    Download Data
+                  </Button>
+                  <Button variant="secondary" onClick={handleDelete}>
+                    Delete Data
+                  </Button>
+                </div>
+                {selectedFolder.length > 0 && (
+                  <>
+                    <ChipGroup style={{ marginBottom: '1em' }} categoryName="">
+                      {selectedFolder.map((file: FileSelect, index) => {
+                        return (
+                          <Chip
+                            onClick={() => {
+                              dispatchLibrary(clearSelectFolder(file))
+                            }}
+                            key={index}
+                          >
+                            {file.exactPath}
+                          </Chip>
+                        )
+                      })}
+                    </ChipGroup>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <Button variant="tertiary" onClick={clearFeed}>
+                        Empty Cart
+                      </Button>
+                    </div>
+                  </>
+                )}
               </>
             }
-          >
-            <ChipGroup>
-              {fileSelect.length > 0 &&
-                fileSelect.map((file: string, index) => {
-                  return (
-                    <Chip
-                      onClick={() => {
-                        dispatch({
-                          type: Types.SET_REMOVE_FILE_SELECT,
-                          payload: {
-                            path: file,
-                          },
-                        })
-                      }}
-                      key={index}
-                    >
-                      {file}
-                    </Chip>
-                  )
-                })}
-            </ChipGroup>
-          </Alert>
+            style={{ width: '100%', marginTop: '3em', padding: '2em' }}
+          ></Alert>
+
+          {fetchingFiles && (
+            <Alert type="info" closable message="Fetching Files to Download" />
+          )}
+
+          {error.length > 0 &&
+            error.map((errorString, index) => {
+              const errorUtil = () => {
+                const newError = error.filter(
+                  (errorWarn) => errorWarn.type !== errorString.type,
+                )
+                setError(newError)
+              }
+              return (
+                <Alert
+                  key={index}
+                  message={
+                    <>
+                      <div>{errorString.warning}</div>
+                      {errorString.type === 'feed' && (
+                        <>
+                          {' '}
+                          <Button
+                            variant="link"
+                            onClick={() => {
+                              errorUtil()
+                              handleDeleteFeed()
+                            }}
+                          >
+                            Confirm
+                          </Button>
+                          <Button onClick={errorUtil} variant="link">
+                            Cancel
+                          </Button>
+                        </>
+                      )}
+                    </>
+                  }
+                  type="warning"
+                  closable
+                  onClose={errorUtil}
+                ></Alert>
+              )
+            })}
         </AlertGroup>
       )}
 
-      <section>
-        <Split>
-          <UploadComponent
-            handleFileModal={handleFileModal}
-            handleLocalFiles={handleLocalFiles}
-            uploadFileModal={uploadFileModal}
-            handleDirectoryName={handleDirectoryName}
-            directoryName={directoryName}
-            localFiles={localFiles}
-          />
+      <UploadComponent
+        handleFileModal={handleFileModal}
+        handleLocalFiles={handleLocalFiles}
+        uploadFileModal={uploadFileModal}
+        handleDirectoryName={handleDirectoryName}
+        directoryName={directoryName}
+        localFiles={localFiles}
+      />
 
-          <SplitItem>
-            <Button icon={<FaUpload />} onClick={handleFileModal}>
-              Upload Files
-            </Button>
-            <Button
-              onClick={() => {
-                dispatch({
-                  type: Types.SET_MULTIPLE_FILE_SELECT,
-                  payload: {
-                    active: !multipleFileSelect,
-                  },
-                })
-              }}
-              style={{ marginLeft: '1em' }}
-            >
-              {`Multiple Element Select:${multipleFileSelect === true ? ' On' : ' Off'
-                }`}
-            </Button>
-          </SplitItem>
-        </Split>
-      </section>
+      <div
+        style={{
+          display: 'flex',
+        }}
+      >
+        <Button
+          style={{
+            marginLeft: 'auto',
+          }}
+          variant="link"
+          icon={<FaUpload />}
+          onClick={handleFileModal}
+        >
+          Upload Files
+        </Button>
+      </div>
 
-      {!rootCheck
-        ? uploadedFiles
-        : isRoot['uploads']
-          ? uploadedFiles
-          : undefined}
-      {!rootCheck ? feedFiles : isRoot['feed'] ? feedFiles : undefined}
-      {!rootCheck
-        ? servicesFiles
-        : isRoot['services']
-          ? servicesFiles
-          : undefined}
+      <Tabs
+        style={{
+          width: '50%',
+        }}
+        activeKey={activeTabKey}
+        onSelect={handleTabClick}
+        aria-label="Tabs in the default example"
+      >
+        <Tab eventKey={0} title={<TabTitleText>Uploads</TabTitleText>}>
+          {uploadedFiles}
+        </Tab>
+        <Tab
+          eventKey={1}
+          title={<TabTitleText>Completed Analyses</TabTitleText>}
+        >
+          {feedFiles}
+        </Tab>
+        <Tab eventKey={2} title={<TabTitleText>Services / PACS</TabTitleText>}>
+          {servicesFiles}
+        </Tab>
+      </Tabs>
     </>
   )
 }
 
 export default DataLibrary
+
+interface UploadComponent {
+  handleFileModal: () => void
+  handleLocalFiles: (files: LocalFile[]) => void
+  uploadFileModal: boolean
+  localFiles: LocalFile[]
+  directoryName: string
+  handleDirectoryName: (path: string) => void
+}
 
 const UploadComponent = ({
   handleFileModal,
@@ -213,14 +470,7 @@ const UploadComponent = ({
   localFiles,
   directoryName,
   handleDirectoryName,
-}: {
-  handleFileModal: () => void
-  handleLocalFiles: (files: LocalFile[]) => void
-  uploadFileModal: boolean
-  localFiles: LocalFile[]
-  directoryName: string
-  handleDirectoryName: (path: string) => void
-}) => {
+}: UploadComponent) => {
   const username = useTypedSelector((state) => state.user.username)
   const { dispatch } = useContext(LibraryContext)
   const [warning, setWarning] = React.useState('')
@@ -327,6 +577,12 @@ const UploadComponent = ({
               )
               setCount(i + 1)
             }
+
+            /** Temporary Timer */
+
+            setTimeout(() => {
+              handleFileModal()
+            }, 500)
           }
         }}
       />

@@ -23,7 +23,7 @@ import PFDCMClient, {
 } from '../../../../api/pfdcm'
 import { setSidebarActive } from '../../../../store/ui/actions'
 
-const { Title: AntTitle, Paragraph } = Typography
+const { Paragraph } = Typography
 
 import QueryBuilder from './QueryBuilder'
 import QueryResults from './QueryResults'
@@ -238,28 +238,33 @@ export const PACSLookup = () => {
       <article>
         <Grid hasGutter>
           <GridItem>
-            <InfoIcon title='PACS Query/Retrieve'
+            <InfoIcon
+              title="PACS Query/Retrieve"
               p1={
                 <Paragraph style={pStyle}>
                   Medical images are typically stored in a Picture Archive and
                   Communications System (PACS) database. ChRIS can be optionally
-                  configured to communicate with such a PACS by an administrator.
-                  If this ChRIS has been configured in this manner, you should see
-                  something available in the <b>PACS Service</b> drop down. You can Query this
-                  {' '}<b>PACS Service</b> to find images of interest by searching on various Patient
-                  data fields (such as Patient Name, Medical Record Number, Study
-                  Date, etc).
+                  configured to communicate with such a PACS by an
+                  administrator. If this ChRIS has been configured in this
+                  manner, you should see something available in the{' '}
+                  <b>PACS Service</b> drop down. You can Query this{' '}
+                  <b>PACS Service</b> to find images of interest by searching on
+                  various Patient data fields (such as Patient Name, Medical
+                  Record Number, Study Date, etc).
                 </Paragraph>
               }
-              p2={<Paragraph style={pStyle}>
-                {' '}
-                After a Query, ChRIS will structure results by
-                Patient/Study/Series - allowing for easy navigation. Images that
-                have been retrieved previously will appear as thumbnails. Images
-                that have not been retrieved will simply offer the option to{' '}
-                <b>Pull Series</b>. Any Series that is known to ChRIS can be
-                selected and an analysis started directly from this page.
-              </Paragraph>}
+              p2={
+                <Paragraph style={pStyle}>
+                  {' '}
+                  After a Query, ChRIS will structure results by
+                  Patient/Study/Series - allowing for easy navigation. Images
+                  that have been retrieved previously will appear as thumbnails.
+                  Images that have not been retrieved will simply offer the
+                  option to <b>Pull Series</b>. Any Series that is known to
+                  ChRIS can be selected and an analysis started directly from
+                  this page.
+                </Paragraph>
+              }
             />
           </GridItem>
 

@@ -1,6 +1,6 @@
-import * as React from "react";
-import { useTypedSelector } from "../../../store/hooks";
-import { useDispatch } from "react-redux";
+import * as React from 'react'
+import { useTypedSelector } from '../../../store/hooks'
+import { useDispatch } from 'react-redux'
 import {
   PageSection,
   Grid,
@@ -10,63 +10,62 @@ import {
   DrawerContent,
   DrawerContentBody,
   DrawerPanelContent,
-} from "@patternfly/react-core";
-import classNames from "classnames";
-import { FeedDetails } from "../../../components";
-import { getFeedRequest, resetFeed } from "../../../store/feed/actions";
+} from '@patternfly/react-core'
+import classNames from 'classnames'
+import { FeedDetails } from '../../../components'
+import { getFeedRequest, resetFeed } from '../../../store/feed/actions'
 import {
   getSelectedPlugin,
   resetPluginInstances,
-} from "../../../store/pluginInstance/actions";
-import { setSidebarActive } from "../../../store/ui/actions";
-import { addTSNodes, resetTsNodes } from "../../../store/tsplugins/actions";
-import { destroyExplorer } from "../../../store/explorer/actions";
-import { resetActiveResources } from "../../../store/resources/actions";
-import { RouteComponentProps } from "react-router-dom";
-import { PluginInstance } from "@fnndsc/chrisapi";
-import { DestroyActiveResources } from "../../../store/resources/types";
-import { pf4UtilityStyles } from "../../../lib/pf4-styleguides";
+} from '../../../store/pluginInstance/actions'
+import { setSidebarActive } from '../../../store/ui/actions'
+import { addTSNodes, resetTsNodes } from '../../../store/tsplugins/actions'
+import { destroyExplorer } from '../../../store/explorer/actions'
+import { resetActiveResources } from '../../../store/resources/actions'
+import { RouteComponentProps } from 'react-router-dom'
+import { PluginInstance } from '@fnndsc/chrisapi'
+import { DestroyActiveResources } from '../../../store/resources/types'
+import { pf4UtilityStyles } from '../../../lib/pf4-styleguides'
 
+const ParentComponent = React.lazy(() =>
+  import('../../../components/feed/FeedTree/ParentComponent'),
+)
+const FeedGraph = React.lazy(() =>
+  import('../../../components/feed/FeedTree/FeedGraph'),
+)
+const FeedOutputBrowser = React.lazy(() =>
+  import('../../../components/feed/FeedOutputBrowser/FeedOutputBrowser'),
+)
+const NodeDetails = React.lazy(() =>
+  import('../../../components/feed/NodeDetails/NodeDetails'),
+)
 
-const ParentComponent = React.lazy(
-  () => import("../../../components/feed/FeedTree/ParentComponent")
-);
-const FeedGraph = React.lazy(
-  () => import("../../../components/feed/FeedTree/FeedGraph")
-);
-const FeedOutputBrowser = React.lazy(
-  () => import("../../../components/feed/FeedOutputBrowser/FeedOutputBrowser")
-);
-const NodeDetails = React.lazy(
-  () => import("../../../components/feed/NodeDetails/NodeDetails")
-);
-
-export type FeedViewProps = RouteComponentProps<{ id: string }>;
+export type FeedViewProps = RouteComponentProps<{ id: string }>
 
 export const FeedView: React.FC<FeedViewProps> = ({
   match: {
     params: { id },
   },
 }: FeedViewProps) => {
-  const [isSidePanelExpanded, setSidePanelExpanded] = React.useState(true);
-  const [isBottomPanelExpanded, setBottomPanelExpanded] = React.useState(true);
+  const [isSidePanelExpanded, setSidePanelExpanded] = React.useState(true)
+  const [isBottomPanelExpanded, setBottomPanelExpanded] = React.useState(true)
   const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
-  );
-  const currentLayout = useTypedSelector((state) => state.feed.currentLayout);
+    (state) => state.instance.selectedPlugin,
+  )
+  const currentLayout = useTypedSelector((state) => state.feed.currentLayout)
   const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances
-  );
+    (state) => state.instance.pluginInstances,
+  )
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
-  const dataRef = React.useRef<DestroyActiveResources>();
-  const { data } = pluginInstances;
+  const dataRef = React.useRef<DestroyActiveResources>()
+  const { data } = pluginInstances
 
   dataRef.current = {
     data,
     selectedPlugin,
-  };
+  }
 
   React.useEffect(() => {
     return () => {
@@ -75,42 +74,42 @@ export const FeedView: React.FC<FeedViewProps> = ({
         dataRef.current.selectedPlugin &&
         dataRef.current.data
       ) {
-        dispatch(resetActiveResources(dataRef.current));
+        dispatch(resetActiveResources(dataRef.current))
       }
 
-      dispatch(destroyExplorer());
-      dispatch(resetPluginInstances());
-      dispatch(resetTsNodes());
-      dispatch(resetFeed());
-    };
-  }, [dispatch]);
+      dispatch(destroyExplorer())
+      dispatch(resetPluginInstances())
+      dispatch(resetTsNodes())
+      dispatch(resetFeed())
+    }
+  }, [dispatch])
 
   React.useEffect(() => {
-    document.title = "My Analyses - ChRIS UI site";
+    document.title = 'My Analyses - ChRIS UI site'
     dispatch(
       setSidebarActive({
-        activeItem: "analyses",
-      })
-    );
-    dispatch(getFeedRequest(id));
-  }, [id, dispatch]);
+        activeItem: 'analyses',
+      }),
+    )
+    dispatch(getFeedRequest(id))
+  }, [id, dispatch])
 
   const onNodeClick = (node: PluginInstance) => {
-    dispatch(getSelectedPlugin(node));
-    dispatch(destroyExplorer());
-  };
+    dispatch(getSelectedPlugin(node))
+    dispatch(destroyExplorer())
+  }
 
   const onNodeClickTS = (node: PluginInstance) => {
-    dispatch(addTSNodes(node));
-  };
+    dispatch(addTSNodes(node))
+  }
 
   const onClick = (panel: string) => {
-    if (panel === "side_panel") {
-      setSidePanelExpanded(!isSidePanelExpanded);
-    } else if (panel === "bottom_panel") {
-      setBottomPanelExpanded(!isBottomPanelExpanded);
+    if (panel === 'side_panel') {
+      setSidePanelExpanded(!isSidePanelExpanded)
+    } else if (panel === 'bottom_panel') {
+      setBottomPanelExpanded(!isBottomPanelExpanded)
     }
-  };
+  }
 
   const feedTree = (
     <GridItem
@@ -126,7 +125,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
       xl2={7}
       xl2RowSpan={12}
     >
-      {" "}
+      {' '}
       <React.Suspense fallback={<div>Fetching the Resources in a moment</div>}>
         {currentLayout ? (
           <ParentComponent
@@ -147,7 +146,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
         )}
       </React.Suspense>
     </GridItem>
-  );
+  )
 
   const nodePanel = (
     <GridItem
@@ -163,7 +162,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
       xl2RowSpan={12}
       className="node-block"
     >
-      {" "}
+      {' '}
       <React.Suspense
         fallback={
           <Skeleton
@@ -176,7 +175,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
         <NodeDetails expandDrawer={onClick} />
       </React.Suspense>
     </GridItem>
-  );
+  )
 
   const feedOutputBrowserPanel = (
     <React.Suspense
@@ -193,11 +192,11 @@ export const FeedView: React.FC<FeedViewProps> = ({
         handlePluginSelect={onNodeClick}
       />
     </React.Suspense>
-  );
+  )
 
   return (
     <React.Fragment>
-      <PageSection hasShadowBottom variant="darker" className="section-one">
+      <PageSection variant='darker' className="section-one">
         <FeedDetails />
       </PageSection>
 
@@ -214,12 +213,12 @@ export const FeedView: React.FC<FeedViewProps> = ({
           <PageSection
             className={classNames(
               pf4UtilityStyles.spacingStyles.p_0,
-              "section-two"
+              'section-two',
             )}
           >
             <Grid
               style={{
-                height: "100%",
+                height: '100%',
               }}
             >
               <Drawer isExpanded={isSidePanelExpanded} isInline>
@@ -227,7 +226,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
                   panelContent={
                     <DrawerPanelContent
                       defaultSize="50%"
-                      minSize={"20%"}
+                      minSize={'20%'}
                       isResizable
                     >
                       {nodePanel}
@@ -242,7 +241,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
         </DrawerContent>
       </Drawer>
     </React.Fragment>
-  );
-};
+  )
+}
 
-export default FeedView;
+export default FeedView

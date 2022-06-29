@@ -15,6 +15,7 @@ import {
   Hint,
   HintBody,
   Checkbox,
+  Tooltip,
 } from '@patternfly/react-core'
 import { Table, TableBody, Thead, Tr, Th } from '@patternfly/react-table'
 import { ChartDonutUtilization } from '@patternfly/react-charts'
@@ -28,6 +29,7 @@ import {
   removeAllSelect,
   setAllSelect,
   toggleSelectAll,
+  stopPollingTable,
 } from '../../../store/feed/actions'
 import { IFeedState } from '../../../store/feed/types'
 import { DataTableToolbar } from '../../../components/index'
@@ -40,6 +42,7 @@ import {
 import { usePaginate } from '../../../components/common/pagination'
 import { Feed } from '@fnndsc/chrisapi'
 import IconContainer from './IconContainer'
+import { FcMediumPriority } from 'react-icons/fc'
 
 interface IPropsFromDispatch {
   setSidebarActive: typeof setSidebarActive
@@ -79,6 +82,14 @@ const FeedListView: React.FC<AllProps> = ({
   const { data, error, loading, totalFeedsCount } = allFeeds
 
   React.useEffect(() => {
+    return () => {
+
+        dispatch(stopPollingTable(false))
+      }
+  }, [dispatch])
+
+
+  React.useEffect(() => {
     document.title = 'All Analyses - ChRIS UI '
     setSidebarActive({
       activeItem: 'analyses',
@@ -115,8 +126,8 @@ const FeedListView: React.FC<AllProps> = ({
   }, [allFeeds.data, setAllSelect, selectAllToggle])
 
   const generateTableRow = (feed: Feed) => {
-    const { id, name: feedName, creation_date } = feed.data
-
+    console.log('FEED', feed)
+    const { id, name: feedName, creation_date, creator_username } = feed.data
 
     const fontFamily = {
       fontFamily: 'monospace',
@@ -134,17 +145,35 @@ const FeedListView: React.FC<AllProps> = ({
     const feedProgressText =
       feedResources[feed.data.id] &&
       feedResources[feed.data.id].details.feedProgressText
-      
 
+    const d1 = new Date(creation_date)
+    const d2 = new Date()
+    const smallD2 = new Date(d2.setMinutes(d2.getMinutes() - 2))
 
     const name = {
       title: (
         <span className="feed-list__name">
-          <Link to={`/feeds/${id}`}>{feedName}</Link>
+          <Tooltip content={<div>View feed details</div>}>
+            <Link to={`/feeds/${id}`}>{feedName}</Link>
+          </Tooltip>
         </span>
       ),
     }
 
+    const feedId = {
+      title: (
+        <p style={fontFamily}>
+          {feed.data.id}
+          {d1 >= smallD2 ? (
+            <Tooltip content={<div>Created recently</div>}>
+              <FcMediumPriority id="hideMe" />
+            </Tooltip>
+          ) : (
+            ''
+          )}
+        </p>
+      ),
+    }
 
     const created = {
       title: (
@@ -156,11 +185,18 @@ const FeedListView: React.FC<AllProps> = ({
 
     const feedSize = {
       title: (
-        <p style={{
-          ...fontFamily,
-          textAlign: 'center',
-          margin: '0 auto'
-        }}>{size ? `${size.padStart(10, '')}` : '---'}</p>
+        <p
+          style={{
+            textAlign: 'center',
+            margin: '0 auto',
+          }}
+        >
+          <Tooltip content={<div>View files in library</div>}>
+            <Link to={`/library/`}>
+              {size ? `${size.padStart(10, '')}` : '---'}
+            </Link>
+          </Tooltip>
+        </p>
       ),
     }
 
@@ -168,18 +204,33 @@ const FeedListView: React.FC<AllProps> = ({
       title: <p style={fontFamily}>{runtime ? `${runtime}` : '---'}</p>,
     }
 
+    const creator = {
+      title: <p>{creator_username}</p>,
+    }
 
     let threshold = Infinity
+    let color = '#0000ff'
 
     // If error in a feed => reflect in progress
     if (feedError) {
+      color = '#ff0000'
       threshold = progress
     }
     let title = (progress ? progress : 0) + '%'
-    
+
     // If initial node in a feed fails
     if (progress == 0 && feedError) {
       title = '❌'
+    }
+
+    // If progress less than 100%, display green
+    if (progress < 100 && !feedError) {
+      color = '#00ff00'
+
+      threshold = progress
+    }
+    if (progress == 100) {
+      title = '✔️'
     }
 
     const circularProgress = {
@@ -197,21 +248,29 @@ const FeedListView: React.FC<AllProps> = ({
             data={{ x: 'Feed Progress', y: progress }}
             height={125}
             title={title}
-            thresholds={[{ value: threshold, color: '#C9190B' }]}
+            thresholds={[{ value: threshold, color: color }]}
             width={125}
           />
         </div>
       ),
     }
 
+    const isSelected = (bulkSelect: any, feed: Feed) => {
+      for (const selectedFeed of bulkSelect) {
+        if (selectedFeed.data.id == feed.data.id) {
+          return true
+        }
+      }
+      return false
+    }
     const bulkChecbox = {
       title: (
         <Checkbox
-          isChecked={bulkSelect.includes(feed)}
+          isChecked={isSelected(bulkSelect, feed)}
           id="check"
           aria-label="toggle icon bar"
           onChange={() => {
-            if (!bulkSelect.includes(feed)) {
+            if (!isSelected(bulkSelect, feed)) {
               setBulkSelect(feed)
             } else {
               removeBulkSelect(feed)
@@ -222,14 +281,25 @@ const FeedListView: React.FC<AllProps> = ({
     }
 
     return {
-      cells: [bulkChecbox, name, created, runTime, feedSize, circularProgress],
+      cells: [
+        bulkChecbox,
+        feedId,
+        name,
+        created,
+        creator,
+        runTime,
+        feedSize,
+        circularProgress,
+      ],
     }
   }
 
   const cells = [
     '',
+    'Id',
     'Analysis',
     'Created',
+    'Creator',
     'Run Time',
     'Size',
     'Progress',
@@ -322,6 +392,7 @@ const FeedListView: React.FC<AllProps> = ({
             aria-label="Data table"
             cells={cells}
             rows={rows}
+            isStickyHeader
           >
             {
               <Thead>
@@ -341,13 +412,19 @@ const FeedListView: React.FC<AllProps> = ({
                       }}
                     />
                   </Th>
+                  <Th>Id</Th>
                   <Th>Analysis</Th>
                   <Th>Created</Th>
+                  <Th>Creator</Th>
                   <Th>Run Time</Th>
-                    <Th style={{
+                  <Th
+                    style={{
                       textAlign: 'center',
-                      margin: '0 auto'
-                    }}>Size</Th>
+                      margin: '0 auto',
+                    }}
+                  >
+                    Size
+                  </Th>
                   <Th></Th>
                 </Tr>
               </Thead>
@@ -364,8 +441,8 @@ const FeedListView: React.FC<AllProps> = ({
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSidebarActive: (active: { activeItem: string }) =>
     dispatch(setSidebarActive(active)),
-  getAllFeedsRequest: (name?: string, limit?: number, offset?: number) =>
-    dispatch(getAllFeedsRequest(name, limit, offset)),
+  getAllFeedsRequest: (name?: string, limit?: number, offset?: number, polling?: boolean) =>
+    dispatch(getAllFeedsRequest(name, limit, offset, true)),
   setBulkSelect: (feed: Feed) => dispatch(setBulkSelect(feed)),
   removeBulkSelect: (feed: Feed) => dispatch(removeBulkSelect(feed)),
   setAllSelect: (feeds: Feed[]) => dispatch(setAllSelect(feeds)),

@@ -67,7 +67,6 @@
   td:last-child {
     padding-right: 0;
     padding-left: 0;
-  
   }
 
   td:first-child {
@@ -78,10 +77,7 @@
 
 .section-one {
   padding: 0 1em !important;
-
-  @include media-query($pf-global--breakpoint--xl2) {
-    height: 5vh;
-  }
+  height: 5vh;
 }
 
 .section-two {
@@ -154,4 +150,28 @@
     }
   }
 }
-
+.hideMe {
+  -moz-animation: cssAnimation 0s ease-in 30s forwards;
+  /* Firefox */
+  -webkit-animation: cssAnimation 0s ease-in 30s forwards;
+  /* Safari and Chrome */
+  -o-animation: cssAnimation 0s ease-in 30s forwards;
+  /* Opera */
+  animation: cssAnimation 0s ease-in 30s forwards;
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+@keyframes cssAnimation {
+  to {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+}
+@-webkit-keyframes cssAnimation {
+  to {
+    width: 0;
+    height: 0;
+    visibility: hidden;
+  }
+}

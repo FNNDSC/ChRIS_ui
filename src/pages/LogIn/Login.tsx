@@ -52,7 +52,7 @@ const LogInPage: React.FC<AllProps> = () => {
       </LoginMainFooterBandItem>
       <HelperText>
         <HelperTextItem icon={<FaInfo />}>
-          Please Contact a ChRIS admin for a new password
+          <i>Please Contact a ChRIS admin for a new password</i>
         </HelperTextItem>
       </HelperText>
     </div>
