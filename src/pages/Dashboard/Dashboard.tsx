@@ -56,10 +56,10 @@ const DashboardPage = (props: DashboardProps) => {
   const outlineSearch = <MdOutlineImageSearch style={style} />
   const magicWand = <FaMagic style={style} />
 
-  const buildDate = preval`module.exports = new Date()`
-  const buildInfo = process.env.REACT_APP_CHRIS_UI_BUILD_COMMIT ?
-    <span>Git commit: <code className="commit-name">{process.env.REACT_APP_CHRIS_UI_BUILD_COMMIT}</code></span> :
-    <span></span>
+  const buildVersion = preval`
+    const { execSync } = require('child_process')
+    module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
+  `
 
   return (
     <Wrapper>
@@ -71,14 +71,7 @@ const DashboardPage = (props: DashboardProps) => {
           <b> Let&apos;s get started.</b>
         </p>
         <p>
-          <span>
-            Built on:{" "}
-            <b>
-              <Moment format="DD MMM YYYY @ HH:mm">{buildDate}</Moment>
-            </b>
-          </span>
-          <br />
-          {buildInfo}
+          Build: <code className="build-version">{buildVersion}</code>
         </p>
         {children}
       </PageSection>
