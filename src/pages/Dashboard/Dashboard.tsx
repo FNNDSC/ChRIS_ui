@@ -29,6 +29,8 @@ import TreeThree from '../../assets/images/tree_3.png'
 import TreeFour from '../../assets/images/tree_4.png'
 import './Dashboard.scss'
 import Moment from 'react-moment'
+import preval from 'preval.macro'
+
 interface DashboardProps extends RouteComponentProps {
   children: React.ReactNode
 }
@@ -54,6 +56,8 @@ const DashboardPage = (props: DashboardProps) => {
   const outlineSearch = <MdOutlineImageSearch style={style} />
   const magicWand = <FaMagic style={style} />
 
+  const buildDate = preval`module.exports = new Date()`
+
   return (
     <Wrapper>
       <PageSection hasShadowBottom variant="light">
@@ -64,9 +68,9 @@ const DashboardPage = (props: DashboardProps) => {
           <b> Let&apos;s get started.</b>
           <br />
           <span>
-            Latest update:{" "}
+            Built on:{" "}
             <b>
-              <Moment format="DD MMM YYYY @ HH:mm">{`2022-06-27T12:40:11.007464-04:00`}</Moment>
+              <Moment format="DD MMM YYYY @ HH:mm">{buildDate}</Moment>
             </b>
           </span>
         </p>
