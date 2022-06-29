@@ -121,6 +121,7 @@ function* handleGetInstanceStatus(instance: PluginInstance) {
         yield delay(7000);
       }
     } catch (error) {
+
       yield put(stopFetchingStatusResources(instance.data.id));
     }
   }

@@ -6,19 +6,11 @@ import {
   SplitItem,
   Button,
 } from '@patternfly/react-core'
-import { FaFolderOpen } from 'react-icons/fa'
+import { FaFolder, FaFolderOpen, FaUser } from 'react-icons/fa'
+import { FcServices } from 'react-icons/fc'
 
-const BreadcrumbContainer = ({
-  initialPath,
-  handleFolderClick,
-  files,
-  folderDetails,
-  browserType,
-  togglePreview,
-  previewAll,
-}: {
+export interface Breadcrumb {
   initialPath: string
-
   handleFolderClick: (path: string, breadcrumb?: any) => void
   files: any[]
   folderDetails: {
@@ -28,13 +20,41 @@ const BreadcrumbContainer = ({
   browserType: string
   togglePreview: () => void
   previewAll: boolean
-}) => {
+}
+
+const BreadcrumbContainer = ({
+  initialPath,
+  handleFolderClick,
+  files,
+  folderDetails,
+  browserType,
+  togglePreview,
+  previewAll,
+}: Breadcrumb) => {
   const initialPathSplit = initialPath ? initialPath.split('/') : []
 
   return (
     <>
-      <Breadcrumb style={{ margin: '0.75em 0 0.75em 0' }}>
+      <Breadcrumb style={{ margin: '0 0 1em 0' }}>
         {initialPathSplit.map((path: string, index) => {
+          let icon
+          const style = { width: '2em', height: '0.85em' }
+          if (
+            (browserType === 'feed' || browserType === 'uploads') &&
+            index === 0
+          ) {
+            icon = <FaUser style={style} />
+          } else if (index === 0 && browserType === 'services') {
+            icon = <FcServices style={style} />
+          } else if (
+            index === initialPathSplit.length - 1 &&
+            initialPathSplit.length > 1
+          ) {
+            icon = <FaFolderOpen style={style} />
+          } else {
+            icon = <FaFolder style={style} />
+          }
+
           return (
             <BreadcrumbItem
               style={{
@@ -58,6 +78,7 @@ const BreadcrumbContainer = ({
               }}
               key={path}
             >
+              {icon}
               {path}
             </BreadcrumbItem>
           )
@@ -71,16 +92,13 @@ const BreadcrumbContainer = ({
           }}
         >
           <SplitItem>
-            <h2>
-              <FaFolderOpen
-                style={{
-                  marginRight: '0.5em',
-                }}
-              />
-
+            <h3>
+              <FaFolderOpen style={{ width: '2em', height: '0.85em' }} />
               {folderDetails.currentFolder}
-            </h2>
-            <h3>{folderDetails.totalCount} items</h3>
+            </h3>
+            <h4 style={{ marginLeft: '0.5em', marginBottom: '1em' }}>
+              {folderDetails.totalCount} items
+            </h4>
           </SplitItem>
           <SplitItem>
             <Button

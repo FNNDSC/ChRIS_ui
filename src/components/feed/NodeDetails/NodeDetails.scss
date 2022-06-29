@@ -56,10 +56,10 @@
       &--button {
         // Tells the element to create as much space as possible to it's left
         margin-left: auto;
-        
-       .pf-m-start {
-	  margin-right: 0px;
-	}
+
+        .pf-m-start {
+          margin-right: 0px;
+        }
       }
 
       &--formInput {
@@ -99,10 +99,20 @@
     }
 
     &__actions {
+      margin-top: 1em;
       display: flex;
-      justify-content: flex-start;
-      gap: 2em;
-      margin: 1em auto;
+      flex-direction: column;
+
+      &_second {
+        margin-top: 1rem;
+      }
+
+      &_first,
+      &_second {
+        button {
+          margin-right: 1rem !important;
+        }
+      }
     }
 
     .pf-c-form-control {

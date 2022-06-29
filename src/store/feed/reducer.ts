@@ -27,6 +27,7 @@ export const initialState: IFeedState = {
   bulkSelect: [],
   feedResources: {},
   selectAllToggle: false,
+  polling: true,
 }
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -42,6 +43,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
+
       return {
         ...state,
         allFeeds: {
@@ -50,6 +52,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           loading: false,
           totalFeedsCount: action.payload.totalCount,
         },
+        polling: true,
       }
     }
 
@@ -277,6 +280,23 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         bulkSelect: [],
+      }
+    }
+    
+    case FeedActionTypes.STOP_POLLING_TABLE: {
+
+      return {
+        ...state,
+        polling: action.payload,
+      }
+    }
+    
+    case FeedActionTypes.GET_POLLING_STATUS: {
+      console.log("here")
+      const polling=false
+      return {
+        ...state,
+        polling,
       }
     }
 

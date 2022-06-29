@@ -41,7 +41,6 @@ const SelectionAlertWrap: React.FC<SelectionAlertWrapProps> = ({
   return (
     <div className="pacs-alert-wrap">
       <Alert/>
-
       <div className="pacs-alert-step-wrap">
         {stepComponent}
       </div>

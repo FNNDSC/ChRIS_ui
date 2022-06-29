@@ -70,7 +70,7 @@ const DashboardPage = (props: DashboardProps) => {
           <span>
             Latest update:{" "}
             <b>
-              <Moment format="DD MMM YYYY @ HH:mm">{`2022-05-31T11:30:11.007464-04:00`}</Moment>
+              <Moment format="DD MMM YYYY @ HH:mm">{`2022-06-27T12:40:11.007464-04:00`}</Moment>
             </b>
           </span>
         </p>

@@ -1,173 +1,175 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useReducer } from 'react'
 
 export interface Paginated {
-  hasNext: boolean;
-  limit: number;
-  offset: number;
-  totalCount: number;
+  hasNext: boolean
+  limit: number
+  offset: number
+  totalCount: number
+}
+
+export interface FileSelect {
+  exactPath: string
+  path: string
+  folder: string
+  type: string
+  event?: string
 }
 
 interface LibraryState {
   initialPath: {
-    [key: string]: string;
-  };
+    [key: string]: string
+  }
   filesState: {
-    [key: string]: any[];
-  };
+    [key: string]: any[]
+  }
   foldersState: {
-    [key: string]: string[];
-  };
+    [key: string]: string[]
+  }
   folderDetails: {
-    currentFolder: string;
-    totalCount: number;
-  };
+    currentFolder: string
+    totalCount: number
+  }
   paginated: {
-    [key: string]: Paginated;
-  };
-  previewAll: boolean;
-  loading: boolean;
-  isRoot: {
-    [key: string]: boolean;
-  };
+    [key: string]: Paginated
+  }
+  previewAll: boolean
+  loading: boolean
   paginatedFolders: {
-    [key: string]: string[];
-  };
-  multipleFileSelect: boolean;
-  fileSelect: string[];
+    [key: string]: string[]
+  }
+
+  selectedFolder: FileSelect[]
+  tooltip: boolean
 }
 
 function getInitialState(): LibraryState {
   return {
-    isRoot: {},
     initialPath: {},
     filesState: {},
     foldersState: {},
     folderDetails: {
-      currentFolder: "",
+      currentFolder: '',
       totalCount: 0,
     },
     paginated: {},
     previewAll: false,
     loading: false,
     paginatedFolders: {},
-    multipleFileSelect: false,
-    fileSelect: [],
-  };
+    selectedFolder: [],
+    tooltip: false,
+  }
 }
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
-  ? {
-    type: Key;
-  }
-  : {
-    type: Key;
-    payload: M[Key];
-  };
-};
+    ? {
+        type: Key
+      }
+    : {
+        type: Key
+        payload: M[Key]
+      }
+}
 
 export enum Types {
-  SET_FILES = "SET_FILES",
-  SET_FOLDERS = "SET_FOLDERS",
-  SET_PAGINATED_FOLDERS = "SET_PAGINATED_FOLDERS",
-  SET_INITIAL_PATH = "SET_INITIAL_PATH",
-  SET_PAGINATION = "SET_PAGINATION",
-  SET_LOADING = "SET_LOADING",
-  SET_FOLDER_DETAILS = "SET_FOLDER_DETAILS",
-  SET_PREVIEW_ALL = "SET_PREVIEW_ALL",
-  SET_ADD_FOLDER = "SET_ADD_FOLDER",
-  SET_ROOT = "SET_ROOT",
-  SET_MULTIPLE_FILE_SELECT = "SET_MULTIPLE_FILE_SELECT",
-  SET_ADD_FILE_SELECT = "SET_ADD_FILE_SELECT",
-  SET_REMOVE_FILE_SELECT = "SET_REMOVE_FILE_SELECT",
-  SET_CLEAR_FILE_SELECT = "SET_CLEAR_FILE_SELECT",
-  CLEAR_FOLDER_STATE = "CLEAR_FOLDER_STATE",
-  CLEAR_FILES_STATE = "CLEAR_FILES_STATE",
+  SET_FILES = 'SET_FILES',
+  SET_FOLDERS = 'SET_FOLDERS',
+  SET_PAGINATED_FOLDERS = 'SET_PAGINATED_FOLDERS',
+  SET_INITIAL_PATH = 'SET_INITIAL_PATH',
+  SET_PAGINATION = 'SET_PAGINATION',
+  SET_LOADING = 'SET_LOADING',
+  SET_FOLDER_DETAILS = 'SET_FOLDER_DETAILS',
+  SET_PREVIEW_ALL = 'SET_PREVIEW_ALL',
+  SET_ADD_FOLDER = 'SET_ADD_FOLDER',
+  SET_SELECTED_FOLDER = 'SET_SELECTED_FOLDER',
+  SET_CLEAR_FILE_SELECT = 'SET_CLEAR_FILE_SELECT',
+  CLEAR_FOLDER_STATE = 'CLEAR_FOLDER_STATE',
+  CLEAR_SELECTED_FOLDER = 'CLEAR_SELECTED_FOLDER',
+  CLEAR_FILES_STATE = 'CLEAR_FILES_STATE',
+  SET_TOOLTIP = 'SET_TOOLTIP',
 }
 
 type LibraryPayload = {
   [Types.SET_FILES]: {
-    files: any[];
-    type: string;
-  };
+    files: any[]
+    type: string
+  }
   [Types.SET_FOLDERS]: {
-    folders: string[];
-    type: string;
-  };
+    folders: string[]
+    type: string
+  }
 
   [Types.SET_INITIAL_PATH]: {
-    path: string;
-    type: string;
-  };
+    path: string
+    type: string
+  }
   [Types.SET_PAGINATION]: {
-    path: string;
-    hasNext: boolean;
-    limit: number;
-    offset: number;
-    totalCount: number;
-  };
+    path: string
+    hasNext: boolean
+    limit: number
+    offset: number
+    totalCount: number
+  }
   [Types.SET_PAGINATED_FOLDERS]: {
-    folders: string[];
-    path: string;
-  };
+    folders: string[]
+    path: string
+  }
   [Types.SET_LOADING]: {
-    loading: false;
-  };
+    loading: false
+  }
   [Types.SET_FOLDER_DETAILS]: {
-    currentFolder: string;
-    totalCount: number;
-  };
+    currentFolder: string
+    totalCount: number
+  }
   [Types.SET_PREVIEW_ALL]: {
-    previewAll: boolean;
-  };
+    previewAll: boolean
+  }
 
   [Types.SET_ADD_FOLDER]: {
-    folder: string;
-    username: string | null | undefined;
-  };
-  [Types.SET_ROOT]: {
-    isRoot: boolean;
-    type: string;
-  };
-  [Types.SET_MULTIPLE_FILE_SELECT]: {
-    active: boolean;
-  };
-
-  [Types.SET_ADD_FILE_SELECT]: {
-    path: string;
-  };
-  [Types.SET_REMOVE_FILE_SELECT]: {
-    path: string;
-  };
+    folder: string
+    username: string | null | undefined
+  }
 
   [Types.SET_CLEAR_FILE_SELECT]: {
-    clear: boolean;
-  };
+    clear: boolean
+  }
+
+  [Types.SET_SELECTED_FOLDER]: {
+    selectFolder: FileSelect
+  }
+
+  [Types.CLEAR_SELECTED_FOLDER]: {
+    selectFolder: FileSelect
+  }
 
   [Types.CLEAR_FOLDER_STATE]: {
-    path: string;
-    type: string;
-  };
+    path: string
+    type: string
+  }
 
   [Types.CLEAR_FILES_STATE]: {
-    path: string;
-  };
-};
+    path: string
+  }
+  [Types.SET_TOOLTIP]: {
+    tooltip: boolean
+  }
+}
 
-export type LibraryActions =
-  ActionMap<LibraryPayload>[keyof ActionMap<LibraryPayload>];
+export type LibraryActions = ActionMap<LibraryPayload>[keyof ActionMap<
+  LibraryPayload
+>]
 
 const LibraryContext = createContext<{
-  state: LibraryState;
-  dispatch: React.Dispatch<any>;
+  state: LibraryState
+  dispatch: React.Dispatch<any>
 }>({
   state: getInitialState(),
   dispatch: () => null,
-});
+})
 
 export const libraryReducer = (
   state: LibraryState,
-  action: LibraryActions
+  action: LibraryActions,
 ): LibraryState => {
   switch (action.type) {
     case Types.SET_INITIAL_PATH: {
@@ -177,84 +179,87 @@ export const libraryReducer = (
           ...state.initialPath,
           [action.payload.type]: action.payload.path,
         },
-      };
+      }
     }
 
     case Types.CLEAR_FILES_STATE: {
-      const copy = { ...state.filesState };
-      const copyPaginated = { ...state.paginated };
+      const copy = { ...state.filesState }
+      const copyPaginated = { ...state.paginated }
 
-      const path = action.payload.path;
+      const path = action.payload.path
       if (path) {
-        delete copy[path];
-        delete copyPaginated[path];
+        delete copy[path]
+        delete copyPaginated[path]
         return {
           ...state,
           filesState: copy,
           paginated: copyPaginated,
-        };
+        }
       } else
         return {
           ...state,
-        };
+        }
     }
 
     case Types.CLEAR_FOLDER_STATE: {
-      const copy = { ...state.foldersState };
-      const copyPaginatedFolders = { ...state.paginatedFolders };
-      const copyPaginated = { ...state.paginated };
+      const copy = { ...state.foldersState }
+      const copyPaginatedFolders = { ...state.paginatedFolders }
+      const copyPaginated = { ...state.paginated }
 
-      const path = action.payload.path;
+      const path = action.payload.path
       if (path) {
-        delete copy[path];
-        delete copyPaginatedFolders[path];
-        delete copyPaginated[path];
+        delete copy[path]
+        delete copyPaginatedFolders[path]
+        delete copyPaginated[path]
 
         return {
           ...state,
           foldersState: copy,
           paginatedFolders: copyPaginatedFolders,
           paginated: copyPaginated,
-        };
+        }
       } else
         return {
           ...state,
-        };
+        }
     }
+
+    /******************************************************************* */
 
     case Types.SET_CLEAR_FILE_SELECT: {
       return {
         ...state,
-        fileSelect: [],
-      };
+        selectedFolder: [],
+      }
     }
-
-    case Types.SET_MULTIPLE_FILE_SELECT: {
+    case Types.SET_SELECTED_FOLDER: {
+      const { folder, exactPath, path, type } = action.payload.selectFolder
+      const folderPayload = {
+        exactPath,
+        path,
+        type,
+        folder,
+      }
       return {
         ...state,
-        multipleFileSelect: action.payload.active,
-      };
+        selectedFolder: [...state.selectedFolder, folderPayload],
+      }
     }
 
-    case Types.SET_ADD_FILE_SELECT: {
+    case Types.CLEAR_SELECTED_FOLDER: {
+      const newFileSelect = state.selectedFolder.filter(
+        (file) => file.exactPath !== action.payload.selectFolder.exactPath,
+      )
       return {
         ...state,
-        fileSelect: [...state.fileSelect, action.payload.path],
-      };
+        selectedFolder: newFileSelect,
+      }
     }
 
-    case Types.SET_REMOVE_FILE_SELECT: {
-      const newFileSelect = state.fileSelect.filter(
-        (file) => file !== action.payload.path
-      );
-      return {
-        ...state,
-        fileSelect: newFileSelect,
-      };
-    }
+    /******************************************************************************* */
 
     case Types.SET_PAGINATION: {
-      const { path, hasNext, limit, offset, totalCount } = action.payload;
+      const { path, hasNext, limit, offset, totalCount } = action.payload
 
       return {
         ...state,
@@ -267,14 +272,14 @@ export const libraryReducer = (
             totalCount,
           },
         },
-      };
+      }
     }
 
     case Types.SET_LOADING: {
       return {
         ...state,
         loading: action.payload.loading,
-      };
+      }
     }
 
     case Types.SET_FILES: {
@@ -282,7 +287,7 @@ export const libraryReducer = (
         return {
           ...state,
           filesState: {},
-        };
+        }
       } else {
         return {
           ...state,
@@ -290,7 +295,7 @@ export const libraryReducer = (
             ...state.filesState,
             [action.payload.type]: action.payload.files,
           },
-        };
+        }
       }
     }
 
@@ -301,7 +306,7 @@ export const libraryReducer = (
           ...state.foldersState,
           [action.payload.type]: action.payload.folders,
         },
-      };
+      }
     }
 
     case Types.SET_PAGINATED_FOLDERS: {
@@ -311,7 +316,7 @@ export const libraryReducer = (
           ...state.paginatedFolders,
           [action.payload.path]: action.payload.folders,
         },
-      };
+      }
     }
 
     case Types.SET_FOLDER_DETAILS: {
@@ -321,31 +326,27 @@ export const libraryReducer = (
           currentFolder: action.payload.currentFolder,
           totalCount: action.payload.totalCount,
         },
-      };
+      }
     }
 
     case Types.SET_PREVIEW_ALL: {
       return {
         ...state,
         previewAll: action.payload.previewAll,
-      };
+      }
     }
 
     case Types.SET_ADD_FOLDER: {
-      const path = `${action.payload.username}/uploads`;
+      const path = `${action.payload.username}/uploads`
 
       if (state.foldersState[path]) {
         return {
           ...state,
           foldersState: {
             ...state.foldersState,
-            [path]: [...state.foldersState[path], action.payload.folder],
+            [path]: [action.payload.folder, ...state.foldersState[path]],
           },
-          paginatedFolders: {
-            ...state.paginatedFolders,
-            [path]: [...state.foldersState[path], action.payload.folder],
-          },
-        };
+        }
       } else {
         return {
           ...state,
@@ -353,47 +354,34 @@ export const libraryReducer = (
             ...state.foldersState,
             [path]: [action.payload.folder],
           },
-          paginatedFolders: {
-            ...state.paginatedFolders,
-            [path]: [action.payload.folder],
-          },
-        };
+        }
       }
     }
 
-    case Types.SET_ROOT: {
-      if (action.payload.isRoot === false) {
-        return {
-          ...state,
-          isRoot: {},
-        };
-      }
+    case Types.SET_TOOLTIP: {
       return {
         ...state,
-        isRoot: {
-          ...state.isRoot,
-          [action.payload.type]: action.payload.isRoot,
-        },
-      };
+        tooltip: action.payload.tooltip,
+      }
     }
 
     default:
-      return state;
+      return state
   }
-};
+}
 
 interface LibraryProviderProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) => {
-  const initialState = getInitialState();
-  const [state, dispatch] = useReducer(libraryReducer, initialState);
+  const initialState = getInitialState()
+  const [state, dispatch] = useReducer(libraryReducer, initialState)
   return (
     <LibraryContext.Provider value={{ state, dispatch }}>
       {children}
     </LibraryContext.Provider>
-  );
-};
+  )
+}
 
-export { LibraryContext, LibraryProvider };
+export { LibraryContext, LibraryProvider }
