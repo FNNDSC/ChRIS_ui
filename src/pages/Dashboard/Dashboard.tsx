@@ -29,6 +29,8 @@ import TreeThree from '../../assets/images/tree_3.png'
 import TreeFour from '../../assets/images/tree_4.png'
 import './Dashboard.scss'
 import Moment from 'react-moment'
+import preval from 'preval.macro'
+
 interface DashboardProps extends RouteComponentProps {
   children: React.ReactNode
 }
@@ -54,6 +56,11 @@ const DashboardPage = (props: DashboardProps) => {
   const outlineSearch = <MdOutlineImageSearch style={style} />
   const magicWand = <FaMagic style={style} />
 
+  const buildDate = preval`module.exports = new Date()`
+  const buildInfo = process.env.REACT_APP_CHRIS_UI_BUILD_COMMIT ?
+    <span>Git commit: <code className="commit-name">{process.env.REACT_APP_CHRIS_UI_BUILD_COMMIT}</code></span> :
+    <span></span>
+
   return (
     <Wrapper>
       <PageSection hasShadowBottom variant="light">
@@ -62,17 +69,16 @@ const DashboardPage = (props: DashboardProps) => {
           Retrieve, analyze, and visualize <i>any data </i> using a powerful
           cloud computing platform: ChRIS.
           <b> Let&apos;s get started.</b>
-          <br />
+        </p>
+        <p>
           <span>
-            Version: <b>{process.env.REACT_APP_CHRIS_UI_VERSION}</b>{" "}
-          </span>
-          <br />
-          <span>
-            Latest update:{" "}
+            Built on:{" "}
             <b>
-              <Moment format="DD MMM YYYY @ HH:mm">{`2022-06-27T12:40:11.007464-04:00`}</Moment>
+              <Moment format="DD MMM YYYY @ HH:mm">{buildDate}</Moment>
             </b>
           </span>
+          <br />
+          {buildInfo}
         </p>
         {children}
       </PageSection>
