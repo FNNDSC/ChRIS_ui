@@ -65,6 +65,14 @@ const FeedListView: React.FC = () => {
   const { data, error, loading, totalFeedsCount } = allFeeds
 
   React.useEffect(() => {
+    return () => {
+
+        dispatch(stopPollingTable(false))
+      }
+  }, [dispatch])
+
+
+  React.useEffect(() => {
     document.title = 'All Analyses - ChRIS UI '
     dispatch(
       setSidebarActive({

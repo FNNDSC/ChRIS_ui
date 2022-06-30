@@ -6,11 +6,13 @@ export const getAllFeedsRequest = (
   name?: string,
   limit?: number,
   offset?: number,
+  polling?: boolean,
 ) =>
   action(FeedActionTypes.GET_ALL_FEEDS_REQUEST, {
     name,
     limit,
     offset,
+    polling,
   })
 
 export const getAllFeedsSuccess = (feeds: FeedsResponsePayload) =>
