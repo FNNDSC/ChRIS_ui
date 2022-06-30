@@ -23,15 +23,36 @@ const IconContainer = () => {
   const bulkSelect = useTypedSelector((state) => {
     return state.feed.bulkSelect
   })
+  const getDefaultName =(bulkSelect:any, action:string) => {
+    let prefix = '';
+    if(action=='merge'){
+      prefix = 'Merge of '
+    }
+    else{
+      prefix = 'Archive of '
+    }
+    const feedNames = [];
+    for(let i =0; i< bulkSelect.length; i++){
+      feedNames.push(bulkSelect[i].data.name);
+    }
+    // truncate name of the merged feed(limit=100)
+    let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
+    newFeedName = prefix + newFeedName;
+    newFeedName = newFeedName.substring(0, 100);
+    return newFeedName;
+  }
+
   const dispatch = useDispatch()
   const [isModalOpen, setModalOpen] = React.useState(false);
   const [nameValue, setNameValue] = React.useState('');
-  const nameInputRef = React.useRef();
+  const [defaultName, setDefaultName] = React.useState('');
+  const nameInputRef = React.useRef(null);
 
   const [actionValue, setActionValue] = React.useState('');
   const handleModalToggle = (action:string) => {
     setModalOpen(!isModalOpen);
     setActionValue(action);
+    setDefaultName(getDefaultName(bulkSelect,action))
   };
 
   const handleNameInputChange = (value:any) => {
@@ -48,7 +69,8 @@ const IconContainer = () => {
       (nameInputRef.current as HTMLInputElement).focus();
     }
   }, [isModalOpen]);
-
+  
+  
   const handleChange = (type: string,name:any) => {
     type === 'download' && dispatch(downloadFeedRequest(bulkSelect,name))
     type === 'merge' && dispatch(mergeFeedRequest(bulkSelect,name))
@@ -66,7 +88,7 @@ const IconContainer = () => {
             
           </Tooltip>
         }
-        onChange={()=>{handleModalToggle('download')}}
+        onChange={()=>{handleModalToggle('download')}} 
       />
       <ToggleGroupItem
         aria-label="feed-action"
@@ -91,11 +113,13 @@ const IconContainer = () => {
       />
 
       <Modal
+        data-keyboard="false"
         variant={ModalVariant.small}
         title="Feed Name"
         description="Enter a name for your new feed (optional)"
         isOpen={isModalOpen}
         onClose={()=>{handleModalToggle('')}}
+        onSubmit={handleSubmit}
         actions={[
           <Button key="create" variant="primary" form="modal-with-form-form" onClick={handleSubmit}>
             Confirm
@@ -105,18 +129,19 @@ const IconContainer = () => {
           </Button>
         ]}
       >
-        <Form id="modal-with-form-form">
+        <Form id="modal-with-form-form" >
           <FormGroup
             label="Feed Name"
             fieldId="modal-with-form-form-name"
           >
             <TextInput
-              isRequired
               type="email"
               id="modal-with-form-form-name"
               name="modal-with-form-form-name"
+              placeholder={defaultName}
               value={nameValue}
               onChange={handleNameInputChange}
+              ref={nameInputRef}
             />
           </FormGroup>
         </Form>
