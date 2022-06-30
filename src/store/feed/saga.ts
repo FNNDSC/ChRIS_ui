@@ -1,4 +1,5 @@
-import { all, fork, put, takeEvery } from 'redux-saga/effects'
+import { all, fork, put, takeEvery, delay } from 'redux-saga/effects'
+import { Task } from 'redux-saga'
 import { Feed, FeedList } from '@fnndsc/chrisapi'
 import { FeedActionTypes } from './types'
 import { IActionTypeParam } from '../../api/models/base.model'
@@ -13,6 +14,7 @@ import {
   mergeFeedError,
   mergeFeedSuccess,
   getFeedResourcesSucess,
+  stopFetchingFeedResources,
 } from './actions'
 import { getPluginInstancesRequest } from '../pluginInstance/actions'
 
@@ -135,20 +137,62 @@ function* handleMergeFeed(action: IActionTypeParam) {
   yield put(mergeFeedSuccess(newFeeds))
 }
 
-function* handleFeedResources(action: IActionTypeParam) {
+function* handleFeedInstanceStatus(feed: Feed) {
   const client = ChrisAPIClient.getClient()
   const cu = new cujs()
   cu.setClient(client)
-  try {
-    let details: Record<string, unknown> = {}
-    details = yield cu.getPluginInstanceDetails(action.payload)
-    const payload = {
-      details,
-      id: action.payload.data.id,
+  while (true) {
+    try {
+      const details: Record<
+        string,
+        unknown
+      > = yield cu.getPluginInstanceDetails(feed)
+      const payload = {
+        details,
+        id: feed.data.id,
+      }
+      yield put(getFeedResourcesSucess(payload));
+      if (details.progress === 100 || details.error === true) {
+        yield put(stopFetchingFeedResources(feed))
+      } else {
+        yield delay(700)
+      }
+    } catch (error) {
+      yield put(stopFetchingFeedResources(feed))
     }
-    yield put(getFeedResourcesSucess(payload))
+  }
+}
+
+type PollTask = {
+  [id: number]: Task
+}
+
+function cancelPolling(task: Task) {
+  if (task) {
+    task.cancel()
+  }
+}
+
+function* watchCancelStatus(pollTask: PollTask) {
+  yield takeEvery(FeedActionTypes.STOP_FETCH_FEED_RESOURCES, function (
+    action: IActionTypeParam,
+  ) {
+    const feed = action.payload
+    const taskToCancel = pollTask[feed.data.id]
+    cancelPolling(taskToCancel)
+  })
+}
+
+function* handleFeedResources(action: IActionTypeParam) {
+  const pollTask: {
+    [id: number]: Task
+  } = {}
+  try {
+    const task: Task = yield fork(handleFeedInstanceStatus, action.payload)
+    pollTask[action.payload.data.id] = task
+    yield watchCancelStatus(pollTask)
   } catch (error) {
-    console.log("ERROR", error);
+    console.log('ERROR', error)
   }
 }
 

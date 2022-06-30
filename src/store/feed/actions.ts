@@ -39,16 +39,16 @@ export const deleteFeed = (feed: Feed[]) =>
   action(FeedActionTypes.DELETE_FEED, feed)
 
 // Feed download
-export const downloadFeedRequest = (feed: Feed[],name:any) =>
-  action(FeedActionTypes.DOWNLOAD_FEED_REQUEST, feed,name)
+export const downloadFeedRequest = (feed: Feed[], name: any) =>
+  action(FeedActionTypes.DOWNLOAD_FEED_REQUEST, feed, name)
 export const downloadFeedError = (error: string) =>
   action(FeedActionTypes.DOWNLOAD_FEED_ERROR, error)
 export const downloadFeedSuccess = (feed: Feed[]) =>
   action(FeedActionTypes.DOWNLOAD_FEED_SUCCESS, feed)
 
 // Feed Merge
-export const mergeFeedRequest = (feed: Feed[],name:any) =>
-  action(FeedActionTypes.MERGE_FEED_REQUEST, feed,name)
+export const mergeFeedRequest = (feed: Feed[], name: any) =>
+  action(FeedActionTypes.MERGE_FEED_REQUEST, feed, name)
 export const mergeFeedError = (error: string) =>
   action(FeedActionTypes.MERGE_FEED_ERROR, error)
 export const mergeFeedSuccess = (feed: Feed[]) =>
@@ -70,3 +70,9 @@ export const removeAllSelect = (feeds: Feed[]) =>
 
 export const removeBulkSelect = (feed: Feed) =>
   action(FeedActionTypes.REMOVE_BULK_SELECT, feed)
+
+export const stopFetchingFeedResources = (feed: Feed) =>
+  action(FeedActionTypes.STOP_FETCH_FEED_RESOURCES, feed)
+
+export const cleanupFeedResources = (feed: Feed) =>
+  action(FeedActionTypes.CLEANUP_FEED_RESOURCES, feed)

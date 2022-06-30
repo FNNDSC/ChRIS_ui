@@ -10,10 +10,8 @@ import {
   SplitItem,
   Button,
   Modal,
-  CardActions,
-  Checkbox,
 } from '@patternfly/react-core'
-import { FaFile, FaFolder, FaDownload, FaExpand } from 'react-icons/fa'
+import { FaFile, FaFolder, FaDownload } from 'react-icons/fa'
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
 import { LibraryContext, Paginated, Types } from './context'
 import FileViewerModel from '../../../../api/models/file-viewer.model'
@@ -134,7 +132,6 @@ export function Browser({
 
 const TooltipParent = ({
   children,
-  type,
 }: {
   children: React.ReactElement
   type: string
