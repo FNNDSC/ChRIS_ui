@@ -409,7 +409,8 @@ const TableRow = ({
 
   const backgroundRow =
     progress && progress < 100 && !feedError ? '#F9E0A2' : '#FFFFFF'
-
+  const selectedBgRow = 
+    isSelected(bulkSelect, feed) ? "rgb(231, 241, 250)" : backgroundRow
   return (
     <Tr
       key={feed.data.id}
@@ -424,7 +425,7 @@ const TableRow = ({
       isHoverable
       isRowSelected={isSelected(bulkSelect, feed)}
       style={{
-        backgroundColor: backgroundRow,
+        backgroundColor: selectedBgRow,
       }}
     >
       <Td>{bulkChecbox}</Td>
