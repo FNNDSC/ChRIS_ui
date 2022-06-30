@@ -1,4 +1,3 @@
-import { eq } from "lodash"
 
 describe('Testing SignUp Page', () => {
     it('Visits the Feeds Page', () => {
@@ -12,7 +11,7 @@ describe('Testing SignUp Page', () => {
     })
 
     it('Types in the Feed Name', () => {
-        cy.get('input#feed-name').type('Tractography Study')
+        cy.get('input#feed-name').type('MRI Study')
     
       })
 
@@ -42,7 +41,7 @@ describe('Testing SignUp Page', () => {
 
     it('Selects the Feed Synthesis plugin', () => {
         cy.get('.pf-c-data-list__check>input')
-        .eq(0)
+        .eq(1)
         .click()
       })
 
@@ -52,47 +51,6 @@ describe('Testing SignUp Page', () => {
         .click()
       })
 
-   it('Selects and deletes a Parameter ', () => {
-        cy.get('button.configuration__button')
-        .click()
-
-        cy.get('button#toggle-id.pf-c-dropdown__toggle')
-        .click()
-
-        cy.get('button.pf-c-dropdown__menu-item')
-        .eq(1)
-        .click()
-
-        cy.get('input.plugin-configuration__input')
-        .type('directory override')
-
-        cy.get('.close-icon')
-        .click()
-      })
-
-   it('Selects and deletes a Parameter ', () => {
-        cy.get('button.configuration__button')
-        .click()
-
-        cy.get('button#toggle-id.pf-c-dropdown__toggle')
-        .click()
-
-        cy.get('button.pf-c-dropdown__menu-item')
-        .eq(0)
-        .click()
-
-        cy.get('input.plugin-configuration__input')
-        .type('This is for testing purposes')
-   })
-
-   it('Selects and deletes a compute environment ', () => {
-        cy.get('button#options-menu-toggle')
-        .click()
-
-        cy.get('button#options-menu-toggle')
-        .click()
-
-   })
 
    it('Goes to Pipelines', () => {
         cy.get('button.pf-c-button.pf-m-primary')
