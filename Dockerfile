@@ -23,10 +23,7 @@
 #
 # Tips:
 # - for access logging, remove "--quiet" from CMD
-# - docker-entrypoint.sh must start as root, and then
-#   it creates an underprivileged user and downgrades itself.
-#   This will not work on OpenShift where the container UID is random.
-#   For high-security platforms, do not use docker-entrypoint.sh.
+# - docker-entrypoint.sh must start as root
 
 
 FROM node:16 as builder
@@ -34,6 +31,7 @@ FROM node:16 as builder
 WORKDIR /app
 COPY . .
 
+RUN npm run -s print-version
 RUN npm install
 RUN npm run build 
 
@@ -48,5 +46,6 @@ COPY --from=builder /app/build /app
 COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["npm", "start"]
-EXPOSE 8080
+ENV HOST=0.0.0.0 PORT=3000
+CMD ["sirv", "--quiet", "--etag", "--single"]
+EXPOSE 3000
