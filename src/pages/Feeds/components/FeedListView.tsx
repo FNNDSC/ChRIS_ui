@@ -41,7 +41,6 @@ import {
 import { usePaginate } from '../../../components/common/pagination'
 import { Feed } from '@fnndsc/chrisapi'
 import IconContainer from './IconContainer'
-import { FcMediumPriority } from 'react-icons/fc'
 import { useTypedSelector } from '../../../store/hooks'
 import { Tbody } from '@patternfly/react-table'
 import { FeedResource } from '../../../store/feed/types'
@@ -299,10 +298,6 @@ const TableRow = ({
     feedResources[feed.data.id] &&
     feedResources[feed.data.id].details.feedProgressText
 
-  const d1 = new Date(creation_date)
-  const d2 = new Date()
-  const smallD2 = new Date(d2.setMinutes(d2.getMinutes() - 2))
-
   const name = (
     <span className="feed-list__name">
       <Tooltip content={<div>View feed details</div>}>
@@ -314,13 +309,6 @@ const TableRow = ({
   const feedId = (
     <p style={fontFamily}>
       {feed.data.id}
-      {d1 >= smallD2 ? (
-        <Tooltip content={<div>Created recently</div>}>
-          <FcMediumPriority id="hideMe" />
-        </Tooltip>
-      ) : (
-        ''
-      )}
     </p>
   )
 
@@ -337,11 +325,13 @@ const TableRow = ({
         margin: '0 auto',
       }}
     >
+      <span className="feed-list__name">
       <Tooltip content={<div>View files in library</div>}>
         <Link to={`/library/`}>
           {size ? `${size.padStart(10, '')}` : '---'}
         </Link>
       </Tooltip>
+      </span>
     </p>
   )
 
@@ -422,6 +412,17 @@ const TableRow = ({
 
   return (
     <Tr
+      key={feed.data.id}
+      onRowClick={() =>{
+        if (!isSelected(bulkSelect, feed)) {
+          dispatch(setBulkSelect(feed))
+        } else {
+          dispatch(removeBulkSelect(feed))
+        }
+      }}
+      isSelectable
+      isHoverable
+      isRowSelected={isSelected(bulkSelect, feed)}
       style={{
         backgroundColor: backgroundRow,
       }}
