@@ -95,6 +95,7 @@ function* handleDowloadFeed(action: IActionTypeParam) {
     )
     newFeeds.push(createdFeed)
   } catch (error) {
+    //@ts-ignore
     const errorParsed = error.response.data.value[0]
     yield put(downloadFeedError(errorParsed))
   }
@@ -130,6 +131,7 @@ function* handleMergeFeed(action: IActionTypeParam) {
     )
     newFeeds.push(createdFeed)
   } catch (error) {
+     //@ts-ignore
     const errorParsed = error.response.data.value[0]
     yield put(mergeFeedError(errorParsed))
   }
