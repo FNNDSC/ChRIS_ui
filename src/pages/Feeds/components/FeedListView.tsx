@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useDispatch } from 'react-redux'
+
 import { Link } from 'react-router-dom'
 import Moment from 'react-moment'
 import '@patternfly/react-core/dist/styles/base.css'
@@ -16,7 +16,7 @@ import {
   Checkbox,
   Tooltip,
 } from '@patternfly/react-core'
-import { Table, TableBody, Thead, Tr, Th } from '@patternfly/react-table'
+import { TableComposable, Thead, Tr, Th, Td } from '@patternfly/react-table'
 import { ChartDonutUtilization } from '@patternfly/react-charts'
 import { setSidebarActive } from '../../../store/ui/actions'
 import {
@@ -27,6 +27,8 @@ import {
   removeAllSelect,
   setAllSelect,
   toggleSelectAll,
+  stopFetchingFeedResources,
+  cleanupFeedResources,
 } from '../../../store/feed/actions'
 
 import { DataTableToolbar } from '../../../components/index'
@@ -41,6 +43,8 @@ import { Feed } from '@fnndsc/chrisapi'
 import IconContainer from './IconContainer'
 import { FcMediumPriority } from 'react-icons/fc'
 import { useTypedSelector } from '../../../store/hooks'
+import { Tbody } from '@patternfly/react-table'
+import { FeedResource } from '../../../store/feed/types'
 
 const FeedListView: React.FC = () => {
   const {
@@ -62,207 +66,26 @@ const FeedListView: React.FC = () => {
 
   React.useEffect(() => {
     document.title = 'All Analyses - ChRIS UI '
-    setSidebarActive({
-      activeItem: 'analyses',
-    })
-  }, [setSidebarActive])
+    dispatch(
+      setSidebarActive({
+        activeItem: 'analyses',
+      }),
+    )
+  }, [dispatch])
 
   const getAllFeeds = React.useCallback(() => {
     run(getAllFeedsRequest)
-  }, [getAllFeedsRequest, run])
-
-  const getFeedResources = React.useCallback(
-    (feed) => {
-      dispatch(getFeedResourcesRequest(feed))
-    },
-    [dispatch],
-  )
+  }, [run])
 
   React.useEffect(() => {
     getAllFeeds()
   }, [getAllFeeds])
 
   React.useEffect(() => {
-    if (allFeeds.data && allFeeds.data.length > 0) {
-      allFeeds.data.map((feed) => {
-        getFeedResources(feed)
-      })
-    }
-  }, [allFeeds.data, getFeedResources])
-
-  React.useEffect(() => {
     if (selectAllToggle && allFeeds.data && allFeeds.data.length > 0) {
       dispatch(setAllSelect(allFeeds.data))
     }
-  }, [allFeeds.data, setAllSelect, selectAllToggle])
-
-  const generateTableRow = (feed: Feed) => {
-    const { id, name: feedName, creation_date, creator_username } = feed.data
-
-    const fontFamily = {
-      fontFamily: 'monospace',
-    }
-
-    const size =
-      feedResources[feed.data.id] && feedResources[feed.data.id].details.size
-    const feedError =
-      feedResources[feed.data.id] && feedResources[feed.data.id].details.error
-    const runtime =
-      feedResources[feed.data.id] && feedResources[feed.data.id].details.time
-    const progress =
-      feedResources[feed.data.id] &&
-      feedResources[feed.data.id].details.progress
-    const feedProgressText =
-      feedResources[feed.data.id] &&
-      feedResources[feed.data.id].details.feedProgressText
-
-    const d1 = new Date(creation_date)
-    const d2 = new Date()
-    const smallD2 = new Date(d2.setMinutes(d2.getMinutes() - 2))
-
-    const name = {
-      title: (
-        <span className="feed-list__name">
-          <Tooltip content={<div>View feed details</div>}>
-            <Link to={`/feeds/${id}`}>{feedName}</Link>
-          </Tooltip>
-        </span>
-      ),
-    }
-
-    const feedId = {
-      title: (
-        <p style={fontFamily}>
-          {feed.data.id}
-          {d1 >= smallD2 ? (
-            <Tooltip content={<div>Created recently</div>}>
-              <FcMediumPriority id="hideMe" />
-            </Tooltip>
-          ) : (
-            ''
-          )}
-        </p>
-      ),
-    }
-
-    const created = {
-      title: (
-        <span style={fontFamily}>
-          <Moment format="DD MMM YYYY, HH:mm">{creation_date}</Moment>{' '}
-        </span>
-      ),
-    }
-
-    const feedSize = {
-      title: (
-        <p
-          style={{
-            textAlign: 'center',
-            margin: '0 auto',
-          }}
-        >
-          <Tooltip content={<div>View files in library</div>}>
-            <Link to={`/library/`}>
-              {size ? `${size.padStart(10, '')}` : '---'}
-            </Link>
-          </Tooltip>
-        </p>
-      ),
-    }
-
-    const runTime = {
-      title: <p style={fontFamily}>{runtime ? `${runtime}` : '---'}</p>,
-    }
-
-    const creator = {
-      title: <p>{creator_username}</p>,
-    }
-
-    let threshold = Infinity
-    let color = '#0000ff'
-
-    // If error in a feed => reflect in progress
-    if (feedError) {
-      color = '#ff0000'
-      threshold = progress
-    }
-    let title = (progress ? progress : 0) + '%'
-
-    // If initial node in a feed fails
-    if (progress == 0 && feedError) {
-      title = '❌'
-    }
-
-    // If progress less than 100%, display green
-    if (progress < 100 && !feedError) {
-      color = '#00ff00'
-
-      threshold = progress
-    }
-    if (progress == 100) {
-      title = '✔️'
-    }
-
-    const circularProgress = {
-      title: (
-        <div
-          style={{
-            textAlign: 'right',
-            height: '40px',
-            width: '40px',
-            display: 'block',
-          }}
-        >
-          <ChartDonutUtilization
-            ariaTitle={feedProgressText}
-            data={{ x: 'Feed Progress', y: progress }}
-            height={125}
-            title={title}
-            thresholds={[{ value: threshold, color: color }]}
-            width={125}
-          />
-        </div>
-      ),
-    }
-
-    const isSelected = (bulkSelect: any, feed: Feed) => {
-      for (const selectedFeed of bulkSelect) {
-        if (selectedFeed.data.id == feed.data.id) {
-          return true
-        }
-      }
-      return false
-    }
-    const bulkChecbox = {
-      title: (
-        <Checkbox
-          isChecked={isSelected(bulkSelect, feed)}
-          id="check"
-          aria-label="toggle icon bar"
-          onChange={() => {
-            if (!isSelected(bulkSelect, feed)) {
-              dispatch(setBulkSelect(feed))
-            } else {
-              dispatch(removeBulkSelect(feed))
-            }
-          }}
-        />
-      ),
-    }
-
-    return {
-      cells: [
-        bulkChecbox,
-        feedId,
-        name,
-        created,
-        creator,
-        runTime,
-        feedSize,
-        circularProgress,
-      ],
-    }
-  }
+  }, [allFeeds.data, dispatch, selectAllToggle])
 
   const cells = [
     '',
@@ -277,12 +100,10 @@ const FeedListView: React.FC = () => {
     '',
   ]
 
-  const rows = data && data.length > 0 ? data.map(generateTableRow) : []
-
   const customRowWrapper = (row: any) => {
     const { children } = row
 
-    let backgroundStyle = {
+    const backgroundStyle = {
       backgroundColor: '#F9E0A2',
     }
     return <Tr style={backgroundStyle}>{children}</Tr>
@@ -360,17 +181,16 @@ const FeedListView: React.FC = () => {
         {(!data && !loading) || (data && data.length === 0) ? (
           <EmptyStateTable
             cells={cells}
-            rows={rows}
+            rows={[]}
             caption="Empty Feed List"
             title="No Feeds Found"
             description="Create a Feed by clicking on the 'Create Feed' button"
           />
         ) : (
-          <Table
+          <TableComposable
             variant="compact"
             aria-label="Data table"
             cells={cells}
-            rows={rows}
             isStickyHeader
             rowWrapper={customRowWrapper}
           >
@@ -415,8 +235,24 @@ const FeedListView: React.FC = () => {
               </Thead>
             }
 
-            {loading ? generateTableLoading() : <TableBody />}
-          </Table>
+            {loading ? (
+              generateTableLoading()
+            ) : (
+              <Tbody>
+                {data &&
+                  data.map((feed) => {
+                    return (
+                      <TableRow
+                        key={feed.data.id}
+                        feed={feed}
+                        feedResources={feedResources}
+                        bulkSelect={bulkSelect}
+                      />
+                    )
+                  })}
+              </Tbody>
+            )}
+          </TableComposable>
         )}
       </PageSection>
     </React.Fragment>
@@ -424,3 +260,179 @@ const FeedListView: React.FC = () => {
 }
 
 export default FeedListView
+
+const TableRow = ({
+  feed,
+  feedResources,
+  bulkSelect,
+}: {
+  feed: Feed
+  feedResources: FeedResource
+  bulkSelect: Feed[]
+}) => {
+  const { id, name: feedName, creation_date, creator_username } = feed.data
+  const { dispatch } = usePaginate()
+  const progress =
+    feedResources[feed.data.id] && feedResources[feed.data.id].details.progress
+
+  React.useEffect(() => {
+    dispatch(getFeedResourcesRequest(feed))
+    return () => {
+      dispatch(stopFetchingFeedResources(feed))
+      dispatch(cleanupFeedResources(feed))
+    }
+  }, [dispatch, feed])
+
+  const fontFamily = {
+    fontFamily: 'monospace',
+  }
+
+  const size =
+    feedResources[feed.data.id] && feedResources[feed.data.id].details.size
+  const feedError =
+    feedResources[feed.data.id] && feedResources[feed.data.id].details.error
+  const runtime =
+    feedResources[feed.data.id] && feedResources[feed.data.id].details.time
+
+  const feedProgressText =
+    feedResources[feed.data.id] &&
+    feedResources[feed.data.id].details.feedProgressText
+
+  const d1 = new Date(creation_date)
+  const d2 = new Date()
+  const smallD2 = new Date(d2.setMinutes(d2.getMinutes() - 2))
+
+  const name = (
+    <span className="feed-list__name">
+      <Tooltip content={<div>View feed details</div>}>
+        <Link to={`/feeds/${id}`}>{feedName}</Link>
+      </Tooltip>
+    </span>
+  )
+
+  const feedId = (
+    <p style={fontFamily}>
+      {feed.data.id}
+      {d1 >= smallD2 ? (
+        <Tooltip content={<div>Created recently</div>}>
+          <FcMediumPriority id="hideMe" />
+        </Tooltip>
+      ) : (
+        ''
+      )}
+    </p>
+  )
+
+  const created = (
+    <span style={fontFamily}>
+      <Moment format="DD MMM YYYY, HH:mm">{creation_date}</Moment>{' '}
+    </span>
+  )
+
+  const feedSize = (
+    <p
+      style={{
+        textAlign: 'center',
+        margin: '0 auto',
+      }}
+    >
+      <Tooltip content={<div>View files in library</div>}>
+        <Link to={`/library/`}>
+          {size ? `${size.padStart(10, '')}` : '---'}
+        </Link>
+      </Tooltip>
+    </p>
+  )
+
+  const runTime = <p style={fontFamily}>{runtime ? `${runtime}` : '---'}</p>
+
+  const creator = <p>{creator_username}</p>
+
+  let threshold = Infinity
+  let color = '#0000ff'
+
+  // If error in a feed => reflect in progress
+  if (feedError) {
+    color = '#ff0000'
+    threshold = progress
+  }
+  let title = (progress ? progress : 0) + '%'
+
+  // If initial node in a feed fails
+  if (progress == 0 && feedError) {
+    title = '❌'
+  }
+
+  // If progress less than 100%, display green
+  if (progress < 100 && !feedError) {
+    color = '#00ff00'
+
+    threshold = progress
+  }
+  if (progress == 100) {
+    title = '✔️'
+  }
+
+  const circularProgress = (
+    <div
+      style={{
+        textAlign: 'right',
+        height: '40px',
+        width: '40px',
+        display: 'block',
+      }}
+    >
+      <ChartDonutUtilization
+        ariaTitle={feedProgressText}
+        data={{ x: 'Feed Progress', y: progress }}
+        height={125}
+        title={title}
+        thresholds={[{ value: threshold, color: color }]}
+        width={125}
+      />
+    </div>
+  )
+
+  const isSelected = (bulkSelect: any, feed: Feed) => {
+    for (const selectedFeed of bulkSelect) {
+      if (selectedFeed.data.id == feed.data.id) {
+        return true
+      }
+    }
+    return false
+  }
+  const bulkChecbox = (
+    <Checkbox
+      isChecked={isSelected(bulkSelect, feed)}
+      id="check"
+      aria-label="toggle icon bar"
+      onChange={() => {
+        if (!isSelected(bulkSelect, feed)) {
+          dispatch(setBulkSelect(feed))
+        } else {
+          dispatch(removeBulkSelect(feed))
+        }
+      }}
+    />
+  )
+
+  const backgroundRow =
+    progress && progress < 100 && !feedError ? '#F9E0A2' : '#FFFFFF'
+
+  return (
+    <Tr
+      style={{
+        backgroundColor: backgroundRow,
+      }}
+    >
+      <Td>{bulkChecbox}</Td>
+      <Td>{feedId}</Td>
+      <Td>{name}</Td>
+      <Td>{created}</Td>
+      <Td>{creator}</Td>
+      <Td>{runTime}</Td>
+      <Td>{feedSize}</Td>
+      <Td>{circularProgress}</Td>
+    </Tr>
+  )
+}

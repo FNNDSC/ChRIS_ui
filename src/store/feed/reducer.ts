@@ -42,7 +42,6 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
-
       return {
         ...state,
         allFeeds: {
@@ -105,6 +104,15 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
             details: action.payload.details,
           },
         },
+      }
+    }
+
+    case FeedActionTypes.CLEANUP_FEED_RESOURCES: {
+      const feedResourceCopy = state.feedResources
+      delete feedResourceCopy[action.payload.data.id]
+      return {
+        ...state,
+        feedResources: feedResourceCopy,
       }
     }
 
