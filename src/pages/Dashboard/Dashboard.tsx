@@ -28,7 +28,6 @@ import TreeTwo from '../../assets/images/tree_2.png'
 import TreeThree from '../../assets/images/tree_3.png'
 import TreeFour from '../../assets/images/tree_4.png'
 import './Dashboard.scss'
-import Moment from 'react-moment'
 import preval from 'preval.macro'
 
 interface DashboardProps extends RouteComponentProps {
@@ -77,10 +76,10 @@ const DashboardPage = (props: DashboardProps) => {
       </PageSection>
       <PageSection>
         <Grid hasGutter>
-          <GridItem style={{ marginBottom: "1rem" }} lg={6}>
+          <GridItem style={{ marginBottom: '1rem' }} lg={6}>
             <CardDisplay
               component={
-                <div style={{ display: "flex" }}>
+                <div style={{ display: 'flex' }}>
                   <ImageComponent img={FirstPng} />
                   <ImageComponent img={SecondPng} />
                   <ImageComponent img={ThirdPng} />
@@ -97,7 +96,7 @@ const DashboardPage = (props: DashboardProps) => {
           <GridItem lg={6}>
             <CardDisplay
               component={
-                <div style={{ display: "flex" }}>
+                <div style={{ display: 'flex' }}>
                   <ImageComponent img={TreeOne} />
                   <ImageComponent img={TreeTwo} />
                   <ImageComponent img={TreeThree} />
@@ -132,7 +131,7 @@ const DashboardPage = (props: DashboardProps) => {
         </Grid>
       </PageSection>
     </Wrapper>
-  );
+  )
 }
 
 export default DashboardPage
