@@ -84,6 +84,7 @@ const FeedListView: React.FC = () => {
   React.useEffect(() => {
     if (selectAllToggle && allFeeds.data && allFeeds.data.length > 0) {
       dispatch(setAllSelect(allFeeds.data))
+
     }
   }, [allFeeds.data, dispatch, selectAllToggle])
 
