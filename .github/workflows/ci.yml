@@ -51,6 +51,8 @@ jobs:
             docker.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}
             ghcr.io/fnndsc/chris_ui:latest
             ghcr.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}
+          context: .
+          file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           cache-from: type=local,src=/tmp/.buildx-cache
