@@ -1,5 +1,14 @@
 import React from 'react'
-import { ToggleGroup, ToggleGroupItem, Tooltip } from '@patternfly/react-core'
+import { 
+  ToggleGroup,
+  ToggleGroupItem,
+  Tooltip,
+  Modal,
+  ModalVariant,
+  Form,
+  FormGroup,
+  TextInput,
+  Button } from '@patternfly/react-core'
 import { FaTrash, FaDownload, } from 'react-icons/fa'
 import { VscMerge } from 'react-icons/vsc'
 import { useDispatch } from 'react-redux'
@@ -10,16 +19,39 @@ import {
   toggleSelectAll
 } from '../../../store/feed/actions'
 import { useTypedSelector } from '../../../store/hooks'
-
 const IconContainer = () => {
   const bulkSelect = useTypedSelector((state) => {
     return state.feed.bulkSelect
   })
   const dispatch = useDispatch()
+  const [isModalOpen, setModalOpen] = React.useState(false);
+  const [nameValue, setNameValue] = React.useState('');
+  const nameInputRef = React.useRef();
 
-  const handleChange = (type: string) => {
-    type === 'download' && dispatch(downloadFeedRequest(bulkSelect))
-    type === 'merge' && dispatch(mergeFeedRequest(bulkSelect))
+  const [actionValue, setActionValue] = React.useState('');
+  const handleModalToggle = (action:string) => {
+    setModalOpen(!isModalOpen);
+    setActionValue(action);
+  };
+
+  const handleNameInputChange = (value:any) => {
+    setNameValue(value);
+  };
+
+  const handleSubmit = () =>{
+   setModalOpen(!isModalOpen);
+   handleChange(actionValue,nameValue);
+  };
+  
+  React.useEffect(() => {
+    if (isModalOpen && nameInputRef && nameInputRef.current) {
+      (nameInputRef.current as HTMLInputElement).focus();
+    }
+  }, [isModalOpen]);
+
+  const handleChange = (type: string,name:any) => {
+    type === 'download' && dispatch(downloadFeedRequest(bulkSelect,name))
+    type === 'merge' && dispatch(mergeFeedRequest(bulkSelect,name))
     type === 'delete' && dispatch(deleteFeed(bulkSelect))
     dispatch(toggleSelectAll(false));
   }
@@ -29,10 +61,12 @@ const IconContainer = () => {
         aria-label="feed-action"
         icon={
           <Tooltip content={<div>Download selected feeds</div>}>
+            
             <FaDownload />
+            
           </Tooltip>
         }
-        onChange={() => handleChange('download')}
+        onChange={()=>{handleModalToggle('download')}}
       />
       <ToggleGroupItem
         aria-label="feed-action"
@@ -44,7 +78,7 @@ const IconContainer = () => {
             }} />
           </Tooltip>
         }
-        onChange={() => handleChange('merge')}
+        onChange={()=>{handleModalToggle('merge')}}
       />
       <ToggleGroupItem
         aria-label="feed-action"
@@ -53,9 +87,40 @@ const IconContainer = () => {
             <FaTrash />
           </Tooltip>
         }
-        onChange={() => handleChange('delete')}
+        onChange={() => handleChange('delete',"")}
       />
 
+      <Modal
+        variant={ModalVariant.small}
+        title="Feed Name"
+        description="Enter a name for your new feed (optional)"
+        isOpen={isModalOpen}
+        onClose={()=>{handleModalToggle('')}}
+        actions={[
+          <Button key="create" variant="primary" form="modal-with-form-form" onClick={handleSubmit}>
+            Confirm
+          </Button>,
+          <Button key="cancel" variant="link" onClick={()=>{handleModalToggle('')}}>
+            Cancel
+          </Button>
+        ]}
+      >
+        <Form id="modal-with-form-form">
+          <FormGroup
+            label="Feed Name"
+            fieldId="modal-with-form-form-name"
+          >
+            <TextInput
+              isRequired
+              type="email"
+              id="modal-with-form-form-name"
+              name="modal-with-form-form-name"
+              value={nameValue}
+              onChange={handleNameInputChange}
+            />
+          </FormGroup>
+        </Form>
+      </Modal>
     </ToggleGroup>
   )
 }

@@ -34,14 +34,12 @@ interface LibraryState {
   }
   previewAll: boolean
   loading: boolean
-
   paginatedFolders: {
     [key: string]: string[]
   }
-  fileSelect: FileSelect[]
+
   selectedFolder: FileSelect[]
   tooltip: boolean
-  multipleSelect: boolean
 }
 
 function getInitialState(): LibraryState {
@@ -57,10 +55,8 @@ function getInitialState(): LibraryState {
     previewAll: false,
     loading: false,
     paginatedFolders: {},
-    fileSelect: [],
     selectedFolder: [],
     tooltip: false,
-    multipleSelect: false,
   }
 }
 
@@ -86,14 +82,11 @@ export enum Types {
   SET_PREVIEW_ALL = 'SET_PREVIEW_ALL',
   SET_ADD_FOLDER = 'SET_ADD_FOLDER',
   SET_SELECTED_FOLDER = 'SET_SELECTED_FOLDER',
-  SET_ADD_FILE_SELECT = 'SET_ADD_FILE_SELECT',
-  SET_REMOVE_FILE_SELECT = 'SET_REMOVE_FILE_SELECT',
   SET_CLEAR_FILE_SELECT = 'SET_CLEAR_FILE_SELECT',
   CLEAR_FOLDER_STATE = 'CLEAR_FOLDER_STATE',
   CLEAR_SELECTED_FOLDER = 'CLEAR_SELECTED_FOLDER',
   CLEAR_FILES_STATE = 'CLEAR_FILES_STATE',
   SET_TOOLTIP = 'SET_TOOLTIP',
-  SET_MULTIPLE_SELECT = 'SET_MULTIPLE_SELECT',
 }
 
 type LibraryPayload = {
@@ -135,13 +128,6 @@ type LibraryPayload = {
   [Types.SET_ADD_FOLDER]: {
     folder: string
     username: string | null | undefined
-  }
-
-  [Types.SET_ADD_FILE_SELECT]: {
-    addFolder: FileSelect[]
-  }
-  [Types.SET_REMOVE_FILE_SELECT]: {
-    removeFolder: FileSelect
   }
 
   [Types.SET_CLEAR_FILE_SELECT]: {

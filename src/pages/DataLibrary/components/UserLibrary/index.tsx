@@ -27,11 +27,7 @@ import { LocalFile } from '../../../../components/feed/CreateFeed/types'
 import { useTypedSelector } from '../../../../store/hooks'
 import { FileSelect, LibraryContext, Types } from './context'
 import { MainRouterContext } from '../../../../routes'
-import {
-  clearSelectFolder,
-  removeFileSelect,
-  setFolders,
-} from './context/actions'
+import { clearSelectFolder, setFolders } from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'
 import { useDispatch } from 'react-redux'
 import { fetchResource } from '../../../../utils'
@@ -45,7 +41,7 @@ const DataLibrary = () => {
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
   const [directoryName, setDirectoryName] = React.useState('')
-  const { fileSelect, foldersState, selectedFolder } = state
+  const { foldersState, selectedFolder } = state
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0)
   const [error, setError] = React.useState<{ type: string; warning: string }[]>(
     [],
@@ -105,6 +101,7 @@ const DataLibrary = () => {
           fname: exactPath,
           fname_incontains: exactPath,
         }
+        console.log('FILE', file)
         const client = ChrisAPIClient.getClient()
         if (file.type === 'feed') {
           const feedFn = client.getFiles
@@ -288,11 +285,43 @@ const DataLibrary = () => {
   return (
     <>
       {selectedFolder.length > 0 && (
-        <AlertGroup isToast>
+        <AlertGroup
+          style={{
+            zIndex: '999',
+          }}
+          isToast
+        >
           <Alert
             type="info"
             description={
               <>
+                <div
+                  style={{
+                    marginBottom: '1em',
+                    display: 'flex',
+                  }}
+                >
+                  <Button
+                    style={{ marginRight: '0.5em' }}
+                    onClick={createFeed}
+                    variant="primary"
+                  >
+                    Create Analysis
+                  </Button>
+
+                  <Button
+                    style={{ marginRight: '0.5em' }}
+                    onClick={() => {
+                      handleDownload()
+                    }}
+                    variant="secondary"
+                  >
+                    Download Data
+                  </Button>
+                  <Button variant="secondary" onClick={handleDelete}>
+                    Delete Data
+                  </Button>
+                </div>
                 {selectedFolder.length > 0 && (
                   <>
                     <ChipGroup style={{ marginBottom: '1em' }} categoryName="">
@@ -315,30 +344,7 @@ const DataLibrary = () => {
                         justifyContent: 'space-between',
                       }}
                     >
-                      <div>
-                        <Button
-                          style={{ marginRight: '0.25em' }}
-                          onClick={createFeed}
-                          variant="primary"
-                        >
-                          Create Analysis
-                        </Button>
-
-                        <Button
-                          style={{ marginRight: '0.25em' }}
-                          onClick={() => {
-                            handleDownload()
-                          }}
-                          variant="secondary"
-                        >
-                          Download Data
-                        </Button>
-                        <Button variant="secondary" onClick={handleDelete}>
-                          Delete Data
-                        </Button>
-                      </div>
-
-                      <Button variant="secondary" onClick={clearFeed}>
+                      <Button variant="tertiary" onClick={clearFeed}>
                         Empty Cart
                       </Button>
                     </div>

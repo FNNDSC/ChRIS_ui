@@ -1,30 +1,27 @@
-import * as React from "react";
+import * as React from 'react'
 
 import {
   FaPlay,
   FaPause,
-  FaExpandAlt,
-  FaCompressAlt,
   FaAngleDoubleLeft,
   FaAngleDoubleRight,
   FaStepForward,
   FaStepBackward,
-} from "react-icons/fa";
-import { Button } from "@patternfly/react-core";
+} from 'react-icons/fa'
+import { Button } from '@patternfly/react-core'
 
-import { galleryActions } from "../../../api/models/gallery.model";
-import "./GalleryToolbar.scss";
+import { galleryActions } from '../../../api/models/gallery.model'
+import './GalleryToolbar.scss'
 
 type IGalleryToolbarState = {
-  isFullscreen: boolean;
-};
+  isFullscreen: boolean
+}
 
 type AllProps = {
-  total: number;
-  hideDownload?: boolean;
-  onToolbarClick: (action: string) => void; // Description: switch play/pause functionality
-  isPlaying?: boolean;
-} & IGalleryToolbarState;
+  hideDownload?: boolean
+  onToolbarClick: (action: string) => void // Description: switch play/pause functionality
+  isPlaying?: boolean
+} & IGalleryToolbarState
 
 const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
   return (
@@ -47,11 +44,11 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
             variant="link"
             onClick={() =>
               props.onToolbarClick(
-                props.isPlaying ? galleryActions.pause : galleryActions.play
+                props.isPlaying ? galleryActions.pause : galleryActions.play,
               )
             }
           >
-            {props.isPlaying ? <FaPause size="md" /> : <FaPlay size="md" />}
+            {props.isPlaying ? <FaPause /> : <FaPlay />}
           </Button>
           <Button
             variant="link"
@@ -67,16 +64,7 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
           </Button>
         </div>
       </div>
-
-      <div className="gallary-toolbar__expand-icon">
-        <Button
-          variant="link"
-          onClick={() => props.onToolbarClick(galleryActions.fullscreen)}
-        >
-          {props.isFullscreen ? <FaCompressAlt size="md" /> : <FaExpandAlt />}
-        </Button>
-      </div>
     </div>
-  );
-};
-export default React.memo(GalleryToolbar);
+  )
+}
+export default React.memo(GalleryToolbar)

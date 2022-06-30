@@ -23,22 +23,20 @@
 #
 # Tips:
 # - for access logging, remove "--quiet" from CMD
-# - docker-entrypoint.sh must start as root, and then
-#   it creates an underprivileged user and downgrades itself.
-#   This will not work on OpenShift where the container UID is random.
-#   For high-security platforms, do not use docker-entrypoint.sh.
+# - docker-entrypoint.sh must start as root
 
 
-FROM node:18 as builder
+FROM node:16 as builder
 
 WORKDIR /app
 COPY . .
 
+RUN npm run -s print-version
 RUN npm install
 RUN npm run build 
 
 
-FROM node:18-alpine
+FROM node:16-alpine
 
 RUN yarn global add sirv-cli
 

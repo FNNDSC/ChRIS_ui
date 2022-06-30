@@ -1,7 +1,7 @@
-import React from "react";
-import { useTypedSelector } from "../../../store/hooks";
-import { useDispatch } from "react-redux";
-import JSZip from "jszip";
+import React from 'react'
+import { useTypedSelector } from '../../../store/hooks'
+import { useDispatch } from 'react-redux'
+import JSZip from 'jszip'
 
 import {
   Grid,
@@ -11,99 +11,101 @@ import {
   Title,
   EmptyStateBody,
   EmptyStateVariant,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core'
 
-import { Spin, Alert, Tree } from "antd";
-import PluginViewerModal from "../../detailedView/PluginViewerModal";
+import { Spin, Alert, Tree } from 'antd'
+import PluginViewerModal from '../../detailedView/PluginViewerModal'
 import {
+  destroyExplorer,
   setExplorerMode,
   setExplorerRequest,
-} from "../../../store/explorer/actions";
-import { getPluginFilesRequest } from "../../../store/resources/actions";
-import FileViewerModel from "../../../api/models/file-viewer.model";
-import { createTreeFromFiles, getPluginName } from "./utils";
-import { PluginInstance } from "@fnndsc/chrisapi";
-import { isEmpty } from "lodash";
-import { getFeedTree } from "./data";
-import { DataNode, ExplorerMode } from "../../../store/explorer/types";
-import { useSafeDispatch } from "../../../utils";
-import "./FeedOutputBrowser.scss";
+} from '../../../store/explorer/actions'
+import { getPluginFilesRequest } from '../../../store/resources/actions'
+import FileViewerModel from '../../../api/models/file-viewer.model'
+import { createTreeFromFiles, getPluginName } from './utils'
+import { PluginInstance } from '@fnndsc/chrisapi'
+import { isEmpty } from 'lodash'
+import { getFeedTree } from './data'
+import { DataNode, ExplorerMode } from '../../../store/explorer/types'
+import { useSafeDispatch } from '../../../utils'
+import './FeedOutputBrowser.scss'
 
-const FileBrowser = React.lazy(() => import("./FileBrowser"));
-const { DirectoryTree } = Tree;
+const FileBrowser = React.lazy(() => import('./FileBrowser'))
+const { DirectoryTree } = Tree
 
 export interface FeedOutputBrowserProps {
-  handlePluginSelect: (node: PluginInstance) => void;
-  expandDrawer: (panel: string) => void;
+  handlePluginSelect: (node: PluginInstance) => void
+  expandDrawer: (panel: string) => void
 }
 
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   handlePluginSelect,
   expandDrawer,
 }) => {
-  const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
-  const dispatch = useDispatch();
-  const safeDispatch = useSafeDispatch(dispatch);
-  const selected = useTypedSelector((state) => state.instance.selectedPlugin);
-  const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles);
+  const [pluginModalOpen, setPluginModalOpen] = React.useState(false)
+  const dispatch = useDispatch()
+  const safeDispatch = useSafeDispatch(dispatch)
+  const selected = useTypedSelector((state) => state.instance.selectedPlugin)
+  const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles)
   const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances
-  );
+    (state) => state.instance.pluginInstances,
+  )
 
-  const { data: plugins, loading } = pluginInstances;
+  const { data: plugins, loading } = pluginInstances
 
-  const pluginFilesPayload = selected && pluginFiles[selected.data.id];
+  const pluginFilesPayload = selected && pluginFiles[selected.data.id]
 
   React.useEffect(() => {
     if (!pluginFilesPayload && selected) {
-      safeDispatch(getPluginFilesRequest(selected));
+      safeDispatch(getPluginFilesRequest(selected))
     }
-  }, [selected, pluginFilesPayload, safeDispatch]);
+  }, [selected, pluginFilesPayload, safeDispatch])
 
   if (!selected || isEmpty(pluginInstances) || loading) {
-    return <LoadingFeedBrowser />;
+    return <LoadingFeedBrowser />
   } else {
-    const pluginName = getPluginName(selected);
-    const pluginFiles = pluginFilesPayload && pluginFilesPayload.files;
-    const tree: DataNode[] | null = createTreeFromFiles(selected, pluginFiles);
+    const pluginName = getPluginName(selected)
+    const pluginFiles = pluginFilesPayload && pluginFilesPayload.files
+    const tree: DataNode[] | null = createTreeFromFiles(selected, pluginFiles)
     const downloadAllClick = async () => {
-      const zip = new JSZip();
+      const zip = new JSZip()
       if (pluginFiles) {
         for (const file of pluginFiles) {
-          const fileBlob = await file.getFileBlob();
-          zip.file(file.data.fname, fileBlob);
+          const fileBlob = await file.getFileBlob()
+          zip.file(file.data.fname, fileBlob)
         }
       }
-      const blob = await zip.generateAsync({ type: "blob" });
-      const filename = `${getPluginName(selected)}.zip`;
-      FileViewerModel.downloadFile(blob, filename);
-    };
+      const blob = await zip.generateAsync({ type: 'blob' })
+      const filename = `${getPluginName(selected)}.zip`
+      FileViewerModel.downloadFile(blob, filename)
+    }
 
     const handleFileBrowserOpen = () => {
       if (tree) {
-        dispatch(setExplorerRequest(tree));
+        dispatch(setExplorerRequest(tree))
       }
-      setPluginModalOpen(!pluginModalOpen);
-    };
+      setPluginModalOpen(!pluginModalOpen)
+    }
 
     const handleDicomViewerOpen = () => {
-      setPluginModalOpen(!pluginModalOpen);
-      dispatch(setExplorerMode(ExplorerMode.DicomViewer));
-    };
+      setPluginModalOpen(!pluginModalOpen)
+      dispatch(setExplorerMode(ExplorerMode.DicomViewer))
+    }
 
     const handleXtkViewerOpen = () => {
-      setPluginModalOpen(!pluginModalOpen);
-      dispatch(setExplorerMode(ExplorerMode.XtkViewer));
-    };
+      setPluginModalOpen(!pluginModalOpen)
+      dispatch(setExplorerMode(ExplorerMode.XtkViewer))
+    }
 
     const handlePluginModalClose = () => {
-      setPluginModalOpen(!pluginModalOpen);
-      dispatch(setExplorerMode(ExplorerMode.SwiftFileBrowser));
-    };
+      setPluginModalOpen(!pluginModalOpen)
+      dispatch(destroyExplorer())
+      //dispatch(setExplorerMode(ExplorerMode.SwiftFileBrowser));
+    }
 
-    let pluginSidebarTree;
+    let pluginSidebarTree
     if (plugins && plugins.length > 0) {
-      pluginSidebarTree = getFeedTree(plugins);
+      pluginSidebarTree = getFeedTree(plugins)
     }
 
     return (
@@ -125,12 +127,11 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             {pluginSidebarTree && (
               <DirectoryTree
                 defaultExpandAll
-                defaultExpandedKeys={[selected.data.id]}
                 treeData={pluginSidebarTree}
                 selectedKeys={[selected.data.id]}
                 onSelect={(node, selectedNode) => {
                   //@ts-ignore
-                  handlePluginSelect(selectedNode.node.item);
+                  handlePluginSelect(selectedNode.node.item)
                 }}
               />
             )}
@@ -149,7 +150,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             smRowSpan={12}
           >
             {selected &&
-            selected.data.status === "finishedSuccessfully" &&
+            selected.data.status === 'finishedSuccessfully' &&
             tree ? (
               <React.Suspense
                 fallback={
@@ -174,8 +175,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                   expandDrawer={expandDrawer}
                 />
               </React.Suspense>
-            ) : selected.data.status === "cancelled" ||
-              selected.data.status === "finishedWithError" ? (
+            ) : selected.data.status === 'cancelled' ||
+              selected.data.status === 'finishedWithError' ? (
               <EmptyStateLoader />
             ) : (
               <FetchFilesLoader />
@@ -187,11 +188,11 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           handleModalToggle={handlePluginModalClose}
         />
       </>
-    );
+    )
   }
-};
+}
 
-export default React.memo(FeedOutputBrowser);
+export default React.memo(FeedOutputBrowser)
 
 /**
  *
@@ -221,8 +222,8 @@ const LoadingFeedBrowser = () => {
         </Grid>
       </GridItem>
     </Grid>
-  );
-};
+  )
+}
 
 const EmptyStateLoader = () => {
   return (
@@ -232,13 +233,13 @@ const EmptyStateLoader = () => {
         The plugin execution was either cancelled or it finished with error.
       </EmptyStateBody>
     </EmptyState>
-  );
-};
+  )
+}
 
 const FetchFilesLoader = () => {
   return (
     <Spin tip="Processing....">
       <Alert message="Retrieving Plugin's Files" type="info" />
     </Spin>
-  );
-};
+  )
+}

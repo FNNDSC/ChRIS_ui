@@ -5,10 +5,13 @@ import {
   Card,
   CardHeader,
   CardBody,
+  CardTitle,
   Split,
   SplitItem,
   Button,
   Modal,
+  CardActions,
+  Checkbox,
 } from '@patternfly/react-core'
 import { FaFile, FaFolder, FaDownload, FaExpand } from 'react-icons/fa'
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
@@ -129,7 +132,13 @@ export function Browser({
   )
 }
 
-const TooltipParent = ({ children }: { children: React.ReactElement }) => {
+const TooltipParent = ({
+  children,
+  type,
+}: {
+  children: React.ReactElement
+  type: string
+}) => {
   const { state, dispatch } = useContext(LibraryContext)
 
   const hideToolTip = () => {
@@ -150,10 +159,10 @@ const TooltipParent = ({ children }: { children: React.ReactElement }) => {
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <h3 style={h3Style}>
         Explore Card: {'   '}
-        <i>double click</i>
+        <i>single click</i>
       </h3>
       <h3 style={{ ...h3Style, paddingBottom: '0' }}>
-        Select Card: {'  '} <i>single click</i>
+        Select Card: {'  '} <i>long press and release</i>
       </h3>
       <h3 style={h3Style}>
         Cancel Tips:{'    '}
@@ -190,8 +199,7 @@ function FileCard({
 }) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder, } = state
-
+  const { selectedFolder } = state
   const { handleOnClick, handleOnMouseDown } = handlers
   const fileNameArray = file.data.fname.split('/')
   const fileName = fileNameArray[fileNameArray.length - 1]
@@ -201,22 +209,42 @@ function FileCard({
     return fileSelect.folder === file
   })
 
+  const handlePreview = () => {
+    setLargePreview(!largePreview)
+  }
+
   return (
     <>
-      <TooltipParent>
+      <TooltipParent type="file">
         <Card
           style={{
             background: `${background ? '#e7f1fa' : 'white'}`,
           }}
-          onClick={(e) => {
-            handleOnClick(e, path, file, initialPath, browserType)
-          }}
+          isSelectableRaised
+          isSelected={background}
           onMouseDown={handleOnMouseDown}
+          onClick={(e) => {
+            handleOnClick(
+              e,
+              path,
+              file,
+              initialPath,
+              browserType,
+              handlePreview,
+            )
+          }}
           key={file.data.fname}
           isRounded
           isHoverable
           isSelectable
         >
+          <CardHeader>
+            <CardTitle>
+              <Button icon={<FaFile />} variant="link" style={{ padding: '0' }}>
+                <b>{elipses(fileName, 20)}</b>
+              </Button>
+            </CardTitle>
+          </CardHeader>
           <CardBody>
             {previewAll && (
               <div
@@ -230,15 +258,6 @@ function FileCard({
               </div>
             )}
 
-            <div
-              style={{
-                overflow: 'hidden',
-              }}
-            >
-              <Button icon={<FaFile />} variant="link" style={{ padding: '0' }}>
-                <b>{elipses(fileName, 20)}</b>
-              </Button>
-            </div>
             <div>
               <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
               <Button
@@ -248,14 +267,6 @@ function FileCard({
                 }}
                 variant="link"
                 icon={<FaDownload />}
-              />
-
-              <Button
-                variant="link"
-                onClick={() => {
-                  setLargePreview(true)
-                }}
-                icon={<FaExpand />}
               />
             </div>
           </CardBody>
@@ -293,8 +304,7 @@ function FolderCard({
 }: FolderCardInterface) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder,  } = state
-
+  const { selectedFolder } = state
   const [feedName, setFeedName] = useState('')
   const [commitDate, setCommitDate] = useState('')
   const path = `${initialPath}/${folder}`
@@ -319,7 +329,7 @@ function FolderCard({
   })
 
   return (
-    <TooltipParent>
+    <TooltipParent type="folder">
       <Card
         onClick={(e) => {
           handleOnClick(
@@ -328,13 +338,13 @@ function FolderCard({
             folder,
             initialPath,
             browserType,
-
             handleFolderClick,
           )
         }}
+        isSelectableRaised
+        isSelected={background}
         onMouseDown={handleOnMouseDown}
         isHoverable
-        isSelectable
         isRounded
         style={{
           background: `${background ? '#e7f1fa' : 'white'}`,

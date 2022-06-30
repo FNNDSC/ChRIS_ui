@@ -16,7 +16,7 @@ export default function useLongPress() {
     timerRef.current = window.setTimeout(() => {
       isLongPress.current = true
       setAction('longpress')
-    }, 500)
+    }, 600)
   }
 
   function handleOnClick(
@@ -25,7 +25,7 @@ export default function useLongPress() {
     folder: string,
     initialPath: string,
     browserType: string,
-    cb?: (path: string, prevPath: string) => void,
+    cbFolder?: (path: string, prevPath: string) => void,
   ) {
     setAction('click')
     const payload = {
@@ -40,8 +40,12 @@ export default function useLongPress() {
       (folder) => folder.exactPath === path,
     )
 
-    if (e.detail === 2) {
-      cb && cb(`${initialPath}/${folder}`, initialPath)
+    if (isLongPress.current) {
+      if (isExist === -1) {
+        dispatch(setSelectFolder(payload))
+      } else {
+        dispatch(clearSelectFolder(payload))
+      }
       return
     }
 
@@ -52,17 +56,11 @@ export default function useLongPress() {
       } else {
         dispatch(clearSelectFolder(payload))
       }
-
       return
     }
 
-    if (!(e.ctrlKey || e.shiftKey) || e.detail === 1) {
-      payload['event'] = 'click'
-      if (isExist === -1) {
-        dispatch(setSelectFolder(payload))
-      } else {
-        dispatch(clearSelectFolder(payload))
-      }
+    if (!(e.ctrlKey || e.shiftKey || e.detail === 2) && e.detail === 1) {
+      cbFolder && cbFolder(`${initialPath}/${folder}`, initialPath)
     }
   }
 

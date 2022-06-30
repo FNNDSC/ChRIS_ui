@@ -6,8 +6,14 @@
 
 This repository contains the reference UI for ChRIS, allowing users to create and interact with dynamic containerized workflows. The ChRIS UI is written primarily in [TypeScript](https://www.typescriptlang.org/) and [React](https://reactjs.org/), and uses the [PatternFly](https://github.com/patternfly/patternfly) React pattern library.
 
-![Homepage](https://github.com/FNNDSC/CHRIS_docs/blob/fb98b793ff785f4ebb24ce30bcf02cf243b64803/images/mpc/Feed-Detail-Screencapture-PACS-selected.png)
+![Screenshot](screenshot.png)
 
+## Try it now!
+
+| URL                           | Description     |
+|-------------------------------|-----------------|
+| https://app.chrisproject.org  | Stable          |
+| https://next.chrisproject.org | Latest (master) |
 
 ## Quickstart
 
@@ -96,7 +102,7 @@ You can follow any of these steps to start UI development server
     $ git clone https://github.com/FNNDSC/ChRIS_ui.git
     $ cd ChRIS_ui
     $ npm i
-    $ npm start
+    $ npm run dev
     ```
 
     More details can be found in the
@@ -116,19 +122,11 @@ You can follow any of these steps to start UI development server
 
 ## Build the ChRIS UI app for production
 
-```bash
-$ cd ChRIS_ui
-$ docker build -t local/chris_ui .
-```
-It correctly bundles React in production mode and optimizes the build for the best performance.
-The build is minified and the filenames include the hashes.
+[Source-to-image](https://github.com/openshift/source-to-image#readme)
+can be used to build this project.
 
-Your app is ready to be deployed!
-
-## Deploy and serve the ChRIS UI app
-
-```bash
-$ docker run --name chris_ui -p <desired port>:3000 -d local/chris_ui
+```shell
+s2i build https://github.com/FNNDSC/ChRIS_ui quay.io/fedora/nodejs-16 s2ichrisui
 ```
 
 ## Learn More

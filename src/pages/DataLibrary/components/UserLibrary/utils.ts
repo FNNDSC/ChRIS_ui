@@ -152,28 +152,23 @@ export const handlePacsFiles = (
   pacsFiles: any[],
   dispatch: React.Dispatch<any>,
 ) => {
-  const pacsFolders: string[] = []
-  const pacsDict: {
-    [key: string]: string[]
-  } = {}
-
+  const pacsPatients: string[] = []
+  const path = 'SERVICES/PACS/orthanc'
   pacsFiles.forEach((file: any) => {
     const fileName = file.split('/')
     const folder = fileName[3]
-    const path = `${fileName[0]}/${fileName[1]}/${fileName[2]}`
-    if (pacsDict[path]) {
-      if (pacsDict[path].length === 0) pacsDict[path].push(folder)
-    } else pacsDict[path] = [folder]
+    const folderPath = `${fileName[0]}/${fileName[1]}/${fileName[2]}`
+    if (!pacsPatients.includes(folder) && folderPath === path) {
+      pacsPatients.push(folder)
+    }
+
+    if (pacsPatients.length > 0) {
+      dispatch(setFolders(pacsPatients, path))
+      dispatch(setInitialPath(path, 'services'))
+    }
   })
 
-  for (const i in pacsDict) {
-    dispatch(
-      setFolders(pacsDict['SERVICES/PACS/orthanc'], 'SERVICES/PACS/orthanc'),
-    )
-    dispatch(setInitialPath(i, 'services'))
-  }
-
-  if (pacsFolders.length > 0) {
+  if (pacsPatients.length > 0) {
     dispatch(setPaginatedFolders([], 'SERVICES'))
     dispatch(
       setPagination('SERVICES', {
