@@ -29,6 +29,8 @@ import TreeThree from '../../assets/images/tree_3.png'
 import TreeFour from '../../assets/images/tree_4.png'
 import './Dashboard.scss'
 import Moment from 'react-moment'
+import preval from 'preval.macro'
+
 interface DashboardProps extends RouteComponentProps {
   children: React.ReactNode
 }
@@ -54,6 +56,11 @@ const DashboardPage = (props: DashboardProps) => {
   const outlineSearch = <MdOutlineImageSearch style={style} />
   const magicWand = <FaMagic style={style} />
 
+  const buildVersion = preval`
+    const { execSync } = require('child_process')
+    module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
+  `
+
   return (
     <Wrapper>
       <PageSection hasShadowBottom variant="light">
@@ -62,17 +69,9 @@ const DashboardPage = (props: DashboardProps) => {
           Retrieve, analyze, and visualize <i>any data </i> using a powerful
           cloud computing platform: ChRIS.
           <b> Let&apos;s get started.</b>
-          <br />
-          <span>
-            Version: <b>{process.env.REACT_APP_CHRIS_UI_VERSION}</b>{" "}
-          </span>
-          <br />
-          <span>
-            Latest update:{" "}
-            <b>
-              <Moment format="DD MMM YYYY @ HH:mm">{`2022-06-27T12:40:11.007464-04:00`}</Moment>
-            </b>
-          </span>
+        </p>
+        <p>
+          Build: <code className="build-version">{buildVersion}</code>
         </p>
         {children}
       </PageSection>

@@ -219,6 +219,16 @@ function* watchGetFeedResources() {
   )
 }
 
+function* handleResetPage(action: IActionTypeParam) {
+  const param = action.payload.data;
+  yield put(stopPollingTable(param));
+}
+
+function* watchResetPage() {
+  yield takeEvery(FeedActionTypes.RESET_POLLING_REQUEST,handleResetPage)
+}
+
+
 export function* feedSaga() {
   yield all([
     fork(watchGetAllFeedsRequest),
@@ -226,5 +236,6 @@ export function* feedSaga() {
     fork(watchDownloadRequest),
     fork(watchMergeRequest),
     fork(watchGetFeedResources),
+    fork(watchResetPage),
   ])
 }
