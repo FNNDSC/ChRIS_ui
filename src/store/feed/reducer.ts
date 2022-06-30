@@ -27,7 +27,7 @@ export const initialState: IFeedState = {
   bulkSelect: [],
   feedResources: {},
   selectAllToggle: false,
-  polling: true,
+
 }
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {

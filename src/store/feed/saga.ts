@@ -151,7 +151,7 @@ function* handleFeedInstanceStatus(feed: Feed) {
         details,
         id: feed.data.id,
       }
-      yield put(getFeedResourcesSucess(payload));
+      yield put(getFeedResourcesSucess(payload))
       if (details.progress === 100 || details.error === true) {
         yield put(stopFetchingFeedResources(feed))
       } else {
@@ -219,16 +219,6 @@ function* watchGetFeedResources() {
   )
 }
 
-function* handleResetPage(action: IActionTypeParam) {
-  const param = action.payload.data;
-  yield put(stopPollingTable(param));
-}
-
-function* watchResetPage() {
-  yield takeEvery(FeedActionTypes.RESET_POLLING_REQUEST,handleResetPage)
-}
-
-
 export function* feedSaga() {
   yield all([
     fork(watchGetAllFeedsRequest),
@@ -236,6 +226,5 @@ export function* feedSaga() {
     fork(watchDownloadRequest),
     fork(watchMergeRequest),
     fork(watchGetFeedResources),
-    fork(watchResetPage),
   ])
 }

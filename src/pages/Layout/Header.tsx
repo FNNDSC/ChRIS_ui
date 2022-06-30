@@ -3,25 +3,11 @@ import { Link } from 'react-router-dom'
 import ToolbarComponent from './Toolbar'
 import brandImg from '../../assets/images/logo_chris_dashboard.png'
 import { IUserState } from '../../store/user/types'
-import {
-  PageHeader,
-  PageHeaderTools,
-  Brand,
-  Badge,
-} from '@patternfly/react-core'
-import Moment from 'react-moment'
+import { PageHeader, PageHeaderTools, Brand } from '@patternfly/react-core'
 
 interface IHeaderProps {
   user: IUserState
   onNavToggle: () => void
-}
-
-const BadgeStyle = {
-  marginRight: '1rem',
-  display: 'inline-block',
-  background: 'transparent',
-  fontSize: '0.85rem',
-  color: '#8b8d8f',
 }
 
 const Header: React.FC<IHeaderProps> = ({
@@ -42,7 +28,7 @@ const Header: React.FC<IHeaderProps> = ({
     <React.Fragment>
       <Brand src={brandImg} alt="ChRIS Logo" />
     </React.Fragment>
-  );
+  )
 
   return (
     <PageHeader
