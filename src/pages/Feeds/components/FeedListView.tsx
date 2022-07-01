@@ -3,7 +3,6 @@ import * as React from 'react'
 import { Link } from 'react-router-dom'
 import Moment from 'react-moment'
 import '@patternfly/react-core/dist/styles/base.css'
-
 import {
   PageSection,
   PageSectionVariants,
@@ -62,14 +61,21 @@ const FeedListView: React.FC = () => {
   } = useTypedSelector((state) => state.feed)
   const { page, perPage } = filterState
   const { data, error, loading, totalFeedsCount } = allFeeds
-
+  
+  const bulkData = React.useRef<Feed[]>()
+  bulkData.current = bulkSelect
+  
   React.useEffect(() => {
     document.title = 'All Analyses - ChRIS UI '
     dispatch(
       setSidebarActive({
-        activeItem: 'analyses',
+        activeItem: 'analyses', 
       }),
+      
     )
+    if(bulkData && bulkData.current){
+      dispatch(removeAllSelect(bulkData.current))
+    }
   }, [dispatch])
 
   const getAllFeeds = React.useCallback(() => {
@@ -95,10 +101,7 @@ const FeedListView: React.FC = () => {
     'Creator',
     'Run Time',
     'Size',
-    'Progress',
-    'Download',
-    '',
-  ]
+    ]
 
   const customRowWrapper = (row: any) => {
     const { children } = row
@@ -406,10 +409,10 @@ const TableRow = ({
       }}
     />
   )
-
   const backgroundRow =
     progress && progress < 100 && !feedError ? '#F9E0A2' : '#FFFFFF'
-
+  const selectedBgRow = 
+    isSelected(bulkSelect, feed) ? "rgb(231, 241, 250)" : backgroundRow
   return (
     <Tr
       key={feed.data.id}
@@ -424,7 +427,7 @@ const TableRow = ({
       isHoverable
       isRowSelected={isSelected(bulkSelect, feed)}
       style={{
-        backgroundColor: backgroundRow,
+        backgroundColor: selectedBgRow,
       }}
     >
       <Td>{bulkChecbox}</Td>
