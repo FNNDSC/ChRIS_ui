@@ -14,6 +14,7 @@ import {
 import { FaFile, FaFolder } from 'react-icons/fa'
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
 import { LibraryContext, Paginated, Types } from './context'
+
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { Spin, Tooltip } from 'antd'
 import { MdClose } from 'react-icons/md'
@@ -253,6 +254,10 @@ function FileCard({
                 <FileDetailView selectedFile={file} preview="small" />
               </div>
             )}
+
+            <div>
+              <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
+            </div>
           </CardBody>
           {largePreview && (
             <Modal
