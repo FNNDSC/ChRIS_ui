@@ -105,7 +105,6 @@ const DataLibrary = () => {
           const feedFn = client.getFiles
           const bindFn = feedFn.bind(client)
           const fileItems = await fetchResource(params, bindFn)
-          console.log('FileItems', ...fileItems)
           filesToPush.push(...fileItems)
         }
 
@@ -137,36 +136,38 @@ const DataLibrary = () => {
       const existingDirectoryHandle = await window.showDirectoryPicker()
       for (let i = 0; i < filesItems.length; i++) {
         const files = filesItems[i]
-        for (let i = 0; i < files.length; i++) {
-          const folderNameSplit = files[i].data.fname.split('/')
+
+        for (let k = 0; k < files.length; k++) {
+          const folderNameSplit = files[k].data.fname.split('/')
+
           const newDirectoryHandle: { [key: string]: any } = {}
-          for (let i = 0; i < folderNameSplit.length; i++) {
-            if (i === 0) {
+          for (let j = 0; j < folderNameSplit.length; j++) {
+            if (j === 0) {
               newDirectoryHandle[
-                i
+                j
               ] = await existingDirectoryHandle.getDirectoryHandle(
-                folderNameSplit[i],
+                folderNameSplit[j],
                 {
                   create: true,
                 },
               )
-            } else if (i === folderNameSplit.length - 1) {
-              const blob = await files[i].getFileBlob()
-              const fileName = folderNameSplit[i]
-              const handle = newDirectoryHandle[i - 1]
+            } else if (j === folderNameSplit.length - 1) {
+              const blob = await files[k].getFileBlob()
+              const fileName = folderNameSplit[j]
+              const handle = newDirectoryHandle[j - 1]
               if (handle) {
                 const newFileHandle = await handle.getFileHandle(fileName, {
                   create: true,
                 })
                 writable = await newFileHandle.createWritable()
                 await writable.write(blob)
-                await writable.close()
+                writable.close()
               }
             } else {
-              const existingHandle = newDirectoryHandle[i - 1]
+              const existingHandle = newDirectoryHandle[j - 1]
               if (existingHandle) {
-                newDirectoryHandle[i] = await existingHandle.getDirectoryHandle(
-                  folderNameSplit[i],
+                newDirectoryHandle[j] = await existingHandle.getDirectoryHandle(
+                  folderNameSplit[j],
                   {
                     create: true,
                   },

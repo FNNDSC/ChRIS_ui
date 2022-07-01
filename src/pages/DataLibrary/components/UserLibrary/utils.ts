@@ -66,7 +66,7 @@ const lookDeeper = async (
   return results
 }
 
-export const searchFeedFiles = async (value: string, path: string) => {
+export const searchFeedFiles = async (value: string) => {
   const payload = {
     limit: 10,
     offset: 0,
@@ -79,7 +79,7 @@ export const searchFeedFiles = async (value: string, path: string) => {
   return results
 }
 
-export const searchPacsFiles = async (value: string, path: string) => {
+export const searchPacsFiles = async (value: string) => {
   const payload = {
     limit: 10,
     offset: 0,
