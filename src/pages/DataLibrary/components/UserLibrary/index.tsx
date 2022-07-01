@@ -92,35 +92,35 @@ const DataLibrary = () => {
     Promise.all(
       selectedFolder.map(async (file: FileSelect) => {
         const { exactPath } = file
-        const filesToPush: {
-          [key: string]: any[]
-        } = {}
+        const filesToPush = []
         const params = {
           limit: 100,
           offset: 0,
           fname: exactPath,
-          fname_incontains: exactPath,
+          fname_icontains: exactPath,
         }
-        console.log('FILE', file)
+
         const client = ChrisAPIClient.getClient()
         if (file.type === 'feed') {
           const feedFn = client.getFiles
           const bindFn = feedFn.bind(client)
           const fileItems = await fetchResource(params, bindFn)
-          filesToPush[exactPath] = fileItems
+          console.log('FileItems', ...fileItems)
+          filesToPush.push(...fileItems)
         }
 
         if (file.type === 'uploads') {
           const uploadsFn = client.getUploadedFiles
           const uploadBound = uploadsFn.bind(client)
           const fileItems = await fetchResource(params, uploadBound)
-          filesToPush[exactPath] = fileItems
+          filesToPush.push(...fileItems)
         }
         if (file.type === 'services') {
           const pacsFn = client.getPACSFiles
           const pacsBound = pacsFn.bind(client)
           const fileItems = await fetchResource(params, pacsBound)
-          filesToPush[exactPath] = fileItems
+
+          filesToPush.push(...fileItems)
         }
         return filesToPush
       }),
@@ -136,48 +136,43 @@ const DataLibrary = () => {
       //@ts-ignore
       const existingDirectoryHandle = await window.showDirectoryPicker()
       for (let i = 0; i < filesItems.length; i++) {
-        const fileObject = filesItems[i]
-
-        for (const i in fileObject) {
-          const folderName = i
-          const files = fileObject[i]
-          const foldersSplit = folderName.split('/')
+        const files = filesItems[i]
+        for (let i = 0; i < files.length; i++) {
+          const folderNameSplit = files[i].data.fname.split('/')
           const newDirectoryHandle: { [key: string]: any } = {}
-          for (let i = 0; i < foldersSplit.length; i++) {
+          for (let i = 0; i < folderNameSplit.length; i++) {
             if (i === 0) {
               newDirectoryHandle[
                 i
               ] = await existingDirectoryHandle.getDirectoryHandle(
-                foldersSplit[i],
+                folderNameSplit[i],
                 {
                   create: true,
                 },
               )
+            } else if (i === folderNameSplit.length - 1) {
+              const blob = await files[i].getFileBlob()
+              const fileName = folderNameSplit[i]
+              const handle = newDirectoryHandle[i - 1]
+              if (handle) {
+                const newFileHandle = await handle.getFileHandle(fileName, {
+                  create: true,
+                })
+                writable = await newFileHandle.createWritable()
+                await writable.write(blob)
+                await writable.close()
+              }
             } else {
               const existingHandle = newDirectoryHandle[i - 1]
               if (existingHandle) {
                 newDirectoryHandle[i] = await existingHandle.getDirectoryHandle(
-                  foldersSplit[i],
+                  folderNameSplit[i],
                   {
                     create: true,
                   },
                 )
               }
             }
-          }
-
-          for (let i = 0; i < files.length; i++) {
-            const file = files[i]
-            const blob = await file.getFileBlob()
-            const paths = file.data.fname.split('/')
-            const fileName = paths[paths.length - 1]
-            const handle = await newDirectoryHandle[foldersSplit.length - 1]
-            const newFileHandle = await handle.getFileHandle(fileName, {
-              create: true,
-            })
-            writable = await newFileHandle.createWritable()
-            await writable.write(blob)
-            await writable.close()
           }
         }
       }
@@ -318,7 +313,7 @@ const DataLibrary = () => {
                   >
                     Download Data
                   </Button>
-                  <Button variant="secondary" onClick={handleDelete}>
+                  <Button variant="danger" onClick={handleDelete}>
                     Delete Data
                   </Button>
                 </div>
