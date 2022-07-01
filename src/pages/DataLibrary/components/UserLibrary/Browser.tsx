@@ -11,10 +11,9 @@ import {
   Button,
   Modal,
 } from '@patternfly/react-core'
-import { FaFile, FaFolder, FaDownload } from 'react-icons/fa'
+import { FaFile, FaFolder } from 'react-icons/fa'
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
 import { LibraryContext, Paginated, Types } from './context'
-import FileViewerModel from '../../../../api/models/file-viewer.model'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { Spin, Tooltip } from 'antd'
 import { MdClose } from 'react-icons/md'
@@ -254,18 +253,6 @@ function FileCard({
                 <FileDetailView selectedFile={file} preview="small" />
               </div>
             )}
-
-            <div>
-              <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
-              <Button
-                onClick={async () => {
-                  const blob = await file.getFileBlob()
-                  FileViewerModel.downloadFile(blob, fileName)
-                }}
-                variant="link"
-                icon={<FaDownload />}
-              />
-            </div>
           </CardBody>
           {largePreview && (
             <Modal
