@@ -66,7 +66,7 @@ const lookDeeper = async (
   return results
 }
 
-export const searchFeedFiles = async (value: string, path: string) => {
+export const searchFeedFiles = async (value: string) => {
   const payload = {
     limit: 10,
     offset: 0,
@@ -76,11 +76,10 @@ export const searchFeedFiles = async (value: string, path: string) => {
   const fn = client.getFeeds
   const boundFn = fn.bind(client)
   const results = await fetchResource<Feed[]>(payload, boundFn)
-
   return results
 }
 
-export const searchPacsFiles = async (value: string, path: string) => {
+export const searchPacsFiles = async (value: string) => {
   const payload = {
     limit: 10,
     offset: 0,
@@ -149,8 +148,10 @@ export const handleFeedFiles = (
   const feedFolders: string[] = []
 
   feedFiles.forEach((feed: Feed) => {
-    const folderName = `feed_${feed.data.id}`
-    feedFolders.push(folderName)
+    if (feed.data.creator_username === path) {
+      const folderName = `feed_${feed.data.id}`
+      feedFolders.push(folderName)
+    }
   })
 
   if (feedFolders.length > 0) {
@@ -185,9 +186,6 @@ export const handlePacsFiles = (
   if (pacsPatients.length > 0) {
     dispatch(setFolders(pacsPatients, path))
     dispatch(setInitialPath(path, 'services'))
-  }
-
-  if (pacsPatients.length > 0) {
     dispatch(setPaginatedFolders([], 'SERVICES'))
     dispatch(
       setPagination('SERVICES', {
