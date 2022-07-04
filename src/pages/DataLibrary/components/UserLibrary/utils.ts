@@ -5,6 +5,8 @@ import {
   setPagination,
 } from './context/actions'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
+import { fetchResource } from '../../../../utils'
+import { Feed } from '@fnndsc/chrisapi'
 
 const lookDeeper = async (
   path: string,
@@ -64,15 +66,30 @@ const lookDeeper = async (
   return results
 }
 
-export const searchFeedFiles = async (value: string, path: string) => {
-  const maxDepth = 5
-  const results = await lookDeeper(path, value, maxDepth, 'feed')
+export const searchFeedFiles = async (value: string) => {
+  const payload = {
+    limit: 10,
+    offset: 0,
+    files_fname_icontains: value,
+  }
+  const client = ChrisAPIClient.getClient()
+  const fn = client.getFeeds
+  const boundFn = fn.bind(client)
+  const results = await fetchResource<Feed[]>(payload, boundFn)
   return results
 }
 
-export const searchPacsFiles = async (value: string, path: string) => {
-  const maxDepth = 5
-  const results = await lookDeeper(path, value, maxDepth, 'pacs')
+export const searchPacsFiles = async (value: string) => {
+  const payload = {
+    limit: 10,
+    offset: 0,
+    fname_icontains_topdir_unique: value,
+  }
+  const client = ChrisAPIClient.getClient()
+  const fn = client.getPACSFiles
+  const boundFn = fn.bind(client)
+  const results = await fetchResource(payload, boundFn)
+
   return results
 }
 
@@ -129,10 +146,14 @@ export const handleFeedFiles = (
 ) => {
   const path = username
   const feedFolders: string[] = []
-  feedFiles.forEach((file: any) => {
-    const folder = file.split('/')[1]
-    if (!feedFolders.includes(folder)) feedFolders.push(folder)
+
+  feedFiles.forEach((feed: Feed) => {
+    if (feed.data.creator_username === path) {
+      const folderName = `feed_${feed.data.id}`
+      feedFolders.push(folderName)
+    }
   })
+
   if (feedFolders.length > 0) {
     dispatch(setFolders(feedFolders, path))
     dispatch(setInitialPath(path, 'feed'))
@@ -155,20 +176,16 @@ export const handlePacsFiles = (
   const pacsPatients: string[] = []
   const path = 'SERVICES/PACS/orthanc'
   pacsFiles.forEach((file: any) => {
-    const fileName = file.split('/')
-    const folder = fileName[3]
-    const folderPath = `${fileName[0]}/${fileName[1]}/${fileName[2]}`
-    if (!pacsPatients.includes(folder) && folderPath === path) {
+    const fnameSplit = file.data.fname.split('/')
+    const pathMatch = `${fnameSplit[0]}/${fnameSplit[1]}/${fnameSplit[2]}`
+    if (pathMatch === path) {
+      const folder = fnameSplit[3]
       pacsPatients.push(folder)
     }
-
-    if (pacsPatients.length > 0) {
-      dispatch(setFolders(pacsPatients, path))
-      dispatch(setInitialPath(path, 'services'))
-    }
   })
-
   if (pacsPatients.length > 0) {
+    dispatch(setFolders(pacsPatients, path))
+    dispatch(setInitialPath(path, 'services'))
     dispatch(setPaginatedFolders([], 'SERVICES'))
     dispatch(
       setPagination('SERVICES', {
