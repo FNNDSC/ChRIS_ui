@@ -32,20 +32,19 @@ export interface FeedResource {
 
 export interface IFeedState {
   allFeeds: {
-    data?: Feed[];
-    error: any;
-    loading: boolean;
-    totalFeedsCount: number;
-  };
-  currentFeed: FeedPayload;
-  feedTreeProp: FeedTreeProp;
-  currentLayout: boolean;
-  downloadError: string;
-  downloadStatus: "";
-  bulkSelect: Feed[];
-  feedResources: FeedResource;
-  selectAllToggle: boolean;
-  polling: boolean;
+    data?: Feed[]
+    error: any
+    loading: boolean
+    totalFeedsCount: number
+  }
+  currentFeed: FeedPayload
+  feedTreeProp: FeedTreeProp
+  currentLayout: boolean
+  downloadError: string
+  downloadStatus: ''
+  bulkSelect: Feed[]
+  feedResources: FeedResource
+  selectAllToggle: boolean
 }
 
 export const FeedActionTypes = keyMirror({
@@ -71,13 +70,11 @@ export const FeedActionTypes = keyMirror({
   POLL_DOWNLOAD: null,
   POLL_DOWNLOAD_SUCCESS: null,
   STOP_FETCH_FEED_RESOURCES: null,
+  CLEANUP_FEED_RESOURCES: null,
   DOWNLOAD_STATUS: null,
   BULK_SELECT: null,
   REMOVE_BULK_SELECT: null,
   SET_ALL_SELECT: null,
   REMOVE_ALL_SELECT: null,
   TOGGLE_SELECT_ALL: null,
-  STOP_POLLING_TABLE: null,
-  RESET_POLLING_REQUEST: null,
-  GET_POLLING_STATUS: null,
-});
+})
