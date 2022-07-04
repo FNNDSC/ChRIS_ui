@@ -29,7 +29,7 @@ describe('Testing Login Page', () => {
       })
 
       it('Creates the password', () => {
-        cy.get('input#chris-password').type(`${users.email}`)
+        cy.get('input#chris-password').type(`${users.password}`)
 
       })
 
