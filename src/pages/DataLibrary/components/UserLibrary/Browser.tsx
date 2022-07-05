@@ -36,16 +36,27 @@ interface BrowserInterface {
 
 export function Browser({
   folders,
+  files,
   handleFolderClick,
 }: {
   folders: {
     path: string
     name: string
   }[]
+  files: any[]
   handleFolderClick: (path: string) => void
 }) {
   return (
     <Grid style={{ marginLeft: '0.5em' }} hasGutter>
+      {files &&
+        files.length > 0 &&
+        files.map((file) => {
+          return (
+            <GridItem key={file.data.fname} sm={12} lg={2}>
+              <FileCard file={file} />
+            </GridItem>
+          )
+        })}
       {folders &&
         folders.length > 0 &&
         folders.map((folder, index) => {
@@ -75,7 +86,8 @@ function FolderCard({
   return (
     <Card
       onClick={() => {
-        handleFolderClick(folder.path)
+        const path = `${folder.path}/${folder.name}`
+        handleFolderClick(path)
       }}
     >
       <CardHeader>
@@ -91,6 +103,70 @@ function FolderCard({
         </Split>
       </CardHeader>
     </Card>
+  )
+}
+
+function FileCard({ file }: { file: any }) {
+  const { handlers } = useLongPress()
+  const { state } = useContext(LibraryContext)
+  const { selectedFolder } = state
+  const { handleOnClick, handleOnMouseDown } = handlers
+  const fileNameArray = file.data.fname.split('/')
+  const fileName = fileNameArray[fileNameArray.length - 1]
+  const [largePreview, setLargePreview] = React.useState(false)
+
+  const background = selectedFolder.some((fileSelect) => {
+    return fileSelect.folder === file
+  })
+
+  const handlePreview = () => {
+    setLargePreview(!largePreview)
+  }
+
+  return (
+    <>
+      <Card
+        onClick={(e) => {
+          console.log('File', file)
+        }}
+        key={file.data.fname}
+        isRounded
+        isHoverable
+        isSelectable
+      >
+        <CardHeader>
+          <CardTitle>
+            <Button icon={<FaFile />} variant="link" style={{ padding: '0' }}>
+              <b>{elipses(fileName, 20)}</b>
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardBody>
+          <div>
+            <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
+            <Button
+              onClick={async () => {
+                const blob = await file.getFileBlob()
+                FileViewerModel.downloadFile(blob, fileName)
+              }}
+              variant="link"
+              icon={<FaDownload />}
+            />
+          </div>
+        </CardBody>
+        {largePreview && (
+          <Modal
+            title="Preview"
+            aria-label="viewer"
+            width={'50%'}
+            isOpen={largePreview}
+            onClose={() => setLargePreview(false)}
+          >
+            <FileDetailView selectedFile={file} preview="large" />
+          </Modal>
+        )}
+      </Card>
+    </>
   )
 }
 

@@ -44,6 +44,8 @@ const DataLibrary = () => {
     setActiveTabKey(eventKey as number)
   }
 
+  console.log("STATE", state);
+
   const uploadedFiles = (
     <section>
       <LocalSearch type="uploads" username={username} />

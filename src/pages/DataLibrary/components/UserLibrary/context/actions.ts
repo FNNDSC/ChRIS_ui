@@ -49,12 +49,12 @@ export const setLoading = (loading: boolean) => {
   }
 }
 
-export const setFolders = (folders: any[], type: string) => {
+export const setFolders = (folders: any[], path: string) => {
   return {
     type: Types.SET_FOLDERS,
     payload: {
       folders,
-      type,
+      path,
     },
   }
 }
@@ -69,12 +69,12 @@ export const setPaginatedFolders = (folders: any[], path: string) => {
   }
 }
 
-export const setFiles = (files: any[], type: string) => {
+export const setFiles = (files: any[], path: string) => {
   return {
     type: Types.SET_FILES,
     payload: {
       files,
-      type,
+      path,
     },
   }
 }

@@ -8,6 +8,8 @@ import {
 } from '@patternfly/react-core'
 import { FaFolder, FaFolderOpen, FaUser } from 'react-icons/fa'
 import { FcServices } from 'react-icons/fc'
+import { useContext } from 'react'
+import { LibraryContext } from './context'
 
 export interface Breadcrumb {
   initialPath: string
@@ -23,6 +25,40 @@ export interface Breadcrumb {
   togglePreview: () => void
   previewAll: boolean
 }
+
+const BreadcrumbContainer = ({
+  handleFolderClick,
+}: {
+  handleFolderClick: (path: string) => void
+}) => {
+  const { state, dispatch } = useContext(LibraryContext)
+  const { currentPath } = state
+  const initialPathSplit = currentPath ? currentPath.split('/') : []
+  return (
+    <Breadcrumb style={{ margin: '0 0 1em 0' }}>
+      {initialPathSplit.map((path: string, index) => {
+        return (
+          <BreadcrumbItem
+            to="#"
+            style={{
+              fontSize: '1.1em',
+            }}
+            onClick={() => {
+              const newPath = initialPathSplit.slice(0, index + 1).join('/')
+              console.log('InitialPath', initialPathSplit, newPath, index)
+              handleFolderClick(newPath)
+            }}
+            key={path}
+          >
+            {path}
+          </BreadcrumbItem>
+        )
+      })}
+    </Breadcrumb>
+  )
+}
+
+/*
 
 const BreadcrumbContainer = ({
   initialPath,
@@ -130,5 +166,7 @@ const BreadcrumbContainer = ({
     </>
   )
 }
+
+*/
 
 export default BreadcrumbContainer
