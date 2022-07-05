@@ -35,11 +35,77 @@ interface BrowserInterface {
 }
 
 export function Browser({
+  folders,
+  handleFolderClick,
+}: {
+  folders: {
+    path: string
+    name: string
+  }[]
+  handleFolderClick: (path: string) => void
+}) {
+  return (
+    <Grid style={{ marginLeft: '0.5em' }} hasGutter>
+      {folders &&
+        folders.length > 0 &&
+        folders.map((folder, index) => {
+          return (
+            <GridItem key={`${folder}_${index}`} sm={12} lg={2}>
+              <FolderCard
+                folder={folder}
+                handleFolderClick={handleFolderClick}
+              />
+            </GridItem>
+          )
+        })}
+    </Grid>
+  )
+}
+
+function FolderCard({
+  folder,
+  handleFolderClick,
+}: {
+  folder: {
+    path: string
+    name: string
+  }
+  handleFolderClick: (path: string) => void
+}) {
+  return (
+    <Card
+      onClick={() => {
+        handleFolderClick(folder.path)
+      }}
+    >
+      <CardHeader>
+        <Split style={{ overflow: 'hidden' }}>
+          <SplitItem style={{ marginRight: '1em' }}>
+            <FaFolder />
+          </SplitItem>
+          <SplitItem isFilled>
+            <Button style={{ padding: 0 }} variant="link">
+              <b>{elipses(folder.name, 36)}</b>
+            </Button>
+          </SplitItem>
+        </Split>
+      </CardHeader>
+    </Card>
+  )
+}
+
+function elipses(str: string, len: number) {
+  if (str.length <= len) return str
+  return str.slice(0, len - 3) + '...'
+}
+
+/*
+export function Browser({
   initialPath,
   handleFolderClick,
   folders,
   files,
-  paginated,
+  paginated,  handleFolderClick,
   handlePagination,
   previewAll,
   browserType,
@@ -375,7 +441,5 @@ function FolderCard({
   )
 }
 
-function elipses(str: string, len: number) {
-  if (str.length <= len) return str
-  return str.slice(0, len - 3) + '...'
-}
+
+*/

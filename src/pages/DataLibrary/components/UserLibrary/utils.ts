@@ -145,15 +145,16 @@ export const handleFeedFiles = (
   dispatch: React.Dispatch<any>,
   username: string,
 ) => {
-  const path = username
   const feedFolders: string[] = []
 
   feedFiles.forEach((feed: Feed) => {
-    const folderName = `feed_${feed.data.id}`
-    feedFolders.push(folderName)
+    const path = `${feed.data.creator_username}`
+    dispatch(setFolders([`feed_${feed.data.id}`], path))
+    dispatch(setInitialPath(path, 'feed'))
   })
 
   if (feedFolders.length > 0) {
+    /*
     dispatch(setFolders(feedFolders, path))
     dispatch(setInitialPath(path, 'feed'))
     dispatch(setPaginatedFolders([], path))
@@ -165,6 +166,7 @@ export const handleFeedFiles = (
         totalCount: 0,
       }),
     )
+    */
   }
 }
 

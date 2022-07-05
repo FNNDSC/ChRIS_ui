@@ -11,7 +11,9 @@ import { FcServices } from 'react-icons/fc'
 
 export interface Breadcrumb {
   initialPath: string
+  isHome: boolean
   handleFolderClick: (path: string, breadcrumb?: any) => void
+  handleRootPath: () => void
   files: any[]
   folderDetails: {
     currentFolder: string
@@ -24,7 +26,9 @@ export interface Breadcrumb {
 
 const BreadcrumbContainer = ({
   initialPath,
+  isHome,
   handleFolderClick,
+  handleRootPath,
   files,
   folderDetails,
   browserType,
@@ -32,58 +36,70 @@ const BreadcrumbContainer = ({
   previewAll,
 }: Breadcrumb) => {
   const initialPathSplit = initialPath ? initialPath.split('/') : []
-
   return (
     <>
-      <Breadcrumb style={{ margin: '0 0 1em 0' }}>
-        {initialPathSplit.map((path: string, index) => {
-          let icon
-          const style = { width: '2em', height: '0.85em' }
-          if (
-            (browserType === 'feed' || browserType === 'uploads') &&
-            index === 0
-          ) {
-            icon = <FaUser style={style} />
-          } else if (index === 0 && browserType === 'services') {
-            icon = <FcServices style={style} />
-          } else if (
-            index === initialPathSplit.length - 1 &&
-            initialPathSplit.length > 1
-          ) {
-            icon = <FaFolderOpen style={style} />
-          } else {
-            icon = <FaFolder style={style} />
-          }
+      <Button
+        style={{
+          margin: '0 0 1em 0',
+        }}
+        onClick={() => {
+          handleRootPath()
+        }}
+      >
+        Home Icon
+      </Button>
+      {!isHome && (
+        <Breadcrumb style={{ margin: '0 0 1em 0' }}>
+          {initialPathSplit.map((path: string, index) => {
+            let icon
+            const style = { width: '2em', height: '0.85em' }
+            if (
+              (browserType === 'feed' || browserType === 'uploads') &&
+              index === 0
+            ) {
+              icon = <FaUser style={style} />
+            } else if (index === 0 && browserType === 'services') {
+              icon = <FcServices style={style} />
+            } else if (
+              index === initialPathSplit.length - 1 &&
+              initialPathSplit.length > 1
+            ) {
+              icon = <FaFolderOpen style={style} />
+            } else {
+              icon = <FaFolder style={style} />
+            }
 
-          return (
-            <BreadcrumbItem
-              style={{
-                fontSize: '1.1em',
-              }}
-              to={index !== 0 || browserType !== 'uploads' ? '#' : undefined}
-              onClick={() => {
-                if (index === 0 && browserType === 'uploads') {
-                  return
-                }
+            return (
+              <BreadcrumbItem
+                style={{
+                  fontSize: '1.1em',
+                }}
+                to={index !== 0 || browserType !== 'uploads' ? '#' : undefined}
+                onClick={() => {
+                  if (index === 0 && browserType === 'uploads') {
+                    return
+                  }
 
-                if (
-                  (index === 0 && browserType === 'feed') ||
-                  (index === 0 && browserType === 'services')
-                ) {
-                  handleFolderClick(`${path}`, initialPath)
-                } else {
-                  const newPath = initialPath.split(`/${path}`)
-                  handleFolderClick(`${newPath[0]}/${path}`, initialPath)
-                }
-              }}
-              key={path}
-            >
-              {icon}
-              {path}
-            </BreadcrumbItem>
-          )
-        })}
-      </Breadcrumb>
+                  if (
+                    (index === 0 && browserType === 'feed') ||
+                    (index === 0 && browserType === 'services')
+                  ) {
+                    handleFolderClick(`${path}`, initialPath)
+                  } else {
+                    const newPath = initialPath.split(`/${path}`)
+                    handleFolderClick(`${newPath[0]}/${path}`, initialPath)
+                  }
+                }}
+                key={path}
+              >
+                {icon}
+                {path}
+              </BreadcrumbItem>
+            )
+          })}
+        </Breadcrumb>
+      )}
+
       {files && files.length > 0 && (
         <Split
           style={{

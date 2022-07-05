@@ -12,6 +12,7 @@ import {
   setPaginatedFolders,
   clearFolderState,
   clearFilesState,
+  setHomePath,
 } from './context/actions'
 import { handlePaginatedFolders } from './utils'
 import { Spin } from 'antd'
@@ -28,34 +29,19 @@ const BrowserContainer = ({
   username,
 }: BrowserContainerInterface) => {
   const { state, dispatch } = useContext(LibraryContext)
-  const {
-    filesState,
-    foldersState,
-    initialPath,
-    folderDetails,
-    previewAll,
-    loading,
-    paginated,
-    paginatedFolders,
-  } = state
 
-  const computedPath = initialPath[type]
-  const pagedFolders = paginatedFolders[computedPath]
-  const files = filesState[computedPath]
-  const folders =
-    pagedFolders && pagedFolders.length > 0
-      ? pagedFolders
-      : foldersState[computedPath]
+  const { foldersState } = state
+  const folders = foldersState[type]
 
   const resourcesFetch = React.useCallback(
     async (path: string) => {
       const client = ChrisAPIClient.getClient()
+      const limit = 30
       const uploads = await client.getFileBrowserPaths({
         path,
       })
-      dispatch(setInitialPath(path, type))
 
-      const limit = 30
+      console.log('Uploads', uploads, path)
 
       if (
         uploads.data &&
@@ -64,7 +50,6 @@ const BrowserContainer = ({
       ) {
         let folders
         const folderSplit = uploads.data[0].subfolders.split(',')
-
         if (type === 'feed') {
           folders = folderSplit.filter((feed: string) => feed !== 'uploads')
           folders.sort((a: string, b: string) => {
@@ -76,6 +61,97 @@ const BrowserContainer = ({
           folders = folderSplit
         }
 
+        folders = folders.map((folder: string) => {
+          return {
+            name: folder,
+            path: `${rootPath}/${folder}`,
+          }
+        })
+        dispatch(setFolders(folders, type))
+
+        if (folders.length > limit) {
+          handlePaginatedFolders(folders, type, dispatch)
+          dispatch(
+            setPagination(path, {
+              hasNext: folders.length > 30,
+              limit,
+              offset: 0,
+              totalCount: folders.length,
+            }),
+          )
+        }
+      }
+    },
+    [dispatch, type, rootPath],
+  )
+
+  React.useEffect(() => {
+    async function fetchUploads() {
+      resourcesFetch(rootPath)
+    }
+
+    fetchUploads()
+  }, [rootPath, dispatch, resourcesFetch])
+
+  const handleFolderClick = async (path: string) => {
+    console.log('PATH', path)
+    const client = ChrisAPIClient.getClient()
+    resourcesFetch(path)
+    const pathList = await client.getFileBrowserPath(path)
+    console.log("PATHLIST",pathList);
+  }
+  return <Browser handleFolderClick={handleFolderClick} folders={folders} />
+  /*
+  const { state, dispatch } = useContext(LibraryContext)
+  const {
+    filesState,
+    foldersState,
+    initialPath,
+    folderDetails,
+    previewAll,
+    loading,
+    paginated,
+    paginatedFolders,
+    homePath,
+  } = state
+
+  const isHome = homePath[type] && homePath[type].home
+  const computedPath = isHome ? homePath[type].path : initialPath[type]
+  const pagedFolders = paginatedFolders[computedPath]
+  const files = filesState[computedPath]
+  const folders =
+    pagedFolders && pagedFolders.length > 0
+      ? pagedFolders
+      : foldersState[computedPath]
+
+  const resourcesFetch = React.useCallback(
+    async (path: string, isHome: boolean) => {
+      const client = ChrisAPIClient.getClient()
+      const limit = 30
+      const uploads = await client.getFileBrowserPaths({
+        path,
+      })
+      isHome
+        ? dispatch(setHomePath(path, type))
+        : dispatch(setInitialPath(path, type))
+
+      if (
+        uploads.data &&
+        uploads.data[0].subfolders &&
+        uploads.data[0].subfolders.length > 0
+      ) {
+        let folders
+        const folderSplit = uploads.data[0].subfolders.split(',')
+        if (type === 'feed') {
+          folders = folderSplit.filter((feed: string) => feed !== 'uploads')
+          folders.sort((a: string, b: string) => {
+            const aId = parseInt(a.split('_')[1])
+            const bId = parseInt(b.split('_')[1])
+            return bId - aId
+          })
+        } else {
+          folders = folderSplit
+        }
         dispatch(setFolders(folders, path))
         if (folders.length > limit) {
           handlePaginatedFolders(folders, path, dispatch)
@@ -95,22 +171,20 @@ const BrowserContainer = ({
 
   React.useEffect(() => {
     async function fetchUploads() {
-      resourcesFetch(rootPath)
+      resourcesFetch(rootPath, true)
     }
 
     fetchUploads()
   }, [rootPath, dispatch, resourcesFetch])
 
   const handleFolderClick = async (path: string, prevPath: string) => {
-    dispatch(clearFolderState(prevPath, type))
-    dispatch(clearFilesState(prevPath, type))
     const client = ChrisAPIClient.getClient()
     const pagination = {
       limit: 30,
       offset: 0,
       totalCount: 0,
     }
-    resourcesFetch(path)
+    resourcesFetch(path, false)
     const pathList = await client.getFileBrowserPath(path)
     const fileList = await pathList.getFiles({
       limit: pagination.limit,
@@ -119,8 +193,9 @@ const BrowserContainer = ({
 
     if (fileList) {
       const files = fileList.getItems()
-      if (files) dispatch(setFiles(files, path))
-      dispatch(setInitialPath(path, type))
+      if (files) {
+        dispatch(setFiles(files, path))
+      }
 
       if (fileList.hasNextPage) {
         dispatch(
@@ -133,7 +208,6 @@ const BrowserContainer = ({
         )
       }
 
-      dispatch(setInitialPath(path, type))
       const currentFolderSplit = path.split('/')
       const currentFolder = currentFolderSplit[currentFolderSplit.length - 1]
       const totalCount = fileList.totalCount
@@ -145,6 +219,10 @@ const BrowserContainer = ({
         },
       })
     }
+  }
+
+  const handleRootPath = () => {
+    dispatch(setHomePath(rootPath, type))
   }
 
   const handlePagination = async (path: string, paginatedType: string) => {
@@ -207,8 +285,10 @@ const BrowserContainer = ({
     <React.Fragment>
       {
         <BreadcrumbContainer
+          isHome={isHome}
           initialPath={computedPath}
           handleFolderClick={handleFolderClick}
+          handleRootPath={handleRootPath}
           files={files}
           folderDetails={folderDetails}
           browserType={type}
@@ -236,6 +316,7 @@ const BrowserContainer = ({
       )}
     </React.Fragment>
   )
+  */
 }
 
 export default React.memo(BrowserContainer)
