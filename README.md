@@ -149,5 +149,10 @@ To learn React, check out the
 ### E2E TESTS ARE RAN USING CYPRESS
 ```
 To run: 
-$ npm run cypress:open
+## Prerequisites:
+- ChRIS_ultron_backend is running on `http://localhost:8000/api/v1/`
+- ChRIS_ui is running on `http://localhost:3000/`
+- You have Cypress installed using `npm install cypress --save-dev`
+- To run: 
+`$ npm run cypress:open`
 ```
