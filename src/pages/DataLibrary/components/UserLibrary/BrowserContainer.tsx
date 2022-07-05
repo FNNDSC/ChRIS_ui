@@ -30,8 +30,9 @@ const BrowserContainer = ({
 }: BrowserContainerInterface) => {
   const { state, dispatch } = useContext(LibraryContext)
 
-  const { foldersState } = state
-  const folders = foldersState[type]
+  const { foldersState, currentPath, filesState } = state
+  const folders = foldersState[currentPath]
+  const files = filesState[currentPath] && filesState[currentPath]
 
   const resourcesFetch = React.useCallback(
     async (path: string) => {
@@ -40,9 +41,12 @@ const BrowserContainer = ({
       const uploads = await client.getFileBrowserPaths({
         path,
       })
-
-      console.log('Uploads', uploads, path)
-
+      dispatch({
+        type: Types.SET_CURRENT_PATH,
+        payload: {
+          path,
+        },
+      })
       if (
         uploads.data &&
         uploads.data[0].subfolders &&
@@ -64,11 +68,10 @@ const BrowserContainer = ({
         folders = folders.map((folder: string) => {
           return {
             name: folder,
-            path: `${rootPath}/${folder}`,
+            path: `${path}`,
           }
         })
-        dispatch(setFolders(folders, type))
-
+        dispatch(setFolders(folders, path))
         if (folders.length > limit) {
           handlePaginatedFolders(folders, type, dispatch)
           dispatch(
@@ -94,13 +97,37 @@ const BrowserContainer = ({
   }, [rootPath, dispatch, resourcesFetch])
 
   const handleFolderClick = async (path: string) => {
-    console.log('PATH', path)
     const client = ChrisAPIClient.getClient()
     resourcesFetch(path)
+    const pagination = {
+      limit: 30,
+      offset: 0,
+      totalCount: 0,
+    }
     const pathList = await client.getFileBrowserPath(path)
-    console.log("PATHLIST",pathList);
+    const fileList = await pathList.getFiles({
+      limit: pagination.limit,
+      offset: pagination.offset,
+    })
+
+    if (fileList) {
+      const files = fileList.getItems()
+      if (files) {
+        dispatch(setFiles(files, path))
+      }
+    }
   }
-  return <Browser handleFolderClick={handleFolderClick} folders={folders} />
+  return (
+    <>
+      <BreadcrumbContainer handleFolderClick={handleFolderClick} />
+      <Browser
+        handleFolderClick={handleFolderClick}
+        folders={folders}
+        files={files}
+      />
+    </>
+  )
+
   /*
   const { state, dispatch } = useContext(LibraryContext)
   const {

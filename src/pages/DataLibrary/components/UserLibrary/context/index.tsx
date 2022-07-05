@@ -46,6 +46,7 @@ interface LibraryState {
 
   selectedFolder: FileSelect[]
   tooltip: boolean
+  currentPath: string
 }
 
 function getInitialState(): LibraryState {
@@ -64,6 +65,7 @@ function getInitialState(): LibraryState {
     paginatedFolders: {},
     selectedFolder: [],
     tooltip: false,
+    currentPath: '',
   }
 }
 
@@ -95,16 +97,17 @@ export enum Types {
   CLEAR_SELECTED_FOLDER = 'CLEAR_SELECTED_FOLDER',
   CLEAR_FILES_STATE = 'CLEAR_FILES_STATE',
   SET_TOOLTIP = 'SET_TOOLTIP',
+  SET_CURRENT_PATH = 'SET_CURRENT_PATH',
 }
 
 type LibraryPayload = {
   [Types.SET_FILES]: {
     files: any[]
-    type: string
+    path: string
   }
   [Types.SET_FOLDERS]: {
     folders: { path: string; name: string }[]
-    type: string
+    path: string
   }
 
   [Types.SET_INITIAL_PATH]: {
@@ -167,6 +170,10 @@ type LibraryPayload = {
   [Types.SET_TOOLTIP]: {
     tooltip: boolean
   }
+
+  [Types.SET_CURRENT_PATH]: {
+    path: string
+  }
 }
 
 export type LibraryActions = ActionMap<LibraryPayload>[keyof ActionMap<
@@ -190,8 +197,33 @@ export const libraryReducer = (
       return {
         ...state,
         foldersState: {
-          [action.payload.type]: action.payload.folders,
+          [action.payload.path]: action.payload.folders,
         },
+      }
+    }
+
+    case Types.SET_CURRENT_PATH: {
+      console.log("ACTION", action.payload.path)
+      return {
+        ...state,
+        currentPath: action.payload.path,
+      }
+    }
+
+    case Types.SET_FILES: {
+      if (action.payload.files.length == 0) {
+        return {
+          ...state,
+          filesState: {},
+        }
+      } else {
+        return {
+          ...state,
+          filesState: {
+            ...state.filesState,
+            [action.payload.path]: action.payload.files,
+          },
+        }
       }
     }
 
