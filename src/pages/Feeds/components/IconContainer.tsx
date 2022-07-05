@@ -8,6 +8,7 @@ import {
   Form,
   FormGroup,
   TextInput,
+  Alert,
   Button } from '@patternfly/react-core'
 import { FaTrash, FaDownload, } from 'react-icons/fa'
 import { VscMerge } from 'react-icons/vsc'
@@ -47,12 +48,15 @@ const IconContainer = () => {
   const [nameValue, setNameValue] = React.useState('');
   const [defaultName, setDefaultName] = React.useState('');
   const nameInputRef = React.useRef(null);
+  const [isSubmitError, setSubmitError] = React.useState(false);
 
   const [actionValue, setActionValue] = React.useState('');
   const handleModalToggle = (action:string) => {
     setModalOpen(!isModalOpen);
+    setSubmitError(false)
     setActionValue(action);
     setDefaultName(getDefaultName(bulkSelect,action))
+    
   };
 
   const handleNameInputChange = (value:any) => {
@@ -60,9 +64,10 @@ const IconContainer = () => {
   };
 
   const handleSubmit = () =>{
-   setModalOpen(!isModalOpen);
-   handleChange(actionValue,nameValue);
+     handleChange(actionValue,nameValue) 
+
   };
+  
   
   React.useEffect(() => {
     if (isModalOpen && nameInputRef && nameInputRef.current) {
@@ -72,10 +77,16 @@ const IconContainer = () => {
   
   
   const handleChange = (type: string,name:any) => {
-    type === 'download' && dispatch(downloadFeedRequest(bulkSelect,name))
-    type === 'merge' && dispatch(mergeFeedRequest(bulkSelect,name))
-    type === 'delete' && dispatch(deleteFeed(bulkSelect))
-    dispatch(toggleSelectAll(false));
+
+    try{
+      type === 'download' && dispatch(downloadFeedRequest(bulkSelect,name))
+      type === 'merge' && dispatch(mergeFeedRequest(bulkSelect,name))
+      type === 'delete' && dispatch(deleteFeed(bulkSelect))
+      dispatch(toggleSelectAll(false));
+    }
+    catch(error){
+      return error
+    }
   }
   return (
     <ToggleGroup aria-label="Feed Action Bar">
@@ -145,6 +156,15 @@ const IconContainer = () => {
             />
           </FormGroup>
         </Form>
+        {isSubmitError && isModalOpen?
+        <Alert
+          isInline
+          variant="danger"
+          title="Error: Please check permission on individual feeds before proceeding"
+        >
+        
+        </Alert>
+        :''}
       </Modal>
     </ToggleGroup>
   )
