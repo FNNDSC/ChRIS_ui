@@ -10,6 +10,16 @@ export const setInitialPath = (path: string, type: string) => {
   }
 }
 
+export const setHomePath = (path: string, type: string) => {
+  return {
+    type: Types.SET_HOME_PATH,
+    payload: {
+      path,
+      type,
+    },
+  }
+}
+
 export const clearFolderState = (path: string, type: string) => {
   return {
     type: Types.CLEAR_FOLDER_STATE,

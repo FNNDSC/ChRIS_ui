@@ -19,11 +19,17 @@ interface LibraryState {
   initialPath: {
     [key: string]: string
   }
+  homePath: {
+    [key: string]: {
+      path: string
+      home: boolean
+    }
+  }
   filesState: {
     [key: string]: any[]
   }
   foldersState: {
-    [key: string]: string[]
+    [key: string]: { path: string; name: string }[]
   }
   folderDetails: {
     currentFolder: string
@@ -45,6 +51,7 @@ interface LibraryState {
 function getInitialState(): LibraryState {
   return {
     initialPath: {},
+    homePath: {},
     filesState: {},
     foldersState: {},
     folderDetails: {
@@ -76,6 +83,7 @@ export enum Types {
   SET_FOLDERS = 'SET_FOLDERS',
   SET_PAGINATED_FOLDERS = 'SET_PAGINATED_FOLDERS',
   SET_INITIAL_PATH = 'SET_INITIAL_PATH',
+  SET_HOME_PATH = 'SET_HOME_PATH',
   SET_PAGINATION = 'SET_PAGINATION',
   SET_LOADING = 'SET_LOADING',
   SET_FOLDER_DETAILS = 'SET_FOLDER_DETAILS',
@@ -95,7 +103,7 @@ type LibraryPayload = {
     type: string
   }
   [Types.SET_FOLDERS]: {
-    folders: string[]
+    folders: { path: string; name: string }[]
     type: string
   }
 
@@ -103,6 +111,12 @@ type LibraryPayload = {
     path: string
     type: string
   }
+
+  [Types.SET_HOME_PATH]: {
+    path: string
+    type: string
+  }
+
   [Types.SET_PAGINATION]: {
     path: string
     hasNext: boolean
@@ -172,12 +186,42 @@ export const libraryReducer = (
   action: LibraryActions,
 ): LibraryState => {
   switch (action.type) {
+    case Types.SET_FOLDERS: {
+      return {
+        ...state,
+        foldersState: {
+          [action.payload.type]: action.payload.folders,
+        },
+      }
+    }
+
+    /*
     case Types.SET_INITIAL_PATH: {
       return {
         ...state,
         initialPath: {
           ...state.initialPath,
           [action.payload.type]: action.payload.path,
+        },
+        homePath: {
+          ...state.homePath,
+          [action.payload.type]: {
+            ...state.homePath[action.payload.type],
+            home: false,
+          },
+        },
+      }
+    }
+
+    case Types.SET_HOME_PATH: {
+      return {
+        ...state,
+        homePath: {
+          ...state.homePath,
+          [action.payload.type]: {
+            path: action.payload.path,
+            home: true,
+          },
         },
       }
     }
@@ -224,7 +268,7 @@ export const libraryReducer = (
         }
     }
 
-    /******************************************************************* */
+   
 
     case Types.SET_CLEAR_FILE_SELECT: {
       return {
@@ -256,7 +300,7 @@ export const libraryReducer = (
       }
     }
 
-    /******************************************************************************* */
+    /
 
     case Types.SET_PAGINATION: {
       const { path, hasNext, limit, offset, totalCount } = action.payload
@@ -364,6 +408,7 @@ export const libraryReducer = (
         tooltip: action.payload.tooltip,
       }
     }
+    */
 
     default:
       return state
