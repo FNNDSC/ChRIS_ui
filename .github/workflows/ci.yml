@@ -66,3 +66,5 @@ jobs:
           short-description: ChRIS user interface
           readme-filepath: ./README.md
           repository: fnndsc/chris_ui
+      
+      - name: Cypress E2E Tests

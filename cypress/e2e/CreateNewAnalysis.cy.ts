@@ -11,7 +11,7 @@ describe('Testing SignUp Page', () => {
     })
 
     it('Types in the Feed Name', () => {
-        cy.get('input#feed-name').type('MRI Study')
+        cy.get('input#feed-name').type('Testing Study')
     
       })
 
