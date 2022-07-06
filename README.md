@@ -156,3 +156,11 @@ To learn React, check out the
 - To run: 
 `$ npm run cypress:open`
 ```
+This will open cypress in an interactive UI. 
+To run cypress in the terminal use: 
+```
+npx cypress run 
+```
+
+
+
