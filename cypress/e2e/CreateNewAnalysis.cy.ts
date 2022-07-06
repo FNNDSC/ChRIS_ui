@@ -1,5 +1,5 @@
 
-describe('Testing SignUp Page', () => {
+describe('Testing CreateAnalysis Workflow', () => {
     it('Visits the Feeds Page', () => {
       cy.visit('http://localhost:3000/feeds')
   
@@ -76,10 +76,22 @@ describe('Testing SignUp Page', () => {
         .click()
     })
 
+    it('confirms the configuration is complete', () => {
+      cy.wait(5000)
+      cy.get('span.pf-c-progress__measure').should('have.text', '100%')
+    
+    })
+
     it('Closes the Wizard', () => {
         cy.get('button.pf-c-button.pf-m-primary')
         .eq(1)
         .click()
+    })
+
+    it('Clicks on the newly created analysis', () => {
+      cy.get('span.feed-list__name')
+      .eq(0)
+      .click()
     })
 
 

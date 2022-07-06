@@ -67,4 +67,7 @@ jobs:
           readme-filepath: ./README.md
           repository: fnndsc/chris_ui
       
-      - name: Cypress E2E Tests
+      - name: Cypress.io
+        uses: cypress-io/github-actions@v4.1.1
+        with: 
+          start: npm dev
