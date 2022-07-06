@@ -1,10 +1,20 @@
 import { FileSelect, Types } from './index'
 
-export const setInitialPath = (path: string, type: string) => {
+export const setCurrentPath = (path: string, type: string) => {
   return {
-    type: Types.SET_INITIAL_PATH,
+    type: Types.SET_CURRENT_PATH,
     payload: {
       path,
+      type,
+    },
+  }
+}
+
+export const setCurrentPathSearch = (paths: string[], type: string) => {
+  return {
+    type: Types.SET_CURRENT_PATH_SEARCH,
+    payload: {
+      paths,
       type,
     },
   }
@@ -109,11 +119,7 @@ export const clearSelectFolder = (file: FileSelect) => {
   }
 }
 
-export const setSelectFolder = (
-  payload: FileSelect & {
-    event: string
-  },
-) => {
+export const setSelectFolder = (payload: FileSelect) => {
   return {
     type: Types.SET_SELECTED_FOLDER,
     payload: {

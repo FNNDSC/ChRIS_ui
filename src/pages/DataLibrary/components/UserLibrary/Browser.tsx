@@ -20,24 +20,11 @@ import { Spin, Tooltip } from 'antd'
 import { MdClose } from 'react-icons/md'
 import useLongPress from './useLongPress'
 
-interface BrowserInterface {
-  initialPath: string
-  handleFolderClick: (path: string, prevPath: string) => void
-  folders: string[]
-  files: any[]
-  paginated: {
-    [key: string]: Paginated
-  }
-  handlePagination: (path: string, type: string) => void
-  previewAll: boolean
-  browserType: string
-  username?: string | null
-}
-
 export function Browser({
   folders,
   files,
   handleFolderClick,
+  browserType,
 }: {
   folders: {
     path: string
@@ -45,6 +32,7 @@ export function Browser({
   }[]
   files: any[]
   handleFolderClick: (path: string) => void
+  browserType: string
 }) {
   return (
     <Grid style={{ marginLeft: '0.5em' }} hasGutter>
@@ -64,6 +52,7 @@ export function Browser({
             <GridItem key={`${folder}_${index}`} sm={12} lg={2}>
               <FolderCard
                 folder={folder}
+                browserType={browserType}
                 handleFolderClick={handleFolderClick}
               />
             </GridItem>
@@ -75,19 +64,40 @@ export function Browser({
 
 function FolderCard({
   folder,
+  browserType,
   handleFolderClick,
 }: {
   folder: {
     path: string
     name: string
   }
+  browserType: string
   handleFolderClick: (path: string) => void
 }) {
+  const { state } = useContext(LibraryContext)
+  const { handlers } = useLongPress()
+  const { handleOnClick, handleOnMouseDown } = handlers
+  const { selectedFolder, currentPath } = state
+
+  const background = selectedFolder.some((file) => {
+    return file.folder.path === folder.path
+    //  return file.name === folder.name
+  })
+
   return (
     <Card
-      onClick={() => {
+      isSelectableRaised
+      isHoverable
+      isRounded
+      isSelected={background}
+      onMouseDown={handleOnMouseDown}
+      onClick={(e) => {
         const path = `${folder.path}/${folder.name}`
-        handleFolderClick(path)
+        folder['path'] = path
+        handleOnClick(e, folder, browserType, handleFolderClick)
+      }}
+      style={{
+        background: `${background ? '#e7f1fa' : 'white'}`,
       }}
     >
       <CardHeader>

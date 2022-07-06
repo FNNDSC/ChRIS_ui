@@ -8,11 +8,8 @@ export interface Paginated {
 }
 
 export interface FileSelect {
-  exactPath: string
-  path: string
-  folder: string
+  folder: { name: string; path: string }
   type: string
-  event?: string
 }
 
 interface LibraryState {
@@ -46,7 +43,9 @@ interface LibraryState {
 
   selectedFolder: FileSelect[]
   tooltip: boolean
-  currentPath: string
+  currentPath: {
+    [key: string]: string[]
+  }
 }
 
 function getInitialState(): LibraryState {
@@ -65,7 +64,7 @@ function getInitialState(): LibraryState {
     paginatedFolders: {},
     selectedFolder: [],
     tooltip: false,
-    currentPath: '',
+    currentPath: {},
   }
 }
 
@@ -98,6 +97,7 @@ export enum Types {
   CLEAR_FILES_STATE = 'CLEAR_FILES_STATE',
   SET_TOOLTIP = 'SET_TOOLTIP',
   SET_CURRENT_PATH = 'SET_CURRENT_PATH',
+  SET_CURRENT_PATH_SEARCH = 'SET_CURRENT_PATH_SEARCH',
 }
 
 type LibraryPayload = {
@@ -172,7 +172,13 @@ type LibraryPayload = {
   }
 
   [Types.SET_CURRENT_PATH]: {
+    type: string
     path: string
+  }
+
+  [Types.SET_CURRENT_PATH_SEARCH]: {
+    type: string
+    paths: string[]
   }
 }
 
@@ -197,16 +203,29 @@ export const libraryReducer = (
       return {
         ...state,
         foldersState: {
+          ...state.foldersState,
           [action.payload.path]: action.payload.folders,
         },
       }
     }
 
     case Types.SET_CURRENT_PATH: {
-      console.log("ACTION", action.payload.path)
+      const { type, path } = action.payload
       return {
         ...state,
-        currentPath: action.payload.path,
+        currentPath: {
+          [type]: [path],
+        },
+      }
+    }
+
+    case Types.SET_CURRENT_PATH_SEARCH: {
+      const { type, paths } = action.payload
+      return {
+        ...state,
+        currentPath: {
+          [type]: [...paths],
+        },
       }
     }
 
@@ -224,6 +243,18 @@ export const libraryReducer = (
             [action.payload.path]: action.payload.files,
           },
         }
+      }
+    }
+
+    case Types.SET_SELECTED_FOLDER: {
+      const { folder, type } = action.payload.selectFolder
+      const folderPayload = {
+        type,
+        folder,
+      }
+      return {
+        ...state,
+        selectedFolder: [...state.selectedFolder, folderPayload],
       }
     }
 
