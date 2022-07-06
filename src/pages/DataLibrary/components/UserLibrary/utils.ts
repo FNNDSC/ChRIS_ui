@@ -1,12 +1,14 @@
 import {
   setFolders,
-  setInitialPath,
+  setCurrentPath,
+  setCurrentPathSearch,
   setPaginatedFolders,
   setPagination,
 } from './context/actions'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { fetchResource } from '../../../../utils'
 import { Feed } from '@fnndsc/chrisapi'
+import { StringOptions } from 'sass'
 
 const lookDeeper = async (
   path: string,
@@ -103,7 +105,6 @@ export const searchUploadedFiles = async (value: string, path: string) => {
 export const handleUploadedFiles = (
   uploadedFiles: any[],
   dispatch: React.Dispatch<any>,
-
   value: string,
 ) => {
   const uploadedFolders: string[] = []
@@ -127,7 +128,7 @@ export const handleUploadedFiles = (
 
   if (uploadedFolders.length > 0) {
     dispatch(setFolders(uploadedFolders, path))
-    dispatch(setInitialPath(path, 'uploads'))
+    dispatch(setCurrentPath(path, 'uploads'))
     dispatch(setPaginatedFolders([], path))
     dispatch(
       setPagination(path, {
@@ -145,35 +146,84 @@ export const handleFeedFiles = (
   dispatch: React.Dispatch<any>,
   username: string,
 ) => {
-  const feedFolders: string[] = []
+  const feedFolders: {
+    name: string
+    path: string
+  }[] = []
+  const paths: string[] = []
+  const feedsDict: {
+    [key: string]: {
+      name: string
+      path: string
+    }[]
+  } = {}
 
   feedFiles.forEach((feed: Feed) => {
+    const name = `feed_${feed.data.id}`
     const path = `${feed.data.creator_username}`
-    dispatch(setFolders([`feed_${feed.data.id}`], path))
-    dispatch(setInitialPath(path, 'feed'))
+    const folder = {
+      name,
+      path,
+    }
+
+    if (feedsDict[path]) {
+      feedsDict[path].push(folder)
+    } else {
+      feedsDict[path] = [folder]
+      paths.push(path)
+    }
   })
 
-  if (feedFolders.length > 0) {
-    /*
-    dispatch(setFolders(feedFolders, path))
-    dispatch(setInitialPath(path, 'feed'))
-    dispatch(setPaginatedFolders([], path))
-    dispatch(
-      setPagination(path, {
-        hasNext: false,
-        limit: 30,
-        offset: 0,
-        totalCount: 0,
-      }),
-    )
-    */
+  for (const i in feedsDict) {
+    dispatch(setFolders(feedsDict[i], i))
   }
+  dispatch(setCurrentPathSearch(paths, 'feed'))
 }
 
 export const handlePacsFiles = (
   pacsFiles: any[],
   dispatch: React.Dispatch<any>,
 ) => {
+  console.log('PACSFILES', pacsFiles)
+  const paths: string[] = []
+  const pacsDict: {
+    [key: string]: {
+      name: string
+      path: string
+    }[]
+  } = {}
+
+  pacsFiles.forEach((file) => {
+    const fnameSplit = file.data.fname.split('/')
+    const path = `${fnameSplit[0]}/${fnameSplit[1]}/${fnameSplit[2]}`
+    const name = `${fnameSplit[3]}`
+    const folder = {
+      name,
+      path,
+    }
+
+    if (pacsDict[path]) {
+      pacsDict[path].push(folder)
+    } else {
+      pacsDict[path] = [folder]
+      paths.push(path)
+    }
+  })
+
+  console.log('PACSDICT', pacsDict, paths)
+
+  for (const i in pacsDict) {
+    dispatch(setFolders(pacsDict[i], i))
+  }
+  dispatch(setCurrentPathSearch(paths, 'services'))
+
+  /*
+  if (paths.length > 0) {
+    dispatch(setCurrentPathSearch(paths, 'services'))
+  }
+  */
+
+  /*
   const pacsPatients: string[] = []
   const path = 'SERVICES/PACS/orthanc'
   pacsFiles.forEach((file: any) => {
@@ -200,6 +250,7 @@ export const handlePacsFiles = (
       }),
     )
   }
+  */
 }
 
 export const handlePaginatedFolders = (

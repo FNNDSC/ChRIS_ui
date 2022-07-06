@@ -21,23 +21,18 @@ export default function useLongPress() {
 
   function handleOnClick(
     e: any,
-    path: string,
-    folder: string,
-    initialPath: string,
+    folder: { name: string; path: string },
     browserType: string,
-    cbFolder?: (path: string, prevPath: string) => void,
+    cbFolder?: (path: string) => void,
   ) {
     setAction('click')
     const payload = {
-      exactPath: path,
-      path: initialPath,
       folder,
       type: browserType,
-      event: '',
     }
 
     const isExist = selectedFolder.findIndex(
-      (folder) => folder.exactPath === path,
+      (item) => item.folder.path === folder.path,
     )
 
     if (isLongPress.current) {
@@ -50,7 +45,6 @@ export default function useLongPress() {
     }
 
     if (e.ctrlKey || e.shiftKey) {
-      payload['event'] = 'ctrl/shift'
       if (isExist === -1) {
         dispatch(setSelectFolder(payload))
       } else {
@@ -60,7 +54,7 @@ export default function useLongPress() {
     }
 
     if (!(e.ctrlKey || e.shiftKey || e.detail === 2) && e.detail === 1) {
-      cbFolder && cbFolder(`${initialPath}/${folder}`, initialPath)
+      cbFolder && cbFolder(folder.path)
     }
   }
 

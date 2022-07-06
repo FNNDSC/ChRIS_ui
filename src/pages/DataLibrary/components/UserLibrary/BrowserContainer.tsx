@@ -5,7 +5,7 @@ import SpinAlert from './Spin'
 import { LibraryContext, Types } from './context'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import {
-  setInitialPath,
+  setCurrentPath,
   setFolders,
   setFiles,
   setPagination,
@@ -31,8 +31,6 @@ const BrowserContainer = ({
   const { state, dispatch } = useContext(LibraryContext)
 
   const { foldersState, currentPath, filesState } = state
-  const folders = foldersState[currentPath]
-  const files = filesState[currentPath] && filesState[currentPath]
 
   const resourcesFetch = React.useCallback(
     async (path: string) => {
@@ -41,12 +39,7 @@ const BrowserContainer = ({
       const uploads = await client.getFileBrowserPaths({
         path,
       })
-      dispatch({
-        type: Types.SET_CURRENT_PATH,
-        payload: {
-          path,
-        },
-      })
+      dispatch(setCurrentPath(path, type))
       if (
         uploads.data &&
         uploads.data[0].subfolders &&
@@ -73,7 +66,8 @@ const BrowserContainer = ({
         })
         dispatch(setFolders(folders, path))
         if (folders.length > limit) {
-          handlePaginatedFolders(folders, type, dispatch)
+          /*
+         // handlePaginatedFolders(folders, type, dispatch)
           dispatch(
             setPagination(path, {
               hasNext: folders.length > 30,
@@ -82,6 +76,7 @@ const BrowserContainer = ({
               totalCount: folders.length,
             }),
           )
+          */
         }
       }
     },
@@ -119,12 +114,26 @@ const BrowserContainer = ({
   }
   return (
     <>
-      <BreadcrumbContainer handleFolderClick={handleFolderClick} />
-      <Browser
-        handleFolderClick={handleFolderClick}
-        folders={folders}
-        files={files}
-      />
+      {currentPath[type] &&
+        currentPath[type].length > 0 &&
+        currentPath[type].map((path) => {
+          const folders = foldersState[path]
+          const files = filesState[path]
+          return (
+            <>
+              <BreadcrumbContainer
+                handleFolderClick={handleFolderClick}
+                path={path}
+              />
+              <Browser
+                handleFolderClick={handleFolderClick}
+                folders={folders}
+                files={files}
+                browserType={type}
+              />
+            </>
+          )
+        })}
     </>
   )
 

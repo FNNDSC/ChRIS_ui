@@ -28,12 +28,12 @@ export interface Breadcrumb {
 
 const BreadcrumbContainer = ({
   handleFolderClick,
+  path,
 }: {
   handleFolderClick: (path: string) => void
+  path: string
 }) => {
-  const { state, dispatch } = useContext(LibraryContext)
-  const { currentPath } = state
-  const initialPathSplit = currentPath ? currentPath.split('/') : []
+  const initialPathSplit = path.split('/')
   return (
     <Breadcrumb style={{ margin: '0 0 1em 0' }}>
       {initialPathSplit.map((path: string, index) => {
@@ -45,7 +45,6 @@ const BreadcrumbContainer = ({
             }}
             onClick={() => {
               const newPath = initialPathSplit.slice(0, index + 1).join('/')
-              console.log('InitialPath', initialPathSplit, newPath, index)
               handleFolderClick(newPath)
             }}
             key={path}
