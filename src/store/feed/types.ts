@@ -40,7 +40,7 @@ export interface IFeedState {
   currentFeed: FeedPayload
   feedTreeProp: FeedTreeProp
   currentLayout: boolean
-  downloadError: string
+  downloadError: any
   downloadStatus: ''
   bulkSelect: Feed[]
   feedResources: FeedResource
