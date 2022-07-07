@@ -158,7 +158,7 @@ const IconContainer = () => {
         <Alert
           isInline
           variant="danger"
-          title={downloadError}
+          title={downloadError+" Feeds from other creators need to be shared with you first."}
         >
         
         </Alert>
