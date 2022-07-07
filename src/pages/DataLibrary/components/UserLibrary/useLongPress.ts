@@ -21,14 +21,21 @@ export default function useLongPress() {
 
   function handleOnClick(
     e: any,
+    previousPath: string,
+    path: string,
     folder: { name: string; path: string },
     browserType: string,
+    operation: string,
     cbFolder?: (path: string) => void,
   ) {
     setAction('click')
+    const folderCopy = { ...folder }
+    folderCopy['path'] = path
     const payload = {
-      folder,
+      previousPath,
+      folder: folderCopy,
       type: browserType,
+      operation,
     }
 
     const isExist = selectedFolder.findIndex(
@@ -54,7 +61,7 @@ export default function useLongPress() {
     }
 
     if (!(e.ctrlKey || e.shiftKey || e.detail === 2) && e.detail === 1) {
-      cbFolder && cbFolder(folder.path)
+      cbFolder && cbFolder(path)
     }
   }
 

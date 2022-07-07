@@ -10,6 +10,8 @@ export interface Paginated {
 export interface FileSelect {
   folder: { name: string; path: string }
   type: string
+  previousPath: string
+  operation: string
 }
 
 interface LibraryState {
@@ -247,10 +249,17 @@ export const libraryReducer = (
     }
 
     case Types.SET_SELECTED_FOLDER: {
-      const { folder, type } = action.payload.selectFolder
+      const {
+        folder,
+        type,
+        previousPath,
+        operation,
+      } = action.payload.selectFolder
       const folderPayload = {
         type,
         folder,
+        previousPath,
+        operation
       }
       return {
         ...state,
@@ -258,36 +267,77 @@ export const libraryReducer = (
       }
     }
 
-    /*
-    case Types.SET_INITIAL_PATH: {
+    case Types.SET_CLEAR_FILE_SELECT: {
       return {
         ...state,
-        initialPath: {
-          ...state.initialPath,
-          [action.payload.type]: action.payload.path,
-        },
-        homePath: {
-          ...state.homePath,
-          [action.payload.type]: {
-            ...state.homePath[action.payload.type],
-            home: false,
-          },
+        selectedFolder: [],
+      }
+    }
+
+    case Types.CLEAR_SELECTED_FOLDER: {
+      const { selectFolder } = action.payload
+
+      const newFileSelect = state.selectedFolder.filter(
+        (item) => item.folder.path !== selectFolder.folder.path,
+      )
+
+      return {
+        ...state,
+        selectedFolder: newFileSelect,
+      }
+    }
+
+    case Types.SET_FOLDER_DETAILS: {
+      return {
+        ...state,
+        folderDetails: {
+          currentFolder: action.payload.currentFolder,
+          totalCount: action.payload.totalCount,
         },
       }
     }
 
-    case Types.SET_HOME_PATH: {
+    case Types.SET_PREVIEW_ALL: {
       return {
         ...state,
-        homePath: {
-          ...state.homePath,
-          [action.payload.type]: {
-            path: action.payload.path,
-            home: true,
-          },
-        },
+        previewAll: action.payload.previewAll,
       }
     }
+
+    case Types.SET_TOOLTIP: {
+      return {
+        ...state,
+        tooltip: action.payload.tooltip,
+      }
+    }
+
+    case Types.SET_ADD_FOLDER: {
+      const { username, folder } = action.payload
+      const path = `${username}/uploads`
+      const folderDetails = {
+        name: folder,
+        path,
+      }
+
+      if (state.foldersState[path]) {
+        return {
+          ...state,
+          foldersState: {
+            [path]: [...state.foldersState[path], folderDetails],
+          },
+        }
+      } else {
+        return {
+          ...state,
+          foldersState: {
+            [path]: [folderDetails],
+          },
+        }
+      }
+    }
+
+    /*
+    
 
     case Types.CLEAR_FILES_STATE: {
       const copy = { ...state.filesState }
@@ -333,12 +383,7 @@ export const libraryReducer = (
 
    
 
-    case Types.SET_CLEAR_FILE_SELECT: {
-      return {
-        ...state,
-        selectedFolder: [],
-      }
-    }
+   
     case Types.SET_SELECTED_FOLDER: {
       const { folder, exactPath, path, type } = action.payload.selectFolder
       const folderPayload = {

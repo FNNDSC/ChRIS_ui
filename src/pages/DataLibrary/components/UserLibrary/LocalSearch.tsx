@@ -49,15 +49,15 @@ const LocalSearch = ({
       }
       if (type === 'feed') {
         setLoading(true)
-        const feedFiles = await searchFeedFiles(value.toLowerCase(), username)
+        const feedFiles = await searchFeedFiles(value.toLowerCase())
         if (feedFiles && feedFiles.length > 0) {
-          handleFeedFiles(feedFiles, dispatch, username)
+          handleFeedFiles(feedFiles, dispatch)
         }
         setLoading(false)
       }
       if (type === 'services') {
         setLoading(true)
-        const pacsFiles = await searchPacsFiles(value.toLowerCase(), '')
+        const pacsFiles = await searchPacsFiles(value.toLowerCase())
         if (pacsFiles && pacsFiles.length > 0) {
           handlePacsFiles(pacsFiles, dispatch)
         }

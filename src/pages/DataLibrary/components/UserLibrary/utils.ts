@@ -2,13 +2,10 @@ import {
   setFolders,
   setCurrentPath,
   setCurrentPathSearch,
-  setPaginatedFolders,
-  setPagination,
 } from './context/actions'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { fetchResource } from '../../../../utils'
 import { Feed } from '@fnndsc/chrisapi'
-import { StringOptions } from 'sass'
 
 const lookDeeper = async (
   path: string,
@@ -68,7 +65,7 @@ const lookDeeper = async (
   return results
 }
 
-export const searchFeedFiles = async (value: string, path: string) => {
+export const searchFeedFiles = async (value: string) => {
   const payload = {
     limit: 10,
     offset: 0,
@@ -78,11 +75,10 @@ export const searchFeedFiles = async (value: string, path: string) => {
   const fn = client.getFeeds
   const boundFn = fn.bind(client)
   const results = await fetchResource<Feed[]>(payload, boundFn)
-
   return results
 }
 
-export const searchPacsFiles = async (value: string, path: string) => {
+export const searchPacsFiles = async (value: string) => {
   const payload = {
     limit: 10,
     offset: 0,
@@ -92,7 +88,6 @@ export const searchPacsFiles = async (value: string, path: string) => {
   const fn = client.getPACSFiles
   const boundFn = fn.bind(client)
   const results = await fetchResource(payload, boundFn)
-
   return results
 }
 
@@ -129,27 +124,13 @@ export const handleUploadedFiles = (
   if (uploadedFolders.length > 0) {
     dispatch(setFolders(uploadedFolders, path))
     dispatch(setCurrentPath(path, 'uploads'))
-    dispatch(setPaginatedFolders([], path))
-    dispatch(
-      setPagination(path, {
-        hasNext: false,
-        limit: 30,
-        offset: 0,
-        totalCount: 0,
-      }),
-    )
   }
 }
 
 export const handleFeedFiles = (
   feedFiles: any[],
   dispatch: React.Dispatch<any>,
-  username: string,
 ) => {
-  const feedFolders: {
-    name: string
-    path: string
-  }[] = []
   const paths: string[] = []
   const feedsDict: {
     [key: string]: {
@@ -184,7 +165,6 @@ export const handlePacsFiles = (
   pacsFiles: any[],
   dispatch: React.Dispatch<any>,
 ) => {
-  console.log('PACSFILES', pacsFiles)
   const paths: string[] = []
   const pacsDict: {
     [key: string]: {
@@ -210,65 +190,8 @@ export const handlePacsFiles = (
     }
   })
 
-  console.log('PACSDICT', pacsDict, paths)
-
   for (const i in pacsDict) {
     dispatch(setFolders(pacsDict[i], i))
   }
   dispatch(setCurrentPathSearch(paths, 'services'))
-
-  /*
-  if (paths.length > 0) {
-    dispatch(setCurrentPathSearch(paths, 'services'))
-  }
-  */
-
-  /*
-  const pacsPatients: string[] = []
-  const path = 'SERVICES/PACS/orthanc'
-  pacsFiles.forEach((file: any) => {
-    const fnameSplit = file.data.fname.split('/')
-    const pathMatch = `${fnameSplit[0]}/${fnameSplit[1]}/${fnameSplit[2]}`
-    if (pathMatch === path) {
-      const folder = fnameSplit[3]
-      pacsPatients.push(folder)
-    }
-  })
-  if (pacsPatients.length > 0) {
-    dispatch(setFolders(pacsPatients, path))
-    dispatch(setInitialPath(path, 'services'))
-  }
-
-  if (pacsPatients.length > 0) {
-    dispatch(setPaginatedFolders([], 'SERVICES'))
-    dispatch(
-      setPagination('SERVICES', {
-        hasNext: false,
-        limit: 30,
-        offset: 0,
-        totalCount: 0,
-      }),
-    )
-  }
-  */
-}
-
-export const handlePaginatedFolders = (
-  folders: string[],
-  rootPath: string,
-  dispatch: React.Dispatch<any>,
-) => {
-  const limit = 30
-  if (folders.length > limit) {
-    const folderPaginate = folders.slice(0, limit)
-    dispatch(setPaginatedFolders(folderPaginate, rootPath))
-    dispatch(
-      setPagination(rootPath, {
-        hasNext: folders.length > 30,
-        limit,
-        offset: 0,
-        totalCount: folders.length,
-      }),
-    )
-  }
 }

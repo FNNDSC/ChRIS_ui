@@ -20,12 +20,11 @@ export const setCurrentPathSearch = (paths: string[], type: string) => {
   }
 }
 
-export const setHomePath = (path: string, type: string) => {
+export const setTogglePreview = (previewAll: boolean) => {
   return {
-    type: Types.SET_HOME_PATH,
+    type: Types.SET_PREVIEW_ALL,
     payload: {
-      path,
-      type,
+      previewAll,
     },
   }
 }
@@ -69,43 +68,12 @@ export const setFolders = (folders: any[], path: string) => {
   }
 }
 
-export const setPaginatedFolders = (folders: any[], path: string) => {
-  return {
-    type: Types.SET_PAGINATED_FOLDERS,
-    payload: {
-      folders,
-      path,
-    },
-  }
-}
-
 export const setFiles = (files: any[], path: string) => {
   return {
     type: Types.SET_FILES,
     payload: {
       files,
       path,
-    },
-  }
-}
-
-export const setPagination = (
-  path: string,
-  pagination: {
-    hasNext: boolean
-    limit: number
-    offset: number
-    totalCount: number
-  },
-) => {
-  return {
-    type: Types.SET_PAGINATION,
-    payload: {
-      path,
-      hasNext: pagination.hasNext,
-      limit: pagination.limit,
-      offset: pagination.offset,
-      totalCount: pagination.totalCount,
     },
   }
 }
@@ -124,6 +92,25 @@ export const setSelectFolder = (payload: FileSelect) => {
     type: Types.SET_SELECTED_FOLDER,
     payload: {
       selectFolder: payload,
+    },
+  }
+}
+
+export const setFolderDetails = (totalCount: number, currentFolder: string) => {
+  return {
+    type: Types.SET_FOLDER_DETAILS,
+    payload: {
+      totalCount,
+      currentFolder,
+    },
+  }
+}
+
+export const setHideTooltip = (tooltip: boolean) => {
+  return {
+    type: Types.SET_TOOLTIP,
+    payload: {
+      tooltip,
     },
   }
 }
