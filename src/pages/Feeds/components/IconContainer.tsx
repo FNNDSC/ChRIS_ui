@@ -49,12 +49,10 @@ const IconContainer = () => {
   const [nameValue, setNameValue] = React.useState('');
   const [defaultName, setDefaultName] = React.useState('');
   const nameInputRef = React.useRef(null);
-  const [isSubmitError, setSubmitError] = React.useState(false);
 
   const [actionValue, setActionValue] = React.useState('');
   const handleModalToggle = (action:string) => {
     setModalOpen(!isModalOpen);
-    setSubmitError(false)
     setActionValue(action);
     setDefaultName(getDefaultName(bulkSelect,action))
     
@@ -66,9 +64,6 @@ const IconContainer = () => {
 
   const handleSubmit = () =>{
      handleChange(actionValue,nameValue)
-     if(downloadError){
-       setSubmitError(true)
-     }
   };
   
   
@@ -159,7 +154,7 @@ const IconContainer = () => {
             />
           </FormGroup>
         </Form>
-       {isSubmitError?
+       {downloadError?
         <Alert
           isInline
           variant="danger"
