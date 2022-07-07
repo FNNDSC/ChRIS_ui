@@ -24,6 +24,7 @@ const IconContainer = () => {
   const bulkSelect = useTypedSelector((state) => {
     return state.feed.bulkSelect
   })
+  const {downloadError,} = useTypedSelector((state) => state.feed)
   const getDefaultName =(bulkSelect:any, action:string) => {
     let prefix = '';
     if(action=='merge'){
@@ -64,8 +65,10 @@ const IconContainer = () => {
   };
 
   const handleSubmit = () =>{
-     handleChange(actionValue,nameValue) 
-
+     handleChange(actionValue,nameValue)
+     if(downloadError){
+       setSubmitError(true)
+     }
   };
   
   
@@ -156,15 +159,15 @@ const IconContainer = () => {
             />
           </FormGroup>
         </Form>
-        {isSubmitError && isModalOpen?
+       {isSubmitError?
         <Alert
           isInline
           variant="danger"
-          title="Error: Please check permission on individual feeds before proceeding"
+          title={downloadError}
         >
         
         </Alert>
-        :''}
+        :''} 
       </Modal>
     </ToggleGroup>
   )
