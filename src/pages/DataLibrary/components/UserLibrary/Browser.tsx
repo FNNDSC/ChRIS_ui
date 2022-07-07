@@ -11,7 +11,7 @@ import {
   Button,
   Modal,
 } from '@patternfly/react-core'
-import { FaFile, FaFolder, FaDownload } from 'react-icons/fa'
+import { FaFile, FaFolder } from 'react-icons/fa'
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
 import { LibraryContext } from './context'
 import FileViewerModel from '../../../../api/models/file-viewer.model'
