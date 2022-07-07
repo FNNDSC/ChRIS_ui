@@ -31,25 +31,24 @@ import { clearSelectFolder, setFolders } from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'
 import { useDispatch } from 'react-redux'
 import { fetchResource } from '../../../../utils'
-import { handlePaginatedFolders } from './utils'
 
 const DataLibrary = () => {
   const dispatch = useDispatch()
-  const username = useTypedSelector((state) => state.user.username)
   const { state, dispatch: dispatchLibrary } = useContext(LibraryContext)
+  const [activeTabKey, setActiveTabKey] = React.useState<number>(0)
+  const username = useTypedSelector((state) => state.user.username)
   const router = useContext(MainRouterContext)
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
   const [directoryName, setDirectoryName] = React.useState('')
   const { foldersState, selectedFolder } = state
-  const [activeTabKey, setActiveTabKey] = React.useState<number>(0)
-  const [error, setError] = React.useState<{ type: string; warning: string }[]>(
-    [],
-  )
+  const [error, setError] = React.useState<any[]>([])
   const [fetchingFiles, setFetchingFiles] = React.useState(false)
   const [feedFilesToDelete, setFeedFilestoDelete] = React.useState<
     FileSelect[]
   >([])
+
+  console.log('STATE', state)
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal)
@@ -66,7 +65,9 @@ const DataLibrary = () => {
   }
 
   const createFeed = () => {
-    const pathList = selectedFolder.map((file) => file.exactPath)
+    const pathList = selectedFolder.map((file) => {
+      return file.folder.path
+    })
     router.actions.createFeedWithData(pathList)
   }
 
@@ -91,7 +92,8 @@ const DataLibrary = () => {
 
     Promise.all(
       selectedFolder.map(async (file: FileSelect) => {
-        const { exactPath } = file
+        const { folder } = file
+        const { path: exactPath } = folder
         const filesToPush = []
         const params = {
           limit: 100,
@@ -130,6 +132,7 @@ const DataLibrary = () => {
   }
 
   const downloadUtil = async (filesItems: any[]) => {
+    console.log('FileItems', filesItems)
     try {
       let writable
       //@ts-ignore
@@ -137,41 +140,41 @@ const DataLibrary = () => {
       for (let i = 0; i < filesItems.length; i++) {
         const files = filesItems[i]
 
-        for (let k = 0; k < files.length; k++) {
-          const folderNameSplit = files[k].data.fname.split('/')
-
+        for (let index = 0; index < files.length; index++) {
+          const file = files[index]
+          const fileName = file.data.fname.split('/')
           const newDirectoryHandle: { [key: string]: any } = {}
-          for (let j = 0; j < folderNameSplit.length; j++) {
-            if (j === 0) {
+          for (let fname = 0; fname < fileName.length; fname++) {
+            if (fname === 0) {
               newDirectoryHandle[
-                j
+                fname
               ] = await existingDirectoryHandle.getDirectoryHandle(
-                folderNameSplit[j],
+                fileName[fname],
                 {
                   create: true,
                 },
               )
-            } else if (j === folderNameSplit.length - 1) {
-              const blob = await files[k].getFileBlob()
-              const fileName = folderNameSplit[j]
-              const handle = newDirectoryHandle[j - 1]
-              if (handle) {
-                const newFileHandle = await handle.getFileHandle(fileName, {
-                  create: true,
-                })
-                writable = await newFileHandle.createWritable()
-                await writable.write(blob)
-                writable.close()
-              }
-            } else {
-              const existingHandle = newDirectoryHandle[j - 1]
+            } else if (fname === fileName.length - 1) {
+              const blob = await file.getFileBlob()
+              const existingHandle = newDirectoryHandle[fname - 1]
               if (existingHandle) {
-                newDirectoryHandle[j] = await existingHandle.getDirectoryHandle(
-                  folderNameSplit[j],
+                const newFileHandle = await existingHandle.getFileHandle(
+                  fileName[fname],
                   {
                     create: true,
                   },
                 )
+                writable = await newFileHandle.createWritable()
+                await writable.write(blob)
+              }
+            } else {
+              const existingHandle = newDirectoryHandle[fname - 1]
+              if (existingHandle) {
+                newDirectoryHandle[
+                  fname
+                ] = await existingHandle.getDirectoryHandle(fileName[fname], {
+                  create: true,
+                })
               }
             }
           }
@@ -188,35 +191,35 @@ const DataLibrary = () => {
     selectedFolder.map(async (file: FileSelect) => {
       const client = ChrisAPIClient.getClient()
       if (file.type === 'uploads') {
-        const paths = await client.getFileBrowserPath(file.exactPath)
-        const fileList = await paths.getFiles({
-          limit: 1000,
-          offset: 0,
-        })
-        const files = fileList.getItems()
-        if (files) {
-          files.map(async (file: any) => {
-            await file._delete()
+        if (file.operation === 'folder') {
+          const paths = await client.getFileBrowserPath(file.folder.path)
+          const fileList = await paths.getFiles({
+            limit: 1000,
+            offset: 0,
           })
-          if (foldersState[file.path]) {
+          const files = fileList.getItems()
+          if (files) {
+            files.map(async (file: any) => {
+              await file._delete()
+            })
             deleteUtil(file)
           }
+        } else {
+          errorWarnings.push('file')
         }
       }
 
       if (file.type === 'feed') {
-        errorWarnings.push({
-          type: 'feed',
-          warning: 'Deleting a feed selection deletes a feed',
-        })
+        if (!errorWarnings.includes('feed')) {
+          errorWarnings.push('feed')
+        }
         setFeedFilestoDelete([...feedFilesToDelete, file])
       }
 
       if (file.type === 'services') {
-        errorWarnings.push({
-          type: 'services',
-          warning: 'Cannot delete a pacs selection currently',
-        })
+        if (!errorWarnings.includes('services')) {
+          errorWarnings.push('services')
+        }
       }
     })
 
@@ -224,18 +227,21 @@ const DataLibrary = () => {
   }
 
   const deleteUtil = (file: FileSelect) => {
-    const newFolders = foldersState[file.path].filter(
-      (folder) => folder !== file.folder,
-    )
-    handlePaginatedFolders(newFolders, file.path, dispatchLibrary)
-    dispatchLibrary(setFolders(newFolders, file.path))
-    dispatchLibrary(clearSelectFolder(file))
+    const folders = foldersState[file.previousPath]
+
+    if (folders && folders.length > 0) {
+      const foldersFiltered = folders.filter((folder) => {
+        return `${folder.path}/${folder.name}` !== file.folder.path
+      })
+      dispatchLibrary(setFolders(foldersFiltered, file.previousPath))
+      dispatchLibrary(clearSelectFolder(file))
+    }
   }
 
   const handleDeleteFeed = async () => {
     const result = Promise.all(
       feedFilesToDelete.map(async (file) => {
-        const feedId = file.exactPath
+        const feedId = file.folder.path
           .split('/')
           .find((feedString) => feedString.includes('feed'))
 
@@ -243,9 +249,7 @@ const DataLibrary = () => {
           const id = feedId.split('_')[1]
           const client = ChrisAPIClient.getClient()
           const feed = await client.getFeed(parseInt(id))
-          if (foldersState[file.path]) {
-            deleteUtil(file)
-          }
+          deleteUtil(file)
           return feed
         }
       }),
@@ -329,7 +333,7 @@ const DataLibrary = () => {
                             }}
                             key={index}
                           >
-                            {file.exactPath}
+                            {file.folder.name}
                           </Chip>
                         )
                       })}
@@ -357,31 +361,49 @@ const DataLibrary = () => {
 
           {error.length > 0 &&
             error.map((errorString, index) => {
-              const errorUtil = () => {
+              const errorUtil = (errorType: string) => {
                 const newError = error.filter(
-                  (errorWarn) => errorWarn.type !== errorString.type,
+                  (errorWarn) => errorWarn !== errorType,
                 )
                 setError(newError)
               }
+
+              let warning = ''
+              if (errorString === 'feed') {
+                warning = 'Deleting a feed file deletes a feed'
+              }
+              if (errorString === 'services') {
+                warning = 'Cannot Delete a pacs file currently'
+              }
+
+              if (errorString === 'file') {
+                warning = 'Cannot delete a single file currently'
+              }
+
               return (
                 <Alert
                   key={index}
                   message={
                     <>
-                      <div>{errorString.warning}</div>
-                      {errorString.type === 'feed' && (
+                      <div>{warning && warning}</div>
+                      {errorString === 'feed' && (
                         <>
                           {' '}
                           <Button
                             variant="link"
                             onClick={() => {
-                              errorUtil()
+                              errorUtil(errorString)
                               handleDeleteFeed()
                             }}
                           >
                             Confirm
                           </Button>
-                          <Button onClick={errorUtil} variant="link">
+                          <Button
+                            onClick={() => {
+                              errorUtil(errorString)
+                            }}
+                            variant="link"
+                          >
                             Cancel
                           </Button>
                         </>
@@ -390,7 +412,9 @@ const DataLibrary = () => {
                   }
                   type="warning"
                   closable
-                  onClose={errorUtil}
+                  onClose={() => {
+                    errorUtil(errorString)
+                  }}
                 ></Alert>
               )
             })}
@@ -422,7 +446,6 @@ const DataLibrary = () => {
           Upload Files
         </Button>
       </div>
-
       <Tabs
         style={{
           width: '50%',
@@ -432,16 +455,16 @@ const DataLibrary = () => {
         aria-label="Tabs in the default example"
       >
         <Tab eventKey={0} title={<TabTitleText>Uploads</TabTitleText>}>
-          {uploadedFiles}
+          {activeTabKey === 0 && uploadedFiles}
         </Tab>
         <Tab
           eventKey={1}
           title={<TabTitleText>Completed Analyses</TabTitleText>}
         >
-          {feedFiles}
+          {activeTabKey === 1 && feedFiles}
         </Tab>
         <Tab eventKey={2} title={<TabTitleText>Services / PACS</TabTitleText>}>
-          {servicesFiles}
+          {activeTabKey === 2 && servicesFiles}
         </Tab>
       </Tabs>
     </>

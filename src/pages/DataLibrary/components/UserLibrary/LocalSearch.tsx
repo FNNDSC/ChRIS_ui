@@ -51,7 +51,7 @@ const LocalSearch = ({
         setLoading(true)
         const feedFiles = await searchFeedFiles(value.toLowerCase())
         if (feedFiles && feedFiles.length > 0) {
-          handleFeedFiles(feedFiles, dispatch, username)
+          handleFeedFiles(feedFiles, dispatch)
         }
         setLoading(false)
       }

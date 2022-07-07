@@ -1,8 +1,7 @@
 import {
   setFolders,
-  setInitialPath,
-  setPaginatedFolders,
-  setPagination,
+  setCurrentPath,
+  setCurrentPathSearch,
 } from './context/actions'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { fetchResource } from '../../../../utils'
@@ -89,7 +88,6 @@ export const searchPacsFiles = async (value: string) => {
   const fn = client.getPACSFiles
   const boundFn = fn.bind(client)
   const results = await fetchResource(payload, boundFn)
-
   return results
 }
 
@@ -102,7 +100,6 @@ export const searchUploadedFiles = async (value: string, path: string) => {
 export const handleUploadedFiles = (
   uploadedFiles: any[],
   dispatch: React.Dispatch<any>,
-
   value: string,
 ) => {
   const uploadedFolders: string[] = []
@@ -126,94 +123,75 @@ export const handleUploadedFiles = (
 
   if (uploadedFolders.length > 0) {
     dispatch(setFolders(uploadedFolders, path))
-    dispatch(setInitialPath(path, 'uploads'))
-    dispatch(setPaginatedFolders([], path))
-    dispatch(
-      setPagination(path, {
-        hasNext: false,
-        limit: 30,
-        offset: 0,
-        totalCount: 0,
-      }),
-    )
+    dispatch(setCurrentPath(path, 'uploads'))
   }
 }
 
 export const handleFeedFiles = (
   feedFiles: any[],
   dispatch: React.Dispatch<any>,
-  username: string,
 ) => {
-  const path = username
-  const feedFolders: string[] = []
+  const paths: string[] = []
+  const feedsDict: {
+    [key: string]: {
+      name: string
+      path: string
+    }[]
+  } = {}
 
   feedFiles.forEach((feed: Feed) => {
-    if (feed.data.creator_username === path) {
-      const folderName = `feed_${feed.data.id}`
-      feedFolders.push(folderName)
+    const name = `feed_${feed.data.id}`
+    const path = `${feed.data.creator_username}`
+    const folder = {
+      name,
+      path,
+    }
+
+    if (feedsDict[path]) {
+      feedsDict[path].push(folder)
+    } else {
+      feedsDict[path] = [folder]
+      paths.push(path)
     }
   })
 
-  if (feedFolders.length > 0) {
-    dispatch(setFolders(feedFolders, path))
-    dispatch(setInitialPath(path, 'feed'))
-    dispatch(setPaginatedFolders([], path))
-    dispatch(
-      setPagination(path, {
-        hasNext: false,
-        limit: 30,
-        offset: 0,
-        totalCount: 0,
-      }),
-    )
+  for (const i in feedsDict) {
+    dispatch(setFolders(feedsDict[i], i))
   }
+  dispatch(setCurrentPathSearch(paths, 'feed'))
 }
 
 export const handlePacsFiles = (
   pacsFiles: any[],
   dispatch: React.Dispatch<any>,
 ) => {
-  const pacsPatients: string[] = []
-  const path = 'SERVICES/PACS/orthanc'
-  pacsFiles.forEach((file: any) => {
+  const paths: string[] = []
+  const pacsDict: {
+    [key: string]: {
+      name: string
+      path: string
+    }[]
+  } = {}
+
+  pacsFiles.forEach((file) => {
     const fnameSplit = file.data.fname.split('/')
-    const pathMatch = `${fnameSplit[0]}/${fnameSplit[1]}/${fnameSplit[2]}`
-    if (pathMatch === path) {
-      const folder = fnameSplit[3]
-      pacsPatients.push(folder)
+    const path = `${fnameSplit[0]}/${fnameSplit[1]}/${fnameSplit[2]}`
+    const name = `${fnameSplit[3]}`
+    const folder = {
+      name,
+      path,
+    }
+
+    if (pacsDict[path]) {
+      pacsDict[path].push(folder)
+    } else {
+      pacsDict[path] = [folder]
+      paths.push(path)
     }
   })
-  if (pacsPatients.length > 0) {
-    dispatch(setFolders(pacsPatients, path))
-    dispatch(setInitialPath(path, 'services'))
-    dispatch(setPaginatedFolders([], 'SERVICES'))
-    dispatch(
-      setPagination('SERVICES', {
-        hasNext: false,
-        limit: 30,
-        offset: 0,
-        totalCount: 0,
-      }),
-    )
-  }
-}
 
-export const handlePaginatedFolders = (
-  folders: string[],
-  rootPath: string,
-  dispatch: React.Dispatch<any>,
-) => {
-  const limit = 30
-  if (folders.length > limit) {
-    const folderPaginate = folders.slice(0, limit)
-    dispatch(setPaginatedFolders(folderPaginate, rootPath))
-    dispatch(
-      setPagination(rootPath, {
-        hasNext: folders.length > 30,
-        limit,
-        offset: 0,
-        totalCount: folders.length,
-      }),
-    )
+  for (const i in pacsDict) {
+    dispatch(setFolders(pacsDict[i], i))
   }
+  dispatch(setCurrentPathSearch(paths, 'services'))
 }
