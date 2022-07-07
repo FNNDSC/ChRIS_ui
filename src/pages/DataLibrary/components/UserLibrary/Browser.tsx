@@ -88,27 +88,33 @@ function FolderCard({
     return file.folder.path === `${folder.path}/${folder.name}`
   })
 
+  /*
   const feedPath =
     currentPath['feed'] &&
     currentPath['feed'][0].split('/').length === 1 &&
     true
+    */
 
-  const isRoot = browserType === 'feed' && feedPath
-  React.useEffect(() => {
-    async function fetchFeedName() {
-      if (isRoot) {
-        const client = ChrisAPIClient.getClient()
-        const id = folder.name.split('_')[1]
-        const feed = await client.getFeed(parseInt(id))
-        setFeedDetails({
-          name: feed.data.name,
-          commitDate: feed.data.creation_date,
-        })
-      }
-    }
-    fetchFeedName()
-  }, [browserType, folder, isRoot])
-
+  // const isRoot = browserType === 'feed' && feedPath
+  /*
+   React.useEffect(() => {
+     async function fetchFeedName() {
+       /*
+       if (isRoot) {
+         const client = ChrisAPIClient.getClient()
+         const id = folder.name.split('_')[1]
+         const feed = await client.getFeed(parseInt(id))
+         setFeedDetails({
+           name: feed.data.name,
+           commitDate: feed.data.creation_date,
+         })
+       }
+       
+     }
+     fetchFeedName()
+   }, [browserType, folder, isRoot])
+ 
+ */
   return (
     <TooltipParent>
       <Card
@@ -140,8 +146,10 @@ function FolderCard({
             </SplitItem>
             <SplitItem isFilled>
               <Button style={{ padding: 0 }} variant="link">
-                <b>
-                  {isRoot ? (
+                {
+                  /*
+
+ {isRoot ? (
                     !feedDetails.name ? (
                       <Spin />
                     ) : (
@@ -150,6 +158,11 @@ function FolderCard({
                   ) : (
                     elipses(folder.name, 36)
                   )}
+                  */
+                }
+                {elipses(folder.name, 36)}
+                <b>
+
                 </b>
               </Button>
               <div>

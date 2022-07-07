@@ -5,10 +5,12 @@ import { LibraryContext } from './context'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import {
   setCurrentPath,
+  setCurrentPathSearch,
   setFolders,
   setFiles,
   setTogglePreview,
   setFolderDetails,
+  setSearchedFolders,
 } from './context/actions'
 
 interface BrowserContainerInterface {
@@ -29,6 +31,9 @@ const BrowserContainer = ({
     filesState,
     folderDetails,
     previewAll,
+    searchedFoldersState,
+    search,
+    searchPath
   } = state
 
   const resourcesFetch = React.useCallback(
@@ -37,7 +42,13 @@ const BrowserContainer = ({
       const uploads = await client.getFileBrowserPaths({
         path,
       })
-      dispatch(setCurrentPath(path, type))
+      if (search[type] === true) {
+        dispatch(setCurrentPathSearch([path], type))
+      }
+      else {
+        dispatch(setCurrentPath(path, type))
+      }
+
       if (
         uploads.data &&
         uploads.data[0].subfolders &&
@@ -62,10 +73,16 @@ const BrowserContainer = ({
             path: `${path}`,
           }
         })
-        dispatch(setFolders(folders, path))
+        if (search[type] === true) {
+          dispatch(setSearchedFolders(folders, path))
+        }
+        else {
+          dispatch(setFolders(folders, path))
+        }
+
       }
     },
-    [dispatch, type],
+    [dispatch, type, search],
   )
 
   React.useEffect(() => {
@@ -73,14 +90,17 @@ const BrowserContainer = ({
       resourcesFetch(rootPath)
     }
 
-    fetchUploads()
-  }, [rootPath, dispatch, resourcesFetch])
+    if (!search[type]) {
+      fetchUploads()
+    }
+
+  }, [rootPath, dispatch, resourcesFetch, search, type])
 
   const handleFolderClick = async (path: string) => {
     const client = ChrisAPIClient.getClient()
     resourcesFetch(path)
     const pagination = {
-      limit: 30,
+      limit: 100,
       offset: 0,
       totalCount: 0,
     }
@@ -107,33 +127,68 @@ const BrowserContainer = ({
   }
   return (
     <>
-      {currentPath[type] &&
-        currentPath[type].length > 0 &&
-        currentPath[type].map((path, index) => {
-          const folders = foldersState[path]
-          const files = filesState[path]
-          return (
-            <div key={index}>
-              <BreadcrumbContainer
-                browserType={type}
-                handleFolderClick={handleFolderClick}
-                path={path}
-                files={files}
-                folderDetails={folderDetails}
-                previewAll={previewAll}
-                togglePreview={togglePreview}
-              />
-              <Browser
-                handleFolderClick={handleFolderClick}
-                folders={folders}
-                files={files}
-                browserType={type}
-              />
-            </div>
-          )
-        })}
+      {
+        search[type] === true ? <div><SearchContainer handleFolderClick={handleFolderClick} type={type} /></div> : <>
+          {currentPath[type] &&
+            currentPath[type].length > 0 &&
+            currentPath[type].map((path, index) => {
+              const folders = foldersState[path]
+              const files = filesState[path]
+              return (
+                <div key={index}>
+                  <BreadcrumbContainer
+                    browserType={type}
+                    handleFolderClick={handleFolderClick}
+                    path={path}
+                    files={files}
+                    folderDetails={folderDetails}
+                    previewAll={previewAll}
+                    togglePreview={togglePreview}
+                  />
+                  <Browser
+                    handleFolderClick={handleFolderClick}
+                    folders={folders}
+                    files={files}
+                    browserType={type}
+                  />
+                </div>
+              )
+            })}
+        </>
+      }
     </>
   )
 }
 
 export default React.memo(BrowserContainer)
+
+
+
+export const SearchContainer = ({ type, handleFolderClick }: { type: string, handleFolderClick: (path: string) => void }) => {
+  const { state, dispatch } = useContext(LibraryContext)
+  const { searchedFoldersState, currentSearchFiles, searchPath, currentSearchFolders } = state;
+  console.log()
+
+  const currentPath = searchPath[type][0]
+  const folders = currentPath ? currentSearchFolders[currentPath] : searchedFoldersState[type]
+  const files = currentPath ? currentSearchFiles[currentPath] : []
+  return (
+    <>
+      <SearchBreadcrumbContainer />
+      <Browser handleFolderClick={handleFolderClick}
+        folders={folders}
+        files={files}
+        browserType={type}
+      />
+    </>
+
+  )
+}
+
+const SearchBreadcrumbContainer = () => {
+  return (
+    <div>
+      Search Container
+    </div>
+  )
+}
