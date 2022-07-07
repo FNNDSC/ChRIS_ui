@@ -1,4 +1,4 @@
-import { FileSelect, Types } from './index'
+import { FileSelect, Types } from "./index";
 
 export const setCurrentPath = (path: string, type: string) => {
   return {
@@ -7,8 +7,8 @@ export const setCurrentPath = (path: string, type: string) => {
       path,
       type,
     },
-  }
-}
+  };
+};
 
 export const setCurrentPathSearch = (paths: string[], type: string) => {
   return {
@@ -17,8 +17,17 @@ export const setCurrentPathSearch = (paths: string[], type: string) => {
       paths,
       type,
     },
-  }
-}
+  };
+};
+
+export const setSearch = (type: string) => {
+  return {
+    type: Types.SET_SEARCH,
+    payload: {
+      type,
+    },
+  };
+};
 
 export const setTogglePreview = (previewAll: boolean) => {
   return {
@@ -26,8 +35,8 @@ export const setTogglePreview = (previewAll: boolean) => {
     payload: {
       previewAll,
     },
-  }
-}
+  };
+};
 
 export const clearFolderState = (path: string, type: string) => {
   return {
@@ -36,8 +45,8 @@ export const clearFolderState = (path: string, type: string) => {
       path,
       type,
     },
-  }
-}
+  };
+};
 
 export const clearFilesState = (path: string, type: string) => {
   return {
@@ -46,8 +55,8 @@ export const clearFilesState = (path: string, type: string) => {
       path,
       type,
     },
-  }
-}
+  };
+};
 
 export const setLoading = (loading: boolean) => {
   return {
@@ -55,8 +64,8 @@ export const setLoading = (loading: boolean) => {
     payload: {
       loading,
     },
-  }
-}
+  };
+};
 
 export const setFolders = (folders: any[], path: string) => {
   return {
@@ -65,8 +74,18 @@ export const setFolders = (folders: any[], path: string) => {
       folders,
       path,
     },
-  }
-}
+  };
+};
+
+export const setSearchedFolders = (folders: any[], type: string) => {
+  return {
+    type: Types.SET_SEARCHED_FOLDERS,
+    payload: {
+      folders,
+      type,
+    },
+  };
+};
 
 export const setFiles = (files: any[], path: string) => {
   return {
@@ -75,8 +94,8 @@ export const setFiles = (files: any[], path: string) => {
       files,
       path,
     },
-  }
-}
+  };
+};
 
 export const clearSelectFolder = (file: FileSelect) => {
   return {
@@ -84,8 +103,8 @@ export const clearSelectFolder = (file: FileSelect) => {
     payload: {
       selectFolder: file,
     },
-  }
-}
+  };
+};
 
 export const setSelectFolder = (payload: FileSelect) => {
   return {
@@ -93,8 +112,8 @@ export const setSelectFolder = (payload: FileSelect) => {
     payload: {
       selectFolder: payload,
     },
-  }
-}
+  };
+};
 
 export const setFolderDetails = (totalCount: number, currentFolder: string) => {
   return {
@@ -103,8 +122,8 @@ export const setFolderDetails = (totalCount: number, currentFolder: string) => {
       totalCount,
       currentFolder,
     },
-  }
-}
+  };
+};
 
 export const setHideTooltip = (tooltip: boolean) => {
   return {
@@ -112,5 +131,5 @@ export const setHideTooltip = (tooltip: boolean) => {
     payload: {
       tooltip,
     },
-  }
-}
+  };
+};
