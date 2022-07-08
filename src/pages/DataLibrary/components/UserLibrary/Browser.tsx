@@ -78,7 +78,7 @@ function FolderCard({
   const { state } = useContext(LibraryContext)
   const { handlers } = useLongPress()
   const { handleOnClick, handleOnMouseDown } = handlers
-  const { selectedFolder, currentPath } = state
+  const { selectedFolder } = state
   const [feedDetails, setFeedDetails] = useState({
     name: '',
     commitDate: '',
@@ -87,13 +87,9 @@ function FolderCard({
   const background = selectedFolder.some((file) => {
     return file.folder.path === `${folder.path}/${folder.name}`
   })
+  const path = folder.path.split('/')
+  const isRoot = browserType === 'feed' && path.length === 1
 
-  const feedPath =
-    currentPath['feed'] &&
-    currentPath['feed'][0].split('/').length === 1 &&
-    true
-
-  const isRoot = browserType === 'feed' && feedPath
   React.useEffect(() => {
     async function fetchFeedName() {
       if (isRoot) {
@@ -141,6 +137,7 @@ function FolderCard({
             <SplitItem isFilled>
               <Button style={{ padding: 0 }} variant="link">
                 <b>
+                  {' '}
                   {isRoot ? (
                     !feedDetails.name ? (
                       <Spin />

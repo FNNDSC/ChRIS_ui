@@ -6,9 +6,8 @@ import {
   SplitItem,
   Button,
 } from '@patternfly/react-core'
-import { FaFolder, FaFolderOpen, FaHome, FaUser } from 'react-icons/fa'
+import { FaFolder, FaFolderOpen, FaUser } from 'react-icons/fa'
 import { FcServices } from 'react-icons/fc'
-import { useTypedSelector } from '../../../../store/hooks'
 
 export interface Breadcrumb {
   browserType: string
@@ -30,7 +29,6 @@ const BreadcrumbContainer = ({
   previewAll,
 }: Breadcrumb) => {
   const initialPathSplit = path.split('/')
-  const username = useTypedSelector((state) => state.user.username)
 
   return (
     <>
@@ -54,26 +52,8 @@ const BreadcrumbContainer = ({
             icon = <FaFolder style={style} />
           }
 
-          const usernameItem =
-            index === 0 && browserType === 'feed' && path !== username
-
           return (
             <>
-              {usernameItem && (
-                <BreadcrumbItem
-                  key={index}
-                  style={{
-                    fontSize: '1.1em',
-                  }}
-                  to="#"
-                  onClick={() => {
-                    if (username) handleFolderClick(username)
-                  }}
-                >
-                  <FaHome style={style} />
-                  {username}
-                </BreadcrumbItem>
-              )}
               <BreadcrumbItem
                 to={index !== 0 || browserType !== 'uploads' ? '#' : undefined}
                 style={{
