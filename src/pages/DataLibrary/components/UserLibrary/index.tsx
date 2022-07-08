@@ -48,8 +48,6 @@ const DataLibrary = () => {
     FileSelect[]
   >([])
 
-  console.log('STATE', state)
-
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal)
     setLocalFiles([])

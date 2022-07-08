@@ -78,7 +78,7 @@ function FolderCard({
   const { state } = useContext(LibraryContext)
   const { handlers } = useLongPress()
   const { handleOnClick, handleOnMouseDown } = handlers
-  const { selectedFolder, currentPath } = state
+  const { selectedFolder } = state
   const [feedDetails, setFeedDetails] = useState({
     name: '',
     commitDate: '',
@@ -87,34 +87,24 @@ function FolderCard({
   const background = selectedFolder.some((file) => {
     return file.folder.path === `${folder.path}/${folder.name}`
   })
+  const path = folder.path.split('/')
+  const isRoot = browserType === 'feed' && path.length === 1
 
-  /*
-  const feedPath =
-    currentPath['feed'] &&
-    currentPath['feed'][0].split('/').length === 1 &&
-    true
-    */
+  React.useEffect(() => {
+    async function fetchFeedName() {
+      if (isRoot) {
+        const client = ChrisAPIClient.getClient()
+        const id = folder.name.split('_')[1]
+        const feed = await client.getFeed(parseInt(id))
+        setFeedDetails({
+          name: feed.data.name,
+          commitDate: feed.data.creation_date,
+        })
+      }
+    }
+    fetchFeedName()
+  }, [browserType, folder, isRoot])
 
-  // const isRoot = browserType === 'feed' && feedPath
-  /*
-   React.useEffect(() => {
-     async function fetchFeedName() {
-       /*
-       if (isRoot) {
-         const client = ChrisAPIClient.getClient()
-         const id = folder.name.split('_')[1]
-         const feed = await client.getFeed(parseInt(id))
-         setFeedDetails({
-           name: feed.data.name,
-           commitDate: feed.data.creation_date,
-         })
-       }
-       
-     }
-     fetchFeedName()
-   }, [browserType, folder, isRoot])
- 
- */
   return (
     <TooltipParent>
       <Card
@@ -146,10 +136,9 @@ function FolderCard({
             </SplitItem>
             <SplitItem isFilled>
               <Button style={{ padding: 0 }} variant="link">
-                {
-                  /*
-
- {isRoot ? (
+                <b>
+                  {' '}
+                  {isRoot ? (
                     !feedDetails.name ? (
                       <Spin />
                     ) : (
@@ -158,11 +147,6 @@ function FolderCard({
                   ) : (
                     elipses(folder.name, 36)
                   )}
-                  */
-                }
-                {elipses(folder.name, 36)}
-                <b>
-
                 </b>
               </Button>
               <div>
