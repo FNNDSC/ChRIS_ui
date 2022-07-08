@@ -152,15 +152,13 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
       <div className="node-details">
         <div className="node-details__title">
           <PluginTitle />
-          <Button
-            onClick={() => {
+
+            
+<FaWindowClose onClick={() => {
               expandDrawer('side_panel')
-            }}
-            variant="tertiary"
-            type="button"
-            icon={<FaWindowClose />}
-            className="node-details__title--button"
-          />
+            }} className="node-details__title--button" />
+            
+
         </div>
 
         <Grid className="node-details__grid">
