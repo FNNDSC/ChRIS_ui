@@ -1,4 +1,4 @@
-import { FileSelect, Types } from "./index";
+import { FileSelect, Types } from './index'
 
 export const setCurrentPath = (path: string, type: string) => {
   return {
@@ -7,18 +7,18 @@ export const setCurrentPath = (path: string, type: string) => {
       path,
       type,
     },
-  };
-};
+  }
+}
 
-export const setCurrentPathSearch = (paths: string[], type: string) => {
+export const setCurrentPathSearch = (path: string, type: string) => {
   return {
     type: Types.SET_CURRENT_PATH_SEARCH,
     payload: {
-      paths,
+      path,
       type,
     },
-  };
-};
+  }
+}
 
 export const setSearch = (type: string) => {
   return {
@@ -26,8 +26,26 @@ export const setSearch = (type: string) => {
     payload: {
       type,
     },
-  };
-};
+  }
+}
+
+export const clearSearchFilter = (type: string) => {
+  return {
+    type: Types.CLEAR_SEARCH_FILTER,
+    payload: {
+      type,
+    },
+  }
+}
+
+export const backToSearchResults = (type: string) => {
+  return {
+    type: Types.BACK_TO_SEARCH_RESULTS,
+    payload: {
+      type,
+    },
+  }
+}
 
 export const setTogglePreview = (previewAll: boolean) => {
   return {
@@ -35,8 +53,8 @@ export const setTogglePreview = (previewAll: boolean) => {
     payload: {
       previewAll,
     },
-  };
-};
+  }
+}
 
 export const clearFolderState = (path: string, type: string) => {
   return {
@@ -45,8 +63,8 @@ export const clearFolderState = (path: string, type: string) => {
       path,
       type,
     },
-  };
-};
+  }
+}
 
 export const clearFilesState = (path: string, type: string) => {
   return {
@@ -55,8 +73,8 @@ export const clearFilesState = (path: string, type: string) => {
       path,
       type,
     },
-  };
-};
+  }
+}
 
 export const setLoading = (loading: boolean) => {
   return {
@@ -64,8 +82,8 @@ export const setLoading = (loading: boolean) => {
     payload: {
       loading,
     },
-  };
-};
+  }
+}
 
 export const setFolders = (folders: any[], path: string) => {
   return {
@@ -74,18 +92,53 @@ export const setFolders = (folders: any[], path: string) => {
       folders,
       path,
     },
-  };
-};
+  }
+}
 
-export const setSearchedFolders = (folders: any[], type: string) => {
+export const setSearchedFolders = (
+  folders: any[],
+  path: string,
+  type: string,
+) => {
   return {
     type: Types.SET_SEARCHED_FOLDERS,
     payload: {
       folders,
+      path,
       type,
     },
-  };
-};
+  }
+}
+
+export const setCurrentSearchFolder = (
+  folders: any[],
+  path: string,
+  type: string,
+) => {
+  return {
+    type: Types.SET_CURRENT_SEARCH_FOLDERS,
+    payload: {
+      folders,
+      path,
+      type,
+    },
+  }
+}
+
+export const setCurrentSearchFiles = (
+  files: any[],
+  path: string,
+  type: string,
+) => {
+  return {
+    type: Types.SET_CURRENT_SEARCH_FILES,
+    payload: {
+      files,
+      path,
+      type,
+    },
+  }
+}
 
 export const setFiles = (files: any[], path: string) => {
   return {
@@ -94,8 +147,8 @@ export const setFiles = (files: any[], path: string) => {
       files,
       path,
     },
-  };
-};
+  }
+}
 
 export const clearSelectFolder = (file: FileSelect) => {
   return {
@@ -103,8 +156,8 @@ export const clearSelectFolder = (file: FileSelect) => {
     payload: {
       selectFolder: file,
     },
-  };
-};
+  }
+}
 
 export const setSelectFolder = (payload: FileSelect) => {
   return {
@@ -112,8 +165,8 @@ export const setSelectFolder = (payload: FileSelect) => {
     payload: {
       selectFolder: payload,
     },
-  };
-};
+  }
+}
 
 export const setFolderDetails = (totalCount: number, currentFolder: string) => {
   return {
@@ -122,8 +175,8 @@ export const setFolderDetails = (totalCount: number, currentFolder: string) => {
       totalCount,
       currentFolder,
     },
-  };
-};
+  }
+}
 
 export const setHideTooltip = (tooltip: boolean) => {
   return {
@@ -131,5 +184,5 @@ export const setHideTooltip = (tooltip: boolean) => {
     payload: {
       tooltip,
     },
-  };
-};
+  }
+}

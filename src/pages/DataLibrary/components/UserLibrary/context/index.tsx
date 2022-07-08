@@ -22,10 +22,12 @@ interface LibraryState {
     [key: string]: { path: string; name: string }[]
   }
   currentSearchFiles: {
-    [key: string]: any[]
+    [key: string]: { [key: string]: any[] }
   }
   currentSearchFolders: {
-    [key: string]: { path: string; name: string }[]
+    [key: string]: {
+      [key: string]: { name: string; path: string }[]
+    }
   }
   folderDetails: {
     currentFolder: string
@@ -39,10 +41,10 @@ interface LibraryState {
     [key: string]: string[]
   }
   searchedFoldersState: {
-    [key: string]: { path: string, name: string }[]
+    [key: string]: { [key: string]: { name: string; path: string }[] }[]
   }
   searchPath: {
-    [key: string]: string[]
+    [key: string]: string
   }
   search: {
     [key: string]: boolean
@@ -66,19 +68,19 @@ function getInitialState(): LibraryState {
     search: {},
     searchedFoldersState: {},
     currentSearchFolders: {},
-    currentSearchFiles: {}
+    currentSearchFiles: {},
   }
 }
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
-  ? {
-    type: Key
-  }
-  : {
-    type: Key
-    payload: M[Key]
-  }
+    ? {
+        type: Key
+      }
+    : {
+        type: Key
+        payload: M[Key]
+      }
 }
 
 export enum Types {
@@ -99,7 +101,9 @@ export enum Types {
   CLEAR_FILES_STATE = 'CLEAR_FILES_STATE',
   SET_TOOLTIP = 'SET_TOOLTIP',
   SET_CURRENT_SEARCH_FOLDERS = 'SET_CURRENT_SEARCH_FOLDERS',
-  SET_CURRENT_SEARCH_FILES = 'SET_CURRENT_SEARCH_FILES'
+  SET_CURRENT_SEARCH_FILES = 'SET_CURRENT_SEARCH_FILES',
+  CLEAR_SEARCH_FILTER = 'CLEAR_SEARCH_FILTER',
+  BACK_TO_SEARCH_RESULTS = 'BACK_TO_SEARCH_RESULTS',
 }
 
 type LibraryPayload = {
@@ -113,18 +117,20 @@ type LibraryPayload = {
   }
 
   [Types.SET_CURRENT_SEARCH_FOLDERS]: {
-    currentSearchedFolders: { path: string, name: string }[]
+    folders: { path: string; name: string }[]
     path: string
+    type: string
   }
 
   [Types.SET_CURRENT_SEARCH_FILES]: {
     files: any[]
     path: string
+    type: string
   }
 
-
   [Types.SET_SEARCHED_FOLDERS]: {
-    folders: { path: string, name: string }[]
+    folders: { path: string; name: string }[]
+    path: string
     type: string
   }
 
@@ -181,6 +187,12 @@ type LibraryPayload = {
   [Types.SET_SEARCH]: {
     type: string
   }
+  [Types.CLEAR_SEARCH_FILTER]: {
+    type: string
+  }
+  [Types.BACK_TO_SEARCH_RESULTS]: {
+    type: string
+  }
 }
 
 export type LibraryActions = ActionMap<LibraryPayload>[keyof ActionMap<
@@ -218,13 +230,41 @@ export const libraryReducer = (
       }
     }
 
+    case Types.SET_CURRENT_SEARCH_FOLDERS: {
+      const { type, folders, path } = action.payload
+
+      return {
+        ...state,
+        currentSearchFolders: {
+          [type]: {
+            [path]: folders,
+          },
+        },
+      }
+    }
+
     case Types.SET_SEARCHED_FOLDERS: {
+      const { type, path, folders } = action.payload
+
+      if (state.searchedFoldersState[type]) {
+        return {
+          ...state,
+          searchedFoldersState: {
+            ...state.searchedFoldersState,
+            [type]: [...state.searchedFoldersState[type], { [path]: folders }],
+          },
+        }
+      }
       return {
         ...state,
         searchedFoldersState: {
           ...state.searchedFoldersState,
-          [action.payload.type]: action.payload.folders
-        }
+          [type]: [
+            {
+              [path]: folders,
+            },
+          ],
+        },
       }
     }
 
@@ -233,13 +273,51 @@ export const libraryReducer = (
         ...state,
         search: {
           ...state.search,
-          [action.payload.type]: true
-        }
+          [action.payload.type]: true,
+        },
+      }
+    }
+
+    case Types.CLEAR_SEARCH_FILTER: {
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          [action.payload.type]: false,
+        },
+        currentSearchFiles: {
+          [action.payload.type]: {},
+        },
+        currentSearchFolders: {
+          [action.payload.type]: {},
+        },
+        searchPath: {
+          [action.payload.type]: '',
+        },
+        searchedFoldersState: {
+          ...state.searchedFoldersState,
+          [action.payload.type]: [],
+        },
+      }
+    }
+
+    case Types.BACK_TO_SEARCH_RESULTS: {
+      return {
+        ...state,
+        searchPath: {
+          ...state.searchPath,
+          [action.payload.type]: '',
+        },
+        currentSearchFiles: {
+          [action.payload.type]: {},
+        },
+        currentSearchFolders: {
+          [action.payload.type]: {},
+        },
       }
     }
 
     case Types.SET_CURRENT_PATH: {
-
       const { type, path } = action.payload
       return {
         ...state,
@@ -247,19 +325,17 @@ export const libraryReducer = (
           [type]: [path],
         },
       }
-
     }
+
     case Types.SET_CURRENT_PATH_SEARCH: {
       const { type, path } = action.payload
       return {
         ...state,
         searchPath: {
-          [type]: [path],
+          [type]: path,
         },
       }
-
     }
-
 
     case Types.SET_FILES: {
       if (action.payload.files.length == 0) {
@@ -278,6 +354,20 @@ export const libraryReducer = (
       }
     }
 
+    case Types.SET_CURRENT_SEARCH_FILES: {
+      const { type, files, path } = action.payload
+
+      return {
+        ...state,
+        currentSearchFiles: {
+          ...state.currentSearchFiles,
+          [type]: {
+            [path]: files,
+          },
+        },
+      }
+    }
+
     case Types.SET_SELECTED_FOLDER: {
       const {
         folder,
@@ -289,7 +379,7 @@ export const libraryReducer = (
         type,
         folder,
         previousPath,
-        operation
+        operation,
       }
       return {
         ...state,
