@@ -36,12 +36,9 @@ describe('Testing Login Page', () => {
       it('logs into the page and confirms user has been created', () => {
 
         cy.intercept('POST', 'http://localhost:8000/api/v1/auth-token/').as('signup')
-
-        cy.wait(5000).screenshot()
-
-        cy.get('.pf-c-button.pf-m-primary').click()
-
-        cy.wait('@signup').its('response.statusCode').should('eq', 200)
+          .get('.pf-c-button.pf-m-primary').click()
+          .wait(5000).screenshot()
+          .wait('@signup').its('response.statusCode').should('eq', 200)
 
       })
     })  
