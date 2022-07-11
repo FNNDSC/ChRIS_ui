@@ -78,7 +78,7 @@ function FolderCard({
   const { state } = useContext(LibraryContext)
   const { handlers } = useLongPress()
   const { handleOnClick, handleOnMouseDown } = handlers
-  const { selectedFolder, currentPath } = state
+  const { selectedFolder } = state
   const [feedDetails, setFeedDetails] = useState({
     name: '',
     commitDate: '',
@@ -87,13 +87,9 @@ function FolderCard({
   const background = selectedFolder.some((file) => {
     return file.folder.path === `${folder.path}/${folder.name}`
   })
+  const path = folder.path.split('/')
+  const isRoot = browserType === 'feed' && path.length === 1
 
-  const feedPath =
-    currentPath['feed'] &&
-    currentPath['feed'][0].split('/').length === 1 &&
-    true
-
-  const isRoot = browserType === 'feed' && feedPath
   React.useEffect(() => {
     async function fetchFeedName() {
       if (isRoot) {
@@ -141,6 +137,7 @@ function FolderCard({
             <SplitItem isFilled>
               <Button style={{ padding: 0 }} variant="link">
                 <b>
+                  {' '}
                   {isRoot ? (
                     !feedDetails.name ? (
                       <Spin />
@@ -168,7 +165,7 @@ function FolderCard({
 function FileCard({ file, browserType }: { file: any; browserType: string }) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder } = state
+  const { selectedFolder , previewAll} = state
   const { handleOnClick, handleOnMouseDown } = handlers
   const fileNameArray = file.data.fname.split('/')
   const fileName = fileNameArray[fileNameArray.length - 1]
@@ -223,6 +220,17 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
             </CardTitle>
           </CardHeader>
           <CardBody>
+            {previewAll && (
+              <div
+                style={{
+                  margin: '-1.15em -1.15em 1em -1.15em',
+                  maxHeight: '10em',
+                  overflow: 'hidden',
+                }}
+              >
+                <FileDetailView selectedFile={file} preview="small" />
+              </div>
+            )}
             <div>
               <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
               <Button
