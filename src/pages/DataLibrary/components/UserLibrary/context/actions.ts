@@ -1,5 +1,14 @@
 import { FileSelect, Types } from './index'
 
+export const setFetching = (fetching: boolean) => {
+  return {
+    type: Types.SET_FETCHING_RESOURCES,
+    payload: {
+      fetching,
+    },
+  }
+}
+
 export const setCurrentPath = (path: string, type: string) => {
   return {
     type: Types.SET_CURRENT_PATH,
@@ -132,12 +141,13 @@ export const setCurrentSearchFiles = (
   }
 }
 
-export const setFiles = (files: any[], path: string) => {
+export const setFiles = (files: any[], path: string, type: string) => {
   return {
     type: Types.SET_FILES,
     payload: {
       files,
       path,
+      type,
     },
   }
 }

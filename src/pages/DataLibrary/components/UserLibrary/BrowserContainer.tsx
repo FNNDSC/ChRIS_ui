@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import { Label, Button, EmptyState, Title } from '@patternfly/react-core'
 import BreadcrumbContainer from './BreadcrumbContainer'
 import { Browser } from './Browser'
@@ -15,6 +15,7 @@ import {
   setCurrentSearchFiles,
   clearSearchFilter,
   backToSearchResults,
+  setFetching,
 } from './context/actions'
 import { Spin } from 'antd'
 
@@ -29,7 +30,7 @@ const BrowserContainer = ({
   path: rootPath,
 }: BrowserContainerInterface) => {
   const { state, dispatch } = useContext(LibraryContext)
-  const [loading, setLoading] = useState<boolean>(true)
+
   const {
     foldersState,
     currentPath,
@@ -37,11 +38,12 @@ const BrowserContainer = ({
     folderDetails,
     previewAll,
     search,
+    fetchingResources,
   } = state
 
   const resourcesFetch = React.useCallback(
     async (path: string) => {
-      setLoading(true)
+      dispatch(setFetching(true))
       const client = ChrisAPIClient.getClient()
       const uploads = await client.getFileBrowserPaths({
         path,
@@ -82,7 +84,6 @@ const BrowserContainer = ({
           dispatch(setFolders(folders, path, type))
         }
       }
-      setLoading(false)
     },
     [dispatch, type, search],
   )
@@ -94,6 +95,7 @@ const BrowserContainer = ({
 
     if (!search[type] && !currentPath[type] && !foldersState[type]) {
       fetchUploads()
+      dispatch(setFetching(false))
     }
   }, [
     rootPath,
@@ -127,7 +129,7 @@ const BrowserContainer = ({
           if (search[type]) {
             dispatch(setCurrentSearchFiles(files, path, type))
           } else {
-            dispatch(setFiles(files, path))
+            dispatch(setFiles(files, path, type))
           }
 
           const currentFolderSplit = path.split('/')
@@ -138,6 +140,7 @@ const BrowserContainer = ({
         }
       }
     }
+    dispatch(setFetching(false))
   }
 
   const togglePreview = () => {
@@ -146,8 +149,8 @@ const BrowserContainer = ({
 
   const path = currentPath[type]
   const folders = foldersState[type] && foldersState[type][path]
-  const files = filesState[path]
-  const noData = path && !folders
+  const files = filesState[type] && filesState[type][path]
+  const noData = path && !folders && !files && !fetchingResources
 
   return (
     <>
@@ -187,7 +190,7 @@ const BrowserContainer = ({
                 previewAll={previewAll}
                 togglePreview={togglePreview}
               />
-              {loading ? (
+              {fetchingResources ? (
                 <div className="spin-container">
                   <Spin size="large" spinning />
                 </div>
