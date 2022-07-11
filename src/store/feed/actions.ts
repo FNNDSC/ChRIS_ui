@@ -55,6 +55,15 @@ export const mergeFeedError = (error: string) =>
   action(FeedActionTypes.MERGE_FEED_ERROR, error)
 export const mergeFeedSuccess = (feed: Feed[]) =>
   action(FeedActionTypes.MERGE_FEED_SUCCESS, feed)
+  
+// Feed Duplicate
+export const duplicateFeedRequest = (feed: Feed[], name: any) =>
+  action(FeedActionTypes.DUPLICATE_FEED_REQUEST, feed, name)
+export const duplicateFeedError = (error: string) =>
+  action(FeedActionTypes.DUPLICATE_FEED_ERROR, error)
+export const duplicateFeedSuccess = (feed: Feed[]) =>
+  action(FeedActionTypes.DUPLICATE_FEED_SUCCESS, feed)
+  
 export const setFeedLayout = () => action(FeedActionTypes.SET_LAYOUT)
 
 export const resetFeed = () => action(FeedActionTypes.RESET_FEED)
