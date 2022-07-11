@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-
+    if: false
     steps:
       - uses: actions/checkout@v3
         with:
@@ -66,4 +66,3 @@ jobs:
           short-description: ChRIS user interface
           readme-filepath: ./README.md
           repository: fnndsc/chris_ui
-      
