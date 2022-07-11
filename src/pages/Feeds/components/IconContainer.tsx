@@ -64,6 +64,13 @@ const IconContainer = () => {
 
   const handleSubmit = () =>{
      handleChange(actionValue,nameValue)
+     if(downloadError){
+       console.log(downloadError)
+       setModalOpen(isModalOpen);
+     }
+     else{
+       setModalOpen(!isModalOpen);
+     }
   };
   
   
@@ -76,15 +83,11 @@ const IconContainer = () => {
   
   const handleChange = (type: string,name:any) => {
 
-    try{
-      type === 'download' && dispatch(downloadFeedRequest(bulkSelect,name))
-      type === 'merge' && dispatch(mergeFeedRequest(bulkSelect,name))
-      type === 'delete' && dispatch(deleteFeed(bulkSelect))
-      dispatch(toggleSelectAll(false));
-    }
-    catch(error){
-      return error
-    }
+    type === 'download' && dispatch(downloadFeedRequest(bulkSelect,name))
+    type === 'merge' && dispatch(mergeFeedRequest(bulkSelect,name))
+    type === 'delete' && dispatch(deleteFeed(bulkSelect))
+    dispatch(toggleSelectAll(false));
+
   }
   return (
     <ToggleGroup aria-label="Feed Action Bar">
@@ -138,7 +141,7 @@ const IconContainer = () => {
           </Button>
         ]}
       >
-        <Form id="modal-with-form-form" >
+        <Form id="modal-with-form-form">
           <FormGroup
             label="Feed Name"
             fieldId="modal-with-form-form-name"
@@ -152,9 +155,7 @@ const IconContainer = () => {
               onChange={handleNameInputChange}
               ref={nameInputRef}
             />
-          </FormGroup>
-        </Form>
-       {downloadError?
+            {downloadError?
         <Alert
           isInline
           variant="danger"
@@ -163,6 +164,9 @@ const IconContainer = () => {
         
         </Alert>
         :''} 
+          </FormGroup>
+        </Form>
+       
       </Modal>
     </ToggleGroup>
   )
