@@ -165,7 +165,7 @@ function FolderCard({
 function FileCard({ file, browserType }: { file: any; browserType: string }) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder } = state
+  const { selectedFolder , previewAll} = state
   const { handleOnClick, handleOnMouseDown } = handlers
   const fileNameArray = file.data.fname.split('/')
   const fileName = fileNameArray[fileNameArray.length - 1]
@@ -220,6 +220,17 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
             </CardTitle>
           </CardHeader>
           <CardBody>
+            {previewAll && (
+              <div
+                style={{
+                  margin: '-1.15em -1.15em 1em -1.15em',
+                  maxHeight: '10em',
+                  overflow: 'hidden',
+                }}
+              >
+                <FileDetailView selectedFile={file} preview="small" />
+              </div>
+            )}
             <div>
               <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
               <Button
