@@ -49,7 +49,7 @@ const DataLibrary = () => {
     FileSelect[]
   >([])
 
-  console.log("STATE", state);
+  console.log('STATE', state)
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal)
@@ -133,7 +133,6 @@ const DataLibrary = () => {
   }
 
   const downloadUtil = async (filesItems: any[]) => {
-    console.log('FileItems', filesItems)
     try {
       let writable
       //@ts-ignore
@@ -228,13 +227,13 @@ const DataLibrary = () => {
   }
 
   const deleteUtil = (file: FileSelect) => {
-    const folders = foldersState[file.previousPath]
+    const folders = foldersState[file.type][file.previousPath]
 
     if (folders && folders.length > 0) {
       const foldersFiltered = folders.filter((folder) => {
         return `${folder.path}/${folder.name}` !== file.folder.path
       })
-      dispatchLibrary(setFolders(foldersFiltered, file.previousPath))
+      dispatchLibrary(setFolders(foldersFiltered, file.previousPath, file.type))
       dispatchLibrary(clearSelectFolder(file))
     }
   }

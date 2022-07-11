@@ -19,7 +19,9 @@ interface LibraryState {
     [key: string]: any[]
   }
   foldersState: {
-    [key: string]: { path: string; name: string }[]
+    [key: string]: {
+      [key: string]: { path: string; name: string }[]
+    }
   }
   currentSearchFiles: {
     [key: string]: { [key: string]: any[] }
@@ -34,12 +36,9 @@ interface LibraryState {
     totalCount: number
   }
   previewAll: boolean
-  loading: boolean
   selectedFolder: FileSelect[]
   tooltip: boolean
-  currentPath: {
-    [key: string]: string[]
-  }
+  currentPath: { [key: string]: string }
   searchedFoldersState: {
     [key: string]: { [key: string]: { name: string; path: string }[] }[]
   }
@@ -47,6 +46,9 @@ interface LibraryState {
     [key: string]: string
   }
   search: {
+    [key: string]: boolean
+  }
+  emptySetIndicator: {
     [key: string]: boolean
   }
 }
@@ -60,7 +62,7 @@ function getInitialState(): LibraryState {
       totalCount: 0,
     },
     previewAll: false,
-    loading: false,
+
     selectedFolder: [],
     tooltip: false,
     currentPath: {},
@@ -69,6 +71,7 @@ function getInitialState(): LibraryState {
     searchedFoldersState: {},
     currentSearchFolders: {},
     currentSearchFiles: {},
+    emptySetIndicator: {},
   }
 }
 
@@ -90,7 +93,7 @@ export enum Types {
   SET_CURRENT_PATH_SEARCH = 'SET_CURRENT_PATH_SEARCH',
   SET_SEARCHED_FOLDERS = 'SET_SEARCHED_FOLDERS',
   SET_SEARCH = 'SET_SEARCH',
-  SET_LOADING = 'SET_LOADING',
+
   SET_FOLDER_DETAILS = 'SET_FOLDER_DETAILS',
   SET_PREVIEW_ALL = 'SET_PREVIEW_ALL',
   SET_ADD_FOLDER = 'SET_ADD_FOLDER',
@@ -104,6 +107,7 @@ export enum Types {
   SET_CURRENT_SEARCH_FILES = 'SET_CURRENT_SEARCH_FILES',
   CLEAR_SEARCH_FILTER = 'CLEAR_SEARCH_FILTER',
   BACK_TO_SEARCH_RESULTS = 'BACK_TO_SEARCH_RESULTS',
+  SET_EMPTY_INDICATOR = 'SET_EMPTY_INDICATOR',
 }
 
 type LibraryPayload = {
@@ -114,6 +118,7 @@ type LibraryPayload = {
   [Types.SET_FOLDERS]: {
     folders: { path: string; name: string }[]
     path: string
+    type: string
   }
 
   [Types.SET_CURRENT_SEARCH_FOLDERS]: {
@@ -144,9 +149,6 @@ type LibraryPayload = {
     path: string
   }
 
-  [Types.SET_LOADING]: {
-    loading: false
-  }
   [Types.SET_FOLDER_DETAILS]: {
     currentFolder: string
     totalCount: number
@@ -193,6 +195,10 @@ type LibraryPayload = {
   [Types.BACK_TO_SEARCH_RESULTS]: {
     type: string
   }
+  [Types.SET_EMPTY_INDICATOR]: {
+    type: string
+    value: boolean
+  }
 }
 
 export type LibraryActions = ActionMap<LibraryPayload>[keyof ActionMap<
@@ -213,19 +219,14 @@ export const libraryReducer = (
 ): LibraryState => {
   switch (action.type) {
     case Types.SET_FOLDERS: {
+      const { type, path, folders } = action.payload
       return {
         ...state,
         foldersState: {
-          [action.payload.path]: action.payload.folders,
-        },
-      }
-    }
-
-    case Types.SET_FOLDERS: {
-      return {
-        ...state,
-        foldersState: {
-          [action.payload.path]: action.payload.folders,
+          ...state.foldersState,
+          [type]: {
+            [path]: folders,
+          },
         },
       }
     }
@@ -281,6 +282,7 @@ export const libraryReducer = (
     case Types.CLEAR_SEARCH_FILTER: {
       return {
         ...state,
+        emptySetIndicator: {},
         search: {
           ...state.search,
           [action.payload.type]: false,
@@ -322,7 +324,8 @@ export const libraryReducer = (
       return {
         ...state,
         currentPath: {
-          [type]: [path],
+          ...state.currentPath,
+          [type]: path,
         },
       }
     }
@@ -426,25 +429,43 @@ export const libraryReducer = (
     case Types.SET_ADD_FOLDER: {
       const { username, folder } = action.payload
       const path = `${username}/uploads`
+      const type = 'uploads'
       const folderDetails = {
         name: folder,
         path,
       }
 
-      if (state.foldersState[path]) {
+      if (state.foldersState[type] && state.foldersState[type][path]) {
+        const previousFolders = state.foldersState[type][path]
         return {
           ...state,
           foldersState: {
-            [path]: [...state.foldersState[path], folderDetails],
+            ...state.foldersState,
+            [type]: {
+              [path]: [...previousFolders, folderDetails],
+            },
           },
         }
       } else {
         return {
           ...state,
           foldersState: {
-            [path]: [folderDetails],
+            ...state.foldersState,
+            [type]: {
+              [path]: [folderDetails],
+            },
           },
         }
+      }
+    }
+
+    case Types.SET_EMPTY_INDICATOR: {
+      const { type, value } = action.payload
+      return {
+        ...state,
+        emptySetIndicator: {
+          [type]: value,
+        },
       }
     }
     default:

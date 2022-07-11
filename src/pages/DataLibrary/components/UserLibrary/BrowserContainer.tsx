@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import { Label, Button } from '@patternfly/react-core'
+import { Label, Button, EmptyState, Title } from '@patternfly/react-core'
 import BreadcrumbContainer from './BreadcrumbContainer'
 import { Browser } from './Browser'
 import { LibraryContext } from './context'
@@ -79,7 +79,7 @@ const BrowserContainer = ({
         if (search[type] === true) {
           dispatch(setCurrentSearchFolder(folders, path, type))
         } else {
-          dispatch(setFolders(folders, path))
+          dispatch(setFolders(folders, path, type))
         }
       }
       setLoading(false)
@@ -92,10 +92,18 @@ const BrowserContainer = ({
       resourcesFetch(rootPath)
     }
 
-    if (!search[type]) {
+    if (!search[type] && !currentPath[type] && !foldersState[type]) {
       fetchUploads()
     }
-  }, [rootPath, dispatch, resourcesFetch, search, type])
+  }, [
+    rootPath,
+    dispatch,
+    resourcesFetch,
+    search,
+    type,
+    currentPath,
+    foldersState,
+  ])
 
   const handleFolderClick = async (path: string) => {
     const client = ChrisAPIClient.getClient()
@@ -135,10 +143,19 @@ const BrowserContainer = ({
   const togglePreview = () => {
     dispatch(setTogglePreview(!previewAll))
   }
+
+  const path = currentPath[type]
+  const folders = foldersState[type] && foldersState[type][path]
+  const files = filesState[path]
+  const noData = path && !folders
+
   return (
     <>
       {search[type] === true && (
         <Label
+          style={{
+            marginTop: '1em',
+          }}
           color="blue"
           icon
           onClose={() => {
@@ -159,40 +176,41 @@ const BrowserContainer = ({
         </div>
       ) : (
         <>
-          {currentPath[type] && currentPath[type].length > 0 ? (
-            currentPath[type].map((path, index) => {
-              const folders = foldersState[path]
-              const files = filesState[path]
-              return (
-                <div key={index}>
-                  <BreadcrumbContainer
-                    browserType={type}
-                    handleFolderClick={handleFolderClick}
-                    path={path}
-                    files={files}
-                    folderDetails={folderDetails}
-                    previewAll={previewAll}
-                    togglePreview={togglePreview}
-                  />
-                  {loading ? (
-                    <div className="spin-container">
-                      <Spin size="large" spinning />
-                    </div>
-                  ) : (
-                    <Browser
-                      handleFolderClick={handleFolderClick}
-                      folders={folders}
-                      files={files}
-                      browserType={type}
-                    />
-                  )}
+          {currentPath[type] && foldersState[type] ? (
+            <div>
+              <BreadcrumbContainer
+                browserType={type}
+                handleFolderClick={handleFolderClick}
+                path={path}
+                files={files}
+                folderDetails={folderDetails}
+                previewAll={previewAll}
+                togglePreview={togglePreview}
+              />
+              {loading ? (
+                <div className="spin-container">
+                  <Spin size="large" spinning />
                 </div>
-              )
-            })
+              ) : (
+                <Browser
+                  handleFolderClick={handleFolderClick}
+                  folders={folders}
+                  files={files}
+                  browserType={type}
+                />
+              )}
+            </div>
           ) : (
             <div className="spin-container">
               <Spin size="large" spinning />
             </div>
+          )}
+          {noData && (
+            <EmptyState>
+              <Title headingLevel="h4" size="lg">
+                No Data Found for the path {path}
+              </Title>
+            </EmptyState>
           )}
         </>
       )}
@@ -219,6 +237,7 @@ export const SearchContainer = ({
     folderDetails,
     previewAll,
     searchPath,
+    emptySetIndicator,
   } = state
 
   const resources = searchedFoldersState[type]
@@ -286,6 +305,13 @@ export const SearchContainer = ({
             </div>
           )
         })
+      )}
+      {emptySetIndicator[type] && (
+        <EmptyState>
+          <Title headingLevel="h4" size="lg">
+            We couldn&apos;t find anything for your search
+          </Title>
+        </EmptyState>
       )}
     </>
   )
