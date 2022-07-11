@@ -147,7 +147,7 @@ const BrowserContainer = ({
   const path = currentPath[type]
   const folders = foldersState[type] && foldersState[type][path]
   const files = filesState[path]
-  const noData = path && !folders
+  const noData = path && !folders && !files
 
   return (
     <>
