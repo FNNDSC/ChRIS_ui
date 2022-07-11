@@ -119,7 +119,6 @@ export const handleUploadedFiles = (
 
   if (uploadedFolders.length > 0) {
     dispatch(setSearchedFolders(uploadedFolders, path, 'uploads'))
-    dispatch(setSearch('uploads'))
   }
 }
 
@@ -149,8 +148,6 @@ export const handleFeedFiles = (
     const folders = feedsDict[i]
     dispatch(setSearchedFolders(folders, i, 'feed'))
   }
-
-  dispatch(setSearch('feed'))
 }
 
 export const handlePacsFiles = (
@@ -179,6 +176,4 @@ export const handlePacsFiles = (
     const folders = pacsDict[i]
     dispatch(setSearchedFolders(folders, i, 'services'))
   }
-
-  dispatch(setSearch('services'))
 }
