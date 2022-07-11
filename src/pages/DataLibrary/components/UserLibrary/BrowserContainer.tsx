@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { Label, Button } from '@patternfly/react-core'
 import BreadcrumbContainer from './BreadcrumbContainer'
 import { Browser } from './Browser'
@@ -16,6 +16,7 @@ import {
   clearSearchFilter,
   backToSearchResults,
 } from './context/actions'
+import { Spin } from 'antd'
 
 interface BrowserContainerInterface {
   type: string
@@ -28,19 +29,19 @@ const BrowserContainer = ({
   path: rootPath,
 }: BrowserContainerInterface) => {
   const { state, dispatch } = useContext(LibraryContext)
-
+  const [loading, setLoading] = useState<boolean>(true)
   const {
     foldersState,
     currentPath,
     filesState,
     folderDetails,
     previewAll,
-
     search,
   } = state
 
   const resourcesFetch = React.useCallback(
     async (path: string) => {
+      setLoading(true)
       const client = ChrisAPIClient.getClient()
       const uploads = await client.getFileBrowserPaths({
         path,
@@ -81,6 +82,7 @@ const BrowserContainer = ({
           dispatch(setFolders(folders, path))
         }
       }
+      setLoading(false)
     },
     [dispatch, type, search],
   )
@@ -103,25 +105,29 @@ const BrowserContainer = ({
       offset: 0,
       totalCount: 0,
     }
+
     const pathList = await client.getFileBrowserPath(path)
-    const fileList = await pathList.getFiles({
-      limit: pagination.limit,
-      offset: pagination.offset,
-    })
+    if (pathList) {
+      const fileList = await pathList.getFiles({
+        limit: pagination.limit,
+        offset: pagination.offset,
+      })
 
-    if (fileList) {
-      const files = fileList.getItems()
-      if (files && files.length > 0) {
-        if (search[type]) {
-          dispatch(setCurrentSearchFiles(files, path, type))
-        } else {
-          dispatch(setFiles(files, path))
+      if (fileList) {
+        const files = fileList.getItems()
+        if (files && files.length > 0) {
+          if (search[type]) {
+            dispatch(setCurrentSearchFiles(files, path, type))
+          } else {
+            dispatch(setFiles(files, path))
+          }
+
+          const currentFolderSplit = path.split('/')
+          const currentFolder =
+            currentFolderSplit[currentFolderSplit.length - 1]
+          const totalCount = fileList.totalCount
+          dispatch(setFolderDetails(totalCount, currentFolder))
         }
-
-        const currentFolderSplit = path.split('/')
-        const currentFolder = currentFolderSplit[currentFolderSplit.length - 1]
-        const totalCount = fileList.totalCount
-        dispatch(setFolderDetails(totalCount, currentFolder))
       }
     }
   }
@@ -153,8 +159,7 @@ const BrowserContainer = ({
         </div>
       ) : (
         <>
-          {currentPath[type] &&
-            currentPath[type].length > 0 &&
+          {currentPath[type] && currentPath[type].length > 0 ? (
             currentPath[type].map((path, index) => {
               const folders = foldersState[path]
               const files = filesState[path]
@@ -169,15 +174,26 @@ const BrowserContainer = ({
                     previewAll={previewAll}
                     togglePreview={togglePreview}
                   />
-                  <Browser
-                    handleFolderClick={handleFolderClick}
-                    folders={folders}
-                    files={files}
-                    browserType={type}
-                  />
+                  {loading ? (
+                    <div className="spin-container">
+                      <Spin size="large" spinning />
+                    </div>
+                  ) : (
+                    <Browser
+                      handleFolderClick={handleFolderClick}
+                      folders={folders}
+                      files={files}
+                      browserType={type}
+                    />
+                  )}
                 </div>
               )
-            })}
+            })
+          ) : (
+            <div className="spin-container">
+              <Spin size="large" spinning />
+            </div>
+          )}
         </>
       )}
     </>
