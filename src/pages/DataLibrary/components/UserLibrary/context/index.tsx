@@ -338,19 +338,11 @@ export const libraryReducer = (
     }
 
     case Types.SET_FILES: {
-      if (action.payload.files.length == 0) {
-        return {
-          ...state,
-          filesState: {},
-        }
-      } else {
-        return {
-          ...state,
-          filesState: {
-            ...state.filesState,
-            [action.payload.path]: action.payload.files,
-          },
-        }
+      return {
+        ...state,
+        filesState: {
+          [action.payload.path]: action.payload.files,
+        },
       }
     }
 
