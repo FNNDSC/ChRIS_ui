@@ -103,6 +103,12 @@ function FolderCard({
       }
     }
     fetchFeedName()
+    return () => {
+      setFeedDetails({
+        name: '',
+        commitDate: '',
+      })
+    }
   }, [browserType, folder, isRoot])
 
   return (
@@ -165,7 +171,7 @@ function FolderCard({
 function FileCard({ file, browserType }: { file: any; browserType: string }) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder , previewAll} = state
+  const { selectedFolder, previewAll } = state
   const { handleOnClick, handleOnMouseDown } = handlers
   const fileNameArray = file.data.fname.split('/')
   const fileName = fileNameArray[fileNameArray.length - 1]

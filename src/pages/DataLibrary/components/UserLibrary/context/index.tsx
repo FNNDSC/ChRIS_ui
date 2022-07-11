@@ -16,7 +16,9 @@ export interface FileSelect {
 
 interface LibraryState {
   filesState: {
-    [key: string]: any[]
+    [key: string]: {
+      [key: string]: { path: string; name: string }[]
+    }
   }
   foldersState: {
     [key: string]: {
@@ -51,6 +53,7 @@ interface LibraryState {
   emptySetIndicator: {
     [key: string]: boolean
   }
+  fetchingResources: boolean
 }
 
 function getInitialState(): LibraryState {
@@ -72,6 +75,7 @@ function getInitialState(): LibraryState {
     currentSearchFolders: {},
     currentSearchFiles: {},
     emptySetIndicator: {},
+    fetchingResources: false,
   }
 }
 
@@ -93,7 +97,6 @@ export enum Types {
   SET_CURRENT_PATH_SEARCH = 'SET_CURRENT_PATH_SEARCH',
   SET_SEARCHED_FOLDERS = 'SET_SEARCHED_FOLDERS',
   SET_SEARCH = 'SET_SEARCH',
-
   SET_FOLDER_DETAILS = 'SET_FOLDER_DETAILS',
   SET_PREVIEW_ALL = 'SET_PREVIEW_ALL',
   SET_ADD_FOLDER = 'SET_ADD_FOLDER',
@@ -108,12 +111,14 @@ export enum Types {
   CLEAR_SEARCH_FILTER = 'CLEAR_SEARCH_FILTER',
   BACK_TO_SEARCH_RESULTS = 'BACK_TO_SEARCH_RESULTS',
   SET_EMPTY_INDICATOR = 'SET_EMPTY_INDICATOR',
+  SET_FETCHING_RESOURCES = 'SET_FETCHING_RESOURCES',
 }
 
 type LibraryPayload = {
   [Types.SET_FILES]: {
     files: any[]
     path: string
+    type: string
   }
   [Types.SET_FOLDERS]: {
     folders: { path: string; name: string }[]
@@ -199,6 +204,9 @@ type LibraryPayload = {
     type: string
     value: boolean
   }
+  [Types.SET_FETCHING_RESOURCES]: {
+    fetching: boolean
+  }
 }
 
 export type LibraryActions = ActionMap<LibraryPayload>[keyof ActionMap<
@@ -218,6 +226,15 @@ export const libraryReducer = (
   action: LibraryActions,
 ): LibraryState => {
   switch (action.type) {
+
+    case Types.SET_FETCHING_RESOURCES: {
+      
+      return {
+        ...state,
+        fetchingResources: action.payload.fetching,
+      }
+    }
+
     case Types.SET_FOLDERS: {
       const { type, path, folders } = action.payload
       return {
@@ -341,10 +358,14 @@ export const libraryReducer = (
     }
 
     case Types.SET_FILES: {
+      const { path, type, files } = action.payload
       return {
         ...state,
         filesState: {
-          [action.payload.path]: action.payload.files,
+          ...state.filesState,
+          [type]: {
+            [path]: files,
+          },
         },
       }
     }
