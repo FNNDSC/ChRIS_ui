@@ -182,6 +182,25 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         }
       }
     }
+    
+    case FeedActionTypes.DUPLICATE_FEED_SUCCESS: {
+      if (state.allFeeds.data) {
+        return {
+          ...state,
+          allFeeds: {
+            ...state.allFeeds,
+            data: [...action.payload, ...state.allFeeds.data],
+            totalFeedsCount:
+              state.allFeeds.totalFeedsCount + action.payload.length,
+          },
+          bulkSelect: [],
+        }
+      } else {
+        return {
+          ...state,
+        }
+      }
+    }
 
     case FeedActionTypes.DOWNLOAD_FEED_ERROR: {
       return {

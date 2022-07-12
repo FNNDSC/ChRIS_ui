@@ -31,6 +31,7 @@ import { clearSelectFolder, setFolders } from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'
 import { useDispatch } from 'react-redux'
 import { fetchResource } from '../../../../utils'
+import './user-library.scss'
 
 const DataLibrary = () => {
   const dispatch = useDispatch()
@@ -48,7 +49,7 @@ const DataLibrary = () => {
     FileSelect[]
   >([])
 
-  console.log('STATE', state)
+  console.log("STATE", state);
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal)
