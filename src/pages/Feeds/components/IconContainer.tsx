@@ -10,13 +10,15 @@ import {
   TextInput,
   Alert,
   Button } from '@patternfly/react-core'
-import { FaTrash, FaDownload, } from 'react-icons/fa'
+import { FaTrash, FaDownload} from 'react-icons/fa'
 import { VscMerge } from 'react-icons/vsc'
+import { MdCallSplit} from 'react-icons/md'
 import { useDispatch } from 'react-redux'
 import {
   downloadFeedRequest,
   deleteFeed,
   mergeFeedRequest,
+  duplicateFeedRequest,
   toggleSelectAll
 } from '../../../store/feed/actions'
 import { useTypedSelector } from '../../../store/hooks'
@@ -30,8 +32,11 @@ const IconContainer = () => {
     if(action=='merge'){
       prefix = 'Merge of '
     }
-    else{
+    else if(action=='download'){
       prefix = 'Archive of '
+    }
+    else{
+      prefix = ''
     }
     const feedNames = [];
     for(let i =0; i< bulkSelect.length; i++){
@@ -41,6 +46,9 @@ const IconContainer = () => {
     let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
     newFeedName = prefix + newFeedName;
     newFeedName = newFeedName.substring(0, 100);
+    if(action == 'duplicate'){
+      newFeedName = "duplicate-"
+    }
     return newFeedName;
   }
 
@@ -64,13 +72,6 @@ const IconContainer = () => {
 
   const handleSubmit = () =>{
      handleChange(actionValue,nameValue)
-     if(downloadError){
-       console.log(downloadError)
-       setModalOpen(isModalOpen);
-     }
-     else{
-       setModalOpen(!isModalOpen);
-     }
   };
   
   
@@ -86,6 +87,7 @@ const IconContainer = () => {
     type === 'download' && dispatch(downloadFeedRequest(bulkSelect,name))
     type === 'merge' && dispatch(mergeFeedRequest(bulkSelect,name))
     type === 'delete' && dispatch(deleteFeed(bulkSelect))
+    type === 'duplicate' && dispatch(duplicateFeedRequest(bulkSelect,name))
     dispatch(toggleSelectAll(false));
 
   }
@@ -113,6 +115,17 @@ const IconContainer = () => {
           </Tooltip>
         }
         onChange={()=>{handleModalToggle('merge')}}
+      />
+      <ToggleGroupItem
+        aria-label="feed-action"
+        icon={
+          <Tooltip content={<div>Duplicate selected feeds</div>}>
+            
+            <MdCallSplit />
+            
+          </Tooltip>
+        }
+        onChange={()=>{handleModalToggle('duplicate')}} 
       />
       <ToggleGroupItem
         aria-label="feed-action"

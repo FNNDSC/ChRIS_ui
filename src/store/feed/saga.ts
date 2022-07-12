@@ -13,6 +13,8 @@ import {
   downloadFeedSuccess,
   mergeFeedError,
   mergeFeedSuccess,
+  duplicateFeedError,
+  duplicateFeedSuccess,
   getFeedResourcesSucess,
   stopFetchingFeedResources,
 } from './actions'
@@ -143,6 +145,37 @@ function* handleMergeFeed(action: IActionTypeParam) {
   yield put(mergeFeedSuccess(newFeeds))
 }
 
+function* handleDuplicateFeed(action: IActionTypeParam) {
+  const feedList = action.payload
+  const client = ChrisAPIClient.getClient()
+  const cu = new cujs()
+  cu.setClient(client)
+
+  
+  const newFeeds = []
+  for (let i = 0; i < feedList.length; i++) {
+    const feedIdList = []
+    const data = feedList[i].data
+    const newFeedName = action.meta? action.meta+"-"+data.name : "duplicate-"+data.name
+    feedIdList.push(data.id)
+    try{
+      const createdFeed: Feed = yield cu.mergeMultipleFeeds(
+        feedIdList,
+        newFeedName,
+      )
+      newFeeds.push(createdFeed)
+    }
+    catch (error) {
+     //@ts-ignore
+      const errorParsed = error.response.data.value[0]
+      yield put(duplicateFeedError(errorParsed))
+      return error
+  }
+  }
+ 
+  yield put(duplicateFeedSuccess(newFeeds))
+}
+
 function* handleFeedInstanceStatus(feed: Feed) {
   const client = ChrisAPIClient.getClient()
   const cu = new cujs()
@@ -218,6 +251,9 @@ function* watchMergeRequest() {
   yield takeEvery(FeedActionTypes.MERGE_FEED_REQUEST, handleMergeFeed)
 }
 
+function* watchDuplicateRequest() {
+  yield takeEvery(FeedActionTypes.DUPLICATE_FEED_REQUEST, handleDuplicateFeed)
+}
 function* watchGetFeedResources() {
   yield takeEvery(
     FeedActionTypes.GET_FEED_RESOURCES_REQUEST,
@@ -231,6 +267,7 @@ export function* feedSaga() {
     fork(watchGetFeedRequest),
     fork(watchDownloadRequest),
     fork(watchMergeRequest),
+    fork(watchDuplicateRequest),
     fork(watchGetFeedResources),
   ])
 }
