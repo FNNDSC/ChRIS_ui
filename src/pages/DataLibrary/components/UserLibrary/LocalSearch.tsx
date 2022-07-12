@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { TextInput, Button, Spinner } from '@patternfly/react-core'
+import { TextInput, Button, Spinner, Label } from '@patternfly/react-core'
 import {
   searchUploadedFiles,
   searchFeedFiles,
@@ -29,12 +29,13 @@ const LocalSearch = ({
     uploads: '',
   })
 
-  const { dispatch } = useContext(LibraryContext)
+  const { dispatch, state } = useContext(LibraryContext)
   const [loading, setLoading] = React.useState<{ [key: string]: boolean }>({
     services: false,
     uploads: false,
     feed: false,
   })
+  const { search } = state
 
   const handleChange = (valueChanged: string) => {
     setValue({
@@ -61,12 +62,18 @@ const LocalSearch = ({
         })
         const uploadedFiles = await searchUploadedFiles(
           value[type].toLowerCase(),
+          dispatch,
         )
 
         if (uploadedFiles && uploadedFiles.length > 0) {
           handleUploadedFiles(uploadedFiles, dispatch)
         } else {
-          dispatch(setEmptySetIndicator('uploaded', true))
+          dispatch(
+            setEmptySetIndicator(
+              'uploaded',
+              `We couldn't find anything for the search term ${value[type]}`,
+            ),
+          )
         }
         setLoading({
           ...loading,
@@ -78,11 +85,19 @@ const LocalSearch = ({
           ...loading,
           feed: true,
         })
-        const feedFiles = await searchFeedFiles(value[type].toLowerCase())
+        const feedFiles = await searchFeedFiles(
+          value[type].toLowerCase(),
+          dispatch,
+        )
         if (feedFiles && feedFiles.length > 0) {
           handleFeedFiles(feedFiles, dispatch)
         } else {
-          dispatch(setEmptySetIndicator('feed', true))
+          dispatch(
+            setEmptySetIndicator(
+              'feed',
+              `We couldn't find anything for the search term ${value[type]}`,
+            ),
+          )
         }
         setLoading({
           ...loading,
@@ -94,11 +109,19 @@ const LocalSearch = ({
           ...loading,
           services: true,
         })
-        const pacsFiles = await searchPacsFiles(value[type].toLowerCase())
+        const pacsFiles = await searchPacsFiles(
+          value[type].toLowerCase(),
+          dispatch,
+        )
         if (pacsFiles && pacsFiles.length > 0) {
           handlePacsFiles(pacsFiles, dispatch)
         } else {
-          dispatch(setEmptySetIndicator('services', true))
+          dispatch(
+            setEmptySetIndicator(
+              'services',
+              `We couldn't find anything for the search term ${value[type]}`,
+            ),
+          )
         }
         setLoading({
           ...loading,
@@ -158,6 +181,29 @@ const LocalSearch = ({
           </>
         )}
       </div>
+      {search[type] && (
+        <Label
+          style={{
+            marginTop: '1em',
+          }}
+          color="blue"
+          icon
+          onClose={() => {
+            setLoading({
+              ...loading,
+              [type]: false,
+            })
+            setValue({
+              ...value,
+              [type]: '',
+            })
+
+            dispatch(clearSearchFilter(type))
+          }}
+        >
+          Clear Search Filter
+        </Label>
+      )}
     </>
   )
 }
