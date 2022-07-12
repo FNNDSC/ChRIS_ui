@@ -1,4 +1,4 @@
-import { setSearch, setSearchedFolders } from './context/actions'
+import { setSearchedFolders } from './context/actions'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { fetchResource } from '../../../../utils'
 import { Feed } from '@fnndsc/chrisapi'
