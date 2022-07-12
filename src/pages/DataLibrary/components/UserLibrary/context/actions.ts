@@ -1,5 +1,14 @@
 import { FileSelect, Types } from './index'
 
+export const setFetching = (fetching: boolean) => {
+  return {
+    type: Types.SET_FETCHING_RESOURCES,
+    payload: {
+      fetching,
+    },
+  }
+}
+
 export const setCurrentPath = (path: string, type: string) => {
   return {
     type: Types.SET_CURRENT_PATH,
@@ -76,21 +85,13 @@ export const clearFilesState = (path: string, type: string) => {
   }
 }
 
-export const setLoading = (loading: boolean) => {
-  return {
-    type: Types.SET_LOADING,
-    payload: {
-      loading,
-    },
-  }
-}
-
-export const setFolders = (folders: any[], path: string) => {
+export const setFolders = (folders: any[], path: string, type: string) => {
   return {
     type: Types.SET_FOLDERS,
     payload: {
       folders,
       path,
+      type,
     },
   }
 }
@@ -140,12 +141,13 @@ export const setCurrentSearchFiles = (
   }
 }
 
-export const setFiles = (files: any[], path: string) => {
+export const setFiles = (files: any[], path: string, type: string) => {
   return {
     type: Types.SET_FILES,
     payload: {
       files,
       path,
+      type,
     },
   }
 }
@@ -183,6 +185,16 @@ export const setHideTooltip = (tooltip: boolean) => {
     type: Types.SET_TOOLTIP,
     payload: {
       tooltip,
+    },
+  }
+}
+
+export const setEmptySetIndicator = (type: string, value: boolean) => {
+  return {
+    type: Types.SET_EMPTY_INDICATOR,
+    payload: {
+      type,
+      value,
     },
   }
 }

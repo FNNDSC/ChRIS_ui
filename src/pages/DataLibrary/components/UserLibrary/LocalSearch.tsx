@@ -10,7 +10,11 @@ import {
 } from './utils'
 import { LibraryContext } from './context'
 import { debounce } from 'lodash'
-import { clearSearchFilter,setSearch } from './context/actions'
+import {
+  clearSearchFilter,
+  setEmptySetIndicator,
+  setSearch,
+} from './context/actions'
 
 const LocalSearch = ({
   type,
@@ -47,6 +51,8 @@ const LocalSearch = ({
 
         if (uploadedFiles && uploadedFiles.length > 0) {
           handleUploadedFiles(uploadedFiles, dispatch, value.toLowerCase())
+        } else {
+          dispatch(setEmptySetIndicator('uploaded', true))
         }
         setLoading(false)
       }
@@ -55,6 +61,8 @@ const LocalSearch = ({
         const feedFiles = await searchFeedFiles(value.toLowerCase())
         if (feedFiles && feedFiles.length > 0) {
           handleFeedFiles(feedFiles, dispatch)
+        } else {
+          dispatch(setEmptySetIndicator('feed', true))
         }
         setLoading(false)
       }
@@ -63,6 +71,8 @@ const LocalSearch = ({
         const pacsFiles = await searchPacsFiles(value.toLowerCase())
         if (pacsFiles && pacsFiles.length > 0) {
           handlePacsFiles(pacsFiles, dispatch)
+        } else {
+          dispatch(setEmptySetIndicator('services', true))
         }
         setLoading(false)
       }
