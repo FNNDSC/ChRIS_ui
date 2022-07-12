@@ -32,8 +32,11 @@ const IconContainer = () => {
     if(action=='merge'){
       prefix = 'Merge of '
     }
-    else{
+    else if(action=='download'){
       prefix = 'Archive of '
+    }
+    else{
+      prefix = ''
     }
     const feedNames = [];
     for(let i =0; i< bulkSelect.length; i++){
@@ -43,6 +46,9 @@ const IconContainer = () => {
     let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
     newFeedName = prefix + newFeedName;
     newFeedName = newFeedName.substring(0, 100);
+    if(action == 'duplicate'){
+      newFeedName = "duplicate-"
+    }
     return newFeedName;
   }
 
@@ -66,12 +72,6 @@ const IconContainer = () => {
 
   const handleSubmit = () =>{
      handleChange(actionValue,nameValue)
-     if(downloadError){
-       setModalOpen(isModalOpen);
-     }
-     else{
-       setModalOpen(!isModalOpen);
-     }
   };
   
   
