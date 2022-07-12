@@ -51,7 +51,7 @@ interface LibraryState {
     [key: string]: boolean
   }
   emptySetIndicator: {
-    [key: string]: boolean
+    [key: string]: string
   }
   fetchingResources: boolean
 }
@@ -202,7 +202,7 @@ type LibraryPayload = {
   }
   [Types.SET_EMPTY_INDICATOR]: {
     type: string
-    value: boolean
+    value: string
   }
   [Types.SET_FETCHING_RESOURCES]: {
     fetching: boolean

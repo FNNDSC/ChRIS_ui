@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { Label, Button, EmptyState, Title } from '@patternfly/react-core'
+import { Button, EmptyState, Title } from '@patternfly/react-core'
 import BreadcrumbContainer from './BreadcrumbContainer'
 import { Browser } from './Browser'
 import { LibraryContext } from './context'
@@ -13,7 +13,6 @@ import {
   setFolderDetails,
   setCurrentSearchFolder,
   setCurrentSearchFiles,
-  clearSearchFilter,
   backToSearchResults,
   setFetching,
 } from './context/actions'
@@ -154,21 +153,6 @@ const BrowserContainer = ({
 
   return (
     <>
-      {search[type] === true && (
-        <Label
-          style={{
-            marginTop: '1em',
-          }}
-          color="blue"
-          icon
-          onClose={() => {
-            dispatch(clearSearchFilter(type))
-          }}
-        >
-          Clear Search Filter
-        </Label>
-      )}
-
       {search[type] === true ? (
         <div>
           <SearchContainer
@@ -312,7 +296,7 @@ export const SearchContainer = ({
       {emptySetIndicator[type] && (
         <EmptyState>
           <Title headingLevel="h4" size="lg">
-            We couldn&apos;t find anything for your search
+            {emptySetIndicator[type]}
           </Title>
         </EmptyState>
       )}

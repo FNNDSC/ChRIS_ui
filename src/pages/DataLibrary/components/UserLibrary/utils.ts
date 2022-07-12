@@ -1,9 +1,12 @@
-import { setSearchedFolders } from './context/actions'
+import { setSearchedFolders, setEmptySetIndicator } from './context/actions'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { fetchResource } from '../../../../utils'
 import { Feed } from '@fnndsc/chrisapi'
 
-export const searchFeedFiles = async (value: string) => {
+export const searchFeedFiles = async (
+  value: string,
+  dispatch: React.Dispatch<any>,
+) => {
   const payload = {
     limit: 10,
     offset: 0,
@@ -16,11 +19,15 @@ export const searchFeedFiles = async (value: string) => {
     const results = await fetchResource(payload, boundFn)
     return results
   } catch (error) {
-    console.log('Error', error)
+    //@ts-ignore
+    dispatch(setEmptySetIndicator('feed', `${error.response.data}`))
   }
 }
 
-export const searchPacsFiles = async (value: string) => {
+export const searchPacsFiles = async (
+  value: string,
+  dispatch: React.Dispatch<any>,
+) => {
   const payload = {
     limit: 10,
     offset: 0,
@@ -33,11 +40,15 @@ export const searchPacsFiles = async (value: string) => {
     const results = await fetchResource(payload, boundFn)
     return results
   } catch (error) {
-    console.log('Error', error)
+    //@ts-ignore
+    dispatch(setEmptySetIndicator('services', `${error.response.data}`))
   }
 }
 
-export const searchUploadedFiles = async (value: string) => {
+export const searchUploadedFiles = async (
+  value: string,
+  dispatch: React.Dispatch<any>,
+) => {
   const payload = {
     limit: 10,
     offset: 0,
@@ -50,7 +61,8 @@ export const searchUploadedFiles = async (value: string) => {
     const results = await fetchResource(payload, boundFn)
     return results
   } catch (error) {
-    console.log('Error', error)
+    //@ts-ignore
+    dispatch(setEmptySetIndicator('uploads', `${error.response.data}`))
   }
 }
 
