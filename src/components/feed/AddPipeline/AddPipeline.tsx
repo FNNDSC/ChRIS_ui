@@ -155,9 +155,11 @@ const PipelineList = ({
       if (registeredPipelines) {
         setPipelines(registeredPipelines)
       }
-      setFilterState({
-        ...filterState,
-        itemCount: registeredPipelinesList.totalCount,
+      setFilterState((state) => {
+        return {
+          ...state,
+          itemCount: registeredPipelinesList.totalCount,
+        }
       })
       setLoading(false)
     }
