@@ -155,8 +155,8 @@ function* handleDuplicateFeed(action: IActionTypeParam) {
   const newFeeds = []
   for (let i = 0; i < feedList.length; i++) {
     const feedIdList = []
-    const newFeedName = action.meta
     const data = feedList[i].data
+    const newFeedName = action.meta? action.meta+"-"+data.name : "duplicate-"+data.name
     feedIdList.push(data.id)
     try{
       const createdFeed: Feed = yield cu.mergeMultipleFeeds(

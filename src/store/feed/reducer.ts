@@ -208,6 +208,13 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         downloadError: action.payload,
       }
     }
+    
+    case FeedActionTypes.DUPLICATE_FEED_ERROR: {
+      return {
+        ...state,
+        downloadError: action.payload,
+      }
+    }
 
     case FeedActionTypes.MERGE_FEED_SUCCESS: {
       if (state.allFeeds.data) {
