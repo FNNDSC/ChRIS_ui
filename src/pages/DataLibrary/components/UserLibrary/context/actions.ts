@@ -10,11 +10,38 @@ export const setCurrentPath = (path: string, type: string) => {
   }
 }
 
-export const setCurrentPathSearch = (paths: string[], type: string) => {
+export const setCurrentPathSearch = (path: string, type: string) => {
   return {
     type: Types.SET_CURRENT_PATH_SEARCH,
     payload: {
-      paths,
+      path,
+      type,
+    },
+  }
+}
+
+export const setSearch = (type: string) => {
+  return {
+    type: Types.SET_SEARCH,
+    payload: {
+      type,
+    },
+  }
+}
+
+export const clearSearchFilter = (type: string) => {
+  return {
+    type: Types.CLEAR_SEARCH_FILTER,
+    payload: {
+      type,
+    },
+  }
+}
+
+export const backToSearchResults = (type: string) => {
+  return {
+    type: Types.BACK_TO_SEARCH_RESULTS,
+    payload: {
       type,
     },
   }
@@ -64,6 +91,51 @@ export const setFolders = (folders: any[], path: string) => {
     payload: {
       folders,
       path,
+    },
+  }
+}
+
+export const setSearchedFolders = (
+  folders: any[],
+  path: string,
+  type: string,
+) => {
+  return {
+    type: Types.SET_SEARCHED_FOLDERS,
+    payload: {
+      folders,
+      path,
+      type,
+    },
+  }
+}
+
+export const setCurrentSearchFolder = (
+  folders: any[],
+  path: string,
+  type: string,
+) => {
+  return {
+    type: Types.SET_CURRENT_SEARCH_FOLDERS,
+    payload: {
+      folders,
+      path,
+      type,
+    },
+  }
+}
+
+export const setCurrentSearchFiles = (
+  files: any[],
+  path: string,
+  type: string,
+) => {
+  return {
+    type: Types.SET_CURRENT_SEARCH_FILES,
+    payload: {
+      files,
+      path,
+      type,
     },
   }
 }

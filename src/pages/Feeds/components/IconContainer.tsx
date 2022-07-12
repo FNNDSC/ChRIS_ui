@@ -10,13 +10,15 @@ import {
   TextInput,
   Alert,
   Button } from '@patternfly/react-core'
-import { FaTrash, FaDownload, } from 'react-icons/fa'
+import { FaTrash, FaDownload} from 'react-icons/fa'
 import { VscMerge } from 'react-icons/vsc'
+import { MdCallSplit} from 'react-icons/md'
 import { useDispatch } from 'react-redux'
 import {
   downloadFeedRequest,
   deleteFeed,
   mergeFeedRequest,
+  duplicateFeedRequest,
   toggleSelectAll
 } from '../../../store/feed/actions'
 import { useTypedSelector } from '../../../store/hooks'
@@ -64,6 +66,12 @@ const IconContainer = () => {
 
   const handleSubmit = () =>{
      handleChange(actionValue,nameValue)
+     if(downloadError){
+       setModalOpen(isModalOpen);
+     }
+     else{
+       setModalOpen(!isModalOpen);
+     }
   };
   
   
@@ -76,15 +84,12 @@ const IconContainer = () => {
   
   const handleChange = (type: string,name:any) => {
 
-    try{
-      type === 'download' && dispatch(downloadFeedRequest(bulkSelect,name))
-      type === 'merge' && dispatch(mergeFeedRequest(bulkSelect,name))
-      type === 'delete' && dispatch(deleteFeed(bulkSelect))
-      dispatch(toggleSelectAll(false));
-    }
-    catch(error){
-      return error
-    }
+    type === 'download' && dispatch(downloadFeedRequest(bulkSelect,name))
+    type === 'merge' && dispatch(mergeFeedRequest(bulkSelect,name))
+    type === 'delete' && dispatch(deleteFeed(bulkSelect))
+    type === 'duplicate' && dispatch(duplicateFeedRequest(bulkSelect,name))
+    dispatch(toggleSelectAll(false));
+
   }
   return (
     <ToggleGroup aria-label="Feed Action Bar">
@@ -114,6 +119,17 @@ const IconContainer = () => {
       <ToggleGroupItem
         aria-label="feed-action"
         icon={
+          <Tooltip content={<div>Duplicate selected feeds</div>}>
+            
+            <MdCallSplit />
+            
+          </Tooltip>
+        }
+        onChange={()=>{handleModalToggle('duplicate')}} 
+      />
+      <ToggleGroupItem
+        aria-label="feed-action"
+        icon={
           <Tooltip content={<div>Delete selected feeds</div>}>
             <FaTrash />
           </Tooltip>
@@ -138,7 +154,7 @@ const IconContainer = () => {
           </Button>
         ]}
       >
-        <Form id="modal-with-form-form" >
+        <Form id="modal-with-form-form">
           <FormGroup
             label="Feed Name"
             fieldId="modal-with-form-form-name"
@@ -152,9 +168,7 @@ const IconContainer = () => {
               onChange={handleNameInputChange}
               ref={nameInputRef}
             />
-          </FormGroup>
-        </Form>
-       {downloadError?
+            {downloadError?
         <Alert
           isInline
           variant="danger"
@@ -163,6 +177,9 @@ const IconContainer = () => {
         
         </Alert>
         :''} 
+          </FormGroup>
+        </Form>
+       
       </Modal>
     </ToggleGroup>
   )

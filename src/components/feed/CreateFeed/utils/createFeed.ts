@@ -78,7 +78,7 @@ export const createFeedInstanceWithDircopy = async (
     dirpath.push(local_upload_path)
 
     try {
-      uploadLocalFiles(localFiles, local_upload_path, statusCallback)
+      await uploadLocalFiles(localFiles, local_upload_path, statusCallback)
     } catch (error) {
       errorCallback(error as string)
     }

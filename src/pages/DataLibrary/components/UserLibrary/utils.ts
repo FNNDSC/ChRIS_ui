@@ -1,8 +1,4 @@
-import {
-  setFolders,
-  setCurrentPath,
-  setCurrentPathSearch,
-} from './context/actions'
+import { setSearch, setSearchedFolders } from './context/actions'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { fetchResource } from '../../../../utils'
 import { Feed } from '@fnndsc/chrisapi'
@@ -122,8 +118,7 @@ export const handleUploadedFiles = (
   })
 
   if (uploadedFolders.length > 0) {
-    dispatch(setFolders(uploadedFolders, path))
-    dispatch(setCurrentPath(path, 'uploads'))
+    dispatch(setSearchedFolders(uploadedFolders, path, 'uploads'))
   }
 }
 
@@ -131,12 +126,8 @@ export const handleFeedFiles = (
   feedFiles: any[],
   dispatch: React.Dispatch<any>,
 ) => {
-  const paths: string[] = []
   const feedsDict: {
-    [key: string]: {
-      name: string
-      path: string
-    }[]
+    [key: string]: { name: string; path: string }[]
   } = {}
 
   feedFiles.forEach((feed: Feed) => {
@@ -146,33 +137,26 @@ export const handleFeedFiles = (
       name,
       path,
     }
-
     if (feedsDict[path]) {
       feedsDict[path].push(folder)
     } else {
       feedsDict[path] = [folder]
-      paths.push(path)
     }
   })
 
   for (const i in feedsDict) {
-    dispatch(setFolders(feedsDict[i], i))
+    const folders = feedsDict[i]
+    dispatch(setSearchedFolders(folders, i, 'feed'))
   }
-  dispatch(setCurrentPathSearch(paths, 'feed'))
 }
 
 export const handlePacsFiles = (
   pacsFiles: any[],
   dispatch: React.Dispatch<any>,
 ) => {
-  const paths: string[] = []
   const pacsDict: {
-    [key: string]: {
-      name: string
-      path: string
-    }[]
+    [key: string]: { name: string; path: string }[]
   } = {}
-
   pacsFiles.forEach((file) => {
     const fnameSplit = file.data.fname.split('/')
     const path = `${fnameSplit[0]}/${fnameSplit[1]}/${fnameSplit[2]}`
@@ -181,17 +165,15 @@ export const handlePacsFiles = (
       name,
       path,
     }
-
     if (pacsDict[path]) {
       pacsDict[path].push(folder)
     } else {
       pacsDict[path] = [folder]
-      paths.push(path)
     }
   })
 
   for (const i in pacsDict) {
-    dispatch(setFolders(pacsDict[i], i))
+    const folders = pacsDict[i]
+    dispatch(setSearchedFolders(folders, i, 'services'))
   }
-  dispatch(setCurrentPathSearch(paths, 'services'))
 }
