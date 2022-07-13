@@ -1,4 +1,4 @@
-@import '../../../assets/scss/helpers/mixins.scss';
+@import "../../../assets/scss/helpers/mixins.scss";
 
 $imgViewerBackgroundColour: black;
 $textColor: white;
@@ -6,10 +6,11 @@ $GreyTextColor: #868686;
 $opacityLevel: 0.75;
 $headerBlue: #73bcf7;
 $iconfont-size-md: 1rem;
-$iconfont-size-lg:1.2rem;
+$iconfont-size-lg: 1.2rem;
 
 .dicom-header {
-  z-index: 2;
+  z-index: 10;
+  padding-bottom:0;
   background: rgba(0, 0, 0, $opacityLevel); //$imgViewerBackgroundColour;
   color: $textColor;
   display: flex;
@@ -17,26 +18,28 @@ $iconfont-size-lg:1.2rem;
   flex-direction: row;
   justify-content: center;
 
-  .dicom-logo{
+
+
+  .dicom-logo {
     position: absolute;
     left: 0;
     top: 0;
     margin-right: 4rem;
     line-height: 1.1;
-    margin-left:1rem;
+    margin-left: 1rem;
     a {
-      color:#fff;
+      color: #fff;
     }
-    
-    &__text{
-      @include media-query(1200px){
+
+    &__text {
+      @include media-query(1200px) {
         font-size: 0.8rem;
       }
 
-      @include media-query(1920px){      
-       font-size:1.4rem;
+      @include media-query(1920px) {
+        font-size: 1.4rem;
       }
-      
+
       color: $headerBlue !important;
       font-weight: 900;
       display: block;
@@ -49,33 +52,32 @@ $iconfont-size-lg:1.2rem;
       color: #fff;
       font-size: 1.5rem !important;
 
-      @include media-query(1200px){
+      @include media-query(1200px) {
         font-size: $iconfont-size-md;
       }
 
-      @include media-query(1920px){      
-       font-size:$iconfont-size-lg;
+      @include media-query(1920px) {
+        font-size: $iconfont-size-lg;
       }
     }
   }
-  
-  .dicom-header__center-tools{
+
+  .dicom-header__center-tools {
     display: flex;
     flex-flow: row nowrap;
 
-    .dicom-header__tools-text{
+    .dicom-header__tools-text {
       display: flex;
       justify-content: center;
       align-items: center;
 
-      @include media-query(1200px){
+      @include media-query(1200px) {
         font-size: $iconfont-size-lg;
       }
 
-      @include media-query(1920px){      
-       font-size: 1rem;
+      @include media-query(1920px) {
+        font-size: 1rem;
       }
-    
     }
   }
 
@@ -92,13 +94,13 @@ $iconfont-size-lg:1.2rem;
 }
 
 .dicomTag {
+  min-height: calc(100vh - 400px);
   &__list {
     &__item {
       font-family: monospace;
-       &--name {
-         font-weight:bold;
-         
-       }
+      &--name {
+        font-weight: bold;
+      }
     }
   }
 }
