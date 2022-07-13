@@ -11,7 +11,7 @@ import {
   DrawerContentBody,
   DrawerPanelContent,
 } from '@patternfly/react-core'
-import classNames from 'classnames'
+
 import { FeedDetails } from '../../../components'
 import { getFeedRequest, resetFeed } from '../../../store/feed/actions'
 import {
@@ -25,7 +25,6 @@ import { resetActiveResources } from '../../../store/resources/actions'
 import { RouteComponentProps } from 'react-router-dom'
 import { PluginInstance } from '@fnndsc/chrisapi'
 import { DestroyActiveResources } from '../../../store/resources/types'
-import { pf4UtilityStyles } from '../../../lib/pf4-styleguides'
 
 const ParentComponent = React.lazy(() =>
   import('../../../components/feed/FeedTree/ParentComponent'),
@@ -196,7 +195,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
 
   return (
     <React.Fragment>
-      <PageSection variant='darker' className="section-one">
+      <PageSection variant="darker" className="section-one">
         <FeedDetails />
       </PageSection>
 
@@ -210,12 +209,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
             </DrawerPanelContent>
           }
         >
-          <PageSection
-            className={classNames(
-              pf4UtilityStyles.spacingStyles.p_0,
-              'section-two',
-            )}
-          >
+          <PageSection className="section-two">
             <Grid
               style={{
                 height: '100%',
