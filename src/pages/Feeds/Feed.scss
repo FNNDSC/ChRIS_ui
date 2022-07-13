@@ -81,6 +81,7 @@
 }
 
 .section-two {
+  padding: 0 !important;
   @include media-query($pf-global--breakpoint--sm) {
     height: auto;
   }

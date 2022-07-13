@@ -1,5 +1,4 @@
 import * as React from 'react'
-
 import { Link } from 'react-router-dom'
 import Moment from 'react-moment'
 import '@patternfly/react-core/dist/styles/base.css'
@@ -61,19 +60,18 @@ const FeedListView: React.FC = () => {
   } = useTypedSelector((state) => state.feed)
   const { page, perPage } = filterState
   const { data, error, loading, totalFeedsCount } = allFeeds
-  
+
   const bulkData = React.useRef<Feed[]>()
   bulkData.current = bulkSelect
-  
+
   React.useEffect(() => {
     document.title = 'All Analyses - ChRIS UI '
     dispatch(
       setSidebarActive({
-        activeItem: 'analyses', 
+        activeItem: 'analyses',
       }),
-      
     )
-    if(bulkData && bulkData.current){
+    if (bulkData && bulkData.current) {
       dispatch(removeAllSelect(bulkData.current))
     }
   }, [dispatch])
@@ -89,19 +87,10 @@ const FeedListView: React.FC = () => {
   React.useEffect(() => {
     if (selectAllToggle && allFeeds.data && allFeeds.data.length > 0) {
       dispatch(setAllSelect(allFeeds.data))
-
     }
   }, [allFeeds.data, dispatch, selectAllToggle])
 
-  const cells = [
-    '',
-    'Id',
-    'Analysis',
-    'Created',
-    'Creator',
-    'Run Time',
-    'Size',
-    ]
+  const cells = ['', 'Id', 'Analysis', 'Created', 'Creator', 'Run Time', 'Size']
 
   const customRowWrapper = (row: any) => {
     const { children } = row
@@ -309,11 +298,7 @@ const TableRow = ({
     </span>
   )
 
-  const feedId = (
-    <p style={fontFamily}>
-      {feed.data.id}
-    </p>
-  )
+  const feedId = <p style={fontFamily}>{feed.data.id}</p>
 
   const created = (
     <span style={fontFamily}>
@@ -329,11 +314,11 @@ const TableRow = ({
       }}
     >
       <span className="feed-list__name">
-      <Tooltip content={<div>View files in library</div>}>
-        <Link to={`/library/`}>
-          {size ? `${size.padStart(10, '')}` : '---'}
-        </Link>
-      </Tooltip>
+        <Tooltip content={<div>View files in library</div>}>
+          <Link to={`/library/`}>
+            {size ? `${size.padStart(10, '')}` : '---'}
+          </Link>
+        </Tooltip>
       </span>
     </p>
   )
@@ -411,12 +396,13 @@ const TableRow = ({
   )
   const backgroundRow =
     progress && progress < 100 && !feedError ? '#F9E0A2' : '#FFFFFF'
-  const selectedBgRow = 
-    isSelected(bulkSelect, feed) ? "rgb(231, 241, 250)" : backgroundRow
+  const selectedBgRow = isSelected(bulkSelect, feed)
+    ? 'rgb(231, 241, 250)'
+    : backgroundRow
   return (
     <Tr
       key={feed.data.id}
-      onRowClick={() =>{
+      onRowClick={() => {
         if (!isSelected(bulkSelect, feed)) {
           dispatch(setBulkSelect(feed))
         } else {
