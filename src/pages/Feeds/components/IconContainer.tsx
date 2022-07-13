@@ -28,6 +28,10 @@ const IconContainer = () => {
   })
   const {downloadError,} = useTypedSelector((state) => state.feed)
   const getDefaultName =(bulkSelect:any, action:string) => {
+  
+    setLabelValue('Feed Name')
+    setDescriptionValue('Enter a name for your new feed (optional)')
+    setTitleValue('Feed Name')
     let prefix = '';
     if(action=='merge'){
       prefix = 'Merge of '
@@ -48,6 +52,9 @@ const IconContainer = () => {
     newFeedName = newFeedName.substring(0, 100);
     if(action == 'duplicate'){
       newFeedName = "duplicate-"
+      setLabelValue('Feed Prefix')
+      setDescriptionValue('Enter a feed prefix (optional)')
+      setTitleValue('Feed Prefix')
     }
     return newFeedName;
   }
@@ -55,6 +62,9 @@ const IconContainer = () => {
   const dispatch = useDispatch()
   const [isModalOpen, setModalOpen] = React.useState(false);
   const [nameValue, setNameValue] = React.useState('');
+  const [dialogTitleValue, setTitleValue] = React.useState('');
+  const [dialogDescriptionValue, setDescriptionValue] = React.useState('');
+  const [labelValue, setLabelValue] = React.useState('');
   const [defaultName, setDefaultName] = React.useState('');
   const nameInputRef = React.useRef(null);
 
@@ -140,8 +150,8 @@ const IconContainer = () => {
       <Modal
         data-keyboard="false"
         variant={ModalVariant.small}
-        title="Feed Name"
-        description="Enter a name for your new feed (optional)"
+        title={dialogTitleValue}
+        description={dialogDescriptionValue}
         isOpen={isModalOpen}
         onClose={()=>{handleModalToggle('')}}
         onSubmit={handleSubmit}
@@ -156,7 +166,7 @@ const IconContainer = () => {
       >
         <Form id="modal-with-form-form">
           <FormGroup
-            label="Feed Name"
+            label={labelValue}
             fieldId="modal-with-form-form-name"
           >
             <TextInput
