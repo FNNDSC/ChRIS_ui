@@ -331,7 +331,7 @@ const DataLibrary = () => {
                             }}
                             key={index}
                           >
-                            {file.folder.name}
+                            {file.folder.path}
                           </Chip>
                         )
                       })}

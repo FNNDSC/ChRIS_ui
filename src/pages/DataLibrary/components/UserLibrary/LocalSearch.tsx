@@ -70,7 +70,7 @@ const LocalSearch = ({
         } else {
           dispatch(
             setEmptySetIndicator(
-              'uploaded',
+              'uploads',
               `We couldn't find anything for the search term ${value[type]}`,
             ),
           )
