@@ -1,6 +1,6 @@
 ///<reference types="cypress" />
 
-const faker = require('faker');
+import { faker } from '@faker-js/faker';
 
 const users = {
 

@@ -83,6 +83,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@faker-js/faker": "^7.3.0",
     "@testing-library/jest-dom": "^5.11.0",
     "@testing-library/react": "^10.4.4",
     "@types/d3-hierarchy": "^1.1.7",
