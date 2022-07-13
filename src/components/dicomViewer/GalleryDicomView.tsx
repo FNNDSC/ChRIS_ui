@@ -56,18 +56,18 @@ function getInitialState() {
     inPlay: false,
     imageIds: [],
     activeTool: 'Zoom',
-    numberOfFrames: 0,
+    numberOfFrames: 1,
     tools: [
       {
         name: 'Zoom',
         mode: 'active',
-        modeOptions: { mouseButtonMask: 2 },
+        modeOptions: { mouseButtonMask: 1 },
       },
 
       {
         name: 'Pan',
         mode: 'active',
-        modeOptions: { mouseButtonMask: 1 },
+        modeOptions: { mouseButtonMask: 4 },
       },
       {
         name: 'Wwwc',
@@ -80,7 +80,7 @@ function getInitialState() {
       },
       { name: 'Magnify', mode: 'active' },
     ],
-    frameRate: 10,
+    frameRate: 22,
     frame: 1,
     visibleHeader: false,
   }
@@ -365,13 +365,13 @@ const GalleryDicomView = ({ type }: { type: string }) => {
     >
       <React.Suspense fallback={<FallBackComponent />}>
         <React.Fragment>
-          <DicomHeader
-            type={type}
-            handleToolbarAction={(action: string) => {
-              ;(handleGalleryActions as any)[action].call()
-            }}
-          />
           <ErrorBoundary FallbackComponent={FallBackComponent}>
+            <DicomHeader
+              type={type}
+              handleToolbarAction={(action: string) => {
+                ;(handleGalleryActions as any)[action].call()
+              }}
+            />
             <div className="ami-viewer">
               <Drawer isExpanded={visibleHeader}>
                 <DrawerContent panelContent={panelContent}>
