@@ -4,7 +4,6 @@
 *
 *  Author:          ChRIS UI
 */
-@import "../vendors/patternfly/patternfly";
 
 .capitalize {
   text-transform: capitalize;
@@ -23,7 +22,7 @@
 .white-bg {
   background: white;
 }
-.black-bg{
+.black-bg {
   background: black;
 }
 .black-900 {
@@ -34,13 +33,6 @@
   float: right;
 }
 
-.center {
-  @extend .pf-u-text-align-center;
-}
-
-.left {
-  @extend .pf-u-text-align-left;
-}
 // Accessibility additions
 // Hidden on md and below (768px;)
 .hidden-md {
@@ -80,28 +72,27 @@ div:fullscreen {
 
 /* Custom Scrollbar */
 
-
 ::-webkit-scrollbar {
   width: 0.5rem;
-  height:0.5em;
+  height: 0.5em;
 }
 
 ::-webkit-scrollbar-track {
-  background:#d2d2d2;
+  background: #d2d2d2;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #73BCF7;
+  background-color: #73bcf7;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #73BCF7;
+  background-color: #73bcf7;
   border: 1px solid transparent;
   background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color:#2b9af3; ;
+  background-color: #2b9af3;
 }
 
 .no-scrollbar {
