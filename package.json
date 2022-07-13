@@ -67,6 +67,7 @@
     "eject": "react-scripts eject",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
     "cypress:open": "cypress open",
+    "cypress:run": "npx cypress run",
     "print-version": "./print_version.sh"
   },
   "resolutions": {

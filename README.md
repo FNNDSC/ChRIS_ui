@@ -159,7 +159,7 @@ To learn React, check out the
 This will open cypress in an interactive UI. 
 To run cypress in the terminal as a headless browser use: 
 ```
-npx cypress run 
+`npm run cypress:run`
 ```
 
 
