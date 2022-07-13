@@ -267,6 +267,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         ...state,
         bulkSelect: filteredBulkSelect,
         selectAllToggle,
+        downloadError: '',
       }
     }
 
@@ -281,6 +282,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         selectAllToggle: action.payload,
+        downloadError: '',
       }
     }
 

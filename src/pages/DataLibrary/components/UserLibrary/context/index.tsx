@@ -8,55 +8,67 @@ export interface Paginated {
 }
 
 export interface FileSelect {
-  exactPath: string
-  path: string
-  folder: string
+  folder: { name: string; path: string }
   type: string
-  event?: string
+  previousPath: string
+  operation: string
 }
 
 interface LibraryState {
-  initialPath: {
-    [key: string]: string
-  }
   filesState: {
     [key: string]: any[]
   }
   foldersState: {
-    [key: string]: string[]
+    [key: string]: { path: string; name: string }[]
+  }
+  currentSearchFiles: {
+    [key: string]: { [key: string]: any[] }
+  }
+  currentSearchFolders: {
+    [key: string]: {
+      [key: string]: { name: string; path: string }[]
+    }
   }
   folderDetails: {
     currentFolder: string
     totalCount: number
   }
-  paginated: {
-    [key: string]: Paginated
-  }
   previewAll: boolean
   loading: boolean
-  paginatedFolders: {
-    [key: string]: string[]
-  }
-
   selectedFolder: FileSelect[]
   tooltip: boolean
+  currentPath: {
+    [key: string]: string[]
+  }
+  searchedFoldersState: {
+    [key: string]: { [key: string]: { name: string; path: string }[] }[]
+  }
+  searchPath: {
+    [key: string]: string
+  }
+  search: {
+    [key: string]: boolean
+  }
 }
 
 function getInitialState(): LibraryState {
   return {
-    initialPath: {},
     filesState: {},
     foldersState: {},
     folderDetails: {
       currentFolder: '',
       totalCount: 0,
     },
-    paginated: {},
     previewAll: false,
     loading: false,
-    paginatedFolders: {},
     selectedFolder: [],
     tooltip: false,
+    currentPath: {},
+    searchPath: {},
+    search: {},
+    searchedFoldersState: {},
+    currentSearchFolders: {},
+    currentSearchFiles: {},
   }
 }
 
@@ -74,9 +86,10 @@ type ActionMap<M extends { [index: string]: any }> = {
 export enum Types {
   SET_FILES = 'SET_FILES',
   SET_FOLDERS = 'SET_FOLDERS',
-  SET_PAGINATED_FOLDERS = 'SET_PAGINATED_FOLDERS',
-  SET_INITIAL_PATH = 'SET_INITIAL_PATH',
-  SET_PAGINATION = 'SET_PAGINATION',
+  SET_CURRENT_PATH = 'SET_CURRENT_PATH',
+  SET_CURRENT_PATH_SEARCH = 'SET_CURRENT_PATH_SEARCH',
+  SET_SEARCHED_FOLDERS = 'SET_SEARCHED_FOLDERS',
+  SET_SEARCH = 'SET_SEARCH',
   SET_LOADING = 'SET_LOADING',
   SET_FOLDER_DETAILS = 'SET_FOLDER_DETAILS',
   SET_PREVIEW_ALL = 'SET_PREVIEW_ALL',
@@ -87,33 +100,50 @@ export enum Types {
   CLEAR_SELECTED_FOLDER = 'CLEAR_SELECTED_FOLDER',
   CLEAR_FILES_STATE = 'CLEAR_FILES_STATE',
   SET_TOOLTIP = 'SET_TOOLTIP',
+  SET_CURRENT_SEARCH_FOLDERS = 'SET_CURRENT_SEARCH_FOLDERS',
+  SET_CURRENT_SEARCH_FILES = 'SET_CURRENT_SEARCH_FILES',
+  CLEAR_SEARCH_FILTER = 'CLEAR_SEARCH_FILTER',
+  BACK_TO_SEARCH_RESULTS = 'BACK_TO_SEARCH_RESULTS',
 }
 
 type LibraryPayload = {
   [Types.SET_FILES]: {
     files: any[]
-    type: string
+    path: string
   }
   [Types.SET_FOLDERS]: {
-    folders: string[]
+    folders: { path: string; name: string }[]
+    path: string
+  }
+
+  [Types.SET_CURRENT_SEARCH_FOLDERS]: {
+    folders: { path: string; name: string }[]
+    path: string
     type: string
   }
 
-  [Types.SET_INITIAL_PATH]: {
+  [Types.SET_CURRENT_SEARCH_FILES]: {
+    files: any[]
     path: string
     type: string
   }
-  [Types.SET_PAGINATION]: {
+
+  [Types.SET_SEARCHED_FOLDERS]: {
+    folders: { path: string; name: string }[]
     path: string
-    hasNext: boolean
-    limit: number
-    offset: number
-    totalCount: number
+    type: string
   }
-  [Types.SET_PAGINATED_FOLDERS]: {
-    folders: string[]
+
+  [Types.SET_CURRENT_PATH]: {
+    type: string
     path: string
   }
+
+  [Types.SET_CURRENT_PATH_SEARCH]: {
+    type: string
+    path: string
+  }
+
   [Types.SET_LOADING]: {
     loading: false
   }
@@ -153,6 +183,16 @@ type LibraryPayload = {
   [Types.SET_TOOLTIP]: {
     tooltip: boolean
   }
+
+  [Types.SET_SEARCH]: {
+    type: string
+  }
+  [Types.CLEAR_SEARCH_FILTER]: {
+    type: string
+  }
+  [Types.BACK_TO_SEARCH_RESULTS]: {
+    type: string
+  }
 }
 
 export type LibraryActions = ActionMap<LibraryPayload>[keyof ActionMap<
@@ -172,130 +212,12 @@ export const libraryReducer = (
   action: LibraryActions,
 ): LibraryState => {
   switch (action.type) {
-    case Types.SET_INITIAL_PATH: {
+    case Types.SET_FOLDERS: {
       return {
         ...state,
-        initialPath: {
-          ...state.initialPath,
-          [action.payload.type]: action.payload.path,
+        foldersState: {
+          [action.payload.path]: action.payload.folders,
         },
-      }
-    }
-
-    case Types.CLEAR_FILES_STATE: {
-      const copy = { ...state.filesState }
-      const copyPaginated = { ...state.paginated }
-
-      const path = action.payload.path
-      if (path) {
-        delete copy[path]
-        delete copyPaginated[path]
-        return {
-          ...state,
-          filesState: copy,
-          paginated: copyPaginated,
-        }
-      } else
-        return {
-          ...state,
-        }
-    }
-
-    case Types.CLEAR_FOLDER_STATE: {
-      const copy = { ...state.foldersState }
-      const copyPaginatedFolders = { ...state.paginatedFolders }
-      const copyPaginated = { ...state.paginated }
-
-      const path = action.payload.path
-      if (path) {
-        delete copy[path]
-        delete copyPaginatedFolders[path]
-        delete copyPaginated[path]
-
-        return {
-          ...state,
-          foldersState: copy,
-          paginatedFolders: copyPaginatedFolders,
-          paginated: copyPaginated,
-        }
-      } else
-        return {
-          ...state,
-        }
-    }
-
-    /******************************************************************* */
-
-    case Types.SET_CLEAR_FILE_SELECT: {
-      return {
-        ...state,
-        selectedFolder: [],
-      }
-    }
-    case Types.SET_SELECTED_FOLDER: {
-      const { folder, exactPath, path, type } = action.payload.selectFolder
-      const folderPayload = {
-        exactPath,
-        path,
-        type,
-        folder,
-      }
-      return {
-        ...state,
-        selectedFolder: [...state.selectedFolder, folderPayload],
-      }
-    }
-
-    case Types.CLEAR_SELECTED_FOLDER: {
-      const newFileSelect = state.selectedFolder.filter(
-        (file) => file.exactPath !== action.payload.selectFolder.exactPath,
-      )
-      return {
-        ...state,
-        selectedFolder: newFileSelect,
-      }
-    }
-
-    /******************************************************************************* */
-
-    case Types.SET_PAGINATION: {
-      const { path, hasNext, limit, offset, totalCount } = action.payload
-
-      return {
-        ...state,
-        paginated: {
-          ...state.paginated,
-          [path]: {
-            hasNext,
-            limit,
-            offset,
-            totalCount,
-          },
-        },
-      }
-    }
-
-    case Types.SET_LOADING: {
-      return {
-        ...state,
-        loading: action.payload.loading,
-      }
-    }
-
-    case Types.SET_FILES: {
-      if (action.payload.files.length == 0) {
-        return {
-          ...state,
-          filesState: {},
-        }
-      } else {
-        return {
-          ...state,
-          filesState: {
-            ...state.filesState,
-            [action.payload.type]: action.payload.files,
-          },
-        }
       }
     }
 
@@ -303,19 +225,177 @@ export const libraryReducer = (
       return {
         ...state,
         foldersState: {
-          ...state.foldersState,
-          [action.payload.type]: action.payload.folders,
+          [action.payload.path]: action.payload.folders,
         },
       }
     }
 
-    case Types.SET_PAGINATED_FOLDERS: {
+    case Types.SET_CURRENT_SEARCH_FOLDERS: {
+      const { type, folders, path } = action.payload
+
       return {
         ...state,
-        paginatedFolders: {
-          ...state.paginatedFolders,
-          [action.payload.path]: action.payload.folders,
+        currentSearchFolders: {
+          [type]: {
+            [path]: folders,
+          },
         },
+      }
+    }
+
+    case Types.SET_SEARCHED_FOLDERS: {
+      const { type, path, folders } = action.payload
+
+      if (state.searchedFoldersState[type]) {
+        return {
+          ...state,
+          searchedFoldersState: {
+            ...state.searchedFoldersState,
+            [type]: [...state.searchedFoldersState[type], { [path]: folders }],
+          },
+        }
+      }
+      return {
+        ...state,
+        searchedFoldersState: {
+          ...state.searchedFoldersState,
+          [type]: [
+            {
+              [path]: folders,
+            },
+          ],
+        },
+      }
+    }
+
+    case Types.SET_SEARCH: {
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          [action.payload.type]: true,
+        },
+      }
+    }
+
+    case Types.CLEAR_SEARCH_FILTER: {
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          [action.payload.type]: false,
+        },
+        currentSearchFiles: {
+          [action.payload.type]: {},
+        },
+        currentSearchFolders: {
+          [action.payload.type]: {},
+        },
+        searchPath: {
+          [action.payload.type]: '',
+        },
+        searchedFoldersState: {
+          ...state.searchedFoldersState,
+          [action.payload.type]: [],
+        },
+      }
+    }
+
+    case Types.BACK_TO_SEARCH_RESULTS: {
+      return {
+        ...state,
+        searchPath: {
+          ...state.searchPath,
+          [action.payload.type]: '',
+        },
+        currentSearchFiles: {
+          [action.payload.type]: {},
+        },
+        currentSearchFolders: {
+          [action.payload.type]: {},
+        },
+      }
+    }
+
+    case Types.SET_CURRENT_PATH: {
+      const { type, path } = action.payload
+      return {
+        ...state,
+        currentPath: {
+          [type]: [path],
+        },
+      }
+    }
+
+    case Types.SET_CURRENT_PATH_SEARCH: {
+      const { type, path } = action.payload
+      return {
+        ...state,
+        searchPath: {
+          [type]: path,
+        },
+      }
+    }
+
+    case Types.SET_FILES: {
+      return {
+        ...state,
+        filesState: {
+          [action.payload.path]: action.payload.files,
+        },
+      }
+    }
+
+    case Types.SET_CURRENT_SEARCH_FILES: {
+      const { type, files, path } = action.payload
+
+      return {
+        ...state,
+        currentSearchFiles: {
+          ...state.currentSearchFiles,
+          [type]: {
+            [path]: files,
+          },
+        },
+      }
+    }
+
+    case Types.SET_SELECTED_FOLDER: {
+      const {
+        folder,
+        type,
+        previousPath,
+        operation,
+      } = action.payload.selectFolder
+      const folderPayload = {
+        type,
+        folder,
+        previousPath,
+        operation,
+      }
+      return {
+        ...state,
+        selectedFolder: [...state.selectedFolder, folderPayload],
+      }
+    }
+
+    case Types.SET_CLEAR_FILE_SELECT: {
+      return {
+        ...state,
+        selectedFolder: [],
+      }
+    }
+
+    case Types.CLEAR_SELECTED_FOLDER: {
+      const { selectFolder } = action.payload
+
+      const newFileSelect = state.selectedFolder.filter(
+        (item) => item.folder.path !== selectFolder.folder.path,
+      )
+
+      return {
+        ...state,
+        selectedFolder: newFileSelect,
       }
     }
 
@@ -336,28 +416,6 @@ export const libraryReducer = (
       }
     }
 
-    case Types.SET_ADD_FOLDER: {
-      const path = `${action.payload.username}/uploads`
-
-      if (state.foldersState[path]) {
-        return {
-          ...state,
-          foldersState: {
-            ...state.foldersState,
-            [path]: [action.payload.folder, ...state.foldersState[path]],
-          },
-        }
-      } else {
-        return {
-          ...state,
-          foldersState: {
-            ...state.foldersState,
-            [path]: [action.payload.folder],
-          },
-        }
-      }
-    }
-
     case Types.SET_TOOLTIP: {
       return {
         ...state,
@@ -365,6 +423,30 @@ export const libraryReducer = (
       }
     }
 
+    case Types.SET_ADD_FOLDER: {
+      const { username, folder } = action.payload
+      const path = `${username}/uploads`
+      const folderDetails = {
+        name: folder,
+        path,
+      }
+
+      if (state.foldersState[path]) {
+        return {
+          ...state,
+          foldersState: {
+            [path]: [...state.foldersState[path], folderDetails],
+          },
+        }
+      } else {
+        return {
+          ...state,
+          foldersState: {
+            [path]: [folderDetails],
+          },
+        }
+      }
+    }
     default:
       return state
   }

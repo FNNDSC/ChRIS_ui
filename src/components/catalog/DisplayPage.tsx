@@ -236,11 +236,13 @@ const DisplayPage = ({
                     onClick={() => {
                       setSelectedResource(resource)
                       setIsExpanded(true)
+                      setDeleteError('')
                     }}
                     onKeyDown={(event: any) => {
                       if ([13, 32].includes(event.keyCode)) {
                         setSelectedResource(resource)
                         setIsExpanded(true)
+                        setDeleteError('')
                       }
                     }}
                     className="pluginList"
@@ -285,6 +287,7 @@ const DisplayPage = ({
           <DrawerCloseButton
             onClick={() => {
               setIsExpanded(false)
+              setDeleteError('')
             }}
           />
         </DrawerActions>

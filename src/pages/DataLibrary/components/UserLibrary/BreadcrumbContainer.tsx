@@ -10,32 +10,29 @@ import { FaFolder, FaFolderOpen, FaUser } from 'react-icons/fa'
 import { FcServices } from 'react-icons/fc'
 
 export interface Breadcrumb {
-  initialPath: string
-  handleFolderClick: (path: string, breadcrumb?: any) => void
-  files: any[]
-  folderDetails: {
-    currentFolder: string
-    totalCount: number
-  }
   browserType: string
+  handleFolderClick: (path: string) => void
+  path: string
+  files: any[]
+  folderDetails: { currentFolder: string; totalCount: number }
   togglePreview: () => void
   previewAll: boolean
 }
 
 const BreadcrumbContainer = ({
-  initialPath,
   handleFolderClick,
+  path,
+  browserType,
   files,
   folderDetails,
-  browserType,
   togglePreview,
   previewAll,
 }: Breadcrumb) => {
-  const initialPathSplit = initialPath ? initialPath.split('/') : []
+  const initialPathSplit = path.split('/')
 
   return (
     <>
-      <Breadcrumb style={{ margin: '0 0 1em 0' }}>
+      <Breadcrumb style={{ margin: '1em 0 1em 0' }}>
         {initialPathSplit.map((path: string, index) => {
           let icon
           const style = { width: '2em', height: '0.85em' }
@@ -56,31 +53,26 @@ const BreadcrumbContainer = ({
           }
 
           return (
-            <BreadcrumbItem
-              style={{
-                fontSize: '1.1em',
-              }}
-              to={index !== 0 || browserType !== 'uploads' ? '#' : undefined}
-              onClick={() => {
-                if (index === 0 && browserType === 'uploads') {
-                  return
-                }
+            <>
+              <BreadcrumbItem
+                to={index !== 0 || browserType !== 'uploads' ? '#' : undefined}
+                style={{
+                  fontSize: '1.1em',
+                }}
+                onClick={() => {
+                  if (index === 0 && browserType === 'uploads') {
+                    return
+                  }
 
-                if (
-                  (index === 0 && browserType === 'feed') ||
-                  (index === 0 && browserType === 'services')
-                ) {
-                  handleFolderClick(`${path}`, initialPath)
-                } else {
-                  const newPath = initialPath.split(`/${path}`)
-                  handleFolderClick(`${newPath[0]}/${path}`, initialPath)
-                }
-              }}
-              key={path}
-            >
-              {icon}
-              {path}
-            </BreadcrumbItem>
+                  const newPath = initialPathSplit.slice(0, index + 1).join('/')
+                  handleFolderClick(newPath)
+                }}
+                key={index}
+              >
+                {icon}
+                {path}
+              </BreadcrumbItem>
+            </>
           )
         })}
       </Breadcrumb>

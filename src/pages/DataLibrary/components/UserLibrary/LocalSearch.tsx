@@ -10,6 +10,7 @@ import {
 } from './utils'
 import { LibraryContext } from './context'
 import { debounce } from 'lodash'
+import { clearSearchFilter,setSearch } from './context/actions'
 
 const LocalSearch = ({
   type,
@@ -35,6 +36,8 @@ const LocalSearch = ({
 
   const handleSubmit = async () => {
     if (value && username) {
+      dispatch(clearSearchFilter(type))
+      dispatch(setSearch(type))
       if (type === 'uploads') {
         setLoading(true)
         const uploadedFiles = await searchUploadedFiles(
@@ -51,7 +54,7 @@ const LocalSearch = ({
         setLoading(true)
         const feedFiles = await searchFeedFiles(value.toLowerCase())
         if (feedFiles && feedFiles.length > 0) {
-          handleFeedFiles(feedFiles, dispatch, username)
+          handleFeedFiles(feedFiles, dispatch)
         }
         setLoading(false)
       }
