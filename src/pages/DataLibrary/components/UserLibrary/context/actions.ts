@@ -189,7 +189,7 @@ export const setHideTooltip = (tooltip: boolean) => {
   }
 }
 
-export const setEmptySetIndicator = (type: string, value: boolean) => {
+export const setEmptySetIndicator = (type: string, value: string) => {
   return {
     type: Types.SET_EMPTY_INDICATOR,
     payload: {

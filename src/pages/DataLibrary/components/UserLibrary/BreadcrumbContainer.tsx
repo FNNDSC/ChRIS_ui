@@ -53,26 +53,24 @@ const BreadcrumbContainer = ({
           }
 
           return (
-            <>
-              <BreadcrumbItem
-                to={index !== 0 || browserType !== 'uploads' ? '#' : undefined}
-                style={{
-                  fontSize: '1.1em',
-                }}
-                onClick={() => {
-                  if (index === 0 && browserType === 'uploads') {
-                    return
-                  }
+            <BreadcrumbItem
+              to={index !== 0 || browserType !== 'uploads' ? '#' : undefined}
+              style={{
+                fontSize: '1.1em',
+              }}
+              onClick={() => {
+                if (index === 0 && browserType === 'uploads') {
+                  return
+                }
 
-                  const newPath = initialPathSplit.slice(0, index + 1).join('/')
-                  handleFolderClick(newPath)
-                }}
-                key={index}
-              >
-                {icon}
-                {path}
-              </BreadcrumbItem>
-            </>
+                const newPath = initialPathSplit.slice(0, index + 1).join('/')
+                handleFolderClick(newPath)
+              }}
+              key={index}
+            >
+              {icon}
+              {path}
+            </BreadcrumbItem>
           )
         })}
       </Breadcrumb>
