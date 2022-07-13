@@ -226,9 +226,7 @@ export const libraryReducer = (
   action: LibraryActions,
 ): LibraryState => {
   switch (action.type) {
-
     case Types.SET_FETCHING_RESOURCES: {
-      
       return {
         ...state,
         fetchingResources: action.payload.fetching,
@@ -458,6 +456,7 @@ export const libraryReducer = (
 
       if (state.foldersState[type] && state.foldersState[type][path]) {
         const previousFolders = state.foldersState[type][path]
+
         return {
           ...state,
           foldersState: {
