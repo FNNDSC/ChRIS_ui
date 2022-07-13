@@ -151,7 +151,7 @@ To learn React, check out the
 ## Prerequisites:
 - ChRIS_ultron_backend is running on `http://localhost:8000/api/v1/`
 - ChRIS_ui is running on `http://localhost:3000/`
-- You have Cypress installed using `npm install cypress --save-dev`
+- You have Cypress installed using `npm install cypress`
 ```
 - To run: 
 `$ npm run cypress:open`
@@ -161,6 +161,8 @@ To run cypress in the terminal as a headless browser use:
 ```
 `npm run cypress:run`
 ```
+
+Running Cypress inside a container is not currently supported
 
 
 
