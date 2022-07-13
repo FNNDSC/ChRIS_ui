@@ -187,11 +187,11 @@ const BrowserContainer = ({
                 />
               )}
             </div>
-          ) : (
+          ) : !noData ? (
             <div className="spin-container">
               <Spin size="large" spinning />
             </div>
-          )}
+          ) : null}
           {noData && (
             <EmptyState>
               <Title headingLevel="h4" size="lg">
