@@ -41,8 +41,7 @@ const DataLibrary = () => {
   const router = useContext(MainRouterContext)
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
-  const [directoryName, setDirectoryName] = React.useState('')
-  const { foldersState, selectedFolder } = state
+  const { foldersState, selectedFolder, currentPath } = state
   const [error, setError] = React.useState<any[]>([])
   const [fetchingFiles, setFetchingFiles] = React.useState(false)
   const [feedFilesToDelete, setFeedFilestoDelete] = React.useState<
@@ -52,15 +51,10 @@ const DataLibrary = () => {
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal)
     setLocalFiles([])
-    setDirectoryName('')
   }
 
   const handleLocalFiles = (files: LocalFile[]) => {
     setLocalFiles(files)
-  }
-
-  const handleDirectoryName = (directoryName: string) => {
-    setDirectoryName(directoryName)
   }
 
   const createFeed = () => {
@@ -280,6 +274,27 @@ const DataLibrary = () => {
     </section>
   )
 
+  const handleAddFolder = (directoryName: string) => {
+    const folders =
+      foldersState['uploads'] && foldersState['uploads'][currentPath['uploads']]
+
+    if (folders && folders.length > 0) {
+      const folderExists = folders.findIndex(
+        (folder) => folder.name === directoryName,
+      )
+
+      if (folderExists === -1) {
+        dispatchLibrary({
+          type: Types.SET_ADD_FOLDER,
+          payload: {
+            folder: directoryName,
+            username,
+          },
+        })
+      }
+    }
+  }
+
   return (
     <>
       {selectedFolder.length > 0 && (
@@ -423,8 +438,7 @@ const DataLibrary = () => {
         handleFileModal={handleFileModal}
         handleLocalFiles={handleLocalFiles}
         uploadFileModal={uploadFileModal}
-        handleDirectoryName={handleDirectoryName}
-        directoryName={directoryName}
+        handleAddFolder={handleAddFolder}
         localFiles={localFiles}
       />
 
@@ -476,32 +490,21 @@ interface UploadComponent {
   handleLocalFiles: (files: LocalFile[]) => void
   uploadFileModal: boolean
   localFiles: LocalFile[]
-  directoryName: string
-  handleDirectoryName: (path: string) => void
+  handleAddFolder: (path: string) => void
 }
 
 const UploadComponent = ({
   handleFileModal,
   handleLocalFiles,
+  handleAddFolder,
   uploadFileModal,
   localFiles,
-  directoryName,
-  handleDirectoryName,
 }: UploadComponent) => {
   const username = useTypedSelector((state) => state.user.username)
-  const { dispatch } = useContext(LibraryContext)
   const [warning, setWarning] = React.useState('')
+  const [directoryName, setDirectoryName] = React.useState('')
   const [count, setCount] = React.useState(0)
 
-  const handleAddFolder = (directoryName: string) => {
-    dispatch({
-      type: Types.SET_ADD_FOLDER,
-      payload: {
-        folder: directoryName,
-        username,
-      },
-    })
-  }
   return (
     <Modal
       title="Upload Files"
@@ -525,7 +528,7 @@ const UploadComponent = ({
             name="horizontal-form-name"
             onChange={(value) => {
               setWarning('')
-              handleDirectoryName(value)
+              setDirectoryName(value)
             }}
           />
         </FormGroup>
@@ -598,6 +601,7 @@ const UploadComponent = ({
             /** Temporary Timer */
 
             setTimeout(() => {
+              setDirectoryName('')
               handleFileModal()
             }, 500)
           }
