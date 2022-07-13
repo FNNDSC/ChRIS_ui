@@ -78,11 +78,16 @@ export const handleUploadedFiles = (
     const fnameSplit = file.data.fname.split('/')
     const name = `${fnameSplit[2]}`
     const path = `${fnameSplit[0]}/${fnameSplit[1]}`
+
     const folder = {
       name,
       path,
     }
-    if (uploadsDict[path]) {
+
+    if (
+      uploadsDict[path] &&
+      uploadsDict[path].findIndex((file) => file.name === folder.name) === -1
+    ) {
       uploadsDict[path].push(folder)
     } else {
       uploadsDict[path] = [folder]
