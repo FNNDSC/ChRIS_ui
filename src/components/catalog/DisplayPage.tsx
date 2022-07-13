@@ -226,7 +226,7 @@ const DisplayPage = ({
             resources.length > 0 &&
             resources.map((resource) => {
               return (
-                <Col key={resource.data? resource.data.id:""} span={8}>
+                <Col key={resource.data ? resource.data.id : ''} span={8}>
                   <Card
                     hoverable
                     style={{
@@ -249,7 +249,7 @@ const DisplayPage = ({
                     title={
                       <>
                         {icon}
-                        {resource.data?resource.data.name:""}
+                        {resource.data ? resource.data.name : ''}
                       </>
                     }
                     bordered={true}
@@ -265,7 +265,7 @@ const DisplayPage = ({
                       </>
                     )}
                     <p className="pluginList__description">
-                      {resource.data?resource.data.description:""}
+                      {resource.data ? resource.data.description : ''}
                     </p>
                   </Card>
                 </Col>
@@ -340,8 +340,7 @@ const DisplayPage = ({
                     handleUpdate(selectedResource.data.id)
                     selectedResource.delete()
                     setIsExpanded(false)
-                  } catch(error) {
-                  console.log("pipeline couldn't be deleted")
+                  } catch (error) {
                     console.log(error)
                   }
                 }}

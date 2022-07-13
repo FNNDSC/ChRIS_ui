@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { TextInput, Button, Spinner } from '@patternfly/react-core'
+import { TextInput, Button, Spinner, Label } from '@patternfly/react-core'
 import {
   searchUploadedFiles,
   searchFeedFiles,
@@ -23,12 +23,25 @@ const LocalSearch = ({
   type: string
   username: null | undefined | string
 }) => {
-  const [value, setValue] = React.useState('')
-  const { dispatch } = useContext(LibraryContext)
-  const [loading, setLoading] = React.useState(false)
+  const [value, setValue] = React.useState<{ [key: string]: string }>({
+    services: '',
+    feed: '',
+    uploads: '',
+  })
 
-  const handleChange = (value: string) => {
-    setValue(value)
+  const { dispatch, state } = useContext(LibraryContext)
+  const [loading, setLoading] = React.useState<{ [key: string]: boolean }>({
+    services: false,
+    uploads: false,
+    feed: false,
+  })
+  const { search } = state
+
+  const handleChange = (valueChanged: string) => {
+    setValue({
+      ...value,
+      [type]: valueChanged,
+    })
   }
 
   const placeholder =
@@ -39,42 +52,81 @@ const LocalSearch = ({
       : 'Search over SERVICES/PACS'
 
   const handleSubmit = async () => {
-    if (value && username) {
+    if (value[type] && username) {
       dispatch(clearSearchFilter(type))
       dispatch(setSearch(type))
       if (type === 'uploads') {
-        setLoading(true)
+        setLoading({
+          ...loading,
+          uploads: true,
+        })
         const uploadedFiles = await searchUploadedFiles(
-          value.toLowerCase(),
-          `${username}/uploads`,
+          value[type].toLowerCase(),
+          dispatch,
         )
 
         if (uploadedFiles && uploadedFiles.length > 0) {
-          handleUploadedFiles(uploadedFiles, dispatch, value.toLowerCase())
+          handleUploadedFiles(uploadedFiles, dispatch)
         } else {
-          dispatch(setEmptySetIndicator('uploaded', true))
+          dispatch(
+            setEmptySetIndicator(
+              'uploads',
+              `We couldn't find anything for the search term ${value[type]}`,
+            ),
+          )
         }
-        setLoading(false)
+        setLoading({
+          ...loading,
+          uploads: false,
+        })
       }
       if (type === 'feed') {
-        setLoading(true)
-        const feedFiles = await searchFeedFiles(value.toLowerCase())
+        setLoading({
+          ...loading,
+          feed: true,
+        })
+        const feedFiles = await searchFeedFiles(
+          value[type].toLowerCase(),
+          dispatch,
+        )
         if (feedFiles && feedFiles.length > 0) {
           handleFeedFiles(feedFiles, dispatch)
         } else {
-          dispatch(setEmptySetIndicator('feed', true))
+          dispatch(
+            setEmptySetIndicator(
+              'feed',
+              `We couldn't find anything for the search term ${value[type]}`,
+            ),
+          )
         }
-        setLoading(false)
+        setLoading({
+          ...loading,
+          feed: false,
+        })
       }
       if (type === 'services') {
-        setLoading(true)
-        const pacsFiles = await searchPacsFiles(value.toLowerCase())
+        setLoading({
+          ...loading,
+          services: true,
+        })
+        const pacsFiles = await searchPacsFiles(
+          value[type].toLowerCase(),
+          dispatch,
+        )
         if (pacsFiles && pacsFiles.length > 0) {
           handlePacsFiles(pacsFiles, dispatch)
         } else {
-          dispatch(setEmptySetIndicator('services', true))
+          dispatch(
+            setEmptySetIndicator(
+              'services',
+              `We couldn't find anything for the search term ${value[type]}`,
+            ),
+          )
         }
-        setLoading(false)
+        setLoading({
+          ...loading,
+          services: false,
+        })
       }
     }
   }
@@ -97,7 +149,7 @@ const LocalSearch = ({
           }}
           iconVariant="search"
           placeholder={placeholder}
-          value={value}
+          value={value[type]}
           onChange={handleChange}
           onKeyUp={(e) => {
             if (e.key === 'Enter') {
@@ -114,7 +166,7 @@ const LocalSearch = ({
           height: '1em',
         }}
       >
-        {loading && (
+        {loading[type] && (
           <>
             {' '}
             <Spinner
@@ -129,6 +181,29 @@ const LocalSearch = ({
           </>
         )}
       </div>
+      {search[type] && (
+        <Label
+          style={{
+            marginTop: '1em',
+          }}
+          color="blue"
+          icon
+          onClose={() => {
+            setLoading({
+              ...loading,
+              [type]: false,
+            })
+            setValue({
+              ...value,
+              [type]: '',
+            })
+
+            dispatch(clearSearchFilter(type))
+          }}
+        >
+          Clear Search Filter
+        </Label>
+      )}
     </>
   )
 }
