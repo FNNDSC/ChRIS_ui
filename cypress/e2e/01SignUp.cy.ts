@@ -34,14 +34,32 @@ describe('Testing Login Page', () => {
       })
 
       it('logs into the page and confirms user has been created', () => {
-
         cy.intercept('POST', 'http://localhost:8000/api/v1/auth-token/').as('signup')
           .get('.pf-c-button.pf-m-primary').click()
-          .wait(5000)
-        cy.screenshot()
+          .wait(2000)
           .wait('@signup').its('response.statusCode').should('eq', 200)
+        cy.url().should('include', '/')
 
       })
     })  
+
+    describe('Signs out user and logs in as Chris user', () => {
+      it('logs out the user', () => {
+        cy.get('button#pf-dropdown-toggle-id-0')
+          .click()
+        cy.get("a.pf-c-dropdown__menu-item").should('have.text', 'Sign out')
+          .click()
+        cy.url().should('include', '/login')
+      })
+
+
+      it('logs in as chris user', () => {
+        cy.get("input#pf-login-username-id").type("chris")
+        cy.get("input#pf-login-password-id").type("chris1234")
+        cy.get("button.pf-c-button.pf-m-primary.pf-m-block").should('have.text', 'Log In')
+        .click()
+        cy.url().should('include', '/')
+      })
+    })
   
  

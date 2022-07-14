@@ -8,7 +8,9 @@ describe('Testing CreateAnalysis', () => {
 
     it('01 Clicks on Create New Analysis', () => {
         cy.get('.create-feed-button')
-          .click()
+        .invoke('text')
+        .should('match', "Create New Analysis")
+        .click()
     })
 
     it('02 Types in the Feed Name', () => {
