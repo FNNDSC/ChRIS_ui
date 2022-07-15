@@ -1,5 +1,5 @@
 import React from 'react'
-import { 
+import {
   ToggleGroup,
   ToggleGroupItem,
   Tooltip,
@@ -9,102 +9,93 @@ import {
   FormGroup,
   TextInput,
   Alert,
-  Button } from '@patternfly/react-core'
-import { FaTrash, FaDownload} from 'react-icons/fa'
+  Button,
+} from '@patternfly/react-core'
+import { FaTrash, FaDownload } from 'react-icons/fa'
 import { VscMerge } from 'react-icons/vsc'
-import { MdCallSplit} from 'react-icons/md'
+import { MdCallSplit } from 'react-icons/md'
 import { useDispatch } from 'react-redux'
 import {
   downloadFeedRequest,
   deleteFeed,
   mergeFeedRequest,
   duplicateFeedRequest,
-  toggleSelectAll
+  toggleSelectAll,
 } from '../../../store/feed/actions'
 import { useTypedSelector } from '../../../store/hooks'
 const IconContainer = () => {
-  const bulkSelect = useTypedSelector((state) => {
-    return state.feed.bulkSelect
+  const { bulkSelect, downloadError } = useTypedSelector((state) => {
+    return state.feed
   })
-  const {downloadError,} = useTypedSelector((state) => state.feed)
-  const getDefaultName =(bulkSelect:any, action:string) => {
-  
+  const dispatch = useDispatch()
+  const [isModalOpen, setModalOpen] = React.useState(false)
+  const [nameValue, setNameValue] = React.useState('')
+  const [dialogTitleValue, setTitleValue] = React.useState('')
+  const [dialogDescriptionValue, setDescriptionValue] = React.useState('')
+  const [labelValue, setLabelValue] = React.useState('')
+  const [defaultName, setDefaultName] = React.useState('')
+  const nameInputRef = React.useRef(null)
+
+  const getDefaultName = (bulkSelect: any, action: string) => {
     setLabelValue('Feed Name')
     setDescriptionValue('Enter a name for your new feed (optional)')
     setTitleValue('Feed Name')
-    let prefix = '';
-    if(action=='merge'){
+    let prefix = ''
+    if (action == 'merge') {
       prefix = 'Merge of '
-    }
-    else if(action=='download'){
+    } else if (action == 'download') {
       prefix = 'archive-'
-    }
-    else{
+    } else {
       prefix = ''
     }
-    const feedNames = [];
-    for(let i =0; i< bulkSelect.length; i++){
-      feedNames.push(bulkSelect[i].data.name);
+    const feedNames = []
+    for (let i = 0; i < bulkSelect.length; i++) {
+      feedNames.push(bulkSelect[i].data.name)
     }
     // truncate name of the merged feed(limit=100)
-    let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
-    newFeedName = prefix + newFeedName;
-    newFeedName = newFeedName.substring(0, 100);
-    if(action == 'duplicate'){
-      if(bulkSelect.length>1){
-        newFeedName = "duplicate-"
+    let newFeedName = feedNames.toString().replace(/[, ]+/g, '_')
+    newFeedName = prefix + newFeedName
+    newFeedName = newFeedName.substring(0, 100)
+    if (action == 'duplicate') {
+      if (bulkSelect.length > 1) {
+        newFeedName = 'duplicate-'
         setLabelValue('Feed Prefix')
         setDescriptionValue('Enter a feed prefix (optional)')
         setTitleValue('Feed Prefix')
-      }
-      else{
-        newFeedName = "duplicate-"+bulkSelect[0].data.name
+      } else {
+        newFeedName = 'duplicate-' + bulkSelect[0].data.name
       }
     }
-    return newFeedName;
+    return newFeedName
   }
 
-  const dispatch = useDispatch()
-  const [isModalOpen, setModalOpen] = React.useState(false);
-  const [nameValue, setNameValue] = React.useState('');
-  const [dialogTitleValue, setTitleValue] = React.useState('');
-  const [dialogDescriptionValue, setDescriptionValue] = React.useState('');
-  const [labelValue, setLabelValue] = React.useState('');
-  const [defaultName, setDefaultName] = React.useState('');
-  const nameInputRef = React.useRef(null);
+  const [actionValue, setActionValue] = React.useState('')
+  const handleModalToggle = (action: string) => {
+    setModalOpen(!isModalOpen)
+    setActionValue(action)
+    setDefaultName(getDefaultName(bulkSelect, action))
+  }
 
-  const [actionValue, setActionValue] = React.useState('');
-  const handleModalToggle = (action:string) => {
-    setModalOpen(!isModalOpen);
-    setActionValue(action);
-    setDefaultName(getDefaultName(bulkSelect,action))
-    
-  };
+  const handleNameInputChange = (value: any) => {
+    setNameValue(value)
+  }
 
-  const handleNameInputChange = (value:any) => {
-    setNameValue(value);
-  };
+  const handleSubmit = () => {
+    handleChange(actionValue, nameValue)
+  }
 
-  const handleSubmit = () =>{
-     handleChange(actionValue,nameValue)
-  };
-  
-  
   React.useEffect(() => {
     if (isModalOpen && nameInputRef && nameInputRef.current) {
-      (nameInputRef.current as HTMLInputElement).focus();
+      ;(nameInputRef.current as HTMLInputElement).focus()
     }
-  }, [isModalOpen]);
-  
-  
-  const handleChange = (type: string,name:any) => {
+  }, [isModalOpen])
 
-    type === 'download' && dispatch(downloadFeedRequest(bulkSelect,name))
-    type === 'merge' && dispatch(mergeFeedRequest(bulkSelect,name))
+  const handleChange = (type: string, name: any) => {
+    type === 'download' && dispatch(downloadFeedRequest(bulkSelect, name))
+    type === 'merge' && dispatch(mergeFeedRequest(bulkSelect, name))
     type === 'delete' && dispatch(deleteFeed(bulkSelect))
-    type === 'duplicate' && dispatch(duplicateFeedRequest(bulkSelect,name))
-    dispatch(toggleSelectAll(false));
-
+    type === 'duplicate' && dispatch(duplicateFeedRequest(bulkSelect, name))
+    dispatch(toggleSelectAll(false))
   }
   return (
     <ToggleGroup aria-label="Feed Action Bar">
@@ -112,35 +103,39 @@ const IconContainer = () => {
         aria-label="feed-action"
         icon={
           <Tooltip content={<div>Download selected feeds</div>}>
-            
             <FaDownload />
-            
           </Tooltip>
         }
-        onChange={()=>{handleModalToggle('download')}} 
+        onChange={() => {
+          handleModalToggle('download')
+        }}
       />
       <ToggleGroupItem
         aria-label="feed-action"
         icon={
           <Tooltip content={<div>Merge selected feeds</div>}>
-            <VscMerge style={{
-              height: '1.25em',
-              width: '1.25em'
-            }} />
+            <VscMerge
+              style={{
+                height: '1.25em',
+                width: '1.25em',
+              }}
+            />
           </Tooltip>
         }
-        onChange={()=>{handleModalToggle('merge')}}
+        onChange={() => {
+          handleModalToggle('merge')
+        }}
       />
       <ToggleGroupItem
         aria-label="feed-action"
         icon={
           <Tooltip content={<div>Duplicate selected feeds</div>}>
-            
             <MdCallSplit />
-            
           </Tooltip>
         }
-        onChange={()=>{handleModalToggle('duplicate')}} 
+        onChange={() => {
+          handleModalToggle('duplicate')
+        }}
       />
       <ToggleGroupItem
         aria-label="feed-action"
@@ -149,7 +144,7 @@ const IconContainer = () => {
             <FaTrash />
           </Tooltip>
         }
-        onChange={() => handleChange('delete',"")}
+        onChange={() => handleChange('delete', '')}
       />
 
       <Modal
@@ -158,22 +153,32 @@ const IconContainer = () => {
         title={dialogTitleValue}
         description={dialogDescriptionValue}
         isOpen={isModalOpen}
-        onClose={()=>{handleModalToggle('')}}
+        onClose={() => {
+          handleModalToggle('')
+        }}
         onSubmit={handleSubmit}
         actions={[
-          <Button key="create" variant="primary" form="modal-with-form-form" onClick={handleSubmit}>
+          <Button
+            key="create"
+            variant="primary"
+            form="modal-with-form-form"
+            onClick={handleSubmit}
+          >
             Confirm
           </Button>,
-          <Button key="cancel" variant="link" onClick={()=>{handleModalToggle('')}}>
+          <Button
+            key="cancel"
+            variant="link"
+            onClick={() => {
+              handleModalToggle('')
+            }}
+          >
             Cancel
-          </Button>
+          </Button>,
         ]}
       >
         <Form id="modal-with-form-form">
-          <FormGroup
-            label={labelValue}
-            fieldId="modal-with-form-form-name"
-          >
+          <FormGroup label={labelValue} fieldId="modal-with-form-form-name">
             <TextInput
               type="email"
               id="modal-with-form-form-name"
@@ -183,18 +188,20 @@ const IconContainer = () => {
               onChange={handleNameInputChange}
               ref={nameInputRef}
             />
-            {downloadError?
-        <Alert
-          isInline
-          variant="danger"
-          title={downloadError+" Feeds from other creators need to be shared with you first."}
-        >
-        
-        </Alert>
-        :''} 
+            {downloadError ? (
+              <Alert
+                isInline
+                variant="danger"
+                title={
+                  downloadError +
+                  ' Feeds from other creators need to be shared with you first.'
+                }
+              ></Alert>
+            ) : (
+              ''
+            )}
           </FormGroup>
         </Form>
-       
       </Modal>
     </ToggleGroup>
   )
