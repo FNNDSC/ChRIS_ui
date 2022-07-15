@@ -104,6 +104,7 @@ describe('Testing CreateAnalysis', () => {
         cy.get('button.pf-c-button.pf-m-primary')
         .eq(1)
         .should('have.text', 'Close')
+        
         .click()
     })
 
