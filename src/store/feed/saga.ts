@@ -151,12 +151,12 @@ function* handleDuplicateFeed(action: IActionTypeParam) {
   const cu = new cujs()
   cu.setClient(client)
 
-  
+    
   const newFeeds = []
-  for (let i = 0; i < feedList.length; i++) {
+  if(feedList.length==1){
     const feedIdList = []
-    const data = feedList[i].data
-    const newFeedName = action.meta? action.meta+"-"+data.name : "duplicate-"+data.name
+    const data = feedList[0].data
+    const newFeedName = action.meta? action.meta : "duplicate-"+data.name
     feedIdList.push(data.id)
     try{
       const createdFeed: Feed = yield cu.mergeMultipleFeeds(
@@ -171,6 +171,27 @@ function* handleDuplicateFeed(action: IActionTypeParam) {
       yield put(duplicateFeedError(errorParsed))
       return error
   }
+  }
+  else{
+    for (let i = 0; i < feedList.length; i++) {
+      const feedIdList = []
+      const data = feedList[i].data
+      const newFeedName = action.meta? action.meta+"-"+data.name : "duplicate-"+data.name
+      feedIdList.push(data.id)
+      try{
+        const createdFeed: Feed = yield cu.mergeMultipleFeeds(
+          feedIdList,
+          newFeedName,
+        )
+        newFeeds.push(createdFeed)
+      }
+      catch (error) {
+       //@ts-ignore
+        const errorParsed = error.response.data.value[0]
+        yield put(duplicateFeedError(errorParsed))
+        return error
+    }
+    }
   }
  
   yield put(duplicateFeedSuccess(newFeeds))

@@ -51,10 +51,15 @@ const IconContainer = () => {
     newFeedName = prefix + newFeedName;
     newFeedName = newFeedName.substring(0, 100);
     if(action == 'duplicate'){
-      newFeedName = "duplicate-"
-      setLabelValue('Feed Prefix')
-      setDescriptionValue('Enter a feed prefix (optional)')
-      setTitleValue('Feed Prefix')
+      if(bulkSelect.length>1){
+        newFeedName = "duplicate-"
+        setLabelValue('Feed Prefix')
+        setDescriptionValue('Enter a feed prefix (optional)')
+        setTitleValue('Feed Prefix')
+      }
+      else{
+        newFeedName = "duplicate-"+bulkSelect[0].data.name
+      }
     }
     return newFeedName;
   }
