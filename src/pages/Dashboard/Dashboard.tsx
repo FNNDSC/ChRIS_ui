@@ -45,6 +45,7 @@ const DashboardPage = (props: DashboardProps) => {
   const { children } = props
 
   React.useEffect(() => {
+    document.title = "Overview";
     dispatch(
       setSidebarActive({
         activeItem: 'overview',
