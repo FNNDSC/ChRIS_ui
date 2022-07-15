@@ -10,7 +10,6 @@ import GalleryPage from './pages/ViewImage/ViewImage'
 import VisualizationPage from './pages/VisualizationPage'
 import Library, { Series } from './pages/DataLibrary/Library'
 import SignUp from './pages/SignUp/SignUp'
-import WorkflowsPage from './pages/WorkflowsPage'
 import CatalogPage from './pages/CatalogPage'
 import SliceDropPage from './pages/VisualizationPage/SliceDropPage'
 import MedviewPage from './pages/VisualizationPage/MedviewPage'
@@ -61,9 +60,6 @@ export const MainRouter: React.FC = () => {
       <PrivateRoute path="/feeds" component={FeedsPage} />
       <PrivateRoute path="/library" component={Library} />
       <PrivateRoute path="/gallery" component={GalleryPage} />
-      {process.env.REACT_APP_ALPHA_FEATURES === 'development' && (
-        <PrivateRoute path="/workflows" component={WorkflowsPage} />
-      )}
 
       <PrivateRoute path="/visualization" component={VisualizationPage} />
       {process.env.REACT_APP_ALPHA_FEATURES === 'development' && (
