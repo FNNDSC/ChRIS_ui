@@ -8,15 +8,18 @@ on:
     branches: [ "tests" ]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-20.04
-
+  cypress-run:
+    runs-on: ubuntu-latest
+    container: cypress/browsers:node12.18.3-chrome87-ff82
     steps:
-    - uses: actions/checkout@v3
-    - name: Cypress run
-      uses: cypress-io/github-action@v4
-      with:
-        browser: chrome
-        headed: true
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Install NPM dependencies, cache them correctly
+      # and run all Cypress tests
+      - name: Cypress run
+        uses: cypress-io/github-action@v4
+        with:
+          # Specify Browser since container image is compile with Firefox
+          browser: chrome
 
