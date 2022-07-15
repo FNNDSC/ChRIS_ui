@@ -62,6 +62,7 @@ const VisualizationPage = () => {
   const history = useHistory()
 
   React.useEffect(() => {
+    document.title = "DICOM Viewer";
     if (acceptedFiles.length > 0) dispatch(setExternalFiles(acceptedFiles))
   }, [acceptedFiles, dispatch])
 
