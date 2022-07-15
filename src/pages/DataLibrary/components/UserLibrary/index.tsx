@@ -158,6 +158,7 @@ const DataLibrary = () => {
                 )
                 writable = await newFileHandle.createWritable()
                 await writable.write(blob)
+                await writable.close();
               }
             } else {
               const existingHandle = newDirectoryHandle[fname - 1]
