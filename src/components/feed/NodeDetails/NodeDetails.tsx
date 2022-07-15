@@ -28,7 +28,7 @@ import Status from './Status'
 import GraphNode from '../AddTsNode/ParentContainer'
 import StatusTitle from './StatusTitle'
 import PluginTitle from './PluginTitle'
-import { setFeedLayout } from '../../../store/feed/actions'
+
 import { useTypedSelector } from '../../../store/hooks'
 import './NodeDetails.scss'
 import { getErrorCodeMessage } from './utils'
@@ -153,12 +153,12 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
         <div className="node-details__title">
           <PluginTitle />
 
-            
-<FaWindowClose onClick={() => {
+          <FaWindowClose
+            onClick={() => {
               expandDrawer('side_panel')
-            }} className="node-details__title--button" />
-            
-
+            }}
+            className="node-details__title--button"
+          />
         </div>
 
         <Grid className="node-details__grid">
@@ -232,7 +232,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
         </ExpandableSection>
 
         <div className="node-details__actions">
-          <div className='node-details__actions_first'>
+          <div className="node-details__actions_first">
             {cancelled ? null : <AddNode />}
             <AddPipeline />
             <Popover
@@ -253,7 +253,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             </Popover>
           </div>
 
-          <div className='node-details__actions_second'>
+          <div className="node-details__actions_second">
             <Popover
               className="node-details__popover"
               content={<PluginLog text={text} />}
@@ -269,14 +269,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               </Button>
             </Popover>
             {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
-            <Button
-              icon={<FaBezierCurve />}
-              type="button"
-              onClick={() => dispatch(setFeedLayout())}
-              variant="primary"
-            >
-              Switch Layout
-            </Button>
           </div>
         </div>
       </div>

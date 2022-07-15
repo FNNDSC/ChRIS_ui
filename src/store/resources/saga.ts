@@ -19,8 +19,16 @@ import {
   getPluginFilesError,
   getPluginInstanceStatusSuccess,
 } from "./actions";
-import { getPluginFiles } from "../workflows/utils";
+import { fetchResource } from "../../utils";
 import ChrisAPIClient from "../../api/chrisapiclient";
+
+export function* getPluginFiles(plugin: PluginInstance) {
+  const params = { limit: 200, offset: 0 };
+  const fn = plugin.getFiles;
+  const boundFn = fn.bind(plugin);
+  const files: any[] = yield fetchResource<any>(params, boundFn);
+  return files;
+}
 
 function* fetchPluginFiles(plugin: PluginInstance) {
   try {

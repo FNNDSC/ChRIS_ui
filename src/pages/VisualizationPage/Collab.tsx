@@ -12,7 +12,7 @@ import {
   ActionGroup,
 } from '@patternfly/react-core'
 import { useTypedSelector } from '../../store/hooks'
-import { setCurrentUrl } from '../../store/workflows/actions'
+import { setCurrentUrl } from '../../store/resources/actions'
 
 interface Value {
   [key: string]: string
@@ -22,7 +22,7 @@ const Collab = () => {
   const [isOpen, setIsOpen] = React.useState(false)
   const [value, setValue] = React.useState<Value>({})
 
-  const url = useTypedSelector((state) => state.workflows.url)
+  const url = useTypedSelector((state) => state.resource.url)
 
   const dispatch = useDispatch()
   React.useEffect(() => {

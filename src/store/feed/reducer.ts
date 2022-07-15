@@ -14,7 +14,7 @@ export const initialState: IFeedState = {
     error: '',
     loading: false,
   },
-  currentLayout: true,
+  currentLayout: false,
   feedTreeProp: {
     orientation: 'vertical',
     translate: {
