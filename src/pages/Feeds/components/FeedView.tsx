@@ -126,7 +126,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
     >
       {' '}
       <React.Suspense fallback={<div>Fetching the Resources in a moment</div>}>
-        {currentLayout ? (
+        {!currentLayout ? (
           <ParentComponent
             isSidePanelExpanded={isSidePanelExpanded}
             isBottomPanelExpanded={isBottomPanelExpanded}
