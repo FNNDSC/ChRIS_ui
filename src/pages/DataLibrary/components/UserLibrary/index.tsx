@@ -138,7 +138,6 @@ const DataLibrary = () => {
           const newDirectoryHandle: { [key: string]: any } = {}
           for (let fname = 0; fname < fileName.length; fname++) {
             if (fname === 0) {
-              console.log(fileName)
               newDirectoryHandle[
                 fname
               ] = await existingDirectoryHandle.getDirectoryHandle(
