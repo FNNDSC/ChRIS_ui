@@ -37,7 +37,7 @@ const IconContainer = () => {
       prefix = 'Merge of '
     }
     else if(action=='download'){
-      prefix = 'Archive of '
+      prefix = 'archive-'
     }
     else{
       prefix = ''

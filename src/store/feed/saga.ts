@@ -86,7 +86,7 @@ function* handleDowloadFeed(action: IActionTypeParam) {
   try {
     // truncate name of the merged feed(limit=100)
     let newFeedName = feedNames.toString().replace(/[, ]+/g, '_')
-    newFeedName = `Archive of ${newFeedName}`
+    newFeedName = `archive-${newFeedName}`
     newFeedName = newFeedName.substring(0, 100)
 
     newFeedName = action.meta == '' ? newFeedName : action.meta
