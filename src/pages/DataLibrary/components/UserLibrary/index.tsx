@@ -138,6 +138,7 @@ const DataLibrary = () => {
           const newDirectoryHandle: { [key: string]: any } = {}
           for (let fname = 0; fname < fileName.length; fname++) {
             if (fname === 0) {
+              console.log(fileName)
               newDirectoryHandle[
                 fname
               ] = await existingDirectoryHandle.getDirectoryHandle(
@@ -158,6 +159,7 @@ const DataLibrary = () => {
                 )
                 writable = await newFileHandle.createWritable()
                 await writable.write(blob)
+                await writable.close();
               }
             } else {
               const existingHandle = newDirectoryHandle[fname - 1]
