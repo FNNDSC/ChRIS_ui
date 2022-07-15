@@ -5,6 +5,7 @@ import {
   Card,
   CardHeader,
   CardBody,
+  CardActions,
   CardTitle,
   Split,
   SplitItem,
@@ -12,6 +13,7 @@ import {
   Modal,
 } from '@patternfly/react-core'
 import { FaFile, FaFolder, FaDownload } from 'react-icons/fa'
+import { MdOutlineOpenInNew } from 'react-icons/md'
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
 import { LibraryContext } from './context'
 import FileViewerModel from '../../../../api/models/file-viewer.model'
@@ -20,6 +22,7 @@ import { Spin, Tooltip } from 'antd'
 import { MdClose } from 'react-icons/md'
 import useLongPress from './useLongPress'
 import { setHideTooltip } from './context/actions'
+import { Link } from 'react-router-dom'
 
 export function Browser({
   folders,
@@ -80,6 +83,7 @@ function FolderCard({
   const { handleOnClick, handleOnMouseDown } = handlers
   const { selectedFolder } = state
   const [feedDetails, setFeedDetails] = useState({
+    id: '',
     name: '',
     commitDate: '',
   })
@@ -97,6 +101,7 @@ function FolderCard({
         const id = folder.name.split('_')[1]
         const feed = await client.getFeed(parseInt(id))
         setFeedDetails({
+          id: id,
           name: feed.data.name,
           commitDate: feed.data.creation_date,
         })
@@ -105,11 +110,25 @@ function FolderCard({
     fetchFeedName()
     return () => {
       setFeedDetails({
+        id: '',
         name: '',
         commitDate: '',
       })
     }
   }, [browserType, folder, isRoot])
+
+  const handlePath = (e: any) => {
+    const path = `${folder.path}/${folder.name}`
+    handleOnClick(
+      e,
+      folder.path,
+      path,
+      folder,
+      browserType,
+      'folder',
+      handleFolderClick,
+    )
+  }
 
   return (
     <TooltipParent>
@@ -120,28 +139,39 @@ function FolderCard({
         isSelected={background}
         onMouseDown={handleOnMouseDown}
         onClick={(e) => {
-          const path = `${folder.path}/${folder.name}`
-          handleOnClick(
-            e,
-            folder.path,
-            path,
-            folder,
-            browserType,
-            'folder',
-            handleFolderClick,
-          )
+          if (!isRoot) {
+            handlePath(e)
+          }
         }}
         style={{
           background: `${background ? '#e7f1fa' : 'white'}`,
         }}
       >
         <CardHeader>
+          {feedDetails.id && (
+            <CardActions>
+              <span style={{ fontSize: '1.5em' }}>
+                <Link to={`/feeds/${feedDetails.id}`}>
+                  {' '}
+                  <MdOutlineOpenInNew />
+                </Link>
+              </span>
+            </CardActions>
+          )}
           <Split style={{ overflow: 'hidden' }}>
             <SplitItem style={{ marginRight: '1em' }}>
               <FaFolder />
             </SplitItem>
             <SplitItem isFilled>
-              <Button style={{ padding: 0 }} variant="link">
+              <Button
+                onClick={(e) => {
+                  if (isRoot) {
+                    handlePath(e)
+                  }
+                }}
+                style={{ padding: 0 }}
+                variant="link"
+              >
                 <b>
                   {' '}
                   {isRoot ? (
