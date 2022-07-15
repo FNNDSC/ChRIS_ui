@@ -58,7 +58,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     (state) => state.instance.selectedPlugin,
   )
 
-  const dispatch = useDispatch()
   const { plugin, instanceParameters, pluginParameters } = nodeState
   const [isTerminalVisible, setIsTerminalVisible] = React.useState(false)
   const [isGraphNodeVisible, setIsGraphNodeVisible] = React.useState(false)
