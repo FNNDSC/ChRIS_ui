@@ -11,6 +11,7 @@ import { isNifti, isDicom } from '../../../dicomViewer/utils'
 import { setFilesForGallery } from '../../../../store/explorer/actions'
 import GalleryDicomView from '../../../dicomViewer/GalleryDicomView'
 import DicomLoader from '../../../dicomViewer/DcmLoader'
+import { getFileExtension } from '../../../../api/models/file-explorer.model'
 
 cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
 cornerstoneFileImageLoader.external.cornerstone = cornerstone
@@ -42,6 +43,7 @@ const DicomViewerContainer = () => {
       for (let i = 0; i < files.length; i++) {
         const selectedFile = files[i].file
 
+        const fileTypes = ['jpeg', 'jpg', 'png']
         if (selectedFile) {
           if (isNifti(selectedFile.data.fname)) {
             const fileArray = selectedFile.data.fname.split('/')
@@ -67,7 +69,9 @@ const DicomViewerContainer = () => {
             imageIds.push(
               cornerstoneWADOImageLoader.wadouri.fileManager.add(file),
             )
-          } else {
+          } else if (
+            fileTypes.includes(getFileExtension(selectedFile.data.fname))
+          ) {
             const file = await selectedFile.getFileBlob()
             imageIds.push(cornerstoneFileImageLoader.fileManager.add(file))
           }

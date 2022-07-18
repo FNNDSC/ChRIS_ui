@@ -117,7 +117,7 @@ const DashboardPage = (props: DashboardProps) => {
               title="Discover and collect new data"
               body='Visit "PACS Query/Retrieve" in the main navigation to pull medical data and save it your library'
               buttonText="PACS Query/Retrieve"
-              buttonLink="/library/pacs"
+              buttonLink="/pacs"
             />
           </GridItem>
           <GridItem lg={6}>
@@ -126,7 +126,7 @@ const DashboardPage = (props: DashboardProps) => {
               title="Run a quick workflow"
               body='Vist "Run a Quick Workflow" to choose from existing analysis templates that allow for detailed analysis'
               buttonText="Run a Quick Workflow"
-              buttonLink="/workflows"
+              buttonLink="/feeds"
             />
           </GridItem>
         </Grid>
