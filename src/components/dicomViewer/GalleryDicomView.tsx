@@ -80,7 +80,7 @@ function getInitialState() {
       },
       { name: 'Magnify', mode: 'active' },
     ],
-    frameRate: 22,
+    frameRate: 10,
     frame: 1,
     visibleHeader: false,
   }
@@ -88,6 +88,7 @@ function getInitialState() {
 
 const GalleryDicomView = ({ type }: { type: string }) => {
   const imageIds = useTypedSelector((state) => state.explorer.files)
+
   const [galleryDicomState, setGalleryDicomState] = React.useState<
     GalleryState
   >(getInitialState())
