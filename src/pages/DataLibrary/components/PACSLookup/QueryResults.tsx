@@ -80,7 +80,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           <CardHeader onExpand={expandPatient.bind(PatientCard)}>
             <Grid hasGutter style={{ width: "100%" }}>
               <GridItem lg={4}>
-                <div>
+               <div>
                   <b>{PatientName.split("^").reverse().join(" ")}</b>
                 </div>
                 <div>MRN {PatientID}</div>
@@ -407,9 +407,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
          * @note this can be changed to onExecutePACSStage(pullStatus.query, pullStatus.stage - 1);
          * to enable reusing this callback for any stage
          */
-        onExecutePACSStage(pullStatus.query, PACSPullStages.REGISTER);
+        onExecutePACSStage(pullStatus.query, PACSPullStages.RETRIEVE);
 
-        setPullStatus(new PFDCMPull(pullStatus.query, PACSPullStages.REGISTER));
+        setPullStatus(new PFDCMPull(pullStatus.query, PACSPullStages.RETRIEVE));
         setCubePollError(false);
         setCubePollAttempts(2);
       }, [pullStatus]);
