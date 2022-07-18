@@ -60,6 +60,7 @@ export const MainRouter: React.FC = () => {
       <PrivateRoute path="/feeds" component={FeedsPage} />
       <PrivateRoute path="/library" component={Library} />
       <PrivateRoute path="/gallery" component={GalleryPage} />
+      <PrivateRoute path="/pacs" component={PACSLookup} />
 
       <PrivateRoute path="/visualization" component={VisualizationPage} />
       {process.env.REACT_APP_ALPHA_FEATURES === 'development' && (
@@ -72,7 +73,7 @@ export const MainRouter: React.FC = () => {
         </>
       )}
 
-      <PrivateRoute path="/pacs" component={PACSLookup} />
+     
       <Route component={NotFound} />
     </RouterProvider>
   )
