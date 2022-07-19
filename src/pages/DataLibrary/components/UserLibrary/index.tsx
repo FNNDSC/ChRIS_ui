@@ -90,10 +90,6 @@ const DataLibrary = () => {
     setActiveTabKey(eventKey as number)
   }
 
-  const fetchFileResourceAlgo = (path: string) => {
-    
-  }
-
   const handleDownload = async () => {
     setFetchingFiles(!fetchingFiles)
 
