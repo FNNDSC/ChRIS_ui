@@ -127,7 +127,7 @@ const BrowserContainer = ({
       totalCount: 0,
     }
 
-    if (type !== 'feed' && path !== '/') {
+    if (path !== '/') {
       const pathList = await client.getFileBrowserPath(path)
       if (pathList) {
         const fileList = await pathList.getFiles({

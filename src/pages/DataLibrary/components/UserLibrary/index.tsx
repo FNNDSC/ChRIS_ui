@@ -90,6 +90,10 @@ const DataLibrary = () => {
     setActiveTabKey(eventKey as number)
   }
 
+  const fetchFileResourceAlgo = (path: string) => {
+    
+  }
+
   const handleDownload = async () => {
     setFetchingFiles(!fetchingFiles)
 
@@ -105,8 +109,7 @@ const DataLibrary = () => {
         const params = {
           limit: 100,
           offset: 0,
-          fname: exactPath,
-          fname_icontains: computePath,
+          fname: computePath,
         }
 
         const client = ChrisAPIClient.getClient()
@@ -127,7 +130,6 @@ const DataLibrary = () => {
           const pacsFn = client.getPACSFiles
           const pacsBound = pacsFn.bind(client)
           const fileItems = await fetchResource(params, pacsBound)
-
           filesToPush.push(...fileItems)
         }
         return filesToPush
