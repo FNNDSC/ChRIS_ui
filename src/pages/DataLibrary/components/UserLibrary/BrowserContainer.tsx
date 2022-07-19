@@ -43,45 +43,57 @@ const BrowserContainer = ({
   const resourcesFetch = React.useCallback(
     async (path: string) => {
       dispatch(setFetching(true))
-      const client = ChrisAPIClient.getClient()
-      const uploads = await client.getFileBrowserPaths({
-        path,
-      })
-      if (search[type] === true) {
-        dispatch(setCurrentPathSearch(path, type))
-      } else {
-        dispatch(setCurrentPath(path, type))
-      }
 
-      if (
-        uploads.data &&
-        uploads.data[0].subfolders &&
-        uploads.data[0].subfolders.length > 0
-      ) {
-        let folders
-        const folderSplit = uploads.data[0].subfolders.split(',')
-        if (type === 'feed') {
-          folders = folderSplit.filter((feed: string) => feed !== 'uploads')
-          folders.sort((a: string, b: string) => {
-            const aId = parseInt(a.split('_')[1])
-            const bId = parseInt(b.split('_')[1])
-            return bId - aId
-          })
-        } else {
-          folders = folderSplit
-        }
-
-        folders = folders.map((folder: string) => {
-          return {
-            name: folder,
-            path: `${path}`,
-          }
+      try {
+        const client = ChrisAPIClient.getClient()
+        const uploads = await client.getFileBrowserPaths({
+          path,
         })
         if (search[type] === true) {
-          dispatch(setCurrentSearchFolder(folders, path, type))
+          dispatch(setCurrentPathSearch(path, type))
         } else {
-          dispatch(setFolders(folders, path, type))
+          dispatch(setCurrentPath(path, type))
         }
+
+        if (
+          uploads.data &&
+          uploads.data[0].subfolders &&
+          uploads.data[0].subfolders.length > 0
+        ) {
+          let folders
+          const folderSplit = uploads.data[0].subfolders.split(',')
+
+          if (type === 'feed' && path === '/') {
+            folders = folderSplit.filter(
+              (folder: string) => folder !== 'SERVICES',
+            )
+          } else if (type === 'feed' && path !== '/') {
+            folders = folderSplit.filter(
+              (folder: string) => folder !== 'uploads',
+            )
+            folders.sort((a: string, b: string) => {
+              const aId = parseInt(a.split('_')[1])
+              const bId = parseInt(b.split('_')[1])
+              return bId - aId
+            })
+          } else {
+            folders = folderSplit
+          }
+
+          folders = folders.map((folder: string) => {
+            return {
+              name: folder,
+              path: `${path}`,
+            }
+          })
+          if (search[type] === true) {
+            dispatch(setCurrentSearchFolder(folders, path, type))
+          } else {
+            dispatch(setFolders(folders, path, type))
+          }
+        }
+      } catch (error) {
+        console.log('ERROR', error)
       }
     },
     [dispatch, type, search],
@@ -115,30 +127,33 @@ const BrowserContainer = ({
       totalCount: 0,
     }
 
-    const pathList = await client.getFileBrowserPath(path)
-    if (pathList) {
-      const fileList = await pathList.getFiles({
-        limit: pagination.limit,
-        offset: pagination.offset,
-      })
+    if (type !== 'feed' && path !== '/') {
+      const pathList = await client.getFileBrowserPath(path)
+      if (pathList) {
+        const fileList = await pathList.getFiles({
+          limit: pagination.limit,
+          offset: pagination.offset,
+        })
 
-      if (fileList) {
-        const files = fileList.getItems()
-        if (files && files.length > 0) {
-          if (search[type]) {
-            dispatch(setCurrentSearchFiles(files, path, type))
-          } else {
-            dispatch(setFiles(files, path, type))
+        if (fileList) {
+          const files = fileList.getItems()
+          if (files && files.length > 0) {
+            if (search[type]) {
+              dispatch(setCurrentSearchFiles(files, path, type))
+            } else {
+              dispatch(setFiles(files, path, type))
+            }
+
+            const currentFolderSplit = path.split('/')
+            const currentFolder =
+              currentFolderSplit[currentFolderSplit.length - 1]
+            const totalCount = fileList.totalCount
+            dispatch(setFolderDetails(totalCount, currentFolder))
           }
-
-          const currentFolderSplit = path.split('/')
-          const currentFolder =
-            currentFolderSplit[currentFolderSplit.length - 1]
-          const totalCount = fileList.totalCount
-          dispatch(setFolderDetails(totalCount, currentFolder))
         }
       }
     }
+
     dispatch(setFetching(false))
   }
 
