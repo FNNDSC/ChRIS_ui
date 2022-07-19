@@ -407,9 +407,9 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
          * @note this can be changed to onExecutePACSStage(pullStatus.query, pullStatus.stage - 1);
          * to enable reusing this callback for any stage
          */
-        onExecutePACSStage(pullStatus.query, PACSPullStages.RETRIEVE);
+        onExecutePACSStage(pullStatus.query, PACSPullStages.REGISTER);
 
-        setPullStatus(new PFDCMPull(pullStatus.query, PACSPullStages.RETRIEVE));
+        setPullStatus(new PFDCMPull(pullStatus.query, PACSPullStages.REGISTER));
         setCubePollError(false);
         setCubePollAttempts(2);
       }, [pullStatus]);
