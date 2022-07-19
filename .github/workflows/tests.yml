@@ -19,3 +19,4 @@ jobs:
       with:
         build: npm run start
         start: npm start
+        browser: chrome
