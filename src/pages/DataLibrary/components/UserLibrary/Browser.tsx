@@ -91,8 +91,8 @@ function FolderCard({
   const background = selectedFolder.some((file) => {
     return file.folder.path === `${folder.path}/${folder.name}`
   })
-  const path = folder.path.split('/')
-  const isRoot = browserType === 'feed' && path.length === 1
+
+  const isRoot = browserType === 'feed' && folder.name.startsWith('feed')
 
   React.useEffect(() => {
     async function fetchFeedName() {
@@ -312,10 +312,15 @@ const TooltipParent = ({ children }: { children: React.ReactElement }) => {
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <h3 style={h3Style}>
         Explore Card: {'   '}
-        <i>single click</i>
+        <i>
+          {'<'}left mouse{'>'}
+        </i>
       </h3>
       <h3 style={{ ...h3Style, paddingBottom: '0' }}>
-        Select Card: {'  '} <i>long press and release</i>
+        Select Card: {'  '}{' '}
+        <i>
+          {'<'}ctrl{'>'} + {'<'}left mouse{'>'}
+        </i>
       </h3>
       <h3 style={h3Style}>
         Cancel Tips:{'    '}

@@ -57,8 +57,18 @@ const DataLibrary = () => {
     setLocalFiles(files)
   }
 
+  const returnFeedPath = (path: string) => {
+    const pathSplit = path.split('/')
+
+    const newPath = pathSplit.filter((path) => path !== '').join('/')
+    return newPath
+  }
+
   const createFeed = () => {
     const pathList = selectedFolder.map((file) => {
+      if (file.type === 'feed') {
+        return returnFeedPath(file.folder.path)
+      }
       return file.folder.path
     })
     router.actions.createFeedWithData(pathList)
@@ -88,11 +98,15 @@ const DataLibrary = () => {
         const { folder } = file
         const { path: exactPath } = folder
         const filesToPush = []
+
+        const computePath =
+          file.type === 'feed' ? returnFeedPath(exactPath) : exactPath
+
         const params = {
           limit: 100,
           offset: 0,
           fname: exactPath,
-          fname_icontains: exactPath,
+          fname_icontains: computePath,
         }
 
         const client = ChrisAPIClient.getClient()
@@ -158,7 +172,7 @@ const DataLibrary = () => {
                 )
                 writable = await newFileHandle.createWritable()
                 await writable.write(blob)
-                await writable.close();
+                await writable.close()
               }
             } else {
               const existingHandle = newDirectoryHandle[fname - 1]
@@ -264,7 +278,7 @@ const DataLibrary = () => {
   const feedFiles = (
     <section>
       <LocalSearch type="feed" username={username} />
-      <BrowserContainer type="feed" path={`${username}`} username={username} />
+      <BrowserContainer type="feed" path={`/`} username={username} />
     </section>
   )
 
