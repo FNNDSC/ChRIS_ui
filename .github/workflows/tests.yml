@@ -13,12 +13,17 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+      
+    - name: setup CUBE
+      id: cube
+      uses: FNNDSC/miniChRIS-docker@master
 
     - name: Cypress run
       uses: cypress-io/github-action@v4
       with:
         start: npm run dev
         wait-on: 'http://localhost:3000'
-        # wait for 2 minutes for the server to respond
+        # wait for 5 minutes for the server to respond
         wait-on-timeout: 600
         browser: chrome
+
