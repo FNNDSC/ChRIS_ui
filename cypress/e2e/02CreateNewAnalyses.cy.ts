@@ -50,13 +50,13 @@ describe('Testing CreateAnalysis', () => {
     it('06 Goes to Feed Creation', () => {
         cy.get('button.pf-c-button.pf-m-primary')
         .eq(1)
+        .should('have.text', "Next")
         .click()
-
+        
       })
 
     it('07 Selects the Feed Synthesis plugin', () => {
         cy.get('.pf-c-data-list__check>input')
-        .eq(1)
         .should('have.attr','name', 'pl-mri10yr06mo01da_normal v.1.1.4')
         .click()
         .wait(2000)
