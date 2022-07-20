@@ -25,5 +25,4 @@ jobs:
         wait-on: 'http://localhost:3000'
         # wait for 5 minutes for the server to respond
         wait-on-timeout: 600
-        browser: chrome
 
