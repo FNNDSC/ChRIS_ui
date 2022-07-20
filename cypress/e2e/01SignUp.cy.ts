@@ -1,5 +1,6 @@
 ///<reference types="cypress" />
 
+
 const faker = require('faker');
 
 const users = {
@@ -36,10 +37,10 @@ describe('Testing Login Page', () => {
       it('logs into the page and confirms user has been created', () => {
         cy.intercept('POST', 'http://localhost:8000/api/v1/auth-token/').as('signup')
           .get('.pf-c-button.pf-m-primary').click()
-          .wait(2000)
+          .wait(2000).snapshot()
           .wait('@signup').its('response.statusCode').should('eq', 200)
         cy.url().should('include', '/')
-
+       
       })
     })  
 

@@ -50,8 +50,8 @@ describe('Testing CreateAnalysis', () => {
     it('06 Goes to Feed Creation', () => {
         cy.get('button.pf-c-button.pf-m-primary')
         .eq(1)
-        .should('have.text', "Next")
         .click()
+
       })
 
     it('07 Selects the Feed Synthesis plugin', () => {
@@ -104,7 +104,7 @@ describe('Testing CreateAnalysis', () => {
         cy.get('button.pf-c-button.pf-m-primary')
         .eq(1)
         .should('have.text', 'Close')
-        
+
         .click()
     })
 
