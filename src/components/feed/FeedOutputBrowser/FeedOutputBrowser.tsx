@@ -78,7 +78,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         const length = pluginFiles.length
         for (const file of pluginFiles) {
           count += 1
-          const percentage = (count / length) * 100
+          const percentage = Number(((count / length) * 100).toFixed(2))
           setDownload({
             status: true,
             count: percentage,
