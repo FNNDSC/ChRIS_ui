@@ -17,7 +17,7 @@ import {
   TabTitleText,
 } from '@patternfly/react-core'
 import { Feed } from '@fnndsc/chrisapi'
-import { Alert } from 'antd'
+import { Alert, Progress as AntProgress } from 'antd'
 import BrowserContainer from './BrowserContainer'
 import LocalSearch from './LocalSearch'
 import { FaUpload } from 'react-icons/fa'
@@ -33,6 +33,11 @@ import { useDispatch } from 'react-redux'
 import { fetchResource } from '../../../../utils'
 import './user-library.scss'
 
+interface DownloadType {
+  name: string
+  files: any[]
+}
+
 const DataLibrary = () => {
   const dispatch = useDispatch()
   const { state, dispatch: dispatchLibrary } = useContext(LibraryContext)
@@ -47,6 +52,13 @@ const DataLibrary = () => {
   const [feedFilesToDelete, setFeedFilestoDelete] = React.useState<
     FileSelect[]
   >([])
+
+  const [download, setDownload] = React.useState({
+    show: false,
+    error: '',
+    count: 0,
+    path: '',
+  })
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal)
@@ -81,6 +93,12 @@ const DataLibrary = () => {
         clear: true,
       },
     })
+    setDownload({
+      show: false,
+      error: '',
+      count: 0,
+      path: '',
+    })
   }
 
   const handleTabClick = (
@@ -96,8 +114,12 @@ const DataLibrary = () => {
     Promise.all(
       selectedFolder.map(async (file: FileSelect) => {
         const { folder } = file
+        console.log('File', file)
         const { path: exactPath } = folder
-        const filesToPush = []
+        const filesToPush: DownloadType = {
+          name: file.folder.name,
+          files: [],
+        }
 
         const computePath =
           file.type === 'feed' ? returnFeedPath(exactPath) : exactPath
@@ -113,79 +135,103 @@ const DataLibrary = () => {
           const feedFn = client.getFiles
           const bindFn = feedFn.bind(client)
           const fileItems = await fetchResource(params, bindFn)
-          filesToPush.push(...fileItems)
+          filesToPush['files'].push(...fileItems)
         }
 
         if (file.type === 'uploads') {
           const uploadsFn = client.getUploadedFiles
           const uploadBound = uploadsFn.bind(client)
           const fileItems = await fetchResource(params, uploadBound)
-          filesToPush.push(...fileItems)
+          filesToPush['files'].push(...fileItems)
         }
         if (file.type === 'services') {
           const pacsFn = client.getPACSFiles
           const pacsBound = pacsFn.bind(client)
           const fileItems = await fetchResource(params, pacsBound)
-          filesToPush.push(...fileItems)
+          filesToPush['files'].push(...fileItems)
         }
         return filesToPush
       }),
     ).then((files) => {
       setFetchingFiles(false)
-      downloadUtil(files)
+      if (files.length > 0) {
+        downloadUtil(files)
+      }
     })
   }
 
-  const downloadUtil = async (filesItems: any[]) => {
+  const downloadUtil = async (filesItems: DownloadType[]) => {
     try {
       let writable
       //@ts-ignore
       const existingDirectoryHandle = await window.showDirectoryPicker()
       for (let i = 0; i < filesItems.length; i++) {
-        const files = filesItems[i]
+        const { files, name } = filesItems[i]
 
-        for (let index = 0; index < files.length; index++) {
-          const file = files[index]
-          const fileName = file.data.fname.split('/')
-          const newDirectoryHandle: { [key: string]: any } = {}
-          for (let fname = 0; fname < fileName.length; fname++) {
-            if (fname === 0) {
-              newDirectoryHandle[
-                fname
-              ] = await existingDirectoryHandle.getDirectoryHandle(
-                fileName[fname],
-                {
-                  create: true,
-                },
-              )
-            } else if (fname === fileName.length - 1) {
-              const blob = await file.getFileBlob()
-              const existingHandle = newDirectoryHandle[fname - 1]
-              if (existingHandle) {
-                const newFileHandle = await existingHandle.getFileHandle(
-                  fileName[fname],
-                  {
-                    create: true,
-                  },
-                )
-                writable = await newFileHandle.createWritable()
-                await writable.write(blob)
-                await writable.close()
-              }
-            } else {
-              const existingHandle = newDirectoryHandle[fname - 1]
-              if (existingHandle) {
+        if (files.length > 0) {
+          for (let index = 0; index < files.length; index++) {
+            setDownload({
+              ...download,
+              show: true,
+              count: Number(((index / files.length) * 100).toFixed(2)),
+              path: `Downloading Files for the path ${name}`,
+            })
+            const file = files[index]
+            const fileName = file.data.fname.split(`/`)
+            const findIndex = fileName.findIndex(
+              (file: string) => file === name,
+            )
+            const fileNameSplit = fileName.slice(findIndex)
+            const newDirectoryHandle: { [key: string]: any } = {}
+            for (let fname = 0; fname < fileNameSplit.length; fname++) {
+              const dictName = fileNameSplit[fname].replace(/:/g, '')
+              if (fname === 0) {
                 newDirectoryHandle[
                   fname
-                ] = await existingHandle.getDirectoryHandle(fileName[fname], {
+                ] = await existingDirectoryHandle.getDirectoryHandle(dictName, {
                   create: true,
                 })
+              } else if (fname === fileNameSplit.length - 1) {
+                const blob = await file.getFileBlob()
+                const existingHandle = newDirectoryHandle[fname - 1]
+                if (existingHandle) {
+                  const newFileHandle = await existingHandle.getFileHandle(
+                    dictName,
+                    {
+                      create: true,
+                    },
+                  )
+                  writable = await newFileHandle.createWritable()
+                  await writable.write(blob)
+                  await writable.close()
+                }
+              } else {
+                const existingHandle = newDirectoryHandle[fname - 1]
+                if (existingHandle) {
+                  newDirectoryHandle[
+                    fname
+                  ] = await existingHandle.getDirectoryHandle(dictName, {
+                    create: true,
+                  })
+                }
               }
             }
+
+            setDownload({
+              ...download,
+              show: false,
+              count: 100,
+            })
           }
+        } else {
         }
       }
     } catch (error) {
+      setDownload({
+        ...download,
+        //@ts-ignore
+        error: error,
+      })
       setFetchingFiles(false)
     }
   }
@@ -383,6 +429,19 @@ const DataLibrary = () => {
 
           {fetchingFiles && (
             <Alert type="info" closable message="Fetching Files to Download" />
+          )}
+
+          {download.show && (
+            <Alert
+              type="info"
+              closable
+              message={
+                <>
+                  <span>{download.path}</span>
+                  <AntProgress percent={download.count} size="small" />
+                </>
+              }
+            />
           )}
 
           {error.length > 0 &&
