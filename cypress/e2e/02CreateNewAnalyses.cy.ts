@@ -56,7 +56,8 @@ describe('Testing CreateAnalysis', () => {
       })
 
     it('07 Selects the Feed Synthesis plugin', () => {
-        cy.get('.pf-c-data-list__check>input')
+      cy.contains('pl-mri10yr06mo01da_normal v.1.1.4')
+      cy.get('[name="pl-mri10yr06mo01da_normal v.1.1.4"]')
         .should('have.attr','name', 'pl-mri10yr06mo01da_normal v.1.1.4')
         .click()
         .wait(2000)
