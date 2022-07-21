@@ -5,6 +5,7 @@ describe('Sign In user', () => {
     cy.get("input#pf-login-password-id").type("chris1234")
     cy.get("button.pf-c-button.pf-m-primary.pf-m-block").should('have.text', 'Log In')
     .click()
+    .wait(2000)
     cy.url().should('include', '/')
     
   })

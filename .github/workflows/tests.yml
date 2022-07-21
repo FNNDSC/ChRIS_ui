@@ -16,8 +16,7 @@ jobs:
       
     - name: setup CUBE
       id: cube
-      uses: FNNDSC/miniChRIS-docker@master
-
+      uses: Mfonn/miniChRIS-docker@master
     - name: Cypress run
       uses: cypress-io/github-action@v4
       with:
