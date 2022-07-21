@@ -6,7 +6,7 @@ const ComputeCatalog = () => {
   const [computeResources, setComputeResources] = React.useState<any[]>();
   const [pageState, setPageState] = React.useState({
     page: 1,
-    perPage: 5,
+    perPage: 10,
     search: "",
     itemCount: 0,
   });

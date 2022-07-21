@@ -114,7 +114,7 @@ const DataLibrary = () => {
     Promise.all(
       selectedFolder.map(async (file: FileSelect) => {
         const { folder } = file
-        console.log('File', file)
+
         const { path: exactPath } = folder
         const filesToPush: DownloadType = {
           name: file.folder.name,
