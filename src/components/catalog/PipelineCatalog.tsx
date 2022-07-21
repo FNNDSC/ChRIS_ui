@@ -1,87 +1,88 @@
-import React, { useEffect } from "react";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import DisplayPage from "./DisplayPage";
+import React, { useEffect } from 'react'
+import ChrisAPIClient from '../../api/chrisapiclient'
+import DisplayPage from './DisplayPage'
 
 const PipelineCatalog = () => {
-  const [pipelines, setPipelines] = React.useState<any[]>();
-  const [fetch, setFetch] = React.useState(false);
-  const [filteredId, setFilteredId] = React.useState<number>();
+  const [pipelines, setPipelines] = React.useState<any[]>()
+  const [fetch, setFetch] = React.useState(false)
+  const [filteredId, setFilteredId] = React.useState<number>()
   const [pageState, setPageState] = React.useState({
     page: 1,
-    perPage: 5,
-    search: "",
+    perPage: 10,
+    search: '',
     itemCount: 0,
-  });
+  })
 
-  const { page, perPage, search } = pageState;
-  const [selectedPipeline, setSelectedPipeline] = React.useState<any>();
+  const { page, perPage, search } = pageState
+  const [selectedPipeline, setSelectedPipeline] = React.useState<any>()
 
   const onSetPage = (_event: any, page: number) => {
     setPageState({
       ...pageState,
       page,
-    });
-  };
+    })
+  }
   const onPerPageSelect = (_event: any, perPage: number) => {
     setPageState({
       ...pageState,
       perPage,
-    });
-  };
+    })
+  }
 
   const handleFilterChange = (value: string) => {
     setPageState({
       ...pageState,
       search: value,
-    });
-  };
+    })
+  }
   useEffect(() => {
     async function fetchPipelines(
       perPage: number,
       page: number,
-      search: string
+      search: string,
     ) {
-      const offset = perPage * (page - 1);
-      const client = ChrisAPIClient.getClient();
+      const offset = perPage * (page - 1)
+      const client = ChrisAPIClient.getClient()
       const params = {
         limit: perPage,
         offset: offset,
         name: search,
-      };
-      const pipelinesList = await client.getPipelines(params);
+      }
+      const pipelinesList = await client.getPipelines(params)
 
-      let pipelines = pipelinesList.getItems();
+      let pipelines = pipelinesList.getItems()
       if (filteredId && pipelines) {
         pipelines = pipelines?.filter(
-          (pipeline) => pipeline.data.id !== filteredId
-        );
-        setSelectedPipeline(undefined);
+          (pipeline) => pipeline.data.id !== filteredId,
+        )
+        setSelectedPipeline(undefined)
       }
+
       if (pipelines) {
-        setPipelines(pipelines);
+        setPipelines(pipelines)
         setPageState((pageState) => {
           return {
             ...pageState,
             itemCount: pipelinesList.totalCount,
-          };
-        });
+          }
+        })
       }
     }
 
-    fetchPipelines(perPage, page, search);
-  }, [perPage, page, search, fetch, filteredId]);
+    fetchPipelines(perPage, page, search)
+  }, [perPage, page, search, fetch, filteredId])
 
   const handleFetch = (id?: number) => {
-    id && setFilteredId(id);
-    setFetch(!fetch);
-  };
+    id && setFilteredId(id)
+    setFetch(!fetch)
+  }
 
   const handleSearch = (search: string) => {
     setPageState({
       ...pageState,
       search,
-    });
-  };
+    })
+  }
   return (
     <>
       <DisplayPage
@@ -92,7 +93,7 @@ const PipelineCatalog = () => {
         handleFilterChange={handleFilterChange}
         selectedResource={selectedPipeline}
         setSelectedResource={(pipeline: any) => {
-          setSelectedPipeline(pipeline);
+          setSelectedPipeline(pipeline)
         }}
         title="Pipelines"
         showPipelineButton={true}
@@ -101,7 +102,7 @@ const PipelineCatalog = () => {
         search={pageState.search}
       />
     </>
-  );
-};
+  )
+}
 
-export default PipelineCatalog;
+export default PipelineCatalog

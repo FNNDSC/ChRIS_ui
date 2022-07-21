@@ -180,7 +180,7 @@ export const setFolderDetails = (totalCount: number, currentFolder: string) => {
   }
 }
 
-export const setHideTooltip = (tooltip: boolean) => {
+export const setHideTooltip = (tooltip: string) => {
   return {
     type: Types.SET_TOOLTIP,
     payload: {
