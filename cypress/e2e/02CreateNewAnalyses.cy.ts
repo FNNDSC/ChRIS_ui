@@ -6,6 +6,7 @@ describe('Sign In user', () => {
     cy.get("button.pf-c-button.pf-m-primary.pf-m-block").should('have.text', 'Log In')
     .click()
     cy.url().should('include', '/')
+    
   })
 })
 
