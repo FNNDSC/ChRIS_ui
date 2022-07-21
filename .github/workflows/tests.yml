@@ -17,6 +17,11 @@ jobs:
     - name: setup CUBE
       id: cube
       uses: Mfonn/miniChRIS-docker@master
+      with: 
+        plugins: |
+          https://chrisstore.co/api/v1/plugins/2/
+          https://chrisstore.co/api/v1/plugins/152/
+
     - name: Cypress run
       uses: cypress-io/github-action@v4
       with:
