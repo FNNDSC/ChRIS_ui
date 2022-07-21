@@ -39,7 +39,7 @@ interface LibraryState {
   }
   previewAll: boolean
   selectedFolder: FileSelect[]
-  tooltip: boolean
+  tooltip: string
   currentPath: { [key: string]: string }
   searchedFoldersState: {
     [key: string]: { [key: string]: { name: string; path: string }[] }[]
@@ -67,7 +67,7 @@ function getInitialState(): LibraryState {
     previewAll: false,
 
     selectedFolder: [],
-    tooltip: false,
+    tooltip: localStorage.getItem('tooltip') || 'true',
     currentPath: {},
     searchPath: {},
     search: {},
@@ -188,7 +188,7 @@ type LibraryPayload = {
     path: string
   }
   [Types.SET_TOOLTIP]: {
-    tooltip: boolean
+    tooltip: string
   }
 
   [Types.SET_SEARCH]: {
