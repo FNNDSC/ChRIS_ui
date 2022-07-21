@@ -300,7 +300,8 @@ const TooltipParent = ({ children }: { children: React.ReactElement }) => {
   const { state, dispatch } = useContext(LibraryContext)
 
   const hideToolTip = () => {
-    dispatch(setHideTooltip(true))
+    dispatch(setHideTooltip('false'))
+    localStorage.setItem('tooltip', 'false')
   }
 
   const h3Style = {
@@ -338,7 +339,10 @@ const TooltipParent = ({ children }: { children: React.ReactElement }) => {
   )
 
   return (
-    <Tooltip visible={state.tooltip ? false : undefined} title={title}>
+    <Tooltip
+      visible={state.tooltip === 'false' ? false : undefined}
+      title={title}
+    >
       {children}
     </Tooltip>
   )
