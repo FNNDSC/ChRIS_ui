@@ -128,7 +128,7 @@ describe('Testing CreateAnalysis', () => {
 
     it('15 Asserts new analysis has been created', () => {
       cy.get('span.feed-list__name')
-      .contains('a','Testing Study')
+      .contains('a',`${users.testname}`)
     })
 
 
