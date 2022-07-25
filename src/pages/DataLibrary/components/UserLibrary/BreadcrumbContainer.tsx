@@ -6,7 +6,7 @@ import {
   SplitItem,
   Button,
 } from '@patternfly/react-core'
-import { FaFolder, FaFolderOpen, FaUser } from 'react-icons/fa'
+import { FaFolder, FaFolderOpen, FaUser, FaHome } from 'react-icons/fa'
 import { FcServices } from 'react-icons/fc'
 
 export interface Breadcrumb {
@@ -28,17 +28,39 @@ const BreadcrumbContainer = ({
   togglePreview,
   previewAll,
 }: Breadcrumb) => {
-  const initialPathSplit = path.split('/')
+  const initialPathSplit =
+    browserType === 'feed' && path === '/'
+      ? [path]
+      : browserType === 'feed' && path !== '/'
+      ? path.split('/').filter((path) => path !== '')
+      : path.split('/')
+  const style = { width: '2em', height: '0.85em' }
 
   return (
     <>
+      {browserType === 'feed' && path !== '/' && (
+        <BreadcrumbItem
+          to="#"
+          style={{
+            fontSize: '1.1em',
+          }}
+          onClick={() => {
+            handleFolderClick('/')
+          }}
+        >
+          <FaHome style={style} />
+          root
+        </BreadcrumbItem>
+      )}
+
       <Breadcrumb style={{ margin: '1em 0 1em 0' }}>
         {initialPathSplit.map((path: string, index) => {
           let icon
-          const style = { width: '2em', height: '0.85em' }
+
           if (
             (browserType === 'feed' || browserType === 'uploads') &&
-            index === 0
+            index === 0 &&
+            path !== '/'
           ) {
             icon = <FaUser style={style} />
           } else if (index === 0 && browserType === 'services') {
@@ -48,31 +70,29 @@ const BreadcrumbContainer = ({
             initialPathSplit.length > 1
           ) {
             icon = <FaFolderOpen style={style} />
-          } else {
+          } else if (browserType !== 'feed') {
             icon = <FaFolder style={style} />
           }
 
           return (
-            <>
-              <BreadcrumbItem
-                to={index !== 0 || browserType !== 'uploads' ? '#' : undefined}
-                style={{
-                  fontSize: '1.1em',
-                }}
-                onClick={() => {
-                  if (index === 0 && browserType === 'uploads') {
-                    return
-                  }
+            <BreadcrumbItem
+              to={index !== 0 || browserType !== 'uploads' ? '#' : undefined}
+              style={{
+                fontSize: '1.1em',
+              }}
+              onClick={() => {
+                if (index === 0 && browserType === 'uploads') {
+                  return
+                }
 
-                  const newPath = initialPathSplit.slice(0, index + 1).join('/')
-                  handleFolderClick(newPath)
-                }}
-                key={index}
-              >
-                {icon}
-                {path}
-              </BreadcrumbItem>
-            </>
+                const newPath = initialPathSplit.slice(0, index + 1).join('/')
+                handleFolderClick(newPath)
+              }}
+              key={index}
+            >
+              {icon}
+              {path}
+            </BreadcrumbItem>
           )
         })}
       </Breadcrumb>

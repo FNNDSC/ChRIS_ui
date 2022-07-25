@@ -80,7 +80,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           <CardHeader onExpand={expandPatient.bind(PatientCard)}>
             <Grid hasGutter style={{ width: "100%" }}>
               <GridItem lg={4}>
-                <div>
+               <div>
                   <b>{PatientName.split("^").reverse().join(" ")}</b>
                 </div>
                 <div>MRN {PatientID}</div>

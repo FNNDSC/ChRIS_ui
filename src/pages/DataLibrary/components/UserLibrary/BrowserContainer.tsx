@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react'
-import { Label, Button } from '@patternfly/react-core'
+import React, { useContext } from 'react'
+import { Button, EmptyState, Title } from '@patternfly/react-core'
 import BreadcrumbContainer from './BreadcrumbContainer'
 import { Browser } from './Browser'
 import { LibraryContext } from './context'
@@ -13,8 +13,8 @@ import {
   setFolderDetails,
   setCurrentSearchFolder,
   setCurrentSearchFiles,
-  clearSearchFilter,
   backToSearchResults,
+  setFetching,
 } from './context/actions'
 import { Spin } from 'antd'
 
@@ -29,7 +29,7 @@ const BrowserContainer = ({
   path: rootPath,
 }: BrowserContainerInterface) => {
   const { state, dispatch } = useContext(LibraryContext)
-  const [loading, setLoading] = useState<boolean>(true)
+
   const {
     foldersState,
     currentPath,
@@ -37,52 +37,64 @@ const BrowserContainer = ({
     folderDetails,
     previewAll,
     search,
+    fetchingResources,
   } = state
 
   const resourcesFetch = React.useCallback(
     async (path: string) => {
-      setLoading(true)
-      const client = ChrisAPIClient.getClient()
-      const uploads = await client.getFileBrowserPaths({
-        path,
-      })
-      if (search[type] === true) {
-        dispatch(setCurrentPathSearch(path, type))
-      } else {
-        dispatch(setCurrentPath(path, type))
-      }
+      dispatch(setFetching(true))
 
-      if (
-        uploads.data &&
-        uploads.data[0].subfolders &&
-        uploads.data[0].subfolders.length > 0
-      ) {
-        let folders
-        const folderSplit = uploads.data[0].subfolders.split(',')
-        if (type === 'feed') {
-          folders = folderSplit.filter((feed: string) => feed !== 'uploads')
-          folders.sort((a: string, b: string) => {
-            const aId = parseInt(a.split('_')[1])
-            const bId = parseInt(b.split('_')[1])
-            return bId - aId
-          })
-        } else {
-          folders = folderSplit
-        }
-
-        folders = folders.map((folder: string) => {
-          return {
-            name: folder,
-            path: `${path}`,
-          }
+      try {
+        const client = ChrisAPIClient.getClient()
+        const uploads = await client.getFileBrowserPaths({
+          path,
         })
         if (search[type] === true) {
-          dispatch(setCurrentSearchFolder(folders, path, type))
+          dispatch(setCurrentPathSearch(path, type))
         } else {
-          dispatch(setFolders(folders, path))
+          dispatch(setCurrentPath(path, type))
         }
+
+        if (
+          uploads.data &&
+          uploads.data[0].subfolders &&
+          uploads.data[0].subfolders.length > 0
+        ) {
+          let folders
+          const folderSplit = uploads.data[0].subfolders.split(',')
+
+          if (type === 'feed' && path === '/') {
+            folders = folderSplit.filter(
+              (folder: string) => folder !== 'SERVICES',
+            )
+          } else if (type === 'feed' && path !== '/') {
+            folders = folderSplit.filter(
+              (folder: string) => folder !== 'uploads',
+            )
+            folders.sort((a: string, b: string) => {
+              const aId = parseInt(a.split('_')[1])
+              const bId = parseInt(b.split('_')[1])
+              return bId - aId
+            })
+          } else {
+            folders = folderSplit
+          }
+
+          folders = folders.map((folder: string) => {
+            return {
+              name: folder,
+              path: `${path}`,
+            }
+          })
+          if (search[type] === true) {
+            dispatch(setCurrentSearchFolder(folders, path, type))
+          } else {
+            dispatch(setFolders(folders, path, type))
+          }
+        }
+      } catch (error) {
+        console.log('ERROR', error)
       }
-      setLoading(false)
     },
     [dispatch, type, search],
   )
@@ -92,10 +104,19 @@ const BrowserContainer = ({
       resourcesFetch(rootPath)
     }
 
-    if (!search[type]) {
+    if (!search[type] && !currentPath[type] && !foldersState[type]) {
       fetchUploads()
+      dispatch(setFetching(false))
     }
-  }, [rootPath, dispatch, resourcesFetch, search, type])
+  }, [
+    rootPath,
+    dispatch,
+    resourcesFetch,
+    search,
+    type,
+    currentPath,
+    foldersState,
+  ])
 
   const handleFolderClick = async (path: string) => {
     const client = ChrisAPIClient.getClient()
@@ -106,49 +127,47 @@ const BrowserContainer = ({
       totalCount: 0,
     }
 
-    const pathList = await client.getFileBrowserPath(path)
-    if (pathList) {
-      const fileList = await pathList.getFiles({
-        limit: pagination.limit,
-        offset: pagination.offset,
-      })
+    if (path !== '/') {
+      const pathList = await client.getFileBrowserPath(path)
+      if (pathList) {
+        const fileList = await pathList.getFiles({
+          limit: pagination.limit,
+          offset: pagination.offset,
+        })
 
-      if (fileList) {
-        const files = fileList.getItems()
-        if (files && files.length > 0) {
-          if (search[type]) {
-            dispatch(setCurrentSearchFiles(files, path, type))
-          } else {
-            dispatch(setFiles(files, path))
+        if (fileList) {
+          const files = fileList.getItems()
+          if (files && files.length > 0) {
+            if (search[type]) {
+              dispatch(setCurrentSearchFiles(files, path, type))
+            } else {
+              dispatch(setFiles(files, path, type))
+            }
+
+            const currentFolderSplit = path.split('/')
+            const currentFolder =
+              currentFolderSplit[currentFolderSplit.length - 1]
+            const totalCount = fileList.totalCount
+            dispatch(setFolderDetails(totalCount, currentFolder))
           }
-
-          const currentFolderSplit = path.split('/')
-          const currentFolder =
-            currentFolderSplit[currentFolderSplit.length - 1]
-          const totalCount = fileList.totalCount
-          dispatch(setFolderDetails(totalCount, currentFolder))
         }
       }
     }
+
+    dispatch(setFetching(false))
   }
 
   const togglePreview = () => {
     dispatch(setTogglePreview(!previewAll))
   }
+
+  const path = currentPath[type]
+  const folders = foldersState[type] && foldersState[type][path]
+  const files = filesState[type] && filesState[type][path]
+  const noData = path && !folders && !files && !fetchingResources
+
   return (
     <>
-      {search[type] === true && (
-        <Label
-          color="blue"
-          icon
-          onClose={() => {
-            dispatch(clearSearchFilter(type))
-          }}
-        >
-          Clear Search Filter
-        </Label>
-      )}
-
       {search[type] === true ? (
         <div>
           <SearchContainer
@@ -159,40 +178,41 @@ const BrowserContainer = ({
         </div>
       ) : (
         <>
-          {currentPath[type] && currentPath[type].length > 0 ? (
-            currentPath[type].map((path, index) => {
-              const folders = foldersState[path]
-              const files = filesState[path]
-              return (
-                <div key={index}>
-                  <BreadcrumbContainer
-                    browserType={type}
-                    handleFolderClick={handleFolderClick}
-                    path={path}
-                    files={files}
-                    folderDetails={folderDetails}
-                    previewAll={previewAll}
-                    togglePreview={togglePreview}
-                  />
-                  {loading ? (
-                    <div className="spin-container">
-                      <Spin size="large" spinning />
-                    </div>
-                  ) : (
-                    <Browser
-                      handleFolderClick={handleFolderClick}
-                      folders={folders}
-                      files={files}
-                      browserType={type}
-                    />
-                  )}
+          {currentPath[type] && foldersState[type] ? (
+            <div>
+              <BreadcrumbContainer
+                browserType={type}
+                handleFolderClick={handleFolderClick}
+                path={path}
+                files={files}
+                folderDetails={folderDetails}
+                previewAll={previewAll}
+                togglePreview={togglePreview}
+              />
+              {fetchingResources ? (
+                <div className="spin-container">
+                  <Spin size="large" spinning />
                 </div>
-              )
-            })
-          ) : (
+              ) : (
+                <Browser
+                  handleFolderClick={handleFolderClick}
+                  folders={folders}
+                  files={files}
+                  browserType={type}
+                />
+              )}
+            </div>
+          ) : !noData ? (
             <div className="spin-container">
               <Spin size="large" spinning />
             </div>
+          ) : null}
+          {noData && (
+            <EmptyState>
+              <Title headingLevel="h4" size="lg">
+                No Data Found for the path {path}
+              </Title>
+            </EmptyState>
           )}
         </>
       )}
@@ -219,6 +239,7 @@ export const SearchContainer = ({
     folderDetails,
     previewAll,
     searchPath,
+    emptySetIndicator,
   } = state
 
   const resources = searchedFoldersState[type]
@@ -286,6 +307,13 @@ export const SearchContainer = ({
             </div>
           )
         })
+      )}
+      {emptySetIndicator[type] && (
+        <EmptyState>
+          <Title headingLevel="h4" size="lg">
+            {emptySetIndicator[type]}
+          </Title>
+        </EmptyState>
       )}
     </>
   )

@@ -3,7 +3,7 @@ import { InputState, InputIndex } from '../../AddNode/types'
 import { IUserState } from '../../../../store/user/types'
 import { Feed } from '@fnndsc/chrisapi'
 import { EventDataNode, DataNode, Key } from 'rc-tree/lib/interface'
-import { ComputeEnvData } from '../../../../store/workflows/types'
+
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -14,6 +14,11 @@ type ActionMap<M extends { [index: string]: any }> = {
         type: Key
         payload: M[Key]
       }
+}
+
+
+export interface ComputeEnvData {
+  [key: string]: { computeEnvs: any[]; currentlySelected: any };
 }
 
 export enum Types {

@@ -56,18 +56,18 @@ function getInitialState() {
     inPlay: false,
     imageIds: [],
     activeTool: 'Zoom',
-    numberOfFrames: 0,
+    numberOfFrames: 1,
     tools: [
       {
         name: 'Zoom',
         mode: 'active',
-        modeOptions: { mouseButtonMask: 2 },
+        modeOptions: { mouseButtonMask: 1 },
       },
 
       {
         name: 'Pan',
         mode: 'active',
-        modeOptions: { mouseButtonMask: 1 },
+        modeOptions: { mouseButtonMask: 4 },
       },
       {
         name: 'Wwwc',
@@ -88,6 +88,7 @@ function getInitialState() {
 
 const GalleryDicomView = ({ type }: { type: string }) => {
   const imageIds = useTypedSelector((state) => state.explorer.files)
+
   const [galleryDicomState, setGalleryDicomState] = React.useState<
     GalleryState
   >(getInitialState())
@@ -365,13 +366,13 @@ const GalleryDicomView = ({ type }: { type: string }) => {
     >
       <React.Suspense fallback={<FallBackComponent />}>
         <React.Fragment>
-          <DicomHeader
-            type={type}
-            handleToolbarAction={(action: string) => {
-              ;(handleGalleryActions as any)[action].call()
-            }}
-          />
           <ErrorBoundary FallbackComponent={FallBackComponent}>
+            <DicomHeader
+              type={type}
+              handleToolbarAction={(action: string) => {
+                ;(handleGalleryActions as any)[action].call()
+              }}
+            />
             <div className="ami-viewer">
               <Drawer isExpanded={visibleHeader}>
                 <DrawerContent panelContent={panelContent}>

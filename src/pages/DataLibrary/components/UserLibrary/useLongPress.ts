@@ -39,7 +39,7 @@ export default function useLongPress() {
     }
 
     const isExist = selectedFolder.findIndex(
-      (item) => item.folder.name === folder.name,
+      (item) => item.folder.path === folder.path,
     )
 
     if (isLongPress.current) {
