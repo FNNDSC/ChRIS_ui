@@ -55,8 +55,8 @@ describe('Testing Login Page', () => {
 
 
       it('logs in as chris user', () => {
-        cy.get("input#pf-login-username-id").type("chris")
-        cy.get("input#pf-login-password-id").type("chris1234")
+        cy.get("input#pf-login-username-id").type(`${users.username}`)
+        cy.get("input#pf-login-password-id").type(`${users.password}`)
         cy.get("button.pf-c-button.pf-m-primary.pf-m-block").should('have.text', 'Log In')
         .click()
         cy.url().should('include', '/')
