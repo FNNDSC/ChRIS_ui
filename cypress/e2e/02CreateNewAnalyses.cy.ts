@@ -1,17 +1,40 @@
 ///<reference types="cypress" />
 
+
+const faker = require('faker');
+
+const users = {
+
+        username: faker.name.findName(),
+        email: faker.internet.email(),
+        password: faker.internet.password()
+}
+
+
+
 describe('Sign In user', () => {
-  it('logs in as chris user', () => {
-    cy.visit('http://localhost:3000/login')
-    cy.get("input#pf-login-username-id").type("chris")
-    cy.get("input#pf-login-password-id").type("chris1234")
-    cy.get("button.pf-c-button.pf-m-primary.pf-m-block").should('have.text', 'Log In')
-    .click()
-    .wait(2000)
+  it('Visits the ChRIS homepage', () => {
+    cy.visit('http://localhost:3000/signup')
+ })
+
+ it('Creates the user', () => {
+     cy.get('input#chris-username').type(`${users.username}`)
+
+    cy.get('input#chris-email').type(`${users.email}`)
+
+    cy.get('input#chris-password').type(`${users.password}`)
+  })  
+
+  it('logs into the page and confirms user has been created', () => {
+    cy.intercept('POST', 'http://localhost:8000/api/v1/auth-token/').as('signup')
+      .get('.pf-c-button.pf-m-primary').click()
+      .wait(2000)
+      .wait('@signup').its('response.statusCode').should('eq', 200)
     cy.url().should('include', '/')
-    
+   
   })
 })
+
 
 describe('Testing CreateAnalysis', () => {
     it('Visits the Feeds Page', () => {
@@ -113,11 +136,9 @@ describe('Testing CreateAnalysis', () => {
         .click()
     })
 
-    it('15 Clicks on the newly created analysis', () => {
+    it('15 Asserts new analysis has been created', () => {
       cy.get('span.feed-list__name')
-      .eq(0)
-      .click()
-      cy.wait(50000)
+      .contains('a','Testing Study')
     })
 
 
