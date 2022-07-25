@@ -17,7 +17,7 @@ import {
   TabTitleText,
 } from '@patternfly/react-core'
 import { Feed } from '@fnndsc/chrisapi'
-import { Alert } from 'antd'
+import { Alert, Progress as AntProgress } from 'antd'
 import BrowserContainer from './BrowserContainer'
 import LocalSearch from './LocalSearch'
 import { FaUpload } from 'react-icons/fa'
@@ -33,6 +33,11 @@ import { useDispatch } from 'react-redux'
 import { fetchResource } from '../../../../utils'
 import './user-library.scss'
 
+interface DownloadType {
+  name: string
+  files: any[]
+}
+
 const DataLibrary = () => {
   const dispatch = useDispatch()
   const { state, dispatch: dispatchLibrary } = useContext(LibraryContext)
@@ -41,32 +46,41 @@ const DataLibrary = () => {
   const router = useContext(MainRouterContext)
   const [uploadFileModal, setUploadFileModal] = React.useState(false)
   const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([])
-  const [directoryName, setDirectoryName] = React.useState('')
-  const { foldersState, selectedFolder } = state
+  const { foldersState, selectedFolder, currentPath } = state
   const [error, setError] = React.useState<any[]>([])
   const [fetchingFiles, setFetchingFiles] = React.useState(false)
   const [feedFilesToDelete, setFeedFilestoDelete] = React.useState<
     FileSelect[]
   >([])
 
-  console.log("STATE", state);
+  const [download, setDownload] = React.useState({
+    show: false,
+    error: '',
+    count: 0,
+    path: '',
+  })
 
   const handleFileModal = () => {
     setUploadFileModal(!uploadFileModal)
     setLocalFiles([])
-    setDirectoryName('')
   }
 
   const handleLocalFiles = (files: LocalFile[]) => {
     setLocalFiles(files)
   }
 
-  const handleDirectoryName = (directoryName: string) => {
-    setDirectoryName(directoryName)
+  const returnFeedPath = (path: string) => {
+    const pathSplit = path.split('/')
+
+    const newPath = pathSplit.filter((path) => path !== '').join('/')
+    return newPath
   }
 
   const createFeed = () => {
     const pathList = selectedFolder.map((file) => {
+      if (file.type === 'feed') {
+        return returnFeedPath(file.folder.path)
+      }
       return file.folder.path
     })
     router.actions.createFeedWithData(pathList)
@@ -78,6 +92,12 @@ const DataLibrary = () => {
       payload: {
         clear: true,
       },
+    })
+    setDownload({
+      show: false,
+      error: '',
+      count: 0,
+      path: '',
     })
   }
 
@@ -94,13 +114,20 @@ const DataLibrary = () => {
     Promise.all(
       selectedFolder.map(async (file: FileSelect) => {
         const { folder } = file
+
         const { path: exactPath } = folder
-        const filesToPush = []
+        const filesToPush: DownloadType = {
+          name: file.folder.name,
+          files: [],
+        }
+
+        const computePath =
+          file.type === 'feed' ? returnFeedPath(exactPath) : exactPath
+
         const params = {
           limit: 100,
           offset: 0,
-          fname: exactPath,
-          fname_icontains: exactPath,
+          fname: computePath,
         }
 
         const client = ChrisAPIClient.getClient()
@@ -108,80 +135,103 @@ const DataLibrary = () => {
           const feedFn = client.getFiles
           const bindFn = feedFn.bind(client)
           const fileItems = await fetchResource(params, bindFn)
-          filesToPush.push(...fileItems)
+          filesToPush['files'].push(...fileItems)
         }
 
         if (file.type === 'uploads') {
           const uploadsFn = client.getUploadedFiles
           const uploadBound = uploadsFn.bind(client)
           const fileItems = await fetchResource(params, uploadBound)
-          filesToPush.push(...fileItems)
+          filesToPush['files'].push(...fileItems)
         }
         if (file.type === 'services') {
           const pacsFn = client.getPACSFiles
           const pacsBound = pacsFn.bind(client)
           const fileItems = await fetchResource(params, pacsBound)
-
-          filesToPush.push(...fileItems)
+          filesToPush['files'].push(...fileItems)
         }
         return filesToPush
       }),
     ).then((files) => {
       setFetchingFiles(false)
-      downloadUtil(files)
+      if (files.length > 0) {
+        downloadUtil(files)
+      }
     })
   }
 
-  const downloadUtil = async (filesItems: any[]) => {
-    console.log('FileItems', filesItems)
+  const downloadUtil = async (filesItems: DownloadType[]) => {
     try {
       let writable
       //@ts-ignore
       const existingDirectoryHandle = await window.showDirectoryPicker()
       for (let i = 0; i < filesItems.length; i++) {
-        const files = filesItems[i]
+        const { files, name } = filesItems[i]
 
-        for (let index = 0; index < files.length; index++) {
-          const file = files[index]
-          const fileName = file.data.fname.split('/')
-          const newDirectoryHandle: { [key: string]: any } = {}
-          for (let fname = 0; fname < fileName.length; fname++) {
-            if (fname === 0) {
-              newDirectoryHandle[
-                fname
-              ] = await existingDirectoryHandle.getDirectoryHandle(
-                fileName[fname],
-                {
-                  create: true,
-                },
-              )
-            } else if (fname === fileName.length - 1) {
-              const blob = await file.getFileBlob()
-              const existingHandle = newDirectoryHandle[fname - 1]
-              if (existingHandle) {
-                const newFileHandle = await existingHandle.getFileHandle(
-                  fileName[fname],
-                  {
-                    create: true,
-                  },
-                )
-                writable = await newFileHandle.createWritable()
-                await writable.write(blob)
-              }
-            } else {
-              const existingHandle = newDirectoryHandle[fname - 1]
-              if (existingHandle) {
+        if (files.length > 0) {
+          for (let index = 0; index < files.length; index++) {
+            setDownload({
+              ...download,
+              show: true,
+              count: Number(((index / files.length) * 100).toFixed(2)),
+              path: `Downloading Files for the path ${name}`,
+            })
+            const file = files[index]
+            const fileName = file.data.fname.split(`/`)
+            const findIndex = fileName.findIndex(
+              (file: string) => file === name,
+            )
+            const fileNameSplit = fileName.slice(findIndex)
+            const newDirectoryHandle: { [key: string]: any } = {}
+            for (let fname = 0; fname < fileNameSplit.length; fname++) {
+              const dictName = fileNameSplit[fname].replace(/:/g, '')
+              if (fname === 0) {
                 newDirectoryHandle[
                   fname
-                ] = await existingHandle.getDirectoryHandle(fileName[fname], {
+                ] = await existingDirectoryHandle.getDirectoryHandle(dictName, {
                   create: true,
                 })
+              } else if (fname === fileNameSplit.length - 1) {
+                const blob = await file.getFileBlob()
+                const existingHandle = newDirectoryHandle[fname - 1]
+                if (existingHandle) {
+                  const newFileHandle = await existingHandle.getFileHandle(
+                    dictName,
+                    {
+                      create: true,
+                    },
+                  )
+                  writable = await newFileHandle.createWritable()
+                  await writable.write(blob)
+                  await writable.close()
+                }
+              } else {
+                const existingHandle = newDirectoryHandle[fname - 1]
+                if (existingHandle) {
+                  newDirectoryHandle[
+                    fname
+                  ] = await existingHandle.getDirectoryHandle(dictName, {
+                    create: true,
+                  })
+                }
               }
             }
+
+            setDownload({
+              ...download,
+              show: false,
+              count: 100,
+            })
           }
+        } else {
         }
       }
     } catch (error) {
+      setDownload({
+        ...download,
+        //@ts-ignore
+        error: error,
+      })
       setFetchingFiles(false)
     }
   }
@@ -228,13 +278,13 @@ const DataLibrary = () => {
   }
 
   const deleteUtil = (file: FileSelect) => {
-    const folders = foldersState[file.previousPath]
+    const folders = foldersState[file.type][file.previousPath]
 
     if (folders && folders.length > 0) {
       const foldersFiltered = folders.filter((folder) => {
         return `${folder.path}/${folder.name}` !== file.folder.path
       })
-      dispatchLibrary(setFolders(foldersFiltered, file.previousPath))
+      dispatchLibrary(setFolders(foldersFiltered, file.previousPath, file.type))
       dispatchLibrary(clearSelectFolder(file))
     }
   }
@@ -272,7 +322,7 @@ const DataLibrary = () => {
   const feedFiles = (
     <section>
       <LocalSearch type="feed" username={username} />
-      <BrowserContainer type="feed" path={`${username}`} username={username} />
+      <BrowserContainer type="feed" path={`/`} username={username} />
     </section>
   )
 
@@ -282,6 +332,27 @@ const DataLibrary = () => {
       <BrowserContainer type="services" path={`SERVICES`} username={username} />
     </section>
   )
+
+  const handleAddFolder = (directoryName: string) => {
+    const folders =
+      foldersState['uploads'] && foldersState['uploads'][currentPath['uploads']]
+
+    if (folders && folders.length > 0) {
+      const folderExists = folders.findIndex(
+        (folder) => folder.name === directoryName,
+      )
+
+      if (folderExists === -1) {
+        dispatchLibrary({
+          type: Types.SET_ADD_FOLDER,
+          payload: {
+            folder: directoryName,
+            username,
+          },
+        })
+      }
+    }
+  }
 
   return (
     <>
@@ -334,7 +405,7 @@ const DataLibrary = () => {
                             }}
                             key={index}
                           >
-                            {file.folder.name}
+                            {file.folder.path}
                           </Chip>
                         )
                       })}
@@ -358,6 +429,19 @@ const DataLibrary = () => {
 
           {fetchingFiles && (
             <Alert type="info" closable message="Fetching Files to Download" />
+          )}
+
+          {download.show && (
+            <Alert
+              type="info"
+              closable
+              message={
+                <>
+                  <span>{download.path}</span>
+                  <AntProgress percent={download.count} size="small" />
+                </>
+              }
+            />
           )}
 
           {error.length > 0 &&
@@ -426,8 +510,7 @@ const DataLibrary = () => {
         handleFileModal={handleFileModal}
         handleLocalFiles={handleLocalFiles}
         uploadFileModal={uploadFileModal}
-        handleDirectoryName={handleDirectoryName}
-        directoryName={directoryName}
+        handleAddFolder={handleAddFolder}
         localFiles={localFiles}
       />
 
@@ -479,32 +562,21 @@ interface UploadComponent {
   handleLocalFiles: (files: LocalFile[]) => void
   uploadFileModal: boolean
   localFiles: LocalFile[]
-  directoryName: string
-  handleDirectoryName: (path: string) => void
+  handleAddFolder: (path: string) => void
 }
 
 const UploadComponent = ({
   handleFileModal,
   handleLocalFiles,
+  handleAddFolder,
   uploadFileModal,
   localFiles,
-  directoryName,
-  handleDirectoryName,
 }: UploadComponent) => {
   const username = useTypedSelector((state) => state.user.username)
-  const { dispatch } = useContext(LibraryContext)
   const [warning, setWarning] = React.useState('')
+  const [directoryName, setDirectoryName] = React.useState('')
   const [count, setCount] = React.useState(0)
 
-  const handleAddFolder = (directoryName: string) => {
-    dispatch({
-      type: Types.SET_ADD_FOLDER,
-      payload: {
-        folder: directoryName,
-        username,
-      },
-    })
-  }
   return (
     <Modal
       title="Upload Files"
@@ -528,7 +600,7 @@ const UploadComponent = ({
             name="horizontal-form-name"
             onChange={(value) => {
               setWarning('')
-              handleDirectoryName(value)
+              setDirectoryName(value)
             }}
           />
         </FormGroup>
@@ -601,6 +673,7 @@ const UploadComponent = ({
             /** Temporary Timer */
 
             setTimeout(() => {
+              setDirectoryName('')
               handleFileModal()
             }, 500)
           }

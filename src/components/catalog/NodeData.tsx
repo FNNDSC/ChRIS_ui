@@ -1,7 +1,7 @@
 import React, { useRef, Fragment } from "react";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
-import { TreeNode } from "../../store/workflows/types";
+import { TreeNode } from "../../utils/";
 import ChrisAPIClient from "../../api/chrisapiclient";
 
 export interface Point {

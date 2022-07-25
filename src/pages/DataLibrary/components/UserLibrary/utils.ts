@@ -1,67 +1,12 @@
-import { setSearch, setSearchedFolders } from './context/actions'
+import { setSearchedFolders, setEmptySetIndicator } from './context/actions'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { fetchResource } from '../../../../utils'
 import { Feed } from '@fnndsc/chrisapi'
 
-const lookDeeper = async (
-  path: string,
+export const searchFeedFiles = async (
   value: string,
-  maxDepth: number,
-  type: string,
+  dispatch: React.Dispatch<any>,
 ) => {
-  const client = ChrisAPIClient.getClient()
-  const results: string[] = []
-  if (maxDepth < 0) return []
-  const subpaths = await client.getFileBrowserPath(path)
-
-  if (
-    subpaths &&
-    subpaths.data &&
-    subpaths.data.subfolders &&
-    subpaths.data.subfolders.length > 0
-  ) {
-    const subfolders = subpaths.data.subfolders
-    let folders
-
-    folders = subfolders.split(',')
-    if (maxDepth === 5 && type === 'feed') {
-      folders = folders.filter((folder: string) => folder !== 'uploads')
-    }
-
-    if (maxDepth === 5 && type === 'pacs') {
-      folders = folders.filter((folder: string) => folder === 'SERVICES')
-    }
-
-    if (folders.length > 0) {
-      for (let i = 0; i < folders.length; i++) {
-        const lowerCaseValue = folders[i].toLowerCase()
-        if (lowerCaseValue === value || lowerCaseValue.includes(value)) {
-          if (type === 'feed') results.push(`${path}/${folders[i]}`)
-          if (type === 'pacs') results.push(`${path}/${folders[i]}`)
-          if (type === 'uploads') results.push(`${path}/${folders[i]}`)
-        }
-      }
-
-      for (let i = 0; i < folders.length; i++) {
-        const newPath =
-          maxDepth === 5 && type === 'pacs'
-            ? `${folders[i]}`
-            : `${path}/${folders[i]}`
-        const recursed: string[] = await lookDeeper(
-          newPath,
-          value,
-          maxDepth - 1,
-          type,
-        )
-        results.push(...recursed)
-      }
-    }
-  }
-
-  return results
-}
-
-export const searchFeedFiles = async (value: string) => {
   const payload = {
     limit: 10,
     offset: 0,
@@ -70,11 +15,19 @@ export const searchFeedFiles = async (value: string) => {
   const client = ChrisAPIClient.getClient()
   const fn = client.getFeeds
   const boundFn = fn.bind(client)
-  const results = await fetchResource<Feed[]>(payload, boundFn)
-  return results
+  try {
+    const results = await fetchResource(payload, boundFn)
+    return results
+  } catch (error) {
+    //@ts-ignore
+    dispatch(setEmptySetIndicator('feed', `${error.response.data}`))
+  }
 }
 
-export const searchPacsFiles = async (value: string) => {
+export const searchPacsFiles = async (
+  value: string,
+  dispatch: React.Dispatch<any>,
+) => {
   const payload = {
     limit: 10,
     offset: 0,
@@ -83,42 +36,67 @@ export const searchPacsFiles = async (value: string) => {
   const client = ChrisAPIClient.getClient()
   const fn = client.getPACSFiles
   const boundFn = fn.bind(client)
-  const results = await fetchResource(payload, boundFn)
-  return results
+  try {
+    const results = await fetchResource(payload, boundFn)
+    return results
+  } catch (error) {
+    //@ts-ignore
+    dispatch(setEmptySetIndicator('services', `${error.response.data}`))
+  }
 }
 
-export const searchUploadedFiles = async (value: string, path: string) => {
-  const maxDepth = 5
-  const results = await lookDeeper(path, value, maxDepth, 'uploads')
-  return results
+export const searchUploadedFiles = async (
+  value: string,
+  dispatch: React.Dispatch<any>,
+) => {
+  const payload = {
+    limit: 10,
+    offset: 0,
+    fname_icontains_multiple: value,
+  }
+  const client = ChrisAPIClient.getClient()
+  const fn = client.getUploadedFiles
+  const boundFn = fn.bind(client)
+  try {
+    const results = await fetchResource(payload, boundFn)
+    return results
+  } catch (error) {
+    //@ts-ignore
+    dispatch(setEmptySetIndicator('uploads', `${error.response.data}`))
+  }
 }
 
 export const handleUploadedFiles = (
   uploadedFiles: any[],
   dispatch: React.Dispatch<any>,
-  value: string,
 ) => {
-  const uploadedFolders: string[] = []
-  let path = ''
+  const uploadsDict: {
+    [key: string]: { name: string; path: string }[]
+  } = {}
 
-  uploadedFiles.forEach((file: any) => {
-    const names = file.split('/')
+  uploadedFiles.forEach((file: Feed) => {
+    const fnameSplit = file.data.fname.split('/')
+    const name = `${fnameSplit[2]}`
+    const path = `${fnameSplit[0]}/${fnameSplit[1]}`
 
-    const index = names.findIndex((name: any, index: number) => {
-      if (name.toLowerCase() === value.toLowerCase()) {
-        return index
-      }
-    })
+    const folder = {
+      name,
+      path,
+    }
 
-    if (index !== -1) {
-      path = `${names[0]}/${names[1]}`
-      const folder = index === 2 ? names[index] : names[index - 1]
-      if (!uploadedFolders.includes(folder)) uploadedFolders.push(folder)
+    if (
+      uploadsDict[path] &&
+      uploadsDict[path].findIndex((file) => file.name === folder.name) === -1
+    ) {
+      uploadsDict[path].push(folder)
+    } else {
+      uploadsDict[path] = [folder]
     }
   })
 
-  if (uploadedFolders.length > 0) {
-    dispatch(setSearchedFolders(uploadedFolders, path, 'uploads'))
+  for (const i in uploadsDict) {
+    const folders = uploadsDict[i]
+    dispatch(setSearchedFolders(folders, i, 'uploads'))
   }
 }
 

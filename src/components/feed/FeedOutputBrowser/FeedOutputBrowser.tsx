@@ -50,6 +50,10 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances,
   )
+  const [download, setDownload] = React.useState({
+    count: 0,
+    status: false,
+  })
 
   const { data: plugins, loading } = pluginInstances
 
@@ -69,8 +73,16 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     const tree: DataNode[] | null = createTreeFromFiles(selected, pluginFiles)
     const downloadAllClick = async () => {
       const zip = new JSZip()
+      let count = 0
       if (pluginFiles) {
+        const length = pluginFiles.length
         for (const file of pluginFiles) {
+          count += 1
+          const percentage = Number(((count / length) * 100).toFixed(2))
+          setDownload({
+            status: true,
+            count: percentage,
+          })
           const fileBlob = await file.getFileBlob()
           zip.file(file.data.fname, fileBlob)
         }
@@ -78,6 +90,10 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       const blob = await zip.generateAsync({ type: 'blob' })
       const filename = `${getPluginName(selected)}.zip`
       FileViewerModel.downloadFile(blob, filename)
+      setDownload({
+        ...download,
+        status: false,
+      })
     }
 
     const handleFileBrowserOpen = () => {
@@ -100,7 +116,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     const handlePluginModalClose = () => {
       setPluginModalOpen(!pluginModalOpen)
       dispatch(destroyExplorer())
-      //dispatch(setExplorerMode(ExplorerMode.SwiftFileBrowser));
     }
 
     let pluginSidebarTree
@@ -173,6 +188,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                   handleXtkViewerOpen={handleXtkViewerOpen}
                   downloadAllClick={downloadAllClick}
                   expandDrawer={expandDrawer}
+                  download={download}
                 />
               </React.Suspense>
             ) : selected.data.status === 'cancelled' ||

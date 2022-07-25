@@ -39,7 +39,7 @@ import {
 } from '../../../store/explorer/actions'
 import { BiHorizontalCenter } from 'react-icons/bi'
 import { getXtkFileMode } from '../../detailedView/displays/XtkViewer/XtkViewer'
-import { Alert } from 'antd'
+import { Alert, Progress } from 'antd'
 
 function getInitialState(root: DataNode) {
   return {
@@ -58,7 +58,9 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleDicomViewerOpen,
     handleXtkViewerOpen,
     expandDrawer,
+    download,
   } = props
+
   const [fileBrowserState, setfileBrowserState] = React.useState<
     FileBrowserState
   >(getInitialState(root))
@@ -269,6 +271,12 @@ const FileBrowser = (props: FileBrowserProps) => {
             >
               Download All
             </Button>
+
+            {download.status && (
+              <div style={{ width: 170 }}>
+                <Progress percent={download.count} size="small" />
+              </div>
+            )}
           </div>
         </div>
 
@@ -345,8 +353,6 @@ const HeaderPanel = (props: HeaderPanelProps) => {
     expandDrawer,
     fileType,
   } = props
-
- 
 
   const imageFileTypes = ['dcm', 'png', 'jpg', 'nii', 'gz', 'jpeg']
 

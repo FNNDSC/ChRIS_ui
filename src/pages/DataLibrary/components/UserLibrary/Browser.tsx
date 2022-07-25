@@ -5,6 +5,7 @@ import {
   Card,
   CardHeader,
   CardBody,
+  CardActions,
   CardTitle,
   Split,
   SplitItem,
@@ -12,6 +13,7 @@ import {
   Modal,
 } from '@patternfly/react-core'
 import { FaFile, FaFolder, FaDownload } from 'react-icons/fa'
+import { MdOutlineOpenInNew } from 'react-icons/md'
 import FileDetailView from '../../../../components/feed/Preview/FileDetailView'
 import { LibraryContext } from './context'
 import FileViewerModel from '../../../../api/models/file-viewer.model'
@@ -20,6 +22,7 @@ import { Spin, Tooltip } from 'antd'
 import { MdClose } from 'react-icons/md'
 import useLongPress from './useLongPress'
 import { setHideTooltip } from './context/actions'
+import { Link } from 'react-router-dom'
 
 export function Browser({
   folders,
@@ -80,6 +83,7 @@ function FolderCard({
   const { handleOnClick, handleOnMouseDown } = handlers
   const { selectedFolder } = state
   const [feedDetails, setFeedDetails] = useState({
+    id: '',
     name: '',
     commitDate: '',
   })
@@ -87,8 +91,8 @@ function FolderCard({
   const background = selectedFolder.some((file) => {
     return file.folder.path === `${folder.path}/${folder.name}`
   })
-  const path = folder.path.split('/')
-  const isRoot = browserType === 'feed' && path.length === 1
+
+  const isRoot = browserType === 'feed' && folder.name.startsWith('feed')
 
   React.useEffect(() => {
     async function fetchFeedName() {
@@ -97,13 +101,34 @@ function FolderCard({
         const id = folder.name.split('_')[1]
         const feed = await client.getFeed(parseInt(id))
         setFeedDetails({
+          id: id,
           name: feed.data.name,
           commitDate: feed.data.creation_date,
         })
       }
     }
     fetchFeedName()
+    return () => {
+      setFeedDetails({
+        id: '',
+        name: '',
+        commitDate: '',
+      })
+    }
   }, [browserType, folder, isRoot])
+
+  const handlePath = (e: any) => {
+    const path = `${folder.path}/${folder.name}`
+    handleOnClick(
+      e,
+      folder.path,
+      path,
+      folder,
+      browserType,
+      'folder',
+      handleFolderClick,
+    )
+  }
 
   return (
     <TooltipParent>
@@ -114,28 +139,39 @@ function FolderCard({
         isSelected={background}
         onMouseDown={handleOnMouseDown}
         onClick={(e) => {
-          const path = `${folder.path}/${folder.name}`
-          handleOnClick(
-            e,
-            folder.path,
-            path,
-            folder,
-            browserType,
-            'folder',
-            handleFolderClick,
-          )
+          if (!isRoot) {
+            handlePath(e)
+          }
         }}
         style={{
           background: `${background ? '#e7f1fa' : 'white'}`,
         }}
       >
         <CardHeader>
+          {feedDetails.id && (
+            <CardActions>
+              <span style={{ fontSize: '1.5em' }}>
+                <Link to={`/feeds/${feedDetails.id}`}>
+                  {' '}
+                  <MdOutlineOpenInNew />
+                </Link>
+              </span>
+            </CardActions>
+          )}
           <Split style={{ overflow: 'hidden' }}>
             <SplitItem style={{ marginRight: '1em' }}>
               <FaFolder />
             </SplitItem>
             <SplitItem isFilled>
-              <Button style={{ padding: 0 }} variant="link">
+              <Button
+                onClick={(e) => {
+                  if (isRoot) {
+                    handlePath(e)
+                  }
+                }}
+                style={{ padding: 0 }}
+                variant="link"
+              >
                 <b>
                   {' '}
                   {isRoot ? (
@@ -165,7 +201,7 @@ function FolderCard({
 function FileCard({ file, browserType }: { file: any; browserType: string }) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder , previewAll} = state
+  const { selectedFolder, previewAll } = state
   const { handleOnClick, handleOnMouseDown } = handlers
   const fileNameArray = file.data.fname.split('/')
   const fileName = fileNameArray[fileNameArray.length - 1]
@@ -264,7 +300,8 @@ const TooltipParent = ({ children }: { children: React.ReactElement }) => {
   const { state, dispatch } = useContext(LibraryContext)
 
   const hideToolTip = () => {
-    dispatch(setHideTooltip(true))
+    dispatch(setHideTooltip('false'))
+    localStorage.setItem('tooltip', 'false')
   }
 
   const h3Style = {
@@ -276,10 +313,15 @@ const TooltipParent = ({ children }: { children: React.ReactElement }) => {
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <h3 style={h3Style}>
         Explore Card: {'   '}
-        <i>single click</i>
+        <i>
+          {'<'}left mouse{'>'}
+        </i>
       </h3>
       <h3 style={{ ...h3Style, paddingBottom: '0' }}>
-        Select Card: {'  '} <i>long press and release</i>
+        Select Card: {'  '}{' '}
+        <i>
+          {'<'}ctrl{'>'} + {'<'}left mouse{'>'}
+        </i>
       </h3>
       <h3 style={h3Style}>
         Cancel Tips:{'    '}
@@ -297,7 +339,10 @@ const TooltipParent = ({ children }: { children: React.ReactElement }) => {
   )
 
   return (
-    <Tooltip visible={state.tooltip ? false : undefined} title={title}>
+    <Tooltip
+      visible={state.tooltip === 'false' ? false : undefined}
+      title={title}
+    >
       {children}
     </Tooltip>
   )
