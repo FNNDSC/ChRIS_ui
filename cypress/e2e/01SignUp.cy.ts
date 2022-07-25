@@ -1,15 +1,6 @@
 ///<reference types="cypress" />
 
-
-const faker = require('faker');
-
-const users = {
-
-        username: faker.name.findName(),
-        email: faker.internet.email(),
-        password: faker.internet.password()
-}
-
+import users from "./sharedpackages.js"
 
 
 describe('Testing Login Page', () => {

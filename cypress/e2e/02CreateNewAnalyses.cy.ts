@@ -1,15 +1,5 @@
 ///<reference types="cypress" />
-
-
-const faker = require('faker');
-
-const users = {
-
-        username: faker.name.findName(),
-        email: faker.internet.email(),
-        password: faker.internet.password()
-}
-
+import users from "./sharedpackages.js"
 
 
 describe('Sign In user', () => {
@@ -50,7 +40,7 @@ describe('Testing CreateAnalysis', () => {
     })
 
     it('02 Types in the Feed Name', () => {
-        cy.get('input#feed-name').type('Testing Study')
+        cy.get('input#feed-name').type(`${users.testname}`)
     
       })
 
