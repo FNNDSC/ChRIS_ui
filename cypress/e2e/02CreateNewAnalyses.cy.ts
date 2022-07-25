@@ -4,7 +4,7 @@ import users from "./sharedpackages.js"
 
 describe('Sign In user', () => {
   it('Visits the ChRIS homepage', () => {
-    cy.visit('http://localhost:3000/login')
+    cy.visit('http://localhost:3000/signup')
  })
 
  it('Creates the user', () => {
