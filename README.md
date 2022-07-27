@@ -144,3 +144,25 @@ To learn React, check out the
 [last-commit-badge]: https://img.shields.io/github/last-commit/fnndsc/chris_ui.svg
 [repo-link]: https://github.com/FNNDSC/ChRIS_ui
 [code-size]: https://img.shields.io/github/languages/code-size/FNNDSC/ChRIS_ui
+
+
+### E2E TESTS ARE RAN USING CYPRESS
+
+## Prerequisites:
+- ChRIS_ultron_backend is running on `http://localhost:8000/api/v1/`
+- ChRIS_ui is running on `http://localhost:3000/`
+- You have Cypress installed using `npm install`
+```
+- To run: 
+`$ npm run cypress:open`
+```
+This will open cypress in an interactive UI. 
+To run cypress in the terminal as a headless browser use: 
+```
+`npm run cypress:run`
+```
+
+Running Cypress inside a container is not currently supported
+
+
+
