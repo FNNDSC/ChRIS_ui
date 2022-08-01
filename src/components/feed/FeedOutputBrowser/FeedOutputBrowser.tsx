@@ -164,9 +164,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             sm={12}
             smRowSpan={12}
           >
-            {selected &&
-            selected.data.status === 'finishedSuccessfully' &&
-            tree ? (
+            {tree ? (
               <React.Suspense
                 fallback={
                   <div>
@@ -191,11 +189,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                   download={download}
                 />
               </React.Suspense>
-            ) : selected.data.status === 'cancelled' ||
-              selected.data.status === 'finishedWithError' ? (
-              <EmptyStateLoader />
             ) : (
-              <FetchFilesLoader />
+              <EmptyStateLoader />
             )}
           </GridItem>
         </Grid>
@@ -246,7 +241,8 @@ const EmptyStateLoader = () => {
     <EmptyState variant={EmptyStateVariant.large}>
       <Title headingLevel="h4" size="lg" />
       <EmptyStateBody>
-        The plugin execution was either cancelled or it finished with error.
+        Files are not available yet and are being fetched. Please give it a
+        moment...
       </EmptyStateBody>
     </EmptyState>
   )
