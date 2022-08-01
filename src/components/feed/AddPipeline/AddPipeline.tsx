@@ -37,8 +37,8 @@ const AddPipeline = () => {
   }
 
   const addPipeline = async () => {
-    setCreatingPipeline(true)
     if (selectedPlugin && selectedPipeline) {
+      setCreatingPipeline(true)
       const resources = await fetchResources(selectedPipeline)
       const {
         pluginPipings,
@@ -63,10 +63,12 @@ const AddPipeline = () => {
         }
         if (errorString) {
           setErrorString(errorString)
+          setCreatingPipeline(false)
+        } else {
+          handleToggle()
         }
       }
     }
-    setCreatingPipeline(false)
   }
 
   const handleSelectPipeline = (pipeline: any) => {
@@ -97,7 +99,12 @@ const AddPipeline = () => {
         onClose={handleToggle}
         description="Add a Pipeline to the plugin instance"
         actions={[
-          <Button key="confirm" variant="primary" onClick={addPipeline}>
+          <Button
+            isDisabled={creatingPipeline}
+            key="confirm"
+            variant="primary"
+            onClick={addPipeline}
+          >
             Confirm
           </Button>,
           <Button key="cancel" variant="link" onClick={handleToggle}>
