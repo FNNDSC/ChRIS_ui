@@ -118,7 +118,7 @@ export function getStatusLabels(
     error,
     description: 'Receiving',
     icon: AiFillLeftCircle,
-    processError: status[3].status !== true ? true : false,
+    processError: status[3].status !== true && !labels && !error ? true : false,
   }
 
   status[5] = {
@@ -137,7 +137,7 @@ export function getStatusLabels(
     error,
     description: 'Registering',
     icon: FaFileArchive,
-    processError: status[4].status !== true ? true : false,
+    processError: status[4].status !== true && !labels && !error ? true : false,
   }
 
   status[6] = {
@@ -176,10 +176,8 @@ export function getStatusLabels(
         : pluginStatus === 'cancelled' || pluginStatus === 'finishedWithError'
         ? MdError
         : null,
-    processError: status[5].status !== true ? true : false,
+    processError: status[5].status !== true && !labels && !error ? true : false,
   }
-
-  console.log('STATUS', status)
 
   return status
 }
