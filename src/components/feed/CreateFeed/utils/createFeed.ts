@@ -299,78 +299,88 @@ export async function runPipelineSequence(
 
   const client = ChrisAPIClient.getClient()
   const pluginInstanceList = []
+  let errorString = ''
 
-  for (let i = 0; i < pluginPipings.length; i++) {
-    const currentPlugin = pluginPipings[i]
+  try {
+    for (let i = 0; i < pluginPipings.length; i++) {
+      const currentPlugin = pluginPipings[i]
 
-    const currentPluginParameter = pluginParameters.filter((param: any) => {
-      if (currentPlugin.data.id === param.data.plugin_piping_id) {
-        return param
-      }
-    })
-
-    const pluginFound = pipelinePlugins.find(
-      (plugin) => currentPlugin.data.plugin_id === plugin.data.id,
-    )
-
-    const data = currentPluginParameter.reduce(
-      (
-        paramDict: {
-          [key: string]: string | boolean | number
-        },
-        param: any,
-      ) => {
-        let value
-
-        if (!param.data.value && param.data.type === 'string') {
-          value = ''
-        } else {
-          value = param.data.value
+      const currentPluginParameter = pluginParameters.filter((param: any) => {
+        if (currentPlugin.data.id === param.data.plugin_piping_id) {
+          return param
         }
-        paramDict[param.data.param_name] = value
-        return paramDict
-      },
-      {},
-    )
+      })
 
-    let previous_id
-    if (i === 0) {
-      previous_id = createdInstance.data.id
-    } else {
-      const previousPlugin = pluginPipings.find(
-        (plugin) => currentPlugin.data.previous_id === plugin.data.id,
+      const pluginFound = pipelinePlugins.find(
+        (plugin) => currentPlugin.data.plugin_id === plugin.data.id,
       )
-      previous_id = pluginDict[previousPlugin.data.plugin_id]
-    }
 
-    const computeEnv =
-      computeEnvs &&
-      computeEnvs[currentPlugin.data.id] &&
-      computeEnvs[currentPlugin.data.id].currentlySelected
+      const data = currentPluginParameter.reduce(
+        (
+          paramDict: {
+            [key: string]: string | boolean | number
+          },
+          param: any,
+        ) => {
+          let value
 
-    let finalData = {}
-    if (computeEnv) {
-      finalData = {
-        previous_id,
-        ...data,
-        compute_resource_name: computeEnv,
+          if (!param.data.value && param.data.type === 'string') {
+            value = ''
+          } else {
+            value = param.data.value
+          }
+          paramDict[param.data.param_name] = value
+          return paramDict
+        },
+        {},
+      )
+
+      let previous_id
+      if (i === 0) {
+        previous_id = createdInstance.data.id
+      } else {
+        const previousPlugin = pluginPipings.find(
+          (plugin) => currentPlugin.data.previous_id === plugin.data.id,
+        )
+        previous_id = pluginDict[previousPlugin.data.plugin_id]
       }
-    } else {
-      finalData = {
-        previous_id,
-        ...data,
-      }
-    }
 
-    const pluginInstance: PluginInstance = await client.createPluginInstance(
-      pluginFound.data.id,
-      //@ts-ignore
-      finalData,
-    )
-    pluginInstanceList.push(pluginInstance)
-    pluginDict[pluginInstance.data.plugin_id] = pluginInstance.data.id
+      const computeEnv =
+        computeEnvs &&
+        computeEnvs[currentPlugin.data.id] &&
+        computeEnvs[currentPlugin.data.id].currentlySelected
+
+      let finalData = {}
+      if (computeEnv) {
+        finalData = {
+          previous_id,
+          ...data,
+          compute_resource_name: computeEnv,
+        }
+      } else {
+        finalData = {
+          previous_id,
+          ...data,
+        }
+      }
+
+      const pluginInstance: PluginInstance = await client.createPluginInstance(
+        pluginFound.data.id,
+        //@ts-ignore
+        finalData,
+      )
+      pluginInstanceList.push(pluginInstance)
+      pluginDict[pluginInstance.data.plugin_id] = pluginInstance.data.id
+    }
+  } catch (error) {
+    //@ts-ignore
+    errorString = error.response.data.previous_id[0]
   }
-  return pluginInstanceList
+
+  return {
+    pluginInstanceList,
+    errorString,
+  }
 }
 
 function generatePathForLocalFile(data: CreateFeedData) {
