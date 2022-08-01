@@ -1,184 +1,180 @@
-import { PluginStatusLabels } from "./types";
-import { GrInProgress } from "react-icons/gr";
+import { PluginStatusLabels } from './types'
+import { GrInProgress } from 'react-icons/gr'
 import {
   AiFillRightCircle,
   AiFillLeftCircle,
   AiFillClockCircle,
   AiFillCheckCircle,
-} from "react-icons/ai";
-import { FaFileArchive } from "react-icons/fa";
-import { MdError, MdOutlineDownloading } from "react-icons/md";
+} from 'react-icons/ai'
+import { FaFileArchive } from 'react-icons/fa'
+import { MdError, MdOutlineDownloading } from 'react-icons/md'
 
 export function getStatusLabels(
   labels: PluginStatusLabels,
   pluginDetails: any,
-  previousStatus: string
+  previousStatus: string,
 ) {
-  const status = [];
+  const status = []
 
   const statusLabels = [
-    "waiting",
-    "scheduled",
-    "started",
-    "compute",
-    "syncData",
-    "registeringFiles",
-    "finishedSuccessfully",
-    "finishedWithError",
-    "cancelled",
-  ];
-  const pluginStatus = pluginDetails.data.status;
+    'waiting',
+    'scheduled',
+    'started',
+    'compute',
+    'syncData',
+    'registeringFiles',
+    'finishedSuccessfully',
+    'finishedWithError',
+    'cancelled',
+  ]
+  const pluginStatus = pluginDetails.data.status
 
   const error =
-    pluginStatus === "finishedWithError" || pluginStatus === "cancelled"
+    pluginStatus === 'finishedWithError' || pluginStatus === 'cancelled'
       ? true
-      : false;
+      : false
 
-  const currentLabel = statusLabels.indexOf(pluginStatus);
-  let waitingStatus = false;
+  const currentLabel = statusLabels.indexOf(pluginStatus)
+  let waitingStatus = false
 
-  if (pluginDetails.data.plugin_type === "fs") {
-    waitingStatus = currentLabel > 0 ? true : false;
+  if (pluginDetails.data.plugin_type === 'fs') {
+    waitingStatus = currentLabel > 0 ? true : false
   } else {
     waitingStatus =
-      currentLabel > 0 && previousStatus === "finishedSuccessfully"
+      currentLabel > 0 && previousStatus === 'finishedSuccessfully'
         ? true
-        : false;
+        : false
   }
 
   status[0] = {
     id: 1,
-    title: `${pluginStatus === "created" ? "Created" : "Waiting"}`,
+    title: `${pluginStatus === 'created' ? 'Created' : 'Waiting'}`,
     status: waitingStatus,
     isCurrentStep:
-      pluginStatus === "waiting" || pluginStatus === "created" ? true : false,
+      pluginStatus === 'waiting' || pluginStatus === 'created' ? true : false,
     error,
-    description: "Waiting",
+    description: 'Waiting',
     icon: AiFillClockCircle,
     processError: false,
-  };
+  }
 
   status[1] = {
     id: 2,
-    title: "Scheduling",
+    title: 'Scheduling',
     status: currentLabel > 1 && status[0].status === true ? true : false,
-    isCurrentStep: pluginStatus === "scheduled" ? true : false,
+    isCurrentStep: pluginStatus === 'scheduled' ? true : false,
     error,
-    description: "Scheduling",
+    description: 'Scheduling',
     icon: GrInProgress,
     processError: status[0].status !== true && !labels && error ? true : false,
-  };
+  }
 
   status[2] = {
     id: 3,
-    title: "Transmitting",
+    title: 'Transmitting',
     status: labels?.pushPath.status === true ? true : false,
     isCurrenStep:
-      pluginStatus === "started" && labels?.pushPath.status !== true
+      pluginStatus === 'started' && labels?.pushPath.status !== true
         ? true
         : false,
     error,
-    description: "Transmitting",
+    description: 'Transmitting',
     icon: MdOutlineDownloading,
     processError: status[1].status !== true && !labels && error ? true : false,
-  };
+  }
 
   status[3] = {
     id: 4,
-    title: "Computing",
+    title: 'Computing',
     status:
       labels?.compute.return.status === true &&
       labels?.compute.submit.status === true &&
-      labels?.compute.return.job_status === "finishedSuccessfully"
+      ['finishedSuccessfully', 'finishedWithError', 'cancelled'].includes(
+        labels?.compute.return.job_status,
+      )
         ? true
         : false,
     isCurrentStep:
       (labels?.compute.return.status !== true ||
         labels?.compute.submit.status !== true) &&
-      currentLabel > 1 &&
-      !error
-        ? true
-        : false,
+      currentLabel > 1,
     error,
-    description: "Computing",
+    description: 'Computing',
     icon: AiFillRightCircle,
-    processError: status[2].status !== true && error ? true : false,
-  };
+    processError: status[2].status !== true ? true : false,
+  }
 
   status[4] = {
     id: 5,
-    title: "Receiving",
+    title: 'Receiving',
     status: labels?.pullPath.status === true ? true : false,
     isCurrentStep:
       labels?.compute.return.status === true &&
       labels?.pullPath.status !== true &&
-      currentLabel > 1 &&
-      !error
-        ? true
-        : false,
+      currentLabel > 1,
     error,
-    description: "Receiving",
+    description: 'Receiving',
     icon: AiFillLeftCircle,
-    processError: status[3].status !== true && error ? true : false,
-  };
+    processError: status[3].status !== true ? true : false,
+  }
 
   status[5] = {
     id: 6,
-    title: "Registering",
+    title: 'Registering',
     status:
       statusLabels.indexOf(pluginStatus) > 5 && labels?.pullPath.status === true
         ? true
         : false,
     isCurrentStep:
-      pluginStatus === "registeringFiles" &&
+      pluginStatus === 'registeringFiles' &&
       labels.pullPath.status === true &&
       statusLabels.indexOf(pluginStatus) > 2
         ? true
         : false,
     error,
-    description: "Registering",
+    description: 'Registering',
     icon: FaFileArchive,
-    processError: status[4].status !== true && error ? true : false,
-  };
+    processError: status[4].status !== true ? true : false,
+  }
 
   status[6] = {
     id: 7,
     title: `${
-      pluginStatus === "finishedWithError"
+      pluginStatus === 'finishedWithError'
         ? `Finished With Error`
-        : pluginStatus === "cancelled"
-        ? "Cancelled"
-        : "Finished Successfully"
+        : pluginStatus === 'cancelled'
+        ? 'Cancelled'
+        : 'Finished Successfully'
     }`,
     status:
-      pluginStatus === "cancelled" || pluginStatus === "finishedWithError"
+      pluginStatus === 'cancelled' || pluginStatus === 'finishedWithError'
         ? false
         : statusLabels.indexOf(pluginStatus) > 5
         ? true
         : false,
     isCurrentStep:
-      pluginStatus === "finishedSuccessfully" ||
-      pluginStatus === "cancelled" ||
-      pluginStatus === "finishedWithError"
+      pluginStatus === 'finishedSuccessfully' ||
+      pluginStatus === 'cancelled' ||
+      pluginStatus === 'finishedWithError'
         ? true
         : false,
     error,
     description:
-      pluginStatus === "finishedSuccessfully"
-        ? "Finished Successfully"
-        : pluginStatus === "cancelled"
-        ? "Cancelled"
-        : pluginStatus === "finishedWithError"
-        ? "Finished With Error"
-        : "Waiting to Finish",
+      pluginStatus === 'finishedSuccessfully'
+        ? 'Finished Successfully'
+        : pluginStatus === 'cancelled'
+        ? 'Cancelled'
+        : pluginStatus === 'finishedWithError'
+        ? 'Finished With Error'
+        : 'Waiting to Finish',
     icon:
-      pluginStatus === "finishedSuccessfully"
+      pluginStatus === 'finishedSuccessfully'
         ? AiFillCheckCircle
-        : pluginStatus === "cancelled" || pluginStatus === "finishedWithError"
+        : pluginStatus === 'cancelled' || pluginStatus === 'finishedWithError'
         ? MdError
         : null,
     processError: false,
-  };
+  }
 
-  return status;
+  return status
 }
