@@ -66,13 +66,13 @@ export function getStatusLabels(
     error,
     description: 'Scheduling',
     icon: GrInProgress,
-    processError: status[0].status !== true && !labels && error ? true : false,
+    processError: status[0].status !== true && !labels && !error ? true : false,
   }
 
   status[2] = {
     id: 3,
     title: 'Transmitting',
-    status: labels?.pushPath.status === true ? true : false,
+    status: labels && labels.pushPath.status === true ? true : false,
     isCurrenStep:
       pluginStatus === 'started' && labels?.pushPath.status !== true
         ? true
@@ -80,7 +80,7 @@ export function getStatusLabels(
     error,
     description: 'Transmitting',
     icon: MdOutlineDownloading,
-    processError: status[1].status !== true && !labels && error ? true : false,
+    processError: status[1].status !== true && !labels && !error ? true : false,
   }
 
   status[3] = {
@@ -95,13 +95,15 @@ export function getStatusLabels(
         ? true
         : false,
     isCurrentStep:
-      (labels?.compute.return.status !== true ||
-        labels?.compute.submit.status !== true) &&
-      currentLabel > 1,
+      labels &&
+      (labels.compute.return.status !== true ||
+        labels.compute.submit.status !== true) &&
+      currentLabel > 1 &&
+      currentLabel < 6,
     error,
     description: 'Computing',
     icon: AiFillRightCircle,
-    processError: status[2].status !== true ? true : false,
+    processError: status[2].status !== true && !labels && !error ? true : false,
   }
 
   status[4] = {
@@ -111,7 +113,8 @@ export function getStatusLabels(
     isCurrentStep:
       labels?.compute.return.status === true &&
       labels?.pullPath.status !== true &&
-      currentLabel > 1,
+      currentLabel > 1 &&
+      currentLabel < 6,
     error,
     description: 'Receiving',
     icon: AiFillLeftCircle,
@@ -147,9 +150,9 @@ export function getStatusLabels(
         : 'Finished Successfully'
     }`,
     status:
-      pluginStatus === 'cancelled' || pluginStatus === 'finishedWithError'
-        ? false
-        : statusLabels.indexOf(pluginStatus) > 5
+      pluginStatus === 'cancelled' ||
+      pluginStatus === 'finishedWithError' ||
+      pluginStatus === 'finishedSuccessfully'
         ? true
         : false,
     isCurrentStep:
@@ -173,8 +176,10 @@ export function getStatusLabels(
         : pluginStatus === 'cancelled' || pluginStatus === 'finishedWithError'
         ? MdError
         : null,
-    processError: false,
+    processError: status[5].status !== true ? true : false,
   }
+
+  console.log('STATUS', status)
 
   return status
 }
