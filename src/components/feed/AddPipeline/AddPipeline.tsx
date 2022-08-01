@@ -27,8 +27,12 @@ const AddPipeline = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false)
   const [selectedPipeline, setSelectedPipeline] = React.useState<any>()
   const [creatingPipeline, setCreatingPipeline] = React.useState(false)
+  const [errorString, setErrorString] = React.useState('')
 
   const handleToggle = () => {
+    setCreatingPipeline(false)
+    setSelectedPipeline(undefined)
+    setErrorString('')
     setIsModalOpen(!isModalOpen)
   }
 
@@ -43,7 +47,7 @@ const AddPipeline = () => {
       } = resources
 
       if (pluginPipings && pluginParameters && pipelinePlugins) {
-        const pluginInstanceList = await runPipelineSequence(
+        const { pluginInstanceList, errorString } = await runPipelineSequence(
           pluginPipings,
           pluginParameters,
           pipelinePlugins,
@@ -57,14 +61,16 @@ const AddPipeline = () => {
             }),
           )
         }
+        if (errorString) {
+          setErrorString(errorString)
+        }
       }
     }
-    setIsModalOpen(!isModalOpen)
-    setSelectedPipeline(undefined)
     setCreatingPipeline(false)
   }
 
   const handleSelectPipeline = (pipeline: any) => {
+    setErrorString('')
     if (selectedPipeline && pipeline.data.id === selectedPipeline.data.id) {
       setSelectedPipeline(undefined)
     } else {
@@ -105,14 +111,15 @@ const AddPipeline = () => {
           addPipeline={addPipeline}
         />
         {creatingPipeline && (
-          <React.Fragment>
-            <Alert
-              variant="info"
-              isInline
-              isPlain
-              title="Adding the pipeline to the selected Node"
-            />
-          </React.Fragment>
+          <>
+            <Spin />
+            <span style={{ marginLeft: '0.5em' }}>
+              Adding the pipeline to the selected node
+            </span>
+          </>
+        )}
+        {errorString && (
+          <Alert variant="danger" isInline isPlain title={errorString} />
         )}
       </Modal>
     </React.Fragment>

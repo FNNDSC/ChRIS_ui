@@ -48,7 +48,7 @@ const LogInPage: React.FC<AllProps> = () => {
       style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
     >
       <LoginMainFooterBandItem>
-        <a href="#">Forgot username or password? </a>
+        Forgot username or password?
       </LoginMainFooterBandItem>
       <HelperText>
         <HelperTextItem icon={<FaInfo />}>
