@@ -228,9 +228,6 @@ export function* resourceSaga() {
   ]);
 }
 
-/**
- * Utility Functions
- */
 
 function getLog(raw: string) {
   const strData = atob(raw);
