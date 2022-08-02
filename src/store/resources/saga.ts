@@ -60,7 +60,6 @@ function* handleGetPluginStatus(instance: PluginInstance) {
       const pluginStatus = pluginDetails.data.summary
       const status = pluginDetails.data.status
 
-      console.log('Plugin Details', pluginDetails, pluginStatus, status)
       const previousInstanceId = instance.data.previous_id
       let previousStatus = ''
 
@@ -88,7 +87,7 @@ function* handleGetPluginStatus(instance: PluginInstance) {
         pluginDetails: pluginDetails,
         previousStatus,
       }
-      
+
       yield put(getPluginInstanceResourceSuccess(payload))
       if (
         status === 'cancelled' ||
