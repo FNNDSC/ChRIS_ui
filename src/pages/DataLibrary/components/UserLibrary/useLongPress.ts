@@ -51,7 +51,7 @@ export default function useLongPress() {
       return
     }
 
-    if (e.ctrlKey || e.shiftKey) {
+    if (e.ctrlKey || e.shiftKey || e.metaKey) {
       if (isExist === -1) {
         dispatch(setSelectFolder(payload))
       } else {
