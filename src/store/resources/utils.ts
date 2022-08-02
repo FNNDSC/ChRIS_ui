@@ -168,7 +168,5 @@ export function getStatusLabels(
         : null,
   }
 
-  console.log("STATUS", status);
-
   return status
 }
