@@ -205,12 +205,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
 export default React.memo(FeedOutputBrowser)
 
-/**
- *
- * Utility Components
- *
- */
-
 const LoadingFeedBrowser = () => {
   return (
     <Grid hasGutter className="feed-output-browser">

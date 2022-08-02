@@ -57,11 +57,11 @@ function* handleGetPluginStatus(instance: PluginInstance) {
       //@ts-ignore
       const pluginDetails = yield instance.get()
       //@ts-ignore
-      const pluginStatus = yield pluginDetails.data.summary
+      const pluginStatus = pluginDetails.data.summary
+      const status = pluginDetails.data.status
 
       const previousInstanceId = instance.data.previous_id
       let previousStatus = ''
-      const { status } = pluginDetails.data
 
       if (previousInstanceId) {
         const previousInstance: PluginInstance = yield ChrisAPIClient.getClient().getPluginInstance(
@@ -87,11 +87,13 @@ function* handleGetPluginStatus(instance: PluginInstance) {
         pluginDetails: pluginDetails,
         previousStatus,
       }
+
       yield put(getPluginInstanceResourceSuccess(payload))
-      if (status === 'cancelled') {
-        yield put(stopFetchingPluginResources(instance.data.id))
-      }
-      if (status === 'finishedSuccessfully' || status === 'finishedWithError') {
+      if (
+        status === 'cancelled' ||
+        status === 'finishedSuccessfully' ||
+        status === 'finishedWithError'
+      ) {
         yield call(fetchPluginFiles, instance)
         yield put(stopFetchingPluginResources(instance.data.id))
       } else {
@@ -116,11 +118,9 @@ function* handleGetInstanceStatus(instance: PluginInstance) {
       )
       if (
         pluginDetails.data.status === 'finishedWithError' ||
-        pluginDetails.data.status === 'cancelled'
+        pluginDetails.data.status === 'cancelled' ||
+        pluginDetails.data.status === 'finishedSuccessfully'
       ) {
-        yield put(stopFetchingStatusResources(instance.data.id))
-      }
-      if (pluginDetails.data.status === 'finishedSuccessfully') {
         yield put(stopFetchingStatusResources(instance.data.id))
       } else {
         yield delay(7000)

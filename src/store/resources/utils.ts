@@ -55,7 +55,6 @@ export function getStatusLabels(
     error,
     description: 'Waiting',
     icon: AiFillClockCircle,
-    processError: false,
   }
 
   status[1] = {
@@ -66,7 +65,6 @@ export function getStatusLabels(
     error,
     description: 'Scheduling',
     icon: GrInProgress,
-    processError: status[0].status !== true && !labels && !error ? true : false,
   }
 
   status[2] = {
@@ -80,7 +78,6 @@ export function getStatusLabels(
     error,
     description: 'Transmitting',
     icon: MdOutlineDownloading,
-    processError: status[1].status !== true && !labels && !error ? true : false,
   }
 
   status[3] = {
@@ -95,15 +92,14 @@ export function getStatusLabels(
         ? true
         : false,
     isCurrentStep:
-      labels &&
-      (labels.compute.return.status !== true ||
-        labels.compute.submit.status !== true) &&
-      currentLabel > 1 &&
-      currentLabel < 6,
+      (labels?.compute.return.status !== true ||
+        labels?.compute.submit.status !== true) &&
+      labels?.pushPath.status === true
+        ? true
+        : false,
     error,
     description: 'Computing',
     icon: AiFillRightCircle,
-    processError: status[2].status !== true && !labels && !error ? true : false,
   }
 
   status[4] = {
@@ -111,14 +107,12 @@ export function getStatusLabels(
     title: 'Receiving',
     status: labels?.pullPath.status === true ? true : false,
     isCurrentStep:
-      labels?.compute.return.status === true &&
-      labels?.pullPath.status !== true &&
-      currentLabel > 1 &&
-      currentLabel < 6,
+      labels?.compute.return.status === true && labels?.pullPath.status !== true
+        ? true
+        : false,
     error,
     description: 'Receiving',
     icon: AiFillLeftCircle,
-    processError: status[3].status !== true && !labels && !error ? true : false,
   }
 
   status[5] = {
@@ -130,15 +124,21 @@ export function getStatusLabels(
         : false,
     isCurrentStep:
       pluginStatus === 'registeringFiles' &&
-      labels.pullPath.status === true &&
+      labels?.pullPath.status === true &&
       statusLabels.indexOf(pluginStatus) > 2
         ? true
         : false,
     error,
     description: 'Registering',
     icon: FaFileArchive,
-    processError: status[4].status !== true && !labels && !error ? true : false,
   }
+
+  const cancelledStatus =
+    pluginStatus === 'cancelled' ||
+    pluginStatus === 'finishedWithError' ||
+    pluginStatus === 'finishedSuccessfully'
+      ? true
+      : false
 
   status[6] = {
     id: 7,
@@ -149,18 +149,8 @@ export function getStatusLabels(
         ? 'Cancelled'
         : 'Finished Successfully'
     }`,
-    status:
-      pluginStatus === 'cancelled' ||
-      pluginStatus === 'finishedWithError' ||
-      pluginStatus === 'finishedSuccessfully'
-        ? true
-        : false,
-    isCurrentStep:
-      pluginStatus === 'finishedSuccessfully' ||
-      pluginStatus === 'cancelled' ||
-      pluginStatus === 'finishedWithError'
-        ? true
-        : false,
+    status: cancelledStatus,
+    isCurrentStep: cancelledStatus,
     error,
     description:
       pluginStatus === 'finishedSuccessfully'
@@ -176,7 +166,6 @@ export function getStatusLabels(
         : pluginStatus === 'cancelled' || pluginStatus === 'finishedWithError'
         ? MdError
         : null,
-    processError: status[5].status !== true && !labels && !error ? true : false,
   }
 
   return status
