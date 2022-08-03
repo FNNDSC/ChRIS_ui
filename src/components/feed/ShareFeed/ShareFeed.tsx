@@ -1,32 +1,46 @@
-import React, { useState } from "react";
-import { Feed } from "@fnndsc/chrisapi";
-import { Button } from "@patternfly/react-core";
-import { FaCodeBranch } from "react-icons/fa";
-import InputUser from "./InputUser";
-import ShareModal from "./ShareModal";
-import "./sharefeed.scss";
+import React, { useState } from 'react'
+import { Feed } from '@fnndsc/chrisapi'
+import { Button } from '@patternfly/react-core'
+import { FaCodeBranch } from 'react-icons/fa'
+import InputUser from './InputUser'
+import ShareModal from './ShareModal'
+import './sharefeed.scss'
 
 interface ShareFeedProps {
-  feed?: Feed;
+  feed?: Feed
 }
 
 const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
-  const [showOverlay, setShowOverlay] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleAddClick = () => setShowOverlay((prev) => !prev);
+  const handleAddClick = () => setShowOverlay((prev) => !prev)
   const handleCreate = async (username: string) => {
     if (!feed) {
-      return;
+      return
     }
-    await feed.put({
-      owner: username,
-    });
-
-    handleModalClose();
-  };
+    try {
+      setLoading(true)
+      await feed.put({
+        owner: username,
+      })
+      setLoading(false)
+      handleModalClose()
+    } catch (error) {
+      //@ts-ignore
+      setError(error.response.data.owner[0])
+      setLoading(false)
+    }
+  }
   const handleModalClose = () => {
-    setShowOverlay((prevState) => !prevState);
-  };
+    setShowOverlay((prevState) => !prevState)
+    cleanError()
+  }
+
+  const cleanError = () => {
+    setError('')
+  }
 
   return (
     <>
@@ -43,10 +57,13 @@ const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
         <InputUser
           handleModalClose={handleModalClose}
           handleCreate={handleCreate}
+          error={error}
+          cleanError={cleanError}
+          loading={loading}
         />
       </ShareModal>
     </>
-  );
-};
+  )
+}
 
-export default ShareFeed;
+export default ShareFeed
