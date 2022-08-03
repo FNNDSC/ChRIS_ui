@@ -1,16 +1,16 @@
-import React from "react";
-import { Modal, ModalVariant } from "@patternfly/react-core";
+import React from 'react'
+import { Modal, ModalVariant } from '@patternfly/react-core'
 
 interface ShareModalProps {
-  handleModalClose: () => void;
-  showOverlay: boolean;
-  children?: any;
+  handleModalClose: () => void
+  showOverlay: boolean
+  children?: any
 }
 
 const ShareModal: React.FC<ShareModalProps> = ({
   showOverlay,
   handleModalClose,
-  children
+  children,
 }) => {
   return (
     <Modal
@@ -22,7 +22,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
     >
       {children}
     </Modal>
-  );
-};
+  )
+}
 
-export default ShareModal;
+export default ShareModal
