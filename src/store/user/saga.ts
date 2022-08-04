@@ -1,6 +1,8 @@
 import { all, fork, put, takeEvery } from 'redux-saga/effects'
 import { UserActionTypes } from './types'
 import { setAuthError, setAuthTokenSuccess } from './actions'
+import { Cookies } from 'react-cookie'
+import { IActionTypeParam } from '../../api/models/base.model'
 
 // ----------------------------------------------------------------
 // Description: List - Get all Users
@@ -14,8 +16,6 @@ function* handleResponse(action: any) {
         username: action.payload.username,
       }),
     )
-    window.sessionStorage.setItem('CHRIS_TOKEN', action.payload.token)
-    window.sessionStorage.setItem('USERNAME', action.payload.username)
   } catch (error) {
     setAuthError()
   }
@@ -29,9 +29,11 @@ function* watchLoginRequest() {
 
 // ----------------------------------------------------------------
 
-function handleLogout() {
-  window.sessionStorage.removeItem('CHRIS_TOKEN')
-  window.sessionStorage.removeItem('USERNAME')
+function handleLogout(action: IActionTypeParam) {
+  const cookie = new Cookies()
+
+  cookie.remove(`${action.payload}_token`)
+  cookie.remove('username')
   localStorage.removeItem('tooltip')
 }
 function* watchLogoutRequest() {
