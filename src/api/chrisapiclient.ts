@@ -1,12 +1,13 @@
-import Client from "@fnndsc/chrisapi";
+import Client from '@fnndsc/chrisapi'
+import { Cookies } from 'react-cookie'
 
 declare let process: {
   env: {
-    REACT_APP_CHRIS_UI_URL: string;
-  };
-};
+    REACT_APP_CHRIS_UI_URL: string
+  }
+}
 
-const AUTH_TOKEN_KEY = "CHRIS_TOKEN";
+const AUTH_TOKEN_KEY = 'CHRIS_TOKEN'
 
 /**
  * This is a singleton to hold an instantiated, authenticated `Client` object,
@@ -15,28 +16,29 @@ const AUTH_TOKEN_KEY = "CHRIS_TOKEN";
  */
 
 class ChrisAPIClient {
-
-  private static client: Client;
-  private static isTokenAuthorized: boolean;
+  private static client: Client
+  private static isTokenAuthorized: boolean
+ 
 
   static getClient(): Client {
+    const cookie = new Cookies()
     if (!this.client || !this.isTokenAuthorized) {
-      const token: string = window.sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
+      const user= cookie.get('username');
+      const token: string = cookie.get(`${user}_token`)
       if (token) {
-        this.isTokenAuthorized = true;
+        this.isTokenAuthorized = true
       } else {
-        this.isTokenAuthorized = false;
+        this.isTokenAuthorized = false
       }
       this.client = new Client(process.env.REACT_APP_CHRIS_UI_URL, {
-        token
-      });
+        token,
+      })
     }
-    return this.client;
+    return this.client
   }
 
   static setIsTokenAuthorized(value: boolean) {
-    this.isTokenAuthorized = value;
+    this.isTokenAuthorized = value
   }
-
 }
-export default ChrisAPIClient;
+export default ChrisAPIClient

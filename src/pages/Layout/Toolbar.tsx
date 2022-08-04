@@ -34,7 +34,9 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
   // Description: Logout user
   const onLogout = () => {
     ChrisAPIClient.setIsTokenAuthorized(false)
-    setUserLogout()
+    if (username) {
+      setUserLogout(username)
+    }
   }
 
   const userDropdownItems = [
@@ -69,7 +71,7 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onDropdownSelect: (isOpened: boolean) => dispatch(onDropdownSelect(isOpened)),
-  setUserLogout: () => dispatch(setUserLogout()),
+  setUserLogout: (username: string) => dispatch(setUserLogout(username)),
 })
 
 const mapStateToProps = ({ ui, user }: ApplicationState) => ({
