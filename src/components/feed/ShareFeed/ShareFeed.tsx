@@ -14,6 +14,7 @@ const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
   const [showOverlay, setShowOverlay] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
 
   const handleAddClick = () => setShowOverlay((prev) => !prev)
   const handleCreate = async (username: string) => {
@@ -26,7 +27,11 @@ const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
         owner: username,
       })
       setLoading(false)
-      handleModalClose()
+      setSuccess(true)
+
+      setTimeout(() => {
+        handleModalClose()
+      }, 2000)
     } catch (error) {
       //@ts-ignore
       setError(error.response.data.owner[0])
@@ -35,11 +40,13 @@ const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
   }
   const handleModalClose = () => {
     setShowOverlay((prevState) => !prevState)
+    setSuccess(false)
     cleanError()
   }
 
   const cleanError = () => {
     setError('')
+   
   }
 
   return (
@@ -60,6 +67,7 @@ const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
           error={error}
           cleanError={cleanError}
           loading={loading}
+          success={success}
         />
       </ShareModal>
     </>

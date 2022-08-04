@@ -7,6 +7,7 @@ import {
   ActionGroup,
   Alert,
 } from '@patternfly/react-core'
+import { Spin } from 'antd'
 
 interface InputUserProps {
   handleModalClose: () => void
@@ -14,6 +15,7 @@ interface InputUserProps {
   error: string
   cleanError: () => void
   loading: boolean
+  success: boolean
 }
 
 const InputUser: React.FC<InputUserProps> = ({
@@ -22,6 +24,7 @@ const InputUser: React.FC<InputUserProps> = ({
   error,
   cleanError,
   loading,
+  success,
 }) => {
   const [value, setValue] = useState('')
 
@@ -47,7 +50,10 @@ const InputUser: React.FC<InputUserProps> = ({
           aria-label="text input example"
         />
         {error && <Alert variant="danger" title={error} />}
-        {loading && <span>Sharing Feed...</span>}
+        {loading && <Spin>Sharing Feed...</Spin>}
+        {success && (
+          <Alert variant="success" title="Feed Shared Successfully" />
+        )}
         <ActionGroup>
           <Button onClick={handleSubmit}>Save</Button>
           <Button onClick={() => handleModalClose()}>Cancel</Button>
