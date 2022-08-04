@@ -161,13 +161,18 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 
     if (user && token) {
       const oneDayToSeconds = 24 * 60 * 60
-      setCookie('username', user, { path: '/', maxAge: oneDayToSeconds })
-      setCookie(`${user}_token`, token, { path: '/', maxAge: oneDayToSeconds })
+      setCookie('username', user.data.username, { path: '/', maxAge: oneDayToSeconds })
+      setCookie(`${user.data.username}_token`, token, {
+        path: '/',
+        maxAge: oneDayToSeconds,
+      })
       setAuthToken({
         token,
         username: user.data.username,
       })
-      history.push('/')
+      const then = new URLSearchParams(location.search).get('then')
+      if (then) history.push(then)
+      else history.push('/')
     }
   }
 

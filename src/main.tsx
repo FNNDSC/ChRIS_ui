@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 import { Store } from 'redux'
 import { BrowserRouter } from 'react-router-dom'
 import { RootState } from './store/root/applicationState'
-import { CookiesProvider, Cookies } from 'react-cookie'
+import { CookiesProvider } from 'react-cookie'
 interface AllProps {
   store: Store<RootState>
 }
