@@ -18,33 +18,30 @@ export function getStatusLabels(
 
   const statusLabels = [
     'waiting',
-    'scheduled',
     'started',
-    'compute',
-    'syncData',
+    'transmitting',
+    'computing',
+    'receiving',
     'registeringFiles',
     'finishedSuccessfully',
-    'finishedWithError',
-    'cancelled',
   ]
+
   const pluginStatus = pluginDetails.data.status
+  const currentLabel = statusLabels.indexOf(pluginStatus)
+  console.log('STATUS', pluginStatus, currentLabel)
+
+  const waitingStatus = currentLabel > 0 ? true : false
 
   const error =
     pluginStatus === 'finishedWithError' || pluginStatus === 'cancelled'
-      ? true
-      : false
 
-  const currentLabel = statusLabels.indexOf(pluginStatus)
-  let waitingStatus = false
-
-  if (pluginDetails.data.plugin_type === 'fs') {
-    waitingStatus = currentLabel > 0 ? true : false
-  } else {
-    waitingStatus =
-      currentLabel > 0 && previousStatus === 'finishedSuccessfully'
-        ? true
-        : false
-  }
+  const computeError = [
+    'finishedSuccessfully',
+    'finishedWithError',
+    'cancelled',
+  ].includes(labels?.compute.return.job_status)
+    ? true
+    : false
 
   status[0] = {
     id: 1,
@@ -52,23 +49,13 @@ export function getStatusLabels(
     status: waitingStatus,
     isCurrentStep:
       pluginStatus === 'waiting' || pluginStatus === 'created' ? true : false,
-    error,
+    error: false,
     description: 'Waiting',
     icon: AiFillClockCircle,
   }
 
   status[1] = {
     id: 2,
-    title: 'Scheduling',
-    status: currentLabel > 1 && status[0].status === true ? true : false,
-    isCurrentStep: pluginStatus === 'scheduled' ? true : false,
-    error,
-    description: 'Scheduling',
-    icon: GrInProgress,
-  }
-
-  status[2] = {
-    id: 3,
     title: 'Transmitting',
     status: labels && labels.pushPath.status === true ? true : false,
     isCurrenStep:
@@ -80,54 +67,41 @@ export function getStatusLabels(
     icon: MdOutlineDownloading,
   }
 
-  status[3] = {
-    id: 4,
+  status[2] = {
+    id: 3,
     title: 'Computing',
     status:
       labels?.compute.return.status === true &&
-      labels?.compute.submit.status === true &&
-      ['finishedSuccessfully', 'finishedWithError', 'cancelled'].includes(
-        labels?.compute.return.job_status,
-      )
-        ? true
-        : false,
+      labels?.compute.submit.status === true,
+
     isCurrentStep:
-      (labels?.compute.return.status !== true ||
-        labels?.compute.submit.status !== true) &&
-      labels?.pushPath.status === true
-        ? true
-        : false,
+      labels?.compute.return.status !== true &&
+      labels?.compute.submit.status !== true &&
+      labels?.pushPath.status === true,
     error,
     description: 'Computing',
     icon: AiFillRightCircle,
   }
 
-  status[4] = {
-    id: 5,
+  status[3] = {
+    id: 4,
     title: 'Receiving',
     status: labels?.pullPath.status === true ? true : false,
     isCurrentStep:
       labels?.compute.return.status === true && labels?.pullPath.status !== true
         ? true
         : false,
-    error,
+    error: computeError,
     description: 'Receiving',
     icon: AiFillLeftCircle,
   }
 
-  status[5] = {
-    id: 6,
+  status[4] = {
+    id: 5,
     title: 'Registering',
-    status:
-      statusLabels.indexOf(pluginStatus) > 5 && labels?.pullPath.status === true
-        ? true
-        : false,
+    status: labels?.pullPath.status === true || currentLabel > 5 ? true : false,
     isCurrentStep:
-      pluginStatus === 'registeringFiles' &&
-      labels?.pullPath.status === true &&
-      statusLabels.indexOf(pluginStatus) > 2
-        ? true
-        : false,
+      pluginStatus === 'registeringFiles' && labels?.pullPath.status === true,
     error,
     description: 'Registering',
     icon: FaFileArchive,
@@ -140,8 +114,8 @@ export function getStatusLabels(
       ? true
       : false
 
-  status[6] = {
-    id: 7,
+  status[5] = {
+    id: 6,
     title: `${
       pluginStatus === 'finishedWithError'
         ? `Finished With Error`
@@ -168,5 +142,6 @@ export function getStatusLabels(
         : null,
   }
 
+  console.log('STATUS', status)
   return status
 }

@@ -52,7 +52,7 @@ const reducer: Reducer<IResourceState> = (state = initialState, action) => {
     }
 
     case ResourceTypes.GET_PLUGIN_FILES_SUCCESS: {
-      const { id, files } = action.payload
+      const { id, files, folders } = action.payload
 
       return {
         ...state,
@@ -60,6 +60,7 @@ const reducer: Reducer<IResourceState> = (state = initialState, action) => {
           ...state.pluginFiles,
           [id]: {
             files,
+            folders,
             error: '',
           },
         },

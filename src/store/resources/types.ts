@@ -5,7 +5,11 @@
  *  Notes:           Work in progres ...
  */
 import keyMirror from 'keymirror'
-import { PluginInstance, FeedFile } from '@fnndsc/chrisapi'
+import {
+  PluginInstance,
+  FeedFile,
+  FileBrowserPathFileList,
+} from '@fnndsc/chrisapi'
 
 type Return = {
   status: boolean
@@ -56,6 +60,7 @@ export interface ResourcePayload {
 export interface FilesPayload {
   [id: string]: {
     files: FeedFile[]
+    folders: string[]
     error: any
   }
 }

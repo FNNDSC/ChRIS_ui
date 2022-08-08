@@ -2,6 +2,12 @@ import { FeedFile } from '@fnndsc/chrisapi'
 import { DataNode } from '../../../../store/explorer/types'
 
 export interface FileBrowserProps {
+  pluginFilesPayload: {
+    files: FeedFile[]
+    folders: string[]
+    error: any
+  }
+  /*
   selectedFiles?: FeedFile[]
   root: DataNode
   pluginName?: string
@@ -14,6 +20,7 @@ export interface FileBrowserProps {
     status: boolean
     count: number
   }
+  */
 }
 
 export interface FileBrowserState {
