@@ -27,6 +27,7 @@ export const getPluginFilesRequest = (selected: PluginInstance) =>
 export const getPluginFilesSuccess = (filesPayload: {
   id: number
   files: any[]
+  folders: any[]
 }) => action(ResourceTypes.GET_PLUGIN_FILES_SUCCESS, filesPayload)
 export const getPluginFilesError = (payload: { id: number; error: any }) =>
   action(ResourceTypes.GET_PLUGIN_FILES_ERROR, payload)

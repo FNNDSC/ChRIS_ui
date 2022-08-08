@@ -9,7 +9,11 @@ import {
 import { Task } from 'redux-saga'
 import { IActionTypeParam } from '../../api/models/base.model'
 import { ResourceTypes, PluginStatusLabels } from './types'
-import { PluginInstance } from '@fnndsc/chrisapi'
+import {
+  FileBrowserPathFileList,
+  PluginInstance,
+  FileBrowserPath,
+} from '@fnndsc/chrisapi'
 import { inflate } from 'pako'
 import {
   getPluginInstanceResourceSuccess,
@@ -30,7 +34,48 @@ export function* getPluginFiles(plugin: PluginInstance) {
   return files
 }
 
-function* fetchPluginFiles(plugin: PluginInstance) {
+function* fetchPluginFiles(action: IActionTypeParam) {
+  const selected = action.payload
+  const { output_path: path, id } = selected.data
+  const client = ChrisAPIClient.getClient()
+  console.log('PATH', path)
+
+  try {
+    const foldersList: FileBrowserPathFileList = yield client.getFileBrowserPaths(
+      {
+        path,
+      },
+    )
+
+    const pathList: FileBrowserPath = yield client.getFileBrowserPath(path)
+    const fetchFileFn = pathList.getFiles
+    const boundFetchFileFn = fetchFileFn.bind(pathList)
+    const params = { limit: 100, offset: 0 }
+    let files: any[] = []
+    let folders: string[] = []
+    files = yield fetchResource(params, boundFetchFileFn)
+
+    if (
+      foldersList.data &&
+      foldersList.data[0].subfolders &&
+      foldersList.data[0].subfolders.length > 0
+    ) {
+      folders = foldersList.data[0].subfolders.split(',')
+    }
+    const payload = {
+      id,
+      files,
+      folders,
+    }
+    yield put(getPluginFilesSuccess(payload))
+  } catch (error) {
+    const payload = {
+      id,
+      error,
+    }
+    yield put(getPluginFilesError(payload))
+  }
+  /*
   try {
     const files: any[] = yield getPluginFiles(plugin)
 
@@ -49,6 +94,7 @@ function* fetchPluginFiles(plugin: PluginInstance) {
     }
     yield put(getPluginFilesError(payload))
   }
+  */
 }
 
 function* handleGetPluginStatus(instance: PluginInstance) {
@@ -94,7 +140,7 @@ function* handleGetPluginStatus(instance: PluginInstance) {
         status === 'finishedSuccessfully' ||
         status === 'finishedWithError'
       ) {
-        yield call(fetchPluginFiles, instance)
+        // yield call(fetchPluginFiles, instance)
         yield put(stopFetchingPluginResources(instance.data.id))
       } else {
         yield delay(7000)
@@ -179,6 +225,7 @@ function* pollorCancelEndpoints(action: IActionTypeParam) {
 }
 
 function* pollInstanceEndpoints(action: IActionTypeParam) {
+  /*
   const pluginInstances = action.payload.pluginInstances
 
   const pollTask: {
@@ -192,10 +239,11 @@ function* pollInstanceEndpoints(action: IActionTypeParam) {
   }
 
   yield watchStatusCancelPoll(pollTask)
+  */
 }
 
 function* watchGetPluginFilesRequest() {
-  yield takeEvery(ResourceTypes.GET_PLUGIN_FILES_REQUEST, pollorCancelEndpoints)
+  yield takeEvery(ResourceTypes.GET_PLUGIN_FILES_REQUEST, fetchPluginFiles)
 }
 
 function* watchGetPluginStatusRequest() {

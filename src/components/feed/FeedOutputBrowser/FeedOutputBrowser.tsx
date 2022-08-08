@@ -38,6 +38,87 @@ export interface FeedOutputBrowserProps {
   expandDrawer: (panel: string) => void
 }
 
+
+
+const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
+  handlePluginSelect,
+  expandDrawer,
+}) => {
+  const dispatch = useDispatch()
+  const pluginInstances = useTypedSelector(
+    (state) => state.instance.pluginInstances,
+  )
+  const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles)
+  const selected = useTypedSelector((state) => state.instance.selectedPlugin)
+  const { data: plugins, loading } = pluginInstances
+
+  const pluginFilesPayload = selected && pluginFiles[selected.data.id]
+
+  React.useEffect(() => {
+    if (selected) {
+      dispatch(getPluginFilesRequest(selected))
+    }
+  }, [selected])
+
+  return (
+    <Grid hasGutter className="feed-output-browser ">
+      <GridItem
+        className="feed-output-browser__sidebar"
+        xl={2}
+        xlRowSpan={12}
+        xl2={2}
+        xl2RowSpan={12}
+        lg={2}
+        lgRowSpan={12}
+        md={2}
+        mdRowSpan={12}
+        sm={12}
+        smRowSpan={12}
+      >
+        {plugins && selected && (
+          <SidebarTree
+            plugins={plugins}
+            selected={selected}
+            handlePluginSelect={handlePluginSelect}
+          />
+        )}
+      </GridItem>
+      <GridItem
+        className="feed-output-browser__main"
+        xl={10}
+        xlRowSpan={12}
+        xl2={10}
+        xl2RowSpan={12}
+        lg={10}
+        lgRowSpan={12}
+        md={10}
+        mdRowSpan={12}
+        sm={12}
+        smRowSpan={12}
+      >
+        <React.Suspense
+          fallback={
+            <div>
+              <Skeleton
+                height="100%"
+                width="100%"
+                screenreaderText="Fetching the File Browser"
+              />
+            </div>
+          }
+        >
+          {pluginFilesPayload && (
+            <FileBrowser pluginFilesPayload={pluginFilesPayload} />
+          )}
+        </React.Suspense>
+      </GridItem>
+    </Grid>
+  )
+}
+
+export default FeedOutputBrowser
+
+/*
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   handlePluginSelect,
   expandDrawer,
@@ -247,5 +328,33 @@ const FetchFilesLoader = () => {
     <Spin tip="Processing....">
       <Alert message="Retrieving Plugin's Files" type="info" />
     </Spin>
+  )
+}
+*/
+
+
+const SidebarTree = (props: {
+  plugins: PluginInstance[]
+  selected: PluginInstance
+  handlePluginSelect: (node: PluginInstance) => void
+}) => {
+  const { selected, plugins } = props
+  const [tree, setTreeData] = React.useState<DataNode[]>()
+  React.useEffect(() => {
+    const pluginSidebarTree = getFeedTree(plugins)
+    //@ts-ignore
+    setTreeData(pluginSidebarTree)
+  }, [plugins])
+
+  return (
+    <DirectoryTree
+      defaultExpandAll
+      treeData={tree}
+      selectedKeys={[selected.data.id]}
+      onSelect={(node, selectedNode) => {
+        //@ts-ignore
+        handlePluginSelect(selectedNode.node.item)
+      }}
+    />
   )
 }
