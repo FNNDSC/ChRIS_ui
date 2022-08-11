@@ -20,26 +20,18 @@ const Status = () => {
           size="small"
         >
           {pluginStatus.map((label: any) => {
-            const showIcon = [
-              'Finished Successfully',
-              'Finished With Error',
-              'Cancelled',
-            ].includes(label.title)
-              ? false
-              : label.isCurrentStep
-              ? true
-              : false
-
             return (
               <Step
                 key={label.id}
-                icon={showIcon && <Spin />}
+                icon={label.process && <Spin />}
                 status={
-                  label.status === true
+                  label.finish === true
                     ? 'finish'
                     : label.error === true
                     ? 'error'
-                    : 'process'
+                    : label.wait === true
+                    ? 'wait'
+                    : undefined
                 }
               />
             )

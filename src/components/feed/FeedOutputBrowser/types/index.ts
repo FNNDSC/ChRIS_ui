@@ -1,4 +1,4 @@
-import { FeedFile } from '@fnndsc/chrisapi'
+import { FeedFile, PluginInstance } from '@fnndsc/chrisapi'
 import { DataNode } from '../../../../store/explorer/types'
 
 export interface FileBrowserProps {
@@ -6,7 +6,10 @@ export interface FileBrowserProps {
     files: FeedFile[]
     folders: string[]
     error: any
+    path: string
   }
+  handleFileClick: (path: string) => void
+  selected: PluginInstance
   /*
   selectedFiles?: FeedFile[]
   root: DataNode

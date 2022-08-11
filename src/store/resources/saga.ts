@@ -9,10 +9,12 @@ import {
 import { Task } from 'redux-saga'
 import { IActionTypeParam } from '../../api/models/base.model'
 import { ResourceTypes, PluginStatusLabels } from './types'
+import { PluginInstanceTypes } from '../pluginInstance/types'
 import {
   FileBrowserPathFileList,
   PluginInstance,
   FileBrowserPath,
+  Resource,
 } from '@fnndsc/chrisapi'
 import { inflate } from 'pako'
 import {
@@ -35,10 +37,8 @@ export function* getPluginFiles(plugin: PluginInstance) {
 }
 
 function* fetchPluginFiles(action: IActionTypeParam) {
-  const selected = action.payload
-  const { output_path: path, id } = selected.data
+  const { id, path } = action.payload
   const client = ChrisAPIClient.getClient()
-  console.log('PATH', path)
 
   try {
     const foldersList: FileBrowserPathFileList = yield client.getFileBrowserPaths(
@@ -66,6 +66,7 @@ function* fetchPluginFiles(action: IActionTypeParam) {
       id,
       files,
       folders,
+      path,
     }
     yield put(getPluginFilesSuccess(payload))
   } catch (error) {
@@ -75,26 +76,6 @@ function* fetchPluginFiles(action: IActionTypeParam) {
     }
     yield put(getPluginFilesError(payload))
   }
-  /*
-  try {
-    const files: any[] = yield getPluginFiles(plugin)
-
-    const id = plugin.data.id
-    const payload = {
-      id,
-      files,
-    }
-
-    if (files.length > 0) yield put(getPluginFilesSuccess(payload))
-  } catch (error) {
-    const id = plugin.data.id
-    const payload = {
-      id,
-      error,
-    }
-    yield put(getPluginFilesError(payload))
-  }
-  */
 }
 
 function* handleGetPluginStatus(instance: PluginInstance) {
@@ -140,7 +121,6 @@ function* handleGetPluginStatus(instance: PluginInstance) {
         status === 'finishedSuccessfully' ||
         status === 'finishedWithError'
       ) {
-        // yield call(fetchPluginFiles, instance)
         yield put(stopFetchingPluginResources(instance.data.id))
       } else {
         yield delay(7000)
@@ -220,12 +200,12 @@ function* watchStatusCancelPoll(pollTask: PollTask) {
 
 function* pollorCancelEndpoints(action: IActionTypeParam) {
   const instance = action.payload
+  console.log("Instance", instance);
   const task: Task = yield fork(handleGetPluginStatus, instance)
   yield watchCancelPoll(task)
 }
 
 function* pollInstanceEndpoints(action: IActionTypeParam) {
-  /*
   const pluginInstances = action.payload.pluginInstances
 
   const pollTask: {
@@ -239,7 +219,6 @@ function* pollInstanceEndpoints(action: IActionTypeParam) {
   }
 
   yield watchStatusCancelPoll(pollTask)
-  */
 }
 
 function* watchGetPluginFilesRequest() {
@@ -260,11 +239,19 @@ function* watchResetActiveResources() {
   )
 }
 
+function* watchSelectedPlugin() {
+  yield takeEvery(
+    PluginInstanceTypes.GET_SELECTED_PLUGIN,
+    pollorCancelEndpoints,
+  )
+}
+
 export function* resourceSaga() {
   yield all([
     fork(watchGetPluginFilesRequest),
     fork(watchGetPluginStatusRequest),
     fork(watchResetActiveResources),
+    fork(watchSelectedPlugin),
   ])
 }
 
