@@ -10,15 +10,11 @@ export interface FileBrowserProps {
   }
   handleFileClick: (path: string) => void
   selected: PluginInstance
-  /*
-  selectedFiles?: FeedFile[]
-  root: DataNode
-  pluginName?: string
   handleFileBrowserToggle: () => void
   handleDicomViewerOpen: () => void
   handleXtkViewerOpen: () => void
-  downloadAllClick: () => void
   expandDrawer: (panel: string) => void
+  /*
   download: {
     status: boolean
     count: number

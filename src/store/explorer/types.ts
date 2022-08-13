@@ -72,7 +72,7 @@ export enum ExplorerMode {
 // Description state for main user items[] and item
 export interface IExplorerState {
   explorer?: DataNode[]
-  selectedFile?: DataNode
+  selectedFile?: FeedFile
   selectedFolder?: DataNode[]
   mode: ExplorerMode
   enableDcmTool: boolean

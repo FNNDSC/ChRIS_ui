@@ -1,18 +1,21 @@
-import React from "react";
-import { useTypedSelector } from "../../../store/hooks";
-import { useDispatch } from "react-redux";
-import { Tree } from "antd";
+import React from 'react'
+import { useTypedSelector } from '../../../store/hooks'
+import { useDispatch } from 'react-redux'
+import { Tree } from 'antd'
 import {
   GridItem,
   Grid,
   BreadcrumbItem,
   Breadcrumb,
-} from "@patternfly/react-core";
-import { Key } from "../../../store/explorer/types";
-import FileDetailView from "../../feed/Preview/FileDetailView";
-import { setSelectedFile } from "../../../store/explorer/actions";
+} from '@patternfly/react-core'
+import { Key } from '../../../store/explorer/types'
+import FileDetailView from '../../feed/Preview/FileDetailView'
+import { setSelectedFile } from '../../../store/explorer/actions'
 
 const FileBrowserViewer = () => {
+  return <div>File Browser Viewer</div>
+
+  /*
   const { explorer, selectedFile } = useTypedSelector(
     (state) => state.explorer
   );
@@ -56,6 +59,7 @@ const FileBrowserViewer = () => {
       </GridItem>
     </Grid>
   );
-};
+  */
+}
 
-export default FileBrowserViewer;
+export default FileBrowserViewer

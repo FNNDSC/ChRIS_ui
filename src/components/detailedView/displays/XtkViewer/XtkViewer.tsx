@@ -6,6 +6,7 @@ import { useTypedSelector } from '../../../../store/hooks'
 import FsmFileSelect from './PrimaryFileSelect'
 import CrvFileSelect from './CrvFileSelect'
 import './xtk-viewer.scss'
+import { FeedFile } from '@fnndsc/chrisapi'
 
 // X and dat are loaded in from script file
 declare const X: any
@@ -14,9 +15,10 @@ declare const dat: any
 export type ViewerMode = 'volume' | 'mesh' | 'other'
 type VolumeMode = '3D' | '2D'
 
-const getFileType = (file?: DataNode) => file?.title.split('.').slice(-1)[0]
-const getFileData = async (file: DataNode) =>
-  (await file.file?.getFileBlob())?.arrayBuffer()
+const getFileType = (file?: FeedFile) =>
+  file?.data.fname.split('.').slice(-1)[0]
+const getFileData = async (file: FeedFile) =>
+  (await file.getFileBlob())?.arrayBuffer()
 
 export function getXtkFileMode(fileType?: string): ViewerMode | undefined {
   const volumeExtensions = ['mgz', 'dcm']
@@ -33,7 +35,7 @@ export function getXtkFileMode(fileType?: string): ViewerMode | undefined {
   }
 }
 
-function getPrimaryFileMode(file: DataNode): ViewerMode | undefined {
+function getPrimaryFileMode(file: FeedFile): ViewerMode | undefined {
   const fileType = getFileType(file)
   return getXtkFileMode(fileType)
 }
@@ -57,15 +59,15 @@ const XtkViewer = () => {
     ? getPrimaryFileMode(defaultPrimaryFile)
     : undefined
 
-  const [primaryFile, setPrimaryFile] = useState<DataNode | undefined>(
+  const [primaryFile, setPrimaryFile] = useState<FeedFile | undefined>(
     defaultPrimaryFile,
   )
   const [viewerMode, setViewerMode] = useState<ViewerMode | undefined>(
     defaultViewerMode,
   )
   const [volumeMode, setVolumeMode] = useState<VolumeMode>('3D')
-  const [crvFile, setCrvFile] = useState<DataNode | undefined>(defaultCrvFile)
-  const [secondaryFile, setSecondaryFile] = useState<DataNode | undefined>()
+  const [crvFile, setCrvFile] = useState<FeedFile | undefined>(defaultCrvFile)
+  const [secondaryFile, setSecondaryFile] = useState<FeedFile | undefined>()
   const [orientation, setOrientation] = useState('x')
   const [fullscreen, setFullscreen] = useState(false)
 
@@ -95,14 +97,13 @@ const XtkViewer = () => {
         }
 
         object = new X.volume()
-        object.file = primaryFile.title
-        object.filedata = fileData
+        ;(object.file = primaryFile.data.fname), (object.filedata = fileData)
       }
 
       if (viewerMode === 'mesh') {
         r = new X.renderer3D()
         object = new X.mesh()
-        object.file = primaryFile.title
+        object.file = primaryFile.data.fname
         object.filedata = fileData
         if (crvFile) {
           object.scalars.file = 'crv_file.crv'
@@ -111,7 +112,7 @@ const XtkViewer = () => {
 
         if (secondaryFile) {
           secondaryObject = new X.mesh()
-          secondaryObject.file = secondaryFile.title
+          secondaryObject.file = secondaryFile.data.fname
           const secondaryFileData = await getFileData(secondaryFile)
           secondaryObject.filedata = secondaryFileData
         }
@@ -193,11 +194,11 @@ const XtkViewer = () => {
       <div className="xtk-header">
         <h3 className="xtk-title">XTK Viewer</h3>
         <div className="xtk-info">
-          {primaryFile && <div>Selected File: {primaryFile.title}</div>}
+          {primaryFile && <div>Selected File: {primaryFile.data.fname}</div>}
           {secondaryFile && (
-            <div>Selected Secondary File: {secondaryFile.title}</div>
+            <div>Selected Secondary File: {secondaryFile.data.fname}</div>
           )}
-          {crvFile && <div>Selected CRV File: {crvFile.title}</div>}
+          {crvFile && <div>Selected CRV File: {crvFile.data.fname}</div>}
         </div>
       </div>
 
@@ -208,7 +209,7 @@ const XtkViewer = () => {
         primaryFile && !viewerMode && (
           <div className="xtk-viewer-mode">
             <div className="instructions">
-              Please select a viewer mode for <u>{primaryFile?.title}</u>
+              Please select a viewer mode for <u>{primaryFile?.data.fname}</u>
             </div>
             <Button onClick={() => setViewerMode('volume')}>Volume</Button>
             <Button onClick={() => setViewerMode('mesh')}>Mesh</Button>
@@ -230,6 +231,7 @@ const XtkViewer = () => {
           <div className="xtk-controls">
             {viewerMode === 'mesh' ? (
               <div className="additional-files">
+                {/*
                 <CrvFileSelect
                   files={crvFiles}
                   selectedFile={crvFile}
@@ -241,6 +243,8 @@ const XtkViewer = () => {
                   selectedFile={secondaryFile}
                   handleSelect={setSecondaryFile}
                 />
+
+                  */}
               </div>
             ) : (
               <div className="volume-mode">

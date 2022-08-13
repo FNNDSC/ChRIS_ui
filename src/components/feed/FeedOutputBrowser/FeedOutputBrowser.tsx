@@ -29,6 +29,8 @@ import { getFeedTree } from './data'
 import { DataNode, ExplorerMode } from '../../../store/explorer/types'
 import { useSafeDispatch } from '../../../utils'
 import './FeedOutputBrowser.scss'
+import usePluginInstanceResource from '../NodeDetails/usePluginInstanceResource'
+import { getCurrentTitleFromStatus } from '../NodeDetails/StatusTitle'
 
 const FileBrowser = React.lazy(() => import('./FileBrowser'))
 const { DirectoryTree } = Tree
@@ -42,16 +44,31 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   handlePluginSelect,
   expandDrawer,
 }) => {
+  const pluginInstanceResource = usePluginInstanceResource()
+  const pluginStatus =
+    pluginInstanceResource && pluginInstanceResource.pluginStatus
   const dispatch = useDispatch()
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances,
   )
   const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles)
   const selected = useTypedSelector((state) => state.instance.selectedPlugin)
+
   const { data: plugins, loading } = pluginInstances
 
   const pluginFilesPayload = selected && pluginFiles[selected.data.id]
   const status = ['finishedSuccessfully', 'finishedWithError', 'cancelled']
+  let statusTitle:
+    | {
+        title: string
+        icon: any
+      }
+    | undefined = undefined
+  if (pluginStatus) {
+    statusTitle = getCurrentTitleFromStatus(pluginStatus)
+  }
+
+  const finished = selected && status.includes(selected.data.status)
 
   React.useEffect(() => {
     if (selected && status.includes(selected.data.status)) {
@@ -62,7 +79,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         }),
       )
     }
-  }, [selected])
+  }, [selected, finished])
 
   const handleFileClick = (path: string) => {
     if (selected) {
@@ -73,6 +90,29 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         }),
       )
     }
+  }
+
+  const handleFileBrowserOpen = () => {
+    /*
+    if (tree) {
+      dispatch(setExplorerRequest(tree))
+    }
+    setPluginModalOpen(!pluginModalOpen)
+    */
+  }
+
+  const handleDicomViewerOpen = () => {
+    /*
+    setPluginModalOpen(!pluginModalOpen)
+    dispatch(setExplorerMode(ExplorerMode.DicomViewer))
+    */
+  }
+
+  const handleXtkViewerOpen = () => {
+    /*
+    setPluginModalOpen(!pluginModalOpen)
+    dispatch(setExplorerMode(ExplorerMode.XtkViewer))
+    */
   }
 
   return (
@@ -122,12 +162,20 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             </div>
           }
         >
-          {pluginFilesPayload && (
+          {pluginFilesPayload ? (
             <FileBrowser
               selected={selected}
               handleFileClick={handleFileClick}
               pluginFilesPayload={pluginFilesPayload}
+              handleFileBrowserToggle={handleFileBrowserOpen}
+              handleDicomViewerOpen={handleDicomViewerOpen}
+              handleXtkViewerOpen={handleXtkViewerOpen}
+              expandDrawer={expandDrawer}
             />
+          ) : statusTitle && statusTitle.title ? (
+            <FetchFilesLoader title={statusTitle.title} />
+          ) : (
+            <EmptyStateLoader />
           )}
         </React.Suspense>
       </GridItem>
@@ -161,5 +209,24 @@ const SidebarTree = (props: {
         handlePluginSelect(selectedNode.node.item)
       }}
     />
+  )
+}
+
+const EmptyStateLoader = () => {
+  return (
+    <EmptyState variant={EmptyStateVariant.large}>
+      <Title headingLevel="h4" size="lg" />
+      <EmptyStateBody>
+        Files are not available yet and are being fetched. Please give it a
+        moment...
+      </EmptyStateBody>
+    </EmptyState>
+  )
+}
+const FetchFilesLoader = ({ title }: { title: string }) => {
+  return (
+    <Spin tip={title}>
+      <Alert message="Waiting on the plugin to finish" type="info" />
+    </Spin>
   )
 }

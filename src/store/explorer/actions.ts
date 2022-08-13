@@ -1,12 +1,12 @@
 import { action } from 'typesafe-actions'
 import { ExplorerActionTypes, ExplorerMode } from './types'
-
+import { FeedFile } from '@fnndsc/chrisapi'
 import { DataNode } from './types'
 
 export const setExplorerRequest = (tree: DataNode[]) =>
   action(ExplorerActionTypes.SET_EXPLORER_REQUEST, tree)
 
-export const setSelectedFile = (selectedFile: DataNode) =>
+export const setSelectedFile = (selectedFile: FeedFile) =>
   action(ExplorerActionTypes.SET_SELECTED_FILE, selectedFile)
 
 export const setSelectedFolder = (selectedFolder: DataNode[]) =>
