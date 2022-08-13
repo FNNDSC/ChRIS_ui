@@ -1,60 +1,57 @@
-import React, { Fragment } from "react";
-import { Label, Text, Skeleton } from "@patternfly/react-core";
-import { ErrorBoundary } from "react-error-boundary";
-import { FeedFile } from "@fnndsc/chrisapi";
-import { AiFillInfoCircle } from "react-icons/ai";
-import { getFileExtension } from "../../../api/models/file-explorer.model";
-import {
-  IFileBlob,
-  fileViewerMap,
-} from "../../../api/models/file-viewer.model";
-import "../../../components/dicomViewer/amiViewer.scss";
+import React, { Fragment } from 'react'
+import { Label, Text, Skeleton } from '@patternfly/react-core'
+import { ErrorBoundary } from 'react-error-boundary'
+import { FeedFile } from '@fnndsc/chrisapi'
+import { AiFillInfoCircle } from 'react-icons/ai'
+import { getFileExtension } from '../../../api/models/file-explorer.model'
+import { IFileBlob, fileViewerMap } from '../../../api/models/file-viewer.model'
+import '../../../components/dicomViewer/amiViewer.scss'
 
-const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
+const ViewerDisplay = React.lazy(() => import('./displays/ViewerDisplay'))
 
 interface AllProps {
-  selectedFile: FeedFile;
-  isDicom?: boolean;
-  preview: "large" | "small";
+  selectedFile: FeedFile
+  isDicom?: boolean
+  preview: 'large' | 'small'
 }
 
 function getInitialState() {
   return {
     blob: undefined,
     file: undefined,
-    fileType: "",
-  };
+    fileType: '',
+  }
 }
 
 const FileDetailView = (props: AllProps) => {
-  const [fileState, setFileState] = React.useState<IFileBlob>(getInitialState);
-  const { selectedFile, preview } = props;
-  const { fileType } = fileState;
+  const [fileState, setFileState] = React.useState<IFileBlob>(getInitialState)
+  const { selectedFile, preview } = props
+  const { fileType } = fileState
 
   const fetchData = React.useCallback(async () => {
     const fileName = selectedFile.data.fname,
-      fileType = getFileExtension(fileName);
-    const blob = await selectedFile.getFileBlob();
+      fileType = getFileExtension(fileName)
+    const blob = await selectedFile.getFileBlob()
     setFileState((fileState) => {
       return {
         ...fileState,
         blob,
         file: selectedFile,
         fileType,
-      };
-    });
-  }, [selectedFile]);
+      }
+    })
+  }, [selectedFile])
 
   React.useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchData()
+  }, [fetchData])
 
-  let viewerName = "";
+  let viewerName = ''
 
   if (!fileViewerMap[fileType]) {
-    viewerName = "IframeDisplay";
+    viewerName = 'IframeDisplay'
   } else {
-    viewerName = fileViewerMap[fileType];
+    viewerName = fileViewerMap[fileType]
   }
 
   return (
@@ -80,13 +77,13 @@ const FileDetailView = (props: AllProps) => {
             </span>
           }
         >
-          <div className={preview === "small" ? "small-preview" : "ami-viewer"}>
+          <div className={preview === 'small' ? 'small-preview' : 'ami-viewer'}>
             <ViewerDisplay viewerName={viewerName} fileItem={fileState} />
           </div>
         </ErrorBoundary>
       </React.Suspense>
     </Fragment>
-  );
-};
+  )
+}
 
-export default FileDetailView;
+export default FileDetailView

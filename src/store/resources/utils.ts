@@ -61,6 +61,7 @@ export function getStatusLabels(
     finish: waitingStatus,
     error:
       previousStatus === 'cancelled' || previousStatus === 'finishedWithError',
+    icon: AiFillClockCircle,
   }
 
   status[1] = {
@@ -70,8 +71,9 @@ export function getStatusLabels(
         ? true
         : false,
     wait: status[0].finish !== true,
-    finish: currentLabel == 6 || (labels && labels.pushPath.status === true),
+    finish: currentLabel === 6 || (labels && labels.pushPath.status === true),
     error: error,
+    icon: GrInProgress,
   }
 
   status[2] = {
@@ -89,6 +91,7 @@ export function getStatusLabels(
         ? true
         : false,
     error: !labels && error,
+    icon: MdOutlineDownloading,
   }
 
   status[3] = {
@@ -112,6 +115,7 @@ export function getStatusLabels(
         ? true
         : false,
     error: !labels && error,
+    icon: AiFillRightCircle,
   }
 
   status[4] = {
@@ -126,6 +130,7 @@ export function getStatusLabels(
     wait: status[3].finish !== true,
     finish: currentLabel === 6 || (labels && labels.pullPath.status === true),
     error: !labels && error,
+    icon: AiFillLeftCircle,
   }
 
   status[5] = {
@@ -137,17 +142,29 @@ export function getStatusLabels(
     wait: status[4].finish !== true,
     finish: currentLabel === 6 && labels && labels.pullPath.status === true,
     error: error,
+    icon: FaFileArchive,
   }
 
   status[6] = {
-    description: 'Finished',
+    description:
+      pluginStatus === 'finishedSuccessfully'
+        ? 'Finished Successfully'
+        : pluginStatus === 'cancelled'
+        ? 'Cancelled'
+        : pluginStatus === 'finishedWithError'
+        ? 'Finished With Error'
+        : 'Waiting to Finish',
     process: false,
     wait: status[5].finish !== true,
     finish: currentLabel === 6 && finishedStatuses.includes(pluginStatus),
     error: error,
+    icon:
+      pluginStatus === 'finishedSuccessfully'
+        ? AiFillCheckCircle
+        : pluginStatus === 'cancelled' || pluginStatus === 'finishedWithError'
+        ? MdError
+        : null,
   }
-
-  console.log(status, pluginStatus, labels, currentLabel)
 
   return status
 }

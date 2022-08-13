@@ -33,7 +33,7 @@ import FileDetailView from '../Preview/FileDetailView'
 import FileViewerModel from '../../../api/models/file-viewer.model'
 import { getFileExtension } from '../../../api/models/file-explorer.model'
 import { FileBrowserProps, FileBrowserState } from './types'
-import { DataNode } from '../../../store/explorer/types'
+
 import {
   setSelectedFile,
   setSelectedFolder,
@@ -44,7 +44,16 @@ import { Alert, Progress } from 'antd'
 import { file } from 'jszip'
 
 const FileBrowser = (props: FileBrowserProps) => {
-  const { pluginFilesPayload, handleFileClick, selected } = props
+  const {
+    pluginFilesPayload,
+    handleFileClick,
+    selected,
+    handleFileBrowserToggle,
+    handleDicomViewerOpen,
+    handleXtkViewerOpen,
+  } = props
+  const selectedFile = useTypedSelector((state) => state.explorer.selectedFile)
+  const dispatch = useDispatch()
 
   const { files, folders, path } = pluginFilesPayload
   const cols = [
@@ -141,8 +150,28 @@ const FileBrowser = (props: FileBrowserProps) => {
     )
   }
 
-  const rows =
-    files && folders ? [...files, ...folders].map(generateTableRow) : []
+  const items = files && folders ? [...files, ...folders] : []
+  const rows = items.map(generateTableRow)
+
+  const previewPanel = (
+    <>
+      {selectedFile && (
+        <>
+          <HeaderPanel
+            handleFileBrowserOpen={handleFileBrowserToggle}
+            handleDicomViewerOpen={handleDicomViewerOpen}
+            handleXtkViewerOpen={handleXtkViewerOpen}
+            expandDrawer={() => {
+              console.log('Expand')
+            }}
+            selectedFile={selectedFile}
+          />
+
+          <FileDetailView selectedFile={selectedFile} preview="small" />
+        </>
+      )}
+    </>
+  )
 
   return (
     <Grid hasGutter className="file-browser">
@@ -163,6 +192,13 @@ const FileBrowser = (props: FileBrowserProps) => {
           <div className="file-browser__header--breadcrumbContainer">
             <Breadcrumb>{breadcrumb.map(generateBreadcrumb)}</Breadcrumb>
           </div>
+          <div className="file-browser__header__info">
+            <span className="files-browser__header--fileCount">
+              {items.length > 1
+                ? `(${items.length} items)`
+                : `(${items.length} item)`}
+            </span>
+          </div>
         </div>
         <Table
           className="file-browser__table"
@@ -173,15 +209,33 @@ const FileBrowser = (props: FileBrowserProps) => {
         >
           <TableHeader />
           <TableBody
-            onRowClick={(event: any, rows: any) => {
-              if (typeof rows.name.title === 'string') {
+            onRowClick={(event: any, rows: any, rowData: any) => {
+              const rowIndex = rowData.rowIndex
+              const item = items[rowIndex]
+
+              if (typeof item === 'string') {
                 handleFileClick(`${path}/${rows.name.title}`)
               } else {
-                console.log('show preview')
+                dispatch(setSelectedFile(item))
               }
             }}
           />
         </Table>
+      </GridItem>
+      <GridItem
+        xl2={7}
+        xl2RowSpan={12}
+        xl={6}
+        xlRowSpan={12}
+        lg={8}
+        lgRowSpan={12}
+        md={8}
+        mdRowSpan={12}
+        sm={12}
+        smRowSpan={12}
+        className="file-browser__grid2"
+      >
+        {selectedFile && previewPanel}
       </GridItem>
     </Grid>
   )
@@ -205,4 +259,71 @@ const getIcon = (type: string) => {
     default:
       return <AiFillFile />
   }
+}
+
+interface HeaderPanelProps {
+  handleDicomViewerOpen: () => void
+  handleXtkViewerOpen: () => void
+  handleFileBrowserOpen: () => void
+  expandDrawer: (panel: string) => void
+  selectedFile: FeedFile
+}
+
+const HeaderPanel = (props: HeaderPanelProps) => {
+  const {
+    handleDicomViewerOpen,
+    handleXtkViewerOpen,
+    handleFileBrowserOpen,
+    expandDrawer,
+    selectedFile,
+  } = props
+
+  const imageFileTypes = ['dcm', 'png', 'jpg', 'nii', 'gz', 'jpeg']
+  const fileType = getFileExtension(selectedFile.data.fname)
+
+  return (
+    <div className="header-panel__buttons">
+      <div className="header-panel__buttons--toggleViewer">
+        <Button
+          variant="link"
+          onClick={handleFileBrowserOpen}
+          icon={<AiOutlineExpandAlt />}
+        >
+          Maximize
+        </Button>
+        {!fileType && (
+          <Alert
+            type="info"
+            message="Please select a file to see the list of available viewers"
+          />
+        )}
+        {fileType && imageFileTypes.includes(fileType) && (
+          <Button
+            variant="link"
+            onClick={handleDicomViewerOpen}
+            icon={<FaFilm />}
+          >
+            Open Image Viewer
+          </Button>
+        )}
+        {fileType && getXtkFileMode(fileType) && (
+          <Button
+            variant="link"
+            onClick={handleXtkViewerOpen}
+            icon={<BiHorizontalCenter />}
+          >
+            Open XTK Viewer
+          </Button>
+        )}
+      </div>
+      <div className="header-panel__buttons--togglePanel">
+        <Button
+          onClick={() => expandDrawer('bottom_panel')}
+          variant="tertiary"
+          type="button"
+          icon={<AiFillCloseCircle />}
+        />
+      </div>
+    </div>
+  )
 }

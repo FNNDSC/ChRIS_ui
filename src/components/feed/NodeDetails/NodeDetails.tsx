@@ -151,7 +151,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
       <div className="node-details">
         <div className="node-details__title">
           <PluginTitle />
-
           <FaWindowClose
             onClick={() => {
               expandDrawer('side_panel')
