@@ -5,7 +5,6 @@ import {
   SimpleListItem,
 } from '@patternfly/react-core'
 import React, { useState } from 'react'
-import { DataNode } from '../../../../store/explorer/types'
 import { FeedFile } from '@fnndsc/chrisapi'
 
 interface CrvFileSelectProps {

@@ -22,15 +22,22 @@ const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
     }
     case ExplorerActionTypes.SET_SELECTED_FILE: {
       const selectedFile = action.payload
-
       return {
         ...state,
         selectedFile,
       }
     }
 
+    case ExplorerActionTypes.CLEAR_SELECTED_FILE: {
+      return {
+        ...state,
+        selectedFile: undefined,
+      }
+    }
+
     case ExplorerActionTypes.SET_SELECTED_FOLDER: {
       const selectedFolder = action.payload
+
       return {
         ...state,
         selectedFolder,

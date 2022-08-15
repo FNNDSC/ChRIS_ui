@@ -14,12 +14,6 @@ export interface FileBrowserProps {
   handleDicomViewerOpen: () => void
   handleXtkViewerOpen: () => void
   expandDrawer: (panel: string) => void
-  /*
-  download: {
-    status: boolean
-    count: number
-  }
-  */
 }
 
 export interface FileBrowserState {
