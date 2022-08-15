@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTypedSelector } from '../../../store/hooks'
 import { useDispatch } from 'react-redux'
-import { Tree } from 'antd'
+import { Tree, TreeDataNode } from 'antd'
 import {
   GridItem,
   Grid,
@@ -11,55 +11,40 @@ import {
 import { Key } from '../../../store/explorer/types'
 import FileDetailView from '../../feed/Preview/FileDetailView'
 import { setSelectedFile } from '../../../store/explorer/actions'
+import { FeedFile } from '@fnndsc/chrisapi'
+import { DataNode } from 'antd/lib/tree'
+import FeedOutputBrowser from '../../feed/FeedOutputBrowser/FeedOutputBrowser'
+
+const createTreeFromFiles = (files: FeedFile[]) => {
+  return files.map((file) => {
+    return {
+      key: file.data.id,
+      title: file.data.fname,
+    }
+  })
+}
 
 const FileBrowserViewer = () => {
-  return <div>File Browser Viewer</div>
+  const onNodeClick = () => {
+    console.log('Node')
+  }
 
-  /*
-  const { explorer, selectedFile } = useTypedSelector(
-    (state) => state.explorer
-  );
-  const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
-  );
-  const dispatch = useDispatch();
-
-  const onSelect = (selectedKeys: Key[], info: any) => {
-    dispatch(setSelectedFile(info.node));
-  };
-
-  const splitPath = selectedPlugin?.data.output_path.split("/");
-  const breadcrumbItems = splitPath.slice(0, splitPath.length - 1);
-
-  const selectedKeys = selectedFile ? [selectedFile.key] : [];
+  const onClick = (panel: string) => {
+    if (panel === 'side_panel') {
+    } else if (panel === 'bottom_panel') {
+    }
+  }
 
   return (
     <Grid>
-      <GridItem className="pf-u-p-sm" sm={12} md={4}>
-        <Breadcrumb>
-          {breadcrumbItems.map((item: string, index: number) => {
-            return <BreadcrumbItem key={index}>{item}</BreadcrumbItem>;
-          })}
-        </Breadcrumb>
-        <Tree
-          defaultExpandedKeys={selectedKeys}
-          selectedKeys={selectedKeys}
-          treeData={explorer}
-          onSelect={onSelect}
-          showLine
+      <GridItem>
+        <FeedOutputBrowser
+          expandDrawer={onClick}
+          handlePluginSelect={onNodeClick}
         />
       </GridItem>
-      <GridItem sm={12} md={8}>
-        {selectedFile && selectedFile.file && (
-          <FileDetailView
-            selectedFile={selectedFile.file}
-            preview="large"
-          />
-        )}
-      </GridItem>
     </Grid>
-  );
-  */
+  )
 }
 
 export default FileBrowserViewer

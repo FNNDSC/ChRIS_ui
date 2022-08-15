@@ -9,7 +9,7 @@ export const setExplorerRequest = (tree: DataNode[]) =>
 export const setSelectedFile = (selectedFile: FeedFile) =>
   action(ExplorerActionTypes.SET_SELECTED_FILE, selectedFile)
 
-export const setSelectedFolder = (selectedFolder: DataNode[]) =>
+export const setSelectedFolder = (selectedFolder: FeedFile[]) =>
   action(ExplorerActionTypes.SET_SELECTED_FOLDER, selectedFolder)
 
 export const setExplorerMode = (mode: ExplorerMode) =>
@@ -29,3 +29,6 @@ export const clearFilesForGallery = () =>
 
 export const setExternalFiles = (files: any) =>
   action(ExplorerActionTypes.EXTERNAL_FILES, files)
+
+export const clearSelectedFile = () =>
+  action(ExplorerActionTypes.CLEAR_SELECTED_FILE)

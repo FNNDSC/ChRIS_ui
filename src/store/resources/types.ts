@@ -87,6 +87,7 @@ export interface IResourceState {
   pluginInstanceResource: PluginInstanceResourcePayload
   pluginFiles: FilesPayload
   url: string
+  loading: boolean
 }
 
 export const ResourceTypes = keyMirror({

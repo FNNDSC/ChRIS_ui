@@ -1,10 +1,9 @@
 import React from 'react'
 import { SimpleList, SimpleListItem } from '@patternfly/react-core'
-import { DataNode } from '../../../../store/explorer/types'
 import { FeedFile } from '@fnndsc/chrisapi'
 
 interface FsmFileSelectProps {
-  files: DataNode[]
+  files: FeedFile[]
   handleSelect: (file: FeedFile) => void
 }
 
@@ -21,10 +20,10 @@ const FsmFileSelect = (props: FsmFileSelectProps) => {
       className="fsm-file-list"
     >
       {files.map((file) => {
-        const id = file.file?.data.id
+        const id = file.data.id
         return (
           <SimpleListItem key={id} x-file={file}>
-            {file.title}
+            {file.data.fname}
           </SimpleListItem>
         )
       })}

@@ -7,6 +7,7 @@ export const initialState: IResourceState = {
   pluginInstanceResource: {},
   pluginFiles: {},
   url: '',
+  loading: false,
 }
 
 const reducer: Reducer<IResourceState> = (state = initialState, action) => {
@@ -22,6 +23,13 @@ const reducer: Reducer<IResourceState> = (state = initialState, action) => {
             status,
           },
         },
+      }
+    }
+
+    case ResourceTypes.GET_PLUGIN_FILES_REQUEST: {
+      return {
+        ...state,
+        loading: true,
       }
     }
 
@@ -56,8 +64,8 @@ const reducer: Reducer<IResourceState> = (state = initialState, action) => {
 
       return {
         ...state,
+        loading: false,
         pluginFiles: {
-          ...state.pluginFiles,
           [id]: {
             files,
             folders,
@@ -72,6 +80,7 @@ const reducer: Reducer<IResourceState> = (state = initialState, action) => {
       const { id, error } = action.payload
       return {
         ...state,
+        loading: false,
         pluginFiles: {
           ...state.pluginFiles,
           [id]: {

@@ -32,11 +32,11 @@ import {
 import FileDetailView from '../Preview/FileDetailView'
 import FileViewerModel from '../../../api/models/file-viewer.model'
 import { getFileExtension } from '../../../api/models/file-explorer.model'
-import { FileBrowserProps, FileBrowserState } from './types'
+import { FileBrowserProps, } from './types'
 
 import {
+  clearSelectedFile,
   setSelectedFile,
-  setSelectedFolder,
 } from '../../../store/explorer/actions'
 import { BiHorizontalCenter } from 'react-icons/bi'
 import { getXtkFileMode } from '../../detailedView/displays/XtkViewer/XtkViewer'
@@ -56,16 +56,10 @@ const FileBrowser = (props: FileBrowserProps) => {
   const dispatch = useDispatch()
 
   const { files, folders, path } = pluginFilesPayload
-  const cols = [
-    { title: '' },
-    { title: 'Name', transforms: [cellWidth(40)], cellTransforms: [truncate] },
-    { title: 'Creation Date' },
-    { title: 'Size' },
-    { title: '' },
-  ]
+  const cols = [{ title: 'Name' }, { title: 'Size' }, { title: '' }]
 
   const generateTableRow = (item: string | FeedFile) => {
-    let type, icon, date, fsize, fileName
+    let type, icon, fsize, fileName
     type = 'UNKNOWN FORMAT'
 
     if (typeof item === 'string') {
@@ -79,23 +73,17 @@ const FileBrowser = (props: FileBrowserProps) => {
       }
       fsize = item.data.fsize
       icon = getIcon(type)
-      date = item.data.creation_date
     }
 
-    const iconRow = {
-      title: icon,
-    }
-
-    const creationDate = (
-      <Moment format="DD MMM YYYY , HH:mm">
-        {
-          //@ts-ignore
-          date && date
-        }
-      </Moment>
+    const fileNameComponent = (
+      <div>
+        <span>{icon}</span>
+        <span>{fileName}</span>
+      </div>
     )
+
     const name = {
-      title: fileName,
+      title: fileNameComponent,
     }
 
     const size = {
@@ -106,12 +94,8 @@ const FileBrowser = (props: FileBrowserProps) => {
       title: <MdFileDownload className="download-file-icon" />,
     }
 
-    const creation_date = {
-      title: creationDate,
-    }
-
     return {
-      cells: [iconRow, name, creation_date, size, download],
+      cells: [name, size, download],
     }
   }
 
@@ -121,6 +105,7 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const generateBreadcrumb = (value: string, index: number) => {
     const onClick = (e: React.MouseEvent) => {
+      dispatch(clearSelectedFile())
       if (index === breadcrumb.length - 1) {
         return
       } else {
@@ -166,7 +151,6 @@ const FileBrowser = (props: FileBrowserProps) => {
             }}
             selectedFile={selectedFile}
           />
-
           <FileDetailView selectedFile={selectedFile} preview="small" />
         </>
       )}
@@ -201,7 +185,6 @@ const FileBrowser = (props: FileBrowserProps) => {
           </div>
         </div>
         <Table
-          className="file-browser__table"
           aria-label="file-browser-table"
           variant="compact"
           cells={cols}
@@ -210,11 +193,11 @@ const FileBrowser = (props: FileBrowserProps) => {
           <TableHeader />
           <TableBody
             onRowClick={(event: any, rows: any, rowData: any) => {
+              dispatch(clearSelectedFile())
               const rowIndex = rowData.rowIndex
               const item = items[rowIndex]
-
               if (typeof item === 'string') {
-                handleFileClick(`${path}/${rows.name.title}`)
+                handleFileClick(`${path}/${item}`)
               } else {
                 dispatch(setSelectedFile(item))
               }

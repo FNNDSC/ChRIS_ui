@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from '@patternfly/react-core'
 import { AiOutlineExpand } from 'react-icons/ai'
-import { DataNode } from '../../../../store/explorer/types'
+import { FeedFile } from '@fnndsc/chrisapi'
 import { useTypedSelector } from '../../../../store/hooks'
 import FsmFileSelect from './PrimaryFileSelect'
 import CrvFileSelect from './CrvFileSelect'
 import './xtk-viewer.scss'
-import { FeedFile } from '@fnndsc/chrisapi'
 
 // X and dat are loaded in from script file
 declare const X: any
@@ -44,7 +43,7 @@ const XtkViewer = () => {
   const directoryFiles =
     useTypedSelector((state) => state.explorer.selectedFolder) || []
   const crvFiles = directoryFiles.filter((file) => {
-    const fileName = file.file?.data.fname
+    const fileName = file.data.fname
     return fileName?.endsWith('.crv')
   })
 
@@ -231,7 +230,6 @@ const XtkViewer = () => {
           <div className="xtk-controls">
             {viewerMode === 'mesh' ? (
               <div className="additional-files">
-                {/*
                 <CrvFileSelect
                   files={crvFiles}
                   selectedFile={crvFile}
@@ -243,8 +241,6 @@ const XtkViewer = () => {
                   selectedFile={secondaryFile}
                   handleSelect={setSecondaryFile}
                 />
-
-                  */}
               </div>
             ) : (
               <div className="volume-mode">

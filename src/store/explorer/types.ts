@@ -73,7 +73,7 @@ export enum ExplorerMode {
 export interface IExplorerState {
   explorer?: DataNode[]
   selectedFile?: FeedFile
-  selectedFolder?: DataNode[]
+  selectedFolder?: FeedFile[]
   mode: ExplorerMode
   enableDcmTool: boolean
   files: any[]
@@ -83,6 +83,7 @@ export interface IExplorerState {
 export const ExplorerActionTypes = keyMirror({
   SET_EXPLORER_REQUEST: null,
   SET_SELECTED_FILE: null,
+  CLEAR_SELECTED_FILE: null,
   SET_GALLERY_FILES: null,
   SET_SELECTED_FOLDER: null,
   SET_EXPLORER_MODE: null,

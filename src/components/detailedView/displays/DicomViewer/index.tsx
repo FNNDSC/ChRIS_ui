@@ -41,7 +41,7 @@ const DicomViewerContainer = () => {
       const imageIds: string[] = []
       let niftiSlices = 0
       for (let i = 0; i < files.length; i++) {
-        const selectedFile = files[i].file
+        const selectedFile = files[i]
 
         const fileTypes = ['jpeg', 'jpg', 'png']
         if (selectedFile) {
