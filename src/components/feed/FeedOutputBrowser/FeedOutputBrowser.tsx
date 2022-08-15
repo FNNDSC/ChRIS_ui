@@ -95,6 +95,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     dispatch(clearSelectedFile())
     setFolder()
     setPluginModalOpen(!pluginModalOpen)
+    dispatch(setExplorerMode(ExplorerMode.SwiftFileBrowser))
   }
 
   const handlePluginModalClose = () => {

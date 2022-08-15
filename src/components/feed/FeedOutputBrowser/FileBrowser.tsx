@@ -10,7 +10,7 @@ import {
   GridItem,
   Button,
 } from '@patternfly/react-core'
-
+import { bytesToSize } from './utils'
 import { FeedFile } from '@fnndsc/chrisapi'
 import { MdFileDownload } from 'react-icons/md'
 import {
@@ -22,18 +22,11 @@ import {
   AiFillCloseCircle,
 } from 'react-icons/ai'
 import { FaFileCode, FaFilm } from 'react-icons/fa'
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  cellWidth,
-  truncate,
-} from '@patternfly/react-table'
+import { Table, TableHeader, TableBody } from '@patternfly/react-table'
 import FileDetailView from '../Preview/FileDetailView'
 import FileViewerModel from '../../../api/models/file-viewer.model'
 import { getFileExtension } from '../../../api/models/file-explorer.model'
-import { FileBrowserProps, } from './types'
-
+import { FileBrowserProps } from './types'
 import {
   clearSelectedFile,
   setSelectedFile,
@@ -41,7 +34,6 @@ import {
 import { BiHorizontalCenter } from 'react-icons/bi'
 import { getXtkFileMode } from '../../detailedView/displays/XtkViewer/XtkViewer'
 import { Alert, Progress } from 'antd'
-import { file } from 'jszip'
 
 const FileBrowser = (props: FileBrowserProps) => {
   const {
@@ -58,9 +50,11 @@ const FileBrowser = (props: FileBrowserProps) => {
   const { files, folders, path } = pluginFilesPayload
   const cols = [{ title: 'Name' }, { title: 'Size' }, { title: '' }]
 
+  const items = files && folders ? [...files, ...folders] : []
   const generateTableRow = (item: string | FeedFile) => {
     let type, icon, fsize, fileName
     type = 'UNKNOWN FORMAT'
+    const isPreviewing = selectedFile === item
 
     if (typeof item === 'string') {
       type = 'dir'
@@ -71,12 +65,17 @@ const FileBrowser = (props: FileBrowserProps) => {
       if (fileName.indexOf('.') > -1) {
         type = fileName.split('.').splice(-1)[0].toUpperCase()
       }
-      fsize = item.data.fsize
+      fsize = bytesToSize(item.data.fsize)
       icon = getIcon(type)
     }
 
     const fileNameComponent = (
-      <div>
+      <div
+        className={classNames(
+          'file-browser__table--fileName',
+          isPreviewing && 'file-browser__table--isPreviewing',
+        )}
+      >
         <span>{icon}</span>
         <span>{fileName}</span>
       </div>
@@ -98,6 +97,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       cells: [name, size, download],
     }
   }
+  const rows = items.map(generateTableRow)
 
   const { id, plugin_name } = selected.data
   const pathSplit = path && path.split(`/${plugin_name}_${id}/`)
@@ -134,9 +134,6 @@ const FileBrowser = (props: FileBrowserProps) => {
       </BreadcrumbItem>
     )
   }
-
-  const items = files && folders ? [...files, ...folders] : []
-  const rows = items.map(generateTableRow)
 
   const previewPanel = (
     <>
