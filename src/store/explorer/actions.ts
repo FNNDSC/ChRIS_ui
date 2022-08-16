@@ -1,15 +1,15 @@
 import { action } from 'typesafe-actions'
 import { ExplorerActionTypes, ExplorerMode } from './types'
-
+import { FeedFile } from '@fnndsc/chrisapi'
 import { DataNode } from './types'
 
 export const setExplorerRequest = (tree: DataNode[]) =>
   action(ExplorerActionTypes.SET_EXPLORER_REQUEST, tree)
 
-export const setSelectedFile = (selectedFile: DataNode) =>
+export const setSelectedFile = (selectedFile: FeedFile) =>
   action(ExplorerActionTypes.SET_SELECTED_FILE, selectedFile)
 
-export const setSelectedFolder = (selectedFolder: DataNode[]) =>
+export const setSelectedFolder = (selectedFolder: FeedFile[]) =>
   action(ExplorerActionTypes.SET_SELECTED_FOLDER, selectedFolder)
 
 export const setExplorerMode = (mode: ExplorerMode) =>
@@ -29,3 +29,6 @@ export const clearFilesForGallery = () =>
 
 export const setExternalFiles = (files: any) =>
   action(ExplorerActionTypes.EXTERNAL_FILES, files)
+
+export const clearSelectedFile = () =>
+  action(ExplorerActionTypes.CLEAR_SELECTED_FILE)

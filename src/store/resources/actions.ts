@@ -22,11 +22,13 @@ export const getPluginInstanceStatusSuccess = (statusPayload: {
 export const stopFetchingStatusResources = (id: number) =>
   action(ResourceTypes.STOP_FETCHING_STATUS_RESOURCES, id)
 
-export const getPluginFilesRequest = (selected: PluginInstance) =>
-  action(ResourceTypes.GET_PLUGIN_FILES_REQUEST, selected)
+export const getPluginFilesRequest = (payload: { id: number; path: string }) =>
+  action(ResourceTypes.GET_PLUGIN_FILES_REQUEST, payload)
 export const getPluginFilesSuccess = (filesPayload: {
   id: number
   files: any[]
+  folders: any[]
+  path: string
 }) => action(ResourceTypes.GET_PLUGIN_FILES_SUCCESS, filesPayload)
 export const getPluginFilesError = (payload: { id: number; error: any }) =>
   action(ResourceTypes.GET_PLUGIN_FILES_ERROR, payload)

@@ -1,50 +1,52 @@
-import React from "react";
-import { Skeleton } from "@patternfly/react-core";
-import usePluginInstanceResource from "./usePluginInstanceResource";
-import { PluginStatus } from "../../../store/resources/types";
+import React from 'react'
+import { Skeleton } from '@patternfly/react-core'
+import usePluginInstanceResource from './usePluginInstanceResource'
+
 
 const StatusTitle = () => {
-  const pluginInstanceResource = usePluginInstanceResource();
+  const pluginInstanceResource = usePluginInstanceResource()
 
   let statusTitle:
     | {
-        title: string;
-        icon: any;
+        title: string
+        icon: any
       }
-    | undefined = undefined;
+    | undefined = undefined
   const pluginStatus =
-    pluginInstanceResource && pluginInstanceResource.pluginStatus;
+    pluginInstanceResource && pluginInstanceResource.pluginStatus
 
   if (pluginStatus) {
-    statusTitle = getCurrentTitleFromStatus(pluginStatus);
+    statusTitle = getCurrentTitleFromStatus(pluginStatus)
   }
 
   if (statusTitle) {
     return (
       <>
         <span>{<statusTitle.icon />}</span>
-        <span>{statusTitle.title} </span>{" "}
+        <span>{statusTitle.title} </span>{' '}
       </>
-    );
+    )
   } else
     return (
       <Skeleton
         width="15%"
         screenreaderText="Fetching plugin's execution status"
       />
-    );
-};
+    )
+}
 
-export default React.memo(StatusTitle);
+export default React.memo(StatusTitle)
 
-function getCurrentTitleFromStatus(statusLabels: PluginStatus[]) {
-  const title = statusLabels
-    .map((label) => {
-      if (label.isCurrentStep === true) {
-        return { title: label.title, icon: label.icon };
-      } else return undefined;
-    })
-    .filter((label) => label && label);
+export function getCurrentTitleFromStatus(statusLabels: any[]) {
+  const length = statusLabels.length
+  let title = statusLabels[length - 1].description
+  let icon = statusLabels[length - 1].icon
+  statusLabels.forEach((label) => {
+    if (label.process === true) {
+      title = label.description
+      icon = label.icon
+    }
+  })
 
-  return title[0];
+  return { title, icon }
 }
