@@ -14,8 +14,6 @@ import PluginViewerModal from '../../detailedView/PluginViewerModal'
 import { PluginInstance, } from '@fnndsc/chrisapi'
 import { getFeedTree } from './data'
 import { DataNode, } from '../../../store/explorer/types'
-import { generateTableLoading } from '../../common/emptyTable'
-
 import './FeedOutputBrowser.scss'
 import { useFeedBrowser } from './useFeedBrowser'
 
