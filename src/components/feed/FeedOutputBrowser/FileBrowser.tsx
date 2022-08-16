@@ -36,6 +36,7 @@ import {
 import { BiHorizontalCenter } from 'react-icons/bi'
 import { getXtkFileMode } from '../../detailedView/displays/XtkViewer/XtkViewer'
 import { Alert, Progress } from 'antd'
+import { generateTableLoading } from '../../common/emptyTable'
 
 const FileBrowser = (props: FileBrowserProps) => {
   const {
@@ -47,7 +48,8 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleXtkViewerOpen,
     downloadAllClick,
     download,
-    expandDrawer
+    expandDrawer,
+    filesLoading
   } = props
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile)
   const dispatch = useDispatch()
@@ -104,7 +106,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       title: fsize,
     }
 
-    const downloadComponent = typeof item === 'string' ? <span>N/A</span> : <MdFileDownload className="download-file-icon"
+    const downloadComponent = typeof item === 'string' ? undefined : <MdFileDownload className="download-file-icon"
       onClick={(e: any) => handleDownloadClick(e, item)}
     />
 
@@ -116,7 +118,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       cells: [name, size, download],
     }
   }
-  const rows = items.map(generateTableRow)
+  const rows = items.length > 0 ? items.map(generateTableRow) : []
 
   const { id, plugin_name } = selected.data
   const pathSplit = path && path.split(`/${plugin_name}_${id}/`)
@@ -209,6 +211,13 @@ const FileBrowser = (props: FileBrowserProps) => {
               </HelperTextItem>
             </HelperText>
           }
+          {
+            filesLoading && <HelperText>
+              <HelperTextItem>
+                Fetchiles files under the path: {path}
+              </HelperTextItem>
+            </HelperText>
+          }
 
           <div className="file-browser__header__info">
             <span className="files-browser__header--fileCount">
@@ -238,7 +247,7 @@ const FileBrowser = (props: FileBrowserProps) => {
           rows={rows}
         >
           <TableHeader />
-          <TableBody
+          {filesLoading ? generateTableLoading() : <TableBody
             onRowClick={(event: any, rows: any, rowData: any) => {
               dispatch(clearSelectedFile())
               const rowIndex = rowData.rowIndex
@@ -249,7 +258,8 @@ const FileBrowser = (props: FileBrowserProps) => {
                 dispatch(setSelectedFile(item))
               }
             }}
-          />
+          />}
+
         </Table>
       </GridItem>
       <GridItem
