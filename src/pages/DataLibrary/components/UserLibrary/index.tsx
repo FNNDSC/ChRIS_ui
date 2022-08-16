@@ -648,34 +648,35 @@ const UploadComponent = ({
         }}
         localFiles={[]}
         dispatchFn={async (files) => {
-          handleLocalFiles(files)
           if (!directoryName) {
             setWarning('Please add a directory name')
           } else {
             if (directoryName) {
               handleAddFolder(directoryName)
-            }
-            const client = ChrisAPIClient.getClient()
-            const path = `${username}/uploads/${directoryName}`
-            for (let i = 0; i < files.length; i++) {
-              const file = files[i]
-              await client.uploadFile(
-                {
-                  upload_path: `${path}/${file.name}`,
-                },
-                {
-                  fname: (file as LocalFile).blob,
-                },
-              )
-              setCount(i + 1)
+              handleLocalFiles(files)
+              const client = ChrisAPIClient.getClient()
+              const path = `${username}/uploads/${directoryName}`
+              for (let i = 0; i < files.length; i++) {
+                const file = files[i]
+                await client.uploadFile(
+                  {
+                    upload_path: `${path}/${file.name}`,
+                  },
+                  {
+                    fname: (file as LocalFile).blob,
+                  },
+                )
+                setCount(i + 1)
+              }
+
+              /** Temporary Timer */
+
+              setTimeout(() => {
+                setDirectoryName('')
+                handleFileModal()
+              }, 1000)
             }
 
-            /** Temporary Timer */
-
-            setTimeout(() => {
-              setDirectoryName('')
-              handleFileModal()
-            }, 500)
           }
         }}
       />
