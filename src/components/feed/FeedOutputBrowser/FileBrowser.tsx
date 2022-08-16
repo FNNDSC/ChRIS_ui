@@ -210,15 +210,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                 Download files under the path: {download.path}
               </HelperTextItem>
             </HelperText>
-          }
-          {
-            filesLoading && <HelperText>
-              <HelperTextItem>
-                Fetchiles files under the path: {path}
-              </HelperTextItem>
-            </HelperText>
-          }
-
+          } 
           <div className="file-browser__header__info">
             <span className="files-browser__header--fileCount">
               {items.length > 1
