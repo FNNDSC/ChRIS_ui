@@ -21,6 +21,7 @@ export interface FileBrowserProps {
     path: string;
   };
   pluginModalOpen: boolean;
+  filesLoading: boolean;
 }
 
 export interface FileBrowserState {

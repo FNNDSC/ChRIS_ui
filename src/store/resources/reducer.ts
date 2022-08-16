@@ -69,11 +69,11 @@ const reducer: Reducer<IResourceState> = (state = initialState, action) => {
           [id]: {
             files,
             folders,
-            error: '',
+            error: "",
             path,
           },
         },
-      }
+      };
     }
 
     case ResourceTypes.GET_PLUGIN_FILES_ERROR: {

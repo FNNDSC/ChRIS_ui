@@ -36,7 +36,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     handleDicomViewerOpen, handleXtkViewerOpen, downloadAllClick, download,
     handlePluginModalClose, pluginModalOpen, filesLoading
   } = useFeedBrowser();
-
   return (
     <>
       <Grid className="feed-output-browser ">
@@ -97,12 +96,11 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 download={download}
                 downloadAllClick={downloadAllClick}
                 pluginModalOpen={pluginModalOpen}
+                filesLoading={filesLoading}
               />
             ) : statusTitle && statusTitle.title ? (
-              <FetchFilesLoader title={statusTitle.title} />
-            ) : filesLoading ? (
-              generateTableLoading()
-            ) : (
+                <FetchFilesLoader title={statusTitle.title} />
+              ) : (
               <EmptyStateLoader />
             )}
           </React.Suspense>
@@ -129,12 +127,10 @@ const SidebarTree = (props: {
     const pluginSidebarTree = getFeedTree(plugins)
     //@ts-ignore
     setTreeData(pluginSidebarTree)
-  }, [plugins])
+  }, [plugins, selected])
 
   return (
     <DirectoryTree
-      multiple
-      defaultExpandAll
       treeData={tree}
       selectedKeys={[selected.data.id]}
       onSelect={(node, selectedNode) => {
