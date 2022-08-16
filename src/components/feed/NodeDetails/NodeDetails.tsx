@@ -7,7 +7,7 @@ import {
   Skeleton,
   ExpandableSection,
 } from '@patternfly/react-core'
-import { useDispatch } from 'react-redux'
+
 import { Popover } from 'antd'
 import {
   Plugin,

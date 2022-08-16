@@ -1,11 +1,7 @@
 /**
  * Utils to be abstracted out
  */
-import { PluginInstance, FeedFile } from '@fnndsc/chrisapi'
-import { each, find } from 'lodash'
-import { DataNode } from '../../../../store/explorer/types'
-
-
+import { PluginInstance } from "@fnndsc/chrisapi";
 
 export function bytesToSize(bytes: number) {
   const sizes: string[] = ['B', 'KB', 'MB', 'GB', 'TB']
