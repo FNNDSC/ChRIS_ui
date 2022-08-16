@@ -1,7 +1,5 @@
 import React from 'react'
-import { useTypedSelector } from '../../../store/hooks'
-import { useDispatch } from 'react-redux'
-import JSZip from 'jszip'
+
 import {
   Grid,
   GridItem,
@@ -13,19 +11,13 @@ import {
 } from '@patternfly/react-core'
 import { Spin, Alert, Tree } from 'antd'
 import PluginViewerModal from '../../detailedView/PluginViewerModal'
-import {
-  clearSelectedFile,
-  setExplorerMode,
-  setSelectedFolder,
-} from '../../../store/explorer/actions'
-import { getPluginFilesRequest } from '../../../store/resources/actions'
-import { PluginInstance, FeedFile } from '@fnndsc/chrisapi'
+import { PluginInstance, } from '@fnndsc/chrisapi'
 import { getFeedTree } from './data'
-import { DataNode, ExplorerMode } from '../../../store/explorer/types'
-import './FeedOutputBrowser.scss'
-import usePluginInstanceResource from '../NodeDetails/usePluginInstanceResource'
-import { getCurrentTitleFromStatus } from '../NodeDetails/StatusTitle'
+import { DataNode, } from '../../../store/explorer/types'
 import { generateTableLoading } from '../../common/emptyTable'
+
+import './FeedOutputBrowser.scss'
+import { useFeedBrowser } from './useFeedBrowser'
 
 const FileBrowser = React.lazy(() => import('./FileBrowser'))
 const { DirectoryTree } = Tree
@@ -39,86 +31,11 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   handlePluginSelect,
   expandDrawer,
 }) => {
-  const [pluginModalOpen, setPluginModalOpen] = React.useState(false)
-  const pluginInstanceResource = usePluginInstanceResource()
-  const pluginStatus =
-    pluginInstanceResource && pluginInstanceResource.pluginStatus
-  const dispatch = useDispatch()
-  const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances,
-  )
-  const { pluginFiles, loading: filesLoading } = useTypedSelector(
-    (state) => state.resource,
-  )
-  const selected = useTypedSelector((state) => state.instance.selectedPlugin)
-  const { data: plugins, loading: pluginInstanceLoading } = pluginInstances
-
-  const pluginFilesPayload = selected && pluginFiles[selected.data.id]
-  const status = ['finishedSuccessfully', 'finishedWithError', 'cancelled']
-  let statusTitle:
-    | {
-        title: string
-        icon: any
-      }
-    | undefined = undefined
-  if (pluginStatus) {
-    statusTitle = getCurrentTitleFromStatus(pluginStatus)
-  }
-
-  const finished = selected && status.includes(selected.data.status)
-
-  React.useEffect(() => {
-    if (!(pluginFilesPayload && pluginFilesPayload.files)) {
-      if (selected && status.includes(selected.data.status)) {
-        dispatch(
-          getPluginFilesRequest({
-            id: selected.data.id,
-            path: selected.data.output_path,
-          }),
-        )
-      }
-    }
-  }, [selected, finished])
-
-  const handleFileClick = (path: string) => {
-    if (selected) {
-      dispatch(
-        getPluginFilesRequest({
-          id: selected.data.id,
-          path,
-        }),
-      )
-    }
-  }
-
-  const handleFileBrowserOpen = () => {
-    dispatch(clearSelectedFile())
-    setFolder()
-    setPluginModalOpen(!pluginModalOpen)
-    dispatch(setExplorerMode(ExplorerMode.SwiftFileBrowser))
-  }
-
-  const handlePluginModalClose = () => {
-    setPluginModalOpen(!pluginModalOpen)
-  }
-
-  const setFolder = () => {
-    if (pluginFilesPayload && pluginFilesPayload.files) {
-      dispatch(setSelectedFolder(pluginFilesPayload.files))
-    }
-  }
-
-  const handleDicomViewerOpen = () => {
-    setFolder()
-    setPluginModalOpen(!pluginModalOpen)
-    dispatch(setExplorerMode(ExplorerMode.DicomViewer))
-  }
-
-  const handleXtkViewerOpen = () => {
-    setFolder()
-    setPluginModalOpen(!pluginModalOpen)
-    dispatch(setExplorerMode(ExplorerMode.XtkViewer))
-  }
+  const { plugins, selected, pluginFilesPayload, statusTitle,
+    handleFileClick, handleFileBrowserOpen,
+    handleDicomViewerOpen, handleXtkViewerOpen, downloadAllClick, download,
+    handlePluginModalClose, pluginModalOpen, filesLoading
+  } = useFeedBrowser();
 
   return (
     <>
@@ -168,7 +85,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               </div>
             }
           >
-            {pluginFilesPayload ? (
+            {pluginFilesPayload && selected ? (
               <FileBrowser
                 selected={selected}
                 handleFileClick={handleFileClick}
@@ -177,6 +94,9 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 handleDicomViewerOpen={handleDicomViewerOpen}
                 handleXtkViewerOpen={handleXtkViewerOpen}
                 expandDrawer={expandDrawer}
+                download={download}
+                downloadAllClick={downloadAllClick}
+                pluginModalOpen={pluginModalOpen}
               />
             ) : statusTitle && statusTitle.title ? (
               <FetchFilesLoader title={statusTitle.title} />
