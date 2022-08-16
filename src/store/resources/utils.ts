@@ -15,28 +15,36 @@ export function getStatusLabels(
   previousStatus: string,
 ) {
   const status = []
+  const pluginStatus = pluginDetails.data.status
 
-  const statusLabels = [
+  const endState =
+    pluginStatus === 'finishedWithError' ||
+    pluginStatus === 'cancelled' ||
+    pluginStatus === 'finishedSuccessfully'
+      ? pluginStatus
+      : 'waitingToFinish'
+
+  const startState =
+    pluginStatus === 'scheduled' || pluginStatus === 'started'
+      ? pluginStatus
+      : 'started'
+
+  const steps = [
     'waiting',
-    'scheduled',
-    'started',
+    startState,
+    'transmit',
     'compute',
     'syncData',
     'registeringFiles',
-    'finishedSuccessfully',
-    'finishedWithError',
-    'cancelled',
+    endState,
   ]
-  const pluginStatus = pluginDetails.data.status
 
-  const error =
-    pluginStatus === 'finishedWithError' || pluginStatus === 'cancelled'
-      ? true
-      : false
+  const currentLabel = steps.indexOf(pluginStatus)
 
-  const currentLabel = statusLabels.indexOf(pluginStatus)
+  const errorStatuses = ['finishedWithError', 'cancelled']
+  const error = errorStatuses.includes(pluginStatus)
+  const finishedStatuses = [...errorStatuses, 'finishedSuccessfully']
   let waitingStatus = false
-
   if (pluginDetails.data.plugin_type === 'fs') {
     waitingStatus = currentLabel > 0 ? true : false
   } else {
@@ -47,111 +55,97 @@ export function getStatusLabels(
   }
 
   status[0] = {
-    id: 1,
-    title: `${pluginStatus === 'created' ? 'Created' : 'Waiting'}`,
-    status: waitingStatus,
-    isCurrentStep:
-      pluginStatus === 'waiting' || pluginStatus === 'created' ? true : false,
-    error,
     description: 'Waiting',
+    process: pluginStatus === 'waiting',
+    wait: !finishedStatuses.includes(previousStatus),
+    finish: waitingStatus,
+    error:
+      previousStatus === 'cancelled' || previousStatus === 'finishedWithError',
     icon: AiFillClockCircle,
   }
 
   status[1] = {
-    id: 2,
-    title: 'Scheduling',
-    status: currentLabel > 1 && status[0].status === true ? true : false,
-    isCurrentStep: pluginStatus === 'scheduled' ? true : false,
-    error,
-    description: 'Scheduling',
+    description: 'Started',
+    process:
+      (pluginStatus === 'started' || pluginStatus === 'scheduled') && !labels
+        ? true
+        : false,
+    wait: status[0].finish !== true,
+    finish: currentLabel === 6 || (labels && labels.pushPath.status === true),
+    error: error,
     icon: GrInProgress,
   }
 
   status[2] = {
-    id: 3,
-    title: 'Transmitting',
-    status: labels && labels.pushPath.status === true ? true : false,
-    isCurrenStep:
-      pluginStatus === 'started' && labels?.pushPath.status !== true
+    description: 'Transmitting',
+    process:
+      pluginStatus === 'started' &&
+      labels &&
+      labels.pushPath.status !== true &&
+      currentLabel < 5
         ? true
         : false,
-    error,
-    description: 'Transmitting',
+    wait: status[1].finish !== true,
+    finish:
+      currentLabel === 6 || (labels && labels.pushPath.status === true)
+        ? true
+        : false,
+    error: !labels && error,
     icon: MdOutlineDownloading,
   }
 
   status[3] = {
-    id: 4,
-    title: 'Computing',
-    status:
-      labels?.compute.return.status === true &&
-      labels?.compute.submit.status === true &&
-      ['finishedSuccessfully', 'finishedWithError', 'cancelled'].includes(
-        labels?.compute.return.job_status,
-      )
-        ? true
-        : false,
-    isCurrentStep:
-      (labels?.compute.return.status !== true ||
-        labels?.compute.submit.status !== true) &&
-      labels?.pushPath.status === true
-        ? true
-        : false,
-    error,
     description: 'Computing',
+    process:
+      pluginStatus === 'started' &&
+      status[2].finish &&
+      ((labels && !labels.compute.return.status) ||
+        !labels.compute.submit.status)
+        ? true
+        : false,
+    wait: status[2].finish !== true,
+    finish:
+      currentLabel === 6 ||
+      (labels &&
+        labels.compute.return.status &&
+        labels.compute.submit.status &&
+        ['finishedSuccessfully', 'finishedWithError', 'cancelled'].includes(
+          labels?.compute.return.job_status,
+        ))
+        ? true
+        : false,
+    error: !labels && error,
     icon: AiFillRightCircle,
   }
 
   status[4] = {
-    id: 5,
-    title: 'Receiving',
-    status: labels?.pullPath.status === true ? true : false,
-    isCurrentStep:
-      labels?.compute.return.status === true && labels?.pullPath.status !== true
+    description: 'Receiving',
+    process:
+      pluginStatus === 'started' &&
+      labels &&
+      !labels.pullPath.status &&
+      status[3].finish === true
         ? true
         : false,
-    error,
-    description: 'Receiving',
+    wait: status[3].finish !== true,
+    finish: currentLabel === 6 || (labels && labels.pullPath.status === true),
+    error: !labels && error,
     icon: AiFillLeftCircle,
   }
 
   status[5] = {
-    id: 6,
-    title: 'Registering',
-    status:
-      statusLabels.indexOf(pluginStatus) > 5 && labels?.pullPath.status === true
-        ? true
-        : false,
-    isCurrentStep:
+    description: 'Registering Files',
+    process:
       pluginStatus === 'registeringFiles' &&
-      labels?.pullPath.status === true &&
-      statusLabels.indexOf(pluginStatus) > 2
-        ? true
-        : false,
-    error,
-    description: 'Registering',
+      status[4].finish &&
+      currentLabel > 1,
+    wait: status[4].finish !== true,
+    finish: currentLabel === 6 && labels && labels.pullPath.status === true,
+    error: error,
     icon: FaFileArchive,
   }
 
-  const cancelledStatus =
-    pluginStatus === 'cancelled' ||
-    pluginStatus === 'finishedWithError' ||
-    pluginStatus === 'finishedSuccessfully'
-      ? true
-      : false
-
   status[6] = {
-    id: 7,
-    title: `${
-      pluginStatus === 'finishedWithError'
-        ? `Finished With Error`
-        : pluginStatus === 'cancelled'
-        ? 'Cancelled'
-        : 'Finished Successfully'
-    }`,
-    status: cancelledStatus,
-    isCurrentStep: cancelledStatus,
-    error,
     description:
       pluginStatus === 'finishedSuccessfully'
         ? 'Finished Successfully'
@@ -160,6 +154,10 @@ export function getStatusLabels(
         : pluginStatus === 'finishedWithError'
         ? 'Finished With Error'
         : 'Waiting to Finish',
+    process: false,
+    wait: status[5].finish !== true,
+    finish: currentLabel === 6 && finishedStatuses.includes(pluginStatus),
+    error: error,
     icon:
       pluginStatus === 'finishedSuccessfully'
         ? AiFillCheckCircle

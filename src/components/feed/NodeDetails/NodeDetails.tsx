@@ -7,7 +7,7 @@ import {
   Skeleton,
   ExpandableSection,
 } from '@patternfly/react-core'
-import { useDispatch } from 'react-redux'
+
 import { Popover } from 'antd'
 import {
   Plugin,
@@ -151,7 +151,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
       <div className="node-details">
         <div className="node-details__title">
           <PluginTitle />
-
           <FaWindowClose
             onClick={() => {
               expandDrawer('side_panel')

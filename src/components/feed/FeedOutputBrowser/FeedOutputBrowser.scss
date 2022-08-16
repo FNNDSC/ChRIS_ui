@@ -55,15 +55,6 @@
       ) !important;
     }
 
-    tr > *:first-child {
-      padding: 0;
-      text-align: right;
-    }
-
-    .pf-m-truncate {
-      padding-left: 0 !important;
-    }
-
     &--isPreviewing {
       background: var(--pf-global--palette--blue-300);
       color: white;
@@ -144,7 +135,7 @@
     }
 
     .react-json-view {
-      height:100%;
+      height: 100%;
       overflow: scroll;
     }
   }

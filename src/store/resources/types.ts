@@ -56,7 +56,9 @@ export interface ResourcePayload {
 export interface FilesPayload {
   [id: string]: {
     files: FeedFile[]
+    folders: string[]
     error: any
+    path: string
   }
 }
 
@@ -85,6 +87,7 @@ export interface IResourceState {
   pluginInstanceResource: PluginInstanceResourcePayload
   pluginFiles: FilesPayload
   url: string
+  loading: boolean
 }
 
 export const ResourceTypes = keyMirror({
