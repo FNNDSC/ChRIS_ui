@@ -27,7 +27,11 @@ import { LocalFile } from '../../../../components/feed/CreateFeed/types'
 import { useTypedSelector } from '../../../../store/hooks'
 import { FileSelect, LibraryContext, Types } from './context'
 import { MainRouterContext } from '../../../../routes'
-import { clearSelectFolder, setFolders } from './context/actions'
+import {
+  clearSelectFolder,
+  setFolders,
+  setMultiColumnLayout,
+} from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'
 import { useDispatch } from 'react-redux'
 import { fetchResource } from '../../../../utils'
@@ -529,6 +533,18 @@ const DataLibrary = () => {
         >
           Upload Files
         </Button>
+        <Button
+          onClick={() => {
+            if (state.columnLayout === 'multi') {
+              dispatchLibrary(setMultiColumnLayout('single'))
+            } else {
+              dispatchLibrary(setMultiColumnLayout('multi'))
+            }
+          }}
+          variant="link"
+        >
+          Switch Column Layout
+        </Button>
       </div>
       <Tabs
         style={{
@@ -676,7 +692,6 @@ const UploadComponent = ({
                 handleFileModal()
               }, 1000)
             }
-
           }
         }}
       />

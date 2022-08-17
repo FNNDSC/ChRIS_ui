@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,6 +8,7 @@ import {
 } from '@patternfly/react-core'
 import { FaFolder, FaFolderOpen, FaUser, FaHome } from 'react-icons/fa'
 import { FcServices } from 'react-icons/fc'
+import { LibraryContext } from './context'
 
 export interface Breadcrumb {
   browserType: string
@@ -112,6 +113,7 @@ const BreadcrumbContainer = ({
               {folderDetails.totalCount} items
             </h4>
           </SplitItem>
+
           <SplitItem>
             <Button
               onClick={() => {

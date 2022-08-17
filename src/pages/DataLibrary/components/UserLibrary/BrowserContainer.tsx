@@ -38,6 +38,7 @@ const BrowserContainer = ({
     previewAll,
     search,
     fetchingResources,
+    columnLayout,
   } = state
 
   const resourcesFetch = React.useCallback(
@@ -199,6 +200,7 @@ const BrowserContainer = ({
                   folders={folders}
                   files={files}
                   browserType={type}
+                  columnLayout={columnLayout}
                 />
               )}
             </div>
@@ -240,6 +242,7 @@ export const SearchContainer = ({
     previewAll,
     searchPath,
     emptySetIndicator,
+    columnLayout,
   } = state
 
   const resources = searchedFoldersState[type]
@@ -280,6 +283,7 @@ export const SearchContainer = ({
             folders={searchFolders}
             files={files}
             browserType={type}
+            columnLayout={columnLayout}
           />
         </div>
       ) : (
@@ -303,6 +307,7 @@ export const SearchContainer = ({
                 folders={folders}
                 files={[]}
                 browserType={type}
+                columnLayout={columnLayout}
               />
             </div>
           )
