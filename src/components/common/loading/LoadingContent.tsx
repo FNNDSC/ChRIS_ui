@@ -1,21 +1,26 @@
-import React from 'react';
-import './loadingcontent.scss';
+import React from 'react'
+import { Spin } from 'antd'
+import './loadingcontent.scss'
 
 interface LoadingContentProps {
-  width?: string;
-  height?: string;
-  top?: string;
-  left?: string;
-  bottom?: string;
-  right?: string;
-  className?: string;
-  type?: string;
+  width?: string
+  height?: string
+  top?: string
+  left?: string
+  bottom?: string
+  right?: string
+  className?: string
+  type?: string
 }
 
-
-const LoadingContent = ({
-    width, height, top, left, bottom, right, className, type
-}:LoadingContentProps): React.ReactElement => {
+export const LoadingContent = ({
+  width,
+  height,
+  top,
+  left,
+  bottom,
+  right,
+}: LoadingContentProps): React.ReactElement => {
   const computedStyle = {
     width: width,
     height: height,
@@ -23,31 +28,35 @@ const LoadingContent = ({
     marginLeft: left,
     marginBottom: bottom,
     marginRight: right,
-  };
-
-  let addedClasses = className;
-  switch (type) {
-    case 'white':
-      addedClasses += ' white';
-      break;
-    default:
   }
 
-  return (
-    <div
-      className={`loading-content ${addedClasses}`}
-      style={computedStyle}
-    />
-  );
-};
+  return <div className={`loading-content `} style={computedStyle} />
+}
 
 LoadingContent.defaultProps = {
-  top: "0",
-  left: "0",
-  bottom: "0",
-  right: "0",
-  className: "",
-  type: "",
-};
+  top: '0',
+  left: '0',
+  bottom: '0',
+  right: '0',
+  className: '',
+  type: '',
+}
 
-export default LoadingContent;
+export const SpinContainer = ({
+  title,
+  background = 'rgba(0, 0, 0, 0.05)',
+}: {
+  title: string
+  background?: string
+}) => {
+  return (
+    <div
+      style={{
+        background,
+      }}
+      className="example"
+    >
+      <Spin tip={title} />
+    </div>
+  )
+}

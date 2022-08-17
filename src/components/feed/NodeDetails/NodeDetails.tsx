@@ -33,6 +33,7 @@ import { useTypedSelector } from '../../../store/hooks'
 import './NodeDetails.scss'
 import { getErrorCodeMessage } from './utils'
 import AddPipeline from '../AddPipeline/AddPipeline'
+import { SpinContainer } from '../../common/loading/LoadingContent'
 
 interface INodeProps {
   expandDrawer: (panel: string) => void
@@ -131,13 +132,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   }
 
   if (!selectedPlugin) {
-    return (
-      <Skeleton
-        height="75%"
-        width="75%"
-        screenreaderText="Loading Node details"
-      />
-    )
+    return <SpinContainer background="#002030" title="Loading Node Details" />
   } else {
     const Time = (
       <>

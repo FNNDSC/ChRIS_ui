@@ -1,23 +1,23 @@
-import React from "react";
-import { useDispatch } from "react-redux";
-import { Skeleton } from "@patternfly/react-core";
-import { setFeedTreeProp } from "../../../store/feed/actions";
-import { PluginInstance } from "@fnndsc/chrisapi";
-import FeedTree from "./FeedTree";
-import { getFeedTree, TreeNodeDatum, getTsNodes } from "./data";
+import React from 'react'
+import { useDispatch } from 'react-redux'
+import { SpinContainer } from '../../common/loading/LoadingContent'
+import { setFeedTreeProp } from '../../../store/feed/actions'
+import { PluginInstance } from '@fnndsc/chrisapi'
+import FeedTree from './FeedTree'
+import { getFeedTree, TreeNodeDatum, getTsNodes } from './data'
 
 interface ParentComponentProps {
-  onNodeClickTs: (node: PluginInstance) => void;
-  onNodeClick: (node: PluginInstance) => void;
-  isSidePanelExpanded: boolean;
-  isBottomPanelExpanded: boolean;
-  onExpand: (panel: string) => void;
-  instances?: PluginInstance[];
+  onNodeClickTs: (node: PluginInstance) => void
+  onNodeClick: (node: PluginInstance) => void
+  isSidePanelExpanded: boolean
+  isBottomPanelExpanded: boolean
+  onExpand: (panel: string) => void
+  instances?: PluginInstance[]
 }
 
 export type TSID = {
-  [key: string]: string[];
-};
+  [key: string]: string[]
+}
 
 const ParentComponent = (props: ParentComponentProps) => {
   const {
@@ -27,25 +27,25 @@ const ParentComponent = (props: ParentComponentProps) => {
     isBottomPanelExpanded,
     onExpand,
     instances,
-  } = props;
+  } = props
 
-  const [data, setData] = React.useState<TreeNodeDatum[]>([]);
-  const [tsIds, setTsIds] = React.useState<TSID>();
-  const dispatch = useDispatch();
+  const [data, setData] = React.useState<TreeNodeDatum[]>([])
+  const [tsIds, setTsIds] = React.useState<TSID>()
+  const dispatch = useDispatch()
 
   React.useEffect(() => {
     if (instances && instances.length > 0) {
-      const data = getFeedTree(instances);
+      const data = getFeedTree(instances)
       getTsNodes(instances).then((nodes) => {
-        setTsIds(nodes);
-      });
-      setData(data);
+        setTsIds(nodes)
+      })
+      setData(data)
     }
-  }, [instances]);
+  }, [instances])
 
   const changeOrientation = (orientation: string) => {
-    dispatch(setFeedTreeProp(orientation));
-  };
+    dispatch(setFeedTreeProp(orientation))
+  }
 
   return data && data.length > 0 ? (
     <FeedTree
@@ -70,9 +70,9 @@ const ParentComponent = (props: ParentComponentProps) => {
       onExpand={onExpand}
     />
   ) : (
-    <Skeleton height="75%" width="75%" screenreaderText="Loading Feed Tree" />
-  );
-};
+    <SpinContainer background="rgb(40, 45, 51)" title="Constructing the Feed Tree" />
+  )
+}
 
 export default React.memo(
   ParentComponent,
@@ -82,8 +82,8 @@ export default React.memo(
       prevProps.isSidePanelExpanded !== nextProps.isSidePanelExpanded ||
       prevProps.instances !== nextProps.instances
     ) {
-      return false;
+      return false
     }
-    return true;
-  }
-);
+    return true
+  },
+)
