@@ -25,6 +25,7 @@ import { resetActiveResources } from '../../../store/resources/actions'
 import { RouteComponentProps } from 'react-router-dom'
 import { PluginInstance } from '@fnndsc/chrisapi'
 import { DestroyActiveResources } from '../../../store/resources/types'
+import { SpinContainer } from '../../../components/common/loading/LoadingContent'
 
 const ParentComponent = React.lazy(() =>
   import('../../../components/feed/FeedTree/ParentComponent'),
@@ -164,11 +165,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
       {' '}
       <React.Suspense
         fallback={
-          <Skeleton
-            height="75%"
-            width="75%"
-            screenreaderText="Loading Node details"
-          />
+          <SpinContainer title="Fetching Selected Plugin Instance's details" />
         }
       >
         <NodeDetails expandDrawer={onClick} />
@@ -178,13 +175,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
 
   const feedOutputBrowserPanel = (
     <React.Suspense
-      fallback={
-        <Skeleton
-          height="100%"
-          width="100%"
-          screenreaderText="Fetching Plugin Resources"
-        />
-      }
+      fallback={<SpinContainer title="Fetching feed Resources" />}
     >
       <FeedOutputBrowser
         expandDrawer={onClick}
@@ -203,7 +194,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
         <DrawerContent
           panelContent={
             <DrawerPanelContent defaultSize="46vh" isResizable>
-              <PageSection className="section-three">
+              <PageSection variant="default" className="section-three">
                 {feedOutputBrowserPanel}
               </PageSection>
             </DrawerPanelContent>
@@ -219,8 +210,8 @@ export const FeedView: React.FC<FeedViewProps> = ({
                 <DrawerContent
                   panelContent={
                     <DrawerPanelContent
-                      defaultSize="50%"
-                      minSize={'20%'}
+                      defaultSize="48.7%"
+                      minSize={'25%'}
                       isResizable
                     >
                       {nodePanel}

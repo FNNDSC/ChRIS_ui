@@ -1,19 +1,17 @@
-import * as React from "react";
-import { Spinner } from "@patternfly/react-core";
-
-
+import * as React from 'react'
+import { SpinContainer } from '../../common/loading/LoadingContent'
 
 const LoadingSpinner: React.FunctionComponent<any> = () => {
   return (
     <div
       style={{
-        margin: "0, auto",
-        textAlign: "center",
+        margin: '0, auto',
+        textAlign: 'center',
       }}
     >
-      <Spinner size="xl" />
+      <SpinContainer title="fetching" />
     </div>
-  );
-};
+  )
+}
 
-export default LoadingSpinner;
+export default LoadingSpinner

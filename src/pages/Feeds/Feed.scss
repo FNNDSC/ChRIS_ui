@@ -118,7 +118,7 @@
     height: 45vh;
   }
 
-  
+  background:#d2d2d2 !important;
   padding-right: 0 !important;
   padding-top: 0.5rem !important;
 }
@@ -152,12 +152,6 @@
   }
 }
 .hideMe {
-  -moz-animation: cssAnimation 0s ease-in 30s forwards;
-  /* Firefox */
-  -webkit-animation: cssAnimation 0s ease-in 30s forwards;
-  /* Safari and Chrome */
-  -o-animation: cssAnimation 0s ease-in 30s forwards;
-  /* Opera */
   animation: cssAnimation 0s ease-in 30s forwards;
   -webkit-animation-fill-mode: forwards;
   animation-fill-mode: forwards;
