@@ -6,6 +6,12 @@ import CornerstoneViewport from 'react-cornerstone-viewport'
 import Hammer from 'hammerjs'
 import * as cornerstoneNIFTIImageLoader from 'cornerstone-nifti-image-loader'
 import { IFileBlob } from '../../../../api/models/file-viewer.model'
+import { Cookies } from 'react-cookie'
+import { SpinContainer } from '../../../common/loading/LoadingContent'
+
+const cookie = new Cookies()
+const user = cookie.get('username')
+const token: string = cookie.get(`${user}_token`)
 
 cornerstoneTools.external.cornerstone = cornerstone
 cornerstoneTools.external.Hammer = Hammer
@@ -16,7 +22,7 @@ cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     'Content-Type': 'application/vnd.collection+json',
-    Authorization: 'Token ' + window.sessionStorage.getItem('CHRIS_TOKEN'),
+    Authorization: 'Token ' + token,
   },
   method: 'get',
   responseType: 'arrayBuffer',
@@ -76,7 +82,7 @@ const NiftiDisplay = (props: AllProps) => {
           ]}
         />
       ) : (
-        <div>Loading....</div>
+        <SpinContainer title="Loading..." />
       )}
     </>
   )

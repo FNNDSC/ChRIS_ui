@@ -12,6 +12,11 @@ import { setFilesForGallery } from '../../../../store/explorer/actions'
 import GalleryDicomView from '../../../dicomViewer/GalleryDicomView'
 import DicomLoader from '../../../dicomViewer/DcmLoader'
 import { getFileExtension } from '../../../../api/models/file-explorer.model'
+import { Cookies } from 'react-cookie'
+
+const cookie = new Cookies()
+const user = cookie.get('username')
+const token: string = cookie.get(`${user}_token`)
 
 cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
 cornerstoneFileImageLoader.external.cornerstone = cornerstone
@@ -21,7 +26,7 @@ cornerstoneWADOImageLoader.external.dicomParser = dicomParser
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     'Content-Type': 'application/vnd.collection+json',
-    Authorization: 'Token ' + window.sessionStorage.getItem('CHRIS_TOKEN'),
+    Authorization: 'Token ' + token,
   },
   method: 'get',
   responseType: 'arrayBuffer',
