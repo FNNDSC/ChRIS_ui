@@ -54,6 +54,7 @@ interface LibraryState {
     [key: string]: string
   }
   fetchingResources: boolean
+  columnLayout: string
 }
 
 function getInitialState(): LibraryState {
@@ -76,6 +77,7 @@ function getInitialState(): LibraryState {
     currentSearchFiles: {},
     emptySetIndicator: {},
     fetchingResources: false,
+    columnLayout: 'multi',
   }
 }
 
@@ -112,6 +114,7 @@ export enum Types {
   BACK_TO_SEARCH_RESULTS = 'BACK_TO_SEARCH_RESULTS',
   SET_EMPTY_INDICATOR = 'SET_EMPTY_INDICATOR',
   SET_FETCHING_RESOURCES = 'SET_FETCHING_RESOURCES',
+  SET_COLUMN_LAYOUT = 'SET_COLUMN_LAYOUT',
 }
 
 type LibraryPayload = {
@@ -207,6 +210,9 @@ type LibraryPayload = {
   [Types.SET_FETCHING_RESOURCES]: {
     fetching: boolean
   }
+  [Types.SET_COLUMN_LAYOUT]: {
+    layout: string
+  }
 }
 
 export type LibraryActions = ActionMap<LibraryPayload>[keyof ActionMap<
@@ -226,6 +232,13 @@ export const libraryReducer = (
   action: LibraryActions,
 ): LibraryState => {
   switch (action.type) {
+    case Types.SET_COLUMN_LAYOUT: {
+      return {
+        ...state,
+        columnLayout: action.payload.layout,
+      }
+    }
+
     case Types.SET_FETCHING_RESOURCES: {
       return {
         ...state,
