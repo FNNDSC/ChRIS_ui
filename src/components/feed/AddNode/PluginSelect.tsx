@@ -8,7 +8,7 @@ import {
 } from '@patternfly/react-core'
 import { Plugin, PluginInstance } from '@fnndsc/chrisapi'
 import ChrisAPIClient from '../../../api/chrisapiclient'
-import LoadingContent from '../../common/loading/LoadingContent'
+import { LoadingContent } from '../../common/loading/LoadingContent'
 import { PluginListProps, PluginSelectProps, PluginSelectState } from './types'
 
 const PluginList: React.FC<PluginListProps> = ({

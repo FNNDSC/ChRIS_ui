@@ -1,7 +1,7 @@
 import React from 'react'
 import { Skeleton } from '@patternfly/react-core'
 import usePluginInstanceResource from './usePluginInstanceResource'
-
+import { SpinContainer } from '../../common/loading/LoadingContent'
 
 const StatusTitle = () => {
   const pluginInstanceResource = usePluginInstanceResource()
@@ -26,13 +26,7 @@ const StatusTitle = () => {
         <span>{statusTitle.title} </span>{' '}
       </>
     )
-  } else
-    return (
-      <Skeleton
-        width="15%"
-        screenreaderText="Fetching plugin's execution status"
-      />
-    )
+  } else return <SpinContainer title="Fetching plugin's execution status" />
 }
 
 export default React.memo(StatusTitle)

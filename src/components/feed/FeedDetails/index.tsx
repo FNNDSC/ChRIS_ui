@@ -14,6 +14,7 @@ import { FaEdit } from 'react-icons/fa'
 import { useTypedSelector } from '../../../store/hooks'
 import './FeedDetails.scss'
 import FeedNote from './FeedNote'
+import { SpinContainer } from '../../common/loading/LoadingContent'
 
 const FeedDetails = () => {
   const [note, setNote] = React.useState('')
@@ -123,7 +124,7 @@ const FeedDetails = () => {
       </Toolbar>
     )
   } else if (loading) {
-    return <Skeleton />
+    return <SpinContainer  title="Fetching Details" />
   } else if (error) {
     return <div>Error Found</div>
   } else return null
