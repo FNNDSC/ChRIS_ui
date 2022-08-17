@@ -19,6 +19,15 @@ export const setCurrentPath = (path: string, type: string) => {
   }
 }
 
+export const setMultiColumnLayout = (layout: string) => {
+  return {
+    type: Types.SET_COLUMN_LAYOUT,
+    payload: {
+      layout,
+    },
+  }
+}
+
 export const setCurrentPathSearch = (path: string, type: string) => {
   return {
     type: Types.SET_CURRENT_PATH_SEARCH,

@@ -29,6 +29,7 @@ export function Browser({
   files,
   handleFolderClick,
   browserType,
+  columnLayout,
 }: {
   folders: {
     path: string
@@ -37,6 +38,7 @@ export function Browser({
   files: any[]
   handleFolderClick: (path: string) => void
   browserType: string
+  columnLayout: string
 }) {
   return (
     <Grid style={{ marginLeft: '0.5em' }} hasGutter>
@@ -44,7 +46,11 @@ export function Browser({
         files.length > 0 &&
         files.map((file) => {
           return (
-            <GridItem key={file.data.fname} sm={12} lg={2}>
+            <GridItem
+              key={file.data.fname}
+              sm={12}
+              lg={columnLayout === 'single' ? 12 : 2}
+            >
               <FileCard file={file} browserType={browserType} />
             </GridItem>
           )
@@ -53,7 +59,11 @@ export function Browser({
         folders.length > 0 &&
         folders.map((folder, index) => {
           return (
-            <GridItem key={`${folder}_${index}`} sm={12} lg={2}>
+            <GridItem
+              key={`${folder}_${index}`}
+              sm={12}
+              lg={columnLayout === 'single' ? 12 : 2}
+            >
               <FolderCard
                 folder={folder}
                 browserType={browserType}
@@ -81,7 +91,7 @@ function FolderCard({
   const { state } = useContext(LibraryContext)
   const { handlers } = useLongPress()
   const { handleOnClick, handleOnMouseDown } = handlers
-  const { selectedFolder } = state
+  const { selectedFolder, columnLayout } = state
   const [feedDetails, setFeedDetails] = useState({
     id: '',
     name: '',
@@ -177,11 +187,15 @@ function FolderCard({
                   {isRoot ? (
                     !feedDetails.name ? (
                       <Spin />
+                    ) : columnLayout === 'single' ? (
+                      feedDetails.name
                     ) : (
-                      elipses(feedDetails.name, 36)
+                      elipses(feedDetails.name, 40)
                     )
+                  ) : columnLayout === 'single' ? (
+                    folder.name
                   ) : (
-                    elipses(folder.name, 36)
+                    elipses(folder.name, 40)
                   )}
                 </b>
               </Button>
@@ -201,7 +215,7 @@ function FolderCard({
 function FileCard({ file, browserType }: { file: any; browserType: string }) {
   const { handlers } = useLongPress()
   const { state } = useContext(LibraryContext)
-  const { selectedFolder, previewAll } = state
+  const { selectedFolder, previewAll, columnLayout } = state
   const { handleOnClick, handleOnMouseDown } = handlers
   const fileNameArray = file.data.fname.split('/')
   const fileName = fileNameArray[fileNameArray.length - 1]
@@ -251,7 +265,9 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
           <CardHeader>
             <CardTitle>
               <Button icon={<FaFile />} variant="link" style={{ padding: '0' }}>
-                <b>{elipses(fileName, 20)}</b>
+                <b>
+                  {columnLayout === 'single' ? fileName : elipses(fileName, 40)}
+                </b>
               </Button>
             </CardTitle>
           </CardHeader>
