@@ -109,18 +109,11 @@
     }
   }
 
-  .header-panel__buttons--togglePanel button span.pf-c-button__icon {
-    margin-right: 0px;
-  }
-
   .header-panel__buttons {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.25em;
-    margin-right: 0.25em;
-
     button {
-      padding: 5px auto;
+      padding-left: 0;
     }
   }
 
@@ -168,3 +161,5 @@
     height: 100% !important;
   }
 }
+
+

@@ -228,7 +228,7 @@ const FeedListView: React.FC = () => {
             }
 
             {loading ? (
-              generateTableLoading()
+              generateTableLoading('white')
             ) : (
               <Tbody>
                 {data &&

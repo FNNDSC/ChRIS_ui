@@ -1,21 +1,21 @@
-import React from "react";
-import { Table, TableHeader, TableBody } from "@patternfly/react-table";
+import React from 'react'
+import { Table, TableHeader, TableBody } from '@patternfly/react-table'
 import {
   Title,
   EmptyState,
   EmptyStateVariant,
   EmptyStateBody,
   EmptyStateIcon,
-} from "@patternfly/react-core";
-import { FaSearch } from "react-icons/fa";
-import LoadingContent from "../loading/LoadingContent";
+} from '@patternfly/react-core'
+import { FaSearch } from 'react-icons/fa'
+import {LoadingContent} from '../loading/LoadingContent'
 
 interface ITableProps {
-  cells: string[];
-  rows: { cells: { title: JSX.Element }[] }[];
-  title: string;
-  description: string;
-  caption: string;
+  cells: string[]
+  rows: { cells: { title: JSX.Element }[] }[]
+  title: string
+  description: string
+  caption: string
 }
 
 export const EmptyStateTable = ({
@@ -39,19 +39,19 @@ export const EmptyStateTable = ({
         <EmptyStateBody>{description}</EmptyStateBody>
       </EmptyState>
     </React.Fragment>
-  );
-};
+  )
+}
 
-export const generateTableLoading = () => {
+export const generateTableLoading = ( type: string ) => {
   return (
     <tbody className="feed-list__loading">
       <tr>
         <td colSpan={6}>
           {new Array(20).fill(null).map((_, i) => (
-            <LoadingContent height="45px" width="100%" key={i} />
+            <LoadingContent type={type} height="45px" width="100%" key={i} />
           ))}
         </td>
       </tr>
     </tbody>
-  );
-};
+  )
+}

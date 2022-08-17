@@ -11,11 +11,12 @@ import {
 } from '@patternfly/react-core'
 import { Spin, Alert, Tree } from 'antd'
 import PluginViewerModal from '../../detailedView/PluginViewerModal'
-import { PluginInstance, } from '@fnndsc/chrisapi'
+import { PluginInstance } from '@fnndsc/chrisapi'
 import { getFeedTree } from './data'
-import { DataNode, } from '../../../store/explorer/types'
+import { DataNode } from '../../../store/explorer/types'
 import './FeedOutputBrowser.scss'
 import { useFeedBrowser } from './useFeedBrowser'
+import { SpinContainer } from '../../common/loading/LoadingContent'
 
 const FileBrowser = React.lazy(() => import('./FileBrowser'))
 const { DirectoryTree } = Tree
@@ -29,14 +30,24 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   handlePluginSelect,
   expandDrawer,
 }) => {
-  const { plugins, selected, pluginFilesPayload, statusTitle,
-    handleFileClick, handleFileBrowserOpen,
-    handleDicomViewerOpen, handleXtkViewerOpen, downloadAllClick, download,
-    handlePluginModalClose, pluginModalOpen, filesLoading
-  } = useFeedBrowser();
+  const {
+    plugins,
+    selected,
+    pluginFilesPayload,
+    statusTitle,
+    handleFileClick,
+    handleFileBrowserOpen,
+    handleDicomViewerOpen,
+    handleXtkViewerOpen,
+    downloadAllClick,
+    download,
+    handlePluginModalClose,
+    pluginModalOpen,
+    filesLoading,
+  } = useFeedBrowser()
   return (
     <>
-      <Grid className="feed-output-browser ">
+      <Grid hasGutter={true} className="feed-output-browser ">
         <GridItem
           className="feed-output-browser__sidebar"
           xl={2}
@@ -72,15 +83,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           smRowSpan={12}
         >
           <React.Suspense
-            fallback={
-              <div>
-                <Skeleton
-                  height="100%"
-                  width="100%"
-                  screenreaderText="Fetching the File Browser"
-                />
-              </div>
-            }
+            fallback={<SpinContainer title="Loading the File Browser" />}
           >
             {pluginFilesPayload && selected ? (
               <FileBrowser
@@ -97,8 +100,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 filesLoading={filesLoading}
               />
             ) : statusTitle && statusTitle.title ? (
-                <FetchFilesLoader title={statusTitle.title} />
-              ) : (
+              <FetchFilesLoader title={statusTitle.title} />
+            ) : (
               <EmptyStateLoader />
             )}
           </React.Suspense>
@@ -151,9 +154,5 @@ const EmptyStateLoader = () => {
   )
 }
 const FetchFilesLoader = ({ title }: { title: string }) => {
-  return (
-    <Spin tip={title}>
-      <Alert message="Waiting on the plugin to finish" type="info" />
-    </Spin>
-  )
+  return <SpinContainer title={title} />
 }
