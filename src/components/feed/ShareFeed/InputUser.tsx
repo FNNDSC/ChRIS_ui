@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import {
   TextInput,
   Form,
-  Label,
+  FormGroup,
   Button,
   ActionGroup,
   Alert,
@@ -41,21 +41,23 @@ const InputUser: React.FC<InputUserProps> = ({
 
   return (
     <div>
-      <Form>
-        <Label className="share-feed-label">Enter an username</Label>
-        <TextInput
-          value={value}
-          type="text"
-          onChange={handleChange}
-          aria-label="text input example"
-        />
+      <Form isHorizontal>
+        <FormGroup label="Enter a username" fieldId="horizontal-form-name">
+          <TextInput
+            value={value}
+            type="text"
+            onChange={handleChange}
+            aria-label="text input example"
+          />
+        </FormGroup>
+
         {error && <Alert variant="danger" title={error} />}
         {loading && <Spin>Sharing Feed...</Spin>}
         {success && (
           <Alert variant="success" title="Feed Shared Successfully" />
         )}
         <ActionGroup>
-          <Button onClick={handleSubmit}>Save</Button>
+          <Button onClick={handleSubmit}>Share Feed</Button>
           <Button onClick={() => handleModalClose()}>Cancel</Button>
         </ActionGroup>
       </Form>
