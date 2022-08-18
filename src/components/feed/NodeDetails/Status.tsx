@@ -19,6 +19,7 @@ const Status = () => {
           direction="horizontal"
           size="small"
         >
+          
           {pluginStatus.map((label: any) => {
             return (
               <Step
