@@ -20,6 +20,15 @@ const Status = () => {
           size="small"
         >
           {pluginStatus.map((label: any) => {
+            const status =
+              label.finish === true
+                ? 'finish'
+                : label.error === true
+                ? 'error'
+                : label.wait === true
+                ? 'wait'
+                : 'process'
+
             return (
               <Step
                 key={label.id}
@@ -31,7 +40,7 @@ const Status = () => {
                     ? 'error'
                     : label.wait === true
                     ? 'wait'
-                    : undefined
+                    : 'process'
                 }
               />
             )
