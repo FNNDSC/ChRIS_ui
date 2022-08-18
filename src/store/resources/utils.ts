@@ -166,5 +166,7 @@ export function getStatusLabels(
         : null,
   }
 
+  console.log('STATUS', labels, pluginStatus, status)
+
   return status
 }
