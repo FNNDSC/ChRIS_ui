@@ -132,7 +132,11 @@ const SidebarTree = (props: {
 
   return (
     <DirectoryTree
+      autoExpandParent
       treeData={tree}
+      defaultExpandAll
+      defaultExpandParent
+      defaultExpandedKeys={[selected.data.id]}
       selectedKeys={[selected.data.id]}
       onSelect={(node, selectedNode) => {
         //@ts-ignore
