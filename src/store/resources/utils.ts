@@ -79,13 +79,15 @@ export function getStatusLabels(
       pluginStatus === 'started' && labels && labels.pushPath.status !== true
         ? true
         : false,
-    wait: status[1].finish !== true,
+    wait: !labels || status[1].finish !== true,
     finish: labels && labels.pushPath.status === true ? true : false,
     error:
       labels &&
       labels.pushPath.status !== true &&
       errorStatuses.includes(pluginStatus) &&
-      labels.compute.submit.status === true,
+      labels.compute.submit.status === true
+        ? true
+        : false,
     icon: MdOutlineDownloading,
   }
 
@@ -99,7 +101,7 @@ export function getStatusLabels(
       !labels.compute.submit.status
         ? true
         : false,
-    wait: status[2].finish !== true,
+    wait: !labels || status[2].finish !== true,
     finish:
       labels &&
       labels.compute.return.status === true &&
@@ -127,7 +129,7 @@ export function getStatusLabels(
       status[3].finish === true
         ? true
         : false,
-    wait: status[3].finish !== true,
+    wait: !labels || status[3].finish !== true,
     finish: labels && labels.pullPath.status === true,
     error: false,
     icon: AiFillLeftCircle,
