@@ -19,19 +19,18 @@ const Status = () => {
           direction="horizontal"
           size="small"
         >
-          
           {pluginStatus.map((label: any) => {
             return (
               <Step
                 key={label.id}
                 icon={label.process && <Spin />}
                 status={
-                  label.finish === true
-                    ? 'finish'
+                  label.wait === true
+                    ? 'wait'
                     : label.error === true
                     ? 'error'
-                    : label.wait === true
-                    ? 'wait'
+                    : label.finish === true
+                    ? 'finish'
                     : 'process'
                 }
               />
