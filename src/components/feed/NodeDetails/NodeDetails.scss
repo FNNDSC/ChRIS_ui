@@ -180,7 +180,8 @@
       }
 
       .ant-steps-item-process .ant-steps-item-icon {
-        background-color: var(--pf-global--palette--black-300);
+        background-color: $node-block-background;
+       
       }
 
       .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
