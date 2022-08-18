@@ -139,7 +139,7 @@ export function getStatusLabels(
     icon: FaFileArchive,
   }
 
-  console.log('Status', status)
+  console.log('Status', status, labels)
 
   return status
 }
