@@ -160,7 +160,5 @@ export function getStatusLabels(
     icon: FaFileArchive,
   }
 
-  console.log('Status', status)
-
   return status
 }
