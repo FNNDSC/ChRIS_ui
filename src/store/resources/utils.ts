@@ -40,13 +40,10 @@ export function getStatusLabels(
 
   let waitingStatus = false
   if (pluginDetails.data.plugin_type === 'fs') {
-    waitingStatus =
-      currentLabel > 0 && finishedStatuses.includes(pluginStatus) ? true : false
+    waitingStatus = currentLabel > 0 ? true : false
   } else {
     waitingStatus =
-      currentLabel > 0 &&
-      finishedStatuses.includes(pluginStatus) &&
-      previousStatus === 'finishedSuccessfully'
+      currentLabel > 0 && previousStatus === 'finishedSuccessfully'
         ? true
         : false
   }
