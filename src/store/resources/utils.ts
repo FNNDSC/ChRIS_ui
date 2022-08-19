@@ -163,7 +163,5 @@ export function getStatusLabels(
     icon: FaFileArchive,
   }
 
-  console.log('STATUS', status, labels, pluginStatus, currentLabel)
-
   return status
 }

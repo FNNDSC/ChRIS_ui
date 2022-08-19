@@ -11,6 +11,7 @@ import {
   Button,
   HelperTextItem,
   HelperText,
+  EmptyState,
 } from '@patternfly/react-core'
 import { bytesToSize } from './utils'
 import { FeedFile } from '@fnndsc/chrisapi'
@@ -37,6 +38,7 @@ import { BiHorizontalCenter } from 'react-icons/bi'
 import { getXtkFileMode } from '../../detailedView/displays/XtkViewer/XtkViewer'
 import { Alert, Progress } from 'antd'
 import { SpinContainer } from '../../common/loading/LoadingContent'
+import { EmptyStateLoader } from './FeedOutputBrowser'
 
 const getFileName = (name: any) => {
   return name.split('/').slice(-1)
@@ -257,6 +259,8 @@ const FileBrowser = (props: FileBrowserProps) => {
           <TableHeader />
           {filesLoading ? (
             <SpinContainer title="Fetching Files" />
+          ) : !filesLoading && items.length === 0 ? (
+            <EmptyStateLoader title="Empty Data set" />
           ) : (
             <TableBody
               onRowClick={(event: any, rows: any, rowData: any) => {

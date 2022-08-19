@@ -102,7 +102,10 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             ) : statusTitle && statusTitle.title ? (
               <FetchFilesLoader title={statusTitle.title} />
             ) : (
-              <EmptyStateLoader />
+              <EmptyStateLoader
+                title="Files are not available yet and are being fetched. Please give it a
+              moment..."
+              />
             )}
           </React.Suspense>
         </GridItem>
@@ -146,14 +149,11 @@ const SidebarTree = (props: {
   )
 }
 
-const EmptyStateLoader = () => {
+export const EmptyStateLoader = ({ title }: { title: string }) => {
   return (
     <EmptyState variant={EmptyStateVariant.large}>
       <Title headingLevel="h4" size="lg" />
-      <EmptyStateBody>
-        Files are not available yet and are being fetched. Please give it a
-        moment...
-      </EmptyStateBody>
+      <EmptyStateBody>{title}</EmptyStateBody>
     </EmptyState>
   )
 }
