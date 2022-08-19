@@ -50,9 +50,7 @@ export function getStatusLabels(
 
   status[0] = {
     description: 'Waiting',
-    process: ['waiting', 'created', 'scheduled'].includes(pluginStatus)
-      ? true
-      : false,
+    process: pluginStatus === 'waiting' ? true : false,
     wait:
       (previousStatus && !finishedStatuses.includes(previousStatus)) ||
       currentLabel < 0
@@ -70,7 +68,7 @@ export function getStatusLabels(
   status[1] = {
     description: 'Started',
     process:
-      (pluginStatus === 'started' || pluginStatus === 'scheduled') && !labels
+      ['scheduled', 'created', 'started'].includes(pluginStatus) && !labels
         ? true
         : false,
     wait: status[0].finish !== true,
@@ -159,6 +157,6 @@ export function getStatusLabels(
     error: false,
     icon: FaFileArchive,
   }
-
+  console.log('Status', status, labels, pluginStatus)
   return status
 }
