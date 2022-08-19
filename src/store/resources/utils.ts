@@ -15,11 +15,17 @@ export function getStatusLabels(
 ) {
   const status = []
   const pluginStatus = pluginDetails.data.status
+  const errorStatuses = ['finishedWithError', 'cancelled']
+  const finishedStatuses = [...errorStatuses, 'finishedSuccessfully']
 
   const startState =
     pluginStatus === 'scheduled' || pluginStatus === 'started'
       ? pluginStatus
       : 'started'
+
+  const endState = finishedStatuses.includes(pluginStatus)
+    ? pluginStatus
+    : 'Waiting To Finish'
 
   const steps = [
     'waiting',
@@ -28,33 +34,39 @@ export function getStatusLabels(
     'compute',
     'syncData',
     'registeringFiles',
+    endState,
   ]
-
   const currentLabel = steps.indexOf(pluginStatus)
 
-  const errorStatuses = ['finishedWithError', 'cancelled']
-
-  const finishedStatuses = [...errorStatuses, 'finishedSuccessfully']
   let waitingStatus = false
   if (pluginDetails.data.plugin_type === 'fs') {
     waitingStatus =
-      currentLabel > 0 || finishedStatuses.includes(pluginStatus) ? true : false
+      currentLabel > 0 && finishedStatuses.includes(pluginStatus) ? true : false
   } else {
     waitingStatus =
-      currentLabel > 0 ||
-      (finishedStatuses.includes(pluginStatus) &&
-        previousStatus === 'finishedSuccessfully')
+      currentLabel > 0 &&
+      finishedStatuses.includes(pluginStatus) &&
+      previousStatus === 'finishedSuccessfully'
         ? true
         : false
   }
 
   status[0] = {
     description: 'Waiting',
-    process: pluginStatus === 'waiting' ? true : false,
-    wait: finishedStatuses.includes(previousStatus) === true ? false : true,
+    process: ['waiting', 'created', 'scheduled'].includes(pluginStatus)
+      ? true
+      : false,
+    wait:
+      (previousStatus && !finishedStatuses.includes(previousStatus)) ||
+      currentLabel < 0
+        ? true
+        : false,
     finish: waitingStatus,
     error:
-      previousStatus === 'cancelled' || previousStatus === 'finishedWithError',
+      errorStatuses.includes(pluginStatus) &&
+      errorStatuses.includes(previousStatus)
+        ? true
+        : false,
     icon: AiFillClockCircle,
   }
 
@@ -66,10 +78,10 @@ export function getStatusLabels(
         : false,
     wait: status[0].finish !== true,
     finish:
-      labels && labels.pushPath.status === true
+      (labels && labels.pushPath.status === true) || currentLabel === 6
         ? true
-        : false || finishedStatuses.includes(pluginStatus),
-    error: status[0].error ? true : false,
+        : false,
+    error: false,
     icon: GrInProgress,
   }
 
@@ -84,8 +96,7 @@ export function getStatusLabels(
     error:
       labels &&
       labels.pushPath.status !== true &&
-      errorStatuses.includes(pluginStatus) &&
-      labels.compute.submit.status === true
+      errorStatuses.includes(pluginStatus)
         ? true
         : false,
     icon: MdOutlineDownloading,
@@ -97,8 +108,8 @@ export function getStatusLabels(
       pluginStatus === 'started' &&
       status[2].finish &&
       labels &&
-      !labels.compute.return.status &&
-      !labels.compute.submit.status
+      labels.compute.submit.status &&
+      !labels.compute.return.status
         ? true
         : false,
     wait: !labels || status[2].finish !== true,
@@ -110,7 +121,7 @@ export function getStatusLabels(
         ? true
         : false,
     error:
-      (labels && errorStatuses.includes(labels?.compute.return.job_status)) ||
+      (labels && errorStatuses.includes(labels.compute.return.job_status)) ||
       (labels &&
         labels.compute.return.status !== true &&
         errorStatuses.includes(pluginStatus) &&
@@ -152,7 +163,7 @@ export function getStatusLabels(
     icon: FaFileArchive,
   }
 
-  console.log('Status', status, labels)
+  console.log('STATUS', status, labels, pluginStatus, currentLabel)
 
   return status
 }

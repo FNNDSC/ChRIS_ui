@@ -19,10 +19,10 @@ const Status = () => {
           direction="horizontal"
           size="small"
         >
-          {pluginStatus.map((label: any) => {
+          {pluginStatus.map((label: any, index: number) => {
             return (
               <Step
-                key={label.id}
+                key={index}
                 icon={label.process && <Spin />}
                 status={
                   label.wait === true
@@ -42,10 +42,10 @@ const Status = () => {
           size="small"
           className="node-details__status-descriptions"
         >
-          {pluginStatus.map((label: any) => {
+          {pluginStatus.map((label: any, index: number) => {
             return (
               <Step
-                key={label.id}
+                key={index}
                 description={label.description}
                 status={
                   label.status === true
