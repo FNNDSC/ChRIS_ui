@@ -115,6 +115,7 @@ export enum Types {
   SET_EMPTY_INDICATOR = 'SET_EMPTY_INDICATOR',
   SET_FETCHING_RESOURCES = 'SET_FETCHING_RESOURCES',
   SET_COLUMN_LAYOUT = 'SET_COLUMN_LAYOUT',
+  DELETE_FILE = 'DELETE_FILE',
 }
 
 type LibraryPayload = {
@@ -213,6 +214,9 @@ type LibraryPayload = {
   [Types.SET_COLUMN_LAYOUT]: {
     layout: string
   }
+  [Types.DELETE_FILE]: {
+    file: FileSelect
+  }
 }
 
 export type LibraryActions = ActionMap<LibraryPayload>[keyof ActionMap<
@@ -246,8 +250,33 @@ export const libraryReducer = (
       }
     }
 
+    case Types.DELETE_FILE: {
+      const { type, previousPath, folder } = action.payload.file
+      let folders = state.foldersState[type][previousPath]
+      if (folders.length > 0) {
+        folders = folders.filter((folderName) => {
+          return `${folderName.path}/${folderName.name}` !== folder.path
+        })
+
+        return {
+          ...state,
+          foldersState: {
+            ...state.foldersState,
+            [type]: {
+              [previousPath]: folders,
+            },
+          },
+        }
+      } else {
+        return {
+          ...state,
+        }
+      }
+    }
+
     case Types.SET_FOLDERS: {
       const { type, path, folders } = action.payload
+
       return {
         ...state,
         foldersState: {

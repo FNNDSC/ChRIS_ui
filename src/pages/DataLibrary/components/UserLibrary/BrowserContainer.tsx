@@ -17,6 +17,7 @@ import {
   setFetching,
 } from './context/actions'
 import { Spin } from 'antd'
+import { folder } from 'jszip'
 
 interface BrowserContainerInterface {
   type: string
@@ -165,7 +166,8 @@ const BrowserContainer = ({
   const path = currentPath[type]
   const folders = foldersState[type] && foldersState[type][path]
   const files = filesState[type] && filesState[type][path]
-  const noData = path && !folders && !files && !fetchingResources
+  const noData =
+    path && !folders && !files && !fetchingResources ||folders && folders.length === 0
 
   return (
     <>
