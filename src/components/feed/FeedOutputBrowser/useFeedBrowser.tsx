@@ -23,6 +23,7 @@ const getInitialDownloadState = () => {
     status: false,
     plugin_name: '',
     error: '',
+    fetchingFiles: false,
   }
 }
 
@@ -65,17 +66,29 @@ export const useFeedBrowser = () => {
       }
       const selectedNodeFn = selected.getFiles
       const boundFn = selectedNodeFn.bind(selected)
+      setDownload({
+        ...download,
+        fetchingFiles: true,
+      })
       const files = await fetchResource(params, boundFn)
+      setDownload({
+        ...download,
+        fetchingFiles: false,
+      })
 
       if (files.length > 0) {
         for (let i = 0; i < files.length; i++) {
           count += 1
-          const percentage = Number(((count / files.length) * 100).toFixed(2))
+          const percentage = Math.round(
+            Number(((count / files.length) * 100).toFixed(2)),
+          )
+
           setDownload({
             plugin_name: selected.data.plugin_name,
             status: true,
             count: percentage,
             error: '',
+            fetchingFiles: false,
           })
           const file: any = files[i]
           const fileBlob = await file.getFileBlob()
