@@ -29,6 +29,7 @@ import { FileSelect, LibraryContext, Types } from './context'
 import { MainRouterContext } from '../../../../routes'
 import {
   clearSelectFolder,
+  setDeleteFile,
   setFolders,
   setMultiColumnLayout,
 } from './context/actions'
@@ -257,7 +258,8 @@ const DataLibrary = () => {
             files.map(async (file: any) => {
               await file._delete()
             })
-            deleteUtil(file)
+            dispatchLibrary(setDeleteFile(file))
+            dispatchLibrary(clearSelectFolder(file))
           }
         } else {
           errorWarnings.push('file')
@@ -281,18 +283,6 @@ const DataLibrary = () => {
     setError(errorWarnings)
   }
 
-  const deleteUtil = (file: FileSelect) => {
-    const folders = foldersState[file.type][file.previousPath]
-
-    if (folders && folders.length > 0) {
-      const foldersFiltered = folders.filter((folder) => {
-        return `${folder.path}/${folder.name}` !== file.folder.path
-      })
-      dispatchLibrary(setFolders(foldersFiltered, file.previousPath, file.type))
-      dispatchLibrary(clearSelectFolder(file))
-    }
-  }
-
   const handleDeleteFeed = async () => {
     const result = Promise.all(
       feedFilesToDelete.map(async (file) => {
@@ -304,7 +294,8 @@ const DataLibrary = () => {
           const id = feedId.split('_')[1]
           const client = ChrisAPIClient.getClient()
           const feed = await client.getFeed(parseInt(id))
-          deleteUtil(file)
+          dispatchLibrary(setDeleteFile(file))
+          dispatchLibrary(clearSelectFolder(file))
           return feed
         }
       }),
@@ -341,20 +332,17 @@ const DataLibrary = () => {
     const folders =
       foldersState['uploads'] && foldersState['uploads'][currentPath['uploads']]
 
-    if (folders && folders.length > 0) {
-      const folderExists = folders.findIndex(
-        (folder) => folder.name === directoryName,
-      )
+    const folderExists =
+      folders && folders.findIndex((folder) => folder.name === directoryName)
 
-      if (folderExists === -1) {
-        dispatchLibrary({
-          type: Types.SET_ADD_FOLDER,
-          payload: {
-            folder: directoryName,
-            username,
-          },
-        })
-      }
+    if (!folders || folderExists === -1) {
+      dispatchLibrary({
+        type: Types.SET_ADD_FOLDER,
+        payload: {
+          folder: directoryName,
+          username,
+        },
+      })
     }
   }
 

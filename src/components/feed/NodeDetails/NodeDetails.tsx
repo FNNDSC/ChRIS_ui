@@ -113,8 +113,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
 
   const previousId = selectedPlugin?.data.previous_id
 
-  console.log('Download', download)
-
   const renderGridItem = (title: string, value: React.ReactNode) => {
     return (
       <>
@@ -257,6 +255,9 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             <span>Downloading files for {download.plugin_name}</span>
           </>
         )}
+        <div style={{ marginTop: '1.25em' }}>
+          {download.fetchingFiles && <span>Fetching files...</span>}
+        </div>
         <div style={{ marginTop: '1.25em' }}>
           {download.error && download.error}
         </div>

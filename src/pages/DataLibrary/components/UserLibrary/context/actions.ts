@@ -135,6 +135,15 @@ export const setCurrentSearchFolder = (
   }
 }
 
+export const setDeleteFile = (file: FileSelect) => {
+  return {
+    type: Types.DELETE_FILE,
+    payload: {
+      file,
+    },
+  }
+}
+
 export const setCurrentSearchFiles = (
   files: any[],
   path: string,
