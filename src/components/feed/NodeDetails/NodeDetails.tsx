@@ -252,11 +252,11 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             <div style={{ width: 170, marginTop: '1.25em' }}>
               <Progress percent={download.count} size="small" />
             </div>
-            <span>Downloading files for {download.plugin_name}</span>
+            <span>Fetching and Zipping files for {download.plugin_name} </span>
           </>
         )}
         <div style={{ marginTop: '1.25em' }}>
-          {download.fetchingFiles && <span>Fetching files...</span>}
+          {download.fetchingFiles && <span>Fetching file list meta data</span>}
         </div>
         <div style={{ marginTop: '1.25em' }}>
           {download.error && download.error}
