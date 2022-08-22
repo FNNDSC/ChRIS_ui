@@ -11,7 +11,6 @@ import {
   Button,
   HelperTextItem,
   HelperText,
-  EmptyState,
 } from '@patternfly/react-core'
 import { bytesToSize } from './utils'
 import { FeedFile } from '@fnndsc/chrisapi'
@@ -36,7 +35,7 @@ import {
 } from '../../../store/explorer/actions'
 import { BiHorizontalCenter } from 'react-icons/bi'
 import { getXtkFileMode } from '../../detailedView/displays/XtkViewer/XtkViewer'
-import { Alert, Progress } from 'antd'
+import { Alert } from 'antd'
 import { SpinContainer } from '../../common/loading/LoadingContent'
 import { EmptyStateLoader } from './FeedOutputBrowser'
 
@@ -52,8 +51,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleFileBrowserToggle,
     handleDicomViewerOpen,
     handleXtkViewerOpen,
-    downloadAllClick,
-    download,
+
     expandDrawer,
     filesLoading,
   } = props
@@ -220,13 +218,7 @@ const FileBrowser = (props: FileBrowserProps) => {
           <div className="file-browser__header--breadcrumbContainer">
             <Breadcrumb>{breadcrumb.map(generateBreadcrumb)}</Breadcrumb>
           </div>
-          {download.status && (
-            <HelperText>
-              <HelperTextItem>
-                Download files under the path: {download.path}
-              </HelperTextItem>
-            </HelperText>
-          )}
+
           <div className="file-browser__header__info">
             <span className="files-browser__header--fileCount">
               {items.length > 1
@@ -235,19 +227,6 @@ const FileBrowser = (props: FileBrowserProps) => {
                 ? `(${items.length} item)`
                 : 'Empty Directory'}
             </span>
-            <Button
-              className="file-browser__header--downloadButton"
-              onClick={() => downloadAllClick()}
-              variant="secondary"
-            >
-              Download All
-            </Button>
-
-            {download.status && (
-              <div style={{ width: 170 }}>
-                <Progress percent={download.count} size="small" />
-              </div>
-            )}
           </div>
         </div>
         <Table
