@@ -3,13 +3,12 @@ import React from 'react'
 import {
   Grid,
   GridItem,
-  Skeleton,
   EmptyState,
   Title,
   EmptyStateBody,
   EmptyStateVariant,
 } from '@patternfly/react-core'
-import { Spin, Alert, Tree } from 'antd'
+import { Tree } from 'antd'
 import PluginViewerModal from '../../detailedView/PluginViewerModal'
 import { PluginInstance } from '@fnndsc/chrisapi'
 import { getFeedTree } from './data'
@@ -39,8 +38,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     handleFileBrowserOpen,
     handleDicomViewerOpen,
     handleXtkViewerOpen,
-    downloadAllClick,
-    download,
     handlePluginModalClose,
     pluginModalOpen,
     filesLoading,
@@ -94,8 +91,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 handleDicomViewerOpen={handleDicomViewerOpen}
                 handleXtkViewerOpen={handleXtkViewerOpen}
                 expandDrawer={expandDrawer}
-                download={download}
-                downloadAllClick={downloadAllClick}
                 pluginModalOpen={pluginModalOpen}
                 filesLoading={filesLoading}
               />

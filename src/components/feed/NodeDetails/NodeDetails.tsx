@@ -4,11 +4,10 @@ import {
   Button,
   Grid,
   GridItem,
-  Skeleton,
   ExpandableSection,
 } from '@patternfly/react-core'
 
-import { Popover } from 'antd'
+import { Popover, Progress } from 'antd'
 import {
   Plugin,
   PluginInstance,
@@ -16,7 +15,7 @@ import {
   PluginParameterList,
 } from '@fnndsc/chrisapi'
 import {
-  FaBezierCurve,
+  FaDownload,
   FaTerminal,
   FaCalendarAlt,
   FaWindowClose,
@@ -25,7 +24,6 @@ import AddNode from '../AddNode/AddNode'
 import DeleteNode from '../DeleteNode'
 import PluginLog from './PluginLog'
 import Status from './Status'
-import GraphNode from '../AddTsNode/ParentContainer'
 import StatusTitle from './StatusTitle'
 import PluginTitle from './PluginTitle'
 
@@ -34,6 +32,7 @@ import './NodeDetails.scss'
 import { getErrorCodeMessage } from './utils'
 import AddPipeline from '../AddPipeline/AddPipeline'
 import { SpinContainer } from '../../common/loading/LoadingContent'
+import { useFeedBrowser } from '../FeedOutputBrowser/useFeedBrowser'
 
 interface INodeProps {
   expandDrawer: (panel: string) => void
@@ -58,10 +57,10 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin,
   )
+  const { download, downloadAllClick } = useFeedBrowser()
 
   const { plugin, instanceParameters, pluginParameters } = nodeState
   const [isTerminalVisible, setIsTerminalVisible] = React.useState(false)
-  const [isGraphNodeVisible, setIsGraphNodeVisible] = React.useState(false)
   const [isExpanded, setIsExpanded] = React.useState(false)
   const [isErrorExpanded, setisErrorExpanded] = React.useState(false)
 
@@ -113,10 +112,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   const compute_env = selectedPlugin?.data.compute_resource_name
 
   const previousId = selectedPlugin?.data.previous_id
-
-  const handleVisibleChange = (visible: boolean) => {
-    setIsGraphNodeVisible(visible)
-  }
 
   const renderGridItem = (title: string, value: React.ReactNode) => {
     return (
@@ -228,22 +223,10 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           <div className="node-details__actions_first">
             {cancelled ? null : <AddNode />}
             <AddPipeline />
-            <Popover
-              content={
-                <GraphNode
-                  visible={isGraphNodeVisible}
-                  onVisibleChange={handleVisibleChange}
-                />
-              }
-              placement="bottom"
-              visible={isGraphNodeVisible}
-              onVisibleChange={handleVisibleChange}
-              trigger="click"
-            >
-              <Button type="button" icon={<FaBezierCurve />}>
-                Add a Graph Node
-              </Button>
-            </Popover>
+
+            <Button onClick={downloadAllClick} icon={<FaDownload />}>
+              Download Files
+            </Button>
           </div>
 
           <div className="node-details__actions_second">
@@ -264,6 +247,15 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
           </div>
         </div>
+        {download.status && (
+          <>
+            <div style={{ width: 170, marginTop: '1.25em' }}>
+              <Progress percent={download.count} size="small" />
+            </div>
+            <span>Downloading files for {download.plugin_name}</span>
+          </>
+        )}
+        <span>{download.error && download.error}</span>
       </div>
     )
   }
