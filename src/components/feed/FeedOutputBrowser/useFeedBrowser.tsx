@@ -90,7 +90,7 @@ export const useFeedBrowser = () => {
           ...download,
           status: false,
           error:
-            'Files are not available for download yet. Please try again later...',
+            'Files are not available for download yet. Please wait or try again later...',
         })
       }
     }
@@ -102,17 +102,23 @@ export const useFeedBrowser = () => {
     if (!(pluginFilesPayload && pluginFilesPayload.files)) {
       if (selected && status.includes(selected.data.status)) {
         if (download.error) {
+          setDownload({
+            ...download,
+            error: 'Files are ready for download now...',
+          })
         }
-        setDownload({
-          ...download,
-          error: 'Files are ready for download now...',
-        })
+
         dispatch(
           getPluginFilesRequest({
             id: selected.data.id,
             path: selected.data.output_path,
           }),
         )
+        if (download.error) {
+          setTimeout(() => {
+            setDownload(getInitialDownloadState)
+          }, 3000)
+        }
       }
     }
   }, [selected, finished, dispatch, pluginFilesPayload])
