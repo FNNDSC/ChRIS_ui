@@ -129,23 +129,6 @@ can be used to build this project.
 s2i build https://github.com/FNNDSC/ChRIS_ui quay.io/fedora/nodejs-16 s2ichrisui
 ```
 
-## Learn More
-
-Interested in contributing? https://chrisproject.org/join-us
-
-You can learn more in the
-[Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the
-[React documentation](https://reactjs.org/).
-
-
-[license-badge]: https://img.shields.io/github/license/fnndsc/chris_ui.svg
-[last-commit-badge]: https://img.shields.io/github/last-commit/fnndsc/chris_ui.svg
-[repo-link]: https://github.com/FNNDSC/ChRIS_ui
-[code-size]: https://img.shields.io/github/languages/code-size/FNNDSC/ChRIS_ui
-
-
 ### E2E TESTS ARE RAN USING CYPRESS
 
 ## Prerequisites:
@@ -163,6 +146,24 @@ To run cypress in the terminal as a headless browser use:
 ```
 
 Running Cypress inside a container is not currently supported
+
+
+## Learn More
+
+Interested in contributing? https://chrisproject.org/join-us
+
+You can learn more in the
+[Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the
+[React documentation](https://reactjs.org/).
+
+
+[license-badge]: https://img.shields.io/github/license/fnndsc/chris_ui.svg
+[last-commit-badge]: https://img.shields.io/github/last-commit/fnndsc/chris_ui.svg
+[repo-link]: https://github.com/FNNDSC/ChRIS_ui
+[code-size]: https://img.shields.io/github/languages/code-size/FNNDSC/ChRIS_ui
+
 
 
 
