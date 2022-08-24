@@ -8,6 +8,7 @@ import {
   addNodeSuccess,
   addSplitNodesSuccess,
   deleteNodeSuccess,
+  deleteNodeError,
   getSelectedPlugin,
 } from './actions'
 import {
@@ -86,8 +87,19 @@ function* handleDeleteNode(action: IActionTypeParam) {
     put(stopFetchingPluginResources(id)),
     put(stopFetchingStatusResources(id)),
   ])
-  yield put(deleteNodeSuccess(id))
-  yield instance.delete()
+  let errorString = ''
+  try {
+    yield instance.delete()
+  } catch (error) {
+    //@ts-ignore
+    errorString = error.response.data
+  }
+
+  if (!errorString) {
+    yield put(deleteNodeSuccess(id))
+  } else {
+    yield put(deleteNodeError(errorString))
+  }
 }
 
 function* watchGetPluginInstanceRequest() {

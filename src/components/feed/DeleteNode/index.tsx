@@ -1,35 +1,38 @@
-import React from "react";
-import { Dispatch } from "redux";
-import { Button, Modal, ModalVariant } from "@patternfly/react-core";
-import { connect } from "react-redux";
-import { ApplicationState } from "../../../store/root/applicationState";
-import { PluginInstance} from "@fnndsc/chrisapi";
-import { deleteNode } from "../../../store/pluginInstance/actions";
-import { FaTrash } from "react-icons/fa";
+import React from 'react'
+import { Dispatch } from 'redux'
+import { Button, Modal, ModalVariant, Alert } from '@patternfly/react-core'
+import { connect } from 'react-redux'
+import { ApplicationState } from '../../../store/root/applicationState'
+import { PluginInstance } from '@fnndsc/chrisapi'
+import { deleteNode } from '../../../store/pluginInstance/actions'
+import { FaTrash } from 'react-icons/fa'
 
 interface DeleteNodeProps {
-  selectedPlugin?: PluginInstance;
-  deleteNode: (instance: PluginInstance) => void;
-  deleteNodeSuccess: boolean;
+  selectedPlugin?: PluginInstance
+  deleteNode: (instance: PluginInstance) => void
+  deleteNodeState: {
+    error: string
+    success: boolean
+  }
 }
 
 const DeleteNode: React.FC<DeleteNodeProps> = ({
   selectedPlugin,
   deleteNode,
-  deleteNodeSuccess,
+  deleteNodeState,
 }: DeleteNodeProps) => {
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isModalOpen, setIsModalOpen] = React.useState(false)
   const handleModalToggle = () => {
-    setIsModalOpen(!isModalOpen);
-  };
+    setIsModalOpen(!isModalOpen)
+  }
 
   const handleDelete = async () => {
-    if (selectedPlugin) deleteNode(selectedPlugin);
+    if (selectedPlugin) deleteNode(selectedPlugin)
 
-    if (deleteNodeSuccess) {
-      setIsModalOpen(!isModalOpen);
+    if (deleteNodeState.success) {
+      setIsModalOpen(!isModalOpen)
     }
-  };
+  }
 
   return (
     <React.Fragment>
@@ -59,18 +62,21 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
       >
         Deleting a node will delete all it&apos;s descendants as well. Please
         confirm if you are sure
+        {deleteNodeState.error && (
+          <Alert variant="danger" title={deleteNodeState.error} />
+        )}
       </Modal>
     </React.Fragment>
-  );
-};
+  )
+}
 
 const mapStateToProps = (state: ApplicationState) => ({
   selectedPlugin: state.instance.selectedPlugin,
-  deleteNodeSuccess: state.instance.deleteNodeSuccess,
-});
+  deleteNodeState: state.instance.deleteNode,
+})
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   deleteNode: (instance: PluginInstance) => dispatch(deleteNode(instance)),
-});
+})
 
-export default connect(mapStateToProps, mapDispatchToProps)(DeleteNode);
+export default connect(mapStateToProps, mapDispatchToProps)(DeleteNode)
