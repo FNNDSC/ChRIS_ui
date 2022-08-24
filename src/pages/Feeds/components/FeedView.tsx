@@ -5,7 +5,6 @@ import {
   PageSection,
   Grid,
   GridItem,
-  Skeleton,
   Drawer,
   DrawerContent,
   DrawerContentBody,

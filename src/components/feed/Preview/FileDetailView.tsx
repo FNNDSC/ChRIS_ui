@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { Label, Text, Skeleton } from '@patternfly/react-core'
+import { Label, Text } from '@patternfly/react-core'
 import { ErrorBoundary } from 'react-error-boundary'
 import { FeedFile } from '@fnndsc/chrisapi'
 import { AiFillInfoCircle } from 'react-icons/ai'

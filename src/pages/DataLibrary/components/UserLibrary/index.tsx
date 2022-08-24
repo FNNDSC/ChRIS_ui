@@ -30,7 +30,6 @@ import { MainRouterContext } from '../../../../routes'
 import {
   clearSelectFolder,
   setDeleteFile,
-  setFolders,
   setMultiColumnLayout,
 } from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'

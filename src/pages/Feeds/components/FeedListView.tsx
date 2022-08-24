@@ -402,13 +402,6 @@ const TableRow = ({
   return (
     <Tr
       key={feed.data.id}
-      onRowClick={() => {
-        if (!isSelected(bulkSelect, feed)) {
-          dispatch(setBulkSelect(feed))
-        } else {
-          dispatch(removeBulkSelect(feed))
-        }
-      }}
       isSelectable
       isHoverable
       isRowSelected={isSelected(bulkSelect, feed)}

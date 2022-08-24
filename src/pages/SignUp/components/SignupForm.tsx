@@ -41,6 +41,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   hidePasswordAriaLabel = 'Hide password',
   showPasswordAriaLabel = 'Show password',
 }: SignUpFormProps) => {
+  /* eslint-disable */
   const [cookies, setCookie] = useCookies<string>([''])
   const [userState, setUserState] = React.useState<{
     username: string

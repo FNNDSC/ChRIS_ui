@@ -1,7 +1,6 @@
 import React from 'react'
 import Moment from 'react-moment'
 import {
-  Skeleton,
   Button,
   Toolbar,
   ToolbarItem,
@@ -124,7 +123,7 @@ const FeedDetails = () => {
       </Toolbar>
     )
   } else if (loading) {
-    return <SpinContainer  title="Fetching Details" />
+    return <SpinContainer title="Fetching Details" />
   } else if (error) {
     return <div>Error Found</div>
   } else return null

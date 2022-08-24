@@ -16,6 +16,7 @@ interface IPropsFromDispatch {
 
 type AllProps = IPropsFromDispatch & RouteComponentProps
 const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
+  /* eslint-disable */
   const [cookies, setCookie] = useCookies<string>([''])
   const [usernameValue, setUsernameValue] = React.useState<string>('')
   const [passwordValue, setPasswordValue] = React.useState<string>('')

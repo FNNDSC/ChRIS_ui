@@ -28,7 +28,11 @@ const InputUser: React.FC<InputUserProps> = ({
 }) => {
   const [value, setValue] = useState('')
 
-  const handleChange = (value: string) => {
+  const handleChange = (
+    value: string,
+    event: React.FormEvent<HTMLInputElement>,
+  ) => {
+    event.preventDefault()
     setValue(value)
     cleanError()
   }
@@ -41,7 +45,7 @@ const InputUser: React.FC<InputUserProps> = ({
 
   return (
     <div>
-      <Form isHorizontal>
+      <Form onSubmit={(event) => event.preventDefault()} isHorizontal>
         <FormGroup label="Enter a username" fieldId="horizontal-form-name">
           <TextInput
             value={value}
