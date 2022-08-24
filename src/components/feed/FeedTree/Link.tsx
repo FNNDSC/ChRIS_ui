@@ -64,7 +64,7 @@ class Link extends React.Component<LinkProps, LinkState> {
       targetY = target.y - targetPadding * normY;
 
     //@ts-ignore
-    if (target.data.item?.data.plugin_type === "ts") {
+    if (target.data.item?.data?.plugin_type === "ts") {
       if (
         target.data.item.data.previous_id !== source.data.item?.data.previous_id
       ) {
