@@ -23,8 +23,14 @@ import {
   toggleSelectAll,
 } from '../../../store/feed/actions'
 import { useTypedSelector } from '../../../store/hooks'
+import { Feed } from '@fnndsc/chrisapi'
+
+function capitalizeFirstLetter(stringLetter: string) {
+  return stringLetter.charAt(0).toUpperCase() + stringLetter.slice(1)
+}
+
 const IconContainer = () => {
-  const { bulkSelect, downloadError } = useTypedSelector((state) => {
+  const { bulkSelect, downloadError, allFeeds } = useTypedSelector((state) => {
     return state.feed
   })
   const dispatch = useDispatch()
@@ -34,12 +40,18 @@ const IconContainer = () => {
   const [dialogDescriptionValue, setDescriptionValue] = React.useState('')
   const [labelValue, setLabelValue] = React.useState('')
   const [defaultName, setDefaultName] = React.useState('')
+  const [deleteError, setDeleteError] = React.useState('')
+  const [actionValue, setActionValue] = React.useState('')
   const nameInputRef = React.useRef(null)
 
   const getDefaultName = (bulkSelect: any, action: string) => {
     setLabelValue('Feed Name')
-    setDescriptionValue('Enter a name for your new feed (optional)')
-    setTitleValue('Feed Name')
+    const value =
+      action === 'delete'
+        ? "Deleting a feed is a permanent action. Click on confirm if you're sure"
+        : 'Enter a name for your new feed (optional)'
+    setDescriptionValue(value)
+
     let prefix = ''
     if (action == 'merge') {
       prefix = 'Merge of '
@@ -61,7 +73,6 @@ const IconContainer = () => {
         newFeedName = 'duplicate-'
         setLabelValue('Feed Prefix')
         setDescriptionValue('Enter a feed prefix (optional)')
-        setTitleValue('Feed Prefix')
       } else {
         newFeedName = 'duplicate-' + bulkSelect[0].data.name
       }
@@ -69,11 +80,14 @@ const IconContainer = () => {
     return newFeedName
   }
 
-  const [actionValue, setActionValue] = React.useState('')
   const handleModalToggle = (action: string) => {
     setModalOpen(!isModalOpen)
     setActionValue(action)
-    setDefaultName(getDefaultName(bulkSelect, action))
+    const name = getDefaultName(bulkSelect, action)
+    setDefaultName(name)
+    setNameValue(name)
+    const titleValue = capitalizeFirstLetter(action)
+    setTitleValue(`${titleValue} feed`)
   }
 
   const handleNameInputChange = (value: any) => {
@@ -82,6 +96,25 @@ const IconContainer = () => {
 
   const handleSubmit = () => {
     handleChange(actionValue, nameValue)
+  }
+
+  const handleDelete = (bulkSelect: Feed[]) => {
+    if (bulkSelect && allFeeds && allFeeds.data) {
+      const feedIds = bulkSelect.map((feed: Feed) => feed.data.id)
+      const feedData = allFeeds.data?.filter(
+        (feed) => !feedIds.includes(feed.data.id),
+      )
+
+      bulkSelect.forEach(async (feed: Feed) => {
+        try {
+          await feed.delete()
+        } catch (error) {
+          //@ts-ignore
+          setDeleteError(error.response)
+        }
+      })
+      dispatch(deleteFeed(feedData))
+    }
   }
 
   React.useEffect(() => {
@@ -93,9 +126,13 @@ const IconContainer = () => {
   const handleChange = (type: string, name: any) => {
     type === 'download' && dispatch(downloadFeedRequest(bulkSelect, name))
     type === 'merge' && dispatch(mergeFeedRequest(bulkSelect, name))
-    type === 'delete' && dispatch(deleteFeed(bulkSelect))
+    type === 'delete' && handleDelete(bulkSelect)
     type === 'duplicate' && dispatch(duplicateFeedRequest(bulkSelect, name))
     dispatch(toggleSelectAll(false))
+  }
+
+  const alert = (error: string, addition: string) => {
+    return <Alert isInline variant="danger" title={error + addition} />
   }
   return (
     <ToggleGroup aria-label="Feed Action Bar">
@@ -144,7 +181,7 @@ const IconContainer = () => {
             <FaTrash />
           </Tooltip>
         }
-        onChange={() => handleChange('delete', '')}
+        onChange={() => handleModalToggle('delete')}
       />
 
       <Modal
@@ -177,31 +214,27 @@ const IconContainer = () => {
           </Button>,
         ]}
       >
-        <Form id="modal-with-form-form">
-          <FormGroup label={labelValue} fieldId="modal-with-form-form-name">
-            <TextInput
-              type="email"
-              id="modal-with-form-form-name"
-              name="modal-with-form-form-name"
-              placeholder={defaultName}
-              value={nameValue}
-              onChange={handleNameInputChange}
-              ref={nameInputRef}
-            />
-            {downloadError ? (
-              <Alert
-                isInline
-                variant="danger"
-                title={
-                  downloadError +
-                  ' Feeds from other creators need to be shared with you first.'
-                }
-              ></Alert>
-            ) : (
-              ''
-            )}
-          </FormGroup>
-        </Form>
+        {!(actionValue === 'delete') && (
+          <Form id="modal-with-form-form">
+            <FormGroup label={labelValue} fieldId="modal-with-form-form-name">
+              <TextInput
+                type="email"
+                id="modal-with-form-form-name"
+                name="modal-with-form-form-name"
+                placeholder={defaultName}
+                value={nameValue}
+                onChange={handleNameInputChange}
+                ref={nameInputRef}
+              />
+              {downloadError &&
+                alert(
+                  downloadError,
+                  ' Feeds from other creators need to be shared with you first.',
+                )}
+              {deleteError && alert(deleteError, '')}
+            </FormGroup>
+          </Form>
+        )}
       </Modal>
     </ToggleGroup>
   )

@@ -300,7 +300,7 @@ const FeedTree = (props: AllProps) => {
 
       const targetNodes = links.filter((link) => {
         //@ts-ignore
-        return link.target.data.item?.data.plugin_type === 'ts'
+        return link.target.data?.item?.data?.plugin_type === 'ts'
       })
 
       const remodifiedLinks = targetNodes.map((node) => {

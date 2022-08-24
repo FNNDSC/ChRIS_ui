@@ -27,7 +27,6 @@ export const initialState: IFeedState = {
   bulkSelect: [],
   feedResources: {},
   selectAllToggle: false,
-
 }
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -143,20 +142,11 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     }
 
     case FeedActionTypes.DELETE_FEED: {
-      const feedIds = action.payload.map((feed: Feed) => feed.data.id)
-      const feedData = state.allFeeds.data?.filter(
-        (feed) => !feedIds.includes(feed.data.id),
-      )
-
-      action.payload.forEach(async (feed: Feed) => {
-        await feed.delete()
-      })
-
       return {
         ...state,
         allFeeds: {
           ...state.allFeeds,
-          data: feedData,
+          data: action.payload,
           totalFeedsCount:
             state.allFeeds.totalFeedsCount - action.payload.length,
         },
@@ -182,7 +172,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         }
       }
     }
-    
+
     case FeedActionTypes.DUPLICATE_FEED_SUCCESS: {
       if (state.allFeeds.data) {
         return {
@@ -208,7 +198,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         downloadError: action.payload,
       }
     }
-    
+
     case FeedActionTypes.DUPLICATE_FEED_ERROR: {
       return {
         ...state,

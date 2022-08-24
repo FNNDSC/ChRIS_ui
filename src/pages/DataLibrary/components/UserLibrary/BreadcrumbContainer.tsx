@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,7 +8,6 @@ import {
 } from '@patternfly/react-core'
 import { FaFolder, FaFolderOpen, FaUser, FaHome } from 'react-icons/fa'
 import { FcServices } from 'react-icons/fc'
-import { LibraryContext } from './context'
 
 export interface Breadcrumb {
   browserType: string

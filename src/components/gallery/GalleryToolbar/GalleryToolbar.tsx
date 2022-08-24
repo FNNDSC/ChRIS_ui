@@ -5,8 +5,8 @@ import {
   FaPause,
   FaAngleDoubleLeft,
   FaAngleDoubleRight,
-  FaStepForward,
-  FaStepBackward,
+  FaLessThan,
+  FaGreaterThan,
 } from 'react-icons/fa'
 import { Button } from '@patternfly/react-core'
 
@@ -38,7 +38,7 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
             variant="link"
             onClick={() => props.onToolbarClick(galleryActions.previous)}
           >
-            <FaStepBackward />
+            <FaLessThan />
           </Button>
           <Button
             variant="link"
@@ -54,7 +54,7 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
             variant="link"
             onClick={() => props.onToolbarClick(galleryActions.next)}
           >
-            <FaStepForward />
+            <FaGreaterThan />
           </Button>
           <Button
             variant="link"
