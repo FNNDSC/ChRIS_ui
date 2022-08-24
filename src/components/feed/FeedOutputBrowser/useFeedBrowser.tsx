@@ -115,9 +115,11 @@ export const useFeedBrowser = () => {
     if (!(pluginFilesPayload && pluginFilesPayload.files)) {
       if (selected && status.includes(selected.data.status)) {
         if (download.error) {
-          setDownload({
-            ...download,
-            error: 'Files are ready for download now...',
+          setDownload((state) => {
+            return {
+              ...state,
+              error: 'Files are ready for download now...',
+            }
           })
         }
 
@@ -134,7 +136,7 @@ export const useFeedBrowser = () => {
         }
       }
     }
-  }, [selected, finished, dispatch, pluginFilesPayload])
+  }, [selected, finished, dispatch, pluginFilesPayload, download.error])
 
   const handleFileClick = (path: string) => {
     if (selected) {
