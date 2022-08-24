@@ -1,10 +1,16 @@
 import React from 'react'
 import { Dispatch } from 'redux'
+import { useDispatch } from 'react-redux'
+import { ErrorBoundary } from 'react-error-boundary'
 import { Button, Modal, ModalVariant, Alert } from '@patternfly/react-core'
 import { connect } from 'react-redux'
 import { ApplicationState } from '../../../store/root/applicationState'
 import { PluginInstance } from '@fnndsc/chrisapi'
-import { deleteNode } from '../../../store/pluginInstance/actions'
+import {
+  clearDeleteState,
+  deleteNode,
+  deleteNodeError,
+} from '../../../store/pluginInstance/actions'
 import { FaTrash } from 'react-icons/fa'
 
 interface DeleteNodeProps {
@@ -21,51 +27,61 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
   deleteNode,
   deleteNodeState,
 }: DeleteNodeProps) => {
+  const dispatch = useDispatch()
+
   const [isModalOpen, setIsModalOpen] = React.useState(false)
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen)
+
+    if (isModalOpen) {
+      dispatch(clearDeleteState())
+    }
   }
 
   const handleDelete = async () => {
-    if (selectedPlugin) deleteNode(selectedPlugin)
+    const statuses = ['finishedSuccessfully', 'cancelled', 'finishedWithError']
 
-    if (deleteNodeState.success) {
-      setIsModalOpen(!isModalOpen)
+    if (statuses.includes(selectedPlugin?.data.status)) {
+      if (selectedPlugin) deleteNode(selectedPlugin)
+    } else {
+      dispatch(deleteNodeError('Please wait for the plugin to finish running'))
     }
   }
 
   return (
     <React.Fragment>
-      <Button
-        disabled={!selectedPlugin}
-        onClick={handleModalToggle}
-        icon={<FaTrash />}
-        type="button"
-      >
-        Delete Node
-      </Button>
-      <Modal
-        variant={ModalVariant.small}
-        title="Delete Node Confirmation"
-        isOpen={isModalOpen}
-        onClose={handleModalToggle}
-        actions={[
-          <React.Fragment key="modal-action">
-            <Button key="confirm" variant="primary" onClick={handleDelete}>
-              Confirm
-            </Button>
-            <Button key="cancel" variant="link" onClick={handleModalToggle}>
-              Cancel
-            </Button>
-          </React.Fragment>,
-        ]}
-      >
-        Deleting a node will delete all it&apos;s descendants as well. Please
-        confirm if you are sure
-        {deleteNodeState.error && (
-          <Alert variant="danger" title={deleteNodeState.error} />
-        )}
-      </Modal>
+      <ErrorBoundary FallbackComponent={FallBackComponent}>
+        <Button
+          disabled={!selectedPlugin}
+          onClick={handleModalToggle}
+          icon={<FaTrash />}
+          type="button"
+        >
+          Delete Node
+        </Button>
+        <Modal
+          variant={ModalVariant.small}
+          title="Delete Node Confirmation"
+          isOpen={isModalOpen}
+          onClose={handleModalToggle}
+          actions={[
+            <React.Fragment key="modal-action">
+              <Button key="confirm" variant="primary" onClick={handleDelete}>
+                Confirm
+              </Button>
+              <Button key="cancel" variant="link" onClick={handleModalToggle}>
+                Cancel
+              </Button>
+            </React.Fragment>,
+          ]}
+        >
+          Deleting a node will delete all it&apos;s descendants as well. Please
+          confirm if you are sure
+          {deleteNodeState.error && (
+            <Alert variant="danger" title={deleteNodeState.error} />
+          )}
+        </Modal>
+      </ErrorBoundary>
     </React.Fragment>
   )
 }
@@ -80,3 +96,12 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(DeleteNode)
+
+const FallBackComponent = () => {
+  return (
+    <span>
+      Deleting a plugin instance can have some side effects. Could you please
+      try again?
+    </span>
+  )
+}

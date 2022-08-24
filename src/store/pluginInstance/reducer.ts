@@ -11,7 +11,7 @@ export const initialState: IPluginInstanceState = {
   },
   deleteNode: {
     error: '',
-    success: false
+    success: false,
   },
 }
 
@@ -49,6 +49,16 @@ const reducer: Reducer<IPluginInstanceState> = (
           data: undefined,
           error: action.payload,
           loading: false,
+        },
+      }
+    }
+
+    case PluginInstanceTypes.CLEAR_DELETE: {
+      return {
+        ...state,
+        deleteNode: {
+          success: false,
+          error: '',
         },
       }
     }
@@ -132,9 +142,13 @@ const reducer: Reducer<IPluginInstanceState> = (
 
     case PluginInstanceTypes.DELETE_NODE_SUCCESS: {
       const id = action.payload
+
       const pluginInstances = state.pluginInstances.data
         ?.map((instance) => {
-          if (instance.data.id === id || instance.data.previous_id === id) {
+          if (
+            instance &&
+            (instance?.data?.id === id || instance?.data?.previous_id === id)
+          ) {
             return undefined
           } else return instance
         })

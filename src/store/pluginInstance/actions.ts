@@ -39,3 +39,5 @@ export const addSplitNodesSuccess = (splitNodes: PluginInstance[]) =>
 
 export const resetPluginInstances = () =>
   action(PluginInstanceTypes.RESET_PLUGIN_INSTANCES)
+
+export const clearDeleteState = () => action(PluginInstanceTypes.CLEAR_DELETE)
