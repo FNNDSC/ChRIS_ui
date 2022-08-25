@@ -1,52 +1,55 @@
-import React from "react";
-import { useDispatch } from "react-redux";
-import { TextInput, Button, Title, Alert } from "@patternfly/react-core";
-import { useTypedSelector } from "../../../store/hooks";
-import { AiFillEdit } from "react-icons/ai";
-import { setPluginTitle } from "../../../store/pluginInstance/actions";
-import { PluginInstance } from "@fnndsc/chrisapi";
+import React from 'react'
+import { useDispatch } from 'react-redux'
+import { TextInput, Button, Title, Alert } from '@patternfly/react-core'
+import { useTypedSelector } from '../../../store/hooks'
+import { AiFillEdit } from 'react-icons/ai'
+import { setPluginTitle } from '../../../store/pluginInstance/actions'
+import { PluginInstance } from '@fnndsc/chrisapi'
 
 function getDefaultTitle(selectedPlugin?: PluginInstance) {
-  return selectedPlugin?.data.title || selectedPlugin?.data.plugin_name;
+  return selectedPlugin?.data.title || selectedPlugin?.data.plugin_name
 }
 
 const PluginTitle = () => {
-  const dispatch = useDispatch();
-  const [showInput, setShowInput] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState();
+  const dispatch = useDispatch()
+  const [showInput, setShowInput] = React.useState(false)
+  const [loading, setLoading] = React.useState(false)
+  const [error, setError] = React.useState()
   const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
-  );
-  const [value, setValue] = React.useState(getDefaultTitle(selectedPlugin));
-  const title = selectedPlugin?.data.title || selectedPlugin?.data.plugin_name;
+    (state) => state.instance.selectedPlugin,
+  )
+  const [value, setValue] = React.useState(getDefaultTitle(selectedPlugin))
+
+  const { title, plugin_version, plugin_name } = selectedPlugin?.data
+  const pluginName = `${title ? title : `${plugin_name} v.${plugin_version}`} `
 
   const handleOnChange = (value: string) => {
-    setValue(value);
-  };
+    setValue(value)
+  }
 
   React.useEffect(() => {
-    const title = getDefaultTitle(selectedPlugin);
-    setValue(title);
-  }, [selectedPlugin]);
+    const title = getDefaultTitle(selectedPlugin)
+    setValue(title)
+  }, [selectedPlugin])
 
   const handleSubmit = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       //@ts-ignore
       const pluginItem = await selectedPlugin?.put({
         title: value,
-      });
+      })
       if (pluginItem) {
-        dispatch(setPluginTitle(pluginItem));
+        dispatch(setPluginTitle(pluginItem))
       }
 
-      setLoading(false);
-      setShowInput(false);
-    } catch (error: any) {
-      setError(error);
+      setLoading(false)
+      setShowInput(false)
+    } catch (error) {
+      //@ts-ignore
+      setError(error)
     }
-  };
+  }
 
   return (
     <>
@@ -63,11 +66,11 @@ const PluginTitle = () => {
             onClick={handleSubmit}
             className="node-details__title--formButton"
           >
-            {loading ? "Confirming" : "Confirm"}
+            {loading ? 'Confirming' : 'Confirm'}
           </Button>
           <Button
             onClick={() => {
-              setShowInput(!showInput);
+              setShowInput(!showInput)
             }}
           >
             Cancel
@@ -76,18 +79,18 @@ const PluginTitle = () => {
       ) : (
         <>
           <Title headingLevel="h3" size="xl">
-            <span>{title}</span>
+            <span>{pluginName}</span>
           </Title>
           <AiFillEdit
             onClick={() => {
-              setShowInput(!showInput);
+              setShowInput(!showInput)
             }}
           />
           {error && <Alert variant="success" isInline title={error} />}
         </>
       )}
     </>
-  );
-};
+  )
+}
 
-export default PluginTitle;
+export default PluginTitle

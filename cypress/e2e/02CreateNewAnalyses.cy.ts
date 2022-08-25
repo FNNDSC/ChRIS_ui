@@ -68,11 +68,12 @@ describe('Testing CreateAnalysis', () => {
       .should('have.text', 'Next')
       .click()
   })
+  
 
   it('07 Selects the Feed Synthesis plugin', () => {
-    cy.contains('pl-mri10yr06mo01da_normal v.1.1.4')
-    cy.get('[name="pl-mri10yr06mo01da_normal v.1.1.4"]')
-      .should('have.attr', 'name', 'pl-mri10yr06mo01da_normal v.1.1.4')
+    cy.contains('Anonymized reference MRI')
+    cy.get('[name="Anonymized reference MRI"]')
+      .should('have.attr', 'name', 'Anonymized reference MRI')
       .click()
       .wait(2000)
   })

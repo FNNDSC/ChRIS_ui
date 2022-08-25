@@ -131,11 +131,12 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       },
     })
   }
-  const getCreationError = (error: string) => {
+  const getCreationError = (error: any) => {
+  
     dispatch({
       type: Types.SetError,
       payload: {
-        feedError: error,
+        feedError: error.response.data,
       },
     })
   }
