@@ -71,9 +71,9 @@ describe('Testing CreateAnalysis', () => {
   
 
   it('07 Selects the Feed Synthesis plugin', () => {
-    cy.contains('pl-mri10yr06mo01da_normal v.1.1.4')
-    cy.get('[name="pl-mri10yr06mo01da_normal v.1.1.4"]')
-      .should('have.attr', 'name', 'pl-mri10yr06mo01da_normal v.1.1.4')
+    cy.contains('brainmgz')
+    cy.get('[name="brainmgz"]')
+      .should('have.attr', 'name', 'brainmgz')
       .click()
       .wait(2000)
   })

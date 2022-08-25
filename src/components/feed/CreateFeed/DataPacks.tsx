@@ -128,8 +128,8 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
         {fsPlugins.map((plugin, index) => {
           const { title, name } = plugin.data
           const pluginName = `${
-            title ? title : `${name} v.${plugin.data.version}`
-          } `
+            title ? title:`${name} v.${plugin.data.version}`
+          }`
           return (
             <DataListItem key={index} aria-labelledby="plugin-checkbox">
               <DataListItemRow>
@@ -159,13 +159,13 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                       <div className="plugin-table-row" key={index}>
                         <span
                           className="plugin-table-row__plugin-name"
-                          id={`${plugin.data.id}`}
+                          id={pluginName}
                         >
                           {pluginName}
                         </span>
                         <span
                           className="plugin-table-row__plugin-description"
-                          id={`${plugin.data.description}`}
+                          id={plugin.data.description}
                         >
                           <em>{plugin.data.description}</em>
                         </span>
