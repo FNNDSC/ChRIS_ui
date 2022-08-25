@@ -68,6 +68,7 @@ describe('Testing CreateAnalysis', () => {
       .should('have.text', 'Next')
       .click()
   })
+  
 
   it('07 Selects the Feed Synthesis plugin', () => {
     cy.contains('pl-mri10yr06mo01da_normal v.1.1.4')
