@@ -27,7 +27,7 @@ export const createFeed = async (
   username: string | null | undefined,
   pipelineData: PipelineData,
   setProgressCallback: (status: string) => void,
-  setErrorCallback: (error: string) => void,
+  setErrorCallback: (error: any) => void,
   selectedPipeline?: number,
 ) => {
   const { chrisFiles, localFiles } = data
@@ -65,7 +65,7 @@ export const createFeedInstanceWithDircopy = async (
   username: string | null | undefined,
   pipelineData: PipelineData,
   statusCallback: (status: string) => void,
-  errorCallback: (error: string) => void,
+  errorCallback: (error: any) => void,
   selectedPipeline?: number,
 ) => {
   const { chrisFiles, localFiles } = data
@@ -132,7 +132,7 @@ export const createFeedInstanceWithDircopy = async (
       }
     }
   } catch (error) {
-    errorCallback(error as string)
+    errorCallback(error)
   }
 
   return feed

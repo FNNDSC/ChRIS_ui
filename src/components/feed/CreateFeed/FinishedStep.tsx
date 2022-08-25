@@ -10,6 +10,7 @@ import { CreateFeedContext } from './context'
 import { Types } from './types'
 import { FaCogs } from 'react-icons/fa'
 import { useAsync } from '../../../utils'
+import ReactJson from 'react-json-view'
 
 interface FinishedStepProp {
   createFeed: () => void
@@ -19,9 +20,8 @@ const FinishedStep: React.FC<FinishedStepProp> = ({
   createFeed,
 }: FinishedStepProp) => {
   const { state, dispatch } = useContext(CreateFeedContext)
-  const { feedProgress, value } = state
+  const { feedProgress, value, feedError } = state
   const { run, isLoading, isError, isSuccess } = useAsync(state)
-  
 
   React.useEffect(() => {
     run(createFeed())
@@ -39,13 +39,13 @@ const FinishedStep: React.FC<FinishedStepProp> = ({
         <div className="finished-step">
           <FaCogs className="finished-step__icon" />
           <p className="finished-step__header pf-c-title pf-m-lg">
-            {isLoading
-              ? 'Your feed is being created. Give it a moment'
-              : isError
-              ? 'Oops ! There seems to be an error, Please try again'
-              : isSuccess
-              ? 'You can now safely close the wizard'
-              : null}
+            {isLoading ? (
+              'Your feed is being created. Give it a moment'
+            ) : isError ? (
+              <ReactJson src={feedError}></ReactJson>
+            ) : isSuccess ? (
+              'You can now safely close the wizard'
+            ) : null}
           </p>
         </div>
       </StackItem>

@@ -104,7 +104,7 @@ type CreateFeedPayload = {
     feedProgress: 'string'
   }
   [Types.SetError]: {
-    feedError: string
+    feedError: any
   }
   [Types.SetProgressPercent]: {
     percent: number
@@ -221,7 +221,7 @@ export interface CreateFeedState extends InputState {
   selectedConfig: string
   selectedPlugin?: Plugin
   feedProgress: string
-  feedError: string
+  feedError: any
   value: number
   computeEnvironment: string
   pipelineData: PipelineData

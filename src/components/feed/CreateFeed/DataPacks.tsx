@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useContext } from "react";
-import { Plugin } from "@fnndsc/chrisapi";
-import { Types } from "./types";
-import { CreateFeedContext } from "./context";
-import { Dispatch } from "redux";
-import { connect } from "react-redux";
+import React, { useEffect, useState, useContext } from 'react'
+import { Plugin } from '@fnndsc/chrisapi'
+import { Types } from './types'
+import { CreateFeedContext } from './context'
+import { Dispatch } from 'redux'
+import { connect } from 'react-redux'
 import {
   DataList,
   DataListItem,
@@ -13,80 +13,80 @@ import {
   DataListItemRow,
   Pagination,
   ToolbarItem,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core'
 import {
   Button,
   ButtonVariant,
   InputGroup,
   TextInput,
-} from "@patternfly/react-core";
-import { FaSearch } from "react-icons/fa";
-import debounce from "lodash/debounce";
+} from '@patternfly/react-core'
+import { FaSearch } from 'react-icons/fa'
+import debounce from 'lodash/debounce'
 
-import { getParams } from "../../../store/plugin/actions";
-import { getPlugins } from "./utils/dataPacks";
+import { getParams } from '../../../store/plugin/actions'
+import { getPlugins } from './utils/dataPacks'
 
 interface FilterProps {
-  perPage: number;
-  currentPage: number;
-  filter: string;
-  itemCount: number;
+  perPage: number
+  currentPage: number
+  filter: string
+  itemCount: number
 }
 
 const getFilterState = () => {
   return {
     perPage: 3,
     currentPage: 1,
-    filter: "",
+    filter: '',
     itemCount: 0,
-  };
-};
+  }
+}
 
 interface DataPacksReduxProp {
-  getParams: (plugin: Plugin) => void;
+  getParams: (plugin: Plugin) => void
 }
 
 const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
-  const { state, dispatch } = useContext(CreateFeedContext);
-  const { selectedPlugin } = state;
-  const [fsPlugins, setfsPlugins] = useState<Plugin[]>([]);
-  const [filterState, setFilterState] = useState<FilterProps>(getFilterState());
-  const { perPage, currentPage, filter, itemCount } = filterState;
+  const { state, dispatch } = useContext(CreateFeedContext)
+  const { selectedPlugin } = state
+  const [fsPlugins, setfsPlugins] = useState<Plugin[]>([])
+  const [filterState, setFilterState] = useState<FilterProps>(getFilterState())
+  const { perPage, currentPage, filter, itemCount } = filterState
 
   useEffect(() => {
-    getPlugins(filter, perPage, perPage * (currentPage - 1), "fs").then(
+    getPlugins(filter, perPage, perPage * (currentPage - 1), 'fs').then(
       (pluginDetails) => {
         if (pluginDetails.plugins) {
-          setfsPlugins(pluginDetails.plugins);
+          setfsPlugins(pluginDetails.plugins)
           setFilterState((filterState) => ({
             ...filterState,
             itemCount: pluginDetails.totalCount,
-          }));
+          }))
         }
-      }
-    );
-  }, [filter, perPage, currentPage, selectedPlugin]);
+      },
+    )
+  }, [filter, perPage, currentPage, selectedPlugin])
 
   // only update filter every half-second, to avoid too many requests
   const handleFilterChange = debounce((value: string) => {
     setFilterState({
       ...filterState,
       filter: value,
-    });
-  }, 500);
+    })
+  }, 500)
 
   const handlePageSet = (_e: any, currentPage: number) => {
     setFilterState({
       ...filterState,
       currentPage,
-    });
-  };
+    })
+  }
   const handlePerPageSet = (_e: any, perPage: number) => {
     setFilterState({
       ...filterState,
       perPage,
-    });
-  };
+    })
+  }
 
   return (
     <div className="local-file-upload">
@@ -126,27 +126,29 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
 
       <DataList aria-label="FS Plugins">
         {fsPlugins.map((plugin, index) => {
-          const name = plugin.data.name;
+          const { title, name } = plugin.data
+          const pluginName = `${
+            title ? title:`${name} v.${plugin.data.version}`
+          }`
           return (
             <DataListItem key={index} aria-labelledby="plugin-checkbox">
               <DataListItemRow>
                 <DataListCheck
                   aria-labelledby="plugin-checkbox"
-                  name={`${name} v.${plugin.data.version}`}
+                  name={pluginName}
                   onChange={(checked: any) => {
-                    checked === true && props.getParams(plugin);
+                    checked === true && props.getParams(plugin)
                     dispatch({
                       type: Types.SelectPlugin,
                       payload: {
                         plugin,
                         checked,
                       },
-                    });
+                    })
                   }}
-                  checked={selectedPlugin?.data.name === plugin.data.name}
+                  checked={selectedPlugin?.data.id === plugin.data.id}
                   isDisabled={
-                    selectedPlugin &&
-                    selectedPlugin.data.name !== plugin.data.name
+                    selectedPlugin && selectedPlugin.data.id !== plugin.data.id
                       ? true
                       : false
                   }
@@ -157,13 +159,13 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                       <div className="plugin-table-row" key={index}>
                         <span
                           className="plugin-table-row__plugin-name"
-                          id={`${plugin.data.name}`}
+                          id={pluginName}
                         >
-                          {name} v.{plugin.data.version}
+                          {pluginName}
                         </span>
                         <span
                           className="plugin-table-row__plugin-description"
-                          id={`${plugin.data.description}`}
+                          id={plugin.data.description}
                         >
                           <em>{plugin.data.description}</em>
                         </span>
@@ -173,15 +175,15 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                 ></DataListItemCells>
               </DataListItemRow>
             </DataListItem>
-          );
+          )
         })}
       </DataList>
     </div>
-  );
-};
+  )
+}
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getParams: (plugin: Plugin) => dispatch(getParams(plugin)),
-});
+})
 
-export default connect(null, mapDispatchToProps)(DataPacks);
+export default connect(null, mapDispatchToProps)(DataPacks)
