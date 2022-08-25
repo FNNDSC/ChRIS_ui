@@ -71,9 +71,9 @@ describe('Testing CreateAnalysis', () => {
   
 
   it('07 Selects the Feed Synthesis plugin', () => {
-    cy.contains('brainmgz')
-    cy.get('[name="brainmgz"]')
-      .should('have.attr', 'name', 'brainmgz')
+    cy.contains('Anonymized reference MRI')
+    cy.get('[name="Anonymized reference MRI"]')
+      .should('have.attr', 'name', 'Anonymized reference MRI')
       .click()
       .wait(2000)
   })
