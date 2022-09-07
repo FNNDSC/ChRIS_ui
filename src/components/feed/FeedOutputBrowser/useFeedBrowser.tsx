@@ -11,7 +11,7 @@ import { getPluginFilesRequest } from '../../../store/resources/actions'
 import { ExplorerMode } from '../../../store/explorer/types'
 import FileViewerModel from '../../../api/models/file-viewer.model'
 import usePluginInstanceResource from '../NodeDetails/usePluginInstanceResource'
-import { getCurrentTitleFromStatus } from '../NodeDetails/StatusTitle'
+import { getCurrentTitleFromStatus, getFinishedTitle } from '../NodeDetails/StatusTitle'
 import { getPluginName } from './utils'
 import { fetchResource } from '../../../utils'
 
@@ -47,12 +47,14 @@ export const useFeedBrowser = () => {
 
   let statusTitle:
     | {
-        title: string
-        icon: any
-      }
+      title: string
+      icon: any
+    }
     | undefined = undefined
-  if (pluginStatus) {
-    statusTitle = getCurrentTitleFromStatus(pluginStatus)
+  if (pluginStatus && selected) {
+    statusTitle = status.includes(selected.data.status) ?
+      getFinishedTitle(selected.data.status) :
+      getCurrentTitleFromStatus(pluginStatus)
   }
 
   const downloadAllClick = async () => {

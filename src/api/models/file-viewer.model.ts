@@ -36,10 +36,10 @@ export const fileViewerMap: any = {
   dcm: "DcmDisplay",
   default: "CatchallDisplay",
   nii: "NiftiDisplay",
-  gz: "NiftiDisplay",
+  gz: "CatchallDisplay",
   mgz: "XtkDisplay",
   fsm: "XtkDisplay",
   crv: "XtkDisplay",
   smoothwm: "XtkDisplay",
-  pial: "XtkDisplay"
+  pial: "XtkDisplay",
 };
