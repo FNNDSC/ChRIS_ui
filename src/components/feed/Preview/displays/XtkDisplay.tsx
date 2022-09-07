@@ -12,6 +12,7 @@ declare const X: any;
 const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
   const mode = getXtkFileMode(fileItem.fileType);
 
+
   useEffect(() => {
     let r: any;
     async function renderFileData() {
@@ -59,13 +60,13 @@ const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
     <div style={{ height: '100%' }}>
       {
         mode === 'other'
-          ? <div style={{ 
-            height: '100%', 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
+          ? <div style={{
+            height: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
             marginTop: -40,
-            fontSize: 18, 
+            fontSize: 18,
             fontStyle: 'italic',
           }}>
             Please open the XTK Viewer to preview this file
