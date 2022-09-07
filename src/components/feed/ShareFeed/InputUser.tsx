@@ -30,7 +30,7 @@ const InputUser: React.FC<InputUserProps> = ({
 
   const handleChange = (
     value: string,
-    event: React.FormEvent<HTMLInputElement>,
+    event: any,
   ) => {
     event.preventDefault()
     setValue(value)
@@ -43,6 +43,12 @@ const InputUser: React.FC<InputUserProps> = ({
     handleCreate(value)
   }
 
+  const handleKeyDown = (event?: any) => {
+    if (event.key === 'Enter' || event.keyCode === 13 || event.which === 13) {
+      handleCreate(value);
+    }
+  }
+
   return (
     <div>
       <Form onSubmit={(event) => event.preventDefault()} isHorizontal>
@@ -51,6 +57,7 @@ const InputUser: React.FC<InputUserProps> = ({
             value={value}
             type="text"
             onChange={handleChange}
+            onKeyDown={handleKeyDown}
             aria-label="text input example"
           />
         </FormGroup>
