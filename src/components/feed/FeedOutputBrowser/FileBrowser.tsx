@@ -224,8 +224,8 @@ const FileBrowser = (props: FileBrowserProps) => {
               {items.length > 1
                 ? `(${items.length} items)`
                 : items.length === 1
-                ? `(${items.length} item)`
-                : 'Empty Directory'}
+                  ? `(${items.length} item)`
+                  : 'Empty Directory'}
             </span>
           </div>
         </div>
@@ -311,7 +311,7 @@ const HeaderPanel = (props: HeaderPanelProps) => {
     selectedFile,
   } = props
 
-  const imageFileTypes = ['dcm', 'png', 'jpg', 'nii', 'gz', 'jpeg']
+  const imageFileTypes = ['dcm', 'png', 'jpg', 'nii', 'jpeg']
   const fileType = getFileExtension(selectedFile.data.fname)
 
   return (
