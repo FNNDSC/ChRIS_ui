@@ -38,7 +38,7 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
       </React.Fragment>
     );
     return (
-      <Alert variant="info" title="No preview available for large files">
+      <Alert variant="info" title={`No preview available for the filetype ${ext}`}>
         {alertText}
       </Alert>
     );
