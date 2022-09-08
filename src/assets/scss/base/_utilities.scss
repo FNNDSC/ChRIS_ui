@@ -5,26 +5,6 @@
 *  Author:          ChRIS UI
 */
 
-.capitalize {
-  text-transform: capitalize;
-}
-// Add a full width modal
-.fullwidth-modal {
-  margin: 0 auto;
-  min-height: 50vh;
-  min-width: 98vw;
-}
-
-.icon-mr {
-  margin-right: 5px;
-}
-
-.white-bg {
-  background: white;
-}
-.black-bg {
-  background: black;
-}
 .black-900 {
   color: $pf-color-black-900;
 }
@@ -45,7 +25,6 @@
 
 div:-webkit-full-screen {
   width: 100% !important;
-
   .tohide {
     display: none;
   }
@@ -64,7 +43,6 @@ div:-ms-fullscreen {
 }
 div:fullscreen {
   width: 100% !important;
-
   .tohide {
     display: none;
   }
@@ -73,7 +51,7 @@ div:fullscreen {
 /* Custom Scrollbar */
 
 ::-webkit-scrollbar {
-  width: 0.5rem;
+  width: 2rem;
   height: 0.5em;
 }
 
@@ -85,21 +63,6 @@ div:fullscreen {
   background-color: #73bcf7;
 }
 
-::-webkit-scrollbar-thumb {
-  background-color: #73bcf7;
-  border: 1px solid transparent;
-  background-clip: content-box;
-}
-
 ::-webkit-scrollbar-thumb:hover {
   background-color: #2b9af3;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none !important;
-  scrollbar-width: none !important;
-
-  &::-webkit-scrollbar {
-    display: none !important;
-  }
 }
