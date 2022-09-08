@@ -13,20 +13,18 @@ $fw-bold: 900;
 h1,
 h2,
 h3 {
-  font-size: 2em;
-  font-weight: 600;
-
   margin-top: 0.25em;
   margin-bottom: 0.25em;
+}
+
+h1 + h2 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
 }
 
 h2 {
   font-size: 1.5em;
   font-weight: 400;
-}
-h1 + h2 {
-  margin-top: 0;
-  margin-bottom: 0.5em;
 }
 
 h3 {

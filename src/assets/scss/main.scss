@@ -1,19 +1,21 @@
+/*
+*  File:            main.scss
+*  Description:     Container for the main body of styling pages
+*
+*  Author:          ChRIS UI
+*/
+
+
+// Helpers
+
 @import './helpers/pf4-variables';
 @import './helpers/variables';
 
+// Base Styling
 
-@import "./base/utilities";
+@import './base/background-image';
 @import "./base/typography";
-
-// Components
-@import './components/background-image';
+@import "./base/utilities";
 
 // Custom Layout styles
 @import './layout/layout';
-
-// Overriding styles
-input:focus, textarea:focus, select:focus{
-    outline: none !important;
-  }
-
-
