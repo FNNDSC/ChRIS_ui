@@ -6,6 +6,8 @@
 */
 
 // Background image in back
+// --------------------------------------------------------------------
+
 .pf-background {
   &:after {
     background: transparent url("#{$image-url}#{$chris-background-image}")
