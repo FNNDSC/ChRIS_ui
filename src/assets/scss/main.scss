@@ -12,3 +12,10 @@
 
 // Custom Layout styles
 @import './layout/layout';
+
+// Overriding styles
+
+input:focus, textarea:focus, select:focus{
+    outline: none !important;
+  }
+
