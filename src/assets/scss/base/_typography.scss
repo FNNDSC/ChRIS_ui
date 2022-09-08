@@ -54,3 +54,22 @@ a {
   -ms-user-select: none;
   user-select: none;
 }
+
+// Patternfly variable overrides
+// --------------------------------------------------------------------
+// Grid breakpoints - adjust as needed
+$pf-global--breakpoint--xs:         0;
+$pf-global--breakpoint--sm:         576px;
+$pf-global--breakpoint--md:         768px;
+$pf-global--breakpoint--lg:         992px;
+$pf-global--breakpoint--xl:         1200px;
+
+$pf-root-directory:                 '~@patternfly/patternfly/';
+// Fontpath
+$pf-global--font-path:              '~@patternfly/patternfly/assets/fonts';
+// Iconpath
+$fa-font-path:                      '~@patternfly/patternfly/assets/fonts/webfonts';
+// FontIcon Path
+$pf-global--fonticon-path:          '~@patternfly/patternfly/assets/pficon';
+// Imagepath
+$pf-global--image-path:             '~@patternfly/patternfly/assets/images';
