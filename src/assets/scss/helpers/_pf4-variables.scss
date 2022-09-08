@@ -7,7 +7,6 @@
 // Patternfly variable overrides
 // --------------------------------------------------------------------
 
-// Grid breakpoints - adjust as needed
 $pf-global--breakpoint--xs: 0;
 $pf-global--breakpoint--sm: 576px;
 $pf-global--breakpoint--md: 768px;
@@ -25,6 +24,8 @@ $pf-global--fonticon-path: "~@patternfly/patternfly/assets/pficon";
 
 $pf-global--image-path: "~@patternfly/patternfly/assets/images";
 
+
 // Color overrides
 // --------------------------------------------------------------------
+
 $pf-color-black-900: #282d33;

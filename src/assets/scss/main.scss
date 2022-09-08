@@ -7,15 +7,21 @@
 
 
 // Helpers
+// ---------------------------------------------------------
 
 @import './helpers/pf4-variables';
 @import './helpers/variables';
 
+
 // Base Styling
+// ---------------------------------------------------------
 
 @import './base/background-image';
 @import "./base/typography";
 @import "./base/utilities";
 
+
 // Custom Layout styles
+// ---------------------------------------------------------
+
 @import './layout/layout';
