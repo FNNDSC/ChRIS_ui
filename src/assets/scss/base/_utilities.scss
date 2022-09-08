@@ -13,8 +13,10 @@
   float: right;
 }
 
+
 // Accessibility additions
 // Hidden on md and below (768px;)
+// ----------------------------------------------
 
 .hidden-md {
   @media screen and (max-width: $pf-global--breakpoint--md) {
@@ -22,7 +24,10 @@
   }
 }
 
-/* Full screen view. While in fullscreen, hide any children with class 'tohide' */
+
+// Full screen view
+// While in fullscreen, hide any children with class 'tohide'
+// ----------------------------------------------
 
 div:-webkit-full-screen {
   width: 100% !important;
@@ -49,13 +54,17 @@ div:fullscreen {
   }
 }
 
+
 // Inputs onfocus
+// ----------------------------------------------
 
 input:focus, textarea:focus, select:focus{
   outline: none !important;
 }
 
-/* Custom Scrollbar */
+
+// Custom Scrollbar
+// ----------------------------------------------
 
 ::-webkit-scrollbar {
   width: 2rem;

@@ -5,11 +5,15 @@
 *  Author:          ChRIS UI
 */
 
+
 $fw-light: 300;
 $fw-normal: 400;
 $fw-bold: 900;
 
+
 // Typography
+// ----------------------------------------------
+
 h1,
 h2,
 h3 {
@@ -45,7 +49,6 @@ p {
 a {
   text-decoration: none;
   font-weight: bolder;
-
   // Remove blue highlight in mobile
   -webkit-touch-callout: none;
   -webkit-user-select: none;
