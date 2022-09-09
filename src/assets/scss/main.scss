@@ -1,14 +1,27 @@
+/*
+*  File:            main.scss
+*  Description:     Container for the main body of styling pages
+*
+*  Author:          ChRIS UI
+*/
+
+
+// Helpers
+// ---------------------------------------------------------
+
 @import './helpers/pf4-variables';
 @import './helpers/variables';
 
 
-@import "./base/utilities";
-@import "./base/overrides";
-@import "./base/typography";
+// Base Styling
+// ---------------------------------------------------------
 
-// Components
-@import './components/background-image';
+@import './base/background-image';
+@import "./base/typography";
+@import "./base/utilities";
 
 
 // Custom Layout styles
+// ---------------------------------------------------------
+
 @import './layout/layout';

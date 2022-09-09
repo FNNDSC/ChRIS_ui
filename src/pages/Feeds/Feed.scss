@@ -4,9 +4,9 @@
 *  Author:          ChRIS UI
 */
 
-@import "../../assets/scss/abstracts/colors";
 @import "../../assets/scss/helpers/mixins";
 @import "../../assets/scss/helpers/pf4-variables";
+@import '../../assets/scss/helpers/variables'; 
 @import "antd/dist/antd.css";
 
 .feed-header {
