@@ -5,26 +5,6 @@
 *  Author:          ChRIS UI
 */
 
-.capitalize {
-  text-transform: capitalize;
-}
-// Add a full width modal
-.fullwidth-modal {
-  margin: 0 auto;
-  min-height: 50vh;
-  min-width: 98vw;
-}
-
-.icon-mr {
-  margin-right: 5px;
-}
-
-.white-bg {
-  background: white;
-}
-.black-bg {
-  background: black;
-}
 .black-900 {
   color: $pf-color-black-900;
 }
@@ -33,19 +13,24 @@
   float: right;
 }
 
+
 // Accessibility additions
 // Hidden on md and below (768px;)
+// ----------------------------------------------
+
 .hidden-md {
   @media screen and (max-width: $pf-global--breakpoint--md) {
     display: none !important;
   }
 }
 
-/* Full screen view. While in fullscreen, hide any children with class 'tohide' */
+
+// Full screen view
+// While in fullscreen, hide any children with class 'tohide'
+// ----------------------------------------------
 
 div:-webkit-full-screen {
   width: 100% !important;
-
   .tohide {
     display: none;
   }
@@ -64,16 +49,25 @@ div:-ms-fullscreen {
 }
 div:fullscreen {
   width: 100% !important;
-
   .tohide {
     display: none;
   }
 }
 
-/* Custom Scrollbar */
+
+// Inputs onfocus
+// ----------------------------------------------
+
+input:focus, textarea:focus, select:focus{
+  outline: none !important;
+}
+
+
+// Custom Scrollbar
+// ----------------------------------------------
 
 ::-webkit-scrollbar {
-  width: 0.5rem;
+  width: 1rem;
   height: 0.5em;
 }
 
@@ -85,21 +79,6 @@ div:fullscreen {
   background-color: #73bcf7;
 }
 
-::-webkit-scrollbar-thumb {
-  background-color: #73bcf7;
-  border: 1px solid transparent;
-  background-clip: content-box;
-}
-
 ::-webkit-scrollbar-thumb:hover {
   background-color: #2b9af3;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none !important;
-  scrollbar-width: none !important;
-
-  &::-webkit-scrollbar {
-    display: none !important;
-  }
 }

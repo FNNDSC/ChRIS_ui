@@ -5,28 +5,30 @@
 *  Author:          ChRIS UI
 */
 
+
 $fw-light: 300;
 $fw-normal: 400;
 $fw-bold: 900;
 
+
 // Typography
+// ----------------------------------------------
+
 h1,
 h2,
 h3 {
-  font-size: 2em;
-  font-weight: 600;
-
   margin-top: 0.25em;
   margin-bottom: 0.25em;
+}
+
+h1 + h2 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
 }
 
 h2 {
   font-size: 1.5em;
   font-weight: 400;
-}
-h1 + h2 {
-  margin-top: 0;
-  margin-bottom: 0.5em;
 }
 
 h3 {
@@ -47,7 +49,6 @@ p {
 a {
   text-decoration: none;
   font-weight: bolder;
-
   // Remove blue highlight in mobile
   -webkit-touch-callout: none;
   -webkit-user-select: none;

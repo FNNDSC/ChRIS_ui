@@ -9,7 +9,6 @@
     margin-right: $global-icon-margin-right;
 }
 
-
 @mixin css3-prefix($property, $value) {
     -webkit-#{$property}: #{$value};
      -khtml-#{$property}: #{$value};
@@ -20,6 +19,8 @@
   }
 
 /// Opacity
+// --------------------------------------------------------------------
+
 /// @param {Double} $opacity [0.5] - Opacity
 /// @require {mixin} css3-prefix
 
@@ -32,6 +33,8 @@
   
   
   /// Border Radius
+  // --------------------------------------------------------------------
+
   /// @param {Size} $radius [5px] - Radius
   /// @require {mixin} css3-prefix
   
@@ -39,15 +42,8 @@
       @include css3-prefix('border-radius', $radius);
   }
 
-
   @mixin media-query($size){
       @media only screen and (min-width:$size){
           @content;
       }
   }
-
-
-
-
-
-
