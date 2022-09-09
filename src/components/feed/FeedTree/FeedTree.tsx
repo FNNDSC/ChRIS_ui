@@ -342,7 +342,7 @@ const FeedTree = (props: AllProps) => {
 
   return (
     <div
-      className={`feed-tree grabbable mode_${mode === false ? "graph" : ""}`}
+      className={`feed-tree grabbable mode_${mode === false ? "graph" : "tree"}`}
     >
       <div className="feed-tree__container">
         <div className="feed-tree__container--labels">
