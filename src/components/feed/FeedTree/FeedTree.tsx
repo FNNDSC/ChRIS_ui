@@ -342,17 +342,19 @@ const FeedTree = (props: AllProps) => {
 
   return (
     <div
-      className={`feed-tree grabbable mode_${mode === false ? 'graph' : ''}`}
+      className={`feed-tree grabbable mode_${
+        mode === false ? "graph" : "tree"
+      }`}
     >
       <div className="feed-tree__container">
         <div className="feed-tree__container--labels">
           <div
             onClick={() => {
-              changeOrientation(orientation)
+              changeOrientation(orientation);
             }}
             className="feed-tree__orientation"
           >
-            {orientation === 'vertical' ? (
+            {orientation === "vertical" ? (
               <AiOutlineRotateLeft className="feed-tree__orientation--icon" />
             ) : (
               <AiOutlineRotateRight className="feed-tree__orientation--icon" />
@@ -365,7 +367,7 @@ const FeedTree = (props: AllProps) => {
               labelOff="Collapsible Off"
               isChecked={feedState.collapsible}
               onChange={() => {
-                handleChange('collapsible')
+                handleChange("collapsible");
               }}
             />
           </div>
@@ -376,7 +378,7 @@ const FeedTree = (props: AllProps) => {
               labelOff="Hide Labels"
               isChecked={feedState.toggleLabel}
               onChange={() => {
-                handleChange('label')
+                handleChange("label");
               }}
             />
           </div>
@@ -387,7 +389,7 @@ const FeedTree = (props: AllProps) => {
               labelOff="3D"
               isChecked={currentLayout}
               onChange={() => {
-                dispatch(setFeedLayout())
+                dispatch(setFeedLayout());
               }}
             />
           </div>
@@ -399,20 +401,22 @@ const FeedTree = (props: AllProps) => {
               labelOff="Scale Nodes Off "
               isChecked={feedState.overlayScale.enabled}
               onChange={() => {
-                handleChange('scale_enabled')
+                handleChange("scale_enabled");
               }}
-            />
+            />;
 
-            {feedState.overlayScale.enabled && (
-              <div className="dropdown-wrap">
-                <NodeScaleDropdown
-                  selected={feedState.overlayScale.type}
-                  onChange={(type) => {
-                    handleChange('scale_type', type)
-                  }}
-                />
-              </div>
-            )}
+            {
+              feedState.overlayScale.enabled && (
+                <div className="dropdown-wrap">
+                  <NodeScaleDropdown
+                    selected={feedState.overlayScale.type}
+                    onChange={(type) => {
+                      handleChange("scale_type", type);
+                    }}
+                  />
+                </div>
+              );
+            }
           </div>
           {mode === false && (
             <div className="feed-tree__orientation">
@@ -428,7 +432,7 @@ const FeedTree = (props: AllProps) => {
             <div className="feed-tree__orientation">
               <Button
                 type="button"
-                onClick={() => props.onExpand('side_panel')}
+                onClick={() => props.onExpand("side_panel")}
               >
                 Node Panel
               </Button>
@@ -443,36 +447,40 @@ const FeedTree = (props: AllProps) => {
           className={graphClassName}
           transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
         >
-          {links?.map((linkData, i) => {
-            return (
-              <Link
-                orientation={orientation}
-                key={'link' + i}
-                linkData={linkData}
-              />
-            )
-          })}
+          {
+            links?.map((linkData, i) => {
+              return (
+                <Link
+                  orientation={orientation}
+                  key={"link" + i}
+                  linkData={linkData}
+                />
+              );
+            });
+          }
 
-          {nodes?.map(({ data, x, y, parent }, i) => {
-            return (
-              <NodeWrapper
-                key={`node + ${i}`}
-                data={data}
-                position={{ x, y }}
-                parent={parent}
-                onNodeClick={handleNodeClick}
-                onNodeClickTs={handleNodeClickTs}
-                onNodeToggle={handleNodeToggle}
-                orientation={orientation}
-                toggleLabel={feedState.toggleLabel}
-                overlayScale={
-                  feedState.overlayScale.enabled
-                    ? feedState.overlayScale.type
-                    : undefined
-                }
-              />
-            )
-          })}
+          {
+            nodes?.map(({ data, x, y, parent }, i) => {
+              return (
+                <NodeWrapper
+                  key={`node + ${i}`}
+                  data={data}
+                  position={{ x, y }}
+                  parent={parent}
+                  onNodeClick={handleNodeClick}
+                  onNodeClickTs={handleNodeClickTs}
+                  onNodeToggle={handleNodeToggle}
+                  orientation={orientation}
+                  toggleLabel={feedState.toggleLabel}
+                  overlayScale={
+                    feedState.overlayScale.enabled
+                      ? feedState.overlayScale.type
+                      : undefined
+                  }
+                />
+              );
+            });
+          }
         </TransitionGroupWrapper>
       </svg>
       {!props.isBottomPanelExpanded && (
@@ -480,7 +488,7 @@ const FeedTree = (props: AllProps) => {
           <div className="feed-tree__orientation">
             <Button
               type="button"
-              onClick={() => props.onExpand('bottom_panel')}
+              onClick={() => props.onExpand("bottom_panel")}
             >
               Feed Browser
             </Button>
@@ -488,7 +496,7 @@ const FeedTree = (props: AllProps) => {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default React.memo(
