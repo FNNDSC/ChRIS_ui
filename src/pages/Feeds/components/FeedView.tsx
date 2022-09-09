@@ -202,7 +202,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
           <PageSection className="section-two">
             <Grid
               style={{
-                height: '100%',
+                height: "100%",
               }}
             >
               <Drawer isExpanded={isSidePanelExpanded} isInline>
@@ -210,7 +210,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
                   panelContent={
                     <DrawerPanelContent
                       defaultSize="48.7%"
-                      minSize={'25%'}
+                      minSize={"25%"}
                       isResizable
                     >
                       {nodePanel}
@@ -225,7 +225,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
         </DrawerContent>
       </Drawer>
     </React.Fragment>
-  )
+  );
 }
 
 export default FeedView
