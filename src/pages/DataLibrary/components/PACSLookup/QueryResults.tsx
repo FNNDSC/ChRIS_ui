@@ -18,7 +18,7 @@ import {
   Title,
   Tooltip,
 } from "@patternfly/react-core";
-import { useHistory } from "react-router";
+import { useNavigate } from "react-router";
 
 import {
   FaRedo,
@@ -80,7 +80,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           <CardHeader onExpand={expandPatient.bind(PatientCard)}>
             <Grid hasGutter style={{ width: "100%" }}>
               <GridItem lg={4}>
-               <div>
+                <div>
                   <b>{PatientName.split("^").reverse().join(" ")}</b>
                 </div>
                 <div>MRN {PatientID}</div>
@@ -183,7 +183,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [cubeHasStudy, pullStatus]);
 
-      const route = useHistory().push;
+      const route = useNavigate();
 
       if (!existingStudyFiles || !pullStatus) return <Spinner size="lg" />;
 
@@ -425,7 +425,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         return (
           <>
             {seriesFiles.length && (
-              <div style={{ marginTop: "-1em", wordWrap : "break-word"}}>
+              <div style={{ marginTop: "-1em", wordWrap: "break-word" }}>
                 <FileDetailView
                   preview="small"
                   selectedFile={
