@@ -1,5 +1,5 @@
-import React from 'react'
-import { Tooltip, TooltipPosition, Button } from '@patternfly/react-core'
+import React from "react";
+import { Tooltip, TooltipPosition, Button } from "@patternfly/react-core";
 import {
   MdPanTool,
   MdZoomIn,
@@ -9,34 +9,33 @@ import {
   MdRotateRight,
   MdInfoOutline,
   MdReplay,
-} from 'react-icons/md'
-import './DcmHeader.scss'
-import { useHistory } from 'react-router'
-import { useDispatch } from 'react-redux'
-import { destroyExplorer } from '../../../store/explorer/actions'
+} from "react-icons/md";
+import "./DcmHeader.scss";
+import { useNavigate } from "react-router";
+import { useDispatch } from "react-redux";
+import { destroyExplorer } from "../../../store/explorer/actions";
 
 interface DicomHeaderProps {
-  handleToolbarAction: (action: string) => void
-  type: string
+  handleToolbarAction: (action: string) => void;
+  type: string;
 }
 
 const DcmHeader = ({
   type,
   handleToolbarAction,
 }: DicomHeaderProps): React.ReactElement => {
-  const history = useHistory()
-  const dispatch = useDispatch()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   return (
     <div className="dicom-header">
       <div className="dicom-logo">
         <span className="dicom-logo__text">Image Viewer</span>
-        {type !== 'feedbrowser' && (
+        {type !== "feedbrowser" && (
           <a
             onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
               e.preventDefault();
-              dispatch(destroyExplorer())
-              history.push('/visualization')
-           
+              dispatch(destroyExplorer());
+              navigate("/visualization");
             }}
             href="/#"
           >
@@ -55,7 +54,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction('pan')
+              handleToolbarAction("pan");
             }}
             icon={<MdPanTool />}
           />
@@ -68,7 +67,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction('zoom')
+              handleToolbarAction("zoom");
             }}
             icon={<MdZoomIn />}
           />
@@ -81,7 +80,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction('magnify')
+              handleToolbarAction("magnify");
             }}
             icon={<MdSearch />}
           />
@@ -95,7 +94,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction('wwwc')
+              handleToolbarAction("wwwc");
             }}
             icon={<MdBrightnessMedium />}
           />
@@ -105,7 +104,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction('rotate')
+              handleToolbarAction("rotate");
             }}
             icon={<MdRotateRight />}
           ></Button>
@@ -115,7 +114,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction('invert')
+              handleToolbarAction("invert");
             }}
             icon={<MdInvertColors />}
           />
@@ -128,7 +127,7 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction('dicomHeader')
+              handleToolbarAction("dicomHeader");
             }}
             icon={<MdInfoOutline />}
           />
@@ -140,14 +139,14 @@ const DcmHeader = ({
           <Button
             variant="link"
             onClick={() => {
-              handleToolbarAction('reset')
+              handleToolbarAction("reset");
             }}
             icon={<MdReplay />}
           />
         </Tooltip>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DcmHeader
+export default DcmHeader;
