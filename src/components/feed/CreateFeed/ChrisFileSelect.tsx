@@ -131,7 +131,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
 
   return (
     <div className="chris-file-select pacs-alert-wrap">
-      <div className='pacs-alert-step-wrap'>
+      <div className="pacs-alert-step-wrap">
         <h1 className="pf-c-title pf-m-2xl">
           File Selection: File Select from internal ChRIS storage
         </h1>
@@ -144,10 +144,13 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
           <GridItem span={6} rowSpan={12}>
             <ErrorBoundary FallbackComponent={ErrorFallback}>
               <DirectoryTree
+                //@ts-ignore
                 onCheck={onCheck}
+                //@ts-ignore
                 loadData={onLoad}
                 checkedKeys={fetchKeysFromDict}
                 checkable
+                //@ts-ignore
                 treeData={tree}
               />
             </ErrorBoundary>
@@ -165,7 +168,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 export default ChrisFileSelect

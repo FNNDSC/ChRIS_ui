@@ -1,6 +1,6 @@
 import { Reducer } from 'redux'
 import { IFeedState, FeedActionTypes } from './types'
-import { Feed } from '@fnndsc/chrisapi'
+
 
 export const initialState: IFeedState = {
   allFeeds: {
