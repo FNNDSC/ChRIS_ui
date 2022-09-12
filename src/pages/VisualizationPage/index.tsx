@@ -125,9 +125,7 @@ const VisualizationPage = () => {
           onChange={(e) => handleOpenFolder(e.target.files)}
           multiple
           //@ts-ignore
-          webkitdirectory=""
-          mozdirectory=""
-          directory=""
+
           ref={folderOpen}
         />
 
