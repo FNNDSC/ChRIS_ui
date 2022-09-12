@@ -4,6 +4,7 @@ import { BasePlacement } from "tippy.js";
 
 import "./textcopypopover.scss";
 
+
 interface TextCopyPopoverProps {
   text: string;
   headerContent: JSX.Element | string;
@@ -17,6 +18,7 @@ interface TextCopyPopoverProps {
   onMouseDown?: (event: React.MouseEvent) => void;
   onBlur?: (event: React.FocusEvent) => void;
   maxWidth?: string;
+  children?: JSX.Element;
 }
 
 const TextCopyPopover:React.FC<TextCopyPopoverProps>=({
