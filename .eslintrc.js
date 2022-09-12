@@ -16,13 +16,17 @@ module.exports = {
     browser: true,
     node: true,
   },
-  extends: ["plugin:react/recommended", "prettier"],
+  extends: [
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+  ],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: "module",
   },
   parser: "@typescript-eslint/parser",
-  plugins: ["react", "react-hooks"],
+  plugins: ["@typescript-eslint", "react", "react-hooks"],
   rules: {
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
