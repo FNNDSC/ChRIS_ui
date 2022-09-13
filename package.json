@@ -30,7 +30,7 @@
     "hammerjs": "^2.0.8",
     "jszip": "^3.7.1",
     "lodash": "^4.17.21",
-    "pako": "^2.0.4",
+    "pako": "^1.0.11",
     "pluralize": "^8.0.0",
     "preval.macro": "^5.0.0",
     "rc-tree": "^3.11.0",
