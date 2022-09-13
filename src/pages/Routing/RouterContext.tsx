@@ -1,64 +1,78 @@
 import React from "react";
-import { Route, Switch } from "react-router-dom";
+
 
 interface RouterContextProps<S, A = any> {
-  state: S
-  actions?: A
+  state: S;
+  actions?: A;
 }
 
-type RouterContextType<S, A = any> = React.Context<RouterObjectType<S,A>>
-type RouterObjectType<S, A = any> = { 
-  state: S
-  actions: A
-  route: (path:string) => any 
-}
+type RouterContextType<S, A = any> = React.Context<RouterObjectType<S, A>>;
+type RouterObjectType<S, A = any> = {
+  state: S;
+  actions: A;
+  route: (path: string) => any;
+};
 
-export function RouterContext<S, A = any>
-  ({ state, actions }: RouterContextProps<S,A>): [S, RouterContextType<S,A>] {
+export function RouterContext<S, A = any>({
+  state,
+  actions,
+}: RouterContextProps<S, A>): [S, RouterContextType<S, A>] {
   return [
-    state, 
-    React.createContext<RouterObjectType<S,A>>({
+    state,
+    React.createContext<RouterObjectType<S, A>>({
       route: (path: string) => path,
-      actions: actions ? actions : {} as A,
-      state
-    })
-  ]
+      actions: actions ? actions : ({} as A),
+      state,
+    }),
+  ];
 }
 
 interface RouterProviderProps<S = any, A = any> {
-  context: RouterContextType<S>
-  state: S
-  actions: A
-  route?: string
-  setRoute: (route?:string) => any
-  children: React.ReactNode
+  context: RouterContextType<S>;
+  state: S;
+  actions: A;
+  route?: string;
+  setRoute: (route?: string) => any;
+  children: React.ReactNode;
 }
 
-export function RouterProvider
-  ({ context, actions, state, route, setRoute, children }: RouterProviderProps) {
+export function RouterProvider({
+  context,
+  actions,
+  state,
+  route,
+  setRoute,
+  children,
+}: RouterProviderProps) {
+  const props = {
+    context,
+    actions,
+    state,
+    route,
+    setRoute,
+    children,
+  };
+  return <RouterComponent propsElement={props} />;
+}
+
+const RouterComponent = ({
+  propsElement: { context, actions, state, children },
+}: {
+  propsElement: RouterProviderProps;
+}) => {
   return (
-    <Route render={({ history, match }) => {
-      if (route) {
-        if (route !== match.path)
-          history.push(route)
-        setRoute(undefined)
-      }
+    <context.Provider
+      value={{
+        route: () => {
+          console.log("NEEDED");
+        },
+        state,
+        actions,
+      }}
+    >
+      {children}
+    </context.Provider>
+  );
+};
 
-      return (
-        <context.Provider
-          value={{
-            route: history.push,
-            state,
-            actions,
-          }}
-        >
-          <Switch>
-            { children }
-          </Switch>
-        </context.Provider>
-      )
-    }}/>
-  )
-}
-
-export default RouterContext
+export default RouterContext;

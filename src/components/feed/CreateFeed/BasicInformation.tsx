@@ -75,6 +75,7 @@ const BasicInformation: React.FC = () => {
           }
           multiple
           options={availableTags}
+          //@ts-ignore
           onChange={(tags: Tag[]) => {
             dispatch({
               type: Types.TagsChange,
@@ -84,6 +85,7 @@ const BasicInformation: React.FC = () => {
             });
           }}
           selected={tags}
+          //@ts-ignore
           labelKey={(tag: Tag) => tag.data.name}
           emptyLabel={availableTagsLoaded ? "No tags found" : "Loading tags..."}
         />
