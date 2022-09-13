@@ -33,7 +33,7 @@ ARG UID=1001
 ENV UID=$UID  HOME="/home/localuser" VERSION="0.1"
 
 RUN adduser --uid $UID --disabled-password localuser  \
-  && npm install chrome -g
+  && npm install --legacy-peer-deps chrome -g
 
 # Start as user localuser
 USER localuser
@@ -41,4 +41,4 @@ USER localuser
 WORKDIR $HOME
 EXPOSE 3000
 
-CMD npm install && npm run dev
+CMD npm install --legacy-peer-deps && npm run dev
