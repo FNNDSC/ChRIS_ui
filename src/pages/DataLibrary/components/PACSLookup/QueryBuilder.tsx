@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import {
   Card,
   CardBody,
@@ -21,8 +22,9 @@ import { FaSearch } from "react-icons/fa";
 import { PFDCMQuery, PFDCMQueryTypes } from ".";
 
 import "./pacs-lookup.scss";
-import { useHistory } from "react-router";
+
 import { toPACSDate } from "../../../../api/pfdcm/pfdcm-utils";
+import { useLocation } from "react-router";
 
 interface QueryBuilderProps {
   PACS?: string;
@@ -65,7 +67,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
     } as PFDCMQuery);
   };
 
-  const { push: route, location } = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const q = new URLSearchParams(location.search).get("q");
@@ -75,7 +78,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
 
   const finalize = (_query = query) => {
     if (_query === query)
-      route(`${location.pathname}?q=${btoa(JSON.stringify(_query))}`);
+      navigate(`${location.pathname}?q=${btoa(JSON.stringify(_query))}`);
 
     if (!_query.value)
       if (_query.filters)
