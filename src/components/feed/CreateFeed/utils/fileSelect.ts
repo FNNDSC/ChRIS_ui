@@ -22,6 +22,7 @@ export const getNewTreeData = (
       }
     });
   };
+
   loop(treeData);
 };
 
