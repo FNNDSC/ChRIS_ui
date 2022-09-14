@@ -26,19 +26,11 @@ jobs:
             https://chrisstore.co/api/v1/plugins/2/
             https://chrisstore.co/api/v1/plugins/152/
 
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version:"16.x"
-        - run: npm ci
-        - run: npm install --leagacy-peer-deps
-
-      
-      
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
-          start: npm run dev
+          run: npm  run install --legacy-peer-deps
+          start: npm start
           wait-on: "http://localhost:3000"
           # wait for 5 min for the server to respond
           wait-on-timeout: 600
