@@ -29,7 +29,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
-          run: npm  run install --legacy-peer-deps
+          start: npm  run install --legacy-peer-deps
           start: npm start
           wait-on: "http://localhost:3000"
           # wait for 5 min for the server to respond
