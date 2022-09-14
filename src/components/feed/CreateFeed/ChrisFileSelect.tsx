@@ -98,26 +98,26 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
   }
 
   const onLoad = (treeNode: EventDataNode): Promise<void> => {
-    const { children } = treeNode
+    const { children } = treeNode;
 
     return new Promise((resolve) => {
       if (children) {
-        resolve()
-        return
+        resolve();
+        return;
       }
       generateTreeNodes(treeNode, username)
         .then((nodes) => {
-          const treeData = [...tree]
-          if (nodes.length > 0) getNewTreeData(treeData, treeNode.pos, nodes)
-          setTree(treeData)
-          setCacheTree(treeData)
-          resolve()
+          const treeData = [...tree];
+          if (nodes.length > 0) getNewTreeData(treeData, treeNode.pos, nodes);
+          setTree(treeData);
+          setCacheTree(treeData);
+          resolve();
         })
         .catch((err) => {
-          setLoadingError(err)
-          resolve()
-        })
-    })
+          setLoadingError(err);
+          resolve();
+        });
+    });
   }
 
   const fileList =
