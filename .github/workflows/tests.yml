@@ -6,37 +6,39 @@ name: Tests
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
-    
+      - master
 
 jobs:
   cypress-run:
     runs-on: ubuntu-20.04
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: setup CUBE
+        id: cube
+        uses: Mfonn/miniChRIS-docker@master
+        with:
+          plugins: |
+            https://chrisstore.co/api/v1/plugins/2/
+            https://chrisstore.co/api/v1/plugins/152/
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version:"16.x"
+        - run: npm ci
+        - run: npm install --leagacy-peer-deps
+
       
-    - name: setup CUBE
-      id: cube
-      uses: Mfonn/miniChRIS-docker@master
-      with: 
-        plugins: |
-          https://chrisstore.co/api/v1/plugins/2/
-          https://chrisstore.co/api/v1/plugins/152/
-
-    - name: setup Node
-      uses: actions/setup-node@v1
-      with:
-         node-version:16
-
-    - name: Cypress run
-      uses: cypress-io/github-action@v4
-      with:
-        start: npm run dev
-        wait-on: 'http://localhost:3000'
-        # wait for 5 min for the server to respond
-        wait-on-timeout: 600
-
+      
+      - name: Cypress run
+        uses: cypress-io/github-action@v4
+        with:
+          start: npm run dev
+          wait-on: "http://localhost:3000"
+          # wait for 5 min for the server to respond
+          wait-on-timeout: 600

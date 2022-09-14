@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
+import useSize from "./useSize";
 import {
   tree,
   hierarchy,
@@ -20,7 +21,7 @@ import clone from "clone";
 import { Switch, Button, Alert } from "@patternfly/react-core";
 import { TSID } from "./ParentComponent";
 import { useTypedSelector } from "../../../store/hooks";
-import { setFeedLayout } from "../../../store/feed/actions";
+import { setFeedLayout, setTranslate } from "../../../store/feed/actions";
 import { FeedTreeProp } from "../../../store/feed/types";
 import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import "./FeedTree.scss";
@@ -161,15 +162,26 @@ const graphClassName = "feed-tree__graph";
 
 const FeedTree = (props: AllProps) => {
   const dispatch = useDispatch();
+  const divRef = useRef<HTMLDivElement>(null);
   const { feedTreeProp, currentLayout } = useTypedSelector(
     (state) => state.feed
   );
+
+  const size = useSize(divRef);
+
+  React.useEffect(() => {
+    //@ts-ignore
+    if (size && size.width) {
+      //@ts-ignore
+      dispatch(setTranslate({ x: size.width / 2, y: 90 }));
+    }
+  }, [size, dispatch]);
 
   const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
   const [feedState, setFeedState] = React.useState<FeedTreeState>(
     getInitialState(props, feedTreeProp)
   );
-  const { translate, scale } = feedState.d3;
+  const { scale } = feedState.d3;
   const { changeOrientation, zoom, scaleExtent } = props;
   const { orientation } = feedTreeProp;
 
@@ -342,7 +354,10 @@ const FeedTree = (props: AllProps) => {
 
   return (
     <div
-      className={`feed-tree grabbable mode_${mode === false ? "graph" : "tree"}`}
+      className={`feed-tree grabbable mode_${
+        mode === false ? "graph" : "tree"
+      }`}
+      ref={divRef}
     >
       <div className="feed-tree__container">
         <div className="feed-tree__container--labels">
@@ -437,44 +452,47 @@ const FeedTree = (props: AllProps) => {
         )}
       </div>
 
-      <svg className={`${svgClassName}`} width="100%" height="85%">
-        <TransitionGroupWrapper
-          component="g"
-          className={graphClassName}
-          transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
-        >
-          {links?.map((linkData, i) => {
-            return (
-              <Link
-                orientation={orientation}
-                key={"link" + i}
-                linkData={linkData}
-              />
-            );
-          })}
+      {feedTreeProp.translate.x > 0 && feedTreeProp.translate.y > 0 && (
+        <svg className={`${svgClassName}`} width="100%" height="85%">
+          <TransitionGroupWrapper
+            component="g"
+            className={graphClassName}
+            transform={`translate(${feedTreeProp.translate.x},${feedTreeProp.translate.y}) scale(${scale})`}
+          >
+            {links?.map((linkData, i) => {
+              return (
+                <Link
+                  orientation={orientation}
+                  key={"link" + i}
+                  linkData={linkData}
+                />
+              );
+            })}
 
-          {nodes?.map(({ data, x, y, parent }, i) => {
-            return (
-              <NodeWrapper
-                key={`node + ${i}`}
-                data={data}
-                position={{ x, y }}
-                parent={parent}
-                onNodeClick={handleNodeClick}
-                onNodeClickTs={handleNodeClickTs}
-                onNodeToggle={handleNodeToggle}
-                orientation={orientation}
-                toggleLabel={feedState.toggleLabel}
-                overlayScale={
-                  feedState.overlayScale.enabled
-                    ? feedState.overlayScale.type
-                    : undefined
-                }
-              />
-            );
-          })}
-        </TransitionGroupWrapper>
-      </svg>
+            {nodes?.map(({ data, x, y, parent }, i) => {
+              return (
+                <NodeWrapper
+                  key={`node + ${i}`}
+                  data={data}
+                  position={{ x, y }}
+                  parent={parent}
+                  onNodeClick={handleNodeClick}
+                  onNodeClickTs={handleNodeClickTs}
+                  onNodeToggle={handleNodeToggle}
+                  orientation={orientation}
+                  toggleLabel={feedState.toggleLabel}
+                  overlayScale={
+                    feedState.overlayScale.enabled
+                      ? feedState.overlayScale.type
+                      : undefined
+                  }
+                />
+              );
+            })}
+          </TransitionGroupWrapper>
+        </svg>
+      )}
+
       {!props.isBottomPanelExpanded && (
         <div className="feed-tree__container--panelToggle">
           <div className="feed-tree__orientation">
