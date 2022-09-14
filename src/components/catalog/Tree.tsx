@@ -17,7 +17,7 @@ const Tree = (props: { pipelineName: string }) => {
   const { pipelineName } = props;
   const divRef = useRef<HTMLDivElement>(null);
   const size = useSize(divRef);
-  console.log("Size", size);
+
   const [translate, setTranslate] = React.useState({
     x: 0,
     y: 0,
@@ -32,8 +32,6 @@ const Tree = (props: { pipelineName: string }) => {
       setTranslate({ x: size.width / 2, y: 20 });
     }
   }, [size]);
-
-  
 
   React.useEffect(() => {
     async function fetchResources() {
@@ -70,34 +68,30 @@ const Tree = (props: { pipelineName: string }) => {
             className={graphClassName}
             transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
           >
-            {
-              links?.map((linkData, i) => {
-                return (
-                  <LinkData
-                    orientation="vertical"
-                    key={"link" + i}
-                    linkData={linkData}
-                  />
-                );
-              })
-            }
-            {
-              nodes?.map(({ data, x, y, parent }, i) => {
-                return (
-                  <NodeData
-                    key={`node + ${i}`}
-                    data={data}
-                    position={{ x, y }}
-                    parent={parent}
-                    orientation="vertical"
-                    handleNodeClick={() => {
-                      console.log("Clicked");
-                    }}
-                    currentPipelineId={1}
-                  />
-                );
-              })
-            }
+            {links?.map((linkData, i) => {
+              return (
+                <LinkData
+                  orientation="vertical"
+                  key={"link" + i}
+                  linkData={linkData}
+                />
+              );
+            })}
+            {nodes?.map(({ data, x, y, parent }, i) => {
+              return (
+                <NodeData
+                  key={`node + ${i}`}
+                  data={data}
+                  position={{ x, y }}
+                  parent={parent}
+                  orientation="vertical"
+                  handleNodeClick={() => {
+                    console.log("Clicked");
+                  }}
+                  currentPipelineId={1}
+                />
+              );
+            })}
           </TransitionGroupWrapper>
         </svg>
       ) : (

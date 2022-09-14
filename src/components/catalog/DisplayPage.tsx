@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import {
   Pagination,
   Grid,
@@ -14,39 +14,39 @@ import {
   Button,
   Alert,
   TextInput,
-} from '@patternfly/react-core'
-import { Card, Col, Row } from 'antd'
-import ReactJSON from 'react-json-view'
-import { ImTree } from 'react-icons/im'
-import { GrCloudComputer } from 'react-icons/gr'
-import { FaCode } from 'react-icons/fa'
-import Tree from './Tree'
-import { PipelineList } from '@fnndsc/chrisapi'
-import ChrisAPIClient from '../../api/chrisapiclient'
-import { generatePipelineWithData } from '../feed/CreateFeed/utils/pipelines'
+} from "@patternfly/react-core";
+import { Card, Col, Row } from "antd";
+import ReactJSON from "react-json-view";
+import { ImTree } from "react-icons/im";
+import { GrCloudComputer } from "react-icons/gr";
+import { FaCode } from "react-icons/fa";
+import Tree from "./Tree";
+import { PipelineList } from "@fnndsc/chrisapi";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import { generatePipelineWithData } from "../feed/CreateFeed/utils/pipelines";
 
 interface PageState {
-  perPage: number
-  page: number
-  search: string
-  itemCount: number
+  perPage: number;
+  page: number;
+  search: string;
+  itemCount: number;
 }
 
 interface DisplayPageInterface {
-  resources?: any[]
-  pageState: PageState
-  onPerPageSelect: (_event: any, perPage: number) => void
-  handleFilterChange: (value: string) => void
-  onSetPage: (_event: any, page: number) => void
-  selectedResource: any
-  setSelectedResource: (resource: any) => void
-  title: string
-  showPipelineButton?: boolean
-  fetch?: (id?: number) => void
-  handlePluginSearch?: (search: string) => void
-  handlePipelineSearch?: (search: string) => void
-  handleComputeSearch?: (search: string) => void
-  search: string
+  resources?: any[];
+  pageState: PageState;
+  onPerPageSelect: (_event: any, perPage: number) => void;
+  handleFilterChange: (value: string) => void;
+  onSetPage: (_event: any, page: number) => void;
+  selectedResource: any;
+  setSelectedResource: (resource: any) => void;
+  title: string;
+  showPipelineButton?: boolean;
+  fetch?: (id?: number) => void;
+  handlePluginSearch?: (search: string) => void;
+  handlePipelineSearch?: (search: string) => void;
+  handleComputeSearch?: (search: string) => void;
+  search: string;
 }
 
 const DisplayPage = ({
@@ -64,44 +64,44 @@ const DisplayPage = ({
   handlePluginSearch,
   search,
 }: DisplayPageInterface) => {
-  const fileOpen = React.useRef<HTMLInputElement>(null)
-  const [error, setError] = React.useState({})
-  const [deleteError, setDeleteError] = React.useState('')
+  const fileOpen = React.useRef<HTMLInputElement>(null);
+  const [error, setError] = React.useState({});
+  const [deleteError, setDeleteError] = React.useState("");
 
-  const [warningMessage, setWarningMessage] = React.useState('')
-  const { perPage, page, itemCount } = pageState
-  const [isExpanded, setIsExpanded] = React.useState(false)
+  const [warningMessage, setWarningMessage] = React.useState("");
+  const { perPage, page, itemCount } = pageState;
+  const [isExpanded, setIsExpanded] = React.useState(false);
 
-  const isPlugin = title === 'Plugins' ? true : false
-  const isPipeline = title === 'Pipelines' ? true : false
-  const isCompute = title === 'Compute' ? true : false
+  const isPlugin = title === "Plugins" ? true : false;
+  const isPipeline = title === "Pipelines" ? true : false;
+  const isCompute = title === "Compute" ? true : false;
 
   const iconStyle = {
     fill: isPlugin
-      ? '#0066CC'
+      ? "#0066CC"
       : isPipeline
-      ? '#1F0066'
+      ? "#1F0066"
       : isCompute
-      ? 'red'
-      : '',
-    height: '1.5em',
-    width: '1.25em',
-    marginRight: '0.5em',
-    marginTop: '0.25em',
-  }
+      ? "red"
+      : "",
+    height: "1.5em",
+    width: "1.25em",
+    marginRight: "0.5em",
+    marginTop: "0.25em",
+  };
 
   const showOpenFile = () => {
     if (fileOpen.current) {
-      fileOpen.current.click()
+      fileOpen.current.click();
     }
-  }
+  };
 
   const cleanUp = (event: any) => {
-    event.target.value = null
+    event.target.value = null;
     if (fileOpen.current) {
-      fileOpen.current.value = ''
+      fileOpen.current.value = "";
     }
-  }
+  };
 
   const icon = isPipeline ? (
     <ImTree style={iconStyle} />
@@ -109,65 +109,65 @@ const DisplayPage = ({
     <GrCloudComputer style={iconStyle} />
   ) : (
     <FaCode style={iconStyle} />
-  )
+  );
   const readFile = (file: any, event: any) => {
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onloadend = async () => {
       try {
         if (reader.result) {
-          const client = ChrisAPIClient.getClient()
-          const result = JSON.parse(reader.result as string)
-          result['plugin_tree'] = JSON.stringify(result['plugin_tree'])
+          const client = ChrisAPIClient.getClient();
+          const result = JSON.parse(reader.result as string);
+          result["plugin_tree"] = JSON.stringify(result["plugin_tree"]);
           const pipelineInstanceList: PipelineList = await client.getPipelines({
             name: result.name,
-          })
+          });
 
           if (pipelineInstanceList.data) {
             setWarningMessage(
-              `pipeline with the name ${result.name} already exists`,
-            )
+              `pipeline with the name ${result.name} already exists`
+            );
           } else {
-            await generatePipelineWithData(result)
-            fetch && fetch()
+            await generatePipelineWithData(result);
+            fetch && fetch();
           }
         }
-        cleanUp(event)
+        cleanUp(event);
       } catch (error) {
         //@ts-ignore
-        setError(error.response.data)
-        cleanUp(event)
+        setError(error.response.data);
+        cleanUp(event);
       }
-    }
-    if (file && file.type === 'application/json') {
+    };
+    if (file && file.type === "application/json") {
       try {
-        reader.readAsText(file)
+        reader.readAsText(file);
       } catch (error) {
-        setWarningMessage('The Pipeline upload requires a json file')
+        setWarningMessage("The Pipeline upload requires a json file");
       }
     }
-  }
+  };
 
   const handleUpload = (event: any) => {
-    const file = event.target.files && event.target.files[0]
-    readFile(file, event)
-    setWarningMessage('')
-    setError({})
-  }
+    const file = event.target.files && event.target.files[0];
+    readFile(file, event);
+    setWarningMessage("");
+    setError({});
+  };
 
   const drawerContent = (
     <Grid hasGutter={true}>
       <div
         style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '0.8rem 1rem',
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "0.8rem 1rem",
         }}
       >
         <Title
           headingLevel="h2"
           style={{
-            minWidth: '5em',
+            minWidth: "5em",
           }}
         >
           {title}
@@ -175,8 +175,8 @@ const DisplayPage = ({
 
         <div
           style={{
-            display: 'flex',
-            gap: '1rem',
+            display: "flex",
+            gap: "1rem",
           }}
         >
           {showPipelineButton && (
@@ -184,7 +184,7 @@ const DisplayPage = ({
               <Button onClick={showOpenFile}>Upload a Pipeline</Button>
               <input
                 ref={fileOpen}
-                style={{ display: 'none' }}
+                style={{ display: "none" }}
                 type="file"
                 onChange={handleUpload}
               />
@@ -198,13 +198,13 @@ const DisplayPage = ({
             aria-label="search"
             onChange={(value: string) => {
               if (isPlugin) {
-                handlePluginSearch && handlePluginSearch(value)
+                handlePluginSearch && handlePluginSearch(value);
               }
               if (isPipeline) {
-                handlePipelineSearch && handlePipelineSearch(value)
+                handlePipelineSearch && handlePipelineSearch(value);
               }
               if (isCompute) {
-                handleComputeSearch && handleComputeSearch(value)
+                handleComputeSearch && handleComputeSearch(value);
               }
             }}
           />
@@ -226,30 +226,30 @@ const DisplayPage = ({
             resources.length > 0 &&
             resources.map((resource) => {
               return (
-                <Col key={resource.data ? resource.data.id : ''} span={8}>
+                <Col key={resource.data ? resource.data.id : ""} span={8}>
                   <Card
                     hoverable
                     style={{
-                      marginBottom: '1em',
+                      marginBottom: "1em",
                     }}
                     size="small"
                     onClick={() => {
-                      setSelectedResource(resource)
-                      setIsExpanded(true)
-                      setDeleteError('')
+                      setSelectedResource(resource);
+                      setIsExpanded(true);
+                      setDeleteError("");
                     }}
                     onKeyDown={(event: any) => {
                       if ([13, 32].includes(event.keyCode)) {
-                        setSelectedResource(resource)
-                        setIsExpanded(true)
-                        setDeleteError('')
+                        setSelectedResource(resource);
+                        setIsExpanded(true);
+                        setDeleteError("");
                       }
                     }}
                     className="pluginList"
                     title={
                       <>
                         {icon}
-                        {resource.data ? resource.data.name : ''}
+                        {resource.data ? resource.data.name : ""}
                       </>
                     }
                     bordered={true}
@@ -265,29 +265,29 @@ const DisplayPage = ({
                       </>
                     )}
                     <p className="pluginList__description">
-                      {resource.data ? resource.data.description : ''}
+                      {resource.data ? resource.data.description : ""}
                     </p>
                   </Card>
                 </Col>
-              )
+              );
             })}
         </Row>
       </div>
     </Grid>
-  )
+  );
 
   const handleUpdate = (id: number) => {
-    fetch && fetch(id)
-  }
+    fetch && fetch(id);
+  };
 
   const panelContent = (
-    <DrawerPanelContent>
+    <DrawerPanelContent defaultSize="30%" minSize="10%" isResizable>
       <DrawerHead>
         <DrawerActions>
           <DrawerCloseButton
             onClick={() => {
-              setIsExpanded(false)
-              setDeleteError('')
+              setIsExpanded(false);
+              setDeleteError("");
             }}
           />
         </DrawerActions>
@@ -299,7 +299,7 @@ const DisplayPage = ({
             </p>
             {isPlugin && (
               <p className="pluginList__version">
-                Public Repo:{' '}
+                Public Repo:{" "}
                 <a
                   target="_blank"
                   rel="noreferrer"
@@ -312,8 +312,8 @@ const DisplayPage = ({
             {deleteError && (
               <div
                 style={{
-                  display: 'flex',
-                  flexDirection: 'row',
+                  display: "flex",
+                  flexDirection: "row",
                 }}
               >
                 <Alert variant="danger" title={deleteError} />
@@ -321,8 +321,8 @@ const DisplayPage = ({
                   onClick={async () => {
                     selectedResource.put({
                       locked: true,
-                    })
-                    setDeleteError('')
+                    });
+                    setDeleteError("");
                   }}
                   variant="link"
                 >
@@ -333,15 +333,15 @@ const DisplayPage = ({
             {showPipelineButton && (
               <Button
                 style={{
-                  width: 'fit-content',
+                  width: "fit-content",
                 }}
                 onClick={async () => {
                   try {
-                    handleUpdate(selectedResource.data.id)
-                    selectedResource.delete()
-                    setIsExpanded(false)
+                    handleUpdate(selectedResource.data.id);
+                    selectedResource.delete();
+                    setIsExpanded(false);
                   } catch (error) {
-                    console.log(error)
+                    console.log(error);
                   }
                 }}
               >
@@ -351,7 +351,7 @@ const DisplayPage = ({
 
             <Divider
               style={{
-                paddingTop: '2em',
+                paddingTop: "2em",
               }}
             />
             <p>{selectedResource.data.description}</p>
@@ -362,7 +362,7 @@ const DisplayPage = ({
         )}
       </DrawerHead>
     </DrawerPanelContent>
-  )
+  );
 
   return (
     <>
@@ -381,7 +381,7 @@ const DisplayPage = ({
         </Drawer>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default DisplayPage
+export default DisplayPage;
