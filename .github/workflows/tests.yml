@@ -26,6 +26,15 @@ jobs:
             https://chrisstore.co/api/v1/plugins/2/
             https://chrisstore.co/api/v1/plugins/152/
 
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version:"16.x"
+        - run: npm ci
+        - run: npm install --leagacy-peer-deps
+
+      
+      
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
