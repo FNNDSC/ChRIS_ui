@@ -29,7 +29,7 @@ const Tree = (props: { pipelineName: string }) => {
     //@ts-ignore
     if (size && size.width) {
       //@ts-ignore
-      setTranslate({ x: size.width / 2, y: 20 });
+      setTranslate({ x: size.width / 2, y: 30 });
     }
   }, [size]);
 
