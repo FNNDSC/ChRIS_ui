@@ -22,7 +22,7 @@ jobs:
         id: cube
         uses: Mfonn/miniChRIS-docker@master
         with:
-          plugins: |
+          plugins: 
             https://chrisstore.co/api/v1/plugins/2/
             https://chrisstore.co/api/v1/plugins/152/
 
@@ -32,9 +32,7 @@ jobs:
           node-version:"16.x"
         - run: npm ci
         - run: npm install --leagacy-peer-deps
-
-      
-      
+ 
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:

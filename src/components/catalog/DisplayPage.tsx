@@ -355,12 +355,14 @@ const DisplayPage = ({
               }}
             />
             <p>{selectedResource.data.description}</p>
-            {showPipelineButton && (
-              <Tree pipelineName={selectedResource.data.name} />
-            )}
           </>
         )}
       </DrawerHead>
+      <DrawerContentBody>
+        {selectedResource && showPipelineButton && (
+          <Tree pipelineName={selectedResource.data.name} />
+        )}
+      </DrawerContentBody>
     </DrawerPanelContent>
   );
 
