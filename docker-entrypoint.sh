@@ -6,22 +6,36 @@
 # Purpose:    Overwrite the URL of backend using a user-specified value.
 #             `sed` is used to patch the `build/` directory.
 
-target='http://localhost:8000/api/v1/'
-api_url="${REACT_APP_CHRIS_UI_URL-nil}"
+target_cube='http://localhost:8000/api/v1/'
+target_pfdcm='http://localhost:4005/'
+given_cube="${REACT_APP_CHRIS_UI_URL-nil}"
+given_pfdcm="${REACT_APP_PFDCM_URL-nil}"
 
 if [ "$(id -u)" != "0" ]; then
-  if [ "$api_url" != 'nil' ]; then
-    echo "ERROR: custom value REACT_APP_CHRIS_UI_URL=$api_url"
+  if [ "$given_cube" != 'nil' ]; then
+    echo "ERROR: custom value REACT_APP_CHRIS_UI_URL=$given_cube"
     echo "is set, but container user is not root."
     exit 1
   fi
-  exec "$@"
+  if [ "$given_pfdcm" != 'nil' ]; then
+    echo "ERROR: custom value REACT_APP_PFDCM_URL=$given_pfdcm"
+    echo "is set, but container user is not root."
+    exit 1
+  fi
 fi
 
-if [ "$api_url"  != 'nil' ]; then
-  for build_file in $(find -type f); do
-    sed -i -e "s#$target#$api_url#g" $build_file
-  done
-fi
+function replace () {
+  local target="$1"
+  local api_url="$2"
+
+  if [ "$api_url"  != 'nil' ]; then
+    for build_file in $(find -type f); do
+      sed -i -e "s#$target#$api_url#g" $build_file
+    done
+  fi
+}
+
+replace  "$target_cube"  "$given_cube"
+replace  "$target_pfdcm" "$given_pfdcm"
 
 exec "$@"
