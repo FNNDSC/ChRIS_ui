@@ -1,4 +1,4 @@
-import { Pipeline, PipelineList } from "@fnndsc/chrisapi";
+import { Pipeline, PipelineList, PipelinePipingDefaultParameterList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { fetchResource } from "../../../../utils/index";
 
@@ -19,8 +19,11 @@ export async function fetchResources(pipelineInstance: Pipeline) {
     params,
     boundPipelinePluginFn
   );
-  const parameters: any[] = await fetchResource(params, boundParameterFn);
-
+  const parameters = await fetchResource<any>(
+    params,
+    boundParameterFn
+  );
+  // PipelinePipingDefaultParameterList
   return {
     parameters,
     pluginPipings,

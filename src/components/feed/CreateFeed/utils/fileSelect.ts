@@ -1,6 +1,6 @@
 import { EventDataNode } from "rc-tree/lib/interface";
 import { DataBreadcrumb } from "../types";
-import _ from "lodash";
+
 import { fetchFilesFromAPath } from "../../../../store/resources/saga";
 
 export const getNewTreeData = (
@@ -28,7 +28,7 @@ export const getNewTreeData = (
 
 export const generateTreeNodes = async (
   treeNode: EventDataNode,
-  username: string
+
 ): Promise<DataBreadcrumb[]> => {
   const arr: any[] = [];
   //@ts-ignore
