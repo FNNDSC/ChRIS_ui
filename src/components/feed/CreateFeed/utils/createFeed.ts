@@ -1,10 +1,5 @@
 import { unpackParametersIntoObject } from "../../AddNode/lib/utils";
-import {
-  CreateFeedData,
-  LocalFile,
-  PipelineData,
-  ComputeEnvData,
-} from "../types";
+import { CreateFeedData, LocalFile, PipelineData } from "../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
@@ -118,6 +113,17 @@ export const createFeedInstanceWithDircopy = async (
               //@ts-ignore
               pluginParameters.data
             );
+
+            nodes_info.forEach((node) => {
+              const compute_node =
+                pipeline.computeEnvs &&
+                pipeline.computeEnvs[node.piping_id].currentlySelected;
+              const title = pipeline.title[node.piping_id];
+              if (compute_node) {
+                node.compute_resource_name = compute_node;
+                node.title = title;
+              }
+            });
 
             await client.createWorkflow(selectedPipeline, {
               previous_plugin_inst_id: createdInstance.data.id,

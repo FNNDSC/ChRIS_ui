@@ -16,7 +16,6 @@ import { MdOutlineAddCircle } from "react-icons/md";
 import { useTypedSelector } from "../../../store/hooks";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import {
-  addNodeRequest,
   getSelectedPlugin,
   getPluginInstancesSuccess,
 } from "../../../store/pluginInstance/actions";
@@ -25,7 +24,7 @@ import { fetchResources } from "../CreateFeed/utils/pipelines";
 import { Spin } from "antd";
 const AddPipeline = () => {
   const dispatch = useDispatch();
-  const { selectedPlugin, pluginInstances } = useTypedSelector(
+  const { selectedPlugin } = useTypedSelector(
     (state) => state.instance
   );
   const [isModalOpen, setIsModalOpen] = React.useState(false);

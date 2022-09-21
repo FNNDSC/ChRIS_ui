@@ -49,7 +49,7 @@ export const fetchFilesFromAPath = async (path: string) => {
     foldersList.data[0].subfolders &&
     foldersList.data[0].subfolders.length > 0
   ) {
-    folders = foldersList.data[0].subfolders.split(",");
+    folders = JSON.parse(foldersList.data[0].subfolders);
   }
 
   return {

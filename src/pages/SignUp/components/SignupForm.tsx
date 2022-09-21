@@ -219,6 +219,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         validated={userState.validated}
       >
         <TextInput
+          aria-label="signupform"
           validated={userState.validated}
           value={userState.username}
           isRequired
