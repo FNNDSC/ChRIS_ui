@@ -34,6 +34,7 @@ const BasicInformation: React.FC = () => {
           isRequired
           type="text"
           id="feed-name"
+          aria-label="feed-name"
           name="feed-name"
           placeholder="e.g. Tractography Study"
           value={feedName}
