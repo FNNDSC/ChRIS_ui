@@ -1,15 +1,15 @@
-import React from 'react'
-import { ErrorBoundary } from 'react-error-boundary'
-import * as cornerstone from 'cornerstone-core'
-import * as cornerstoneMath from 'cornerstone-math'
-import * as cornerstoneNIFTIImageLoader from 'cornerstone-nifti-image-loader'
-import * as cornerstoneFileImageLoader from 'cornerstone-file-image-loader'
-import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader'
-import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
-import * as cornerstoneTools from 'cornerstone-tools'
-import { import as csTools } from 'cornerstone-tools'
-import Hammer from 'hammerjs'
-import CornerstoneViewport from 'react-cornerstone-viewport'
+import React from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import * as cornerstone from "cornerstone-core";
+import * as cornerstoneMath from "cornerstone-math";
+import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
+import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
+import * as cornerstoneWebImageLoader from "cornerstone-web-image-loader";
+import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import * as cornerstoneTools from "cornerstone-tools";
+import { import as csTools } from "cornerstone-tools";
+import Hammer from "hammerjs";
+import CornerstoneViewport from "react-cornerstone-viewport";
 import {
   Backdrop,
   Bullseye,
@@ -22,76 +22,75 @@ import {
   DrawerHead,
   DrawerActions,
   DrawerCloseButton,
-} from '@patternfly/react-core'
-import { useTypedSelector } from '../../store/hooks'
-import GalleryWrapper from '../gallery/GalleryWrapper'
-import * as dicomParser from 'dicom-parser'
-import DicomHeader from './DcmHeader/DcmHeader'
-import DicomTag from './DicomTag'
+} from "@patternfly/react-core";
+import { useTypedSelector } from "../../store/hooks";
+import GalleryWrapper from "../gallery/GalleryWrapper";
+import * as dicomParser from "dicom-parser";
+import DicomHeader from "./DcmHeader/DcmHeader";
+import DicomTag from "./DicomTag";
 
-import { Image, GalleryState, CornerstoneEvent } from './types'
+import { Image, GalleryState, CornerstoneEvent } from "./types";
 
-cornerstoneTools.external.cornerstone = cornerstone
-cornerstoneTools.external.Hammer = Hammer
-cornerstoneTools.external.cornerstoneMath = cornerstoneMath
-cornerstoneTools.init()
-cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
-cornerstoneFileImageLoader.external.cornerstone = cornerstone
-cornerstoneWebImageLoader.external.cornerstone = cornerstone
-cornerstoneWADOImageLoader.external.cornerstone = cornerstone
-cornerstoneWADOImageLoader.external.dicomParser = dicomParser
+cornerstoneTools.external.cornerstone = cornerstone;
+cornerstoneTools.external.Hammer = Hammer;
+cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
+cornerstoneTools.init();
+cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
+cornerstoneFileImageLoader.external.cornerstone = cornerstone;
+cornerstoneWebImageLoader.external.cornerstone = cornerstone;
+cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 
-const scrollToIndex = csTools('util/scrollToIndex')
+const scrollToIndex = csTools("util/scrollToIndex");
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
-    'Content-Type': 'application/vnd.collection+json',
-    Authorization: 'Token ' + window.sessionStorage.getItem('CHRIS_TOKEN'),
+    "Content-Type": "application/vnd.collection+json",
+    Authorization: "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
   },
-  method: 'get',
-  responseType: 'arrayBuffer',
-})
+  method: "get",
+  responseType: "arrayBuffer",
+});
 
 function getInitialState() {
   return {
     inPlay: false,
     imageIds: [],
-    activeTool: 'Zoom',
+    activeTool: "Zoom",
     numberOfFrames: 1,
     tools: [
       {
-        name: 'Zoom',
-        mode: 'active',
+        name: "Zoom",
+        mode: "active",
         modeOptions: { mouseButtonMask: 1 },
       },
 
       {
-        name: 'Pan',
-        mode: 'active',
+        name: "Pan",
+        mode: "active",
         modeOptions: { mouseButtonMask: 4 },
       },
       {
-        name: 'Wwwc',
-        mode: 'active',
+        name: "Wwwc",
+        mode: "active",
         modeOptions: { mouseButtonMask: 1 },
       },
       {
-        name: 'StackScrollMouseWheel',
-        mode: 'active',
+        name: "StackScrollMouseWheel",
+        mode: "active",
       },
-      { name: 'Magnify', mode: 'active' },
+      { name: "Magnify", mode: "active" },
     ],
     frameRate: 10,
     frame: 1,
     visibleHeader: false,
-  }
+  };
 }
 
 const GalleryDicomView = ({ type }: { type: string }) => {
-  const imageIds = useTypedSelector((state) => state.explorer.files)
+  const imageIds = useTypedSelector((state) => state.explorer.files);
 
-  const [galleryDicomState, setGalleryDicomState] = React.useState<
-    GalleryState
-  >(getInitialState())
+  const [galleryDicomState, setGalleryDicomState] =
+    React.useState<GalleryState>(getInitialState());
 
   const {
     inPlay,
@@ -101,249 +100,249 @@ const GalleryDicomView = ({ type }: { type: string }) => {
     tools,
     activeTool,
     numberOfFrames,
-  } = galleryDicomState
-  const element = React.useRef<HTMLElement | undefined>(undefined)
-  const currentImage = React.useRef<Image | undefined>(undefined)
+  } = galleryDicomState;
+  const element = React.useRef<HTMLElement | undefined>(undefined);
+  const currentImage = React.useRef<Image | undefined>(undefined);
 
   React.useEffect(() => {
     setGalleryDicomState((state) => {
       return {
         ...state,
         numberOfFrames: imageIds.length,
-      }
-    })
-  }, [imageIds])
+      };
+    });
+  }, [imageIds]);
 
   const toolExecute = (tool: string) => {
-    runTool(tool)
-  }
+    runTool(tool);
+  };
 
   const handleOpenImage = (cmdName: string) => {
-    runTool('openImage', cmdName)
-  }
+    runTool("openImage", cmdName);
+  };
 
   const setPlayer = (status: boolean) => {
     setGalleryDicomState({
       ...galleryDicomState,
       inPlay: status,
-    })
-  }
+    });
+  };
 
   const handleGalleryActions = {
     next: () => {
-      handleOpenImage('next')
+      handleOpenImage("next");
     },
     previous: () => {
-      handleOpenImage('previous')
+      handleOpenImage("previous");
     },
     play: () => {
       setGalleryDicomState({
         ...galleryDicomState,
         inPlay: !inPlay,
-      })
-      handleOpenImage('play')
+      });
+      handleOpenImage("play");
     },
     pause: () => {
       setGalleryDicomState({
         ...galleryDicomState,
         inPlay: !inPlay,
-      })
+      });
 
-      handleOpenImage('pause')
+      handleOpenImage("pause");
     },
     first: () => {
-      handleOpenImage('first')
+      handleOpenImage("first");
     },
     last: () => {
-      handleOpenImage('last')
+      handleOpenImage("last");
     },
 
     zoom: () => {
-      toolExecute('Zoom')
+      toolExecute("Zoom");
     },
 
     pan: () => {
-      toolExecute('Pan')
+      toolExecute("Pan");
     },
 
     wwwc: () => {
-      toolExecute('Wwwc')
+      toolExecute("Wwwc");
     },
     invert: () => {
-      toolExecute('Invert')
+      toolExecute("Invert");
     },
 
     magnify: () => {
-      toolExecute('Magnify')
+      toolExecute("Magnify");
     },
     rotate: () => {
-      toolExecute('Rotate')
+      toolExecute("Rotate");
     },
     stackScroll: () => {
-      toolExecute('StackScroll')
+      toolExecute("StackScroll");
     },
     reset: () => {
-      toolExecute('Reset')
+      toolExecute("Reset");
     },
 
     dicomHeader: () => {
-      toolExecute('DicomHeader')
+      toolExecute("DicomHeader");
     },
-  }
+  };
 
   const runCinePlayer = (cmdName: string) => {
     switch (cmdName) {
-      case 'play': {
-        setPlayer(true)
-        break
+      case "play": {
+        setPlayer(true);
+        break;
       }
 
-      case 'pause': {
-        setPlayer(false)
-        break
+      case "pause": {
+        setPlayer(false);
+        break;
       }
 
-      case 'next': {
+      case "next": {
         if (frame < numberOfFrames) {
-          const nextFrame = frame + 1
+          const nextFrame = frame + 1;
 
           setGalleryDicomState({
             ...galleryDicomState,
             frame: nextFrame,
-          })
-          scrollToIndex(element.current, frame + 1)
+          });
+          scrollToIndex(element.current, frame + 1);
         }
 
-        break
+        break;
       }
-      case 'previous': {
+      case "previous": {
         if (frame > 1) {
-          const previousFrame = frame - 1
+          const previousFrame = frame - 1;
           setGalleryDicomState({
             ...galleryDicomState,
             frame: previousFrame,
-          })
-          scrollToIndex(element.current, frame - 1)
+          });
+          scrollToIndex(element.current, frame - 1);
         }
-        break
+        break;
       }
 
-      case 'first': {
-        const frame = 1
+      case "first": {
+        const frame = 1;
         setGalleryDicomState({
           ...galleryDicomState,
           frame,
-        })
+        });
 
-        scrollToIndex(element.current, 0)
+        scrollToIndex(element.current, 0);
 
-        break
+        break;
       }
 
-      case 'last': {
-        const frame = numberOfFrames
+      case "last": {
+        const frame = numberOfFrames;
         setGalleryDicomState({
           ...galleryDicomState,
           frame: frame,
-        })
-        scrollToIndex(element.current, frame - 1)
-        break
+        });
+        scrollToIndex(element.current, frame - 1);
+        break;
       }
     }
-  }
+  };
 
   const runTool = (toolName: string, opt?: any) => {
     switch (toolName) {
-      case 'openImage': {
-        runCinePlayer(opt)
-        break
+      case "openImage": {
+        runCinePlayer(opt);
+        break;
       }
-      case 'Wwwc': {
-        if (activeTool === 'Wwwc') return
+      case "Wwwc": {
+        if (activeTool === "Wwwc") return;
 
         setGalleryDicomState({
           ...galleryDicomState,
-          activeTool: 'Wwwc',
-        })
-        break
+          activeTool: "Wwwc",
+        });
+        break;
       }
-      case 'Pan': {
-        if (activeTool === 'Pan') return
+      case "Pan": {
+        if (activeTool === "Pan") return;
 
         setGalleryDicomState({
           ...galleryDicomState,
-          activeTool: 'Pan',
-        })
-        break
+          activeTool: "Pan",
+        });
+        break;
       }
-      case 'Zoom': {
-        if (activeTool === 'Zoom') return
+      case "Zoom": {
+        if (activeTool === "Zoom") return;
 
         setGalleryDicomState({
           ...galleryDicomState,
-          activeTool: 'Zoom',
-        })
-        break
+          activeTool: "Zoom",
+        });
+        break;
       }
-      case 'Invert': {
-        const viewport = cornerstone.getViewport(element.current)
-        viewport.invert = !viewport.invert
-        cornerstone.setViewport(element.current, viewport)
-        break
-      }
-
-      case 'Magnify': {
-        if (activeTool === 'Magnify') return
-
-        setGalleryDicomState({
-          ...galleryDicomState,
-          activeTool: 'Magnify',
-        })
-        break
-      }
-      case 'Rotate': {
-        const viewport = cornerstone.getViewport(element.current)
-        viewport.rotation += 90
-        cornerstone.setViewport(element.current, viewport)
-        break
+      case "Invert": {
+        const viewport = cornerstone.getViewport(element.current);
+        viewport.invert = !viewport.invert;
+        cornerstone.setViewport(element.current, viewport);
+        break;
       }
 
-      case 'StackScroll': {
-        if (activeTool === 'StackScrollMouseWheel') return
+      case "Magnify": {
+        if (activeTool === "Magnify") return;
 
         setGalleryDicomState({
           ...galleryDicomState,
-          activeTool: 'StackScrollMouseWheel',
-        })
-        break
+          activeTool: "Magnify",
+        });
+        break;
+      }
+      case "Rotate": {
+        const viewport = cornerstone.getViewport(element.current);
+        viewport.rotation += 90;
+        cornerstone.setViewport(element.current, viewport);
+        break;
       }
 
-      case 'DicomHeader': {
+      case "StackScroll": {
+        if (activeTool === "StackScrollMouseWheel") return;
+
+        setGalleryDicomState({
+          ...galleryDicomState,
+          activeTool: "StackScrollMouseWheel",
+        });
+        break;
+      }
+
+      case "DicomHeader": {
         setGalleryDicomState({
           ...galleryDicomState,
           visibleHeader: !visibleHeader,
-        })
-        break
+        });
+        break;
       }
 
-      case 'Reset': {
-        cornerstone.reset(element.current)
-        break
+      case "Reset": {
+        cornerstone.reset(element.current);
+        break;
       }
     }
-  }
+  };
 
   const toggleHeader = () => {
     setGalleryDicomState({
       ...galleryDicomState,
       visibleHeader: !visibleHeader,
-    })
-  }
+    });
+  };
 
   const panelContent = (
     <DrawerPanelContent
       style={{
-        backgroundColor: '#f0f0f0',
+        backgroundColor: "#f0f0f0",
       }}
     >
       <DrawerHead>
@@ -355,12 +354,12 @@ const GalleryDicomView = ({ type }: { type: string }) => {
         <DicomTag image={currentImage.current} />
       </DrawerPanelBody>
     </DrawerPanelContent>
-  )
+  );
 
   return (
     <GalleryWrapper
       handleOnToolbarAction={(action: string) => {
-        ;(handleGalleryActions as any)[action].call()
+        (handleGalleryActions as any)[action].call();
       }}
       listOpenFilesScrolling={inPlay}
     >
@@ -370,7 +369,7 @@ const GalleryDicomView = ({ type }: { type: string }) => {
             <DicomHeader
               type={type}
               handleToolbarAction={(action: string) => {
-                ;(handleGalleryActions as any)[action].call()
+                (handleGalleryActions as any)[action].call();
               }}
             />
             <div className="ami-viewer">
@@ -386,29 +385,30 @@ const GalleryDicomView = ({ type }: { type: string }) => {
                           tools={tools}
                           imageIds={imageIds}
                           onElementEnabled={(
-                            elementEnabledEvt: CornerstoneEvent,
+                            elementEnabledEvt: CornerstoneEvent
                           ) => {
                             if (elementEnabledEvt.detail) {
                               const cornerstoneElement =
-                                elementEnabledEvt.detail.element
-                              element.current = cornerstoneElement
+                                elementEnabledEvt.detail.element;
+                              element.current = cornerstoneElement;
                               if (cornerstoneElement) {
                                 cornerstoneElement.addEventListener(
-                                  'cornerstoneimagerendered',
+                                  "cornerstoneimagerendered",
                                   (eventData: CornerstoneEvent) => {
                                     if (eventData.detail) {
-                                      const image = eventData.detail.image
+                                      const image = eventData.detail.image;
 
-                                      currentImage.current = image
+                                      currentImage.current = image;
 
-                                      const viewport = eventData.detail.viewport
+                                      const viewport =
+                                        eventData.detail.viewport;
                                       if (viewport) {
-                                        const newViewport: any = {}
-                                        newViewport.voi = viewport.voi || {}
+                                        const newViewport: any = {};
+                                        newViewport.voi = viewport.voi || {};
                                         newViewport.voi.windowWidth =
-                                          image && image.windowWidth
+                                          image && image.windowWidth;
                                         newViewport.voi.windowCenter =
-                                          image && image.windowCenter
+                                          image && image.windowCenter;
                                         if (!viewport.displayedArea) {
                                           newViewport.displayedArea = {
                                             // Top Left Hand Corner
@@ -424,23 +424,23 @@ const GalleryDicomView = ({ type }: { type: string }) => {
                                             rowPixelSpacing: 1,
                                             columnPixelSpacing: 1,
                                             presentationSizeMode:
-                                              'SCALE TO FIT',
-                                          }
+                                              "SCALE TO FIT",
+                                          };
                                         }
                                         const setViewport = Object.assign(
                                           {},
                                           viewport,
-                                          newViewport,
-                                        )
+                                          newViewport
+                                        );
 
                                         cornerstone.setViewport(
                                           cornerstoneElement,
-                                          setViewport,
-                                        )
+                                          setViewport
+                                        );
                                       }
                                     }
-                                  },
-                                )
+                                  }
+                                );
                               }
                             }
                           }}
@@ -457,10 +457,10 @@ const GalleryDicomView = ({ type }: { type: string }) => {
         </React.Fragment>
       </React.Suspense>
     </GalleryWrapper>
-  )
-}
+  );
+};
 
-export default GalleryDicomView
+export default GalleryDicomView;
 
 const FallBackComponent = () => {
   return (
@@ -469,5 +469,5 @@ const FallBackComponent = () => {
         <Spinner />
       </Bullseye>
     </Backdrop>
-  )
-}
+  );
+};

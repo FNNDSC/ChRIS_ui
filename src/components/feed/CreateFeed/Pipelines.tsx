@@ -1,4 +1,4 @@
-import React, { Fragment, useContext } from 'react'
+import React, {  useContext } from "react";
 import {
   Button,
   DataListContent,
@@ -10,60 +10,68 @@ import {
   DataListItemCells,
   Pagination,
   DataListAction,
-} from '@patternfly/react-core'
+} from "@patternfly/react-core";
 
-import { CreateFeedContext } from './context'
-import { Types } from './types'
-import { Tree, ConfigurationPage, UploadJson } from '../Pipelines/'
+import { CreateFeedContext } from "./context";
+import { Types } from "./types";
+import { Tree, ConfigurationPage, UploadJson } from "../Pipelines/";
 import {
   fetchComputeInfo,
   generatePipelineWithName,
   fetchPipelines,
-} from './utils/pipelines'
+} from "./utils/pipelines";
+import {Pipeline, PipelinePipingDefaultParameterList} from '@fnndsc/chrisapi'
+
+export interface UploadJsonProps {
+  parameters: PipelinePipingDefaultParameterList,
+  pluginPipings: any[]
+  pipelinePlugins: any[]
+  pipelineInstance: Pipeline
+}
+
 
 const Pipelines = () => {
-  const { state, dispatch } = useContext(CreateFeedContext)
-  const { pipelineData, selectedPipeline, pipelines } = state
+  const { state, dispatch } = useContext(CreateFeedContext);
+  const { pipelineData, selectedPipeline, pipelines } = state;
 
   const [pageState, setPageState] = React.useState({
     page: 1,
     perPage: 5,
-    search: '',
+    search: "",
     itemCount: 0,
-  })
+  });
 
-  const [expanded, setExpanded] = React.useState<number[]>([])
-  const { page, perPage } = pageState
+  const [expanded, setExpanded] = React.useState<number[]>([]);
+  const { page, perPage } = pageState;
 
   React.useEffect(() => {
     fetchPipelines(perPage, page).then((result: any) => {
-      const { registeredPipelines, registeredPipelinesList } = result
+      const { registeredPipelines, registeredPipelinesList } = result;
       if (registeredPipelines) {
         dispatch({
           type: Types.SetPipelines,
           payload: {
             pipelines: registeredPipelines,
           },
-        })
+        });
         setPageState((pageState) => {
           return {
             ...pageState,
             itemCount: registeredPipelinesList.totalCount,
-          }
-        })
+          };
+        });
       }
-    })
-  }, [perPage, page, dispatch])
+    });
+  }, [perPage, page, dispatch]);
 
   const handleNodeClick = async (
     nodeName: number,
     pipelineId: number,
-    plugin_id: number,
+    plugin_id: number
   ) => {
-    const { computeEnvs } = pipelineData[pipelineId]
-
+    const { computeEnvs } = pipelineData[pipelineId];
     if (computeEnvs && !computeEnvs[nodeName]) {
-      const computeEnvData = await fetchComputeInfo(plugin_id, nodeName)
+      const computeEnvData = await fetchComputeInfo(plugin_id, nodeName);
       if (computeEnvData) {
         dispatch({
           type: Types.SetPipelineEnvironments,
@@ -71,7 +79,7 @@ const Pipelines = () => {
             pipelineId,
             computeEnvData,
           },
-        })
+        });
       }
     }
 
@@ -81,35 +89,31 @@ const Pipelines = () => {
         pipelineId,
         currentNode: nodeName,
       },
-    })
-  }
+    });
+  };
 
   const onSetPage = (_event: any, page: number) => {
     setPageState({
       ...pageState,
       page,
-    })
-  }
+    });
+  };
   const onPerPageSelect = (_event: any, perPage: number) => {
     setPageState({
       ...pageState,
       perPage,
-    })
-  }
+    });
+  };
 
-  const handleDispatch = (result: any) => {
-    const {
-      pipelineInstance,
-      parameters,
-      pluginPipings,
-      pipelinePlugins,
-    } = result
+  const handleDispatch = (result: UploadJsonProps) => {
+    const { pipelineInstance, parameters, pluginPipings, pipelinePlugins } =
+      result;
     dispatch({
       type: Types.AddPipeline,
       payload: {
         pipeline: pipelineInstance,
       },
-    })
+    });
 
     dispatch({
       type: Types.SetPipelineResources,
@@ -118,8 +122,8 @@ const Pipelines = () => {
         pluginPipings,
         pipelinePlugins,
       },
-    })
-  }
+    });
+  };
 
   return (
     <div className="pacs-alert-wrap">
@@ -147,20 +151,18 @@ const Pipelines = () => {
                       onClick={async () => {
                         if (!expanded.includes(pipeline.data.id)) {
                           const { resources } = await generatePipelineWithName(
-                            pipeline.data.name,
-                          )
+                            pipeline.data.name
+                          );
+
                           dispatch({
                             type: Types.SetExpandedPipelines,
                             payload: {
                               pipelineId: pipeline.data.id,
                             },
-                          })
+                          });
 
-                          const {
-                            parameters,
-                            pluginPipings,
-                            pipelinePlugins,
-                          } = resources
+                          const { parameters, pluginPipings, pipelinePlugins } =
+                            resources;
 
                           dispatch({
                             type: Types.SetPipelineResources,
@@ -170,18 +172,18 @@ const Pipelines = () => {
                               pluginPipings,
                               pipelinePlugins,
                             },
-                          })
+                          });
                         }
 
-                        const index = expanded.indexOf(pipeline.data.id)
+                        const index = expanded.indexOf(pipeline.data.id);
                         const newExpanded =
                           index >= 0
                             ? [
                                 ...expanded.slice(0, index),
                                 ...expanded.slice(index + 1, expanded.length),
                               ]
-                            : [...expanded, pipeline.data.id]
-                        setExpanded(newExpanded)
+                            : [...expanded, pipeline.data.id];
+                        setExpanded(newExpanded);
                       }}
                       isExpanded={expanded.includes(pipeline.id)}
                       id={pipeline.id}
@@ -213,7 +215,7 @@ const Pipelines = () => {
                       aria-label="actions"
                     >
                       <Button
-                        variant="secondary"
+                        variant="tertiary"
                         key="select-action"
                         onClick={async () => {
                           if (!(selectedPipeline === pipeline.data.id)) {
@@ -222,25 +224,24 @@ const Pipelines = () => {
                               payload: {
                                 pipelineId: pipeline.data.id,
                               },
-                            })
+                            });
 
                             dispatch({
                               type: Types.SetPipelineName,
                               payload: {
                                 pipelineName: pipeline.data.name,
                               },
-                            })
+                            });
                             if (!pipelineData[pipeline.data.id]) {
-                              const {
-                                resources,
-                              } = await generatePipelineWithName(
-                                pipeline.data.name,
-                              )
+                              const { resources } =
+                                await generatePipelineWithName(
+                                  pipeline.data.name
+                                );
                               const {
                                 parameters,
                                 pluginPipings,
                                 pipelinePlugins,
-                              } = resources
+                              } = resources;
                               dispatch({
                                 type: Types.SetPipelineResources,
                                 payload: {
@@ -249,19 +250,19 @@ const Pipelines = () => {
                                   pluginPipings,
                                   pipelinePlugins,
                                 },
-                              })
+                              });
                             }
                           } else {
                             dispatch({
                               type: Types.DeslectPipeline,
                               payload: {},
-                            })
+                            });
                           }
                         }}
                       >
                         {selectedPipeline === pipeline.data.id
-                          ? 'Deselect'
-                          : 'Select'}
+                          ? "Deselect"
+                          : "Select"}
                       </Button>
                     </DataListAction>
                   </DataListItemRow>
@@ -272,8 +273,8 @@ const Pipelines = () => {
                   >
                     <div
                       style={{
-                        display: 'flex',
-                        height: '100%',
+                        display: "flex",
+                        height: "100%",
                       }}
                     >
                       {expanded.includes(pipeline.data.id) ? (
@@ -290,12 +291,12 @@ const Pipelines = () => {
                     </div>
                   </DataListContent>
                 </DataListItem>
-              )
+              );
             })}
         </DataList>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Pipelines
+export default Pipelines;

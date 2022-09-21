@@ -1,9 +1,9 @@
-import React, { useContext } from 'react'
-import { Button, EmptyState, Title } from '@patternfly/react-core'
-import BreadcrumbContainer from './BreadcrumbContainer'
-import { Browser } from './Browser'
-import { LibraryContext } from './context'
-import ChrisAPIClient from '../../../../api/chrisapiclient'
+import React, { useContext } from "react";
+import { Button, EmptyState, Title } from "@patternfly/react-core";
+import BreadcrumbContainer from "./BreadcrumbContainer";
+import { Browser } from "./Browser";
+import { LibraryContext } from "./context";
+import ChrisAPIClient from "../../../../api/chrisapiclient";
 import {
   setCurrentPath,
   setCurrentPathSearch,
@@ -15,20 +15,20 @@ import {
   setCurrentSearchFiles,
   backToSearchResults,
   setFetching,
-} from './context/actions'
-import { Spin } from 'antd'
+} from "./context/actions";
+import { Spin } from "antd";
 
 interface BrowserContainerInterface {
-  type: string
-  path: string
-  username?: string | null
+  type: string;
+  path: string;
+  username?: string | null;
 }
 
 const BrowserContainer = ({
   type,
   path: rootPath,
 }: BrowserContainerInterface) => {
-  const { state, dispatch } = useContext(LibraryContext)
+  const { state, dispatch } = useContext(LibraryContext);
 
   const {
     foldersState,
@@ -39,75 +39,71 @@ const BrowserContainer = ({
     search,
     fetchingResources,
     columnLayout,
-  } = state
+  } = state;
 
   const resourcesFetch = React.useCallback(
     async (path: string) => {
-      dispatch(setFetching(true))
+      dispatch(setFetching(true));
 
       try {
-        const client = ChrisAPIClient.getClient()
+        const client = ChrisAPIClient.getClient();
         const uploads = await client.getFileBrowserPaths({
           path,
-        })
+        });
+
         if (search[type] === true) {
-          dispatch(setCurrentPathSearch(path, type))
+          dispatch(setCurrentPathSearch(path, type));
         } else {
-          dispatch(setCurrentPath(path, type))
+          dispatch(setCurrentPath(path, type));
         }
 
-        if (
+        const parsedUpload =
           uploads.data &&
           uploads.data[0].subfolders &&
-          uploads.data[0].subfolders.length > 0
-        ) {
-          let folders
-          const folderSplit = uploads.data[0].subfolders.split(',')
+          JSON.parse(uploads.data[0].subfolders);
 
-          if (type === 'feed' && path === '/') {
-            folders = folderSplit.filter(
-              (folder: string) => folder !== 'SERVICES',
-            )
-          } else if (type === 'feed' && path !== '/') {
-            folders = folderSplit.filter(
-              (folder: string) => folder !== 'uploads',
-            )
-            folders.sort((a: string, b: string) => {
-              const aId = parseInt(a.split('_')[1])
-              const bId = parseInt(b.split('_')[1])
-              return bId - aId
-            })
+        if (parsedUpload && parsedUpload.length > 0) {
+          let folders;
+
+          if (type === "feed" && path === "/") {
+            folders = parsedUpload.filter(
+              (folder: string) => folder !== "SERVICES"
+            );
+          } else if (type === "feed" && path !== "/") {
+            folders = parsedUpload.filter(
+              (folder: string) => folder !== "uploads"
+            );
           } else {
-            folders = folderSplit
+            folders = parsedUpload;
           }
 
           folders = folders.map((folder: string) => {
             return {
               name: folder,
               path: `${path}`,
-            }
-          })
+            };
+          });
           if (search[type] === true) {
-            dispatch(setCurrentSearchFolder(folders, path, type))
+            dispatch(setCurrentSearchFolder(folders, path, type));
           } else {
-            dispatch(setFolders(folders, path, type))
+            dispatch(setFolders(folders, path, type));
           }
         }
       } catch (error) {
-        console.log('ERROR', error)
+        console.log("ERROR", error);
       }
     },
-    [dispatch, type, search],
-  )
+    [dispatch, type, search]
+  );
 
   React.useEffect(() => {
     async function fetchUploads() {
-      resourcesFetch(rootPath)
+      resourcesFetch(rootPath);
     }
 
     if (!search[type] && !currentPath[type] && !foldersState[type]) {
-      fetchUploads()
-      dispatch(setFetching(false))
+      fetchUploads();
+      dispatch(setFetching(false));
     }
   }, [
     rootPath,
@@ -117,57 +113,57 @@ const BrowserContainer = ({
     type,
     currentPath,
     foldersState,
-  ])
+  ]);
 
   const handleFolderClick = async (path: string) => {
-    const client = ChrisAPIClient.getClient()
-    resourcesFetch(path)
+    const client = ChrisAPIClient.getClient();
+    resourcesFetch(path);
     const pagination = {
       limit: 100,
       offset: 0,
       totalCount: 0,
-    }
+    };
 
-    if (path !== '/') {
-      const pathList = await client.getFileBrowserPath(path)
+    if (path !== "/") {
+      const pathList = await client.getFileBrowserPath(path);
       if (pathList) {
         const fileList = await pathList.getFiles({
           limit: pagination.limit,
           offset: pagination.offset,
-        })
+        });
 
         if (fileList) {
-          const files = fileList.getItems()
+          const files = fileList.getItems();
           if (files && files.length > 0) {
             if (search[type]) {
-              dispatch(setCurrentSearchFiles(files, path, type))
+              dispatch(setCurrentSearchFiles(files, path, type));
             } else {
-              dispatch(setFiles(files, path, type))
+              dispatch(setFiles(files, path, type));
             }
 
-            const currentFolderSplit = path.split('/')
+            const currentFolderSplit = path.split("/");
             const currentFolder =
-              currentFolderSplit[currentFolderSplit.length - 1]
-            const totalCount = fileList.totalCount
-            dispatch(setFolderDetails(totalCount, currentFolder))
+              currentFolderSplit[currentFolderSplit.length - 1];
+            const totalCount = fileList.totalCount;
+            dispatch(setFolderDetails(totalCount, currentFolder));
           }
         }
       }
     }
 
-    dispatch(setFetching(false))
-  }
+    dispatch(setFetching(false));
+  };
 
   const togglePreview = () => {
-    dispatch(setTogglePreview(!previewAll))
-  }
+    dispatch(setTogglePreview(!previewAll));
+  };
 
-  const path = currentPath[type]
-  const folders = foldersState[type] && foldersState[type][path]
-  const files = filesState[type] && filesState[type][path]
+  const path = currentPath[type];
+  const folders = foldersState[type] && foldersState[type][path];
+  const files = filesState[type] && filesState[type][path];
   const noData =
     (path && !folders && !files && !fetchingResources) ||
-    (folders && folders.length === 0)
+    (folders && folders.length === 0);
 
   return (
     <>
@@ -221,21 +217,21 @@ const BrowserContainer = ({
         </>
       )}
     </>
-  )
-}
+  );
+};
 
-export default React.memo(BrowserContainer)
+export default React.memo(BrowserContainer);
 
 export const SearchContainer = ({
   type,
   handleFolderClick,
   togglePreview,
 }: {
-  type: string
-  handleFolderClick: (path: string) => void
-  togglePreview: () => void
+  type: string;
+  handleFolderClick: (path: string) => void;
+  togglePreview: () => void;
 }) => {
-  const { state, dispatch } = useContext(LibraryContext)
+  const { state, dispatch } = useContext(LibraryContext);
   const {
     searchedFoldersState,
     currentSearchFiles,
@@ -245,26 +241,26 @@ export const SearchContainer = ({
     searchPath,
     emptySetIndicator,
     columnLayout,
-  } = state
+  } = state;
 
-  const resources = searchedFoldersState[type]
-  const currentPath = searchPath[type]
+  const resources = searchedFoldersState[type];
+  const currentPath = searchPath[type];
   const searchFolders =
-    currentSearchFolders[type] && currentSearchFolders[type][currentPath]
+    currentSearchFolders[type] && currentSearchFolders[type][currentPath];
   const files =
-    currentSearchFiles[type] && currentSearchFiles[type][currentPath]
+    currentSearchFiles[type] && currentSearchFiles[type][currentPath];
 
   return (
     <>
       {searchPath[type] ? (
         <div
-          style={{ display: 'flex', flexDirection: 'column', marginTop: '1em' }}
+          style={{ display: "flex", flexDirection: "column", marginTop: "1em" }}
         >
           <div>
             <Button
               variant="tertiary"
               onClick={() => {
-                dispatch(backToSearchResults(type))
+                dispatch(backToSearchResults(type));
               }}
             >
               <b>Back to Search Results</b>
@@ -290,8 +286,8 @@ export const SearchContainer = ({
         </div>
       ) : (
         resources.map((resource, index) => {
-          const path = Object.getOwnPropertyNames(resource)[0]
-          const folders = resource[path]
+          const path = Object.getOwnPropertyNames(resource)[0];
+          const folders = resource[path];
 
           return (
             <div key={index}>
@@ -312,7 +308,7 @@ export const SearchContainer = ({
                 columnLayout={columnLayout}
               />
             </div>
-          )
+          );
         })
       )}
       {emptySetIndicator[type] && (
@@ -323,5 +319,5 @@ export const SearchContainer = ({
         </EmptyState>
       )}
     </>
-  )
-}
+  );
+};

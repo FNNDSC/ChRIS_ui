@@ -105,7 +105,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
         resolve();
         return;
       }
-      generateTreeNodes(treeNode, username)
+      generateTreeNodes(treeNode)
         .then((nodes) => {
           const treeData = [...tree];
           if (nodes.length > 0) getNewTreeData(treeData, treeNode.pos, nodes);
