@@ -140,11 +140,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     });
   };
 
-  console.log("Parent Component renders:");
-
   const handleSave = async () => {
-    console.log("HandleSave called");
-
     // Set the progress to 'Started'
     const username = user && user.username;
     try {

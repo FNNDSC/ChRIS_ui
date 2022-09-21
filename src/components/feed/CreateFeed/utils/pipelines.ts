@@ -1,4 +1,5 @@
-import { Pipeline, PipelineList, PipelinePipingDefaultParameterList } from "@fnndsc/chrisapi";
+import { Pipeline, PipelineList } from "@fnndsc/chrisapi";
+
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { fetchResource } from "../../../../utils/index";
 
@@ -10,19 +11,16 @@ export async function fetchResources(pipelineInstance: Pipeline) {
 
   const pipelinePluginsFn = pipelineInstance.getPlugins;
   const pipelineFn = pipelineInstance.getPluginPipings;
-  const parameterFn = pipelineInstance.getDefaultParameters;
   const boundPipelinePluginFn = pipelinePluginsFn.bind(pipelineInstance);
   const boundPipelineFn = pipelineFn.bind(pipelineInstance);
-  const boundParameterFn = parameterFn.bind(pipelineInstance);
   const pluginPipings: any[] = await fetchResource(params, boundPipelineFn);
   const pipelinePlugins: any[] = await fetchResource(
     params,
     boundPipelinePluginFn
   );
-  const parameters = await fetchResource<any>(
-    params,
-    boundParameterFn
-  );
+  const parameters = await pipelineInstance.getDefaultParameters({
+    limit: 1000,
+  });
   // PipelinePipingDefaultParameterList
   return {
     parameters,

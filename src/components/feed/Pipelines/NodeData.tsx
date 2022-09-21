@@ -11,7 +11,7 @@ const colorPalette: {
   [key: string]: string;
 } = {
   default: "#5998C5",
-  host: "#5998C5",
+  host: "#002952",
   moc: "#704478",
   titan: "#1B9D92",
   "bu-21-9": "#ADF17F",

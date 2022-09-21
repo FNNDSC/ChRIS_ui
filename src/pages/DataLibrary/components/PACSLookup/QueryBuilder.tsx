@@ -181,6 +181,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       case PFDCMQueryTypes.NAME:
                         return (
                           <TextInput
+                            aria-label="search-value"
                             type="text"
                             id="search-value"
                             placeholder="Patient Name"
@@ -317,6 +318,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <GridItem lg={4} sm={12}>
                   Modality <br />
                   <TextInput
+                    aria-label="modality"
                     type="text"
                     onChange={(value: string) =>
                       handleFilter({ Modality: value })

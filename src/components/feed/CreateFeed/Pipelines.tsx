@@ -1,4 +1,4 @@
-import React, { Fragment, useContext } from "react";
+import React, {  useContext } from "react";
 import {
   Button,
   DataListContent,
@@ -20,6 +20,15 @@ import {
   generatePipelineWithName,
   fetchPipelines,
 } from "./utils/pipelines";
+import {Pipeline, PipelinePipingDefaultParameterList} from '@fnndsc/chrisapi'
+
+export interface UploadJsonProps {
+  parameters: PipelinePipingDefaultParameterList,
+  pluginPipings: any[]
+  pipelinePlugins: any[]
+  pipelineInstance: Pipeline
+}
+
 
 const Pipelines = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -61,9 +70,6 @@ const Pipelines = () => {
     plugin_id: number
   ) => {
     const { computeEnvs } = pipelineData[pipelineId];
-    console.log("Compute Envs", computeEnvs);
-
-    /*
     if (computeEnvs && !computeEnvs[nodeName]) {
       const computeEnvData = await fetchComputeInfo(plugin_id, nodeName);
       if (computeEnvData) {
@@ -77,17 +83,13 @@ const Pipelines = () => {
       }
     }
 
-    /*
-
     dispatch({
       type: Types.SetCurrentNode,
       payload: {
         pipelineId,
         currentNode: nodeName,
       },
-    })
-
-    */
+    });
   };
 
   const onSetPage = (_event: any, page: number) => {
@@ -103,7 +105,7 @@ const Pipelines = () => {
     });
   };
 
-  const handleDispatch = (result: any) => {
+  const handleDispatch = (result: UploadJsonProps) => {
     const { pipelineInstance, parameters, pluginPipings, pipelinePlugins } =
       result;
     dispatch({
@@ -213,7 +215,7 @@ const Pipelines = () => {
                       aria-label="actions"
                     >
                       <Button
-                        variant="secondary"
+                        variant="tertiary"
                         key="select-action"
                         onClick={async () => {
                           if (!(selectedPipeline === pipeline.data.id)) {

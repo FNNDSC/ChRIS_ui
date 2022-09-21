@@ -1,5 +1,7 @@
 import React, { useContext } from "react";
+import { Types } from "../CreateFeed/types";
 import { List, Avatar, Checkbox } from "antd";
+import { TextInput } from "@patternfly/react-core";
 import { CreateFeedContext } from "../CreateFeed/context";
 const colorPalette: {
   [key: string]: string;
@@ -12,9 +14,9 @@ const colorPalette: {
 };
 const ConfigurationPage = (props: { currentPipelineId: number }) => {
   const { currentPipelineId } = props;
-  const { state } = useContext(CreateFeedContext);
-
-  const { currentNode, computeEnvs } = state.pipelineData[currentPipelineId];
+  const { state, dispatch } = useContext(CreateFeedContext);
+  const { currentNode, computeEnvs, title } =
+    state.pipelineData[currentPipelineId];
   const computeEnvList =
     computeEnvs && currentNode && computeEnvs[currentNode]
       ? computeEnvs[currentNode].computeEnvs
@@ -24,7 +26,6 @@ const ConfigurationPage = (props: { currentPipelineId: number }) => {
     <>
       <div>
         <h4>Configuring compute environment for {currentNode} </h4>
-
         <List
           itemLayout="horizontal"
           dataSource={computeEnvList ? computeEnvList : []}
@@ -37,8 +38,29 @@ const ConfigurationPage = (props: { currentPipelineId: number }) => {
                       style={{
                         marginRight: "0.5em",
                       }}
-                      
+                      checked={
+                        currentNode &&
+                        computeEnvs &&
+                        computeEnvs[currentNode] &&
+                        computeEnvs[currentNode].currentlySelected === item.name
+                          ? true
+                          : false
+                      }
+                      onClick={() => {
+                        dispatch({
+                          type: Types.SetCurrentComputeEnvironment,
+                          payload: {
+                            computeEnv: {
+                              item,
+                              currentNode,
+                              currentPipelineId,
+                              computeEnvList,
+                            },
+                          },
+                        });
+                      }}
                     />
+
                     <Avatar
                       style={{
                         background: `${
@@ -55,6 +77,22 @@ const ConfigurationPage = (props: { currentPipelineId: number }) => {
               />
             </List.Item>
           )}
+        />
+      </div>
+      <div>
+        <h4>Configuring Title for {currentNode}</h4>
+        <TextInput
+          value={title && currentNode && title[currentNode]}
+          onChange={(value) => {
+            dispatch({
+              type: Types.SetCurrentNodeTitle,
+              payload: {
+                currentPipelineId,
+                currentNode,
+                title: value,
+              },
+            });
+          }}
         />
       </div>
     </>

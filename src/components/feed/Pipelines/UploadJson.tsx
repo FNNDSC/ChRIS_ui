@@ -2,16 +2,10 @@ import React from 'react'
 import { AiOutlineUpload } from 'react-icons/ai'
 import ReactJSON from 'react-json-view'
 import { Alert, Button } from '@patternfly/react-core'
-import { PipelineList, Pipeline, PipelinePipingDefaultParameterList} from '@fnndsc/chrisapi'
+import { PipelineList} from '@fnndsc/chrisapi'
 import { generatePipelineWithData } from '../CreateFeed/utils/pipelines'
 import ChrisAPIClient from '../../../api/chrisapiclient'
-
-interface UploadJsonProps {
-  parameters: any[],
-  pluginPipings: any[]
-  pipelinePlugins: any[]
-  pipelineInstance: Pipeline
-}
+import { UploadJsonProps } from '../CreateFeed/Pipelines'
 
 export const UploadJson = ({
   handleDispatch,
