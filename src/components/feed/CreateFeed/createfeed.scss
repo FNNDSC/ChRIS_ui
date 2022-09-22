@@ -219,3 +219,25 @@
   letter-spacing: 0.025rem;
   font-family: monospace;
 }
+
+/**
+Styles for pipelines 
+**/
+
+.pipelines {
+  &__popover {
+    min-width: 700px;
+    height: 700px;
+  }
+
+  &__tree {
+    height: 50%;
+  }
+}
+.pf-c-popover__content {
+  height: 100%;
+}
+
+.pf-c-popover__body {
+  height: 100%;
+}

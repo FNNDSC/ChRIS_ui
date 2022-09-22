@@ -6,7 +6,7 @@ import { CreateFeedContext } from "../CreateFeed/context";
 const colorPalette: {
   [key: string]: string;
 } = {
-  default: "#5998C5",
+  default: "#2B9AF3 ",
   host: "#002952",
   moc: "#704478",
   titan: "#1B9D92",
@@ -15,7 +15,7 @@ const colorPalette: {
 const ConfigurationPage = (props: { currentPipelineId: number }) => {
   const { currentPipelineId } = props;
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { currentNode, computeEnvs, title } =
+  const { currentNode, computeEnvs, title, pluginParameters } =
     state.pipelineData[currentPipelineId];
   const computeEnvList =
     computeEnvs && currentNode && computeEnvs[currentNode]
@@ -25,7 +25,7 @@ const ConfigurationPage = (props: { currentPipelineId: number }) => {
   return (
     <>
       <div>
-        <h4>Configuring compute environment for {currentNode} </h4>
+        <h4>Configuring compute environment for node id: {currentNode} </h4>
         <List
           itemLayout="horizontal"
           dataSource={computeEnvList ? computeEnvList : []}
@@ -80,7 +80,7 @@ const ConfigurationPage = (props: { currentPipelineId: number }) => {
         />
       </div>
       <div>
-        <h4>Configuring Title for {currentNode}</h4>
+        <h4>Configuring Title for node id: {currentNode}</h4>
         <TextInput
           value={title && currentNode && title[currentNode]}
           onChange={(value) => {

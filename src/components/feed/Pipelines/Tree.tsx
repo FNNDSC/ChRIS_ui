@@ -83,9 +83,9 @@ const Tree = (props: {
 
   return (
     <div
+      className="pipelines__tree"
       style={{
-        width: "65%",
-        height: "400px",
+        background: "#4F5255",
       }}
     >
       {loading ? (
