@@ -1,4 +1,4 @@
-import React, { useRef, useContext, Fragment } from "react";
+import React, { useRef, useContext } from "react";
 import { Types } from "../CreateFeed/types";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
@@ -10,11 +10,11 @@ import ChrisAPIClient from "../../../api/chrisapiclient";
 const colorPalette: {
   [key: string]: string;
 } = {
-  default: "#5998C5",
+  default: "#2B9AF3 ",
   host: "#002952",
   moc: "#704478",
   titan: "#1B9D92",
-  "bu-21-9": "#ADF17F",
+  galena: "#ADF17F",
 };
 
 export interface Point {
@@ -49,11 +49,14 @@ const NodeData = (props: NodeProps) => {
   const { data, position, orientation, handleNodeClick, currentPipelineId } =
     props;
   const [pluginName, setPluginName] = React.useState("");
-  const { computeEnvs } = state.pipelineData[currentPipelineId];
+  const { computeEnvs, title } = state.pipelineData[currentPipelineId];
+  const { currentNode } = state.pipelineData[currentPipelineId];
   let currentComputeEnv = "";
   if (pluginName && computeEnvs && computeEnvs[data.id]) {
     currentComputeEnv = computeEnvs[data.id].currentlySelected;
   }
+
+  const titleName = title && title[data.id];
 
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
@@ -95,37 +98,37 @@ const NodeData = (props: NodeProps) => {
   const textLabel = (
     <g id={`text_${data.id}`}>
       <text ref={textRef} className="label__title">
-        {pluginName}
+        {`${titleName ? titleName : pluginName} (id: ${data.id})`}
       </text>
     </g>
   );
 
   return (
-    <Fragment>
-      <g
+    <g
+      style={{
+        cursor: "pointer",
+      }}
+      id={`${data.id}`}
+      ref={nodeRef}
+      onClick={() => {
+        if (data) handleNodeClick(data.id, currentPipelineId, data.plugin_id);
+      }}
+    >
+      <circle
         style={{
-          cursor: "pointer",
+          fill: `${
+            colorPalette[currentComputeEnv]
+              ? colorPalette[currentComputeEnv]
+              : colorPalette["default"]
+          }`,
+          stroke: data.id === currentNode ? "white" : "",
+          strokeWidth: data.id === currentNode ? "3px" : "",
         }}
-        id={`${data.id}`}
-        ref={nodeRef}
-        onClick={() => {
-          if (data) handleNodeClick(data.id, currentPipelineId, data.plugin_id);
-        }}
-      >
-        <circle
-          style={{
-            fill: `${
-              colorPalette[currentComputeEnv]
-                ? colorPalette[currentComputeEnv]
-                : colorPalette["default"]
-            }`,
-          }}
-          id={`node_${data.id}`}
-          r={DEFAULT_NODE_CIRCLE_RADIUS}
-        ></circle>
-        {textLabel}
-      </g>
-    </Fragment>
+        id={`node_${data.id}`}
+        r={DEFAULT_NODE_CIRCLE_RADIUS}
+      ></circle>
+      {textLabel}
+    </g>
   );
 };
 

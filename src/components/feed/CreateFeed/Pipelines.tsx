@@ -1,15 +1,14 @@
-import React, {  useContext } from "react";
+import React, { useContext } from "react";
 import {
   Button,
-  DataListContent,
   DataList,
   DataListItem,
   DataListCell,
   DataListItemRow,
-  DataListToggle,
   DataListItemCells,
   Pagination,
   DataListAction,
+  Popover,
 } from "@patternfly/react-core";
 
 import { CreateFeedContext } from "./context";
@@ -20,15 +19,15 @@ import {
   generatePipelineWithName,
   fetchPipelines,
 } from "./utils/pipelines";
-import {Pipeline, PipelinePipingDefaultParameterList} from '@fnndsc/chrisapi'
+import { Pipeline, PipelinePipingDefaultParameterList } from "@fnndsc/chrisapi";
+import { Spin } from "antd";
 
 export interface UploadJsonProps {
-  parameters: PipelinePipingDefaultParameterList,
-  pluginPipings: any[]
-  pipelinePlugins: any[]
-  pipelineInstance: Pipeline
+  parameters: PipelinePipingDefaultParameterList;
+  pluginPipings: any[];
+  pipelinePlugins: any[];
+  pipelineInstance: Pipeline;
 }
-
 
 const Pipelines = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -41,7 +40,7 @@ const Pipelines = () => {
     itemCount: 0,
   });
 
-  const [expanded, setExpanded] = React.useState<number[]>([]);
+  const [expanded, setExpanded] = React.useState<{ [key: string]: boolean }>();
   const { page, perPage } = pageState;
 
   React.useEffect(() => {
@@ -143,52 +142,12 @@ const Pipelines = () => {
             pipelines.map((pipeline) => {
               return (
                 <DataListItem
-                  isExpanded={expanded.includes(pipeline.data.id)}
+                  isExpanded={
+                    expanded && expanded[pipeline.data.id] ? true : false
+                  }
                   key={pipeline.data.id}
                 >
                   <DataListItemRow>
-                    <DataListToggle
-                      onClick={async () => {
-                        if (!expanded.includes(pipeline.data.id)) {
-                          const { resources } = await generatePipelineWithName(
-                            pipeline.data.name
-                          );
-
-                          dispatch({
-                            type: Types.SetExpandedPipelines,
-                            payload: {
-                              pipelineId: pipeline.data.id,
-                            },
-                          });
-
-                          const { parameters, pluginPipings, pipelinePlugins } =
-                            resources;
-
-                          dispatch({
-                            type: Types.SetPipelineResources,
-                            payload: {
-                              pipelineId: pipeline.data.id,
-                              parameters,
-                              pluginPipings,
-                              pipelinePlugins,
-                            },
-                          });
-                        }
-
-                        const index = expanded.indexOf(pipeline.data.id);
-                        const newExpanded =
-                          index >= 0
-                            ? [
-                                ...expanded.slice(0, index),
-                                ...expanded.slice(index + 1, expanded.length),
-                              ]
-                            : [...expanded, pipeline.data.id];
-                        setExpanded(newExpanded);
-                      }}
-                      isExpanded={expanded.includes(pipeline.id)}
-                      id={pipeline.id}
-                      aria-controls="expand"
-                    />
                     <DataListItemCells
                       dataListCells={[
                         <DataListCell key={pipeline.data.name}>
@@ -213,7 +172,85 @@ const Pipelines = () => {
                       aria-labelledby="select a pipeline"
                       id={pipeline.data.id}
                       aria-label="actions"
+                      className="pipelines"
                     >
+                      <Popover
+                        hideOnOutsideClick={false}
+                        className="pipelines__popover"
+                        onHide={() => {
+                          setExpanded({
+                            ...expanded,
+                            [pipeline.data.id]: false,
+                          });
+                        }}
+                        bodyContent={
+                          (expanded && expanded[pipeline.data.id]) ||
+                          state.pipelineData[pipeline.data.id] ? (
+                            <>
+                              <Tree
+                                currentPipelineId={pipeline.data.id}
+                                handleNodeClick={handleNodeClick}
+                              />
+                              <ConfigurationPage
+                                currentPipelineId={pipeline.data.id}
+                              />
+                            </>
+                          ) : (
+                            <Spin>Fetching Pipeline Resources</Spin>
+                          )
+                        }
+                        aria-label="pipeline-configuration"
+                        position="bottom-start"
+                        minWidth="700px"
+                      >
+                        <>
+                          <Button
+                            onClick={async () => {
+                              if (
+                                !(expanded && expanded[pipeline.data.id]) &&
+                                !state.pipelineData[pipeline.data.id]
+                              ) {
+                                const { resources } =
+                                  await generatePipelineWithName(
+                                    pipeline.data.name
+                                  );
+
+                                dispatch({
+                                  type: Types.SetExpandedPipelines,
+                                  payload: {
+                                    pipelineId: pipeline.data.id,
+                                  },
+                                });
+
+                                const {
+                                  parameters,
+                                  pluginPipings,
+                                  pipelinePlugins,
+                                } = resources;
+
+                                dispatch({
+                                  type: Types.SetPipelineResources,
+                                  payload: {
+                                    pipelineId: pipeline.data.id,
+                                    parameters,
+                                    pluginPipings,
+                                    pipelinePlugins,
+                                  },
+                                });
+
+                                setExpanded({
+                                  ...expanded,
+                                  [pipeline.data.id]: true,
+                                });
+                              }
+                            }}
+                            variant="tertiary"
+                          >
+                            Configure Pipeline
+                          </Button>
+                        </>
+                      </Popover>
+
                       <Button
                         variant="tertiary"
                         key="select-action"
@@ -253,10 +290,12 @@ const Pipelines = () => {
                               });
                             }
                           } else {
+                            /*
                             dispatch({
                               type: Types.DeslectPipeline,
                               payload: {},
                             });
+                    */
                           }
                         }}
                       >
@@ -266,30 +305,6 @@ const Pipelines = () => {
                       </Button>
                     </DataListAction>
                   </DataListItemRow>
-                  <DataListContent
-                    aria-label="PrimaryContent"
-                    id={pipeline.data.id}
-                    isHidden={!expanded.includes(pipeline.data.id)}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        height: "100%",
-                      }}
-                    >
-                      {expanded.includes(pipeline.data.id) ? (
-                        <>
-                          <Tree
-                            currentPipelineId={pipeline.data.id}
-                            handleNodeClick={handleNodeClick}
-                          />
-                          <ConfigurationPage
-                            currentPipelineId={pipeline.data.id}
-                          />
-                        </>
-                      ) : null}
-                    </div>
-                  </DataListContent>
                 </DataListItem>
               );
             })}

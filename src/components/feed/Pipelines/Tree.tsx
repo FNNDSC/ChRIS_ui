@@ -5,22 +5,26 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { Spin } from "antd";
 import { tree, hierarchy } from "d3-hierarchy";
-import { select } from "d3-selection";
+import { select, event } from "d3-selection";
+import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { Types } from "../CreateFeed/types";
 import { CreateFeedContext } from "../CreateFeed/context";
 import TransitionGroupWrapper from "../FeedTree/TransitionGroupWrapper";
 import NodeData from "./NodeData";
 import { TreeNode, getFeedTree } from "../../../utils";
+import useSize from "../FeedTree/useSize";
 
 const nodeSize = { x: 150, y: 50 };
 const svgClassName = "feed-tree__svg";
 const graphClassName = "feed-tree__graph";
-const translate = {
-  x: 150,
-  y: 50,
-};
 const scale = 1;
+const scaleExtent = {
+  min: 0.1,
+  max: 1,
+};
+const zoom = 1;
 
 const Tree = (props: {
   currentPipelineId: number;
@@ -30,6 +34,12 @@ const Tree = (props: {
     plugin_id: number
   ) => void;
 }) => {
+  const divRef = useRef(null);
+  const [translate, setTranslate] = React.useState({
+    x: 0,
+    y: 0,
+  });
+  const size = useSize(divRef);
   const { state, dispatch } = useContext(CreateFeedContext);
   const { currentPipelineId } = props;
   const { pluginPipings, pipelinePlugins } =
@@ -40,6 +50,29 @@ const Tree = (props: {
 
   const [data, setData] = React.useState<TreeNode[]>();
 
+  const bindZoomListener = React.useCallback(() => {
+    const svg = select(`.${svgClassName}`);
+    const g = select(`.${graphClassName}`);
+
+    svg.call(
+      ///@ts-ignore
+      d3Zoom().transform,
+      zoomIdentity.translate(translate.x, translate.y).scale(zoom)
+    );
+
+    svg.call(
+      //@ts-ignore
+      d3Zoom()
+        .scaleExtent([scaleExtent.min, scaleExtent.max])
+        .on("zoom", () => {
+          g.attr("transform", event.transform);
+        })
+    );
+  }, [translate.x, translate.y]);
+
+  React.useEffect(() => {
+    bindZoomListener();
+  }, [bindZoomListener]);
   React.useEffect(() => {
     if (pluginPipings) {
       setLoading(true);
@@ -67,6 +100,17 @@ const Tree = (props: {
     setLoading(false);
   }, [pluginPipings, dispatch, pipelinePlugins, currentPipelineId]);
 
+  React.useEffect(() => {
+    //@ts-ignore
+    if (size && size.width) {
+      setTranslate({
+        //@ts-ignore
+        x: size.width / 2,
+        y: 80,
+      });
+    }
+  }, [size]);
+
   const generateTree = () => {
     const d3Tree = tree<TreeNode>().nodeSize([nodeSize.x, nodeSize.y]);
     let nodes;
@@ -83,14 +127,15 @@ const Tree = (props: {
 
   return (
     <div
+      ref={divRef}
+      className="pipelines__tree"
       style={{
-        width: "65%",
-        height: "400px",
+        background: "#4F5255",
       }}
     >
       {loading ? (
         <span style={{ color: "black" }}>Fetching Pipeline.....</span>
-      ) : (
+      ) : translate.x > 0 && translate.y > 0 ? (
         <svg className={`${svgClassName}`} width="100%" height="100%">
           <TransitionGroupWrapper
             component="g"
@@ -121,6 +166,8 @@ const Tree = (props: {
             })}
           </TransitionGroupWrapper>
         </svg>
+      ) : (
+        <Spin>Drawing out the pipelines tree</Spin>
       )}
     </div>
   );
