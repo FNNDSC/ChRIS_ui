@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import {
   Button,
-  DataListContent,
   DataList,
   DataListItem,
   DataListCell,
@@ -125,8 +124,6 @@ const Pipelines = () => {
     });
   };
 
-  console.log("Expanded", expanded);
-
   return (
     <div className="pacs-alert-wrap">
       <div className="pacs-alert-step-wrap">
@@ -187,7 +184,8 @@ const Pipelines = () => {
                           });
                         }}
                         bodyContent={
-                          expanded && expanded[pipeline.data.id] ? (
+                          (expanded && expanded[pipeline.data.id]) ||
+                          state.pipelineData[pipeline.data.id] ? (
                             <>
                               <Tree
                                 currentPipelineId={pipeline.data.id}
@@ -208,7 +206,10 @@ const Pipelines = () => {
                         <>
                           <Button
                             onClick={async () => {
-                              if (!(expanded && expanded[pipeline.data.id])) {
+                              if (
+                                !(expanded && expanded[pipeline.data.id]) &&
+                                !state.pipelineData[pipeline.data.id]
+                              ) {
                                 const { resources } =
                                   await generatePipelineWithName(
                                     pipeline.data.name
@@ -289,10 +290,12 @@ const Pipelines = () => {
                               });
                             }
                           } else {
+                            /*
                             dispatch({
                               type: Types.DeslectPipeline,
                               payload: {},
                             });
+                    */
                           }
                         }}
                       >
