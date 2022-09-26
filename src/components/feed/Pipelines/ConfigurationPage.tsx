@@ -15,7 +15,7 @@ const colorPalette: {
 const ConfigurationPage = (props: { currentPipelineId: number }) => {
   const { currentPipelineId } = props;
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { currentNode, computeEnvs, title, pluginParameters } =
+  const { currentNode, computeEnvs, title } =
     state.pipelineData[currentPipelineId];
   const computeEnvList =
     computeEnvs && currentNode && computeEnvs[currentNode]
@@ -82,6 +82,7 @@ const ConfigurationPage = (props: { currentPipelineId: number }) => {
       <div>
         <h4>Configuring Title for node id: {currentNode}</h4>
         <TextInput
+          arial-label="Change the plugin instance title in a node"
           value={title && currentNode && title[currentNode]}
           onChange={(value) => {
             dispatch({
