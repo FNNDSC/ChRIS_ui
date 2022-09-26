@@ -189,7 +189,7 @@ const FeedTree = (props: AllProps) => {
     const { translate } = feedTreeProp;
     const svg = select(`.${svgClassName}`);
     const g = select(`.${graphClassName}`);
-
+    console.log("classNames", svg, g);
     svg.call(
       //@ts-ignore
       d3Zoom().transform,
