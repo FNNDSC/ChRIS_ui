@@ -224,20 +224,23 @@
 Styles for pipelines 
 **/
 
-.pipelines {
-  &__popover {
-    min-width: 700px;
-    height: 700px;
-  }
-
-  &__tree {
-    height: 50%;
-  }
+.pf-c-modal-box {
+  height: 95%;
 }
+
+.pf-c-popover {
+  height: 700px;
+  padding: 0;
+}
+
 .pf-c-popover__content {
   height: 100%;
 }
 
 .pf-c-popover__body {
   height: 100%;
+  padding: 0;
+  div {
+    height: 100%;
+  }
 }

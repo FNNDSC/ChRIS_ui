@@ -121,7 +121,9 @@ export const FeedView: React.FC = () => {
       xl2RowSpan={12}
     >
       {" "}
-      <React.Suspense fallback={<div>Fetching the Resources in a moment</div>}>
+      <React.Suspense
+        fallback={<SpinContainer title="Fetching the Resources in a moment" />}
+      >
         {!currentLayout ? (
           <ParentComponent
             isSidePanelExpanded={isSidePanelExpanded}

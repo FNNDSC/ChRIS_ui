@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { Button } from "@patternfly/react-core";
 import { Spin } from "antd";
 import { tree, hierarchy } from "d3-hierarchy";
 import { select, event } from "d3-selection";
@@ -16,7 +17,7 @@ import NodeData from "./NodeData";
 import { TreeNode, getFeedTree } from "../../../utils";
 import useSize from "../FeedTree/useSize";
 
-const nodeSize = { x: 150, y: 50 };
+const nodeSize = { x: 200, y: 80 };
 const svgClassName = "feed-tree__svg";
 const graphClassName = "feed-tree__graph";
 const scale = 1;
@@ -73,6 +74,7 @@ const Tree = (props: {
   React.useEffect(() => {
     bindZoomListener();
   }, [bindZoomListener]);
+
   React.useEffect(() => {
     if (pluginPipings) {
       setLoading(true);
@@ -105,8 +107,9 @@ const Tree = (props: {
     if (size && size.width) {
       setTranslate({
         //@ts-ignore
-        x: size.width / 2,
-        y: 80,
+        x: size.width / 2.5,
+        //@ts-ignore
+        y: size.height / 3,
       });
     }
   }, [size]);
@@ -130,7 +133,8 @@ const Tree = (props: {
       ref={divRef}
       className="pipelines__tree"
       style={{
-        background: "#4F5255",
+        background: "black",
+        height:'350px'
       }}
     >
       {loading ? (
