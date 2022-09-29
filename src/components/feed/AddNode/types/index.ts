@@ -102,8 +102,8 @@ export interface GuidedConfigProps extends InputProps {
     required: boolean
   ): void;
   deleteInput(input: string): void;
-  selectedComputeEnv: string;
-  setComputeEnviroment: (computeEnv: string) => void;
+  selectedComputeEnv?: string;
+  setComputeEnviroment?: (computeEnv: string) => void;
 }
 
 export interface EditorState {

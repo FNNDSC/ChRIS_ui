@@ -6,9 +6,10 @@ import {
   DataListCell,
   DataListItemRow,
   DataListItemCells,
+  DataListToggle,
   Pagination,
   DataListAction,
-  Popover,
+  DataListContent,
 } from "@patternfly/react-core";
 
 import { CreateFeedContext } from "./context";
@@ -123,7 +124,7 @@ const Pipelines = () => {
       },
     });
   };
-
+  console.log(expanded);
   return (
     <div className="pacs-alert-wrap">
       <div className="pacs-alert-step-wrap">
@@ -148,6 +149,53 @@ const Pipelines = () => {
                   key={pipeline.data.id}
                 >
                   <DataListItemRow>
+                    <DataListToggle
+                      id={pipeline.data.id}
+                      aria-controls="expand"
+                      onClick={async () => {
+                        console.log(
+                          "Toggle",
+                          expanded && expanded[pipeline.data.id]
+                        );
+                        if (
+                          !(expanded && expanded[pipeline.data.id]) ||
+                          !state.pipelineData[pipeline.data.id]
+                        ) {
+                          const { resources } = await generatePipelineWithName(
+                            pipeline.data.name
+                          );
+
+                          dispatch({
+                            type: Types.SetExpandedPipelines,
+                            payload: {
+                              pipelineId: pipeline.data.id,
+                            },
+                          });
+
+                          const { parameters, pluginPipings, pipelinePlugins } =
+                            resources;
+
+                          dispatch({
+                            type: Types.SetPipelineResources,
+                            payload: {
+                              pipelineId: pipeline.data.id,
+                              parameters,
+                              pluginPipings,
+                              pipelinePlugins,
+                            },
+                          });
+                          setExpanded({
+                            ...expanded,
+                            [pipeline.data.id]: true,
+                          });
+                        } else {
+                          setExpanded({
+                            ...expanded,
+                            [pipeline.data.id]: false,
+                          });
+                        }
+                      }}
+                    />
                     <DataListItemCells
                       dataListCells={[
                         <DataListCell key={pipeline.data.name}>
@@ -174,83 +222,6 @@ const Pipelines = () => {
                       aria-label="actions"
                       className="pipelines"
                     >
-                      <Popover
-                        hideOnOutsideClick={false}
-                        className="pipelines__popover"
-                        onHide={() => {
-                          setExpanded({
-                            ...expanded,
-                            [pipeline.data.id]: false,
-                          });
-                        }}
-                        bodyContent={
-                          (expanded && expanded[pipeline.data.id]) ||
-                          state.pipelineData[pipeline.data.id] ? (
-                            <>
-                              <Tree
-                                currentPipelineId={pipeline.data.id}
-                                handleNodeClick={handleNodeClick}
-                              />
-                              <ConfigurationPage
-                                currentPipelineId={pipeline.data.id}
-                              />
-                            </>
-                          ) : (
-                            <Spin>Fetching Pipeline Resources</Spin>
-                          )
-                        }
-                        aria-label="pipeline-configuration"
-                        position="bottom-start"
-                        minWidth="700px"
-                      >
-                        <>
-                          <Button
-                            onClick={async () => {
-                              if (
-                                !(expanded && expanded[pipeline.data.id]) &&
-                                !state.pipelineData[pipeline.data.id]
-                              ) {
-                                const { resources } =
-                                  await generatePipelineWithName(
-                                    pipeline.data.name
-                                  );
-
-                                dispatch({
-                                  type: Types.SetExpandedPipelines,
-                                  payload: {
-                                    pipelineId: pipeline.data.id,
-                                  },
-                                });
-
-                                const {
-                                  parameters,
-                                  pluginPipings,
-                                  pipelinePlugins,
-                                } = resources;
-
-                                dispatch({
-                                  type: Types.SetPipelineResources,
-                                  payload: {
-                                    pipelineId: pipeline.data.id,
-                                    parameters,
-                                    pluginPipings,
-                                    pipelinePlugins,
-                                  },
-                                });
-
-                                setExpanded({
-                                  ...expanded,
-                                  [pipeline.data.id]: true,
-                                });
-                              }
-                            }}
-                            variant="tertiary"
-                          >
-                            Configure Pipeline
-                          </Button>
-                        </>
-                      </Popover>
-
                       <Button
                         variant="tertiary"
                         key="select-action"
@@ -290,12 +261,10 @@ const Pipelines = () => {
                               });
                             }
                           } else {
-                            /*
                             dispatch({
                               type: Types.DeslectPipeline,
                               payload: {},
                             });
-                    */
                           }
                         }}
                       >
@@ -305,6 +274,28 @@ const Pipelines = () => {
                       </Button>
                     </DataListAction>
                   </DataListItemRow>
+                  <DataListContent
+                    id={pipeline.data.id}
+                    aria-label="PrimaryContent"
+                    isHidden={!(expanded && expanded[pipeline.data.id])}
+                  >
+                    {(expanded && expanded[pipeline.data.id]) ||
+                    state.pipelineData[pipeline.data.id] ? (
+                      <>
+                        <Tree
+                          currentPipelineId={pipeline.data.id}
+                          handleNodeClick={handleNodeClick}
+                        />
+
+                        <ConfigurationPage
+                          pipeline={pipeline}
+                          currentPipelineId={pipeline.data.id}
+                        />
+                      </>
+                    ) : (
+                      <Spin>Fetching Pipeline Resources</Spin>
+                    )}
+                  </DataListContent>
                 </DataListItem>
               );
             })}

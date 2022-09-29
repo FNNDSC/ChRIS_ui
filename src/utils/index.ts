@@ -1,3 +1,4 @@
+import { ListResource } from "@fnndsc/chrisapi";
 import * as React from "react";
 
 export function useSafeDispatch(dispatch: any) {

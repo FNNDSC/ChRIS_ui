@@ -109,6 +109,8 @@ export const createFeedInstanceWithDircopy = async (
           ) {
             const { pluginParameters } = pipeline;
 
+            console.log("Plugin Parameters", pluginParameters);
+
             const nodes_info = client.computeWorkflowNodesInfo(
               //@ts-ignore
               pluginParameters.data
