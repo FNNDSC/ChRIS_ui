@@ -17,6 +17,7 @@ import {
   setFetching,
 } from "./context/actions";
 import { Spin } from "antd";
+import { useSearchParams } from "react-router-dom";
 
 interface BrowserContainerInterface {
   type: string;
@@ -41,6 +42,8 @@ const BrowserContainer = ({
     columnLayout,
   } = state;
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const resourcesFetch = React.useCallback(
     async (path: string) => {
       dispatch(setFetching(true));
@@ -55,6 +58,15 @@ const BrowserContainer = ({
           dispatch(setCurrentPathSearch(path, type));
         } else {
           dispatch(setCurrentPath(path, type));
+        }
+        if (
+          searchParams.get("path") !== null ||
+          searchParams.get("path") !== undefined
+        ) {
+          const searchParamPath: string = searchParams.get("path") || path;
+          dispatch(setCurrentPath(searchParamPath, type));
+        } else {
+          return;
         }
 
         const parsedUpload =
@@ -150,6 +162,7 @@ const BrowserContainer = ({
         }
       }
     }
+    setSearchParams({ path: path });
 
     dispatch(setFetching(false));
   };
@@ -313,7 +326,7 @@ export const SearchContainer = ({
       )}
       {emptySetIndicator[type] && (
         <EmptyState>
-          <Title headingLevel="h4" size="lg">
+          <Title headingLevel='h4' size='lg'>
             {emptySetIndicator[type]}
           </Title>
         </EmptyState>
