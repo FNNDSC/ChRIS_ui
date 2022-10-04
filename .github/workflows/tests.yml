@@ -32,7 +32,7 @@ jobs:
           node-version: "16.x"
       
       - run: npm ci --legacy-peer-deps
-      - run: npm install --leagacy-peer-deps
+      - run: npm install --legacy-peer-deps
  
       - name: Cypress run
         uses: cypress-io/github-action@v4
