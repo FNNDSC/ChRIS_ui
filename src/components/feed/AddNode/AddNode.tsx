@@ -259,6 +259,7 @@ const AddNode: React.FC<AddNodeProps> = ({
   );
   const form = data.plugin ? (
     <GuidedConfig
+      renderComputeEnv={true}
       inputChange={inputChange}
       deleteInput={deleteInput}
       plugin={data.plugin}

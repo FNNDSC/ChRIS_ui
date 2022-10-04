@@ -3,7 +3,6 @@ import { CreateFeedData, LocalFile, PipelineData } from "../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
-
 import { fetchResource } from "../../../../utils";
 
 export function getName(selectedConfig: string) {
@@ -107,9 +106,7 @@ export const createFeedInstanceWithDircopy = async (
             pipeline.pipelinePlugins &&
             pipeline.pluginPipings.length > 0
           ) {
-            const { pluginParameters } = pipeline;
-
-            console.log("Plugin Parameters", pluginParameters);
+            const { pluginParameters, input, title, computeEnvs } = pipeline;
 
             const nodes_info = client.computeWorkflowNodesInfo(
               //@ts-ignore
@@ -117,13 +114,32 @@ export const createFeedInstanceWithDircopy = async (
             );
 
             nodes_info.forEach((node) => {
-              const compute_node =
-                pipeline.computeEnvs &&
-                pipeline.computeEnvs[node.piping_id].currentlySelected;
-              const title = pipeline.title[node.piping_id];
-              if (compute_node) {
+              console.log("Compute Envs", computeEnvs);
+              if (computeEnvs && computeEnvs[node["piping_id"]]) {
+                const compute_node =
+                  computeEnvs[node["piping_id"]]["currentlySelected"];
+
+                const title = pipeline.title[node["piping_id"]];
+                if (title) {
+                  node.title = title;
+                }
                 node.compute_resource_name = compute_node;
-                node.title = title;
+              }
+              const pluginParameterDefaults = [];
+              if (input && input[node["piping_id"]]) {
+                const { dropdownInput, requiredInput } =
+                  input[node["piping_id"]];
+
+                for (const i in dropdownInput) {
+                  const parameter = dropdownInput[i];
+                  const replaceValue = parameter["flag"].replace(/-/g, "");
+
+                  pluginParameterDefaults.push({
+                    name: replaceValue,
+                    default: parameter["value"],
+                  });
+                }
+                node["plugin_parameter_defaults"] = pluginParameterDefaults;
               }
             });
 

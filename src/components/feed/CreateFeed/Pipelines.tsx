@@ -124,7 +124,7 @@ const Pipelines = () => {
       },
     });
   };
-  console.log(expanded);
+
   return (
     <div className="pacs-alert-wrap">
       <div className="pacs-alert-step-wrap">
@@ -153,10 +153,6 @@ const Pipelines = () => {
                       id={pipeline.data.id}
                       aria-controls="expand"
                       onClick={async () => {
-                        console.log(
-                          "Toggle",
-                          expanded && expanded[pipeline.data.id]
-                        );
                         if (
                           !(expanded && expanded[pipeline.data.id]) ||
                           !state.pipelineData[pipeline.data.id]

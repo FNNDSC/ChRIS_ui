@@ -12,10 +12,9 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
   inputChange,
 }: RequiredParamProp) => {
   const value =
-    (requiredInput &&
-      requiredInput[param.data.id] &&
-      requiredInput[param.data.id]["value"]) ||
-    param.data.default;
+    requiredInput &&
+    requiredInput[param.data.id] &&
+    requiredInput[param.data.id]["value"];
 
   const handleInputChange = (param: PluginParameter, event: any) => {
     const id = `${param.data.id}`;

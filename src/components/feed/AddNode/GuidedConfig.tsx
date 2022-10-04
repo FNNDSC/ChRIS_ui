@@ -1,25 +1,22 @@
 import React from "react";
 import {
-  TextInput,
   Button,
   Alert,
-  Hint,
-  HintBody,
   AlertActionCloseButton,
   ExpandableSection,
+  Divider,
 } from "@patternfly/react-core";
 import SimpleDropdown from "./SimpleDropdown";
 import RequiredParam from "./RequiredParam";
 import ComputeEnvironments from "./ComputeEnvironment";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { isEmpty } from "lodash";
 import { v4 } from "uuid";
 
 import { GuidedConfigState, GuidedConfigProps } from "./types";
-import { unpackParametersIntoString } from "./lib/utils";
 
 const GuidedConfig = ({
+  renderComputeEnv,
   dropdownInput,
   requiredInput,
   inputChange,
@@ -60,7 +57,7 @@ const GuidedConfig = ({
 
   React.useEffect(() => {
     setDropdownDefaults();
-  }, [setDropdownDefaults]);
+  }, [setDropdownDefaults, dropdownInput]);
 
   const handleDocsToggle = () => {
     setConfigState({
@@ -113,13 +110,13 @@ const GuidedConfig = ({
           <span className="configure-compute__label">
             Select a compute environment:{" "}
           </span>
-          {selectedComputeEnv && setComputeEnviroment && (
+          {
             <ComputeEnvironments
               selectedOption={selectedComputeEnv}
               computeEnvs={computeEnvs}
               setComputeEnvironment={setComputeEnviroment}
             />
-          )}
+          }
 
           <ExpandableSection
             className="docs"
@@ -159,7 +156,7 @@ const GuidedConfig = ({
               />
             </React.Fragment>
           );
-        } else return undefined;
+        }
       });
     }
   };
@@ -181,92 +178,62 @@ const GuidedConfig = ({
     });
   };
 
-  const { name, version, title } = plugin?.data;
-
-  const pluginName = `${title ? title : `${name} v.${version}`}`;
-
-  let generatedCommand = plugin && `${pluginName}: `;
-  if (!isEmpty(requiredInput)) {
-    generatedCommand += unpackParametersIntoString(requiredInput);
-  }
-  if (!isEmpty(dropdownInput)) {
-    generatedCommand += unpackParametersIntoString(dropdownInput);
-  }
-
   return (
-    <div className="configuration">
-      <div className="configuration__options">
-        {/*
-        <h1 className="pf-c-title pf-m-2xl">{`Configure ${pluginName}`}</h1>
-        <p>
-          Use the &quot;Add more parameters&quot; button to add command line
-          flags and values to the plugin.
-        </p>
-        
-        */}
+    <>
+      <div className="configuration">
+        <div className="configuration__options">
+          <div className="configuration__renders">
+            <div>
+              <h4>Required Parameters</h4>
+              <Divider component="div" />
+              {renderRequiredParams()}
+              <p>
+                <i>
+                  {Object.keys(requiredInput).length === 0 &&
+                    "The plugin has no required parameters"}
+                </i>
+              </p>
+            </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-          className="configuration__buttons"
-        >
-          <Button
-            className="configuration__button"
-            onClick={addParam}
-            variant="primary"
-          >
-            Configure optional parameters
-          </Button>
-          <Hint
-            //@ts-ignore
-            style={{
-              marginTop: "1rem",
-              marginRight: "auto",
-              padding: "0.25em",
-            }}
-          >
-            <HintBody
-              //@ts-ignore
+            <div
               style={{
-                marginTop: "auto",
-                marginRight: "auto",
+                margin: "1.5em 0 1.5em 0",
               }}
             >
-              Click on the button to configure optional parameters
-            </HintBody>
-          </Hint>
-        </div>
+              <h4>Optional Parameters</h4>
+              <Divider component="div" />
+              {renderDropdowns()}
+              <p>
+                Use the &quot;Add optional parameters&quot; button to add
+                optional command line flags and values to the plugin.
+              </p>
+              <Button
+                className="configuration__button"
+                onClick={addParam}
+                variant="primary"
+              >
+                Add optional parameters
+              </Button>
+            </div>
 
-        <div className="configuration__renders">
-          {renderRequiredParams()}
-          {renderDropdowns()}
-          {renderComputeEnvs()}
-        </div>
-        {alertVisible &&
-          errors.length > 0 &&
-          errors.map((error, index) => {
-            return (
-              <Alert
-                className="configuration__renders__alert"
-                key={index}
-                variant="danger"
-                title={error}
-                actionClose={<AlertActionCloseButton onClose={hideAlert} />}
-              />
-            );
-          })}
-        <div className="autogenerated">
-          <TextInput
-            className="autogenerated__text"
-            type="text"
-            aria-label="autogenerated-text"
-            value={generatedCommand}
-          />
+            {renderComputeEnv && renderComputeEnvs()}
+          </div>
+          {alertVisible &&
+            errors.length > 0 &&
+            errors.map((error, index) => {
+              return (
+                <Alert
+                  className="configuration__renders__alert"
+                  key={index}
+                  variant="danger"
+                  title={error}
+                  actionClose={<AlertActionCloseButton onClose={hideAlert} />}
+                />
+              );
+            })}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

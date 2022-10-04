@@ -201,6 +201,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   const packs = <DataPacks />;
   const guidedConfig = (
     <GuidedConfig
+      renderComputeEnv={true}
       inputChange={inputChange}
       deleteInput={deleteInput}
       plugin={selectedPlugin}
