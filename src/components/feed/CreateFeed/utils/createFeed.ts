@@ -114,7 +114,6 @@ export const createFeedInstanceWithDircopy = async (
             );
 
             nodes_info.forEach((node) => {
-              console.log("Compute Envs", computeEnvs);
               if (computeEnvs && computeEnvs[node["piping_id"]]) {
                 const compute_node =
                   computeEnvs[node["piping_id"]]["currentlySelected"];
