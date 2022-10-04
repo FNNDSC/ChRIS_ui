@@ -55,8 +55,8 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     const flag = param.data.flag;
     const placeholder = param.data.help;
     const type = param.data.type;
-
-    handleChange(id, flag, value, type, placeholder, false);
+    const defaultValue = value ? value : param.data.default;
+    handleChange(id, flag, defaultValue, type, placeholder, false);
   };
 
   const triggerChange = (eventType: string) => {

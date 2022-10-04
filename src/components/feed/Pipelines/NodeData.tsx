@@ -10,8 +10,8 @@ import ChrisAPIClient from "../../../api/chrisapiclient";
 const colorPalette: {
   [key: string]: string;
 } = {
-  default: "#2B9AF3 ",
-  host: "#002952",
+  default: "#73bcf7",
+  host: "#73bcf7",
   moc: "#704478",
   titan: "#1B9D92",
   galena: "#ADF17F",
@@ -40,7 +40,7 @@ const setNodeTransform = (orientation: string, position: Point) => {
     ? `translate(${position.y},${position.x})`
     : `translate(${position.x}, ${position.y})`;
 };
-const DEFAULT_NODE_CIRCLE_RADIUS = 10;
+const DEFAULT_NODE_CIRCLE_RADIUS = 12;
 const NodeData = (props: NodeProps) => {
   const { state, dispatch } = useContext(CreateFeedContext);
 

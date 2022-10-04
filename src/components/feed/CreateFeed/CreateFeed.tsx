@@ -201,6 +201,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   const packs = <DataPacks />;
   const guidedConfig = (
     <GuidedConfig
+      renderComputeEnv={true}
       inputChange={inputChange}
       deleteInput={deleteInput}
       plugin={selectedPlugin}
@@ -382,7 +383,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   );
 
   return (
-    <>
+    <div className="create-feed">
       <Button
         className="create-feed-button"
         variant="primary"
@@ -397,6 +398,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       </Button>
       {wizardOpen && (
         <Wizard
+          width="95%"
           isOpen={wizardOpen}
           onClose={() => {
             // clear global feed base data, so wizard will be blank on next open
@@ -417,7 +419,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           footer={CustomFooter}
         />
       )}
-    </>
+    </div>
   );
 };
 
