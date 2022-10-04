@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: "16.x"
       
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - run: npm install --leagacy-peer-deps
  
       - name: Cypress run
