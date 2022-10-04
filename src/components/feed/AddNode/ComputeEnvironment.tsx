@@ -7,8 +7,8 @@ import {
 
 type ComputeProp = {
   computeEnvs: any[];
-  selectedOption: string;
-  setComputeEnvironment: (computeEnv: string) => void;
+  selectedOption?: string;
+  setComputeEnvironment?: (computeEnv: string) => void;
 };
 
 function getInititalState() {
@@ -33,7 +33,7 @@ const ComputeEnvironment: React.FC<ComputeProp> = ({
         toggleTemplateText: computeEnvs[0].data.name,
       };
     });
-    setComputeEnvironment(computeEnvs[0].data.name);
+   setComputeEnvironment && setComputeEnvironment(computeEnvs[0].data.name);
   }, [computeEnvs, setComputeEnvironment]);
 
   const onToggle = (isOpen: boolean) => {
@@ -52,7 +52,7 @@ const ComputeEnvironment: React.FC<ComputeProp> = ({
         ...menuState,
         toggleTemplateText: id,
       });
-      setComputeEnvironment(id);
+      setComputeEnvironment && setComputeEnvironment(id);
     }
   };
 

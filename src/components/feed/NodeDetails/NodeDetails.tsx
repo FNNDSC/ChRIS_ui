@@ -1,47 +1,47 @@
-import React, { Fragment } from 'react'
-import Moment from 'react-moment'
+import React, { Fragment } from "react";
+import Moment from "react-moment";
 import {
   Button,
   Grid,
   GridItem,
   ExpandableSection,
-} from '@patternfly/react-core'
+} from "@patternfly/react-core";
 
-import { Popover, Progress } from 'antd'
+import { Popover, Progress } from "antd";
 import {
   Plugin,
   PluginInstance,
   PluginInstanceDescendantList,
   PluginParameterList,
-} from '@fnndsc/chrisapi'
+} from "@fnndsc/chrisapi";
 import {
   FaDownload,
   FaTerminal,
   FaCalendarAlt,
   FaWindowClose,
-} from 'react-icons/fa'
-import AddNode from '../AddNode/AddNode'
-import DeleteNode from '../DeleteNode'
-import PluginLog from './PluginLog'
-import Status from './Status'
-import StatusTitle from './StatusTitle'
-import PluginTitle from './PluginTitle'
+} from "react-icons/fa";
+import AddNode from "../AddNode/AddNode";
+import DeleteNode from "../DeleteNode";
+import PluginLog from "./PluginLog";
+import Status from "./Status";
+import StatusTitle from "./StatusTitle";
+import PluginTitle from "./PluginTitle";
 
-import { useTypedSelector } from '../../../store/hooks'
-import './NodeDetails.scss'
-import { getErrorCodeMessage } from './utils'
-import AddPipeline from '../AddPipeline/AddPipeline'
-import { SpinContainer } from '../../common/loading/LoadingContent'
-import { useFeedBrowser } from '../FeedOutputBrowser/useFeedBrowser'
+import { useTypedSelector } from "../../../store/hooks";
+import "./NodeDetails.scss";
+import { getErrorCodeMessage } from "./utils";
+import AddPipeline from "../AddPipeline/AddPipeline";
+import { SpinContainer } from "../../common/loading/LoadingContent";
+import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
 
 interface INodeProps {
-  expandDrawer: (panel: string) => void
+  expandDrawer: (panel: string) => void;
 }
 
 interface INodeState {
-  plugin?: Plugin
-  instanceParameters?: PluginInstanceDescendantList
-  pluginParameters?: PluginParameterList
+  plugin?: Plugin;
+  instanceParameters?: PluginInstanceDescendantList;
+  pluginParameters?: PluginParameterList;
 }
 
 function getInitialState() {
@@ -49,69 +49,69 @@ function getInitialState() {
     plugin: undefined,
     instanceParameters: undefined,
     pluginParameters: undefined,
-  }
+  };
 }
 
 const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
-  const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState)
+  const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin,
-  )
-  const { download, downloadAllClick } = useFeedBrowser()
+    (state) => state.instance.selectedPlugin
+  );
+  const { download, downloadAllClick } = useFeedBrowser();
 
-  const { plugin, instanceParameters, pluginParameters } = nodeState
-  const [isTerminalVisible, setIsTerminalVisible] = React.useState(false)
-  const [isExpanded, setIsExpanded] = React.useState(false)
-  const [isErrorExpanded, setisErrorExpanded] = React.useState(false)
+  const { plugin, instanceParameters, pluginParameters } = nodeState;
+  const [isTerminalVisible, setIsTerminalVisible] = React.useState(false);
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isErrorExpanded, setisErrorExpanded] = React.useState(false);
 
   React.useEffect(() => {
     const fetchData = async () => {
       const instanceParameters = await selectedPlugin?.getParameters({
         limit: 100,
         offset: 0,
-      })
+      });
 
-      const plugin = await selectedPlugin?.getPlugin()
+      const plugin = await selectedPlugin?.getPlugin();
       const pluginParameters = await plugin?.getPluginParameters({
         limit: 100,
         offset: 0,
-      })
+      });
 
       if (pluginParameters && instanceParameters) {
         setNodeState({
           plugin,
           instanceParameters,
           pluginParameters,
-        })
+        });
       }
-    }
+    };
 
-    fetchData()
-  }, [selectedPlugin])
+    fetchData();
+  }, [selectedPlugin]);
 
   const command = React.useCallback(getCommand, [
     plugin,
     instanceParameters,
     pluginParameters,
-  ])
+  ]);
 
   const text =
     plugin && instanceParameters && pluginParameters
       ? command(plugin, instanceParameters, pluginParameters)
-      : ''
+      : "";
 
-  const runTime = React.useCallback(getRuntimeString, [selectedPlugin])
+  const runTime = React.useCallback(getRuntimeString, [selectedPlugin]);
 
   const cancelled =
-    selectedPlugin?.data.status === 'cancelled' ||
-    selectedPlugin?.data.status === 'finishedWithError'
+    selectedPlugin?.data.status === "cancelled" ||
+    selectedPlugin?.data.status === "finishedWithError";
 
   //@ts-ignore
-  const error_code = selectedPlugin?.data.error_code
+  const error_code = selectedPlugin?.data.error_code;
   //@ts-ignore
-  const compute_env = selectedPlugin?.data.compute_resource_name
+  const compute_env = selectedPlugin?.data.compute_resource_name;
 
-  const previousId = selectedPlugin?.data.previous_id
+  const previousId = selectedPlugin?.data.previous_id;
 
   const renderGridItem = (title: string, value: React.ReactNode) => {
     return (
@@ -123,11 +123,11 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           {value}
         </GridItem>
       </>
-    )
-  }
+    );
+  };
 
   if (!selectedPlugin) {
-    return <SpinContainer background="#002030" title="Loading Node Details" />
+    return <SpinContainer background="#002030" title="Loading Node Details" />;
   } else {
     const Time = (
       <>
@@ -136,63 +136,59 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           {selectedPlugin.data.start_date}
         </Moment>
       </>
-    )
+    );
     return (
       <div className="node-details">
         <div className="node-details__title">
           <PluginTitle />
           <FaWindowClose
             onClick={() => {
-              expandDrawer('side_panel')
+              expandDrawer("side_panel");
             }}
             className="node-details__title--button"
           />
         </div>
 
         <Grid className="node-details__grid">
-          {renderGridItem('Status', <StatusTitle />)}
+          {renderGridItem("Status", <StatusTitle />)}
         </Grid>
 
         <Status />
         <ExpandableSection
-          toggleText={isExpanded ? 'Show Less Details' : 'Show More Details'}
+          toggleText={isExpanded ? "Show Less Details" : "Show More Details"}
           onToggle={() => setIsExpanded(!isExpanded)}
           isExpanded={isExpanded}
           className="node-details__expandable"
         >
           <Grid className="node-details__grid">
             {renderGridItem(
-              'Parent Node ID',
-              <span>{previousId ? previousId : 'None'}</span>,
+              "Selected Node ID",
+              <span>{selectedPlugin.data.id}</span>
             )}
             {renderGridItem(
-              'Selected Node ID',
-              <span>{selectedPlugin.data.id}</span>,
-            )}
-            {renderGridItem(
-              'Plugin',
-              <span style={{ fontFamily: 'monospace' }}>
-                {selectedPlugin.data.plugin_name}, ver{' '}
+              "Plugin",
+              <span style={{ fontFamily: "monospace" }}>
+                {selectedPlugin.data.plugin_name}, ver{" "}
                 {selectedPlugin.data.plugin_version}
-              </span>,
+              </span>
             )}
-            {renderGridItem('Created', Time)}
-            {renderGridItem('Compute Environment', <span>{compute_env}</span>)}
+            {renderGridItem("Created", Time)}
+            {renderGridItem("Compute Environment", <span>{compute_env}</span>)}
             {runTime && (
               <Fragment>
                 {renderGridItem(
-                  'Total Runtime',
+                  "Total Runtime",
                   <span>
                     {selectedPlugin &&
                       selectedPlugin.data &&
                       runTime(selectedPlugin)}
-                  </span>,
+                  </span>
                 )}
               </Fragment>
             )}
             {cancelled &&
               renderGridItem(
-                'Error Code',
+                "Error Code",
                 <span>
                   {error_code ? (
                     <span>
@@ -208,13 +204,13 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
                         className="node-details__error-show-more"
                         onClick={() => setisErrorExpanded(!isErrorExpanded)}
                       >
-                        (show {isErrorExpanded ? 'less' : 'more'})
+                        (show {isErrorExpanded ? "less" : "more"})
                       </Button>
                     </span>
                   ) : (
-                    'None'
+                    "None"
                   )}
-                </span>,
+                </span>
               )}
           </Grid>
         </ExpandableSection>
@@ -237,7 +233,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               visible={isTerminalVisible}
               trigger="click"
               onVisibleChange={(visible: boolean) => {
-                setIsTerminalVisible(visible)
+                setIsTerminalVisible(visible);
               }}
             >
               <Button icon={<FaTerminal />} type="button">
@@ -249,67 +245,67 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
         </div>
         {download.status && (
           <>
-            <div style={{ width: 170, marginTop: '1.25em' }}>
+            <div style={{ width: 170, marginTop: "1.25em" }}>
               <Progress percent={download.count} size="small" />
             </div>
             <span>Fetching and Zipping files for {download.plugin_name} </span>
           </>
         )}
-        <div style={{ marginTop: '1.25em' }}>
+        <div style={{ marginTop: "1.25em" }}>
           {download.fetchingFiles && <span>Fetching file list meta data</span>}
         </div>
-        <div style={{ marginTop: '1.25em' }}>
+        <div style={{ marginTop: "1.25em" }}>
           {download.error && download.error}
         </div>
       </div>
-    )
+    );
   }
-}
+};
 
-export default NodeDetails
+export default NodeDetails;
 
 function getRuntimeString(selected: PluginInstance) {
-  let runtime = 0
-  const start = new Date(selected.data.start_date)
-  const end = new Date(selected.data.end_date)
-  const elapsed = end.getTime() - start.getTime() // milliseconds between start and end
-  runtime += elapsed
+  let runtime = 0;
+  const start = new Date(selected.data.start_date);
+  const end = new Date(selected.data.end_date);
+  const elapsed = end.getTime() - start.getTime(); // milliseconds between start and end
+  runtime += elapsed;
 
   // format millisecond amount into human-readable string
-  const runtimeStrings = []
+  const runtimeStrings = [];
   const timeParts = [
-    ['day', Math.floor(runtime / (1000 * 60 * 60 * 24))],
-    ['hr', Math.floor((runtime / (1000 * 60 * 60)) % 24)],
-    ['min', Math.floor((runtime / 1000 / 60) % 60)],
-    ['sec', Math.floor((runtime / 1000) % 60)],
-  ]
+    ["day", Math.floor(runtime / (1000 * 60 * 60 * 24))],
+    ["hr", Math.floor((runtime / (1000 * 60 * 60)) % 24)],
+    ["min", Math.floor((runtime / 1000 / 60) % 60)],
+    ["sec", Math.floor((runtime / 1000) % 60)],
+  ];
   for (const part of timeParts) {
-    const [name, value] = part
+    const [name, value] = part;
     if (value > 0) {
-      runtimeStrings.push(`${value} ${name}`)
+      runtimeStrings.push(`${value} ${name}`);
     }
   }
-  return runtimeStrings.join(', ')
+  return runtimeStrings.join(", ");
 }
 
 function getCommand(
   plugin: Plugin,
   params: PluginInstanceDescendantList,
-  parameters: PluginParameterList,
+  parameters: PluginParameterList
 ) {
-  const { dock_image, selfexec } = plugin.data
+  const { dock_image, selfexec } = plugin.data;
   const modifiedParams: {
-    name?: string
-    value?: string
-  }[] = []
+    name?: string;
+    value?: string;
+  }[] = [];
 
-  let instanceParameters = []
-  let pluginParameters = []
+  let instanceParameters = [];
+  let pluginParameters = [];
   if (params.getItems()) {
-    instanceParameters = params.getItems() as any[]
+    instanceParameters = params.getItems() as any[];
   }
   if (parameters.getItems()) {
-    pluginParameters = parameters.getItems() as any[]
+    pluginParameters = parameters.getItems() as any[];
   }
 
   for (let i = 0; i < instanceParameters.length; i++) {
@@ -320,23 +316,23 @@ function getCommand(
         modifiedParams.push({
           name: pluginParameters[j].data.flag,
           value: instanceParameters[i].data.value,
-        })
+        });
       }
     }
   }
 
-  let command = `$> docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing \\\n${dock_image} ${selfexec} `
-  let parameterCommand = []
+  let command = `$> docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing \\\n${dock_image} ${selfexec} `;
+  let parameterCommand = [];
 
   if (modifiedParams.length) {
     parameterCommand = modifiedParams.map(
-      (param) => `${param.name} ${param.value}`,
-    )
+      (param) => `${param.name} ${param.value}`
+    );
     if (parameterCommand.length > 0) {
-      command += parameterCommand.join(' ') + ' \\\n'
+      command += parameterCommand.join(" ") + " \\\n";
     }
   }
-  command = `${command}/incoming /outgoing \n \n`
+  command = `${command}/incoming /outgoing \n \n`;
 
-  return command
+  return command;
 }

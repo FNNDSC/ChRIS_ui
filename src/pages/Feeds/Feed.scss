@@ -6,7 +6,7 @@
 
 @import "../../assets/scss/helpers/mixins";
 @import "../../assets/scss/helpers/pf4-variables";
-@import '../../assets/scss/helpers/variables'; 
+@import "../../assets/scss/helpers/variables";
 @import "antd/dist/antd.css";
 
 .feed-header {
@@ -118,7 +118,7 @@
     height: 45vh;
   }
 
-  background:#d2d2d2 !important;
+  background: #d2d2d2 !important;
   padding-right: 0 !important;
   padding-top: 0.5rem !important;
 }
@@ -140,6 +140,7 @@
 
 .node-block {
   padding: 0.5em;
+  height: 100%;
 }
 
 #feed-list {

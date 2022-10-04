@@ -90,6 +90,7 @@ export interface GuidedConfigState {
   docsExpanded: boolean;
 }
 export interface GuidedConfigProps extends InputProps {
+  renderComputeEnv?: boolean;
   plugin?: Plugin;
   params?: PluginParameter[];
   computeEnvs?: any[];
