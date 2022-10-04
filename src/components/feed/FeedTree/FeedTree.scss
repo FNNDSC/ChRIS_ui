@@ -36,7 +36,8 @@
     }
   }
 
-  &__orientation, &__control {
+  &__orientation,
+  &__control {
     padding-left: 1rem;
     padding-top: 0.5rem;
 
@@ -118,9 +119,8 @@
 
 .label {
   &__title {
-    fill: var(--pf-global--palette--black-400);
-    font-size: 0.75rem;
-    font-weight: 900;
+    fill: white;
+    font-size: 0.8rem;
     font-family: sans-serif;
   }
 }

@@ -1,5 +1,5 @@
-import { Tag, Plugin, PluginInstance } from "@fnndsc/chrisapi";
-import { InputState, InputIndex } from "../../AddNode/types";
+import { Tag, Plugin, PluginInstance, PluginPiping } from "@fnndsc/chrisapi";
+import { InputState, InputIndex, InputType } from "../../AddNode/types";
 import { IUserState } from "../../../../store/user/types";
 import { Feed } from "@fnndsc/chrisapi";
 import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
@@ -51,6 +51,10 @@ export enum Types {
   DeslectPipeline = "DESELECT_PIPELINE",
   SetCurrentNodeTitle = "SET_CURRENT_NODE_TITLE",
   SetCurrentComputeEnvironment = "SET_CURRENT_COMPUTE_ENVIRONMENT",
+  SetPipelineDropdownInput = "SET_PIPELINE_DROPDOWN_INPUT",
+  SetPipelineRequiredInput = "SET_PIPELINE_REQUIRED_INPUT",
+  DeletePipelineInput = "DELETE_PIPELINE_INPUT",
+  SetDefaultParameters = "SET_DEFAULT_PARAMETERS",
 }
 
 type CreateFeedPayload = {
@@ -96,9 +100,30 @@ type CreateFeedPayload = {
     id: string;
     input: InputIndex;
   };
+
+  [Types.SetPipelineDropdownInput]: {
+    currentNodeId: string;
+    currentPipelineId: string;
+    id: string;
+    input: InputIndex;
+  };
+  [Types.SetPipelineRequiredInput]: {
+    currentNodeId: string;
+    currentPipelineId: string;
+    id: string;
+    input: InputIndex;
+  };
+
   [Types.DeleteInput]: {
     input: string;
   };
+
+  [Types.DeletePipelineInput]: {
+    input: string;
+    currentPipelineId: number;
+    currentNodeId: number;
+  };
+
   [Types.ResetState]: boolean;
   [Types.SetProgress]: {
     feedProgress: "string";
@@ -117,7 +142,7 @@ type CreateFeedPayload = {
   [Types.SetPipelineResources]: {
     pipelineId: number;
     parameters: any[];
-    pluginPipings: any[];
+    pluginPipings: PluginPiping[];
     pipelinePlugins: any[];
   };
   [Types.SetPipelineEnvironments]: {
@@ -165,6 +190,11 @@ type CreateFeedPayload = {
     currentPipelineId: string;
     currentNode: number;
     title: string;
+  };
+
+  [Types.SetDefaultParameters]: {
+    pipelineId: string;
+    defaultParameters: [];
   };
 
   [Types.DeslectPipeline]: Record<string, unknown>;
@@ -221,12 +251,19 @@ export interface CreateFeedData {
 export interface PipelineData {
   [key: string]: {
     pluginParameters?: any[];
-    pluginPipings?: any[];
+    defaultParameters?: any[];
+    pluginPipings?: PluginPiping[];
     pipelinePlugins?: any[];
     computeEnvs?: ComputeEnvData;
     currentNode?: number;
     title: {
       [id: number]: string;
+    };
+    input: {
+      [id: string]: {
+        dropdownInput: InputType;
+        requiredInput: InputType;
+      };
     };
   };
 }
