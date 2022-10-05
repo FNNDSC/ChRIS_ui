@@ -6,12 +6,12 @@ import {
   Banner,
 } from "@patternfly/react-core";
 import { AiFillCaretDown } from "react-icons/ai";
-import { FaTrashAlt } from "react-icons/fa";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./lib/utils";
 import { PluginParameter } from "@fnndsc/chrisapi";
 import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
 import { css } from "@patternfly/react-styles";
+import { MdClose } from "react-icons/md";
 
 function getInitialState() {
   return {
@@ -132,7 +132,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
         />
 
         <div onClick={deleteDropdown} className="close-icon">
-          <FaTrashAlt />
+          <MdClose />
         </div>
       </div>
       {type === "boolean" && (

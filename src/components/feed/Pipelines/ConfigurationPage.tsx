@@ -20,6 +20,7 @@ import { Pipeline, Plugin } from "@fnndsc/chrisapi";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import { getParamsSuccess } from "../../../store/plugin/actions";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
+import { MdCheck, MdEdit, MdClose } from "react-icons/md";
 
 const colorPalette: {
   [key: string]: string;
@@ -37,6 +38,7 @@ const ConfigurationPage = (props: {
 }) => {
   const dispatchStore = useDispatch();
   const [copied, setCopied] = React.useState(false);
+  const [value, setValue] = React.useState("");
   const [isExpanded, setIsExpanded] = React.useState(false);
   const { currentPipelineId, pipeline } = props;
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -53,6 +55,7 @@ const ConfigurationPage = (props: {
       ? computeEnvs[currentNode].computeEnvs
       : [];
   const [selectedPlugin, setSelectedPlugin] = React.useState<Plugin>();
+  const [edit, setEdit] = React.useState(false);
   let dropdownInput = {};
   let requiredInput = {};
 
@@ -243,15 +246,83 @@ const ConfigurationPage = (props: {
     clipboardCopyFunc(event, text);
     setCopied(true);
   };
+
+  const iconFontSize = {
+    fontSize: "1.25rem",
+  };
   return (
     <>
-      <h3
+      <div
         style={{
-          marginTop: "1rem",
+          display: "flex",
+          alignItems: "center",
         }}
       >
-        {`Default configuration for ${selectedPlugin?.data.name}:`}
-      </h3>
+        <TextInput
+          aria-label="Configure Title"
+          style={{
+            margin: "1rem 0.5rem 0 0",
+            width: "50%",
+          }}
+          type="text"
+          placeholder={edit ? "Add a title to the node" : ""}
+          isReadOnly={!edit}
+          value={
+            edit
+              ? value
+              : title && currentNode && title[currentNode]
+              ? `${title[currentNode]} (id:${currentNode})`
+              : `${selectedPlugin?.data.name} (id:${currentNode})`
+          }
+          onChange={(value) => {
+            setValue(value);
+          }}
+        />
+
+        {!edit && (
+          <MdEdit
+            style={{
+              ...iconFontSize,
+              color: "#06c",
+            }}
+            onClick={() => {
+              setEdit(true);
+            }}
+          />
+        )}
+        {edit && (
+          <>
+            <MdCheck
+              style={{
+                marginRight: "0.5rem",
+                color: "#3e8635",
+                ...iconFontSize,
+              }}
+              onClick={() => {
+                setEdit(false);
+                dispatch({
+                  type: Types.SetCurrentNodeTitle,
+                  payload: {
+                    currentPipelineId,
+                    currentNode,
+                    title: value,
+                  },
+                });
+              }}
+            />
+            <MdClose
+              onClick={() => {
+                setEdit(false);
+              }}
+              style={{
+                ...iconFontSize,
+                color: "#c9190b",
+              }}
+            />
+          </>
+        )}
+      </div>
+
       <CodeBlock actions={actions}>
         <CodeBlockCode id="code-content">{generatedCommand}</CodeBlockCode>
       </CodeBlock>
@@ -332,21 +403,6 @@ const ConfigurationPage = (props: {
                   />
                 </List.Item>
               )}
-            />
-            <h4>Configure title for {selectedPlugin?.data.name}</h4>
-            <TextInput
-              arial-label="Change the plugin instance title in a node"
-              value={title && currentNode && title[currentNode]}
-              onChange={(value) => {
-                dispatch({
-                  type: Types.SetCurrentNodeTitle,
-                  payload: {
-                    currentPipelineId,
-                    currentNode,
-                    title: value,
-                  },
-                });
-              }}
             />
           </GridItem>
         </Grid>
