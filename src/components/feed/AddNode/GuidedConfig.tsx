@@ -90,7 +90,7 @@ const GuidedConfig = ({
     if (params && count >= params.length) {
       setConfigState({
         ...configState,
-        errors: ["You cannot more parameters to this plugin"],
+        errors: ["You cannot add more parameters to this plugin"],
         alertVisible: !configState.alertVisible,
       });
     }
@@ -200,19 +200,15 @@ const GuidedConfig = ({
                 margin: "1.5em 0 1.5em 0",
               }}
             >
-              <h4>Optional Parameters</h4>
+              <h4>Default Parameters</h4>
               <Divider component="div" />
               {renderDropdowns()}
-              <p>
-                Use the &quot;Add optional parameters&quot; button to add
-                optional command line flags and values to the plugin.
-              </p>
               <Button
                 className="configuration__button"
                 onClick={addParam}
                 variant="primary"
               >
-                Add optional parameters
+                Add more parameters
               </Button>
             </div>
 
