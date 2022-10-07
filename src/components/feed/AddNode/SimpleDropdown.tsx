@@ -33,7 +33,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     React.useState<SimpleDropdownState>(getInitialState);
   const { isOpen } = dropdownState;
 
-  const [paramFlag, value, type, placeholder] = unPackForKeyValue(
+  const [paramFlag, value, type, placeholder, paramName] = unPackForKeyValue(
     dropdownInput[id]
   );
 
@@ -56,7 +56,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     const placeholder = param.data.help;
     const type = param.data.type;
     const defaultValue = value ? value : param.data.default;
-    handleChange(id, flag, defaultValue, type, placeholder, false);
+    handleChange(id, flag, defaultValue, type, placeholder, false, paramName);
   };
 
   const triggerChange = (eventType: string) => {
@@ -77,7 +77,15 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   };
 
   const handleInputChange = (e: any) => {
-    handleChange(id, paramFlag, e.target.value, type, placeholder, false);
+    handleChange(
+      id,
+      paramFlag,
+      e.target.value,
+      type,
+      placeholder,
+      false,
+      paramName
+    );
   };
 
   const dropdownItems =
