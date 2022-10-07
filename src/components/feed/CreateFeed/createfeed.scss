@@ -246,6 +246,13 @@ Styles for pipelines
 }
 
 // Styles for configuration Page under Pipelines
-.pf-c-expandable-section{
+.pf-c-expandable-section {
   margin-top: 1rem;
+}
+
+.general-compute {
+  .ant-list-item-meta-title,
+  .ant-list-item-meta-description {
+    color: white !important;
+  }
 }

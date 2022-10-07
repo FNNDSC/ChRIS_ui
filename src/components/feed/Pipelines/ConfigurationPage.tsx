@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { useDispatch } from "react-redux";
-import { Types } from "../CreateFeed/types";
+import { Types, colorPalette } from "../CreateFeed/types";
 import { InputIndex } from "../AddNode/types";
 import { List, Avatar, Checkbox } from "antd";
 import { isEmpty } from "lodash";
@@ -14,6 +14,7 @@ import {
   clipboardCopyFunc,
   ExpandableSection,
   TextInput,
+  Button,
 } from "@patternfly/react-core";
 import { CreateFeedContext } from "../CreateFeed/context";
 import { Pipeline, Plugin } from "@fnndsc/chrisapi";
@@ -21,16 +22,7 @@ import GuidedConfig from "../AddNode/GuidedConfig";
 import { getParamsSuccess } from "../../../store/plugin/actions";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
 import { MdCheck, MdEdit, MdClose } from "react-icons/md";
-
-const colorPalette: {
-  [key: string]: string;
-} = {
-  default: "#73bcf7",
-  host: "#73bcf7",
-  moc: "#704478",
-  titan: "#1B9D92",
-  galena: "#ADF17F",
-};
+import { generatePipelineWithData } from "../CreateFeed/utils/pipelines";
 
 const ConfigurationPage = (props: {
   currentPipelineId: number;
@@ -75,14 +67,21 @@ const ConfigurationPage = (props: {
       value: string,
       type: string,
       placeholder: string,
-      required: boolean
+
+      required: boolean,
+      paramName?: string
     ) => {
       const input: InputIndex = {};
       input["id"] = id;
       input["flag"] = flag;
       input["value"] = value;
       input["type"] = type;
+
       input["placeholder"] = placeholder;
+
+      if (paramName) {
+        input["paramName"] = paramName;
+      }
 
       if (required === true) {
         dispatch({
@@ -164,7 +163,8 @@ const ConfigurationPage = (props: {
                   defaultParam.value,
                   param.data.type,
                   param.data.help,
-                  true
+                  true,
+                  param.data.name
                 );
               } else {
                 if (
@@ -183,7 +183,8 @@ const ConfigurationPage = (props: {
                     defaultParam.value,
                     param.data.type,
                     param.data.help,
-                    false
+                    false,
+                    param.data.name
                   );
                 }
               }
@@ -404,6 +405,43 @@ const ConfigurationPage = (props: {
                 </List.Item>
               )}
             />
+            <Button
+              onClick={async () => {
+                const mappedArr: any[] = [];
+
+                pluginPipings?.forEach((piping) => {
+                  const defaults = pluginParameterDefaults(
+                    //@ts-ignore
+                    pluginParameters.data,
+                    piping.data.id,
+                    input
+                  );
+
+                  const id = pluginPipings.findIndex(
+                    (pipe) => pipe.data.id === piping.data.previous_id
+                  );
+
+                  const treeObl = {
+                    plugin_name: piping.data.plugin_name,
+                    plugin_version: piping.data.plugin_version,
+                    previous_index: id === -1 ? null : id,
+                    plugin_parameter_defaults: defaults,
+                  };
+                  mappedArr.push(treeObl);
+                });
+
+                const result = {
+                  name: `${pipeline.data.name}-edited`,
+                  authors: pipeline.data.authors,
+                  locked: pipeline.data.locked,
+                  description: pipeline.data.description,
+                  plugin_tree: JSON.stringify(mappedArr),
+                };
+                await generatePipelineWithData(result);
+              }}
+            >
+              Save Pipeline
+            </Button>
           </GridItem>
         </Grid>
       </ExpandableSection>
@@ -412,3 +450,41 @@ const ConfigurationPage = (props: {
 };
 
 export default ConfigurationPage;
+
+const pluginParameterDefaults = (parameters: any[], id: number, input: any) => {
+  const currentInput = input[id];
+
+  const defaults = [];
+
+  if (currentInput) {
+    let totalInput = {};
+
+    if (currentInput.dropdownInput) {
+      totalInput = { ...totalInput, ...currentInput.dropdownInput };
+    }
+    if (currentInput.requiredInput) {
+      totalInput = { ...totalInput, ...currentInput.requiredInput };
+    }
+
+    for (const input in totalInput) {
+      //@ts-ignore
+      const parameter = totalInput[input];
+      defaults.push({
+        name: parameter.paramName,
+        default: parameter.value,
+      });
+    }
+  } else {
+    for (let i = 0; i < parameters.length; i++) {
+      const parameter = parameters[i];
+      if (parameter.plugin_piping_id === id) {
+        defaults.push({
+          name: parameter.param_name,
+          default: parameter.value,
+        });
+      }
+    }
+  }
+
+  return defaults;
+};

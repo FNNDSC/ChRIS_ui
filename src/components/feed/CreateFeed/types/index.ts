@@ -55,6 +55,7 @@ export enum Types {
   SetPipelineRequiredInput = "SET_PIPELINE_REQUIRED_INPUT",
   DeletePipelineInput = "DELETE_PIPELINE_INPUT",
   SetDefaultParameters = "SET_DEFAULT_PARAMETERS",
+  SetGeneralCompute = "SET_GENERAL_COMPUTE",
 }
 
 type CreateFeedPayload = {
@@ -198,6 +199,11 @@ type CreateFeedPayload = {
   };
 
   [Types.DeslectPipeline]: Record<string, unknown>;
+
+  [Types.SetGeneralCompute]: {
+    currentPipelineId: number;
+    computeEnv: string;
+  };
 };
 
 export type CreateFeedActions =
@@ -248,6 +254,16 @@ export interface CreateFeedData {
   isDataSelected: boolean;
 }
 
+export const colorPalette: {
+  [key: string]: string;
+} = {
+  default: "#73bcf7",
+  host: "#73bcf7",
+  moc: "#704478",
+  titan: "#1B9D92",
+  galena: "#ADF17F",
+};
+
 export interface PipelineData {
   [key: string]: {
     pluginParameters?: any[];
@@ -256,6 +272,7 @@ export interface PipelineData {
     pipelinePlugins?: any[];
     computeEnvs?: ComputeEnvData;
     currentNode?: number;
+    generalCompute?: string;
     title: {
       [id: number]: string;
     };
