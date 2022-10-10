@@ -1,4 +1,3 @@
-import { ListResource } from "@fnndsc/chrisapi";
 import * as React from "react";
 
 export function useSafeDispatch(dispatch: any) {
@@ -115,28 +114,27 @@ async function fetchResource<T>(
 export { useAsync, fetchResource };
 
 export interface TreeType {
-  id: number
-  plugin_id: number
-  pipeline_id: number
-  previous_id: number | null
+  id: number;
+  plugin_id: number;
+  pipeline_id: number;
+  previous_id: number | null;
 }
 export interface TreeNode {
-  children: TreeType[]
-  id: number
-  plugin_id: number
-  pipeline_id: number
-  previous_id: number | null
+  children: TreeType[];
+  id: number;
+  plugin_id: number;
+  pipeline_id: number;
+  previous_id: number | null;
 }
-
 
 export const getFeedTree = (items: any[]) => {
   const tree = [],
     mappedArr: {
-      [key: string]: TreeNode
-    } = {}
+      [key: string]: TreeNode;
+    } = {};
 
   items.forEach((item) => {
-    const id = item.data.id
+    const id = item.data.id;
     if (!mappedArr.hasOwnProperty(id)) {
       mappedArr[id] = {
         id: id,
@@ -144,21 +142,21 @@ export const getFeedTree = (items: any[]) => {
         pipeline_id: item.data.pipeline_id,
         previous_id: item.data.previous_id && item.data.previous_id,
         children: [],
-      }
+      };
     }
-  })
+  });
 
   for (const id in mappedArr) {
-    let mappedElem
+    let mappedElem;
     if (mappedArr.hasOwnProperty(id)) {
-      mappedElem = mappedArr[id]
+      mappedElem = mappedArr[id];
       if (mappedElem.previous_id) {
-        const parentId = mappedElem.previous_id
+        const parentId = mappedElem.previous_id;
         if (parentId && mappedArr[parentId] && mappedArr[parentId].children) {
-          mappedArr[parentId].children.push(mappedElem)
+          mappedArr[parentId].children.push(mappedElem);
         }
-      } else tree.push(mappedElem)
+      } else tree.push(mappedElem);
     }
   }
-  return tree
-}
+  return tree;
+};

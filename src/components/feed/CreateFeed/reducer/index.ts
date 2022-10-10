@@ -486,6 +486,47 @@ export const createFeedReducer = (
       };
     }
 
+    case Types.SetGeneralCompute: {
+      const { currentPipelineId, computeEnv } = action.payload;
+
+      if (state.pipelineData[currentPipelineId].computeEnvs) {
+        const computeEnvs = state.pipelineData[currentPipelineId].computeEnvs;
+
+        if (computeEnvs) {
+          for (const id in computeEnvs) {
+            const currentComputeEnvs = computeEnvs[id].computeEnvs;
+            const names = currentComputeEnvs.map((env) => env.name);
+            if (names.includes(computeEnv)) {
+              computeEnvs[id].currentlySelected = computeEnv;
+            }
+          }
+        }
+
+        return {
+          ...state,
+          pipelineData: {
+            ...state.pipelineData,
+            [currentPipelineId]: {
+              ...state.pipelineData[currentPipelineId],
+              computeEnvs,
+              generalCompute: computeEnv,
+            },
+          },
+        };
+      } else {
+        return {
+          ...state,
+          pipelineData: {
+            ...state.pipelineData,
+            [currentPipelineId]: {
+              ...state.pipelineData[currentPipelineId],
+              generalCompute: computeEnv,
+            },
+          },
+        };
+      }
+    }
+
     case Types.SetPipelineEnvironments: {
       const { computeEnvData, pipelineId } = action.payload;
       if (state.pipelineData[pipelineId].computeEnvs) {

@@ -22,7 +22,8 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     const placeholder = param.data.help;
     const type = param.data.type;
     const value = event.target.value;
-    inputChange(id, flag, value, type, placeholder, true);
+    const paramName = param.data.name;
+    inputChange(id, flag, value, type, placeholder, true, paramName);
   };
 
   const triggerChange = (eventType: string) => {
