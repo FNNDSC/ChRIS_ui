@@ -20,7 +20,7 @@ const GuidedConfig = ({
   dropdownInput,
   requiredInput,
   inputChange,
-  plugin,
+
   params,
   computeEnvs,
   selectedComputeEnv,
