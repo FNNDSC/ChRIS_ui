@@ -7,7 +7,8 @@ export const unPackForKeyValue = (input: InputIndex) => {
   const value = input ? input["value"] : "";
   const type = input ? input["type"] : "";
   const placeholder = input ? input["placeholder"] : "";
-  return [flag, value, type, placeholder];
+  const paramName = input ? input["paramName"] : "";
+  return [flag, value, type, placeholder, paramName];
 };
 
 export const unpackParametersIntoObject = (input: InputType) => {

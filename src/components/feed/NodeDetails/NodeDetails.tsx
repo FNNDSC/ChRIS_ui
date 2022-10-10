@@ -111,8 +111,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   //@ts-ignore
   const compute_env = selectedPlugin?.data.compute_resource_name;
 
-  const previousId = selectedPlugin?.data.previous_id;
-
   const renderGridItem = (title: string, value: React.ReactNode) => {
     return (
       <>
