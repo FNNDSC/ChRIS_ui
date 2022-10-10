@@ -299,7 +299,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <GridItem lg={4} sm={12}>
                   Study Date
                   <br />
-                  <DatePicker
+                  <DatePicker className="filters-date-picker"
                     placeholder="Study Date (yyyy-MM-dd)"
                     dateFormat={(date: any) => date.toDateString()}
                     onChange={(_: any, date: any) =>
@@ -344,7 +344,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <GridItem lg={4} sm={12}>
                   Patient Birth Date
                   <br />
-                  <DatePicker
+                  <DatePicker className="filters-date-picker"
                     placeholder="Birth Date (yyyy-MM-dd)"
                     dateFormat={(date: Date) => date.toDateString()}
                     onChange={(_: any, date?: Date) =>
