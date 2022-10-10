@@ -1,8 +1,11 @@
-/*
-*  File:            feed.scss
-*  Description:     This files holds styles specific for the Feed view page
-*  Author:          ChRIS UI
-*/
+/**
+ * /*
+ *  File:            feed.scss
+ *  Description:     This files holds styles specific for the Feed view page
+ *  Author:          ChRIS UI
+ *
+ * @format
+ */
 
 @import "../../assets/scss/helpers/mixins";
 @import "../../assets/scss/helpers/pf4-variables";
@@ -16,6 +19,13 @@
   &__split {
     display: flex;
     justify-content: space-between;
+    //Responsive BreakPoint
+    @media (max-width: $pf-global--breakpoint--sm) {
+      flex-direction: column;
+      align-items: start;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
   }
 
   .pf-c-title {
