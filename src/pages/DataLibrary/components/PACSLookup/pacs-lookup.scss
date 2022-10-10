@@ -6,14 +6,22 @@
     }
     #search-value {
       width: 100%;
+      height: 56px;
     }
 
     #search-type, #search-type > button {
       height: 100%;
+      width: 100%;
     }
 
     #pacs-service, #pacs-service > button {
       height: 100%;
+      width: 100%;
+    }
+    .sm-w-100 {
+      @media (max-width: 600px) {
+        // width: 100%;
+      }
     }
   }
 
