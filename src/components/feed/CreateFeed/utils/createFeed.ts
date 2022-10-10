@@ -106,7 +106,7 @@ export const createFeedInstanceWithDircopy = async (
             pipeline.pipelinePlugins &&
             pipeline.pluginPipings.length > 0
           ) {
-            const { pluginParameters, input, title, computeEnvs } = pipeline;
+            const { pluginParameters, input, computeEnvs } = pipeline;
 
             const nodes_info = client.computeWorkflowNodesInfo(
               //@ts-ignore
@@ -118,18 +118,28 @@ export const createFeedInstanceWithDircopy = async (
                 const compute_node =
                   computeEnvs[node["piping_id"]]["currentlySelected"];
 
-                const title = pipeline.title[node["piping_id"]];
+                const title =
+                  pipeline.title && pipeline.title[node["piping_id"]];
                 if (title) {
                   node.title = title;
                 }
-                node.compute_resource_name = compute_node;
+                if (compute_node) {
+                  node.compute_resource_name = compute_node;
+                }
               }
               const pluginParameterDefaults = [];
               if (input && input[node["piping_id"]]) {
                 const { dropdownInput, requiredInput } =
                   input[node["piping_id"]];
+                let totalInput = {};
+                if (dropdownInput) {
+                  totalInput = { ...totalInput, ...dropdownInput };
+                }
+                if (requiredInput) {
+                  totalInput = { ...totalInput, ...requiredInput };
+                }
 
-                for (const i in dropdownInput) {
+                for (const i in totalInput) {
                   const parameter = dropdownInput[i];
                   const replaceValue = parameter["flag"].replace(/-/g, "");
 
@@ -153,6 +163,7 @@ export const createFeedInstanceWithDircopy = async (
       }
     }
   } catch (error) {
+    console.log("ERROR", error);
     errorCallback(error);
   }
 

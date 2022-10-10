@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { useDispatch } from "react-redux";
 import { Types, colorPalette } from "../CreateFeed/types";
 import { InputIndex } from "../AddNode/types";
-import { List, Avatar, Checkbox } from "antd";
+import { List, Avatar, Checkbox, Spin } from "antd";
 import { isEmpty } from "lodash";
 import {
   Grid,
@@ -23,6 +23,7 @@ import { getParamsSuccess } from "../../../store/plugin/actions";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
 import { MdCheck, MdEdit, MdClose } from "react-icons/md";
 import { generatePipelineWithData } from "../CreateFeed/utils/pipelines";
+import ReactJson from "react-json-view";
 
 const ConfigurationPage = (props: {
   currentPipelineId: number;
@@ -34,6 +35,7 @@ const ConfigurationPage = (props: {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const { currentPipelineId, pipeline } = props;
   const { state, dispatch } = useContext(CreateFeedContext);
+  const pipelines = state.pipelines;
   const {
     currentNode,
     computeEnvs,
@@ -48,6 +50,11 @@ const ConfigurationPage = (props: {
       : [];
   const [selectedPlugin, setSelectedPlugin] = React.useState<Plugin>();
   const [edit, setEdit] = React.useState(false);
+  const [creatingPipeline, setCreatingPipeline] = React.useState({
+    loading: false,
+    error: {},
+    pipelineName: "",
+  });
   let dropdownInput = {};
   let requiredInput = {};
 
@@ -405,43 +412,101 @@ const ConfigurationPage = (props: {
                 </List.Item>
               )}
             />
-            <Button
-              onClick={async () => {
-                const mappedArr: any[] = [];
-
-                pluginPipings?.forEach((piping) => {
-                  const defaults = pluginParameterDefaults(
-                    //@ts-ignore
-                    pluginParameters.data,
-                    piping.data.id,
-                    input
-                  );
-
-                  const id = pluginPipings.findIndex(
-                    (pipe) => pipe.data.id === piping.data.previous_id
-                  );
-
-                  const treeObl = {
-                    plugin_name: piping.data.plugin_name,
-                    plugin_version: piping.data.plugin_version,
-                    previous_index: id === -1 ? null : id,
-                    plugin_parameter_defaults: defaults,
-                  };
-                  mappedArr.push(treeObl);
-                });
-
-                const result = {
-                  name: `${pipeline.data.name}-edited`,
-                  authors: pipeline.data.authors,
-                  locked: pipeline.data.locked,
-                  description: pipeline.data.description,
-                  plugin_tree: JSON.stringify(mappedArr),
-                };
-                await generatePipelineWithData(result);
+            <TextInput
+              style={{
+                marginBottom: "1rem",
+                width: "50%",
+              }}
+              aria-label="Name for the edited pipeline"
+              placeholder="Enter a name for the pipeline"
+              value={creatingPipeline.pipelineName}
+              onChange={(value) =>
+                setCreatingPipeline({
+                  ...creatingPipeline,
+                  pipelineName: value,
+                })
+              }
+            />
+            <div
+              style={{
+                display: "flex",
               }}
             >
-              Save Pipeline
-            </Button>
+              <Button
+                isDisabled={creatingPipeline.loading ? true : false}
+                style={{
+                  marginRight: "1.5rem",
+                }}
+                onClick={async () => {
+                  setCreatingPipeline({
+                    ...creatingPipeline,
+                    loading: true,
+                  });
+                  const mappedArr: any[] = [];
+                  try {
+                    pluginPipings?.forEach((piping) => {
+                      const defaults = pluginParameterDefaults(
+                        //@ts-ignore
+                        pluginParameters.data,
+                        piping.data.id,
+                        input
+                      );
+
+                      const id = pluginPipings.findIndex(
+                        (pipe) => pipe.data.id === piping.data.previous_id
+                      );
+
+                      const treeObl = {
+                        plugin_name: piping.data.plugin_name,
+                        plugin_version: piping.data.plugin_version,
+                        previous_index: id === -1 ? null : id,
+                        plugin_parameter_defaults: defaults,
+                      };
+                      mappedArr.push(treeObl);
+                    });
+
+                    const result = {
+                      name: `${creatingPipeline.pipelineName}`,
+                      authors: pipeline.data.authors,
+                      locked: pipeline.data.locked,
+                      description: pipeline.data.description,
+                      plugin_tree: JSON.stringify(mappedArr),
+                    };
+                    const { pipelineInstance } = await generatePipelineWithData(
+                      result
+                    );
+                    setCreatingPipeline({
+                      ...creatingPipeline,
+                      loading: false,
+                    });
+                    if (pipelineInstance) {
+                      dispatch({
+                        type: Types.SetPipelines,
+                        payload: {
+                          pipelines: [pipelineInstance, ...pipelines],
+                        },
+                      });
+                    }
+                  } catch (error: any) {
+                    setCreatingPipeline({
+                      ...creatingPipeline,
+                      error: error.response.data,
+                      loading: false,
+                    });
+                  }
+                }}
+              >
+                Save Pipeline
+              </Button>
+
+              {creatingPipeline.loading && <Spin tip="Saving a new pipeline" />}
+            </div>
+
+            {Object.keys(creatingPipeline.error).length > 0 && (
+              <span>
+                <ReactJson src={creatingPipeline.error} />
+              </span>
+            )}
           </GridItem>
         </Grid>
       </ExpandableSection>
