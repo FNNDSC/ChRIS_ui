@@ -229,7 +229,7 @@ Styles for pipelines
 }
 
 .pf-c-popover {
-  height: 700px;
+  height: 400px;
   padding: 0;
 }
 
@@ -241,7 +241,7 @@ Styles for pipelines
   height: 100%;
   padding: 0;
   div {
-    height: 100%;
+    height: 70%;
   }
 }
 
@@ -255,4 +255,11 @@ Styles for pipelines
   .ant-list-item-meta-description {
     color: white !important;
   }
+}
+
+/*calender fix */
+.pf-c-input-group input:not([type=checkbox]):not([type=radio]), .pf-c-input-group textarea {
+  flex: 2 1;
+  min-width: 0;
+  padding-left: 0.1em;
 }
