@@ -1,21 +1,11 @@
 import React, { useRef, useContext } from "react";
-import { Types } from "../CreateFeed/types";
+import { Types, colorPalette } from "../CreateFeed/types";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { TreeNode } from "../../../utils";
 import { fetchComputeInfo } from "../CreateFeed/utils/pipelines";
 import { CreateFeedContext } from "../CreateFeed/context";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-
-const colorPalette: {
-  [key: string]: string;
-} = {
-  default: "#73bcf7",
-  host: "#73bcf7",
-  moc: "#704478",
-  titan: "#1B9D92",
-  galena: "#ADF17F",
-};
 
 export interface Point {
   x: number;

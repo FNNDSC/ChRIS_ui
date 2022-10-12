@@ -14,7 +14,12 @@ import {
 
 import { CreateFeedContext } from "./context";
 import { Types } from "./types";
-import { Tree, ConfigurationPage, UploadJson } from "../Pipelines/";
+import {
+  Tree,
+  ConfigurationPage,
+  UploadJson,
+  GeneralCompute,
+} from "../Pipelines/";
 import {
   fetchComputeInfo,
   generatePipelineWithName,
@@ -36,7 +41,7 @@ const Pipelines = () => {
 
   const [pageState, setPageState] = React.useState({
     page: 1,
-    perPage: 5,
+    perPage: 10,
     search: "",
     itemCount: 0,
   });
@@ -268,6 +273,31 @@ const Pipelines = () => {
                           ? "Deselect"
                           : "Select"}
                       </Button>
+                      <Button
+                        key="delete-action"
+                        isDisabled={pipeline.data.locked !== true}
+                        onClick={async () => {
+                          if (pipeline.data.locked === true) {
+                            const filteredPipelines = pipelines.filter(
+                              (currentPipeline: any) => {
+                                return (
+                                  currentPipeline.data.id !== pipeline.data.id
+                                );
+                              }
+                            );
+                            dispatch({
+                              type: Types.SetPipelines,
+                              payload: {
+                                pipelines: filteredPipelines,
+                              },
+                            });
+                            await pipeline.delete();
+                          }
+                        }}
+                        variant="danger"
+                      >
+                        Delete
+                      </Button>
                     </DataListAction>
                   </DataListItemRow>
                   <DataListContent
@@ -278,10 +308,15 @@ const Pipelines = () => {
                     {(expanded && expanded[pipeline.data.id]) ||
                     state.pipelineData[pipeline.data.id] ? (
                       <>
-                        <Tree
-                          currentPipelineId={pipeline.data.id}
-                          handleNodeClick={handleNodeClick}
-                        />
+                        <div style={{ display: "flex" }}>
+                          <Tree
+                            currentPipelineId={pipeline.data.id}
+                            handleNodeClick={handleNodeClick}
+                          />
+                          <GeneralCompute
+                            currentPipelineId={pipeline.data.id}
+                          />
+                        </div>
 
                         <ConfigurationPage
                           pipeline={pipeline}
