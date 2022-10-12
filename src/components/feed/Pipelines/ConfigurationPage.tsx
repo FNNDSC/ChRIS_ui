@@ -17,7 +17,7 @@ import {
   Button,
 } from "@patternfly/react-core";
 import { CreateFeedContext } from "../CreateFeed/context";
-import { Pipeline, Plugin } from "@fnndsc/chrisapi";
+import { Pipeline, Plugin, PluginPiping } from "@fnndsc/chrisapi";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import { getParamsSuccess } from "../../../store/plugin/actions";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
@@ -48,7 +48,7 @@ const ConfigurationPage = (props: {
     computeEnvs && currentNode && computeEnvs[currentNode]
       ? computeEnvs[currentNode].computeEnvs
       : [];
-  const [selectedPlugin, setSelectedPlugin] = React.useState<Plugin>();
+  const [selectedPlugin, setSelectedPlugin] = React.useState<PluginPiping>();
   const [edit, setEdit] = React.useState(false);
   const [creatingPipeline, setCreatingPipeline] = React.useState({
     loading: false,
@@ -123,7 +123,7 @@ const ConfigurationPage = (props: {
         });
 
         const selectedPlugin = await pluginPiping[0].getPlugin();
-        setSelectedPlugin(selectedPlugin);
+        setSelectedPlugin(pluginPiping[0]);
 
         const params = await selectedPlugin.getPluginParameters({
           limit: 1000,
@@ -280,7 +280,11 @@ const ConfigurationPage = (props: {
               ? value
               : title && currentNode && title[currentNode]
               ? `${title[currentNode]} (id:${currentNode})`
-              : `${selectedPlugin?.data.name} (id:${currentNode})`
+              : `${
+                  selectedPlugin?.data
+                    ? selectedPlugin?.data.title
+                    : selectedPlugin?.data.plugin_name
+                } (id:${currentNode})`
           }
           onChange={(value) => {
             setValue(value);
@@ -351,7 +355,6 @@ const ConfigurationPage = (props: {
                 renderComputeEnv={false}
                 inputChange={inputChange}
                 deleteInput={deleteInput}
-                plugin={selectedPlugin}
                 dropdownInput={dropdownInput}
                 requiredInput={requiredInput}
               />
@@ -456,10 +459,16 @@ const ConfigurationPage = (props: {
                         (pipe) => pipe.data.id === piping.data.previous_id
                       );
 
+                      let titleChange = "";
+                      if (title && title[piping.data.id]) {
+                        titleChange = title[piping.data.id];
+                      }
+
                       const treeObl = {
                         plugin_name: piping.data.plugin_name,
                         plugin_version: piping.data.plugin_version,
                         previous_index: id === -1 ? null : id,
+                        title: titleChange,
                         plugin_parameter_defaults: defaults,
                       };
                       mappedArr.push(treeObl);
@@ -472,9 +481,11 @@ const ConfigurationPage = (props: {
                       description: pipeline.data.description,
                       plugin_tree: JSON.stringify(mappedArr),
                     };
+
                     const { pipelineInstance } = await generatePipelineWithData(
                       result
                     );
+
                     setCreatingPipeline({
                       ...creatingPipeline,
                       loading: false,
