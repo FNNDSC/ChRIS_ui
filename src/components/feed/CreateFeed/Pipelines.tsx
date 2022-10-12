@@ -27,7 +27,6 @@ import {
 } from "./utils/pipelines";
 import { Pipeline, PipelinePipingDefaultParameterList } from "@fnndsc/chrisapi";
 
-
 export interface UploadJsonProps {
   parameters: PipelinePipingDefaultParameterList;
   pluginPipings: any[];
@@ -228,6 +227,7 @@ const Pipelines = () => {
                         key="select-action"
                         onClick={async () => {
                           if (!(selectedPipeline === pipeline.data.id)) {
+                            console.log("selectedPipeline", selectedPipeline);
                             dispatch({
                               type: Types.SetCurrentPipeline,
                               payload: {
@@ -251,7 +251,7 @@ const Pipelines = () => {
                                 pluginPipings,
                                 pipelinePlugins,
                               } = resources;
-                             
+
                               dispatch({
                                 type: Types.SetPipelineResources,
                                 payload: {

@@ -71,6 +71,19 @@ const NodeData = (props: NodeProps) => {
   }, [data, dispatch, currentPipelineId]);
 
   React.useEffect(() => {
+    if (data.plugin_name && currentPipelineId) {
+      dispatch({
+        type: Types.SetCurrentNodeTitle,
+        payload: {
+          currentPipelineId,
+          currentNode,
+          title: data.plugin_name,
+        },
+      });
+    }
+  }, []);
+
+  React.useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);
     applyNodeTransform(nodeTransform);
   }, [orientation, position]);
