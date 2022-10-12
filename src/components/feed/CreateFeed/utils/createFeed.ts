@@ -113,8 +113,6 @@ export const createFeedInstanceWithDircopy = async (
               pluginParameters.data
             );
 
-            console.log("Nodes_info", nodes_info);
-
             nodes_info.forEach((node) => {
               if (computeEnvs && computeEnvs[node["piping_id"]]) {
                 const compute_node =
