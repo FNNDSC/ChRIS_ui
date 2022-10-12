@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react'
+import React, { useRef, useMemo } from "react";
 import { useNavigate } from "react-router";
 import Wrapper from "../Layout/PageWrapper";
 import { Button } from "antd";
@@ -7,10 +7,12 @@ import { useDispatch } from "react-redux";
 import { setSidebarActive } from "../../store/ui/actions";
 import { useDropzone } from "react-dropzone";
 import { setExternalFiles } from "../../store/explorer/actions";
-import { PageSection } from '@patternfly/react-core'
-import InfoIcon from '../../components/common/info/InfoIcon'
-import { Typography } from 'antd'
-const { Paragraph } = Typography
+import { PageSection } from "@patternfly/react-core";
+import InfoIcon from "../../components/common/info/InfoIcon";
+import { Typography } from "antd";
+const { Paragraph } = Typography;
+
+const infoStyle = { fontSize: "1.15em" };
 
 const baseStyle: React.CSSProperties = {
   flex: 1,
@@ -107,9 +109,8 @@ const VisualizationPage = () => {
         <InfoIcon
           title="DICOM Viewer"
           p1={
-            <Paragraph style={style}>
-              This page consistes of three main sections, listing availalbe{' '}
-              <b>Plugins</b>, <b>Pipelines</b>, and <b>Compute</b>.
+            <Paragraph style={infoStyle}>
+              Here you get to upload all your files.
             </Paragraph>
           }
         />
@@ -122,7 +123,7 @@ const VisualizationPage = () => {
         <Button onClick={showOpenFile} icon={<AiOutlineUpload />}>
           Upload Files
         </Button>
-        
+
         <div>
           <input
             type="file"
@@ -157,4 +158,4 @@ const VisualizationPage = () => {
   );
 };
 
-export default VisualizationPage
+export default VisualizationPage;
