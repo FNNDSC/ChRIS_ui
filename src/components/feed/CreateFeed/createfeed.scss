@@ -20,6 +20,10 @@
   padding: 0 !important;
 }
 
+.pf-c-modal-box {
+  height: 95%;
+}
+
 .feed-create-wizard {
   .pf-c-wizard__header {
     background: #282d33;
@@ -223,10 +227,6 @@
 /**
 Styles for pipelines 
 **/
-
-.pf-c-modal-box {
-  height: 95%;
-}
 
 .pf-c-popover {
   height: 700px;
