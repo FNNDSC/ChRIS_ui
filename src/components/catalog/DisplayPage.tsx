@@ -226,7 +226,7 @@ const DisplayPage = ({
             resources.length > 0 &&
             resources.map((resource) => {
               return (
-                <Col key={resource.data ? resource.data.id : ""} span={8}>
+                <Col key={resource.data ? resource.data.id : ""} span={8} lg={8} sm={12} xs={24}>
                   <Card
                     hoverable
                     style={{
@@ -281,7 +281,7 @@ const DisplayPage = ({
   };
 
   const panelContent = (
-    <DrawerPanelContent defaultSize="30%" minSize="10%" isResizable>
+    <DrawerPanelContent defaultSize="25%" className="panelcontent">
       <DrawerHead>
         <DrawerActions>
           <DrawerCloseButton
@@ -358,7 +358,7 @@ const DisplayPage = ({
           </>
         )}
       </DrawerHead>
-      <DrawerContentBody>
+      <DrawerContentBody >
         {selectedResource && showPipelineButton && (
           <Tree pipelineName={selectedResource.data.name} />
         )}
@@ -376,7 +376,7 @@ const DisplayPage = ({
         onPerPageSelect={onPerPageSelect}
       />
       <div>
-        <Drawer isExpanded={isExpanded}>
+        <Drawer isExpanded={isExpanded} isInline>
           <DrawerContent panelContent={panelContent}>
             <DrawerContentBody>{drawerContent}</DrawerContentBody>
           </DrawerContent>
