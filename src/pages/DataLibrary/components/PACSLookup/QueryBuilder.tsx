@@ -299,10 +299,10 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <GridItem lg={4} sm={12}>
                   Study Date
                   <br />
-                  <input
-                    type='date'
-                    className='pac-date'
+
+                  <DatePicker
                     placeholder="Birth Date (yyyy-MM-dd)"
+                    dateFormat={(date: Date) => date.toDateString()}
                     onChange={(_: any, date?: Date) =>
                       handleFilter(
                         date && {
@@ -313,7 +313,6 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                     onKeyDown={({ key }: { key: any }) => {
                       if (key.toLowerCase() === "enter") finalize();
                     }}
-
                   />
 
                 </GridItem>
@@ -347,10 +346,9 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <GridItem lg={4} sm={12}>
                   Patient Birth Date
                   <br />
-                  <input
-                    type='date'
-                    className='pac-date'
+                  <DatePicker
                     placeholder="Birth Date (yyyy-MM-dd)"
+                    dateFormat={(date: Date) => date.toDateString()}
                     onChange={(_: any, date?: Date) =>
                       handleFilter(
                         date && {
@@ -361,7 +359,6 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                     onKeyDown={({ key }: { key: any }) => {
                       if (key.toLowerCase() === "enter") finalize();
                     }}
-
                   />
 
                 </GridItem>
