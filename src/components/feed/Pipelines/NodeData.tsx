@@ -38,11 +38,10 @@ const NodeData = (props: NodeProps) => {
   const textRef = useRef<SVGTextElement>(null);
   const { data, position, orientation, handleNodeClick, currentPipelineId } =
     props;
-  const [pluginName, setPluginName] = React.useState("");
   const { computeEnvs, title } = state.pipelineData[currentPipelineId];
   const { currentNode } = state.pipelineData[currentPipelineId];
   let currentComputeEnv = "";
-  if (pluginName && computeEnvs && computeEnvs[data.id]) {
+  if (computeEnvs && computeEnvs[data.id]) {
     currentComputeEnv = computeEnvs[data.id].currentlySelected;
   }
 
@@ -74,21 +73,12 @@ const NodeData = (props: NodeProps) => {
   React.useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);
     applyNodeTransform(nodeTransform);
-
-    async function fetchPluginName() {
-      const plugin_id = data.plugin_id;
-      const client = ChrisAPIClient.getClient();
-      const plugin = await client.getPlugin(plugin_id);
-      setPluginName(plugin.data.name);
-    }
-
-    fetchPluginName();
-  }, [orientation, position, data]);
+  }, [orientation, position]);
 
   const textLabel = (
     <g id={`text_${data.id}`}>
       <text ref={textRef} className="label__title">
-        {`${titleName ? titleName : pluginName} (id: ${data.id})`}
+        {`${titleName ? titleName : data.plugin_name} (id: ${data.id})`}
       </text>
     </g>
   );
