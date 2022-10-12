@@ -193,8 +193,6 @@ export const createFeedReducer = (
     case Types.DeslectPipeline: {
       return {
         ...state,
-        pipelineData: {},
-        pipelineName: "",
         selectedPipeline: undefined,
       };
     }
