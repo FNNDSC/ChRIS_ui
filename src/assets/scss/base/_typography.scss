@@ -20,7 +20,14 @@ h3 {
   margin-top: 0.25em;
   margin-bottom: 0.25em;
 }
-
+h1.ant-typography {
+  @media (max-width: 560px) {
+    font-size: 2em;
+  }
+  @media (max-width: 420px) {
+    font-size: 1.5em;
+  }
+}
 h1 + h2 {
   margin-top: 0;
   margin-bottom: 0.5em;

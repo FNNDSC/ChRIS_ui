@@ -252,10 +252,17 @@
 Steps Design Icon
 
 ******/
-
-.ant-popover-inner-content {
-  width: 45rem !important;
-  padding: 0 !important;
+.ant-popover {
+  width: 100%!important;
+  top: 15;
+  
+  .pf-c-hint__actions {
+    margin: 0;
+  }
+  
+  @media (min-width: 760px) {
+    width: 70%!important;
+  }
 }
 
 .ReactVirtualized__Grid__innerScrollContainer {
