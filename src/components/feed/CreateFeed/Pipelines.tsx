@@ -227,7 +227,6 @@ const Pipelines = () => {
                         key="select-action"
                         onClick={async () => {
                           if (!(selectedPipeline === pipeline.data.id)) {
-                            console.log("selectedPipeline", selectedPipeline);
                             dispatch({
                               type: Types.SetCurrentPipeline,
                               payload: {
