@@ -302,7 +302,7 @@ export const createFeedReducer = (
             },
           },
         };
-      } else {
+      } else if (state.pipelineData[currentPipelineId]) {
         return {
           ...state,
           pipelineData: {
@@ -321,7 +321,10 @@ export const createFeedReducer = (
             },
           },
         };
-      }
+      } else
+        return {
+          ...state,
+        };
     }
 
     case Types.SetCurrentNodeTitle: {
