@@ -121,8 +121,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
         <Grid hasGutter>
           <GridItem lg={10} sm={12}>
             <Card isHoverable isRounded style={{ height: "100%" }}>
-              <Split id="search">
-                <SplitItem>
+              <Grid id="search">
+                <GridItem span={6} md={3} sm={6} order={{ default: '1', md: "1"}}>
                   <Dropdown
                     id="search-type"
                     isOpen={toggleType}
@@ -160,9 +160,9 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       </DropdownItem>,
                     ]}
                   />
-                </SplitItem>
+                </GridItem>
 
-                <SplitItem isFilled>
+                <GridItem span={12} md={6} sm={12} order={{ default: '3', md: "2"}} rowSpan={1}>
                   {(function () {
                     switch (query.type) {
                       case PFDCMQueryTypes.PMRN:
@@ -208,10 +208,10 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                         );
                     }
                   })()}
-                </SplitItem>
+                </GridItem>
 
                 {PACSservices && onSelectPACS && (
-                  <SplitItem>
+                  <GridItem span={6} md={3} sm={6} order={{ default: '2', md: "3"}}>
                     <Dropdown
                       id="pacs-service"
                       isOpen={togglePACSList}
@@ -243,9 +243,9 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                         </DropdownItem>
                       ))}
                     />
-                  </SplitItem>
+                  </GridItem>
                 )}
-              </Split>
+              </Grid>
             </Card>
           </GridItem>
 
@@ -299,7 +299,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <GridItem lg={4} sm={12}>
                   Study Date
                   <br />
-                  <DatePicker
+                  <DatePicker className="filters-date-picker"
                     placeholder="Study Date (yyyy-MM-dd)"
                     dateFormat={(date: any) => date.toDateString()}
                     onChange={(_: any, date: any) =>
@@ -344,7 +344,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <GridItem lg={4} sm={12}>
                   Patient Birth Date
                   <br />
-                  <DatePicker
+                  <DatePicker className="filters-date-picker"
                     placeholder="Birth Date (yyyy-MM-dd)"
                     dateFormat={(date: Date) => date.toDateString()}
                     onChange={(_: any, date?: Date) =>
