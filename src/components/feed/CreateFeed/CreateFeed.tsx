@@ -5,6 +5,9 @@ import {
   WizardFooter,
   WizardContextConsumer,
 } from "@patternfly/react-core";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
+import { Feed } from "@fnndsc/chrisapi";
 import { CreateFeedContext } from "./context";
 import { Types, CreateFeedReduxProp } from "./types";
 import BasicInformation from "./BasicInformation";
@@ -17,15 +20,12 @@ import Review from "./Review";
 import Pipelines from "./Pipelines";
 import FinishedStep from "./FinishedStep";
 import withSelectionAlert from "./SelectionAlert";
-import { InputIndex } from "../AddNode/types";
-import "./createfeed.scss";
-import { Dispatch } from "redux";
-import { ApplicationState } from "../../../store/root/applicationState";
-import { connect } from "react-redux";
 import { addFeed } from "../../../store/feed/actions";
 import { createFeed, getName } from "./utils/createFeed";
-import { Feed } from "@fnndsc/chrisapi";
 import { MainRouterContext } from "../../../routes";
+import { ApplicationState } from "../../../store/root/applicationState";
+import { InputIndex } from "../AddNode/types";
+import "./createfeed.scss";
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
