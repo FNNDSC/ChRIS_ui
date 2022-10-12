@@ -299,10 +299,10 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <GridItem lg={4} sm={12}>
                   Study Date
                   <br />
-                  <DatePicker className="filters-date-picker"
+                  <DatePicker
                     placeholder="Study Date (yyyy-MM-dd)"
-                    dateFormat={(date: any) => date.toDateString()}
-                    onChange={(_: any, date: any) =>
+                    dateFormat={(date: Date) => date.toDateString()}
+                    onChange={(_: any, date: Date) =>
                       handleFilter(
                         date && {
                           StudyDate: toPACSDate(date),
@@ -313,6 +313,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       if (key.toLowerCase() === "enter") finalize();
                     }}
                   />
+
                 </GridItem>
 
                 <GridItem lg={4} sm={12}>
@@ -358,6 +359,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       if (key.toLowerCase() === "enter") finalize();
                     }}
                   />
+
                 </GridItem>
               </Grid>
             </CardBody>
