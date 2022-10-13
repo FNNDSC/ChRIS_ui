@@ -20,6 +20,10 @@
   padding: 0 !important;
 }
 
+.pf-c-modal-box {
+  height: 95%;
+}
+
 .feed-create-wizard {
   .pf-c-wizard__header {
     background: #282d33;
@@ -224,10 +228,6 @@
 Styles for pipelines 
 **/
 
-.pf-c-modal-box {
-  height: 95%;
-}
-
 .pf-c-popover {
   height: 350px;
   padding: 0;
@@ -256,6 +256,7 @@ Styles for pipelines
   min-width: 0;
   // padding-left: 0.2em;
 }
+
 .general-compute {
   .ant-list-item-meta-title,
   .ant-list-item-meta-description {
@@ -263,3 +264,4 @@ Styles for pipelines
   }
 
 }
+

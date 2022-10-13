@@ -76,13 +76,10 @@ const PluginCatalog = () => {
 
   if (fetchingData) {
     return <>
-
       <EmptyState>
         <EmptyStateIcon variant="container" component={Spinner} />
-
         <Title headingLevel='h4'>
           Plugins loading...please wait
-
         </Title></EmptyState>
 
     </>

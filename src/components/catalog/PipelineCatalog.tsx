@@ -94,15 +94,12 @@ const PipelineCatalog = () => {
 
   if (fetchingData) {
     return <>
-
       <EmptyState>
         <EmptyStateIcon variant="container" component={Spinner} />
         <Title headingLevel='h4'>
           Pipelines loading...please wait
-
         </Title>
       </EmptyState>
-
     </>
   }
 

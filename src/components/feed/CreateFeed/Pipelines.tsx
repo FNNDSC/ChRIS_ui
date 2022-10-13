@@ -11,7 +11,7 @@ import {
   DataListAction,
   DataListContent,
 } from "@patternfly/react-core";
-
+import { Spin } from "antd";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types";
 import {
@@ -26,7 +26,6 @@ import {
   fetchPipelines,
 } from "./utils/pipelines";
 import { Pipeline, PipelinePipingDefaultParameterList } from "@fnndsc/chrisapi";
-import { Spin } from "antd";
 
 export interface UploadJsonProps {
   parameters: PipelinePipingDefaultParameterList;
@@ -228,6 +227,7 @@ const Pipelines = () => {
                         key="select-action"
                         onClick={async () => {
                           if (!(selectedPipeline === pipeline.data.id)) {
+                            console.log("selectedPipeline", selectedPipeline);
                             dispatch({
                               type: Types.SetCurrentPipeline,
                               payload: {
@@ -251,6 +251,7 @@ const Pipelines = () => {
                                 pluginPipings,
                                 pipelinePlugins,
                               } = resources;
+
                               dispatch({
                                 type: Types.SetPipelineResources,
                                 payload: {

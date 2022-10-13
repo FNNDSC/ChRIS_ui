@@ -20,4 +20,10 @@
   }
 }
 
+.panelcontent {
+  @media (max-width: 767px) {
+    margin-top: 5rem;
+    border-top: 1px solid rgba(199, 198, 198, 0.381);
+  }
+}
 

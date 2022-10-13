@@ -85,14 +85,11 @@ const ComputeCatalog = () => {
 
   if (fetchingData) {
     return <>
-
       <EmptyState>
         <EmptyStateIcon variant="container" component={Spinner} />
         <Title headingLevel='h4'>
           Compute Catalog loading...please wait
-
         </Title>
-
       </EmptyState>
 
     </>
