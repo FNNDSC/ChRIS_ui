@@ -100,7 +100,8 @@ export interface GuidedConfigProps extends InputProps {
     value: string,
     type: string,
     placeholder: string,
-    required: boolean
+    required: boolean,
+    paramName?: string
   ): void;
   deleteInput(input: string): void;
   selectedComputeEnv?: string;
@@ -139,7 +140,8 @@ export interface SimpleDropdownProps {
     value: string,
     type: string,
     placeholder: string,
-    required: boolean
+    required: boolean,
+    paramName: string
   ): void;
   deleteComponent(id: string): void;
   deleteInput(id: string): void;
@@ -158,7 +160,8 @@ export interface RequiredParamProp {
     value: string,
     type: string,
     placeholder: string,
-    required: boolean
+    required: boolean,
+    paramName?: string
   ): void;
   id: string;
 }
