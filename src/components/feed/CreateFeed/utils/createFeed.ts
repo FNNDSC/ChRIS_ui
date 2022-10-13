@@ -163,7 +163,6 @@ export const createFeedInstanceWithDircopy = async (
       }
     }
   } catch (error) {
-    console.log("ERROR", error);
     errorCallback(error);
   }
 

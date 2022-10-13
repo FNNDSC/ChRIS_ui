@@ -275,24 +275,21 @@ const Pipelines = () => {
                       </Button>
                       <Button
                         key="delete-action"
-                        isDisabled={pipeline.data.locked !== true}
                         onClick={async () => {
-                          if (pipeline.data.locked === true) {
-                            const filteredPipelines = pipelines.filter(
-                              (currentPipeline: any) => {
-                                return (
-                                  currentPipeline.data.id !== pipeline.data.id
-                                );
-                              }
-                            );
-                            dispatch({
-                              type: Types.SetPipelines,
-                              payload: {
-                                pipelines: filteredPipelines,
-                              },
-                            });
-                            await pipeline.delete();
-                          }
+                          const filteredPipelines = pipelines.filter(
+                            (currentPipeline: any) => {
+                              return (
+                                currentPipeline.data.id !== pipeline.data.id
+                              );
+                            }
+                          );
+                          dispatch({
+                            type: Types.SetPipelines,
+                            payload: {
+                              pipelines: filteredPipelines,
+                            },
+                          });
+                          await pipeline.delete();
                         }}
                         variant="danger"
                       >
