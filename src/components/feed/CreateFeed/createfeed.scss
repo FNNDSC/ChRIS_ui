@@ -250,13 +250,26 @@ Styles for pipelines
   margin-top: 1rem;
 }
 
+<<<<<<< HEAD
 .pf-c-input-group input:not([type=checkbox]):not([type=radio]), .pf-c-input-group textarea {
   flex: 2 1;
   min-width: 0;
+=======
+
+.pf-c-input-group input:not([type=checkbox]):not([type=radio]), .pf-c-input-group textarea {
+  flex: 2 1;
+  min-width: 0;
+  // padding-left: 0.2em;
+
+>>>>>>> 6ebc4f73f1433cb679cde6bdd3a363087b023a19
 .general-compute {
   .ant-list-item-meta-title,
   .ant-list-item-meta-description {
     color: white !important;
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6ebc4f73f1433cb679cde6bdd3a363087b023a19
 }
 }

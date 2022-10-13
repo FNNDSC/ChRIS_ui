@@ -24,6 +24,8 @@ import Tree from "./Tree";
 import { PipelineList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { generatePipelineWithData } from "../feed/CreateFeed/utils/pipelines";
+import { EmptyState, EmptyStateIcon, Spinner } from '@patternfly/react-core';
+
 
 interface PageState {
   perPage: number;
@@ -80,10 +82,10 @@ const DisplayPage = ({
     fill: isPlugin
       ? "#0066CC"
       : isPipeline
-      ? "#1F0066"
-      : isCompute
-      ? "red"
-      : "",
+        ? "#1F0066"
+        : isCompute
+          ? "red"
+          : "",
     height: "1.5em",
     width: "1.25em",
     marginRight: "0.5em",
@@ -368,6 +370,13 @@ const DisplayPage = ({
 
   return (
     <>
+
+      <EmptyState>
+        <EmptyStateIcon variant="container" component={Spinner} />
+        <Title size="lg" headingLevel="h4">
+          Loading
+        </Title>
+      </EmptyState>
       <Pagination
         itemCount={itemCount}
         perPage={perPage}
