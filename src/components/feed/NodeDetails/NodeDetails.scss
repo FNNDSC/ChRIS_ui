@@ -2,10 +2,8 @@
 @import "../../../assets/scss/helpers/mixins";
 @import "../../../assets/scss/helpers/pf4-variables";
 
-
-
 .ant-progress-text {
-  color: white !important
+  color: white !important;
 }
 .node-block {
   background: $node-block-background;
@@ -253,15 +251,12 @@ Steps Design Icon
 
 ******/
 .ant-popover {
-  width: 100%!important;
-  top: 15;
-  
-  .pf-c-hint__actions {
-    margin: 0;
-  }
-  
-  @media (min-width: 760px) {
-    width: 70%!important;
+  min-width: 250px;
+  width: 100%;
+  max-width: 700px;
+  bottom: 0;
+  @media screen and (max-width: 740px) {
+    width: calc(100% - 40px);
   }
 }
 
