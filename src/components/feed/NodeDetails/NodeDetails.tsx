@@ -117,7 +117,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     const path = `${baseUrl}/plugins/instances/${id}/files/`
     const command = `chrs download ${path}`
     navigator.clipboard.writeText(command);
-    SetIsCopied(true);
+    SetIsCopied(!isCopied);
   }
   // End Method 2
 
