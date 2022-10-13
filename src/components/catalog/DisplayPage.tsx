@@ -368,15 +368,12 @@ const DisplayPage = ({
     </DrawerPanelContent>
   );
 
+
+
   return (
     <>
 
-      <EmptyState>
-        <EmptyStateIcon variant="container" component={Spinner} />
-        <Title size="lg" headingLevel="h4">
-          Loading
-        </Title>
-      </EmptyState>
+
       <Pagination
         itemCount={itemCount}
         perPage={perPage}

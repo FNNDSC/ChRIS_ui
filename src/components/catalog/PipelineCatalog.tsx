@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react'
 import ChrisAPIClient from '../../api/chrisapiclient'
 import DisplayPage from './DisplayPage'
+import { Title, EmptyState, EmptyStateIcon, Spinner } from '@patternfly/react-core';
+
 
 const PipelineCatalog = () => {
   const [pipelines, setPipelines] = React.useState<any[]>()
@@ -15,6 +17,7 @@ const PipelineCatalog = () => {
 
   const { page, perPage, search } = pageState
   const [selectedPipeline, setSelectedPipeline] = React.useState<any>()
+  const [fetchingData, setFetchinData] = React.useState(false)
 
   const onSetPage = (_event: any, page: number) => {
     setPageState({
@@ -41,6 +44,8 @@ const PipelineCatalog = () => {
       page: number,
       search: string,
     ) {
+      setFetchinData(true)
+
       const offset = perPage * (page - 1)
       const client = ChrisAPIClient.getClient()
       const params = {
@@ -67,6 +72,9 @@ const PipelineCatalog = () => {
           }
         })
       }
+      setTimeout(() => {
+        setFetchinData(false)
+      }, 2000)
     }
 
     fetchPipelines(perPage, page, search)
@@ -83,6 +91,21 @@ const PipelineCatalog = () => {
       search,
     })
   }
+
+  if (fetchingData) {
+    return <>
+
+      <EmptyState>
+        <EmptyStateIcon variant="container" component={Spinner} />
+        <Title headingLevel='h4'>
+          Pipelines loading...please wait
+
+        </Title>
+      </EmptyState>
+
+    </>
+  }
+
   return (
     <>
       <DisplayPage

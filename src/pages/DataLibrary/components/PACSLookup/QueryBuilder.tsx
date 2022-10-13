@@ -122,7 +122,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
           <GridItem lg={10} sm={12}>
             <Card isHoverable isRounded style={{ height: "100%" }}>
               <Grid id="search">
-                <GridItem span={6} md={3} sm={6} order={{ default: '1', md: "1"}}>
+                <GridItem span={6} md={3} sm={6} order={{ default: '1', md: "1" }}>
                   <Dropdown
                     id="search-type"
                     isOpen={toggleType}
@@ -162,7 +162,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   />
                 </GridItem>
 
-                <GridItem span={12} md={6} sm={12} order={{ default: '3', md: "2"}} rowSpan={1}>
+                <GridItem span={12} md={6} sm={12} order={{ default: '3', md: "2" }} rowSpan={1}>
                   {(function () {
                     switch (query.type) {
                       case PFDCMQueryTypes.PMRN:
@@ -211,7 +211,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 </GridItem>
 
                 {PACSservices && onSelectPACS && (
-                  <GridItem span={6} md={3} sm={6} order={{ default: '2', md: "3"}}>
+                  <GridItem span={6} md={3} sm={6} order={{ default: '2', md: "3" }}>
                     <Dropdown
                       id="pacs-service"
                       isOpen={togglePACSList}
@@ -302,7 +302,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <DatePicker
                     placeholder="Study Date (yyyy-MM-dd)"
                     dateFormat={(date: Date) => date.toDateString()}
-                    onChange={(_: any, date: Date) =>
+                    onChange={(_: any, date?: Date) =>
                       handleFilter(
                         date && {
                           StudyDate: toPACSDate(date),

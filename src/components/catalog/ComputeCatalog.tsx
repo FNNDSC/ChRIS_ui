@@ -1,6 +1,9 @@
 import React, { useEffect } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import DisplayPage from "./DisplayPage";
+import { Title, EmptyState, EmptyStateIcon, Spinner } from '@patternfly/react-core';
+
+
 
 const ComputeCatalog = () => {
   const [computeResources, setComputeResources] = React.useState<any[]>();
@@ -13,6 +16,7 @@ const ComputeCatalog = () => {
 
   const { page, perPage, search } = pageState;
   const [selectedCompute, setSelectedCompute] = React.useState<any>();
+  const [fetchingData, setFetchinData] = React.useState(false)
 
   const onSetPage = (_event: any, page: number) => {
     setPageState({
@@ -39,6 +43,8 @@ const ComputeCatalog = () => {
       page: number,
       search: string
     ) {
+      setFetchinData(true)
+
       const offset = perPage * (page - 1);
       const client = ChrisAPIClient.getClient();
       const params = {
@@ -57,9 +63,15 @@ const ComputeCatalog = () => {
           };
         });
       }
+      setTimeout(() => {
+        setFetchinData(false)
+      }, 2000)
+
     }
 
     fetchPipelines(perPage, page, search);
+
+
   }, [perPage, page, search]);
 
   const handleSearch = (search: string) => {
@@ -68,8 +80,27 @@ const ComputeCatalog = () => {
       search,
     });
   };
+
+
+
+  if (fetchingData) {
+    return <>
+
+      <EmptyState>
+        <EmptyStateIcon variant="container" component={Spinner} />
+        <Title headingLevel='h4'>
+          Compute Catalog loading...please wait
+
+        </Title>
+
+      </EmptyState>
+
+    </>
+  }
   return (
     <>
+
+
       <DisplayPage
         pageState={pageState}
         onSetPage={onSetPage}
