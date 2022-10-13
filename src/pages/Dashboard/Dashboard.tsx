@@ -124,7 +124,7 @@ const DashboardPage = (props: DashboardProps) => {
             <CardDisplay
               component={<LogoComponent logo={magicWand} />}
               title="Run a quick workflow"
-              body='Vist "Run a Quick Workflow" to choose from existing analysis templates that allow for detailed analysis'
+              body='Visit "Run a Quick Workflow" to choose from existing analysis templates that allow for detailed analysis'
               buttonText="Run a Quick Workflow"
               buttonLink="/feeds"
             />
