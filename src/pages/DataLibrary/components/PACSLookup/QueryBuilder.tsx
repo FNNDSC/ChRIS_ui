@@ -302,7 +302,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <DatePicker
                     placeholder="Study Date (yyyy-MM-dd)"
                     dateFormat={(date: Date) => date.toDateString()}
-                    onChange={(_: any, date: Date) =>
+                    onChange={(_: string, date: Date | undefined) =>
                       handleFilter(
                         date && {
                           StudyDate: toPACSDate(date),

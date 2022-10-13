@@ -17,7 +17,7 @@ import {
   Button,
 } from "@patternfly/react-core";
 import { CreateFeedContext } from "../CreateFeed/context";
-import { Pipeline, Plugin, PluginPiping } from "@fnndsc/chrisapi";
+import { Pipeline, PluginPiping } from "@fnndsc/chrisapi";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import { getParamsSuccess } from "../../../store/plugin/actions";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
