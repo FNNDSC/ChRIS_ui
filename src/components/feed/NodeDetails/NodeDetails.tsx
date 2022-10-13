@@ -1,10 +1,12 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import Moment from "react-moment";
+// Added Tooltip
 import {
   Button,
   Grid,
   GridItem,
   ExpandableSection,
+  Tooltip,
 } from "@patternfly/react-core";
 
 import { Popover, Progress } from "antd";
@@ -14,11 +16,13 @@ import {
   PluginInstanceDescendantList,
   PluginParameterList,
 } from "@fnndsc/chrisapi";
+// Added FaCopy
 import {
   FaDownload,
   FaTerminal,
   FaCalendarAlt,
   FaWindowClose,
+  FaCopy,
 } from "react-icons/fa";
 import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
@@ -33,6 +37,8 @@ import { getErrorCodeMessage } from "./utils";
 import AddPipeline from "../AddPipeline/AddPipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
+// useParams
+import { useParams } from "react-router";
 
 interface INodeProps {
   expandDrawer: (panel: string) => void;
@@ -57,7 +63,17 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
+
   const { download, downloadAllClick } = useFeedBrowser();
+  
+  // Method 2.
+  const { id } = useParams();
+  const baseUrl = window.location.origin;
+  const copyText = "Copy To Clipboard";
+  const doneCopyText = "Copied!"
+  const [isCopied, SetIsCopied] = React.useState(false);
+  // End Method 2.
+
 
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isTerminalVisible, setIsTerminalVisible] = React.useState(false);
@@ -94,6 +110,15 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     instanceParameters,
     pluginParameters,
   ]);
+
+  // Method 2
+  const copyPathToClipboard = () => {
+    const path = `${baseUrl}/api/v1/plugins/instances/${id}/files/`
+    const command = `chrs download ${path}`
+    navigator.clipboard.writeText(command);
+    SetIsCopied(true);
+  }
+  // End Method 2
 
   const text =
     plugin && instanceParameters && pluginParameters
@@ -221,6 +246,14 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             <Button onClick={downloadAllClick} icon={<FaDownload />}>
               Download Files
             </Button>
+
+            {/* Method 2 */}
+            <Tooltip aria="none" aria-live="polite" content={isCopied ? doneCopyText : copyText}>
+              <Button onClick={copyPathToClipboard} icon={<FaCopy />}>
+                Copy chrs Download Command
+              </Button>
+            </Tooltip>
+            {/* End Method 2 */}
           </div>
 
           <div className="node-details__actions_second">
