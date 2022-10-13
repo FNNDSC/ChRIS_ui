@@ -69,7 +69,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   
   // Method 2.
   const { id } = useParams();
-  const baseUrl = process.env.CHRIS_UI_URL;
+  const baseUrl = process.env.REACT_APP_CHRIS_UI_URL;
   const copyText = "Copy To Clipboard";
   const doneCopyText = "Copied!"
   const [isCopied, SetIsCopied] = React.useState(false);
