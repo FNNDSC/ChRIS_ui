@@ -250,18 +250,18 @@ Styles for pipelines
   margin-top: 1rem;
 }
 
-
-.pf-c-input-group input:not([type=checkbox]):not([type=radio]), .pf-c-input-group textarea {
+.pf-c-input-group input:not([type="checkbox"]):not([type="radio"]),
+.pf-c-input-group textarea {
   flex: 2 1;
   min-width: 0;
   // padding-left: 0.2em;
 }
 
-.general-compute {
-  .ant-list-item-meta-title,
-  .ant-list-item-meta-description {
-    color: white !important;
+  .general-compute {
+    .ant-list-item-meta-title,
+    .ant-list-item-meta-description {
+      color: white !important;
+    }
   }
 
-}
 
