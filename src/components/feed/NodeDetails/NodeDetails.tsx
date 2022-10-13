@@ -66,16 +66,11 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   );
 
   const { download, downloadAllClick } = useFeedBrowser();
-  
-  // Method 2.
   const { id } = useParams();
   const baseUrl = process.env.REACT_APP_CHRIS_UI_URL;
   const copyText = "Copy To Clipboard";
   const doneCopyText = "Copied!"
   const [isCopied, SetIsCopied] = React.useState(false);
-  // End Method 2.
-
-
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isTerminalVisible, setIsTerminalVisible] = React.useState(false);
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -112,14 +107,12 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     pluginParameters,
   ]);
 
-  // Method 2
-  const copyPathToClipboard = () => {
-    const path = `${baseUrl}/plugins/instances/${id}/files/`
+    const copyPathToClipboard = () => {
+    const path = `${baseUrl}plugins/instances/${id}/files/`
     const command = `chrs download ${path}`
     navigator.clipboard.writeText(command);
     SetIsCopied(!isCopied);
   }
-  // End Method 2
 
   const text =
     plugin && instanceParameters && pluginParameters
@@ -248,13 +241,11 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               Download Files
             </Button>
 
-            {/* Method 2 */}
             <Tooltip aria="none" aria-live="polite" content={isCopied ? doneCopyText : copyText}>
               <Button onClick={copyPathToClipboard} icon={<FaCopy />}>
-                Copy chrs Download Command
+                Copy Download Command
               </Button>
             </Tooltip>
-            {/* End Method 2 */}
           </div>
 
           <div className="node-details__actions_second">
