@@ -56,10 +56,10 @@ const DashboardPage = (props: DashboardProps) => {
   const outlineSearch = <MdOutlineImageSearch style={style} />;
   const magicWand = <FaMagic style={style} />;
 
-  // const buildVersion = preval`
-  //   const { execSync } = require('child_process')
-  //   module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
-  // `;
+  const buildVersion = preval`
+    const { execSync } = require('child_process')
+    module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
+  `;
 
   return (
     <Wrapper>
@@ -71,7 +71,7 @@ const DashboardPage = (props: DashboardProps) => {
           <b> Let&apos;s get started.</b>
         </p>
         <p>
-          {/* Build: <code className="build-version">{buildVersion}</code> */}
+          Build: <code className="build-version">{buildVersion}</code>
         </p>
         {children}
       </PageSection>
@@ -157,8 +157,7 @@ const CardDisplay = ({
     <Card style={{ overflow: "hidden" }}>
       <CardHeader
         style={{ margin: "0 2rem", display: "flex", justifyContent: "center" }}
-        className={className}
-      >
+        className={className}>
         <CardHeaderMain>{component}</CardHeaderMain>
       </CardHeader>
       <div style={{ margin: "0 auto", textAlign: "center" }}>
@@ -170,8 +169,7 @@ const CardDisplay = ({
           <Button
             onClick={() => {
               navigate(buttonLink);
-            }}
-          >
+            }}>
             {buttonText}
           </Button>
         </CardFooter>
