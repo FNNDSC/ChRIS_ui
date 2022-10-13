@@ -8,6 +8,7 @@ import {
   GridItem,
   ExpandableSection,
   Tooltip,
+  Popover as Popover_patternfly,
 } from "@patternfly/react-core";
 
 import { Popover, Progress } from "antd";
@@ -107,10 +108,11 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     pluginParameters,
   ]);
 
-    const copyPathToClipboard = () => {
-    const path = `${baseUrl}plugins/instances/${id}/files/`
-    const command = `chrs download ${path}`
-    navigator.clipboard.writeText(command);
+  const path = `${baseUrl}plugins/instances/${id}/files/`
+  const chrsCommandPath = `chrs download ${path}`;
+
+  const copyPathToClipboard = () => {
+    navigator.clipboard.writeText(chrsCommandPath);
     SetIsCopied(!isCopied);
   }
 
@@ -241,11 +243,35 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               Download Files
             </Button>
 
-            <Tooltip aria="none" aria-live="polite" content={isCopied ? doneCopyText : copyText}>
-              <Button onClick={copyPathToClipboard} icon={<FaCopy />}>
-                Copy Download Command
-              </Button>
-            </Tooltip>
+            {/* Editing button */}
+            
+            {/* <div style={{ margin: '100px' }}> */}
+            {/* const PopoverBasic: React.FunctionComponent = () => ( */}
+              <div style={{ margin: '50px' }}>
+                <Popover_patternfly
+                  aria-label="Basic popover"
+                  headerContent={<div>Popover header</div>}
+                  bodyContent={
+                    <div>
+                      <input className="pf-c-form-control" readOnly type="text" value={chrsCommandPath} aria-label="Readonly input example" />
+                      <Tooltip aria="none" aria-live="polite" content={isCopied ? doneCopyText : copyText}>
+                        <Button aria-label="Clipboard" variant="plain" onClick={copyPathToClipboard} >
+                          <FaCopy />
+                        </Button>
+                      </Tooltip>
+                    </div>
+                  }
+                  footerContent="Popover footer"
+                >
+                  <Button icon={<FaCopy />}>
+                    Copy Download Command
+                  </Button>
+                </Popover_patternfly>
+              </div>
+            {/* ); */}
+            {/* </div> */}
+
+            {/* End Editing button */}
           </div>
 
           <div className="node-details__actions_second">
