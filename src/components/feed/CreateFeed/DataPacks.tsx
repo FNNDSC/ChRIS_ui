@@ -124,60 +124,61 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
         </ToolbarItem>
       </div>
 
-      <DataList aria-label="FS Plugins">
-        {fsPlugins.map((plugin, index) => {
-          const { title, name } = plugin.data
-          const pluginName = `${
-            title ? title:`${name} v.${plugin.data.version}`
-          }`
-          return (
-            <DataListItem key={index} aria-labelledby="plugin-checkbox">
-              <DataListItemRow>
-                <DataListCheck
-                  aria-labelledby="plugin-checkbox"
-                  name={pluginName}
-                  onChange={(checked: any) => {
-                    checked === true && props.getParams(plugin)
-                    dispatch({
-                      type: Types.SelectPlugin,
-                      payload: {
-                        plugin,
-                        checked,
-                      },
-                    })
-                  }}
-                  checked={selectedPlugin?.data.id === plugin.data.id}
-                  isDisabled={
-                    selectedPlugin && selectedPlugin.data.id !== plugin.data.id
-                      ? true
-                      : false
-                  }
-                />
-                <DataListItemCells
-                  dataListCells={[
-                    <DataListCell key={index}>
-                      <div className="plugin-table-row" key={index}>
-                        <span
-                          className="plugin-table-row__plugin-name"
-                          id={pluginName}
-                        >
-                          {pluginName}
-                        </span>
-                        <span
-                          className="plugin-table-row__plugin-description"
-                          id={plugin.data.description}
-                        >
-                          <em>{plugin.data.description}</em>
-                        </span>
-                      </div>
-                    </DataListCell>,
-                  ]}
-                ></DataListItemCells>
-              </DataListItemRow>
-            </DataListItem>
-          )
-        })}
-      </DataList>
+      <div>
+        <DataList aria-label="FS Plugins">
+          {fsPlugins.map((plugin, index) => {
+            const { title, name } = plugin.data
+            const pluginName = `${title ? title : `${name} v.${plugin.data.version}`
+              }`
+            return (
+              <DataListItem key={index} aria-labelledby="plugin-checkbox">
+                <DataListItemRow>
+                  <DataListCheck
+                    aria-labelledby="plugin-checkbox"
+                    name={pluginName}
+                    onChange={(checked: any) => {
+                      checked === true && props.getParams(plugin)
+                      dispatch({
+                        type: Types.SelectPlugin,
+                        payload: {
+                          plugin,
+                          checked,
+                        },
+                      })
+                    }}
+                    checked={selectedPlugin?.data.id === plugin.data.id}
+                  // isDisabled={
+                  //   selectedPlugin && selectedPlugin.data.id !== plugin.data.id
+                  //     ? true
+                  //     : false
+                  // }
+                  />
+                  <DataListItemCells
+                    dataListCells={[
+                      <DataListCell key={index}>
+                        <div className="plugin-table-row" key={index}>
+                          <span
+                            className="plugin-table-row__plugin-name"
+                            id={pluginName}
+                          >
+                            {pluginName}
+                          </span>
+                          <span
+                            className="plugin-table-row__plugin-description"
+                            id={plugin.data.description}
+                          >
+                            <em>{plugin.data.description}</em>
+                          </span>
+                        </div>
+                      </DataListCell>,
+                    ]}
+                  ></DataListItemCells>
+                </DataListItemRow>
+              </DataListItem>
+            )
+          })}
+        </DataList>
+      </div>
     </div>
   )
 }
