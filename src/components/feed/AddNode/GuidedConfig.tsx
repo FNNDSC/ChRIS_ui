@@ -87,7 +87,7 @@ const GuidedConfig = ({
       });
     }
 
-    if (params && count >= params.length) {
+    if (params && params.length !== 0 && count > params.length - 1) {
       setConfigState({
         ...configState,
         errors: ["You cannot add more parameters to this plugin"],
