@@ -1,4 +1,5 @@
 import React, { Fragment, useState } from "react";
+
 import Moment from "react-moment";
 // Added Tooltip
 import {
@@ -68,7 +69,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   
   // Method 2.
   const { id } = useParams();
-  const baseUrl = window.location.origin;
+  const baseUrl = process.env.CHRIS_UI_URL;
   const copyText = "Copy To Clipboard";
   const doneCopyText = "Copied!"
   const [isCopied, SetIsCopied] = React.useState(false);
@@ -113,7 +114,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
 
   // Method 2
   const copyPathToClipboard = () => {
-    const path = `${baseUrl}/api/v1/plugins/instances/${id}/files/`
+    const path = `${baseUrl}/plugins/instances/${id}/files/`
     const command = `chrs download ${path}`
     navigator.clipboard.writeText(command);
     SetIsCopied(true);
