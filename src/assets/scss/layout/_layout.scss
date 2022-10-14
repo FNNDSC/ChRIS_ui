@@ -33,3 +33,18 @@ section {
     margin-right:1rem !important;
     top:-0.5 !important;
 }
+
+element.style {}
+
+.pf-c-nav__link,
+.pf-c-nav__link:hover,
+.pf-c-nav__link:focus,
+.pf-c-nav__link:active {
+    width: 100%;
+    text-decoration: none;
+    border: none;
+}
+
+.pf-c-nav__link {
+    min-height: 2rem;
+}
