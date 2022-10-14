@@ -124,7 +124,7 @@ const DashboardPage = (props: DashboardProps) => {
             <CardDisplay
               component={<LogoComponent logo={magicWand} />}
               title="Run a quick workflow"
-              body='Vist "Run a Quick Workflow" to choose from existing analysis templates that allow for detailed analysis'
+              body='Visit "Run a Quick Workflow" to choose from existing analysis templates that allow for detailed analysis'
               buttonText="Run a Quick Workflow"
               buttonLink="/feeds"
             />
@@ -157,8 +157,7 @@ const CardDisplay = ({
     <Card style={{ overflow: "hidden" }}>
       <CardHeader
         style={{ margin: "0 2rem", display: "flex", justifyContent: "center" }}
-        className={className}
-      >
+        className={className}>
         <CardHeaderMain>{component}</CardHeaderMain>
       </CardHeader>
       <div style={{ margin: "0 auto", textAlign: "center" }}>
@@ -170,8 +169,7 @@ const CardDisplay = ({
           <Button
             onClick={() => {
               navigate(buttonLink);
-            }}
-          >
+            }}>
             {buttonText}
           </Button>
         </CardFooter>
