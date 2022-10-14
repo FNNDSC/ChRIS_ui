@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
-import Wrapper from '../../../Layout/PageWrapper'
-import { PageSection } from '@patternfly/react-core'
-import { Typography } from 'antd'
+import React, { useCallback, useEffect, useState } from "react"
+import { useDispatch } from "react-redux"
+import Wrapper from "../../../Layout/PageWrapper"
+import { PageSection } from "@patternfly/react-core"
+import { Typography } from "antd"
 import {
   Grid,
   GridItem,
@@ -13,22 +13,22 @@ import {
   Button,
   EmptyStateBody,
   EmptyStatePrimary,
-} from '@patternfly/react-core'
-import { FaCubes } from 'react-icons/fa'
-import pluralize from 'pluralize'
+} from "@patternfly/react-core"
+import { FaCubes } from "react-icons/fa"
+import pluralize from "pluralize"
 import PFDCMClient, {
   PACSPatient,
   PACSPullStages,
   PFDCMFilters,
   PFDCMPull,
-} from '../../../../api/pfdcm'
-import { setSidebarActive } from '../../../../store/ui/actions'
+} from "../../../../api/pfdcm"
+import { setSidebarActive } from "../../../../store/ui/actions"
 
 const { Paragraph } = Typography
 
-import QueryBuilder from './QueryBuilder'
-import QueryResults from './QueryResults'
-import InfoIcon from '../../../../components/common/info/InfoIcon'
+import QueryBuilder from "./QueryBuilder"
+import QueryResults from "./QueryResults"
+import InfoIcon from "../../../../components/common/info/InfoIcon"
 
 export enum PFDCMQueryTypes {
   PMRN,
@@ -68,13 +68,13 @@ export class PACSPulls extends Map<string, PFDCMPull> {
 }
 
 const pStyle = {
-  fontSize: '1.15em',
+  fontSize: "1.15em",
 }
 
 const client = new PFDCMClient()
 
 export const PACSLookup = () => {
-  document.title = 'PACS Lookup'
+  document.title = "PACS Lookup"
   const dispatch = useDispatch()
   const [loading, setLoading] = useState<boolean>()
   const [progress, setProgress] = useState<[number, number]>([0, 0])
@@ -96,7 +96,7 @@ export const PACSLookup = () => {
   useEffect(() => {
     dispatch(
       setSidebarActive({
-        activeItem: 'pacs',
+        activeItem: "pacs",
       })
     )
   }, [dispatch])
@@ -123,7 +123,7 @@ export const PACSLookup = () => {
           break
 
         default:
-          throw TypeError('Unsupported PFDCM Query Type')
+          throw TypeError("Unsupported PFDCM Query Type")
       }
 
       setProgress([q + 1, queries.length])
@@ -190,7 +190,7 @@ export const PACSLookup = () => {
               <b>Results</b>
             </h2>
             <div>
-              {results.length} {pluralize('patient', results.length)} matched your search.
+              {results.length} {pluralize("patient", results.length)} matched your search.
             </div>
           </GridItem>
 
@@ -230,7 +230,7 @@ export const PACSLookup = () => {
               Medical images are typically stored in a Picture Archive and Communications System
               (PACS) database. ChRIS can be optionally configured to communicate with such a PACS by
               an administrator. If this ChRIS has been configured in this manner, you should see
-              something available in the <b>PACS Service</b> drop down. You can Query this{' '}
+              something available in the <b>PACS Service</b> drop down. You can Query this{" "}
               <b>PACS Service</b> to find images of interest by searching on various Patient data
               fields (such as Patient Name, Medical Record Number, Study Date, etc).
             </Paragraph>

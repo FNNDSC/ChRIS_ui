@@ -1,45 +1,45 @@
-import React, { useRef, useMemo } from 'react'
-import { useNavigate } from 'react-router'
-import Wrapper from '../Layout/PageWrapper'
-import { Button } from 'antd'
-import { AiOutlineUpload } from 'react-icons/ai'
-import { useDispatch } from 'react-redux'
-import { setSidebarActive } from '../../store/ui/actions'
-import { useDropzone } from 'react-dropzone'
-import { setExternalFiles } from '../../store/explorer/actions'
-import { PageSection } from '@patternfly/react-core'
-import InfoIcon from '../../components/common/info/InfoIcon'
-import { Typography } from 'antd'
+import React, { useRef, useMemo } from "react"
+import { useNavigate } from "react-router"
+import Wrapper from "../Layout/PageWrapper"
+import { Button } from "antd"
+import { AiOutlineUpload } from "react-icons/ai"
+import { useDispatch } from "react-redux"
+import { setSidebarActive } from "../../store/ui/actions"
+import { useDropzone } from "react-dropzone"
+import { setExternalFiles } from "../../store/explorer/actions"
+import { PageSection } from "@patternfly/react-core"
+import InfoIcon from "../../components/common/info/InfoIcon"
+import { Typography } from "antd"
 const { Paragraph } = Typography
 
-const infoStyle = { fontSize: '1.15em' }
+const infoStyle = { fontSize: "1.15em" }
 
 const baseStyle: React.CSSProperties = {
   flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  padding: '20px',
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "20px",
   borderWidth: 2,
   borderRadius: 2,
-  borderColor: '#eeeeee',
-  borderStyle: 'dashed',
-  backgroundColor: '#fafafa',
-  color: '#bdbdbd',
-  outline: 'none',
-  transition: 'border .24s ease-in-out',
+  borderColor: "#eeeeee",
+  borderStyle: "dashed",
+  backgroundColor: "#fafafa",
+  color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out",
 }
 
 const activeStyle = {
-  borderColor: '#2196f3',
+  borderColor: "#2196f3",
 }
 
 const acceptStyle = {
-  borderColor: '#00e676',
+  borderColor: "#00e676",
 }
 
 const rejectStyle = {
-  borderColor: '#ff1744',
+  borderColor: "#ff1744",
 }
 
 const VisualizationPage = () => {
@@ -61,18 +61,18 @@ const VisualizationPage = () => {
   const navigate = useNavigate()
 
   React.useEffect(() => {
-    document.title = 'DICOM Viewer'
+    document.title = "DICOM Viewer"
     if (acceptedFiles.length > 0) dispatch(setExternalFiles(acceptedFiles))
   }, [acceptedFiles, dispatch])
 
   const close = React.useCallback(() => {
-    navigate('/gallery')
+    navigate("/gallery")
   }, [navigate])
 
   React.useEffect(() => {
     dispatch(
       setSidebarActive({
-        activeItem: 'visualizations',
+        activeItem: "visualizations",
       })
     )
   }, [dispatch])
@@ -118,7 +118,7 @@ const VisualizationPage = () => {
           <input
             type="file"
             id="file_open"
-            style={{ display: 'none' }}
+            style={{ display: "none" }}
             ref={fileOpen}
             multiple
             onChange={(e) => handleOpenLocalFs(e.target.files)}
@@ -126,7 +126,7 @@ const VisualizationPage = () => {
           <input
             type="file"
             id="file_folder"
-            style={{ display: 'none' }}
+            style={{ display: "none" }}
             onChange={(e) => handleOpenFolder(e.target.files)}
             multiple
             //@ts-ignore
