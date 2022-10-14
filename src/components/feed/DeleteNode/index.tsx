@@ -1,25 +1,25 @@
-import React from 'react'
-import { Dispatch } from 'redux'
-import { useDispatch } from 'react-redux'
-import { ErrorBoundary } from 'react-error-boundary'
-import { Button, Modal, ModalVariant, Alert } from '@patternfly/react-core'
-import { connect } from 'react-redux'
-import { ApplicationState } from '../../../store/root/applicationState'
-import { PluginInstance } from '@fnndsc/chrisapi'
+import React from "react";
+import { Dispatch } from "redux";
+import { useDispatch } from "react-redux";
+import { ErrorBoundary } from "react-error-boundary";
+import { Button, Modal, ModalVariant, Alert } from "@patternfly/react-core";
+import { connect } from "react-redux";
+import { ApplicationState } from "../../../store/root/applicationState";
+import { PluginInstance } from "@fnndsc/chrisapi";
 import {
   clearDeleteState,
   deleteNode,
   deleteNodeError,
-} from '../../../store/pluginInstance/actions'
-import { FaTrash } from 'react-icons/fa'
+} from "../../../store/pluginInstance/actions";
+import { FaTrash } from "react-icons/fa";
 
 interface DeleteNodeProps {
-  selectedPlugin?: PluginInstance
-  deleteNode: (instance: PluginInstance) => void
+  selectedPlugin?: PluginInstance;
+  deleteNode: (instance: PluginInstance) => void;
   deleteNodeState: {
-    error: string
-    success: boolean
-  }
+    error: string;
+    success: boolean;
+  };
 }
 
 const DeleteNode: React.FC<DeleteNodeProps> = ({
@@ -27,26 +27,26 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
   deleteNode,
   deleteNodeState,
 }: DeleteNodeProps) => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-  const [isModalOpen, setIsModalOpen] = React.useState(false)
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const handleModalToggle = () => {
-    setIsModalOpen(!isModalOpen)
+    setIsModalOpen(!isModalOpen);
 
     if (isModalOpen) {
-      dispatch(clearDeleteState())
+      dispatch(clearDeleteState());
     }
-  }
+  };
 
   const handleDelete = async () => {
-    const statuses = ['finishedSuccessfully', 'cancelled', 'finishedWithError']
+    const statuses = ["finishedSuccessfully", "cancelled", "finishedWithError"];
 
     if (statuses.includes(selectedPlugin?.data.status)) {
-      if (selectedPlugin) deleteNode(selectedPlugin)
+      if (selectedPlugin) deleteNode(selectedPlugin);
     } else {
-      dispatch(deleteNodeError('Please wait for the plugin to finish running'))
+      dispatch(deleteNodeError("Please wait for the plugin to finish running"));
     }
-  }
+  };
 
   return (
     <React.Fragment>
@@ -83,19 +83,19 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
         </Modal>
       </ErrorBoundary>
     </React.Fragment>
-  )
-}
+  );
+};
 
 const mapStateToProps = (state: ApplicationState) => ({
   selectedPlugin: state.instance.selectedPlugin,
   deleteNodeState: state.instance.deleteNode,
-})
+});
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   deleteNode: (instance: PluginInstance) => dispatch(deleteNode(instance)),
-})
+});
 
-export default connect(mapStateToProps, mapDispatchToProps)(DeleteNode)
+export default connect(mapStateToProps, mapDispatchToProps)(DeleteNode);
 
 const FallBackComponent = () => {
   return (
@@ -103,5 +103,5 @@ const FallBackComponent = () => {
       Deleting a plugin instance can have some side effects. Could you please
       try again?
     </span>
-  )
-}
+  );
+};

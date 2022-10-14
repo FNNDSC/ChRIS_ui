@@ -19,6 +19,9 @@ article {
     margin: 1em auto;
     padding: 2em 4em;
     width: 100%;
+    @media (max-width: 560px) {
+        padding: 2em;
+    }
 }
 
 section {

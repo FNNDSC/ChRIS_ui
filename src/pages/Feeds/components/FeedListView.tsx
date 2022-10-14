@@ -1,7 +1,9 @@
-import * as React from 'react'
-import { Link } from 'react-router-dom'
-import Moment from 'react-moment'
-import '@patternfly/react-core/dist/styles/base.css'
+/** @format */
+
+import * as React from "react";
+import { Link } from "react-router-dom";
+import Moment from "react-moment";
+import "@patternfly/react-core/dist/styles/base.css";
 import {
   PageSection,
   PageSectionVariants,
@@ -13,10 +15,10 @@ import {
   HintBody,
   Checkbox,
   Tooltip,
-} from '@patternfly/react-core'
-import { TableComposable, Thead, Tr, Th, Td } from '@patternfly/react-table'
-import { ChartDonutUtilization } from '@patternfly/react-charts'
-import { setSidebarActive } from '../../../store/ui/actions'
+} from "@patternfly/react-core";
+import { TableComposable, Thead, Tr, Th, Td } from "@patternfly/react-table";
+import { ChartDonutUtilization } from "@patternfly/react-charts";
+import { setSidebarActive } from "../../../store/ui/actions";
 import {
   getAllFeedsRequest,
   setBulkSelect,
@@ -27,21 +29,21 @@ import {
   toggleSelectAll,
   stopFetchingFeedResources,
   cleanupFeedResources,
-} from '../../../store/feed/actions'
+} from "../../../store/feed/actions";
 
-import { DataTableToolbar } from '../../../components/index'
-import { CreateFeed } from '../../../components/feed/CreateFeed/CreateFeed'
-import { CreateFeedProvider } from '../../../components/feed/CreateFeed/context'
+import { DataTableToolbar } from "../../../components/index";
+import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
+import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
 import {
   EmptyStateTable,
   generateTableLoading,
-} from '../../../components/common/emptyTable'
-import { usePaginate } from '../../../components/common/pagination'
-import { Feed } from '@fnndsc/chrisapi'
-import IconContainer from './IconContainer'
-import { useTypedSelector } from '../../../store/hooks'
-import { Tbody } from '@patternfly/react-table'
-import { FeedResource } from '../../../store/feed/types'
+} from "../../../components/common/emptyTable";
+import { usePaginate } from "../../../components/common/pagination";
+import { Feed } from "@fnndsc/chrisapi";
+import IconContainer from "./IconContainer";
+import { useTypedSelector } from "../../../store/hooks";
+import { Tbody } from "@patternfly/react-table";
+import { FeedResource } from "../../../store/feed/types";
 
 const FeedListView: React.FC = () => {
   const {
@@ -51,59 +53,72 @@ const FeedListView: React.FC = () => {
     handleFilterChange,
     run,
     dispatch,
-  } = usePaginate()
-  const {
-    allFeeds,
-    selectAllToggle,
-    feedResources,
-    bulkSelect,
-  } = useTypedSelector((state) => state.feed)
-  const { page, perPage } = filterState
-  const { data, error, loading, totalFeedsCount } = allFeeds
+  } = usePaginate();
+  const { allFeeds, selectAllToggle, feedResources, bulkSelect } =
+    useTypedSelector((state) => state.feed);
+  const { page, perPage } = filterState;
+  const { data, error, loading, totalFeedsCount } = allFeeds;
 
-  const bulkData = React.useRef<Feed[]>()
-  bulkData.current = bulkSelect
+  const bulkData = React.useRef<Feed[]>();
+  bulkData.current = bulkSelect;
+
+  const [width, setWindowWidth] = React.useState(0);
+  React.useEffect(() => {
+    function handleResize() {
+      setWindowWidth(window.innerWidth);
+    }
+    window.addEventListener("resize", handleResize);
+    handleResize();
+  }, []);
 
   React.useEffect(() => {
-    document.title = 'All Analyses - ChRIS UI '
+    document.title = "All Analyses - ChRIS UI ";
     dispatch(
       setSidebarActive({
-        activeItem: 'analyses',
-      }),
-    )
+        activeItem: "analyses",
+      })
+    );
     if (bulkData && bulkData.current) {
-      dispatch(removeAllSelect(bulkData.current))
+      dispatch(removeAllSelect(bulkData.current));
     }
-  }, [dispatch])
+  }, [dispatch]);
 
   const getAllFeeds = React.useCallback(() => {
-    run(getAllFeedsRequest)
-  }, [run])
+    run(getAllFeedsRequest);
+  }, [run]);
 
   React.useEffect(() => {
-    getAllFeeds()
-  }, [getAllFeeds])
+    getAllFeeds();
+  }, [getAllFeeds]);
 
   React.useEffect(() => {
     if (selectAllToggle && allFeeds.data && allFeeds.data.length > 0) {
-      dispatch(setAllSelect(allFeeds.data))
+      dispatch(setAllSelect(allFeeds.data));
     }
-  }, [allFeeds.data, dispatch, selectAllToggle])
+  }, [allFeeds.data, dispatch, selectAllToggle]);
 
-  const cells = ['', 'Id', 'Analysis', 'Created', 'Creator', 'Run Time', 'Size']
+  const cells = [
+    "",
+    "Id",
+    "Analysis",
+    "Created",
+    "Creator",
+    "Run Time",
+    "Size",
+  ];
 
   const customRowWrapper = (row: any) => {
-    const { children } = row
+    const { children } = row;
 
     const backgroundStyle = {
-      backgroundColor: '#F9E0A2',
-    }
-    return <Tr style={backgroundStyle}>{children}</Tr>
-  }
+      backgroundColor: "#F9E0A2",
+    };
+    return <Tr style={backgroundStyle}>{children}</Tr>;
+  };
 
   const generatePagination = () => {
     if (!data || !totalFeedsCount) {
-      return null
+      return null;
     }
 
     return (
@@ -114,8 +129,8 @@ const FeedListView: React.FC = () => {
         onSetPage={handlePageSet}
         onPerPageSelect={handlePerPageSet}
       />
-    )
-  }
+    );
+  };
 
   if (error) {
     return (
@@ -128,7 +143,7 @@ const FeedListView: React.FC = () => {
           </EmptyStateBody>
         </EmptyState>
       </React.Fragment>
-    )
+    );
   }
   return (
     <React.Fragment>
@@ -148,11 +163,17 @@ const FeedListView: React.FC = () => {
         <Hint
           //@ts-ignore
           style={{
-            width: '50%',
-            paddingBottom: '0',
+            width: `${width > 768 ? "50%" : "100%"}`,
+            // paddingBottom: '0',
+            marginTop: "20px",
           }}
         >
-          <HintBody>
+          <HintBody
+            //@ts-ignore
+            style={{
+              gridColumn: `${width > 768 ? "1" : "2"}`,
+            }}
+          >
             All Analyses that you have completed are recorded here. You can
             easily return to a completed analysis and add more analysis
             components, or you can create a brand new analysis from scratch.
@@ -196,15 +217,15 @@ const FeedListView: React.FC = () => {
                       onChange={() => {
                         if (!selectAllToggle) {
                           if (allFeeds.data) {
-                            dispatch(setAllSelect(allFeeds.data))
+                            dispatch(setAllSelect(allFeeds.data));
                           }
 
-                          dispatch(toggleSelectAll(true))
+                          dispatch(toggleSelectAll(true));
                         } else {
                           if (allFeeds.data) {
-                            dispatch(removeAllSelect(allFeeds.data))
+                            dispatch(removeAllSelect(allFeeds.data));
                           }
-                          dispatch(toggleSelectAll(false))
+                          dispatch(toggleSelectAll(false));
                         }
                       }}
                     />
@@ -216,8 +237,8 @@ const FeedListView: React.FC = () => {
                   <Th>Run Time</Th>
                   <Th
                     style={{
-                      textAlign: 'center',
-                      margin: '0 auto',
+                      textAlign: "center",
+                      margin: "0 auto",
                     }}
                   >
                     Size
@@ -228,7 +249,7 @@ const FeedListView: React.FC = () => {
             }
 
             {loading ? (
-              generateTableLoading('white')
+              generateTableLoading("white")
             ) : (
               <Tbody>
                 {data &&
@@ -240,7 +261,7 @@ const FeedListView: React.FC = () => {
                         feedResources={feedResources}
                         bulkSelect={bulkSelect}
                       />
-                    )
+                    );
                   })}
               </Tbody>
             )}
@@ -248,47 +269,47 @@ const FeedListView: React.FC = () => {
         )}
       </PageSection>
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default FeedListView
+export default FeedListView;
 
 const TableRow = ({
   feed,
   feedResources,
   bulkSelect,
 }: {
-  feed: Feed
-  feedResources: FeedResource
-  bulkSelect: Feed[]
+  feed: Feed;
+  feedResources: FeedResource;
+  bulkSelect: Feed[];
 }) => {
-  const { id, name: feedName, creation_date, creator_username } = feed.data
-  const { dispatch } = usePaginate()
+  const { id, name: feedName, creation_date, creator_username } = feed.data;
+  const { dispatch } = usePaginate();
   const progress =
-    feedResources[feed.data.id] && feedResources[feed.data.id].details.progress
+    feedResources[feed.data.id] && feedResources[feed.data.id].details.progress;
 
   React.useEffect(() => {
-    dispatch(getFeedResourcesRequest(feed))
+    dispatch(getFeedResourcesRequest(feed));
     return () => {
-      dispatch(stopFetchingFeedResources(feed))
-      dispatch(cleanupFeedResources(feed))
-    }
-  }, [dispatch, feed])
+      dispatch(stopFetchingFeedResources(feed));
+      dispatch(cleanupFeedResources(feed));
+    };
+  }, [dispatch, feed]);
 
   const fontFamily = {
-    fontFamily: 'monospace',
-  }
+    fontFamily: "monospace",
+  };
 
   const size =
-    feedResources[feed.data.id] && feedResources[feed.data.id].details.size
+    feedResources[feed.data.id] && feedResources[feed.data.id].details.size;
   const feedError =
-    feedResources[feed.data.id] && feedResources[feed.data.id].details.error
+    feedResources[feed.data.id] && feedResources[feed.data.id].details.error;
   const runtime =
-    feedResources[feed.data.id] && feedResources[feed.data.id].details.time
+    feedResources[feed.data.id] && feedResources[feed.data.id].details.time;
 
   const feedProgressText =
     feedResources[feed.data.id] &&
-    feedResources[feed.data.id].details.feedProgressText
+    feedResources[feed.data.id].details.feedProgressText;
 
   const name = (
     <span className="feed-list__name">
@@ -296,90 +317,90 @@ const TableRow = ({
         <Link to={`/feeds/${id}`}>{feedName}</Link>
       </Tooltip>
     </span>
-  )
+  );
 
-  const feedId = <p style={fontFamily}>{feed.data.id}</p>
+  const feedId = <p style={fontFamily}>{feed.data.id}</p>;
 
   const created = (
     <span style={fontFamily}>
-      <Moment format="DD MMM YYYY, HH:mm">{creation_date}</Moment>{' '}
+      <Moment format="DD MMM YYYY, HH:mm">{creation_date}</Moment>{" "}
     </span>
-  )
+  );
 
   const feedSize = (
     <p
       style={{
-        textAlign: 'center',
-        margin: '0 auto',
+        textAlign: "center",
+        margin: "0 auto",
       }}
     >
       <span className="feed-list__name">
         <Tooltip content={<div>View files in library</div>}>
           <Link to={`/library/`}>
-            {size ? `${size.padStart(10, '')}` : '---'}
+            {size ? `${size.padStart(10, "")}` : "---"}
           </Link>
         </Tooltip>
       </span>
     </p>
-  )
+  );
 
-  const runTime = <p style={fontFamily}>{runtime ? `${runtime}` : '---'}</p>
+  const runTime = <p style={fontFamily}>{runtime ? `${runtime}` : "---"}</p>;
 
-  const creator = <p>{creator_username}</p>
+  const creator = <p>{creator_username}</p>;
 
-  let threshold = Infinity
-  let color = '#0000ff'
+  let threshold = Infinity;
+  let color = "#0000ff";
 
   // If error in a feed => reflect in progress
   if (feedError) {
-    color = '#ff0000'
-    threshold = progress
+    color = "#ff0000";
+    threshold = progress;
   }
-  let title = (progress ? progress : 0) + '%'
+  let title = (progress ? progress : 0) + "%";
 
   // If initial node in a feed fails
   if (progress == 0 && feedError) {
-    title = '❌'
+    title = "❌";
   }
 
   // If progress less than 100%, display green
   if (progress < 100 && !feedError) {
-    color = '#00ff00'
+    color = "#00ff00";
 
-    threshold = progress
+    threshold = progress;
   }
   if (progress == 100) {
-    title = '✔️'
+    title = "✔️";
   }
 
   const circularProgress = (
     <div
       style={{
-        textAlign: 'right',
-        height: '40px',
-        width: '40px',
-        display: 'block',
+        textAlign: "right",
+        height: "40px",
+        width: "40px",
+        display: "block",
       }}
     >
       <ChartDonutUtilization
         ariaTitle={feedProgressText}
-        data={{ x: 'Feed Progress', y: progress }}
+        data={{ x: "Feed Progress", y: progress }}
         height={125}
         title={title}
         thresholds={[{ value: threshold, color: color }]}
         width={125}
       />
     </div>
-  )
+  );
 
   const isSelected = (bulkSelect: any, feed: Feed) => {
     for (const selectedFeed of bulkSelect) {
       if (selectedFeed.data.id == feed.data.id) {
-        return true
+        return true;
       }
     }
-    return false
-  }
+    return false;
+  };
   const bulkChecbox = (
     <Checkbox
       isChecked={isSelected(bulkSelect, feed)}
@@ -387,18 +408,18 @@ const TableRow = ({
       aria-label="toggle icon bar"
       onChange={() => {
         if (!isSelected(bulkSelect, feed)) {
-          dispatch(setBulkSelect(feed))
+          dispatch(setBulkSelect(feed));
         } else {
-          dispatch(removeBulkSelect(feed))
+          dispatch(removeBulkSelect(feed));
         }
       }}
     />
-  )
+  );
   const backgroundRow =
-    progress && progress < 100 && !feedError ? '#F9E0A2' : '#FFFFFF'
+    progress && progress < 100 && !feedError ? "#F9E0A2" : "#FFFFFF";
   const selectedBgRow = isSelected(bulkSelect, feed)
-    ? 'rgb(231, 241, 250)'
-    : backgroundRow
+    ? "rgb(231, 241, 250)"
+    : backgroundRow;
   return (
     <Tr
       key={feed.data.id}
@@ -418,5 +439,5 @@ const TableRow = ({
       <Td>{feedSize}</Td>
       <Td>{circularProgress}</Td>
     </Tr>
-  )
-}
+  );
+};

@@ -20,6 +20,10 @@
   padding: 0 !important;
 }
 
+.pf-c-modal-box {
+  height: 95%;
+}
+
 .feed-create-wizard {
   .pf-c-wizard__header {
     background: #282d33;
@@ -224,12 +228,8 @@
 Styles for pipelines 
 **/
 
-.pf-c-modal-box {
-  height: 95%;
-}
-
 .pf-c-popover {
-  height: 700px;
+  height: 350px;
   padding: 0;
 }
 
@@ -241,11 +241,25 @@ Styles for pipelines
   height: 100%;
   padding: 0;
   div {
-    height: 100%;
+    height: 60%;
   }
 }
 
 // Styles for configuration Page under Pipelines
-.pf-c-expandable-section{
+.pf-c-expandable-section {
   margin-top: 1rem;
+}
+
+.pf-c-input-group input:not([type="checkbox"]):not([type="radio"]),
+.pf-c-input-group textarea {
+  flex: 2 1;
+  min-width: 0;
+  // padding-left: 0.2em;
+
+  .general-compute {
+    .ant-list-item-meta-title,
+    .ant-list-item-meta-description {
+      color: white !important;
+    }
+  }
 }

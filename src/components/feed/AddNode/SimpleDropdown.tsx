@@ -6,12 +6,12 @@ import {
   Banner,
 } from "@patternfly/react-core";
 import { AiFillCaretDown } from "react-icons/ai";
-import { FaTrashAlt } from "react-icons/fa";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./lib/utils";
 import { PluginParameter } from "@fnndsc/chrisapi";
 import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
 import { css } from "@patternfly/react-styles";
+import { MdClose } from "react-icons/md";
 
 function getInitialState() {
   return {
@@ -33,7 +33,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     React.useState<SimpleDropdownState>(getInitialState);
   const { isOpen } = dropdownState;
 
-  const [paramFlag, value, type, placeholder] = unPackForKeyValue(
+  const [paramFlag, value, type, placeholder, paramName] = unPackForKeyValue(
     dropdownInput[id]
   );
 
@@ -56,7 +56,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     const placeholder = param.data.help;
     const type = param.data.type;
     const defaultValue = value ? value : param.data.default;
-    handleChange(id, flag, defaultValue, type, placeholder, false);
+    handleChange(id, flag, defaultValue, type, placeholder, false, paramName);
   };
 
   const triggerChange = (eventType: string) => {
@@ -77,7 +77,15 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   };
 
   const handleInputChange = (e: any) => {
-    handleChange(id, paramFlag, e.target.value, type, placeholder, false);
+    handleChange(
+      id,
+      paramFlag,
+      e.target.value,
+      type,
+      placeholder,
+      false,
+      paramName
+    );
   };
 
   const dropdownItems =
@@ -132,7 +140,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
         />
 
         <div onClick={deleteDropdown} className="close-icon">
-          <FaTrashAlt />
+          <MdClose />
         </div>
       </div>
       {type === "boolean" && (

@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Button } from "@patternfly/react-core";
+
 import { Spin } from "antd";
 import { tree, hierarchy } from "d3-hierarchy";
 import { select, event } from "d3-selection";
@@ -129,51 +129,54 @@ const Tree = (props: {
   const { nodes, links } = generateTree();
 
   return (
-    <div
-      ref={divRef}
-      className="pipelines__tree"
-      style={{
-        background: "black",
-        height:'350px'
-      }}
-    >
-      {loading ? (
-        <span style={{ color: "black" }}>Fetching Pipeline.....</span>
-      ) : translate.x > 0 && translate.y > 0 ? (
-        <svg className={`${svgClassName}`} width="100%" height="100%">
-          <TransitionGroupWrapper
-            component="g"
-            className={graphClassName}
-            transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
-          >
-            {links?.map((linkData, i) => {
-              return (
-                <LinkData
-                  orientation="vertical"
-                  key={"link" + i}
-                  linkData={linkData}
-                />
-              );
-            })}
-            {nodes?.map(({ data, x, y, parent }, i) => {
-              return (
-                <NodeData
-                  key={`node + ${i}`}
-                  data={data}
-                  position={{ x, y }}
-                  parent={parent}
-                  orientation="vertical"
-                  handleNodeClick={handleNodeClick}
-                  currentPipelineId={currentPipelineId}
-                />
-              );
-            })}
-          </TransitionGroupWrapper>
-        </svg>
-      ) : (
-        <Spin>Drawing out the pipelines tree</Spin>
-      )}
-    </div>
+    <>
+      <div
+        ref={divRef}
+        className="pipelines__tree"
+        style={{
+          background: "black",
+          height:'380px',
+          width: "75%",
+        }}
+      >
+        {loading ? (
+          <span style={{ color: "black" }}>Fetching Pipeline.....</span>
+        ) : translate.x > 0 && translate.y > 0 ? (
+          <svg className={`${svgClassName}`} width="100%" height="100%">
+            <TransitionGroupWrapper
+              component="g"
+              className={graphClassName}
+              transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
+            >
+              {links?.map((linkData, i) => {
+                return (
+                  <LinkData
+                    orientation="vertical"
+                    key={"link" + i}
+                    linkData={linkData}
+                  />
+                );
+              })}
+              {nodes?.map(({ data, x, y, parent }, i) => {
+                return (
+                  <NodeData
+                    key={`node + ${i}`}
+                    data={data}
+                    position={{ x, y }}
+                    parent={parent}
+                    orientation="vertical"
+                    handleNodeClick={handleNodeClick}
+                    currentPipelineId={currentPipelineId}
+                  />
+                );
+              })}
+            </TransitionGroupWrapper>
+          </svg>
+        ) : (
+          <Spin>Drawing out the pipelines tree</Spin>
+        )}
+      </div>
+    </>
   );
 };
 interface LinkProps {

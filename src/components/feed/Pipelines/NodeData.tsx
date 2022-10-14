@@ -1,21 +1,10 @@
 import React, { useRef, useContext } from "react";
-import { Types } from "../CreateFeed/types";
+import { Types, colorPalette } from "../CreateFeed/types";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { TreeNode } from "../../../utils";
 import { fetchComputeInfo } from "../CreateFeed/utils/pipelines";
 import { CreateFeedContext } from "../CreateFeed/context";
-import ChrisAPIClient from "../../../api/chrisapiclient";
-
-const colorPalette: {
-  [key: string]: string;
-} = {
-  default: "#73bcf7",
-  host: "#73bcf7",
-  moc: "#704478",
-  titan: "#1B9D92",
-  galena: "#ADF17F",
-};
 
 export interface Point {
   x: number;
@@ -48,11 +37,10 @@ const NodeData = (props: NodeProps) => {
   const textRef = useRef<SVGTextElement>(null);
   const { data, position, orientation, handleNodeClick, currentPipelineId } =
     props;
-  const [pluginName, setPluginName] = React.useState("");
   const { computeEnvs, title } = state.pipelineData[currentPipelineId];
   const { currentNode } = state.pipelineData[currentPipelineId];
   let currentComputeEnv = "";
-  if (pluginName && computeEnvs && computeEnvs[data.id]) {
+  if (computeEnvs && computeEnvs[data.id]) {
     currentComputeEnv = computeEnvs[data.id].currentlySelected;
   }
 
@@ -82,23 +70,27 @@ const NodeData = (props: NodeProps) => {
   }, [data, dispatch, currentPipelineId]);
 
   React.useEffect(() => {
+    if (data.plugin_name && currentPipelineId) {
+      dispatch({
+        type: Types.SetCurrentNodeTitle,
+        payload: {
+          currentPipelineId,
+          currentNode,
+          title: data.plugin_name,
+        },
+      });
+    }
+  }, [currentNode, currentPipelineId, data.plugin_name, dispatch]);
+
+  React.useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);
     applyNodeTransform(nodeTransform);
-
-    async function fetchPluginName() {
-      const plugin_id = data.plugin_id;
-      const client = ChrisAPIClient.getClient();
-      const plugin = await client.getPlugin(plugin_id);
-      setPluginName(plugin.data.name);
-    }
-
-    fetchPluginName();
-  }, [orientation, position, data]);
+  }, [orientation, position]);
 
   const textLabel = (
     <g id={`text_${data.id}`}>
       <text ref={textRef} className="label__title">
-        {`${titleName ? titleName : pluginName} (id: ${data.id})`}
+        {`${titleName ? titleName : data.plugin_name} (id: ${data.id})`}
       </text>
     </g>
   );
