@@ -33,8 +33,8 @@ const InfoIcon = ({
       <Popover placement='bottom' trigger='hover' content={content}>
         <FcInfo
           style={{
-            height: '1em'
-            width: '0.75em'
+            height: '1em',
+            width: '0.75em',
             marginLeft: '0.25em'
           }}
         />
