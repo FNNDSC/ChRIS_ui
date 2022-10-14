@@ -35,6 +35,10 @@ module.exports = {
     },
   },
   parser: "@typescript-eslint/parser",
+  globals: {
+    Atomics: "readonly",
+    SharedArrayBuffer: "readonly",
+  },
   plugins: ["@typescript-eslint", "react", "react-hooks", "prettier"],
   rules: {
     "@typescript-eslint/ban-ts-comment": "off",
