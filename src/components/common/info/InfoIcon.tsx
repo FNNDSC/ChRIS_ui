@@ -30,7 +30,7 @@ const InfoIcon = ({
   return (
     <Title>
       {title}
-      <Popover placement='ottom'trigger='over'content={content}>
+      <Popover placement='bottom' trigger='hover' content={content}>
         <FcInfo
           style={{
             height: 'em'
