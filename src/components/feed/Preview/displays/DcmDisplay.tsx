@@ -23,7 +23,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     const { blob } = fileItem;
     const element = containerRef.current;
     let imageId = "";
-    if (!!element) {
+    if (element) {
       cornerstone.enable(element);
       imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(blob);
       cornerstone.loadImage(imageId).then((image: any) => {
@@ -35,7 +35,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   }, []);
 
   React.useEffect(() => {
-    if (!!fileItem) {
+    if (fileItem) {
       initAmi(fileItem);
     }
   }, [fileItem, initAmi]);

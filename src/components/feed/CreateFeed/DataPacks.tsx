@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { Plugin } from '@fnndsc/chrisapi'
-import { Types } from './types'
-import { CreateFeedContext } from './context'
 import { Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import {
@@ -13,15 +11,17 @@ import {
   DataListItemRow,
   Pagination,
   ToolbarItem,
-} from '@patternfly/react-core'
-import {
+
   Button,
   ButtonVariant,
   InputGroup,
   TextInput,
 } from '@patternfly/react-core'
+
 import { FaSearch } from 'react-icons/fa'
 import debounce from 'lodash/debounce'
+import { CreateFeedContext } from './context'
+import { Types } from './types'
 
 import { getParams } from '../../../store/plugin/actions'
 import { getPlugins } from './utils/dataPacks'
@@ -33,14 +33,12 @@ interface FilterProps {
   itemCount: number
 }
 
-const getFilterState = () => {
-  return {
+const getFilterState = () => ({
     perPage: 3,
     currentPage: 1,
     filter: '',
     itemCount: 0,
-  }
-}
+  })
 
 interface DataPacksReduxProp {
   getParams: (plugin: Plugin) => void
@@ -128,7 +126,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
         {fsPlugins.map((plugin, index) => {
           const { title, name } = plugin.data
           const pluginName = `${
-            title ? title:`${name} v.${plugin.data.version}`
+            title || `${name} v.${plugin.data.version}`
           }`
           return (
             <DataListItem key={index} aria-labelledby="plugin-checkbox">
@@ -148,9 +146,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                   }}
                   checked={selectedPlugin?.data.id === plugin.data.id}
                   isDisabled={
-                    selectedPlugin && selectedPlugin.data.id !== plugin.data.id
-                      ? true
-                      : false
+                    !!(selectedPlugin && selectedPlugin.data.id !== plugin.data.id)
                   }
                 />
                 <DataListItemCells
@@ -172,7 +168,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                       </div>
                     </DataListCell>,
                   ]}
-                ></DataListItemCells>
+                 />
               </DataListItemRow>
             </DataListItem>
           )

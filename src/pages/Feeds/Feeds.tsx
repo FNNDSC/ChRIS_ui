@@ -4,13 +4,11 @@ import FeedListView from "./components/FeedListView";
 import FeedView from "./components/FeedView";
 import "./Feed.scss";
 
-const FeedsPage: React.FC = () => {
-  return (
+const FeedsPage: React.FC = () => (
     <Routes>
       <Route path="/" element={<FeedListView />} />
-      <Route path={`:id`} element={<FeedView />} />
+      <Route path=":id" element={<FeedView />} />
     </Routes>
   );
-};
 
 export default FeedsPage;

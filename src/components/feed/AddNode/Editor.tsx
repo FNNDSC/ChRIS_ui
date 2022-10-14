@@ -6,8 +6,8 @@ import {
   Checkbox,
 } from "@patternfly/react-core";
 import { connect } from "react-redux";
-import { ApplicationState } from "../../../store/root/applicationState";
 import { MdError } from "react-icons/md";
+import { ApplicationState } from "../../../store/root/applicationState";
 import { EditorState, EditorProps } from "./types";
 import { unpackParametersIntoString } from "./lib/utils";
 
@@ -40,12 +40,10 @@ const Editor = ({
       derivedValue += unpackParametersIntoString(dropdownInput);
     }
 
-    setEditorState((state) => {
-      return {
+    setEditorState((state) => ({
         ...state,
         value: derivedValue.trim(),
-      };
-    });
+      }));
   }, [dropdownInput, requiredInput]);
 
   const handleInputChange = (value: string) => {
@@ -114,8 +112,7 @@ const Editor = ({
           {params &&
             params
               .filter((param) => param.data.ui_exposed)
-              .map((param) => {
-                return (
+              .map((param) => (
                   <div key={param.data.id} className="param-item">
                     <b className="param-title">[{param.data.flag}]</b>
                     {!param.data.optional && (
@@ -123,8 +120,7 @@ const Editor = ({
                     )}
                     <div className="param-help">{param.data.help}</div>
                   </div>
-                );
-              })}
+                ))}
         </ExpandableSection>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { FeedFile } from '@fnndsc/chrisapi'
 import { AiFillInfoCircle } from 'react-icons/ai'
 import { getFileExtension } from '../../../api/models/file-explorer.model'
 import { IFileBlob, fileViewerMap } from '../../../api/models/file-viewer.model'
-import '../../../components/dicomViewer/amiViewer.scss'
+import "../../dicomViewer/amiViewer.scss"
 import { SpinContainer } from '../../common/loading/LoadingContent'
 
 const ViewerDisplay = React.lazy(() => import('./displays/ViewerDisplay'))
@@ -30,17 +30,15 @@ const FileDetailView = (props: AllProps) => {
   const { fileType } = fileState
 
   const fetchData = React.useCallback(async () => {
-    const fileName = selectedFile.data.fname,
-      fileType = getFileExtension(fileName)
+    const fileName = selectedFile.data.fname;
+      const fileType = getFileExtension(fileName)
     const blob = await selectedFile.getFileBlob()
-    setFileState((fileState) => {
-      return {
+    setFileState((fileState) => ({
         ...fileState,
         blob,
         file: selectedFile,
         fileType,
-      }
-    })
+      }))
   }, [selectedFile])
 
   React.useEffect(() => {
@@ -56,7 +54,7 @@ const FileDetailView = (props: AllProps) => {
   }
 
   return (
-    <Fragment>
+    <>
       <React.Suspense
         fallback={
           <SpinContainer title="Please wait as the preview is being fetched" />
@@ -79,7 +77,7 @@ const FileDetailView = (props: AllProps) => {
           </div>
         </ErrorBoundary>
       </React.Suspense>
-    </Fragment>
+    </>
   )
 }
 

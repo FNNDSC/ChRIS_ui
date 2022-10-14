@@ -1,9 +1,9 @@
 import React from "react";
 import { Form } from "@patternfly/react-core";
 import { PluginParameter } from "@fnndsc/chrisapi";
-import { RequiredParamProp } from "./types";
 import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
 import { css } from "@patternfly/react-styles";
+import { RequiredParamProp } from "./types";
 
 const RequiredParam: React.FC<RequiredParamProp> = ({
   param,
@@ -14,14 +14,14 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
   const value =
     requiredInput &&
     requiredInput[param.data.id] &&
-    requiredInput[param.data.id]["value"];
+    requiredInput[param.data.id].value;
 
   const handleInputChange = (param: PluginParameter, event: any) => {
     const id = `${param.data.id}`;
-    const flag = param.data.flag;
+    const {flag} = param.data;
     const placeholder = param.data.help;
-    const type = param.data.type;
-    const value = event.target.value;
+    const {type} = param.data;
+    const {value} = event.target;
     const paramName = param.data.name;
     inputChange(id, flag, value, type, placeholder, true, paramName);
   };

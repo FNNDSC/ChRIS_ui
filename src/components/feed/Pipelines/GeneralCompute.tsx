@@ -12,7 +12,7 @@ const GeneralCompute = ({
   const { state, dispatch } = useContext(CreateFeedContext);
   const [computes, setComputes] = React.useState<any[]>([]);
 
-  const generalCompute = state.pipelineData[currentPipelineId].generalCompute;
+  const {generalCompute} = state.pipelineData[currentPipelineId];
 
   React.useEffect(() => {
     async function fetchCompute() {
@@ -38,9 +38,8 @@ const GeneralCompute = ({
     >
       <List
         itemLayout="horizontal"
-        dataSource={computes ? computes : []}
-        renderItem={(item) => {
-          return (
+        dataSource={computes || []}
+        renderItem={(item) => (
             <List.Item>
               <List.Item.Meta
                 avatar={
@@ -50,9 +49,7 @@ const GeneralCompute = ({
                         marginRight: "0.5em",
                       }}
                       checked={
-                        generalCompute && generalCompute === item.data.name
-                          ? true
-                          : false
+                        !!(generalCompute && generalCompute === item.data.name)
                       }
                       onClick={() => {
                         dispatch({
@@ -70,7 +67,7 @@ const GeneralCompute = ({
                         background: `${
                           colorPalette[item.data.name]
                             ? colorPalette[item.data.name]
-                            : colorPalette["default"]
+                            : colorPalette.default
                         }`,
                       }}
                     />
@@ -80,8 +77,7 @@ const GeneralCompute = ({
                 description={item.data.description}
               />
             </List.Item>
-          );
-        }}
+          )}
       />
     </div>
   );

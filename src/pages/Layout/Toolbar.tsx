@@ -1,11 +1,6 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
-import { ApplicationState } from '../../store/root/applicationState'
-import { IUiState } from '../../store/ui/types'
-import { IUserState } from '../../store/user/types'
-import { onDropdownSelect } from '../../store/ui/actions'
-import { setUserLogout } from '../../store/user/actions'
 import {
   Dropdown,
   DropdownItem,
@@ -14,6 +9,11 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core'
+import { ApplicationState } from '../../store/root/applicationState'
+import { IUiState } from '../../store/ui/types'
+import { IUserState } from '../../store/user/types'
+import { onDropdownSelect } from '../../store/ui/actions'
+import { setUserLogout } from '../../store/user/actions'
 import { pf4UtilityStyles } from '../../lib/pf4-styleguides'
 import ChrisAPIClient from '../../api/chrisapiclient'
 

@@ -1,6 +1,6 @@
 import React from "react";
-import Wrapper from "../Layout/PageWrapper";
 import { useDispatch } from "react-redux";
+import Wrapper from "../Layout/PageWrapper";
 import { setSidebarActive } from "../../store/ui/actions";
 
 const BrainBrowser = () => {
@@ -30,7 +30,7 @@ const BrainBrowser = () => {
           allowFullScreen
           src="https://brainbrowser.cbrain.mcgill.ca/surface-viewer#ct"
           title="Surface Viewer"
-        ></iframe>
+         />
       </div>
     </Wrapper>
   );

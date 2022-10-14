@@ -6,11 +6,11 @@ import {
   Stack,
   StackItem,
 } from "@patternfly/react-core";
+import { FaCogs } from "react-icons/fa";
+import ReactJson from "react-json-view";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types";
-import { FaCogs } from "react-icons/fa";
 import { useAsync } from "../../../utils";
-import ReactJson from "react-json-view";
 
 const FinishedStep = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -26,7 +26,7 @@ const FinishedStep = () => {
             {isLoading ? (
               "Your feed is being created. Give it a moment"
             ) : isError ? (
-              <ReactJson src={feedError}></ReactJson>
+              <ReactJson src={feedError} />
             ) : isSuccess ? (
               "You can now safely close the wizard"
             ) : null}

@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useParams } from "react-router-dom";
-import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
 import {
   PageSection,
@@ -11,6 +10,8 @@ import {
   DrawerContentBody,
   DrawerPanelContent,
 } from "@patternfly/react-core";
+import { PluginInstance } from "@fnndsc/chrisapi";
+import { useTypedSelector } from "../../../store/hooks";
 
 import { FeedDetails } from "../../../components";
 import { getFeedRequest, resetFeed } from "../../../store/feed/actions";
@@ -23,7 +24,6 @@ import { addTSNodes, resetTsNodes } from "../../../store/tsplugins/actions";
 import { destroyExplorer } from "../../../store/explorer/actions";
 import { resetActiveResources } from "../../../store/resources/actions";
 
-import { PluginInstance } from "@fnndsc/chrisapi";
 import { DestroyActiveResources } from "../../../store/resources/types";
 import { SpinContainer } from "../../../components/common/loading/LoadingContent";
 
@@ -62,8 +62,7 @@ export const FeedView: React.FC = () => {
     selectedPlugin,
   };
 
-  React.useEffect(() => {
-    return () => {
+  React.useEffect(() => () => {
       if (
         dataRef.current &&
         dataRef.current.selectedPlugin &&
@@ -76,8 +75,7 @@ export const FeedView: React.FC = () => {
       dispatch(resetPluginInstances());
       dispatch(resetTsNodes());
       dispatch(resetFeed());
-    };
-  }, [dispatch]);
+    }, [dispatch]);
 
   React.useEffect(() => {
     document.title = "My Analyses - ChRIS UI site";
@@ -182,7 +180,7 @@ export const FeedView: React.FC = () => {
   );
 
   return (
-    <React.Fragment>
+    <>
       <PageSection variant="darker" className="section-one">
         <FeedDetails />
       </PageSection>
@@ -208,7 +206,7 @@ export const FeedView: React.FC = () => {
                   panelContent={
                     <DrawerPanelContent
                       defaultSize="48.7%"
-                      minSize={"25%"}
+                      minSize="25%"
                       isResizable
                     >
                       {nodePanel}
@@ -222,7 +220,7 @@ export const FeedView: React.FC = () => {
           </PageSection>
         </DrawerContent>
       </Drawer>
-    </React.Fragment>
+    </>
   );
 };
 

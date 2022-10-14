@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, ModalVariant } from "@patternfly/react-core";
-import Wrapper from "../Layout/PageWrapper";
 import { useDispatch } from "react-redux";
+import Wrapper from "../Layout/PageWrapper";
 import { setSidebarActive } from "../../store/ui/actions";
 
 const MedviewPage = () => {
@@ -23,8 +23,7 @@ const MedviewPage = () => {
 
   return (
     <Wrapper>
-      {
-        <Modal
+      <Modal
           variant={ModalVariant.small}
           title="Warning"
           isOpen={modalVariant}
@@ -36,7 +35,6 @@ const MedviewPage = () => {
             files will cause an error
           </p>
         </Modal>
-      }
       <div
         style={{
           height: "100%",
@@ -51,7 +49,7 @@ const MedviewPage = () => {
           allowFullScreen
           src="https://fnndsc.github.io/medview/"
           title="Medview"
-        ></iframe>
+         />
       </div>
     </Wrapper>
   );

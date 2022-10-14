@@ -71,7 +71,7 @@ const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
           }}>
             Please open the XTK Viewer to preview this file
           </div>
-          : <div style={{ height: '100%', background: 'black' }} ref={renderContainerRef}></div>
+          : <div style={{ height: '100%', background: 'black' }} ref={renderContainerRef} />
       }
     </div>
   );

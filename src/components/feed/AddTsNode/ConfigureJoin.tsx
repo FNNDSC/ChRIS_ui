@@ -3,10 +3,10 @@ import { Button, List, Form, Input, Checkbox } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { useDispatch } from "react-redux";
 import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
+import { AiFillCloseCircle } from "react-icons/ai";
 import { deleteTsNode, switchTreeMode } from "../../../store/tsplugins/actions";
 import { useSafeDispatch } from "../../../utils";
 import { useTypedSelector } from "../../../store/hooks";
-import { AiFillCloseCircle } from "react-icons/ai";
 import { InputType } from "./ParentContainer";
 
 type ConfigureJoinProps = {
@@ -96,8 +96,7 @@ const ConfigureJoin = ({
                     {param.data.name}
                   </Checkbox>
                 );
-              } else
-                return (
+              } return (
                   <Form.Item key={param.data.id} label={param.data.name}>
                     <Input
                       className="input"
@@ -110,7 +109,7 @@ const ConfigureJoin = ({
                     />
                   </Form.Item>
                 );
-            } else return null;
+            } return null;
           })}
       </Form>
     </div>

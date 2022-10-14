@@ -48,13 +48,11 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   } = state;
 
   const enableSave =
-    data.chrisFiles.length > 0 ||
+    !!(data.chrisFiles.length > 0 ||
     data.localFiles.length > 0 ||
     Object.keys(requiredInput).length > 0 ||
     Object.keys(dropdownInput).length > 0 ||
-    selectedPlugin !== undefined
-      ? true
-      : false;
+    selectedPlugin !== undefined);
 
   const getStepName = (): string => {
     const stepNames = [
@@ -99,11 +97,11 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     required: boolean
   ) => {
     const input: InputIndex = {};
-    input["id"] = id;
-    input["flag"] = flag;
-    input["value"] = value;
-    input["type"] = type;
-    input["placeholder"] = placeholder;
+    input.id = id;
+    input.flag = flag;
+    input.value = value;
+    input.type = type;
+    input.placeholder = placeholder;
     if (required === true) {
       dispatch({
         type: Types.RequiredInput,
@@ -201,7 +199,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   const packs = <DataPacks />;
   const guidedConfig = (
     <GuidedConfig
-      renderComputeEnv={true}
+      renderComputeEnv
       inputChange={inputChange}
       deleteInput={deleteInput}
       plugin={selectedPlugin}
@@ -233,7 +231,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           canJumpTo: step > 4,
         },
       ];
-    else if (selectedConfig === "swift_storage") {
+    if (selectedConfig === "swift_storage") {
       return [
         {
           id: 3,
@@ -242,7 +240,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           canJumpTo: step > 3,
         },
       ];
-    } else if (selectedConfig === "local_select") {
+    } if (selectedConfig === "local_select") {
       return [
         {
           id: 3,
@@ -360,7 +358,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
                     }
                     onNext();
                   }}
-                  isDisabled={activeStep.enableNext === false ? true : false}
+                  isDisabled={activeStep.enableNext === false}
                 >
                   {activeStep.nextButtonText
                     ? activeStep.nextButtonText

@@ -7,7 +7,7 @@ type AllProps = {
 
 const ImageDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const { fileItem } = props;
-  const url = !!fileItem.blob
+  const url = fileItem.blob
     ? window.URL.createObjectURL(new Blob([fileItem.blob]))
     : "";
   return (

@@ -15,6 +15,7 @@ import { FaTrash, FaDownload } from "react-icons/fa";
 import { VscMerge } from "react-icons/vsc";
 import { MdCallSplit } from "react-icons/md";
 import { useDispatch } from "react-redux";
+import { Feed } from "@fnndsc/chrisapi";
 import {
   downloadFeedRequest,
   deleteFeed,
@@ -23,16 +24,13 @@ import {
   toggleSelectAll,
 } from "../../../store/feed/actions";
 import { useTypedSelector } from "../../../store/hooks";
-import { Feed } from "@fnndsc/chrisapi";
 
 function capitalizeFirstLetter(stringLetter: string) {
   return stringLetter.charAt(0).toUpperCase() + stringLetter.slice(1);
 }
 
 const IconContainer = () => {
-  const { bulkSelect, downloadError, allFeeds } = useTypedSelector((state) => {
-    return state.feed;
-  });
+  const { bulkSelect, downloadError, allFeeds } = useTypedSelector((state) => state.feed);
   const dispatch = useDispatch();
   const [isModalOpen, setModalOpen] = React.useState(false);
   const [nameValue, setNameValue] = React.useState("");
@@ -74,7 +72,7 @@ const IconContainer = () => {
         setLabelValue("Feed Prefix");
         setDescriptionValue("Enter a feed prefix (optional)");
       } else {
-        newFeedName = "duplicate-" + bulkSelect[0].data.name;
+        newFeedName = `duplicate-${  bulkSelect[0].data.name}`;
       }
     }
     return newFeedName;
@@ -109,7 +107,7 @@ const IconContainer = () => {
         try {
           await feed.delete();
         } catch (error) {
-          //@ts-ignore
+          // @ts-ignore
           setDeleteError(error.response);
         }
       });
@@ -131,9 +129,7 @@ const IconContainer = () => {
     dispatch(toggleSelectAll(false));
   };
 
-  const alert = (error: string, addition: string) => {
-    return <Alert isInline variant="danger" title={error + addition} />;
-  };
+  const alert = (error: string, addition: string) => <Alert isInline variant="danger" title={error + addition} />;
   return (
     <ToggleGroup aria-label="Feed Action Bar">
       <ToggleGroupItem

@@ -21,7 +21,7 @@ export function RouterContext<S, A = any>({
     state,
     React.createContext<RouterObjectType<S, A>>({
       route: (path: string) => path,
-      actions: actions ? actions : ({} as A),
+      actions: actions || ({} as A),
       state,
     }),
   ];
@@ -59,8 +59,7 @@ const RouterComponent = ({
   propsElement: { context, actions, state, children },
 }: {
   propsElement: RouterProviderProps;
-}) => {
-  return (
+}) => (
     <context.Provider
       value={{
         route: () => {
@@ -73,6 +72,5 @@ const RouterComponent = ({
       {children}
     </context.Provider>
   );
-};
 
 export default RouterContext;

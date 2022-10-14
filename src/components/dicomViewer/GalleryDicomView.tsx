@@ -23,9 +23,9 @@ import {
   DrawerActions,
   DrawerCloseButton,
 } from "@patternfly/react-core";
+import * as dicomParser from "dicom-parser";
 import { useTypedSelector } from "../../store/hooks";
 import GalleryWrapper from "../gallery/GalleryWrapper";
-import * as dicomParser from "dicom-parser";
 import DicomHeader from "./DcmHeader/DcmHeader";
 import DicomTag from "./DicomTag";
 
@@ -45,7 +45,7 @@ const scrollToIndex = csTools("util/scrollToIndex");
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     "Content-Type": "application/vnd.collection+json",
-    Authorization: "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
+    Authorization: `Token ${  window.sessionStorage.getItem("CHRIS_TOKEN")}`,
   },
   method: "get",
   responseType: "arrayBuffer",
@@ -105,12 +105,10 @@ const GalleryDicomView = ({ type }: { type: string }) => {
   const currentImage = React.useRef<Image | undefined>(undefined);
 
   React.useEffect(() => {
-    setGalleryDicomState((state) => {
-      return {
+    setGalleryDicomState((state) => ({
         ...state,
         numberOfFrames: imageIds.length,
-      };
-    });
+      }));
   }, [imageIds]);
 
   const toolExecute = (tool: string) => {
@@ -243,7 +241,7 @@ const GalleryDicomView = ({ type }: { type: string }) => {
         const frame = numberOfFrames;
         setGalleryDicomState({
           ...galleryDicomState,
-          frame: frame,
+          frame,
         });
         scrollToIndex(element.current, frame - 1);
         break;
@@ -364,7 +362,7 @@ const GalleryDicomView = ({ type }: { type: string }) => {
       listOpenFilesScrolling={inPlay}
     >
       <React.Suspense fallback={<FallBackComponent />}>
-        <React.Fragment>
+        <>
           <ErrorBoundary FallbackComponent={FallBackComponent}>
             <DicomHeader
               type={type}
@@ -396,12 +394,11 @@ const GalleryDicomView = ({ type }: { type: string }) => {
                                   "cornerstoneimagerendered",
                                   (eventData: CornerstoneEvent) => {
                                     if (eventData.detail) {
-                                      const image = eventData.detail.image;
+                                      const {image} = eventData.detail;
 
                                       currentImage.current = image;
 
-                                      const viewport =
-                                        eventData.detail.viewport;
+                                      const {viewport} = eventData.detail;
                                       if (viewport) {
                                         const newViewport: any = {};
                                         newViewport.voi = viewport.voi || {};
@@ -427,11 +424,11 @@ const GalleryDicomView = ({ type }: { type: string }) => {
                                               "SCALE TO FIT",
                                           };
                                         }
-                                        const setViewport = Object.assign(
-                                          {},
-                                          viewport,
-                                          newViewport
-                                        );
+                                        const setViewport = {
+                                          
+                                          ...viewport,
+                                          ...newViewport
+                                        };
 
                                         cornerstone.setViewport(
                                           cornerstoneElement,
@@ -454,7 +451,7 @@ const GalleryDicomView = ({ type }: { type: string }) => {
               </Drawer>
             </div>
           </ErrorBoundary>
-        </React.Fragment>
+        </>
       </React.Suspense>
     </GalleryWrapper>
   );
@@ -462,12 +459,10 @@ const GalleryDicomView = ({ type }: { type: string }) => {
 
 export default GalleryDicomView;
 
-const FallBackComponent = () => {
-  return (
+const FallBackComponent = () => (
     <Backdrop>
       <Bullseye>
         <Spinner />
       </Bullseye>
     </Backdrop>
   );
-};

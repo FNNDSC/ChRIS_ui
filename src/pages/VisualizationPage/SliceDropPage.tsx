@@ -1,6 +1,6 @@
 import React from "react";
-import Wrapper from "../Layout/PageWrapper";
 import { useDispatch } from "react-redux";
+import Wrapper from "../Layout/PageWrapper";
 import { setSidebarActive } from "../../store/ui/actions";
 
 const SliceDropPage = () => {
@@ -30,7 +30,7 @@ const SliceDropPage = () => {
           allowFullScreen
           src="https://slicedrop.com/"
           title="Slice Drop"
-        ></iframe>
+         />
       </div>
     </Wrapper>
   );

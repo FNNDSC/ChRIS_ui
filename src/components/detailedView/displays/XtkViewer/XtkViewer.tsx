@@ -24,7 +24,7 @@ export function getXtkFileMode(fileType?: string): ViewerMode | undefined {
   const meshExtensions = ['fsm', 'smoothwm', 'pial']
   const otherExtensions = ['crv']
   if (!fileType) {
-    return
+    
   } else if (volumeExtensions.includes(fileType)) {
     return 'volume'
   } else if (meshExtensions.includes(fileType)) {
@@ -226,7 +226,7 @@ const XtkViewer = () => {
         />
       ) : (
         <>
-          <div ref={renderContainerRef} className="xtk-render"></div>
+          <div ref={renderContainerRef} className="xtk-render" />
           <div className="xtk-controls">
             {viewerMode === 'mesh' ? (
               <div className="additional-files">

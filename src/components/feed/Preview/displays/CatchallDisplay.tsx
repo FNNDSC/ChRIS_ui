@@ -4,6 +4,7 @@ import { Alert, Button } from "@patternfly/react-core";
 import FileViewerModel, {
   IFileBlob,
 } from "../../../../api/models/file-viewer.model";
+
 type AllProps = {
   fileItem: IFileBlob;
 };
@@ -15,9 +16,9 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
     const { fileItem } = props;
     const ext = fileItem.fileType ? fileItem.fileType : "";
     const alertText = (
-      <React.Fragment>
-        <label></label>
-        <br></br>
+      <>
+        <label />
+        <br />
         <label>
           <b>File Type:</b> {ext}
         </label>
@@ -35,7 +36,7 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
         >
           <FaDownload /> Download
         </Button>
-      </React.Fragment>
+      </>
     );
     return (
       <Alert variant="info" title={`No preview available for the filetype ${ext}`}>

@@ -5,15 +5,14 @@ type LogTerminalProps = {
   text: string;
 };
 
-const LogTerminal = ({ text }: LogTerminalProps) => {
-  return (
+const LogTerminal = ({ text }: LogTerminalProps) => (
     <div
       style={{
         height: "40vh",
       }}
     >
       <LazyLog
-        selectableLines={true}
+        selectableLines
         extraLines={1}
         enableSearch
         text={text}
@@ -22,6 +21,5 @@ const LogTerminal = ({ text }: LogTerminalProps) => {
       ;
     </div>
   );
-};
 
 export default LogTerminal;

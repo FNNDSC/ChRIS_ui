@@ -23,8 +23,7 @@ type AllProps = {
   isPlaying?: boolean
 } & IGalleryToolbarState
 
-const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  return (
+const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => (
     <div className="gallery-toolbar">
       <div>
         <div>
@@ -66,5 +65,4 @@ const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => {
       </div>
     </div>
   )
-}
 export default React.memo(GalleryToolbar)

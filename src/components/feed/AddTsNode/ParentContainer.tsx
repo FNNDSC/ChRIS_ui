@@ -1,6 +1,7 @@
 import React from "react";
 import { Title } from "@patternfly/react-core";
 import { Plugin } from "@fnndsc/chrisapi";
+import { useDispatch } from "react-redux";
 import ChooseConfig from "./ChooseConfig";
 import Footer from "./Footer";
 import Join from "./Join";
@@ -9,7 +10,6 @@ import ConfigureJoin from "./ConfigureJoin";
 import Review from "./Review";
 import { getJoinInput } from "./utils";
 import { useTypedSelector } from "../../../store/hooks";
-import { useDispatch } from "react-redux";
 import Client from "../../../api/chrisapiclient";
 
 import "./GraphNode.scss";
@@ -102,7 +102,7 @@ const GraphNode = (props: GraphNodeProps) => {
       if (selectedConfig === "join-node") {
         const finalParameterList = {
           ...input,
-          ["previous_id"]: `${selectedPlugin.data.id}`,
+          "previous_id": `${selectedPlugin.data.id}`,
         };
 
         const pluginInstance = await selectedTsPlugin?.getPluginInstances();
@@ -126,8 +126,8 @@ const GraphNode = (props: GraphNodeProps) => {
 
           const node = await client.createPluginInstanceSplit(
             selectedPlugin.data.id,
-            splitInput["filter"] as string,
-            splitInput["compute_resource"] as string
+            splitInput.filter as string,
+            splitInput.compute_resource as string
           );
           const instanceIds = node.data.created_plugin_inst_ids.split(",");
           const splitNodes = [];
@@ -256,9 +256,9 @@ const GraphNode = (props: GraphNodeProps) => {
     `${
       selectedConfig === "join-node"
         ? "Select a 'TS' Node :"
-        : "Configure Split Operation on " +
-          (selectedPlugin?.data.title || selectedPlugin?.data.plugin_name) +
-          ":"
+        : `Configure Split Operation on ${ 
+          selectedPlugin?.data.title || selectedPlugin?.data.plugin_name 
+          }:`
     }`,
     `Configure ${selectedTsPlugin?.data.name}`,
     "Review",

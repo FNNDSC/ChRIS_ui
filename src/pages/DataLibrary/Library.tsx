@@ -4,7 +4,7 @@ import { PageSection, PageSectionVariants } from '@patternfly/react-core'
 import { useDispatch } from 'react-redux'
 import { setSidebarActive } from '../../store/ui/actions'
 import Wrapper from '../Layout/PageWrapper'
-import DataLibrary from './components/UserLibrary/'
+import DataLibrary from "./components/UserLibrary"
 import InfoIcon from '../../components/common/info/InfoIcon'
 import { LibraryProvider } from './components/UserLibrary/context'
 

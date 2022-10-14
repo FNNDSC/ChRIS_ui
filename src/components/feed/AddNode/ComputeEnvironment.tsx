@@ -27,12 +27,10 @@ const ComputeEnvironment: React.FC<ComputeProp> = ({
   const { isOpen, toggleTemplateText } = menuState;
 
   React.useEffect(() => {
-    setMenuState((menuState) => {
-      return {
+    setMenuState((menuState) => ({
         ...menuState,
         toggleTemplateText: computeEnvs[0].data.name,
-      };
-    });
+      }));
    setComputeEnvironment && setComputeEnvironment(computeEnvs[0].data.name);
   }, [computeEnvs, setComputeEnvironment]);
 
@@ -56,8 +54,7 @@ const ComputeEnvironment: React.FC<ComputeProp> = ({
     }
   };
 
-  const menuItems = computeEnvs.map((computeEnv) => {
-    return (
+  const menuItems = computeEnvs.map((computeEnv) => (
       <OptionsMenuItem
         className="configure-compute__optionsmenuitem"
         onSelect={onSelect}
@@ -67,8 +64,7 @@ const ComputeEnvironment: React.FC<ComputeProp> = ({
       >
         {computeEnv.data.name}
       </OptionsMenuItem>
-    );
-  });
+    ));
   const toggle = (
     <OptionsMenuToggle
       onToggle={onToggle}

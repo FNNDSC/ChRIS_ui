@@ -9,8 +9,8 @@ import {
   EmptyStateVariant,
 } from '@patternfly/react-core'
 import { Tree } from 'antd'
-import PluginViewerModal from '../../detailedView/PluginViewerModal'
 import { PluginInstance } from '@fnndsc/chrisapi'
+import PluginViewerModal from '../../detailedView/PluginViewerModal'
 import { getFeedTree } from './data'
 import { DataNode } from '../../../store/explorer/types'
 import './FeedOutputBrowser.scss'
@@ -44,7 +44,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   } = useFeedBrowser()
   return (
     <>
-      <Grid hasGutter={true} className="feed-output-browser ">
+      <Grid hasGutter className="feed-output-browser ">
         <GridItem
           className="feed-output-browser__sidebar"
           xl={2}
@@ -124,7 +124,7 @@ const SidebarTree = (props: {
   const [tree, setTreeData] = React.useState<DataNode[]>()
   React.useEffect(() => {
     const pluginSidebarTree = getFeedTree(plugins)
-    //@ts-ignore
+    // @ts-ignore
     setTreeData(pluginSidebarTree)
   }, [plugins, selected])
 
@@ -137,11 +137,11 @@ const SidebarTree = (props: {
       expandedKeys={[selected.data.id]}
       selectedKeys={[selected.data.id]}
       onSelect={(node, selectedNode) => {
-        //@ts-ignore
+        // @ts-ignore
         handlePluginSelect(selectedNode.node.item)
       }}
       onExpand={(node, selectedNode) => {
-        //@ts-ignore
+        // @ts-ignore
         handlePluginSelect(selectedNode.node.item)
       }}
 
@@ -150,14 +150,10 @@ const SidebarTree = (props: {
   )
 }
 
-export const EmptyStateLoader = ({ title }: { title: string }) => {
-  return (
+export const EmptyStateLoader = ({ title }: { title: string }) => (
     <EmptyState variant={EmptyStateVariant.large}>
       <Title headingLevel="h4" size="lg" />
       <EmptyStateBody>{title}</EmptyStateBody>
     </EmptyState>
   )
-}
-const FetchFilesLoader = ({ title }: { title: string }) => {
-  return <SpinContainer title={title} />
-}
+const FetchFilesLoader = ({ title }: { title: string }) => <SpinContainer title={title} />

@@ -6,12 +6,12 @@ import {
   ExpandableSection,
   Divider,
 } from "@patternfly/react-core";
+import { connect } from "react-redux";
+import { v4 } from "uuid";
 import SimpleDropdown from "./SimpleDropdown";
 import RequiredParam from "./RequiredParam";
 import ComputeEnvironments from "./ComputeEnvironment";
-import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { v4 } from "uuid";
 
 import { GuidedConfigState, GuidedConfigProps } from "./types";
 
@@ -41,17 +41,13 @@ const GuidedConfig = ({
   const setDropdownDefaults = React.useCallback(() => {
     if (dropdownInput) {
       const defaultComponentList = Object.entries(dropdownInput).map(
-        ([key]) => {
-          return key;
-        }
+        ([key]) => key
       );
-      setConfigState((configState) => {
-        return {
+      setConfigState((configState) => ({
           ...configState,
           componentList: defaultComponentList,
           count: defaultComponentList.length,
-        };
-      });
+        }));
     }
   }, [dropdownInput]);
 
@@ -67,9 +63,7 @@ const GuidedConfig = ({
   };
 
   const deleteComponent = (id: string) => {
-    const filteredList = componentList.filter((key) => {
-      return key !== id;
-    });
+    const filteredList = componentList.filter((key) => key !== id);
 
     setConfigState({
       ...configState,
@@ -110,13 +104,11 @@ const GuidedConfig = ({
           <span className="configure-compute__label">
             Select a compute environment:{" "}
           </span>
-          {
-            <ComputeEnvironments
+          <ComputeEnvironments
               selectedOption={selectedComputeEnv}
               computeEnvs={computeEnvs}
               setComputeEnvironment={setComputeEnviroment}
             />
-          }
 
           <ExpandableSection
             className="docs"
@@ -125,16 +117,14 @@ const GuidedConfig = ({
             onToggle={handleDocsToggle}
           >
             {computeEnvs &&
-              computeEnvs.map((computeEnv) => {
-                return (
+              computeEnvs.map((computeEnv) => (
                   <div key={computeEnv.data.id} className="param-item">
                     <b className="param-title">{computeEnv.data.name}</b>
                     <div className="param-help">
                       {computeEnv.data.description}
                     </div>
                   </div>
-                );
-              })}
+                ))}
           </ExpandableSection>
         </div>
       );
@@ -161,9 +151,7 @@ const GuidedConfig = ({
     }
   };
 
-  const renderDropdowns = () => {
-    return componentList.map((id, index) => {
-      return (
+  const renderDropdowns = () => componentList.map((id, index) => (
         <SimpleDropdown
           key={index}
           params={params}
@@ -174,9 +162,7 @@ const GuidedConfig = ({
           dropdownInput={dropdownInput}
           addParam={addParam}
         />
-      );
-    });
-  };
+      ));
 
   return (
     <>
@@ -216,8 +202,7 @@ const GuidedConfig = ({
           </div>
           {alertVisible &&
             errors.length > 0 &&
-            errors.map((error, index) => {
-              return (
+            errors.map((error, index) => (
                 <Alert
                   className="configuration__renders__alert"
                   key={index}
@@ -225,8 +210,7 @@ const GuidedConfig = ({
                   title={error}
                   actionClose={<AlertActionCloseButton onClose={hideAlert} />}
                 />
-              );
-            })}
+              ))}
         </div>
       </div>
     </>

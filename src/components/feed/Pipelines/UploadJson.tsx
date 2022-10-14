@@ -40,7 +40,7 @@ export const UploadJson = ({
         if (reader.result) {
           const client = ChrisAPIClient.getClient()
           const result = JSON.parse(reader.result as string)
-          result['plugin_tree'] = JSON.stringify(result['plugin_tree'])
+          result.plugin_tree = JSON.stringify(result.plugin_tree)
           setFileName(result.name)
           const pipelineInstanceList: PipelineList = await client.getPipelines({
             name: result.name,
@@ -68,7 +68,7 @@ export const UploadJson = ({
           }
         }
       } catch (error) {
-        //@ts-ignore
+        // @ts-ignore
         const errorMessage = error.response.data
         cleanUp(event)
         setError(errorMessage)

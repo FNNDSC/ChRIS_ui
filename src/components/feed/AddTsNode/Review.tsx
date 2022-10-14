@@ -1,6 +1,6 @@
 import React from "react";
-import { InputType, NodeState } from "./ParentContainer";
 import { Grid, GridItem } from "@patternfly/react-core";
+import { InputType, NodeState } from "./ParentContainer";
 import { useTypedSelector } from "../../../store/hooks";
 import { getJoinInput } from "./utils";
 
@@ -29,7 +29,7 @@ const Review = ({ nodeState }: { nodeState: NodeState }) => {
 
   return (
     <div className="list-container">
-      <Grid hasGutter={true}>
+      <Grid hasGutter>
         <GridItem span={2}>
           <span className="title">Operation Mode:</span>
         </GridItem>

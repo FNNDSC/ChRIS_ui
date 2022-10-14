@@ -26,12 +26,10 @@ const FileUpload = ({
     return new Promise((res) => {
       input.onchange = async () => {
         if (input.files) {
-          const files = Array.from(input.files).map((file) => {
-            return {
+          const files = Array.from(input.files).map((file) => ({
               name: file.name,
               blob: file,
-            };
-          });
+            }));
           res(files);
         }
       };
@@ -52,14 +50,14 @@ const FileUpload = ({
               handleDeleteDispatch={handleDeleteDispatch}
               file={file}
               index={index}
-              showIcon={true}
+              showIcon
             />
           </React.Fragment>
         ))
       : null;
   return (
     <div className={className}>
-      <Grid hasGutter={true}>
+      <Grid hasGutter>
         <GridItem span={4} rowSpan={4}
         style={{minWidth: '9rem',}}
         >

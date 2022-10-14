@@ -7,10 +7,10 @@ const useSize = (
   const [size, setSize] = React.useState();
 
   React.useLayoutEffect(() => {
-    //@ts-ignore
+    // @ts-ignore
     setSize(target.current?.getBoundingClientRect());
   }, [target]);
-  //@ts-ignore
+  // @ts-ignore
   useResizeObserver(target, (entry) => setSize(entry.contentRect));
   return size;
 };

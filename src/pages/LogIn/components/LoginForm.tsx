@@ -1,13 +1,13 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { setAuthToken } from "../../../store/user/actions";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router";
 import { LoginForm } from "@patternfly/react-core";
 import ChrisApiClient from "@fnndsc/chrisapi";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import { useCookies } from "react-cookie";
+import { setAuthToken } from "../../../store/user/actions";
 
 interface IPropsFromDispatch {
   setAuthToken: typeof setAuthToken;

@@ -35,7 +35,7 @@ const CrvFileSelect = (props: CrvFileSelectProps) => {
           title.length < 36
             ? title
             : `${title.slice(0, 18)}...${title.slice(-18)}`
-        const id = file.data.id
+        const {id} = file.data
         return (
           <SimpleListItem key={id} x-file={file}>
             {formattedTitle}

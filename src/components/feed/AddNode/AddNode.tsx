@@ -3,13 +3,13 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import { Wizard, Spinner, Button } from "@patternfly/react-core";
 import { MdOutlineAddCircle } from "react-icons/md";
+import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
 import Review from "./Review";
 import BasicConfiguration from "./BasicConfiguration";
 import { addNodeRequest } from "../../../store/pluginInstance/actions";
 import { getParams } from "../../../store/plugin/actions";
-import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
 import { handleGetTokens } from "./lib/utils";
@@ -54,16 +54,14 @@ const AddNode: React.FC<AddNodeProps> = ({
   const handleFetchedData = React.useCallback(() => {
     if (pluginInstances) {
       const { data: nodes } = pluginInstances;
-      setNodeState((addNodeState) => {
-        return {
+      setNodeState((addNodeState) => ({
           ...addNodeState,
           nodes,
           data: {
             ...addNodeState.data,
             parent: selectedPlugin,
           },
-        };
-      });
+        }));
     }
   }, [pluginInstances, selectedPlugin]);
 
@@ -80,10 +78,10 @@ const AddNode: React.FC<AddNodeProps> = ({
     required: boolean
   ) => {
     const input: InputIndex = {};
-    input["value"] = value;
-    input["flag"] = flag;
-    input["type"] = type;
-    input["placeholder"] = placeholder;
+    input.value = value;
+    input.flag = flag;
+    input.type = type;
+    input.placeholder = placeholder;
 
     if (required === true) {
       setNodeState({
@@ -164,12 +162,10 @@ const AddNode: React.FC<AddNodeProps> = ({
   };
 
   const setComputeEnv = React.useCallback((computeEnv: string) => {
-    setNodeState((addNodeState) => {
-      return {
+    setNodeState((addNodeState) => ({
         ...addNodeState,
         selectedComputeEnv: computeEnv,
-      };
-    });
+      }));
   }, []);
 
   const setEditorValue = (value: string) => {
@@ -183,9 +179,7 @@ const AddNode: React.FC<AddNodeProps> = ({
     const { dropdownInput } = addNodeState;
 
     const newObject = Object.entries(dropdownInput)
-      .filter(([key]) => {
-        return key !== input;
-      })
+      .filter(([key]) => key !== input)
       .reduce((acc: InputType, [key, value]) => {
         acc[key] = value;
         return acc;
@@ -259,7 +253,7 @@ const AddNode: React.FC<AddNodeProps> = ({
   );
   const form = data.plugin ? (
     <GuidedConfig
-      renderComputeEnv={true}
+      renderComputeEnv
       inputChange={inputChange}
       deleteInput={deleteInput}
       plugin={data.plugin}
@@ -326,7 +320,7 @@ const AddNode: React.FC<AddNodeProps> = ({
   ];
 
   return (
-    <React.Fragment>
+    <>
       <Button icon={<MdOutlineAddCircle />} type="button" onClick={toggleOpen}>
         Add a Child Node
       </Button>
@@ -342,7 +336,7 @@ const AddNode: React.FC<AddNodeProps> = ({
           onBack={onBack}
         />
       )}
-    </React.Fragment>
+    </>
   );
 };
 

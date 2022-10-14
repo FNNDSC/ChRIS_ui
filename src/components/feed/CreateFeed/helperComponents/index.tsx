@@ -15,9 +15,7 @@ export const FileList = ({ file, index }: { file: string; index: number }) => {
   return (
     <div className="file-preview" key={index}>
       <Breadcrumb>
-        {file.split("/").map((path: string, index: number) => {
-          return <BreadcrumbItem key={index}>{path}</BreadcrumbItem>;
-        })}
+        {file.split("/").map((path: string, index: number) => <BreadcrumbItem key={index}>{path}</BreadcrumbItem>)}
       </Breadcrumb>
       <span className="trash-icon">
         <FaTrash
@@ -25,7 +23,7 @@ export const FileList = ({ file, index }: { file: string; index: number }) => {
             dispatch({
               type: Types.RemoveChrisFile,
               payload: {
-                file: file,
+                file,
                 checkedKeys: [],
               },
             });
@@ -45,8 +43,7 @@ export const LocalFileList = ({
   index: number;
   showIcon: boolean;
   handleDeleteDispatch?: (file: string) => void;
-}) => {
-  return (
+}) => (
     <div className="file-preview" key={file.name}>
       <span className="file-icon">
         <FaFile />
@@ -63,30 +60,24 @@ export const LocalFileList = ({
       )}
     </div>
   );
-};
 
 function generateLocalFileList(localFiles: LocalFile[]) {
-  return localFiles.map((file: LocalFile, index: number) => {
-    return (
+  return localFiles.map((file: LocalFile, index: number) => (
       <React.Fragment key={index}>
         <LocalFileList showIcon={false} file={file} index={index} />
       </React.Fragment>
-    );
-  });
+    ));
 }
 
 function generateChrisFileList(chrisFiles: string[]) {
-  return chrisFiles.map((file: string, index: number) => {
-    return (
+  return chrisFiles.map((file: string, index: number) => (
       <React.Fragment key={index}>
         <FileList file={file} index={index} />
       </React.Fragment>
-    );
-  });
+    ));
 }
 
-export const ChrisFileDetails = ({ chrisFiles }: { chrisFiles: string[] }) => {
-  return (
+export const ChrisFileDetails = ({ chrisFiles }: { chrisFiles: string[] }) => (
     <Split>
       <SplitItem isFilled className="file-list">
         <p>Existing Files to add to new feed:</p>
@@ -94,14 +85,12 @@ export const ChrisFileDetails = ({ chrisFiles }: { chrisFiles: string[] }) => {
       </SplitItem>
     </Split>
   );
-};
 
 export const LocalFileDetails = ({
   localFiles,
 }: {
   localFiles: LocalFile[];
-}) => {
-  return (
+}) => (
     <Split>
       <SplitItem isFilled className="file-list">
         <p>Local Files to add to new feed:</p>
@@ -109,7 +98,6 @@ export const LocalFileDetails = ({
       </SplitItem>
     </Split>
   );
-};
 
 export function ErrorMessage({ error }: any) {
   return (

@@ -1,10 +1,10 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
 import { TextInput, Button, Title, Alert } from '@patternfly/react-core'
-import { useTypedSelector } from '../../../store/hooks'
 import { AiFillEdit } from 'react-icons/ai'
-import { setPluginTitle } from '../../../store/pluginInstance/actions'
 import { PluginInstance } from '@fnndsc/chrisapi'
+import { useTypedSelector } from '../../../store/hooks'
+import { setPluginTitle } from '../../../store/pluginInstance/actions'
 
 function getDefaultTitle(selectedPlugin?: PluginInstance) {
   return selectedPlugin?.data.title || selectedPlugin?.data.plugin_name
@@ -21,7 +21,7 @@ const PluginTitle = () => {
   const [value, setValue] = React.useState(getDefaultTitle(selectedPlugin))
 
   const { title, plugin_version, plugin_name } = selectedPlugin?.data
-  const pluginName = `${title ? title : `${plugin_name} v.${plugin_version}`} `
+  const pluginName = `${title || `${plugin_name} v.${plugin_version}`} `
 
   const handleOnChange = (value: string) => {
     setValue(value)
@@ -35,7 +35,7 @@ const PluginTitle = () => {
   const handleSubmit = async () => {
     try {
       setLoading(true)
-      //@ts-ignore
+      // @ts-ignore
       const pluginItem = await selectedPlugin?.put({
         title: value,
       })
@@ -46,7 +46,7 @@ const PluginTitle = () => {
       setLoading(false)
       setShowInput(false)
     } catch (error) {
-      //@ts-ignore
+      // @ts-ignore
       setError(error)
     }
   }

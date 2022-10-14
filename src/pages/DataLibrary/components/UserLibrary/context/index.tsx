@@ -254,9 +254,7 @@ export const libraryReducer = (
       const { type, previousPath, folder } = action.payload.file
       let folders = state.foldersState[type][previousPath]
       if (folders.length > 0) {
-        folders = folders.filter((folderName) => {
-          return `${folderName.path}/${folderName.name}` !== folder.path
-        })
+        folders = folders.filter((folderName) => `${folderName.path}/${folderName.name}` !== folder.path)
 
         return {
           ...state,
@@ -267,11 +265,11 @@ export const libraryReducer = (
             },
           },
         }
-      } else {
+      } 
         return {
           ...state,
         }
-      }
+      
     }
 
     case Types.SET_FOLDERS: {
@@ -508,7 +506,7 @@ export const libraryReducer = (
             },
           },
         }
-      } else {
+      } 
         return {
           ...state,
           foldersState: {
@@ -518,7 +516,7 @@ export const libraryReducer = (
             },
           },
         }
-      }
+      
     }
 
     case Types.SET_EMPTY_INDICATOR: {

@@ -19,14 +19,14 @@ ChRIS is a general-purpose, open source, distributed data and computation platfo
 `;
 
 const FooterLinks = (
-  <React.Fragment>
+  <>
     <ListItem>
       <LoginFooterItem href="https://www.fnndsc.org/">
         Copyright © {new Date().getFullYear()} Boston Children&apos;s Hospital
         Fetal-Neonatal Neuroimaging and Developmental Science Center
       </LoginFooterItem>
     </ListItem>
-  </React.Fragment>
+  </>
 );
 
 const LogInPage: React.FC = () => {

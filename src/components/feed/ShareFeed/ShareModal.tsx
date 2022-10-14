@@ -11,8 +11,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
   showOverlay,
   handleModalClose,
   children,
-}) => {
-  return (
+}) => (
     <Modal
       variant={ModalVariant.small}
       title="Share with others"
@@ -23,6 +22,5 @@ const ShareModal: React.FC<ShareModalProps> = ({
       {children}
     </Modal>
   )
-}
 
 export default ShareModal

@@ -3,8 +3,7 @@ import { LoginPage } from "@patternfly/react-core";
 import "../LogIn/login.scss";
 import SignUpForm from "./components/SignupForm";
 
-const SignUp = () => {
-  return (
+const SignUp = () => (
     <LoginPage
       className="login pf-background"
       loginTitle="Sign up for a new account"
@@ -12,6 +11,5 @@ const SignUp = () => {
       <SignUpForm />
     </LoginPage>
   );
-};
 
 export default SignUp;

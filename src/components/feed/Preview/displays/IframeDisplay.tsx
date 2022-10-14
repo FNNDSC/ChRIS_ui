@@ -1,5 +1,6 @@
 import React, { Fragment } from "react";
 import { IFileBlob } from "../../../../api/models/file-viewer.model";
+
 type AllProps = {
   fileItem: IFileBlob;
 };
@@ -10,19 +11,19 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   let url = "";
 
   if (fileItem.fileType === "html") {
-    url = !!fileItem.blob
+    url = fileItem.blob
       ? window.URL.createObjectURL(
           new Blob([fileItem.blob], { type: "text/html" })
         )
       : "";
   } else {
-    url = !!fileItem.blob
+    url = fileItem.blob
       ? window.URL.createObjectURL(new Blob([fileItem.blob]))
       : "";
   }
 
   return (
-    <Fragment>
+    <>
       <div className="iframe-container">
         <iframe
           key={fileItem.file && fileItem.file.data.fname}
@@ -32,7 +33,7 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
           title="Gallery"
         />
       </div>
-    </Fragment>
+    </>
   );
 };
 

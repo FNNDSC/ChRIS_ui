@@ -1,8 +1,7 @@
 import React from "react";
 import { Spin, Alert } from "antd";
 
-const SpinAlert = ({ browserType }: { browserType: string }) => {
-  return (
+const SpinAlert = ({ browserType }: { browserType: string }) => (
     <Spin tip="Loading...">
       <Alert
         message={`Fetching ${browserType} files`}
@@ -11,6 +10,5 @@ const SpinAlert = ({ browserType }: { browserType: string }) => {
       />
     </Spin>
   );
-};
 
 export default SpinAlert;

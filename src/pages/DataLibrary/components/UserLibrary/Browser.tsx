@@ -43,8 +43,7 @@ export function Browser({
     <Grid style={{ marginLeft: "0.5em" }} hasGutter>
       {files &&
         files.length > 0 &&
-        files.map((file) => {
-          return (
+        files.map((file) => (
             <GridItem
               key={file.data.fname}
               sm={12}
@@ -52,12 +51,10 @@ export function Browser({
             >
               <FileCard file={file} browserType={browserType} />
             </GridItem>
-          );
-        })}
+          ))}
       {folders &&
         folders.length > 0 &&
-        folders.map((folder, index) => {
-          return (
+        folders.map((folder, index) => (
             <GridItem
               key={`${folder}_${index}`}
               sm={12}
@@ -69,8 +66,7 @@ export function Browser({
                 handleFolderClick={handleFolderClick}
               />
             </GridItem>
-          );
-        })}
+          ))}
     </Grid>
   );
 }
@@ -97,9 +93,7 @@ function FolderCard({
     commitDate: "",
   });
 
-  const background = selectedFolder.some((file) => {
-    return file.folder.path === `${folder.path}/${folder.name}`;
-  });
+  const background = selectedFolder.some((file) => file.folder.path === `${folder.path}/${folder.name}`);
 
   const isRoot = browserType === "feed" && folder.name.startsWith("feed");
 
@@ -110,7 +104,7 @@ function FolderCard({
         const id = folder.name.split("_")[1];
         const feed = await client.getFeed(parseInt(id));
         setFeedDetails({
-          id: id,
+          id,
           name: feed.data.name,
           commitDate: feed.data.creation_date,
         });
@@ -218,9 +212,7 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
   const fileName = fileNameArray[fileNameArray.length - 1];
   const [largePreview, setLargePreview] = React.useState(false);
 
-  const background = selectedFolder.some((fileSelect) => {
-    return fileSelect.folder.path === file.data.fname;
-  });
+  const background = selectedFolder.some((fileSelect) => fileSelect.folder.path === file.data.fname);
 
   const handlePreview = () => {
     setLargePreview(!largePreview);
@@ -295,7 +287,7 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
           <Modal
             title="Preview"
             aria-label="viewer"
-            width={"50%"}
+            width="50%"
             isOpen={largePreview}
             onClose={() => setLargePreview(false)}
           >
@@ -309,5 +301,5 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
 
 function elipses(str: string, len: number) {
   if (str.length <= len) return str;
-  return str.slice(0, len - 3) + "...";
+  return `${str.slice(0, len - 3)  }...`;
 }

@@ -1,7 +1,7 @@
 import React from "react";
-import Client from "../../../api/chrisapiclient";
 import { Plugin } from "@fnndsc/chrisapi";
 import { List, Button } from "antd";
+import Client from "../../../api/chrisapiclient";
 
 type JoinProps = {
   handlePluginSelect: (item: Plugin) => void;
@@ -43,7 +43,7 @@ const Join = ({ handlePluginSelect, selectedTsPlugin }: JoinProps) => {
                 description={item.data.description}
               />
               <Button
-                disabled={selectedTsPlugin !== undefined ? true : false}
+                disabled={selectedTsPlugin !== undefined}
                 onClick={() => {
                   handlePluginSelect(item);
                 }}

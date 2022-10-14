@@ -14,7 +14,7 @@ const FeedNote = ({
   handleEditNote,
   handleClose,
 }: FeedNoteProps) => {
-  const [value, setValue] = React.useState(note ? note : "");
+  const [value, setValue] = React.useState(note || "");
 
   const handleChange = (value: string) => {
     setValue(value);

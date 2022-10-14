@@ -9,13 +9,11 @@ interface DcmLoaderProps {
 const DicomLoader: React.FunctionComponent<DcmLoaderProps> = ({
   totalFiles,
   filesParsed,
-}: DcmLoaderProps) => {
-  return (
+}: DcmLoaderProps) => (
     <div className="loader">
       <Spinner size="xl" />
       <span>{`${filesParsed} of ${totalFiles} loaded`}</span>
     </div>
   );
-};
 
 export default DicomLoader;

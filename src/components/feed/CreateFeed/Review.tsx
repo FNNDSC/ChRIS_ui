@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
-import { CreateFeedContext } from "./context";
 import { Grid, GridItem } from "@patternfly/react-core";
+import { CreateFeedContext } from "./context";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
 import "./createfeed.scss";
 import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
@@ -45,7 +45,7 @@ const Review: React.FunctionComponent = () => {
       }
 
       return (
-        <Grid hasGutter={true}>
+        <Grid hasGutter>
           <PluginDetails
             generatedCommand={generatedCommand}
             selectedPlugin={selectedPlugin}
@@ -53,16 +53,16 @@ const Review: React.FunctionComponent = () => {
           />
         </Grid>
       );
-    } else if (selectedConfig === "multiple_select") {
+    } if (selectedConfig === "multiple_select") {
       return (
         <>
           <ChrisFileDetails chrisFiles={chrisFiles} />
           <LocalFileDetails localFiles={localFiles} />
         </>
       );
-    } else if (selectedConfig === "swift_storage") {
+    } if (selectedConfig === "swift_storage") {
       return <ChrisFileDetails chrisFiles={chrisFiles} />;
-    } else if (selectedConfig === "local_select") {
+    } if (selectedConfig === "local_select") {
       return <LocalFileDetails localFiles={localFiles} />;
     }
   };
@@ -77,7 +77,7 @@ const Review: React.FunctionComponent = () => {
       <p>Use the &apos;Back&apos; button to make changes.</p>
       <br />
       <br />
-      <Grid hasGutter={true}>
+      <Grid hasGutter>
         <GridItem span={2}>
           <span className="review__title">Feed Name</span>
         </GridItem>
@@ -101,7 +101,7 @@ const Review: React.FunctionComponent = () => {
         </GridItem>
         <GridItem span={10}>
           <span className="review__value">
-            {pipelineName ? pipelineName : "None Selected"}
+            {pipelineName || "None Selected"}
           </span>
         </GridItem>
       </Grid>

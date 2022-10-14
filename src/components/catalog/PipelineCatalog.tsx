@@ -45,7 +45,7 @@ const PipelineCatalog = () => {
       const client = ChrisAPIClient.getClient()
       const params = {
         limit: perPage,
-        offset: offset,
+        offset,
         name: search,
       }
       const pipelinesList = await client.getPipelines(params)
@@ -60,12 +60,10 @@ const PipelineCatalog = () => {
 
       if (pipelines) {
         setPipelines(pipelines)
-        setPageState((pageState) => {
-          return {
+        setPageState((pageState) => ({
             ...pageState,
             itemCount: pipelinesList.totalCount,
-          }
-        })
+          }))
       }
     }
 
@@ -96,7 +94,7 @@ const PipelineCatalog = () => {
           setSelectedPipeline(pipeline)
         }}
         title="Pipelines"
-        showPipelineButton={true}
+        showPipelineButton
         fetch={handleFetch}
         handlePipelineSearch={handleSearch}
         search={pageState.search}

@@ -8,13 +8,11 @@ type TransitionGroupWrapperProps = {
   children: React.ReactNode;
 };
 
-const TransitionGroupWrapper = (props: TransitionGroupWrapperProps) => {
-  return (
+const TransitionGroupWrapper = (props: TransitionGroupWrapperProps) => (
     <g className={props.className} transform={props.transform}>
       <Marker />
       {props.children}
     </g>
   );
-};
 
 export default TransitionGroupWrapper;

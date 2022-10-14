@@ -14,7 +14,7 @@ export const PluginDetails: React.FC<PluginDetailsProps> = ({
   computeEnvironment,
 }: PluginDetailsProps) => {
   const { version, title, name } = selectedPlugin?.data
-  const pluginName = `${title ? title : `${name} v.${version}`}`
+  const pluginName = `${title || `${name} v.${version}`}`
   return (
     <>
       <GridItem span={2}>

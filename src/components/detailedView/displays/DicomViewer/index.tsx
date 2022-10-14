@@ -6,13 +6,13 @@ import * as cornerstoneNIFTIImageLoader from 'cornerstone-nifti-image-loader'
 import * as cornerstoneFileImageLoader from 'cornerstone-file-image-loader'
 import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader'
 import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
+import { Cookies } from 'react-cookie'
 import { useTypedSelector } from '../../../../store/hooks'
 import { isNifti, isDicom } from '../../../dicomViewer/utils'
 import { setFilesForGallery } from '../../../../store/explorer/actions'
 import GalleryDicomView from '../../../dicomViewer/GalleryDicomView'
 import DicomLoader from '../../../dicomViewer/DcmLoader'
 import { getFileExtension } from '../../../../api/models/file-explorer.model'
-import { Cookies } from 'react-cookie'
 
 const cookie = new Cookies()
 const user = cookie.get('username')
@@ -26,12 +26,12 @@ cornerstoneWADOImageLoader.external.dicomParser = dicomParser
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     'Content-Type': 'application/vnd.collection+json',
-    Authorization: 'Token ' + token,
+    Authorization: `Token ${  token}`,
   },
   method: 'get',
   responseType: 'arrayBuffer',
 })
-const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId
+const {ImageId} = cornerstoneNIFTIImageLoader.nifti
 
 const DicomViewerContainer = () => {
   const dispatch = useDispatch()
@@ -82,13 +82,11 @@ const DicomViewerContainer = () => {
           }
         }
 
-        setLoader((state) => {
-          return {
+        setLoader((state) => ({
             ...state,
             filesParsed: i + 1,
             totalFiles: files.length,
-          }
-        })
+          }))
       }
       dispatch(setFilesForGallery(imageIds))
     }

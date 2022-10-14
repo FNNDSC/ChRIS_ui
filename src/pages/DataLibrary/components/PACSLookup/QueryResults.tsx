@@ -25,7 +25,7 @@ import {
   FaQuestionCircle,
   FaCodeBranch,
   FaCubes,
-} from "react-icons/fa";
+ FaEye } from "react-icons/fa";
 import Moment from "react-moment";
 import pluralize from "pluralize";
 import { PACSFileList } from "@fnndsc/chrisapi";
@@ -42,7 +42,7 @@ import {
 } from "../../../../api/pfdcm";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { MainRouterContext } from "../../../../routes";
-import { FaEye } from "react-icons/fa";
+
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[];
@@ -389,10 +389,10 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           if (cubePollAttempts > 0) {
             setCubePollAttempts(cubePollAttempts - 1);
             return setPoll(setTimeout(fetchCUBESeries, 5000));
-          } else {
+          } 
             setCubePollError(true);
             return () => clearTimeout(poll);
-          }
+          
         }
 
         if (pullStatus.isRunning)
@@ -439,7 +439,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
                   <Modal
                     title="Preview"
                     aria-label="viewer"
-                    width={"50%"}
+                    width="50%"
                     isOpen={!!openSeriesPreview}
                     onClose={() => setOpenSeriesPreview(false)}
                   >
@@ -481,8 +481,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
         );
       }
 
-      const PullProgress = () => {
-        return (
+      const PullProgress = () => (
           <Progress
             value={pullStatus.progress * 100}
             style={{ gap: "0.5em", textAlign: "left", width: "10em" }}
@@ -493,7 +492,6 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
             valueText={pullStatus.progressText}
           />
         );
-      };
 
       const FinishingUp = () => {
         if (cubePollError)

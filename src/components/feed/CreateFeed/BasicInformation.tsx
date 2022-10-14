@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Form, FormGroup, TextInput, TextArea } from "@patternfly/react-core";
 import { Typeahead } from "react-bootstrap-typeahead";
-import { CreateFeedContext } from "./context";
 import { Tag } from "@fnndsc/chrisapi";
+import { CreateFeedContext } from "./context";
 import { Types } from "./types";
 import { fetchTagList } from "./utils/basicInformation";
 
@@ -76,7 +76,7 @@ const BasicInformation: React.FC = () => {
           }
           multiple
           options={availableTags}
-          //@ts-ignore
+          // @ts-ignore
           onChange={(tags: Tag[]) => {
             dispatch({
               type: Types.TagsChange,
@@ -86,7 +86,7 @@ const BasicInformation: React.FC = () => {
             });
           }}
           selected={tags}
-          //@ts-ignore
+          // @ts-ignore
           labelKey={(tag: Tag) => tag.data.name}
           emptyLabel={availableTagsLoaded ? "No tags found" : "Loading tags..."}
         />

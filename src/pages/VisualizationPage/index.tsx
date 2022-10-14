@@ -1,15 +1,16 @@
 import React, { useRef, useMemo } from "react";
 import { useNavigate } from "react-router";
-import Wrapper from "../Layout/PageWrapper";
-import { Button } from "antd";
+import { Button , Typography } from "antd";
 import { AiOutlineUpload } from "react-icons/ai";
 import { useDispatch } from "react-redux";
-import { setSidebarActive } from "../../store/ui/actions";
 import { useDropzone } from "react-dropzone";
-import { setExternalFiles } from "../../store/explorer/actions";
 import { PageSection } from "@patternfly/react-core";
+import { setSidebarActive } from "../../store/ui/actions";
+import { setExternalFiles } from "../../store/explorer/actions";
 import InfoIcon from "../../components/common/info/InfoIcon";
-import { Typography } from "antd";
+
+import Wrapper from "../Layout/PageWrapper";
+
 const { Paragraph } = Typography;
 
 const infoStyle = { fontSize: "1.15em" };
@@ -144,7 +145,7 @@ const VisualizationPage = () => {
             style={{ display: "none" }}
             onChange={(e) => handleOpenFolder(e.target.files)}
             multiple
-            //@ts-ignore
+            // @ts-ignore
 
             ref={folderOpen}
           />

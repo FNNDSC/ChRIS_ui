@@ -24,9 +24,8 @@ export const EmptyStateTable = ({
   title,
   description,
   caption,
-}: ITableProps) => {
-  return (
-    <React.Fragment>
+}: ITableProps) => (
+    <>
       <Table caption={caption} cells={cells} rows={rows}>
         <TableHeader />
         <TableBody />
@@ -38,12 +37,10 @@ export const EmptyStateTable = ({
         </Title>
         <EmptyStateBody>{description}</EmptyStateBody>
       </EmptyState>
-    </React.Fragment>
+    </>
   )
-}
 
-export const generateTableLoading = ( type: string ) => {
-  return (
+export const generateTableLoading = ( type: string ) => (
     <tbody className="feed-list__loading">
       <tr>
         <td colSpan={6}>
@@ -54,4 +51,3 @@ export const generateTableLoading = ( type: string ) => {
       </tr>
     </tbody>
   )
-}

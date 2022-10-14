@@ -39,19 +39,17 @@ const PluginCatalog = () => {
       const client = ChrisAPIClient.getClient();
       const params = {
         limit: perPage,
-        offset: offset,
+        offset,
         name: search,
       };
       const pluginsList = await client.getPlugins(params);
       const plugins = pluginsList.getItems();
       if (plugins) {
         setPlugins(plugins);
-        setPageState((pageState) => {
-          return {
+        setPageState((pageState) => ({
             ...pageState,
             itemCount: pluginsList.totalCount,
-          };
-        });
+          }));
       }
     }
 

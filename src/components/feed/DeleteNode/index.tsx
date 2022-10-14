@@ -1,17 +1,17 @@
 import React from "react";
 import { Dispatch } from "redux";
-import { useDispatch } from "react-redux";
+import { useDispatch , connect } from "react-redux";
 import { ErrorBoundary } from "react-error-boundary";
 import { Button, Modal, ModalVariant, Alert } from "@patternfly/react-core";
-import { connect } from "react-redux";
-import { ApplicationState } from "../../../store/root/applicationState";
+
 import { PluginInstance } from "@fnndsc/chrisapi";
+import { FaTrash } from "react-icons/fa";
+import { ApplicationState } from "../../../store/root/applicationState";
 import {
   clearDeleteState,
   deleteNode,
   deleteNodeError,
 } from "../../../store/pluginInstance/actions";
-import { FaTrash } from "react-icons/fa";
 
 interface DeleteNodeProps {
   selectedPlugin?: PluginInstance;
@@ -49,7 +49,7 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
   };
 
   return (
-    <React.Fragment>
+    <>
       <ErrorBoundary FallbackComponent={FallBackComponent}>
         <Button
           disabled={!selectedPlugin}
@@ -82,7 +82,7 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
           )}
         </Modal>
       </ErrorBoundary>
-    </React.Fragment>
+    </>
   );
 };
 
@@ -97,11 +97,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 export default connect(mapStateToProps, mapDispatchToProps)(DeleteNode);
 
-const FallBackComponent = () => {
-  return (
+const FallBackComponent = () => (
     <span>
       Deleting a plugin instance can have some side effects. Could you please
       try again?
     </span>
   );
-};

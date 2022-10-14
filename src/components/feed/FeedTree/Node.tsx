@@ -1,8 +1,8 @@
 import React, { Fragment, useRef } from 'react'
 import { select } from 'd3-selection'
 import { HierarchyPointNode } from 'd3-hierarchy'
-import { Datum, TreeNodeDatum, Point } from './data'
 import { PluginInstance } from '@fnndsc/chrisapi'
+import { Datum, TreeNodeDatum, Point } from './data'
 import { useTypedSelector } from '../../../store/hooks'
 import { FeedTreeScaleType } from './Controls'
 
@@ -30,11 +30,9 @@ const DEFAULT_NODE_CIRCLE_RADIUS = 12
 const setNodeTransform = (
   orientation: 'horizontal' | 'vertical',
   position: Point,
-) => {
-  return orientation === 'horizontal'
+) => orientation === 'horizontal'
     ? `translate(${position.y},${position.x})`
     : `translate(${position.x}, ${position.y})`
-}
 
 const Node = (props: NodeProps) => {
   const nodeRef = useRef<SVGGElement>(null)
@@ -131,7 +129,7 @@ const Node = (props: NodeProps) => {
   )
 
   return (
-    <Fragment>
+    <>
       <g
         id={`${data.id}`}
         ref={nodeRef}
@@ -152,7 +150,7 @@ const Node = (props: NodeProps) => {
               ${currentId && `selected`}
               `}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
-        ></circle>
+         />
         {overlaySize && (
           <circle
             id={`node_overlay_${data.id}`}
@@ -163,7 +161,7 @@ const Node = (props: NodeProps) => {
         )}
         {toggleLabel ? textLabel : null}
       </g>
-    </Fragment>
+    </>
   )
 }
 
@@ -174,12 +172,12 @@ const NodeWrapper = (props: NodeWrapperProps) => {
   const status = useTypedSelector((state) => {
     if (data.id && state.resource.pluginInstanceStatus[data.id]) {
       return state.resource.pluginInstanceStatus[data.id].status
-    } else return
+    } 
   })
 
   const currentId = useTypedSelector((state) => {
     if (state.instance.selectedPlugin?.data.id === data.id) return true
-    else return false
+    return false
   })
 
   let scale // undefined scale is treated as no indvidual scaling

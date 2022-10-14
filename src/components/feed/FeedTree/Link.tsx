@@ -1,8 +1,8 @@
 import React, { Fragment } from "react";
 import { linkHorizontal, linkVertical } from "d3-shape";
-import { Datum } from "./data";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
+import { Datum } from "./data";
 
 export interface TreeLinkDatum {
   source: HierarchyPointNode<Datum>;
@@ -21,6 +21,7 @@ type LinkState = {
 
 class Link extends React.Component<LinkProps, LinkState> {
   private linkRef: SVGPathElement | null = null;
+
   state = {
     initialStyle: {
       opacity: 0,
@@ -38,32 +39,31 @@ class Link extends React.Component<LinkProps, LinkState> {
   applyOpacity(
     opacity: number,
     transitionDuration: number,
-    done = () => {
-      return null;
-    }
+    done = () => null
   ) {
     select(this.linkRef).style("opacity", opacity).on("end", done);
   }
 
   nodeRadius = 12;
+
   drawPath = () => {
     const { linkData, orientation } = this.props;
 
     const { source, target } = linkData;
 
-    const deltaX = target.x - source.x,
-      deltaY = target.y - source.y,
-      dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-      normX = deltaX / dist,
-      normY = deltaY / dist,
-      sourcePadding = this.nodeRadius,
-      targetPadding = this.nodeRadius + 4,
-      sourceX = source.x + sourcePadding * normX,
-      sourceY = source.y + sourcePadding * normY,
-      targetX = target.x - targetPadding * normX,
-      targetY = target.y - targetPadding * normY;
+    const deltaX = target.x - source.x;
+      const deltaY = target.y - source.y;
+      const dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      const normX = deltaX / dist;
+      const normY = deltaY / dist;
+      const sourcePadding = this.nodeRadius;
+      const targetPadding = this.nodeRadius + 4;
+      const sourceX = source.x + sourcePadding * normX;
+      const sourceY = source.y + sourcePadding * normY;
+      const targetX = target.x - targetPadding * normX;
+      const targetY = target.y - targetPadding * normY;
 
-    //@ts-ignore
+    // @ts-ignore
     if (target.data.item?.data?.plugin_type === "ts") {
       if (
         target.data.item.data.previous_id !== source.data.item?.data.previous_id
@@ -88,19 +88,19 @@ class Link extends React.Component<LinkProps, LinkState> {
   render() {
     const { linkData } = this.props;
     return (
-      <Fragment>
+      <>
         <path
           ref={(l) => {
             this.linkRef = l;
           }}
           className="link"
-          //@ts-ignore
+          // @ts-ignore
           d={this.drawPath()}
           style={{ ...this.state.initialStyle }}
           data-source-id={linkData.source.id}
           data-target-id={linkData.target.id}
         />
-      </Fragment>
+      </>
     );
   }
 }

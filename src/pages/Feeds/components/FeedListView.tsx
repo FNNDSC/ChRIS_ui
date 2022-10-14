@@ -16,8 +16,9 @@ import {
   Checkbox,
   Tooltip,
 } from "@patternfly/react-core";
-import { TableComposable, Thead, Tr, Th, Td } from "@patternfly/react-table";
+import { TableComposable, Thead, Tr, Th, Td , Tbody } from "@patternfly/react-table";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
+import { Feed } from "@fnndsc/chrisapi";
 import { setSidebarActive } from "../../../store/ui/actions";
 import {
   getAllFeedsRequest,
@@ -39,10 +40,9 @@ import {
   generateTableLoading,
 } from "../../../components/common/emptyTable";
 import { usePaginate } from "../../../components/common/pagination";
-import { Feed } from "@fnndsc/chrisapi";
 import IconContainer from "./IconContainer";
 import { useTypedSelector } from "../../../store/hooks";
-import { Tbody } from "@patternfly/react-table";
+
 import { FeedResource } from "../../../store/feed/types";
 
 const FeedListView: React.FC = () => {
@@ -134,7 +134,7 @@ const FeedListView: React.FC = () => {
 
   if (error) {
     return (
-      <React.Fragment>
+      <>
         <EmptyState>
           <EmptyStateBody>
             Unable to fetch feeds at the moment. Please refresh the browser. If
@@ -142,11 +142,11 @@ const FeedListView: React.FC = () => {
             error.
           </EmptyStateBody>
         </EmptyState>
-      </React.Fragment>
+      </>
     );
   }
   return (
-    <React.Fragment>
+    <>
       <PageSection variant={PageSectionVariants.light} className="feed-header">
         <div className="feed-header__split">
           <Title headingLevel="h1" size="3xl">
@@ -161,7 +161,7 @@ const FeedListView: React.FC = () => {
         </div>
 
         <Hint
-          //@ts-ignore
+          // @ts-ignore
           style={{
             width: `${width > 768 ? "50%" : "100%"}`,
             // paddingBottom: '0',
@@ -169,7 +169,7 @@ const FeedListView: React.FC = () => {
           }}
         >
           <HintBody
-            //@ts-ignore
+            // @ts-ignore
             style={{
               gridColumn: `${width > 768 ? "1" : "2"}`,
             }}
@@ -207,8 +207,7 @@ const FeedListView: React.FC = () => {
             isStickyHeader
             rowWrapper={customRowWrapper}
           >
-            {
-              <Thead>
+            <Thead>
                 <Tr>
                   <Th>
                     <Checkbox
@@ -243,32 +242,29 @@ const FeedListView: React.FC = () => {
                   >
                     Size
                   </Th>
-                  <Th></Th>
+                  <Th />
                 </Tr>
               </Thead>
-            }
 
             {loading ? (
               generateTableLoading("white")
             ) : (
               <Tbody>
                 {data &&
-                  data.map((feed) => {
-                    return (
+                  data.map((feed) => (
                       <TableRow
                         key={feed.data.id}
                         feed={feed}
                         feedResources={feedResources}
                         bulkSelect={bulkSelect}
                       />
-                    );
-                  })}
+                    ))}
               </Tbody>
             )}
           </TableComposable>
         )}
       </PageSection>
-    </React.Fragment>
+    </>
   );
 };
 
@@ -336,7 +332,7 @@ const TableRow = ({
     >
       <span className="feed-list__name">
         <Tooltip content={<div>View files in library</div>}>
-          <Link to={`/library/`}>
+          <Link to="/library/">
             {size ? `${size.padStart(10, "")}` : "---"}
           </Link>
         </Tooltip>
@@ -356,7 +352,7 @@ const TableRow = ({
     color = "#ff0000";
     threshold = progress;
   }
-  let title = (progress ? progress : 0) + "%";
+  let title = `${progress || 0  }%`;
 
   // If initial node in a feed fails
   if (progress == 0 && feedError) {
@@ -387,7 +383,7 @@ const TableRow = ({
         data={{ x: "Feed Progress", y: progress }}
         height={125}
         title={title}
-        thresholds={[{ value: threshold, color: color }]}
+        thresholds={[{ value: threshold, color }]}
         width={125}
       />
     </div>

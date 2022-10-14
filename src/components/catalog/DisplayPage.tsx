@@ -20,8 +20,8 @@ import ReactJSON from "react-json-view";
 import { ImTree } from "react-icons/im";
 import { GrCloudComputer } from "react-icons/gr";
 import { FaCode } from "react-icons/fa";
-import Tree from "./Tree";
 import { PipelineList } from "@fnndsc/chrisapi";
+import Tree from "./Tree";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { generatePipelineWithData } from "../feed/CreateFeed/utils/pipelines";
 
@@ -72,9 +72,9 @@ const DisplayPage = ({
   const { perPage, page, itemCount } = pageState;
   const [isExpanded, setIsExpanded] = React.useState(false);
 
-  const isPlugin = title === "Plugins" ? true : false;
-  const isPipeline = title === "Pipelines" ? true : false;
-  const isCompute = title === "Compute" ? true : false;
+  const isPlugin = title === "Plugins";
+  const isPipeline = title === "Pipelines";
+  const isCompute = title === "Compute";
 
   const iconStyle = {
     fill: isPlugin
@@ -117,7 +117,7 @@ const DisplayPage = ({
         if (reader.result) {
           const client = ChrisAPIClient.getClient();
           const result = JSON.parse(reader.result as string);
-          result["plugin_tree"] = JSON.stringify(result["plugin_tree"]);
+          result.plugin_tree = JSON.stringify(result.plugin_tree);
           const pipelineInstanceList: PipelineList = await client.getPipelines({
             name: result.name,
           });
@@ -133,7 +133,7 @@ const DisplayPage = ({
         }
         cleanUp(event);
       } catch (error) {
-        //@ts-ignore
+        // @ts-ignore
         setError(error.response.data);
         cleanUp(event);
       }
@@ -155,7 +155,7 @@ const DisplayPage = ({
   };
 
   const drawerContent = (
-    <Grid hasGutter={true}>
+    <Grid hasGutter>
       <div
         style={{
           display: "flex",
@@ -224,8 +224,7 @@ const DisplayPage = ({
         <Row gutter={16}>
           {resources &&
             resources.length > 0 &&
-            resources.map((resource) => {
-              return (
+            resources.map((resource) => (
                 <Col key={resource.data ? resource.data.id : ""} span={8} lg={8} sm={12} xs={24}>
                   <Card
                     hoverable
@@ -252,7 +251,7 @@ const DisplayPage = ({
                         {resource.data ? resource.data.name : ""}
                       </>
                     }
-                    bordered={true}
+                    bordered
                   >
                     {isPlugin && (
                       <>
@@ -269,8 +268,7 @@ const DisplayPage = ({
                     </p>
                   </Card>
                 </Col>
-              );
-            })}
+              ))}
         </Row>
       </div>
     </Grid>

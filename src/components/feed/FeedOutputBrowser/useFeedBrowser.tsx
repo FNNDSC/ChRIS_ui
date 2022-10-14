@@ -1,12 +1,12 @@
 import React from 'react'
+import { useDispatch } from 'react-redux'
+import JSZip from 'jszip'
 import {
   clearSelectedFile,
   setExplorerMode,
   setSelectedFolder,
 } from '../../../store/explorer/actions'
 import { useTypedSelector } from '../../../store/hooks'
-import { useDispatch } from 'react-redux'
-import JSZip from 'jszip'
 import { getPluginFilesRequest } from '../../../store/resources/actions'
 import { ExplorerMode } from '../../../store/explorer/types'
 import FileViewerModel from '../../../api/models/file-viewer.model'
@@ -17,15 +17,13 @@ import { fetchResource } from '../../../utils'
 
 const status = ['finishedSuccessfully', 'finishedWithError', 'cancelled']
 
-const getInitialDownloadState = () => {
-  return {
+const getInitialDownloadState = () => ({
     count: 0,
     status: false,
     plugin_name: '',
     error: '',
     fetchingFiles: false,
-  }
-}
+  })
 
 export const useFeedBrowser = () => {
   const [download, setDownload] = React.useState(getInitialDownloadState)
@@ -50,7 +48,7 @@ export const useFeedBrowser = () => {
       title: string
       icon: any
     }
-    | undefined = undefined
+    | undefined
   if (pluginStatus && selected) {
     statusTitle = status.includes(selected.data.status) ?
       getFinishedTitle(selected.data.status) :
@@ -117,12 +115,10 @@ export const useFeedBrowser = () => {
     if (!(pluginFilesPayload && pluginFilesPayload.files)) {
       if (selected && status.includes(selected.data.status)) {
         if (download.error) {
-          setDownload((state) => {
-            return {
+          setDownload((state) => ({
               ...state,
               error: 'Files are ready for download now...',
-            }
-          })
+            }))
         }
 
         dispatch(

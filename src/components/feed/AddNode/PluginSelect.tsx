@@ -146,9 +146,7 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
     }
 
     const plugins = await Promise.all(
-      pluginIds.map((id) => {
-        return client.getPlugin(id)
-      }),
+      pluginIds.map((id) => client.getPlugin(id)),
     )
     if (isMounted) setRecentPlugins(plugins)
   }, [isMounted])

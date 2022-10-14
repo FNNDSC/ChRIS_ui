@@ -43,19 +43,17 @@ const ComputeCatalog = () => {
       const client = ChrisAPIClient.getClient();
       const params = {
         limit: perPage,
-        offset: offset,
+        offset,
         name: search,
       };
       const computeResourcesList = await client.getComputeResources(params);
       const computes = computeResourcesList.getItems();
       if (computes) {
         setComputeResources(computes);
-        setPageState((pageState) => {
-          return {
+        setPageState((pageState) => ({
             ...pageState,
             itemCount: computeResourcesList.totalCount,
-          };
-        });
+          }));
       }
     }
 

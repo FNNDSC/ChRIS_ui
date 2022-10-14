@@ -70,7 +70,7 @@ const GalleryWrapper: React.FC<AllProps> = ({
     },
   }
 
-  return !!children ? (
+  return children ? (
     <div id="gallery" className="gallery-wrapper">
       {children}
       <GalleryToolbar

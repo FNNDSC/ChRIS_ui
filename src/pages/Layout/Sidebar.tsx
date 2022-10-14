@@ -2,9 +2,6 @@ import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 
-import { ApplicationState } from '../../store/root/applicationState'
-import { IUiState } from '../../store/ui/types'
-import { IUserState } from '../../store/user/types'
 import {
   PageSidebar,
   Nav,
@@ -12,8 +9,11 @@ import {
   NavList,
   NavGroup,
 } from '@patternfly/react-core'
-import { setSidebarActive } from '../../store/ui/actions'
 import { Dispatch } from 'redux'
+import { ApplicationState } from '../../store/root/applicationState'
+import { IUiState } from '../../store/ui/types'
+import { IUserState } from '../../store/user/types'
+import { setSidebarActive } from '../../store/ui/actions'
 
 type AllProps = IUiState & IUserState & ReduxProp
 type ReduxProp = {

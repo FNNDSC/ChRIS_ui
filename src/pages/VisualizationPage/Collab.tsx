@@ -1,7 +1,5 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { setSidebarActive } from "../../store/ui/actions";
-import Wrapper from "../Layout/PageWrapper";
 import {
   ModalVariant,
   Modal,
@@ -11,6 +9,8 @@ import {
   Button,
   ActionGroup,
 } from "@patternfly/react-core";
+import { setSidebarActive } from "../../store/ui/actions";
+import Wrapper from "../Layout/PageWrapper";
 import { useTypedSelector } from "../../store/hooks";
 import { setCurrentUrl } from "../../store/resources/actions";
 
@@ -59,7 +59,7 @@ const Collab = () => {
           <FormGroup fieldId="url" label="Enter the URL" isRequired>
             <TextInput
               aria-label="collab"
-              value={value["url"]}
+              value={value.url}
               isRequired
               type="text"
               id="horizontal-form-name"
@@ -85,8 +85,8 @@ const Collab = () => {
           <ActionGroup>
             <Button
               onClick={() => {
-                if (value["url"] && value["token"]) {
-                  dispatch(setCurrentUrl(value["url"]));
+                if (value.url && value.token) {
+                  dispatch(setCurrentUrl(value.url));
                   setIsOpen(false);
                 }
               }}
@@ -112,7 +112,7 @@ const Collab = () => {
             allowFullScreen
             src={url}
             title="Medview"
-          ></iframe>
+           />
         )}
       </div>
     </Wrapper>

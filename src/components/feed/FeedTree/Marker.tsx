@@ -18,7 +18,7 @@ const Marker = () => {
 
   return (
     <defs>
-      <marker ref={markerRef} id="end-arrow"></marker>
+      <marker ref={markerRef} id="end-arrow" />
     </defs>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useRef, useContext } from "react";
-import { Types, colorPalette } from "../CreateFeed/types";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
+import { Types, colorPalette } from "../CreateFeed/types";
 import { TreeNode } from "../../../utils";
 import { fetchComputeInfo } from "../CreateFeed/utils/pipelines";
 import { CreateFeedContext } from "../CreateFeed/context";
@@ -24,11 +24,9 @@ type NodeProps = {
   currentPipelineId: number;
 };
 
-const setNodeTransform = (orientation: string, position: Point) => {
-  return orientation === "horizontal"
+const setNodeTransform = (orientation: string, position: Point) => orientation === "horizontal"
     ? `translate(${position.y},${position.x})`
     : `translate(${position.x}, ${position.y})`;
-};
 const DEFAULT_NODE_CIRCLE_RADIUS = 12;
 const NodeData = (props: NodeProps) => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -90,7 +88,7 @@ const NodeData = (props: NodeProps) => {
   const textLabel = (
     <g id={`text_${data.id}`}>
       <text ref={textRef} className="label__title">
-        {`${titleName ? titleName : data.plugin_name} (id: ${data.id})`}
+        {`${titleName || data.plugin_name} (id: ${data.id})`}
       </text>
     </g>
   );
@@ -111,14 +109,14 @@ const NodeData = (props: NodeProps) => {
           fill: `${
             colorPalette[currentComputeEnv]
               ? colorPalette[currentComputeEnv]
-              : colorPalette["default"]
+              : colorPalette.default
           }`,
           stroke: data.id === currentNode ? "white" : "",
           strokeWidth: data.id === currentNode ? "3px" : "",
         }}
         id={`node_${data.id}`}
         r={DEFAULT_NODE_CIRCLE_RADIUS}
-      ></circle>
+       />
       {textLabel}
     </g>
   );

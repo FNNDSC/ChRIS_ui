@@ -1,7 +1,5 @@
 import React, { useContext } from "react";
 import { useDispatch } from "react-redux";
-import { Types, colorPalette } from "../CreateFeed/types";
-import { InputIndex } from "../AddNode/types";
 import { List, Avatar, Checkbox, Spin } from "antd";
 import { isEmpty } from "lodash";
 import {
@@ -16,14 +14,16 @@ import {
   TextInput,
   Button,
 } from "@patternfly/react-core";
-import { CreateFeedContext } from "../CreateFeed/context";
 import { Pipeline, PluginPiping } from "@fnndsc/chrisapi";
+import { MdCheck, MdEdit, MdClose } from "react-icons/md";
+import ReactJson from "react-json-view";
+import { Types, colorPalette } from "../CreateFeed/types";
+import { InputIndex } from "../AddNode/types";
+import { CreateFeedContext } from "../CreateFeed/context";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import { getParamsSuccess } from "../../../store/plugin/actions";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
-import { MdCheck, MdEdit, MdClose } from "react-icons/md";
 import { generatePipelineWithData } from "../CreateFeed/utils/pipelines";
-import ReactJson from "react-json-view";
 
 const ConfigurationPage = (props: {
   currentPipelineId: number;
@@ -35,7 +35,7 @@ const ConfigurationPage = (props: {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const { currentPipelineId, pipeline } = props;
   const { state, dispatch } = useContext(CreateFeedContext);
-  const pipelines = state.pipelines;
+  const {pipelines} = state;
   const {
     currentNode,
     computeEnvs,
@@ -79,15 +79,15 @@ const ConfigurationPage = (props: {
       paramName?: string
     ) => {
       const input: InputIndex = {};
-      input["id"] = id;
-      input["flag"] = flag;
-      input["value"] = value;
-      input["type"] = type;
+      input.id = id;
+      input.flag = flag;
+      input.value = value;
+      input.type = type;
 
-      input["placeholder"] = placeholder;
+      input.placeholder = placeholder;
 
       if (paramName) {
-        input["paramName"] = paramName;
+        input.paramName = paramName;
       }
 
       if (required === true) {
@@ -118,9 +118,7 @@ const ConfigurationPage = (props: {
   React.useEffect(() => {
     async function fetchResources() {
       if (pluginPipings && currentNode && pluginParameters) {
-        const pluginPiping = pluginPipings.filter((piping) => {
-          return piping.data.id === currentNode;
-        });
+        const pluginPiping = pluginPipings.filter((piping) => piping.data.id === currentNode);
 
         const selectedPlugin = await pluginPiping[0].getPlugin();
         setSelectedPlugin(pluginPiping[0]);
@@ -132,11 +130,9 @@ const ConfigurationPage = (props: {
         const paramDict: {
           [key: string]: string;
         } = {};
-        //@ts-ignore
+        // @ts-ignore
         pluginParameters.data
-          .filter((param: any) => {
-            return param.plugin_piping_id === pluginPiping[0].data.id;
-          })
+          .filter((param: any) => param.plugin_piping_id === pluginPiping[0].data.id)
           .forEach((param: any) => {
             paramDict[param.param_name] = param;
           });
@@ -149,10 +145,10 @@ const ConfigurationPage = (props: {
           paramItems.forEach((param: any) => {
             if (paramDict[param.data.name]) {
               const defaultParam = paramDict[param.data.name];
-              //@ts-ignore
+              // @ts-ignore
               const newParam = { data: { ...param.data } };
-              //@ts-ignore
-              newParam.data["default"] = defaultParam.value;
+              // @ts-ignore
+              newParam.data.default = defaultParam.value;
               newParamDict.push(newParam);
 
               if (
@@ -166,16 +162,15 @@ const ConfigurationPage = (props: {
                 inputChange(
                   param.data.id,
                   param.data.flag,
-                  //@ts-ignore
+                  // @ts-ignore
                   defaultParam.value,
                   param.data.type,
                   param.data.help,
                   true,
                   param.data.name
                 );
-              } else {
-                if (
-                  //@ts-ignore
+              } else if (
+                  // @ts-ignore
                   defaultParam.value &&
                   !(
                     input &&
@@ -186,7 +181,7 @@ const ConfigurationPage = (props: {
                   inputChange(
                     param.data.id,
                     param.data.flag,
-                    //@ts-ignore
+                    // @ts-ignore
                     defaultParam.value,
                     param.data.type,
                     param.data.help,
@@ -194,7 +189,6 @@ const ConfigurationPage = (props: {
                     param.data.name
                   );
                 }
-              }
             }
           });
           dispatchStore(getParamsSuccess(newParamDict));
@@ -233,7 +227,7 @@ const ConfigurationPage = (props: {
   }
 
   const actions = (
-    <React.Fragment>
+    <>
       <CodeBlockAction>
         <ClipboardCopyButton
           id="basic-copy-button"
@@ -247,7 +241,7 @@ const ConfigurationPage = (props: {
           {copied ? "Successfully copied to clipboard" : "Copy to clipboard"}
         </ClipboardCopyButton>
       </CodeBlockAction>
-    </React.Fragment>
+    </>
   );
 
   const onClick = (event: any, text: any) => {
@@ -276,7 +270,7 @@ const ConfigurationPage = (props: {
     try {
       pluginPipings?.forEach((piping) => {
         const defaults = pluginParameterDefaults(
-          //@ts-ignore
+          // @ts-ignore
           pluginParameters.data,
           piping.data.id,
           input
@@ -432,7 +426,7 @@ const ConfigurationPage = (props: {
           }
         />
         <Button
-          isDisabled={creatingPipeline.loading ? true : false}
+          isDisabled={!!creatingPipeline.loading}
           onClick={handlePipelineCreate}
         >
           Save Pipeline
@@ -460,7 +454,7 @@ const ConfigurationPage = (props: {
         }
         onToggle={onToggle}
       >
-        <Grid hasGutter={true}>
+        <Grid hasGutter>
           <GridItem span={6}>
             {selectedPlugin && (
               <GuidedConfig
@@ -476,7 +470,7 @@ const ConfigurationPage = (props: {
             <h4>Configure Compute Environment</h4>
             <List
               itemLayout="horizontal"
-              dataSource={computeEnvList ? computeEnvList : []}
+              dataSource={computeEnvList || []}
               renderItem={(item: { name: string; description: string }) => (
                 <List.Item>
                   <List.Item.Meta
@@ -487,13 +481,11 @@ const ConfigurationPage = (props: {
                             marginRight: "0.5em",
                           }}
                           checked={
-                            currentNode &&
+                            !!(currentNode &&
                             computeEnvs &&
                             computeEnvs[currentNode] &&
                             computeEnvs[currentNode].currentlySelected ===
-                              item.name
-                              ? true
-                              : false
+                              item.name)
                           }
                           onClick={() => {
                             dispatch({
@@ -515,7 +507,7 @@ const ConfigurationPage = (props: {
                             background: `${
                               colorPalette[item.name]
                                 ? colorPalette[item.name]
-                                : colorPalette["default"]
+                                : colorPalette.default
                             }`,
                           }}
                         />
@@ -552,7 +544,7 @@ const pluginParameterDefaults = (parameters: any[], id: number, input: any) => {
     }
 
     for (const input in totalInput) {
-      //@ts-ignore
+      // @ts-ignore
       const parameter = totalInput[input];
       defaults.push({
         name: parameter.paramName,

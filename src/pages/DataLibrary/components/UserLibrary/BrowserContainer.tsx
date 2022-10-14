@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { Button, EmptyState, Title } from "@patternfly/react-core";
+import { Spin } from "antd";
 import BreadcrumbContainer from "./BreadcrumbContainer";
 import { Browser } from "./Browser";
 import { LibraryContext } from "./context";
@@ -16,7 +17,6 @@ import {
   backToSearchResults,
   setFetching,
 } from "./context/actions";
-import { Spin } from "antd";
 
 interface BrowserContainerInterface {
   type: string;
@@ -77,12 +77,10 @@ const BrowserContainer = ({
             folders = parsedUpload;
           }
 
-          folders = folders.map((folder: string) => {
-            return {
+          folders = folders.map((folder: string) => ({
               name: folder,
               path: `${path}`,
-            };
-          });
+            }));
           if (search[type] === true) {
             dispatch(setCurrentSearchFolder(folders, path, type));
           } else {
@@ -144,7 +142,7 @@ const BrowserContainer = ({
             const currentFolderSplit = path.split("/");
             const currentFolder =
               currentFolderSplit[currentFolderSplit.length - 1];
-            const totalCount = fileList.totalCount;
+            const {totalCount} = fileList;
             dispatch(setFolderDetails(totalCount, currentFolder));
           }
         }

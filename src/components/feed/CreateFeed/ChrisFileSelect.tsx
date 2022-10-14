@@ -1,5 +1,4 @@
 import React, { useState, useContext } from 'react'
-import { CreateFeedContext } from './context'
 import {
   Alert,
   AlertActionCloseButton,
@@ -10,6 +9,7 @@ import {
 import { EventDataNode, Key } from 'rc-tree/lib/interface'
 import { Tree } from 'antd'
 import { ErrorBoundary } from 'react-error-boundary'
+import { isEmpty } from 'lodash'
 import {
   Types,
   Info,
@@ -19,7 +19,7 @@ import {
 } from './types'
 import { generateTreeNodes, getNewTreeData } from './utils/fileSelect'
 import { FileList, ErrorMessage } from './helperComponents'
-import { isEmpty } from 'lodash'
+import { CreateFeedContext } from './context'
 
 const { DirectoryTree } = Tree
 
@@ -47,15 +47,15 @@ const cache: {
 }
 
 function setCacheTree(tree: DataBreadcrumb[]) {
-  cache['tree'] = tree
+  cache.tree = tree
 }
 
 function getCacheTree() {
-  return cache['tree']
+  return cache.tree
 }
 
 export function clearCache() {
-  cache['tree'] = []
+  cache.tree = []
 }
 
 const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
@@ -140,17 +140,17 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
           create a feed
         </p>
         <br />
-        <Grid hasGutter={true}>
+        <Grid hasGutter>
           <GridItem span={6} rowSpan={12}>
             <ErrorBoundary FallbackComponent={ErrorFallback}>
               <DirectoryTree
-                //@ts-ignore
+                // @ts-ignore
                 onCheck={onCheck}
-                //@ts-ignore
+                // @ts-ignore
                 loadData={onLoad}
                 checkedKeys={fetchKeysFromDict}
                 checkable
-                //@ts-ignore
+                // @ts-ignore
                 treeData={tree}
               />
             </ErrorBoundary>

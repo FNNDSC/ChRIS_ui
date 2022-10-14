@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import Wrapper from "../Layout/PageWrapper";
 import {
   Alert,
   PageSection,
   PageSectionVariants,
 } from "@patternfly/react-core";
+import Wrapper from "../Layout/PageWrapper";
 import "./not-found.scss";
 
 export const NotFoundPage: React.FC = () => {

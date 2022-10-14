@@ -1,27 +1,27 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
-import { setFilesForGallery } from '../../store/explorer/actions'
-import GalleryDicomView from '../../components/dicomViewer/GalleryDicomView'
-import DicomLoader from '../../components/dicomViewer/DcmLoader'
-import { useTypedSelector } from '../../store/hooks'
 import * as cornerstone from 'cornerstone-core'
 import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
 import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader'
 import * as cornerstoneNIFTIImageLoader from 'cornerstone-nifti-image-loader'
 import * as cornerstoneFileImageLoader from 'cornerstone-file-image-loader'
 import * as dicomParser from 'dicom-parser'
+import { useTypedSelector } from '../../store/hooks'
+import DicomLoader from '../../components/dicomViewer/DcmLoader'
+import GalleryDicomView from '../../components/dicomViewer/GalleryDicomView'
+import { setFilesForGallery } from '../../store/explorer/actions'
 import { isNifti, isDicom } from '../../components/dicomViewer/utils'
 import './ViewImage.scss'
 
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     'Content-Type': 'application/vnd.collection+json',
-    Authorization: 'Token ' + window.sessionStorage.getItem('CHRIS_TOKEN'),
+    Authorization: `Token ${  window.sessionStorage.getItem('CHRIS_TOKEN')}`,
   },
   method: 'get',
   responseType: 'arrayBuffer',
 })
-const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId
+const {ImageId} = cornerstoneNIFTIImageLoader.nifti
 
 cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
 cornerstoneFileImageLoader.external.cornerstone = cornerstone
@@ -66,13 +66,11 @@ const GalleryPage = () => {
           imageIds.push(cornerstoneFileImageLoader.fileManager.add(file))
         }
 
-        setLoader((state) => {
-          return {
+        setLoader((state) => ({
             ...state,
             filesParsed: i + 1,
             totalFiles: files.length,
-          }
-        })
+          }))
       }
 
       dispatch(setFilesForGallery(imageIds))

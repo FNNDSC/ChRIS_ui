@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
-import { useNavigate } from "react-router-dom";
+import { useNavigate , Link } from "react-router-dom";
 import {
   Form,
   FormGroup,
@@ -13,16 +13,16 @@ import {
   InputGroup,
 } from "@patternfly/react-core";
 import ChrisApiClient from "@fnndsc/chrisapi";
-import { Link } from "react-router-dom";
+
 import { has } from "lodash";
 import { validate } from "email-validator";
-import { setAuthToken } from "../../../store/user/actions";
 import {
   AiFillEyeInvisible,
   AiFillEye,
   AiFillExclamationCircle,
 } from "react-icons/ai";
 import { useCookies } from "react-cookie";
+import { setAuthToken } from "../../../store/user/actions";
 
 type Validated = {
   error: undefined | "error" | "default" | "success" | "warning";

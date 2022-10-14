@@ -39,7 +39,7 @@ const DcmHeader = ({
             }}
             href="/#"
           >
-            <i className="fas fa-angle-left"></i>
+            <i className="fas fa-angle-left" />
             Back to Dashboard
           </a>
         )}
@@ -107,7 +107,7 @@ const DcmHeader = ({
               handleToolbarAction("rotate");
             }}
             icon={<MdRotateRight />}
-          ></Button>
+           />
         </Tooltip>
 
         <Tooltip position={TooltipPosition.bottom} content={<div>Invert</div>}>

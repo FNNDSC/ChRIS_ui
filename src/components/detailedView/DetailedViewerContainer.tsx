@@ -1,6 +1,6 @@
 import React from "react";
-import { useTypedSelector } from "../../store/hooks";
 import { Tabs, Tab, Alert } from "@patternfly/react-core";
+import { useTypedSelector } from "../../store/hooks";
 import { FileBrowserViewer } from "./displays";
 import "./Viewer.scss";
 import { ExplorerMode } from "../../store/explorer/types";
@@ -16,7 +16,7 @@ const OutputViewerContainer = () => {
   const [activeTabKey, setActiveTabKey] = React.useState(0);
   if (!selectedPlugin || !pluginFiles) {
     return <Alert variant="info" title="Empty Result Set" className="empty" />;
-  } else {
+  } 
     const buildTabs = () => {
       const explorerModeMap = {
         [ExplorerMode.SwiftFileBrowser]: (
@@ -49,15 +49,13 @@ const OutputViewerContainer = () => {
     return (
       <div className="output-viewer">
         <div className="pf-u-px-lg">
-          {
-            <Tabs activeKey={activeTabKey} onSelect={handleTabClick}>
+          <Tabs activeKey={activeTabKey} onSelect={handleTabClick}>
               {tabs}
             </Tabs>
-          }
         </div>
       </div>
     );
-  }
+  
 };
 
 export default OutputViewerContainer;

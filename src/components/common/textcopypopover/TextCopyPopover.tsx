@@ -29,9 +29,7 @@ const TextCopyPopover:React.FC<TextCopyPopoverProps>=({
   maxWidth
 })=>{
 
-  const mergeClassNames=(...names:(string|undefined)[])=>{
-    return names.join(" ")
-  }
+  const mergeClassNames=(...names:(string|undefined)[])=>names.join(" ")
   
 
   const rows= text ? text.split(`\n`).length : 0
@@ -48,7 +46,7 @@ const TextCopyPopover:React.FC<TextCopyPopoverProps>=({
     className={
       mergeClassNames(`text-copy-popover`, className)
     }
-    enableFlip={true}
+    enableFlip
     minWidth={maxWidth}
     position='bottom'
     >

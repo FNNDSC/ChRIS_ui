@@ -3,11 +3,11 @@ import {
   GridItem,
   Grid,
 } from '@patternfly/react-core'
-import FeedOutputBrowser from '../../feed/FeedOutputBrowser/FeedOutputBrowser'
 import { useDispatch } from 'react-redux'
+import { PluginInstance } from '@fnndsc/chrisapi'
+import FeedOutputBrowser from '../../feed/FeedOutputBrowser/FeedOutputBrowser'
 import { getSelectedPlugin } from '../../../store/pluginInstance/actions'
 import { destroyExplorer } from '../../../store/explorer/actions'
-import { PluginInstance } from '@fnndsc/chrisapi'
 
 const FileBrowserViewer = () => {
   const dispatch = useDispatch();

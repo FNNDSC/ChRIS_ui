@@ -1,8 +1,8 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
+import { PluginInstance } from '@fnndsc/chrisapi'
 import { SpinContainer } from '../../common/loading/LoadingContent'
 import { setFeedTreeProp } from '../../../store/feed/actions'
-import { PluginInstance } from '@fnndsc/chrisapi'
 import FeedTree from './FeedTree'
 import { getFeedTree, TreeNodeDatum, getTsNodes } from './data'
 

@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
-import useSize from "./useSize";
 import {
   tree,
   hierarchy,
@@ -12,13 +11,14 @@ import { v4 as uuidv4 } from "uuid";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { AiOutlineRotateLeft, AiOutlineRotateRight } from "react-icons/ai";
+import { isEqual } from "lodash";
+import clone from "clone";
+import { Switch, Button, Alert } from "@patternfly/react-core";
 import Link from "./Link";
 import NodeWrapper from "./Node";
 import { Datum, TreeNodeDatum, Point } from "./data";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
-import { isEqual } from "lodash";
-import clone from "clone";
-import { Switch, Button, Alert } from "@patternfly/react-core";
+import useSize from "./useSize";
 import { TSID } from "./ParentComponent";
 import { useTypedSelector } from "../../../store/hooks";
 import { setFeedLayout, setTranslate } from "../../../store/feed/actions";
@@ -170,9 +170,9 @@ const FeedTree = (props: AllProps) => {
   const size = useSize(divRef);
 
   React.useEffect(() => {
-    //@ts-ignore
+    // @ts-ignore
     if (size && size.width) {
-      //@ts-ignore
+      // @ts-ignore
       dispatch(setTranslate({ x: size.width / 2, y: 90 }));
     }
   }, [size, dispatch]);
@@ -191,13 +191,13 @@ const FeedTree = (props: AllProps) => {
     const g = select(`.${graphClassName}`);
 
     svg.call(
-      //@ts-ignore
+      // @ts-ignore
       d3Zoom().transform,
       zoomIdentity.translate(translate.x, translate.y).scale(zoom)
     );
 
     svg.call(
-      //@ts-ignore
+      // @ts-ignore
       d3Zoom()
         .scaleExtent([scaleExtent.min, scaleExtent.max])
         .on("zoom", () => {
@@ -212,12 +212,10 @@ const FeedTree = (props: AllProps) => {
 
   React.useEffect(() => {
     if (props.data) {
-      setFeedState((feedState) => {
-        return {
+      setFeedState((feedState) => ({
           ...feedState,
           data: assignInternalProperties(clone(props.data)),
-        };
-      });
+        }));
     }
   }, [props.data]);
 
@@ -293,14 +291,12 @@ const FeedTree = (props: AllProps) => {
           ? [nodeSize.y, nodeSize.x]
           : [nodeSize.x, nodeSize.y]
       )
-      .separation((a, b) => {
-        return a.data.parentId === b.data.parentId
+      .separation((a, b) => a.data.parentId === b.data.parentId
           ? separation.siblings
-          : separation.nonSiblings;
-      });
+          : separation.nonSiblings);
 
     let nodes;
-    let links: HierarchyPointLink<TreeNodeDatum>[] | undefined = undefined;
+    let links: HierarchyPointLink<TreeNodeDatum>[] | undefined;
     const newLinks: HierarchyPointLink<TreeNodeDatum>[] = [];
 
     if (data) {
@@ -310,13 +306,13 @@ const FeedTree = (props: AllProps) => {
       nodes = rootNode.descendants();
       links = rootNode.links();
 
-      const targetNodes = links.filter((link) => {
-        //@ts-ignore
-        return link.target.data?.item?.data?.plugin_type === "ts";
-      });
+      const targetNodes = links.filter((link) => 
+        // @ts-ignore
+         link.target.data?.item?.data?.plugin_type === "ts"
+      );
 
       const remodifiedLinks = targetNodes.map((node) => {
-        const target = node.target;
+        const {target} = node;
         const sources: HierarchyPointNode<TreeNodeDatum>[] = [];
         // find all the source nodes;
         links?.forEach((link) => {
@@ -339,13 +335,13 @@ const FeedTree = (props: AllProps) => {
         for (let i = 0; i < remodifiedLinks.length; i++) {
           const tempLinks = remodifiedLinks[i];
           if (tempLinks && tempLinks.length > 0) {
-            //@ts-ignore
+            // @ts-ignore
             newLinks.push(...tempLinks);
           }
         }
       }
     }
-    //@ts-ignore
+    // @ts-ignore
     newLinks.push(...links);
     return { nodes, newLinks };
   };
@@ -459,18 +455,15 @@ const FeedTree = (props: AllProps) => {
             className={graphClassName}
             transform={`translate(${feedTreeProp.translate.x},${feedTreeProp.translate.y}) scale(${scale})`}
           >
-            {links?.map((linkData, i) => {
-              return (
+            {links?.map((linkData, i) => (
                 <Link
                   orientation={orientation}
-                  key={"link" + i}
+                  key={`link${  i}`}
                   linkData={linkData}
                 />
-              );
-            })}
+              ))}
 
-            {nodes?.map(({ data, x, y, parent }, i) => {
-              return (
+            {nodes?.map(({ data, x, y, parent }, i) => (
                 <NodeWrapper
                   key={`node + ${i}`}
                   data={data}
@@ -487,8 +480,7 @@ const FeedTree = (props: AllProps) => {
                       : undefined
                   }
                 />
-              );
-            })}
+              ))}
           </TransitionGroupWrapper>
         </svg>
       )}

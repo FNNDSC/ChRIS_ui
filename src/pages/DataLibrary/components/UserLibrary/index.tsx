@@ -18,9 +18,10 @@ import {
 } from '@patternfly/react-core'
 import { Feed } from '@fnndsc/chrisapi'
 import { Alert, Progress as AntProgress } from 'antd'
+import { FaUpload } from 'react-icons/fa'
+import { useDispatch } from 'react-redux'
 import BrowserContainer from './BrowserContainer'
 import LocalSearch from './LocalSearch'
-import { FaUpload } from 'react-icons/fa'
 import FileUpload from '../../../../components/common/fileupload'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { LocalFile } from '../../../../components/feed/CreateFeed/types'
@@ -33,7 +34,6 @@ import {
   setMultiColumnLayout,
 } from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'
-import { useDispatch } from 'react-redux'
 import { fetchResource } from '../../../../utils'
 import './user-library.scss'
 
@@ -139,20 +139,20 @@ const DataLibrary = () => {
           const feedFn = client.getFiles
           const bindFn = feedFn.bind(client)
           const fileItems = await fetchResource(params, bindFn)
-          filesToPush['files'].push(...fileItems)
+          filesToPush.files.push(...fileItems)
         }
 
         if (file.type === 'uploads') {
           const uploadsFn = client.getUploadedFiles
           const uploadBound = uploadsFn.bind(client)
           const fileItems = await fetchResource(params, uploadBound)
-          filesToPush['files'].push(...fileItems)
+          filesToPush.files.push(...fileItems)
         }
         if (file.type === 'services') {
           const pacsFn = client.getPACSFiles
           const pacsBound = pacsFn.bind(client)
           const fileItems = await fetchResource(params, pacsBound)
-          filesToPush['files'].push(...fileItems)
+          filesToPush.files.push(...fileItems)
         }
         return filesToPush
       }),
@@ -167,7 +167,7 @@ const DataLibrary = () => {
   const downloadUtil = async (filesItems: DownloadType[]) => {
     try {
       let writable
-      //@ts-ignore
+      // @ts-ignore
       const existingDirectoryHandle = await window.showDirectoryPicker()
       for (let i = 0; i < filesItems.length; i++) {
         const { files, name } = filesItems[i]
@@ -233,8 +233,8 @@ const DataLibrary = () => {
     } catch (error) {
       setDownload({
         ...download,
-        //@ts-ignore
-        error: error,
+        // @ts-ignore
+        error,
       })
       setFetchingFiles(false)
     }
@@ -316,20 +316,20 @@ const DataLibrary = () => {
   const feedFiles = (
     <section>
       <LocalSearch type="feed" username={username} />
-      <BrowserContainer type="feed" path={`/`} username={username} />
+      <BrowserContainer type="feed" path="/" username={username} />
     </section>
   )
 
   const servicesFiles = (
     <section>
       <LocalSearch type="services" username={username} />
-      <BrowserContainer type="services" path={`SERVICES`} username={username} />
+      <BrowserContainer type="services" path="SERVICES" username={username} />
     </section>
   )
 
   const handleAddFolder = (directoryName: string) => {
     const folders =
-      foldersState['uploads'] && foldersState['uploads'][currentPath['uploads']]
+      foldersState.uploads && foldersState.uploads[currentPath.uploads]
 
     const folderExists =
       folders && folders.findIndex((folder) => folder.name === directoryName)
@@ -388,8 +388,7 @@ const DataLibrary = () => {
                 {selectedFolder.length > 0 && (
                   <>
                     <ChipGroup style={{ marginBottom: '1em' }} categoryName="">
-                      {selectedFolder.map((file: FileSelect, index) => {
-                        return (
+                      {selectedFolder.map((file: FileSelect, index) => (
                           <Chip
                             onClick={() => {
                               dispatchLibrary(clearSelectFolder(file))
@@ -398,8 +397,7 @@ const DataLibrary = () => {
                           >
                             {file.folder.path}
                           </Chip>
-                        )
-                      })}
+                        ))}
                     </ChipGroup>
                     <div
                       style={{
@@ -416,7 +414,7 @@ const DataLibrary = () => {
               </>
             }
             style={{ width: '100%', marginTop: '3em', padding: '2em' }}
-          ></Alert>
+           />
 
           {fetchingFiles && (
             <Alert type="info" closable message="Fetching Files to Download" />
@@ -491,7 +489,7 @@ const DataLibrary = () => {
                   onClose={() => {
                     errorUtil(errorString)
                   }}
-                ></Alert>
+                 />
               )
             })}
         </AlertGroup>
@@ -653,8 +651,7 @@ const UploadComponent = ({
         dispatchFn={async (files) => {
           if (!directoryName) {
             setWarning('Please add a directory name')
-          } else {
-            if (directoryName) {
+          } else if (directoryName) {
               handleAddFolder(directoryName)
               handleLocalFiles(files)
               const client = ChrisAPIClient.getClient()
@@ -679,7 +676,6 @@ const UploadComponent = ({
                 handleFileModal()
               }, 1000)
             }
-          }
         }}
       />
     </Modal>

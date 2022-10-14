@@ -6,12 +6,12 @@ import {
   Banner,
 } from "@patternfly/react-core";
 import { AiFillCaretDown } from "react-icons/ai";
-import { SimpleDropdownProps, SimpleDropdownState } from "./types";
-import { unPackForKeyValue } from "./lib/utils";
 import { PluginParameter } from "@fnndsc/chrisapi";
 import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
 import { css } from "@patternfly/react-styles";
 import { MdClose } from "react-icons/md";
+import { unPackForKeyValue } from "./lib/utils";
+import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 
 function getInitialState() {
   return {
@@ -52,10 +52,10 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   };
 
   const handleClick = (param: PluginParameter) => {
-    const flag = param.data.flag;
+    const {flag} = param.data;
     const placeholder = param.data.help;
-    const type = param.data.type;
-    const defaultValue = value ? value : param.data.default;
+    const {type} = param.data;
+    const defaultValue = value || param.data.default;
     handleChange(id, flag, defaultValue, type, placeholder, false, paramName);
   };
 
@@ -93,7 +93,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     params
       .filter((param) => param.data.optional === true)
       .map((param) => {
-        const id = param.data.id;
+        const {id} = param.data;
         return (
           <DropdownItem
             key={id}

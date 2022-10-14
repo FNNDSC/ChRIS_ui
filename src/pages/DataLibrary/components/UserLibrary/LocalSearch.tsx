@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { TextInput, Button, Spinner, Label } from "@patternfly/react-core";
+import { debounce } from "lodash";
 import {
   searchUploadedFiles,
   searchFeedFiles,
@@ -9,7 +10,6 @@ import {
   handlePacsFiles,
 } from "./utils";
 import { LibraryContext } from "./context";
-import { debounce } from "lodash";
 import {
   clearSearchFilter,
   setEmptySetIndicator,

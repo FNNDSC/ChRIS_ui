@@ -106,13 +106,12 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     selectedPlugin?.data.status === "cancelled" ||
     selectedPlugin?.data.status === "finishedWithError";
 
-  //@ts-ignore
+  // @ts-ignore
   const error_code = selectedPlugin?.data.error_code;
-  //@ts-ignore
+  // @ts-ignore
   const compute_env = selectedPlugin?.data.compute_resource_name;
 
-  const renderGridItem = (title: string, value: React.ReactNode) => {
-    return (
+  const renderGridItem = (title: string, value: React.ReactNode) => (
       <>
         <GridItem className="title" span={2}>
           {title}
@@ -122,11 +121,10 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
         </GridItem>
       </>
     );
-  };
 
   if (!selectedPlugin) {
     return <SpinContainer background="#002030" title="Loading Node Details" />;
-  } else {
+  } 
     const Time = (
       <>
         <FaCalendarAlt />
@@ -173,7 +171,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             {renderGridItem("Created", Time)}
             {renderGridItem("Compute Environment", <span>{compute_env}</span>)}
             {runTime && (
-              <Fragment>
+              <>
                 {renderGridItem(
                   "Total Runtime",
                   <span>
@@ -182,7 +180,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
                       runTime(selectedPlugin)}
                   </span>
                 )}
-              </Fragment>
+              </>
             )}
             {cancelled &&
               renderGridItem(
@@ -257,7 +255,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
         </div>
       </div>
     );
-  }
+  
 };
 
 export default NodeDetails;
@@ -327,7 +325,7 @@ function getCommand(
       (param) => `${param.name} ${param.value}`
     );
     if (parameterCommand.length > 0) {
-      command += parameterCommand.join(" ") + " \\\n";
+      command += `${parameterCommand.join(" ")  } \\\n`;
     }
   }
   command = `${command}/incoming /outgoing \n \n`;

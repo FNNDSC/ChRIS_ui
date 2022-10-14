@@ -56,13 +56,13 @@ const Tree = (props: {
     const g = select(`.${graphClassName}`);
 
     svg.call(
-      ///@ts-ignore
+      /// @ts-ignore
       d3Zoom().transform,
       zoomIdentity.translate(translate.x, translate.y).scale(zoom)
     );
 
     svg.call(
-      //@ts-ignore
+      // @ts-ignore
       d3Zoom()
         .scaleExtent([scaleExtent.min, scaleExtent.max])
         .on("zoom", () => {
@@ -103,12 +103,12 @@ const Tree = (props: {
   }, [pluginPipings, dispatch, pipelinePlugins, currentPipelineId]);
 
   React.useEffect(() => {
-    //@ts-ignore
+    // @ts-ignore
     if (size && size.width) {
       setTranslate({
-        //@ts-ignore
+        // @ts-ignore
         x: size.width / 2.5,
-        //@ts-ignore
+        // @ts-ignore
         y: size.height / 3,
       });
     }
@@ -117,7 +117,7 @@ const Tree = (props: {
   const generateTree = () => {
     const d3Tree = tree<TreeNode>().nodeSize([nodeSize.x, nodeSize.y]);
     let nodes;
-    let links = undefined;
+    let links;
     if (data) {
       const rootNode = d3Tree(hierarchy(data[0]));
       nodes = rootNode.descendants();
@@ -148,17 +148,14 @@ const Tree = (props: {
               className={graphClassName}
               transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
             >
-              {links?.map((linkData, i) => {
-                return (
+              {links?.map((linkData, i) => (
                   <LinkData
                     orientation="vertical"
-                    key={"link" + i}
+                    key={`link${  i}`}
                     linkData={linkData}
                   />
-                );
-              })}
-              {nodes?.map(({ data, x, y, parent }, i) => {
-                return (
+                ))}
+              {nodes?.map(({ data, x, y, parent }, i) => (
                   <NodeData
                     key={`node + ${i}`}
                     data={data}
@@ -168,8 +165,7 @@ const Tree = (props: {
                     handleNodeClick={handleNodeClick}
                     currentPipelineId={currentPipelineId}
                   />
-                );
-              })}
+                ))}
             </TransitionGroupWrapper>
           </svg>
         ) : (
@@ -203,9 +199,7 @@ const LinkData: React.FC<LinkProps> = ({ linkData, orientation }) => {
   const applyOpacity = (
     opacity: number,
     transitionDuration: number,
-    done = () => {
-      return null;
-    }
+    done = () => null
   ) => {
     select(linkRef.current).style("opacity", opacity).on("end", done);
   };
@@ -213,19 +207,19 @@ const LinkData: React.FC<LinkProps> = ({ linkData, orientation }) => {
   const drawPath = () => {
     const { source, target } = linkData;
 
-    const deltaX = target.x - source.x,
-      deltaY = target.y - source.y,
-      dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-      normX = deltaX / dist,
-      normY = deltaY / dist,
-      sourcePadding = nodeRadius,
-      targetPadding = nodeRadius + 4,
-      sourceX = source.x + sourcePadding * normX,
-      sourceY = source.y + sourcePadding * normY,
-      targetX = target.x - targetPadding * normX,
-      targetY = target.y - targetPadding * normY;
+    const deltaX = target.x - source.x;
+      const deltaY = target.y - source.y;
+      const dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      const normX = deltaX / dist;
+      const normY = deltaY / dist;
+      const sourcePadding = nodeRadius;
+      const targetPadding = nodeRadius + 4;
+      const sourceX = source.x + sourcePadding * normX;
+      const sourceY = source.y + sourcePadding * normY;
+      const targetX = target.x - targetPadding * normX;
+      const targetY = target.y - targetPadding * normY;
 
-    //@ts-ignore
+    // @ts-ignore
 
     return orientation === "horizontal"
       ? `M ${sourceY} ${sourceX} L ${targetY} ${targetX}`
@@ -233,7 +227,7 @@ const LinkData: React.FC<LinkProps> = ({ linkData, orientation }) => {
   };
 
   return (
-    <Fragment>
+    <>
       <path
         ref={linkRef}
         className="link"
@@ -242,7 +236,7 @@ const LinkData: React.FC<LinkProps> = ({ linkData, orientation }) => {
         data-source-id={linkData.source.id}
         data-target-id={linkData.target.id}
       />
-    </Fragment>
+    </>
   );
 };
 

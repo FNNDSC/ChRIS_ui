@@ -1,7 +1,7 @@
 import React, { useRef, Fragment } from "react";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
-import { TreeNode } from "../../utils/";
+import { TreeNode } from "../../utils";
 import ChrisAPIClient from "../../api/chrisapiclient";
 
 export interface Point {
@@ -22,11 +22,9 @@ type NodeProps = {
   currentPipelineId: number;
 };
 
-const setNodeTransform = (orientation: string, position: Point) => {
-  return orientation === "horizontal"
+const setNodeTransform = (orientation: string, position: Point) => orientation === "horizontal"
     ? `translate(${position.y},${position.x})`
     : `translate(${position.x}, ${position.y})`;
-};
 const DEFAULT_NODE_CIRCLE_RADIUS = 10;
 const NodeData = (props: NodeProps) => {
   const nodeRef = useRef<SVGGElement>(null);
@@ -50,7 +48,7 @@ const NodeData = (props: NodeProps) => {
     applyNodeTransform(nodeTransform);
 
     async function fetchPluginName() {
-      const plugin_id = data.plugin_id;
+      const {plugin_id} = data;
       const client = ChrisAPIClient.getClient();
       const plugin = await client.getPlugin(plugin_id);
       setPluginName(plugin.data.name);
@@ -74,7 +72,7 @@ const NodeData = (props: NodeProps) => {
   );
 
   return (
-    <Fragment>
+    <>
       <g
         style={{
           cursor: "pointer",
@@ -88,10 +86,10 @@ const NodeData = (props: NodeProps) => {
           }}
           id={`node_${data.id}`}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
-        ></circle>
+         />
         {textLabel}
       </g>
-    </Fragment>
+    </>
   );
 };
 

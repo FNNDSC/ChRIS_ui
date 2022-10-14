@@ -179,7 +179,7 @@ const DicomTag: React.FC<DicomTagProps> = ({ image }: DicomTagProps) => {
           <span className="dicomTag__list__item--value">{item.value}</span>
         </ListItem>
       );
-    } else return undefined;
+    } return undefined;
   });
 
   return (
@@ -202,7 +202,7 @@ export default React.memo(DicomTag);
 const getSopClass = (image: Image | undefined) => {
   if (image && image.data) {
     const value: string = image.data.string("x00080016");
-    return value + " [" + uids[value] + "]";
+    return `${value  } [${  uids[value]  }]`;
   }
   return undefined;
 };

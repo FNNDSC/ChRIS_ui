@@ -35,7 +35,7 @@ const LogTabs = (props: LogTabsProps) => {
               <TabTitleText>JSON Viewer</TabTitleText>
             </>
           }
-        ></Tab>
+         />
         <Tab
           eventKey={1}
           title={
@@ -46,7 +46,7 @@ const LogTabs = (props: LogTabsProps) => {
               <TabTitleText>Terminal</TabTitleText>
             </>
           }
-        ></Tab>
+         />
       </Tabs>
     </>
   );

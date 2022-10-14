@@ -19,11 +19,10 @@ const Footer = ({
   onCancel,
   selectedTsPlugin,
   selectedConfig,
-}: FooterProps) => {
-  return (
+}: FooterProps) => (
     <Space>
       <Button
-        isDisabled={currentStep === 0 ? true : false}
+        isDisabled={currentStep === 0}
         onClick={onBack}
         type="button"
       >
@@ -31,11 +30,9 @@ const Footer = ({
       </Button>
       <Button
         isDisabled={
-          currentStep === 1 &&
+          !!(currentStep === 1 &&
           selectedConfig === "join-node" &&
-          !selectedTsPlugin
-            ? true
-            : false
+          !selectedTsPlugin)
         }
         onClick={onNext}
         type="button"
@@ -48,6 +45,5 @@ const Footer = ({
       </Button>
     </Space>
   );
-};
 
 export default Footer;

@@ -2,7 +2,6 @@ import React from 'react'
 import classNames from 'classnames'
 
 import { useDispatch } from 'react-redux'
-import { useTypedSelector } from '../../../store/hooks'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,7 +11,6 @@ import {
   HelperTextItem,
   HelperText,
 } from '@patternfly/react-core'
-import { bytesToSize } from './utils'
 import { FeedFile } from '@fnndsc/chrisapi'
 import { MdFileDownload } from 'react-icons/md'
 import {
@@ -25,6 +23,10 @@ import {
 } from 'react-icons/ai'
 import { FaFileCode, FaFilm } from 'react-icons/fa'
 import { Table, TableHeader, TableBody } from '@patternfly/react-table'
+import { BiHorizontalCenter } from 'react-icons/bi'
+import { Alert } from 'antd'
+import { useTypedSelector } from '../../../store/hooks'
+import { bytesToSize } from './utils'
 import FileDetailView from '../Preview/FileDetailView'
 import FileViewerModel from '../../../api/models/file-viewer.model'
 import { getFileExtension } from '../../../api/models/file-explorer.model'
@@ -33,15 +35,11 @@ import {
   clearSelectedFile,
   setSelectedFile,
 } from '../../../store/explorer/actions'
-import { BiHorizontalCenter } from 'react-icons/bi'
 import { getXtkFileMode } from '../../detailedView/displays/XtkViewer/XtkViewer'
-import { Alert } from 'antd'
 import { SpinContainer } from '../../common/loading/LoadingContent'
 import { EmptyStateLoader } from './FeedOutputBrowser'
 
-const getFileName = (name: any) => {
-  return name.split('/').slice(-1)
-}
+const getFileName = (name: any) => name.split('/').slice(-1)
 
 const FileBrowser = (props: FileBrowserProps) => {
   const {
@@ -72,7 +70,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   }
 
   const generateTableRow = (item: string | FeedFile) => {
-    let type, icon, fsize, fileName
+    let type; let icon; let fsize; let fileName
     type = 'UNKNOWN FORMAT'
     const isPreviewing = selectedFile === item
 
@@ -135,7 +133,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     const onClick = () => {
       dispatch(clearSelectedFile())
       if (index === breadcrumb.length - 1) {
-        return
+        
       } else {
         const findIndex = breadcrumb.findIndex((path) => path === value)
         if (findIndex !== -1) {
@@ -153,7 +151,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     return (
       <BreadcrumbItem
         className="file-browser__header--crumb"
-        showDivider={true}
+        showDivider
         key={index}
         onClick={onClick}
         to={index === breadcrumb.length - 1 ? undefined : '#'}
@@ -244,7 +242,7 @@ const FileBrowser = (props: FileBrowserProps) => {
             <TableBody
               onRowClick={(event: any, rows: any, rowData: any) => {
                 dispatch(clearSelectedFile())
-                const rowIndex = rowData.rowIndex
+                const {rowIndex} = rowData
                 const item = items[rowIndex]
                 if (typeof item === 'string') {
                   handleFileClick(`${path}/${item}`)

@@ -1,9 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import Wrapper from "../../../Layout/PageWrapper";
-import { PageSection } from "@patternfly/react-core";
-import { Typography } from "antd";
-import {
+import { PageSection ,
   Grid,
   GridItem,
   EmptyState,
@@ -14,8 +11,11 @@ import {
   EmptyStateBody,
   EmptyStatePrimary,
 } from "@patternfly/react-core";
+import { Typography } from "antd";
+
 import { FaCubes } from "react-icons/fa";
 import pluralize from "pluralize";
+import Wrapper from "../../../Layout/PageWrapper";
 import PFDCMClient, {
   PACSPatient,
   PACSPullStages,
@@ -24,11 +24,11 @@ import PFDCMClient, {
 } from "../../../../api/pfdcm";
 import { setSidebarActive } from "../../../../store/ui/actions";
 
-const { Paragraph } = Typography;
-
 import QueryBuilder from "./QueryBuilder";
 import QueryResults from "./QueryResults";
 import InfoIcon from "../../../../components/common/info/InfoIcon";
+
+const { Paragraph } = Typography;
 
 export enum PFDCMQueryTypes {
   PMRN,
@@ -174,9 +174,7 @@ export const PACSLookup = () => {
     []
   );
 
-  const handlePACSStatus = useCallback(async (query: PFDCMFilters) => {
-    return client.status(query);
-  }, []);
+  const handlePACSStatus = useCallback(async (query: PFDCMFilters) => client.status(query), []);
 
   const Results = () => {
     if (loading === undefined) return null;
@@ -216,8 +214,7 @@ export const PACSLookup = () => {
           </GridItem>
         </>
       );
-    else
-      return (
+    return (
         <EmptyState>
           <EmptyStateIcon variant="container" component={FaCubes} />
           <Title size="lg" headingLevel="h4">

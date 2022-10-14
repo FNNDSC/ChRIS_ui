@@ -13,6 +13,7 @@ import {
   Pagination,
 } from "@patternfly/react-core";
 import { MdOutlineAddCircle } from "react-icons/md";
+import { Spin } from "antd";
 import { useTypedSelector } from "../../../store/hooks";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import {
@@ -21,7 +22,7 @@ import {
 } from "../../../store/pluginInstance/actions";
 import { getPluginInstanceStatusRequest } from "../../../store/resources/actions";
 import { fetchResources } from "../CreateFeed/utils/pipelines";
-import { Spin } from "antd";
+
 const AddPipeline = () => {
   const dispatch = useDispatch();
   const { selectedPlugin } = useTypedSelector(
@@ -52,7 +53,7 @@ const AddPipeline = () => {
       if (pluginPipings && pluginParameters && pipelinePlugins) {
         const client = ChrisAPIClient.getClient();
         const nodes_info = client.computeWorkflowNodesInfo(
-          //@ts-ignore
+          // @ts-ignore
           pluginParameters.data
         );
         await client.createWorkflow(selectedPipeline.data.id, {
@@ -92,7 +93,7 @@ const AddPipeline = () => {
   };
 
   return (
-    <React.Fragment>
+    <>
       <Button
         icon={<MdOutlineAddCircle />}
         onClick={handleToggle}
@@ -140,7 +141,7 @@ const AddPipeline = () => {
           <Alert variant="danger" isInline isPlain title={errorString} />
         )}
       </Modal>
-    </React.Fragment>
+    </>
   );
 };
 
@@ -180,12 +181,10 @@ const PipelineList = ({
       if (registeredPipelines) {
         setPipelines(registeredPipelines);
       }
-      setFilterState((state) => {
-        return {
+      setFilterState((state) => ({
           ...state,
           itemCount: registeredPipelinesList.totalCount,
-        };
-      });
+        }));
       setLoading(false);
     }
 

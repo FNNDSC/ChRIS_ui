@@ -24,18 +24,16 @@ const SelectionAlertWrap: React.FC<SelectionAlertWrapProps> = ({
           Creating feed from {selectData.length} {pluralize("item", selectData.length)}&nbsp;
           <ChipGroup numChips={2}>
             {
-              selectData.map((path) => {
-                return (
+              selectData.map((path) => (
                   <Chip isReadOnly key={path}>
                     { path.split('/').reverse().shift() }
                   </Chip>
-                )
-              })
+                ))
             }
           </ChipGroup>
         </div>
       )
-    else return null;
+    return null;
   }
 
   return (

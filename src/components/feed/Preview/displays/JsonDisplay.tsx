@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactJSON from "react-json-view";
-import { IFileBlob } from "../../../../api/models/file-viewer.model";
 import { Text } from "@patternfly/react-core";
+import { IFileBlob } from "../../../../api/models/file-viewer.model";
+
 type AllProps = {
   fileItem: IFileBlob;
 };
@@ -13,7 +14,7 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
 
   const getBlobText = React.useCallback(() => {
     const { blob } = fileItem;
-    if (!!blob) {
+    if (blob) {
       const reader = new FileReader();
       reader.addEventListener("loadend", (e: any) => {
         const blobText = e.target.result;

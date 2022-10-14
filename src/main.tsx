@@ -1,12 +1,12 @@
 import * as React from "react";
-import Routes from "./routes";
-import RouterContext from "./pages/Routing/RouterContext";
-import { Series } from "./pages/DataLibrary/Library";
 import { Provider } from "react-redux";
 import { Store } from "redux";
 import { BrowserRouter } from "react-router-dom";
-import { RootState } from "./store/root/applicationState";
 import { CookiesProvider } from "react-cookie";
+import Routes from "./routes";
+import RouterContext from "./pages/Routing/RouterContext";
+import { Series } from "./pages/DataLibrary/Library";
+import { RootState } from "./store/root/applicationState";
 
 interface AllProps {
   store: Store<RootState>;

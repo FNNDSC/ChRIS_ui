@@ -35,7 +35,7 @@ const PluginViewerModal = (props: AllProps) => {
   }
 
   return (
-    <React.Fragment>
+    <>
       <Modal
         className="dicom-modal"
         title="ChRIS Output Viewer"
@@ -48,7 +48,7 @@ const PluginViewerModal = (props: AllProps) => {
         </React.Suspense>
         <Gotop isActive={gotopActive} scrollable={scrollDivId} />
       </Modal>
-    </React.Fragment>
+    </>
   )
 }
 

@@ -12,6 +12,7 @@ import {
   DataListContent,
 } from "@patternfly/react-core";
 import { Spin } from "antd";
+import { Pipeline, PipelinePipingDefaultParameterList } from "@fnndsc/chrisapi";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types";
 import {
@@ -19,13 +20,12 @@ import {
   ConfigurationPage,
   UploadJson,
   GeneralCompute,
-} from "../Pipelines/";
+} from "../Pipelines";
 import {
   fetchComputeInfo,
   generatePipelineWithName,
   fetchPipelines,
 } from "./utils/pipelines";
-import { Pipeline, PipelinePipingDefaultParameterList } from "@fnndsc/chrisapi";
 
 export interface UploadJsonProps {
   parameters: PipelinePipingDefaultParameterList;
@@ -58,12 +58,10 @@ const Pipelines = () => {
             pipelines: registeredPipelines,
           },
         });
-        setPageState((pageState) => {
-          return {
+        setPageState((pageState) => ({
             ...pageState,
             itemCount: registeredPipelinesList.totalCount,
-          };
-        });
+          }));
       }
     });
   }, [perPage, page, dispatch]);
@@ -144,11 +142,10 @@ const Pipelines = () => {
 
         <DataList aria-label="pipeline list">
           {pipelines.length > 0 &&
-            pipelines.map((pipeline) => {
-              return (
+            pipelines.map((pipeline) => (
                 <DataListItem
                   isExpanded={
-                    expanded && expanded[pipeline.data.id] ? true : false
+                    !!(expanded && expanded[pipeline.data.id])
                   }
                   key={pipeline.data.id}
                 >
@@ -277,11 +274,9 @@ const Pipelines = () => {
                         key="delete-action"
                         onClick={async () => {
                           const filteredPipelines = pipelines.filter(
-                            (currentPipeline: any) => {
-                              return (
+                            (currentPipeline: any) => (
                                 currentPipeline.data.id !== pipeline.data.id
-                              );
-                            }
+                              )
                           );
                           dispatch({
                             type: Types.SetPipelines,
@@ -325,8 +320,7 @@ const Pipelines = () => {
                     )}
                   </DataListContent>
                 </DataListItem>
-              );
-            })}
+              ))}
         </DataList>
       </div>
     </div>

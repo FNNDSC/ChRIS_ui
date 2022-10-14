@@ -19,8 +19,7 @@ const Status = () => {
           direction="horizontal"
           size="small"
         >
-          {pluginStatus.map((label: any, index: number) => {
-            return (
+          {pluginStatus.map((label: any, index: number) => (
               <Step
                 key={index}
                 icon={label.process && <Spin />}
@@ -34,16 +33,14 @@ const Status = () => {
                     : 'process'
                 }
               />
-            )
-          })}
+            ))}
         </Steps>
         <Steps
           direction="horizontal"
           size="small"
           className="node-details__status-descriptions"
         >
-          {pluginStatus.map((label: any, index: number) => {
-            return (
+          {pluginStatus.map((label: any, index: number) => (
               <Step
                 key={index}
                 description={label.description}
@@ -55,12 +52,11 @@ const Status = () => {
                     : undefined
                 }
               />
-            )
-          })}
+            ))}
         </Steps>
       </>
     )
-  } else return null
+  } return null
 }
 
 export default React.memo(Status)

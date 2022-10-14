@@ -9,8 +9,7 @@ type ChooseConfig = {
 const ChooseConfig: React.FC<ChooseConfig> = ({
   selectedConfig,
   handleConfig,
-}: ChooseConfig) => {
-  return (
+}: ChooseConfig) => (
     <div className="list-container">
       <Radio
         onChange={(_: any, event: any) => {
@@ -36,6 +35,5 @@ const ChooseConfig: React.FC<ChooseConfig> = ({
       />
     </div>
   );
-};
 
 export default ChooseConfig;

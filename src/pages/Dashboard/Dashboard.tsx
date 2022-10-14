@@ -1,7 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
-import Wrapper from "../Layout/PageWrapper";
 import {
   Title,
   PageSection,
@@ -17,6 +16,8 @@ import {
 } from "@patternfly/react-core";
 import { MdOutlineImageSearch } from "react-icons/md";
 import { FaMagic } from "react-icons/fa";
+import preval from "preval.macro";
+import Wrapper from "../Layout/PageWrapper";
 
 import { setSidebarActive } from "../../store/ui/actions";
 import FirstPng from "../../assets/images/img_1.png";
@@ -28,7 +29,6 @@ import TreeTwo from "../../assets/images/tree_2.png";
 import TreeThree from "../../assets/images/tree_3.png";
 import TreeFour from "../../assets/images/tree_4.png";
 import "./Dashboard.scss";
-import preval from "preval.macro";
 
 interface DashboardProps {
   children?: React.ReactNode;
@@ -180,10 +180,6 @@ const CardDisplay = ({
 
 const styleImg = { marginRight: "1em" };
 
-const ImageComponent = ({ img }: { img: string }) => {
-  return <img style={styleImg} src={img} alt="Image for analyses and Data" />;
-};
+const ImageComponent = ({ img }: { img: string }) => <img style={styleImg} src={img} alt="Image for analyses and Data" />;
 
-const LogoComponent = ({ logo }: { logo: JSX.Element }) => {
-  return <>{logo}</>;
-};
+const LogoComponent = ({ logo }: { logo: JSX.Element }) => <>{logo}</>;

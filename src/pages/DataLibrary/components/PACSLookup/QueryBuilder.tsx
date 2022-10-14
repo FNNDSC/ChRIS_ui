@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate , useLocation } from "react-router";
 import {
   Card,
   CardBody,
@@ -24,7 +24,7 @@ import { PFDCMQuery, PFDCMQueryTypes } from ".";
 import "./pacs-lookup.scss";
 
 import { toPACSDate } from "../../../../api/pfdcm/pfdcm-utils";
-import { useLocation } from "react-router";
+
 
 interface QueryBuilderProps {
   PACS?: string;
