@@ -1,4 +1,4 @@
-@import "../../../../assets/scss/helpers/variables";
+@import '../../../../assets/scss/helpers/variables';
 
 .screen-one {
   .pf-c-dropdown__toggle-text,
@@ -106,7 +106,7 @@
 .configuration {
   display: flex;
   flex-direction: column;
-  margin-top: "1.5rem";
+  margin-top: '1.5rem';
 
   &__options {
     display: flex;

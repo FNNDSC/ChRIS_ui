@@ -31,10 +31,7 @@ import FileDetailView from '../Preview/FileDetailView'
 import FileViewerModel from '../../../api/models/file-viewer.model'
 import { getFileExtension } from '../../../api/models/file-explorer.model'
 import { FileBrowserProps } from './types'
-import {
-  clearSelectedFile,
-  setSelectedFile,
-} from '../../../store/explorer/actions'
+import { clearSelectedFile, setSelectedFile } from '../../../store/explorer/actions'
 import { getXtkFileMode } from '../../detailedView/displays/XtkViewer/XtkViewer'
 import { SpinContainer } from '../../common/loading/LoadingContent'
 import { EmptyStateLoader } from './FeedOutputBrowser'
@@ -70,7 +67,10 @@ const FileBrowser = (props: FileBrowserProps) => {
   }
 
   const generateTableRow = (item: string | FeedFile) => {
-    let type; let icon; let fsize; let fileName
+    let type
+    let icon
+    let fsize
+    let fileName
     type = 'UNKNOWN FORMAT'
     const isPreviewing = selectedFile === item
 
@@ -91,7 +91,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       <div
         className={classNames(
           'file-browser__table--fileName',
-          isPreviewing && 'file-browser__table--isPreviewing',
+          isPreviewing && 'file-browser__table--isPreviewing'
         )}
       >
         <span>{icon}</span>
@@ -133,7 +133,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     const onClick = () => {
       dispatch(clearSelectedFile())
       if (index === breadcrumb.length - 1) {
-        
       } else {
         const findIndex = breadcrumb.findIndex((path) => path === value)
         if (findIndex !== -1) {
@@ -166,9 +165,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       {selectedFile && (
         <>
           <HelperText>
-            <HelperTextItem>
-              {getFileName(selectedFile.data.fname)}
-            </HelperTextItem>
+            <HelperTextItem>{getFileName(selectedFile.data.fname)}</HelperTextItem>
           </HelperText>
           <div className="header-panel__buttons">
             {selectedFile && (
@@ -191,9 +188,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         </>
       )}
 
-      {selectedFile && (
-        <FileDetailView selectedFile={selectedFile} preview="small" />
-      )}
+      {selectedFile && <FileDetailView selectedFile={selectedFile} preview="small" />}
     </>
   )
 
@@ -222,17 +217,12 @@ const FileBrowser = (props: FileBrowserProps) => {
               {items.length > 1
                 ? `(${items.length} items)`
                 : items.length === 1
-                  ? `(${items.length} item)`
-                  : 'Empty Directory'}
+                ? `(${items.length} item)`
+                : 'Empty Directory'}
             </span>
           </div>
         </div>
-        <Table
-          aria-label="file-browser-table"
-          variant="compact"
-          cells={cols}
-          rows={rows}
-        >
+        <Table aria-label="file-browser-table" variant="compact" cells={cols} rows={rows}>
           <TableHeader />
           {filesLoading ? (
             <SpinContainer title="Fetching Files" />
@@ -242,7 +232,7 @@ const FileBrowser = (props: FileBrowserProps) => {
             <TableBody
               onRowClick={(event: any, rows: any, rowData: any) => {
                 dispatch(clearSelectedFile())
-                const {rowIndex} = rowData
+                const { rowIndex } = rowData
                 const item = items[rowIndex]
                 if (typeof item === 'string') {
                   handleFileClick(`${path}/${item}`)
@@ -314,34 +304,19 @@ const HeaderPanel = (props: HeaderPanelProps) => {
 
   return (
     <div className="header-panel__buttons--toggleViewer">
-      <Button
-        variant="link"
-        onClick={handleFileBrowserOpen}
-        icon={<AiOutlineExpandAlt />}
-      >
+      <Button variant="link" onClick={handleFileBrowserOpen} icon={<AiOutlineExpandAlt />}>
         Maximize
       </Button>
       {!fileType && (
-        <Alert
-          type="info"
-          message="Please select a file to see the list of available viewers"
-        />
+        <Alert type="info" message="Please select a file to see the list of available viewers" />
       )}
       {fileType && imageFileTypes.includes(fileType) && (
-        <Button
-          variant="link"
-          onClick={handleDicomViewerOpen}
-          icon={<FaFilm />}
-        >
+        <Button variant="link" onClick={handleDicomViewerOpen} icon={<FaFilm />}>
           Open Image Viewer
         </Button>
       )}
       {fileType && getXtkFileMode(fileType) && (
-        <Button
-          variant="link"
-          onClick={handleXtkViewerOpen}
-          icon={<BiHorizontalCenter />}
-        >
+        <Button variant="link" onClick={handleXtkViewerOpen} icon={<BiHorizontalCenter />}>
           Open XTK Viewer
         </Button>
       )}

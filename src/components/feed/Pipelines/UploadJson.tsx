@@ -2,7 +2,7 @@ import React from 'react'
 import { AiOutlineUpload } from 'react-icons/ai'
 import ReactJSON from 'react-json-view'
 import { Alert, Button } from '@patternfly/react-core'
-import { PipelineList} from '@fnndsc/chrisapi'
+import { PipelineList } from '@fnndsc/chrisapi'
 import { generatePipelineWithData } from '../CreateFeed/utils/pipelines'
 import ChrisAPIClient from '../../../api/chrisapiclient'
 import { UploadJsonProps } from '../CreateFeed/Pipelines'
@@ -46,12 +46,9 @@ export const UploadJson = ({
             name: result.name,
           })
           if (!pipelineInstanceList.data) {
-            const {
-              resources,
-              pipelineInstance,
-            } = await generatePipelineWithData(result)
+            const { resources, pipelineInstance } = await generatePipelineWithData(result)
             const { parameters, pluginPipings, pipelinePlugins } = resources
-            
+
             handleDispatch({
               parameters,
               pluginPipings,
@@ -61,9 +58,7 @@ export const UploadJson = ({
             setShowSuccessIcon(true)
             cleanUp(event)
           } else {
-            setPipelineWarning(
-              `pipeline with the name ${result.name} already exists`,
-            )
+            setPipelineWarning(`pipeline with the name ${result.name} already exists`)
             cleanUp(event)
           }
         }
@@ -101,20 +96,12 @@ export const UploadJson = ({
         <Button onClick={showOpenFile} icon={<AiOutlineUpload />}>
           Upload a JSON spec{' '}
         </Button>
-        <span style={{ marginLeft: '1em', fontWeight: 700 }}>
-          {fileName}
-        </span>
+        <span style={{ marginLeft: '1em', fontWeight: 700 }}>{fileName}</span>
         {showSuccessIcon && (
-          <Alert
-            style={alertStyle}
-            variant="success"
-            title="Pipeline Spec uploaded successfully"
-          />
+          <Alert style={alertStyle} variant="success" title="Pipeline Spec uploaded successfully" />
         )}
       </div>
-      {pipelineWarning && (
-        <Alert style={alertStyle} variant="danger" title={pipelineWarning} />
-      )}
+      {pipelineWarning && <Alert style={alertStyle} variant="danger" title={pipelineWarning} />}
       {keys > 0 && (
         <div
           style={{
@@ -131,12 +118,7 @@ export const UploadJson = ({
         </div>
       )}
 
-      <input
-        ref={fileOpen}
-        style={{ display: 'none' }}
-        type="file"
-        onChange={handleUpload}
-      />
+      <input ref={fileOpen} style={{ display: 'none' }} type="file" onChange={handleUpload} />
     </>
   )
 }

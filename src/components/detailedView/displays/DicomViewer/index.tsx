@@ -26,12 +26,12 @@ cornerstoneWADOImageLoader.external.dicomParser = dicomParser
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     'Content-Type': 'application/vnd.collection+json',
-    Authorization: `Token ${  token}`,
+    Authorization: `Token ${token}`,
   },
   method: 'get',
   responseType: 'arrayBuffer',
 })
-const {ImageId} = cornerstoneNIFTIImageLoader.nifti
+const { ImageId } = cornerstoneNIFTIImageLoader.nifti
 
 const DicomViewerContainer = () => {
   const dispatch = useDispatch()
@@ -53,40 +53,34 @@ const DicomViewerContainer = () => {
           if (isNifti(selectedFile.data.fname)) {
             const fileArray = selectedFile.data.fname.split('/')
             const fileName = fileArray[fileArray.length - 1]
-            const imageIdObject = ImageId.fromURL(
-              `nifti:${selectedFile.url}${fileName}`,
-            )
+            const imageIdObject = ImageId.fromURL(`nifti:${selectedFile.url}${fileName}`)
 
             niftiSlices = cornerstone.metaData.get(
               'multiFrameModule',
-              imageIdObject.url,
+              imageIdObject.url
             ).numberOfFrames
 
             imageIds.push(
               ...Array.from(
                 Array(niftiSlices),
                 (_, i) =>
-                  `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`,
-              ),
+                  `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
+              )
             )
           } else if (isDicom(selectedFile.data.fname)) {
             const file = await selectedFile.getFileBlob()
-            imageIds.push(
-              cornerstoneWADOImageLoader.wadouri.fileManager.add(file),
-            )
-          } else if (
-            fileTypes.includes(getFileExtension(selectedFile.data.fname))
-          ) {
+            imageIds.push(cornerstoneWADOImageLoader.wadouri.fileManager.add(file))
+          } else if (fileTypes.includes(getFileExtension(selectedFile.data.fname))) {
             const file = await selectedFile.getFileBlob()
             imageIds.push(cornerstoneFileImageLoader.fileManager.add(file))
           }
         }
 
         setLoader((state) => ({
-            ...state,
-            filesParsed: i + 1,
-            totalFiles: files.length,
-          }))
+          ...state,
+          filesParsed: i + 1,
+          totalFiles: files.length,
+        }))
       }
       dispatch(setFilesForGallery(imageIds))
     }
@@ -101,10 +95,7 @@ const DicomViewerContainer = () => {
       {loader.filesParsed === loader.totalFiles ? (
         <GalleryDicomView type="feedbrowser" />
       ) : (
-        <DicomLoader
-          totalFiles={loader.totalFiles}
-          filesParsed={loader.filesParsed}
-        />
+        <DicomLoader totalFiles={loader.totalFiles} filesParsed={loader.filesParsed} />
       )}
     </>
   )

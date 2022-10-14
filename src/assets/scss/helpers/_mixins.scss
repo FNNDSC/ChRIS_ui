@@ -4,19 +4,18 @@
 *  Author:          ChRIS UI
 */
 
-
-@mixin iconMarginRight(){
-    margin-right: $global-icon-margin-right;
+@mixin iconMarginRight() {
+  margin-right: $global-icon-margin-right;
 }
 
 @mixin css3-prefix($property, $value) {
-    -webkit-#{$property}: #{$value};
-     -khtml-#{$property}: #{$value};
-       -moz-#{$property}: #{$value};
-        -ms-#{$property}: #{$value};
-         -o-#{$property}: #{$value};
-            #{$property}: #{$value};
-  }
+  -webkit-#{$property}: #{$value};
+  -khtml-#{$property}: #{$value};
+  -moz-#{$property}: #{$value};
+  -ms-#{$property}: #{$value};
+  -o-#{$property}: #{$value};
+  #{$property}: #{$value};
+}
 
 /// Opacity
 // --------------------------------------------------------------------
@@ -25,25 +24,24 @@
 /// @require {mixin} css3-prefix
 
 @mixin opacity($opacity: 0.5) {
-    $opacityMultiplied: ($opacity * 100);
-    filter:         alpha(opacity=$opacityMultiplied);
-    -ms-filter:     "progid:DXImageTransform.Microsoft.Alpha(Opacity=" + $opacityMultiplied + ")";
-    @include css3-prefix('opacity', $opacity);
+  $opacityMultiplied: ($opacity * 100);
+  filter: alpha(opacity=$opacityMultiplied);
+  -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=' + $opacityMultiplied + ')';
+  @include css3-prefix('opacity', $opacity);
 }
-  
-  
-  /// Border Radius
-  // --------------------------------------------------------------------
 
-  /// @param {Size} $radius [5px] - Radius
-  /// @require {mixin} css3-prefix
-  
-  @mixin border-radius($radius: 5px) {
-      @include css3-prefix('border-radius', $radius);
-  }
+/// Border Radius
+// --------------------------------------------------------------------
 
-  @mixin media-query($size){
-      @media only screen and (min-width:$size){
-          @content;
-      }
+/// @param {Size} $radius [5px] - Radius
+/// @require {mixin} css3-prefix
+
+@mixin border-radius($radius: 5px) {
+  @include css3-prefix('border-radius', $radius);
+}
+
+@mixin media-query($size) {
+  @media only screen and (min-width: $size) {
+    @content;
   }
+}

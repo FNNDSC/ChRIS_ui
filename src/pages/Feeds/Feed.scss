@@ -7,10 +7,10 @@
  * @format
  */
 
-@import "../../assets/scss/helpers/mixins";
-@import "../../assets/scss/helpers/pf4-variables";
-@import "../../assets/scss/helpers/variables";
-@import "antd/dist/antd.css";
+@import '../../assets/scss/helpers/mixins';
+@import '../../assets/scss/helpers/pf4-variables';
+@import '../../assets/scss/helpers/variables';
+@import 'antd/dist/antd.css';
 
 .feed-header {
   padding-top: 0.5rem !important;
@@ -134,9 +134,7 @@
 }
 
 .pf-c-drawer__splitter {
-  background-color: var(
-    --pf-c-page__main-section--m-dark-100--BackgroundColor
-  ) !important;
+  background-color: var(--pf-c-page__main-section--m-dark-100--BackgroundColor) !important;
 
   &-handle::after {
     border-color: white !important;

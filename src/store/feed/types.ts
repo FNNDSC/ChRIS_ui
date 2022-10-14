@@ -4,47 +4,47 @@
  *  Author:          ChRIS UI
  *  Notes:           Work in progres ...
  */
-import keyMirror from "keymirror";
-import { Feed } from "@fnndsc/chrisapi";
+import keyMirror from 'keymirror'
+import { Feed } from '@fnndsc/chrisapi'
 
 export interface FeedPayload {
-  data?: Feed;
-  error: any;
-  loading: boolean;
+  data?: Feed
+  error: any
+  loading: boolean
 }
 
 export interface FeedsResponsePayload {
-  feeds: Feed[];
-  totalCount: number;
+  feeds: Feed[]
+  totalCount: number
 }
 
 export interface FeedTreeProp {
-  orientation: "horizontal" | "vertical";
+  orientation: 'horizontal' | 'vertical'
   translate: {
-    x: number;
-    y: number;
-  };
+    x: number
+    y: number
+  }
 }
 
 export interface FeedResource {
-  [id: string]: { details: any };
+  [id: string]: { details: any }
 }
 
 export interface IFeedState {
   allFeeds: {
-    data?: Feed[];
-    error: any;
-    loading: boolean;
-    totalFeedsCount: number;
-  };
-  currentFeed: FeedPayload;
-  feedTreeProp: FeedTreeProp;
-  currentLayout: boolean;
-  downloadError: any;
-  downloadStatus: "";
-  bulkSelect: Feed[];
-  feedResources: FeedResource;
-  selectAllToggle: boolean;
+    data?: Feed[]
+    error: any
+    loading: boolean
+    totalFeedsCount: number
+  }
+  currentFeed: FeedPayload
+  feedTreeProp: FeedTreeProp
+  currentLayout: boolean
+  downloadError: any
+  downloadStatus: ''
+  bulkSelect: Feed[]
+  feedResources: FeedResource
+  selectAllToggle: boolean
 }
 
 export const FeedActionTypes = keyMirror({
@@ -81,4 +81,4 @@ export const FeedActionTypes = keyMirror({
   REMOVE_ALL_SELECT: null,
   TOGGLE_SELECT_ALL: null,
   TRANSLATE_PROP: null,
-});
+})

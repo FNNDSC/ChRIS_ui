@@ -1,10 +1,7 @@
 import React from 'react'
 
 import { connect, useDispatch } from 'react-redux'
-import ForceGraph3D, {
-  NodeObject,
-  ForceGraphMethods,
-} from 'react-force-graph-3d'
+import ForceGraph3D, { NodeObject, ForceGraphMethods } from 'react-force-graph-3d'
 import { PluginInstance } from '@fnndsc/chrisapi'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Text, Button, Switch } from '@patternfly/react-core'
@@ -63,7 +60,7 @@ const FeedGraph = (props: IFeedProps) => {
         }, // new position
         // @ts-ignore
         node, // lookAt ({ x, y, z })
-        3000, // ms transition duration
+        3000 // ms transition duration
       )
     }
 
@@ -86,8 +83,8 @@ const FeedGraph = (props: IFeedProps) => {
         <ErrorBoundary
           fallback={
             <Text>
-              If you see this message, it means that the graph modules
-              weren&apos;t loaded. Please refresh your browser.
+              If you see this message, it means that the graph modules weren&apos;t loaded. Please
+              refresh your browser.
             </Text>
           }
         >
@@ -107,9 +104,7 @@ const FeedGraph = (props: IFeedProps) => {
                 label="Scale Nodes On"
                 labelOff="Scale Nodes Off"
                 isChecked={nodeScale.enabled}
-                onChange={() =>
-                  setNodeScale({ ...nodeScale, enabled: !nodeScale.enabled })
-                }
+                onChange={() => setNodeScale({ ...nodeScale, enabled: !nodeScale.enabled })}
               />
 
               {nodeScale.enabled && (

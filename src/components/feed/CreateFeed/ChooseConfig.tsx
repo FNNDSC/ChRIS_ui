@@ -1,13 +1,12 @@
-import React, { useContext } from "react";
-import { Radio } from "@patternfly/react-core";
-import { CreateFeedContext } from "./context";
-import { Types } from "./types";
-
+import React, { useContext } from 'react'
+import { Radio } from '@patternfly/react-core'
+import { CreateFeedContext } from './context'
+import { Types } from './types'
 
 const ChooseConfig: React.FC = () => {
-  const { state, dispatch } = useContext(CreateFeedContext);
-  const { selectedConfig } = state;
-  const { isDataSelected } = state.data;
+  const { state, dispatch } = useContext(CreateFeedContext)
+  const { selectedConfig } = state
+  const { isDataSelected } = state.data
 
   return (
     <div className="local-file-upload">
@@ -15,13 +14,13 @@ const ChooseConfig: React.FC = () => {
       <br />
       <p>
         {isDataSelected
-          ? "Creating feed from selected files."
-          : "You may create the feed in one of the following ways:"}
+          ? 'Creating feed from selected files.'
+          : 'You may create the feed in one of the following ways:'}
       </p>
       <br />
       <Radio
         value="fs_plugin"
-        isChecked={selectedConfig === "fs_plugin"}
+        isChecked={selectedConfig === 'fs_plugin'}
         isDisabled={isDataSelected}
         onChange={(_: any, event: any) => {
           dispatch({
@@ -29,7 +28,7 @@ const ChooseConfig: React.FC = () => {
             payload: {
               selectedConfig: event.currentTarget.value,
             },
-          });
+          })
         }}
         label="Generate files from running an FS plugin from this ChRIS server"
         name="fs_plugin"
@@ -38,7 +37,7 @@ const ChooseConfig: React.FC = () => {
       />
       <Radio
         value="swift_storage"
-        isChecked={selectedConfig === "swift_storage"}
+        isChecked={selectedConfig === 'swift_storage'}
         isDisabled={isDataSelected}
         onChange={(_: any, event: any) => {
           dispatch({
@@ -46,7 +45,7 @@ const ChooseConfig: React.FC = () => {
             payload: {
               selectedConfig: event.currentTarget.value,
             },
-          });
+          })
         }}
         label="Choose existing files already registered to ChRIS"
         name="swift_storage"
@@ -54,7 +53,7 @@ const ChooseConfig: React.FC = () => {
       />
       <Radio
         value="local_select"
-        isChecked={selectedConfig === "local_select"}
+        isChecked={selectedConfig === 'local_select'}
         isDisabled={isDataSelected}
         onChange={(_: any, event: any) => {
           dispatch({
@@ -62,14 +61,14 @@ const ChooseConfig: React.FC = () => {
             payload: {
               selectedConfig: event.currentTarget.value,
             },
-          });
+          })
         }}
         label="Upload new files from your local computer"
         name="local_select"
         id="local_select"
       />
     </div>
-  );
-};
+  )
+}
 
-export default ChooseConfig;
+export default ChooseConfig

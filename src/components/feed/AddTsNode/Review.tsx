@@ -1,30 +1,28 @@
-import React from "react";
-import { Grid, GridItem } from "@patternfly/react-core";
-import { InputType, NodeState } from "./ParentContainer";
-import { useTypedSelector } from "../../../store/hooks";
-import { getJoinInput } from "./utils";
+import React from 'react'
+import { Grid, GridItem } from '@patternfly/react-core'
+import { InputType, NodeState } from './ParentContainer'
+import { useTypedSelector } from '../../../store/hooks'
+import { getJoinInput } from './utils'
 
 const Review = ({ nodeState }: { nodeState: NodeState }) => {
-  const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
-  const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
-  );
-  const { joinInput, splitInput, selectedConfig } = nodeState;
-  let generatedString = "";
+  const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes)
+  const selectedPlugin = useTypedSelector((state) => state.instance.selectedPlugin)
+  const { joinInput, splitInput, selectedConfig } = nodeState
+  let generatedString = ''
 
   const getInput = (input: InputType) => {
-    let string = "";
+    let string = ''
     for (const parameter in input) {
-      string += `  --${parameter} ${input[parameter]}`;
+      string += `  --${parameter} ${input[parameter]}`
     }
-    return string;
-  };
+    return string
+  }
 
-  if (selectedConfig === "join-node") {
-    const input = getJoinInput(joinInput, tsNodes, selectedPlugin);
-    generatedString = getInput(input);
-  } else if (selectedConfig === "split-node") {
-    generatedString = getInput(splitInput);
+  if (selectedConfig === 'join-node') {
+    const input = getJoinInput(joinInput, tsNodes, selectedPlugin)
+    generatedString = getInput(input)
+  } else if (selectedConfig === 'split-node') {
+    generatedString = getInput(splitInput)
   }
 
   return (
@@ -36,7 +34,7 @@ const Review = ({ nodeState }: { nodeState: NodeState }) => {
 
         <GridItem span={10}>
           <span className="computedValue">
-            {selectedConfig === "join-node" ? "Join Node" : "Split Node"}
+            {selectedConfig === 'join-node' ? 'Join Node' : 'Split Node'}
           </span>
         </GridItem>
         <GridItem span={2}>
@@ -57,7 +55,7 @@ const Review = ({ nodeState }: { nodeState: NodeState }) => {
         </GridItem>
       </Grid>
     </div>
-  );
-};
+  )
+}
 
-export default Review;
+export default Review

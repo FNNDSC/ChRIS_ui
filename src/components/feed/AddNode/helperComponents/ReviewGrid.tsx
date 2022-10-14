@@ -21,9 +21,7 @@ export const PluginDetails: React.FC<PluginDetailsProps> = ({
         <span className="review__title">Selected Plugin:</span>
       </GridItem>
       <GridItem span={10}>
-        <span className="review__value">
-          {pluginName}
-        </span>
+        <span className="review__value">{pluginName}</span>
       </GridItem>
       <GridItem span={2}>
         <span className="review__title">Type of Plugin:</span>

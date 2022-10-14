@@ -46,7 +46,6 @@ const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
 
   const cleanError = () => {
     setError('')
-   
   }
 
   return (

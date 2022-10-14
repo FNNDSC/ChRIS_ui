@@ -79,9 +79,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           sm={12}
           smRowSpan={12}
         >
-          <React.Suspense
-            fallback={<SpinContainer title="Loading the File Browser" />}
-          >
+          <React.Suspense fallback={<SpinContainer title="Loading the File Browser" />}>
             {pluginFilesPayload && selected ? (
               <FileBrowser
                 selected={selected}
@@ -105,10 +103,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           </React.Suspense>
         </GridItem>
       </Grid>
-      <PluginViewerModal
-        isModalOpen={pluginModalOpen}
-        handleModalToggle={handlePluginModalClose}
-      />
+      <PluginViewerModal isModalOpen={pluginModalOpen} handleModalToggle={handlePluginModalClose} />
     </>
   )
 }
@@ -144,16 +139,14 @@ const SidebarTree = (props: {
         // @ts-ignore
         handlePluginSelect(selectedNode.node.item)
       }}
-
-
     />
   )
 }
 
 export const EmptyStateLoader = ({ title }: { title: string }) => (
-    <EmptyState variant={EmptyStateVariant.large}>
-      <Title headingLevel="h4" size="lg" />
-      <EmptyStateBody>{title}</EmptyStateBody>
-    </EmptyState>
-  )
+  <EmptyState variant={EmptyStateVariant.large}>
+    <Title headingLevel="h4" size="lg" />
+    <EmptyStateBody>{title}</EmptyStateBody>
+  </EmptyState>
+)
 const FetchFilesLoader = ({ title }: { title: string }) => <SpinContainer title={title} />

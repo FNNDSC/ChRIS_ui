@@ -28,11 +28,7 @@ import { LocalFile } from '../../../../components/feed/CreateFeed/types'
 import { useTypedSelector } from '../../../../store/hooks'
 import { FileSelect, LibraryContext, Types } from './context'
 import { MainRouterContext } from '../../../../routes'
-import {
-  clearSelectFolder,
-  setDeleteFile,
-  setMultiColumnLayout,
-} from './context/actions'
+import { clearSelectFolder, setDeleteFile, setMultiColumnLayout } from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'
 import { fetchResource } from '../../../../utils'
 import './user-library.scss'
@@ -53,9 +49,7 @@ const DataLibrary = () => {
   const { foldersState, selectedFolder, currentPath } = state
   const [error, setError] = React.useState<any[]>([])
   const [fetchingFiles, setFetchingFiles] = React.useState(false)
-  const [feedFilesToDelete, setFeedFilestoDelete] = React.useState<
-    FileSelect[]
-  >([])
+  const [feedFilesToDelete, setFeedFilestoDelete] = React.useState<FileSelect[]>([])
 
   const [download, setDownload] = React.useState({
     show: false,
@@ -107,7 +101,7 @@ const DataLibrary = () => {
 
   const handleTabClick = (
     event: React.MouseEvent<HTMLElement, MouseEvent>,
-    eventKey: number | string,
+    eventKey: number | string
   ) => {
     setActiveTabKey(eventKey as number)
   }
@@ -125,8 +119,7 @@ const DataLibrary = () => {
           files: [],
         }
 
-        const computePath =
-          file.type === 'feed' ? returnFeedPath(exactPath) : exactPath
+        const computePath = file.type === 'feed' ? returnFeedPath(exactPath) : exactPath
 
         const params = {
           limit: 100,
@@ -155,7 +148,7 @@ const DataLibrary = () => {
           filesToPush.files.push(...fileItems)
         }
         return filesToPush
-      }),
+      })
     ).then((files) => {
       setFetchingFiles(false)
       if (files.length > 0) {
@@ -182,29 +175,25 @@ const DataLibrary = () => {
             })
             const file = files[index]
             const fileName = file.data.fname.split(`/`)
-            const findIndex = fileName.findIndex(
-              (file: string) => file === name,
-            )
+            const findIndex = fileName.findIndex((file: string) => file === name)
             const fileNameSplit = fileName.slice(findIndex)
             const newDirectoryHandle: { [key: string]: any } = {}
             for (let fname = 0; fname < fileNameSplit.length; fname++) {
               const dictName = fileNameSplit[fname].replace(/:/g, '')
               if (fname === 0) {
-                newDirectoryHandle[
-                  fname
-                ] = await existingDirectoryHandle.getDirectoryHandle(dictName, {
-                  create: true,
-                })
+                newDirectoryHandle[fname] = await existingDirectoryHandle.getDirectoryHandle(
+                  dictName,
+                  {
+                    create: true,
+                  }
+                )
               } else if (fname === fileNameSplit.length - 1) {
                 const blob = await file.getFileBlob()
                 const existingHandle = newDirectoryHandle[fname - 1]
                 if (existingHandle) {
-                  const newFileHandle = await existingHandle.getFileHandle(
-                    dictName,
-                    {
-                      create: true,
-                    },
-                  )
+                  const newFileHandle = await existingHandle.getFileHandle(dictName, {
+                    create: true,
+                  })
                   writable = await newFileHandle.createWritable()
                   await writable.write(blob)
                   await writable.close()
@@ -212,9 +201,7 @@ const DataLibrary = () => {
               } else {
                 const existingHandle = newDirectoryHandle[fname - 1]
                 if (existingHandle) {
-                  newDirectoryHandle[
-                    fname
-                  ] = await existingHandle.getDirectoryHandle(dictName, {
+                  newDirectoryHandle[fname] = await existingHandle.getDirectoryHandle(dictName, {
                     create: true,
                   })
                 }
@@ -285,9 +272,7 @@ const DataLibrary = () => {
   const handleDeleteFeed = async () => {
     const result = Promise.all(
       feedFilesToDelete.map(async (file) => {
-        const feedId = file.folder.path
-          .split('/')
-          .find((feedString) => feedString.includes('feed'))
+        const feedId = file.folder.path.split('/').find((feedString) => feedString.includes('feed'))
 
         if (feedId) {
           const id = feedId.split('_')[1]
@@ -297,7 +282,7 @@ const DataLibrary = () => {
           dispatchLibrary(clearSelectFolder(file))
           return feed
         }
-      }),
+      })
     )
     result.then((data) => dispatch(deleteFeed(data as Feed[])))
   }
@@ -305,11 +290,7 @@ const DataLibrary = () => {
   const uploadedFiles = (
     <section>
       <LocalSearch type="uploads" username={username} />
-      <BrowserContainer
-        type="uploads"
-        path={`${username}/uploads`}
-        username={username}
-      />
+      <BrowserContainer type="uploads" path={`${username}/uploads`} username={username} />
     </section>
   )
 
@@ -328,11 +309,9 @@ const DataLibrary = () => {
   )
 
   const handleAddFolder = (directoryName: string) => {
-    const folders =
-      foldersState.uploads && foldersState.uploads[currentPath.uploads]
+    const folders = foldersState.uploads && foldersState.uploads[currentPath.uploads]
 
-    const folderExists =
-      folders && folders.findIndex((folder) => folder.name === directoryName)
+    const folderExists = folders && folders.findIndex((folder) => folder.name === directoryName)
 
     if (!folders || folderExists === -1) {
       dispatchLibrary({
@@ -364,11 +343,7 @@ const DataLibrary = () => {
                     display: 'flex',
                   }}
                 >
-                  <Button
-                    style={{ marginRight: '0.5em' }}
-                    onClick={createFeed}
-                    variant="primary"
-                  >
+                  <Button style={{ marginRight: '0.5em' }} onClick={createFeed} variant="primary">
                     Create Analysis
                   </Button>
 
@@ -389,15 +364,15 @@ const DataLibrary = () => {
                   <>
                     <ChipGroup style={{ marginBottom: '1em' }} categoryName="">
                       {selectedFolder.map((file: FileSelect, index) => (
-                          <Chip
-                            onClick={() => {
-                              dispatchLibrary(clearSelectFolder(file))
-                            }}
-                            key={index}
-                          >
-                            {file.folder.path}
-                          </Chip>
-                        ))}
+                        <Chip
+                          onClick={() => {
+                            dispatchLibrary(clearSelectFolder(file))
+                          }}
+                          key={index}
+                        >
+                          {file.folder.path}
+                        </Chip>
+                      ))}
                     </ChipGroup>
                     <div
                       style={{
@@ -414,11 +389,9 @@ const DataLibrary = () => {
               </>
             }
             style={{ width: '100%', marginTop: '3em', padding: '2em' }}
-           />
+          />
 
-          {fetchingFiles && (
-            <Alert type="info" closable message="Fetching Files to Download" />
-          )}
+          {fetchingFiles && <Alert type="info" closable message="Fetching Files to Download" />}
 
           {download.show && (
             <Alert
@@ -436,9 +409,7 @@ const DataLibrary = () => {
           {error.length > 0 &&
             error.map((errorString, index) => {
               const errorUtil = (errorType: string) => {
-                const newError = error.filter(
-                  (errorWarn) => errorWarn !== errorType,
-                )
+                const newError = error.filter((errorWarn) => errorWarn !== errorType)
                 setError(newError)
               }
 
@@ -489,7 +460,7 @@ const DataLibrary = () => {
                   onClose={() => {
                     errorUtil(errorString)
                   }}
-                 />
+                />
               )
             })}
         </AlertGroup>
@@ -542,10 +513,7 @@ const DataLibrary = () => {
         <Tab eventKey={0} title={<TabTitleText>Uploads</TabTitleText>}>
           {activeTabKey === 0 && uploadedFiles}
         </Tab>
-        <Tab
-          eventKey={1}
-          title={<TabTitleText>Completed Analyses</TabTitleText>}
-        >
+        <Tab eventKey={1} title={<TabTitleText>Completed Analyses</TabTitleText>}>
           {activeTabKey === 1 && feedFiles}
         </Tab>
         <Tab eventKey={2} title={<TabTitleText>Services / PACS</TabTitleText>}>
@@ -637,9 +605,7 @@ const UploadComponent = ({
           measureLocation={ProgressMeasureLocation.top}
           label={`${count} out of ${localFiles.length}`}
           valueText={`${count} out of ${localFiles.length}`}
-          variant={
-            count === localFiles.length ? ProgressVariant.success : undefined
-          }
+          variant={count === localFiles.length ? ProgressVariant.success : undefined}
         />
       )}
       <FileUpload
@@ -652,30 +618,30 @@ const UploadComponent = ({
           if (!directoryName) {
             setWarning('Please add a directory name')
           } else if (directoryName) {
-              handleAddFolder(directoryName)
-              handleLocalFiles(files)
-              const client = ChrisAPIClient.getClient()
-              const path = `${username}/uploads/${directoryName}`
-              for (let i = 0; i < files.length; i++) {
-                const file = files[i]
-                await client.uploadFile(
-                  {
-                    upload_path: `${path}/${file.name}`,
-                  },
-                  {
-                    fname: (file as LocalFile).blob,
-                  },
-                )
-                setCount(i + 1)
-              }
-
-              /** Temporary Timer */
-
-              setTimeout(() => {
-                setDirectoryName('')
-                handleFileModal()
-              }, 1000)
+            handleAddFolder(directoryName)
+            handleLocalFiles(files)
+            const client = ChrisAPIClient.getClient()
+            const path = `${username}/uploads/${directoryName}`
+            for (let i = 0; i < files.length; i++) {
+              const file = files[i]
+              await client.uploadFile(
+                {
+                  upload_path: `${path}/${file.name}`,
+                },
+                {
+                  fname: (file as LocalFile).blob,
+                }
+              )
+              setCount(i + 1)
             }
+
+            /** Temporary Timer */
+
+            setTimeout(() => {
+              setDirectoryName('')
+              handleFileModal()
+            }, 1000)
+          }
         }}
       />
     </Modal>

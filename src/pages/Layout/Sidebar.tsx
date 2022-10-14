@@ -2,13 +2,7 @@ import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 
-import {
-  PageSidebar,
-  Nav,
-  NavItem,
-  NavList,
-  NavGroup,
-} from '@patternfly/react-core'
+import { PageSidebar, Nav, NavItem, NavList, NavGroup } from '@patternfly/react-core'
 import { Dispatch } from 'redux'
 import { ApplicationState } from '../../store/root/applicationState'
 import { IUiState } from '../../store/ui/types'
@@ -20,10 +14,7 @@ type ReduxProp = {
   setSidebarActive: (active: { activeItem: string }) => void
 }
 
-const Sidebar: React.FC<AllProps> = ({
-  isNavOpen,
-  sidebarActiveItem,
-}: AllProps) => {
+const Sidebar: React.FC<AllProps> = ({ isNavOpen, sidebarActiveItem }: AllProps) => {
   const onSelect = (selectedItem: any) => {
     const { itemId } = selectedItem
     setSidebarActive({
@@ -48,10 +39,7 @@ const Sidebar: React.FC<AllProps> = ({
         </NavGroup>
 
         <NavGroup title="Analysis">
-          <NavItem
-            itemId="analyses"
-            isActive={sidebarActiveItem === 'analyses'}
-          >
+          <NavItem itemId="analyses" isActive={sidebarActiveItem === 'analyses'}>
             <Link to="/feeds">New and Existing Analyses</Link>
           </NavItem>
           <NavItem itemId="catalog" isActive={sidebarActiveItem === 'catalog'}>
@@ -59,51 +47,33 @@ const Sidebar: React.FC<AllProps> = ({
           </NavItem>
 
           {process.env.REACT_APP_ALPHA_FEATURES === 'development' && (
-            <NavItem
-              itemId="workflows"
-              isActive={sidebarActiveItem === 'workflows'}
-            >
+            <NavItem itemId="workflows" isActive={sidebarActiveItem === 'workflows'}>
               <Link to="/workflows">Run a Quick Workflow</Link>
             </NavItem>
           )}
         </NavGroup>
         <NavGroup title="External Visualizers">
-          <NavItem
-            itemId="visualizations"
-            isActive={sidebarActiveItem === 'visualizations'}
-          >
+          <NavItem itemId="visualizations" isActive={sidebarActiveItem === 'visualizations'}>
             <Link to="/visualization">DICOM Viewer</Link>
           </NavItem>
           {process.env.REACT_APP_ALPHA_FEATURES === 'development' && (
             <>
-              <NavItem
-                itemId="sliceDrop"
-                isActive={sidebarActiveItem === 'sliceDrop'}
-              >
+              <NavItem itemId="sliceDrop" isActive={sidebarActiveItem === 'sliceDrop'}>
                 <Link to="/slicedrop">SliceDrop</Link>
               </NavItem>
-              <NavItem
-                itemId="medview"
-                isActive={sidebarActiveItem === 'medview'}
-              >
+              <NavItem itemId="medview" isActive={sidebarActiveItem === 'medview'}>
                 <Link to="/medview">Medview</Link>
               </NavItem>
-              <NavItem
-                itemId="fetalmri"
-                isActive={sidebarActiveItem === 'fetalmri'}
-              >
+              <NavItem itemId="fetalmri" isActive={sidebarActiveItem === 'fetalmri'}>
                 <Link to="/fetalmri">Fetal MRI</Link>
               </NavItem>
-              <NavItem
-                itemId="brainbrowser"
-                isActive={sidebarActiveItem === 'brainbrowser'}
-              >
+              <NavItem itemId="brainbrowser" isActive={sidebarActiveItem === 'brainbrowser'}>
                 <Link to="/brainbrowser">Brain Browser</Link>
               </NavItem>
             </>
           )}
         </NavGroup>
-        {process.env.REACT_APP_ALPHA_FEATURES ==='development' && (
+        {process.env.REACT_APP_ALPHA_FEATURES === 'development' && (
           <NavGroup title="Collab">
             <NavItem itemId="collab" isActive={sidebarActiveItem === 'collab'}>
               <Link to="/collab">Partner</Link>
@@ -123,8 +93,7 @@ const mapStateToProps = ({ user, ui }: ApplicationState) => ({
 })
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setSidebarActive: (active: { activeItem: string }) =>
-    dispatch(setSidebarActive(active)),
+  setSidebarActive: (active: { activeItem: string }) => dispatch(setSidebarActive(active)),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Sidebar)

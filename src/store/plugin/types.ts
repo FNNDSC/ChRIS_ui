@@ -4,12 +4,12 @@
  *  Author:          ChRIS UI
  *  Notes:           .
  */
-import keyMirror from "keymirror";
-import { PluginParameter } from "@fnndsc/chrisapi";
+import keyMirror from 'keymirror'
+import { PluginParameter } from '@fnndsc/chrisapi'
 
 export interface IPluginState {
-  parameters?: PluginParameter[];
-  computeEnv?: any[];
+  parameters?: PluginParameter[]
+  computeEnv?: any[]
 }
 
 export const PluginActionTypes = keyMirror({
@@ -17,4 +17,4 @@ export const PluginActionTypes = keyMirror({
   GET_PARAMS_SUCCESS: null,
   GET_COMPUTE_ENV: null,
   GET_COMPUTE_ENV_SUCCESS: null,
-});
+})

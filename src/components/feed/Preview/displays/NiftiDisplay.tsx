@@ -22,12 +22,12 @@ cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     'Content-Type': 'application/vnd.collection+json',
-    Authorization: `Token ${  token}`,
+    Authorization: `Token ${token}`,
   },
   method: 'get',
   responseType: 'arrayBuffer',
 })
-const {ImageId} = cornerstoneNIFTIImageLoader.nifti
+const { ImageId } = cornerstoneNIFTIImageLoader.nifti
 
 type AllProps = {
   fileItem: IFileBlob
@@ -47,14 +47,13 @@ const NiftiDisplay = (props: AllProps) => {
       cornerstone.loadAndCacheImage(imageIdObject.url).then(() => {
         const numberOfSlices = cornerstone.metaData.get(
           'multiFrameModule',
-          imageIdObject.url,
+          imageIdObject.url
         ).numberOfFrames
         imageIdArray.push(
           ...Array.from(
             Array(numberOfSlices),
-            (_, i) =>
-              `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`,
-          ),
+            (_, i) => `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
+          )
         )
         setImageIds(imageIdArray)
       })

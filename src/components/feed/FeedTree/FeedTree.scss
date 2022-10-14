@@ -4,7 +4,7 @@
 *  Author:          ChRIS UI
 */
 
-@import "../../../assets/scss/helpers/variables";
+@import '../../../assets/scss/helpers/variables';
 
 // Tree Chart Section
 // ------------------------------
@@ -175,7 +175,7 @@
 
 .node {
   cursor: pointer;
-  fill: "white";
+  fill: 'white';
 
   &.queued {
     fill: #aaa;

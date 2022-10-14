@@ -1,33 +1,33 @@
-import React from "react";
-import { Plugin } from "@fnndsc/chrisapi";
-import { List, Button } from "antd";
-import Client from "../../../api/chrisapiclient";
+import React from 'react'
+import { Plugin } from '@fnndsc/chrisapi'
+import { List, Button } from 'antd'
+import Client from '../../../api/chrisapiclient'
 
 type JoinProps = {
-  handlePluginSelect: (item: Plugin) => void;
-  selectedTsPlugin?: Plugin;
-};
+  handlePluginSelect: (item: Plugin) => void
+  selectedTsPlugin?: Plugin
+}
 
 const Join = ({ handlePluginSelect, selectedTsPlugin }: JoinProps) => {
-  const [tsPluginList, setTsPluginList] = React.useState<Plugin[]>([]);
+  const [tsPluginList, setTsPluginList] = React.useState<Plugin[]>([])
 
   React.useEffect(() => {
     async function fetchTsPlugins() {
-      const client = Client.getClient();
+      const client = Client.getClient()
       const pluginList = await client.getPlugins({
         limit: 50,
-      });
-      const pluginListItems = pluginList.getItems();
+      })
+      const pluginListItems = pluginList.getItems()
       if (pluginListItems) {
         const tsPlugins: Plugin[] = pluginListItems.filter((item) => {
-          if (item.data.type === "ts") return item;
-        });
-        setTsPluginList(tsPlugins);
+          if (item.data.type === 'ts') return item
+        })
+        setTsPluginList(tsPlugins)
       }
     }
 
-    fetchTsPlugins();
-  }, []);
+    fetchTsPlugins()
+  }, [])
 
   return (
     <div className="list-container">
@@ -38,14 +38,11 @@ const Join = ({ handlePluginSelect, selectedTsPlugin }: JoinProps) => {
         renderItem={(item) => (
           <>
             <List.Item>
-              <List.Item.Meta
-                title={item.data.name}
-                description={item.data.description}
-              />
+              <List.Item.Meta title={item.data.name} description={item.data.description} />
               <Button
                 disabled={selectedTsPlugin !== undefined}
                 onClick={() => {
-                  handlePluginSelect(item);
+                  handlePluginSelect(item)
                 }}
                 type="primary"
               >
@@ -56,7 +53,7 @@ const Join = ({ handlePluginSelect, selectedTsPlugin }: JoinProps) => {
         )}
       />
     </div>
-  );
-};
+  )
+}
 
-export default Join;
+export default Join

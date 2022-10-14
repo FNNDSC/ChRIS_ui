@@ -1,33 +1,31 @@
 /*
-*  File:            message/types.ts
-*  Description:     Holds types and constants for managing global messaging and confirmation dialogs
-*  Author:          ChRIS UI
-*  Notes:           Work in progres ...
-*/
+ *  File:            message/types.ts
+ *  Description:     Holds types and constants for managing global messaging and confirmation dialogs
+ *  Author:          ChRIS UI
+ *  Notes:           Work in progres ...
+ */
 
-import keyMirror from "keymirror";
-
+import keyMirror from 'keymirror'
 
 export interface IMessageState {
-  message?: IMessage; // Contains messaging infomrmation
-  confirmation?: IConfirmation;
+  message?: IMessage // Contains messaging infomrmation
+  confirmation?: IConfirmation
 }
 
 export interface IMessage {
-  message: string | string[];
-  type: MessageType;
-  displayType: MessageDisplayType;
+  message: string | string[]
+  type: MessageType
+  displayType: MessageDisplayType
 }
 
 export const IMessageType = keyMirror({
   success: null,
   error: null,
   info: null,
-  warning: null
-});
+  warning: null,
+})
 
-export type MessageType = "success" | "error" | "info" | "warning";
-
+export type MessageType = 'success' | 'error' | 'info' | 'warning'
 
 // Description: Handle message handler types
 export const MessageHandlerType = keyMirror({
@@ -36,27 +34,27 @@ export const MessageHandlerType = keyMirror({
   inline: null, // write message inline
   logger: null, // write message in console.log
   muted: null, // pass message but not to user - stub for logging later
-});
-export type MessageDisplayType = "modal" | "toastr" | "inline" | "muted" | "logger";
+})
+export type MessageDisplayType = 'modal' | 'toastr' | 'inline' | 'muted' | 'logger'
 
 export const messageDefaults = {
   defaultMessage: {
-      Error: "An unknown error occured.",
-      success: "Your request was processed successfully",
-  }
-};
+    Error: 'An unknown error occured.',
+    success: 'Your request was processed successfully',
+  },
+}
 
 // Confirmation / Modal handling
 export interface IConfirmation {
-  title?: string;
-  text: string;
-  confirm?: IModalActions;
-  dismiss?: IModalActions;
+  title?: string
+  text: string
+  confirm?: IModalActions
+  dismiss?: IModalActions
 }
 export interface IModalActions {
-  label: string;
-  action?: string; // Pass the name of the action
-  data?: any; // Pass the data for the respective action
+  label: string
+  action?: string // Pass the name of the action
+  data?: any // Pass the data for the respective action
 }
 
 export const messageActionTypes = keyMirror({
@@ -64,4 +62,4 @@ export const messageActionTypes = keyMirror({
   DISMISS_MESSAGE: null,
   DISPLAY_CONFIRMATION: null,
   DISMISS_CONFIRMATION: null,
-});
+})

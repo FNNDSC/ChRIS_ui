@@ -1,99 +1,96 @@
-import { Plugin, PluginParameter, PluginInstance } from "@fnndsc/chrisapi";
+import { Plugin, PluginParameter, PluginInstance } from '@fnndsc/chrisapi'
 
 export interface InputIndex {
-  [key: string]: string;
+  [key: string]: string
 }
 
 export interface InputType {
-  [key: string]: InputIndex;
+  [key: string]: InputIndex
 }
 
 export interface InputProps {
-  dropdownInput: InputType;
-  requiredInput: InputType;
+  dropdownInput: InputType
+  requiredInput: InputType
 }
 
 export interface InputState {
-  dropdownInput: InputType;
-  requiredInput: InputType;
+  dropdownInput: InputType
+  requiredInput: InputType
 }
 
 export interface BasicConfigurationProps {
-  nodes: PluginInstance[];
-  parent: PluginInstance;
-  selectedPlugin?: Plugin;
-  handlePluginSelect: (plugin: Plugin) => void;
+  nodes: PluginInstance[]
+  parent: PluginInstance
+  selectedPlugin?: Plugin
+  handlePluginSelect: (plugin: Plugin) => void
 }
 
 export interface BasicConfigurationState {
-  parentDropdownOpen: boolean;
-  typeDropdownOpen: boolean;
-  nodes: PluginInstance[];
+  parentDropdownOpen: boolean
+  typeDropdownOpen: boolean
+  nodes: PluginInstance[]
 }
 
 export interface PluginListProps {
-  handlePluginSelect: (plugin: Plugin) => void;
-  plugins?: Plugin[];
-  selected?: Plugin;
+  handlePluginSelect: (plugin: Plugin) => void
+  plugins?: Plugin[]
+  selected?: Plugin
 }
 
 export interface PluginListState {
-  filter: string;
+  filter: string
 }
 
 export interface PluginSelectProps {
-  selected?: Plugin;
-  handlePluginSelect: (plugin: Plugin) => void;
+  selected?: Plugin
+  handlePluginSelect: (plugin: Plugin) => void
 }
 
 export interface PluginSelectState {
-  expanded: string;
-  allPlugins?: Plugin[];
-  recentPlugins?: Plugin[];
+  expanded: string
+  allPlugins?: Plugin[]
+  recentPlugins?: Plugin[]
 }
 
 export interface AddNodeState extends InputState {
-  isOpen: boolean;
-  stepIdReached: number;
-  nodes?: PluginInstance[];
+  isOpen: boolean
+  stepIdReached: number
+  nodes?: PluginInstance[]
   data: {
-    plugin?: Plugin;
-    parent?: PluginInstance;
-  };
-  selectedComputeEnv: string;
+    plugin?: Plugin
+    parent?: PluginInstance
+  }
+  selectedComputeEnv: string
   errors: {
-    [key: string]: string[];
-  };
-  editorValue: string;
+    [key: string]: string[]
+  }
+  editorValue: string
 }
 
 export interface AddNodeProps {
-  selectedPlugin?: PluginInstance;
+  selectedPlugin?: PluginInstance
   pluginInstances?: {
-    data?: PluginInstance[];
-    error: any;
-    loading: boolean;
-  };
-  params?: PluginParameter[];
-  addNode: (item: {
-    pluginItem: PluginInstance;
-    nodes?: PluginInstance[];
-  }) => void;
-  getParams: (plugin: Plugin) => void;
+    data?: PluginInstance[]
+    error: any
+    loading: boolean
+  }
+  params?: PluginParameter[]
+  addNode: (item: { pluginItem: PluginInstance; nodes?: PluginInstance[] }) => void
+  getParams: (plugin: Plugin) => void
 }
 
 export interface GuidedConfigState {
-  componentList: string[];
-  count: number;
-  errors: string[];
-  alertVisible: boolean;
-  docsExpanded: boolean;
+  componentList: string[]
+  count: number
+  errors: string[]
+  alertVisible: boolean
+  docsExpanded: boolean
 }
 export interface GuidedConfigProps extends InputProps {
-  renderComputeEnv?: boolean;
-  plugin?: Plugin;
-  params?: PluginParameter[];
-  computeEnvs?: any[];
+  renderComputeEnv?: boolean
+  plugin?: Plugin
+  params?: PluginParameter[]
+  computeEnvs?: any[]
   inputChange(
     id: string,
     flag: string,
@@ -102,38 +99,38 @@ export interface GuidedConfigProps extends InputProps {
     placeholder: string,
     required: boolean,
     paramName?: string
-  ): void;
-  deleteInput(input: string): void;
-  selectedComputeEnv?: string;
-  setComputeEnviroment?: (computeEnv: string) => void;
+  ): void
+  deleteInput(input: string): void
+  selectedComputeEnv?: string
+  setComputeEnviroment?: (computeEnv: string) => void
 }
 
 export interface EditorState {
-  value: string;
-  docsExpanded: boolean;
-  errors: string[];
-  readOnly: boolean;
-  dictionary: InputIndex;
-  savingValues: boolean;
+  value: string
+  docsExpanded: boolean
+  errors: string[]
+  readOnly: boolean
+  dictionary: InputIndex
+  savingValues: boolean
 }
 
 export interface EditorProps extends InputState {
-  plugin: Plugin;
-  params?: PluginParameter[];
-  setEditorValue: (value: string) => void;
+  plugin: Plugin
+  params?: PluginParameter[]
+  setEditorValue: (value: string) => void
 }
 
 export interface SimpleDropdownState {
-  isOpen: boolean;
+  isOpen: boolean
 }
 
 export interface SimpleDropdownProps {
-  params?: PluginParameter[];
-  toggle?: React.ReactElement<any>;
-  onSelect?: (event: React.SyntheticEvent<HTMLDivElement>) => void;
-  isOpen?: boolean;
-  dropdownItems?: any[];
-  id: string;
+  params?: PluginParameter[]
+  toggle?: React.ReactElement<any>
+  onSelect?: (event: React.SyntheticEvent<HTMLDivElement>) => void
+  isOpen?: boolean
+  dropdownItems?: any[]
+  id: string
   handleChange(
     id: string,
     flag: string,
@@ -142,18 +139,18 @@ export interface SimpleDropdownProps {
     placeholder: string,
     required: boolean,
     paramName: string
-  ): void;
-  deleteComponent(id: string): void;
-  deleteInput(id: string): void;
-  dropdownInput: InputType;
+  ): void
+  deleteComponent(id: string): void
+  deleteInput(id: string): void
+  dropdownInput: InputType
 
-  addParam: () => void;
+  addParam: () => void
 }
 
 export interface RequiredParamProp {
-  param: PluginParameter;
-  addParam: () => void;
-  requiredInput: InputType;
+  param: PluginParameter
+  addParam: () => void
+  requiredInput: InputType
   inputChange(
     id: string,
     flag: string,
@@ -162,15 +159,15 @@ export interface RequiredParamProp {
     placeholder: string,
     required: boolean,
     paramName?: string
-  ): void;
-  id: string;
+  ): void
+  id: string
 }
 
 export interface ReviewProps extends InputState {
-  parent?: PluginInstance;
-  currentPlugin: Plugin;
-  computeEnvironment: string;
+  parent?: PluginInstance
+  currentPlugin: Plugin
+  computeEnvironment: string
   errors: {
-    [key: string]: string[];
-  };
+    [key: string]: string[]
+  }
 }

@@ -24,45 +24,31 @@ type AllProps = {
 } & IGalleryToolbarState
 
 const GalleryToolbar: React.FunctionComponent<AllProps> = (props: AllProps) => (
-    <div className="gallery-toolbar">
+  <div className="gallery-toolbar">
+    <div>
       <div>
-        <div>
-          <Button
-            variant="link"
-            onClick={() => props.onToolbarClick(galleryActions.first)}
-          >
-            <FaAngleDoubleLeft />
-          </Button>
-          <Button
-            variant="link"
-            onClick={() => props.onToolbarClick(galleryActions.previous)}
-          >
-            <FaLessThan />
-          </Button>
-          <Button
-            variant="link"
-            onClick={() =>
-              props.onToolbarClick(
-                props.isPlaying ? galleryActions.pause : galleryActions.play,
-              )
-            }
-          >
-            {props.isPlaying ? <FaPause /> : <FaPlay />}
-          </Button>
-          <Button
-            variant="link"
-            onClick={() => props.onToolbarClick(galleryActions.next)}
-          >
-            <FaGreaterThan />
-          </Button>
-          <Button
-            variant="link"
-            onClick={() => props.onToolbarClick(galleryActions.last)}
-          >
-            <FaAngleDoubleRight />
-          </Button>
-        </div>
+        <Button variant="link" onClick={() => props.onToolbarClick(galleryActions.first)}>
+          <FaAngleDoubleLeft />
+        </Button>
+        <Button variant="link" onClick={() => props.onToolbarClick(galleryActions.previous)}>
+          <FaLessThan />
+        </Button>
+        <Button
+          variant="link"
+          onClick={() =>
+            props.onToolbarClick(props.isPlaying ? galleryActions.pause : galleryActions.play)
+          }
+        >
+          {props.isPlaying ? <FaPause /> : <FaPlay />}
+        </Button>
+        <Button variant="link" onClick={() => props.onToolbarClick(galleryActions.next)}>
+          <FaGreaterThan />
+        </Button>
+        <Button variant="link" onClick={() => props.onToolbarClick(galleryActions.last)}>
+          <FaAngleDoubleRight />
+        </Button>
       </div>
     </div>
-  )
+  </div>
+)
 export default React.memo(GalleryToolbar)

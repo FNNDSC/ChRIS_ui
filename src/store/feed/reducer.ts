@@ -1,32 +1,32 @@
-import { Reducer } from "redux";
-import { IFeedState, FeedActionTypes } from "./types";
+import { Reducer } from 'redux'
+import { IFeedState, FeedActionTypes } from './types'
 
 export const initialState: IFeedState = {
   allFeeds: {
     data: undefined,
-    error: "",
+    error: '',
     loading: false,
     totalFeedsCount: 0,
   },
   currentFeed: {
     data: undefined,
-    error: "",
+    error: '',
     loading: false,
   },
   currentLayout: false,
   feedTreeProp: {
-    orientation: "vertical",
+    orientation: 'vertical',
     translate: {
       x: 0,
       y: 0,
     },
   },
-  downloadError: "",
-  downloadStatus: "",
+  downloadError: '',
+  downloadStatus: '',
   bulkSelect: [],
   feedResources: {},
   selectAllToggle: false,
-};
+}
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
   switch (action.type) {
@@ -37,7 +37,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state.allFeeds,
           loading: true,
         },
-      };
+      }
     }
 
     case FeedActionTypes.GET_ALL_FEEDS_SUCCESS: {
@@ -45,12 +45,12 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         ...state,
         allFeeds: {
           data: action.payload.feeds,
-          error: "",
+          error: '',
           loading: false,
           totalFeedsCount: action.payload.totalCount,
         },
         polling: true,
-      };
+      }
     }
 
     case FeedActionTypes.GET_ALL_FEEDS_ERROR: {
@@ -60,7 +60,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state.allFeeds,
           error: action.payload,
         },
-      };
+      }
     }
 
     case FeedActionTypes.GET_FEED_REQUEST: {
@@ -70,7 +70,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state.currentFeed,
           loading: true,
         },
-      };
+      }
     }
 
     case FeedActionTypes.GET_FEED_SUCCESS: {
@@ -78,10 +78,10 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         ...state,
         currentFeed: {
           data: action.payload,
-          error: "",
+          error: '',
           loading: false,
         },
-      };
+      }
     }
 
     case FeedActionTypes.GET_FEED_ERROR: {
@@ -92,7 +92,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           error: action.payload,
           loading: false,
         },
-      };
+      }
     }
 
     case FeedActionTypes.GET_FEED_RESOURCES_SUCCESS: {
@@ -104,16 +104,16 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
             details: action.payload.details,
           },
         },
-      };
+      }
     }
 
     case FeedActionTypes.CLEANUP_FEED_RESOURCES: {
-      const feedResourceCopy = state.feedResources;
-      delete feedResourceCopy[action.payload.data.id];
+      const feedResourceCopy = state.feedResources
+      delete feedResourceCopy[action.payload.data.id]
       return {
         ...state,
         feedResources: feedResourceCopy,
-      };
+      }
     }
 
     case FeedActionTypes.ADD_FEED: {
@@ -122,21 +122,21 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state,
           allFeeds: {
             data: [action.payload, ...state.allFeeds.data],
-            error: "",
+            error: '',
             loading: false,
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
           },
-        };
+        }
       } else {
         return {
           ...state,
           allFeeds: {
             data: [action.payload],
-            error: "",
+            error: '',
             loading: false,
             totalFeedsCount: state.allFeeds.totalFeedsCount + 1,
           },
-        };
+        }
       }
     }
 
@@ -146,11 +146,10 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
         allFeeds: {
           ...state.allFeeds,
           data: action.payload,
-          totalFeedsCount:
-            state.allFeeds.totalFeedsCount - action.payload.length,
+          totalFeedsCount: state.allFeeds.totalFeedsCount - action.payload.length,
         },
         bulkSelect: [],
-      };
+      }
     }
 
     case FeedActionTypes.DOWNLOAD_FEED_SUCCESS: {
@@ -160,15 +159,14 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           allFeeds: {
             ...state.allFeeds,
             data: [...action.payload, ...state.allFeeds.data],
-            totalFeedsCount:
-              state.allFeeds.totalFeedsCount + action.payload.length,
+            totalFeedsCount: state.allFeeds.totalFeedsCount + action.payload.length,
           },
           bulkSelect: [],
-        };
+        }
       } else {
         return {
           ...state,
-        };
+        }
       }
     }
 
@@ -179,15 +177,14 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           allFeeds: {
             ...state.allFeeds,
             data: [...action.payload, ...state.allFeeds.data],
-            totalFeedsCount:
-              state.allFeeds.totalFeedsCount + action.payload.length,
+            totalFeedsCount: state.allFeeds.totalFeedsCount + action.payload.length,
           },
           bulkSelect: [],
-        };
+        }
       } else {
         return {
           ...state,
-        };
+        }
       }
     }
 
@@ -195,14 +192,14 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         downloadError: action.payload,
-      };
+      }
     }
 
     case FeedActionTypes.DUPLICATE_FEED_ERROR: {
       return {
         ...state,
         downloadError: action.payload,
-      };
+      }
     }
 
     case FeedActionTypes.MERGE_FEED_SUCCESS: {
@@ -212,15 +209,14 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           allFeeds: {
             ...state.allFeeds,
             data: [...action.payload, ...state.allFeeds.data],
-            totalFeedsCount:
-              state.allFeeds.totalFeedsCount + action.payload.length,
+            totalFeedsCount: state.allFeeds.totalFeedsCount + action.payload.length,
           },
           bulkSelect: [],
-        };
+        }
       } else {
         return {
           ...state,
-        };
+        }
       }
     }
 
@@ -228,14 +224,14 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         downloadError: action.payload,
-      };
+      }
     }
 
     case FeedActionTypes.SET_LAYOUT: {
       return {
         ...state,
         currentLayout: !state.currentLayout,
-      };
+      }
     }
 
     case FeedActionTypes.TRANSLATE_PROP: {
@@ -245,88 +241,86 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
           ...state.feedTreeProp,
           translate: action.payload,
         },
-      };
+      }
     }
 
     case FeedActionTypes.GET_FEED_TREE_PROP: {
-      const currentOrientation = action.payload;
-      if (currentOrientation === "horizontal")
+      const currentOrientation = action.payload
+      if (currentOrientation === 'horizontal')
         return {
           ...state,
           feedTreeProp: {
             ...state.feedTreeProp,
-            orientation: "vertical",
+            orientation: 'vertical',
           },
-        };
+        }
       else {
         return {
           ...state,
           feedTreeProp: {
             ...state.feedTreeProp,
-            orientation: "horizontal",
+            orientation: 'horizontal',
           },
-        };
+        }
       }
     }
 
     case FeedActionTypes.BULK_SELECT: {
-      const newBulkSelect = [...state.bulkSelect, action.payload];
-      const selectAllToggle =
-        newBulkSelect.length === state.allFeeds.data?.length;
+      const newBulkSelect = [...state.bulkSelect, action.payload]
+      const selectAllToggle = newBulkSelect.length === state.allFeeds.data?.length
       return {
         ...state,
         bulkSelect: [...state.bulkSelect, action.payload],
         selectAllToggle,
-      };
+      }
     }
 
     case FeedActionTypes.REMOVE_BULK_SELECT: {
       const filteredBulkSelect = state.bulkSelect.filter((feed) => {
-        return feed.data.id !== action.payload.data.id;
-      });
+        return feed.data.id !== action.payload.data.id
+      })
 
-      const selectAllToggle =
-        filteredBulkSelect.length === state.allFeeds.data?.length;
+      const selectAllToggle = filteredBulkSelect.length === state.allFeeds.data?.length
 
       return {
         ...state,
         bulkSelect: filteredBulkSelect,
         selectAllToggle,
-        downloadError: "",
-      };
+        downloadError: '',
+      }
     }
 
     case FeedActionTypes.SET_ALL_SELECT: {
       return {
         ...state,
         bulkSelect: [...action.payload],
-      };
+      }
     }
 
     case FeedActionTypes.TOGGLE_SELECT_ALL: {
       return {
         ...state,
         selectAllToggle: action.payload,
-        downloadError: "",
-      };
+        downloadError: '',
+      }
     }
 
     case FeedActionTypes.REMOVE_ALL_SELECT: {
       return {
         ...state,
         bulkSelect: [],
-      };
+      }
     }
 
     case FeedActionTypes.RESET_FEED: {
       return {
         ...initialState,
-      };
+      }
     }
 
     default:
-      return state;
+      return state
   }
-};
+}
 
-export { reducer as feedsReducer };
+export { reducer as feedsReducer }

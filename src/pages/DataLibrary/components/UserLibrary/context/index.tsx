@@ -219,9 +219,7 @@ type LibraryPayload = {
   }
 }
 
-export type LibraryActions = ActionMap<LibraryPayload>[keyof ActionMap<
-  LibraryPayload
->]
+export type LibraryActions = ActionMap<LibraryPayload>[keyof ActionMap<LibraryPayload>]
 
 const LibraryContext = createContext<{
   state: LibraryState
@@ -231,10 +229,7 @@ const LibraryContext = createContext<{
   dispatch: () => null,
 })
 
-export const libraryReducer = (
-  state: LibraryState,
-  action: LibraryActions,
-): LibraryState => {
+export const libraryReducer = (state: LibraryState, action: LibraryActions): LibraryState => {
   switch (action.type) {
     case Types.SET_COLUMN_LAYOUT: {
       return {
@@ -254,7 +249,9 @@ export const libraryReducer = (
       const { type, previousPath, folder } = action.payload.file
       let folders = state.foldersState[type][previousPath]
       if (folders.length > 0) {
-        folders = folders.filter((folderName) => `${folderName.path}/${folderName.name}` !== folder.path)
+        folders = folders.filter(
+          (folderName) => `${folderName.path}/${folderName.name}` !== folder.path
+        )
 
         return {
           ...state,
@@ -265,11 +262,10 @@ export const libraryReducer = (
             },
           },
         }
-      } 
-        return {
-          ...state,
-        }
-      
+      }
+      return {
+        ...state,
+      }
     }
 
     case Types.SET_FOLDERS: {
@@ -423,12 +419,7 @@ export const libraryReducer = (
     }
 
     case Types.SET_SELECTED_FOLDER: {
-      const {
-        folder,
-        type,
-        previousPath,
-        operation,
-      } = action.payload.selectFolder
+      const { folder, type, previousPath, operation } = action.payload.selectFolder
       const folderPayload = {
         type,
         folder,
@@ -452,7 +443,7 @@ export const libraryReducer = (
       const { selectFolder } = action.payload
 
       const newFileSelect = state.selectedFolder.filter(
-        (item) => item.folder.path !== selectFolder.folder.path,
+        (item) => item.folder.path !== selectFolder.folder.path
       )
 
       return {
@@ -506,17 +497,16 @@ export const libraryReducer = (
             },
           },
         }
-      } 
-        return {
-          ...state,
-          foldersState: {
-            ...state.foldersState,
-            [type]: {
-              [path]: [folderDetails],
-            },
+      }
+      return {
+        ...state,
+        foldersState: {
+          ...state.foldersState,
+          [type]: {
+            [path]: [folderDetails],
           },
-        }
-      
+        },
+      }
     }
 
     case Types.SET_EMPTY_INDICATOR: {
@@ -540,11 +530,7 @@ interface LibraryProviderProps {
 const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) => {
   const initialState = getInitialState()
   const [state, dispatch] = useReducer(libraryReducer, initialState)
-  return (
-    <LibraryContext.Provider value={{ state, dispatch }}>
-      {children}
-    </LibraryContext.Provider>
-  )
+  return <LibraryContext.Provider value={{ state, dispatch }}>{children}</LibraryContext.Provider>
 }
 
 export { LibraryContext, LibraryProvider }

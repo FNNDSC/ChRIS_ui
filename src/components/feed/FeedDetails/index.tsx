@@ -1,11 +1,6 @@
 import React from 'react'
 import Moment from 'react-moment'
-import {
-  Button,
-  Toolbar,
-  ToolbarItem,
-  ToolbarContent,
-} from '@patternfly/react-core'
+import { Button, Toolbar, ToolbarItem, ToolbarContent } from '@patternfly/react-core'
 import { Popover } from 'antd'
 import { FaEdit } from 'react-icons/fa'
 import ShareFeed from '../ShareFeed/ShareFeed'
@@ -73,10 +68,7 @@ const FeedDetails = () => {
       </ToolbarItem>
       <ToolbarItem spacer={spacer}>
         <span>
-          Created:{' '}
-          <Moment format="DD MMM YYYY @ HH:mm">
-              {feed && feed.data.creation_date}
-            </Moment>
+          Created: <Moment format="DD MMM YYYY @ HH:mm">{feed && feed.data.creation_date}</Moment>
         </span>
       </ToolbarItem>
       <div
@@ -120,11 +112,14 @@ const FeedDetails = () => {
         <ToolbarContent>{items}</ToolbarContent>
       </Toolbar>
     )
-  } if (loading) {
+  }
+  if (loading) {
     return <SpinContainer title="Fetching Details" />
-  } if (error) {
+  }
+  if (error) {
     return <div>Error Found</div>
-  } return null
+  }
+  return null
 }
 
 export default FeedDetails

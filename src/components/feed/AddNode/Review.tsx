@@ -1,44 +1,35 @@
-import React from "react";
-import { Grid, GridItem, Alert } from "@patternfly/react-core";
-import { ReviewProps } from "./types";
-import { unpackParametersIntoString } from "./lib/utils";
-import { PluginDetails } from "./helperComponents/ReviewGrid";
+import React from 'react'
+import { Grid, GridItem, Alert } from '@patternfly/react-core'
+import { ReviewProps } from './types'
+import { unpackParametersIntoString } from './lib/utils'
+import { PluginDetails } from './helperComponents/ReviewGrid'
 
 const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
-  const {
-    parent,
-    currentPlugin,
-    dropdownInput,
-    requiredInput,
-    computeEnvironment,
-    errors,
-  } = props;
+  const { parent, currentPlugin, dropdownInput, requiredInput, computeEnvironment, errors } = props
 
-  let generatedCommand = "";
-  let command = "";
+  let generatedCommand = ''
+  let command = ''
 
   if (errors) {
     for (const error in errors) {
-      command = `${error}: ${errors[error]}`;
+      command = `${error}: ${errors[error]}`
     }
   }
 
   if (requiredInput) {
-    generatedCommand += unpackParametersIntoString(requiredInput);
+    generatedCommand += unpackParametersIntoString(requiredInput)
   }
 
   if (dropdownInput) {
-    generatedCommand += unpackParametersIntoString(dropdownInput);
+    generatedCommand += unpackParametersIntoString(dropdownInput)
   }
 
-  const title = parent && (parent.data.title || parent.data.plugin_name);
+  const title = parent && (parent.data.title || parent.data.plugin_name)
 
   return (
     <div className="review">
       <h1 className="pf-c-title pf-m-2xl">Review</h1>
-      <p>
-        Review the information below and click &apos;Add&apos; to add a node
-      </p>
+      <p>Review the information below and click &apos;Add&apos; to add a node</p>
       <br />
       <br />
 
@@ -47,21 +38,17 @@ const Review: React.FunctionComponent<ReviewProps> = (props: ReviewProps) => {
           <span className="review__title">Parent Node:</span>
         </GridItem>
         <GridItem span={10}>
-          <span className="review__value">
-            {`${title} v.${parent?.data.plugin_version}`}
-          </span>
+          <span className="review__value">{`${title} v.${parent?.data.plugin_version}`}</span>
         </GridItem>
         <PluginDetails
           generatedCommand={generatedCommand}
           selectedPlugin={currentPlugin}
           computeEnvironment={computeEnvironment}
         />
-        {command.length > 0 && (
-          <Alert variant="danger" isInline title={command} />
-        )}
+        {command.length > 0 && <Alert variant="danger" isInline title={command} />}
       </Grid>
     </div>
-  );
-};
+  )
+}
 
-export default Review;
+export default Review

@@ -1,21 +1,15 @@
-import React, { useContext } from "react";
-import {
-  Progress,
-  ProgressVariant,
-  Button,
-  Stack,
-  StackItem,
-} from "@patternfly/react-core";
-import { FaCogs } from "react-icons/fa";
-import ReactJson from "react-json-view";
-import { CreateFeedContext } from "./context";
-import { Types } from "./types";
-import { useAsync } from "../../../utils";
+import React, { useContext } from 'react'
+import { Progress, ProgressVariant, Button, Stack, StackItem } from '@patternfly/react-core'
+import { FaCogs } from 'react-icons/fa'
+import ReactJson from 'react-json-view'
+import { CreateFeedContext } from './context'
+import { Types } from './types'
+import { useAsync } from '../../../utils'
 
 const FinishedStep = () => {
-  const { state, dispatch } = useContext(CreateFeedContext);
-  const { feedProgress, value, feedError } = state;
-  const { isLoading, isError, isSuccess } = useAsync(state);
+  const { state, dispatch } = useContext(CreateFeedContext)
+  const { feedProgress, value, feedError } = state
+  const { isLoading, isError, isSuccess } = useAsync(state)
 
   return (
     <Stack>
@@ -24,11 +18,11 @@ const FinishedStep = () => {
           <FaCogs className="finished-step__icon" />
           <p className="finished-step__header pf-c-title pf-m-lg">
             {isLoading ? (
-              "Your feed is being created. Give it a moment"
+              'Your feed is being created. Give it a moment'
             ) : isError ? (
               <ReactJson src={feedError} />
             ) : isSuccess ? (
-              "You can now safely close the wizard"
+              'You can now safely close the wizard'
             ) : null}
           </p>
         </div>
@@ -54,24 +48,24 @@ const FinishedStep = () => {
             onClick={() => {
               dispatch({
                 type: Types.ResetState,
-              });
+              })
               dispatch({
                 type: Types.ToggleWizzard,
-              });
+              })
             }}
           >
             {isLoading
-              ? "Creating Feed"
+              ? 'Creating Feed'
               : isError
-              ? "Please try again"
+              ? 'Please try again'
               : isSuccess
-              ? "Close"
-              : "Cancel"}
+              ? 'Close'
+              : 'Cancel'}
           </Button>
         </div>
       </StackItem>
     </Stack>
-  );
-};
+  )
+}
 
-export default FinishedStep;
+export default FinishedStep

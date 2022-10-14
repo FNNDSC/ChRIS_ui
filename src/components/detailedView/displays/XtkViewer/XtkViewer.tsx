@@ -14,17 +14,14 @@ declare const dat: any
 export type ViewerMode = 'volume' | 'mesh' | 'other'
 type VolumeMode = '3D' | '2D'
 
-const getFileType = (file?: FeedFile) =>
-  file?.data.fname.split('.').slice(-1)[0]
-const getFileData = async (file: FeedFile) =>
-  (await file.getFileBlob())?.arrayBuffer()
+const getFileType = (file?: FeedFile) => file?.data.fname.split('.').slice(-1)[0]
+const getFileData = async (file: FeedFile) => (await file.getFileBlob())?.arrayBuffer()
 
 export function getXtkFileMode(fileType?: string): ViewerMode | undefined {
   const volumeExtensions = ['mgz', 'dcm']
   const meshExtensions = ['fsm', 'smoothwm', 'pial']
   const otherExtensions = ['crv']
   if (!fileType) {
-    
   } else if (volumeExtensions.includes(fileType)) {
     return 'volume'
   } else if (meshExtensions.includes(fileType)) {
@@ -40,8 +37,7 @@ function getPrimaryFileMode(file: FeedFile): ViewerMode | undefined {
 }
 
 const XtkViewer = () => {
-  const directoryFiles =
-    useTypedSelector((state) => state.explorer.selectedFolder) || []
+  const directoryFiles = useTypedSelector((state) => state.explorer.selectedFolder) || []
   const crvFiles = directoryFiles.filter((file) => {
     const fileName = file.data.fname
     return fileName?.endsWith('.crv')
@@ -51,19 +47,12 @@ const XtkViewer = () => {
   const selectedFileType = getFileType(selectedFile)
 
   // data based on first load, before further interactions
-  const defaultPrimaryFile =
-    selectedFileType === 'crv' ? undefined : selectedFile
+  const defaultPrimaryFile = selectedFileType === 'crv' ? undefined : selectedFile
   const defaultCrvFile = selectedFileType === 'crv' ? selectedFile : undefined
-  const defaultViewerMode = defaultPrimaryFile
-    ? getPrimaryFileMode(defaultPrimaryFile)
-    : undefined
+  const defaultViewerMode = defaultPrimaryFile ? getPrimaryFileMode(defaultPrimaryFile) : undefined
 
-  const [primaryFile, setPrimaryFile] = useState<FeedFile | undefined>(
-    defaultPrimaryFile,
-  )
-  const [viewerMode, setViewerMode] = useState<ViewerMode | undefined>(
-    defaultViewerMode,
-  )
+  const [primaryFile, setPrimaryFile] = useState<FeedFile | undefined>(defaultPrimaryFile)
+  const [viewerMode, setViewerMode] = useState<ViewerMode | undefined>(defaultViewerMode)
   const [volumeMode, setVolumeMode] = useState<VolumeMode>('3D')
   const [crvFile, setCrvFile] = useState<FeedFile | undefined>(defaultCrvFile)
   const [secondaryFile, setSecondaryFile] = useState<FeedFile | undefined>()
@@ -186,17 +175,12 @@ const XtkViewer = () => {
   const fullscreenRef = useRef<HTMLDivElement>(null)
 
   return (
-    <div
-      className={`xtk-viewer-wrap ${fullscreen ? 'fullscreen' : ''}`}
-      ref={fullscreenRef}
-    >
+    <div className={`xtk-viewer-wrap ${fullscreen ? 'fullscreen' : ''}`} ref={fullscreenRef}>
       <div className="xtk-header">
         <h3 className="xtk-title">XTK Viewer</h3>
         <div className="xtk-info">
           {primaryFile && <div>Selected File: {primaryFile.data.fname}</div>}
-          {secondaryFile && (
-            <div>Selected Secondary File: {secondaryFile.data.fname}</div>
-          )}
+          {secondaryFile && <div>Selected Secondary File: {secondaryFile.data.fname}</div>}
           {crvFile && <div>Selected CRV File: {crvFile.data.fname}</div>}
         </div>
       </div>
@@ -230,11 +214,7 @@ const XtkViewer = () => {
           <div className="xtk-controls">
             {viewerMode === 'mesh' ? (
               <div className="additional-files">
-                <CrvFileSelect
-                  files={crvFiles}
-                  selectedFile={crvFile}
-                  handleSelect={setCrvFile}
-                />
+                <CrvFileSelect files={crvFiles} selectedFile={crvFile} handleSelect={setCrvFile} />
                 <CrvFileSelect
                   files={directoryFiles}
                   title="Select Additional Mesh File"
@@ -287,10 +267,7 @@ const XtkViewer = () => {
               </div>
             )}
 
-            <AiOutlineExpand
-              className="fullscreen-toggle"
-              onClick={handleFullscreenToggle}
-            />
+            <AiOutlineExpand className="fullscreen-toggle" onClick={handleFullscreenToggle} />
           </div>
         </>
       )}

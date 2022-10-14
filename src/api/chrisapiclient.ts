@@ -7,8 +7,6 @@ declare let process: {
   }
 }
 
-
-
 /**
  * This is a singleton to hold an instantiated, authenticated `Client` object,
  * in order to prevent  every component that needs the client from having to be
@@ -18,12 +16,11 @@ declare let process: {
 class ChrisAPIClient {
   private static client: Client
   private static isTokenAuthorized: boolean
- 
 
   static getClient(): Client {
     const cookie = new Cookies()
     if (!this.client || !this.isTokenAuthorized) {
-      const user= cookie.get('username');
+      const user = cookie.get('username')
       const token: string = cookie.get(`${user}_token`)
       if (token) {
         this.isTokenAuthorized = true

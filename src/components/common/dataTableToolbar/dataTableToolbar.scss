@@ -4,17 +4,16 @@
  *   Author:         Chris 
  */
 
-
- // Data table search bar
-.datatable-toolbar{
-    margin: 0 0 1rem;
-    max-width: 500px;
-   .pf-c-input-group .toolbar-label, input{
-        font-size: 0.875rem;
-        font-weight: 500;
-    }
-    .pf-c-input-group .toolbar-label{
-        padding: 0 2rem;
-        
-    }
+// Data table search bar
+.datatable-toolbar {
+  margin: 0 0 1rem;
+  max-width: 500px;
+  .pf-c-input-group .toolbar-label,
+  input {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .pf-c-input-group .toolbar-label {
+    padding: 0 2rem;
+  }
 }

@@ -1,20 +1,20 @@
-import React from "react";
-import { Button, List, Form, Input, Checkbox } from "antd";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import { useDispatch } from "react-redux";
-import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
-import { AiFillCloseCircle } from "react-icons/ai";
-import { deleteTsNode, switchTreeMode } from "../../../store/tsplugins/actions";
-import { useSafeDispatch } from "../../../utils";
-import { useTypedSelector } from "../../../store/hooks";
-import { InputType } from "./ParentContainer";
+import React from 'react'
+import { Button, List, Form, Input, Checkbox } from 'antd'
+import { CheckboxChangeEvent } from 'antd/lib/checkbox'
+import { useDispatch } from 'react-redux'
+import { Plugin, PluginParameter } from '@fnndsc/chrisapi'
+import { AiFillCloseCircle } from 'react-icons/ai'
+import { deleteTsNode, switchTreeMode } from '../../../store/tsplugins/actions'
+import { useSafeDispatch } from '../../../utils'
+import { useTypedSelector } from '../../../store/hooks'
+import { InputType } from './ParentContainer'
 
 type ConfigureJoinProps = {
-  selectedTsPlugin?: Plugin;
-  joinInput: InputType;
-  handleValueChange: (value: string, name: string) => void;
-  handleCheckboxChange: (value: boolean, name: string) => void;
-};
+  selectedTsPlugin?: Plugin
+  joinInput: InputType
+  handleValueChange: (value: string, name: string) => void
+  handleCheckboxChange: (value: boolean, name: string) => void
+}
 
 const ConfigureJoin = ({
   selectedTsPlugin,
@@ -22,31 +22,31 @@ const ConfigureJoin = ({
   handleValueChange,
   joinInput,
 }: ConfigureJoinProps) => {
-  const [tsParams, setTsParams] = React.useState<PluginParameter[]>([]);
-  const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
-  const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
-  const dispatch = useDispatch();
-  const safeDispatch = useSafeDispatch(dispatch);
+  const [tsParams, setTsParams] = React.useState<PluginParameter[]>([])
+  const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes)
+  const mode = useTypedSelector((state) => state.tsPlugins.treeMode)
+  const dispatch = useDispatch()
+  const safeDispatch = useSafeDispatch(dispatch)
 
   React.useEffect(() => {
     async function fetchTsParameters() {
       if (selectedTsPlugin) {
         const parametersList = await selectedTsPlugin.getPluginParameters({
           limit: 20,
-        });
+        })
 
-        const parameters = parametersList.getItems();
-        if (parameters) setTsParams(parameters as PluginParameter[]);
+        const parameters = parametersList.getItems()
+        if (parameters) setTsParams(parameters as PluginParameter[])
       }
     }
-    fetchTsParameters();
-  }, [selectedTsPlugin]);
+    fetchTsParameters()
+  }, [selectedTsPlugin])
 
   return (
     <div className="list-container">
       <Button
         onClick={() => {
-          safeDispatch(switchTreeMode(mode));
+          safeDispatch(switchTreeMode(mode))
         }}
         type="primary"
       >
@@ -63,7 +63,7 @@ const ConfigureJoin = ({
                 <span>{item.data.title || item.data.plugin_name}</span>
                 <Button
                   onClick={() => {
-                    safeDispatch(deleteTsNode(item));
+                    safeDispatch(deleteTsNode(item))
                   }}
                   icon={<AiFillCloseCircle />}
                 />
@@ -75,45 +75,42 @@ const ConfigureJoin = ({
 
       <Form
         style={{
-          marginTop: "1em",
+          marginTop: '1em',
         }}
       >
         {tsParams &&
           tsParams.map((param) => {
-            if (param.data.name !== "plugininstances") {
-              if (param.data.name === "groupByInstance") {
+            if (param.data.name !== 'plugininstances') {
+              if (param.data.name === 'groupByInstance') {
                 return (
                   <Checkbox
                     key={param.data.id}
                     checked={joinInput[param.data.name] as boolean}
                     onChange={(event: CheckboxChangeEvent) => {
-                      handleCheckboxChange(
-                        event.target.checked,
-                        param.data.name
-                      );
+                      handleCheckboxChange(event.target.checked, param.data.name)
                     }}
                   >
                     {param.data.name}
                   </Checkbox>
-                );
-              } return (
-                  <Form.Item key={param.data.id} label={param.data.name}>
-                    <Input
-                      className="input"
-                      value={joinInput[param.data.name] as string}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ) => {
-                        handleValueChange(event.target.value, param.data.name);
-                      }}
-                    />
-                  </Form.Item>
-                );
-            } return null;
+                )
+              }
+              return (
+                <Form.Item key={param.data.id} label={param.data.name}>
+                  <Input
+                    className="input"
+                    value={joinInput[param.data.name] as string}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      handleValueChange(event.target.value, param.data.name)
+                    }}
+                  />
+                </Form.Item>
+              )
+            }
+            return null
           })}
       </Form>
     </div>
-  );
-};
+  )
+}
 
-export default ConfigureJoin;
+export default ConfigureJoin

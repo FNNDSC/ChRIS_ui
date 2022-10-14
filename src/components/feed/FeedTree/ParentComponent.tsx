@@ -85,5 +85,5 @@ export default React.memo(
       return false
     }
     return true
-  },
+  }
 )

@@ -4,31 +4,31 @@
  *   Author:         Chris 
  */
 
- @import "../../../assets/scss/helpers/variables";
- @import "../../../assets/scss/helpers/mixins";
+@import '../../../assets/scss/helpers/variables';
+@import '../../../assets/scss/helpers/mixins';
 
+#gotop {
+  @include opacity(0);
+  bottom: $gotop-dimension * 0.75;
+  cursor: default;
+  font-size: $gotop-dimension;
+  height: $gotop-dimension;
+  line-height: $gotop-dimension;
+  padding: 0;
+  position: fixed;
+  right: $gotop-dimension;
+  width: $gotop-dimension;
+  z-index: 5000;
 
- #gotop{
-   @include opacity(0);
-   bottom: $gotop-dimension*0.75;
-   cursor: default;
-   font-size: $gotop-dimension;
-   height: $gotop-dimension;
-   line-height: $gotop-dimension;
-   padding:0;
-   position: fixed;
-   right: $gotop-dimension;
-   width: $gotop-dimension;
-   z-index: 5000;
-
-   &.active {
-       cursor: pointer;
-       @include opacity(1);
-       &:hover {
-          @include opacity(0.9);
-       }
-   }
-   &:hover, &:focus{
-       text-decoration:none;
-   }
- }
+  &.active {
+    cursor: pointer;
+    @include opacity(1);
+    &:hover {
+      @include opacity(0.9);
+    }
+  }
+  &:hover,
+  &:focus {
+    text-decoration: none;
+  }
+}

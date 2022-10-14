@@ -1,25 +1,21 @@
-import React, { Fragment } from "react";
-import { IFileBlob } from "../../../../api/models/file-viewer.model";
+import React, { Fragment } from 'react'
+import { IFileBlob } from '../../../../api/models/file-viewer.model'
 
 type AllProps = {
-  fileItem: IFileBlob;
-};
+  fileItem: IFileBlob
+}
 
 const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  const { fileItem } = props;
+  const { fileItem } = props
 
-  let url = "";
+  let url = ''
 
-  if (fileItem.fileType === "html") {
+  if (fileItem.fileType === 'html') {
     url = fileItem.blob
-      ? window.URL.createObjectURL(
-          new Blob([fileItem.blob], { type: "text/html" })
-        )
-      : "";
+      ? window.URL.createObjectURL(new Blob([fileItem.blob], { type: 'text/html' }))
+      : ''
   } else {
-    url = fileItem.blob
-      ? window.URL.createObjectURL(new Blob([fileItem.blob]))
-      : "";
+    url = fileItem.blob ? window.URL.createObjectURL(new Blob([fileItem.blob])) : ''
   }
 
   return (
@@ -34,7 +30,7 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
         />
       </div>
     </>
-  );
-};
+  )
+}
 
-export default React.memo(IframeDisplay);
+export default React.memo(IframeDisplay)

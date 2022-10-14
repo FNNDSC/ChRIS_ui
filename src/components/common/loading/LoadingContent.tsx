@@ -49,12 +49,12 @@ export const SpinContainer = ({
   title: string
   background?: string
 }) => (
-    <div
-      style={{
-        background,
-      }}
-      className="example"
-    >
-      <Spin tip={title} />
-    </div>
-  )
+  <div
+    style={{
+      background,
+    }}
+    className="example"
+  >
+    <Spin tip={title} />
+  </div>
+)

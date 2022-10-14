@@ -56,11 +56,7 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
             isPlain
             position="right"
             isOpen={isDropdownOpen}
-            toggle={
-              <DropdownToggle onToggle={onDropdownToggle}>
-                {username}
-              </DropdownToggle>
-            }
+            toggle={<DropdownToggle onToggle={onDropdownToggle}>{username}</DropdownToggle>}
             dropdownItems={userDropdownItems}
           />
         </ToolbarItem>

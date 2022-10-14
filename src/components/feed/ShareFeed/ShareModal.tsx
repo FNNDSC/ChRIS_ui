@@ -7,20 +7,16 @@ interface ShareModalProps {
   children?: any
 }
 
-const ShareModal: React.FC<ShareModalProps> = ({
-  showOverlay,
-  handleModalClose,
-  children,
-}) => (
-    <Modal
-      variant={ModalVariant.small}
-      title="Share with others"
-      isOpen={showOverlay}
-      onClose={handleModalClose}
-      disableFocusTrap
-    >
-      {children}
-    </Modal>
-  )
+const ShareModal: React.FC<ShareModalProps> = ({ showOverlay, handleModalClose, children }) => (
+  <Modal
+    variant={ModalVariant.small}
+    title="Share with others"
+    isOpen={showOverlay}
+    onClose={handleModalClose}
+    disableFocusTrap
+  >
+    {children}
+  </Modal>
+)
 
 export default ShareModal

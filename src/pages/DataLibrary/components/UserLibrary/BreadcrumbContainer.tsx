@@ -1,11 +1,5 @@
 import React from 'react'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  Split,
-  SplitItem,
-  Button,
-} from '@patternfly/react-core'
+import { Breadcrumb, BreadcrumbItem, Split, SplitItem, Button } from '@patternfly/react-core'
 import { FaFolder, FaFolderOpen, FaUser, FaHome } from 'react-icons/fa'
 import { FcServices } from 'react-icons/fc'
 
@@ -65,10 +59,7 @@ const BreadcrumbContainer = ({
             icon = <FaUser style={style} />
           } else if (index === 0 && browserType === 'services') {
             icon = <FcServices style={style} />
-          } else if (
-            index === initialPathSplit.length - 1 &&
-            initialPathSplit.length > 1
-          ) {
+          } else if (index === initialPathSplit.length - 1 && initialPathSplit.length > 1) {
             icon = <FaFolderOpen style={style} />
           } else if (browserType !== 'feed') {
             icon = <FaFolder style={style} />

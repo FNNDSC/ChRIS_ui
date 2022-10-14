@@ -16,12 +16,12 @@ import './ViewImage.scss'
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     'Content-Type': 'application/vnd.collection+json',
-    Authorization: `Token ${  window.sessionStorage.getItem('CHRIS_TOKEN')}`,
+    Authorization: `Token ${window.sessionStorage.getItem('CHRIS_TOKEN')}`,
   },
   method: 'get',
   responseType: 'arrayBuffer',
 })
-const {ImageId} = cornerstoneNIFTIImageLoader.nifti
+const { ImageId } = cornerstoneNIFTIImageLoader.nifti
 
 cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
 cornerstoneFileImageLoader.external.cornerstone = cornerstone
@@ -48,29 +48,26 @@ const GalleryPage = () => {
 
           const numberOfSlices = cornerstone.metaData.get(
             'multiFrameModule',
-            imageIdObject.url,
+            imageIdObject.url
           ).numberOfFrames
 
           imageIds.push(
             ...Array.from(
               Array(numberOfSlices),
-              (_, i) =>
-                `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`,
-            ),
+              (_, i) => `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
+            )
           )
         } else if (isDicom(file.name)) {
-          imageIds.push(
-            cornerstoneWADOImageLoader.wadouri.fileManager.add(file),
-          )
+          imageIds.push(cornerstoneWADOImageLoader.wadouri.fileManager.add(file))
         } else {
           imageIds.push(cornerstoneFileImageLoader.fileManager.add(file))
         }
 
         setLoader((state) => ({
-            ...state,
-            filesParsed: i + 1,
-            totalFiles: files.length,
-          }))
+          ...state,
+          filesParsed: i + 1,
+          totalFiles: files.length,
+        }))
       }
 
       dispatch(setFilesForGallery(imageIds))
@@ -86,10 +83,7 @@ const GalleryPage = () => {
       {loader.filesParsed === loader.totalFiles ? (
         <GalleryDicomView type="visualization" />
       ) : (
-        <DicomLoader
-          totalFiles={loader.totalFiles}
-          filesParsed={loader.filesParsed}
-        />
+        <DicomLoader totalFiles={loader.totalFiles} filesParsed={loader.filesParsed} />
       )}
     </div>
   )

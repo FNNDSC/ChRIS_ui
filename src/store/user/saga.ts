@@ -14,7 +14,7 @@ function* handleResponse(action: any) {
       setAuthTokenSuccess({
         token: action.payload.token,
         username: action.payload.username,
-      }),
+      })
     )
   } catch (error) {
     setAuthError()

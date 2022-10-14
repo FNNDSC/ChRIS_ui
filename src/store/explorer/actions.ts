@@ -15,20 +15,15 @@ export const setSelectedFolder = (selectedFolder: FeedFile[]) =>
 export const setExplorerMode = (mode: ExplorerMode) =>
   action(ExplorerActionTypes.SET_EXPLORER_MODE, mode)
 
-export const destroyExplorer = () =>
-  action(ExplorerActionTypes.DESTROY_EXPLORER)
+export const destroyExplorer = () => action(ExplorerActionTypes.DESTROY_EXPLORER)
 
-export const setToolStore = (value: boolean) =>
-  action(ExplorerActionTypes.ENABLE_DCM_TOOL, value)
+export const setToolStore = (value: boolean) => action(ExplorerActionTypes.ENABLE_DCM_TOOL, value)
 
 export const setFilesForGallery = (items: any[]) =>
   action(ExplorerActionTypes.SET_GALLERY_FILES, items)
 
-export const clearFilesForGallery = () =>
-  action(ExplorerActionTypes.CLEAR_GALLERY_FILES)
+export const clearFilesForGallery = () => action(ExplorerActionTypes.CLEAR_GALLERY_FILES)
 
-export const setExternalFiles = (files: any) =>
-  action(ExplorerActionTypes.EXTERNAL_FILES, files)
+export const setExternalFiles = (files: any) => action(ExplorerActionTypes.EXTERNAL_FILES, files)
 
-export const clearSelectedFile = () =>
-  action(ExplorerActionTypes.CLEAR_SELECTED_FILE)
+export const clearSelectedFile = () => action(ExplorerActionTypes.CLEAR_SELECTED_FILE)

@@ -27,10 +27,8 @@ type NodeProps = NodeWrapperProps & {
 
 const DEFAULT_NODE_CIRCLE_RADIUS = 12
 
-const setNodeTransform = (
-  orientation: 'horizontal' | 'vertical',
-  position: Point,
-) => orientation === 'horizontal'
+const setNodeTransform = (orientation: 'horizontal' | 'vertical', position: Point) =>
+  orientation === 'horizontal'
     ? `translate(${position.y},${position.x})`
     : `translate(${position.x}, ${position.y})`
 
@@ -52,14 +50,10 @@ const Node = (props: NodeProps) => {
 
   const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes)
   const mode = useTypedSelector((state) => state.tsPlugins.treeMode)
-  const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances.data,
-  )
+  const pluginInstances = useTypedSelector((state) => state.instance.pluginInstances.data)
 
   const applyNodeTransform = (transform: string, opacity = 1) => {
-    select(nodeRef.current)
-      .attr('transform', transform)
-      .style('opacity', opacity)
+    select(nodeRef.current).attr('transform', transform).style('opacity', opacity)
     select(textRef.current).attr('transform', `translate(-28, 28)`)
   }
 
@@ -107,14 +101,11 @@ const Node = (props: NodeProps) => {
 
   const previous_id = data.item?.data?.previous_id
   if (previous_id) {
-    const parentNode = pluginInstances?.find(
-      (node) => node.data.id === previous_id,
-    )
+    const parentNode = pluginInstances?.find((node) => node.data.id === previous_id)
 
     if (
       parentNode &&
-      (parentNode.data.status === 'cancelled' ||
-        parentNode.data.status === 'finishedWithError')
+      (parentNode.data.status === 'cancelled' || parentNode.data.status === 'finishedWithError')
     ) {
       statusClass = 'notExecuted'
     }
@@ -150,7 +141,7 @@ const Node = (props: NodeProps) => {
               ${currentId && `selected`}
               `}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
-         />
+        />
         {overlaySize && (
           <circle
             id={`node_overlay_${data.id}`}
@@ -172,7 +163,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
   const status = useTypedSelector((state) => {
     if (data.id && state.resource.pluginInstanceStatus[data.id]) {
       return state.resource.pluginInstanceStatus[data.id].status
-    } 
+    }
   })
 
   const currentId = useTypedSelector((state) => {
@@ -215,5 +206,5 @@ export default React.memo(
       return false
     }
     return true
-  },
+  }
 )

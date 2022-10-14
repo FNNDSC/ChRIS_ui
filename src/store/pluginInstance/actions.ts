@@ -1,10 +1,5 @@
 import { action } from 'typesafe-actions'
-import {
-  PluginInstanceTypes,
-  PluginInstanceObj,
-  AddNodePayload,
-  SplitNodesPayload,
-} from './types'
+import { PluginInstanceTypes, PluginInstanceObj, AddNodePayload, SplitNodesPayload } from './types'
 import { PluginInstance, Feed } from '@fnndsc/chrisapi'
 export const getSelectedPlugin = (item: PluginInstance) =>
   action(PluginInstanceTypes.GET_SELECTED_PLUGIN, item)
@@ -26,8 +21,7 @@ export const setPluginTitle = (pluginItem: PluginInstance) =>
 export const deleteNode = (instance: PluginInstance) => {
   return action(PluginInstanceTypes.DELETE_NODE, instance)
 }
-export const deleteNodeSuccess = (id: number) =>
-  action(PluginInstanceTypes.DELETE_NODE_SUCCESS, id)
+export const deleteNodeSuccess = (id: number) => action(PluginInstanceTypes.DELETE_NODE_SUCCESS, id)
 
 export const deleteNodeError = (error: string) =>
   action(PluginInstanceTypes.DELETE_NODE_ERROR, error)
@@ -37,7 +31,6 @@ export const addSplitNodes = (splitNodesPayload: SplitNodesPayload) =>
 export const addSplitNodesSuccess = (splitNodes: PluginInstance[]) =>
   action(PluginInstanceTypes.ADD_SPLIT_NODES_SUCCESS, splitNodes)
 
-export const resetPluginInstances = () =>
-  action(PluginInstanceTypes.RESET_PLUGIN_INSTANCES)
+export const resetPluginInstances = () => action(PluginInstanceTypes.RESET_PLUGIN_INSTANCES)
 
 export const clearDeleteState = () => action(PluginInstanceTypes.CLEAR_DELETE)

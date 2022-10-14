@@ -15,9 +15,7 @@ const PluginTitle = () => {
   const [showInput, setShowInput] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState()
-  const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin,
-  )
+  const selectedPlugin = useTypedSelector((state) => state.instance.selectedPlugin)
   const [value, setValue] = React.useState(getDefaultTitle(selectedPlugin))
 
   const { title, plugin_version, plugin_name } = selectedPlugin?.data
@@ -62,10 +60,7 @@ const PluginTitle = () => {
             value={value}
             className="node-details__title--formInput"
           />
-          <Button
-            onClick={handleSubmit}
-            className="node-details__title--formButton"
-          >
+          <Button onClick={handleSubmit} className="node-details__title--formButton">
             {loading ? 'Confirming' : 'Confirm'}
           </Button>
           <Button

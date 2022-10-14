@@ -1,11 +1,9 @@
-@import "../../../assets/scss/helpers/variables";
-@import "../../../assets/scss/helpers/mixins";
-@import "../../../assets/scss/helpers/pf4-variables";
-
-
+@import '../../../assets/scss/helpers/variables';
+@import '../../../assets/scss/helpers/mixins';
+@import '../../../assets/scss/helpers/pf4-variables';
 
 .ant-progress-text {
-  color: white !important
+  color: white !important;
 }
 .node-block {
   background: $node-block-background;
@@ -43,9 +41,7 @@
       display: flex;
       margin: 0.5em auto;
       .pf-c-button {
-        --pf-c-button--m-tertiary--BackgroundColor: var(
-          --pf-global--palette--white
-        ) !important;
+        --pf-c-button--m-tertiary--BackgroundColor: var(--pf-global--palette--white) !important;
         -pf-c-button--m-tertiary--hover--backgroundcolor: var(
           --pf-global--palette--black-300
         ) !important;
@@ -145,8 +141,7 @@
         font-size: 12px;
       }
 
-      .ant-steps-horizontal:not(.ant-steps-label-vertical)
-        .ant-steps-item-tail {
+      .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item-tail {
         display: none !important;
       }
 
@@ -172,15 +167,12 @@
         padding-left: 0;
       }
 
-      .ant-steps-horizontal:not(.ant-steps-label-vertical)
-        .ant-steps-item-tail {
+      .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item-tail {
         display: outline !important;
       }
 
       .ant-steps-item-finish,
-      > .ant-steps-item-container
-        > .ant-steps-item-content
-        > .ant-steps-item-description {
+      > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-description {
         color: white !important;
       }
 
@@ -197,9 +189,7 @@
       }
 
       .ant-steps-item-wait,
-      > .ant-steps-item-container
-        > .ant-steps-item-content
-        > .ant-steps-item-description {
+      > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-description {
         color: white !important;
       }
 
@@ -224,9 +214,7 @@
         padding-right: 0;
       }
 
-      .ant-steps-item-container
-        > .ant-steps-item-content
-        > .ant-steps-item-title {
+      .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
         color: white !important;
       }
     }
@@ -253,15 +241,15 @@ Steps Design Icon
 
 ******/
 .ant-popover {
-  width: 100%!important;
+  width: 100% !important;
   top: 15;
-  
+
   .pf-c-hint__actions {
     margin: 0;
   }
-  
+
   @media (min-width: 760px) {
-    width: 70%!important;
+    width: 70% !important;
   }
 }
 

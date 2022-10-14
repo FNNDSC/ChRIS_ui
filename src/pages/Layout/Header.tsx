@@ -10,10 +10,7 @@ interface IHeaderProps {
   onNavToggle: () => void
 }
 
-const Header: React.FC<IHeaderProps> = ({
-  onNavToggle,
-  user,
-}: IHeaderProps) => {
+const Header: React.FC<IHeaderProps> = ({ onNavToggle, user }: IHeaderProps) => {
   const pageToolbar = user.token ? (
     <PageHeaderTools>
       <ToolbarComponent />

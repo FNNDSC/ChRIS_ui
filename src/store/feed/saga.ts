@@ -56,10 +56,7 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
     const feed: Feed = yield client.getFeed(id)
 
     if (feed) {
-      yield all([
-        put(getFeedSuccess(feed)),
-        put(getPluginInstancesRequest(feed)),
-      ])
+      yield all([put(getFeedSuccess(feed)), put(getPluginInstancesRequest(feed))])
     } else {
       throw new Error(`Unable to fetch a Feed with that ID `)
     }
@@ -91,10 +88,7 @@ function* handleDowloadFeed(action: IActionTypeParam) {
 
     newFeedName = action.meta == '' ? newFeedName : action.meta
 
-    const createdFeed: Feed = yield cu.downloadMultipleFeeds(
-      feedIdList,
-      newFeedName,
-    )
+    const createdFeed: Feed = yield cu.downloadMultipleFeeds(feedIdList, newFeedName)
     newFeeds.push(createdFeed)
   } catch (error) {
     //@ts-ignore
@@ -128,19 +122,15 @@ function* handleMergeFeed(action: IActionTypeParam) {
 
     newFeedName = action.meta == '' ? newFeedName : action.meta
 
-    const createdFeed: Feed = yield cu.mergeMultipleFeeds(
-      feedIdList,
-      newFeedName,
-    )
+    const createdFeed: Feed = yield cu.mergeMultipleFeeds(feedIdList, newFeedName)
     newFeeds.push(createdFeed)
   } catch (error) {
-     //@ts-ignore
+    //@ts-ignore
     const errorParsed = error.response.data.value[0]
     yield put(mergeFeedError(errorParsed))
 
     return error
   }
-
 
   yield put(mergeFeedSuccess(newFeeds))
 }
@@ -151,49 +141,39 @@ function* handleDuplicateFeed(action: IActionTypeParam) {
   const cu = new cujs()
   cu.setClient(client)
 
-    
   const newFeeds = []
-  if(feedList.length==1){
+  if (feedList.length == 1) {
     const feedIdList = []
     const data = feedList[0].data
-    const newFeedName = action.meta? action.meta : "duplicate-"+data.name
+    const newFeedName = action.meta ? action.meta : 'duplicate-' + data.name
     feedIdList.push(data.id)
-    try{
-      const createdFeed: Feed = yield cu.mergeMultipleFeeds(
-        feedIdList,
-        newFeedName,
-      )
+    try {
+      const createdFeed: Feed = yield cu.mergeMultipleFeeds(feedIdList, newFeedName)
       newFeeds.push(createdFeed)
-    }
-    catch (error) {
-     //@ts-ignore
+    } catch (error) {
+      //@ts-ignore
       const errorParsed = error.response.data.value[0]
       yield put(duplicateFeedError(errorParsed))
       return error
-  }
-  }
-  else{
+    }
+  } else {
     for (let i = 0; i < feedList.length; i++) {
       const feedIdList = []
       const data = feedList[i].data
-      const newFeedName = action.meta? action.meta+"-"+data.name : "duplicate-"+data.name
+      const newFeedName = action.meta ? action.meta + '-' + data.name : 'duplicate-' + data.name
       feedIdList.push(data.id)
-      try{
-        const createdFeed: Feed = yield cu.mergeMultipleFeeds(
-          feedIdList,
-          newFeedName,
-        )
+      try {
+        const createdFeed: Feed = yield cu.mergeMultipleFeeds(feedIdList, newFeedName)
         newFeeds.push(createdFeed)
-      }
-      catch (error) {
-       //@ts-ignore
+      } catch (error) {
+        //@ts-ignore
         const errorParsed = error.response.data.value[0]
         yield put(duplicateFeedError(errorParsed))
         return error
-    }
+      }
     }
   }
- 
+
   yield put(duplicateFeedSuccess(newFeeds))
 }
 
@@ -203,10 +183,7 @@ function* handleFeedInstanceStatus(feed: Feed) {
   cu.setClient(client)
   while (true) {
     try {
-      const details: Record<
-        string,
-        unknown
-      > = yield cu.getPluginInstanceDetails(feed)
+      const details: Record<string, unknown> = yield cu.getPluginInstanceDetails(feed)
       const payload = {
         details,
         id: feed.data.id,
@@ -234,9 +211,7 @@ function cancelPolling(task: Task) {
 }
 
 function* watchCancelStatus(pollTask: PollTask) {
-  yield takeEvery(FeedActionTypes.STOP_FETCH_FEED_RESOURCES, function (
-    action: IActionTypeParam,
-  ) {
+  yield takeEvery(FeedActionTypes.STOP_FETCH_FEED_RESOURCES, function (action: IActionTypeParam) {
     const feed = action.payload
     const taskToCancel = pollTask[feed.data.id]
     cancelPolling(taskToCancel)
@@ -276,10 +251,7 @@ function* watchDuplicateRequest() {
   yield takeEvery(FeedActionTypes.DUPLICATE_FEED_REQUEST, handleDuplicateFeed)
 }
 function* watchGetFeedResources() {
-  yield takeEvery(
-    FeedActionTypes.GET_FEED_RESOURCES_REQUEST,
-    handleFeedResources,
-  )
+  yield takeEvery(FeedActionTypes.GET_FEED_RESOURCES_REQUEST, handleFeedResources)
 }
 
 export function* feedSaga() {

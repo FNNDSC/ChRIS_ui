@@ -28,9 +28,7 @@ const LocalFileUpload: React.FC = () => {
   return (
     <div className="pacs-alert-wrap">
       <div className="pacs-alert-step-wrap">
-        <h1 className="pf-c-title pf-m-2xl">
-          File Selection: Local File Upload
-        </h1>
+        <h1 className="pf-c-title pf-m-2xl">File Selection: Local File Upload</h1>
         <p>Choose files from your local computer to create a feed</p>
         <FileUpload
           className="local-file-upload"

@@ -1,9 +1,4 @@
-import {
-  Button,
-  Popover,
-  SimpleList,
-  SimpleListItem,
-} from '@patternfly/react-core'
+import { Button, Popover, SimpleList, SimpleListItem } from '@patternfly/react-core'
 import React, { useState } from 'react'
 import { FeedFile } from '@fnndsc/chrisapi'
 
@@ -32,10 +27,8 @@ const CrvFileSelect = (props: CrvFileSelectProps) => {
       {files.map((file) => {
         const title = file.data.fname
         const formattedTitle =
-          title.length < 36
-            ? title
-            : `${title.slice(0, 18)}...${title.slice(-18)}`
-        const {id} = file.data
+          title.length < 36 ? title : `${title.slice(0, 18)}...${title.slice(-18)}`
+        const { id } = file.data
         return (
           <SimpleListItem key={id} x-file={file}>
             {formattedTitle}
@@ -54,11 +47,7 @@ const CrvFileSelect = (props: CrvFileSelectProps) => {
 
   return (
     <div className="crv-select-wrap">
-      <Popover
-        isVisible={open}
-        shouldClose={() => setOpen(false)}
-        bodyContent={popoverBody}
-      >
+      <Popover isVisible={open} shouldClose={() => setOpen(false)} bodyContent={popoverBody}>
         <Button variant="primary" onClick={() => setOpen(true)}>
           {title || 'Select CRV file'}
         </Button>

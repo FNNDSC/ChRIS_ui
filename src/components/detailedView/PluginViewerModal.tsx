@@ -3,9 +3,7 @@ import { Modal } from '@patternfly/react-core'
 import Gotop from '../common/gotop/Gotop'
 import { SpinContainer } from '../common/loading/LoadingContent'
 
-const OutputViewerContainer = React.lazy(() =>
-  import('./DetailedViewerContainer'),
-)
+const OutputViewerContainer = React.lazy(() => import('./DetailedViewerContainer'))
 
 type AllProps = {
   isModalOpen: boolean
@@ -20,9 +18,7 @@ function getInitialState() {
 }
 
 const PluginViewerModal = (props: AllProps) => {
-  const [pluginModalState, setPluginModalState] = React.useState(
-    getInitialState,
-  )
+  const [pluginModalState, setPluginModalState] = React.useState(getInitialState)
   const { gotopActive, scrollDivId } = pluginModalState
   const { isModalOpen, handleModalToggle } = props
 

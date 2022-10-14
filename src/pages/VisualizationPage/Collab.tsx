@@ -1,5 +1,5 @@
-import React from "react";
-import { useDispatch } from "react-redux";
+import React from 'react'
+import { useDispatch } from 'react-redux'
 import {
   ModalVariant,
   Modal,
@@ -8,53 +8,49 @@ import {
   TextInput,
   Button,
   ActionGroup,
-} from "@patternfly/react-core";
-import { setSidebarActive } from "../../store/ui/actions";
-import Wrapper from "../Layout/PageWrapper";
-import { useTypedSelector } from "../../store/hooks";
-import { setCurrentUrl } from "../../store/resources/actions";
+} from '@patternfly/react-core'
+import { setSidebarActive } from '../../store/ui/actions'
+import Wrapper from '../Layout/PageWrapper'
+import { useTypedSelector } from '../../store/hooks'
+import { setCurrentUrl } from '../../store/resources/actions'
 
 interface Value {
-  [key: string]: string;
+  [key: string]: string
 }
 
 const Collab = () => {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [value, setValue] = React.useState<Value>({});
+  const [isOpen, setIsOpen] = React.useState(false)
+  const [value, setValue] = React.useState<Value>({})
 
-  const url = useTypedSelector((state) => state.resource.url);
+  const url = useTypedSelector((state) => state.resource.url)
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
   React.useEffect(() => {
-    document.title = "Collab";
+    document.title = 'Collab'
     if (!url) {
-      setIsOpen(true);
+      setIsOpen(true)
     }
     dispatch(
       setSidebarActive({
-        activeItem: "collab",
+        activeItem: 'collab',
       })
-    );
-  }, [dispatch, url]);
+    )
+  }, [dispatch, url])
 
   const handleInputChange = (url: string, valueString: string) => {
     setValue({
       ...value,
       [url]: valueString,
-    });
-  };
+    })
+  }
 
   const handleModalToggle = () => {
-    setIsOpen(!isOpen);
-  };
+    setIsOpen(!isOpen)
+  }
 
   return (
     <Wrapper>
-      <Modal
-        variant={ModalVariant.small}
-        isOpen={isOpen}
-        onClose={handleModalToggle}
-      >
+      <Modal variant={ModalVariant.small} isOpen={isOpen} onClose={handleModalToggle}>
         <Form isHorizontal>
           <FormGroup fieldId="url" label="Enter the URL" isRequired>
             <TextInput
@@ -66,7 +62,7 @@ const Collab = () => {
               aria-describedby="horizontal-form-name-helper"
               name="horizontal-form-name"
               onChange={(value) => {
-                handleInputChange("url", value);
+                handleInputChange('url', value)
               }}
             />
           </FormGroup>
@@ -78,7 +74,7 @@ const Collab = () => {
               aria-describedby="horizontal-form-name-helper"
               name="horizontal-form-name"
               onChange={(value) => {
-                handleInputChange("token", value);
+                handleInputChange('token', value)
               }}
             />
           </FormGroup>
@@ -86,8 +82,8 @@ const Collab = () => {
             <Button
               onClick={() => {
                 if (value.url && value.token) {
-                  dispatch(setCurrentUrl(value.url));
-                  setIsOpen(false);
+                  dispatch(setCurrentUrl(value.url))
+                  setIsOpen(false)
                 }
               }}
               variant="primary"
@@ -99,24 +95,24 @@ const Collab = () => {
       </Modal>
       <div
         style={{
-          height: "100%",
-          width: "100%",
+          height: '100%',
+          width: '100%',
         }}
       >
         {url && (
           <iframe
             style={{
-              height: "100%",
-              width: "100%",
+              height: '100%',
+              width: '100%',
             }}
             allowFullScreen
             src={url}
             title="Medview"
-           />
+          />
         )}
       </div>
     </Wrapper>
-  );
-};
+  )
+}
 
-export default Collab;
+export default Collab

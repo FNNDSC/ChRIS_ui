@@ -1,67 +1,67 @@
-import React, { useEffect } from "react";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import DisplayPage from "./DisplayPage";
+import React, { useEffect } from 'react'
+import ChrisAPIClient from '../../api/chrisapiclient'
+import DisplayPage from './DisplayPage'
 
 const PluginCatalog = () => {
-  const [plugins, setPlugins] = React.useState<any[]>();
+  const [plugins, setPlugins] = React.useState<any[]>()
   const [pageState, setPageState] = React.useState({
     page: 1,
     perPage: 10,
-    search: "",
+    search: '',
     itemCount: 0,
-  });
+  })
 
-  const { page, perPage, search } = pageState;
-  const [selectedPlugin, setSelectedPlugin] = React.useState<any>();
+  const { page, perPage, search } = pageState
+  const [selectedPlugin, setSelectedPlugin] = React.useState<any>()
 
   const onSetPage = (_event: any, page: number) => {
     setPageState({
       ...pageState,
       page,
-    });
-  };
+    })
+  }
   const onPerPageSelect = (_event: any, perPage: number) => {
     setPageState({
       ...pageState,
       perPage,
-    });
-  };
+    })
+  }
 
   const handleFilterChange = (value: string) => {
     setPageState({
       ...pageState,
       search: value,
-    });
-  };
+    })
+  }
   useEffect(() => {
     async function fetchPlugins(perPage: number, page: number, search: string) {
-      const offset = perPage * (page - 1);
-      const client = ChrisAPIClient.getClient();
+      const offset = perPage * (page - 1)
+      const client = ChrisAPIClient.getClient()
       const params = {
         limit: perPage,
         offset,
         name: search,
-      };
-      const pluginsList = await client.getPlugins(params);
-      const plugins = pluginsList.getItems();
+      }
+      const pluginsList = await client.getPlugins(params)
+      const plugins = pluginsList.getItems()
       if (plugins) {
-        setPlugins(plugins);
+        setPlugins(plugins)
         setPageState((pageState) => ({
-            ...pageState,
-            itemCount: pluginsList.totalCount,
-          }));
+          ...pageState,
+          itemCount: pluginsList.totalCount,
+        }))
       }
     }
 
-    fetchPlugins(perPage, page, search);
-  }, [perPage, page, search]);
+    fetchPlugins(perPage, page, search)
+  }, [perPage, page, search])
 
   const handleSearch = (search: string) => {
     setPageState({
       ...pageState,
       search,
-    });
-  };
+    })
+  }
 
   return (
     <>
@@ -73,14 +73,14 @@ const PluginCatalog = () => {
         handleFilterChange={handleFilterChange}
         selectedResource={selectedPlugin}
         setSelectedResource={(plugin: any) => {
-          setSelectedPlugin(plugin);
+          setSelectedPlugin(plugin)
         }}
         title="Plugins"
         handlePluginSearch={handleSearch}
         search={pageState.search}
       />
     </>
-  );
-};
+  )
+}
 
-export default PluginCatalog;
+export default PluginCatalog

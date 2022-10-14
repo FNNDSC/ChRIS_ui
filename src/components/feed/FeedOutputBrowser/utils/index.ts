@@ -1,7 +1,7 @@
 /**
  * Utils to be abstracted out
  */
-import { PluginInstance } from "@fnndsc/chrisapi";
+import { PluginInstance } from '@fnndsc/chrisapi'
 
 export function bytesToSize(bytes: number) {
   const sizes: string[] = ['B', 'KB', 'MB', 'GB', 'TB']
@@ -21,4 +21,3 @@ export function getPluginName(plugin: PluginInstance) {
 export function getPluginDisplayName(plugin: PluginInstance) {
   return `${plugin.data.plugin_name} v. ${plugin.data.plugin_version}`
 }
-

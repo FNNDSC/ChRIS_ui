@@ -1,21 +1,21 @@
-import React from "react";
-import { Tabs, Tab, TabTitleText, TabTitleIcon } from "@patternfly/react-core";
-import { VscJson } from "react-icons/vsc";
-import { FaTerminal } from "react-icons/fa";
+import React from 'react'
+import { Tabs, Tab, TabTitleText, TabTitleIcon } from '@patternfly/react-core'
+import { VscJson } from 'react-icons/vsc'
+import { FaTerminal } from 'react-icons/fa'
 
 type LogTabsProps = {
-  className: string;
-  activeKey: React.ReactText;
-  setActiveKey: (key: React.ReactText) => void;
-};
+  className: string
+  activeKey: React.ReactText
+  setActiveKey: (key: React.ReactText) => void
+}
 
 const LogTabs = (props: LogTabsProps) => {
   const handleTabClick = (
     event: React.MouseEvent<HTMLElement, MouseEvent>,
     eventKey: React.ReactText
   ) => {
-    props.setActiveKey(eventKey);
-  };
+    props.setActiveKey(eventKey)
+  }
 
   return (
     <>
@@ -35,7 +35,7 @@ const LogTabs = (props: LogTabsProps) => {
               <TabTitleText>JSON Viewer</TabTitleText>
             </>
           }
-         />
+        />
         <Tab
           eventKey={1}
           title={
@@ -46,10 +46,10 @@ const LogTabs = (props: LogTabsProps) => {
               <TabTitleText>Terminal</TabTitleText>
             </>
           }
-         />
+        />
       </Tabs>
     </>
-  );
-};
+  )
+}
 
-export default LogTabs;
+export default LogTabs

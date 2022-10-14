@@ -3,10 +3,7 @@ import ChrisAPIClient from '../../../../api/chrisapiclient'
 import { fetchResource } from '../../../../utils'
 import { Feed } from '@fnndsc/chrisapi'
 
-export const searchFeedFiles = async (
-  value: string,
-  dispatch: React.Dispatch<any>,
-) => {
+export const searchFeedFiles = async (value: string, dispatch: React.Dispatch<any>) => {
   const payload = {
     limit: 10,
     offset: 0,
@@ -24,10 +21,7 @@ export const searchFeedFiles = async (
   }
 }
 
-export const searchPacsFiles = async (
-  value: string,
-  dispatch: React.Dispatch<any>,
-) => {
+export const searchPacsFiles = async (value: string, dispatch: React.Dispatch<any>) => {
   const payload = {
     limit: 10,
     offset: 0,
@@ -45,10 +39,7 @@ export const searchPacsFiles = async (
   }
 }
 
-export const searchUploadedFiles = async (
-  value: string,
-  dispatch: React.Dispatch<any>,
-) => {
+export const searchUploadedFiles = async (value: string, dispatch: React.Dispatch<any>) => {
   const payload = {
     limit: 10,
     offset: 0,
@@ -66,10 +57,7 @@ export const searchUploadedFiles = async (
   }
 }
 
-export const handleUploadedFiles = (
-  uploadedFiles: any[],
-  dispatch: React.Dispatch<any>,
-) => {
+export const handleUploadedFiles = (uploadedFiles: any[], dispatch: React.Dispatch<any>) => {
   const uploadsDict: {
     [key: string]: { name: string; path: string }[]
   } = {}
@@ -100,10 +88,7 @@ export const handleUploadedFiles = (
   }
 }
 
-export const handleFeedFiles = (
-  feedFiles: any[],
-  dispatch: React.Dispatch<any>,
-) => {
+export const handleFeedFiles = (feedFiles: any[], dispatch: React.Dispatch<any>) => {
   const feedsDict: {
     [key: string]: { name: string; path: string }[]
   } = {}
@@ -128,10 +113,7 @@ export const handleFeedFiles = (
   }
 }
 
-export const handlePacsFiles = (
-  pacsFiles: any[],
-  dispatch: React.Dispatch<any>,
-) => {
+export const handlePacsFiles = (pacsFiles: any[], dispatch: React.Dispatch<any>) => {
   const pacsDict: {
     [key: string]: { name: string; path: string }[]
   } = {}
