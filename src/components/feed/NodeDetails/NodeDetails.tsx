@@ -244,10 +244,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             </Button>
 
             {/* Editing button */}
-            
-            {/* <div style={{ margin: '100px' }}> */}
-            {/* const PopoverBasic: React.FunctionComponent = () => ( */}
-              <div style={{ margin: '50px' }}>
+              <div>
                 <Popover_patternfly
                   aria-label="Basic popover"
                   headerContent={<div>Popover header</div>}
@@ -268,9 +265,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
                   </Button>
                 </Popover_patternfly>
               </div>
-            {/* ); */}
-            {/* </div> */}
-
             {/* End Editing button */}
           </div>
 
