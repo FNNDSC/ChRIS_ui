@@ -1,7 +1,7 @@
 import React from 'react'
-import { FcInfo } from 'eact-icons/fc'
-import { Hint } from 'patternfly/react-core'
-import { Popover, Typography } from 'ntd''
+import { FcInfo } from 'react-icons/fc'
+import { Hint } from '@patternfly/react-core'
+import { Popover, Typography } from 'antd'
 
 const { Title } = Typography
 
