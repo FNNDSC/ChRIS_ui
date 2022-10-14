@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import React, { useEffect, useState } from "react"
+import { useNavigate } from "react-router"
 import {
   Card,
   CardBody,
@@ -16,21 +16,21 @@ import {
   DropdownToggle,
   DropdownItem,
   Tooltip,
-} from "@patternfly/react-core";
+} from "@patternfly/react-core"
 
-import { FaSearch } from "react-icons/fa";
-import { PFDCMQuery, PFDCMQueryTypes } from ".";
+import { FaSearch } from "react-icons/fa"
+import { PFDCMQuery, PFDCMQueryTypes } from "."
 
-import "./pacs-lookup.scss";
+import "./pacs-lookup.scss"
 
-import { toPACSDate } from "../../../../api/pfdcm/pfdcm-utils";
-import { useLocation } from "react-router";
+import { toPACSDate } from "../../../../api/pfdcm/pfdcm-utils"
+import { useLocation } from "react-router"
 
 interface QueryBuilderProps {
-  PACS?: string;
-  PACSservices?: string[];
-  onSelectPACS?: (key: string) => void;
-  onFinalize: (q: PFDCMQuery[]) => void;
+  PACS?: string
+  PACSservices?: string[]
+  onSelectPACS?: (key: string) => void
+  onFinalize: (q: PFDCMQuery[]) => void
 }
 
 export const QueryBuilder: React.FC<QueryBuilderProps> = ({
@@ -41,44 +41,43 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
 }: QueryBuilderProps) => {
   const [query, setQuery] = useState<PFDCMQuery>({
     type: PFDCMQueryTypes.PMRN,
-  } as PFDCMQuery);
+  } as PFDCMQuery)
 
   const setQueryType = (type: PFDCMQueryTypes) => {
-    setQuery({ ...query, type } as PFDCMQuery);
-  };
+    setQuery({ ...query, type } as PFDCMQuery)
+  }
 
-  const [toggleType, setToggleType] = useState(false);
-  const onToggleType = () => setToggleType(!toggleType);
+  const [toggleType, setToggleType] = useState(false)
+  const onToggleType = () => setToggleType(!toggleType)
 
-  const [togglePACSList, setTogglePACSList] = useState(false);
-  const onTogglePACSList = () => setTogglePACSList(!togglePACSList);
+  const [togglePACSList, setTogglePACSList] = useState(false)
+  const onTogglePACSList = () => setTogglePACSList(!togglePACSList)
 
-  const [toggleAdvanced, setToggleAdvanced] = useState(false);
-  const onToggleAdvanced = () => setToggleAdvanced(!toggleAdvanced);
+  const [toggleAdvanced, setToggleAdvanced] = useState(false)
+  const onToggleAdvanced = () => setToggleAdvanced(!toggleAdvanced)
 
   const handleInput = (value: any) => {
-    setQuery({ ...query, value } as PFDCMQuery);
-  };
+    setQuery({ ...query, value } as PFDCMQuery)
+  }
 
   const handleFilter = (filters: any) => {
     setQuery({
       ...query,
       filters: { ...query.filters, ...filters },
-    } as PFDCMQuery);
-  };
+    } as PFDCMQuery)
+  }
 
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
-    const q = new URLSearchParams(location.search).get("q");
-    if (q) finalize(JSON.parse(atob(q)) as PFDCMQuery);
+    const q = new URLSearchParams(location.search).get("q")
+    if (q) finalize(JSON.parse(atob(q)) as PFDCMQuery)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [])
 
   const finalize = (_query = query) => {
-    if (_query === query)
-      navigate(`${location.pathname}?q=${btoa(JSON.stringify(_query))}`);
+    if (_query === query) navigate(`${location.pathname}?q=${btoa(JSON.stringify(_query))}`)
 
     if (!_query.value)
       if (_query.filters)
@@ -88,32 +87,32 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
             value: String(),
             filters: _query.filters,
           },
-        ]);
-      else return;
+        ])
+      else return
 
-    const csv = (_query.value as string).split(",");
-    const queries: PFDCMQuery[] = [];
+    const csv = (_query.value as string).split(",")
+    const queries: PFDCMQuery[] = []
 
     for (const value of csv) {
       queries.push({
         value: value.trim(),
         type: _query.type,
         filters: _query.filters,
-      });
+      })
     }
-    onFinalize(queries);
-  };
+    onFinalize(queries)
+  }
 
   const __queryType = (type: PFDCMQueryTypes) => {
     switch (type) {
       case PFDCMQueryTypes.PMRN:
-        return "Patient MRN";
+        return "Patient MRN"
       case PFDCMQueryTypes.NAME:
-        return "Patient Name";
+        return "Patient Name"
       case PFDCMQueryTypes.ACCN:
-        return "Accession Number";
+        return "Accession Number"
     }
-  };
+  }
 
   return (
     <Grid hasGutter id="pacs-query-builder">
@@ -122,11 +121,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
           <GridItem lg={10} sm={12}>
             <Card isHoverable isRounded style={{ height: "100%" }}>
               <Grid id="search">
-                <GridItem
-                  span={6}
-                  md={3}
-                  sm={6}
-                  order={{ default: "1", md: "1" }}>
+                <GridItem span={6} md={3} sm={6} order={{ default: "1", md: "1" }}>
                   <Dropdown
                     id="search-type"
                     isOpen={toggleType}
@@ -134,41 +129,26 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                     toggle={
                       <DropdownToggle onToggle={onToggleType}>
                         <div style={{ textAlign: "left", padding: "0 0.5em" }}>
-                          <div style={{ fontSize: "smaller", color: "gray" }}>
-                            Search By
-                          </div>
-                          <div style={{ fontWeight: 600 }}>
-                            {__queryType(query.type)}
-                          </div>
+                          <div style={{ fontSize: "smaller", color: "gray" }}>Search By</div>
+                          <div style={{ fontWeight: 600 }}>{__queryType(query.type)}</div>
                         </div>
                       </DropdownToggle>
                     }
                     dropdownItems={[
-                      <DropdownItem
-                        key="pmrn"
-                        onClick={() => setQueryType(PFDCMQueryTypes.PMRN)}>
+                      <DropdownItem key="pmrn" onClick={() => setQueryType(PFDCMQueryTypes.PMRN)}>
                         By Patient ID or MRN
                       </DropdownItem>,
-                      <DropdownItem
-                        key="name"
-                        onClick={() => setQueryType(PFDCMQueryTypes.NAME)}>
+                      <DropdownItem key="name" onClick={() => setQueryType(PFDCMQueryTypes.NAME)}>
                         By Patient Name
                       </DropdownItem>,
-                      <DropdownItem
-                        key="accn"
-                        onClick={() => setQueryType(PFDCMQueryTypes.ACCN)}>
+                      <DropdownItem key="accn" onClick={() => setQueryType(PFDCMQueryTypes.ACCN)}>
                         By Accession Number
                       </DropdownItem>,
                     ]}
                   />
                 </GridItem>
 
-                <GridItem
-                  span={12}
-                  md={6}
-                  sm={12}
-                  order={{ default: "3", md: "2" }}
-                  rowSpan={1}>
+                <GridItem span={12} md={6} sm={12} order={{ default: "3", md: "2" }} rowSpan={1}>
                   {(function () {
                     switch (query.type) {
                       case PFDCMQueryTypes.PMRN:
@@ -179,10 +159,10 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                             placeholder="Patient ID or MRN"
                             onChange={handleInput}
                             onKeyDown={({ key }: { key: any }) => {
-                              if (key.toLowerCase() === "enter") finalize();
+                              if (key.toLowerCase() === "enter") finalize()
                             }}
                           />
-                        );
+                        )
 
                       case PFDCMQueryTypes.NAME:
                         return (
@@ -195,10 +175,10 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                               handleInput(value.split(" ").reverse().join("^"))
                             }
                             onKeyDown={({ key }: { key: any }) => {
-                              if (key.toLowerCase() === "enter") finalize();
+                              if (key.toLowerCase() === "enter") finalize()
                             }}
                           />
-                        );
+                        )
 
                       case PFDCMQueryTypes.ACCN:
                         return (
@@ -208,20 +188,16 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                             placeholder="Accession Number"
                             onChange={handleInput}
                             onKeyDown={({ key }: { key: any }) => {
-                              if (key.toLowerCase() === "enter") finalize();
+                              if (key.toLowerCase() === "enter") finalize()
                             }}
                           />
-                        );
+                        )
                     }
                   })()}
                 </GridItem>
 
                 {PACSservices && onSelectPACS && (
-                  <GridItem
-                    span={6}
-                    md={3}
-                    sm={6}
-                    order={{ default: "2", md: "3" }}>
+                  <GridItem span={6} md={3} sm={6} order={{ default: "2", md: "3" }}>
                     <Dropdown
                       id="pacs-service"
                       isOpen={togglePACSList}
@@ -229,12 +205,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       toggle={
                         <DropdownToggle onToggle={onTogglePACSList}>
                           {PACS ? (
-                            <div
-                              style={{ textAlign: "left", padding: "0 0.5em" }}>
-                              <div
-                                style={{ fontSize: "smaller", color: "gray" }}>
-                                PACS Service
-                              </div>
+                            <div style={{ textAlign: "left", padding: "0 0.5em" }}>
+                              <div style={{ fontSize: "smaller", color: "gray" }}>PACS Service</div>
                               <div style={{ fontWeight: 600 }}>{PACS}</div>
                             </div>
                           ) : (
@@ -245,7 +217,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       dropdownItems={PACSservices.map((service) => (
                         <DropdownItem
                           key={`pacs-${service}`}
-                          onClick={onSelectPACS.bind(QueryBuilder, service)}>
+                          onClick={onSelectPACS.bind(QueryBuilder, service)}
+                        >
                           {service}
                         </DropdownItem>
                       ))}
@@ -258,11 +231,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
 
           <GridItem lg={2} sm={12}>
             {query.value ? (
-              <Button
-                isLarge
-                variant="primary"
-                id="finalize"
-                onClick={() => finalize()}>
+              <Button isLarge variant="primary" id="finalize" onClick={() => finalize()}>
                 <FaSearch /> Search
               </Button>
             ) : (
@@ -280,7 +249,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
         <ExpandableSection
           toggleText="More Options"
           onToggle={onToggleAdvanced}
-          isExpanded={toggleAdvanced}>
+          isExpanded={toggleAdvanced}
+        >
           <Card>
             <CardHeader>
               <Split>
@@ -288,9 +258,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <b>Filters</b>
                 </SplitItem>
                 <SplitItem>
-                  <Button
-                    variant="link"
-                    onClick={() => setQuery({ ...query, filters: {} })}>
+                  <Button variant="link" onClick={() => setQuery({ ...query, filters: {} })}>
                     Clear
                   </Button>
                 </SplitItem>
@@ -317,7 +285,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       )
                     }
                     onKeyDown={({ key }: { key: any }) => {
-                      if (key.toLowerCase() === "enter") finalize();
+                      if (key.toLowerCase() === "enter") finalize()
                     }}
                   />
                 </GridItem>
@@ -327,9 +295,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <TextInput
                     aria-label="modality"
                     type="text"
-                    onChange={(value: string) =>
-                      handleFilter({ Modality: value })
-                    }
+                    onChange={(value: string) => handleFilter({ Modality: value })}
                     placeholder="Eg: MR"
                     id="modality"
                   />
@@ -340,9 +306,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <br />
                   <TextInput
                     type="text"
-                    onChange={(value: string) =>
-                      handleFilter({ PerformedStationAETitle: value })
-                    }
+                    onChange={(value: string) => handleFilter({ PerformedStationAETitle: value })}
                     placeholder="Eg: LILA"
                     id="station"
                   />
@@ -363,7 +327,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       )
                     }
                     onKeyDown={({ key }: { key: any }) => {
-                      if (key.toLowerCase() === "enter") finalize();
+                      if (key.toLowerCase() === "enter") finalize()
                     }}
                   />
                 </GridItem>
@@ -373,7 +337,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
         </ExpandableSection>
       </GridItem>
     </Grid>
-  );
-};
+  )
+}
 
-export default QueryBuilder;
+export default QueryBuilder
