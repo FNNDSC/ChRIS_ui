@@ -5,7 +5,6 @@ import { select } from "d3-selection";
 import { TreeNode } from "../../../utils";
 import { fetchComputeInfo } from "../CreateFeed/utils/pipelines";
 import { CreateFeedContext } from "../CreateFeed/context";
-import ChrisAPIClient from "../../../api/chrisapiclient";
 
 export interface Point {
   x: number;
@@ -81,7 +80,7 @@ const NodeData = (props: NodeProps) => {
         },
       });
     }
-  }, []);
+  }, [currentNode, currentPipelineId, data.plugin_name, dispatch]);
 
   React.useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);

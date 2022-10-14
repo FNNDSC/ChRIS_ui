@@ -14,6 +14,8 @@ const { Paragraph } = Typography
 
 const infoStyle = { fontSize: "1.15em" }
 
+const btnStyle = { marginRight: "10px" };
+
 const baseStyle: React.CSSProperties = {
   flex: 1,
   display: "flex",
@@ -112,7 +114,10 @@ const VisualizationPage = () => {
       </PageSection>
 
       <PageSection>
-        <Button onClick={showOpenFolder} icon={<AiOutlineUpload />}>
+        <Button
+          onClick={showOpenFolder}
+          icon={<AiOutlineUpload />}
+          style={btnStyle}>
           Upload a Directory
         </Button>
         <Button onClick={showOpenFile} icon={<AiOutlineUpload />}>
