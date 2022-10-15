@@ -1,7 +1,6 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment } from "react";
 
 import Moment from "react-moment";
-// Added Tooltip
 import {
   Button,
   Grid,
@@ -18,7 +17,6 @@ import {
   PluginInstanceDescendantList,
   PluginParameterList,
 } from "@fnndsc/chrisapi";
-// Added FaCopy
 import {
   FaDownload,
   FaTerminal,
@@ -39,9 +37,6 @@ import { getErrorCodeMessage } from "./utils";
 import AddPipeline from "../AddPipeline/AddPipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
-// useParams
-import { useParams } from "react-router";
-
 interface INodeProps {
   expandDrawer: (panel: string) => void;
 }
@@ -65,12 +60,9 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
-
   const { download, downloadAllClick } = useFeedBrowser();
-  const { id } = useParams();
-  const baseUrl = process.env.REACT_APP_CHRIS_UI_URL;
   const copyText = "Copy To Clipboard";
-  const doneCopyText = "Copied!"
+  const doneCopyText = "Successfully Copied to Clipboard!"
   const [isCopied, SetIsCopied] = React.useState(false);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isTerminalVisible, setIsTerminalVisible] = React.useState(false);
@@ -107,8 +99,10 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     instanceParameters,
     pluginParameters,
   ]);
-
-  const path = `${baseUrl}plugins/instances/${id}/files/`
+  
+  const path = selectedPlugin?.collection.items[0].links.find((obj:any) => {
+    return obj.rel === "files"
+  }).href
   const chrsCommandPath = `chrs download ${path}`;
 
   const copyPathToClipboard = () => {
@@ -242,32 +236,42 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             <Button onClick={downloadAllClick} icon={<FaDownload />}>
               Download Files
             </Button>
-
-            {/* Editing button */}
-              <div>
-                <Popover_patternfly
-                  aria-label="Basic popover"
-                  headerContent={<div>Popover header</div>}
+            <Popover_patternfly
+                  id="node-details-popover"
+                  aria-label="Download command popover"
+                  position="bottom"
+                  headerContent={<div>chrs Download Files</div>}
+                  hasAutoWidth
                   bodyContent={
                     <div>
+                      <p>Copy and Paste the URL below into your chrs cli to download the files</p>
+                      <div className="pf-c-clipboard-copy">
+                      <div className="pf-c-clipboard-copy__group">
                       <input className="pf-c-form-control" readOnly type="text" value={chrsCommandPath} aria-label="Readonly input example" />
-                      <Tooltip aria="none" aria-live="polite" content={isCopied ? doneCopyText : copyText}>
-                        <Button aria-label="Clipboard" variant="plain" onClick={copyPathToClipboard} >
-                          <FaCopy />
-                        </Button>
-                      </Tooltip>
+                      <Tooltip aria="none" aria-live="polite" content={isCopied? copyText: doneCopyText}>
+                      <button 
+                       id="copy-button-1" 
+                       aria-labelledby="copy-button-1 text-input-1" 
+                       aria-disabled="false" aria-label="Copy to clipboard" 
+                       className="pf-c-button pf-m-control" 
+                       type="button" 
+                       onClick={copyPathToClipboard}
+                       data-ouia-safe="true" 
+                       style={{height: "fit-content"}}
+                       data-ouia-component-id="OUIA-Generated-Button-control-2">
+                        <FaCopy />
+                       </button>
+                       </Tooltip>
+                      </div>
+                      </div>
                     </div>
                   }
-                  footerContent="Popover footer"
                 >
                   <Button icon={<FaCopy />}>
                     Copy Download Command
                   </Button>
-                </Popover_patternfly>
-              </div>
-            {/* End Editing button */}
+            </Popover_patternfly>
           </div>
-
           <div className="node-details__actions_second">
             <Popover
               className="node-details__popover"
