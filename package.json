@@ -52,6 +52,7 @@
     "react-scripts": "^5.0.1",
     "redux-saga": "^1.1.3",
     "sass": "^1.54.9",
+    "simple-git": "^3.14.1",
     "sirv-cli": "^2.0.2",
     "typesafe-actions": "^3.4.0",
     "typescript": "^4.8.3",
