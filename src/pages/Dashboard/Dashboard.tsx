@@ -159,8 +159,7 @@ const CardDisplay = ({
     <Card style={{ overflow: "hidden" }}>
       <CardHeader
         style={{ margin: "0 2rem", display: "flex", justifyContent: "center" }}
-        className={className}
-      >
+        className={className}>
         <CardHeaderMain>{component}</CardHeaderMain>
       </CardHeader>
       <div style={{ margin: "0 auto", textAlign: "center" }}>
@@ -172,8 +171,7 @@ const CardDisplay = ({
           <Button
             onClick={() => {
               navigate(buttonLink);
-            }}
-          >
+            }}>
             {buttonText}
           </Button>
         </CardFooter>

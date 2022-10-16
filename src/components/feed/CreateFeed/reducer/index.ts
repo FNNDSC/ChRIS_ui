@@ -193,8 +193,6 @@ export const createFeedReducer = (
     case Types.DeslectPipeline: {
       return {
         ...state,
-        pipelineData: {},
-        pipelineName: "",
         selectedPipeline: undefined,
       };
     }
@@ -248,7 +246,7 @@ export const createFeedReducer = (
             },
           },
         };
-      } else {
+      } else if (state.pipelineData[currentPipelineId]) {
         return {
           ...state,
           pipelineData: {
@@ -267,7 +265,10 @@ export const createFeedReducer = (
             },
           },
         };
-      }
+      } else
+        return {
+          ...state,
+        };
     }
 
     case Types.SetPipelineRequiredInput: {
@@ -299,7 +300,7 @@ export const createFeedReducer = (
             },
           },
         };
-      } else {
+      } else if (state.pipelineData[currentPipelineId]) {
         return {
           ...state,
           pipelineData: {
@@ -318,7 +319,10 @@ export const createFeedReducer = (
             },
           },
         };
-      }
+      } else
+        return {
+          ...state,
+        };
     }
 
     case Types.SetCurrentNodeTitle: {

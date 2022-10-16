@@ -11,7 +11,7 @@ import {
   DataListAction,
   DataListContent,
 } from "@patternfly/react-core";
-
+import { Spin } from "antd";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types";
 import {
@@ -26,7 +26,6 @@ import {
   fetchPipelines,
 } from "./utils/pipelines";
 import { Pipeline, PipelinePipingDefaultParameterList } from "@fnndsc/chrisapi";
-import { Spin } from "antd";
 
 export interface UploadJsonProps {
   parameters: PipelinePipingDefaultParameterList;
@@ -251,6 +250,7 @@ const Pipelines = () => {
                                 pluginPipings,
                                 pipelinePlugins,
                               } = resources;
+
                               dispatch({
                                 type: Types.SetPipelineResources,
                                 payload: {
@@ -272,6 +272,28 @@ const Pipelines = () => {
                         {selectedPipeline === pipeline.data.id
                           ? "Deselect"
                           : "Select"}
+                      </Button>
+                      <Button
+                        key="delete-action"
+                        onClick={async () => {
+                          const filteredPipelines = pipelines.filter(
+                            (currentPipeline: any) => {
+                              return (
+                                currentPipeline.data.id !== pipeline.data.id
+                              );
+                            }
+                          );
+                          dispatch({
+                            type: Types.SetPipelines,
+                            payload: {
+                              pipelines: filteredPipelines,
+                            },
+                          });
+                          await pipeline.delete();
+                        }}
+                        variant="danger"
+                      >
+                        Delete
                       </Button>
                     </DataListAction>
                   </DataListItemRow>
