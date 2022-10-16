@@ -125,6 +125,7 @@ export interface TreeNode {
   plugin_id: number;
   pipeline_id: number;
   previous_id: number | null;
+  plugin_name?: string;
 }
 
 export const getFeedTree = (items: any[]) => {
@@ -141,6 +142,7 @@ export const getFeedTree = (items: any[]) => {
         plugin_id: item.data.plugin_id,
         pipeline_id: item.data.pipeline_id,
         previous_id: item.data.previous_id && item.data.previous_id,
+        plugin_name: item.data.title ? item.data.title : item.data.plugin_name,
         children: [],
       };
     }

@@ -31,7 +31,7 @@ const GeneralCompute = ({
   return (
     <div
       style={{
-        width: "15%",
+        width: "25%",
         background: "black",
       }}
       className="general-compute"
