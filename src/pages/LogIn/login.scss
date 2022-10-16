@@ -8,6 +8,12 @@
 @import '../../assets/scss/helpers/variables'; 
 $image-url:     '../../assets/images/';
 
+
+.error{
+    margin-bottom: 0;
+    color: red;
+    font-size: 16px;
+}
 .login{
     // Replace background image here
     // This file takes background-image styles from 'assets/scss/components/_background-image.scss'

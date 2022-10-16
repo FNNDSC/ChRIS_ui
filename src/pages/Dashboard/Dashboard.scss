@@ -1,3 +1,4 @@
+
 @import "../../assets/scss/helpers/pf4-variables";
 
 .build-version {
@@ -10,7 +11,14 @@
   }
 }
 @media screen and (min-width: $pf-global--breakpoint--xs) and (max-width: $pf-global--breakpoint--sm) {
+  .dashboard-carddisplay img:nth-last-of-type(-n + 2) {
+    display: none;
+  }
+}
+
+@media screen and (max-width: $pf-global--breakpoint--x) {
   .dashboard-carddisplay img:nth-last-of-type(-n + 3) {
     display: none;
+    
   }
 }

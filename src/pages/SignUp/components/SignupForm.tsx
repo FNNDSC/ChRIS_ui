@@ -79,14 +79,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsServerDown(false);
-    if (!userState.username) {
+    if (userState.username.length === 0) {
       setUserState({
         ...userState,
         validated: "error",
         invalidText: "Username is required",
       });
     }
-
+  
     if (!emailState.email || !validate(emailState.email)) {
       setEmailState({
         ...emailState,
@@ -94,7 +94,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         invalidText: "Email is Required",
       });
     }
-
+  
     if (!passwordState.password) {
       setPasswordState({
         ...passwordState,
@@ -102,14 +102,15 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         invalidText: "Password is Required",
       });
     }
-
+  
     setLoading(true);
+    
     const userURL = process.env.REACT_APP_CHRIS_UI_USERS_URL;
     const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
     let user;
     let token;
 
-    if (userURL) {
+   if (userURL) {
       try {
         user = await ChrisApiClient.createUser(
           userURL,
@@ -179,7 +180,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
       else navigate("/");
     }
   };
-
   const passwordInput = (
     <TextInput
       validated={passwordState.validated}
@@ -197,7 +197,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
       }
     />
   );
-
+ 
   return (
     <Form onSubmit={handleSubmit} noValidate>
       {isServerDown && (

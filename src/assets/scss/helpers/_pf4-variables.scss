@@ -8,6 +8,9 @@
 // --------------------------------------------------------------------
 
 $pf-global--breakpoint--xs: 0;
+/*small screen fix*/
+$pf-global--breakpoint--x: 320px;
+
 $pf-global--breakpoint--sm: 576px;
 $pf-global--breakpoint--md: 768px;
 $pf-global--breakpoint--lg: 992px;

@@ -118,15 +118,17 @@ const DashboardPage = (props: DashboardProps) => {
               body='Visit "PACS Query/Retrieve" in the main navigation to pull medical data and save it your library'
               buttonText="PACS Query/Retrieve"
               buttonLink="/pacs"
+              className="dashboard-carddisplay"
             />
           </GridItem>
           <GridItem lg={6}>
             <CardDisplay
               component={<LogoComponent logo={magicWand} />}
               title="Run a quick workflow"
-              body='Vist "Run a Quick Workflow" to choose from existing analysis templates that allow for detailed analysis'
+              body='Visit "Run a Quick Workflow" to choose from existing analysis templates that allow for detailed analysis'
               buttonText="Run a Quick Workflow"
               buttonLink="/feeds"
+              className="dashboard-carddisplay"
             />
           </GridItem>
         </Grid>

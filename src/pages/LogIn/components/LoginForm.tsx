@@ -8,6 +8,7 @@ import { LoginForm } from "@patternfly/react-core";
 import ChrisApiClient from "@fnndsc/chrisapi";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import { useCookies } from "react-cookie";
+import "../login.scss";
 
 interface IPropsFromDispatch {
   setAuthToken: typeof setAuthToken;
@@ -35,12 +36,19 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
     const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
     let token;
 
-    if (!usernameValue) {
-      setIsValidUsername(false);
+
+//validation
+
+
+   
+    if (usernameValue.length === 0) {
+    (document.getElementById('userNameError')as HTMLElement ).textContent = "username cannot be empty";
     }
-    if (!passwordValue) {
-      setIsValidPassword(false);
-    } else {
+
+    if (passwordValue.length < 8) {
+      (document.getElementById('passwordError')as HTMLElement ).textContent = "password cannot be less than 8";  
+      }
+    else {
       setIsValidUsername(true);
       setIsValidPassword(true);
 
@@ -95,6 +103,8 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
     );
   };
 
+
+
   let helperText;
   if (showHelperText) {
     helperText = (
@@ -106,24 +116,38 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
   }
 
   return (
-    <LoginForm
-      showHelperText={showHelperText}
-      helperText={helperText}
-      usernameLabel="Username"
-      usernameValue={usernameValue}
-      onChangeUsername={handleUsernameChange}
-      isValidUsername={isValidUsername}
-      passwordLabel="Password"
-      passwordValue={passwordValue}
-      onChangePassword={handlePasswordChange}
-      isValidPassword={isValidPassword}
-      rememberMeLabel="Keep me logged in for 30 days."
-      isRememberMeChecked={isRememberMeChecked}
-      onChangeRememberMe={onRememberMeClick}
-      onLoginButtonClick={handleSubmit}
-    />
+    <div>
+      <p id="userNameError" className="error"></p>
+      <p id="passwordError" className="error"></p>
+      <LoginForm
+        showHelperText={showHelperText}
+        helperText={helperText}
+        usernameLabel="Username"
+        usernameValue={usernameValue}
+        onChangeUsername={handleUsernameChange}
+        isValidUsername={isValidUsername}
+        passwordLabel="Password"
+        passwordValue={passwordValue}
+        onChangePassword={handlePasswordChange}
+        isValidPassword={isValidPassword}
+        rememberMeLabel="Keep me logged in for 30 days."
+        isRememberMeChecked={isRememberMeChecked}
+        onChangeRememberMe={onRememberMeClick}
+        onLoginButtonClick={handleSubmit}
+      />
+      
+    </div>
   );
 };
+const styles = {
+  container: {
+  
+    fontSize: "16px",
+    margin: '0 auto',
+    Color: "red",
+    
+  },
+} as const;
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setAuthToken: (auth: { token: string; username: string }) =>
