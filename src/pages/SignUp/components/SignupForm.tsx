@@ -79,7 +79,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsServerDown(false);
-    if (userState.username.length === 0) {
+    if (!userState.username) {
       setUserState({
         ...userState,
         validated: "error",
