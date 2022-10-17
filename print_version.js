@@ -16,6 +16,8 @@ const print_version = () => {
      );
   }
   
+  // const date = exec('date "+%Y%m%d"')
+  // OR
   const date = getTodaysDate();
   
   const rev_list = exec('git rev-list version-0..HEAD --count --merges', (error) => {
@@ -43,10 +45,3 @@ const print_version = () => {
 }
  
 export default print_version;
-
-
-// printf "%s.%s+%s%s" \
-//   "$(date '+%Y%m%d')" \
-//   "$(git rev-list --use-bitmap-index --count --merges version-0..HEAD)" \
-//   "$(git rev-parse --short HEAD)" \
-//   "$(git diff --quiet src/ || echo '-dirty')"

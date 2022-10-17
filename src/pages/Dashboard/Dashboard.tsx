@@ -61,10 +61,9 @@ const DashboardPage = (props: DashboardProps) => {
     const { execSync } = require('child_process')
     module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
   `;
-  // const buildVersion = preval`
-  //   const { execSync } = require('child_process')
-  //   module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
-  // `;
+  const printVersion = preval`
+    // Something might be here.
+  `;
 
   return (
     <Wrapper>
@@ -76,8 +75,8 @@ const DashboardPage = (props: DashboardProps) => {
           <b> Let&apos;s get started.</b>
         </p>
         <p>
-          {/* Build: <code className="build-version">{buildVersion}</code> */}
-          Build: <code className="build-version">print_version</code>
+          Build: <code className="build-version">{buildVersion}</code>
+          Build: <code className="build-version">{printVersion}</code>
         </p>
         {children}
       </PageSection>
