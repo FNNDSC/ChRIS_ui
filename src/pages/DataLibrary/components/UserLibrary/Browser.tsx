@@ -259,7 +259,7 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
         isSelectableRaised
       >
         <CardHeader>
-          <CardTitle>
+          <CardTitle style={{overflow: 'hidden'}}>
             <Button icon={<FaFile />} variant="link" style={{ padding: "0" }}>
               <b>
                 {columnLayout === "single" ? fileName : elipses(fileName, 40)}
