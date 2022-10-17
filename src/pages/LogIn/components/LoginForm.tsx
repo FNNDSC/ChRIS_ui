@@ -29,7 +29,7 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
   const location = useLocation();
 
   async function handleSubmit(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent
   ) {
     event.preventDefault();
     const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
