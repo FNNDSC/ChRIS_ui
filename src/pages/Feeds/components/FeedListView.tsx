@@ -44,6 +44,9 @@ import IconContainer from "./IconContainer";
 import { useTypedSelector } from "../../../store/hooks";
 import { Tbody } from "@patternfly/react-table";
 import { FeedResource } from "../../../store/feed/types";
+import InfoIcon from "../../../components/common/info/InfoIcon";
+import { Typography } from "antd";
+const { Paragraph } = Typography;
 
 const FeedListView: React.FC = () => {
   const {
@@ -145,40 +148,33 @@ const FeedListView: React.FC = () => {
       </React.Fragment>
     );
   }
+
+  const style = { fontSize: "1.15em" };
+
   return (
     <React.Fragment>
-      <PageSection variant={PageSectionVariants.light} className="feed-header">
-        <div className="feed-header__split">
-          <Title headingLevel="h1" size="3xl">
-            New and Existing Analyses
-            {totalFeedsCount > 0 ? (
-              <span className="feed-header__count">({totalFeedsCount})</span>
-            ) : null}
-          </Title>
-          <CreateFeedProvider>
-            <CreateFeed />
-          </CreateFeedProvider>
-        </div>
+      <PageSection className="feed-header" variant="light">
+        <InfoIcon
+          title={`New and Existing Analyses
+            ${
+              totalFeedsCount > 0 ? (
+                <span className="feed-header__count">({totalFeedsCount})</span>
+              ) : (
+                "(0)"
+              )
+            }`}
+          p1={
+            <Paragraph style={style}>
+              All Analyses that you have completed are recorded here. You can
+              easily return to a completed analysis and add more analysis
+              components, or you can create a brand new analysis from scratch.
+            </Paragraph>
+          }
+        />
 
-        <Hint
-          //@ts-ignore
-          style={{
-            width: `${width > 768 ? "50%" : "100%"}`,
-            // paddingBottom: '0',
-            marginTop: "20px",
-          }}
-        >
-          <HintBody
-            //@ts-ignore
-            style={{
-              gridColumn: `${width > 768 ? "1" : "2"}`,
-            }}
-          >
-            All Analyses that you have completed are recorded here. You can
-            easily return to a completed analysis and add more analysis
-            components, or you can create a brand new analysis from scratch.
-          </HintBody>
-        </Hint>
+        <CreateFeedProvider>
+          <CreateFeed />
+        </CreateFeedProvider>
       </PageSection>
 
       <PageSection className="feed-list">
@@ -205,8 +201,7 @@ const FeedListView: React.FC = () => {
             aria-label="Data table"
             cells={cells}
             isStickyHeader
-            rowWrapper={customRowWrapper}
-          >
+            rowWrapper={customRowWrapper}>
             {
               <Thead>
                 <Tr>
@@ -239,8 +234,7 @@ const FeedListView: React.FC = () => {
                     style={{
                       textAlign: "center",
                       margin: "0 auto",
-                    }}
-                  >
+                    }}>
                     Size
                   </Th>
                   <Th></Th>
@@ -332,8 +326,7 @@ const TableRow = ({
       style={{
         textAlign: "center",
         margin: "0 auto",
-      }}
-    >
+      }}>
       <span className="feed-list__name">
         <Tooltip content={<div>View files in library</div>}>
           <Link to={`/library/`}>
@@ -380,8 +373,7 @@ const TableRow = ({
         height: "40px",
         width: "40px",
         display: "block",
-      }}
-    >
+      }}>
       <ChartDonutUtilization
         ariaTitle={feedProgressText}
         data={{ x: "Feed Progress", y: progress }}
@@ -428,8 +420,7 @@ const TableRow = ({
       isRowSelected={isSelected(bulkSelect, feed)}
       style={{
         backgroundColor: selectedBgRow,
-      }}
-    >
+      }}>
       <Td>{bulkChecbox}</Td>
       <Td>{feedId}</Td>
       <Td>{name}</Td>
