@@ -31,14 +31,10 @@ import {
   stopFetchingFeedResources,
   cleanupFeedResources,
 } from '../../../store/feed/actions'
-
 import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
-import {
-  EmptyStateTable,
-  generateTableLoading,
-} from "../../../components/common/emptyTable";
+import { EmptyStateTable, generateTableLoading } from '../../../components/common/emptyTable'
 import { usePaginate } from "../../../components/common/pagination";
 import { Feed } from "@fnndsc/chrisapi";
 import IconContainer from "./IconContainer";
