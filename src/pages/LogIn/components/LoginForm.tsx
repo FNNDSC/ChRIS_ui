@@ -35,59 +35,49 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
     const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
     let token;
 
-    if (!usernameValue) {
+    try {
+      token = await ChrisApiClient.getAuthToken(
+        authURL,
+        usernameValue,
+        passwordValue
+      );
+    } catch (error) {
+      setErrorMessage(
+        (() =>
+          //@ts-ignore
+          error.response
+            ? "Invalid Credentials"
+            : "There was a problem connecting to the server!")()
+      );
       setIsValidUsername(false);
-    }
-    if (!passwordValue) {
       setIsValidPassword(false);
-    } else {
-      setIsValidUsername(true);
-      setIsValidPassword(true);
+      setShowHelperText(true);
+    }
 
-      try {
-        token = await ChrisApiClient.getAuthToken(
-          authURL,
-          usernameValue,
-          passwordValue
-        );
-      } catch (error) {
-        setErrorMessage(
-          (() =>
-            //@ts-ignore
-            error.response
-              ? "Invalid Credentials"
-              : "There was a problem connecting to the server!")()
-        );
-        setShowHelperText(true);
-      }
-
-      if (token && usernameValue) {
-        setAuthToken({
-          token,
-          username: usernameValue,
-        });
-        const oneDayToSeconds = 24 * 60 * 60;
-        setCookie(`${usernameValue}_token`, token, {
-          path: "/",
-          maxAge: oneDayToSeconds,
-        });
-        setCookie("username", usernameValue, {
-          path: "/",
-          maxAge: oneDayToSeconds,
-        });
-        const then = new URLSearchParams(location.search).get("then");
-        if (then) navigate(then);
-        else navigate("/");
-      }
+    if (token && usernameValue) {
+      setAuthToken({
+        token,
+        username: usernameValue,
+      });
+      const oneDayToSeconds = 24 * 60 * 60;
+      setCookie(`${usernameValue}_token`, token, {
+        path: "/",
+        maxAge: oneDayToSeconds,
+      });
+      setCookie("username", usernameValue, {
+        path: "/",
+        maxAge: oneDayToSeconds,
+      });
+      const then = new URLSearchParams(location.search).get("then");
+      if (then) navigate(then);
+      else navigate("/");
     }
   }
   const handleUsernameChange = (value: string) => {
     setUsernameValue(value);
-    setShowHelperText(false);
   };
   const handlePasswordChange = (passwordValue: string) => {
     setPasswordValue(passwordValue);
-    setShowHelperText(false);
   };
   const onRememberMeClick = () => {
     setIsRememberMeChecked(
