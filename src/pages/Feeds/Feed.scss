@@ -13,25 +13,10 @@
 @import 'antd/dist/antd.css';
 
 .feed-header {
-  padding-top: 0.5rem !important;
-  padding-bottom: 0.5em !important;
-
-  &__split {
-    display: flex;
-    justify-content: space-between;
-    //Responsive BreakPoint
-    @media (max-width: $pf-global--breakpoint--sm) {
-      flex-direction: column;
-      align-items: start;
-      gap: 15px;
-      margin-bottom: 30px;
-    }
-  }
-
-  .pf-c-title {
-    display: inline-block;
-    margin-top: 0.5rem;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
 
   &__count {
     color: var(--pf-global--Color-200);

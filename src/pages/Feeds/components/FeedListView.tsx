@@ -31,16 +31,19 @@ import {
   stopFetchingFeedResources,
   cleanupFeedResources,
 } from '../../../store/feed/actions'
-
-import { DataTableToolbar } from '../../../components/index'
-import { CreateFeed } from '../../../components/feed/CreateFeed/CreateFeed'
-import { CreateFeedProvider } from '../../../components/feed/CreateFeed/context'
+import { DataTableToolbar } from "../../../components/index";
+import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
+import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
 import { EmptyStateTable, generateTableLoading } from '../../../components/common/emptyTable'
-import { usePaginate } from '../../../components/common/pagination'
-import IconContainer from './IconContainer'
-import { useTypedSelector } from '../../../store/hooks'
-
-import { FeedResource } from '../../../store/feed/types'
+import { usePaginate } from "../../../components/common/pagination";
+import { Feed } from "@fnndsc/chrisapi";
+import IconContainer from "./IconContainer";
+import { useTypedSelector } from "../../../store/hooks";
+import { Tbody } from "@patternfly/react-table";
+import { FeedResource } from "../../../store/feed/types";
+import InfoIcon from "../../../components/common/info/InfoIcon";
+import { Typography } from "antd";
+const { Paragraph } = Typography;
 
 const FeedListView: React.FC = () => {
   const { filterState, handlePageSet, handlePerPageSet, handleFilterChange, run, dispatch } =
@@ -128,40 +131,33 @@ const FeedListView: React.FC = () => {
       </>
     )
   }
-  return (
-    <>
-      <PageSection variant={PageSectionVariants.light} className="feed-header">
-        <div className="feed-header__split">
-          <Title headingLevel="h1" size="3xl">
-            New and Existing Analyses
-            {totalFeedsCount > 0 ? (
-              <span className="feed-header__count">({totalFeedsCount})</span>
-            ) : null}
-          </Title>
-          <CreateFeedProvider>
-            <CreateFeed />
-          </CreateFeedProvider>
-        </div>
 
-        <Hint
-          // @ts-ignore
-          style={{
-            width: `${width > 768 ? '50%' : '100%'}`,
-            // paddingBottom: '0',
-            marginTop: '20px',
-          }}
-        >
-          <HintBody
-            // @ts-ignore
-            style={{
-              gridColumn: `${width > 768 ? '1' : '2'}`,
-            }}
-          >
-            All Analyses that you have completed are recorded here. You can easily return to a
-            completed analysis and add more analysis components, or you can create a brand new
-            analysis from scratch.
-          </HintBody>
-        </Hint>
+  const style = { fontSize: "1.15em" };
+
+  return (
+    <React.Fragment>
+      <PageSection className="feed-header" variant="light">
+        <InfoIcon
+          title={`New and Existing Analyses
+            ${
+              totalFeedsCount > 0 ? (
+                <span className="feed-header__count">({totalFeedsCount})</span>
+              ) : (
+                "(0)"
+              )
+            }`}
+          p1={
+            <Paragraph style={style}>
+              All Analyses that you have completed are recorded here. You can
+              easily return to a completed analysis and add more analysis
+              components, or you can create a brand new analysis from scratch.
+            </Paragraph>
+          }
+        />
+
+        <CreateFeedProvider>
+          <CreateFeed />
+        </CreateFeedProvider>
       </PageSection>
 
       <PageSection className="feed-list">
@@ -185,46 +181,46 @@ const FeedListView: React.FC = () => {
             aria-label="Data table"
             cells={cells}
             isStickyHeader
-            rowWrapper={customRowWrapper}
-          >
-            <Thead>
-              <Tr>
-                <Th>
-                  <Checkbox
-                    id="test"
-                    isChecked={selectAllToggle}
-                    onChange={() => {
-                      if (!selectAllToggle) {
-                        if (allFeeds.data) {
-                          dispatch(setAllSelect(allFeeds.data))
-                        }
+            rowWrapper={customRowWrapper}>
+            {
+              <Thead>
+                <Tr>
+                  <Th>
+                    <Checkbox
+                      id="test"
+                      isChecked={selectAllToggle}
+                      onChange={() => {
+                        if (!selectAllToggle) {
+                          if (allFeeds.data) {
+                            dispatch(setAllSelect(allFeeds.data));
+                          }
 
-                        dispatch(toggleSelectAll(true))
-                      } else {
-                        if (allFeeds.data) {
-                          dispatch(removeAllSelect(allFeeds.data))
+                          dispatch(toggleSelectAll(true));
+                        } else {
+                          if (allFeeds.data) {
+                            dispatch(removeAllSelect(allFeeds.data));
+                          }
+                          dispatch(toggleSelectAll(false));
                         }
-                        dispatch(toggleSelectAll(false))
-                      }
-                    }}
-                  />
-                </Th>
-                <Th>Id</Th>
-                <Th>Analysis</Th>
-                <Th>Created</Th>
-                <Th>Creator</Th>
-                <Th>Run Time</Th>
-                <Th
-                  style={{
-                    textAlign: 'center',
-                    margin: '0 auto',
-                  }}
-                >
-                  Size
-                </Th>
-                <Th />
-              </Tr>
-            </Thead>
+                      }}
+                    />
+                  </Th>
+                  <Th>Id</Th>
+                  <Th>Analysis</Th>
+                  <Th>Created</Th>
+                  <Th>Creator</Th>
+                  <Th>Run Time</Th>
+                  <Th
+                    style={{
+                      textAlign: "center",
+                      margin: "0 auto",
+                    }}>
+                    Size
+                  </Th>
+                  <Th></Th>
+                </Tr>
+              </Thead>
+            }
 
             {loading ? (
               generateTableLoading('white')
@@ -394,8 +390,7 @@ const TableRow = ({
       isRowSelected={isSelected(bulkSelect, feed)}
       style={{
         backgroundColor: selectedBgRow,
-      }}
-    >
+      }}>
       <Td>{bulkChecbox}</Td>
       <Td>{feedId}</Td>
       <Td>{name}</Td>
