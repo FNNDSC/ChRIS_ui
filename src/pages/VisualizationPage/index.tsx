@@ -112,7 +112,9 @@ const VisualizationPage = () => {
           title="DICOM Viewer"
           p1={
             <Paragraph style={infoStyle}>
-              Here you get to upload all your files.
+              The DICOM Viewer is a convenient way to visualize DICOM images as
+              a stack in your web browser without having to install any
+              programs.
             </Paragraph>
           }
         />
