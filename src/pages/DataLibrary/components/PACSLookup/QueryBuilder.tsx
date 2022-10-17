@@ -216,8 +216,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       dropdownItems={PACSservices.map((service) => (
                         <DropdownItem
                           key={`pacs-${service}`}
-                          onClick={onSelectPACS.bind(QueryBuilder, service)}
-                        >
+                          onClick={onSelectPACS.bind(QueryBuilder, service)}>
                           {service}
                         </DropdownItem>
                       ))}
@@ -248,8 +247,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
         <ExpandableSection
           toggleText="More Options"
           onToggle={onToggleAdvanced}
-          isExpanded={toggleAdvanced}
-        >
+          isExpanded={toggleAdvanced}>
           <Card>
             <CardHeader>
               <Split>
@@ -257,9 +255,11 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <b>Filters</b>
                 </SplitItem>
                 <SplitItem>
-                  {/* <Button variant="link" onClick={() => setQuery({ ...query, filters: {} })}>
+                  <Button
+                    variant="link"
+                    onClick={() => setQuery({ ...query, filters: {} })}>
                     Clear
-                  </Button> */}
+                  </Button>
                 </SplitItem>
                 <SplitItem>
                   <Button variant="secondary" onClick={() => finalize()}>
