@@ -100,9 +100,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     pluginParameters,
   ]);
   
-  const path = selectedPlugin?.collection.items[0].links.find((obj:any) => {
-    return obj.rel === "files"
-  }).href
+  const path = selectedPlugin?.collection.items[0].links.find((obj:any) => (obj.rel === "files")).href
   const chrsCommandPath = `chrs download ${path}`;
 
   const copyPathToClipboard = () => {
