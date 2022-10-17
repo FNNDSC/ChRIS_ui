@@ -36,10 +36,8 @@ import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
 import { EmptyStateTable, generateTableLoading } from '../../../components/common/emptyTable'
 import { usePaginate } from "../../../components/common/pagination";
-import { Feed } from "@fnndsc/chrisapi";
 import IconContainer from "./IconContainer";
 import { useTypedSelector } from "../../../store/hooks";
-import { Tbody } from "@patternfly/react-table";
 import { FeedResource } from "../../../store/feed/types";
 import InfoIcon from "../../../components/common/info/InfoIcon";
 import { Typography } from "antd";
@@ -240,7 +238,7 @@ const FeedListView: React.FC = () => {
           </TableComposable>
         )}
       </PageSection>
-    </>
+    </React.Fragment>
   )
 }
 
