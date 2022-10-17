@@ -28,6 +28,13 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  enum LoginErrorMessage {
+    invalidPassword = `Password must have at least 8 characters`,
+    invalidUsername = `Username can not be empty`,
+    invalidCredentials = `Invalid Credentials`,
+    serverError = `There was a problem connecting to the server!`,
+  }
+
   async function handleSubmit(
     event: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent
   ) {
@@ -41,17 +48,30 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
         usernameValue,
         passwordValue
       );
-    } catch (error) {
-      setErrorMessage(
-        (() =>
-          //@ts-ignore
-          error.response
-            ? "Invalid Credentials"
-            : "There was a problem connecting to the server!")()
-      );
-      setIsValidUsername(false);
-      setIsValidPassword(false);
+    } catch (error: unknown) {
       setShowHelperText(true);
+
+      if (error && !passwordValue && !usernameValue) {
+        setErrorMessage(LoginErrorMessage.invalidCredentials);
+        setIsValidUsername(false);
+        setIsValidPassword(false);
+      } else if (error && !usernameValue) {
+        setErrorMessage(LoginErrorMessage.invalidUsername);
+        setIsValidUsername(false);
+      } else if (error && passwordValue.length < 8) {
+        setErrorMessage(LoginErrorMessage.invalidPassword);
+        setIsValidPassword(false);
+      } else {
+        setErrorMessage(
+          (() =>
+            //@ts-ignore
+            error.response
+              ? "Invalid Credentials"
+              : "There was a problem connecting to the server!")()
+        );
+        setIsValidUsername(false);
+        setIsValidPassword(false);
+      }
     }
 
     if (token && usernameValue) {
