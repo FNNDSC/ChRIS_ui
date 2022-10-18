@@ -29,8 +29,8 @@ import TreeThree from "../../assets/images/tree_3.png";
 import TreeFour from "../../assets/images/tree_4.png";
 import "./Dashboard.scss";
 import preval from "preval.macro";
-import { revParse, diff, date } from "../../../print_version.js"
-
+//import { revParse, diff, date } from "../../../print_version.js"
+import {printVersion} from "../../print_version.js"
 interface DashboardProps {
   children?: React.ReactNode;
 }
@@ -62,9 +62,9 @@ const DashboardPage = (props: DashboardProps) => {
     module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
   `;
 
-  const printVersion = preval(`
-    module.exports = "${date}.${revParse}.${diff}"
-  `)
+  // const printVersion = preval(`
+  //   module.exports = "${date}.${revParse}.${diff}"
+  // `)
 
   return (
     <Wrapper>
