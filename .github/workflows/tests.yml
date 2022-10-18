@@ -30,13 +30,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16.x"
-      
+
       - run: npm ci --legacy-peer-deps
       - run: npm install --legacy-peer-deps
- 
+
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
+          install-command: npm install --legacy-peer-deps
           start: npm run dev
           wait-on: "http://localhost:3000"
           # wait for 5 min for the server to respond
