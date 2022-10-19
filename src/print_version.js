@@ -6,13 +6,6 @@ import preval from "preval.macro";
 //             commit = HEAD commit short sha
 //             -drity = suffix indicating there are uncommitted changes
 
-
-
-
-
-
-
-
 const printVersion =  preval(`
 const getTodaysDate = () => {
   const today = new Date();
@@ -54,5 +47,4 @@ const dirty = diff()
 const result = date + "." + X + "+" + commit +  dirty
 module.exports=result
 `)
-//const printVersion =  `${date}.${revList}+${revParse}${diff}`
 export default printVersion;
