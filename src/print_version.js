@@ -25,11 +25,11 @@ const diff = preval(`
   const diffChild = spawn('git', ['diff', '--quiet', 'src/'])
   let exitCode = 0; 
   diffChild.on('exit', function(code){
-         if(code == 1){
+         if(code === 1){
             exitCode = 1; 
          }
   })
-  console.log(exitCode)
+  console.log((exitCode)? "" : "-dirty")
   module.exports = (exitCode)? "" : "-dirty";
 `)
 
