@@ -20,25 +20,14 @@ const revList = preval(`
   module.exports = execSync('git rev-list --use-bitmap-index --count --merges version-0..HEAD').toString().trim();
 `)
 
-// const diff = preval(`
-//   const { execSync } = require('child_process');
-//   module.exports = execSync('git diff --quiet src/ || echo "-dirty"').toString().trim();
-// `)
-
 const diff = preval(`
   const { spawn } = require('child_process')
-  const diffChild = spawn('git', ['diff', '--quiet', 'src/'])
+  const diffChild = spawn('git', ['diff', 'src/'])
   let exitCode = '';
 
-  diffChild.on('close', (code) => {
-    if (code !== 0) {
-      exitCode = '-dirty';
-    }
-  })
-
-  // if (diffChild.status !== null){
-  //   module.exports = diffChild.status.toString();
-  // }
+  if (diffChild){
+    exitCode = '-dirty';
+  }
   module.exports = exitCode;
 `)
 
