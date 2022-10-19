@@ -22,13 +22,14 @@ const revList = preval(`
 
 const diff = preval(`
   const { spawn } = require('child_process')
-  const diffChild = spawn('git', ['diff', 'src/'])
-  let exitCode = '';
-
-  if (diffChild){
-    exitCode = '-dirty';
-  }
-  module.exports = exitCode;
+  const diffChild = spawn('git', ['diff', '--quiet', 'src/'])
+  let exitCode = 0; 
+  diffChild.on('exit', function(code){
+         if(code == 1){
+            exitCode = code; 
+         }
+  })
+  module.exports = (exitCode)? "" : "-dirty";
 `)
 
 const getTodaysDate = () => {
