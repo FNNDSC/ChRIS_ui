@@ -29,8 +29,6 @@ const diff = preval(`
             exitCode = 1; 
          }
   })
-  console.log(exitCode)
-  console.log((exitCode)? "" : "-dirty")
   module.exports = (exitCode)? "" : "-dirty";
 `)
 
@@ -44,4 +42,3 @@ const getTodaysDate = () => {
 const date = getTodaysDate();
 
 export const printVersion = `${date}.${revList}+${revParse}${diff}`
-

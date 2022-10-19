@@ -29,7 +29,7 @@ import TreeThree from "../../assets/images/tree_3.png";
 import TreeFour from "../../assets/images/tree_4.png";
 import "./Dashboard.scss";
 import preval from "preval.macro";
-import { printVersion } from "../../print_version.js"
+import {printVersion} from "../../print_version"
 interface DashboardProps {
   children?: React.ReactNode;
 }
@@ -61,6 +61,8 @@ const DashboardPage = (props: DashboardProps) => {
     module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
   `;
 
+ 
+    
   return (
     <Wrapper>
       <PageSection hasShadowBottom variant="light">
@@ -72,7 +74,7 @@ const DashboardPage = (props: DashboardProps) => {
         </p>
         <p>
           Build: <code className="build-version">{buildVersion}</code>
-          Build: <code className="build-version">{printVersion}</code>
+           Build: <code className="build-version">{printVersion}</code>
         </p>
         {children}
       </PageSection>
