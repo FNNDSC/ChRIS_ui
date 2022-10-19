@@ -65,6 +65,7 @@ const DashboardPage = (props: DashboardProps) => {
     <Wrapper>
       <PageSection hasShadowBottom variant="light">
         <Title headingLevel="h1">Welcome to ChRIS</Title>
+        <Title headingLevel="h1">Welcome to ChRIS</Title>
         <p>
           Retrieve, analyze, and visualize <i>any data </i> using a powerful cloud computing
           platform: ChRIS.
