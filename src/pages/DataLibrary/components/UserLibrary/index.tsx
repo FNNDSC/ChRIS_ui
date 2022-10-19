@@ -535,7 +535,7 @@ const DataLibrary = () => {
       </div>
       <Tabs
         style={{
-          width: '50%',
+          width: '100%',
         }}
         activeKey={activeTabKey}
         onSelect={handleTabClick}
