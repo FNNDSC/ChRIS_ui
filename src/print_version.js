@@ -25,6 +25,7 @@ const diff = preval(`
   const diffChild = spawn('git', ['diff', '--quiet', 'src/'])
   let exitCode = 0; 
   diffChild.on('exit', function(code){
+    console.log(code)
          if(code == 1){
             exitCode = code; 
          }
