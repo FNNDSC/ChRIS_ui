@@ -134,19 +134,14 @@
     "redux-logger": "^3.0.6",
     "redux-mock-store": "^1.5.4"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npx lint-staged",
-      "pre-push": "npm run test:noWatch"
-    }
-  },
   "lint-staged": {
     "*.{js,ts,tsx}": [
       "prettier --write",
       "npm run format:check",
       "npm run lint",
       "npm run type:check"
-    ]
+    ],
+    "*.js": "eslint --cache --fix"
   },
   "optionalDependencies": {
     "fsevents": "^2.3.2"
