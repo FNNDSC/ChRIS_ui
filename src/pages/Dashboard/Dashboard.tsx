@@ -29,7 +29,7 @@ import TreeThree from "../../assets/images/tree_3.png";
 import TreeFour from "../../assets/images/tree_4.png";
 import "./Dashboard.scss";
 import preval from "preval.macro";
-import {printVersion} from "../../print_version.js"
+import { printVersion } from "../../print_version.js"
 interface DashboardProps {
   children?: React.ReactNode;
 }
@@ -72,7 +72,7 @@ const DashboardPage = (props: DashboardProps) => {
         </p>
         <p>
           Build: <code className="build-version">{buildVersion}</code>
-          Build: <span className="build-version">{printVersion}</span>
+          Build: <code className="build-version">{printVersion}</code>
         </p>
         {children}
       </PageSection>

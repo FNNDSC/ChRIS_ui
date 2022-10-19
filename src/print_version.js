@@ -1,10 +1,10 @@
-//  purpose: print out a version string: YYYYMMDD.X+commit(-dirty?)
-//           YYYYMMDD = current date
-//           X = number of merge commits since the tag version-0
-//           commit = HEAD commit short sha
-//           -dirty = suffix indicating there are uncommitted changes
 import preval from "preval.macro";
 
+//  purpose: print out a version string: YYYYMMDD.X+commit(-dirty?)
+//           YYYYMMDD = current date
+//                  X = number of merge commits since the tag version-0
+//             commit = HEAD commit short sha
+//             -drity = suffix indicating there are uncommitted changes
 
 const revParse = preval(`
   const execSync = require('child_process').execSync;
@@ -20,9 +20,26 @@ const revList = preval(`
   module.exports = execSync('git rev-list --use-bitmap-index --count --merges version-0..HEAD').toString().trim();
 `)
 
+// const diff = preval(`
+//   const { execSync } = require('child_process');
+//   module.exports = execSync('git diff --quiet src/ || echo "-dirty"').toString().trim();
+// `)
+
 const diff = preval(`
-  const { execSync } = require('child_process');
-  module.exports = execSync('git diff --quiet src/ || echo "-dirty"').toString().trim();
+  const { spawn } = require('child_process')
+  const diffChild = spawn('git', ['diff', '--quiet', 'src/'])
+  let exitCode = '';
+
+  diffChild.on('close', (code) => {
+    if (code !== 0) {
+      exitCode = '-dirty';
+    }
+  })
+
+  // if (diffChild.status !== null){
+  //   module.exports = diffChild.status.toString();
+  // }
+  module.exports = exitCode;
 `)
 
 const getTodaysDate = () => {
