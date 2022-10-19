@@ -26,6 +26,7 @@ const diff = () => {
   })
   return (exitCode)? "" : "-dirty";
 }
+
 const revParse = () => {
   const execSync = require('child_process').execSync;
   try {
