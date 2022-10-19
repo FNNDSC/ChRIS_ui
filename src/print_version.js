@@ -6,21 +6,23 @@ import preval from "preval.macro";
 //             commit = HEAD commit short sha
 //             -drity = suffix indicating there are uncommitted changes
 
-const revParse = preval(`
-  const execSync = require('child_process').execSync;
-  try {
-    module.exports = execSync('git rev-parse --short HEAD').toString().trim();
-  } catch (e) {
-    module.exports = 'unknown';
-  }
-`)
 
-const revList = preval(`
-  const { execSync } = require('child_process');
-  module.exports = execSync('git rev-list --use-bitmap-index --count --merges version-0..HEAD').toString().trim();
-`)
 
-const diff = preval(`
+
+
+
+
+
+const printVersion =  preval(`
+const getTodaysDate = () => {
+  const today = new Date();
+  const yyyy = today.getFullYear().toString();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  return [yyyy, mm, dd].join("");
+}
+
+const diff = () => {
   const { spawn } = require('child_process')
   const diffChild = spawn('git', ['diff', '--quiet', 'src/'])
   let exitCode = 0; 
@@ -29,16 +31,28 @@ const diff = preval(`
             exitCode = 1; 
          }
   })
-  module.exports = (exitCode)? "" : "-dirty";
-`)
-
-const getTodaysDate = () => {
-  const today = new Date();
-  const yyyy = today.getFullYear().toString();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  return [yyyy, mm, dd].join("");
+  return (exitCode)? "" : "-dirty";
 }
-const date = getTodaysDate();
+const revParse = () => {
+  const execSync = require('child_process').execSync;
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim();
+  } catch (e) {
+    return 'unknown';
+  }
+}
 
-export const printVersion = `${date}.${revList}+${revParse}${diff}`
+const revList = () => {
+  const { execSync } = require('child_process');
+  return execSync('git rev-list --use-bitmap-index --count --merges version-0..HEAD').toString().trim();
+}
+
+const date = getTodaysDate();
+const X = revList(); 
+const commit = revParse(); 
+const dirty = diff()
+const result = date + "." + X + "+" + commit +  dirty
+module.exports=result
+`)
+//const printVersion =  `${date}.${revList}+${revParse}${diff}`
+export default printVersion;

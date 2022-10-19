@@ -29,7 +29,7 @@ import TreeThree from "../../assets/images/tree_3.png";
 import TreeFour from "../../assets/images/tree_4.png";
 import "./Dashboard.scss";
 import preval from "preval.macro";
-import {printVersion} from "../../print_version"
+import printVersion from "../../print_version"
 interface DashboardProps {
   children?: React.ReactNode;
 }
