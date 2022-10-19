@@ -29,6 +29,7 @@ const diff = preval(`
             exitCode = 1; 
          }
   })
+  console.log(exitCode)
   console.log((exitCode)? "" : "-dirty")
   module.exports = (exitCode)? "" : "-dirty";
 `)
