@@ -5,7 +5,6 @@ import preval from "preval.macro";
 //                  X = number of merge commits since the tag version-0
 //             commit = HEAD commit short sha
 //             -drity = suffix indicating there are uncommitted changes
-
 const printVersion =  preval(`
 const getTodaysDate = () => {
   const today = new Date();
