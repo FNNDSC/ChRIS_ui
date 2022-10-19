@@ -32,4 +32,8 @@ yarn-error.log*
 .npm/
 .cache/
 .yarnrc
+.nyc_output/
+cypress/screenshots/
+cypress/videos/
+
 

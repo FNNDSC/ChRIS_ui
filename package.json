@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@cypress/instrument-cra": "^1.4.0",
     "@fnndsc/chrisapi": "^1.8.0",
     "@patternfly/react-charts": "^6.88.7",
     "@patternfly/react-core": "^4.235.7",
@@ -60,14 +61,18 @@
   },
   "scripts": {
     "start": "sirv build --quiet --host --port 8080 --single --etag",
-    "dev": "react-scripts start",
+    "dev": "react-scripts -r @cypress/instrument-cra start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test_with_coverage": "nyc cypress run",
     "eject": "react-scripts eject",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "print-version": "./print_version.sh"
+  },
+  "nyc": {
+    "all": true
   },
   "resolutions": {
     "react-scripts/postcss-preset-env/postcss-custom-properties": "^10.0.0"
