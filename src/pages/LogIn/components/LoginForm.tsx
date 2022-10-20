@@ -14,6 +14,7 @@ interface IPropsFromDispatch {
 }
 
 type AllProps = IPropsFromDispatch;
+
 const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
   /* eslint-disable */
   const [cookies, setCookie] = useCookies<string>([""]);
@@ -25,20 +26,28 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
   const [isValidUsername, setIsValidUsername] = React.useState<boolean>(true);
   const [isValidPassword, setIsValidPassword] = React.useState<boolean>(true);
   const [errorMessage, setErrorMessage] = React.useState<string>("");
+  const [isLoginButtonDisabled, setIsLoginButtonDisabled] =
+    React.useState<boolean>(true);
   const navigate = useNavigate();
   const location = useLocation();
 
   enum LoginErrorMessage {
-    invalidPassword = `Password must have at least 8 characters`,
-    invalidUsername = `Username can not be empty`,
     invalidCredentials = `Invalid Credentials`,
     serverError = `There was a problem connecting to the server!`,
   }
+
+  // Disables the Login Button if there is no Username or a Password with less then 8 characters.
+  React.useMemo(() => {
+    usernameValue && passwordValue.length > 8
+      ? setIsLoginButtonDisabled(false)
+      : setIsLoginButtonDisabled(true);
+  }, [usernameValue, passwordValue]);
 
   async function handleSubmit(
     event: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent
   ) {
     event.preventDefault();
+
     const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
     let token;
 
@@ -50,28 +59,18 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
       );
     } catch (error: unknown) {
       setShowHelperText(true);
-
-      if (error && !passwordValue && !usernameValue) {
-        setErrorMessage(LoginErrorMessage.invalidCredentials);
-        setIsValidUsername(false);
-        setIsValidPassword(false);
-      } else if (error && !usernameValue) {
-        setErrorMessage(LoginErrorMessage.invalidUsername);
-        setIsValidUsername(false);
-      } else if (error && passwordValue.length < 8) {
-        setErrorMessage(LoginErrorMessage.invalidPassword);
-        setIsValidPassword(false);
-      } else {
-        setErrorMessage(
-          (() =>
-            //@ts-ignore
-            error.response
-              ? "Invalid Credentials"
-              : "There was a problem connecting to the server!")()
-        );
+      // Allows error message to be displayed in red
+      //@ts-ignore
+      if (error.response.status === 400) {
         setIsValidUsername(false);
         setIsValidPassword(false);
       }
+      setErrorMessage(() =>
+        //@ts-ignore
+        error.response
+          ? LoginErrorMessage.invalidCredentials
+          : LoginErrorMessage.serverError
+      );
     }
 
     if (token && usernameValue) {
@@ -93,12 +92,13 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
       else navigate("/");
     }
   }
-  const handleUsernameChange = (value: string) => {
+  const handleUsernameChange = (value: string): void => {
     setUsernameValue(value);
   };
-  const handlePasswordChange = (passwordValue: string) => {
+  const handlePasswordChange = (passwordValue: string): void => {
     setPasswordValue(passwordValue);
   };
+
   const onRememberMeClick = () => {
     setIsRememberMeChecked(
       (prevIsRememberMeChecked) => !prevIsRememberMeChecked
@@ -131,6 +131,7 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
       isRememberMeChecked={isRememberMeChecked}
       onChangeRememberMe={onRememberMeClick}
       onLoginButtonClick={handleSubmit}
+      isLoginButtonDisabled={isLoginButtonDisabled}
     />
   );
 };
