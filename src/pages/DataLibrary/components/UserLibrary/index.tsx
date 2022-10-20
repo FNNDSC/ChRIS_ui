@@ -521,17 +521,29 @@ const DataLibrary = () => {
           Upload Files
         </Button>
         <Button
+          variant="link"
+          disabled
+        >
+          Switch Column Layout
+        </Button>
+        <div className="container"
           onClick={() => {
             if (state.columnLayout === 'multi') {
               dispatchLibrary(setMultiColumnLayout('single'))
             } else {
               dispatchLibrary(setMultiColumnLayout('multi'))
             }
-          }}
-          variant="link"
-        >
-          Switch Column Layout
-        </Button>
+          }} >
+
+          <div className="toggle-switch">
+            <input type="checkbox" className="checkbox"
+              name={" Switch "} id={" Switch Column Layout"} />
+            <label className="label" htmlFor={" Switch Column Layout"}>
+              <span className="inner" />
+              <span className="switch" />
+            </label>
+          </div>
+        </div>
       </div>
       <Tabs
         style={{
