@@ -61,8 +61,7 @@ const DashboardPage = (props: DashboardProps) => {
     module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
   `;
 
- 
-    
+     
   return (
     <Wrapper>
       <PageSection hasShadowBottom variant="light">
@@ -74,7 +73,7 @@ const DashboardPage = (props: DashboardProps) => {
         </p>
         <p>
           Build: <code className="build-version">{buildVersion}</code>
-           Build: <code className="build-version">{printVersion}</code>
+          Build: <code className="build-version">{printVersion}</code>
         </p>
         {children}
       </PageSection>
