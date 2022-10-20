@@ -20,10 +20,10 @@ const printVersion =  preval(`
 
   const diff = () => {
     const diffChild = spawn('git', ['diff', '--quiet', 'src/'])
-    let exitCode = false; 
+    let exitCode = true; 
     diffChild.on('exit', (code) => {
       if (code === 1) {
-        exitCode = true; 
+        exitCode = false; 
       }
     })
     return (exitCode) ? "" : "-dirty";
