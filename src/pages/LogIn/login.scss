@@ -9,11 +9,82 @@
 $image-url:     '../../assets/images/';
 
 
-.error{
-    margin-bottom: 0;
-    color: red;
-    font-size: 16px;
-}
+/* The snackbar - position it at the bottom and in the middle of the screen */
+#passwordError,#userNameError {
+    visibility: hidden; /* Hidden by default. Visible on click */
+    min-width: 250px; /* Set a default minimum width */
+    margin-left: 10%; 
+    background-color: rgb(129, 128, 128); /* Black background color */
+    color: #fff; 
+    text-align: center;
+    border-radius: 10px; 
+    padding: 5px; 
+    margin-bottom: 5px;
+    position: fixed; 
+    z-index: 1; 
+  }
+  #passwordError{
+    bottom:50%;
+  }
+  #userNameError{
+    bottom: 60%;
+  }
+
+  
+  /* Show the snackbar when clicking on a button (class added with JavaScript) */
+  #userNameError.show {
+    visibility: visible; /* Show the snackbar */
+    /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+    However, delay the fade out process for 2.5 seconds 
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.6s, fadeout 0.6s 2.5s;*/
+    -webkit-animation: fadeinout 4s linear forwards;
+    animation: fadeinout 4s linear forwards;
+    opacity: 0;
+
+  }
+  #passwordError.show {
+    visibility: visible; /* Show the snackbar */
+    /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+    However, delay the fade out process for 2.5 seconds 
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.6s, fadeout 0.6s 2.5s;*/
+    -webkit-animation: fadeinout 4s linear forwards;
+    animation: fadeinout 4s linear forwards;
+    opacity: 0;
+
+  }
+  
+  @-webkit-keyframes fadeinout {
+    50% { opacity: 1; }
+  }
+  
+  @keyframes fadeinout {
+    50% { opacity: 1; }
+  }
+  /* Animations to fade the snackbar in and out 
+  @-webkit-keyframes fadein {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  
+  @keyframes fadein {
+    0% { opacity: 0; }
+  100% { opacity: 1; }
+  }
+  
+  @-webkit-keyframes fadeout {
+    0% { opacity: 0; }
+  100% { opacity: 1; }
+  }
+  
+  @keyframes fadeout {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }*/
+  
+
+
 .login{
     // Replace background image here
     // This file takes background-image styles from 'assets/scss/components/_background-image.scss'
