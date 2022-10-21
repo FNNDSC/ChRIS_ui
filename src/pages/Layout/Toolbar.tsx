@@ -47,7 +47,7 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
   return (
     <Toolbar>
       <ToolbarGroup
-        className={`${pf4UtilityStyles.accessibleStyles.screenReader} ${pf4UtilityStyles.accessibleStyles.visibleOnLg}`}
+        className={`${pf4UtilityStyles.accessibleStyles.screenReader} ${pf4UtilityStyles.accessibleStyles.visibleOnLg} ${pf4UtilityStyles.accessibleStyles.visibleOnSm}`}
       >
         <ToolbarItem
           className={`${pf4UtilityStyles.accessibleStyles.screenReader} ${pf4UtilityStyles.accessibleStyles.visibleOnMd}`}
