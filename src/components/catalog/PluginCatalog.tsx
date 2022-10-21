@@ -36,6 +36,10 @@ const PluginCatalog = () => {
       search: value,
     });
   };
+
+
+ 
+
   useEffect(() => {
     async function fetchPlugins(perPage: number, page: number, search: string) {
       setFetchinData(true)
