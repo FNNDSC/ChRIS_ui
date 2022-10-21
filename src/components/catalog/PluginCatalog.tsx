@@ -15,7 +15,8 @@ const PluginCatalog = () => {
 
   const { page, perPage, search } = pageState;
   const [selectedPlugin, setSelectedPlugin] = React.useState<any>();
-  const [fetchingData, setFetchinData] = React.useState(false)
+  const [loading, setLoading] = React.useState(false)
+
 
   const onSetPage = (_event: any, page: number) => {
     setPageState({
@@ -42,7 +43,7 @@ const PluginCatalog = () => {
 
   useEffect(() => {
     async function fetchPlugins(perPage: number, page: number, search: string) {
-      setFetchinData(true)
+      setLoading(true)
 
       const offset = perPage * (page - 1);
       const client = ChrisAPIClient.getClient();
@@ -62,9 +63,9 @@ const PluginCatalog = () => {
           };
         });
       }
-      setTimeout(() => {
-        setFetchinData(false)
-      }, 2000)
+   
+        setLoading(false)
+   
 
     }
 
@@ -78,7 +79,7 @@ const PluginCatalog = () => {
     });
   };
 
-  if (fetchingData) {
+  if (loading) {
     return <>
       <EmptyState>
         <EmptyStateIcon variant="container" component={Spinner} />
