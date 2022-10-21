@@ -14,6 +14,7 @@ import {
 } from '@patternfly/react-core'
 import { setSidebarActive } from '../../store/ui/actions'
 import { Dispatch } from 'redux'
+import { pf4UtilityStyles } from '../../lib/pf4-styleguides'
 
 type AllProps = IUiState & IUserState & ReduxProp
 type ReduxProp = {
@@ -110,6 +111,12 @@ const Sidebar: React.FC<AllProps> = ({
             </NavItem>
           </NavGroup>
         )}
+        <NavGroup className={` ${pf4UtilityStyles.accessibleStyles.hiddenOnMd}`}
+         title="Logout" >
+            <NavItem >
+              <Link to="/login">sign out</Link>
+            </NavItem>
+          </NavGroup>
       </NavList>
     </Nav>
   )
