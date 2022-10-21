@@ -8,7 +8,7 @@ import {
   HelperText,
   HelperTextItem,
 } from "@patternfly/react-core";
-import { FaInfo } from "react-icons/fa";
+import { BsInfoCircleFill } from "react-icons/bs";
 import ChRIS_Logo from "../../assets/images/chris-logo.png";
 import ChRIS_Logo_inline from "../../assets/images/chris-logo-inline.png";
 import LoginFormComponent from "./components/LoginForm";
@@ -48,7 +48,7 @@ const LogInPage: React.FC = () => {
         Forgot username or password?
       </LoginMainFooterBandItem>
       <HelperText>
-        <HelperTextItem icon={<FaInfo />}>
+        <HelperTextItem icon={<BsInfoCircleFill />}>
           <i>Please Contact a ChRIS admin for a new password</i>
         </HelperTextItem>
       </HelperText>
