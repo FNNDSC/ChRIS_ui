@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react'
+import React, { useRef, useMemo } from "react";
 import { useNavigate } from "react-router";
 import Wrapper from "../Layout/PageWrapper";
 import { Button } from "antd";
@@ -7,7 +7,14 @@ import { useDispatch } from "react-redux";
 import { setSidebarActive } from "../../store/ui/actions";
 import { useDropzone } from "react-dropzone";
 import { setExternalFiles } from "../../store/explorer/actions";
-import "./index.scss";
+import { PageSection } from "@patternfly/react-core";
+import InfoIcon from "../../components/common/info/InfoIcon";
+import { Typography } from "antd";
+const { Paragraph } = Typography;
+
+const infoStyle = { fontSize: "1.15em" };
+
+const btnStyle = { marginRight: "10px" };
 
 const baseStyle: React.CSSProperties = {
   flex: 1,
@@ -100,46 +107,62 @@ const VisualizationPage = () => {
 
   return (
     <Wrapper>
-      <div className="upload-link">
-        <Button onClick={showOpenFolder} icon={<AiOutlineUpload />}>
+      <PageSection variant="light">
+        <InfoIcon
+          title="DICOM Viewer"
+          p1={
+            <Paragraph style={infoStyle}>
+              The DICOM Viewer is a convenient way to visualize DICOM images as
+              a stack in your web browser without having to install any
+              programs.
+            </Paragraph>
+          }
+        />
+      </PageSection>
+
+      <PageSection>
+        <Button
+          onClick={showOpenFolder}
+          icon={<AiOutlineUpload />}
+          style={btnStyle}>
           Upload a Directory
         </Button>
         <Button onClick={showOpenFile} icon={<AiOutlineUpload />}>
           Upload Files
         </Button>
-      </div>
 
-      <div>
-        <input
-          type="file"
-          id="file_open"
-          style={{ display: "none" }}
-          ref={fileOpen}
-          multiple
-          onChange={(e) => handleOpenLocalFs(e.target.files)}
-        />
-        <input
-          type="file"
-          id="file_folder"
-          style={{ display: "none" }}
-          onChange={(e) => handleOpenFolder(e.target.files)}
-          multiple
-          //@ts-ignore
+        <div>
+          <input
+            type="file"
+            id="file_open"
+            style={{ display: "none" }}
+            ref={fileOpen}
+            multiple
+            onChange={(e) => handleOpenLocalFs(e.target.files)}
+          />
+          <input
+            type="file"
+            id="file_folder"
+            style={{ display: "none" }}
+            onChange={(e) => handleOpenFolder(e.target.files)}
+            multiple
+            //@ts-ignore
 
-          ref={folderOpen}
-        />
+            ref={folderOpen}
+          />
 
-        <section className="container">
-          <div {...getRootProps({ style })}>
-            <input {...getInputProps()} />
-            <p>
-              Drag &apos;n&apos; drop some files here or click to select files
-            </p>
-          </div>
-        </section>
-      </div>
+          <section className="container">
+            <div {...getRootProps({ style })}>
+              <input {...getInputProps()} />
+              <p>
+                Drag &apos;n&apos; drop some files here or click to select files
+              </p>
+            </div>
+          </section>
+        </div>
+      </PageSection>
     </Wrapper>
   );
 };
 
-export default VisualizationPage
+export default VisualizationPage;
