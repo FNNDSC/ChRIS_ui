@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import DisplayPage from "./DisplayPage";
+import { Title, EmptyState, EmptyStateIcon, Spinner } from '@patternfly/react-core';
 
 const PluginCatalog = () => {
   const [plugins, setPlugins] = React.useState<any[]>();
@@ -13,6 +14,7 @@ const PluginCatalog = () => {
 
   const { page, perPage, search } = pageState;
   const [selectedPlugin, setSelectedPlugin] = React.useState<any>();
+  const [loading, setLoading] = React.useState(false)
 
   const onSetPage = (_event: any, page: number) => {
     setPageState({
@@ -35,6 +37,7 @@ const PluginCatalog = () => {
   };
   useEffect(() => {
     async function fetchPlugins(perPage: number, page: number, search: string) {
+      setLoading(true)
       const offset = perPage * (page - 1);
       const client = ChrisAPIClient.getClient();
       const params = {
@@ -53,6 +56,8 @@ const PluginCatalog = () => {
           };
         });
       }
+      setLoading(false)
+
     }
 
     fetchPlugins(perPage, page, search);
@@ -64,6 +69,17 @@ const PluginCatalog = () => {
       search,
     });
   };
+
+  if (loading) {
+    return <>
+      <EmptyState>
+        <EmptyStateIcon variant="container" component={Spinner} />
+        <Title headingLevel='h4'>
+          Pipelines loading...please wait
+        </Title>
+      </EmptyState>
+    </>
+  }
 
   return (
     <>
