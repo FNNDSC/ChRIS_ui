@@ -38,19 +38,23 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
 
 
 //validation
-
-
-   
+      
     if (usernameValue.length === 0) {
-    (document.getElementById('userNameError')as HTMLElement ).textContent = "username cannot be empty";
+          var x = document.getElementById("userNameError")as HTMLElement ;
+          x.className = "show";
+          setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
     }
 
     if (passwordValue.length < 8) {
-      (document.getElementById('passwordError')as HTMLElement ).textContent = "password cannot be less than 8";  
+      var x = document.getElementById("passwordError")as HTMLElement ;
+      x.className = "show";
+      setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
       }
     else {
       setIsValidUsername(true);
-      setIsValidPassword(true);
+      setIsValidPassword(true);}
+   
+   
 
       try {
         token = await ChrisApiClient.getAuthToken(
@@ -117,8 +121,8 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
 
   return (
     <div>
-      <p id="userNameError" className="error"></p>
-      <p id="passwordError" className="error"></p>
+      <div id="userNameError" >username cannot be empty.</div>
+      <div id="passwordError" >password cannot be empty.</div>
       <LoginForm
         showHelperText={showHelperText}
         helperText={helperText}
@@ -139,15 +143,7 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
     </div>
   );
 };
-const styles = {
-  container: {
-  
-    fontSize: "16px",
-    margin: '0 auto',
-    Color: "red",
-    
-  },
-} as const;
+
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setAuthToken: (auth: { token: string; username: string }) =>
