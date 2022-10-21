@@ -8,6 +8,8 @@ import { LoginForm } from "@patternfly/react-core";
 import ChrisApiClient from "@fnndsc/chrisapi";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import { useCookies } from "react-cookie";
+import "../login.scss";
+
 
 interface IPropsFromDispatch {
   setAuthToken: typeof setAuthToken;
@@ -35,12 +37,20 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
     const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
     let token;
 
-    if (!usernameValue) {
-      setIsValidUsername(false);
+    //validation
+   
+    if (usernameValue.length === 0) {
+          var x = document.getElementById("userNameError")as HTMLElement ;
+          x.className = "show";
+          setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
     }
-    if (!passwordValue) {
-      setIsValidPassword(false);
-    } else {
+
+    if (passwordValue.length < 8) {
+      var x = document.getElementById("passwordError")as HTMLElement ;
+      x.className = "show";
+      setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+      }
+    else {
       setIsValidUsername(true);
       setIsValidPassword(true);
 
@@ -106,6 +116,9 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
   }
 
   return (
+    
+    <div id="userNameError" >username cannot be empty.</div>
+    <div id="passwordError" >password cannot be empty.</div>
     <LoginForm
       showHelperText={showHelperText}
       helperText={helperText}
