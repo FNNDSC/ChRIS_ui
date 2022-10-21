@@ -6,9 +6,12 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router";
 import { LoginForm } from "@patternfly/react-core";
 import ChrisApiClient from "@fnndsc/chrisapi";
-import { AiFillExclamationCircle } from "react-icons/ai";
 import { useCookies } from "react-cookie";
+
 import "../login.scss";
+
+import { HelperText, HelperTextItem } from "@patternfly/react-core";
+
 
 interface IPropsFromDispatch {
   setAuthToken: typeof setAuthToken;
@@ -67,7 +70,7 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
           (() =>
             //@ts-ignore
             error.response
-              ? "Invalid Credentials"
+              ? "Invalid credentials"
               : "There was a problem connecting to the server!")()
         );
         setShowHelperText(true);
@@ -112,10 +115,12 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
   let helperText;
   if (showHelperText) {
     helperText = (
-      <>
-        <AiFillExclamationCircle />
-        <span> {errorMessage}</span>
-      </>
+        <HelperText>
+          <HelperTextItem variant="error" hasIcon>
+            {errorMessage}
+          </HelperTextItem>
+        </HelperText>
+       
     );
   }
 

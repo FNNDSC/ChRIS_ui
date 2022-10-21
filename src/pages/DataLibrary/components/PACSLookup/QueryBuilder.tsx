@@ -122,7 +122,11 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
           <GridItem lg={10} sm={12}>
             <Card isHoverable isRounded style={{ height: "100%" }}>
               <Grid id="search">
-                <GridItem span={6} md={3} sm={6} order={{ default: '1', md: "1"}}>
+                <GridItem
+                  span={6}
+                  md={3}
+                  sm={6}
+                  order={{ default: "1", md: "1" }}>
                   <Dropdown
                     id="search-type"
                     isOpen={toggleType}
@@ -142,27 +146,29 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                     dropdownItems={[
                       <DropdownItem
                         key="pmrn"
-                        onClick={() => setQueryType(PFDCMQueryTypes.PMRN)}
-                      >
+                        onClick={() => setQueryType(PFDCMQueryTypes.PMRN)}>
                         By Patient ID or MRN
                       </DropdownItem>,
                       <DropdownItem
                         key="name"
-                        onClick={() => setQueryType(PFDCMQueryTypes.NAME)}
-                      >
+                        onClick={() => setQueryType(PFDCMQueryTypes.NAME)}>
                         By Patient Name
                       </DropdownItem>,
                       <DropdownItem
                         key="accn"
-                        onClick={() => setQueryType(PFDCMQueryTypes.ACCN)}
-                      >
+                        onClick={() => setQueryType(PFDCMQueryTypes.ACCN)}>
                         By Accession Number
                       </DropdownItem>,
                     ]}
                   />
                 </GridItem>
 
-                <GridItem span={12} md={6} sm={12} order={{ default: '3', md: "2"}} rowSpan={1}>
+                <GridItem
+                  span={12}
+                  md={6}
+                  sm={12}
+                  order={{ default: "3", md: "2" }}
+                  rowSpan={1}>
                   {(function () {
                     switch (query.type) {
                       case PFDCMQueryTypes.PMRN:
@@ -211,7 +217,11 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 </GridItem>
 
                 {PACSservices && onSelectPACS && (
-                  <GridItem span={6} md={3} sm={6} order={{ default: '2', md: "3"}}>
+                  <GridItem
+                    span={6}
+                    md={3}
+                    sm={6}
+                    order={{ default: "2", md: "3" }}>
                     <Dropdown
                       id="pacs-service"
                       isOpen={togglePACSList}
@@ -220,11 +230,9 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                         <DropdownToggle onToggle={onTogglePACSList}>
                           {PACS ? (
                             <div
-                              style={{ textAlign: "left", padding: "0 0.5em" }}
-                            >
+                              style={{ textAlign: "left", padding: "0 0.5em" }}>
                               <div
-                                style={{ fontSize: "smaller", color: "gray" }}
-                              >
+                                style={{ fontSize: "smaller", color: "gray" }}>
                                 PACS Service
                               </div>
                               <div style={{ fontWeight: 600 }}>{PACS}</div>
@@ -237,8 +245,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       dropdownItems={PACSservices.map((service) => (
                         <DropdownItem
                           key={`pacs-${service}`}
-                          onClick={onSelectPACS.bind(QueryBuilder, service)}
-                        >
+                          onClick={onSelectPACS.bind(QueryBuilder, service)}>
                           {service}
                         </DropdownItem>
                       ))}
@@ -255,8 +262,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 isLarge
                 variant="primary"
                 id="finalize"
-                onClick={() => finalize()}
-              >
+                onClick={() => finalize()}>
                 <FaSearch /> Search
               </Button>
             ) : (
@@ -274,8 +280,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
         <ExpandableSection
           toggleText="More Options"
           onToggle={onToggleAdvanced}
-          isExpanded={toggleAdvanced}
-        >
+          isExpanded={toggleAdvanced}>
           <Card>
             <CardHeader>
               <Split>
@@ -283,9 +288,11 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <b>Filters</b>
                 </SplitItem>
                 <SplitItem>
-                  {/* <Button variant="link" onClick={() => setQuery({ ...query, filters: {} })}>
+                  <Button
+                    variant="link"
+                    onClick={() => setQuery({ ...query, filters: {} })}>
                     Clear
-                  </Button> */}
+                  </Button>
                 </SplitItem>
                 <SplitItem>
                   <Button variant="secondary" onClick={() => finalize()}>
@@ -313,7 +320,6 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       if (key.toLowerCase() === "enter") finalize();
                     }}
                   />
-
                 </GridItem>
 
                 <GridItem lg={4} sm={12}>
@@ -345,7 +351,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <GridItem lg={4} sm={12}>
                   Patient Birth Date
                   <br />
-                  <DatePicker className="filters-date-picker"
+                  <DatePicker
+                    className="filters-date-picker"
                     placeholder="Birth Date (yyyy-MM-dd)"
                     dateFormat={(date: Date) => date.toDateString()}
                     onChange={(_: any, date?: Date) =>
@@ -359,7 +366,6 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       if (key.toLowerCase() === "enter") finalize();
                     }}
                   />
-
                 </GridItem>
               </Grid>
             </CardBody>
