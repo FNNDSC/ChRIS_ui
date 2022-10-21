@@ -19,14 +19,8 @@ const printVersion =  preval(`
   }
 
   const diff = () => {
-    const diffChild = spawn('git', ['diff', '--quiet', 'src/'])
-    let exitCode = true; 
-    diffChild.on('exit', (code) => {
-      if (code === 1) {
-        exitCode = false; 
-      }
-    })
-    return (exitCode) ? "" : "-dirty";
+    const exitStatus = execSync("(git diff --exit-code --quiet &&  echo 0) || echo 1").toString().trim()
+    return (Number(exitStatus) == 0) ? "" : "-dirty";
   }
 
   const revParse = () => {
