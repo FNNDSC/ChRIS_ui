@@ -147,11 +147,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                     })
                   }}
                   checked={selectedPlugin?.data.id === plugin.data.id}
-                  isDisabled={
-                    selectedPlugin && selectedPlugin.data.id !== plugin.data.id
-                      ? true
-                      : false
-                  }
+                  
                 />
                 <DataListItemCells
                   dataListCells={[
