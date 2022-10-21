@@ -8,6 +8,51 @@
 @import '../../assets/scss/helpers/variables'; 
 $image-url:     '../../assets/images/';
 
+//login form empty username and password validation message
+#passwordError,#userNameError {
+    visibility: hidden; 
+    min-width: 250px; 
+    margin-left: 10%; 
+    background-color: rgb(129, 128, 128); 
+    color: #fff; 
+    text-align: center;
+    border-radius: 10px; 
+    padding: 5px; 
+    margin-bottom: 5px;
+    position: fixed; 
+    z-index: 1; 
+  }
+  #passwordError{
+    bottom:50%;
+  }
+  #userNameError{
+    bottom: 60%;
+  }
+
+  #userNameError.show {
+    visibility: visible; 
+    -webkit-animation: fadeinout 4s linear forwards;
+    animation: fadeinout 4s linear forwards;
+    opacity: 0;
+
+  }
+  #passwordError.show {
+    visibility: visible; 
+    -webkit-animation: fadeinout 4s linear forwards;
+    animation: fadeinout 4s linear forwards;
+    opacity: 0;
+
+  }
+  
+  @-webkit-keyframes fadeinout {
+    50% { opacity: 1; }
+  }
+  
+  @keyframes fadeinout {
+    50% { opacity: 1; }
+  }
+//end
+
 .login{
     // Replace background image here
     // This file takes background-image styles from 'assets/scss/components/_background-image.scss'
