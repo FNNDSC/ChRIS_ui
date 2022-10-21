@@ -1,4 +1,4 @@
-@import '../../../assets/scss/helpers/mixins.scss';
+@import "../../../assets/scss/helpers/mixins.scss";
 
 $imgViewerBackgroundColour: black;
 $textColor: white;
@@ -10,13 +10,15 @@ $iconfont-size-lg: 1.2rem;
 
 .dicom-header {
   z-index: 10;
-  padding-bottom: 0;
+  padding-bottom:0;
   background: rgba(0, 0, 0, $opacityLevel); //$imgViewerBackgroundColour;
   color: $textColor;
   display: flex;
   flex-wrap: nowrap;
   flex-direction: row;
   justify-content: center;
+
+
 
   .dicom-logo {
     position: absolute;

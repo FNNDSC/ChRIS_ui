@@ -1,9 +1,14 @@
 import React from 'react'
 import Moment from 'react-moment'
-import { Button, Toolbar, ToolbarItem, ToolbarContent } from '@patternfly/react-core'
+import {
+  Button,
+  Toolbar,
+  ToolbarItem,
+  ToolbarContent,
+} from '@patternfly/react-core'
+import ShareFeed from '../ShareFeed/ShareFeed'
 import { Popover } from 'antd'
 import { FaEdit } from 'react-icons/fa'
-import ShareFeed from '../ShareFeed/ShareFeed'
 
 import { useTypedSelector } from '../../../store/hooks'
 import './FeedDetails.scss'
@@ -56,7 +61,7 @@ const FeedDetails = () => {
   }
 
   const items = (
-    <>
+    <React.Fragment>
       <ToolbarItem spacer={spacer}>
         <span>{feed && feed.data.name}</span>
       </ToolbarItem>
@@ -68,7 +73,12 @@ const FeedDetails = () => {
       </ToolbarItem>
       <ToolbarItem spacer={spacer}>
         <span>
-          Created: <Moment format="DD MMM YYYY @ HH:mm">{feed && feed.data.creation_date}</Moment>
+          Created:{' '}
+          {
+            <Moment format="DD MMM YYYY @ HH:mm">
+              {feed && feed.data.creation_date}
+            </Moment>
+          }
         </span>
       </ToolbarItem>
       <div
@@ -103,7 +113,7 @@ const FeedDetails = () => {
           <ShareFeed feed={feed} />
         </ToolbarItem>
       </div>
-    </>
+    </React.Fragment>
   )
 
   if (feed) {
@@ -112,14 +122,11 @@ const FeedDetails = () => {
         <ToolbarContent>{items}</ToolbarContent>
       </Toolbar>
     )
-  }
-  if (loading) {
+  } else if (loading) {
     return <SpinContainer title="Fetching Details" />
-  }
-  if (error) {
+  } else if (error) {
     return <div>Error Found</div>
-  }
-  return null
+  } else return null
 }
 
 export default FeedDetails

@@ -7,16 +7,31 @@
  * @format
  */
 
-@import '../../assets/scss/helpers/mixins';
-@import '../../assets/scss/helpers/pf4-variables';
-@import '../../assets/scss/helpers/variables';
-@import 'antd/dist/antd.css';
+@import "../../assets/scss/helpers/mixins";
+@import "../../assets/scss/helpers/pf4-variables";
+@import "../../assets/scss/helpers/variables";
+@import "antd/dist/antd.css";
 
 .feed-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5em !important;
+
+  &__split {
+    display: flex;
+    justify-content: space-between;
+    //Responsive BreakPoint
+    @media (max-width: $pf-global--breakpoint--sm) {
+      flex-direction: column;
+      align-items: start;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+  }
+
+  .pf-c-title {
+    display: inline-block;
+    margin-top: 0.5rem;
+  }
 
   &__count {
     color: var(--pf-global--Color-200);
@@ -119,7 +134,9 @@
 }
 
 .pf-c-drawer__splitter {
-  background-color: var(--pf-c-page__main-section--m-dark-100--BackgroundColor) !important;
+  background-color: var(
+    --pf-c-page__main-section--m-dark-100--BackgroundColor
+  ) !important;
 
   &-handle::after {
     border-color: white !important;

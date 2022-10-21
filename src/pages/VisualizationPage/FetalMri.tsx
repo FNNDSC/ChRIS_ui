@@ -1,39 +1,39 @@
-import React from 'react'
-import { useDispatch } from 'react-redux'
-import Wrapper from '../Layout/PageWrapper'
-import { setSidebarActive } from '../../store/ui/actions'
+import React from "react";
+import Wrapper from "../Layout/PageWrapper";
+import { useDispatch } from "react-redux";
+import { setSidebarActive } from "../../store/ui/actions";
 
 const FetalMri = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   React.useEffect(() => {
-    document.title = 'FetalMri'
+    document.title = "FetalMri";
     dispatch(
       setSidebarActive({
-        activeItem: 'fetalmri',
+        activeItem: "fetalmri",
       })
-    )
-  }, [dispatch])
+    );
+  }, [dispatch]);
   return (
     <Wrapper>
       <div
         style={{
-          height: '100%',
-          width: '100%',
+          height: "100%",
+          width: "100%",
         }}
       >
         <iframe
           style={{
-            height: '100%',
-            width: '100%',
+            height: "100%",
+            width: "100%",
           }}
           allowFullScreen
           src="http://fetalmri.org"
           title="FetalMri"
-        />
+        ></iframe>
       </div>
     </Wrapper>
-  )
-}
+  );
+};
 
-export default FetalMri
+export default FetalMri;

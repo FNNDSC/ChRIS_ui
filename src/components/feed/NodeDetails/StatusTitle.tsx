@@ -1,9 +1,9 @@
 import React from 'react'
 
-import { AiFillCheckCircle, AiFillExclamationCircle } from 'react-icons/ai'
 import usePluginInstanceResource from './usePluginInstanceResource'
 import { SpinContainer } from '../../common/loading/LoadingContent'
 import { useTypedSelector } from '../../../store/hooks'
+import { AiFillCheckCircle, AiFillExclamationCircle } from 'react-icons/ai'
 
 const StatusTitle = () => {
   const pluginInstanceResource = usePluginInstanceResource()
@@ -14,10 +14,15 @@ const StatusTitle = () => {
         title: string
         icon: any
       }
-    | undefined
-  const pluginStatus = pluginInstanceResource && pluginInstanceResource.pluginStatus
+    | undefined = undefined
+  const pluginStatus =
+    pluginInstanceResource && pluginInstanceResource.pluginStatus
 
-  const finishedStatuses = ['finishedSuccessfully', 'finishedWithError', 'cancelled']
+  const finishedStatuses = [
+    'finishedSuccessfully',
+    'finishedWithError',
+    'cancelled',
+  ]
 
   if (pluginStatus) {
     statusTitle =
@@ -29,22 +34,19 @@ const StatusTitle = () => {
   if (statusTitle) {
     return (
       <>
-        <span>
-          <statusTitle.icon />
-        </span>
+        <span>{<statusTitle.icon />}</span>
         <span>{statusTitle.title} </span>{' '}
       </>
     )
-  }
-  return <SpinContainer title="Fetching plugin's execution status" />
+  } else return <SpinContainer title="Fetching plugin's execution status" />
 }
 
 export default React.memo(StatusTitle)
 
 export function getCurrentTitleFromStatus(statusLabels: any[]) {
-  const { length } = statusLabels
+  const length = statusLabels.length
   let title = statusLabels[length - 1].description
-  let { icon } = statusLabels[length - 1]
+  let icon = statusLabels[length - 1].icon
   statusLabels.forEach((label) => {
     if (label.process === true) {
       title = label.description

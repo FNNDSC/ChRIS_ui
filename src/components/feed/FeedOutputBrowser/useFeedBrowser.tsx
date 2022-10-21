@@ -1,12 +1,12 @@
 import React from 'react'
-import { useDispatch } from 'react-redux'
-import JSZip from 'jszip'
 import {
   clearSelectedFile,
   setExplorerMode,
   setSelectedFolder,
 } from '../../../store/explorer/actions'
 import { useTypedSelector } from '../../../store/hooks'
+import { useDispatch } from 'react-redux'
+import JSZip from 'jszip'
 import { getPluginFilesRequest } from '../../../store/resources/actions'
 import { ExplorerMode } from '../../../store/explorer/types'
 import FileViewerModel from '../../../api/models/file-viewer.model'
@@ -17,22 +17,29 @@ import { fetchResource } from '../../../utils'
 
 const status = ['finishedSuccessfully', 'finishedWithError', 'cancelled']
 
-const getInitialDownloadState = () => ({
-  count: 0,
-  status: false,
-  plugin_name: '',
-  error: '',
-  fetchingFiles: false,
-})
+const getInitialDownloadState = () => {
+  return {
+    count: 0,
+    status: false,
+    plugin_name: '',
+    error: '',
+    fetchingFiles: false,
+  }
+}
 
 export const useFeedBrowser = () => {
   const [download, setDownload] = React.useState(getInitialDownloadState)
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false)
   const pluginInstanceResource = usePluginInstanceResource()
-  const pluginStatus = pluginInstanceResource && pluginInstanceResource.pluginStatus
+  const pluginStatus =
+    pluginInstanceResource && pluginInstanceResource.pluginStatus
   const dispatch = useDispatch()
-  const pluginInstances = useTypedSelector((state) => state.instance.pluginInstances)
-  const { pluginFiles, loading: filesLoading } = useTypedSelector((state) => state.resource)
+  const pluginInstances = useTypedSelector(
+    (state) => state.instance.pluginInstances,
+  )
+  const { pluginFiles, loading: filesLoading } = useTypedSelector(
+    (state) => state.resource,
+  )
   const selected = useTypedSelector((state) => state.instance.selectedPlugin)
   const { data: plugins } = pluginInstances
 
@@ -40,14 +47,14 @@ export const useFeedBrowser = () => {
 
   let statusTitle:
     | {
-        title: string
-        icon: any
-      }
-    | undefined
+      title: string
+      icon: any
+    }
+    | undefined = undefined
   if (pluginStatus && selected) {
-    statusTitle = status.includes(selected.data.status)
-      ? getFinishedTitle(selected.data.status)
-      : getCurrentTitleFromStatus(pluginStatus)
+    statusTitle = status.includes(selected.data.status) ?
+      getFinishedTitle(selected.data.status) :
+      getCurrentTitleFromStatus(pluginStatus)
   }
 
   const downloadAllClick = async () => {
@@ -74,7 +81,9 @@ export const useFeedBrowser = () => {
       if (files.length > 0) {
         for (let i = 0; i < files.length; i++) {
           count += 1
-          const percentage = Math.round(Number(((count / files.length) * 100).toFixed(2)))
+          const percentage = Math.round(
+            Number(((count / files.length) * 100).toFixed(2)),
+          )
 
           setDownload({
             plugin_name: selected.data.plugin_name,
@@ -95,7 +104,8 @@ export const useFeedBrowser = () => {
         setDownload({
           ...download,
           status: false,
-          error: 'Files are not available for download yet. Please wait or try again later...',
+          error:
+            'Files are not available for download yet. Please wait or try again later...',
         })
       }
     }
@@ -107,17 +117,19 @@ export const useFeedBrowser = () => {
     if (!(pluginFilesPayload && pluginFilesPayload.files)) {
       if (selected && status.includes(selected.data.status)) {
         if (download.error) {
-          setDownload((state) => ({
-            ...state,
-            error: 'Files are ready for download now...',
-          }))
+          setDownload((state) => {
+            return {
+              ...state,
+              error: 'Files are ready for download now...',
+            }
+          })
         }
 
         dispatch(
           getPluginFilesRequest({
             id: selected.data.id,
             path: selected.data.output_path,
-          })
+          }),
         )
         if (download.error) {
           setTimeout(() => {
@@ -134,7 +146,7 @@ export const useFeedBrowser = () => {
         getPluginFilesRequest({
           id: selected.data.id,
           path,
-        })
+        }),
       )
     }
   }

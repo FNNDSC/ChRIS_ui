@@ -1,7 +1,9 @@
-import React, { useContext } from 'react'
-import { useDispatch } from 'react-redux'
-import { List, Avatar, Checkbox, Spin } from 'antd'
-import { isEmpty } from 'lodash'
+import React, { useContext } from "react";
+import { useDispatch } from "react-redux";
+import { Types, colorPalette } from "../CreateFeed/types";
+import { InputIndex } from "../AddNode/types";
+import { List, Avatar, Checkbox, Spin } from "antd";
+import { isEmpty } from "lodash";
 import {
   Grid,
   GridItem,
@@ -13,49 +15,56 @@ import {
   ExpandableSection,
   TextInput,
   Button,
-} from '@patternfly/react-core'
-import { Pipeline, PluginPiping } from '@fnndsc/chrisapi'
-import { MdCheck, MdEdit, MdClose } from 'react-icons/md'
-import ReactJson from 'react-json-view'
-import { Types, colorPalette } from '../CreateFeed/types'
-import { InputIndex } from '../AddNode/types'
-import { CreateFeedContext } from '../CreateFeed/context'
-import GuidedConfig from '../AddNode/GuidedConfig'
-import { getParamsSuccess } from '../../../store/plugin/actions'
-import { unpackParametersIntoString } from '../AddNode/lib/utils'
-import { generatePipelineWithData } from '../CreateFeed/utils/pipelines'
+} from "@patternfly/react-core";
+import { CreateFeedContext } from "../CreateFeed/context";
+import { Pipeline, PluginPiping } from "@fnndsc/chrisapi";
+import GuidedConfig from "../AddNode/GuidedConfig";
+import { getParamsSuccess } from "../../../store/plugin/actions";
+import { unpackParametersIntoString } from "../AddNode/lib/utils";
+import { MdCheck, MdEdit, MdClose } from "react-icons/md";
+import { generatePipelineWithData } from "../CreateFeed/utils/pipelines";
+import ReactJson from "react-json-view";
 
-const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipeline }) => {
-  const dispatchStore = useDispatch()
-  const [copied, setCopied] = React.useState(false)
-  const [value, setValue] = React.useState('')
-  const [isExpanded, setIsExpanded] = React.useState(false)
-  const { currentPipelineId, pipeline } = props
-  const { state, dispatch } = useContext(CreateFeedContext)
-  const { pipelines } = state
-  const { currentNode, computeEnvs, title, pluginPipings, input, pluginParameters } =
-    state.pipelineData[currentPipelineId]
+const ConfigurationPage = (props: {
+  currentPipelineId: number;
+  pipeline: Pipeline;
+}) => {
+  const dispatchStore = useDispatch();
+  const [copied, setCopied] = React.useState(false);
+  const [value, setValue] = React.useState("");
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const { currentPipelineId, pipeline } = props;
+  const { state, dispatch } = useContext(CreateFeedContext);
+  const pipelines = state.pipelines;
+  const {
+    currentNode,
+    computeEnvs,
+    title,
+    pluginPipings,
+    input,
+    pluginParameters,
+  } = state.pipelineData[currentPipelineId];
   const computeEnvList =
     computeEnvs && currentNode && computeEnvs[currentNode]
       ? computeEnvs[currentNode].computeEnvs
-      : []
-  const [selectedPlugin, setSelectedPlugin] = React.useState<PluginPiping>()
-  const [edit, setEdit] = React.useState(false)
+      : [];
+  const [selectedPlugin, setSelectedPlugin] = React.useState<PluginPiping>();
+  const [edit, setEdit] = React.useState(false);
   const [creatingPipeline, setCreatingPipeline] = React.useState({
     loading: false,
     error: {},
-    pipelineName: '',
-  })
-  let dropdownInput = {}
-  let requiredInput = {}
+    pipelineName: "",
+  });
+  let dropdownInput = {};
+  let requiredInput = {};
 
   const onToggle = (isExpanded: boolean) => {
-    setIsExpanded(isExpanded)
-  }
+    setIsExpanded(isExpanded);
+  };
 
   if (currentNode && input && input[currentNode]) {
-    dropdownInput = input[currentNode].dropdownInput
-    requiredInput = input[currentNode].requiredInput
+    dropdownInput = input[currentNode].dropdownInput;
+    requiredInput = input[currentNode].requiredInput;
   }
 
   const inputChange = React.useCallback(
@@ -69,16 +78,16 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
       required: boolean,
       paramName?: string
     ) => {
-      const input: InputIndex = {}
-      input.id = id
-      input.flag = flag
-      input.value = value
-      input.type = type
+      const input: InputIndex = {};
+      input["id"] = id;
+      input["flag"] = flag;
+      input["value"] = value;
+      input["type"] = type;
 
-      input.placeholder = placeholder
+      input["placeholder"] = placeholder;
 
       if (paramName) {
-        input.paramName = paramName
+        input["paramName"] = paramName;
       }
 
       if (required === true) {
@@ -90,7 +99,7 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
             id,
             input,
           },
-        })
+        });
       } else {
         dispatch({
           type: Types.SetPipelineDropdownInput,
@@ -100,87 +109,108 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
             id,
             input,
           },
-        })
+        });
       }
     },
     [currentNode, currentPipelineId, dispatch]
-  )
+  );
 
   React.useEffect(() => {
     async function fetchResources() {
       if (pluginPipings && currentNode && pluginParameters) {
-        const pluginPiping = pluginPipings.filter((piping) => piping.data.id === currentNode)
+        const pluginPiping = pluginPipings.filter((piping) => {
+          return piping.data.id === currentNode;
+        });
 
-        const selectedPlugin = await pluginPiping[0].getPlugin()
-        setSelectedPlugin(pluginPiping[0])
+        const selectedPlugin = await pluginPiping[0].getPlugin();
+        setSelectedPlugin(pluginPiping[0]);
 
         const params = await selectedPlugin.getPluginParameters({
           limit: 1000,
-        })
+        });
 
         const paramDict: {
-          [key: string]: string
-        } = {}
-        // @ts-ignore
+          [key: string]: string;
+        } = {};
+        //@ts-ignore
         pluginParameters.data
-          .filter((param: any) => param.plugin_piping_id === pluginPiping[0].data.id)
-          .forEach((param: any) => {
-            paramDict[param.param_name] = param
+          .filter((param: any) => {
+            return param.plugin_piping_id === pluginPiping[0].data.id;
           })
+          .forEach((param: any) => {
+            paramDict[param.param_name] = param;
+          });
 
-        const paramItems = params.getItems()
+        const paramItems = params.getItems();
 
         if (paramItems) {
-          const newParamDict: any[] = []
+          const newParamDict: any[] = [];
 
           paramItems.forEach((param: any) => {
             if (paramDict[param.data.name]) {
-              const defaultParam = paramDict[param.data.name]
-              // @ts-ignore
-              const newParam = { data: { ...param.data } }
-              // @ts-ignore
-              newParam.data.default = defaultParam.value
-              newParamDict.push(newParam)
+              const defaultParam = paramDict[param.data.name];
+              //@ts-ignore
+              const newParam = { data: { ...param.data } };
+              //@ts-ignore
+              newParam.data["default"] = defaultParam.value;
+              newParamDict.push(newParam);
 
               if (
                 param.data.optional === false &&
-                !(input && input[currentNode] && input[currentNode].requiredInput)
+                !(
+                  input &&
+                  input[currentNode] &&
+                  input[currentNode].requiredInput
+                )
               ) {
                 inputChange(
                   param.data.id,
                   param.data.flag,
-                  // @ts-ignore
+                  //@ts-ignore
                   defaultParam.value,
                   param.data.type,
                   param.data.help,
                   true,
                   param.data.name
-                )
-              } else if (
-                // @ts-ignore
-                defaultParam.value &&
-                !(input && input[currentNode] && input[currentNode].dropdownInput)
-              ) {
-                inputChange(
-                  param.data.id,
-                  param.data.flag,
-                  // @ts-ignore
-                  defaultParam.value,
-                  param.data.type,
-                  param.data.help,
-                  false,
-                  param.data.name
-                )
+                );
+              } else {
+                if (
+                  //@ts-ignore
+                  defaultParam.value &&
+                  !(
+                    input &&
+                    input[currentNode] &&
+                    input[currentNode].dropdownInput
+                  )
+                ) {
+                  inputChange(
+                    param.data.id,
+                    param.data.flag,
+                    //@ts-ignore
+                    defaultParam.value,
+                    param.data.type,
+                    param.data.help,
+                    false,
+                    param.data.name
+                  );
+                }
               }
             }
-          })
-          dispatchStore(getParamsSuccess(newParamDict))
+          });
+          dispatchStore(getParamsSuccess(newParamDict));
         }
       }
     }
 
-    fetchResources()
-  }, [currentNode, pluginPipings, dispatchStore, inputChange, pluginParameters, input])
+    fetchResources();
+  }, [
+    currentNode,
+    pluginPipings,
+    dispatchStore,
+    inputChange,
+    pluginParameters,
+    input,
+  ]);
 
   const deleteInput = (index: string) => {
     dispatch({
@@ -190,20 +220,20 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
         currentNodeId: currentNode,
         input: index,
       },
-    })
-  }
+    });
+  };
 
-  let generatedCommand = ''
+  let generatedCommand = "";
 
   if (!isEmpty(requiredInput)) {
-    generatedCommand += unpackParametersIntoString(requiredInput)
+    generatedCommand += unpackParametersIntoString(requiredInput);
   }
   if (!isEmpty(dropdownInput)) {
-    generatedCommand += unpackParametersIntoString(dropdownInput)
+    generatedCommand += unpackParametersIntoString(dropdownInput);
   }
 
   const actions = (
-    <>
+    <React.Fragment>
       <CodeBlockAction>
         <ClipboardCopyButton
           id="basic-copy-button"
@@ -214,19 +244,19 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
           maxWidth="110px"
           variant="plain"
         >
-          {copied ? 'Successfully copied to clipboard' : 'Copy to clipboard'}
+          {copied ? "Successfully copied to clipboard" : "Copy to clipboard"}
         </ClipboardCopyButton>
       </CodeBlockAction>
-    </>
-  )
+    </React.Fragment>
+  );
 
   const onClick = (event: any, text: any) => {
-    clipboardCopyFunc(event, text)
-    setCopied(true)
-  }
+    clipboardCopyFunc(event, text);
+    setCopied(true);
+  };
 
   const handleCorrectInput = () => {
-    setEdit(false)
+    setEdit(false);
     dispatch({
       type: Types.SetCurrentNodeTitle,
       payload: {
@@ -234,29 +264,31 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
         currentNode,
         title: value,
       },
-    })
-  }
+    });
+  };
 
   const handlePipelineCreate = async () => {
     setCreatingPipeline({
       ...creatingPipeline,
       loading: true,
-    })
-    const mappedArr: any[] = []
+    });
+    const mappedArr: any[] = [];
     try {
       pluginPipings?.forEach((piping) => {
         const defaults = pluginParameterDefaults(
-          // @ts-ignore
+          //@ts-ignore
           pluginParameters.data,
           piping.data.id,
           input
-        )
+        );
 
-        const id = pluginPipings.findIndex((pipe) => pipe.data.id === piping.data.previous_id)
+        const id = pluginPipings.findIndex(
+          (pipe) => pipe.data.id === piping.data.previous_id
+        );
 
-        let titleChange = ''
+        let titleChange = "";
         if (title && title[piping.data.id]) {
-          titleChange = title[piping.data.id]
+          titleChange = title[piping.data.id];
         }
 
         const treeObl = {
@@ -265,9 +297,9 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
           previous_index: id === -1 ? null : id,
           title: titleChange,
           plugin_parameter_defaults: defaults,
-        }
-        mappedArr.push(treeObl)
-      })
+        };
+        mappedArr.push(treeObl);
+      });
 
       const result = {
         name: `${creatingPipeline.pipelineName}`,
@@ -275,50 +307,50 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
         locked: pipeline.data.locked,
         description: pipeline.data.description,
         plugin_tree: JSON.stringify(mappedArr),
-      }
+      };
 
-      const { pipelineInstance } = await generatePipelineWithData(result)
+      const { pipelineInstance } = await generatePipelineWithData(result);
 
       setCreatingPipeline({
         ...creatingPipeline,
         loading: false,
-      })
+      });
       if (pipelineInstance) {
         dispatch({
           type: Types.SetPipelines,
           payload: {
             pipelines: [pipelineInstance, ...pipelines],
           },
-        })
+        });
       }
     } catch (error: any) {
       setCreatingPipeline({
         ...creatingPipeline,
         error: error.response.data,
         loading: false,
-      })
+      });
     }
-  }
+  };
 
   const iconFontSize = {
-    fontSize: '1.25rem',
-  }
+    fontSize: "1.25rem",
+  };
   return (
     <>
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
+          display: "flex",
+          alignItems: "center",
         }}
       >
         <TextInput
           aria-label="Configure Title"
           style={{
-            margin: '1rem 0.5rem 0 0',
-            width: '30%',
+            margin: "1rem 0.5rem 0 0",
+            width: "30%",
           }}
           type="text"
-          placeholder={edit ? 'Add a title to the node' : ''}
+          placeholder={edit ? "Add a title to the node" : ""}
           isReadOnly={!edit}
           value={
             edit
@@ -332,11 +364,11 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
                 } (id:${currentNode})`
           }
           onChange={(value) => {
-            setValue(value)
+            setValue(value);
           }}
           onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              handleCorrectInput()
+            if (event.key === "Enter") {
+              handleCorrectInput();
             }
           }}
         />
@@ -345,10 +377,10 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
           <MdEdit
             style={{
               ...iconFontSize,
-              color: '#06c',
+              color: "#06c",
             }}
             onClick={() => {
-              setEdit(true)
+              setEdit(true);
             }}
           />
         )}
@@ -356,19 +388,19 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
           <>
             <MdCheck
               style={{
-                marginRight: '0.5rem',
-                color: '#3e8635',
+                marginRight: "0.5rem",
+                color: "#3e8635",
                 ...iconFontSize,
               }}
               onClick={handleCorrectInput}
             />
             <MdClose
               onClick={() => {
-                setEdit(false)
+                setEdit(false);
               }}
               style={{
                 ...iconFontSize,
-                color: '#c9190b',
+                color: "#c9190b",
               }}
             />
           </>
@@ -376,20 +408,20 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
       </div>
       <div
         style={{
-          display: 'flex',
-          margin: '1rem 0.5rem 0.5rem 0',
+          display: "flex",
+          margin: "1rem 0.5rem 0.5rem 0",
         }}
       >
         <TextInput
           style={{
-            marginRight: '1rem',
-            width: '30%',
+            marginRight: "1rem",
+            width: "30%",
           }}
           aria-label="Name for the edited pipeline"
           placeholder="Enter a name for the pipeline"
           value={creatingPipeline.pipelineName}
           onKeyDown={(event) => {
-            event.key === 'Enter' && handlePipelineCreate()
+            event.key === "Enter" && handlePipelineCreate();
           }}
           onChange={(value) =>
             setCreatingPipeline({
@@ -399,7 +431,10 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
             })
           }
         />
-        <Button isDisabled={!!creatingPipeline.loading} onClick={handlePipelineCreate}>
+        <Button
+          isDisabled={creatingPipeline.loading ? true : false}
+          onClick={handlePipelineCreate}
+        >
           Save Pipeline
         </Button>
 
@@ -418,10 +453,14 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
 
       <ExpandableSection
         isExpanded={isExpanded}
-        toggleText={isExpanded ? 'Hide Advanced Configuration' : 'Show Advanced Configuration'}
+        toggleText={
+          isExpanded
+            ? "Hide Advanced Configuration"
+            : "Show Advanced Configuration"
+        }
         onToggle={onToggle}
       >
-        <Grid hasGutter>
+        <Grid hasGutter={true}>
           <GridItem span={6}>
             {selectedPlugin && (
               <GuidedConfig
@@ -437,7 +476,7 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
             <h4>Configure Compute Environment</h4>
             <List
               itemLayout="horizontal"
-              dataSource={computeEnvList || []}
+              dataSource={computeEnvList ? computeEnvList : []}
               renderItem={(item: { name: string; description: string }) => (
                 <List.Item>
                   <List.Item.Meta
@@ -445,15 +484,16 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
                       <>
                         <Checkbox
                           style={{
-                            marginRight: '0.5em',
+                            marginRight: "0.5em",
                           }}
                           checked={
-                            !!(
-                              currentNode &&
-                              computeEnvs &&
-                              computeEnvs[currentNode] &&
-                              computeEnvs[currentNode].currentlySelected === item.name
-                            )
+                            currentNode &&
+                            computeEnvs &&
+                            computeEnvs[currentNode] &&
+                            computeEnvs[currentNode].currentlySelected ===
+                              item.name
+                              ? true
+                              : false
                           }
                           onClick={() => {
                             dispatch({
@@ -466,7 +506,7 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
                                   computeEnvList,
                                 },
                               },
-                            })
+                            });
                           }}
                         />
 
@@ -475,7 +515,7 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
                             background: `${
                               colorPalette[item.name]
                                 ? colorPalette[item.name]
-                                : colorPalette.default
+                                : colorPalette["default"]
                             }`,
                           }}
                         />
@@ -491,45 +531,45 @@ const ConfigurationPage = (props: { currentPipelineId: number; pipeline: Pipelin
         </Grid>
       </ExpandableSection>
     </>
-  )
-}
+  );
+};
 
-export default ConfigurationPage
+export default ConfigurationPage;
 
 const pluginParameterDefaults = (parameters: any[], id: number, input: any) => {
-  const currentInput = input[id]
+  const currentInput = input[id];
 
-  const defaults = []
+  const defaults = [];
 
   if (currentInput) {
-    let totalInput = {}
+    let totalInput = {};
 
     if (currentInput.dropdownInput) {
-      totalInput = { ...totalInput, ...currentInput.dropdownInput }
+      totalInput = { ...totalInput, ...currentInput.dropdownInput };
     }
     if (currentInput.requiredInput) {
-      totalInput = { ...totalInput, ...currentInput.requiredInput }
+      totalInput = { ...totalInput, ...currentInput.requiredInput };
     }
 
     for (const input in totalInput) {
-      // @ts-ignore
-      const parameter = totalInput[input]
+      //@ts-ignore
+      const parameter = totalInput[input];
       defaults.push({
         name: parameter.paramName,
         default: parameter.value,
-      })
+      });
     }
   } else {
     for (let i = 0; i < parameters.length; i++) {
-      const parameter = parameters[i]
+      const parameter = parameters[i];
       if (parameter.plugin_piping_id === id) {
         defaults.push({
           name: parameter.param_name,
           default: parameter.value,
-        })
+        });
       }
     }
   }
 
-  return defaults
-}
+  return defaults;
+};

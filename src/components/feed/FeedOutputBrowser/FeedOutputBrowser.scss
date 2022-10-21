@@ -1,6 +1,6 @@
-@import '../../../assets/scss/helpers/pf4-variables';
-@import '../../../assets/scss/helpers/variables';
-@import '../../../assets/scss/helpers/mixins';
+@import "../../../assets/scss/helpers/pf4-variables";
+@import "../../../assets/scss/helpers/variables";
+@import "../../../assets/scss/helpers/mixins";
 
 .feed-output-browser {
   height: 100%;
@@ -50,7 +50,9 @@
       border-radius: 5px;
       outline: none;
       font-size: 1em !important;
-      font-family: var(--pf-global--FontFamily--redhatfont--sans-serif) !important;
+      font-family: var(
+        --pf-global--FontFamily--redhatfont--sans-serif
+      ) !important;
     }
 
     &--isPreviewing {
@@ -159,3 +161,5 @@
     height: 100% !important;
   }
 }
+
+

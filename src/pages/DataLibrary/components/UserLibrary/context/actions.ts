@@ -105,7 +105,11 @@ export const setFolders = (folders: any[], path: string, type: string) => {
   }
 }
 
-export const setSearchedFolders = (folders: any[], path: string, type: string) => {
+export const setSearchedFolders = (
+  folders: any[],
+  path: string,
+  type: string,
+) => {
   return {
     type: Types.SET_SEARCHED_FOLDERS,
     payload: {
@@ -116,7 +120,11 @@ export const setSearchedFolders = (folders: any[], path: string, type: string) =
   }
 }
 
-export const setCurrentSearchFolder = (folders: any[], path: string, type: string) => {
+export const setCurrentSearchFolder = (
+  folders: any[],
+  path: string,
+  type: string,
+) => {
   return {
     type: Types.SET_CURRENT_SEARCH_FOLDERS,
     payload: {
@@ -136,7 +144,11 @@ export const setDeleteFile = (file: FileSelect) => {
   }
 }
 
-export const setCurrentSearchFiles = (files: any[], path: string, type: string) => {
+export const setCurrentSearchFiles = (
+  files: any[],
+  path: string,
+  type: string,
+) => {
   return {
     type: Types.SET_CURRENT_SEARCH_FILES,
     payload: {

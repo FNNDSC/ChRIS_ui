@@ -20,7 +20,7 @@ const FsmFileSelect = (props: FsmFileSelectProps) => {
       className="fsm-file-list"
     >
       {files.map((file) => {
-        const { id } = file.data
+        const id = file.data.id
         return (
           <SimpleListItem key={id} x-file={file}>
             {file.data.fname}

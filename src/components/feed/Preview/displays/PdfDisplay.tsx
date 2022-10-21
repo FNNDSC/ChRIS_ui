@@ -1,15 +1,17 @@
-import React from 'react'
+import React from "react";
 
-import { IFileBlob } from '../../../../api/models/file-viewer.model'
+import { IFileBlob } from "../../../../api/models/file-viewer.model";
 
 type AllProps = {
-  fileItem: IFileBlob
-}
+  fileItem: IFileBlob;
+};
 
 const PdfDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
-  const url = fileItem.blob
-    ? window.URL.createObjectURL(new Blob([fileItem.blob], { type: 'application/pdf' }))
-    : ''
+  const url = !!fileItem.blob
+    ? window.URL.createObjectURL(
+        new Blob([fileItem.blob], { type: "application/pdf" })
+      )
+    : "";
   return (
     <div className="iframe-container">
       <iframe
@@ -20,7 +22,7 @@ const PdfDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
         title="Gallery"
       />
     </div>
-  )
-}
+  );
+};
 
-export default PdfDisplay
+export default PdfDisplay;

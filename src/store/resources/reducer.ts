@@ -34,8 +34,18 @@ const reducer: Reducer<IResourceState> = (state = initialState, action) => {
     }
 
     case ResourceTypes.GET_PLUGIN_INSTANCE_RESOURCE_SUCCESS: {
-      const { id, pluginStatus, pluginLog, pluginDetails, previousStatus } = action.payload
-      const pluginStatusLabels = getStatusLabels(pluginStatus, pluginDetails, previousStatus)
+      const {
+        id,
+        pluginStatus,
+        pluginLog,
+        pluginDetails,
+        previousStatus,
+      } = action.payload
+      const pluginStatusLabels = getStatusLabels(
+        pluginStatus,
+        pluginDetails,
+        previousStatus,
+      )
 
       return {
         ...state,
@@ -59,11 +69,11 @@ const reducer: Reducer<IResourceState> = (state = initialState, action) => {
           [id]: {
             files,
             folders,
-            error: '',
+            error: "",
             path,
           },
         },
-      }
+      };
     }
 
     case ResourceTypes.GET_PLUGIN_FILES_ERROR: {

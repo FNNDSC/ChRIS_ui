@@ -1,5 +1,5 @@
-import React from 'react'
-import { useDispatch } from 'react-redux'
+import React from "react";
+import { useDispatch } from "react-redux";
 import {
   Button,
   Modal,
@@ -11,86 +11,98 @@ import {
   Alert,
   Divider,
   Pagination,
-} from '@patternfly/react-core'
-import { MdOutlineAddCircle } from 'react-icons/md'
-import { Spin } from 'antd'
-import { useTypedSelector } from '../../../store/hooks'
-import ChrisAPIClient from '../../../api/chrisapiclient'
-import { getSelectedPlugin, getPluginInstancesSuccess } from '../../../store/pluginInstance/actions'
-import { getPluginInstanceStatusRequest } from '../../../store/resources/actions'
-import { fetchResources } from '../CreateFeed/utils/pipelines'
-
+} from "@patternfly/react-core";
+import { MdOutlineAddCircle } from "react-icons/md";
+import { useTypedSelector } from "../../../store/hooks";
+import ChrisAPIClient from "../../../api/chrisapiclient";
+import {
+  getSelectedPlugin,
+  getPluginInstancesSuccess,
+} from "../../../store/pluginInstance/actions";
+import { getPluginInstanceStatusRequest } from "../../../store/resources/actions";
+import { fetchResources } from "../CreateFeed/utils/pipelines";
+import { Spin } from "antd";
 const AddPipeline = () => {
-  const dispatch = useDispatch()
-  const { selectedPlugin } = useTypedSelector((state) => state.instance)
-  const [isModalOpen, setIsModalOpen] = React.useState(false)
-  const [selectedPipeline, setSelectedPipeline] = React.useState<any>()
-  const [creatingPipeline, setCreatingPipeline] = React.useState(false)
-  const [errorString, setErrorString] = React.useState('')
+  const dispatch = useDispatch();
+  const { selectedPlugin } = useTypedSelector(
+    (state) => state.instance
+  );
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [selectedPipeline, setSelectedPipeline] = React.useState<any>();
+  const [creatingPipeline, setCreatingPipeline] = React.useState(false);
+  const [errorString, setErrorString] = React.useState("");
 
   const handleToggle = () => {
-    setCreatingPipeline(false)
-    setSelectedPipeline(undefined)
-    setErrorString('')
-    setIsModalOpen(!isModalOpen)
-  }
+    setCreatingPipeline(false);
+    setSelectedPipeline(undefined);
+    setErrorString("");
+    setIsModalOpen(!isModalOpen);
+  };
 
   const addPipeline = async () => {
     if (selectedPlugin && selectedPipeline) {
-      setCreatingPipeline(true)
-      const resources = await fetchResources(selectedPipeline)
-      const { pluginPipings, parameters: pluginParameters, pipelinePlugins } = resources
+      setCreatingPipeline(true);
+      const resources = await fetchResources(selectedPipeline);
+      const {
+        pluginPipings,
+        parameters: pluginParameters,
+        pipelinePlugins,
+      } = resources;
 
       if (pluginPipings && pluginParameters && pipelinePlugins) {
-        const client = ChrisAPIClient.getClient()
+        const client = ChrisAPIClient.getClient();
         const nodes_info = client.computeWorkflowNodesInfo(
-          // @ts-ignore
+          //@ts-ignore
           pluginParameters.data
-        )
+        );
         await client.createWorkflow(selectedPipeline.data.id, {
           previous_plugin_inst_id: selectedPlugin.data.id,
           nodes_info: JSON.stringify(nodes_info),
-        })
+        });
 
         const data = await selectedPlugin.getDescendantPluginInstances({
           limit: 1000,
-        })
+        });
 
         if (data.getItems()) {
-          const instanceList = data.getItems()
-          const firstInstance = instanceList && instanceList[0]
-          dispatch(getSelectedPlugin(firstInstance))
+          const instanceList = data.getItems();
+          const firstInstance = instanceList && instanceList[0];
+          dispatch(getSelectedPlugin(firstInstance));
           if (instanceList) {
             const pluginInstanceObj = {
               selected: firstInstance,
               pluginInstances: instanceList,
-            }
+            };
             dispatch(getPluginInstancesSuccess(pluginInstanceObj)),
-              dispatch(getPluginInstanceStatusRequest(pluginInstanceObj))
+              dispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
           }
         }
-        handleToggle()
+        handleToggle();
       }
     }
-  }
+  };
 
   const handleSelectPipeline = (pipeline: any) => {
-    setErrorString('')
+    setErrorString("");
     if (selectedPipeline && pipeline.data.id === selectedPipeline.data.id) {
-      setSelectedPipeline(undefined)
+      setSelectedPipeline(undefined);
     } else {
-      setSelectedPipeline(pipeline)
+      setSelectedPipeline(pipeline);
     }
-  }
+  };
 
   return (
-    <>
-      <Button icon={<MdOutlineAddCircle />} onClick={handleToggle} type="button">
+    <React.Fragment>
+      <Button
+        icon={<MdOutlineAddCircle />}
+        onClick={handleToggle}
+        type="button"
+      >
         Add a Pipeline
       </Button>
       <Modal
         style={{
-          height: '100%',
+          height: "100%",
         }}
         variant="medium"
         aria-label="My Pipeline Modal"
@@ -119,69 +131,78 @@ const AddPipeline = () => {
         {creatingPipeline && (
           <>
             <Spin />
-            <span style={{ marginLeft: '0.5em' }}>Adding the pipeline to the selected node</span>
+            <span style={{ marginLeft: "0.5em" }}>
+              Adding the pipeline to the selected node
+            </span>
           </>
         )}
-        {errorString && <Alert variant="danger" isInline isPlain title={errorString} />}
+        {errorString && (
+          <Alert variant="danger" isInline isPlain title={errorString} />
+        )}
       </Modal>
-    </>
-  )
-}
+    </React.Fragment>
+  );
+};
 
-export default AddPipeline
+export default AddPipeline;
 
 interface PipelineListProps {
-  addPipeline: () => void
-  handleSelectPipeline: (pipeline: any) => void
-  selectedPipeline?: any
+  addPipeline: () => void;
+  handleSelectPipeline: (pipeline: any) => void;
+  selectedPipeline?: any;
 }
 
-const PipelineList = ({ selectedPipeline, handleSelectPipeline }: PipelineListProps) => {
-  const [pipelines, setPipelines] = React.useState<any[]>([])
-  const [loading, setLoading] = React.useState(false)
+const PipelineList = ({
+  selectedPipeline,
+  handleSelectPipeline,
+}: PipelineListProps) => {
+  const [pipelines, setPipelines] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(false);
   const [filterState, setFilterState] = React.useState({
     perPage: 10,
     currentPage: 1,
     itemCount: 0,
-  })
+  });
 
-  const { itemCount, perPage, currentPage } = filterState
+  const { itemCount, perPage, currentPage } = filterState;
 
   React.useEffect(() => {
     async function fetchPipelines() {
-      const client = ChrisAPIClient.getClient()
+      const client = ChrisAPIClient.getClient();
       const params = {
         limit: perPage,
         offset: perPage * (currentPage - 1),
-      }
-      setLoading(true)
-      const registeredPipelinesList = await client.getPipelines(params)
-      const registeredPipelines = registeredPipelinesList.getItems()
+      };
+      setLoading(true);
+      const registeredPipelinesList = await client.getPipelines(params);
+      const registeredPipelines = registeredPipelinesList.getItems();
 
       if (registeredPipelines) {
-        setPipelines(registeredPipelines)
+        setPipelines(registeredPipelines);
       }
-      setFilterState((state) => ({
-        ...state,
-        itemCount: registeredPipelinesList.totalCount,
-      }))
-      setLoading(false)
+      setFilterState((state) => {
+        return {
+          ...state,
+          itemCount: registeredPipelinesList.totalCount,
+        };
+      });
+      setLoading(false);
     }
 
-    fetchPipelines()
-  }, [perPage, currentPage])
+    fetchPipelines();
+  }, [perPage, currentPage]);
   const handlePageSet = (_e: any, currentPage: number) => {
     setFilterState({
       ...filterState,
       currentPage,
-    })
-  }
+    });
+  };
   const handlePerPageSet = (_e: any, perPage: number) => {
     setFilterState({
       ...filterState,
       perPage,
-    })
-  }
+    });
+  };
 
   return (
     <>
@@ -198,12 +219,12 @@ const PipelineList = ({ selectedPipeline, handleSelectPipeline }: PipelineListPr
       {loading ? (
         <div
           style={{
-            margin: '20px 0',
-            marginBottom: '20px',
-            padding: '30px 50px',
-            textAlign: 'center',
-            background: 'rgba(0, 0, 0, 0.05)',
-            borderRadius: '4px',
+            margin: "20px 0",
+            marginBottom: "20px",
+            padding: "30px 50px",
+            textAlign: "center",
+            background: "rgba(0, 0, 0, 0.05)",
+            borderRadius: "4px",
           }}
         >
           <Spin />
@@ -214,17 +235,21 @@ const PipelineList = ({ selectedPipeline, handleSelectPipeline }: PipelineListPr
             <React.Fragment key={pipeline.data.id}>
               <div
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  marginTop: '1.25em',
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginTop: "1.25em",
                 }}
                 key={pipeline.data.id}
               >
                 <ListItem>{pipeline.data.name}</ListItem>
-                <Button onClick={() => handleSelectPipeline(pipeline)} variant="primary">
-                  {selectedPipeline && selectedPipeline.data.id === pipeline.data.id
-                    ? 'De-Select'
-                    : 'Select'}
+                <Button
+                  onClick={() => handleSelectPipeline(pipeline)}
+                  variant="primary"
+                >
+                  {selectedPipeline &&
+                  selectedPipeline.data.id === pipeline.data.id
+                    ? "De-Select"
+                    : "Select"}
                 </Button>
               </div>
               <Divider component="li" />
@@ -233,5 +258,5 @@ const PipelineList = ({ selectedPipeline, handleSelectPipeline }: PipelineListPr
         </List>
       )}
     </>
-  )
-}
+  );
+};

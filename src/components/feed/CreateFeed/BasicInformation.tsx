@@ -1,29 +1,30 @@
-import React, { useState, useEffect, useContext } from 'react'
-import { Form, FormGroup, TextInput, TextArea } from '@patternfly/react-core'
-import { Typeahead } from 'react-bootstrap-typeahead'
-import { Tag } from '@fnndsc/chrisapi'
-import { CreateFeedContext } from './context'
-import { Types } from './types'
-import { fetchTagList } from './utils/basicInformation'
+import React, { useState, useEffect, useContext } from "react";
+import { Form, FormGroup, TextInput, TextArea } from "@patternfly/react-core";
+import { Typeahead } from "react-bootstrap-typeahead";
+import { CreateFeedContext } from "./context";
+import { Tag } from "@fnndsc/chrisapi";
+import { Types } from "./types";
+import { fetchTagList } from "./utils/basicInformation";
 
 const BasicInformation: React.FC = () => {
-  const { state, dispatch } = useContext(CreateFeedContext)
-  const { feedName, feedDescription, tags } = state.data
-  const [availableTagsLoaded, setAvailableTagsLoaded] = useState<boolean>(false)
-  const [availableTags, setAvailableTags] = useState<Tag[]>([])
+  const { state, dispatch } = useContext(CreateFeedContext);
+  const { feedName, feedDescription, tags } = state.data;
+  const [availableTagsLoaded, setAvailableTagsLoaded] =
+    useState<boolean>(false);
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
 
   useEffect(() => {
-    let mounted = true
+    let mounted = true;
     fetchTagList().then((tags: Tag[]) => {
       if (mounted) {
-        setAvailableTagsLoaded(true)
-        setAvailableTags(tags)
+        setAvailableTagsLoaded(true);
+        setAvailableTags(tags);
       }
-    })
+    });
     return () => {
-      mounted = false
-    }
-  }, [])
+      mounted = false;
+    };
+  }, []);
 
   return (
     <Form className="pf-u-w-75 basic-information">
@@ -43,7 +44,7 @@ const BasicInformation: React.FC = () => {
               payload: {
                 value,
               },
-            })
+            });
           }}
           maxLength={100}
         />
@@ -62,7 +63,7 @@ const BasicInformation: React.FC = () => {
               payload: {
                 value,
               },
-            })
+            });
           }}
         />
       </FormGroup>
@@ -70,26 +71,28 @@ const BasicInformation: React.FC = () => {
       <FormGroup label="Tags" fieldId="tags">
         <Typeahead
           id="tags"
-          placeholder={availableTagsLoaded ? 'Choose a tag...' : 'Loading tags...'}
+          placeholder={
+            availableTagsLoaded ? "Choose a tag..." : "Loading tags..."
+          }
           multiple
           options={availableTags}
-          // @ts-ignore
+          //@ts-ignore
           onChange={(tags: Tag[]) => {
             dispatch({
               type: Types.TagsChange,
               payload: {
                 tags,
               },
-            })
+            });
           }}
           selected={tags}
-          // @ts-ignore
+          //@ts-ignore
           labelKey={(tag: Tag) => tag.data.name}
-          emptyLabel={availableTagsLoaded ? 'No tags found' : 'Loading tags...'}
+          emptyLabel={availableTagsLoaded ? "No tags found" : "Loading tags..."}
         />
       </FormGroup>
     </Form>
-  )
-}
+  );
+};
 
-export default BasicInformation
+export default BasicInformation;

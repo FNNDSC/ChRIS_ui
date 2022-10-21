@@ -1,33 +1,38 @@
-import React, { useContext } from 'react'
-import { Button, Wizard, WizardFooter, WizardContextConsumer } from '@patternfly/react-core'
-import { connect } from 'react-redux'
-import { Dispatch } from 'redux'
-import { Feed } from '@fnndsc/chrisapi'
-import { CreateFeedContext } from './context'
-import { Types, CreateFeedReduxProp } from './types'
-import BasicInformation from './BasicInformation'
-import ChrisFileSelect from './ChrisFileSelect'
-import LocalFileUpload from './LocalFileUpload'
-import ChooseConfig from './ChooseConfig'
-import DataPacks from './DataPacks'
-import GuidedConfig from '../AddNode/GuidedConfig'
-import Review from './Review'
-import Pipelines from './Pipelines'
-import FinishedStep from './FinishedStep'
-import withSelectionAlert from './SelectionAlert'
-import { addFeed } from '../../../store/feed/actions'
-import { createFeed, getName } from './utils/createFeed'
-import { MainRouterContext } from '../../../routes'
-import { ApplicationState } from '../../../store/root/applicationState'
-import { InputIndex } from '../AddNode/types'
-import './createfeed.scss'
+import React, { useContext } from "react";
+import {
+  Button,
+  Wizard,
+  WizardFooter,
+  WizardContextConsumer,
+} from "@patternfly/react-core";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
+import { Feed } from "@fnndsc/chrisapi";
+import { CreateFeedContext } from "./context";
+import { Types, CreateFeedReduxProp } from "./types";
+import BasicInformation from "./BasicInformation";
+import ChrisFileSelect from "./ChrisFileSelect";
+import LocalFileUpload from "./LocalFileUpload";
+import ChooseConfig from "./ChooseConfig";
+import DataPacks from "./DataPacks";
+import GuidedConfig from "../AddNode/GuidedConfig";
+import Review from "./Review";
+import Pipelines from "./Pipelines";
+import FinishedStep from "./FinishedStep";
+import withSelectionAlert from "./SelectionAlert";
+import { addFeed } from "../../../store/feed/actions";
+import { createFeed, getName } from "./utils/createFeed";
+import { MainRouterContext } from "../../../routes";
+import { ApplicationState } from "../../../store/root/applicationState";
+import { InputIndex } from "../AddNode/types";
+import "./createfeed.scss";
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
   addFeed,
 }: CreateFeedReduxProp) => {
-  const { state, dispatch } = useContext(CreateFeedContext)
-  const routerContext = useContext(MainRouterContext)
+  const { state, dispatch } = useContext(CreateFeedContext);
+  const routerContext = useContext(MainRouterContext);
 
   const {
     wizardOpen,
@@ -40,28 +45,29 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     computeEnvironment,
     selectedPipeline,
     pipelineData,
-  } = state
+  } = state;
 
-  const enableSave = !!(
+  const enableSave =
     data.chrisFiles.length > 0 ||
     data.localFiles.length > 0 ||
     Object.keys(requiredInput).length > 0 ||
     Object.keys(dropdownInput).length > 0 ||
     selectedPlugin !== undefined
-  )
+      ? true
+      : false;
 
   const getStepName = (): string => {
     const stepNames = [
-      'basic-information',
-      'choose-config',
-      'chris-file-select',
-      'local-file-upload',
-      'data-packs',
-      'guidedConfig',
-      'review',
-    ]
-    return stepNames[step - 1]
-  }
+      "basic-information",
+      "choose-config",
+      "chris-file-select",
+      "local-file-upload",
+      "data-packs",
+      "guidedConfig",
+      "review",
+    ];
+    return stepNames[step - 1];
+  };
 
   const deleteInput = (index: string) => {
     dispatch({
@@ -69,8 +75,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       payload: {
         input: index,
       },
-    })
-  }
+    });
+  };
 
   const setComputeEnvironment = React.useCallback(
     (computeEnvironment: string) => {
@@ -79,10 +85,10 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         payload: {
           computeEnvironment,
         },
-      })
+      });
     },
     [dispatch]
-  )
+  );
 
   const inputChange = (
     id: string,
@@ -92,12 +98,12 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     placeholder: string,
     required: boolean
   ) => {
-    const input: InputIndex = {}
-    input.id = id
-    input.flag = flag
-    input.value = value
-    input.type = type
-    input.placeholder = placeholder
+    const input: InputIndex = {};
+    input["id"] = id;
+    input["flag"] = flag;
+    input["value"] = value;
+    input["type"] = type;
+    input["placeholder"] = placeholder;
     if (required === true) {
       dispatch({
         type: Types.RequiredInput,
@@ -105,7 +111,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           id,
           input,
         },
-      })
+      });
     } else {
       dispatch({
         type: Types.DropdownInput,
@@ -113,9 +119,9 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           id,
           input,
         },
-      })
+      });
     }
-  }
+  };
 
   const getCreationStatus = (status: string) => {
     dispatch({
@@ -123,20 +129,20 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       payload: {
         feedProgress: status,
       },
-    })
-  }
+    });
+  };
   const getCreationError = (error: any) => {
     dispatch({
       type: Types.SetError,
       payload: {
         feedError: error.response.data,
       },
-    })
-  }
+    });
+  };
 
   const handleSave = async () => {
     // Set the progress to 'Started'
-    const username = user && user.username
+    const username = user && user.username;
     try {
       const feed = await createFeed(
         state.data,
@@ -148,52 +154,54 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         getCreationStatus,
         getCreationError,
         selectedPipeline
-      )
+      );
 
       if (!feed) {
-        console.error(state.feedError)
-        throw new Error('New feed is undefined. Giving up.')
+        console.error(state.feedError);
+        throw new Error("New feed is undefined. Giving up.");
       }
 
       // Set feed name
       await feed.put({
         name: state.data.feedName,
-      })
+      });
 
       // Set feed tags
       for (const tag of state.data.tags) {
-        feed.tagFeed(tag.data.id)
+        feed.tagFeed(tag.data.id);
       }
 
       // Set feed description
-      const note = await feed.getNote()
+      const note = await feed.getNote();
       await note.put({
-        title: 'Description',
+        title: "Description",
         content: state.data.feedDescription,
-      })
+      });
 
-      addFeed && addFeed(feed)
+      addFeed && addFeed(feed);
     } catch (error) {
-      throw new Error(`${error}`)
+      throw new Error(`${error}`);
     } finally {
-      routerContext.actions.clearFeedData()
+      routerContext.actions.clearFeedData();
       dispatch({
         type: Types.SetProgress,
         payload: {
-          feedProgress: 'Configuration Complete',
+          feedProgress: "Configuration Complete",
         },
-      })
+      });
     }
-  }
+  };
 
-  const basicInformation = <BasicInformation />
-  const chooseConfig = <ChooseConfig />
-  const chrisFileSelect = user && user.username && <ChrisFileSelect username={user.username} />
-  const localFileUpload = <LocalFileUpload />
-  const packs = <DataPacks />
+  const basicInformation = <BasicInformation />;
+  const chooseConfig = <ChooseConfig />;
+  const chrisFileSelect = user && user.username && (
+    <ChrisFileSelect username={user.username} />
+  );
+  const localFileUpload = <LocalFileUpload />;
+  const packs = <DataPacks />;
   const guidedConfig = (
     <GuidedConfig
-      renderComputeEnv
+      renderComputeEnv={true}
       inputChange={inputChange}
       deleteInput={deleteInput}
       plugin={selectedPlugin}
@@ -202,84 +210,83 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       selectedComputeEnv={computeEnvironment}
       setComputeEnviroment={setComputeEnvironment}
     />
-  )
-  const pipelines = <Pipelines />
-  const review = <Review />
+  );
+  const pipelines = <Pipelines />;
+  const review = <Review />;
 
-  const finishedStep = <FinishedStep />
+  const finishedStep = <FinishedStep />;
 
   const getFeedSynthesisStep = () => {
-    if (selectedConfig === 'fs_plugin')
+    if (selectedConfig === "fs_plugin")
       return [
         {
           id: 3,
-          name: 'Select an FS Plugin',
+          name: "Select an FS Plugin",
           component: withSelectionAlert(packs, false),
           enableNext: selectedPlugin !== undefined,
           canJumpTo: step > 3,
         },
         {
           id: 4,
-          name: 'Parameter Configuration',
+          name: "Parameter Configuration",
           component: withSelectionAlert(guidedConfig),
           canJumpTo: step > 4,
         },
-      ]
-    if (selectedConfig === 'swift_storage') {
+      ];
+    else if (selectedConfig === "swift_storage") {
       return [
         {
           id: 3,
-          name: 'ChRIS File Select',
+          name: "ChRIS File Select",
           component: chrisFileSelect,
           canJumpTo: step > 3,
         },
-      ]
-    }
-    if (selectedConfig === 'local_select') {
+      ];
+    } else if (selectedConfig === "local_select") {
       return [
         {
           id: 3,
-          name: 'Local File Upload',
+          name: "Local File Upload",
           component: localFileUpload,
           canJumpTo: step > 3,
         },
-      ]
+      ];
     }
-  }
+  };
 
   const steps = data.isDataSelected
     ? [
         {
           id: 1,
-          name: 'Basic Information',
+          name: "Basic Information",
           component: withSelectionAlert(basicInformation),
           enableNext: !!data.feedName,
           canJumpTo: step > 1,
         },
         {
           id: 2,
-          name: 'Feed Type Selection',
+          name: "Feed Type Selection",
           component: withSelectionAlert(chooseConfig),
           enableNext: selectedConfig.length > 0,
           canJumpTo: step > 2,
         },
         {
           id: 5,
-          name: 'Pipelines',
+          name: "Pipelines",
           component: pipelines,
           canJumpTp: step > 5,
         },
         {
           id: 6,
-          name: 'Review',
+          name: "Review",
           component: review,
           enableNext: enableSave,
-          nextButtonText: 'Create Feed',
+          nextButtonText: "Create Feed",
           canJumpTo: step > 6,
         },
         {
           id: 7,
-          name: 'Finish',
+          name: "Finish",
           component: finishedStep,
           canJumpTo: step > 7,
         },
@@ -287,14 +294,14 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     : [
         {
           id: 1,
-          name: 'Basic Information',
+          name: "Basic Information",
           component: withSelectionAlert(basicInformation),
           enableNext: !!data.feedName,
           canJumpTo: step > 1,
         },
         {
           id: 2,
-          name: 'Feed Type Selection',
+          name: "Feed Type Selection",
           component: withSelectionAlert(chooseConfig),
           enableNext: selectedConfig.length > 0,
           canJumpTo: step > 2,
@@ -306,51 +313,61 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         },
         {
           id: 5,
-          name: 'Pipelines',
+          name: "Pipelines",
           enableNext: true,
           component: pipelines,
-          nextButtonText: 'Review',
+          nextButtonText: "Review",
           canJumpTo: step > 5,
         },
         {
           id: 6,
-          name: 'Review',
+          name: "Review",
           component: withSelectionAlert(review, false),
           enableNext: enableSave,
-          nextButtonText: 'Create Feed',
+          nextButtonText: "Create Feed",
           canJumpTo: step > 6,
         },
         {
           id: 7,
-          name: 'Finish',
+          name: "Finish",
           component: withSelectionAlert(finishedStep, false),
           canJumpTo: step > 7,
         },
-      ]
+      ];
 
   const CustomFooter = (
     <WizardFooter>
       <WizardContextConsumer>
-        {({ activeStep, onNext, onBack }: { activeStep: any; onNext: any; onBack: any }) => {
-          if (activeStep.name !== 'Finish') {
+        {({
+          activeStep,
+          onNext,
+          onBack,
+        }: {
+          activeStep: any;
+          onNext: any;
+          onBack: any;
+        }) => {
+          if (activeStep.name !== "Finish") {
             return (
               <>
                 <Button
-                  style={{ margin: '0.5em', padding: '0.5em 2em' }}
+                  style={{ margin: "0.5em", padding: "0.5em 2em" }}
                   variant="primary"
                   type="submit"
                   onClick={() => {
                     if (activeStep.id === 6) {
-                      handleSave()
+                      handleSave();
                     }
-                    onNext()
+                    onNext();
                   }}
-                  isDisabled={activeStep.enableNext === false}
+                  isDisabled={activeStep.enableNext === false ? true : false}
                 >
-                  {activeStep.nextButtonText ? activeStep.nextButtonText : 'Next'}
+                  {activeStep.nextButtonText
+                    ? activeStep.nextButtonText
+                    : "Next"}
                 </Button>
                 <Button
-                  style={{ margin: '0.5em', padding: '0.5em 2em' }}
+                  style={{ margin: "0.5em", padding: "0.5em 2em" }}
                   variant="secondary"
                   isDisabled={activeStep.id === 1}
                   onClick={onBack}
@@ -358,12 +375,12 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
                   Back
                 </Button>
               </>
-            )
+            );
           }
         }}
       </WizardContextConsumer>
     </WizardFooter>
-  )
+  );
 
   return (
     <div className="create-feed">
@@ -374,7 +391,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         onClick={() => {
           dispatch({
             type: Types.ToggleWizzard,
-          })
+          });
         }}
       >
         Create New Analysis
@@ -385,14 +402,14 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           isOpen={wizardOpen}
           onClose={() => {
             // clear global feed base data, so wizard will be blank on next open
-            routerContext.actions.clearFeedData()
+            routerContext.actions.clearFeedData();
             if (wizardOpen)
               dispatch({
                 type: Types.ResetState,
-              })
+              });
             dispatch({
               type: Types.ToggleWizzard,
-            })
+            });
           }}
           title="Create a New Analysis"
           description="This wizard allows you to create a new Analysis and choose some data to process"
@@ -403,14 +420,16 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         />
       )}
     </div>
-  )
-}
+  );
+};
 
 const mapStateToProps = (state: ApplicationState) => ({
   user: state.user,
-})
+});
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   addFeed: (feed: Feed) => dispatch(addFeed(feed)),
-})
+});
 
-export const CreateFeed = React.memo(connect(mapStateToProps, mapDispatchToProps)(_CreateFeed))
+export const CreateFeed = React.memo(
+  connect(mapStateToProps, mapDispatchToProps)(_CreateFeed)
+);

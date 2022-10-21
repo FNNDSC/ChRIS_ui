@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { Plugin } from '@fnndsc/chrisapi'
+import { Types } from './types'
+import { CreateFeedContext } from './context'
 import { Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import {
@@ -11,16 +13,15 @@ import {
   DataListItemRow,
   Pagination,
   ToolbarItem,
+} from '@patternfly/react-core'
+import {
   Button,
   ButtonVariant,
   InputGroup,
   TextInput,
 } from '@patternfly/react-core'
-
 import { FaSearch } from 'react-icons/fa'
 import debounce from 'lodash/debounce'
-import { CreateFeedContext } from './context'
-import { Types } from './types'
 
 import { getParams } from '../../../store/plugin/actions'
 import { getPlugins } from './utils/dataPacks'
@@ -32,12 +33,14 @@ interface FilterProps {
   itemCount: number
 }
 
-const getFilterState = () => ({
-  perPage: 3,
-  currentPage: 1,
-  filter: '',
-  itemCount: 0,
-})
+const getFilterState = () => {
+  return {
+    perPage: 3,
+    currentPage: 1,
+    filter: '',
+    itemCount: 0,
+  }
+}
 
 interface DataPacksReduxProp {
   getParams: (plugin: Plugin) => void
@@ -51,15 +54,17 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
   const { perPage, currentPage, filter, itemCount } = filterState
 
   useEffect(() => {
-    getPlugins(filter, perPage, perPage * (currentPage - 1), 'fs').then((pluginDetails) => {
-      if (pluginDetails.plugins) {
-        setfsPlugins(pluginDetails.plugins)
-        setFilterState((filterState) => ({
-          ...filterState,
-          itemCount: pluginDetails.totalCount,
-        }))
-      }
-    })
+    getPlugins(filter, perPage, perPage * (currentPage - 1), 'fs').then(
+      (pluginDetails) => {
+        if (pluginDetails.plugins) {
+          setfsPlugins(pluginDetails.plugins)
+          setFilterState((filterState) => ({
+            ...filterState,
+            itemCount: pluginDetails.totalCount,
+          }))
+        }
+      },
+    )
   }, [filter, perPage, currentPage, selectedPlugin])
 
   // only update filter every half-second, to avoid too many requests
@@ -100,7 +105,10 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
               placeholder="Search by name..."
               onChange={handleFilterChange}
             />
-            <Button variant={ButtonVariant.control} aria-label="search button for the plugin">
+            <Button
+              variant={ButtonVariant.control}
+              aria-label="search button for the plugin"
+            >
               <FaSearch />
             </Button>
           </InputGroup>
@@ -119,7 +127,9 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
       <DataList aria-label="FS Plugins">
         {fsPlugins.map((plugin, index) => {
           const { title, name } = plugin.data
-          const pluginName = `${title || `${name} v.${plugin.data.version}`}`
+          const pluginName = `${
+            title ? title:`${name} v.${plugin.data.version}`
+          }`
           return (
             <DataListItem key={index} aria-labelledby="plugin-checkbox">
               <DataListItemRow>
@@ -137,13 +147,20 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                     })
                   }}
                   checked={selectedPlugin?.data.id === plugin.data.id}
-                  isDisabled={!!(selectedPlugin && selectedPlugin.data.id !== plugin.data.id)}
+                  isDisabled={
+                    selectedPlugin && selectedPlugin.data.id !== plugin.data.id
+                      ? true
+                      : false
+                  }
                 />
                 <DataListItemCells
                   dataListCells={[
                     <DataListCell key={index}>
                       <div className="plugin-table-row" key={index}>
-                        <span className="plugin-table-row__plugin-name" id={pluginName}>
+                        <span
+                          className="plugin-table-row__plugin-name"
+                          id={pluginName}
+                        >
                           {pluginName}
                         </span>
                         <span
@@ -155,7 +172,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                       </div>
                     </DataListCell>,
                   ]}
-                />
+                ></DataListItemCells>
               </DataListItemRow>
             </DataListItem>
           )

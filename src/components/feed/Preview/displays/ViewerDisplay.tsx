@@ -1,5 +1,5 @@
-import * as React from 'react'
-import { IFileBlob } from '../../../../api/models/file-viewer.model'
+import * as React from "react";
+import { IFileBlob } from "../../../../api/models/file-viewer.model";
 import {
   CatchallDisplay,
   JsonDisplay,
@@ -9,7 +9,7 @@ import {
   PdfDisplay,
   NiftiDisplay,
   XtkDisplay,
-} from './index'
+} from "./index";
 
 const components = {
   JsonDisplay,
@@ -20,16 +20,18 @@ const components = {
   PdfDisplay,
   NiftiDisplay,
   XtkDisplay,
-}
+};
 
 interface ViewerDisplayProps {
-  viewerName: string
-  fileItem: IFileBlob
+  viewerName: string;
+  fileItem: IFileBlob;
 }
 
-const ViewerDisplay: React.FC<ViewerDisplayProps> = (props: ViewerDisplayProps) => {
-  const Component = (components as any)[props.viewerName || 'CatchallDisplay']
-  return <Component {...props} />
-}
+const ViewerDisplay: React.FC<ViewerDisplayProps> = (
+  props: ViewerDisplayProps
+) => {
+  const Component = (components as any)[props.viewerName || "CatchallDisplay"];
+  return <Component {...props} />;
+};
 
-export default ViewerDisplay
+export default ViewerDisplay;

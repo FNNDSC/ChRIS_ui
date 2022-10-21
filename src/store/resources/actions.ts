@@ -1,5 +1,9 @@
 import { action } from 'typesafe-actions'
-import { ResourceTypes, PluginInstanceObj, DestroyActiveResources } from './types'
+import {
+  ResourceTypes,
+  PluginInstanceObj,
+  DestroyActiveResources,
+} from './types'
 import { PluginInstance } from '@fnndsc/chrisapi'
 
 export const getPluginInstanceResources = (pluginInstances: PluginInstance[]) =>
@@ -32,4 +36,5 @@ export const getPluginFilesError = (payload: { id: number; error: any }) =>
 export const resetActiveResources = (data: DestroyActiveResources) =>
   action(ResourceTypes.RESET_ACTIVE_RESOURCES, data)
 
-export const setCurrentUrl = (url: string) => action(ResourceTypes.SET_CURRENT_URL, url)
+export const setCurrentUrl = (url: string) =>
+  action(ResourceTypes.SET_CURRENT_URL, url)

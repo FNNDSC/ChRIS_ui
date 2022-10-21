@@ -10,9 +10,10 @@
 
 .pf-background {
   &:after {
-    background: transparent url('#{$image-url}#{$chris-background-image}') no-repeat top center;
+    background: transparent url("#{$image-url}#{$chris-background-image}")
+      no-repeat top center;
     background-size: cover;
-    content: '';
+    content: "";
     height: 100%;
     left: 0;
     position: fixed;
@@ -23,21 +24,21 @@
     // filter: url("#{$image-url}#{$chris-background-filter}"); //$chris-background-filter
     @media (max-width: $pf-global--breakpoint--sm) and (-webkit-min-device-pixel-ratio: 2),
       (max-width: $pf-global--breakpoint--sm) and (min-resolution: 192dpi) {
-      background-image: url('#{$image-url}#{$chris-background-image-2x}'); //xs2x
+      background-image: url("#{$image-url}#{$chris-background-image-2x}"); //xs2x
     }
     // small screens: 576px - 992px
     @media (min-width: $pf-global--breakpoint--sm) {
-      background-image: url('#{$image-url}#{$chris-background-image-sm}'); //BackgroundImage--sm
+      background-image: url("#{$image-url}#{$chris-background-image-sm}"); //BackgroundImage--sm
     }
 
     @media (min-width: $pf-global--breakpoint--sm) and (-webkit-min-device-pixel-ratio: 2),
       (min-width: $pf-global--breakpoint--sm) and (min-resolution: 192dpi) {
-      background-image: url('#{$image-url}#{$chris-background-image-sm-2x}'); //sm2x
+      background-image: url("#{$image-url}#{$chris-background-image-sm-2x}"); //sm2x
     }
 
     // large screens: 992px and up
     @media (min-width: $pf-global--breakpoint--lg) {
-      background-image: url('#{$image-url}#{$chris-background-image-lg}'); //-BackgroundImage--lg
+      background-image: url("#{$image-url}#{$chris-background-image-lg}"); //-BackgroundImage--lg
     }
   }
 }

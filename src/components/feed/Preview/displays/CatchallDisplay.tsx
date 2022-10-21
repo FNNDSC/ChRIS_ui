@@ -1,20 +1,23 @@
-import * as React from 'react'
-import { FaDownload } from 'react-icons/fa'
-import { Alert, Button } from '@patternfly/react-core'
-import FileViewerModel, { IFileBlob } from '../../../../api/models/file-viewer.model'
-
+import * as React from "react";
+import { FaDownload } from "react-icons/fa";
+import { Alert, Button } from "@patternfly/react-core";
+import FileViewerModel, {
+  IFileBlob,
+} from "../../../../api/models/file-viewer.model";
 type AllProps = {
-  fileItem: IFileBlob
-}
+  fileItem: IFileBlob;
+};
 
-const CatchallDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
+const CatchallDisplay: React.FunctionComponent<AllProps> = (
+  props: AllProps
+) => {
   const noPreviewMessage = () => {
-    const { fileItem } = props
-    const ext = fileItem.fileType ? fileItem.fileType : ''
+    const { fileItem } = props;
+    const ext = fileItem.fileType ? fileItem.fileType : "";
     const alertText = (
-      <>
-        <label />
-        <br />
+      <React.Fragment>
+        <label></label>
+        <br></br>
         <label>
           <b>File Type:</b> {ext}
         </label>
@@ -24,20 +27,23 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => 
           onClick={() =>
             fileItem.file &&
             fileItem.file.data.fname &&
-            FileViewerModel.downloadFile(fileItem.blob, fileItem.file.data.fname)
+            FileViewerModel.downloadFile(
+              fileItem.blob,
+              fileItem.file.data.fname
+            )
           }
         >
           <FaDownload /> Download
         </Button>
-      </>
-    )
+      </React.Fragment>
+    );
     return (
       <Alert variant="info" title={`No preview available for the filetype ${ext}`}>
         {alertText}
       </Alert>
-    )
-  }
-  return noPreviewMessage()
-}
+    );
+  };
+  return noPreviewMessage();
+};
 
-export default React.memo(CatchallDisplay)
+export default React.memo(CatchallDisplay);

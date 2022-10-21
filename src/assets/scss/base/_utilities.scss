@@ -13,6 +13,7 @@
   float: right;
 }
 
+
 // Accessibility additions
 // Hidden on md and below (768px;)
 // ----------------------------------------------
@@ -22,6 +23,7 @@
     display: none !important;
   }
 }
+
 
 // Full screen view
 // While in fullscreen, hide any children with class 'tohide'
@@ -52,14 +54,14 @@ div:fullscreen {
   }
 }
 
+
 // Inputs onfocus
 // ----------------------------------------------
 
-input:focus,
-textarea:focus,
-select:focus {
+input:focus, textarea:focus, select:focus{
   outline: none !important;
 }
+
 
 // Custom Scrollbar
 // ----------------------------------------------

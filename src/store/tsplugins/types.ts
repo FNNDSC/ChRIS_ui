@@ -1,9 +1,9 @@
-import { PluginInstance } from '@fnndsc/chrisapi'
-import keyMirror from 'keymirror'
+import { PluginInstance } from "@fnndsc/chrisapi";
+import keyMirror from "keymirror";
 
 export interface ITSPluginState {
-  tsNodes?: PluginInstance[]
-  treeMode: boolean
+  tsNodes?: PluginInstance[];
+  treeMode: boolean;
 }
 
 export const TSPluginTypes = keyMirror({
@@ -13,4 +13,4 @@ export const TSPluginTypes = keyMirror({
   DELETE_TS_NODE: null,
   SET_LAYOUT: null,
   RESET_TS_NODES: null,
-})
+});

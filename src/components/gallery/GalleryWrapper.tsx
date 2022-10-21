@@ -36,7 +36,11 @@ const GalleryWrapper: React.FC<AllProps> = ({
   // Description: handle full screen open and close
   const isFullScreen = () => {
     const elem = document as any
-    return !(!elem.webkitIsFullScreen && !elem.mozFullScreen && !elem.msFullscreenElement)
+    return !(
+      !elem.webkitIsFullScreen &&
+      !elem.mozFullScreen &&
+      !elem.msFullscreenElement
+    )
   }
 
   // Description: triggers toolbar functionality - Group gallery actions
@@ -66,7 +70,7 @@ const GalleryWrapper: React.FC<AllProps> = ({
     },
   }
 
-  return children ? (
+  return !!children ? (
     <div id="gallery" className="gallery-wrapper">
       {children}
       <GalleryToolbar

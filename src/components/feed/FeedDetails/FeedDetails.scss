@@ -1,6 +1,6 @@
-@import '../../../assets/scss/helpers/variables';
-@import '../../../assets/scss/helpers/mixins';
-@import '../../../assets/scss/helpers/pf4-variables';
+@import "../../../assets/scss/helpers/variables";
+@import "../../../assets/scss/helpers/mixins";
+@import "../../../assets/scss/helpers/pf4-variables";
 
 /* Header */
 
@@ -11,11 +11,13 @@
 .feed-details {
   height: 100%;
   width: 100%;
-  --pf-c-toolbar--BackgroundColor: 'inherit' !important;
+  --pf-c-toolbar--BackgroundColor: "inherit" !important;
   &__textarea {
-    --pf-c-form-control--BackgroundColor: var(--pf-global--palette--black-1000) !important;
+    --pf-c-form-control--BackgroundColor: var(
+      --pf-global--palette--black-1000
+    ) !important;
     color: white !important;
-    font-family: 'monospace';
+    font-family: "monospace";
     height: 20em !important;
   }
 

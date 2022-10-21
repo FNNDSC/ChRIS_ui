@@ -11,17 +11,27 @@ import ChrisAPIClient from '../../../api/chrisapiclient'
 import { LoadingContent } from '../../common/loading/LoadingContent'
 import { PluginListProps, PluginSelectProps, PluginSelectState } from './types'
 
-const PluginList: React.FC<PluginListProps> = ({ plugins, selected, handlePluginSelect }) => {
+const PluginList: React.FC<PluginListProps> = ({
+  plugins,
+  selected,
+  handlePluginSelect,
+}) => {
   const [filter, setFilter] = useState('')
 
   const handleFilterChange = (filter: string) => setFilter(filter)
   const matchesFilter = useCallback(
-    (plugin: Plugin) => plugin.data.name.toLowerCase().trim().includes(filter.toLowerCase().trim()),
-    [filter]
+    (plugin: Plugin) =>
+      plugin.data.name
+        .toLowerCase()
+        .trim()
+        .includes(filter.toLowerCase().trim()),
+    [filter],
   )
   const loading = new Array(3)
     .fill(null)
-    .map((_, i) => <LoadingContent width="100%" height="35px" bottom="4px" key={i} />)
+    .map((_, i) => (
+      <LoadingContent width="100%" height="35px" bottom="4px" key={i} />
+    ))
 
   return (
     <ul className="plugin-list">
@@ -47,7 +57,9 @@ const PluginList: React.FC<PluginListProps> = ({ plugins, selected, handlePlugin
                 >
                   <span> {name}</span>
                   <span className="version">Version: {version}</span>
-                  <span className="description">Description: {description}</span>
+                  <span className="description">
+                    Description: {description}
+                  </span>
                 </li>
               )
             })
@@ -56,11 +68,20 @@ const PluginList: React.FC<PluginListProps> = ({ plugins, selected, handlePlugin
   )
 }
 
-const PluginSelect: React.FC<PluginSelectProps> = ({ selected, handlePluginSelect }) => {
+const PluginSelect: React.FC<PluginSelectProps> = ({
+  selected,
+  handlePluginSelect,
+}) => {
   const [isMounted, setMounted] = useState(false)
-  const [allPlugins, setAllPlugins] = useState<PluginSelectState['allPlugins']>([])
-  const [recentPlugins, setRecentPlugins] = useState<PluginSelectState['recentPlugins']>([])
-  const [expanded, setExpanded] = useState<PluginSelectState['expanded']>('all-toggle')
+  const [allPlugins, setAllPlugins] = useState<PluginSelectState['allPlugins']>(
+    [],
+  )
+  const [recentPlugins, setRecentPlugins] = useState<
+    PluginSelectState['recentPlugins']
+  >([])
+  const [expanded, setExpanded] = useState<PluginSelectState['expanded']>(
+    'all-toggle',
+  )
 
   const fetchAllPlugins = React.useCallback(async () => {
     const client = ChrisAPIClient.getClient()
@@ -105,18 +126,30 @@ const PluginSelect: React.FC<PluginSelectProps> = ({ selected, handlePluginSelec
           (pluginInst: PluginInstance, i, instances: PluginInstance[]) => {
             // dedeuplicate plugins
             const { plugin_id } = pluginInst.data
-            const inCurrentList = instances.find((p) => p.data.plugin_id === plugin_id)
+            const inCurrentList = instances.find(
+              (p) => p.data.plugin_id === plugin_id,
+            )
             const inTotalList = pluginIds.find((p) => p === plugin_id)
-            return !inTotalList && inCurrentList && instances.indexOf(inCurrentList) === i
-          }
+            return (
+              !inTotalList &&
+              inCurrentList &&
+              instances.indexOf(inCurrentList) === i
+            )
+          },
         )
-        const ids = pluginsInstances.map((pluginInst: PluginInstance) => pluginInst.data.plugin_id)
+        const ids = pluginsInstances.map(
+          (pluginInst: PluginInstance) => pluginInst.data.plugin_id,
+        )
         pluginIds.push(...ids)
         params.offset += params.limit
       }
     }
 
-    const plugins = await Promise.all(pluginIds.map((id) => client.getPlugin(id)))
+    const plugins = await Promise.all(
+      pluginIds.map((id) => {
+        return client.getPlugin(id)
+      }),
+    )
     if (isMounted) setRecentPlugins(plugins)
   }, [isMounted])
 
@@ -144,7 +177,10 @@ const PluginSelect: React.FC<PluginSelectProps> = ({ selected, handlePluginSelec
         >
           Recently Used Plugins
         </AccordionToggle>
-        <AccordionContent id="recent-content" isHidden={expanded !== 'recent-toggle'}>
+        <AccordionContent
+          id="recent-content"
+          isHidden={expanded !== 'recent-toggle'}
+        >
           <PluginList
             plugins={recentPlugins}
             selected={selected}

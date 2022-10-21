@@ -5,8 +5,8 @@ import * as cornerstoneTools from 'cornerstone-tools'
 import CornerstoneViewport from 'react-cornerstone-viewport'
 import Hammer from 'hammerjs'
 import * as cornerstoneNIFTIImageLoader from 'cornerstone-nifti-image-loader'
-import { Cookies } from 'react-cookie'
 import { IFileBlob } from '../../../../api/models/file-viewer.model'
+import { Cookies } from 'react-cookie'
 import { SpinContainer } from '../../../common/loading/LoadingContent'
 
 const cookie = new Cookies()
@@ -22,12 +22,12 @@ cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     'Content-Type': 'application/vnd.collection+json',
-    Authorization: `Token ${token}`,
+    Authorization: 'Token ' + token,
   },
   method: 'get',
   responseType: 'arrayBuffer',
 })
-const { ImageId } = cornerstoneNIFTIImageLoader.nifti
+const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId
 
 type AllProps = {
   fileItem: IFileBlob
@@ -47,13 +47,14 @@ const NiftiDisplay = (props: AllProps) => {
       cornerstone.loadAndCacheImage(imageIdObject.url).then(() => {
         const numberOfSlices = cornerstone.metaData.get(
           'multiFrameModule',
-          imageIdObject.url
+          imageIdObject.url,
         ).numberOfFrames
         imageIdArray.push(
           ...Array.from(
             Array(numberOfSlices),
-            (_, i) => `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
-          )
+            (_, i) =>
+              `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`,
+          ),
         )
         setImageIds(imageIdArray)
       })
@@ -61,7 +62,7 @@ const NiftiDisplay = (props: AllProps) => {
   }, [])
 
   React.useEffect(() => {
-    if (fileItem) {
+    if (!!fileItem) {
       initAmi(fileItem)
     }
   }, [fileItem, initAmi])
@@ -72,7 +73,7 @@ const NiftiDisplay = (props: AllProps) => {
           style={{ minWidth: '100%', height: '512px', flex: '1' }}
           imageIds={imageIds}
           frameRate={22}
-          activeTool="StackScrollMouseWheel"
+          activeTool={'StackScrollMouseWheel'}
           tools={[
             {
               name: 'StackScrollMouseWheel',

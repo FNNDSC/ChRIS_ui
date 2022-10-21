@@ -1,16 +1,17 @@
-import React from 'react'
+import React from "react";
+
 
 interface RouterContextProps<S, A = any> {
-  state: S
-  actions?: A
+  state: S;
+  actions?: A;
 }
 
-type RouterContextType<S, A = any> = React.Context<RouterObjectType<S, A>>
+type RouterContextType<S, A = any> = React.Context<RouterObjectType<S, A>>;
 type RouterObjectType<S, A = any> = {
-  state: S
-  actions: A
-  route: (path: string) => any
-}
+  state: S;
+  actions: A;
+  route: (path: string) => any;
+};
 
 export function RouterContext<S, A = any>({
   state,
@@ -20,19 +21,19 @@ export function RouterContext<S, A = any>({
     state,
     React.createContext<RouterObjectType<S, A>>({
       route: (path: string) => path,
-      actions: actions || ({} as A),
+      actions: actions ? actions : ({} as A),
       state,
     }),
-  ]
+  ];
 }
 
 interface RouterProviderProps<S = any, A = any> {
-  context: RouterContextType<S>
-  state: S
-  actions: A
-  route?: string
-  setRoute: (route?: string) => any
-  children: React.ReactNode
+  context: RouterContextType<S>;
+  state: S;
+  actions: A;
+  route?: string;
+  setRoute: (route?: string) => any;
+  children: React.ReactNode;
 }
 
 export function RouterProvider({
@@ -50,26 +51,28 @@ export function RouterProvider({
     route,
     setRoute,
     children,
-  }
-  return <RouterComponent propsElement={props} />
+  };
+  return <RouterComponent propsElement={props} />;
 }
 
 const RouterComponent = ({
   propsElement: { context, actions, state, children },
 }: {
-  propsElement: RouterProviderProps
-}) => (
-  <context.Provider
-    value={{
-      route: () => {
-        console.log('NEEDED')
-      },
-      state,
-      actions,
-    }}
-  >
-    {children}
-  </context.Provider>
-)
+  propsElement: RouterProviderProps;
+}) => {
+  return (
+    <context.Provider
+      value={{
+        route: () => {
+          console.log("NEEDED");
+        },
+        state,
+        actions,
+      }}
+    >
+      {children}
+    </context.Provider>
+  );
+};
 
-export default RouterContext
+export default RouterContext;

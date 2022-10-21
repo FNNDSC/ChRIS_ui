@@ -1,5 +1,12 @@
 import React, { useState } from 'react'
-import { TextInput, Form, FormGroup, Button, ActionGroup, Alert } from '@patternfly/react-core'
+import {
+  TextInput,
+  Form,
+  FormGroup,
+  Button,
+  ActionGroup,
+  Alert,
+} from '@patternfly/react-core'
 import { Spin } from 'antd'
 
 interface InputUserProps {
@@ -21,19 +28,24 @@ const InputUser: React.FC<InputUserProps> = ({
 }) => {
   const [value, setValue] = useState('')
 
-  const handleChange = (value: string, event: any) => {
+  const handleChange = (
+    value: string,
+    event: any,
+  ) => {
     event.preventDefault()
     setValue(value)
     cleanError()
   }
-  const handleSubmit = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const handleSubmit = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
     event.preventDefault()
     handleCreate(value)
   }
 
   const handleKeyDown = (event?: any) => {
     if (event.key === 'Enter' || event.keyCode === 13 || event.which === 13) {
-      handleCreate(value)
+      handleCreate(value);
     }
   }
 
@@ -52,7 +64,9 @@ const InputUser: React.FC<InputUserProps> = ({
 
         {error && <Alert variant="danger" title={error} />}
         {loading && <Spin>Sharing Feed...</Spin>}
-        {success && <Alert variant="success" title="Feed Shared Successfully" />}
+        {success && (
+          <Alert variant="success" title="Feed Shared Successfully" />
+        )}
         <ActionGroup>
           <Button onClick={handleSubmit}>Share Feed</Button>
           <Button onClick={() => handleModalClose()}>Cancel</Button>

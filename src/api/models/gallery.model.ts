@@ -1,15 +1,15 @@
-import { getFileExtension } from './file-explorer.model'
+import { getFileExtension } from "./file-explorer.model";
 
-import keyMirror from 'keymirror'
+import keyMirror from "keymirror";
 
 export interface IGalleryItem {
-  uiId: string
-  fileName: string
-  blob?: Blob
-  fileType?: string
-  isActive: boolean
-  index: number
-  error?: any
+  uiId: string;
+  fileName: string;
+  blob?: Blob;
+  fileType?: string;
+  isActive: boolean;
+  index: number;
+  error?: any;
 }
 
 // Description: Add all gallery related actions in this object
@@ -32,29 +32,29 @@ export const galleryActions = keyMirror({
   stackScroll: null,
   dicomHeader: null,
   reset: null,
-})
+});
 
 export default class GalleryModel {
   // Description: is this a dcm file
   static isValidDcmFile(filename: string): boolean {
     switch (getFileExtension(filename).toLowerCase()) {
-      case 'dcm':
-      case 'dic':
-      case 'dicom':
-      case 'png':
-      case 'jpg':
-      case 'jpeg':
-      case 'nii':
-      case 'gz':
-        return true
+      case "dcm":
+      case "dic":
+      case "dicom":
+      case "png":
+      case "jpg":
+      case "jpeg":
+      case "nii":
+      case "gz":
+        return true;
       default:
-        return false
+        return false;
     }
   }
   static isValidNiiFile(filename: string): boolean {
-    const ext = getFileExtension(filename).toLowerCase()
-    if (ext === 'nii' || ext === 'gz') {
-      return true
-    } else return false
+    const ext = getFileExtension(filename).toLowerCase();
+    if (ext === "nii" || ext === "gz") {
+      return true;
+    } else return false;
   }
 }

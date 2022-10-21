@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react'
+import { CreateFeedContext } from './context'
 import {
   Alert,
   AlertActionCloseButton,
@@ -9,11 +10,16 @@ import {
 import { EventDataNode, Key } from 'rc-tree/lib/interface'
 import { Tree } from 'antd'
 import { ErrorBoundary } from 'react-error-boundary'
-import { isEmpty } from 'lodash'
-import { Types, Info, DataBreadcrumb, ChrisFileSelectProp, CheckedKeys } from './types'
+import {
+  Types,
+  Info,
+  DataBreadcrumb,
+  ChrisFileSelectProp,
+  CheckedKeys,
+} from './types'
 import { generateTreeNodes, getNewTreeData } from './utils/fileSelect'
 import { FileList, ErrorMessage } from './helperComponents'
-import { CreateFeedContext } from './context'
+import { isEmpty } from 'lodash'
 
 const { DirectoryTree } = Tree
 
@@ -41,27 +47,32 @@ const cache: {
 }
 
 function setCacheTree(tree: DataBreadcrumb[]) {
-  cache.tree = tree
+  cache['tree'] = tree
 }
 
 function getCacheTree() {
-  return cache.tree
+  return cache['tree']
 }
 
 export function clearCache() {
-  cache.tree = []
+  cache['tree'] = []
 }
 
-const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }: ChrisFileSelectProp) => {
+const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
+  username,
+}: ChrisFileSelectProp) => {
   const { state, dispatch } = useContext(CreateFeedContext)
   const { chrisFiles, checkedKeys } = state.data
 
   const [tree, setTree] = useState<DataBreadcrumb[]>(
-    (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username)
+    (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username),
   )
   const [loadingError, setLoadingError] = useState<Error>()
 
-  const fetchKeysFromDict: Key[] = React.useMemo(() => getCheckedKeys(checkedKeys), [checkedKeys])
+  const fetchKeysFromDict: Key[] = React.useMemo(
+    () => getCheckedKeys(checkedKeys),
+    [checkedKeys],
+  )
 
   const onCheck = (checkedKeys: CheckedKeys, info: Info) => {
     if (info.node.breadcrumb) {
@@ -87,26 +98,26 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }: ChrisFileS
   }
 
   const onLoad = (treeNode: EventDataNode): Promise<void> => {
-    const { children } = treeNode
+    const { children } = treeNode;
 
     return new Promise((resolve) => {
       if (children) {
-        resolve()
-        return
+        resolve();
+        return;
       }
       generateTreeNodes(treeNode)
         .then((nodes) => {
-          const treeData = [...tree]
-          if (nodes.length > 0) getNewTreeData(treeData, treeNode.pos, nodes)
-          setTree(treeData)
-          setCacheTree(treeData)
-          resolve()
+          const treeData = [...tree];
+          if (nodes.length > 0) getNewTreeData(treeData, treeNode.pos, nodes);
+          setTree(treeData);
+          setCacheTree(treeData);
+          resolve();
         })
         .catch((err) => {
-          setLoadingError(err)
-          resolve()
-        })
-    })
+          setLoadingError(err);
+          resolve();
+        });
+    });
   }
 
   const fileList =
@@ -124,19 +135,22 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }: ChrisFileS
         <h1 className="pf-c-title pf-m-2xl">
           File Selection: File Select from internal ChRIS storage
         </h1>
-        <p>Navigate the internal ChRIS storage and select files/directories to create a feed</p>
+        <p>
+          Navigate the internal ChRIS storage and select files/directories to
+          create a feed
+        </p>
         <br />
-        <Grid hasGutter>
+        <Grid hasGutter={true}>
           <GridItem span={6} rowSpan={12}>
             <ErrorBoundary FallbackComponent={ErrorFallback}>
               <DirectoryTree
-                // @ts-ignore
+                //@ts-ignore
                 onCheck={onCheck}
-                // @ts-ignore
+                //@ts-ignore
                 loadData={onLoad}
                 checkedKeys={fetchKeysFromDict}
                 checkable
-                // @ts-ignore
+                //@ts-ignore
                 treeData={tree}
               />
             </ErrorBoundary>
@@ -147,11 +161,14 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({ username }: ChrisFileS
           </GridItem>
         </Grid>
         {loadingError && (
-          <LoadingErrorAlert error={loadingError} handleClose={() => setLoadingError(undefined)} />
+          <LoadingErrorAlert
+            error={loadingError}
+            handleClose={() => setLoadingError(undefined)}
+          />
         )}
       </div>
     </div>
-  )
+  );
 }
 
 export default ChrisFileSelect
@@ -175,14 +192,18 @@ interface LoadingErrorAlertProps {
   handleClose: () => void
 }
 
-const LoadingErrorAlert: React.FC<LoadingErrorAlertProps> = (props: LoadingErrorAlertProps) => {
+const LoadingErrorAlert: React.FC<LoadingErrorAlertProps> = (
+  props: LoadingErrorAlertProps,
+) => {
   const { error, handleClose } = props
   const [showDetails, setShowDetails] = useState(false)
 
   const closeButton = <AlertActionCloseButton onClose={() => handleClose()} />
   const detailsMessage = `${showDetails ? 'Hide' : 'Show'} details`
   const detailsButton = (
-    <AlertActionLink onClick={() => setShowDetails(!showDetails)}>{detailsMessage}</AlertActionLink>
+    <AlertActionLink onClick={() => setShowDetails(!showDetails)}>
+      {detailsMessage}
+    </AlertActionLink>
   )
 
   const title = (

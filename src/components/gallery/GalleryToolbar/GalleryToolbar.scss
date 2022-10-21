@@ -3,8 +3,8 @@
 *  Description:     This files holds styles specific for the file explorer Gallery Toolbar
 *  Author:          ChRIS UI
 */
-@import '../../../assets/scss/helpers/variables';
-@import '../../../assets/scss/helpers/mixins.scss';
+@import "../../../assets/scss/helpers/variables";
+@import "../../../assets/scss/helpers/mixins.scss";
 
 // $iconfont-size: 0.7rem;
 $iconfont-size-md: 0.6rem;
@@ -60,6 +60,6 @@ $iconfont-size-lg: 0.8rem;
 
 .pf-c-slider {
   width: 30% !important;
-  margin-left: 1rem;
-  margin-top: 0.25em;
+  margin-left:1rem;
+  margin-top:0.25em;
 }

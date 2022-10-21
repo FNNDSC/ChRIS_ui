@@ -15,7 +15,10 @@ export const initialState: IPluginInstanceState = {
   },
 }
 
-const reducer: Reducer<IPluginInstanceState> = (state = initialState, action) => {
+const reducer: Reducer<IPluginInstanceState> = (
+  state = initialState,
+  action,
+) => {
   switch (action.type) {
     case PluginInstanceTypes.GET_PLUGIN_INSTANCES_REQUEST: {
       return {
@@ -72,7 +75,7 @@ const reducer: Reducer<IPluginInstanceState> = (state = initialState, action) =>
       if (state.pluginInstances.data) {
         const instances = state.pluginInstances.data
         const foundIndex = instances.findIndex(
-          (instance) => instance.data.id === action.payload.data.id
+          (instance) => instance.data.id === action.payload.data.id,
         )
         cloneInstances = [...instances]
 
@@ -122,7 +125,10 @@ const reducer: Reducer<IPluginInstanceState> = (state = initialState, action) =>
     case PluginInstanceTypes.ADD_SPLIT_NODES_SUCCESS: {
       const pluginInstances = state.pluginInstances.data
       if (pluginInstances) {
-        const newList: PluginInstance[] = [...pluginInstances, ...action.payload]
+        const newList: PluginInstance[] = [
+          ...pluginInstances,
+          ...action.payload,
+        ]
         return {
           ...state,
           pluginInstances: {
@@ -139,13 +145,17 @@ const reducer: Reducer<IPluginInstanceState> = (state = initialState, action) =>
 
       const pluginInstances = state.pluginInstances.data
         ?.map((instance) => {
-          if (instance && (instance?.data?.id === id || instance?.data?.previous_id === id)) {
+          if (
+            instance &&
+            (instance?.data?.id === id || instance?.data?.previous_id === id)
+          ) {
             return undefined
           } else return instance
         })
         .filter((instance) => instance)
 
-      const selectedPlugin = pluginInstances && pluginInstances[pluginInstances.length - 1]
+      const selectedPlugin =
+        pluginInstances && pluginInstances[pluginInstances.length - 1]
 
       return {
         ...state,

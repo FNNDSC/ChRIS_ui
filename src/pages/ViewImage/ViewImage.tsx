@@ -1,27 +1,27 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
+import { setFilesForGallery } from '../../store/explorer/actions'
+import GalleryDicomView from '../../components/dicomViewer/GalleryDicomView'
+import DicomLoader from '../../components/dicomViewer/DcmLoader'
+import { useTypedSelector } from '../../store/hooks'
 import * as cornerstone from 'cornerstone-core'
 import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
 import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader'
 import * as cornerstoneNIFTIImageLoader from 'cornerstone-nifti-image-loader'
 import * as cornerstoneFileImageLoader from 'cornerstone-file-image-loader'
 import * as dicomParser from 'dicom-parser'
-import { useTypedSelector } from '../../store/hooks'
-import DicomLoader from '../../components/dicomViewer/DcmLoader'
-import GalleryDicomView from '../../components/dicomViewer/GalleryDicomView'
-import { setFilesForGallery } from '../../store/explorer/actions'
 import { isNifti, isDicom } from '../../components/dicomViewer/utils'
 import './ViewImage.scss'
 
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
     'Content-Type': 'application/vnd.collection+json',
-    Authorization: `Token ${window.sessionStorage.getItem('CHRIS_TOKEN')}`,
+    Authorization: 'Token ' + window.sessionStorage.getItem('CHRIS_TOKEN'),
   },
   method: 'get',
   responseType: 'arrayBuffer',
 })
-const { ImageId } = cornerstoneNIFTIImageLoader.nifti
+const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId
 
 cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
 cornerstoneFileImageLoader.external.cornerstone = cornerstone
@@ -48,26 +48,31 @@ const GalleryPage = () => {
 
           const numberOfSlices = cornerstone.metaData.get(
             'multiFrameModule',
-            imageIdObject.url
+            imageIdObject.url,
           ).numberOfFrames
 
           imageIds.push(
             ...Array.from(
               Array(numberOfSlices),
-              (_, i) => `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
-            )
+              (_, i) =>
+                `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`,
+            ),
           )
         } else if (isDicom(file.name)) {
-          imageIds.push(cornerstoneWADOImageLoader.wadouri.fileManager.add(file))
+          imageIds.push(
+            cornerstoneWADOImageLoader.wadouri.fileManager.add(file),
+          )
         } else {
           imageIds.push(cornerstoneFileImageLoader.fileManager.add(file))
         }
 
-        setLoader((state) => ({
-          ...state,
-          filesParsed: i + 1,
-          totalFiles: files.length,
-        }))
+        setLoader((state) => {
+          return {
+            ...state,
+            filesParsed: i + 1,
+            totalFiles: files.length,
+          }
+        })
       }
 
       dispatch(setFilesForGallery(imageIds))
@@ -83,7 +88,10 @@ const GalleryPage = () => {
       {loader.filesParsed === loader.totalFiles ? (
         <GalleryDicomView type="visualization" />
       ) : (
-        <DicomLoader totalFiles={loader.totalFiles} filesParsed={loader.filesParsed} />
+        <DicomLoader
+          totalFiles={loader.totalFiles}
+          filesParsed={loader.filesParsed}
+        />
       )}
     </div>
   )

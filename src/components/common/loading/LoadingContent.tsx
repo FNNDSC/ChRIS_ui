@@ -22,8 +22,8 @@ export const LoadingContent = ({
   right,
 }: LoadingContentProps): React.ReactElement => {
   const computedStyle = {
-    width,
-    height,
+    width: width,
+    height: height,
     marginTop: top,
     marginLeft: left,
     marginBottom: bottom,
@@ -48,13 +48,15 @@ export const SpinContainer = ({
 }: {
   title: string
   background?: string
-}) => (
-  <div
-    style={{
-      background,
-    }}
-    className="example"
-  >
-    <Spin tip={title} />
-  </div>
-)
+}) => {
+  return (
+    <div
+      style={{
+        background,
+      }}
+      className="example"
+    >
+      <Spin tip={title} />
+    </div>
+  )
+}

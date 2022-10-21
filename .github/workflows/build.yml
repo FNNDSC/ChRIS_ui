@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches: [master]
+    branches: [ master ]
 
 jobs:
   build:
@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: "0" # necessary for `npm run print-version`
+          fetch-depth: "0"  # necessary for `npm run print-version`
       - name: Get info
         id: info
         run: |

@@ -1,61 +1,74 @@
-import React from 'react'
-import { TextArea, ExpandableSection, Title, Checkbox } from '@patternfly/react-core'
-import { connect } from 'react-redux'
-import { MdError } from 'react-icons/md'
-import { ApplicationState } from '../../../store/root/applicationState'
-import { EditorState, EditorProps } from './types'
-import { unpackParametersIntoString } from './lib/utils'
+import React from "react";
+import {
+  TextArea,
+  ExpandableSection,
+  Title,
+  Checkbox,
+} from "@patternfly/react-core";
+import { connect } from "react-redux";
+import { ApplicationState } from "../../../store/root/applicationState";
+import { MdError } from "react-icons/md";
+import { EditorState, EditorProps } from "./types";
+import { unpackParametersIntoString } from "./lib/utils";
 
-const Editor = ({ plugin, params, dropdownInput, requiredInput, setEditorValue }: EditorProps) => {
+const Editor = ({
+  plugin,
+  params,
+  dropdownInput,
+  requiredInput,
+  setEditorValue,
+}: EditorProps) => {
   const [editorState, setEditorState] = React.useState<EditorState>({
-    value: '',
+    value: "",
     docsExpanded: true,
     errors: [],
     readOnly: true,
     dictionary: {},
     savingValues: false,
-  })
+  });
 
-  const { docsExpanded, errors, readOnly } = editorState
+  const { docsExpanded, errors, readOnly } = editorState;
 
   React.useEffect(() => {
-    let derivedValue = ''
+    let derivedValue = "";
 
     if (requiredInput) {
-      derivedValue += unpackParametersIntoString(requiredInput)
+      derivedValue += unpackParametersIntoString(requiredInput);
     }
 
     if (dropdownInput) {
-      derivedValue += unpackParametersIntoString(dropdownInput)
+      derivedValue += unpackParametersIntoString(dropdownInput);
     }
 
-    setEditorState((state) => ({
-      ...state,
-      value: derivedValue.trim(),
-    }))
-  }, [dropdownInput, requiredInput])
+    setEditorState((state) => {
+      return {
+        ...state,
+        value: derivedValue.trim(),
+      };
+    });
+  }, [dropdownInput, requiredInput]);
 
   const handleInputChange = (value: string) => {
-    setEditorValue(value)
+    setEditorValue(value);
     setEditorState({
       ...editorState,
       value,
-    })
-  }
+    });
+  };
 
   const handleDocsToggle = () => {
     setEditorState({
       ...editorState,
       docsExpanded: !editorState.docsExpanded,
-    })
-  }
+    });
+  };
 
   const handleCheckboxChange = (checked: boolean) => {
     setEditorState({
       ...editorState,
       readOnly: checked,
-    })
-  }
+    });
+  };
 
   return (
     <div className="configuration">
@@ -101,21 +114,25 @@ const Editor = ({ plugin, params, dropdownInput, requiredInput, setEditorValue }
           {params &&
             params
               .filter((param) => param.data.ui_exposed)
-              .map((param) => (
-                <div key={param.data.id} className="param-item">
-                  <b className="param-title">[{param.data.flag}]</b>
-                  {!param.data.optional && <span className="required-star"> *</span>}
-                  <div className="param-help">{param.data.help}</div>
-                </div>
-              ))}
+              .map((param) => {
+                return (
+                  <div key={param.data.id} className="param-item">
+                    <b className="param-title">[{param.data.flag}]</b>
+                    {!param.data.optional && (
+                      <span className="required-star"> *</span>
+                    )}
+                    <div className="param-help">{param.data.help}</div>
+                  </div>
+                );
+              })}
         </ExpandableSection>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const mapStateToProps = ({ plugin }: ApplicationState) => ({
   params: plugin.parameters,
-})
+});
 
-export default connect(mapStateToProps, null)(Editor)
+export default connect(mapStateToProps, null)(Editor);

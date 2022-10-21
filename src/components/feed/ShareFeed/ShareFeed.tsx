@@ -33,7 +33,7 @@ const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
         handleModalClose()
       }, 2000)
     } catch (error) {
-      // @ts-ignore
+      //@ts-ignore
       setError(error.response.data.owner[0])
       setLoading(false)
     }
@@ -46,6 +46,7 @@ const ShareFeed: React.FC<ShareFeedProps> = ({ feed }) => {
 
   const cleanError = () => {
     setError('')
+   
   }
 
   return (

@@ -26,7 +26,7 @@ export default function useLongPress() {
     folder: { name: string; path: string },
     browserType: string,
     operation: string,
-    cbFolder?: (path: string) => void
+    cbFolder?: (path: string) => void,
   ) {
     setAction('click')
     const folderCopy = { ...folder }
@@ -38,7 +38,9 @@ export default function useLongPress() {
       operation,
     }
 
-    const isExist = selectedFolder.findIndex((item) => item.folder.path === folder.path)
+    const isExist = selectedFolder.findIndex(
+      (item) => item.folder.path === folder.path,
+    )
 
     if (isLongPress.current) {
       if (isExist === -1) {

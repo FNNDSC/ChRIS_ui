@@ -1,6 +1,7 @@
-import React from 'react'
-import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router'
+import React from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
+import Wrapper from "../Layout/PageWrapper";
 import {
   Title,
   PageSection,
@@ -13,61 +14,60 @@ import {
   Grid,
   GridItem,
   Button,
-} from '@patternfly/react-core'
-import { MdOutlineImageSearch } from 'react-icons/md'
-import { FaMagic } from 'react-icons/fa'
-import preval from 'preval.macro'
-import Wrapper from '../Layout/PageWrapper'
+} from "@patternfly/react-core";
+import { MdOutlineImageSearch } from "react-icons/md";
+import { FaMagic } from "react-icons/fa";
 
-import { setSidebarActive } from '../../store/ui/actions'
-import FirstPng from '../../assets/images/img_1.png'
-import SecondPng from '../../assets/images/img_2.png'
-import ThirdPng from '../../assets/images/img_3.png'
-import FourthPng from '../../assets/images/img_4.png'
-import TreeOne from '../../assets/images/tree_1.png'
-import TreeTwo from '../../assets/images/tree_2.png'
-import TreeThree from '../../assets/images/tree_3.png'
-import TreeFour from '../../assets/images/tree_4.png'
-import './Dashboard.scss'
+import { setSidebarActive } from "../../store/ui/actions";
+import FirstPng from "../../assets/images/img_1.png";
+import SecondPng from "../../assets/images/img_2.png";
+import ThirdPng from "../../assets/images/img_3.png";
+import FourthPng from "../../assets/images/img_4.png";
+import TreeOne from "../../assets/images/tree_1.png";
+import TreeTwo from "../../assets/images/tree_2.png";
+import TreeThree from "../../assets/images/tree_3.png";
+import TreeFour from "../../assets/images/tree_4.png";
+import "./Dashboard.scss";
+import preval from "preval.macro";
 
 interface DashboardProps {
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 const style = {
-  height: '5em',
-  width: '5em',
-}
+  height: "5em",
+  width: "5em",
+};
 
 const DashboardPage = (props: DashboardProps) => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-  const { children } = props
+  const { children } = props;
 
   React.useEffect(() => {
-    document.title = 'Overview'
+    document.title = "Overview";
     dispatch(
       setSidebarActive({
-        activeItem: 'overview',
+        activeItem: "overview",
       })
-    )
-  }, [dispatch])
+    );
+  }, [dispatch]);
 
-  const outlineSearch = <MdOutlineImageSearch style={style} />
-  const magicWand = <FaMagic style={style} />
+  const outlineSearch = <MdOutlineImageSearch style={style} />;
+  const magicWand = <FaMagic style={style} />;
 
   const buildVersion = preval`
     const { execSync } = require('child_process')
     module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
-  `
+  `;
 
   return (
     <Wrapper>
       <PageSection hasShadowBottom variant="light">
         <Title headingLevel="h1">Welcome to ChRIS</Title>
         <p>
-          Retrieve, analyze, and visualize <i>any data </i> using a powerful cloud computing
-          platform: ChRIS.
+          Retrieve, analyze, and visualize <i>any data </i> using a powerful
+          cloud computing platform: ChRIS.
           <b> Let&apos;s get started.</b>
         </p>
         <p>
@@ -77,10 +77,10 @@ const DashboardPage = (props: DashboardProps) => {
       </PageSection>
       <PageSection>
         <Grid hasGutter>
-          <GridItem style={{ marginBottom: '1rem' }} lg={6}>
+          <GridItem style={{ marginBottom: "1rem" }} lg={6}>
             <CardDisplay
               component={
-                <div style={{ display: 'flex' }}>
+                <div style={{ display: "flex" }}>
                   <ImageComponent img={FirstPng} />
                   <ImageComponent img={SecondPng} />
                   <ImageComponent img={ThirdPng} />
@@ -97,7 +97,7 @@ const DashboardPage = (props: DashboardProps) => {
           <GridItem lg={6}>
             <CardDisplay
               component={
-                <div style={{ display: 'flex' }}>
+                <div style={{ display: "flex" }}>
                   <ImageComponent img={TreeOne} />
                   <ImageComponent img={TreeTwo} />
                   <ImageComponent img={TreeThree} />
@@ -132,10 +132,10 @@ const DashboardPage = (props: DashboardProps) => {
         </Grid>
       </PageSection>
     </Wrapper>
-  )
-}
+  );
+};
 
-export default DashboardPage
+export default DashboardPage;
 
 const CardDisplay = ({
   component,
@@ -145,23 +145,22 @@ const CardDisplay = ({
   buttonLink,
   className,
 }: {
-  component: React.ReactElement
-  title: string
-  body: string
-  buttonText: string
-  buttonLink: string
-  className?: string
+  component: React.ReactElement;
+  title: string;
+  body: string;
+  buttonText: string;
+  buttonLink: string;
+  className?: string;
 }) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   return (
-    <Card style={{ overflow: 'hidden' }}>
+    <Card style={{ overflow: "hidden" }}>
       <CardHeader
-        style={{ margin: '0 2rem', display: 'flex', justifyContent: 'center' }}
-        className={className}
-      >
+        style={{ margin: "0 2rem", display: "flex", justifyContent: "center" }}
+        className={className}>
         <CardHeaderMain>{component}</CardHeaderMain>
       </CardHeader>
-      <div style={{ margin: '0 auto', textAlign: 'center' }}>
+      <div style={{ margin: "0 auto", textAlign: "center" }}>
         <CardTitle>
           <Title headingLevel="h2"> {title}</Title>
         </CardTitle>
@@ -169,21 +168,22 @@ const CardDisplay = ({
         <CardFooter>
           <Button
             onClick={() => {
-              navigate(buttonLink)
-            }}
-          >
+              navigate(buttonLink);
+            }}>
             {buttonText}
           </Button>
         </CardFooter>
       </div>
     </Card>
-  )
-}
+  );
+};
 
-const styleImg = { marginRight: '1em' }
+const styleImg = { marginRight: "1em" };
 
-const ImageComponent = ({ img }: { img: string }) => (
-  <img style={styleImg} src={img} alt="Image for analyses and Data" />
-)
+const ImageComponent = ({ img }: { img: string }) => {
+  return <img style={styleImg} src={img} alt="Image for analyses and Data" />;
+};
 
-const LogoComponent = ({ logo }: { logo: JSX.Element }) => <>{logo}</>
+const LogoComponent = ({ logo }: { logo: JSX.Element }) => {
+  return <>{logo}</>;
+};

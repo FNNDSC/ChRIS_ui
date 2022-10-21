@@ -1,20 +1,20 @@
-import React from 'react'
-import { Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import { Wizard, Spinner, Button } from '@patternfly/react-core'
-import { MdOutlineAddCircle } from 'react-icons/md'
-import { Plugin, PluginInstance } from '@fnndsc/chrisapi'
-import GuidedConfig from './GuidedConfig'
-import Editor from './Editor'
-import Review from './Review'
-import BasicConfiguration from './BasicConfiguration'
-import { addNodeRequest } from '../../../store/pluginInstance/actions'
-import { getParams } from '../../../store/plugin/actions'
-import { ApplicationState } from '../../../store/root/applicationState'
-import { AddNodeState, AddNodeProps, InputType, InputIndex } from './types'
-import { handleGetTokens } from './lib/utils'
-import { getRequiredObject } from '../CreateFeed/utils/createFeed'
-import './styles/AddNode.scss'
+import React from "react";
+import { Dispatch } from "redux";
+import { connect } from "react-redux";
+import { Wizard, Spinner, Button } from "@patternfly/react-core";
+import { MdOutlineAddCircle } from "react-icons/md";
+import GuidedConfig from "./GuidedConfig";
+import Editor from "./Editor";
+import Review from "./Review";
+import BasicConfiguration from "./BasicConfiguration";
+import { addNodeRequest } from "../../../store/pluginInstance/actions";
+import { getParams } from "../../../store/plugin/actions";
+import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
+import { ApplicationState } from "../../../store/root/applicationState";
+import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
+import { handleGetTokens } from "./lib/utils";
+import { getRequiredObject } from "../CreateFeed/utils/createFeed";
+import "./styles/AddNode.scss";
 
 function getInitialState() {
   return {
@@ -24,10 +24,10 @@ function getInitialState() {
     data: {},
     requiredInput: {},
     dropdownInput: {},
-    selectedComputeEnv: '',
+    selectedComputeEnv: "",
     errors: {},
-    editorValue: '',
-  }
+    editorValue: "",
+  };
 }
 
 const AddNode: React.FC<AddNodeProps> = ({
@@ -37,7 +37,8 @@ const AddNode: React.FC<AddNodeProps> = ({
   addNode,
   params,
 }: AddNodeProps) => {
-  const [addNodeState, setNodeState] = React.useState<AddNodeState>(getInitialState)
+  const [addNodeState, setNodeState] =
+    React.useState<AddNodeState>(getInitialState);
   const {
     isOpen,
     stepIdReached,
@@ -48,25 +49,27 @@ const AddNode: React.FC<AddNodeProps> = ({
     selectedComputeEnv,
     errors,
     editorValue,
-  } = addNodeState
+  } = addNodeState;
 
   const handleFetchedData = React.useCallback(() => {
     if (pluginInstances) {
-      const { data: nodes } = pluginInstances
-      setNodeState((addNodeState) => ({
-        ...addNodeState,
-        nodes,
-        data: {
-          ...addNodeState.data,
-          parent: selectedPlugin,
-        },
-      }))
+      const { data: nodes } = pluginInstances;
+      setNodeState((addNodeState) => {
+        return {
+          ...addNodeState,
+          nodes,
+          data: {
+            ...addNodeState.data,
+            parent: selectedPlugin,
+          },
+        };
+      });
     }
-  }, [pluginInstances, selectedPlugin])
+  }, [pluginInstances, selectedPlugin]);
 
   React.useEffect(() => {
-    handleFetchedData()
-  }, [handleFetchedData])
+    handleFetchedData();
+  }, [handleFetchedData]);
 
   const inputChange = (
     id: string,
@@ -76,11 +79,11 @@ const AddNode: React.FC<AddNodeProps> = ({
     placeholder: string,
     required: boolean
   ) => {
-    const input: InputIndex = {}
-    input.value = value
-    input.flag = flag
-    input.type = type
-    input.placeholder = placeholder
+    const input: InputIndex = {};
+    input["value"] = value;
+    input["flag"] = flag;
+    input["type"] = type;
+    input["placeholder"] = placeholder;
 
     if (required === true) {
       setNodeState({
@@ -90,7 +93,7 @@ const AddNode: React.FC<AddNodeProps> = ({
           [id]: input,
         },
         errors: {},
-      })
+      });
     } else {
       setNodeState({
         ...addNodeState,
@@ -99,20 +102,20 @@ const AddNode: React.FC<AddNodeProps> = ({
           [id]: input,
         },
         errors: {},
-      })
+      });
     }
-  }
+  };
 
   const toggleOpen = () => {
-    resetState()
-  }
+    resetState();
+  };
 
   const onNext = (newStep: { id?: string | number; name: React.ReactNode }) => {
-    const { stepIdReached } = addNodeState
-    const { id, name } = newStep
-    const { optional, nonOptional } = handleGetTokens(editorValue, params)
+    const { stepIdReached } = addNodeState;
+    const { id, name } = newStep;
+    const { optional, nonOptional } = handleGetTokens(editorValue, params);
 
-    id && id === 4 && name === 'Review' && editorValue
+    id && id === 4 && name === "Review" && editorValue
       ? setNodeState({
           ...addNodeState,
           dropdownInput: optional,
@@ -123,12 +126,12 @@ const AddNode: React.FC<AddNodeProps> = ({
         setNodeState({
           ...addNodeState,
           stepIdReached: stepIdReached < id ? (id as number) : stepIdReached,
-        })
-  }
+        });
+  };
 
   const onBack = (newStep: { id?: string | number; name: React.ReactNode }) => {
-    const { id, name } = newStep
-    const { optional, nonOptional } = handleGetTokens(editorValue, params)
+    const { id, name } = newStep;
+    const { optional, nonOptional } = handleGetTokens(editorValue, params);
 
     id && id === 1
       ? setNodeState({
@@ -137,110 +140,114 @@ const AddNode: React.FC<AddNodeProps> = ({
           requiredInput: {},
           stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
         })
-      : id === 2 && name === 'Plugin Configuration-Form' && editorValue
+      : id === 2 && name === "Plugin Configuration-Form" && editorValue
       ? setNodeState({
           ...addNodeState,
           dropdownInput: optional,
           requiredInput: nonOptional,
           stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
-          editorValue: '',
+          editorValue: "",
         })
       : id &&
         setNodeState({
           ...addNodeState,
           stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
-        })
-  }
+        });
+  };
 
   const handlePluginSelect = (plugin: Plugin) => {
     setNodeState((prevState) => ({
       ...prevState,
       data: { ...prevState.data, plugin },
-    }))
-    getParams(plugin)
-  }
+    }));
+    getParams(plugin);
+  };
 
   const setComputeEnv = React.useCallback((computeEnv: string) => {
-    setNodeState((addNodeState) => ({
-      ...addNodeState,
-      selectedComputeEnv: computeEnv,
-    }))
-  }, [])
+    setNodeState((addNodeState) => {
+      return {
+        ...addNodeState,
+        selectedComputeEnv: computeEnv,
+      };
+    });
+  }, []);
 
   const setEditorValue = (value: string) => {
     setNodeState({
       ...addNodeState,
       editorValue: value,
-    })
-  }
+    });
+  };
 
   const deleteInput = (input: string) => {
-    const { dropdownInput } = addNodeState
+    const { dropdownInput } = addNodeState;
 
     const newObject = Object.entries(dropdownInput)
-      .filter(([key]) => key !== input)
+      .filter(([key]) => {
+        return key !== input;
+      })
       .reduce((acc: InputType, [key, value]) => {
-        acc[key] = value
-        return acc
-      }, {})
+        acc[key] = value;
+        return acc;
+      }, {});
 
     setNodeState({
       ...addNodeState,
       dropdownInput: newObject,
-    })
-  }
+    });
+  };
 
   const resetState = () => {
     if (isOpen === true) {
-      setNodeState(getInitialState())
+      setNodeState(getInitialState());
     } else {
       setNodeState({
         ...addNodeState,
         isOpen: !isOpen,
-      })
+      });
     }
-  }
+  };
 
   const handleSave = async () => {
-    const { dropdownInput, requiredInput, selectedComputeEnv } = addNodeState
-    const { plugin } = addNodeState.data
+    const { dropdownInput, requiredInput, selectedComputeEnv } = addNodeState;
+    const { plugin } = addNodeState.data;
 
     if (!plugin || !selectedPlugin || !pluginInstances) {
-      return
+      return;
     }
-    const { data: nodes } = pluginInstances
+    const { data: nodes } = pluginInstances;
 
     let parameterInput = await getRequiredObject(
       dropdownInput,
       requiredInput,
       plugin,
       selectedPlugin
-    )
+    );
 
     parameterInput = {
       ...parameterInput,
       compute_resource_name: selectedComputeEnv,
-    }
+    };
 
-    const pluginInstance = await plugin.getPluginInstances()
+    const pluginInstance = await plugin.getPluginInstances();
 
     try {
-      await pluginInstance.post(parameterInput)
-      const nodeList = pluginInstance.getItems()
+      await pluginInstance.post(parameterInput);
+      const nodeList = pluginInstance.getItems();
       if (nodeList) {
         addNode({
           pluginItem: nodeList[0],
           nodes,
-        })
-        resetState()
+        });
+        resetState();
       }
     } catch (error: any) {
       setNodeState({
         ...addNodeState,
         errors: error.response.data,
-      })
+      });
     }
-  }
+  };
 
   const basicConfiguration = selectedPlugin && nodes && (
     <BasicConfiguration
@@ -249,10 +256,10 @@ const AddNode: React.FC<AddNodeProps> = ({
       nodes={nodes}
       handlePluginSelect={handlePluginSelect}
     />
-  )
+  );
   const form = data.plugin ? (
     <GuidedConfig
-      renderComputeEnv
+      renderComputeEnv={true}
       inputChange={inputChange}
       deleteInput={deleteInput}
       plugin={data.plugin}
@@ -263,7 +270,7 @@ const AddNode: React.FC<AddNodeProps> = ({
     />
   ) : (
     <Spinner size="xl" />
-  )
+  );
 
   const editor = data.plugin ? (
     <Editor
@@ -274,7 +281,7 @@ const AddNode: React.FC<AddNodeProps> = ({
     />
   ) : (
     <Spinner size="xl" />
-  )
+  );
 
   const review = data.plugin ? (
     <Review
@@ -287,39 +294,39 @@ const AddNode: React.FC<AddNodeProps> = ({
     />
   ) : (
     <Spinner size="xl" />
-  )
+  );
 
   const steps = [
     {
       id: 1,
-      name: 'Plugin Selection',
+      name: "Plugin Selection",
       component: basicConfiguration,
       enableNext: !!data.plugin,
       canJumpTo: stepIdReached > 1,
     },
     {
       id: 2,
-      name: 'Plugin Configuration-Form',
+      name: "Plugin Configuration-Form",
       component: form,
       canJumpTo: stepIdReached > 2,
     },
     {
       id: 3,
-      name: 'Plugin Configuration-Editor',
+      name: "Plugin Configuration-Editor",
       component: editor,
       canJumpTo: stepIdReached > 3,
     },
     {
       id: 4,
-      name: 'Review',
+      name: "Review",
       component: review,
-      nextButtonText: 'Add Node',
+      nextButtonText: "Add Node",
       canJumpTo: stepIdReached > 4,
     },
-  ]
+  ];
 
   return (
-    <>
+    <React.Fragment>
       <Button icon={<MdOutlineAddCircle />} type="button" onClick={toggleOpen}>
         Add a Child Node
       </Button>
@@ -335,20 +342,20 @@ const AddNode: React.FC<AddNodeProps> = ({
           onBack={onBack}
         />
       )}
-    </>
-  )
-}
+    </React.Fragment>
+  );
+};
 
 const mapStateToProps = (state: ApplicationState) => ({
   selectedPlugin: state.instance.selectedPlugin,
   pluginInstances: state.instance.pluginInstances,
   params: state.plugin.parameters,
-})
+});
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   getParams: (plugin: Plugin) => dispatch(getParams(plugin)),
   addNode: (item: { pluginItem: PluginInstance; nodes?: PluginInstance[] }) =>
     dispatch(addNodeRequest(item)),
-})
+});
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddNode)
+export default connect(mapStateToProps, mapDispatchToProps)(AddNode);

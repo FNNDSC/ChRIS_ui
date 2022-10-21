@@ -1,35 +1,40 @@
-import { CreateFeedData, CreateFeedActions, CreateFeedState, Types } from '../types'
-import { Key } from 'rc-tree/lib/interface'
-import { clearCache } from '../ChrisFileSelect'
-import { State as MainRouterContextState } from '../../../../routes'
-import { InputType } from '../../AddNode/types'
-import { Series } from '../../../../pages/DataLibrary/Library'
-import { merge } from 'lodash'
+import {
+  CreateFeedData,
+  CreateFeedActions,
+  CreateFeedState,
+  Types,
+} from "../types";
+import { Key } from "rc-tree/lib/interface";
+import { clearCache } from "../ChrisFileSelect";
+import { State as MainRouterContextState } from "../../../../routes";
+import { InputType } from "../../AddNode/types";
+import { Series } from "../../../../pages/DataLibrary/Library";
+import { merge } from "lodash";
 
 function getDefaultCreateFeedData(selectedData?: Series): CreateFeedData {
   const initData = {
-    feedName: '',
-    feedDescription: '',
+    feedName: "",
+    feedDescription: "",
     tags: [],
     chrisFiles: [] as string[],
     localFiles: [],
     checkedKeys: {},
     isDataSelected: false,
-  }
+  };
 
   if (selectedData && !!selectedData.length) {
-    initData.chrisFiles = selectedData //.map(({ data }) => data.fname);
-    initData.isDataSelected = true
+    initData.chrisFiles = selectedData; //.map(({ data }) => data.fname);
+    initData.isDataSelected = true;
   }
 
-  return initData
+  return initData;
 }
 
 export function getInitialState(
   routerContextState?: typeof MainRouterContextState
 ): CreateFeedState {
-  const selectedData = routerContextState?.selectData
-  const isInitDataSelected = !!selectedData?.length
+  const selectedData = routerContextState?.selectData;
+  const isInitDataSelected = !!selectedData?.length;
 
   return {
     // if data is selected, the user is navigated directly to create feed wizard
@@ -37,18 +42,18 @@ export function getInitialState(
     step: 1,
     data: getDefaultCreateFeedData(selectedData),
     selectedPlugin: undefined,
-    selectedConfig: isInitDataSelected ? 'swift_storage' : '',
+    selectedConfig: isInitDataSelected ? "swift_storage" : "",
     requiredInput: {},
     dropdownInput: {},
-    feedProgress: '',
-    feedError: '',
+    feedProgress: "",
+    feedError: "",
     value: 0,
-    computeEnvironment: ' ',
+    computeEnvironment: " ",
     pipelineData: {},
-    pipelineName: '',
+    pipelineName: "",
     pipelines: [],
-    currentlyConfiguredNode: '',
-  }
+    currentlyConfiguredNode: "",
+  };
 }
 
 export const createFeedReducer = (
@@ -60,22 +65,22 @@ export const createFeedReducer = (
       return {
         ...state,
         wizardOpen: !state.wizardOpen,
-      }
+      };
     case Types.SetStep:
       return {
         ...state,
         step: action.payload.id,
-      }
+      };
     case Types.FeedDescriptionChange:
       return {
         ...state,
         data: { ...state.data, feedDescription: action.payload.value },
-      }
+      };
     case Types.FeedNameChange:
       return {
         ...state,
         data: { ...state.data, feedName: action.payload.value },
-      }
+      };
     case Types.TagsChange:
       return {
         ...state,
@@ -83,9 +88,9 @@ export const createFeedReducer = (
           ...state.data,
           tags: action.payload.tags,
         },
-      }
+      };
     case Types.SelectedConfig:
-      clearCache()
+      clearCache();
       return {
         ...state,
         data: {
@@ -98,15 +103,15 @@ export const createFeedReducer = (
         dropdownInput: {},
         selectedPlugin: undefined,
         selectedConfig: action.payload.selectedConfig,
-      }
+      };
     case Types.AddChrisFile:
-      const file = action.payload.file
+      const file = action.payload.file;
       const checkedKeysDict: {
-        [key: string]: Key[]
-      } = { ...state.data.checkedKeys }
+        [key: string]: Key[];
+      } = { ...state.data.checkedKeys };
 
       if (!state.data.checkedKeys[file]) {
-        checkedKeysDict[file] = action.payload.checkedKeys
+        checkedKeysDict[file] = action.payload.checkedKeys;
       }
 
       return {
@@ -116,37 +121,39 @@ export const createFeedReducer = (
           chrisFiles: [...state.data.chrisFiles, action.payload.file],
           checkedKeys: checkedKeysDict,
         },
-      }
+      };
     case Types.RemoveChrisFile: {
       let checkedKeysDict: {
-        [key: string]: Key[]
-      } = {}
+        [key: string]: Key[];
+      } = {};
 
       checkedKeysDict = Object.keys(state.data.checkedKeys).reduce(
         (object: { [key: string]: Key[] }, key) => {
           if (key !== action.payload.file) {
-            object[key] = state.data.checkedKeys[key]
+            object[key] = state.data.checkedKeys[key];
           }
-          return object
+          return object;
         },
         {}
-      )
+      );
 
       return {
         ...state,
         data: {
           ...state.data,
-          chrisFiles: state.data.chrisFiles.filter((path) => path !== action.payload.file),
+          chrisFiles: state.data.chrisFiles.filter(
+            (path) => path !== action.payload.file
+          ),
           checkedKeys: checkedKeysDict,
         },
-      }
+      };
     }
 
     case Types.SetPipelineName: {
       return {
         ...state,
         pipelineName: action.payload.pipelineName,
-      }
+      };
     }
 
     case Types.AddLocalFile:
@@ -156,28 +163,30 @@ export const createFeedReducer = (
           ...state.data,
           localFiles: action.payload.files,
         },
-      }
+      };
 
     case Types.RemoveLocalFile:
       return {
         ...state,
         data: {
           ...state.data,
-          localFiles: state.data.localFiles.filter((file) => file.name !== action.payload.filename),
+          localFiles: state.data.localFiles.filter(
+            (file) => file.name !== action.payload.filename
+          ),
         },
-      }
+      };
 
     case Types.SelectPlugin: {
       if (action.payload.checked === true) {
         return {
           ...state,
           selectedPlugin: action.payload.plugin,
-        }
+        };
       } else {
         return {
           ...state,
           selectedPlugin: undefined,
-        }
+        };
       }
     }
 
@@ -185,7 +194,7 @@ export const createFeedReducer = (
       return {
         ...state,
         selectedPipeline: undefined,
-      }
+      };
     }
 
     case Types.DropdownInput: {
@@ -195,7 +204,7 @@ export const createFeedReducer = (
           ...state.dropdownInput,
           [action.payload.id]: action.payload.input,
         },
-      }
+      };
     }
 
     case Types.RequiredInput: {
@@ -205,11 +214,11 @@ export const createFeedReducer = (
           ...state.requiredInput,
           [action.payload.id]: action.payload.input,
         },
-      }
+      };
     }
 
     case Types.SetPipelineDropdownInput: {
-      const { currentPipelineId, currentNodeId, id, input } = action.payload
+      const { currentPipelineId, currentNodeId, id, input } = action.payload;
 
       if (
         state.pipelineData[currentPipelineId] &&
@@ -227,14 +236,16 @@ export const createFeedReducer = (
                 [currentNodeId]: {
                   ...state.pipelineData[currentPipelineId].input[currentNodeId],
                   dropdownInput: {
-                    ...state.pipelineData[currentPipelineId].input[currentNodeId].dropdownInput,
+                    ...state.pipelineData[currentPipelineId].input[
+                      currentNodeId
+                    ].dropdownInput,
                     [id]: input,
                   },
                 },
               },
             },
           },
-        }
+        };
       } else if (state.pipelineData[currentPipelineId]) {
         return {
           ...state,
@@ -253,15 +264,15 @@ export const createFeedReducer = (
               },
             },
           },
-        }
+        };
       } else
         return {
           ...state,
-        }
+        };
     }
 
     case Types.SetPipelineRequiredInput: {
-      const { currentPipelineId, currentNodeId, id, input } = action.payload
+      const { currentPipelineId, currentNodeId, id, input } = action.payload;
 
       if (
         state.pipelineData[currentPipelineId] &&
@@ -279,14 +290,16 @@ export const createFeedReducer = (
                 [currentNodeId]: {
                   ...state.pipelineData[currentPipelineId].input[currentNodeId],
                   requiredInput: {
-                    ...state.pipelineData[currentPipelineId].input[currentNodeId].requiredInput,
+                    ...state.pipelineData[currentPipelineId].input[
+                      currentNodeId
+                    ].requiredInput,
                     [id]: input,
                   },
                 },
               },
             },
           },
-        }
+        };
       } else if (state.pipelineData[currentPipelineId]) {
         return {
           ...state,
@@ -305,15 +318,15 @@ export const createFeedReducer = (
               },
             },
           },
-        }
+        };
       } else
         return {
           ...state,
-        }
+        };
     }
 
     case Types.SetCurrentNodeTitle: {
-      const { currentPipelineId, currentNode, title } = action.payload
+      const { currentPipelineId, currentNode, title } = action.payload;
       return {
         ...state,
         pipelineData: {
@@ -326,19 +339,20 @@ export const createFeedReducer = (
             },
           },
         },
-      }
+      };
     }
 
     case Types.DeletePipelineInput: {
-      const { input, currentPipelineId, currentNodeId } = action.payload
+      const { input, currentPipelineId, currentNodeId } = action.payload;
       if (
         state.pipelineData[currentPipelineId] &&
         state.pipelineData[currentPipelineId].input[currentNodeId].dropdownInput
       ) {
         const dropdownInput =
           state.pipelineData[currentPipelineId] &&
-          state.pipelineData[currentPipelineId].input[currentNodeId].dropdownInput
-        const newObject = deleteObjectHelper(dropdownInput, input)
+          state.pipelineData[currentPipelineId].input[currentNodeId]
+            .dropdownInput;
+        const newObject = deleteObjectHelper(dropdownInput, input);
 
         return {
           ...state,
@@ -355,41 +369,41 @@ export const createFeedReducer = (
               },
             },
           },
-        }
+        };
       }
 
       return {
         ...state,
-      }
+      };
     }
 
     case Types.DeleteInput: {
-      const { dropdownInput } = state
-      const { input } = action.payload
-      const newObject = deleteObjectHelper(dropdownInput, input)
+      const { dropdownInput } = state;
+      const { input } = action.payload;
+      const newObject = deleteObjectHelper(dropdownInput, input);
       return {
         ...state,
         dropdownInput: newObject,
-      }
+      };
     }
 
     case Types.ResetState: {
-      clearCache()
+      clearCache();
       return {
         ...state,
         data: getDefaultCreateFeedData(),
         step: 1,
         selectedPlugin: undefined,
-        selectedConfig: '',
+        selectedConfig: "",
         requiredInput: {},
         dropdownInput: {},
-        computeEnvironment: '',
+        computeEnvironment: "",
         value: 0,
         pipelineData: {},
-        pipelineName: '',
+        pipelineName: "",
         pipelines: [],
-        currentlyConfiguredNode: '',
-      }
+        currentlyConfiguredNode: "",
+      };
     }
 
     case Types.SetProgress: {
@@ -397,47 +411,48 @@ export const createFeedReducer = (
         ...state,
         feedProgress: action.payload.feedProgress,
         value: state.value + 20,
-      }
+      };
     }
 
     case Types.SetPipelines: {
       return {
         ...state,
         pipelines: action.payload.pipelines,
-      }
+      };
     }
 
     case Types.SetComputeEnvironment: {
       return {
         ...state,
         computeEnvironment: action.payload.computeEnvironment,
-      }
+      };
     }
 
     case Types.AddPipeline: {
       return {
         ...state,
         pipelines: [...state.pipelines, action.payload.pipeline],
-      }
+      };
     }
 
     case Types.SetError: {
       return {
         ...state,
         feedError: action.payload.feedError,
-      }
+      };
     }
     case Types.ResetProgress: {
       return {
         ...state,
-        feedProgress: '',
+        feedProgress: "",
         value: 0,
-        feedError: '',
-      }
+        feedError: "",
+      };
     }
 
     case Types.SetPipelineResources: {
-      const { pipelineId, pluginPipings, parameters, pipelinePlugins } = action.payload
+      const { pipelineId, pluginPipings, parameters, pipelinePlugins } =
+        action.payload;
       return {
         ...state,
         pipelineData: {
@@ -450,11 +465,12 @@ export const createFeedReducer = (
             computeEnvs: undefined,
           },
         },
-      }
+      };
     }
 
     case Types.SetCurrentComputeEnvironment: {
-      const { item, currentNode, currentPipelineId, computeEnvList } = action.payload.computeEnv
+      const { item, currentNode, currentPipelineId, computeEnvList } =
+        action.payload.computeEnv;
 
       return {
         ...state,
@@ -471,21 +487,21 @@ export const createFeedReducer = (
             },
           },
         },
-      }
+      };
     }
 
     case Types.SetGeneralCompute: {
-      const { currentPipelineId, computeEnv } = action.payload
+      const { currentPipelineId, computeEnv } = action.payload;
 
       if (state.pipelineData[currentPipelineId].computeEnvs) {
-        const computeEnvs = state.pipelineData[currentPipelineId].computeEnvs
+        const computeEnvs = state.pipelineData[currentPipelineId].computeEnvs;
 
         if (computeEnvs) {
           for (const id in computeEnvs) {
-            const currentComputeEnvs = computeEnvs[id].computeEnvs
-            const names = currentComputeEnvs.map((env) => env.name)
+            const currentComputeEnvs = computeEnvs[id].computeEnvs;
+            const names = currentComputeEnvs.map((env) => env.name);
             if (names.includes(computeEnv)) {
-              computeEnvs[id].currentlySelected = computeEnv
+              computeEnvs[id].currentlySelected = computeEnv;
             }
           }
         }
@@ -500,7 +516,7 @@ export const createFeedReducer = (
               generalCompute: computeEnv,
             },
           },
-        }
+        };
       } else {
         return {
           ...state,
@@ -511,12 +527,12 @@ export const createFeedReducer = (
               generalCompute: computeEnv,
             },
           },
-        }
+        };
       }
     }
 
     case Types.SetPipelineEnvironments: {
-      const { computeEnvData, pipelineId } = action.payload
+      const { computeEnvData, pipelineId } = action.payload;
       if (state.pipelineData[pipelineId].computeEnvs) {
         return {
           ...state,
@@ -524,10 +540,13 @@ export const createFeedReducer = (
             ...state.pipelineData,
             [pipelineId]: {
               ...state.pipelineData[pipelineId],
-              computeEnvs: merge(state.pipelineData[pipelineId].computeEnvs, computeEnvData),
+              computeEnvs: merge(
+                state.pipelineData[pipelineId].computeEnvs,
+                computeEnvData
+              ),
             },
           },
-        }
+        };
       } else {
         return {
           ...state,
@@ -538,12 +557,12 @@ export const createFeedReducer = (
               computeEnvs: computeEnvData,
             },
           },
-        }
+        };
       }
     }
 
     case Types.SetCurrentNode: {
-      const { pipelineId, currentNode } = action.payload
+      const { pipelineId, currentNode } = action.payload;
       return {
         ...state,
         pipelineData: {
@@ -553,11 +572,11 @@ export const createFeedReducer = (
             currentNode,
           },
         },
-      }
+      };
     }
 
     case Types.SetExpandedPipelines: {
-      const { pipelineId } = action.payload
+      const { pipelineId } = action.payload;
 
       return {
         ...state,
@@ -567,30 +586,30 @@ export const createFeedReducer = (
             pipelineId,
           },
         },
-      }
+      };
     }
 
     case Types.SetCurrentPipeline: {
-      const { pipelineId } = action.payload
+      const { pipelineId } = action.payload;
       return {
         ...state,
         selectedPipeline: pipelineId,
-      }
+      };
     }
 
     default:
-      return state
+      return state;
   }
-}
+};
 
 function deleteObjectHelper(dropdownInput: InputType, input: string) {
   const newObject = Object.entries(dropdownInput)
     .filter(([key]) => {
-      return key !== input
+      return key !== input;
     })
     .reduce((acc: InputType, [key, value]) => {
-      acc[key] = value
-      return acc
-    }, {})
-  return newObject
+      acc[key] = value;
+      return acc;
+    }, {});
+  return newObject;
 }

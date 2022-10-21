@@ -1,15 +1,22 @@
-import React, { useContext } from 'react'
-import { Grid, GridItem } from '@patternfly/react-core'
-import { CreateFeedContext } from './context'
-import { unpackParametersIntoString } from '../AddNode/lib/utils'
-import './createfeed.scss'
-import { PluginDetails } from '../AddNode/helperComponents/ReviewGrid'
-import { ChrisFileDetails, LocalFileDetails } from './helperComponents'
+import React, { useContext } from "react";
+import { CreateFeedContext } from "./context";
+import { Grid, GridItem } from "@patternfly/react-core";
+import { unpackParametersIntoString } from "../AddNode/lib/utils";
+import "./createfeed.scss";
+import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
+import { ChrisFileDetails, LocalFileDetails } from "./helperComponents";
+
 
 const Review: React.FunctionComponent = () => {
-  const { state } = useContext(CreateFeedContext)
+  const { state } = useContext(CreateFeedContext);
 
-  const { feedName, feedDescription, tags, chrisFiles, localFiles } = state.data
+  const {
+    feedName,
+    feedDescription,
+    tags,
+    chrisFiles,
+    localFiles
+  } = state.data;
   const {
     dropdownInput,
     requiredInput,
@@ -17,60 +24,60 @@ const Review: React.FunctionComponent = () => {
     selectedPlugin,
     computeEnvironment,
     pipelineName,
-  } = state
+  } = state;
 
   // the installed version of @patternfly/react-core doesn't support read-only chips
   const tagList = tags.map((tag) => (
     <div className="pf-c-chip pf-m-read-only tag" key={tag.data.id}>
       <span className="pf-c-chip__text">{tag.data.name}</span>
     </div>
-  ))
+  ));
 
   const getReviewDetails = () => {
-    if (selectedConfig === 'fs_plugin') {
-      let generatedCommand = ''
+    if (selectedConfig === "fs_plugin") {
+      let generatedCommand = "";
       if (requiredInput) {
-        generatedCommand += unpackParametersIntoString(requiredInput)
+        generatedCommand += unpackParametersIntoString(requiredInput);
       }
 
       if (dropdownInput) {
-        generatedCommand += unpackParametersIntoString(dropdownInput)
+        generatedCommand += unpackParametersIntoString(dropdownInput);
       }
 
       return (
-        <Grid hasGutter>
+        <Grid hasGutter={true}>
           <PluginDetails
             generatedCommand={generatedCommand}
             selectedPlugin={selectedPlugin}
             computeEnvironment={computeEnvironment}
           />
         </Grid>
-      )
-    }
-    if (selectedConfig === 'multiple_select') {
+      );
+    } else if (selectedConfig === "multiple_select") {
       return (
         <>
           <ChrisFileDetails chrisFiles={chrisFiles} />
           <LocalFileDetails localFiles={localFiles} />
         </>
-      )
+      );
+    } else if (selectedConfig === "swift_storage") {
+      return <ChrisFileDetails chrisFiles={chrisFiles} />;
+    } else if (selectedConfig === "local_select") {
+      return <LocalFileDetails localFiles={localFiles} />;
     }
-    if (selectedConfig === 'swift_storage') {
-      return <ChrisFileDetails chrisFiles={chrisFiles} />
-    }
-    if (selectedConfig === 'local_select') {
-      return <LocalFileDetails localFiles={localFiles} />
-    }
-  }
+  };
 
   return (
     <div className="review">
       <h1 className="pf-c-title pf-m-2xl">Review</h1>
-      <p>Review the information below and click &apos;Finish&apos; to create your new feed.</p>
+      <p>
+        Review the information below and click &apos;Finish&apos; to create your
+        new feed.
+      </p>
       <p>Use the &apos;Back&apos; button to make changes.</p>
       <br />
       <br />
-      <Grid hasGutter>
+      <Grid hasGutter={true}>
         <GridItem span={2}>
           <span className="review__title">Feed Name</span>
         </GridItem>
@@ -93,14 +100,16 @@ const Review: React.FunctionComponent = () => {
           <span className="review__title">Selected Pipeline</span>
         </GridItem>
         <GridItem span={10}>
-          <span className="review__value">{pipelineName || 'None Selected'}</span>
+          <span className="review__value">
+            {pipelineName ? pipelineName : "None Selected"}
+          </span>
         </GridItem>
       </Grid>
       <br />
       {getReviewDetails()}
       <br />
     </div>
-  )
-}
+  );
+};
 
-export default Review
+export default Review;

@@ -36,28 +36,36 @@ const PipelineCatalog = () => {
     })
   }
   useEffect(() => {
-    async function fetchPipelines(perPage: number, page: number, search: string) {
+    async function fetchPipelines(
+      perPage: number,
+      page: number,
+      search: string,
+    ) {
       const offset = perPage * (page - 1)
       const client = ChrisAPIClient.getClient()
       const params = {
         limit: perPage,
-        offset,
+        offset: offset,
         name: search,
       }
       const pipelinesList = await client.getPipelines(params)
 
       let pipelines = pipelinesList.getItems()
       if (filteredId && pipelines) {
-        pipelines = pipelines?.filter((pipeline) => pipeline.data.id !== filteredId)
+        pipelines = pipelines?.filter(
+          (pipeline) => pipeline.data.id !== filteredId,
+        )
         setSelectedPipeline(undefined)
       }
 
       if (pipelines) {
         setPipelines(pipelines)
-        setPageState((pageState) => ({
-          ...pageState,
-          itemCount: pipelinesList.totalCount,
-        }))
+        setPageState((pageState) => {
+          return {
+            ...pageState,
+            itemCount: pipelinesList.totalCount,
+          }
+        })
       }
     }
 
@@ -88,7 +96,7 @@ const PipelineCatalog = () => {
           setSelectedPipeline(pipeline)
         }}
         title="Pipelines"
-        showPipelineButton
+        showPipelineButton={true}
         fetch={handleFetch}
         handlePipelineSearch={handleSearch}
         search={pageState.search}

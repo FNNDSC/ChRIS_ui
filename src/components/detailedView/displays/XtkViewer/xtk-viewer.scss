@@ -1,4 +1,5 @@
 .xtk-viewer-wrap {
+
   position: relative;
   display: flex;
   flex-direction: column;
@@ -84,7 +85,7 @@
     padding-top: 50px;
     padding-bottom: 50px;
   }
-
+  
   .fsm-select-inner {
     padding: 20px;
     background-color: white;
@@ -101,6 +102,7 @@
   }
 
   .error {
+
   }
 
   .volume-mode {
@@ -113,7 +115,7 @@
 
   .volume-mode .orientation {
     margin-left: 10px;
-
+    
     .orientation-button-wrap {
       padding-left: 10px;
       border-left: 1px solid white;

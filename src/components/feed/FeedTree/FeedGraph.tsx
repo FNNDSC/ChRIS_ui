@@ -1,13 +1,16 @@
 import React from 'react'
 
 import { connect, useDispatch } from 'react-redux'
-import ForceGraph3D, { NodeObject, ForceGraphMethods } from 'react-force-graph-3d'
-import { PluginInstance } from '@fnndsc/chrisapi'
-import { ErrorBoundary } from 'react-error-boundary'
-import { Text, Button, Switch } from '@patternfly/react-core'
+import ForceGraph3D, {
+  NodeObject,
+  ForceGraphMethods,
+} from 'react-force-graph-3d'
 import { PluginInstancePayload } from '../../../store/pluginInstance/types'
 import { ApplicationState } from '../../../store/root/applicationState'
 import TreeModel from '../../../api/models/tree.model'
+import { PluginInstance } from '@fnndsc/chrisapi'
+import { ErrorBoundary } from 'react-error-boundary'
+import { Text, Button, Switch } from '@patternfly/react-core'
 import useSize from './useSize'
 import { setFeedLayout } from '../../../store/feed/actions'
 import './FeedTree.scss'
@@ -58,13 +61,13 @@ const FeedGraph = (props: IFeedProps) => {
           y: node.y * distRatio,
           z: node.z * distRatio,
         }, // new position
-        // @ts-ignore
+        //@ts-ignore
         node, // lookAt ({ x, y, z })
-        3000 // ms transition duration
+        3000, // ms transition duration
       )
     }
 
-    // @ts-ignore
+    //@ts-ignore
     onNodeClick(node.item)
   }
 
@@ -72,7 +75,7 @@ const FeedGraph = (props: IFeedProps) => {
     if (instances && instances.length > 0) {
       const tree = new TreeModel(instances)
 
-      // @ts-ignore
+      //@ts-ignore
       setGraphData(tree.treeChart)
     }
   }, [instances])
@@ -83,8 +86,8 @@ const FeedGraph = (props: IFeedProps) => {
         <ErrorBoundary
           fallback={
             <Text>
-              If you see this message, it means that the graph modules weren&apos;t loaded. Please
-              refresh your browser.
+              If you see this message, it means that the graph modules
+              weren&apos;t loaded. Please refresh your browser.
             </Text>
           }
         >
@@ -104,7 +107,9 @@ const FeedGraph = (props: IFeedProps) => {
                 label="Scale Nodes On"
                 labelOff="Scale Nodes Off"
                 isChecked={nodeScale.enabled}
-                onChange={() => setNodeScale({ ...nodeScale, enabled: !nodeScale.enabled })}
+                onChange={() =>
+                  setNodeScale({ ...nodeScale, enabled: !nodeScale.enabled })
+                }
               />
 
               {nodeScale.enabled && (
@@ -130,9 +135,9 @@ const FeedGraph = (props: IFeedProps) => {
           </div>
           <ForceGraph3D
             ref={fgRef}
-            // @ts-ignore
+            //@ts-ignore
             height={size.height || 500}
-            // @ts-ignore
+            //@ts-ignore
             width={size.width || 500}
             graphData={graphData}
             nodeAutoColorBy={(d: any) => {
@@ -155,7 +160,9 @@ const FeedGraph = (props: IFeedProps) => {
                 : undefined
             }
             onNodeClick={handleNodeClick}
-            nodeLabel={(d: any) => `${d.item.data.title || d.item.data.plugin_name}`}
+            nodeLabel={(d: any) => {
+              return `${d.item.data.title || d.item.data.plugin_name}`
+            }}
             linkWidth={2}
           />
           {!isBottomPanelExpanded && (
