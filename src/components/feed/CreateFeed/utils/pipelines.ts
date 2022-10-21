@@ -13,7 +13,10 @@ export async function fetchResources(pipelineInstance: Pipeline) {
   const pipelineFn = pipelineInstance.getPluginPipings;
   const boundPipelinePluginFn = pipelinePluginsFn.bind(pipelineInstance);
   const boundPipelineFn = pipelineFn.bind(pipelineInstance);
-  const pluginPipings: PluginPiping[] = await fetchResource<PluginPiping>(params, boundPipelineFn);
+  const pluginPipings: PluginPiping[] = await fetchResource<PluginPiping>(
+    params,
+    boundPipelineFn
+  );
   const pipelinePlugins: any[] = await fetchResource(
     params,
     boundPipelinePluginFn
@@ -22,7 +25,6 @@ export async function fetchResources(pipelineInstance: Pipeline) {
     limit: 1000,
   });
 
-  // PipelinePipingDefaultParameterList
   return {
     parameters,
     pluginPipings,

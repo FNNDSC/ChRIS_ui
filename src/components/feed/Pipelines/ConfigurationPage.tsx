@@ -17,7 +17,7 @@ import {
   Button,
 } from "@patternfly/react-core";
 import { CreateFeedContext } from "../CreateFeed/context";
-import { Pipeline, Plugin } from "@fnndsc/chrisapi";
+import { Pipeline, PluginPiping } from "@fnndsc/chrisapi";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import { getParamsSuccess } from "../../../store/plugin/actions";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
@@ -48,7 +48,7 @@ const ConfigurationPage = (props: {
     computeEnvs && currentNode && computeEnvs[currentNode]
       ? computeEnvs[currentNode].computeEnvs
       : [];
-  const [selectedPlugin, setSelectedPlugin] = React.useState<Plugin>();
+  const [selectedPlugin, setSelectedPlugin] = React.useState<PluginPiping>();
   const [edit, setEdit] = React.useState(false);
   const [creatingPipeline, setCreatingPipeline] = React.useState({
     loading: false,
@@ -123,7 +123,7 @@ const ConfigurationPage = (props: {
         });
 
         const selectedPlugin = await pluginPiping[0].getPlugin();
-        setSelectedPlugin(selectedPlugin);
+        setSelectedPlugin(pluginPiping[0]);
 
         const params = await selectedPlugin.getPluginParameters({
           limit: 1000,
@@ -255,6 +255,83 @@ const ConfigurationPage = (props: {
     setCopied(true);
   };
 
+  const handleCorrectInput = () => {
+    setEdit(false);
+    dispatch({
+      type: Types.SetCurrentNodeTitle,
+      payload: {
+        currentPipelineId,
+        currentNode,
+        title: value,
+      },
+    });
+  };
+
+  const handlePipelineCreate = async () => {
+    setCreatingPipeline({
+      ...creatingPipeline,
+      loading: true,
+    });
+    const mappedArr: any[] = [];
+    try {
+      pluginPipings?.forEach((piping) => {
+        const defaults = pluginParameterDefaults(
+          //@ts-ignore
+          pluginParameters.data,
+          piping.data.id,
+          input
+        );
+
+        const id = pluginPipings.findIndex(
+          (pipe) => pipe.data.id === piping.data.previous_id
+        );
+
+        let titleChange = "";
+        if (title && title[piping.data.id]) {
+          titleChange = title[piping.data.id];
+        }
+
+        const treeObl = {
+          plugin_name: piping.data.plugin_name,
+          plugin_version: piping.data.plugin_version,
+          previous_index: id === -1 ? null : id,
+          title: titleChange,
+          plugin_parameter_defaults: defaults,
+        };
+        mappedArr.push(treeObl);
+      });
+
+      const result = {
+        name: `${creatingPipeline.pipelineName}`,
+        authors: pipeline.data.authors,
+        locked: pipeline.data.locked,
+        description: pipeline.data.description,
+        plugin_tree: JSON.stringify(mappedArr),
+      };
+
+      const { pipelineInstance } = await generatePipelineWithData(result);
+
+      setCreatingPipeline({
+        ...creatingPipeline,
+        loading: false,
+      });
+      if (pipelineInstance) {
+        dispatch({
+          type: Types.SetPipelines,
+          payload: {
+            pipelines: [pipelineInstance, ...pipelines],
+          },
+        });
+      }
+    } catch (error: any) {
+      setCreatingPipeline({
+        ...creatingPipeline,
+        error: error.response.data,
+        loading: false,
+      });
+    }
+  };
+
   const iconFontSize = {
     fontSize: "1.25rem",
   };
@@ -270,7 +347,7 @@ const ConfigurationPage = (props: {
           aria-label="Configure Title"
           style={{
             margin: "1rem 0.5rem 0 0",
-            width: "50%",
+            width: "30%",
           }}
           type="text"
           placeholder={edit ? "Add a title to the node" : ""}
@@ -280,10 +357,19 @@ const ConfigurationPage = (props: {
               ? value
               : title && currentNode && title[currentNode]
               ? `${title[currentNode]} (id:${currentNode})`
-              : `${selectedPlugin?.data.name} (id:${currentNode})`
+              : `${
+                  selectedPlugin?.data
+                    ? selectedPlugin?.data.title
+                    : selectedPlugin?.data.plugin_name
+                } (id:${currentNode})`
           }
           onChange={(value) => {
             setValue(value);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              handleCorrectInput();
+            }
           }}
         />
 
@@ -306,17 +392,7 @@ const ConfigurationPage = (props: {
                 color: "#3e8635",
                 ...iconFontSize,
               }}
-              onClick={() => {
-                setEdit(false);
-                dispatch({
-                  type: Types.SetCurrentNodeTitle,
-                  payload: {
-                    currentPipelineId,
-                    currentNode,
-                    title: value,
-                  },
-                });
-              }}
+              onClick={handleCorrectInput}
             />
             <MdClose
               onClick={() => {
@@ -330,6 +406,46 @@ const ConfigurationPage = (props: {
           </>
         )}
       </div>
+      <div
+        style={{
+          display: "flex",
+          margin: "1rem 0.5rem 0.5rem 0",
+        }}
+      >
+        <TextInput
+          style={{
+            marginRight: "1rem",
+            width: "30%",
+          }}
+          aria-label="Name for the edited pipeline"
+          placeholder="Enter a name for the pipeline"
+          value={creatingPipeline.pipelineName}
+          onKeyDown={(event) => {
+            event.key === "Enter" && handlePipelineCreate();
+          }}
+          onChange={(value) =>
+            setCreatingPipeline({
+              ...creatingPipeline,
+              pipelineName: value,
+              error: {},
+            })
+          }
+        />
+        <Button
+          isDisabled={creatingPipeline.loading ? true : false}
+          onClick={handlePipelineCreate}
+        >
+          Save Pipeline
+        </Button>
+
+        {creatingPipeline.loading && <Spin tip="Saving a new pipeline" />}
+      </div>
+
+      {Object.keys(creatingPipeline.error).length > 0 && (
+        <span>
+          <ReactJson src={creatingPipeline.error} />
+        </span>
+      )}
 
       <CodeBlock actions={actions}>
         <CodeBlockCode id="code-content">{generatedCommand}</CodeBlockCode>
@@ -351,7 +467,6 @@ const ConfigurationPage = (props: {
                 renderComputeEnv={false}
                 inputChange={inputChange}
                 deleteInput={deleteInput}
-                plugin={selectedPlugin}
                 dropdownInput={dropdownInput}
                 requiredInput={requiredInput}
               />
@@ -412,101 +527,6 @@ const ConfigurationPage = (props: {
                 </List.Item>
               )}
             />
-            <TextInput
-              style={{
-                marginBottom: "1rem",
-                width: "50%",
-              }}
-              aria-label="Name for the edited pipeline"
-              placeholder="Enter a name for the pipeline"
-              value={creatingPipeline.pipelineName}
-              onChange={(value) =>
-                setCreatingPipeline({
-                  ...creatingPipeline,
-                  pipelineName: value,
-                })
-              }
-            />
-            <div
-              style={{
-                display: "flex",
-              }}
-            >
-              <Button
-                isDisabled={creatingPipeline.loading ? true : false}
-                style={{
-                  marginRight: "1.5rem",
-                }}
-                onClick={async () => {
-                  setCreatingPipeline({
-                    ...creatingPipeline,
-                    loading: true,
-                  });
-                  const mappedArr: any[] = [];
-                  try {
-                    pluginPipings?.forEach((piping) => {
-                      const defaults = pluginParameterDefaults(
-                        //@ts-ignore
-                        pluginParameters.data,
-                        piping.data.id,
-                        input
-                      );
-
-                      const id = pluginPipings.findIndex(
-                        (pipe) => pipe.data.id === piping.data.previous_id
-                      );
-
-                      const treeObl = {
-                        plugin_name: piping.data.plugin_name,
-                        plugin_version: piping.data.plugin_version,
-                        previous_index: id === -1 ? null : id,
-                        plugin_parameter_defaults: defaults,
-                      };
-                      mappedArr.push(treeObl);
-                    });
-
-                    const result = {
-                      name: `${creatingPipeline.pipelineName}`,
-                      authors: pipeline.data.authors,
-                      locked: pipeline.data.locked,
-                      description: pipeline.data.description,
-                      plugin_tree: JSON.stringify(mappedArr),
-                    };
-                    const { pipelineInstance } = await generatePipelineWithData(
-                      result
-                    );
-                    setCreatingPipeline({
-                      ...creatingPipeline,
-                      loading: false,
-                    });
-                    if (pipelineInstance) {
-                      dispatch({
-                        type: Types.SetPipelines,
-                        payload: {
-                          pipelines: [pipelineInstance, ...pipelines],
-                        },
-                      });
-                    }
-                  } catch (error: any) {
-                    setCreatingPipeline({
-                      ...creatingPipeline,
-                      error: error.response.data,
-                      loading: false,
-                    });
-                  }
-                }}
-              >
-                Save Pipeline
-              </Button>
-
-              {creatingPipeline.loading && <Spin tip="Saving a new pipeline" />}
-            </div>
-
-            {Object.keys(creatingPipeline.error).length > 0 && (
-              <span>
-                <ReactJson src={creatingPipeline.error} />
-              </span>
-            )}
           </GridItem>
         </Grid>
       </ExpandableSection>
