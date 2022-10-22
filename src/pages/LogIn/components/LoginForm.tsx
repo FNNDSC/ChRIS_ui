@@ -60,11 +60,9 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
     } catch (error: unknown) {
       setShowHelperText(true);
       // Allows error message to be displayed in red
-      //@ts-ignore
-      if (error.response.status === 400) {
-        setIsValidUsername(false);
-        setIsValidPassword(false);
-      }
+      setIsValidUsername(false);
+      setIsValidPassword(false);
+
       setErrorMessage(() =>
         //@ts-ignore
         error.response
