@@ -20,8 +20,8 @@ const printVersion =  preval(`
 
   const diff = () => {
     // Run external tool synchronously
-    result = shell.exec('git diff --quiet src/').code
-    return (result) ? "" : "-dirty";
+    const result = shell.exec('git diff --quiet src/').code
+    return (result) ? "-dirty" : "";
   }
 
   const revParse = () => {
