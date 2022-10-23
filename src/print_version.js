@@ -7,8 +7,8 @@ import preval from "preval.macro";
 //             -drity = suffix indicating there are uncommitted changes
 
 const printVersion =  preval(`
-  const { spawn } = require('child_process')
   const execSync = require('child_process').execSync;
+  const shell = require('shelljs');
 
   const getTodaysDate = () => {
     const today = new Date();
@@ -19,14 +19,9 @@ const printVersion =  preval(`
   }
 
   const diff = () => {
-    const diffChild = spawn('git', ['diff', '--quiet', 'src/'])
-    let exitCode = false; 
-    diffChild.on('exit', (code) => {
-      if (code === 1) {
-        exitCode = true; 
-      }
-    })
-    return (exitCode) ? "" : "-dirty";
+    // Run external tool synchronously
+    result = shell.exec('git diff --quiet src/').code
+    return (result) ? "" : "-dirty";
   }
 
   const revParse = () => {
