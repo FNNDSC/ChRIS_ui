@@ -55,12 +55,7 @@ const DashboardPage = (props: DashboardProps) => {
   const outlineSearch = <MdOutlineImageSearch style={style} />;
   const magicWand = <FaMagic style={style} />;
 
-  const buildVersion = preval`
-    const { execSync } = require('child_process')
-    module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
-  `;
-  
-  const printVersion =  preval(`
+  const buildVersion =  preval(`
   const execSync = require('child_process').execSync;
   const shell = require('shelljs');
 
@@ -104,7 +99,6 @@ const DashboardPage = (props: DashboardProps) => {
         </p>
         <p>
           Build: <code className="build-version">{buildVersion}</code>
-          Build: <code className="build-version">{printVersion}</code>
         </p>
         {children}
       </PageSection>
