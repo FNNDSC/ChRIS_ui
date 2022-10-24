@@ -56,38 +56,40 @@ const DashboardPage = (props: DashboardProps) => {
   const magicWand = <FaMagic style={style} />;
 
   const buildVersion =  preval(`
-  const execSync = require('child_process').execSync;
-  const shell = require('shelljs');
+    const execSync = require('child_process').execSync;
+    const shell = require('shelljs');
 
-  const getTodaysDate = () => {
-    const today = new Date();
-    const yyyy = today.getFullYear().toString();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    return [yyyy, mm, dd].join("");
-  }
+    const getTodaysDate = () => {
+      const today = new Date();
+      const yyyy = today.getFullYear().toString();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      return [yyyy, mm, dd].join("");
+    }
 
-  const diff = () => {
-    // Run external tool synchronously
-    const result = shell.exec('git diff --quiet src/').code
-    return (result) ? "-dirty" : "";
-  }
+    const diff = () => {
+      // Run external tool synchronously
+      const result = shell.exec('git diff --quiet src/').code
+      return (result) ? "-dirty" : "";
+    }
 
-  const revParse = () => {
-    return execSync('git rev-parse --short HEAD').toString().trim();
-  }
+    const revParse = () => {
+      return execSync('git rev-parse --short HEAD').toString().trim();
+    }
 
-  const revList = () => {
-    return execSync('git rev-list --use-bitmap-index --count --merges version-0..HEAD').toString().trim();
-  }
+    const revList = () => {
+      return execSync('git rev-list --use-bitmap-index --count --merges version-0..HEAD').toString().trim();
+    }
 
-  const date = getTodaysDate();
-  const X = revList(); 
-  const commit = revParse(); 
-  const dirty = diff()
-  const result = date + "." + X + "+" + commit +  dirty
-  module.exports = result
-`)
+    const date = getTodaysDate();
+    const X = revList(); 
+    const commit = revParse(); 
+    const dirty = diff()
+    const result = date + "." + X + "+" + commit +  dirty
+    module.exports = result
+  `)
+
+
   return (
     <Wrapper>
       <PageSection hasShadowBottom variant="light">
