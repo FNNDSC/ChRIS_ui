@@ -1,4 +1,4 @@
-import preval from "preval.macro";
+// import preval from "preval.macro";
 
 //  purpose: print out a version string: YYYYMMDD.X+commit(-dirty?)
 //           YYYYMMDD = current date
@@ -6,7 +6,7 @@ import preval from "preval.macro";
 //             commit = HEAD commit short sha
 //             -drity = suffix indicating there are uncommitted changes
 
-const printVersion =  preval(`
+// const printVersion =  preval(`
   const execSync = require('child_process').execSync;
   const shell = require('shelljs');
 
@@ -38,6 +38,8 @@ const printVersion =  preval(`
   const dirty = diff()
   const result = date + "." + X + "+" + commit +  dirty
   module.exports = result
-`)
 
-export default printVersion;
+  console.log(result);
+// `)
+
+// export default printVersion;
