@@ -33,3 +33,5 @@ yarn-error.log*
 .cache/
 .yarnrc
 
+# eslint cache
+.eslintcache
