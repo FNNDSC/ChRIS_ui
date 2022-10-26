@@ -37,6 +37,7 @@ import { getErrorCodeMessage } from "./utils";
 import AddPipeline from "../AddPipeline/AddPipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
+import { ClipboardCopy } from '@patternfly/react-core';
 interface INodeProps {
   expandDrawer: (panel: string) => void;
 }
@@ -61,9 +62,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     (state) => state.instance.selectedPlugin
   );
   const { download, downloadAllClick } = useFeedBrowser();
-  const copyText = "Copy To Clipboard";
-  const doneCopyText = "Successfully Copied to Clipboard!"
-  const [isCopied, SetIsCopied] = React.useState(false);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isTerminalVisible, setIsTerminalVisible] = React.useState(false);
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -100,13 +98,8 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     pluginParameters,
   ]);
   
-  const path = selectedPlugin?.collection.items[0].links.find((obj:any) => (obj.rel === "files")).href
-  const chrsCommandPath = `chrs download ${path}`;
-
-  const copyPathToClipboard = () => {
-    navigator.clipboard.writeText(chrsCommandPath);
-    SetIsCopied(!isCopied);
-  }
+  const APIURL = selectedPlugin?.collection.items[0].links.find((obj:any) => (obj.rel === "files")).href
+  const chrsCommand = `chrs download ${APIURL}`;
 
   const text =
     plugin && instanceParameters && pluginParameters
@@ -242,8 +235,8 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
                   hasAutoWidth
                   bodyContent={
                     <div>
-                      <p>Copy and Paste the URL below into your chrs cli to download the files</p>
-                      <div className="pf-c-clipboard-copy">
+                      <p>Run the command below in a terminal to download the files</p>
+                      {/* <div className="pf-c-clipboard-copy">
                       <div className="pf-c-clipboard-copy__group">
                       <input className="pf-c-form-control" readOnly type="text" value={chrsCommandPath} aria-label="Readonly input example" />
                       <Tooltip aria="none" aria-live="polite" content={isCopied? copyText: doneCopyText}>
@@ -261,7 +254,10 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
                        </button>
                        </Tooltip>
                       </div>
-                      </div>
+                      </div> */}
+                       <ClipboardCopy isReadOnly hoverTip="Copy To Clipboard" clickTip="Successfully Copied to Clipboard!">
+                        {chrsCommand}
+                       </ClipboardCopy>
                     </div>
                   }
                 >
