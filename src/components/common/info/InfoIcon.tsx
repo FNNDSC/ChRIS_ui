@@ -12,7 +12,7 @@ const InfoIcon = ({
   p3,
   p4,
 }: {
-  title: string
+  title: any
   p1?: any
   p2?: any
   p3?: any
