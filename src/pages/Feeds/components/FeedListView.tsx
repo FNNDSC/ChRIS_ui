@@ -157,9 +157,9 @@ const FeedListView: React.FC = () => {
         <InfoIcon
           title={`New and Existing Analyses
             ${
-              totalFeedsCount > 0 ? (
-                <span className="feed-header__count">({totalFeedsCount})</span>
-              ) : (
+              totalFeedsCount > 0 ? 
+                totalFeedsCount
+              : (
                 "(0)"
               )
             }`}
