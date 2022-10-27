@@ -204,7 +204,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         <FormAlert>
           <Alert
             variant="danger"
-            title={"There Has Been A problem connecting to the server"}
+            title={"There Has been a problem connecting to the server"}
             aria-live="polite"
             isInline
           />
@@ -289,7 +289,13 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
       </FormGroup>
 
       <ActionGroup>
-        <Button variant="primary" type="submit">
+        <Button
+          variant="primary"
+          type="submit"
+          isDisabled={
+            !emailState.email && !passwordState.password && !emailState.email
+          }
+        >
           {loading ? "Loading...." : "Create Account"}
         </Button>
         <Button variant="secondary">
