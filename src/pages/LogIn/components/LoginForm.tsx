@@ -8,7 +8,8 @@ import { LoginForm } from "@patternfly/react-core";
 import ChrisApiClient from "@fnndsc/chrisapi";
 import { useCookies } from "react-cookie";
 import { HelperText, HelperTextItem } from "@patternfly/react-core";
-import { AiFillExclamationCircle } from "react-icons/ai";
+
+
 
 interface IPropsFromDispatch {
   setAuthToken: typeof setAuthToken;
@@ -100,8 +101,8 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
   if (showHelperText) {
     helperText = (
         <HelperText>
-          <HelperTextItem >
-            <AiFillExclamationCircle />
+
+
             {errorMessage}
           </HelperTextItem>
         </HelperText>
