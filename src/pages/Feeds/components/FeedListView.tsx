@@ -136,8 +136,6 @@ const FeedListView: React.FC = () => {
 
   const style = { fontSize: "1.15em" };
 
-  console.log("TotalFeedsCount", totalFeedsCount);
-
   return (
     <React.Fragment>
       <PageSection className="feed-header" variant="light">
