@@ -136,18 +136,15 @@ const FeedListView: React.FC = () => {
 
   const style = { fontSize: "1.15em" };
 
+  console.log("TotalFeedsCount", totalFeedsCount);
+
   return (
     <React.Fragment>
       <PageSection className="feed-header" variant="light">
         <InfoIcon
-          title={`New and Existing Analyses
-            ${
-              totalFeedsCount > 0 ? (
-                <span className="feed-header__count">({totalFeedsCount})</span>
-              ) : (
-                "(0)"
-              )
-            }`}
+          title={`New and Existing Analyses (${
+            totalFeedsCount > 0 ? totalFeedsCount : 0
+          })`}
           p1={
             <Paragraph style={style}>
               All Analyses that you have completed are recorded here. You can
