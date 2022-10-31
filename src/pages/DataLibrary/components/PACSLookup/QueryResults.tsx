@@ -19,18 +19,16 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { useNavigate } from "react-router";
-
 import {
   FaRedo,
   FaQuestionCircle,
   FaCodeBranch,
   FaCubes,
+  FaEye,
 } from "react-icons/fa";
 import Moment from "react-moment";
 import pluralize from "pluralize";
 import { PACSFileList } from "@fnndsc/chrisapi";
-
-import "./pacs-lookup.scss";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import {
   PACSPatient,
@@ -42,7 +40,6 @@ import {
 } from "../../../../api/pfdcm";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { MainRouterContext } from "../../../../routes";
-import { FaEye } from "react-icons/fa";
 
 interface QueryResultsProps {
   results: PACSPatient[] | PACSStudy[];
