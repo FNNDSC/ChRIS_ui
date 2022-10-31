@@ -1,27 +1,24 @@
 #pacs-query-builder {
   #search {
     height: 100%;
-    #search-value, #search-value *, #search-type, #search-type > button {
+    #search-value,
+    #search-value *,
+    #search-type,
+    #search-type > button {
       height: 100%;
     }
     #search-value {
       width: 100%;
-      height: 56px;
     }
 
-    #search-type, #search-type > button {
+    #search-type,
+    #search-type > button {
       height: 100%;
-      width: 100%;
     }
 
-    #pacs-service, #pacs-service > button {
+    #pacs-service,
+    #pacs-service > button {
       height: 100%;
-      width: 100%;
-    }
-    .sm-w-100 {
-      @media (max-width: 600px) {
-        // width: 100%;
-      }
     }
   }
 
@@ -33,12 +30,7 @@
     .pf-l-split {
       width: 100%;
     }
-    .filters-date-picker {
-      width: 100%;
-    }
   }
- 
-
 }
 
 #pacs-query-results {
@@ -62,7 +54,7 @@
     // max-height: 50vh;
     // overflow-y: scroll;
     // overflow-x: hidden;
-    
+
     .pf-c-card {
       padding: 0.75em 1.75em;
 
@@ -86,7 +78,7 @@
     // max-height: 50vh;
     // overflow-y: scroll;
     // overflow-x: hidden;
-    
+
     .pf-c-card {
       padding: 1em;
 
@@ -105,7 +97,6 @@
             top: 0;
             width: 100%;
             height: 100%;
-
             padding: 1em;
             text-align: center;
           }
