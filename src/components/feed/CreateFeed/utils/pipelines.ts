@@ -1,7 +1,7 @@
 import { Pipeline, PipelineList, PluginPiping } from "@fnndsc/chrisapi";
 
 import ChrisAPIClient from "../../../../api/chrisapiclient";
-import { fetchResource } from "../../../../utils/index";
+import { fetchResource } from "../../../../api/common/index";
 
 export async function fetchResources(pipelineInstance: Pipeline) {
   const params = {

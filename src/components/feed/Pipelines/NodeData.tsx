@@ -2,7 +2,7 @@ import React, { useRef, useContext } from "react";
 import { Types, colorPalette } from "../CreateFeed/types";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
-import { TreeNode } from "../../../utils";
+import { TreeNode } from "../../../api/common";
 import { fetchComputeInfo } from "../CreateFeed/utils/pipelines";
 import { CreateFeedContext } from "../CreateFeed/context";
 

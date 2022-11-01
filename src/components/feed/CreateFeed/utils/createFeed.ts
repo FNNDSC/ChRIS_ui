@@ -3,7 +3,7 @@ import { CreateFeedData, LocalFile, PipelineData } from "../types";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
-import { fetchResource } from "../../../../utils";
+import { fetchResource } from "../../../../api/common";
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {

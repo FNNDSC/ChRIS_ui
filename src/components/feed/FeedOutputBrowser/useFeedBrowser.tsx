@@ -13,7 +13,7 @@ import FileViewerModel from '../../../api/models/file-viewer.model'
 import usePluginInstanceResource from '../NodeDetails/usePluginInstanceResource'
 import { getCurrentTitleFromStatus, getFinishedTitle } from '../NodeDetails/StatusTitle'
 import { getPluginName } from './utils'
-import { fetchResource } from '../../../utils'
+import { fetchResource } from '../../../api/common'
 
 const status = ['finishedSuccessfully', 'finishedWithError', 'cancelled']
 
