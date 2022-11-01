@@ -145,9 +145,9 @@ const FeedListView: React.FC = () => {
           })`}
           p1={
             <Paragraph style={style}>
-              All Analyses that you have completed are recorded here. You can
-              easily return to a completed analysis and add more analysis
-              components, or you can create a brand new analysis from scratch.
+              Analyses (aka ChRIS feeds) are computational experiments where
+              data are organized and processed by ChRIS plugins. In this view
+              you may view your analyses and also the ones shared with you.
             </Paragraph>
           }
         />
@@ -181,8 +181,7 @@ const FeedListView: React.FC = () => {
             aria-label="Data table"
             cells={cells}
             isStickyHeader
-            rowWrapper={customRowWrapper}
-          >
+            rowWrapper={customRowWrapper}>
             {
               <Thead>
                 <Tr>
@@ -215,8 +214,7 @@ const FeedListView: React.FC = () => {
                     style={{
                       textAlign: "center",
                       margin: "0 auto",
-                    }}
-                  >
+                    }}>
                     Size
                   </Th>
                   <Th></Th>
