@@ -56,6 +56,7 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
         onKeyDown={handleKeyDown}
         placeholder={param.data.help}
         value={value}
+        id={param.data.name}
       />
     </Form>
   );
