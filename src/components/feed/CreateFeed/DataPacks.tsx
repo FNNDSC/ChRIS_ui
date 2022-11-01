@@ -35,7 +35,7 @@ interface FilterProps {
 
 const getFilterState = () => {
   return {
-    perPage: 3,
+    perPage: 9,
     currentPage: 1,
     filter: "",
     itemCount: 0,
@@ -136,6 +136,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                 <DataListCheck
                   aria-labelledby="plugin-checkbox"
                   name={pluginName}
+                  id={name}
                   onChange={(checked: any) => {
                     checked === true && props.getParams(plugin);
                     dispatch({
