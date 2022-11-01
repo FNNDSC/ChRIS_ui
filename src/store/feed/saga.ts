@@ -215,7 +215,7 @@ function* handleFeedInstanceStatus(feed: Feed) {
       if (details.progress === 100 || details.error === true) {
         yield put(stopFetchingFeedResources(feed))
       } else {
-        yield delay(700)
+        yield delay(7000)
       }
     } catch (error) {
       yield put(stopFetchingFeedResources(feed))
