@@ -17,7 +17,7 @@ import {
   getPluginFilesError,
   getPluginInstanceStatusSuccess,
 } from "./actions";
-import { fetchResource } from "../../utils";
+import { fetchResource } from "../../api/common";
 import ChrisAPIClient from "../../api/chrisapiclient";
 
 export function* getPluginFiles(plugin: PluginInstance) {

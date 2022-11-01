@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Typography } from "antd";
 import { Link } from "react-router-dom";
 import Moment from "react-moment";
 import "@patternfly/react-core/dist/styles/base.css";
@@ -10,9 +11,9 @@ import {
   Checkbox,
   Tooltip,
 } from "@patternfly/react-core";
-import { TableComposable, Thead, Tr, Th, Td } from "@patternfly/react-table";
+import { TableComposable, Thead, Tr, Th, Td, Tbody } from "@patternfly/react-table";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
-import { setSidebarActive } from "../../../store/ui/actions";
+import { Feed } from "@fnndsc/chrisapi";
 import {
   getAllFeedsRequest,
   setBulkSelect,
@@ -24,7 +25,7 @@ import {
   stopFetchingFeedResources,
   cleanupFeedResources,
 } from "../../../store/feed/actions";
-
+import { setSidebarActive } from "../../../store/ui/actions";
 import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
@@ -33,13 +34,10 @@ import {
   generateTableLoading,
 } from "../../../components/common/emptyTable";
 import { usePaginate } from "../../../components/common/pagination";
-import { Feed } from "@fnndsc/chrisapi";
 import IconContainer from "./IconContainer";
 import { useTypedSelector } from "../../../store/hooks";
-import { Tbody } from "@patternfly/react-table";
 import { FeedResource } from "../../../store/feed/types";
 import InfoIcon from "../../../components/common/info/InfoIcon";
-import { Typography } from "antd";
 const { Paragraph } = Typography;
 
 const FeedListView: React.FC = () => {
@@ -181,7 +179,8 @@ const FeedListView: React.FC = () => {
             aria-label="Data table"
             cells={cells}
             isStickyHeader
-            rowWrapper={customRowWrapper}>
+            rowWrapper={customRowWrapper}
+          >
             {
               <Thead>
                 <Tr>
@@ -214,7 +213,8 @@ const FeedListView: React.FC = () => {
                     style={{
                       textAlign: "center",
                       margin: "0 auto",
-                    }}>
+                    }}
+                  >
                     Size
                   </Th>
                   <Th></Th>
