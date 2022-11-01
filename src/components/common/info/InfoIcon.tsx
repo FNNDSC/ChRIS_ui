@@ -1,9 +1,9 @@
-import React from 'react'
-import { FcInfo } from 'react-icons/fc'
-import { Hint } from '@patternfly/react-core'
-import { Popover, Typography } from 'antd'
+import React from "react";
+import { FcInfo } from "react-icons/fc";
+import { Hint } from "@patternfly/react-core";
+import { Popover, Typography } from "antd";
 
-const { Title } = Typography
+const { Title } = Typography;
 
 const InfoIcon = ({
   title,
@@ -12,11 +12,11 @@ const InfoIcon = ({
   p3,
   p4,
 }: {
-  title: string
-  p1?: any
-  p2?: any
-  p3?: any
-  p4?: any
+  title: string;
+  p1?: any;
+  p2?: any;
+  p3?: any;
+  p4?: any;
 }) => {
   const content = (
     <Hint>
@@ -25,7 +25,7 @@ const InfoIcon = ({
       {p3}
       {p4}
     </Hint>
-  )
+  );
 
   return (
     <Title>
@@ -40,7 +40,7 @@ const InfoIcon = ({
         />
       </Popover>
     </Title>
-  )
-}
+  );
+};
 
-export default InfoIcon
+export default InfoIcon;
