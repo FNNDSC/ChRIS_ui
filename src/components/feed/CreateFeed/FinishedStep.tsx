@@ -49,7 +49,7 @@ const FinishedStep = () => {
       <StackItem>
         <div className="finished-step__button">
           <Button
-            className="finished-step__buton-type"
+            className="finished-step__button-type"
             variant="primary"
             onClick={() => {
               dispatch({
@@ -66,7 +66,7 @@ const FinishedStep = () => {
               ? "Please try again"
               : isSuccess
               ? "Close"
-              : "Cancel"}
+              : "Close"}
           </Button>
         </div>
       </StackItem>
