@@ -1,18 +1,12 @@
-/** @format */
-
 import * as React from "react";
 import { Link } from "react-router-dom";
 import Moment from "react-moment";
 import "@patternfly/react-core/dist/styles/base.css";
 import {
   PageSection,
-  PageSectionVariants,
-  Title,
   Pagination,
   EmptyState,
   EmptyStateBody,
-  Hint,
-  HintBody,
   Checkbox,
   Tooltip,
 } from "@patternfly/react-core";
@@ -64,15 +58,6 @@ const FeedListView: React.FC = () => {
 
   const bulkData = React.useRef<Feed[]>();
   bulkData.current = bulkSelect;
-
-  const [width, setWindowWidth] = React.useState(0);
-  React.useEffect(() => {
-    function handleResize() {
-      setWindowWidth(window.innerWidth);
-    }
-    window.addEventListener("resize", handleResize);
-    handleResize();
-  }, []);
 
   React.useEffect(() => {
     document.title = "All Analyses - ChRIS UI ";
@@ -155,14 +140,9 @@ const FeedListView: React.FC = () => {
     <React.Fragment>
       <PageSection className="feed-header" variant="light">
         <InfoIcon
-          title={`New and Existing Analyses
-            ${
-              totalFeedsCount > 0 ? (
-                <span className="feed-header__count">({totalFeedsCount})</span>
-              ) : (
-                "(0)"
-              )
-            }`}
+          title={`New and Existing Analyses (${
+            totalFeedsCount > 0 ? totalFeedsCount : 0
+          })`}
           p1={
             <Paragraph style={style}>
               All Analyses that you have completed are recorded here. You can
@@ -201,7 +181,8 @@ const FeedListView: React.FC = () => {
             aria-label="Data table"
             cells={cells}
             isStickyHeader
-            rowWrapper={customRowWrapper}>
+            rowWrapper={customRowWrapper}
+          >
             {
               <Thead>
                 <Tr>
@@ -234,7 +215,8 @@ const FeedListView: React.FC = () => {
                     style={{
                       textAlign: "center",
                       margin: "0 auto",
-                    }}>
+                    }}
+                  >
                     Size
                   </Th>
                   <Th></Th>
@@ -326,7 +308,8 @@ const TableRow = ({
       style={{
         textAlign: "center",
         margin: "0 auto",
-      }}>
+      }}
+    >
       <span className="feed-list__name">
         <Tooltip content={<div>View files in library</div>}>
           <Link to={`/library/`}>
@@ -373,7 +356,8 @@ const TableRow = ({
         height: "40px",
         width: "40px",
         display: "block",
-      }}>
+      }}
+    >
       <ChartDonutUtilization
         ariaTitle={feedProgressText}
         data={{ x: "Feed Progress", y: progress }}
@@ -420,7 +404,8 @@ const TableRow = ({
       isRowSelected={isSelected(bulkSelect, feed)}
       style={{
         backgroundColor: selectedBgRow,
-      }}>
+      }}
+    >
       <Td>{bulkChecbox}</Td>
       <Td>{feedId}</Td>
       <Td>{name}</Td>
