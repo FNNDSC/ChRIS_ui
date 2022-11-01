@@ -203,6 +203,7 @@ export const createFeedInstanceWithFS = async (
           feed = await fsPluginInstance.getFeed();
           statusCallback("Feed Created");
         } catch (error) {
+          console.log("Error", error);
           errorCallback(error as string);
         }
       }
