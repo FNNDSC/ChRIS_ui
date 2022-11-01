@@ -71,45 +71,37 @@ describe("Testing CreateAnalysis", () => {
 
   it("07 Selects the Feed Synthesis plugin", () => {
     cy.get('[type="checkbox"]').first().check();
+    cy.get("button.pf-c-button.pf-m-primary")
+      .eq(1)
+      .should("have.text", "Next")
+      .click();
     cy.wait(2000);
   });
 
   it("08 Goes to Parameter Configuration", () => {
+    cy.get("input#dir").type(`${users.username}/uploads`);
     cy.get("button.pf-c-button.pf-m-primary")
-      .eq(1)
+      .eq(2)
       .should("have.text", "Next")
       .click();
   });
 
   it("09 Goes to Registered Pipelines", () => {
-    cy.get("button.pf-c-button.pf-m-primary")
-      .eq(2)
-      .click()
-      .should("have.text", "Review")
-      .wait(2000);
+    cy.get("button.pf-c-button.pf-m-primary").eq(2).click();
   });
 
   it("11 Goes to Review", () => {
-    cy.get("button.pf-c-button.pf-m-primary").eq(2).click().wait(2000);
+    cy.get("button.pf-c-button.pf-m-primary").eq(1).click().wait(2000);
   });
 
-  it("12 Creates a Feed", () => {
-    cy.get("button.pf-c-button.pf-m-primary")
-      .eq(1)
-      .should("have.text", "Create Feed")
-      .click();
-  });
-
-  it("13 confirms the configuration is complete", () => {
+  it("12 confirms the configuration is complete", () => {
     cy.wait(2000);
     cy.get("span.pf-c-progress__measure").should("have.text", "100%");
   });
 
-  it("14 Closes the Wizard", () => {
-    cy.get("button.pf-c-button.pf-m-primary")
-      .eq(1)
-      .should("have.text", "Close")
-      .click();
+  it("13 Closes the Wizard", () => {
+    cy.get("button.pf-c-button.pf-m-primary.finished-step__button-type")
+    .click();
   });
 
   it("15 Asserts new analysis has been created", () => {
