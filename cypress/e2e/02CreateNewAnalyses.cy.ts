@@ -70,7 +70,7 @@ describe("Testing CreateAnalysis", () => {
   });
 
   it("07 Selects the Feed Synthesis plugin", () => {
-    cy.get('[type="checkbox"]').check();
+    cy.get('input#pl-dircopy').check();
     cy.get("button.pf-c-button.pf-m-primary")
       .eq(1)
       .should("have.text", "Next")
