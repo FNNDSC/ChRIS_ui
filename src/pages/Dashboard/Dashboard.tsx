@@ -57,7 +57,7 @@ const DashboardPage = (props: DashboardProps) => {
 
   const buildVersion =  preval(`
     const execSync = require('child_process').execSync;
-    const shell = require('shelljs');
+    const spawnSync = require('child_process').spawnSync;
 
     const getTodaysDate = () => {
       const today = new Date();
@@ -68,8 +68,7 @@ const DashboardPage = (props: DashboardProps) => {
     }
 
     const diff = () => {
-      // Run external tool synchronously
-      const result = shell.exec('git diff --quiet src/').code
+      const result = spawnSync('git', ['diff', '--quiet', 'src/']).status
       return (result) ? "-dirty" : "";
     }
 
