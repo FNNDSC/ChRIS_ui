@@ -14,6 +14,8 @@ import {
   Button,
   Alert,
   TextInput,
+
+  
 } from "@patternfly/react-core";
 import { Card, Col, Row } from "antd";
 import ReactJSON from "react-json-view";
@@ -24,6 +26,7 @@ import Tree from "./Tree";
 import { PipelineList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { generatePipelineWithData } from "../feed/CreateFeed/utils/pipelines";
+import { EmptyStateTable } from "../common/emptyTable";
 
 interface PageState {
   perPage: number;
@@ -222,9 +225,9 @@ const DisplayPage = ({
       )}
       <div className="site-card-wrapper">
         <Row gutter={16}>
-          {resources &&
-            resources.length > 0 &&
-            resources.map((resource) => {
+          {(resources &&
+            resources.length > 0 )?
+            (resources.map((resource) => {
               return (
                 <Col key={resource.data ? resource.data.id : ""} span={8} lg={8} sm={12} xs={24}>
                   <Card
@@ -270,8 +273,22 @@ const DisplayPage = ({
                   </Card>
                 </Col>
               );
-            })}
-        </Row>
+              })):(
+                
+                <Col offset={8}>
+                  <EmptyStateTable
+                  cells={[]}
+                  rows={[]}
+                  caption=""
+                  title="No results found"
+                  description=""
+                  />
+              </Col>
+  
+              )
+              }
+            </Row>
+        
       </div>
     </Grid>
   );
