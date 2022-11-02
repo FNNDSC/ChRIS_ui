@@ -314,7 +314,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
           <Grid hasGutter className="patient-series">
             {study.series.map((series) => (
               <GridItem sm={12} md={3} key={series.SeriesInstanceUID}>
-                <SeriesCard series={series} />
+                <SeriesCard study={study} series={series} />
               </GridItem>
             ))}
           </Grid>
@@ -323,7 +323,13 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     );
   };
 
-  const SeriesCard = ({ series }: { series: PACSSeries }) => {
+  const SeriesCard = ({
+    study,
+    series,
+  }: {
+    study: PACSStudy;
+    series: PACSSeries;
+  }) => {
     const { SeriesInstanceUID, StudyInstanceUID, PatientID } = series;
     const pullQuery = { SeriesInstanceUID, StudyInstanceUID, PatientID };
 
@@ -565,8 +571,13 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
             <SeriesActions />
           </div>
 
-          <div style={{ fontSize: "small" }}>
+          <div style={{ fontSize: "small", display: "flex" }}>
             <b>{series.SeriesDescription}</b>
+            <div style={{ marginLeft: "0.5em" }}>
+              {study.ModalitiesInStudy.split("\\").map((m) => (
+                <Badge key={m}>{m}</Badge>
+              ))}
+            </div>
           </div>
         </CardBody>
       </Card>
