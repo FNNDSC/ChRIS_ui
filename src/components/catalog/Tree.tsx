@@ -1,7 +1,7 @@
 import React, { Fragment, useRef } from "react";
 import { tree, hierarchy } from "d3-hierarchy";
 import { select } from "d3-selection";
-import { TreeNode, getFeedTree } from "../../utils";
+import { TreeNode, getFeedTree } from "../../api/common";
 import TransitionGroupWrapper from "../feed/FeedTree/TransitionGroupWrapper";
 import NodeData from "./NodeData";
 import { generatePipelineWithName } from "../feed/CreateFeed/utils/pipelines";
