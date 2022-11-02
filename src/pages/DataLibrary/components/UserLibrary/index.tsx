@@ -34,7 +34,7 @@ import {
 } from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'
 import { useDispatch } from 'react-redux'
-import { fetchResource } from '../../../../utils'
+import { fetchResource } from '../../../../api/common'
 import './user-library.scss'
 
 interface DownloadType {

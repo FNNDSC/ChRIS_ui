@@ -19,7 +19,6 @@ import {
   stopFetchingFeedResources,
 } from './actions'
 import { getPluginInstancesRequest } from '../pluginInstance/actions'
-
 import cujs from 'chris-upload'
 
 const params: {

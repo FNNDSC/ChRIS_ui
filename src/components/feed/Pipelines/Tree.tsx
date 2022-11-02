@@ -14,7 +14,7 @@ import { Types } from "../CreateFeed/types";
 import { CreateFeedContext } from "../CreateFeed/context";
 import TransitionGroupWrapper from "../FeedTree/TransitionGroupWrapper";
 import NodeData from "./NodeData";
-import { TreeNode, getFeedTree } from "../../../utils";
+import { TreeNode, getFeedTree } from "../../../api/common";
 import useSize from "../FeedTree/useSize";
 
 const nodeSize = { x: 200, y: 80 };
