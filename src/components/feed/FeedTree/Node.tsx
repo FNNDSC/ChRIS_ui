@@ -1,10 +1,11 @@
-import React, { Fragment, useRef } from 'react'
+import React, { Fragment, useRef, useState } from 'react'
 import { select } from 'd3-selection'
 import { HierarchyPointNode } from 'd3-hierarchy'
 import { Datum, TreeNodeDatum, Point } from './data'
 import { PluginInstance } from '@fnndsc/chrisapi'
 import { useTypedSelector } from '../../../store/hooks'
 import { FeedTreeScaleType } from './Controls'
+import { getPluginFiles } from '../../../store/resources/saga'
 
 type NodeWrapperProps = {
   tsNodes?: PluginInstance[]
@@ -171,12 +172,36 @@ const NodeMemoed = React.memo(Node)
 
 const NodeWrapper = (props: NodeWrapperProps) => {
   const { data, overlayScale } = props
+  const [outputSize, setOutputSize] = useState<number>()
+
+  const pluginInstances = useTypedSelector(
+    state => state.instance.pluginInstances.data
+  )
+
+  React.useEffect(() => {
+    const pluginInstance = pluginInstances?.find((instance) => {
+      return instance.collection.items[0].data[0].value === data.id
+    })
+
+    if (pluginInstance) {
+      const pluginFiles = getPluginFiles(pluginInstance).next().value
+      if (pluginFiles instanceof Promise<any[]>) {
+        pluginFiles.then((files) =>{
+          const fileSizes = files.map((file) => {
+            return file.collection.items[0].data[3].value
+          })
+          const dirSize = fileSizes.reduce((previousValue, currentValue) => previousValue + currentValue, 0)
+          setOutputSize(dirSize)
+        })
+      }
+    }
+  }, [])
+
   const status = useTypedSelector((state) => {
     if (data.id && state.resource.pluginInstanceStatus[data.id]) {
       return state.resource.pluginInstanceStatus[data.id].status
     } else return
   })
-
   const currentId = useTypedSelector((state) => {
     if (state.instance.selectedPlugin?.data.id === data.id) return true
     else return false
@@ -191,7 +216,9 @@ const NodeWrapper = (props: NodeWrapperProps) => {
       scale = Math.log10(end.getTime() - start.getTime()) / 2
     }
   } else if (overlayScale === 'size') {
-    // props.data.item?.
+      if (outputSize) {
+        scale = outputSize / (1024 ** 2) / 10
+      }
   }
 
   return (
