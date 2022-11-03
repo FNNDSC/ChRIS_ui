@@ -6,7 +6,6 @@ import {
   Grid,
   GridItem,
   ExpandableSection,
-  Tooltip,
   Popover as Popover_patternfly,
 } from "@patternfly/react-core";
 
@@ -38,6 +37,7 @@ import AddPipeline from "../AddPipeline/AddPipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
 import { ClipboardCopy } from '@patternfly/react-core';
+import { getFilesHref } from './helper';
 interface INodeProps {
   expandDrawer: (panel: string) => void;
 }
@@ -98,7 +98,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     pluginParameters,
   ]);
   
-  const APIURL = selectedPlugin?.collection.items[0].links.find((obj:any) => (obj.rel === "files")).href
+  const APIURL = getFilesHref(selectedPlugin);
   const chrsCommand = `chrs download ${APIURL}`;
 
   const text =
