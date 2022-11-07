@@ -199,17 +199,22 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   );
   const localFileUpload = <LocalFileUpload />;
   const packs = <DataPacks />;
+  let pluginName = selectedPlugin?.data.title
+    ? selectedPlugin?.data.title
+    : selectedPlugin?.data.name;
+  const pluginVersion = pluginName += `${selectedPlugin?.data.version}`;
   const guidedConfig = (
     <GuidedConfig
-      renderComputeEnv={true}
-      inputChange={inputChange}
-      deleteInput={deleteInput}
-      plugin={selectedPlugin}
-      dropdownInput={dropdownInput}
-      requiredInput={requiredInput}
-      selectedComputeEnv={computeEnvironment}
-      setComputeEnviroment={setComputeEnvironment}
-    />
+    defaultValueDisplay={false}
+    renderComputeEnv={true}
+    inputChange={inputChange}
+    deleteInput={deleteInput}
+    pluginName={pluginVersion}
+    dropdownInput={dropdownInput}
+    requiredInput={requiredInput}
+    selectedComputeEnv={computeEnvironment}
+    setComputeEnviroment={setComputeEnvironment}
+  />
   );
   const pipelines = <Pipelines />;
   const review = <Review />;

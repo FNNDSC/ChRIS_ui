@@ -335,6 +335,13 @@ const ConfigurationPage = (props: {
   const iconFontSize = {
     fontSize: "1.25rem",
   };
+
+  let pluginName = selectedPlugin?.data.title
+    ? selectedPlugin?.data.title
+    : selectedPlugin?.data.name;
+
+  const pluginVersion = (pluginName += `${selectedPlugin?.data.version}`);
+  
   return (
     <>
       <div
@@ -464,6 +471,8 @@ const ConfigurationPage = (props: {
           <GridItem span={6}>
             {selectedPlugin && (
               <GuidedConfig
+                pluginName={pluginVersion}
+                defaultValueDisplay={true}
                 renderComputeEnv={false}
                 inputChange={inputChange}
                 deleteInput={deleteInput}
