@@ -305,7 +305,7 @@ const Pipelines = () => {
                     {(expanded && expanded[pipeline.data.id]) ||
                     state.pipelineData[pipeline.data.id] ? (
                       <>
-                        <div style={{ display: "flex" }}>
+                        <div style={{ display: "flex", background: "black" }}>
                           <Tree
                             currentPipelineId={pipeline.data.id}
                             handleNodeClick={handleNodeClick}
