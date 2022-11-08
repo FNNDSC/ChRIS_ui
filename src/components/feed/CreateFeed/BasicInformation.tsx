@@ -3,12 +3,12 @@ import { Form, FormGroup, TextInput, TextArea } from "@patternfly/react-core";
 import { Typeahead } from "react-bootstrap-typeahead";
 import { CreateFeedContext } from "./context";
 import { Tag } from "@fnndsc/chrisapi";
-import { Types } from "./types";
+import { Types } from "./types/feed";
 import { fetchTagList } from "./utils/basicInformation";
 
 const BasicInformation: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { feedName, feedDescription, tags } = state.data;
+  const { feedName, feedDescription, tags } = state.feedState.data;
   const [availableTagsLoaded, setAvailableTagsLoaded] =
     useState<boolean>(false);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);

@@ -1,11 +1,15 @@
 import React, { createContext, useContext, useReducer } from "react";
 import { MainRouterContext } from "../../../../routes";
-import { createFeedReducer, getInitialState } from "../reducer";
-import { CreateFeedState } from "../types";
+import { createFeedReducer, getInitialState } from "../reducer/feedReducer";
+import {
+  pipelineReducer,
+  getInitialPipelineState,
+} from "../reducer/pipelineReducer";
+
 
 const CreateFeedContext = createContext<{
-  state: CreateFeedState;
-  dispatch: React.Dispatch<any>;
+  state: any;
+  dispatch: any;
 }>({
   state: getInitialState(),
   dispatch: () => null,
@@ -20,7 +24,12 @@ const CreateFeedProvider: React.FC<CreateFeedProviderProps> = ({
 }: CreateFeedProviderProps) => {
   const { state: routerState } = useContext(MainRouterContext);
   const initialState = getInitialState(routerState);
-  const [state, dispatch] = useReducer(createFeedReducer, initialState);
+  const initialpipelineState = getInitialPipelineState();
+
+  const [state, dispatch] = useCombinedReducer({
+    feedState: useReducer(createFeedReducer, initialState),
+    pipelineState: useReducer(pipelineReducer, initialpipelineState),
+  });
 
   return (
     <CreateFeedContext.Provider value={{ state, dispatch }}>
@@ -30,3 +39,18 @@ const CreateFeedProvider: React.FC<CreateFeedProviderProps> = ({
 };
 
 export { CreateFeedContext, CreateFeedProvider };
+
+const useCombinedReducer = (combinedReducers: any) => {
+  const state = Object.keys(combinedReducers).reduce(
+    (acc, key) => ({ ...acc, [key]: combinedReducers[key][0] }),
+    {}
+  );
+
+  // Global Dispatch Function
+  const dispatch = (action: any) =>
+    Object.keys(combinedReducers)
+      .map((key) => combinedReducers[key][1])
+      .forEach((fn) => fn(action));
+
+  return [state, dispatch];
+};

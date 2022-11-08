@@ -6,17 +6,11 @@ import "./createfeed.scss";
 import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
 import { ChrisFileDetails, LocalFileDetails } from "./helperComponents";
 
-
 const Review: React.FunctionComponent = () => {
   const { state } = useContext(CreateFeedContext);
 
-  const {
-    feedName,
-    feedDescription,
-    tags,
-    chrisFiles,
-    localFiles
-  } = state.data;
+  const { feedName, feedDescription, tags, chrisFiles, localFiles } =
+    state.feed.data;
   const {
     dropdownInput,
     requiredInput,
@@ -24,10 +18,10 @@ const Review: React.FunctionComponent = () => {
     selectedPlugin,
     computeEnvironment,
     pipelineName,
-  } = state;
+  } = state.feedState;
 
   // the installed version of @patternfly/react-core doesn't support read-only chips
-  const tagList = tags.map((tag) => (
+  const tagList = tags.map((tag: any) => (
     <div className="pf-c-chip pf-m-read-only tag" key={tag.data.id}>
       <span className="pf-c-chip__text">{tag.data.name}</span>
     </div>

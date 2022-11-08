@@ -16,7 +16,7 @@ import {
   DataBreadcrumb,
   ChrisFileSelectProp,
   CheckedKeys,
-} from './types'
+} from './types/feed'
 import { generateTreeNodes, getNewTreeData } from './utils/fileSelect'
 import { FileList, ErrorMessage } from './helperComponents'
 import { isEmpty } from 'lodash'
@@ -62,7 +62,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
   username,
 }: ChrisFileSelectProp) => {
   const { state, dispatch } = useContext(CreateFeedContext)
-  const { chrisFiles, checkedKeys } = state.data
+  const { chrisFiles, checkedKeys } = state.feedState.data
 
   const [tree, setTree] = useState<DataBreadcrumb[]>(
     (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username),

@@ -5,7 +5,7 @@ import { Alert, Button } from '@patternfly/react-core'
 import { PipelineList} from '@fnndsc/chrisapi'
 import { generatePipelineWithData } from '../CreateFeed/utils/pipelines'
 import ChrisAPIClient from '../../../api/chrisapiclient'
-import { UploadJsonProps } from '../CreateFeed/Pipelines'
+import { UploadJsonProps } from '../CreateFeed/PipelineContainer'
 
 export const UploadJson = ({
   handleDispatch,

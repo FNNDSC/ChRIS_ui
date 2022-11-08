@@ -2,7 +2,8 @@ import React, { useContext } from "react";
 import { List, Checkbox, Avatar } from "antd";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { CreateFeedContext } from "../CreateFeed/context";
-import { Types, colorPalette } from "../CreateFeed/types";
+import { PipelineTypes } from "../CreateFeed/types/pipeline";
+import { hasCode, intToRGB } from "../CreateFeed/utils/pipelines";
 
 const GeneralCompute = ({
   currentPipelineId,
@@ -56,7 +57,7 @@ const GeneralCompute = ({
                       }
                       onClick={() => {
                         dispatch({
-                          type: Types.SetGeneralCompute,
+                          type: PipelineTypes.SetGeneralCompute,
                           payload: {
                             currentPipelineId,
                             computeEnv: item.data.name,
@@ -67,11 +68,7 @@ const GeneralCompute = ({
 
                     <Avatar
                       style={{
-                        background: `${
-                          colorPalette[item.data.name]
-                            ? colorPalette[item.data.name]
-                            : colorPalette["default"]
-                        }`,
+                        background: `#${intToRGB(hasCode(item.data.name))}`,
                       }}
                     />
                   </>

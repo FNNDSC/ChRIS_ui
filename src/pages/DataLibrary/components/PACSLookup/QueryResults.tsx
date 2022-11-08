@@ -599,26 +599,6 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       {results.map((patient) => (
         <GridItem key={patient.PatientID}>
           <PatientCard patient={patient} />
-
-          {/* {isExpanded(patient.PatientID) && (
-            <Grid hasGutter className="patient-studies">
-              {patient.studies.map((study) => (
-                <GridItem key={study.StudyInstanceUID}>
-                  <StudyCard study={study} />
-
-                  {isExpanded(study.StudyInstanceUID) && (
-                    <Grid hasGutter className="patient-series">
-                      {study.series.map((series) => (
-                        <GridItem sm={12} md={3} key={series.SeriesInstanceUID}>
-                          <SeriesCard series={series} />
-                        </GridItem>
-                      ))}
-                    </Grid>
-                  )}
-                </GridItem>
-              ))}
-            </Grid>
-          )} */}
         </GridItem>
       ))}
     </Grid>
