@@ -10,7 +10,7 @@ import { Spin } from "antd";
 import { tree, hierarchy } from "d3-hierarchy";
 import { select, event } from "d3-selection";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
-import { Types } from "../CreateFeed/types";
+import { PipelineTypes } from "../CreateFeed/types/pipeline";
 import { CreateFeedContext } from "../CreateFeed/context";
 import TransitionGroupWrapper from "../FeedTree/TransitionGroupWrapper";
 import NodeData from "./NodeData";
@@ -44,7 +44,7 @@ const Tree = (props: {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { currentPipelineId } = props;
   const { pluginPipings, pipelinePlugins } =
-    state.pipelineData[currentPipelineId];
+    state.pipeline.pipelineData[currentPipelineId];
   const [loading, setLoading] = React.useState(false);
 
   const { handleNodeClick } = props;
@@ -83,7 +83,7 @@ const Tree = (props: {
     }
     if (pipelinePlugins) {
       const defaultPlugin = pipelinePlugins[0];
-      const defaultPluginId = pluginPipings?.filter((piping) => {
+      const defaultPluginId = pluginPipings?.filter((piping: any) => {
         if (piping.data.plugin_id === defaultPlugin.data.id) {
           return piping.data.id;
         }
@@ -91,7 +91,7 @@ const Tree = (props: {
 
       if (defaultPluginId) {
         dispatch({
-          type: Types.SetCurrentNode,
+          type: PipelineTypes.SetCurrentNode,
           payload: {
             pipelineId: currentPipelineId,
             currentNode: defaultPluginId[0].data.id,
@@ -135,7 +135,7 @@ const Tree = (props: {
         className="pipelines__tree"
         style={{
           background: "black",
-          height:'380px',
+          height: "380px",
           width: "75%",
         }}
       >

@@ -1,12 +1,12 @@
 import React, { useContext } from "react";
 import { Radio } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
-import { Types } from "./types";
+import { Types } from "./types/feed";
 
 
 const ChooseConfig: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { selectedConfig } = state;
+  const { selectedConfig } = state.feedState;
   const { isDataSelected } = state.data;
 
   return (

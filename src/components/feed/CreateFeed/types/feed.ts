@@ -1,5 +1,5 @@
-import { Tag, Plugin, PluginInstance, PluginPiping } from "@fnndsc/chrisapi";
-import { InputState, InputIndex, InputType } from "../../AddNode/types";
+import { Tag, Plugin, PluginInstance } from "@fnndsc/chrisapi";
+import { InputState, InputIndex } from "../../AddNode/types";
 import { IUserState } from "../../../../store/user/types";
 import { Feed } from "@fnndsc/chrisapi";
 import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
@@ -14,10 +14,6 @@ type ActionMap<M extends { [index: string]: any }> = {
         payload: M[Key];
       };
 };
-
-export interface ComputeEnvData {
-  [key: string]: { computeEnvs: any[]; currentlySelected: any };
-}
 
 export enum Types {
   ToggleWizzard = "TOGGLE_WIZZARD",
@@ -40,23 +36,8 @@ export enum Types {
   ResetProgress = "RESET_PROGRESS",
   SetProgressPercent = "SET_PROGRESS_PERCENT",
   SetComputeEnvironment = "SET_COMPUTE_ENVIRONMENT",
-  SetCurrentPipeline = "SET_CURRENT_PIPELINE",
-  SetPipelineResources = "SET_PIPELINE_RESOURCES",
-  SetPipelines = "SET_PIPELINES",
-  SetPipelineEnvironments = "SET_PIPELINE_ENVIRONMENTS",
-  SetCurrentNode = "SET_CURRENT_NODE",
-  SetExpandedPipelines = "SET_EXPANDED_PIPELINES",
-  AddPipeline = "ADD_PIPELINE",
-  SetPipelineName = "SET_PIPELINE_NAME",
-  DeslectPipeline = "DESELECT_PIPELINE",
-  SetCurrentNodeTitle = "SET_CURRENT_NODE_TITLE",
-  SetCurrentComputeEnvironment = "SET_CURRENT_COMPUTE_ENVIRONMENT",
-  SetPipelineDropdownInput = "SET_PIPELINE_DROPDOWN_INPUT",
-  SetPipelineRequiredInput = "SET_PIPELINE_REQUIRED_INPUT",
-  DeletePipelineInput = "DELETE_PIPELINE_INPUT",
-  SetDefaultParameters = "SET_DEFAULT_PARAMETERS",
-  SetGeneralCompute = "SET_GENERAL_COMPUTE",
 }
+
 
 type CreateFeedPayload = {
   [Types.ToggleWizzard]: boolean;
@@ -102,27 +83,8 @@ type CreateFeedPayload = {
     input: InputIndex;
   };
 
-  [Types.SetPipelineDropdownInput]: {
-    currentNodeId: string;
-    currentPipelineId: string;
-    id: string;
-    input: InputIndex;
-  };
-  [Types.SetPipelineRequiredInput]: {
-    currentNodeId: string;
-    currentPipelineId: string;
-    id: string;
-    input: InputIndex;
-  };
-
   [Types.DeleteInput]: {
     input: string;
-  };
-
-  [Types.DeletePipelineInput]: {
-    input: string;
-    currentPipelineId: number;
-    currentNodeId: number;
   };
 
   [Types.ResetState]: boolean;
@@ -135,74 +97,11 @@ type CreateFeedPayload = {
   [Types.SetProgressPercent]: {
     percent: number;
   };
-  [Types.SetComputeEnvironment]: {
-    computeEnvironment: string;
-  };
+
   [Types.ResetProgress]: boolean;
 
-  [Types.SetPipelineResources]: {
-    pipelineId: number;
-    parameters: any[];
-    pluginPipings: PluginPiping[];
-    pipelinePlugins: any[];
-  };
-  [Types.SetPipelineEnvironments]: {
-    pipelineId: number;
-    computeEnvData: {
-      [key: string]: {
-        computeEnvs: any[];
-        currentlySelected: any;
-      };
-    };
-  };
-  [Types.SetCurrentNode]: {
-    pipelineId: number;
-    currentNode: number;
-  };
-  [Types.SetExpandedPipelines]: {
-    pipelineId: number;
-  };
-
-  [Types.SetCurrentPipeline]: {
-    pipelineId: number;
-  };
-  [Types.SetPipelines]: {
-    pipelines: any[];
-  };
-
-  [Types.AddPipeline]: {
-    pipeline: any;
-  };
-
-  [Types.SetPipelineName]: {
-    pipelineName: string;
-  };
-
-  [Types.SetCurrentComputeEnvironment]: {
-    computeEnv: {
-      item: any;
-      currentNode: number;
-      currentPipelineId: string;
-      computeEnvList: any[];
-    };
-  };
-
-  [Types.SetCurrentNodeTitle]: {
-    currentPipelineId: string;
-    currentNode: number;
-    title: string;
-  };
-
-  [Types.SetDefaultParameters]: {
-    pipelineId: string;
-    defaultParameters: [];
-  };
-
-  [Types.DeslectPipeline]: Record<string, unknown>;
-
-  [Types.SetGeneralCompute]: {
-    currentPipelineId: number;
-    computeEnv: string;
+  [Types.SetComputeEnvironment]: {
+    computeEnvironment: string;
   };
 };
 
@@ -254,37 +153,6 @@ export interface CreateFeedData {
   isDataSelected: boolean;
 }
 
-export const colorPalette: {
-  [key: string]: string;
-} = {
-  default: "#73bcf7",
-  host: "#73bcf7",
-  moc: "#704478",
-  titan: "#1B9D92",
-  galena: "#ADF17F",
-};
-
-export interface PipelineData {
-  [key: string]: {
-    pluginParameters?: any[];
-    defaultParameters?: any[];
-    pluginPipings?: PluginPiping[];
-    pipelinePlugins?: any[];
-    computeEnvs?: ComputeEnvData;
-    currentNode?: number;
-    generalCompute?: string;
-    title: {
-      [id: number]: string;
-    };
-    input: {
-      [id: string]: {
-        dropdownInput: InputType;
-        requiredInput: InputType;
-      };
-    };
-  };
-}
-
 export interface CreateFeedState extends InputState {
   wizardOpen: boolean;
   step: number;
@@ -295,10 +163,6 @@ export interface CreateFeedState extends InputState {
   feedError: any;
   value: number;
   computeEnvironment: string;
-  pipelineData: PipelineData;
-  pipelineName: string;
-  selectedPipeline?: number;
-  pipelines: any[];
   currentlyConfiguredNode: string;
 }
 

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import {
   Button,
   DataList,
@@ -12,8 +12,7 @@ import {
   DataListContent,
 } from "@patternfly/react-core";
 import { Spin } from "antd";
-import { CreateFeedContext } from "./context";
-import { Types } from "./types";
+
 import {
   Tree,
   ConfigurationPage,
@@ -21,22 +20,33 @@ import {
   GeneralCompute,
 } from "../Pipelines/";
 import {
+  fetchPipelines,
   fetchComputeInfo,
   generatePipelineWithName,
-  fetchPipelines,
-} from "./utils/pipelines";
-import { Pipeline, PipelinePipingDefaultParameterList } from "@fnndsc/chrisapi";
+} from "../../../api/common";
+import { UploadJsonProps, Resources } from "./PipelineContainer";
+import { Pipeline } from "@fnndsc/chrisapi";
 
-export interface UploadJsonProps {
-  parameters: PipelinePipingDefaultParameterList;
-  pluginPipings: any[];
-  pipelinePlugins: any[];
-  pipelineInstance: Pipeline;
+export interface PipelinesProps {
+  handleDispatchPipelines: (registeredPipelines: any) => void;
+  handleSetPipelineResources: (result: Resources) => void;
+  handleUploadDispatch: (result: UploadJsonProps) => void;
+  handleSetCurrentNode: (pipelineId: number, currentNode: number) => void;
+  handleCleanResources: () => void;
+  handlePipelineSecondaryResource: (pipeline: Pipeline) => void;
+  state: any;
 }
 
-const Pipelines = () => {
-  const { state, dispatch } = useContext(CreateFeedContext);
-  const { pipelineData, selectedPipeline, pipelines } = state;
+const Pipelines = ({
+  state,
+  handleDispatchPipelines,
+  handleSetPipelineResources,
+  handleUploadDispatch,
+  handleSetCurrentNode,
+  handleCleanResources,
+  handlePipelineSecondaryResource,
+}: PipelinesProps) => {
+  const { pipelineData, selectedPipeline, pipelines } = state.pipelineState;
 
   const [pageState, setPageState] = React.useState({
     page: 1,
@@ -52,12 +62,7 @@ const Pipelines = () => {
     fetchPipelines(perPage, page).then((result: any) => {
       const { registeredPipelines, registeredPipelinesList } = result;
       if (registeredPipelines) {
-        dispatch({
-          type: Types.SetPipelines,
-          payload: {
-            pipelines: registeredPipelines,
-          },
-        });
+        handleDispatchPipelines(registeredPipelines);
         setPageState((pageState) => {
           return {
             ...pageState,
@@ -66,34 +71,10 @@ const Pipelines = () => {
         });
       }
     });
-  }, [perPage, page, dispatch]);
+  }, [perPage, page, handleDispatchPipelines]);
 
-  const handleNodeClick = async (
-    nodeName: number,
-    pipelineId: number,
-    plugin_id: number
-  ) => {
-    const { computeEnvs } = pipelineData[pipelineId];
-    if (computeEnvs && !computeEnvs[nodeName]) {
-      const computeEnvData = await fetchComputeInfo(plugin_id, nodeName);
-      if (computeEnvData) {
-        dispatch({
-          type: Types.SetPipelineEnvironments,
-          payload: {
-            pipelineId,
-            computeEnvData,
-          },
-        });
-      }
-    }
-
-    dispatch({
-      type: Types.SetCurrentNode,
-      payload: {
-        pipelineId,
-        currentNode: nodeName,
-      },
-    });
+  const handleNodeClick = async (nodeName: number, pipelineId: number) => {
+    handleSetCurrentNode(pipelineId, nodeName);
   };
 
   const onSetPage = (_event: any, page: number) => {
@@ -109,227 +90,156 @@ const Pipelines = () => {
     });
   };
 
-  const handleDispatch = (result: UploadJsonProps) => {
-    const { pipelineInstance, parameters, pluginPipings, pipelinePlugins } =
-      result;
-    dispatch({
-      type: Types.AddPipeline,
-      payload: {
-        pipeline: pipelineInstance,
-      },
-    });
-
-    dispatch({
-      type: Types.SetPipelineResources,
-      payload: {
-        parameters,
-        pluginPipings,
-        pipelinePlugins,
-      },
-    });
-  };
-
   return (
-    <div className="pacs-alert-wrap">
-      <div className="pacs-alert-step-wrap">
-        <h1 className="pf-c-title pf-m-2xl"> Registered Pipelines</h1>
-        <UploadJson handleDispatch={handleDispatch} />
-        <Pagination
-          itemCount={pageState.itemCount}
-          perPage={pageState.perPage}
-          page={pageState.page}
-          onSetPage={onSetPage}
-          onPerPageSelect={onPerPageSelect}
-        />
+    <>
+      <UploadJson handleDispatch={handleUploadDispatch} />
+      <Pagination
+        itemCount={pageState.itemCount}
+        perPage={pageState.perPage}
+        page={pageState.page}
+        onSetPage={onSetPage}
+        onPerPageSelect={onPerPageSelect}
+      />
 
-        <DataList aria-label="pipeline list">
-          {pipelines.length > 0 &&
-            pipelines.map((pipeline) => {
-              return (
-                <DataListItem
-                  isExpanded={
-                    expanded && expanded[pipeline.data.id] ? true : false
-                  }
-                  key={pipeline.data.id}
-                >
-                  <DataListItemRow>
-                    <DataListToggle
-                      id={pipeline.data.id}
-                      aria-controls="expand"
-                      onClick={async () => {
-                        if (
-                          !(expanded && expanded[pipeline.data.id]) ||
-                          !state.pipelineData[pipeline.data.id]
-                        ) {
-                          const { resources } = await generatePipelineWithName(
-                            pipeline.data.name
-                          );
+      <DataList aria-label="pipeline list">
+        {pipelines.length > 0 &&
+          pipelines.map((pipeline: any) => {
+            return (
+              <DataListItem
+                isExpanded={
+                  expanded && expanded[pipeline.data.id] ? true : false
+                }
+                key={pipeline.data.id}
+              >
+                <DataListItemRow>
+                  <DataListToggle
+                    id={pipeline.data.id}
+                    aria-controls="expand"
+                    onClick={async () => {
+                      if (
+                        !(expanded && expanded[pipeline.data.id]) ||
+                        !state.pipelineData[pipeline.data.id]
+                      ) {
+                        const { resources } = await generatePipelineWithName(
+                          pipeline.data.name
+                        );
 
-                          dispatch({
-                            type: Types.SetExpandedPipelines,
-                            payload: {
-                              pipelineId: pipeline.data.id,
-                            },
-                          });
+                        handleSetPipelineResources({
+                          ...resources,
+                          pipelineId: pipeline.data.id,
+                        });
 
-                          const { parameters, pluginPipings, pipelinePlugins } =
-                            resources;
-
-                          dispatch({
-                            type: Types.SetPipelineResources,
-                            payload: {
-                              pipelineId: pipeline.data.id,
-                              parameters,
-                              pluginPipings,
-                              pipelinePlugins,
-                            },
-                          });
-                          setExpanded({
-                            ...expanded,
-                            [pipeline.data.id]: true,
-                          });
-                        } else {
-                          setExpanded({
-                            ...expanded,
-                            [pipeline.data.id]: false,
-                          });
-                        }
-                      }}
-                    />
-                    <DataListItemCells
-                      dataListCells={[
-                        <DataListCell key={pipeline.data.name}>
-                          <div
-                            className="plugin-table-row"
-                            key={pipeline.data.name}
+                        setExpanded({
+                          ...expanded,
+                          [pipeline.data.id]: true,
+                        });
+                      } else {
+                        setExpanded({
+                          ...expanded,
+                          [pipeline.data.id]: false,
+                        });
+                      }
+                    }}
+                  />
+                  <DataListItemCells
+                    dataListCells={[
+                      <DataListCell key={pipeline.data.name}>
+                        <div
+                          className="plugin-table-row"
+                          key={pipeline.data.name}
+                        >
+                          <span className="plugin-table-row__plugin-name">
+                            {pipeline.data.name}
+                          </span>
+                          <span
+                            className="plugin-table-row__plugin-description"
+                            id={`${pipeline.data.description}`}
                           >
-                            <span className="plugin-table-row__plugin-name">
-                              {pipeline.data.name}
-                            </span>
-                            <span
-                              className="plugin-table-row__plugin-description"
-                              id={`${pipeline.data.description}`}
-                            >
-                              <em>{pipeline.data.description}</em>
-                            </span>
-                          </div>
-                        </DataListCell>,
-                      ]}
-                    />
-                    <DataListAction
-                      aria-labelledby="select a pipeline"
-                      id={pipeline.data.id}
-                      aria-label="actions"
-                      className="pipelines"
-                    >
-                      <Button
-                        variant="tertiary"
-                        key="select-action"
-                        onClick={async () => {
-                          if (!(selectedPipeline === pipeline.data.id)) {
-                            dispatch({
-                              type: Types.SetCurrentPipeline,
-                              payload: {
-                                pipelineId: pipeline.data.id,
-                              },
-                            });
+                            <em>{pipeline.data.description}</em>
+                          </span>
+                        </div>
+                      </DataListCell>,
+                    ]}
+                  />
+                  <DataListAction
+                    aria-labelledby="select a pipeline"
+                    id={pipeline.data.id}
+                    aria-label="actions"
+                    className="pipelines"
+                  >
+                    <Button
+                      variant="tertiary"
+                      key="select-action"
+                      onClick={async () => {
+                        if (!(selectedPipeline === pipeline.data.id)) {
+                          handlePipelineSecondaryResource(pipeline);
+                          if (!pipelineData[pipeline.data.id]) {
+                            const { resources } =
+                              await generatePipelineWithName(
+                                pipeline.data.name
+                              );
 
-                            dispatch({
-                              type: Types.SetPipelineName,
-                              payload: {
-                                pipelineName: pipeline.data.name,
-                              },
-                            });
-                            if (!pipelineData[pipeline.data.id]) {
-                              const { resources } =
-                                await generatePipelineWithName(
-                                  pipeline.data.name
-                                );
-                              const {
-                                parameters,
-                                pluginPipings,
-                                pipelinePlugins,
-                              } = resources;
-
-                              dispatch({
-                                type: Types.SetPipelineResources,
-                                payload: {
-                                  pipelineId: pipeline.data.id,
-                                  parameters,
-                                  pluginPipings,
-                                  pipelinePlugins,
-                                },
-                              });
-                            }
-                          } else {
-                            dispatch({
-                              type: Types.DeslectPipeline,
-                              payload: {},
+                            handleSetPipelineResources({
+                              ...resources,
+                              pipelineId: pipeline.data.id,
                             });
                           }
-                        }}
-                      >
-                        {selectedPipeline === pipeline.data.id
-                          ? "Deselect"
-                          : "Select"}
-                      </Button>
-                      <Button
-                        key="delete-action"
-                        onClick={async () => {
-                          const filteredPipelines = pipelines.filter(
-                            (currentPipeline: any) => {
-                              return (
-                                currentPipeline.data.id !== pipeline.data.id
-                              );
-                            }
-                          );
-                          dispatch({
-                            type: Types.SetPipelines,
-                            payload: {
-                              pipelines: filteredPipelines,
-                            },
-                          });
-                          await pipeline.delete();
-                        }}
-                        variant="danger"
-                      >
-                        Delete
-                      </Button>
-                    </DataListAction>
-                  </DataListItemRow>
-                  <DataListContent
-                    id={pipeline.data.id}
-                    aria-label="PrimaryContent"
-                    isHidden={!(expanded && expanded[pipeline.data.id])}
-                  >
-                    {(expanded && expanded[pipeline.data.id]) ||
-                    state.pipelineData[pipeline.data.id] ? (
-                      <>
-                        <div style={{ display: "flex", background: "black" }}>
-                          <Tree
-                            currentPipelineId={pipeline.data.id}
-                            handleNodeClick={handleNodeClick}
-                          />
-                          <GeneralCompute
-                            currentPipelineId={pipeline.data.id}
-                          />
-                        </div>
-
-                        <ConfigurationPage
-                          pipeline={pipeline}
+                        } else {
+                          handleCleanResources();
+                        }
+                      }}
+                    >
+                      {selectedPipeline === pipeline.data.id
+                        ? "Deselect"
+                        : "Select"}
+                    </Button>
+                    <Button
+                      key="delete-action"
+                      onClick={async () => {
+                        const filteredPipelines = pipelines.filter(
+                          (currentPipeline: any) => {
+                            return currentPipeline.data.id !== pipeline.data.id;
+                          }
+                        );
+                        handleDispatchPipelines(filteredPipelines);
+                        await pipeline.delete();
+                      }}
+                      variant="danger"
+                    >
+                      Delete
+                    </Button>
+                  </DataListAction>
+                </DataListItemRow>
+                <DataListContent
+                  id={pipeline.data.id}
+                  aria-label="PrimaryContent"
+                  isHidden={!(expanded && expanded[pipeline.data.id])}
+                >
+                  {(expanded && expanded[pipeline.data.id]) ||
+                  state.pipelineData[pipeline.data.id] ? (
+                    <>
+                      <div style={{ display: "flex", background: "black" }}>
+                        <Tree
                           currentPipelineId={pipeline.data.id}
+                          handleNodeClick={handleNodeClick}
                         />
-                      </>
-                    ) : (
-                      <Spin>Fetching Pipeline Resources</Spin>
-                    )}
-                  </DataListContent>
-                </DataListItem>
-              );
-            })}
-        </DataList>
-      </div>
-    </div>
+                        <GeneralCompute currentPipelineId={pipeline.data.id} />
+                      </div>
+
+                      <ConfigurationPage
+                        pipeline={pipeline}
+                        currentPipelineId={pipeline.data.id}
+                      />
+                    </>
+                  ) : (
+                    <Spin>Fetching Pipeline Resources</Spin>
+                  )}
+                </DataListContent>
+              </DataListItem>
+            );
+          })}
+      </DataList>
+    </>
   );
 };
 

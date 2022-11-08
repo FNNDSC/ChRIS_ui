@@ -7,14 +7,14 @@ import {
   StackItem,
 } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
-import { Types } from "./types";
+import { Types } from "./types/feed";
 import { FaCogs } from "react-icons/fa";
 import { useAsync } from "../../../api/common";
 import ReactJson from "react-json-view";
 
 const FinishedStep = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { feedProgress, value, feedError } = state;
+  const { feedProgress, value, feedError } = state.feedState;
   const { isLoading, isError, isSuccess } = useAsync(state);
 
   return (

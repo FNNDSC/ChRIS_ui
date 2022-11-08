@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { useDispatch } from "react-redux";
-import { Types, colorPalette } from "../CreateFeed/types";
+import { PipelineTypes } from "../CreateFeed/types/pipeline";
 import { InputIndex } from "../AddNode/types";
 import { List, Avatar, Checkbox, Spin } from "antd";
 import { isEmpty } from "lodash";
@@ -22,7 +22,11 @@ import GuidedConfig from "../AddNode/GuidedConfig";
 import { getParamsSuccess } from "../../../store/plugin/actions";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
 import { MdCheck, MdEdit, MdClose } from "react-icons/md";
-import { generatePipelineWithData } from "../CreateFeed/utils/pipelines";
+import {
+  generatePipelineWithData,
+  hasCode,
+  intToRGB,
+} from "../CreateFeed/utils/pipelines";
 import ReactJson from "react-json-view";
 
 const ConfigurationPage = (props: {
@@ -35,7 +39,7 @@ const ConfigurationPage = (props: {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const { currentPipelineId, pipeline } = props;
   const { state, dispatch } = useContext(CreateFeedContext);
-  const pipelines = state.pipelines;
+  const pipelines = state.pipeline.pipelines;
   const {
     currentNode,
     computeEnvs,
@@ -43,7 +47,7 @@ const ConfigurationPage = (props: {
     pluginPipings,
     input,
     pluginParameters,
-  } = state.pipelineData[currentPipelineId];
+  } = state.pipeline.pipelineData[currentPipelineId];
   const computeEnvList =
     computeEnvs && currentNode && computeEnvs[currentNode]
       ? computeEnvs[currentNode].computeEnvs
@@ -92,7 +96,7 @@ const ConfigurationPage = (props: {
 
       if (required === true) {
         dispatch({
-          type: Types.SetPipelineRequiredInput,
+          type: PipelineTypes.SetPipelineRequiredInput,
           payload: {
             currentPipelineId,
             currentNodeId: currentNode,
@@ -102,7 +106,7 @@ const ConfigurationPage = (props: {
         });
       } else {
         dispatch({
-          type: Types.SetPipelineDropdownInput,
+          type: PipelineTypes.SetPipelineDropdownInput,
           payload: {
             currentPipelineId,
             currentNodeId: currentNode,
@@ -118,7 +122,7 @@ const ConfigurationPage = (props: {
   React.useEffect(() => {
     async function fetchResources() {
       if (pluginPipings && currentNode && pluginParameters) {
-        const pluginPiping = pluginPipings.filter((piping) => {
+        const pluginPiping = pluginPipings.filter((piping: any) => {
           return piping.data.id === currentNode;
         });
 
@@ -214,7 +218,7 @@ const ConfigurationPage = (props: {
 
   const deleteInput = (index: string) => {
     dispatch({
-      type: Types.DeletePipelineInput,
+      type: PipelineTypes.DeletePipelineInput,
       payload: {
         currentPipelineId,
         currentNodeId: currentNode,
@@ -258,7 +262,7 @@ const ConfigurationPage = (props: {
   const handleCorrectInput = () => {
     setEdit(false);
     dispatch({
-      type: Types.SetCurrentNodeTitle,
+      type: PipelineTypes.SetCurrentNodeTitle,
       payload: {
         currentPipelineId,
         currentNode,
@@ -274,7 +278,7 @@ const ConfigurationPage = (props: {
     });
     const mappedArr: any[] = [];
     try {
-      pluginPipings?.forEach((piping) => {
+      pluginPipings?.forEach((piping: any) => {
         const defaults = pluginParameterDefaults(
           //@ts-ignore
           pluginParameters.data,
@@ -283,7 +287,7 @@ const ConfigurationPage = (props: {
         );
 
         const id = pluginPipings.findIndex(
-          (pipe) => pipe.data.id === piping.data.previous_id
+          (pipe: any) => pipe.data.id === piping.data.previous_id
         );
 
         let titleChange = "";
@@ -317,7 +321,7 @@ const ConfigurationPage = (props: {
       });
       if (pipelineInstance) {
         dispatch({
-          type: Types.SetPipelines,
+          type: PipelineTypes.SetPipelines,
           payload: {
             pipelines: [pipelineInstance, ...pipelines],
           },
@@ -341,7 +345,7 @@ const ConfigurationPage = (props: {
     : selectedPlugin?.data.name;
 
   const pluginVersion = (pluginName += `${selectedPlugin?.data.version}`);
-  
+
   return (
     <>
       <div
@@ -506,7 +510,7 @@ const ConfigurationPage = (props: {
                           }
                           onClick={() => {
                             dispatch({
-                              type: Types.SetCurrentComputeEnvironment,
+                              type: PipelineTypes.SetCurrentComputeEnvironment,
                               payload: {
                                 computeEnv: {
                                   item,
@@ -521,11 +525,7 @@ const ConfigurationPage = (props: {
 
                         <Avatar
                           style={{
-                            background: `${
-                              colorPalette[item.name]
-                                ? colorPalette[item.name]
-                                : colorPalette["default"]
-                            }`,
+                            background: `#${intToRGB(hasCode(item.name))}`,
                           }}
                         />
                       </>

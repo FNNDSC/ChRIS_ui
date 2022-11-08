@@ -9,7 +9,7 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { Feed } from "@fnndsc/chrisapi";
 import { CreateFeedContext } from "./context";
-import { Types, CreateFeedReduxProp } from "./types";
+import { Types, CreateFeedReduxProp } from "./types/feed";
 import BasicInformation from "./BasicInformation";
 import ChrisFileSelect from "./ChrisFileSelect";
 import LocalFileUpload from "./LocalFileUpload";
@@ -17,7 +17,7 @@ import ChooseConfig from "./ChooseConfig";
 import DataPacks from "./DataPacks";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import Review from "./Review";
-import Pipelines from "./Pipelines";
+import PipelineContainer from './PipelineContainer'
 import FinishedStep from "./FinishedStep";
 import withSelectionAlert from "./SelectionAlert";
 import { addFeed } from "../../../store/feed/actions";
@@ -45,7 +45,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     computeEnvironment,
     selectedPipeline,
     pipelineData,
-  } = state;
+  } = state.feedState;
 
   const enableSave =
     data.chrisFiles.length > 0 ||
@@ -216,7 +216,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     setComputeEnviroment={setComputeEnvironment}
   />
   );
-  const pipelines = <Pipelines />;
+  const pipelines = <PipelineContainer/>;
   const review = <Review />;
 
   const finishedStep = <FinishedStep />;

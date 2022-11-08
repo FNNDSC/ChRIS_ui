@@ -1,9 +1,13 @@
 import React, { useRef, useContext } from "react";
-import { Types, colorPalette } from "../CreateFeed/types";
+import { PipelineTypes, } from "../CreateFeed/types/pipeline";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { TreeNode } from "../../../api/common";
-import { fetchComputeInfo } from "../CreateFeed/utils/pipelines";
+import {
+  fetchComputeInfo,
+  hasCode,
+  intToRGB,
+} from "../CreateFeed/utils/pipelines";
 import { CreateFeedContext } from "../CreateFeed/context";
 
 export interface Point {
@@ -57,7 +61,7 @@ const NodeData = (props: NodeProps) => {
       const computeEnvData = await fetchComputeInfo(data.plugin_id, data.id);
       if (computeEnvData) {
         dispatch({
-          type: Types.SetPipelineEnvironments,
+          type: PipelineTypes.SetPipelineEnvironments,
           payload: {
             pipelineId: currentPipelineId,
             computeEnvData,
@@ -72,7 +76,7 @@ const NodeData = (props: NodeProps) => {
   React.useEffect(() => {
     if (data.plugin_name && currentPipelineId) {
       dispatch({
-        type: Types.SetCurrentNodeTitle,
+        type: PipelineTypes.SetCurrentNodeTitle,
         payload: {
           currentPipelineId,
           currentNode,
@@ -108,11 +112,7 @@ const NodeData = (props: NodeProps) => {
     >
       <circle
         style={{
-          fill: `${
-            colorPalette[currentComputeEnv]
-              ? colorPalette[currentComputeEnv]
-              : colorPalette["default"]
-          }`,
+          fill: `#${intToRGB(hasCode(currentComputeEnv))}`,
           stroke: data.id === currentNode ? "white" : "",
           strokeWidth: data.id === currentNode ? "3px" : "",
         }}
