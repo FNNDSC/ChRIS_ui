@@ -6,12 +6,12 @@ import { Types } from "./types/feed";
 
 const ChooseConfig: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { selectedConfig } = state.feedState;
+  const { selectedConfig } = state
   const { isDataSelected } = state.data;
 
   return (
     <div className="local-file-upload">
-      <h1 className="pf-c-title pf-m-2xl">Feed Type Selection</h1>
+      <h1 className="pf-c-title pf-m-.">Feed Type Selection</h1>
       <br />
       <p>
         {isDataSelected

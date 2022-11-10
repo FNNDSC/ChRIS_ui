@@ -10,15 +10,16 @@ const Review: React.FunctionComponent = () => {
   const { state } = useContext(CreateFeedContext);
 
   const { feedName, feedDescription, tags, chrisFiles, localFiles } =
-    state.feed.data;
+    state.data;
   const {
     dropdownInput,
     requiredInput,
     selectedConfig,
     selectedPlugin,
     computeEnvironment,
-    pipelineName,
-  } = state.feedState;
+  } = state;
+
+  const pipelineName = "";
 
   // the installed version of @patternfly/react-core doesn't support read-only chips
   const tagList = tags.map((tag: any) => (

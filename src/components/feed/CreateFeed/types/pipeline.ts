@@ -13,23 +13,21 @@ type ActionMap<M extends { [index: string]: any }> = {
 };
 
 export enum PipelineTypes {
-  SetComputeEnvironment = "SET_COMPUTE_ENVIRONMENT",
-  SetCurrentPipeline = "SET_CURRENT_PIPELINE",
-  SetPipelineResources = "SET_PIPELINE_RESOURCES",
   SetPipelines = "SET_PIPELINES",
-  SetPipelineEnvironments = "SET_PIPELINE_ENVIRONMENTS",
-  SetCurrentNode = "SET_CURRENT_NODE",
-  SetExpandedPipelines = "SET_EXPANDED_PIPELINES",
-  AddPipeline = "ADD_PIPELINE",
-  SetPipelineName = "SET_PIPELINE_NAME",
-  DeselectPipeline = "DESELECT_PIPELINE",
-  SetCurrentNodeTitle = "SET_CURRENT_NODE_TITLE",
+  SetPipelineResources = "SET_PIPELINE_RESOURCES",
   SetCurrentComputeEnvironment = "SET_CURRENT_COMPUTE_ENVIRONMENT",
+  SetCurrentNode = "SET_CURRENT_NODE",
+  AddPipeline = "ADD_PIPELINE",
+  SetCurrentPipeline = "SET_CURRENT_PIPELINE",
+  SetPipelineName = "SET_PIPELINE_NAME",
+  SetPipelineEnvironments = "SET_PIPELINE_ENVIRONMENTS",
+  SetCurrentNodeTitle = "SET_CURRENT_NODE_TITLE",
+  DeletePipelineInput = "DELETE_PIPELINE_INPUT",
   SetPipelineDropdownInput = "SET_PIPELINE_DROPDOWN_INPUT",
   SetPipelineRequiredInput = "SET_PIPELINE_REQUIRED_INPUT",
-  DeletePipelineInput = "DELETE_PIPELINE_INPUT",
   SetDefaultParameters = "SET_DEFAULT_PARAMETERS",
   SetGeneralCompute = "SET_GENERAL_COMPUTE",
+  DeselectPipeline = "DESELECT_PIPELINE",
 }
 
 export interface ComputeEnvData {
@@ -37,9 +35,59 @@ export interface ComputeEnvData {
 }
 
 type PipelinePayload = {
-  [PipelineTypes.SetComputeEnvironment]: {
-    computeEnvironment: string;
+  [PipelineTypes.SetPipelines]: {
+    pipelines: any[];
   };
+
+  [PipelineTypes.SetPipelineResources]: {
+    pipelineId: number;
+    parameters: any[];
+    pluginPipings: PluginPiping[];
+    pipelinePlugins: any[];
+  };
+
+  [PipelineTypes.SetCurrentComputeEnvironment]: {
+    computeEnv: {
+      item: any;
+      currentNode: number;
+      currentPipelineId: string;
+      computeEnvList: any[];
+    };
+  };
+
+  [PipelineTypes.SetCurrentNode]: {
+    pipelineId: number;
+    currentNode: number;
+  };
+
+  [PipelineTypes.AddPipeline]: {
+    pipeline: any;
+  };
+
+  [PipelineTypes.SetCurrentPipeline]: {
+    pipelineId: number;
+  };
+
+  [PipelineTypes.SetPipelineName]: {
+    pipelineName: string;
+  };
+
+  [PipelineTypes.SetPipelineEnvironments]: {
+    pipelineId: number;
+    computeEnvData: {
+      [key: string]: {
+        computeEnvs: any[];
+        currentlySelected: any;
+      };
+    };
+  };
+
+  [PipelineTypes.SetCurrentNodeTitle]: {
+    currentPipelineId: string;
+    currentNode: number;
+    title: string;
+  };
+
   [PipelineTypes.DeletePipelineInput]: {
     input: string;
     currentPipelineId: number;
@@ -57,57 +105,8 @@ type PipelinePayload = {
     id: string;
     input: InputIndex;
   };
-  [PipelineTypes.SetPipelineResources]: {
-    pipelineId: number;
-    parameters: any[];
-    pluginPipings: PluginPiping[];
-    pipelinePlugins: any[];
-  };
-  [PipelineTypes.SetPipelineEnvironments]: {
-    pipelineId: number;
-    computeEnvData: {
-      [key: string]: {
-        computeEnvs: any[];
-        currentlySelected: any;
-      };
-    };
-  };
-  [PipelineTypes.SetCurrentNode]: {
-    pipelineId: number;
-    currentNode: number;
-  };
-  [PipelineTypes.SetExpandedPipelines]: {
-    pipelineId: number;
-  };
 
-  [PipelineTypes.SetCurrentPipeline]: {
-    pipelineId: number;
-  };
-  [PipelineTypes.SetPipelines]: {
-    pipelines: any[];
-  };
-
-  [PipelineTypes.AddPipeline]: {
-    pipeline: any;
-  };
-
-  [PipelineTypes.SetPipelineName]: {
-    pipelineName: string;
-  };
-
-  [PipelineTypes.SetCurrentComputeEnvironment]: {
-    computeEnv: {
-      item: any;
-      currentNode: number;
-      currentPipelineId: string;
-      computeEnvList: any[];
-    };
-  };
-  [PipelineTypes.SetCurrentNodeTitle]: {
-    currentPipelineId: string;
-    currentNode: number;
-    title: string;
-  };
+ 
 
   [PipelineTypes.SetDefaultParameters]: {
     pipelineId: string;
@@ -132,23 +131,25 @@ export interface PipelineState {
   pipelines: any[];
 }
 
-export interface PipelineData {
-  [key: string]: {
-    pluginParameters?: any[];
-    defaultParameters?: any[];
-    pluginPipings?: PluginPiping[];
-    pipelinePlugins?: any[];
-    computeEnvs?: ComputeEnvData;
-    currentNode?: number;
-    generalCompute?: string;
-    title: {
-      [id: number]: string;
-    };
-    input: {
-      [id: string]: {
-        dropdownInput: InputType;
-        requiredInput: InputType;
-      };
+export interface SinglePipeline {
+  pluginParameters?: any[];
+  defaultParameters?: any[];
+  pluginPipings?: PluginPiping[];
+  pipelinePlugins?: any[];
+  computeEnvs?: ComputeEnvData;
+  currentNode?: number;
+  generalCompute?: string;
+  title: {
+    [id: number]: string;
+  };
+  input: {
+    [id: string]: {
+      dropdownInput: InputType;
+      requiredInput: InputType;
     };
   };
+}
+
+export interface PipelineData {
+  [key: string]: SinglePipeline;
 }

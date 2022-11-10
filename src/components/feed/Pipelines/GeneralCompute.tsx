@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { List, Checkbox, Avatar } from "antd";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { CreateFeedContext } from "../CreateFeed/context";
+import { PipelineContext } from "../CreateFeed/context";
 import { PipelineTypes } from "../CreateFeed/types/pipeline";
 import { hasCode, intToRGB } from "../CreateFeed/utils/pipelines";
 
@@ -9,11 +9,16 @@ const GeneralCompute = ({
   currentPipelineId,
 }: {
   currentPipelineId: number;
+  handleSetGeneralCompute: (
+    currentPipelineId: number,
+    computeEnv: string
+  ) => void;
 }) => {
-  const { state, dispatch } = useContext(CreateFeedContext);
+  const { state, dispatch } = useContext(PipelineContext);
   const [computes, setComputes] = React.useState<any[]>([]);
 
-  const generalCompute = state.pipelineData[currentPipelineId].generalCompute;
+  const generalCompute =
+    state.pipelineData[currentPipelineId].generalCompute;
 
   React.useEffect(() => {
     async function fetchCompute() {

@@ -62,7 +62,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
   username,
 }: ChrisFileSelectProp) => {
   const { state, dispatch } = useContext(CreateFeedContext)
-  const { chrisFiles, checkedKeys } = state.feedState.data
+  const { chrisFiles, checkedKeys } = state.data
 
   const [tree, setTree] = useState<DataBreadcrumb[]>(
     (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username),

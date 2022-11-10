@@ -32,13 +32,6 @@ export const pipelineReducer = (
       };
     }
 
-    case PipelineTypes.SetComputeEnvironment: {
-      return {
-        ...state,
-        computeEnvironment: action.payload.computeEnvironment,
-      };
-    }
-
     case PipelineTypes.AddPipeline: {
       return {
         ...state,
@@ -165,20 +158,6 @@ export const pipelineReducer = (
           [pipelineId]: {
             ...state.pipelineData[pipelineId],
             currentNode,
-          },
-        },
-      };
-    }
-
-    case PipelineTypes.SetExpandedPipelines: {
-      const { pipelineId } = action.payload;
-
-      return {
-        ...state,
-        pipelineData: {
-          ...state.pipelineData,
-          [pipelineId]: {
-            pipelineId,
           },
         },
       };

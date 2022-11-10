@@ -14,7 +14,7 @@ import ReactJson from "react-json-view";
 
 const FinishedStep = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { feedProgress, value, feedError } = state.feedState;
+  const { feedProgress, value, feedError } = state
   const { isLoading, isError, isSuccess } = useAsync(state);
 
   return (

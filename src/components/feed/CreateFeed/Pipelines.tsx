@@ -19,13 +19,10 @@ import {
   UploadJson,
   GeneralCompute,
 } from "../Pipelines/";
-import {
-  fetchPipelines,
-  fetchComputeInfo,
-  generatePipelineWithName,
-} from "../../../api/common";
+import { fetchPipelines, generatePipelineWithName } from "../../../api/common";
 import { UploadJsonProps, Resources } from "./PipelineContainer";
 import { Pipeline } from "@fnndsc/chrisapi";
+import { InputIndex } from "../AddNode/types";
 
 export interface PipelinesProps {
   handleDispatchPipelines: (registeredPipelines: any) => void;
@@ -34,6 +31,45 @@ export interface PipelinesProps {
   handleSetCurrentNode: (pipelineId: number, currentNode: number) => void;
   handleCleanResources: () => void;
   handlePipelineSecondaryResource: (pipeline: Pipeline) => void;
+  handleSetCurrentNodeTitle: (
+    currentPipelineId: number,
+    currentNode: number,
+    title: string
+  ) => void;
+  handleSetPipelineEnvironments: (
+    pipelineId: number,
+    computeEnvData: {
+      [x: number]: {
+        computeEnvs: any[];
+        currentlySelected: any;
+      };
+    }
+  ) => void;
+  handleSetGeneralCompute: (
+    currentPipelineId: number,
+    computeEnv: string
+  ) => void;
+  handleTypedInput: (
+    currentPipelineId: number,
+    currentNodeId: number,
+    id: string,
+    input: InputIndex,
+    required: boolean
+  ) => void;
+  handleDeleteInput: (
+    currentPipelineId: number,
+    currentNode: number,
+    index: string
+  ) => void;
+  handleSetCurrentComputeEnv: (
+    item: {
+      name: string;
+      description: string;
+    },
+    currentNode: number,
+    currentPipelineId: number,
+    computeEnvList: any[]
+  ) => void;
   state: any;
 }
 
@@ -45,8 +81,14 @@ const Pipelines = ({
   handleSetCurrentNode,
   handleCleanResources,
   handlePipelineSecondaryResource,
+  handleSetPipelineEnvironments,
+  handleSetCurrentNodeTitle,
+  handleSetGeneralCompute,
+  handleTypedInput,
+  handleDeleteInput,
+  handleSetCurrentComputeEnv,
 }: PipelinesProps) => {
-  const { pipelineData, selectedPipeline, pipelines } = state.pipelineState;
+  const { pipelineData, selectedPipeline, pipelines } = state;
 
   const [pageState, setPageState] = React.useState({
     page: 1,
@@ -71,7 +113,7 @@ const Pipelines = ({
         });
       }
     });
-  }, [perPage, page, handleDispatchPipelines]);
+  }, [perPage, page]);
 
   const handleNodeClick = async (nodeName: number, pipelineId: number) => {
     handleSetCurrentNode(pipelineId, nodeName);
@@ -222,13 +264,29 @@ const Pipelines = ({
                         <Tree
                           currentPipelineId={pipeline.data.id}
                           handleNodeClick={handleNodeClick}
+                          handleSetCurrentNode={handleSetCurrentNode}
+                          state={state.pipelineData[pipeline.data.id]}
+                          handleSetPipelineEnvironments={
+                            handleSetPipelineEnvironments
+                          }
+                          handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
                         />
-                        <GeneralCompute currentPipelineId={pipeline.data.id} />
+                        <GeneralCompute
+                          handleSetGeneralCompute={handleSetGeneralCompute}
+                          currentPipelineId={pipeline.data.id}
+                        />
                       </div>
 
                       <ConfigurationPage
+                        pipelines={pipelines}
                         pipeline={pipeline}
                         currentPipelineId={pipeline.data.id}
+                        state={state.pipelineData[pipeline.data.id]}
+                        handleTypedInput={handleTypedInput}
+                        handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
+                        handleDispatchPipelines={handleDispatchPipelines}
+                        handleDeleteInput={handleDeleteInput}
+                        handleSetCurrentComputeEnv={handleSetCurrentComputeEnv}
                       />
                     </>
                   ) : (
