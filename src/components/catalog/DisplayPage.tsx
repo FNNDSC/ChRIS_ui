@@ -188,6 +188,7 @@ const DisplayPage = ({
               <input
                 ref={fileOpen}
                 style={{ display: "none" }}
+                accept="application/JSON"
                 type="file"
                 onChange={handleUpload}
               />
@@ -225,11 +226,16 @@ const DisplayPage = ({
       )}
       <div className="site-card-wrapper">
         <Row gutter={16}>
-          {(resources &&
-            resources.length > 0 )?
-            (resources.map((resource) => {
+          {resources && resources.length > 0 ? (
+            resources.map((resource) => {
               return (
-                <Col key={resource.data ? resource.data.id : ""} span={8} lg={8} sm={12} xs={24}>
+                <Col
+                  key={resource.data ? resource.data.id : ""}
+                  span={8}
+                  lg={8}
+                  sm={12}
+                  xs={24}
+                >
                   <Card
                     hoverable
                     style={{
@@ -273,22 +279,19 @@ const DisplayPage = ({
                   </Card>
                 </Col>
               );
-              })):(
-                
-                <Col offset={8}>
-                  <EmptyStateTable
-                  cells={[]}
-                  rows={[]}
-                  caption=""
-                  title="No results found"
-                  description=""
-                  />
-              </Col>
-  
-              )
-              }
-            </Row>
-        
+            })
+          ) : (
+            <Col offset={8}>
+              <EmptyStateTable
+                cells={[]}
+                rows={[]}
+                caption=""
+                title="No results found"
+                description=""
+              />
+            </Col>
+          )}
+        </Row>
       </div>
     </Grid>
   );
