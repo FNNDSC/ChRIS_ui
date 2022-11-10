@@ -1,17 +1,10 @@
-import React, {
-  Fragment,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 
 import { Spin } from "antd";
 import { tree, hierarchy } from "d3-hierarchy";
 import { select, event } from "d3-selection";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
-import { PipelineTypes } from "../CreateFeed/types/pipeline";
-import { CreateFeedContext } from "../CreateFeed/context";
+import { SinglePipeline } from "../CreateFeed/types/pipeline";
 import TransitionGroupWrapper from "../FeedTree/TransitionGroupWrapper";
 import NodeData from "./NodeData";
 import { TreeNode, getFeedTree } from "../../../api/common";
@@ -27,27 +20,47 @@ const scaleExtent = {
 };
 const zoom = 1;
 
-const Tree = (props: {
+export interface TreeProps {
+  state: SinglePipeline;
   currentPipelineId: number;
+  handleSetCurrentNode: (pipelineId: number, currentNode: number) => void;
   handleNodeClick: (
     nodeName: number,
     pipelineId: number,
     plugin_id: number
   ) => void;
-}) => {
+  handleSetCurrentNodeTitle: (
+    currentPipelineId: number,
+    currentNode: number,
+    title: string
+  ) => void;
+  handleSetPipelineEnvironments: (
+    pipelineId: number,
+    computeEnvData: {
+      [x: number]: {
+        computeEnvs: any[];
+        currentlySelected: any;
+      };
+    }
+  ) => void;
+}
+
+const Tree = (props: TreeProps) => {
   const divRef = useRef(null);
   const [translate, setTranslate] = React.useState({
     x: 0,
     y: 0,
   });
   const size = useSize(divRef);
-  const { state, dispatch } = useContext(CreateFeedContext);
-  const { currentPipelineId } = props;
-  const { pluginPipings, pipelinePlugins } =
-    state.pipeline.pipelineData[currentPipelineId];
-  const [loading, setLoading] = React.useState(false);
+  const { currentPipelineId, state, handleSetCurrentNode } = props;
+  const { pluginPipings, pipelinePlugins } = state;
 
-  const { handleNodeClick } = props;
+  const [loading, setLoading] = React.useState(false);
+  const {
+    handleNodeClick,
+    handleSetCurrentNodeTitle,
+    handleSetPipelineEnvironments,
+  } = props;
 
   const [data, setData] = React.useState<TreeNode[]>();
 
@@ -90,17 +103,11 @@ const Tree = (props: {
       });
 
       if (defaultPluginId) {
-        dispatch({
-          type: PipelineTypes.SetCurrentNode,
-          payload: {
-            pipelineId: currentPipelineId,
-            currentNode: defaultPluginId[0].data.id,
-          },
-        });
+        handleSetCurrentNode(currentPipelineId, defaultPluginId[0].data.id);
       }
     }
     setLoading(false);
-  }, [pluginPipings, dispatch, pipelinePlugins, currentPipelineId]);
+  }, [pluginPipings, pipelinePlugins, currentPipelineId]);
 
   React.useEffect(() => {
     //@ts-ignore
@@ -160,6 +167,7 @@ const Tree = (props: {
               {nodes?.map(({ data, x, y, parent }, i) => {
                 return (
                   <NodeData
+                    state={state}
                     key={`node + ${i}`}
                     data={data}
                     position={{ x, y }}
@@ -167,6 +175,10 @@ const Tree = (props: {
                     orientation="vertical"
                     handleNodeClick={handleNodeClick}
                     currentPipelineId={currentPipelineId}
+                    handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
+                    handleSetPipelineEnvironments={
+                      handleSetPipelineEnvironments
+                    }
                   />
                 );
               })}
@@ -197,12 +209,11 @@ const LinkData: React.FC<LinkProps> = ({ linkData, orientation }) => {
   const nodeRadius = 12;
 
   useEffect(() => {
-    applyOpacity(1, 0);
+    applyOpacity(1);
   }, []);
 
   const applyOpacity = (
     opacity: number,
-    transitionDuration: number,
     done = () => {
       return null;
     }

@@ -1,6 +1,6 @@
-import React, { useContext } from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
-import { PipelineTypes } from "../CreateFeed/types/pipeline";
+import { SinglePipeline } from "../CreateFeed/types/pipeline";
 import { InputIndex } from "../AddNode/types";
 import { List, Avatar, Checkbox, Spin } from "antd";
 import { isEmpty } from "lodash";
@@ -16,7 +16,6 @@ import {
   TextInput,
   Button,
 } from "@patternfly/react-core";
-import { CreateFeedContext } from "../CreateFeed/context";
 import { Pipeline, PluginPiping } from "@fnndsc/chrisapi";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import { getParamsSuccess } from "../../../store/plugin/actions";
@@ -30,16 +29,53 @@ import {
 import ReactJson from "react-json-view";
 
 const ConfigurationPage = (props: {
+  pipelines: any;
   currentPipelineId: number;
   pipeline: Pipeline;
+  state: SinglePipeline;
+  handleTypedInput: (
+    currentPipelineId: number,
+    currentNodeId: number,
+    id: string,
+    input: InputIndex,
+    required: boolean
+  ) => void;
+  handleDeleteInput: (
+    currentPipelineId: number,
+    currentNode: number,
+    index: string
+  ) => void;
+  handleSetCurrentNodeTitle: (
+    currentPipelineId: number,
+    currentNode: number,
+    title: string
+  ) => void;
+  handleDispatchPipelines: (registeredPipelines: any) => void;
+  handleSetCurrentComputeEnv: (
+    item: {
+      name: string;
+      description: string;
+    },
+    currentNode: number,
+    currentPipelineId: number,
+    computeEnvList: any[]
+  ) => void;
 }) => {
   const dispatchStore = useDispatch();
   const [copied, setCopied] = React.useState(false);
   const [value, setValue] = React.useState("");
   const [isExpanded, setIsExpanded] = React.useState(false);
-  const { currentPipelineId, pipeline } = props;
-  const { state, dispatch } = useContext(CreateFeedContext);
-  const pipelines = state.pipeline.pipelines;
+  const {
+    currentPipelineId,
+    pipeline,
+    state,
+    pipelines,
+    handleTypedInput,
+    handleSetCurrentNodeTitle,
+    handleDispatchPipelines,
+    handleDeleteInput,
+    handleSetCurrentComputeEnv,
+  } = props;
   const {
     currentNode,
     computeEnvs,
@@ -47,7 +83,7 @@ const ConfigurationPage = (props: {
     pluginPipings,
     input,
     pluginParameters,
-  } = state.pipeline.pipelineData[currentPipelineId];
+  } = state;
   const computeEnvList =
     computeEnvs && currentNode && computeEnvs[currentNode]
       ? computeEnvs[currentNode].computeEnvs
@@ -78,7 +114,6 @@ const ConfigurationPage = (props: {
       value: string,
       type: string,
       placeholder: string,
-
       required: boolean,
       paramName?: string
     ) => {
@@ -87,36 +122,17 @@ const ConfigurationPage = (props: {
       input["flag"] = flag;
       input["value"] = value;
       input["type"] = type;
-
       input["placeholder"] = placeholder;
-
       if (paramName) {
         input["paramName"] = paramName;
       }
-
-      if (required === true) {
-        dispatch({
-          type: PipelineTypes.SetPipelineRequiredInput,
-          payload: {
-            currentPipelineId,
-            currentNodeId: currentNode,
-            id,
-            input,
-          },
-        });
-      } else {
-        dispatch({
-          type: PipelineTypes.SetPipelineDropdownInput,
-          payload: {
-            currentPipelineId,
-            currentNodeId: currentNode,
-            id,
-            input,
-          },
-        });
+      if (required === true && currentNode) {
+        handleTypedInput(currentPipelineId, currentNode, id, input, true);
+      } else if (currentNode) {
+        handleTypedInput(currentPipelineId, currentNode, id, input, false);
       }
     },
-    [currentNode, currentPipelineId, dispatch]
+    [currentNode, currentPipelineId]
   );
 
   React.useEffect(() => {
@@ -217,14 +233,7 @@ const ConfigurationPage = (props: {
   ]);
 
   const deleteInput = (index: string) => {
-    dispatch({
-      type: PipelineTypes.DeletePipelineInput,
-      payload: {
-        currentPipelineId,
-        currentNodeId: currentNode,
-        input: index,
-      },
-    });
+    if (currentNode) handleDeleteInput(currentPipelineId, currentNode, index);
   };
 
   let generatedCommand = "";
@@ -261,14 +270,8 @@ const ConfigurationPage = (props: {
 
   const handleCorrectInput = () => {
     setEdit(false);
-    dispatch({
-      type: PipelineTypes.SetCurrentNodeTitle,
-      payload: {
-        currentPipelineId,
-        currentNode,
-        title: value,
-      },
-    });
+    if (currentNode)
+      handleSetCurrentNodeTitle(currentPipelineId, currentNode, value);
   };
 
   const handlePipelineCreate = async () => {
@@ -314,18 +317,12 @@ const ConfigurationPage = (props: {
       };
 
       const { pipelineInstance } = await generatePipelineWithData(result);
-
       setCreatingPipeline({
         ...creatingPipeline,
         loading: false,
       });
       if (pipelineInstance) {
-        dispatch({
-          type: PipelineTypes.SetPipelines,
-          payload: {
-            pipelines: [pipelineInstance, ...pipelines],
-          },
-        });
+        handleDispatchPipelines([pipelineInstance, ...pipelines]);
       }
     } catch (error: any) {
       setCreatingPipeline({
@@ -509,17 +506,14 @@ const ConfigurationPage = (props: {
                               : false
                           }
                           onClick={() => {
-                            dispatch({
-                              type: PipelineTypes.SetCurrentComputeEnvironment,
-                              payload: {
-                                computeEnv: {
-                                  item,
-                                  currentNode,
-                                  currentPipelineId,
-                                  computeEnvList,
-                                },
-                              },
-                            });
+                            if (currentNode) {
+                              handleSetCurrentComputeEnv(
+                                item,
+                                currentNode,
+                                currentPipelineId,
+                                computeEnvList
+                              );
+                            }
                           }}
                         />
 

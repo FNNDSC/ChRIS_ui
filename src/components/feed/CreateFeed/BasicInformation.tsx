@@ -8,7 +8,7 @@ import { fetchTagList } from "./utils/basicInformation";
 
 const BasicInformation: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { feedName, feedDescription, tags } = state.feedState.data;
+  const { feedName, feedDescription, tags } = state.data;
   const [availableTagsLoaded, setAvailableTagsLoaded] =
     useState<boolean>(false);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);

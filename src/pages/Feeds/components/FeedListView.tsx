@@ -11,7 +11,14 @@ import {
   Checkbox,
   Tooltip,
 } from "@patternfly/react-core";
-import { TableComposable, Thead, Tr, Th, Td, Tbody } from "@patternfly/react-table";
+import {
+  TableComposable,
+  Thead,
+  Tr,
+  Th,
+  Td,
+  Tbody,
+} from "@patternfly/react-table";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
 import { Feed } from "@fnndsc/chrisapi";
 import {
@@ -28,7 +35,10 @@ import {
 import { setSidebarActive } from "../../../store/ui/actions";
 import { DataTableToolbar } from "../../../components/index";
 import { CreateFeed } from "../../../components/feed/CreateFeed/CreateFeed";
-import { CreateFeedProvider } from "../../../components/feed/CreateFeed/context";
+import {
+  CreateFeedProvider,
+  PipelineProvider,
+} from "../../../components/feed/CreateFeed/context";
 import {
   EmptyStateTable,
   generateTableLoading,
@@ -151,7 +161,9 @@ const FeedListView: React.FC = () => {
         />
 
         <CreateFeedProvider>
-          <CreateFeed />
+          <PipelineProvider>
+            <CreateFeed />
+          </PipelineProvider>
         </CreateFeedProvider>
       </PageSection>
 

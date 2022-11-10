@@ -1,5 +1,5 @@
-import React, { useRef, useContext } from "react";
-import { PipelineTypes, } from "../CreateFeed/types/pipeline";
+import React, { useRef } from "react";
+
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { TreeNode } from "../../../api/common";
@@ -8,7 +8,7 @@ import {
   hasCode,
   intToRGB,
 } from "../CreateFeed/utils/pipelines";
-import { CreateFeedContext } from "../CreateFeed/context";
+import { SinglePipeline } from "../CreateFeed/types/pipeline";
 
 export interface Point {
   x: number;
@@ -16,6 +16,7 @@ export interface Point {
 }
 
 type NodeProps = {
+  state: SinglePipeline;
   data: TreeNode;
   parent: HierarchyPointNode<TreeNode> | null;
   position: Point;
@@ -26,6 +27,20 @@ type NodeProps = {
     plugin_id: number
   ) => void;
   currentPipelineId: number;
+  handleSetCurrentNodeTitle: (
+    currentPipelineId: number,
+    currentNode: number,
+    title: string
+  ) => void;
+  handleSetPipelineEnvironments: (
+    pipelineId: number,
+    computeEnvData: {
+      [x: number]: {
+        computeEnvs: any[];
+        currentlySelected: any;
+      };
+    }
+  ) => void;
 };
 
 const setNodeTransform = (orientation: string, position: Point) => {
@@ -35,14 +50,19 @@ const setNodeTransform = (orientation: string, position: Point) => {
 };
 const DEFAULT_NODE_CIRCLE_RADIUS = 12;
 const NodeData = (props: NodeProps) => {
-  const { state, dispatch } = useContext(CreateFeedContext);
-
   const nodeRef = useRef<SVGGElement>(null);
   const textRef = useRef<SVGTextElement>(null);
-  const { data, position, orientation, handleNodeClick, currentPipelineId } =
-    props;
-  const { computeEnvs, title } = state.pipelineData[currentPipelineId];
-  const { currentNode } = state.pipelineData[currentPipelineId];
+  const {
+    data,
+    position,
+    orientation,
+    handleNodeClick,
+    currentPipelineId,
+    state,
+    handleSetPipelineEnvironments,
+  } = props;
+  const { computeEnvs, title, currentNode } = state;
+
   let currentComputeEnv = "";
   if (computeEnvs && computeEnvs[data.id]) {
     currentComputeEnv = computeEnvs[data.id].currentlySelected;
@@ -60,31 +80,12 @@ const NodeData = (props: NodeProps) => {
     async function fetchComputeEnvironments() {
       const computeEnvData = await fetchComputeInfo(data.plugin_id, data.id);
       if (computeEnvData) {
-        dispatch({
-          type: PipelineTypes.SetPipelineEnvironments,
-          payload: {
-            pipelineId: currentPipelineId,
-            computeEnvData,
-          },
-        });
+        handleSetPipelineEnvironments(currentPipelineId, computeEnvData);
       }
     }
 
     fetchComputeEnvironments();
-  }, [data, dispatch, currentPipelineId]);
-
-  React.useEffect(() => {
-    if (data.plugin_name && currentPipelineId) {
-      dispatch({
-        type: PipelineTypes.SetCurrentNodeTitle,
-        payload: {
-          currentPipelineId,
-          currentNode,
-          title: data.plugin_name,
-        },
-      });
-    }
-  }, [currentNode, currentPipelineId, data.plugin_name, dispatch]);
+  }, [data, currentPipelineId]);
 
   React.useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);

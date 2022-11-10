@@ -48,7 +48,7 @@ interface DataPacksReduxProp {
 
 const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { selectedPlugin } = state.feedState;
+  const { selectedPlugin } = state
   const [fsPlugins, setfsPlugins] = useState<Plugin[]>([]);
   const [filterState, setFilterState] = useState<FilterProps>(getFilterState());
   const { perPage, currentPage, filter, itemCount } = filterState;

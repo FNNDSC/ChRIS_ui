@@ -5,7 +5,7 @@ import FileUpload from '../../common/fileupload'
 
 const LocalFileUpload: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext)
-  const { localFiles } = state.feedState.data
+  const { localFiles } = state.data
 
   const handleDispatch = (files: LocalFile[]) => {
     dispatch({
