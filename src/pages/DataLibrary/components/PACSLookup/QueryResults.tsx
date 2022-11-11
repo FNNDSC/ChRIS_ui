@@ -249,33 +249,38 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
               <GridItem span={4}>
                 <div>
                   <b style={{ marginRight: "0.5em" }}>
-                    {study.StudyDescription}
+                    {study.StudyDescription && study.StudyDescription}
                   </b>{" "}
-                  {study.StudyDate.getTime() >=
-                  Date.now() - 30 * 24 * 60 * 60 * 1000 ? (
+                  {study.StudyDate &&
+                  study.StudyDate.getTime() >=
+                    Date.now() - 30 * 24 * 60 * 60 * 1000 ? (
                     <Tooltip content="Study was performed in the last 30 days.">
                       <Badge>NEW</Badge>
                     </Tooltip>
                   ) : null}
                 </div>
                 <div>
-                  {study.NumberOfStudyRelatedSeries} series, on{" "}
+                  {study.NumberOfStudyRelatedSeries &&
+                    study.NumberOfStudyRelatedSeries}{" "}
+                  series, on{" "}
                   <Moment format="MMMM Do YYYY">{`${study.StudyDate}`}</Moment>
                 </div>
               </GridItem>
               <GridItem span={2}>
                 <div className="study-detail-title">Modalities in Study</div>
                 <div>
-                  {study.ModalitiesInStudy.split("\\").map((m) => (
-                    <Badge style={{ margin: "auto 0.125em" }} key={m}>
-                      {m}
-                    </Badge>
-                  ))}
+                  {study.ModalitiesInStudy &&
+                    study.ModalitiesInStudy.split("\\").map((m) => (
+                      <Badge style={{ margin: "auto 0.125em" }} key={m}>
+                        {m}
+                      </Badge>
+                    ))}
                 </div>
               </GridItem>
               <GridItem span={2}>
                 <div className="study-detail-title">Accession Number</div>
-                {study.AccessionNumber.startsWith("no value") ? (
+                {study.AccessionNumber &&
+                study.AccessionNumber.startsWith("no value") ? (
                   <Tooltip content={study.AccessionNumber}>
                     <FaQuestionCircle />
                   </Tooltip>
@@ -286,7 +291,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
               <GridItem span={2}>
                 <div className="study-detail-title">Station</div>
-                {study.PerformedStationAETitle.startsWith("no value") ? (
+                {study.PerformedStationAETitle &&
+                study.PerformedStationAETitle.startsWith("no value") ? (
                   <Tooltip content={study.PerformedStationAETitle}>
                     <FaQuestionCircle />
                   </Tooltip>
@@ -312,11 +318,12 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
         {isStudyExpanded && (
           <Grid hasGutter className="patient-series">
-            {study.series.map((series) => (
-              <GridItem sm={12} md={3} key={series.SeriesInstanceUID}>
-                <SeriesCard series={series} />
-              </GridItem>
-            ))}
+            {study.series &&
+              study.series.map((series) => (
+                <GridItem sm={12} md={3} key={series.SeriesInstanceUID}>
+                  <SeriesCard series={series} />
+                </GridItem>
+              ))}
           </Grid>
         )}
       </>
@@ -599,26 +606,6 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       {results.map((patient) => (
         <GridItem key={patient.PatientID}>
           <PatientCard patient={patient} />
-
-          {/* {isExpanded(patient.PatientID) && (
-            <Grid hasGutter className="patient-studies">
-              {patient.studies.map((study) => (
-                <GridItem key={study.StudyInstanceUID}>
-                  <StudyCard study={study} />
-
-                  {isExpanded(study.StudyInstanceUID) && (
-                    <Grid hasGutter className="patient-series">
-                      {study.series.map((series) => (
-                        <GridItem sm={12} md={3} key={series.SeriesInstanceUID}>
-                          <SeriesCard series={series} />
-                        </GridItem>
-                      ))}
-                    </Grid>
-                  )}
-                </GridItem>
-              ))}
-            </Grid>
-          )} */}
         </GridItem>
       ))}
     </Grid>
