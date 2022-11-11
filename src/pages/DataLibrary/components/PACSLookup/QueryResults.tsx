@@ -275,7 +275,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
               </GridItem>
               <GridItem span={2}>
                 <div className="study-detail-title">Accession Number</div>
-                {study.AccessionNumber.startsWith("no value") ? (
+                {study.AccessionNumber &&
+                study.AccessionNumber.startsWith("no value") ? (
                   <Tooltip content={study.AccessionNumber}>
                     <FaQuestionCircle />
                   </Tooltip>
@@ -286,7 +287,8 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
               <GridItem span={2}>
                 <div className="study-detail-title">Station</div>
-                {study.PerformedStationAETitle.startsWith("no value") ? (
+                {study.PerformedStationAETitle &&
+                study.PerformedStationAETitle.startsWith("no value") ? (
                   <Tooltip content={study.PerformedStationAETitle}>
                     <FaQuestionCircle />
                   </Tooltip>
