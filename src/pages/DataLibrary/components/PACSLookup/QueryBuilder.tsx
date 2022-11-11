@@ -40,6 +40,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
     type: PFDCMQueryTypes.PMRN,
   } as PFDCMQuery);
 
+  console.log("PACSSERVICES", PACSservices);
+
   const setQueryType = (type: PFDCMQueryTypes) => {
     setQuery({ ...query, type } as PFDCMQuery);
   };

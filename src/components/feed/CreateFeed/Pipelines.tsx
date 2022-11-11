@@ -262,10 +262,10 @@ const Pipelines = ({
                     <>
                       <div style={{ display: "flex", background: "black" }}>
                         <Tree
+                          state={state.pipelineData[pipeline.data.id]}
                           currentPipelineId={pipeline.data.id}
                           handleNodeClick={handleNodeClick}
                           handleSetCurrentNode={handleSetCurrentNode}
-                          state={state.pipelineData[pipeline.data.id]}
                           handleSetPipelineEnvironments={
                             handleSetPipelineEnvironments
                           }

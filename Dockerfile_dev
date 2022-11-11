@@ -7,7 +7,7 @@
 #
 # For example if building a local version, you could do:
 #
-#   docker build -t local/chris_ui:dev -f Dockerfile_dev .
+#   
 #
 # In the case of a proxy (located at say 10.41.13.4:3128), do:
 #
