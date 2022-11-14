@@ -20,7 +20,7 @@ jobs:
 
       - name: setup CUBE
         id: cube
-        uses: Mfonn/miniChRIS-docker@master
+        uses: FNNDSC/miniChRIS-docker@master
         with:
           plugins: |
             https://chrisstore.co/api/v1/plugins/2/
