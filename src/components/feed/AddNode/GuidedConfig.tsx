@@ -4,7 +4,6 @@ import {
   Alert,
   AlertActionCloseButton,
   ExpandableSection,
-  Divider,
 } from "@patternfly/react-core";
 import SimpleDropdown from "./SimpleDropdown";
 import RequiredParam from "./RequiredParam";
@@ -12,20 +11,20 @@ import ComputeEnvironments from "./ComputeEnvironment";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { v4 } from "uuid";
-
 import { GuidedConfigState, GuidedConfigProps } from "./types";
 
 const GuidedConfig = ({
+  defaultValueDisplay,
   renderComputeEnv,
   dropdownInput,
   requiredInput,
   inputChange,
-
   params,
   computeEnvs,
   selectedComputeEnv,
   setComputeEnviroment,
   deleteInput,
+  pluginName,
 }: GuidedConfigProps) => {
   const [configState, setConfigState] = React.useState<GuidedConfigState>({
     componentList: [],
@@ -165,6 +164,7 @@ const GuidedConfig = ({
     return componentList.map((id, index) => {
       return (
         <SimpleDropdown
+          defaultValueDisplay={defaultValueDisplay}
           key={index}
           params={params}
           handleChange={inputChange}
@@ -182,10 +182,13 @@ const GuidedConfig = ({
     <>
       <div className="configuration">
         <div className="configuration__options">
+          {!defaultValueDisplay && (
+            <h1 className="pf-c-title pf-m-2xl">{`Configure ${pluginName}`}</h1>
+          )}
+
           <div className="configuration__renders">
             <div>
               <h4>Required Parameters</h4>
-              <Divider component="div" />
               {renderRequiredParams()}
               <p>
                 <i>
@@ -201,7 +204,6 @@ const GuidedConfig = ({
               }}
             >
               <h4>Default Parameters</h4>
-              <Divider component="div" />
               {renderDropdowns()}
               <Button
                 className="configuration__button"

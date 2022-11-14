@@ -1,15 +1,19 @@
 import React, { useContext } from "react";
-import { List, Checkbox, Avatar } from "antd";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { CreateFeedContext } from "../CreateFeed/context";
-import { Types, colorPalette } from "../CreateFeed/types";
+import { PipelineContext } from "../CreateFeed/context";
+import ListCompute from "./ListCompute";
+import { PipelineTypes } from "../CreateFeed/types/pipeline";
 
 const GeneralCompute = ({
   currentPipelineId,
 }: {
   currentPipelineId: number;
+  handleSetGeneralCompute: (
+    currentPipelineId: number,
+    computeEnv: string
+  ) => void;
 }) => {
-  const { state, dispatch } = useContext(CreateFeedContext);
+  const { state, dispatch } = useContext(PipelineContext);
   const [computes, setComputes] = React.useState<any[]>([]);
 
   const generalCompute = state.pipelineData[currentPipelineId].generalCompute;
@@ -21,12 +25,18 @@ const GeneralCompute = ({
         limit: 100,
         offset: 0,
       });
-      const computes = computeResourceList.getItems();
-      computes && setComputes(computes);
+      setComputes(computeResourceList.data);
     }
 
     fetchCompute();
   }, []);
+
+  const dispatchFn = (item: any) => {
+    dispatch({
+      type: PipelineTypes.SetGeneralCompute,
+      payload: { currentPipelineId, computeEnv: item.name },
+    });
+  };
 
   return (
     <div
@@ -36,52 +46,10 @@ const GeneralCompute = ({
       }}
       className="general-compute"
     >
-      <List
-        itemLayout="horizontal"
-        dataSource={computes ? computes : []}
-        renderItem={(item) => {
-          return (
-            <List.Item>
-              <List.Item.Meta
-                avatar={
-                  <>
-                    <Checkbox
-                      style={{
-                        marginRight: "0.5em",
-                      }}
-                      checked={
-                        generalCompute && generalCompute === item.data.name
-                          ? true
-                          : false
-                      }
-                      onClick={() => {
-                        dispatch({
-                          type: Types.SetGeneralCompute,
-                          payload: {
-                            currentPipelineId,
-                            computeEnv: item.data.name,
-                          },
-                        });
-                      }}
-                    />
-
-                    <Avatar
-                      style={{
-                        background: `${
-                          colorPalette[item.data.name]
-                            ? colorPalette[item.data.name]
-                            : colorPalette["default"]
-                        }`,
-                      }}
-                    />
-                  </>
-                }
-                title={item.data.name}
-                description={item.data.description}
-              />
-            </List.Item>
-          );
-        }}
+      <ListCompute
+        computeList={computes}
+        generalCompute={generalCompute}
+        dispatchFn={dispatchFn}
       />
     </div>
   );

@@ -8,8 +8,8 @@ import {
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { Feed } from "@fnndsc/chrisapi";
-import { CreateFeedContext } from "./context";
-import { Types, CreateFeedReduxProp } from "./types";
+import { CreateFeedContext, PipelineContext } from "./context";
+import { Types, CreateFeedReduxProp } from "./types/feed";
 import BasicInformation from "./BasicInformation";
 import ChrisFileSelect from "./ChrisFileSelect";
 import LocalFileUpload from "./LocalFileUpload";
@@ -17,7 +17,7 @@ import ChooseConfig from "./ChooseConfig";
 import DataPacks from "./DataPacks";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import Review from "./Review";
-import Pipelines from "./Pipelines";
+import PipelineContainer from "./PipelineContainer";
 import FinishedStep from "./FinishedStep";
 import withSelectionAlert from "./SelectionAlert";
 import { addFeed } from "../../../store/feed/actions";
@@ -32,6 +32,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   addFeed,
 }: CreateFeedReduxProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
+  const { state: pipelineState } = useContext(PipelineContext);
   const routerContext = useContext(MainRouterContext);
 
   const {
@@ -43,9 +44,9 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     dropdownInput,
     requiredInput,
     computeEnvironment,
-    selectedPipeline,
-    pipelineData,
   } = state;
+
+  const { pipelineData, selectedPipeline } = pipelineState;
 
   const enableSave =
     data.chrisFiles.length > 0 ||
@@ -199,19 +200,24 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   );
   const localFileUpload = <LocalFileUpload />;
   const packs = <DataPacks />;
+  let pluginName = selectedPlugin?.data.title
+    ? selectedPlugin?.data.title
+    : selectedPlugin?.data.name;
+  const pluginVersion = (pluginName += `${selectedPlugin?.data.version}`);
   const guidedConfig = (
     <GuidedConfig
+      defaultValueDisplay={false}
       renderComputeEnv={true}
       inputChange={inputChange}
       deleteInput={deleteInput}
-      plugin={selectedPlugin}
+      pluginName={pluginVersion}
       dropdownInput={dropdownInput}
       requiredInput={requiredInput}
       selectedComputeEnv={computeEnvironment}
       setComputeEnviroment={setComputeEnvironment}
     />
   );
-  const pipelines = <Pipelines />;
+  const pipelines = <PipelineContainer />;
   const review = <Review />;
 
   const finishedStep = <FinishedStep />;

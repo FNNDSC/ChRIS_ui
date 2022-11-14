@@ -20,13 +20,13 @@ function getInitialState() {
 }
 
 const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
+  defaultValueDisplay,
   dropdownInput,
   id,
   params,
   handleChange,
   addParam,
   deleteInput,
-
   deleteComponent,
 }: SimpleDropdownProps) => {
   const [dropdownState, setDropdownState] =
@@ -55,7 +55,11 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     const flag = param.data.flag;
     const placeholder = param.data.help;
     const type = param.data.type;
-    const defaultValue = value ? value : param.data.default;
+    const defaultValue = value
+      ? value
+      : defaultValueDisplay
+      ? param.data.default
+      : "";
     handleChange(id, flag, defaultValue, type, placeholder, false, paramName);
   };
 

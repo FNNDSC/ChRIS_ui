@@ -1,6 +1,6 @@
 import React from "react";
 import { Grid, GridItem, Button } from "@patternfly/react-core";
-import { LocalFile } from "../../feed/CreateFeed/types";
+import { LocalFile } from "../../feed/CreateFeed/types/feed";
 import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
 
 type FileUploadProps = {
