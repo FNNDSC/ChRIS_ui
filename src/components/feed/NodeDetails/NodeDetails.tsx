@@ -33,6 +33,7 @@ import { getErrorCodeMessage } from "./utils";
 import AddPipeline from "../AddPipeline/AddPipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
+import { PipelineProvider } from "../CreateFeed/context";
 
 interface INodeProps {
   expandDrawer: (panel: string) => void;
@@ -216,7 +217,9 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
         <div className="node-details__actions">
           <div className="node-details__actions_first">
             {cancelled ? null : <AddNode />}
-            <AddPipeline />
+            <PipelineProvider>
+              <AddPipeline />
+            </PipelineProvider>
 
             <Button onClick={downloadAllClick} icon={<FaDownload />}>
               Download Files

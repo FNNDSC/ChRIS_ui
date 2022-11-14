@@ -1,5 +1,6 @@
 import { unpackParametersIntoObject } from "../../AddNode/lib/utils";
-import { CreateFeedData, LocalFile, PipelineData } from "../types";
+import { CreateFeedData, LocalFile } from "../types/feed";
+import { PipelineData } from "../types/pipeline";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";

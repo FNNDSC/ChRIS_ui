@@ -257,12 +257,20 @@ const AddNode: React.FC<AddNodeProps> = ({
       handlePluginSelect={handlePluginSelect}
     />
   );
+
+  let pluginName = selectedPlugin?.data.title
+    ? selectedPlugin?.data.title
+    : selectedPlugin?.data.plugin_name;
+
+  const pluginVersion = pluginName += ` v.${selectedPlugin?.data.plugin_version}`;
+
   const form = data.plugin ? (
     <GuidedConfig
+      pluginName={pluginVersion}
+      defaultValueDisplay={false}
       renderComputeEnv={true}
       inputChange={inputChange}
       deleteInput={deleteInput}
-      plugin={data.plugin}
       dropdownInput={dropdownInput}
       requiredInput={requiredInput}
       selectedComputeEnv={selectedComputeEnv}

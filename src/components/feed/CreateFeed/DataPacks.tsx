@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Plugin } from "@fnndsc/chrisapi";
-import { Types } from "./types";
+import { Types } from "./types/feed";
 import { CreateFeedContext } from "./context";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
@@ -48,7 +48,7 @@ interface DataPacksReduxProp {
 
 const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { selectedPlugin } = state;
+  const { selectedPlugin } = state
   const [fsPlugins, setfsPlugins] = useState<Plugin[]>([]);
   const [filterState, setFilterState] = useState<FilterProps>(getFilterState());
   const { perPage, currentPage, filter, itemCount } = filterState;

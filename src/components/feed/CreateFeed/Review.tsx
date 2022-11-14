@@ -17,11 +17,12 @@ const Review: React.FunctionComponent = () => {
     selectedConfig,
     selectedPlugin,
     computeEnvironment,
-    pipelineName,
   } = state;
 
+  const pipelineName = "";
+
   // the installed version of @patternfly/react-core doesn't support read-only chips
-  const tagList = tags.map((tag) => (
+  const tagList = tags.map((tag: any) => (
     <div className="pf-c-chip pf-m-read-only tag" key={tag.data.id}>
       <span className="pf-c-chip__text">{tag.data.name}</span>
     </div>
