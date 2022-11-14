@@ -78,7 +78,7 @@ const AddPipeline = () => {
         style={{
           height: "100%",
         }}
-        variant="medium"
+        width="70%"
         aria-label="My Pipeline Modal"
         isOpen={isModalOpen}
         onClose={handleToggle}

@@ -1,4 +1,8 @@
-import { PluginPiping } from "@fnndsc/chrisapi";
+import {
+  PluginPiping,
+  Pipeline,
+  PipelinePipingDefaultParameterList,
+} from "@fnndsc/chrisapi";
 import { InputIndex, InputType } from "../../AddNode/types";
 
 type ActionMap<M extends { [index: string]: any }> = {
@@ -106,8 +110,6 @@ type PipelinePayload = {
     input: InputIndex;
   };
 
- 
-
   [PipelineTypes.SetDefaultParameters]: {
     pipelineId: string;
     defaultParameters: [];
@@ -150,6 +152,111 @@ export interface SinglePipeline {
   };
 }
 
+export type UploadJsonProps = Resources & PipelineInstanceResource;
+
+export interface Resources {
+  parameters: PipelinePipingDefaultParameterList;
+  pluginPipings: any[];
+  pipelinePlugins: any[];
+  pipelineId?: number;
+}
+
+export interface PipelineInstanceResource {
+  pipelineInstance: Pipeline;
+}
+
 export interface PipelineData {
   [key: string]: SinglePipeline;
+}
+
+export interface PipelinesProps {
+  justDisplay?: boolean;
+  handleDispatchPipelines: (registeredPipelines: any) => void;
+  handleSetPipelineResources: (result: Resources) => void;
+  handleUploadDispatch: (result: UploadJsonProps) => void;
+  handleSetCurrentNode: (pipelineId: number, currentNode: number) => void;
+  handleCleanResources: () => void;
+  handlePipelineSecondaryResource: (pipeline: Pipeline) => void;
+  handleSetCurrentNodeTitle: (
+    currentPipelineId: number,
+    currentNode: number,
+    title: string
+  ) => void;
+  handleSetPipelineEnvironments: (
+    pipelineId: number,
+    computeEnvData: {
+      [x: number]: {
+        computeEnvs: any[];
+        currentlySelected: any;
+      };
+    }
+  ) => void;
+  handleSetGeneralCompute: (
+    currentPipelineId: number,
+    computeEnv: string
+  ) => void;
+  handleTypedInput: (
+    currentPipelineId: number,
+    currentNodeId: number,
+    id: string,
+    input: InputIndex,
+    required: boolean
+  ) => void;
+  handleDeleteInput: (
+    currentPipelineId: number,
+    currentNode: number,
+    index: string
+  ) => void;
+  handleSetCurrentComputeEnv: (
+    item: {
+      name: string;
+      description: string;
+    },
+    currentNode: number,
+    currentPipelineId: number,
+    computeEnvList: any[]
+  ) => void;
+  state: any;
+}
+
+export interface ConfiguartionPageProps {
+  pipelines: any;
+  currentPipelineId: number;
+  pipeline: Pipeline;
+  state: SinglePipeline;
+  handleTypedInput: (
+    currentPipelineId: number,
+    currentNodeId: number,
+    id: string,
+    input: InputIndex,
+    required: boolean
+  ) => void;
+  handleDeleteInput: (
+    currentPipelineId: number,
+    currentNode: number,
+    index: string
+  ) => void;
+  handleSetCurrentNodeTitle: (
+    currentPipelineId: number,
+    currentNode: number,
+    title: string
+  ) => void;
+  handleDispatchPipelines: (registeredPipelines: any) => void;
+  handleSetCurrentComputeEnv: (
+    item: {
+      name: string;
+      description: string;
+    },
+    currentNode: number,
+    currentPipelineId: number,
+    computeEnvList: any[]
+  ) => void;
+  justDisplay?: boolean;
+}
+
+export interface CreatePipelineProps {
+  pipelines: any;
+  pipeline: Pipeline;
+  state: SinglePipeline;
+  handleDispatchPipelines: (registeredPipelines: any) => void;
 }

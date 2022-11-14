@@ -32,8 +32,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   addFeed,
 }: CreateFeedReduxProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { state: pipelineState, dispatch: pipelineDispatch } =
-    useContext(PipelineContext);
+  const { state: pipelineState } = useContext(PipelineContext);
   const routerContext = useContext(MainRouterContext);
 
   const {

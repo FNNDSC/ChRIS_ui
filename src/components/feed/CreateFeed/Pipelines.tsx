@@ -20,60 +20,10 @@ import {
   GeneralCompute,
 } from "../Pipelines/";
 import { fetchPipelines, generatePipelineWithName } from "../../../api/common";
-import { UploadJsonProps, Resources } from "./PipelineContainer";
-import { Pipeline } from "@fnndsc/chrisapi";
-import { InputIndex } from "../AddNode/types";
-
-export interface PipelinesProps {
-  handleDispatchPipelines: (registeredPipelines: any) => void;
-  handleSetPipelineResources: (result: Resources) => void;
-  handleUploadDispatch: (result: UploadJsonProps) => void;
-  handleSetCurrentNode: (pipelineId: number, currentNode: number) => void;
-  handleCleanResources: () => void;
-  handlePipelineSecondaryResource: (pipeline: Pipeline) => void;
-  handleSetCurrentNodeTitle: (
-    currentPipelineId: number,
-    currentNode: number,
-    title: string
-  ) => void;
-  handleSetPipelineEnvironments: (
-    pipelineId: number,
-    computeEnvData: {
-      [x: number]: {
-        computeEnvs: any[];
-        currentlySelected: any;
-      };
-    }
-  ) => void;
-  handleSetGeneralCompute: (
-    currentPipelineId: number,
-    computeEnv: string
-  ) => void;
-  handleTypedInput: (
-    currentPipelineId: number,
-    currentNodeId: number,
-    id: string,
-    input: InputIndex,
-    required: boolean
-  ) => void;
-  handleDeleteInput: (
-    currentPipelineId: number,
-    currentNode: number,
-    index: string
-  ) => void;
-  handleSetCurrentComputeEnv: (
-    item: {
-      name: string;
-      description: string;
-    },
-    currentNode: number,
-    currentPipelineId: number,
-    computeEnvList: any[]
-  ) => void;
-  state: any;
-}
+import { PipelinesProps } from "./types/pipeline";
 
 const Pipelines = ({
+  justDisplay,
   state,
   handleDispatchPipelines,
   handleSetPipelineResources,
@@ -100,11 +50,18 @@ const Pipelines = ({
   const [expanded, setExpanded] = React.useState<{ [key: string]: boolean }>();
   const { page, perPage } = pageState;
 
+  const handleDispatchWrap = React.useCallback(
+    (registeredPipelines: any) => {
+      handleDispatchPipelines(registeredPipelines);
+    },
+    [handleDispatchPipelines]
+  );
+
   React.useEffect(() => {
     fetchPipelines(perPage, page).then((result: any) => {
       const { registeredPipelines, registeredPipelinesList } = result;
       if (registeredPipelines) {
-        handleDispatchPipelines(registeredPipelines);
+        handleDispatchWrap(registeredPipelines);
         setPageState((pageState) => {
           return {
             ...pageState,
@@ -113,7 +70,7 @@ const Pipelines = ({
         });
       }
     });
-  }, [perPage, page]);
+  }, [perPage, page, handleDispatchWrap]);
 
   const handleNodeClick = async (nodeName: number, pipelineId: number) => {
     handleSetCurrentNode(pipelineId, nodeName);
@@ -209,32 +166,35 @@ const Pipelines = ({
                     aria-label="actions"
                     className="pipelines"
                   >
-                    <Button
-                      variant="tertiary"
-                      key="select-action"
-                      onClick={async () => {
-                        if (!(selectedPipeline === pipeline.data.id)) {
-                          handlePipelineSecondaryResource(pipeline);
-                          if (!pipelineData[pipeline.data.id]) {
-                            const { resources } =
-                              await generatePipelineWithName(
-                                pipeline.data.name
-                              );
+                    {!justDisplay && (
+                      <Button
+                        variant="tertiary"
+                        key="select-action"
+                        onClick={async () => {
+                          if (!(selectedPipeline === pipeline.data.id)) {
+                            handlePipelineSecondaryResource(pipeline);
+                            if (!pipelineData[pipeline.data.id]) {
+                              const { resources } =
+                                await generatePipelineWithName(
+                                  pipeline.data.name
+                                );
 
-                            handleSetPipelineResources({
-                              ...resources,
-                              pipelineId: pipeline.data.id,
-                            });
+                              handleSetPipelineResources({
+                                ...resources,
+                                pipelineId: pipeline.data.id,
+                              });
+                            }
+                          } else {
+                            handleCleanResources();
                           }
-                        } else {
-                          handleCleanResources();
-                        }
-                      }}
-                    >
-                      {selectedPipeline === pipeline.data.id
-                        ? "Deselect"
-                        : "Select"}
-                    </Button>
+                        }}
+                      >
+                        {selectedPipeline === pipeline.data.id
+                          ? "Deselect"
+                          : "Select"}
+                      </Button>
+                    )}
+
                     <Button
                       key="delete-action"
                       onClick={async () => {
@@ -278,6 +238,7 @@ const Pipelines = ({
                       </div>
 
                       <ConfigurationPage
+                        justDisplay={justDisplay}
                         pipelines={pipelines}
                         pipeline={pipeline}
                         currentPipelineId={pipeline.data.id}

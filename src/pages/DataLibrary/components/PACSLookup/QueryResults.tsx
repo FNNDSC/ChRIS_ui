@@ -565,8 +565,6 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
       );
     };
 
-    console.log("Series", series);
-
     return (
       <Card isRounded isHoverable style={{ height: "100%" }}>
         <CardBody>

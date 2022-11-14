@@ -32,8 +32,6 @@ export async function fetchResources(pipelineInstance: Pipeline) {
   };
 }
 
-
-
 export const generatePipelineWithName = async (pipelineName: string) => {
   const client = ChrisAPIClient.getClient();
   const pipelineInstanceList: PipelineList = await client.getPipelines({
@@ -81,6 +79,7 @@ export async function fetchComputeInfo(
   return undefined;
 }
 
+/*
 export function hasCode(str: string) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -93,3 +92,17 @@ export function intToRGB(i: number) {
   const c = (i & 0x00ffffff).toString(16).toUpperCase();
   return "00000".substring(0, 6 - c.length) + c;
 }
+*/
+
+export const stringToColour = (
+  value: string,
+  saturation = 100,
+  lightness = 75
+) => {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = value.charCodeAt(i) + ((hash << 5) - hash);
+    hash = hash && hash;
+  }
+  return `hsl(${hash % 360}, ${saturation}%, ${lightness}%)`;
+};
