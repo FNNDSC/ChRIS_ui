@@ -5,8 +5,7 @@ import { select } from "d3-selection";
 import { TreeNode } from "../../../api/common";
 import {
   fetchComputeInfo,
-  hasCode,
-  intToRGB,
+  stringToColour,
 } from "../CreateFeed/utils/pipelines";
 import { SinglePipeline } from "../CreateFeed/types/pipeline";
 
@@ -49,6 +48,7 @@ const setNodeTransform = (orientation: string, position: Point) => {
     : `translate(${position.x}, ${position.y})`;
 };
 const DEFAULT_NODE_CIRCLE_RADIUS = 12;
+
 const NodeData = (props: NodeProps) => {
   const nodeRef = useRef<SVGGElement>(null);
   const textRef = useRef<SVGTextElement>(null);
@@ -76,16 +76,28 @@ const NodeData = (props: NodeProps) => {
       .style("opacity", opacity);
   };
 
+  const handleSetComputeEnvironmentsWrap = React.useCallback(
+    (computeEnvData: {
+      [x: number]: {
+        computeEnvs: any[];
+        currentlySelected: any;
+      };
+    }) => {
+      handleSetPipelineEnvironments(currentPipelineId, computeEnvData);
+    },
+    [currentPipelineId, handleSetPipelineEnvironments]
+  );
+
   React.useEffect(() => {
     async function fetchComputeEnvironments() {
       const computeEnvData = await fetchComputeInfo(data.plugin_id, data.id);
       if (computeEnvData) {
-        handleSetPipelineEnvironments(currentPipelineId, computeEnvData);
+        handleSetComputeEnvironmentsWrap(computeEnvData);
       }
     }
 
     fetchComputeEnvironments();
-  }, [data, currentPipelineId]);
+  }, [data, handleSetComputeEnvironmentsWrap]);
 
   React.useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);
@@ -93,7 +105,7 @@ const NodeData = (props: NodeProps) => {
   }, [orientation, position]);
 
   const textLabel = (
-    <g id={`text_${data.id}`}>
+    <g id={`text_${data.id}`} transform={`translate(-50,30)`}>
       <text ref={textRef} className="label__title">
         {`${titleName ? titleName : data.plugin_name} (id: ${data.id})`}
       </text>
@@ -113,7 +125,7 @@ const NodeData = (props: NodeProps) => {
     >
       <circle
         style={{
-          fill: `#${intToRGB(hasCode(currentComputeEnv))}`,
+          fill: `${stringToColour(currentComputeEnv)}`,
           stroke: data.id === currentNode ? "white" : "",
           strokeWidth: data.id === currentNode ? "3px" : "",
         }}

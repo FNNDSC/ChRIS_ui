@@ -1,24 +1,11 @@
 import React, { useContext } from "react";
-import { Pipeline, PipelinePipingDefaultParameterList } from "@fnndsc/chrisapi";
+import { Pipeline } from "@fnndsc/chrisapi";
 import Pipelines from "./Pipelines";
-import { CreateFeedContext, PipelineContext } from "./context";
-import { PipelineTypes } from "./types/pipeline";
+import { PipelineContext } from "./context";
+import { PipelineTypes, Resources, UploadJsonProps } from "./types/pipeline";
 import { InputIndex } from "../AddNode/types";
 
-export type UploadJsonProps = Resources & PipelineInstanceResource;
-
-export interface Resources {
-  parameters: PipelinePipingDefaultParameterList;
-  pluginPipings: any[];
-  pipelinePlugins: any[];
-  pipelineId?: number;
-}
-
-export interface PipelineInstanceResource {
-  pipelineInstance: Pipeline;
-}
-
-const PipelineContainer = () => {
+const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
   const { state, dispatch } = useContext(PipelineContext);
 
   const handleDispatchPipelines = (registeredPipelines: any) => {
@@ -30,18 +17,21 @@ const PipelineContainer = () => {
     });
   };
 
-  const handleSetPipelineResources = React.useCallback((result: Resources) => {
-    const { parameters, pluginPipings, pipelinePlugins, pipelineId } = result;
-    dispatch({
-      type: PipelineTypes.SetPipelineResources,
-      payload: {
-        pipelineId,
-        parameters,
-        pluginPipings,
-        pipelinePlugins,
-      },
-    });
-  }, [dispatch]);
+  const handleSetPipelineResources = React.useCallback(
+    (result: Resources) => {
+      const { parameters, pluginPipings, pipelinePlugins, pipelineId } = result;
+      dispatch({
+        type: PipelineTypes.SetPipelineResources,
+        payload: {
+          pipelineId,
+          parameters,
+          pluginPipings,
+          pipelinePlugins,
+        },
+      });
+    },
+    [dispatch]
+  );
 
   const handleSetCurrentComputeEnv = (
     item: {
@@ -109,23 +99,26 @@ const PipelineContainer = () => {
     });
   };
 
-  const handleSetPipelineEnvironments = (
-    pipelineId: number,
-    computeEnvData: {
-      [x: number]: {
-        computeEnvs: any[];
-        currentlySelected: any;
-      };
-    }
-  ) => {
-    dispatch({
-      type: PipelineTypes.SetPipelineEnvironments,
-      payload: {
-        pipelineId,
-        computeEnvData,
-      },
-    });
-  };
+  const handleSetPipelineEnvironments = React.useCallback(
+    (
+      pipelineId: number,
+      computeEnvData: {
+        [x: number]: {
+          computeEnvs: any[];
+          currentlySelected: any;
+        };
+      }
+    ) => {
+      dispatch({
+        type: PipelineTypes.SetPipelineEnvironments,
+        payload: {
+          pipelineId,
+          computeEnvData,
+        },
+      });
+    },
+    [dispatch]
+  );
 
   const handleSetCurrentNodeTitle = (
     currentPipelineId: number,
@@ -155,35 +148,38 @@ const PipelineContainer = () => {
     });
   };
 
-  const handleTypedInput = (
-    currentPipelineId: number,
-    currentNodeId: number,
-    id: string,
-    input: InputIndex,
-    required: boolean
-  ) => {
-    if (required === true) {
-      dispatch({
-        type: PipelineTypes.SetPipelineRequiredInput,
-        payload: {
-          currentPipelineId,
-          currentNodeId,
-          id,
-          input,
-        },
-      });
-    } else {
-      dispatch({
-        type: PipelineTypes.SetPipelineDropdownInput,
-        payload: {
-          currentPipelineId,
-          currentNodeId,
-          id,
-          input,
-        },
-      });
-    }
-  };
+  const handleTypedInput = React.useCallback(
+    (
+      currentPipelineId: number,
+      currentNodeId: number,
+      id: string,
+      input: InputIndex,
+      required: boolean
+    ) => {
+      if (required === true) {
+        dispatch({
+          type: PipelineTypes.SetPipelineRequiredInput,
+          payload: {
+            currentPipelineId,
+            currentNodeId,
+            id,
+            input,
+          },
+        });
+      } else {
+        dispatch({
+          type: PipelineTypes.SetPipelineDropdownInput,
+          payload: {
+            currentPipelineId,
+            currentNodeId,
+            id,
+            input,
+          },
+        });
+      }
+    },
+    [dispatch]
+  );
 
   const handleDeleteInput = (
     currentPipelineId: number,
@@ -205,6 +201,7 @@ const PipelineContainer = () => {
       <div className="pacs-alert-step-wrap">
         <h1 className="pf-c-title pf-m-2xl"> Registered Pipelines</h1>
         <Pipelines
+          justDisplay={justDisplay}
           state={{
             pipelineData: state.pipelineData,
             selectedPipeline: state.selectedPipeline,

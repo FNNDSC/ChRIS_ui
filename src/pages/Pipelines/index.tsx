@@ -8,17 +8,17 @@ import { setSidebarActive } from "../../store/ui/actions";
 const PipelinePage = () => {
   const dispatch = useDispatch();
   React.useEffect(() => {
-    document.title = "Analysis Catalog";
+    document.title = "Pipelines Catalog";
     dispatch(
       setSidebarActive({
-        activeItem: "catalog",
+        activeItem: "pipelines",
       })
     );
   });
   return (
     <Wrapper>
       <PipelineProvider>
-        <PipelineContainer />
+        <PipelineContainer justDisplay={true} />
       </PipelineProvider>
     </Wrapper>
   );
