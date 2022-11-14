@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { CreateFeedContext } from './context'
-import { LocalFile, Types } from './types'
+import { LocalFile, Types } from './types/feed'
 import FileUpload from '../../common/fileupload'
 
 const LocalFileUpload: React.FC = () => {

@@ -16,7 +16,7 @@ import {
   DataBreadcrumb,
   ChrisFileSelectProp,
   CheckedKeys,
-} from './types'
+} from './types/feed'
 import { generateTreeNodes, getNewTreeData } from './utils/fileSelect'
 import { FileList, ErrorMessage } from './helperComponents'
 import { isEmpty } from 'lodash'

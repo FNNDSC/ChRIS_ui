@@ -185,6 +185,7 @@ const IconContainer = () => {
       />
 
       <Modal
+        className="feed_modal"
         data-keyboard="false"
         variant={ModalVariant.small}
         title={dialogTitleValue}

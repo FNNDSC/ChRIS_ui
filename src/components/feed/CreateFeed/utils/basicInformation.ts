@@ -1,6 +1,6 @@
 import { Tag } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
-import { fetchResource } from "../../../../utils";
+import { fetchResource } from "../../../../api/common";
 export const fetchTagList = async () => {
   const client = ChrisAPIClient.getClient();
   const params = {

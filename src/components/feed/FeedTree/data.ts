@@ -1,5 +1,5 @@
 import { PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
-import { fetchResource } from "../../../utils";
+import { fetchResource } from "../../../api/common";
 
 export interface Datum {
   id?: number;

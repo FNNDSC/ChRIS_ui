@@ -1,9 +1,10 @@
 import { unpackParametersIntoObject } from "../../AddNode/lib/utils";
-import { CreateFeedData, LocalFile, PipelineData } from "../types";
+import { CreateFeedData, LocalFile } from "../types/feed";
+import { PipelineData } from "../types/pipeline";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
-import { fetchResource } from "../../../../utils";
+import { fetchResource } from "../../../../api/common";
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
@@ -203,6 +204,7 @@ export const createFeedInstanceWithFS = async (
           feed = await fsPluginInstance.getFeed();
           statusCallback("Feed Created");
         } catch (error) {
+          console.log("Error", error);
           errorCallback(error as string);
         }
       }

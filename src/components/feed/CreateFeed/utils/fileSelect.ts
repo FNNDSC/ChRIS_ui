@@ -1,5 +1,5 @@
 import { EventDataNode } from "rc-tree/lib/interface";
-import { DataBreadcrumb } from "../types";
+import { DataBreadcrumb } from "../types/feed";
 
 import { fetchFilesFromAPath } from "../../../../store/resources/saga";
 

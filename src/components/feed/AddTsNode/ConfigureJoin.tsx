@@ -4,7 +4,7 @@ import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { useDispatch } from "react-redux";
 import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import { deleteTsNode, switchTreeMode } from "../../../store/tsplugins/actions";
-import { useSafeDispatch } from "../../../utils";
+import { useSafeDispatch } from "../../../api/common";
 import { useTypedSelector } from "../../../store/hooks";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { InputType } from "./ParentContainer";

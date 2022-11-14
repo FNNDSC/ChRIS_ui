@@ -255,11 +255,10 @@ Styles for pipelines
   flex: 2 1;
   min-width: 0;
   // padding-left: 0.2em;
-
-  .general-compute {
-    .ant-list-item-meta-title,
-    .ant-list-item-meta-description {
-      color: white !important;
-    }
+}
+.general-compute {
+  .ant-list-item-meta-title,
+  .ant-list-item-meta-description {
+    color: white !important;
   }
 }

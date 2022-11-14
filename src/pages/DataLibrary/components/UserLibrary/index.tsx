@@ -23,7 +23,7 @@ import LocalSearch from './LocalSearch'
 import { FaUpload } from 'react-icons/fa'
 import FileUpload from '../../../../components/common/fileupload'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
-import { LocalFile } from '../../../../components/feed/CreateFeed/types'
+import { LocalFile } from '../../../../components/feed/CreateFeed/types/feed'
 import { useTypedSelector } from '../../../../store/hooks'
 import { FileSelect, LibraryContext, Types } from './context'
 import { MainRouterContext } from '../../../../routes'
@@ -34,7 +34,7 @@ import {
 } from './context/actions'
 import { deleteFeed } from '../../../../store/feed/actions'
 import { useDispatch } from 'react-redux'
-import { fetchResource } from '../../../../utils'
+import { fetchResource } from '../../../../api/common'
 import './user-library.scss'
 
 interface DownloadType {

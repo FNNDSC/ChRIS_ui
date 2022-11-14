@@ -16,7 +16,7 @@ import {
   stopFetchingStatusResources,
   stopFetchingPluginResources,
 } from "../resources/actions";
-import { fetchResource } from "../../utils";
+import { fetchResource } from "../../api/common";
 
 function* handleGetPluginInstances(action: IActionTypeParam) {
   const feed: Feed = action.payload;
