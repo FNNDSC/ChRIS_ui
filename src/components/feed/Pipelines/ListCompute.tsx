@@ -37,7 +37,7 @@ const ListCompute = ({
 
                   <Avatar
                     style={{
-                      background: `${stringToColour(item.name)}`,
+                      background: `${stringToColour(item.name, "listCompute")}`,
                     }}
                   />
                 </>
