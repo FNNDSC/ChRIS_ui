@@ -26,6 +26,7 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
     handleSetCurrentComputeEnv,
     justDisplay,
   } = props;
+  console.log("Configuration Page")
   const { currentNode, computeEnvs, pluginPipings, input, pluginParameters } =
     state;
   const computeEnvList =

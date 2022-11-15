@@ -8,14 +8,17 @@ import { InputIndex } from "../AddNode/types";
 const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
   const { state, dispatch } = useContext(PipelineContext);
 
-  const handleDispatchPipelines = (registeredPipelines: any) => {
-    dispatch({
-      type: PipelineTypes.SetPipelines,
-      payload: {
-        pipelines: registeredPipelines,
-      },
-    });
-  };
+  const handleDispatchPipelines = React.useCallback(
+    (registeredPipelines: any) => {
+      dispatch({
+        type: PipelineTypes.SetPipelines,
+        payload: {
+          pipelines: registeredPipelines,
+        },
+      });
+    },
+    [dispatch]
+  );
 
   const handleSetPipelineResources = React.useCallback(
     (result: Resources) => {
