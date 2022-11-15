@@ -125,7 +125,7 @@ const NodeData = (props: NodeProps) => {
     >
       <circle
         style={{
-          fill: `${stringToColour(currentComputeEnv)}`,
+          fill: `${stringToColour(currentComputeEnv, "nodeData")}`,
           stroke: data.id === currentNode ? "white" : "",
           strokeWidth: data.id === currentNode ? "3px" : "",
         }}
