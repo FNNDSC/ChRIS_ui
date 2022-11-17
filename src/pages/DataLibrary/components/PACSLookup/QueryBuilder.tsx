@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import {
   Card,
   CardBody,
@@ -17,14 +17,11 @@ import {
   DropdownItem,
   Tooltip,
 } from "@patternfly/react-core";
-
 import { FaSearch } from "react-icons/fa";
 import { PFDCMQuery, PFDCMQueryTypes } from ".";
+import { toPACSDate } from "../../../../api/pfdcm/pfdcm-utils";
 
 import "./pacs-lookup.scss";
-
-import { toPACSDate } from "../../../../api/pfdcm/pfdcm-utils";
-import { useLocation } from "react-router";
 
 interface QueryBuilderProps {
   PACS?: string;
@@ -121,12 +118,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
         <Grid hasGutter>
           <GridItem lg={10} sm={12}>
             <Card isHoverable isRounded style={{ height: "100%" }}>
-              <Grid id="search">
-                <GridItem
-                  span={6}
-                  md={3}
-                  sm={6}
-                  order={{ default: "1", md: "1" }}>
+              <Split id="search">
+                <SplitItem>
                   <Dropdown
                     id="search-type"
                     isOpen={toggleType}
@@ -146,29 +139,27 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                     dropdownItems={[
                       <DropdownItem
                         key="pmrn"
-                        onClick={() => setQueryType(PFDCMQueryTypes.PMRN)}>
+                        onClick={() => setQueryType(PFDCMQueryTypes.PMRN)}
+                      >
                         By Patient ID or MRN
                       </DropdownItem>,
                       <DropdownItem
                         key="name"
-                        onClick={() => setQueryType(PFDCMQueryTypes.NAME)}>
+                        onClick={() => setQueryType(PFDCMQueryTypes.NAME)}
+                      >
                         By Patient Name
                       </DropdownItem>,
                       <DropdownItem
                         key="accn"
-                        onClick={() => setQueryType(PFDCMQueryTypes.ACCN)}>
+                        onClick={() => setQueryType(PFDCMQueryTypes.ACCN)}
+                      >
                         By Accession Number
                       </DropdownItem>,
                     ]}
                   />
-                </GridItem>
+                </SplitItem>
 
-                <GridItem
-                  span={12}
-                  md={6}
-                  sm={12}
-                  order={{ default: "3", md: "2" }}
-                  rowSpan={1}>
+                <SplitItem isFilled>
                   {(function () {
                     switch (query.type) {
                       case PFDCMQueryTypes.PMRN:
@@ -187,7 +178,6 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       case PFDCMQueryTypes.NAME:
                         return (
                           <TextInput
-                            aria-label="search-value"
                             type="text"
                             id="search-value"
                             placeholder="Patient Name"
@@ -214,14 +204,10 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                         );
                     }
                   })()}
-                </GridItem>
+                </SplitItem>
 
                 {PACSservices && onSelectPACS && (
-                  <GridItem
-                    span={6}
-                    md={3}
-                    sm={6}
-                    order={{ default: "2", md: "3" }}>
+                  <SplitItem>
                     <Dropdown
                       id="pacs-service"
                       isOpen={togglePACSList}
@@ -230,9 +216,11 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                         <DropdownToggle onToggle={onTogglePACSList}>
                           {PACS ? (
                             <div
-                              style={{ textAlign: "left", padding: "0 0.5em" }}>
+                              style={{ textAlign: "left", padding: "0 0.5em" }}
+                            >
                               <div
-                                style={{ fontSize: "smaller", color: "gray" }}>
+                                style={{ fontSize: "smaller", color: "gray" }}
+                              >
                                 PACS Service
                               </div>
                               <div style={{ fontWeight: 600 }}>{PACS}</div>
@@ -245,14 +233,15 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       dropdownItems={PACSservices.map((service) => (
                         <DropdownItem
                           key={`pacs-${service}`}
-                          onClick={onSelectPACS.bind(QueryBuilder, service)}>
+                          onClick={onSelectPACS.bind(QueryBuilder, service)}
+                        >
                           {service}
                         </DropdownItem>
                       ))}
                     />
-                  </GridItem>
+                  </SplitItem>
                 )}
-              </Grid>
+              </Split>
             </Card>
           </GridItem>
 
@@ -262,7 +251,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 isLarge
                 variant="primary"
                 id="finalize"
-                onClick={() => finalize()}>
+                onClick={() => finalize()}
+              >
                 <FaSearch /> Search
               </Button>
             ) : (
@@ -280,7 +270,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
         <ExpandableSection
           toggleText="More Options"
           onToggle={onToggleAdvanced}
-          isExpanded={toggleAdvanced}>
+          isExpanded={toggleAdvanced}
+        >
           <Card>
             <CardHeader>
               <Split>
@@ -290,7 +281,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <SplitItem>
                   <Button
                     variant="link"
-                    onClick={() => setQuery({ ...query, filters: {} })}>
+                    onClick={() => setQuery({ ...query, filters: {} })}
+                  >
                     Clear
                   </Button>
                 </SplitItem>
@@ -308,8 +300,8 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <br />
                   <DatePicker
                     placeholder="Study Date (yyyy-MM-dd)"
-                    dateFormat={(date: Date) => date.toDateString()}
-                    onChange={(_: any, date?: Date) =>
+                    dateFormat={(date: any) => date.toDateString()}
+                    onChange={(_: any, date: any) =>
                       handleFilter(
                         date && {
                           StudyDate: toPACSDate(date),
@@ -325,7 +317,6 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                 <GridItem lg={4} sm={12}>
                   Modality <br />
                   <TextInput
-                    aria-label="modality"
                     type="text"
                     onChange={(value: string) =>
                       handleFilter({ Modality: value })
@@ -352,7 +343,6 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   Patient Birth Date
                   <br />
                   <DatePicker
-                    className="filters-date-picker"
                     placeholder="Birth Date (yyyy-MM-dd)"
                     dateFormat={(date: Date) => date.toDateString()}
                     onChange={(_: any, date?: Date) =>

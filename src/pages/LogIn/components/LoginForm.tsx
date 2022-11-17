@@ -14,6 +14,7 @@ interface IPropsFromDispatch {
 }
 
 type AllProps = IPropsFromDispatch;
+
 const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
   /* eslint-disable */
   const [cookies, setCookie] = useCookies<string>([""]);
@@ -25,70 +26,77 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
   const [isValidUsername, setIsValidUsername] = React.useState<boolean>(true);
   const [isValidPassword, setIsValidPassword] = React.useState<boolean>(true);
   const [errorMessage, setErrorMessage] = React.useState<string>("");
+  const [isLoginButtonDisabled, setIsLoginButtonDisabled] =
+    React.useState<boolean>(true);
   const navigate = useNavigate();
   const location = useLocation();
 
+  enum LoginErrorMessage {
+    invalidCredentials = `Invalid Credentials`,
+    serverError = `There was a problem connecting to the server!`,
+  }
+
+  // Disables the Login Button if there is no Username or a Password with less then 8 characters.
+  React.useMemo(() => {
+    usernameValue && passwordValue.length > 8
+      ? setIsLoginButtonDisabled(false)
+      : setIsLoginButtonDisabled(true);
+  }, [usernameValue, passwordValue]);
+
   async function handleSubmit(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent
   ) {
     event.preventDefault();
+
     const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
     let token;
 
-    if (!usernameValue) {
+    try {
+      token = await ChrisApiClient.getAuthToken(
+        authURL,
+        usernameValue,
+        passwordValue
+      );
+    } catch (error: unknown) {
+      setShowHelperText(true);
+      // Allows error message to be displayed in red
       setIsValidUsername(false);
-    }
-    if (!passwordValue) {
       setIsValidPassword(false);
-    } else {
-      setIsValidUsername(true);
-      setIsValidPassword(true);
 
-      try {
-        token = await ChrisApiClient.getAuthToken(
-          authURL,
-          usernameValue,
-          passwordValue
-        );
-      } catch (error) {
-        setErrorMessage(
-          (() =>
-            //@ts-ignore
-            error.response
-              ? "Invalid credentials"
-              : "There was a problem connecting to the server!")()
-        );
-        setShowHelperText(true);
-      }
+      setErrorMessage(() =>
+        //@ts-ignore
+        error.response
+          ? LoginErrorMessage.invalidCredentials
+          : LoginErrorMessage.serverError
+      );
+    }
 
-      if (token && usernameValue) {
-        setAuthToken({
-          token,
-          username: usernameValue,
-        });
-        const oneDayToSeconds = 24 * 60 * 60;
-        setCookie(`${usernameValue}_token`, token, {
-          path: "/",
-          maxAge: oneDayToSeconds,
-        });
-        setCookie("username", usernameValue, {
-          path: "/",
-          maxAge: oneDayToSeconds,
-        });
-        const then = new URLSearchParams(location.search).get("then");
-        if (then) navigate(then);
-        else navigate("/");
-      }
+    if (token && usernameValue) {
+      setAuthToken({
+        token,
+        username: usernameValue,
+      });
+      const oneDayToSeconds = 24 * 60 * 60;
+      setCookie(`${usernameValue}_token`, token, {
+        path: "/",
+        maxAge: oneDayToSeconds,
+      });
+      setCookie("username", usernameValue, {
+        path: "/",
+        maxAge: oneDayToSeconds,
+      });
+      const then = new URLSearchParams(location.search).get("then");
+      if (then) navigate(then);
+      else navigate("/");
     }
   }
-  const handleUsernameChange = (value: string) => {
+  const handleUsernameChange = (value: string): void => {
     setUsernameValue(value);
-    setShowHelperText(false);
   };
-  const handlePasswordChange = (passwordValue: string) => {
+  const handlePasswordChange = (passwordValue: string): void => {
     setPasswordValue(passwordValue);
-    setShowHelperText(false);
   };
+
   const onRememberMeClick = () => {
     setIsRememberMeChecked(
       (prevIsRememberMeChecked) => !prevIsRememberMeChecked
@@ -119,10 +127,12 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
       passwordValue={passwordValue}
       onChangePassword={handlePasswordChange}
       isValidPassword={isValidPassword}
+      isShowPasswordEnabled
       rememberMeLabel="Keep me logged in for 30 days."
       isRememberMeChecked={isRememberMeChecked}
       onChangeRememberMe={onRememberMeClick}
       onLoginButtonClick={handleSubmit}
+      isLoginButtonDisabled={isLoginButtonDisabled}
     />
   );
 };

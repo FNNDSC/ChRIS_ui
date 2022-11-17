@@ -1,10 +1,13 @@
-import React, { useRef, useContext } from "react";
-import { Types, colorPalette } from "../CreateFeed/types";
+import React, { useRef } from "react";
+
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
-import { TreeNode } from "../../../utils";
-import { fetchComputeInfo } from "../CreateFeed/utils/pipelines";
-import { CreateFeedContext } from "../CreateFeed/context";
+import { TreeNode } from "../../../api/common";
+import {
+  fetchComputeInfo,
+  stringToColour,
+} from "../CreateFeed/utils/pipelines";
+import { SinglePipeline } from "../CreateFeed/types/pipeline";
 
 export interface Point {
   x: number;
@@ -12,6 +15,7 @@ export interface Point {
 }
 
 type NodeProps = {
+  state: SinglePipeline;
   data: TreeNode;
   parent: HierarchyPointNode<TreeNode> | null;
   position: Point;
@@ -22,6 +26,20 @@ type NodeProps = {
     plugin_id: number
   ) => void;
   currentPipelineId: number;
+  handleSetCurrentNodeTitle: (
+    currentPipelineId: number,
+    currentNode: number,
+    title: string
+  ) => void;
+  handleSetPipelineEnvironments: (
+    pipelineId: number,
+    computeEnvData: {
+      [x: number]: {
+        computeEnvs: any[];
+        currentlySelected: any;
+      };
+    }
+  ) => void;
 };
 
 const setNodeTransform = (orientation: string, position: Point) => {
@@ -30,15 +48,21 @@ const setNodeTransform = (orientation: string, position: Point) => {
     : `translate(${position.x}, ${position.y})`;
 };
 const DEFAULT_NODE_CIRCLE_RADIUS = 12;
-const NodeData = (props: NodeProps) => {
-  const { state, dispatch } = useContext(CreateFeedContext);
 
+const NodeData = (props: NodeProps) => {
   const nodeRef = useRef<SVGGElement>(null);
   const textRef = useRef<SVGTextElement>(null);
-  const { data, position, orientation, handleNodeClick, currentPipelineId } =
-    props;
-  const { computeEnvs, title } = state.pipelineData[currentPipelineId];
-  const { currentNode } = state.pipelineData[currentPipelineId];
+  const {
+    data,
+    position,
+    orientation,
+    handleNodeClick,
+    currentPipelineId,
+    state,
+    handleSetPipelineEnvironments,
+  } = props;
+  const { computeEnvs, title, currentNode } = state;
+
   let currentComputeEnv = "";
   if (computeEnvs && computeEnvs[data.id]) {
     currentComputeEnv = computeEnvs[data.id].currentlySelected;
@@ -52,35 +76,28 @@ const NodeData = (props: NodeProps) => {
       .style("opacity", opacity);
   };
 
+  const handleSetComputeEnvironmentsWrap = React.useCallback(
+    (computeEnvData: {
+      [x: number]: {
+        computeEnvs: any[];
+        currentlySelected: any;
+      };
+    }) => {
+      handleSetPipelineEnvironments(currentPipelineId, computeEnvData);
+    },
+    [currentPipelineId, handleSetPipelineEnvironments]
+  );
+
   React.useEffect(() => {
     async function fetchComputeEnvironments() {
       const computeEnvData = await fetchComputeInfo(data.plugin_id, data.id);
       if (computeEnvData) {
-        dispatch({
-          type: Types.SetPipelineEnvironments,
-          payload: {
-            pipelineId: currentPipelineId,
-            computeEnvData,
-          },
-        });
+        handleSetComputeEnvironmentsWrap(computeEnvData);
       }
     }
 
     fetchComputeEnvironments();
-  }, [data, dispatch, currentPipelineId]);
-
-  React.useEffect(() => {
-    if (data.plugin_name && currentPipelineId) {
-      dispatch({
-        type: Types.SetCurrentNodeTitle,
-        payload: {
-          currentPipelineId,
-          currentNode,
-          title: data.plugin_name,
-        },
-      });
-    }
-  }, [currentNode, currentPipelineId, data.plugin_name, dispatch]);
+  }, [data, handleSetComputeEnvironmentsWrap]);
 
   React.useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);
@@ -88,7 +105,7 @@ const NodeData = (props: NodeProps) => {
   }, [orientation, position]);
 
   const textLabel = (
-    <g id={`text_${data.id}`}>
+    <g id={`text_${data.id}`} transform={`translate(-50,30)`}>
       <text ref={textRef} className="label__title">
         {`${titleName ? titleName : data.plugin_name} (id: ${data.id})`}
       </text>
@@ -108,11 +125,7 @@ const NodeData = (props: NodeProps) => {
     >
       <circle
         style={{
-          fill: `${
-            colorPalette[currentComputeEnv]
-              ? colorPalette[currentComputeEnv]
-              : colorPalette["default"]
-          }`,
+          fill: `${stringToColour(currentComputeEnv, "nodeData")}`,
           stroke: data.id === currentNode ? "white" : "",
           strokeWidth: data.id === currentNode ? "3px" : "",
         }}

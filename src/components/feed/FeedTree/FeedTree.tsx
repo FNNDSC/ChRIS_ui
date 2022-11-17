@@ -529,5 +529,5 @@ FeedTree.defaultProps = {
   orientation: "vertical",
   scaleExtent: { min: 0.1, max: 1 },
   zoom: 1,
-  nodeSize: { x: 85, y: 60 },
+  nodeSize: { x: 120, y: 80 },
 };

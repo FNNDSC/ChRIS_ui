@@ -90,8 +90,8 @@ export interface GuidedConfigState {
   docsExpanded: boolean;
 }
 export interface GuidedConfigProps extends InputProps {
+  defaultValueDisplay: boolean;
   renderComputeEnv?: boolean;
-  plugin?: Plugin;
   params?: PluginParameter[];
   computeEnvs?: any[];
   inputChange(
@@ -106,6 +106,7 @@ export interface GuidedConfigProps extends InputProps {
   deleteInput(input: string): void;
   selectedComputeEnv?: string;
   setComputeEnviroment?: (computeEnv: string) => void;
+  pluginName: string;
 }
 
 export interface EditorState {
@@ -128,6 +129,7 @@ export interface SimpleDropdownState {
 }
 
 export interface SimpleDropdownProps {
+  defaultValueDisplay: boolean;
   params?: PluginParameter[];
   toggle?: React.ReactElement<any>;
   onSelect?: (event: React.SyntheticEvent<HTMLDivElement>) => void;

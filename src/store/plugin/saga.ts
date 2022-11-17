@@ -4,7 +4,7 @@ import { IActionTypeParam } from "../../api/models/base.model";
 
 import { getParamsSuccess, getComputeEnvSuccess } from "./actions";
 import { PluginParameter } from "@fnndsc/chrisapi";
-import { fetchResource } from "../../utils";
+import { fetchResource } from "../../api/common";
 
 // ------------------------------------------------------------------------
 // Description: Get Plugin Descendants, files and parameters on change

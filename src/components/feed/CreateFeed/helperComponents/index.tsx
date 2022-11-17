@@ -7,7 +7,7 @@ import {
 } from "@patternfly/react-core";
 import { FaTrash, FaFile } from "react-icons/fa";
 import { CreateFeedContext } from "../context";
-import { Types, LocalFile } from "../types";
+import { Types, LocalFile } from "../types/feed";
 
 export const FileList = ({ file, index }: { file: string; index: number }) => {
   const { dispatch } = useContext(CreateFeedContext);

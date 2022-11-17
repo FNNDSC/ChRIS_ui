@@ -1,6 +1,6 @@
 import { setSearchedFolders, setEmptySetIndicator } from './context/actions'
 import ChrisAPIClient from '../../../../api/chrisapiclient'
-import { fetchResource } from '../../../../utils'
+import { fetchResource } from '../../../../api/common'
 import { Feed } from '@fnndsc/chrisapi'
 
 export const searchFeedFiles = async (

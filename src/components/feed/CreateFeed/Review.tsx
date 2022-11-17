@@ -6,28 +6,23 @@ import "./createfeed.scss";
 import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
 import { ChrisFileDetails, LocalFileDetails } from "./helperComponents";
 
-
 const Review: React.FunctionComponent = () => {
   const { state } = useContext(CreateFeedContext);
 
-  const {
-    feedName,
-    feedDescription,
-    tags,
-    chrisFiles,
-    localFiles
-  } = state.data;
+  const { feedName, feedDescription, tags, chrisFiles, localFiles } =
+    state.data;
   const {
     dropdownInput,
     requiredInput,
     selectedConfig,
     selectedPlugin,
     computeEnvironment,
-    pipelineName,
   } = state;
 
+  const pipelineName = "";
+
   // the installed version of @patternfly/react-core doesn't support read-only chips
-  const tagList = tags.map((tag) => (
+  const tagList = tags.map((tag: any) => (
     <div className="pf-c-chip pf-m-read-only tag" key={tag.data.id}>
       <span className="pf-c-chip__text">{tag.data.name}</span>
     </div>
@@ -78,28 +73,28 @@ const Review: React.FunctionComponent = () => {
       <br />
       <br />
       <Grid hasGutter={true}>
-        <GridItem span={2}>
+        <GridItem sm={4} md={2}>
           <span className="review__title">Feed Name</span>
         </GridItem>
-        <GridItem span={10}>
+        <GridItem sm={8} md={10}>
           <span className="review__value">{feedName}</span>
         </GridItem>
-        <GridItem span={2}>
+        <GridItem sm={4} md={2}>
           <span className="review__title">Feed Description</span>
         </GridItem>
-        <GridItem span={10}>
-          <span className="review__value">{feedDescription}</span>
+        <GridItem sm={8} md={10}>
+          <span className="review__value">{feedDescription || "N/A"}</span>
         </GridItem>
-        <GridItem span={2}>
+        <GridItem sm={4} md={2}>
           <span className="review__title">Tags</span>
         </GridItem>
-        <GridItem span={10}>
-          <span className="review__value">{tagList}</span>
+        <GridItem sm={8} md={10}>
+          <span className="review__value">{tagList || "N/A"}</span>
         </GridItem>
-        <GridItem span={2}>
+        <GridItem sm={4} md={2}>
           <span className="review__title">Selected Pipeline</span>
         </GridItem>
-        <GridItem span={10}>
+        <GridItem sm={8} md={10}>
           <span className="review__value">
             {pipelineName ? pipelineName : "None Selected"}
           </span>

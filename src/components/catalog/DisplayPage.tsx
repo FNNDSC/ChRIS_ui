@@ -11,19 +11,12 @@ import {
   DrawerCloseButton,
   Title,
   Divider,
-  Button,
-  Alert,
   TextInput,
 } from "@patternfly/react-core";
 import { Card, Col, Row } from "antd";
-import ReactJSON from "react-json-view";
-import { ImTree } from "react-icons/im";
 import { GrCloudComputer } from "react-icons/gr";
 import { FaCode } from "react-icons/fa";
-import Tree from "./Tree";
-import { PipelineList } from "@fnndsc/chrisapi";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { generatePipelineWithData } from "../feed/CreateFeed/utils/pipelines";
+import { EmptyStateTable } from "../common/emptyTable";
 
 interface PageState {
   perPage: number;
@@ -42,7 +35,6 @@ interface DisplayPageInterface {
   setSelectedResource: (resource: any) => void;
   title: string;
   showPipelineButton?: boolean;
-  fetch?: (id?: number) => void;
   handlePluginSearch?: (search: string) => void;
   handlePipelineSearch?: (search: string) => void;
   handleComputeSearch?: (search: string) => void;
@@ -57,102 +49,29 @@ const DisplayPage = ({
   onSetPage,
   setSelectedResource,
   title,
-  showPipelineButton,
-  fetch,
-  handlePipelineSearch,
   handleComputeSearch,
   handlePluginSearch,
   search,
 }: DisplayPageInterface) => {
-  const fileOpen = React.useRef<HTMLInputElement>(null);
-  const [error, setError] = React.useState({});
-  const [deleteError, setDeleteError] = React.useState("");
-
-  const [warningMessage, setWarningMessage] = React.useState("");
   const { perPage, page, itemCount } = pageState;
   const [isExpanded, setIsExpanded] = React.useState(false);
 
   const isPlugin = title === "Plugins" ? true : false;
-  const isPipeline = title === "Pipelines" ? true : false;
   const isCompute = title === "Compute" ? true : false;
 
   const iconStyle = {
-    fill: isPlugin
-      ? "#0066CC"
-      : isPipeline
-      ? "#1F0066"
-      : isCompute
-      ? "red"
-      : "",
+    fill: isPlugin ? "#0066CC" : isCompute ? "red" : "",
     height: "1.5em",
     width: "1.25em",
     marginRight: "0.5em",
     marginTop: "0.25em",
   };
 
-  const showOpenFile = () => {
-    if (fileOpen.current) {
-      fileOpen.current.click();
-    }
-  };
-
-  const cleanUp = (event: any) => {
-    event.target.value = null;
-    if (fileOpen.current) {
-      fileOpen.current.value = "";
-    }
-  };
-
-  const icon = isPipeline ? (
-    <ImTree style={iconStyle} />
-  ) : isCompute ? (
+  const icon = isCompute ? (
     <GrCloudComputer style={iconStyle} />
   ) : (
     <FaCode style={iconStyle} />
   );
-  const readFile = (file: any, event: any) => {
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      try {
-        if (reader.result) {
-          const client = ChrisAPIClient.getClient();
-          const result = JSON.parse(reader.result as string);
-          result["plugin_tree"] = JSON.stringify(result["plugin_tree"]);
-          const pipelineInstanceList: PipelineList = await client.getPipelines({
-            name: result.name,
-          });
-
-          if (pipelineInstanceList.data) {
-            setWarningMessage(
-              `pipeline with the name ${result.name} already exists`
-            );
-          } else {
-            await generatePipelineWithData(result);
-            fetch && fetch();
-          }
-        }
-        cleanUp(event);
-      } catch (error) {
-        //@ts-ignore
-        setError(error.response.data);
-        cleanUp(event);
-      }
-    };
-    if (file && file.type === "application/json") {
-      try {
-        reader.readAsText(file);
-      } catch (error) {
-        setWarningMessage("The Pipeline upload requires a json file");
-      }
-    }
-  };
-
-  const handleUpload = (event: any) => {
-    const file = event.target.files && event.target.files[0];
-    readFile(file, event);
-    setWarningMessage("");
-    setError({});
-  };
 
   const drawerContent = (
     <Grid hasGutter={true}>
@@ -179,17 +98,6 @@ const DisplayPage = ({
             gap: "1rem",
           }}
         >
-          {showPipelineButton && (
-            <div>
-              <Button onClick={showOpenFile}>Upload a Pipeline</Button>
-              <input
-                ref={fileOpen}
-                style={{ display: "none" }}
-                type="file"
-                onChange={handleUpload}
-              />
-            </div>
-          )}
           <TextInput
             value={search}
             type="text"
@@ -200,9 +108,7 @@ const DisplayPage = ({
               if (isPlugin) {
                 handlePluginSearch && handlePluginSearch(value);
               }
-              if (isPipeline) {
-                handlePipelineSearch && handlePipelineSearch(value);
-              }
+
               if (isCompute) {
                 handleComputeSearch && handleComputeSearch(value);
               }
@@ -210,23 +116,19 @@ const DisplayPage = ({
           />
         </div>
       </div>
-      {warningMessage && <Alert variant="danger" title={warningMessage} />}
-      {Object.keys(error).length > 0 && (
-        <ReactJSON
-          name={false}
-          displayDataTypes={false}
-          src={error}
-          displayObjectSize={false}
-          collapsed={false}
-        />
-      )}
+
       <div className="site-card-wrapper">
         <Row gutter={16}>
-          {resources &&
-            resources.length > 0 &&
+          {resources && resources.length > 0 ? (
             resources.map((resource) => {
               return (
-                <Col key={resource.data ? resource.data.id : ""} span={8} lg={8} sm={12} xs={24}>
+                <Col
+                  key={resource.data ? resource.data.id : ""}
+                  span={8}
+                  lg={8}
+                  sm={12}
+                  xs={24}
+                >
                   <Card
                     hoverable
                     style={{
@@ -236,13 +138,11 @@ const DisplayPage = ({
                     onClick={() => {
                       setSelectedResource(resource);
                       setIsExpanded(true);
-                      setDeleteError("");
                     }}
                     onKeyDown={(event: any) => {
                       if ([13, 32].includes(event.keyCode)) {
                         setSelectedResource(resource);
                         setIsExpanded(true);
-                        setDeleteError("");
                       }
                     }}
                     className="pluginList"
@@ -270,15 +170,22 @@ const DisplayPage = ({
                   </Card>
                 </Col>
               );
-            })}
+            })
+          ) : (
+            <Col offset={8}>
+              <EmptyStateTable
+                cells={[]}
+                rows={[]}
+                caption=""
+                title="No results found"
+                description=""
+              />
+            </Col>
+          )}
         </Row>
       </div>
     </Grid>
   );
-
-  const handleUpdate = (id: number) => {
-    fetch && fetch(id);
-  };
 
   const panelContent = (
     <DrawerPanelContent defaultSize="25%" className="panelcontent">
@@ -287,7 +194,6 @@ const DisplayPage = ({
           <DrawerCloseButton
             onClick={() => {
               setIsExpanded(false);
-              setDeleteError("");
             }}
           />
         </DrawerActions>
@@ -309,45 +215,6 @@ const DisplayPage = ({
                 </a>
               </p>
             )}
-            {deleteError && (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                }}
-              >
-                <Alert variant="danger" title={deleteError} />
-                <Button
-                  onClick={async () => {
-                    selectedResource.put({
-                      locked: true,
-                    });
-                    setDeleteError("");
-                  }}
-                  variant="link"
-                >
-                  lock it?
-                </Button>
-              </div>
-            )}
-            {showPipelineButton && (
-              <Button
-                style={{
-                  width: "fit-content",
-                }}
-                onClick={async () => {
-                  try {
-                    handleUpdate(selectedResource.data.id);
-                    selectedResource.delete();
-                    setIsExpanded(false);
-                  } catch (error) {
-                    console.log(error);
-                  }
-                }}
-              >
-                Delete Pipeline
-              </Button>
-            )}
 
             <Divider
               style={{
@@ -358,11 +225,6 @@ const DisplayPage = ({
           </>
         )}
       </DrawerHead>
-      <DrawerContentBody >
-        {selectedResource && showPipelineButton && (
-          <Tree pipelineName={selectedResource.data.name} />
-        )}
-      </DrawerContentBody>
     </DrawerPanelContent>
   );
 

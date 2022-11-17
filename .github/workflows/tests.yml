@@ -20,7 +20,7 @@ jobs:
 
       - name: setup CUBE
         id: cube
-        uses: Mfonn/miniChRIS-docker@master
+        uses: FNNDSC/miniChRIS-docker@master
         with:
           plugins: |
             https://chrisstore.co/api/v1/plugins/2/
@@ -38,6 +38,7 @@ jobs:
         uses: cypress-io/github-action@v4
         with:
           start: npm run dev
+          install-command: npm install --legacy-peer-deps
           wait-on: "http://localhost:3000"
           # wait for 5 min for the server to respond
           wait-on-timeout: 600
