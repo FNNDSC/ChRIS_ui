@@ -70,7 +70,6 @@
     "lint": "eslint */**/*.{js,ts,tsx}",
     "lint:fix": "eslint --fix */**/*.{jsx,js,tsx}",
     "prettier": "prettier . --ignore-path .gitignore",
-    "format": "prettier --write",
     "format:fix": "npm run prettier -- --write",
     "format:check": "npm run prettier -- --check",
     "cypress:open": "cypress open",
