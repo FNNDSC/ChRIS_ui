@@ -6,6 +6,8 @@ import { PluginInstance } from '@fnndsc/chrisapi'
 import { useTypedSelector } from '../../../store/hooks'
 import { FeedTreeScaleType } from './Controls'
 import { getPluginFiles } from '../../../store/resources/saga'
+import { fetchResource } from '../../../api/common/index'
+
 
 type NodeWrapperProps = {
   tsNodes?: PluginInstance[]
@@ -184,16 +186,15 @@ const NodeWrapper = (props: NodeWrapperProps) => {
     })
 
     if (pluginInstance) {
-      const pluginFiles = getPluginFiles(pluginInstance).next().value
-      if (pluginFiles instanceof Promise<any[]>) {
-        pluginFiles.then((files) =>{
+      const boundGetFiles = pluginInstance.getFiles.bind(pluginInstance);
+      fetchResource<any>({ limit: 20, offset: 0 }, boundGetFiles)
+        .then((files) => {
           const fileSizes = files.map((file) => {
             return file.collection.items[0].data[3].value
           })
           const dirSize = fileSizes.reduce((previousValue, currentValue) => previousValue + currentValue, 0)
           setOutputSize(dirSize)
         })
-      }
     }
   }, [])
 
