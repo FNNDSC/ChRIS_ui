@@ -5,7 +5,6 @@ import { Datum, TreeNodeDatum, Point } from './data'
 import { PluginInstance } from '@fnndsc/chrisapi'
 import { useTypedSelector } from '../../../store/hooks'
 import { FeedTreeScaleType } from './Controls'
-import { getPluginFiles } from '../../../store/resources/saga'
 import { fetchResource } from '../../../api/common/index'
 
 
@@ -218,7 +217,9 @@ const NodeWrapper = (props: NodeWrapperProps) => {
     }
   } else if (overlayScale === 'size') {
       if (outputSize) {
-        scale = outputSize / (1024 ** 2) / 10
+        const outputScale = outputSize * 5.9 / 700000000 + 1.1
+        if (outputScale > 7) {scale = 7}
+        else {scale = outputScale}
       }
   }
 
