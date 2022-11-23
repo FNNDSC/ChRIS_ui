@@ -36,27 +36,30 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
     [dispatch]
   );
 
-  const handleSetCurrentComputeEnv = (
-    item: {
-      name: string;
-      description: string;
-    },
-    currentNode: number,
-    currentPipelineId: number,
-    computeEnvList: any[]
-  ) => {
-    dispatch({
-      type: PipelineTypes.SetCurrentComputeEnvironment,
-      payload: {
-        computeEnv: {
-          item,
-          currentNode,
-          currentPipelineId,
-          computeEnvList,
-        },
+  const handleSetCurrentComputeEnv = React.useCallback(
+    (
+      item: {
+        name: string;
+        description: string;
       },
-    });
-  };
+      currentNode: number,
+      currentPipelineId: number,
+      computeEnvList: any[]
+    ) => {
+      dispatch({
+        type: PipelineTypes.SetCurrentComputeEnvironment,
+        payload: {
+          computeEnv: {
+            item,
+            currentNode,
+            currentPipelineId,
+            computeEnvList,
+          },
+        },
+      });
+    },
+    [dispatch]
+  );
 
   const handleSetCurrentNode = (pipelineId: number, currentNode: number) => {
     dispatch({

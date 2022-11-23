@@ -129,7 +129,7 @@ const DataLibrary = () => {
           file.type === 'feed' ? returnFeedPath(exactPath) : exactPath
 
         const params = {
-          limit: 100,
+          limit: 1000,
           offset: 0,
           fname: computePath,
         }
@@ -165,6 +165,7 @@ const DataLibrary = () => {
   }
 
   const downloadUtil = async (filesItems: DownloadType[]) => {
+    console.log("FilesItems", filesItems);
     try {
       let writable
       //@ts-ignore
