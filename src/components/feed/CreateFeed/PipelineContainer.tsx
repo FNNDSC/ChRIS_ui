@@ -36,71 +36,83 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
     [dispatch]
   );
 
-  const handleSetCurrentComputeEnv = (
-    item: {
-      name: string;
-      description: string;
-    },
-    currentNode: number,
-    currentPipelineId: number,
-    computeEnvList: any[]
-  ) => {
-    dispatch({
-      type: PipelineTypes.SetCurrentComputeEnvironment,
-      payload: {
-        computeEnv: {
-          item,
-          currentNode,
-          currentPipelineId,
-          computeEnvList,
+  const handleSetCurrentComputeEnv = React.useCallback(
+    (
+      item: {
+        name: string;
+        description: string;
+      },
+      currentNode: number,
+      currentPipelineId: number,
+      computeEnvList: any[]
+    ) => {
+      dispatch({
+        type: PipelineTypes.SetCurrentComputeEnvironment,
+        payload: {
+          computeEnv: {
+            item,
+            currentNode,
+            currentPipelineId,
+            computeEnvList,
+          },
         },
-      },
-    });
-  };
+      });
+    },
+    [dispatch]
+  );
 
-  const handleSetCurrentNode = (pipelineId: number, currentNode: number) => {
-    dispatch({
-      type: PipelineTypes.SetCurrentNode,
-      payload: {
-        pipelineId,
-        currentNode,
-      },
-    });
-  };
+  const handleSetCurrentNode = React.useCallback(
+    (pipelineId: number, currentNode: number) => {
+      dispatch({
+        type: PipelineTypes.SetCurrentNode,
+        payload: {
+          pipelineId,
+          currentNode,
+        },
+      });
+    },
+    [dispatch]
+  );
 
-  const handleUploadDispatch = (result: UploadJsonProps) => {
-    const { pipelineInstance } = result;
-    dispatch({
-      type: PipelineTypes.AddPipeline,
-      payload: {
-        pipeline: pipelineInstance,
-      },
-    });
-    handleSetPipelineResources(result);
-  };
+  const handleUploadDispatch = React.useCallback(
+    (result: UploadJsonProps) => {
+      const { pipelineInstance } = result;
+      dispatch({
+        type: PipelineTypes.AddPipeline,
+        payload: {
+          pipeline: pipelineInstance,
+        },
+      });
+      handleSetPipelineResources(result);
+    },
+    [dispatch, handleSetPipelineResources]
+  );
 
-  const handleCleanResources = () => {
+  const handleCleanResources = React.useCallback(() => {
     dispatch({
       type: PipelineTypes.DeselectPipeline,
       payload: {},
     });
-  };
+  }, [dispatch]);
 
-  const handlePipelineSecondaryResource = (pipeline: Pipeline) => {
-    dispatch({
-      type: PipelineTypes.SetCurrentPipeline,
-      payload: {
-        pipelineId: pipeline.data.id,
-      },
-    });
+  const handlePipelineSecondaryResource = React.useCallback(
+    (pipeline: Pipeline) => {
+      dispatch({
+        type: PipelineTypes.SetCurrentPipeline,
+        payload: {
+          pipelineId: pipeline.data.id,
+        },
+      });
 
-    dispatch({
-      type: PipelineTypes.SetPipelineName,
-      payload: {
-        pipelineName: pipeline.data.name,
-      },
-    });
-  };
+      dispatch({
+        type: PipelineTypes.SetPipelineName,
+        payload: {
+          pipelineName: pipeline.data.name,
+        },
+      });
+    },
+    [dispatch]
+  );
 
   const handleSetPipelineEnvironments = React.useCallback(
     (
@@ -123,33 +135,32 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
     [dispatch]
   );
 
-  const handleSetCurrentNodeTitle = (
-    currentPipelineId: number,
-    currentNode: number,
-    title: string
-  ) => {
-    dispatch({
-      type: PipelineTypes.SetCurrentNodeTitle,
-      payload: {
-        currentPipelineId,
-        currentNode,
-        title,
-      },
-    });
-  };
+  const handleSetCurrentNodeTitle = React.useCallback(
+    (currentPipelineId: number, currentNode: number, title: string) => {
+      dispatch({
+        type: PipelineTypes.SetCurrentNodeTitle,
+        payload: {
+          currentPipelineId,
+          currentNode,
+          title,
+        },
+      });
+    },
+    [dispatch]
+  );
 
-  const handleSetGenerateCompute = (
-    currentPipelineId: number,
-    computeEnv: string
-  ) => {
-    dispatch({
-      type: PipelineTypes.SetGeneralCompute,
-      payload: {
-        currentPipelineId,
-        computeEnv,
-      },
-    });
-  };
+  const handleSetGenerateCompute = React.useCallback(
+    (currentPipelineId: number, computeEnv: string) => {
+      dispatch({
+        type: PipelineTypes.SetGeneralCompute,
+        payload: {
+          currentPipelineId,
+          computeEnv,
+        },
+      });
+    },
+    [dispatch]
+  );
 
   const handleTypedInput = React.useCallback(
     (
@@ -184,20 +195,19 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
     [dispatch]
   );
 
-  const handleDeleteInput = (
-    currentPipelineId: number,
-    currentNode: number,
-    index: string
-  ) => {
-    dispatch({
-      type: PipelineTypes.DeletePipelineInput,
-      payload: {
-        currentPipelineId,
-        currentNodeId: currentNode,
-        input: index,
-      },
-    });
-  };
+  const handleDeleteInput = React.useCallback(
+    (currentPipelineId: number, currentNode: number, index: string) => {
+      dispatch({
+        type: PipelineTypes.DeletePipelineInput,
+        payload: {
+          currentPipelineId,
+          currentNodeId: currentNode,
+          input: index,
+        },
+      });
+    },
+    [dispatch]
+  );
 
   return (
     <div className="pacs-alert-wrap">
