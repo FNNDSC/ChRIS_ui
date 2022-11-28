@@ -19,7 +19,7 @@ import {
   stopFetchingFeedResources,
 } from "./actions";
 import { getPluginInstancesRequest } from "../pluginInstance/actions";
-import { cu } from "chris-utility";
+import { cujs } from "chris-utility";
 
 const params: {
   limit: number;
@@ -71,7 +71,7 @@ function* handleDowloadFeed(action: IActionTypeParam) {
   const feedList = action.payload;
   const client = ChrisAPIClient.getClient();
 
-  cu.setClient(client);
+  cujs.setClient(client);
   //@ts-ignore
 
   const feedIdList = [];
@@ -90,7 +90,7 @@ function* handleDowloadFeed(action: IActionTypeParam) {
 
     newFeedName = action.meta == "" ? newFeedName : action.meta;
 
-    const createdFeed: Feed = yield cu.downloadMultipleFeeds(
+    const createdFeed: Feed = yield cujs.downloadMultipleFeeds(
       feedIdList,
       newFeedName
     );
@@ -109,7 +109,7 @@ function* handleMergeFeed(action: IActionTypeParam) {
   const feedList = action.payload;
   const client = ChrisAPIClient.getClient();
 
-  cu.setClient(client);
+  cujs.setClient(client);
 
   const feedIdList = [];
   const newFeeds = [];
@@ -127,7 +127,7 @@ function* handleMergeFeed(action: IActionTypeParam) {
 
     newFeedName = action.meta == "" ? newFeedName : action.meta;
 
-    const createdFeed: Feed = yield cu.mergeMultipleFeeds(
+    const createdFeed: Feed = yield cujs.mergeMultipleFeeds(
       feedIdList,
       newFeedName
     );
@@ -147,8 +147,6 @@ function* handleDuplicateFeed(action: IActionTypeParam) {
   const feedList = action.payload;
   const client = ChrisAPIClient.getClient();
 
-  cu.setClient(client);
-
   const newFeeds = [];
   if (feedList.length == 1) {
     const feedIdList = [];
@@ -156,12 +154,13 @@ function* handleDuplicateFeed(action: IActionTypeParam) {
     const newFeedName = action.meta ? action.meta : "duplicate-" + data.name;
     feedIdList.push(data.id);
     try {
-      const createdFeed: Feed = yield cu.mergeMultipleFeeds(
+      const createdFeed: Feed = yield cujs.mergeMultipleFeeds(
         feedIdList,
         newFeedName
       );
       newFeeds.push(createdFeed);
     } catch (error) {
+      console.log("error", error);
       //@ts-ignore
       const errorParsed = error.response.data.value[0];
       yield put(duplicateFeedError(errorParsed));
@@ -176,7 +175,7 @@ function* handleDuplicateFeed(action: IActionTypeParam) {
         : "duplicate-" + data.name;
       feedIdList.push(data.id);
       try {
-        const createdFeed: Feed = yield cu.mergeMultipleFeeds(
+        const createdFeed: Feed = yield cujs.mergeMultipleFeeds(
           feedIdList,
           newFeedName
         );
@@ -194,13 +193,11 @@ function* handleDuplicateFeed(action: IActionTypeParam) {
 }
 
 function* handleFeedInstanceStatus(feed: Feed) {
-  const client = ChrisAPIClient.getClient();
-
-  cu.setClient(client);
   while (true) {
     try {
       const details: Record<string, unknown> =
-        yield cu.getPluginInstanceDetails(feed);
+        yield cujs.getPluginInstanceDetails(feed);
+
       const payload = {
         details,
         id: feed.data.id,
