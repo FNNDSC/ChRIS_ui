@@ -1,9 +1,9 @@
-import { all, fork, put, takeEvery, delay } from 'redux-saga/effects'
-import { Task } from 'redux-saga'
-import { Feed, FeedList } from '@fnndsc/chrisapi'
-import { FeedActionTypes } from './types'
-import { IActionTypeParam } from '../../api/models/base.model'
-import ChrisAPIClient from '../../api/chrisapiclient'
+import { all, fork, put, takeEvery, delay } from "redux-saga/effects";
+import { Task } from "redux-saga";
+import { Feed, FeedList } from "@fnndsc/chrisapi";
+import { FeedActionTypes } from "./types";
+import { IActionTypeParam } from "../../api/models/base.model";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import {
   getAllFeedsSuccess,
   getAllFeedsError,
@@ -17,268 +17,260 @@ import {
   duplicateFeedSuccess,
   getFeedResourcesSucess,
   stopFetchingFeedResources,
-} from './actions'
-import { getPluginInstancesRequest } from '../pluginInstance/actions'
-import cujs from 'chris-upload'
+} from "./actions";
+import { getPluginInstancesRequest } from "../pluginInstance/actions";
+import { cujs } from "chris-utility";
 
 const params: {
-  limit: number
-  offset: number
-  name: string
-} = { limit: 0, offset: 0, name: '' }
+  limit: number;
+  offset: number;
+  name: string;
+} = { limit: 0, offset: 0, name: "" };
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
-  const { name, limit, offset } = action.payload
-  params['name'] = name
-  params['limit'] = limit
-  params['offset'] = offset
-  const client = ChrisAPIClient.getClient()
+  const { name, limit, offset } = action.payload;
+  params["name"] = name;
+  params["limit"] = limit;
+  params["offset"] = offset;
+  const client = ChrisAPIClient.getClient();
 
   try {
-    const feedsList: FeedList = yield client.getFeeds(params)
-    const totalCount = feedsList.totalCount
-    const feeds: Feed[] = feedsList.getItems() || []
+    const feedsList: FeedList = yield client.getFeeds(params);
+    const totalCount = feedsList.totalCount;
+    const feeds: Feed[] = feedsList.getItems() || [];
     const payload = {
       feeds,
       totalCount,
-    }
-    yield put(getAllFeedsSuccess(payload))
+    };
+    yield put(getAllFeedsSuccess(payload));
   } catch (error) {
-    yield put(getAllFeedsError(error))
+    yield put(getAllFeedsError(error));
   }
 }
 
 function* handleGetFeedDetails(action: IActionTypeParam) {
   try {
-    const id = Number(action.payload)
-    const client = ChrisAPIClient.getClient()
-    const feed: Feed = yield client.getFeed(id)
+    const id = Number(action.payload);
+    const client = ChrisAPIClient.getClient();
+    const feed: Feed = yield client.getFeed(id);
 
     if (feed) {
       yield all([
         put(getFeedSuccess(feed)),
         put(getPluginInstancesRequest(feed)),
-      ])
+      ]);
     } else {
-      throw new Error(`Unable to fetch a Feed with that ID `)
+      throw new Error(`Unable to fetch a Feed with that ID `);
     }
   } catch (error) {
-    yield put(getFeedError(error))
+    yield put(getFeedError(error));
   }
 }
 
 function* handleDowloadFeed(action: IActionTypeParam) {
-  const feedList = action.payload
-  const client = ChrisAPIClient.getClient()
-  const cu = new cujs()
-  cu.setClient(client)
+  const feedList = action.payload;
+  const client = ChrisAPIClient.getClient();
+
+  cujs.setClient(client);
   //@ts-ignore
 
-  const feedIdList = []
-  const newFeeds = []
-  const feedNames = []
+  const feedIdList = [];
+  const newFeeds = [];
+  const feedNames = [];
   for (let i = 0; i < feedList.length; i++) {
-    const data = feedList[i].data
-    feedIdList.push(data.id)
-    feedNames.push(data.name)
+    const data = feedList[i].data;
+    feedIdList.push(data.id);
+    feedNames.push(data.name);
   }
   try {
     // truncate name of the merged feed(limit=100)
-    let newFeedName = feedNames.toString().replace(/[, ]+/g, '_')
-    newFeedName = `archive-${newFeedName}`
-    newFeedName = newFeedName.substring(0, 100)
+    let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
+    newFeedName = `archive-${newFeedName}`;
+    newFeedName = newFeedName.substring(0, 100);
 
-    newFeedName = action.meta == '' ? newFeedName : action.meta
+    newFeedName = action.meta == "" ? newFeedName : action.meta;
 
-    const createdFeed: Feed = yield cu.downloadMultipleFeeds(
+    const createdFeed: Feed = yield cujs.downloadMultipleFeeds(
       feedIdList,
-      newFeedName,
-    )
-    newFeeds.push(createdFeed)
+      newFeedName
+    );
+    newFeeds.push(createdFeed);
   } catch (error) {
     //@ts-ignore
-    const errorParsed = error.response.data.value[0]
-    yield put(downloadFeedError(errorParsed))
-    return error
+    const errorParsed = error.response.data.value[0];
+    yield put(downloadFeedError(errorParsed));
+    return error;
   }
 
-  yield put(downloadFeedSuccess(newFeeds))
+  yield put(downloadFeedSuccess(newFeeds));
 }
 
 function* handleMergeFeed(action: IActionTypeParam) {
-  const feedList = action.payload
-  const client = ChrisAPIClient.getClient()
-  const cu = new cujs()
-  cu.setClient(client)
+  const feedList = action.payload;
+  const client = ChrisAPIClient.getClient();
 
-  const feedIdList = []
-  const newFeeds = []
-  const feedNames = []
+  cujs.setClient(client);
+
+  const feedIdList = [];
+  const newFeeds = [];
+  const feedNames = [];
   for (let i = 0; i < feedList.length; i++) {
-    const data = feedList[i].data
-    feedIdList.push(data.id)
-    feedNames.push(data.name)
+    const data = feedList[i].data;
+    feedIdList.push(data.id);
+    feedNames.push(data.name);
   }
   try {
     // truncate name of the merged feed(limit=100)
-    let newFeedName = feedNames.toString().replace(/[, ]+/g, '_')
-    newFeedName = `Merge of ${newFeedName}`
-    newFeedName = newFeedName.substring(0, 100)
+    let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
+    newFeedName = `Merge of ${newFeedName}`;
+    newFeedName = newFeedName.substring(0, 100);
 
-    newFeedName = action.meta == '' ? newFeedName : action.meta
+    newFeedName = action.meta == "" ? newFeedName : action.meta;
 
-    const createdFeed: Feed = yield cu.mergeMultipleFeeds(
+    const createdFeed: Feed = yield cujs.mergeMultipleFeeds(
       feedIdList,
-      newFeedName,
-    )
-    newFeeds.push(createdFeed)
+      newFeedName
+    );
+    newFeeds.push(createdFeed);
   } catch (error) {
-     //@ts-ignore
-    const errorParsed = error.response.data.value[0]
-    yield put(mergeFeedError(errorParsed))
+    //@ts-ignore
+    const errorParsed = error.response.data.value[0];
+    yield put(mergeFeedError(errorParsed));
 
-    return error
+    return error;
   }
 
-
-  yield put(mergeFeedSuccess(newFeeds))
+  yield put(mergeFeedSuccess(newFeeds));
 }
 
 function* handleDuplicateFeed(action: IActionTypeParam) {
-  const feedList = action.payload
-  const client = ChrisAPIClient.getClient()
-  const cu = new cujs()
-  cu.setClient(client)
+  const feedList = action.payload;
 
-    
-  const newFeeds = []
-  if(feedList.length==1){
-    const feedIdList = []
-    const data = feedList[0].data
-    const newFeedName = action.meta? action.meta : "duplicate-"+data.name
-    feedIdList.push(data.id)
-    try{
-      const createdFeed: Feed = yield cu.mergeMultipleFeeds(
+  const newFeeds = [];
+  if (feedList.length == 1) {
+    const feedIdList = [];
+    const data = feedList[0].data;
+    const newFeedName = action.meta ? action.meta : "duplicate-" + data.name;
+    feedIdList.push(data.id);
+    try {
+      const createdFeed: Feed = yield cujs.mergeMultipleFeeds(
         feedIdList,
-        newFeedName,
-      )
-      newFeeds.push(createdFeed)
+        newFeedName
+      );
+      newFeeds.push(createdFeed);
+    } catch (error) {
+      console.log("error", error);
+      //@ts-ignore
+      const errorParsed = error.response.data.value[0];
+      yield put(duplicateFeedError(errorParsed));
+      return error;
     }
-    catch (error) {
-     //@ts-ignore
-      const errorParsed = error.response.data.value[0]
-      yield put(duplicateFeedError(errorParsed))
-      return error
-  }
-  }
-  else{
+  } else {
     for (let i = 0; i < feedList.length; i++) {
-      const feedIdList = []
-      const data = feedList[i].data
-      const newFeedName = action.meta? action.meta+"-"+data.name : "duplicate-"+data.name
-      feedIdList.push(data.id)
-      try{
-        const createdFeed: Feed = yield cu.mergeMultipleFeeds(
+      const feedIdList = [];
+      const data = feedList[i].data;
+      const newFeedName = action.meta
+        ? action.meta + "-" + data.name
+        : "duplicate-" + data.name;
+      feedIdList.push(data.id);
+      try {
+        const createdFeed: Feed = yield cujs.mergeMultipleFeeds(
           feedIdList,
-          newFeedName,
-        )
-        newFeeds.push(createdFeed)
+          newFeedName
+        );
+        newFeeds.push(createdFeed);
+      } catch (error) {
+        //@ts-ignore
+        const errorParsed = error.response.data.value[0];
+        yield put(duplicateFeedError(errorParsed));
+        return error;
       }
-      catch (error) {
-       //@ts-ignore
-        const errorParsed = error.response.data.value[0]
-        yield put(duplicateFeedError(errorParsed))
-        return error
-    }
     }
   }
- 
-  yield put(duplicateFeedSuccess(newFeeds))
+
+  yield put(duplicateFeedSuccess(newFeeds));
 }
 
 function* handleFeedInstanceStatus(feed: Feed) {
-  const client = ChrisAPIClient.getClient()
-  const cu = new cujs()
-  cu.setClient(client)
   while (true) {
     try {
-      const details: Record<
-        string,
-        unknown
-      > = yield cu.getPluginInstanceDetails(feed)
+      const details: Record<string, unknown> =
+        yield cujs.getPluginInstanceDetails(feed);
+
       const payload = {
         details,
         id: feed.data.id,
-      }
-      yield put(getFeedResourcesSucess(payload))
+      };
+      yield put(getFeedResourcesSucess(payload));
       if (details.progress === 100 || details.error === true) {
-        yield put(stopFetchingFeedResources(feed))
+        yield put(stopFetchingFeedResources(feed));
       } else {
-        yield delay(7000)
+        yield delay(7000);
       }
     } catch (error) {
-      yield put(stopFetchingFeedResources(feed))
+      yield put(stopFetchingFeedResources(feed));
     }
   }
 }
 
 type PollTask = {
-  [id: number]: Task
-}
+  [id: number]: Task;
+};
 
 function cancelPolling(task: Task) {
   if (task) {
-    task.cancel()
+    task.cancel();
   }
 }
 
 function* watchCancelStatus(pollTask: PollTask) {
-  yield takeEvery(FeedActionTypes.STOP_FETCH_FEED_RESOURCES, function (
-    action: IActionTypeParam,
-  ) {
-    const feed = action.payload
-    const taskToCancel = pollTask[feed.data.id]
-    cancelPolling(taskToCancel)
-  })
+  yield takeEvery(
+    FeedActionTypes.STOP_FETCH_FEED_RESOURCES,
+    function (action: IActionTypeParam) {
+      const feed = action.payload;
+      const taskToCancel = pollTask[feed.data.id];
+      cancelPolling(taskToCancel);
+    }
+  );
 }
 
 function* handleFeedResources(action: IActionTypeParam) {
   const pollTask: {
-    [id: number]: Task
-  } = {}
+    [id: number]: Task;
+  } = {};
   try {
-    const task: Task = yield fork(handleFeedInstanceStatus, action.payload)
-    pollTask[action.payload.data.id] = task
-    yield watchCancelStatus(pollTask)
+    const task: Task = yield fork(handleFeedInstanceStatus, action.payload);
+    pollTask[action.payload.data.id] = task;
+    yield watchCancelStatus(pollTask);
   } catch (error) {
-    console.log('ERROR', error)
+    console.log("ERROR", error);
   }
 }
 
 function* watchGetAllFeedsRequest() {
-  yield takeEvery(FeedActionTypes.GET_ALL_FEEDS_REQUEST, handleGetAllFeeds)
+  yield takeEvery(FeedActionTypes.GET_ALL_FEEDS_REQUEST, handleGetAllFeeds);
 }
 
 function* watchGetFeedRequest() {
-  yield takeEvery(FeedActionTypes.GET_FEED_REQUEST, handleGetFeedDetails)
+  yield takeEvery(FeedActionTypes.GET_FEED_REQUEST, handleGetFeedDetails);
 }
 
 function* watchDownloadRequest() {
-  yield takeEvery(FeedActionTypes.DOWNLOAD_FEED_REQUEST, handleDowloadFeed)
+  yield takeEvery(FeedActionTypes.DOWNLOAD_FEED_REQUEST, handleDowloadFeed);
 }
 
 function* watchMergeRequest() {
-  yield takeEvery(FeedActionTypes.MERGE_FEED_REQUEST, handleMergeFeed)
+  yield takeEvery(FeedActionTypes.MERGE_FEED_REQUEST, handleMergeFeed);
 }
 
 function* watchDuplicateRequest() {
-  yield takeEvery(FeedActionTypes.DUPLICATE_FEED_REQUEST, handleDuplicateFeed)
+  yield takeEvery(FeedActionTypes.DUPLICATE_FEED_REQUEST, handleDuplicateFeed);
 }
 function* watchGetFeedResources() {
   yield takeEvery(
     FeedActionTypes.GET_FEED_RESOURCES_REQUEST,
-    handleFeedResources,
-  )
+    handleFeedResources
+  );
 }
 
 export function* feedSaga() {
@@ -289,5 +281,5 @@ export function* feedSaga() {
     fork(watchMergeRequest),
     fork(watchDuplicateRequest),
     fork(watchGetFeedResources),
-  ])
+  ]);
 }

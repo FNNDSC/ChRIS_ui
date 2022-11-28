@@ -88,6 +88,13 @@ const Tree = (props: TreeProps) => {
     bindZoomListener();
   }, [bindZoomListener]);
 
+  const handleSetCurrentNodeCallback = React.useCallback(
+    (id: number) => {
+      handleSetCurrentNode(currentPipelineId, id);
+    },
+    [currentPipelineId, handleSetCurrentNode]
+  );
+
   React.useEffect(() => {
     if (pluginPipings) {
       setLoading(true);
@@ -103,11 +110,16 @@ const Tree = (props: TreeProps) => {
       });
 
       if (defaultPluginId) {
-        handleSetCurrentNode(currentPipelineId, defaultPluginId[0].data.id);
+        handleSetCurrentNodeCallback(defaultPluginId[0].data.id);
       }
     }
     setLoading(false);
-  }, [pluginPipings, pipelinePlugins, currentPipelineId]);
+  }, [
+    pluginPipings,
+    pipelinePlugins,
+    currentPipelineId,
+    handleSetCurrentNodeCallback,
+  ]);
 
   React.useEffect(() => {
     //@ts-ignore
