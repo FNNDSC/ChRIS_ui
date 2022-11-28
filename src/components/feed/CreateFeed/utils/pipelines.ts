@@ -79,30 +79,23 @@ export async function fetchComputeInfo(
   return undefined;
 }
 
-/*
-export function hasCode(str: string) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return hash;
-}
+export const stringToColour = (name: string) => {
+  // get first alphabet in upper case
+  const firstAlphabet = name.charAt(0).toLowerCase();
 
-export function intToRGB(i: number) {
-  const c = (i & 0x00ffffff).toString(16).toUpperCase();
-  return "00000".substring(0, 6 - c.length) + c;
-}
-*/
+  // get the ASCII code of the character
+  const asciiCode = firstAlphabet.charCodeAt(0);
 
-export const stringToColour = (
-  value: string,
-  log: string,
-  saturation = 100,
-  lightness = 75
-) => {
-  let hash = 0;
-  for (let i = 0; i < value.length; i++) {
-    hash = value.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return `hsl(${hash % 360}, ${saturation}%, ${lightness}%)`;
+  // number that contains 3 times ASCII value of character -- unique for every alphabet
+  const colorNum =
+    asciiCode.toString() + asciiCode.toString() + asciiCode.toString();
+
+  const num = Math.round(0xffffff * parseInt(colorNum));
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+
+  const value = "rgb(" + r + ", " + g + ", " + b + ")";
+
+  return value;
 };
