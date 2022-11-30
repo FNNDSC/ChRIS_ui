@@ -1,35 +1,36 @@
-import React from 'react'
-import { useDispatch } from 'react-redux'
-import { setFilesForGallery } from '../../store/explorer/actions'
-import GalleryDicomView from '../../components/dicomViewer/GalleryDicomView'
-import DicomLoader from '../../components/dicomViewer/DcmLoader'
-import { useTypedSelector } from '../../store/hooks'
-import * as cornerstone from 'cornerstone-core'
-import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
-import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader'
-import * as cornerstoneNIFTIImageLoader from 'cornerstone-nifti-image-loader'
-import * as cornerstoneFileImageLoader from 'cornerstone-file-image-loader'
-import * as dicomParser from 'dicom-parser'
-import { isNifti, isDicom } from '../../components/dicomViewer/utils'
-import './ViewImage.scss'
+import React from "react";
+import { useDispatch } from "react-redux";
+import { setFilesForGallery } from "../../store/explorer/actions";
+import GalleryDicomView from "../../components/dicomViewer/GalleryDicomView";
+import DicomLoader from "../../components/dicomViewer/DcmLoader";
+import { useTypedSelector } from "../../store/hooks";
+import * as cornerstone from "cornerstone-core";
+import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import * as cornerstoneWebImageLoader from "cornerstone-web-image-loader";
+import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
+import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
+import * as dicomParser from "dicom-parser";
+import { isNifti, isDicom } from "../../components/dicomViewer/utils";
+import "./ViewImage.scss";
 
 cornerstoneNIFTIImageLoader.nifti.configure({
   headers: {
-    'Content-Type': 'application/vnd.collection+json',
-    Authorization: 'Token ' + window.sessionStorage.getItem('CHRIS_TOKEN'),
+    "Content-Type": "application/vnd.collection+json",
+    Authorization: "Token " + window.sessionStorage.getItem("CHRIS_TOKEN"),
   },
-  method: 'get',
-  responseType: 'arrayBuffer',
-})
-const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId
+  method: "get",
+  responseType: "arrayBuffer",
+});
+const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
 
-cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
-cornerstoneFileImageLoader.external.cornerstone = cornerstone
-cornerstoneWebImageLoader.external.cornerstone = cornerstone
-cornerstoneWADOImageLoader.external.cornerstone = cornerstone
-cornerstoneWADOImageLoader.external.dicomParser = dicomParser
+cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
+cornerstoneFileImageLoader.external.cornerstone = cornerstone;
+cornerstoneWebImageLoader.external.cornerstone = cornerstone;
+cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 
 const GalleryPage = () => {
+  /*
   const dispatch = useDispatch()
   const files = useTypedSelector((state) => state.explorer.externalFiles)
   const [loader, setLoader] = React.useState({
@@ -95,5 +96,8 @@ const GalleryPage = () => {
       )}
     </div>
   )
-}
-export default GalleryPage
+  */
+
+  return <div>Gallery Page</div>;
+};
+export default GalleryPage;
