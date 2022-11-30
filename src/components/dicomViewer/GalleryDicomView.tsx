@@ -1,5 +1,10 @@
 import React from "react";
+/*
+
+
 import { ErrorBoundary } from "react-error-boundary";
+import * as cornerstone3D from "@cornerstonejs/core";
+import * as cornerstone3DTools from "@cornerstonejs/tools";
 import * as cornerstone from "cornerstone-core";
 import * as cornerstoneMath from "cornerstone-math";
 import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
@@ -9,7 +14,6 @@ import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import * as cornerstoneTools from "cornerstone-tools";
 import { import as csTools } from "cornerstone-tools";
 import Hammer from "hammerjs";
-import CornerstoneViewport from "react-cornerstone-viewport";
 import {
   Backdrop,
   Bullseye,
@@ -28,18 +32,18 @@ import GalleryWrapper from "../gallery/GalleryWrapper";
 import * as dicomParser from "dicom-parser";
 import DicomHeader from "./DcmHeader/DcmHeader";
 import DicomTag from "./DicomTag";
-
 import { Image, GalleryState, CornerstoneEvent } from "./types";
 
 cornerstoneTools.external.cornerstone = cornerstone;
 cornerstoneTools.external.Hammer = Hammer;
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
-cornerstoneTools.init();
 cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
 cornerstoneFileImageLoader.external.cornerstone = cornerstone;
 cornerstoneWebImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+cornerstone3D.init();
+cornerstone3DTools.init();
 
 const scrollToIndex = csTools("util/scrollToIndex");
 cornerstoneNIFTIImageLoader.nifti.configure({
@@ -101,7 +105,7 @@ const GalleryDicomView = ({ type }: { type: string }) => {
     activeTool,
     numberOfFrames,
   } = galleryDicomState;
-  const element = React.useRef<HTMLElement | undefined>(undefined);
+  const element = React.useRef<HTMLDivElement | null>(null);
   const currentImage = React.useRef<Image | undefined>(undefined);
 
   React.useEffect(() => {
@@ -378,73 +382,7 @@ const GalleryDicomView = ({ type }: { type: string }) => {
                   <DrawerContentBody>
                     {imageIds.length > 0 ? (
                       <div id="container">
-                        <CornerstoneViewport
-                          isPlaying={inPlay}
-                          frameRate={frameRate}
-                          activeTool={activeTool}
-                          tools={tools}
-                          imageIds={imageIds}
-                          onElementEnabled={(
-                            elementEnabledEvt: CornerstoneEvent
-                          ) => {
-                            if (elementEnabledEvt.detail) {
-                              const cornerstoneElement =
-                                elementEnabledEvt.detail.element;
-                              element.current = cornerstoneElement;
-                              if (cornerstoneElement) {
-                                cornerstoneElement.addEventListener(
-                                  "cornerstoneimagerendered",
-                                  (eventData: CornerstoneEvent) => {
-                                    if (eventData.detail) {
-                                      const image = eventData.detail.image;
-
-                                      currentImage.current = image;
-
-                                      const viewport =
-                                        eventData.detail.viewport;
-                                      if (viewport) {
-                                        const newViewport: any = {};
-                                        newViewport.voi = viewport.voi || {};
-                                        newViewport.voi.windowWidth =
-                                          image && image.windowWidth;
-                                        newViewport.voi.windowCenter =
-                                          image && image.windowCenter;
-                                        if (!viewport.displayedArea) {
-                                          newViewport.displayedArea = {
-                                            // Top Left Hand Corner
-                                            tlhc: {
-                                              x: 0,
-                                              y: 0,
-                                            },
-                                            // Bottom Right Hand Corner
-                                            brhc: {
-                                              x: 256,
-                                              y: 256,
-                                            },
-                                            rowPixelSpacing: 1,
-                                            columnPixelSpacing: 1,
-                                            presentationSizeMode:
-                                              "SCALE TO FIT",
-                                          };
-                                        }
-                                        const setViewport = Object.assign(
-                                          {},
-                                          viewport,
-                                          newViewport
-                                        );
-
-                                        cornerstone.setViewport(
-                                          cornerstoneElement,
-                                          setViewport
-                                        );
-                                      }
-                                    }
-                                  }
-                                );
-                              }
-                            }
-                          }}
-                        />
+                        <div ref={element}></div>
                       </div>
                     ) : (
                       <Spinner size="xl" />
@@ -471,3 +409,10 @@ const FallBackComponent = () => {
     </Backdrop>
   );
 };
+*/
+
+const GalleryDicomView = () => {
+  return <div>Gallery Dicom View</div>;
+};
+
+export default GalleryDicomView;

@@ -1,115 +1,98 @@
-import React from 'react'
-import { useDispatch } from 'react-redux'
-import * as dicomParser from 'dicom-parser'
-import * as cornerstone from 'cornerstone-core'
-import * as cornerstoneNIFTIImageLoader from 'cornerstone-nifti-image-loader'
-import * as cornerstoneFileImageLoader from 'cornerstone-file-image-loader'
-import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader'
-import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
-import { useTypedSelector } from '../../../../store/hooks'
-import { isNifti, isDicom } from '../../../dicomViewer/utils'
-import { setFilesForGallery } from '../../../../store/explorer/actions'
-import GalleryDicomView from '../../../dicomViewer/GalleryDicomView'
-import DicomLoader from '../../../dicomViewer/DcmLoader'
-import { getFileExtension } from '../../../../api/models/file-explorer.model'
-import { Cookies } from 'react-cookie'
+import React from "react";
+import dwv from "dwv";
+import { useTypedSelector } from "../../../../store/hooks";
 
-const cookie = new Cookies()
-const user = cookie.get('username')
-const token: string = cookie.get(`${user}_token`)
+import ChrisAPIClient from "../../../../api/chrisapiclient";
 
-cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
-cornerstoneFileImageLoader.external.cornerstone = cornerstone
-cornerstoneWebImageLoader.external.cornerstone = cornerstone
-cornerstoneWADOImageLoader.external.cornerstone = cornerstone
-cornerstoneWADOImageLoader.external.dicomParser = dicomParser
-cornerstoneNIFTIImageLoader.nifti.configure({
-  headers: {
-    'Content-Type': 'application/vnd.collection+json',
-    Authorization: 'Token ' + token,
-  },
-  method: 'get',
-  responseType: 'arrayBuffer',
-})
-const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId
+// Image decoders (for web workers)
+dwv.image.decoderScripts = {
+  jpeg2000: `${process.env.PUBLIC_URL}/assets/dwv/decoders/pdfjs/decode-jpeg2000.js`,
+  "jpeg-lossless": `${process.env.PUBLIC_URL}/assets/dwv/decoders/rii-mango/decode-jpegloss.js`,
+  "jpeg-baseline": `${process.env.PUBLIC_URL}/assets/dwv/decoders/pdfjs/decode-jpegbaseline.js`,
+  rle: `${process.env.PUBLIC_URL}/assets/dwv/decoders/dwv/decode-rle.js`,
+};
 
-const DicomViewerContainer = () => {
-  const dispatch = useDispatch()
-  const files = useTypedSelector((state) => state.explorer.selectedFolder)
-  const [loader, setLoader] = React.useState({
-    totalFiles: 0,
-    filesParsed: 0,
-  })
-
-  const loadImagesIntoCornerstone = React.useCallback(async () => {
-    if (files) {
-      const imageIds: string[] = []
-      let niftiSlices = 0
-      for (let i = 0; i < files.length; i++) {
-        const selectedFile = files[i]
-
-        const fileTypes = ['jpeg', 'jpg', 'png']
-        if (selectedFile) {
-          if (isNifti(selectedFile.data.fname)) {
-            const fileArray = selectedFile.data.fname.split('/')
-            const fileName = fileArray[fileArray.length - 1]
-            const imageIdObject = ImageId.fromURL(
-              `nifti:${selectedFile.url}${fileName}`,
-            )
-
-            niftiSlices = cornerstone.metaData.get(
-              'multiFrameModule',
-              imageIdObject.url,
-            ).numberOfFrames
-
-            imageIds.push(
-              ...Array.from(
-                Array(niftiSlices),
-                (_, i) =>
-                  `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`,
-              ),
-            )
-          } else if (isDicom(selectedFile.data.fname)) {
-            const file = await selectedFile.getFileBlob()
-            imageIds.push(
-              cornerstoneWADOImageLoader.wadouri.fileManager.add(file),
-            )
-          } else if (
-            fileTypes.includes(getFileExtension(selectedFile.data.fname))
-          ) {
-            const file = await selectedFile.getFileBlob()
-            imageIds.push(cornerstoneFileImageLoader.fileManager.add(file))
-          }
-        }
-
-        setLoader((state) => {
-          return {
-            ...state,
-            filesParsed: i + 1,
-            totalFiles: files.length,
-          }
-        })
-      }
-      dispatch(setFilesForGallery(imageIds))
-    }
-  }, [files, dispatch])
-
-  React.useEffect(() => {
-    loadImagesIntoCornerstone()
-  }, [loadImagesIntoCornerstone])
-
-  return (
-    <>
-      {loader.filesParsed === loader.totalFiles ? (
-        <GalleryDicomView type="feedbrowser" />
-      ) : (
-        <DicomLoader
-          totalFiles={loader.totalFiles}
-          filesParsed={loader.filesParsed}
-        />
-      )}
-    </>
-  )
+function getDwvState() {
+  return {
+    tools: {
+      Scroll: {},
+      ZoomAndPan: {},
+      WindowLevel: {},
+      Draw: {
+        options: ["Ruler"],
+        type: "factory",
+        events: ["drawcreate", "drawchange", "drawmove", "drawdelete"],
+      },
+    },
+    toolNames: [],
+    selectedTool: "Select Tool",
+    loadProgress: 0,
+    dataLoaded: false,
+    dwvApp: null,
+    metaData: [],
+    showDicomTags: false,
+    toolMenuAnchorEl: null,
+    dropboxDivId: "dropBox",
+    dropboxClassName: "dropBox",
+    borderClassName: "dropBoxBorder",
+    hoverClassName: "hover",
+  };
 }
 
-export default DicomViewerContainer
+const DicomViewerContainer = () => {
+  const [dwvState, setDwvState] = React.useState(getDwvState);
+  const files = useTypedSelector((state) => state.explorer.selectedFolder);
+  const divRef = React.useRef(null);
+
+  const loadImagesIntoDwv = React.useCallback(async () => {
+    if (divRef.current) {
+      const client = ChrisAPIClient.getClient();
+
+      const headerObj = [
+        {
+          name: "Authorization",
+          value: "Token " + client.auth.token,
+        },
+      ];
+
+      const app = new dwv.App();
+
+      app.init({
+        dataViewConfigs: { "*": [{ divId: "layerGroup0" }] },
+        tools: dwvState.tools,
+      });
+
+      const fileLoader: any[] = [];
+
+      if (files && files.length > 0) {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          fileLoader.push(`${file.url}${file.data.fname}`);
+        }
+      }
+
+      if (fileLoader.length > 0) {
+        app.addEventListener("load", function () {
+          app.setTool("Scroll");
+          app.render(0);
+        });
+
+        app.loadURLs(fileLoader, {
+          requestHeaders: headerObj,
+        });
+      }
+    }
+  }, []);
+
+  React.useLayoutEffect(() => {
+    loadImagesIntoDwv();
+  }, []);
+
+  return (
+    <div id="dwv">
+      <div ref={divRef} id="layerGroup0" className="layerGroup"></div>
+    </div>
+  );
+};
+
+export default DicomViewerContainer;
