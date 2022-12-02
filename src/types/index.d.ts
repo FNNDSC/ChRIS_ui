@@ -25,4 +25,4 @@ declare module "clone";
 declare module "dequal/lite";
 declare module "typesafe-actions";
 declare module "chris-utility";
-declare module "dwv";
+declare module "rusha";

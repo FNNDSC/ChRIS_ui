@@ -9,6 +9,7 @@ import { getSelectedPlugin } from '../../../store/pluginInstance/actions'
 import { destroyExplorer } from '../../../store/explorer/actions'
 import { PluginInstance } from '@fnndsc/chrisapi'
 
+
 const FileBrowserViewer = () => {
   const dispatch = useDispatch();
   const onNodeClick = (node: PluginInstance) => {
