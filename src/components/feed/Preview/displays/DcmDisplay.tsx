@@ -46,7 +46,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   return (
     <div className="dcm-preview">
       <div ref={containerRef} id="container">
-        <canvas className="cornerstone-canvas" />
+        <div id="dicomImageWebGL"></div>
       </div>
     </div>
   );

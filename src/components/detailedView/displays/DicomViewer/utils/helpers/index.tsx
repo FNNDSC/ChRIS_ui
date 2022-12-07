@@ -12,7 +12,7 @@ export const GalleryButtonContainer = ({
   return (
     <Button
       style={{ marginRight: "1rem" }}
-      variant="tertiary"
+      variant="secondary"
       onClick={handleClick}
     >
       {text}
@@ -30,7 +30,7 @@ export const ButtonContainer = ({
   return (
     <Button
       style={{ marginRight: "1rem" }}
-      variant="tertiary"
+      variant="secondary"
       onClick={() => handleEvents(action)}
     >
       {action}
