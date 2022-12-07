@@ -74,14 +74,10 @@ const Sidebar: React.FC<AllProps> = ({
             </NavItem>
           )}
         </NavGroup>
-        <NavGroup title="External Visualizers">
-          <NavItem
-            itemId="visualizations"
-            isActive={sidebarActiveItem === "visualizations"}
-          >
-            <Link to="/visualization">DICOM Viewer</Link>
-          </NavItem>
-          {process.env.REACT_APP_ALPHA_FEATURES === "development" && (
+
+        {/*
+            <NavGroup title="External Visualizers">
+           {process.env.REACT_APP_ALPHA_FEATURES === "development" && (
             <>
               <NavItem
                 itemId="sliceDrop"
@@ -110,6 +106,9 @@ const Sidebar: React.FC<AllProps> = ({
             </>
           )}
         </NavGroup>
+          
+          */}
+
         {process.env.REACT_APP_ALPHA_FEATURES === "development" && (
           <NavGroup title="Collab">
             <NavItem itemId="collab" isActive={sidebarActiveItem === "collab"}>
