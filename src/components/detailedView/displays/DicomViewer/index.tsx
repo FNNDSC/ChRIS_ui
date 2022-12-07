@@ -1,115 +1,482 @@
-import React from 'react'
-import { useDispatch } from 'react-redux'
-import * as dicomParser from 'dicom-parser'
-import * as cornerstone from 'cornerstone-core'
-import * as cornerstoneNIFTIImageLoader from 'cornerstone-nifti-image-loader'
-import * as cornerstoneFileImageLoader from 'cornerstone-file-image-loader'
-import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader'
-import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
-import { useTypedSelector } from '../../../../store/hooks'
-import { isNifti, isDicom } from '../../../dicomViewer/utils'
-import { setFilesForGallery } from '../../../../store/explorer/actions'
-import GalleryDicomView from '../../../dicomViewer/GalleryDicomView'
-import DicomLoader from '../../../dicomViewer/DcmLoader'
-import { getFileExtension } from '../../../../api/models/file-explorer.model'
-import { Cookies } from 'react-cookie'
+import React, { useState } from "react";
+import { FeedFile } from "@fnndsc/chrisapi";
+import { List, ListItem } from "@patternfly/react-core";
+import * as dicomParser from "dicom-parser";
+import * as cornerstone from "cornerstone-core";
+import * as cornerstoneTools from "cornerstone-tools";
+import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
+import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import { useTypedSelector } from "../../../../store/hooks";
+import { isDicom, isNifti, dumpDataSet, initDicom } from "./utils";
+import { SpinContainer } from "../../../common/loading/LoadingContent";
+import { getFileExtension } from "../../../../api/models/file-explorer.model";
+import GalleryModel from "../../../../api/models/gallery.model";
+import {
+  GalleryButtonContainer,
+  ButtonContainer,
+  TagInfoModal,
+} from "./utils/helpers";
 
-const cookie = new Cookies()
-const user = cookie.get('username')
-const token: string = cookie.get(`${user}_token`)
+const { ImageId } = initDicom();
+const { Image } = cornerstone;
 
-cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone
-cornerstoneFileImageLoader.external.cornerstone = cornerstone
-cornerstoneWebImageLoader.external.cornerstone = cornerstone
-cornerstoneWADOImageLoader.external.cornerstone = cornerstone
-cornerstoneWADOImageLoader.external.dicomParser = dicomParser
-cornerstoneNIFTIImageLoader.nifti.configure({
-  headers: {
-    'Content-Type': 'application/vnd.collection+json',
-    Authorization: 'Token ' + token,
-  },
-  method: 'get',
-  responseType: 'arrayBuffer',
-})
-const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId
+type ImageType = typeof Image;
+
+type DicomState = {
+  filteredFiles: FeedFile[];
+  images: ImageType[];
+  frames: number;
+  output: string;
+  showTagInfo: boolean;
+  gallery: boolean;
+  currentImage: number;
+  loader: boolean;
+  imageDictionary: {
+    [key: string]: number;
+  };
+};
+
+const getInitialState = () => {
+  return {
+    filteredFiles: [] as FeedFile[],
+    images: [] as ImageType[],
+    frames: 0,
+    output: "",
+    showTagInfo: false,
+    gallery: false,
+    currentImage: 1,
+    loader: false,
+    imageDictionary: {},
+  };
+};
 
 const DicomViewerContainer = () => {
-  const dispatch = useDispatch()
-  const files = useTypedSelector((state) => state.explorer.selectedFolder)
-  const [loader, setLoader] = React.useState({
-    totalFiles: 0,
-    filesParsed: 0,
-  })
+  const selectedFolder = useTypedSelector(
+    (state) => state.explorer.selectedFolder
+  );
 
-  const loadImagesIntoCornerstone = React.useCallback(async () => {
+  const [dicomState, setDicomState] = useState<DicomState>(getInitialState());
+  const {
+    filteredFiles,
+    images,
+    frames,
+    output,
+    showTagInfo,
+    gallery,
+    currentImage,
+    loader,
+    imageDictionary,
+  } = dicomState;
+
+  const dicomImageRef = React.useRef<HTMLDivElement>(null);
+
+  const loadImage = async (id: string) => {
+    const image = await cornerstone.loadAndCacheImage(id).then((image: any) => {
+      return image;
+    });
+    return image;
+  };
+
+  const displayImageFromFiles = React.useCallback(async (files: any[]) => {
     if (files) {
-      const imageIds: string[] = []
-      let niftiSlices = 0
-      for (let i = 0; i < files.length; i++) {
-        const selectedFile = files[i]
+      const imageIds = [];
+      const imagesToDisplay: any[] = [];
+      const imageDict: {
+        [key: string]: number;
+      } = {};
+      setDicomState((dicomState) => {
+        return {
+          ...dicomState,
+          loader: true,
+        };
+      });
 
-        const fileTypes = ['jpeg', 'jpg', 'png']
-        if (selectedFile) {
-          if (isNifti(selectedFile.data.fname)) {
-            const fileArray = selectedFile.data.fname.split('/')
-            const fileName = fileArray[fileArray.length - 1]
+      let niftiSlices = 0;
+      const fileTypes = ["jpeg", "jpg", "png"];
+
+      try {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+
+          if (isNifti(file.data.fname)) {
+            const fileArray = file.data.fname.split("/");
+            const fileName = fileArray[fileArray.length - 1];
             const imageIdObject = ImageId.fromURL(
-              `nifti:${selectedFile.url}${fileName}`,
-            )
-
+              `nifti:${file.url}${fileName}`
+            );
             niftiSlices = cornerstone.metaData.get(
-              'multiFrameModule',
-              imageIdObject.url,
-            ).numberOfFrames
+              "multiFrameModule",
+              imageIdObject.url
+            ).numberOfFrames;
 
             imageIds.push(
               ...Array.from(
                 Array(niftiSlices),
                 (_, i) =>
-                  `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`,
-              ),
-            )
-          } else if (isDicom(selectedFile.data.fname)) {
-            const file = await selectedFile.getFileBlob()
-            imageIds.push(
-              cornerstoneWADOImageLoader.wadouri.fileManager.add(file),
-            )
-          } else if (
-            fileTypes.includes(getFileExtension(selectedFile.data.fname))
-          ) {
-            const file = await selectedFile.getFileBlob()
-            imageIds.push(cornerstoneFileImageLoader.fileManager.add(file))
+                  `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
+              )
+            );
+
+            const image = await loadImage(imageIdObject.url);
+            imagesToDisplay.push(image);
+            imageDict[imageIdObject] = i;
+          } else if (isDicom(file.data.fname)) {
+            const blob = await file.getFileBlob();
+            const imageId =
+              cornerstoneWADOImageLoader.wadouri.fileManager.add(blob);
+            imageIds.push(imageId);
+            const image = await loadImage(imageId);
+            imagesToDisplay.push(image);
+            imageDict[imageId] = i;
+          } else if (fileTypes.includes(getFileExtension(file.data.fname))) {
+            const blob = await file.getFileBlob();
+            const imageId = cornerstoneFileImageLoader.fileManager.add(blob);
+            imageIds.push(imageId);
+            const image = await loadImage(imageId);
+            imagesToDisplay.push(image);
+            imageDict[imageId] = i;
           }
         }
 
-        setLoader((state) => {
+        const element = dicomImageRef.current;
+        if (element) cornerstone.enable(element);
+        const stack = {
+          currentImageIdIndex: 0,
+          imageIds: imageIds,
+        };
+
+        cornerstone.displayImage(element, imagesToDisplay[0]);
+        cornerstoneTools.addStackStateManager(element, ["stack"]);
+        cornerstoneTools.addToolState(element, "stack", stack);
+
+        setDicomState((dicomState) => {
           return {
-            ...state,
-            filesParsed: i + 1,
-            totalFiles: files.length,
-          }
-        })
-      }
-      dispatch(setFilesForGallery(imageIds))
+            ...dicomState,
+            images: imagesToDisplay,
+            imageDictionary: imageDict,
+            loader: false,
+          };
+        });
+
+        fireEvent();
+      } catch (error) {}
     }
-  }, [files, dispatch])
+  }, []);
+
+  const firePlayEvent = () => {
+    if (dicomImageRef.current) {
+      dicomImageRef.current.addEventListener(
+        "cornerstonenewimage",
+        (event: any) => {
+          const imageIndex = imageDictionary[event.detail.image.imageId];
+          setDicomState((dicomState) => {
+            return {
+              ...dicomState,
+              currentImage: imageIndex + 1,
+              frames: imageIndex,
+            };
+          });
+        }
+      );
+    }
+  };
+
+  const removePlayEvent = () => {
+    if (dicomImageRef.current) {
+      dicomImageRef.current.removeEventListener("cornerstonenewimage", () => {
+        console.log("Removed");
+      });
+    }
+  };
+
+  const fireEvent = () => {
+    if (dicomImageRef.current) {
+      dicomImageRef.current.addEventListener(
+        "cornerstonetoolsstackscroll",
+        (event: any) => {
+          setDicomState((dicomState) => {
+            return {
+              ...dicomState,
+              currentImage: event.detail.newImageIdIndex + 1,
+              frames: event.detail.newImageIdIndex,
+            };
+          });
+        }
+      );
+    }
+  };
 
   React.useEffect(() => {
-    loadImagesIntoCornerstone()
-  }, [loadImagesIntoCornerstone])
+    if (selectedFolder) {
+      const filteredFilesState = selectedFolder.filter((file) => {
+        return GalleryModel.isValidDcmFile(file.data.fname);
+      });
+
+      setDicomState((dicomState) => {
+        return {
+          ...dicomState,
+          filteredFiles: filteredFilesState,
+        };
+      });
+
+      displayImageFromFiles(filteredFilesState);
+    }
+  }, [displayImageFromFiles, selectedFolder]);
+
+  const handleEvents = (event: string) => {
+    if (event === "Zoom") {
+      cornerstoneTools.setToolActive("Zoom", { mouseButtonMask: 1 });
+    }
+
+    if (event === "Pan") {
+      cornerstoneTools.setToolActive("Pan", { mouseButtonMask: 1 });
+    }
+    if (event === "Magnify") {
+      cornerstoneTools.setToolActive("Magnify", { mouseButtonMask: 1 });
+    }
+
+    if (event === "Rotate") {
+      cornerstoneTools.setToolActive("Rotate", { mouseButtonMask: 1 });
+    }
+
+    if (event === "Wwwc") {
+      cornerstoneTools.setToolActive("Wwwc", { mouseButtonMask: 1 });
+    }
+
+    if (event === "Reset View") {
+      cornerstone.reset(dicomImageRef.current);
+      setDicomState({ ...dicomState, gallery: false });
+    }
+
+    if (event === "Length") {
+      cornerstoneTools.setToolActive("Length", { mouseButtonMask: 1 });
+    }
+
+    if (event === "Gallery") {
+      cornerstone.reset(dicomImageRef.current);
+      setDicomState({ ...dicomState, gallery: !gallery });
+    }
+
+    if (event === "TagInfo") {
+      handleModalToggle();
+    }
+  };
+
+  const handleModalToggle = async () => {
+    setDicomState({ ...dicomState, showTagInfo: !showTagInfo });
+    if (!showTagInfo) {
+      await displayTagInfo(!showTagInfo);
+    }
+  };
+
+  const displayTagInfo = async (showTagInfo: boolean) => {
+    if (filteredFiles) {
+      const file = filteredFiles[frames];
+
+      const reader = new FileReader();
+
+      reader.onloadend = async () => {
+        try {
+          if (reader.result) {
+            //@ts-ignore
+            const byteArray = new Uint8Array(reader.result);
+            //@ts-ignore
+            const dataSet = dicomParser.parseDicom(byteArray);
+            //@ts-ignore
+            const output: any[] = [];
+            dumpDataSet(dataSet, output);
+            const newOutput = "<ul>" + output.join("") + "</ul>";
+
+            setDicomState({
+              ...dicomState,
+              output: newOutput,
+              showTagInfo,
+            });
+          }
+        } catch (error) {
+          console.log("Error", error);
+        }
+      };
+
+      if (file) {
+        const blob = await file.getFileBlob();
+        reader.readAsArrayBuffer(blob);
+      }
+    }
+  };
+
+  const styleDiv = {
+    position: "absolute",
+  };
 
   return (
     <>
-      {loader.filesParsed === loader.totalFiles ? (
-        <GalleryDicomView type="feedbrowser" />
-      ) : (
-        <DicomLoader
-          totalFiles={loader.totalFiles}
-          filesParsed={loader.filesParsed}
-        />
-      )}
-    </>
-  )
-}
+      <div
+        style={{
+          width: "100%",
+          height: "768px",
+          color: "#fff",
+          position: "relative",
+          fontSize: "1rem",
+          textShadow: "1px 1px #000000",
+        }}
+        ref={dicomImageRef}
+      >
+        {loader ? (
+          <SpinContainer title="Loading files into cornerstone" />
+        ) : (
+          <>
+            <div id="dicomImageWebGL"></div>
+            <div
+              id="topleft"
+              className="overlay"
+              //@ts-ignore
+              style={{
+                ...styleDiv,
+                top: "0px",
+                left: "0px",
+                display: "flex",
+                flexDirection: "column",
+                marginLeft: "0.5em",
+                color: "#73bcf7",
+              }}
+            >
+              <span>
+                <b>Image Number:</b> {`${currentImage}/${images.length}`}
+              </span>
+              <span>
+                <b>File name: </b>
+                {`${
+                  filteredFiles &&
+                  filteredFiles[frames] &&
+                  filteredFiles[frames].data.fname
+                }`}
+              </span>
+            </div>
+          </>
+        )}
+      </div>
+      <div
+        style={{
+          marginTop: "1rem",
+        }}
+      >
+        <ButtonContainer action="Zoom" handleEvents={handleEvents} />
+        <ButtonContainer action="Pan" handleEvents={handleEvents} />
+        <ButtonContainer action="Magnify" handleEvents={handleEvents} />
+        <ButtonContainer action="Rotate" handleEvents={handleEvents} />
+        <ButtonContainer action="Wwwc" handleEvents={handleEvents} />
+        <ButtonContainer action="Reset View" handleEvents={handleEvents} />
+        <ButtonContainer action="Length" handleEvents={handleEvents} />
+        <ButtonContainer action="Gallery" handleEvents={handleEvents} />
+        <ButtonContainer action="TagInfo" handleEvents={handleEvents} />
+      </div>
+      {gallery && (
+        <div style={{ marginTop: "1rem" }}>
+          <GalleryButtonContainer
+            text="Next"
+            handleClick={() => {
+              if (frames < images.length - 1) {
+                const newFrame = frames + 1;
+                cornerstone.displayImage(
+                  dicomImageRef.current,
+                  images[newFrame]
+                );
+                setDicomState({
+                  ...dicomState,
+                  frames: newFrame,
+                  currentImage: newFrame + 1,
+                });
+              }
+            }}
+          />
 
-export default DicomViewerContainer
+          <GalleryButtonContainer
+            text="Previous"
+            handleClick={() => {
+              if (frames > 0) {
+                const newFrame = frames - 1;
+                cornerstone.displayImage(
+                  dicomImageRef.current,
+                  images[newFrame]
+                );
+
+                setDicomState({
+                  ...dicomState,
+                  frames: newFrame,
+                  currentImage: newFrame + 1,
+                });
+              }
+            }}
+          />
+
+          <GalleryButtonContainer
+            handleClick={() => {
+              const frame = 0;
+              setDicomState({
+                ...dicomState,
+                frames: frame,
+                currentImage: frame + 1,
+              });
+              cornerstone.displayImage(dicomImageRef.current, images[frame]);
+            }}
+            text=" First"
+          />
+
+          <GalleryButtonContainer
+            handleClick={() => {
+              const frame = images.length - 1;
+              setDicomState({
+                ...dicomState,
+                frames: frame,
+                currentImage: frame + 1,
+              });
+              cornerstone.displayImage(dicomImageRef.current, images[frame]);
+            }}
+            text="Last"
+          />
+
+          <GalleryButtonContainer
+            handleClick={() => {
+              firePlayEvent();
+              cornerstoneTools.playClip(dicomImageRef.current, 5);
+            }}
+            text="Play"
+          />
+
+          <GalleryButtonContainer
+            handleClick={() => {
+              removePlayEvent();
+              cornerstoneTools.stopClip(dicomImageRef.current);
+            }}
+            text="Pause"
+          />
+        </div>
+      )}
+      <TagInfoModal
+        handleModalToggle={handleModalToggle}
+        isModalOpen={showTagInfo}
+        output={output}
+        file={filteredFiles && filteredFiles[frames]}
+      />
+      <div style={{ marginTop: "1rem" }}>
+        Controls:
+        <List>
+          <ListItem>
+            Click on the buttons describing the tool to activate tooling
+          </ListItem>
+          <ListItem>Left Click Drag to see the effects of each tool</ListItem>
+          <ListItem>Mouse wheel - scroll images</ListItem>
+          <ListItem>
+            Click on the Tag Info Button to view tag information for the active image
+          </ListItem>
+          <ListItem>
+            Click on the Gallery Button for granular control over a stack of images
+          </ListItem>
+        </List>
+      </div>
+    </>
+  );
+};
+
+export default DicomViewerContainer;

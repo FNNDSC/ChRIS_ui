@@ -5,7 +5,6 @@ import { FeedFile } from '@fnndsc/chrisapi'
 import { AiFillInfoCircle } from 'react-icons/ai'
 import { getFileExtension } from '../../../api/models/file-explorer.model'
 import { IFileBlob, fileViewerMap } from '../../../api/models/file-viewer.model'
-import '../../../components/dicomViewer/amiViewer.scss'
 import { SpinContainer } from '../../common/loading/LoadingContent'
 
 const ViewerDisplay = React.lazy(() => import('./displays/ViewerDisplay'))
