@@ -40,7 +40,6 @@
     "react": "^18.2.0",
     "react-bootstrap-typeahead": "^6.0.0",
     "react-cookie": "^4.1.1",
-    "react-cornerstone-viewport": "^4.1.5",
     "react-dom": "^18.2.0",
     "react-dropzone": "^11.5.1",
     "react-error-boundary": "^3.1.4",

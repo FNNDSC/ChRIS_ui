@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FeedFile } from "@fnndsc/chrisapi";
+import { List, ListItem } from "@patternfly/react-core";
 import * as dicomParser from "dicom-parser";
 import * as cornerstone from "cornerstone-core";
 import * as cornerstoneTools from "cornerstone-tools";
@@ -167,8 +168,6 @@ const DicomViewerContainer = () => {
       dicomImageRef.current.addEventListener(
         "cornerstonenewimage",
         (event: any) => {
-          console.log("Event", event);
-
           const imageIndex = imageDictionary[event.detail.image.imageId];
           setDicomState((dicomState) => {
             return {
@@ -460,6 +459,22 @@ const DicomViewerContainer = () => {
         output={output}
         file={filteredFiles && filteredFiles[frames]}
       />
+      <div style={{ marginTop: "1rem" }}>
+        Controls:
+        <List>
+          <ListItem>
+            Click on the buttons describing the tool to activate tooling
+          </ListItem>
+          <ListItem>Left Click Drag to see the effects of each tool</ListItem>
+          <ListItem>Mouse wheel - scroll images</ListItem>
+          <ListItem>
+            Click on the Tag Info Button to view tag information for the active image
+          </ListItem>
+          <ListItem>
+            Click on the Gallery Button for granular control over a stack of images
+          </ListItem>
+        </List>
+      </div>
     </>
   );
 };
