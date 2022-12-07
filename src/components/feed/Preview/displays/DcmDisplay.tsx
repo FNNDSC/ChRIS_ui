@@ -3,12 +3,15 @@ import * as cornerstone from "cornerstone-core";
 import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import * as dicomParser from "dicom-parser";
-import { DcmImageProps } from "../../../dicomViewer/types";
 import { IFileBlob } from "../../../../api/models/file-viewer.model";
 
 cornerstoneFileImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+
+export type DcmImageProps = {
+  fileItem: IFileBlob;
+};
 
 const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -43,7 +46,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   return (
     <div className="dcm-preview">
       <div ref={containerRef} id="container">
-        <canvas className="cornerstone-canvas" />
+        <div id="dicomImageWebGL"></div>
       </div>
     </div>
   );
