@@ -18,6 +18,10 @@ import { GrCloudComputer } from "react-icons/gr";
 import { FaCode } from "react-icons/fa";
 import { EmptyStateTable } from "../common/emptyTable";
 
+import { Badge, Card as Bard, CardBody, 
+  Split, SplitItem } from "@patternfly/react-core";
+import "./displayPage.css";
+
 interface PageState {
   perPage: number;
   page: number;
@@ -117,7 +121,7 @@ const DisplayPage = ({
         </div>
       </div>
 
-      <div className="site-card-wrapper">
+      <div className="site-card-wrapper" style={{padding: "1rem"}}>
         <Row gutter={16}>
           {resources && resources.length > 0 ? (
             resources.map((resource) => {
@@ -128,8 +132,9 @@ const DisplayPage = ({
                   lg={8}
                   sm={12}
                   xs={24}
+                  style={{marginBottom: '1rem'}}
                 >
-                  <Card
+                  {/* <Card
                     hoverable
                     style={{
                       marginBottom: "1em",
@@ -167,7 +172,57 @@ const DisplayPage = ({
                     <p className="pluginList__description">
                       {resource.data ? resource.data.description : ""}
                     </p>
-                  </Card>
+                  </Card> */}
+
+
+
+                  {/* Edit code  */}
+                  <Bard className="plugin-item-card">
+                    <CardBody className="plugin-item-card-body">
+                      <div>
+                        <div className="row no-flex">
+                          <Split>
+                            <SplitItem isFilled><p style={{ fontSize: '0.9em', fontWeight: 'bold' }}>{resource.data ? resource.data.name : ""}</p></SplitItem>
+                            {/* <SplitItem><Badge isRead>{category}</Badge></SplitItem> */}
+                          </Split>
+                          <div className="plugin-item-name">
+                            {/* <Link
+                              href={`/plugin/${name}`}
+                              to={`/plugin/${name}`}
+                            >
+                              { title }
+                            </Link> */}
+
+                            {resource.data ? resource.data.description : ""}
+
+
+                            {/* Edit this feature */}
+                            {/* {renderStarButton()} */}
+                          </div>
+                          {/* <Link
+                            href={`/author/${authors}`}
+                            to={`/author/${authors}`}
+                            className="plugin-item-author"
+                          >
+                            { authors.join(', ') }
+                          </Link> */}
+                          <p className="plugin-item-author">
+                            {resource.data.authors}
+                          </p>
+                          <p style={{ color: 'gray', fontWeight: '600', fontSize: 'small' }}>
+                            {/* {
+                              RelativeDate.isValid(modification_date) ?
+                                `Updated ${new RelativeDate(modification_date).format()}`
+                              : 
+                                `Created ${new RelativeDate(creation_date).format()}`
+                            } */}
+                            version: { resource.data.version }
+                          </p>
+                        </div>
+                      </div>
+                    </CardBody>
+                  </Bard>
+                  {/* Edit code end  */}
                 </Col>
               );
             })

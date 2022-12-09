@@ -4,7 +4,6 @@ import { Typography } from "antd";
 import Wrapper from "../Layout/PageWrapper";
 import { PageSection } from "@patternfly/react-core";
 import PluginCatalog from "../../components/catalog/PluginCatalog";
-import ComputeCatalog from "../../components/catalog/ComputeCatalog";
 import InfoIcon from "../../components/common/info/InfoIcon";
 import "./CatalogPage.scss";
 import { setSidebarActive } from "../../store/ui/actions";
@@ -27,11 +26,11 @@ const CatalogPage = () => {
     <Wrapper>
       <PageSection variant="light">
         <InfoIcon
-          title="Plugins and Compute"
+          title="Plugins"
           p1={
             <Paragraph style={style}>
-              This page consistes of three main sections, listing availalbe{" "}
-              <b>Plugins</b>, <b>Pipelines</b>, and <b>Compute</b>.
+              This page describes the {" "}
+              <b>Plugins</b> section.
             </Paragraph>
           }
           p2={
@@ -67,24 +66,12 @@ const CatalogPage = () => {
                 for some examples). <b>Pipelines</b> are also available in the
                 separate <a href="https://next.chrisstore.co">ChRIS store</a>.
               </p>
-              <p>
-                The final section on this page presents the available{" "}
-                <b>Compute</b> environments that are known to ChRIS. These
-                denote computers and clusters/clouds that can be selected to run
-                various <b>plugins</b> and <b>pipelines</b>. The special{" "}
-                <b>host</b> environment is always available and is the actual
-                server that is running ChRIS. It is generally not recommended to
-                run intensive computation on the <b>host</b> environment. Adding
-                new <b>Compute</b> to ChRIS is typically enabled by using the
-                separate ChRIS admin interface.
-              </p>
             </Paragraph>
           }
         />
       </PageSection>
       <PageSection>
         <PluginCatalog />
-        <ComputeCatalog />
       </PageSection>
     </Wrapper>
   );

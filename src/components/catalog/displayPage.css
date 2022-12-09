@@ -1,0 +1,109 @@
+.plugin-item-card {
+    margin-bottom: 0;
+    padding: 0;
+    height: 100%;
+    
+    border-bottom-color: #ededed;
+    border-bottom: 4px solid #0088ce;;
+    box-shadow: none;
+  }
+  
+  .row {
+    /* display */
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto !important;
+  }
+
+  .plugin-item-card-body {
+    color: #4d5258;
+    color: #4d5258;
+  
+    font-size: 1.4em;
+    position: relative;
+  }
+  
+  .plugin-item-name {
+    color: #0088ce;
+  
+    font-size: 1.25em;
+    font-weight: 600;
+  }
+  
+  .plugin-item-name > .plugin-star {
+    position: absolute;
+    bottom: 0.75em;
+    right: 0.75em;
+    margin-left: .5em;
+  
+    color: #bbbbbb;
+    font-size: 22px;
+  } .plugin-item-name > .plugin-star:hover {
+    color: var(--pf-black-700, #bbb);
+    cursor: pointer;
+  }
+  
+  
+  .plugin-item-name > .plugin-star[class~="disabled"] {
+    margin-left: .5em;
+  
+    color: #bbbbbb;
+    font-size: 22px;
+  }
+  
+  .plugin-item-name > .plugin-star[class~="favorite"] {
+    margin-left: .5em;
+  
+    color: #0088ce;
+    font-size: 22px;
+  }
+  
+  
+  .plugin-item-name > .plugin-star[class~="favorite"]:hover {
+    color: #00659c;
+    cursor: pointer;
+  }
+  
+  .plugin-item-name:hover, .plugin-item-name:focus { text-decoration: none; }
+  
+  .plugin-item-title {
+    font-size: 1em;
+    font-weight: 400;
+  }
+  
+  .plugin-item-creation {
+    color: #72767b;
+    color: #004368;
+  
+    font-weight: 300;
+  }
+  
+  .plugin-item-author {
+    color: #4d5258;
+    color: #4d5258;
+  
+    border-bottom-color: #d1d1d1;
+    border-bottom: 1px solid var(--pf-black-300);
+  
+    font-size: 1em;
+    font-weight: 300;
+  }
+  
+  .plugin-item-author:hover,
+  .plugin-item-author:focus {
+    color: #4d5258;
+    color: #4d5258;
+    text-decoration: none;
+  }
+  
+  @media (min-width: 768px)  {
+    .plugins-list > .plugin-item-card {
+      padding: 0 20px;
+    }
+
+    .row:not(.no-flex) { display: flex; }
+  }
+/* 
+  @media (min-width: 768px)  {
+    .row:not(.no-flex) { display: flex; }
+  } */
