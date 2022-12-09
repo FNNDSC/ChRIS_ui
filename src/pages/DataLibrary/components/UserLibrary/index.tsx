@@ -21,9 +21,8 @@ import { Alert, Progress as AntProgress } from "antd";
 import BrowserContainer from "./BrowserContainer";
 import LocalSearch from "./LocalSearch";
 import { FaUpload } from "react-icons/fa";
-import FileUpload from "../../../../components/common/fileupload";
+import { useDropzone } from "react-dropzone";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
-import { LocalFile } from "../../../../components/feed/CreateFeed/types/feed";
 import { useTypedSelector } from "../../../../store/hooks";
 import { FileSelect, LibraryContext, Types } from "./context";
 import { MainRouterContext } from "../../../../routes";
@@ -36,6 +35,7 @@ import { deleteFeed } from "../../../../store/feed/actions";
 import { useDispatch } from "react-redux";
 import { fetchResource } from "../../../../api/common";
 import "./user-library.scss";
+import ReactJson from "react-json-view";
 
 interface DownloadType {
   name: string;
@@ -49,7 +49,7 @@ const DataLibrary = () => {
   const username = useTypedSelector((state) => state.user.username);
   const router = useContext(MainRouterContext);
   const [uploadFileModal, setUploadFileModal] = React.useState(false);
-  const [localFiles, setLocalFiles] = React.useState<LocalFile[]>([]);
+  const [localFiles, setLocalFiles] = React.useState<File[]>([]);
   const { foldersState, selectedFolder, currentPath } = state;
   const [error, setError] = React.useState<any[]>([]);
   const [fetchingFiles, setFetchingFiles] = React.useState(false);
@@ -69,7 +69,7 @@ const DataLibrary = () => {
     setLocalFiles([]);
   };
 
-  const handleLocalFiles = (files: LocalFile[]) => {
+  const handleLocalFiles = (files: File[]) => {
     setLocalFiles(files);
   };
 
@@ -561,11 +561,39 @@ export default DataLibrary;
 
 interface UploadComponent {
   handleFileModal: () => void;
-  handleLocalFiles: (files: LocalFile[]) => void;
+  handleLocalFiles: (files: File[]) => void;
   uploadFileModal: boolean;
-  localFiles: LocalFile[];
+  localFiles: File[];
   handleAddFolder: (path: string) => void;
 }
+
+const baseStyle: React.CSSProperties = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "20px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#eeeeee",
+  borderStyle: "dashed",
+  backgroundColor: "#fafafa",
+  color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out",
+};
+
+const activeStyle = {
+  borderColor: "#2196f3",
+};
+
+const acceptStyle = {
+  borderColor: "#00e676",
+};
+
+const rejectStyle = {
+  borderColor: "#ff1744",
+};
 
 const UploadComponent = ({
   handleFileModal,
@@ -575,9 +603,81 @@ const UploadComponent = ({
   localFiles,
 }: UploadComponent) => {
   const username = useTypedSelector((state) => state.user.username);
-  const [warning, setWarning] = React.useState("");
+
+  const [warning, setWarning] = React.useState<string | object>("");
   const [directoryName, setDirectoryName] = React.useState("");
   const [count, setCount] = React.useState(0);
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone();
+
+  const style = React.useMemo(
+    () => ({
+      ...baseStyle,
+      ...(isDragActive ? activeStyle : {}),
+      ...(isDragAccept ? acceptStyle : {}),
+      ...(isDragReject ? rejectStyle : {}),
+    }),
+    [isDragActive, isDragReject, isDragAccept]
+  );
+
+  function getTimestamp() {
+    const pad = (n: any, s = 2) => `${new Array(s).fill(0)}${n}`.slice(-s);
+    const d = new Date();
+
+    return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(
+      d.getDate()
+    )} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
+
+  React.useEffect(() => {
+    const d = getTimestamp();
+    setDirectoryName(`${d}`);
+  }, [uploadFileModal]);
+
+  React.useEffect(() => {
+    if (acceptedFiles.length > 0) {
+      setWarning("");
+      handleLocalFiles(acceptedFiles);
+    }
+  }, [acceptedFiles, handleLocalFiles]);
+
+  const handleUpload = async () => {
+    const client = ChrisAPIClient.getClient();
+    const setDirectory = !directoryName ? getTimestamp() : directoryName;
+    handleAddFolder(setDirectory);
+    const path = `${username}/uploads/${setDirectory}`;
+
+    try {
+      for (let i = 0; i < localFiles.length; i++) {
+        const file = localFiles[i];
+
+        await client.uploadFile(
+          {
+            upload_path: `${path}/${file.name}`,
+          },
+          {
+            fname: file,
+          }
+        );
+        setCount(i + 1);
+      }
+      setTimeout(() => {
+        setDirectoryName("");
+        setCount(0);
+        handleFileModal();
+      }, 1000);
+    } catch (error: any) {
+      setWarning(error.response.data);
+      handleLocalFiles([]);
+      setCount(0);
+    }
+  };
 
   return (
     <Modal
@@ -586,14 +686,33 @@ const UploadComponent = ({
         handleFileModal();
       }}
       isOpen={uploadFileModal}
-      variant={ModalVariant.small}
+      variant={ModalVariant.medium}
       arial-labelledby="file-upload"
     >
-      <Form isHorizontal>
+      <section className="container">
+        <div {...getRootProps({ style })}>
+          <input {...getInputProps()} />
+          <p>
+            Drag &apos;n&apos; drop some files here or click to select files
+          </p>
+        </div>
+        <div style={{ marginTop: "1.5rem" }}>
+          Total Files to push: {localFiles.length}
+          <Button
+            isDisabled={localFiles.length === 0}
+            onClick={() => handleLocalFiles([])}
+            style={{ marginLeft: "1.5rem" }}
+            variant="tertiary"
+          >
+            Clear Files
+          </Button>
+        </div>
+      </section>
+      <Form style={{ marginTop: "1.5rem" }} isHorizontal>
         <FormGroup
           fieldId="directory name"
           label="Directory Name"
-          helperText="Set a directory name"
+          helperText="Set a directory name or use the default"
         >
           <TextInput
             id="horizontal form name"
@@ -607,26 +726,19 @@ const UploadComponent = ({
           />
         </FormGroup>
       </Form>
-      {localFiles.length > 0 && (
-        <div
-          style={{
-            margin: "1em 0 0.5em 0",
-          }}
+
+      <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+        <Button
+          isDisabled={localFiles.length === 0}
+          onClick={handleUpload}
+          icon={<FaUpload />}
+          variant="secondary"
         >
-          <b>Total Number of Files to Upload: {localFiles.length}</b>
-        </div>
-      )}
-      {warning && (
-        <div
-          style={{
-            margin: "1em 0 1em, 0",
-            color: "red",
-          }}
-        >
-          {warning}
-        </div>
-      )}
-      {localFiles.length > 0 && directoryName && (
+          Push to file storage
+        </Button>
+      </div>
+
+      {count > 0 && (
         <Progress
           style={{
             margin: "1em 0 1em 0",
@@ -643,44 +755,14 @@ const UploadComponent = ({
           }
         />
       )}
-      <FileUpload
-        className=""
-        handleDeleteDispatch={() => {
-          console.log("Test");
-        }}
-        localFiles={[]}
-        dispatchFn={async (files) => {
-          if (!directoryName) {
-            setWarning("Please add a directory name");
-          } else {
-            if (directoryName) {
-              handleAddFolder(directoryName);
-              handleLocalFiles(files);
-              const client = ChrisAPIClient.getClient();
-              const path = `${username}/uploads/${directoryName}`;
-              for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                await client.uploadFile(
-                  {
-                    upload_path: `${path}/${file.name}`,
-                  },
-                  {
-                    fname: (file as LocalFile).blob,
-                  }
-                );
-                setCount(i + 1);
-              }
 
-              /** Temporary Timer */
-
-              setTimeout(() => {
-                setDirectoryName("");
-                handleFileModal();
-              }, 1000);
-            }
-          }
-        }}
-      />
+      {typeof warning === "string" ? (
+        <span>{warning}</span>
+      ) : typeof warning === "object" ? (
+        <ReactJson src={warning} />
+      ) : (
+        ""
+      )}
     </Modal>
   );
 };

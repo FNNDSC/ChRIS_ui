@@ -1,8 +1,8 @@
-import React from 'react'
-import classNames from 'classnames'
+import React from "react";
+import classNames from "classnames";
 
-import { useDispatch } from 'react-redux'
-import { useTypedSelector } from '../../../store/hooks'
+import { useDispatch } from "react-redux";
+import { useTypedSelector } from "../../../store/hooks";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,10 +11,10 @@ import {
   Button,
   HelperTextItem,
   HelperText,
-} from '@patternfly/react-core'
-import { bytesToSize } from './utils'
-import { FeedFile } from '@fnndsc/chrisapi'
-import { MdFileDownload } from 'react-icons/md'
+} from "@patternfly/react-core";
+import { bytesToSize } from "./utils";
+import { FeedFile } from "@fnndsc/chrisapi";
+import { MdFileDownload } from "react-icons/md";
 import {
   AiFillFileImage,
   AiFillFileText,
@@ -22,26 +22,26 @@ import {
   AiFillFolder,
   AiOutlineExpandAlt,
   AiFillCloseCircle,
-} from 'react-icons/ai'
-import { FaFileCode, FaFilm } from 'react-icons/fa'
-import { Table, TableHeader, TableBody } from '@patternfly/react-table'
-import FileDetailView from '../Preview/FileDetailView'
-import FileViewerModel from '../../../api/models/file-viewer.model'
-import { getFileExtension } from '../../../api/models/file-explorer.model'
-import { FileBrowserProps } from './types'
+} from "react-icons/ai";
+import { FaFileCode, FaFilm } from "react-icons/fa";
+import { Table, TableHeader, TableBody } from "@patternfly/react-table";
+import FileDetailView from "../Preview/FileDetailView";
+import FileViewerModel from "../../../api/models/file-viewer.model";
+import { getFileExtension } from "../../../api/models/file-explorer.model";
+import { FileBrowserProps } from "./types";
 import {
   clearSelectedFile,
   setSelectedFile,
-} from '../../../store/explorer/actions'
-import { BiHorizontalCenter } from 'react-icons/bi'
-import { getXtkFileMode } from '../../detailedView/displays/XtkViewer/XtkViewer'
-import { Alert } from 'antd'
-import { SpinContainer } from '../../common/loading/LoadingContent'
-import { EmptyStateLoader } from './FeedOutputBrowser'
+} from "../../../store/explorer/actions";
+import { BiHorizontalCenter } from "react-icons/bi";
+import { getXtkFileMode } from "../../detailedView/displays/XtkViewer/XtkViewer";
+import { Alert } from "antd";
+import { SpinContainer } from "../../common/loading/LoadingContent";
+import { EmptyStateLoader } from "./FeedOutputBrowser";
 
 const getFileName = (name: any) => {
-  return name.split('/').slice(-1)
-}
+  return name.split("/").slice(-1);
+};
 
 const FileBrowser = (props: FileBrowserProps) => {
   const {
@@ -51,104 +51,104 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleFileBrowserToggle,
     handleDicomViewerOpen,
     handleXtkViewerOpen,
-
+    explore,
     expandDrawer,
     filesLoading,
-  } = props
-  const selectedFile = useTypedSelector((state) => state.explorer.selectedFile)
-  const dispatch = useDispatch()
+  } = props;
+  const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
+  const dispatch = useDispatch();
 
-  const { files, folders, path } = pluginFilesPayload
-  const cols = [{ title: 'Name' }, { title: 'Size' }, { title: '' }]
+  const { files, folders, path } = pluginFilesPayload;
+  const cols = [{ title: "Name" }, { title: "Size" }, { title: "" }];
 
-  const items = files && folders ? [...files, ...folders] : []
+  const items = files && folders ? [...files, ...folders] : [];
 
   const handleDownloadClick = async (e: React.MouseEvent, item: FeedFile) => {
-    e.stopPropagation()
+    e.stopPropagation();
     if (item) {
-      const blob = await item.getFileBlob()
-      FileViewerModel.downloadFile(blob, item.data.fname)
+      const blob = await item.getFileBlob();
+      FileViewerModel.downloadFile(blob, item.data.fname);
     }
-  }
+  };
 
   const generateTableRow = (item: string | FeedFile) => {
-    let type, icon, fsize, fileName
-    type = 'UNKNOWN FORMAT'
-    const isPreviewing = selectedFile === item
+    let type, icon, fsize, fileName;
+    type = "UNKNOWN FORMAT";
+    const isPreviewing = selectedFile === item;
 
-    if (typeof item === 'string') {
-      type = 'dir'
-      icon = getIcon(type)
-      fileName = item
+    if (typeof item === "string") {
+      type = "dir";
+      icon = getIcon(type);
+      fileName = item;
     } else {
-      fileName = getFileName(item.data.fname)
-      if (fileName.indexOf('.') > -1) {
-        type = getFileName(fileName)[0].toUpperCase()
+      fileName = getFileName(item.data.fname);
+      if (fileName.indexOf(".") > -1) {
+        type = getFileName(fileName)[0].toUpperCase();
       }
-      fsize = bytesToSize(item.data.fsize)
-      icon = getIcon(type)
+      fsize = bytesToSize(item.data.fsize);
+      icon = getIcon(type);
     }
 
     const fileNameComponent = (
       <div
         className={classNames(
-          'file-browser__table--fileName',
-          isPreviewing && 'file-browser__table--isPreviewing',
+          "file-browser__table--fileName",
+          isPreviewing && "file-browser__table--isPreviewing"
         )}
       >
         <span>{icon}</span>
         <span>{fileName}</span>
       </div>
-    )
+    );
 
     const name = {
       title: fileNameComponent,
-    }
+    };
 
     const size = {
       title: fsize,
-    }
+    };
 
     const downloadComponent =
-      typeof item === 'string' ? undefined : (
+      typeof item === "string" ? undefined : (
         <MdFileDownload
           className="download-file-icon"
           onClick={(e: any) => handleDownloadClick(e, item)}
         />
-      )
+      );
 
     const download = {
       title: downloadComponent,
-    }
+    };
 
     return {
       cells: [name, size, download],
-    }
-  }
-  const rows = items.length > 0 ? items.map(generateTableRow) : []
+    };
+  };
+  const rows = items.length > 0 ? items.map(generateTableRow) : [];
 
-  const { id, plugin_name } = selected.data
-  const pathSplit = path && path.split(`/${plugin_name}_${id}/`)
-  const breadcrumb = path ? pathSplit[1].split('/') : []
+  const { id, plugin_name } = selected.data;
+  const pathSplit = path && path.split(`/${plugin_name}_${id}/`);
+  const breadcrumb = path ? pathSplit[1].split("/") : [];
 
   const generateBreadcrumb = (value: string, index: number) => {
     const onClick = () => {
-      dispatch(clearSelectedFile())
+      dispatch(clearSelectedFile());
       if (index === breadcrumb.length - 1) {
-        return
+        return;
       } else {
-        const findIndex = breadcrumb.findIndex((path) => path === value)
+        const findIndex = breadcrumb.findIndex((path) => path === value);
         if (findIndex !== -1) {
-          const newPathList = breadcrumb.slice(0, findIndex + 1)
+          const newPathList = breadcrumb.slice(0, findIndex + 1);
           const combinedPathList = [
-            ...pathSplit[0].split('/'),
+            ...pathSplit[0].split("/"),
             `${plugin_name}_${id}`,
             ...newPathList,
-          ]
-          handleFileClick(combinedPathList.join('/'))
+          ];
+          handleFileClick(combinedPathList.join("/"));
         }
       }
-    }
+    };
 
     return (
       <BreadcrumbItem
@@ -156,12 +156,12 @@ const FileBrowser = (props: FileBrowserProps) => {
         showDivider={true}
         key={index}
         onClick={onClick}
-        to={index === breadcrumb.length - 1 ? undefined : '#'}
+        to={index === breadcrumb.length - 1 ? undefined : "#"}
       >
         {value}
       </BreadcrumbItem>
-    )
-  }
+    );
+  };
 
   const previewPanel = (
     <>
@@ -175,6 +175,7 @@ const FileBrowser = (props: FileBrowserProps) => {
           <div className="header-panel__buttons">
             {selectedFile && (
               <HeaderPanel
+                explore={explore}
                 handleFileBrowserOpen={handleFileBrowserToggle}
                 handleDicomViewerOpen={handleDicomViewerOpen}
                 handleXtkViewerOpen={handleXtkViewerOpen}
@@ -183,7 +184,7 @@ const FileBrowser = (props: FileBrowserProps) => {
             )}
             <div className="header-panel__buttons--togglePanel">
               <Button
-                onClick={() => expandDrawer('bottom_panel')}
+                onClick={() => expandDrawer("bottom_panel")}
                 variant="tertiary"
                 type="button"
                 icon={<AiFillCloseCircle />}
@@ -197,7 +198,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         <FileDetailView selectedFile={selectedFile} preview="small" />
       )}
     </>
-  )
+  );
 
   return (
     <Grid hasGutter className="file-browser">
@@ -224,8 +225,8 @@ const FileBrowser = (props: FileBrowserProps) => {
               {items.length > 1
                 ? `(${items.length} items)`
                 : items.length === 1
-                  ? `(${items.length} item)`
-                  : 'Empty Directory'}
+                ? `(${items.length} item)`
+                : "Empty Directory"}
             </span>
           </div>
         </div>
@@ -243,13 +244,13 @@ const FileBrowser = (props: FileBrowserProps) => {
           ) : (
             <TableBody
               onRowClick={(event: any, rows: any, rowData: any) => {
-                dispatch(clearSelectedFile())
-                const rowIndex = rowData.rowIndex
-                const item = items[rowIndex]
-                if (typeof item === 'string') {
-                  handleFileClick(`${path}/${item}`)
+                dispatch(clearSelectedFile());
+                const rowIndex = rowData.rowIndex;
+                const item = items[rowIndex];
+                if (typeof item === "string") {
+                  handleFileClick(`${path}/${item}`);
                 } else {
-                  dispatch(setSelectedFile(item))
+                  dispatch(setSelectedFile(item));
                 }
               }}
             />
@@ -272,34 +273,35 @@ const FileBrowser = (props: FileBrowserProps) => {
         {previewPanel}
       </GridItem>
     </Grid>
-  )
-}
+  );
+};
 
-export default FileBrowser
+export default FileBrowser;
 
 const getIcon = (type: string) => {
   switch (type.toLowerCase()) {
-    case 'dir':
-      return <AiFillFolder />
-    case 'dcm':
-    case 'jpg':
-    case 'png':
-      return <AiFillFileImage />
-    case 'html':
-    case 'json':
-      return <FaFileCode />
-    case 'txt':
-      return <AiFillFileText />
+    case "dir":
+      return <AiFillFolder />;
+    case "dcm":
+    case "jpg":
+    case "png":
+      return <AiFillFileImage />;
+    case "html":
+    case "json":
+      return <FaFileCode />;
+    case "txt":
+      return <AiFillFileText />;
     default:
-      return <AiFillFile />
+      return <AiFillFile />;
   }
-}
+};
 
 interface HeaderPanelProps {
-  handleDicomViewerOpen: () => void
-  handleXtkViewerOpen: () => void
-  handleFileBrowserOpen: () => void
-  selectedFile: FeedFile
+  handleDicomViewerOpen: () => void;
+  handleXtkViewerOpen: () => void;
+  handleFileBrowserOpen: () => void;
+  selectedFile: FeedFile;
+  explore: boolean;
 }
 
 const HeaderPanel = (props: HeaderPanelProps) => {
@@ -307,22 +309,25 @@ const HeaderPanel = (props: HeaderPanelProps) => {
     handleDicomViewerOpen,
     handleXtkViewerOpen,
     handleFileBrowserOpen,
-
+    explore,
     selectedFile,
-  } = props
+  } = props;
 
-  const imageFileTypes = ['dcm', 'png', 'jpg', 'nii', 'jpeg']
-  const fileType = getFileExtension(selectedFile.data.fname)
+  const imageFileTypes = ["dcm", "png", "jpg", "nii", "jpeg"];
+  const fileType = getFileExtension(selectedFile.data.fname);
 
   return (
     <div className="header-panel__buttons--toggleViewer">
-      <Button
-        variant="link"
-        onClick={handleFileBrowserOpen}
-        icon={<AiOutlineExpandAlt />}
-      >
-        Maximize
-      </Button>
+      {explore && (
+        <Button
+          variant="link"
+          onClick={handleFileBrowserOpen}
+          icon={<AiOutlineExpandAlt />}
+        >
+          Explore
+        </Button>
+      )}
+
       {!fileType && (
         <Alert
           type="info"
@@ -348,5 +353,5 @@ const HeaderPanel = (props: HeaderPanelProps) => {
         </Button>
       )}
     </div>
-  )
-}
+  );
+};

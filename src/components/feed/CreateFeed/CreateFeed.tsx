@@ -26,13 +26,15 @@ import { MainRouterContext } from "../../../routes";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { InputIndex } from "../AddNode/types";
 import "./createfeed.scss";
+import { PipelineTypes } from "./types/pipeline";
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
   addFeed,
 }: CreateFeedReduxProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { state: pipelineState } = useContext(PipelineContext);
+  const { state: pipelineState, dispatch: pipelineDispatch } =
+    useContext(PipelineContext);
   const routerContext = useContext(MainRouterContext);
 
   const {
@@ -181,6 +183,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
 
       addFeed && addFeed(feed);
     } catch (error) {
+      console.log("Error", error);
       throw new Error(`${error}`);
     } finally {
       routerContext.actions.clearFeedData();
@@ -413,6 +416,11 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
               dispatch({
                 type: Types.ResetState,
               });
+
+            pipelineDispatch({
+              type: PipelineTypes.ResetState,
+            });
+
             dispatch({
               type: Types.ToggleWizzard,
             });

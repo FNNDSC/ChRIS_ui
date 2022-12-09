@@ -11,6 +11,7 @@ export function getInitialPipelineState() {
     pipelineData: {},
     pipelineName: "",
     pipelines: [],
+    selectedPipeline: undefined,
   };
 }
 
@@ -328,6 +329,15 @@ export const pipelineReducer = (
 
       return {
         ...state,
+      };
+    }
+
+    case PipelineTypes.ResetState: {
+      return {
+        pipelineData: {},
+        pipelineName: "",
+        pipelines: [],
+        selectedPipeline: undefined,
       };
     }
     default:
