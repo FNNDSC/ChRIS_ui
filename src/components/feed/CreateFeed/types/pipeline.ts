@@ -32,6 +32,7 @@ export enum PipelineTypes {
   SetDefaultParameters = "SET_DEFAULT_PARAMETERS",
   SetGeneralCompute = "SET_GENERAL_COMPUTE",
   DeselectPipeline = "DESELECT_PIPELINE",
+  ResetState = "RESET_STATE",
 }
 
 export interface ComputeEnvData {
@@ -121,6 +122,8 @@ type PipelinePayload = {
     currentPipelineId: number;
     computeEnv: string;
   };
+
+  [PipelineTypes.ResetState]: Record<string, unknown>;
 };
 
 export type PipelineActions =

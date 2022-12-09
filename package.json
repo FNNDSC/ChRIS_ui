@@ -3,8 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@cornerstonejs/core": "^0.22.0",
-    "@cornerstonejs/tools": "^0.30.1",
     "@fnndsc/chrisapi": "^1.9.7",
     "@patternfly/react-charts": "^6.88.7",
     "@patternfly/react-core": "^4.235.7",
