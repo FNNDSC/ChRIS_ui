@@ -175,47 +175,23 @@ const DisplayPage = ({
                   </Card> */}
 
 
-
                   {/* Edit code  */}
                   <Bard className="plugin-item-card">
                     <CardBody className="plugin-item-card-body">
                       <div>
                         <div className="row no-flex">
                           <Split>
-                            <SplitItem isFilled><p style={{ fontSize: '0.9em', fontWeight: 'bold' }}>{resource.data ? resource.data.name : ""}</p></SplitItem>
-                            {/* <SplitItem><Badge isRead>{category}</Badge></SplitItem> */}
+                            <SplitItem isFilled><p style={{ fontSize: '1em', fontWeight: 'bold' }}>{resource.data ? resource.data.name : ""}</p></SplitItem>
                           </Split>
                           <div className="plugin-item-name">
-                            {/* <Link
-                              href={`/plugin/${name}`}
-                              to={`/plugin/${name}`}
-                            >
-                              { title }
-                            </Link> */}
-
                             {resource.data ? resource.data.description : ""}
-
-
                             {/* Edit this feature */}
                             {/* {renderStarButton()} */}
                           </div>
-                          {/* <Link
-                            href={`/author/${authors}`}
-                            to={`/author/${authors}`}
-                            className="plugin-item-author"
-                          >
-                            { authors.join(', ') }
-                          </Link> */}
                           <p className="plugin-item-author">
                             {resource.data.authors}
                           </p>
                           <p style={{ color: 'gray', fontWeight: '600', fontSize: 'small' }}>
-                            {/* {
-                              RelativeDate.isValid(modification_date) ?
-                                `Updated ${new RelativeDate(modification_date).format()}`
-                              : 
-                                `Created ${new RelativeDate(creation_date).format()}`
-                            } */}
                             version: { resource.data.version }
                           </p>
                         </div>
