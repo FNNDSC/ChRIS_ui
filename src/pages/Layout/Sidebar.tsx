@@ -55,7 +55,14 @@ const Sidebar: React.FC<AllProps> = ({
             <Link to="/feeds">New and Existing Analyses</Link>
           </NavItem>
           <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
-            <Link to="/catalog">Plugins and Workflows</Link>
+            <Link to="/catalog">Plugins</Link>
+          </NavItem>
+
+          <NavItem
+            itemId="compute"
+            isActive={sidebarActiveItem === "compute"}
+          >
+            <Link to="/compute">Compute</Link>
           </NavItem>
 
           <NavItem

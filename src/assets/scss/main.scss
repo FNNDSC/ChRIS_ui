@@ -5,6 +5,52 @@
 *  Author:          ChRIS UI
 */
 
+/* CSS variables */
+
+:root {
+   
+    /* PRIMARY COLORS */
+  
+    /* black */
+    --pf-black-100: #fafafa;
+  
+    --pf-black-150: #f5f5f5;
+  
+    --pf-black-200: #ededed;
+  
+    --pf-black-300: #d1d1d1;
+  
+    --pf-black-400: #bbbbbb;
+  
+    --pf-black-500: #8b8d8f;
+  
+    --pf-black-600: #72767b;
+  
+    --pf-black-700: #4d5258;
+  
+    --pf-black-800: #393f44;
+  
+    --pf-black-900: #292e34;
+  
+    --pf-black: #030303;
+  
+    /* blue */
+    --pf-blue-50: #def3ff;
+  
+    --pf-blue-100: #bee1f4;
+  
+    --pf-blue-200: #7dc3e8;
+  
+    --pf-blue-300: #39a5dc;
+  
+    --pf-blue-400: #0088ce;
+  
+    --pf-blue-500: #00659c;
+  
+    --pf-blue-600: #004368;
+  
+    --pf-blue-700: #002235;
+  }
 
 // Helpers
 // ---------------------------------------------------------
