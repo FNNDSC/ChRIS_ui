@@ -19,7 +19,11 @@ import {
   UploadJson,
   GeneralCompute,
 } from "../Pipelines/";
-import { fetchPipelines, generatePipelineWithName } from "../../../api/common";
+import {
+  fetchComputeInfo,
+  fetchPipelines,
+  generatePipelineWithName,
+} from "../../../api/common";
 import { PipelinesProps } from "./types/pipeline";
 
 const Pipelines = ({
@@ -178,11 +182,26 @@ const Pipelines = ({
                                 await generatePipelineWithName(
                                   pipeline.data.name
                                 );
-
                               handleSetPipelineResources({
                                 ...resources,
                                 pipelineId: pipeline.data.id,
                               });
+                              const { pluginPipings } = resources;
+
+                              for (let i = 0; i < pluginPipings.length; i++) {
+                                const piping = pluginPipings[i];
+                                const computeEnvData = await fetchComputeInfo(
+                                  piping.data.plugin_id,
+                                  piping.data.id
+                                );
+
+                                if (computeEnvData) {
+                                  handleSetPipelineEnvironments(
+                                    pipeline.data.id,
+                                    computeEnvData
+                                  );
+                                }
+                              }
                             }
                           } else {
                             handleCleanResources();

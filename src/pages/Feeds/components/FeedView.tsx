@@ -175,6 +175,7 @@ export const FeedView: React.FC = () => {
       fallback={<SpinContainer title="Fetching feed Resources" />}
     >
       <FeedOutputBrowser
+        explore={true}
         expandDrawer={onClick}
         handlePluginSelect={onNodeClick}
       />

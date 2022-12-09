@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 
 import {
   Grid,
@@ -7,27 +7,29 @@ import {
   Title,
   EmptyStateBody,
   EmptyStateVariant,
-} from '@patternfly/react-core'
-import { Tree } from 'antd'
-import PluginViewerModal from '../../detailedView/PluginViewerModal'
-import { PluginInstance } from '@fnndsc/chrisapi'
-import { getFeedTree } from './data'
-import { DataNode } from '../../../store/explorer/types'
-import './FeedOutputBrowser.scss'
-import { useFeedBrowser } from './useFeedBrowser'
-import { SpinContainer } from '../../common/loading/LoadingContent'
+} from "@patternfly/react-core";
+import { Tree } from "antd";
+import PluginViewerModal from "../../detailedView/PluginViewerModal";
+import { PluginInstance } from "@fnndsc/chrisapi";
+import { getFeedTree } from "./data";
+import { DataNode } from "../../../store/explorer/types";
+import "./FeedOutputBrowser.scss";
+import { useFeedBrowser } from "./useFeedBrowser";
+import { SpinContainer } from "../../common/loading/LoadingContent";
 
-const FileBrowser = React.lazy(() => import('./FileBrowser'))
-const { DirectoryTree } = Tree
+const FileBrowser = React.lazy(() => import("./FileBrowser"));
+const { DirectoryTree } = Tree;
 
 export interface FeedOutputBrowserProps {
-  handlePluginSelect: (node: PluginInstance) => void
-  expandDrawer: (panel: string) => void
+  handlePluginSelect: (node: PluginInstance) => void;
+  expandDrawer: (panel: string) => void;
+  explore: boolean;
 }
 
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   handlePluginSelect,
   expandDrawer,
+  explore,
 }) => {
   const {
     plugins,
@@ -41,7 +43,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     handlePluginModalClose,
     pluginModalOpen,
     filesLoading,
-  } = useFeedBrowser()
+  } = useFeedBrowser();
   return (
     <>
       <Grid hasGutter={true} className="feed-output-browser ">
@@ -84,6 +86,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           >
             {pluginFilesPayload && selected ? (
               <FileBrowser
+                explore={explore}
                 selected={selected}
                 handleFileClick={handleFileClick}
                 pluginFilesPayload={pluginFilesPayload}
@@ -110,23 +113,23 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         handleModalToggle={handlePluginModalClose}
       />
     </>
-  )
-}
+  );
+};
 
-export default FeedOutputBrowser
+export default FeedOutputBrowser;
 
 const SidebarTree = (props: {
-  plugins: PluginInstance[]
-  selected: PluginInstance
-  handlePluginSelect: (node: PluginInstance) => void
+  plugins: PluginInstance[];
+  selected: PluginInstance;
+  handlePluginSelect: (node: PluginInstance) => void;
 }) => {
-  const { selected, plugins, handlePluginSelect } = props
-  const [tree, setTreeData] = React.useState<DataNode[]>()
+  const { selected, plugins, handlePluginSelect } = props;
+  const [tree, setTreeData] = React.useState<DataNode[]>();
   React.useEffect(() => {
-    const pluginSidebarTree = getFeedTree(plugins)
+    const pluginSidebarTree = getFeedTree(plugins);
     //@ts-ignore
-    setTreeData(pluginSidebarTree)
-  }, [plugins, selected])
+    setTreeData(pluginSidebarTree);
+  }, [plugins, selected]);
 
   return (
     <DirectoryTree
@@ -138,17 +141,15 @@ const SidebarTree = (props: {
       selectedKeys={[selected.data.id]}
       onSelect={(node, selectedNode) => {
         //@ts-ignore
-        handlePluginSelect(selectedNode.node.item)
+        handlePluginSelect(selectedNode.node.item);
       }}
       onExpand={(node, selectedNode) => {
         //@ts-ignore
-        handlePluginSelect(selectedNode.node.item)
+        handlePluginSelect(selectedNode.node.item);
       }}
-
-
     />
-  )
-}
+  );
+};
 
 export const EmptyStateLoader = ({ title }: { title: string }) => {
   return (
@@ -156,8 +157,8 @@ export const EmptyStateLoader = ({ title }: { title: string }) => {
       <Title headingLevel="h4" size="lg" />
       <EmptyStateBody>{title}</EmptyStateBody>
     </EmptyState>
-  )
-}
+  );
+};
 const FetchFilesLoader = ({ title }: { title: string }) => {
-  return <SpinContainer title={title} />
-}
+  return <SpinContainer title={title} />;
+};
