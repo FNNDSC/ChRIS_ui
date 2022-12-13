@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FeedFile } from "@fnndsc/chrisapi";
-import { List, ListItem } from "@patternfly/react-core";
+
 import * as dicomParser from "dicom-parser";
 import * as cornerstone from "cornerstone-core";
 import * as cornerstoneTools from "cornerstone-tools";
@@ -11,11 +11,7 @@ import { isDicom, isNifti, dumpDataSet, initDicom } from "./utils";
 import { SpinContainer } from "../../../common/loading/LoadingContent";
 import { getFileExtension } from "../../../../api/models/file-explorer.model";
 import GalleryModel from "../../../../api/models/gallery.model";
-import {
-  GalleryButtonContainer,
-  ButtonContainer,
-  TagInfoModal,
-} from "./utils/helpers";
+import { GalleryButtonContainer, TagInfoModal } from "./utils/helpers";
 
 const { ImageId } = initDicom();
 const { Image } = cornerstone;
@@ -50,7 +46,12 @@ const getInitialState = () => {
   };
 };
 
-const DicomViewerContainer = () => {
+const DicomViewerContainer = (props: {
+  action: {
+    [key: string]: boolean;
+  };
+  handleTagInfoState: () => void;
+}) => {
   const selectedFolder = useTypedSelector(
     (state) => state.explorer.selectedFolder
   );
@@ -67,6 +68,130 @@ const DicomViewerContainer = () => {
     loader,
     imageDictionary,
   } = dicomState;
+
+  const handleEventState = (event: string, value: boolean) => {
+    if (value === true) {
+      cornerstoneTools.setToolActive(event, { mouseButtonMask: 1 });
+    } else {
+      cornerstoneTools.setToolPassive(event);
+    }
+  };
+
+  const displayTagInfo = React.useCallback(async () => {
+    if (filteredFiles) {
+      const file = filteredFiles[frames];
+
+      const reader = new FileReader();
+
+      reader.onloadend = async () => {
+        try {
+          if (reader.result) {
+            //@ts-ignore
+            const byteArray = new Uint8Array(reader.result);
+            //@ts-ignore
+            const dataSet = dicomParser.parseDicom(byteArray);
+            //@ts-ignore
+            const output: any[] = [];
+            dumpDataSet(dataSet, output);
+            const newOutput = "<ul>" + output.join("") + "</ul>";
+
+            setDicomState((dicomState) => {
+              return {
+                ...dicomState,
+                output: newOutput,
+              };
+            });
+          }
+        } catch (error) {
+          console.log("Error", error);
+        }
+      };
+
+      if (file) {
+        const blob = await file.getFileBlob();
+        reader.readAsArrayBuffer(blob);
+      }
+    }
+  }, [filteredFiles, frames]);
+
+  const handleModalToggle = React.useCallback(
+    async (value: boolean) => {
+      setDicomState((dicomState) => {
+        return {
+          ...dicomState,
+          showTagInfo: value,
+        };
+      });
+
+      if (!value) {
+        props.handleTagInfoState();
+      }
+
+      if (!showTagInfo) {
+        await displayTagInfo();
+      }
+    },
+    [displayTagInfo, props, showTagInfo]
+  );
+
+  const handleEvents = React.useCallback(
+    (event: string, value: boolean) => {
+      if (event === "Zoom") {
+        handleEventState(event, value);
+      }
+
+      if (event === "Pan") {
+        handleEventState(event, value);
+      }
+      if (event === "Magnify") {
+        handleEventState(event, value);
+      }
+
+      if (event === "Rotate") {
+        handleEventState(event, value);
+      }
+
+      if (event === "Wwwc") {
+        handleEventState(event, value);
+      }
+
+      if (event === "Reset View") {
+        cornerstone.reset(dicomImageRef.current);
+        setDicomState((dicomState) => {
+          return {
+            ...dicomState,
+            gallery: false,
+          };
+        });
+      }
+
+      if (event === "Length") {
+        handleEventState(event, value);
+      }
+
+      if (event === "Gallery") {
+        cornerstone.reset(dicomImageRef.current);
+        setDicomState((dicomState) => {
+          return {
+            ...dicomState,
+            gallery: value,
+          };
+        });
+      }
+
+      if (event === "TagInfo") {
+        handleModalToggle(value);
+      }
+    },
+    [handleModalToggle]
+  );
+
+  React.useEffect(() => {
+    if (props.action) {
+      const event = Object.keys(props.action)[0];
+      handleEvents(event, props.action[event]);
+    }
+  }, [props.action, handleEvents]);
 
   const dicomImageRef = React.useRef<HTMLDivElement>(null);
 
@@ -223,88 +348,6 @@ const DicomViewerContainer = () => {
     }
   }, [displayImageFromFiles, selectedFolder]);
 
-  const handleEvents = (event: string) => {
-    if (event === "Zoom") {
-      cornerstoneTools.setToolActive("Zoom", { mouseButtonMask: 1 });
-    }
-
-    if (event === "Pan") {
-      cornerstoneTools.setToolActive("Pan", { mouseButtonMask: 1 });
-    }
-    if (event === "Magnify") {
-      cornerstoneTools.setToolActive("Magnify", { mouseButtonMask: 1 });
-    }
-
-    if (event === "Rotate") {
-      cornerstoneTools.setToolActive("Rotate", { mouseButtonMask: 1 });
-    }
-
-    if (event === "Wwwc") {
-      cornerstoneTools.setToolActive("Wwwc", { mouseButtonMask: 1 });
-    }
-
-    if (event === "Reset View") {
-      cornerstone.reset(dicomImageRef.current);
-      setDicomState({ ...dicomState, gallery: false });
-    }
-
-    if (event === "Length") {
-      cornerstoneTools.setToolActive("Length", { mouseButtonMask: 1 });
-    }
-
-    if (event === "Gallery") {
-      cornerstone.reset(dicomImageRef.current);
-      setDicomState({ ...dicomState, gallery: !gallery });
-    }
-
-    if (event === "TagInfo") {
-      handleModalToggle();
-    }
-  };
-
-  const handleModalToggle = async () => {
-    setDicomState({ ...dicomState, showTagInfo: !showTagInfo });
-    if (!showTagInfo) {
-      await displayTagInfo(!showTagInfo);
-    }
-  };
-
-  const displayTagInfo = async (showTagInfo: boolean) => {
-    if (filteredFiles) {
-      const file = filteredFiles[frames];
-
-      const reader = new FileReader();
-
-      reader.onloadend = async () => {
-        try {
-          if (reader.result) {
-            //@ts-ignore
-            const byteArray = new Uint8Array(reader.result);
-            //@ts-ignore
-            const dataSet = dicomParser.parseDicom(byteArray);
-            //@ts-ignore
-            const output: any[] = [];
-            dumpDataSet(dataSet, output);
-            const newOutput = "<ul>" + output.join("") + "</ul>";
-
-            setDicomState({
-              ...dicomState,
-              output: newOutput,
-              showTagInfo,
-            });
-          }
-        } catch (error) {
-          console.log("Error", error);
-        }
-      };
-
-      if (file) {
-        const blob = await file.getFileBlob();
-        reader.readAsArrayBuffer(blob);
-      }
-    }
-  };
-
   const styleDiv = {
     position: "absolute",
   };
@@ -314,7 +357,7 @@ const DicomViewerContainer = () => {
       <div
         style={{
           width: "100%",
-          height: "768px",
+          height: "100%",
           color: "#fff",
           position: "relative",
           fontSize: "1rem",
@@ -339,142 +382,162 @@ const DicomViewerContainer = () => {
                 flexDirection: "column",
                 marginLeft: "0.5em",
                 color: "#73bcf7",
+                marginTop: "0.5em",
               }}
             >
               <span>
-                <b>Image Number:</b> {`${currentImage}/${images.length}`}
+                <b>Image Number:</b> {currentImage}/{images.length}
               </span>
               <span>
                 <b>File name: </b>
-                {`${
-                  filteredFiles &&
+                {filteredFiles &&
                   filteredFiles[frames] &&
-                  filteredFiles[frames].data.fname
-                }`}
+                  filteredFiles[frames].data.fname}
               </span>
             </div>
+            {images &&
+              images[frames] &&
+              images[frames].imageId.startsWith("dicomfile") && (
+                <div
+                  id="topRight"
+                  className="overlay"
+                  //@ts-ignore
+                  style={{
+                    ...styleDiv,
+                    top: "0px",
+                    right: "0px",
+                    display: "flex",
+                    flexDirection: "column",
+                    marginRight: "1em",
+                    marginTop: "0.5em",
+                    color: "#73bcf7",
+                  }}
+                >
+                  <span>
+                    <b>Modality: </b>
+                    {images[frames].data.string("x00080060")}
+                  </span>
+                  <span>
+                    <b>Patient Name: </b>
+                    {images[frames].data.string("x00100010")}
+                  </span>
+                  <span>
+                    <b>Study ID: </b>
+                    {images[frames].data.string("x00200010")}
+                  </span>
+                  <b>MR Acquisition Type: </b>
+                  {images[frames].data.string("x00180023")}
+                </div>
+              )}
+
+            {gallery && (
+              <div
+                //@ts-ignore
+                style={{
+                  ...styleDiv,
+                  bottom: "0px",
+                  left: "50%",
+                  display: "flex",
+                  color: "#73bcf7",
+                  zIndex: "999",
+                  margin: "0 auto",
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                <GalleryButtonContainer
+                  handleClick={() => {
+                    const frame = 0;
+                    setDicomState({
+                      ...dicomState,
+                      frames: frame,
+                      currentImage: frame + 1,
+                    });
+                    cornerstone.displayImage(
+                      dicomImageRef.current,
+                      images[frame]
+                    );
+                  }}
+                  text=" First"
+                />
+
+                <GalleryButtonContainer
+                  text="Previous"
+                  handleClick={() => {
+                    if (frames > 0) {
+                      const newFrame = frames - 1;
+                      cornerstone.displayImage(
+                        dicomImageRef.current,
+                        images[newFrame]
+                      );
+
+                      setDicomState({
+                        ...dicomState,
+                        frames: newFrame,
+                        currentImage: newFrame + 1,
+                      });
+                    }
+                  }}
+                />
+                <GalleryButtonContainer
+                  handleClick={() => {
+                    firePlayEvent();
+                    cornerstoneTools.playClip(dicomImageRef.current, 5);
+                  }}
+                  text="Play"
+                />
+
+                <GalleryButtonContainer
+                  handleClick={() => {
+                    removePlayEvent();
+                    cornerstoneTools.stopClip(dicomImageRef.current);
+                  }}
+                  text="Pause"
+                />
+                <GalleryButtonContainer
+                  text="Next"
+                  handleClick={() => {
+                    if (frames < images.length - 1) {
+                      const newFrame = frames + 1;
+                      cornerstone.displayImage(
+                        dicomImageRef.current,
+                        images[newFrame]
+                      );
+                      setDicomState({
+                        ...dicomState,
+                        frames: newFrame,
+                        currentImage: newFrame + 1,
+                      });
+                    }
+                  }}
+                />
+
+                <GalleryButtonContainer
+                  handleClick={() => {
+                    const frame = images.length - 1;
+                    setDicomState({
+                      ...dicomState,
+                      frames: frame,
+                      currentImage: frame + 1,
+                    });
+                    cornerstone.displayImage(
+                      dicomImageRef.current,
+                      images[frame]
+                    );
+                  }}
+                  text="Last"
+                />
+              </div>
+            )}
           </>
         )}
       </div>
-      <div
-        style={{
-          marginTop: "1rem",
-        }}
-      >
-        <ButtonContainer action="Zoom" handleEvents={handleEvents} />
-        <ButtonContainer action="Pan" handleEvents={handleEvents} />
-        <ButtonContainer action="Magnify" handleEvents={handleEvents} />
-        <ButtonContainer action="Rotate" handleEvents={handleEvents} />
-        <ButtonContainer action="Wwwc" handleEvents={handleEvents} />
-        <ButtonContainer action="Reset View" handleEvents={handleEvents} />
-        <ButtonContainer action="Length" handleEvents={handleEvents} />
-        <ButtonContainer action="Gallery" handleEvents={handleEvents} />
-        <ButtonContainer action="TagInfo" handleEvents={handleEvents} />
-      </div>
-      {gallery && (
-        <div style={{ marginTop: "1rem" }}>
-          <GalleryButtonContainer
-            text="Next"
-            handleClick={() => {
-              if (frames < images.length - 1) {
-                const newFrame = frames + 1;
-                cornerstone.displayImage(
-                  dicomImageRef.current,
-                  images[newFrame]
-                );
-                setDicomState({
-                  ...dicomState,
-                  frames: newFrame,
-                  currentImage: newFrame + 1,
-                });
-              }
-            }}
-          />
 
-          <GalleryButtonContainer
-            text="Previous"
-            handleClick={() => {
-              if (frames > 0) {
-                const newFrame = frames - 1;
-                cornerstone.displayImage(
-                  dicomImageRef.current,
-                  images[newFrame]
-                );
-
-                setDicomState({
-                  ...dicomState,
-                  frames: newFrame,
-                  currentImage: newFrame + 1,
-                });
-              }
-            }}
-          />
-
-          <GalleryButtonContainer
-            handleClick={() => {
-              const frame = 0;
-              setDicomState({
-                ...dicomState,
-                frames: frame,
-                currentImage: frame + 1,
-              });
-              cornerstone.displayImage(dicomImageRef.current, images[frame]);
-            }}
-            text=" First"
-          />
-
-          <GalleryButtonContainer
-            handleClick={() => {
-              const frame = images.length - 1;
-              setDicomState({
-                ...dicomState,
-                frames: frame,
-                currentImage: frame + 1,
-              });
-              cornerstone.displayImage(dicomImageRef.current, images[frame]);
-            }}
-            text="Last"
-          />
-
-          <GalleryButtonContainer
-            handleClick={() => {
-              firePlayEvent();
-              cornerstoneTools.playClip(dicomImageRef.current, 5);
-            }}
-            text="Play"
-          />
-
-          <GalleryButtonContainer
-            handleClick={() => {
-              removePlayEvent();
-              cornerstoneTools.stopClip(dicomImageRef.current);
-            }}
-            text="Pause"
-          />
-        </div>
-      )}
       <TagInfoModal
-        handleModalToggle={handleModalToggle}
+        handleModalToggle={handleEvents}
         isModalOpen={showTagInfo}
         output={output}
         file={filteredFiles && filteredFiles[frames]}
       />
-      <div style={{ marginTop: "1rem" }}>
-        Controls:
-        <List>
-          <ListItem>
-            Click on the buttons describing the tool to activate tooling
-          </ListItem>
-          <ListItem>Left Click Drag to see the effects of each tool</ListItem>
-          <ListItem>Mouse wheel - scroll images</ListItem>
-          <ListItem>
-            Click on the Tag Info Button to view tag information for the active image
-          </ListItem>
-          <ListItem>
-            Click on the Gallery Button for granular control over a stack of images
-          </ListItem>
-        </List>
-      </div>
     </>
   );
 };
