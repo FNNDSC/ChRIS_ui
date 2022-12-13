@@ -12,7 +12,7 @@ export const GalleryButtonContainer = ({
   return (
     <Button
       style={{ marginRight: "1rem" }}
-      variant="secondary"
+      variant="primary"
       onClick={handleClick}
     >
       {text}
@@ -45,7 +45,7 @@ export const TagInfoModal = ({
   file,
 }: {
   isModalOpen: boolean;
-  handleModalToggle: () => void;
+  handleModalToggle: (event: string, value: boolean) => void;
   output: string;
   file?: FeedFile;
 }) => {
@@ -54,7 +54,7 @@ export const TagInfoModal = ({
       variant={ModalVariant.large}
       title="Dicom Tag"
       isOpen={isModalOpen}
-      onClose={handleModalToggle}
+      onClose={() => handleModalToggle("TagInfo", !isModalOpen)}
     >
       File Name: {`${file && file.data.fname}`}
       <div id="output" dangerouslySetInnerHTML={{ __html: output }}></div>
