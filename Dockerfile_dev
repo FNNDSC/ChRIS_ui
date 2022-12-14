@@ -42,5 +42,3 @@ WORKDIR $HOME
 EXPOSE 3000
 
 CMD npm install --legacy-peer-deps && npm run dev
-466017051259
-026009593
