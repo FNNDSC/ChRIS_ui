@@ -11,7 +11,6 @@ import {
   DataListAction,
   DataListContent,
 } from "@patternfly/react-core";
-import { Spin } from "antd";
 
 import {
   Tree,
@@ -25,6 +24,8 @@ import {
   generatePipelineWithName,
 } from "../../../api/common";
 import { PipelinesProps } from "./types/pipeline";
+import { SpinContainer } from "../../common/loading/LoadingContent";
+import ReactJson from "react-json-view";
 
 const Pipelines = ({
   justDisplay,
@@ -43,6 +44,10 @@ const Pipelines = ({
   handleSetCurrentComputeEnv,
 }: PipelinesProps) => {
   const { pipelineData, selectedPipeline, pipelines } = state;
+  const [fetchState, setFetchState] = React.useState({
+    loading: false,
+    error: {},
+  });
 
   const [pageState, setPageState] = React.useState({
     page: 1,
@@ -62,14 +67,37 @@ const Pipelines = ({
   );
 
   React.useEffect(() => {
+    setFetchState((fetchState) => {
+      return {
+        ...fetchState,
+        loading: true,
+      };
+    });
     fetchPipelines(perPage, page).then((result: any) => {
-      const { registeredPipelines, registeredPipelinesList } = result;
+      const { registeredPipelines, registeredPipelinesList, errorPayload } =
+        result;
+
+      if (errorPayload) {
+        setFetchState((fetchState) => {
+          return {
+            ...fetchState,
+            error: errorPayload,
+          };
+        });
+      }
       if (registeredPipelines) {
         handleDispatchWrap(registeredPipelines);
         setPageState((pageState) => {
           return {
             ...pageState,
             itemCount: registeredPipelinesList.totalCount,
+          };
+        });
+
+        setFetchState((fetchState) => {
+          return {
+            ...fetchState,
+            loading: false,
           };
         });
       }
@@ -105,7 +133,14 @@ const Pipelines = ({
       />
 
       <DataList aria-label="pipeline list">
-        {pipelines.length > 0 &&
+        {Object.keys(fetchState.error).length > 0 && (
+          <ReactJson src={fetchState.error} />
+        )}
+
+        {fetchState.loading ? (
+          <SpinContainer title="Fetching Pipelines" />
+        ) : (
+          pipelines.length > 0 &&
           pipelines.map((pipeline: any) => {
             return (
               <DataListItem
@@ -270,12 +305,13 @@ const Pipelines = ({
                       />
                     </>
                   ) : (
-                    <Spin>Fetching Pipeline Resources</Spin>
+                    <SpinContainer title="Fetching Pipeline Resources" />
                   )}
                 </DataListContent>
               </DataListItem>
             );
-          })}
+          })
+        )}
       </DataList>
     </>
   );

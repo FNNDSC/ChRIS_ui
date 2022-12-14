@@ -1,85 +1,70 @@
 import React from "react";
-import { Grid, GridItem, Button } from "@patternfly/react-core";
-import { LocalFile } from "../../feed/CreateFeed/types/feed";
-import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
+import { useDropzone } from "react-dropzone";
 
-type FileUploadProps = {
-  localFiles: LocalFile[];
-  dispatchFn: (files: LocalFile[]) => void;
-  handleDeleteDispatch: (file: string) => void;
-  uploadName?: JSX.Element;
-  className: string;
+const baseStyle: React.CSSProperties = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "20px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#eeeeee",
+  borderStyle: "dashed",
+  backgroundColor: "#fafafa",
+  color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out",
 };
 
-const FileUpload = ({
-  localFiles,
-  dispatchFn,
-  uploadName,
-  handleDeleteDispatch,
-  className,
-}: FileUploadProps) => {
-  const openLocalFilesPicker = (): Promise<LocalFile[]> => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.multiple = true;
-    input.click();
-    return new Promise((res) => {
-      input.onchange = async () => {
-        if (input.files) {
-          const files = Array.from(input.files).map((file) => {
-            return {
-              name: file.name,
-              blob: file,
-            };
-          });
-          res(files);
-        }
-      };
-    });
-  };
+const activeStyle = {
+  borderColor: "#2196f3",
+};
 
-  const handleChoseFilesClick = () => {
-    openLocalFilesPicker().then((files: LocalFile[]) => {
-      dispatchFn(files);
-    });
-  };
+const acceptStyle = {
+  borderColor: "#00e676",
+};
 
-  const fileList =
-    localFiles.length > 0
-      ? localFiles.map((file: LocalFile, index: number) => (
-          <React.Fragment key={index}>
-            <LocalFileList
-              handleDeleteDispatch={handleDeleteDispatch}
-              file={file}
-              index={index}
-              showIcon={true}
-            />
-          </React.Fragment>
-        ))
-      : null;
+const rejectStyle = {
+  borderColor: "#ff1744",
+};
+
+const DragAndUpload = ({
+  handleLocalUploadFiles,
+}: {
+  handleLocalUploadFiles: (files: any[]) => void;
+}) => {
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone();
+
+  React.useEffect(() => {
+    if (acceptedFiles.length > 0) {
+      handleLocalUploadFiles(acceptedFiles);
+    }
+  }, [acceptedFiles]);
+
+  const style = React.useMemo(
+    () => ({
+      ...baseStyle,
+      ...(isDragActive ? activeStyle : {}),
+      ...(isDragAccept ? acceptStyle : {}),
+      ...(isDragReject ? rejectStyle : {}),
+    }),
+    [isDragActive, isDragReject, isDragAccept]
+  );
   return (
-    <div className={className}>
-      <Grid hasGutter={true}>
-        <GridItem span={4} rowSpan={4}
-        style={{minWidth: '9rem',}}
-        >
-          <Button
-            style={{
-              width: "100%",
-            }}
-            onClick={() => handleChoseFilesClick()}
-          >
-            Choose Files...
-          </Button>
-          {uploadName && uploadName}
-        </GridItem>
-        <GridItem className={`${className}-grid`} span={8} rowSpan={12}
-        style={{marginLeft: '1rem',}}>
-          <div className="file-list">{fileList}</div>
-        </GridItem>
-      </Grid>
-    </div>
+    <section className="container">
+      <div {...getRootProps({ style })}>
+        <input {...getInputProps()} />
+        <p>Drag &apos;n&apos; drop some files here or click to select files</p>
+      </div>
+    </section>
   );
 };
-
-export default FileUpload;
+export default DragAndUpload;
