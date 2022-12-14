@@ -166,17 +166,25 @@ export const getFeedTree = (items: any[]) => {
 };
 
 export const fetchPipelines = async (perPage: number, page: number) => {
+  let errorPayload: any = {};
+  let registeredPipelinesList, registeredPipelines;
   const offset = perPage * (page - 1);
   const client = ChrisAPIClient.getClient();
   const params = {
     limit: perPage,
     offset: offset,
   };
-  const registeredPipelinesList = await client.getPipelines(params);
-  const registeredPipelines = registeredPipelinesList.getItems();
+  try {
+    registeredPipelinesList = await client.getPipelines(params);
+    registeredPipelines = registeredPipelinesList.getItems();
+  } catch (error) {
+    errorPayload = error;
+  }
+
   return {
     registeredPipelines,
     registeredPipelinesList,
+    error: errorPayload,
   };
 };
 
@@ -255,6 +263,3 @@ export async function fetchComputeInfo(
   }
   return undefined;
 }
-
-
-
