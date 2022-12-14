@@ -14,6 +14,7 @@ import SignUp from "./pages/SignUp/SignUp";
 import CatalogPage from "./pages/CatalogPage";
 import PACSLookup from "./pages/DataLibrary/components/PACSLookup";
 import PipelinePage from "./pages/Pipelines";
+import ComputePage from "./pages/Compute";
 
 interface IState {
   selectData?: Series;
@@ -107,6 +108,10 @@ export const MainRouter: React.FC = () => {
     {
       path: "pipelines",
       element: <PipelinePage />,
+    },
+    {
+       path: "compute", 
+       element: <ComputePage />
     },
 
     {
