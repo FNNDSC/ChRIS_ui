@@ -32,7 +32,6 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);
-
     if (isModalOpen) {
       dispatch(clearDeleteState());
     }
@@ -42,7 +41,10 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
     const statuses = ["finishedSuccessfully", "cancelled", "finishedWithError"];
 
     if (statuses.includes(selectedPlugin?.data.status)) {
-      if (selectedPlugin) deleteNode(selectedPlugin);
+      if (selectedPlugin) {
+        deleteNode(selectedPlugin);
+        handleModalToggle();
+      }
     } else {
       dispatch(deleteNodeError("Please wait for the plugin to finish running"));
     }
