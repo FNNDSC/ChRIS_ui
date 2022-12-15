@@ -27,6 +27,7 @@ function getInitialState() {
     selectedComputeEnv: "",
     errors: {},
     editorValue: "",
+    loading: false,
   };
 }
 
@@ -215,6 +216,7 @@ const AddNode: React.FC<AddNodeProps> = ({
     if (!plugin || !selectedPlugin || !pluginInstances) {
       return;
     }
+    setLoading(true);
     const { data: nodes } = pluginInstances;
 
     let parameterInput = await getRequiredObject(
@@ -262,7 +264,8 @@ const AddNode: React.FC<AddNodeProps> = ({
     ? selectedPlugin?.data.title
     : selectedPlugin?.data.plugin_name;
 
-  const pluginVersion = pluginName += ` v.${selectedPlugin?.data.plugin_version}`;
+  const pluginVersion =
+    (pluginName += ` v.${selectedPlugin?.data.plugin_version}`);
 
   const form = data.plugin ? (
     <GuidedConfig
