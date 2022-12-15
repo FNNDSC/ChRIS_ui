@@ -70,7 +70,7 @@ describe("Testing CreateAnalysis", () => {
   });
 
   it("07 Selects the Feed Synthesis plugin", () => {
-    cy.get('input#pl-dircopy').check();
+    cy.get("input#pl-dircopy").check();
     cy.get("button.pf-c-button.pf-m-primary")
       .eq(1)
       .should("have.text", "Next")
@@ -94,17 +94,7 @@ describe("Testing CreateAnalysis", () => {
     cy.get("button.pf-c-button.pf-m-primary").eq(1).click().wait(2000);
   });
 
-  it("12 confirms the configuration is complete", () => {
-    cy.wait(2000);
-    cy.get("span.pf-c-progress__measure").should("have.text", "100%");
-  });
-
-  it("13 Closes the Wizard", () => {
-    cy.get("button.pf-c-button.pf-m-primary.finished-step__button-type")
-    .click();
-  });
-
-  it("15 Asserts new analysis has been created", () => {
+  it("12 Asserts new analysis has been created", () => {
     cy.get("span.feed-list__name").contains("a", `${users.testname}`);
   });
 });
