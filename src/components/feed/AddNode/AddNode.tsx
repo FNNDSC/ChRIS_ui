@@ -216,7 +216,10 @@ const AddNode: React.FC<AddNodeProps> = ({
     if (!plugin || !selectedPlugin || !pluginInstances) {
       return;
     }
-    setLoading(true);
+    setNodeState({
+      ...addNodeState,
+      loading: true,
+    });
     const { data: nodes } = pluginInstances;
 
     let parameterInput = await getRequiredObject(
@@ -247,6 +250,7 @@ const AddNode: React.FC<AddNodeProps> = ({
       setNodeState({
         ...addNodeState,
         errors: error.response.data,
+        loading: false,
       });
     }
   };
@@ -260,12 +264,12 @@ const AddNode: React.FC<AddNodeProps> = ({
     />
   );
 
-  let pluginName = selectedPlugin?.data.title
-    ? selectedPlugin?.data.title
-    : selectedPlugin?.data.plugin_name;
+
+
+  let pluginName = data.plugin?.data.name;
 
   const pluginVersion =
-    (pluginName += ` v.${selectedPlugin?.data.plugin_version}`);
+    (pluginName += ` v.${data.plugin?.data.version}`);
 
   const form = data.plugin ? (
     <GuidedConfig
@@ -331,6 +335,7 @@ const AddNode: React.FC<AddNodeProps> = ({
       id: 4,
       name: "Review",
       component: review,
+      enableNext: !addNodeState.loading,
       nextButtonText: "Add Node",
       canJumpTo: stepIdReached > 4,
     },
