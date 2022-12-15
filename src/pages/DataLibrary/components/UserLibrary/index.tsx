@@ -20,8 +20,8 @@ import { Feed } from "@fnndsc/chrisapi";
 import { Alert, Progress as AntProgress } from "antd";
 import BrowserContainer from "./BrowserContainer";
 import LocalSearch from "./LocalSearch";
+import DragAndUpload from "../../../../components/common/fileupload";
 import { FaUpload } from "react-icons/fa";
-import { useDropzone } from "react-dropzone";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { useTypedSelector } from "../../../../store/hooks";
 import { FileSelect, LibraryContext, Types } from "./context";
@@ -34,8 +34,8 @@ import {
 import { deleteFeed } from "../../../../store/feed/actions";
 import { useDispatch } from "react-redux";
 import { fetchResource } from "../../../../api/common";
-import "./user-library.scss";
 import ReactJson from "react-json-view";
+import "./user-library.scss";
 
 interface DownloadType {
   name: string;
@@ -567,34 +567,6 @@ interface UploadComponent {
   handleAddFolder: (path: string) => void;
 }
 
-const baseStyle: React.CSSProperties = {
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "20px",
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: "#eeeeee",
-  borderStyle: "dashed",
-  backgroundColor: "#fafafa",
-  color: "#bdbdbd",
-  outline: "none",
-  transition: "border .24s ease-in-out",
-};
-
-const activeStyle = {
-  borderColor: "#2196f3",
-};
-
-const acceptStyle = {
-  borderColor: "#00e676",
-};
-
-const rejectStyle = {
-  borderColor: "#ff1744",
-};
-
 const UploadComponent = ({
   handleFileModal,
   handleLocalFiles,
@@ -607,24 +579,11 @@ const UploadComponent = ({
   const [warning, setWarning] = React.useState<string | object>("");
   const [directoryName, setDirectoryName] = React.useState("");
   const [count, setCount] = React.useState(0);
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    isDragAccept,
-    isDragReject,
-  } = useDropzone();
 
-  const style = React.useMemo(
-    () => ({
-      ...baseStyle,
-      ...(isDragActive ? activeStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
-    }),
-    [isDragActive, isDragReject, isDragAccept]
-  );
+  const handleLocalUploadFiles = (files: any[]) => {
+    setWarning("");
+    handleLocalFiles(files);
+  };
 
   function getTimestamp() {
     const pad = (n: any, s = 2) => `${new Array(s).fill(0)}${n}`.slice(-s);
@@ -632,20 +591,13 @@ const UploadComponent = ({
 
     return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(
       d.getDate()
-    )} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    )}-${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   }
 
   React.useEffect(() => {
     const d = getTimestamp();
     setDirectoryName(`${d}`);
   }, [uploadFileModal]);
-
-  React.useEffect(() => {
-    if (acceptedFiles.length > 0) {
-      setWarning("");
-      handleLocalFiles(acceptedFiles);
-    }
-  }, [acceptedFiles, handleLocalFiles]);
 
   const handleUpload = async () => {
     const client = ChrisAPIClient.getClient();
@@ -689,25 +641,19 @@ const UploadComponent = ({
       variant={ModalVariant.medium}
       arial-labelledby="file-upload"
     >
-      <section className="container">
-        <div {...getRootProps({ style })}>
-          <input {...getInputProps()} />
-          <p>
-            Drag &apos;n&apos; drop some files here or click to select files
-          </p>
-        </div>
-        <div style={{ marginTop: "1.5rem" }}>
-          Total Files to push: {localFiles.length}
-          <Button
-            isDisabled={localFiles.length === 0}
-            onClick={() => handleLocalFiles([])}
-            style={{ marginLeft: "1.5rem" }}
-            variant="tertiary"
-          >
-            Clear Files
-          </Button>
-        </div>
-      </section>
+      <DragAndUpload handleLocalUploadFiles={handleLocalUploadFiles} />
+      <div style={{ marginTop: "1.5rem" }}>
+        Total Files to push: {localFiles.length}
+        <Button
+          isDisabled={localFiles.length === 0}
+          onClick={() => handleLocalFiles([])}
+          style={{ marginLeft: "1.5rem" }}
+          variant="tertiary"
+        >
+          Clear Files
+        </Button>
+      </div>
+
       <Form style={{ marginTop: "1.5rem" }} isHorizontal>
         <FormGroup
           fieldId="directory name"

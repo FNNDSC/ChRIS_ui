@@ -126,11 +126,12 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     }
   };
 
-  const getCreationStatus = (status: string) => {
+  const getCreationStatus = (status: string, value: number) => {
     dispatch({
       type: Types.SetProgress,
       payload: {
         feedProgress: status,
+        value,
       },
     });
   };
@@ -156,11 +157,11 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         pipelineData,
         getCreationStatus,
         getCreationError,
+        selectedConfig,
         selectedPipeline
       );
 
       if (!feed) {
-        console.error(state.feedError);
         throw new Error("New feed is undefined. Giving up.");
       }
 
@@ -183,7 +184,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
 
       addFeed && addFeed(feed);
     } catch (error) {
-      console.log("Error", error);
       throw new Error(`${error}`);
     } finally {
       routerContext.actions.clearFeedData();
@@ -191,6 +191,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         type: Types.SetProgress,
         payload: {
           feedProgress: "Configuration Complete",
+          value: 100,
         },
       });
     }
@@ -248,6 +249,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           id: 3,
           name: "ChRIS File Select",
           component: chrisFileSelect,
+          enableNext: data.chrisFiles.length > 0,
           canJumpTo: step > 3,
         },
       ];
@@ -257,6 +259,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           id: 3,
           name: "Local File Upload",
           component: localFileUpload,
+          enableNext: data.localFiles.length > 0,
           canJumpTo: step > 3,
         },
       ];
@@ -344,6 +347,13 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         },
       ];
 
+  const handleNext = (activeStep: any, cb: () => void) => {
+    if (activeStep.id === 6) {
+      handleSave();
+    }
+    cb();
+  };
+
   const CustomFooter = (
     <WizardFooter>
       <WizardContextConsumer>
@@ -363,12 +373,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
                   style={{ margin: "0.5em", padding: "0.5em 2em" }}
                   variant="primary"
                   type="submit"
-                  onClick={() => {
-                    if (activeStep.id === 6) {
-                      handleSave();
-                    }
-                    onNext();
-                  }}
+                  onClick={() => handleNext(activeStep, onNext)}
                   isDisabled={activeStep.enableNext === false ? true : false}
                 >
                   {activeStep.nextButtonText
