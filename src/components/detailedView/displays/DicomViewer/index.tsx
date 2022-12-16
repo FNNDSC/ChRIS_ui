@@ -52,8 +52,8 @@ const DicomViewerContainer = (props: {
   };
   handleTagInfoState: () => void;
 }) => {
-  const selectedFolder = useTypedSelector(
-    (state) => state.explorer.selectedFolder
+  const { selectedFolder, selectedFile } = useTypedSelector(
+    (state) => state.explorer
   );
 
   const [dicomState, setDicomState] = useState<DicomState>(getInitialState());
@@ -209,6 +209,7 @@ const DicomViewerContainer = (props: {
       const imageDict: {
         [key: string]: number;
       } = {};
+      let selected = 0;
       setDicomState((dicomState) => {
         return {
           ...dicomState,
@@ -222,7 +223,10 @@ const DicomViewerContainer = (props: {
       try {
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
-
+          const isSelected = file.data.fname === selectedFile?.data.fname;
+          if (isSelected) {
+            selected = i;
+          }
           if (isNifti(file.data.fname)) {
             const fileArray = file.data.fname.split("/");
             const fileName = fileArray[fileArray.length - 1];
@@ -266,11 +270,11 @@ const DicomViewerContainer = (props: {
         const element = dicomImageRef.current;
         if (element) cornerstone.enable(element);
         const stack = {
-          currentImageIdIndex: 0,
+          currentImageIdIndex: selected,
           imageIds: imageIds,
         };
 
-        cornerstone.displayImage(element, imagesToDisplay[0]);
+        cornerstone.displayImage(element, imagesToDisplay[selected]);
         cornerstoneTools.addStackStateManager(element, ["stack"]);
         cornerstoneTools.addToolState(element, "stack", stack);
 
@@ -279,6 +283,8 @@ const DicomViewerContainer = (props: {
             ...dicomState,
             images: imagesToDisplay,
             imageDictionary: imageDict,
+            currentImage: selected + 1,
+            frames: selected,
             loader: false,
           };
         });

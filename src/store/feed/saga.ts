@@ -145,7 +145,8 @@ function* handleMergeFeed(action: IActionTypeParam) {
 
 function* handleDuplicateFeed(action: IActionTypeParam) {
   const feedList = action.payload;
-
+  const client = ChrisAPIClient.getClient();
+  cujs.setClient(client);
   const newFeeds = [];
   if (feedList.length == 1) {
     const feedIdList = [];

@@ -51,6 +51,9 @@ export const TagInfoModal = ({
 }) => {
   return (
     <Modal
+      onEscapePress={() => {
+        handleModalToggle("TagInfo", !isModalOpen);
+      }}
       variant={ModalVariant.large}
       title="Dicom Tag"
       isOpen={isModalOpen}
