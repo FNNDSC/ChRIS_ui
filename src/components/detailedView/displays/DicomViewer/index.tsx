@@ -202,97 +202,100 @@ const DicomViewerContainer = (props: {
     return image;
   };
 
-  const displayImageFromFiles = React.useCallback(async (files: any[]) => {
-    if (files) {
-      const imageIds = [];
-      const imagesToDisplay: any[] = [];
-      const imageDict: {
-        [key: string]: number;
-      } = {};
-      let selected = 0;
-      setDicomState((dicomState) => {
-        return {
-          ...dicomState,
-          loader: true,
-        };
-      });
-
-      let niftiSlices = 0;
-      const fileTypes = ["jpeg", "jpg", "png"];
-
-      try {
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const isSelected = file.data.fname === selectedFile?.data.fname;
-          if (isSelected) {
-            selected = i;
-          }
-          if (isNifti(file.data.fname)) {
-            const fileArray = file.data.fname.split("/");
-            const fileName = fileArray[fileArray.length - 1];
-            const imageIdObject = ImageId.fromURL(
-              `nifti:${file.url}${fileName}`
-            );
-            niftiSlices = cornerstone.metaData.get(
-              "multiFrameModule",
-              imageIdObject.url
-            ).numberOfFrames;
-
-            imageIds.push(
-              ...Array.from(
-                Array(niftiSlices),
-                (_, i) =>
-                  `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
-              )
-            );
-
-            const image = await loadImage(imageIdObject.url);
-            imagesToDisplay.push(image);
-            imageDict[imageIdObject] = i;
-          } else if (isDicom(file.data.fname)) {
-            const blob = await file.getFileBlob();
-            const imageId =
-              cornerstoneWADOImageLoader.wadouri.fileManager.add(blob);
-            imageIds.push(imageId);
-            const image = await loadImage(imageId);
-            imagesToDisplay.push(image);
-            imageDict[imageId] = i;
-          } else if (fileTypes.includes(getFileExtension(file.data.fname))) {
-            const blob = await file.getFileBlob();
-            const imageId = cornerstoneFileImageLoader.fileManager.add(blob);
-            imageIds.push(imageId);
-            const image = await loadImage(imageId);
-            imagesToDisplay.push(image);
-            imageDict[imageId] = i;
-          }
-        }
-
-        const element = dicomImageRef.current;
-        if (element) cornerstone.enable(element);
-        const stack = {
-          currentImageIdIndex: selected,
-          imageIds: imageIds,
-        };
-
-        cornerstone.displayImage(element, imagesToDisplay[selected]);
-        cornerstoneTools.addStackStateManager(element, ["stack"]);
-        cornerstoneTools.addToolState(element, "stack", stack);
-
+  const displayImageFromFiles = React.useCallback(
+    async (files: any[]) => {
+      if (files) {
+        const imageIds = [];
+        const imagesToDisplay: any[] = [];
+        const imageDict: {
+          [key: string]: number;
+        } = {};
+        let selected = 0;
         setDicomState((dicomState) => {
           return {
             ...dicomState,
-            images: imagesToDisplay,
-            imageDictionary: imageDict,
-            currentImage: selected + 1,
-            frames: selected,
-            loader: false,
+            loader: true,
           };
         });
 
-        fireEvent();
-      } catch (error) {}
-    }
-  }, []);
+        let niftiSlices = 0;
+        const fileTypes = ["jpeg", "jpg", "png"];
+
+        try {
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const isSelected = file.data.fname === selectedFile?.data.fname;
+            if (isSelected) {
+              selected = i;
+            }
+            if (isNifti(file.data.fname)) {
+              const fileArray = file.data.fname.split("/");
+              const fileName = fileArray[fileArray.length - 1];
+              const imageIdObject = ImageId.fromURL(
+                `nifti:${file.url}${fileName}`
+              );
+              niftiSlices = cornerstone.metaData.get(
+                "multiFrameModule",
+                imageIdObject.url
+              ).numberOfFrames;
+
+              imageIds.push(
+                ...Array.from(
+                  Array(niftiSlices),
+                  (_, i) =>
+                    `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
+                )
+              );
+
+              const image = await loadImage(imageIdObject.url);
+              imagesToDisplay.push(image);
+              imageDict[imageIdObject] = i;
+            } else if (isDicom(file.data.fname)) {
+              const blob = await file.getFileBlob();
+              const imageId =
+                cornerstoneWADOImageLoader.wadouri.fileManager.add(blob);
+              imageIds.push(imageId);
+              const image = await loadImage(imageId);
+              imagesToDisplay.push(image);
+              imageDict[imageId] = i;
+            } else if (fileTypes.includes(getFileExtension(file.data.fname))) {
+              const blob = await file.getFileBlob();
+              const imageId = cornerstoneFileImageLoader.fileManager.add(blob);
+              imageIds.push(imageId);
+              const image = await loadImage(imageId);
+              imagesToDisplay.push(image);
+              imageDict[imageId] = i;
+            }
+          }
+
+          const element = dicomImageRef.current;
+          if (element) cornerstone.enable(element);
+          const stack = {
+            currentImageIdIndex: selected,
+            imageIds: imageIds,
+          };
+
+          cornerstone.displayImage(element, imagesToDisplay[selected]);
+          cornerstoneTools.addStackStateManager(element, ["stack"]);
+          cornerstoneTools.addToolState(element, "stack", stack);
+
+          setDicomState((dicomState) => {
+            return {
+              ...dicomState,
+              images: imagesToDisplay,
+              imageDictionary: imageDict,
+              currentImage: selected + 1,
+              frames: selected,
+              loader: false,
+            };
+          });
+
+          fireEvent();
+        } catch (error) {}
+      }
+    },
+    [selectedFile]
+  );
 
   const firePlayEvent = () => {
     if (dicomImageRef.current) {
