@@ -125,8 +125,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     );
   };
 
-  console.log("SelectedPlugin", selectedPlugin);
-
   if (!selectedPlugin) {
     return <SpinContainer background="#002030" title="Loading Node Details" />;
   } else {
