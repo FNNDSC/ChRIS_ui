@@ -160,6 +160,11 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           className="node-details__expandable"
         >
           <Grid className="node-details__grid">
+            {selectedPlugin.data.previous_id &&
+              renderGridItem(
+                "Parent Node ID",
+                <span>{selectedPlugin.data.previous_id}</span>
+              )}
             {renderGridItem(
               "Selected Node ID",
               <span>{selectedPlugin.data.id}</span>
