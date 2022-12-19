@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Form, FormGroup, TextInput, TextArea } from "@patternfly/react-core";
 import { Typeahead } from "react-bootstrap-typeahead";
 import { CreateFeedContext } from "./context";
 import { Tag } from "@fnndsc/chrisapi";
 import { Types } from "./types/feed";
 import { fetchTagList } from "./utils/basicInformation";
-
+ 
 const BasicInformation: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { feedName, feedDescription, tags } = state.data;
   const [availableTagsLoaded, setAvailableTagsLoaded] =
     useState<boolean>(false);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
-
+  const inputElement = useRef<any>()
   useEffect(() => {
     let mounted = true;
     fetchTagList().then((tags: Tag[]) => {
@@ -26,6 +26,12 @@ const BasicInformation: React.FC = () => {
     };
   }, []);
 
+ useEffect(() => {
+   if(inputElement.current){
+     inputElement.current.focus()
+   }
+ }, [])
+
   return (
     <Form className="pf-u-w-75 basic-information">
       <h1 className="pf-c-title pf-m-2xl">Basic Information</h1>
@@ -38,6 +44,7 @@ const BasicInformation: React.FC = () => {
           name="feed-name"
           placeholder="e.g. Tractography Study"
           value={feedName}
+          ref={inputElement}
           onChange={(value: string) => {
             dispatch({
               type: Types.FeedNameChange,
