@@ -12,7 +12,7 @@ import {
   Button,
 } from "@patternfly/react-core";
 import { DownloadIcon, UserAltIcon } from '@patternfly/react-icons';
-import { Tabs, Tab, TabTitleText} from '@patternfly/react-core';
+import { Tabs, Tab, TabTitleText, Spinner} from '@patternfly/react-core';
 
 // New import statements
 import { marked } from 'marked';
@@ -91,10 +91,10 @@ const SinglePlugin = () => {
   }, [])
 
   React.useEffect(() => {
-    const repoName = pluginData.public_repo.split('github.com/')[1];
     
     // Function to fetch the Readme from the Repo.
     async function fetchRepo() {
+      const repoName = pluginData.public_repo.split('github.com/')[1];
       const { file, type} = await fetchReadme(repoName);
       if (type === 'md' || type === 'rst') {
         setReadmeHTML(marked.parse(file));
@@ -104,7 +104,7 @@ const SinglePlugin = () => {
       }
     }
 
-    if (repoName && pluginData)
+    if (pluginData)
       fetchRepo();
     else
       throw new Error("RepoName failed");
@@ -112,119 +112,124 @@ const SinglePlugin = () => {
   }, [fetchReadme, pluginData])
 
  
-  return ( 
-    <div>
+  if (!pluginData) 
+    return (
+      <Spinner isSVG diameter="80px" />
+    )
+  else
+    return ( 
       <div>
-        <p>Something will be here</p>
+        <div>
+          <p>Something will be here</p>
+        </div>
+
+        <Card id="plugin-body">
+          {pluginData && (
+            <>
+              <div style={{marginBottom: "1rem"}}>
+                <Title headingLevel="h2">{pluginData.name}</Title>
+              </div>
+
+              <div>
+                <Grid hasGutter>
+                  <GridItem md={8} sm={12}>
+                    <Tabs
+                    activeKey={activeTabKey}
+                    onSelect={handleTabClick}
+                    >
+                      <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>}>
+                        <div style={{ color: 'gray', margin: '1em 0' }}>README</div>
+                        { readme ? <div dangerouslySetInnerHTML={{ __html: readme }} /> : null }
+                      </Tab>
+                      <Tab eventKey={1} title={<TabTitleText>Parameters</TabTitleText>}>
+                        Parameters
+                      </Tab>
+                      <Tab eventKey={2} title={<TabTitleText>Version</TabTitleText>}>
+                          <p className="pluginList__version">
+                            version: {pluginData.version}
+                          </p>
+                      </Tab>
+                    </Tabs>
+                  </GridItem>
+
+                  <GridItem md={4} sm={12}>
+                    <div className="plugin-body-side-col">
+                      <div className="plugin-body-detail-section">
+                        <h2>Install</h2>
+                        <p>Click to install this plugin to your ChRIS Server.</p>
+                        <br />
+                        <Popover
+                          position="bottom"
+                          maxWidth="30rem"
+                          headerContent={<b>Install to your ChRIS server</b>}
+                          bodyContent={() => (
+                            <div>
+                              <p>
+                                Copy and Paste the URL below into your ChRIS Admin Dashboard
+                                to install this plugin.
+                              </p>
+                              <br />
+                              {/* <InstallButton/> */}
+                            </div>
+                          )}
+                        >
+                          <Button isBlock style={{ fontSize: '1.125em' }}>
+                            <DownloadIcon />
+                            {' '}
+                            Install to ChRIS
+                          </Button>
+                        </Popover>
+                      </div>
+                      <div className="plugin-body-detail-section">
+                        <h4>Repository</h4>
+                        <a href={pluginData.public_repo}>
+                          {pluginData.public_repo}
+                          {/* Update api here. */}
+                        </a>
+                      </div>
+
+                      <div className="plugin-body-detail-section">
+                        <h4>Author</h4>
+                          <a href='#'>
+                            <><UserAltIcon /> {pluginData.authors}</>
+                          </a>
+                      </div>
+                      <div className="plugin-body-detail-section">
+                        <h4>Collaborators</h4>
+                        {
+                          // FIXME
+                          <a className="pf-m-link" href={`${pluginData.documentation}/graphs/contributors`}>
+                            View contributors on Github
+                          </a>
+                        }
+                      </div>
+
+                      <div className="plugin-body-detail-section">
+                        <h4>License</h4>
+                        {/* Fix me  */}
+                        XX.XX License
+                      </div>
+                      <div className="plugin-body-detail-section">
+                        <h4>Content Type</h4>
+                        {pluginData.type}
+                      </div>
+                      <div className="plugin-body-detail-section">
+                        <h4>Date added</h4>
+                        {/* {(new Date(pluginData.creation_date.split('T')[0])).toDateString()} */}
+                      </div>
+                    </div>
+                  </GridItem>
+                </Grid>
+              </div>
+            </>
+
+
+
+          )}
+        </Card>
+
       </div>
-
-      <Card id="plugin-body">
-        {pluginData && (
-          <>
-            <div style={{marginBottom: "1rem"}}>
-              <Title headingLevel="h2">{pluginData.name}</Title>
-            </div>
-
-            <div>
-              <Grid hasGutter>
-                <GridItem md={8} sm={12}>
-                  <Tabs
-                  activeKey={activeTabKey}
-                  onSelect={handleTabClick}
-                  >
-                    <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>}>
-                      <div style={{ color: 'gray', margin: '1em 0' }}>README</div>
-                      { readme ? <div dangerouslySetInnerHTML={{ __html: readme }} /> : null }
-                    </Tab>
-                    <Tab eventKey={1} title={<TabTitleText>Parameters</TabTitleText>}>
-                      Parameters
-                    </Tab>
-                    <Tab eventKey={2} title={<TabTitleText>Version</TabTitleText>}>
-                        <p className="pluginList__version">
-                          version: {pluginData.version}
-                        </p>
-                    </Tab>
-                  </Tabs>
-                </GridItem>
-
-                <GridItem md={4} sm={12}>
-                  <div className="plugin-body-side-col">
-                    <div className="plugin-body-detail-section">
-                      <h2>Install</h2>
-                      <p>Click to install this plugin to your ChRIS Server.</p>
-                      <br />
-                      <Popover
-                        position="bottom"
-                        maxWidth="30rem"
-                        headerContent={<b>Install to your ChRIS server</b>}
-                        bodyContent={() => (
-                          <div>
-                            <p>
-                              Copy and Paste the URL below into your ChRIS Admin Dashboard
-                              to install this plugin.
-                            </p>
-                            <br />
-                            {/* <InstallButton/> */}
-                          </div>
-                        )}
-                      >
-                        <Button isBlock style={{ fontSize: '1.125em' }}>
-                          <DownloadIcon />
-                          {' '}
-                          Install to ChRIS
-                        </Button>
-                      </Popover>
-                    </div>
-                    <div className="plugin-body-detail-section">
-                      <h4>Repository</h4>
-                      <a href={pluginData.public_repo}>
-                        {pluginData.public_repo}
-                        {/* Update api here. */}
-                      </a>
-                    </div>
-
-                    <div className="plugin-body-detail-section">
-                      <h4>Author</h4>
-                        <a href='#'>
-                          <><UserAltIcon /> {pluginData.authors}</>
-                        </a>
-                    </div>
-                    <div className="plugin-body-detail-section">
-                      <h4>Collaborators</h4>
-                      {
-                        // FIXME
-                        <a className="pf-m-link" href={`${pluginData.documentation}/graphs/contributors`}>
-                          View contributors on Github
-                        </a>
-                      }
-                    </div>
-
-                    <div className="plugin-body-detail-section">
-                      <h4>License</h4>
-                      {/* Fix me  */}
-                      XX.XX License
-                    </div>
-                    <div className="plugin-body-detail-section">
-                      <h4>Content Type</h4>
-                      {pluginData.type}
-                    </div>
-                    <div className="plugin-body-detail-section">
-                      <h4>Date added</h4>
-                      {/* {(new Date(pluginData.creation_date.split('T')[0])).toDateString()} */}
-                    </div>
-                  </div>
-                </GridItem>
-              </Grid>
-            </div>
-          </>
-
-
-
-        )}
-      </Card>
-
-    </div>
-   );
+    );
 };
 
 export default SinglePlugin;
