@@ -15,6 +15,7 @@ import CatalogPage from "./pages/CatalogPage";
 import PACSLookup from "./pages/DataLibrary/components/PACSLookup";
 import PipelinePage from "./pages/Pipelines";
 import ComputePage from "./pages/Compute";
+import SinglePlugin from "./pages/SinglePluginPage/SinglePlugin";
 
 interface IState {
   selectData?: Series;
@@ -78,6 +79,16 @@ export const MainRouter: React.FC = () => {
           <CatalogPage />
         </PrivateRoute>
       ),
+    },
+    {
+      path: "plugin/:pluginName",
+      element: (
+        <PrivateRoute>
+          <Wrapper>
+            <SinglePlugin />
+          </Wrapper>
+        </PrivateRoute>
+      )
     },
     {
       path: "library",
