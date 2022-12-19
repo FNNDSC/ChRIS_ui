@@ -32,34 +32,28 @@ export const getFeedTree = (items: PluginInstance[]) => {
   items.forEach((item) => {
     const id = item.data.id;
 
-    if (!mappedArr.hasOwnProperty(id)) {
-      mappedArr[id] = {
-        id: id,
-        name: item.data.title || item.data.plugin_name,
-        parentId: item.data.previous_id,
-        item: item,
-        children: [],
-        __rd3t: {
-          id: "",
-          depth: 0,
-          collapsed: false,
-        },
-      };
-    }
+    mappedArr[id] = {
+      id: id,
+      name: item.data.title || item.data.plugin_name,
+      parentId: item.data.previous_id,
+      item: item,
+      children: [],
+      __rd3t: {
+        id: "",
+        depth: 0,
+        collapsed: false,
+      },
+    };
   });
 
   for (const id in mappedArr) {
-    let mappedElem;
-    if (mappedArr.hasOwnProperty(id)) {
-      mappedElem = mappedArr[id];
-
-      if (mappedElem.parentId) {
-        const parentId = mappedElem.parentId;
-        if (parentId && mappedArr[parentId] && mappedArr[parentId].children)
-          mappedArr[parentId].children.push(mappedElem);
-      } else {
-        tree.push(mappedElem);
-      }
+    const mappedElem = mappedArr[id];
+    if (mappedElem.parentId) {
+      const parentId = mappedElem.parentId;
+      if (parentId && mappedArr[parentId] && mappedArr[parentId].children)
+        mappedArr[parentId].children.push(mappedElem);
+    } else {
+      tree.push(mappedElem);
     }
   }
 
@@ -68,7 +62,7 @@ export const getFeedTree = (items: PluginInstance[]) => {
 
 export const getTsNodes = async (items: PluginInstance[]) => {
   const parentIds: {
-    [key: string]: string[];
+    [key: string]: number[];
   } = {};
   const params = {
     limit: 20,
@@ -81,7 +75,9 @@ export const getTsNodes = async (items: PluginInstance[]) => {
       const boundFn = fn.bind(instance);
       const parameters: PluginParameter[] =
         await fetchResource<PluginParameter>(params, boundFn);
-      parentIds[instance.data.id] = parameters[0].data.value.split(",");
+      parentIds[instance.data.id] = parameters[0].data.value
+        .split(",")
+        .map(Number);
     }
   }
   return parentIds;

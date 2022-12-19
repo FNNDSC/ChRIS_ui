@@ -46,7 +46,7 @@ const reducer: Reducer<ITSPluginState> = (state = initialState, action) => {
     case TSPluginTypes.SWITCH_TREE_MODE: {
       return {
         ...state,
-        treeMode: !action.payload,
+        treeMode: action.payload,
         tsNodes: [],
       };
     }
