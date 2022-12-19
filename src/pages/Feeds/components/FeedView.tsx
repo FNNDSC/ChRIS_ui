@@ -208,6 +208,7 @@ export const FeedView: React.FC = () => {
                 <DrawerContent
                   panelContent={
                     <DrawerPanelContent
+                      className="drawer-panel"
                       defaultSize="48.7%"
                       minSize={"25%"}
                       isResizable

@@ -13,12 +13,10 @@ export const getJoinInput = (
   let input: InputType = {};
 
   if (instanceIds && selectedPlugin) {
-    const addParentId = [...instanceIds, selectedPlugin.data.id];
     input = {
       ...joinInput,
-      ["plugininstances"]: addParentId.join(","),
+      ["plugininstances"]: instanceIds.join(","),
     };
   }
   return input || {};
 };
-

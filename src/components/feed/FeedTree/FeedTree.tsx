@@ -1,12 +1,7 @@
 import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
 import useSize from "./useSize";
-import {
-  tree,
-  hierarchy,
-  HierarchyPointLink,
-  HierarchyPointNode,
-} from "d3-hierarchy";
+import { tree, hierarchy, HierarchyPointLink } from "d3-hierarchy";
 import { select, event } from "d3-selection";
 import { v4 as uuidv4 } from "uuid";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
@@ -301,7 +296,7 @@ const FeedTree = (props: AllProps) => {
 
     let nodes;
     let links: HierarchyPointLink<TreeNodeDatum>[] | undefined = undefined;
-    const newLinks: HierarchyPointLink<TreeNodeDatum>[] = [];
+    let newLinks: HierarchyPointLink<TreeNodeDatum>[] = [];
 
     if (data) {
       const rootNode = d3Tree(
@@ -310,44 +305,44 @@ const FeedTree = (props: AllProps) => {
       nodes = rootNode.descendants();
       links = rootNode.links();
 
-      const targetNodes = links.filter((link) => {
-        //@ts-ignore
-        return link.target.data?.item?.data?.plugin_type === "ts";
-      });
+      const newLinksToAdd: any[] = [];
 
-      const remodifiedLinks = targetNodes.map((node) => {
-        const target = node.target;
-        const sources: HierarchyPointNode<TreeNodeDatum>[] = [];
-        // find all the source nodes;
-        links?.forEach((link) => {
+      if (tsIds) {
+        links.forEach((link) => {
+          const id = link.target.data.id;
           if (
-            target.data.id &&
-            tsIds &&
-            tsIds[target.data.id] &&
-            tsIds[target.data.id].includes(`${link.target.data.id}`)
+            link.target.data.item?.data.plugin_type === "ts" &&
+            id &&
+            tsIds[id]
           ) {
-            sources.push(link.target);
+            const parentIds = tsIds[id];
+
+            for (let i = 0; i < parentIds.length; i++) {
+              const newLink = links?.find(
+                (link) => parentIds[i] === link.source.data.id
+              );
+
+              const exists = links?.find(
+                (linkArr) =>
+                  newLink?.source.data.id === linkArr.source.data.id &&
+                  link.target.data.id === linkArr.target.data.id
+              );
+
+              if (newLink && !exists) {
+                newLinksToAdd.push({
+                  source: newLink.source,
+                  target: link.target,
+                });
+              }
+            }
           }
         });
-
-        return sources?.map((source) => {
-          if (source) return { source, target };
-        });
-      });
-
-      if (remodifiedLinks) {
-        for (let i = 0; i < remodifiedLinks.length; i++) {
-          const tempLinks = remodifiedLinks[i];
-          if (tempLinks && tempLinks.length > 0) {
-            //@ts-ignore
-            newLinks.push(...tempLinks);
-          }
-        }
       }
+
+      newLinks = [...links, ...newLinksToAdd];
     }
-    //@ts-ignore
-    newLinks.push(...links);
-    return { nodes, newLinks };
+
+    return { nodes, newLinks: newLinks };
   };
 
   const { nodes, newLinks: links } = generateTree();

@@ -54,9 +54,11 @@ const GraphNode = (props: GraphNodeProps) => {
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
-  const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
+
+  const { tsNodes, treeMode } = useTypedSelector((state) => state.tsPlugins);
+
   const nodes = useTypedSelector((state) => state.instance.pluginInstances);
-  const treeMode = useTypedSelector((state) => state.tsPlugins.treeMode);
+
   const dispatch = useDispatch();
 
   const [nodeState, setNodeState] = React.useState<NodeState>(getNodeState);
@@ -108,13 +110,12 @@ const GraphNode = (props: GraphNodeProps) => {
         const pluginInstance = await selectedTsPlugin?.getPluginInstances();
         try {
           await pluginInstance?.post(finalParameterList);
-
           const pluginInstanceItems = pluginInstance?.getItems();
           if (pluginInstanceItems) {
             const node = pluginInstanceItems[0];
             dispatch(addNodeRequest({ pluginItem: node, nodes: nodes.data }));
           }
-          dispatch(switchTreeMode(false));
+          dispatch(switchTreeMode(!treeMode));
           handleResets();
           onVisibleChange(!visible);
         } catch (error) {
@@ -140,7 +141,7 @@ const GraphNode = (props: GraphNodeProps) => {
           dispatch(
             addSplitNodes({ splitNodes, nodes: nodes.data, selectedPlugin })
           );
-          dispatch(switchTreeMode(false));
+          dispatch(switchTreeMode(!treeMode));
           handleResets();
           onVisibleChange(!visible);
         } catch (error) {
@@ -169,7 +170,7 @@ const GraphNode = (props: GraphNodeProps) => {
   const onCancel = () => {
     handleResets();
     onVisibleChange(!visible);
-    dispatch(switchTreeMode(treeMode));
+    dispatch(switchTreeMode(!treeMode));
   };
 
   const handleSplitChange = (value: string, name: string) => {
