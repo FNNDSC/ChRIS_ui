@@ -265,7 +265,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       ];
     }
   };
-
   const steps = data.isDataSelected
     ? [
         {
@@ -346,6 +345,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           canJumpTo: step > 7,
         },
       ];
+      
 
   const handleNext = (activeStep: any, cb: () => void) => {
     if (activeStep.id === 6) {
