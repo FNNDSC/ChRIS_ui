@@ -10,6 +10,8 @@ import {
   Title,
   Popover,
   Button,
+  ClipboardCopy,
+  ExpandableSection,
 } from "@patternfly/react-core";
 import { DownloadIcon, UserAltIcon } from '@patternfly/react-icons';
 import { Tabs, Tab, TabTitleText, Spinner} from '@patternfly/react-core';
@@ -73,21 +75,15 @@ const SinglePlugin = () => {
     fetchPlugins(pluginName);
   }, [pluginName]);
   
-  console.log(pluginData);
-  
   const fetchReadme = React.useCallback(async (repo: string) => {
     const ghreadme = await fetch(`https://api.github.com/repos/${repo}/readme`);
     if (!ghreadme.ok) {
       throw new Error("Failed to fetch repo.");
     }
-
     const { download_url, content }: { download_url: string; content: string} = await ghreadme.json();
-
     const file = atob(content);
     const type: string = download_url.split('.').reverse()[0];
-
     return { file, type };
-
   }, [])
 
   React.useEffect(() => {
@@ -111,8 +107,46 @@ const SinglePlugin = () => {
 
   }, [fetchReadme, pluginData])
 
+
+  const InstallButton = (): any => {
+    if (pluginData.version)
+      return <ClipboardCopy isReadOnly>{ pluginData.url }</ClipboardCopy>
+    if (pluginData.versions)
+      return 
+      <>
+        <p><b>Version { pluginData.versions[0].version }</b></p>
+        <ClipboardCopy isReadOnly>
+          { pluginData.versions[0].url }
+        </ClipboardCopy>
+        <br />
+        {
+          pluginData.versions.length > 1 &&
+          <ExpandableSection toggleText="More Versions">
+            { pluginData.versions.slice(1).map((version: any) =>(
+              <div key={version.version}>
+                <a href={`/p/${version.id}`}>
+                  Version {version.version}
+                </a>
+              </div>
+            ))}
+          </ExpandableSection>
+        }
+      </>
+    return  <Spinner isSVG diameter="80px" />
+  }
+
+  const removeEmail = (authors: string[]) => {
+    const emailRegex = /(<|\().+?@.{2,}?\..{2,}?(>|\))/g;
+    // Match '<' or '(' at the beginning and end
+    // Match <string>@<host>.<tld> inside brackets
+    if (!Array.isArray(authors))
+      // eslint-disable-next-line no-param-reassign
+      authors = [ authors ]
+    return authors.map((author) => author.replace(emailRegex, "").trim());
+  }
+
  
-  if (!pluginData) 
+  if (!Object.keys(pluginData).length)
     return (
       <Spinner isSVG diameter="80px" />
     )
@@ -142,12 +176,13 @@ const SinglePlugin = () => {
                         { readme ? <div dangerouslySetInnerHTML={{ __html: readme }} /> : null }
                       </Tab>
                       <Tab eventKey={1} title={<TabTitleText>Parameters</TabTitleText>}>
-                        Parameters
+                        <h2>Parameters Content</h2>
                       </Tab>
-                      <Tab eventKey={2} title={<TabTitleText>Version</TabTitleText>}>
-                          <p className="pluginList__version">
-                            version: {pluginData.version}
-                          </p>
+                      <Tab eventKey={2} title={<TabTitleText>Versions</TabTitleText>}>
+                        <h2>Versions of this plugin</h2>
+                        <p className="pluginList__version">
+                          version: {pluginData.version}
+                        </p>
                       </Tab>
                     </Tabs>
                   </GridItem>
@@ -169,7 +204,7 @@ const SinglePlugin = () => {
                                 to install this plugin.
                               </p>
                               <br />
-                              {/* <InstallButton/> */}
+                              <InstallButton/>
                             </div>
                           )}
                         >
@@ -184,15 +219,16 @@ const SinglePlugin = () => {
                         <h4>Repository</h4>
                         <a href={pluginData.public_repo}>
                           {pluginData.public_repo}
-                          {/* Update api here. */}
                         </a>
                       </div>
 
                       <div className="plugin-body-detail-section">
                         <h4>Author</h4>
-                          <a href='#'>
-                            <><UserAltIcon /> {pluginData.authors}</>
-                          </a>
+                          { removeEmail(pluginData.authors.split(',')).map(author => (
+                            <a key={author} href={`#`}>
+                              <p><UserAltIcon />{ author }</p>
+                            </a>
+                          ))}
                       </div>
                       <div className="plugin-body-detail-section">
                         <h4>Collaborators</h4>
@@ -206,8 +242,7 @@ const SinglePlugin = () => {
 
                       <div className="plugin-body-detail-section">
                         <h4>License</h4>
-                        {/* Fix me  */}
-                        XX.XX License
+                        {pluginData.license} License
                       </div>
                       <div className="plugin-body-detail-section">
                         <h4>Content Type</h4>
@@ -215,7 +250,7 @@ const SinglePlugin = () => {
                       </div>
                       <div className="plugin-body-detail-section">
                         <h4>Date added</h4>
-                        {/* {(new Date(pluginData.creation_date.split('T')[0])).toDateString()} */}
+                        {(new Date(pluginData.creation_date.split('T')[0])).toDateString()}
                       </div>
                     </div>
                   </GridItem>
