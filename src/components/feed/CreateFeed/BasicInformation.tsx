@@ -34,7 +34,6 @@ const BasicInformation: React.FC = () => {
  }, [])
 
  const handleKeyDown = (e: any, next: () => void) => {
-      console.log(e)
        if(feedName && e.code == "Enter"){
             next()
        }else if(feedName && e.code == "ArrowRight"){
@@ -47,9 +46,7 @@ const BasicInformation: React.FC = () => {
         {({
            onNext,
          }: {
-          activeStep: any;
           onNext: any;
-          onBack: any;
         }) => (
                <Form className="pf-u-w-75 basic-information">
               <h1 className="pf-c-title pf-m-2xl">Basic Information</h1>
