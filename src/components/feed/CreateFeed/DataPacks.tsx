@@ -91,6 +91,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
   };
 
   const handleKeyDown = (e:any, next: () => void, prev: () => void) =>{
+    e.preventDefault()
     if(selectedPlugin && e.code == "Enter"){
       next()
     }else if(selectedPlugin && e.code == "ArrowRight"){
