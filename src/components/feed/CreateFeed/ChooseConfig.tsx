@@ -22,6 +22,7 @@ const ChooseConfig: React.FC = () => {
   }
 
   const handleKeyDown = (e: any, next: () => void, prev: () => void) => {
+    e.preventDefault()
     if(selectedConfig && e.code == "Enter"){
          next()
     }else if(selectedConfig && e.code == "ArrowRight"){

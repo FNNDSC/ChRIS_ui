@@ -34,6 +34,7 @@ const BasicInformation: React.FC = () => {
  }, [])
 
  const handleKeyDown = (e: any, next: () => void) => {
+       e.preventDefault()
        if(feedName && e.code == "Enter"){
             next()
        }else if(feedName && e.code == "ArrowRight"){
