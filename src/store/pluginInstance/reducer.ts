@@ -141,32 +141,9 @@ const reducer: Reducer<IPluginInstanceState> = (
     }
 
     case PluginInstanceTypes.DELETE_NODE_SUCCESS: {
-      const id = action.payload;
-
-      const pluginInstances = state.pluginInstances.data
-        ?.map((instance) => {
-          if (
-            instance &&
-            (!instance.data ||
-              instance?.data?.id === id ||
-              instance?.data?.previous_id === id)
-          ) {
-            return undefined;
-          } else return instance;
-        })
-        .filter((instance) => instance);
-
-      const selectedPlugin =
-        pluginInstances && pluginInstances[pluginInstances.length - 1];
-
       return {
         ...state,
-        pluginInstances: {
-          data: pluginInstances,
-          error: "",
-          loading: false,
-        },
-        selectedPlugin,
+
         deleteNode: {
           ...state.deleteNode,
           success: true,

@@ -26,6 +26,7 @@ import { resetActiveResources } from "../../../store/resources/actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { DestroyActiveResources } from "../../../store/resources/types";
 import { SpinContainer } from "../../../components/common/loading/LoadingContent";
+import ErrorBoundary from "antd/lib/alert/ErrorBoundary";
 
 const ParentComponent = React.lazy(
   () => import("../../../components/feed/FeedTree/ParentComponent")
@@ -107,78 +108,86 @@ export const FeedView: React.FC = () => {
   };
 
   const feedTree = (
-    <GridItem
-      className="feed-block"
-      sm={12}
-      smRowSpan={12}
-      md={6}
-      mdRowSpan={12}
-      lg={6}
-      lgRowSpan={12}
-      xl={7}
-      xlRowSpan={12}
-      xl2={7}
-      xl2RowSpan={12}
-    >
-      {" "}
-      <React.Suspense
-        fallback={<SpinContainer title="Fetching the Resources in a moment" />}
+    <ErrorBoundary>
+      <GridItem
+        className="feed-block"
+        sm={12}
+        smRowSpan={12}
+        md={6}
+        mdRowSpan={12}
+        lg={6}
+        lgRowSpan={12}
+        xl={7}
+        xlRowSpan={12}
+        xl2={7}
+        xl2RowSpan={12}
       >
-        {!currentLayout ? (
-          <ParentComponent
-            isSidePanelExpanded={isSidePanelExpanded}
-            isBottomPanelExpanded={isBottomPanelExpanded}
-            onExpand={onClick}
-            onNodeClick={onNodeClick}
-            onNodeClickTs={onNodeClickTS}
-            instances={pluginInstances.data}
-          />
-        ) : (
-          <FeedGraph
-            onNodeClick={onNodeClick}
-            isSidePanelExpanded={isSidePanelExpanded}
-            isBottomPanelExpanded={isBottomPanelExpanded}
-            onExpand={onClick}
-          />
-        )}
-      </React.Suspense>
-    </GridItem>
+        {" "}
+        <React.Suspense
+          fallback={
+            <SpinContainer title="Fetching the Resources in a moment" />
+          }
+        >
+          {!currentLayout ? (
+            <ParentComponent
+              isSidePanelExpanded={isSidePanelExpanded}
+              isBottomPanelExpanded={isBottomPanelExpanded}
+              onExpand={onClick}
+              onNodeClick={onNodeClick}
+              onNodeClickTs={onNodeClickTS}
+              instances={pluginInstances.data}
+            />
+          ) : (
+            <FeedGraph
+              onNodeClick={onNodeClick}
+              isSidePanelExpanded={isSidePanelExpanded}
+              isBottomPanelExpanded={isBottomPanelExpanded}
+              onExpand={onClick}
+            />
+          )}
+        </React.Suspense>
+      </GridItem>
+    </ErrorBoundary>
   );
 
   const nodePanel = (
-    <GridItem
-      sm={12}
-      smRowSpan={12}
-      md={6}
-      mdRowSpan={12}
-      lg={6}
-      lgRowSpan={12}
-      xl={5}
-      xlRowSpan={12}
-      xl2={5}
-      xl2RowSpan={12}
-      className="node-block"
-    >
-      {" "}
-      <React.Suspense
-        fallback={
-          <SpinContainer title="Fetching Selected Plugin Instance's details" />
-        }
+    <ErrorBoundary>
+      <GridItem
+        sm={12}
+        smRowSpan={12}
+        md={6}
+        mdRowSpan={12}
+        lg={6}
+        lgRowSpan={12}
+        xl={5}
+        xlRowSpan={12}
+        xl2={5}
+        xl2RowSpan={12}
+        className="node-block"
       >
-        <NodeDetails expandDrawer={onClick} />
-      </React.Suspense>
-    </GridItem>
+        {" "}
+        <React.Suspense
+          fallback={
+            <SpinContainer title="Fetching Selected Plugin Instance's details" />
+          }
+        >
+          <NodeDetails expandDrawer={onClick} />
+        </React.Suspense>
+      </GridItem>
+    </ErrorBoundary>
   );
 
   const feedOutputBrowserPanel = (
     <React.Suspense
       fallback={<SpinContainer title="Fetching feed Resources" />}
     >
-      <FeedOutputBrowser
-        explore={true}
-        expandDrawer={onClick}
-        handlePluginSelect={onNodeClick}
-      />
+      <ErrorBoundary>
+        <FeedOutputBrowser
+          explore={true}
+          expandDrawer={onClick}
+          handlePluginSelect={onNodeClick}
+        />
+      </ErrorBoundary>
     </React.Suspense>
   );
 
