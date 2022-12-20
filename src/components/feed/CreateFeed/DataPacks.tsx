@@ -25,6 +25,8 @@ import debounce from "lodash/debounce";
 
 import { getParams } from "../../../store/plugin/actions";
 import { getPlugins } from "./utils/dataPacks";
+import { WizardContextConsumer } from "@patternfly/react-core";
+
 
 interface FilterProps {
   perPage: number;
@@ -88,93 +90,113 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
     });
   };
 
+  const handleKeyDown = (e:any, next: () => void, prev: () => void) =>{
+    if(selectedPlugin && e.code == "Enter"){
+      next()
+    }else if(selectedPlugin && e.code == "ArrowRight"){
+      next()
+    }else if(e.code == "ArrowLeft"){
+      prev()
+ }
+  }
+
   return (
-    <div className="local-file-upload">
-      <h1 className="pf-c-title pf-m-2xl">Feed Synthesis Plugin</h1>
-      <p>Please choose the Feed Synthesis Plugin you&lsquo;d like to run</p>
-      <br />
+    <WizardContextConsumer>
+      {({
+        onNext,
+        onBack
+      }: {
+        onNext: any;
+        onBack: any;
+      }) => (
+        <div className="local-file-upload">
+          <h1 className="pf-c-title pf-m-2xl">Feed Synthesis Plugin</h1>
+          <p>Please choose the Feed Synthesis Plugin you&lsquo;d like to run</p>
+          <br />
 
-      <div className="fsplugin__datatoolbar">
-        <ToolbarItem>
-          <InputGroup>
-            <TextInput
-              name="filter_plugin"
-              id="filter_plugin"
-              type="search"
-              aria-label="search input"
-              placeholder="Search by name..."
-              onChange={handleFilterChange}
-            />
-            <Button
-              variant={ButtonVariant.control}
-              aria-label="search button for the plugin"
-            >
-              <FaSearch />
-            </Button>
-          </InputGroup>
-        </ToolbarItem>
-        <ToolbarItem variant="pagination">
-          <Pagination
-            itemCount={itemCount}
-            perPage={perPage}
-            page={currentPage}
-            onSetPage={handlePageSet}
-            onPerPageSelect={handlePerPageSet}
-          />
-        </ToolbarItem>
-      </div>
-
-      <DataList aria-label="FS Plugins">
-        {fsPlugins.map((plugin, index) => {
-          const { title, name } = plugin.data;
-          const pluginName = `${
-            title ? title : `${name} v.${plugin.data.version}`
-          }`;
-          return (
-            <DataListItem key={index} aria-labelledby="plugin-checkbox">
-              <DataListItemRow>
-                <DataListCheck
-                  aria-labelledby="plugin-checkbox"
-                  name={pluginName}
-                  id={name}
-                  onChange={(checked: any) => {
-                    checked === true && props.getParams(plugin);
-                    dispatch({
-                      type: Types.SelectPlugin,
-                      payload: {
-                        plugin,
-                        checked,
-                      },
-                    });
-                  }}
-                  checked={selectedPlugin?.data.id === plugin.data.id}
+          <div className="fsplugin__datatoolbar">
+            <ToolbarItem>
+              <InputGroup>
+                <TextInput
+                  name="filter_plugin"
+                  id="filter_plugin"
+                  type="search"
+                  aria-label="search input"
+                  placeholder="Search by name..."
+                  onChange={handleFilterChange}
                 />
-                <DataListItemCells
-                  dataListCells={[
-                    <DataListCell key={index}>
-                      <div className="plugin-table-row" key={index}>
-                        <span
-                          className="plugin-table-row__plugin-name"
-                          id={pluginName}
-                        >
-                          {pluginName}
-                        </span>
-                        <span
-                          className="plugin-table-row__plugin-description"
-                          id={plugin.data.description}
-                        >
-                          <em>{plugin.data.description}</em>
-                        </span>
-                      </div>
-                    </DataListCell>,
-                  ]}
-                ></DataListItemCells>
-              </DataListItemRow>
-            </DataListItem>
-          );
-        })}
-      </DataList>
-    </div>
+                <Button
+                  variant={ButtonVariant.control}
+                  aria-label="search button for the plugin"
+                >
+                  <FaSearch />
+                </Button>
+              </InputGroup>
+            </ToolbarItem>
+            <ToolbarItem variant="pagination">
+              <Pagination
+                itemCount={itemCount}
+                perPage={perPage}
+                page={currentPage}
+                onSetPage={handlePageSet}
+                onPerPageSelect={handlePerPageSet}
+              />
+            </ToolbarItem>
+          </div>
+
+          <DataList aria-label="FS Plugins">
+            {fsPlugins.map((plugin, index) => {
+              const { title, name } = plugin.data;
+              const pluginName = `${title ? title : `${name} v.${plugin.data.version}`
+                }`;
+              return (
+                <DataListItem key={index} aria-labelledby="plugin-checkbox">
+                  <DataListItemRow>
+                    <DataListCheck
+                      aria-labelledby="plugin-checkbox"
+                      name={pluginName}
+                      id={name}
+                      onKeyDown={(e) => handleKeyDown(e, onNext, onBack)}
+                      onChange={(checked: any) => {
+                        checked === true && props.getParams(plugin);
+                        dispatch({
+                          type: Types.SelectPlugin,
+                          payload: {
+                            plugin,
+                            checked,
+                          },
+                        });
+                      }}
+                      checked={selectedPlugin?.data.id === plugin.data.id}
+                    />
+                    <DataListItemCells
+                      dataListCells={[
+                        <DataListCell key={index}>
+                          <div className="plugin-table-row" key={index}>
+                            <span
+                              className="plugin-table-row__plugin-name"
+                              id={pluginName}
+                            >
+                              {pluginName}
+                            </span>
+                            <span
+                              className="plugin-table-row__plugin-description"
+                              id={plugin.data.description}
+                            >
+                              <em>{plugin.data.description}</em>
+                            </span>
+                          </div>
+                        </DataListCell>,
+                      ]}
+                    ></DataListItemCells>
+                  </DataListItemRow>
+                </DataListItem>
+              );
+            })}
+          </DataList>
+        </div>
+        )}
+    </WizardContextConsumer>
   );
 };
 
