@@ -310,16 +310,14 @@ const FeedTree = (props: AllProps) => {
       if (tsIds) {
         links.forEach((link) => {
           const id = link.target.data.id;
-          if (
-            link.target.data.item?.data.plugin_type === "ts" &&
-            id &&
-            tsIds[id]
-          ) {
+          const plugin_type = link.target.data.item?.data?.plugin_type;
+
+          if (plugin_type && plugin_type === "ts" && id && tsIds[id]) {
             const parentIds = tsIds[id];
 
             for (let i = 0; i < parentIds.length; i++) {
               const newLink = links?.find(
-                (link) => parentIds[i] === link.source.data.id
+                (link) => parentIds[i] === link.target.data.id
               );
 
               const exists = links?.find(
@@ -330,7 +328,7 @@ const FeedTree = (props: AllProps) => {
 
               if (newLink && !exists) {
                 newLinksToAdd.push({
-                  source: newLink.source,
+                  source: newLink.target,
                   target: link.target,
                 });
               }
