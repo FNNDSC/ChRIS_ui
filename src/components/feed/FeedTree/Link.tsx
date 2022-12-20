@@ -46,7 +46,8 @@ class Link extends React.Component<LinkProps, LinkState> {
   }
 
   nodeRadius = 12;
-  drawPath = () => {
+
+  drawPath = (ts: boolean) => {
     const { linkData, orientation } = this.props;
 
     const { source, target } = linkData;
@@ -63,39 +64,37 @@ class Link extends React.Component<LinkProps, LinkState> {
       targetX = target.x - targetPadding * normX,
       targetY = target.y - targetPadding * normY;
 
-    //@ts-ignore
-    if (target.data.item?.data?.plugin_type === "ts") {
-      if (
-        target.data.item.data.previous_id !== source.data.item?.data.previous_id
-      ) {
-        return orientation === "horizontal"
-          ? linkHorizontal()({
-              source: [sourceY, sourceX],
-              target: [targetY, targetX],
-            })
-          : linkVertical()({
-              source: [sourceX, sourceY],
-              target: [targetX, targetY],
-            });
-      }
+    if (ts) {
+      return orientation === "horizontal"
+        ? linkHorizontal()({
+            source: [sourceY, sourceX],
+            target: [targetY, targetX],
+          })
+        : linkVertical()({
+            source: [sourceX, sourceY],
+            target: [targetX, targetY],
+          });
     } else {
       return orientation === "horizontal"
-        ? `M ${sourceY} ${sourceX} L ${targetY} ${targetX}`
-        : `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
+        ? `M${sourceY} ${sourceX} L${targetY} ${targetX}`
+        : `M${sourceX} ${sourceY} L${targetX} ${targetY}`;
     }
   };
 
   render() {
     const { linkData } = this.props;
+    const { target } = linkData;
+    console.log("LinkData", linkData);
+    const ts = target.data.item?.data?.plugin_type === "ts";
     return (
       <Fragment>
         <path
           ref={(l) => {
             this.linkRef = l;
           }}
-          className="link"
+          className={`link ${ts ? "ts" : ""}`}
           //@ts-ignore
-          d={this.drawPath()}
+          d={this.drawPath(ts)}
           style={{ ...this.state.initialStyle }}
           data-source-id={linkData.source.id}
           data-target-id={linkData.target.id}

@@ -114,7 +114,14 @@
   marker-end: url(#end-arrow);
   opacity: 0.5;
   stroke: var(--pf-global--palette--black-500); //007bba - active
-  stroke-width: 1px;
+  stroke-width: 0.75px;
+}
+
+.link.ts {
+  marker-end: url(#end-arrow);
+  opacity: 0.5;
+  stroke: #0088ce; //007bba - active
+  stroke-width: 1.5px;
 }
 
 .label {
