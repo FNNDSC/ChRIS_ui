@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Card, CardBody, CardHeader, CardTitle, Grid, GridItem, Radio } from "@patternfly/react-core";
+import { Card, CardBody, CardHeader, CardTitle, Grid, GridItem } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types/feed";
 import { FaUpload } from "react-icons/fa";
