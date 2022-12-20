@@ -1,13 +1,21 @@
 #plugin-body {
-    padding: 1em 2em;
-    width: 100%;
-  }
+  padding: 1em 2em;
+  margin: 1rem 2rem;
+  width: 100%;
+}
   
-  .plugin-body-side-col .plugin-body-detail-section {
-    margin-top: 1em;
-    border-bottom: 1px solid lightgray;
-    padding: 1em 0;
-  } .plugin-body-detail-section h4 {
-    font-weight: bold;
+.plugin-body-side-col .plugin-body-detail-section {
+  margin-top: 1em;
+  border-bottom: 1px solid lightgray;
+  padding: 1em 0;
+}
+
+.plugin-body-detail-section h4 {
+  font-weight: bold;
+}
+ 
+@media screen and (max-width: 590px) {
+  #plugin-body {
+    margin: 0;
   }
-  
+}
