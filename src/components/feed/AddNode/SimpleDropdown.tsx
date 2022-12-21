@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Dropdown,
-  DropdownToggle,
-  DropdownItem,
-  Banner,
-} from "@patternfly/react-core";
+import { Dropdown, DropdownToggle, DropdownItem } from "@patternfly/react-core";
 import { AiFillCaretDown } from "react-icons/ai";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./lib/utils";
@@ -147,12 +142,6 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           <MdClose />
         </div>
       </div>
-      {type === "boolean" && (
-        <Banner variant="info">
-          Boolean flags don&apos;t require the user to implicitly provide
-          values.
-        </Banner>
-      )}
     </>
   );
 };

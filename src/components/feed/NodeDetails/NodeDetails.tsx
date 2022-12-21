@@ -19,7 +19,6 @@ import {
   FaTerminal,
   FaCalendarAlt,
   FaWindowClose,
-  FaCodeBranch,
 } from "react-icons/fa";
 import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
@@ -27,7 +26,7 @@ import PluginLog from "./PluginLog";
 import Status from "./Status";
 import StatusTitle from "./StatusTitle";
 import PluginTitle from "./PluginTitle";
-import GraphNode from "../AddTsNode/ParentContainer";
+import GraphNodeContainer from "../AddTsNode";
 
 import { useTypedSelector } from "../../../store/hooks";
 import "./NodeDetails.scss";
@@ -36,8 +35,6 @@ import AddPipeline from "../AddPipeline/AddPipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
 import { PipelineProvider } from "../CreateFeed/context";
-import { useDispatch } from "react-redux";
-import { switchTreeMode } from "../../../store/tsplugins/actions";
 
 interface INodeProps {
   expandDrawer: (panel: string) => void;
@@ -58,16 +55,14 @@ function getInitialState() {
 }
 
 const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
-  const dispatch = useDispatch();
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
-  const { treeMode } = useTypedSelector((state) => state.tsPlugins);
   const { download, downloadAllClick } = useFeedBrowser();
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isTerminalVisible, setIsTerminalVisible] = React.useState(false);
-  const [isGraphNodeVisible, setIsGraphNodeVisible] = React.useState(false);
+
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isErrorExpanded, setisErrorExpanded] = React.useState(false);
 
@@ -129,11 +124,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
         </GridItem>
       </>
     );
-  };
-
-  const handleVisibleChange = (visible: boolean) => {
-    dispatch(switchTreeMode(!treeMode));
-    setIsGraphNodeVisible(visible);
   };
 
   if (!selectedPlugin) {
@@ -258,22 +248,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               </Button>
             </Popover>
 
-            <Popover
-              content={
-                <GraphNode
-                  visible={isGraphNodeVisible}
-                  onVisibleChange={handleVisibleChange}
-                />
-              }
-              placement="bottom"
-              open={isGraphNodeVisible}
-              onOpenChange={handleVisibleChange}
-              trigger="click"
-            >
-              <Button type="button" icon={<FaCodeBranch />}>
-                Add a Graph Node
-              </Button>
-            </Popover>
+            <GraphNodeContainer selectedPlugin={selectedPlugin} />
             {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
           </div>
         </div>
