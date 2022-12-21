@@ -20,8 +20,12 @@ const reducer: Reducer<ITSPluginState> = (state = initialState, action) => {
         );
 
         if (node) {
+          const filteredNodes = state.tsNodes.filter(
+            (node) => node.data.id !== action.payload.data.id
+          );
           return {
             ...state,
+            tsNodes: filteredNodes,
           };
         } else
           return {

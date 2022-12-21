@@ -40,7 +40,7 @@ const Footer = ({
         onClick={onNext}
         type="button"
       >
-        {currentStep === 3 ? "Add Node" : "Next"}
+        {currentStep === 2 ? "Add Node" : "Next"}
       </Button>
 
       <Button onClick={onCancel} type="button">

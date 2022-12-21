@@ -21,7 +21,7 @@ const Review = ({ nodeState }: { nodeState: NodeState }) => {
   };
 
   if (selectedConfig === "join-node") {
-    const input = getJoinInput(joinInput, tsNodes, selectedPlugin);
+    const input = getJoinInput(joinInput, tsNodes);
     generatedString = getInput(input);
   } else if (selectedConfig === "split-node") {
     generatedString = getInput(splitInput);

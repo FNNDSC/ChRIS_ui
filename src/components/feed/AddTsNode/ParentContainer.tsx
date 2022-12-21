@@ -3,7 +3,6 @@ import { Title } from "@patternfly/react-core";
 import { Plugin } from "@fnndsc/chrisapi";
 import ChooseConfig from "./ChooseConfig";
 import Footer from "./Footer";
-import Join from "./Join";
 import Split from "./Split";
 import ConfigureJoin from "./ConfigureJoin";
 import Review from "./Review";
@@ -36,7 +35,7 @@ export type InputType = {
 
 export type NodeState = {
   selectedConfig: string;
-  selectedTsPlugin?: Plugin;
+
   joinInput: InputType;
   splitInput: InputType;
   stepNumber: number;
@@ -46,25 +45,22 @@ export type NodeState = {
 export type GraphNodeProps = {
   onVisibleChange: (visible: boolean) => void;
   visible: boolean;
+  selectedTsPlugin?: Plugin;
 };
 
 const GraphNode = (props: GraphNodeProps) => {
-  const { onVisibleChange, visible } = props;
-
+  const { onVisibleChange, visible, selectedTsPlugin } = props;
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
-
   const { tsNodes, treeMode } = useTypedSelector((state) => state.tsPlugins);
-
   const nodes = useTypedSelector((state) => state.instance.pluginInstances);
-
   const dispatch = useDispatch();
 
   const [nodeState, setNodeState] = React.useState<NodeState>(getNodeState);
   const {
     selectedConfig,
-    selectedTsPlugin,
+
     joinInput,
     splitInput,
     stepNumber,
@@ -98,13 +94,13 @@ const GraphNode = (props: GraphNodeProps) => {
 
   const handleAdd = async () => {
     const { joinInput, selectedConfig } = nodeState;
-    const input = getJoinInput(joinInput, tsNodes, selectedPlugin);
+    const input = getJoinInput(joinInput, tsNodes);
 
-    if (selectedPlugin) {
+    if (tsNodes && tsNodes?.length > 0) {
       if (selectedConfig === "join-node") {
         const finalParameterList = {
           ...input,
-          ["previous_id"]: `${selectedPlugin.data.id}`,
+          ["previous_id"]: tsNodes[0].data.id,
         };
 
         const pluginInstance = await selectedTsPlugin?.getPluginInstances();
@@ -121,10 +117,9 @@ const GraphNode = (props: GraphNodeProps) => {
         } catch (error) {
           console.warn("ERROR", error);
         }
-      } else {
+      } else if (selectedPlugin) {
         try {
           const client = Client.getClient();
-
           const node = await client.createPluginInstanceSplit(
             selectedPlugin.data.id,
             splitInput["filter"] as string,
@@ -132,7 +127,6 @@ const GraphNode = (props: GraphNodeProps) => {
           );
           const instanceIds = node.data.created_plugin_inst_ids.split(",");
           const splitNodes = [];
-
           for (const i in instanceIds) {
             const id = instanceIds[i];
             const pluginInstance = await client.getPluginInstance(+id);
@@ -141,7 +135,6 @@ const GraphNode = (props: GraphNodeProps) => {
           dispatch(
             addSplitNodes({ splitNodes, nodes: nodes.data, selectedPlugin })
           );
-          dispatch(switchTreeMode(!treeMode));
           handleResets();
           onVisibleChange(!visible);
         } catch (error) {
@@ -157,10 +150,10 @@ const GraphNode = (props: GraphNodeProps) => {
         ...nodeState,
         stepNumber: stepNumber + 2,
       });
-    } else if (stepNumber === 3) {
+    } else if (stepNumber === 2) {
       handleAdd();
     } else
-      stepNumber < 3 &&
+      stepNumber < 2 &&
         setNodeState({
           ...nodeState,
           stepNumber: stepNumber + 1,
@@ -203,13 +196,6 @@ const GraphNode = (props: GraphNodeProps) => {
     });
   };
 
-  const handlePluginSelect = (selectedTsPlugin: Plugin) => {
-    setNodeState({
-      ...nodeState,
-      selectedTsPlugin,
-    });
-  };
-
   const steps = [
     {
       step: 1,
@@ -224,9 +210,11 @@ const GraphNode = (props: GraphNodeProps) => {
       step: 2,
       component:
         selectedConfig === "join-node" ? (
-          <Join
+          <ConfigureJoin
+            handleValueChange={handleValueChange}
+            handleCheckboxChange={handleCheckboxChange}
             selectedTsPlugin={selectedTsPlugin}
-            handlePluginSelect={handlePluginSelect}
+            joinInput={joinInput}
           />
         ) : (
           <Split
@@ -237,30 +225,12 @@ const GraphNode = (props: GraphNodeProps) => {
     },
     {
       step: 3,
-      component: (
-        <ConfigureJoin
-          handleValueChange={handleValueChange}
-          handleCheckboxChange={handleCheckboxChange}
-          selectedTsPlugin={selectedTsPlugin}
-          joinInput={joinInput}
-        />
-      ),
-    },
-    {
-      step: 4,
       component: <Review nodeState={nodeState} />,
     },
   ];
 
   const title = [
     "Configure a Graph Node :",
-    `${
-      selectedConfig === "join-node"
-        ? "Select a 'TS' Node :"
-        : "Configure Split Operation on " +
-          (selectedPlugin?.data.title || selectedPlugin?.data.plugin_name) +
-          ":"
-    }`,
     `Configure ${selectedTsPlugin?.data.name}`,
     "Review",
   ];
