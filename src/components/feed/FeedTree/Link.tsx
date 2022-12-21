@@ -84,7 +84,7 @@ class Link extends React.Component<LinkProps, LinkState> {
   render() {
     const { linkData } = this.props;
     const { target } = linkData;
-    console.log("LinkData", linkData);
+
     const ts = target.data.item?.data?.plugin_type === "ts";
     return (
       <Fragment>

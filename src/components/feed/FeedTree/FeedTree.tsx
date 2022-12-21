@@ -161,6 +161,13 @@ const FeedTree = (props: AllProps) => {
   const { feedTreeProp, currentLayout } = useTypedSelector(
     (state) => state.feed
   );
+  const [feedTree, setFeedTree] = React.useState<{
+    nodes?: any[];
+    links?: HierarchyPointLink<TreeNodeDatum>[];
+  }>({
+    nodes: [],
+    links: [],
+  });
 
   const size = useSize(divRef);
 
@@ -213,8 +220,15 @@ const FeedTree = (props: AllProps) => {
           data: assignInternalProperties(clone(props.data)),
         };
       });
+      const { nodes, newLinks: links } = generateTree(props.data);
+      setFeedTree(() => {
+        return {
+          nodes,
+          links,
+        };
+      });
     }
-  }, [props.data]);
+  }, [props.data, props.tsIds]);
 
   const handleChange = (feature: string, data?: any) => {
     if (feature === "collapsible") {
@@ -278,9 +292,8 @@ const FeedTree = (props: AllProps) => {
     }
   };
 
-  const generateTree = () => {
+  const generateTree = (data: TreeNodeDatum[]) => {
     const { nodeSize, orientation, separation, tsIds } = props;
-    const { data } = feedState;
 
     const d3Tree = tree<TreeNodeDatum>()
       .nodeSize(
@@ -309,29 +322,45 @@ const FeedTree = (props: AllProps) => {
 
       if (tsIds) {
         links.forEach((link) => {
-          const id = link.target.data.id;
-          const plugin_type = link.target.data.item?.data?.plugin_type;
+          const targetId = link.target.data.id;
+          const sourceId = link.target.data.id;
 
-          if (plugin_type && plugin_type === "ts" && id && tsIds[id]) {
-            const parentIds = tsIds[id];
+          if (targetId && sourceId && (tsIds[targetId] || tsIds[sourceId])) {
+            // tsPlugin found
+            let topologicalLink: any;
 
-            for (let i = 0; i < parentIds.length; i++) {
-              const newLink = links?.find(
-                (link) => parentIds[i] === link.target.data.id
-              );
+            if (tsIds[targetId]) {
+              topologicalLink = link.target;
+            } else {
+              topologicalLink = link.source;
+            }
 
-              const exists = links?.find(
-                (linkArr) =>
-                  newLink?.source.data.id === linkArr.source.data.id &&
-                  link.target.data.id === linkArr.target.data.id
-              );
+            const parents = tsIds[topologicalLink.data.id];
+            const dict: any = {};
+            links &&
+              links.forEach((link) => {
+                for (let i = 0; i < parents.length; i++) {
+                  if (
+                    link.source.data.id === parents[i] &&
+                    !dict[link.source.data.id]
+                  ) {
+                    dict[link.source.data.id] = link.source;
+                  } else if (
+                    link.target.data.id === parents[i] &&
+                    !dict[link.target.data.id]
+                  ) {
+                    dict[link.target.data.id] = link.target;
+                  }
+                }
 
-              if (newLink && !exists) {
-                newLinksToAdd.push({
-                  source: newLink.target,
-                  target: link.target,
-                });
-              }
+                return dict;
+              });
+
+            for (const i in dict) {
+              newLinksToAdd.push({
+                source: dict[i],
+                target: topologicalLink,
+              });
             }
           }
         });
@@ -343,7 +372,7 @@ const FeedTree = (props: AllProps) => {
     return { nodes, newLinks: newLinks };
   };
 
-  const { nodes, newLinks: links } = generateTree();
+  const { nodes, links } = feedTree;
 
   return (
     <div
