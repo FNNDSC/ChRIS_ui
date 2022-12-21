@@ -152,7 +152,7 @@ export const useFeedBrowser = () => {
   }
 
   const handleFileBrowserOpen = () => {
-    dispatch(clearSelectedFile())
+  // dispatch(clearSelectedFile())
     setFolder()
     setPluginModalOpen(!pluginModalOpen)
     dispatch(setExplorerMode(ExplorerMode.SwiftFileBrowser))

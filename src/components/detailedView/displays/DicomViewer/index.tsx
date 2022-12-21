@@ -397,12 +397,6 @@ const DicomViewerContainer = (props: {
               <span>
                 <b>Image Number:</b> {currentImage}/{images.length}
               </span>
-              <span>
-                <b>File name: </b>
-                {filteredFiles &&
-                  filteredFiles[frames] &&
-                  filteredFiles[frames].data.fname}
-              </span>
             </div>
             {images &&
               images[frames] &&

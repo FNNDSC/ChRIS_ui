@@ -170,6 +170,95 @@ const FeedTree = (props: AllProps) => {
   });
 
   const size = useSize(divRef);
+  const { nodeSize, orientation, separation, tsIds } = props;
+
+  const generateTree = React.useCallback(
+    (data: TreeNodeDatum[]) => {
+      const d3Tree = tree<TreeNodeDatum>()
+        .nodeSize(
+          orientation === "horizontal"
+            ? [nodeSize.y, nodeSize.x]
+            : [nodeSize.x, nodeSize.y]
+        )
+        .separation((a, b) => {
+          return a.data.parentId === b.data.parentId
+            ? separation.siblings
+            : separation.nonSiblings;
+        });
+
+      let nodes;
+      let links: HierarchyPointLink<TreeNodeDatum>[] | undefined = undefined;
+      let newLinks: HierarchyPointLink<TreeNodeDatum>[] = [];
+
+      if (data) {
+        const rootNode = d3Tree(
+          hierarchy(data[0], (d) => (d.__rd3t.collapsed ? null : d.children))
+        );
+        nodes = rootNode.descendants();
+        links = rootNode.links();
+
+        const newLinksToAdd: any[] = [];
+
+        if (tsIds) {
+          links.forEach((link) => {
+            const targetId = link.target.data.id;
+            const sourceId = link.target.data.id;
+
+            if (targetId && sourceId && (tsIds[targetId] || tsIds[sourceId])) {
+              // tsPlugin found
+              let topologicalLink: any;
+
+              if (tsIds[targetId]) {
+                topologicalLink = link.target;
+              } else {
+                topologicalLink = link.source;
+              }
+
+              const parents = tsIds[topologicalLink.data.id];
+              const dict: any = {};
+              links &&
+                links.forEach((link) => {
+                  for (let i = 0; i < parents.length; i++) {
+                    if (
+                      link.source.data.id === parents[i] &&
+                      !dict[link.source.data.id]
+                    ) {
+                      dict[link.source.data.id] = link.source;
+                    } else if (
+                      link.target.data.id === parents[i] &&
+                      !dict[link.target.data.id]
+                    ) {
+                      dict[link.target.data.id] = link.target;
+                    }
+                  }
+
+                  return dict;
+                });
+
+              for (const i in dict) {
+                newLinksToAdd.push({
+                  source: dict[i],
+                  target: topologicalLink,
+                });
+              }
+            }
+          });
+        }
+
+        newLinks = [...links, ...newLinksToAdd];
+      }
+
+      return { nodes, newLinks: newLinks };
+    },
+    [
+      nodeSize.x,
+      nodeSize.y,
+      orientation,
+      separation.nonSiblings,
+      separation.siblings,
+      tsIds,
+    ]
+  );
 
   React.useEffect(() => {
     //@ts-ignore
@@ -185,7 +274,6 @@ const FeedTree = (props: AllProps) => {
   );
   const { scale } = feedState.d3;
   const { changeOrientation, zoom, scaleExtent } = props;
-  const { orientation } = feedTreeProp;
 
   const bindZoomListener = React.useCallback(() => {
     const { translate } = feedTreeProp;
@@ -228,7 +316,7 @@ const FeedTree = (props: AllProps) => {
         };
       });
     }
-  }, [props.data, props.tsIds]);
+  }, [props.data, props.tsIds, generateTree]);
 
   const handleChange = (feature: string, data?: any) => {
     if (feature === "collapsible") {
@@ -292,86 +380,6 @@ const FeedTree = (props: AllProps) => {
     }
   };
 
-  const generateTree = (data: TreeNodeDatum[]) => {
-    const { nodeSize, orientation, separation, tsIds } = props;
-
-    const d3Tree = tree<TreeNodeDatum>()
-      .nodeSize(
-        orientation === "horizontal"
-          ? [nodeSize.y, nodeSize.x]
-          : [nodeSize.x, nodeSize.y]
-      )
-      .separation((a, b) => {
-        return a.data.parentId === b.data.parentId
-          ? separation.siblings
-          : separation.nonSiblings;
-      });
-
-    let nodes;
-    let links: HierarchyPointLink<TreeNodeDatum>[] | undefined = undefined;
-    let newLinks: HierarchyPointLink<TreeNodeDatum>[] = [];
-
-    if (data) {
-      const rootNode = d3Tree(
-        hierarchy(data[0], (d) => (d.__rd3t.collapsed ? null : d.children))
-      );
-      nodes = rootNode.descendants();
-      links = rootNode.links();
-
-      const newLinksToAdd: any[] = [];
-
-      if (tsIds) {
-        links.forEach((link) => {
-          const targetId = link.target.data.id;
-          const sourceId = link.target.data.id;
-
-          if (targetId && sourceId && (tsIds[targetId] || tsIds[sourceId])) {
-            // tsPlugin found
-            let topologicalLink: any;
-
-            if (tsIds[targetId]) {
-              topologicalLink = link.target;
-            } else {
-              topologicalLink = link.source;
-            }
-
-            const parents = tsIds[topologicalLink.data.id];
-            const dict: any = {};
-            links &&
-              links.forEach((link) => {
-                for (let i = 0; i < parents.length; i++) {
-                  if (
-                    link.source.data.id === parents[i] &&
-                    !dict[link.source.data.id]
-                  ) {
-                    dict[link.source.data.id] = link.source;
-                  } else if (
-                    link.target.data.id === parents[i] &&
-                    !dict[link.target.data.id]
-                  ) {
-                    dict[link.target.data.id] = link.target;
-                  }
-                }
-
-                return dict;
-              });
-
-            for (const i in dict) {
-              newLinksToAdd.push({
-                source: dict[i],
-                target: topologicalLink,
-              });
-            }
-          }
-        });
-      }
-
-      newLinks = [...links, ...newLinksToAdd];
-    }
-
-    return { nodes, newLinks: newLinks };
-  };
-
   const { nodes, links } = feedTree;
 
   return (
@@ -409,8 +417,8 @@ const FeedTree = (props: AllProps) => {
           <div className="feed-tree__control">
             <Switch
               id="labels"
-              label="Show Labels"
-              labelOff="Hide Labels"
+              label="Hide Labels"
+              labelOff="Show Labels"
               isChecked={feedState.toggleLabel}
               onChange={() => {
                 handleChange("label");

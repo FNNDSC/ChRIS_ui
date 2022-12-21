@@ -193,12 +193,14 @@ const FileBrowser = (props: FileBrowserProps) => {
         ) : (
           <span>Click on a file to preview:</span>
         )}
-        <Button
-          onClick={() => expandDrawer("bottom_panel")}
-          variant="tertiary"
-          type="button"
-          icon={<AiFillCloseCircle />}
-        />
+        {explore && (
+          <Button
+            onClick={() => expandDrawer("bottom_panel")}
+            variant="tertiary"
+            type="button"
+            icon={<AiFillCloseCircle />}
+          />
+        )}
       </div>
 
       {selectedFile && (

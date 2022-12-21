@@ -5,6 +5,16 @@
 .ant-progress-text {
   color: white !important;
 }
+
+@media screen and (min-width: 768px) {
+  .pf-c-drawer
+    > .pf-c-drawer__main
+    > .pf-c-drawer__panel.pf-m-resizable
+    > .pf-c-drawer__panel-main {
+    flex-shrink: 0;
+  }
+}
+
 .node-block {
   background: $node-block-background;
   padding-top: 2rem;
@@ -34,7 +44,6 @@
     width: 100%;
   }
 
- 
   .node-details {
     height: 100%;
     margin: 0 1em 0 0;
