@@ -148,7 +148,7 @@ function getInitialState(
       type: "time",
     },
     collapsible: false,
-    toggleLabel: true,
+    toggleLabel: false,
   };
 }
 
