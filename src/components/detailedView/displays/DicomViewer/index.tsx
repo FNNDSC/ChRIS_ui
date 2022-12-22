@@ -361,6 +361,8 @@ const DicomViewerContainer = (props: {
     position: "absolute",
   };
 
+  console.log("Images", images);
+
   return (
     <>
       <div
@@ -396,6 +398,16 @@ const DicomViewerContainer = (props: {
             >
               <span>
                 <b>Image Number:</b> {currentImage}/{images.length}
+              </span>
+              <span>
+                <b>
+                  {images && images[frames] && (
+                    <b>
+                      Image Dimensions: {images[frames].width} x{" "}
+                      {images[frames].height}{" "}
+                    </b>
+                  )}
+                </b>
               </span>
             </div>
             {images &&
