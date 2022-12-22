@@ -361,8 +361,6 @@ const DicomViewerContainer = (props: {
     position: "absolute",
   };
 
-  console.log("Images", images);
-
   return (
     <>
       <div
