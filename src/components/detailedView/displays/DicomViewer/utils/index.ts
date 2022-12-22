@@ -62,8 +62,6 @@ export function initDicom() {
   return { ImageId };
 }
 
-
-
 export function isDicom(fileName: string) {
   const fileExt = fileName.substring(fileName.lastIndexOf(".") + 1);
   if (fileExt === "dcm" || fileExt === "dicom") return true;
@@ -529,9 +527,11 @@ export function dumpDataSet(dataSet: any, output: any) {
                 */
             } else if (vr === "AT") {
               const group = dataSet.uint16(propertyName, 0);
-              const groupHexStr = ("0000" + group.toString(16)).substr(-4);
+              const groupHexStr = ("0000" + group.toString(16)).substring(-4);
               const element = dataSet.uint16(propertyName, 1);
-              const elementHexStr = ("0000" + element.toString(16)).substr(-4);
+              const elementHexStr = ("0000" + element.toString(16)).substring(
+                -4
+              );
               text += "x" + groupHexStr + elementHexStr;
             } else if (vr === "SQ") {
             } else {
