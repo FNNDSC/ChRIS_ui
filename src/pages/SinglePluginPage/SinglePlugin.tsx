@@ -1,6 +1,6 @@
 import React from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 
 import {
@@ -12,11 +12,15 @@ import {
   Button,
   ClipboardCopy,
   ExpandableSection,
+  Badge,
+  Split,
+  SplitItem,
 } from "@patternfly/react-core";
-import { DownloadIcon, UserAltIcon } from '@patternfly/react-icons';
+import { DownloadIcon, UserAltIcon, StarIcon } from '@patternfly/react-icons';
 import { Tabs, Tab, TabTitleText, Spinner} from '@patternfly/react-core';
 
 // New import statements
+import PluginImg from '../../assets/images/brainy-pointer.png'
 import { marked } from 'marked';
 import { sanitize } from 'dompurify';
 import "./SinglePlugin.scss";
@@ -26,6 +30,7 @@ import "./SinglePlugin.scss";
 const SinglePlugin = () => {
         
   const { pluginName } = useParams() as { pluginName: string};
+  const navigate = useNavigate();
   document.title = pluginName;
   const [ pluginData, setPluginData ] = React.useState<{[key: string]: any}>({});
 
@@ -151,119 +156,150 @@ const SinglePlugin = () => {
       <Spinner isSVG diameter="80px" />
     )
   else
-    return ( 
-      <div>
-        <div>
-          <p>Something will be here</p>
-        </div>
+    return (
+      <>
+      {pluginData && (
+        <div className="plugin">
+          <section>
+              <Grid hasGutter>
+                <GridItem style={{ marginRight: '2em' }} lg={2} sm={12}>
+                  <img
+                    className="plugin-icon"
+                    src={PluginImg}
+                    alt="Plugin icon"
+                  />
+                </GridItem>
 
-        <Card id="plugin-body">
-          {pluginData && (
-            <>
-              <div style={{marginBottom: "1rem"}}>
-                <Title headingLevel="h2">{pluginData.name}</Title>
-              </div>
+                <GridItem lg={10} sm={12}>
+                  <Grid>
+                    <GridItem lg={10} sm={12}>
+                      <h3 className="plugin-name">{pluginData.name} <Badge>{pluginData.category}</Badge></h3>
+                      <h2 className="plugin-title">{pluginData.title}</h2>
+                    </GridItem>
 
-              <div>
-                <Grid hasGutter>
-                  <GridItem md={8} sm={12}>
-                    <Tabs
-                    activeKey={activeTabKey}
-                    onSelect={handleTabClick}
-                    >
-                      <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>}>
-                        <div style={{ color: 'gray', margin: '1em 0' }}>README</div>
-                        { readme ? <div dangerouslySetInnerHTML={{ __html: readme }} /> : null }
-                      </Tab>
-                      <Tab eventKey={1} title={<TabTitleText>Parameters</TabTitleText>}>
-                        <h2>Parameters Content</h2>
-                      </Tab>
-                      <Tab eventKey={2} title={<TabTitleText>Versions</TabTitleText>}>
-                        <h2>Versions of this plugin</h2>
-                        <p className="pluginList__version">
-                          version: {pluginData.version}
-                        </p>
-                      </Tab>
-                    </Tabs>
-                  </GridItem>
-
-                  <GridItem md={4} sm={12}>
-                    <div className="plugin-body-side-col">
-                      <div className="plugin-body-detail-section">
-                        <h2>Install</h2>
-                        <p>Click to install this plugin to your ChRIS Server.</p>
-                        <br />
-                        <Popover
-                          position="bottom"
-                          maxWidth="30rem"
-                          headerContent={<b>Install to your ChRIS server</b>}
-                          bodyContent={() => (
-                            <div>
-                              <p>
-                                Copy and Paste the URL below into your ChRIS Admin Dashboard
-                                to install this plugin.
-                              </p>
-                              <br />
-                              <InstallButton/>
-                            </div>
-                          )}
-                        >
-                          <Button isBlock style={{ fontSize: '1.125em' }}>
-                            <DownloadIcon />
-                            {' '}
-                            Install to ChRIS
+                    <GridItem lg={2} sm={12} className="plugin-stats">
+                      <Split>
+                        <SplitItem isFilled />
+                        <SplitItem>
+                          <Button variant="primary" onClick={() => navigate(-1)}>
+                            Back to Plugins
                           </Button>
-                        </Popover>
-                      </div>
-                      <div className="plugin-body-detail-section">
-                        <h4>Repository</h4>
-                        <a href={pluginData.public_repo}>
-                          {pluginData.public_repo}
-                        </a>
-                      </div>
+                        </SplitItem>
+                      </Split>
+                    </GridItem>
 
-                      <div className="plugin-body-detail-section">
-                        <h4>Author</h4>
-                          { removeEmail(pluginData.authors.split(',')).map(author => (
-                            <a key={author} href={`#`}>
-                              <p><UserAltIcon />{ author }</p>
-                            </a>
-                          ))}
-                      </div>
-                      <div className="plugin-body-detail-section">
-                        <h4>Collaborators</h4>
-                        {
-                          // FIXME
-                          <a className="pf-m-link" href={`${pluginData.documentation}/graphs/contributors`}>
-                            View contributors on Github
-                          </a>
-                        }
-                      </div>
+                    <GridItem>
+                      <p style={{ color: "gray" }}>
+                        Created {(new Date(pluginData.creation_date.split('T')[0])).toDateString()}
+                      </p>
+                    </GridItem>
+                  </Grid>
+                </GridItem>
+              </Grid>
+          </section>
 
-                      <div className="plugin-body-detail-section">
-                        <h4>License</h4>
-                        {pluginData.license} License
-                      </div>
-                      <div className="plugin-body-detail-section">
-                        <h4>Content Type</h4>
-                        {pluginData.type}
-                      </div>
-                      <div className="plugin-body-detail-section">
-                        <h4>Date added</h4>
-                        {(new Date(pluginData.creation_date.split('T')[0])).toDateString()}
-                      </div>
+          <Card id="plugin-body">
+
+            <div style={{marginBottom: "1rem"}}>
+              <Title headingLevel="h2">{pluginData.name}</Title>
+            </div>
+
+            <div>
+              <Grid hasGutter>
+                <GridItem md={8} sm={12}>
+                  <Tabs
+                  activeKey={activeTabKey}
+                  onSelect={handleTabClick}
+                  >
+                    <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>}>
+                      <div style={{ color: 'gray', margin: '1em 0' }}>README</div>
+                      { readme ? <div dangerouslySetInnerHTML={{ __html: readme }} /> : null }
+                    </Tab>
+                    <Tab eventKey={1} title={<TabTitleText>Parameters</TabTitleText>}>
+                      <h2>Parameters Content</h2>
+                    </Tab>
+                    <Tab eventKey={2} title={<TabTitleText>Versions</TabTitleText>}>
+                      <h2>Versions of this plugin</h2>
+                      <p className="pluginList__version">
+                        version: {pluginData.version}
+                      </p>
+                    </Tab>
+                  </Tabs>
+                </GridItem>
+
+                <GridItem md={4} sm={12}>
+                  <div className="plugin-body-side-col">
+                    <div className="plugin-body-detail-section">
+                      <h2>Install</h2>
+                      <p>Click to install this plugin to your ChRIS Server.</p>
+                      <br />
+                      <Popover
+                        position="bottom"
+                        maxWidth="30rem"
+                        headerContent={<b>Install to your ChRIS server</b>}
+                        bodyContent={() => (
+                          <div>
+                            <p>
+                              Copy and Paste the URL below into your ChRIS Admin Dashboard
+                              to install this plugin.
+                            </p>
+                            <br />
+                            <InstallButton/>
+                          </div>
+                        )}
+                      >
+                        <Button isBlock style={{ fontSize: '1.125em' }}>
+                          <DownloadIcon />
+                          {' '}
+                          Install to ChRIS
+                        </Button>
+                      </Popover>
                     </div>
-                  </GridItem>
-                </Grid>
-              </div>
-            </>
+                    <div className="plugin-body-detail-section">
+                      <h4>Repository</h4>
+                      <a href={pluginData.public_repo}>
+                        {pluginData.public_repo}
+                      </a>
+                    </div>
 
+                    <div className="plugin-body-detail-section">
+                      <h4>Author</h4>
+                        { removeEmail(pluginData.authors.split(',')).map(author => (
+                          <a key={author} href={`#`}>
+                            <p><UserAltIcon />{ author }</p>
+                          </a>
+                        ))}
+                    </div>
+                    <div className="plugin-body-detail-section">
+                      <h4>Collaborators</h4>
+                      {
+                        // FIXME
+                        <a className="pf-m-link" href={`${pluginData.documentation}/graphs/contributors`}>
+                          View contributors on Github
+                        </a>
+                      }
+                    </div>
 
-
-          )}
-        </Card>
-
-      </div>
+                    <div className="plugin-body-detail-section">
+                      <h4>License</h4>
+                      {pluginData.license} License
+                    </div>
+                    <div className="plugin-body-detail-section">
+                      <h4>Content Type</h4>
+                      {pluginData.type}
+                    </div>
+                    <div className="plugin-body-detail-section">
+                      <h4>Date added</h4>
+                      {(new Date(pluginData.creation_date.split('T')[0])).toDateString()}
+                    </div>
+                  </div>
+                </GridItem>
+              </Grid>
+            </div>
+          </Card>
+        </div>
+      )}
+      </>
     );
 };
 
