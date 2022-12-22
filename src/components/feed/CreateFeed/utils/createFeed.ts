@@ -8,10 +8,10 @@ import { fetchResource } from "../../../../api/common";
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
-    return "Feed Creation using an FS Plugin";
+    return "Analysis Creation using an FS Plugin";
   } else if (selectedConfig === "file_select") {
-    return "Feed Creation using File Select";
-  } else return "Feed Creation";
+    return "Analysis Creation using File Select";
+  } else return "Analysis Creation";
 }
 
 export const createFeed = async (
@@ -161,7 +161,7 @@ export const createFeedInstanceWithDircopy = async (
             });
           }
         }
-        statusCallback("Feed Created", 90);
+        statusCallback("Analysis Created", 90);
         feed = await createdInstance.getFeed();
       }
     }
@@ -204,7 +204,7 @@ export const createFeedInstanceWithFS = async (
             data
           );
           feed = await fsPluginInstance.getFeed();
-          statusCallback("Feed Created", 20);
+          statusCallback("Analysis Created", 20);
         } catch (error) {
           console.log("Error", error);
           errorCallback(error as string);

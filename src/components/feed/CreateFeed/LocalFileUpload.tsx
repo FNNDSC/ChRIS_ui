@@ -1,9 +1,10 @@
 import React, { useContext } from "react";
-import { Grid, GridItem, Button } from "@patternfly/react-core";
+import { Grid, GridItem, WizardContextConsumer } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { LocalFile, Types } from "./types/feed";
 import FileUpload from "../../common/fileupload";
 import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
+
 
 const LocalFileUpload: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -26,6 +27,7 @@ const LocalFileUpload: React.FC = () => {
       },
     });
   };
+ 
 
   return (
     <div className="pacs-alert-wrap">
@@ -33,7 +35,7 @@ const LocalFileUpload: React.FC = () => {
         <h1 className="pf-c-title pf-m-2xl">
           File Selection: Local File Upload
         </h1>
-        <p>Choose files from your local computer to create a feed</p>
+        <p>Choose files from your local computer to create an analysis</p>
         <FileUploadComponent
           className="local-file-upload"
           handleDeleteDispatch={handleDeleteDispatch}
@@ -85,11 +87,21 @@ const FileUploadComponent = ({
           </React.Fragment>
         ))
       : null;
+    
+    const handleKeyDown = (e:any, next:() => void, prev:() =>void)=>{
+        if(e.code == "ArrowLeft"){
+          prev()
+        }else if(e.code == "ArrowRight" && localFiles.length > 0 ){
+          next()
+        }
+    }
   return (
-    <div className={className}>
+    <WizardContextConsumer>
+      {({onNext, onBack}: {onNext:any;onBack:any}) => (
+        <div className={className}>
       <Grid hasGutter={true}>
-        <GridItem span={4} rowSpan={4} style={{ minWidth: "9rem" }}>
-          <FileUpload handleLocalUploadFiles={handleChoseFilesClick} />
+        <GridItem span={4} rowSpan={4} style={{ minWidth: "9rem" }} onKeyDown={(e) => handleKeyDown(e, onNext, onBack)}>
+          <FileUpload handleLocalUploadFiles={handleChoseFilesClick}/>
           {uploadName && uploadName}
         </GridItem>
         <GridItem
@@ -102,5 +114,7 @@ const FileUploadComponent = ({
         </GridItem>
       </Grid>
     </div>
+      )}
+    </WizardContextConsumer>
   );
 };

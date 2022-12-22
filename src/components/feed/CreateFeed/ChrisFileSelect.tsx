@@ -6,6 +6,7 @@ import {
   AlertActionLink,
   Grid,
   GridItem,
+  WizardContextConsumer,
 } from '@patternfly/react-core'
 import { EventDataNode, Key } from 'rc-tree/lib/interface'
 import { Tree } from 'antd'
@@ -97,6 +98,16 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
     }
   }
 
+  const handleKeyDown = (e:any, next:() => void, prev:() => void) =>{
+    if(chrisFiles.length > 0 && e.code == "ArrowRight"){
+      e.preventDefault()
+      next()
+    }else if(e.code == "ArrowLeft"){
+      e.preventDefault()
+      prev()
+    }
+  }
+
   const onLoad = (treeNode: EventDataNode): Promise<void> => {
     const { children } = treeNode;
 
@@ -130,6 +141,14 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
       : null
 
   return (
+    <WizardContextConsumer>
+       {({
+        onNext,
+        onBack
+      }: {
+        onNext: any;
+        onBack: any
+      }) => (
     <div className="chris-file-select pacs-alert-wrap">
       <div className="pacs-alert-step-wrap">
         <h1 className="pf-c-title pf-m-2xl">
@@ -137,7 +156,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
         </h1>
         <p>
           Navigate the internal ChRIS storage and select files/directories to
-          create a feed
+          create an analysis
         </p>
         <br />
         <Grid hasGutter={true}>
@@ -146,6 +165,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
               <DirectoryTree
                 //@ts-ignore
                 onCheck={onCheck}
+                onKeyDown={(e) => handleKeyDown(e, onNext, onBack)}
                 //@ts-ignore
                 loadData={onLoad}
                 checkedKeys={fetchKeysFromDict}
@@ -156,7 +176,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
             </ErrorBoundary>
           </GridItem>
           <GridItem span={6} rowSpan={12}>
-            <p className="section-header">Files to add to new feed:</p>
+            <p className="section-header">Files to add to new analysis:</p>
             <div className="file-list">{fileList}</div>
           </GridItem>
         </Grid>
@@ -167,7 +187,8 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
           />
         )}
       </div>
-    </div>
+    </div>)} 
+    </WizardContextConsumer>
   );
 }
 

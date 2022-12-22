@@ -21,7 +21,7 @@ const SelectionAlertWrap: React.FC<SelectionAlertWrapProps> = ({
     if (showAlert && selectData && selectData.length > 0)
       return (
         <div className="pacs-alert">
-          Creating feed from {selectData.length} {pluralize("item", selectData.length)}&nbsp;
+          Creating analysis from {selectData.length} {pluralize("item", selectData.length)}&nbsp;
           <ChipGroup numChips={2}>
             {
               selectData.map((path) => {
