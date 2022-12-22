@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Grid, GridItem, Button } from "@patternfly/react-core";
+import { Grid, GridItem } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { LocalFile, Types } from "./types/feed";
 import FileUpload from "../../common/fileupload";
@@ -62,15 +62,18 @@ const FileUploadComponent = ({
   handleDeleteDispatch,
   className,
 }: FileUploadProps) => {
-  const handleChoseFilesClick = (files: any[]) => {
-    const filesConvert = Array.from(files).map((file) => {
-      return {
-        name: file.name,
-        blob: file,
-      };
-    });
-    dispatchFn(filesConvert);
-  };
+  const handleChoseFilesClick = React.useCallback(
+    (files: any[]) => {
+      const filesConvert = Array.from(files).map((file) => {
+        return {
+          name: file.name,
+          blob: file,
+        };
+      });
+      dispatchFn(filesConvert);
+    },
+    [dispatchFn]
+  );
 
   const fileList =
     localFiles.length > 0
