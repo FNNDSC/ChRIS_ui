@@ -58,7 +58,7 @@ div:fullscreen {
 // Inputs onfocus
 // ----------------------------------------------
 
-input:focus, textarea:focus, select:focus{
+input[type=text]:focus, textarea:focus, select:focus{
   outline: none !important;
 }
 

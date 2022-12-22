@@ -162,20 +162,20 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       );
 
       if (!feed) {
-        throw new Error("New feed is undefined. Giving up.");
+        throw new Error("New analysis is undefined. Giving up.");
       }
 
-      // Set feed name
+      // Set analysis name
       await feed.put({
         name: state.data.feedName,
       });
 
-      // Set feed tags
+      // Set analysis tags
       for (const tag of state.data.tags) {
         feed.tagFeed(tag.data.id);
       }
 
-      // Set feed description
+      // Set analysis description
       const note = await feed.getNote();
       await note.put({
         title: "Description",
@@ -276,7 +276,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         },
         {
           id: 2,
-          name: "Feed Type Selection",
+          name: "Analysis Data Selection",
           component: withSelectionAlert(chooseConfig),
           enableNext: selectedConfig.length > 0,
           canJumpTo: step > 2,
@@ -285,6 +285,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           id: 5,
           name: "Pipelines",
           component: pipelines,
+          enableNext: selectedPipeline !== undefined,
           canJumpTp: step > 5,
         },
         {
@@ -292,7 +293,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           name: "Review",
           component: review,
           enableNext: enableSave,
-          nextButtonText: "Create Feed",
+          nextButtonText: "Create Analysis",
           canJumpTo: step > 6,
         },
         {
@@ -312,7 +313,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         },
         {
           id: 2,
-          name: "Feed Type Selection",
+          name: "Analysis Data Selection",
           component: withSelectionAlert(chooseConfig),
           enableNext: selectedConfig.length > 0,
           canJumpTo: step > 2,
@@ -325,8 +326,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         {
           id: 5,
           name: "Pipelines",
-          enableNext: true,
           component: pipelines,
+          enableNext: selectedPipeline !== undefined,
           nextButtonText: "Review",
           canJumpTo: step > 5,
         },
@@ -335,7 +336,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           name: "Review",
           component: withSelectionAlert(review, false),
           enableNext: enableSave,
-          nextButtonText: "Create Feed",
+          nextButtonText: "Create Analysis",
           canJumpTo: step > 6,
         },
         {
@@ -397,9 +398,9 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   );
 
   return (
-    <div className="create-feed">
+    <div className="create-analysis">
       <Button
-        className="create-feed-button"
+        className="create-analysis-button"
         variant="primary"
         isLarge
         onClick={() => {
@@ -415,7 +416,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           width="95%"
           isOpen={wizardOpen}
           onClose={() => {
-            // clear global feed base data, so wizard will be blank on next open
+            // clear global analysis base data, so wizard will be blank on next open
             routerContext.actions.clearFeedData();
             if (wizardOpen)
               dispatch({
@@ -432,7 +433,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           }}
           title="Create a New Analysis"
           description="This wizard allows you to create a new Analysis and choose some data to process"
-          className={`feed-create-wizard ${getStepName()}-wrap`}
+          className={`analysis-create-wizard ${getStepName()}-wrap`}
           steps={steps}
           startAtStep={step}
           footer={CustomFooter}

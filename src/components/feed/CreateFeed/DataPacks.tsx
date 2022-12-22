@@ -5,14 +5,9 @@ import { CreateFeedContext } from "./context";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import {
-  DataList,
-  DataListItem,
-  DataListItemCells,
-  DataListCheck,
-  DataListCell,
-  DataListItemRow,
   Pagination,
   ToolbarItem,
+  Radio,
 } from "@patternfly/react-core";
 import {
   Button,
@@ -90,15 +85,29 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
     });
   };
 
-  const handleKeyDown = (e:any, next: () => void, prev: () => void) =>{
-    e.preventDefault()
-    if(selectedPlugin && e.code == "Enter"){
+  const handleOnChange = (checked:any, plugin: Plugin) =>{
+    checked === true && props.getParams(plugin);
+    dispatch({
+      type: Types.SelectPlugin,
+      payload: {
+        plugin,
+        checked,
+      },
+    });
+  }
+
+  const handleKeyDown = (e: any, next: () => void, prev: () => void, plugin: Plugin) => {
+    if (e.code == "Enter") {
+      e.preventDefault()
+      if(selectedPlugin != plugin) handleOnChange(true, plugin)
       next()
-    }else if(selectedPlugin && e.code == "ArrowRight"){
+    } else if (selectedPlugin && e.code == "ArrowRight") {
+      e.preventDefault()
       next()
-    }else if(e.code == "ArrowLeft"){
+    } else if (e.code == "ArrowLeft") {
+      e.preventDefault()
       prev()
- }
+    }
   }
 
   return (
@@ -111,8 +120,8 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
         onBack: any;
       }) => (
         <div className="local-file-upload">
-          <h1 className="pf-c-title pf-m-2xl">Feed Synthesis Plugin</h1>
-          <p>Please choose the Feed Synthesis Plugin you&lsquo;d like to run</p>
+          <h1 className="pf-c-title pf-m-2xl">Analysis Synthesis Plugin</h1>
+          <p>Please choose the Analysis Synthesis Plugin you&lsquo;d like to run</p>
           <br />
 
           <div className="fsplugin__datatoolbar">
@@ -145,64 +154,36 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
             </ToolbarItem>
           </div>
 
-          <DataList aria-label="FS Plugins">
-            {fsPlugins.map((plugin, index) => {
-              const { title, name } = plugin.data;
-              const pluginName = `${title ? title : `${name} v.${plugin.data.version}`
-                }`;
-              return (
-                <DataListItem key={index} aria-labelledby="plugin-checkbox">
-                  <DataListItemRow>
-                    <DataListCheck
-                      aria-labelledby="plugin-checkbox"
-                      name={pluginName}
-                      id={name}
-                      onKeyDown={(e) => handleKeyDown(e, onNext, onBack)}
-                      onChange={(checked: any) => {
-                        checked === true && props.getParams(plugin);
-                        dispatch({
-                          type: Types.SelectPlugin,
-                          payload: {
-                            plugin,
-                            checked,
-                          },
-                        });
-                      }}
-                      checked={selectedPlugin?.data.id === plugin.data.id}
-                    />
-                    <DataListItemCells
-                      dataListCells={[
-                        <DataListCell key={index}>
-                          <div className="plugin-table-row" key={index}>
-                            <span
-                              className="plugin-table-row__plugin-name"
-                              id={pluginName}
-                            >
-                              {pluginName}
-                            </span>
-                            <span
-                              className="plugin-table-row__plugin-description"
-                              id={plugin.data.description}
-                            >
-                              <em>{plugin.data.description}</em>
-                            </span>
-                          </div>
-                        </DataListCell>,
-                      ]}
-                    ></DataListItemCells>
-                  </DataListItemRow>
-                </DataListItem>
-              );
-            })}
-          </DataList>
-        </div>
-        )}
+           <div>
+          {fsPlugins.map((plugin, index) => {
+            const { title, name } = plugin.data;
+            const pluginName = `${title ? title : `${name} v.${plugin.data.version}`
+              }`
+            return (
+              <>
+                <Radio
+                  key={index}
+                  aria-labelledby="plugin-radioButton"
+                  id={name}
+                  label={pluginName}
+                  name="plugin-radioButton"
+                  onKeyDown={(e) => handleKeyDown(e, onNext, onBack, plugin)}
+                  description={plugin.data.description}
+                  onChange={(checked:any) => handleOnChange(checked, plugin)}
+                  checked={selectedPlugin?.data.id === plugin.data.id}
+                />
+                </>
+            )})}
+            </div>
+            </div>
+            )
+          }
     </WizardContextConsumer>
-  );
+      );
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getParams: (plugin: Plugin) => dispatch(getParams(plugin)),
+        getParams: (plugin: Plugin) => dispatch(getParams(plugin)),
 });
 
-export default connect(null, mapDispatchToProps)(DataPacks);
+      export default connect(null, mapDispatchToProps)(DataPacks);

@@ -10,6 +10,7 @@ import {
   Pagination,
   DataListAction,
   DataListContent,
+  WizardContextConsumer,
 } from "@patternfly/react-core";
 
 import {
@@ -121,8 +122,19 @@ const Pipelines = ({
     });
   };
 
+  const handleKeyDown = (e:any, next:() => void, prev:() =>void)=>{
+    if(e.code == "ArrowLeft"){
+      prev()
+    }else if(e.code == "ArrowRight" && selectedPipeline !== undefined ){
+      next()
+    }
+  }
+
   return (
-    <>
+    
+      <WizardContextConsumer>
+        {({onNext, onBack}: {onNext: any; onBack:any}) => (
+          <>
       <UploadJson handleDispatch={handleUploadDispatch} />
       <Pagination
         itemCount={pageState.itemCount}
@@ -153,7 +165,13 @@ const Pipelines = ({
                   <DataListToggle
                     id={pipeline.data.id}
                     aria-controls="expand"
+                    onKeyDown={(e) => handleKeyDown(e, onNext, onBack)}
                     onClick={async () => {
+                      if (!(selectedPipeline === pipeline.data.id)) {
+                        handlePipelineSecondaryResource(pipeline);
+                      }else {
+                        handleCleanResources();
+                      }
                       if (
                         !(expanded && expanded[pipeline.data.id]) ||
                         !state.pipelineData[pipeline.data.id]
@@ -209,6 +227,7 @@ const Pipelines = ({
                       <Button
                         variant="tertiary"
                         key="select-action"
+                        onKeyDown={(e) => handleKeyDown(e, onNext, onBack)}
                         onClick={async () => {
                           if (!(selectedPipeline === pipeline.data.id)) {
                             handlePipelineSecondaryResource(pipeline);
@@ -313,7 +332,10 @@ const Pipelines = ({
           })
         )}
       </DataList>
-    </>
+      </>
+
+        )}
+      </WizardContextConsumer>
   );
 };
 
