@@ -3,12 +3,15 @@ $color_1: #0088ce;
 $color_2: #bbb;
 
 .plugin {
-	font-family: "Overpass", sans-serif !important;;
+	font-family: "Overpass", sans-serif !important;
+	margin: 1em 2em;
 }
-#plugin-body {
-	padding: 1em 2em;
-	margin: 1rem 2rem;
+.plugin-head {
+	margin: 2rem 0;
+}
+.plugin-body {
 	width: 100%;
+	padding: 2em 2em;
 }
 .plugin-body-side-col {
 	.plugin-body-detail-section {
