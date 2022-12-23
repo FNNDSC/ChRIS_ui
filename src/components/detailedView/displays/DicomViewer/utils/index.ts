@@ -10,6 +10,24 @@ import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import ChrisAPIClient from "../../../../../api/chrisapiclient";
 import Rusha from "rusha";
 
+const ZoomTool = cornerstoneTools.ZoomTool;
+const StackScrollMouseWheelTool = cornerstoneTools.StackScrollMouseWheelTool;
+const PanTool = cornerstoneTools.PanTool;
+const MagnifyTool = cornerstoneTools.MagnifyTool;
+const RotateTool = cornerstoneTools.RotateTool;
+const WwwcTool = cornerstoneTools.WwwcTool;
+const LengthTool = cornerstoneTools.LengthTool;
+
+const toolList = [
+  ZoomTool,
+  PanTool,
+  StackScrollMouseWheelTool,
+  MagnifyTool,
+  RotateTool,
+  WwwcTool,
+  LengthTool,
+];
+
 export function initDicom() {
   cornerstoneTools.external.cornerstone = cornerstone;
   cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
@@ -36,31 +54,22 @@ export function initDicom() {
   });
 
   const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
-  const StackScrollMouseWheelTool = cornerstoneTools.StackScrollMouseWheelTool;
-  const PanTool = cornerstoneTools.PanTool;
-  const MagnifyTool = cornerstoneTools.MagnifyTool;
-  const RotateTool = cornerstoneTools.RotateTool;
-  const WwwcTool = cornerstoneTools.WwwcTool;
-  const LengthTool = cornerstoneTools.LengthTool;
 
-  cornerstoneTools.addTool(cornerstoneTools.ZoomTool, {
-    configuration: {
-      invert: false,
-      preventZoomOutsideImage: false,
-      minScale: 0.1,
-      maxScale: 20.0,
-    },
+  toolList.forEach((tool) => {
+    if (tool === "StackScrollMouseWheel") {
+      cornerstoneTools.setToolActive("StackScrollMouseWheel", {});
+    }
+    cornerstoneTools.addTool(tool);
   });
-  cornerstoneTools.addTool(PanTool);
-  cornerstoneTools.addTool(StackScrollMouseWheelTool);
-  cornerstoneTools.setToolActive("StackScrollMouseWheel", {});
-  cornerstoneTools.addTool(MagnifyTool);
-  cornerstoneTools.addTool(RotateTool);
-  cornerstoneTools.addTool(WwwcTool);
-  cornerstoneTools.addTool(LengthTool);
 
   return { ImageId };
 }
+
+export const removeTool = () => {
+  toolList.forEach((tool) => {
+    cornerstoneTools.removeTool(tool.name);
+  });
+};
 
 export function isDicom(fileName: string) {
   const fileExt = fileName.substring(fileName.lastIndexOf(".") + 1);
@@ -148,22 +157,21 @@ const showP10Header = true;
 const showEmptyValues = true;
 const showLength = false;
 const showVR = false;
-const showGroupElement = true;
 const showFragments = true;
 const showFrames = true;
 const maxLength = 128;
 
-export function dumpDataSet(dataSet: any, output: any) {
-  function getTag(tag: any) {
-    const group = tag.substring(1, 5);
-    const element = tag.substring(5, 9);
-    const tagIndex = ("(" + group + "," + element + ")").toUpperCase();
+function getTag(tag: any) {
+  const group = tag.substring(1, 5);
+  const element = tag.substring(5, 9);
+  const tagIndex = ("(" + group + "," + element + ")").toUpperCase();
 
-    //@ts-ignore
-    const attr = TAG_DICT[tagIndex];
-    return attr;
-  }
+  //@ts-ignore
+  const attr = TAG_DICT[tagIndex];
+  return attr;
+}
 
+export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
   try {
     const keys = [];
     for (const propertyName in dataSet.elements) {
@@ -202,12 +210,10 @@ export function dumpDataSet(dataSet: any, output: any) {
       let color = "black";
 
       const tag = getTag(element.tag);
+
       // The output string begins with the element name (or tag if not in data dictionary), length and VR (if present).  VR is undefined for
       // implicit transfer syntaxes
       if (tag === undefined) {
-        text += element.tag;
-        text += " : ";
-
         let lengthText = "length=" + element.length;
         if (element.hadUndefinedLength) {
           lengthText += " (-1)";
@@ -235,24 +241,6 @@ export function dumpDataSet(dataSet: any, output: any) {
         // make text lighter since this is an unknown attribute
         color = "#C8C8C8";
       } else {
-        text += tag.name;
-        if (showGroupElement === true) {
-          text += "(" + element.tag + ")";
-        }
-        text += " : ";
-
-        title += "(" + element.tag + ")";
-
-        let lengthText = " length=" + element.length;
-        if (element.hadUndefinedLength) {
-          lengthText += " (-1)";
-        }
-        //@ts-ignore
-        if (showLength === true) {
-          text += lengthText + "; ";
-        }
-        title += "; " + lengthText;
-
         let vrText = "";
         if (element.vr) {
           vrText += "VR=" + element.vr;
@@ -291,7 +279,7 @@ export function dumpDataSet(dataSet: any, output: any) {
           }
           output.push("</li>");
           output.push("<ul>");
-          dumpDataSet(item.dataSet, output);
+          dumpDataSet(item.dataSet, output, testOutput);
           output.push("</ul>");
         });
         output.push("</ul>");
@@ -399,7 +387,7 @@ export function dumpDataSet(dataSet: any, output: any) {
               // data.  Note that the length of the element will be 0 to indicate "no data"
               // so we don't put anything here for the value in that case.
               if (str !== undefined) {
-                text += '"' + escapeSpecialCharacters(str) + '"' + mapUid(str);
+                text += escapeSpecialCharacters(str) + mapUid(str);
               }
             } else {
               if (element.length !== 2 && element.length !== 4) {
@@ -422,8 +410,7 @@ export function dumpDataSet(dataSet: any, output: any) {
                 // data.  Note that the length of the element will be 0 to indicate "no data"
                 // so we don't put anything here for the value in that case.
                 if (str !== undefined) {
-                  text +=
-                    '"' + escapeSpecialCharacters(str) + '"' + mapUid(str);
+                  text += escapeSpecialCharacters(str) + mapUid(str);
                 }
               } else {
                 if (element.length !== 2 && element.length !== 4) {
@@ -554,6 +541,10 @@ export function dumpDataSet(dataSet: any, output: any) {
         }
         // finally we add the string to our output array surrounded by li elements so it shows up in the
         // DOM as a list
+
+        testOutput.push({
+          [tag.name]: text,
+        });
         output.push(
           '<li style="color:' +
             color +
@@ -566,10 +557,9 @@ export function dumpDataSet(dataSet: any, output: any) {
       }
     }
   } catch (err) {
-    const ex = {
-      exception: err,
-      output: output,
-    };
-    throw ex;
+    console.error(err);
+    return testOutput;
   }
+
+  return testOutput;
 }
