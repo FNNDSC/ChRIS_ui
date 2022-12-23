@@ -7,7 +7,7 @@ import * as cornerstoneTools from "cornerstone-tools";
 import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { useTypedSelector } from "../../../../store/hooks";
-import { isDicom, isNifti, dumpDataSet, initDicom } from "./utils";
+import { isDicom, isNifti, dumpDataSet, initDicom, removeTool } from "./utils";
 import { SpinContainer } from "../../../common/loading/LoadingContent";
 import { getFileExtension } from "../../../../api/models/file-explorer.model";
 import GalleryModel from "../../../../api/models/gallery.model";
@@ -22,7 +22,7 @@ type DicomState = {
   filteredFiles: FeedFile[];
   images: ImageType[];
   frames: number;
-  output: string;
+  output: any[];
   showTagInfo: boolean;
   gallery: boolean;
   currentImage: number;
@@ -37,7 +37,7 @@ const getInitialState = () => {
     filteredFiles: [] as FeedFile[],
     images: [] as ImageType[],
     frames: 0,
-    output: "",
+    output: [],
     showTagInfo: false,
     gallery: false,
     currentImage: 1,
@@ -92,13 +92,13 @@ const DicomViewerContainer = (props: {
             const dataSet = dicomParser.parseDicom(byteArray);
             //@ts-ignore
             const output: any[] = [];
-            dumpDataSet(dataSet, output);
-            const newOutput = "<ul>" + output.join("") + "</ul>";
-
+            const testOutput: any[] = [];
+            dumpDataSet(dataSet, output, testOutput);
+            const merged = Object.assign({}, ...testOutput);
             setDicomState((dicomState) => {
               return {
                 ...dicomState,
-                output: newOutput,
+                output: merged,
               };
             });
           }
@@ -269,26 +269,29 @@ const DicomViewerContainer = (props: {
           }
 
           const element = dicomImageRef.current;
-          if (element) cornerstone.enable(element);
-          const stack = {
-            currentImageIdIndex: selected,
-            imageIds: imageIds,
-          };
+          if (element) {
+            cornerstone.enable(element);
 
-          cornerstone.displayImage(element, imagesToDisplay[selected]);
-          cornerstoneTools.addStackStateManager(element, ["stack"]);
-          cornerstoneTools.addToolState(element, "stack", stack);
-
-          setDicomState((dicomState) => {
-            return {
-              ...dicomState,
-              images: imagesToDisplay,
-              imageDictionary: imageDict,
-              currentImage: selected + 1,
-              frames: selected,
-              loader: false,
+            const stack = {
+              currentImageIdIndex: selected,
+              imageIds: imageIds,
             };
-          });
+
+            cornerstone.displayImage(element, imagesToDisplay[selected]);
+            cornerstoneTools.addStackStateManager(element, ["stack"]);
+            cornerstoneTools.addToolState(element, "stack", stack);
+
+            setDicomState((dicomState) => {
+              return {
+                ...dicomState,
+                images: imagesToDisplay,
+                imageDictionary: imageDict,
+                currentImage: selected + 1,
+                frames: selected,
+                loader: false,
+              };
+            });
+          }
 
           fireEvent();
         } catch (error) {}
@@ -356,6 +359,12 @@ const DicomViewerContainer = (props: {
       displayImageFromFiles(filteredFilesState);
     }
   }, [displayImageFromFiles, selectedFolder]);
+
+  React.useEffect(() => {
+    return () => {
+      removeTool();
+    };
+  }, []);
 
   const styleDiv = {
     position: "absolute",
