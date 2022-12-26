@@ -84,9 +84,7 @@ export const MainRouter: React.FC = () => {
       path: "plugin/:pluginName",
       element: (
         <PrivateRoute>
-          <Wrapper>
-            <SinglePlugin />
-          </Wrapper>
+          <SinglePlugin />
         </PrivateRoute>
       )
     },
