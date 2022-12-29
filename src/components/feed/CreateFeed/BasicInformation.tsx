@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { Form, FormGroup, TextInput, TextArea } from "@patternfly/react-core";
 import { Typeahead } from "react-bootstrap-typeahead";
 import { CreateFeedContext } from "./context";
 import { Tag } from "@fnndsc/chrisapi";
 import { Types } from "./types/feed";
 import { fetchTagList } from "./utils/basicInformation";
-import { WizardContextConsumer } from "@patternfly/react-core";
+ import { WizardContext } from "@patternfly/react-core/";
 
 const BasicInformation: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -13,6 +13,7 @@ const BasicInformation: React.FC = () => {
   const [availableTagsLoaded, setAvailableTagsLoaded] =
     useState<boolean>(false);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+   const {onNext} = useContext(WizardContext)
   const inputElement = useRef<any>()
   useEffect(() => {
     let mounted = true;
@@ -32,24 +33,26 @@ const BasicInformation: React.FC = () => {
       inputElement.current.focus()
     }
   }, [])
-
-  const handleKeyDown = (e: any, next: () => void) => {
+  const handleKeyDown = useCallback((e:any) => {
     if (feedName && e.code == "Enter") {
       e.preventDefault()
-      next()
-    } else if (feedName && e.code == "ArrowRight") {
-      e.preventDefault()
-      next()
+     onNext()
+   } else if (feedName && e.code == "ArrowRight") {
+     e.preventDefault()
+     onNext()
+   }
+ }, [onNext, feedName])
+  
+
+  useEffect(() => {
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
     }
-  }
+  }, [ handleKeyDown])
 
   return (
-    <WizardContextConsumer>
-      {({
-        onNext,
-      }: {
-        onNext: any;
-      }) => (
         <Form className="pf-u-w-75 basic-information">
           <h1 className="pf-c-title pf-m-2xl">Basic Information</h1>
           <FormGroup label="Analysis Name" isRequired fieldId="analysis-name">
@@ -70,7 +73,6 @@ const BasicInformation: React.FC = () => {
                   },
                 });
               }}
-              onKeyDown={(e) => handleKeyDown(e, onNext)}
               maxLength={100}
             />
           </FormGroup>
@@ -82,7 +84,6 @@ const BasicInformation: React.FC = () => {
               placeholder="Use this field to describe the purpose of your analysis, the type of data you're processing, or any other details or notes that might be handy to store in the feed."
               rows={5}
               value={feedDescription}
-              onKeyDown={(e) => handleKeyDown(e, onNext)}
               onChange={(value: string) => {
                 dispatch({
                   type: Types.FeedDescriptionChange,
@@ -111,17 +112,13 @@ const BasicInformation: React.FC = () => {
                   },
                 });
               }}
-              onKeyDown={(e) => handleKeyDown(e, onNext)}
               selected={tags}
               //@ts-ignore
               labelKey={(tag: Tag) => tag.data.name}
               emptyLabel={availableTagsLoaded ? "No tags found" : "Loading tags..."}
             />
           </FormGroup>
-        </Form>
-      )}
-    </WizardContextConsumer>
-
+        </Form> 
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef, useCallback } from "react";
 import { Plugin } from "@fnndsc/chrisapi";
 import { Types } from "./types/feed";
 import { CreateFeedContext } from "./context";
@@ -20,7 +20,7 @@ import debounce from "lodash/debounce";
 
 import { getParams } from "../../../store/plugin/actions";
 import { getPlugins } from "./utils/dataPacks";
-import { WizardContextConsumer } from "@patternfly/react-core";
+import { WizardContext } from "@patternfly/react-core/";
 
 
 interface FilterProps {
@@ -49,7 +49,8 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
   const [fsPlugins, setfsPlugins] = useState<Plugin[]>([]);
   const [filterState, setFilterState] = useState<FilterProps>(getFilterState());
   const { perPage, currentPage, filter, itemCount } = filterState;
-
+  const {onNext, onBack} = useContext(WizardContext)
+  const radioInput = useRef<any>()
   useEffect(() => {
     getPlugins(filter, perPage, perPage * (currentPage - 1), "fs").then(
       (pluginDetails) => {
@@ -96,29 +97,28 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
     });
   }
 
-  const handleKeyDown = (e: any, next: () => void, prev: () => void, plugin: Plugin) => {
-    if (e.code == "Enter") {
+  const handleKeyDown = useCallback((e: any) => {
+    if (selectedPlugin && e.code == "Enter" ) {
       e.preventDefault()
-      if(selectedPlugin != plugin) handleOnChange(true, plugin)
-      next()
+      onNext()
     } else if (selectedPlugin && e.code == "ArrowRight") {
       e.preventDefault()
-      next()
+      onNext()
     } else if (e.code == "ArrowLeft") {
       e.preventDefault()
-      prev()
+      onBack()
     }
-  }
+  }, [onNext, onBack, selectedPlugin])
+
+ 
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [ handleKeyDown])
 
   return (
-    <WizardContextConsumer>
-      {({
-        onNext,
-        onBack
-      }: {
-        onNext: any;
-        onBack: any;
-      }) => (
         <div className="local-file-upload">
           <h1 className="pf-c-title pf-m-2xl">Analysis Synthesis Plugin</h1>
           <p>Please choose the Analysis Synthesis Plugin you&lsquo;d like to run</p>
@@ -164,10 +164,10 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                 <Radio
                   key={index}
                   aria-labelledby="plugin-radioButton"
-                  id={name}
+                  id={pluginName}
+                  ref={radioInput}
                   label={pluginName}
                   name="plugin-radioButton"
-                  onKeyDown={(e) => handleKeyDown(e, onNext, onBack, plugin)}
                   description={plugin.data.description}
                   onChange={(checked:any) => handleOnChange(checked, plugin)}
                   checked={selectedPlugin?.data.id === plugin.data.id}
@@ -176,9 +176,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
             )})}
             </div>
             </div>
-            )
-          }
-    </WizardContextConsumer>
+          
       );
 };
 

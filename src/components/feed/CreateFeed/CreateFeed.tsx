@@ -27,6 +27,7 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { InputIndex } from "../AddNode/types";
 import "./createfeed.scss";
 import { PipelineTypes } from "./types/pipeline";
+import { useSelector } from "react-redux";
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
@@ -47,9 +48,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     requiredInput,
     computeEnvironment,
   } = state;
-
+  const {parameters: params} = useSelector((state:ApplicationState) => state.plugin)
   const { pipelineData, selectedPipeline } = pipelineState;
-
   const enableSave =
     data.chrisFiles.length > 0 ||
     data.localFiles.length > 0 ||
@@ -58,7 +58,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     selectedPlugin !== undefined
       ? true
       : false;
-
   const getStepName = (): string => {
     const stepNames = [
       "basic-information",
@@ -71,6 +70,24 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     ];
     return stepNames[step - 1];
   };
+
+  const RequiredParamsNotEmpty = () => {
+    if(params && params.length > 0){
+      for(const param of params){
+        const paramObject = requiredInput[param.data.id]
+        console.log(paramObject)
+        if(paramObject && param.data.optional == false ){
+          if(paramObject.value.length == 0) return false
+        }else if(!paramObject && param.data.optional == true ){
+          return true
+        }else{
+          return false
+        }
+      }
+    }
+    return true;
+  }
+
 
   const deleteInput = (index: string) => {
     dispatch({
@@ -143,7 +160,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       },
     });
   };
-
   const handleSave = async () => {
     // Set the progress to 'Started'
     const username = user && user.username;
@@ -240,6 +256,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           id: 4,
           name: "Parameter Configuration",
           component: withSelectionAlert(guidedConfig),
+          enableNext: RequiredParamsNotEmpty(),
           canJumpTo: step > 4,
         },
       ];
