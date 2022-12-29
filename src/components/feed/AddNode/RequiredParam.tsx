@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import { Form, WizardContextConsumer } from "@patternfly/react-core";
+import React from "react";
+import { Form } from "@patternfly/react-core";
 import { PluginParameter } from "@fnndsc/chrisapi";
 import { RequiredParamProp } from "./types";
 import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
@@ -15,12 +15,7 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     requiredInput &&
     requiredInput[param.data.id] &&
     requiredInput[param.data.id]["value"];
-  const inputElement = useRef<any>()
-  useEffect(() => {
-    if (inputElement.current) {
-      inputElement.current.focus()
-    }
-  }, [])
+
   const handleInputChange = (param: PluginParameter, event: any) => {
     const id = `${param.data.id}`;
     const flag = param.data.flag;
@@ -30,48 +25,40 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     const paramName = param.data.name;
     inputChange(id, flag, value, type, placeholder, true, paramName);
   };
- 
-  const handleKeyDown = (e: any, next: () => void, prev: () => void) => {
-    if (e.code == "Enter" || e.code == "ArrowRight") {
-      e.preventDefault()
-      next()
-     }else if(e.code == "ArrowLeft"){
-      e.preventDefault()
-      prev()
-     }
+
+  const triggerChange = (eventType: string) => {
+    if (eventType === "keyDown") {
+      addParam();
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      triggerChange("keyDown");
+    }
   };
 
   return (
-    <WizardContextConsumer>
-      {({ onNext,
-          onBack,
-      }: {
-        onNext: any;
-        onBack: any;
-      }) => (
-        <Form className="required-params" key={param.data.id}>
-          <div className="required-params__layout">
-            <div className="required-params__label">
-              {`${param.data.flag}:`}
-              <span className="required-params__star">*</span>
-            </div>
-            <span className="required-params__infoLabel">(*Required)</span>
-          </div>
-          <input
-            className={css(styles.formControl, `required-params__textInput`)}
-            type="text"
-            ref={inputElement}
-            aria-label="required-parameters"
-            onChange={(event: any) => handleInputChange(param, event)}
-            onKeyDown={(e) => handleKeyDown(e, onNext, onBack)}
-            placeholder={param.data.help}
-            value={value}
-            id={param.data.name}
-          />
-        </Form>
-      )}
-
-    </WizardContextConsumer>
+    <Form className="required-params" key={param.data.id}>
+      <div className="required-params__layout">
+        <div className="required-params__label">
+          {`${param.data.flag}:`}
+          <span className="required-params__star">*</span>
+        </div>
+        <span className="required-params__infoLabel">(*Required)</span>
+      </div>
+      <input
+        className={css(styles.formControl, `required-params__textInput`)}
+        type="text"
+        aria-label="required-parameters"
+        onChange={(event: any) => handleInputChange(param, event)}
+        onKeyDown={handleKeyDown}
+        placeholder={param.data.help}
+        value={value}
+        id={param.data.name}
+      />
+    </Form>
   );
 };
 

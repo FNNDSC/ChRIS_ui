@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import {
   Button,
   DataList,
@@ -10,7 +10,7 @@ import {
   Pagination,
   DataListAction,
   DataListContent,
-  WizardContextConsumer,
+  WizardContext,
 } from "@patternfly/react-core";
 
 import {
@@ -49,6 +49,7 @@ const Pipelines = ({
     loading: false,
     error: {},
   });
+  const { onNext, onBack } = useContext(WizardContext)
 
   const [pageState, setPageState] = React.useState({
     page: 1,
@@ -122,19 +123,25 @@ const Pipelines = ({
     });
   };
 
-  const handleKeyDown = (e:any, next:() => void, prev:() =>void)=>{
-    if(e.code == "ArrowLeft"){
-      prev()
-    }else if(e.code == "ArrowRight" && selectedPipeline !== undefined ){
-      next()
+  const handleKeyDown = useCallback((e: any) => {
+    if (e.code == "ArrowLeft") {
+      onBack()
+    } else if (e.code == "ArrowRight" && selectedPipeline !== undefined) {
+      onNext()
     }
-  }
+  }, [selectedPipeline, onBack, onNext])
+
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [ handleKeyDown])
 
   return (
-    
-      <WizardContextConsumer>
-        {({onNext, onBack}: {onNext: any; onBack:any}) => (
-          <>
+
+    <>
       <UploadJson handleDispatch={handleUploadDispatch} />
       <Pagination
         itemCount={pageState.itemCount}
@@ -165,11 +172,11 @@ const Pipelines = ({
                   <DataListToggle
                     id={pipeline.data.id}
                     aria-controls="expand"
-                    onKeyDown={(e) => handleKeyDown(e, onNext, onBack)}
+                    onKeyDown={(e) => handleKeyDown(e)}
                     onClick={async () => {
                       if (!(selectedPipeline === pipeline.data.id)) {
                         handlePipelineSecondaryResource(pipeline);
-                      }else {
+                      } else {
                         handleCleanResources();
                       }
                       if (
@@ -227,7 +234,7 @@ const Pipelines = ({
                       <Button
                         variant="tertiary"
                         key="select-action"
-                        onKeyDown={(e) => handleKeyDown(e, onNext, onBack)}
+                        onKeyDown={(e) => handleKeyDown(e)}
                         onClick={async () => {
                           if (!(selectedPipeline === pipeline.data.id)) {
                             handlePipelineSecondaryResource(pipeline);
@@ -291,7 +298,7 @@ const Pipelines = ({
                   isHidden={!(expanded && expanded[pipeline.data.id])}
                 >
                   {(expanded && expanded[pipeline.data.id]) ||
-                  state.pipelineData[pipeline.data.id] ? (
+                    state.pipelineData[pipeline.data.id] ? (
                     <>
                       <div style={{ display: "flex", background: "black" }}>
                         <Tree
@@ -332,10 +339,8 @@ const Pipelines = ({
           })
         )}
       </DataList>
-      </>
+    </>
 
-        )}
-      </WizardContextConsumer>
   );
 };
 

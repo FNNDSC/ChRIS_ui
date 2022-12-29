@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import {
   Button,
   Alert,
@@ -12,6 +12,7 @@ import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { v4 } from "uuid";
 import { GuidedConfigState, GuidedConfigProps } from "./types";
+import { WizardContext } from "@patternfly/react-core";
 
 const GuidedConfig = ({
   defaultValueDisplay,
@@ -36,7 +37,7 @@ const GuidedConfig = ({
 
   const { componentList, count, errors, alertVisible, docsExpanded } =
     configState;
-
+    const { onNext, onBack } = useContext(WizardContext)
   const setDropdownDefaults = React.useCallback(() => {
     if (dropdownInput) {
       const defaultComponentList = Object.entries(dropdownInput).map(
@@ -65,6 +66,26 @@ const GuidedConfig = ({
     });
   };
 
+  const handleKeyDown = useCallback((e: any) => {
+    if (e.code == "Enter" || e.code == "ArrowRight") {
+      e.preventDefault()
+      onNext()
+     }else if(e.code == "ArrowLeft"){
+      e.preventDefault()
+      onBack()
+     }
+  }, [onBack, onNext]);
+
+
+  useEffect(() => {
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [ handleKeyDown])
+
+  
   const deleteComponent = (id: string) => {
     const filteredList = componentList.filter((key) => {
       return key !== id;
@@ -141,6 +162,7 @@ const GuidedConfig = ({
   };
 
   const renderRequiredParams = () => {
+    console.log(params)
     if (params && params.length > 0) {
       return params.map((param, index) => {
         if (param.data.optional === false) {

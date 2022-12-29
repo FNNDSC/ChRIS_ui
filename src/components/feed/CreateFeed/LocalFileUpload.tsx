@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { Grid, GridItem, WizardContextConsumer } from "@patternfly/react-core";
+import React, { useCallback, useContext, useEffect } from "react";
+import { Grid, GridItem, WizardContext } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { LocalFile, Types } from "./types/feed";
 import FileUpload from "../../common/fileupload";
@@ -9,7 +9,7 @@ import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
 const LocalFileUpload: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { localFiles } = state.data;
-
+  const { onNext, onBack } = useContext(WizardContext)
   const handleDispatch = (files: LocalFile[]) => {
     dispatch({
       type: Types.AddLocalFile,
@@ -40,6 +40,8 @@ const LocalFileUpload: React.FC = () => {
           className="local-file-upload"
           handleDeleteDispatch={handleDeleteDispatch}
           localFiles={localFiles}
+          onNext={onNext}
+          onBack={onBack}
           dispatchFn={handleDispatch}
         />
       </div>
@@ -53,6 +55,8 @@ type FileUploadProps = {
   localFiles: LocalFile[];
   dispatchFn: (files: LocalFile[]) => void;
   handleDeleteDispatch: (file: string) => void;
+  onNext: () => void 
+  onBack: () => void
   uploadName?: JSX.Element;
   className: string;
 };
@@ -61,6 +65,8 @@ const FileUploadComponent = ({
   localFiles,
   dispatchFn,
   uploadName,
+  onBack, 
+  onNext,
   handleDeleteDispatch,
   className,
 }: FileUploadProps) => {
@@ -73,6 +79,23 @@ const FileUploadComponent = ({
     });
     dispatchFn(filesConvert);
   };
+
+  const handleKeyDown = useCallback((e:any)=>{
+    if(e.code == "ArrowLeft"){
+      onBack()
+    }else if(e.code == "ArrowRight" && localFiles.length > 0 ){
+      onNext()
+    }
+}, [localFiles.length, onBack, onNext])
+
+  useEffect(() => {
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [ handleKeyDown])
+
 
   const fileList =
     localFiles.length > 0
@@ -88,19 +111,11 @@ const FileUploadComponent = ({
         ))
       : null;
     
-    const handleKeyDown = (e:any, next:() => void, prev:() =>void)=>{
-        if(e.code == "ArrowLeft"){
-          prev()
-        }else if(e.code == "ArrowRight" && localFiles.length > 0 ){
-          next()
-        }
-    }
+   
   return (
-    <WizardContextConsumer>
-      {({onNext, onBack}: {onNext:any;onBack:any}) => (
         <div className={className}>
       <Grid hasGutter={true}>
-        <GridItem span={4} rowSpan={4} style={{ minWidth: "9rem" }} onKeyDown={(e) => handleKeyDown(e, onNext, onBack)}>
+        <GridItem span={4} rowSpan={4} style={{ minWidth: "9rem" }} onKeyDown={(e) => handleKeyDown(e)}>
           <FileUpload handleLocalUploadFiles={handleChoseFilesClick}/>
           {uploadName && uploadName}
         </GridItem>
@@ -114,7 +129,6 @@ const FileUploadComponent = ({
         </GridItem>
       </Grid>
     </div>
-      )}
-    </WizardContextConsumer>
+ 
   );
 };

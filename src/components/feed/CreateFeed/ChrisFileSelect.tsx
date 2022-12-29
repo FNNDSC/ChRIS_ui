@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useCallback, useEffect } from 'react'
 import { CreateFeedContext } from './context'
 import {
   Alert,
@@ -6,7 +6,7 @@ import {
   AlertActionLink,
   Grid,
   GridItem,
-  WizardContextConsumer,
+  WizardContext,
 } from '@patternfly/react-core'
 import { EventDataNode, Key } from 'rc-tree/lib/interface'
 import { Tree } from 'antd'
@@ -64,7 +64,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
 }: ChrisFileSelectProp) => {
   const { state, dispatch } = useContext(CreateFeedContext)
   const { chrisFiles, checkedKeys } = state.data
-
+  const {onBack, onNext} = useContext(WizardContext)
   const [tree, setTree] = useState<DataBreadcrumb[]>(
     (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username),
   )
@@ -98,15 +98,24 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
     }
   }
 
-  const handleKeyDown = (e:any, next:() => void, prev:() => void) =>{
+  const handleKeyDown = useCallback((e:any) =>{
     if(chrisFiles.length > 0 && e.code == "ArrowRight"){
       e.preventDefault()
-      next()
+      onNext()
     }else if(e.code == "ArrowLeft"){
       e.preventDefault()
-      prev()
+      onBack()
     }
-  }
+  }, [chrisFiles.length, onBack, onNext])
+
+  useEffect(() => {
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [ handleKeyDown])
+ 
 
   const onLoad = (treeNode: EventDataNode): Promise<void> => {
     const { children } = treeNode;
@@ -141,14 +150,6 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
       : null
 
   return (
-    <WizardContextConsumer>
-       {({
-        onNext,
-        onBack
-      }: {
-        onNext: any;
-        onBack: any
-      }) => (
     <div className="chris-file-select pacs-alert-wrap">
       <div className="pacs-alert-step-wrap">
         <h1 className="pf-c-title pf-m-2xl">
@@ -165,7 +166,6 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
               <DirectoryTree
                 //@ts-ignore
                 onCheck={onCheck}
-                onKeyDown={(e) => handleKeyDown(e, onNext, onBack)}
                 //@ts-ignore
                 loadData={onLoad}
                 checkedKeys={fetchKeysFromDict}
@@ -187,8 +187,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
           />
         )}
       </div>
-    </div>)} 
-    </WizardContextConsumer>
+    </div>
   );
 }
 
