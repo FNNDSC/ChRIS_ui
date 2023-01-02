@@ -53,7 +53,7 @@ describe("Testing CreateAnalysis", () => {
   });
 
   it("05 Selects the Analysis Data", () => {
-    cy.get("label.pf-c-radio__label")
+    cy.get("div.pf-c-card__body")
       .eq(0)
       .should(
         "have.text",
