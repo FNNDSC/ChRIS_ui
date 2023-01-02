@@ -26,6 +26,7 @@ import PluginLog from "./PluginLog";
 import Status from "./Status";
 import StatusTitle from "./StatusTitle";
 import PluginTitle from "./PluginTitle";
+import GraphNodeContainer from "../AddTsNode";
 
 import { useTypedSelector } from "../../../store/hooks";
 import "./NodeDetails.scss";
@@ -59,9 +60,9 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     (state) => state.instance.selectedPlugin
   );
   const { download, downloadAllClick } = useFeedBrowser();
-
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isTerminalVisible, setIsTerminalVisible] = React.useState(false);
+
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isErrorExpanded, setisErrorExpanded] = React.useState(false);
 
@@ -236,9 +237,9 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               className="node-details__popover"
               content={<PluginLog text={text} />}
               placement="bottom"
-              visible={isTerminalVisible}
+              open={isTerminalVisible}
               trigger="click"
-              onVisibleChange={(visible: boolean) => {
+              onOpenChange={(visible: boolean) => {
                 setIsTerminalVisible(visible);
               }}
             >
@@ -246,6 +247,8 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
                 View Terminal
               </Button>
             </Popover>
+
+            <GraphNodeContainer selectedPlugin={selectedPlugin} />
             {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
           </div>
         </div>

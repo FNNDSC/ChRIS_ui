@@ -52,7 +52,7 @@ const DragAndUpload = ({
     if (acceptedFiles.length > 0) {
       handleLocalUploadFiles(acceptedFiles);
     }
-  }, [acceptedFiles]);
+  }, [acceptedFiles, handleLocalUploadFiles]);
 
   const style = React.useMemo(
     () => ({

@@ -3,8 +3,7 @@ import { InputType } from "./ParentContainer";
 
 export const getJoinInput = (
   joinInput: InputType,
-  tsNodes?: PluginInstance[],
-  selectedPlugin?: PluginInstance
+  tsNodes?: PluginInstance[]
 ) => {
   const instanceIds = tsNodes?.map((node) => {
     return `${node.data.id}`;
@@ -12,13 +11,11 @@ export const getJoinInput = (
 
   let input: InputType = {};
 
-  if (instanceIds && selectedPlugin) {
-    const addParentId = [...instanceIds, selectedPlugin.data.id];
+  if (instanceIds) {
     input = {
       ...joinInput,
-      ["plugininstances"]: addParentId.join(","),
+      ["plugininstances"]: instanceIds.join(","),
     };
   }
   return input || {};
 };
-
