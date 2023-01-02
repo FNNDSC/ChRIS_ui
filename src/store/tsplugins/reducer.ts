@@ -20,8 +20,12 @@ const reducer: Reducer<ITSPluginState> = (state = initialState, action) => {
         );
 
         if (node) {
+          const filteredNodes = state.tsNodes.filter(
+            (node) => node.data.id !== action.payload.data.id
+          );
           return {
             ...state,
+            tsNodes: filteredNodes,
           };
         } else
           return {
@@ -46,7 +50,7 @@ const reducer: Reducer<ITSPluginState> = (state = initialState, action) => {
     case TSPluginTypes.SWITCH_TREE_MODE: {
       return {
         ...state,
-        treeMode: !action.payload,
+        treeMode: action.payload,
         tsNodes: [],
       };
     }
