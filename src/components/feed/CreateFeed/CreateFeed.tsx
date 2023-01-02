@@ -75,7 +75,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     if(params && params.length > 0){
       for(const param of params){
         const paramObject = requiredInput[param.data.id]
-        console.log(paramObject)
         if(paramObject && param.data.optional == false ){
           if(paramObject.value.length == 0) return false
         }else if(!paramObject && param.data.optional == true ){
