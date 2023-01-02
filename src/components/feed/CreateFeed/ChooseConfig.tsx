@@ -40,7 +40,7 @@ const ChooseConfig: React.FC = () => {
         onNext()
         break;
       case "Enter":
-        if (selectedConfig !== e.target.id) {handleClick(e, e.target.id)}; onNext()
+        if (selectedConfig) onNext();
         break;
       case "ArrowRight":
         if (selectedConfig) onNext()

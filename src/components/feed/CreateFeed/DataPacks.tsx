@@ -164,10 +164,10 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                 <Radio
                   key={index}
                   aria-labelledby="plugin-radioButton"
-                  id={pluginName}
+                  id={name}
                   ref={radioInput}
                   label={pluginName}
-                  name="plugin-radioButton"
+                  name={pluginName}
                   description={plugin.data.description}
                   onChange={(checked:any) => handleOnChange(checked, plugin)}
                   checked={selectedPlugin?.data.id === plugin.data.id}

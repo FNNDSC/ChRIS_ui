@@ -301,7 +301,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           id: 5,
           name: "Pipelines",
           component: pipelines,
-          enableNext: selectedPipeline !== undefined,
           canJumpTp: step > 5,
         },
         {
@@ -343,7 +342,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           id: 5,
           name: "Pipelines",
           component: pipelines,
-          enableNext: selectedPipeline !== undefined,
           nextButtonText: "Review",
           canJumpTo: step > 5,
         },
