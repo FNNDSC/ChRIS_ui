@@ -162,7 +162,6 @@ const GuidedConfig = ({
   };
 
   const renderRequiredParams = () => {
-    console.log(params)
     if (params && params.length > 0) {
       return params.map((param, index) => {
         if (param.data.optional === false) {
