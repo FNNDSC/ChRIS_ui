@@ -126,10 +126,10 @@ const Pipelines = ({
   const handleKeyDown = useCallback((e: any) => {
     if (e.code == "ArrowLeft") {
       onBack()
-    } else if (e.code == "ArrowRight" && selectedPipeline !== undefined) {
+    } else if (e.code == "ArrowRight") {
       onNext()
     }
-  }, [selectedPipeline, onBack, onNext])
+  }, [onBack, onNext])
 
 
   useEffect(() => {
