@@ -25,6 +25,10 @@ const acceptStyle = {
   borderColor: "#00e676",
 };
 
+const focusedStyle = {
+  borderColor: '#0066cc'
+};
+
 const rejectStyle = {
   borderColor: "#ff1744",
 };
@@ -38,6 +42,7 @@ const DragAndUpload = ({
     acceptedFiles,
     getRootProps,
     getInputProps,
+    isFocused,
     isDragActive,
     isDragAccept,
     isDragReject,
@@ -52,11 +57,12 @@ const DragAndUpload = ({
   const style = React.useMemo(
     () => ({
       ...baseStyle,
+      ...(isFocused ? focusedStyle : {}),
       ...(isDragActive ? activeStyle : {}),
       ...(isDragAccept ? acceptStyle : {}),
       ...(isDragReject ? rejectStyle : {}),
     }),
-    [isDragActive, isDragReject, isDragAccept]
+    [isDragActive, isDragReject, isDragAccept, isFocused]
   );
   return (
     <section className="container">

@@ -35,7 +35,7 @@ const FinishedStep = () => {
           <FaCogs className="finished-step__icon" />
           <p className="finished-step__header pf-c-title pf-m-lg">
             {inProgress ? (
-              "Your feed is being created. Give it a moment"
+              "Your analysis is being created. Give it a moment"
             ) : feedError ? (
               <ReactJson src={feedError}></ReactJson>
             ) : done ? (
@@ -47,7 +47,7 @@ const FinishedStep = () => {
 
       <StackItem isFilled>
         <Progress
-          aria-label="Feed Progress"
+          aria-label="analysis Progress"
           size="md"
           className="finished-step__progessbar"
           max={100}

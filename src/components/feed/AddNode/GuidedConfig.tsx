@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import {
   Button,
   Alert,
@@ -12,6 +12,7 @@ import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { v4 } from "uuid";
 import { GuidedConfigState, GuidedConfigProps } from "./types";
+import { WizardContext } from "@patternfly/react-core";
 
 const GuidedConfig = ({
   defaultValueDisplay,
@@ -36,7 +37,7 @@ const GuidedConfig = ({
 
   const { componentList, count, errors, alertVisible, docsExpanded } =
     configState;
-
+    const { onNext, onBack } = useContext(WizardContext)
   const setDropdownDefaults = React.useCallback(() => {
     if (dropdownInput) {
       const defaultComponentList = Object.entries(dropdownInput).map(
@@ -64,7 +65,42 @@ const GuidedConfig = ({
       docsExpanded: !configState.docsExpanded,
     });
   };
+  const RequiredParamsNotEmpty = useCallback(() => {
+    if(params && params.length > 0){
+      for(const param of params){
+        const paramObject = requiredInput[param.data.id]
+        if(paramObject && param.data.optional == false ){
+          if(paramObject.value.length == 0) return false
+        }else if(!paramObject && param.data.optional == true ){
+          return true
+        }else{
+          return false
+        }
+      }
+    }
+    return true;
+  }, [params, requiredInput])
+  
+  const handleKeyDown = useCallback((e: any) => {
+    if ((e.code == "Enter" || e.code == "ArrowRight") && RequiredParamsNotEmpty() ) {
+      e.preventDefault()
+      onNext()
+     }else if(e.code == "ArrowLeft"){
+      e.preventDefault()
+      onBack()
+     }
+  }, [onBack, onNext, RequiredParamsNotEmpty]);
 
+
+  useEffect(() => {
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [ handleKeyDown])
+
+  
   const deleteComponent = (id: string) => {
     const filteredList = componentList.filter((key) => {
       return key !== id;
