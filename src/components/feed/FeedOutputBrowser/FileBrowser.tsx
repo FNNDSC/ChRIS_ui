@@ -1,5 +1,4 @@
 import React from "react";
-import classNames from "classnames";
 
 import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../../store/hooks";
@@ -91,10 +90,8 @@ const FileBrowser = (props: FileBrowserProps) => {
 
     const fileNameComponent = (
       <div
-        className={classNames(
-          "file-browser__table--fileName",
-          isPreviewing && "file-browser__table--isPreviewing"
-        )}
+        className={`file-browser__table--fileName 
+          ${isPreviewing && "file-browser__table--isPreviewing"}`}
       >
         <span>{icon}</span>
         <span>{fileName}</span>
