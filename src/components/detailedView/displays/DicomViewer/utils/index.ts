@@ -5,7 +5,6 @@ import * as cornerstoneMath from "cornerstone-math";
 import * as cornerstoneTools from "cornerstone-tools";
 import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
 import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
-import * as cornerstoneWebImageLoader from "cornerstone-web-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import ChrisAPIClient from "../../../../../api/chrisapiclient";
 import Rusha from "rusha";
@@ -39,7 +38,6 @@ export function initDicom() {
 
   cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
   cornerstoneFileImageLoader.external.cornerstone = cornerstone;
-  cornerstoneWebImageLoader.external.cornerstone = cornerstone;
   cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 
   const client = ChrisAPIClient.getClient();
