@@ -54,7 +54,7 @@ export function initDicom() {
   const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
 
   toolList.forEach((tool) => {
-    if (tool === "StackScrollMouseWheel") {
+    if (tool.name === "StackScrollMouseWheelTool") {
       cornerstoneTools.setToolActive("StackScrollMouseWheel", {});
     }
     cornerstoneTools.addTool(tool);
