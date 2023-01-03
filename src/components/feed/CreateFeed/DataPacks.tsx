@@ -86,7 +86,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
     });
   };
 
-  const handleOnChange = (checked:any, plugin: Plugin) =>{
+  const handleOnChange = useCallback((checked:any, plugin: Plugin) =>{
     checked === true && props.getParams(plugin);
     dispatch({
       type: Types.SelectPlugin,
@@ -95,12 +95,15 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
         checked,
       },
     });
-  }
+  }, [dispatch, props])
 
-  const handleKeyDown = useCallback((e: any) => {
+  const handleKeyDown = useCallback((e: any, plugin:any = null) => {
     if (selectedPlugin && e.code == "Enter" ) {
       e.preventDefault()
       onNext()
+    }else if(plugin != undefined && e.code == "Enter"){
+      e.preventDefault()
+      handleOnChange(true, plugin)
     } else if (selectedPlugin && e.code == "ArrowRight") {
       e.preventDefault()
       onNext()
@@ -108,7 +111,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
       e.preventDefault()
       onBack()
     }
-  }, [onNext, onBack, selectedPlugin])
+  }, [onNext, onBack, selectedPlugin, handleOnChange])
 
  
   useEffect(() => {
@@ -167,7 +170,8 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
                   id={name}
                   ref={radioInput}
                   label={pluginName}
-                  name={pluginName}
+                  name="plugin-radioGroup"
+                  onKeyDown={e => handleKeyDown(e, plugin)}
                   description={plugin.data.description}
                   onChange={(checked:any) => handleOnChange(checked, plugin)}
                   checked={selectedPlugin?.data.id === plugin.data.id}

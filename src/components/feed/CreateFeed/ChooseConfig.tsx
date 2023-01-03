@@ -1,12 +1,11 @@
 import React, { useCallback, useContext, useEffect } from "react";
-import { Card, CardBody, CardHeader, CardTitle, Grid, GridItem } from "@patternfly/react-core";
+import { Card, CardActions, CardBody, CardHeader, CardTitle, Chip, Grid, GridItem, Tooltip } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types/feed";
 import { FaUpload } from "react-icons/fa";
 import { BiCloudUpload } from "react-icons/bi";
 import { MdSettings } from "react-icons/md";
 import { WizardContext } from "@patternfly/react-core/";
-
 
 const ChooseConfig: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -61,12 +60,18 @@ const ChooseConfig: React.FC = () => {
     }
   }, [handleKeyDown])
 
-  const style: any = {
+  const cardContainerStyle: any = {
     display: "flex",
     alignItems: "center",
     flexDirection: "column",
     justifyContent: "center",
     textAlign: "center"
+  }
+
+  const cardHeaderStyle: any = {
+    display: "flex",
+    width: "100%",
+    justifyContent: 'flex-end'
   }
   return (
     <div className="local-file-upload">
@@ -78,19 +83,25 @@ const ChooseConfig: React.FC = () => {
           : "You may create the analysis in one of the following ways:"}
       </p>
       <br />
-      <Grid hasGutter span={4}>
+      <Grid hasGutter md={4}>
         <GridItem >
           <Card
             id="fs_plugin"
             isSelectableRaised
             isDisabledRaised={isDataSelected}
             hasSelectableInput
-            style={style}
+            style={cardContainerStyle}
             onClick={handleClick}
             isSelected={selectedConfig === 'fs_plugin'}
           >
-            <CardHeader><MdSettings size="40px" /></CardHeader>
-            <CardTitle>Generate Data</CardTitle>
+            <CardHeader style={cardHeaderStyle}>
+              <CardActions >
+                <Tooltip content="Press the G key to select">
+                  <Chip key="KeyboardShortcut" isReadOnly>G</Chip>
+                </Tooltip>
+              </CardActions>
+            </CardHeader>
+            <CardTitle><MdSettings size="53px" /><br/>Generate Data</CardTitle>
             <CardBody>Generate files from running an FS plugin from this ChRIS server</CardBody>
           </Card>
         </GridItem>
@@ -100,12 +111,18 @@ const ChooseConfig: React.FC = () => {
             isSelectableRaised
             hasSelectableInput
             isDisabledRaised={isDataSelected}
-            style={style}
+            style={cardContainerStyle}
             onClick={handleClick}
             isSelected={selectedConfig === 'swift_storage'}
           >
-            <CardHeader><BiCloudUpload size="40px" /></CardHeader>
-            <CardTitle>Fetch Data from ChRIS</CardTitle>
+
+            <CardHeader style={cardHeaderStyle}>
+              <Tooltip content="Press the F key to select">
+                <Chip key="KeyboardShortcut" isReadOnly>F</Chip>
+              </Tooltip>
+            </CardHeader>
+            <CardTitle>
+              <BiCloudUpload size="40px" /><br />Fetch Data from ChRIS</CardTitle>
             <CardBody>Choose existing files already registered to ChRIS</CardBody>
           </Card>
         </GridItem>
@@ -115,12 +132,16 @@ const ChooseConfig: React.FC = () => {
             isSelectableRaised
             hasSelectableInput
             isDisabledRaised={isDataSelected}
-            style={style}
+            style={cardContainerStyle}
             onClick={handleClick}
             isSelected={selectedConfig === 'local_select'}
           >
-            <CardHeader><FaUpload size="40px" /></CardHeader>
-            <CardTitle>Upload New Data</CardTitle>
+            <CardHeader style={cardHeaderStyle}>
+              <Tooltip content="Press the U key to select">
+                <Chip key="KeyboardShortcut" isReadOnly>U</Chip>
+              </Tooltip>
+            </CardHeader>
+            <CardTitle><FaUpload size="40px" /><br/>Upload New Data</CardTitle>
             <CardBody>Upload new files from your local computer</CardBody>
           </Card>
         </GridItem>

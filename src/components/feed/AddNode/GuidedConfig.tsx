@@ -65,16 +65,31 @@ const GuidedConfig = ({
       docsExpanded: !configState.docsExpanded,
     });
   };
-
+  const RequiredParamsNotEmpty = useCallback(() => {
+    if(params && params.length > 0){
+      for(const param of params){
+        const paramObject = requiredInput[param.data.id]
+        if(paramObject && param.data.optional == false ){
+          if(paramObject.value.length == 0) return false
+        }else if(!paramObject && param.data.optional == true ){
+          return true
+        }else{
+          return false
+        }
+      }
+    }
+    return true;
+  }, [params, requiredInput])
+  
   const handleKeyDown = useCallback((e: any) => {
-    if (e.code == "Enter" || e.code == "ArrowRight") {
+    if ((e.code == "Enter" || e.code == "ArrowRight") && RequiredParamsNotEmpty() ) {
       e.preventDefault()
       onNext()
      }else if(e.code == "ArrowLeft"){
       e.preventDefault()
       onBack()
      }
-  }, [onBack, onNext]);
+  }, [onBack, onNext, RequiredParamsNotEmpty]);
 
 
   useEffect(() => {
