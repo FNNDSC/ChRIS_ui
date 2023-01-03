@@ -237,7 +237,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     />
   );
   const pipelines = <PipelineContainer />;
-  const review = <Review />;
+  const review = <Review handleSave={handleSave}/>;
 
   const finishedStep = <FinishedStep />;
 
