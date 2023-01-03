@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import {
   Button,
   DataList,
@@ -10,6 +10,7 @@ import {
   Pagination,
   DataListAction,
   DataListContent,
+  WizardContext,
 } from "@patternfly/react-core";
 
 import {
@@ -48,6 +49,7 @@ const Pipelines = ({
     loading: false,
     error: {},
   });
+  const { onNext, onBack } = useContext(WizardContext)
 
   const [pageState, setPageState] = React.useState({
     page: 1,
@@ -121,7 +123,24 @@ const Pipelines = ({
     });
   };
 
+  const handleKeyDown = useCallback((e: any) => {
+    if (e.code == "ArrowLeft") {
+      onBack()
+    } else if (e.code == "ArrowRight" || e.code == "Enter") {
+      onNext()
+    }
+  }, [onBack, onNext])
+
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [ handleKeyDown])
+
   return (
+
     <>
       <UploadJson handleDispatch={handleUploadDispatch} />
       <Pagination
@@ -153,7 +172,13 @@ const Pipelines = ({
                   <DataListToggle
                     id={pipeline.data.id}
                     aria-controls="expand"
+                    onKeyDown={(e) => handleKeyDown(e)}
                     onClick={async () => {
+                      if (!(selectedPipeline === pipeline.data.id)) {
+                        handlePipelineSecondaryResource(pipeline);
+                      } else {
+                        handleCleanResources();
+                      }
                       if (
                         !(expanded && expanded[pipeline.data.id]) ||
                         !state.pipelineData[pipeline.data.id]
@@ -209,6 +234,7 @@ const Pipelines = ({
                       <Button
                         variant="tertiary"
                         key="select-action"
+                        onKeyDown={(e) => handleKeyDown(e)}
                         onClick={async () => {
                           if (!(selectedPipeline === pipeline.data.id)) {
                             handlePipelineSecondaryResource(pipeline);
@@ -272,7 +298,7 @@ const Pipelines = ({
                   isHidden={!(expanded && expanded[pipeline.data.id])}
                 >
                   {(expanded && expanded[pipeline.data.id]) ||
-                  state.pipelineData[pipeline.data.id] ? (
+                    state.pipelineData[pipeline.data.id] ? (
                     <>
                       <div style={{ display: "flex", background: "black" }}>
                         <Tree
@@ -314,6 +340,7 @@ const Pipelines = ({
         )}
       </DataList>
     </>
+
   );
 };
 

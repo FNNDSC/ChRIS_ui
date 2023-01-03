@@ -27,6 +27,7 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { InputIndex } from "../AddNode/types";
 import "./createfeed.scss";
 import { PipelineTypes } from "./types/pipeline";
+import { useSelector } from "react-redux";
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
@@ -47,9 +48,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     requiredInput,
     computeEnvironment,
   } = state;
-
+  const {parameters: params} = useSelector((state:ApplicationState) => state.plugin)
   const { pipelineData, selectedPipeline } = pipelineState;
-
   const enableSave =
     data.chrisFiles.length > 0 ||
     data.localFiles.length > 0 ||
@@ -58,7 +58,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     selectedPlugin !== undefined
       ? true
       : false;
-
   const getStepName = (): string => {
     const stepNames = [
       "basic-information",
@@ -71,6 +70,23 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     ];
     return stepNames[step - 1];
   };
+
+  const RequiredParamsNotEmpty = () => {
+    if(params && params.length > 0){
+      for(const param of params){
+        const paramObject = requiredInput[param.data.id]
+        if(paramObject && param.data.optional == false ){
+          if(paramObject.value.length == 0) return false
+        }else if(!paramObject && param.data.optional == true ){
+          return true
+        }else{
+          return false
+        }
+      }
+    }
+    return true;
+  }
+
 
   const deleteInput = (index: string) => {
     dispatch({
@@ -143,7 +159,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       },
     });
   };
-
   const handleSave = async () => {
     // Set the progress to 'Started'
     const username = user && user.username;
@@ -162,20 +177,20 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       );
 
       if (!feed) {
-        throw new Error("New feed is undefined. Giving up.");
+        throw new Error("New analysis is undefined. Giving up.");
       }
 
-      // Set feed name
+      // Set analysis name
       await feed.put({
         name: state.data.feedName,
       });
 
-      // Set feed tags
+      // Set analysis tags
       for (const tag of state.data.tags) {
         feed.tagFeed(tag.data.id);
       }
 
-      // Set feed description
+      // Set analysis description
       const note = await feed.getNote();
       await note.put({
         title: "Description",
@@ -222,7 +237,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     />
   );
   const pipelines = <PipelineContainer />;
-  const review = <Review />;
+  const review = <Review handleSave={handleSave}/>;
 
   const finishedStep = <FinishedStep />;
 
@@ -240,6 +255,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           id: 4,
           name: "Parameter Configuration",
           component: withSelectionAlert(guidedConfig),
+          enableNext: RequiredParamsNotEmpty(),
           canJumpTo: step > 4,
         },
       ];
@@ -265,7 +281,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       ];
     }
   };
-
   const steps = data.isDataSelected
     ? [
         {
@@ -277,7 +292,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         },
         {
           id: 2,
-          name: "Feed Type Selection",
+          name: "Analysis Data Selection",
           component: withSelectionAlert(chooseConfig),
           enableNext: selectedConfig.length > 0,
           canJumpTo: step > 2,
@@ -293,7 +308,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           name: "Review",
           component: review,
           enableNext: enableSave,
-          nextButtonText: "Create Feed",
+          nextButtonText: "Create Analysis",
           canJumpTo: step > 6,
         },
         {
@@ -313,7 +328,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         },
         {
           id: 2,
-          name: "Feed Type Selection",
+          name: "Analysis Data Selection",
           component: withSelectionAlert(chooseConfig),
           enableNext: selectedConfig.length > 0,
           canJumpTo: step > 2,
@@ -326,7 +341,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         {
           id: 5,
           name: "Pipelines",
-          enableNext: true,
           component: pipelines,
           nextButtonText: "Review",
           canJumpTo: step > 5,
@@ -336,7 +350,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           name: "Review",
           component: withSelectionAlert(review, false),
           enableNext: enableSave,
-          nextButtonText: "Create Feed",
+          nextButtonText: "Create Analysis",
           canJumpTo: step > 6,
         },
         {
@@ -346,6 +360,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           canJumpTo: step > 7,
         },
       ];
+      
 
   const handleNext = (activeStep: any, cb: () => void) => {
     if (activeStep.id === 6) {
@@ -397,9 +412,9 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   );
 
   return (
-    <div className="create-feed">
+    <div className="create-analysis">
       <Button
-        className="create-feed-button"
+        className="create-analysis-button"
         variant="primary"
         isLarge
         onClick={() => {
@@ -415,7 +430,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           width="95%"
           isOpen={wizardOpen}
           onClose={() => {
-            // clear global feed base data, so wizard will be blank on next open
+            // clear global analysis base data, so wizard will be blank on next open
             routerContext.actions.clearFeedData();
             if (wizardOpen)
               dispatch({
@@ -432,7 +447,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           }}
           title="Create a New Analysis"
           description="This wizard allows you to create a new Analysis and choose some data to process"
-          className={`feed-create-wizard ${getStepName()}-wrap`}
+          className={`analysis-create-wizard ${getStepName()}-wrap`}
           steps={steps}
           startAtStep={step}
           footer={CustomFooter}

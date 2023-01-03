@@ -30,30 +30,30 @@ describe("Testing CreateAnalysis", () => {
   });
 
   it("01 Clicks on Create New Analysis", () => {
-    cy.get(".create-feed-button")
+    cy.get(".create-analysis-button")
       .should("have.text", "Create New Analysis")
       .click();
   });
 
-  it("02 Types in the Feed Name", () => {
-    cy.get("input#feed-name").type(`${users.testname}`);
+  it("02 Types in the Analysis Name", () => {
+    cy.get("input#analysis-name").type(`${users.testname}`);
   });
 
-  it("03 Types in the Feed Description", () => {
-    cy.get("textarea#feed-description")
+  it("03 Types in the Analysis Description", () => {
+    cy.get("textarea#analysis-description")
       .type("This is for testing purposes")
       .wait(2000);
   });
 
-  it("04 Goes to FeedType selection", () => {
+  it("04 Goes to Analysis Data selection", () => {
     cy.get("button.pf-c-button.pf-m-primary")
       .eq(1)
       .should("have.text", "Next")
       .click();
   });
 
-  it("05 Selects the feedtype", () => {
-    cy.get("label.pf-c-radio__label")
+  it("05 Selects the Analysis Data", () => {
+    cy.get("div.pf-c-card__body")
       .eq(0)
       .should(
         "have.text",
@@ -62,14 +62,14 @@ describe("Testing CreateAnalysis", () => {
       .click();
   });
 
-  it("06 Goes to Feed Creation", () => {
+  it("06 Goes to Analysis Creation", () => {
     cy.get("button.pf-c-button.pf-m-primary")
       .eq(1)
       .should("have.text", "Next")
       .click();
   });
 
-  it("07 Selects the Feed Synthesis plugin", () => {
+  it("07 Selects the Analysis Synthesis plugin", () => {
     cy.get("input#pl-dircopy").check();
     cy.get("button.pf-c-button.pf-m-primary")
       .eq(1)
