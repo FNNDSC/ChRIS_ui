@@ -126,7 +126,7 @@ const Pipelines = ({
   const handleKeyDown = useCallback((e: any) => {
     if (e.code == "ArrowLeft") {
       onBack()
-    } else if (e.code == "ArrowRight") {
+    } else if (e.code == "ArrowRight" || e.code == "Enter") {
       onNext()
     }
   }, [onBack, onNext])
