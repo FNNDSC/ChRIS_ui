@@ -5,19 +5,21 @@ import { LocalFile, Types } from "./types/feed";
 import FileUpload from "../../common/fileupload";
 import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
 
-
 const LocalFileUpload: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { localFiles } = state.data;
-  const { onNext, onBack } = useContext(WizardContext)
-  const handleDispatch = (files: LocalFile[]) => {
-    dispatch({
-      type: Types.AddLocalFile,
-      payload: {
-        files,
-      },
-    });
-  };
+  const { onNext, onBack } = useContext(WizardContext);
+  const handleDispatch = useCallback(
+    (files: LocalFile[]) => {
+      dispatch({
+        type: Types.AddLocalFile,
+        payload: {
+          files,
+        },
+      });
+    },
+    [dispatch]
+  );
 
   const handleDeleteDispatch = (file: string) => {
     dispatch({
@@ -27,7 +29,6 @@ const LocalFileUpload: React.FC = () => {
       },
     });
   };
- 
 
   return (
     <div className="pacs-alert-wrap">
@@ -55,8 +56,8 @@ type FileUploadProps = {
   localFiles: LocalFile[];
   dispatchFn: (files: LocalFile[]) => void;
   handleDeleteDispatch: (file: string) => void;
-  onNext: () => void 
-  onBack: () => void
+  onNext: () => void;
+  onBack: () => void;
   uploadName?: JSX.Element;
   className: string;
 };
@@ -65,37 +66,41 @@ const FileUploadComponent = ({
   localFiles,
   dispatchFn,
   uploadName,
-  onBack, 
+  onBack,
   onNext,
   handleDeleteDispatch,
   className,
 }: FileUploadProps) => {
-  const handleChoseFilesClick = (files: any[]) => {
-    const filesConvert = Array.from(files).map((file) => {
-      return {
-        name: file.name,
-        blob: file,
-      };
-    });
-    dispatchFn(filesConvert);
-  };
+  const handleChoseFilesClick = useCallback(
+    (files: any[]) => {
+      const filesConvert = Array.from(files).map((file) => {
+        return {
+          name: file.name,
+          blob: file,
+        };
+      });
+      dispatchFn(filesConvert);
+    },
+    [dispatchFn]
+  );
 
-  const handleKeyDown = useCallback((e:any)=>{
-    if(e.code == "ArrowLeft"){
-      onBack()
-    }else if(e.code == "ArrowRight" && localFiles.length > 0 ){
-      onNext()
-    }
-}, [localFiles.length, onBack, onNext])
+  const handleKeyDown = useCallback(
+    (e: any) => {
+      if (e.code == "ArrowLeft") {
+        onBack();
+      } else if (e.code == "ArrowRight" && localFiles.length > 0) {
+        onNext();
+      }
+    },
+    [localFiles.length, onBack, onNext]
+  );
 
   useEffect(() => {
-    
-    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [ handleKeyDown])
-
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   const fileList =
     localFiles.length > 0
@@ -110,13 +115,17 @@ const FileUploadComponent = ({
           </React.Fragment>
         ))
       : null;
-    
-   
+
   return (
-        <div className={className}>
+    <div className={className}>
       <Grid hasGutter={true}>
-        <GridItem span={4} rowSpan={4} style={{ minWidth: "9rem" }} onKeyDown={(e) => handleKeyDown(e)}>
-          <FileUpload handleLocalUploadFiles={handleChoseFilesClick}/>
+        <GridItem
+          span={4}
+          rowSpan={4}
+          style={{ minWidth: "9rem" }}
+          onKeyDown={(e) => handleKeyDown(e)}
+        >
+          <FileUpload handleLocalUploadFiles={handleChoseFilesClick} />
           {uploadName && uploadName}
         </GridItem>
         <GridItem
@@ -129,6 +138,5 @@ const FileUploadComponent = ({
         </GridItem>
       </Grid>
     </div>
- 
   );
 };

@@ -248,7 +248,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               </Button>
             </Popover>
 
-            <GraphNodeContainer selectedPlugin={selectedPlugin} />
+            <GraphNodeContainer />
             {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
           </div>
         </div>

@@ -6,14 +6,10 @@ import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
 import { switchTreeMode } from "../../../store/tsplugins/actions";
 import GraphNode from "./ParentContainer";
-import { PluginInstance, Plugin } from "@fnndsc/chrisapi";
+import { Plugin } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 
-const GraphNodeContainer = ({
-  selectedPlugin,
-}: {
-  selectedPlugin?: PluginInstance;
-}) => {
+const GraphNodeContainer = () => {
   const dispatch = useDispatch();
   const [isGraphNodeVisible, setIsGraphNodeVisible] = React.useState(false);
   const [selectedTsPlugin, setTsPlugin] = React.useState<Plugin | undefined>();
