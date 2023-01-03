@@ -13,7 +13,6 @@ import {
   Popover,
   Button,
   ClipboardCopy,
-  ExpandableSection,
   Badge,
   Split,
   SplitItem,
@@ -216,7 +215,10 @@ const SinglePlugin = () => {
                       >
                         <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>}>
                           <div style={{ color: 'gray', margin: '1em 0' }}>README</div>
-                          { readme ? <div dangerouslySetInnerHTML={{ __html: readme }} /> : null }
+                          { readme 
+                            ? <div dangerouslySetInnerHTML={{ __html: readme }} /> 
+                            : <div style={{margin: "auto"}}><Spinner isSVG diameter="80px" /></div> 
+                          }
                         </Tab>
                         <Tab eventKey={1} title={<TabTitleText>Parameters</TabTitleText>}>
                           <h2>Parameters Content</h2>
@@ -268,9 +270,7 @@ const SinglePlugin = () => {
                         <div className="plugin-body-detail-section">
                           <h4>Author</h4>
                             { removeEmail(pluginData.authors.split(',')).map(author => (
-                              <a key={author} href={`#`}>
-                                <p><UserAltIcon /> {author}</p>
-                              </a>
+                              <p key={author}><UserAltIcon /> {author}</p>
                             ))}
                         </div>
                         <div className="plugin-body-detail-section">
