@@ -1,9 +1,5 @@
 import { all, takeEvery, fork, put } from "@redux-saga/core/effects";
-import {
-  Feed,
-  PluginInstance,
-  PluginInstanceDescendantList,
-} from "@fnndsc/chrisapi";
+import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import { PluginInstanceTypes } from "./types";
 import { IActionTypeParam } from "../../api/models/base.model";
 import {
