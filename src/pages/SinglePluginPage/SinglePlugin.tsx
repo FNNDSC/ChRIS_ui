@@ -182,7 +182,7 @@ const SinglePlugin = () => {
                         <Split>
                           <SplitItem isFilled />
                           <SplitItem>
-                            <Button variant="primary" onClick={() => navigate(-1)}>
+                            <Button variant="primary" onClick={() => navigate('../../catalog')}>
                               Back to Plugins
                             </Button>
                           </SplitItem>
