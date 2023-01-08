@@ -3,7 +3,7 @@ import { Button, List, Form, Input, Checkbox } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { useDispatch } from "react-redux";
 import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
-import { deleteTsNode, switchTreeMode } from "../../../store/tsplugins/actions";
+import { deleteTsNode } from "../../../store/tsplugins/actions";
 import { useSafeDispatch } from "../../../api/common";
 import { useTypedSelector } from "../../../store/hooks";
 import { AiFillCloseCircle } from "react-icons/ai";
@@ -24,7 +24,6 @@ const ConfigureJoin = ({
 }: ConfigureJoinProps) => {
   const [tsParams, setTsParams] = React.useState<PluginParameter[]>([]);
   const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
-  const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
   const dispatch = useDispatch();
   const safeDispatch = useSafeDispatch(dispatch);
 
@@ -44,14 +43,6 @@ const ConfigureJoin = ({
 
   return (
     <div className="list-container">
-      <Button
-        onClick={() => {
-          safeDispatch(switchTreeMode(mode));
-        }}
-        type="primary"
-      >
-        Select Nodes from the Feed Tree
-      </Button>
       {tsNodes && tsNodes.length > 0 && (
         <List
           size="small"

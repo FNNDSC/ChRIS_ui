@@ -370,7 +370,7 @@ const TableRow = ({
     >
       <ChartDonutUtilization
         ariaTitle={feedProgressText}
-        data={{ x: "Feed Progress", y: progress }}
+        data={{ x: "Analysis Progress", y: progress }}
         height={125}
         title={title}
         thresholds={[{ value: threshold, color: color }]}

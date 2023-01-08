@@ -229,7 +229,7 @@ export const createFeedReducer = (
       return {
         ...state,
         feedProgress: action.payload.feedProgress,
-        value: state.value + 20,
+        value: action.payload.value,
       };
     }
 
@@ -252,15 +252,14 @@ export const createFeedReducer = (
   }
 };
 
-
 function deleteObjectHelper(dropdownInput: InputType, input: string) {
-    const newObject = Object.entries(dropdownInput)
-      .filter(([key]) => {
-        return key !== input;
-      })
-      .reduce((acc: InputType, [key, value]) => {
-        acc[key] = value;
-        return acc;
-      }, {});
-    return newObject;
-  }
+  const newObject = Object.entries(dropdownInput)
+    .filter(([key]) => {
+      return key !== input;
+    })
+    .reduce((acc: InputType, [key, value]) => {
+      acc[key] = value;
+      return acc;
+    }, {});
+  return newObject;
+}

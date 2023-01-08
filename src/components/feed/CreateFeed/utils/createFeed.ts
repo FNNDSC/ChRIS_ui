@@ -8,10 +8,10 @@ import { fetchResource } from "../../../../api/common";
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
-    return "Feed Creation using an FS Plugin";
+    return "Analysis Creation using an FS Plugin";
   } else if (selectedConfig === "file_select") {
-    return "Feed Creation using File Select";
-  } else return "Feed Creation";
+    return "Analysis Creation using File Select";
+  } else return "Analysis Creation";
 }
 
 export const createFeed = async (
@@ -21,29 +21,29 @@ export const createFeed = async (
   selectedPlugin: Plugin | undefined,
   username: string | null | undefined,
   pipelineData: PipelineData,
-  setProgressCallback: (status: string) => void,
+  setProgressCallback: (status: string, value: number) => void,
   setErrorCallback: (error: any) => void,
+  selectedConfig: string,
   selectedPipeline?: number
 ) => {
-  const { chrisFiles, localFiles } = data;
-
   /**
    * Dircopy requires a path from the ChRIS object storage
    * as in input
    */
   let feed;
-  setProgressCallback("Started");
+  setProgressCallback("Started", 20);
 
-  if (chrisFiles.length > 0 || localFiles.length > 0) {
+  if (selectedConfig === "local_select" || selectedConfig === "swift_storage") {
     feed = await createFeedInstanceWithDircopy(
       data,
       username,
       pipelineData,
       setProgressCallback,
       setErrorCallback,
+      selectedConfig,
       selectedPipeline
     );
-  } else if (dropdownInput || requiredInput) {
+  } else if (selectedConfig === "fs_plugin") {
     feed = await createFeedInstanceWithFS(
       dropdownInput,
       requiredInput,
@@ -59,18 +59,21 @@ export const createFeedInstanceWithDircopy = async (
   data: CreateFeedData,
   username: string | null | undefined,
   pipelineData: PipelineData,
-  statusCallback: (status: string) => void,
+  statusCallback: (status: string, value: number) => void,
   errorCallback: (error: any) => void,
+  selectedConfig: string,
   selectedPipeline?: number
 ) => {
   const { chrisFiles, localFiles } = data;
-  let dirpath: string[] = [];
 
-  if (chrisFiles.length > 0 && localFiles.length === 0) {
-    statusCallback("Compute Paths from swift storage");
+  let dirpath: string[] = [];
+  let feed;
+
+  if (selectedConfig === "swift_storage") {
+    statusCallback("Compute Paths from swift storage", 40);
     dirpath = chrisFiles.map((path: string) => path);
-  } else if (localFiles.length > 0 && chrisFiles.length === 0) {
-    statusCallback("Compute Paths from local file upload");
+  } else if (selectedConfig === "local_select") {
+    statusCallback("Compute Paths from local file upload", 40);
     const generateUnique = generatePathForLocalFile(data);
     const path = `${username}/uploads/${generateUnique}`;
     const local_upload_path = localFiles.length > 1 ? `${path}/` : path;
@@ -82,7 +85,6 @@ export const createFeedInstanceWithDircopy = async (
       errorCallback(error as string);
     }
   }
-  let feed;
 
   try {
     const client = ChrisAPIClient.getClient();
@@ -95,7 +97,7 @@ export const createFeedInstanceWithDircopy = async (
           dir: dirpath.join(","),
         }
       );
-      statusCallback("Creating Plugin Instance");
+      statusCallback("Creating Plugin Instance", 80);
       //when the `post` finishes, the dircopyInstances's internal collection is updated
 
       if (createdInstance) {
@@ -159,7 +161,7 @@ export const createFeedInstanceWithDircopy = async (
             });
           }
         }
-        statusCallback("Feed Created");
+        statusCallback("Analysis Created", 90);
         feed = await createdInstance.getFeed();
       }
     }
@@ -174,10 +176,10 @@ export const createFeedInstanceWithFS = async (
   dropdownInput: InputType,
   requiredInput: InputType,
   selectedPlugin: Plugin | undefined,
-  statusCallback: (status: string) => void,
+  statusCallback: (status: string, value: number) => void,
   errorCallback: (error: string) => void
 ) => {
-  statusCallback("Unpacking parameters");
+  statusCallback("Unpacking parameters", 20);
 
   let feed;
   if (selectedPlugin) {
@@ -193,7 +195,7 @@ export const createFeedInstanceWithFS = async (
         );
 
         const pluginId = fsPlugin.data.id;
-        statusCallback("Creating Plugin Instance");
+        statusCallback("Creating Plugin Instance", 20);
         const client = ChrisAPIClient.getClient();
         try {
           const fsPluginInstance = await client.createPluginInstance(
@@ -202,7 +204,7 @@ export const createFeedInstanceWithFS = async (
             data
           );
           feed = await fsPluginInstance.getFeed();
-          statusCallback("Feed Created");
+          statusCallback("Analysis Created", 20);
         } catch (error) {
           console.log("Error", error);
           errorCallback(error as string);
@@ -218,10 +220,10 @@ export const createFeedInstanceWithFS = async (
 export const uploadLocalFiles = async (
   files: LocalFile[],
   directory: string,
-  statusCallback: (status: string) => void
+  statusCallback: (status: string, value: number) => void
 ) => {
   const client = ChrisAPIClient.getClient();
-  statusCallback(`Uploading Files To Cube`);
+  statusCallback(`Uploading Files To Cube`, 80);
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     const upload_path = `${directory}/${file.name}`;

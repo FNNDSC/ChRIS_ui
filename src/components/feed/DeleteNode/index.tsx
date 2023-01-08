@@ -5,17 +5,18 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Button, Modal, ModalVariant, Alert } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { PluginInstance } from "@fnndsc/chrisapi";
+import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import {
   clearDeleteState,
   deleteNode,
   deleteNodeError,
 } from "../../../store/pluginInstance/actions";
 import { FaTrash } from "react-icons/fa";
+import { useTypedSelector } from "../../../store/hooks";
 
 interface DeleteNodeProps {
   selectedPlugin?: PluginInstance;
-  deleteNode: (instance: PluginInstance) => void;
+  deleteNode: (instance: PluginInstance, feed: Feed) => void;
   deleteNodeState: {
     error: string;
     success: boolean;
@@ -28,6 +29,8 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
   deleteNodeState,
 }: DeleteNodeProps) => {
   const dispatch = useDispatch();
+  const feed = useTypedSelector((state) => state.feed.currentFeed);
+  const { data } = feed;
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const handleModalToggle = () => {
@@ -38,13 +41,9 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
   };
 
   const handleDelete = async () => {
-    const statuses = ["finishedSuccessfully", "cancelled", "finishedWithError"];
-
-    if (statuses.includes(selectedPlugin?.data.status)) {
-      if (selectedPlugin) {
-        deleteNode(selectedPlugin);
-        handleModalToggle();
-      }
+    if (selectedPlugin && data) {
+      deleteNode(selectedPlugin, data);
+      handleModalToggle();
     } else {
       dispatch(deleteNodeError("Please wait for the plugin to finish running"));
     }
@@ -94,7 +93,8 @@ const mapStateToProps = (state: ApplicationState) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  deleteNode: (instance: PluginInstance) => dispatch(deleteNode(instance)),
+  deleteNode: (instance: PluginInstance, feed: Feed) =>
+    dispatch(deleteNode(instance, feed)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(DeleteNode);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import {
   Button,
   DataList,
@@ -10,8 +10,8 @@ import {
   Pagination,
   DataListAction,
   DataListContent,
+  WizardContext,
 } from "@patternfly/react-core";
-import { Spin } from "antd";
 
 import {
   Tree,
@@ -25,6 +25,8 @@ import {
   generatePipelineWithName,
 } from "../../../api/common";
 import { PipelinesProps } from "./types/pipeline";
+import { SpinContainer } from "../../common/loading/LoadingContent";
+import ReactJson from "react-json-view";
 
 const Pipelines = ({
   justDisplay,
@@ -43,6 +45,11 @@ const Pipelines = ({
   handleSetCurrentComputeEnv,
 }: PipelinesProps) => {
   const { pipelineData, selectedPipeline, pipelines } = state;
+  const [fetchState, setFetchState] = React.useState({
+    loading: false,
+    error: {},
+  });
+  const { onNext, onBack } = useContext(WizardContext)
 
   const [pageState, setPageState] = React.useState({
     page: 1,
@@ -62,14 +69,37 @@ const Pipelines = ({
   );
 
   React.useEffect(() => {
+    setFetchState((fetchState) => {
+      return {
+        ...fetchState,
+        loading: true,
+      };
+    });
     fetchPipelines(perPage, page).then((result: any) => {
-      const { registeredPipelines, registeredPipelinesList } = result;
+      const { registeredPipelines, registeredPipelinesList, errorPayload } =
+        result;
+
+      if (errorPayload) {
+        setFetchState((fetchState) => {
+          return {
+            ...fetchState,
+            error: errorPayload,
+          };
+        });
+      }
       if (registeredPipelines) {
         handleDispatchWrap(registeredPipelines);
         setPageState((pageState) => {
           return {
             ...pageState,
             itemCount: registeredPipelinesList.totalCount,
+          };
+        });
+
+        setFetchState((fetchState) => {
+          return {
+            ...fetchState,
+            loading: false,
           };
         });
       }
@@ -93,7 +123,24 @@ const Pipelines = ({
     });
   };
 
+  const handleKeyDown = useCallback((e: any) => {
+    if (e.code == "ArrowLeft") {
+      onBack()
+    } else if (e.code == "ArrowRight" || e.code == "Enter") {
+      onNext()
+    }
+  }, [onBack, onNext])
+
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [ handleKeyDown])
+
   return (
+
     <>
       <UploadJson handleDispatch={handleUploadDispatch} />
       <Pagination
@@ -105,7 +152,14 @@ const Pipelines = ({
       />
 
       <DataList aria-label="pipeline list">
-        {pipelines.length > 0 &&
+        {Object.keys(fetchState.error).length > 0 && (
+          <ReactJson src={fetchState.error} />
+        )}
+
+        {fetchState.loading ? (
+          <SpinContainer title="Fetching Pipelines" />
+        ) : (
+          pipelines.length > 0 &&
           pipelines.map((pipeline: any) => {
             return (
               <DataListItem
@@ -118,7 +172,13 @@ const Pipelines = ({
                   <DataListToggle
                     id={pipeline.data.id}
                     aria-controls="expand"
+                    onKeyDown={(e) => handleKeyDown(e)}
                     onClick={async () => {
+                      if (!(selectedPipeline === pipeline.data.id)) {
+                        handlePipelineSecondaryResource(pipeline);
+                      } else {
+                        handleCleanResources();
+                      }
                       if (
                         !(expanded && expanded[pipeline.data.id]) ||
                         !state.pipelineData[pipeline.data.id]
@@ -174,6 +234,7 @@ const Pipelines = ({
                       <Button
                         variant="tertiary"
                         key="select-action"
+                        onKeyDown={(e) => handleKeyDown(e)}
                         onClick={async () => {
                           if (!(selectedPipeline === pipeline.data.id)) {
                             handlePipelineSecondaryResource(pipeline);
@@ -237,7 +298,7 @@ const Pipelines = ({
                   isHidden={!(expanded && expanded[pipeline.data.id])}
                 >
                   {(expanded && expanded[pipeline.data.id]) ||
-                  state.pipelineData[pipeline.data.id] ? (
+                    state.pipelineData[pipeline.data.id] ? (
                     <>
                       <div style={{ display: "flex", background: "black" }}>
                         <Tree
@@ -270,14 +331,16 @@ const Pipelines = ({
                       />
                     </>
                   ) : (
-                    <Spin>Fetching Pipeline Resources</Spin>
+                    <SpinContainer title="Fetching Pipeline Resources" />
                   )}
                 </DataListContent>
               </DataListItem>
             );
-          })}
+          })
+        )}
       </DataList>
     </>
+
   );
 };
 

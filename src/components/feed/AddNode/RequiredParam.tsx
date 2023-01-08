@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Form } from "@patternfly/react-core";
 import { PluginParameter } from "@fnndsc/chrisapi";
 import { RequiredParamProp } from "./types";
@@ -15,6 +15,8 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     requiredInput &&
     requiredInput[param.data.id] &&
     requiredInput[param.data.id]["value"];
+  const inputElement = useRef<any>()
+
 
   const handleInputChange = (param: PluginParameter, event: any) => {
     const id = `${param.data.id}`;
@@ -39,6 +41,12 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     }
   };
 
+  useEffect(() => {
+    if (inputElement.current) {
+      inputElement.current.focus()
+    }
+  }, [])
+
   return (
     <Form className="required-params" key={param.data.id}>
       <div className="required-params__layout">
@@ -51,6 +59,7 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
       <input
         className={css(styles.formControl, `required-params__textInput`)}
         type="text"
+        ref={inputElement}
         aria-label="required-parameters"
         onChange={(event: any) => handleInputChange(param, event)}
         onKeyDown={handleKeyDown}

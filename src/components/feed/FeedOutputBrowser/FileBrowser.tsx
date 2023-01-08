@@ -1,5 +1,4 @@
 import React from "react";
-import classNames from "classnames";
 
 import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../../store/hooks";
@@ -91,10 +90,8 @@ const FileBrowser = (props: FileBrowserProps) => {
 
     const fileNameComponent = (
       <div
-        className={classNames(
-          "file-browser__table--fileName",
-          isPreviewing && "file-browser__table--isPreviewing"
-        )}
+        className={`file-browser__table--fileName 
+          ${isPreviewing && "file-browser__table--isPreviewing"}`}
       >
         <span>{icon}</span>
         <span>{fileName}</span>
@@ -165,34 +162,43 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const previewPanel = (
     <>
-      {selectedFile && (
-        <>
-          <HelperText>
-            <HelperTextItem>
-              {getFileName(selectedFile.data.fname)}
-            </HelperTextItem>
-          </HelperText>
-          <div className="header-panel__buttons">
-            {selectedFile && (
-              <HeaderPanel
-                explore={explore}
-                handleFileBrowserOpen={handleFileBrowserToggle}
-                handleDicomViewerOpen={handleDicomViewerOpen}
-                handleXtkViewerOpen={handleXtkViewerOpen}
-                selectedFile={selectedFile}
-              />
-            )}
-            <div className="header-panel__buttons--togglePanel">
-              <Button
-                onClick={() => expandDrawer("bottom_panel")}
-                variant="tertiary"
-                type="button"
-                icon={<AiFillCloseCircle />}
-              />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        {selectedFile ? (
+          <div>
+            <HelperText>
+              <HelperTextItem>
+                {getFileName(selectedFile.data.fname)}
+              </HelperTextItem>
+            </HelperText>
+            <div className="header-panel__buttons">
+              {selectedFile && (
+                <HeaderPanel
+                  explore={explore}
+                  handleFileBrowserOpen={handleFileBrowserToggle}
+                  handleDicomViewerOpen={handleDicomViewerOpen}
+                  handleXtkViewerOpen={handleXtkViewerOpen}
+                  selectedFile={selectedFile}
+                />
+              )}
             </div>
           </div>
-        </>
-      )}
+        ) : (
+          <span>Click on a file to preview:</span>
+        )}
+        {explore && (
+          <Button
+            onClick={() => expandDrawer("bottom_panel")}
+            variant="tertiary"
+            type="button"
+            icon={<AiFillCloseCircle />}
+          />
+        )}
+      </div>
 
       {selectedFile && (
         <FileDetailView selectedFile={selectedFile} preview="small" />

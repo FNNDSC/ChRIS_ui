@@ -11,15 +11,10 @@ import {
   deleteNodeError,
   getSelectedPlugin,
 } from "./actions";
-import {
-  getPluginInstanceStatusRequest,
-  stopFetchingStatusResources,
-  stopFetchingPluginResources,
-} from "../resources/actions";
+import { getPluginInstanceStatusRequest } from "../resources/actions";
 import { fetchResource } from "../../api/common";
 
-function* handleGetPluginInstances(action: IActionTypeParam) {
-  const feed: Feed = action.payload;
+function* setPluginInstances(feed: Feed) {
   try {
     const params = { limit: 15, offset: 0 };
     const fn = feed.getPluginInstances;
@@ -40,6 +35,11 @@ function* handleGetPluginInstances(action: IActionTypeParam) {
   } catch (error) {
     yield put(getPluginInstancesError(error));
   }
+}
+
+function* handleGetPluginInstances(action: IActionTypeParam) {
+  const feed: Feed = action.payload;
+  yield setPluginInstances(feed);
 }
 
 function* handleAddNode(action: IActionTypeParam) {
@@ -79,15 +79,20 @@ function* handleSplitNode(action: IActionTypeParam) {
 // ------------------------------------------------------------------------
 
 function* handleDeleteNode(action: IActionTypeParam) {
-  const instance = action.payload;
-  const id = instance.data.id;
+  const instance = action.payload.instance;
+  const feed = action.payload.feed;
 
-  yield all([
-    put(stopFetchingPluginResources(id)),
-    put(stopFetchingStatusResources(id)),
-  ]);
   let errorString = "";
   try {
+    if (
+      !["finishedSuccessfully", "finishedWithError", "cancelled"].includes(
+        instance.data.status
+      )
+    ) {
+      yield instance.put({
+        status: "cancelled",
+      });
+    }
     yield instance.delete();
   } catch (error) {
     //@ts-ignore
@@ -95,7 +100,8 @@ function* handleDeleteNode(action: IActionTypeParam) {
   }
 
   if (!errorString) {
-    yield put(deleteNodeSuccess(id));
+    yield setPluginInstances(feed);
+    yield put(deleteNodeSuccess());
   } else {
     yield put(deleteNodeError(errorString));
   }
