@@ -65,6 +65,7 @@ export interface AddNodeState extends InputState {
     [key: string]: string[];
   };
   editorValue: string;
+  loading: boolean;
 }
 
 export interface AddNodeProps {

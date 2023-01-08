@@ -1,6 +1,8 @@
 import React from "react";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { FeedFile } from "@fnndsc/chrisapi";
+import ReactJson from "react-json-view";
+import { SpinContainer } from "../../../../../common/loading/LoadingContent";
 
 export const GalleryButtonContainer = ({
   handleClick,
@@ -33,7 +35,7 @@ export const ButtonContainer = ({
       variant="secondary"
       onClick={() => handleEvents(action)}
     >
-      {action}
+      {action === "Wwwc" ? "Brightness / Contrast" : action}
     </Button>
   );
 };
@@ -42,22 +44,33 @@ export const TagInfoModal = ({
   isModalOpen,
   handleModalToggle,
   output,
-  file,
 }: {
   isModalOpen: boolean;
   handleModalToggle: (event: string, value: boolean) => void;
-  output: string;
+  output: any[];
   file?: FeedFile;
 }) => {
   return (
     <Modal
+      onEscapePress={() => {
+        handleModalToggle("TagInfo", !isModalOpen);
+      }}
       variant={ModalVariant.large}
       title="Dicom Tag"
       isOpen={isModalOpen}
       onClose={() => handleModalToggle("TagInfo", !isModalOpen)}
     >
-      File Name: {`${file && file.data.fname}`}
-      <div id="output" dangerouslySetInnerHTML={{ __html: output }}></div>
+      {Object.keys(output).length > 0 ? (
+        <ReactJson
+          enableClipboard={true}
+          theme="google"
+          displayDataTypes={false}
+          displayObjectSize={false}
+          src={output}
+        />
+      ) : (
+        <SpinContainer title="Fetching Dicom Tags" />
+      )}
     </Modal>
   );
 };

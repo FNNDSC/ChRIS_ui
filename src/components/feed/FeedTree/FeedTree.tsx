@@ -1,12 +1,7 @@
 import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
 import useSize from "./useSize";
-import {
-  tree,
-  hierarchy,
-  HierarchyPointLink,
-  HierarchyPointNode,
-} from "d3-hierarchy";
+import { tree, hierarchy, HierarchyPointLink } from "d3-hierarchy";
 import { select, event } from "d3-selection";
 import { v4 as uuidv4 } from "uuid";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
@@ -166,8 +161,104 @@ const FeedTree = (props: AllProps) => {
   const { feedTreeProp, currentLayout } = useTypedSelector(
     (state) => state.feed
   );
+  const [feedTree, setFeedTree] = React.useState<{
+    nodes?: any[];
+    links?: HierarchyPointLink<TreeNodeDatum>[];
+  }>({
+    nodes: [],
+    links: [],
+  });
 
   const size = useSize(divRef);
+  const { nodeSize, orientation, separation, tsIds } = props;
+
+  const generateTree = React.useCallback(
+    (data: TreeNodeDatum[]) => {
+      const d3Tree = tree<TreeNodeDatum>()
+        .nodeSize(
+          orientation === "horizontal"
+            ? [nodeSize.y, nodeSize.x]
+            : [nodeSize.x, nodeSize.y]
+        )
+        .separation((a, b) => {
+          return a.data.parentId === b.data.parentId
+            ? separation.siblings
+            : separation.nonSiblings;
+        });
+
+      let nodes;
+      let links: HierarchyPointLink<TreeNodeDatum>[] | undefined = undefined;
+      let newLinks: HierarchyPointLink<TreeNodeDatum>[] = [];
+
+      if (data) {
+        const rootNode = d3Tree(
+          hierarchy(data[0], (d) => (d.__rd3t.collapsed ? null : d.children))
+        );
+        nodes = rootNode.descendants();
+        links = rootNode.links();
+
+        const newLinksToAdd: any[] = [];
+
+        if (tsIds) {
+          links.forEach((link) => {
+            const targetId = link.target.data.id;
+            const sourceId = link.target.data.id;
+
+            if (targetId && sourceId && (tsIds[targetId] || tsIds[sourceId])) {
+              // tsPlugin found
+              let topologicalLink: any;
+
+              if (tsIds[targetId]) {
+                topologicalLink = link.target;
+              } else {
+                topologicalLink = link.source;
+              }
+
+              const parents = tsIds[topologicalLink.data.id];
+              const dict: any = {};
+              links &&
+                links.forEach((link) => {
+                  for (let i = 0; i < parents.length; i++) {
+                    if (
+                      link.source.data.id === parents[i] &&
+                      !dict[link.source.data.id]
+                    ) {
+                      dict[link.source.data.id] = link.source;
+                    } else if (
+                      link.target.data.id === parents[i] &&
+                      !dict[link.target.data.id]
+                    ) {
+                      dict[link.target.data.id] = link.target;
+                    }
+                  }
+
+                  return dict;
+                });
+
+              for (const i in dict) {
+                newLinksToAdd.push({
+                  source: dict[i],
+                  target: topologicalLink,
+                });
+              }
+            }
+          });
+        }
+
+        newLinks = [...links, ...newLinksToAdd];
+      }
+
+      return { nodes, newLinks: newLinks };
+    },
+    [
+      nodeSize.x,
+      nodeSize.y,
+      orientation,
+      separation.nonSiblings,
+      separation.siblings,
+      tsIds,
+    ]
+  );
 
   React.useEffect(() => {
     //@ts-ignore
@@ -183,7 +274,6 @@ const FeedTree = (props: AllProps) => {
   );
   const { scale } = feedState.d3;
   const { changeOrientation, zoom, scaleExtent } = props;
-  const { orientation } = feedTreeProp;
 
   const bindZoomListener = React.useCallback(() => {
     const { translate } = feedTreeProp;
@@ -218,8 +308,15 @@ const FeedTree = (props: AllProps) => {
           data: assignInternalProperties(clone(props.data)),
         };
       });
+      const { nodes, newLinks: links } = generateTree(props.data);
+      setFeedTree(() => {
+        return {
+          nodes,
+          links,
+        };
+      });
     }
-  }, [props.data]);
+  }, [props.data, props.tsIds, generateTree]);
 
   const handleChange = (feature: string, data?: any) => {
     if (feature === "collapsible") {
@@ -283,74 +380,7 @@ const FeedTree = (props: AllProps) => {
     }
   };
 
-  const generateTree = () => {
-    const { nodeSize, orientation, separation, tsIds } = props;
-    const { data } = feedState;
-
-    const d3Tree = tree<TreeNodeDatum>()
-      .nodeSize(
-        orientation === "horizontal"
-          ? [nodeSize.y, nodeSize.x]
-          : [nodeSize.x, nodeSize.y]
-      )
-      .separation((a, b) => {
-        return a.data.parentId === b.data.parentId
-          ? separation.siblings
-          : separation.nonSiblings;
-      });
-
-    let nodes;
-    let links: HierarchyPointLink<TreeNodeDatum>[] | undefined = undefined;
-    const newLinks: HierarchyPointLink<TreeNodeDatum>[] = [];
-
-    if (data) {
-      const rootNode = d3Tree(
-        hierarchy(data[0], (d) => (d.__rd3t.collapsed ? null : d.children))
-      );
-      nodes = rootNode.descendants();
-      links = rootNode.links();
-
-      const targetNodes = links.filter((link) => {
-        //@ts-ignore
-        return link.target.data?.item?.data?.plugin_type === "ts";
-      });
-
-      const remodifiedLinks = targetNodes.map((node) => {
-        const target = node.target;
-        const sources: HierarchyPointNode<TreeNodeDatum>[] = [];
-        // find all the source nodes;
-        links?.forEach((link) => {
-          if (
-            target.data.id &&
-            tsIds &&
-            tsIds[target.data.id] &&
-            tsIds[target.data.id].includes(`${link.target.data.id}`)
-          ) {
-            sources.push(link.target);
-          }
-        });
-
-        return sources?.map((source) => {
-          if (source) return { source, target };
-        });
-      });
-
-      if (remodifiedLinks) {
-        for (let i = 0; i < remodifiedLinks.length; i++) {
-          const tempLinks = remodifiedLinks[i];
-          if (tempLinks && tempLinks.length > 0) {
-            //@ts-ignore
-            newLinks.push(...tempLinks);
-          }
-        }
-      }
-    }
-    //@ts-ignore
-    newLinks.push(...links);
-    return { nodes, newLinks };
-  };
-
-  const { nodes, newLinks: links } = generateTree();
+  const { nodes, links } = feedTree;
 
   return (
     <div
@@ -387,8 +417,8 @@ const FeedTree = (props: AllProps) => {
           <div className="feed-tree__control">
             <Switch
               id="labels"
-              label="Show Labels"
-              labelOff="Hide Labels"
+              label="Hide Labels"
+              labelOff="Show Labels"
               isChecked={feedState.toggleLabel}
               onChange={() => {
                 handleChange("label");

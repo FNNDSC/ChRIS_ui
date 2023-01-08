@@ -36,8 +36,8 @@ export enum Types {
   ResetProgress = "RESET_PROGRESS",
   SetProgressPercent = "SET_PROGRESS_PERCENT",
   SetComputeEnvironment = "SET_COMPUTE_ENVIRONMENT",
+  CancelFeed = "CANCEL_FEED",
 }
-
 
 type CreateFeedPayload = {
   [Types.ToggleWizzard]: boolean;
@@ -89,7 +89,8 @@ type CreateFeedPayload = {
 
   [Types.ResetState]: boolean;
   [Types.SetProgress]: {
-    feedProgress: "string";
+    feedProgress: string;
+    value: number;
   };
   [Types.SetError]: {
     feedError: any;
@@ -103,6 +104,8 @@ type CreateFeedPayload = {
   [Types.SetComputeEnvironment]: {
     computeEnvironment: string;
   };
+
+  [Types.CancelFeed]: Record<string, unknown>;
 };
 
 export type CreateFeedActions =

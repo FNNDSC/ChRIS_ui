@@ -1,14 +1,13 @@
-import React, { useContext } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import { CreateFeedContext } from "./context";
-import { Grid, GridItem } from "@patternfly/react-core";
+import { Grid, GridItem, WizardContext } from "@patternfly/react-core";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
 import "./createfeed.scss";
 import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
 import { ChrisFileDetails, LocalFileDetails } from "./helperComponents";
 
-const Review: React.FunctionComponent = () => {
+const Review = ({ handleSave }: { handleSave: () => void }) => {
   const { state } = useContext(CreateFeedContext);
-
   const { feedName, feedDescription, tags, chrisFiles, localFiles } =
     state.data;
   const {
@@ -27,6 +26,27 @@ const Review: React.FunctionComponent = () => {
       <span className="pf-c-chip__text">{tag.data.name}</span>
     </div>
   ));
+  const { onNext, onBack } = useContext(WizardContext)
+
+  const handleKeyDown = useCallback((e: any) => {
+    if (e.code == "Enter" || e.code == "ArrowRight") {
+      e.preventDefault()
+      handleSave()
+      onNext()
+    } else if (e.code == "ArrowLeft") {
+      e.preventDefault()
+      onBack()
+    }
+  }, [onNext, handleSave, onBack])
+
+
+  useEffect(() => {
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [handleKeyDown])
 
   const getReviewDetails = () => {
     if (selectedConfig === "fs_plugin") {

@@ -117,6 +117,13 @@
   stroke-width: 1px;
 }
 
+.link.ts {
+  marker-end: url(#end-arrow);
+  opacity: 0.5;
+  stroke: #0088ce; //007bba - active
+  stroke-width: 1.5px;
+}
+
 .label {
   &__title {
     fill: white;

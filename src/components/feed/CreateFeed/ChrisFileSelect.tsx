@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useCallback, useEffect } from 'react'
 import { CreateFeedContext } from './context'
 import {
   Alert,
@@ -6,6 +6,7 @@ import {
   AlertActionLink,
   Grid,
   GridItem,
+  WizardContext,
 } from '@patternfly/react-core'
 import { EventDataNode, Key } from 'rc-tree/lib/interface'
 import { Tree } from 'antd'
@@ -63,7 +64,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
 }: ChrisFileSelectProp) => {
   const { state, dispatch } = useContext(CreateFeedContext)
   const { chrisFiles, checkedKeys } = state.data
-
+  const {onBack, onNext} = useContext(WizardContext)
   const [tree, setTree] = useState<DataBreadcrumb[]>(
     (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username),
   )
@@ -96,6 +97,25 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
       }
     }
   }
+
+  const handleKeyDown = useCallback((e:any) =>{
+    if(chrisFiles.length > 0 && e.code == "ArrowRight"){
+      e.preventDefault()
+      onNext()
+    }else if(e.code == "ArrowLeft"){
+      e.preventDefault()
+      onBack()
+    }
+  }, [chrisFiles.length, onBack, onNext])
+
+  useEffect(() => {
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [ handleKeyDown])
+ 
 
   const onLoad = (treeNode: EventDataNode): Promise<void> => {
     const { children } = treeNode;
@@ -137,7 +157,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
         </h1>
         <p>
           Navigate the internal ChRIS storage and select files/directories to
-          create a feed
+          create an analysis
         </p>
         <br />
         <Grid hasGutter={true}>
@@ -156,7 +176,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
             </ErrorBoundary>
           </GridItem>
           <GridItem span={6} rowSpan={12}>
-            <p className="section-header">Files to add to new feed:</p>
+            <p className="section-header">Files to add to new analysis:</p>
             <div className="file-list">{fileList}</div>
           </GridItem>
         </Grid>
