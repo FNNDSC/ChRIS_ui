@@ -126,6 +126,22 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     );
   };
 
+  
+  function handleKeydown(event :KeyboardEvent) {
+    if (event.code === "KeyJ") {
+      console.log("Key: ", event.key)
+    }
+  }
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleKeydown)
+    return () => {
+      window.removeEventListener('keydown', handleKeydown)
+    }
+  }, [])
+
+  
+
   if (!selectedPlugin) {
     return <SpinContainer background="#002030" title="Loading Node Details" />;
   } else {
