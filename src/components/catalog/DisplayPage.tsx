@@ -140,12 +140,11 @@ const DisplayPage = ({
                                 </Link>
                                 {/* {isPlugin && (renderStarButton()) } */}
                               </div>
-                              <Link
-                                to={`/author/${resource.data.authors}`}
+                              <div
                                 className="plugin-item-author"
                               >
                                 {resource.data.authors}
-                              </Link>
+                              </div>
                             </>
                           )}
 
