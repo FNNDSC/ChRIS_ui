@@ -1,8 +1,11 @@
 import React from "react";
+import "@patternfly/react-core/dist/styles/base.css";
 import { createRoot } from "react-dom/client";
 import { store } from "./store/configureStore";
 import Main from "./main";
+
 import "./assets/scss/main.scss";
+
 import * as ServiceWorker from "./serviceWorker";
 const container = document.getElementById("root");
 //@ts-ignore

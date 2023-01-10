@@ -9,7 +9,7 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 import { AiOutlineRotateLeft, AiOutlineRotateRight } from "react-icons/ai";
 import Link from "./Link";
 import NodeWrapper from "./Node";
-import { Datum, TreeNodeDatum, Point } from "./data";
+import { Datum, TreeNodeDatum, Point, treeAlgorithm } from "./data";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
 import { isEqual } from "lodash";
 import clone from "clone";
@@ -29,7 +29,7 @@ interface Separation {
 interface OwnProps {
   tsIds?: TSID;
   data: TreeNodeDatum[];
-  onNodeClick: (node: PluginInstance) => void;
+  onNodeClick: (node: any) => void;
   onNodeClickTs: (node: PluginInstance) => void;
   translate?: Point;
   scaleExtent: {
@@ -161,6 +161,9 @@ const FeedTree = (props: AllProps) => {
   const { feedTreeProp, currentLayout } = useTypedSelector(
     (state) => state.feed
   );
+
+  const { selectedD3Node } = useTypedSelector((state) => state.instance);
+
   const [feedTree, setFeedTree] = React.useState<{
     nodes?: any[];
     links?: HierarchyPointLink<TreeNodeDatum>[];
@@ -301,6 +304,15 @@ const FeedTree = (props: AllProps) => {
   }, [bindZoomListener]);
 
   React.useEffect(() => {
+    const svg = select(`.${svgClassName}`);
+    svg.on("keydown", () => {
+      if (links && feedTree.nodes) {
+        treeAlgorithm(event, selectedD3Node, feedTree.nodes, props.onNodeClick);
+      }
+    });
+  });
+
+  React.useEffect(() => {
     if (props.data) {
       setFeedState((feedState) => {
         return {
@@ -354,7 +366,7 @@ const FeedTree = (props: AllProps) => {
     }
   };
 
-  const handleNodeClick = (item: PluginInstance) => {
+  const handleNodeClick = (item: any) => {
     props.onNodeClick(item);
   };
 
@@ -483,7 +495,13 @@ const FeedTree = (props: AllProps) => {
       </div>
 
       {feedTreeProp.translate.x > 0 && feedTreeProp.translate.y > 0 && (
-        <svg className={`${svgClassName}`} width="100%" height="85%">
+        <svg
+          focusable="true"
+          className={`${svgClassName}`}
+          width="100%"
+          height="85%"
+          tabIndex={0}
+        >
           <TransitionGroupWrapper
             component="g"
             className={graphClassName}
