@@ -1,6 +1,5 @@
 import React from "react";
 import { Button, List, Form, Input, Checkbox } from "antd";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { useDispatch } from "react-redux";
 import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import { deleteTsNode } from "../../../store/tsplugins/actions";
@@ -48,7 +47,7 @@ const ConfigureJoin = ({
           size="small"
           bordered
           dataSource={tsNodes}
-          renderItem={(item) => (
+          renderItem={(item: any) => (
             <>
               <List.Item>
                 <span>{item.data.title || item.data.plugin_name}</span>
@@ -77,7 +76,7 @@ const ConfigureJoin = ({
                   <Checkbox
                     key={param.data.id}
                     checked={joinInput[param.data.name] as boolean}
-                    onChange={(event: CheckboxChangeEvent) => {
+                    onChange={(event: any) => {
                       handleCheckboxChange(
                         event.target.checked,
                         param.data.name
