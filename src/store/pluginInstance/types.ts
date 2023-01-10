@@ -5,41 +5,43 @@
  *
  */
 
-import keyMirror from 'keymirror'
-import { PluginInstance } from '@fnndsc/chrisapi'
+import keyMirror from "keymirror";
+import { PluginInstance } from "@fnndsc/chrisapi";
 
 export interface PluginInstanceObj {
-  selected: PluginInstance
-  pluginInstances: PluginInstance[]
+  selected: PluginInstance;
+  pluginInstances: PluginInstance[];
 }
 
 export interface PluginInstancePayload {
-  data?: PluginInstance[]
-  error: any
-  loading: boolean
+  data?: PluginInstance[];
+  error: any;
+  loading: boolean;
 }
 
 export interface AddNodePayload {
-  pluginItem: PluginInstance
-  nodes?: PluginInstance[]
+  pluginItem: PluginInstance;
+  nodes?: PluginInstance[];
 }
 
 export interface SplitNodesPayload {
-  splitNodes: PluginInstance[]
-  nodes?: PluginInstance[]
-  selectedPlugin?: PluginInstance
+  splitNodes: PluginInstance[];
+  nodes?: PluginInstance[];
+  selectedPlugin?: PluginInstance;
 }
 
 export interface IPluginInstanceState {
-  pluginInstances: PluginInstancePayload
-  selectedPlugin?: PluginInstance
+  pluginInstances: PluginInstancePayload;
+  selectedPlugin?: PluginInstance;
   deleteNode: {
-    error: string
-    success: boolean
-  }
+    error: string;
+    success: boolean;
+  };
+  selectedD3Node?: any;
 }
 
 export const PluginInstanceTypes = keyMirror({
+  GET_SELECTED_D3_NODE: null,
   GET_SELECTED_PLUGIN: null,
   GET_PLUGIN_INSTANCES_REQUEST: null,
   GET_PLUGIN_INSTANCES_SUCCESS: null,
@@ -57,4 +59,4 @@ export const PluginInstanceTypes = keyMirror({
   ADD_SPLIT_NODES: null,
   ADD_SPLIT_NODES_SUCCESS: null,
   RESET_PLUGIN_INSTANCES: null,
-})
+});
