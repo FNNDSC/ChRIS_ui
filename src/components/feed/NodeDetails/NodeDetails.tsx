@@ -126,19 +126,26 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     );
   };
 
-  
-  function handleKeydown(event :KeyboardEvent) {
-    if (event.code === "KeyJ") {
-      console.log("Key: ", event.key)
+
+  const handleKeydown = React.useCallback((event :KeyboardEvent) => {
+    switch (event.code) {
+      case "KeyD":
+        return downloadAllClick();
+
+      case "KeyT":
+        return setIsTerminalVisible(isTerminalVisible => !isTerminalVisible);
+    
+      default:
+        break;
     }
-  }
+  }, [downloadAllClick])
 
   React.useEffect(() => {
     window.addEventListener('keydown', handleKeydown)
     return () => {
       window.removeEventListener('keydown', handleKeydown)
     }
-  }, [])
+  }, [handleKeydown])
 
   
 
@@ -244,7 +251,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             </PipelineProvider>
 
             <Button onClick={downloadAllClick} icon={<FaDownload />}>
-              Download Files
+              Download Files <span style={{padding: "2px", color: "#F5F5DC"}}>(D)</span>
             </Button>
           </div>
 
