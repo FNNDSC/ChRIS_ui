@@ -82,3 +82,94 @@ export const getTsNodes = async (items: PluginInstance[]) => {
   }
   return parentIds;
 };
+
+export function treeAlgorithm(
+  event: any,
+  selectedD3Node: any,
+  instances: any[],
+  onNodeClick: (item: PluginInstance) => void
+) {
+  if (event.keyCode === 40) {
+    //Down
+
+    const children = selectedD3Node.children;
+    const length = children.length;
+
+    if (length === 1) {
+      onNodeClick(children[0]);
+    }
+    if (length > 1) {
+      const newLength = Math.floor(length / 2);
+      onNodeClick(children[newLength - 1]);
+    }
+  }
+
+  if (event.keyCode === 38) {
+    //Up
+    const parentId = selectedD3Node.parentId;
+    const findItem = instances.find(
+      (instance) => instance.data.id === parentId
+    );
+
+    if (findItem) {
+      onNodeClick(findItem.data);
+    }
+  }
+
+  if (event.keyCode === 37) {
+    // Left
+
+    const children = selectedD3Node.children;
+    const length = children.length;
+
+    if (length === 0) {
+      const findItem = instances.find(
+        (instance) => instance.data.id === selectedD3Node.parentId
+      );
+      if (findItem) {
+        const children = findItem.children;
+        const findIndex = children.findIndex(
+          (child: any) => child.data.id === selectedD3Node.id
+        );
+
+        if (findIndex) {
+          const nodeItem = children[findIndex - 1];
+          if (nodeItem) onNodeClick(nodeItem.data);
+        }
+      }
+    }
+    if (length > 0) {
+      const nodeItem = children[0];
+      onNodeClick(nodeItem);
+    }
+  }
+
+  if (event.keyCode === 39) {
+    //right
+
+    const children = selectedD3Node.children;
+    const length = children.length;
+
+    if (length > 0) {
+      const nodeItem = children[length - 1];
+      onNodeClick(nodeItem);
+    }
+
+    if (length === 0) {
+      const findItem = instances.find(
+        (instance) => instance.data.id === selectedD3Node.parentId
+      );
+      if (findItem) {
+        const children = findItem.children;
+        const findIndex = children.findIndex(
+          (child: any) => child.data.id === selectedD3Node.id
+        );
+
+        if (findIndex !== -1) {
+          const nodeItem = children[findIndex + 1];
+          if (nodeItem) onNodeClick(nodeItem.data);
+        }
+      }
+    }
+  }
+}

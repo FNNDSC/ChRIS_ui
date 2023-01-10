@@ -15,6 +15,7 @@ import {
 import { FeedDetails } from "../../../components";
 import { getFeedRequest, resetFeed } from "../../../store/feed/actions";
 import {
+  getSelectedD3Node,
   getSelectedPlugin,
   resetPluginInstances,
 } from "../../../store/pluginInstance/actions";
@@ -90,8 +91,9 @@ export const FeedView: React.FC = () => {
     id && dispatch(getFeedRequest(id));
   }, [id, dispatch]);
 
-  const onNodeClick = (node: PluginInstance) => {
-    dispatch(getSelectedPlugin(node));
+  const onNodeClick = (node: any) => {
+    dispatch(getSelectedPlugin(node.item));
+    dispatch(getSelectedD3Node(node));
     dispatch(destroyExplorer());
   };
 
