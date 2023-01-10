@@ -13,6 +13,7 @@ export const initialState: IPluginInstanceState = {
     error: "",
     success: false,
   },
+  selectedD3Node: undefined,
 };
 
 const reducer: Reducer<IPluginInstanceState> = (
@@ -20,6 +21,13 @@ const reducer: Reducer<IPluginInstanceState> = (
   action
 ) => {
   switch (action.type) {
+    case PluginInstanceTypes.GET_SELECTED_D3_NODE: {
+      return {
+        ...state,
+        selectedD3Node: action.payload,
+      };
+    }
+
     case PluginInstanceTypes.GET_PLUGIN_INSTANCES_REQUEST: {
       return {
         ...state,

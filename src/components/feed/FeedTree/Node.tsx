@@ -1,44 +1,46 @@
-import React, { Fragment, useRef } from 'react'
-import { select } from 'd3-selection'
-import { HierarchyPointNode } from 'd3-hierarchy'
-import { Datum, TreeNodeDatum, Point } from './data'
-import { PluginInstance } from '@fnndsc/chrisapi'
-import { useTypedSelector } from '../../../store/hooks'
-import { FeedTreeScaleType } from './Controls'
+import React, { Fragment, useRef } from "react";
+import { select } from "d3-selection";
+import { HierarchyPointNode } from "d3-hierarchy";
+import { Datum, TreeNodeDatum, Point } from "./data";
+import { PluginInstance } from "@fnndsc/chrisapi";
+import { useTypedSelector } from "../../../store/hooks";
+import { FeedTreeScaleType } from "./Controls";
+import { useDispatch } from "react-redux";
+import { getSelectedD3Node } from "../../../store/pluginInstance/actions";
 
 type NodeWrapperProps = {
-  tsNodes?: PluginInstance[]
-  data: TreeNodeDatum
-  position: Point
-  parent: HierarchyPointNode<Datum> | null
-  onNodeClick: (node: PluginInstance) => void
-  onNodeClickTs: (node: PluginInstance) => void
-  onNodeToggle: (nodeId: string) => void
-  orientation: 'horizontal' | 'vertical'
-  overlayScale?: FeedTreeScaleType
-  toggleLabel: boolean
-}
+  tsNodes?: PluginInstance[];
+  data: TreeNodeDatum;
+  position: Point;
+  parent: HierarchyPointNode<Datum> | null;
+  onNodeClick: (node: any) => void;
+  onNodeClickTs: (node: PluginInstance) => void;
+  onNodeToggle: (nodeId: string) => void;
+  orientation: "horizontal" | "vertical";
+  overlayScale?: FeedTreeScaleType;
+  toggleLabel: boolean;
+};
 
 type NodeProps = NodeWrapperProps & {
-  status?: string
-  overlaySize?: number
-  currentId: boolean
-}
+  status?: string;
+  overlaySize?: number;
+  currentId: boolean;
+};
 
-const DEFAULT_NODE_CIRCLE_RADIUS = 12
+const DEFAULT_NODE_CIRCLE_RADIUS = 12;
 
 const setNodeTransform = (
-  orientation: 'horizontal' | 'vertical',
-  position: Point,
+  orientation: "horizontal" | "vertical",
+  position: Point
 ) => {
-  return orientation === 'horizontal'
+  return orientation === "horizontal"
     ? `translate(${position.y},${position.x})`
-    : `translate(${position.x}, ${position.y})`
-}
+    : `translate(${position.x}, ${position.y})`;
+};
 
 const Node = (props: NodeProps) => {
-  const nodeRef = useRef<SVGGElement>(null)
-  const textRef = useRef<SVGTextElement>(null)
+  const nodeRef = useRef<SVGGElement>(null);
+  const textRef = useRef<SVGTextElement>(null);
   const {
     orientation,
     position,
@@ -50,75 +52,75 @@ const Node = (props: NodeProps) => {
     status,
     currentId,
     overlaySize,
-  } = props
+  } = props;
 
-  const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes)
-  const mode = useTypedSelector((state) => state.tsPlugins.treeMode)
+  const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
+  const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
   const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances.data,
-  )
+    (state) => state.instance.pluginInstances.data
+  );
 
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
-      .attr('transform', transform)
-      .style('opacity', opacity)
-    select(textRef.current).attr('transform', `translate(-28, 28)`)
-  }
+      .attr("transform", transform)
+      .style("opacity", opacity);
+    select(textRef.current).attr("transform", `translate(-28, 28)`);
+  };
 
   React.useEffect(() => {
-    const nodeTransform = setNodeTransform(orientation, position)
-    applyNodeTransform(nodeTransform)
-  }, [orientation, position])
+    const nodeTransform = setNodeTransform(orientation, position);
+    applyNodeTransform(nodeTransform);
+  }, [orientation, position]);
 
   const handleNodeToggle = () => {
-    onNodeToggle(data.__rd3t.id)
-  }
+    onNodeToggle(data.__rd3t.id);
+  };
 
-  let statusClass = ''
-  let tsClass = ''
+  let statusClass = "";
+  let tsClass = "";
 
   if (
     status &&
-    (status === 'started' ||
-      status === 'scheduled' ||
-      status === 'registeringFiles' ||
-      status === 'created')
+    (status === "started" ||
+      status === "scheduled" ||
+      status === "registeringFiles" ||
+      status === "created")
   ) {
-    statusClass = 'active'
+    statusClass = "active";
   }
-  if (status === 'waiting') {
-    statusClass = 'queued'
-  }
-
-  if (status === 'finishedSuccessfully') {
-    statusClass = 'success'
+  if (status === "waiting") {
+    statusClass = "queued";
   }
 
-  if (status === 'finishedWithError' || status === 'cancelled') {
-    statusClass = 'error'
+  if (status === "finishedSuccessfully") {
+    statusClass = "success";
+  }
+
+  if (status === "finishedWithError" || status === "cancelled") {
+    statusClass = "error";
   }
 
   if (mode === false && tsNodes && tsNodes.length > 0) {
     if (data.item?.data.id) {
-      const node = tsNodes.find((node) => node.data.id === data.item?.data.id)
+      const node = tsNodes.find((node) => node.data.id === data.item?.data.id);
       if (node) {
-        tsClass = 'graphSelected'
+        tsClass = "graphSelected";
       }
     }
   }
 
-  const previous_id = data.item?.data?.previous_id
+  const previous_id = data.item?.data?.previous_id;
   if (previous_id) {
     const parentNode = pluginInstances?.find(
-      (node) => node.data.id === previous_id,
-    )
+      (node) => node.data.id === previous_id
+    );
 
     if (
       parentNode &&
-      (parentNode.data.status === 'cancelled' ||
-        parentNode.data.status === 'finishedWithError')
+      (parentNode.data.status === "cancelled" ||
+        parentNode.data.status === "finishedWithError")
     ) {
-      statusClass = 'notExecuted'
+      statusClass = "notExecuted";
     }
   }
 
@@ -128,7 +130,7 @@ const Node = (props: NodeProps) => {
         {data.item?.data?.title || data.item?.data?.plugin_name}
       </text>
     </g>
-  )
+  );
 
   return (
     <Fragment>
@@ -137,11 +139,11 @@ const Node = (props: NodeProps) => {
         ref={nodeRef}
         onClick={() => {
           if (data.item) {
-            handleNodeToggle()
+            handleNodeToggle();
             if (mode === false) {
-              onNodeClickTs(data.item)
+              onNodeClickTs(data.item);
             } else {
-              onNodeClick(data.item)
+              onNodeClick(data);
             }
           }
         }}
@@ -164,33 +166,38 @@ const Node = (props: NodeProps) => {
         {toggleLabel ? textLabel : null}
       </g>
     </Fragment>
-  )
-}
+  );
+};
 
-const NodeMemoed = React.memo(Node)
+const NodeMemoed = React.memo(Node);
 
 const NodeWrapper = (props: NodeWrapperProps) => {
-  const { data, overlayScale } = props
+  const dispatch = useDispatch();
+  const { data, overlayScale } = props;
   const status = useTypedSelector((state) => {
     if (data.id && state.resource.pluginInstanceStatus[data.id]) {
-      return state.resource.pluginInstanceStatus[data.id].status
-    } else return
-  })
+      return state.resource.pluginInstanceStatus[data.id].status;
+    } else return;
+  });
 
   const currentId = useTypedSelector((state) => {
-    if (state.instance.selectedPlugin?.data.id === data.id) return true
-    else return false
-  })
+    if (state.instance.selectedPlugin?.data.id === data.id) return true;
+    else return false;
+  });
 
-  let scale // undefined scale is treated as no indvidual scaling
-  if (overlayScale === 'time') {
-    const instanceData = props.data.item?.data
+  React.useEffect(() => {
+    if (currentId) dispatch(getSelectedD3Node(data));
+  }, [currentId, data, dispatch]);
+
+  let scale; // undefined scale is treated as no indvidual scaling
+  if (overlayScale === "time") {
+    const instanceData = props.data.item?.data;
     if (instanceData) {
-      const start = new Date(instanceData?.start_date)
-      const end = new Date(instanceData?.end_date)
-      scale = Math.log10(end.getTime() - start.getTime()) / 2
+      const start = new Date(instanceData?.start_date);
+      const end = new Date(instanceData?.end_date);
+      scale = Math.log10(end.getTime() - start.getTime()) / 2;
     }
-  } else if (overlayScale === 'size') {
+  } else if (overlayScale === "size") {
     // props.data.item?.
   }
 
@@ -201,8 +208,8 @@ const NodeWrapper = (props: NodeWrapperProps) => {
       overlaySize={scale}
       currentId={currentId}
     />
-  )
-}
+  );
+};
 
 export default React.memo(
   NodeWrapper,
@@ -214,8 +221,8 @@ export default React.memo(
       prevProps.toggleLabel !== nextProps.toggleLabel ||
       prevProps.orientation !== nextProps.orientation
     ) {
-      return false
+      return false;
     }
-    return true
-  },
-)
+    return true;
+  }
+);
