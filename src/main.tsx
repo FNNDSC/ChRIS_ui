@@ -8,6 +8,7 @@ import { BrowserRouter } from "react-router-dom";
 import { RootState } from "./store/root/applicationState";
 import { CookiesProvider } from "react-cookie";
 
+
 interface AllProps {
   store: Store<RootState>;
 }

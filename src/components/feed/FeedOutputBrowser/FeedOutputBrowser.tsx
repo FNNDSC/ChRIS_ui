@@ -140,11 +140,11 @@ const SidebarTree = (props: {
       defaultExpandParent
       expandedKeys={[selected.data.id]}
       selectedKeys={[selected.data.id]}
-      onSelect={(node, selectedNode) => {
+      onSelect={(node: any, selectedNode: any) => {
         //@ts-ignore
         handlePluginSelect(selectedNode.node.item);
       }}
-      onExpand={(node, selectedNode) => {
+      onExpand={(node: any, selectedNode: any) => {
         //@ts-ignore
         handlePluginSelect(selectedNode.node.item);
       }}
