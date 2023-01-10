@@ -9,6 +9,9 @@ import { PluginInstance, Feed } from "@fnndsc/chrisapi";
 export const getSelectedPlugin = (item: PluginInstance) =>
   action(PluginInstanceTypes.GET_SELECTED_PLUGIN, item);
 
+export const getSelectedD3Node = (item: any) =>
+  action(PluginInstanceTypes.GET_SELECTED_D3_NODE, item);
+
 export const getPluginInstancesRequest = (feed: Feed) =>
   action(PluginInstanceTypes.GET_PLUGIN_INSTANCES_REQUEST, feed);
 export const getPluginInstancesSuccess = (items: PluginInstanceObj) =>

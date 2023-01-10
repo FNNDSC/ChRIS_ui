@@ -25,7 +25,7 @@
 
 
 
-FROM node:16 as builder
+FROM node:19 as builder
 MAINTAINER fnndsc "dev@babymri.org"
 
 # Pass a UID on build command line (see above) to set internal UID
