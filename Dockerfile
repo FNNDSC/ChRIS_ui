@@ -36,7 +36,7 @@ RUN npm install --legacy-peer-deps
 RUN npm run build 
 
 
-FROM node:16-alpine
+FROM node:19-alpine
 
 RUN yarn global add sirv-cli
 

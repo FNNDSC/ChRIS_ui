@@ -15,7 +15,7 @@ const ListCompute = ({
     <List
       itemLayout="horizontal"
       dataSource={computeList && computeList.length > 0 ? computeList : []}
-      renderItem={(item) => {
+      renderItem={(item: any) => {
         return (
           <List.Item>
             <List.Item.Meta
