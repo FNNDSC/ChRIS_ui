@@ -10,6 +10,7 @@ import {
   Button,
   HelperTextItem,
   HelperText,
+  ClipboardCopyButton, clipboardCopyFunc
 } from "@patternfly/react-core";
 import { bytesToSize } from "./utils";
 import { FeedFile } from "@fnndsc/chrisapi";
@@ -223,6 +224,18 @@ const FileBrowser = (props: FileBrowserProps) => {
       >
         <div className="file-browser__header">
           <div className="file-browser__header--breadcrumbContainer">
+            <ClipboardCopyButton
+              onClick={(event: any) => {
+                // setCopied(true);
+                clipboardCopyFunc(event, path);
+              }}
+              // TODO only available in @patternfly/react-core@>=4.254.1
+              // onTooltipHidden={() => setCopied(false)}
+              id="clipboard-plugininstance-files"
+              textId="clipboard-plugininstance-files"
+              variant="plain">
+              Copy path to clipboard
+            </ClipboardCopyButton>
             <Breadcrumb>{breadcrumb.map(generateBreadcrumb)}</Breadcrumb>
           </div>
 
