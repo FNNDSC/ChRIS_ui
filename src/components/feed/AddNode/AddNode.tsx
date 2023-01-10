@@ -107,9 +107,25 @@ const AddNode: React.FC<AddNodeProps> = ({
     }
   };
 
-  const toggleOpen = () => {
+  const resetState = React.useCallback(() => {
+    if (isOpen === true) {
+      setNodeState(getInitialState());
+    } else {
+      setNodeState((state) => {
+        return {
+          ...state,
+          isOpen: !isOpen,
+        }
+      });
+    }
+  }, [isOpen]);
+
+  const toggleOpen = React.useCallback(() => {
     resetState();
-  };
+  }, [resetState]);
+  // const toggleOpen = () => {
+  //   resetState();
+  // };
 
   const onNext = (newStep: { id?: string | number; name: React.ReactNode }) => {
     const { stepIdReached } = addNodeState;
@@ -196,17 +212,6 @@ const AddNode: React.FC<AddNodeProps> = ({
       ...addNodeState,
       dropdownInput: newObject,
     });
-  };
-
-  const resetState = () => {
-    if (isOpen === true) {
-      setNodeState(getInitialState());
-    } else {
-      setNodeState({
-        ...addNodeState,
-        isOpen: !isOpen,
-      });
-    }
   };
 
   const handleSave = async () => {
@@ -341,10 +346,27 @@ const AddNode: React.FC<AddNodeProps> = ({
     },
   ];
 
+  React.useEffect(() => {
+    function handleKeydown(event: KeyboardEvent): void {
+      switch (event.code) {
+        case "KeyC":
+          return toggleOpen();
+      
+        default:
+          break;
+      }
+    }
+    window.addEventListener('keydown', handleKeydown)
+    return () => {
+      window.removeEventListener('keydown', handleKeydown)
+    }
+
+  }, [toggleOpen])
+
   return (
     <React.Fragment>
       <Button icon={<MdOutlineAddCircle />} type="button" onClick={toggleOpen}>
-        Add a Child Node
+        Add a Child Node <span style={{padding: "2px", color: "#F5F5DC"}}>(C)</span>
       </Button>
       {isOpen && (
         <Wizard

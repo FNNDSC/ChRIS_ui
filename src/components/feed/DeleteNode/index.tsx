@@ -33,12 +33,12 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
   const { data } = feed;
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const handleModalToggle = () => {
-    setIsModalOpen(!isModalOpen);
+  const handleModalToggle = React.useCallback(() => {
+    setIsModalOpen((isModalOpen) => !isModalOpen);
     if (isModalOpen) {
       dispatch(clearDeleteState());
     }
-  };
+  }, [dispatch, isModalOpen]);
 
   const handleDelete = async () => {
     if (selectedPlugin && data) {
@@ -49,6 +49,23 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
     }
   };
 
+  React.useEffect(() => {
+    function handleKeydown(event: KeyboardEvent): void {
+      switch (event.code) {
+        case "KeyD":
+          return handleModalToggle();
+      
+        default:
+          break;
+      }
+    }
+    window.addEventListener('keydown', handleKeydown)
+    return () => {
+      window.removeEventListener('keydown', handleKeydown)
+    }
+
+  }, [handleModalToggle])
+
   return (
     <React.Fragment>
       <ErrorBoundary FallbackComponent={FallBackComponent}>
@@ -58,7 +75,7 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
           icon={<FaTrash />}
           type="button"
         >
-          Delete Node
+          Delete Node <span style={{padding: "2px", color: "#F5F5DC"}}>(D)</span>
         </Button>
         <Modal
           variant={ModalVariant.small}
