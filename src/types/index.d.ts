@@ -1,7 +1,7 @@
 declare module "*.svg";
 declare module "*.png";
 declare module "*.jpg";
-declare module "*.css";
+
 declare module "*.scss";
 declare module "@patternfly/react-styles";
 declare module "@patternfly/react-table";
@@ -24,3 +24,4 @@ declare module "dequal/lite";
 declare module "typesafe-actions";
 declare module "chris-utility";
 declare module "rusha";
+declare module "antd";
