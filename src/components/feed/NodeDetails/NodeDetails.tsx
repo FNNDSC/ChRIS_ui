@@ -126,6 +126,29 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     );
   };
 
+
+  const handleKeydown = React.useCallback((event :KeyboardEvent) => {
+    switch (event.code) {
+      case "KeyF":
+        return downloadAllClick();
+
+      case "KeyT":
+        return setIsTerminalVisible(isTerminalVisible => !isTerminalVisible);
+    
+      default:
+        break;
+    }
+  }, [downloadAllClick])
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleKeydown)
+    return () => {
+      window.removeEventListener('keydown', handleKeydown)
+    }
+  }, [handleKeydown])
+
+  
+
   if (!selectedPlugin) {
     return <SpinContainer background="#002030" title="Loading Node Details" />;
   } else {
@@ -228,7 +251,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             </PipelineProvider>
 
             <Button onClick={downloadAllClick} icon={<FaDownload />}>
-              Download Files
+              Download Files <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( F )</span>
             </Button>
           </div>
 
@@ -244,11 +267,11 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               }}
             >
               <Button icon={<FaTerminal />} type="button">
-                View Terminal
+                View Terminal <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( T )</span>
               </Button>
             </Popover>
 
-            <GraphNodeContainer selectedPlugin={selectedPlugin} />
+            <GraphNodeContainer />
             {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
           </div>
         </div>

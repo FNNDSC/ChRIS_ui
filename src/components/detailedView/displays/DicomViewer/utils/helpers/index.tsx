@@ -35,7 +35,7 @@ export const ButtonContainer = ({
       variant="secondary"
       onClick={() => handleEvents(action)}
     >
-      {action}
+      {action === "Wwwc" ? "Brightness / Contrast" : action}
     </Button>
   );
 };

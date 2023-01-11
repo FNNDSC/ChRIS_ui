@@ -8,7 +8,7 @@ import { getFeedTree, TreeNodeDatum, getTsNodes } from "./data";
 
 interface ParentComponentProps {
   onNodeClickTs: (node: PluginInstance) => void;
-  onNodeClick: (node: PluginInstance) => void;
+  onNodeClick: (node: any) => void;
   isSidePanelExpanded: boolean;
   isBottomPanelExpanded: boolean;
   onExpand: (panel: string) => void;

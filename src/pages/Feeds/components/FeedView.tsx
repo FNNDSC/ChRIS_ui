@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useParams } from "react-router-dom";
+import { ErrorBoundary } from "react-error-boundary";
 import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
 import {
@@ -15,6 +16,7 @@ import {
 import { FeedDetails } from "../../../components";
 import { getFeedRequest, resetFeed } from "../../../store/feed/actions";
 import {
+  getSelectedD3Node,
   getSelectedPlugin,
   resetPluginInstances,
 } from "../../../store/pluginInstance/actions";
@@ -26,7 +28,7 @@ import { resetActiveResources } from "../../../store/resources/actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { DestroyActiveResources } from "../../../store/resources/types";
 import { SpinContainer } from "../../../components/common/loading/LoadingContent";
-import ErrorBoundary from "antd/lib/alert/ErrorBoundary";
+
 
 const ParentComponent = React.lazy(
   () => import("../../../components/feed/FeedTree/ParentComponent")
@@ -90,8 +92,9 @@ export const FeedView: React.FC = () => {
     id && dispatch(getFeedRequest(id));
   }, [id, dispatch]);
 
-  const onNodeClick = (node: PluginInstance) => {
-    dispatch(getSelectedPlugin(node));
+  const onNodeClick = (node: any) => {
+    dispatch(getSelectedPlugin(node.item));
+    dispatch(getSelectedD3Node(node));
     dispatch(destroyExplorer());
   };
 
@@ -108,7 +111,7 @@ export const FeedView: React.FC = () => {
   };
 
   const feedTree = (
-    <ErrorBoundary>
+    <ErrorBoundary fallback={<div></div>}>
       <GridItem
         className="feed-block"
         sm={12}
@@ -151,7 +154,7 @@ export const FeedView: React.FC = () => {
   );
 
   const nodePanel = (
-    <ErrorBoundary>
+    <ErrorBoundary fallback={<div></div>}>
       <GridItem
         sm={12}
         smRowSpan={12}
@@ -181,7 +184,7 @@ export const FeedView: React.FC = () => {
     <React.Suspense
       fallback={<SpinContainer title="Fetching feed Resources" />}
     >
-      <ErrorBoundary>
+      <ErrorBoundary fallback={<div></div>}>
         <FeedOutputBrowser
           explore={true}
           expandDrawer={onClick}

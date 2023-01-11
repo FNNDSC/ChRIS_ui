@@ -23,9 +23,9 @@ const AddPipeline = () => {
   const [error, setError] = React.useState({});
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const handleToggle = () => {
-    setIsModalOpen(!isModalOpen);
-  };
+  const handleToggle = React.useCallback(() => {
+    setIsModalOpen((isModalOpen) => !isModalOpen);
+  }, []);
   const addPipeline = async () => {
     if (selectedPlugin && selectedPipeline) {
       setError({});
@@ -113,6 +113,24 @@ const AddPipeline = () => {
       handleToggle();
     }
   };
+
+  React.useEffect(() => {
+    function handleKeydown(event: KeyboardEvent): void {
+      switch (event.code) {
+        case "KeyP":
+          return handleToggle();
+      
+        default:
+          break;
+      }
+    }
+    window.addEventListener('keydown', handleKeydown)
+    return () => {
+      window.removeEventListener('keydown', handleKeydown)
+    }
+
+  }, [handleToggle])
+
   return (
     <React.Fragment>
       <Button
@@ -120,7 +138,7 @@ const AddPipeline = () => {
         onClick={handleToggle}
         type="button"
       >
-        Add a Pipeline
+        Add a Pipeline <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( P )</span>
       </Button>
       <Modal
         variant={ModalVariant.large}
