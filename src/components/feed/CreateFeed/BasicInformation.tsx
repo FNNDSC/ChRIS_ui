@@ -34,13 +34,15 @@ const BasicInformation: React.FC = () => {
     }
   }, [])
   const handleKeyDown = useCallback((e:any) => {
+ 
     if (feedName && e.code == "Enter") {
-      e.preventDefault()
-     onNext()
-   } else if (feedName && e.code == "ArrowRight") {
      e.preventDefault()
      onNext()
-   }
+    }else if (e.target.closest('INPUT, TEXTAREA') && e.code == "ArrowRight"){
+     return; 
+    } else if (feedName && e.code == "ArrowRight") {
+     onNext()
+    }
  }, [onNext, feedName])
   
 

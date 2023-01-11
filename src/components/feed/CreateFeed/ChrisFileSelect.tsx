@@ -8,7 +8,7 @@ import {
   GridItem,
   WizardContext,
 } from '@patternfly/react-core'
-import { EventDataNode, Key } from 'rc-tree/lib/interface'
+import {  Key } from 'rc-tree/lib/interface'
 import { Tree } from 'antd'
 import { ErrorBoundary } from 'react-error-boundary'
 import {
@@ -18,7 +18,7 @@ import {
   ChrisFileSelectProp,
   CheckedKeys,
 } from './types/feed'
-import { generateTreeNodes, getNewTreeData } from './utils/fileSelect'
+import { generateTreeNodes } from './utils/fileSelect'
 import { FileList, ErrorMessage } from './helperComponents'
 import { isEmpty } from 'lodash'
 
@@ -69,7 +69,6 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
     (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username),
   )
   const [loadingError, setLoadingError] = useState<Error>()
-
   const fetchKeysFromDict: Key[] = React.useMemo(
     () => getCheckedKeys(checkedKeys),
     [checkedKeys],
@@ -97,13 +96,11 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
       }
     }
   }
-
   const handleKeyDown = useCallback((e:any) =>{
+    if(e.target.closest("INPUT")) return; 
     if(chrisFiles.length > 0 && e.code == "ArrowRight"){
-      e.preventDefault()
       onNext()
     }else if(e.code == "ArrowLeft"){
-      e.preventDefault()
       onBack()
     }
   }, [chrisFiles.length, onBack, onNext])
@@ -115,31 +112,24 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [ handleKeyDown])
- 
 
-  const onLoad = (treeNode: EventDataNode): Promise<void> => {
-    const { children } = treeNode;
-
-    return new Promise((resolve) => {
-      if (children) {
-        resolve();
-        return;
-      }
-      generateTreeNodes(treeNode)
-        .then((nodes) => {
+  const onLoad = useCallback((): void => {
+    generateTreeNodes(tree)
+        .then(() => {
           const treeData = [...tree];
-          if (nodes.length > 0) getNewTreeData(treeData, treeNode.pos, nodes);
           setTree(treeData);
           setCacheTree(treeData);
-          resolve();
         })
         .catch((err) => {
           setLoadingError(err);
-          resolve();
         });
-    });
-  }
+  },[tree]);
 
+  useEffect(() =>{
+    onLoad()
+  }, [onLoad])
+
+  
   const fileList =
     chrisFiles.length > 0
       ? chrisFiles.map((file: string, index: number) => (
@@ -163,11 +153,10 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
         <Grid hasGutter={true}>
           <GridItem span={6} rowSpan={12}>
             <ErrorBoundary FallbackComponent={ErrorFallback}>
-              <DirectoryTree
+               <DirectoryTree
                 //@ts-ignore
                 onCheck={onCheck}
                 //@ts-ignore
-                loadData={onLoad}
                 checkedKeys={fetchKeysFromDict}
                 checkable
                 //@ts-ignore

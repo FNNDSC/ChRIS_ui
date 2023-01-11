@@ -162,6 +162,11 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   const handleSave = async () => {
     // Set the progress to 'Started'
     const username = user && user.username;
+    //add root path
+    for(const input in requiredInput){
+        const value = requiredInput[input].value; 
+        requiredInput[input].value = `${username}/${value}`
+    }
     try {
       const feed = await createFeed(
         state.data,

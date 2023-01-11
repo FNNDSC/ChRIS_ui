@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import { Form } from "@patternfly/react-core";
+import { Form, InputGroup, InputGroupText } from "@patternfly/react-core";
 import { PluginParameter } from "@fnndsc/chrisapi";
 import { RequiredParamProp } from "./types";
 import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
 import { css } from "@patternfly/react-styles";
+import { useTypedSelector } from "../../../store/hooks";
 
 const RequiredParam: React.FC<RequiredParamProp> = ({
   param,
@@ -16,8 +17,7 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     requiredInput[param.data.id] &&
     requiredInput[param.data.id]["value"];
   const inputElement = useRef<any>()
-
-
+  const username = useTypedSelector((state) => state.user.username);
   const handleInputChange = (param: PluginParameter, event: any) => {
     const id = `${param.data.id}`;
     const flag = param.data.flag;
@@ -27,13 +27,13 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     const paramName = param.data.name;
     inputChange(id, flag, value, type, placeholder, true, paramName);
   };
-
+  
   const triggerChange = (eventType: string) => {
     if (eventType === "keyDown") {
       addParam();
     }
   };
-
+  
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -56,6 +56,10 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
         </div>
         <span className="required-params__infoLabel">(*Required)</span>
       </div>
+      <InputGroup>
+      <InputGroupText>
+         {username}/
+      </InputGroupText>
       <input
         className={css(styles.formControl, `required-params__textInput`)}
         type="text"
@@ -67,6 +71,8 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
         value={value}
         id={param.data.name}
       />
+      </InputGroup>
+     
     </Form>
   );
 };

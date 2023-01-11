@@ -98,17 +98,15 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
   }, [dispatch, props])
 
   const handleKeyDown = useCallback((e: any, plugin:any = null) => {
+    if(e.target.closest('INPUT#filter_plugin', 'BUTTON')) return; 
     if (selectedPlugin && e.code == "Enter" ) {
       e.preventDefault()
       onNext()
     }else if(plugin != undefined && e.code == "Enter"){
-      e.preventDefault()
       handleOnChange(true, plugin)
     } else if (selectedPlugin && e.code == "ArrowRight") {
-      e.preventDefault()
       onNext()
     } else if (e.code == "ArrowLeft") {
-      e.preventDefault()
       onBack()
     }
   }, [onNext, onBack, selectedPlugin, handleOnChange])
