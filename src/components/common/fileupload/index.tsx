@@ -26,7 +26,7 @@ const acceptStyle = {
 };
 
 const focusedStyle = {
-  borderColor: '#0066cc'
+  borderColor: "#0066cc",
 };
 
 const rejectStyle = {
