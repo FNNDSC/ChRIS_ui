@@ -35,7 +35,6 @@ export type InputType = {
 
 export type NodeState = {
   selectedConfig: string;
-
   joinInput: InputType;
   splitInput: InputType;
   stepNumber: number;
@@ -57,14 +56,36 @@ const GraphNode = (props: GraphNodeProps) => {
   const nodes = useTypedSelector((state) => state.instance.pluginInstances);
   const dispatch = useDispatch();
 
-  const [nodeState, setNodeState] = React.useState<NodeState>(getNodeState);
-  const {
-    selectedConfig,
+  const handleKeyDown = (event: any) => {
+    if (event.code === "ArrowRight") {
+      event.preventDefault();
+      onNext();
+    }
+    if (event.code === "ArrowLeft") {
+      event.preventDefault();
+      onBack();
+    }
+    if (event.key === "Enter") {
+      if (stepNumber === 2) {
+        console.log("StepNumber", stepNumber);
+        handleAdd();
+      }
+    }
 
-    joinInput,
-    splitInput,
-    stepNumber,
-  } = nodeState;
+    if (event.key === "Escape") {
+      onCancel();
+    }
+  };
+
+  React.useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  });
+
+  const [nodeState, setNodeState] = React.useState<NodeState>(getNodeState);
+  const { selectedConfig, joinInput, splitInput, stepNumber } = nodeState;
 
   const handleConfig = (value: string) => {
     setNodeState({
@@ -74,18 +95,28 @@ const GraphNode = (props: GraphNodeProps) => {
   };
 
   const onBack = () => {
-    if (stepNumber === 3 && selectedConfig === "split-node") {
+    stepNumber > 0 &&
       setNodeState({
         ...nodeState,
-        stepNumber: stepNumber - 2,
+        stepNumber: stepNumber - 1,
       });
-    } else {
-      stepNumber > 0 &&
+  };
+
+  const onNext = () => {
+    if (stepNumber === 2) {
+      handleAdd();
+    } else
+      stepNumber < 2 &&
         setNodeState({
           ...nodeState,
-          stepNumber: stepNumber - 1,
+          stepNumber: stepNumber + 1,
         });
-    }
+  };
+
+  const onCancel = () => {
+    handleResets();
+    onVisibleChange(!visible);
+    dispatch(switchTreeMode(!treeMode));
   };
 
   const handleResets = () => {
@@ -117,7 +148,12 @@ const GraphNode = (props: GraphNodeProps) => {
         } catch (error) {
           console.warn("ERROR", error);
         }
-      } else if (selectedPlugin) {
+      } else if (
+        selectedPlugin &&
+        splitInput &&
+        splitInput["filter"] &&
+        splitInput["compute_resource"]
+      ) {
         try {
           const client = Client.getClient();
           const node = await client.createPluginInstanceSplit(
@@ -142,28 +178,6 @@ const GraphNode = (props: GraphNodeProps) => {
         }
       }
     }
-  };
-
-  const onNext = () => {
-    if (stepNumber === 1 && selectedConfig === "split-node") {
-      setNodeState({
-        ...nodeState,
-        stepNumber: stepNumber + 2,
-      });
-    } else if (stepNumber === 2) {
-      handleAdd();
-    } else
-      stepNumber < 2 &&
-        setNodeState({
-          ...nodeState,
-          stepNumber: stepNumber + 1,
-        });
-  };
-
-  const onCancel = () => {
-    handleResets();
-    onVisibleChange(!visible);
-    dispatch(switchTreeMode(!treeMode));
   };
 
   const handleSplitChange = (value: string, name: string) => {
@@ -246,6 +260,7 @@ const GraphNode = (props: GraphNodeProps) => {
         onCancel={onCancel}
         selectedTsPlugin={selectedTsPlugin}
         selectedConfig={selectedConfig}
+        splitInput={splitInput}
       />
     </>
   );

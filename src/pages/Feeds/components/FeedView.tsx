@@ -29,7 +29,6 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 import { DestroyActiveResources } from "../../../store/resources/types";
 import { SpinContainer } from "../../../components/common/loading/LoadingContent";
 
-
 const ParentComponent = React.lazy(
   () => import("../../../components/feed/FeedTree/ParentComponent")
 );
@@ -95,6 +94,10 @@ export const FeedView: React.FC = () => {
   const onNodeClick = (node: any) => {
     dispatch(getSelectedPlugin(node.item));
     dispatch(getSelectedD3Node(node));
+  };
+
+  const onNodeBrowserClick = (node: PluginInstance) => {
+    dispatch(getSelectedPlugin(node));
     dispatch(destroyExplorer());
   };
 
@@ -188,7 +191,7 @@ export const FeedView: React.FC = () => {
         <FeedOutputBrowser
           explore={true}
           expandDrawer={onClick}
-          handlePluginSelect={onNodeClick}
+          handlePluginSelect={onNodeBrowserClick}
         />
       </ErrorBoundary>
     </React.Suspense>

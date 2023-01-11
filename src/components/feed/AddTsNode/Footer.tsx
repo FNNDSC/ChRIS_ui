@@ -2,7 +2,11 @@ import React from "react";
 import { Button } from "@patternfly/react-core";
 import { Plugin } from "@fnndsc/chrisapi";
 import { Space } from "antd";
+import { useTypedSelector } from "../../../store/hooks";
 
+export type InputType = {
+  [key: string]: string | boolean;
+};
 type FooterProps = {
   currentStep: number;
   onBack: () => void;
@@ -10,6 +14,7 @@ type FooterProps = {
   onCancel: () => void;
   selectedTsPlugin?: Plugin;
   selectedConfig?: string;
+  splitInput: InputType;
 };
 
 const Footer = ({
@@ -19,7 +24,10 @@ const Footer = ({
   onCancel,
   selectedTsPlugin,
   selectedConfig,
+  splitInput,
 }: FooterProps) => {
+  const { tsNodes } = useTypedSelector((state) => state.tsPlugins);
+
   return (
     <Space>
       <Button
@@ -31,9 +39,16 @@ const Footer = ({
       </Button>
       <Button
         isDisabled={
-          currentStep === 1 &&
-          selectedConfig === "join-node" &&
-          !selectedTsPlugin
+          (currentStep === 1 &&
+            selectedConfig === "join-node" &&
+            !selectedTsPlugin) ||
+          (currentStep === 2 &&
+            selectedConfig === "join-node" &&
+            tsNodes &&
+            tsNodes.length === 0) ||
+          (currentStep === 2 &&
+            selectedConfig === "split-node" &&
+            Object.keys(splitInput).length === 0)
             ? true
             : false
         }

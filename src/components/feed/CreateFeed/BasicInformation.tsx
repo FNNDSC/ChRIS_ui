@@ -45,7 +45,6 @@ const BasicInformation: React.FC = () => {
   
 
   useEffect(() => {
-    
     window.addEventListener('keydown', handleKeyDown)
     return () => {
       window.removeEventListener('keydown', handleKeyDown)

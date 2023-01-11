@@ -54,17 +54,16 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
       switch (event.code) {
         case "KeyD":
           return handleModalToggle();
-      
+
         default:
           break;
       }
     }
-    window.addEventListener('keydown', handleKeydown)
+    window.addEventListener("keydown", handleKeydown);
     return () => {
-      window.removeEventListener('keydown', handleKeydown)
-    }
-
-  }, [handleModalToggle])
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, [handleModalToggle]);
 
   return (
     <React.Fragment>
@@ -75,7 +74,10 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
           icon={<FaTrash />}
           type="button"
         >
-          Delete Node <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( D )</span>
+          Delete Node{" "}
+          <span style={{ padding: "2px", color: "#F5F5DC", fontSize: "11px" }}>
+            ( D )
+          </span>
         </Button>
         <Modal
           variant={ModalVariant.small}
@@ -87,7 +89,11 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
               <Button key="confirm" variant="primary" onClick={handleDelete}>
                 Confirm
               </Button>
-              <Button key="cancel" variant="link" onClick={handleModalToggle}>
+              <Button
+                key="cancel"
+                variant="primary"
+                onClick={handleModalToggle}
+              >
                 Cancel
               </Button>
             </React.Fragment>,
