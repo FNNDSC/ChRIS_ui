@@ -366,7 +366,7 @@ const AddNode: React.FC<AddNodeProps> = ({
   return (
     <React.Fragment>
       <Button icon={<MdOutlineAddCircle />} type="button" onClick={toggleOpen}>
-        Add a Child Node <span style={{padding: "2px", color: "#F5F5DC"}}>(C)</span>
+        Add a Child Node <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( C )</span>
       </Button>
       {isOpen && (
         <Wizard

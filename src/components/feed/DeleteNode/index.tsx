@@ -75,7 +75,7 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
           icon={<FaTrash />}
           type="button"
         >
-          Delete Node <span style={{padding: "2px", color: "#F5F5DC"}}>(D)</span>
+          Delete Node <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( D )</span>
         </Button>
         <Modal
           variant={ModalVariant.small}
