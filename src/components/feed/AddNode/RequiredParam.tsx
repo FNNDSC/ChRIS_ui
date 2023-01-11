@@ -1,10 +1,9 @@
 import React, { useEffect, useRef } from "react";
-import { Form, InputGroup, InputGroupText } from "@patternfly/react-core";
+import { Form, TextInput } from "@patternfly/react-core";
 import { PluginParameter } from "@fnndsc/chrisapi";
 import { RequiredParamProp } from "./types";
 import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
 import { css } from "@patternfly/react-styles";
-import { useTypedSelector } from "../../../store/hooks";
 
 const RequiredParam: React.FC<RequiredParamProp> = ({
   param,
@@ -17,7 +16,7 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     requiredInput[param.data.id] &&
     requiredInput[param.data.id]["value"];
   const inputElement = useRef<any>()
-  const username = useTypedSelector((state) => state.user.username);
+
   const handleInputChange = (param: PluginParameter, event: any) => {
     const id = `${param.data.id}`;
     const flag = param.data.flag;
@@ -56,23 +55,18 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
         </div>
         <span className="required-params__infoLabel">(*Required)</span>
       </div>
-      <InputGroup>
-      <InputGroupText>
-         {username}/
-      </InputGroupText>
-      <input
-        className={css(styles.formControl, `required-params__textInput`)}
-        type="text"
-        ref={inputElement}
-        aria-label="required-parameters"
-        onChange={(event: any) => handleInputChange(param, event)}
-        onKeyDown={handleKeyDown}
-        placeholder={param.data.help}
-        value={value}
-        id={param.data.name}
-      />
-      </InputGroup>
-     
+    
+      <TextInput
+         className={css(styles.formControl, `required-params__textInput`)}
+         type="text"
+         ref={inputElement}
+         aria-label="required-parameters"
+         onChange={(event: any) => handleInputChange(param, event)}
+         onKeyDown={handleKeyDown}
+         placeholder={param.data.help}
+         value={value}
+         id={param.data.name}
+      />     
     </Form>
   );
 };
