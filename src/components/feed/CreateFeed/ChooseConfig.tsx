@@ -45,7 +45,7 @@ const ChooseConfig: React.FC = () => {
         if (selectedConfig) onNext()
         break;
       case "ArrowLeft":
-        if (selectedConfig) onBack()
+       onBack()
         break;
       default:
         break;
