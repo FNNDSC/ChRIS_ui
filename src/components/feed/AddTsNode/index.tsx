@@ -14,14 +14,14 @@ const GraphNodeContainer = () => {
   const [isGraphNodeVisible, setIsGraphNodeVisible] = React.useState(false);
   const [selectedTsPlugin, setTsPlugin] = React.useState<Plugin | undefined>();
   const { treeMode } = useTypedSelector((state) => state.tsPlugins);
-  const handleVisibleChange = (visible: boolean) => {
+  const handleVisibleChange = React.useCallback((visible: boolean) => {
     if (treeMode === true) {
       dispatch(switchTreeMode(false));
     } else {
       dispatch(switchTreeMode(true));
     }
     setIsGraphNodeVisible(visible);
-  };
+  }, [dispatch, treeMode]);
 
   React.useEffect(() => {
     const fetchTsPlugin = async () => {
@@ -42,6 +42,25 @@ const GraphNodeContainer = () => {
     fetchTsPlugin();
   }, []);
 
+  React.useEffect(() => {
+    function handleKeydown(event: KeyboardEvent): void {
+      switch (event.code) {
+        case "KeyG":
+          handleVisibleChange(isGraphNodeVisible);
+          return setIsGraphNodeVisible(isGraphNodeVisible => !isGraphNodeVisible);
+      
+        default:
+          break;
+      }
+    }
+    window.addEventListener('keydown', handleKeydown)
+    return () => {
+      window.removeEventListener('keydown', handleKeydown)
+    }
+
+
+  }, [handleVisibleChange, isGraphNodeVisible])
+
   return (
     <Popover
       content={
@@ -57,7 +76,7 @@ const GraphNodeContainer = () => {
       trigger="click"
     >
       <Button type="button" icon={<FaCodeBranch />}>
-        Add a Graph Node
+        Add a Graph Node <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( G )</span>
       </Button>
     </Popover>
   );
