@@ -129,7 +129,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
 
   const handleKeydown = React.useCallback((event :KeyboardEvent) => {
     switch (event.code) {
-      case "KeyD":
+      case "KeyF":
         return downloadAllClick();
 
       case "KeyT":
@@ -251,7 +251,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             </PipelineProvider>
 
             <Button onClick={downloadAllClick} icon={<FaDownload />}>
-              Download Files <span style={{padding: "2px", color: "#F5F5DC"}}>(D)</span>
+              Download Files <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( F )</span>
             </Button>
           </div>
 
@@ -267,7 +267,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               }}
             >
               <Button icon={<FaTerminal />} type="button">
-                View Terminal
+                View Terminal <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( T )</span>
               </Button>
             </Popover>
 

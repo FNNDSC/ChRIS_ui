@@ -76,7 +76,7 @@ const GraphNodeContainer = () => {
       trigger="click"
     >
       <Button type="button" icon={<FaCodeBranch />}>
-        Add a Graph Node <span style={{padding: "2px", color: "#F5F5DC"}}>(G)</span>
+        Add a Graph Node <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( G )</span>
       </Button>
     </Popover>
   );

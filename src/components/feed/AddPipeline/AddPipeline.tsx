@@ -138,7 +138,7 @@ const AddPipeline = () => {
         onClick={handleToggle}
         type="button"
       >
-        Add a Pipeline <span style={{padding: "2px", color: "#F5F5DC"}}>(P)</span>
+        Add a Pipeline <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( P )</span>
       </Button>
       <Modal
         variant={ModalVariant.large}
