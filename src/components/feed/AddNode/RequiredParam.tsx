@@ -56,7 +56,7 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
         <span className="required-params__infoLabel">(*Required)</span>
       </div>
     
-      <TextInput
+      <input
          className={css(styles.formControl, `required-params__textInput`)}
          type="text"
          ref={inputElement}
