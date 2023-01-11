@@ -270,7 +270,7 @@ const SinglePlugin = () => {
                         <div className="plugin-body-detail-section">
                           <h4>Author</h4>
                             { removeEmail(pluginData.authors.split(',')).map(author => (
-                              <p key={author}><UserAltIcon /> {author}</p>
+                              <div key={author}><UserAltIcon /> {author}</div>
                             ))}
                         </div>
                         <div className="plugin-body-detail-section">
