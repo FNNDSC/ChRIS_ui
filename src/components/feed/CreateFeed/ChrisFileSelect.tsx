@@ -65,6 +65,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
   const { state, dispatch } = useContext(CreateFeedContext)
   const { chrisFiles, checkedKeys } = state.data
   const {onBack, onNext} = useContext(WizardContext)
+  const [loading, setLoading] = useState<boolean>(false)
   const [tree, setTree] = useState<DataBreadcrumb[]>(
     (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username),
   )
@@ -126,7 +127,9 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
   },[tree]);
 
   useEffect(() =>{
+    setLoading(true)
     onLoad()
+    setLoading(false)
   }, [onLoad])
 
   
@@ -153,7 +156,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
         <Grid hasGutter={true}>
           <GridItem span={6} rowSpan={12}>
             <ErrorBoundary FallbackComponent={ErrorFallback}>
-               <DirectoryTree
+               {!loading && <DirectoryTree
                 //@ts-ignore
                 onCheck={onCheck}
                 //@ts-ignore
@@ -161,7 +164,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
                 checkable
                 //@ts-ignore
                 treeData={tree}
-              />
+              />}
             </ErrorBoundary>
           </GridItem>
           <GridItem span={6} rowSpan={12}>
