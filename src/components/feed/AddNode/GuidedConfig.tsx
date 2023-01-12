@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect } from "react";
 import {
-  Button,
   Alert,
   AlertActionCloseButton,
   ExpandableSection,
@@ -129,6 +128,7 @@ const GuidedConfig = ({
   }
 
   const addParam = () => {
+    console.log("called")
     if (params && count < params.length) {
       setConfigState({
         ...configState,

@@ -64,7 +64,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "ArrowDown") {
+    if (event.key === "Enter") {
       triggerChange("keyDown");
     } else return;
   };
@@ -73,6 +73,18 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     deleteInput(id);
     deleteComponent(id);
   };
+
+  const allDropdownsFilled  = () => {
+    for(const input in dropdownInput){
+      if(!!dropdownInput[input].flag && !!dropdownInput[input].value){
+        continue;
+      }else{
+        return false;
+      }
+
+    }
+    return true
+  }
 
 
   const handleInputChange = (e: any) => {
@@ -86,11 +98,18 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
       paramName
     );
   };
-  console.log(dropdownInput)
-  const dropdownItems =
-    params &&
+  const findUsedParam = () => {
+    const usedParam = new Set()
+     for(const input in dropdownInput){
+        usedParam.add(dropdownInput[input].flag)
+     }
+     return usedParam
+  }
+  const dropdownItems = () => {
+    const usedParam = findUsedParam()
+    const items = params &&
     params
-      .filter((param) => param.data.optional === true )
+      .filter((param) => param.data.optional === true && !usedParam.has(param.data.flag) )
       .map((param) => {
         const id = param.data.id;
         return (
@@ -106,6 +125,11 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           </DropdownItem>
         );
       });
+      return items;
+  }
+   
+
+    
   return (
     <>
       <div className="plugin-configuration">
@@ -123,7 +147,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           isOpen={isOpen}
           className="plugin-configuration__dropdown"
           dropdownItems={
-            dropdownItems && dropdownItems.length > 0 ? dropdownItems : []
+            dropdownItems() 
           }
         />
         <input
@@ -137,9 +161,9 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           value={value}
         />
 
-        {index > 0 &&<div onClick={deleteDropdown} className="close-icon">
-          <MdClose />
-        </div>}
+        <div onClick={deleteDropdown} className="close-icon">
+        {index > 0 && <MdClose />}
+        </div>
       </div>
     </>
   );
