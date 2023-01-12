@@ -13,19 +13,23 @@ import {
 import { getPluginInstanceStatusRequest } from "../../../store/resources/actions";
 import ReactJson from "react-json-view";
 import { PipelineTypes } from "../CreateFeed/types/pipeline";
+import { getNodeOperations } from "../../../store/plugin/actions";
 
 const AddPipeline = () => {
   const reactDispatch = useDispatch();
   const { selectedPlugin } = useTypedSelector((state) => state.instance);
+  const { childPipeline } = useTypedSelector(
+    (state) => state.plugin.nodeOperations
+  );
   const { state, dispatch: pipelineDispatch } =
     React.useContext(PipelineContext);
   const { pipelineData, selectedPipeline } = state;
   const [error, setError] = React.useState({});
 
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const handleToggle = React.useCallback(() => {
-    setIsModalOpen((isModalOpen) => !isModalOpen);
-  }, []);
+  const handleToggle = () => {
+    reactDispatch(getNodeOperations("childPipeline"));
+  };
+
   const addPipeline = async () => {
     if (selectedPlugin && selectedPipeline) {
       setError({});
@@ -114,23 +118,6 @@ const AddPipeline = () => {
     }
   };
 
-  React.useEffect(() => {
-    function handleKeydown(event: KeyboardEvent): void {
-      switch (event.code) {
-        case "KeyP":
-          return handleToggle();
-      
-        default:
-          break;
-      }
-    }
-    window.addEventListener('keydown', handleKeydown)
-    return () => {
-      window.removeEventListener('keydown', handleKeydown)
-    }
-
-  }, [handleToggle])
-
   return (
     <React.Fragment>
       <Button
@@ -138,12 +125,15 @@ const AddPipeline = () => {
         onClick={handleToggle}
         type="button"
       >
-        Add a Pipeline <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( P )</span>
+        Add a Pipeline{" "}
+        <span style={{ padding: "2px", color: "#F5F5DC", fontSize: "11px" }}>
+          ( P )
+        </span>
       </Button>
       <Modal
         variant={ModalVariant.large}
         aria-label="My Pipeline Modal"
-        isOpen={isModalOpen}
+        isOpen={childPipeline}
         onClose={handleToggle}
         description="Add a Pipeline to the plugin instance"
         actions={[

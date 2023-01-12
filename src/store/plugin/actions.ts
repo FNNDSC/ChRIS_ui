@@ -14,3 +14,6 @@ export const getComputeEnv = (plugin: Plugin) =>
 
 export const getComputeEnvSuccess = (computeEnvs: any[]) =>
   action(PluginActionTypes.GET_COMPUTE_ENV_SUCCESS, computeEnvs);
+
+export const getNodeOperations = (opType: string) =>
+  action(PluginActionTypes.GET_NODE_OPERATIONS, opType);
