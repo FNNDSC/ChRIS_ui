@@ -13,6 +13,7 @@ import {
 } from "../../../store/pluginInstance/actions";
 import { FaTrash } from "react-icons/fa";
 import { useTypedSelector } from "../../../store/hooks";
+import { getNodeOperations } from "../../../store/plugin/actions";
 
 interface DeleteNodeProps {
   selectedPlugin?: PluginInstance;
@@ -30,11 +31,12 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
 }: DeleteNodeProps) => {
   const dispatch = useDispatch();
   const feed = useTypedSelector((state) => state.feed.currentFeed);
+  const { deleteNode: isModalOpen } = useTypedSelector(
+    (state) => state.plugin.nodeOperations
+  );
   const { data } = feed;
-
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const handleModalToggle = React.useCallback(() => {
-    setIsModalOpen((isModalOpen) => !isModalOpen);
+    dispatch(getNodeOperations("deleteNode"));
     if (isModalOpen) {
       dispatch(clearDeleteState());
     }
@@ -48,22 +50,6 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
       dispatch(deleteNodeError("Please wait for the plugin to finish running"));
     }
   };
-
-  React.useEffect(() => {
-    function handleKeydown(event: KeyboardEvent): void {
-      switch (event.code) {
-        case "KeyD":
-          return handleModalToggle();
-
-        default:
-          break;
-      }
-    }
-    window.addEventListener("keydown", handleKeydown);
-    return () => {
-      window.removeEventListener("keydown", handleKeydown);
-    };
-  }, [handleModalToggle]);
 
   return (
     <React.Fragment>

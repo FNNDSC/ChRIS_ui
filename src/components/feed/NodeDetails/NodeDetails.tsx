@@ -35,6 +35,8 @@ import AddPipeline from "../AddPipeline/AddPipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
 import { PipelineProvider } from "../CreateFeed/context";
+import { useDispatch } from "react-redux";
+import { getNodeOperations } from "../../../store/plugin/actions";
 
 interface INodeProps {
   expandDrawer: (panel: string) => void;
@@ -55,14 +57,18 @@ function getInitialState() {
 }
 
 const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
+  const dispatch = useDispatch();
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
+  const nodeOperations = useTypedSelector(
+    (state) => state.plugin.nodeOperations
+  );
+
+  const { terminal } = nodeOperations;
   const { download, downloadAllClick } = useFeedBrowser();
   const { plugin, instanceParameters, pluginParameters } = nodeState;
-  const [isTerminalVisible, setIsTerminalVisible] = React.useState(false);
-
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isErrorExpanded, setisErrorExpanded] = React.useState(false);
 
@@ -125,29 +131,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
       </>
     );
   };
-
-
-  const handleKeydown = React.useCallback((event :KeyboardEvent) => {
-    switch (event.code) {
-      case "KeyF":
-        return downloadAllClick();
-
-      case "KeyT":
-        return setIsTerminalVisible(isTerminalVisible => !isTerminalVisible);
-    
-      default:
-        break;
-    }
-  }, [downloadAllClick])
-
-  React.useEffect(() => {
-    window.addEventListener('keydown', handleKeydown)
-    return () => {
-      window.removeEventListener('keydown', handleKeydown)
-    }
-  }, [handleKeydown])
-
-  
 
   if (!selectedPlugin) {
     return <SpinContainer background="#002030" title="Loading Node Details" />;
@@ -251,25 +234,41 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
             </PipelineProvider>
 
             <Button onClick={downloadAllClick} icon={<FaDownload />}>
-              Download Files <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( F )</span>
+              Download Files{" "}
+              <span
+                style={{ padding: "2px", color: "#F5F5DC", fontSize: "11px" }}
+              >
+                ( F )
+              </span>
             </Button>
           </div>
 
           <div className="node-details__actions_second">
-            <Popover
-              className="node-details__popover"
-              content={<PluginLog text={text} />}
-              placement="bottom"
-              open={isTerminalVisible}
-              trigger="click"
-              onOpenChange={(visible: boolean) => {
-                setIsTerminalVisible(visible);
-              }}
-            >
-              <Button icon={<FaTerminal />} type="button">
-                View Terminal <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( T )</span>
-              </Button>
-            </Popover>
+            {
+              <Popover
+                className="node-details__popover"
+                content={<PluginLog text={text} />}
+                placement="bottom"
+                open={terminal}
+                trigger="click"
+                onOpenChange={() => {
+                  dispatch(getNodeOperations("terminal"));
+                }}
+              >
+                <Button icon={<FaTerminal />} type="button">
+                  View Terminal{" "}
+                  <span
+                    style={{
+                      padding: "2px",
+                      color: "#F5F5DC",
+                      fontSize: "11px",
+                    }}
+                  >
+                    ( T )
+                  </span>
+                </Button>
+              </Popover>
+            }
 
             <GraphNodeContainer />
             {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}

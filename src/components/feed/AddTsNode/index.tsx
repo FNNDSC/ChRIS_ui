@@ -8,19 +8,22 @@ import { switchTreeMode } from "../../../store/tsplugins/actions";
 import GraphNode from "./ParentContainer";
 import { Plugin } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../api/chrisapiclient";
+import { getNodeOperations } from "../../../store/plugin/actions";
 
 const GraphNodeContainer = () => {
   const dispatch = useDispatch();
-  const [isGraphNodeVisible, setIsGraphNodeVisible] = React.useState(false);
+  const { childGraph } = useTypedSelector(
+    (state) => state.plugin.nodeOperations
+  );
   const [selectedTsPlugin, setTsPlugin] = React.useState<Plugin | undefined>();
   const { treeMode } = useTypedSelector((state) => state.tsPlugins);
-  const handleVisibleChange = React.useCallback((visible: boolean) => {
+  const handleVisibleChange = React.useCallback(() => {
     if (treeMode === true) {
       dispatch(switchTreeMode(false));
     } else {
       dispatch(switchTreeMode(true));
     }
-    setIsGraphNodeVisible(visible);
+    dispatch(getNodeOperations("childGraph"));
   }, [dispatch, treeMode]);
 
   React.useEffect(() => {
@@ -42,41 +45,25 @@ const GraphNodeContainer = () => {
     fetchTsPlugin();
   }, []);
 
-  React.useEffect(() => {
-    function handleKeydown(event: KeyboardEvent): void {
-      switch (event.code) {
-        case "KeyG":
-          handleVisibleChange(isGraphNodeVisible);
-          return setIsGraphNodeVisible(isGraphNodeVisible => !isGraphNodeVisible);
-      
-        default:
-          break;
-      }
-    }
-    window.addEventListener('keydown', handleKeydown)
-    return () => {
-      window.removeEventListener('keydown', handleKeydown)
-    }
-
-
-  }, [handleVisibleChange, isGraphNodeVisible])
-
   return (
     <Popover
       content={
         <GraphNode
           selectedTsPlugin={selectedTsPlugin}
-          visible={isGraphNodeVisible}
+          visible={childGraph}
           onVisibleChange={handleVisibleChange}
         />
       }
       placement="bottom"
-      open={isGraphNodeVisible}
+      open={childGraph}
       onOpenChange={handleVisibleChange}
       trigger="click"
     >
       <Button type="button" icon={<FaCodeBranch />}>
-        Add a Graph Node <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( G )</span>
+        Add a Graph Node{" "}
+        <span style={{ padding: "2px", color: "#F5F5DC", fontSize: "11px" }}>
+          ( G )
+        </span>
       </Button>
     </Popover>
   );

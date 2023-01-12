@@ -53,7 +53,6 @@ export interface PluginSelectState {
 }
 
 export interface AddNodeState extends InputState {
-  isOpen: boolean;
   stepIdReached: number;
   nodes?: PluginInstance[];
   data: {

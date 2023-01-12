@@ -206,7 +206,6 @@ export const createFeedInstanceWithFS = async (
           feed = await fsPluginInstance.getFeed();
           statusCallback("Analysis Created", 20);
         } catch (error) {
-          console.log("Error", error);
           errorCallback(error as string);
         }
       }
