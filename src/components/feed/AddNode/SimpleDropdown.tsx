@@ -10,7 +10,7 @@ import { MdClose } from "react-icons/md";
 
 function getInitialState() {
   return {
-    isOpen: false,
+    isOpen: true,
   };
 }
 
@@ -19,6 +19,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   dropdownInput,
   id,
   params,
+  index,
   handleChange,
   addParam,
   deleteInput,
@@ -27,11 +28,9 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   const [dropdownState, setDropdownState] =
     React.useState<SimpleDropdownState>(getInitialState);
   const { isOpen } = dropdownState;
-
   const [paramFlag, value, type, placeholder, paramName] = unPackForKeyValue(
     dropdownInput[id]
   );
-
   const onToggle = (isOpen: boolean) => {
     setDropdownState({
       ...dropdownState,
@@ -65,7 +64,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
+    if (event.key === "ArrowDown") {
       triggerChange("keyDown");
     } else return;
   };
@@ -74,6 +73,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     deleteInput(id);
     deleteComponent(id);
   };
+
 
   const handleInputChange = (e: any) => {
     handleChange(
@@ -86,11 +86,11 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
       paramName
     );
   };
-
+  console.log(dropdownInput)
   const dropdownItems =
     params &&
     params
-      .filter((param) => param.data.optional === true)
+      .filter((param) => param.data.optional === true )
       .map((param) => {
         const id = param.data.id;
         return (
@@ -106,7 +106,6 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           </DropdownItem>
         );
       });
-
   return (
     <>
       <div className="plugin-configuration">
@@ -134,13 +133,13 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
+          disabled = {!!!dropdownInput[id]?.flag}
           value={value}
-          disabled={type === "boolean"}
         />
 
-        <div onClick={deleteDropdown} className="close-icon">
+        {index > 0 &&<div onClick={deleteDropdown} className="close-icon">
           <MdClose />
-        </div>
+        </div>}
       </div>
     </>
   );

@@ -28,7 +28,7 @@ const GuidedConfig = ({
   pluginName,
 }: GuidedConfigProps) => {
   const [configState, setConfigState] = React.useState<GuidedConfigState>({
-    componentList: [],
+    componentList: [v4()],
     count: 1,
     errors: [],
     alertVisible: false,
@@ -39,7 +39,7 @@ const GuidedConfig = ({
     configState;
     const { onNext, onBack } = useContext(WizardContext)
   const setDropdownDefaults = React.useCallback(() => {
-    if (dropdownInput) {
+    if (Object.keys(dropdownInput).length !== 0) {
       const defaultComponentList = Object.entries(dropdownInput).map(
         ([key]) => {
           return key;
@@ -116,6 +116,18 @@ const GuidedConfig = ({
     });
   };
 
+  const allDropdownsFilled  = () => {
+    for(const input in dropdownInput){
+      if(!!dropdownInput[input].flag && !!dropdownInput[input].value){
+        continue;
+      }else{
+        return false;
+      }
+
+    }
+    return true
+  }
+
   const addParam = () => {
     if (params && count < params.length) {
       setConfigState({
@@ -188,7 +200,6 @@ const GuidedConfig = ({
               <RequiredParam
                 param={param}
                 requiredInput={requiredInput}
-                addParam={addParam}
                 inputChange={inputChange}
                 id={v4()}
               />
@@ -208,6 +219,7 @@ const GuidedConfig = ({
           params={params}
           handleChange={inputChange}
           id={id}
+          index={index}
           deleteComponent={deleteComponent}
           deleteInput={deleteInput}
           dropdownInput={dropdownInput}
@@ -216,7 +228,6 @@ const GuidedConfig = ({
       );
     });
   };
-
   return (
     <>
       <div className="configuration">
@@ -228,7 +239,8 @@ const GuidedConfig = ({
           <div className="configuration__renders">
             <div>
               <h4>Required Parameters</h4>
-              {renderRequiredParams()}
+          { renderRequiredParams()}
+            
               <p>
                 <i>
                   {Object.keys(requiredInput).length === 0 &&
@@ -243,14 +255,9 @@ const GuidedConfig = ({
               }}
             >
               <h4>Default Parameters</h4>
-              {renderDropdowns()}
-              <Button
-                className="configuration__button"
-                onClick={addParam}
-                variant="primary"
-              >
-                Add more parameters
-              </Button>
+              {params?.filter((param) => param.data.optional === true).length !== 0 ? renderDropdowns() : 
+              <p><i>No default parameters</i></p>}
+               
             </div>
 
             {renderComputeEnv && renderComputeEnvs()}

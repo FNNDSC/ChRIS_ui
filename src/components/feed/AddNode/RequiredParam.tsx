@@ -7,7 +7,6 @@ import { css } from "@patternfly/react-styles";
 
 const RequiredParam: React.FC<RequiredParamProp> = ({
   param,
-  addParam,
   requiredInput,
   inputChange,
 }: RequiredParamProp) => {
@@ -27,18 +26,6 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     inputChange(id, flag, value, type, placeholder, true, paramName);
   };
   
-  const triggerChange = (eventType: string) => {
-    if (eventType === "keyDown") {
-      addParam();
-    }
-  };
-  
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      triggerChange("keyDown");
-    }
-  };
 
   useEffect(() => {
     if (inputElement.current) {
@@ -62,7 +49,6 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
          ref={inputElement}
          aria-label="required-parameters"
          onChange={(event: any) => handleInputChange(param, event)}
-         onKeyDown={handleKeyDown}
          placeholder={param.data.help}
          value={value}
          id={param.data.name}
