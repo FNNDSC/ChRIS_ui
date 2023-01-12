@@ -67,13 +67,8 @@ const GraphNode = (props: GraphNodeProps) => {
     }
     if (event.key === "Enter") {
       if (stepNumber === 2) {
-        console.log("StepNumber", stepNumber);
         handleAdd();
       }
-    }
-
-    if (event.key === "Escape") {
-      onCancel();
     }
   };
 

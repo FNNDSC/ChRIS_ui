@@ -1,5 +1,8 @@
 import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
+import { isEqual } from "lodash";
+import clone from "clone";
+import { Switch, Button, Alert } from "@patternfly/react-core";
 import useSize from "./useSize";
 import { tree, hierarchy, HierarchyPointLink } from "d3-hierarchy";
 import { select, event } from "d3-selection";
@@ -11,15 +14,16 @@ import Link from "./Link";
 import NodeWrapper from "./Node";
 import { Datum, TreeNodeDatum, Point, treeAlgorithm } from "./data";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
-import { isEqual } from "lodash";
-import clone from "clone";
-import { Switch, Button, Alert } from "@patternfly/react-core";
+
 import { TSID } from "./ParentComponent";
 import { useTypedSelector } from "../../../store/hooks";
 import { setFeedLayout, setTranslate } from "../../../store/feed/actions";
 import { FeedTreeProp } from "../../../store/feed/types";
 import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import "./FeedTree.scss";
+import { getNodeOperations } from "../../../store/plugin/actions";
+import { switchTreeMode } from "../../../store/tsplugins/actions";
+import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
 
 interface Separation {
   siblings: number;
@@ -157,13 +161,13 @@ const graphClassName = "feed-tree__graph";
 
 const FeedTree = (props: AllProps) => {
   const dispatch = useDispatch();
+  const { downloadAllClick } = useFeedBrowser();
   const divRef = useRef<HTMLDivElement>(null);
   const { feedTreeProp, currentLayout } = useTypedSelector(
     (state) => state.feed
   );
-
   const { selectedD3Node } = useTypedSelector((state) => state.instance);
-
+  const { treeMode } = useTypedSelector((state) => state.tsPlugins);
   const [feedTree, setFeedTree] = React.useState<{
     nodes?: any[];
     links?: HierarchyPointLink<TreeNodeDatum>[];
@@ -171,7 +175,6 @@ const FeedTree = (props: AllProps) => {
     nodes: [],
     links: [],
   });
-
   const size = useSize(divRef);
   const { nodeSize, orientation, separation, tsIds } = props;
 
@@ -308,6 +311,35 @@ const FeedTree = (props: AllProps) => {
     svg.on("keydown", () => {
       if (links && feedTree.nodes) {
         treeAlgorithm(event, selectedD3Node, feedTree.nodes, props.onNodeClick);
+      }
+
+      if (event.code === "KeyT") {
+        dispatch(getNodeOperations("terminal"));
+      }
+
+      if (event.code === "KeyC") {
+        dispatch(getNodeOperations("childNode"));
+      }
+
+      if (event.code === "KeyG") {
+        if (treeMode === true) {
+          dispatch(switchTreeMode(false));
+        } else {
+          dispatch(switchTreeMode(true));
+        }
+        dispatch(getNodeOperations("childGraph"));
+      }
+
+      if (event.code === "KeyP") {
+        dispatch(getNodeOperations("childPipeline"));
+      }
+
+      if (event.code === "KeyD") {
+        dispatch(getNodeOperations("deleteNode"));
+      }
+
+      if (event.code === "KeyF") {
+        downloadAllClick();
       }
     });
   });
