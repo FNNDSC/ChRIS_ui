@@ -70,10 +70,6 @@ const GraphNode = (props: GraphNodeProps) => {
         handleAdd();
       }
     }
-
-    if (event.key === "Escape") {
-      onCancel();
-    }
   };
 
   React.useEffect(() => {
