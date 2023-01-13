@@ -73,8 +73,10 @@ export const getTsNodes = async (items: PluginInstance[]) => {
     if (instance.data.plugin_type === "ts") {
       const fn = instance.getParameters;
       const boundFn = fn.bind(instance);
-      const parameters: PluginParameter[] =
-        await fetchResource<PluginParameter>(params, boundFn);
+      const { resource: parameters } = await fetchResource<PluginParameter>(
+        params,
+        boundFn
+      );
       if (parameters[0]) {
         parentIds[instance.data.id] = parameters[0].data.value
           .split(",")

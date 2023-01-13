@@ -81,7 +81,7 @@ export const MainRouter: React.FC = () => {
       ),
     },
     {
-      path: "plugin/:pluginName",
+      path: "plugin/:id",
       element: (
         <PrivateRoute>
           <SinglePlugin />

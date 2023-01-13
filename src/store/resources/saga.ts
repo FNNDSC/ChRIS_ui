@@ -42,7 +42,8 @@ export const fetchFilesFromAPath = async (path: string) => {
   const params = { limit: 100, offset: 0 };
   let files: any[] = [];
 
-  files = await fetchResource(params, boundFetchFileFn);
+  const { resource } = await fetchResource(params, boundFetchFileFn);
+  files = resource;
 
   if (
     foldersList.data &&
