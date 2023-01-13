@@ -17,7 +17,6 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     requiredInput[param.data.id]["value"];
   const inputElement = useRef<any>()
 
-
   const handleInputChange = (param: PluginParameter, event: any) => {
     const id = `${param.data.id}`;
     const flag = param.data.flag;
@@ -27,13 +26,13 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     const paramName = param.data.name;
     inputChange(id, flag, value, type, placeholder, true, paramName);
   };
-
+  
   const triggerChange = (eventType: string) => {
     if (eventType === "keyDown") {
       addParam();
     }
   };
-
+  
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -56,17 +55,18 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
         </div>
         <span className="required-params__infoLabel">(*Required)</span>
       </div>
+    
       <input
-        className={css(styles.formControl, `required-params__textInput`)}
-        type="text"
-        ref={inputElement}
-        aria-label="required-parameters"
-        onChange={(event: any) => handleInputChange(param, event)}
-        onKeyDown={handleKeyDown}
-        placeholder={param.data.help}
-        value={value}
-        id={param.data.name}
-      />
+         className={css(styles.formControl, `required-params__textInput`)}
+         type="text"
+         ref={inputElement}
+         aria-label="required-parameters"
+         onChange={(event: any) => handleInputChange(param, event)}
+         onKeyDown={handleKeyDown}
+         placeholder={param.data.help}
+         value={value}
+         id={param.data.name}
+      />     
     </Form>
   );
 };

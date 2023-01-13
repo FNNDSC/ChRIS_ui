@@ -49,7 +49,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
   const [fsPlugins, setfsPlugins] = useState<Plugin[]>([]);
   const [filterState, setFilterState] = useState<FilterProps>(getFilterState());
   const { perPage, currentPage, filter, itemCount } = filterState;
-  const {onNext, onBack} = useContext(WizardContext)
+  const { onNext, onBack } = useContext(WizardContext)
   const radioInput = useRef<any>()
   useEffect(() => {
     getPlugins(filter, perPage, perPage * (currentPage - 1), "fs").then(
@@ -86,7 +86,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
     });
   };
 
-  const handleOnChange = useCallback((checked:any, plugin: Plugin) =>{
+  const handleOnChange = useCallback((checked: any, plugin: Plugin) => {
     checked === true && props.getParams(plugin);
     dispatch({
       type: Types.SelectPlugin,
@@ -97,95 +97,95 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
     });
   }, [dispatch, props])
 
-  const handleKeyDown = useCallback((e: any, plugin:any = null) => {
-    if (selectedPlugin && e.code == "Enter" ) {
+  const handleKeyDown = useCallback((e: any, plugin: any = null) => {
+    if (e.target.closest('INPUT#filter_plugin')) { return }
+    else if (e.target.closest('BUTTON') && !e.target.closest('BUTTON.pf-c-button.pf-m-secondary') && !e.target.closest('BUTTON.pf-c-button.pf-m-primary')) {
+      return;
+    } else if (e.code == "Enter" && e.target.closest('DIV.pf-c-radio')) {
       e.preventDefault()
+      if (selectedPlugin == undefined) handleOnChange(true, plugin)
       onNext()
-    }else if(plugin != undefined && e.code == "Enter"){
-      e.preventDefault()
-      handleOnChange(true, plugin)
     } else if (selectedPlugin && e.code == "ArrowRight") {
-      e.preventDefault()
       onNext()
     } else if (e.code == "ArrowLeft") {
-      e.preventDefault()
       onBack()
     }
   }, [onNext, onBack, selectedPlugin, handleOnChange])
 
- 
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [ handleKeyDown])
+  }, [handleKeyDown])
 
   return (
-        <div className="local-file-upload">
-          <h1 className="pf-c-title pf-m-2xl">Analysis Synthesis Plugin</h1>
-          <p>Please choose the Analysis Synthesis Plugin you&lsquo;d like to run</p>
-          <br />
+    <div className="local-file-upload">
+      <h1 className="pf-c-title pf-m-2xl">Analysis Synthesis Plugin</h1>
+      <p>Please choose the Analysis Synthesis Plugin you&lsquo;d like to run</p>
+      <br />
 
-          <div className="fsplugin__datatoolbar">
-            <ToolbarItem>
-              <InputGroup>
-                <TextInput
-                  name="filter_plugin"
-                  id="filter_plugin"
-                  type="search"
-                  aria-label="search input"
-                  placeholder="Search by name..."
-                  onChange={handleFilterChange}
-                />
-                <Button
-                  variant={ButtonVariant.control}
-                  aria-label="search button for the plugin"
-                >
-                  <FaSearch />
-                </Button>
-              </InputGroup>
-            </ToolbarItem>
-            <ToolbarItem variant="pagination">
-              <Pagination
-                itemCount={itemCount}
-                perPage={perPage}
-                page={currentPage}
-                onSetPage={handlePageSet}
-                onPerPageSelect={handlePerPageSet}
+      <div className="fsplugin__datatoolbar">
+        <ToolbarItem>
+          <InputGroup>
+            <TextInput
+              name="filter_plugin"
+              id="filter_plugin"
+              type="search"
+              aria-label="search input"
+              placeholder="Search by name..."
+              onChange={handleFilterChange}
+            />
+            <Button
+              variant={ButtonVariant.control}
+              aria-label="search button for the plugin"
+            >
+              <FaSearch />
+            </Button>
+          </InputGroup>
+        </ToolbarItem>
+        <ToolbarItem variant="pagination">
+          <Pagination
+            itemCount={itemCount}
+            perPage={perPage}
+            page={currentPage}
+            onSetPage={handlePageSet}
+            onPerPageSelect={handlePerPageSet}
+          />
+        </ToolbarItem>
+      </div>
+
+      <div>
+        {fsPlugins.map((plugin) => {
+          const { title, name } = plugin.data;
+          const pluginName = `${title ? title : `${name} v.${plugin.data.version}`
+            }`
+          return (
+            <>
+              <Radio
+                key={pluginName}
+                aria-labelledby="plugin-radioButton"
+                id={name}
+                ref={radioInput}
+                label={pluginName}
+                name="plugin-radioGroup"
+                onKeyDown={e => handleKeyDown(e, plugin)}
+                description={plugin.data.description}
+                onChange={(checked: any) => handleOnChange(checked, plugin)}
+                checked={selectedPlugin?.data.id === plugin.data.id}
               />
-            </ToolbarItem>
-          </div>
+            </>
+          )
+        })}
+      </div>
+    </div>
 
-           <div>
-          {fsPlugins.map((plugin, index) => {
-            const { title, name } = plugin.data;
-            const pluginName = `${title ? title : `${name} v.${plugin.data.version}`
-              }`
-            return (
-              <>
-                <Radio
-                  key={index}
-                  aria-labelledby="plugin-radioButton"
-                  id={name}
-                  ref={radioInput}
-                  label={pluginName}
-                  name="plugin-radioGroup"
-                  onKeyDown={e => handleKeyDown(e, plugin)}
-                  description={plugin.data.description}
-                  onChange={(checked:any) => handleOnChange(checked, plugin)}
-                  checked={selectedPlugin?.data.id === plugin.data.id}
-                />
-                </>
-            )})}
-            </div>
-            </div>
-          
-      );
+  );
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-        getParams: (plugin: Plugin) => dispatch(getParams(plugin)),
+  getParams: (plugin: Plugin) => dispatch(getParams(plugin)),
 });
 
-      export default connect(null, mapDispatchToProps)(DataPacks);
+export default connect(null, mapDispatchToProps)(DataPacks);

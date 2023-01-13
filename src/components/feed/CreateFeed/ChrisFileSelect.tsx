@@ -99,14 +99,21 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
   }
 
   const handleKeyDown = useCallback((e:any) =>{
+    if(e.target.closest("INPUT")) return; 
     if(chrisFiles.length > 0 && e.code == "ArrowRight"){
-      e.preventDefault()
       onNext()
     }else if(e.code == "ArrowLeft"){
-      e.preventDefault()
       onBack()
     }
   }, [chrisFiles.length, onBack, onNext])
+
+  useEffect(() => {
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [ handleKeyDown])
 
   useEffect(() => {
     
