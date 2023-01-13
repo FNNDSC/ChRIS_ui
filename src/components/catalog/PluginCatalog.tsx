@@ -1,17 +1,16 @@
 import React, { useEffect } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { PluginMeta } from "@fnndsc/chrisapi";
 import DisplayPage from "./DisplayPage";
-import { fetchResource } from "../../api/common";
-import { PluginMetaList } from "@fnndsc/chrisapi";
-
 const PluginCatalog = () => {
-  const [plugins, setPlugins] = React.useState<any[]>();
+  const [plugins, setPlugins] = React.useState<PluginMeta[]>();
   const [pageState, setPageState] = React.useState({
     page: 1,
     perPage: 10,
     search: "",
     itemCount: 0,
   });
+  const [loading, setLoading] = React.useState(false);
 
   const { page, perPage, search } = pageState;
   const [selectedPlugin, setSelectedPlugin] = React.useState<any>();
@@ -37,6 +36,7 @@ const PluginCatalog = () => {
   };
   useEffect(() => {
     async function fetchPlugins(perPage: number, page: number, search: string) {
+      setLoading(true);
       const offset = perPage * (page - 1);
       const params = {
         limit: perPage,
@@ -44,22 +44,18 @@ const PluginCatalog = () => {
         name: search,
       };
       const client = ChrisAPIClient.getClient();
-      const fn = client.getPluginMetas;
-      const boundFn = fn.bind(client);
-      try {
-        const { resource: plugins, totalCount } =
-          await fetchResource<PluginMetaList>(params, boundFn);
-
-        if (plugins) {
-          setPlugins(plugins);
-          setPageState((pageState) => {
-            return {
-              ...pageState,
-              itemCount: totalCount,
-            };
-          });
-        }
-      } catch (error) {}
+      const pluginList = await client.getPluginMetas(params);
+      const plugins: PluginMeta[] = pluginList.getItems() as PluginMeta[];
+      if (plugins) {
+        setPlugins(plugins);
+        setPageState((pageState) => {
+          return {
+            ...pageState,
+            itemCount: pluginList.totalCount,
+          };
+        });
+        setLoading(false);
+      }
     }
 
     fetchPlugins(perPage, page, search);
@@ -75,6 +71,7 @@ const PluginCatalog = () => {
   return (
     <>
       <DisplayPage
+        loading={loading}
         pageState={pageState}
         onSetPage={onSetPage}
         onPerPageSelect={onPerPageSelect}
