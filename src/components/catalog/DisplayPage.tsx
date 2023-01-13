@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import { EmptyStateTable } from "../common/emptyTable";
 import moment from "moment";
 import "./DisplayPage.scss";
+import { SpinContainer } from "../common/loading/LoadingContent";
 
 interface PageState {
   perPage: number;
@@ -21,6 +22,7 @@ interface PageState {
 }
 
 interface DisplayPageInterface {
+  loading: boolean;
   resources?: any[];
   pageState: PageState;
   onPerPageSelect: (_event: any, perPage: number) => void;
@@ -38,6 +40,7 @@ interface DisplayPageInterface {
 }
 
 const DisplayPage = ({
+  loading,
   resources,
   pageState,
   onPerPageSelect,
@@ -56,6 +59,81 @@ const DisplayPage = ({
   const format = (date: Date) => {
     return moment(date).fromNow();
   };
+
+  const test =
+    resources && resources.length > 0 ? (
+      resources.map((resource) => {
+        return (
+          <GridItem key={resource.data ? resource.data.id : ""} lg={6} sm={12}>
+            <Card className="plugin-item-card">
+              <CardBody className="plugin-item-card-body">
+                <div>
+                  <div className="row no-flex">
+                    <Split>
+                      <SplitItem isFilled>
+                        <p
+                          style={{
+                            fontSize: "0.9em",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {resource.data.name}
+                        </p>
+                      </SplitItem>
+                      {isPlugin && (
+                        <SplitItem>
+                          <Badge isRead>{resource.data.category}</Badge>
+                        </SplitItem>
+                      )}
+                    </Split>
+                    {isPlugin && (
+                      <>
+                        <div className="plugin-item-name">
+                          <Link to={`/plugin/${resource.data.id}`}>
+                            {resource.data.title}
+                          </Link>
+                        </div>
+                        <div className="plugin-item-author">
+                          {resource.data.authors}
+                        </div>
+                      </>
+                    )}
+
+                    {isCompute && (
+                      <h1 className="compute-item-description">
+                        {resource.data.description}
+                      </h1>
+                    )}
+
+                    <p
+                      style={{
+                        color: "gray",
+                        fontWeight: "600",
+                        fontSize: "small",
+                      }}
+                    >
+                      {isValid(resource.data.modification_date)
+                        ? `Updated ${format(resource.data.modification_date)}`
+                        : `Created ${format(resource.data.creation_date)}`}
+                    </p>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </GridItem>
+        );
+      })
+    ) : (
+      <GridItem>
+        <EmptyStateTable
+          cells={[]}
+          rows={[]}
+          caption=""
+          title="No results found"
+          description=""
+        />
+      </GridItem>
+    );
 
   const content = (
     <Grid hasGutter={true}>
@@ -109,87 +187,7 @@ const DisplayPage = ({
 
       <div className="site-card-wrapper">
         <Grid className="plugins-row" hasGutter>
-          {resources && resources.length > 0 ? (
-            resources.map((resource) => {
-              return (
-                <GridItem
-                  key={resource.data ? resource.data.id : ""}
-                  lg={6}
-                  sm={12}
-                >
-                  <Card className="plugin-item-card">
-                    <CardBody className="plugin-item-card-body">
-                      <div>
-                        <div className="row no-flex">
-                          <Split>
-                            <SplitItem isFilled>
-                              <p
-                                style={{
-                                  fontSize: "0.9em",
-                                  fontWeight: "bold",
-                                }}
-                              >
-                                {resource.data.name}
-                              </p>
-                            </SplitItem>
-                            {isPlugin && (
-                              <SplitItem>
-                                <Badge isRead>{resource.data.category}</Badge>
-                              </SplitItem>
-                            )}
-                          </Split>
-                          {isPlugin && (
-                            <>
-                              <div className="plugin-item-name">
-                                <Link to={`/plugin/${resource.data.id}`}>
-                                  {resource.data.title}
-                                </Link>
-                              </div>
-                              <div className="plugin-item-author">
-                                {resource.data.authors}
-                              </div>
-                            </>
-                          )}
-
-                          {isCompute && (
-                            <h1 className="compute-item-description">
-                              {resource.data.description}
-                            </h1>
-                          )}
-
-                          <p
-                            style={{
-                              color: "gray",
-                              fontWeight: "600",
-                              fontSize: "small",
-                            }}
-                          >
-                            {isValid(resource.data.modification_date)
-                              ? `Updated ${format(
-                                  resource.data.modification_date
-                                )}`
-                              : `Created ${format(
-                                  resource.data.creation_date
-                                )}`}
-                          </p>
-                        </div>
-                      </div>
-                    </CardBody>
-                  </Card>
-                </GridItem>
-              );
-            })
-          ) : (
-            <GridItem offset={8}>
-              <EmptyStateTable
-                cells={[]}
-                rows={[]}
-                caption=""
-                title="No results found"
-                description=""
-              />
-            </GridItem>
-          )}
+          {loading ? <SpinContainer title="Fetching Resources" /> : test}
         </Grid>
       </div>
     </Grid>
