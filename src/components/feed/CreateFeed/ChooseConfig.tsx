@@ -38,14 +38,11 @@ const ChooseConfig: React.FC = () => {
         if (selectedConfig != "swift_storage") handleClick(e, "swift_storage")
         onNext()
         break;
-      case "Enter":
-        if (selectedConfig) onNext();
-        break;
       case "ArrowRight":
         if (selectedConfig) onNext()
         break;
       case "ArrowLeft":
-        if (selectedConfig) onBack()
+       onBack()
         break;
       default:
         break;

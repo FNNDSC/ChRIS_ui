@@ -27,6 +27,7 @@ import {
 import { PipelinesProps } from "./types/pipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import ReactJson from "react-json-view";
+import { Pipeline } from "@fnndsc/chrisapi";
 
 const Pipelines = ({
   justDisplay,
@@ -123,21 +124,95 @@ const Pipelines = ({
     });
   };
 
-  const handleKeyDown = useCallback((e: any) => {
-    if (e.code == "ArrowLeft") {
+  const handleOnButtonClick = useCallback(async (pipeline: Pipeline) => {
+    if (!(selectedPipeline === pipeline.data.id)) {
+      handlePipelineSecondaryResource(pipeline);
+      if (!pipelineData[pipeline.data.id]) {
+        const { resources } =
+          await generatePipelineWithName(
+            pipeline.data.name
+          );
+        handleSetPipelineResources({
+          ...resources,
+          pipelineId: pipeline.data.id,
+        });
+        const { pluginPipings } = resources;
+
+        for (let i = 0; i < pluginPipings.length; i++) {
+          const piping = pluginPipings[i];
+          const computeEnvData = await fetchComputeInfo(
+            piping.data.plugin_id,
+            piping.data.id
+          );
+
+          if (computeEnvData) {
+            handleSetPipelineEnvironments(
+              pipeline.data.id,
+              computeEnvData
+            );
+          }
+        }
+      }
+    } else {
+      handleCleanResources();
+    }
+  }, [handleCleanResources, handlePipelineSecondaryResource, handleSetPipelineEnvironments, handleSetPipelineResources, pipelineData, selectedPipeline])
+
+  const handleOnExpand = useCallback(async ( pipeline:Pipeline) => {
+    
+    if (!(selectedPipeline === pipeline.data.id)) {
+      handlePipelineSecondaryResource(pipeline);
+    } else {
+      handleCleanResources();
+    }
+    if (
+      !(expanded && expanded[pipeline.data.id]) ||
+      !state.pipelineData[pipeline.data.id]
+    ) {
+      const { resources } = await generatePipelineWithName(
+        pipeline.data.name
+      );
+
+      handleSetPipelineResources({
+        ...resources,
+        pipelineId: pipeline.data.id,
+      });
+
+      setExpanded({
+        ...expanded,
+        [pipeline.data.id]: true,
+      });
+    } else {
+      setExpanded({
+        ...expanded,
+        [pipeline.data.id]: false,
+      });
+    }
+  }, [expanded, handleCleanResources, handlePipelineSecondaryResource, handleSetPipelineResources, selectedPipeline, state.pipelineData])
+
+  const handleKeyDown = useCallback((e: any, pipeline: Pipeline) => {
+    
+     if(e.code == "Enter" && e.target.closest('DIV.pf-c-data-list__toggle')){
+      e.preventDefaut()
+      handleOnExpand(pipeline)
+    }
+  }, [handleOnExpand])
+
+  const handleBrowserKeyDown = useCallback((e: any) => {
+     if (e.code == "ArrowLeft") {
       onBack()
-    } else if (e.code == "ArrowRight" || e.code == "Enter") {
+    } else if (e.code == "ArrowRight") {
       onNext()
     }
   }, [onBack, onNext])
 
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keydown', handleBrowserKeyDown)
     return () => {
-      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keydown', handleBrowserKeyDown)
     }
-  }, [ handleKeyDown])
+  }, [handleBrowserKeyDown])
 
   return (
 
@@ -172,37 +247,8 @@ const Pipelines = ({
                   <DataListToggle
                     id={pipeline.data.id}
                     aria-controls="expand"
-                    onKeyDown={(e) => handleKeyDown(e)}
-                    onClick={async () => {
-                      if (!(selectedPipeline === pipeline.data.id)) {
-                        handlePipelineSecondaryResource(pipeline);
-                      } else {
-                        handleCleanResources();
-                      }
-                      if (
-                        !(expanded && expanded[pipeline.data.id]) ||
-                        !state.pipelineData[pipeline.data.id]
-                      ) {
-                        const { resources } = await generatePipelineWithName(
-                          pipeline.data.name
-                        );
-
-                        handleSetPipelineResources({
-                          ...resources,
-                          pipelineId: pipeline.data.id,
-                        });
-
-                        setExpanded({
-                          ...expanded,
-                          [pipeline.data.id]: true,
-                        });
-                      } else {
-                        setExpanded({
-                          ...expanded,
-                          [pipeline.data.id]: false,
-                        });
-                      }
-                    }}
+                    onKeyDown={(e) => handleKeyDown(e, pipeline)}
+                    onClick={() => handleOnExpand(pipeline)}
                   />
                   <DataListItemCells
                     dataListCells={[
@@ -234,40 +280,7 @@ const Pipelines = ({
                       <Button
                         variant="tertiary"
                         key="select-action"
-                        onKeyDown={(e) => handleKeyDown(e)}
-                        onClick={async () => {
-                          if (!(selectedPipeline === pipeline.data.id)) {
-                            handlePipelineSecondaryResource(pipeline);
-                            if (!pipelineData[pipeline.data.id]) {
-                              const { resources } =
-                                await generatePipelineWithName(
-                                  pipeline.data.name
-                                );
-                              handleSetPipelineResources({
-                                ...resources,
-                                pipelineId: pipeline.data.id,
-                              });
-                              const { pluginPipings } = resources;
-
-                              for (let i = 0; i < pluginPipings.length; i++) {
-                                const piping = pluginPipings[i];
-                                const computeEnvData = await fetchComputeInfo(
-                                  piping.data.plugin_id,
-                                  piping.data.id
-                                );
-
-                                if (computeEnvData) {
-                                  handleSetPipelineEnvironments(
-                                    pipeline.data.id,
-                                    computeEnvData
-                                  );
-                                }
-                              }
-                            }
-                          } else {
-                            handleCleanResources();
-                          }
-                        }}
+                        onClick={() => handleOnButtonClick(pipeline)}
                       >
                         {selectedPipeline === pipeline.data.id
                           ? "Deselect"
