@@ -280,7 +280,7 @@ export const getRequiredObject = async (
   const paginate = { limit: 30, offset: 0 };
   const fn = plugin.getPluginParameters;
   const boundFn = fn.bind(plugin);
-  const params: PluginParameter[] = await fetchResource<PluginParameter>(
+  const { resource: params } = await fetchResource<PluginParameter>(
     paginate,
     boundFn
   );

@@ -138,20 +138,26 @@ const DataLibrary = () => {
         if (file.type === "feed") {
           const feedFn = client.getFiles;
           const bindFn = feedFn.bind(client);
-          const fileItems = await fetchResource(params, bindFn);
+          const { resource: fileItems } = await fetchResource(params, bindFn);
           filesToPush["files"].push(...fileItems);
         }
 
         if (file.type === "uploads") {
           const uploadsFn = client.getUploadedFiles;
           const uploadBound = uploadsFn.bind(client);
-          const fileItems = await fetchResource(params, uploadBound);
+          const { resource: fileItems } = await fetchResource(
+            params,
+            uploadBound
+          );
           filesToPush["files"].push(...fileItems);
         }
         if (file.type === "services") {
           const pacsFn = client.getPACSFiles;
           const pacsBound = pacsFn.bind(client);
-          const fileItems = await fetchResource(params, pacsBound);
+          const { resource: fileItems } = await fetchResource(
+            params,
+            pacsBound
+          );
           filesToPush["files"].push(...fileItems);
         }
         return filesToPush;
