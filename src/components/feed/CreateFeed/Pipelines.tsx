@@ -191,14 +191,12 @@ const Pipelines = ({
   }, [expanded, handleCleanResources, handlePipelineSecondaryResource, handleSetPipelineResources, selectedPipeline, state.pipelineData])
 
   const handleKeyDown = useCallback((e: any, pipeline: Pipeline) => {
-    if (e.code == "Enter" && e.target.closest('BUTTON.pf-c-button.pf-m-tertiary')) {
-      e.preventDefaut()
-      handleOnButtonClick(pipeline);
-    }else if(e.code == "Enter" && e.target.closest('DIV.pf-c-data-list__toggle')){
+    
+     if(e.code == "Enter" && e.target.closest('DIV.pf-c-data-list__toggle')){
       e.preventDefaut()
       handleOnExpand(pipeline)
     }
-  }, [handleOnExpand, handleOnButtonClick])
+  }, [handleOnExpand])
 
   const handleBrowserKeyDown = useCallback((e: any) => {
      if (e.code == "ArrowLeft") {
@@ -282,7 +280,6 @@ const Pipelines = ({
                       <Button
                         variant="tertiary"
                         key="select-action"
-                        onKeyDown={(e) => handleKeyDown(e, pipeline)}
                         onClick={() => handleOnButtonClick(pipeline)}
                       >
                         {selectedPipeline === pipeline.data.id
