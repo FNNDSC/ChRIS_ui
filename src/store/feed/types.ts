@@ -45,6 +45,10 @@ export interface IFeedState {
   bulkSelect: Feed[];
   feedResources: FeedResource;
   selectAllToggle: boolean;
+  searchFilter: {
+    status: boolean;
+    value: string;
+  };
 }
 
 export const FeedActionTypes = keyMirror({
@@ -81,4 +85,5 @@ export const FeedActionTypes = keyMirror({
   REMOVE_ALL_SELECT: null,
   TOGGLE_SELECT_ALL: null,
   TRANSLATE_PROP: null,
+  SET_SEARCH_FILTER: null,
 });
