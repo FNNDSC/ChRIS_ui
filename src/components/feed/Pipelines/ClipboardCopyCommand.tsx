@@ -20,6 +20,7 @@ const ClipboardCopyCommand = ({ state }: { state: SinglePipeline }) => {
     dropdownInput = input[currentNode].dropdownInput;
     requiredInput = input[currentNode].requiredInput;
   }
+
   let generatedCommand = "";
   const onClick = (event: any, text: any) => {
     clipboardCopyFunc(event, text);

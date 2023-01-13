@@ -9,6 +9,6 @@ export const fetchTagList = async () => {
   };
   const fn = client.getTags;
   const boundFn = fn.bind(client);
-  const resource: Tag[] = await fetchResource<Tag>(params, boundFn);
+  const { resource } = await fetchResource<Tag>(params, boundFn);
   return resource;
 };
