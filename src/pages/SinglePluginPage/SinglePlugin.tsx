@@ -86,7 +86,7 @@ const SinglePlugin = () => {
             params,
             boundFn
           );
-          let generatedCommand = `${plugin.data.version} `;
+          let generatedCommand = ``;
           if (parameters.length > 0) {
             parameters.forEach((param) => {
               const generateInput = {
@@ -103,7 +103,7 @@ const SinglePlugin = () => {
           }
           return {
             generatedCommand,
-            version: plugin.data.version,
+            version: `${plugin.data.name}:${plugin.data.version}`,
           };
         })
       );
@@ -243,6 +243,7 @@ const SinglePlugin = () => {
                                 return (
                                   <CodeBlock key={parameter}>
                                     <CodeBlockCode id="code-content">
+                                      {parameter.version}:
                                       {parameter.generatedCommand}
                                     </CodeBlockCode>
                                   </CodeBlock>
