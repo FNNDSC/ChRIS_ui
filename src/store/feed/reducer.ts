@@ -26,6 +26,10 @@ export const initialState: IFeedState = {
   bulkSelect: [],
   feedResources: {},
   selectAllToggle: false,
+  searchFilter: {
+    value: "",
+    status: false,
+  },
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -300,6 +304,17 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         bulkSelect: [...action.payload],
+      };
+    }
+
+    case FeedActionTypes.SET_SEARCH_FILTER: {
+      return {
+        ...state,
+        searchFilter: {
+          ...state.searchFilter,
+          value: action.payload,
+          status: !state.searchFilter.status,
+        },
       };
     }
 

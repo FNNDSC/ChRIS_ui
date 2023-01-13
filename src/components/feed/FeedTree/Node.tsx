@@ -60,6 +60,10 @@ const Node = (props: NodeProps) => {
     (state) => state.instance.pluginInstances.data
   );
 
+  const searchFilter = useTypedSelector((state) => state.feed.searchFilter);
+
+  const { value } = searchFilter;
+
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
       .attr("transform", transform)
@@ -98,6 +102,13 @@ const Node = (props: NodeProps) => {
 
   if (status === "finishedWithError" || status === "cancelled") {
     statusClass = "error";
+  }
+
+  if (
+    value.length > 0 &&
+    (value === data.item?.data.plugin_name || value === data.item?.data.title)
+  ) {
+    statusClass = "search";
   }
 
   if (mode === false && tsNodes && tsNodes.length > 0) {
@@ -150,7 +161,7 @@ const Node = (props: NodeProps) => {
       >
         <circle
           id={`node_${data.id}`}
-          className={`node ${statusClass} ${tsClass}
+          className={`node ${statusClass} ${tsClass} 
               ${currentId && `selected`}
               `}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
@@ -163,7 +174,7 @@ const Node = (props: NodeProps) => {
             r={DEFAULT_NODE_CIRCLE_RADIUS * overlaySize}
           />
         )}
-        {toggleLabel ? textLabel : null}
+        {statusClass === "search" ? textLabel : toggleLabel ? textLabel : null}
       </g>
     </Fragment>
   );
