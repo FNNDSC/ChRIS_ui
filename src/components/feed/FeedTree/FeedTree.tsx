@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
 import { isEqual } from "lodash";
 import clone from "clone";
-import { Switch, Button, Alert } from "@patternfly/react-core";
+import { Switch, Button, Alert, TextInput } from "@patternfly/react-core";
 import useSize from "./useSize";
 import { tree, hierarchy, HierarchyPointLink } from "d3-hierarchy";
 import { select, event } from "d3-selection";
@@ -14,10 +14,15 @@ import Link from "./Link";
 import NodeWrapper from "./Node";
 import { Datum, TreeNodeDatum, Point, treeAlgorithm } from "./data";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
+import { FaTimes } from "react-icons/fa";
 
 import { TSID } from "./ParentComponent";
 import { useTypedSelector } from "../../../store/hooks";
-import { setFeedLayout, setTranslate } from "../../../store/feed/actions";
+import {
+  setFeedLayout,
+  setSearchFilter,
+  setTranslate,
+} from "../../../store/feed/actions";
 import { FeedTreeProp } from "../../../store/feed/types";
 import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import "./FeedTree.scss";
@@ -163,7 +168,7 @@ const FeedTree = (props: AllProps) => {
   const dispatch = useDispatch();
   const { downloadAllClick } = useFeedBrowser();
   const divRef = useRef<HTMLDivElement>(null);
-  const { feedTreeProp, currentLayout } = useTypedSelector(
+  const { feedTreeProp, currentLayout, searchFilter } = useTypedSelector(
     (state) => state.feed
   );
   const { selectedD3Node } = useTypedSelector((state) => state.instance);
@@ -503,6 +508,24 @@ const FeedTree = (props: AllProps) => {
               </div>
             )}
           </div>
+          <div className="feed-tree__control">
+            <TextInput
+              value={searchFilter.value}
+              onChange={(value: string) => {
+                dispatch(setSearchFilter(value.trim()));
+              }}
+            />
+          </div>
+
+          <div className="feed-tree__control">
+            <FaTimes
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                dispatch(setSearchFilter(""));
+              }}
+            />
+          </div>
+
           {mode === false && (
             <div className="feed-tree__orientation">
               <Alert
@@ -512,6 +535,7 @@ const FeedTree = (props: AllProps) => {
             </div>
           )}
         </div>
+
         {!props.isSidePanelExpanded && (
           <div className="feed-tree__container--panelToggle">
             <div className="feed-tree__orientation">

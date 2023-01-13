@@ -17,6 +17,7 @@ import { getNodeOperations } from "../../../store/plugin/actions";
 
 const AddPipeline = () => {
   const reactDispatch = useDispatch();
+  const feed = useTypedSelector((state) => state.feed.currentFeed.data);
   const { selectedPlugin } = useTypedSelector((state) => state.instance);
   const { childPipeline } = useTypedSelector(
     (state) => state.plugin.nodeOperations
@@ -31,7 +32,7 @@ const AddPipeline = () => {
   };
 
   const addPipeline = async () => {
-    if (selectedPlugin && selectedPipeline) {
+    if (selectedPlugin && selectedPipeline && feed) {
       setError({});
       const {
         pluginPipings,
@@ -75,12 +76,14 @@ const AddPipeline = () => {
 
               for (const i in totalInput) {
                 const parameter = dropdownInput[i];
-                const replaceValue = parameter["flag"].replace(/-/g, "");
+                if (parameter) {
+                  const replaceValue = parameter["flag"].replace(/-/g, "");
 
-                pluginParameterDefaults.push({
-                  name: replaceValue,
-                  default: parameter["value"],
-                });
+                  pluginParameterDefaults.push({
+                    name: replaceValue,
+                    default: parameter["value"],
+                  });
+                }
               }
               node["plugin_parameter_defaults"] = pluginParameterDefaults;
             }
@@ -94,7 +97,7 @@ const AddPipeline = () => {
             type: PipelineTypes.ResetState,
           });
 
-          const data = await selectedPlugin.getDescendantPluginInstances({
+          const data = await feed.getPluginInstances({
             limit: 1000,
           });
           if (data.getItems()) {

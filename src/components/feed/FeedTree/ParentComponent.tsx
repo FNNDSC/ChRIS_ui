@@ -47,6 +47,8 @@ const ParentComponent = (props: ParentComponentProps) => {
     dispatch(setFeedTreeProp(orientation));
   };
 
+  console.log("Data", data, instances);
+
   return data && data.length > 0 ? (
     <FeedTree
       onNodeClickTs={onNodeClickTs}
