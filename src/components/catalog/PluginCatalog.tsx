@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import DisplayPage from "./DisplayPage";
+import { fetchResource } from "../../api/common";
+import { PluginMetaList } from "@fnndsc/chrisapi";
 
 const PluginCatalog = () => {
   const [plugins, setPlugins] = React.useState<any[]>();
@@ -36,23 +38,28 @@ const PluginCatalog = () => {
   useEffect(() => {
     async function fetchPlugins(perPage: number, page: number, search: string) {
       const offset = perPage * (page - 1);
-      const client = ChrisAPIClient.getClient();
       const params = {
         limit: perPage,
         offset: offset,
         name: search,
       };
-      const pluginsList = await client.getPlugins(params);
-      const plugins = pluginsList.getItems();
-      if (plugins) {
-        setPlugins(plugins);
-        setPageState((pageState) => {
-          return {
-            ...pageState,
-            itemCount: pluginsList.totalCount,
-          };
-        });
-      }
+      const client = ChrisAPIClient.getClient();
+      const fn = client.getPluginMetas;
+      const boundFn = fn.bind(client);
+      try {
+        const { resource: plugins, totalCount } =
+          await fetchResource<PluginMetaList>(params, boundFn);
+
+        if (plugins) {
+          setPlugins(plugins);
+          setPageState((pageState) => {
+            return {
+              ...pageState,
+              itemCount: totalCount,
+            };
+          });
+        }
+      } catch (error) {}
     }
 
     fetchPlugins(perPage, page, search);

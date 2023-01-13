@@ -24,7 +24,7 @@ export function* getPluginFiles(plugin: PluginInstance) {
   const params = { limit: 200, offset: 0 };
   const fn = plugin.getFiles;
   const boundFn = fn.bind(plugin);
-  const files: any[] = yield fetchResource<any>(params, boundFn);
+  const { resource: files } = yield fetchResource<any>(params, boundFn);
   return files;
 }
 
@@ -42,7 +42,8 @@ export const fetchFilesFromAPath = async (path: string) => {
   const params = { limit: 100, offset: 0 };
   let files: any[] = [];
 
-  files = await fetchResource(params, boundFetchFileFn);
+  const { resource } = await fetchResource(params, boundFetchFileFn);
+  files = resource;
 
   if (
     foldersList.data &&

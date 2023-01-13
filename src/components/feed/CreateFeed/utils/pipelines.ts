@@ -13,11 +13,11 @@ export async function fetchResources(pipelineInstance: Pipeline) {
   const pipelineFn = pipelineInstance.getPluginPipings;
   const boundPipelinePluginFn = pipelinePluginsFn.bind(pipelineInstance);
   const boundPipelineFn = pipelineFn.bind(pipelineInstance);
-  const pluginPipings: PluginPiping[] = await fetchResource<PluginPiping>(
+  const { resource: pluginPipings } = await fetchResource<PluginPiping>(
     params,
     boundPipelineFn
   );
-  const pipelinePlugins: any[] = await fetchResource(
+  const { resource: pipelinePlugins } = await fetchResource(
     params,
     boundPipelinePluginFn
   );

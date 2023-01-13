@@ -1,17 +1,17 @@
 import React from "react";
+import { PluginMeta } from "@fnndsc/chrisapi";
+import { Pagination, Grid, TextInput, GridItem } from "@patternfly/react-core";
 import {
-  Pagination,
-  Grid,
-  TextInput,
-   GridItem,
+  Badge,
+  Card,
+  CardBody,
+  Split,
+  SplitItem,
 } from "@patternfly/react-core";
-import {
-  Badge, Card, CardBody, Split, SplitItem,
-} from '@patternfly/react-core';
- import { Link } from 'react-router-dom';
- import { EmptyStateTable } from "../common/emptyTable";
-import moment from 'moment';
-import "./DisplayPage.scss"
+import { Link } from "react-router-dom";
+import { EmptyStateTable } from "../common/emptyTable";
+import moment from "moment";
+import "./DisplayPage.scss";
 
 interface PageState {
   perPage: number;
@@ -33,6 +33,7 @@ interface DisplayPageInterface {
   handlePluginSearch?: (search: string) => void;
   handlePipelineSearch?: (search: string) => void;
   handleComputeSearch?: (search: string) => void;
+  pluginNavigate?: (item: PluginMeta) => void;
   search: string;
 }
 
@@ -41,25 +42,20 @@ const DisplayPage = ({
   pageState,
   onPerPageSelect,
   onSetPage,
-   title,
+  title,
   handleComputeSearch,
   handlePluginSearch,
   search,
 }: DisplayPageInterface) => {
   const { perPage, page, itemCount } = pageState;
- 
   const isPlugin = title === "Plugins" ? true : false;
   const isCompute = title === "Compute" ? true : false;
-
-
   const isValid = (date: any) => {
-    return new Date(date).toDateString() !== 'Invalid Date';
-  }
-
+    return new Date(date).toDateString() !== "Invalid Date";
+  };
   const format = (date: Date) => {
     return moment(date).fromNow();
-
-  }
+  };
 
   const content = (
     <Grid hasGutter={true}>
@@ -71,11 +67,10 @@ const DisplayPage = ({
           padding: "0.8rem 0rem",
         }}
       >
-
         <div
           style={{
             display: "flex",
-             gap: "1rem",
+            gap: "1rem",
           }}
         >
           <TextInput
@@ -96,17 +91,19 @@ const DisplayPage = ({
           />
         </div>
 
-        <div  style={{
+        <div
+          style={{
             display: "flex",
-             gap: "1rem",
-          }}>
-        <Pagination
-        itemCount={itemCount}
-        perPage={perPage}
-        page={page}
-        onSetPage={onSetPage}
-        onPerPageSelect={onPerPageSelect}
-      />
+            gap: "1rem",
+          }}
+        >
+          <Pagination
+            itemCount={itemCount}
+            perPage={perPage}
+            page={page}
+            onSetPage={onSetPage}
+            onPerPageSelect={onPerPageSelect}
+          />
         </div>
       </div>
 
@@ -119,46 +116,61 @@ const DisplayPage = ({
                   key={resource.data ? resource.data.id : ""}
                   lg={6}
                   sm={12}
-                  
-                 >
-
-                  <Card className="plugin-item-card"  >
+                >
+                  <Card className="plugin-item-card">
                     <CardBody className="plugin-item-card-body">
                       <div>
                         <div className="row no-flex">
                           <Split>
-                            <SplitItem isFilled><p style={{ fontSize: '0.9em', fontWeight: 'bold' }}>{resource.data.name}</p></SplitItem>
-                            {isPlugin && <SplitItem><Badge isRead>{resource.data.category}</Badge></SplitItem>}
+                            <SplitItem isFilled>
+                              <p
+                                style={{
+                                  fontSize: "0.9em",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                {resource.data.name}
+                              </p>
+                            </SplitItem>
+                            {isPlugin && (
+                              <SplitItem>
+                                <Badge isRead>{resource.data.category}</Badge>
+                              </SplitItem>
+                            )}
                           </Split>
                           {isPlugin && (
                             <>
                               <div className="plugin-item-name">
-                                <Link
-                                  to={`/plugin/${resource.data.name}`}
-                                >
+                                <Link to={`/plugin/${resource.data.id}`}>
                                   {resource.data.title}
                                 </Link>
-                                {/* {isPlugin && (renderStarButton()) } */}
                               </div>
-                              <div
-                                className="plugin-item-author"
-                              >
+                              <div className="plugin-item-author">
                                 {resource.data.authors}
                               </div>
                             </>
                           )}
 
                           {isCompute && (
-                            <h1 className="compute-item-description">{resource.data.description}</h1>
+                            <h1 className="compute-item-description">
+                              {resource.data.description}
+                            </h1>
                           )}
 
-                          <p style={{ color: 'gray', fontWeight: '600', fontSize: 'small' }}>
-                            {
-                              isValid(resource.data.modification_date) ?
-                                `Updated ${format(resource.data.modification_date)}`
-                                :
-                                `Created ${format(resource.data.creation_date)}`
-                            }
+                          <p
+                            style={{
+                              color: "gray",
+                              fontWeight: "600",
+                              fontSize: "small",
+                            }}
+                          >
+                            {isValid(resource.data.modification_date)
+                              ? `Updated ${format(
+                                  resource.data.modification_date
+                                )}`
+                              : `Created ${format(
+                                  resource.data.creation_date
+                                )}`}
                           </p>
                         </div>
                       </div>
@@ -183,16 +195,7 @@ const DisplayPage = ({
     </Grid>
   );
 
- 
-
-  return (
-    <>
-      
-
-      {content}
-
-    </>
-  );
+  return <>{content}</>;
 };
 
 export default DisplayPage;
