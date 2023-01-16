@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { Dropdown, DropdownToggle, DropdownItem } from "@patternfly/react-core";
 import { AiFillCaretDown } from "react-icons/ai";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
@@ -19,6 +19,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   dropdownInput,
   id,
   params,
+  componentList,
   index,
   handleChange,
   addParam,
@@ -45,7 +46,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     });
   };
 
-  const handleClick = (param: PluginParameter) => {
+  const handleClick = useCallback((param: PluginParameter) => {
     const flag = param.data.flag;
     const placeholder = param.data.help;
     const type = param.data.type;
@@ -55,25 +56,13 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
       ? param.data.default
       : "";
     handleChange(id, flag, defaultValue, type, placeholder, false, paramName);
-  };
+  }, [defaultValueDisplay, handleChange, id, paramName, value]);
 
   const triggerChange = (eventType: string) => {
     if (eventType === "keyDown") {
       addParam();
     }
   };
-
-  const allDropdownsFilled  = () => {
-    for(const input in dropdownInput){
-      if(dropdownInput[input].flag && dropdownInput[input].value){
-        continue;
-      }else{
-        return false;
-      }
-
-    }
-    return true
-  }
 
   const deleteDropdown = () => {
     deleteInput(id);
@@ -91,14 +80,14 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
       paramName
     );
   };
-  const findUsedParam = () => {
+  const findUsedParam = useCallback(() => {
     const usedParam = new Set()
      for(const input in dropdownInput){
         usedParam.add(dropdownInput[input].flag)
      }
      return usedParam
-  }
-  const dropdownItems = () => {
+  },[dropdownInput])
+  const dropdownItems = useCallback(() => {
     const usedParam = findUsedParam()
     const items = params &&
     params
@@ -119,7 +108,24 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
         );
       });
       return items;
-  }
+  }, [findUsedParam, handleClick, params])
+
+  const allDrowdownsFilled = useCallback(() => {
+    for(const input of componentList){
+        if(!(dropdownInput[input] && dropdownInput[input].flag && dropdownInput[input].value)){
+         return false; 
+        }
+    }
+    return true; 
+ }, [dropdownInput, componentList])
+ useEffect(() => {
+      const remParam = dropdownItems();
+      const keys = Object.keys(dropdownInput); 
+      const isLastElem = keys[keys.length-1] == id
+      if(remParam?.length != 0 && isLastElem  && allDrowdownsFilled()){
+         addParam()
+      }
+ }, [dropdownInput, addParam, dropdownItems, id, allDrowdownsFilled])
    
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {

@@ -117,8 +117,6 @@ const GuidedConfig = ({
     });
   };
 
-
-
   const addParam = () => {
     if (params && count < params.length) {
       setConfigState({
@@ -211,6 +209,7 @@ const GuidedConfig = ({
           handleChange={inputChange}
           id={id}
           index={index}
+          componentList={componentList}
           deleteComponent={deleteComponent}
           deleteInput={deleteInput}
           dropdownInput={dropdownInput}

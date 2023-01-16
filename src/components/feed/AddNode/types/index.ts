@@ -137,6 +137,7 @@ export interface SimpleDropdownProps {
   dropdownItems?: any[];
   id: string;
   index: number;
+  componentList: string[];
   handleChange(
     id: string,
     flag: string,
