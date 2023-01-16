@@ -81,7 +81,7 @@ describe("Testing CreateAnalysis", () => {
   it("08 Goes to Parameter Configuration", () => {
     cy.get("input#dir").type(`${users.username}/uploads`);
     cy.get("button.pf-c-button.pf-m-primary")
-      .eq(2)
+      .eq(1)
       .should("have.text", "Next")
       .click();
   });
