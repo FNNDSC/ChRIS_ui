@@ -180,9 +180,29 @@
   }
 }
 
+@keyframes queued {
+  0% {
+    fill: pink;
+  }
+  50% {
+    fill: pink;
+  }
+  100% {
+    fill: pink;
+  }
+}
+
 .node {
   cursor: pointer;
   fill: "white";
+
+  &.search {
+    fill: #6ca100;
+
+    .label {
+      fill: #6ca100;
+    }
+  }
 
   &.queued {
     fill: #aaa;

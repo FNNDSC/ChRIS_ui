@@ -8,17 +8,18 @@ import Editor from "./Editor";
 import Review from "./Review";
 import BasicConfiguration from "./BasicConfiguration";
 import { addNodeRequest } from "../../../store/pluginInstance/actions";
-import { getParams } from "../../../store/plugin/actions";
+import { getNodeOperations, getParams } from "../../../store/plugin/actions";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
 import { handleGetTokens } from "./lib/utils";
 import { getRequiredObject } from "../CreateFeed/utils/createFeed";
 import "./styles/AddNode.scss";
+import { useTypedSelector } from "../../../store/hooks";
+import { useDispatch } from "react-redux";
 
 function getInitialState() {
   return {
-    isOpen: false,
     stepIdReached: 1,
     nodes: [],
     data: {},
@@ -38,10 +39,10 @@ const AddNode: React.FC<AddNodeProps> = ({
   addNode,
   params,
 }: AddNodeProps) => {
+  const dispatch = useDispatch();
   const [addNodeState, setNodeState] =
     React.useState<AddNodeState>(getInitialState);
   const {
-    isOpen,
     stepIdReached,
     nodes,
     data,
@@ -51,6 +52,9 @@ const AddNode: React.FC<AddNodeProps> = ({
     errors,
     editorValue,
   } = addNodeState;
+  const { childNode } = useTypedSelector(
+    (state) => state.plugin.nodeOperations
+  );
 
   const handleFetchedData = React.useCallback(() => {
     if (pluginInstances) {
@@ -108,24 +112,15 @@ const AddNode: React.FC<AddNodeProps> = ({
   };
 
   const resetState = React.useCallback(() => {
-    if (isOpen === true) {
+    if (childNode === true) {
       setNodeState(getInitialState());
-    } else {
-      setNodeState((state) => {
-        return {
-          ...state,
-          isOpen: !isOpen,
-        }
-      });
     }
-  }, [isOpen]);
+    dispatch(getNodeOperations("childNode"));
+  }, [childNode, dispatch]);
 
   const toggleOpen = React.useCallback(() => {
     resetState();
   }, [resetState]);
-  // const toggleOpen = () => {
-  //   resetState();
-  // };
 
   const onNext = (newStep: { id?: string | number; name: React.ReactNode }) => {
     const { stepIdReached } = addNodeState;
@@ -269,12 +264,9 @@ const AddNode: React.FC<AddNodeProps> = ({
     />
   );
 
-
-
   let pluginName = data.plugin?.data.name;
 
-  const pluginVersion =
-    (pluginName += ` v.${data.plugin?.data.version}`);
+  const pluginVersion = (pluginName += ` v.${data.plugin?.data.version}`);
 
   const form = data.plugin ? (
     <GuidedConfig
@@ -346,31 +338,17 @@ const AddNode: React.FC<AddNodeProps> = ({
     },
   ];
 
-  React.useEffect(() => {
-    function handleKeydown(event: KeyboardEvent): void {
-      switch (event.code) {
-        case "KeyC":
-          return toggleOpen();
-      
-        default:
-          break;
-      }
-    }
-    window.addEventListener('keydown', handleKeydown)
-    return () => {
-      window.removeEventListener('keydown', handleKeydown)
-    }
-
-  }, [toggleOpen])
-
   return (
     <React.Fragment>
       <Button icon={<MdOutlineAddCircle />} type="button" onClick={toggleOpen}>
-        Add a Child Node <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( C )</span>
+        Add a Child Node{" "}
+        <span style={{ padding: "2px", color: "#F5F5DC", fontSize: "11px" }}>
+          ( C )
+        </span>
       </Button>
-      {isOpen && (
+      {childNode && (
         <Wizard
-          isOpen={isOpen}
+          isOpen={childNode}
           onClose={toggleOpen}
           title="Add a New Node"
           description="This wizard allows you to add a node to a feed"

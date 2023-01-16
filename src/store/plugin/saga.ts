@@ -15,13 +15,13 @@ function* handleGetParams(action: IActionTypeParam) {
     const plugin = action.payload;
     const fn = plugin.getPluginParameters;
     const boundFn = fn.bind(plugin);
-    const params: PluginParameter[] = yield fetchResource<PluginParameter[]>(
+    const { resource: params } = yield fetchResource<PluginParameter[]>(
       { limit: 20, offset: 0 },
       boundFn
     );
     const computeFn = plugin.getPluginComputeResources;
     const boundComputeFn = computeFn.bind(plugin);
-    const computeEnvs: any[] = yield fetchResource<any>(
+    const { resource: computeEnvs } = yield fetchResource<any>(
       { limit: 20, offset: 0 },
       boundComputeFn
     );

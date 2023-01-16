@@ -160,8 +160,7 @@ function* handleDuplicateFeed(action: IActionTypeParam) {
       );
       newFeeds.push(createdFeed);
     } catch (error) {
-      console.log("error", error);
-      //@ts-ignore
+    //@ts-ignore
       const errorParsed = error.response.data.value[0];
       yield put(duplicateFeedError(errorParsed));
       return error;

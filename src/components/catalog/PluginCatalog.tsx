@@ -1,15 +1,16 @@
 import React, { useEffect } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { PluginMeta } from "@fnndsc/chrisapi";
 import DisplayPage from "./DisplayPage";
-
 const PluginCatalog = () => {
-  const [plugins, setPlugins] = React.useState<any[]>();
+  const [plugins, setPlugins] = React.useState<PluginMeta[]>();
   const [pageState, setPageState] = React.useState({
     page: 1,
     perPage: 10,
     search: "",
     itemCount: 0,
   });
+  const [loading, setLoading] = React.useState(false);
 
   const { page, perPage, search } = pageState;
   const [selectedPlugin, setSelectedPlugin] = React.useState<any>();
@@ -35,23 +36,25 @@ const PluginCatalog = () => {
   };
   useEffect(() => {
     async function fetchPlugins(perPage: number, page: number, search: string) {
+      setLoading(true);
       const offset = perPage * (page - 1);
-      const client = ChrisAPIClient.getClient();
       const params = {
         limit: perPage,
         offset: offset,
         name: search,
       };
-      const pluginsList = await client.getPlugins(params);
-      const plugins = pluginsList.getItems();
+      const client = ChrisAPIClient.getClient();
+      const pluginList = await client.getPluginMetas(params);
+      const plugins: PluginMeta[] = pluginList.getItems() as PluginMeta[];
       if (plugins) {
         setPlugins(plugins);
         setPageState((pageState) => {
           return {
             ...pageState,
-            itemCount: pluginsList.totalCount,
+            itemCount: pluginList.totalCount,
           };
         });
+        setLoading(false);
       }
     }
 
@@ -68,6 +71,7 @@ const PluginCatalog = () => {
   return (
     <>
       <DisplayPage
+        loading={loading}
         pageState={pageState}
         onSetPage={onSetPage}
         onPerPageSelect={onPerPageSelect}

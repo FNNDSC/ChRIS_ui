@@ -13,6 +13,7 @@ import {
 } from "../../../store/pluginInstance/actions";
 import { FaTrash } from "react-icons/fa";
 import { useTypedSelector } from "../../../store/hooks";
+import { getNodeOperations } from "../../../store/plugin/actions";
 
 interface DeleteNodeProps {
   selectedPlugin?: PluginInstance;
@@ -30,11 +31,12 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
 }: DeleteNodeProps) => {
   const dispatch = useDispatch();
   const feed = useTypedSelector((state) => state.feed.currentFeed);
+  const { deleteNode: isModalOpen } = useTypedSelector(
+    (state) => state.plugin.nodeOperations
+  );
   const { data } = feed;
-
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const handleModalToggle = React.useCallback(() => {
-    setIsModalOpen((isModalOpen) => !isModalOpen);
+    dispatch(getNodeOperations("deleteNode"));
     if (isModalOpen) {
       dispatch(clearDeleteState());
     }
@@ -49,23 +51,6 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
     }
   };
 
-  React.useEffect(() => {
-    function handleKeydown(event: KeyboardEvent): void {
-      switch (event.code) {
-        case "KeyD":
-          return handleModalToggle();
-      
-        default:
-          break;
-      }
-    }
-    window.addEventListener('keydown', handleKeydown)
-    return () => {
-      window.removeEventListener('keydown', handleKeydown)
-    }
-
-  }, [handleModalToggle])
-
   return (
     <React.Fragment>
       <ErrorBoundary FallbackComponent={FallBackComponent}>
@@ -75,7 +60,10 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
           icon={<FaTrash />}
           type="button"
         >
-          Delete Node <span style={{padding: "2px", color: "#F5F5DC", fontSize: "11px"}}>( D )</span>
+          Delete Node{" "}
+          <span style={{ padding: "2px", color: "#F5F5DC", fontSize: "11px" }}>
+            ( D )
+          </span>
         </Button>
         <Modal
           variant={ModalVariant.small}
@@ -87,7 +75,11 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
               <Button key="confirm" variant="primary" onClick={handleDelete}>
                 Confirm
               </Button>
-              <Button key="cancel" variant="link" onClick={handleModalToggle}>
+              <Button
+                key="cancel"
+                variant="primary"
+                onClick={handleModalToggle}
+              >
                 Cancel
               </Button>
             </React.Fragment>,

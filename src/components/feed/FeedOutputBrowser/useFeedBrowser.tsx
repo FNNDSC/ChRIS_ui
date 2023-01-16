@@ -75,7 +75,7 @@ export const useFeedBrowser = () => {
         ...download,
         fetchingFiles: true,
       });
-      const files = await fetchResource(params, boundFn);
+      const { resource: files } = await fetchResource(params, boundFn);
       setDownload({
         ...download,
         fetchingFiles: false,

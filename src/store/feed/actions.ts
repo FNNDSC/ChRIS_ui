@@ -90,3 +90,6 @@ export const stopFetchingFeedResources = (feed: Feed) =>
 
 export const cleanupFeedResources = (feed: Feed) =>
   action(FeedActionTypes.CLEANUP_FEED_RESOURCES, feed);
+
+export const setSearchFilter = (value: string) =>
+  action(FeedActionTypes.SET_SEARCH_FILTER, value);

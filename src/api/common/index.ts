@@ -110,7 +110,10 @@ async function fetchResource<T>(
       console.error(e);
     }
   }
-  return resource;
+  return {
+    resource,
+    totalCount: resourceList.totalCount,
+  };
 }
 
 export { useAsync, fetchResource };
@@ -198,11 +201,8 @@ export async function fetchResources(pipelineInstance: Pipeline) {
   const pipelineFn = pipelineInstance.getPluginPipings;
   const boundPipelinePluginFn = pipelinePluginsFn.bind(pipelineInstance);
   const boundPipelineFn = pipelineFn.bind(pipelineInstance);
-  const pluginPipings: PluginPiping[] = await fetchResource<PluginPiping>(
-    params,
-    boundPipelineFn
-  );
-  const pipelinePlugins: any[] = await fetchResource(
+  const { resource: pluginPipings }= await fetchResource<PluginPiping>(params, boundPipelineFn);
+  const { resource: pipelinePlugins }= await fetchResource(
     params,
     boundPipelinePluginFn
   );

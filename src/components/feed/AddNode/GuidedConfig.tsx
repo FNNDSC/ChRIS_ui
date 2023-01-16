@@ -82,8 +82,10 @@ const GuidedConfig = ({
   
   const handleKeyDown = useCallback((e: any) => {
 
-    if(e.target.closest("INPUT") && (e.code == "ArrowRight" || e.code == "ArrowLeft")){
+    if(e.target.closest("INPUT")){
       return; 
+    }else if(e.target.closest("BUTTON") && !e.target.closest('BUTTON.pf-c-button.pf-m-secondary') && !e.target.closest('BUTTON.pf-c-button.pf-m-primary')){
+      return;
     }else if ((e.code == "Enter" || e.code == "ArrowRight") && RequiredParamsNotEmpty() ) {
       e.preventDefault()
        onNext()

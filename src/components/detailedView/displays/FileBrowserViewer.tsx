@@ -22,7 +22,7 @@ const FileBrowserViewer = () => {
   return (
     <Grid
       style={{
-        height: "500px",
+        height: "100%",
       }}
     >
       <GridItem>

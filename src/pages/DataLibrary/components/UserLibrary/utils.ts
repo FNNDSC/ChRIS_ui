@@ -1,157 +1,157 @@
-import { setSearchedFolders, setEmptySetIndicator } from './context/actions'
-import ChrisAPIClient from '../../../../api/chrisapiclient'
-import { fetchResource } from '../../../../api/common'
-import { Feed } from '@fnndsc/chrisapi'
+import { setSearchedFolders, setEmptySetIndicator } from "./context/actions";
+import ChrisAPIClient from "../../../../api/chrisapiclient";
+import { fetchResource } from "../../../../api/common";
+import { Feed } from "@fnndsc/chrisapi";
 
 export const searchFeedFiles = async (
   value: string,
-  dispatch: React.Dispatch<any>,
+  dispatch: React.Dispatch<any>
 ) => {
   const payload = {
     limit: 10,
     offset: 0,
     files_fname_icontains: value,
-  }
-  const client = ChrisAPIClient.getClient()
-  const fn = client.getFeeds
-  const boundFn = fn.bind(client)
+  };
+  const client = ChrisAPIClient.getClient();
+  const fn = client.getFeeds;
+  const boundFn = fn.bind(client);
   try {
-    const results = await fetchResource(payload, boundFn)
-    return results
+    const { resource: results } = await fetchResource(payload, boundFn);
+    return results;
   } catch (error) {
     //@ts-ignore
-    dispatch(setEmptySetIndicator('feed', `${error.response.data}`))
+    dispatch(setEmptySetIndicator("feed", `${error.response.data}`));
   }
-}
+};
 
 export const searchPacsFiles = async (
   value: string,
-  dispatch: React.Dispatch<any>,
+  dispatch: React.Dispatch<any>
 ) => {
   const payload = {
     limit: 10,
     offset: 0,
     fname_icontains_topdir_unique: value,
-  }
-  const client = ChrisAPIClient.getClient()
-  const fn = client.getPACSFiles
-  const boundFn = fn.bind(client)
+  };
+  const client = ChrisAPIClient.getClient();
+  const fn = client.getPACSFiles;
+  const boundFn = fn.bind(client);
   try {
-    const results = await fetchResource(payload, boundFn)
-    return results
+    const { resource: results } = await fetchResource(payload, boundFn);
+    return results;
   } catch (error) {
     //@ts-ignore
-    dispatch(setEmptySetIndicator('services', `${error.response.data}`))
+    dispatch(setEmptySetIndicator("services", `${error.response.data}`));
   }
-}
+};
 
 export const searchUploadedFiles = async (
   value: string,
-  dispatch: React.Dispatch<any>,
+  dispatch: React.Dispatch<any>
 ) => {
   const payload = {
     limit: 10,
     offset: 0,
     fname_icontains_multiple: value,
-  }
-  const client = ChrisAPIClient.getClient()
-  const fn = client.getUploadedFiles
-  const boundFn = fn.bind(client)
+  };
+  const client = ChrisAPIClient.getClient();
+  const fn = client.getUploadedFiles;
+  const boundFn = fn.bind(client);
   try {
-    const results = await fetchResource(payload, boundFn)
-    return results
+    const { resource: results } = await fetchResource(payload, boundFn);
+    return results;
   } catch (error) {
     //@ts-ignore
-    dispatch(setEmptySetIndicator('uploads', `${error.response.data}`))
+    dispatch(setEmptySetIndicator("uploads", `${error.response.data}`));
   }
-}
+};
 
 export const handleUploadedFiles = (
   uploadedFiles: any[],
-  dispatch: React.Dispatch<any>,
+  dispatch: React.Dispatch<any>
 ) => {
   const uploadsDict: {
-    [key: string]: { name: string; path: string }[]
-  } = {}
+    [key: string]: { name: string; path: string }[];
+  } = {};
 
   uploadedFiles.forEach((file: Feed) => {
-    const fnameSplit = file.data.fname.split('/')
-    const name = `${fnameSplit[2]}`
-    const path = `${fnameSplit[0]}/${fnameSplit[1]}`
+    const fnameSplit = file.data.fname.split("/");
+    const name = `${fnameSplit[2]}`;
+    const path = `${fnameSplit[0]}/${fnameSplit[1]}`;
 
     const folder = {
       name,
       path,
-    }
+    };
 
     if (
       uploadsDict[path] &&
       uploadsDict[path].findIndex((file) => file.name === folder.name) === -1
     ) {
-      uploadsDict[path].push(folder)
+      uploadsDict[path].push(folder);
     } else {
-      uploadsDict[path] = [folder]
+      uploadsDict[path] = [folder];
     }
-  })
+  });
 
   for (const i in uploadsDict) {
-    const folders = uploadsDict[i]
-    dispatch(setSearchedFolders(folders, i, 'uploads'))
+    const folders = uploadsDict[i];
+    dispatch(setSearchedFolders(folders, i, "uploads"));
   }
-}
+};
 
 export const handleFeedFiles = (
   feedFiles: any[],
-  dispatch: React.Dispatch<any>,
+  dispatch: React.Dispatch<any>
 ) => {
   const feedsDict: {
-    [key: string]: { name: string; path: string }[]
-  } = {}
+    [key: string]: { name: string; path: string }[];
+  } = {};
 
   feedFiles.forEach((feed: Feed) => {
-    const name = `feed_${feed.data.id}`
-    const path = `${feed.data.creator_username}`
+    const name = `feed_${feed.data.id}`;
+    const path = `${feed.data.creator_username}`;
     const folder = {
       name,
       path,
-    }
+    };
     if (feedsDict[path]) {
-      feedsDict[path].push(folder)
+      feedsDict[path].push(folder);
     } else {
-      feedsDict[path] = [folder]
+      feedsDict[path] = [folder];
     }
-  })
+  });
 
   for (const i in feedsDict) {
-    const folders = feedsDict[i]
-    dispatch(setSearchedFolders(folders, i, 'feed'))
+    const folders = feedsDict[i];
+    dispatch(setSearchedFolders(folders, i, "feed"));
   }
-}
+};
 
 export const handlePacsFiles = (
   pacsFiles: any[],
-  dispatch: React.Dispatch<any>,
+  dispatch: React.Dispatch<any>
 ) => {
   const pacsDict: {
-    [key: string]: { name: string; path: string }[]
-  } = {}
+    [key: string]: { name: string; path: string }[];
+  } = {};
   pacsFiles.forEach((file) => {
-    const fnameSplit = file.data.fname.split('/')
-    const path = `${fnameSplit[0]}/${fnameSplit[1]}/${fnameSplit[2]}`
-    const name = `${fnameSplit[3]}`
+    const fnameSplit = file.data.fname.split("/");
+    const path = `${fnameSplit[0]}/${fnameSplit[1]}/${fnameSplit[2]}`;
+    const name = `${fnameSplit[3]}`;
     const folder = {
       name,
       path,
-    }
+    };
     if (pacsDict[path]) {
-      pacsDict[path].push(folder)
+      pacsDict[path].push(folder);
     } else {
-      pacsDict[path] = [folder]
+      pacsDict[path] = [folder];
     }
-  })
+  });
 
   for (const i in pacsDict) {
-    const folders = pacsDict[i]
-    dispatch(setSearchedFolders(folders, i, 'services'))
+    const folders = pacsDict[i];
+    dispatch(setSearchedFolders(folders, i, "services"));
   }
-}
+};

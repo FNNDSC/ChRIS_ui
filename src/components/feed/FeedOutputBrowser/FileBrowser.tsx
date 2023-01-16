@@ -207,6 +207,8 @@ const FileBrowser = (props: FileBrowserProps) => {
     </>
   );
 
+  const [copied, setCopied] = React.useState(false);
+
   return (
     <Grid hasGutter className="file-browser">
       <GridItem
@@ -226,15 +228,14 @@ const FileBrowser = (props: FileBrowserProps) => {
           <div className="file-browser__header--breadcrumbContainer">
             <ClipboardCopyButton
               onClick={(event: any) => {
-                // setCopied(true);
+                setCopied(true);
                 clipboardCopyFunc(event, path);
               }}
-              // TODO only available in @patternfly/react-core@>=4.254.1
-              // onTooltipHidden={() => setCopied(false)}
+              onTooltipHidden={() => setCopied(false)}
               id="clipboard-plugininstance-files"
               textId="clipboard-plugininstance-files"
               variant="plain">
-              Copy path to clipboard
+              { copied ? "Copied!" : "Copy path to clipboard" }
             </ClipboardCopyButton>
             <Breadcrumb>{breadcrumb.map(generateBreadcrumb)}</Breadcrumb>
           </div>

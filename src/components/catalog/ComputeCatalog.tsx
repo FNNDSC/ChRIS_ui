@@ -4,6 +4,7 @@ import DisplayPage from "./DisplayPage";
 
 const ComputeCatalog = () => {
   const [computeResources, setComputeResources] = React.useState<any[]>();
+  const [loading, setLoading] = React.useState(false);
   const [pageState, setPageState] = React.useState({
     page: 1,
     perPage: 10,
@@ -39,6 +40,7 @@ const ComputeCatalog = () => {
       page: number,
       search: string
     ) {
+      setLoading(true);
       const offset = perPage * (page - 1);
       const client = ChrisAPIClient.getClient();
       const params = {
@@ -57,6 +59,7 @@ const ComputeCatalog = () => {
           };
         });
       }
+      setLoading(false);
     }
 
     fetchPipelines(perPage, page, search);
@@ -71,6 +74,7 @@ const ComputeCatalog = () => {
   return (
     <>
       <DisplayPage
+        loading={loading}
         pageState={pageState}
         onSetPage={onSetPage}
         onPerPageSelect={onPerPageSelect}
