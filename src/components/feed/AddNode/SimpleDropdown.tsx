@@ -63,20 +63,9 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      triggerChange("keyDown");
-    } else return;
-  };
-
-  const deleteDropdown = () => {
-    deleteInput(id);
-    deleteComponent(id);
-  };
-
   const allDropdownsFilled  = () => {
     for(const input in dropdownInput){
-      if(!!dropdownInput[input].flag && !!dropdownInput[input].value){
+      if(dropdownInput[input].flag && dropdownInput[input].value){
         continue;
       }else{
         return false;
@@ -86,7 +75,11 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     return true
   }
 
-
+  const deleteDropdown = () => {
+    deleteInput(id);
+    deleteComponent(id);
+  };
+  
   const handleInputChange = (e: any) => {
     handleChange(
       id,
@@ -128,6 +121,12 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
       return items;
   }
    
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      triggerChange("keyDown");
+    } else return
+  };
+
 
     
   return (

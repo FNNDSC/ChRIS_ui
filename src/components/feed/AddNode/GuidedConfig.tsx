@@ -86,7 +86,7 @@ const GuidedConfig = ({
       return; 
     }else if ((e.code == "Enter" || e.code == "ArrowRight") && RequiredParamsNotEmpty() ) {
       e.preventDefault()
-      onNext()
+       onNext()
      }else if(e.code == "ArrowLeft"){
       e.preventDefault()
       onBack()
@@ -115,20 +115,9 @@ const GuidedConfig = ({
     });
   };
 
-  const allDropdownsFilled  = () => {
-    for(const input in dropdownInput){
-      if(!!dropdownInput[input].flag && !!dropdownInput[input].value){
-        continue;
-      }else{
-        return false;
-      }
 
-    }
-    return true
-  }
 
   const addParam = () => {
-    console.log("called")
     if (params && count < params.length) {
       setConfigState({
         ...configState,
