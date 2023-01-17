@@ -3,7 +3,7 @@ import ChrisAPIClient from "../../api/chrisapiclient";
 import { PluginMeta } from "@fnndsc/chrisapi";
 import DisplayPage from "./DisplayPage";
 const PluginCatalog = () => {
-  const [plugins, setPlugins] = React.useState<PluginMeta[]>();
+  const [plugins, setPlugins] = React.useState<any>();
   const [pageState, setPageState] = React.useState({
     page: 1,
     perPage: 10,
@@ -47,7 +47,23 @@ const PluginCatalog = () => {
       const pluginList = await client.getPluginMetas(params);
       const plugins: PluginMeta[] = pluginList.getItems() as PluginMeta[];
       if (plugins) {
-        setPlugins(plugins);
+        const newPluginPayload = Promise.all(
+          plugins.map(async (plugin) => {
+            const plugins = await plugin.getPlugins({ limit: 1000 });
+            const pluginItems = plugins.getItems();
+            let version = "";
+            if (pluginItems) {
+              version = pluginItems[0].data.version;
+            }
+            return {
+              data: {
+                ...plugin.data,
+                version,
+              },
+            };
+          })
+        );
+        setPlugins(await newPluginPayload);
         setPageState((pageState) => {
           return {
             ...pageState,
