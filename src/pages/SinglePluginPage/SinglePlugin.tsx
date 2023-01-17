@@ -47,6 +47,11 @@ const SinglePlugin = () => {
     async function fetchPlugins(id: number) {
       const client = ChrisAPIClient.getClient();
       const pluginMeta = await client.getPluginMeta(id);
+      const pluginMetas = await client.getPluginMetas();
+      const pluginMets = pluginMetas.getItems()
+      console.log(pluginMets);
+      console.log(pluginMetas)
+      
       document.title = pluginMeta.data.name;
       setCurrentPluginMeta(pluginMeta);
       const fn = pluginMeta.getPlugins;
