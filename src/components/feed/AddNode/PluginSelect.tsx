@@ -88,11 +88,17 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
     const params = { limit: 25, offset: 0 }
     let pluginList = await client.getPlugins(params)
     let plugins = pluginList.getItems()
+    // New code
+    console.log(plugins);
+    let pluginMetaList = await client.getPluginMetas(params)
+    const pluginMetas = pluginMetaList.getItems()
+    console.log(pluginMetas);
 
     while (pluginList.hasNextPage) {
       try {
         params.offset += params.limit
         pluginList = await client.getPlugins(params)
+        pluginMetaList = await client.getPluginMetas(params);
         const itemsList = pluginList.getItems()
         if (itemsList && plugins) {
           plugins.push(...itemsList)
