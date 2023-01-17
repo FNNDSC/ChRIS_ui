@@ -136,8 +136,8 @@ export interface SimpleDropdownProps {
   isOpen?: boolean;
   dropdownItems?: any[];
   id: string;
+  componentList: string[],
   index: number;
-  componentList: string[];
   handleChange(
     id: string,
     flag: string,

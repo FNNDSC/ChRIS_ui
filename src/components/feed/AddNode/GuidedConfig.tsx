@@ -79,7 +79,7 @@ const GuidedConfig = ({
     }
     return true;
   }, [params, requiredInput])
-  
+
   const handleKeyDown = useCallback((e: any) => {
 
     if(e.target.closest("INPUT")){
@@ -116,6 +116,8 @@ const GuidedConfig = ({
       count: configState.count - 1,
     });
   };
+
+  
 
   const addParam = () => {
     if (params && count < params.length) {
@@ -208,8 +210,8 @@ const GuidedConfig = ({
           params={params}
           handleChange={inputChange}
           id={id}
-          index={index}
           componentList={componentList}
+          index={index}
           deleteComponent={deleteComponent}
           deleteInput={deleteInput}
           dropdownInput={dropdownInput}

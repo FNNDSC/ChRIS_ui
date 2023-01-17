@@ -10,7 +10,7 @@ import { MdClose } from "react-icons/md";
 
 function getInitialState() {
   return {
-    isOpen: true,
+    isOpen: false,
   };
 }
 
@@ -19,9 +19,9 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   dropdownInput,
   id,
   params,
-  componentList,
   index,
   handleChange,
+  componentList,
   addParam,
   deleteInput,
   deleteComponent,
@@ -50,14 +50,13 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     const flag = param.data.flag;
     const placeholder = param.data.help;
     const type = param.data.type;
-    const defaultValue = value
+    const defaultValue = type == "boolean"? !param.data.default: value
       ? value
       : defaultValueDisplay
       ? param.data.default
       : "";
     handleChange(id, flag, defaultValue, type, placeholder, false, paramName);
   }, [defaultValueDisplay, handleChange, id, paramName, value]);
-
   const triggerChange = (eventType: string) => {
     if (eventType === "keyDown") {
       addParam();
@@ -87,6 +86,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
      }
      return usedParam
   },[dropdownInput])
+
   const dropdownItems = useCallback(() => {
     const usedParam = findUsedParam()
     const items = params &&
@@ -109,7 +109,6 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
       });
       return items;
   }, [findUsedParam, handleClick, params])
-
   const allDrowdownsFilled = useCallback(() => {
     for(const input of componentList){
         if(!(dropdownInput[input] && dropdownInput[input].flag && dropdownInput[input].value)){
@@ -118,14 +117,20 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     }
     return true; 
  }, [dropdownInput, componentList])
+  useEffect(() => {
+    const remParam = dropdownItems();
+    const keys = Object.keys(dropdownInput); 
+    const isLastElem = keys[keys.length-1] == id
+    if(remParam?.length != 0 && isLastElem  && allDrowdownsFilled()){
+       addParam()
+    }
+}, [dropdownInput, addParam, dropdownItems, id, allDrowdownsFilled])
  useEffect(() => {
-      const remParam = dropdownItems();
-      const keys = Object.keys(dropdownInput); 
-      const isLastElem = keys[keys.length-1] == id
-      if(remParam?.length != 0 && isLastElem  && allDrowdownsFilled()){
-         addParam()
-      }
- }, [dropdownInput, addParam, dropdownItems, id, allDrowdownsFilled])
+  if(!isOpen && (dropdownInput[id] == undefined || dropdownInput[id].flag === "")){
+    setDropdownState({...dropdownState, isOpen:!isOpen})
+  }
+  
+ }, [dropdownInput, dropdownState, id, isOpen])
    
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
@@ -134,7 +139,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   };
 
 
-    
+
   return (
     <>
       <div className="plugin-configuration">
@@ -162,7 +167,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          disabled = {!!!dropdownInput[id]?.flag}
+          disabled = {!!!dropdownInput[id]?.flag || type == "boolean" }
           value={value}
         />
 
