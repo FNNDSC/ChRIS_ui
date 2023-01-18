@@ -60,7 +60,7 @@ const DisplayPage = ({
     return moment(date).fromNow();
   };
 
-  const test =
+  const loadingPluginMeta =
     resources && resources.length > 0 ? (
       resources.map((resource) => {
         return (
@@ -104,6 +104,15 @@ const DisplayPage = ({
                         {resource.data.description}
                       </h1>
                     )}
+
+                    <p
+                      style={{
+                        color: "gray",
+                        fontSize:'1rem'
+                      }}
+                    >
+                      Recent Version: {resource.data.version}
+                    </p>
 
                     <p
                       style={{
@@ -187,7 +196,11 @@ const DisplayPage = ({
 
       <div className="site-card-wrapper">
         <Grid className="plugins-row" hasGutter>
-          {loading ? <SpinContainer title="Fetching Resources" /> : test}
+          {loading ? (
+            <SpinContainer title="Fetching Resources" />
+          ) : (
+            loadingPluginMeta
+          )}
         </Grid>
       </div>
     </Grid>
