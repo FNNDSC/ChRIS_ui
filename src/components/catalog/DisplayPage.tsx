@@ -111,7 +111,7 @@ const DisplayPage = ({
                         fontSize:'1rem'
                       }}
                     >
-                      Recent Version: {resource.data.version}
+                      Version: {resource.data.version}
                     </p>
 
                     <p
