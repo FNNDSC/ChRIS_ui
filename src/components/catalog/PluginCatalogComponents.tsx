@@ -9,7 +9,7 @@ import {
   TabTitleText,
   Tab,
   Spinner,
-  Popover,
+  ClipboardCopy,
   CodeBlock,
   CodeBlockCode,
   Dropdown,
@@ -17,12 +17,18 @@ import {
   DropdownItem,
   CodeBlockAction,
   ClipboardCopyButton,
+  CardTitle,
+  CardBody,
+  CardHeader,
+  List,
+  ListItem,
 } from "@patternfly/react-core";
-import { DownloadIcon, UserAltIcon } from "@patternfly/react-icons";
-import { PluginMeta, Plugin } from "@fnndsc/chrisapi";
+import { UserAltIcon } from "@patternfly/react-icons";
+import { PluginMeta, Plugin, PluginInstance, Feed } from "@fnndsc/chrisapi";
 import { useNavigate } from "react-router";
 import PluginImg from "../../assets/images/brainy-pointer.png";
 import { FaCheck } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export const HeaderComponent = ({
   currentPluginMeta,
@@ -82,6 +88,9 @@ export const HeaderSinglePlugin = ({
 export type ParameterPayload = {
   generatedCommand: string;
   version: string;
+  url: string;
+  computes: any[];
+  pluginInstances: PluginInstance[];
 };
 
 export const DropdownPluginVersions = ({
@@ -175,6 +184,7 @@ export const HeaderCardPlugin = ({
   parameterPayload?: ParameterPayload;
   setPluginParameters: (plugin: Plugin) => Promise<void>;
 }) => {
+  const [feeds, setFeeds] = React.useState<any>();
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(0);
   const [copied, setCopied] = React.useState(false);
   const handleTabClick = (_event: any, tabIndex: string | number) => {
@@ -191,6 +201,39 @@ export const HeaderCardPlugin = ({
       setCopied(true);
     }
   };
+
+  React.useEffect(() => {
+    async function feedResources() {
+      if (
+        parameterPayload?.pluginInstances &&
+        parameterPayload.pluginInstances.length > 0
+      ) {
+        const feeds = Promise.all(
+          parameterPayload.pluginInstances.map(async (instance) => {
+            const feed = await instance.getFeed();
+            let name = "";
+            let id;
+
+            if (feed) {
+              name = feed.data.name;
+              id = feed.data.id;
+            }
+            return {
+              name,
+              id,
+            };
+          })
+        );
+
+        setFeeds(await feeds);
+      }
+    }
+
+    if (activeTabKey === 2) {
+      //fetch
+      feedResources();
+    }
+  }, [activeTabKey]);
 
   const actions = (
     <CodeBlockAction>
@@ -232,13 +275,48 @@ export const HeaderCardPlugin = ({
                   </div>
                 )}
               </Tab>
-              <Tab eventKey={1} title={<TabTitleText>Parameters</TabTitleText>}>
+              <Tab eventKey={1} title={<TabTitleText>Resources</TabTitleText>}>
                 {parameterPayload && (
-                  <CodeBlock actions={actions}>
-                    <CodeBlockCode id="code-content">
-                      {parameterPayload.generatedCommand}
-                    </CodeBlockCode>
-                  </CodeBlock>
+                  <>
+                    <div style={{ marginTop: "1.5em" }}>
+                      <h3>Parameters: </h3>
+                      <CodeBlock actions={actions}>
+                        <CodeBlockCode id="code-content">
+                          {parameterPayload.generatedCommand}
+                        </CodeBlockCode>
+                      </CodeBlock>
+                    </div>
+                    <div style={{ marginTop: "1.5em" }}>
+                      <h3>Compute:</h3>
+                      {parameterPayload &&
+                        parameterPayload.computes.map((compute) => {
+                          return (
+                            <Card key={compute.data.id}>
+                              <CardHeader>
+                                <CardTitle>{compute.data.name}</CardTitle>
+                              </CardHeader>
+                              <CardBody>{compute.data.description}</CardBody>
+                            </Card>
+                          );
+                        })}
+                    </div>
+                  </>
+                )}
+              </Tab>
+
+              <Tab eventKey={2} title={<TabTitleText>Use Cases</TabTitleText>}>
+                {feeds && feeds.length > 0 ? (
+                  <List isPlain>
+                    {feeds.map((feed: any) => {
+                      return (
+                        <ListItem key={feed.id}>
+                          <Link to={`../feeds/${feed.id}`}>{feed.name}</Link>
+                        </ListItem>
+                      );
+                    })}
+                  </List>
+                ) : (
+                  <span>No feeds found</span>
                 )}
               </Tab>
             </Tabs>
@@ -246,6 +324,7 @@ export const HeaderCardPlugin = ({
 
           <GridItem md={4} sm={12}>
             <HeaderSidebar
+              parameterPayload={parameterPayload}
               currentPluginMeta={currentPluginMeta}
               removeEmail={removeEmail}
             />
@@ -257,36 +336,25 @@ export const HeaderCardPlugin = ({
 };
 
 export const HeaderSidebar = ({
+  parameterPayload,
   currentPluginMeta,
   removeEmail,
 }: {
+  parameterPayload?: ParameterPayload;
   currentPluginMeta: PluginMeta;
   removeEmail: (authors: string[]) => string[];
 }) => {
   return (
     <div className="plugin-body-side-col">
       <div className="plugin-body-detail-section">
-        <h2>Install</h2>
-        <p>Click to install this plugin to your ChRIS Server.</p>
-        <br />
-        <Popover
-          position="bottom"
-          maxWidth="30rem"
-          headerContent={<b>Install to your ChRIS server</b>}
-          bodyContent={() => (
-            <div>
-              <p>
-                Copy and Paste the URL below into your ChRIS Admin Dashboard to
-                install this plugin.
-              </p>
-              <br />
-            </div>
-          )}
-        >
-          <Button isBlock style={{ fontSize: "1.125em" }}>
-            <DownloadIcon /> Install to ChRIS
-          </Button>
-        </Popover>
+        <p>
+          Copy and Paste the URL below into your ChRIS Admin Dashboard to
+          install this plugin.
+        </p>
+
+        <ClipboardCopy isReadOnly hoverTip="Copy" clickTip="Copied">
+          {parameterPayload?.url}
+        </ClipboardCopy>
       </div>
       <div className="plugin-body-detail-section">
         <h4>Repository</h4>

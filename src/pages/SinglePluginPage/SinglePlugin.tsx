@@ -1,7 +1,13 @@
 import React from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useParams } from "react-router";
-import { Plugin, PluginMeta, PluginParameter } from "@fnndsc/chrisapi";
+import {
+  Plugin,
+  PluginMeta,
+  PluginParameter,
+  PluginComputeResourceList,
+  PluginInstance,
+} from "@fnndsc/chrisapi";
 import Wrapper from "../Layout/PageWrapper";
 import { Spinner } from "@patternfly/react-core";
 import { marked } from "marked";
@@ -60,12 +66,24 @@ const SinglePlugin = () => {
 
   const setPluginParameters = async (plugin: Plugin) => {
     let generatedCommand = "";
-    const params = { limit: 1000, offset: 0 };
+    const params = { limit: 10, offset: 0 };
     const fn = plugin.getPluginParameters;
+    const computeFn = plugin.getPluginComputeResources;
+
     const boundFn = fn.bind(plugin);
+    const boundComputeFn = computeFn.bind(plugin);
     const { resource: parameters } = await fetchResource<PluginParameter>(
       params,
       boundFn
+    );
+
+    const pluginInstanceFn = plugin.getPluginInstances;
+    const boundPluginInstanceFn = pluginInstanceFn.bind(plugin);
+
+    const { resource: computes } = await fetchResource(params, boundComputeFn);
+    const { resource: pluginInstances } = await fetchResource<PluginInstance>(
+      params,
+      boundPluginInstanceFn
     );
 
     if (parameters.length > 0) {
@@ -85,6 +103,9 @@ const SinglePlugin = () => {
       setParameterPayload({
         generatedCommand,
         version: plugin.data.version,
+        url: plugin.url,
+        computes: computes,
+        pluginInstances: pluginInstances,
       });
     }
   };

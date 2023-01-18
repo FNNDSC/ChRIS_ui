@@ -2,6 +2,10 @@
 $color_1: #0088ce;
 $color_2: #bbb;
 
+.pf-c-form-control[readonly] {
+  font-size: 1em;
+}
+
 .plugin {
   font-family: "Overpass", sans-serif !important;
   margin: 1em 2em;
