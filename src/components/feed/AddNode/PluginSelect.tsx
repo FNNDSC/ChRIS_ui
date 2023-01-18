@@ -49,6 +49,7 @@ const PluginList: React.FC<PluginListProps> = ({
             .map((plugin) => {
               const { id, name, version, description } = plugin.data
               const isSelected = selected && id === selected.data.id
+              console.log(plugin)
               return (
                 <li
                   key={id}
@@ -86,31 +87,31 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
   const fetchAllPlugins = React.useCallback(async () => {
     const client = ChrisAPIClient.getClient()
     const params = { limit: 25, offset: 0 }
-    let pluginList = await client.getPlugins(params)
-    let plugins = pluginList.getItems()
+    // let pluginList = await client.getPlugins(params)
+    // let plugins = pluginList.getItems()
     // New code
-    console.log(plugins);
+    // console.log(plugins);
     let pluginMetaList = await client.getPluginMetas(params)
-    const pluginMetas = pluginMetaList.getItems()
+    let pluginMetas = pluginMetaList.getItems()
     console.log(pluginMetas);
 
-    while (pluginList.hasNextPage) {
+    while (pluginMetaList.hasNextPage) {
       try {
         params.offset += params.limit
-        pluginList = await client.getPlugins(params)
+        // pluginList = await client.getPlugins(params)
         pluginMetaList = await client.getPluginMetas(params);
-        const itemsList = pluginList.getItems()
-        if (itemsList && plugins) {
-          plugins.push(...itemsList)
+        const itemsList = pluginMetaList.getItems()
+        if (itemsList && pluginMetas) {
+          pluginMetas.push(...itemsList)
         }
       } catch (e) {
         console.error(e)
       }
     }
 
-    plugins = plugins && plugins.filter((plugin) => plugin.data.type !== 'fs')
+    pluginMetas = pluginMetas && pluginMetas.filter((pluginMeta) => pluginMeta.data.type !== 'fs')
 
-    if (isMounted && plugins) setAllPlugins(plugins)
+    if (isMounted && pluginMetas) setAllPlugins(pluginMetas)
   }, [isMounted])
 
   const fetchRecentPlugins = React.useCallback(async () => {
@@ -215,3 +216,7 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
 }
 
 export default PluginSelect
+// PluginList should be edited to return plugin and description - pluginMeta
+// On click/select, an accordion toggle/content should show the different
+// versions if only one version, it should be selected. If not wait for
+// user input.
