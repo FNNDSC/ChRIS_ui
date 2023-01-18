@@ -29,6 +29,7 @@ import { useNavigate } from "react-router";
 import PluginImg from "../../assets/images/brainy-pointer.png";
 import { FaCheck } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { SpinContainer } from "../common/loading/LoadingContent";
 
 export const HeaderComponent = ({
   currentPluginMeta,
@@ -191,6 +192,8 @@ export const HeaderCardPlugin = ({
     setActiveTabKey(tabIndex);
   };
 
+  const [feedLoad, setFeedLoad] = React.useState(false);
+
   const clipboardCopyFunc = (event: any, text: string) => {
     navigator.clipboard.writeText(text.toString());
   };
@@ -208,32 +211,44 @@ export const HeaderCardPlugin = ({
         parameterPayload?.pluginInstances &&
         parameterPayload.pluginInstances.length > 0
       ) {
-        const feeds = Promise.all(
-          parameterPayload.pluginInstances.map(async (instance) => {
-            const feed = await instance.getFeed();
-            let name = "";
-            let id;
+        const feedDict: {
+          [id: number]: {
+            name: string;
+            id: number;
+          };
+        } = {};
+        const feeds: any[] = [];
+        for (let i = 0; i < parameterPayload.pluginInstances.length; i++) {
+          const instance = parameterPayload.pluginInstances[i];
+          const feed = await instance.getFeed();
+          if (feed) {
+            const id = feed.data.id;
 
-            if (feed) {
-              name = feed.data.name;
-              id = feed.data.id;
+            if (!feedDict[id]) {
+              feeds.push({
+                name: feed.data.name,
+                id,
+              });
+              feedDict[id] = id;
             }
-            return {
-              name,
-              id,
-            };
-          })
-        );
+          } else {
+            continue;
+          }
+        }
 
-        setFeeds(await feeds);
+        setFeeds(feeds);
       }
     }
 
     if (activeTabKey === 2) {
       //fetch
+      setFeedLoad(true);
       feedResources();
+      setFeedLoad(false);
     }
   }, [activeTabKey]);
+
+  console.log("Feeds", feeds);
 
   const actions = (
     <CodeBlockAction>
@@ -305,7 +320,9 @@ export const HeaderCardPlugin = ({
               </Tab>
 
               <Tab eventKey={2} title={<TabTitleText>Use Cases</TabTitleText>}>
-                {feeds && feeds.length > 0 ? (
+                {feedLoad ? (
+                  <SpinContainer title="fetching unique usecases" />
+                ) : feeds && feeds.length > 0 ? (
                   <List isPlain>
                     {feeds.map((feed: any) => {
                       return (
