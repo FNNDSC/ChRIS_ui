@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { PluginMeta } from "@fnndsc/chrisapi";
 import DisplayPage from "./DisplayPage";
+
+
 const PluginCatalog = () => {
   const [plugins, setPlugins] = React.useState<any>();
   const [pageState, setPageState] = React.useState({
