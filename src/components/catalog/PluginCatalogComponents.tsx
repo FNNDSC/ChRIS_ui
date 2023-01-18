@@ -1,9 +1,7 @@
 import React from "react";
 import {
   Grid,
-  Split,
   GridItem,
-  SplitItem,
   Badge,
   Button,
   Card,
@@ -44,14 +42,9 @@ export const HeaderComponent = ({
       </GridItem>
 
       <GridItem lg={2} sm={12} className="plugin-stats">
-        <Split>
-          <SplitItem isFilled />
-          <SplitItem>
-            <Button variant="primary" onClick={() => navigate("../../catalog")}>
-              Back to Plugins
-            </Button>
-          </SplitItem>
-        </Split>
+        <Button variant="primary" onClick={() => navigate("../../catalog")}>
+          Back to Plugins
+        </Button>
       </GridItem>
 
       <GridItem>
@@ -72,15 +65,17 @@ export const HeaderSinglePlugin = ({
   currentPluginMeta: PluginMeta;
 }) => {
   return (
-    <Grid hasGutter>
-      <GridItem style={{ marginRight: "2em" }} lg={2} sm={12}>
-        <img className="plugin-icon" src={PluginImg} alt="Plugin icon" />
-      </GridItem>
+    <Card style={{ background: "inherit" }}>
+      <Grid>
+        <GridItem lg={2} sm={12}>
+          <img className="plugin-icon" src={PluginImg} alt="Plugin icon" />
+        </GridItem>
 
-      <GridItem lg={10} sm={12}>
-        <HeaderComponent currentPluginMeta={currentPluginMeta} />
-      </GridItem>
-    </Grid>
+        <GridItem lg={10} sm={12}>
+          <HeaderComponent currentPluginMeta={currentPluginMeta} />
+        </GridItem>
+      </Grid>
+    </Card>
   );
 };
 

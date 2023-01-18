@@ -1,55 +1,55 @@
-@import url('https://fonts.googleapis.com/css2?family=Overpass&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Overpass&display=swap");
 $color_1: #0088ce;
 $color_2: #bbb;
 
 .plugin {
-	font-family: "Overpass", sans-serif !important;
-	margin: 1em 2em;
+  font-family: "Overpass", sans-serif !important;
+  margin: 1em 2em;
 }
 .plugin-head {
-	margin: 2rem 0;
+  margin: 2rem 0;
 }
 .plugin-body {
-	width: 100%;
-	padding: 2em 2em;
+  width: 100%;
+  padding: 2em 2em;
 }
 .plugin-body-side-col {
-	.plugin-body-detail-section {
-		margin-top: 1em;
-		border-bottom: 1px solid lightgray;
-		padding: 1em 0;
-	}
+  .plugin-body-detail-section {
+    margin-top: 1em;
+    border-bottom: 1px solid lightgray;
+    padding: 1em 0;
+  }
 }
 .plugin-body-detail-section {
-	h4 {
-		font-weight: bold;
-	}
+  h4 {
+    font-weight: bold;
+  }
 }
 .plugin-icon {
-	display: block;
-	height: 100%;
-	margin: auto;
+  height: 100%;
+  padding: 0;
 }
 .plugin-name {
-	color: $color_1;
-	margin-bottom: 0 !important;
-	&:focus {
-		color: $color_1;
-		text-decoration: none;
-	}
-	&:hover {
-		color: $color_1;
-		text-decoration: none;
-	}
+  color: $color_1;
+  margin-bottom: 0 !important;
+  &:focus {
+    color: $color_1;
+    text-decoration: none;
+  }
+  &:hover {
+    color: $color_1;
+    text-decoration: none;
+  }
 }
 .plugin-title {
-	margin-top: 0 !important;
+  margin-top: 0 !important;
 }
 .plugin-stats {
-	color: $color_2;
+  color: $color_2;
+  text-align: right;
 }
 @media screen and (max-width: 590px) {
-	#plugin-body {
-		margin: 0;
-	}
+  #plugin-body {
+    margin: 0;
+  }
 }

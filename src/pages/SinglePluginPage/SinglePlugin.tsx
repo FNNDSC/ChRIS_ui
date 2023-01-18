@@ -132,21 +132,23 @@ const SinglePlugin = () => {
           <Spinner isSVG diameter="80px" />
         </div>
       ) : (
-        <div className="plugin">
-          <section className="plugin-head">
-            <HeaderSinglePlugin currentPluginMeta={currentPluginMeta} />
-          </section>
-          <section>
-            <HeaderCardPlugin
-              setPluginParameters={setPluginParameters}
-              plugins={plugins}
-              currentPluginMeta={currentPluginMeta}
-              readme={readme}
-              parameterPayload={parameterPayload}
-              removeEmail={removeEmail}
-            />
-          </section>
-        </div>
+        <article>
+          <div className="plugin">
+            <section className="plugin-head">
+              <HeaderSinglePlugin currentPluginMeta={currentPluginMeta} />
+            </section>
+            <section>
+              <HeaderCardPlugin
+                setPluginParameters={setPluginParameters}
+                plugins={plugins}
+                currentPluginMeta={currentPluginMeta}
+                readme={readme}
+                parameterPayload={parameterPayload}
+                removeEmail={removeEmail}
+              />
+            </section>
+          </div>
+        </article>
       )}
     </Wrapper>
   );
