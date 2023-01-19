@@ -50,15 +50,63 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     const flag = param.data.flag;
     const placeholder = param.data.help;
     const type = param.data.type;
-    const defaultValue = type == "boolean"? !param.data.default: value
+    const defaultValue = type == "boolean" ? !param.data.default : value
       ? value
       : defaultValueDisplay
-      ? param.data.default
-      : "";
+        ? param.data.default
+        : "";
     handleChange(id, flag, defaultValue, type, placeholder, false, paramName);
   }, [defaultValueDisplay, handleChange, id, paramName, value]);
+  const findUsedParam = useCallback(() => {
+    const usedParam = new Set()
+    for (const input in dropdownInput) {
+      usedParam.add(dropdownInput[input].flag)
+    }
+    return usedParam
+  }, [dropdownInput])
+
+  const dropdownItems = useCallback(() => {
+    const usedParam = findUsedParam()
+    const items = params &&
+      params
+        .filter((param) => param.data.optional === true && !usedParam.has(param.data.flag))
+        .map((param) => {
+          const id = param.data.id;
+          return (
+            <DropdownItem
+              key={id}
+              onClick={() => handleClick(param)}
+              component="button"
+              className="plugin-configuration__parameter"
+              value={param.data.flag}
+              name={param.data.help}
+            >
+              {param.data.flag}
+            </DropdownItem>
+          );
+        });
+    return items;
+  }, [findUsedParam, handleClick, params])
+  const addedDrowdownsFilled = useCallback(() => {
+    for (const input of componentList) {
+      if (!(dropdownInput[input] && dropdownInput[input].flag && dropdownInput[input].value)) {
+        return false;
+      }
+    }
+    return true;
+  }, [dropdownInput, componentList])
+
+  const addNewDropdown = useCallback(() => {
+    const remParam = dropdownItems();
+    const keys = Object.keys(dropdownInput);
+    const isLastElem = keys[keys.length - 1] == id
+    if (remParam?.length != 0 && isLastElem && addedDrowdownsFilled()) {
+      return true;
+    }
+    return false;
+  }, [addedDrowdownsFilled, dropdownInput, dropdownItems, id])
   const triggerChange = (eventType: string) => {
-    if (eventType === "keyDown") {
+    if (eventType === "keyDown" && addNewDropdown()) {
       addParam();
     }
   };
@@ -67,7 +115,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     deleteInput(id);
     deleteComponent(id);
   };
-  
+
   const handleInputChange = (e: any) => {
     handleChange(
       id,
@@ -79,59 +127,19 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
       paramName
     );
   };
-  const findUsedParam = useCallback(() => {
-    const usedParam = new Set()
-     for(const input in dropdownInput){
-        usedParam.add(dropdownInput[input].flag)
-     }
-     return usedParam
-  },[dropdownInput])
-
-  const dropdownItems = useCallback(() => {
-    const usedParam = findUsedParam()
-    const items = params &&
-    params
-      .filter((param) => param.data.optional === true && !usedParam.has(param.data.flag) )
-      .map((param) => {
-        const id = param.data.id;
-        return (
-          <DropdownItem
-            key={id}
-            onClick={() => handleClick(param)}
-            component="button"
-            className="plugin-configuration__parameter"
-            value={param.data.flag}
-            name={param.data.help}
-          >
-            {param.data.flag}
-          </DropdownItem>
-        );
-      });
-      return items;
-  }, [findUsedParam, handleClick, params])
-  const allDrowdownsFilled = useCallback(() => {
-    for(const input of componentList){
-        if(!(dropdownInput[input] && dropdownInput[input].flag && dropdownInput[input].value)){
-         return false; 
-        }
-    }
-    return true; 
- }, [dropdownInput, componentList])
-  useEffect(() => {
-    const remParam = dropdownItems();
-    const keys = Object.keys(dropdownInput); 
-    const isLastElem = keys[keys.length-1] == id
-    if(remParam?.length != 0 && isLastElem  && allDrowdownsFilled()){
-       addParam()
-    }
-}, [dropdownInput, addParam, dropdownItems, id, allDrowdownsFilled])
- useEffect(() => {
-  if(!isOpen && (dropdownInput[id] == undefined || dropdownInput[id].flag === "")){
-    setDropdownState({...dropdownState, isOpen:!isOpen})
-  }
   
- }, [dropdownInput, dropdownState, id, isOpen])
-   
+  useEffect(() => {
+    if (addNewDropdown()) {
+      addParam()
+    }
+  }, [addNewDropdown, addParam])
+  useEffect(() => {
+    if (!isOpen && (dropdownInput[id] == undefined || dropdownInput[id].flag === "")) {
+      setDropdownState({ ...dropdownState, isOpen: !isOpen })
+    }
+
+  }, [dropdownInput, dropdownState, id, isOpen])
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       triggerChange("keyDown");
@@ -157,7 +165,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           isOpen={isOpen}
           className="plugin-configuration__dropdown"
           dropdownItems={
-            dropdownItems() 
+            dropdownItems()
           }
         />
         <input
@@ -167,12 +175,12 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          disabled = {!!!dropdownInput[id]?.flag || type == "boolean" }
+          disabled={!!!dropdownInput[id]?.flag || type == "boolean"}
           value={value}
         />
 
         <div onClick={deleteDropdown} className="close-icon">
-        {index > 0 && <MdClose />}
+          {index > 0 && <MdClose />}
         </div>
       </div>
     </>

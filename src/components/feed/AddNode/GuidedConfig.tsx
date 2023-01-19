@@ -33,7 +33,6 @@ const GuidedConfig = ({
     alertVisible: false,
     docsExpanded: false,
   });
-
   const { componentList, count, errors, alertVisible, docsExpanded } =
     configState;
     const { onNext, onBack } = useContext(WizardContext)
@@ -116,9 +115,6 @@ const GuidedConfig = ({
       count: configState.count - 1,
     });
   };
-
-  
-
   const addParam = () => {
     if (params && count < params.length) {
       setConfigState({
@@ -208,9 +204,9 @@ const GuidedConfig = ({
           defaultValueDisplay={defaultValueDisplay}
           key={index}
           params={params}
+          componentList={componentList}
           handleChange={inputChange}
           id={id}
-          componentList={componentList}
           index={index}
           deleteComponent={deleteComponent}
           deleteInput={deleteInput}

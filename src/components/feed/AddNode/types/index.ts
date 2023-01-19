@@ -135,8 +135,8 @@ export interface SimpleDropdownProps {
   onSelect?: (event: React.SyntheticEvent<HTMLDivElement>) => void;
   isOpen?: boolean;
   dropdownItems?: any[];
+  componentList:string[];
   id: string;
-  componentList: string[],
   index: number;
   handleChange(
     id: string,

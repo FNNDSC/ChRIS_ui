@@ -25,6 +25,12 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     const paramName = param.data.name;
     inputChange(id, flag, value, type, placeholder, true, paramName);
   };
+
+  const handleKeyDown = (e: any) => {
+    if(e.code == "Enter"){
+      e.preventDefault()
+    }
+  }
   
 
   useEffect(() => {
@@ -49,6 +55,7 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
          ref={inputElement}
          aria-label="required-parameters"
          onChange={(event: any) => handleInputChange(param, event)}
+         onKeyDown={handleKeyDown}
          placeholder={param.data.help}
          value={value}
          id={param.data.name}
