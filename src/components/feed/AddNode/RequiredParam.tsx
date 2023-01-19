@@ -29,6 +29,7 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
   const handleKeyDown = (e: any) => {
     if(e.code == "Enter"){
       e.preventDefault()
+      inputElement.current.blur()
     }
   }
   
