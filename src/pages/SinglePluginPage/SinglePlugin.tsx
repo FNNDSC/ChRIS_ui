@@ -77,14 +77,13 @@ const SinglePlugin = () => {
       boundFn
     );
 
-    const pluginInstanceFn = plugin.getPluginInstances;
-    const boundPluginInstanceFn = pluginInstanceFn.bind(plugin);
-
     const { resource: computes } = await fetchResource(params, boundComputeFn);
-    const { resource: pluginInstances } = await fetchResource<PluginInstance>(
-      params,
-      boundPluginInstanceFn
-    );
+    const pluginInstancesList = await plugin.getPluginInstances({
+      limit: 20,
+    });
+
+    const pluginInstances: PluginInstance[] =
+      pluginInstancesList.getItems() as PluginInstance[];
 
     if (parameters.length > 0) {
       parameters.forEach((param) => {

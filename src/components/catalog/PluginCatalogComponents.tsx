@@ -187,86 +187,47 @@ export const HeaderCardPlugin = ({
 }) => {
   const [feeds, setFeeds] = React.useState<any>();
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(0);
-  const [copied, setCopied] = React.useState(false);
-  const handleTabClick = (_event: any, tabIndex: string | number) => {
-    setActiveTabKey(tabIndex);
-  };
 
   const [feedLoad, setFeedLoad] = React.useState(false);
+  const handleTabClick = async (_event: any, tabIndex: string | number) => {
+    setActiveTabKey(tabIndex);
+    if (
+      tabIndex === 2 &&
+      parameterPayload?.pluginInstances &&
+      parameterPayload.pluginInstances.length > 0
+    ) {
+      const feedDict: {
+        [id: number]: {
+          name: string;
+          id: number;
+        };
+      } = {};
+      const feeds: any[] = [];
+      setFeedLoad(true);
+      for (let i = 0; i < parameterPayload.pluginInstances.length; i++) {
+        const instance = parameterPayload.pluginInstances[i];
+        const feed = await instance.getFeed();
 
-  const clipboardCopyFunc = (event: any, text: string) => {
-    navigator.clipboard.writeText(text.toString());
-  };
+        if (feed) {
+          const note = await feed.getNote();
 
-  const onClick = (event: any, text?: string) => {
-    if (text) {
-      clipboardCopyFunc(event, text);
-      setCopied(true);
-    }
-  };
+          const id = feed.data.id;
 
-  React.useEffect(() => {
-    async function feedResources() {
-      if (
-        parameterPayload?.pluginInstances &&
-        parameterPayload.pluginInstances.length > 0
-      ) {
-        const feedDict: {
-          [id: number]: {
-            name: string;
-            id: number;
-          };
-        } = {};
-        const feeds: any[] = [];
-        for (let i = 0; i < parameterPayload.pluginInstances.length; i++) {
-          const instance = parameterPayload.pluginInstances[i];
-          const feed = await instance.getFeed();
-          if (feed) {
-            const id = feed.data.id;
-
-            if (!feedDict[id]) {
-              feeds.push({
-                name: feed.data.name,
-                id,
-              });
-              feedDict[id] = id;
-            }
-          } else {
-            continue;
+          if (!feedDict[id]) {
+            feeds.push({
+              name: feed.data.name,
+              id,
+              note: note.data.content,
+            });
+            feedDict[id] = id;
           }
         }
-
-        setFeeds(feeds);
       }
-    }
 
-    if (activeTabKey === 2) {
-      //fetch
-      setFeedLoad(true);
-      feedResources();
+      setFeeds(feeds);
       setFeedLoad(false);
     }
-  }, [activeTabKey]);
-
-  console.log("Feeds", feeds);
-
-  const actions = (
-    <CodeBlockAction>
-      <span>Version: {parameterPayload?.version}</span>
-      <ClipboardCopyButton
-        id="basic-copy-button"
-        textId="code-content"
-        aria-label="Copy to clipboard"
-        onClick={(e) => onClick(e, parameterPayload?.generatedCommand)}
-        exitDelay={copied ? 1500 : 600}
-        maxWidth="110px"
-        variant="plain"
-        onTooltipHidden={() => setCopied(false)}
-      >
-        {copied ? "Successfully copied to clipboard!" : "Copy to clipboard"}
-      </ClipboardCopyButton>
-    </CodeBlockAction>
-  );
+  };
 
   return (
     <Card className="plugin-body">
@@ -293,45 +254,16 @@ export const HeaderCardPlugin = ({
               <Tab eventKey={1} title={<TabTitleText>Resources</TabTitleText>}>
                 {parameterPayload && (
                   <>
-                    <div style={{ marginTop: "1.5em" }}>
-                      <h3>Parameters: </h3>
-                      <CodeBlock actions={actions}>
-                        <CodeBlockCode id="code-content">
-                          {parameterPayload.generatedCommand}
-                        </CodeBlockCode>
-                      </CodeBlock>
-                    </div>
-                    <div style={{ marginTop: "1.5em" }}>
-                      <h3>Compute:</h3>
-                      {parameterPayload &&
-                        parameterPayload.computes.map((compute) => {
-                          return (
-                            <Card key={compute.data.id}>
-                              <CardHeader>
-                                <CardTitle>{compute.data.name}</CardTitle>
-                              </CardHeader>
-                              <CardBody>{compute.data.description}</CardBody>
-                            </Card>
-                          );
-                        })}
-                    </div>
+                    <TabResources parameterPayload={parameterPayload} />
                   </>
                 )}
               </Tab>
 
               <Tab eventKey={2} title={<TabTitleText>Use Cases</TabTitleText>}>
                 {feedLoad ? (
-                  <SpinContainer title="fetching unique usecases" />
+                  <SpinContainer title="Fetching unique sample feeds" />
                 ) : feeds && feeds.length > 0 ? (
-                  <List isPlain>
-                    {feeds.map((feed: any) => {
-                      return (
-                        <ListItem key={feed.id}>
-                          <Link to={`../feeds/${feed.id}`}>{feed.name}</Link>
-                        </ListItem>
-                      );
-                    })}
-                  </List>
+                  <TabUseCases feeds={feeds} />
                 ) : (
                   <span>No feeds found</span>
                 )}
@@ -349,6 +281,99 @@ export const HeaderCardPlugin = ({
         </Grid>
       </div>
     </Card>
+  );
+};
+
+export const TabResources = ({
+  parameterPayload,
+}: {
+  parameterPayload: ParameterPayload;
+}) => {
+  const clipboardCopyFunc = (event: any, text: string) => {
+    navigator.clipboard.writeText(text.toString());
+  };
+  const [copied, setCopied] = React.useState(false);
+  const onClick = (event: any, text?: string) => {
+    if (text) {
+      clipboardCopyFunc(event, text);
+      setCopied(true);
+    }
+  };
+  const actions = (
+    <CodeBlockAction>
+      <span>Version: {parameterPayload?.version}</span>
+      <ClipboardCopyButton
+        id="basic-copy-button"
+        textId="code-content"
+        aria-label="Copy to clipboard"
+        onClick={(e) => onClick(e, parameterPayload?.generatedCommand)}
+        exitDelay={copied ? 1500 : 600}
+        maxWidth="110px"
+        variant="plain"
+        onTooltipHidden={() => setCopied(false)}
+      >
+        {copied ? "Successfully copied to clipboard!" : "Copy to clipboard"}
+      </ClipboardCopyButton>
+    </CodeBlockAction>
+  );
+  return (
+    <>
+      <div style={{ marginTop: "1.5em" }}>
+        <h3>Parameters: </h3>
+        <CodeBlock actions={actions}>
+          <CodeBlockCode id="code-content">
+            {parameterPayload.generatedCommand}
+          </CodeBlockCode>
+        </CodeBlock>
+      </div>
+      <div style={{ marginTop: "1.5em" }}>
+        <h3>Compute:</h3>
+        {parameterPayload && parameterPayload.computes.length > 0 ? (
+          parameterPayload.computes.map((compute) => {
+            return (
+              <Card key={compute.data.id}>
+                <CardHeader>
+                  <CardTitle>{compute.data.name}</CardTitle>
+                </CardHeader>
+                <CardBody>{compute.data.description}</CardBody>
+              </Card>
+            );
+          })
+        ) : (
+          <span>No Compute Found</span>
+        )}
+      </div>
+    </>
+  );
+};
+
+export const TabUseCases = ({ feeds }: { feeds: any[] }) => {
+  return (
+    <List
+      style={{
+        marginTop: "1.5em",
+        fontSize: "1.1em",
+        background: "#FAFAFA",
+      }}
+      isBordered
+      isPlain
+    >
+      {feeds.map((feed: any) => {
+        return (
+          <ListItem key={feed.id}>
+            <Link to={`../feeds/${feed.id}`}>{feed.name}</Link>
+            <p
+              style={{
+                margin: "0",
+                color: "#8A8D90",
+              }}
+            >
+              {feed.note}
+            </p>
+          </ListItem>
+        );
+      })}
+    </List>
   );
 };
 
