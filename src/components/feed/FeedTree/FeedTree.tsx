@@ -58,7 +58,6 @@ interface OwnProps {
 type AllProps = OwnProps;
 
 type FeedTreeState = {
-  data?: TreeNodeDatum[];
   d3: {
     translate: Point;
     scale: number;
@@ -92,7 +91,6 @@ function getInitialState(
   feedTreeProp: FeedTreeProp
 ): FeedTreeState {
   return {
-    data: [],
     d3: calculateD3Geometry(props, feedTreeProp),
     overlayScale: {
       enabled: false,
@@ -293,12 +291,6 @@ const FeedTree = (props: AllProps) => {
 
   React.useEffect(() => {
     if (props.data) {
-      setFeedState((feedState) => {
-        return {
-          ...feedState,
-          data: props.data,
-        };
-      });
       const { nodes, newLinks: links } = generateTree(props.data);
       setFeedTree(() => {
         return {
