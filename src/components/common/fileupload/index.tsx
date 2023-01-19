@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useDropzone } from "react-dropzone";
+import { CreateFeedContext } from "../../feed/CreateFeed/context";
 
 const baseStyle: React.CSSProperties = {
   flex: 1,
@@ -48,19 +49,19 @@ const DragAndUpload = ({
     isDragAccept,
     isDragReject,
   } = useDropzone();
-
+  const { state } = useContext(CreateFeedContext);
+  const { localFiles } = state.data
   React.useEffect(() => {
     if (acceptedFiles.length > 0) {
       handleLocalUploadFiles(acceptedFiles);
     }
   }, [acceptedFiles, handleLocalUploadFiles, open]);
-
+ 
   React.useEffect(() => {
-     if(acceptedFiles.length <= 0){
+     if(acceptedFiles.length == 0 && localFiles.length == 0){
       open()
      }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [acceptedFiles.length, localFiles.length, open])
  
   const style = React.useMemo(
     () => ({
