@@ -17,6 +17,12 @@ const PluginList: React.FC<PluginListProps> = ({
   handlePluginSelect,
 }) => {
   const [filter, setFilter] = useState('')
+  // const [versionList, setVersionList] = useState<string[]>()
+  // const [expanded, setExpanded] = useState<string>(
+    // 'versionNotExpanded',
+  // )
+  // const [toggle, setToggle] = useState<boolean>(false)
+  // const [expanded, setExpanded] = React.useState('');
 
   const handleFilterChange = (filter: string) => setFilter(filter)
   const matchesFilter = useCallback(
@@ -31,7 +37,48 @@ const PluginList: React.FC<PluginListProps> = ({
     .fill(null)
     .map((_, i) => (
       <LoadingContent width="100%" height="35px" bottom="4px" key={i} />
-    ))
+    ));
+  
+  // const onToggle = (id: string) => {
+  //   if (id === expanded) {
+  //     setExpanded('');
+  //   } else {
+  //     setExpanded(id);
+  //   }
+  // };
+
+  
+  // const fetchVersionPlugins = React.useCallback(async (pluginName: string) => {
+  //   const client = ChrisAPIClient.getClient()
+  //   const params = { limit: 25, offset: 0, name: pluginName }
+  //   let pluginList = await client.getPlugins(params)
+  //   const plugins = pluginList.getItems()
+  //   const pluginVersions: string[] = [];
+  //   // New code
+  //   while (pluginList.hasNextPage) {
+  //     try {
+  //           params.offset += params.limit
+  //           pluginList = await client.getPlugins(params)
+  //           const itemsList = pluginList.getItems()
+  //           if (itemsList && plugins) {
+  //             plugins.push(...itemsList)
+  //           }
+  //         } catch (e) {
+  //           console.error(e)
+  //         }
+  //   }
+  //   if (plugins) {
+  //     for (let i = 0; i < plugins.length; i++) {
+  //       pluginVersions.push(plugins[i].data.version);
+  //     }
+  //   }
+  //   console.log(pluginVersions);
+  //   if (pluginVersions.length > 0) {
+  //     // setExpanded('versionExpanded');
+  //     setToggle(toggle => !toggle)
+  //     setVersionList(pluginVersions => pluginVersions)
+  //   }
+  // }, [])
 
   return (
     <ul className="plugin-list">
@@ -47,19 +94,17 @@ const PluginList: React.FC<PluginListProps> = ({
             .sort((a, b) => a.data.name.localeCompare(b.data.name))
             .filter(matchesFilter)
             .map((plugin) => {
-              const { id, name, version, description } = plugin.data
+              const { id, name, title } = plugin.data
               const isSelected = selected && id === selected.data.id
-              console.log(plugin)
-              return (
+              return (                
                 <li
                   key={id}
                   className={isSelected ? 'selected' : ''}
                   onClick={() => handlePluginSelect(plugin)}
                 >
                   <span> {name}</span>
-                  <span className="version">Version: {version}</span>
                   <span className="description">
-                    Description: {description}
+                    Description: {title}
                   </span>
                 </li>
               )
@@ -67,6 +112,57 @@ const PluginList: React.FC<PluginListProps> = ({
         : loading}
     </ul>
   )
+  // return (
+  //   <Accordion asDefinitionList className="plugin-list">
+  //     <TextInput
+  //       className="plugin-list-filter"
+  //       value={filter}
+  //       onChange={handleFilterChange}
+  //       aria-label="Filter plugins by name"
+  //       placeholder="Filter by Name"
+  //     />
+
+  //     {plugins
+  //       ? plugins
+  //           .sort((a, b) => a.data.name.localeCompare(b.data.name))
+  //           .filter(matchesFilter)
+  //           .map((plugin) => {
+  //             const { id, name, title } = plugin.data
+  //             const isSelected = selected && id === selected.data.id
+  //             return (
+  //               <AccordionItem key={id}>
+  //                 <AccordionToggle
+  //                   onClick={() => {
+  //                     onToggle(name);
+  //                   }}
+  //                   isExpanded={expanded === String(name)}
+  //                   id={name}
+  //                   style={{color:"dark"}}
+  //                   className = '--pf-global--Color--100'
+  //                   // className={isSelected ? 'selected' : ''}
+  //                 >
+  //                   {/* Create a react component */}
+  //                   {/* <div>{name}</div> */}
+  //                   <div style={{display:"flex", justify}}>
+  //                     {name}
+  //                   </div>
+  //                   <div className="description">
+  //                     {name}
+  //                     Description: {title}
+  //                   </div>
+  //                 </AccordionToggle>
+  //                 <AccordionContent id={name} isHidden={expanded !== name}>
+  //                   <p>
+  //                     {name}
+  //                   </p>
+  //                 </AccordionContent>
+  //               </AccordionItem>
+  //             )
+  //           })
+  //       : loading}
+
+  //   </Accordion>
+  // );
 }
 
 const PluginSelect: React.FC<PluginSelectProps> = ({
@@ -87,18 +183,12 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
   const fetchAllPlugins = React.useCallback(async () => {
     const client = ChrisAPIClient.getClient()
     const params = { limit: 25, offset: 0 }
-    // let pluginList = await client.getPlugins(params)
-    // let plugins = pluginList.getItems()
-    // New code
-    // console.log(plugins);
     let pluginMetaList = await client.getPluginMetas(params)
     let pluginMetas = pluginMetaList.getItems()
-    console.log(pluginMetas);
 
     while (pluginMetaList.hasNextPage) {
       try {
         params.offset += params.limit
-        // pluginList = await client.getPlugins(params)
         pluginMetaList = await client.getPluginMetas(params);
         const itemsList = pluginMetaList.getItems()
         if (itemsList && pluginMetas) {
