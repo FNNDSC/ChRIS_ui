@@ -185,8 +185,52 @@ export const HeaderCardPlugin = ({
   parameterPayload?: ParameterPayload;
   setPluginParameters: (plugin: Plugin) => Promise<void>;
 }) => {
-  const [feeds, setFeeds] = React.useState<any>();
+  const [feeds, setFeeds] = React.useState<{
+    [key: string]: any[];
+  }>();
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(0);
+
+  const fetchFeeds = async (parameterPayload: ParameterPayload) => {
+    const feedDict: {
+      [id: number]: {
+        name: string;
+        id: number;
+      };
+    } = {};
+    const feedsTemp: any[] = [];
+    setFeedLoad(true);
+    for (let i = 0; i < parameterPayload.pluginInstances.length; i++) {
+      const instance = parameterPayload.pluginInstances[i];
+      const feed = await instance.getFeed();
+
+      if (feed) {
+        const note = await feed.getNote();
+
+        const id = feed.data.id;
+
+        if (!feedDict[id]) {
+          feedsTemp.push({
+            name: feed.data.name,
+            id,
+            note: note.data.content,
+          });
+          feedDict[id] = id;
+        }
+      }
+    }
+
+    setFeeds({
+      ...feeds,
+      [parameterPayload.version]: feedsTemp,
+    });
+    setFeedLoad(false);
+  };
+
+  React.useEffect(() => {
+    if (parameterPayload) {
+      fetchFeeds(parameterPayload);
+    }
+  }, [parameterPayload?.version]);
 
   const [feedLoad, setFeedLoad] = React.useState(false);
   const handleTabClick = async (_event: any, tabIndex: string | number) => {
@@ -194,38 +238,11 @@ export const HeaderCardPlugin = ({
     if (
       tabIndex === 2 &&
       parameterPayload?.pluginInstances &&
-      parameterPayload.pluginInstances.length > 0
+      parameterPayload.pluginInstances.length > 0 &&
+      feeds &&
+      !feeds[parameterPayload.version]
     ) {
-      const feedDict: {
-        [id: number]: {
-          name: string;
-          id: number;
-        };
-      } = {};
-      const feeds: any[] = [];
-      setFeedLoad(true);
-      for (let i = 0; i < parameterPayload.pluginInstances.length; i++) {
-        const instance = parameterPayload.pluginInstances[i];
-        const feed = await instance.getFeed();
-
-        if (feed) {
-          const note = await feed.getNote();
-
-          const id = feed.data.id;
-
-          if (!feedDict[id]) {
-            feeds.push({
-              name: feed.data.name,
-              id,
-              note: note.data.content,
-            });
-            feedDict[id] = id;
-          }
-        }
-      }
-
-      setFeeds(feeds);
-      setFeedLoad(false);
+      fetchFeeds(parameterPayload);
     }
   };
 
@@ -262,8 +279,11 @@ export const HeaderCardPlugin = ({
               <Tab eventKey={2} title={<TabTitleText>Use Cases</TabTitleText>}>
                 {feedLoad ? (
                   <SpinContainer title="Fetching unique sample feeds" />
-                ) : feeds && feeds.length > 0 ? (
-                  <TabUseCases feeds={feeds} />
+                ) : parameterPayload &&
+                  feeds &&
+                  feeds[parameterPayload.version] &&
+                  feeds[parameterPayload.version].length > 0 ? (
+                  <TabUseCases feeds={feeds[parameterPayload.version]} />
                 ) : (
                   <span>No feeds found</span>
                 )}
