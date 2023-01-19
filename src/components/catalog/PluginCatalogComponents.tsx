@@ -24,7 +24,7 @@ import {
   ListItem,
 } from "@patternfly/react-core";
 import { UserAltIcon } from "@patternfly/react-icons";
-import { PluginMeta, Plugin, PluginInstance, Feed } from "@fnndsc/chrisapi";
+import { PluginMeta, Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { useNavigate } from "react-router";
 import PluginImg from "../../assets/images/brainy-pointer.png";
 import { FaCheck } from "react-icons/fa";
@@ -190,47 +190,53 @@ export const HeaderCardPlugin = ({
   }>();
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(0);
 
-  const fetchFeeds = async (parameterPayload: ParameterPayload) => {
-    const feedDict: {
-      [id: number]: {
-        name: string;
-        id: number;
-      };
-    } = {};
-    const feedsTemp: any[] = [];
-    setFeedLoad(true);
-    for (let i = 0; i < parameterPayload.pluginInstances.length; i++) {
-      const instance = parameterPayload.pluginInstances[i];
-      const feed = await instance.getFeed();
+  const fetchFeeds = React.useCallback(
+    async (parameterPayload: ParameterPayload) => {
+      const feedDict: {
+        [id: number]: {
+          name: string;
+          id: number;
+        };
+      } = {};
+      const feedsTemp: any[] = [];
+      setFeedLoad(true);
+      for (let i = 0; i < parameterPayload.pluginInstances.length; i++) {
+        const instance = parameterPayload.pluginInstances[i];
+        const feed = await instance.getFeed();
 
-      if (feed) {
-        const note = await feed.getNote();
+        if (feed) {
+          const note = await feed.getNote();
 
-        const id = feed.data.id;
+          const id = feed.data.id;
 
-        if (!feedDict[id]) {
-          feedsTemp.push({
-            name: feed.data.name,
-            id,
-            note: note.data.content,
-          });
-          feedDict[id] = id;
+          if (!feedDict[id]) {
+            feedsTemp.push({
+              name: feed.data.name,
+              id,
+              note: note.data.content,
+            });
+            feedDict[id] = id;
+          }
         }
       }
-    }
 
-    setFeeds({
-      ...feeds,
-      [parameterPayload.version]: feedsTemp,
-    });
-    setFeedLoad(false);
-  };
+      setFeeds((feedState) => {
+        return {
+          ...feedState,
+          [parameterPayload.version]: feedsTemp,
+        };
+      });
+
+      setFeedLoad(false);
+    },
+    []
+  );
 
   React.useEffect(() => {
     if (parameterPayload) {
       fetchFeeds(parameterPayload);
     }
-  }, [parameterPayload?.version]);
+  }, [parameterPayload,fetchFeeds]);
 
   const [feedLoad, setFeedLoad] = React.useState(false);
   const handleTabClick = async (_event: any, tabIndex: string | number) => {

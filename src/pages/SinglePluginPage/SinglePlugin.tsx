@@ -5,7 +5,6 @@ import {
   Plugin,
   PluginMeta,
   PluginParameter,
-  PluginComputeResourceList,
   PluginInstance,
 } from "@fnndsc/chrisapi";
 import Wrapper from "../Layout/PageWrapper";

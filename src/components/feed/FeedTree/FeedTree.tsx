@@ -1,21 +1,18 @@
 import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
 import { isEqual } from "lodash";
-import clone from "clone";
 import { Switch, Button, Alert, TextInput } from "@patternfly/react-core";
 import useSize from "./useSize";
 import { tree, hierarchy, HierarchyPointLink } from "d3-hierarchy";
 import { select, event } from "d3-selection";
-import { v4 as uuidv4 } from "uuid";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { AiOutlineRotateLeft, AiOutlineRotateRight } from "react-icons/ai";
 import Link from "./Link";
 import NodeWrapper from "./Node";
-import { Datum, TreeNodeDatum, Point, treeAlgorithm } from "./data";
+import { TreeNodeDatum, Point, treeAlgorithm } from "./data";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
 import { FaTimes } from "react-icons/fa";
-
 import { TSID } from "./ParentComponent";
 import { useTypedSelector } from "../../../store/hooks";
 import {
@@ -75,24 +72,6 @@ type FeedTreeState = {
   toggleLabel: boolean;
 };
 
-function assignInternalProperties(data: Datum[], currentDepth = 0) {
-  const d = Array.isArray(data) ? data : [data];
-
-  return d.map((n) => {
-    const nodeDatum = n as TreeNodeDatum;
-
-    nodeDatum.__rd3t.id = uuidv4();
-    nodeDatum.__rd3t.depth = currentDepth;
-    if (nodeDatum.children && nodeDatum.children.length > 0) {
-      nodeDatum.children = assignInternalProperties(
-        nodeDatum.children,
-        currentDepth + 1
-      );
-    }
-    return nodeDatum;
-  });
-}
-
 function calculateD3Geometry(nextProps: AllProps, feedTreeProp: FeedTreeProp) {
   let scale;
   if (nextProps.zoom > nextProps.scaleExtent.max) {
@@ -108,49 +87,12 @@ function calculateD3Geometry(nextProps: AllProps, feedTreeProp: FeedTreeProp) {
   };
 }
 
-function findNodesById(
-  nodeId: string,
-  nodeSet: TreeNodeDatum[],
-  hits: TreeNodeDatum[]
-) {
-  if (hits.length > 0) {
-    return hits;
-  }
-  hits = hits.concat(nodeSet.filter((node) => node.__rd3t.id === nodeId));
-  nodeSet.forEach((node) => {
-    if (node.children && node.children.length > 0) {
-      hits = findNodesById(nodeId, node.children, hits);
-    }
-  });
-
-  return hits;
-}
-
-function collapseNode(nodeDatum: TreeNodeDatum) {
-  nodeDatum.__rd3t.collapsed = true;
-  if (nodeDatum.children && nodeDatum.children.length > 0) {
-    nodeDatum.children.forEach((child) => {
-      collapseNode(child);
-    });
-  }
-}
-
-/**
- * Sets the internal `collapsed` property of
- * the passed `TreeNodeDatum` object to `false`.
- *
- * @expandNode
- */
-function expandNode(nodeDatum: TreeNodeDatum) {
-  nodeDatum.__rd3t.collapsed = false;
-}
-
 function getInitialState(
   props: AllProps,
   feedTreeProp: FeedTreeProp
 ): FeedTreeState {
   return {
-    data: assignInternalProperties(clone(props.data)),
+    data: [],
     d3: calculateD3Geometry(props, feedTreeProp),
     overlayScale: {
       enabled: false,
@@ -354,7 +296,7 @@ const FeedTree = (props: AllProps) => {
       setFeedState((feedState) => {
         return {
           ...feedState,
-          data: assignInternalProperties(clone(props.data)),
+          data: props.data,
         };
       });
       const { nodes, newLinks: links } = generateTree(props.data);
@@ -411,24 +353,6 @@ const FeedTree = (props: AllProps) => {
     props.onNodeClickTs(item);
   };
 
-  const handleNodeToggle = (nodeId: string) => {
-    const data = clone(feedState.data);
-    const matches = findNodesById(nodeId, data, []);
-    const targetNodeDatum = matches[0];
-
-    if (feedState.collapsible) {
-      if (targetNodeDatum.__rd3t.collapsed) {
-        expandNode(targetNodeDatum);
-      } else {
-        collapseNode(targetNodeDatum);
-      }
-      setFeedState({
-        ...feedState,
-        data,
-      });
-    }
-  };
-
   const { nodes, links } = feedTree;
 
   return (
@@ -452,17 +376,7 @@ const FeedTree = (props: AllProps) => {
               <AiOutlineRotateRight className="feed-tree__orientation--icon" />
             )}
           </div>
-          <div className="feed-tree__control">
-            <Switch
-              id="collapsible"
-              label="Collapsible On"
-              labelOff="Collapsible Off"
-              isChecked={feedState.collapsible}
-              onChange={() => {
-                handleChange("collapsible");
-              }}
-            />
-          </div>
+
           <div className="feed-tree__control">
             <Switch
               id="labels"
@@ -582,7 +496,6 @@ const FeedTree = (props: AllProps) => {
                   parent={parent}
                   onNodeClick={handleNodeClick}
                   onNodeClickTs={handleNodeClickTs}
-                  onNodeToggle={handleNodeToggle}
                   orientation={orientation}
                   toggleLabel={feedState.toggleLabel}
                   overlayScale={
