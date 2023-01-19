@@ -43,6 +43,7 @@ const DragAndUpload = ({
     getRootProps,
     getInputProps,
     isFocused,
+    open,
     isDragActive,
     isDragAccept,
     isDragReject,
@@ -52,8 +53,15 @@ const DragAndUpload = ({
     if (acceptedFiles.length > 0) {
       handleLocalUploadFiles(acceptedFiles);
     }
-  }, [acceptedFiles, handleLocalUploadFiles]);
+  }, [acceptedFiles, handleLocalUploadFiles, open]);
 
+  React.useEffect(() => {
+     if(acceptedFiles.length <= 0){
+      open()
+     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+ 
   const style = React.useMemo(
     () => ({
       ...baseStyle,
