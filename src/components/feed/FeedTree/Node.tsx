@@ -15,7 +15,7 @@ type NodeWrapperProps = {
   parent: HierarchyPointNode<Datum> | null;
   onNodeClick: (node: any) => void;
   onNodeClickTs: (node: PluginInstance) => void;
-  onNodeToggle: (nodeId: string) => void;
+
   orientation: "horizontal" | "vertical";
   overlayScale?: FeedTreeScaleType;
   toggleLabel: boolean;
@@ -47,7 +47,7 @@ const Node = (props: NodeProps) => {
     data,
     onNodeClick,
     onNodeClickTs,
-    onNodeToggle,
+
     toggleLabel,
     status,
     currentId,
@@ -75,10 +75,6 @@ const Node = (props: NodeProps) => {
     const nodeTransform = setNodeTransform(orientation, position);
     applyNodeTransform(nodeTransform);
   }, [orientation, position]);
-
-  const handleNodeToggle = () => {
-    onNodeToggle(data.__rd3t.id);
-  };
 
   let statusClass = "";
   let tsClass = "";
@@ -150,7 +146,6 @@ const Node = (props: NodeProps) => {
         ref={nodeRef}
         onClick={() => {
           if (data.item) {
-            handleNodeToggle();
             if (mode === false) {
               onNodeClickTs(data.item);
             } else {
