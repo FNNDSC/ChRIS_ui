@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { Dropdown, DropdownToggle, DropdownItem } from "@patternfly/react-core";
 import { AiFillCaretDown } from "react-icons/ai";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
@@ -27,7 +27,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   const [dropdownState, setDropdownState] =
     React.useState<SimpleDropdownState>(getInitialState);
   const { isOpen } = dropdownState;
-
+  const inputElement = useRef<any>();
   const [paramFlag, value, type, placeholder, paramName] = unPackForKeyValue(
     dropdownInput[id]
   );
@@ -46,7 +46,15 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     });
   };
 
-  const handleClick = (param: PluginParameter) => {
+  const findUsedParam = () => {
+    const usedParam = new Set();
+    for (const input in dropdownInput) {
+      usedParam.add(dropdownInput[input].flag);
+    }
+    return usedParam;
+  };
+
+  const handleClick = (param: PluginParameter, componentId: string) => {
     const flag = param.data.flag;
     const placeholder = param.data.help;
     const type = param.data.type;
@@ -55,19 +63,8 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
       : defaultValueDisplay
       ? param.data.default
       : "";
+    addParam();
     handleChange(id, flag, defaultValue, type, placeholder, false, paramName);
-  };
-
-  const triggerChange = (eventType: string) => {
-    if (eventType === "keyDown") {
-      addParam();
-    }
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      triggerChange("keyDown");
-    } else return;
   };
 
   const deleteDropdown = () => {
@@ -87,25 +84,38 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     );
   };
 
-  const dropdownItems =
-    params &&
-    params
-      .filter((param) => param.data.optional === true)
-      .map((param) => {
-        const id = param.data.id;
-        return (
-          <DropdownItem
-            key={id}
-            onClick={() => handleClick(param)}
-            component="button"
-            className="plugin-configuration__parameter"
-            value={param.data.flag}
-            name={param.data.help}
-          >
-            {param.data.flag}
-          </DropdownItem>
-        );
-      });
+  const dropdownItems = () => {
+    const useParam = findUsedParam();
+    const parameters =
+      params &&
+      params
+        .filter(
+          (param) =>
+            param.data.optional === true && !useParam.has(param.data.flag)
+        )
+        .map((param) => {
+          return (
+            <DropdownItem
+              key={param.data.id}
+              onClick={() => handleClick(param, id)}
+              onKeyDown={(event) => {
+                if (event.key === "Tab") {
+                  if (inputElement) {
+                    inputElement.current.focus();
+                  }
+                }
+              }}
+              component="button"
+              className="plugin-configuration__parameter"
+              value={param.data.flag}
+              name={param.data.help}
+            >
+              {param.data.flag}
+            </DropdownItem>
+          );
+        });
+    return parameters;
+  };
 
   return (
     <>
@@ -123,16 +133,14 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           }
           isOpen={isOpen}
           className="plugin-configuration__dropdown"
-          dropdownItems={
-            dropdownItems && dropdownItems.length > 0 ? dropdownItems : []
-          }
+          dropdownItems={dropdownItems()}
         />
         <input
+          ref={inputElement}
           type="text"
           aria-label="text"
           className={css(styles.formControl, `plugin-configuration__input`)}
           onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
           placeholder={placeholder}
           value={value}
           disabled={type === "boolean"}

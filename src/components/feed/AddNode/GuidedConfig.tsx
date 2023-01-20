@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect } from "react";
 import {
-  Button,
   Alert,
   AlertActionCloseButton,
   ExpandableSection,
@@ -29,7 +28,7 @@ const GuidedConfig = ({
 }: GuidedConfigProps) => {
   const [configState, setConfigState] = React.useState<GuidedConfigState>({
     componentList: [],
-    count: 1,
+    count: 0,
     errors: [],
     alertVisible: false,
     docsExpanded: false,
@@ -37,27 +36,16 @@ const GuidedConfig = ({
 
   const { componentList, count, errors, alertVisible, docsExpanded } =
     configState;
-    const { onNext, onBack } = useContext(WizardContext)
-  const setDropdownDefaults = React.useCallback(() => {
-    if (dropdownInput) {
-      const defaultComponentList = Object.entries(dropdownInput).map(
-        ([key]) => {
-          return key;
-        }
-      );
-      setConfigState((configState) => {
-        return {
-          ...configState,
-          componentList: defaultComponentList,
-          count: defaultComponentList.length,
-        };
-      });
-    }
-  }, [dropdownInput]);
 
   React.useEffect(() => {
-    setDropdownDefaults();
-  }, [setDropdownDefaults, dropdownInput]);
+    setConfigState((configState) => {
+      return {
+        ...configState,
+        count: 1,
+        componentList: [v4()],
+      };
+    });
+  }, [dropdownInput]);
 
   const handleDocsToggle = () => {
     setConfigState({
@@ -65,47 +53,7 @@ const GuidedConfig = ({
       docsExpanded: !configState.docsExpanded,
     });
   };
-  const RequiredParamsNotEmpty = useCallback(() => {
-    if(params && params.length > 0){
-      for(const param of params){
-        const paramObject = requiredInput[param.data.id]
-        if(paramObject && param.data.optional == false ){
-          if(paramObject.value.length == 0) return false
-        }else if(!paramObject && param.data.optional == true ){
-          return true
-        }else{
-          return false
-        }
-      }
-    }
-    return true;
-  }, [params, requiredInput])
-  
-  const handleKeyDown = useCallback((e: any) => {
 
-    if(e.target.closest("INPUT")){
-      return; 
-    }else if(e.target.closest("BUTTON") && !e.target.closest('BUTTON.pf-c-button.pf-m-secondary') && !e.target.closest('BUTTON.pf-c-button.pf-m-primary')){
-      return;
-    }else if ((e.code == "Enter" || e.code == "ArrowRight") && RequiredParamsNotEmpty() ) {
-      e.preventDefault()
-      onNext()
-     }else if(e.code == "ArrowLeft"){
-      e.preventDefault()
-      onBack()
-     }
-  }, [onBack, onNext, RequiredParamsNotEmpty]);
-
-
-  useEffect(() => {
-    
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [ handleKeyDown])
-
-  
   const deleteComponent = (id: string) => {
     const filteredList = componentList.filter((key) => {
       return key !== id;
@@ -119,7 +67,7 @@ const GuidedConfig = ({
   };
 
   const addParam = () => {
-    if (params && count < params.length) {
+    if (params && count < params.length - 1) {
       setConfigState({
         ...configState,
         componentList: [...configState.componentList, v4()],
@@ -157,25 +105,6 @@ const GuidedConfig = ({
               setComputeEnvironment={setComputeEnviroment}
             />
           }
-
-          <ExpandableSection
-            className="docs"
-            toggleText="Compute Environment configuration"
-            isExpanded={docsExpanded}
-            onToggle={handleDocsToggle}
-          >
-            {computeEnvs &&
-              computeEnvs.map((computeEnv) => {
-                return (
-                  <div key={computeEnv.data.id} className="param-item">
-                    <b className="param-title">{computeEnv.data.name}</b>
-                    <div className="param-help">
-                      {computeEnv.data.description}
-                    </div>
-                  </div>
-                );
-              })}
-          </ExpandableSection>
         </div>
       );
     }
@@ -190,7 +119,6 @@ const GuidedConfig = ({
               <RequiredParam
                 param={param}
                 requiredInput={requiredInput}
-                addParam={addParam}
                 inputChange={inputChange}
                 id={v4()}
               />
@@ -231,12 +159,6 @@ const GuidedConfig = ({
             <div>
               <h4>Required Parameters</h4>
               {renderRequiredParams()}
-              <p>
-                <i>
-                  {Object.keys(requiredInput).length === 0 &&
-                    "The plugin has no required parameters"}
-                </i>
-              </p>
             </div>
 
             <div
@@ -244,15 +166,8 @@ const GuidedConfig = ({
                 margin: "1.5em 0 1.5em 0",
               }}
             >
-              <h4>Default Parameters</h4>
+              <h4>Optional Parameters</h4>
               {renderDropdowns()}
-              <Button
-                className="configuration__button"
-                onClick={addParam}
-                variant="primary"
-              >
-                Add more parameters
-              </Button>
             </div>
 
             {renderComputeEnv && renderComputeEnvs()}
