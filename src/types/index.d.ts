@@ -19,7 +19,6 @@ declare module "cornerstone-wado-image-loader";
 declare module "cornerstone-nifti-image-loader";
 declare module "dicom-parser";
 declare module "react-lazylog";
-declare module "clone";
 declare module "dequal/lite";
 declare module "typesafe-actions";
 declare module "chris-utility";
