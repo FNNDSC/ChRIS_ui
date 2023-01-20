@@ -113,7 +113,6 @@ export interface EditorState {
   value: string;
   docsExpanded: boolean;
   errors: string[];
-  readOnly: boolean;
   dictionary: InputIndex;
   savingValues: boolean;
 }
@@ -154,7 +153,6 @@ export interface SimpleDropdownProps {
 
 export interface RequiredParamProp {
   param: PluginParameter;
-  addParam: () => void;
   requiredInput: InputType;
   inputChange(
     id: string,

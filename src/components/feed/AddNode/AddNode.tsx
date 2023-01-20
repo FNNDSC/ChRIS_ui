@@ -4,8 +4,6 @@ import { connect } from "react-redux";
 import { Wizard, Spinner, Button } from "@patternfly/react-core";
 import { MdOutlineAddCircle } from "react-icons/md";
 import GuidedConfig from "./GuidedConfig";
-import Editor from "./Editor";
-import Review from "./Review";
 import BasicConfiguration from "./BasicConfiguration";
 import { addNodeRequest } from "../../../store/pluginInstance/actions";
 import { getNodeOperations, getParams } from "../../../store/plugin/actions";
@@ -49,8 +47,6 @@ const AddNode: React.FC<AddNodeProps> = ({
     requiredInput,
     dropdownInput,
     selectedComputeEnv,
-    errors,
-    editorValue,
   } = addNodeState;
   const { childNode } = useTypedSelector(
     (state) => state.plugin.nodeOperations
@@ -125,46 +121,21 @@ const AddNode: React.FC<AddNodeProps> = ({
   const onNext = (newStep: { id?: string | number; name: React.ReactNode }) => {
     const { stepIdReached } = addNodeState;
     const { id, name } = newStep;
-    const { optional, nonOptional } = handleGetTokens(editorValue, params);
 
-    id && id === 4 && name === "Review" && editorValue
-      ? setNodeState({
-          ...addNodeState,
-          dropdownInput: optional,
-          requiredInput: nonOptional,
-          stepIdReached: stepIdReached < id ? (id as number) : stepIdReached,
-        })
-      : id &&
-        setNodeState({
-          ...addNodeState,
-          stepIdReached: stepIdReached < id ? (id as number) : stepIdReached,
-        });
+    id &&
+      setNodeState({
+        ...addNodeState,
+        stepIdReached: stepIdReached < id ? (id as number) : stepIdReached,
+      });
   };
 
   const onBack = (newStep: { id?: string | number; name: React.ReactNode }) => {
     const { id, name } = newStep;
-    const { optional, nonOptional } = handleGetTokens(editorValue, params);
-
-    id && id === 1
-      ? setNodeState({
-          ...addNodeState,
-          dropdownInput: {},
-          requiredInput: {},
-          stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
-        })
-      : id === 2 && name === "Plugin Configuration-Form" && editorValue
-      ? setNodeState({
-          ...addNodeState,
-          dropdownInput: optional,
-          requiredInput: nonOptional,
-          stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
-          editorValue: "",
-        })
-      : id &&
-        setNodeState({
-          ...addNodeState,
-          stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
-        });
+    id &&
+      setNodeState({
+        ...addNodeState,
+        stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
+      });
   };
 
   const handlePluginSelect = (plugin: Plugin) => {
@@ -183,13 +154,6 @@ const AddNode: React.FC<AddNodeProps> = ({
       };
     });
   }, []);
-
-  const setEditorValue = (value: string) => {
-    setNodeState({
-      ...addNodeState,
-      editorValue: value,
-    });
-  };
 
   const deleteInput = (input: string) => {
     const { dropdownInput } = addNodeState;
@@ -284,30 +248,6 @@ const AddNode: React.FC<AddNodeProps> = ({
     <Spinner size="xl" />
   );
 
-  const editor = data.plugin ? (
-    <Editor
-      plugin={data.plugin}
-      dropdownInput={dropdownInput}
-      requiredInput={requiredInput}
-      setEditorValue={setEditorValue}
-    />
-  ) : (
-    <Spinner size="xl" />
-  );
-
-  const review = data.plugin ? (
-    <Review
-      parent={selectedPlugin}
-      currentPlugin={data.plugin}
-      dropdownInput={dropdownInput}
-      requiredInput={requiredInput}
-      computeEnvironment={selectedComputeEnv}
-      errors={errors}
-    />
-  ) : (
-    <Spinner size="xl" />
-  );
-
   const steps = [
     {
       id: 1,
@@ -321,20 +261,6 @@ const AddNode: React.FC<AddNodeProps> = ({
       name: "Plugin Configuration-Form",
       component: form,
       canJumpTo: stepIdReached > 2,
-    },
-    {
-      id: 3,
-      name: "Plugin Configuration-Editor",
-      component: editor,
-      canJumpTo: stepIdReached > 3,
-    },
-    {
-      id: 4,
-      name: "Review",
-      component: review,
-      enableNext: !addNodeState.loading,
-      nextButtonText: "Add Node",
-      canJumpTo: stepIdReached > 4,
     },
   ];
 
