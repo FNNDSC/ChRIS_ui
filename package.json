@@ -12,7 +12,6 @@
     "antd": "^4.24.5",
     "axios": "^0.27.2",
     "chris-utility": "^1.1.6",
-    "clone": "^2.1.2",
     "cornerstone-core": "^2.6.1",
     "cornerstone-file-image-loader": "^0.3.0",
     "cornerstone-math": "^0.1.10",
