@@ -6,28 +6,23 @@ import {
   AccordionToggle,
   TextInput,
 } from '@patternfly/react-core'
-import { Plugin, PluginInstance } from '@fnndsc/chrisapi'
+import { Plugin, PluginMeta, PluginInstance } from '@fnndsc/chrisapi'
 import ChrisAPIClient from '../../../api/chrisapiclient'
 import { LoadingContent } from '../../common/loading/LoadingContent'
-import { PluginListProps, PluginSelectProps, PluginSelectState } from './types'
+import { PluginSelectProps, PluginMetaListProps, PluginMetaSelectState } from './types'
+import { fetchResource } from '../../../api/common'
 
-const PluginList: React.FC<PluginListProps> = ({
-  plugins,
+const PluginList: React.FC<PluginMetaListProps> = ({
+  pluginMetas,
   selected,
   handlePluginSelect,
 }) => {
   const [filter, setFilter] = useState('')
-  // const [versionList, setVersionList] = useState<string[]>()
-  // const [expanded, setExpanded] = useState<string>(
-    // 'versionNotExpanded',
-  // )
-  // const [toggle, setToggle] = useState<boolean>(false)
-  // const [expanded, setExpanded] = React.useState('');
 
   const handleFilterChange = (filter: string) => setFilter(filter)
   const matchesFilter = useCallback(
-    (plugin: Plugin) =>
-      plugin.data.name
+    (pluginMeta: PluginMeta) =>
+      pluginMeta.data.name
         .toLowerCase()
         .trim()
         .includes(filter.toLowerCase().trim()),
@@ -39,46 +34,21 @@ const PluginList: React.FC<PluginListProps> = ({
       <LoadingContent width="100%" height="35px" bottom="4px" key={i} />
     ));
   
-  // const onToggle = (id: string) => {
-  //   if (id === expanded) {
-  //     setExpanded('');
-  //   } else {
-  //     setExpanded(id);
-  //   }
-  // };
+  const getPluginFromMeta = async (pluginMeta: PluginMeta) => {
+    const fn = pluginMeta.getPlugins;
+    const boundFn = fn.bind(pluginMeta);
+    const params = {
+      limit: 1000,
+      offset: 0,
+    };
 
+    const results = await fetchResource<Plugin>(params, boundFn);
+    // TODO: Get latest plugin instead of the first one.
+    results["resource"].sort((a, b) => (a.data.version > b.data.version) ? -1 : (b.data.version > a.data.version) ? 1 : 0)
+    handlePluginSelect(results["resource"][0])
+  }
   
-  // const fetchVersionPlugins = React.useCallback(async (pluginName: string) => {
-  //   const client = ChrisAPIClient.getClient()
-  //   const params = { limit: 25, offset: 0, name: pluginName }
-  //   let pluginList = await client.getPlugins(params)
-  //   const plugins = pluginList.getItems()
-  //   const pluginVersions: string[] = [];
-  //   // New code
-  //   while (pluginList.hasNextPage) {
-  //     try {
-  //           params.offset += params.limit
-  //           pluginList = await client.getPlugins(params)
-  //           const itemsList = pluginList.getItems()
-  //           if (itemsList && plugins) {
-  //             plugins.push(...itemsList)
-  //           }
-  //         } catch (e) {
-  //           console.error(e)
-  //         }
-  //   }
-  //   if (plugins) {
-  //     for (let i = 0; i < plugins.length; i++) {
-  //       pluginVersions.push(plugins[i].data.version);
-  //     }
-  //   }
-  //   console.log(pluginVersions);
-  //   if (pluginVersions.length > 0) {
-  //     // setExpanded('versionExpanded');
-  //     setToggle(toggle => !toggle)
-  //     setVersionList(pluginVersions => pluginVersions)
-  //   }
-  // }, [])
+
 
   return (
     <ul className="plugin-list">
@@ -89,20 +59,23 @@ const PluginList: React.FC<PluginListProps> = ({
         aria-label="Filter plugins by name"
         placeholder="Filter by Name"
       />
-      {plugins
-        ? plugins
+      {pluginMetas
+        ? pluginMetas
             .sort((a, b) => a.data.name.localeCompare(b.data.name))
             .filter(matchesFilter)
-            .map((plugin) => {
-              const { id, name, title } = plugin.data
-              const isSelected = selected && id === selected.data.id
+            .map((pluginMeta) => {
+              const { id, name, title } = pluginMeta.data
+              const isSelected = selected && name === selected.data.name
+              console.log(selected?.data.name)
+              console.log(selected?.data.id)
+              console.log(id)
               return (                
                 <li
                   key={id}
                   className={isSelected ? 'selected' : ''}
-                  onClick={() => handlePluginSelect(plugin)}
+                  onClick={() => getPluginFromMeta(pluginMeta)}
                 >
-                  <span> {name}</span>
+                  <span>{name}</span>
                   <span className="description">
                     Description: {title}
                   </span>
@@ -112,57 +85,6 @@ const PluginList: React.FC<PluginListProps> = ({
         : loading}
     </ul>
   )
-  // return (
-  //   <Accordion asDefinitionList className="plugin-list">
-  //     <TextInput
-  //       className="plugin-list-filter"
-  //       value={filter}
-  //       onChange={handleFilterChange}
-  //       aria-label="Filter plugins by name"
-  //       placeholder="Filter by Name"
-  //     />
-
-  //     {plugins
-  //       ? plugins
-  //           .sort((a, b) => a.data.name.localeCompare(b.data.name))
-  //           .filter(matchesFilter)
-  //           .map((plugin) => {
-  //             const { id, name, title } = plugin.data
-  //             const isSelected = selected && id === selected.data.id
-  //             return (
-  //               <AccordionItem key={id}>
-  //                 <AccordionToggle
-  //                   onClick={() => {
-  //                     onToggle(name);
-  //                   }}
-  //                   isExpanded={expanded === String(name)}
-  //                   id={name}
-  //                   style={{color:"dark"}}
-  //                   className = '--pf-global--Color--100'
-  //                   // className={isSelected ? 'selected' : ''}
-  //                 >
-  //                   {/* Create a react component */}
-  //                   {/* <div>{name}</div> */}
-  //                   <div style={{display:"flex", justify}}>
-  //                     {name}
-  //                   </div>
-  //                   <div className="description">
-  //                     {name}
-  //                     Description: {title}
-  //                   </div>
-  //                 </AccordionToggle>
-  //                 <AccordionContent id={name} isHidden={expanded !== name}>
-  //                   <p>
-  //                     {name}
-  //                   </p>
-  //                 </AccordionContent>
-  //               </AccordionItem>
-  //             )
-  //           })
-  //       : loading}
-
-  //   </Accordion>
-  // );
 }
 
 const PluginSelect: React.FC<PluginSelectProps> = ({
@@ -170,13 +92,13 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
   handlePluginSelect,
 }) => {
   const [isMounted, setMounted] = useState(false)
-  const [allPlugins, setAllPlugins] = useState<PluginSelectState['allPlugins']>(
+  const [allPlugins, setAllPlugins] = useState<PluginMetaSelectState['allPlugins']>(
     [],
   )
   const [recentPlugins, setRecentPlugins] = useState<
-    PluginSelectState['recentPlugins']
+    PluginMetaSelectState['recentPlugins']
   >([])
-  const [expanded, setExpanded] = useState<PluginSelectState['expanded']>(
+  const [expanded, setExpanded] = useState<PluginMetaSelectState['expanded']>(
     'all-toggle',
   )
 
@@ -244,7 +166,7 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
 
     const plugins = await Promise.all(
       pluginIds.map((id) => {
-        return client.getPlugin(id)
+        return client.getPluginMeta(id)
       }),
     )
     if (isMounted) setRecentPlugins(plugins)
@@ -279,7 +201,7 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
           isHidden={expanded !== 'recent-toggle'}
         >
           <PluginList
-            plugins={recentPlugins}
+            pluginMetas={recentPlugins}
             selected={selected}
             handlePluginSelect={handlePluginSelect}
           />
@@ -295,7 +217,7 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
         </AccordionToggle>
         <AccordionContent id="all-content" isHidden={expanded !== 'all-toggle'}>
           <PluginList
-            plugins={allPlugins}
+            pluginMetas={allPlugins}
             selected={selected}
             handlePluginSelect={handlePluginSelect}
           />
@@ -306,7 +228,3 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
 }
 
 export default PluginSelect
-// PluginList should be edited to return plugin and description - pluginMeta
-// On click/select, an accordion toggle/content should show the different
-// versions if only one version, it should be selected. If not wait for
-// user input.

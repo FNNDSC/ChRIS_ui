@@ -264,13 +264,13 @@ const AddNode: React.FC<AddNodeProps> = ({
     />
   );
 
-  let pluginName = data.plugin?.data.name;
+  const pluginName = data.plugin?.data.name;
 
-  const pluginVersion = (pluginName += ` v.${data.plugin?.data.version}`);
+  // const pluginVersion = (pluginName);
 
   const form = data.plugin ? (
     <GuidedConfig
-      pluginName={pluginVersion}
+      pluginName={pluginName}
       defaultValueDisplay={false}
       renderComputeEnv={true}
       inputChange={inputChange}
@@ -279,6 +279,8 @@ const AddNode: React.FC<AddNodeProps> = ({
       requiredInput={requiredInput}
       selectedComputeEnv={selectedComputeEnv}
       setComputeEnviroment={setComputeEnv}
+      handlePluginSelect={handlePluginSelect}
+      plugin={data.plugin}
     />
   ) : (
     <Spinner size="xl" />
