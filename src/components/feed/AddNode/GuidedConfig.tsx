@@ -3,8 +3,11 @@ import {
   Button,
   Alert,
   AlertActionCloseButton,
-  ExpandableSection,
-} from "@patternfly/react-core";
+  ExpandableSection, 
+  Dropdown, 
+  DropdownToggle, 
+  DropdownItem, 
+  } from '@patternfly/react-core';
 import SimpleDropdown from "./SimpleDropdown";
 import RequiredParam from "./RequiredParam";
 import ComputeEnvironments from "./ComputeEnvironment";
@@ -13,6 +16,9 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { v4 } from "uuid";
 import { GuidedConfigState, GuidedConfigProps } from "./types";
 import { WizardContext } from "@patternfly/react-core";
+import ChrisAPIClient from '../../../api/chrisapiclient'
+import { Plugin } from "@fnndsc/chrisapi"
+import { FaCheck } from "react-icons/fa";
 
 const GuidedConfig = ({
   defaultValueDisplay,
@@ -26,6 +32,8 @@ const GuidedConfig = ({
   setComputeEnviroment,
   deleteInput,
   pluginName,
+  handlePluginSelect,
+  plugin
 }: GuidedConfigProps) => {
   const [configState, setConfigState] = React.useState<GuidedConfigState>({
     componentList: [],
@@ -34,6 +42,23 @@ const GuidedConfig = ({
     alertVisible: false,
     docsExpanded: false,
   });
+
+  const [plugins, setPlugins] = React.useState<Plugin[]>();
+  const [pluginVersion, setPluginVersion] = React.useState<string>("");
+
+  // Hard way
+  
+  React.useEffect(() => {
+    const selectPluginVersion = async () => {
+      const client = ChrisAPIClient.getClient();
+      const pluginList = await client.getPlugins({name: pluginName})
+      const pluginItems = (pluginList.getItems() as unknown) as Plugin[];
+
+      setPlugins(pluginItems)
+    }
+
+    selectPluginVersion();
+  }, [pluginName])
 
   const { componentList, count, errors, alertVisible, docsExpanded } =
     configState;
@@ -219,6 +244,77 @@ const GuidedConfig = ({
     });
   };
 
+
+  const DropdownBasic = () => {
+    const [isOpen, setIsOpen] = React.useState(false);
+
+    const onToggle = (isOpen: boolean) => {
+      setIsOpen(isOpen);
+    };
+
+    const onFocus = () => {
+      const element = document.getElementById('toggle-child-node-version');
+      element && element.focus();
+    };
+
+    const onSelect = () => {
+      // setIsOpen(false);
+      onFocus();
+    };
+
+    const dropdownItems =
+      plugins && plugins?.length > 0 && typeof handlePluginSelect === "function"
+      ? plugins
+          .sort((a, b) => (a.data.version > b.data.version) ? -1 : (b.data.version > a.data.version) ? 1 : 0)
+          .map((selectedPlugin: Plugin) => {
+          return (
+          <DropdownItem
+            style={{ padding: "0" }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                handlePluginSelect(selectedPlugin);
+              }
+            }}
+            icon={
+              selectedPlugin.data.version === plugin?.data.version ? (
+                <FaCheck style={{ color: "green" }} />
+              ) : (
+                <span></span>
+              )
+            }
+            onClick={() => {
+              setPluginVersion(selectedPlugin.data.version)
+              handlePluginSelect(selectedPlugin)
+            }}
+            key={selectedPlugin.data.id}
+            name={selectedPlugin.data.version}
+            value={selectedPlugin.data.value}
+            autoFocus={ selectedPlugin.data.version === plugin?.data.version ? true : false}
+          >
+            {selectedPlugin.data.version}
+          </DropdownItem>
+      )}
+      )
+      : [];
+
+    return (
+        <Dropdown
+          onSelect={onSelect}
+          isOpen={isOpen}
+          toggle={
+            <span style={{display: "inline-flex"}}>
+              <DropdownToggle id="toggle-child-node-version" onToggle={onToggle}>
+                {pluginVersion || plugin?.data.version}
+              </DropdownToggle>
+            </span>
+          }
+          dropdownItems={dropdownItems}
+        />
+    );
+  };
+
+
   return (
     <>
       <div className="configuration">
@@ -226,6 +322,10 @@ const GuidedConfig = ({
           {!defaultValueDisplay && (
             <h1 className="pf-c-title pf-m-2xl">{`Configure ${pluginName}`}</h1>
           )}
+          <div className="configuration__renders">
+            <h4 style={{display: "inline", marginRight: "1rem"}}>Version</h4>
+            <DropdownBasic />
+          </div>
 
           <div className="configuration__renders">
             <div>
