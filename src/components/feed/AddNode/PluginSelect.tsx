@@ -43,7 +43,6 @@ const PluginList: React.FC<PluginMetaListProps> = ({
     };
 
     const results = await fetchResource<Plugin>(params, boundFn);
-    // TODO: Get latest plugin instead of the first one.
     results["resource"].sort((a, b) => (a.data.version > b.data.version) ? -1 : (b.data.version > a.data.version) ? 1 : 0)
     handlePluginSelect(results["resource"][0])
   }
@@ -66,9 +65,6 @@ const PluginList: React.FC<PluginMetaListProps> = ({
             .map((pluginMeta) => {
               const { id, name, title } = pluginMeta.data
               const isSelected = selected && name === selected.data.name
-              console.log(selected?.data.name)
-              console.log(selected?.data.id)
-              console.log(id)
               return (                
                 <li
                   key={id}

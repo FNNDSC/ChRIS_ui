@@ -228,8 +228,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
 
         <div className="node-details__actions">
           <div className="node-details__actions_first">
-            {/* {cancelled ? null : <AddNode />} */}
-            <AddNode />
+            {cancelled ? null : <AddNode />}
             <PipelineProvider>
               <AddPipeline />
             </PipelineProvider>
