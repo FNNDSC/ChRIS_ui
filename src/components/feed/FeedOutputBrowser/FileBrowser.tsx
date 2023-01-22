@@ -154,7 +154,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         showDivider={true}
         key={index}
         onClick={onClick}
-        to={index === breadcrumb.length - 1 ? undefined : "#"}
+        to={index === breadcrumb.length - 1 ? undefined : ""}
       >
         {value}
       </BreadcrumbItem>
