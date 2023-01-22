@@ -258,7 +258,7 @@ const GuidedConfig = ({
     };
 
     const onSelect = () => {
-      // setIsOpen(false);
+      setIsOpen(false);
       onFocus();
     };
 
