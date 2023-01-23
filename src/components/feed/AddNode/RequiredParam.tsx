@@ -34,7 +34,13 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
   }, []);
 
   return (
-    <Form className="required-params" key={param.data.id}>
+    <Form
+      onSubmit={(event: any) => {
+        event.preventDefault();
+      }}
+      className="required-params"
+      key={param.data.id}
+    >
       <div className="required-params__layout">
         <div className="required-params__label">
           {`${param.data.flag}:`}
