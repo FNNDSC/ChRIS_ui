@@ -39,9 +39,21 @@ const DragAndUpload = ({
 }: {
   handleLocalUploadFiles: (files: any[]) => void;
 }) => {
- 
-  const {getRootProps, isFocused, isDragReject, isDragActive, isDragAccept, getInputProps} = useDropzone()
- 
+  const {
+    getRootProps,
+    isFocused,
+    isDragReject,
+    acceptedFiles,
+    isDragActive,
+    isDragAccept,
+    getInputProps,
+  } = useDropzone();
+
+  React.useEffect(() => {
+    if (acceptedFiles.length > 0) {
+      handleLocalUploadFiles(acceptedFiles);
+    }
+  }, [acceptedFiles, handleLocalUploadFiles]);
   const style = React.useMemo(
     () => ({
       ...baseStyle,
