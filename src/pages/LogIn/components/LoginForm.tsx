@@ -26,8 +26,7 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
   const [isValidUsername, setIsValidUsername] = React.useState<boolean>(true);
   const [isValidPassword, setIsValidPassword] = React.useState<boolean>(true);
   const [errorMessage, setErrorMessage] = React.useState<string>("");
-  const [isLoginButtonDisabled, setIsLoginButtonDisabled] =
-    React.useState<boolean>(true);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -35,13 +34,6 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
     invalidCredentials = `Invalid Credentials`,
     serverError = `There was a problem connecting to the server!`,
   }
-
-  // Disables the Login Button if there is no Username or a Password with less then 8 characters.
-  React.useMemo(() => {
-    usernameValue && passwordValue.length > 8
-      ? setIsLoginButtonDisabled(false)
-      : setIsLoginButtonDisabled(true);
-  }, [usernameValue, passwordValue]);
 
   async function handleSubmit(
     event: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent
@@ -106,12 +98,11 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
   let helperText;
   if (showHelperText) {
     helperText = (
-        <HelperText>
-          <HelperTextItem variant="error" hasIcon>
-            {errorMessage}
-          </HelperTextItem>
-        </HelperText>
-       
+      <HelperText>
+        <HelperTextItem variant="error" hasIcon>
+          {errorMessage}
+        </HelperTextItem>
+      </HelperText>
     );
   }
 
@@ -132,7 +123,6 @@ const LoginFormComponent: React.FC<AllProps> = ({ setAuthToken }: AllProps) => {
       isRememberMeChecked={isRememberMeChecked}
       onChangeRememberMe={onRememberMeClick}
       onLoginButtonClick={handleSubmit}
-      isLoginButtonDisabled={isLoginButtonDisabled}
     />
   );
 };
