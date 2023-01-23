@@ -6,13 +6,14 @@ import {
   AccordionToggle,
   TextInput,
 } from '@patternfly/react-core'
-import { Plugin, PluginInstance } from '@fnndsc/chrisapi'
+import { Plugin, PluginMeta, PluginInstance } from '@fnndsc/chrisapi'
 import ChrisAPIClient from '../../../api/chrisapiclient'
 import { LoadingContent } from '../../common/loading/LoadingContent'
-import { PluginListProps, PluginSelectProps, PluginSelectState } from './types'
+import { PluginSelectProps, PluginMetaListProps, PluginMetaSelectState } from './types'
+import { fetchResource } from '../../../api/common'
 
-const PluginList: React.FC<PluginListProps> = ({
-  plugins,
+const PluginList: React.FC<PluginMetaListProps> = ({
+  pluginMetas,
   selected,
   handlePluginSelect,
 }) => {
@@ -20,8 +21,8 @@ const PluginList: React.FC<PluginListProps> = ({
 
   const handleFilterChange = (filter: string) => setFilter(filter)
   const matchesFilter = useCallback(
-    (plugin: Plugin) =>
-      plugin.data.name
+    (pluginMeta: PluginMeta) =>
+      pluginMeta.data.name
         .toLowerCase()
         .trim()
         .includes(filter.toLowerCase().trim()),
@@ -31,7 +32,22 @@ const PluginList: React.FC<PluginListProps> = ({
     .fill(null)
     .map((_, i) => (
       <LoadingContent width="100%" height="35px" bottom="4px" key={i} />
-    ))
+    ));
+  
+  const getPluginFromMeta = async (pluginMeta: PluginMeta) => {
+    const fn = pluginMeta.getPlugins;
+    const boundFn = fn.bind(pluginMeta);
+    const params = {
+      limit: 1000,
+      offset: 0,
+    };
+
+    const results = await fetchResource<Plugin>(params, boundFn);
+    results["resource"].sort((a, b) => (a.data.version > b.data.version) ? -1 : (b.data.version > a.data.version) ? 1 : 0)
+    handlePluginSelect(results["resource"][0])
+  }
+  
+
 
   return (
     <ul className="plugin-list">
@@ -42,23 +58,22 @@ const PluginList: React.FC<PluginListProps> = ({
         aria-label="Filter plugins by name"
         placeholder="Filter by Name"
       />
-      {plugins
-        ? plugins
+      {pluginMetas
+        ? pluginMetas
             .sort((a, b) => a.data.name.localeCompare(b.data.name))
             .filter(matchesFilter)
-            .map((plugin) => {
-              const { id, name, version, description } = plugin.data
-              const isSelected = selected && id === selected.data.id
-              return (
+            .map((pluginMeta) => {
+              const { id, name, title } = pluginMeta.data
+              const isSelected = selected && name === selected.data.name
+              return (                
                 <li
                   key={id}
                   className={isSelected ? 'selected' : ''}
-                  onClick={() => handlePluginSelect(plugin)}
+                  onClick={() => getPluginFromMeta(pluginMeta)}
                 >
-                  <span> {name}</span>
-                  <span className="version">Version: {version}</span>
+                  <span>{name}</span>
                   <span className="description">
-                    Description: {description}
+                    Description: {title}
                   </span>
                 </li>
               )
@@ -73,38 +88,38 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
   handlePluginSelect,
 }) => {
   const [isMounted, setMounted] = useState(false)
-  const [allPlugins, setAllPlugins] = useState<PluginSelectState['allPlugins']>(
+  const [allPlugins, setAllPlugins] = useState<PluginMetaSelectState['allPlugins']>(
     [],
   )
   const [recentPlugins, setRecentPlugins] = useState<
-    PluginSelectState['recentPlugins']
+    PluginMetaSelectState['recentPlugins']
   >([])
-  const [expanded, setExpanded] = useState<PluginSelectState['expanded']>(
+  const [expanded, setExpanded] = useState<PluginMetaSelectState['expanded']>(
     'all-toggle',
   )
 
   const fetchAllPlugins = React.useCallback(async () => {
     const client = ChrisAPIClient.getClient()
     const params = { limit: 25, offset: 0 }
-    let pluginList = await client.getPlugins(params)
-    let plugins = pluginList.getItems()
+    let pluginMetaList = await client.getPluginMetas(params)
+    let pluginMetas = pluginMetaList.getItems()
 
-    while (pluginList.hasNextPage) {
+    while (pluginMetaList.hasNextPage) {
       try {
         params.offset += params.limit
-        pluginList = await client.getPlugins(params)
-        const itemsList = pluginList.getItems()
-        if (itemsList && plugins) {
-          plugins.push(...itemsList)
+        pluginMetaList = await client.getPluginMetas(params);
+        const itemsList = pluginMetaList.getItems()
+        if (itemsList && pluginMetas) {
+          pluginMetas.push(...itemsList)
         }
       } catch (e) {
         console.error(e)
       }
     }
 
-    plugins = plugins && plugins.filter((plugin) => plugin.data.type !== 'fs')
+    pluginMetas = pluginMetas && pluginMetas.filter((pluginMeta) => pluginMeta.data.type !== 'fs')
 
-    if (isMounted && plugins) setAllPlugins(plugins)
+    if (isMounted && pluginMetas) setAllPlugins(pluginMetas)
   }, [isMounted])
 
   const fetchRecentPlugins = React.useCallback(async () => {
@@ -147,7 +162,7 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
 
     const plugins = await Promise.all(
       pluginIds.map((id) => {
-        return client.getPlugin(id)
+        return client.getPluginMeta(id)
       }),
     )
     if (isMounted) setRecentPlugins(plugins)
@@ -182,7 +197,7 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
           isHidden={expanded !== 'recent-toggle'}
         >
           <PluginList
-            plugins={recentPlugins}
+            pluginMetas={recentPlugins}
             selected={selected}
             handlePluginSelect={handlePluginSelect}
           />
@@ -198,7 +213,7 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
         </AccordionToggle>
         <AccordionContent id="all-content" isHidden={expanded !== 'all-toggle'}>
           <PluginList
-            plugins={allPlugins}
+            pluginMetas={allPlugins}
             selected={selected}
             handlePluginSelect={handlePluginSelect}
           />

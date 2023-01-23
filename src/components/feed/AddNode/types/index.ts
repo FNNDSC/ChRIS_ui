@@ -1,4 +1,4 @@
-import { Plugin, PluginParameter, PluginInstance } from "@fnndsc/chrisapi";
+import { Plugin, PluginParameter, PluginInstance, PluginMeta } from "@fnndsc/chrisapi";
 
 export interface InputIndex {
   [key: string]: string;
@@ -37,6 +37,12 @@ export interface PluginListProps {
   selected?: Plugin;
 }
 
+export interface PluginMetaListProps {
+  handlePluginSelect: (plugin: Plugin) => void;
+  pluginMetas?: PluginMeta[];
+  selected?: Plugin;
+}
+
 export interface PluginListState {
   filter: string;
 }
@@ -50,6 +56,12 @@ export interface PluginSelectState {
   expanded: string;
   allPlugins?: Plugin[];
   recentPlugins?: Plugin[];
+}
+
+export interface PluginMetaSelectState {
+  expanded: string;
+  allPlugins?: PluginMeta[];
+  recentPlugins?: PluginMeta[];
 }
 
 export interface AddNodeState extends InputState {
@@ -113,6 +125,8 @@ export interface GuidedConfigProps extends InputProps {
   selectedComputeEnv?: string;
   setComputeEnviroment?: (computeEnv: string) => void;
   pluginName: string;
+  handlePluginSelect?: (plugin: Plugin) => void;
+  plugin?: Plugin
 }
 
 export interface EditorState {
