@@ -6,6 +6,9 @@ import {
   CodeBlockAction,
   CodeBlockCode,
   ClipboardCopyButton,
+  Dropdown,
+  DropdownToggle,
+  DropdownItem,
 } from "@patternfly/react-core";
 import SimpleDropdown from "./SimpleDropdown";
 import RequiredParam from "./RequiredParam";
@@ -15,6 +18,10 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { v4 } from "uuid";
 import { GuidedConfigState, GuidedConfigProps } from "./types";
 import { unpackParametersIntoString } from "./lib/utils";
+import ChrisAPIClient from "../../../api/chrisapiclient";
+import { Plugin } from "@fnndsc/chrisapi";
+import { FaCheck } from "react-icons/fa";
+
 const GuidedConfig = ({
   defaultValueDisplay,
   renderComputeEnv,
@@ -28,7 +35,7 @@ const GuidedConfig = ({
   deleteInput,
   pluginName,
   handlePluginSelect,
-  plugin
+  plugin,
 }: GuidedConfigProps) => {
   const [configState, setConfigState] = React.useState<GuidedConfigState>({
     componentList: [],
@@ -39,6 +46,22 @@ const GuidedConfig = ({
   });
 
   const [copied, setCopied] = React.useState(false);
+  const [plugins, setPlugins] = React.useState<Plugin[]>();
+  const [pluginVersion, setPluginVersion] = React.useState<string>("");
+
+  // Hard way
+
+  React.useEffect(() => {
+    const selectPluginVersion = async () => {
+      const client = ChrisAPIClient.getClient();
+      const pluginList = await client.getPlugins({ name_exact: pluginName });
+      const pluginItems = pluginList.getItems() as unknown as Plugin[];
+
+      setPlugins(pluginItems);
+    };
+
+    selectPluginVersion();
+  }, [pluginName]);
 
   React.useEffect(() => {
     setConfigState((configState) => {
@@ -183,7 +206,6 @@ const GuidedConfig = ({
     });
   };
 
-
   const DropdownBasic = () => {
     const [isOpen, setIsOpen] = React.useState(false);
 
@@ -192,7 +214,7 @@ const GuidedConfig = ({
     };
 
     const onFocus = () => {
-      const element = document.getElementById('toggle-child-node-version');
+      const element = document.getElementById("toggle-child-node-version");
       element && element.focus();
     };
 
@@ -203,55 +225,60 @@ const GuidedConfig = ({
 
     const dropdownItems =
       plugins && plugins?.length > 0 && typeof handlePluginSelect === "function"
-      ? plugins
-          .sort((a, b) => (a.data.version > b.data.version) ? -1 : (b.data.version > a.data.version) ? 1 : 0)
-          .map((selectedPlugin: Plugin) => {
-          return (
-          <DropdownItem
-            style={{ padding: "0" }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                handlePluginSelect(selectedPlugin);
-              }
-            }}
-            icon={
-              selectedPlugin.data.version === plugin?.data.version ? (
-                <FaCheck style={{ color: "green" }} />
-              ) : (
-                <></>
-              )
-            }
-            onClick={() => {
-              setPluginVersion(selectedPlugin.data.version)
-              handlePluginSelect(selectedPlugin)
-            }}
-            key={selectedPlugin.data.id}
-            name={selectedPlugin.data.version}
-            value={selectedPlugin.data.value}
-          >
-            {selectedPlugin.data.version}
-          </DropdownItem>
-      )}
-      )
-      : [];
+        ? plugins
+            .sort((a, b) =>
+              a.data.version > b.data.version
+                ? -1
+                : b.data.version > a.data.version
+                ? 1
+                : 0
+            )
+            .map((selectedPlugin: Plugin) => {
+              return (
+                <DropdownItem
+                  style={{ padding: "0" }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      handlePluginSelect(selectedPlugin);
+                    }
+                  }}
+                  icon={
+                    selectedPlugin.data.version === plugin?.data.version ? (
+                      <FaCheck style={{ color: "green" }} />
+                    ) : (
+                      <></>
+                    )
+                  }
+                  onClick={() => {
+                    setPluginVersion(selectedPlugin.data.version);
+                    handlePluginSelect(selectedPlugin);
+                  }}
+                  key={selectedPlugin.data.id}
+                  name={selectedPlugin.data.version}
+                  value={selectedPlugin.data.value}
+                >
+                  {selectedPlugin.data.version}
+                </DropdownItem>
+              );
+            })
+        : [];
 
     return (
-        <Dropdown
-          onSelect={onSelect}
-          isOpen={isOpen}
-          toggle={
-            <span style={{display: "inline-flex"}}>
-              <DropdownToggle id="toggle-child-node-version" onToggle={onToggle}>
-                {pluginVersion || plugin?.data.version}
-              </DropdownToggle>
-            </span>
-          }
-          dropdownItems={dropdownItems}
-        />
+      <Dropdown
+        onSelect={onSelect}
+        isOpen={isOpen}
+        toggle={
+          <span style={{ display: "inline-flex" }}>
+            <DropdownToggle id="toggle-child-node-version" onToggle={onToggle}>
+              {pluginVersion || plugin?.data.version}
+            </DropdownToggle>
+          </span>
+        }
+        dropdownItems={dropdownItems}
+      />
     );
   };
-
 
   return (
     <>
@@ -261,7 +288,7 @@ const GuidedConfig = ({
             <h1 className="pf-c-title pf-m-2xl">{`Configure ${pluginName}`}</h1>
           )}
           <div className="configuration__renders">
-            <h4 style={{display: "inline", marginRight: "1rem"}}>Version</h4>
+            <h4 style={{ display: "inline", marginRight: "1rem" }}>Version</h4>
             <DropdownBasic />
           </div>
 

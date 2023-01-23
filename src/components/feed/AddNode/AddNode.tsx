@@ -119,7 +119,7 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   const onNext = (newStep: { id?: string | number; name: React.ReactNode }) => {
     const { stepIdReached } = addNodeState;
-    const { id, name } = newStep;
+    const { id } = newStep;
 
     id &&
       setNodeState({
@@ -129,8 +129,8 @@ const AddNode: React.FC<AddNodeProps> = ({
   };
 
   const onBack = (newStep: { id?: string | number; name: React.ReactNode }) => {
-    const { id, name } = newStep;
-    console.log("Id", id);
+    const { id } = newStep;
+
     if (id === 1) {
       setNodeState({
         ...addNodeState,
@@ -138,15 +138,13 @@ const AddNode: React.FC<AddNodeProps> = ({
         requiredInput: {},
         stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
       });
-    }
-    else {
+    } else {
       id &&
-      setNodeState({
-        ...addNodeState,
-        stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
-      });
+        setNodeState({
+          ...addNodeState,
+          stepIdReached: stepIdReached > id ? (id as number) : stepIdReached,
+        });
     }
-   
   };
 
   const handlePluginSelect = (plugin: Plugin) => {
