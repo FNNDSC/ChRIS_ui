@@ -1,7 +1,5 @@
 import React, { useEffect } from "react";
 import {
-  Alert,
-  AlertActionCloseButton,
   CodeBlock,
   CodeBlockAction,
   CodeBlockCode,
@@ -21,6 +19,7 @@ import { unpackParametersIntoString } from "./lib/utils";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { Plugin } from "@fnndsc/chrisapi";
 import { FaCheck } from "react-icons/fa";
+import ReactJson from "react-json-view";
 
 const GuidedConfig = ({
   defaultValueDisplay,
@@ -36,11 +35,11 @@ const GuidedConfig = ({
   pluginName,
   handlePluginSelect,
   plugin,
+  errors,
 }: GuidedConfigProps) => {
   const [configState, setConfigState] = React.useState<GuidedConfigState>({
     componentList: [],
     count: 0,
-    errors: [],
     alertVisible: false,
     editorValue: "",
   });
@@ -92,7 +91,7 @@ const GuidedConfig = ({
     });
   }, [dropdownInput, requiredInput]);
 
-  const { componentList, count, errors, alertVisible } = configState;
+  const { componentList, count } = configState;
 
   const clipboardCopyFunc = (event: any, text: string) => {
     navigator.clipboard.writeText(text.toString());
@@ -131,7 +130,6 @@ const GuidedConfig = ({
       ...configState,
       componentList: filteredList,
       count: configState.count - 1,
-      errors: [],
     });
   };
 
@@ -143,13 +141,6 @@ const GuidedConfig = ({
         count: configState.count + 1,
       });
     }
-  };
-
-  const hideAlert = () => {
-    setConfigState({
-      ...configState,
-      alertVisible: !configState.alertVisible,
-    });
   };
 
   const renderComputeEnvs = () => {
@@ -309,22 +300,9 @@ const GuidedConfig = ({
 
             {renderComputeEnv && renderComputeEnvs()}
           </div>
-
-          {alertVisible &&
-            errors.length > 0 &&
-            errors.map((error, index) => {
-              return (
-                <Alert
-                  className="configuration__renders__alert"
-                  key={index}
-                  variant="danger"
-                  title={error}
-                  actionClose={<AlertActionCloseButton onClose={hideAlert} />}
-                />
-              );
-            })}
         </div>
       </div>
+      {errors && <ReactJson src={errors} />}
       <div
         style={{
           marginTop: "3rem",

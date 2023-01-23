@@ -23,9 +23,9 @@ function getInitialState() {
     requiredInput: {},
     dropdownInput: {},
     selectedComputeEnv: "",
-    errors: {},
     editorValue: "",
     loading: false,
+    errors: {},
   };
 }
 
@@ -34,7 +34,6 @@ const AddNode: React.FC<AddNodeProps> = ({
   pluginInstances,
   getParams,
   addNode,
-  params,
 }: AddNodeProps) => {
   const dispatch = useDispatch();
   const [addNodeState, setNodeState] =
@@ -92,7 +91,6 @@ const AddNode: React.FC<AddNodeProps> = ({
           ...addNodeState.requiredInput,
           [id]: input,
         },
-        errors: {},
       });
     } else {
       setNodeState({
@@ -101,7 +99,6 @@ const AddNode: React.FC<AddNodeProps> = ({
           ...addNodeState.dropdownInput,
           [id]: input,
         },
-        errors: {},
       });
     }
   };
@@ -254,6 +251,7 @@ const AddNode: React.FC<AddNodeProps> = ({
       setComputeEnviroment={setComputeEnv}
       handlePluginSelect={handlePluginSelect}
       plugin={data.plugin}
+      errors={addNodeState.errors}
     />
   ) : (
     <Spinner size="xl" />
