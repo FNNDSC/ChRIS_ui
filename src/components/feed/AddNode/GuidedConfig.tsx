@@ -51,7 +51,7 @@ const GuidedConfig = ({
   React.useEffect(() => {
     const selectPluginVersion = async () => {
       const client = ChrisAPIClient.getClient();
-      const pluginList = await client.getPlugins({name: pluginName})
+      const pluginList = await client.getPlugins({name_exact: pluginName})
       const pluginItems = (pluginList.getItems() as unknown) as Plugin[];
 
       setPlugins(pluginItems)
@@ -280,7 +280,7 @@ const GuidedConfig = ({
               selectedPlugin.data.version === plugin?.data.version ? (
                 <FaCheck style={{ color: "green" }} />
               ) : (
-                <span></span>
+                <></>
               )
             }
             onClick={() => {
@@ -290,7 +290,6 @@ const GuidedConfig = ({
             key={selectedPlugin.data.id}
             name={selectedPlugin.data.version}
             value={selectedPlugin.data.value}
-            autoFocus={ selectedPlugin.data.version === plugin?.data.version ? true : false}
           >
             {selectedPlugin.data.version}
           </DropdownItem>
